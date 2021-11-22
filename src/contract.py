@@ -4,14 +4,20 @@ from dataclasses import dataclass
 from typing import Iterable, Union, List, Optional
 
 from services.external_api.base_client import RetryConfig
-from starkware.cairo.lang.compiler.ast.cairo_types import TypePointer, TypeFelt, CairoType
+from starkware.cairo.lang.compiler.ast.cairo_types import (
+    TypePointer,
+    TypeFelt,
+    CairoType,
+)
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
 from starkware.cairo.lang.compiler.parser import parse_type
 from starkware.cairo.lang.compiler.type_system import mark_type_resolved
 from starkware.cairo.lang.compiler.type_utils import check_felts_only_type
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
-from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import FeederGatewayClient
+from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
+    FeederGatewayClient,
+)
 from starkware.starknet.services.api.gateway.gateway_client import GatewayClient
 from starkware.starknet.services.api.gateway.transaction import InvokeFunction
 from starkware.starkware_utils.error_handling import StarkErrorCode
@@ -31,7 +37,7 @@ class ContractData:
         return ContractData(
             address=address,
             abi=abi,
-            identifier_manager=identifier_manager_from_abi(abi)
+            identifier_manager=identifier_manager_from_abi(abi),
         )
 
 
@@ -54,7 +60,9 @@ def get_gateway_client() -> GatewayClient:
     return GatewayClient(url=gateway_url, retry_config=retry_config)
 
 
-async def wait_for_tx(hash, wait_for_accept: Optional[bool] = False, check_interval=5) -> int:
+async def wait_for_tx(
+    hash, wait_for_accept: Optional[bool] = False, check_interval=5
+) -> int:
     """
 
     :param hash: Transaction's hash
@@ -77,7 +85,7 @@ async def wait_for_tx(hash, wait_for_accept: Optional[bool] = False, check_inter
                 return result["block_id"]
         elif status == "REJECTED":
             raise Exception(f"Transaction [{hash}] was rejected.")
-        elif status == 'NOT_RECEIVED':
+        elif status == "NOT_RECEIVED":
             if not first_run:
                 raise Exception(f"Transaction [{hash}] was not received.")
         elif status != "RECEIVED":
@@ -94,14 +102,18 @@ class InvocationResult:
     status: Optional[str] = None
     block_number: Optional[int] = None
 
-    async def wait_for_acceptance(self, wait_for_accept: Optional[bool] = False,
-                                  check_interval=5) -> "InvocationResult":
-        block_number = await wait_for_tx(int(self.hash, 16), wait_for_accept=wait_for_accept,
-                                         check_interval=check_interval)
+    async def wait_for_acceptance(
+        self, wait_for_accept: Optional[bool] = False, check_interval=5
+    ) -> "InvocationResult":
+        block_number = await wait_for_tx(
+            int(self.hash, 16),
+            wait_for_accept=wait_for_accept,
+            check_interval=check_interval,
+        )
         return dataclasses.replace(
             self,
             status="ACCEPTED_ONCHAIN" if wait_for_accept else "PENDING",
-            block_number=block_number
+            block_number=block_number,
         )
 
 
@@ -111,11 +123,13 @@ class ContractFunction:
         self.inputs = abi["inputs"]
         self.contract_data = contract_data
 
-    async def call(self,
-                   block_hash: Optional[str] = None,
-                   block_number: Optional[int] = None,
-                   signature: Optional[List[str]] = None,
-                   **kwargs):
+    async def call(
+        self,
+        block_hash: Optional[str] = None,
+        block_number: Optional[int] = None,
+        signature: Optional[List[str]] = None,
+        **kwargs,
+    ):
         tx = self._make_invoke_function(signature=signature, **kwargs)
         feeder_client = get_feeder_gateway_client()
         result = await feeder_client.call_contract(
@@ -128,11 +142,11 @@ class ContractFunction:
         gateway_client = get_gateway_client()
         gateway_response = await gateway_client.add_transaction(tx=tx)
         assert (
-                gateway_response["code"] == StarkErrorCode.TRANSACTION_RECEIVED.name
+            gateway_response["code"] == StarkErrorCode.TRANSACTION_RECEIVED.name
         ), f"Failed to send transaction. Response: {gateway_response}."
         return InvocationResult(
             hash=gateway_response["transaction_hash"],  # noinspection PyTypeChecker
-            contract=self.contract_data
+            contract=self.contract_data,
         )
 
     @property
@@ -159,12 +173,15 @@ class ContractFunction:
             calldata.extend(values)
         return calldata
 
-    def _get_value(self, name: str, value: Union[int, Iterable[int]], cairo_type: CairoType) -> List[int]:
+    def _get_value(
+        self, name: str, value: Union[int, Iterable[int]], cairo_type: CairoType
+    ) -> List[int]:
         if isinstance(cairo_type, TypeFelt):
             return [self._get_int(name, value)]
 
         typ_size = check_felts_only_type(
-            cairo_type=cairo_type, identifier_manager=self.contract_data.identifier_manager
+            cairo_type=cairo_type,
+            identifier_manager=self.contract_data.identifier_manager,
         )
         if typ_size is not None:
             return self._get_n_ints(name, typ_size, value)
@@ -180,10 +197,7 @@ class ContractFunction:
         return value
 
     def _get_ints(self, name: str, values: any) -> List[int]:
-        return [
-            self._get_int(f"{name}[{i}]", value)
-            for i, value in enumerate(values)
-        ]
+        return [self._get_int(f"{name}[{i}]", value) for i, value in enumerate(values)]
 
     def _get_n_ints(self, name: str, n: int, values: any) -> List[int]:
         values = self._get_ints(name, values)
@@ -208,7 +222,7 @@ class ContractFunctionsRepository:
                     name=name,
                     abi=abi_entry,
                     contract_data=contract_data,
-                )
+                ),
             )
 
 
