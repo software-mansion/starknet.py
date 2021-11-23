@@ -14,8 +14,9 @@ from starkware.starknet.services.api.gateway.gateway_client import GatewayClient
 from starkware.starknet.services.api.gateway.transaction import InvokeFunction
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
-from calldata import CalldataTransformer
-from src.constants import TxStatus
+from .calldata import CalldataTransformer
+from .constants import TxStatus
+from .types import AddressRepresentation, parse_address
 
 ABI = list
 ABIEntry = dict
@@ -56,7 +57,7 @@ def get_gateway_client() -> GatewayClient:
 
 
 async def wait_for_tx(
-    hash, wait_for_accept: Optional[bool] = False, check_interval=5
+        hash, wait_for_accept: Optional[bool] = False, check_interval=5
 ) -> (int, TxStatus):
     """
 
@@ -71,13 +72,13 @@ async def wait_for_tx(
     first_run = True
     while True:
         result = await client.get_transaction(tx_hash=hash)
-        status = result["status"]
+        status = TxStatus[result["status"]]
 
         if status == TxStatus.ACCEPTED_ONCHAIN:
-            return result["block_id"], status
+            return result["block_number"], status
         elif status == TxStatus.PENDING:
             if not wait_for_accept:
-                return result["block_id"], status
+                return result["block_number"], status
         elif status == TxStatus.PENDING:
             raise Exception(f"Transaction [{hash}] was rejected.")
         elif status == TxStatus.NOT_RECEIVED:
@@ -98,7 +99,7 @@ class InvocationResult:
     block_number: Optional[int] = None
 
     async def wait_for_acceptance(
-        self, wait_for_accept: Optional[bool] = False, check_interval=5
+            self, wait_for_accept: Optional[bool] = False, check_interval=5
     ) -> "InvocationResult":
         block_number, status = await wait_for_tx(
             int(self.hash, 16),
@@ -120,26 +121,26 @@ class ContractFunction:
         self.contract_data = contract_data
 
     async def call(
-        self,
-        block_hash: Optional[str] = None,
-        block_number: Optional[int] = None,
-        signature: Optional[List[str]] = None,
-        *args,
-        **kwargs,
+            self,
+            *args,
+            block_hash: Optional[str] = None,
+            block_number: Optional[int] = None,
+            signature: Optional[List[str]] = None,
+            **kwargs,
     ):
-        tx = self._make_invoke_function(signature=signature, *args, **kwargs)
+        tx = self._make_invoke_function(*args, signature=signature, **kwargs)
         feeder_client = get_feeder_gateway_client()
         result = await feeder_client.call_contract(
             invoke_tx=tx, block_hash=block_hash, block_number=block_number
         )
         return result["result"]
 
-    async def invoke(self, signature: Optional[List[str]] = None, *args, **kwargs):
-        tx = self._make_invoke_function(signature=signature, *args, **kwargs)
+    async def invoke(self, *args, signature: Optional[List[str]] = None, **kwargs):
+        tx = self._make_invoke_function(*args, signature=signature, **kwargs)
         gateway_client = get_gateway_client()
         gateway_response = await gateway_client.add_transaction(tx=tx)
         assert (
-            gateway_response["code"] == StarkErrorCode.TRANSACTION_RECEIVED.name
+                gateway_response["code"] == StarkErrorCode.TRANSACTION_RECEIVED.name
         ), f"Failed to send transaction. Response: {gateway_response}."
         return InvocationResult(
             hash=gateway_response["transaction_hash"],  # noinspection PyTypeChecker
@@ -150,26 +151,26 @@ class ContractFunction:
     def selector(self):
         return get_selector_from_name(self.name)
 
-    def _make_invoke_function(self, signature=None, *args, **kwargs):
+    def _make_invoke_function(self, *args, signature=None, **kwargs):
         return InvokeFunction(
             contract_address=self.contract_data.address,
             entry_point_selector=self.selector,
-            calldata=self._make_calldata(**kwargs),
+            calldata=self._make_calldata(*args, **kwargs),
             signature=signature or [],
         )
 
-    def _make_calldata(self, **kwargs) -> List[int]:
+    def _make_calldata(self, *args, **kwargs) -> List[int]:
         transformer = CalldataTransformer(
             abi=self.abi, identifier_manager=self.contract_data.identifier_manager
         )
-        return transformer(**kwargs)
+        return transformer(*args, **kwargs)
 
 
 class ContractFunctionsRepository:
     def __init__(self, contract_data: ContractData):
         for abi_entry in contract_data.abi:
             if abi_entry["type"] != "function":
-                return
+                continue
 
             name = abi_entry["name"]
             setattr(
@@ -184,6 +185,14 @@ class ContractFunctionsRepository:
 
 
 class Contract:
-    def __init__(self, address: int, abi: list):
-        self.data = ContractData.from_abi(address, abi)
+    def __init__(self, address: AddressRepresentation, abi: list):
+        self.data = ContractData.from_abi(parse_address(address), abi)
         self.functions = ContractFunctionsRepository(self.data)
+
+    @staticmethod
+    async def from_address(address: AddressRepresentation) -> "Contract":
+        feeder_gateway_client = get_feeder_gateway_client()
+        code = await feeder_gateway_client.get_code(
+            contract_address=parse_address(address)
+        )
+        return Contract(address=parse_address(address), abi=code["abi"])
