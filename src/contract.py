@@ -1,18 +1,10 @@
 import asyncio
 import dataclasses
 from dataclasses import dataclass
-from typing import Iterable, Union, List, Optional
+from typing import List, Optional
 
 from services.external_api.base_client import RetryConfig
-from starkware.cairo.lang.compiler.ast.cairo_types import (
-    TypePointer,
-    TypeFelt,
-    CairoType,
-)
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
-from starkware.cairo.lang.compiler.parser import parse_type
-from starkware.cairo.lang.compiler.type_system import mark_type_resolved
-from starkware.cairo.lang.compiler.type_utils import check_felts_only_type
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
@@ -22,7 +14,8 @@ from starkware.starknet.services.api.gateway.gateway_client import GatewayClient
 from starkware.starknet.services.api.gateway.transaction import InvokeFunction
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
-from src.cairo.calldata import CalldataTransformer
+from calldata import CalldataTransformer
+from src.constants import TxStatus
 
 ABI = list
 ABIEntry = dict
@@ -64,13 +57,13 @@ def get_gateway_client() -> GatewayClient:
 
 async def wait_for_tx(
     hash, wait_for_accept: Optional[bool] = False, check_interval=5
-) -> int:
+) -> (int, TxStatus):
     """
 
     :param hash: Transaction's hash
     :param wait_for_accept: If true waits for ACCEPTED_ONCHAIN status, otherwise waits for at least PENDING
     :param check_interval: Defines interval between checks
-    :return: number of block
+    :return: number of block, tx status
     """
     assert check_interval > 0, "check_interval has to bigger than 0"
 
@@ -80,17 +73,17 @@ async def wait_for_tx(
         result = await client.get_transaction(tx_hash=hash)
         status = result["status"]
 
-        if status == "ACCEPTED_ONCHAIN":
-            return result["block_id"]
-        elif status == "PENDING":
+        if status == TxStatus.ACCEPTED_ONCHAIN:
+            return result["block_id"], status
+        elif status == TxStatus.PENDING:
             if not wait_for_accept:
-                return result["block_id"]
-        elif status == "REJECTED":
+                return result["block_id"], status
+        elif status == TxStatus.PENDING:
             raise Exception(f"Transaction [{hash}] was rejected.")
-        elif status == "NOT_RECEIVED":
+        elif status == TxStatus.NOT_RECEIVED:
             if not first_run:
                 raise Exception(f"Transaction [{hash}] was not received.")
-        elif status != "RECEIVED":
+        elif status != TxStatus.RECEIVED:
             raise Exception(f"Unknown status [{status}]")
 
         first_run = False
@@ -107,14 +100,14 @@ class InvocationResult:
     async def wait_for_acceptance(
         self, wait_for_accept: Optional[bool] = False, check_interval=5
     ) -> "InvocationResult":
-        block_number = await wait_for_tx(
+        block_number, status = await wait_for_tx(
             int(self.hash, 16),
             wait_for_accept=wait_for_accept,
             check_interval=check_interval,
         )
         return dataclasses.replace(
             self,
-            status="ACCEPTED_ONCHAIN" if wait_for_accept else "PENDING",
+            status=status,
             block_number=block_number,
         )
 
