@@ -22,6 +22,8 @@ from starkware.starknet.services.api.gateway.gateway_client import GatewayClient
 from starkware.starknet.services.api.gateway.transaction import InvokeFunction
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
+from src.cairo.calldata import CalldataTransformer
+
 ABI = list
 ABIEntry = dict
 
@@ -41,7 +43,7 @@ class ContractData:
         )
 
 
-dns = "alpha3.starknet.io"
+dns = "alpha4.starknet.io"
 
 
 # TODO: REMOVE
@@ -120,6 +122,7 @@ class InvocationResult:
 class ContractFunction:
     def __init__(self, name: str, abi: ABIEntry, contract_data: ContractData):
         self.name = name
+        self.abi = abi
         self.inputs = abi["inputs"]
         self.contract_data = contract_data
 
@@ -128,17 +131,18 @@ class ContractFunction:
         block_hash: Optional[str] = None,
         block_number: Optional[int] = None,
         signature: Optional[List[str]] = None,
+        *args,
         **kwargs,
     ):
-        tx = self._make_invoke_function(signature=signature, **kwargs)
+        tx = self._make_invoke_function(signature=signature, *args, **kwargs)
         feeder_client = get_feeder_gateway_client()
         result = await feeder_client.call_contract(
             invoke_tx=tx, block_hash=block_hash, block_number=block_number
         )
         return result["result"]
 
-    async def invoke(self, signature: Optional[List[str]] = None, **kwargs):
-        tx = self._make_invoke_function(signature=signature, **kwargs)
+    async def invoke(self, signature: Optional[List[str]] = None, *args, **kwargs):
+        tx = self._make_invoke_function(signature=signature, *args, **kwargs)
         gateway_client = get_gateway_client()
         gateway_response = await gateway_client.add_transaction(tx=tx)
         assert (
@@ -153,7 +157,7 @@ class ContractFunction:
     def selector(self):
         return get_selector_from_name(self.name)
 
-    def _make_invoke_function(self, signature=None, **kwargs):
+    def _make_invoke_function(self, signature=None, *args, **kwargs):
         return InvokeFunction(
             contract_address=self.contract_data.address,
             entry_point_selector=self.selector,
@@ -162,50 +166,10 @@ class ContractFunction:
         )
 
     def _make_calldata(self, **kwargs) -> List[int]:
-        calldata: List[int] = []
-        for input_desc in self.inputs:
-            name = input_desc["name"]
-            assert name in kwargs, f"Input {name} not provided"
-
-            cairo_type = mark_type_resolved(parse_type(input_desc["type"]))
-            values = self._get_value(name, kwargs[name], cairo_type)
-
-            calldata.extend(values)
-        return calldata
-
-    def _get_value(
-        self, name: str, value: Union[int, Iterable[int]], cairo_type: CairoType
-    ) -> List[int]:
-        if isinstance(cairo_type, TypeFelt):
-            return [self._get_int(name, value)]
-
-        typ_size = check_felts_only_type(
-            cairo_type=cairo_type,
-            identifier_manager=self.contract_data.identifier_manager,
+        transformer = CalldataTransformer(
+            abi=self.abi, identifier_manager=self.contract_data.identifier_manager
         )
-        if typ_size is not None:
-            return self._get_n_ints(name, typ_size, value)
-
-        if cairo_type == TypePointer(pointee=TypeFelt()):
-            values = self._get_ints(name, value)
-            return [len(values), *values]
-
-        raise Exception(f"Type {cairo_type} not supported")
-
-    def _get_int(self, name: str, value: any) -> int:
-        assert isinstance(value, int), f"{name} should be int"
-        return value
-
-    def _get_ints(self, name: str, values: any) -> List[int]:
-        return [self._get_int(f"{name}[{i}]", value) for i, value in enumerate(values)]
-
-    def _get_n_ints(self, name: str, n: int, values: any) -> List[int]:
-        values = self._get_ints(name, values)
-
-        assert n > 0, "Can't request less than 1 value"
-        assert len(values) == n, f"Length of {name} is {len(values)}. Expected {n}."
-
-        return values
+        return transformer(**kwargs)
 
 
 class ContractFunctionsRepository:
