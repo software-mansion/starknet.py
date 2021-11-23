@@ -11,6 +11,13 @@ cairo-lang = "^0.6.0"
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
 black = "^21.11b0"
+poethepoet = "^0.11.0"
+coverage = "^6.1.2"
+
+[tool.poe.tasks]
+test = "coverage run -m pytest src"
+test_report = "coverage report"
+test_html = { shell = "coverage html && open ./htmlcov/index.html" }
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
