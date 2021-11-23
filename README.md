@@ -28,3 +28,16 @@ chmod +x ./.git/hooks/pre-push
 
 # Running tests
 ## TBD
+
+# Example usage
+
+_Warning: Current API is experimental and will be changed in the future_
+
+```
+key = 1234
+contract = await Contract.from_address("0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b")
+invocation = await contract.functions.set_value.invoke(key, 7)
+await invocation.wait_for_acceptance()
+
+saved = await contract.functions.get_value.call(key) # ['0x7']
+```
