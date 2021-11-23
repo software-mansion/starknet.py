@@ -26,8 +26,20 @@ chmod +x ./.git/hooks/pre-commit
 chmod +x ./.git/hooks/pre-push
 ```
 
-# Running tests
-## TBD
+# Tests
+### Running tests
+```
+poe test
+```
+
+### Generating report
+```
+poe test_report
+```
+or 
+```
+poe test_html
+```
 
 # Example usage
 
