@@ -6,6 +6,7 @@ authors = ["Tomasz Rejowski <tomasz.rejowski@swmansion.com>", "Jakub Ptak <jakub
 
 [tool.poetry.dependencies]
 python = "^3.7"
+cairo-lang = "^0.6.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
