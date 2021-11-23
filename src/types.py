@@ -7,7 +7,6 @@ from starkware.cairo.lang.compiler.ast.cairo_types import (
 )
 
 
-
 def is_felt_pointer(type: CairoType) -> bool:
     return isinstance(type, TypePointer) and isinstance(type.pointee, TypeFelt)
 
@@ -23,4 +22,4 @@ def parse_address(value: AddressRepresentation) -> Address:
     try:
         return int(value, 16)
     except ValueError:
-        raise ValueError('Invalid address format.')
+        raise ValueError("Invalid address format.")

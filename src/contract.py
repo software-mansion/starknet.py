@@ -57,7 +57,7 @@ def get_gateway_client() -> GatewayClient:
 
 
 async def wait_for_tx(
-        hash, wait_for_accept: Optional[bool] = False, check_interval=5
+    hash, wait_for_accept: Optional[bool] = False, check_interval=5
 ) -> (int, TxStatus):
     """
 
@@ -99,7 +99,7 @@ class InvocationResult:
     block_number: Optional[int] = None
 
     async def wait_for_acceptance(
-            self, wait_for_accept: Optional[bool] = False, check_interval=5
+        self, wait_for_accept: Optional[bool] = False, check_interval=5
     ) -> "InvocationResult":
         block_number, status = await wait_for_tx(
             int(self.hash, 16),
@@ -121,12 +121,12 @@ class ContractFunction:
         self.contract_data = contract_data
 
     async def call(
-            self,
-            *args,
-            block_hash: Optional[str] = None,
-            block_number: Optional[int] = None,
-            signature: Optional[List[str]] = None,
-            **kwargs,
+        self,
+        *args,
+        block_hash: Optional[str] = None,
+        block_number: Optional[int] = None,
+        signature: Optional[List[str]] = None,
+        **kwargs,
     ):
         tx = self._make_invoke_function(*args, signature=signature, **kwargs)
         feeder_client = get_feeder_gateway_client()
@@ -140,7 +140,7 @@ class ContractFunction:
         gateway_client = get_gateway_client()
         gateway_response = await gateway_client.add_transaction(tx=tx)
         assert (
-                gateway_response["code"] == StarkErrorCode.TRANSACTION_RECEIVED.name
+            gateway_response["code"] == StarkErrorCode.TRANSACTION_RECEIVED.name
         ), f"Failed to send transaction. Response: {gateway_response}."
         return InvocationResult(
             hash=gateway_response["transaction_hash"],  # noinspection PyTypeChecker
