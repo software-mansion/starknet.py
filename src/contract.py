@@ -6,7 +6,9 @@ from typing import List, Optional
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
-from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import CastableToHash
+from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
+    CastableToHash,
+)
 from starkware.starknet.services.api.gateway.transaction import InvokeFunction
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
@@ -41,9 +43,9 @@ class InvocationResult:
     block_number: Optional[int] = None
 
     async def wait_for_acceptance(
-        self, wait_for_accept: Optional[bool] = False, check_interval=5
+        self, client: Client, wait_for_accept: Optional[bool] = False, check_interval=5
     ) -> "InvocationResult":
-        block_number, status = await Client().wait_for_tx(
+        block_number, status = await client.wait_for_tx(
             int(self.hash, 16),
             wait_for_accept=wait_for_accept,
             check_interval=check_interval,
@@ -56,11 +58,14 @@ class InvocationResult:
 
 
 class ContractFunction:
-    def __init__(self, name: str, abi: ABIEntry, contract_data: ContractData):
+    def __init__(
+        self, name: str, abi: ABIEntry, contract_data: ContractData, client: Client
+    ):
         self.name = name
         self.abi = abi
         self.inputs = abi["inputs"]
         self.contract_data = contract_data
+        self._client = client
 
     async def call(
         self,
@@ -71,16 +76,14 @@ class ContractFunction:
         **kwargs,
     ):
         tx = self._make_invoke_function(*args, signature=signature, **kwargs)
-        client = Client()
-        result = await client.call_contract(
+        result = await self._client.call_contract(
             invoke_tx=tx, block_hash=block_hash, block_number=block_number
         )
         return result["result"]
 
     async def invoke(self, *args, signature: Optional[List[str]] = None, **kwargs):
         tx = self._make_invoke_function(*args, signature=signature, **kwargs)
-        client = Client()
-        response = await client.add_transaction(tx=tx)
+        response = await self._client.add_transaction(tx=tx)
         assert (
             response["code"] == StarkErrorCode.TRANSACTION_RECEIVED.name
         ), f"Failed to send transaction. Response: {response}."
@@ -109,7 +112,7 @@ class ContractFunction:
 
 
 class ContractFunctionsRepository:
-    def __init__(self, contract_data: ContractData):
+    def __init__(self, contract_data: ContractData, client: Client):
         for abi_entry in contract_data.abi:
             if abi_entry["type"] != "function":
                 continue
@@ -122,19 +125,19 @@ class ContractFunctionsRepository:
                     name=name,
                     abi=abi_entry,
                     contract_data=contract_data,
+                    client=client,
                 ),
             )
 
 
 class Contract:
-    def __init__(self, address: AddressRepresentation, abi: list):
+    def __init__(self, address: AddressRepresentation, abi: list, client: Client):
         self.data = ContractData.from_abi(parse_address(address), abi)
-        self.functions = ContractFunctionsRepository(self.data)
+        self.functions = ContractFunctionsRepository(self.data, client)
 
     @staticmethod
-    async def from_address(address: AddressRepresentation) -> "Contract":
-        client = Client()
-        code = await client.get_code(
-            contract_address=parse_address(address)
-        )
-        return Contract(address=parse_address(address), abi=code["abi"])
+    async def from_address(
+        address: AddressRepresentation, client: Client
+    ) -> "Contract":
+        code = await client.get_code(contract_address=parse_address(address))
+        return Contract(address=parse_address(address), abi=code["abi"], client=client)

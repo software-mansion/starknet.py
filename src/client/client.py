@@ -8,7 +8,10 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
 )
 from starkware.starknet.services.api.gateway.gateway_client import GatewayClient
 from services.external_api.base_client import RetryConfig
-from starkware.starknet.services.api.gateway.transaction import InvokeFunction, Transaction
+from starkware.starknet.services.api.gateway.transaction import (
+    InvokeFunction,
+    Transaction,
+)
 
 from src.constants import TxStatus
 
@@ -16,11 +19,11 @@ dns = "alpha4.starknet.io"
 
 
 class Client:
-    def __init__(self):
-        retry_config = RetryConfig(n_retries=1)
-
+    def __init__(self, retry_config: RetryConfig):
         feeder_gateway_url = f"https://{dns}/feeder_gateway"
-        self._feeder_gateway = FeederGatewayClient(url=feeder_gateway_url, retry_config=retry_config)
+        self._feeder_gateway = FeederGatewayClient(
+            url=feeder_gateway_url, retry_config=retry_config
+        )
 
         gateway_url = f"https://{dns}/gateway"
         self._gateway = GatewayClient(url=gateway_url, retry_config=retry_config)
@@ -46,10 +49,7 @@ class Client:
         block_hash: Optional[CastableToHash] = None,
         block_number: Optional[int] = None,
     ) -> JsonObject:
-        return await self._feeder_gateway.get_block(
-            block_hash,
-            block_number
-        )
+        return await self._feeder_gateway.get_block(block_hash, block_number)
 
     async def get_code(
         self,
@@ -102,7 +102,10 @@ class Client:
         )
 
     async def wait_for_tx(
-            self, tx_hash: Optional[CastableToHash], wait_for_accept: Optional[bool] = False, check_interval=5
+        self,
+        tx_hash: Optional[CastableToHash],
+        wait_for_accept: Optional[bool] = False,
+        check_interval=5,
     ) -> (int, TxStatus):
         """
 
@@ -135,5 +138,7 @@ class Client:
             await asyncio.sleep(check_interval)
 
     # Mutating methods
-    async def add_transaction(self, tx: Transaction, token: Optional[str] = None) -> Dict[str, int]:
+    async def add_transaction(
+        self, tx: Transaction, token: Optional[str] = None
+    ) -> Dict[str, int]:
         return await self._gateway.add_transaction(tx, token)
