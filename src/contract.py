@@ -2,7 +2,6 @@ import dataclasses
 from dataclasses import dataclass
 from typing import List, Optional
 
-
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
@@ -15,6 +14,7 @@ from starkware.starkware_utils.error_handling import StarkErrorCode
 from .calldata import CalldataTransformer
 from .client import Client
 from .types import AddressRepresentation, parse_address
+from .utils.sync import add_sync_version
 
 ABI = list
 ABIEntry = dict
@@ -35,17 +35,19 @@ class ContractData:
         )
 
 
+@add_sync_version
 @dataclass(frozen=True)
 class InvocationResult:
     hash: CastableToHash
     contract: ContractData
+    _client: Client
     status: Optional[str] = None
     block_number: Optional[int] = None
 
     async def wait_for_acceptance(
-        self, client: Client, wait_for_accept: Optional[bool] = False, check_interval=5
+        self, wait_for_accept: Optional[bool] = False, check_interval=5
     ) -> "InvocationResult":
-        block_number, status = await client.wait_for_tx(
+        block_number, status = await self._client.wait_for_tx(
             int(self.hash, 16),
             wait_for_accept=wait_for_accept,
             check_interval=check_interval,
@@ -57,6 +59,7 @@ class InvocationResult:
         )
 
 
+@add_sync_version
 class ContractFunction:
     def __init__(
         self, name: str, abi: ABIEntry, contract_data: ContractData, client: Client
@@ -90,6 +93,7 @@ class ContractFunction:
         return InvocationResult(
             hash=response["transaction_hash"],  # noinspection PyTypeChecker
             contract=self.contract_data,
+            _client=self._client,
         )
 
     @property
@@ -111,6 +115,7 @@ class ContractFunction:
         return transformer(*args, **kwargs)
 
 
+@add_sync_version
 class ContractFunctionsRepository:
     def __init__(self, contract_data: ContractData, client: Client):
         for abi_entry in contract_data.abi:
@@ -130,6 +135,7 @@ class ContractFunctionsRepository:
             )
 
 
+@add_sync_version
 class Contract:
     def __init__(self, address: AddressRepresentation, abi: list, client: Client):
         self.data = ContractData.from_abi(parse_address(address), abi)
