@@ -7,6 +7,7 @@ authors = ["Tomasz Rejowski <tomasz.rejowski@swmansion.com>", "Jakub Ptak <jakub
 [tool.poetry.dependencies]
 python = "^3.7"
 cairo-lang = "^0.6.0"
+asgiref = "^3.4.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
@@ -18,6 +19,9 @@ coverage = "^6.1.2"
 test = "coverage run -m pytest src"
 test_report = "coverage report"
 test_html = { shell = "coverage html && open ./htmlcov/index.html" }
+
+[tool.coverage.report]
+omit = ["*_test.py"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

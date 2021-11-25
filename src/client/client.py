@@ -19,7 +19,8 @@ dns = "alpha4.starknet.io"
 
 
 class Client:
-    def __init__(self, retry_config: RetryConfig):
+    def __init__(self, retry_config: Optional[RetryConfig] = None):
+        retry_config = retry_config or RetryConfig(1)
         feeder_gateway_url = f"https://{dns}/feeder_gateway"
         self._feeder_gateway = FeederGatewayClient(
             url=feeder_gateway_url, retry_config=retry_config
