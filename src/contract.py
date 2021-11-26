@@ -12,7 +12,7 @@ from starkware.starknet.services.api.gateway.transaction import InvokeFunction
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
 from .calldata import CalldataTransformer
-from .client import Client
+from .net import Client
 from .types import AddressRepresentation, parse_address
 from .utils.sync import add_sync_version
 
