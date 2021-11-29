@@ -47,13 +47,13 @@ class Signer(Client):
         tx: InvokeFunction,
         token: Optional[str] = None,
     ) -> Dict[str, int]:
+        if tx.tx_type == TransactionType.DEPLOY:
+            return await super().add_transaction(tx, token)
+
         if tx.signature:
             raise TypeError(
                 f"Adding signatures to a signer tx currently isn't supported"
             )
-
-        if tx.tx_type == TransactionType.DEPLOY:
-            return await super().add_transaction(tx, token)
 
         result = await super().call_contract(
             InvokeFunction(
