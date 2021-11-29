@@ -115,7 +115,8 @@ class Client:
         :param check_interval: Defines interval between checks
         :return: number of block, tx status
         """
-        assert check_interval > 0, "check_interval has to bigger than 0"
+        if check_interval <= 0:
+            raise ValueError("check_interval has to bigger than 0.")
 
         first_run = True
         while True:
