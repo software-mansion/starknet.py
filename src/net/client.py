@@ -1,5 +1,5 @@
 import asyncio
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, TypeVar, Type
 
 from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
     FeederGatewayClient,
@@ -15,18 +15,22 @@ from starkware.starknet.services.api.gateway.transaction import (
 
 from src.constants import TxStatus
 
-dns = "alpha4.starknet.io"
+T = TypeVar("T")
 
 
 class Client:
-    def __init__(self, retry_config: Optional[RetryConfig] = None):
+    @classmethod
+    def alpha(cls: Type[T]) -> T:
+        return cls("https://alpha4.starknet.io")
+
+    def __init__(self, host: str, retry_config: Optional[RetryConfig] = None):
         retry_config = retry_config or RetryConfig(1)
-        feeder_gateway_url = f"https://{dns}/feeder_gateway"
+        feeder_gateway_url = f"{host}/feeder_gateway"
         self._feeder_gateway = FeederGatewayClient(
             url=feeder_gateway_url, retry_config=retry_config
         )
 
-        gateway_url = f"https://{dns}/gateway"
+        gateway_url = f"{host}/gateway"
         self._gateway = GatewayClient(url=gateway_url, retry_config=retry_config)
 
     # View methods

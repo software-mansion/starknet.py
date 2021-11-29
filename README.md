@@ -27,12 +27,12 @@ chmod +x ./.git/hooks/pre-push
 ```
 
 # Tests
-### Running tests
+### Running unit tests
 ```
 poe test
 ```
 
-### Generating report
+### Generating unit test report
 ```
 poe test_report
 ```
@@ -40,6 +40,14 @@ or
 ```
 poe test_html
 ```
+
+### Running e2e tests
+```
+poe test_e2e
+```
+or, if using PyCharm, use `E2E tests` configuration to run or debug.
+
+⚠️ **Warning**: Make sure to fill your interpreter in the configuration, to match your project's poetry venv 
 
 # Example usage
 
