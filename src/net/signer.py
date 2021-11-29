@@ -15,6 +15,10 @@ class KeyPair:
     private_key: int
     public_key: int
 
+    @staticmethod
+    def from_private_key(key: int) -> "KeyPair":
+        return KeyPair(private_key=key, public_key=private_to_stark_key(key))
+
 
 def hash_message(
     account: int, to: int, selector: int, calldata: List[int], nonce: int
@@ -64,8 +68,7 @@ class Signer(Client):
             nonce=nonce,
         )
 
-        stark_key = private_to_stark_key(self.key_pair.private_key)
-        r, s = sign(msg_hash=msg_hash, priv_key=stark_key)
+        r, s = sign(msg_hash=msg_hash, priv_key=self.key_pair.private_key)
 
         return await super().add_transaction(
             InvokeFunction(
