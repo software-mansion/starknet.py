@@ -47,7 +47,8 @@ poe test_e2e
 ```
 or, if using PyCharm, use `E2E tests` configuration to run or debug.
 
-⚠️ **Warning**: Make sure to fill your interpreter in the configuration, to match your project's poetry venv 
+⚠️ **Warning**: Make sure to fill your interpreter in the configuration, to match your project's poetry venv
+⚠️ **Warning 2**: Make sure to run `starkware-devnet` script before running e2e tests in PyCharm
 
 # Example usage
 
