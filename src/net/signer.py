@@ -47,6 +47,9 @@ class Signer(Client):
         tx: InvokeFunction,
         token: Optional[str] = None,
     ) -> Dict[str, int]:
+        if tx.signature:
+            raise TypeError(f"Transaction already has a signature")
+
         if tx.tx_type == TransactionType.DEPLOY:
             return await super().add_transaction(tx, token)
 
