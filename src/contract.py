@@ -87,9 +87,10 @@ class ContractFunction:
     async def invoke(self, *args, signature: Optional[List[str]] = None, **kwargs):
         tx = self._make_invoke_function(*args, signature=signature, **kwargs)
         response = await self._client.add_transaction(tx=tx)
-        assert (
-            response["code"] == StarkErrorCode.TRANSACTION_RECEIVED.name
-        ), f"Failed to send transaction. Response: {response}."
+
+        if response["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
+            raise Exception("Failed to send transaction. Response: {response}.")
+
         return InvocationResult(
             hash=response["transaction_hash"],  # noinspection PyTypeChecker
             contract=self.contract_data,

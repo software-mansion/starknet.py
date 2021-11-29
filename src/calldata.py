@@ -34,19 +34,25 @@ class CalldataTransformer:
         )
 
         named_arguments = {**kwargs}
+
+        if len(args) > len(type_by_name):
+            raise TypeError(
+                f"Provided {len(args)} positional arguments, {len(type_by_name)} possible."
+            )
+
         # Assign args to named arguments
-        assert len(args) <= len(
-            type_by_name
-        ), f"Provided {len(args)} positional arguments, {len(type_by_name)} possible"
         for arg, input_name in zip(args, type_by_name.keys()):
-            assert (
-                input_name not in named_arguments
-            ), f"Both positional and named argument provided for {input_name}"
+            if input_name in named_arguments:
+                raise TypeError(
+                    f"Both positional and named argument provided for {input_name}."
+                )
             named_arguments[input_name] = arg
 
         calldata: List[int] = []
         for name, type in type_by_name.items():
-            assert name in named_arguments, f"Input {name} not provided"
+            if name not in named_arguments:
+                raise TypeError(f"Input {name} not provided.")
+
             values = self._get_value(name, named_arguments[name], type)
             calldata.extend(values)
 
@@ -92,7 +98,8 @@ class CalldataTransformer:
         raise Exception(f"Type {cairo_type} not supported")
 
     def _get_int(self, name: str, value: any) -> int:
-        assert isinstance(value, int), f"{name} should be int"
+        if not isinstance(value, int):
+            raise TypeError(f"{name} should be int.")
         return value
 
     def _get_ints(self, name: str, values: any) -> List[int]:
@@ -101,23 +108,28 @@ class CalldataTransformer:
     def _get_n_ints(self, name: str, n: int, values: any) -> List[int]:
         values = self._get_ints(name, values)
 
-        assert n > 0, "Can't request less than 1 value"
-        assert len(values) == n, f"Length of {name} is {len(values)}. Expected {n}."
+        if len(values) != n:
+            raise ValueError(f"Length of {name} is {len(values)}. Expected {n}.")
 
         return values
 
     def _get_struct(self, name: str, value: any, type) -> List[int]:
-        assert isinstance(value, dict), f"Expected {name} to be a dict"
+        if not isinstance(value, dict):
+            raise TypeError(f"Expected {name} to be a dict.")
 
         result = []
 
         definition = self.identifier_manager.get(
             type.resolved_scope
         ).identifier_definition
-        assert isinstance(definition, StructDefinition), "Invalid definition found"
+
+        if not isinstance(definition, StructDefinition):
+            raise ValueError(f"Invalid definition found for {type.resolved_scope}.")
 
         for member_name, member in definition.members.items():
-            assert member_name in value, f"{name}[{member_name}] not provided"
+            if member_name not in value:
+                raise TypeError(f"{name}[{member_name}] not provided.")
+
             values = self._get_value(
                 f"{name}.{member_name}", value[member_name], member.cairo_type
             )
