@@ -128,7 +128,7 @@ class Client:
             elif status == TxStatus.PENDING:
                 if not wait_for_accept:
                     return result["block_number"], status
-            elif status == TxStatus.PENDING:
+            elif status == TxStatus.REJECTED:
                 raise Exception(f"Transaction [{tx_hash}] was rejected.")
             elif status == TxStatus.NOT_RECEIVED:
                 if not first_run:
