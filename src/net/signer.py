@@ -48,7 +48,9 @@ class Signer(Client):
         token: Optional[str] = None,
     ) -> Dict[str, int]:
         if tx.signature:
-            raise TypeError(f"Transaction already has a signature")
+            raise TypeError(
+                f"Adding signatures to a signer tx currently isn't supported"
+            )
 
         if tx.tx_type == TransactionType.DEPLOY:
             return await super().add_transaction(tx, token)
