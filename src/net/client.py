@@ -15,18 +15,20 @@ from starkware.starknet.services.api.gateway.transaction import (
 
 from src.constants import TxStatus
 
-dns = "alpha4.starknet.io"
-
 
 class Client:
-    def __init__(self, retry_config: Optional[RetryConfig] = None):
+    @staticmethod
+    def alpha() -> "Client":
+        return Client("https://alpha4.starknet.io")
+
+    def __init__(self, host: str, retry_config: Optional[RetryConfig] = None):
         retry_config = retry_config or RetryConfig(1)
-        feeder_gateway_url = f"https://{dns}/feeder_gateway"
+        feeder_gateway_url = f"{host}/feeder_gateway"
         self._feeder_gateway = FeederGatewayClient(
             url=feeder_gateway_url, retry_config=retry_config
         )
 
-        gateway_url = f"https://{dns}/gateway"
+        gateway_url = f"{host}/gateway"
         self._gateway = GatewayClient(url=gateway_url, retry_config=retry_config)
 
     # View methods

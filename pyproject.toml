@@ -14,14 +14,29 @@ pytest = "^5.2"
 black = "^21.11b0"
 poethepoet = "^0.11.0"
 coverage = "^6.1.2"
+starknet-devnet = "^0.1.9"
+aiounittest = "^1.4.1"
 
 [tool.poe.tasks]
-test = "coverage run -m pytest src"
-test_report = "coverage report"
-test_html = { shell = "coverage html && open ./htmlcov/index.html" }
+test = ["test_unit", "test_e2e"]
+test_unit.shell = "coverage run -m pytest src --ignore=src/e2e"
+test_unit.env = { COVERAGE_FILE="unit.coverage" }
+test_e2e.shell = "starknet-devnet --host localhost --port 5000 &; DEVNET_PID=$! && sleep 1 && coverage run -m pytest src/e2e; kill $DEVNET_PID"
+test_e2e.env = { COVERAGE_FILE="e2e.coverage" }
+_coverage_combine.shell = "coverage combine unit.coverage e2e.coverage"
+test_report = ["_coverage_combine", { shell = "coverage report" }]
+test_html = [
+    "_coverage_combine",
+    { shell = "coverage html && open ./htmlcov/index.html" }
+]
+
+[tool.coverage.run]
+source = ["src"]
 
 [tool.coverage.report]
-omit = ["*_test.py"]
+omit = ["*_test.py", "src/e2e/*"]
+skip_empty = true
+
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
