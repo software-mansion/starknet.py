@@ -5,7 +5,7 @@ from starkware.starknet.services.api.contract_definition import ContractDefiniti
 from starkware.starknet.services.api.gateway.transaction import Deploy
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
-from src.e2e.utils import TestClient
+from src.e2e.utils import DevnetClient
 
 # Mock contract for deployment
 import os
@@ -16,7 +16,7 @@ test_contract_file = os.path.join(dirname, "example-compiled.json")
 
 class DeployCase(aiounittest.AsyncTestCase):
     async def test_deploy_tx(self):
-        client = TestClient()
+        client = DevnetClient()
         compiled_def = open(test_contract_file, "r").read()
         contract_def = ContractDefinition.loads(compiled_def)
 
