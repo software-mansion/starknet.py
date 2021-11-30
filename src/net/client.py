@@ -1,5 +1,5 @@
 import asyncio
-from typing import Optional, List, Dict, TypeVar, Type
+from typing import Optional, List, Dict
 
 from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
     FeederGatewayClient,
@@ -14,8 +14,6 @@ from starkware.starknet.services.api.gateway.transaction import (
 )
 
 from src.constants import TxStatus
-
-T = TypeVar("T")
 
 
 class Client:
