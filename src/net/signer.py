@@ -63,7 +63,7 @@ class Signer(Client):
                 signature=[],
             )
         )
-        nonce = int(result["result"][0], 16)
+        nonce = result[0]
 
         msg_hash = hash_message(
             account=self.address,

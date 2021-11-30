@@ -36,7 +36,7 @@ def test_array(value, cairo_value):
         {"name": "array", "type": "felt*"},
     ]
 
-    from_python = transformer_for_function(inputs=abi)(value)
+    from_python = transformer_for_function(inputs=abi).from_python(value)
     to_python = transformer_for_function(outputs=abi).to_python(cairo_value)
 
     assert from_python == cairo_value
@@ -53,13 +53,12 @@ def test_array(value, cairo_value):
     ],
 )
 def test_tuple(value, cairo_value):
-    print(value)
     cairo_type_name = "felt," * len(value)
     abi = [
         {"name": "value", "type": f"({cairo_type_name})"},
     ]
 
-    from_python = transformer_for_function(inputs=abi)(value)
+    from_python = transformer_for_function(inputs=abi).from_python(value)
     to_python = transformer_for_function(outputs=abi).to_python(cairo_value)
 
     assert from_python == cairo_value
@@ -73,7 +72,7 @@ def test_tuple(value, cairo_value):
 def test_felt(value, cairo_value):
     abi = [{"name": "value", "type": "felt"}]
 
-    from_python = transformer_for_function(inputs=abi)(value)
+    from_python = transformer_for_function(inputs=abi).from_python(value)
     to_python = transformer_for_function(outputs=abi).to_python(cairo_value)
 
     assert from_python == cairo_value
@@ -98,7 +97,9 @@ def test_struct(value, cairo_value):
         }
     ]
 
-    from_python = transformer_for_function(inputs=abi, structs=structs)(value)
+    from_python = transformer_for_function(inputs=abi, structs=structs).from_python(
+        value
+    )
     to_python = transformer_for_function(outputs=abi, structs=structs).to_python(
         cairo_value
     )
@@ -144,7 +145,7 @@ def test_nested_struct():
         ],
     )
 
-    result = transformer(
+    result = transformer.from_python(
         {
             "first": {"deeply_nested": {"nested": 1}},
             "second": (2, 3, 4),
@@ -165,6 +166,6 @@ def test_multiple_values():
         ],
     )
 
-    result = transformer(1, second=[2, 3, 4, 5], third=(6, 7))
+    result = transformer.from_python(1, second=[2, 3, 4, 5], third=(6, 7))
 
     assert result == [1, 4, 2, 3, 4, 5, 6, 7]

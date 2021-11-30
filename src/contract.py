@@ -69,7 +69,7 @@ class ContractFunction:
         self.inputs = abi["inputs"]
         self.contract_data = contract_data
         self._client = client
-        self._transformer = DataTransformer(
+        self._payload_transformer = DataTransformer(
             abi=self.abi, identifier_manager=self.contract_data.identifier_manager
         )
 
@@ -83,13 +83,12 @@ class ContractFunction:
         **kwargs,
     ):
         tx = self._make_invoke_function(*args, signature=signature, **kwargs)
-        response = await self._client.call_contract(
+        result = await self._client.call_contract(
             invoke_tx=tx, block_hash=block_hash, block_number=block_number
         )
-        result = [int(v, 16) for v in response["result"]]
         if return_raw:
             return result
-        return self._transformer.to_python(result)
+        return self._payload_transformer.to_python(result)
 
     async def invoke(self, *args, signature: Optional[List[str]] = None, **kwargs):
         tx = self._make_invoke_function(*args, signature=signature, **kwargs)
@@ -112,7 +111,7 @@ class ContractFunction:
         return InvokeFunction(
             contract_address=self.contract_data.address,
             entry_point_selector=self.selector,
-            calldata=self._transformer(*args, **kwargs),
+            calldata=self._payload_transformer.from_python(*args, **kwargs),
             signature=signature or [],
         )
 

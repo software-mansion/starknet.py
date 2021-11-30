@@ -168,6 +168,10 @@ mapping = {
 
 @dataclass(frozen=True)
 class DataTransformer:
+    """
+    Transforms data from python to Cairo format and back.
+    """
+
     abi: ABIFunctionEntry
     identifier_manager: IdentifierManager
 
@@ -176,9 +180,6 @@ class DataTransformer:
             identifier_manager=self.identifier_manager,
             resolve_type=self.resolve_type,
         )
-
-    def __call__(self, *args, **kwargs) -> List[int]:
-        return self.from_python(*args, **kwargs)
 
     def from_python(self, *args, **kwargs) -> List[int]:
         type_by_name = self._abi_to_types(self.abi["inputs"])
