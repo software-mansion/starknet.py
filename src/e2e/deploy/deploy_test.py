@@ -5,26 +5,19 @@ from starkware.starknet.services.api.contract_definition import ContractDefiniti
 from starkware.starknet.services.api.gateway.transaction import Deploy
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
-from src.e2e.utils import DevnetClient
+from src.e2e.utils import DevnetClient, file_from_directory
 
 # Mock contract for deployment
 import os
 
-dirname = os.path.dirname(__file__)
-test_contract_file = os.path.join(dirname, "example-compiled.json")
+directory = os.path.dirname(__file__)
 
 
 class DeployCase(aiounittest.AsyncTestCase):
     async def test_deploy_tx(self):
         client = DevnetClient()
-        compiled_def = open(test_contract_file, "r").read()
-        contract_def = ContractDefinition.loads(compiled_def)
+        file_path = file_from_directory(directory, "example-compiled.json")
+        contract_def = open(file_path, "r").read()
 
-        result = await client.add_transaction(
-            tx=Deploy(
-                contract_address_salt=ContractAddressSalt.get_random_value(),
-                contract_definition=contract_def,
-                constructor_calldata=[],
-            )
-        )
+        result = await client.deploy_contract(contract_def)
         self.assertEquals(result["code"], StarkErrorCode.TRANSACTION_RECEIVED.name)
