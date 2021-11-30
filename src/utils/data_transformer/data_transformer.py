@@ -135,7 +135,7 @@ class TupleTransformer(TypeTransformer[TypeTuple, tuple]):
             transformed, values = self.resolve_type(member_type).to_python(
                 member_type, f"{name}[{index}]", values
             )
-            result.append(result)
+            result.append(transformed)
 
         return (*result,), values
 
@@ -218,13 +218,18 @@ class DataTransformer:
             transformed, values = self.resolve_type(cairo_type).to_python(
                 cairo_type, name, values
             )
+            if isinstance(cairo_type, TypePointer):
+                result[f"{name}_len"] = len(transformed)
             result[name] = transformed
 
         return result
 
     def _abi_to_types(self, abi_list) -> dict:
         return self._remove_array_lengths(
-            {i["name"]: mark_type_resolved(parse_type(i["type"])) for i in abi_list}
+            {
+                entry["name"]: mark_type_resolved(parse_type(entry["type"]))
+                for entry in abi_list
+            }
         )
 
     def _remove_array_lengths(self, type_by_name: dict) -> dict:

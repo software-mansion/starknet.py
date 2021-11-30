@@ -1,14 +1,17 @@
+import pytest
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 
 from .data_transformer import DataTransformer
 
 
-def transformer_for_function(inputs, structs=None):
+def transformer_for_function(inputs=None, outputs=None, structs=None):
     structs = structs or []
+    inputs = inputs or []
+    outputs = outputs or []
     fun_abi = {
         "inputs": inputs,
         "name": "test_fun",
-        "outputs": [{"name": "value", "type": "felt"}],
+        "outputs": outputs,
         "stateMutability": "view",
         "type": "function",
     }
@@ -18,59 +21,96 @@ def transformer_for_function(inputs, structs=None):
     )
 
 
-def test_array():
-    transformer = transformer_for_function(
-        [{"name": "array_len", "type": "felt"}, {"name": "array", "type": "felt*"}]
+@pytest.mark.parametrize(
+    "value, cairo_value",
+    [
+        ([1, 2, 3], [3, 1, 2, 3]),
+        ([], [0]),
+        ([213], [1, 213]),
+        ([1, 1, 1, 1, 1, 1], [6, 1, 1, 1, 1, 1, 1]),
+    ],
+)
+def test_array(value, cairo_value):
+    abi = [
+        {"name": "array_len", "type": "felt"},
+        {"name": "array", "type": "felt*"},
+    ]
+
+    from_python = transformer_for_function(inputs=abi)(value)
+    to_python = transformer_for_function(outputs=abi).to_python(cairo_value)
+
+    assert from_python == cairo_value
+    assert to_python == {"array": value, "array_len": len(value)}
+
+
+@pytest.mark.parametrize(
+    "value, cairo_value",
+    [
+        ((1, 2, 3), [1, 2, 3]),
+        ((1,), [1]),
+        ((213, 2), [213, 2]),
+        ((1, 1, 1, 1, 1, 1), [1, 1, 1, 1, 1, 1]),
+    ],
+)
+def test_tuple(value, cairo_value):
+    print(value)
+    cairo_type_name = "felt," * len(value)
+    abi = [
+        {"name": "value", "type": f"({cairo_type_name})"},
+    ]
+
+    from_python = transformer_for_function(inputs=abi)(value)
+    to_python = transformer_for_function(outputs=abi).to_python(cairo_value)
+
+    assert from_python == cairo_value
+    assert to_python == {"value": value}
+
+
+@pytest.mark.parametrize(
+    "value, cairo_value",
+    [(0, [0]), (1, [1]), (-1, [-1]), (322132123, [322132123])],
+)
+def test_felt(value, cairo_value):
+    abi = [{"name": "value", "type": "felt"}]
+
+    from_python = transformer_for_function(inputs=abi)(value)
+    to_python = transformer_for_function(outputs=abi).to_python(cairo_value)
+
+    assert from_python == cairo_value
+    assert to_python == {"value": value}
+
+
+@pytest.mark.parametrize(
+    "value, cairo_value",
+    [({"first": 1, "second": (2, 3, 4)}, [1, 2, 3, 4])],
+)
+def test_struct(value, cairo_value):
+    abi = [{"name": "value", "type": "SimpleStruct"}]
+    structs = [
+        {
+            "members": [
+                {"name": "first", "offset": 0, "type": "felt"},
+                {"name": "second", "offset": 1, "type": "(felt, felt, felt)"},
+            ],
+            "name": "SimpleStruct",
+            "size": 4,
+            "type": "struct",
+        }
+    ]
+
+    from_python = transformer_for_function(inputs=abi, structs=structs)(value)
+    to_python = transformer_for_function(outputs=abi, structs=structs).to_python(
+        cairo_value
     )
 
-    result = transformer([1, 2, 3])
-
-    assert result == [3, 1, 2, 3]
-
-
-def test_empty_array():
-    transformer = transformer_for_function(
-        [{"name": "array_len", "type": "felt"}, {"name": "array", "type": "felt*"}]
-    )
-
-    result = transformer([])
-
-    assert result == [0]
-
-
-def test_felt():
-    transformer = transformer_for_function([{"name": "value", "type": "felt"}])
-
-    result = transformer(1234)
-
-    assert result == [1234]
-
-
-def test_struct():
-    transformer = transformer_for_function(
-        [{"name": "value", "type": "SimpleStruct"}],
-        [
-            {
-                "members": [
-                    {"name": "first", "offset": 0, "type": "felt"},
-                    {"name": "second", "offset": 1, "type": "(felt, felt, felt)"},
-                ],
-                "name": "SimpleStruct",
-                "size": 4,
-                "type": "struct",
-            }
-        ],
-    )
-
-    result = transformer({"first": 1, "second": (2, 3, 4)})
-
-    assert result == [1, 2, 3, 4]
+    assert from_python == cairo_value
+    assert to_python == {"value": value}
 
 
 def test_nested_struct():
     transformer = transformer_for_function(
-        [{"name": "value", "type": "StructWithStruct"}],
-        [
+        inputs=[{"name": "value", "type": "StructWithStruct"}],
+        structs=[
             {
                 "members": [
                     {"name": "first", "offset": 0, "type": "NestedStruct"},
@@ -117,7 +157,7 @@ def test_nested_struct():
 
 def test_multiple_values():
     transformer = transformer_for_function(
-        [
+        inputs=[
             {"name": "first", "type": "felt"},
             {"name": "second_len", "type": "felt"},
             {"name": "second", "type": "felt*"},
