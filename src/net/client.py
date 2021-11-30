@@ -126,7 +126,7 @@ class Client:
             if status == TxStatus.ACCEPTED_ONCHAIN:
                 return result["block_number"], status
             elif status == TxStatus.PENDING:
-                if not wait_for_accept:
+                if not wait_for_accept and "block_number" in result:
                     return result["block_number"], status
             elif status == TxStatus.REJECTED:
                 raise Exception(f"Transaction [{tx_hash}] was rejected.")
