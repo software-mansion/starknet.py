@@ -30,8 +30,13 @@ test_html = [
     { shell = "coverage html --omit=\"src/e2e/*\" && open ./htmlcov/index.html" }
 ]
 
+[tool.coverage.run]
+source = ["src"]
+
 [tool.coverage.report]
 omit = ["*_test.py"]
+skip_empty = true
+
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
