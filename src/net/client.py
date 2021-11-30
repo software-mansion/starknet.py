@@ -19,9 +19,9 @@ T = TypeVar("T")
 
 
 class Client:
-    @classmethod
-    def alpha(cls: Type[T]) -> T:
-        return cls("https://alpha4.starknet.io")
+    @staticmethod
+    def alpha() -> "Client":
+        return Client("https://alpha4.starknet.io")
 
     def __init__(self, host: str, retry_config: Optional[RetryConfig] = None):
         retry_config = retry_config or RetryConfig(1)
