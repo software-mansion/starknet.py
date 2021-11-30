@@ -27,12 +27,12 @@ chmod +x ./.git/hooks/pre-push
 ```
 
 # Tests
-### Running unit tests
+## Running whole suite
+
 ```
 poe test
 ```
-
-### Generating unit test report
+## Generating test report
 ```
 poe test_report
 ```
@@ -41,14 +41,20 @@ or
 poe test_html
 ```
 
-### Running e2e tests
+## Unit tests
+```
+poe test_unit
+```
+## E2E tests
+### Running e2e tests in command line
 ```
 poe test_e2e
 ```
-or, if using PyCharm, use `E2E tests` configuration to run or debug.
+### Running e2e tests in PyCharm
+1. Run `starkware-devnet` script before running e2e tests in PyCharm
+2. Use `E2E tests` configuration to run or debug.
 
 ⚠️ **Warning**: Make sure to fill your interpreter in the configuration, to match your project's poetry venv
-⚠️ **Warning 2**: Make sure to run `starkware-devnet` script before running e2e tests in PyCharm
 
 # Example usage
 
