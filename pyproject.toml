@@ -15,7 +15,7 @@ black = "^21.11b0"
 poethepoet = "^0.11.0"
 coverage = "^6.1.2"
 starknet-devnet = "^0.1.9"
-aiounittest = "^1.4.1"
+pytest-asyncio = "^0.16.0"
 
 [tool.poe.tasks]
 test = ["test_unit", "test_e2e"]
