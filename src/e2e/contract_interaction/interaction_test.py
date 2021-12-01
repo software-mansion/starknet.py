@@ -1,10 +1,11 @@
 import pytest
+import os
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
 from src.contract import Contract
-from src.e2e.utils import DevnetClient, file_from_directory
-
-import os
+from src.e2e.utils import DevnetClient
+from src.utils.compiler.starknet_compile import CairoSourceFile
+from src.utils.files import file_from_directory
 
 directory = os.path.dirname(__file__)
 
@@ -14,10 +15,12 @@ directory = os.path.dirname(__file__)
 async def test_invoke_and_call(key, value):
     client = DevnetClient()
 
+    map_file = file_from_directory(directory, "map.cairo")
+    map_source_code = open(map_file).read()
     # Deploy simple k-v store
-    map_contract_file = file_from_directory(directory, "map-compiled.json")
-    contract_def = open(map_contract_file, "r").read()
-    result = await client.deploy_contract(contract_def)
+    result = await client.compile_and_deploy_contract(
+        [CairoSourceFile(content=map_source_code, name=map_file)]
+    )
 
     assert result["code"] == StarkErrorCode.TRANSACTION_RECEIVED.name
     contract_address = result["address"]
