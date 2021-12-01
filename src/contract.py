@@ -11,9 +11,9 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
 from starkware.starknet.services.api.gateway.transaction import InvokeFunction
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
-from .calldata import CalldataTransformer
+from .utils.data_transformer import DataTransformer
 from .net import Client
-from .types import AddressRepresentation, parse_address
+from .utils.types import AddressRepresentation, parse_address
 from .utils.sync import add_sync_version
 
 ABI = list
@@ -69,6 +69,9 @@ class ContractFunction:
         self.inputs = abi["inputs"]
         self.contract_data = contract_data
         self._client = client
+        self._payload_transformer = DataTransformer(
+            abi=self.abi, identifier_manager=self.contract_data.identifier_manager
+        )
 
     async def call(
         self,
@@ -76,13 +79,16 @@ class ContractFunction:
         block_hash: Optional[str] = None,
         block_number: Optional[int] = None,
         signature: Optional[List[str]] = None,
+        return_raw: bool = False,
         **kwargs,
     ):
         tx = self._make_invoke_function(*args, signature=signature, **kwargs)
         result = await self._client.call_contract(
             invoke_tx=tx, block_hash=block_hash, block_number=block_number
         )
-        return result["result"]
+        if return_raw:
+            return result
+        return self._payload_transformer.to_python(result)
 
     async def invoke(self, *args, signature: Optional[List[str]] = None, **kwargs):
         tx = self._make_invoke_function(*args, signature=signature, **kwargs)
@@ -105,15 +111,9 @@ class ContractFunction:
         return InvokeFunction(
             contract_address=self.contract_data.address,
             entry_point_selector=self.selector,
-            calldata=self._make_calldata(*args, **kwargs),
+            calldata=self._payload_transformer.from_python(*args, **kwargs),
             signature=signature or [],
         )
-
-    def _make_calldata(self, *args, **kwargs) -> List[int]:
-        transformer = CalldataTransformer(
-            abi=self.abi, identifier_manager=self.contract_data.identifier_manager
-        )
-        return transformer(*args, **kwargs)
 
 
 @add_sync_version

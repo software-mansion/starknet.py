@@ -7,7 +7,7 @@ from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.services.api.gateway.transaction import InvokeFunction
 from starkware.crypto.signature.signature import private_to_stark_key, sign
 from src.net import Client
-from src.types import AddressRepresentation, parse_address
+from src.utils.types import AddressRepresentation, parse_address
 
 
 @dataclass
@@ -63,7 +63,7 @@ class Signer(Client):
                 signature=[],
             )
         )
-        nonce = int(result["result"][0], 16)
+        nonce = result[0]
 
         msg_hash = hash_message(
             account=self.address,
