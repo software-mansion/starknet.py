@@ -1,30 +1,19 @@
-import aiounittest
-
-from starkware.starknet.definitions.fields import ContractAddressSalt
-from starkware.starknet.services.api.contract_definition import ContractDefinition
-from starkware.starknet.services.api.gateway.transaction import Deploy
+import pytest
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
-from src.e2e.utils import DevnetClient
+from src.e2e.utils import DevnetClient, file_from_directory
 
 # Mock contract for deployment
 import os
 
-dirname = os.path.dirname(__file__)
-test_contract_file = os.path.join(dirname, "example-compiled.json")
+directory = os.path.dirname(__file__)
 
 
-class DeployCase(aiounittest.AsyncTestCase):
-    async def test_deploy_tx(self):
-        client = DevnetClient()
-        compiled_def = open(test_contract_file, "r").read()
-        contract_def = ContractDefinition.loads(compiled_def)
+@pytest.mark.asyncio
+async def test_deploy_tx():
+    client = DevnetClient()
+    file_path = file_from_directory(directory, "example-compiled.json")
 
-        result = await client.add_transaction(
-            tx=Deploy(
-                contract_address_salt=ContractAddressSalt.get_random_value(),
-                contract_definition=contract_def,
-                constructor_calldata=[],
-            )
-        )
-        self.assertEquals(result["code"], StarkErrorCode.TRANSACTION_RECEIVED.name)
+    contract_def = open(file_path, "r").read()
+    result = await client.deploy_contract(contract_def)
+    assert result["code"] == StarkErrorCode.TRANSACTION_RECEIVED.name
