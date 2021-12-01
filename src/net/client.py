@@ -40,12 +40,13 @@ class Client:
         invoke_tx: InvokeFunction,
         block_hash: Optional[CastableToHash] = None,
         block_number: Optional[int] = None,
-    ) -> Dict[str, List[str]]:
-        return await self._feeder_gateway.call_contract(
+    ) -> List[int]:
+        response = await self._feeder_gateway.call_contract(
             invoke_tx,
             block_hash,
             block_number,
         )
+        return [int(v, 16) for v in response["result"]]
 
     async def get_block(
         self,
