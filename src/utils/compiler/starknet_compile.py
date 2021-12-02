@@ -1,7 +1,6 @@
 import json
 import os
-from dataclasses import dataclass
-from typing import List, Tuple
+from typing import List, Tuple, Union, NewType
 
 from starkware.cairo.lang.cairo_constants import DEFAULT_PRIME
 from starkware.cairo.lang.compiler.cairo_compile import (
@@ -13,17 +12,18 @@ from starkware.starknet.compiler.compile import assemble_starknet_contract
 from starkware.starknet.compiler.starknet_pass_manager import starknet_pass_manager
 
 
-@dataclass
-class CairoSourceFile:
-    content: str
-    name: str
+CairoSources = Union[dict, str]
+StarknetCompilationSource = NewType("CairoSource", Union[str, CairoSources])
 
 
-def get_codes_from_files(lst: List[CairoSourceFile]) -> List[Tuple[str, str]]:
-    return [(scf.content, scf.name) for scf in lst]
+def get_codes_from_source(src: StarknetCompilationSource) -> List[Tuple[str, str]]:
+    if isinstance(src, str):
+        src = {str(hash(src)): src}
+
+    return [(v, k) for k, v in src.items()]
 
 
-def starknet_compile(input_files: List[CairoSourceFile]):
+def starknet_compile(source: StarknetCompilationSource):
     file_contents_for_debug_info = {}
 
     cairo_path: List[str] = list(
@@ -38,7 +38,7 @@ def starknet_compile(input_files: List[CairoSourceFile]):
     )
 
     preprocessed = preprocess_codes(
-        codes=get_codes_from_files(input_files),
+        codes=get_codes_from_source(source),
         pass_manager=pass_manager,
         main_scope=MAIN_SCOPE,
     )

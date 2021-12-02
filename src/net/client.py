@@ -1,8 +1,6 @@
 import asyncio
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict
 
-from starkware.starknet.definitions.fields import ContractAddressSalt
-from starkware.starknet.services.api.contract_definition import ContractDefinition
 from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
     FeederGatewayClient,
     CastableToHash,
@@ -13,11 +11,9 @@ from services.external_api.base_client import RetryConfig
 from starkware.starknet.services.api.gateway.transaction import (
     InvokeFunction,
     Transaction,
-    Deploy,
 )
 
 from src.constants import TxStatus
-from src.utils.compiler.starknet_compile import CairoSourceFile, starknet_compile
 
 
 class Client:
@@ -151,17 +147,3 @@ class Client:
         self, tx: Transaction, token: Optional[str] = None
     ) -> Dict[str, int]:
         return await self._gateway.add_transaction(tx, token)
-
-    async def compile_and_deploy_contract(
-        self,
-        input_files: List[CairoSourceFile],
-        constructor_args: Optional[List[Any]] = None,
-    ):
-        compiled_contract = starknet_compile(input_files)
-        return await self.add_transaction(
-            tx=Deploy(
-                contract_address_salt=ContractAddressSalt.get_random_value(),
-                contract_definition=ContractDefinition.loads(compiled_contract),
-                constructor_calldata=constructor_args or [],
-            )
-        )

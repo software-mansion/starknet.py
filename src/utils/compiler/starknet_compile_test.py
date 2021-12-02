@@ -1,16 +1,14 @@
+import json
 import os
 
-from src.utils.compiler.starknet_compile import starknet_compile, CairoSourceFile
-from src.utils.files import file_from_directory
+from src.utils.compiler.starknet_compile import starknet_compile
 
 directory = os.path.dirname(__file__)
+map_filename = os.path.join(directory, "map.cairo")
+test_file_content = open(map_filename).read()
 
 
 def test_starknet_compilation():
-    test_filename = file_from_directory(directory, "map.cairo")
-    test_file_content = open(test_filename).read()
-
-    output_file_str = starknet_compile(
-        [CairoSourceFile(content=test_file_content, name=test_filename)]
-    )
-    assert output_file_str is not None  # TODO: Make this better
+    output_file_str = starknet_compile({map_filename: test_file_content})
+    output_json = json.loads(output_file_str)
+    assert output_json.get("abi") is not None
