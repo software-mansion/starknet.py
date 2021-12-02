@@ -1,7 +1,7 @@
 import dataclasses
 import json
 from dataclasses import dataclass
-from typing import List, Optional, Any
+from typing import List, Optional, Any, TYPE_CHECKING
 
 from starkware.starknet.definitions.fields import ContractAddressSalt
 from starkware.starknet.services.api.contract_definition import ContractDefinition
@@ -16,12 +16,15 @@ from starkware.starkware_utils.error_handling import StarkErrorCode
 
 from .utils.compiler.starknet_compile import StarknetCompilationSource, starknet_compile
 from .utils.data_transformer import DataTransformer
-from .net import Client
 from .utils.types import AddressRepresentation, parse_address
 from .utils.sync import add_sync_version
 
 ABI = list
 ABIEntry = dict
+
+
+if TYPE_CHECKING:
+    from .net import Client
 
 
 @dataclass(frozen=True)
@@ -44,7 +47,7 @@ class ContractData:
 class InvocationResult:
     hash: CastableToHash
     contract: ContractData
-    _client: Client
+    _client: "Client"
     status: Optional[str] = None
     block_number: Optional[int] = None
 
@@ -66,7 +69,7 @@ class InvocationResult:
 @add_sync_version
 class ContractFunction:
     def __init__(
-        self, name: str, abi: ABIEntry, contract_data: ContractData, client: Client
+        self, name: str, abi: ABIEntry, contract_data: ContractData, client: "Client"
     ):
         self.name = name
         self.abi = abi
@@ -122,7 +125,7 @@ class ContractFunction:
 
 @add_sync_version
 class ContractFunctionsRepository:
-    def __init__(self, contract_data: ContractData, client: Client):
+    def __init__(self, contract_data: ContractData, client: "Client"):
         for abi_entry in contract_data.abi:
             if abi_entry["type"] != "function":
                 continue
@@ -142,20 +145,28 @@ class ContractFunctionsRepository:
 
 @add_sync_version
 class Contract:
-    def __init__(self, address: AddressRepresentation, abi: list, client: Client):
-        self.data = ContractData.from_abi(parse_address(address), abi)
-        self.functions = ContractFunctionsRepository(self.data, client)
+    def __init__(self, address: AddressRepresentation, abi: list, client: "Client"):
+        self._data = ContractData.from_abi(parse_address(address), abi)
+        self._functions = ContractFunctionsRepository(self._data, client)
+
+    @property
+    def functions(self) -> ContractFunctionsRepository:
+        return self._functions
+
+    @property
+    def address(self) -> int:
+        return self._data.address
 
     @staticmethod
     async def from_address(
-        address: AddressRepresentation, client: Client
+        address: AddressRepresentation, client: "Client"
     ) -> "Contract":
         code = await client.get_code(contract_address=parse_address(address))
         return Contract(address=parse_address(address), abi=code["abi"], client=client)
 
     @staticmethod
     async def deploy(
-        client: Client,
+        client: "Client",
         compilation_source: Optional[StarknetCompilationSource] = None,
         compiled_contract: Optional[str] = None,
         constructor_args: Optional[List[Any]] = None,

@@ -1,3 +1,4 @@
+import os.path
 from dataclasses import dataclass
 from typing import Dict, Optional, List
 
@@ -5,9 +6,24 @@ from starkware.cairo.common.hash_state import compute_hash_on_elements
 from starkware.starknet.definitions.transaction_type import TransactionType
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.services.api.gateway.transaction import InvokeFunction
-from starkware.crypto.signature.signature import private_to_stark_key, sign
+from starkware.crypto.signature.signature import (
+    private_to_stark_key,
+    sign,
+    get_random_private_key,
+)
+
+from src.contract import Contract
 from src.net import Client
-from src.utils.types import AddressRepresentation, parse_address
+from src.utils.types import (
+    AddressRepresentation,
+    parse_address,
+    NetType,
+    net_address_from_type,
+)
+
+directory = os.path.dirname(__file__)
+compiled_account_contract_fname = os.path.join(directory, "Account-compiled.json")
+compiled_account_contract = open(compiled_account_contract_fname).read()
 
 
 @dataclass
@@ -34,13 +50,17 @@ def hash_message(
     )
 
 
-class Signer(Client):
+class AccountClient(Client):
     def __init__(
         self, address: AddressRepresentation, key_pair: KeyPair, *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
         self.address = parse_address(address)
-        self.key_pair = key_pair
+        self._key_pair = key_pair
+
+    @property
+    def private_key(self) -> int:
+        return self._key_pair.private_key
 
     async def add_transaction(
         self,
@@ -73,7 +93,7 @@ class Signer(Client):
             nonce=nonce,
         )
 
-        r, s = sign(msg_hash=msg_hash, priv_key=self.key_pair.private_key)
+        r, s = sign(msg_hash=msg_hash, priv_key=self.private_key)
 
         return await super().add_transaction(
             InvokeFunction(
@@ -88,4 +108,25 @@ class Signer(Client):
                 contract_address=self.address,
                 signature=[r, s],
             )
+        )
+
+    @staticmethod
+    async def create_account(net: NetType, pk: Optional[int] = None) -> "Client":
+        if not pk:
+            pk = get_random_private_key()
+
+        key_pair = KeyPair.from_private_key(pk)
+
+        net_address = net_address_from_type(net)
+        client = Client(net_address)
+        account_contract = await Contract.deploy(
+            client=client,
+            constructor_args=[key_pair.public_key],
+            compiled_contract=compiled_account_contract,
+        )
+
+        return AccountClient(
+            host=net_address,
+            address=account_contract.address,
+            key_pair=key_pair,
         )
