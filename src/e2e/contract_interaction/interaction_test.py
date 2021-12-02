@@ -1,12 +1,12 @@
 import pytest
-from starkware.starkware_utils.error_handling import StarkErrorCode
-
-from src.contract import Contract
-from src.e2e.utils import DevnetClient, file_from_directory
-
 import os
 
+from src.contract import Contract
+from src.e2e.utils import DevnetClient
+
 directory = os.path.dirname(__file__)
+map_filename = os.path.join(directory, "map.cairo")
+map_source_code = open(map_filename).read()
 
 
 @pytest.mark.asyncio
@@ -15,20 +15,8 @@ async def test_invoke_and_call(key, value):
     client = DevnetClient()
 
     # Deploy simple k-v store
-    map_contract_file = file_from_directory(directory, "map-compiled.json")
-    contract_def = open(map_contract_file, "r").read()
-    result = await client.deploy_contract(contract_def)
-
-    assert result["code"] == StarkErrorCode.TRANSACTION_RECEIVED.name
-    contract_address = result["address"]
-
-    await client.wait_for_tx(
-        tx_hash=result["transaction_hash"],
-    )
-
-    contract = await Contract.from_address(address=contract_address, client=client)
+    contract = await Contract.deploy(client=client, compilation_source=map_source_code)
     await contract.functions.put.invoke(key, value)
-
     response = await contract.functions.get.call(key)
 
     assert response["res"] == value

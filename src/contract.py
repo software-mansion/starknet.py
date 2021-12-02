@@ -1,16 +1,20 @@
 import dataclasses
+import json
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List, Optional, Any
 
+from starkware.starknet.definitions.fields import ContractAddressSalt
+from starkware.starknet.services.api.contract_definition import ContractDefinition
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
     CastableToHash,
 )
-from starkware.starknet.services.api.gateway.transaction import InvokeFunction
+from starkware.starknet.services.api.gateway.transaction import InvokeFunction, Deploy
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
+from .utils.compiler.starknet_compile import StarknetCompilationSource, starknet_compile
 from .utils.data_transformer import DataTransformer
 from .net import Client
 from .utils.types import AddressRepresentation, parse_address
@@ -148,3 +152,38 @@ class Contract:
     ) -> "Contract":
         code = await client.get_code(contract_address=parse_address(address))
         return Contract(address=parse_address(address), abi=code["abi"], client=client)
+
+    @staticmethod
+    async def deploy(
+        client: Client,
+        compilation_source: Optional[StarknetCompilationSource] = None,
+        compiled_contract: Optional[str] = None,
+        constructor_args: Optional[List[Any]] = None,
+    ) -> "Contract":
+        if not compiled_contract and not compilation_source:
+            raise ValueError(
+                "At least one of compiled_contract, compilation_source is required for contract deployment"
+            )
+
+        if not compiled_contract:
+            compiled_contract = starknet_compile(compilation_source)
+        res = await client.add_transaction(
+            tx=Deploy(
+                contract_address_salt=ContractAddressSalt.get_random_value(),
+                contract_definition=ContractDefinition.loads(compiled_contract),
+                constructor_calldata=constructor_args or [],
+            )
+        )
+
+        assert res["code"] == StarkErrorCode.TRANSACTION_RECEIVED.name
+        contract_address = res["address"]
+
+        await client.wait_for_tx(
+            tx_hash=res["transaction_hash"],
+        )
+
+        return Contract(
+            client=client,
+            address=contract_address,
+            abi=json.loads(compiled_contract)["abi"],
+        )
