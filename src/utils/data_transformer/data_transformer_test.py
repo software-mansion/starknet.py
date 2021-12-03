@@ -109,63 +109,165 @@ def test_struct(value, cairo_value):
 
 
 def test_nested_struct():
-    transformer = transformer_for_function(
-        inputs=[{"name": "value", "type": "StructWithStruct"}],
-        structs=[
-            {
-                "members": [
-                    {"name": "first", "offset": 0, "type": "NestedStruct"},
-                    {"name": "second", "offset": 1, "type": "(felt, felt, felt)"},
-                    {"name": "third", "offset": 2, "type": "DeeplyNestedStruct"},
-                ],
-                "name": "StructWithStruct",
-                "size": 4,
-                "type": "struct",
-            },
-            {
-                "members": [
-                    {
-                        "name": "deeply_nested",
-                        "offset": 0,
-                        "type": "DeeplyNestedStruct",
-                    },
-                ],
-                "name": "NestedStruct",
-                "size": 1,
-                "type": "struct",
-            },
-            {
-                "members": [
-                    {"name": "nested", "offset": 0, "type": "felt"},
-                ],
-                "name": "DeeplyNestedStruct",
-                "size": 1,
-                "type": "struct",
-            },
-        ],
-    )
-
-    result = transformer.from_python(
+    structs = [
         {
-            "first": {"deeply_nested": {"nested": 1}},
-            "second": (2, 3, 4),
-            "third": {"nested": 5},
-        }
+            "members": [
+                {"name": "first", "offset": 0, "type": "NestedStruct"},
+                {"name": "second", "offset": 1, "type": "(felt, felt, felt)"},
+                {"name": "third", "offset": 2, "type": "DeeplyNestedStruct"},
+            ],
+            "name": "StructWithStruct",
+            "size": 4,
+            "type": "struct",
+        },
+        {
+            "members": [
+                {
+                    "name": "deeply_nested",
+                    "offset": 0,
+                    "type": "DeeplyNestedStruct",
+                },
+            ],
+            "name": "NestedStruct",
+            "size": 1,
+            "type": "struct",
+        },
+        {
+            "members": [
+                {"name": "nested", "offset": 0, "type": "felt"},
+            ],
+            "name": "DeeplyNestedStruct",
+            "size": 1,
+            "type": "struct",
+        },
+    ]
+    abi = [{"name": "value", "type": "StructWithStruct"}]
+    value = {
+        "first": {"deeply_nested": {"nested": 1}},
+        "second": (2, 3, 4),
+        "third": {"nested": 5},
+    }
+    cairo_value = [1, 2, 3, 4, 5]
+
+    from_python = transformer_for_function(inputs=abi, structs=structs).from_python(
+        value
+    )
+    to_python = transformer_for_function(outputs=abi, structs=structs).to_python(
+        cairo_value
     )
 
-    assert result == [1, 2, 3, 4, 5]
+    assert from_python == cairo_value
+    assert to_python == {"value": value}
 
 
 def test_multiple_values():
-    transformer = transformer_for_function(
-        inputs=[
-            {"name": "first", "type": "felt"},
-            {"name": "second_len", "type": "felt"},
-            {"name": "second", "type": "felt*"},
-            {"name": "third", "type": "(felt, felt)"},
-        ],
-    )
+    abi = [
+        {"name": "first", "type": "felt"},
+        {"name": "second_len", "type": "felt"},
+        {"name": "second", "type": "felt*"},
+        {"name": "third", "type": "(felt, felt)"},
+    ]
+    values = [123, [10, 20], (-11, -12)]
+    cairo_values = [123, 2, 10, 20, -11, -12]
 
-    result = transformer.from_python(1, second=[2, 3, 4, 5], third=(6, 7))
+    from_python = transformer_for_function(inputs=abi).from_python(*values)
+    to_python = transformer_for_function(outputs=abi).to_python(cairo_values)
 
-    assert result == [1, 4, 2, 3, 4, 5, 6, 7]
+    assert from_python == cairo_values
+    assert to_python == {
+        "first": 123,
+        "second": [10, 20],
+        "second_len": 2,
+        "third": (-11, -12),
+    }
+
+
+def test_not_enough_felts():
+    abi = [{"name": "first", "type": "felt"}, {"name": "second", "type": "felt"}]
+
+    with pytest.raises(ValueError) as excinfo:
+        transformer_for_function(outputs=abi).to_python([1])
+
+    assert "second expected 1 values" in str(excinfo.value)
+
+
+def test_invalid_tuple_length():
+    abi = [{"name": "value", "type": "(felt, felt, felt)"}]
+
+    with pytest.raises(ValueError) as excinfo:
+        transformer_for_function(inputs=abi).from_python((1, 2))
+
+    assert "2 != 3" in str(excinfo.value)
+
+
+def test_missing_struct_key():
+    abi = [{"name": "value", "type": "SimpleStruct"}]
+    structs = [
+        {
+            "members": [
+                {"name": "first", "offset": 0, "type": "felt"},
+                {"name": "second", "offset": 1, "type": "felt"},
+            ],
+            "name": "SimpleStruct",
+            "size": 4,
+            "type": "struct",
+        }
+    ]
+
+    with pytest.raises(ValueError) as excinfo:
+        transformer_for_function(inputs=abi, structs=structs).from_python({"first": 1})
+
+    assert "value[second] not provided" in str(excinfo.value)
+
+
+@pytest.mark.parametrize(
+    "type, value",
+    [
+        ("felt", []),
+        ("(felt, felt)", 1),
+        ("SimpleStruct", 1),
+    ],
+)
+def test_wrong_types(type, value):
+    abi = [{"name": "value", "type": type}]
+    structs = [
+        {
+            "members": [
+                {"name": "first", "offset": 0, "type": "felt"},
+                {"name": "second", "offset": 1, "type": "felt"},
+            ],
+            "name": "SimpleStruct",
+            "size": 4,
+            "type": "struct",
+        }
+    ]
+
+    with pytest.raises(TypeError):
+        transformer_for_function(inputs=abi, structs=structs).from_python(value)
+
+
+def test_too_many_positional_args():
+    abi = [{"name": "value", "type": "felt"}]
+
+    with pytest.raises(TypeError) as excinfo:
+        transformer_for_function(inputs=abi).from_python(1, 2)
+
+    assert "2 positional arguments" in str(excinfo.value)
+
+
+def test_arg_provided_twice():
+    abi = [{"name": "value", "type": "felt"}]
+
+    with pytest.raises(TypeError) as excinfo:
+        transformer_for_function(inputs=abi).from_python(1, value=2)
+
+    assert "positional and named argument provided" in str(excinfo.value)
+
+
+def test_missing_arg():
+    abi = [{"name": "first", "type": "felt"}, {"name": "second", "type": "felt"}]
+
+    with pytest.raises(TypeError) as excinfo:
+        transformer_for_function(inputs=abi).from_python(1)
+
+    assert "second not provided" in str(excinfo.value)
