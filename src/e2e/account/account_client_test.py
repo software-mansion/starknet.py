@@ -13,7 +13,7 @@ map_source_code = open(map_source_fname).read()
 
 @pytest.mark.asyncio
 async def test_deploy_account_contract_and_sign_tx():
-    acc_client = await AccountClient.create_account(net="devnet")
+    acc_client = await AccountClient.create_account(net="http://localhost:5000/")
 
     map_contract = await Contract.deploy(
         client=acc_client, compilation_source=map_source_code

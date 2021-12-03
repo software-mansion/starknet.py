@@ -1,4 +1,3 @@
-import os.path
 from dataclasses import dataclass
 from typing import Dict, Optional, List
 
@@ -14,16 +13,12 @@ from starkware.crypto.signature.signature import (
 
 from src.contract import Contract
 from src.net import Client
+from src.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
 from src.utils.types import (
     AddressRepresentation,
     parse_address,
-    NetType,
-    net_address_from_type,
+    Net,
 )
-
-directory = os.path.dirname(__file__)
-compiled_account_contract_fname = os.path.join(directory, "Account-compiled.json")
-compiled_account_contract = open(compiled_account_contract_fname).read()
 
 
 @dataclass
@@ -52,9 +47,14 @@ def hash_message(
 
 class AccountClient(Client):
     def __init__(
-        self, address: AddressRepresentation, key_pair: KeyPair, *args, **kwargs
+        self,
+        address: AddressRepresentation,
+        key_pair: KeyPair,
+        net: Net,
+        *args,
+        **kwargs,
     ):
-        super().__init__(*args, **kwargs)
+        super().__init__(net, *args, **kwargs)
         self.address = parse_address(address)
         self._key_pair = key_pair
 
@@ -111,22 +111,21 @@ class AccountClient(Client):
         )
 
     @staticmethod
-    async def create_account(net: NetType, pk: Optional[int] = None) -> "Client":
+    async def create_account(net: Net, pk: Optional[int] = None) -> "AccountClient":
         if not pk:
             pk = get_random_private_key()
 
         key_pair = KeyPair.from_private_key(pk)
 
-        net_address = net_address_from_type(net)
-        client = Client(net_address)
+        client = Client(net=net)
         account_contract = await Contract.deploy(
             client=client,
             constructor_args=[key_pair.public_key],
-            compiled_contract=compiled_account_contract,
+            compiled_contract=COMPILED_ACCOUNT_CONTRACT,
         )
 
         return AccountClient(
-            host=net_address,
+            net=net,
             address=account_contract.address,
             key_pair=key_pair,
         )
