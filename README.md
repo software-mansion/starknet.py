@@ -57,12 +57,13 @@ poe test_e2e
 ⚠️ **Warning**: Make sure to fill your interpreter in the configuration, to match your project's poetry venv
 
 # Example usage
-
-_Warning: Current API is experimental and will be changed in the future_
-
 ## Asynchronous API
 This is the recommended way of using the SDK.
 ```
+from starknet.contract import Contract
+from starknet.utils.types import NetAddress
+from starknet.net.client import Client
+
 key = 1234
 contract = await Contract.from_address("0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b", Client(net=NetAddress.testnet))
 invocation = await contract.functions.set_value.invoke(key, 7)
@@ -76,6 +77,10 @@ saved = await contract.functions.get_value.call(key) # {"res" : 7}
 You can access synchronous world when using `Contract.sync`.
 
 ```
+from starknet.contract import Contract
+from starknet.utils.types import NetAddress
+from starknet.net.client import Client
+
 key = 1234
 contract = Contract.sync.from_address("0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b", Client(net=NetAddress.testnet))
 invocation = contract.functions.set_value.invoke(key, 7)

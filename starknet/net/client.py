@@ -13,8 +13,8 @@ from starkware.starknet.services.api.gateway.transaction import (
     Transaction,
 )
 
-from src.constants import TxStatus
-from src.utils.types import net_address_from_net, Net
+from starknet.constants import TxStatus
+from starknet.utils.types import net_address_from_net, Net
 
 
 class Client:
