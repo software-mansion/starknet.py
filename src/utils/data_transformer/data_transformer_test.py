@@ -180,3 +180,94 @@ def test_multiple_values():
         "second_len": 2,
         "third": (-11, -12),
     }
+
+
+def test_not_enough_felts():
+    abi = [{"name": "first", "type": "felt"}, {"name": "second", "type": "felt"}]
+
+    with pytest.raises(ValueError) as excinfo:
+        transformer_for_function(outputs=abi).to_python([1])
+
+    assert "second expected 1 values" in str(excinfo.value)
+
+
+def test_invalid_tuple_length():
+    abi = [{"name": "value", "type": "(felt, felt, felt)"}]
+
+    with pytest.raises(ValueError) as excinfo:
+        transformer_for_function(inputs=abi).from_python((1, 2))
+
+    assert "2 != 3" in str(excinfo.value)
+
+
+def test_missing_struct_key():
+    abi = [{"name": "value", "type": "SimpleStruct"}]
+    structs = [
+        {
+            "members": [
+                {"name": "first", "offset": 0, "type": "felt"},
+                {"name": "second", "offset": 1, "type": "felt"},
+            ],
+            "name": "SimpleStruct",
+            "size": 4,
+            "type": "struct",
+        }
+    ]
+
+    with pytest.raises(ValueError) as excinfo:
+        transformer_for_function(inputs=abi, structs=structs).from_python({"first": 1})
+
+    assert "value[second] not provided" in str(excinfo.value)
+
+
+@pytest.mark.parametrize(
+    "type, value",
+    [
+        ("felt", []),
+        ("(felt, felt)", 1),
+        ("SimpleStruct", 1),
+    ],
+)
+def test_wrong_types(type, value):
+    abi = [{"name": "value", "type": type}]
+    structs = [
+        {
+            "members": [
+                {"name": "first", "offset": 0, "type": "felt"},
+                {"name": "second", "offset": 1, "type": "felt"},
+            ],
+            "name": "SimpleStruct",
+            "size": 4,
+            "type": "struct",
+        }
+    ]
+
+    with pytest.raises(TypeError):
+        transformer_for_function(inputs=abi, structs=structs).from_python(value)
+
+
+def test_too_many_positional_args():
+    abi = [{"name": "value", "type": "felt"}]
+
+    with pytest.raises(TypeError) as excinfo:
+        transformer_for_function(inputs=abi).from_python(1, 2)
+
+    assert "2 positional arguments" in str(excinfo.value)
+
+
+def test_arg_provided_twice():
+    abi = [{"name": "value", "type": "felt"}]
+
+    with pytest.raises(TypeError) as excinfo:
+        transformer_for_function(inputs=abi).from_python(1, value=2)
+
+    assert "positional and named argument provided" in str(excinfo.value)
+
+
+def test_missing_arg():
+    abi = [{"name": "first", "type": "felt"}, {"name": "second", "type": "felt"}]
+
+    with pytest.raises(TypeError) as excinfo:
+        transformer_for_function(inputs=abi).from_python(1)
+
+    assert "second not provided" in str(excinfo.value)

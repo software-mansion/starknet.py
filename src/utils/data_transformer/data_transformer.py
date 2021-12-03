@@ -88,7 +88,7 @@ class StructTransformer(TypeTransformer[TypeStruct, dict]):
 
         for member_name, member in definition.members.items():
             if member_name not in value:
-                raise TypeError(f"{name}[{member_name}] not provided.")
+                raise ValueError(f"{name}[{member_name}] not provided.")
 
             values = self.resolve_type(member.cairo_type).from_python(
                 member.cairo_type, f"{name}.{member_name}", value[member_name]
