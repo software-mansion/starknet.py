@@ -11,10 +11,10 @@ from starkware.crypto.signature.signature import (
     get_random_private_key,
 )
 
-from src.contract import Contract
-from src.net import Client
-from src.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
-from src.utils.types import (
+from starknet.contract import Contract
+from starknet.net import Client
+from starknet.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
+from starknet.utils.types import (
     AddressRepresentation,
     parse_address,
     Net,

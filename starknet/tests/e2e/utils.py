@@ -1,4 +1,4 @@
-from src.net import Client
+from starknet.net import Client
 
 
 class DevnetClient(Client):

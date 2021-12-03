@@ -17,7 +17,7 @@ from starkware.cairo.lang.compiler.identifier_manager import (
 from starkware.cairo.lang.compiler.parser import parse_type
 from starkware.cairo.lang.compiler.type_system import mark_type_resolved
 
-from src.utils.types import is_felt_pointer
+from starknet.utils.types import is_felt_pointer
 
 ABIFunctionEntry = dict
 CairoData = List[int]

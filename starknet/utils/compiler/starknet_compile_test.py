@@ -1,7 +1,7 @@
 import json
 import os
 
-from src.utils.compiler.starknet_compile import starknet_compile
+from starknet.utils.compiler.starknet_compile import starknet_compile
 
 directory = os.path.dirname(__file__)
 
