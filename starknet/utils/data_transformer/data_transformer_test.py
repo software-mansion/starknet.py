@@ -40,7 +40,7 @@ def test_array(value, cairo_value):
     to_python = transformer_for_function(outputs=abi).to_python(cairo_value)
 
     assert from_python == cairo_value
-    assert to_python == {"array": value, "array_len": len(value)}
+    assert to_python == (value,)
 
 
 @pytest.mark.parametrize(
@@ -62,7 +62,7 @@ def test_tuple(value, cairo_value):
     to_python = transformer_for_function(outputs=abi).to_python(cairo_value)
 
     assert from_python == cairo_value
-    assert to_python == {"value": value}
+    assert to_python == (value,)
 
 
 @pytest.mark.parametrize(
@@ -76,7 +76,7 @@ def test_felt(value, cairo_value):
     to_python = transformer_for_function(outputs=abi).to_python(cairo_value)
 
     assert from_python == cairo_value
-    assert to_python == {"value": value}
+    assert to_python == (value,)
 
 
 @pytest.mark.parametrize(
@@ -105,7 +105,7 @@ def test_struct(value, cairo_value):
     )
 
     assert from_python == cairo_value
-    assert to_python == {"value": value}
+    assert to_python == (value,)
 
 
 def test_nested_struct():
@@ -157,7 +157,7 @@ def test_nested_struct():
     )
 
     assert from_python == cairo_value
-    assert to_python == {"value": value}
+    assert to_python == (value,)
 
 
 def test_multiple_values():
@@ -174,10 +174,10 @@ def test_multiple_values():
     to_python = transformer_for_function(outputs=abi).to_python(cairo_values)
 
     assert from_python == cairo_values
-    assert to_python == {
+    assert to_python == (123, [10, 20], (-11, -12))
+    assert to_python.as_dict() == {
         "first": 123,
         "second": [10, 20],
-        "second_len": 2,
         "third": (-11, -12),
     }
 

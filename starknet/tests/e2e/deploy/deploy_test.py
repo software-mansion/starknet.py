@@ -2,7 +2,7 @@ import pytest
 import os
 
 from starknet.contract import Contract, ContractFunction
-from starknet.e2e.utils import DevnetClient
+from starknet.tests.e2e.utils import DevnetClient
 
 directory = os.path.dirname(__file__)
 map_filename = os.path.join(directory, "map.cairo")

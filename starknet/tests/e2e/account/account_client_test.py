@@ -20,6 +20,6 @@ async def test_deploy_account_contract_and_sign_tx():
     )
     k, v = 13, 4324
     await map_contract.functions.put.invoke(k, v)
-    resp = await map_contract.functions.get.call(k)
+    (resp,) = await map_contract.functions.get.call(k)
 
-    assert resp["res"] == v
+    assert resp == v
