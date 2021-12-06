@@ -2,23 +2,8 @@ import ctypes
 import secrets
 import os
 from typing import Optional, Tuple
-import json
-import math
 
 from starkware.crypto.signature.signature import inv_mod_curve_size
-
-# PEDERSEN_HASH_POINT_FILENAME = os.path.join(
-#     os.path.dirname(__file__), "pedersen_params.json"
-# )
-# PEDERSEN_PARAMS = json.load(open(PEDERSEN_HASH_POINT_FILENAME))
-#
-# EC_ORDER = PEDERSEN_PARAMS["EC_ORDER"]
-#
-# FIELD_PRIME = PEDERSEN_PARAMS["FIELD_PRIME"]
-#
-# N_ELEMENT_BITS_ECDSA = math.floor(math.log(FIELD_PRIME, 2))
-# assert N_ELEMENT_BITS_ECDSA == 251
-
 
 CPP_LIB_BINDING = None
 OUT_BUFFER_SIZE = 251
@@ -50,16 +35,8 @@ def cpp_binding_loaded() -> bool:
     return CPP_LIB_BINDING is not None
 
 
-#########
-# ECDSA #
-#########
-
 # A type for the digital signature.
 ECSignature = Tuple[int, int]
-
-#################
-# CPP WRAPPERS #
-#################
 
 
 def cpp_hash(left: int, right: int) -> int:
