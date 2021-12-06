@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Callable, TypeVar, Generic, Tuple
+from typing import List, Callable, TypeVar, Generic, Tuple, Dict
 
 from starkware.cairo.lang.compiler.ast.cairo_types import (
     TypeFelt,
@@ -36,6 +36,17 @@ def read_from_cairo_data(
 
 UsedCairoType = TypeVar("UsedCairoType", bound=CairoType)
 PythonType = TypeVar("PythonType")
+
+
+class CallResult(tuple):
+    def __init__(self, properties: Dict[str, any]):
+        self._properties = properties
+
+    def __new__(cls, properties: Dict[str, any]):
+        return super().__new__(cls, (prop for prop in properties.values()))
+
+    def as_dict(self):
+        return self._properties
 
 
 @dataclass
@@ -211,7 +222,7 @@ class DataTransformer:
 
         return calldata
 
-    def to_python(self, values: CairoData) -> dict:
+    def to_python(self, values: CairoData) -> CallResult:
         type_by_name = self._abi_to_types(self.abi["outputs"])
 
         result = {}
@@ -219,11 +230,9 @@ class DataTransformer:
             transformed, values = self.resolve_type(cairo_type).to_python(
                 cairo_type, name, values
             )
-            if isinstance(cairo_type, TypePointer):
-                result[f"{name}_len"] = len(transformed)
             result[name] = transformed
 
-        return result
+        return CallResult(result)
 
     def _abi_to_types(self, abi_list) -> dict:
         return self._remove_array_lengths(
