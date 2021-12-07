@@ -10,6 +10,7 @@ from starknet.utils.crypto.cpp_bindings import (
     cpp_hash,
     get_cpp_lib,
     cpp_binding_loaded,
+    ECSignature,
 )
 
 
@@ -45,7 +46,7 @@ def use_cpp_variant() -> bool:
     return bool(lib_path)
 
 
-def message_signature(msg_hash, priv_key):
+def message_signature(msg_hash, priv_key) -> ECSignature:
     if use_cpp_variant():
         return cpp_sign(msg_hash, priv_key)
     return sign(msg_hash, priv_key)
@@ -57,7 +58,7 @@ def hash_message(
     selector: int,
     calldata: List[int],
     nonce: int,
-):
+) -> int:
     hash_fun = default_hash
     if use_cpp_variant():
         hash_fun = cpp_hash
