@@ -4,3 +4,4 @@ API
 
    client
    contract
+   account_client
