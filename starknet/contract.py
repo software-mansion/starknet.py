@@ -3,11 +3,11 @@ import json
 from dataclasses import dataclass
 from typing import List, Optional, Any, TYPE_CHECKING
 
-from starkware.starknet.definitions.fields import ContractAddressSalt
-from starkware.starknet.services.api.contract_definition import ContractDefinition
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
+from starkware.starknet.definitions.fields import ContractAddressSalt
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
+from starkware.starknet.services.api.contract_definition import ContractDefinition
 from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
     CastableToHash,
 )
@@ -16,12 +16,11 @@ from starkware.starkware_utils.error_handling import StarkErrorCode
 
 from .utils.compiler.starknet_compile import StarknetCompilationSource, starknet_compile
 from .utils.data_transformer import DataTransformer
-from .utils.types import AddressRepresentation, parse_address
 from .utils.sync import add_sync_version
+from .utils.types import AddressRepresentation, parse_address
 
 ABI = list
 ABIEntry = dict
-
 
 if TYPE_CHECKING:
     from .net import Client
@@ -45,6 +44,10 @@ class ContractData:
 @add_sync_version
 @dataclass(frozen=True)
 class InvocationResult:
+    """
+    Dataclass returned from invocation. Contains basic details and allows waiting for transaction's acceptance.
+    """
+
     hash: CastableToHash
     contract: ContractData
     _client: "Client"
@@ -54,6 +57,11 @@ class InvocationResult:
     async def wait_for_acceptance(
         self, wait_for_accept: Optional[bool] = False, check_interval=5
     ) -> "InvocationResult":
+        """
+        Waits for invoke transaction to be accepted on chain. By default, returns when status is ``PENDING`` -
+        use ``wait_for_accept`` to wait till ``ACCEPTED`` status.
+        Returns a new InvocationResult instance, **does not mutate original instance**.
+        """
         block_number, status = await self._client.wait_for_tx(
             int(self.hash, 16),
             wait_for_accept=wait_for_accept,
@@ -90,7 +98,7 @@ class ContractFunction:
         **kwargs,
     ):
         """
-        Call function. ``*args`` and ``**kwargs`` are translated into Cairo types.
+        Call contract's function. ``*args`` and ``**kwargs`` are translated into Cairo types.
         """
         tx = self._make_invoke_function(*args, signature=signature, **kwargs)
         result = await self._client.call_contract(
@@ -100,9 +108,11 @@ class ContractFunction:
             return result
         return self._payload_transformer.to_python(result)
 
-    async def invoke(self, *args, signature: Optional[List[str]] = None, **kwargs):
+    async def invoke(
+        self, *args, signature: Optional[List[str]] = None, **kwargs
+    ) -> InvocationResult:
         """
-        Invoke function. ``*args`` and ``**kwargs`` are translated into Cairo types.
+        Invoke contract's function. ``*args`` and ``**kwargs`` are translated into Cairo types.
         """
         tx = self._make_invoke_function(*args, signature=signature, **kwargs)
         response = await self._client.add_transaction(tx=tx)
@@ -131,6 +141,10 @@ class ContractFunction:
 
 @add_sync_version
 class ContractFunctionsRepository:
+    """
+    Contains functions exposed from a contract. They are set as properties during initialization.
+    """
+
     def __init__(self, contract_data: ContractData, client: "Client"):
         for abi_entry in contract_data.abi:
             if abi_entry["type"] != "function":
@@ -151,12 +165,19 @@ class ContractFunctionsRepository:
 
 @add_sync_version
 class Contract:
+    """
+    Contract
+    """
+
     def __init__(self, address: AddressRepresentation, abi: list, client: "Client"):
         self._data = ContractData.from_abi(parse_address(address), abi)
         self._functions = ContractFunctionsRepository(self._data, client)
 
     @property
     def functions(self) -> ContractFunctionsRepository:
+        """
+        :return: All functions exposed from a contract.
+        """
         return self._functions
 
     @property
