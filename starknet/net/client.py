@@ -14,9 +14,11 @@ from starkware.starknet.services.api.gateway.transaction import (
 )
 
 from starknet.constants import TxStatus
+from starknet.utils.sync import add_sync_version
 from starknet.utils.types import net_address_from_net, Net
 
 
+@add_sync_version
 class Client:
     @staticmethod
     def alpha() -> "Client":

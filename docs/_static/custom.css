@@ -1,0 +1,11 @@
+.class {
+    margin: 40px 0;
+}
+
+dl.method {
+    margin: 40px 0;
+}
+
+dl.method .sig-object {
+    margin-bottom: 15px;
+}
