@@ -89,6 +89,9 @@ class ContractFunction:
         return_raw: bool = False,
         **kwargs,
     ):
+        """
+        Call function. ``*args`` and ``**kwargs`` are translated into Cairo types.
+        """
         tx = self._make_invoke_function(*args, signature=signature, **kwargs)
         result = await self._client.call_contract(
             invoke_tx=tx, block_hash=block_hash, block_number=block_number
@@ -98,6 +101,9 @@ class ContractFunction:
         return self._payload_transformer.to_python(result)
 
     async def invoke(self, *args, signature: Optional[List[str]] = None, **kwargs):
+        """
+        Invoke function. ``*args`` and ``**kwargs`` are translated into Cairo types.
+        """
         tx = self._make_invoke_function(*args, signature=signature, **kwargs)
         response = await self._client.add_transaction(tx=tx)
 
@@ -161,6 +167,13 @@ class Contract:
     async def from_address(
         address: AddressRepresentation, client: "Client"
     ) -> "Contract":
+        """
+        Fetches ABI for given contract and creates a new Contract instance with this ABI.
+
+        :param address: Contract's address
+        :param client: Client used
+        :return: contract
+        """
         code = await client.get_code(contract_address=parse_address(address))
         return Contract(address=parse_address(address), abi=code["abi"], client=client)
 

@@ -2,18 +2,19 @@ from dataclasses import dataclass
 from typing import Dict, Optional, List
 
 from starkware.cairo.common.hash_state import compute_hash_on_elements
-from starkware.starknet.definitions.transaction_type import TransactionType
-from starkware.starknet.public.abi import get_selector_from_name
-from starkware.starknet.services.api.gateway.transaction import InvokeFunction
 from starkware.crypto.signature.signature import (
     private_to_stark_key,
     sign,
     get_random_private_key,
 )
+from starkware.starknet.definitions.transaction_type import TransactionType
+from starkware.starknet.public.abi import get_selector_from_name
+from starkware.starknet.services.api.gateway.transaction import InvokeFunction
 
 from starknet.contract import Contract
 from starknet.net import Client
 from starknet.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
+from starknet.utils.sync import add_sync_version
 from starknet.utils.types import (
     AddressRepresentation,
     parse_address,
@@ -45,6 +46,7 @@ def hash_message(
     )
 
 
+@add_sync_version
 class AccountClient(Client):
     def __init__(
         self,
