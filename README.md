@@ -26,6 +26,19 @@ chmod +x ./.git/hooks/pre-commit
 chmod +x ./.git/hooks/pre-push
 ```
 
+# Documentation
+[Sphinx](https://www.sphinx-doc.org/en/master/) is used for generating documentation.
+
+### Generating from source
+```
+poe docs_create
+```
+
+### Opening generated docs
+```
+poe docs_open
+```
+
 # Tests
 ## Running whole suite
 

@@ -30,6 +30,8 @@ test_html = [
     "_coverage_combine",
     { shell = "coverage html && open ./htmlcov/index.html" }
 ]
+docs_create = { shell = "make -C docs html" }
+docs_open = { shell = "open docs/_build/html/index.html" }
 
 [tool.coverage.run]
 source = ["starknet"]
