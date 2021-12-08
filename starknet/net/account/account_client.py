@@ -1,17 +1,18 @@
 from dataclasses import dataclass
 from typing import Dict, Optional
 
-from starkware.starknet.definitions.transaction_type import TransactionType
-from starkware.starknet.public.abi import get_selector_from_name
-from starkware.starknet.services.api.gateway.transaction import InvokeFunction
 from starkware.crypto.signature.signature import (
     private_to_stark_key,
     get_random_private_key,
 )
+from starkware.starknet.definitions.transaction_type import TransactionType
+from starkware.starknet.public.abi import get_selector_from_name
+from starkware.starknet.services.api.gateway.transaction import InvokeFunction
 
 from starknet.contract import Contract
 from starknet.net import Client
 from starknet.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
+from starknet.utils.sync import add_sync_version
 from starknet.utils.crypto.facade import message_signature, hash_message
 from starknet.utils.types import (
     AddressRepresentation,
@@ -29,8 +30,13 @@ class KeyPair:
     def from_private_key(key: int) -> "KeyPair":
         return KeyPair(private_key=key, public_key=private_to_stark_key(key))
 
-
+@add_sync_version
 class AccountClient(Client):
+    """
+    Extends the functionality of :obj:`Client <starknet.net.Client>`, adding additional methods for creating the
+    account contract
+    """
+
     def __init__(
         self,
         address: AddressRepresentation,
@@ -52,6 +58,12 @@ class AccountClient(Client):
         tx: InvokeFunction,
         token: Optional[str] = None,
     ) -> Dict[str, int]:
+        """
+
+        :param tx: Transaction which invokes another contract through account proxy. Signed transactions aren't supported at the moment
+        :param token: Optional token for Starknet API access, appended in a query string
+        :return: API response dictionary with `code`, `transaction_hash`
+        """
         if tx.tx_type == TransactionType.DEPLOY:
             return await super().add_transaction(tx, token)
 
@@ -97,6 +109,13 @@ class AccountClient(Client):
 
     @staticmethod
     async def create_account(net: Net, pk: Optional[int] = None) -> "AccountClient":
+        """
+        Creates the account using `OpenZeppelin Account contract <https://github.com/OpenZeppelin/cairo-contracts/blob/main/contracts/Account.cairo>`_
+
+        :param net: Target net
+        :param pk: Public Key used for the account
+        :return: Instance of AccountClient which interacts with created account on given network
+        """
         if not pk:
             pk = get_random_private_key()
 
