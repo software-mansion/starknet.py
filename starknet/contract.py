@@ -170,6 +170,13 @@ class Contract:
     """
 
     def __init__(self, address: AddressRepresentation, abi: list, client: "Client"):
+        """
+        Should be used instead of ``from_address`` when ABI is known statically.
+
+        :param address: contract's address
+        :param abi: contract's abi
+        :param client: client used for API calls
+        """
         self._data = ContractData.from_abi(parse_address(address), abi)
         self._functions = ContractFunctionsRepository(self._data, client)
 
@@ -189,7 +196,8 @@ class Contract:
         address: AddressRepresentation, client: "Client"
     ) -> "Contract":
         """
-        Fetches ABI for given contract and creates a new Contract instance with this ABI.
+        Fetches ABI for given contract and creates a new Contract instance with it. If you know ABI statically you
+        should create Contract's instances directly instead of using this function to avoid unnecessary API calls.
 
         :param address: Contract's address
         :param client: Client used
@@ -206,7 +214,7 @@ class Contract:
         constructor_args: Optional[Union[List[any], dict]] = None,
     ) -> "Contract":
         """
-        Deploys a contract. Either compilation_source or compiled_contract is required.
+        Deploys a contract and waits until it has PENDING status. Either compilation_source or compiled_contract is required.
 
         :param client: Client
         :param compilation_source: string of source code or a dict {FILENAME: CONTENT}.

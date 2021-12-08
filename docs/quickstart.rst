@@ -3,7 +3,7 @@ Quickstart
 
 Using Client
 ------------
-:obj:`Client <starknet.net.Client>`. is a facade for interacting with Starknet. It requires information about used network:
+:obj:`Client <starknet.net.Client>` is a facade for interacting with Starknet. It requires information about used network:
 
 .. code-block:: python
 
@@ -30,7 +30,7 @@ synchronous version. It might be helpful to play with Starknet directly in pytho
 You can see all Client's methods :obj:`here <starknet.net.Client>`.
 
 Using AccountClient
-------------
+-------------------
 
 :obj:`AccountClient <starknet.net.account.account_client.AccountClient>` is an extension of a regular :obj:`Client <starknet.net.Client>`. It leverages `OpenZeppelin's Cairo contracts <https://github.com/OpenZeppelin/cairo-contracts>`_ to create an account contract which proxies (and signs) the calls to other contracts on Starknet.
 
