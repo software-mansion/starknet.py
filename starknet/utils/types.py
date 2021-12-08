@@ -1,10 +1,14 @@
-import enum
-from typing import Union, NewType
+from typing import Union
 
 from starkware.cairo.lang.compiler.ast.cairo_types import (
     CairoType,
     TypePointer,
     TypeFelt,
+)
+from starkware.starknet.services.api.gateway.transaction import (
+    InvokeFunction as IF,
+    Deploy as D,
+    Transaction as T,
 )
 
 
@@ -26,15 +30,13 @@ def parse_address(value: AddressRepresentation) -> Address:
         raise ValueError("Invalid address format.")
 
 
-class NetAddress(enum.Enum):
-    mainnet = "https://alpha-mainnet.starknet.io"
-    testnet = "https://alpha4.starknet.io"
+def net_address_from_net(net: str) -> str:
+    return {
+        "mainnet": "https://alpha-mainnet.starknet.io",
+        "testnet": "https://alpha4.starknet.io",
+    }.get(net, net)
 
 
-Net = NewType("Net", Union[NetAddress, str])
-
-
-def net_address_from_net(net: Net) -> str:
-    if isinstance(net, NetAddress):
-        net = net.value
-    return net
+InvokeFunction = IF
+Deploy = D
+Transaction = T

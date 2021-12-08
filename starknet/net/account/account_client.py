@@ -7,7 +7,7 @@ from starkware.crypto.signature.signature import (
 )
 from starkware.starknet.definitions.transaction_type import TransactionType
 from starkware.starknet.public.abi import get_selector_from_name
-from starkware.starknet.services.api.gateway.transaction import InvokeFunction
+
 
 from starknet.contract import Contract
 from starknet.net import Client
@@ -17,7 +17,7 @@ from starknet.utils.crypto.facade import message_signature, hash_message
 from starknet.utils.types import (
     AddressRepresentation,
     parse_address,
-    Net,
+    InvokeFunction,
 )
 
 
@@ -30,6 +30,7 @@ class KeyPair:
     def from_private_key(key: int) -> "KeyPair":
         return KeyPair(private_key=key, public_key=private_to_stark_key(key))
 
+
 @add_sync_version
 class AccountClient(Client):
     """
@@ -41,7 +42,7 @@ class AccountClient(Client):
         self,
         address: AddressRepresentation,
         key_pair: KeyPair,
-        net: Net,
+        net: str,
         *args,
         **kwargs,
     ):
@@ -108,11 +109,11 @@ class AccountClient(Client):
         )
 
     @staticmethod
-    async def create_account(net: Net, pk: Optional[int] = None) -> "AccountClient":
+    async def create_account(net: str, pk: Optional[int] = None) -> "AccountClient":
         """
         Creates the account using `OpenZeppelin Account contract <https://github.com/OpenZeppelin/cairo-contracts/blob/main/contracts/Account.cairo>`_
 
-        :param net: Target net
+        :param net: Target net's address or one of "mainnet", "testnet"
         :param pk: Public Key used for the account
         :return: Instance of AccountClient which interacts with created account on given network
         """
