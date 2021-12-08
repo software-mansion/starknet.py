@@ -1,7 +1,7 @@
 import dataclasses
 import json
 from dataclasses import dataclass
-from typing import List, Optional, Any, TYPE_CHECKING
+from typing import List, Optional, TYPE_CHECKING, Union
 
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
 from starkware.starknet.definitions.fields import ContractAddressSalt
@@ -166,7 +166,7 @@ class ContractFunctionsRepository:
 @add_sync_version
 class Contract:
     """
-    Contract
+    Cairo contract's model.
     """
 
     def __init__(self, address: AddressRepresentation, abi: list, client: "Client"):
@@ -203,20 +203,33 @@ class Contract:
         client: "Client",
         compilation_source: Optional[StarknetCompilationSource] = None,
         compiled_contract: Optional[str] = None,
-        constructor_args: Optional[List[Any]] = None,
+        constructor_args: Optional[Union[List[any], dict]] = None,
     ) -> "Contract":
+        """
+        Deploys a contract. Either compilation_source or compiled_contract is required.
+
+        :param client: Client
+        :param compilation_source: string of source code or a dict {FILENAME: CONTENT}.
+        :param compiled_contract: string containing compiled contract. Useful for reading compiled contract from a file.
+        :param constructor_args: a list or dict of arguments for the constructor.
+        :return:
+        """
         if not compiled_contract and not compilation_source:
             raise ValueError(
-                "At least one of compiled_contract, compilation_source is required for contract deployment"
+                "At least one of compiled_contract, compilation_source is required for contract deployment."
             )
 
         if not compiled_contract:
             compiled_contract = starknet_compile(compilation_source)
+
+        abi = json.loads(compiled_contract)["abi"]
+        translated_args = Contract._translate_constructor_args(abi, constructor_args)
+
         res = await client.add_transaction(
             tx=Deploy(
                 contract_address_salt=ContractAddressSalt.get_random_value(),
                 contract_definition=ContractDefinition.loads(compiled_contract),
-                constructor_calldata=constructor_args or [],
+                constructor_calldata=translated_args,
             )
         )
 
@@ -230,5 +243,29 @@ class Contract:
         return Contract(
             client=client,
             address=contract_address,
-            abi=json.loads(compiled_contract)["abi"],
+            abi=abi,
         )
+
+    @staticmethod
+    def _translate_constructor_args(abi: list, constructor_args: any) -> List[int]:
+        constructor_abi = next(
+            (member for member in abi if member["type"] == "constructor"),
+            None,
+        )
+
+        if not constructor_abi:
+            return []
+
+        if not constructor_args:
+            raise ValueError(
+                "Provided contract has a constructor and no args were provided."
+            )
+
+        args, kwargs = (
+            ([], constructor_args)
+            if isinstance(constructor_args, dict)
+            else (constructor_args, {})
+        )
+        return DataTransformer(
+            constructor_abi, identifier_manager_from_abi(abi)
+        ).from_python(*args, **kwargs)
