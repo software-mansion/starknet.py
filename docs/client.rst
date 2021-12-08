@@ -6,6 +6,8 @@ Client
 .. automethod:: Client.__init__
 .. automethod:: Client.get_contract_addresses
 .. automethod:: Client.call_contract
+We recommend using :obj:`ContractFunction's call <starknet.contract.ContractFunction.call>` instead
+
 .. automethod:: Client.get_block
 Example response:
 
@@ -194,13 +196,13 @@ Example response:
         "transaction_index": 2
     }
 
-
 The result contains (in addition to get_transaction fields):
 
 - `l2_to_l1_messages` – Messages sent from L2 to L1.
 - `l1_to_l2_consumed_message` – The consumed message, in case the transaction was sent from L1.
 - `execution_resources` – Resources consumed by the transaction execution.
 
-
 .. automethod:: Client.wait_for_tx
 .. automethod:: Client.add_transaction
+We recommend using :obj:`ContractFunction's invoke <starknet.contract.ContractFunction.invoke>` or :obj:`Contract's deploy <starknet.contract.Contract.deploy>` instead
+

@@ -11,7 +11,7 @@ from services.external_api.base_client import RetryConfig
 
 from starknet.constants import TxStatus
 from starknet.utils.sync import add_sync_version
-from starknet.utils.types import net_address_from_net, Net, InvokeFunction, Transaction
+from starknet.utils.types import net_address_from_net, InvokeFunction, Transaction
 
 
 @add_sync_version
@@ -20,10 +20,10 @@ class Client:
     def alpha() -> "Client":
         return Client("https://alpha4.starknet.io")
 
-    def __init__(self, net: Net, n_retries: Optional[int] = 1):
+    def __init__(self, net: str, n_retries: Optional[int] = 1):
         """
 
-        :param net: Target network for the client. Can be a string with URL or one of starknet.utils.types.NetAddress's enum values
+        :param net: Target network for the client. Can be a string with URL or one of "mainnet", "testnet"
         :param n_retries: Number of retries client will attempt before failing a request
         """
         host = net_address_from_net(net)
