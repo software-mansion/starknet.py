@@ -48,6 +48,11 @@ def hash_message(
 
 @add_sync_version
 class AccountClient(Client):
+    """
+    Extends the functionality of :obj:`Client <starknet.net.Client>`, adding additional methods for creating the
+    account contract
+    """
+
     def __init__(
         self,
         address: AddressRepresentation,
@@ -69,6 +74,12 @@ class AccountClient(Client):
         tx: InvokeFunction,
         token: Optional[str] = None,
     ) -> Dict[str, int]:
+        """
+
+        :param tx: Transaction which invokes another contract through account proxy. Signed transactions aren't supported at the moment
+        :param token: Optional token for Starknet API access, appended in a query string
+        :return: API response dictionary with `code`, `transaction_hash`
+        """
         if tx.tx_type == TransactionType.DEPLOY:
             return await super().add_transaction(tx, token)
 
@@ -114,6 +125,13 @@ class AccountClient(Client):
 
     @staticmethod
     async def create_account(net: Net, pk: Optional[int] = None) -> "AccountClient":
+        """
+        Creates the account using `OpenZeppelin Account contract <https://github.com/OpenZeppelin/cairo-contracts/blob/main/contracts/Account.cairo>`_
+
+        :param net: Target net
+        :param pk: Public Key used for the account
+        :return: Instance of AccountClient which interacts with created account on given network
+        """
         if not pk:
             pk = get_random_private_key()
 
