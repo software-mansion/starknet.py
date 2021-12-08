@@ -6,6 +6,11 @@ from starkware.cairo.lang.compiler.ast.cairo_types import (
     TypePointer,
     TypeFelt,
 )
+from starkware.starknet.services.api.gateway.transaction import (
+    InvokeFunction as IF,
+    Deploy as D,
+    Transaction as T,
+)
 
 
 def is_felt_pointer(type: CairoType) -> bool:
@@ -38,3 +43,8 @@ def net_address_from_net(net: Net) -> str:
     if isinstance(net, NetAddress):
         net = net.value
     return net
+
+
+InvokeFunction = IF
+Deploy = D
+Transaction = T

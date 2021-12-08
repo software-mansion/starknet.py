@@ -7,7 +7,7 @@ from starkware.crypto.signature.signature import (
 )
 from starkware.starknet.definitions.transaction_type import TransactionType
 from starkware.starknet.public.abi import get_selector_from_name
-from starkware.starknet.services.api.gateway.transaction import InvokeFunction
+
 
 from starknet.contract import Contract
 from starknet.net import Client
@@ -18,6 +18,7 @@ from starknet.utils.types import (
     AddressRepresentation,
     parse_address,
     Net,
+    InvokeFunction,
 )
 
 
@@ -29,6 +30,7 @@ class KeyPair:
     @staticmethod
     def from_private_key(key: int) -> "KeyPair":
         return KeyPair(private_key=key, public_key=private_to_stark_key(key))
+
 
 @add_sync_version
 class AccountClient(Client):

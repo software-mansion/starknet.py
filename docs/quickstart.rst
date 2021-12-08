@@ -10,9 +10,9 @@ Using Client
     from starknet.contract import Contract
     from starknet.net.client import Client
 
-    # Using predefined networks - use testnet for playing with Starknet
-    testnet_client = Client(NetAddress.testnet)
-    mainnet_client = Client(NetAddress.mainnet)
+    # Use testnet for playing with Starknet
+    testnet_client = Client("https://alpha4.starknet.io")
+    mainnet_client = Client("https://alpha-mainnet.starknet.io")
 
     # Local network
     local_network_client = Client("http://localhost:5000")

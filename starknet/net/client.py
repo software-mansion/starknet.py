@@ -8,14 +8,10 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
 )
 from starkware.starknet.services.api.gateway.gateway_client import GatewayClient
 from services.external_api.base_client import RetryConfig
-from starkware.starknet.services.api.gateway.transaction import (
-    InvokeFunction,
-    Transaction,
-)
 
 from starknet.constants import TxStatus
 from starknet.utils.sync import add_sync_version
-from starknet.utils.types import net_address_from_net, Net
+from starknet.utils.types import net_address_from_net, Net, InvokeFunction, Transaction
 
 
 @add_sync_version
@@ -24,9 +20,14 @@ class Client:
     def alpha() -> "Client":
         return Client("https://alpha4.starknet.io")
 
-    def __init__(self, net: Net, retry_config: Optional[RetryConfig] = None):
+    def __init__(self, net: Net, n_retries: Optional[int] = 1):
+        """
+
+        :param net: Target network for the client. Can be a string with URL or one of starknet.utils.types.NetAddress's enum values
+        :param n_retries: Number of retries client will attempt before failing a request
+        """
         host = net_address_from_net(net)
-        retry_config = retry_config or RetryConfig(1)
+        retry_config = RetryConfig(n_retries)
         feeder_gateway_url = f"{host}/feeder_gateway"
         self._feeder_gateway = FeederGatewayClient(
             url=feeder_gateway_url, retry_config=retry_config
@@ -73,7 +74,7 @@ class Client:
 
         :param block_hash: Block's hash
         :param block_number: Block's number
-        :return: Dictionary with block's transactions, more on that topic: https://www.cairo-lang.org/docs/hello_starknet/cli.html#get-block
+        :return: Dictionary with block's transactions
         """
         return await self._feeder_gateway.get_block(block_hash, block_number)
 
@@ -88,7 +89,7 @@ class Client:
         :param contract_address: Address of the contract on Starknet
         :param block_hash: Get code at specific block hash
         :param block_number: Get code at given block number
-        :return: JSON representation of compiled code of the contract, with ABI alongside, more on that topic: https://www.cairo-lang.org/docs/hello_starknet/cli.html#get-code
+        :return: JSON representation of compiled code of the contract, with ABI alongside
         """
         return await self._feeder_gateway.get_code(
             contract_address,
@@ -109,7 +110,7 @@ class Client:
         :param key: An address of the storage variable inside of the contract. Can be retrieved using starkware.starknet.public.abi.get_storage_var_address(<name>)
         :param block_hash: Fetches the value of the variable at given block hash
         :param block_number: See above, uses block number instead of hash
-        :return: Storage value of given contract, more about that topic here: https://www.cairo-lang.org/docs/hello_starknet/cli.html#get-storage-at
+        :return: Storage value of given contract
         """
         return await self._feeder_gateway.get_storage_at(
             contract_address,
@@ -124,7 +125,7 @@ class Client:
         """
         :param tx_hash: Transaction's hash
         :param tx_id: Transaction's index
-        :return: dictionary containing tx's status which is one of starknet.constants.TxStatus. More on possible statuses here: https://www.cairo-lang.org/docs/hello_starknet/intro.html#interact-with-the-contract
+        :return: dictionary containing tx's status which is one of starknet.constants.TxStatus
         """
         return await self._feeder_gateway.get_transaction_status(
             tx_hash,
@@ -137,7 +138,7 @@ class Client:
         """
         :param tx_hash: Transaction's hash
         :param tx_id: Transaction's index
-        :return: dictionary representing JSON of the transaction on Starknet, more on that topic: https://www.cairo-lang.org/docs/hello_starknet/cli.html#get-transaction
+        :return: dictionary representing JSON of the transaction on Starknet
         """
         return await self._feeder_gateway.get_transaction(
             tx_hash,
@@ -150,7 +151,7 @@ class Client:
         """
         :param tx_hash: Transaction's hash
         :param tx_id: Transaction's index
-        :return: dictionary representing JSON of the transaction's receipt on Starknet, more on that topic: https://www.cairo-lang.org/docs/hello_starknet/cli.html#get-transaction-receipt
+        :return: dictionary representing JSON of the transaction's receipt on Starknet
         """
         return await self._feeder_gateway.get_transaction_receipt(
             tx_hash,
