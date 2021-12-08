@@ -1,10 +1,8 @@
 from dataclasses import dataclass
-from typing import Dict, Optional, List
+from typing import Dict, Optional
 
-from starkware.cairo.common.hash_state import compute_hash_on_elements
 from starkware.crypto.signature.signature import (
     private_to_stark_key,
-    sign,
     get_random_private_key,
 )
 from starkware.starknet.definitions.transaction_type import TransactionType
@@ -15,6 +13,7 @@ from starknet.contract import Contract
 from starknet.net import Client
 from starknet.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
 from starknet.utils.sync import add_sync_version
+from starknet.utils.crypto.facade import message_signature, hash_message
 from starknet.utils.types import (
     AddressRepresentation,
     parse_address,
@@ -30,21 +29,6 @@ class KeyPair:
     @staticmethod
     def from_private_key(key: int) -> "KeyPair":
         return KeyPair(private_key=key, public_key=private_to_stark_key(key))
-
-
-def hash_message(
-    account: int, to: int, selector: int, calldata: List[int], nonce: int
-) -> int:
-    return compute_hash_on_elements(
-        [
-            account,
-            to,
-            selector,
-            compute_hash_on_elements(calldata),
-            nonce,
-        ]
-    )
-
 
 @add_sync_version
 class AccountClient(Client):
@@ -106,7 +90,7 @@ class AccountClient(Client):
             nonce=nonce,
         )
 
-        r, s = sign(msg_hash=msg_hash, priv_key=self.private_key)
+        r, s = message_signature(msg_hash=msg_hash, priv_key=self.private_key)
 
         return await super().add_transaction(
             InvokeFunction(
