@@ -3,7 +3,7 @@ Quickstart
 
 Using Client
 ------------
-``Client`` is a facade for interacting with Starknet. It requires information about used network:
+:obj:`Client <starknet.net.Client>`. is a facade for interacting with Starknet. It requires information about used network:
 
 .. code-block:: python
 
@@ -27,11 +27,32 @@ synchronous version. It might be helpful to play with Starknet directly in pytho
     synchronous_testnet_client = Client.sync(NetAddress.testnet)
     call_result = synchronous_testnet_client.get_block("0x495c670c53e4e76d08292524299de3ba078348d861dd7b2c7cc4933dbc27943")
 
-You can see all Client's methods here. TODO
+You can see all Client's methods :obj:`here <starknet.net.Client>`.
+
+Using AccountClient
+------------
+
+:obj:`AccountClient <starknet.net.account.account_client.AccountClient>` is an extension of a regular :obj:`Client <starknet.net.Client>`. It leverages `OpenZeppelin's Cairo contracts <https://github.com/OpenZeppelin/cairo-contracts>`_ to create an account contract which proxies (and signs) the calls to other contracts on Starknet.
+
+Example usage:
+
+.. code-block:: python
+
+    # Creates an account on local network and returns an instance
+    acc_client = await AccountClient.create_account(net="http://localhost:5000/")
+
+    # Deploy an example contract which implements a simple k-v store. Deploy transaction is not being signed.
+    map_contract = await Contract.deploy(
+        client=acc_client, compilation_source=map_source_code
+    )
+    k, v = 13, 4324
+    # Adds a transaction to mutate the state of k-v store. The call goes through account proxy, because we've used AccountClient to create the contract object
+    await map_contract.functions.put.invoke(k, v)
+    (resp,) = await map_contract.functions.get.call(k) # Retrieves the value, which is equal to 4324 in this case
 
 Using Contract
 --------------
-``Contract`` makes interacting with contracts deployed on Starknet much easier:
+:obj:`Contract <starknet.contract.Contract>` makes interacting with contracts deployed on Starknet much easier:
 
 .. code-block:: python
 
