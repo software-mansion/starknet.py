@@ -31,12 +31,10 @@ def parse_address(value: AddressRepresentation) -> Address:
 
 
 def net_address_from_net(net: str) -> str:
-    nets = {
+    return {
         "mainnet": "https://alpha-mainnet.starknet.io",
         "testnet": "https://alpha4.starknet.io",
-    }
-    predefined_net_addr = nets.get(net)
-    return predefined_net_addr if predefined_net_addr else net
+    }.get(net, net)
 
 
 InvokeFunction = IF
