@@ -26,6 +26,7 @@ coverage = "^6.1.2"
 starknet-devnet = "^0.1.9"
 pytest-asyncio = "^0.16.0"
 Sphinx = "^4.3.1"
+sphinx-rtd-theme = "^1.0.0"
 
 [tool.poe.tasks]
 test = ["test_unit", "test_e2e"]
