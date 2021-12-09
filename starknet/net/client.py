@@ -23,7 +23,7 @@ class Client:
     def __init__(self, net: str, n_retries: Optional[int] = 1):
         """
 
-        :param net: Target network for the client. Can be a string with URL or one of "mainnet", "testnet"
+        :param net: Target network for the client. Can be a string with URL or one of ``"mainnet"``, ``"testnet"``
         :param n_retries: Number of retries client will attempt before failing a request
         """
         host = net_address_from_net(net)

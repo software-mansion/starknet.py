@@ -6,9 +6,11 @@ Client
 .. automethod:: Client.__init__
 .. automethod:: Client.get_contract_addresses
 .. automethod:: Client.call_contract
-We recommend using :obj:`ContractFunction's call <starknet.contract.ContractFunction.call>` instead
+
+We recommend using :obj:`ContractFunction's call <starknet.contract.ContractFunction.call>` instead.
 
 .. automethod:: Client.get_block
+
 Example response:
 
 .. code-block:: json
@@ -79,6 +81,7 @@ Example response:
 
 
 .. automethod:: Client.get_code
+
 The output should look like:
 
 .. code-block:: json
@@ -105,6 +108,7 @@ The output should look like:
 
 .. automethod:: Client.get_storage_at
 .. automethod:: Client.get_transaction_status
+
 The result should look like this:
 
 .. code-block:: json
@@ -123,6 +127,7 @@ The possible statuses are:
 - **ACCEPTED_ONCHAIN**: The transaction was accepted on-chain.
 
 .. automethod:: Client.get_transaction
+
 Example response:
 
 .. code-block:: json
@@ -161,6 +166,7 @@ It may also include each of the following optional fields (according to the tran
 
 
 .. automethod:: Client.get_transaction_receipt
+
 Example response:
 
 .. code-block:: json
@@ -203,6 +209,8 @@ The result contains (in addition to get_transaction fields):
 - `execution_resources` – Resources consumed by the transaction execution.
 
 .. automethod:: Client.wait_for_tx
+
 .. automethod:: Client.add_transaction
+
 We recommend using :obj:`ContractFunction's invoke <starknet.contract.ContractFunction.invoke>` or :obj:`Contract's deploy <starknet.contract.Contract.deploy>` instead
 

@@ -60,13 +60,12 @@ This is how we can interact with it:
 
 .. code-block:: python
 
-    from starknet.utils.types import NetAddress
     from starknet.net.client import Client
     from starknet.contract import Contract
 
-    contract = Contract(address=address, abi=abi, client=Client(net=NetAddress.testnet))
+    contract = Contract(address=address, abi=abi, client=Client("testnet"))
     # or
-    contract = await Contract.from_address(address, Client(net=NetAddress.testnet))
+    contract = await Contract.from_address(address, Client("testnet"))
 
     # Using only positional arguments
     invocation = await contract.functions.transferFrom.invoke(sender, recipient, 10000)
@@ -82,8 +81,7 @@ This is how we can interact with it:
 
     (balance,) = await contract.functions.balanceOf.call(recipient)
 
-    # You can also call .to_dict on value returned from a call to get keyed values. It is useful with many returned
-    # values.
+    # You can also call .to_dict on value returned from a call to get keyed values. It is useful with many returned values.
     result = await contract.functions.balanceOf.call(recipient)
     balance = result.to_dict()["balance"]
 
@@ -118,7 +116,7 @@ Here's how you can deploy new contracts:
     end
     """
 
-    client = Client(net=NetAddress.testnet)
+    client = Client("testnet")
 
     # Use list for positional arguments
     constructor_args = [123]
