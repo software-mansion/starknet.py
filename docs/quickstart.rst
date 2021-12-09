@@ -3,7 +3,7 @@ Quickstart
 
 Using Client
 ------------
-:obj:`Client <starknet.net.Client>`. is a facade for interacting with Starknet. It requires information about used network:
+:obj:`Client <starknet.net.Client>` is a facade for interacting with Starknet. It requires information about used network:
 
 .. code-block:: python
 
@@ -24,13 +24,13 @@ synchronous version. It might be helpful to play with Starknet directly in pytho
 
 .. code-block:: python
 
-    synchronous_testnet_client = Client.sync(NetAddress.testnet)
+    synchronous_testnet_client = Client.sync("testnet")
     call_result = synchronous_testnet_client.get_block("0x495c670c53e4e76d08292524299de3ba078348d861dd7b2c7cc4933dbc27943")
 
 You can see all Client's methods :obj:`here <starknet.net.Client>`.
 
 Using AccountClient
-------------
+-------------------
 
 :obj:`AccountClient <starknet.net.account.account_client.AccountClient>` is an extension of a regular :obj:`Client <starknet.net.Client>`. It leverages `OpenZeppelin's Cairo contracts <https://github.com/OpenZeppelin/cairo-contracts>`_ to create an account contract which proxies (and signs) the calls to other contracts on Starknet.
 
@@ -57,10 +57,9 @@ Using Contract
 .. code-block:: python
 
     from starknet.contract import Contract
-    from starknet.utils.types import NetAddress
     from starknet.net.client import Client
 
-    client = Client(net=NetAddress.testnet)
+    client = Client("testnet")
     key = 1234
 
     # Create contract from contract's address - Contract will download contract's ABI to know its interface.
@@ -82,11 +81,10 @@ Although asynchronous API is recommended, you can also use Contract's synchronou
 .. code-block:: python
 
     from starknet.contract import Contract
-    from starknet.utils.types import NetAddress
     from starknet.net.client import Client
 
     key = 1234
-    contract = Contract.sync.from_address("0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b", Client(net=NetAddress.testnet))
+    contract = Contract.sync.from_address("0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b", Client("testnet"))
     invocation = contract.functions.set_value.invoke(key, 7)
     invocation.wait_for_acceptance()
 

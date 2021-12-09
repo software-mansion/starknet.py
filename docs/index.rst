@@ -5,6 +5,7 @@ Welcome to Starknet.py's documentation!
 
    installation
    quickstart
+   guide
    api
 
 
