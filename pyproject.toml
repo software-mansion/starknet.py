@@ -1,8 +1,17 @@
 [tool.poetry]
-name = "starkware_python_sdk"
+name = "starknet_python_sdk"
 version = "0.1.0"
 description = ""
 authors = ["Tomasz Rejowski <tomasz.rejowski@swmansion.com>", "Jakub Ptak <jakub.ptak@swmansion.com>"]
+include = ["starknet"]
+exclude = ["starknet/tests/*", "starknet/*_test.py"]
+packages = [
+    { include = "starknet" }
+]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/software-mansion/starknet_python_sdk"
+documentation = "https://starknet-python-sdk.readthedocs.io"
 
 [tool.poetry.dependencies]
 python = "^3.7"
@@ -46,4 +55,4 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.black]
-target-version = ['py37']
+target-version = ["py37"]
