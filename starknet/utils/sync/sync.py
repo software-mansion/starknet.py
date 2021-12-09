@@ -27,9 +27,13 @@ def add_sync_version(original_class: T) -> T:
         # Make all callables synchronous
         if inspect.iscoroutinefunction(value):
             value = make_sync(value)
-        if isinstance(value, staticmethod):
+        if isinstance(value, staticmethod) and inspect.iscoroutinefunction(
+            value.__func__
+        ):
             value = staticmethod(make_sync(value.__func__))
-        if isinstance(value, classmethod):
+        if isinstance(value, classmethod) and inspect.iscoroutinefunction(
+            value.__func__
+        ):
             value = classmethod(make_sync(value.__func__))
 
         synchronous_properties[name] = value

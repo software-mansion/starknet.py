@@ -1,7 +1,7 @@
 import dataclasses
 import json
 from dataclasses import dataclass
-from typing import List, Optional, TYPE_CHECKING, Union
+from typing import List, Optional, TYPE_CHECKING, Union, Dict
 
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
 from starkware.starknet.definitions.fields import ContractAddressSalt
@@ -15,8 +15,8 @@ from starkware.starkware_utils.error_handling import StarkErrorCode
 
 from .utils.compiler.starknet_compile import StarknetCompilationSource, starknet_compile
 from .utils.data_transformer import DataTransformer
-from .utils.types import AddressRepresentation, parse_address, InvokeFunction, Deploy
 from .utils.sync import add_sync_version
+from .utils.types import AddressRepresentation, parse_address, InvokeFunction, Deploy
 
 ABI = list
 ABIEntry = dict
@@ -74,6 +74,63 @@ class InvocationResult:
 
 
 @add_sync_version
+class PreparedFunctionCall:
+    def __init__(
+        self,
+        calldata: List[int],
+        arguments: Dict[str, List[int]],
+        selector: int,
+        client: "Client",
+        payload_transformer: DataTransformer,
+        contract_data: ContractData,
+    ):
+        self.calldata = calldata
+        self.arguments = arguments
+        self.selector = selector
+        self._client = client
+        self._payload_transformer = payload_transformer
+        self._contract_data = contract_data
+
+    async def call(
+        self,
+        signature: Optional[List[int]] = None,
+        return_raw: Optional[bool] = None,
+        block_hash: Optional[str] = None,
+        block_number: Optional[int] = None,
+    ):
+        tx = self._make_invoke_function(signature)
+        result = await self._client.call_contract(
+            invoke_tx=tx, block_hash=block_hash, block_number=block_number
+        )
+
+        if return_raw:
+            return result
+
+        return self._payload_transformer.to_python(result)
+
+    async def invoke(self, signature: Optional[List[int]] = None) -> InvocationResult:
+        tx = self._make_invoke_function(signature)
+        response = await self.client.add_transaction(tx=tx)
+
+        if response["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
+            raise Exception("Failed to send transaction. Response: {response}.")
+
+        return InvocationResult(
+            hash=response["transaction_hash"],  # noinspection PyTypeChecker
+            contract=self._contract_data,
+            _client=self.client,
+        )
+
+    def _make_invoke_function(self, signature) -> InvokeFunction:
+        return InvokeFunction(
+            contract_address=self._contract_data.address,
+            entry_point_selector=self.selector,
+            calldata=self.calldata,
+            signature=signature or [],
+        )
+
+
+@add_sync_version
 class ContractFunction:
     def __init__(
         self, name: str, abi: ABIEntry, contract_data: ContractData, client: "Client"
@@ -87,55 +144,38 @@ class ContractFunction:
             abi=self.abi, identifier_manager=self.contract_data.identifier_manager
         )
 
+    def prepare(self, *args, **kwargs) -> PreparedFunctionCall:
+        calldata, arguments = self._payload_transformer.from_python(*args, **kwargs)
+        return PreparedFunctionCall(
+            calldata=calldata,
+            arguments=arguments,
+            contract_data=self.contract_data,
+            client=self._client,
+            payload_transformer=self._payload_transformer,
+            selector=self.selector,
+        )
+
     async def call(
         self,
         *args,
-        block_hash: Optional[str] = None,
-        block_number: Optional[int] = None,
-        signature: Optional[List[str]] = None,
-        return_raw: bool = False,
         **kwargs,
     ):
         """
-        Call contract's function. ``*args`` and ``**kwargs`` are translated into Cairo types.
+        Call contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.
         """
-        tx = self._make_invoke_function(*args, signature=signature, **kwargs)
-        result = await self._client.call_contract(
-            invoke_tx=tx, block_hash=block_hash, block_number=block_number
-        )
-        if return_raw:
-            return result
-        return self._payload_transformer.to_python(result)
+        return await self.prepare(*args, **kwargs).call()
 
     async def invoke(
-        self, *args, signature: Optional[List[str]] = None, **kwargs
+        self, *args, invoke_options: Optional[dict] = None, **kwargs
     ) -> InvocationResult:
         """
-        Invoke contract's function. ``*args`` and ``**kwargs`` are translated into Cairo types.
+        Invoke contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.
         """
-        tx = self._make_invoke_function(*args, signature=signature, **kwargs)
-        response = await self._client.add_transaction(tx=tx)
-
-        if response["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
-            raise Exception("Failed to send transaction. Response: {response}.")
-
-        return InvocationResult(
-            hash=response["transaction_hash"],  # noinspection PyTypeChecker
-            contract=self.contract_data,
-            _client=self._client,
-        )
+        return await self.prepare(*args, **kwargs).invoke()
 
     @property
     def selector(self):
         return get_selector_from_name(self.name)
-
-    def _make_invoke_function(self, *args, signature=None, **kwargs):
-        return InvokeFunction(
-            contract_address=self.contract_data.address,
-            entry_point_selector=self.selector,
-            calldata=self._payload_transformer.from_python(*args, **kwargs),
-            signature=signature or [],
-        )
 
 
 @add_sync_version

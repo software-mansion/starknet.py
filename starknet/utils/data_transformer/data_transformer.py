@@ -192,7 +192,11 @@ class DataTransformer:
             resolve_type=self.resolve_type,
         )
 
-    def from_python(self, *args, **kwargs) -> List[int]:
+    def from_python(self, *args, **kwargs) -> (List[int], Dict[str, List[int]]):
+        """
+        Transforms params into Cairo representation.
+        :return: tuple (full calldata, dict with all arguments with their Cairo representation)
+        """
         type_by_name = self._abi_to_types(self.abi["inputs"])
 
         named_arguments = {**kwargs}
@@ -210,6 +214,7 @@ class DataTransformer:
                 )
             named_arguments[input_name] = arg
 
+        all_params: Dict[str, List[int]] = {}
         calldata: List[int] = []
         for name, cairo_type in type_by_name.items():
             if name not in named_arguments:
@@ -218,9 +223,12 @@ class DataTransformer:
             values = self.resolve_type(cairo_type).from_python(
                 cairo_type, name, named_arguments[name]
             )
+
+            all_params[name] = values
+
             calldata.extend(values)
 
-        return calldata
+        return calldata, all_params
 
     def to_python(self, values: CairoData) -> CallResult:
         type_by_name = self._abi_to_types(self.abi["outputs"])
