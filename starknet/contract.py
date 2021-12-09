@@ -1,7 +1,7 @@
 import dataclasses
 import json
 from dataclasses import dataclass
-from typing import List, Optional, TYPE_CHECKING, Union, Dict
+from typing import List, Optional, TYPE_CHECKING, Union, Dict, Collection
 
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
 from starkware.starknet.definitions.fields import ContractAddressSalt
@@ -93,7 +93,7 @@ class PreparedFunctionCall:
 
     async def call(
         self,
-        signature: Optional[List[int]] = None,
+        signature: Optional[Collection[int]] = None,
         return_raw: Optional[bool] = None,
         block_hash: Optional[str] = None,
         block_number: Optional[int] = None,
@@ -108,7 +108,9 @@ class PreparedFunctionCall:
 
         return self._payload_transformer.to_python(result)
 
-    async def invoke(self, signature: Optional[List[int]] = None) -> InvocationResult:
+    async def invoke(
+        self, signature: Optional[Collection[int]] = None
+    ) -> InvocationResult:
         tx = self._make_invoke_function(signature)
         response = await self._client.add_transaction(tx=tx)
 
@@ -126,7 +128,8 @@ class PreparedFunctionCall:
             contract_address=self._contract_data.address,
             entry_point_selector=self.selector,
             calldata=self.calldata,
-            signature=signature or [],
+            # List is required here
+            signature=[*signature] if signature else [],
         )
 
 
