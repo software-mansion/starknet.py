@@ -11,13 +11,12 @@ from starkware.starknet.services.api.contract_definition import ContractDefiniti
 from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
     CastableToHash,
 )
-from starkware.starknet.services.api.gateway.transaction import InvokeFunction, Deploy
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
 from .utils.compiler.starknet_compile import StarknetCompilationSource, starknet_compile
 from .utils.data_transformer import DataTransformer
+from .utils.types import AddressRepresentation, parse_address, InvokeFunction, Deploy
 from .utils.sync import add_sync_version
-from .utils.types import AddressRepresentation, parse_address
 
 ABI = list
 ABIEntry = dict
