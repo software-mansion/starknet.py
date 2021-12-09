@@ -5,7 +5,7 @@ description = ""
 authors = ["Tomasz Rejowski <tomasz.rejowski@swmansion.com>", "Jakub Ptak <jakub.ptak@swmansion.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.7.12"
 cairo-lang = "^0.6.0"
 asgiref = "^3.4.1"
 
