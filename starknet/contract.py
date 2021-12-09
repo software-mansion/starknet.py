@@ -110,7 +110,7 @@ class PreparedFunctionCall:
 
     async def invoke(self, signature: Optional[List[int]] = None) -> InvocationResult:
         tx = self._make_invoke_function(signature)
-        response = await self.client.add_transaction(tx=tx)
+        response = await self._client.add_transaction(tx=tx)
 
         if response["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
             raise Exception("Failed to send transaction. Response: {response}.")
@@ -118,7 +118,7 @@ class PreparedFunctionCall:
         return InvocationResult(
             hash=response["transaction_hash"],  # noinspection PyTypeChecker
             contract=self._contract_data,
-            _client=self.client,
+            _client=self._client,
         )
 
     def _make_invoke_function(self, signature) -> InvokeFunction:
@@ -313,6 +313,7 @@ class Contract:
             if isinstance(constructor_args, dict)
             else (constructor_args, {})
         )
-        return DataTransformer(
+        calldata, _args = DataTransformer(
             constructor_abi, identifier_manager_from_abi(abi)
         ).from_python(*args, **kwargs)
+        return calldata
