@@ -17,7 +17,7 @@ from starkware.cairo.lang.compiler.identifier_manager import (
 from starkware.cairo.lang.compiler.parser import parse_type
 from starkware.cairo.lang.compiler.type_system import mark_type_resolved
 
-from starknet.utils.types import is_felt_pointer
+from starknet.utils.types import is_felt_pointer, KeyedTuple
 
 ABIFunctionEntry = dict
 CairoData = List[int]
@@ -36,17 +36,6 @@ def read_from_cairo_data(
 
 UsedCairoType = TypeVar("UsedCairoType", bound=CairoType)
 PythonType = TypeVar("PythonType")
-
-
-class CallResult(tuple):
-    def __init__(self, properties: Dict[str, any]):
-        self._properties = properties
-
-    def __new__(cls, properties: Dict[str, any]):
-        return super().__new__(cls, (prop for prop in properties.values()))
-
-    def as_dict(self):
-        return self._properties
 
 
 @dataclass
@@ -230,7 +219,7 @@ class DataTransformer:
 
         return calldata, all_params
 
-    def to_python(self, values: CairoData) -> CallResult:
+    def to_python(self, values: CairoData) -> KeyedTuple:
         type_by_name = self._abi_to_types(self.abi["outputs"])
 
         result = {}
@@ -240,7 +229,7 @@ class DataTransformer:
             )
             result[name] = transformed
 
-        return CallResult(result)
+        return KeyedTuple(result)
 
     def _abi_to_types(self, abi_list) -> dict:
         return self._remove_array_lengths(

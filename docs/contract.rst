@@ -11,7 +11,11 @@ Contract
 
 .. autoclass:: ContractFunction
     :exclude-members: __init__, __new__
-    :members: call, invoke
+    :members: prepare, call, invoke
+
+.. autoclass:: PreparedFunctionCall
+    :exclude-members: __init__, __new__
+    :members: call, call_raw, invoke
 
 .. autoclass:: InvocationResult
     :exclude-members: __init__, __new__
