@@ -19,12 +19,13 @@ jobs:
         python -m pip install --upgrade pip
         pip install poetry
         poetry install
+        poetry shell
     - name: Check formatting with black
       run: |
-        poetry run python -m black --check .
+        python -m black --check .
     - name: Analysing the code with pylint
       run: |
-        poetry run poe lint
+        poe lint
     - name: Unit & e2e test
       run: |
         poe test
