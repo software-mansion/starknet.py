@@ -13,10 +13,13 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
 )
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
-from .utils.compiler.starknet_compile import StarknetCompilationSource, starknet_compile
-from .utils.data_transformer import DataTransformer
-from .utils.sync import add_sync_version
-from .utils.types import (
+from starknet.utils.compiler.starknet_compile import (
+    StarknetCompilationSource,
+    starknet_compile,
+)
+from starknet.utils.data_transformer import DataTransformer
+from starknet.utils.sync import add_sync_version
+from starknet.utils.types import (
     AddressRepresentation,
     parse_address,
     InvokeFunction,
@@ -90,6 +93,7 @@ class PreparedFunctionCall:
         payload_transformer: DataTransformer,
         contract_data: ContractData,
     ):
+        # pylint: disable=too-many-arguments
         self.calldata = calldata
         self.arguments = arguments
         self.selector = selector
@@ -182,7 +186,9 @@ class ContractFunction:
 
     def prepare(self, *args, **kwargs) -> PreparedFunctionCall:
         """
-        ``*args`` and ``**kwargs`` are translated into Cairo calldata. Creates a ``PreparedFunctionCall`` instance which exposes calldata for every argument and adds more arguments when calling methods.
+        ``*args`` and ``**kwargs`` are translated into Cairo calldata.
+         Creates a ``PreparedFunctionCall`` instance
+         which exposes calldata for every argument and adds more arguments when calling methods.
 
         :return: PreparedFunctionCall
         """
@@ -202,7 +208,8 @@ class ContractFunction:
         **kwargs,
     ):
         """
-        Call contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata. The result is translated from Cairo data to python values.
+        Call contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.
+        The result is translated from Cairo data to python values.
         Equivalent of ``.prepare(*args, **kwargs).call()``.
         """
         return await self.prepare(*args, **kwargs).call()
@@ -222,7 +229,8 @@ class ContractFunction:
 @add_sync_version
 class ContractFunctionsRepository:
     """
-    Contains :obj:`functions <starknet.contract.ContractFunction>` exposed from a contract. They are set as properties during initialization.
+    Contains :obj:`functions <starknet.contract.ContractFunction>` exposed from a contract.
+    They are set as properties during initialization.
     """
 
     def __init__(self, contract_data: ContractData, client: "Client"):
@@ -281,7 +289,7 @@ class Contract:
 
         :param address: Contract's address
         :param client: Client used
-        :return: contract
+        :return: an initialized Contract instance
         """
         code = await client.get_code(contract_address=parse_address(address))
         return Contract(address=parse_address(address), abi=code["abi"], client=client)
@@ -294,13 +302,14 @@ class Contract:
         constructor_args: Optional[Union[List[any], dict]] = None,
     ) -> "Contract":
         """
-        Deploys a contract and waits until it has PENDING status. Either compilation_source or compiled_contract is required.
+        Deploys a contract and waits until it has ``PENDING`` status.
+        Either `compilation_source` or `compiled_contract` is required.
 
         :param client: Client
-        :param compilation_source: string of source code or a dict {FILENAME: CONTENT}.
+        :param compilation_source: string of source code or a dict ``{FILENAME: CONTENT}``.
         :param compiled_contract: string containing compiled contract. Useful for reading compiled contract from a file.
-        :param constructor_args: a list or dict of arguments for the constructor.
-        :return:
+        :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
+        :return: an initialized Contract instance
         """
         if not compiled_contract and not compilation_source:
             raise ValueError(

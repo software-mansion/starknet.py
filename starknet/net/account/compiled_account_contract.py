@@ -1,3 +1,4 @@
+# pylint: disable=too-many-lines
 COMPILED_ACCOUNT_CONTRACT = r"""
 {
     "abi": [

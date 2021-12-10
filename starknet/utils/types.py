@@ -12,8 +12,10 @@ from starkware.starknet.services.api.gateway.transaction import (
 )
 
 
-def is_felt_pointer(type: CairoType) -> bool:
-    return isinstance(type, TypePointer) and isinstance(type.pointee, TypeFelt)
+def is_felt_pointer(cairo_type: CairoType) -> bool:
+    return isinstance(cairo_type, TypePointer) and isinstance(
+        cairo_type.pointee, TypeFelt
+    )
 
 
 AddressRepresentation = Union[int, str]
@@ -26,8 +28,8 @@ def parse_address(value: AddressRepresentation) -> Address:
 
     try:
         return int(value, 16)
-    except ValueError:
-        raise ValueError("Invalid address format.")
+    except ValueError as v_err:
+        raise ValueError("Invalid address format.") from v_err
 
 
 def net_address_from_net(net: str) -> str:
@@ -47,6 +49,7 @@ class KeyedTuple(tuple):
     Tuple with dictionary-like access.
     """
 
+    # pylint: disable=super-init-not-called
     def __init__(self, properties: Dict[str, any]):
         for key in properties.keys():
             if not isinstance(key, str):

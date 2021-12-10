@@ -1,13 +1,12 @@
-from pathlib import Path
-
-import pytest
 import os
+from pathlib import Path
+import pytest
 
 from starknet.contract import Contract, ContractFunction
 from starknet.tests.e2e.utils import DevnetClient
 
 directory = os.path.dirname(__file__)
-map_source_code = Path(directory, "map.cairo").read_text()
+map_source_code = Path(directory, "map.cairo").read_text("utf-8")
 
 
 @pytest.mark.asyncio
@@ -20,7 +19,7 @@ async def test_deploy_tx():
 
 constructor_with_arguments_source = Path(
     directory, "constructor_with_arguments.cairo"
-).read_text()
+).read_text("utf-8")
 
 
 @pytest.mark.asyncio
@@ -32,12 +31,12 @@ async def test_constructor_arguments():
     client = DevnetClient()
 
     # Contract should throw if constructor arguments were not provided
-    with pytest.raises(ValueError) as e:
+    with pytest.raises(ValueError) as err:
         await Contract.deploy(
             client=client, compilation_source=constructor_with_arguments_source
         )
 
-    assert "no args were provided" in str(e.value)
+    assert "no args were provided" in str(err.value)
 
     # Positional params
     contract_1 = await Contract.deploy(
@@ -68,7 +67,7 @@ async def test_constructor_arguments():
 
 constructor_without_arguments_source = Path(
     directory, "constructor_without_arguments.cairo"
-).read_text()
+).read_text("utf-8")
 
 
 @pytest.mark.asyncio

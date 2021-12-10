@@ -60,8 +60,8 @@ class AccountClient(Client):
         token: Optional[str] = None,
     ) -> Dict[str, int]:
         """
-
-        :param tx: Transaction which invokes another contract through account proxy. Signed transactions aren't supported at the moment
+        :param tx: Transaction which invokes another contract through account proxy.
+                   Signed transactions aren't supported at the moment
         :param token: Optional token for Starknet API access, appended in a query string
         :return: API response dictionary with `code`, `transaction_hash`
         """
@@ -70,7 +70,7 @@ class AccountClient(Client):
 
         if tx.signature:
             raise TypeError(
-                f"Adding signatures to a signer tx currently isn't supported"
+                "Adding signatures to a signer tx currently isn't supported"
             )
 
         result = await super().call_contract(
@@ -85,12 +85,12 @@ class AccountClient(Client):
 
         msg_hash = hash_message(
             account=self.address,
-            to=tx.contract_address,
+            to_addr=tx.contract_address,
             selector=tx.entry_point_selector,
             calldata=tx.calldata,
             nonce=nonce,
         )
-
+        # pylint: disable=invalid-name
         r, s = message_signature(msg_hash=msg_hash, priv_key=self.private_key)
 
         return await super().add_transaction(
@@ -109,18 +109,22 @@ class AccountClient(Client):
         )
 
     @staticmethod
-    async def create_account(net: str, pk: Optional[int] = None) -> "AccountClient":
+    async def create_account(
+        net: str, private_key: Optional[int] = None
+    ) -> "AccountClient":
         """
-        Creates the account using `OpenZeppelin Account contract <https://github.com/OpenZeppelin/cairo-contracts/blob/main/contracts/Account.cairo>`_
+        Creates the account using
+        `OpenZeppelin Account contract
+        <https://github.com/OpenZeppelin/cairo-contracts/blob/main/contracts/Account.cairo>`_
 
         :param net: Target net's address or one of "mainnet", "testnet"
-        :param pk: Public Key used for the account
+        :param private_key: Public Key used for the account
         :return: Instance of AccountClient which interacts with created account on given network
         """
-        if not pk:
-            pk = get_random_private_key()
+        if not private_key:
+            private_key = get_random_private_key()
 
-        key_pair = KeyPair.from_private_key(pk)
+        key_pair = KeyPair.from_private_key(private_key)
 
         client = Client(net=net)
         account_contract = await Contract.deploy(

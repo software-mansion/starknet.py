@@ -119,11 +119,11 @@ class TupleTransformer(TypeTransformer[TypeTuple, tuple]):
             )
 
         results = []
-        for index, value, member_type in zip(
+        for index, member, member_type in zip(
             range(len(values)), values, cairo_type.members
         ):
             result = self.resolve_type(member_type).from_python(
-                member_type, f"{name}[{index}]", value
+                member_type, f"{name}[{index}]", member
             )
             results.extend(result)
 
@@ -239,7 +239,8 @@ class DataTransformer:
             }
         )
 
-    def _remove_array_lengths(self, type_by_name: dict) -> dict:
+    @staticmethod
+    def _remove_array_lengths(type_by_name: dict) -> dict:
         """
         If it is an array ignore array_len argument, we prepend length to felt* by default,
         so we can omit this input.

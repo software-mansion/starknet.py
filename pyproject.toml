@@ -27,6 +27,7 @@ starknet-devnet = "^0.1.9"
 pytest-asyncio = "^0.16.0"
 Sphinx = "^4.3.1"
 sphinx-rtd-theme = "^1.0.0"
+pylint = "^2.12.2"
 
 [tool.poe.tasks]
 test = ["test_unit", "test_e2e"]
@@ -42,6 +43,7 @@ test_html = [
 ]
 docs_create = { shell = "make -C docs html" }
 docs_open = { shell = "open docs/_build/html/index.html" }
+lint = "pylint starknet"
 
 [tool.coverage.run]
 source = ["starknet"]

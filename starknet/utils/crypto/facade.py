@@ -27,14 +27,15 @@ def sign_calldata(calldata: Iterable[int], priv_key: int):
     :param priv_key: private key
     :return: signed calldata's hash
     """
-    h = functools.reduce(lambda x, y: hash(y, x), calldata, 0)
-    return message_signature(h, priv_key)
+    hashed_calldata = functools.reduce(lambda x, y: pedersen_hash(y, x), calldata, 0)
+    return message_signature(hashed_calldata, priv_key)
 
 
 # Implementation
+# pylint: disable=too-many-arguments
 def hash_message_with(
     account: int,
-    to: int,
+    to_addr: int,
     selector: int,
     calldata: List[int],
     nonce: int,
@@ -43,7 +44,7 @@ def hash_message_with(
     return compute_hash_on_elements(
         [
             account,
-            to,
+            to_addr,
             selector,
             compute_hash_on_elements(
                 calldata,
@@ -69,25 +70,22 @@ def message_signature(msg_hash, priv_key) -> ECSignature:
     return sign(msg_hash, priv_key)
 
 
-def hash(x: int, y: int) -> int:
-    if use_cpp_variant():
-        return cpp_hash(x, y)
-    else:
-        return default_hash(x, y)
+def pedersen_hash(left: int, right: int) -> int:
+    return cpp_hash(left, right) if use_cpp_variant() else default_hash(left, right)
 
 
 def hash_message(
     account: int,
-    to: int,
+    to_addr: int,
     selector: int,
     calldata: List[int],
     nonce: int,
 ) -> int:
     return hash_message_with(
         account=account,
-        to=to,
+        to_addr=to_addr,
         selector=selector,
         calldata=calldata,
         nonce=nonce,
-        hash_fun=hash,
+        hash_fun=pedersen_hash,
     )

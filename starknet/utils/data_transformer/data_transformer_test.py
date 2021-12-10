@@ -222,15 +222,15 @@ def test_missing_struct_key():
 
 
 @pytest.mark.parametrize(
-    "type, value",
+    "cairo_type, value",
     [
         ("felt", []),
         ("(felt, felt)", 1),
         ("SimpleStruct", 1),
     ],
 )
-def test_wrong_types(type, value):
-    abi = [{"name": "value", "type": type}]
+def test_wrong_types(cairo_type, value):
+    abi = [{"name": "value", "type": cairo_type}]
     structs = [
         {
             "members": [

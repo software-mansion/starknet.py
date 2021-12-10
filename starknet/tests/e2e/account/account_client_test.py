@@ -1,5 +1,5 @@
 import os.path
-
+from pathlib import Path
 import pytest
 
 from starknet.contract import Contract
@@ -7,8 +7,7 @@ from starknet.net.account.account_client import AccountClient
 
 
 directory = os.path.dirname(__file__)
-map_source_fname = os.path.join(directory, "map.cairo")
-map_source_code = open(map_source_fname).read()
+map_source_code = Path(directory, "map.cairo").read_text("utf-8")
 
 
 @pytest.mark.asyncio
