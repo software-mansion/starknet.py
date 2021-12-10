@@ -260,7 +260,8 @@ class Contract:
             None,
         )
 
-        if not constructor_abi:
+        # Constructor might not accept any arguments
+        if not constructor_abi or not constructor_abi["inputs"]:
             return []
 
         if not constructor_args:
