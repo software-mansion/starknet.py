@@ -33,7 +33,7 @@ pylint = "^2.12.2"
 test = ["test_unit", "test_e2e"]
 test_unit.shell = "coverage run -m pytest starknet --ignore=starknet/tests/e2e"
 test_unit.env = { COVERAGE_FILE="unit.coverage" }
-test_e2e.shell = "starknet-devnet --host localhost --port 5000 &; DEVNET_PID=$! && sleep 1 && coverage run -m pytest starknet/tests/e2e; kill $DEVNET_PID"
+test_e2e.shell = "starknet-devnet --host localhost --port 5000 & ; DEVNET_PID=$! && sleep 1 && coverage run -m pytest starknet/tests/e2e ; kill $DEVNET_PID"
 test_e2e.env = { COVERAGE_FILE="e2e.coverage" }
 _coverage_combine.shell = "coverage combine unit.coverage e2e.coverage"
 test_report = ["_coverage_combine", { shell = "coverage report" }]
