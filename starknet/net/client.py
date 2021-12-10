@@ -185,12 +185,12 @@ class Client:
             if status == TxStatus.PENDING:
                 if not wait_for_accept and "block_number" in result:
                     return result["block_number"], status
-            if status == TxStatus.REJECTED:
+            elif status == TxStatus.REJECTED:
                 raise Exception(f"Transaction [{tx_hash}] was rejected.")
-            if status == TxStatus.NOT_RECEIVED:
+            elif status == TxStatus.NOT_RECEIVED:
                 if not first_run:
                     raise Exception(f"Transaction [{tx_hash}] was not received.")
-            if status != TxStatus.RECEIVED:
+            elif status != TxStatus.RECEIVED:
                 raise Exception(f"Unknown status [{status}]")
 
             first_run = False
