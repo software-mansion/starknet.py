@@ -76,14 +76,71 @@ This is how we can interact with it:
     # Mixing positional with keyword arguments
     invocation = await contract.functions.transferFrom.invoke(sender, recipient, amount=10000)
 
+    # Creating a PreparedFunctionCall - creates a function call with arguments - useful for signing transactions and specifying additional options
+    transfer = contract.functions.transferFrom.prepare(sender, recipient, amount=10000)
+    await transfer.invoke()
+
     # Wait for tx
     await invocation.wait_for_acceptance
 
     (balance,) = await contract.functions.balanceOf.call(recipient)
 
-    # You can also call .to_dict on value returned from a call to get keyed values. It is useful with many returned values.
+    # You can also use key access or call .to_dict on value returned from a call to get keyed values. It is useful with many returned values.
     result = await contract.functions.balanceOf.call(recipient)
+    balance = result["balance"]
     balance = result.to_dict()["balance"]
+
+Signing a single transaction
+----------------------------
+You can use :obj:`ContractFunction's call <starknet.contract.ContractFunction.prepare>` to get calldata's parts and generate a signature from them. Here's an example function
+copied from `Starknet's docs <https://www.cairo-lang.org/docs/hello_starknet/user_auth.html>`_:
+
+.. code-block:: cairo
+
+    # Increases the balance of the given user by the given amount.
+    @external
+    func increase_balance{
+            syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
+            range_check_ptr, ecdsa_ptr : SignatureBuiltin*}(
+            user : felt, amount : felt):
+        # Fetch the signature.
+        let (sig_len : felt, sig : felt*) = get_tx_signature()
+
+        # Verify the signature length.
+        assert sig_len = 2
+
+        # Compute the hash of the message.
+        # The hash of (x, 0) is equivalent to the hash of (x).
+        let (amount_hash) = hash2{hash_ptr=pedersen_ptr}(amount, 0)
+
+        # Verify the user's signature.
+        verify_ecdsa_signature(
+            message=amount_hash,
+            public_key=user,
+            signature_r=sig[0],
+            signature_s=sig[1])
+
+        let (res) = balance.read(user=user)
+        balance.write(user, res + amount)
+        return ()
+    end
+
+Here's how you could sign an invocation:
+
+.. code-block:: python
+
+    from starknet.utils.crypto.facade import sign_calldata
+
+    private_key = 12345
+    public_key = 1628448741648245036800002906075225705100596136133912895015035902954123957052
+    value = 4321
+
+    prepared = contract.functions.increase_balance.prepare(user=public_key, amount=value)
+    # Every transformed argument is stored in prepared.arguments. In this case the translation is easy, but with nested structs it might not be obvious.
+    prepared.arguments == {"public_key": public_key, "amount": value}
+    signature = sign_calldata(prepared.arguments["amount"], private_key)
+    await prepared.invoke(signature)
+
 
 Deploying new contracts
 -----------------------

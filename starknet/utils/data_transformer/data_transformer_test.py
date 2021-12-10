@@ -36,7 +36,7 @@ def test_array(value, cairo_value):
         {"name": "array", "type": "felt*"},
     ]
 
-    from_python = transformer_for_function(inputs=abi).from_python(value)
+    from_python, _args = transformer_for_function(inputs=abi).from_python(value)
     to_python = transformer_for_function(outputs=abi).to_python(cairo_value)
 
     assert from_python == cairo_value
@@ -58,7 +58,7 @@ def test_tuple(value, cairo_value):
         {"name": "value", "type": f"({cairo_type_name})"},
     ]
 
-    from_python = transformer_for_function(inputs=abi).from_python(value)
+    from_python, _args = transformer_for_function(inputs=abi).from_python(value)
     to_python = transformer_for_function(outputs=abi).to_python(cairo_value)
 
     assert from_python == cairo_value
@@ -72,7 +72,7 @@ def test_tuple(value, cairo_value):
 def test_felt(value, cairo_value):
     abi = [{"name": "value", "type": "felt"}]
 
-    from_python = transformer_for_function(inputs=abi).from_python(value)
+    from_python, _args = transformer_for_function(inputs=abi).from_python(value)
     to_python = transformer_for_function(outputs=abi).to_python(cairo_value)
 
     assert from_python == cairo_value
@@ -97,9 +97,9 @@ def test_struct(value, cairo_value):
         }
     ]
 
-    from_python = transformer_for_function(inputs=abi, structs=structs).from_python(
-        value
-    )
+    from_python, _args = transformer_for_function(
+        inputs=abi, structs=structs
+    ).from_python(value)
     to_python = transformer_for_function(outputs=abi, structs=structs).to_python(
         cairo_value
     )
@@ -149,9 +149,9 @@ def test_nested_struct():
     }
     cairo_value = [1, 2, 3, 4, 5]
 
-    from_python = transformer_for_function(inputs=abi, structs=structs).from_python(
-        value
-    )
+    from_python, _args = transformer_for_function(
+        inputs=abi, structs=structs
+    ).from_python(value)
     to_python = transformer_for_function(outputs=abi, structs=structs).to_python(
         cairo_value
     )
@@ -170,10 +170,11 @@ def test_multiple_values():
     values = [123, [10, 20], (-11, -12)]
     cairo_values = [123, 2, 10, 20, -11, -12]
 
-    from_python = transformer_for_function(inputs=abi).from_python(*values)
+    calldata, args = transformer_for_function(inputs=abi).from_python(*values)
     to_python = transformer_for_function(outputs=abi).to_python(cairo_values)
 
-    assert from_python == cairo_values
+    assert calldata == cairo_values
+    assert args == {"first": [123], "second": [2, 10, 20], "third": [-11, -12]}
     assert to_python == (123, [10, 20], (-11, -12))
     assert to_python.as_dict() == {
         "first": 123,

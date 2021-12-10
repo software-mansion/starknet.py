@@ -1,9 +1,10 @@
+import functools
 import os
-from typing import List, Callable
+from typing import List, Callable, Iterable
 
 from starkware.cairo.common.hash_state import compute_hash_on_elements
-from starkware.crypto.signature.signature import sign
 from starkware.cairo.lang.vm.crypto import pedersen_hash as default_hash
+from starkware.crypto.signature.signature import sign
 
 from starknet.utils.crypto.cpp_bindings import (
     cpp_sign,
@@ -12,6 +13,22 @@ from starknet.utils.crypto.cpp_bindings import (
     cpp_binding_loaded,
     ECSignature,
 )
+
+
+def sign_calldata(calldata: Iterable[int], priv_key: int):
+    """
+    Helper function that signs hash:
+    hash = pedersen_hash(calldata[0], 0)
+    hash = pedersen_hash(calldata[1], hash)
+    hash = pedersen_hash(calldata[2], hash)
+    ...
+
+    :param calldata: iterable of ints
+    :param priv_key: private key
+    :return: signed calldata's hash
+    """
+    h = functools.reduce(lambda x, y: hash(y, x), calldata, 0)
+    return message_signature(h, priv_key)
 
 
 # Implementation
@@ -52,6 +69,13 @@ def message_signature(msg_hash, priv_key) -> ECSignature:
     return sign(msg_hash, priv_key)
 
 
+def hash(x: int, y: int) -> int:
+    if use_cpp_variant():
+        return cpp_hash(x, y)
+    else:
+        return default_hash(x, y)
+
+
 def hash_message(
     account: int,
     to: int,
@@ -59,14 +83,11 @@ def hash_message(
     calldata: List[int],
     nonce: int,
 ) -> int:
-    hash_fun = default_hash
-    if use_cpp_variant():
-        hash_fun = cpp_hash
     return hash_message_with(
         account=account,
         to=to,
         selector=selector,
         calldata=calldata,
         nonce=nonce,
-        hash_fun=hash_fun,
+        hash_fun=hash,
     )

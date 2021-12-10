@@ -1,7 +1,7 @@
 import dataclasses
 import json
 from dataclasses import dataclass
-from typing import List, Optional, TYPE_CHECKING, Union
+from typing import List, Optional, TYPE_CHECKING, Union, Dict, Collection
 
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
 from starkware.starknet.definitions.fields import ContractAddressSalt
@@ -15,8 +15,14 @@ from starkware.starkware_utils.error_handling import StarkErrorCode
 
 from .utils.compiler.starknet_compile import StarknetCompilationSource, starknet_compile
 from .utils.data_transformer import DataTransformer
-from .utils.types import AddressRepresentation, parse_address, InvokeFunction, Deploy
 from .utils.sync import add_sync_version
+from .utils.types import (
+    AddressRepresentation,
+    parse_address,
+    InvokeFunction,
+    Deploy,
+    KeyedTuple,
+)
 
 ABI = list
 ABIEntry = dict
@@ -74,6 +80,93 @@ class InvocationResult:
 
 
 @add_sync_version
+class PreparedFunctionCall:
+    def __init__(
+        self,
+        calldata: List[int],
+        arguments: Dict[str, List[int]],
+        selector: int,
+        client: "Client",
+        payload_transformer: DataTransformer,
+        contract_data: ContractData,
+    ):
+        self.calldata = calldata
+        self.arguments = arguments
+        self.selector = selector
+        self._client = client
+        self._payload_transformer = payload_transformer
+        self._contract_data = contract_data
+
+    async def call_raw(
+        self,
+        signature: Optional[Collection[int]] = None,
+        block_hash: Optional[str] = None,
+        block_number: Optional[int] = None,
+    ) -> List[int]:
+        """
+        Calls a method without translating the result into python values.
+
+        :param signature: Signature to send
+        :param block_hash: Optional block hash
+        :param block_number: Optional block number
+        :return: list of ints
+        """
+        tx = self._make_invoke_function(signature)
+        return await self._client.call_contract(
+            invoke_tx=tx, block_hash=block_hash, block_number=block_number
+        )
+
+    async def call(
+        self,
+        signature: Optional[Collection[int]] = None,
+        block_hash: Optional[str] = None,
+        block_number: Optional[int] = None,
+    ) -> KeyedTuple:
+        """
+        Calls a method.
+
+        :param signature: Signature to send
+        :param block_hash: Optional block hash
+        :param block_number: Optional block number
+        :return: CallResult or List[int] if return_raw is used
+        """
+        result = await self.call_raw(
+            signature=signature, block_hash=block_hash, block_number=block_number
+        )
+        return self._payload_transformer.to_python(result)
+
+    async def invoke(
+        self, signature: Optional[Collection[int]] = None
+    ) -> InvocationResult:
+        """
+        Invokes a method.
+
+        :param signature: Signature to send
+        :return: InvocationResult
+        """
+        tx = self._make_invoke_function(signature)
+        response = await self._client.add_transaction(tx=tx)
+
+        if response["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
+            raise Exception("Failed to send transaction. Response: {response}.")
+
+        return InvocationResult(
+            hash=response["transaction_hash"],  # noinspection PyTypeChecker
+            contract=self._contract_data,
+            _client=self._client,
+        )
+
+    def _make_invoke_function(self, signature) -> InvokeFunction:
+        return InvokeFunction(
+            contract_address=self._contract_data.address,
+            entry_point_selector=self.selector,
+            calldata=self.calldata,
+            # List is required here
+            signature=[*signature] if signature else [],
+        )
+
+
+@add_sync_version
 class ContractFunction:
     def __init__(
         self, name: str, abi: ABIEntry, contract_data: ContractData, client: "Client"
@@ -87,61 +180,49 @@ class ContractFunction:
             abi=self.abi, identifier_manager=self.contract_data.identifier_manager
         )
 
+    def prepare(self, *args, **kwargs) -> PreparedFunctionCall:
+        """
+        ``*args`` and ``**kwargs`` are translated into Cairo calldata. Creates a ``PreparedFunctionCall`` instance which exposes calldata for every argument and adds more arguments when calling methods.
+
+        :return: PreparedFunctionCall
+        """
+        calldata, arguments = self._payload_transformer.from_python(*args, **kwargs)
+        return PreparedFunctionCall(
+            calldata=calldata,
+            arguments=arguments,
+            contract_data=self.contract_data,
+            client=self._client,
+            payload_transformer=self._payload_transformer,
+            selector=self.selector,
+        )
+
     async def call(
         self,
         *args,
-        block_hash: Optional[str] = None,
-        block_number: Optional[int] = None,
-        signature: Optional[List[str]] = None,
-        return_raw: bool = False,
         **kwargs,
     ):
         """
-        Call contract's function. ``*args`` and ``**kwargs`` are translated into Cairo types.
+        Call contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata. The result is translated from Cairo data to python values.
+        Equivalent of ``.prepare(*args, **kwargs).call()``.
         """
-        tx = self._make_invoke_function(*args, signature=signature, **kwargs)
-        result = await self._client.call_contract(
-            invoke_tx=tx, block_hash=block_hash, block_number=block_number
-        )
-        if return_raw:
-            return result
-        return self._payload_transformer.to_python(result)
+        return await self.prepare(*args, **kwargs).call()
 
-    async def invoke(
-        self, *args, signature: Optional[List[str]] = None, **kwargs
-    ) -> InvocationResult:
+    async def invoke(self, *args, **kwargs) -> InvocationResult:
         """
-        Invoke contract's function. ``*args`` and ``**kwargs`` are translated into Cairo types.
+        Invoke contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.
+        Equivalent of ``.prepare(*args, **kwargs).invoke()``.
         """
-        tx = self._make_invoke_function(*args, signature=signature, **kwargs)
-        response = await self._client.add_transaction(tx=tx)
-
-        if response["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
-            raise Exception("Failed to send transaction. Response: {response}.")
-
-        return InvocationResult(
-            hash=response["transaction_hash"],  # noinspection PyTypeChecker
-            contract=self.contract_data,
-            _client=self._client,
-        )
+        return await self.prepare(*args, **kwargs).invoke()
 
     @property
     def selector(self):
         return get_selector_from_name(self.name)
 
-    def _make_invoke_function(self, *args, signature=None, **kwargs):
-        return InvokeFunction(
-            contract_address=self.contract_data.address,
-            entry_point_selector=self.selector,
-            calldata=self._payload_transformer.from_python(*args, **kwargs),
-            signature=signature or [],
-        )
-
 
 @add_sync_version
 class ContractFunctionsRepository:
     """
-    Contains functions exposed from a contract. They are set as properties during initialization.
+    Contains :obj:`functions <starknet.contract.ContractFunction>` exposed from a contract. They are set as properties during initialization.
     """
 
     def __init__(self, contract_data: ContractData, client: "Client"):
@@ -273,6 +354,7 @@ class Contract:
             if isinstance(constructor_args, dict)
             else (constructor_args, {})
         )
-        return DataTransformer(
+        calldata, _args = DataTransformer(
             constructor_abi, identifier_manager_from_abi(abi)
         ).from_python(*args, **kwargs)
+        return calldata
