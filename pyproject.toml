@@ -14,7 +14,7 @@ repository = "https://github.com/software-mansion/starknet_python_sdk"
 documentation = "https://starknet-python-sdk.readthedocs.io"
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.7.12"
 cairo-lang = "^0.6.0"
 asgiref = "^3.4.1"
 
