@@ -19,7 +19,7 @@ cairo-lang = "^0.6.0"
 asgiref = "^3.4.1"
 
 [tool.poetry.dev-dependencies]
-pytest = "^5.2"
+pytest = "^6.2.5"
 black = "^21.11b0"
 poethepoet = "^0.11.0"
 coverage = "^6.1.2"
@@ -42,9 +42,9 @@ test_e2e.shell = """
 """
 test_e2e.env = { COVERAGE_FILE="e2e.coverage" }
 _coverage_combine.shell = "coverage combine unit.coverage e2e.coverage"
-test_report = ["_coverage_combine", { shell = "coverage report" }]
+test_report = [{ shell = "_coverage_combine" }, { shell = "coverage report" }]
 test_html = [
-    "_coverage_combine",
+    { shell = "_coverage_combine" },
     { shell = "coverage html && open ./htmlcov/index.html" }
 ]
 docs_create = { shell = "make -C docs html" }
