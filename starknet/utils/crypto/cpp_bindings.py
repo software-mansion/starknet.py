@@ -10,6 +10,7 @@ OUT_BUFFER_SIZE = 251
 
 
 def get_cpp_lib(crypto_c_exports_path):
+    # pylint: disable=global-statement
     global CPP_LIB_BINDING
     if CPP_LIB_BINDING:
         return
@@ -66,6 +67,7 @@ def cpp_sign(msg_hash, priv_key, seed: Optional[int] = 32) -> ECSignature:
         != 0
     ):
         raise ValueError(res.raw.rstrip(b"\00"))
+    # pylint: disable=invalid-name
     w = int.from_bytes(res.raw[32:64], "little", signed=False)
     s = inv_mod_curve_size(w)
     return int.from_bytes(res.raw[:32], "little", signed=False), s

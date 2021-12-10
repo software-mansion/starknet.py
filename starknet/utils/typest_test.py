@@ -8,12 +8,12 @@ from starknet.utils.types import KeyedTuple
     [({}, ()), ({"": 21}, (21,)), ({"key1": "value1", "2": "2"}, ("value1", "2"))],
 )
 def test_keyed_tuple(input_dict, expected):
-    t = KeyedTuple(input_dict)
+    k_tuple = KeyedTuple(input_dict)
 
-    assert t == expected
-    assert t.as_dict() == input_dict
+    assert k_tuple == expected
+    assert k_tuple.as_dict() == input_dict
     for key, value in input_dict.items():
-        assert t[key] == value
+        assert k_tuple[key] == value
 
 
 def test_invalid_arg():

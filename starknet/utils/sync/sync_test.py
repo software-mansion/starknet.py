@@ -1,7 +1,7 @@
 import asyncio
 import unittest
 
-from .sync import add_sync_version
+from starknet.utils.sync import add_sync_version
 
 
 @add_sync_version
@@ -9,11 +9,13 @@ class Function:
     def __init__(self):
         self.name = "function X"
 
-    async def call(self):
+    @staticmethod
+    async def call():
         await asyncio.sleep(0.1)
         return 1
 
-    async def failure(self):
+    @staticmethod
+    async def failure():
         raise Exception("Error")
 
     def get_name(self):
@@ -30,6 +32,7 @@ class Repository:
         return self.function
 
 
+# pylint: disable=no-member
 @add_sync_version
 class Contract:
     def __init__(self, address):
@@ -40,15 +43,15 @@ class Contract:
         await asyncio.sleep(0.1)
         return Repository()
 
-    @classmethod
-    async def example_class_method(cls):
+    @staticmethod
+    async def example_class_method():
         await asyncio.sleep(0.1)
         return 2
 
 
-def async_test(f):
+def async_test(func):
     def wrapper(*args, **kwargs):
-        coro = asyncio.coroutine(f)
+        coro = asyncio.coroutine(func)
         future = coro(*args, **kwargs)
         loop = asyncio.get_event_loop()
         loop.run_until_complete(future)

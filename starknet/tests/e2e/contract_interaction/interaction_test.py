@@ -9,7 +9,7 @@ from starknet.utils.crypto.facade import sign_calldata
 
 directory = os.path.dirname(__file__)
 
-map_source = Path(directory, "map.cairo").read_text()
+map_source = Path(directory, "map.cairo").read_text("utf-8")
 
 
 @pytest.mark.asyncio
@@ -25,7 +25,7 @@ async def test_invoke_and_call(key, value):
     assert response == value
 
 
-user_auth_source = Path(directory, "user_auth.cairo").read_text()
+user_auth_source = Path(directory, "user_auth.cairo").read_text("utf-8")
 
 
 @pytest.mark.asyncio

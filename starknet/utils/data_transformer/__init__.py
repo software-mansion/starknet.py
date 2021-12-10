@@ -1,1 +1,1 @@
-from .data_transformer import DataTransformer
+from starknet.utils.data_transformer.data_transformer import DataTransformer

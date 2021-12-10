@@ -1,5 +1,5 @@
 import asyncio
-from typing import Optional, List, Dict, Union
+from typing import Optional, List, Dict
 
 from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
     FeederGatewayClient,
@@ -105,9 +105,9 @@ class Client:
         block_number: Optional[int] = None,
     ) -> str:
         """
-
         :param contract_address: Contract's address on Starknet
-        :param key: An address of the storage variable inside of the contract. Can be retrieved using starkware.starknet.public.abi.get_storage_var_address(<name>)
+        :param key: An address of the storage variable inside of the contract.
+                    Can be retrieved using ``starkware.starknet.public.abi.get_storage_var_address(<name>)``
         :param block_hash: Fetches the value of the variable at given block hash
         :param block_number: See above, uses block number instead of hash
         :return: Storage value of given contract
@@ -125,7 +125,7 @@ class Client:
         """
         :param tx_hash: Transaction's hash
         :param tx_id: Transaction's index
-        :return: dictionary containing tx's status which is one of starknet.constants.TxStatus
+        :return: Dictionary containing tx's status which is one of starknet.constants.TxStatus
         """
         return await self._feeder_gateway.get_transaction_status(
             tx_hash,
@@ -138,7 +138,7 @@ class Client:
         """
         :param tx_hash: Transaction's hash
         :param tx_id: Transaction's index
-        :return: dictionary representing JSON of the transaction on Starknet
+        :return: Dictionary representing JSON of the transaction on Starknet
         """
         return await self._feeder_gateway.get_transaction(
             tx_hash,
@@ -151,7 +151,7 @@ class Client:
         """
         :param tx_hash: Transaction's hash
         :param tx_id: Transaction's index
-        :return: dictionary representing JSON of the transaction's receipt on Starknet
+        :return: Dictionary representing JSON of the transaction's receipt on Starknet
         """
         return await self._feeder_gateway.get_transaction_receipt(
             tx_hash,
@@ -170,7 +170,7 @@ class Client:
         :param tx_hash: Transaction's hash
         :param wait_for_accept: If true waits for ACCEPTED_ONCHAIN status, otherwise waits for at least PENDING
         :param check_interval: Defines interval between checks
-        :return: number of block, tx status
+        :return: tuple(block number, ``starknet.constants.TxStatus``)
         """
         if check_interval <= 0:
             raise ValueError("check_interval has to bigger than 0.")
@@ -182,15 +182,15 @@ class Client:
 
             if status == TxStatus.ACCEPTED_ONCHAIN:
                 return result["block_number"], status
-            elif status == TxStatus.PENDING:
+            if status == TxStatus.PENDING:
                 if not wait_for_accept and "block_number" in result:
                     return result["block_number"], status
-            elif status == TxStatus.REJECTED:
+            if status == TxStatus.REJECTED:
                 raise Exception(f"Transaction [{tx_hash}] was rejected.")
-            elif status == TxStatus.NOT_RECEIVED:
+            if status == TxStatus.NOT_RECEIVED:
                 if not first_run:
                     raise Exception(f"Transaction [{tx_hash}] was not received.")
-            elif status != TxStatus.RECEIVED:
+            if status != TxStatus.RECEIVED:
                 raise Exception(f"Unknown status [{status}]")
 
             first_run = False
@@ -201,8 +201,9 @@ class Client:
         self, tx: Transaction, token: Optional[str] = None
     ) -> Dict[str, int]:
         """
-        :param tx: Transaction object (i.e. InvokeFunction, Deploy). A subclass of starkware.starknet.services.api.gateway.transaction.Transaction
+        :param tx: Transaction object (i.e. InvokeFunction, Deploy).
+                   A subclass of ``starkware.starknet.services.api.gateway.transaction.Transaction``
         :param token: Optional token for Starknet API access, appended in a query string
-        :return: API response dictionary with `code`, `transaction_hash`
+        :return: Dictionary with `code`, `transaction_hash`
         """
         return await self._gateway.add_transaction(tx, token)
