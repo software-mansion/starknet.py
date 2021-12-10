@@ -2,10 +2,13 @@ import os
 from pathlib import Path
 
 import pytest
+from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet.contract import Contract
+from starknet.net.client import BadRequest
 from starknet.tests.e2e.utils import DevnetClient
 from starknet.utils.crypto.facade import sign_calldata
+from starknet.utils.types import InvokeFunction
 
 directory = os.path.dirname(__file__)
 
@@ -42,6 +45,7 @@ async def test_signature():
     details = {"favourite_number": 1, "favourite_tuple": (2, 3, 4)}
 
     contract = await Contract.deploy(client=client, compilation_source=user_auth_source)
+    contract = await Contract.from_address(contract.address, client)
 
     fun_call = contract.functions.set_details.prepare(public_key, details)
 
@@ -57,3 +61,30 @@ async def test_signature():
     (balance,) = await contract.functions.get_details.call(public_key)
 
     assert balance == details
+
+
+@pytest.mark.asyncio
+async def test_get_code_not_found():
+    client = DevnetClient()
+
+    with pytest.raises(BadRequest) as exinfo:
+        await Contract.from_address(1, client)
+
+    assert "not found" in str(exinfo.value)
+
+
+@pytest.mark.asyncio
+async def test_call_unitinialized_contract():
+    client = DevnetClient()
+
+    with pytest.raises(BadRequest) as exinfo:
+        await client.call_contract(
+            InvokeFunction(
+                contract_address=1,
+                entry_point_selector=get_selector_from_name("get_nonce"),
+                calldata=[],
+                signature=[],
+            )
+        )
+
+    assert "500" in str(exinfo.value)
