@@ -67,7 +67,7 @@ def use_cpp_variant() -> bool:
 def message_signature(msg_hash, priv_key) -> ECSignature:
     if use_cpp_variant():
         return cpp_sign(msg_hash, priv_key)
-    return sign(msg_hash, priv_key)
+    return sign(msg_hash, priv_key, 32)
 
 
 def pedersen_hash(left: int, right: int) -> int:
