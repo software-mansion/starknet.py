@@ -1,6 +1,6 @@
 import functools
 import os
-from typing import List, Callable, Iterable
+from typing import List, Callable, Iterable, Optional
 
 from starkware.cairo.common.hash_state import compute_hash_on_elements
 from starkware.cairo.lang.vm.crypto import pedersen_hash as default_hash
@@ -64,10 +64,10 @@ def use_cpp_variant() -> bool:
     return bool(lib_path)
 
 
-def message_signature(msg_hash, priv_key) -> ECSignature:
+def message_signature(msg_hash, priv_key, seed: Optional[int] = 32) -> ECSignature:
     if use_cpp_variant():
-        return cpp_sign(msg_hash, priv_key)
-    return sign(msg_hash, priv_key)
+        return cpp_sign(msg_hash, priv_key, seed)
+    return sign(msg_hash, priv_key, seed)
 
 
 def pedersen_hash(left: int, right: int) -> int:

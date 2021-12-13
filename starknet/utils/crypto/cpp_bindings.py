@@ -1,9 +1,8 @@
 import ctypes
-import secrets
 import os
 from typing import Optional, Tuple
 
-from starkware.crypto.signature.signature import inv_mod_curve_size
+from starkware.crypto.signature.signature import inv_mod_curve_size, generate_k_rfc6979
 
 CPP_LIB_BINDING = None
 OUT_BUFFER_SIZE = 251
@@ -56,12 +55,12 @@ def cpp_hash(left: int, right: int) -> int:
 
 def cpp_sign(msg_hash, priv_key, seed: Optional[int] = 32) -> ECSignature:
     res = ctypes.create_string_buffer(OUT_BUFFER_SIZE)
-    random_bytes = secrets.token_bytes(seed)
+    k = generate_k_rfc6979(msg_hash, priv_key, seed)
     if (
         CPP_LIB_BINDING.Sign(
             priv_key.to_bytes(32, "little", signed=False),
             msg_hash.to_bytes(32, "little", signed=False),
-            random_bytes,
+            k.to_bytes(32, "little", signed=False),
             res,
         )
         != 0
