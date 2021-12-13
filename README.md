@@ -3,6 +3,18 @@
 <h2 style="text-align: center; margin-top: -2rem">The StarkNet SDK for python</h2>
 
 [![codecov](https://codecov.io/gh/software-mansion/starknet_python_sdk/branch/master/graph/badge.svg?token=3E54E8RYSL)](https://codecov.io/gh/software-mansion/starknet_python_sdk)
+<a href="https://github.com/software-mansion/starknet_python_sdk/actions">
+    <img src="https://img.shields.io/github/workflow/status/software-mansion/starknet_python_sdk/format -> lint -> test">
+</a>
+<a href="https://github.com/seanjameshan/starknet.js/blob/main/LICENSE/">
+    <img src="https://img.shields.io/badge/license-MIT-black">
+</a>
+<a href="https://github.com/software-mansion/starknet_python_sdk/stargazers">
+    <img src='https://img.shields.io/github/stars/software-mansion/starknet_python_sdk?color=yellow' />
+</a>
+<a href="https://starkware.co/">
+    <img src="https://img.shields.io/badge/powered_by-StarkWare-navy">
+</a>
 
 # Development setup
 This is an instruction for setting up your local development environment. Instructions may vary depending on the OS you run.
