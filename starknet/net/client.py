@@ -16,10 +16,6 @@ from starknet.utils.types import net_address_from_net, InvokeFunction, Transacti
 
 @add_sync_version
 class Client:
-    @staticmethod
-    def alpha() -> "Client":
-        return Client("https://alpha4.starknet.io")
-
     def __init__(self, net: str, n_retries: Optional[int] = 1):
         """
 
