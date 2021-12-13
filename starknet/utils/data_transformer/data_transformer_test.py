@@ -176,7 +176,7 @@ def test_multiple_values():
     assert calldata == cairo_values
     assert args == {"first": [123], "second": [2, 10, 20], "third": [-11, -12]}
     assert to_python == (123, [10, 20], (-11, -12))
-    assert to_python.as_dict() == {
+    assert to_python._asdict() == {
         "first": 123,
         "second": [10, 20],
         "third": (-11, -12),

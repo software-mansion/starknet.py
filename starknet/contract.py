@@ -1,7 +1,7 @@
 import dataclasses
 import json
 from dataclasses import dataclass
-from typing import List, Optional, TYPE_CHECKING, Union, Dict, Collection
+from typing import List, Optional, TYPE_CHECKING, Union, Dict, Collection, NamedTuple
 
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
 from starkware.starknet.definitions.fields import ContractAddressSalt
@@ -24,7 +24,6 @@ from starknet.utils.types import (
     parse_address,
     InvokeFunction,
     Deploy,
-    KeyedTuple,
 )
 
 ABI = list
@@ -125,7 +124,7 @@ class PreparedFunctionCall:
         signature: Optional[Collection[int]] = None,
         block_hash: Optional[str] = None,
         block_number: Optional[int] = None,
-    ) -> KeyedTuple:
+    ) -> NamedTuple:
         """
         Calls a method.
 
@@ -206,7 +205,7 @@ class ContractFunction:
         self,
         *args,
         **kwargs,
-    ):
+    ) -> NamedTuple:
         """
         Call contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.
         The result is translated from Cairo data to python values.
@@ -226,10 +225,7 @@ class ContractFunction:
         return get_selector_from_name(self.name)
 
 
-class ContractFunctionsRepository(Dict[str, ContractFunction]):
-    """
-    A dict containing :obj:`functions <starknet.contract.ContractFunction>` exposed from a contract.
-    """
+FunctionsRepository = Dict[str, ContractFunction]
 
 
 @add_sync_methods
@@ -250,7 +246,7 @@ class Contract:
         self._functions = self._make_functions(self._data, client)
 
     @property
-    def functions(self) -> ContractFunctionsRepository:
+    def functions(self) -> FunctionsRepository:
         """
         :return: All functions exposed from a contract.
         """
@@ -353,8 +349,8 @@ class Contract:
     @classmethod
     def _make_functions(
         cls, contract_data: ContractData, client: "Client"
-    ) -> ContractFunctionsRepository:
-        repository = ContractFunctionsRepository()
+    ) -> FunctionsRepository:
+        repository = {}
 
         for abi_entry in contract_data.abi:
             if abi_entry["type"] != "function":
