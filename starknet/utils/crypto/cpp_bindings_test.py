@@ -1,4 +1,7 @@
 import os
+
+from starkware.crypto.signature.signature import verify, private_to_stark_key
+
 from starknet.utils.crypto.facade import (
     use_cpp_variant,
     hash_message,
@@ -34,6 +37,7 @@ def test_signing(monkeypatch):
         return
 
     args = 1, 2
+    msg_hash, priv_key = args
 
     monkeypatch.setenv("CRYPTO_C_EXPORTS_PATH", test_crypto_lib_path)
     assert use_cpp_variant()
@@ -44,3 +48,6 @@ def test_signing(monkeypatch):
     signature_2 = message_signature(*args)
 
     assert signature_1 == signature_2
+
+    assert bool(verify(msg_hash, *signature_1, private_to_stark_key(priv_key)))
+    assert bool(verify(msg_hash, *signature_2, private_to_stark_key(priv_key)))
