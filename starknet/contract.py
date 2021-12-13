@@ -232,8 +232,6 @@ class ContractFunctionsRepository(Dict[str, ContractFunction]):
     A dict containing :obj:`functions <starknet.contract.ContractFunction>` exposed from a contract.
     """
 
-    pass
-
 
 @add_sync_version
 class Contract:
