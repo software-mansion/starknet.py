@@ -84,8 +84,8 @@ Although asynchronous API is recommended, you can also use Contract's synchronou
     from starknet.net.client import Client
 
     key = 1234
-    contract = Contract.sync.from_address("0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b", Client("testnet"))
-    invocation = contract.functions["set_value"].invoke(key, 7)
-    invocation.wait_for_acceptance()
+    contract = Contract.from_address_sync("0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b", Client("testnet"))
+    invocation = contract.functions["set_value"].invoke_sync(key, 7)
+    invocation.wait_for_acceptance_sync()
 
-    (saved,) = contract.functions["get_value"].call(key) # 7
+    (saved,) = contract.functions["get_value"].call_sync(key) # 7
