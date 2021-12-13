@@ -1,3 +1,9 @@
+
+<h1 style="text-align: center">Welcome to starknet.py!</h1>
+<h2 style="text-align: center; margin-top: -2rem">The StarkNet SDK for python</h2>
+
+[![codecov](https://codecov.io/gh/software-mansion/starknet_python_sdk/branch/master/graph/badge.svg?token=3E54E8RYSL)](https://codecov.io/gh/software-mansion/starknet_python_sdk)
+
 # Development setup
 This is an instruction for setting up your local development environment. Instructions may vary depending on the OS you run.
 
