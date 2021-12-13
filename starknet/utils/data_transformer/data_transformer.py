@@ -17,7 +17,7 @@ from starkware.cairo.lang.compiler.identifier_manager import (
 from starkware.cairo.lang.compiler.parser import parse_type
 from starkware.cairo.lang.compiler.type_system import mark_type_resolved
 
-from starknet.utils.types import is_felt_pointer, KeyedTuple
+from starknet.utils.types import is_felt_pointer, KeyedTuple, UInt256
 
 ABIFunctionEntry = dict
 CairoData = List[int]
@@ -79,6 +79,9 @@ class StructTransformer(TypeTransformer[TypeStruct, dict]):
         return definition
 
     def from_python(self, cairo_type, name, value):
+        if isinstance(value, UInt256):
+            return [value & ((1 << 128) - 1), value >> 128]
+
         if not isinstance(value, dict):
             raise TypeError(f"Expected {name} to be a dict.")
 
@@ -99,6 +102,20 @@ class StructTransformer(TypeTransformer[TypeStruct, dict]):
 
     def to_python(self, cairo_type, name, values) -> (dict, CairoData):
         definition = self._definition(cairo_type)
+        (struct_name, *_) = definition.full_name.path
+
+        is_uint_256 = (
+            struct_name == "Uint256"
+            and len(definition.members.items()) == 2
+            and definition.members.get("low")
+            and definition.members.get("high")
+            and isinstance(definition.members["low"].cairo_type, TypeFelt)
+            and isinstance(definition.members["high"].cairo_type, TypeFelt)
+        )
+
+        if is_uint_256:
+            low, high = values
+            return UInt256((high << 128) + low), values
 
         result = {}
         for member_name, member in definition.members.items():

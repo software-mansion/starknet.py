@@ -71,3 +71,16 @@ class KeyedTuple(tuple):
             return super().__getitem__(item)
 
         return self._properties[item]
+
+
+class UInt256(int):
+    MAX = (1 << 256) - 1
+    MIN = 0
+
+    # pylint: disable=super-init-not-called
+    def __init__(self, v):
+        if not UInt256.MIN <= v <= UInt256.MAX:
+            raise ValueError("UInt256 is expected to be in range [0;2^256)")
+
+    def __new__(cls, value):
+        return int.__new__(cls, value)

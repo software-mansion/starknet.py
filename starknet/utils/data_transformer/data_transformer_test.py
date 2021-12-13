@@ -1,7 +1,8 @@
 import pytest
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 
-from .data_transformer import DataTransformer
+from starknet.utils.types import UInt256
+from starknet.utils.data_transformer.data_transformer import DataTransformer
 
 
 def transformer_for_function(inputs=None, outputs=None, structs=None):
@@ -106,6 +107,62 @@ def test_struct(value, cairo_value):
 
     assert from_python == cairo_value
     assert to_python == (value,)
+
+
+@pytest.mark.parametrize(
+    "value, cairo_value",
+    [
+        (123, [123, 0]),  # (python int, [low, high])
+        (12345, [12345, 0]),
+        (((1 << 128) - 1), [((1 << 128) - 1), 0]),  # 128 low bits filled
+        (
+            ((1 << 256) - 1) ^ ((1 << 128) - 1),
+            [0, ((1 << 128) - 1)],
+        ),  # 128 high bits filled
+        (
+            (1 << 256) - 1,  # Max - all 1 (256 bits)
+            [
+                ((1 << 256) - 1) >> 128,  # Low, all 1 (128 bits)
+                ((1 << 256) - 1) >> 128,  # High, all 1 (128 bits)
+            ],
+        ),
+        (0, [0, 0]),
+    ],
+)
+def test_uint256(value: int, cairo_value):
+    uint = UInt256(value)
+    abi = [{"name": "value", "type": "Uint256"}]
+    structs = [
+        {
+            "members": [
+                {"name": "low", "offset": 0, "type": "felt"},
+                {"name": "high", "offset": 1, "type": "felt"},
+            ],
+            "name": "Uint256",
+            "size": 2,
+            "type": "struct",
+        }
+    ]
+
+    from_python, _ = transformer_for_function(inputs=abi, structs=structs).from_python(
+        uint
+    )
+    to_python = transformer_for_function(outputs=abi, structs=structs).to_python(
+        cairo_value
+    )
+
+    assert from_python == cairo_value
+    assert to_python == (uint,)
+
+
+@pytest.mark.parametrize(
+    "invalid_value",
+    [-1, -2, -3, -5, -(2 << 128), -(2 << 256)],
+)
+def test_invalid_uint256(invalid_value: int):
+    with pytest.raises(ValueError) as v_err:
+        UInt256(invalid_value)
+        assert "in range [0;2^256)" in str(v_err.value)
 
 
 def test_nested_struct():
