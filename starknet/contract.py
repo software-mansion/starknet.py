@@ -18,7 +18,7 @@ from starknet.utils.compiler.starknet_compile import (
     starknet_compile,
 )
 from starknet.utils.data_transformer import DataTransformer
-from starknet.utils.sync import add_sync_version
+from starknet.utils.sync import add_sync_methods
 from starknet.utils.types import (
     AddressRepresentation,
     parse_address,
@@ -49,7 +49,7 @@ class ContractData:
         )
 
 
-@add_sync_version
+@add_sync_methods
 @dataclass(frozen=True)
 class InvocationResult:
     """
@@ -82,7 +82,7 @@ class InvocationResult:
         )
 
 
-@add_sync_version
+@add_sync_methods
 class PreparedFunctionCall:
     def __init__(
         self,
@@ -170,7 +170,7 @@ class PreparedFunctionCall:
         )
 
 
-@add_sync_version
+@add_sync_methods
 class ContractFunction:
     def __init__(
         self, name: str, abi: ABIEntry, contract_data: ContractData, client: "Client"
@@ -226,32 +226,13 @@ class ContractFunction:
         return get_selector_from_name(self.name)
 
 
-@add_sync_version
-class ContractFunctionsRepository:
+class ContractFunctionsRepository(Dict[str, ContractFunction]):
     """
-    Contains :obj:`functions <starknet.contract.ContractFunction>` exposed from a contract.
-    They are set as properties during initialization.
+    A dict containing :obj:`functions <starknet.contract.ContractFunction>` exposed from a contract.
     """
 
-    def __init__(self, contract_data: ContractData, client: "Client"):
-        for abi_entry in contract_data.abi:
-            if abi_entry["type"] != "function":
-                continue
 
-            name = abi_entry["name"]
-            setattr(
-                self,
-                name,
-                ContractFunction(
-                    name=name,
-                    abi=abi_entry,
-                    contract_data=contract_data,
-                    client=client,
-                ),
-            )
-
-
-@add_sync_version
+@add_sync_methods
 class Contract:
     """
     Cairo contract's model.
@@ -266,7 +247,7 @@ class Contract:
         :param client: client used for API calls
         """
         self._data = ContractData.from_abi(parse_address(address), abi)
-        self._functions = ContractFunctionsRepository(self._data, client)
+        self._functions = self._make_functions(self._data, client)
 
     @property
     def functions(self) -> ContractFunctionsRepository:
@@ -368,3 +349,23 @@ class Contract:
             constructor_abi, identifier_manager_from_abi(abi)
         ).from_python(*args, **kwargs)
         return calldata
+
+    @classmethod
+    def _make_functions(
+        cls, contract_data: ContractData, client: "Client"
+    ) -> ContractFunctionsRepository:
+        repository = ContractFunctionsRepository()
+
+        for abi_entry in contract_data.abi:
+            if abi_entry["type"] != "function":
+                continue
+
+            name = abi_entry["name"]
+            repository[name] = ContractFunction(
+                name=name,
+                abi=abi_entry,
+                contract_data=contract_data,
+                client=client,
+            )
+
+        return repository

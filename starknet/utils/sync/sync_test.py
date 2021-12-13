@@ -1,10 +1,10 @@
 import asyncio
 import unittest
 
-from starknet.utils.sync import add_sync_version
+from starknet.utils.sync import add_sync_methods
 
 
-@add_sync_version
+@add_sync_methods
 class Function:
     def __init__(self):
         self.name = "function X"
@@ -22,7 +22,7 @@ class Function:
         return self.name
 
 
-@add_sync_version
+@add_sync_methods
 class Repository:
     def __init__(self):
         self.function = Function()
@@ -33,7 +33,7 @@ class Repository:
 
 
 # pylint: disable=no-member
-@add_sync_version
+@add_sync_methods
 class Contract:
     def __init__(self, address):
         self.address = address
@@ -77,16 +77,16 @@ class TestAddSyncVersion(unittest.TestCase):
             await function.failure()
 
     def test_sync_versions(self):
-        contract = Contract.sync("1")
-        repository = contract.get_repository()
-        function = repository.get_function()
+        contract = Contract("1")
+        repository = contract.get_repository_sync()
+        function = repository.get_function_sync()
 
-        call_result = function.call()
+        call_result = function.call_sync()
         name = function.get_name()
-        class_result = contract.example_class_method()
+        class_result = contract.example_class_method_sync()
 
         self.assertEqual(call_result, 1)
         self.assertEqual(name, "function X")
         self.assertEqual(class_result, 2)
         with self.assertRaises(Exception):
-            function.failure()
+            function.failure_sync()
