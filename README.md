@@ -9,7 +9,7 @@
 <a href="https://github.com/seanjameshan/starknet.js/blob/main/LICENSE/">
     <img src="https://img.shields.io/badge/license-MIT-black">
 </a>
-<a href="https://github.com/seanjameshan/starknet.js/stargazers">
+<a href="https://github.com/software-mansion/starknet_python_sdk/stargazers">
     <img src='https://img.shields.io/github/stars/software-mansion/starknet_python_sdk?color=yellow' />
 </a>
 <a href="https://starkware.co/">
