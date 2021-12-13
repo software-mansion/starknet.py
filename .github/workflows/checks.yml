@@ -28,3 +28,8 @@ jobs:
     - name: Unit & e2e test
       run: |
         poetry run poe test
+    - name: Combine unit & e2e coverage
+      run: |
+        poetry run poe coverage_combine
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v2
