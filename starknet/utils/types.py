@@ -28,8 +28,8 @@ def parse_address(value: AddressRepresentation) -> Address:
 
     try:
         return int(value, 16)
-    except ValueError as v_err:
-        raise ValueError("Invalid address format.") from v_err
+    except TypeError as t_err:
+        raise TypeError("Invalid address format.") from t_err
 
 
 def net_address_from_net(net: str) -> str:

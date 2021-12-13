@@ -19,6 +19,7 @@ async def test_invoke_and_call(key, value):
 
     # Deploy simple k-v store
     contract = await Contract.deploy(client=client, compilation_source=map_source)
+    contract = await Contract.from_address(contract.address, client)
     await contract.functions.put.invoke(key, value)
     (response,) = await contract.functions.get.call(key)
 
