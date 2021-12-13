@@ -47,8 +47,8 @@ Example usage:
     )
     k, v = 13, 4324
     # Adds a transaction to mutate the state of k-v store. The call goes through account proxy, because we've used AccountClient to create the contract object
-    await map_contract.functions.put.invoke(k, v)
-    (resp,) = await map_contract.functions.get.call(k) # Retrieves the value, which is equal to 4324 in this case
+    await map_contract.functions["put"].invoke(k, v)
+    (resp,) = await map_contract.functions["get"].call(k) # Retrieves the value, which is equal to 4324 in this case
 
 Using Contract
 --------------
@@ -67,13 +67,13 @@ Using Contract
 
     # All exposed functions are available at contract.functions.
     # Here we invoke a function, creating a new transaction.
-    invocation = await contract.functions.set_value.invoke(key, 7)
+    invocation = await contract.functions["set_value"].invoke(key, 7)
 
     # Invocation returns InvocationResult object. It exposes a helper for waiting until transaction is accepted.
     await invocation.wait_for_acceptance()
 
     # Calling contract's function doesn't create a new transaction, you get the function's result.
-    (saved,) = await contract.functions.get_value.call(key)
+    (saved,) = await contract.functions["get_value"].call(key)
     # saved = 7 now
 
 Although asynchronous API is recommended, you can also use Contract's synchronous API:
@@ -85,7 +85,7 @@ Although asynchronous API is recommended, you can also use Contract's synchronou
 
     key = 1234
     contract = Contract.sync.from_address("0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b", Client("testnet"))
-    invocation = contract.functions.set_value.invoke(key, 7)
+    invocation = contract.functions["set_value"].invoke(key, 7)
     invocation.wait_for_acceptance()
 
-    (saved,) = contract.functions.get_value.call(key) # 7
+    (saved,) = contract.functions["get_value"].call(key) # 7

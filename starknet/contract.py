@@ -227,28 +227,12 @@ class ContractFunction:
 
 
 @add_sync_version
-class ContractFunctionsRepository:
+class ContractFunctionsRepository(Dict[str, ContractFunction]):
     """
-    Contains :obj:`functions <starknet.contract.ContractFunction>` exposed from a contract.
-    They are set as properties during initialization.
+    A dict containing :obj:`functions <starknet.contract.ContractFunction>` exposed from a contract.
     """
 
-    def __init__(self, contract_data: ContractData, client: "Client"):
-        for abi_entry in contract_data.abi:
-            if abi_entry["type"] != "function":
-                continue
-
-            name = abi_entry["name"]
-            setattr(
-                self,
-                name,
-                ContractFunction(
-                    name=name,
-                    abi=abi_entry,
-                    contract_data=contract_data,
-                    client=client,
-                ),
-            )
+    pass
 
 
 @add_sync_version
@@ -266,7 +250,7 @@ class Contract:
         :param client: client used for API calls
         """
         self._data = ContractData.from_abi(parse_address(address), abi)
-        self._functions = ContractFunctionsRepository(self._data, client)
+        self._functions = self._make_functions(self._data, client)
 
     @property
     def functions(self) -> ContractFunctionsRepository:
@@ -368,3 +352,23 @@ class Contract:
             constructor_abi, identifier_manager_from_abi(abi)
         ).from_python(*args, **kwargs)
         return calldata
+
+    @staticmethod
+    def _make_functions(
+        contract_data: ContractData, client: "Client"
+    ) -> ContractFunctionsRepository:
+        repository = ContractFunctionsRepository()
+
+        for abi_entry in contract_data.abi:
+            if abi_entry["type"] != "function":
+                continue
+
+            name = abi_entry["name"]
+            repository[name] = ContractFunction(
+                name=name,
+                abi=abi_entry,
+                contract_data=contract_data,
+                client=client,
+            )
+
+        return repository

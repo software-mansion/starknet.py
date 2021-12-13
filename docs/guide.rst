@@ -68,25 +68,25 @@ This is how we can interact with it:
     contract = await Contract.from_address(address, Client("testnet"))
 
     # Using only positional arguments
-    invocation = await contract.functions.transferFrom.invoke(sender, recipient, 10000)
+    invocation = await contract.functions["transferFrom"].invoke(sender, recipient, 10000)
 
     # Using only keyword arguments
-    invocation = await contract.functions.transferFrom.invoke(sender=sender, recipient=recipient, amount=10000)
+    invocation = await contract.functions["transferFrom"].invoke(sender=sender, recipient=recipient, amount=10000)
 
     # Mixing positional with keyword arguments
-    invocation = await contract.functions.transferFrom.invoke(sender, recipient, amount=10000)
+    invocation = await contract.functions["transferFrom"].invoke(sender, recipient, amount=10000)
 
     # Creating a PreparedFunctionCall - creates a function call with arguments - useful for signing transactions and specifying additional options
-    transfer = contract.functions.transferFrom.prepare(sender, recipient, amount=10000)
+    transfer = contract.functions["transferFrom"].prepare(sender, recipient, amount=10000)
     await transfer.invoke()
 
     # Wait for tx
     await invocation.wait_for_acceptance
 
-    (balance,) = await contract.functions.balanceOf.call(recipient)
+    (balance,) = await contract.functions["balanceOf"].call(recipient)
 
     # You can also use key access or call .to_dict on value returned from a call to get keyed values. It is useful with many returned values.
-    result = await contract.functions.balanceOf.call(recipient)
+    result = await contract.functions["balanceOf"].call(recipient)
     balance = result["balance"]
     balance = result.to_dict()["balance"]
 
@@ -135,7 +135,7 @@ Here's how you could sign an invocation:
     public_key = 1628448741648245036800002906075225705100596136133912895015035902954123957052
     value = 4321
 
-    prepared = contract.functions.increase_balance.prepare(user=public_key, amount=value)
+    prepared = contract.functions["increase_balance"].prepare(user=public_key, amount=value)
     # Every transformed argument is stored in prepared.arguments. In this case the translation is easy, but with nested structs it might not be obvious.
     prepared.arguments == {"public_key": public_key, "amount": value}
     signature = sign_calldata(prepared.arguments["amount"], private_key)

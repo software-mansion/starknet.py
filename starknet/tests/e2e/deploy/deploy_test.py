@@ -13,8 +13,8 @@ map_source_code = Path(directory, "map.cairo").read_text("utf-8")
 async def test_deploy_tx():
     client = DevnetClient()
     result = await Contract.deploy(client=client, compilation_source=map_source_code)
-    assert isinstance(result.functions.get, ContractFunction)
-    assert isinstance(result.functions.put, ContractFunction)
+    assert isinstance(result.functions["get"], ContractFunction)
+    assert isinstance(result.functions["put"], ContractFunction)
 
 
 constructor_with_arguments_source = Path(
@@ -58,8 +58,8 @@ async def test_constructor_arguments():
 
     assert contract_1.address != contract_2.address
 
-    result_1 = await contract_1.functions.get.call()
-    result_2 = await contract_1.functions.get.call()
+    result_1 = await contract_1.functions["get"].call()
+    result_2 = await contract_1.functions["get"].call()
 
     assert result_1 == (value, tuple_value, sum(arr), struct)
     assert result_2 == (value, tuple_value, sum(arr), struct)
