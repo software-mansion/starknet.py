@@ -17,7 +17,7 @@ documentation = "https://starknetpy.rtfd.io/"
 python = "^3.7.12"
 cairo-lang = "^0.6.0"
 asgiref = "^3.4.1"
-sphinx = {version = "^3", optional = true}
+sphinx = {version = "^4.3.1", optional = true}
 
 [tool.poetry.extras]
 docs = ["sphinx"]
@@ -29,7 +29,6 @@ poethepoet = "^0.11.0"
 coverage = "^6.1.2"
 starknet-devnet = "^0.1.9"
 pytest-asyncio = "^0.16.0"
-Sphinx = "^4.3.1"
 sphinx-rtd-theme = "^1.0.0"
 pylint = "^2.12.2"
 
