@@ -11,7 +11,7 @@ packages = [
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/software-mansion/starknet_python_sdk"
-documentation = "https://starknet-python-sdk.readthedocs.io"
+documentation = "https://starknetpy.rtfd.io/"
 
 [tool.poetry.dependencies]
 python = "^3.7.12"
