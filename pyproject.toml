@@ -17,6 +17,10 @@ documentation = "https://starknetpy.rtfd.io/"
 python = "^3.7.12"
 cairo-lang = "^0.6.0"
 asgiref = "^3.4.1"
+sphinx = {version = "^3", optional = true}
+
+[tool.poetry.extras]
+docs = ["sphinx"]
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
