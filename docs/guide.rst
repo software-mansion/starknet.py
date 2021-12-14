@@ -85,10 +85,9 @@ This is how we can interact with it:
 
     (balance,) = await contract.functions["balanceOf"].call(recipient)
 
-    # You can also use key access or call .to_dict on value returned from a call to get keyed values. It is useful with many returned values.
+    # You can also use key access, call returns NamedTuple
     result = await contract.functions["balanceOf"].call(recipient)
-    balance = result["balance"]
-    balance = result.to_dict()["balance"]
+    balance = result.balance
 
 Signing a single transaction
 ----------------------------
