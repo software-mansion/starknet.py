@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Callable, TypeVar, Generic, Tuple, Dict
+from typing import List, Callable, TypeVar, Generic, Tuple, Dict, NamedTuple
 
 from starkware.cairo.lang.compiler.ast.cairo_types import (
     TypeFelt,
@@ -19,7 +19,6 @@ from starkware.cairo.lang.compiler.type_system import mark_type_resolved
 
 from starknet.utils.types import (
     is_felt_pointer,
-    KeyedTuple,
     is_uint256,
     uint256_range_check,
 )
@@ -232,7 +231,7 @@ class DataTransformer:
 
         return calldata, all_params
 
-    def to_python(self, values: CairoData) -> KeyedTuple:
+    def to_python(self, values: CairoData) -> NamedTuple:
         type_by_name = self._abi_to_types(self.abi["outputs"])
 
         result = {}
@@ -242,7 +241,10 @@ class DataTransformer:
             )
             result[name] = transformed
 
-        return KeyedTuple(result)
+        result_tuple = NamedTuple(
+            "Result", [(key, type(value)) for key, value in result.items()]
+        )
+        return result_tuple(**result)
 
     def _abi_to_types(self, abi_list) -> dict:
         return self._remove_array_lengths(

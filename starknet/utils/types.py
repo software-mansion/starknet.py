@@ -29,8 +29,8 @@ def parse_address(value: AddressRepresentation) -> Address:
 
     try:
         return int(value, 16)
-    except ValueError as v_err:
-        raise ValueError("Invalid address format.") from v_err
+    except TypeError as t_err:
+        raise TypeError("Invalid address format.") from t_err
 
 
 def net_address_from_net(net: str) -> str:
@@ -43,35 +43,6 @@ def net_address_from_net(net: str) -> str:
 InvokeFunction = IF
 Deploy = D
 Transaction = T
-
-
-class KeyedTuple(tuple):
-    """
-    Tuple with dictionary-like access.
-    """
-
-    # pylint: disable=super-init-not-called
-    def __init__(self, properties: Dict[str, any]):
-        for key in properties.keys():
-            if not isinstance(key, str):
-                raise ValueError("Only string keys are allowed in KeyedTuple.")
-
-        self._properties = properties
-
-    def __new__(cls, properties: Dict[str, any]):
-        return super().__new__(cls, (prop for prop in properties.values()))
-
-    def as_dict(self) -> dict:
-        """
-        Returns a regular dict representation.
-        """
-        return self._properties
-
-    def __getitem__(self, item):
-        if isinstance(item, int):
-            return super().__getitem__(item)
-
-        return self._properties[item]
 
 
 def is_uint256(definition: StructDefinition) -> bool:

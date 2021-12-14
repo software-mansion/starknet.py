@@ -12,7 +12,7 @@ from starkware.starknet.public.abi import get_selector_from_name
 from starknet.contract import Contract
 from starknet.net import Client
 from starknet.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
-from starknet.utils.sync import add_sync_version
+from starknet.utils.sync import add_sync_methods
 from starknet.utils.crypto.facade import message_signature, hash_message
 from starknet.utils.types import (
     AddressRepresentation,
@@ -31,7 +31,7 @@ class KeyPair:
         return KeyPair(private_key=key, public_key=private_to_stark_key(key))
 
 
-@add_sync_version
+@add_sync_methods
 class AccountClient(Client):
     """
     Extends the functionality of :obj:`Client <starknet.net.Client>`, adding additional methods for creating the

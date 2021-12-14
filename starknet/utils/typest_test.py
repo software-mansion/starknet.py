@@ -1,23 +1,18 @@
 import pytest
 
-from starknet.utils.types import KeyedTuple
+from starknet.utils.types import parse_address
 
 
 @pytest.mark.parametrize(
-    "input_dict, expected",
-    [({}, ()), ({"": 21}, (21,)), ({"key1": "value1", "2": "2"}, ("value1", "2"))],
+    "input, output",
+    [(123, 123), ("859", 2137), ("0x859", 2137)],
 )
-def test_keyed_tuple(input_dict, expected):
-    k_tuple = KeyedTuple(input_dict)
-
-    assert k_tuple == expected
-    assert k_tuple.as_dict() == input_dict
-    for key, value in input_dict.items():
-        assert k_tuple[key] == value
+def test_parse_address(input, output):
+    assert parse_address(input) == output
 
 
-def test_invalid_arg():
-    with pytest.raises(ValueError) as excinfo:
-        KeyedTuple({1: "value"})
+def test_parse_invalid_address():
+    with pytest.raises(TypeError) as excinfo:
+        parse_address(0.22)
 
-    assert "string keys are allowed" in str(excinfo.value)
+    assert "address format" in str(excinfo.value)

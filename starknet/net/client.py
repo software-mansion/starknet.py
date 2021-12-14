@@ -10,16 +10,12 @@ from starkware.starknet.services.api.gateway.gateway_client import GatewayClient
 from services.external_api.base_client import RetryConfig
 
 from starknet.constants import TxStatus
-from starknet.utils.sync import add_sync_version
+from starknet.utils.sync import add_sync_methods
 from starknet.utils.types import net_address_from_net, InvokeFunction, Transaction
 
 
-@add_sync_version
+@add_sync_methods
 class Client:
-    @staticmethod
-    def alpha() -> "Client":
-        return Client("https://alpha4.starknet.io")
-
     def __init__(self, net: str, n_retries: Optional[int] = 1):
         """
 
@@ -180,7 +176,7 @@ class Client:
             result = await self.get_transaction(tx_hash=tx_hash)
             status = TxStatus[result["status"]]
 
-            if status == TxStatus.ACCEPTED_ONCHAIN:
+            if status in (TxStatus.ACCEPTED_ONCHAIN, TxStatus.ACCEPTED_ON_L1):
                 return result["block_number"], status
             if status == TxStatus.PENDING:
                 if not wait_for_accept and "block_number" in result:

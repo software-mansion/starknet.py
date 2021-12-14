@@ -6,9 +6,6 @@ Contract
 .. autoclass:: Contract
     :members: from_address, __init__, functions, deploy
 
-.. autoclass:: ContractFunctionsRepository
-    :exclude-members: __init__, __new__
-
 .. autoclass:: ContractFunction
     :exclude-members: __init__, __new__
     :members: prepare, call, invoke

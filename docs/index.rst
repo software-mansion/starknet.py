@@ -7,6 +7,7 @@ Welcome to Starknet.py's documentation!
    quickstart
    guide
    api
+   development
 
 
 Indices and tables
