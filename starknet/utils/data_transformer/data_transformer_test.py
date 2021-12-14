@@ -176,6 +176,36 @@ def test_invalid_uint256(invalid_value: int):
     assert "in range [0;2^256)" in str(v_err.value)
 
 
+@pytest.mark.parametrize(
+    "struct_value, int_value",
+    [
+        ({"low": 1, "high": 0}, 1),
+        ({"low": 0, "high": 1}, 1 << 128),
+        ({"low": 1, "high": 1}, (1 << 128) + 1),
+    ],
+)
+def test_uint256_interchangeability(struct_value, int_value):
+    abi = [{"name": "value", "type": "Uint256"}]
+    structs = [
+        {
+            "members": [
+                {"name": "low", "offset": 0, "type": "felt"},
+                {"name": "high", "offset": 1, "type": "felt"},
+            ],
+            "name": "Uint256",
+            "size": 2,
+            "type": "struct",
+        }
+    ]
+    from_python_1, _ = transformer_for_function(
+        inputs=abi, structs=structs
+    ).from_python(struct_value)
+    from_python_2, _ = transformer_for_function(
+        inputs=abi, structs=structs
+    ).from_python(int_value)
+    assert from_python_1 == from_python_2
+
+
 def test_nested_struct():
     structs = [
         {
