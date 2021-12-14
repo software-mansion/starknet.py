@@ -15,9 +15,9 @@ import os
 import sys
 import sphinx_rtd_theme
 
+sys.path.insert(0, os.path.abspath("."))
 sys.path.insert(0, os.path.abspath("../"))
-print(sys.path, file=sys.stderr)
-
+sys.path.insert(1, os.path.dirname(os.path.abspath("../")) + os.sep + "starknet")
 
 # -- Project information -----------------------------------------------------
 
