@@ -1,7 +1,6 @@
 import pytest
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 
-from starknet.utils.types import UInt256
 from starknet.utils.data_transformer.data_transformer import DataTransformer
 
 
@@ -129,8 +128,7 @@ def test_struct(value, cairo_value):
         (0, [0, 0]),
     ],
 )
-def test_uint256(value: int, cairo_value):
-    uint = UInt256(value)
+def test_uint256(value, cairo_value):
     abi = [{"name": "value", "type": "Uint256"}]
     structs = [
         {
@@ -145,14 +143,14 @@ def test_uint256(value: int, cairo_value):
     ]
 
     from_python, _ = transformer_for_function(inputs=abi, structs=structs).from_python(
-        uint
+        value
     )
     to_python = transformer_for_function(outputs=abi, structs=structs).to_python(
         cairo_value
     )
 
     assert from_python == cairo_value
-    assert to_python == (uint,)
+    assert to_python == (value,)
 
 
 @pytest.mark.parametrize(
@@ -160,9 +158,22 @@ def test_uint256(value: int, cairo_value):
     [-1, -2, -3, -5, -(2 << 128), -(2 << 256)],
 )
 def test_invalid_uint256(invalid_value: int):
+    abi = [{"name": "value", "type": "Uint256"}]
+    structs = [
+        {
+            "members": [
+                {"name": "low", "offset": 0, "type": "felt"},
+                {"name": "high", "offset": 1, "type": "felt"},
+            ],
+            "name": "Uint256",
+            "size": 2,
+            "type": "struct",
+        }
+    ]
     with pytest.raises(ValueError) as v_err:
-        UInt256(invalid_value)
-        assert "in range [0;2^256)" in str(v_err.value)
+        transformer_for_function(inputs=abi, structs=structs).from_python(invalid_value)
+
+    assert "in range [0;2^256)" in str(v_err.value)
 
 
 def test_nested_struct():
@@ -192,19 +203,29 @@ def test_nested_struct():
         {
             "members": [
                 {"name": "nested", "offset": 0, "type": "felt"},
+                {"name": "uint_value", "offset": 1, "type": "Uint256"},
             ],
             "name": "DeeplyNestedStruct",
-            "size": 1,
+            "size": 3,
+            "type": "struct",
+        },
+        {
+            "members": [
+                {"name": "low", "offset": 0, "type": "felt"},
+                {"name": "high", "offset": 1, "type": "felt"},
+            ],
+            "name": "Uint256",
+            "size": 2,
             "type": "struct",
         },
     ]
     abi = [{"name": "value", "type": "StructWithStruct"}]
     value = {
-        "first": {"deeply_nested": {"nested": 1}},
-        "second": (2, 3, 4),
-        "third": {"nested": 5},
+        "first": {"deeply_nested": {"nested": 1, "uint_value": 2}},
+        "second": (3, 4, 5),
+        "third": {"nested": 6, "uint_value": 2},
     }
-    cairo_value = [1, 2, 3, 4, 5]
+    cairo_value = [1, 2, 0, 3, 4, 5, 6, 2, 0]
 
     from_python, _args = transformer_for_function(
         inputs=abi, structs=structs
@@ -218,25 +239,47 @@ def test_nested_struct():
 
 
 def test_multiple_values():
+    structs = [
+        {
+            "members": [
+                {"name": "low", "offset": 0, "type": "felt"},
+                {"name": "high", "offset": 1, "type": "felt"},
+            ],
+            "name": "Uint256",
+            "size": 2,
+            "type": "struct",
+        }
+    ]
     abi = [
         {"name": "first", "type": "felt"},
         {"name": "second_len", "type": "felt"},
         {"name": "second", "type": "felt*"},
         {"name": "third", "type": "(felt, felt)"},
+        {"name": "fourth", "type": "Uint256"},
     ]
-    values = [123, [10, 20], (-11, -12)]
-    cairo_values = [123, 2, 10, 20, -11, -12]
+    values = [123, [10, 20], (-11, -12), 123456]
+    cairo_values = [123, 2, 10, 20, -11, -12, 123456, 0]
 
-    calldata, args = transformer_for_function(inputs=abi).from_python(*values)
-    to_python = transformer_for_function(outputs=abi).to_python(cairo_values)
+    calldata, args = transformer_for_function(inputs=abi, structs=structs).from_python(
+        *values
+    )
+    to_python = transformer_for_function(outputs=abi, structs=structs).to_python(
+        cairo_values
+    )
 
     assert calldata == cairo_values
-    assert args == {"first": [123], "second": [2, 10, 20], "third": [-11, -12]}
-    assert to_python == (123, [10, 20], (-11, -12))
+    assert args == {
+        "first": [123],
+        "second": [2, 10, 20],
+        "third": [-11, -12],
+        "fourth": [123456, 0],
+    }
+    assert to_python == (123, [10, 20], (-11, -12), 123456)
     assert to_python.as_dict() == {
         "first": 123,
         "second": [10, 20],
         "third": (-11, -12),
+        "fourth": 123456,
     }
 
 

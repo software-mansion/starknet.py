@@ -5,6 +5,7 @@ from starkware.cairo.lang.compiler.ast.cairo_types import (
     TypePointer,
     TypeFelt,
 )
+from starkware.cairo.lang.compiler.identifier_definition import StructDefinition
 from starkware.starknet.services.api.gateway.transaction import (
     InvokeFunction as IF,
     Deploy as D,
@@ -73,14 +74,23 @@ class KeyedTuple(tuple):
         return self._properties[item]
 
 
-class UInt256(int):
-    MAX = (1 << 256) - 1
-    MIN = 0
+def is_uint256(definition: StructDefinition) -> bool:
+    (struct_name, *_) = definition.full_name.path
 
-    # pylint: disable=super-init-not-called
-    def __init__(self, v):
-        if not UInt256.MIN <= v <= UInt256.MAX:
-            raise ValueError("UInt256 is expected to be in range [0;2^256)")
+    return (
+        struct_name == "Uint256"
+        and len(definition.members.items()) == 2
+        and definition.members.get("low")
+        and definition.members.get("high")
+        and isinstance(definition.members["low"].cairo_type, TypeFelt)
+        and isinstance(definition.members["high"].cairo_type, TypeFelt)
+    )
 
-    def __new__(cls, value):
-        return int.__new__(cls, value)
+
+MAX_UINT256 = (1 << 256) - 1
+MIN_UINT256 = 0
+
+
+def uint256_range_check(value: int):
+    if not MIN_UINT256 <= value <= MAX_UINT256:
+        raise ValueError(f"UInt256 is expected to be in range [0;2^256), got {value}")

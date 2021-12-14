@@ -17,7 +17,12 @@ from starkware.cairo.lang.compiler.identifier_manager import (
 from starkware.cairo.lang.compiler.parser import parse_type
 from starkware.cairo.lang.compiler.type_system import mark_type_resolved
 
-from starknet.utils.types import is_felt_pointer, KeyedTuple, UInt256
+from starknet.utils.types import (
+    is_felt_pointer,
+    KeyedTuple,
+    is_uint256,
+    uint256_range_check,
+)
 
 ABIFunctionEntry = dict
 CairoData = List[int]
@@ -79,16 +84,16 @@ class StructTransformer(TypeTransformer[TypeStruct, dict]):
         return definition
 
     def from_python(self, cairo_type, name, value):
-        if isinstance(value, UInt256):
+        definition = self._definition(cairo_type)
+
+        if is_uint256(definition) and isinstance(value, int):
+            uint256_range_check(value)
             return [value & ((1 << 128) - 1), value >> 128]
 
         if not isinstance(value, dict):
             raise TypeError(f"Expected {name} to be a dict.")
 
         result = []
-
-        definition = self._definition(cairo_type)
-
         for member_name, member in definition.members.items():
             if member_name not in value:
                 raise ValueError(f"{name}[{member_name}] not provided.")
@@ -102,20 +107,11 @@ class StructTransformer(TypeTransformer[TypeStruct, dict]):
 
     def to_python(self, cairo_type, name, values) -> (dict, CairoData):
         definition = self._definition(cairo_type)
-        (struct_name, *_) = definition.full_name.path
-
-        is_uint_256 = (
-            struct_name == "Uint256"
-            and len(definition.members.items()) == 2
-            and definition.members.get("low")
-            and definition.members.get("high")
-            and isinstance(definition.members["low"].cairo_type, TypeFelt)
-            and isinstance(definition.members["high"].cairo_type, TypeFelt)
-        )
-
-        if is_uint_256:
-            low, high = values
-            return UInt256((high << 128) + low), values
+        if is_uint256(definition):
+            low, high, *values = values
+            value = (high << 128) + low
+            uint256_range_check(value)
+            return value, values
 
         result = {}
         for member_name, member in definition.members.items():
