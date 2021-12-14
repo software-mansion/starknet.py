@@ -5,6 +5,7 @@ from starkware.cairo.lang.compiler.ast.cairo_types import (
     TypePointer,
     TypeFelt,
 )
+from starkware.cairo.lang.compiler.identifier_definition import StructDefinition
 from starkware.starknet.services.api.gateway.transaction import (
     InvokeFunction as IF,
     Deploy as D,
@@ -42,3 +43,25 @@ def net_address_from_net(net: str) -> str:
 InvokeFunction = IF
 Deploy = D
 Transaction = T
+
+
+def is_uint256(definition: StructDefinition) -> bool:
+    (struct_name, *_) = definition.full_name.path
+
+    return (
+        struct_name == "Uint256"
+        and len(definition.members.items()) == 2
+        and definition.members.get("low")
+        and definition.members.get("high")
+        and isinstance(definition.members["low"].cairo_type, TypeFelt)
+        and isinstance(definition.members["high"].cairo_type, TypeFelt)
+    )
+
+
+MAX_UINT256 = (1 << 256) - 1
+MIN_UINT256 = 0
+
+
+def uint256_range_check(value: int):
+    if not MIN_UINT256 <= value <= MAX_UINT256:
+        raise ValueError(f"UInt256 is expected to be in range [0;2^256), got {value}")
