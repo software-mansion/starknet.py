@@ -1,9 +1,20 @@
 import inspect
+from functools import wraps
 from typing import TypeVar
 
 from asgiref.sync import async_to_sync
 
 T = TypeVar("T")
+
+
+def make_sync(fn):
+    sync_fun = async_to_sync(fn)
+
+    @wraps(fn)
+    def impl(*args, **kwargs):
+        return sync_fun(*args, **kwargs)
+
+    return impl
 
 
 def add_sync_methods(original_class: T) -> T:
@@ -22,18 +33,14 @@ def add_sync_methods(original_class: T) -> T:
 
         # Make all callables synchronous
         if inspect.iscoroutinefunction(value):
-            value = async_to_sync(value)
+            setattr(original_class, sync_name, make_sync(value))
         elif isinstance(value, staticmethod) and inspect.iscoroutinefunction(
             value.__func__
         ):
-            value = staticmethod(async_to_sync(value.__func__))
+            setattr(original_class, sync_name, staticmethod(make_sync(value.__func__)))
         elif isinstance(value, classmethod) and inspect.iscoroutinefunction(
             value.__func__
         ):
-            value = classmethod(async_to_sync(value.__func__))
-        else:
-            continue
-
-        setattr(original_class, sync_name, value)
+            setattr(original_class, sync_name, classmethod(make_sync(value.__func__)))
 
     return original_class

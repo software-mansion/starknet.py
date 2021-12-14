@@ -1,5 +1,5 @@
 import asyncio
-import unittest
+import pytest
 
 from starknet.utils.sync import add_sync_methods
 
@@ -20,6 +20,15 @@ class Function:
 
     def get_name(self):
         return self.name
+
+    @staticmethod
+    async def method():
+        return 1
+
+    @staticmethod
+    def method_sync():
+        # Shouldn't be overridden
+        return 2
 
 
 @add_sync_methods
@@ -43,50 +52,36 @@ class Contract:
         await asyncio.sleep(0.1)
         return Repository()
 
-    @staticmethod
-    async def example_class_method():
+    @classmethod
+    async def example_class_method(_cls):
         await asyncio.sleep(0.1)
         return 2
 
 
-def async_test(func):
-    def wrapper(*args, **kwargs):
-        coro = asyncio.coroutine(func)
-        future = coro(*args, **kwargs)
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(future)
+@pytest.mark.asyncio
+async def test_asynchronous_versions():
+    contract = Contract("1")
+    repository = await contract.get_repository()
+    function = await repository.get_function()
 
-    return wrapper
+    assert await function.call() == 1
+    assert function.get_name() == "function X"
+    assert await contract.example_class_method() == 2
+    assert await Function.method() == 1
+    assert Function.method_sync() == 2
+
+    with pytest.raises(Exception):
+        await function.failure()
 
 
-class TestAddSyncVersion(unittest.TestCase):
-    @async_test
-    async def test_asynchronous_versions(self):
-        contract = Contract("1")
-        repository = await contract.get_repository()
-        function = await repository.get_function()
+def test_sync_versions():
+    contract = Contract("1")
+    repository = contract.get_repository_sync()
+    function = repository.get_function_sync()
 
-        call_result = await function.call()
-        name = function.get_name()
-        class_result = await contract.example_class_method()
+    assert function.call_sync() == 1
+    assert function.get_name() == "function X"
+    assert contract.example_class_method_sync() == 2
 
-        self.assertEqual(call_result, 1)
-        self.assertEqual(name, "function X")
-        self.assertEqual(class_result, 2)
-        with self.assertRaises(Exception):
-            await function.failure()
-
-    def test_sync_versions(self):
-        contract = Contract("1")
-        repository = contract.get_repository_sync()
-        function = repository.get_function_sync()
-
-        call_result = function.call_sync()
-        name = function.get_name()
-        class_result = contract.example_class_method_sync()
-
-        self.assertEqual(call_result, 1)
-        self.assertEqual(name, "function X")
-        self.assertEqual(class_result, 2)
-        with self.assertRaises(Exception):
-            function.failure_sync()
+    with pytest.raises(Exception):
+        function.failure_sync()
