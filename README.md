@@ -1,5 +1,5 @@
 <h1 align="center">✨🐍 starknet.py</h1>
-<h2 align="center">The StarkNet SDK for Python</h2>
+<h2 align="center">StarkNet SDK for Python</h2>
 
 <p align="center">
 
