@@ -33,18 +33,14 @@ def add_sync_methods(original_class: T) -> T:
 
         # Make all callables synchronous
         if inspect.iscoroutinefunction(value):
-            value = make_sync(value)
+            setattr(original_class, sync_name, make_sync(value))
         elif isinstance(value, staticmethod) and inspect.iscoroutinefunction(
             value.__func__
         ):
-            value = staticmethod(make_sync(value.__func__))
+            setattr(original_class, sync_name, staticmethod(make_sync(value.__func__)))
         elif isinstance(value, classmethod) and inspect.iscoroutinefunction(
             value.__func__
         ):
-            value = classmethod(make_sync(value.__func__))
-        else:
-            continue
-
-        setattr(original_class, sync_name, value)
+            setattr(original_class, sync_name, classmethod(make_sync(value.__func__)))
 
     return original_class
