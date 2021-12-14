@@ -4,16 +4,16 @@ Contract
 .. py:module:: starknet.contract
 
 .. autoclass:: Contract
-    :members: from_address, __init__, functions, deploy
+    :members: from_address, __init__, functions, deploy, from_address_sync, deploy_sync
 
 .. autoclass:: ContractFunction
     :exclude-members: __init__, __new__
-    :members: prepare, call, invoke
+    :members: prepare, call, invoke, call_sync, invoke_sync
 
 .. autoclass:: PreparedFunctionCall
     :exclude-members: __init__, __new__
-    :members: call, call_raw, invoke
+    :members: call, call_raw, invoke, call_sync, call_raw_sync, invoke_sync
 
 .. autoclass:: InvocationResult
     :exclude-members: __init__, __new__
-    :members: wait_for_acceptance
+    :members: wait_for_acceptance, wait_for_acceptance_sync

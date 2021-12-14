@@ -5,11 +5,14 @@ Client
 
 .. automethod:: Client.__init__
 .. automethod:: Client.get_contract_addresses
+.. automethod:: Client.get_contract_addresses_sync
 .. automethod:: Client.call_contract
+.. automethod:: Client.call_contract_sync
 
 We recommend using :obj:`ContractFunction's call <starknet.contract.ContractFunction.call>` instead.
 
 .. automethod:: Client.get_block
+.. automethod:: Client.get_block_sync
 
 Example response:
 
@@ -81,6 +84,7 @@ Example response:
 
 
 .. automethod:: Client.get_code
+.. automethod:: Client.get_code_sync
 
 The output should look like:
 
@@ -107,7 +111,9 @@ The output should look like:
     }
 
 .. automethod:: Client.get_storage_at
+.. automethod:: Client.get_storage_at_sync
 .. automethod:: Client.get_transaction_status
+.. automethod:: Client.get_transaction_status_sync
 
 The result should look like this:
 
@@ -127,6 +133,7 @@ The possible statuses are:
 - **ACCEPTED_ONCHAIN**: The transaction was accepted on-chain.
 
 .. automethod:: Client.get_transaction
+.. automethod:: Client.get_transaction_sync
 
 Example response:
 
@@ -166,6 +173,7 @@ It may also include each of the following optional fields (according to the tran
 
 
 .. automethod:: Client.get_transaction_receipt
+.. automethod:: Client.get_transaction_receipt_sync
 
 Example response:
 
@@ -204,13 +212,15 @@ Example response:
 
 The result contains (in addition to get_transaction fields):
 
-- `l2_to_l1_messages` – Messages sent from L2 to L1.
-- `l1_to_l2_consumed_message` – The consumed message, in case the transaction was sent from L1.
-- `execution_resources` – Resources consumed by the transaction execution.
+- ``l2_to_l1_messages`` – Messages sent from L2 to L1.
+- ``l1_to_l2_consumed_message`` – The consumed message, in case the transaction was sent from L1.
+- ``execution_resources`` – Resources consumed by the transaction execution.
 
 .. automethod:: Client.wait_for_tx
+.. automethod:: Client.wait_for_tx_sync
 
 .. automethod:: Client.add_transaction
+.. automethod:: Client.add_transaction_sync
 
 We recommend using :obj:`ContractFunction's invoke <starknet.contract.ContractFunction.invoke>` or :obj:`Contract's deploy <starknet.contract.Contract.deploy>` instead
 

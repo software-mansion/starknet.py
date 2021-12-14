@@ -121,7 +121,7 @@ class Client:
         """
         :param tx_hash: Transaction's hash
         :param tx_id: Transaction's index
-        :return: Dictionary containing tx's status which is one of starknet.constants.TxStatus
+        :return: Dictionary containing tx's status
         """
         return await self._feeder_gateway.get_transaction_status(
             tx_hash,
