@@ -7,6 +7,7 @@
 <a href="https://github.com/software-mansion/starknet_python_sdk/actions">
     <img src="https://img.shields.io/github/workflow/status/software-mansion/starknet_python_sdk/format -> lint -> test">
 </a>
+[![Documentation Status](https://readthedocs.org/projects/starknetpy/badge/?version=latest)](https://starknetpy.readthedocs.io/en/latest/?badge=latest)
 <a href="https://github.com/seanjameshan/starknet.js/blob/main/LICENSE/">
     <img src="https://img.shields.io/badge/license-MIT-black">
 </a>
@@ -20,10 +21,10 @@
 </p>
 
 ## 📘 Documentation
-- [Installation](https://starknet-python-sdk.readthedocs.io/en/latest/installation.html)
-- [Quickstart](https://starknet-python-sdk.readthedocs.io/en/latest/quickstart.html)
-- [Guide](https://starknet-python-sdk.readthedocs.io/en/latest/guide.html)
-- [API](https://starknet-python-sdk.readthedocs.io/en/latest/api.html)
+- [Installation](https://starknetpy.rtfd.io/en/latest/installation.html)
+- [Quickstart](https://starknetpy.rtfd.io/en/latest/quickstart.html)
+- [Guide](https://starknetpy.rtfd.io/en/latest/guide.html)
+- [API](https://starknetpy.rtfd.io/en/latest/api.html)
 
 ## ▶️ Example usage
 ### Asynchronous API
@@ -55,4 +56,4 @@ invocation.wait_for_acceptance_sync()
 (saved,) = contract.functions["get_value"].call_sync(key) # 7
 ```
 
-See more [here](https://starknet-python-sdk.readthedocs.io/en/latest/quickstart.html).
+See more [here](https://starknetpy.rtfd.io/en/latest/quickstart.html).
