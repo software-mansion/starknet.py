@@ -1,6 +1,7 @@
+<h1 align="center">✨🐍 starknet.py</h1>
+<h2 align="center">The StarkNet SDK for Python</h2>
 
-<h1 style="text-align: center">Welcome to starknet.py!</h1>
-<h2 style="text-align: center; margin-top: -2rem">The StarkNet SDK for python</h2>
+<p align="center">
 
 [![codecov](https://codecov.io/gh/software-mansion/starknet_python_sdk/branch/master/graph/badge.svg?token=3E54E8RYSL)](https://codecov.io/gh/software-mansion/starknet_python_sdk)
 <a href="https://github.com/software-mansion/starknet_python_sdk/actions">
@@ -16,79 +17,16 @@
     <img src="https://img.shields.io/badge/powered_by-StarkWare-navy">
 </a>
 
-# Development setup
-This is an instruction for setting up your local development environment. Instructions may vary depending on the OS you run.
+</p>
 
-## Development dependencies
-- `pyenv` - recommended for installing and switching python versions locally
-- `poetry` - Python dependency manager
+## 📘 Documentation
+- [Installation](https://starknet-python-sdk.readthedocs.io/en/latest/installation.html)
+- [Quickstart](https://starknet-python-sdk.readthedocs.io/en/latest/quickstart.html)
+- [Guide](https://starknet-python-sdk.readthedocs.io/en/latest/guide.html)
+- [API](https://starknet-python-sdk.readthedocs.io/en/latest/api.html)
 
-## Setup
-1. `poetry install`
-
-## Setup verification
-Make sure to verify output of this command
-
-```
-> poetry run python --version
-Python 3.7.x
-```
-
-## Setup git hooks
-
-Run this snippet to enable lint checks and automatic formatting before commit/push
-```
-cp pre-push ./.git/hooks/
-cp pre-commit ./.git/hooks/
-chmod +x ./.git/hooks/pre-commit
-chmod +x ./.git/hooks/pre-push
-```
-
-# Documentation
-[Sphinx](https://www.sphinx-doc.org/en/master/) is used for generating documentation.
-
-### Generating from source
-```
-poe docs_create
-```
-
-### Opening generated docs
-```
-poe docs_open
-```
-
-# Tests
-## Running whole suite
-
-```
-poe test
-```
-## Generating test report
-```
-poe test_report
-```
-or 
-```
-poe test_html
-```
-
-## Unit tests
-```
-poe test_unit
-```
-## E2E tests
-### Running e2e tests in command line
-```
-poe test_e2e
-```
-### Running e2e tests in PyCharm
-1. Run `starkware-devnet` script before running e2e tests in PyCharm
-2. Use `E2E tests` configuration to run or debug.
-
-⚠️ **Warning**: Make sure to fill your interpreter in the configuration, to match your project's poetry venv
-
-# Example usage
-## Asynchronous API
+## ▶️ Example usage
+### Asynchronous API
 This is the recommended way of using the SDK.
 ```
 from starknet.contract import Contract
@@ -102,8 +40,7 @@ await invocation.wait_for_acceptance()
 (saved,) = await contract.functions["get_value"].call(key) # (7)
 ```
 
-
-## Synchronous API
+### Synchronous API
 You can access synchronous world with `_sync` postfix.
 
 ```
@@ -118,14 +55,4 @@ invocation.wait_for_acceptance_sync()
 (saved,) = contract.functions["get_value"].call_sync(key) # 7
 ```
 
-# Using with `starkware-libs/crypto-cpp`
-
-To use the CPP library: 
-1. Compile it from sources (https://github.com/starkware-libs/crypto-cpp)
-2. Provide the path to the library in `CRYPTO_C_EXPORTS_PATH` environment variable
-
-## Testing the `crypto-cpp` compilation
-Run the tests with the `CRYPTO_C_EXPORTS_PATH_TEST` environment variable set to the library path. If tests pass, you are good to go
-
-
-
+See more [here](https://starknet-python-sdk.readthedocs.io/en/latest/quickstart.html).

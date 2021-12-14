@@ -3,6 +3,8 @@ Installation
 
 TODO
 
+.. _Crypto-cpp installation:
+
 Using with `starkware-libs/crypto-cpp`
 --------------------------------------
 
