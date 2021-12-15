@@ -130,7 +130,8 @@ The possible statuses are:
 - **RECEIVED**: The transaction was received by the operator.
 - **PENDING**: The transaction passed the validation and is waiting to be sent on-chain.
 - **REJECTED**: The transaction failed validation and thus was skipped.
-- **ACCEPTED_ONCHAIN**: The transaction was accepted on-chain.
+- **ACCEPTED_ON_L1**: The transaction was accepted on layer 1.
+- **ACCEPTED_ON_L2**: The transaction was accepted on layer 2.
 
 .. automethod:: Client.get_transaction
 .. automethod:: Client.get_transaction_sync

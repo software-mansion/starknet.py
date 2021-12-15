@@ -9,7 +9,7 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
 from starkware.starknet.services.api.gateway.gateway_client import GatewayClient
 from services.external_api.base_client import RetryConfig, BadRequest as BadRequestError
 
-from starknet.constants import TxStatus
+from starknet.constants import TxStatus, ACCEPTED_STATUSES
 from starknet.utils.sync import add_sync_methods
 from starknet.utils.types import net_address_from_net, InvokeFunction, Transaction
 
@@ -186,7 +186,7 @@ class Client:
             result = await self.get_transaction(tx_hash=tx_hash)
             status = TxStatus[result["status"]]
 
-            if status in (TxStatus.ACCEPTED_ONCHAIN, TxStatus.ACCEPTED_ON_L1):
+            if status in ACCEPTED_STATUSES:
                 return result["block_number"], status
             if status == TxStatus.PENDING:
                 if not wait_for_accept and "block_number" in result:
