@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "starknet.py"
-version = "0.1.0-alpha"
-description = ""
+version = "0.1.1-alpha"
+description = "A python SDK for StarkNet"
 authors = ["Tomasz Rejowski <tomasz.rejowski@swmansion.com>", "Jakub Ptak <jakub.ptak@swmansion.com>"]
 include = ["starknet"]
 exclude = ["starknet/tests/*", "starknet/**/*_test.py"]
