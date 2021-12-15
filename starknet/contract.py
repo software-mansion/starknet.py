@@ -264,6 +264,7 @@ class Contract:
         Fetches ABI for given contract and creates a new Contract instance with it. If you know ABI statically you
         should create Contract's instances directly instead of using this function to avoid unnecessary API calls.
 
+        :raises BadRequest: when contract is not found
         :param address: Contract's address
         :param client: Client used
         :return: an initialized Contract instance

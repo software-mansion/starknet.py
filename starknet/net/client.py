@@ -7,11 +7,13 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
     JsonObject,
 )
 from starkware.starknet.services.api.gateway.gateway_client import GatewayClient
-from services.external_api.base_client import RetryConfig
+from services.external_api.base_client import RetryConfig, BadRequest as BadRequestError
 
 from starknet.constants import TxStatus
 from starknet.utils.sync import add_sync_methods
 from starknet.utils.types import net_address_from_net, InvokeFunction, Transaction
+
+BadRequest = BadRequestError
 
 
 @add_sync_methods
@@ -79,19 +81,27 @@ class Client:
         contract_address: int,
         block_hash: Optional[CastableToHash] = None,
         block_number: Optional[int] = None,
-    ) -> List[str]:
+    ) -> dict:
         """
+        Retrieve contract's bytecode and abi.
 
+        :raises BadRequest: when contract is not found
         :param contract_address: Address of the contract on Starknet
         :param block_hash: Get code at specific block hash
         :param block_number: Get code at given block number
-        :return: JSON representation of compiled code of the contract, with ABI alongside
+        :return: JSON representation of compiled: {"bytecode": list, "abi": dict}
         """
-        return await self._feeder_gateway.get_code(
+        code = await self._feeder_gateway.get_code(
             contract_address,
             block_hash,
             block_number,
         )
+        if len(code["bytecode"]) == 0:
+            raise BadRequest(
+                200, f"Contract with address {contract_address} was not found."
+            )
+
+        return code
 
     async def get_storage_at(
         self,
