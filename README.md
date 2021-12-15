@@ -19,6 +19,15 @@
 - [Guide](https://starknetpy.rtfd.io/en/latest/guide.html)
 - [API](https://starknetpy.rtfd.io/en/latest/api.html)
 
+## Installation
+To install this package run
+
+`pip install starknet.py`
+
+or using Poetry:
+
+`poetry add starknet.py`
+
 ## ▶️ Example usage
 ### Asynchronous API
 This is the recommended way of using the SDK.
