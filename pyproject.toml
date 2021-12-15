@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "starknet_python_sdk"
-version = "0.1.0"
+version = "0.1.0-alpha"
 description = ""
 authors = ["Tomasz Rejowski <tomasz.rejowski@swmansion.com>", "Jakub Ptak <jakub.ptak@swmansion.com>"]
 include = ["starknet"]
