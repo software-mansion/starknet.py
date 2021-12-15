@@ -197,6 +197,20 @@ Here's how you can deploy new contracts:
     )
 
 
+Handling client errors
+-----------------------
+You can use ``starknet.net.client.BadRequest`` to catch errors from invalid requests:
+
+.. code-block:: python
+
+    from starknet.net.client import Client, BadRequest
+    try:
+        contract_address = 1 # Doesn't exist
+        await Contract.from_address(contract_address, Client("testnet"))
+    except BadRequest as e:
+        print(e.status_code, e.text)
+
+
 Data transformation
 -------------------
 
