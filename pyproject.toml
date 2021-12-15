@@ -10,7 +10,7 @@ packages = [
 ]
 license = "MIT"
 readme = "README.md"
-repository = "https://github.com/software-mansion/starknet_python_sdk"
+repository = "https://github.com/software-mansion/starknet.py"
 documentation = "https://starknetpy.rtfd.io/"
 
 [tool.poetry.dependencies]

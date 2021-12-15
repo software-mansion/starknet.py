@@ -1,7 +1,13 @@
 Installation
 ============
 
-TODO
+To install this package run
+
+``pip install starknet.py``
+
+or using Poetry:
+
+``poetry add starknet.py``
 
 .. _Crypto-cpp installation:
 
