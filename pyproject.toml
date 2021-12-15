@@ -4,7 +4,7 @@ version = "0.1.0-alpha"
 description = ""
 authors = ["Tomasz Rejowski <tomasz.rejowski@swmansion.com>", "Jakub Ptak <jakub.ptak@swmansion.com>"]
 include = ["starknet"]
-exclude = ["starknet/tests/*", "starknet/*_test.py"]
+exclude = ["starknet/tests/*", "starknet/**/*_test.py"]
 packages = [
     { include = "starknet" }
 ]
