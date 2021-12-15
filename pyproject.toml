@@ -15,7 +15,7 @@ documentation = "https://starknetpy.rtfd.io/"
 
 [tool.poetry.dependencies]
 python = "^3.7.12"
-cairo-lang = "^0.6.0"
+cairo-lang = "0.6.2"
 asgiref = "^3.4.1"
 sphinx = {version = "^4.3.1", optional = true}
 
@@ -27,7 +27,7 @@ pytest = "^6.2.5"
 black = "^21.11b0"
 poethepoet = "^0.11.0"
 coverage = "^6.1.2"
-starknet-devnet = "^0.1.9"
+starknet-devnet = { git = "https://github.com/Shard-Labs/starknet-devnet.git", branch = "update-v0.6.2" }
 pytest-asyncio = "^0.16.0"
 sphinx-rtd-theme = "^1.0.0"
 pylint = "^2.12.2"
