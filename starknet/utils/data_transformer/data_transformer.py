@@ -21,6 +21,7 @@ from starknet.utils.types import (
     is_felt_pointer,
     is_uint256,
     uint256_range_check,
+    felt_range_check,
 )
 
 ABIFunctionEntry = dict
@@ -62,10 +63,12 @@ class FeltTransformer(TypeTransformer[TypeFelt, int]):
     def from_python(self, cairo_type, name, value):
         if not isinstance(value, int):
             raise TypeError(f"{name} should be int.")
+        felt_range_check(value)
         return [value]
 
     def to_python(self, cairo_type, name, values):
         [val], rest = read_from_cairo_data(name, values, 1)
+        felt_range_check(val)
         return val, rest
 
 
