@@ -4,19 +4,12 @@
 <p align="center">
 
 [![codecov](https://codecov.io/gh/software-mansion/starknet.py/branch/master/graph/badge.svg?token=3E54E8RYSL)](https://codecov.io/gh/software-mansion/starknet.py)
-<a href="https://github.com/software-mansion/starknet.py/actions">
-    <img src="https://img.shields.io/github/workflow/status/software-mansion/starknet.py/format -> lint -> test">
-</a>
-[![Documentation Status](https://readthedocs.org/projects/starknetpy/badge/?version=latest)](https://starknetpy.readthedocs.io/en/latest/?badge=latest)
-<a href="https://github.com/software-mansion/starknet.py/blob/main/LICENSE/">
-    <img src="https://img.shields.io/badge/license-MIT-black">
-</a>
-<a href="https://github.com/software-mansion/starknet.py/stargazers">
-    <img src='https://img.shields.io/github/stars/software-mansion/starknet.py?color=yellow' />
-</a>
-<a href="https://starkware.co/">
-    <img src="https://img.shields.io/badge/powered_by-StarkWare-navy">
-</a>
+[![pypi](https://img.shields.io/pypi/v/starknet.py)](https://pypi.org/project/starknet.py/)
+[![build](https://img.shields.io/github/workflow/status/software-mansion/starknet.py/format%20-%3E%20lint%20-%3E%20test)](https://github.com/software-mansion/starknet.py/actions)
+[![docs](https://readthedocs.org/projects/starknetpy/badge/?version=latest)](https://starknetpy.readthedocs.io/en/latest/?badge=latest)
+[![license](https://img.shields.io/badge/license-MIT-black)](https://github.com/software-mansion/starknet.py/blob/master/LICENSE.txt)
+[![stars](https://img.shields.io/github/stars/software-mansion/starknet.py?color=yellow)](https://github.com/software-mansion/starknet.py/stargazers)
+[![starkware](https://img.shields.io/badge/powered_by-StarkWare-navy)](https://starkware.co)
 
 </p>
 
