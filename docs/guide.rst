@@ -91,26 +91,36 @@ This is how we can interact with it:
 
 Signing a single transaction
 ----------------------------
-You can use :obj:`ContractFunction's call <starknet.contract.ContractFunction.prepare>` to get calldata's parts and generate a signature from them. Here's an example function
-copied from `Starknet's docs <https://www.cairo-lang.org/docs/hello_starknet/user_auth.html>`_:
+You can use :obj:`ContractFunction's call <starknet.contract.ContractFunction.prepare>` to get calldata's parts and generate a signature from them. Here's a contract inspired by `Starknet's docs <https://www.cairo-lang.org/docs/hello_starknet/user_auth.html>`_:
 
 .. code-block:: cairo
 
-    # Increases the balance of the given user by the given amount.
+    %lang starknet
+
+    %builtins pedersen range_check ecdsa
+
+    from starkware.cairo.common.uint256 import Uint256
+    from starkware.cairo.common.cairo_builtins import (HashBuiltin, SignatureBuiltin)
+    from starkware.cairo.common.hash import hash2
+    from starkware.cairo.common.signature import (verify_ecdsa_signature)
+    from starkware.starknet.common.syscalls import get_tx_signature
+
+    @storage_var
+    func balance(user) -> (res: Uint256):
+    end
+
     @external
-    func increase_balance{
+    func set_balance{
             syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
             range_check_ptr, ecdsa_ptr : SignatureBuiltin*}(
-            user : felt, amount : felt):
-        # Fetch the signature.
+            user : felt, amount : Uint256):
         let (sig_len : felt, sig : felt*) = get_tx_signature()
 
         # Verify the signature length.
         assert sig_len = 2
 
-        # Compute the hash of the message.
-        # The hash of (x, 0) is equivalent to the hash of (x).
-        let (amount_hash) = hash2{hash_ptr=pedersen_ptr}(amount, 0)
+        let (hash) = hash2{hash_ptr=pedersen_ptr}(amount.low, 0)
+        let (amount_hash) = hash2{hash_ptr=pedersen_ptr}(amount.high, hash)
 
         # Verify the user's signature.
         verify_ecdsa_signature(
@@ -119,9 +129,14 @@ copied from `Starknet's docs <https://www.cairo-lang.org/docs/hello_starknet/use
             signature_r=sig[0],
             signature_s=sig[1])
 
-        let (res) = balance.read(user=user)
-        balance.write(user, res + amount)
+        balance.write(user, amount)
         return ()
+    end
+
+    @external
+    func get_balance{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(user : felt) -> (balance: Uint256):
+        let (value) = balance.read(user=user)
+        return (value)
     end
 
 Here's how you could sign an invocation:
@@ -129,16 +144,25 @@ Here's how you could sign an invocation:
 .. code-block:: python
 
     from starknet.utils.crypto.facade import sign_calldata
+    from starknet.contract import Contract
+    from starknet.net.client import Client
 
+    contract_address = "0x00178130dd6286a9a0e031e4c73b2bd04ffa92804264a25c1c08c1612559f458"
     private_key = 12345
     public_key = 1628448741648245036800002906075225705100596136133912895015035902954123957052
-    value = 4321
+    value = 340282366920938463463374607431768211583
 
-    prepared = contract.functions["increase_balance"].prepare(user=public_key, amount=value)
-    # Every transformed argument is stored in prepared.arguments. In this case the translation is easy, but with nested structs it might not be obvious.
-    prepared.arguments == {"public_key": public_key, "amount": value}
+    contract = await Contract.from_address(contract_address, Client("testnet"))
+    prepared = contract.functions["set_balance"].prepare(user=public_key, amount=value)
+    # Every transformed argument is stored in prepared.arguments
+    # prepared.arguments = {"public_key": public_key, "amount": [127, 1]}
+
     signature = sign_calldata(prepared.arguments["amount"], private_key)
-    await prepared.invoke(signature)
+    invocation = await prepared.invoke(signature)
+    await invocation.wait_for_acceptance()
+
+    (stored,) = await contract.functions["get_balance"].call(public_key)
+    assert stored == value
 
 
 Deploying new contracts
@@ -240,6 +264,10 @@ Starknet.py transforms python values to Cairo values and the other way around.
      - any iterable containing ints
      - ``[1, 2, 3]``, ``[]``, ``(1, 2, 3)``
      - ``parameter_len`` is filled automatically from value
+   * - uint256
+     - int or dict with ``"low"`` and ``"high"`` keys and ints as values
+     - ``0``, ``340282366920938463463374607431768211583``, ``{"low": 12, "high": 13}``
+     -
 
 
 
@@ -257,3 +285,5 @@ Starknet.py transforms python values to Cairo values and the other way around.
      - dict with keys matching struct
    * - pointer to felt/felt arrays
      - list of ints
+   * - unt256
+     - int
