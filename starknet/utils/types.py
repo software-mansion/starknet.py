@@ -1,4 +1,4 @@
-from typing import Union, Dict
+from typing import Union
 
 from starkware.cairo.lang.compiler.ast.cairo_types import (
     CairoType,
@@ -6,6 +6,7 @@ from starkware.cairo.lang.compiler.ast.cairo_types import (
     TypeFelt,
 )
 from starkware.cairo.lang.compiler.identifier_definition import StructDefinition
+from starkware.crypto.signature.signature import FIELD_PRIME
 from starkware.starknet.services.api.gateway.transaction import (
     InvokeFunction as IF,
     Deploy as D,
@@ -65,3 +66,14 @@ MIN_UINT256 = 0
 def uint256_range_check(value: int):
     if not MIN_UINT256 <= value <= MAX_UINT256:
         raise ValueError(f"UInt256 is expected to be in range [0;2^256), got {value}")
+
+
+MIN_FELT = -FIELD_PRIME / 2
+MAX_FELT = FIELD_PRIME / 2
+
+
+def cairo_vm_range_check(value: int):
+    if not 0 <= value < FIELD_PRIME:
+        raise ValueError(
+            f"Felt is expected to be in range [0; {FIELD_PRIME}), got {value}"
+        )

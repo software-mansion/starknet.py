@@ -67,7 +67,11 @@ def test_tuple(value, cairo_value):
 
 @pytest.mark.parametrize(
     "value, cairo_value",
-    [(0, [0]), (1, [1]), (-1, [-1]), (322132123, [322132123])],
+    [
+        (0, [0]),
+        (1, [1]),
+        (322132123, [322132123]),
+    ],
 )
 def test_felt(value, cairo_value):
     abi = [{"name": "value", "type": "felt"}]
@@ -287,8 +291,8 @@ def test_multiple_values():
         {"name": "third", "type": "(felt, felt)"},
         {"name": "fourth", "type": "Uint256"},
     ]
-    values = [123, [10, 20], (-11, -12), 123456]
-    cairo_values = [123, 2, 10, 20, -11, -12, 123456, 0]
+    values = [123, [10, 20], (11, 12), 123456]
+    cairo_values = [123, 2, 10, 20, 11, 12, 123456, 0]
 
     calldata, args = transformer_for_function(inputs=abi, structs=structs).from_python(
         *values
@@ -301,14 +305,14 @@ def test_multiple_values():
     assert args == {
         "first": [123],
         "second": [2, 10, 20],
-        "third": [-11, -12],
+        "third": [11, 12],
         "fourth": [123456, 0],
     }
-    assert to_python == (123, [10, 20], (-11, -12), 123456)
+    assert to_python == (123, [10, 20], (11, 12), 123456)
     assert to_python._asdict() == {
         "first": 123,
         "second": [10, 20],
-        "third": (-11, -12),
+        "third": (11, 12),
         "fourth": 123456,
     }
 
