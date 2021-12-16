@@ -77,28 +77,3 @@ def cairo_vm_range_check(value: int):
         raise ValueError(
             f"Felt is expected to be in range [0; {FIELD_PRIME}), got {value}"
         )
-
-
-def felt_to_int(value: int):
-    """
-    :param value: Felt output from cairo-vm
-    :return: corresponding python value, assuming viable (-P/2; P/2) range
-    """
-    cairo_vm_range_check(value)
-    return -FIELD_PRIME + value if value * 2 > FIELD_PRIME else value
-
-
-def int_to_felt(value: int):
-    """
-    :param value: Integer value in python
-    :return: Corresponding cairo-vm compatible value in range [0; P)
-    :raises: ``ValueError`` if provided value is not cairo-vm compatible
-            (namely, ranging (-P/2; P/2), P being base prime in cairo)
-    """
-    if not -FIELD_PRIME < 2 * value < FIELD_PRIME:
-        raise ValueError(
-            f"Int input is expected to be in range (-{FIELD_PRIME/2}; {FIELD_PRIME/2})), got {value}"
-        )
-    output = FIELD_PRIME + value if value < 0 else value
-    cairo_vm_range_check(output)
-    return output
