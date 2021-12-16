@@ -74,7 +74,9 @@ MAX_FELT = FIELD_PRIME / 2
 
 def cairo_vm_range_check(value: int):
     if not 0 <= value < FIELD_PRIME:
-        raise ValueError(f"Felt is expected to be in range [0; {FIELD_PRIME})")
+        raise ValueError(
+            f"Felt is expected to be in range [0; {FIELD_PRIME}), got {value}"
+        )
 
 
 def felt_to_int(value: int):
@@ -97,6 +99,6 @@ def int_to_felt(value: int):
         raise ValueError(
             f"Int input is expected to be in range (-{FIELD_PRIME/2}; {FIELD_PRIME/2})), got {value}"
         )
-    output = FIELD_PRIME - value if value < 0 else value
+    output = FIELD_PRIME + value if value < 0 else value
     cairo_vm_range_check(output)
     return output
