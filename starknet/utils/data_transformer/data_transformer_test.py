@@ -2,7 +2,6 @@ import pytest
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 
 from starknet.utils.data_transformer.data_transformer import DataTransformer
-from starknet.utils.types import int_to_felt
 
 
 def transformer_for_function(inputs=None, outputs=None, structs=None):
@@ -71,7 +70,6 @@ def test_tuple(value, cairo_value):
     [
         (0, [0]),
         (1, [1]),
-        (int_to_felt(-1), [int_to_felt(-1)]),
         (322132123, [322132123]),
     ],
 )
@@ -293,8 +291,8 @@ def test_multiple_values():
         {"name": "third", "type": "(felt, felt)"},
         {"name": "fourth", "type": "Uint256"},
     ]
-    values = [123, [10, 20], (int_to_felt(-11), int_to_felt(-12)), 123456]
-    cairo_values = [123, 2, 10, 20, int_to_felt(-11), int_to_felt(-12), 123456, 0]
+    values = [123, [10, 20], (11, 12), 123456]
+    cairo_values = [123, 2, 10, 20, 11, 12, 123456, 0]
 
     calldata, args = transformer_for_function(inputs=abi, structs=structs).from_python(
         *values
@@ -307,14 +305,14 @@ def test_multiple_values():
     assert args == {
         "first": [123],
         "second": [2, 10, 20],
-        "third": [int_to_felt(-11), int_to_felt(-12)],
+        "third": [11, 12],
         "fourth": [123456, 0],
     }
-    assert to_python == (123, [10, 20], (int_to_felt(-11), int_to_felt(-12)), 123456)
+    assert to_python == (123, [10, 20], (11, 12), 123456)
     assert to_python._asdict() == {
         "first": 123,
         "second": [10, 20],
-        "third": (int_to_felt(-11), int_to_felt(-12)),
+        "third": (11, 12),
         "fourth": 123456,
     }
 
