@@ -226,8 +226,8 @@ Starknet.py transforms python values to Cairo values and the other way around.
      - Comment
    * - felt
      - int
-     - ``0``, ``-1``, ``1213124124``
-     -
+     - ``0``, ``1``, ``1213124124``
+     - Provided int must be in range [0;P) - P being the Prime used in cairo-vm
    * - tuple
      - any iterable of matching size
      - ``(1, 2, (9, 8))``, ``[1, 2, (9, 8)]``, ``(v for v in [1, 2, (9, 8)])``
