@@ -1,3 +1,4 @@
+from functools import reduce
 from typing import Union
 
 from starkware.cairo.lang.compiler.ast.cairo_types import (
@@ -77,3 +78,18 @@ def cairo_vm_range_check(value: int):
         raise ValueError(
             f"Felt is expected to be in range [0; {FIELD_PRIME}), got {value}"
         )
+
+
+def encode_shortstring(value: str):
+    if len(value) > 31:
+        raise ValueError(
+            f"Shortstring cannot be longer than 31 characters, got: {len(value)}"
+        )
+    return reduce(lambda acc, elem: (acc << 8) | elem, [ord(s) for s in value], 0)
+
+
+def decode_shortstring(value: int):
+    cairo_vm_range_check(value)
+    return "".join([chr(i) for i in value.to_bytes(31, byteorder="big")]).replace(
+        "\x00", ""
+    )

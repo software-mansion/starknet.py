@@ -2,6 +2,7 @@ import pytest
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 
 from starknet.utils.data_transformer.data_transformer import DataTransformer
+from starknet.utils.types import decode_shortstring
 
 
 def transformer_for_function(inputs=None, outputs=None, structs=None):
@@ -208,6 +209,26 @@ def test_uint256_interchangeability(struct_value, int_value):
         inputs=abi, structs=structs
     ).from_python(int_value)
     assert from_python_1 == from_python_2
+
+
+@pytest.mark.parametrize("value", ["abcde", "a", "d", "ę", ""])
+def test_encoding_shortstring(value):
+    abi = [{"name": "value", "type": "felt"}]
+
+    from_python, _args = transformer_for_function(inputs=abi).from_python(
+        value
+    )  # Encode
+    assert decode_shortstring(from_python[0]) == value  # Decode and compare
+
+
+def test_too_long_shortstring():
+    abi = [{"name": "value", "type": "felt"}]
+
+    with pytest.raises(ValueError) as v_err:
+        transformer_for_function(inputs=abi).from_python(
+            "12345678901234567890123456789012"
+        )
+    assert "cannot be longer than 31 characters" in str(v_err.value)
 
 
 def test_nested_struct():
