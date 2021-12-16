@@ -5,11 +5,11 @@ from starknet.utils.types import parse_address, cairo_vm_range_check
 
 
 @pytest.mark.parametrize(
-    "input, output",
+    "input_addr, output",
     [(123, 123), ("859", 2137), ("0x859", 2137)],
 )
-def test_parse_address(input, output):
-    assert parse_address(input) == output
+def test_parse_address(input_addr, output):
+    assert parse_address(input_addr) == output
 
 
 def test_parse_invalid_address():
