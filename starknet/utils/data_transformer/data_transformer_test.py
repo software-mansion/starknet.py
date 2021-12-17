@@ -211,7 +211,7 @@ def test_uint256_interchangeability(struct_value, int_value):
     assert from_python_1 == from_python_2
 
 
-@pytest.mark.parametrize("value", ["abcde", "a", "d", "ę", ""])
+@pytest.mark.parametrize("value", ["abcde", "a", "d", "ÿ", ""])
 def test_encoding_shortstring(value):
     abi = [{"name": "value", "type": "felt"}]
 
