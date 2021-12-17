@@ -80,16 +80,28 @@ def cairo_vm_range_check(value: int):
         )
 
 
-def encode_shortstring(value: str):
+def encode_shortstring(value: str) -> int:
+    """
+    A function which encodes short string value (at most 31 characters) into cairo felt (MSB as first character)
+
+    :param value: A short string value in python
+    :return: Short string value encoded into felt
+    """
     if len(value) > 31:
         raise ValueError(
             f"Shortstring cannot be longer than 31 characters, got: {len(value)}"
         )
-    return reduce(lambda acc, elem: (acc << 8) | elem, [ord(s) for s in value], 0)
-
-
-def decode_shortstring(value: int):
+    value = reduce(lambda acc, elem: (acc << 8) | elem, [ord(s) for s in value], 0)
     cairo_vm_range_check(value)
-    return "".join([chr(i) for i in value.to_bytes(31, byteorder="big")]).replace(
-        "\x00", ""
-    )
+    return value
+
+
+def decode_shortstring(value: int) -> str:
+    """
+    A function which decodes a felt value to short string (31 characters)
+
+    :param value: A felt value
+    :return: Decoded string which is corresponds to that felt
+    """
+    cairo_vm_range_check(value)
+    return "".join([chr(i) for i in value.to_bytes(31, byteorder="big")])

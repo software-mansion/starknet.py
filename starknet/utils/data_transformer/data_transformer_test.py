@@ -218,7 +218,15 @@ def test_encoding_shortstring(value):
     from_python, _args = transformer_for_function(inputs=abi).from_python(
         value
     )  # Encode
-    assert decode_shortstring(from_python[0]) == value  # Decode and compare
+    assert decode_shortstring(from_python[0]) == value.rjust(
+        31, "\x00"
+    )  # Decode and compare
+
+
+@pytest.mark.parametrize("value", [0, 1, 2, 340282366920938463463374607431768211455])
+def test_decoding_shortstring(value):
+    decoded = decode_shortstring(value)
+    assert len(decoded) == 31
 
 
 def test_too_long_shortstring():

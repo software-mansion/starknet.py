@@ -249,9 +249,11 @@ Starknet.py transforms python values to Cairo values and the other way around.
      - Example python values
      - Comment
    * - felt
-     - int
-     - ``0``, ``1``, ``1213124124``
-     - Provided int must be in range [0;P) - P being the Prime used in cairo-vm
+     - int, string (at most 31 characters)
+     - ``0``, ``1``, ``1213124124``, 'shortstring', ''
+     - Provided int must be in range [0;P) - P being the Prime used in cairo-vm.
+       Can also be provided a short 31 character string, which will get
+       translated into felt with first letter as MSB of the felt
    * - tuple
      - any iterable of matching size
      - ``(1, 2, (9, 8))``, ``[1, 2, (9, 8)]``, ``(v for v in [1, 2, (9, 8)])``
@@ -287,3 +289,14 @@ Starknet.py transforms python values to Cairo values and the other way around.
      - list of ints
    * - unt256
      - int
+
+
+Working with shortstrings
+-------------------------
+
+To make working with short strings easier we provide some utility functions to translate the felt value received from the contract, into a short string value. A function which translates a string into a felt is also available, but the transformation is done automatically when calling the contract with shortstring in place of felt - they are interchangable.
+
+Conversion functions and references:
+
+- :obj:`encode_shortstring <starknet.utils.types.encode_shortstring>`
+- :obj:`decode_shortstring <starknet.utils.types.decode_shortstring>`
