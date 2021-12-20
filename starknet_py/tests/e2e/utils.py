@@ -1,4 +1,4 @@
-from starknet.net import Client
+from starknet_py.net import Client
 
 
 class DevnetClient(Client):

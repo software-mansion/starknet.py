@@ -9,9 +9,9 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
 from starkware.starknet.services.api.gateway.gateway_client import GatewayClient
 from services.external_api.base_client import RetryConfig, BadRequest as BadRequestError
 
-from starknet.constants import TxStatus, ACCEPTED_STATUSES
-from starknet.utils.sync import add_sync_methods
-from starknet.utils.types import net_address_from_net, InvokeFunction, Transaction
+from starknet_py.constants import TxStatus, ACCEPTED_STATUSES
+from starknet_py.utils.sync import add_sync_methods
+from starknet_py.utils.types import net_address_from_net, InvokeFunction, Transaction
 
 BadRequest = BadRequestError
 

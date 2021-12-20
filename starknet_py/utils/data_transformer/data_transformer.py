@@ -17,7 +17,7 @@ from starkware.cairo.lang.compiler.identifier_manager import (
 from starkware.cairo.lang.compiler.parser import parse_type
 from starkware.cairo.lang.compiler.type_system import mark_type_resolved
 
-from starknet.utils.types import (
+from starknet_py.utils.types import (
     is_felt_pointer,
     is_uint256,
     uint256_range_check,

@@ -13,13 +13,13 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
 )
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
-from starknet.utils.compiler.starknet_compile import (
+from starknet_py.utils.compiler.starknet_compile import (
     StarknetCompilationSource,
     starknet_compile,
 )
-from starknet.utils.data_transformer import DataTransformer
-from starknet.utils.sync import add_sync_methods
-from starknet.utils.types import (
+from starknet_py.utils.data_transformer import DataTransformer
+from starknet_py.utils.sync import add_sync_methods
+from starknet_py.utils.types import (
     AddressRepresentation,
     parse_address,
     InvokeFunction,
