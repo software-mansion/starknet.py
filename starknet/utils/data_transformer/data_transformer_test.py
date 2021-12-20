@@ -211,7 +211,7 @@ def test_uint256_interchangeability(struct_value, int_value):
     assert from_python_1 == from_python_2
 
 
-@pytest.mark.parametrize("value", ["abcde", "a", "d", "ÿ", ""])
+@pytest.mark.parametrize("value", ["abcde", "a", "d", ""])
 def test_encoding_shortstring(value):
     abi = [{"name": "value", "type": "felt"}]
 
@@ -221,6 +221,24 @@ def test_encoding_shortstring(value):
     assert decode_shortstring(from_python[0]) == value.rjust(
         31, "\x00"
     )  # Decode and compare
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        "õ",
+        "Ì",
+        "ï",
+        "Æ",
+    ],
+)
+def test_shortstring_unicode_error(value):
+    abi = [{"name": "value", "type": "felt"}]
+
+    with pytest.raises(ValueError) as v_err:
+        transformer_for_function(inputs=abi).from_python(value)
+
+    assert "Expected an ascii string" in str(v_err.value)
 
 
 @pytest.mark.parametrize("value", [0, 1, 2, 340282366920938463463374607431768211455])

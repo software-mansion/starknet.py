@@ -1,4 +1,3 @@
-from functools import reduce
 from typing import Union
 
 from starkware.cairo.lang.compiler.ast.cairo_types import (
@@ -80,18 +79,24 @@ def cairo_vm_range_check(value: int):
         )
 
 
-def encode_shortstring(value: str) -> int:
+def encode_shortstring(text: str) -> int:
     """
     A function which encodes short string value (at most 31 characters) into cairo felt (MSB as first character)
 
-    :param value: A short string value in python
+    :param text: A short string value in python
     :return: Short string value encoded into felt
     """
-    if len(value) > 31:
+    if len(text) > 31:
         raise ValueError(
-            f"Shortstring cannot be longer than 31 characters, got: {len(value)}"
+            f"Shortstring cannot be longer than 31 characters, got: {len(text)}"
         )
-    value = reduce(lambda acc, elem: (acc << 8) | elem, [ord(s) for s in value], 0)
+
+    try:
+        text_bytes = text.encode("ascii")
+    except UnicodeEncodeError as u_err:
+        raise ValueError(f"Expected an ascii string. Found: {repr(text)}.") from u_err
+    value = int.from_bytes(text_bytes, "big")
+
     cairo_vm_range_check(value)
     return value
 
