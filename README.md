@@ -1,5 +1,5 @@
 <div align="center">
-    <img src="graphic.png" alt="starknet.py">
+    <img src="https://raw.githubusercontent.com/software-mansion/starknet.py/master/graphic.png" alt="starknet.py"/>
 </div>
 <h2 align="center">StarkNet SDK for Python</h2>
 
