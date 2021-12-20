@@ -1,4 +1,6 @@
-<h1 align="center">✨🐍 starknet.py</h1>
+<div align="center">
+    <img src="graphic.png" alt="starknet.py">
+</div>
 <h2 align="center">StarkNet SDK for Python</h2>
 
 <p align="center">
