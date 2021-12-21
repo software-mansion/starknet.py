@@ -2,8 +2,8 @@ import os.path
 from pathlib import Path
 import pytest
 
-from starknet.contract import Contract
-from starknet.net.account.account_client import AccountClient
+from starknet_py.contract import Contract
+from starknet_py.net.account.account_client import AccountClient
 
 
 directory = os.path.dirname(__file__)

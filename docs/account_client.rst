@@ -1,7 +1,7 @@
 Account Client
 ==============
 
-.. py:module:: starknet.net.account.account_client
+.. py:module:: starknet_py.net.account.account_client
 
 .. autoclass:: AccountClient
     :members:

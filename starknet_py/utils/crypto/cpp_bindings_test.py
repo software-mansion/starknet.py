@@ -2,7 +2,7 @@ import os
 
 from starkware.crypto.signature.signature import verify, private_to_stark_key
 
-from starknet.utils.crypto.facade import (
+from starknet_py.utils.crypto.facade import (
     use_cpp_variant,
     hash_message,
     message_signature,

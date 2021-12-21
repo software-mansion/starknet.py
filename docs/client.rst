@@ -1,6 +1,6 @@
 Client
 ======
-.. py:module:: starknet.net
+.. py:module:: starknet_py.net
 .. py:class:: Client
 
 .. automethod:: Client.__init__
@@ -9,7 +9,7 @@ Client
 .. automethod:: Client.call_contract
 .. automethod:: Client.call_contract_sync
 
-We recommend using :obj:`ContractFunction's call <starknet.contract.ContractFunction.call>` instead.
+We recommend using :obj:`ContractFunction's call <starknet_py.contract.ContractFunction.call>` instead.
 
 .. automethod:: Client.get_block
 .. automethod:: Client.get_block_sync
@@ -223,5 +223,5 @@ The result contains (in addition to get_transaction fields):
 .. automethod:: Client.add_transaction
 .. automethod:: Client.add_transaction_sync
 
-We recommend using :obj:`ContractFunction's invoke <starknet.contract.ContractFunction.invoke>` or :obj:`Contract's deploy <starknet.contract.Contract.deploy>` instead
+We recommend using :obj:`ContractFunction's invoke <starknet_py.contract.ContractFunction.invoke>` or :obj:`Contract's deploy <starknet_py.contract.Contract.deploy>` instead
 
