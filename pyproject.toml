@@ -3,7 +3,7 @@ name = "starknet.py"
 version = "0.1.2-alpha"
 description = "A python SDK for StarkNet"
 authors = ["Tomasz Rejowski <tomasz.rejowski@swmansion.com>", "Jakub Ptak <jakub.ptak@swmansion.com>"]
-include = ["starknet"]
+include = ["starknet", "starknet/utils/crypto/libcrypto_c_exports.dylib"]
 exclude = ["starknet/tests/*", "starknet/**/*_test.py"]
 packages = [
     { include = "starknet" }
@@ -12,6 +12,7 @@ license = "MIT"
 readme = "README.md"
 repository = "https://github.com/software-mansion/starknet.py"
 documentation = "https://starknetpy.rtfd.io/"
+build = "build.py"
 
 [tool.poetry.dependencies]
 python = "^3.7.12"
@@ -31,6 +32,7 @@ starknet-devnet = "^0.1.10"
 pytest-asyncio = "^0.16.0"
 sphinx-rtd-theme = "^1.0.0"
 pylint = "^2.12.2"
+setuptools = "^60.0.3"
 
 [tool.poe.tasks]
 test = ["test_unit", "test_e2e"]
@@ -68,3 +70,6 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.black]
 target-version = ["py37"]
+extend-exclude = """
+crypto-cpp
+"""

@@ -8,12 +8,17 @@ CPP_LIB_BINDING = None
 OUT_BUFFER_SIZE = 251
 
 
-def get_cpp_lib(crypto_c_exports_path):
+def get_cpp_lib():
     # pylint: disable=global-statement
     global CPP_LIB_BINDING
     if CPP_LIB_BINDING:
         return
-    CPP_LIB_BINDING = ctypes.cdll.LoadLibrary(os.path.abspath(crypto_c_exports_path))
+    path = next(
+        f
+        for f in os.listdir(os.path.dirname(__file__))
+        if f.startswith("libcrypto_c_exports")
+    )
+    CPP_LIB_BINDING = ctypes.cdll.LoadLibrary(path)
     # Configure argument and return types.
     CPP_LIB_BINDING.Hash.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
     CPP_LIB_BINDING.Verify.argtypes = [

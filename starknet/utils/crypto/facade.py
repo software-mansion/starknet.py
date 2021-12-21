@@ -58,10 +58,9 @@ def hash_message_with(
 
 # Interface
 def use_cpp_variant() -> bool:
-    lib_path = os.environ.get("CRYPTO_C_EXPORTS_PATH")
-    if lib_path and not cpp_binding_loaded():
-        get_cpp_lib(lib_path)
-    return bool(lib_path)
+    # TODO
+    get_cpp_lib()
+    return True
 
 
 def message_signature(msg_hash, priv_key, seed: Optional[int] = 32) -> ECSignature:
