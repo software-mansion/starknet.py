@@ -60,8 +60,8 @@ This is how we can interact with it:
 
 .. code-block:: python
 
-    from starknet.net.client import Client
-    from starknet.contract import Contract
+    from starknet_py.net.client import Client
+    from starknet_py.contract import Contract
 
     contract = Contract(address=address, abi=abi, client=Client("testnet"))
     # or
@@ -91,7 +91,7 @@ This is how we can interact with it:
 
 Signing a single transaction
 ----------------------------
-You can use :obj:`ContractFunction's call <starknet.contract.ContractFunction.prepare>` to get calldata's parts and generate a signature from them. Here's a contract inspired by `Starknet's docs <https://www.cairo-lang.org/docs/hello_starknet/user_auth.html>`_:
+You can use :obj:`ContractFunction's call <starknet_py.contract.ContractFunction.prepare>` to get calldata's parts and generate a signature from them. Here's a contract inspired by `Starknet's docs <https://www.cairo-lang.org/docs/hello_starknet/user_auth.html>`_:
 
 .. code-block:: cairo
 
@@ -143,9 +143,9 @@ Here's how you could sign an invocation:
 
 .. code-block:: python
 
-    from starknet.utils.crypto.facade import sign_calldata
-    from starknet.contract import Contract
-    from starknet.net.client import Client
+    from starknet_py.utils.crypto.facade import sign_calldata
+    from starknet_py.contract import Contract
+    from starknet_py.net.client import Client
 
     contract_address = "0x00178130dd6286a9a0e031e4c73b2bd04ffa92804264a25c1c08c1612559f458"
     private_key = 12345
@@ -172,8 +172,8 @@ Here's how you can deploy new contracts:
 
 .. code-block:: python
 
-    from starknet.net.client import Client
-    from starknet.contract import Contract
+    from starknet_py.net.client import Client
+    from starknet_py.contract import Contract
     from pathlib import Path
 
     contract = """
@@ -227,7 +227,7 @@ You can use ``starknet.net.client.BadRequest`` to catch errors from invalid requ
 
 .. code-block:: python
 
-    from starknet.net.client import Client, BadRequest
+    from starknet_py.net.client import Client, BadRequest
     try:
         contract_address = 1 # Doesn't exist
         await Contract.from_address(contract_address, Client("testnet"))

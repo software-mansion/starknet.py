@@ -1,7 +1,7 @@
 import pytest
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 
-from starknet.utils.data_transformer.data_transformer import DataTransformer
+from starknet_py.utils.data_transformer.data_transformer import DataTransformer
 
 
 def transformer_for_function(inputs=None, outputs=None, structs=None):

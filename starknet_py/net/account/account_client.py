@@ -9,12 +9,12 @@ from starkware.starknet.definitions.transaction_type import TransactionType
 from starkware.starknet.public.abi import get_selector_from_name
 
 
-from starknet.contract import Contract
-from starknet.net import Client
-from starknet.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
-from starknet.utils.sync import add_sync_methods
-from starknet.utils.crypto.facade import message_signature, hash_message
-from starknet.utils.types import (
+from starknet_py.contract import Contract
+from starknet_py.net import Client
+from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
+from starknet_py.utils.sync import add_sync_methods
+from starknet_py.utils.crypto.facade import message_signature, hash_message
+from starknet_py.utils.types import (
     AddressRepresentation,
     parse_address,
     InvokeFunction,
@@ -34,7 +34,7 @@ class KeyPair:
 @add_sync_methods
 class AccountClient(Client):
     """
-    Extends the functionality of :obj:`Client <starknet.net.Client>`, adding additional methods for creating the
+    Extends the functionality of :obj:`Client <starknet_py.net.Client>`, adding additional methods for creating the
     account contract
     """
 

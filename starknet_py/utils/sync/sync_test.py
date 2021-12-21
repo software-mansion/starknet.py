@@ -1,7 +1,7 @@
 import asyncio
 import pytest
 
-from starknet.utils.sync import add_sync_methods
+from starknet_py.utils.sync import add_sync_methods
 
 
 @add_sync_methods

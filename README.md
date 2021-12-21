@@ -34,8 +34,8 @@ or using Poetry:
 ### Asynchronous API
 This is the recommended way of using the SDK.
 ```
-from starknet.contract import Contract
-from starknet.net.client import Client
+from starknet_py.contract import Contract
+from starknet_py.net.client import Client
 
 key = 1234
 contract = await Contract.from_address("0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b", Client("testnet"))
@@ -49,8 +49,8 @@ await invocation.wait_for_acceptance()
 You can access synchronous world with `_sync` postfix.
 
 ```
-from starknet.contract import Contract
-from starknet.net.client import Client
+from starknet_py.contract import Contract
+from starknet_py.net.client import Client
 
 key = 1234
 contract = Contract.from_address_sync("0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b", Client("testnet"))

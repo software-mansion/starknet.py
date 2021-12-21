@@ -2,8 +2,8 @@ import os
 from pathlib import Path
 import pytest
 
-from starknet.contract import Contract, ContractFunction
-from starknet.tests.e2e.utils import DevnetClient
+from starknet_py.contract import Contract, ContractFunction
+from starknet_py.tests.e2e.utils import DevnetClient
 
 directory = os.path.dirname(__file__)
 map_source_code = Path(directory, "map.cairo").read_text("utf-8")
