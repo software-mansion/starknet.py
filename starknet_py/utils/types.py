@@ -88,7 +88,7 @@ def encode_shortstring(text: str) -> int:
     """
     if len(text) > 31:
         raise ValueError(
-            f"Shortstring cannot be longer than 31 characters, got: {len(text)}"
+            f"Shortstring cannot be longer than 31 characters, got: {len(text)}."
         )
 
     try:
