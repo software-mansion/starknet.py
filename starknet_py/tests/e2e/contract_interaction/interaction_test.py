@@ -4,11 +4,11 @@ from pathlib import Path
 import pytest
 from starkware.starknet.public.abi import get_selector_from_name
 
-from starknet.contract import Contract
-from starknet.net.client import BadRequest
-from starknet.tests.e2e.utils import DevnetClient
-from starknet.utils.crypto.facade import sign_calldata
-from starknet.utils.types import InvokeFunction
+from starknet_py.contract import Contract
+from starknet_py.net.client import BadRequest
+from starknet_py.tests.e2e.utils import DevnetClient
+from starknet_py.utils.crypto.facade import sign_calldata
+from starknet_py.utils.types import InvokeFunction
 
 directory = os.path.dirname(__file__)
 
