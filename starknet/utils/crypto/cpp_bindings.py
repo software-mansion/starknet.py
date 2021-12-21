@@ -13,12 +13,13 @@ def get_cpp_lib():
     global CPP_LIB_BINDING
     if CPP_LIB_BINDING:
         return
+
+    crypto_dir = os.path.dirname(__file__)
     path = next(
-        f
-        for f in os.listdir(os.path.dirname(__file__))
-        if f.startswith("libcrypto_c_exports")
+        f for f in os.listdir(crypto_dir) if f.startswith("libcrypto_c_exports")
     )
-    CPP_LIB_BINDING = ctypes.cdll.LoadLibrary(path)
+
+    CPP_LIB_BINDING = ctypes.cdll.LoadLibrary(os.path.join(crypto_dir, path))
     # Configure argument and return types.
     CPP_LIB_BINDING.Hash.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
     CPP_LIB_BINDING.Verify.argtypes = [
