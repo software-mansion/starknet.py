@@ -22,6 +22,7 @@ from starknet_py.utils.types import (
     is_uint256,
     uint256_range_check,
     cairo_vm_range_check,
+    encode_shortstring,
 )
 
 ABIFunctionEntry = dict
@@ -61,6 +62,10 @@ class TypeTransformer(Generic[UsedCairoType, PythonType]):
 
 class FeltTransformer(TypeTransformer[TypeFelt, int]):
     def from_python(self, cairo_type, name, value):
+        if isinstance(value, str):
+            value = encode_shortstring(value)
+            return [value]
+
         if not isinstance(value, int):
             raise TypeError(f"{name} should be int.")
         cairo_vm_range_check(value)
