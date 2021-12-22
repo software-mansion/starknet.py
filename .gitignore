@@ -142,3 +142,5 @@ cython_debug/
 
 # Shared libs
 *.dylib
+/e2e.coverage
+/unit.coverage
