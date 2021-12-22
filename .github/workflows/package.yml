@@ -16,6 +16,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2.1.0
+        with:
+          submodules: true
       - uses: uraimo/run-on-arch-action@v2.0.5
         name: Build and deploy package
         id: build-and-deploy
@@ -58,14 +60,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: true
       - name: Set up Python 3.7.12
         uses: actions/setup-python@v2
         with:
           python-version: 3.7.12
       - name: Install dependencies
         run: |
-          git submodule init
-          git submodule update
           python -m pip install --upgrade pip
           pip install poetry
           poetry install
