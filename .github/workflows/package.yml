@@ -66,8 +66,8 @@ jobs:
                 ;;
               alpine*)
                 apk update
-                apk add git gcc
-                apk add --no-cache python3 python3-dev py3-pip musl-dev libffi-dev jpeg-dev zlib-dev cairo-dev pango-dev gdk-pixbuf-dev
+                apk add git gcc musl-dev libffi-dev jpeg-dev zlib-dev cairo-dev pango-dev gdk-pixbuf-dev
+                apk add --no-cache python3 python3-dev py3-pip
                 ;;
             esac
 
