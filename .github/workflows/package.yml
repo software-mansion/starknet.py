@@ -54,7 +54,7 @@ jobs:
             case "${{ matrix.distro }}" in
               ubuntu*|jessie|stretch|buster|bullseye)
                 apt-get update -q -y
-                apt-get install -q -y git libssl-dev openssl wget gcc make
+                apt-get install -q -y git libssl-dev openssl wget gcc make python3-pip python-dev
                 wget https://www.python.org/ftp/python/3.7.12/Python-3.7.12.tgz
                 tar xzvf Python-3.7.12.tgz
                 cd Python-3.7.12
@@ -77,6 +77,7 @@ jobs:
             poetry install
 
   build_x86:
+    name: Build on x86
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
