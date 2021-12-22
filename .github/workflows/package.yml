@@ -1,0 +1,73 @@
+on: pull_request
+
+jobs:
+  build_arm:
+    runs-on: ubuntu-18.04
+    name: Build on ${{ matrix.arch }}
+
+    strategy:
+      matrix:
+        include:
+          - arch: armv6
+          - arch: armv7
+          - arch: aarch64
+          - arch: s390x
+          - arch: ppc64le
+
+    steps:
+      - uses: actions/checkout@v2.1.0
+      - uses: uraimo/run-on-arch-action@v2.0.5
+        name: Build and deploy package
+        id: build-and-deploy
+        with:
+          arch: ${{ matrix.arch }}
+          distro: ubuntu18.04
+
+          # Not required, but speeds up builds
+          githubToken: ${{ github.token }}
+
+          # Create an artifacts directory
+          setup: |
+            mkdir -p "${PWD}/artifacts"
+
+          # Mount the artifacts directory as /artifacts in the container
+          dockerRunArgs: |
+            --volume "${PWD}/artifacts:/artifacts"
+
+          # The shell to run commands with in the container
+          shell: /bin/sh
+
+          # Install some dependencies in the container. This speeds up builds if
+          # you are also using githubToken. Any dependencies installed here will
+          # be part of the container image that gets cached, so subsequent
+          # builds don't have to re-install them. The image layer is cached
+          # publicly in your project's package repository, so it is vital that
+          # no secrets are present in the container state or logs.
+          install: |
+                apt-get update -q -y
+                sudo add-apt-repository -y ppa:deadsnakes/ppa
+                sudo apt-get update
+                apt-get install -q -y python3.7.12
+
+          run: |
+            python -m pip install --upgrade pip
+            pip install poetry
+            poetry install
+
+  build_x86:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.7.12
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7.12
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry
+          poetry install
+
+      - name: Build package
+        run: |
+          poetry build
