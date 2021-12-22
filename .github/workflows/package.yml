@@ -56,8 +56,8 @@ jobs:
                 apt-get update -q -y
                 apt-get install -q -y git libssl-dev openssl wget
                 wget https://www.python.org/ftp/python/3.7.12/Python-3.7.12.tgz
-                tar xzvf Python-3.5.1.tgz
-                cd Python-3.5.1
+                tar xzvf Python-3.7.12.tgz
+                cd Python-3.7.12
                 ./configure
                 make
                 sudo make install
