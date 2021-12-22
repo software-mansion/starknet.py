@@ -54,13 +54,13 @@ jobs:
             case "${{ matrix.distro }}" in
               ubuntu*|jessie|stretch|buster|bullseye)
                 apt-get update -q -y
-                apt-get install -q -y git libssl-dev openssl wget gcc
+                apt-get install -q -y git libssl-dev openssl wget gcc make
                 wget https://www.python.org/ftp/python/3.7.12/Python-3.7.12.tgz
                 tar xzvf Python-3.7.12.tgz
                 cd Python-3.7.12
                 ./configure
                 make
-                sudo make install
+                make install
                 ln -fs ./Python /usr/bin/python3
                 cd ..
                 ;;
