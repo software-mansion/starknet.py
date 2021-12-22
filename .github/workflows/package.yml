@@ -54,11 +54,12 @@ jobs:
             case "${{ matrix.distro }}" in
               ubuntu*|jessie|stretch|buster|bullseye)
                 apt-get update -q -y
-                apt-get install -q -y git python
+                apt-get install -q -y git python3
                 ;;
               alpine*)
                 apk update
-                apk add git python
+                apk add git
+                apk add --no-cache python3 py3-pip
                 ;;
             esac
 
