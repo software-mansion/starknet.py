@@ -1,7 +1,10 @@
-on: pull_request
+name: Build and publish package
+on: workflow_dispatch
 
 jobs:
   build_arm:
+    env:
+      POETRY_PYPI_TOKEN_PYPI: ${{ secrets.POETRY_PYPI_TOKEN }}
     runs-on: ubuntu-18.04
     name: Build on ${{ matrix.arch }}
 
@@ -76,10 +79,13 @@ jobs:
             pip install poetry
             poetry install
             poetry build
+            poetry publish
 
   build_x86:
     name: Build on x86
     runs-on: ubuntu-latest
+    env:
+      POETRY_PYPI_TOKEN_PYPI: ${{ secrets.POETRY_PYPI_TOKEN }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -97,3 +103,6 @@ jobs:
       - name: Build package
         run: |
           poetry build
+      - name: Publish package
+        run: |
+          poetry publish
