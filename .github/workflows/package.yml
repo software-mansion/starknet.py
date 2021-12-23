@@ -72,7 +72,7 @@ jobs:
             esac
 
           run: |
-            python3 -m pip install --upgrade pip
+            python3 -m pip install pip==9.0.3
             pip install poetry
             poetry install
 
