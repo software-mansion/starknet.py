@@ -1,5 +1,4 @@
 import functools
-import os
 from typing import List, Callable, Iterable, Optional
 
 from starkware.cairo.common.hash_state import compute_hash_on_elements
@@ -10,8 +9,9 @@ from starknet_py.utils.crypto.cpp_bindings import (
     cpp_sign,
     cpp_hash,
     get_cpp_lib,
-    cpp_binding_loaded,
     ECSignature,
+    NoCryptoLibFoundError,
+    cpp_binding_loaded,
 )
 
 
@@ -58,9 +58,13 @@ def hash_message_with(
 
 # Interface
 def use_cpp_variant() -> bool:
-    # TODO
-    get_cpp_lib()
-    return True
+    if cpp_binding_loaded():
+        return True
+    try:
+        get_cpp_lib()
+        return True
+    except NoCryptoLibFoundError:
+        return False
 
 
 def message_signature(msg_hash, priv_key, seed: Optional[int] = 32) -> ECSignature:

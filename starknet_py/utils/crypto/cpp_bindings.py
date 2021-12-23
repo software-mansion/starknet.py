@@ -8,6 +8,10 @@ CPP_LIB_BINDING = None
 OUT_BUFFER_SIZE = 251
 
 
+class NoCryptoLibFoundError(Exception):
+    pass
+
+
 def get_cpp_lib():
     # pylint: disable=global-statement
     global CPP_LIB_BINDING
@@ -15,9 +19,12 @@ def get_cpp_lib():
         return
 
     crypto_dir = os.path.dirname(__file__)
-    path = next(
-        f for f in os.listdir(crypto_dir) if f.startswith("libcrypto_c_exports")
-    )
+    try:
+        path = next(
+            f for f in os.listdir(crypto_dir) if f.startswith("libcrypto_c_exports")
+        )
+    except StopIteration as st_err:
+        raise NoCryptoLibFoundError() from st_err
 
     CPP_LIB_BINDING = ctypes.cdll.LoadLibrary(os.path.join(crypto_dir, path))
     # Configure argument and return types.
