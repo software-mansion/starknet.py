@@ -17,7 +17,7 @@ Using Client
     # Local network
     local_network_client = Client("http://localhost:5000")
 
-    call_result = await testnet_client.get_block("0x495c670c53e4e76d08292524299de3ba078348d861dd7b2c7cc4933dbc27943)
+    call_result = await testnet_client.get_block("0x495c670c53e4e76d08292524299de3ba078348d861dd7b2c7cc4933dbc27943")
 
 The default interface is asynchronous. Although it is the recommended way of using Starknet.py, you can also use a
 synchronous version. It might be helpful to play with Starknet directly in python interpreter.
