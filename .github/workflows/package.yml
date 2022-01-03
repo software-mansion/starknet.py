@@ -7,7 +7,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-20.04, windows-2019, macOS-10.15]
+        os: [ubuntu-20.04, macOS-10.15]
 
     steps:
       - uses: actions/checkout@v2
@@ -30,5 +30,6 @@ jobs:
         env:
           CIBW_ARCHS: all
           CIBW_ENVIRONMENT: CXX=g++ CMAKE_CXX_COMPILER=g++
-          CIBW_BEFORE_BUILD: chmod +x ./build.sh && ./build.sh
+          CIBW_BEFORE_BUILD_LINUX: chmod +x ./build.sh && ./build.sh
+          CIBW_BEFORE_BUILD_MACOS: chmod +x ./build.sh && ./build.sh
           CIBW_BUILD: cp37-* cp38-* cp39-*
