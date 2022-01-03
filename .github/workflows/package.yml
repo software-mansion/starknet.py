@@ -1,102 +1,28 @@
-name: Build and publish package
+name: Build wheels
 on: pull_request
 
 jobs:
-  build_arm:
-    env:
-      POETRY_PYPI_TOKEN_PYPI: ${{ secrets.POETRY_PYPI_TOKEN }}
-    runs-on: ubuntu-18.04
-    name: Build on ${{ matrix.arch.name }} ${{ matrix.python-version }}
-
+  build_wheels:
+    name: Build wheel on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: [3.7.12, 3.8.10, 3.9.9]
-        arch: [{ name: armv6, distro: alpine_latest }, { name: armv7, distro: ubuntu18.04 }, { name: aarch64, distro: ubuntu18.04 }, { name: s390x, distro: ubuntu18.04 }, { name: ppc64le, distro: ubuntu18.04 }]
-    steps:
-      - uses: actions/checkout@v2.1.0
-        with:
-          submodules: true
-      - uses: uraimo/run-on-arch-action@v2.0.5
-        name: Build and deploy package
-        id: build-and-deploy
-        with:
-          arch: ${{ matrix.arch.name }}
-          distro: ${{ matrix.arch.distro }}
+        os: [ubuntu-20.04, windows-2019, macOS-10.15]
 
-          # Not required, but speeds up builds
-          githubToken: ${{ github.token }}
-
-          # Create an artifacts directory
-          setup: |
-            mkdir -p "${PWD}/artifacts"
-
-          # Mount the artifacts directory as /artifacts in the container
-          dockerRunArgs: |
-            --volume "${PWD}/artifacts:/artifacts"
-
-          # The shell to run commands with in the container
-          shell: /bin/sh
-
-          # Install some dependencies in the container. This speeds up builds if
-          # you are also using githubToken. Any dependencies installed here will
-          # be part of the container image that gets cached, so subsequent
-          # builds don't have to re-install them. The image layer is cached
-          # publicly in your project's package repository, so it is vital that
-          # no secrets are present in the container state or logs.
-          install: |
-            case "${{ matrix.arch.distro }}" in
-              ubuntu*|jessie|stretch|buster|bullseye)
-                apt-get update -q -y
-                apt-get install -q -y git libssl-dev openssl wget gcc make python3-pip python-dev zlib1g-dev libffi-dev cargo rustc libgmp3-dev
-                wget https://www.python.org/ftp/python/${{ matrix.python-version }}/Python-${{ matrix.python-version }}.tgz
-                tar xzvf Python-${{ matrix.python-version }}.tgz
-                cd Python-${{ matrix.python-version }}
-                ./configure
-                make
-                make install
-                ln -fs ./Python /usr/bin/python3
-                cd ..
-                ;;
-              alpine*)
-                apk update
-                apk add git gcc musl-dev libffi-dev jpeg-dev zlib-dev cairo-dev pango-dev gdk-pixbuf-dev cargo rust openssl-dev gmp-dev
-                apk add --no-cache python3 python3-dev py3-pip
-                ;;
-            esac
-
-          run: |
-            python3 -m pip install --upgrade pip
-            pip install poetry
-            poetry install
-            poetry build
-#            poetry publish
-
-  build_x86:
-    name: Build on x86
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        python-version: [3.7.12, 3.8.10, 3.9.9]
-    env:
-      POETRY_PYPI_TOKEN_PYPI: ${{ secrets.POETRY_PYPI_TOKEN }}
     steps:
       - uses: actions/checkout@v2
-        with:
-          submodules: true
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install poetry
-          poetry install
+      - uses: actions/setup-python@v2
 
-      - name: Build package
-        run: |
-          poetry build
-#      - name: Publish package
-#        run: |
-#          poetry publish
+      - name: Set up QEMU
+        if: runner.os == 'Linux'
+        uses: docker/setup-qemu-action@v1
+        with:
+          platforms: all
+
+      - name: Install cibuildwheel
+        run: python -m pip install cibuildwheel==2.3.1
+
+      - name: Build wheels
+        run: python -m cibuildwheel --output-dir wheelhouse
+        env:
+          CIBW_ARCHS: all
