@@ -1,5 +1,5 @@
 name: Build and publish package
-on: workflow_dispatch
+on: pull_request
 
 jobs:
   build_arm:
