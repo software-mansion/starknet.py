@@ -15,7 +15,7 @@ documentation = "https://starknetpy.rtfd.io/"
 build = "build.py"
 
 [tool.poetry.dependencies]
-python = "^3.7.12"
+python = ">=3.7,<=3.9"
 cairo-lang = "0.6.2"
 asgiref = "^3.4.1"
 sphinx = {version = "^4.3.1", optional = true}
