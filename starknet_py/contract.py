@@ -238,6 +238,22 @@ class ContractFunction:
 FunctionsRepository = Dict[str, ContractFunction]
 
 
+class FunctionsRepositoryShorthand(dict):
+    """
+    A simplified Munch implementation, supporting attribute-style access,
+    a la JavaScript.
+
+    https://github.com/Infinidat/munch
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__dict__ = self
+
+    def __getattribute__(self, __name: str) -> ContractFunction:
+        return cast(ContractFunction, super().__getattribute__(__name))
+
+
 @add_sync_methods
 class Contract:
     """
@@ -261,6 +277,13 @@ class Contract:
         :return: All functions exposed from a contract.
         """
         return self._functions
+
+    @property
+    def fn(self) -> FunctionsRepositoryShorthand:
+        """
+        :return: All functions exposed from a contract, allowing attribue-style access.
+        """
+        return FunctionsRepositoryShorthand(**self._functions)
 
     @property
     def address(self) -> int:

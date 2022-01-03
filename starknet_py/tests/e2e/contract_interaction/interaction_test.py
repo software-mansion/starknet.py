@@ -29,6 +29,20 @@ async def test_invoke_and_call(key, value):
     assert response == value
 
 
+@pytest.mark.asyncio
+@pytest.mark.parametrize("key, value", ((2, 13), (412312, 32134), (12345, 3567)))
+async def test_invoke_and_call_shorthand(key, value):
+    client = DevnetClient()
+
+    # Deploy simple k-v store
+    contract = await Contract.deploy(client=client, compilation_source=map_source)
+    contract = await Contract.from_address(contract.address, client)
+    await contract.fn.put.invoke(key, value)
+    (response,) = await contract.fn.get.call(key)
+
+    assert response == value
+
+
 user_auth_source = Path(directory, "user_auth.cairo").read_text("utf-8")
 
 
