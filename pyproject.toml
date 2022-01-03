@@ -65,7 +65,14 @@ skip_empty = true
 
 
 [build-system]
-requires = ["setuptools ~= 58.0", "cython ~= 0.29.0"]
+requires = [
+    "setuptools>=42",
+    "wheel",
+    "Cython",
+]
+
+build-backend = "setuptools.build_meta"
+
 
 [tool.black]
 target-version = ["py37"]
