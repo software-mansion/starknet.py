@@ -15,8 +15,6 @@ jobs:
           submodules: recursive
 
       - uses: actions/setup-python@v2
-        with:
-          python-version: 3.7.12
 
       - name: Set up QEMU
         if: runner.os == 'Linux'
@@ -27,11 +25,11 @@ jobs:
       - name: Install cibuildwheel
         run: python -m pip install cibuildwheel==2.3.1
 
-      - name: Install dephell
-        run: python -m pip install --user dephell
+      - name: Install poetry
+        run: python -m pip install poetry
 
       - name: Convert setup.py
-        run: dephell deps convert --from pyproject.toml --from-format poetry --to setup.py --to-format setuppy
+        run: python convert_pyproject.py
 
       - name: Remove pyproject.toml
         run: rm pyproject.toml
