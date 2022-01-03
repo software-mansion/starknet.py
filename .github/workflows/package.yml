@@ -6,7 +6,7 @@ jobs:
     env:
       POETRY_PYPI_TOKEN_PYPI: ${{ secrets.POETRY_PYPI_TOKEN }}
     runs-on: ubuntu-18.04
-    name: Build on ${{ matrix.arch }}
+    name: Build on ${{ matrix.arch }} ${{ matrix.python-version }}
 
     strategy:
       matrix:
