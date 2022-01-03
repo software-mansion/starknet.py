@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         python-version: [3.7.12, 3.8.10, 3.9.9]
-        arch: [{name: armv6, distro: alpine_latest}, {name: armv7, distro: ubuntu18.04}, { name: aarch64, distro: ubuntu18.04 }, {name: s390x, distro: ubuntu18.04}, { name: ppc64le, distro: ubuntu18.04 }]
+        arch: [{ name: armv6, distro: alpine_latest }, { name: armv7, distro: ubuntu18.04 }, { name: aarch64, distro: ubuntu18.04 }, { name: s390x, distro: ubuntu18.04 }, { name: ppc64le, distro: ubuntu18.04 }]
     steps:
       - uses: actions/checkout@v2.1.0
         with:
@@ -69,7 +69,7 @@ jobs:
             pip install poetry
             poetry install
             poetry build
-            poetry publish
+#            poetry publish
 
   build_x86:
     name: Build on x86
@@ -97,6 +97,6 @@ jobs:
       - name: Build package
         run: |
           poetry build
-      - name: Publish package
-        run: |
-          poetry publish
+#      - name: Publish package
+#        run: |
+#          poetry publish
