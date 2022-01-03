@@ -29,7 +29,7 @@ jobs:
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
           CIBW_ARCHS: all
-          CIBW_ENVIRONMENT: CXX=g++ CMAKE_CXX_COMPILER=g++ CMAKE_CXX_FLAGS="-Wno-type-limits -Wno-error=range-loop-analysis"
+          CIBW_ENVIRONMENT: CXX=g++ CMAKE_CXX_COMPILER=g++ CMAKE_CXX_FLAGS="-Wno-type-limits -Wno-range-loop-analysis"
           CIBW_BEFORE_BUILD_LINUX: chmod +x ./build.sh && ./build.sh
           CIBW_BEFORE_BUILD_MACOS: chmod +x ./build.sh && ./build.sh
           CIBW_BUILD: cp37-* cp38-* cp39-*
