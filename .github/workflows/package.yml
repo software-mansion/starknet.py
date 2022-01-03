@@ -10,6 +10,7 @@ jobs:
 
     strategy:
       matrix:
+        python-version: [3.7.12, 3.8.10, 3.9.9]
         include:
           - arch: armv6
             distro: alpine_latest
@@ -58,9 +59,9 @@ jobs:
               ubuntu*|jessie|stretch|buster|bullseye)
                 apt-get update -q -y
                 apt-get install -q -y git libssl-dev openssl wget gcc make python3-pip python-dev zlib1g-dev libffi-dev cargo rustc libgmp3-dev
-                wget https://www.python.org/ftp/python/3.7.12/Python-3.7.12.tgz
-                tar xzvf Python-3.7.12.tgz
-                cd Python-3.7.12
+                wget https://www.python.org/ftp/python/${{ matrix.python-version }}/Python-${{ matrix.python-version }}.tgz
+                tar xzvf Python-${{ matrix.python-version }}.tgz
+                cd Python-${{ matrix.python-version }}
                 ./configure
                 make
                 make install
@@ -84,16 +85,20 @@ jobs:
   build_x86:
     name: Build on x86
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: [3.7.12, 3.8.10, 3.9.9]
     env:
       POETRY_PYPI_TOKEN_PYPI: ${{ secrets.POETRY_PYPI_TOKEN }}
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: true
-      - name: Set up Python 3.7.12
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
-          python-version: 3.7.12
+          python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
