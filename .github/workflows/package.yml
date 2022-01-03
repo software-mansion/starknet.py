@@ -29,5 +29,5 @@ jobs:
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
           CIBW_ARCHS: all
-          CIBW_BEFORE_BUILD: chmod +x ./build.sh && CXX=g++ CMAKE_CXX_COMPILER=g++ ./build.sh
+          CIBW_BEFORE_BUILD: chmod +x ./build.sh && export CXX=g++ && export CMAKE_CXX_COMPILER=g++ && ./build.sh
           CIBW_BUILD: cp37-* cp38-* cp39-*
