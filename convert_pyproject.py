@@ -77,4 +77,5 @@ if thenumber is not None:
     setup_file.writelines(
         [*lines[0 : thenumber + 1], *extra_setup_args, *lines[thenumber + 1 :]]
     )
+setup_file.writelines(["if __name__ == '__main__':" "\tsetup()"])
 setup_file.close()
