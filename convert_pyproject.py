@@ -65,8 +65,9 @@ extra_setup_args = [
     'cmdclass={"build_ext": DummyBuild},',
 ]
 
-setup_file = open("setup.py", "w+")
+setup_file = open("setup.py", "r+")
 lines = setup_file.readlines()
+assert len(lines) != 0
 thenumber = None
 for number, line in enumerate(lines):
     if "python_requires" in line:
