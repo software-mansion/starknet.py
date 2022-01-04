@@ -31,9 +31,6 @@ jobs:
       - name: Convert setup.py
         run: python convert_pyproject.py
 
-      - name: Remove pyproject.toml
-        run: rm pyproject.toml
-
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
