@@ -68,7 +68,11 @@ extra_setup_args = [
 setup_file = open("setup.py", "r+")
 lines = setup_file.readlines()
 assert len(lines) != 0
-lines = [line for line in lines if "from build import *" not in line and "build(setup_kwargs)" not in line]
+lines = [
+    line
+    for line in lines
+    if "from build import *" not in line and "build(setup_kwargs)" not in line
+]
 
 last_setup_line = None
 for number, line in enumerate(lines):
