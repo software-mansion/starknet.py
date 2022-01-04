@@ -35,4 +35,5 @@ jobs:
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
           CIBW_ARCHS: all
+          CIBW_BUILD_FRONTEND: "build"
           CIBW_BUILD: cp37-* cp38-* cp39-*

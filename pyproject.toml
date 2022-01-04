@@ -68,6 +68,7 @@ skip_empty = true
 requires = [
     "setuptools>=60",
     "wheel",
+    "build",
     "Cython",
 ]
 
