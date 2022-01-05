@@ -37,5 +37,6 @@ jobs:
           CIBW_ARCHS: all
           CIBW_BUILD_FRONTEND: "build"
           CIBW_BUILD: cp37-* cp38-* cp39-*
+          CIBW_SKIP: '*-i686'
           CIBW_BUILD_VERBOSITY: 3
           CIBW_REPAIR_WHEEL_COMMAND: ''
