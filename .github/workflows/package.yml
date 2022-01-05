@@ -24,16 +24,16 @@ jobs:
           platforms: all
 
       - name: Install cibuildwheel
-        run: python -m pip install cibuildwheel==2.3.1
+        run: python -X utf8 -m pip install cibuildwheel==2.3.1
 
       - name: Install poetry
-        run: python -m pip install poetry
+        run: python -X utf8 -m pip install poetry
 
       - name: Convert setup.py
-        run: python convert_pyproject.py
+        run: python  -X utf8 convert_pyproject.py
 
       - name: Build wheels
-        run: python -m cibuildwheel --output-dir wheelhouse
+        run: python -X utf8 -m cibuildwheel --output-dir wheelhouse
         env:
           CIBW_ARCHS: all
           CIBW_BUILD_FRONTEND: "build"

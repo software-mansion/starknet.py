@@ -65,28 +65,27 @@ extra_setup_args = [
     "'cmdclass': {\"build_ext\": BuildCrypto },\n",
 ]
 
-setup_file = open("setup.py", "r+", encoding="utf-8")
-lines = setup_file.readlines()
-assert len(lines) != 0
-lines = [
-    line
-    for line in lines
-    if "from build import *" not in line and "build(setup_kwargs)" not in line
-]
-
-last_setup_line = None
-for number, line in enumerate(lines):
-    if "python_requires" in line:
-        last_setup_line = number
-        break
-
-assert last_setup_line is not None
-setup_file.seek(0)
-setup_file.writelines(
-    [
-        *lines[0 : last_setup_line + 1],
-        *extra_setup_args,
-        *lines[last_setup_line + 1 :],
+with open("setup.py", "r+", encoding="utf-8") as setup_file:
+    lines = setup_file.readlines()
+    assert len(lines) != 0
+    lines = [
+        line
+        for line in lines
+        if "from build import *" not in line and "build(setup_kwargs)" not in line
     ]
-)
-setup_file.close()
+
+    last_setup_line = None
+    for number, line in enumerate(lines):
+        if "python_requires" in line:
+            last_setup_line = number
+            break
+
+    assert last_setup_line is not None
+    setup_file.seek(0)
+    setup_file.writelines(
+        [
+            *lines[0 : last_setup_line + 1],
+            *extra_setup_args,
+            *lines[last_setup_line + 1 :],
+        ]
+    )
