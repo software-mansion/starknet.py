@@ -83,6 +83,11 @@ for number, line in enumerate(lines):
 assert last_setup_line is not None
 setup_file.seek(0)
 setup_file.writelines(
-    [*lines[0 : last_setup_line + 1], *extra_setup_args, *lines[last_setup_line + 1 :]]
+    [
+        "# encoding: utf-8\n",
+        *lines[0 : last_setup_line + 1],
+        *extra_setup_args,
+        *lines[last_setup_line + 1 :],
+    ]
 )
 setup_file.close()

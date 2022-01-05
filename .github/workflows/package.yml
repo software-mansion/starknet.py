@@ -29,10 +29,6 @@ jobs:
       - name: Install poetry
         run: python -m pip install poetry
 
-      - name: Set default file encoding to utf-8
-        if: runner.os == 'Windows'
-        run: set PYTHONUTF8=1
-
       - name: Convert setup.py
         run: python convert_pyproject.py
 
