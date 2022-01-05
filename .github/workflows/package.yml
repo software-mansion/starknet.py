@@ -40,3 +40,40 @@ jobs:
           CIBW_SKIP: '*i686'
           CIBW_BUILD_VERBOSITY: 3
           CIBW_REPAIR_WHEEL_COMMAND: ''
+
+      - name: Upload built wheels
+      - uses: actions/upload-artifact@v2
+        with:
+          path: ./wheelhouse/*.whl
+
+  build_sdist:
+    name: Build SDist
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Build SDist
+        run: pipx run build --sdist
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: dist/*.tar.gz
+
+  upload_pypi:
+    name: Upload package to PyPI
+    needs: [build_wheels, build_sdist]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: artifact
+          path: dist
+
+      - uses: pypa/gh-action-pypi-publish@v1.4.2
+        with:
+          user: __token__
+          password: ${{ secrets.POETRY_PYPI_TOKEN }}
+          repository_url: https://test.pypi.org/legacy/
