@@ -20,7 +20,7 @@ class BuildCrypto(build_ext):
                 check=True,
             )
         else:
-            with subprocess.Popen(["powershell.exe ./build_extension.ps1"]) as p:
-                p.wait()
-                if p.returncode != 0:
+            with subprocess.Popen(["powershell.exe .\\build_extension.ps1"]) as process:
+                process.wait()
+                if process.returncode != 0:
                     raise Exception("Build returned a non-zero code")
