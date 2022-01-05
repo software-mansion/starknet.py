@@ -1,8 +1,8 @@
 
 cd crypto-cpp
 mkdir -p build/Release
-export CXXFLAGS="-Wno-type-limits -Wno-range-loop-analysis"
-(cd build/Release; cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER="g++" ../..)
+sed -i'.original' 's/${CMAKE_CXX_FLAGS} -std=c++17 -Werror -Wall -Wextra -fno-strict-aliasing -fPIC/-std=c++17 -Werror -Wall -Wextra -fno-strict-aliasing -fPIC ${CMAKE_CXX_FLAGS}/' CMakeLists.txt
+(cd build/Release; cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER="g++" -DCMAKE_CXX_FLAGS="-Wno-type-limits -Wno-range-loop-analysis" ../..)
 make -C build/Release
 if [ $? -ne 0 ]; then
   exit 1
