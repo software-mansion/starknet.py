@@ -59,7 +59,7 @@ jobs:
         run: python -X utf8 -m pip install poetry
 
       - name: Build SDist
-        run: poetry run build -f sdist
+        run: poetry build -f sdist
 
       - uses: actions/upload-artifact@v2
         with:
