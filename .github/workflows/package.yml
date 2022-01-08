@@ -8,7 +8,7 @@ jobs:
     strategy:
       matrix:
         # ubuntu-20.04, macOS-10.15
-        os: [windows-2022]
+        os: [windows-2016]
 
     steps:
       - uses: actions/checkout@v2
