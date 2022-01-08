@@ -1,3 +1,4 @@
+#!/bin/bash
 
 cd crypto-cpp
 mkdir -p build/Release

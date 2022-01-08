@@ -13,7 +13,7 @@ class CryptoExtension(Extension):
 class BuildCrypto(build_ext):
     def build_extension(self, ext):
         if os.name != "nt":
-            subprocess.run("chmod +x ./build_extension.sh", shell=True, check=True)
+            subprocess.run("chmod a+x ./build_extension.sh", shell=True, check=True)
             subprocess.run(
                 "./build_extension.sh",
                 shell=True,
