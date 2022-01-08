@@ -7,8 +7,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        # ubuntu-20.04, macOS-10.15
-        os: [windows-2016]
+        os: [ubuntu-20.04, macOS-10.15, windows-2019]
 
     steps:
       - uses: actions/checkout@v2
@@ -38,7 +37,7 @@ jobs:
           CIBW_ARCHS: all
           CIBW_BUILD_FRONTEND: "build"
           CIBW_BUILD: cp37-* cp38-* cp39-*
-          CIBW_SKIP: '*i686'
+          CIBW_SKIP: '*i686 cp39-win_arm64'
           CIBW_BUILD_VERBOSITY: 3
           CIBW_REPAIR_WHEEL_COMMAND: ''
 
