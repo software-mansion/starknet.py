@@ -55,8 +55,11 @@ jobs:
         with:
           submodules: true
 
+      - name: Install poetry
+        run: python -X utf8 -m pip install poetry
+
       - name: Build SDist
-        run: pipx run build --sdist
+        run: poetry run build -f sdist
 
       - uses: actions/upload-artifact@v2
         with:
