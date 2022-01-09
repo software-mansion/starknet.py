@@ -60,9 +60,7 @@ def hash_message_with(
 # Interface
 def use_cpp_variant() -> bool:
     crypto_path = os.getenv("CRYPTO_C_EXPORTS_PATH")
-    if not crypto_path:
-        return False
-    if cpp_binding_loaded():
+    if cpp_binding_loaded() and crypto_path:
         return True
     try:
         get_cpp_lib()
