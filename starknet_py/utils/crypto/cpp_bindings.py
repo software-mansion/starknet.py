@@ -14,11 +14,11 @@ class NoCryptoLibFoundError(Exception):
 
 def get_cpp_lib():
     # pylint: disable=global-statement
+    crypto_path = os.getenv("CRYPTO_C_EXPORTS_PATH")
     global CPP_LIB_BINDING
-    if CPP_LIB_BINDING:
+    if CPP_LIB_BINDING and crypto_path:
         return
 
-    crypto_path = os.getenv("CRYPTO_C_EXPORTS_PATH")
     try:
         path = next(
             f for f in os.listdir(crypto_path) if f.startswith("libcrypto_c_exports")
