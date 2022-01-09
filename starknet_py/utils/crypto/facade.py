@@ -1,4 +1,5 @@
 import functools
+import os
 from typing import List, Callable, Iterable, Optional
 
 from starkware.cairo.common.hash_state import compute_hash_on_elements
@@ -58,6 +59,9 @@ def hash_message_with(
 
 # Interface
 def use_cpp_variant() -> bool:
+    crypto_path = os.getenv("CRYPTO_C_EXPORTS_PATH")
+    if not crypto_path:
+        return False
     if cpp_binding_loaded():
         return True
     try:

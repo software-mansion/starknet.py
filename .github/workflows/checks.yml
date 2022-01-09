@@ -19,6 +19,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install poetry
         poetry install
+        chmod +x ./build_extension.sh && ./build_extension.sh
     - name: Check formatting with black
       run: |
         poetry run python -m black --check .
@@ -28,6 +29,8 @@ jobs:
     - name: Unit & e2e test
       run: |
         poetry run poe test
+      env:
+        TEST_CRYPTO_C_EXPORTS_PATH: ./starknet_py/utils/crypto/
     - name: Generate coverage in XML
       run: |
         poetry run poe coverage_combine

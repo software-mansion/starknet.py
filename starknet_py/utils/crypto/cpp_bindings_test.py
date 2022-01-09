@@ -8,20 +8,17 @@ from starknet_py.utils.crypto.facade import (
     message_signature,
 )
 
-test_crypto_lib_path = os.environ.get("CRYPTO_C_EXPORTS_PATH_TEST")
 
-
-def crypto_lib_present() -> bool:
-    return test_crypto_lib_path and os.path.isfile(test_crypto_lib_path)
+TEST_CRYPTO_LIB_PATH = os.getenv("TEST_CRYPTO_C_EXPORTS_PATH")
 
 
 def test_hashing(monkeypatch):
-    if not crypto_lib_present():
+    if not TEST_CRYPTO_LIB_PATH:
         return
 
     args = 1, 2, 3, [4, 5], 6
 
-    monkeypatch.setenv("CRYPTO_C_EXPORTS_PATH", test_crypto_lib_path)
+    monkeypatch.setenv("CRYPTO_C_EXPORTS_PATH", TEST_CRYPTO_LIB_PATH)
     assert use_cpp_variant()
     hash_1 = hash_message(*args)
 
@@ -33,13 +30,13 @@ def test_hashing(monkeypatch):
 
 
 def test_signing(monkeypatch):
-    if not crypto_lib_present():
+    if not TEST_CRYPTO_LIB_PATH:
         return
 
     args = 1, 2
     msg_hash, priv_key = args
 
-    monkeypatch.setenv("CRYPTO_C_EXPORTS_PATH", test_crypto_lib_path)
+    monkeypatch.setenv("CRYPTO_C_EXPORTS_PATH", TEST_CRYPTO_LIB_PATH)
     assert use_cpp_variant()
     signature_1 = message_signature(*args)
 

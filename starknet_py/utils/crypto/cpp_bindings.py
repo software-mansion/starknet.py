@@ -18,15 +18,15 @@ def get_cpp_lib():
     if CPP_LIB_BINDING:
         return
 
-    crypto_dir = os.path.dirname(__file__)
+    crypto_path = os.getenv("CRYPTO_C_EXPORTS_PATH")
     try:
         path = next(
-            f for f in os.listdir(crypto_dir) if f.startswith("libcrypto_c_exports")
+            f for f in os.listdir(crypto_path) if f.startswith("libcrypto_c_exports")
         )
     except StopIteration as st_err:
         raise NoCryptoLibFoundError() from st_err
 
-    CPP_LIB_BINDING = ctypes.cdll.LoadLibrary(os.path.join(crypto_dir, path))
+    CPP_LIB_BINDING = ctypes.cdll.LoadLibrary(os.path.join(crypto_path, path))
     # Configure argument and return types.
     CPP_LIB_BINDING.Hash.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
     CPP_LIB_BINDING.Verify.argtypes = [
