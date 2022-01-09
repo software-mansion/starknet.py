@@ -22,7 +22,7 @@ def test_hashing(monkeypatch):
     assert use_cpp_variant()
     hash_1 = hash_message(*args)
 
-    monkeypatch.setenv("CRYPTO_C_EXPORTS_PATH", None)
+    monkeypatch.setenv("CRYPTO_C_EXPORTS_PATH", "")
     assert not use_cpp_variant()
     hash_2 = hash_message(*args)
 
@@ -40,7 +40,7 @@ def test_signing(monkeypatch):
     assert use_cpp_variant()
     signature_1 = message_signature(*args)
 
-    monkeypatch.setenv("CRYPTO_C_EXPORTS_PATH", None)
+    monkeypatch.setenv("CRYPTO_C_EXPORTS_PATH", "")
     assert not use_cpp_variant()
     signature_2 = message_signature(*args)
 

@@ -21,7 +21,9 @@ def get_cpp_lib():
 
     try:
         path = next(
-            f for f in os.listdir(crypto_path) if f.startswith("libcrypto_c_exports")
+            f
+            for f in os.listdir(crypto_path or None)
+            if f.startswith("libcrypto_c_exports")
         )
     except StopIteration as st_err:
         raise NoCryptoLibFoundError() from st_err
