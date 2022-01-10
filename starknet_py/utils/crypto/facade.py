@@ -61,9 +61,10 @@ def use_cpp_variant() -> bool:
 
 
 def message_signature(msg_hash, priv_key, seed: Optional[int] = 32) -> ECSignature:
-    if use_cpp_variant():
-        get_cpp_lib()
-        return cpp_sign(msg_hash, priv_key, seed)
+    # TODO: When sign from crypto-cpp is faster, uncomment this section
+    # if use_cpp_variant():
+    #     get_cpp_lib()
+    #     return cpp_sign(msg_hash, priv_key, seed)
     return sign(msg_hash, priv_key, seed)
 
 
