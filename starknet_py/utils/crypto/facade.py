@@ -7,7 +7,6 @@ from starkware.cairo.lang.vm.crypto import pedersen_hash as default_hash
 from starkware.crypto.signature.signature import sign
 
 from starknet_py.utils.crypto.cpp_bindings import (
-    cpp_sign,
     cpp_hash,
     get_cpp_lib,
     ECSignature,
