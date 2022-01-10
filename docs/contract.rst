@@ -1,7 +1,7 @@
 Contract
 ========
 
-.. py:module:: starknet.contract
+.. py:module:: starknet_py.contract
 
 .. autoclass:: Contract
     :members: from_address, __init__, functions, deploy, from_address_sync, deploy_sync

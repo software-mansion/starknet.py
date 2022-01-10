@@ -3,12 +3,12 @@ Quickstart
 
 Using Client
 ------------
-:obj:`Client <starknet.net.Client>` is a facade for interacting with Starknet. It requires information about used network:
+:obj:`Client <starknet_py.net.Client>` is a facade for interacting with Starknet. It requires information about used network:
 
 .. code-block:: python
 
-    from starknet.contract import Contract
-    from starknet.net.client import Client
+    from starknet_py.contract import Contract
+    from starknet_py.net.client import Client
 
     # Use testnet for playing with Starknet
     testnet_client = Client("https://alpha4.starknet.io")
@@ -27,12 +27,12 @@ synchronous version. It might be helpful to play with Starknet directly in pytho
     synchronous_testnet_client = Client("testnet")
     call_result = synchronous_testnet_client.get_block_sync("0x495c670c53e4e76d08292524299de3ba078348d861dd7b2c7cc4933dbc27943")
 
-You can see all Client's methods :obj:`here <starknet.net.Client>`.
+You can see all Client's methods :obj:`here <starknet_py.net.Client>`.
 
 Using AccountClient
 -------------------
 
-:obj:`AccountClient <starknet.net.account.account_client.AccountClient>` is an extension of a regular :obj:`Client <starknet.net.Client>`. It leverages `OpenZeppelin's Cairo contracts <https://github.com/OpenZeppelin/cairo-contracts>`_ to create an account contract which proxies (and signs) the calls to other contracts on Starknet.
+:obj:`AccountClient <starknet_py.net.account.account_client.AccountClient>` is an extension of a regular :obj:`Client <starknet_py.net.Client>`. It leverages `OpenZeppelin's Cairo contracts <https://github.com/OpenZeppelin/cairo-contracts>`_ to create an account contract which proxies (and signs) the calls to other contracts on Starknet.
 
 Example usage:
 
@@ -52,12 +52,12 @@ Example usage:
 
 Using Contract
 --------------
-:obj:`Contract <starknet.contract.Contract>` makes interacting with contracts deployed on Starknet much easier:
+:obj:`Contract <starknet_py.contract.Contract>` makes interacting with contracts deployed on Starknet much easier:
 
 .. code-block:: python
 
-    from starknet.contract import Contract
-    from starknet.net.client import Client
+    from starknet_py.contract import Contract
+    from starknet_py.net.client import Client
 
     client = Client("testnet")
     key = 1234
@@ -80,8 +80,8 @@ Although asynchronous API is recommended, you can also use Contract's synchronou
 
 .. code-block:: python
 
-    from starknet.contract import Contract
-    from starknet.net.client import Client
+    from starknet_py.contract import Contract
+    from starknet_py.net.client import Client
 
     key = 1234
     contract = Contract.from_address_sync("0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b", Client("testnet"))
