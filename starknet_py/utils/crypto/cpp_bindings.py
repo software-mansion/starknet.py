@@ -16,7 +16,7 @@ def get_cpp_lib():
     # pylint: disable=global-statement
     crypto_path = os.getenv("CRYPTO_C_EXPORTS_PATH")
     global CPP_LIB_BINDING
-    if CPP_LIB_BINDING and crypto_path:
+    if CPP_LIB_BINDING:
         return
 
     try:

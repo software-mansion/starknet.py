@@ -11,8 +11,6 @@ from starknet_py.utils.crypto.cpp_bindings import (
     cpp_hash,
     get_cpp_lib,
     ECSignature,
-    NoCryptoLibFoundError,
-    cpp_binding_loaded,
 )
 
 
@@ -59,24 +57,21 @@ def hash_message_with(
 
 # Interface
 def use_cpp_variant() -> bool:
-    crypto_path = os.getenv("CRYPTO_C_EXPORTS_PATH")
-    if cpp_binding_loaded() and crypto_path:
-        return True
-    try:
-        get_cpp_lib()
-        return True
-    except NoCryptoLibFoundError:
-        return False
+    return bool(os.getenv("CRYPTO_C_EXPORTS_PATH"))
 
 
 def message_signature(msg_hash, priv_key, seed: Optional[int] = 32) -> ECSignature:
     if use_cpp_variant():
+        get_cpp_lib()
         return cpp_sign(msg_hash, priv_key, seed)
     return sign(msg_hash, priv_key, seed)
 
 
 def pedersen_hash(left: int, right: int) -> int:
-    return cpp_hash(left, right) if use_cpp_variant() else default_hash(left, right)
+    if use_cpp_variant():
+        get_cpp_lib()
+        return cpp_hash(left, right)
+    return default_hash(left, right)
 
 
 def hash_message(
