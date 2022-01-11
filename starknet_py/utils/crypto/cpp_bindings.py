@@ -25,7 +25,7 @@ def get_cpp_lib():
             for f in os.listdir(crypto_path or None)
             if f.startswith("libcrypto_c_exports")
         )
-    except StopIteration as st_err:
+    except (StopIteration, FileNotFoundError) as st_err:
         raise NoCryptoLibFoundError() from st_err
 
     CPP_LIB_BINDING = ctypes.cdll.LoadLibrary(os.path.join(crypto_path, path))
