@@ -13,6 +13,7 @@ class NoCryptoLibFoundError(Exception):
 
 
 def unload_cpp_lib():
+    # pylint: disable=global-statement
     global CPP_LIB_BINDING
     CPP_LIB_BINDING = None
 
