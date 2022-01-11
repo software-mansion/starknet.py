@@ -4,7 +4,11 @@ import time
 import pytest
 from starkware.crypto.signature.signature import verify, private_to_stark_key
 
-from starknet_py.utils.crypto.cpp_bindings import NoCryptoLibFoundError, get_cpp_lib
+from starknet_py.utils.crypto.cpp_bindings import (
+    NoCryptoLibFoundError,
+    get_cpp_lib,
+    unload_cpp_lib,
+)
 from starknet_py.utils.crypto.facade import (
     use_cpp_variant,
     hash_message,
@@ -66,5 +70,7 @@ def test_signing(monkeypatch):
 
 def test_invalid_crypto_path(monkeypatch):
     monkeypatch.setenv("CRYPTO_C_EXPORTS_PATH", "/an/invalid/directory")
+    unload_cpp_lib()
+
     with pytest.raises(NoCryptoLibFoundError):
         get_cpp_lib()

@@ -12,6 +12,11 @@ class NoCryptoLibFoundError(Exception):
     pass
 
 
+def unload_cpp_lib():
+    global CPP_LIB_BINDING
+    CPP_LIB_BINDING = None
+
+
 def get_cpp_lib():
     # pylint: disable=global-statement
     crypto_path = os.getenv("CRYPTO_C_EXPORTS_PATH")
