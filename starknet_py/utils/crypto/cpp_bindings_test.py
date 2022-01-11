@@ -1,13 +1,9 @@
-import os
 import time
-
-import pytest
 from starkware.crypto.signature.signature import verify, private_to_stark_key
 
 from starknet_py.utils.crypto.cpp_bindings import (
-    NoCryptoLibFoundError,
-    get_cpp_lib,
     unload_cpp_lib,
+    get_cpp_lib_file,
 )
 from starknet_py.utils.crypto.facade import (
     use_cpp_variant,
@@ -16,25 +12,20 @@ from starknet_py.utils.crypto.facade import (
 )
 
 
-TEST_CRYPTO_LIB_PATH = os.getenv("TEST_CRYPTO_C_EXPORTS_PATH")
-
-
 def test_hashing(monkeypatch):
-    if not TEST_CRYPTO_LIB_PATH:
-        return
-
     args = 1, 2, 3, [4, 5], 6
+    unload_cpp_lib()
 
     times = []
     for _ in range(2):
-        monkeypatch.setenv("CRYPTO_C_EXPORTS_PATH", TEST_CRYPTO_LIB_PATH)
+        monkeypatch.setenv("DISABLE_CRYPTO_C_EXTENSION", "")
         assert use_cpp_variant()
         start = time.time()
         hash_1 = hash_message(*args)
         end = time.time()
         time_with_crypto = end - start
 
-        monkeypatch.setenv("CRYPTO_C_EXPORTS_PATH", "")
+        monkeypatch.setenv("DISABLE_CRYPTO_C_EXTENSION", "true")
         assert not use_cpp_variant()
         start = time.time()
         hash_2 = hash_message(*args)
@@ -49,16 +40,15 @@ def test_hashing(monkeypatch):
 
 
 def test_signing(monkeypatch):
-    if not TEST_CRYPTO_LIB_PATH:
-        return
+    unload_cpp_lib()
 
     args = 1, 2
     msg_hash, priv_key = args
-    monkeypatch.setenv("CRYPTO_C_EXPORTS_PATH", TEST_CRYPTO_LIB_PATH)
+    monkeypatch.setenv("DISABLE_CRYPTO_C_EXTENSION", "")
     assert use_cpp_variant()
     signature_1 = message_signature(*args)
 
-    monkeypatch.setenv("CRYPTO_C_EXPORTS_PATH", "")
+    monkeypatch.setenv("DISABLE_CRYPTO_C_EXTENSION", "true")
     assert not use_cpp_variant()
     signature_2 = message_signature(*args)
 
@@ -68,9 +58,13 @@ def test_signing(monkeypatch):
     assert bool(verify(msg_hash, *signature_2, private_to_stark_key(priv_key)))
 
 
-def test_invalid_crypto_path(monkeypatch):
-    monkeypatch.setenv("CRYPTO_C_EXPORTS_PATH", "/an/invalid/directory")
+def test_invalid_crypto_path(monkeypatch, mocker):
     unload_cpp_lib()
+    monkeypatch.setenv("DISABLE_CRYPTO_C_EXTENSION", "")
+    mocker.patch(
+        "starknet_py.utils.crypto.cpp_bindings.get_cpp_lib_path",
+        return_value="/an/nonexisting/directory",
+    )
 
-    with pytest.raises(NoCryptoLibFoundError):
-        get_cpp_lib()
+    file = get_cpp_lib_file()
+    assert file is None

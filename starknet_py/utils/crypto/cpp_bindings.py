@@ -4,12 +4,10 @@ from typing import Optional, Tuple
 
 from starkware.crypto.signature.signature import inv_mod_curve_size, generate_k_rfc6979
 
+from starknet_py.constants import DEFAULT_CPP_LIB_PATH
+
 CPP_LIB_BINDING = None
 OUT_BUFFER_SIZE = 251
-
-
-class NoCryptoLibFoundError(Exception):
-    pass
 
 
 def unload_cpp_lib():
@@ -18,23 +16,31 @@ def unload_cpp_lib():
     CPP_LIB_BINDING = None
 
 
-def get_cpp_lib():
+def get_cpp_lib_path():
+    return DEFAULT_CPP_LIB_PATH
+
+
+def get_cpp_lib_file() -> Optional[str]:
+    crypto_path = get_cpp_lib_path()
+    try:
+        filename = next(
+            f for f in os.listdir(crypto_path) if f.startswith("libcrypto_c_exports")
+        )
+        return os.path.join(crypto_path, filename)
+    except (StopIteration, FileNotFoundError):
+        return None
+
+
+def load_cpp_lib():
     # pylint: disable=global-statement
-    crypto_path = os.getenv("CRYPTO_C_EXPORTS_PATH")
     global CPP_LIB_BINDING
     if CPP_LIB_BINDING:
         return
 
-    try:
-        path = next(
-            f
-            for f in os.listdir(crypto_path or None)
-            if f.startswith("libcrypto_c_exports")
-        )
-    except (StopIteration, FileNotFoundError) as st_err:
-        raise NoCryptoLibFoundError() from st_err
+    cpp_lib_file = get_cpp_lib_file()
+    print("loading", cpp_lib_file)
 
-    CPP_LIB_BINDING = ctypes.cdll.LoadLibrary(os.path.join(crypto_path, path))
+    CPP_LIB_BINDING = ctypes.cdll.LoadLibrary(cpp_lib_file)
     # Configure argument and return types.
     CPP_LIB_BINDING.Hash.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
     CPP_LIB_BINDING.Verify.argtypes = [
@@ -61,6 +67,7 @@ ECSignature = Tuple[int, int]
 
 
 def cpp_hash(left: int, right: int) -> int:
+    load_cpp_lib()
     res = ctypes.create_string_buffer(OUT_BUFFER_SIZE)
     if (
         CPP_LIB_BINDING.Hash(
@@ -75,6 +82,7 @@ def cpp_hash(left: int, right: int) -> int:
 
 
 def cpp_sign(msg_hash, priv_key, seed: Optional[int] = 32) -> ECSignature:
+    load_cpp_lib()
     res = ctypes.create_string_buffer(OUT_BUFFER_SIZE)
     k = generate_k_rfc6979(msg_hash, priv_key, seed)
     if (
