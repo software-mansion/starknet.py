@@ -1,5 +1,5 @@
 name: Build wheels
-on: workflow_dispatch
+on: pull_request
 
 jobs:
   build_wheels:
@@ -34,9 +34,9 @@ jobs:
       - name: Build wheels
         run: python -X utf8 -m cibuildwheel --output-dir wheelhouse
         env:
-          CIBW_ARCHS: all
+          CIBW_ARCHS: "x86_64"
           CIBW_BUILD_FRONTEND: "build"
-          CIBW_BUILD: cp37-* cp38-* cp39-*
+          CIBW_BUILD: cp37-*
           CIBW_SKIP: '*i686 cp39-win_arm64'
 
       - name: Upload built wheels
@@ -73,7 +73,8 @@ jobs:
           name: artifact
           path: dist
 
-      - uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          user: __token__
-          password: ${{ secrets.PYPI_TOKEN }}
+#      - uses: pypa/gh-action-pypi-publish@release/v1
+#        with:
+#          user: __token__
+#          password: ${{ secrets.PYPI_TOKEN }}
+#
