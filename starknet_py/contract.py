@@ -52,7 +52,7 @@ class InvocationResult:
     block_number: Optional[int] = None
 
     async def wait_for_acceptance(
-            self, wait_for_accept: Optional[bool] = False, check_interval=5
+        self, wait_for_accept: Optional[bool] = False, check_interval=5
     ) -> "InvocationResult":
         """
         Waits for invoke transaction to be accepted on chain. By default, returns when status is ``PENDING`` -
@@ -74,13 +74,13 @@ class InvocationResult:
 @add_sync_methods
 class PreparedFunctionCall:
     def __init__(
-            self,
-            calldata: List[int],
-            arguments: Dict[str, List[int]],
-            selector: int,
-            client: "Client",
-            payload_transformer: DataTransformer,
-            contract_data: ContractData,
+        self,
+        calldata: List[int],
+        arguments: Dict[str, List[int]],
+        selector: int,
+        client: "Client",
+        payload_transformer: DataTransformer,
+        contract_data: ContractData,
     ):
         # pylint: disable=too-many-arguments
         self.calldata = calldata
@@ -91,10 +91,10 @@ class PreparedFunctionCall:
         self._contract_data = contract_data
 
     async def call_raw(
-            self,
-            signature: Optional[Collection[int]] = None,
-            block_hash: Optional[str] = None,
-            block_number: Optional[int] = None,
+        self,
+        signature: Optional[Collection[int]] = None,
+        block_hash: Optional[str] = None,
+        block_number: Optional[int] = None,
     ) -> List[int]:
         """
         Calls a method without translating the result into python values.
@@ -110,10 +110,10 @@ class PreparedFunctionCall:
         )
 
     async def call(
-            self,
-            signature: Optional[Collection[int]] = None,
-            block_hash: Optional[str] = None,
-            block_number: Optional[int] = None,
+        self,
+        signature: Optional[Collection[int]] = None,
+        block_hash: Optional[str] = None,
+        block_number: Optional[int] = None,
     ) -> NamedTuple:
         """
         Calls a method.
@@ -129,7 +129,7 @@ class PreparedFunctionCall:
         return self._payload_transformer.to_python(result)
 
     async def invoke(
-            self, signature: Optional[Collection[int]] = None
+        self, signature: Optional[Collection[int]] = None
     ) -> InvocationResult:
         """
         Invokes a method.
@@ -162,7 +162,7 @@ class PreparedFunctionCall:
 @add_sync_methods
 class ContractFunction:
     def __init__(
-            self, name: str, abi: ABIEntry, contract_data: ContractData, client: "Client"
+        self, name: str, abi: ABIEntry, contract_data: ContractData, client: "Client"
     ):
         self.name = name
         self.abi = abi
@@ -192,9 +192,9 @@ class ContractFunction:
         )
 
     async def call(
-            self,
-            *args,
-            **kwargs,
+        self,
+        *args,
+        **kwargs,
     ) -> NamedTuple:
         """
         Call contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.
@@ -248,7 +248,7 @@ class Contract:
 
     @staticmethod
     async def from_address(
-            address: AddressRepresentation, client: "Client"
+        address: AddressRepresentation, client: "Client"
     ) -> "Contract":
         """
         Fetches ABI for given contract and creates a new Contract instance with it. If you know ABI statically you
@@ -264,10 +264,10 @@ class Contract:
 
     @staticmethod
     async def deploy(
-            client: "Client",
-            compilation_source: Optional[StarknetCompilationSource] = None,
-            compiled_contract: Optional[str] = None,
-            constructor_args: Optional[Union[List[any], dict]] = None,
+        client: "Client",
+        compilation_source: Optional[StarknetCompilationSource] = None,
+        compiled_contract: Optional[str] = None,
+        constructor_args: Optional[Union[List[any], dict]] = None,
     ) -> "Contract":
         """
         Deploys a contract and waits until it has ``PENDING`` status.
@@ -294,7 +294,6 @@ class Contract:
             compiled_contract=compiled_contract,
             constructor_calldata=translated_args,
         )
-
         contract_address = res["address"]
 
         await client.wait_for_tx(
@@ -335,7 +334,7 @@ class Contract:
 
     @classmethod
     def _make_functions(
-            cls, contract_data: ContractData, client: "Client"
+        cls, contract_data: ContractData, client: "Client"
     ) -> FunctionsRepository:
         repository = {}
 

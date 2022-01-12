@@ -46,10 +46,10 @@ class Client:
         return await self._feeder_gateway.get_contract_addresses()
 
     async def call_contract(
-            self,
-            invoke_tx: InvokeFunction,
-            block_hash: Optional[CastableToHash] = None,
-            block_number: Optional[int] = None,
+        self,
+        invoke_tx: InvokeFunction,
+        block_hash: Optional[CastableToHash] = None,
+        block_number: Optional[int] = None,
     ) -> List[int]:
         """
         Calls the contract with given instance of InvokeTransaction
@@ -67,9 +67,9 @@ class Client:
         return [int(v, 16) for v in response["result"]]
 
     async def get_block(
-            self,
-            block_hash: Optional[CastableToHash] = None,
-            block_number: Optional[int] = None,
+        self,
+        block_hash: Optional[CastableToHash] = None,
+        block_number: Optional[int] = None,
     ) -> JsonObject:
         """
         Retrieve the block's data by its number or hash
@@ -81,10 +81,10 @@ class Client:
         return await self._feeder_gateway.get_block(block_hash, block_number)
 
     async def get_code(
-            self,
-            contract_address: int,
-            block_hash: Optional[CastableToHash] = None,
-            block_number: Optional[int] = None,
+        self,
+        contract_address: int,
+        block_hash: Optional[CastableToHash] = None,
+        block_number: Optional[int] = None,
     ) -> dict:
         """
         Retrieve contract's bytecode and abi.
@@ -108,11 +108,11 @@ class Client:
         return code
 
     async def get_storage_at(
-            self,
-            contract_address: int,
-            key: int,
-            block_hash: Optional[CastableToHash] = None,
-            block_number: Optional[int] = None,
+        self,
+        contract_address: int,
+        key: int,
+        block_hash: Optional[CastableToHash] = None,
+        block_number: Optional[int] = None,
     ) -> str:
         """
         :param contract_address: Contract's address on Starknet
@@ -130,7 +130,7 @@ class Client:
         )
 
     async def get_transaction_status(
-            self, tx_hash: Optional[CastableToHash], tx_id: Optional[int] = None
+        self, tx_hash: Optional[CastableToHash], tx_id: Optional[int] = None
     ) -> JsonObject:
         """
         :param tx_hash: Transaction's hash
@@ -143,7 +143,7 @@ class Client:
         )
 
     async def get_transaction(
-            self, tx_hash: Optional[CastableToHash], tx_id: Optional[int] = None
+        self, tx_hash: Optional[CastableToHash], tx_id: Optional[int] = None
     ) -> JsonObject:
         """
         :param tx_hash: Transaction's hash
@@ -156,7 +156,7 @@ class Client:
         )
 
     async def get_transaction_receipt(
-            self, tx_hash: Optional[CastableToHash], tx_id: Optional[int] = None
+        self, tx_hash: Optional[CastableToHash], tx_id: Optional[int] = None
     ) -> JsonObject:
         """
         :param tx_hash: Transaction's hash
@@ -169,10 +169,10 @@ class Client:
         )
 
     async def wait_for_tx(
-            self,
-            tx_hash: Optional[CastableToHash],
-            wait_for_accept: Optional[bool] = False,
-            check_interval=5,
+        self,
+        tx_hash: Optional[CastableToHash],
+        wait_for_accept: Optional[bool] = False,
+        check_interval=5,
     ) -> (int, TxStatus):
         """
         Awaits for transaction to get accepted or at least pending by polling its status
@@ -208,7 +208,7 @@ class Client:
 
     # Mutating methods
     async def add_transaction(
-            self, tx: Transaction, token: Optional[str] = None
+        self, tx: Transaction, token: Optional[str] = None
     ) -> Dict[str, int]:
         """
         :param tx: Transaction object (i.e. InvokeFunction, Deploy).
@@ -218,10 +218,17 @@ class Client:
         """
         return await self._gateway.add_transaction(tx, token)
 
-    async def deploy(self, compiled_contract: Optional[str], constructor_calldata: List[int], salt: Optional[int] = None) -> dict:
+    async def deploy(
+        self,
+        compiled_contract: Optional[str],
+        constructor_calldata: List[int],
+        salt: Optional[int] = None,
+    ) -> dict:
         res = await self.add_transaction(
             tx=Deploy(
-                contract_address_salt=ContractAddressSalt.get_random_value() if salt is None else salt,
+                contract_address_salt=ContractAddressSalt.get_random_value()
+                if salt is None
+                else salt,
                 contract_definition=ContractDefinition.loads(compiled_contract),
                 constructor_calldata=constructor_calldata,
             )
