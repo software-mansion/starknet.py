@@ -1,7 +1,8 @@
 import pytest
 from starkware.crypto.signature.signature import FIELD_PRIME
 
-from starknet_py.utils.types import parse_address, cairo_vm_range_check
+from starknet_py.net.models.address import parse_address
+from starknet_py.cairo.felt import cairo_vm_range_check
 
 
 @pytest.mark.parametrize(

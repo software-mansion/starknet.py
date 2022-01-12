@@ -12,13 +12,11 @@ from starkware.starknet.public.abi import get_selector_from_name
 from starknet_py.contract import Contract
 from starknet_py.net import Client
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
+from starknet_py.net.models import InvokeFunction
+from starknet_py.net.networks import Network
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.crypto.facade import message_signature, hash_message
-from starknet_py.utils.types import (
-    AddressRepresentation,
-    parse_address,
-    InvokeFunction,
-)
+from starknet_py.net.models.address import AddressRepresentation, parse_address
 
 
 @dataclass
@@ -42,7 +40,7 @@ class AccountClient(Client):
         self,
         address: AddressRepresentation,
         key_pair: KeyPair,
-        net: str,
+        net: Network,
         *args,
         **kwargs,
     ):

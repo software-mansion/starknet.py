@@ -1,7 +1,7 @@
-Types
+Cairo
 =====
 
-.. py:module:: starknet.utils.types
+.. py:module:: starknet_py.cairo.felt
 
 
 .. autofunction:: encode_shortstring

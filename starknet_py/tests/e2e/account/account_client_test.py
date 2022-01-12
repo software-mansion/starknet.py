@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 
 from starknet_py.contract import Contract
-from starknet_py.net.account.account_client import AccountClient
+from starknet_py.net import AccountClient
 
 
 directory = os.path.dirname(__file__)

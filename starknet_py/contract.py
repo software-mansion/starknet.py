@@ -19,12 +19,7 @@ from starknet_py.utils.compiler.starknet_compile import (
 )
 from starknet_py.utils.data_transformer import DataTransformer
 from starknet_py.utils.sync import add_sync_methods
-from starknet_py.utils.types import (
-    AddressRepresentation,
-    parse_address,
-    InvokeFunction,
-    Deploy,
-)
+from .net.models import InvokeFunction, Deploy, AddressRepresentation, parse_address
 
 ABI = list
 ABIEntry = dict
