@@ -1,7 +1,7 @@
 # pylint: disable=unused-import
 # Backward compatibility
 # noinspection PyUnresolvedReferences
-from starknet_py.net.model import (
+from starknet_py.net.models import (
     InvokeFunction,
     Deploy,
     Transaction,
