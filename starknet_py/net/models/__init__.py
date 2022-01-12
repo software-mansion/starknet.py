@@ -5,7 +5,7 @@ from starkware.starknet.services.api.gateway.transaction import (
 )
 
 from starknet_py.utils.docs import as_our_module
-from .address import AddressRepresentation, Address, parse_address
+from .address import *
 
 InvokeFunction = as_our_module(IF)
 Deploy = as_our_module(D)

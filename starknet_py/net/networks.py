@@ -4,10 +4,10 @@ MAINNET = "mainnet"
 TESTNET = "testnet"
 
 try:
-    from typing import Literal  # pylint: disable=no-name-in-module
+    from typing import Literal
 
     PredefinedNetwork = Literal["mainnet", "testnet"]
-except:  # pylint: disable=bare-except
+except:
     PredefinedNetwork = str
 
 Network = Union[PredefinedNetwork, str]
