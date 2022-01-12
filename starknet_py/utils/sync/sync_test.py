@@ -53,7 +53,7 @@ class Contract:
         return Repository()
 
     @classmethod
-    async def example_class_method(_cls):
+    async def example_class_method(cls):
         await asyncio.sleep(0.1)
         return 2
 

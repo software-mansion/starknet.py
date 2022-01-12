@@ -7,10 +7,8 @@ from starkware.cairo.lang.vm.crypto import pedersen_hash as default_hash
 from starkware.crypto.signature.signature import sign
 
 from starknet_py.utils.crypto.cpp_bindings import (
-    cpp_sign,
     cpp_hash,
-    get_cpp_lib,
-    cpp_binding_loaded,
+    get_cpp_lib_file,
     ECSignature,
 )
 
@@ -58,20 +56,22 @@ def hash_message_with(
 
 # Interface
 def use_cpp_variant() -> bool:
-    lib_path = os.environ.get("CRYPTO_C_EXPORTS_PATH")
-    if lib_path and not cpp_binding_loaded():
-        get_cpp_lib(lib_path)
-    return bool(lib_path)
+    force_disable_ext = os.getenv("DISABLE_CRYPTO_C_EXTENSION").lower() == "true"
+    cpp_lib_file = get_cpp_lib_file()
+    return not force_disable_ext and bool(cpp_lib_file)
 
 
 def message_signature(msg_hash, priv_key, seed: Optional[int] = 32) -> ECSignature:
-    if use_cpp_variant():
-        return cpp_sign(msg_hash, priv_key, seed)
+    # TODO: When sign from crypto-cpp is faster, uncomment this section # pylint: disable=fixme
+    # if use_cpp_variant():
+    #     return cpp_sign(msg_hash, priv_key, seed)
     return sign(msg_hash, priv_key, seed)
 
 
 def pedersen_hash(left: int, right: int) -> int:
-    return cpp_hash(left, right) if use_cpp_variant() else default_hash(left, right)
+    if use_cpp_variant():
+        return cpp_hash(left, right)
+    return default_hash(left, right)
 
 
 def hash_message(

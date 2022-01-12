@@ -12,5 +12,6 @@ Our development guide can be found [here](https://starknetpy.readthedocs.io/en/l
 
 ## If you want to contribute a feature, fix a bug, or suggest solution:
 - Follow our pull request/issue template to make it easier for us to verify your contributions 
-- Make sure to document and test the changes   
+- Make sure to document and test the changes
+- Make a pull request with `development` as base branch
  

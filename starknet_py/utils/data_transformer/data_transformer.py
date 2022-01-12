@@ -251,6 +251,7 @@ class DataTransformer:
         result_tuple = NamedTuple(
             "Result", [(key, type(value)) for key, value in result.items()]
         )
+        # pylint: disable=not-callable
         return result_tuple(**result)
 
     def _abi_to_types(self, abi_list) -> dict:
