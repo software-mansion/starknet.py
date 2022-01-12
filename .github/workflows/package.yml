@@ -1,5 +1,5 @@
 name: Build wheels
-on: workflow_dispatch
+on: pull_request
 
 jobs:
   build_wheels:
@@ -38,7 +38,6 @@ jobs:
           CIBW_BUILD_FRONTEND: "build"
           CIBW_BUILD: cp37-* cp38-* cp39-*
           CIBW_SKIP: '*i686 cp39-win_arm64'
-          CIBW_REPAIR_WHEEL_COMMAND: ''
 
       - name: Upload built wheels
         uses: actions/upload-artifact@v2
