@@ -63,7 +63,7 @@ with open("setup.py", "wb") as unit:
 extra_setup_args = [
     "'ext_modules': [CryptoExtension()],\n",
     "'long_description_content_type': 'text/markdown',\n",
-    "'cmdclass': {\"build_ext\": BuildCrypto },\n",
+    '\'cmdclass\': {"build_py": BuildPy, "build_ext": BuildCrypto },\n',
 ]
 
 with open("setup.py", "r+", encoding="utf-8") as setup_file:
