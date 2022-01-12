@@ -38,7 +38,6 @@ def load_cpp_lib():
         return
 
     cpp_lib_file = get_cpp_lib_file()
-    print("loading", cpp_lib_file)
 
     CPP_LIB_BINDING = ctypes.cdll.LoadLibrary(cpp_lib_file)
     # Configure argument and return types.
