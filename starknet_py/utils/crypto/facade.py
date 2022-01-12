@@ -56,7 +56,9 @@ def hash_message_with(
 
 # Interface
 def use_cpp_variant() -> bool:
-    force_disable_ext = os.getenv("DISABLE_CRYPTO_C_EXTENSION", "false").lower() == "true"
+    force_disable_ext = (
+        os.getenv("DISABLE_CRYPTO_C_EXTENSION", "false").lower() == "true"
+    )
     cpp_lib_file = get_cpp_lib_file()
     return not force_disable_ext and bool(cpp_lib_file)
 
