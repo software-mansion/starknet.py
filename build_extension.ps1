@@ -4,5 +4,5 @@ mkdir build\Release
 Get-Content CMakeLists.txt
 cd build\Release
 cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER="g++" ..\..
-cmake --build .
+MSBuild ALL_BUILD.vcxproj
 copy ./src/starkware/crypto/ffi/libcrypto_c_exports.* ../starknet_py/utils/crypto
