@@ -1,5 +1,5 @@
 name: Build wheels
-on: workflow_dispatch
+on: pull_request
 
 jobs:
   build_wheels:
@@ -7,7 +7,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-2019, ubuntu-20.04, macOS-10.15]
+#        , ubuntu-20.04, macOS-10.15
+        os: [windows-2019]
 
     steps:
       - uses: actions/checkout@v2
@@ -44,36 +45,36 @@ jobs:
         with:
           path: ./wheelhouse/*.whl
 
-  build_sdist:
-    name: Build SDist
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-
-      - name: Install poetry
-        run: python -X utf8 -m pip install poetry
-
-      - name: Build SDist
-        run: poetry build -f sdist
-
-      - uses: actions/upload-artifact@v2
-        with:
-          path: dist/*.tar.gz
-
-  upload_pypi:
-    name: Upload package to PyPI
-    needs: [build_wheels, build_sdist]
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/download-artifact@v2
-        with:
-          name: artifact
-          path: dist
-
-      - uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          user: __token__
-          password: ${{ secrets.PYPI_TOKEN }}
+#  build_sdist:
+#    name: Build SDist
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v2
+#        with:
+#          submodules: true
+#
+#      - name: Install poetry
+#        run: python -X utf8 -m pip install poetry
+#
+#      - name: Build SDist
+#        run: poetry build -f sdist
+#
+#      - uses: actions/upload-artifact@v2
+#        with:
+#          path: dist/*.tar.gz
+#
+#  upload_pypi:
+#    name: Upload package to PyPI
+#    needs: [build_wheels, build_sdist]
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - uses: actions/download-artifact@v2
+#        with:
+#          name: artifact
+#          path: dist
+#
+#      - uses: pypa/gh-action-pypi-publish@release/v1
+#        with:
+#          user: __token__
+#          password: ${{ secrets.PYPI_TOKEN }}
