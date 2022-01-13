@@ -32,6 +32,10 @@ jobs:
       - name: Convert setup.py
         run: python  -X utf8 convert_pyproject.py
 
+      - name: Add msbuild to PATH
+        if: runner.os == 'Windows'
+        uses: microsoft/setup-msbuild@v1.1
+
       - name: Build wheels
         run: python -X utf8 -m cibuildwheel --output-dir wheelhouse
         env:
