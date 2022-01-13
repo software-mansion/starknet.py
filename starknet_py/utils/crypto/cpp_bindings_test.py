@@ -4,6 +4,7 @@ from starkware.crypto.signature.signature import verify, private_to_stark_key
 from starknet_py.utils.crypto.cpp_bindings import (
     unload_cpp_lib,
     get_cpp_lib_file,
+    load_cpp_lib,
 )
 from starknet_py.utils.crypto.facade import (
     use_cpp_variant,
@@ -14,11 +15,12 @@ from starknet_py.utils.crypto.facade import (
 
 def test_hashing(monkeypatch):
     args = 1, 2, 3, [4, 5], 6
-    unload_cpp_lib()
-
     times = []
+
+    load_cpp_lib()  # Pre-load cpp extension to make the hashing time appropriate
     for _ in range(2):
         monkeypatch.setenv("DISABLE_CRYPTO_C_EXTENSION", "")
+
         assert use_cpp_variant()
         start = time.time()
         hash_1 = hash_message(*args)
@@ -40,8 +42,6 @@ def test_hashing(monkeypatch):
 
 
 def test_signing(monkeypatch):
-    unload_cpp_lib()
-
     args = 1, 2
     msg_hash, priv_key = args
     monkeypatch.setenv("DISABLE_CRYPTO_C_EXTENSION", "")
