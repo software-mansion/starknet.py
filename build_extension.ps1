@@ -1,7 +1,8 @@
 cd crypto-cpp
 mkdir build\Release
 (Get-content CMakeLists.txt) | Foreach-Object {$_ -replace '\$\{CMAKE_CXX_FLAGS\} -std=c\+\+17 -Werror -Wall -Wextra -fno-strict-aliasing -fPIC', '/std:c++17 /Werror /Wall /Wextra ${CMAKE_CXX_FLAGS}'} | Set-Content CMakeLists.txt
-cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER="g++"
+cd build\Release
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER="g++" ..\..
 $Result = make -C build\Release
 if ($Result.ExitCode -ne 0)
   {
