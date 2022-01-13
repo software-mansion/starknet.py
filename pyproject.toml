@@ -60,7 +60,7 @@ lint = "pylint starknet_py"
 source = ["starknet_py"]
 
 [tool.coverage.report]
-omit = ["*_test.py", "starknet_py/tests/e2e/*"]
+omit = ["*_test.py", "starknet_py/tests/e2e/*", "starknet_py/utils/docs.py"]
 skip_empty = true
 
 
