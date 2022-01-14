@@ -31,6 +31,12 @@ jobs:
       - name: Convert setup.py
         run: python  -X utf8 convert_pyproject.py
 
+      - name: Set up MinGW
+        if: runner.os == 'Windows'
+        uses: egor-tensin/setup-mingw@v2
+        with:
+          platform: x64
+
       - name: Build wheels
         run: python -X utf8 -m cibuildwheel --output-dir wheelhouse
         env:
