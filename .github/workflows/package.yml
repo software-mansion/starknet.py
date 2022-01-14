@@ -31,6 +31,12 @@ jobs:
       - name: Convert setup.py
         run: python  -X utf8 convert_pyproject.py
 
+      - name: Set up MinGW
+        if: runner.os == 'Windows'
+        uses: egor-tensin/setup-mingw@v2
+        with:
+          platform: x64
+
       - name: Build wheels
         run: python -X utf8 -m cibuildwheel --output-dir wheelhouse
         env:
@@ -38,7 +44,6 @@ jobs:
           CIBW_BUILD_FRONTEND: "build"
           CIBW_BUILD: cp37-* cp38-* cp39-*
           CIBW_SKIP: '*i686 cp39-win_arm64'
-          CIBW_REPAIR_WHEEL_COMMAND: ''
 
       - name: Upload built wheels
         uses: actions/upload-artifact@v2

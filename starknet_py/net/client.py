@@ -1,32 +1,46 @@
 import asyncio
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Union
 
+from services.external_api.base_client import RetryConfig, BadRequest as BadRequestError
+from starkware.starknet.definitions.fields import ContractAddressSalt
+from starkware.starknet.services.api.contract_definition import ContractDefinition
 from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
     FeederGatewayClient,
     CastableToHash,
     JsonObject,
 )
 from starkware.starknet.services.api.gateway.gateway_client import GatewayClient
-from services.external_api.base_client import RetryConfig, BadRequest as BadRequestError
+from starkware.starkware_utils.error_handling import StarkErrorCode
 
 from starknet_py.constants import TxStatus, ACCEPTED_STATUSES
 from starknet_py.utils.sync import add_sync_methods
-from starknet_py.utils.types import net_address_from_net, InvokeFunction, Transaction
+from starknet_py.net.models import (
+    InvokeFunction,
+    Transaction,
+    Deploy,
+    StarknetChainId,
+    chain_from_network,
+)
+from starknet_py.net.networks import Network, net_address_from_net
 
 BadRequest = BadRequestError
 
 
 @add_sync_methods
 class Client:
-    def __init__(self, net: str, n_retries: Optional[int] = 1):
+    def __init__(
+        self, net: Network, chain: StarknetChainId = None, n_retries: Optional[int] = 1
+    ):
         """
 
         :param net: Target network for the client. Can be a string with URL or one of ``"mainnet"``, ``"testnet"``
+        :param chain: Chain used by the network. Required if you use a custom URL for ``net`` param.
         :param n_retries: Number of retries client will attempt before failing a request
         """
         host = net_address_from_net(net)
         retry_config = RetryConfig(n_retries)
         feeder_gateway_url = f"{host}/feeder_gateway"
+        self.chain = chain_from_network(net, chain)
         self._feeder_gateway = FeederGatewayClient(
             url=feeder_gateway_url, retry_config=retry_config
         )
@@ -213,3 +227,27 @@ class Client:
         :return: Dictionary with `code`, `transaction_hash`
         """
         return await self._gateway.add_transaction(tx, token)
+
+    async def deploy(
+        self,
+        compiled_contract: Union[ContractDefinition, str],
+        constructor_calldata: List[int],
+        salt: Optional[int] = None,
+    ) -> dict:
+        if isinstance(compiled_contract, str):
+            compiled_contract = ContractDefinition.loads(compiled_contract)
+
+        res = await self.add_transaction(
+            tx=Deploy(
+                contract_address_salt=ContractAddressSalt.get_random_value()
+                if salt is None
+                else salt,
+                contract_definition=compiled_contract,
+                constructor_calldata=constructor_calldata,
+            )
+        )
+
+        if res["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
+            raise Exception("Transaction not received")
+
+        return res

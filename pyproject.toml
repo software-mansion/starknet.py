@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "starknet.py"
-version = "0.1.4-alpha"
+version = "0.1.5-alpha"
 description = "A python SDK for StarkNet"
 authors = ["Tomasz Rejowski <tomasz.rejowski@swmansion.com>", "Jakub Ptak <jakub.ptak@swmansion.com>"]
 include = ["starknet_py", "starknet_py/utils/crypto/libcrypto_c_exports.*"]
@@ -33,6 +33,7 @@ sphinx-rtd-theme = "^1.0.0"
 pylint = "^2.12.2"
 setuptools = "^60.0.3"
 pytest-mock = "^3.6.1"
+enum-tools = {extras = ["sphinx"], version = "^0.8.0"}
 
 [tool.poe.tasks]
 test = ["test_unit", "test_e2e"]
@@ -60,7 +61,7 @@ lint = "pylint starknet_py"
 source = ["starknet_py"]
 
 [tool.coverage.report]
-omit = ["*_test.py", "starknet_py/tests/e2e/*"]
+omit = ["*_test.py", "starknet_py/tests/e2e/*", "starknet_py/utils/docs.py"]
 skip_empty = true
 
 

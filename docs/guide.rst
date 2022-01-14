@@ -299,5 +299,5 @@ You can read more about how cairo treats shortstrings in `the documentation <htt
 
 Conversion functions and references:
 
-- :obj:`encode_shortstring <starknet.utils.types.encode_shortstring>`
-- :obj:`decode_shortstring <starknet.utils.types.decode_shortstring>`
+- :obj:`encode_shortstring <starknet_py.cairo.felt.encode_shortstring>`
+- :obj:`decode_shortstring <starknet_py.cairo.felt.decode_shortstring>`

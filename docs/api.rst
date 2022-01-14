@@ -5,4 +5,5 @@ API
    client
    contract
    account_client
-   types
+   models
+   cairo
