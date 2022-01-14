@@ -33,6 +33,7 @@ sphinx-rtd-theme = "^1.0.0"
 pylint = "^2.12.2"
 setuptools = "^60.0.3"
 pytest-mock = "^3.6.1"
+enum-tools = {extras = ["sphinx"], version = "^0.8.0"}
 
 [tool.poe.tasks]
 test = ["test_unit", "test_e2e"]

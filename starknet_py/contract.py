@@ -1,21 +1,31 @@
 import dataclasses
-import json
 from dataclasses import dataclass
+from functools import lru_cache
 from typing import List, Optional, Union, Dict, Collection, NamedTuple
 
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
+from starkware.starknet.core.os.contract_hash import compute_contract_hash
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
+from starkware.starknet.services.api.contract_definition import ContractDefinition
 from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
     CastableToHash,
 )
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
-from starknet_py.net.models import InvokeFunction, AddressRepresentation, parse_address
+from starknet_py.net import Client
+from starknet_py.net.models import (
+    InvokeFunction,
+    AddressRepresentation,
+    parse_address,
+    compute_address,
+    compute_invoke_hash,
+)
 from starknet_py.utils.compiler.starknet_compile import (
     StarknetCompilationSource,
     starknet_compile,
 )
+from starknet_py.utils.crypto.facade import pedersen_hash
 from starknet_py.utils.data_transformer import DataTransformer
 from starknet_py.utils.sync import add_sync_methods
 
@@ -78,7 +88,7 @@ class PreparedFunctionCall:
         calldata: List[int],
         arguments: Dict[str, List[int]],
         selector: int,
-        client: "Client",
+        client: Client,
         payload_transformer: DataTransformer,
         contract_data: ContractData,
     ):
@@ -89,6 +99,16 @@ class PreparedFunctionCall:
         self._client = client
         self._payload_transformer = payload_transformer
         self._contract_data = contract_data
+
+    @property
+    @lru_cache()
+    def hash(self) -> int:
+        return compute_invoke_hash(
+            contract_address=self._contract_data.address,
+            entry_point_selector=self.selector,
+            calldata=self.calldata,
+            chain_id=self._client.chain,
+        )
 
     async def call_raw(
         self,
@@ -248,7 +268,7 @@ class Contract:
 
     @staticmethod
     async def from_address(
-        address: AddressRepresentation, client: "Client"
+        address: AddressRepresentation, client: Client
     ) -> "Contract":
         """
         Fetches ABI for given contract and creates a new Contract instance with it. If you know ABI statically you
@@ -264,10 +284,11 @@ class Contract:
 
     @staticmethod
     async def deploy(
-        client: "Client",
+        client: Client,
         compilation_source: Optional[StarknetCompilationSource] = None,
         compiled_contract: Optional[str] = None,
         constructor_args: Optional[Union[List[any], dict]] = None,
+        salt: Optional[int] = None,
     ) -> "Contract":
         """
         Deploys a contract and waits until it has ``PENDING`` status.
@@ -277,22 +298,19 @@ class Contract:
         :param compilation_source: string of source code or a dict ``{FILENAME: CONTENT}``.
         :param compiled_contract: string containing compiled contract. Useful for reading compiled contract from a file.
         :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
+        :param salt: Optional salt. Random value is selected if it is not provided.
         :return: an initialized Contract instance
         """
-        if not compiled_contract and not compilation_source:
-            raise ValueError(
-                "At least one of compiled_contract, compilation_source is required for contract deployment."
-            )
-
-        if not compiled_contract:
-            compiled_contract = starknet_compile(compilation_source)
-
-        abi = json.loads(compiled_contract)["abi"]
-        translated_args = Contract._translate_constructor_args(abi, constructor_args)
-
+        definition = Contract._make_definition(
+            compilation_source=compilation_source, compiled_contract=compiled_contract
+        )
+        translated_args = Contract._translate_constructor_args(
+            definition, constructor_args
+        )
         res = await client.deploy(
-            compiled_contract=compiled_contract,
+            compiled_contract=definition,
             constructor_calldata=translated_args,
+            salt=salt,
         )
         contract_address = res["address"]
 
@@ -303,13 +321,77 @@ class Contract:
         return Contract(
             client=client,
             address=contract_address,
-            abi=abi,
+            abi=definition.abi,
         )
 
     @staticmethod
-    def _translate_constructor_args(abi: list, constructor_args: any) -> List[int]:
+    def compute_address(
+        salt: int,
+        compilation_source: Optional[StarknetCompilationSource] = None,
+        compiled_contract: Optional[str] = None,
+        constructor_args: Optional[Union[List[any], dict]] = None,
+    ) -> int:
+        """
+        Computes address for given contract.
+        Either `compilation_source` or `compiled_contract` is required.
+
+        :param salt: int
+        :param compilation_source: string of source code or a dict ``{FILENAME: CONTENT}``.
+        :param compiled_contract: string containing compiled contract. Useful for reading compiled contract from a file.
+        :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
+        :return: contract's address
+        """
+        definition = Contract._make_definition(
+            compilation_source=compilation_source, compiled_contract=compiled_contract
+        )
+        translated_args = Contract._translate_constructor_args(
+            definition, constructor_args
+        )
+        return compute_address(
+            salt=salt,
+            contract_hash=compute_contract_hash(definition, hash_func=pedersen_hash),
+            constructor_calldata=translated_args,
+        )
+
+    @staticmethod
+    def compute_contract_hash(
+        compilation_source: Optional[StarknetCompilationSource] = None,
+        compiled_contract: Optional[str] = None,
+    ) -> int:
+        """
+        Computes hash for given contract.
+        Either `compilation_source` or `compiled_contract` is required.
+
+        :param compilation_source: string of source code or a dict ``{FILENAME: CONTENT}``.
+        :param compiled_contract: string containing compiled contract. Useful for reading compiled contract from a file.
+        :return:
+        """
+        definition = Contract._make_definition(
+            compilation_source=compilation_source, compiled_contract=compiled_contract
+        )
+        return compute_contract_hash(definition, hash_func=pedersen_hash)
+
+    @staticmethod
+    def _make_definition(
+        compilation_source: Optional[StarknetCompilationSource] = None,
+        compiled_contract: Optional[str] = None,
+    ) -> ContractDefinition:
+        if not compiled_contract and not compilation_source:
+            raise ValueError(
+                "One of compiled_contract or compilation_source is required."
+            )
+
+        if not compiled_contract:
+            compiled_contract = starknet_compile(compilation_source)
+
+        return ContractDefinition.loads(compiled_contract)
+
+    @staticmethod
+    def _translate_constructor_args(
+        contract: ContractDefinition, constructor_args: any
+    ) -> List[int]:
         constructor_abi = next(
-            (member for member in abi if member["type"] == "constructor"),
+            (member for member in contract.abi if member["type"] == "constructor"),
             None,
         )
 
@@ -328,13 +410,13 @@ class Contract:
             else (constructor_args, {})
         )
         calldata, _args = DataTransformer(
-            constructor_abi, identifier_manager_from_abi(abi)
+            constructor_abi, identifier_manager_from_abi(contract.abi)
         ).from_python(*args, **kwargs)
         return calldata
 
     @classmethod
     def _make_functions(
-        cls, contract_data: ContractData, client: "Client"
+        cls, contract_data: ContractData, client: Client
     ) -> FunctionsRepository:
         repository = {}
 
