@@ -9,16 +9,13 @@ from starkware.starknet.definitions.transaction_type import TransactionType
 from starkware.starknet.public.abi import get_selector_from_name
 
 
-from starknet_py.contract import Contract
 from starknet_py.net import Client
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
+from starknet_py.net.models import InvokeFunction
+from starknet_py.net.networks import Network
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.crypto.facade import message_signature, hash_message
-from starknet_py.utils.types import (
-    AddressRepresentation,
-    parse_address,
-    InvokeFunction,
-)
+from starknet_py.net.models.address import AddressRepresentation, parse_address
 
 
 @dataclass
@@ -42,7 +39,7 @@ class AccountClient(Client):
         self,
         address: AddressRepresentation,
         key_pair: KeyPair,
-        net: str,
+        net: Network,
         *args,
         **kwargs,
     ):
@@ -127,14 +124,16 @@ class AccountClient(Client):
         key_pair = KeyPair.from_private_key(private_key)
 
         client = Client(net=net)
-        account_contract = await Contract.deploy(
-            client=client,
-            constructor_args=[key_pair.public_key],
+        result = await client.deploy(
+            constructor_calldata=[key_pair.public_key],
             compiled_contract=COMPILED_ACCOUNT_CONTRACT,
+        )
+        await client.wait_for_tx(
+            tx_hash=result["transaction_hash"],
         )
 
         return AccountClient(
             net=net,
-            address=account_contract.address,
+            address=result["address"],
             key_pair=key_pair,
         )

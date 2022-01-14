@@ -1,36 +1,26 @@
 import dataclasses
 import json
 from dataclasses import dataclass
-from typing import List, Optional, TYPE_CHECKING, Union, Dict, Collection, NamedTuple
+from typing import List, Optional, Union, Dict, Collection, NamedTuple
 
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
-from starkware.starknet.definitions.fields import ContractAddressSalt
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
-from starkware.starknet.services.api.contract_definition import ContractDefinition
 from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
     CastableToHash,
 )
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
+from starknet_py.net.models import InvokeFunction, AddressRepresentation, parse_address
 from starknet_py.utils.compiler.starknet_compile import (
     StarknetCompilationSource,
     starknet_compile,
 )
 from starknet_py.utils.data_transformer import DataTransformer
 from starknet_py.utils.sync import add_sync_methods
-from starknet_py.utils.types import (
-    AddressRepresentation,
-    parse_address,
-    InvokeFunction,
-    Deploy,
-)
 
 ABI = list
 ABIEntry = dict
-
-if TYPE_CHECKING:
-    from .net import Client
 
 
 @dataclass(frozen=True)
@@ -300,15 +290,10 @@ class Contract:
         abi = json.loads(compiled_contract)["abi"]
         translated_args = Contract._translate_constructor_args(abi, constructor_args)
 
-        res = await client.add_transaction(
-            tx=Deploy(
-                contract_address_salt=ContractAddressSalt.get_random_value(),
-                contract_definition=ContractDefinition.loads(compiled_contract),
-                constructor_calldata=translated_args,
-            )
+        res = await client.deploy(
+            compiled_contract=compiled_contract,
+            constructor_calldata=translated_args,
         )
-
-        assert res["code"] == StarkErrorCode.TRANSACTION_RECEIVED.name
         contract_address = res["address"]
 
         await client.wait_for_tx(
