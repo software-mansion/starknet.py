@@ -15,7 +15,8 @@ Using Client
     mainnet_client = Client("https://alpha-mainnet.starknet.io")
 
     # Local network
-    local_network_client = Client("http://localhost:5000")
+    from starknet_py.net.models import StarknetChainId
+    local_network_client = Client("http://localhost:5000", chain=StarknetChainId.TESTNET)
 
     call_result = await testnet_client.get_block("0x495c670c53e4e76d08292524299de3ba078348d861dd7b2c7cc4933dbc27943)
 
@@ -39,7 +40,7 @@ Example usage:
 .. code-block:: python
 
     # Creates an account on local network and returns an instance
-    acc_client = await AccountClient.create_account(net="http://localhost:5000/")
+    acc_client = await AccountClient.create_account(net="testnet")
 
     # Deploy an example contract which implements a simple k-v store. Deploy transaction is not being signed.
     map_contract = await Contract.deploy(

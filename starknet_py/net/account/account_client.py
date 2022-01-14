@@ -11,7 +11,7 @@ from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.net import Client
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
-from starknet_py.net.models import InvokeFunction
+from starknet_py.net.models import InvokeFunction, StarknetChainId
 from starknet_py.net.networks import Network
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.crypto.facade import message_signature, hash_message
@@ -107,7 +107,9 @@ class AccountClient(Client):
 
     @staticmethod
     async def create_account(
-        net: str, private_key: Optional[int] = None
+        net: str,
+        private_key: Optional[int] = None,
+        chain: Optional[StarknetChainId] = None,
     ) -> "AccountClient":
         """
         Creates the account using
@@ -115,6 +117,7 @@ class AccountClient(Client):
         <https://github.com/OpenZeppelin/cairo-contracts/blob/main/contracts/Account.cairo>`_
 
         :param net: Target net's address or one of "mainnet", "testnet"
+        :param chain: Chain used by the network. Required if you use a custom URL for ``net`` param
         :param private_key: Public Key used for the account
         :return: Instance of AccountClient which interacts with created account on given network
         """
@@ -123,7 +126,7 @@ class AccountClient(Client):
 
         key_pair = KeyPair.from_private_key(private_key)
 
-        client = Client(net=net)
+        client = Client(net=net, chain=chain)
         result = await client.deploy(
             constructor_calldata=[key_pair.public_key],
             compiled_contract=COMPILED_ACCOUNT_CONTRACT,
@@ -134,6 +137,7 @@ class AccountClient(Client):
 
         return AccountClient(
             net=net,
+            chain=chain,
             address=result["address"],
             key_pair=key_pair,
         )

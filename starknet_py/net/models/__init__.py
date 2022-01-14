@@ -1,12 +1,10 @@
-from starkware.starknet.services.api.gateway.transaction import (
-    InvokeFunction as IF,
-    Deploy as D,
-    Transaction as T,
+from .address import AddressRepresentation, Address, parse_address, compute_address
+from .transaction import (
+    Transaction,
+    InvokeFunction,
+    TransactionType,
+    Deploy,
+    compute_deploy_hash,
+    compute_invoke_hash,
 )
-
-from starknet_py.utils.docs import as_our_module
-from .address import AddressRepresentation, Address, parse_address
-
-InvokeFunction = as_our_module(IF)
-Deploy = as_our_module(D)
-Transaction = as_our_module(T)
+from .chains import chain_from_network, StarknetChainId

@@ -7,7 +7,7 @@ try:
     from typing import Literal  # pylint: disable=no-name-in-module
 
     PredefinedNetwork = Literal["mainnet", "testnet"]
-except:  # pylint: disable=bare-except
+except ImportError:
     PredefinedNetwork = str
 
 Network = Union[PredefinedNetwork, str]

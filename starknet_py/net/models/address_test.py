@@ -1,6 +1,6 @@
 import pytest
 
-from starknet_py.net.models.address import parse_address
+from starknet_py.net.models.address import parse_address, compute_address
 
 
 @pytest.mark.parametrize(
@@ -16,3 +16,14 @@ def test_parse_invalid_address():
         parse_address(0.22)
 
     assert "address format" in str(excinfo.value)
+
+
+def test_compute_address():
+    assert (
+        compute_address(
+            951442054899045155353616354734460058868858519055082696003992725251069061570,
+            [21, 37],
+            1111,
+        )
+        == 1357105550695717639826158786311415599375114169232402161465584707209611368775
+    )
