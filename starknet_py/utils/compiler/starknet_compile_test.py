@@ -8,11 +8,19 @@ from starknet_py.utils.compiler.starknet_compile import starknet_compile
 
 directory = os.path.dirname(__file__)
 
-test_file_content = Path(directory, "map.cairo").read_text("utf-8")
+test_file_path = Path(directory, "map.cairo")
+test_file_content = test_file_path.read_text("utf-8")
 
 
-def test_starknet_compilation():
+def test_starknet_compilation_direct_load():
     output_file_str = starknet_compile(test_file_content)
+    output_json = json.loads(output_file_str)
+
+    assert output_json.get("abi") != []
+
+
+def test_starknet_compilation_file_load():
+    output_file_str = starknet_compile([test_file_path.resolve().absolute()])
     output_json = json.loads(output_file_str)
 
     assert output_json.get("abi") != []
