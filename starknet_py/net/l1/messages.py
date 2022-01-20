@@ -57,6 +57,7 @@ class L1Message:
 class L2MessageContent:
     l1_sender: int
     l2_recipient: int
+    nonce: int
     selector: int
     payload: List[int]
 
@@ -66,8 +67,9 @@ class L2MessageContent:
             encode_packed(
                 self.l1_sender,
                 self.l2_recipient,
-                1 + len(self.payload),
+                self.nonce,
                 self.selector,
+                len(self.payload),
                 *self.payload,
             )
         )
