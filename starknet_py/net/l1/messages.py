@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from functools import reduce
 from typing import List
 from eth_utils import keccak
-
+from hexbytes import HexBytes
 
 from starknet_py.net.l1.contracts import StarknetL1Contract
 from starknet_py.net.models import StarknetChainId
@@ -34,6 +34,10 @@ class L1MessageContent:
         )
 
 
+def int_from_hexbytes(hexb: HexBytes) -> int:
+    return int(hexb.hex(), 16)
+
+
 @add_sync_methods
 @dataclass
 class L1Message:
@@ -48,8 +52,8 @@ class L1Message:
         return cls.from_hash(msg_content.hash)
 
     async def get_status(self, chain_id: StarknetChainId, endpoint_uri: str) -> int:
-        return await StarknetL1Contract(chain_id, endpoint_uri).l2ToL1Messages(
-            self.hash
+        return int_from_hexbytes(
+            await StarknetL1Contract(chain_id, endpoint_uri).l2ToL1Messages(self.hash)
         )
 
 
@@ -89,6 +93,6 @@ class L2Message:
         return cls.from_hash(msg_content.hash)
 
     async def get_status(self, chain_id: StarknetChainId, endpoint_uri: str) -> int:
-        return await StarknetL1Contract(chain_id, endpoint_uri).l1ToL2Messages(
-            self.hash
+        return int_from_hexbytes(
+            await StarknetL1Contract(chain_id, endpoint_uri).l1ToL2Messages(self.hash)
         )
