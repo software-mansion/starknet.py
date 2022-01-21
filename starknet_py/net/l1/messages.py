@@ -2,16 +2,28 @@ from dataclasses import dataclass
 from functools import reduce
 from typing import List
 from eth_utils import keccak
+from web3 import Web3, AsyncHTTPProvider
+from web3.eth import AsyncEth
+from web3.net import AsyncNet
 
-from web3.providers import BaseProvider as L1Provider
+
 from starknet_py.net.l1.contracts import StarknetL1Contract
-from starknet_py.net.l1.networks import L1Network
+from starknet_py.net.models import StarknetChainId
+from starknet_py.utils.sync import add_sync_methods
 
 
 def encode_packed(*args: List[int]) -> bytes:
     return reduce(
         lambda acc, x: acc + x,
-        map(lambda x: x.to_bytes(32, byteorder="big", signed=False), args),
+        [x.to_bytes(32, byteorder="big", signed=False) for x in args],
+    )
+
+
+def get_async_provider(endpoint_uri: str):
+    return Web3(
+        AsyncHTTPProvider(endpoint_uri),
+        modules={"eth": AsyncEth, "net": AsyncNet},
+        middlewares=[],
     )
 
 
@@ -33,21 +45,23 @@ class L1MessageContent:
         )
 
 
+@add_sync_methods
 @dataclass
 class L1Message:
     hash: int
 
     @classmethod
-    def from_hash(cls, msg_hash: int) -> "L1Message":
+    async def from_hash(cls, msg_hash: int) -> "L1Message":
         return cls(hash=msg_hash)
 
     @classmethod
-    def from_content(cls, msg_content: L1MessageContent) -> "L1Message":
+    async def from_content(cls, msg_content: L1MessageContent) -> "L1Message":
         return cls.from_hash(msg_content.hash)
 
-    def get_status(self, l1_net: L1Network, l1_net_provider: L1Provider):
+    async def get_status(self, chain_id: StarknetChainId, endpoint_uri: str) -> int:
+        provider = get_async_provider(endpoint_uri)
         return (
-            StarknetL1Contract.on_l1_net(l1_net, l1_net_provider)
+            StarknetL1Contract.on_l1_net(chain_id, provider)
             .functions.l2ToL1Messages(self.hash)
             .call()
         )
@@ -75,21 +89,23 @@ class L2MessageContent:
         )
 
 
+@add_sync_methods
 @dataclass
 class L2Message:
     hash: int
 
     @classmethod
-    def from_hash(cls, msg_hash: int) -> "L2Message":
+    async def from_hash(cls, msg_hash: int) -> "L2Message":
         return cls(hash=msg_hash)
 
     @classmethod
-    def from_content(cls, msg_content: L2MessageContent) -> "L2Message":
+    async def from_content(cls, msg_content: L2MessageContent) -> "L2Message":
         return cls.from_hash(msg_content.hash)
 
-    def get_status(self, l1_net_provider: L1Provider, l1_net: L1Network):
+    async def get_status(self, chain_id: StarknetChainId, endpoint_uri: str) -> int:
+        provider = get_async_provider(endpoint_uri)
         return (
-            StarknetL1Contract.on_l1_net(l1_net, l1_net_provider)
+            StarknetL1Contract.on_l1_net(chain_id, provider)
             .functions.l1ToL2Messages(self.hash)
             .call()
         )
