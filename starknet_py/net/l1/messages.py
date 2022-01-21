@@ -2,9 +2,6 @@ from dataclasses import dataclass
 from functools import reduce
 from typing import List
 from eth_utils import keccak
-from web3 import Web3, AsyncHTTPProvider
-from web3.eth import AsyncEth
-from web3.net import AsyncNet
 
 
 from starknet_py.net.l1.contracts import StarknetL1Contract
@@ -16,14 +13,6 @@ def encode_packed(*args: List[int]) -> bytes:
     return reduce(
         lambda acc, x: acc + x,
         [x.to_bytes(32, byteorder="big", signed=False) for x in args],
-    )
-
-
-def get_async_provider(endpoint_uri: str):
-    return Web3(
-        AsyncHTTPProvider(endpoint_uri),
-        modules={"eth": AsyncEth, "net": AsyncNet},
-        middlewares=[],
     )
 
 
@@ -51,19 +40,16 @@ class L1Message:
     hash: int
 
     @classmethod
-    async def from_hash(cls, msg_hash: int) -> "L1Message":
+    def from_hash(cls, msg_hash: int) -> "L1Message":
         return cls(hash=msg_hash)
 
     @classmethod
-    async def from_content(cls, msg_content: L1MessageContent) -> "L1Message":
+    def from_content(cls, msg_content: L1MessageContent) -> "L1Message":
         return cls.from_hash(msg_content.hash)
 
     async def get_status(self, chain_id: StarknetChainId, endpoint_uri: str) -> int:
-        provider = get_async_provider(endpoint_uri)
-        return (
-            StarknetL1Contract.on_l1_net(chain_id, provider)
-            .functions.l2ToL1Messages(self.hash)
-            .call()
+        return await StarknetL1Contract(chain_id, endpoint_uri).l2ToL1Messages(
+            self.hash
         )
 
 
@@ -103,9 +89,6 @@ class L2Message:
         return cls.from_hash(msg_content.hash)
 
     async def get_status(self, chain_id: StarknetChainId, endpoint_uri: str) -> int:
-        provider = get_async_provider(endpoint_uri)
-        return (
-            StarknetL1Contract.on_l1_net(chain_id, provider)
-            .functions.l1ToL2Messages(self.hash)
-            .call()
+        return await StarknetL1Contract(chain_id, endpoint_uri).l1ToL2Messages(
+            self.hash
         )
