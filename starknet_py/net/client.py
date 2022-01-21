@@ -8,6 +8,7 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
     FeederGatewayClient,
     CastableToHash,
     JsonObject,
+    BlockIdentifier,
 )
 from starkware.starknet.services.api.gateway.gateway_client import GatewayClient
 from starkware.starkware_utils.error_handling import StarkErrorCode
@@ -59,14 +60,14 @@ class Client:
         self,
         invoke_tx: InvokeFunction,
         block_hash: Optional[CastableToHash] = None,
-        block_number: Optional[int] = None,
+        block_number: Optional[BlockIdentifier] = None,
     ) -> List[int]:
         """
         Calls the contract with given instance of InvokeTransaction
 
         :param invoke_tx: The invoke transaction
         :param block_hash: Block hash to execute the contract at specific point of time
-        :param block_number: Block number to execute the contract at
+        :param block_number: Block number (or "pending" for pending block) to execute the contract at
         :return: List of integers representing contract's function output (structured like calldata)
         """
         response = await self._feeder_gateway.call_contract(
@@ -79,13 +80,13 @@ class Client:
     async def get_block(
         self,
         block_hash: Optional[CastableToHash] = None,
-        block_number: Optional[int] = None,
+        block_number: Optional[BlockIdentifier] = None,
     ) -> JsonObject:
         """
         Retrieve the block's data by its number or hash
 
         :param block_hash: Block's hash
-        :param block_number: Block's number
+        :param block_number: Block's number or "pending" for pending block
         :return: Dictionary with block's transactions
         """
         return await self._feeder_gateway.get_block(block_hash, block_number)
@@ -94,7 +95,7 @@ class Client:
         self,
         contract_address: int,
         block_hash: Optional[CastableToHash] = None,
-        block_number: Optional[int] = None,
+        block_number: Optional[BlockIdentifier] = None,
     ) -> dict:
         """
         Retrieve contract's bytecode and abi.
@@ -102,7 +103,7 @@ class Client:
         :raises BadRequest: when contract is not found
         :param contract_address: Address of the contract on Starknet
         :param block_hash: Get code at specific block hash
-        :param block_number: Get code at given block number
+        :param block_number: Get code at given block number (or "pending" for pending block)
         :return: JSON representation of compiled: {"bytecode": list, "abi": dict}
         """
         code = await self._feeder_gateway.get_code(
@@ -122,14 +123,14 @@ class Client:
         contract_address: int,
         key: int,
         block_hash: Optional[CastableToHash] = None,
-        block_number: Optional[int] = None,
+        block_number: Optional[BlockIdentifier] = None,
     ) -> str:
         """
         :param contract_address: Contract's address on Starknet
         :param key: An address of the storage variable inside of the contract.
                     Can be retrieved using ``starkware.starknet.public.abi.get_storage_var_address(<name>)``
         :param block_hash: Fetches the value of the variable at given block hash
-        :param block_number: See above, uses block number instead of hash
+        :param block_number: See above, uses block number (or "pending" block) instead of hash
         :return: Storage value of given contract
         """
         return await self._feeder_gateway.get_storage_at(

@@ -10,6 +10,7 @@ from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 from starkware.starknet.services.api.contract_definition import ContractDefinition
 from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
     CastableToHash,
+    BlockIdentifier,
 )
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
@@ -133,14 +134,14 @@ class PreparedFunctionCall:
         self,
         signature: Optional[Collection[int]] = None,
         block_hash: Optional[str] = None,
-        block_number: Optional[int] = None,
+        block_number: Optional[BlockIdentifier] = None,
     ) -> NamedTuple:
         """
         Calls a method.
 
         :param signature: Signature to send
         :param block_hash: Optional block hash
-        :param block_number: Optional block number
+        :param block_number: Optional block number or "pending" for pending block
         :return: CallResult or List[int] if return_raw is used
         """
         result = await self.call_raw(
@@ -214,14 +215,21 @@ class ContractFunction:
     async def call(
         self,
         *args,
+        block_hash: Optional[str] = None,
+        block_number: Optional[BlockIdentifier] = None,
         **kwargs,
     ) -> NamedTuple:
         """
+        :param block_hash: Block hash to execute the contract at specific point of time
+        :param block_number: Block number (or "pending" for pending block) to execute the contract function at
+
         Call contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.
         The result is translated from Cairo data to python values.
         Equivalent of ``.prepare(*args, **kwargs).call()``.
         """
-        return await self.prepare(*args, **kwargs).call()
+        return await self.prepare(*args, **kwargs).call(
+            block_hash=block_hash, block_number=block_number
+        )
 
     async def invoke(self, *args, **kwargs) -> InvocationResult:
         """
