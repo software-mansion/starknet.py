@@ -23,22 +23,8 @@ async def test_invoke_and_call(key, value):
     # Deploy simple k-v store
     contract = await Contract.deploy(client=client, compilation_source=map_source)
     contract = await Contract.from_address(contract.address, client)
-    await contract.functions["put"].invoke(key, value)
+    await contract.functions.put.invoke(key, value)
     (response,) = await contract.functions["get"].call(key)
-
-    assert response == value
-
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize("key, value", ((2, 13), (412312, 32134), (12345, 3567)))
-async def test_invoke_and_call_shorthand(key, value):
-    client = DevnetClient()
-
-    # Deploy simple k-v store
-    contract = await Contract.deploy(client=client, compilation_source=map_source)
-    contract = await Contract.from_address(contract.address, client)
-    await contract.fn.put.invoke(key, value)
-    (response,) = await contract.fn.get.call(key)
 
     assert response == value
 
@@ -62,7 +48,7 @@ async def test_signature():
     contract = await Contract.deploy(client=client, compilation_source=user_auth_source)
     contract = await Contract.from_address(contract.address, client)
 
-    fun_call = contract.functions["set_details"].prepare(public_key, details)
+    fun_call = contract.functions.set_details.prepare(public_key, details)
 
     # Verify that it doesn't work with proper signature
     with pytest.raises(Exception):
@@ -73,7 +59,7 @@ async def test_signature():
     invocation = await fun_call.invoke(signature=signature)
     await invocation.wait_for_acceptance()
 
-    (balance,) = await contract.functions["get_details"].call(public_key)
+    (balance,) = await contract.functions.get_details.call(public_key)
 
     assert balance == details
 

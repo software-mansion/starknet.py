@@ -235,23 +235,18 @@ class ContractFunction:
         return get_selector_from_name(self.name)
 
 
-FunctionsRepository = Dict[str, ContractFunction]
-
-
-class FunctionsRepositoryShorthand(dict):
+class FunctionsRepository(dict):
     """
-    A simplified Munch implementation, supporting attribute-style access,
-    a la JavaScript.
-
-    https://github.com/Infinidat/munch
+    A dictionary of contract functions, allowing attribute-style access for
+    function names that do not overlap with dict builtins.
     """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.__dict__ = self
-
-    def __getattribute__(self, __name: str) -> ContractFunction:
-        return cast(ContractFunction, super().__getattribute__(__name))
+    def __getattr__(self, name: str) -> ContractFunction:
+        if name not in self:
+            raise AttributeError(
+                f"'{type(self).__name__}' object has no attribute '{name}'"
+            )
+        return self[name]
 
 
 @add_sync_methods
@@ -277,13 +272,6 @@ class Contract:
         :return: All functions exposed from a contract.
         """
         return self._functions
-
-    @property
-    def fn(self) -> FunctionsRepositoryShorthand:
-        """
-        :return: All functions exposed from a contract, allowing attribue-style access.
-        """
-        return FunctionsRepositoryShorthand(**self._functions)
 
     @property
     def address(self) -> int:
@@ -441,7 +429,7 @@ class Contract:
     def _make_functions(
         cls, contract_data: ContractData, client: Client
     ) -> FunctionsRepository:
-        repository = {}
+        repository = FunctionsRepository()
 
         for abi_entry in contract_data.abi:
             if abi_entry["type"] != "function":
