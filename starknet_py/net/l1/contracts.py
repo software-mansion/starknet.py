@@ -7,6 +7,22 @@ from web3.net import AsyncNet
 from starknet_py.net.models import StarknetChainId
 
 
+def get_w3_provider(endpoint_uri: str):
+    return Web3(
+        AsyncHTTPProvider(endpoint_uri),
+        modules={"eth": AsyncEth, "net": AsyncNet},
+        middlewares=[],
+    )
+
+
+def get_l1_starknet_contract_address(net: StarknetChainId):
+    return {
+        # Contract Proxy addresses
+        StarknetChainId.TESTNET: "0xde29d060D45901Fb19ED6C6e959EB22d8626708e",
+        StarknetChainId.MAINNET: "0xc662c410C0ECf747543f5bA90660f6ABeBD9C8c4",
+    }[net]
+
+
 # pylint: disable=invalid-name
 class StarknetL1Contract:
     def __init__(
@@ -14,16 +30,8 @@ class StarknetL1Contract:
         net: StarknetChainId,
         endpoint_uri: str,
     ):
-        self.w3 = Web3(
-            AsyncHTTPProvider(endpoint_uri),
-            modules={"eth": AsyncEth, "net": AsyncNet},
-            middlewares=[],
-        )
-        self.contract_address = {
-            # Contract Proxy addresses
-            StarknetChainId.TESTNET: "0xde29d060D45901Fb19ED6C6e959EB22d8626708e",
-            StarknetChainId.MAINNET: "0xc662c410C0ECf747543f5bA90660f6ABeBD9C8c4",
-        }[net]
+        self.w3 = get_w3_provider(endpoint_uri)
+        self.contract_address = get_l1_starknet_contract_address(net)
 
     async def l2ToL1Messages(
         self, msg_hash: int, block_number: BlockIdentifier = None

@@ -41,10 +41,10 @@ def int_from_hexbytes(hexb: HexBytes) -> int:
 @add_sync_methods
 @dataclass
 class L1Message:
-    hash: int
+    hash: bytes
 
     @classmethod
-    def from_hash(cls, msg_hash: int) -> "L1Message":
+    def from_hash(cls, msg_hash: bytes) -> "L1Message":
         return cls(hash=msg_hash)
 
     @classmethod
@@ -82,14 +82,14 @@ class L2MessageContent:
 @add_sync_methods
 @dataclass
 class L2Message:
-    hash: int
+    hash: bytes
 
     @classmethod
-    async def from_hash(cls, msg_hash: int) -> "L2Message":
+    def from_hash(cls, msg_hash: bytes) -> "L2Message":
         return cls(hash=msg_hash)
 
     @classmethod
-    async def from_content(cls, msg_content: L2MessageContent) -> "L2Message":
+    def from_content(cls, msg_content: L2MessageContent) -> "L2Message":
         return cls.from_hash(msg_content.hash)
 
     async def get_status(self, chain_id: StarknetChainId, endpoint_uri: str) -> int:
