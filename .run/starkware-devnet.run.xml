@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="starkware-devnet" type="ShConfigurationType">
-    <option name="SCRIPT_TEXT" value="poetry run starknet-devnet --host localhost --port 5000 &amp;; DEVNET_PID=$!; trap 'kill $DEVNET_PID' EXIT" />
+    <option name="SCRIPT_TEXT" value="poetry run starknet-devnet --host localhost --port $DEVNET_PORT &amp;; DEVNET_PID=$!; trap 'kill $DEVNET_PID' EXIT" />
     <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
     <option name="SCRIPT_PATH" value="" />
     <option name="SCRIPT_OPTIONS" value="" />
@@ -11,7 +11,9 @@
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="EXECUTE_IN_TERMINAL" value="true" />
     <option name="EXECUTE_SCRIPT_FILE" value="false" />
-    <envs />
+    <envs>
+      <env name="DEVNET_PORT" value="5001" />
+    </envs>
     <method v="2" />
   </configuration>
 </component>
