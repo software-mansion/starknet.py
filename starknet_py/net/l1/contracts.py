@@ -1,10 +1,10 @@
 from web3._utils.contracts import prepare_transaction
-from web3.types import BlockIdentifier
 from web3 import Web3, AsyncHTTPProvider
 from web3.eth import AsyncEth
 from web3.net import AsyncNet
 
 from starknet_py.net.models import StarknetChainId
+from starknet_py.net.models.address import EthBlockIdentifier
 
 
 def get_w3_provider(endpoint_uri: str):
@@ -34,7 +34,7 @@ class StarknetL1Contract:
         self.contract_address = get_l1_starknet_contract_address(net)
 
     async def l2ToL1Messages(
-        self, msg_hash: int, block_number: BlockIdentifier = None
+        self, msg_hash: int, block_number: EthBlockIdentifier = None
     ) -> int:
         abi = {
             "inputs": [
@@ -59,7 +59,7 @@ class StarknetL1Contract:
         )
 
     async def l1ToL2Messages(
-        self, msg_hash: int, block_number: BlockIdentifier = None
+        self, msg_hash: int, block_number: EthBlockIdentifier = None
     ) -> int:
         abi = {
             "inputs": [
