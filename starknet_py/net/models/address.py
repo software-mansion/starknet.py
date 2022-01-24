@@ -4,12 +4,12 @@ from starkware.cairo.common.hash_state import compute_hash_on_elements
 from starkware.starknet.services.api.gateway.contract_address import (
     CONTRACT_ADDRESS_PREFIX,
 )
-
-from starknet_py.utils.crypto.facade import pedersen_hash
-from starknet_py.utils.docs import as_our_module
 from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
     BlockIdentifier,
 )
+
+from starknet_py.utils.crypto.facade import pedersen_hash
+from starknet_py.utils.docs import as_our_module
 
 AddressRepresentation = Union[int, str]
 Address = int
