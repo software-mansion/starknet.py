@@ -1,4 +1,10 @@
-from .address import AddressRepresentation, Address, parse_address, compute_address
+from .address import (
+    AddressRepresentation,
+    Address,
+    parse_address,
+    compute_address,
+    BlockIdentifier,
+)
 from .transaction import (
     Transaction,
     InvokeFunction,

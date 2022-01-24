@@ -1,5 +1,6 @@
 import json
 import os
+from pathlib import Path
 from typing import List, Tuple, Union, NewType
 
 from starkware.cairo.lang.cairo_constants import DEFAULT_PRIME
@@ -11,16 +12,29 @@ from starkware.cairo.lang.compiler.preprocessor.preprocess_codes import preproce
 from starkware.starknet.compiler.compile import assemble_starknet_contract
 from starkware.starknet.compiler.starknet_pass_manager import starknet_pass_manager
 
+CairoSourceCode = NewType("CairoSourceCode", str)
+CairoFilename = NewType("CairoFilename", str)
+StarknetCompilationSource = NewType(
+    "CairoSource", Union[CairoSourceCode, List[CairoFilename]]
+)
 
-CairoSources = Union[dict, str]
-StarknetCompilationSource = NewType("CairoSource", Union[str, CairoSources])
+
+def load_cairo_source_code(filename: CairoFilename) -> str:
+    source_file = Path(filename)
+
+    if not source_file.is_file():
+        raise TypeError(f"{filename} does not exist")
+
+    if source_file.suffix != ".cairo":
+        raise TypeError(f"{filename} is not a cairo source file")
+
+    return Path(filename).read_text("utf-8")
 
 
-def get_codes_from_source(src: StarknetCompilationSource) -> List[Tuple[str, str]]:
+def load_source_code(src: StarknetCompilationSource) -> List[Tuple[str, str]]:
     if isinstance(src, str):
-        src = {str(hash(src)): src}
-
-    return [(v, k) for k, v in src.items()]
+        return [(src, str(hash(src)))]
+    return [(load_cairo_source_code(filename), filename) for filename in src]
 
 
 def starknet_compile(source: StarknetCompilationSource):
@@ -38,7 +52,7 @@ def starknet_compile(source: StarknetCompilationSource):
     )
 
     preprocessed = preprocess_codes(
-        codes=get_codes_from_source(source),
+        codes=load_source_code(source),
         pass_manager=pass_manager,
         main_scope=MAIN_SCOPE,
     )

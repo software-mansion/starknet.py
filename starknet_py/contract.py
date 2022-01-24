@@ -21,6 +21,7 @@ from starknet_py.net.models import (
     compute_address,
     compute_invoke_hash,
 )
+from starknet_py.net.models.address import BlockIdentifier
 from starknet_py.utils.compiler.starknet_compile import (
     StarknetCompilationSource,
     starknet_compile,
@@ -133,14 +134,14 @@ class PreparedFunctionCall:
         self,
         signature: Optional[Collection[int]] = None,
         block_hash: Optional[str] = None,
-        block_number: Optional[int] = None,
+        block_number: Optional[BlockIdentifier] = None,
     ) -> NamedTuple:
         """
         Calls a method.
 
         :param signature: Signature to send
         :param block_hash: Optional block hash
-        :param block_number: Optional block number
+        :param block_number: Optional block number or "pending" for pending block
         :return: CallResult or List[int] if return_raw is used
         """
         result = await self.call_raw(
@@ -214,14 +215,21 @@ class ContractFunction:
     async def call(
         self,
         *args,
+        block_hash: Optional[str] = None,
+        block_number: Optional[BlockIdentifier] = None,
         **kwargs,
     ) -> NamedTuple:
         """
+        :param block_hash: Block hash to execute the contract at specific point of time
+        :param block_number: Block number (or "pending" for pending block) to execute the contract function at
+
         Call contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.
         The result is translated from Cairo data to python values.
         Equivalent of ``.prepare(*args, **kwargs).call()``.
         """
-        return await self.prepare(*args, **kwargs).call()
+        return await self.prepare(*args, **kwargs).call(
+            block_hash=block_hash, block_number=block_number
+        )
 
     async def invoke(self, *args, **kwargs) -> InvocationResult:
         """
@@ -295,7 +303,7 @@ class Contract:
         Either `compilation_source` or `compiled_contract` is required.
 
         :param client: Client
-        :param compilation_source: string of source code or a dict ``{FILENAME: CONTENT}``.
+        :param compilation_source: string containing source code or a list of source files paths
         :param compiled_contract: string containing compiled contract. Useful for reading compiled contract from a file.
         :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
         :param salt: Optional salt. Random value is selected if it is not provided.
@@ -336,7 +344,7 @@ class Contract:
         Either `compilation_source` or `compiled_contract` is required.
 
         :param salt: int
-        :param compilation_source: string of source code or a dict ``{FILENAME: CONTENT}``.
+        :param compilation_source: string containing source code or a list of source files paths
         :param compiled_contract: string containing compiled contract. Useful for reading compiled contract from a file.
         :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
         :return: contract's address
@@ -362,7 +370,7 @@ class Contract:
         Computes hash for given contract.
         Either `compilation_source` or `compiled_contract` is required.
 
-        :param compilation_source: string of source code or a dict ``{FILENAME: CONTENT}``.
+        :param compilation_source: string containing source code or a list of source files paths
         :param compiled_contract: string containing compiled contract. Useful for reading compiled contract from a file.
         :return:
         """
