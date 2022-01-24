@@ -159,7 +159,8 @@ class L2Message:
         :param endpoint_uri: Ethereum RPC URL (only HTTP endpoints are supported for now)
         :param block_number: Optional. `EthBlockIdentifier` which is a hex address, integer,
                              or one of "latest", "earliest", "pending"
-        :return: an integer (0 or 1, 0 meaning not received or a consumed message, and 1 meaning a queued message waiting for consumer)
+        :return: an integer (0 or 1, 0 meaning not received or a consumed message,
+                 and 1 meaning a queued message waiting for consumer)
         """
         return int_from_hexbytes(
             await StarknetL1Contract(chain_id, endpoint_uri).l1ToL2Messages(
