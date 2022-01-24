@@ -40,13 +40,13 @@ test = ["test_unit", "test_e2e"]
 test_unit.shell = "coverage run -m pytest starknet_py --ignore=starknet_py/tests/e2e"
 test_unit.env = { COVERAGE_FILE="unit.coverage" }
 test_e2e.shell = """
-    starknet-devnet --host localhost --port 5000 &
+    starknet-devnet --host localhost --port $DEVNET_PORT &
     DEVNET_PID=$!
     sleep 1
     coverage run -m pytest starknet_py/tests/e2e
     kill $DEVNET_PID
 """
-test_e2e.env = { COVERAGE_FILE="e2e.coverage" }
+test_e2e.env = { COVERAGE_FILE="e2e.coverage", DEVNET_PORT="5001" }
 coverage_combine.shell = "coverage combine unit.coverage e2e.coverage"
 test_report = [{ shell = "poe coverage_combine" }, { shell = "coverage report" }]
 test_html = [
