@@ -301,3 +301,112 @@ Conversion functions and references:
 
 - :obj:`encode_shortstring <starknet_py.cairo.felt.encode_shortstring>`
 - :obj:`decode_shortstring <starknet_py.cairo.felt.decode_shortstring>`
+
+
+
+L1 <> L2 messaging
+------------------
+
+To retrieve the L1 -> L2 or L2 -> L1 message status, you need to provide some data that you used to create that message.
+Then after creating the message's representation, you can query it's status.
+
+
+
+L1 -> L2 message workflows
+##########################
+
+The message's status is an `int`, representing the number of unconsumed messages on L2 with that exact content.
+Since the `nonce`'s value will always be unique for each message, this value is either 0 or 1
+(0 meaning the message is consumed or not received yet, and 1 for unconsumed, queued message).
+
+.. code-block:: python
+
+    from starknet_py.net.l1.messages import (
+        L2Message,
+        L2MessageContent,
+    )
+    from starknet_py.net.models import StarknetChainId
+
+    l1_to_l2_msg = L2Message.from_content(
+            L2MessageContent(
+                l1_sender=123, # Integer representation of L1 hex address
+                l2_recipient="0x123123123", # Either a hex L2 address, or it's integer representation
+                nonce=1, # Can be retrieved from L1 transaction's receipt (the one containing the sent message)
+                function_name="dummy_name", # L2 recipient function name
+                payload=[32, 32, 32, 32], # L2 Function calldata, list of ints
+            )
+        )
+        status = await l1_to_l2_msg.get_status(  # For sync version, use 'get_status_sync'
+            chain_id=StarknetChainId.TESTNET,
+            endpoint_uri="https://my-rpc-endpoint.com/", # Only HTTP RPC endpoints are supported for now
+            block_number="pending" # Block number or block representation literal. Optional parameter
+        )
+
+The alternative would be providing just the hash of the message (if you have it calculated), instead of message's content:
+
+.. code-block:: python
+
+    from starknet_py.net.l1.messages import (
+        L2Message,
+        L2MessageContent,
+    )
+    from starknet_py.net.models import StarknetChainId
+
+    l1_to_l2_msg = L2Message.from_hash(
+        (123).to_bytes(32, "big") # Provide 32 bytes as an input here, instead of message's content
+    )
+
+    status = await l1_to_l2_msg.get_status(  # For sync version, use 'get_status_sync'
+        chain_id=StarknetChainId.TESTNET,
+        endpoint_uri="https://my-rpc-endpoint.com/", # Only HTTP RPC endpoints are supported for now
+        block_number="pending" # Block number or block representation literal. Optional parameter
+    )
+
+
+L2 -> L1 message workflows
+##########################
+
+As in previous section, you can provide L1 message content, and then fetch the status.
+The status is an `int`, representing the number of unconsumed messages on L1 of that exact content.
+
+.. code-block:: python
+
+    from starknet_py.net.l1.messages import (
+        L2Message,
+        L2MessageContent,
+    )
+    from starknet_py.net.models import StarknetChainId
+
+    l2_to_l1_msg = await L1Message.from_content(
+        L1MessageContent(
+            l2_sender='0x123123123', # Either a hex L2 address, or it's integer representation
+            l1_recipient=123, # Integer representation of L1 hex address
+            payload=[123, 123]
+        )
+    )
+
+    status = await l2_to_l1_msg.get_status(  # For sync version, use 'get_status_sync'
+        chain_id=StarknetChainId.TESTNET,
+        endpoint_uri="https://my-rpc-endpoint.com/", # Only HTTP RPC endpoints are supported for now
+        block_number="pending" # Block number or block representation literal
+    )
+
+Providing the hash is also possible (32 bytes):
+
+.. code-block:: python
+
+    from starknet_py.net.l1.messages import (
+        L2Message,
+        L2MessageContent,
+    )
+    from starknet_py.net.models import StarknetChainId
+
+    l2_to_l1_msg = await L2Message.from_hash(
+        (123).to_bytes(32, "big") # Provide 32 bytes as an input here, instead of message's content
+    )
+
+    status = await l2_to_l1_msg.get_status(  # For sync version, use 'get_status_sync'
+        chain_id=StarknetChainId.TESTNET,
+        endpoint_uri="https://my-rpc-endpoint.com/", # Only HTTP RPC endpoints are supported for now
+        block_number="pending" # Block number or block representation literal
+    )

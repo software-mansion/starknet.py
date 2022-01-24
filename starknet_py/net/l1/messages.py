@@ -3,9 +3,15 @@ from functools import reduce
 from typing import List, Optional
 from eth_utils import keccak
 from hexbytes import HexBytes
+from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.net.l1.contracts import StarknetL1Contract
-from starknet_py.net.models import StarknetChainId, EthBlockIdentifier
+from starknet_py.net.models import (
+    StarknetChainId,
+    EthBlockIdentifier,
+    AddressRepresentation,
+    parse_address,
+)
 from starknet_py.utils.sync import add_sync_methods
 
 
@@ -18,15 +24,15 @@ def encode_packed(*args: List[int]) -> bytes:
 
 @dataclass
 class L1MessageContent:
-    l2_sender: int
-    l1_recipient: int
+    l2_sender: AddressRepresentation
+    l1_recipient: int  # Integer representation of l1 hex address
     payload: List[int]
 
     @property
     def hash(self):
         return keccak(
             encode_packed(
-                self.l2_sender,
+                parse_address(self.l2_sender),
                 self.l1_recipient,
                 len(self.payload),
                 *self.payload,
@@ -41,7 +47,7 @@ def int_from_hexbytes(hexb: HexBytes) -> int:
 @add_sync_methods
 @dataclass
 class L1Message:
-    hash: bytes
+    hash: bytes  # 32 bytes hash representation
 
     @classmethod
     def from_hash(cls, msg_hash: bytes) -> "L1Message":
@@ -66,10 +72,10 @@ class L1Message:
 
 @dataclass
 class L2MessageContent:
-    l1_sender: int
-    l2_recipient: int
+    l1_sender: int  # Integer representation of l1 hex address
+    l2_recipient: AddressRepresentation
     nonce: int
-    selector: int
+    function_name: str
     payload: List[int]
 
     @property
@@ -77,9 +83,9 @@ class L2MessageContent:
         return keccak(
             encode_packed(
                 self.l1_sender,
-                self.l2_recipient,
+                parse_address(self.l2_recipient),
                 self.nonce,
-                self.selector,
+                get_selector_from_name(self.function_name),
                 len(self.payload),
                 *self.payload,
             )
@@ -89,7 +95,7 @@ class L2MessageContent:
 @add_sync_methods
 @dataclass
 class L2Message:
-    hash: bytes
+    hash: bytes  # 32 bytes hash representation
 
     @classmethod
     def from_hash(cls, msg_hash: bytes) -> "L2Message":

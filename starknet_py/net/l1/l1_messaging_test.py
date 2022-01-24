@@ -46,7 +46,7 @@ async def test_l1_l2_messages(mocker: pytest_mock.MockerFixture):
             l1_sender=123,
             l2_recipient=123,
             nonce=1,
-            selector=123,
+            function_name="dummy",
             payload=[],
         )
     ).get_status(chain_id=StarknetChainId.TESTNET, endpoint_uri="dummy")
