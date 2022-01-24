@@ -312,8 +312,8 @@ Then after creating the message's representation, you can query it's status.
 
 
 
-L1 -> L2 message workflows
-##########################
+L1 -> L2 messages
+#################
 
 The message's status is an `int`, representing the number of unconsumed messages on L2 with that exact content.
 Since the `nonce`'s value will always be unique for each message, this value is either 0 or 1
@@ -363,8 +363,8 @@ The alternative would be providing just the hash of the message (if you have it 
     )
 
 
-L2 -> L1 message workflows
-##########################
+L2 -> L1 messages
+#################
 
 As in previous section, you can provide L1 message content, and then fetch the status.
 The status is an `int`, representing the number of unconsumed messages on L1 of that exact content.

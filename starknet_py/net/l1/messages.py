@@ -24,6 +24,8 @@ def encode_packed(*args: List[int]) -> bytes:
 
 @dataclass
 class L1MessageContent:
+    """A dataclass representing a message's payload (from L1 to L2)"""
+
     l2_sender: AddressRepresentation
     l1_recipient: int  # Integer representation of l1 hex address
     payload: List[int]
@@ -47,14 +49,29 @@ def int_from_hexbytes(hexb: HexBytes) -> int:
 @add_sync_methods
 @dataclass
 class L1Message:
+    """
+
+    Class which enables you to check L2 -> L1 messages status
+    """
+
     hash: bytes  # 32 bytes hash representation
 
     @classmethod
     def from_hash(cls, msg_hash: bytes) -> "L1Message":
+        """
+
+        :param msg_hash: Message's hash
+        :return: Instance of `L1Message`
+        """
         return cls(hash=msg_hash)
 
     @classmethod
     def from_content(cls, msg_content: L1MessageContent) -> "L1Message":
+        """
+
+        :param msg_content: Dataclass representing L1 message's content
+        :return: Instance of `L1Message`
+        """
         return cls.from_hash(msg_content.hash)
 
     async def get_status(
@@ -63,6 +80,14 @@ class L1Message:
         endpoint_uri: str,
         block_number: Optional[EthBlockIdentifier] = None,
     ) -> int:
+        """
+
+        :param chain_id: A `StarknetChainId` (which contains StarkNet core contract deployed)
+        :param endpoint_uri: Ethereum RPC URL (only HTTP endpoints are supported for now)
+        :param block_number: Optional. `EthBlockIdentifier` which is a hex address, integer,
+                             or one of "latest", "earliest", "pending"
+        :return: an integer (ranging from 0 upwards, representing the number of messages on L1 waiting for consumption)
+        """
         return int_from_hexbytes(
             await StarknetL1Contract(chain_id, endpoint_uri).l2ToL1Messages(
                 self.hash, block_number
@@ -72,6 +97,8 @@ class L1Message:
 
 @dataclass
 class L2MessageContent:
+    """A dataclass representing a message's payload (from L2 to L1)"""
+
     l1_sender: int  # Integer representation of l1 hex address
     l2_recipient: AddressRepresentation
     nonce: int
@@ -95,14 +122,29 @@ class L2MessageContent:
 @add_sync_methods
 @dataclass
 class L2Message:
+    """
+
+    Class which enables you to check L1 -> L2 messages status
+    """
+
     hash: bytes  # 32 bytes hash representation
 
     @classmethod
     def from_hash(cls, msg_hash: bytes) -> "L2Message":
+        """
+
+        :param msg_hash: Message's hash
+        :return: Instance of `L2Message`
+        """
         return cls(hash=msg_hash)
 
     @classmethod
     def from_content(cls, msg_content: L2MessageContent) -> "L2Message":
+        """
+
+        :param msg_content: Dataclass representing L2 message's content
+        :return: Instance of `L2Message`
+        """
         return cls.from_hash(msg_content.hash)
 
     async def get_status(
@@ -111,6 +153,14 @@ class L2Message:
         endpoint_uri: str,
         block_number: Optional[EthBlockIdentifier] = None,
     ) -> int:
+        """
+
+        :param chain_id: A `StarknetChainId` (which contains StarkNet core contract deployed)
+        :param endpoint_uri: Ethereum RPC URL (only HTTP endpoints are supported for now)
+        :param block_number: Optional. `EthBlockIdentifier` which is a hex address, integer,
+                             or one of "latest", "earliest", "pending"
+        :return: an integer (0 or 1, 0 meaning not received or a consumed message, and 1 meaning a queued message waiting for consumer)
+        """
         return int_from_hexbytes(
             await StarknetL1Contract(chain_id, endpoint_uri).l1ToL2Messages(
                 self.hash, block_number
