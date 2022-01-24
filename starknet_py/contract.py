@@ -295,7 +295,7 @@ class Contract:
         Either `compilation_source` or `compiled_contract` is required.
 
         :param client: Client
-        :param compilation_source: string of source code or a dict ``{FILENAME: CONTENT}``.
+        :param compilation_source: string containing source code or a list of source files paths
         :param compiled_contract: string containing compiled contract. Useful for reading compiled contract from a file.
         :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
         :param salt: Optional salt. Random value is selected if it is not provided.
@@ -336,7 +336,7 @@ class Contract:
         Either `compilation_source` or `compiled_contract` is required.
 
         :param salt: int
-        :param compilation_source: string of source code or a dict ``{FILENAME: CONTENT}``.
+        :param compilation_source: string containing source code or a list of source files paths
         :param compiled_contract: string containing compiled contract. Useful for reading compiled contract from a file.
         :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
         :return: contract's address
@@ -362,7 +362,7 @@ class Contract:
         Computes hash for given contract.
         Either `compilation_source` or `compiled_contract` is required.
 
-        :param compilation_source: string of source code or a dict ``{FILENAME: CONTENT}``.
+        :param compilation_source: string containing source code or a list of source files paths
         :param compiled_contract: string containing compiled contract. Useful for reading compiled contract from a file.
         :return:
         """
