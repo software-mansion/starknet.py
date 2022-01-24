@@ -4,7 +4,10 @@ import pytest
 import pytest_mock
 from eth_abi.codec import ABICodec
 from web3._utils.abi import build_default_registry
+from web3.eth import AsyncEth
+from web3.net import AsyncNet
 
+from starknet_py.net.l1.contracts import get_w3_provider
 from starknet_py.net.l1.messages import (
     L1Message,
     L2Message,
@@ -12,6 +15,12 @@ from starknet_py.net.l1.messages import (
     L2MessageContent,
 )
 from starknet_py.net.models import StarknetChainId
+
+
+def test_l1_provider():
+    provider = get_w3_provider("dummy")
+    assert isinstance(provider.eth, AsyncEth)
+    assert isinstance(provider.net, AsyncNet)
 
 
 @pytest.mark.asyncio
