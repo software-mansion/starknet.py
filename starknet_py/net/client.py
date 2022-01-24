@@ -8,12 +8,12 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
     FeederGatewayClient,
     CastableToHash,
     JsonObject,
-    BlockIdentifier,
 )
 from starkware.starknet.services.api.gateway.gateway_client import GatewayClient
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
 from starknet_py.constants import TxStatus, ACCEPTED_STATUSES
+from starknet_py.net.models.address import BlockIdentifier
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.net.models import (
     InvokeFunction,

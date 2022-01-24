@@ -6,6 +6,10 @@ from starkware.starknet.services.api.gateway.contract_address import (
 )
 
 from starknet_py.utils.crypto.facade import pedersen_hash
+from starknet_py.utils.docs import as_our_module
+from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
+    BlockIdentifier,
+)
 
 AddressRepresentation = Union[int, str]
 Address = int
@@ -46,3 +50,6 @@ def compute_address(
         ],
         hash_func=pedersen_hash,
     )
+
+
+BlockIdentifier = as_our_module(BlockIdentifier)

@@ -10,7 +10,6 @@ from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 from starkware.starknet.services.api.contract_definition import ContractDefinition
 from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
     CastableToHash,
-    BlockIdentifier,
 )
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
@@ -22,6 +21,7 @@ from starknet_py.net.models import (
     compute_address,
     compute_invoke_hash,
 )
+from starknet_py.net.models.address import BlockIdentifier
 from starknet_py.utils.compiler.starknet_compile import (
     StarknetCompilationSource,
     starknet_compile,
