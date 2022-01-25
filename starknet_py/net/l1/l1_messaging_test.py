@@ -9,10 +9,10 @@ from web3.net import AsyncNet
 
 from starknet_py.net.l1.contracts import get_w3_provider
 from starknet_py.net.l1.messages import (
-    L1Message,
-    L2Message,
-    L1MessageContent,
-    L2MessageContent,
+    L1ToL2Message,
+    L2ToL1Message,
+    L1ToL2MessageContent,
+    L2ToL1MessageContent,
 )
 from starknet_py.net.models import StarknetChainId
 
@@ -37,12 +37,12 @@ async def test_l1_l2_messages(mocker: pytest_mock.MockerFixture):
 
     mocker.patch("starknet_py.net.l1.contracts.get_w3_provider", return_value=mock_w3)
 
-    l2_to_l1 = await L1Message.from_content(
-        L1MessageContent(l2_sender=123, l1_recipient=123, payload=[])
+    l2_to_l1 = await L2ToL1Message.from_content(
+        L2ToL1MessageContent(l2_sender=123, l1_recipient=123, payload=[])
     ).count_queued(chain_id=StarknetChainId.TESTNET, endpoint_uri="dummy")
 
-    l1_to_l2 = await L2Message.from_content(
-        L2MessageContent(
+    l1_to_l2 = await L1ToL2Message.from_content(
+        L1ToL2MessageContent(
             l1_sender=123,
             l2_recipient=123,
             nonce=1,

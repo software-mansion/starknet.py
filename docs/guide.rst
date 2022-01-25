@@ -310,6 +310,10 @@ L1 <> L2 messaging
 To retrieve the L1 -> L2 or L2 -> L1 message count, you need to provide some data that you used to create that message.
 Then after creating the message's representation, you can query it's current count.
 
+You can find out more about L1 <> L2 messaging here: https://starknet.io/documentation/l1-l2-messaging/
+
+Full API description :ref:`here<Messaging>`.
+
 
 
 L1 -> L2 messages
@@ -327,8 +331,11 @@ Since the `nonce`'s value will always be unique for each message, this value is 
     )
     from starknet_py.net.models import StarknetChainId
 
-    l1_to_l2_msg = L2Message.from_content(
-            L2MessageContent(
+        ## All of the construction methods shown below are correct:
+
+        # 1. From message content
+        l1_to_l2_msg = L1ToL2Message.from_content(
+            L1ToL2MessageContent(
                 l1_sender=123, # Integer representation of L1 hex address
                 l2_recipient="0x123123123", # Either a hex L2 address, or it's integer representation
                 nonce=1, # Can be retrieved from L1 transaction's receipt (the one containing the sent message)
@@ -336,31 +343,29 @@ Since the `nonce`'s value will always be unique for each message, this value is 
                 payload=[32, 32, 32, 32], # L2 Function calldata, list of ints
             )
         )
+
+        # 2. From message hash
+        l1_to_l2_msg = L1ToL2Message.from_hash(
+            (123).to_bytes(32, "big") # Provide 32 bytes as an input here, instead of message's content
+        )
+
+        # 3. From transaction receipt
+        w3 = web3.Web3(web3.providers.HTTPProvider("https://my-rpc-endpoint.com/"))
+        tx_receipt = w3.eth.wait_for_transaction_receipt("0x123123123")
+        l2_to_l1_msg = L2ToL1Message.from_tx_receipt(tx_receipt)
+
+        # 4. From transaction hash (fetches the receipt for you)
+        l2_to_l1_msg = await L2ToL1Message.from_tx_hash( # For sync version, use 'from_tx_hash_sync'
+            tx_hash="0x123123123",
+            endpoint_uri="https://my-rpc-endpoint.com/", # Only HTTP RPC endpoints are supported for now
+        )
+
+        # After message construction, we can fetch queued messages count
         count = await l1_to_l2_msg.count_queued(  # For sync version, use 'count_queued_sync'
             chain_id=StarknetChainId.TESTNET,
             endpoint_uri="https://my-rpc-endpoint.com/", # Only HTTP RPC endpoints are supported for now
             block_number="pending" # Block number or block representation literal. Optional parameter
         )
-
-The alternative would be providing just the hash of the message (if you have it calculated), instead of message's content:
-
-.. code-block:: python
-
-    from starknet_py.net.l1.messages import (
-        L2Message,
-        L2MessageContent,
-    )
-    from starknet_py.net.models import StarknetChainId
-
-    l1_to_l2_msg = L2Message.from_hash(
-        (123).to_bytes(32, "big") # Provide 32 bytes as an input here, instead of message's content
-    )
-
-    count = await l1_to_l2_msg.count_queued(  # For sync version, use 'count_queued_sync'
-        chain_id=StarknetChainId.TESTNET,
-        endpoint_uri="https://my-rpc-endpoint.com/", # Only HTTP RPC endpoints are supported for now
-        block_number="pending" # Block number or block representation literal. Optional parameter
-    )
 
 
 L2 -> L1 messages
@@ -372,39 +377,38 @@ The return value is an `int`, representing the number of unconsumed messages on 
 .. code-block:: python
 
     from starknet_py.net.l1.messages import (
-        L2Message,
-        L2MessageContent,
+        L2ToL1Message,
+        L2ToL1MessageContent,
     )
+    from starknet_py.net.client import Client
     from starknet_py.net.models import StarknetChainId
 
-    l2_to_l1_msg = await L1Message.from_content(
-        L1MessageContent(
+    ## All of the construction methods shown below are correct:
+
+    # 1. From message content
+    l2_to_l1_msg = L2ToL1Message.from_content(
+        L2ToL1MessageContent(
             l2_sender='0x123123123', # Either a hex L2 address, or it's integer representation
             l1_recipient=123, # Integer representation of L1 hex address
             payload=[123, 123]
         )
     )
 
-    count = await l2_to_l1_msg.count_queued(  # For sync version, use 'count_queued_sync'
-        chain_id=StarknetChainId.TESTNET,
-        endpoint_uri="https://my-rpc-endpoint.com/", # Only HTTP RPC endpoints are supported for now
-        block_number="pending" # Block number or block representation literal
-    )
-
-Providing the hash is also possible (32 bytes):
-
-.. code-block:: python
-
-    from starknet_py.net.l1.messages import (
-        L2Message,
-        L2MessageContent,
-    )
-    from starknet_py.net.models import StarknetChainId
-
-    l2_to_l1_msg = await L2Message.from_hash(
+    # 2. From message hash
+    l2_to_l1_msg = L2ToL1Message.from_hash(
         (123).to_bytes(32, "big") # Provide 32 bytes as an input here, instead of message's content
     )
 
+    # 3. From transaction receipt
+    tx_receipt = await Client("testnet").get_transaction_receipt("0x123123123")
+    l2_to_l1_msg = L2ToL1Message.from_tx_receipt(tx_receipt)
+
+    # 4. From transaction hash (fetches the receipt for you)
+    l2_to_l1_msg = await L2ToL1Message.from_tx_hash( # For sync version, use 'from_tx_hash_sync'
+        "0x123123123", Client("testnet")
+    )
+
+    # After message construction, we can fetch queued messages count
     count = await l2_to_l1_msg.count_queued(  # For sync version, use 'count_queued_sync'
         chain_id=StarknetChainId.TESTNET,
         endpoint_uri="https://my-rpc-endpoint.com/", # Only HTTP RPC endpoints are supported for now
