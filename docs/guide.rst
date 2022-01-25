@@ -307,15 +307,15 @@ Conversion functions and references:
 L1 <> L2 messaging
 ------------------
 
-To retrieve the L1 -> L2 or L2 -> L1 message status, you need to provide some data that you used to create that message.
-Then after creating the message's representation, you can query it's status.
+To retrieve the L1 -> L2 or L2 -> L1 message count, you need to provide some data that you used to create that message.
+Then after creating the message's representation, you can query it's current count.
 
 
 
 L1 -> L2 messages
 #################
 
-The message's status is an `int`, representing the number of unconsumed messages on L2 with that exact content.
+The message's count is an `int`, representing the number of unconsumed messages on L2 with that exact content.
 Since the `nonce`'s value will always be unique for each message, this value is either 0 or 1
 (0 meaning the message is consumed or not received yet, and 1 for unconsumed, queued message).
 
@@ -336,7 +336,7 @@ Since the `nonce`'s value will always be unique for each message, this value is 
                 payload=[32, 32, 32, 32], # L2 Function calldata, list of ints
             )
         )
-        status = await l1_to_l2_msg.get_status(  # For sync version, use 'get_status_sync'
+        count = await l1_to_l2_msg.count_queued(  # For sync version, use 'count_queued_sync'
             chain_id=StarknetChainId.TESTNET,
             endpoint_uri="https://my-rpc-endpoint.com/", # Only HTTP RPC endpoints are supported for now
             block_number="pending" # Block number or block representation literal. Optional parameter
@@ -356,7 +356,7 @@ The alternative would be providing just the hash of the message (if you have it 
         (123).to_bytes(32, "big") # Provide 32 bytes as an input here, instead of message's content
     )
 
-    status = await l1_to_l2_msg.get_status(  # For sync version, use 'get_status_sync'
+    count = await l1_to_l2_msg.count_queued(  # For sync version, use 'count_queued_sync'
         chain_id=StarknetChainId.TESTNET,
         endpoint_uri="https://my-rpc-endpoint.com/", # Only HTTP RPC endpoints are supported for now
         block_number="pending" # Block number or block representation literal. Optional parameter
@@ -366,8 +366,8 @@ The alternative would be providing just the hash of the message (if you have it 
 L2 -> L1 messages
 #################
 
-As in previous section, you can provide L1 message content, and then fetch the status.
-The status is an `int`, representing the number of unconsumed messages on L1 of that exact content.
+As in previous section, you can provide L1 message content, and then fetch the queued message count.
+The return value is an `int`, representing the number of unconsumed messages on L1 of that exact content.
 
 .. code-block:: python
 
@@ -385,7 +385,7 @@ The status is an `int`, representing the number of unconsumed messages on L1 of 
         )
     )
 
-    status = await l2_to_l1_msg.get_status(  # For sync version, use 'get_status_sync'
+    count = await l2_to_l1_msg.count_queued(  # For sync version, use 'count_queued_sync'
         chain_id=StarknetChainId.TESTNET,
         endpoint_uri="https://my-rpc-endpoint.com/", # Only HTTP RPC endpoints are supported for now
         block_number="pending" # Block number or block representation literal
@@ -405,7 +405,7 @@ Providing the hash is also possible (32 bytes):
         (123).to_bytes(32, "big") # Provide 32 bytes as an input here, instead of message's content
     )
 
-    status = await l2_to_l1_msg.get_status(  # For sync version, use 'get_status_sync'
+    count = await l2_to_l1_msg.count_queued(  # For sync version, use 'count_queued_sync'
         chain_id=StarknetChainId.TESTNET,
         endpoint_uri="https://my-rpc-endpoint.com/", # Only HTTP RPC endpoints are supported for now
         block_number="pending" # Block number or block representation literal

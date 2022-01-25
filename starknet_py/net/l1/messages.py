@@ -74,7 +74,7 @@ class L1Message:
         """
         return cls.from_hash(msg_content.hash)
 
-    async def get_status(
+    async def count_queued(
         self,
         chain_id: StarknetChainId,
         endpoint_uri: str,
@@ -89,7 +89,7 @@ class L1Message:
         :return: an integer (ranging from 0 upwards, representing the number of messages on L1 waiting for consumption)
         """
         return int_from_hexbytes(
-            await StarknetL1Contract(chain_id, endpoint_uri).l2ToL1Messages(
+            await StarknetL1Contract(chain_id, endpoint_uri).l2_to_l1_messages(
                 self.hash, block_number
             )
         )
@@ -147,7 +147,7 @@ class L2Message:
         """
         return cls.from_hash(msg_content.hash)
 
-    async def get_status(
+    async def count_queued(
         self,
         chain_id: StarknetChainId,
         endpoint_uri: str,
@@ -163,7 +163,7 @@ class L2Message:
                  and 1 meaning a queued message waiting for consumer)
         """
         return int_from_hexbytes(
-            await StarknetL1Contract(chain_id, endpoint_uri).l1ToL2Messages(
+            await StarknetL1Contract(chain_id, endpoint_uri).l1_to_l2_messages(
                 self.hash, block_number
             )
         )

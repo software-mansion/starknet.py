@@ -23,7 +23,6 @@ def get_l1_starknet_contract_address(net: StarknetChainId):
     }[net]
 
 
-# pylint: disable=invalid-name
 class StarknetL1Contract:
     def __init__(
         self,
@@ -33,7 +32,7 @@ class StarknetL1Contract:
         self.w3 = get_w3_provider(endpoint_uri)
         self.contract_address = get_l1_starknet_contract_address(net)
 
-    async def l2ToL1Messages(
+    async def l2_to_l1_messages(
         self, msg_hash: int, block_number: EthBlockIdentifier = None
     ) -> int:
         abi = {
@@ -58,7 +57,7 @@ class StarknetL1Contract:
             block_number,
         )
 
-    async def l1ToL2Messages(
+    async def l1_to_l2_messages(
         self, msg_hash: int, block_number: EthBlockIdentifier = None
     ) -> int:
         abi = {

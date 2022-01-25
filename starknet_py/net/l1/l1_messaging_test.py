@@ -39,7 +39,7 @@ async def test_l1_l2_messages(mocker: pytest_mock.MockerFixture):
 
     l2_to_l1 = await L1Message.from_content(
         L1MessageContent(l2_sender=123, l1_recipient=123, payload=[])
-    ).get_status(chain_id=StarknetChainId.TESTNET, endpoint_uri="dummy")
+    ).count_queued(chain_id=StarknetChainId.TESTNET, endpoint_uri="dummy")
 
     l1_to_l2 = await L2Message.from_content(
         L2MessageContent(
@@ -49,7 +49,7 @@ async def test_l1_l2_messages(mocker: pytest_mock.MockerFixture):
             function_name="dummy",
             payload=[],
         )
-    ).get_status(chain_id=StarknetChainId.TESTNET, endpoint_uri="dummy")
+    ).count_queued(chain_id=StarknetChainId.TESTNET, endpoint_uri="dummy")
 
     assert l1_to_l2 == mock_messages_amt
     assert l2_to_l1 == mock_messages_amt
