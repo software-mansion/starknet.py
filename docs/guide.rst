@@ -330,6 +330,7 @@ Since the `nonce`'s value will always be unique for each message, this value is 
         L2MessageContent,
     )
     from starknet_py.net.models import StarknetChainId
+    from starknet_py.contract import ContractFunction
 
         ## All of the construction methods shown below are correct:
 
@@ -339,7 +340,7 @@ Since the `nonce`'s value will always be unique for each message, this value is 
                 l1_sender=123, # Integer representation of L1 hex address
                 l2_recipient="0x123123123", # Either a hex L2 address, or it's integer representation
                 nonce=1, # Can be retrieved from L1 transaction's receipt (the one containing the sent message)
-                function_name="dummy_name", # L2 recipient function name
+                selector=ContractFunction.get_selector("dummy_name"), # L2 function selector based on function name
                 payload=[32, 32, 32, 32], # L2 Function calldata, list of ints
             )
         )

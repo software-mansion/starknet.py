@@ -138,7 +138,7 @@ class L1ToL2MessageContent:
     l1_sender: int  # Integer representation of l1 hex address
     l2_recipient: AddressRepresentation
     nonce: int
-    function_name: str
+    selector: int
     payload: List[int]
 
     @property
@@ -148,7 +148,7 @@ class L1ToL2MessageContent:
                 self.l1_sender,
                 parse_address(self.l2_recipient),
                 self.nonce,
-                get_selector_from_name(self.function_name),
+                self.selector,
                 len(self.payload),
                 *self.payload,
             )
@@ -161,7 +161,16 @@ class L1ToL2MessageContent:
             .events.LogMessageToL2()
             .processReceipt(receipt)
         )
-        return [cls(**log.args) for log in logs]
+        return [
+            cls(
+                l1_sender=int(log.args["from_address"], 16),
+                l2_recipient=log.args["to_address"],
+                nonce=log.args["nonce"],
+                selector=log.args["selector"],
+                payload=log.args["payload"],
+            )
+            for log in logs
+        ]
 
 
 @add_sync_methods
