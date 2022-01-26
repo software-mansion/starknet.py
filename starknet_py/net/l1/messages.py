@@ -2,13 +2,13 @@ from dataclasses import dataclass
 from functools import reduce
 from typing import List, Optional
 
-import web3
 from eth_utils import keccak
 from hexbytes import HexBytes
 from starkware.starknet.public.abi import get_selector_from_name
+from web3 import Web3
 
 from starknet_py.net import Client
-from starknet_py.net.l1.contracts import StarknetL1Contract, get_w3_provider
+from starknet_py.net.l1.contracts import StarknetL1Contract
 from starknet_py.net.l1.starknet_l1_abi import STARKNET_L1_ABI
 from starknet_py.net.models import (
     StarknetChainId,
@@ -113,19 +113,19 @@ class L2ToL1Message:
     async def count_queued(
         self,
         chain_id: StarknetChainId,
-        endpoint_uri: str,
+        web3: Web3,
         block_number: Optional[EthBlockIdentifier] = None,
     ) -> int:
         """
 
         :param chain_id: A `StarknetChainId` (which contains StarkNet core contract deployed)
-        :param endpoint_uri: Ethereum RPC URL (only HTTP endpoints are supported for now)
+        :param web3: Web3 instance from web3.py
         :param block_number: Optional. `EthBlockIdentifier` which is a hex address, integer,
                              or one of "latest", "earliest", "pending"
         :return: an integer (ranging from 0 upwards, representing the number of messages on L1 waiting for consumption)
         """
         return int_from_hexbytes(
-            await StarknetL1Contract(chain_id, endpoint_uri).l2_to_l1_messages(
+            await StarknetL1Contract(chain_id, web3).l2_to_l1_messages(
                 self.hash, block_number
             )
         )
@@ -155,10 +155,9 @@ class L1ToL2MessageContent:
         )
 
     @classmethod
-    def from_receipt(cls, receipt) -> List["L1ToL2MessageContent"]:
+    def from_receipt(cls, receipt, web3: Web3) -> List["L1ToL2MessageContent"]:
         logs = (
-            web3.Web3()
-            .eth.contract(abi=STARKNET_L1_ABI)
+            web3.eth.contract(abi=STARKNET_L1_ABI)
             .events.LogMessageToL2()
             .processReceipt(receipt)
         )
@@ -194,48 +193,46 @@ class L1ToL2Message:
         return cls.from_hash(msg_content.hash)
 
     @classmethod
-    def from_tx_receipt(cls, receipt) -> List["L1ToL2Message"]:
+    def from_tx_receipt(cls, receipt, web3: Web3) -> List["L1ToL2Message"]:
         """
 
         :param receipt: Transaction receipt object from web3.py
+        :param web3: Web3 instance from web3.py
         :return: A list of L1 to L2 messages in this receipt
         """
         return [
             cls.from_content(msg_content)
-            for msg_content in L1ToL2MessageContent.from_receipt(receipt)
+            for msg_content in L1ToL2MessageContent.from_receipt(receipt, web3)
         ]
 
     @classmethod
-    async def from_tx_hash(
-        cls, tx_hash: str, endpoint_uri: str
-    ) -> List["L1ToL2Message"]:
+    async def from_tx_hash(cls, tx_hash: str, web3: Web3) -> List["L1ToL2Message"]:
         """
 
         :param tx_hash: Transaction hash including some L1 to L2 messages
-        :param endpoint_uri: HTTP eth endpoint URI
+        :param web3: Web3 instance from web3.py
         :return: A list of L1 to L2 messages in this transaction
         """
-        w3 = get_w3_provider(endpoint_uri)
-        receipt = await w3.eth.wait_for_transaction_receipt(tx_hash)
-        return cls.from_tx_receipt(receipt)
+        receipt = web3.eth.getTransactionReceipt(tx_hash)
+        return cls.from_tx_receipt(receipt, web3)
 
     async def count_queued(
         self,
         chain_id: StarknetChainId,
-        endpoint_uri: str,
+        web3: Web3,
         block_number: Optional[EthBlockIdentifier] = None,
     ) -> int:
         """
 
         :param chain_id: A `StarknetChainId` (which contains StarkNet core contract deployed)
-        :param endpoint_uri: Ethereum RPC URL (only HTTP endpoints are supported for now)
+        :param web3: Web3 instance from web3.py
         :param block_number: Optional. `EthBlockIdentifier` which is a hex address, integer,
                              or one of "latest", "earliest", "pending"
         :return: an integer (0 or 1, 0 meaning not received or a consumed message,
                  and 1 meaning a queued message waiting for consumer)
         """
         return int_from_hexbytes(
-            await StarknetL1Contract(chain_id, endpoint_uri).l1_to_l2_messages(
+            await StarknetL1Contract(chain_id, web3).l1_to_l2_messages(
                 self.hash, block_number
             )
         )

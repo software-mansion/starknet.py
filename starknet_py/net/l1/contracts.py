@@ -1,18 +1,8 @@
 from web3._utils.contracts import prepare_transaction
-from web3 import Web3, AsyncHTTPProvider
-from web3.eth import AsyncEth
-from web3.net import AsyncNet
+from web3 import Web3
 
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.address import EthBlockIdentifier
-
-
-def get_w3_provider(endpoint_uri: str):
-    return Web3(
-        AsyncHTTPProvider(endpoint_uri),
-        modules={"eth": AsyncEth, "net": AsyncNet},
-        middlewares=[],
-    )
 
 
 def get_l1_starknet_contract_address(net: StarknetChainId):
@@ -27,9 +17,9 @@ class StarknetL1Contract:
     def __init__(
         self,
         net: StarknetChainId,
-        endpoint_uri: str,
+        web3: Web3,
     ):
-        self.w3 = get_w3_provider(endpoint_uri)
+        self.w3 = web3
         self.contract_address = get_l1_starknet_contract_address(net)
 
     async def l2_to_l1_messages(
@@ -45,7 +35,7 @@ class StarknetL1Contract:
             "type": "function",
         }
 
-        return await self.w3.eth.call(
+        return self.w3.eth.call(
             prepare_transaction(
                 address=self.contract_address,
                 web3=self.w3,
@@ -70,7 +60,7 @@ class StarknetL1Contract:
             "type": "function",
         }
 
-        return await self.w3.eth.call(
+        return self.w3.eth.call(
             prepare_transaction(
                 address=self.contract_address,
                 web3=self.w3,
