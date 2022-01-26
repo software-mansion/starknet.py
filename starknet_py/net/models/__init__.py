@@ -9,7 +9,6 @@ from .address import (
 from .transaction import (
     Transaction,
     InvokeFunction,
-    TransactionType,
     Deploy,
     compute_deploy_hash,
     compute_invoke_hash,

@@ -1,15 +1,15 @@
 from typing import Union, Sequence
 
-from starkware.starknet.definitions.transaction_type import TransactionType as TT
 from starkware.starknet.public.abi import get_selector_from_name
-from starkware.starknet.services.api.contract_definition import CONSTRUCTOR_SELECTOR
 from starkware.starknet.services.api.gateway.transaction import (
     InvokeFunction as IF,
     Deploy as D,
     Transaction as T,
 )
 from starkware.starknet.services.api.gateway.transaction_hash import (
-    calculate_transaction_hash,
+    calculate_transaction_hash_common,
+    calculate_deploy_transaction_hash,
+    TransactionHashPrefix,
 )
 
 from starknet_py.net.models.chains import StarknetChainId
@@ -19,7 +19,6 @@ from starknet_py.utils.docs import as_our_module
 InvokeFunction = as_our_module(IF)
 Deploy = as_our_module(D)
 Transaction = as_our_module(T)
-TransactionType = as_our_module(TT)
 
 
 def compute_invoke_hash(
@@ -40,13 +39,14 @@ def compute_invoke_hash(
     if isinstance(entry_point_selector, str):
         entry_point_selector = get_selector_from_name(entry_point_selector)
 
-    return calculate_transaction_hash(
-        tx_type=TransactionType.INVOKE_FUNCTION,
+    return calculate_transaction_hash_common(
+        tx_hash_prefix=TransactionHashPrefix.INVOKE,
         contract_address=contract_address,
         entry_point_selector=entry_point_selector,
         calldata=calldata,
         chain_id=chain_id.value,
         hash_function=pedersen_hash,
+        additional_data=[],
     )
 
 
@@ -62,11 +62,9 @@ def compute_deploy_hash(
     :param chain_id: StarknetChainId
     :return: calculated hash
     """
-    return calculate_transaction_hash(
-        tx_type=TransactionType.DEPLOY,
+    return calculate_deploy_transaction_hash(
         contract_address=contract_address,
-        entry_point_selector=CONSTRUCTOR_SELECTOR,
-        calldata=calldata,
+        constructor_calldata=calldata,
         chain_id=chain_id.value,
         hash_function=pedersen_hash,
     )
