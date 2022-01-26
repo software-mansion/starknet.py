@@ -349,13 +349,13 @@ Since the `nonce`'s value will always be unique for each message, this value is 
             (123).to_bytes(32, "big") # Provide 32 bytes as an input here, instead of message's content
         )
 
-        # 3. From transaction receipt
+        # 3. From l1 transaction receipt (provided by web3.py, like shown below)
         w3 = web3.Web3(web3.providers.HTTPProvider("https://my-rpc-endpoint.com/"))
         tx_receipt = w3.eth.wait_for_transaction_receipt("0x123123123")
-        l2_to_l1_msg = L2ToL1Message.from_tx_receipt(tx_receipt)
+        l1_to_l2_msg = L1ToL2Message.from_tx_receipt(tx_receipt)
 
         # 4. From transaction hash (fetches the receipt for you)
-        l2_to_l1_msg = await L2ToL1Message.from_tx_hash( # For sync version, use 'from_tx_hash_sync'
+        l1_to_l2_msg = await L1ToL2Message.from_tx_hash( # For sync version, use 'from_tx_hash_sync'
             tx_hash="0x123123123",
             endpoint_uri="https://my-rpc-endpoint.com/", # Only HTTP RPC endpoints are supported for now
         )
@@ -399,7 +399,7 @@ The return value is an `int`, representing the number of unconsumed messages on 
         (123).to_bytes(32, "big") # Provide 32 bytes as an input here, instead of message's content
     )
 
-    # 3. From transaction receipt
+    # 3. From l2 (StarkNet) transaction receipt (provided by starknet.py, like shown below)
     tx_receipt = await Client("testnet").get_transaction_receipt("0x123123123")
     l2_to_l1_msg = L2ToL1Message.from_tx_receipt(tx_receipt)
 
