@@ -4,7 +4,6 @@ from typing import List, Optional
 
 from eth_utils import keccak
 from hexbytes import HexBytes
-from starkware.starknet.public.abi import get_selector_from_name
 from web3 import Web3
 
 from starknet_py.net import Client
