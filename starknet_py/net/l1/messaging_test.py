@@ -8,10 +8,10 @@ from web3._utils.abi import build_default_registry
 from web3.datastructures import AttributeDict
 
 from starknet_py.net.l1.messages import (
-    L1ToL2Message,
-    L2ToL1Message,
-    L1ToL2MessageContent,
-    L2ToL1MessageContent,
+    MessageToStarknet,
+    MessageToEth,
+    MessageToStarknetContent,
+    MessageToEthContent,
 )
 from starknet_py.net.models import StarknetChainId
 
@@ -35,30 +35,30 @@ def w3_mock():
 
 
 @pytest.mark.asyncio
-async def test_l1_l2_from_content(w3_mock):
-    l2_to_l1 = L2ToL1Message.from_content(
-        L2ToL1MessageContent(l2_sender=123, l1_recipient=123, payload=[])
+async def test_messages_from_content(w3_mock):
+    sn_to_eth = MessageToEth.from_content(
+        MessageToEthContent(starknet_sender=123, eth_recipient=123, payload=[])
     ).count_queued_sync(
         chain_id=StarknetChainId.TESTNET,
         web3=w3_mock,
     )
 
-    l1_to_l2 = L1ToL2Message.from_content(
-        L1ToL2MessageContent(
-            l1_sender=123,
-            l2_recipient=123,
+    eth_to_sn = MessageToStarknet.from_content(
+        MessageToStarknetContent(
+            eth_sender=123,
+            starknet_recipient=123,
             nonce=1,
             selector=123,
             payload=[],
         )
     ).count_queued_sync(chain_id=StarknetChainId.TESTNET, web3=w3_mock)
 
-    assert l1_to_l2 == MOCK_MESSAGES_AMT
-    assert l2_to_l1 == MOCK_MESSAGES_AMT
+    assert sn_to_eth == MOCK_MESSAGES_AMT
+    assert eth_to_sn == MOCK_MESSAGES_AMT
 
 
 @pytest.mark.asyncio
-async def test_l1_l2_from_tx_hash(w3_mock):
+async def test_messages_from_tx_hash(w3_mock):
     # L1 Mock
     w3_mock_receipt = web3.Web3(web3.EthereumTesterProvider())
 
@@ -149,27 +149,27 @@ async def test_l1_l2_from_tx_hash(w3_mock):
 
     mock_l2_client.get_transaction_receipt = get_l2_tx_receipt
 
-    l2_to_l1_msgs = await L2ToL1Message.from_tx_hash(
+    sn_to_eth_msgs = await MessageToEth.from_tx_hash(
         tx_hash="0x123123123",
         client=mock_l2_client,
     )
-    l1_to_l2_msgs = await L1ToL2Message.from_tx_hash(
+    eth_to_sn_msgs = await MessageToStarknet.from_tx_hash(
         tx_hash="0x123123123",
         web3=w3_mock_receipt,
     )
 
-    l2_to_l1_msgs_counts = [
+    sn_to_eth_msgs_counts = [
         msg.count_queued_sync(
             chain_id=StarknetChainId.TESTNET,
             web3=w3_mock,
         )
-        for msg in l2_to_l1_msgs
+        for msg in sn_to_eth_msgs
     ]
 
-    l1_to_l2_msgs_counts = [
+    eth_to_sn_msgs_counts = [
         msg.count_queued_sync(chain_id=StarknetChainId.TESTNET, web3=w3_mock)
-        for msg in l1_to_l2_msgs
+        for msg in eth_to_sn_msgs
     ]
 
-    assert l2_to_l1_msgs_counts == [MOCK_MESSAGES_AMT]
-    assert l1_to_l2_msgs_counts == [MOCK_MESSAGES_AMT]
+    assert sn_to_eth_msgs_counts == [MOCK_MESSAGES_AMT]
+    assert eth_to_sn_msgs_counts == [MOCK_MESSAGES_AMT]

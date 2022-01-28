@@ -26,19 +26,19 @@ def encode_packed(*args: List[int]) -> bytes:
 
 
 @dataclass
-class L2ToL1MessageContent:
-    """A dataclass representing a message's payload (from L1 to L2)"""
+class MessageToEthContent:
+    """A dataclass representing a message's payload (from Starknet to Ethereum)"""
 
-    l2_sender: AddressRepresentation
-    l1_recipient: int  # Integer representation of l1 hex address
+    starknet_sender: AddressRepresentation
+    eth_recipient: int  # Integer representation of l1 hex address
     payload: List[int]
 
     @property
     def hash(self):
         return keccak(
             encode_packed(
-                parse_address(self.l2_sender),
-                self.l1_recipient,
+                parse_address(self.starknet_sender),
+                self.eth_recipient,
                 len(self.payload),
                 *self.payload,
             )
@@ -51,43 +51,43 @@ def int_from_hexbytes(hexb: HexBytes) -> int:
 
 @add_sync_methods
 @dataclass
-class L2ToL1Message:
+class MessageToEth:
     """
 
-    Class which enables you to check L2 -> L1 messages status
+    Class which enables you to check Starknet to Ethereum messages status
     """
 
     hash: bytes  # 32 bytes hash representation
 
     @classmethod
-    def from_hash(cls, msg_hash: bytes) -> "L2ToL1Message":
+    def from_hash(cls, msg_hash: bytes) -> "MessageToEth":
         """
 
         :param msg_hash: Message's hash
-        :return: Instance of `L2ToL1Message`
+        :return: Instance of `MessageToEth`
         """
         return cls(hash=msg_hash)
 
     @classmethod
-    def from_content(cls, msg_content: L2ToL1MessageContent) -> "L2ToL1Message":
+    def from_content(cls, msg_content: MessageToEthContent) -> "MessageToEth":
         """
 
-        :param msg_content: Dataclass representing L1 message's content
-        :return: Instance of `L2ToL1Message`
+        :param msg_content: Dataclass representing message's content
+        :return: Instance of `MessageToEth`
         """
         return cls.from_hash(msg_content.hash)
 
     @classmethod
-    def from_tx_receipt(cls, tx_receipt) -> List["L2ToL1Message"]:
+    def from_tx_receipt(cls, tx_receipt) -> List["MessageToEth"]:
         """
         :param tx_receipt: A JSON from starknet.py's Client `get_transaction_receipt`
-        :return: A list of L2 to L1 messages
+        :return: A list of Starknet to Ethereum messages
         """
         return [
-            L2ToL1Message.from_content(
-                L2ToL1MessageContent(
-                    l2_sender=message["from_address"],
-                    l1_recipient=int(message["to_address"], 16),
+            MessageToEth.from_content(
+                MessageToEthContent(
+                    starknet_sender=message["from_address"],
+                    eth_recipient=int(message["to_address"], 16),
                     payload=[int(felt_str) for felt_str in message["payload"]],
                 )
             )
@@ -99,12 +99,12 @@ class L2ToL1Message:
         cls,
         tx_hash: str,
         client: Client,
-    ) -> List["L2ToL1Message"]:
+    ) -> List["MessageToEth"]:
         """
 
         :param tx_hash: A starknet transaction hash
         :param client: Instance of starknet.py's Client class
-        :return: A list of L2 to L1 messages in this transaction
+        :return: A list of messages to Ethereum in this transaction
         """
         receipt = await client.get_transaction_receipt(tx_hash)
         return cls.from_tx_receipt(receipt)
@@ -131,11 +131,11 @@ class L2ToL1Message:
 
 
 @dataclass
-class L1ToL2MessageContent:
-    """A dataclass representing a message's payload (from L1 to L2)"""
+class MessageToStarknetContent:
+    """A dataclass representing a Ethereum to Starknet message payload (from L1 to L2)"""
 
-    l1_sender: int  # Integer representation of l1 hex address
-    l2_recipient: AddressRepresentation
+    eth_sender: int  # Integer representation of l1 hex address
+    starknet_recipient: AddressRepresentation
     nonce: int
     selector: int
     payload: List[int]
@@ -144,8 +144,8 @@ class L1ToL2MessageContent:
     def hash(self):
         return keccak(
             encode_packed(
-                self.l1_sender,
-                parse_address(self.l2_recipient),
+                self.eth_sender,
+                parse_address(self.starknet_recipient),
                 self.nonce,
                 self.selector,
                 len(self.payload),
@@ -154,7 +154,7 @@ class L1ToL2MessageContent:
         )
 
     @classmethod
-    def from_receipt(cls, receipt, web3: Web3) -> List["L1ToL2MessageContent"]:
+    def from_receipt(cls, receipt, web3: Web3) -> List["MessageToStarknetContent"]:
         logs = (
             web3.eth.contract(abi=STARKNET_L1_ABI)
             .events.LogMessageToL2()
@@ -162,8 +162,8 @@ class L1ToL2MessageContent:
         )
         return [
             cls(
-                l1_sender=int(log.args["from_address"], 16),
-                l2_recipient=log.args["to_address"],
+                eth_sender=int(log.args["from_address"], 16),
+                starknet_recipient=log.args["to_address"],
                 nonce=log.args["nonce"],
                 selector=log.args["selector"],
                 payload=log.args["payload"],
@@ -174,52 +174,52 @@ class L1ToL2MessageContent:
 
 @add_sync_methods
 @dataclass
-class L1ToL2Message:
+class MessageToStarknet:
     """
 
-    Class which enables you to check L1 -> L2 messages status
+    Class which enables you to check Eth -> Starknet (L1 -> L2) messages status
     """
 
     hash: bytes  # 32 bytes hash representation
 
     @classmethod
-    def from_hash(cls, msg_hash: bytes) -> "L1ToL2Message":
+    def from_hash(cls, msg_hash: bytes) -> "MessageToStarknet":
         """
 
         :param msg_hash: Message's hash
-        :return: Instance of `L2Message`
+        :return: Instance of `MessageToStarknet`
         """
         return cls(hash=msg_hash)
 
     @classmethod
-    def from_content(cls, msg_content: L1ToL2MessageContent) -> "L1ToL2Message":
+    def from_content(cls, msg_content: MessageToStarknetContent) -> "MessageToStarknet":
         """
 
-        :param msg_content: Dataclass representing L2 message's content
-        :return: Instance of `L2Message`
+        :param msg_content: Dataclass representing message's content
+        :return: Instance of `MessageToStarknet`
         """
         return cls.from_hash(msg_content.hash)
 
     @classmethod
-    def from_tx_receipt(cls, receipt, web3: Web3) -> List["L1ToL2Message"]:
+    def from_tx_receipt(cls, receipt, web3: Web3) -> List["MessageToStarknet"]:
         """
 
         :param receipt: Transaction receipt object from web3.py
         :param web3: Web3 instance from web3.py
-        :return: A list of L1 to L2 messages in this receipt
+        :return: A list of message to Starknet (L1 to L2) messages in this receipt
         """
         return [
             cls.from_content(msg_content)
-            for msg_content in L1ToL2MessageContent.from_receipt(receipt, web3)
+            for msg_content in MessageToStarknetContent.from_receipt(receipt, web3)
         ]
 
     @classmethod
-    async def from_tx_hash(cls, tx_hash: str, web3: Web3) -> List["L1ToL2Message"]:
+    async def from_tx_hash(cls, tx_hash: str, web3: Web3) -> List["MessageToStarknet"]:
         """
 
         :param tx_hash: Transaction hash including some L1 to L2 messages
         :param web3: Web3 instance from web3.py
-        :return: A list of L1 to L2 messages in this transaction
+        :return: A list of messages to StarkNet in this transaction
         """
         receipt = web3.eth.getTransactionReceipt(tx_hash)
         return cls.from_tx_receipt(receipt, web3)

@@ -5,13 +5,13 @@ from starkware.crypto.signature.signature import (
     private_to_stark_key,
     get_random_private_key,
 )
-from starkware.starknet.definitions.transaction_type import TransactionType
+
 from starkware.starknet.public.abi import get_selector_from_name
 
 
 from starknet_py.net import Client
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
-from starknet_py.net.models import InvokeFunction, StarknetChainId
+from starknet_py.net.models import InvokeFunction, StarknetChainId, TransactionType
 from starknet_py.net.networks import Network
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.crypto.facade import message_signature, hash_message
