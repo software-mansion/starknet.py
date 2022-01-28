@@ -362,7 +362,7 @@ Since the `nonce`'s value will always be unique for each message, this value is 
         )
 
         # After message construction, we can fetch queued messages count
-        count = await l1_to_l2_msg.count_queued(  # For sync version, use 'count_queued_sync'
+        count = l1_to_l2_msg.count_queued_sync(
             chain_id=StarknetChainId.TESTNET,
             endpoint_uri="https://my-rpc-endpoint.com/", # Only HTTP RPC endpoints are supported for now
             block_number="pending" # Block number or block representation literal. Optional parameter
@@ -410,7 +410,7 @@ The return value is an `int`, representing the number of unconsumed messages on 
     )
 
     # After message construction, we can fetch queued messages count
-    count = await l2_to_l1_msg.count_queued(  # For sync version, use 'count_queued_sync'
+    count = l2_to_l1_msg.count_queued_sync(
         chain_id=StarknetChainId.TESTNET,
         endpoint_uri="https://my-rpc-endpoint.com/", # Only HTTP RPC endpoints are supported for now
         block_number="pending" # Block number or block representation literal

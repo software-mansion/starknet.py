@@ -36,14 +36,14 @@ def w3_mock():
 
 @pytest.mark.asyncio
 async def test_l1_l2_from_content(w3_mock):
-    l2_to_l1 = await L2ToL1Message.from_content(
+    l2_to_l1 = L2ToL1Message.from_content(
         L2ToL1MessageContent(l2_sender=123, l1_recipient=123, payload=[])
-    ).count_queued(
+    ).count_queued_sync(
         chain_id=StarknetChainId.TESTNET,
         web3=w3_mock,
     )
 
-    l1_to_l2 = await L1ToL2Message.from_content(
+    l1_to_l2 = L1ToL2Message.from_content(
         L1ToL2MessageContent(
             l1_sender=123,
             l2_recipient=123,
@@ -51,7 +51,7 @@ async def test_l1_l2_from_content(w3_mock):
             selector=123,
             payload=[],
         )
-    ).count_queued(chain_id=StarknetChainId.TESTNET, web3=w3_mock)
+    ).count_queued_sync(chain_id=StarknetChainId.TESTNET, web3=w3_mock)
 
     assert l1_to_l2 == MOCK_MESSAGES_AMT
     assert l2_to_l1 == MOCK_MESSAGES_AMT
@@ -159,7 +159,7 @@ async def test_l1_l2_from_tx_hash(w3_mock):
     )
 
     l2_to_l1_msgs_counts = [
-        await msg.count_queued(
+        msg.count_queued_sync(
             chain_id=StarknetChainId.TESTNET,
             web3=w3_mock,
         )
@@ -167,7 +167,7 @@ async def test_l1_l2_from_tx_hash(w3_mock):
     ]
 
     l1_to_l2_msgs_counts = [
-        await msg.count_queued(chain_id=StarknetChainId.TESTNET, web3=w3_mock)
+        msg.count_queued_sync(chain_id=StarknetChainId.TESTNET, web3=w3_mock)
         for msg in l1_to_l2_msgs
     ]
 

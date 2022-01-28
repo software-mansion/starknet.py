@@ -109,7 +109,7 @@ class L2ToL1Message:
         receipt = await client.get_transaction_receipt(tx_hash)
         return cls.from_tx_receipt(receipt)
 
-    async def count_queued(
+    def count_queued_sync(
         self,
         chain_id: StarknetChainId,
         web3: Web3,
@@ -124,7 +124,7 @@ class L2ToL1Message:
         :return: an integer (ranging from 0 upwards, representing the number of messages on L1 waiting for consumption)
         """
         return int_from_hexbytes(
-            await StarknetL1Contract(chain_id, web3).l2_to_l1_messages(
+            StarknetL1Contract(chain_id, web3).l2_to_l1_messages(
                 self.hash, block_number
             )
         )
@@ -224,7 +224,7 @@ class L1ToL2Message:
         receipt = web3.eth.getTransactionReceipt(tx_hash)
         return cls.from_tx_receipt(receipt, web3)
 
-    async def count_queued(
+    def count_queued_sync(
         self,
         chain_id: StarknetChainId,
         web3: Web3,
@@ -240,7 +240,7 @@ class L1ToL2Message:
                  and 1 meaning a queued message waiting for consumer)
         """
         return int_from_hexbytes(
-            await StarknetL1Contract(chain_id, web3).l1_to_l2_messages(
+            StarknetL1Contract(chain_id, web3).l1_to_l2_messages(
                 self.hash, block_number
             )
         )
