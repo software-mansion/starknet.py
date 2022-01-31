@@ -1,4 +1,3 @@
-import asyncio
 from unittest.mock import Mock
 import pytest
 import web3
