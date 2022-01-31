@@ -7,7 +7,6 @@ from starkware.starknet.services.api.gateway.contract_address import (
 from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
     BlockIdentifier,
 )
-from web3.types import BlockIdentifier as EthBlockIdentifier
 
 from starknet_py.utils.crypto.facade import pedersen_hash
 from starknet_py.utils.docs import as_our_module
@@ -54,4 +53,3 @@ def compute_address(
 
 
 BlockIdentifier = as_our_module(BlockIdentifier)
-EthBlockIdentifier = as_our_module(EthBlockIdentifier)

@@ -1,8 +1,8 @@
 from web3._utils.contracts import prepare_transaction
 from web3 import Web3
+from web3.types import BlockIdentifier as EthBlockIdentifier
 
 from starknet_py.net.models import StarknetChainId
-from starknet_py.net.models.address import EthBlockIdentifier
 
 
 def get_l1_starknet_contract_address(net: StarknetChainId):

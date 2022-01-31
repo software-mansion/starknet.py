@@ -4,7 +4,6 @@ from .address import (
     parse_address,
     compute_address,
     BlockIdentifier,
-    EthBlockIdentifier,
 )
 from .transaction import (
     Transaction,

@@ -5,16 +5,18 @@ from typing import List, Optional
 from eth_utils import keccak
 from hexbytes import HexBytes
 from web3 import Web3
+from web3.types import BlockIdentifier as EthBlockIdentifier
+
 
 from starknet_py.net import Client
 from starknet_py.net.l1.contracts import StarknetL1Contract
 from starknet_py.net.l1.starknet_l1_abi import STARKNET_L1_ABI
 from starknet_py.net.models import (
     StarknetChainId,
-    EthBlockIdentifier,
     AddressRepresentation,
     parse_address,
 )
+
 from starknet_py.utils.sync import add_sync_methods
 
 

@@ -135,8 +135,7 @@ async def test_messages_from_tx_hash(w3_mock):
     mock_l2_client = Mock()
     # L2 Mock
 
-    @asyncio.coroutine
-    def get_l2_tx_receipt(_tx_hash):
+    async def get_l2_tx_receipt(_tx_hash):
         return {
             "l2_to_l1_messages": [
                 {
