@@ -8,7 +8,7 @@ Contract
 
 .. autoclass:: ContractFunction
     :exclude-members: __init__, __new__
-    :members: prepare, call, invoke, call_sync, invoke_sync
+    :members: prepare, call, invoke, call_sync, invoke_sync, get_selector
 
 .. autoclass:: PreparedFunctionCall
     :exclude-members: __init__, __new__

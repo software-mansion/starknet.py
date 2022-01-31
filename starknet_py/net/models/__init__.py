@@ -11,5 +11,6 @@ from .transaction import (
     Deploy,
     compute_deploy_hash,
     compute_invoke_hash,
+    TransactionType,
 )
 from .chains import chain_from_network, StarknetChainId

@@ -209,7 +209,7 @@ class ContractFunction:
             contract_data=self.contract_data,
             client=self._client,
             payload_transformer=self._payload_transformer,
-            selector=self.selector,
+            selector=self.get_selector(self.name),
         )
 
     async def call(
@@ -238,9 +238,13 @@ class ContractFunction:
         """
         return await self.prepare(*args, **kwargs).invoke()
 
-    @property
-    def selector(self):
-        return get_selector_from_name(self.name)
+    @staticmethod
+    def get_selector(function_name: str):
+        """
+        :param function_name: Contract function's name
+        :return: A StarkNet integer selector for this function inside the contract
+        """
+        return get_selector_from_name(function_name)
 
 
 FunctionsRepository = Dict[str, ContractFunction]
