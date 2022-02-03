@@ -57,6 +57,7 @@ docs_create = { shell = "make -C docs html" }
 docs_open = { shell = "open docs/_build/html/index.html" }
 lint = "pylint starknet_py"
 format = "black starknet_py"
+format_check = "black --check starknet_py"
 
 [tool.coverage.run]
 source = ["starknet_py"]

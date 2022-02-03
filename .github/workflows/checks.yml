@@ -24,7 +24,7 @@ jobs:
         chmod +x ./build_extension.sh && ./build_extension.sh
     - name: Check formatting with black
       run: |
-        poetry run python -m black --check .
+        poetry run poe format_check
     - name: Analysing the code with pylint
       run: |
         poetry run poe lint
