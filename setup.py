@@ -81,9 +81,6 @@ setup_kwargs = {
     'install_requires': install_requires,
     'extras_require': extras_require,
     'python_requires': '>=3.7,<3.10',
-'ext_modules': [CryptoExtension()],
-'long_description_content_type': 'text/markdown',
-'cmdclass': {"build_py": BuildPy, "build_ext": BuildCrypto },
 }
 
 
