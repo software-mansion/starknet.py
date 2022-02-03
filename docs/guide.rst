@@ -301,3 +301,117 @@ Conversion functions and references:
 
 - :obj:`encode_shortstring <starknet_py.cairo.felt.encode_shortstring>`
 - :obj:`decode_shortstring <starknet_py.cairo.felt.decode_shortstring>`
+
+
+
+StarkNet <> Ethereum communication
+----------------------------------
+
+To retrieve the StarkNet -> Ethereum or Ethereum -> StarkNet message count, you need to provide some data that you used to create that message.
+Then after creating the message's representation, you can query it's current count.
+
+You can find out more about StarkNet <> Ethereum messaging here: https://starknet.io/documentation/l1-l2-messaging/
+
+Full API description :ref:`here<Messaging>`.
+
+
+
+Ethereum -> StarkNet messages
+#############################
+
+The message's count is an `int`, representing the number of unconsumed messages on L2 with that exact content.
+Since the `nonce`'s value will always be unique for each message, this value is either 0 or 1
+(0 meaning the message is consumed or not received yet, and 1 for unconsumed, queued message).
+
+.. code-block:: python
+
+    from starknet_py.net.l1.messages import (
+        MessageToStarknetContent,
+        MessageToStarknet,
+    )
+    from starknet_py.net.models import StarknetChainId
+    from starknet_py.contract import ContractFunction
+
+        ## All of the construction methods shown below are correct:
+
+        # 1. From message content
+        eth_to_sn_msg = MessageToStarknet.from_content(
+            MessageToStarknetContent(
+                eth_sender=123, # Integer representation of Eth hex address
+                starknet_recipient="0x123123123", # Either a hex SN address, or it's integer representation
+                nonce=1, # Can be retrieved from Eth transaction's receipt (the one containing the sent message)
+                selector=ContractFunction.get_selector("dummy_name"), # SN function selector based on function name
+                payload=[32, 32, 32, 32], # SN Function calldata, list of ints
+            )
+        )
+
+        # 2. From message hash
+        eth_to_sn_msg = MessageToStarknet.from_hash(
+            (123).to_bytes(32, "big") # Provide 32 bytes as an input here, instead of message's content
+        )
+
+        # 3. From Eth transaction receipt (provided by web3.py, like shown below)
+        w3 = web3.Web3(web3.providers.HTTPProvider("https://my-rpc-endpoint.com/"))
+        tx_receipt = w3.eth.wait_for_transaction_receipt("0x123123123")
+        eth_to_sn_msg = MessageToStarknet.from_tx_receipt(tx_receipt)
+
+        # 4. From transaction hash (fetches the receipt for you)
+        eth_to_sn_msg = await MessageToStarknet.from_tx_hash( # For sync version, use 'from_tx_hash_sync'
+            tx_hash="0x123123123",
+            endpoint_uri="https://my-rpc-endpoint.com/", # Only HTTP RPC endpoints are supported for now
+        )
+
+        # After message construction, we can fetch queued messages count
+        count = eth_to_sn_msg.count_queued_sync(
+            chain_id=StarknetChainId.TESTNET,
+            endpoint_uri="https://my-rpc-endpoint.com/", # Only HTTP RPC endpoints are supported for now
+            block_number="pending" # Block number or block representation literal. Optional parameter
+        )
+
+
+StarkNet -> Ethereum messages
+#############################
+
+As in previous section, you can provide L1 message content, and then fetch the queued message count.
+The return value is an `int`, representing the number of unconsumed messages on L1 of that exact content.
+
+.. code-block:: python
+
+    from starknet_py.net.l1.messages import (
+        MessageToEth,
+        MessageToEthContent,
+    )
+    from starknet_py.net.client import Client
+    from starknet_py.net.models import StarknetChainId
+
+    ## All of the construction methods shown below are correct:
+
+    # 1. From message content
+    sn_to_eth_msg = MessageToEth.from_content(
+        MessageToEthContent(
+            starknet_sender='0x123123123', # Either a hex SN address, or it's integer representation
+            eth_recipient=123, # Integer representation of Eth hex address
+            payload=[123, 123]
+        )
+    )
+
+    # 2. From message hash
+    sn_to_eth_msg = MessageToEth.from_hash(
+        (123).to_bytes(32, "big") # Provide 32 bytes as an input here, instead of message's content
+    )
+
+    # 3. From l2 (StarkNet) transaction receipt (provided by starknet.py, like shown below)
+    tx_receipt = await Client("testnet").get_transaction_receipt("0x123123123")
+    sn_to_eth_msg = MessageToEth.from_tx_receipt(tx_receipt)
+
+    # 4. From transaction hash (fetches the receipt for you)
+    sn_to_eth_msg = await MessageToEth.from_tx_hash( # For sync version, use 'from_tx_hash_sync'
+        "0x123123123", Client("testnet")
+    )
+
+    # After message construction, we can fetch queued messages count
+    count = sn_to_eth_msg.count_queued_sync(
+        chain_id=StarknetChainId.TESTNET,
+        endpoint_uri="https://my-rpc-endpoint.com/", # Only HTTP RPC endpoints are supported for now
+        block_number="pending" # Block number or block representation literal
+    )
