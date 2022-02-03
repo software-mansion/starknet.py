@@ -29,7 +29,7 @@ jobs:
         run: python -X utf8 -m pip install poetry
 
       - name: Convert setup.py
-        run: python  -X utf8 convert_pyproject.py
+        run: python  -X utf8 convert_pyproject.py build_crypto_extension
 
       - name: Set up MinGW
         if: runner.os == 'Windows'

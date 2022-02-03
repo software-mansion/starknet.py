@@ -18,9 +18,10 @@ python = ">=3.7,<3.10"
 cairo-lang = "0.6.2"
 asgiref = "^3.4.1"
 sphinx = {version = "^4.3.1", optional = true}
+enum-tools = {extras = ["sphinx"], version = "0.8.0", optional = true}
 
 [tool.poetry.extras]
-docs = ["sphinx"]
+docs = ["sphinx", "enum-tools"]
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
@@ -33,7 +34,6 @@ sphinx-rtd-theme = "^1.0.0"
 pylint = "^2.12.2"
 setuptools = "^60.0.3"
 pytest-mock = "^3.6.1"
-enum-tools = {extras = ["sphinx"], version = "^0.8.0"}
 
 [tool.poe.tasks]
 test = ["test_unit", "test_e2e"]
@@ -56,9 +56,12 @@ test_html = [
 docs_create = { shell = "make -C docs html" }
 docs_open = { shell = "open docs/_build/html/index.html" }
 lint = "pylint starknet_py"
+format = "black starknet_py"
+format_check = "black --check starknet_py"
 
 [tool.coverage.run]
 source = ["starknet_py"]
+
 
 [tool.coverage.report]
 omit = ["*_test.py", "starknet_py/tests/e2e/*", "starknet_py/utils/docs.py"]
