@@ -64,7 +64,7 @@ install_requires = \
 ['asgiref>=3.4.1,<4.0.0', 'cairo-lang==0.6.2']
 
 extras_require = \
-{'docs': ['sphinx>=4.3.1,<5.0.0']}
+{'docs': ['sphinx>=4.3.1,<5.0.0', 'enum-tools[sphinx]==0.8.0']}
 
 setup_kwargs = {
     'name': 'starknet.py',
