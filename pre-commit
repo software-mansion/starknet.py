@@ -2,3 +2,5 @@
 
 poetry run python -m black .
 poetry run poe lint
+poetry run python convert_pyproject.py
+git add setup.py
