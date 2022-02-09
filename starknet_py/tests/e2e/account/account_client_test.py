@@ -37,7 +37,7 @@ async def test_error_when_tx_signed():
         contract_address=123,
         entry_point_selector=123,
         calldata=[],
-        signature=[123, 321]
+        signature=[123, 321],
     )
     with pytest.raises(TypeError) as t_err:
         await acc_client.add_transaction(tx=invoke_function)
