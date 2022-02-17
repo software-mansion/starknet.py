@@ -86,6 +86,7 @@ class AccountClient(Client):
             selector=tx.entry_point_selector,
             calldata=tx.calldata,
             nonce=nonce,
+            max_fee=0,
         )
         # pylint: disable=invalid-name
         r, s = message_signature(msg_hash=msg_hash, priv_key=self.private_key)

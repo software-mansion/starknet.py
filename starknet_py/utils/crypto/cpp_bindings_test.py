@@ -14,7 +14,7 @@ from starknet_py.utils.crypto.facade import (
 
 
 def test_hashing(monkeypatch):
-    args = 1, 2, 3, [4, 5], 6
+    args = 1, 2, 3, [4, 5], 6, 0
     times = []
 
     load_cpp_lib()  # Pre-load cpp extension to make the hashing time appropriate

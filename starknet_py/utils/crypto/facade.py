@@ -37,6 +37,7 @@ def hash_message_with(
     selector: int,
     calldata: List[int],
     nonce: int,
+    max_fee: int,
     hash_fun: Callable[[int, int], int],
 ) -> int:
     return compute_hash_on_elements(
@@ -49,6 +50,7 @@ def hash_message_with(
                 hash_func=hash_fun,
             ),
             nonce,
+            max_fee,
         ],
         hash_func=hash_fun,
     )
@@ -82,6 +84,7 @@ def hash_message(
     selector: int,
     calldata: List[int],
     nonce: int,
+    max_fee: int,
 ) -> int:
     return hash_message_with(
         account=account,
@@ -89,5 +92,6 @@ def hash_message(
         selector=selector,
         calldata=calldata,
         nonce=nonce,
+        max_fee=max_fee,
         hash_fun=pedersen_hash,
     )
