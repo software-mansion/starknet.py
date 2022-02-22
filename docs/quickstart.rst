@@ -43,9 +43,14 @@ Example usage:
     acc_client = await AccountClient.create_account(net="testnet")
 
     # Deploy an example contract which implements a simple k-v store. Deploy transaction is not being signed.
-    map_contract = await Contract.deploy(
+    deployment_result = await Contract.deploy(
         client=acc_client, compilation_source=map_source_code
     )
+    # Wait until deployment transaction is accepted
+    await deployment_result.wait_for_acceptance()
+
+    # Get deployed contract
+    map_contract = deployment_result.contract
     k, v = 13, 4324
     # Adds a transaction to mutate the state of k-v store. The call goes through account proxy, because we've used AccountClient to create the contract object
     await map_contract.functions["put"].invoke(k, v)
@@ -70,7 +75,7 @@ Using Contract
     # Here we invoke a function, creating a new transaction.
     invocation = await contract.functions["set_value"].invoke(key, 7)
 
-    # Invocation returns InvocationResult object. It exposes a helper for waiting until transaction is accepted.
+    # Invocation returns InvokeResult object. It exposes a helper for waiting until transaction is accepted.
     await invocation.wait_for_acceptance()
 
     # Calling contract's function doesn't create a new transaction, you get the function's result.

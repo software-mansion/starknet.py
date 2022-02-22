@@ -14,6 +14,10 @@ Contract
     :exclude-members: __init__, __new__
     :members: call, call_raw, invoke, call_sync, call_raw_sync, invoke_sync, hash
 
-.. autoclass:: InvocationResult
+.. autoclass:: InvokeResult
+    :exclude-members: __init__, __new__
+    :members: wait_for_acceptance, wait_for_acceptance_sync
+
+.. autoclass:: DeployResult
     :exclude-members: __init__, __new__
     :members: wait_for_acceptance, wait_for_acceptance_sync

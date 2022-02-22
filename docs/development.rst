@@ -21,7 +21,7 @@ Setup
     poetry install
 
     # Make sure everything was installed properly
-    poe test
+     poe test
 
 Git hooks
 ---------
@@ -39,6 +39,9 @@ Documentation
 `Sphinx <https://www.sphinx-doc.org/en/master/>`_ is used for generating documentation.
 
 .. code-block:: bash
+
+    # Install additional dependencies for docs
+    poetry install -E docs
 
     # Generate HTML documentation
     poe docs_create
