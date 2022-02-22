@@ -5,8 +5,7 @@ mkdir -p build/Release
 TARGET_MACHINE=$(gcc -dumpmachine)
 echo "Targeting ${TARGET_MACHINE}"
 
-if [[ $(uname) == "Darwin" ]] :
-  then
+if [ "$(uname)" == "Darwin" ]; then
     sed -i'.original' "s/\${CMAKE_CXX_FLAGS} -std=c++17 -Werror -Wall -Wextra -fno-strict-aliasing -fPIC/-std=c++17 -Werror -Wall -Wextra -fno-strict-aliasing -fPIC \${CMAKE_CXX_FLAGS} -target ${TARGET_MACHINE}/" CMakeLists.txt
   else
     sed -i'.original' "s/\${CMAKE_CXX_FLAGS} -std=c++17 -Werror -Wall -Wextra -fno-strict-aliasing -fPIC/-std=c++17 -Werror -Wall -Wextra -fno-strict-aliasing -fPIC \${CMAKE_CXX_FLAGS}/" CMakeLists.txt
