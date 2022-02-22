@@ -12,9 +12,11 @@ if [ "$(uname)" == "Darwin" ]; then
     TARGET_TRIPLET="${TARGET_ARCH}-apple-macos${MACOS_V}"
 
     if [[ "$(uname -m)" != "$TARGET_ARCH" ]]; then
+      echo "Crosscompiling enabled"
       export CMAKE_CROSSCOMPILING="1"
     fi
     if [[ "$TARGET_ARCH" == *"arm"* ]]; then
+      echo "Compiling for arm architecture"
       export CMAKE_SYSTEM_PROCESSOR="arm"
     fi
 
