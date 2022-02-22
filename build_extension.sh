@@ -6,8 +6,10 @@ mkdir -p build/Release
 CMAKE_CXX_COMPILER="g++"
 if [ "$(uname)" == "Darwin" ]; then
     IFS='-' read -r -a TARGET_ARR_WRONG_ORDER <<< "$PLAT"
-    TARGET="${TARGET_ARR_WRONG_ORDER[2]}-apple-macos${TARGET_ARR_WRONG_ORDER[1]}"
+    MACOS_V="${TARGET_ARR_WRONG_ORDER[1]}"
+    TARGET="${TARGET_ARR_WRONG_ORDER[2]}-apple-macos${MACOS_V}"
     echo "Targeting ${TARGET}"
+    export MACOSX_DEPLOYMENT_TARGET="${MACOS_V}"
 
     sed -i'.original' "s/\${CMAKE_CXX_FLAGS} -std=c++17 -Werror -Wall -Wextra -fno-strict-aliasing -fPIC/-std=c++17 -Werror -Wall -Wextra -fno-strict-aliasing -fPIC \${CMAKE_CXX_FLAGS} -target ${TARGET}/" CMakeLists.txt
     CMAKE_CXX_COMPILER="clang++"
