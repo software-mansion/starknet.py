@@ -53,7 +53,7 @@ class ContractData:
 @dataclass(frozen=True)
 class SentTransaction:
     """
-    Dataclass returned from invocation. Contains basic details and allows waiting for transaction's acceptance.
+    Dataclass exposing the interface of transaction related to a performed action
     """
 
     hash: CastableToHash
@@ -65,7 +65,7 @@ class SentTransaction:
         self, wait_for_accept: Optional[bool] = False, check_interval=5
     ) -> "SentTransaction":
         """
-        Waits for invoke transaction to be accepted on chain. By default, returns when status is ``PENDING`` -
+        Waits for transaction to be accepted on chain. By default, returns when status is ``PENDING`` -
         use ``wait_for_accept`` to wait till ``ACCEPTED`` status.
         Returns a new SentTransaction instance, **does not mutate original instance**.
         """
