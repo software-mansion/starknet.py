@@ -2,11 +2,13 @@
 
 cd crypto-cpp
 mkdir -p build/Release
-TARGET_MACHINE=$(gcc -dumpmachine)
-env
 
 if [ "$(uname)" == "Darwin" ]; then
-    sed -i'.original' "s/\${CMAKE_CXX_FLAGS} -std=c++17 -Werror -Wall -Wextra -fno-strict-aliasing -fPIC/-std=c++17 -Werror -Wall -Wextra -fno-strict-aliasing -fPIC \${CMAKE_CXX_FLAGS} -target ${TARGET_MACHINE}/" CMakeLists.txt
+    IFS='-' read -r TARGET_ARR_WRONG_ORDER <<< "$PLAT"
+    TARGET="${TARGET_ARR_WRONG_ORDER[2]}-${TARGET_ARR_WRONG_ORDER[0]}-${TARGET_ARR_WRONG_ORDER[1]}"
+    echo "Targeting ${TARGET}"
+
+    sed -i'.original' "s/\${CMAKE_CXX_FLAGS} -std=c++17 -Werror -Wall -Wextra -fno-strict-aliasing -fPIC/-std=c++17 -Werror -Wall -Wextra -fno-strict-aliasing -fPIC \${CMAKE_CXX_FLAGS} -target ${TARGET}/" CMakeLists.txt
   else
     sed -i'.original' "s/\${CMAKE_CXX_FLAGS} -std=c++17 -Werror -Wall -Wextra -fno-strict-aliasing -fPIC/-std=c++17 -Werror -Wall -Wextra -fno-strict-aliasing -fPIC \${CMAKE_CXX_FLAGS}/" CMakeLists.txt
 fi
