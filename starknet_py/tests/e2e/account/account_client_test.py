@@ -22,7 +22,7 @@ async def test_deploy_account_contract_and_sign_tx():
     )
     await deployment_result.wait_for_acceptance()
     map_contract = deployment_result.contract
-    
+
     k, v = 13, 4324
     await map_contract.functions["put"].invoke(k, v)
     (resp,) = await map_contract.functions["get"].call(k)
