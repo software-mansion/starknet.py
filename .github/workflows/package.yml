@@ -1,5 +1,5 @@
 name: Build wheels
-on: pull_request
+on: workflow_dispatch
 
 jobs:
   build_wheels:
@@ -7,8 +7,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        # TODO: windows-2019, ubuntu-20.04
-        os: [macOS-10.15]
+        os: [macOS-10.15, windows-2019, ubuntu-20.04]
 
     steps:
       - uses: actions/checkout@v2
