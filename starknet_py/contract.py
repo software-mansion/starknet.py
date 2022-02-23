@@ -90,6 +90,9 @@ class InvokeResult(SentTransaction):
         assert self.contract is not None
 
 
+InvocationResult = InvokeResult
+
+
 @add_sync_methods
 @dataclass(frozen=True)
 class DeployResult(SentTransaction):
