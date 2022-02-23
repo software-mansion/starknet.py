@@ -21,7 +21,9 @@ async def test_invoke_and_call(key, value):
     client = DevnetClient()
 
     # Deploy simple k-v store
-    contract = await Contract.deploy(client=client, compilation_source=map_source)
+    deployment_result = await Contract.deploy(client=client, compilation_source=map_source)
+    await deployment_result.wait_for_acceptance()
+    contract = deployment_result.contract
     contract = await Contract.from_address(contract.address, client)
     await contract.functions["put"].invoke(key, value)
     (response,) = await contract.functions["get"].call(key)
@@ -45,7 +47,10 @@ async def test_signature():
     )
     details = {"favourite_number": 1, "favourite_tuple": (2, 3, 4)}
 
-    contract = await Contract.deploy(client=client, compilation_source=user_auth_source)
+    deployment_result = await Contract.deploy(client=client, compilation_source=user_auth_source)
+    await deployment_result.wait_for_acceptance()
+    contract = deployment_result.contract
+
     contract = await Contract.from_address(contract.address, client)
 
     fun_call = contract.functions["set_details"].prepare(public_key, details)

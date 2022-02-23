@@ -17,9 +17,12 @@ async def test_deploy_account_contract_and_sign_tx():
         net=DEVNET_ADDRESS, chain=StarknetChainId.TESTNET
     )
 
-    map_contract = await Contract.deploy(
+    deployment_result = await Contract.deploy(
         client=acc_client, compilation_source=map_source_code
     )
+    await deployment_result.wait_for_acceptance()
+    map_contract = deployment_result.contract
+    
     k, v = 13, 4324
     await map_contract.functions["put"].invoke(k, v)
     (resp,) = await map_contract.functions["get"].call(k)
