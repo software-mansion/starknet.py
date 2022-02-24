@@ -32,7 +32,7 @@ from starknet_py.utils.sync import add_sync_methods
 
 ABI = list
 ABIEntry = dict
-TSentTransaction = TypeVar("TSentTransaction", "SentTransaction")
+TSentTransaction = TypeVar("TSentTransaction", bound="SentTransaction")
 
 
 @dataclass(frozen=True)
