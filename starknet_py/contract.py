@@ -32,7 +32,7 @@ from starknet_py.utils.sync import add_sync_methods
 
 ABI = list
 ABIEntry = dict
-T = TypeVar("T", "SentTransaction")
+TSentTransaction = TypeVar("TSentTransaction", "SentTransaction")
 
 
 @dataclass(frozen=True)
@@ -63,8 +63,8 @@ class SentTransaction:
     block_number: Optional[int] = None
 
     async def wait_for_acceptance(
-        self: T, wait_for_accept: Optional[bool] = False, check_interval=5
-    ) -> T:
+        self: TSentTransaction, wait_for_accept: Optional[bool] = False, check_interval=5
+    ) -> TSentTransaction:
         """
         Waits for transaction to be accepted on chain. By default, returns when status is ``PENDING`` -
         use ``wait_for_accept`` to wait till ``ACCEPTED`` status.
