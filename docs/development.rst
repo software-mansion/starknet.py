@@ -21,7 +21,7 @@ Setup
     poetry install
 
     # Make sure everything was installed properly
-     poe test
+    poe test
 
 Git hooks
 ---------

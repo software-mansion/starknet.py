@@ -1,7 +1,7 @@
 import dataclasses
 from dataclasses import dataclass
 from functools import lru_cache
-from typing import List, Optional, Union, Dict, Collection, NamedTuple
+from typing import List, Optional, TypeVar, Union, Dict, Collection, NamedTuple
 
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
 from starkware.starknet.core.os.contract_hash import compute_contract_hash
@@ -32,6 +32,7 @@ from starknet_py.utils.sync import add_sync_methods
 
 ABI = list
 ABIEntry = dict
+T = TypeVar('T', "SentTransaction")
 
 
 @dataclass(frozen=True)
@@ -62,8 +63,8 @@ class SentTransaction:
     block_number: Optional[int] = None
 
     async def wait_for_acceptance(
-        self, wait_for_accept: Optional[bool] = False, check_interval=5
-    ) -> "SentTransaction":
+        self: T, wait_for_accept: Optional[bool] = False, check_interval=5
+    ) -> T:
         """
         Waits for transaction to be accepted on chain. By default, returns when status is ``PENDING`` -
         use ``wait_for_accept`` to wait till ``ACCEPTED`` status.
