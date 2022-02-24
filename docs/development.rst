@@ -40,6 +40,9 @@ Documentation
 
 .. code-block:: bash
 
+    # Install additional dependencies for docs
+    poetry install -E docs
+
     # Generate HTML documentation
     poe docs_create
 

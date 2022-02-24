@@ -81,7 +81,7 @@ This is how we can interact with it:
     await transfer.invoke()
 
     # Wait for tx
-    await invocation.wait_for_acceptance
+    await invocation.wait_for_acceptance()
 
     (balance,) = await contract.functions["balanceOf"].call(recipient)
 
@@ -205,20 +205,26 @@ Here's how you can deploy new contracts:
     constructor_args = {"public_key": 123}
 
     # contract as a string
-    deployed_contract = await Contract.deploy(
+    deployment_result = await Contract.deploy(
         client, compilation_source=contract, constructor_args=constructor_args
     )
 
     # dict with content - useful for multiple files
-    deployed_contract = await Contract.deploy(
+    deployment_result = await Contract.deploy(
         client, compilation_source={"contract.cairo": contract}, constructor_args=constructor_args
     )
 
     # or use already compiled program
     compiled = Path("contract_compiled.json").read_text()
-    deployed_contract = await Contract.deploy(
+    deployment_result = await Contract.deploy(
         client, compiled_contract=compiled, constructor_args=constructor_args
     )
+
+    # you can wait for transaction to be accepted
+    await deployment_result.wait_for_acceptance()
+
+    # but you can access the deployed contract object even if has not been accepted yet
+    contract = deployment_result.contract
 
 
 Handling client errors
