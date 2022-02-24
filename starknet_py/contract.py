@@ -63,7 +63,9 @@ class SentTransaction:
     block_number: Optional[int] = None
 
     async def wait_for_acceptance(
-        self: TSentTransaction, wait_for_accept: Optional[bool] = False, check_interval=5
+        self: TSentTransaction,
+        wait_for_accept: Optional[bool] = False,
+        check_interval=5,
     ) -> TSentTransaction:
         """
         Waits for transaction to be accepted on chain. By default, returns when status is ``PENDING`` -
