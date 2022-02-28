@@ -7,7 +7,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-2019, ubuntu-20.04, macOS-10.15]
+        os: [macOS-10.15, windows-2019, ubuntu-20.04]
 
     steps:
       - uses: actions/checkout@v2
@@ -41,6 +41,7 @@ jobs:
         run: python -X utf8 -m cibuildwheel --output-dir wheelhouse
         env:
           CIBW_ARCHS: all
+          CIBW_ARCHS_MACOS: "arm64 universal2 x86_64"
           CIBW_BUILD_FRONTEND: "build"
           CIBW_BUILD: cp37-* cp38-* cp39-*
           CIBW_SKIP: '*i686 cp39-win_arm64'
