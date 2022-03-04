@@ -10,7 +10,7 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
     JsonObject,
 )
 from starkware.starknet.services.api.feeder_gateway.response_objects import (
-    StarknetBlock
+    StarknetBlock,
 )
 from starkware.starknet.services.api.gateway.gateway_client import GatewayClient
 from starkware.starkware_utils.error_handling import StarkErrorCode
