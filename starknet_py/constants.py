@@ -1,5 +1,7 @@
 import os
-from starkware.starknet.services.api.feeder_gateway.response_objects import TransactionStatus
+from starkware.starknet.services.api.feeder_gateway.response_objects import (
+    TransactionStatus,
+)
 
 TxStatus = TransactionStatus
 

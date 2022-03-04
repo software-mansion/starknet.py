@@ -33,4 +33,4 @@ async def test_pending_block():
         client, compilation_source=contract, constructor_args=constructor_args
     )
     blk = await client.get_block(block_number="pending")
-    assert blk["block_hash"]
+    assert blk.block_hash
