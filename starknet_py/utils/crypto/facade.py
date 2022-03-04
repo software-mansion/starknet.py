@@ -81,7 +81,7 @@ def hash_multicall_with(
 def hash_call_with(call: Call, hash_fun):
     return compute_hash_on_elements(
         [
-            call.to,
+            call.to_addr,
             call.selector,
             compute_hash_on_elements(
                 call.calldata,
