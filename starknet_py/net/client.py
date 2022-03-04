@@ -194,7 +194,7 @@ class Client:
         :param tx_hash: Transaction's hash
         :param wait_for_accept: If true waits for ACCEPTED_ONCHAIN status, otherwise waits for at least PENDING
         :param check_interval: Defines interval between checks
-        :return: tuple(block number, ``starknet.constants.TxStatus``)
+        :return: tuple(block number, ``starknet_py.constants.TxStatus``)
         """
         if check_interval <= 0:
             raise ValueError("check_interval has to bigger than 0.")
