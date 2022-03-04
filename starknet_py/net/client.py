@@ -9,6 +9,9 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
     CastableToHash,
     JsonObject,
 )
+from starkware.starknet.services.api.feeder_gateway.response_objects import (
+    StarknetBlock
+)
 from starkware.starknet.services.api.gateway.gateway_client import GatewayClient
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
@@ -81,7 +84,7 @@ class Client:
         self,
         block_hash: Optional[CastableToHash] = None,
         block_number: Optional[BlockIdentifier] = None,
-    ) -> JsonObject:
+    ) -> StarknetBlock:
         """
         Retrieve the block's data by its number or hash
 
