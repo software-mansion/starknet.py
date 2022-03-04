@@ -47,7 +47,9 @@ test_e2e.shell = """
     DEVNET_PID=$!
     sleep 1
     coverage run -m pytest starknet_py/tests/e2e
+    COV_RES=$?
     kill $DEVNET_PID
+    exit $COV_RES
 """
 test_e2e.env = { COVERAGE_FILE="e2e.coverage", DEVNET_PORT="5001" }
 coverage_combine.shell = "coverage combine unit.coverage e2e.coverage"
