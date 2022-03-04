@@ -4,9 +4,9 @@ from pathlib import Path
 
 import pytest
 
-from starknet_py.utils.compiler.starknet_compile import starknet_compile
 from starkware.cairo.lang.compiler.constants import LIBS_DIR_ENVVAR
 from starkware.cairo.lang.compiler.import_loader import ImportLoaderError
+from starknet_py.utils.compiler.starknet_compile import starknet_compile
 
 directory = os.path.dirname(__file__)
 
@@ -65,5 +65,5 @@ def test_starknet_compile_with_env_var(monkeypatch: pytest.MonkeyPatch):
 
 def test_throws_on_compile_without_search_path_and_env_var():
     with pytest.raises(ImportLoaderError) as m_err:
-        output_file_str = starknet_compile([base_contract_path.resolve().absolute()])
+        starknet_compile([base_contract_path.resolve().absolute()])
     assert "Could not find module 'inner.inner'." in str(m_err.value)

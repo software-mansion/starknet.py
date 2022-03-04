@@ -326,6 +326,7 @@ class Contract:
         salt: Optional[int] = None,
         search_paths: Optional[List[str]] = None,
     ) -> "Contract":
+        # pylint: disable=too-many-arguments
         """
         Deploys a contract and waits until it has ``PENDING`` status.
         Either `compilation_source` or `compiled_contract` is required.
