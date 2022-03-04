@@ -23,8 +23,8 @@ jobs:
         poetry install
         chmod +x ./build_extension.sh && ./build_extension.sh
     - name: Check types
-        run: |
-          poetry run poe type_check
+      run: |
+        poetry run poe type_check
     - name: Check formatting with black
       run: |
         poetry run poe format_check
