@@ -1,7 +1,7 @@
 import json
 import os
 from pathlib import Path
-from typing import List, Tuple, Union, NewType
+from typing import List, Tuple, Union, NewType, Optional
 
 from starkware.cairo.lang.cairo_constants import DEFAULT_PRIME
 from starkware.cairo.lang.compiler.cairo_compile import (
@@ -37,12 +37,18 @@ def load_source_code(src: StarknetCompilationSource) -> List[Tuple[str, str]]:
     return [(load_cairo_source_code(filename), filename) for filename in src]
 
 
-def starknet_compile(source: StarknetCompilationSource):
+def starknet_compile(
+    source: StarknetCompilationSource, search_paths: Optional[List[str]] = None
+):
     file_contents_for_debug_info = {}
 
     cairo_path: List[str] = list(
         filter(None, os.getenv(LIBS_DIR_ENVVAR, "").split(":"))
     )
+
+    if search_paths is not None:
+        cairo_path += search_paths
+
     module_reader = get_module_reader(cairo_path=cairo_path)
 
     pass_manager = starknet_pass_manager(

@@ -324,6 +324,7 @@ class Contract:
         compiled_contract: Optional[str] = None,
         constructor_args: Optional[Union[List[any], dict]] = None,
         salt: Optional[int] = None,
+        search_paths: Optional[List[str]] = None,
     ) -> "Contract":
         """
         Deploys a contract and waits until it has ``PENDING`` status.
@@ -337,7 +338,9 @@ class Contract:
         :return: an initialized Contract instance
         """
         definition = Contract._make_definition(
-            compilation_source=compilation_source, compiled_contract=compiled_contract
+            compilation_source=compilation_source,
+            compiled_contract=compiled_contract,
+            search_paths=search_paths,
         )
         translated_args = Contract._translate_constructor_args(
             definition, constructor_args
@@ -368,6 +371,7 @@ class Contract:
         compilation_source: Optional[StarknetCompilationSource] = None,
         compiled_contract: Optional[str] = None,
         constructor_args: Optional[Union[List[any], dict]] = None,
+        search_paths: Optional[List[str]] = None,
     ) -> int:
         """
         Computes address for given contract.
@@ -380,7 +384,9 @@ class Contract:
         :return: contract's address
         """
         definition = Contract._make_definition(
-            compilation_source=compilation_source, compiled_contract=compiled_contract
+            compilation_source=compilation_source,
+            compiled_contract=compiled_contract,
+            search_paths=search_paths,
         )
         translated_args = Contract._translate_constructor_args(
             definition, constructor_args
@@ -395,6 +401,7 @@ class Contract:
     def compute_contract_hash(
         compilation_source: Optional[StarknetCompilationSource] = None,
         compiled_contract: Optional[str] = None,
+        search_paths: Optional[List[str]] = None,
     ) -> int:
         """
         Computes hash for given contract.
@@ -405,7 +412,9 @@ class Contract:
         :return:
         """
         definition = Contract._make_definition(
-            compilation_source=compilation_source, compiled_contract=compiled_contract
+            compilation_source=compilation_source,
+            compiled_contract=compiled_contract,
+            search_paths=search_paths,
         )
         return compute_contract_hash(definition, hash_func=pedersen_hash)
 
@@ -413,6 +422,7 @@ class Contract:
     def _make_definition(
         compilation_source: Optional[StarknetCompilationSource] = None,
         compiled_contract: Optional[str] = None,
+        search_paths: Optional[List[str]] = None,
     ) -> ContractDefinition:
         if not compiled_contract and not compilation_source:
             raise ValueError(
@@ -420,7 +430,9 @@ class Contract:
             )
 
         if not compiled_contract:
-            compiled_contract = starknet_compile(compilation_source)
+            compiled_contract = starknet_compile(
+                compilation_source, search_paths=search_paths
+            )
 
         return ContractDefinition.loads(compiled_contract)
 

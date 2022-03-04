@@ -1,3 +1,5 @@
+import os
+from pathlib import Path
 import pytest
 
 from starknet_py.contract import Contract, PreparedFunctionCall, ContractData
@@ -43,16 +45,49 @@ func constructor{
 end
 """
 
+SOURCE_WITH_IMPORTS = """
+%lang starknet
+%builtins pedersen range_check
+
+from inner.inner import MockStruct
+
+@external
+func put{syscall_ptr : felt*, pedersen_ptr, range_check_ptr}(
+        key : felt, value : felt):
+    return ()
+end
+"""
+
 EXPECTED_HASH = (
     2805686283900972954281199974176256637529244635330751615468747630576307779907
 )
+
+
+EXPECTED_HASH_WITH_IMPORTS = (
+    1571278367887274108382601941710732790050612993558068277262832996016105973699
+)
+
 EXPECTED_ADDRESS = (
     3316580593564723859317820329637657156309457332674023938311570757658456768228
 )
 
+EXPECTED_ADDRESS_WITH_IMPORTS = (
+    3071578545310652849530946601977241514019750671546015132445945458958079023834
+)
+
+directory = os.path.dirname(__file__)
+search_path = Path(directory, "utils/compiler/mock-contracts")
+
 
 def test_compute_hash():
     assert Contract.compute_contract_hash(SOURCE) == EXPECTED_HASH
+
+
+def test_compute_hash_with_search_path():
+    assert (
+        Contract.compute_contract_hash(SOURCE_WITH_IMPORTS, search_paths=[search_path])
+        == EXPECTED_HASH_WITH_IMPORTS
+    )
 
 
 def test_compute_address():
@@ -61,6 +96,17 @@ def test_compute_address():
             compilation_source=SOURCE, constructor_args=[21, 37], salt=1111
         )
         == EXPECTED_ADDRESS
+    )
+
+
+def test_compute_address_with_imports():
+    assert (
+        Contract.compute_address(
+            compilation_source=SOURCE_WITH_IMPORTS,
+            salt=1111,
+            search_paths=[search_path],
+        )
+        == EXPECTED_ADDRESS_WITH_IMPORTS
     )
 
 
