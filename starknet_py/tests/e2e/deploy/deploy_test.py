@@ -16,8 +16,8 @@ async def test_deploy_tx():
     await result.wait_for_acceptance()
 
     result = await Contract.deploy(client=client, compilation_source=map_source_code)
-    await result.wait_for_acceptance()
-    result = result.contract
+    result = await result.wait_for_acceptance()
+    result = result.deployed_contract
     assert isinstance(result.functions["get"], ContractFunction)
     assert isinstance(result.functions["put"], ContractFunction)
 
@@ -49,8 +49,8 @@ async def test_constructor_arguments():
         compilation_source=constructor_with_arguments_source,
         constructor_args=[value, tuple_value, arr, struct],
     )
-    await contract_1.wait_for_acceptance()
-    contract_1 = contract_1.contract
+    contract_1 = await contract_1.wait_for_acceptance()
+    contract_1 = contract_1.deployed_contract
 
     # Named params
     contract_2 = await Contract.deploy(
@@ -64,7 +64,7 @@ async def test_constructor_arguments():
         },
     )
     await contract_2.wait_for_acceptance()
-    contract_2 = contract_2.contract
+    contract_2 = contract_2.deployed_contract
 
     assert contract_1.address != contract_2.address
 
@@ -87,7 +87,7 @@ async def test_constructor_without_arguments():
     result = await Contract.deploy(
         client=client, compilation_source=constructor_without_arguments_source
     )
-    await result.wait_for_acceptance()
-    contract = result.contract
+    result = await result.wait_for_acceptance()
+    contract = result.deployed_contract
 
     assert contract.address is not None

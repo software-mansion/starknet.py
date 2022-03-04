@@ -1,15 +1,7 @@
 import os
-from enum import Enum
+from starkware.starknet.services.api.feeder_gateway.response_objects import TransactionStatus
 
-
-class TxStatus(Enum):
-    RECEIVED = "RECEIVED"
-    NOT_RECEIVED = "NOT_RECEIVED"
-    REJECTED = "REJECTED"
-    PENDING = "PENDING"
-    ACCEPTED_ON_L1 = "ACCEPTED_ON_L1"
-    ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
-
+TxStatus = TransactionStatus
 
 ACCEPTED_STATUSES = (TxStatus.ACCEPTED_ON_L1, TxStatus.ACCEPTED_ON_L2)
 

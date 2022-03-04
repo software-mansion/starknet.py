@@ -199,13 +199,13 @@ class Client:
         first_run = True
         while True:
             result = await self.get_transaction(tx_hash=tx_hash)
-            status = TxStatus[result["status"]]
+            status = result.status
 
             if status in ACCEPTED_STATUSES:
-                return result["block_number"], status
+                return result.block_number, status
             if status == TxStatus.PENDING:
                 if not wait_for_accept and "block_number" in result:
-                    return result["block_number"], status
+                    return result.block_number, status
             elif status == TxStatus.REJECTED:
                 raise Exception(f"Transaction [{tx_hash}] was rejected.")
             elif status == TxStatus.NOT_RECEIVED:
