@@ -37,6 +37,7 @@ pylint = "^2.12.2"
 setuptools = "^60.0.3"
 pytest-mock = "^3.6.1"
 web3 = {extras=["tester"], version="5.3.1"}
+pyright = "^1.1.226"
 
 [tool.poe.tasks]
 test = ["test_unit", "test_e2e"]
@@ -63,7 +64,8 @@ docs_open = { shell = "open docs/_build/html/index.html" }
 lint = "pylint starknet_py"
 format = "black starknet_py"
 format_check = "black --check starknet_py"
-ci = ["lint", "format_check", "test"]
+type_check = "pyright"
+ci = ["type_check", "lint", "format_check", "test"]
 
 [tool.coverage.run]
 source = ["starknet_py"]
