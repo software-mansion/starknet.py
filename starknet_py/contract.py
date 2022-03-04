@@ -1,7 +1,7 @@
 import dataclasses
 from dataclasses import dataclass
 from functools import lru_cache
-from typing import List, Optional, Union, Dict, Collection, NamedTuple
+from typing import List, Optional, TypeVar, Union, Dict, Collection, NamedTuple
 
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
 from starkware.starknet.core.os.contract_hash import compute_contract_hash
@@ -32,6 +32,7 @@ from starknet_py.utils.sync import add_sync_methods
 
 ABI = list
 ABIEntry = dict
+TSentTransaction = TypeVar("TSentTransaction", bound="SentTransaction")
 
 
 @dataclass(frozen=True)
@@ -51,24 +52,25 @@ class ContractData:
 
 @add_sync_methods
 @dataclass(frozen=True)
-class InvocationResult:
+class SentTransaction:
     """
-    Dataclass returned from invocation. Contains basic details and allows waiting for transaction's acceptance.
+    Dataclass exposing the interface of transaction related to a performed action
     """
 
     hash: CastableToHash
-    contract: ContractData
     _client: "Client"
     status: Optional[str] = None
     block_number: Optional[int] = None
 
     async def wait_for_acceptance(
-        self, wait_for_accept: Optional[bool] = False, check_interval=5
-    ) -> "InvocationResult":
+        self: TSentTransaction,
+        wait_for_accept: Optional[bool] = False,
+        check_interval=5,
+    ) -> TSentTransaction:
         """
-        Waits for invoke transaction to be accepted on chain. By default, returns when status is ``PENDING`` -
+        Waits for transaction to be accepted on chain. By default, returns when status is ``PENDING`` -
         use ``wait_for_accept`` to wait till ``ACCEPTED`` status.
-        Returns a new InvocationResult instance, **does not mutate original instance**.
+        Returns a new SentTransaction instance, **does not mutate original instance**.
         """
         block_number, status = await self._client.wait_for_tx(
             int(self.hash, 16),
@@ -80,6 +82,27 @@ class InvocationResult:
             status=status,
             block_number=block_number,
         )
+
+
+@add_sync_methods
+@dataclass(frozen=True)
+class InvokeResult(SentTransaction):
+    contract: ContractData = None
+
+    def __post_init__(self):
+        assert self.contract is not None
+
+
+InvocationResult = InvokeResult
+
+
+@add_sync_methods
+@dataclass(frozen=True)
+class DeployResult(SentTransaction):
+    deployed_contract: "Contract" = None
+
+    def __post_init__(self):
+        assert self.deployed_contract is not None
 
 
 @add_sync_methods
@@ -149,14 +172,12 @@ class PreparedFunctionCall:
         )
         return self._payload_transformer.to_python(result)
 
-    async def invoke(
-        self, signature: Optional[Collection[int]] = None
-    ) -> InvocationResult:
+    async def invoke(self, signature: Optional[Collection[int]] = None) -> InvokeResult:
         """
         Invokes a method.
 
         :param signature: Signature to send
-        :return: InvocationResult
+        :return: InvokeResult
         """
         tx = self._make_invoke_function(signature)
         response = await self._client.add_transaction(tx=tx)
@@ -164,11 +185,13 @@ class PreparedFunctionCall:
         if response["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
             raise Exception("Failed to send transaction. Response: {response}.")
 
-        return InvocationResult(
+        invoke_result = InvokeResult(
             hash=response["transaction_hash"],  # noinspection PyTypeChecker
-            contract=self._contract_data,
             _client=self._client,
+            contract=self._contract_data,
         )
+
+        return invoke_result
 
     def _make_invoke_function(self, signature) -> InvokeFunction:
         return InvokeFunction(
@@ -231,7 +254,7 @@ class ContractFunction:
             block_hash=block_hash, block_number=block_number
         )
 
-    async def invoke(self, *args, **kwargs) -> InvocationResult:
+    async def invoke(self, *args, **kwargs) -> InvokeResult:
         """
         Invoke contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.
         Equivalent of ``.prepare(*args, **kwargs).invoke()``.
@@ -326,15 +349,18 @@ class Contract:
         )
         contract_address = res["address"]
 
-        await client.wait_for_tx(
-            tx_hash=res["transaction_hash"],
-        )
-
-        return Contract(
+        deployed_contract = Contract(
             client=client,
             address=contract_address,
             abi=definition.abi,
         )
+        deploy_result = DeployResult(
+            hash=res["transaction_hash"],
+            _client=client,
+            deployed_contract=deployed_contract,
+        )
+
+        return deploy_result
 
     @staticmethod
     def compute_address(

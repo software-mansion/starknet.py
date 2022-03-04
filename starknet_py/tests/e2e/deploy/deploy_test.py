@@ -13,6 +13,11 @@ map_source_code = Path(directory, "map.cairo").read_text("utf-8")
 async def test_deploy_tx():
     client = DevnetClient()
     result = await Contract.deploy(client=client, compilation_source=map_source_code)
+    await result.wait_for_acceptance()
+
+    result = await Contract.deploy(client=client, compilation_source=map_source_code)
+    await result.wait_for_acceptance()
+    result = result.contract
     assert isinstance(result.functions["get"], ContractFunction)
     assert isinstance(result.functions["put"], ContractFunction)
 
@@ -44,6 +49,9 @@ async def test_constructor_arguments():
         compilation_source=constructor_with_arguments_source,
         constructor_args=[value, tuple_value, arr, struct],
     )
+    await contract_1.wait_for_acceptance()
+    contract_1 = contract_1.contract
+
     # Named params
     contract_2 = await Contract.deploy(
         client=client,
@@ -55,6 +63,8 @@ async def test_constructor_arguments():
             "dict": struct,
         },
     )
+    await contract_2.wait_for_acceptance()
+    contract_2 = contract_2.contract
 
     assert contract_1.address != contract_2.address
 
@@ -74,8 +84,10 @@ constructor_without_arguments_source = Path(
 async def test_constructor_without_arguments():
     client = DevnetClient()
 
-    contract = await Contract.deploy(
+    result = await Contract.deploy(
         client=client, compilation_source=constructor_without_arguments_source
     )
+    await result.wait_for_acceptance()
+    contract = result.contract
 
     assert contract.address is not None

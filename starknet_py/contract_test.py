@@ -1,3 +1,5 @@
+import pytest
+
 from starknet_py.contract import Contract, PreparedFunctionCall, ContractData
 from starknet_py.net import Client
 
@@ -42,10 +44,10 @@ end
 """
 
 EXPECTED_HASH = (
-    1296395137456368839993793774656077365717081707850199132015420167798246992965
+    2805686283900972954281199974176256637529244635330751615468747630576307779907
 )
 EXPECTED_ADDRESS = (
-    1420872929128670766694786702640106101468453910861612404633095347796994319944
+    3316580593564723859317820329637657156309457332674023938311570757658456768228
 )
 
 
@@ -78,4 +80,13 @@ def test_transaction_hash():
     )
     assert (
         call.hash == 0x203BFF8307C3266B0749A0D1DBA143907F32F7E55C84A4A34077690C9C91BAC
+    )
+
+
+def test_no_valid_source():
+    with pytest.raises(ValueError) as v_err:
+        Contract.compute_contract_hash()
+
+    assert "One of compiled_contract or compilation_source is required." in str(
+        v_err.value
     )
