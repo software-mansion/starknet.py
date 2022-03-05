@@ -1794,7 +1794,7 @@ python-versions = "*"
 
 [[package]]
 name = "web3"
-version = "5.27.0"
+version = "5.28.0"
 description = "Web3.py"
 category = "main"
 optional = false
@@ -1892,7 +1892,7 @@ eth-tester = []
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.2,<3.10"
-content-hash = "f94e1718a4dedf8db9f84a89f71430808d2d72b7b701d86084cf18152dcb3ffa"
+content-hash = "493fc36ab437baa976f5fb04eba483dee5c78824de7c3f6303256444770bbc2b"
 
 [metadata.files]
 aiohttp = [
@@ -2984,8 +2984,8 @@ varint = [
     {file = "varint-1.0.2.tar.gz", hash = "sha256:a6ecc02377ac5ee9d65a6a8ad45c9ff1dac8ccee19400a5950fb51d594214ca5"},
 ]
 web3 = [
-    {file = "web3-5.27.0-py3-none-any.whl", hash = "sha256:48cab7999c9a4474c57fac16aa36b5e68730dae6f28b59564d5726b3fb221ed7"},
-    {file = "web3-5.27.0.tar.gz", hash = "sha256:e4ca28643b74365e7b50ec5db2d1be9799c14ad8d8b6ba31c0ecd3b573725bbd"},
+    {file = "web3-5.28.0-py3-none-any.whl", hash = "sha256:d4feb07fcfc01bc5525a1aa3062ec1d44089c24f941a1b6fa7acfc9ec20f46b2"},
+    {file = "web3-5.28.0.tar.gz", hash = "sha256:15209f1da8b99f85dadaa10f1117a8ec0624fc04426c62d8fe2d126bf0498b6e"},
 ]
 webencodings = [
     {file = "webencodings-0.5.1-py2.py3-none-any.whl", hash = "sha256:a0af1213f3c2226497a97e2b3aa01a7e4bee4f403f95be16fc9acd2947514a78"},

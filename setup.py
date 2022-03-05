@@ -62,7 +62,7 @@ package_data = \
 {'': ['*']}
 
 install_requires = \
-['asgiref>=3.4.1,<4.0.0', 'cairo-lang==0.7.1', 'web3==5.27.0']
+['asgiref>=3.4.1,<4.0.0', 'cairo-lang==0.7.1', 'web3==5.28.0']
 
 extras_require = \
 {'docs': ['sphinx>=4.3.1,<5.0.0', 'enum-tools[sphinx]==0.8.0']}
