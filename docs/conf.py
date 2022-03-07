@@ -23,7 +23,7 @@ sys.path.insert(1, os.path.dirname(os.path.abspath("../")) + os.sep + "starknet"
 # -- Project information -----------------------------------------------------
 
 project = "Starknet.py"
-copyright = "2021, Software Mansion"
+copyright = "2022, Software Mansion"
 author = "Software Mansion"
 
 

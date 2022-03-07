@@ -5,16 +5,21 @@ from starkware.crypto.signature.signature import (
     private_to_stark_key,
     get_random_private_key,
 )
-
 from starkware.starknet.public.abi import get_selector_from_name
+from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 
-
+from starknet_py.utils.data_transformer.data_transformer import DataTransformer
 from starknet_py.net import Client
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
 from starknet_py.net.models import InvokeFunction, StarknetChainId, TransactionType
 from starknet_py.net.networks import Network
 from starknet_py.utils.sync import add_sync_methods
-from starknet_py.utils.crypto.facade import message_signature, hash_message
+from starknet_py.utils.crypto.facade import (
+    Call,
+    MultiCall,
+    hash_multicall,
+    message_signature,
+)
 from starknet_py.net.models.address import AddressRepresentation, parse_address
 
 
@@ -51,6 +56,17 @@ class AccountClient(Client):
     def private_key(self) -> int:
         return self._key_pair.private_key
 
+    async def _get_nonce(self) -> int:
+        [nonce] = await super().call_contract(
+            InvokeFunction(
+                contract_address=self.address,
+                entry_point_selector=get_selector_from_name("get_nonce"),
+                calldata=[],
+                signature=[],
+            )
+        )
+        return nonce
+
     async def add_transaction(
         self,
         tx: InvokeFunction,
@@ -70,36 +86,53 @@ class AccountClient(Client):
                 "Adding signatures to a signer tx currently isn't supported"
             )
 
-        result = await super().call_contract(
-            InvokeFunction(
-                contract_address=self.address,
-                entry_point_selector=get_selector_from_name("get_nonce"),
-                calldata=[],
-                signature=[],
-            )
-        )
-        nonce = result[0]
+        nonce = await self._get_nonce()
 
-        msg_hash = hash_message(
+        multi_call = MultiCall(
             account=self.address,
-            to_addr=tx.contract_address,
-            selector=tx.entry_point_selector,
-            calldata=tx.calldata,
+            calls=[
+                Call(
+                    to_addr=tx.contract_address,
+                    selector=tx.entry_point_selector,
+                    calldata=tx.calldata,
+                )
+            ],
             nonce=nonce,
         )
+
         # pylint: disable=invalid-name
-        r, s = message_signature(msg_hash=msg_hash, priv_key=self.private_key)
+        r, s = message_signature(
+            msg_hash=hash_multicall(multi_call), priv_key=self.private_key
+        )
+
+        calldata_py = [
+            [
+                {
+                    "to": tx.contract_address,
+                    "selector": tx.entry_point_selector,
+                    "data_offset": 0,
+                    "data_len": len(tx.calldata),
+                }
+            ],
+            tx.calldata,
+            nonce,
+        ]
+
+        code = await self.get_code(contract_address=parse_address(self.address))
+        abi = code["abi"]
+        identifier_manager = identifier_manager_from_abi(abi)
+        [execute_abi] = [a for a in abi if a["name"] == "__execute__"]
+
+        payload_transformer = DataTransformer(
+            abi=execute_abi, identifier_manager=identifier_manager
+        )
+
+        calldata, _ = payload_transformer.from_python(*calldata_py)
 
         return await super().add_transaction(
             InvokeFunction(
-                entry_point_selector=get_selector_from_name("execute"),
-                calldata=[
-                    tx.contract_address,
-                    tx.entry_point_selector,
-                    len(tx.calldata),
-                    *tx.calldata,
-                    nonce,
-                ],
+                entry_point_selector=get_selector_from_name("__execute__"),
+                calldata=calldata,
                 contract_address=self.address,
                 signature=[r, s],
             )
