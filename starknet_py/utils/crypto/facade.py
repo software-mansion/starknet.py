@@ -44,7 +44,7 @@ class Call:
 @dataclass(frozen=True)
 class MultiCall:
     account: int
-    calls: Call
+    calls: List[Call]
     nonce: int
     max_fee: int = 0
     version: int = 0
