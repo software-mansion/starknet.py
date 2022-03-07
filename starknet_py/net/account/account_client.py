@@ -56,8 +56,8 @@ class AccountClient(Client):
     def private_key(self) -> int:
         return self._key_pair.private_key
 
-    async def _get_nonce(self):
-        return await super().call_contract(
+    async def _get_nonce(self) -> int:
+        [nonce] = await super().call_contract(
             InvokeFunction(
                 contract_address=self.address,
                 entry_point_selector=get_selector_from_name("get_nonce"),
@@ -65,6 +65,7 @@ class AccountClient(Client):
                 signature=[],
             )
         )
+        return nonce
 
     async def add_transaction(
         self,
@@ -85,7 +86,7 @@ class AccountClient(Client):
                 "Adding signatures to a signer tx currently isn't supported"
             )
 
-        nonce = self._get_nonce()
+        nonce = await self._get_nonce()
 
         multi_call = MultiCall(
             account=self.address,

@@ -47,7 +47,9 @@ test_e2e.shell = """
     DEVNET_PID=$!
     sleep 1
     coverage run -m pytest starknet_py/tests/e2e
+    COV_RES=$?
     kill $DEVNET_PID
+    exit $COV_RES
 """
 test_e2e.env = { COVERAGE_FILE="e2e.coverage", DEVNET_PORT="5001" }
 coverage_combine.shell = "coverage combine unit.coverage e2e.coverage"
@@ -61,7 +63,8 @@ docs_open = { shell = "open docs/_build/html/index.html" }
 lint = "pylint starknet_py"
 format = "black starknet_py"
 format_check = "black --check starknet_py"
-ci = ["lint", "format_check", "test"]
+type_check = "pyright"
+ci = ["type_check", "lint", "format_check", "test"]
 
 [tool.coverage.run]
 source = ["starknet_py"]

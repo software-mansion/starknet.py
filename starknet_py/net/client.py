@@ -9,6 +9,9 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
     CastableToHash,
     JsonObject,
 )
+from starkware.starknet.services.api.feeder_gateway.response_objects import (
+    StarknetBlock,
+)
 from starkware.starknet.services.api.gateway.gateway_client import GatewayClient
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
@@ -81,7 +84,7 @@ class Client:
         self,
         block_hash: Optional[CastableToHash] = None,
         block_number: Optional[BlockIdentifier] = None,
-    ) -> JsonObject:
+    ) -> StarknetBlock:
         """
         Retrieve the block's data by its number or hash
 
@@ -191,7 +194,7 @@ class Client:
         :param tx_hash: Transaction's hash
         :param wait_for_accept: If true waits for ACCEPTED_ONCHAIN status, otherwise waits for at least PENDING
         :param check_interval: Defines interval between checks
-        :return: tuple(block number, ``starknet.constants.TxStatus``)
+        :return: tuple(block number, ``starknet_py.constants.TxStatus``)
         """
         if check_interval <= 0:
             raise ValueError("check_interval has to bigger than 0.")
@@ -199,13 +202,13 @@ class Client:
         first_run = True
         while True:
             result = await self.get_transaction(tx_hash=tx_hash)
-            status = TxStatus[result["status"]]
+            status = result.status
 
             if status in ACCEPTED_STATUSES:
-                return result["block_number"], status
+                return result.block_number, status
             if status == TxStatus.PENDING:
                 if not wait_for_accept and "block_number" in result:
-                    return result["block_number"], status
+                    return result.block_number, status
             elif status == TxStatus.REJECTED:
                 raise Exception(f"Transaction [{tx_hash}] was rejected.")
             elif status == TxStatus.NOT_RECEIVED:
