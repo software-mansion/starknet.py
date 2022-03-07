@@ -59,8 +59,7 @@ packages = \
  'starknet_py.utils.sync']
 
 package_data = \
-{'': ['*'],
- 'starknet_py.utils.compiler': ['mock-contracts/*', 'mock-contracts/inner/*']}
+{'': ['*']}
 
 install_requires = \
 ['asgiref>=3.4.1,<4.0.0', 'cairo-lang==0.7.1', 'web3==5.3.1']

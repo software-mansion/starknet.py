@@ -4,7 +4,7 @@ version = "0.1.7-alpha"
 description = "A python SDK for StarkNet"
 authors = ["Tomasz Rejowski <tomasz.rejowski@swmansion.com>", "Jakub Ptak <jakub.ptak@swmansion.com>"]
 include = ["starknet_py", "starknet_py/utils/crypto/libcrypto_c_exports.*"]
-exclude = ["starknet_py/tests/*", "starknet_py/**/*_test.py"]
+exclude = ["starknet_py/tests/*", "starknet_py/**/*_test.py", "starknet_py/utils/compiler/mock-contracts/**"]
 packages = [
     { include = "starknet_py" }
 ]
