@@ -119,10 +119,10 @@ class AccountClient(Client):
         code = await self.get_code(contract_address=parse_address(self.address))
         abi = code["abi"]
         identifier_manager = identifier_manager_from_abi(abi)
-        [abi] = [a for a in abi if a["name"] == "__execute__"]
+        [execute_abi] = [a for a in abi if a["name"] == "__execute__"]
 
         payload_transformer = DataTransformer(
-            abi=abi, identifier_manager=identifier_manager
+            abi=execute_abi, identifier_manager=identifier_manager
         )
 
         calldata, _ = payload_transformer.from_python(*calldata_py)
