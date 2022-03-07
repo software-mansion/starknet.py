@@ -68,6 +68,7 @@ ECSignature = Tuple[int, int]
 def cpp_hash(left: int, right: int) -> int:
     load_cpp_lib()
     res = ctypes.create_string_buffer(OUT_BUFFER_SIZE)
+    
     if (
         CPP_LIB_BINDING.Hash(
             left.to_bytes(32, "little", signed=False),
