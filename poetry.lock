@@ -1025,14 +1025,6 @@ optional = false
 python-versions = "*"
 
 [[package]]
-name = "nodeenv"
-version = "1.6.0"
-description = "Node.js virtual environment builder"
-category = "dev"
-optional = false
-python-versions = "*"
-
-[[package]]
 name = "numpy"
 version = "1.21.5"
 description = "NumPy is the fundamental package for array computing with Python."
@@ -1674,11 +1666,11 @@ flask-cors = ">=3.0.10,<4.0.0"
 
 [[package]]
 name = "sympy"
-version = "1.9"
+version = "1.10"
 description = "Computer algebra system (CAS) in Python"
 category = "main"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 
 [package.dependencies]
 mpmath = ">=0.19"
@@ -2541,10 +2533,6 @@ netaddr = [
     {file = "netaddr-0.8.0-py2.py3-none-any.whl", hash = "sha256:9666d0232c32d2656e5e5f8d735f58fd6c7457ce52fc21c98d45f2af78f990ac"},
     {file = "netaddr-0.8.0.tar.gz", hash = "sha256:d6cc57c7a07b1d9d2e917aa8b36ae8ce61c35ba3fcd1b83ca31c5a0ee2b5a243"},
 ]
-nodeenv = [
-    {file = "nodeenv-1.6.0-py2.py3-none-any.whl", hash = "sha256:621e6b7076565ddcacd2db0294c0381e01fd28945ab36bcf00f41c5daf63bef7"},
-    {file = "nodeenv-1.6.0.tar.gz", hash = "sha256:3ef13ff90291ba2a4a7a4ff9a979b63ffdd00a464dbe04acf0ea6471517a4c2b"},
-]
 numpy = [
     {file = "numpy-1.21.5-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:301e408a052fdcda5cdcf03021ebafc3c6ea093021bf9d1aa47c54d48bdad166"},
     {file = "numpy-1.21.5-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:a7e8f6216f180f3fd4efb73de5d1eaefb5f5a1ee5b645c67333033e39440e63a"},
@@ -2925,8 +2913,8 @@ starknet-devnet = [
     {file = "starknet_devnet-0.1.17.tar.gz", hash = "sha256:7c0b2b74e8c9a58d90c5cebe1cdec9ed9dccdf9111ebf68c695b905d501e8b30"},
 ]
 sympy = [
-    {file = "sympy-1.9-py3-none-any.whl", hash = "sha256:8bc5de4608b7aa4e7ffd1b25452ae87ccc5f6ca667c661aafb854a1ade337d0c"},
-    {file = "sympy-1.9.tar.gz", hash = "sha256:c7a880e229df96759f955d4f3970d4cabce79f60f5b18830c08b90ce77cd5fdc"},
+    {file = "sympy-1.10-py3-none-any.whl", hash = "sha256:2009368e862cd29f1b568dc6572786371a2faa1cd8eb4d313e11a90195d6ee36"},
+    {file = "sympy-1.10.tar.gz", hash = "sha256:6cf85a5cfe8fff69553e745b05128de6fc8de8f291965c63871c79701dc6efc9"},
 ]
 tabulate = [
     {file = "tabulate-0.8.9-py3-none-any.whl", hash = "sha256:d7c013fe7abbc5e491394e10fa845f8f32fe54f8dc60c6622c6cf482d25d47e4"},
