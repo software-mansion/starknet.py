@@ -23,6 +23,20 @@ Setup
     # Make sure everything was installed properly
     poe test
 
+Crypto-cpp
+----------
+
+By default, the library uses ``crypto-cpp`` and so it must be configured properly for development:
+
+1. Compile it from sources (https://github.com/starkware-libs/crypto-cpp)
+2. Copy ``libcrypto_c_exports.dylib`` from ``crypto-cpp/src/starkware/crypto/ffi/libcrypto_c_exports.dylib`` to ``starknet_py/utils/crypto``
+
+To use python implementation instead, ``DISABLE_CRYPTO_C_EXTENSION`` environment variable can be set to ``false``
+
+.. code-block:: sh
+
+    export DISABLE_CRYPTO_C_EXTENSION="false"
+
 Git hooks
 ---------
 Run this snippet to enable lint checks and automatic formatting before commit/push.
@@ -51,9 +65,6 @@ Documentation
 
 Tests
 -----
-
-It is recommended to set ``CRYPTO_C_EXPORTS_PATH_TEST`` environment variable to ``crypto-cpp`` before testing as described
-in :ref:`crypto-cpp installation<Crypto-cpp installation>`.
 
 .. code-block:: bash
 
