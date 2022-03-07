@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import List, Callable, TypeVar, Generic, Tuple, Dict, NamedTuple
+import itertools
 
 from starkware.cairo.lang.compiler.ast.cairo_types import (
     TypeFelt,
@@ -18,7 +19,6 @@ from starkware.cairo.lang.compiler.parser import parse_type
 from starkware.cairo.lang.compiler.type_system import mark_type_resolved
 
 from starknet_py.cairo.felt import (
-    is_felt_pointer,
     is_uint256,
     uint256_range_check,
     cairo_vm_range_check,
@@ -159,20 +159,29 @@ class TupleTransformer(TypeTransformer[TypeTuple, tuple]):
         return (*result,), values
 
 
-# Starknet's views only support arrays of felts for now
 class ArrayTransformer(TypeTransformer[TypePointer, List[int]]):
     def from_python(self, cairo_type, name, value):
-        inner_type = TypeFelt()
-        felt_transformer = self.resolve_type(inner_type)
+        inner_type = cairo_type.pointee
+
+        transformer = self.resolve_type(inner_type)
         transformed = [
-            felt_transformer.from_python(inner_type, f"{name}[{i}]", value)[0]
+            transformer.from_python(inner_type, f"{name}[{i}]", value)
             for i, value in enumerate(value)
         ]
-        return [len(transformed), *transformed]
+        array_len = len(transformed)
+        array_data = list(itertools.chain(*transformed))
+        return [array_len, *array_data]
 
     def to_python(self, cairo_type, name, values):
         [length], values = read_from_cairo_data(name, values, 1)
-        array, rest = read_from_cairo_data(name, values, length)
+        inner_type = cairo_type.pointee
+        transformer = self.resolve_type(inner_type)
+
+        array = []
+        rest = values
+        for i in range(length):
+            elem, rest = transformer.to_python(inner_type, f"{name}[{i}]", rest)
+            array.append(elem)
 
         return array, rest
 
@@ -265,19 +274,15 @@ class DataTransformer:
     @staticmethod
     def _remove_array_lengths(type_by_name: dict) -> dict:
         """
-        If it is an array ignore array_len argument, we prepend length to felt* by default,
+        If it is an array ignore array_len argument, we prepend length to <type>* by default,
         so we can omit this input.
         """
-        to_return = {}
 
-        for name, cairo_type in type_by_name.items():
-            if name.endswith("_len") and isinstance(cairo_type, TypeFelt):
-                array_key = name[:-4]
-                if array_key in type_by_name and is_felt_pointer(
-                    type_by_name[array_key]
-                ):
-                    continue
+        is_array_len = (
+            lambda name, cairo_type: name.endswith("_len")
+            and isinstance(cairo_type, TypeFelt)
+            and name[:-4] in type_by_name
+            and isinstance(type_by_name[name[:-4]], TypePointer)
+        )
 
-            to_return[name] = cairo_type
-
-        return to_return
+        return {k: v for k, v in type_by_name.items() if not is_array_len(k, v)}

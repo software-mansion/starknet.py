@@ -47,6 +47,42 @@ def test_array(value, cairo_value):
 @pytest.mark.parametrize(
     "value, cairo_value",
     [
+        ([{"a": 1, "b": 2}, {"a": 3, "b": 4}], [2, 1, 2, 3, 4]),
+        ([], [0]),
+        ([{"a": 157, "b": 2888}], [1, 157, 2888]),
+    ],
+)
+def test_struct_array(value, cairo_value):
+    abi = [
+        {"name": "array_len", "type": "felt"},
+        {"name": "array", "type": "ExStruct*"},
+    ]
+    structs = [
+        {
+            "members": [
+                {"name": "a", "offset": 0, "type": "felt"},
+                {"name": "b", "offset": 1, "type": "felt"},
+            ],
+            "name": "ExStruct",
+            "size": 2,
+            "type": "struct",
+        }
+    ]
+
+    from_python, _args = transformer_for_function(
+        inputs=abi, structs=structs
+    ).from_python(value)
+    to_python = transformer_for_function(outputs=abi, structs=structs).to_python(
+        cairo_value
+    )
+
+    assert from_python == cairo_value
+    assert to_python == (value,)
+
+
+@pytest.mark.parametrize(
+    "value, cairo_value",
+    [
         ((1, 2, 3), [1, 2, 3]),
         ((1,), [1]),
         ((213, 2), [213, 2]),
