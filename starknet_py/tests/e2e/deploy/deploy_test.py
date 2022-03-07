@@ -8,6 +8,11 @@ from starknet_py.tests.e2e.utils import DevnetClient
 directory = os.path.dirname(__file__)
 map_source_code = Path(directory, "map.cairo").read_text("utf-8")
 
+mock_contracts_base_path = Path(directory, "mock-contracts")
+base_source_code = Path(os.path.join(mock_contracts_base_path, "base.cairo")).read_text(
+    "utf-8"
+)
+
 
 @pytest.mark.asyncio
 async def test_deploy_tx():
@@ -19,6 +24,26 @@ async def test_deploy_tx():
     result = await result.wait_for_acceptance()
     result = result.deployed_contract
     assert isinstance(result.functions["get"], ContractFunction)
+    assert isinstance(result.functions["put"], ContractFunction)
+
+
+@pytest.mark.asyncio
+async def test_deploy_with_search_path():
+    client = DevnetClient()
+    result = await Contract.deploy(
+        client=client,
+        compilation_source=base_source_code,
+        search_paths=[mock_contracts_base_path],
+    )
+    await result.wait_for_acceptance()
+
+    result = await Contract.deploy(
+        client=client,
+        compilation_source=base_source_code,
+        search_paths=[mock_contracts_base_path],
+    )
+    result = await result.wait_for_acceptance()
+    result = result.deployed_contract
     assert isinstance(result.functions["put"], ContractFunction)
 
 
