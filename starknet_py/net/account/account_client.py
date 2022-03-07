@@ -100,7 +100,9 @@ class AccountClient(Client):
         )
 
         # pylint: disable=invalid-name
-        r, s = message_signature(msg_hash=hash_multicall(multi_call), priv_key=self.private_key)
+        r, s = message_signature(
+            msg_hash=hash_multicall(multi_call), priv_key=self.private_key
+        )
 
         calldata_py = [
             [
