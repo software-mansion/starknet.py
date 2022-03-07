@@ -336,6 +336,7 @@ class Contract:
         :param compiled_contract: string containing compiled contract. Useful for reading compiled contract from a file.
         :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
         :param salt: Optional salt. Random value is selected if it is not provided.
+        :param search_paths: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts
         :return: an initialized Contract instance
         """
         definition = Contract._make_definition(
@@ -382,6 +383,7 @@ class Contract:
         :param compilation_source: string containing source code or a list of source files paths
         :param compiled_contract: string containing compiled contract. Useful for reading compiled contract from a file.
         :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
+        :param search_paths: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts
         :return: contract's address
         """
         definition = Contract._make_definition(
@@ -410,6 +412,7 @@ class Contract:
 
         :param compilation_source: string containing source code or a list of source files paths
         :param compiled_contract: string containing compiled contract. Useful for reading compiled contract from a file.
+        :param search_paths: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts
         :return:
         """
         definition = Contract._make_definition(
