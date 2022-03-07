@@ -272,6 +272,10 @@ Starknet.py transforms python values to Cairo values and the other way around.
      - any iterable containing ints
      - ``[1, 2, 3]``, ``[]``, ``(1, 2, 3)``
      - ``parameter_len`` is filled automatically from value
+   * - pointer to struct/struct arrays (requires additional ``parameter_len`` parameter)
+     - any iterable containing dicts
+     - ``[{"key": 1}, {"key": 2}, {"key": 3}]``, ``[]``, ``({"key": 1}, {"key": 2}, {"key": 3})``
+     - ``parameter_len`` is filled automatically from value
    * - uint256
      - int or dict with ``"low"`` and ``"high"`` keys and ints as values
      - ``0``, ``340282366920938463463374607431768211583``, ``{"low": 12, "high": 13}``
@@ -293,6 +297,8 @@ Starknet.py transforms python values to Cairo values and the other way around.
      - dict with keys matching struct
    * - pointer to felt/felt arrays
      - list of ints
+   * - pointer to struct/struct arrays
+     - list of dicts
    * - unt256
      - int
 

@@ -1,6 +1,7 @@
 import functools
 import os
 from typing import List, Callable, Iterable, Optional
+from dataclasses import dataclass
 
 from starkware.cairo.common.hash_state import compute_hash_on_elements
 from starkware.cairo.lang.vm.crypto import pedersen_hash as default_hash
@@ -29,28 +30,64 @@ def sign_calldata(calldata: Iterable[int], priv_key: int):
     return message_signature(hashed_calldata, priv_key)
 
 
-# Implementation
+# PREFIX_TRANSACTION = 'StarkNet Transaction'
+PREFIX_TRANSACTION = 476441609247967894954472788179128007176248455022
+
+
+@dataclass(frozen=True)
+class Call:
+    to_addr: int
+    selector: int
+    calldata: List[int]
+
+
+@dataclass(frozen=True)
+class MultiCall:
+    account: int
+    calls: Call
+    nonce: int
+    max_fee: int = 0
+    version: int = 0
+
+
 # pylint: disable=too-many-arguments
-def hash_message_with(
-    account: int,
-    to_addr: int,
-    selector: int,
-    calldata: List[int],
-    nonce: int,
+def hash_multicall_with(
+    multi_call: MultiCall,
     hash_fun: Callable[[int, int], int],
 ) -> int:
+    """
+    Mimics the behavior of
+    https://github.com/argentlabs/cairo-contracts/blob/c2ff198e5de5b19514d99ecff604a7cbf3377d2f/contracts/Account.cairo#L248
+    """
+
+    calls_hash = compute_hash_on_elements(
+        [hash_call_with(c, hash_fun=hash_fun) for c in multi_call.calls],
+        hash_func=hash_fun,
+    )
+
     return compute_hash_on_elements(
         [
-            account,
-            to_addr,
-            selector,
-            compute_hash_on_elements(
-                calldata,
-                hash_func=hash_fun,
-            ),
-            nonce,
+            PREFIX_TRANSACTION,
+            multi_call.account,
+            calls_hash,
+            multi_call.nonce,
+            multi_call.max_fee,
+            multi_call.version,
         ],
         hash_func=hash_fun,
+    )
+
+
+def hash_call_with(call: Call, hash_fun):
+    return compute_hash_on_elements(
+        [
+            call.to_addr,
+            call.selector,
+            compute_hash_on_elements(
+                call.calldata,
+                hash_func=hash_fun,
+            ),
+        ]
     )
 
 
@@ -76,18 +113,8 @@ def pedersen_hash(left: int, right: int) -> int:
     return default_hash(left, right)
 
 
-def hash_message(
-    account: int,
-    to_addr: int,
-    selector: int,
-    calldata: List[int],
-    nonce: int,
-) -> int:
-    return hash_message_with(
-        account=account,
-        to_addr=to_addr,
-        selector=selector,
-        calldata=calldata,
-        nonce=nonce,
+def hash_multicall(multi_call: MultiCall) -> int:
+    return hash_multicall_with(
+        multi_call=multi_call,
         hash_fun=pedersen_hash,
     )
