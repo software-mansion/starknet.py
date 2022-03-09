@@ -48,6 +48,7 @@ from setuptools import setup
 packages = \
 ['starknet_py',
  'starknet_py.cairo',
+ 'starknet_py.compile',
  'starknet_py.net',
  'starknet_py.net.account',
  'starknet_py.net.l1',

@@ -12,6 +12,7 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
     CastableToHash,
 )
 from starkware.starkware_utils.error_handling import StarkErrorCode
+from starknet_py.compile.compiler import Compiler
 
 from starknet_py.net import Client
 from starknet_py.net.models import (
@@ -24,7 +25,6 @@ from starknet_py.net.models import (
 from starknet_py.net.models.address import BlockIdentifier
 from starknet_py.utils.compiler.starknet_compile import (
     StarknetCompilationSource,
-    starknet_compile,
 )
 from starknet_py.utils.crypto.facade import pedersen_hash
 from starknet_py.utils.data_transformer import DataTransformer
@@ -339,8 +339,8 @@ class Contract:
         :param search_paths: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts.
         :return: an initialized Contract instance
         """
-        definition = Contract._make_definition(
-            compilation_source=compilation_source,
+        definition = Compiler.create_contract_definition(
+            contract_source=compilation_source,
             compiled_contract=compiled_contract,
             search_paths=search_paths,
         )
@@ -386,8 +386,8 @@ class Contract:
         :param search_paths: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts.
         :return: contract's address
         """
-        definition = Contract._make_definition(
-            compilation_source=compilation_source,
+        definition = Compiler.create_contract_definition(
+            contract_source=compilation_source,
             compiled_contract=compiled_contract,
             search_paths=search_paths,
         )
@@ -415,30 +415,12 @@ class Contract:
         :param search_paths: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts.
         :return:
         """
-        definition = Contract._make_definition(
-            compilation_source=compilation_source,
+        definition = Compiler.create_contract_definition(
+            contract_source=compilation_source,
             compiled_contract=compiled_contract,
             search_paths=search_paths,
         )
         return compute_contract_hash(definition, hash_func=pedersen_hash)
-
-    @staticmethod
-    def _make_definition(
-        compilation_source: Optional[StarknetCompilationSource] = None,
-        compiled_contract: Optional[str] = None,
-        search_paths: Optional[List[str]] = None,
-    ) -> ContractDefinition:
-        if not compiled_contract and not compilation_source:
-            raise ValueError(
-                "One of compiled_contract or compilation_source is required."
-            )
-
-        if not compiled_contract:
-            compiled_contract = starknet_compile(
-                compilation_source, search_paths=search_paths
-            )
-
-        return ContractDefinition.loads(compiled_contract)
 
     @staticmethod
     def _translate_constructor_args(
