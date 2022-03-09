@@ -8,7 +8,7 @@ Using Client
 .. code-block:: python
 
     from starknet_py.contract import Contract
-    from starknet_py.net.client import Client
+    from starknet_py.net import Client
 
     # Use testnet for playing with Starknet
     testnet_client = Client("https://alpha4.starknet.io")
@@ -38,6 +38,8 @@ Using AccountClient
 Example usage:
 
 .. code-block:: python
+
+    from starknet_py.net import AccountClient
 
     # Creates an account on local network and returns an instance
     acc_client = await AccountClient.create_account(net="testnet")
