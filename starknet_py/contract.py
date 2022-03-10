@@ -23,9 +23,7 @@ from starknet_py.net.models import (
     compute_invoke_hash,
 )
 from starknet_py.net.models.address import BlockIdentifier
-from starknet_py.utils.compiler.starknet_compile import (
-    StarknetCompilationSource,
-)
+from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.utils.crypto.facade import pedersen_hash
 from starknet_py.utils.data_transformer import DataTransformer
 from starknet_py.utils.sync import add_sync_methods

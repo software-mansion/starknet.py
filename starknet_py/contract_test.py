@@ -76,7 +76,7 @@ EXPECTED_ADDRESS_WITH_IMPORTS = (
 )
 
 directory = os.path.dirname(__file__)
-search_path = Path(directory, "utils/compiler/mock-contracts")
+search_path = Path(directory, "compile/mock-contracts")
 
 
 def test_compute_hash():
