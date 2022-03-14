@@ -264,6 +264,10 @@ Starknet.py transforms python values to Cairo values and the other way around.
      - any iterable of matching size
      - ``(1, 2, (9, 8))``, ``[1, 2, (9, 8)]``, ``(v for v in [1, 2, (9, 8)])``
      - Can nest other types apart from pointers
+   * - named tuple
+     - dict or NamedTuple
+     - ``{"a": 1, "b": 2, "c" : (3, 4)}``, ``NamedTuple("name", [("a", int), ("b", int), ("c", tuple)])(1, 2, (3, 4))``
+     -
    * - struct
      - dict with keys matching struct
      - ``{"key_1": 2, "key_2": (1, 2, 3), "key_3": {"other_struct_key": 13}}``
@@ -293,6 +297,8 @@ Starknet.py transforms python values to Cairo values and the other way around.
      - int
    * - tuple
      - tuple
+   * - named tuple
+     - NamedTuple
    * - struct
      - dict with keys matching struct
    * - pointer to felt/felt arrays
