@@ -24,11 +24,14 @@ Transaction = as_our_module(T)
 TransactionType = as_our_module(TT)
 
 
+# pylint disable=too-many-arguments
 def compute_invoke_hash(
     contract_address: int,
     entry_point_selector: Union[int, str],
     calldata: Sequence[int],
     chain_id: StarknetChainId,
+    max_fee: int,
+    version: int,
 ) -> int:
     """
     Computes invocation hash.
@@ -50,6 +53,8 @@ def compute_invoke_hash(
         chain_id=chain_id.value,
         hash_function=pedersen_hash,
         additional_data=[],
+        max_fee=max_fee,
+        version=version,
     )
 
 

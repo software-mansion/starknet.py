@@ -63,6 +63,9 @@ class AccountClient(Client):
                 entry_point_selector=get_selector_from_name("get_nonce"),
                 calldata=[],
                 signature=[],
+                # verifiy this is correct
+                max_fee=0,
+                version=1,
             )
         )
         return nonce
@@ -98,6 +101,8 @@ class AccountClient(Client):
                 )
             ],
             nonce=nonce,
+            max_fee=tx.max_fee,
+            version=tx.version,
         )
 
         # pylint: disable=invalid-name
@@ -135,6 +140,8 @@ class AccountClient(Client):
                 calldata=calldata,
                 contract_address=self.address,
                 signature=[r, s],
+                max_fee=tx.max_fee,
+                version=tx.version,
             )
         )
 

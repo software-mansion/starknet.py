@@ -115,6 +115,8 @@ class PreparedFunctionCall:
         client: Client,
         payload_transformer: DataTransformer,
         contract_data: ContractData,
+        max_fee: int,
+        version: int,
     ):
         # pylint: disable=too-many-arguments
         self.calldata = calldata
@@ -123,6 +125,8 @@ class PreparedFunctionCall:
         self._client = client
         self._payload_transformer = payload_transformer
         self._contract_data = contract_data
+        self._max_fee = max_fee
+        self._version = version
 
     @property
     @lru_cache()
@@ -132,6 +136,8 @@ class PreparedFunctionCall:
             entry_point_selector=self.selector,
             calldata=self.calldata,
             chain_id=self._client.chain,
+            max_fee=self._max_fee,
+            version=self._version,
         )
 
     async def call_raw(
@@ -172,7 +178,10 @@ class PreparedFunctionCall:
         )
         return self._payload_transformer.to_python(result)
 
-    async def invoke(self, signature: Optional[Collection[int]] = None) -> InvokeResult:
+    async def invoke(
+        self,
+        signature: Optional[Collection[int]] = None,
+    ) -> InvokeResult:
         """
         Invokes a method.
 
@@ -200,6 +209,8 @@ class PreparedFunctionCall:
             calldata=self.calldata,
             # List is required here
             signature=[*signature] if signature else [],
+            max_fee=self._max_fee,
+            version=self._version,
         )
 
 
@@ -217,7 +228,9 @@ class ContractFunction:
             abi=self.abi, identifier_manager=self.contract_data.identifier_manager
         )
 
-    def prepare(self, *args, **kwargs) -> PreparedFunctionCall:
+    def prepare(
+        self, *args, max_fee: int = None, version: int = None, **kwargs
+    ) -> PreparedFunctionCall:
         """
         ``*args`` and ``**kwargs`` are translated into Cairo calldata.
          Creates a ``PreparedFunctionCall`` instance
@@ -225,6 +238,9 @@ class ContractFunction:
 
         :return: PreparedFunctionCall
         """
+        if max_fee is None or version is None:
+            # TODO add proper exception handling
+            raise ValueError()
         calldata, arguments = self._payload_transformer.from_python(*args, **kwargs)
         return PreparedFunctionCall(
             calldata=calldata,
@@ -233,6 +249,8 @@ class ContractFunction:
             client=self._client,
             payload_transformer=self._payload_transformer,
             selector=self.get_selector(self.name),
+            max_fee=max_fee,
+            version=version,
         )
 
     async def call(
@@ -250,16 +268,18 @@ class ContractFunction:
         The result is translated from Cairo data to python values.
         Equivalent of ``.prepare(*args, **kwargs).call()``.
         """
-        return await self.prepare(*args, **kwargs).call(
+        return await self.prepare(max_fee=0, version=1, *args, **kwargs).call(
             block_hash=block_hash, block_number=block_number
         )
 
-    async def invoke(self, *args, **kwargs) -> InvokeResult:
+    async def invoke(self, max_fee: int, *args, **kwargs) -> InvokeResult:
         """
         Invoke contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.
         Equivalent of ``.prepare(*args, **kwargs).invoke()``.
         """
-        return await self.prepare(*args, **kwargs).invoke()
+        return await self.prepare(max_fee=max_fee, version=0, *args, **kwargs).invoke(
+            max_fee=max_fee
+        )
 
     @staticmethod
     def get_selector(function_name: str):
