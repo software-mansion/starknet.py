@@ -154,16 +154,15 @@ class TupleTransformer(TypeTransformer[TypeTuple, tuple]):
 
         return results
 
-    def _from_python_named(self, cairo_type, name, value):
-        if not isinstance(value, dict) and not self._isnamedtuple(value):
+    def _from_python_named(self, cairo_type, name, values):
+        if not isinstance(values, dict) and not TupleTransformer.isnamedtuple(values):
             raise ValueError(
                 f"Input {name} is a named tuple and must be dict or NamedTuple"
             )
 
         results = []
-        values = value
 
-        if self._isnamedtuple(values):
+        if TupleTransformer.isnamedtuple(values):
             values = values._asdict()
 
         for member in cairo_type.members:
@@ -175,7 +174,7 @@ class TupleTransformer(TypeTransformer[TypeTuple, tuple]):
         return results
 
     @staticmethod
-    def _isnamedtuple(value):
+    def isnamedtuple(value):
         return isinstance(value, tuple) and hasattr(value, "_fields")
 
     def to_python(self, cairo_type, name, values):
@@ -212,13 +211,13 @@ class TupleItemTransformer(TypeTransformer[TypeTuple.Item, tuple]):
     def from_python(self, cairo_type: UsedCairoType, name: str, value: any):
         value = self.resolve_type(cairo_type.typ).from_python(
             cairo_type.typ,
-            cairo_type.name if "cairo_type.name" is not None else "",
+            cairo_type.name or "",
             value,
         )
         return value
 
     def to_python(self, cairo_type: UsedCairoType, name: str, values: CairoData):
-        name = cairo_type.name if cairo_type.name is not None else ""
+        name = cairo_type.name or ""
         result, values = self.resolve_type(cairo_type.typ).to_python(
             cairo_type.typ, name, values
         )
