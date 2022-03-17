@@ -105,6 +105,7 @@ class DeployResult(SentTransaction):
         assert self.deployed_contract is not None
 
 
+# pylint: disable=too-many-instance-attributes
 @add_sync_methods
 class PreparedFunctionCall:
     def __init__(

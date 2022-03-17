@@ -24,7 +24,6 @@ Transaction = as_our_module(T)
 TransactionType = as_our_module(TT)
 
 
-# pylint disable=too-many-arguments
 def compute_invoke_hash(
     contract_address: int,
     entry_point_selector: Union[int, str],
@@ -33,6 +32,7 @@ def compute_invoke_hash(
     max_fee: int,
     version: int,
 ) -> int:
+    # pylint: disable=too-many-arguments
     """
     Computes invocation hash.
 
