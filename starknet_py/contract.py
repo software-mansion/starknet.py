@@ -268,18 +268,19 @@ class ContractFunction:
         The result is translated from Cairo data to python values.
         Equivalent of ``.prepare(*args, **kwargs).call()``.
         """
-        return await self.prepare(max_fee=0, version=1, *args, **kwargs).call(
+        return await self.prepare(max_fee=0, version=0, *args, **kwargs).call(
             block_hash=block_hash, block_number=block_number
         )
 
-    async def invoke(self, max_fee: int, *args, **kwargs) -> InvokeResult:
+    async def invoke(self, *args, max_fee: int = None, **kwargs) -> InvokeResult:
         """
         Invoke contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.
         Equivalent of ``.prepare(*args, **kwargs).invoke()``.
         """
-        return await self.prepare(max_fee=max_fee, version=0, *args, **kwargs).invoke(
-            max_fee=max_fee
-        )
+        if max_fee is None:
+            # TODO error handling
+            raise ValueError()
+        return await self.prepare(max_fee=max_fee, version=0, *args, **kwargs).invoke()
 
     @staticmethod
     def get_selector(function_name: str):

@@ -65,7 +65,7 @@ class AccountClient(Client):
                 signature=[],
                 # verifiy this is correct
                 max_fee=0,
-                version=1,
+                version=0,
             )
         )
         return nonce
