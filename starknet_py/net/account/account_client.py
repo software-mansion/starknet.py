@@ -7,6 +7,7 @@ from starkware.crypto.signature.signature import (
 )
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
+from starknet_py.net.models.transaction import compute_invoke_hash
 
 from starknet_py.utils.data_transformer.data_transformer import DataTransformer
 from starknet_py.net import Client
@@ -21,6 +22,7 @@ from starknet_py.utils.crypto.facade import (
     message_signature,
 )
 from starknet_py.net.models.address import AddressRepresentation, parse_address
+from starkware.starknet.core.os.transaction_hash import calculate_transaction_hash_common, TransactionHashPrefix
 
 
 @dataclass
@@ -91,24 +93,19 @@ class AccountClient(Client):
 
         nonce = await self._get_nonce()
 
-        multi_call = MultiCall(
-            account=self.address,
-            calls=[
-                Call(
-                    to_addr=tx.contract_address,
-                    selector=tx.entry_point_selector,
-                    calldata=tx.calldata,
-                )
-            ],
-            nonce=nonce,
-            max_fee=tx.max_fee,
-            version=tx.version,
-        )
-
-        # pylint: disable=invalid-name
-        r, s = message_signature(
-            msg_hash=hash_multicall(multi_call), priv_key=self.private_key
-        )
+        # multi_call = MultiCall(
+        #     account=self.address,
+        #     calls=[
+        #         Call(
+        #             to_addr=tx.contract_address,
+        #             selector=tx.entry_point_selector,
+        #             calldata=tx.calldata,
+        #         )
+        #     ],
+        #     nonce=nonce,
+        #     max_fee=tx.max_fee,
+        #     version=tx.version,
+        # )
 
         calldata_py = [
             [
@@ -132,16 +129,32 @@ class AccountClient(Client):
             abi=execute_abi, identifier_manager=identifier_manager
         )
 
-        calldata, _ = payload_transformer.from_python(*calldata_py)
+        wrapped_calldata, _ = payload_transformer.from_python(*calldata_py)
+
+        hash_new = calculate_transaction_hash_common(
+            tx_hash_prefix=TransactionHashPrefix.INVOKE,
+            version=0,
+            contract_address=self.address,
+            entry_point_selector=get_selector_from_name("__execute__"),
+            calldata=wrapped_calldata,
+            max_fee=tx.max_fee,
+            chain_id=self.chain.value,
+            additional_data=[]
+        )
+
+        # pylint: disable=invalid-name
+        r, s = message_signature(
+            msg_hash= hash_new, priv_key=self.private_key
+        )
 
         return await super().add_transaction(
             InvokeFunction(
                 entry_point_selector=get_selector_from_name("__execute__"),
-                calldata=calldata,
+                calldata=wrapped_calldata,
                 contract_address=self.address,
                 signature=[r, s],
                 max_fee=tx.max_fee,
-                version=tx.version,
+                version=0,
             )
         )
 
