@@ -164,6 +164,19 @@ class Client:
         """
         return await self._feeder_gateway.get_transaction_receipt(tx_hash)
 
+    async def estimate_fee(
+        self,
+        tx: InvokeFunction,
+    ) -> int:
+        """
+        Estimate how much Wei it will cost to run passed in transaction
+
+        :param tx: Transaction to estimate
+        :return: Estimated amount of Wei executing specified transaction will cost
+        """
+        res = await self._feeder_gateway.estimate_fee(invoke_tx=tx)
+        return res["amount"]
+
     async def wait_for_tx(
         self,
         tx_hash: Optional[CastableToHash],

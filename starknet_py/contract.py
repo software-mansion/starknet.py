@@ -180,15 +180,16 @@ class PreparedFunctionCall:
         return self._payload_transformer.to_python(result)
 
     async def invoke(
-        self,
-        signature: Optional[Collection[int]] = None,
+        self, signature: Optional[Collection[int]] = None, max_fee: Optional[int] = None
     ) -> InvokeResult:
         """
         Invokes a method.
 
         :param signature: Signature to send
+        :param max_fee: Max fee to be send with transaction
         :return: InvokeResult
         """
+        self._max_fee = max_fee or self._max_fee
         tx = self._make_invoke_function(signature)
         response = await self._client.add_transaction(tx=tx)
 
@@ -202,6 +203,15 @@ class PreparedFunctionCall:
         )
 
         return invoke_result
+
+    async def estimate_fee(self):
+        """
+        Estimate fee for prepared function call
+
+        :return: Estimated amount of Wei executing specified transaction will cost
+        """
+        tx = self._make_invoke_function(signature=None)
+        return await self._client.estimate_fee(tx=tx)
 
     def _make_invoke_function(self, signature) -> InvokeFunction:
         return InvokeFunction(
@@ -240,8 +250,9 @@ class ContractFunction:
         :return: PreparedFunctionCall
         """
         if max_fee is None or version is None:
-            # TODO add proper exception handling
-            raise ValueError()
+            raise ValueError(
+                "Max_fee and value must be specified when preparing a call."
+            )
         calldata, arguments = self._payload_transformer.from_python(*args, **kwargs)
         return PreparedFunctionCall(
             calldata=calldata,
@@ -279,8 +290,7 @@ class ContractFunction:
         Equivalent of ``.prepare(*args, **kwargs).invoke()``.
         """
         if max_fee is None:
-            # TODO error handling
-            raise ValueError()
+            raise ValueError("Max_fee must be specified when preparing a call.")
         return await self.prepare(max_fee=max_fee, version=0, *args, **kwargs).invoke()
 
     @staticmethod
