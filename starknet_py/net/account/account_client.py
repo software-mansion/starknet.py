@@ -7,7 +7,10 @@ from starkware.crypto.signature.signature import (
 )
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
-from starknet_py.net.models.transaction import compute_invoke_hash
+from starkware.starknet.core.os.transaction_hash import (
+    calculate_transaction_hash_common,
+    TransactionHashPrefix,
+)
 
 from starknet_py.utils.data_transformer.data_transformer import DataTransformer
 from starknet_py.net import Client
@@ -15,14 +18,8 @@ from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_C
 from starknet_py.net.models import InvokeFunction, StarknetChainId, TransactionType
 from starknet_py.net.networks import Network
 from starknet_py.utils.sync import add_sync_methods
-from starknet_py.utils.crypto.facade import (
-    Call,
-    MultiCall,
-    hash_multicall,
-    message_signature,
-)
+from starknet_py.utils.crypto.facade import message_signature
 from starknet_py.net.models.address import AddressRepresentation, parse_address
-from starkware.starknet.core.os.transaction_hash import calculate_transaction_hash_common, TransactionHashPrefix
 
 
 @dataclass
@@ -139,13 +136,11 @@ class AccountClient(Client):
             calldata=wrapped_calldata,
             max_fee=tx.max_fee,
             chain_id=self.chain.value,
-            additional_data=[]
+            additional_data=[],
         )
 
         # pylint: disable=invalid-name
-        r, s = message_signature(
-            msg_hash= hash_new, priv_key=self.private_key
-        )
+        r, s = message_signature(msg_hash=hash_new, priv_key=self.private_key)
 
         return await super().add_transaction(
             InvokeFunction(
