@@ -126,8 +126,8 @@ class PreparedFunctionCall:
         self._client = client
         self._payload_transformer = payload_transformer
         self._contract_data = contract_data
-        self._max_fee = max_fee
-        self._version = version
+        self.max_fee = max_fee
+        self.version = version
 
     @property
     @lru_cache()
@@ -137,8 +137,8 @@ class PreparedFunctionCall:
             entry_point_selector=self.selector,
             calldata=self.calldata,
             chain_id=self._client.chain,
-            max_fee=self._max_fee,
-            version=self._version,
+            max_fee=self.max_fee,
+            version=self.version,
         )
 
     async def call_raw(
@@ -180,17 +180,26 @@ class PreparedFunctionCall:
         return self._payload_transformer.to_python(result)
 
     async def invoke(
-        self, signature: Optional[Collection[int]] = None, max_fee: Optional[int] = None
+        self,
+        signature: Optional[Collection[int]] = None,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
     ) -> InvokeResult:
         """
         Invokes a method.
 
         :param signature: Signature to send
-        :param max_fee: Max fee to be send with transaction
+        :param max_fee: Max fee to be send with transaction, can be used to override max_fee
+        specified when using `Contract.prepare`
         :return: InvokeResult
         """
-        self._max_fee = max_fee or self._max_fee
-        tx = self._make_invoke_function(signature)
+        if auto_estimate and max_fee is None:
+            estimate_fee = await self.estimate_fee()
+            max_fee = int(estimate_fee * 1.1)
+
+        self.max_fee = max_fee or self.max_fee
+
+        tx = self._make_invoke_function(signature=signature)
         response = await self._client.add_transaction(tx=tx)
 
         if response["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
@@ -220,8 +229,8 @@ class PreparedFunctionCall:
             calldata=self.calldata,
             # List is required here
             signature=[*signature] if signature else [],
-            max_fee=self._max_fee,
-            version=self._version,
+            max_fee=self.max_fee,
+            version=self.version,
         )
 
 
@@ -240,7 +249,11 @@ class ContractFunction:
         )
 
     def prepare(
-        self, *args, max_fee: int = None, version: int = None, **kwargs
+        self,
+        *args,
+        version: int = 0,
+        max_fee: int = 0,
+        **kwargs,
     ) -> PreparedFunctionCall:
         """
         ``*args`` and ``**kwargs`` are translated into Cairo calldata.
@@ -249,10 +262,6 @@ class ContractFunction:
 
         :return: PreparedFunctionCall
         """
-        if max_fee is None or version is None:
-            raise ValueError(
-                "Max_fee and value must be specified when preparing a call."
-            )
         calldata, arguments = self._payload_transformer.from_python(*args, **kwargs)
         return PreparedFunctionCall(
             calldata=calldata,
@@ -284,14 +293,24 @@ class ContractFunction:
             block_hash=block_hash, block_number=block_number
         )
 
-    async def invoke(self, *args, max_fee: int = None, **kwargs) -> InvokeResult:
+    async def invoke(
+        self, *args, max_fee: int = 0, auto_estimate: bool = False, **kwargs
+    ) -> InvokeResult:
         """
         Invoke contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.
         Equivalent of ``.prepare(*args, **kwargs).invoke()``.
+
+        :param max_fee: Max amount of Wei to be paid when executing transaction
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
         """
-        if max_fee is None:
-            raise ValueError("Max_fee must be specified when preparing a call.")
-        return await self.prepare(max_fee=max_fee, version=0, *args, **kwargs).invoke()
+        prepared_call = self.prepare(*args, **kwargs)
+
+        if auto_estimate and max_fee is None:
+            estimate_fee = await prepared_call.estimate_fee()
+            max_fee = int(estimate_fee * 1.1)
+
+        prepared_call.max_fee = max_fee
+        return await prepared_call.invoke()
 
     @staticmethod
     def get_selector(function_name: str):
