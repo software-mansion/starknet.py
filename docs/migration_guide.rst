@@ -5,6 +5,12 @@ Starknet 0.8.0 brought some changes to both its operation and internal APIs.
 Due to that, your existing programs written using starknet.py will require some
 changes to be able to work.
 
+New account contract
+--------------------
+
+Starknet.py now uses a `account contract from cairo-lang library <https://github.com/starkware-libs/cairo-lang/blob/4e233516f52477ad158bc81a86ec2760471c1b65/src/starkware/starknet/third_party/open_zeppelin/Account.cairo>`_.
+This changes internal transaction signing behavior. See linked contract to overview changes yourself.
+
 Fees
 ----
 
