@@ -7,7 +7,7 @@ from starkware.starknet.public.abi import get_selector_from_name
 from starknet_py.contract import Contract
 from starknet_py.net.client import BadRequest
 from starknet_py.net.models import InvokeFunction
-from starknet_py.tests.e2e.utils import DevnetClient, DevnetClientNoAccount
+from starknet_py.tests.e2e.utils import DevnetClient, DevnetClientWithoutAccount
 from starknet_py.utils.crypto.facade import sign_calldata
 
 directory = os.path.dirname(__file__)
@@ -27,15 +27,16 @@ async def test_auto_fee_estimation():
     deployment_result = await deployment_result.wait_for_acceptance()
     contract = deployment_result.deployed_contract
     contract = await Contract.from_address(contract.address, client)
-    invocation = await contract.functions["put"].invoke(key, value, auto_estimate=True)
-    await invocation.wait_for_acceptance()
-    (response,) = await contract.functions["get"].call(key)
 
-    assert response == value
+    prepared_call = contract.functions["put"].prepare(key, value)
+    prepared_call.max_fee = 2000
+    invocation = await prepared_call.invoke(auto_estimate=True)
+
+    assert invocation.invoke_transaction.max_fee == 0
 
 
 @pytest.mark.asyncio
-async def test_max_fee_takes_precedence_over_auto_setimate():
+async def test_throws_on_both_max_fee_and_auto_estimate():
     client = await DevnetClient.make_devnet_client()
     key = 2
     value = 3
@@ -47,10 +48,71 @@ async def test_max_fee_takes_precedence_over_auto_setimate():
     contract = deployment_result.deployed_contract
     contract = await Contract.from_address(contract.address, client)
 
-    invocation = contract.functions["put"].prepare(
-        key, value, max_fee=0, auto_estimate=True
+    invocation = contract.functions["put"].prepare(key, value)
+    with pytest.raises(ValueError) as exinfo:
+        await invocation.invoke(max_fee=10, auto_estimate=True)
+
+    assert "Both max_fee and auto_estimate cannot be provied at the same time." in str(
+        exinfo.value
     )
-    assert invocation.max_fee == 0
+
+
+@pytest.mark.asyncio
+async def test_throws_on_call_without_max_fee():
+    client = await DevnetClient.make_devnet_client()
+    key = 2
+    value = 3
+
+    deployment_result = await Contract.deploy(
+        client=client, compilation_source=map_source
+    )
+    deployment_result = await deployment_result.wait_for_acceptance()
+    contract = deployment_result.deployed_contract
+    contract = await Contract.from_address(contract.address, client)
+
+    with pytest.raises(ValueError) as exinfo:
+        await contract.functions["put"].invoke(key, value)
+
+    assert "Max_fee must be specified when invoking a transaction" in str(exinfo.value)
+
+
+@pytest.mark.asyncio
+async def test_throws_on_prepared_call_without_max_fee():
+    client = await DevnetClient.make_devnet_client()
+    key = 2
+    value = 3
+
+    deployment_result = await Contract.deploy(
+        client=client, compilation_source=map_source
+    )
+    deployment_result = await deployment_result.wait_for_acceptance()
+    contract = deployment_result.deployed_contract
+    contract = await Contract.from_address(contract.address, client)
+    prepared_call = contract.functions["put"].prepare(key, value)
+
+    with pytest.raises(ValueError) as exinfo:
+        await prepared_call.invoke()
+
+    assert "Max_fee must be specified when invoking a transaction" in str(exinfo.value)
+
+
+@pytest.mark.asyncio
+async def test_latest_max_fee_takes_precedence():
+    client = await DevnetClient.make_devnet_client()
+    key = 2
+    value = 3
+
+    deployment_result = await Contract.deploy(
+        client=client, compilation_source=map_source
+    )
+    deployment_result = await deployment_result.wait_for_acceptance()
+    contract = deployment_result.deployed_contract
+    contract = await Contract.from_address(contract.address, client)
+
+    prepared_function = contract.functions["put"].prepare(key, value, max_fee=20)
+    invocation = await prepared_function.invoke(max_fee=50)
+
+    assert invocation.invoke_transaction.max_fee == 50
 
 
 @pytest.mark.asyncio
@@ -67,7 +129,24 @@ async def test_prepare_without_max_fee():
     contract = await Contract.from_address(contract.address, client)
     prepared_call = contract.functions["put"].prepare(key, value)
 
-    assert prepared_call.max_fee == 0
+    assert prepared_call.max_fee is None
+
+
+@pytest.mark.asyncio
+async def test_calculate_hash_without_max_fee():
+    client = await DevnetClient.make_devnet_client()
+    key = 2
+    value = 3
+
+    deployment_result = await Contract.deploy(
+        client=client, compilation_source=map_source
+    )
+    deployment_result = await deployment_result.wait_for_acceptance()
+    contract = deployment_result.deployed_contract
+    contract = await Contract.from_address(contract.address, client)
+    prepared_call = contract.functions["put"].prepare(key, value)
+
+    prepared_call.hash
 
 
 @pytest.mark.asyncio
