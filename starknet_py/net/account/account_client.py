@@ -90,20 +90,6 @@ class AccountClient(Client):
 
         nonce = await self._get_nonce()
 
-        # multi_call = MultiCall(
-        #     account=self.address,
-        #     calls=[
-        #         Call(
-        #             to_addr=tx.contract_address,
-        #             selector=tx.entry_point_selector,
-        #             calldata=tx.calldata,
-        #         )
-        #     ],
-        #     nonce=nonce,
-        #     max_fee=tx.max_fee,
-        #     version=tx.version,
-        # )
-
         calldata_py = [
             [
                 {
