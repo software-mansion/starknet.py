@@ -9,14 +9,15 @@ New account contract
 --------------------
 
 Starknet.py now uses a `account contract from cairo-lang library <https://github.com/starkware-libs/cairo-lang/blob/4e233516f52477ad158bc81a86ec2760471c1b65/src/starkware/starknet/third_party/open_zeppelin/Account.cairo>`_.
-This changes internal transaction signing behavior. See linked contract to overview changes yourself.
+This changes internal transaction signing behavior.
+Instead of generating a message to sign from multicall a transaction hash is signed.
 
 Fees
 ----
 
 Starknet 0.8.0 introduced support for fees, while they are not necessary yet,
 starting this version starknet.py will require you to specify amount of Wei you
-are willing to pay when making ``.invoke()`` transactions as well as preparing
+are willing to pay either when making ``.invoke()`` transactions or when preparing
 function calls with ``.prepare()``.
 
 before 0.8.0
@@ -41,10 +42,13 @@ when max_fee is specified when preparing a call, you can invoke it without
 
 .. warning::
 
-    Currently, if ``max_fee`` is not specified, it will default to ``0``. 
+    Currently, if ``max_fee`` is not specified at any step it will default to ``None``,
+    and will raise an exception when invoking a transaction.
 
     This behavior may change in the future. Always specify a ``max_fee`` yourself
     and do not rely on automatic values!
+
+.. note::
 
     In future starknet versions invoke transactions with ``max_fee=0`` may be rejected.
 
