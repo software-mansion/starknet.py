@@ -56,10 +56,9 @@ async def test_auto_fee_estimation():
     contract = await Contract.from_address(contract.address, client)
 
     prepared_call = contract.functions["put"].prepare(key, value)
-    prepared_call.max_fee = 2000
     invocation = await prepared_call.invoke(auto_estimate=True)
 
-    assert invocation.invoke_transaction.max_fee == 0
+    assert invocation.invoke_transaction.max_fee != 0
 
 
 @pytest.mark.asyncio
@@ -81,6 +80,29 @@ async def test_throws_on_both_max_fee_and_auto_estimate():
 
     assert (
         "Max_fee and auto_estimate are exclusive and cannot be provided at the same time."
+        in str(exinfo.value)
+    )
+
+
+@pytest.mark.asyncio
+async def test_throws_on_both_max_fee_in_prepare_and_auto_estimate():
+    client = await DevnetClient.make_devnet_client()
+    key = 2
+    value = 3
+
+    deployment_result = await Contract.deploy(
+        client=client, compilation_source=map_source
+    )
+    deployment_result = await deployment_result.wait_for_acceptance()
+    contract = deployment_result.deployed_contract
+    contract = await Contract.from_address(contract.address, client)
+
+    invocation = contract.functions["put"].prepare(key, value, max_fee=2000)
+    with pytest.raises(ValueError) as exinfo:
+        await invocation.invoke(auto_estimate=True)
+
+    assert (
+        "Auto_estimate cannot be used if max_fee was provided when preparing a function call."
         in str(exinfo.value)
     )
 
