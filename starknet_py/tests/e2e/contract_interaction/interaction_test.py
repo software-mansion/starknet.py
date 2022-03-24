@@ -79,8 +79,9 @@ async def test_throws_on_both_max_fee_and_auto_estimate():
     with pytest.raises(ValueError) as exinfo:
         await invocation.invoke(max_fee=10, auto_estimate=True)
 
-    assert "Both max_fee and auto_estimate cannot be provied at the same time." in str(
-        exinfo.value
+    assert (
+        "Max_fee and auto_estimate are exclusive and cannot be provided at the same time."
+        in str(exinfo.value)
     )
 
 

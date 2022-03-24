@@ -197,7 +197,7 @@ class PreparedFunctionCall:
         """
         if auto_estimate and max_fee is not None:
             raise ValueError(
-                "Both max_fee and auto_estimate cannot be provied at the same time."
+                "Max_fee and auto_estimate are exclusive and cannot be provided at the same time."
             )
 
         if auto_estimate and max_fee is None:
