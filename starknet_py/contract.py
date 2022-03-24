@@ -191,13 +191,17 @@ class PreparedFunctionCall:
         Invokes a method.
 
         :param signature: Signature to send
-        :param max_fee: Max fee to be send with transaction, can be used to override max_fee
-        specified when using `Contract.prepare`
+        :param max_fee: Max amount of Wei to be paid when executing transaction
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
         :return: InvokeResult
         """
         if auto_estimate and max_fee is not None:
             raise ValueError(
                 "Max_fee and auto_estimate are exclusive and cannot be provided at the same time."
+            )
+        if auto_estimate and self.max_fee is not None:
+            raise ValueError(
+                "Auto_estimate cannot be used if max_fee was provided when preparing a function call."
             )
 
         if auto_estimate and max_fee is None:
@@ -230,7 +234,13 @@ class PreparedFunctionCall:
         Estimate fee for prepared function call
 
         :return: Estimated amount of Wei executing specified transaction will cost
+        :raises ValueError: when max_fee of PreparedFunctionCall is not None or 0.
         """
+        if self.max_fee is not None and self.max_fee != 0:
+            raise ValueError(
+                "Cannot estimate fee of PreparedFunctionCall with max_fee not None or 0."
+            )
+
         tx = self._make_invoke_function(signature=None)
         return await self._client.estimate_fee(tx=tx)
 
@@ -272,6 +282,8 @@ class ContractFunction:
          Creates a ``PreparedFunctionCall`` instance
          which exposes calldata for every argument and adds more arguments when calling methods.
 
+        :param version: PreparedFunctionCall version
+        :param max_fee: Max amount of Wei to be paid when executing transaction
         :return: PreparedFunctionCall
         """
         calldata, arguments = self._payload_transformer.from_python(*args, **kwargs)
