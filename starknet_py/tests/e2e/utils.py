@@ -45,6 +45,6 @@ class DevnetClient(AccountClient):
         return DevnetClient(address=result["address"], key_pair=key_pair)
 
 
-class DevnetClientNoAccount(Client):
+class DevnetClientWithoutAccount(Client):
     def __init__(self):
         super().__init__(net=DEVNET_ADDRESS, chain=StarknetChainId.TESTNET)
