@@ -16,6 +16,33 @@ map_source = Path(directory, "map.cairo").read_text("utf-8")
 
 
 @pytest.mark.asyncio
+async def test_max_fee_is_set_in_sent_invoke():
+    client = await DevnetClient.make_devnet_client()
+    key = 2
+    value = 3
+
+    deployment_result = await Contract.deploy(
+        client=client, compilation_source=map_source
+    )
+    deployment_result = await deployment_result.wait_for_acceptance()
+    contract = deployment_result.deployed_contract
+    contract = await Contract.from_address(contract.address, client)
+
+    prepared_call = contract.functions["put"].prepare(key, value, max_fee=100)
+    assert prepared_call.max_fee == 100
+    invocation = await prepared_call.invoke()
+    assert invocation.invoke_transaction.max_fee == 100
+
+    invocation = await contract.functions["put"].invoke(key, value, max_fee=200)
+    assert invocation.invoke_transaction.max_fee == 200
+
+    prepared_call = contract.functions["put"].prepare(key, value, max_fee=300)
+    assert prepared_call.max_fee == 300
+    invocation = await prepared_call.invoke(max_fee=400)
+    assert invocation.invoke_transaction.max_fee == 400
+
+
+@pytest.mark.asyncio
 async def test_auto_fee_estimation():
     client = await DevnetClient.make_devnet_client()
     key = 2
