@@ -62,6 +62,29 @@ async def test_auto_fee_estimation():
 
 
 @pytest.mark.asyncio
+async def test_throws_on_estimate_with_positive_max_fee():
+    client = await DevnetClient.make_devnet_client()
+    key = 2
+    value = 3
+
+    deployment_result = await Contract.deploy(
+        client=client, compilation_source=map_source
+    )
+    deployment_result = await deployment_result.wait_for_acceptance()
+    contract = deployment_result.deployed_contract
+    contract = await Contract.from_address(contract.address, client)
+
+    prepared_call = contract.functions["put"].prepare(key, value, max_fee=100)
+    with pytest.raises(ValueError) as exinfo:
+        estimate_fee = await prepared_call.estimate_fee()
+
+    assert (
+        "Cannot estimate fee of PreparedFunctionCall with max_fee not None or 0."
+        in str(exinfo.value)
+    )
+
+
+@pytest.mark.asyncio
 async def test_throws_on_both_max_fee_and_auto_estimate():
     client = await DevnetClient.make_devnet_client()
     key = 2
