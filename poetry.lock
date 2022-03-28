@@ -802,7 +802,7 @@ plugins = ["setuptools"]
 
 [[package]]
 name = "itsdangerous"
-version = "2.1.0"
+version = "2.1.2"
 description = "Safely pass data to untrusted environments and back."
 category = "dev"
 optional = false
@@ -1656,20 +1656,13 @@ version = "0.1.19"
 description = "A local testnet for Starknet"
 category = "dev"
 optional = false
-python-versions = "^3.7"
-develop = false
+python-versions = ">=3.7,<4.0"
 
 [package.dependencies]
 cairo-lang = "0.8.0"
-dill = "^0.3.4"
-Flask = {version = "^2.0.2", extras = ["async"]}
-flask-cors = "^3.0.10"
-
-[package.source]
-type = "git"
-url = "https://github.com/Shard-Labs/starknet-devnet.git"
-reference = "master"
-resolved_reference = "9f6b10ed10f6225d38786594f50e64e18fa3b66e"
+dill = ">=0.3.4,<0.4.0"
+Flask = {version = ">=2.0.2,<3.0.0", extras = ["async"]}
+flask-cors = ">=3.0.10,<4.0.0"
 
 [[package]]
 name = "sympy"
@@ -1899,7 +1892,7 @@ eth-tester = []
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.2,<3.9"
-content-hash = "ab9da27e3e7b4676be817785df31dd5884b4d9822e416d57c641cdcc63f2537f"
+content-hash = "848532bfeb0e4ac6426d214d8225d66ae2fa6f5bf1be11a756b4716bb254d058"
 
 [metadata.files]
 aiohttp = [
@@ -2300,8 +2293,8 @@ isort = [
     {file = "isort-5.10.1.tar.gz", hash = "sha256:e8443a5e7a020e9d7f97f1d7d9cd17c88bcb3bc7e218bf9cf5095fe550be2951"},
 ]
 itsdangerous = [
-    {file = "itsdangerous-2.1.0-py3-none-any.whl", hash = "sha256:29285842166554469a56d427addc0843914172343784cb909695fdbe90a3e129"},
-    {file = "itsdangerous-2.1.0.tar.gz", hash = "sha256:d848fcb8bc7d507c4546b448574e8a44fc4ea2ba84ebf8d783290d53e81992f5"},
+    {file = "itsdangerous-2.1.2-py3-none-any.whl", hash = "sha256:2c2349112351b88699d8d4b6b075022c0808887cb7ad10069318a8b0bc88db44"},
+    {file = "itsdangerous-2.1.2.tar.gz", hash = "sha256:5dbbc68b317e5e42f327f9021763545dc3fc3bfe22e6deb96aaf1fc38874156a"},
 ]
 jinja2 = [
     {file = "Jinja2-3.0.3-py3-none-any.whl", hash = "sha256:077ce6014f7b40d03b47d1f1ca4b0fc8328a692bd284016f806ed0eaca390ad8"},
@@ -2915,7 +2908,10 @@ sphinxcontrib-serializinghtml = [
     {file = "sphinxcontrib-serializinghtml-1.1.5.tar.gz", hash = "sha256:aa5f6de5dfdf809ef505c4895e51ef5c9eac17d0f287933eb49ec495280b6952"},
     {file = "sphinxcontrib_serializinghtml-1.1.5-py2.py3-none-any.whl", hash = "sha256:352a9a00ae864471d3a7ead8d7d79f5fc0b57e8b3f95e9867eb9eb28999b92fd"},
 ]
-starknet-devnet = []
+starknet-devnet = [
+    {file = "starknet_devnet-0.1.19-py3-none-any.whl", hash = "sha256:ac24c130f584efd0c33603fdd70db480e6870da98322a4ca16e6b986637d1dac"},
+    {file = "starknet_devnet-0.1.19.tar.gz", hash = "sha256:77b53e5565fce468ddbf754f9142c46e8d23cc74c07f379a9c62f3891693d759"},
+]
 sympy = [
     {file = "sympy-1.10-py3-none-any.whl", hash = "sha256:2009368e862cd29f1b568dc6572786371a2faa1cd8eb4d313e11a90195d6ee36"},
     {file = "sympy-1.10.tar.gz", hash = "sha256:6cf85a5cfe8fff69553e745b05128de6fc8de8f291965c63871c79701dc6efc9"},
