@@ -204,7 +204,7 @@ class PreparedFunctionCall:
                 "Auto_estimate cannot be used if max_fee was provided when preparing a function call."
             )
 
-        if auto_estimate and max_fee is None:
+        if auto_estimate:
             estimate_fee = await self.estimate_fee()
             max_fee = int(estimate_fee * 1.1)
 
