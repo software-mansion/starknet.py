@@ -27,7 +27,7 @@ async def test_pending_block():
     end
     """
 
-    client = DevnetClient()
+    client = await DevnetClient.make_devnet_client()
     constructor_args = [123]
     await Contract.deploy(
         client, compilation_source=contract, constructor_args=constructor_args

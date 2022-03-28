@@ -88,9 +88,11 @@ class SentTransaction:
 @dataclass(frozen=True)
 class InvokeResult(SentTransaction):
     contract: ContractData = None
+    invoke_transaction: InvokeFunction = None
 
     def __post_init__(self):
         assert self.contract is not None
+        assert self.invoke_transaction is not None
 
 
 InvocationResult = InvokeResult
@@ -105,6 +107,7 @@ class DeployResult(SentTransaction):
         assert self.deployed_contract is not None
 
 
+# pylint: disable=too-many-instance-attributes
 @add_sync_methods
 class PreparedFunctionCall:
     def __init__(
@@ -115,6 +118,8 @@ class PreparedFunctionCall:
         client: Client,
         payload_transformer: DataTransformer,
         contract_data: ContractData,
+        max_fee: int,
+        version: int,
     ):
         # pylint: disable=too-many-arguments
         self.calldata = calldata
@@ -123,6 +128,8 @@ class PreparedFunctionCall:
         self._client = client
         self._payload_transformer = payload_transformer
         self._contract_data = contract_data
+        self.max_fee = max_fee
+        self.version = version
 
     @property
     @lru_cache()
@@ -132,6 +139,8 @@ class PreparedFunctionCall:
             entry_point_selector=self.selector,
             calldata=self.calldata,
             chain_id=self._client.chain,
+            max_fee=self.max_fee if self.max_fee is not None else 0,
+            version=self.version,
         )
 
     async def call_raw(
@@ -172,14 +181,40 @@ class PreparedFunctionCall:
         )
         return self._payload_transformer.to_python(result)
 
-    async def invoke(self, signature: Optional[Collection[int]] = None) -> InvokeResult:
+    async def invoke(
+        self,
+        signature: Optional[Collection[int]] = None,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+    ) -> InvokeResult:
         """
         Invokes a method.
 
         :param signature: Signature to send
+        :param max_fee: Max amount of Wei to be paid when executing transaction
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
         :return: InvokeResult
         """
-        tx = self._make_invoke_function(signature)
+        if auto_estimate and max_fee is not None:
+            raise ValueError(
+                "Max_fee and auto_estimate are exclusive and cannot be provided at the same time."
+            )
+        if auto_estimate and self.max_fee is not None:
+            raise ValueError(
+                "Auto_estimate cannot be used if max_fee was provided when preparing a function call."
+            )
+
+        if auto_estimate:
+            estimate_fee = await self.estimate_fee()
+            max_fee = int(estimate_fee * 1.1)
+
+        if max_fee is not None:
+            self.max_fee = max_fee
+
+        if self.max_fee is None:
+            raise ValueError("Max_fee must be specified when invoking a transaction")
+
+        tx = self._make_invoke_function(signature=signature)
         response = await self._client.add_transaction(tx=tx)
 
         if response["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
@@ -189,9 +224,25 @@ class PreparedFunctionCall:
             hash=response["transaction_hash"],  # noinspection PyTypeChecker
             _client=self._client,
             contract=self._contract_data,
+            invoke_transaction=tx,
         )
 
         return invoke_result
+
+    async def estimate_fee(self):
+        """
+        Estimate fee for prepared function call
+
+        :return: Estimated amount of Wei executing specified transaction will cost
+        :raises ValueError: when max_fee of PreparedFunctionCall is not None or 0.
+        """
+        if self.max_fee is not None and self.max_fee != 0:
+            raise ValueError(
+                "Cannot estimate fee of PreparedFunctionCall with max_fee not None or 0."
+            )
+
+        tx = self._make_invoke_function(signature=None)
+        return await self._client.estimate_fee(tx=tx)
 
     def _make_invoke_function(self, signature) -> InvokeFunction:
         return InvokeFunction(
@@ -200,6 +251,8 @@ class PreparedFunctionCall:
             calldata=self.calldata,
             # List is required here
             signature=[*signature] if signature else [],
+            max_fee=self.max_fee if self.max_fee is not None else 0,
+            version=self.version,
         )
 
 
@@ -217,12 +270,20 @@ class ContractFunction:
             abi=self.abi, identifier_manager=self.contract_data.identifier_manager
         )
 
-    def prepare(self, *args, **kwargs) -> PreparedFunctionCall:
+    def prepare(
+        self,
+        *args,
+        version: int = 0,
+        max_fee: int = None,
+        **kwargs,
+    ) -> PreparedFunctionCall:
         """
         ``*args`` and ``**kwargs`` are translated into Cairo calldata.
          Creates a ``PreparedFunctionCall`` instance
          which exposes calldata for every argument and adds more arguments when calling methods.
 
+        :param version: PreparedFunctionCall version
+        :param max_fee: Max amount of Wei to be paid when executing transaction
         :return: PreparedFunctionCall
         """
         calldata, arguments = self._payload_transformer.from_python(*args, **kwargs)
@@ -233,6 +294,8 @@ class ContractFunction:
             client=self._client,
             payload_transformer=self._payload_transformer,
             selector=self.get_selector(self.name),
+            max_fee=max_fee,
+            version=version,
         )
 
     async def call(
@@ -250,16 +313,22 @@ class ContractFunction:
         The result is translated from Cairo data to python values.
         Equivalent of ``.prepare(*args, **kwargs).call()``.
         """
-        return await self.prepare(*args, **kwargs).call(
+        return await self.prepare(max_fee=0, version=0, *args, **kwargs).call(
             block_hash=block_hash, block_number=block_number
         )
 
-    async def invoke(self, *args, **kwargs) -> InvokeResult:
+    async def invoke(
+        self, *args, max_fee: int = None, auto_estimate: bool = False, **kwargs
+    ) -> InvokeResult:
         """
         Invoke contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.
         Equivalent of ``.prepare(*args, **kwargs).invoke()``.
+
+        :param max_fee: Max amount of Wei to be paid when executing transaction
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
         """
-        return await self.prepare(*args, **kwargs).invoke()
+        prepared_call = self.prepare(*args, **kwargs)
+        return await prepared_call.invoke(max_fee=max_fee, auto_estimate=auto_estimate)
 
     @staticmethod
     def get_selector(function_name: str):

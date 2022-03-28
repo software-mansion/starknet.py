@@ -24,7 +24,9 @@ async def test_deploy_account_contract_and_sign_tx():
     map_contract = deployment_result.deployed_contract
 
     k, v = 13, 4324
-    await (await map_contract.functions["put"].invoke(k, v)).wait_for_acceptance()
+    await (
+        await map_contract.functions["put"].invoke(k, v, max_fee=0)
+    ).wait_for_acceptance()
     (resp,) = await map_contract.functions["get"].call(k)
 
     assert resp == v
@@ -41,6 +43,8 @@ async def test_error_when_tx_signed():
         entry_point_selector=123,
         calldata=[],
         signature=[123, 321],
+        max_fee=10,
+        version=0,
     )
     with pytest.raises(TypeError) as t_err:
         await acc_client.add_transaction(tx=invoke_function)

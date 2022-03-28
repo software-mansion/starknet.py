@@ -131,11 +131,17 @@ class StructTransformer(TypeTransformer[TypeStruct, dict]):
 
 class TupleTransformer(TypeTransformer[TypeTuple, tuple]):
     def from_python(self, cairo_type, name, value):
-        values = [*value]
-        if len(values) != len(cairo_type.members):
+        if len(value) != len(cairo_type.members):
             raise ValueError(
-                f"Input {name} length mismatch: {len(values)} != {len(cairo_type.members)}."
+                f"Input {name} length mismatch: {len(value)} != {len(cairo_type.members)}."
             )
+
+        if not cairo_type.is_named:
+            return self._from_python_unnamed(cairo_type, name, value)
+        return self._from_python_named(cairo_type, name, value)
+
+    def _from_python_unnamed(self, cairo_type, name, value):
+        values = [*value]
 
         results = []
         for index, member, member_type in zip(
@@ -148,15 +154,74 @@ class TupleTransformer(TypeTransformer[TypeTuple, tuple]):
 
         return results
 
+    def _from_python_named(self, cairo_type, name, values):
+        if not isinstance(values, dict) and not TupleTransformer.isnamedtuple(values):
+            raise ValueError(
+                f"Input {name} is a named tuple and must be dict or NamedTuple"
+            )
+
+        results = []
+
+        if TupleTransformer.isnamedtuple(values):
+            values = values._asdict()
+
+        for member in cairo_type.members:
+            result = self.resolve_type(member).from_python(
+                member, f"{name}[{member.name}]", values[member.name]
+            )
+            results.extend(result)
+
+        return results
+
+    @staticmethod
+    def isnamedtuple(value):
+        return isinstance(value, tuple) and hasattr(value, "_fields")
+
     def to_python(self, cairo_type, name, values):
+        if not cairo_type.is_named:
+            return self._to_python_unnamed(cairo_type, name, values)
+        return self._to_python_named(cairo_type, name, values)
+
+    def _to_python_unnamed(self, cairo_type, name, values):
         result = []
         for index, member_type in enumerate(cairo_type.members):
-            transformed, values = self.resolve_type(member_type).to_python(
+            (name, transformed), values = self.resolve_type(member_type).to_python(
                 member_type, f"{name}[{index}]", values
             )
             result.append(transformed)
 
         return (*result,), values
+
+    def _to_python_named(self, cairo_type, name, values):
+        result = {}
+        for index, member_type in enumerate(cairo_type.members):
+            (name, transformed), values = self.resolve_type(member_type).to_python(
+                member_type, f"{name}[{index}]", values
+            )
+            result[name] = transformed
+
+        res = NamedTuple(
+            "Result", [(key, type(value)) for key, value in result.items()]
+        )
+        # pylint: disable=not-callable
+        return res(**result), values
+
+
+class TupleItemTransformer(TypeTransformer[TypeTuple.Item, tuple]):
+    def from_python(self, cairo_type: UsedCairoType, name: str, value: any):
+        value = self.resolve_type(cairo_type.typ).from_python(
+            cairo_type.typ,
+            cairo_type.name or "",
+            value,
+        )
+        return value
+
+    def to_python(self, cairo_type: UsedCairoType, name: str, values: CairoData):
+        name = cairo_type.name or ""
+        result, values = self.resolve_type(cairo_type.typ).to_python(
+            cairo_type.typ, name, values
+        )
+        return (name, result), values
 
 
 class ArrayTransformer(TypeTransformer[TypePointer, List[int]]):
@@ -189,6 +254,7 @@ class ArrayTransformer(TypeTransformer[TypePointer, List[int]]):
 mapping = {
     TypeFelt: FeltTransformer,
     TypeTuple: TupleTransformer,
+    TypeTuple.Item: TupleItemTransformer,
     TypePointer: ArrayTransformer,
     TypeStruct: StructTransformer,
 }
