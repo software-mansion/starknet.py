@@ -1,3 +1,5 @@
+import os
+from pathlib import Path
 import pytest
 
 from starknet_py.contract import Contract, PreparedFunctionCall, ContractData
@@ -43,16 +45,49 @@ func constructor{
 end
 """
 
+SOURCE_WITH_IMPORTS = """
+%lang starknet
+%builtins pedersen range_check
+
+from inner.inner import MockStruct
+
+@external
+func put{syscall_ptr : felt*, pedersen_ptr, range_check_ptr}(
+        key : felt, value : felt):
+    return ()
+end
+"""
+
 EXPECTED_HASH = (
-    2805686283900972954281199974176256637529244635330751615468747630576307779907
+    2767133637016006695125577369743492278827480805001470205448944437134861258965
 )
+
+
+EXPECTED_HASH_WITH_IMPORTS = (
+    2824740597818368748846455525738594583883439901518687339337045493609254033404
+)
+
 EXPECTED_ADDRESS = (
-    3316580593564723859317820329637657156309457332674023938311570757658456768228
+    3046198292581715633143389750649762877325412695701500547187874584238544215539
 )
+
+EXPECTED_ADDRESS_WITH_IMPORTS = (
+    1220010402807226171903428091897681365505165756832763447362783771809682550518
+)
+
+directory = os.path.dirname(__file__)
+search_path = Path(directory, "utils/compiler/mock-contracts")
 
 
 def test_compute_hash():
     assert Contract.compute_contract_hash(SOURCE) == EXPECTED_HASH
+
+
+def test_compute_hash_with_search_path():
+    assert (
+        Contract.compute_contract_hash(SOURCE_WITH_IMPORTS, search_paths=[search_path])
+        == EXPECTED_HASH_WITH_IMPORTS
+    )
 
 
 def test_compute_address():
@@ -61,6 +96,17 @@ def test_compute_address():
             compilation_source=SOURCE, constructor_args=[21, 37], salt=1111
         )
         == EXPECTED_ADDRESS
+    )
+
+
+def test_compute_address_with_imports():
+    assert (
+        Contract.compute_address(
+            compilation_source=SOURCE_WITH_IMPORTS,
+            salt=1111,
+            search_paths=[search_path],
+        )
+        == EXPECTED_ADDRESS_WITH_IMPORTS
     )
 
 
@@ -77,10 +123,10 @@ def test_transaction_hash():
             abi=None,
             identifier_manager=None,
         ),
+        version=0,
+        max_fee=0,
     )
-    assert (
-        call.hash == 0x203BFF8307C3266B0749A0D1DBA143907F32F7E55C84A4A34077690C9C91BAC
-    )
+    assert call.hash == 0xD0A52D6E77B836613B9F709AD7F4A88297697FEFBEF1ADA3C59692FF46702C
 
 
 def test_no_valid_source():

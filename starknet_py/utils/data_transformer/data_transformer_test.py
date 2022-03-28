@@ -1,3 +1,4 @@
+from typing import NamedTuple
 import pytest
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 
@@ -100,6 +101,103 @@ def test_tuple(value, cairo_value):
 
     assert from_python == cairo_value
     assert to_python == (value,)
+
+
+def test_tuple_nested():
+    cairo_type_name = "((felt, felt), felt)"
+    abi = [{"name": "value", "type": cairo_type_name}]
+    value = ((1, 2), 3)
+    cairo_value = [1, 2, 3]
+
+    from_python, _args = transformer_for_function(inputs=abi).from_python(value)
+    to_python = transformer_for_function(outputs=abi).to_python(cairo_value)
+
+    assert from_python == cairo_value
+    assert to_python == (value,)
+
+
+@pytest.mark.parametrize(
+    "value, cairo_value",
+    [
+        ({"name0": 0, "name1": 1, "name2": 2}, [0, 1, 2]),
+        ({"name0": 10}, [10]),
+        (
+            {
+                "name0": 0,
+                "name1": 10,
+                "name2": 20,
+                "name3": 30,
+                "name4": 40,
+                "name5": 50,
+            },
+            [0, 10, 20, 30, 40, 50],
+        ),
+        (
+            NamedTuple("namedtuple", [("name0", int), ("name1", int), ("name2", int)])(
+                2, 4, 6
+            ),
+            [2, 4, 6],
+        ),
+    ],
+)
+def test_named_tuple(value, cairo_value):
+    cairo_type_name = "".join(f"name{i} : felt," for i in range(len(value)))
+    abi = [
+        {"name": "value", "type": f"({cairo_type_name})"},
+    ]
+
+    from_python, _args = transformer_for_function(inputs=abi).from_python(value)
+    to_python = transformer_for_function(outputs=abi).to_python(cairo_value)
+
+    assert from_python == cairo_value
+    assert dict(to_python.value._asdict()) == (
+        value if isinstance(value, dict) else value._asdict()
+    )
+
+
+def test_named_tuple_order_dict():
+    cairo_type_name = "".join(f"name{i} : felt," for i in range(4))
+    abi = [
+        {"name": "value", "type": f"({cairo_type_name})"},
+    ]
+    value = {"name1": 1, "name0": 0, "name3": 3, "name2": 2}
+    cairo_value = [0, 1, 2, 3]
+
+    from_python, _args = transformer_for_function(inputs=abi).from_python(value)
+    to_python = transformer_for_function(outputs=abi).to_python(cairo_value)
+
+    assert from_python == cairo_value
+    assert dict(to_python.value._asdict()) == value
+
+
+def test_named_tuple_order_namedtuple():
+    cairo_type_name = "".join(f"name{i} : felt," for i in range(3))
+    abi = [
+        {"name": "value", "type": f"({cairo_type_name})"},
+    ]
+    value = NamedTuple("namedtuple", [("name0", int), ("name2", int), ("name1", int)])(
+        0, 2, 1
+    )
+    cairo_value = [0, 1, 2]
+
+    from_python, _args = transformer_for_function(inputs=abi).from_python(value)
+    to_python = transformer_for_function(outputs=abi).to_python(cairo_value)
+
+    assert from_python == cairo_value
+    assert dict(to_python.value._asdict()) == dict(value._asdict())
+
+
+def test_named_tuple_nested():
+    cairo_type_name = "(a : (felt, felt), b : felt)"
+    abi = [{"name": "value", "type": cairo_type_name}]
+    value = {"a": (1, 2), "b": 3}
+    cairo_value = [1, 2, 3]
+
+    from_python, _args = transformer_for_function(inputs=abi).from_python(value)
+    to_python = transformer_for_function(outputs=abi).to_python(cairo_value)
+
+    assert from_python == cairo_value
+    assert dict(to_python.value._asdict()) == value
 
 
 @pytest.mark.parametrize(
@@ -373,9 +471,10 @@ def test_multiple_values():
         {"name": "second", "type": "felt*"},
         {"name": "third", "type": "(felt, felt)"},
         {"name": "fourth", "type": "Uint256"},
+        {"name": "fifth", "type": "(a : felt, b : felt)"},
     ]
-    values = [123, [10, 20], (11, 12), 123456]
-    cairo_values = [123, 2, 10, 20, 11, 12, 123456, 0]
+    values = [123, [10, 20], (11, 12), 123456, {"a": 22, "b": 33}]
+    cairo_values = [123, 2, 10, 20, 11, 12, 123456, 0, 22, 33]
 
     calldata, args = transformer_for_function(inputs=abi, structs=structs).from_python(
         *values
@@ -390,13 +489,23 @@ def test_multiple_values():
         "second": [2, 10, 20],
         "third": [11, 12],
         "fourth": [123456, 0],
+        "fifth": [22, 33],
     }
-    assert to_python == (123, [10, 20], (11, 12), 123456)
-    assert to_python._asdict() == {
+    assert to_python == (123, [10, 20], (11, 12), 123456, (22, 33))
+
+    # convert namedtuples in result to dict for easier comparision
+    converted_result = {
+        key: value._asdict()
+        if isinstance(value, tuple) and hasattr(value, "_fields")
+        else value
+        for key, value in to_python._asdict().items()
+    }
+    assert converted_result == {
         "first": 123,
         "second": [10, 20],
         "third": (11, 12),
         "fourth": 123456,
+        "fifth": {"a": 22, "b": 33},
     }
 
 

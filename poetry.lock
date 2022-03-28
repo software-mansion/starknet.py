@@ -241,7 +241,7 @@ python-versions = "~=3.7"
 
 [[package]]
 name = "cairo-lang"
-version = "0.7.1"
+version = "0.8.0"
 description = "Compiler and runner for the Cairo language"
 category = "main"
 optional = false
@@ -802,7 +802,7 @@ plugins = ["setuptools"]
 
 [[package]]
 name = "itsdangerous"
-version = "2.1.0"
+version = "2.1.2"
 description = "Safely pass data to untrusted environments and back."
 category = "dev"
 optional = false
@@ -1021,14 +1021,6 @@ name = "netaddr"
 version = "0.8.0"
 description = "A network address manipulation library for Python"
 category = "main"
-optional = false
-python-versions = "*"
-
-[[package]]
-name = "nodeenv"
-version = "1.6.0"
-description = "Node.js virtual environment builder"
-category = "dev"
 optional = false
 python-versions = "*"
 
@@ -1660,25 +1652,25 @@ test = ["pytest"]
 
 [[package]]
 name = "starknet-devnet"
-version = "0.1.17"
+version = "0.1.19"
 description = "A local testnet for Starknet"
 category = "dev"
 optional = false
 python-versions = ">=3.7,<4.0"
 
 [package.dependencies]
-cairo-lang = "0.7.1"
+cairo-lang = "0.8.0"
 dill = ">=0.3.4,<0.4.0"
 Flask = {version = ">=2.0.2,<3.0.0", extras = ["async"]}
 flask-cors = ">=3.0.10,<4.0.0"
 
 [[package]]
 name = "sympy"
-version = "1.9"
+version = "1.10"
 description = "Computer algebra system (CAS) in Python"
 category = "main"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 
 [package.dependencies]
 mpmath = ">=0.19"
@@ -1899,8 +1891,8 @@ eth-tester = []
 
 [metadata]
 lock-version = "1.1"
-python-versions = ">=3.7.2,<3.10"
-content-hash = "0c444c4ca0053030ebf8cd14f052d7b2bb8c516ea7ff72d0d22d5742c378b55d"
+python-versions = ">=3.7.2,<3.9"
+content-hash = "848532bfeb0e4ac6426d214d8225d66ae2fa6f5bf1be11a756b4716bb254d058"
 
 [metadata.files]
 aiohttp = [
@@ -2048,7 +2040,7 @@ cachetools = [
     {file = "cachetools-5.0.0.tar.gz", hash = "sha256:486471dfa8799eb7ec503a8059e263db000cdda20075ce5e48903087f79d5fd6"},
 ]
 cairo-lang = [
-    {file = "cairo-lang-0.7.1.zip", hash = "sha256:6eba6b71a957f4d94490efa61bc777f2724f137b2e6b1f43e77e53c17131b0fd"},
+    {file = "cairo-lang-0.8.0.zip", hash = "sha256:d58abcb9d303e08d661cc54b2153f731d35899cf30969bd5149140ada296e729"},
 ]
 certifi = [
     {file = "certifi-2021.10.8-py2.py3-none-any.whl", hash = "sha256:d62a0163eb4c2344ac042ab2bdf75399a71a2d8c7d47eac2e2ee91b9d6339569"},
@@ -2301,8 +2293,8 @@ isort = [
     {file = "isort-5.10.1.tar.gz", hash = "sha256:e8443a5e7a020e9d7f97f1d7d9cd17c88bcb3bc7e218bf9cf5095fe550be2951"},
 ]
 itsdangerous = [
-    {file = "itsdangerous-2.1.0-py3-none-any.whl", hash = "sha256:29285842166554469a56d427addc0843914172343784cb909695fdbe90a3e129"},
-    {file = "itsdangerous-2.1.0.tar.gz", hash = "sha256:d848fcb8bc7d507c4546b448574e8a44fc4ea2ba84ebf8d783290d53e81992f5"},
+    {file = "itsdangerous-2.1.2-py3-none-any.whl", hash = "sha256:2c2349112351b88699d8d4b6b075022c0808887cb7ad10069318a8b0bc88db44"},
+    {file = "itsdangerous-2.1.2.tar.gz", hash = "sha256:5dbbc68b317e5e42f327f9021763545dc3fc3bfe22e6deb96aaf1fc38874156a"},
 ]
 jinja2 = [
     {file = "Jinja2-3.0.3-py3-none-any.whl", hash = "sha256:077ce6014f7b40d03b47d1f1ca4b0fc8328a692bd284016f806ed0eaca390ad8"},
@@ -2540,10 +2532,6 @@ natsort = [
 netaddr = [
     {file = "netaddr-0.8.0-py2.py3-none-any.whl", hash = "sha256:9666d0232c32d2656e5e5f8d735f58fd6c7457ce52fc21c98d45f2af78f990ac"},
     {file = "netaddr-0.8.0.tar.gz", hash = "sha256:d6cc57c7a07b1d9d2e917aa8b36ae8ce61c35ba3fcd1b83ca31c5a0ee2b5a243"},
-]
-nodeenv = [
-    {file = "nodeenv-1.6.0-py2.py3-none-any.whl", hash = "sha256:621e6b7076565ddcacd2db0294c0381e01fd28945ab36bcf00f41c5daf63bef7"},
-    {file = "nodeenv-1.6.0.tar.gz", hash = "sha256:3ef13ff90291ba2a4a7a4ff9a979b63ffdd00a464dbe04acf0ea6471517a4c2b"},
 ]
 numpy = [
     {file = "numpy-1.21.5-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:301e408a052fdcda5cdcf03021ebafc3c6ea093021bf9d1aa47c54d48bdad166"},
@@ -2921,12 +2909,12 @@ sphinxcontrib-serializinghtml = [
     {file = "sphinxcontrib_serializinghtml-1.1.5-py2.py3-none-any.whl", hash = "sha256:352a9a00ae864471d3a7ead8d7d79f5fc0b57e8b3f95e9867eb9eb28999b92fd"},
 ]
 starknet-devnet = [
-    {file = "starknet_devnet-0.1.17-py3-none-any.whl", hash = "sha256:9f598a0e77d605e1e9767245f1b50cf91b8f9c192649041a5e975536961db90d"},
-    {file = "starknet_devnet-0.1.17.tar.gz", hash = "sha256:7c0b2b74e8c9a58d90c5cebe1cdec9ed9dccdf9111ebf68c695b905d501e8b30"},
+    {file = "starknet_devnet-0.1.19-py3-none-any.whl", hash = "sha256:ac24c130f584efd0c33603fdd70db480e6870da98322a4ca16e6b986637d1dac"},
+    {file = "starknet_devnet-0.1.19.tar.gz", hash = "sha256:77b53e5565fce468ddbf754f9142c46e8d23cc74c07f379a9c62f3891693d759"},
 ]
 sympy = [
-    {file = "sympy-1.9-py3-none-any.whl", hash = "sha256:8bc5de4608b7aa4e7ffd1b25452ae87ccc5f6ca667c661aafb854a1ade337d0c"},
-    {file = "sympy-1.9.tar.gz", hash = "sha256:c7a880e229df96759f955d4f3970d4cabce79f60f5b18830c08b90ce77cd5fdc"},
+    {file = "sympy-1.10-py3-none-any.whl", hash = "sha256:2009368e862cd29f1b568dc6572786371a2faa1cd8eb4d313e11a90195d6ee36"},
+    {file = "sympy-1.10.tar.gz", hash = "sha256:6cf85a5cfe8fff69553e745b05128de6fc8de8f291965c63871c79701dc6efc9"},
 ]
 tabulate = [
     {file = "tabulate-0.8.9-py3-none-any.whl", hash = "sha256:d7c013fe7abbc5e491394e10fa845f8f32fe54f8dc60c6622c6cf482d25d47e4"},
