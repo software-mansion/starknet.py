@@ -20,6 +20,12 @@ starting this version starknet.py will require you to specify amount of Wei you
 are willing to pay either when making ``.invoke()`` transactions or when preparing
 function calls with ``.prepare()``.
 
+.. note::
+
+    StarkNet currently only supports ``max_fee > 0`` on testnet.
+
+    Use ``max_fee = 0`` for transactions on mainnet.
+
 before 0.8.0
 
 .. code-block:: python
