@@ -67,11 +67,14 @@ class FullNodeClient(BaseClient):
         block_hash: Optional[Union[int, str]] = None,
         block_number: Optional[int] = None,
     ) -> str:
+        if block_hash is None:
+            raise ValueError("Block_hash must be provided when using FullNodeClient.")
+
         res = await self.rpc_client.call(
             method_name="getStorageAt",
             params={
                 "contract_address": str(hex(contract_address)),
-                "key": key,
+                "key": str(hex(key)),
                 "block_hash": str(hex(block_hash)),
             },
         )
@@ -117,10 +120,22 @@ class FullNodeClient(BaseClient):
         block_hash: Optional[Union[int, str]] = None,
         block_number: Optional[int] = None,
     ) -> List[int]:
-        raise NotImplementedError()
+        if block_hash is None:
+            raise ValueError("Block_hash must be provided when using FullNodeClient")
+
+        res = await self.rpc_client.call(
+            method_name="call",
+            params={
+                "contract_address": str(hex(invoke_tx.contract_address)),
+                "entry_point_selector": str(hex(invoke_tx.entry_point_selector)),
+                "calldata": [str(hex(i)) for i in invoke_tx.calldata],
+                "block_hash": str(int(block_hash))
+            }
+        )
+        return res
 
     async def add_transaction(self, tx: Transaction) -> SentTransaction:
-        raise NotImplementedError()
+        raise NotImplementedError("Full node does not currently support invoke transactions")
 
     async def deploy(
         self,
@@ -128,7 +143,7 @@ class FullNodeClient(BaseClient):
         constructor_calldata: List[int],
         salt: Optional[int] = None,
     ) -> SentTransaction:
-        raise NotImplementedError()
+        raise NotImplementedError("Full node does not currently support deploy transactions")
 
 
 class RpcClient:
@@ -145,4 +160,8 @@ class RpcClient:
 
         async with aiohttp.ClientSession() as session:
             async with session.post(self.url, json=payload) as request:
-                return (await request.json())["result"]
+                result = await request.json()
+                if "result" not in result:
+                    # TODO add proper error handling
+                    raise IOError("Node request failed.")
+                return result
