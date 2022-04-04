@@ -55,6 +55,10 @@ class AccountClient(Client):
     def private_key(self) -> int:
         return self._key_pair.private_key
 
+    @property
+    def public_key(self) -> int:
+        return self._key_pair.public_key
+
     async def _get_nonce(self) -> int:
         [nonce] = await super().call_contract(
             InvokeFunction(
