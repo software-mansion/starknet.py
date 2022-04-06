@@ -30,7 +30,7 @@ jobs:
         poetry run poe lint
     - name: Unit & e2e test
       run: |
-        poetry run poe test
+        poetry run poe test_unit
     - name: Generate coverage in XML
       run: |
         poetry run poe coverage_combine
