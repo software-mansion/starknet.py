@@ -8,6 +8,7 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
     FeederGatewayClient,
     CastableToHash,
     JsonObject,
+    TransactionInfo,
 )
 from starkware.starknet.services.api.feeder_gateway.response_objects import (
     StarknetBlock,
@@ -26,6 +27,11 @@ from starknet_py.net.models import (
     chain_from_network,
 )
 from starknet_py.net.networks import Network, net_address_from_net
+from starknet_py.transaction_exceptions import (
+    TransactionFailedException,
+    TransactionRejectedException,
+    TransactionNotReceivedException,
+)
 
 BadRequest = BadRequestError
 
@@ -150,7 +156,7 @@ class Client:
         """
         return await self._feeder_gateway.get_transaction_status(tx_hash)
 
-    async def get_transaction(self, tx_hash: CastableToHash) -> JsonObject:
+    async def get_transaction(self, tx_hash: CastableToHash) -> TransactionInfo:
         """
         :param tx_hash: Transaction's hash
         :return: Dictionary representing JSON of the transaction on Starknet
@@ -205,12 +211,14 @@ class Client:
                 if not wait_for_accept and "block_number" in result:
                     return result.block_number, status
             elif status == TxStatus.REJECTED:
-                raise Exception(f"Transaction [{tx_hash}] was rejected.")
+                raise TransactionRejectedException(
+                    str(result.transaction_failure_reason)
+                )
             elif status == TxStatus.NOT_RECEIVED:
                 if not first_run:
-                    raise Exception(f"Transaction [{tx_hash}] was not received.")
+                    raise TransactionNotReceivedException()
             elif status != TxStatus.RECEIVED:
-                raise Exception(f"Unknown status [{status}]")
+                raise TransactionFailedException()
 
             first_run = False
             await asyncio.sleep(check_interval)
