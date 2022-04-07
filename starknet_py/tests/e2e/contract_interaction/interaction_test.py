@@ -58,7 +58,7 @@ async def test_auto_fee_estimation():
     prepared_call = contract.functions["put"].prepare(key, value)
     invocation = await prepared_call.invoke(auto_estimate=True)
 
-    assert invocation.invoke_transaction.max_fee != 0
+    assert invocation.invoke_transaction.max_fee is not None
 
 
 @pytest.mark.asyncio
