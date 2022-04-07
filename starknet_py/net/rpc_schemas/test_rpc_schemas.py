@@ -1,6 +1,8 @@
 import pytest
 
-from starknet_py.net.rpc_schemas.rpc_schemas import *
+from marshmallow import Schema, ValidationError
+from starknet_py.net.rpc_schemas.rpc_schemas import Felt, StatusField, BlockStatusField
+from starknet_py.net.client_models import TransactionStatus, BlockStatus
 
 
 def test_serialize_felt():

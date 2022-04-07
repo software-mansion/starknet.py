@@ -1,8 +1,29 @@
 from abc import ABC, abstractmethod
-from typing import Union
+from dataclasses import dataclass
+from typing import Union, Optional, List
 
-from starknet_py.net.client_models import *
+from starknet_py.net.client_models import (
+    StarknetBlock,
+    BlockState,
+    Transaction,
+    TransactionReceipt,
+    ContractCode,
+    FunctionCall,
+    SentTransaction,
+)
 from starknet_py.contract import Contract
+
+
+@dataclass
+class BlockHashIdentifier:
+    block_hash: int
+    index: int
+
+
+@dataclass
+class BlockNumberIdentifier:
+    block_number: int
+    index: int
 
 
 class BaseClient(ABC):
@@ -54,18 +75,12 @@ class BaseClient(ABC):
     @abstractmethod
     async def get_transaction(
         self,
-        tx_hash: Union[int, str],
-        block_hash: Optional[Union[int, str]] = None,
-        block_number: Optional[int] = None,
-        index: Optional[int] = None,
+        tx_identifier: Union[int, BlockHashIdentifier, BlockNumberIdentifier],
     ) -> Transaction:
         """
         Get the details and status of a submitted transaction
 
-        :param tx_hash: Transaction's hash
-        :param block_hash: Fetches the value of the variable at given block hash
-        :param block_number: See above, uses block number instead of hash
-        :param index: The index in the block to search for the transaction
+        :param tx_identifier: Transaction's identifier
         :return: Dictionary representing JSON of the transaction on Starknet
         """
 
@@ -84,7 +99,7 @@ class BaseClient(ABC):
     @abstractmethod
     async def get_code(
         self,
-        contract_address: int,
+        contract_address: Union[int, str],
         block_hash: Optional[Union[int, str]] = None,
         block_number: Optional[int] = None,
     ) -> ContractCode:

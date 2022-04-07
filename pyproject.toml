@@ -20,6 +20,9 @@ asgiref = "^3.4.1"
 sphinx = {version = "^4.3.1", optional = true}
 web3 = ">=5.28.0,<6"
 enum-tools = {extras = ["sphinx"], version = "0.8.0", optional = true}
+pydantic = "^1.9.0"
+marshmallow = "^3.15.0"
+typing-extensions = "<4"
 
 [tool.poetry.extras]
 docs = ["sphinx", "enum-tools"]

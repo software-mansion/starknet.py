@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import List, Optional, Any, Dict
+from typing import List, Any, Dict
 
 
 @dataclass
@@ -42,7 +42,9 @@ class Transaction:
     """
 
     hash: int
-    function_call: Optional[FunctionCall]
+    contract_address: int
+    entry_point_selector: int
+    calldata: List[int]
 
 
 class TransactionStatus(Enum):
@@ -97,8 +99,7 @@ class StarknetBlock:
     block_number: int
     status: BlockStatus
     root: int
-    transactions: List[int]
-    transactions_details: Optional[List[Transaction]]
+    transactions: List[Transaction]
     timestamp: int
 
 

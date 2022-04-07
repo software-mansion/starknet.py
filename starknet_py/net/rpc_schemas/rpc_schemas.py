@@ -1,7 +1,6 @@
 import json
-
-from marshmallow import Schema, fields, post_load, ValidationError
 from typing import Any, Mapping, Union
+from marshmallow import Schema, fields, post_load, ValidationError
 
 from starknet_py.net.client_models import (
     Transaction,
@@ -31,7 +30,7 @@ class Felt(fields.Field):
         **kwargs,
     ):
         try:
-            assert type(value) == str and value.startswith("0x")
+            assert isinstance(value, str) and value.startswith("0x")
             return int(value, 16)
         except (ValueError, AssertionError) as error:
             raise ValidationError("Invalid felt") from error
