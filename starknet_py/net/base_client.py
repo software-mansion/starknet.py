@@ -75,7 +75,9 @@ class BaseClient(ABC):
     @abstractmethod
     async def get_transaction(
         self,
-        tx_identifier: Union[int, BlockHashIdentifier, BlockNumberIdentifier],
+        tx_identifier: Union[
+            Union[int, str], BlockHashIdentifier, BlockNumberIdentifier
+        ],
     ) -> Transaction:
         """
         Get the details and status of a submitted transaction

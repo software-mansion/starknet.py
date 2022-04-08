@@ -96,12 +96,14 @@ class FullNodeClient(BaseClient):
 
     async def get_transaction(
         self,
-        tx_identifier: Union[int, BlockHashIdentifier, BlockNumberIdentifier],
+        tx_identifier: Union[
+            Union[int, str], BlockHashIdentifier, BlockNumberIdentifier
+        ],
     ) -> Transaction:
         res = None
         error_message = None
 
-        if isinstance(tx_identifier, int):
+        if isinstance(tx_identifier, (int, str)):
             res = await self._get_transaction_by_tx_hash(tx_identifier)
 
         try:
@@ -126,7 +128,11 @@ class FullNodeClient(BaseClient):
     async def _get_transaction_by_tx_hash(self, tx_identifier):
         res = await self.rpc_client.call(
             method_name="getTransactionByHash",
-            params={"transaction_hash": str(hex(tx_identifier))},
+            params={
+                "transaction_hash": str(hex(tx_identifier))
+                if isinstance(tx_identifier, int)
+                else tx_identifier
+            },
         )
         return res
 
