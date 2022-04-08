@@ -19,6 +19,9 @@ class FunctionCall:
     contract_address: int
     entry_point_selector: int
     calldata: List[int]
+    signature: List[int]
+    max_fee: int
+    version: int
 
 
 @dataclass
