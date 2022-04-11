@@ -211,9 +211,7 @@ class Client:
                 if not wait_for_accept and "block_number" in result:
                     return result.block_number, status
             elif status == TxStatus.REJECTED:
-                raise TransactionRejectedError(
-                    str(result.transaction_failure_reason)
-                )
+                raise TransactionRejectedError(str(result.transaction_failure_reason))
             elif status == TxStatus.NOT_RECEIVED:
                 if not first_run:
                     raise TransactionNotReceivedError()
