@@ -28,9 +28,9 @@ from starknet_py.net.models import (
 )
 from starknet_py.net.networks import Network, net_address_from_net
 from starknet_py.transaction_exceptions import (
-    TransactionFailedException,
-    TransactionRejectedException,
-    TransactionNotReceivedException,
+    TransactionFailedError,
+    TransactionRejectedError,
+    TransactionNotReceivedError,
 )
 
 BadRequest = BadRequestError
@@ -211,14 +211,14 @@ class Client:
                 if not wait_for_accept and "block_number" in result:
                     return result.block_number, status
             elif status == TxStatus.REJECTED:
-                raise TransactionRejectedException(
+                raise TransactionRejectedError(
                     str(result.transaction_failure_reason)
                 )
             elif status == TxStatus.NOT_RECEIVED:
                 if not first_run:
-                    raise TransactionNotReceivedException()
+                    raise TransactionNotReceivedError()
             elif status != TxStatus.RECEIVED:
-                raise TransactionFailedException()
+                raise TransactionFailedError()
 
             first_run = False
             await asyncio.sleep(check_interval)

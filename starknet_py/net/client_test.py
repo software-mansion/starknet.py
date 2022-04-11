@@ -10,9 +10,9 @@ from starkware.starknet.services.api.feeder_gateway.response_objects import (
 
 from starknet_py.net.client import Client
 from starknet_py.transaction_exceptions import (
-    TransactionRejectedException,
-    TransactionNotReceivedException,
-    TransactionFailedException,
+    TransactionRejectedError,
+    TransactionNotReceivedError,
+    TransactionFailedError,
 )
 
 
@@ -25,7 +25,7 @@ async def test_wait_for_tx_throws_transaction_rejected():
     client.get_transaction = MagicMock()
     client.get_transaction.return_value = result
 
-    with pytest.raises(TransactionRejectedException):
+    with pytest.raises(TransactionRejectedError):
         await client.wait_for_tx(tx_hash="0x0")
 
 
@@ -38,7 +38,7 @@ async def test_wait_for_tx_throws_transaction_not_received():
     client.get_transaction = MagicMock()
     client.get_transaction.return_value = result
 
-    with pytest.raises(TransactionNotReceivedException):
+    with pytest.raises(TransactionNotReceivedError):
         await client.wait_for_tx(tx_hash="0x0")
 
 
@@ -52,5 +52,5 @@ async def test_wait_for_tx_throws_transaction_failed():
     client.get_transaction = MagicMock()
     client.get_transaction.return_value = result
 
-    with pytest.raises(TransactionFailedException):
+    with pytest.raises(TransactionFailedError):
         await client.wait_for_tx(tx_hash="0x0")

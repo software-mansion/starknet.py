@@ -1,7 +1,7 @@
 from typing import Optional
 
 
-class TransactionFailedException(Exception):
+class TransactionFailedError(Exception):
     """
     Base exception for transaction failure
     """
@@ -14,7 +14,7 @@ class TransactionFailedException(Exception):
         return f"Transaction failed with following starknet error: {self.transaction_failure_reason}."
 
 
-class TransactionRejectedException(TransactionFailedException):
+class TransactionRejectedError(TransactionFailedError):
     """
     Exception for transactions rejected by starknet
     """
@@ -26,7 +26,7 @@ class TransactionRejectedException(TransactionFailedException):
         return f"Transaction was rejected with following starknet error: {self.transaction_failure_reason}."
 
 
-class TransactionNotReceivedException(TransactionFailedException):
+class TransactionNotReceivedError(TransactionFailedError):
     """
     Exception for transactions not received on starknet
     """
