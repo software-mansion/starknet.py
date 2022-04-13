@@ -15,8 +15,10 @@ def test_invoke_hash():
                 contract_address=ADDRESS,
                 calldata=[1234],
                 chain_id=StarknetChainId.TESTNET,
+                version=0,
+                max_fee=0,
             )
-            == 0x203BFF8307C3266B0749A0D1DBA143907F32F7E55C84A4A34077690C9C91BAC
+            == 0xD0A52D6E77B836613B9F709AD7F4A88297697FEFBEF1ADA3C59692FF46702C
         )
 
 
@@ -27,5 +29,5 @@ def test_deploy_hash():
             calldata=[],
             chain_id=StarknetChainId.TESTNET,
         )
-        == 0x341380BA58BF69F567E876C576D4CFFCB4D4374F0C63C025D120253426F013E
+        == 0x57D49B4C979A3DACBF1D23E1DEBAAEFCAC1AB7E052CC0CE2A265B90657494BF
     )

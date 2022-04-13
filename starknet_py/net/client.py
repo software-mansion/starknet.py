@@ -143,44 +143,39 @@ class Client:
             block_number,
         )
 
-    async def get_transaction_status(
-        self, tx_hash: Optional[CastableToHash], tx_id: Optional[int] = None
-    ) -> JsonObject:
+    async def get_transaction_status(self, tx_hash: CastableToHash) -> JsonObject:
         """
         :param tx_hash: Transaction's hash
-        :param tx_id: Transaction's index
         :return: Dictionary containing tx's status
         """
-        return await self._feeder_gateway.get_transaction_status(
-            tx_hash,
-            tx_id,
-        )
+        return await self._feeder_gateway.get_transaction_status(tx_hash)
 
-    async def get_transaction(
-        self, tx_hash: Optional[CastableToHash], tx_id: Optional[int] = None
-    ) -> JsonObject:
+    async def get_transaction(self, tx_hash: CastableToHash) -> JsonObject:
         """
         :param tx_hash: Transaction's hash
-        :param tx_id: Transaction's index
         :return: Dictionary representing JSON of the transaction on Starknet
         """
-        return await self._feeder_gateway.get_transaction(
-            tx_hash,
-            tx_id,
-        )
+        return await self._feeder_gateway.get_transaction(tx_hash)
 
-    async def get_transaction_receipt(
-        self, tx_hash: Optional[CastableToHash], tx_id: Optional[int] = None
-    ) -> JsonObject:
+    async def get_transaction_receipt(self, tx_hash: CastableToHash) -> JsonObject:
         """
         :param tx_hash: Transaction's hash
-        :param tx_id: Transaction's index
         :return: Dictionary representing JSON of the transaction's receipt on Starknet
         """
-        return await self._feeder_gateway.get_transaction_receipt(
-            tx_hash,
-            tx_id,
-        )
+        return await self._feeder_gateway.get_transaction_receipt(tx_hash)
+
+    async def estimate_fee(
+        self,
+        tx: InvokeFunction,
+    ) -> int:
+        """
+        Estimate how much Wei it will cost to run passed in transaction
+
+        :param tx: Transaction to estimate
+        :return: Estimated amount of Wei executing specified transaction will cost
+        """
+        res = await self._feeder_gateway.estimate_fee(invoke_tx=tx)
+        return res["amount"]
 
     async def wait_for_tx(
         self,

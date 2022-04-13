@@ -6,7 +6,7 @@ from starkware.starknet.services.api.gateway.transaction import (
     Deploy as D,
     Transaction as T,
 )
-from starkware.starknet.core.os.transaction_hash import (
+from starkware.starknet.core.os.transaction_hash.transaction_hash import (
     calculate_transaction_hash_common,
     calculate_deploy_transaction_hash,
     TransactionHashPrefix,
@@ -29,7 +29,10 @@ def compute_invoke_hash(
     entry_point_selector: Union[int, str],
     calldata: Sequence[int],
     chain_id: StarknetChainId,
+    max_fee: int,
+    version: int,
 ) -> int:
+    # pylint: disable=too-many-arguments
     """
     Computes invocation hash.
 
@@ -50,6 +53,8 @@ def compute_invoke_hash(
         chain_id=chain_id.value,
         hash_function=pedersen_hash,
         additional_data=[],
+        max_fee=max_fee,
+        version=version,
     )
 
 

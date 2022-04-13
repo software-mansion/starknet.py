@@ -225,3 +225,5 @@ The result contains (in addition to get_transaction fields):
 
 We recommend using :obj:`ContractFunction's invoke <starknet_py.contract.ContractFunction.invoke>` or :obj:`Contract's deploy <starknet_py.contract.Contract.deploy>` instead
 
+.. automethod:: Client.estimate_fee
+.. automethod:: Client.estimate_fee_sync
