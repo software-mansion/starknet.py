@@ -71,10 +71,10 @@ class Compiler:
         source_file = Path(filename)
 
         if not source_file.is_file():
-            raise TypeError(f"{filename} does not exist")
+            raise ValueError(f"{filename} does not exist")
 
         if source_file.suffix != ".cairo":
-            raise TypeError(f"{filename} is not a cairo source file")
+            raise ValueError(f"{filename} is not a cairo source file")
 
         return Path(filename).read_text("utf-8")
 
