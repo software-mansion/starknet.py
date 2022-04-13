@@ -25,46 +25,49 @@ class Compiler:
     Class for compiling Cairo contracts
     """
 
-    @staticmethod
-    def create_contract_definition(
+    def __init__(
+        self,
         compiled_contract: Optional[str] = None,
-        contract_source: Optional[StarknetCompilationSource] = None,
+        contract_source: Optional[List[StarknetCompilationSource]] = None,
         search_paths: Optional[List[str]] = None,
-    ) -> ContractDefinition:
+    ):
         """
-        Creates ContractDefinition either from already compiled contract or contract source code
+        Initializes compiler.
 
-        :raises ValueError: when neither contract_source and compiled_contract are given
         :param compiled_contract: an already compiled contract
-        :param contract_source: string containing source code or a list of source files paths
+        :param contract_source: a list of source files paths
         :param search_paths: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts
-        :return: a ContractDefinition
         """
         if not contract_source and not compiled_contract:
             raise ValueError(
                 "One of compiled_contract or compilation_source is required."
             )
 
-        if not compiled_contract:
-            compiled_contract = Compiler.compile_contract(
-                compilation_source=contract_source, search_paths=search_paths
-            )
+        self.compiled_contract = compiled_contract
+        self.contract_source = contract_source
+        self.search_paths = search_paths
 
-        return ContractDefinition.loads(compiled_contract)
+    def create_contract_definition(
+        self,
+    ) -> ContractDefinition:
+        """
+        Creates ContractDefinition either from already compiled contract or contract source code
 
-    @staticmethod
-    def compile_contract(
-        compilation_source: StarknetCompilationSource,
-        search_paths: Optional[List[str]] = None,
-    ) -> str:
+        :raises ValueError: when neither contract_source and compiled_contract are given
+        :return: a ContractDefinition
+        """
+        if not self.compiled_contract:
+            self.compiled_contract = self.compile_contract()
+
+        return ContractDefinition.loads(self.compiled_contract)
+
+    def compile_contract(self) -> str:
         """
         Compiles a contract and returns it as string
 
-        :param compilation_source: string containing source code or a list of source files paths
-        :param search_paths: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts
         :return: string of compiled contract
         """
-        return Compiler._compile(compilation_source, search_paths=search_paths)
+        return Compiler._compile(self.contract_source, search_paths=self.search_paths)
 
     @staticmethod
     def _load_cairo_source_code(filename: CairoFilename) -> str:
@@ -79,7 +82,9 @@ class Compiler:
         return Path(filename).read_text("utf-8")
 
     @staticmethod
-    def _load_source_code(src: StarknetCompilationSource) -> List[Tuple[str, str]]:
+    def _load_source_code(
+        src: List[StarknetCompilationSource],
+    ) -> List[Tuple[str, str]]:
         if isinstance(src, str):
             return [(src, str(hash(src)))]
         return [
@@ -88,7 +93,8 @@ class Compiler:
 
     @staticmethod
     def _compile(
-        source: StarknetCompilationSource, search_paths: Optional[List[str]] = None
+        source: List[StarknetCompilationSource],
+        search_paths: Optional[List[str]] = None,
     ):
         file_contents_for_debug_info = {}
 

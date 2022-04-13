@@ -406,11 +406,11 @@ class Contract:
         :param search_paths: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts.
         :return: an initialized Contract instance
         """
-        definition = Compiler.create_contract_definition(
+        definition = Compiler(
             contract_source=compilation_source,
             compiled_contract=compiled_contract,
             search_paths=search_paths,
-        )
+        ).create_contract_definition()
         translated_args = Contract._translate_constructor_args(
             definition, constructor_args
         )
@@ -453,11 +453,11 @@ class Contract:
         :param search_paths: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts.
         :return: contract's address
         """
-        definition = Compiler.create_contract_definition(
+        definition = Compiler(
             contract_source=compilation_source,
             compiled_contract=compiled_contract,
             search_paths=search_paths,
-        )
+        ).create_contract_definition()
         translated_args = Contract._translate_constructor_args(
             definition, constructor_args
         )
@@ -482,11 +482,11 @@ class Contract:
         :param search_paths: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts.
         :return:
         """
-        definition = Compiler.create_contract_definition(
+        definition = Compiler(
             contract_source=compilation_source,
             compiled_contract=compiled_contract,
             search_paths=search_paths,
-        )
+        ).create_contract_definition()
         return compute_contract_hash(definition, hash_func=pedersen_hash)
 
     @staticmethod

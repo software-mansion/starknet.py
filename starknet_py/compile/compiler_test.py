@@ -19,38 +19,40 @@ base_contract_path = Path(os.path.join(mock_contracts_base_path, "base.cairo"))
 
 
 def test_compile_direct_load():
-    output_file_str = Compiler.compile_contract(test_file_content)
+    output_file_str = Compiler(contract_source=test_file_content).compile_contract()
     output_json = json.loads(output_file_str)
 
     assert output_json.get("abi") != []
 
 
 def test_compile_file_load():
-    output_file_str = Compiler.compile_contract([test_file_path.resolve().absolute()])
+    output_file_str = Compiler(
+        contract_source=[test_file_path.resolve().absolute()]
+    ).compile_contract()
     output_json = json.loads(output_file_str)
 
     assert output_json.get("abi") != []
 
 
 def test_compile_throws_on_non_existing_file():
-    with pytest.raises(TypeError) as t_err:
-        Compiler.compile_contract(["nonexisting.cairo"])
+    with pytest.raises(ValueError) as t_err:
+        Compiler(contract_source=["nonexisting.cairo"]).compile_contract()
     assert "does not exist" in str(t_err.value)
 
 
 def test_throws_on_compile_with_wrong_extension():
     current_filename = f"{__name__.rsplit('.', maxsplit=1)[-1]}.py"
     full_current_file_pathname = str(Path(directory, current_filename))
-    with pytest.raises(TypeError) as t_err:
-        Compiler.compile_contract([full_current_file_pathname])
+    with pytest.raises(ValueError) as t_err:
+        Compiler(contract_source=[full_current_file_pathname]).compile_contract()
     assert "is not a cairo source file" in str(t_err.value)
 
 
 def test_compile_with_search_path():
-    output_file_str = Compiler.compile_contract(
-        [base_contract_path.resolve().absolute()],
+    output_file_str = Compiler(
+        contract_source=[base_contract_path.resolve().absolute()],
         search_paths=[mock_contracts_base_path],
-    )
+    ).compile_contract()
     output_json = json.loads(output_file_str)
 
     assert output_json.get("abi") != []
@@ -58,9 +60,9 @@ def test_compile_with_search_path():
 
 def test_compile_with_env_var(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv(LIBS_DIR_ENVVAR, str(mock_contracts_base_path))
-    output_file_str = Compiler.compile_contract(
-        [base_contract_path.resolve().absolute()]
-    )
+    output_file_str = Compiler(
+        contract_source=[base_contract_path.resolve().absolute()]
+    ).compile_contract()
     output_json = json.loads(output_file_str)
 
     assert output_json.get("abi") != []
@@ -68,18 +70,22 @@ def test_compile_with_env_var(monkeypatch: pytest.MonkeyPatch):
 
 def test_throws_on_compile_without_search_path_and_env_var():
     with pytest.raises(ImportLoaderError) as m_err:
-        Compiler.compile_contract([base_contract_path.resolve().absolute()])
+        Compiler(
+            contract_source=[base_contract_path.resolve().absolute()]
+        ).compile_contract()
     assert "Could not find module 'inner.inner'." in str(m_err.value)
 
 
 def test_create_definition_from_source():
-    contract = Compiler.create_contract_definition(contract_source=test_file_content)
+    contract = Compiler(contract_source=test_file_content).create_contract_definition()
 
     assert isinstance(contract, ContractDefinition)
 
 
 def test_create_definition_from_compiled():
-    compiled_contract = Compiler.compile_contract(test_file_content)
-    contract = Compiler.create_contract_definition(compiled_contract=compiled_contract)
+    compiled_contract = Compiler(contract_source=test_file_content).compile_contract()
+    contract = Compiler(
+        compiled_contract=compiled_contract
+    ).create_contract_definition()
 
     assert isinstance(contract, ContractDefinition)
