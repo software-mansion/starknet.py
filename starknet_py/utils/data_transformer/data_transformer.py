@@ -30,7 +30,7 @@ CairoData = List[int]
 
 
 def read_from_cairo_data(
-        name: str, values: CairoData, n: int
+    name: str, values: CairoData, n: int
 ) -> (CairoData, CairoData):
     if len(values) < n:
         raise ValueError(
@@ -52,12 +52,12 @@ class TypeTransformer(Generic[UsedCairoType, PythonType]):
     resolve_type: Callable[[CairoType], "TypeTransformer"]
 
     def from_python(
-            self, cairo_type: UsedCairoType, name: str, value: any
+        self, cairo_type: UsedCairoType, name: str, value: any
     ) -> CairoData:
         raise NotImplementedError()
 
     def to_python(
-            self, cairo_type: UsedCairoType, name: str, values: CairoData
+        self, cairo_type: UsedCairoType, name: str, values: CairoData
     ) -> Tuple[PythonType, CairoData]:
         raise NotImplementedError()
 
@@ -147,7 +147,7 @@ class TupleTransformer(TypeTransformer[TypeTuple, tuple]):
 
         results = []
         for index, member, member_type in zip(
-                range(len(values)), values, cairo_type.members
+            range(len(values)), values, cairo_type.members
         ):
             result = self.resolve_type(member_type).from_python(
                 member_type, f"{name}[{index}]", member
@@ -348,9 +348,9 @@ class DataTransformer:
 
         is_array_len = (
             lambda name, cairo_type: name.endswith("_len")
-                                     and isinstance(cairo_type, TypeFelt)
-                                     and name[:-4] in type_by_name
-                                     and isinstance(type_by_name[name[:-4]], TypePointer)
+            and isinstance(cairo_type, TypeFelt)
+            and name[:-4] in type_by_name
+            and isinstance(type_by_name[name[:-4]], TypePointer)
         )
 
         return {k: v for k, v in type_by_name.items() if not is_array_len(k, v)}
