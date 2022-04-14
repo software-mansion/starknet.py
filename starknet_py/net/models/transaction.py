@@ -6,7 +6,7 @@ from starkware.starknet.services.api.gateway.transaction import (
     Deploy as D,
     Transaction as T,
 )
-from starkware.starknet.core.os.transaction_hash.transaction_hash import (
+from starkware.starknet.core.os.transaction_hash import (
     calculate_transaction_hash_common,
     calculate_deploy_transaction_hash,
     TransactionHashPrefix,
