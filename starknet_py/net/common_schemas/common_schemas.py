@@ -46,7 +46,7 @@ class StatusField(fields.Field):
         enum_values = {v.name: k for k, v in enumerate(TransactionStatus)}
 
         if value not in enum_values:
-            raise ValidationError("Invalid TransactionStatus enum key")
+            return TransactionStatus.UNKNOWN
 
         return TransactionStatus(enum_values[value])
 

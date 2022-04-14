@@ -8,10 +8,12 @@ from starknet_py.net.client_models import (
     Transaction,
     TransactionReceipt,
     ContractCode,
-    FunctionCall,
     SentTransaction,
+    InvokeFunction,
+    StarknetTransaction,
+    ContractDefinition,
+    TransactionStatus,
 )
-from starknet_py.contract import Contract
 
 
 @dataclass
@@ -59,7 +61,7 @@ class BaseClient(ABC):
     @abstractmethod
     async def get_storage_at(
         self,
-        contract_address: int,
+        contract_address: Union[int, str],
         key: int,
         block_hash: Optional[Union[int, str]] = None,
         block_number: Optional[int] = None,
@@ -116,9 +118,25 @@ class BaseClient(ABC):
         """
 
     @abstractmethod
+    async def wait_for_tx(
+        self,
+        tx_hash: Union[int, str],
+        wait_for_accept: Optional[bool] = False,
+        check_interval=5,
+    ) -> (int, TransactionStatus):
+        """
+        Awaits for transaction to get accepted or at least pending by polling its status
+
+        :param tx_hash: Transaction's hash
+        :param wait_for_accept: If true waits for at least ACCEPTED_ON_L2 status, otherwise waits for at least PENDING
+        :param check_interval: Defines interval between checks
+        :return: Tuple containing block number and transaction status
+        """
+
+    @abstractmethod
     async def call_contract(
         self,
-        invoke_tx: FunctionCall,
+        invoke_tx: InvokeFunction,
         block_hash: Optional[Union[int, str]] = None,
         block_number: Optional[int] = None,
     ) -> List[int]:
@@ -134,7 +152,7 @@ class BaseClient(ABC):
     @abstractmethod
     async def add_transaction(
         self,
-        tx: Transaction,
+        tx: StarknetTransaction,
     ) -> SentTransaction:
         """
         Send a transaction to the network
@@ -146,7 +164,7 @@ class BaseClient(ABC):
     @abstractmethod
     async def deploy(
         self,
-        contract: Contract,
+        contract: ContractDefinition,
         constructor_calldata: List[int],
         salt: Optional[int] = None,
     ) -> SentTransaction:

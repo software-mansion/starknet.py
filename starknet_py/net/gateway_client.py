@@ -1,9 +1,19 @@
+import typing
+import asyncio
 from typing import Union, Optional, List
 
 import aiohttp
 from marshmallow import EXCLUDE
 
-from starknet_py.contract import Contract
+from starkware.starknet.definitions.fields import ContractAddressSalt
+from starkware.starkware_utils.error_handling import StarkErrorCode
+
+
+from starknet_py.transaction_exceptions import (
+    TransactionFailedError,
+    TransactionRejectedError,
+    TransactionNotReceivedError,
+)
 from starknet_py.net.base_client import (
     BaseClient,
     BlockHashIdentifier,
@@ -12,11 +22,15 @@ from starknet_py.net.base_client import (
 from starknet_py.net.client_models import (
     Transaction,
     SentTransaction,
-    FunctionCall,
     ContractCode,
     TransactionReceipt,
     BlockState,
     StarknetBlock,
+    InvokeFunction,
+    StarknetTransaction,
+    ContractDefinition,
+    Deploy,
+    TransactionStatus,
 )
 from starknet_py.net.gateway_schemas.gateway_schemas import (
     TransactionSchema,
@@ -24,14 +38,21 @@ from starknet_py.net.gateway_schemas.gateway_schemas import (
     StarknetBlockSchema,
     TransactionReceiptSchema,
     FunctionCallSchema,
+    SentTransactionSchema,
 )
+from starknet_py.net.models import StarknetChainId, chain_from_network
+from starknet_py.net.networks import Network, net_address_from_net
 
 
 class GatewayClient(BaseClient):
-    def __init__(self):
-        # TODO create proper init
-        feeder_gateway_url = "https://alpha4.starknet.io/feeder_gateway"
-        self._g_client = GClient(url=feeder_gateway_url)
+    def __init__(self, net: Network, chain: StarknetChainId = None):
+        host = net_address_from_net(net)
+        feeder_gateway_url = f"{host}/feeder_gateway"
+        gateway_url = f"{host}/gateway"
+
+        self.chain = chain_from_network(net, chain)
+        self._feeder_gateway_client = StarknetClient(url=feeder_gateway_url)
+        self._gateway_client = StarknetClient(url=gateway_url)
 
     async def get_transaction(
         self,
@@ -42,7 +63,7 @@ class GatewayClient(BaseClient):
                 "BlockHashIdentifier and BlockNumberIdentifier are not supported in gateway client."
             )
 
-        res = await self._g_client.call(
+        res = await self._feeder_gateway_client.call(
             method_name="get_transaction",
             params={
                 "transactionHash": str(hex(tx_identifier))
@@ -57,13 +78,12 @@ class GatewayClient(BaseClient):
         block_hash: Optional[Union[int, str]] = None,
         block_number: Optional[int] = None,
     ) -> StarknetBlock:
-        if block_hash is not None and block_number is not None:
-            raise ValueError(
-                "Block_hash and block_number parameters are mutually exclusive."
-            )
+        block_identifier = self._get_block_identifier(
+            block_hash=block_hash, block_number=block_number
+        )
 
-        res = await self._g_client.call(
-            method_name="get_block", params={"blockNumber": block_number}
+        res = await self._feeder_gateway_client.call(
+            method_name="get_block", params=block_identifier
         )
         return StarknetBlockSchema().load(res, unknown=EXCLUDE)
 
@@ -72,21 +92,40 @@ class GatewayClient(BaseClient):
         block_hash: Optional[Union[int, str]] = None,
         block_number: Optional[int] = None,
     ) -> BlockState:
+        # TODO implement
         pass
 
     async def get_storage_at(
         self,
-        contract_address: int,
+        contract_address: Union[int, str],
         key: int,
         block_hash: Optional[Union[int, str]] = None,
         block_number: Optional[int] = None,
     ) -> str:
-        pass
+        block_identifier = self._get_block_identifier(
+            block_hash=block_hash, block_number=block_number
+        )
+
+        res = await self._feeder_gateway_client.call(
+            method_name="get_storage_at",
+            params={
+                **{
+                    "contractAddress": int(hex(contract_address))
+                    if isinstance(contract_address, int)
+                    else contract_address,
+                    "key": key,
+                },
+                **block_identifier,
+            },
+        )
+        res = typing.cast(str, res)
+        return str(int(res, 16))
 
     async def get_transaction_receipt(
         self, tx_hash: Union[int, str]
     ) -> TransactionReceipt:
-        res = await self._g_client.call(
+        print("hash " + str(tx_hash))
+        res = await self._feeder_gateway_client.call(
             method_name="get_transaction_receipt",
             params={
                 "transactionHash": str(hex(tx_hash))
@@ -94,6 +133,7 @@ class GatewayClient(BaseClient):
                 else tx_hash
             },
         )
+        print(res)
         return TransactionReceiptSchema().load(res, unknown=EXCLUDE)
 
     async def get_code(
@@ -114,12 +154,50 @@ class GatewayClient(BaseClient):
             **block_identifier,
         }
 
-        res = await self._g_client.call(method_name="get_code", params=params)
+        res = await self._feeder_gateway_client.call(
+            method_name="get_code", params=params
+        )
         return ContractCodeSchema().load(res, unknown=EXCLUDE)
+
+    async def wait_for_tx(
+        self,
+        tx_hash: Union[int, str],
+        wait_for_accept: Optional[bool] = False,
+        check_interval=5,
+    ) -> (int, TransactionStatus):
+        if check_interval <= 0:
+            raise ValueError("check_interval has to bigger than 0.")
+
+        first_run = True
+        while True:
+            result = await self.get_transaction_receipt(tx_hash=tx_hash)
+            status = result.status
+
+            if status in (
+                TransactionStatus.ACCEPTED_ON_L1,
+                TransactionStatus.ACCEPTED_ON_L2,
+            ):
+                return result.block_number, status
+            if status == TransactionStatus.PENDING:
+                if not wait_for_accept and result.block_number is not None:
+                    return result.block_number, status
+            elif status == TransactionStatus.REJECTED:
+                # FIXME somehow get rejection message, new receipt has none due to full node format
+                # raise TransactionRejectedError(str(result.transaction_failure_reason))
+                raise TransactionRejectedError(result.transaction_rejection_reason)
+            # FIXME new transaction status has no NOT_RECEIVED status
+            elif status == TransactionStatus.UNKNOWN:
+                if not first_run:
+                    raise TransactionNotReceivedError()
+            elif status != TransactionStatus.RECEIVED:
+                raise TransactionFailedError()
+
+            first_run = False
+            await asyncio.sleep(check_interval)
 
     async def call_contract(
         self,
-        invoke_tx: FunctionCall,
+        invoke_tx: InvokeFunction,
         block_hash: Optional[Union[int, str]] = None,
         block_number: Optional[int] = None,
     ) -> List[int]:
@@ -128,7 +206,7 @@ class GatewayClient(BaseClient):
             block_hash=block_hash, block_number=block_number
         )
 
-        res = await self._g_client.post(
+        res = await self._feeder_gateway_client.post(
             method_name="call_contract",
             params=block_identifier,
             payload=FunctionCallSchema().dump(invoke_tx),
@@ -136,16 +214,38 @@ class GatewayClient(BaseClient):
         # TODO convert felts to int?
         return res["result"]
 
-    async def add_transaction(self, tx: Transaction) -> SentTransaction:
-        pass
+    async def add_transaction(self, tx: StarknetTransaction) -> SentTransaction:
+        res = await self._gateway_client.post(
+            method_name="add_transaction",
+            payload=StarknetTransaction.Schema().dump(obj=tx),
+        )
+        return SentTransactionSchema().load(res, unknown=EXCLUDE)
 
     async def deploy(
         self,
-        contract: Contract,
+        contract: ContractDefinition,
         constructor_calldata: List[int],
         salt: Optional[int] = None,
     ) -> SentTransaction:
-        pass
+        # TODO remove later?
+        if isinstance(contract, str):
+            contract = ContractDefinition.loads(contract)
+
+        res = await self.add_transaction(
+            tx=Deploy(
+                contract_address_salt=ContractAddressSalt.get_random_value()
+                if salt is None
+                else salt,
+                contract_definition=contract,
+                constructor_calldata=constructor_calldata,
+            )
+        )
+
+        # TODO maybe improve/remove this exception?
+        if res.code != StarkErrorCode.TRANSACTION_RECEIVED.name:
+            raise Exception("Transaction not received")
+
+        return res
 
     @staticmethod
     def _get_block_identifier(
@@ -166,22 +266,40 @@ class GatewayClient(BaseClient):
 
 
 # TODO rename
-class GClient:
+class StarknetClient:
     def __init__(self, url):
         self.url = url
 
-    async def call(self, method_name: str, params: dict) -> dict:
+    async def call(self, method_name: str, params: Optional[dict] = None) -> dict:
         address = f"{self.url}/{method_name}"
 
         # TODO add error handling
         async with aiohttp.ClientSession() as session:
-            async with session.get(address, params=params) as request:
+            async with session.get(address, params=params or {}) as request:
+                if request.status != 200:
+                    raise StarknetClientError(request.status, await request.text())
                 return await request.json()
 
-    async def post(self, method_name: str, params: dict, payload: dict) -> dict:
+    async def post(
+        self, method_name: str, payload: dict, params: Optional[dict] = None
+    ) -> dict:
         address = f"{self.url}/{method_name}"
 
         # TODO add error handling
         async with aiohttp.ClientSession() as session:
-            async with session.post(address, params=params, json=payload) as request:
-                return await request.json()
+            async with session.post(
+                address, params=params or {}, json=payload
+            ) as request:
+                if request.status != 200:
+                    raise StarknetClientError(request.status, await request.text())
+                return await request.json(content_type=None)
+
+
+class StarknetClientError(Exception):
+    def __init__(self, code: int, message: str):
+        self.code = code
+        self.message = message
+        super().__init__(self.message)
+
+    def __str__(self):
+        return f"StarknetClient request failed with code: {self.code} due to {self.message}"

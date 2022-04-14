@@ -1,5 +1,3 @@
-from typing import List
-
 from marshmallow import Schema, fields, post_load, EXCLUDE
 
 from starknet_py.net.client_models import (
@@ -9,6 +7,7 @@ from starknet_py.net.client_models import (
     TransactionReceipt,
     L2toL1Message,
     L1toL2Message,
+    SentTransaction,
 )
 from starknet_py.net.common_schemas.common_schemas import (
     Felt,
@@ -49,6 +48,9 @@ class TransactionSchema(Schema):
     contract_address = Felt(data_key="contract_address")
     entry_point_selector = Felt(data_key="entry_point_selector")
     calldata = fields.List(Felt(), data_key="calldata")
+    # TODO verify this field actually exists
+    version = fields.Integer(data_key="version", allow_none=True)
+    max_fee = Felt(data_key="max_fee", allow_none=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> Transaction:
@@ -58,10 +60,21 @@ class TransactionSchema(Schema):
 
 class TransactionReceiptSchema(Schema):
     hash = Felt(data_key="transaction_hash")
-    status = StatusField()
-    events: fields.List(fields.Nested(EventSchema()))
-    l1_to_l2_consumed_message = fields.Nested(L1toL2MessageSchema())
-    l2_to_l1_messages = fields.List(fields.Nested(L2toL1MessageSchema()))
+    status = StatusField(data_key="status")
+    events = fields.List(fields.Nested(EventSchema()), data_key="events")
+    l1_to_l2_consumed_message = fields.Nested(
+        L1toL2MessageSchema(), data_key="l1_to_l2_consumed_message", allow_none=True
+    )
+    l2_to_l1_messages = fields.List(
+        fields.Nested(L2toL1MessageSchema()), data_key="l2_to_l1_messages"
+    )
+    # TODO should we allow none if dataclass accepts optional?
+    block_number = fields.Integer(data_key="block_number", allow_none=True)
+    version = fields.Integer(data_key="version", allow_none=True)
+    actual_fee = Felt(data_key="actual_key", allow_none=True)
+    transaction_rejection_reason = fields.String(
+        data_key="transaction_rejection_reason", allow_none=True
+    )
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> TransactionReceipt:
@@ -76,7 +89,7 @@ class ContractCodeSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs):
-        return ContractCode(bytecode=data["bytecode"], abi=data["abi"][0])
+        return ContractCode(bytecode=data["bytecode"], abi=data["abi"])
 
 
 class InvokeSpecificInfoSchema(Schema):
@@ -100,6 +113,18 @@ class StarknetBlockSchema(Schema):
         return StarknetBlock(**data)
 
 
+class SentTransactionSchema(Schema):
+    # TODO verify data_keys
+    hash = Felt(data_key="transaction_hash")
+    code = fields.String(data_key="code")
+    address = Felt(data_key="address", allow_none=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return SentTransaction(**data)
+
+
+# TODO remove?
 class FunctionCallSchema(Schema):
     # TODO add data_keys
     contract_address = Felt()

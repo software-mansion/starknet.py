@@ -17,6 +17,8 @@ from starknet_py.net.client_models import (
     TransactionReceipt,
     BlockState,
     StarknetBlock,
+    StarknetTransaction,
+    ContractDefinition,
 )
 from starknet_py.net.rpc_schemas.rpc_schemas import (
     TransactionSchema,
@@ -205,14 +207,14 @@ class FullNodeClient(BaseClient):
         )
         return res
 
-    async def add_transaction(self, tx: Transaction) -> SentTransaction:
+    async def add_transaction(self, tx: StarknetTransaction) -> SentTransaction:
         raise NotImplementedError(
             "Full node does not currently support invoke transactions"
         )
 
     async def deploy(
         self,
-        contract: Contract,
+        contract: ContractDefinition,
         constructor_calldata: List[int],
         salt: Optional[int] = None,
     ) -> SentTransaction:

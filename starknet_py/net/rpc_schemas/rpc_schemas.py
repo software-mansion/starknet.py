@@ -70,7 +70,7 @@ class ContractCodeSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> ContractCode:
         parsed_json = json.loads(data["abi"])
-        data["abi"] = parsed_json[0]
+        data["abi"] = parsed_json
         return ContractCode(**data)
 
 

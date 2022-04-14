@@ -1,6 +1,21 @@
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import List, Any, Dict
+from typing import List, Any, Dict, Optional
+
+from starkware.starknet.services.api.gateway.transaction import (
+    InvokeFunction as IF,
+    Transaction as T,
+    ContractDefinition as CD,
+    Deploy as D,
+)
+
+
+from starknet_py.utils.docs import as_our_module
+
+InvokeFunction = as_our_module(IF)
+StarknetTransaction = as_our_module(T)
+ContractDefinition = as_our_module(CD)
+Deploy = as_our_module(D)
 
 
 @dataclass
@@ -48,6 +63,8 @@ class Transaction:
     contract_address: int
     entry_point_selector: int
     calldata: List[int]
+    version: int = 0
+    max_fee: int = 0
 
 
 class TransactionStatus(Enum):
@@ -68,14 +85,19 @@ class TransactionReceipt:
     hash: int
     status: TransactionStatus
     events: List[Event]
-    l1_to_l2_consumed_message: L1toL2Message
     l2_to_l1_messages: List[L2toL1Message]
+    l1_to_l2_consumed_message: Optional[L1toL2Message] = None
+    block_number: Optional[int] = None
+    version: int = 0
+    actual_fee: int = 0
+    transaction_rejection_reason: str = ""
 
 
 @dataclass
 class SentTransaction:
     hash: int
     code: str
+    address: Optional[int] = None
 
 
 class BlockStatus(Enum):
@@ -122,4 +144,4 @@ class BlockState:
 @dataclass
 class ContractCode:
     bytecode: List[int]
-    abi: Dict[str, Any]
+    abi: List[Dict[str, Any]]
