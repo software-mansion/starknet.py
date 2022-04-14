@@ -7,7 +7,7 @@ from starkware.crypto.signature.signature import (
 )
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
-from starkware.starknet.core.os.transaction_hash import (
+from starkware.starknet.core.os.transaction_hash.transaction_hash import (
     calculate_transaction_hash_common,
     TransactionHashPrefix,
 )
@@ -54,6 +54,10 @@ class AccountClient(Client):
     @property
     def private_key(self) -> int:
         return self._key_pair.private_key
+
+    @property
+    def public_key(self) -> int:
+        return self._key_pair.public_key
 
     async def _get_nonce(self) -> int:
         [nonce] = await super().call_contract(
