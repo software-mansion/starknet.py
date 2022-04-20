@@ -37,7 +37,6 @@ from starknet_py.net.gateway_schemas.gateway_schemas import (
     ContractCodeSchema,
     StarknetBlockSchema,
     TransactionReceiptSchema,
-    FunctionCallSchema,
     SentTransactionSchema,
 )
 from starknet_py.net.models import StarknetChainId, chain_from_network
@@ -62,7 +61,6 @@ class GatewayClient(BaseClient):
             raise ValueError(
                 "BlockHashIdentifier and BlockNumberIdentifier are not supported in gateway client."
             )
-
         res = await self._feeder_gateway_client.call(
             method_name="get_transaction",
             params={
@@ -157,6 +155,12 @@ class GatewayClient(BaseClient):
         res = await self._feeder_gateway_client.call(
             method_name="get_code", params=params
         )
+
+        if len(res["bytecode"]) == 0:
+            raise NoContractFoundError(
+                f"No contract found with following identifier {block_identifier}"
+            )
+
         return ContractCodeSchema().load(res, unknown=EXCLUDE)
 
     async def wait_for_tx(
@@ -195,6 +199,13 @@ class GatewayClient(BaseClient):
             first_run = False
             await asyncio.sleep(check_interval)
 
+    async def estimate_fee(self, tx: InvokeFunction) -> int:
+        res = await self._feeder_gateway_client.post(
+            method_name="estimate_fee", payload=InvokeFunction.Schema().dump(tx)
+        )
+        # TODO should we have better type validation here?
+        return res["amount"]
+
     async def call_contract(
         self,
         invoke_tx: InvokeFunction,
@@ -209,10 +220,11 @@ class GatewayClient(BaseClient):
         res = await self._feeder_gateway_client.post(
             method_name="call_contract",
             params=block_identifier,
-            payload=FunctionCallSchema().dump(invoke_tx),
+            payload=InvokeFunction.Schema().dump(invoke_tx),
         )
-        # TODO convert felts to int?
-        return res["result"]
+
+        # TODO should we have better type validation here?
+        return [int(v, 16) for v in res["result"]]
 
     async def add_transaction(self, tx: StarknetTransaction) -> SentTransaction:
         res = await self._gateway_client.post(
@@ -303,3 +315,12 @@ class StarknetClientError(Exception):
 
     def __str__(self):
         return f"StarknetClient request failed with code: {self.code} due to {self.message}"
+
+
+class NoContractFoundError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+        self.message = message
+
+    def __str__(self):
+        return self.message

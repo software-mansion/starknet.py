@@ -1,4 +1,4 @@
-from marshmallow import Schema, fields, post_load, EXCLUDE
+from marshmallow import Schema, fields, post_load, pre_load, EXCLUDE
 
 from starknet_py.net.client_models import (
     Transaction,
@@ -8,11 +8,13 @@ from starknet_py.net.client_models import (
     L2toL1Message,
     L1toL2Message,
     SentTransaction,
+    TransactionType,
 )
 from starknet_py.net.common_schemas.common_schemas import (
     Felt,
     BlockStatusField,
     StatusField,
+    TransactionTypeField,
 )
 
 
@@ -51,10 +53,20 @@ class TransactionSchema(Schema):
     # TODO verify this field actually exists
     version = fields.Integer(data_key="version", allow_none=True)
     max_fee = Felt(data_key="max_fee", allow_none=True)
+    transaction_type = TransactionTypeField(data_key="type")
+
+    @pre_load
+    def preprocess(self, data, **kwargs):
+        if "constructor_calldata" in data:
+            data["calldata"] = data["constructor_calldata"]
+            del data["constructor_calldata"]
+        return data
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> Transaction:
         # TODO handle kwargs
+        if data["transaction_type"] == TransactionType.DEPLOY:
+            data["entry_point_selector"] = 0
         return Transaction(**data)
 
 

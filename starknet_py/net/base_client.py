@@ -134,6 +134,15 @@ class BaseClient(ABC):
         """
 
     @abstractmethod
+    async def estimate_fee(self, tx: InvokeFunction) -> int:
+        """
+        Estimate how much Wei it will cost to run provided InvokeFunction
+
+        :param tx: Transaction to estimate
+        :return: Estimated amount of Wei executing specified transaction will cost
+        """
+
+    @abstractmethod
     async def call_contract(
         self,
         invoke_tx: InvokeFunction,

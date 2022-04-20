@@ -53,6 +53,11 @@ class L2toL1Message:
     payload: List[int]
 
 
+class TransactionType(Enum):
+    INVOKE = 0
+    DEPLOY = auto()
+
+
 @dataclass
 class Transaction:
     """
@@ -61,8 +66,9 @@ class Transaction:
 
     hash: int
     contract_address: int
-    entry_point_selector: int
     calldata: List[int]
+    entry_point_selector: int
+    transaction_type: TransactionType
     version: int = 0
     max_fee: int = 0
 

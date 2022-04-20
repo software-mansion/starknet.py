@@ -2,7 +2,11 @@ from typing import Any, Union, Mapping
 
 from marshmallow import fields, ValidationError
 
-from starknet_py.net.client_models import TransactionStatus, BlockStatus
+from starknet_py.net.client_models import (
+    TransactionStatus,
+    BlockStatus,
+    TransactionType,
+)
 
 
 class Felt(fields.Field):
@@ -41,12 +45,15 @@ class StatusField(fields.Field):
         attr: Union[str, None],
         data: Union[Mapping[str, Any], None],
         **kwargs,
-    ):
-        # TODO maybe simplify
-        enum_values = {v.name: k for k, v in enumerate(TransactionStatus)}
+    ) -> TransactionStatus:
+        # should we be treating NOT_RECEIVED as UNKNOWN?
+        enum_values = {
+            **{v.name: k for k, v in enumerate(TransactionStatus)},
+            **{"NOT_RECEIVED": 0},
+        }
 
         if value not in enum_values:
-            return TransactionStatus.UNKNOWN
+            raise ValidationError("Invalid TransactionStatus enum key")
 
         return TransactionStatus(enum_values[value])
 
@@ -62,7 +69,7 @@ class BlockStatusField(fields.Field):
         attr: Union[str, None],
         data: Union[Mapping[str, Any], None],
         **kwargs,
-    ):
+    ) -> BlockStatus:
         # TODO maybe simplify
         enum_values = {v.name: k for k, v in enumerate(BlockStatus)}
 
@@ -70,3 +77,25 @@ class BlockStatusField(fields.Field):
             raise ValidationError("Invalid BlockStatus enum key")
 
         return BlockStatus(enum_values[value])
+
+
+class TransactionTypeField(fields.Field):
+    def _serialize(self, value: Any, attr: str, obj: Any, **kwargs):
+        # TODO should we serialize to string?
+        return value.name if value is not None else ""
+
+    def _deserialize(
+        self,
+        value: Any,
+        attr: Union[str, None],
+        data: Union[Mapping[str, Any], None],
+        **kwargs,
+    ) -> TransactionType:
+        # TODO maybe simplify
+        enum_values = {v.name: k for k, v in enumerate(TransactionType)}
+
+        if value not in enum_values:
+            # TODO should we use different default type?
+            return TransactionType.INVOKE
+
+        return TransactionType(enum_values[value])
