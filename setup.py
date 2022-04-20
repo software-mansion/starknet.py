@@ -68,7 +68,6 @@ install_requires = \
 ['asgiref>=3.4.1,<4.0.0',
  'cairo-lang==0.8.1',
  'marshmallow>=3.15.0,<4.0.0',
- 'pydantic>=1.9.0,<2.0.0',
  'typing-extensions<4',
  'web3>=5.28.0,<6']
 
