@@ -99,7 +99,7 @@ class GatewayClient(BaseClient):
         key: int,
         block_hash: Optional[Union[int, str]] = None,
         block_number: Optional[int] = None,
-    ) -> str:
+    ) -> int:
         block_identifier = self._get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -108,7 +108,7 @@ class GatewayClient(BaseClient):
             method_name="get_storage_at",
             params={
                 **{
-                    "contractAddress": int(hex(contract_address))
+                    "contractAddress": str(hex(contract_address))
                     if isinstance(contract_address, int)
                     else contract_address,
                     "key": key,
@@ -117,7 +117,7 @@ class GatewayClient(BaseClient):
             },
         )
         res = typing.cast(str, res)
-        return str(int(res, 16))
+        return int(res, 16)
 
     async def get_transaction_receipt(
         self, tx_hash: Union[int, str]
@@ -186,10 +186,7 @@ class GatewayClient(BaseClient):
                 if not wait_for_accept and result.block_number is not None:
                     return result.block_number, status
             elif status == TransactionStatus.REJECTED:
-                # FIXME somehow get rejection message, new receipt has none due to full node format
-                # raise TransactionRejectedError(str(result.transaction_failure_reason))
                 raise TransactionRejectedError(result.transaction_rejection_reason)
-            # FIXME new transaction status has no NOT_RECEIVED status
             elif status == TransactionStatus.UNKNOWN:
                 if not first_run:
                     raise TransactionNotReceivedError()
@@ -212,7 +209,6 @@ class GatewayClient(BaseClient):
         block_hash: Optional[Union[int, str]] = None,
         block_number: Optional[int] = None,
     ) -> List[int]:
-        # TODO improve calling contracts
         block_identifier = GatewayClient._get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -235,11 +231,10 @@ class GatewayClient(BaseClient):
 
     async def deploy(
         self,
-        contract: ContractDefinition,
+        contract: Union[ContractDefinition, str],
         constructor_calldata: List[int],
         salt: Optional[int] = None,
     ) -> SentTransaction:
-        # TODO remove later?
         if isinstance(contract, str):
             contract = ContractDefinition.loads(contract)
 
@@ -271,7 +266,7 @@ class GatewayClient(BaseClient):
         if block_hash is not None:
             return {"blockNumber": block_number}
 
-        if block_hash is not None:
+        if block_number is not None:
             return {"blockNumber": block_number}
 
         return {}
@@ -285,7 +280,6 @@ class StarknetClient:
     async def call(self, method_name: str, params: Optional[dict] = None) -> dict:
         address = f"{self.url}/{method_name}"
 
-        # TODO add error handling
         async with aiohttp.ClientSession() as session:
             async with session.get(address, params=params or {}) as request:
                 if request.status != 200:
