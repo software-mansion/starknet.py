@@ -12,6 +12,9 @@ from starknet_py.net.common_schemas.common_schemas import (
     StatusField,
 )
 
+# pylint: disable=unused-argument
+# pylint: disable=no-self-use
+
 
 class FunctionCallSchema(Schema):
     contract_address = fields.Integer(data_key="contract_address")

@@ -17,6 +17,9 @@ from starknet_py.net.common_schemas.common_schemas import (
     TransactionTypeField,
 )
 
+# pylint: disable=unused-argument
+# pylint: disable=no-self-use
+
 
 class EventSchema(Schema):
     from_address = Felt(data_key="from_address")

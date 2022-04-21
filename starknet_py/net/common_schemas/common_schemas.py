@@ -8,6 +8,9 @@ from starknet_py.net.client_models import (
     TransactionType,
 )
 
+# pylint: disable=unused-argument
+# pylint: disable=no-self-use
+
 
 class Felt(fields.Field):
     # TODO test that serialization and deserialization is correct
