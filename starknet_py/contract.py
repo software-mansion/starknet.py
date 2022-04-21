@@ -13,7 +13,7 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
 )
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
-from starknet_py.net import Client
+# from starknet_py.net import Client
 from starknet_py.net.models import (
     InvokeFunction,
     AddressRepresentation,
@@ -29,6 +29,8 @@ from starknet_py.utils.compiler.starknet_compile import (
 from starknet_py.utils.crypto.facade import pedersen_hash
 from starknet_py.utils.data_transformer import DataTransformer
 from starknet_py.utils.sync import add_sync_methods
+
+from starknet_py.net.base_client import BaseClient
 
 ABI = list
 ABIEntry = dict
@@ -58,7 +60,7 @@ class SentTransaction:
     """
 
     hash: CastableToHash
-    _client: "Client"
+    _client: BaseClient
     status: Optional[str] = None
     block_number: Optional[int] = None
 
@@ -73,7 +75,8 @@ class SentTransaction:
         Returns a new SentTransaction instance, **does not mutate original instance**.
         """
         block_number, status = await self._client.wait_for_tx(
-            int(self.hash, 16),
+            # int(self.hash, 16),
+            self.hash,
             wait_for_accept=wait_for_accept,
             check_interval=check_interval,
         )
@@ -115,7 +118,7 @@ class PreparedFunctionCall:
         calldata: List[int],
         arguments: Dict[str, List[int]],
         selector: int,
-        client: Client,
+        client: BaseClient,
         payload_transformer: DataTransformer,
         contract_data: ContractData,
         max_fee: int,
@@ -217,11 +220,11 @@ class PreparedFunctionCall:
         tx = self._make_invoke_function(signature=signature)
         response = await self._client.add_transaction(tx=tx)
 
-        if response["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
+        if response.code != StarkErrorCode.TRANSACTION_RECEIVED.name:
             raise Exception("Failed to send transaction. Response: {response}.")
 
         invoke_result = InvokeResult(
-            hash=response["transaction_hash"],  # noinspection PyTypeChecker
+            hash=response.hash,  # noinspection PyTypeChecker
             _client=self._client,
             contract=self._contract_data,
             invoke_transaction=tx,
@@ -259,7 +262,7 @@ class PreparedFunctionCall:
 @add_sync_methods
 class ContractFunction:
     def __init__(
-        self, name: str, abi: ABIEntry, contract_data: ContractData, client: "Client"
+        self, name: str, abi: ABIEntry, contract_data: ContractData, client: BaseClient
     ):
         self.name = name
         self.abi = abi
@@ -348,7 +351,7 @@ class Contract:
     Cairo contract's model.
     """
 
-    def __init__(self, address: AddressRepresentation, abi: list, client: "Client"):
+    def __init__(self, address: AddressRepresentation, abi: list, client: BaseClient):
         """
         Should be used instead of ``from_address`` when ABI is known statically.
 
@@ -372,7 +375,7 @@ class Contract:
 
     @staticmethod
     async def from_address(
-        address: AddressRepresentation, client: Client
+        address: AddressRepresentation, client: BaseClient
     ) -> "Contract":
         """
         Fetches ABI for given contract and creates a new Contract instance with it. If you know ABI statically you
@@ -384,11 +387,11 @@ class Contract:
         :return: an initialized Contract instance
         """
         code = await client.get_code(contract_address=parse_address(address))
-        return Contract(address=parse_address(address), abi=code["abi"], client=client)
+        return Contract(address=parse_address(address), abi=code.abi, client=client)
 
     @staticmethod
     async def deploy(
-        client: Client,
+        client: BaseClient,
         compilation_source: Optional[StarknetCompilationSource] = None,
         compiled_contract: Optional[str] = None,
         constructor_args: Optional[Union[List[any], dict]] = None,
@@ -417,11 +420,11 @@ class Contract:
             definition, constructor_args
         )
         res = await client.deploy(
-            compiled_contract=definition,
+            contract=definition,
             constructor_calldata=translated_args,
             salt=salt,
         )
-        contract_address = res["address"]
+        contract_address = res.address
 
         deployed_contract = Contract(
             client=client,
@@ -429,7 +432,7 @@ class Contract:
             abi=definition.abi,
         )
         deploy_result = DeployResult(
-            hash=res["transaction_hash"],
+            hash=res.hash,
             _client=client,
             deployed_contract=deployed_contract,
         )
@@ -539,7 +542,7 @@ class Contract:
 
     @classmethod
     def _make_functions(
-        cls, contract_data: ContractData, client: Client
+        cls, contract_data: ContractData, client: BaseClient
     ) -> FunctionsRepository:
         repository = {}
 

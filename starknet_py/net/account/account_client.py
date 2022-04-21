@@ -21,6 +21,8 @@ from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.crypto.facade import message_signature
 from starknet_py.net.models.address import AddressRepresentation, parse_address
 
+from starknet_py.net.gateway_client import GatewayClient
+
 
 @dataclass
 class KeyPair:
@@ -33,7 +35,7 @@ class KeyPair:
 
 
 @add_sync_methods
-class AccountClient(Client):
+class AccountClient(GatewayClient):
     """
     Extends the functionality of :obj:`Client <starknet_py.net.Client>`, adding additional methods for creating the
     account contract
@@ -85,7 +87,7 @@ class AccountClient(Client):
         :return: API response dictionary with `code`, `transaction_hash`
         """
         if tx.tx_type == TransactionType.DEPLOY:
-            return await super().add_transaction(tx, token)
+            return await super().add_transaction(tx)
 
         if tx.signature:
             raise TypeError(
@@ -108,7 +110,7 @@ class AccountClient(Client):
         ]
 
         code = await self.get_code(contract_address=parse_address(self.address))
-        abi = code["abi"]
+        abi = code.abi
         identifier_manager = identifier_manager_from_abi(abi)
         [execute_abi] = [a for a in abi if a["name"] == "__execute__"]
 
