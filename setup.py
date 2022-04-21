@@ -72,7 +72,7 @@ install_requires = \
  'web3>=5.28.0,<6']
 
 extras_require = \
-{'docs': ['sphinx>=4.3.1,<5.0.0', 'enum-tools[sphinx]==0.8.0']}
+{'docs': ['sphinx>=4.3.1,<5.0.0', 'enum-tools[sphinx]==0.9.0']}
 
 setup_kwargs = {
     'name': 'starknet.py',

@@ -65,7 +65,7 @@ class BaseClient(ABC):
         key: int,
         block_hash: Optional[Union[int, str]] = None,
         block_number: Optional[int] = None,
-    ) -> str:
+    ) -> int:
         """
         :param contract_address: Contract's address on Starknet
         :param key: An address of the storage variable inside the contract.
@@ -173,14 +173,14 @@ class BaseClient(ABC):
     @abstractmethod
     async def deploy(
         self,
-        contract: ContractDefinition,
+        contract: Union[ContractDefinition, str],
         constructor_calldata: List[int],
         salt: Optional[int] = None,
     ) -> SentTransaction:
         """
         Deploy a contract to the network
 
-        :param contract: Contract object
+        :param contract: Contract object or string with compiled contract
         :param constructor_calldata: Data to call the contract constructor with
         :param salt: Salt to be used when signing a transaction
         return: Dict with result of the transaction deployment
