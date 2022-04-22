@@ -66,7 +66,7 @@ class AccountClient(Client):
                 entry_point_selector=get_selector_from_name("get_nonce"),
                 calldata=[],
                 signature=[],
-                # verifiy this is correct
+                # verify this is correct
                 max_fee=0,
                 version=0,
             )
