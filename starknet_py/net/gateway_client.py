@@ -263,8 +263,15 @@ class GatewayClient(BaseClient):
                 "Block_hash and block_number parameters are mutually exclusive."
             )
 
+        if block_hash == "latest":
+            block_hash = "pending"
+
         if block_hash is not None:
-            return {"blockNumber": block_number}
+            return {
+                "blockHash": str(hex(block_hash))
+                if isinstance(block_hash, int)
+                else block_hash
+            }
 
         if block_number is not None:
             return {"blockNumber": block_number}

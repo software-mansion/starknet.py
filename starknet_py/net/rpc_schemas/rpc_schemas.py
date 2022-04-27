@@ -5,6 +5,10 @@ from starknet_py.net.client_models import (
     Transaction,
     ContractCode,
     StarknetBlock,
+    TransactionType,
+    TransactionReceipt,
+    L1toL2Message,
+    L2toL1Message,
 )
 from starknet_py.net.common_schemas.common_schemas import (
     Felt,
@@ -25,12 +29,18 @@ class FunctionCallSchema(Schema):
 class TransactionSchema(Schema):
     hash = Felt(data_key="txn_hash")
     contract_address = Felt(data_key="contract_address")
-    entry_point_selector = Felt(data_key="entry_point_selector")
-    calldata = fields.List(Felt(), data_key="calldata")
+    entry_point_selector = Felt(data_key="entry_point_selector", allow_none=True)
+    calldata = fields.List(Felt(), data_key="calldata", allow_none=True)
 
     @post_load
     def make_transaction(self, data, **kwargs) -> Transaction:
-        # TODO handle kwargs
+        if data["calldata"] is None:
+            data["calldata"] = []
+
+        if data["entry_point_selector"] is None:
+            data["entry_point_selector"] = 0
+            data["transaction_type"] = TransactionType.DEPLOY
+
         return Transaction(**data)
 
 
@@ -46,12 +56,20 @@ class L1toL2MessageSchema(Schema):
     l2_address = Felt()
     payload = fields.List(Felt(), data_key="payload")
 
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> L1toL2Message:
+        return L1toL2Message(**data)
+
 
 class L2toL1MessageSchema(Schema):
     # TODO handle missing fields
     l2_address = Felt()
     l1_address = Felt(data_key="to_address")
     payload = fields.List(Felt(), data_key="payload")
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> L2toL1Message:
+        return L2toL1Message(**data)
 
 
 class TransactionReceiptSchema(Schema):
@@ -64,6 +82,10 @@ class TransactionReceiptSchema(Schema):
     l2_to_l1_messages = fields.List(
         fields.Nested(L2toL1MessageSchema()), data_key="messages_sent"
     )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> TransactionReceipt:
+        return TransactionReceipt(**data)
 
 
 class ContractCodeSchema(Schema):
@@ -82,7 +104,7 @@ class StarknetBlockSchema(Schema):
     parent_block_hash = Felt(data_key="parent_hash")
     block_number = fields.Integer(data_key="block_number")
     status = BlockStatusField(data_key="status")
-    root = Felt(data_key="new_root")
+    root = fields.String(data_key="new_root")
     transactions = fields.List(
         fields.Nested(TransactionSchema()), data_key="transactions"
     )
@@ -90,4 +112,6 @@ class StarknetBlockSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> StarknetBlock:
+        data["root"] = int(data["root"], 16)
+
         return StarknetBlock(**data)

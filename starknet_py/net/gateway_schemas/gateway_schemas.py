@@ -53,10 +53,10 @@ class TransactionSchema(Schema):
     contract_address = Felt(data_key="contract_address")
     entry_point_selector = Felt(data_key="entry_point_selector")
     calldata = fields.List(Felt(), data_key="calldata")
-    # TODO verify this field actually exists
-    version = fields.Integer(data_key="version", allow_none=True)
-    max_fee = Felt(data_key="max_fee", allow_none=True)
     transaction_type = TransactionTypeField(data_key="type")
+    # TODO verify this field actually exists
+    version = fields.Integer(data_key="version", load_default=0)
+    max_fee = Felt(data_key="max_fee", load_default=0)
 
     @pre_load
     def preprocess(self, data, **kwargs):

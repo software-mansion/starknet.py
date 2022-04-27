@@ -1,9 +1,9 @@
+import typing
 from typing import List, Optional, Union
 
 import aiohttp
 from marshmallow import EXCLUDE, ValidationError
 
-from starknet_py.contract import Contract
 from starknet_py.net.base_client import (
     BaseClient,
     BlockHashIdentifier,
@@ -19,6 +19,8 @@ from starknet_py.net.client_models import (
     StarknetBlock,
     StarknetTransaction,
     ContractDefinition,
+    InvokeFunction,
+    TransactionStatus,
 )
 from starknet_py.net.rpc_schemas.rpc_schemas import (
     TransactionSchema,
@@ -36,6 +38,17 @@ class FullNodeClient(BaseClient):
     def __init__(self, node_url):
         self.url = node_url
         self.rpc_client = RpcClient(url=node_url)
+
+    async def wait_for_tx(
+        self,
+        tx_hash: Union[int, str],
+        wait_for_accept: Optional[bool] = False,
+        check_interval=5,
+    ) -> (int, TransactionStatus):
+        pass
+
+    async def estimate_fee(self, tx: InvokeFunction) -> int:
+        pass
 
     async def get_block(
         self,
@@ -72,29 +85,32 @@ class FullNodeClient(BaseClient):
         block_number: Optional[int] = None,
     ) -> BlockState:
         # TODO when pathfinder node adds support (currently untestable)
-        raise NotImplementedError(
-            "Full node does not currently support get_state_update"
-        )
+        pass
 
     async def get_storage_at(
         self,
-        contract_address: int,
+        contract_address: Union[int, str],
         key: int,
         block_hash: Optional[Union[int, str]] = None,
         block_number: Optional[int] = None,
-    ) -> str:
+    ) -> int:
         if block_hash is None:
             raise ValueError("Block_hash must be provided when using FullNodeClient.")
 
         res = await self.rpc_client.call(
             method_name="getStorageAt",
             params={
-                "contract_address": str(hex(contract_address)),
+                "contract_address": str(hex(contract_address))
+                if isinstance(contract_address, int)
+                else contract_address,
                 "key": str(hex(key)),
-                "block_hash": str(hex(block_hash)),
+                "block_hash": str(hex(block_hash))
+                if isinstance(block_hash, int)
+                else block_hash,
             },
         )
-        return res
+        res = typing.cast(str, res)
+        return int(res, 16)
 
     async def get_transaction(
         self,
@@ -202,15 +218,15 @@ class FullNodeClient(BaseClient):
                 "contract_address": str(hex(invoke_tx.contract_address)),
                 "entry_point_selector": str(hex(invoke_tx.entry_point_selector)),
                 "calldata": [str(hex(i)) for i in invoke_tx.calldata],
-                "block_hash": str(int(block_hash)),
+                "block_hash": str(int(block_hash))
+                if isinstance(block_hash, int)
+                else block_hash,
             },
         )
-        return res
+        return [int(i, 16) for i in res["result"]]
 
     async def add_transaction(self, tx: StarknetTransaction) -> SentTransaction:
-        raise NotImplementedError(
-            "Full node does not currently support invoke transactions"
-        )
+        pass
 
     async def deploy(
         self,
@@ -218,9 +234,7 @@ class FullNodeClient(BaseClient):
         constructor_calldata: List[int],
         salt: Optional[int] = None,
     ) -> SentTransaction:
-        raise NotImplementedError(
-            "Full node does not currently support deploy transactions"
-        )
+        pass
 
 
 class RpcClient:
