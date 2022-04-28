@@ -208,7 +208,7 @@ class Client:
             if status in ACCEPTED_STATUSES:
                 return result.block_number, status
             if status == TxStatus.PENDING:
-                if not wait_for_accept and "block_number" in result:
+                if not wait_for_accept and result.block_number is not None:
                     return result.block_number, status
             elif status == TxStatus.REJECTED:
                 raise TransactionRejectedError(
