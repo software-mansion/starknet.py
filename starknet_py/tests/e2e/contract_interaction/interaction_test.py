@@ -9,10 +9,12 @@ from starknet_py.net.client import BadRequest
 from starknet_py.net.models import InvokeFunction
 from starknet_py.tests.e2e.utils import DevnetClient, DevnetClientWithoutAccount
 from starknet_py.utils.crypto.facade import sign_calldata
+from starknet_py.utils.compiler.starknet_compile import starknet_compile
 
 directory = os.path.dirname(__file__)
 
 map_source = Path(directory, "map.cairo").read_text("utf-8")
+proxy_source = Path(directory, "argent_proxy.cairo").read_text("utf-8")
 
 
 @pytest.mark.asyncio
@@ -310,3 +312,20 @@ async def test_call_unitinialized_contract():
         )
 
     assert "500" in str(exinfo.value)
+
+
+@pytest.mark.asyncio
+async def test_contract_from_address_with_1_proxy():
+    client = DevnetClientWithoutAccount()
+    map_contract = await Contract.deploy(compilation_source=map_source, client=client)
+    deployment_result = await Contract.deploy(
+        compilation_source=map_source,
+        constructor_args=[map_contract.deployed_contract.address],
+        client=client,
+    )
+
+    proxy_contract = await Contract.from_address(
+        deployment_result.deployed_contract.address, client=client
+    )
+
+    assert all(f in proxy_contract.functions for f in ("put", "get"))

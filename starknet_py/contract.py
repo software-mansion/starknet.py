@@ -13,6 +13,7 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
 )
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
+from starknet_py.proxy_check import ProxyCheck, ArgentProxyCheck, OpenZeppelinProxyCheck
 from starknet_py.net import Client
 from starknet_py.net.models import (
     InvokeFunction,
@@ -358,6 +359,11 @@ class Contract:
         """
         self._data = ContractData.from_abi(parse_address(address), abi)
         self._functions = self._make_functions(self._data, client)
+        self._client = client
+
+    @property
+    def client(self):
+        return self._client
 
     @property
     def functions(self) -> FunctionsRepository:
@@ -370,9 +376,16 @@ class Contract:
     def address(self) -> int:
         return self._data.address
 
+    @property
+    def data(self) -> ContractData:
+        return self._data
+
     @staticmethod
     async def from_address(
-        address: AddressRepresentation, client: Client
+        address: AddressRepresentation,
+        client: Client,
+        resolve_proxies: bool = False,
+        proxy_checks: Optional[List[ProxyCheck]] = None,
     ) -> "Contract":
         """
         Fetches ABI for given contract and creates a new Contract instance with it. If you know ABI statically you
@@ -381,10 +394,65 @@ class Contract:
         :raises BadRequest: when contract is not found
         :param address: Contract's address
         :param client: Client used
+        :param resolve_proxies: Whether should `from_address` resolve methods from proxied contract or not
+        :param proxy_checks: List of classes implementing :class:`starknet_py.proxy_check.ProxyCheck` ABC,
+            that will be used for checking if contract at the address is a proxy contract. If no proxy_checks
+            are provided and ``resolve_proxies=True``,will default to :class:`starknet_py.proxy_check.ArgentProxyCheck`
+            and :class:`starknet_py.proxy_check.OpenZeppelinProxyCheck`
         :return: an initialized Contract instance
         """
+        if proxy_checks is None:
+            proxy_checks = []
+        proxy_checks += [ArgentProxyCheck(), OpenZeppelinProxyCheck()]
+
+        contract = await Contract._from_address(
+            address=address,
+            client=client,
+            proxy_checks=proxy_checks if resolve_proxies else [],
+        )
+        contract._data = ContractData(
+            abi=contract._data.abi,
+            identifier_manager=contract._data.identifier_manager,
+            address=address,
+        )
+        return contract
+
+    @staticmethod
+    async def _from_address(
+        address: AddressRepresentation,
+        client: Client,
+        processed_addresses: Optional[set] = None,
+        proxy_checks: Optional[List[ProxyCheck]] = None,
+    ) -> "Contract":
+        if processed_addresses is None:
+            processed_addresses = set()
+
+        if address in processed_addresses:
+            raise RecursionError("Proxy cycle detected.")
+
         code = await client.get_code(contract_address=parse_address(address))
-        return Contract(address=parse_address(address), abi=code["abi"], client=client)
+        contract = Contract(
+            address=parse_address(address), abi=code["abi"], client=client
+        )
+        processed_addresses.add(address)
+
+        is_proxy = False
+        address = 0
+        for proxy_check in proxy_checks:
+            if await proxy_check.is_proxy(contract):
+                is_proxy = True
+                address = await proxy_check.implementation_address(contract)
+                break
+
+        if not is_proxy:
+            return contract
+
+        return await Contract._from_address(
+            address=address,
+            client=client,
+            processed_addresses=processed_addresses,
+            proxy_checks=proxy_checks,
+        )
 
     @staticmethod
     async def deploy(
@@ -394,7 +462,7 @@ class Contract:
         constructor_args: Optional[Union[List[any], dict]] = None,
         salt: Optional[int] = None,
         search_paths: Optional[List[str]] = None,
-    ) -> "Contract":
+    ) -> "DeployResult":
         # pylint: disable=too-many-arguments
         """
         Deploys a contract and waits until it has ``PENDING`` status.
