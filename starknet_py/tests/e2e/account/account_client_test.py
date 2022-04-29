@@ -4,7 +4,7 @@ import pytest
 
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient
-from starknet_py.net.models import StarknetChainId, InvokeFunction, TransactionType
+from starknet_py.net.models import StarknetChainId, InvokeFunction
 
 directory = os.path.dirname(__file__)
 map_source_code = Path(directory, "map.cairo").read_text("utf-8")

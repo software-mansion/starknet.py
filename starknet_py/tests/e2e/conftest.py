@@ -1,9 +1,10 @@
 import time
-import pytest
 import subprocess
 import os
 import socket
 from contextlib import closing
+
+import pytest
 
 
 def get_available_port() -> int:
@@ -27,6 +28,7 @@ def run_devnet():
         "--port",
         str(devnet_port),
     ]
+    # pylint: disable=consider-using-with
     proc = subprocess.Popen(command)
     time.sleep(5)
     yield devnet_port

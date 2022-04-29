@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from starknet_py.net import Client, KeyPair
-from starknet_py.net.account.account_client import AccountClient
 from starkware.crypto.signature.signature import (
     get_random_private_key,
 )
+
+from starknet_py.net import Client, KeyPair
+from starknet_py.net.account.account_client import AccountClient
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
 from starknet_py.net.models.chains import StarknetChainId
 
