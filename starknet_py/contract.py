@@ -386,6 +386,7 @@ class Contract:
         client: Client,
         resolve_proxies: bool = False,
         proxy_checks: Optional[List[ProxyCheck]] = None,
+        max_steps: int = 5,
     ) -> "Contract":
         """
         Fetches ABI for given contract and creates a new Contract instance with it. If you know ABI statically you
@@ -409,18 +410,19 @@ class Contract:
             address=address,
             client=client,
             proxy_checks=proxy_checks if resolve_proxies else [],
+            max_steps=max_steps,
+            step=1,
         )
-        contract._data = ContractData(
-            abi=contract._data.abi,
-            identifier_manager=contract._data.identifier_manager,
-            address=address,
-        )
-        return contract
+
+        return Contract(address=address, abi=contract.data.abi, client=client)
 
     @staticmethod
     async def _from_address(
+        # pylint: disable=too-many-arguments
         address: AddressRepresentation,
         client: Client,
+        step: int,
+        max_steps: int,
         processed_addresses: Optional[set] = None,
         proxy_checks: Optional[List[ProxyCheck]] = None,
     ) -> "Contract":
@@ -428,7 +430,10 @@ class Contract:
             processed_addresses = set()
 
         if address in processed_addresses:
-            raise RecursionError("Proxy cycle detected.")
+            raise RecursionError("Proxy cycle detected while resolving proxies.")
+
+        if step > max_steps:
+            raise RecursionError("Too many redirects while resolving proxies")
 
         code = await client.get_code(contract_address=parse_address(address))
         contract = Contract(
@@ -452,6 +457,8 @@ class Contract:
             client=client,
             processed_addresses=processed_addresses,
             proxy_checks=proxy_checks,
+            step=step + 1,
+            max_steps=max_steps,
         )
 
     @staticmethod

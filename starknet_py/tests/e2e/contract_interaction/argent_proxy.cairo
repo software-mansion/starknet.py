@@ -105,6 +105,8 @@ func _get_implementation{
     return (implementation=res)
 end
 
+# added for testing purposes
+@external
 func _set_implementation{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,

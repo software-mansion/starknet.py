@@ -319,13 +319,97 @@ async def test_contract_from_address_with_1_proxy():
     client = DevnetClientWithoutAccount()
     map_contract = await Contract.deploy(compilation_source=map_source, client=client)
     deployment_result = await Contract.deploy(
-        compilation_source=map_source,
+        compilation_source=proxy_source,
         constructor_args=[map_contract.deployed_contract.address],
         client=client,
     )
 
     proxy_contract = await Contract.from_address(
-        deployment_result.deployed_contract.address, client=client
+        deployment_result.deployed_contract.address, client=client, resolve_proxies=True
     )
 
     assert all(f in proxy_contract.functions for f in ("put", "get"))
+
+
+@pytest.mark.asyncio
+async def test_contract_from_address_with_2_proxy():
+    client = DevnetClientWithoutAccount()
+    map_contract = await Contract.deploy(compilation_source=map_source, client=client)
+    proxy1_deployment = await Contract.deploy(
+        compilation_source=proxy_source,
+        constructor_args=[map_contract.deployed_contract.address],
+        client=client,
+    )
+    proxy2_deployment = await Contract.deploy(
+        compilation_source=proxy_source,
+        constructor_args=[proxy1_deployment.deployed_contract.address],
+        client=client,
+    )
+
+    proxy_contract = await Contract.from_address(
+        proxy2_deployment.deployed_contract.address, client=client, resolve_proxies=True
+    )
+
+    assert all(f in proxy_contract.functions for f in ("put", "get"))
+
+
+@pytest.mark.asyncio
+async def test_contract_from_address_throws_on_too_many_steps():
+    client = DevnetClientWithoutAccount()
+    map_contract = await Contract.deploy(compilation_source=map_source, client=client)
+    proxy1_deployment = await Contract.deploy(
+        compilation_source=proxy_source,
+        constructor_args=[map_contract.deployed_contract.address],
+        client=client,
+    )
+    proxy2_deployment = await Contract.deploy(
+        compilation_source=proxy_source,
+        constructor_args=[proxy1_deployment.deployed_contract.address],
+        client=client,
+    )
+
+    with pytest.raises(RecursionError) as exinfo:
+        proxy_contract = await Contract.from_address(
+            proxy2_deployment.deployed_contract.address,
+            client=client,
+            resolve_proxies=True,
+            max_steps=2,
+        )
+
+    assert "Too many redirects" in str(exinfo.value)
+
+
+@pytest.mark.asyncio
+async def test_contract_from_address_throws_on_proxy_cycle():
+    client = DevnetClientWithoutAccount()
+    proxy1_deployment = await Contract.deploy(
+        compilation_source=proxy_source,
+        constructor_args=[0x123],
+        client=client,
+    )
+    proxy2_deployment = await Contract.deploy(
+        compilation_source=proxy_source,
+        constructor_args=[0x123],
+        client=client,
+    )
+    await client.wait_for_tx(proxy1_deployment.hash, wait_for_accept=True)
+    await client.wait_for_tx(proxy2_deployment.hash, wait_for_accept=True)
+
+    proxy1 = proxy1_deployment.deployed_contract
+    proxy2 = proxy2_deployment.deployed_contract
+
+    await proxy1.functions["_set_implementation"].invoke(
+        implementation=proxy2.address, max_fee=0
+    )
+    await proxy2.functions["_set_implementation"].invoke(
+        implementation=proxy1.address, max_fee=0
+    )
+
+    with pytest.raises(RecursionError) as exinfo:
+        await Contract.from_address(
+            address=proxy2_deployment.deployed_contract.address,
+            client=client,
+            resolve_proxies=True,
+        )
+
+    assert "Proxy cycle detected" in str(exinfo.value)
