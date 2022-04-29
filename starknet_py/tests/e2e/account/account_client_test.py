@@ -5,16 +5,15 @@ import pytest
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient
 from starknet_py.net.models import StarknetChainId, InvokeFunction, TransactionType
-from starknet_py.tests.e2e.utils import DEVNET_ADDRESS
 
 directory = os.path.dirname(__file__)
 map_source_code = Path(directory, "map.cairo").read_text("utf-8")
 
 
 @pytest.mark.asyncio
-async def test_deploy_account_contract_and_sign_tx():
+async def test_deploy_account_contract_and_sign_tx(run_devnet):
     acc_client = await AccountClient.create_account(
-        net=DEVNET_ADDRESS, chain=StarknetChainId.TESTNET
+        net=f"http://localhpost:{run_devnet}", chain=StarknetChainId.TESTNET
     )
 
     deployment_result = await Contract.deploy(
@@ -33,9 +32,9 @@ async def test_deploy_account_contract_and_sign_tx():
 
 
 @pytest.mark.asyncio
-async def test_error_when_tx_signed():
+async def test_error_when_tx_signed(run_devnet):
     acc_client = await AccountClient.create_account(
-        net=DEVNET_ADDRESS, chain=StarknetChainId.TESTNET
+        net=f"http://localhpost:{run_devnet}", chain=StarknetChainId.TESTNET
     )
 
     invoke_function = InvokeFunction(

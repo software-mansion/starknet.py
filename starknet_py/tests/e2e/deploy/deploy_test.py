@@ -106,8 +106,8 @@ constructor_without_arguments_source = Path(
 
 
 @pytest.mark.asyncio
-async def test_constructor_without_arguments():
-    client = await DevnetClient.make_devnet_client()
+async def test_constructor_without_arguments(run_devnet):
+    client = await DevnetClient.make_devnet_client(run_devnet)
 
     result = await Contract.deploy(
         client=client, compilation_source=constructor_without_arguments_source
