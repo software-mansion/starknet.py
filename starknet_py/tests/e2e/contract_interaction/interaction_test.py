@@ -392,8 +392,8 @@ async def test_contract_from_address_throws_on_proxy_cycle():
         constructor_args=[0x123],
         client=client,
     )
-    await client.wait_for_tx(proxy1_deployment.hash, wait_for_accept=True)
-    await client.wait_for_tx(proxy2_deployment.hash, wait_for_accept=True)
+    await proxy1_deployment.wait_for_acceptance()
+    await proxy2_deployment.wait_for_acceptance()
 
     proxy1 = proxy1_deployment.deployed_contract
     proxy2 = proxy2_deployment.deployed_contract
