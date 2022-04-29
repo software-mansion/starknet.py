@@ -37,19 +37,14 @@ setuptools = "^60.0.3"
 pytest-mock = "^3.6.1"
 web3 = {extras=["tester"], version=">=5.28.0,<6"}
 starknet-devnet = "0.1.20"
+pytest-xdist = "^2.5.0"
 
 [tool.poe.tasks]
 test = ["test_unit", "test_e2e"]
 test_unit.shell = "coverage run -m pytest starknet_py --ignore=starknet_py/tests/e2e"
 test_unit.env = { COVERAGE_FILE="unit.coverage" }
 test_e2e.shell = """
-    starknet-devnet --host localhost --port $DEVNET_PORT &
-    DEVNET_PID=$!
-    sleep 1
-    coverage run -m pytest starknet_py/tests/e2e
-    COV_RES=$?
-    kill $DEVNET_PID
-    exit $COV_RES
+    coverage run -m pytest -n auto --dist loadscope starknet_py/tests/e2e -v
 """
 test_e2e.env = { COVERAGE_FILE="e2e.coverage", DEVNET_PORT="5001" }
 coverage_combine.shell = "coverage combine unit.coverage e2e.coverage"

@@ -5,7 +5,7 @@ from starknet_py.tests.e2e.utils import DevnetClient
 
 
 @pytest.mark.asyncio
-async def test_pending_block():
+async def test_pending_block(run_devnet):
     contract = """
     %lang starknet
     %builtins pedersen range_check
@@ -27,7 +27,7 @@ async def test_pending_block():
     end
     """
 
-    client = await DevnetClient.make_devnet_client()
+    client = await DevnetClient.make_devnet_client(run_devnet)
     constructor_args = [123]
     await Contract.deploy(
         client, compilation_source=contract, constructor_args=constructor_args
