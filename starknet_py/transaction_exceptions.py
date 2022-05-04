@@ -8,12 +8,12 @@ class TransactionFailedError(Exception):
 
     def __init__(self, code: Optional[str] = None, message: Optional[str] = None):
         self.code = code
-        self.message = message or "Unknown starknet error."
+        self.message = message or "Unknown starknet error"
         super().__init__(self.message)
 
     def __str__(self):
         return (
-            f"Transaction failed with following starknet error: "
+            f"Transaction failed with following error: "
             f"{self.code + ':' if self.code is not None else ''}{self.message}."
         )
 
