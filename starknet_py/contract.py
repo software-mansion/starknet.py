@@ -457,7 +457,7 @@ class Contract:
             raise RecursionError("Proxy cycle detected while resolving proxies")
 
         if step > max_steps:
-            raise RecursionError("Too many redirects while resolving proxies")
+            raise RecursionError("Max number of steps exceeded while resolving proxies")
 
         code = await client.get_code(contract_address=parse_address(address))
         contract = Contract(
