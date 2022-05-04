@@ -36,7 +36,7 @@ pylint = "^2.12.2"
 setuptools = "^60.0.3"
 pytest-mock = "^3.6.1"
 web3 = {extras=["tester"], version=">=5.28.0,<6"}
-starknet-devnet = "0.1.20"
+starknet-devnet = "0.1.23"
 pytest-xdist = "^2.5.0"
 
 [tool.poe.tasks]
