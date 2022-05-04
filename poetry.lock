@@ -666,16 +666,15 @@ python-versions = "*"
 
 [[package]]
 name = "flask"
-version = "2.1.1"
+version = "2.0.3"
 description = "A simple framework for building complex web applications."
 category = "dev"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.6"
 
 [package.dependencies]
 asgiref = {version = ">=3.2", optional = true, markers = "extra == \"async\""}
-click = ">=8.0"
-importlib-metadata = {version = ">=3.6.0", markers = "python_version < \"3.10\""}
+click = ">=7.1.2"
 itsdangerous = ">=2.0"
 Jinja2 = ">=3.0"
 Werkzeug = ">=2.0"
@@ -1749,7 +1748,7 @@ test = ["pytest"]
 
 [[package]]
 name = "starknet-devnet"
-version = "0.1.20"
+version = "0.1.23"
 description = "A local testnet for Starknet"
 category = "dev"
 optional = false
@@ -1758,9 +1757,10 @@ python-versions = ">=3.7.2,<4.0.0"
 [package.dependencies]
 cairo-lang = "0.8.1"
 dill = ">=0.3.4,<0.4.0"
-Flask = {version = ">=2.0.2,<3.0.0", extras = ["async"]}
-flask-cors = ">=3.0.10,<4.0.0"
-meinheld = ">=1.0.2,<2.0.0"
+Flask = {version = ">=2.0.3,<2.1.0", extras = ["async"]}
+flask-cors = ">=3.0.10,<3.1.0"
+meinheld = ">=1.0.2,<1.1.0"
+Werkzeug = ">=2.0.3,<2.1.0"
 
 [[package]]
 name = "sympy"
@@ -1941,11 +1941,11 @@ python-versions = ">=3.6.1"
 
 [[package]]
 name = "werkzeug"
-version = "2.1.1"
+version = "2.0.3"
 description = "The comprehensive WSGI web application library."
 category = "dev"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.6"
 
 [package.extras]
 watchdog = ["watchdog"]
@@ -1990,7 +1990,7 @@ eth-tester = []
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.2,<3.10"
-content-hash = "0953b87f3ca9940a75f5f99b03833b6fd793b362f68b35e88b4bdcd4132ff2d4"
+content-hash = "d5d89670845824860752e6715c33c5602911ef2b9df728fbe249f854c6a14728"
 
 [metadata.files]
 aiohttp = [
@@ -2312,8 +2312,8 @@ fastecdsa = [
     {file = "fastecdsa-2.2.3.tar.gz", hash = "sha256:269bdb0f618b38f8f6aec9d23d23db518046c3cee01a954fa6aa7322a1a7db8f"},
 ]
 flask = [
-    {file = "Flask-2.1.1-py3-none-any.whl", hash = "sha256:8a4cf32d904cf5621db9f0c9fbcd7efabf3003f22a04e4d0ce790c7137ec5264"},
-    {file = "Flask-2.1.1.tar.gz", hash = "sha256:a8c9bd3e558ec99646d177a9739c41df1ded0629480b4c8d2975412f3c9519c8"},
+    {file = "Flask-2.0.3-py3-none-any.whl", hash = "sha256:59da8a3170004800a2837844bfa84d49b022550616070f7cb1a659682b2e7c9f"},
+    {file = "Flask-2.0.3.tar.gz", hash = "sha256:e1120c228ca2f553b470df4a5fa927ab66258467526069981b3eb0a91902687d"},
 ]
 flask-cors = [
     {file = "Flask-Cors-3.0.10.tar.gz", hash = "sha256:b60839393f3b84a0f3746f6cdca56c1ad7426aa738b70d6c61375857823181de"},
@@ -3070,8 +3070,8 @@ sphinxcontrib-serializinghtml = [
     {file = "sphinxcontrib_serializinghtml-1.1.5-py2.py3-none-any.whl", hash = "sha256:352a9a00ae864471d3a7ead8d7d79f5fc0b57e8b3f95e9867eb9eb28999b92fd"},
 ]
 starknet-devnet = [
-    {file = "starknet_devnet-0.1.20-py3-none-any.whl", hash = "sha256:3ba30c4e532c2a65ddcebc91bd9edf835ba01d88fad2cf2a8c83b307ac6838d1"},
-    {file = "starknet_devnet-0.1.20.tar.gz", hash = "sha256:9f8c6bdfa21677a3e1c3f840f932134eae73b15913415cf5fa871931d397162b"},
+    {file = "starknet_devnet-0.1.23-py3-none-any.whl", hash = "sha256:22eeb25d5e0518aa6fd6af0daae37bf0a0e5547e14c3d2db77ccd87f5af193f5"},
+    {file = "starknet_devnet-0.1.23.tar.gz", hash = "sha256:51765dc402d93709c779c7387b25873c9518218d8b973e8127b34f455285287d"},
 ]
 sympy = [
     {file = "sympy-1.10.1-py3-none-any.whl", hash = "sha256:df75d738930f6fe9ebe7034e59d56698f29e85f443f743e51e47df0caccc2130"},
@@ -3188,8 +3188,8 @@ websockets = [
     {file = "websockets-9.1.tar.gz", hash = "sha256:276d2339ebf0df4f45df453923ebd2270b87900eda5dfd4a6b0cfa15f82111c3"},
 ]
 werkzeug = [
-    {file = "Werkzeug-2.1.1-py3-none-any.whl", hash = "sha256:3c5493ece8268fecdcdc9c0b112211acd006354723b280d643ec732b6d4063d6"},
-    {file = "Werkzeug-2.1.1.tar.gz", hash = "sha256:f8e89a20aeabbe8a893c24a461d3ee5dad2123b05cc6abd73ceed01d39c3ae74"},
+    {file = "Werkzeug-2.0.3-py3-none-any.whl", hash = "sha256:1421ebfc7648a39a5c58c601b154165d05cf47a3cd0ccb70857cbdacf6c8f2b8"},
+    {file = "Werkzeug-2.0.3.tar.gz", hash = "sha256:b863f8ff057c522164b6067c9e28b041161b4be5ba4d0daceeaa50a163822d3c"},
 ]
 wrapt = [
     {file = "wrapt-1.14.0-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:5a9a1889cc01ed2ed5f34574c90745fab1dd06ec2eee663e8ebeefe363e8efd7"},
