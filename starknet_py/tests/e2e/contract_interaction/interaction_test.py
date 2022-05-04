@@ -76,7 +76,7 @@ async def test_throws_on_estimate_with_positive_max_fee():
 
     prepared_call = contract.functions["put"].prepare(key, value, max_fee=100)
     with pytest.raises(ValueError) as exinfo:
-        estimate_fee = await prepared_call.estimate_fee()
+        await prepared_call.estimate_fee()
 
     assert (
         "Cannot estimate fee of PreparedFunctionCall with max_fee not None or 0."
@@ -219,7 +219,7 @@ async def test_calculate_hash_without_max_fee():
     contract = await Contract.from_address(contract.address, client)
     prepared_call = contract.functions["put"].prepare(key, value)
 
-    prepared_call.hash
+    prepared_call.hash  # pylint: disable=pointless-statement
 
 
 @pytest.mark.asyncio

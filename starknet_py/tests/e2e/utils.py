@@ -1,12 +1,12 @@
 from __future__ import annotations
-from itertools import chain
 import os
 
-from starknet_py.net import Client, KeyPair
-from starknet_py.net.account.account_client import AccountClient
 from starkware.crypto.signature.signature import (
     get_random_private_key,
 )
+
+from starknet_py.net import Client, KeyPair
+from starknet_py.net.account.account_client import AccountClient
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
 from starknet_py.net.models.chains import StarknetChainId
 
@@ -31,6 +31,8 @@ class DevnetClient(AccountClient):
 
     @staticmethod
     async def make_devnet_client() -> DevnetClient:
+        # pylint: disable=duplicate-code
+
         client = Client(net=DEVNET_ADDRESS, chain="goerli")
         private_key = get_random_private_key()
         key_pair = KeyPair.from_private_key(private_key)
