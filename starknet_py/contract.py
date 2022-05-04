@@ -454,7 +454,7 @@ class Contract:
             processed_addresses = set()
 
         if address in processed_addresses:
-            raise RecursionError("Proxy cycle detected while resolving proxies.")
+            raise RecursionError("Proxy cycle detected while resolving proxies")
 
         if step > max_steps:
             raise RecursionError("Too many redirects while resolving proxies")
