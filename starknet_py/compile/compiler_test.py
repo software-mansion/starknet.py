@@ -51,7 +51,7 @@ def test_throws_on_compile_with_wrong_extension():
 def test_compile_with_search_path():
     output_file_str = Compiler(
         contract_source=[base_contract_path.resolve().absolute()],
-        search_paths=[mock_contracts_base_path],
+        cairo_path=[mock_contracts_base_path],
     ).compile_contract()
     output_json = json.loads(output_file_str)
 

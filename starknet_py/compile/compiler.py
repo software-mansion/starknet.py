@@ -29,14 +29,14 @@ class Compiler:
         self,
         compiled_contract: Optional[str] = None,
         contract_source: Optional[List[StarknetCompilationSource]] = None,
-        search_paths: Optional[List[str]] = None,
+        cairo_path: Optional[List[str]] = None,
     ):
         """
         Initializes compiler.
 
         :param compiled_contract: an already compiled contract
         :param contract_source: a list of source files paths
-        :param search_paths: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts
+        :param cairo_path: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts
         """
         if not contract_source and not compiled_contract:
             raise ValueError(
@@ -45,7 +45,7 @@ class Compiler:
 
         self.compiled_contract = compiled_contract
         self.contract_source = contract_source
-        self.search_paths = search_paths
+        self.search_paths = cairo_path
 
     def create_contract_definition(
         self,

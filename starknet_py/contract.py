@@ -409,7 +409,7 @@ class Contract:
         definition = Compiler(
             contract_source=compilation_source,
             compiled_contract=compiled_contract,
-            search_paths=search_paths,
+            cairo_path=search_paths,
         ).create_contract_definition()
         translated_args = Contract._translate_constructor_args(
             definition, constructor_args
@@ -456,7 +456,7 @@ class Contract:
         definition = Compiler(
             contract_source=compilation_source,
             compiled_contract=compiled_contract,
-            search_paths=search_paths,
+            cairo_path=search_paths,
         ).create_contract_definition()
         translated_args = Contract._translate_constructor_args(
             definition, constructor_args
@@ -485,7 +485,7 @@ class Contract:
         definition = Compiler(
             contract_source=compilation_source,
             compiled_contract=compiled_contract,
-            search_paths=search_paths,
+            cairo_path=search_paths,
         ).create_contract_definition()
         return compute_contract_hash(definition, hash_func=pedersen_hash)
 
