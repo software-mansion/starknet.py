@@ -379,7 +379,7 @@ async def test_contract_from_address_throws_on_too_many_steps():
             proxy_config={"proxy_checks": True, "max_steps": 2},
         )
 
-    assert "Too many redirects" in str(exinfo.value)
+    assert "Max number of steps exceeded" in str(exinfo.value)
 
 
 @pytest.mark.asyncio
