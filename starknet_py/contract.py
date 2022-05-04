@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import dataclasses
+import sys
 from dataclasses import dataclass
 from functools import lru_cache
 from typing import List, Optional, TypeVar, Union, Dict, Collection, NamedTuple
@@ -30,6 +33,12 @@ from starknet_py.utils.compiler.starknet_compile import (
 from starknet_py.utils.crypto.facade import pedersen_hash
 from starknet_py.utils.data_transformer import DataTransformer
 from starknet_py.utils.sync import add_sync_methods
+
+if sys.version_info >= (3, 8):
+    from typing import TypedDict
+else:
+    from typing_extensions import TypedDict
+
 
 ABI = list
 ABIEntry = dict
@@ -372,13 +381,33 @@ class Contract:
     def address(self) -> int:
         return self.data.address
 
+    class ProxyConfig(TypedDict, total=False):
+        """
+        Proxy resolving configuration
+        """
+
+        max_steps: int
+        """
+        Max number of contracts that `Contract.from_address` will process before raising `RecursionError`.
+        """
+        proxy_checks: bool | List[ProxyCheck]
+        """
+        List of classes implementing :class:`starknet_py.proxy_check.ProxyCheck` ABC,
+        that will be used for checking if contract at the address is a proxy contract.
+
+        If set to ``True``, will use default proxy checks and :class:`starknet_py.proxy_check.OpenZeppelinProxyCheck`
+        and :class:`starknet_py.proxy_check.ArgentProxyCheck`.
+
+        If set to ``False``, :meth:`Contract.from_address` will not resolve proxies
+
+        If list of :class:`starknet_py.proxy_check.ProxyCheck` are provided, will use provided instances.
+        """
+
     @staticmethod
     async def from_address(
         address: AddressRepresentation,
         client: Client,
-        resolve_proxies: bool = False,
-        proxy_checks: Optional[List[ProxyCheck]] = None,
-        max_steps: int = 5,
+        proxy_config: Optional[ProxyConfig] = None,
     ) -> "Contract":
         """
         Fetches ABI for given contract and creates a new Contract instance with it. If you know ABI statically you
@@ -387,21 +416,24 @@ class Contract:
         :raises BadRequest: when contract is not found
         :param address: Contract's address
         :param client: Client used
-        :param resolve_proxies: Whether should `from_address` resolve methods from proxied contract or not
-        :param proxy_checks: List of classes implementing :class:`starknet_py.proxy_check.ProxyCheck` ABC,
-            that will be used for checking if contract at the address is a proxy contract. If no proxy_checks
-            are provided and ``resolve_proxies=True``,will default to :class:`starknet_py.proxy_check.ArgentProxyCheck`
-            and :class:`starknet_py.proxy_check.OpenZeppelinProxyCheck`
+        :param proxy_config: Proxy resolving config
         :return: an initialized Contract instance
         """
-        if proxy_checks is None:
-            proxy_checks = []
-        proxy_checks += [ArgentProxyCheck(), OpenZeppelinProxyCheck()]
+        if proxy_config is None:
+            proxy_config = {}
 
-        contract = await Contract._from_address(
+        max_steps = proxy_config.get("max_steps", 5)
+        proxy_checks = proxy_config.get("proxy_checks", False)
+
+        if proxy_checks is True:
+            proxy_checks = [ArgentProxyCheck(), OpenZeppelinProxyCheck()]
+        elif proxy_checks is False:
+            proxy_checks = []
+
+        contract = await Contract._create_contract_from_address(
             address=address,
             client=client,
-            proxy_checks=proxy_checks if resolve_proxies else [],
+            proxy_checks=proxy_checks,
             max_steps=max_steps,
             step=1,
         )
@@ -409,7 +441,7 @@ class Contract:
         return Contract(address=address, abi=contract.data.abi, client=client)
 
     @staticmethod
-    async def _from_address(
+    async def _create_contract_from_address(
         # pylint: disable=too-many-arguments
         address: AddressRepresentation,
         client: Client,
@@ -444,7 +476,7 @@ class Contract:
         if not is_proxy:
             return contract
 
-        return await Contract._from_address(
+        return await Contract._create_contract_from_address(
             address=address,
             client=client,
             processed_addresses=processed_addresses,
