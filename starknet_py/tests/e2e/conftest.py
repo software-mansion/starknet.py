@@ -17,7 +17,6 @@ def get_available_port() -> int:
 @pytest.fixture(scope="module", autouse=True)
 def run_devnet():
     devnet_port = get_available_port()
-    os.environ["DEVNET_PORT"] = str(devnet_port)
 
     command = [
         "poetry",
