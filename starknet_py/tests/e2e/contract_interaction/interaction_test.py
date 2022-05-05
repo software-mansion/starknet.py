@@ -206,23 +206,6 @@ async def test_prepare_without_max_fee():
 
 
 @pytest.mark.asyncio
-async def test_calculate_hash_without_max_fee():
-    client = await DevnetClient.make_devnet_client()
-    key = 2
-    value = 3
-
-    deployment_result = await Contract.deploy(
-        client=client, compilation_source=map_source
-    )
-    deployment_result = await deployment_result.wait_for_acceptance()
-    contract = deployment_result.deployed_contract
-    contract = await Contract.from_address(contract.address, client)
-    prepared_call = contract.functions["put"].prepare(key, value)
-
-    prepared_call.hash  # pylint: disable=pointless-statement
-
-
-@pytest.mark.asyncio
 @pytest.mark.parametrize("key, value", ((2, 13), (412312, 32134), (12345, 3567)))
 async def test_invoke_and_call(key, value):
     client = await DevnetClient.make_devnet_client()
