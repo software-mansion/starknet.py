@@ -40,7 +40,9 @@ def read_from_cairo_data(
     return values[:n], values[n:]
 
 
+# pylint: disable=invalid-name
 UsedCairoType = TypeVar("UsedCairoType", bound=CairoType)
+
 PythonType = TypeVar("PythonType")
 
 
