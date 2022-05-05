@@ -7,7 +7,7 @@ from starkware.cairo.lang.compiler.constants import LIBS_DIR_ENVVAR
 from starkware.cairo.lang.compiler.import_loader import ImportLoaderError
 from starkware.starknet.services.api.contract_definition import ContractDefinition
 
-from starknet_py.compile.compiler import Compiler
+from starknet_py.compile.compiler import Compiler, create_contract_definition
 
 directory = os.path.dirname(__file__)
 
@@ -76,16 +76,8 @@ def test_throws_on_compile_without_search_path_and_env_var():
     assert "Could not find module 'inner.inner'." in str(m_err.value)
 
 
-def test_create_definition_from_source():
-    contract = Compiler(contract_source=test_file_content).create_contract_definition()
-
-    assert isinstance(contract, ContractDefinition)
-
-
-def test_create_definition_from_compiled():
-    compiled_contract = Compiler(contract_source=test_file_content).compile_contract()
-    contract = Compiler(
-        compiled_contract=compiled_contract
-    ).create_contract_definition()
+def test_create_definition():
+    compiled = Compiler(contract_source=test_file_content).compile_contract()
+    contract = create_contract_definition(compiled)
 
     assert isinstance(contract, ContractDefinition)

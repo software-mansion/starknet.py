@@ -27,39 +27,17 @@ class Compiler:
 
     def __init__(
         self,
-        compiled_contract: Optional[str] = None,
-        contract_source: Optional[List[StarknetCompilationSource]] = None,
+        contract_source: List[StarknetCompilationSource],
         cairo_path: Optional[List[str]] = None,
     ):
         """
         Initializes compiler.
 
-        :param compiled_contract: an already compiled contract
         :param contract_source: a list of source files paths
         :param cairo_path: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts
         """
-        if not contract_source and not compiled_contract:
-            raise ValueError(
-                "One of compiled_contract or compilation_source is required."
-            )
-
-        self.compiled_contract = compiled_contract
         self.contract_source = contract_source
         self.search_paths = cairo_path
-
-    def create_contract_definition(
-        self,
-    ) -> ContractDefinition:
-        """
-        Creates ContractDefinition either from already compiled contract or contract source code
-
-        :raises ValueError: when neither contract_source and compiled_contract are given
-        :return: a ContractDefinition
-        """
-        if not self.compiled_contract:
-            self.compiled_contract = self.compile_contract()
-
-        return ContractDefinition.loads(self.compiled_contract)
 
     def compile_contract(self) -> str:
         """
@@ -67,67 +45,76 @@ class Compiler:
 
         :return: string of compiled contract
         """
-        return Compiler._compile(self.contract_source, search_paths=self.search_paths)
+        return starknet_compile(self.contract_source, search_paths=self.search_paths)
 
-    @staticmethod
-    def _load_cairo_source_code(filename: CairoFilename) -> str:
-        source_file = Path(filename)
 
-        if not source_file.is_file():
-            raise ValueError(f"{filename} does not exist")
+def create_contract_definition(
+    compiled_contract: str,
+) -> ContractDefinition:
+    """
+    Creates ContractDefinition either from already compiled contract
 
-        if source_file.suffix != ".cairo":
-            raise ValueError(f"{filename} is not a cairo source file")
+    :return: a ContractDefinition
+    """
+    return ContractDefinition.loads(compiled_contract)
 
-        return Path(filename).read_text("utf-8")
 
-    @staticmethod
-    def _load_source_code(
-        src: List[StarknetCompilationSource],
-    ) -> List[Tuple[str, str]]:
-        if isinstance(src, str):
-            return [(src, str(hash(src)))]
-        return [
-            (Compiler._load_cairo_source_code(filename), filename) for filename in src
-        ]
+def load_cairo_source_code(filename: CairoFilename) -> str:
+    source_file = Path(filename)
 
-    @staticmethod
-    def _compile(
-        source: List[StarknetCompilationSource],
-        search_paths: Optional[List[str]] = None,
-    ):
-        file_contents_for_debug_info = {}
+    if not source_file.is_file():
+        raise ValueError(f"{filename} does not exist")
 
-        cairo_path: List[str] = list(
-            filter(None, os.getenv(LIBS_DIR_ENVVAR, "").split(":"))
-        )
+    if source_file.suffix != ".cairo":
+        raise ValueError(f"{filename} is not a cairo source file")
 
-        if search_paths is not None:
-            cairo_path += search_paths
+    return Path(filename).read_text("utf-8")
 
-        module_reader = get_module_reader(cairo_path=cairo_path)
 
-        pass_manager = starknet_pass_manager(
-            prime=DEFAULT_PRIME,
-            read_module=module_reader.read,
-            disable_hint_validation=True,
-        )
+def load_source_code(
+    src: List[StarknetCompilationSource],
+) -> List[Tuple[str, str]]:
+    if isinstance(src, str):
+        return [(src, str(hash(src)))]
+    return [(load_cairo_source_code(filename), filename) for filename in src]
 
-        preprocessed = preprocess_codes(
-            codes=Compiler._load_source_code(source),
-            pass_manager=pass_manager,
-            main_scope=MAIN_SCOPE,
-        )
 
-        assembled_program = assemble_starknet_contract(
-            preprocessed,
-            main_scope=MAIN_SCOPE,
-            add_debug_info=False,
-            file_contents_for_debug_info=file_contents_for_debug_info,
-        )
+def starknet_compile(
+    source: List[StarknetCompilationSource],
+    search_paths: Optional[List[str]] = None,
+):
+    file_contents_for_debug_info = {}
 
-        return json.dumps(
-            assembled_program.Schema().dump(assembled_program),
-            indent=4,
-            sort_keys=True,
-        )
+    cairo_path: List[str] = list(
+        filter(None, os.getenv(LIBS_DIR_ENVVAR, "").split(":"))
+    )
+
+    if search_paths is not None:
+        cairo_path += search_paths
+
+    module_reader = get_module_reader(cairo_path=cairo_path)
+
+    pass_manager = starknet_pass_manager(
+        prime=DEFAULT_PRIME,
+        read_module=module_reader.read,
+        disable_hint_validation=True,
+    )
+
+    preprocessed = preprocess_codes(
+        codes=load_source_code(source),
+        pass_manager=pass_manager,
+        main_scope=MAIN_SCOPE,
+    )
+
+    assembled_program = assemble_starknet_contract(
+        preprocessed,
+        main_scope=MAIN_SCOPE,
+        add_debug_info=False,
+        file_contents_for_debug_info=file_contents_for_debug_info,
+    )
+
+    return json.dumps(
+        assembled_program.Schema().dump(assembled_program),
+        indent=4,
+        sort_keys=True,
+    )
