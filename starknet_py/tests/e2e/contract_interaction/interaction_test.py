@@ -327,7 +327,7 @@ async def test_contract_from_address_with_1_proxy():
     proxy_contract = await Contract.from_address(
         deployment_result.deployed_contract.address,
         client=client,
-        proxy_config={"proxy_checks": True},
+        proxy_config=True,
     )
 
     assert all(f in proxy_contract.functions for f in ("put", "get"))
@@ -351,7 +351,7 @@ async def test_contract_from_address_with_2_proxy():
     proxy_contract = await Contract.from_address(
         proxy2_deployment.deployed_contract.address,
         client=client,
-        proxy_config={"proxy_checks": True},
+        proxy_config=True,
     )
 
     assert all(f in proxy_contract.functions for f in ("put", "get"))
@@ -376,7 +376,7 @@ async def test_contract_from_address_throws_on_too_many_steps():
         proxy_contract = await Contract.from_address(
             proxy2_deployment.deployed_contract.address,
             client=client,
-            proxy_config={"proxy_checks": True, "max_steps": 2},
+            proxy_config={"max_steps": 2},
         )
 
     assert "Max number of steps exceeded" in str(exinfo.value)
@@ -412,7 +412,7 @@ async def test_contract_from_address_throws_on_proxy_cycle():
         await Contract.from_address(
             address=proxy2_deployment.deployed_contract.address,
             client=client,
-            proxy_config={"proxy_checks": True},
+            proxy_config=True,
         )
 
     assert "Proxy cycle detected" in str(exinfo.value)
