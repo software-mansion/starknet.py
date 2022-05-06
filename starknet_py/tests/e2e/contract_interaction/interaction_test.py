@@ -310,3 +310,15 @@ async def test_call_unitinialized_contract():
         )
 
     assert "500" in str(exinfo.value)
+
+
+@pytest.mark.asyncio
+async def test_deploy_throws_on_no_compilation_source():
+    client = await DevnetClient.make_devnet_client()
+
+    with pytest.raises(ValueError) as exinfo:
+        await Contract.deploy(client=client)
+
+    assert "One of compiled_contract or compilation_source is required." in str(
+        exinfo.value
+    )

@@ -110,6 +110,15 @@ def test_compute_address_with_imports():
     )
 
 
+def test_compute_address_throws_on_no_source():
+    with pytest.raises(ValueError) as exinfo:
+        Contract.compute_address(salt=1111)
+
+    assert "One of compiled_contract or compilation_source is required." in str(
+        exinfo.value
+    )
+
+
 def test_transaction_hash():
     # noinspection PyTypeChecker
     call = PreparedFunctionCall(
