@@ -16,8 +16,8 @@ map_source = Path(directory, "map.cairo").read_text("utf-8")
 
 
 @pytest.mark.asyncio
-async def test_max_fee_is_set_in_sent_invoke():
-    client = await DevnetClientFactory().make_devnet_client()
+async def test_max_fee_is_set_in_sent_invoke(run_devnet):
+    client = await DevnetClientFactory(run_devnet).make_devnet_client()
     key = 2
     value = 3
 
@@ -43,8 +43,8 @@ async def test_max_fee_is_set_in_sent_invoke():
 
 
 @pytest.mark.asyncio
-async def test_auto_fee_estimation():
-    client = await DevnetClientFactory().make_devnet_client()
+async def test_auto_fee_estimation(run_devnet):
+    client = await DevnetClientFactory(run_devnet).make_devnet_client()
     key = 2
     value = 3
 
@@ -62,8 +62,8 @@ async def test_auto_fee_estimation():
 
 
 @pytest.mark.asyncio
-async def test_throws_on_estimate_with_positive_max_fee():
-    client = await DevnetClientFactory().make_devnet_client()
+async def test_throws_on_estimate_with_positive_max_fee(run_devnet):
+    client = await DevnetClientFactory(run_devnet).make_devnet_client()
     key = 2
     value = 3
 
@@ -85,8 +85,8 @@ async def test_throws_on_estimate_with_positive_max_fee():
 
 
 @pytest.mark.asyncio
-async def test_throws_on_both_max_fee_and_auto_estimate():
-    client = await DevnetClientFactory().make_devnet_client()
+async def test_throws_on_both_max_fee_and_auto_estimate(run_devnet):
+    client = await DevnetClientFactory(run_devnet).make_devnet_client()
     key = 2
     value = 3
 
@@ -108,8 +108,8 @@ async def test_throws_on_both_max_fee_and_auto_estimate():
 
 
 @pytest.mark.asyncio
-async def test_throws_on_both_max_fee_in_prepare_and_auto_estimate():
-    client = await DevnetClientFactory().make_devnet_client()
+async def test_throws_on_both_max_fee_in_prepare_and_auto_estimate(run_devnet):
+    client = await DevnetClientFactory(run_devnet).make_devnet_client()
     key = 2
     value = 3
 
@@ -131,8 +131,8 @@ async def test_throws_on_both_max_fee_in_prepare_and_auto_estimate():
 
 
 @pytest.mark.asyncio
-async def test_throws_on_call_without_max_fee():
-    client = await DevnetClientFactory().make_devnet_client()
+async def test_throws_on_call_without_max_fee(run_devnet):
+    client = await DevnetClientFactory(run_devnet).make_devnet_client()
     key = 2
     value = 3
 
@@ -150,8 +150,8 @@ async def test_throws_on_call_without_max_fee():
 
 
 @pytest.mark.asyncio
-async def test_throws_on_prepared_call_without_max_fee():
-    client = await DevnetClientFactory().make_devnet_client()
+async def test_throws_on_prepared_call_without_max_fee(run_devnet):
+    client = await DevnetClientFactory(run_devnet).make_devnet_client()
     key = 2
     value = 3
 
@@ -170,8 +170,8 @@ async def test_throws_on_prepared_call_without_max_fee():
 
 
 @pytest.mark.asyncio
-async def test_latest_max_fee_takes_precedence():
-    client = await DevnetClientFactory().make_devnet_client()
+async def test_latest_max_fee_takes_precedence(run_devnet):
+    client = await DevnetClientFactory(run_devnet).make_devnet_client()
     key = 2
     value = 3
 
@@ -189,8 +189,8 @@ async def test_latest_max_fee_takes_precedence():
 
 
 @pytest.mark.asyncio
-async def test_prepare_without_max_fee():
-    client = await DevnetClientFactory().make_devnet_client()
+async def test_prepare_without_max_fee(run_devnet):
+    client = await DevnetClientFactory(run_devnet).make_devnet_client()
     key = 2
     value = 3
 
@@ -207,8 +207,8 @@ async def test_prepare_without_max_fee():
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("key, value", ((2, 13), (412312, 32134), (12345, 3567)))
-async def test_invoke_and_call(key, value):
-    client = await DevnetClientFactory().make_devnet_client()
+async def test_invoke_and_call(key, value, run_devnet):
+    client = await DevnetClientFactory(run_devnet).make_devnet_client()
 
     # Deploy simple k-v store
     deployment_result = await Contract.deploy(
@@ -228,12 +228,12 @@ user_auth_source = Path(directory, "user_auth.cairo").read_text("utf-8")
 
 
 @pytest.mark.asyncio
-async def test_signature():
+async def test_signature(run_devnet):
     """
     Based on https://www.cairo-lang.org/docs/hello_starknet/user_auth.html#interacting-with-the-contract
     but replaced with struct
     """
-    client = await DevnetClientFactory().make_devnet_client_without_account()
+    client = await DevnetClientFactory(run_devnet).make_devnet_client_without_account()
     private_key = 12345
     public_key = (
         1628448741648245036800002906075225705100596136133912895015035902954123957052
@@ -267,8 +267,8 @@ async def test_signature():
 
 
 @pytest.mark.asyncio
-async def test_get_code_not_found():
-    client = await DevnetClientFactory().make_devnet_client()
+async def test_get_code_not_found(run_devnet):
+    client = await DevnetClientFactory(run_devnet).make_devnet_client()
 
     with pytest.raises(BadRequest) as exinfo:
         await Contract.from_address(1, client)
@@ -277,8 +277,8 @@ async def test_get_code_not_found():
 
 
 @pytest.mark.asyncio
-async def test_call_unitinialized_contract():
-    client = await DevnetClientFactory().make_devnet_client()
+async def test_call_unitinialized_contract(run_devnet):
+    client = await DevnetClientFactory(run_devnet).make_devnet_client()
 
     with pytest.raises(BadRequest) as exinfo:
         await client.call_contract(

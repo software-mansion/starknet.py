@@ -15,8 +15,8 @@ base_source_code = Path(os.path.join(mock_contracts_base_path, "base.cairo")).re
 
 
 @pytest.mark.asyncio
-async def test_deploy_tx():
-    client = await DevnetClientFactory().make_devnet_client()
+async def test_deploy_tx(run_devnet):
+    client = await DevnetClientFactory(run_devnet).make_devnet_client()
     result = await Contract.deploy(client=client, compilation_source=map_source_code)
     await result.wait_for_acceptance()
 
@@ -28,8 +28,8 @@ async def test_deploy_tx():
 
 
 @pytest.mark.asyncio
-async def test_deploy_with_search_path():
-    client = await DevnetClientFactory().make_devnet_client()
+async def test_deploy_with_search_path(run_devnet):
+    client = await DevnetClientFactory(run_devnet).make_devnet_client()
     result = await Contract.deploy(
         client=client,
         compilation_source=base_source_code,
@@ -53,12 +53,12 @@ constructor_with_arguments_source = Path(
 
 
 @pytest.mark.asyncio
-async def test_constructor_arguments():
+async def test_constructor_arguments(run_devnet):
     value = 10
     tuple_value = (1, (2, 3))
     arr = [1, 2, 3]
     struct = {"value": 12, "nested_struct": {"value": 99}}
-    client = await DevnetClientFactory().make_devnet_client()
+    client = await DevnetClientFactory(run_devnet).make_devnet_client()
 
     # Contract should throw if constructor arguments were not provided
     with pytest.raises(ValueError) as err:
@@ -106,8 +106,8 @@ constructor_without_arguments_source = Path(
 
 
 @pytest.mark.asyncio
-async def test_constructor_without_arguments():
-    client = await DevnetClientFactory().make_devnet_client()
+async def test_constructor_without_arguments(run_devnet):
+    client = await DevnetClientFactory(run_devnet).make_devnet_client()
 
     result = await Contract.deploy(
         client=client, compilation_source=constructor_without_arguments_source
