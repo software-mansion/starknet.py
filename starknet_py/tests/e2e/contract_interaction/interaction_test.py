@@ -296,8 +296,8 @@ async def test_call_unitinialized_contract(run_devnet):
 
 
 @pytest.mark.asyncio
-async def test_deploy_throws_on_no_compilation_source():
-    client = await DevnetClient.make_devnet_client()
+async def test_deploy_throws_on_no_compilation_source(run_devnet):
+    client = await DevnetClientFactory(run_devnet).make_devnet_client()
 
     with pytest.raises(ValueError) as exinfo:
         await Contract.deploy(client=client)
