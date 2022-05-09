@@ -10,7 +10,6 @@ from starknet_py.net.client import BadRequest, Client
 from starknet_py.net.models import InvokeFunction
 from starknet_py.tests.e2e.utils import DevnetClientFactory
 from starknet_py.utils.crypto.facade import sign_calldata
-from starknet_py.utils.compiler.starknet_compile import starknet_compile
 
 directory = os.path.dirname(__file__)
 
@@ -400,7 +399,7 @@ async def test_contract_from_address_throws_on_too_many_steps(run_devnet):
     )
 
     with pytest.raises(RecursionError) as exinfo:
-        proxy_contract = await Contract.from_address(
+        await Contract.from_address(
             proxy2_deployment.deployed_contract.address,
             client=client,
             proxy_config={"max_steps": 2},
