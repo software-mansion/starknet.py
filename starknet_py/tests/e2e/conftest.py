@@ -1,6 +1,5 @@
 import time
 import subprocess
-import os
 import socket
 from contextlib import closing
 
@@ -8,10 +7,10 @@ import pytest
 
 
 def get_available_port() -> int:
-    with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
-        s.bind(("", 0))
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        return s.getsockname()[1]
+    with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
+        sock.bind(("", 0))
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        return sock.getsockname()[1]
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -30,5 +29,5 @@ def run_devnet():
     # pylint: disable=consider-using-with
     proc = subprocess.Popen(command)
     time.sleep(5)
-    yield devnet_port
+    yield f"http://localhost:{devnet_port}"
     proc.kill()
