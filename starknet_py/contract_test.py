@@ -76,7 +76,7 @@ EXPECTED_ADDRESS_WITH_IMPORTS = (
 )
 
 directory = os.path.dirname(__file__)
-search_path = Path(directory, "utils/compiler/mock-contracts")
+search_path = Path(directory, "compile/mock-contracts")
 
 
 def test_compute_hash():
@@ -107,6 +107,15 @@ def test_compute_address_with_imports():
             search_paths=[search_path],
         )
         == EXPECTED_ADDRESS_WITH_IMPORTS
+    )
+
+
+def test_compute_address_throws_on_no_source():
+    with pytest.raises(ValueError) as exinfo:
+        Contract.compute_address(salt=1111)
+
+    assert "One of compiled_contract or compilation_source is required." in str(
+        exinfo.value
     )
 
 
