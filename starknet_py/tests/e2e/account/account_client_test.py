@@ -13,7 +13,7 @@ map_source_code = Path(directory, "map.cairo").read_text("utf-8")
 @pytest.mark.asyncio
 async def test_deploy_account_contract_and_sign_tx(run_devnet):
     acc_client = await AccountClient.create_account(
-        net=f"http://localhost:{run_devnet}", chain=StarknetChainId.TESTNET
+        net=run_devnet, chain=StarknetChainId.TESTNET
     )
 
     deployment_result = await Contract.deploy(
@@ -34,7 +34,7 @@ async def test_deploy_account_contract_and_sign_tx(run_devnet):
 @pytest.mark.asyncio
 async def test_error_when_tx_signed(run_devnet):
     acc_client = await AccountClient.create_account(
-        net=f"http://localhost:{run_devnet}", chain=StarknetChainId.TESTNET
+        net=run_devnet, chain=StarknetChainId.TESTNET
     )
 
     invoke_function = InvokeFunction(
