@@ -4,7 +4,7 @@ import pytest
 
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient
-from starknet_py.net.models import StarknetChainId, InvokeFunction, TransactionType
+from starknet_py.net.models import StarknetChainId, InvokeFunction
 from starknet_py.tests.e2e.utils import DEVNET_ADDRESS
 
 directory = os.path.dirname(__file__)
