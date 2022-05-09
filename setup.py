@@ -48,18 +48,19 @@ from setuptools import setup
 packages = \
 ['starknet_py',
  'starknet_py.cairo',
+ 'starknet_py.compile',
  'starknet_py.net',
  'starknet_py.net.account',
  'starknet_py.net.l1',
  'starknet_py.net.models',
  'starknet_py.utils',
- 'starknet_py.utils.compiler',
  'starknet_py.utils.crypto',
  'starknet_py.utils.data_transformer',
  'starknet_py.utils.sync']
 
 package_data = \
-{'': ['*']}
+{'': ['*'],
+ 'starknet_py.compile': ['mock-contracts/*', 'mock-contracts/inner/*']}
 
 install_requires = \
 ['asgiref>=3.4.1,<4.0.0', 'cairo-lang==0.8.1', 'web3>=5.28.0,<6']
