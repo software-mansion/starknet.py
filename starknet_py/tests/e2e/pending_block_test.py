@@ -1,7 +1,7 @@
 import pytest
 
 from starknet_py.contract import Contract
-from starknet_py.tests.e2e.utils import DevnetClient
+from starknet_py.tests.e2e.utils import DevnetClientFactory
 
 
 @pytest.mark.asyncio
@@ -27,7 +27,7 @@ async def test_pending_block(run_devnet):
     end
     """
 
-    client = await DevnetClient.make_devnet_client(run_devnet)
+    client = await DevnetClientFactory(run_devnet).make_devnet_client()
     constructor_args = [123]
     await Contract.deploy(
         client, compilation_source=contract, constructor_args=constructor_args
