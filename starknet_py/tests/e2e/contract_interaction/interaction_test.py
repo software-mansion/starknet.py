@@ -4,8 +4,9 @@ from pathlib import Path
 import pytest
 from starkware.starknet.public.abi import get_selector_from_name
 
+from starknet_py.transaction_exceptions import TransactionRejectedError
 from starknet_py.contract import Contract
-from starknet_py.net.client import BadRequest
+from starknet_py.net.client import BadRequest, Client
 from starknet_py.net.models import InvokeFunction
 from starknet_py.tests.e2e.utils import DevnetClientFactory
 from starknet_py.utils.crypto.facade import sign_calldata
@@ -305,3 +306,34 @@ async def test_deploy_throws_on_no_compilation_source(run_devnet):
     assert "One of compiled_contract or compilation_source is required." in str(
         exinfo.value
     )
+
+
+@pytest.mark.asyncio
+async def test_wait_for_tx_devnet(run_devnet):
+    client = await DevnetClientFactory(run_devnet).make_devnet_client()
+
+    deployment = await Contract.deploy(compilation_source=map_source, client=client)
+    await client.wait_for_tx(deployment.hash)
+
+
+@pytest.mark.asyncio
+async def test_wait_for_tx_testnet():
+    client = Client(net="testnet")
+
+    deployment = await Contract.deploy(compilation_source=map_source, client=client)
+    await client.wait_for_tx(deployment.hash)
+
+
+@pytest.mark.asyncio
+async def test_wait_for_tx_throws_on_transaction_rejected(run_devnet):
+    client = await DevnetClientFactory(run_devnet).make_devnet_client()
+    deploy = await Contract.deploy(compilation_source=map_source, client=client)
+    contract = deploy.deployed_contract
+    invoke = contract.functions["put"].prepare(key=0x1, value=0x1, max_fee=0)
+
+    # modify selector so that transaction will get rejected
+    invoke.selector = 0x0123
+    transaction = await invoke.invoke()
+
+    with pytest.raises(TransactionRejectedError):
+        await client.wait_for_tx(transaction.hash)
