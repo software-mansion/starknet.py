@@ -59,7 +59,7 @@ Example usage:
     await deployment_result.wait_for_acceptance()
 
     # Get deployed contract
-    map_contract = deployment_result.contract
+    map_contract = deployment_result.deployed_contract
     k, v = 13, 4324
     # Adds a transaction to mutate the state of k-v store. The call goes through account proxy, because we've used AccountClient to create the contract object
     await map_contract.functions["put"].invoke(k, v)
