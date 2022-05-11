@@ -74,11 +74,11 @@ Using Contract
     key = 1234
 
     # Create contract from contract's address - Contract will download contract's ABI to know its interface.
-    contract = Contract.sync.from_address("0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b", client)
+    contract = await Contract.from_address("0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b", client)
 
     # All exposed functions are available at contract.functions.
     # Here we invoke a function, creating a new transaction.
-    invocation = await contract.functions["set_value"].invoke(key, 7)
+    invocation = await contract.functions["set_value"].invoke(key, 7, max_fee=0)
 
     # Invocation returns InvokeResult object. It exposes a helper for waiting until transaction is accepted.
     await invocation.wait_for_acceptance()
