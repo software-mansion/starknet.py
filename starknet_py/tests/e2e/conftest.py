@@ -6,6 +6,15 @@ from contextlib import closing
 import pytest
 
 
+def pytest_addoption(parser):
+    parser.addoption(
+        "--net",
+        action="store",
+        default="devnet",
+        help="Network to run tests on: possible 'testnet', 'devnet'",
+    )
+
+
 def get_available_port() -> int:
     with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
         sock.bind(("", 0))
@@ -13,8 +22,7 @@ def get_available_port() -> int:
         return sock.getsockname()[1]
 
 
-@pytest.fixture(scope="module", autouse=True)
-def run_devnet():
+def start_devnet():
     devnet_port = get_available_port()
 
     command = [
@@ -29,5 +37,22 @@ def run_devnet():
     # pylint: disable=consider-using-with
     proc = subprocess.Popen(command)
     time.sleep(5)
-    yield f"http://localhost:{devnet_port}"
-    proc.kill()
+    return devnet_port, proc
+
+
+@pytest.fixture(scope="module", autouse=True)
+def run_devnet(request):
+    net = request.config.getoption("--net")
+    if net == "devnet":
+        devnet_port, proc = start_devnet()
+        yield f"http://localhost:{devnet_port}"
+        proc.kill()
+    elif net == "testnet":
+        yield "testnet"
+    else:
+        raise ValueError("Not supported value provided for --net")
+
+
+@pytest.fixture
+def run_net(request):
+    return request.config.getoption("--net")
