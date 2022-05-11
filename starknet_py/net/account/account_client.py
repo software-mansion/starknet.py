@@ -152,7 +152,7 @@ class AccountClient(Client):
         """
         Creates the account using
         `OpenZeppelin Account contract
-        <https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/account/Account.cairo>`_
+        <https://github.com/starkware-libs/cairo-lang/blob/4e233516f52477ad158bc81a86ec2760471c1b65/src/starkware/starknet/third_party/open_zeppelin/Account.cairo>`_
 
         :param net: Target net's address or one of "mainnet", "testnet"
         :param chain: Chain used by the network. Required if you use a custom URL for ``net`` param
