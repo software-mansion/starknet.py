@@ -9,10 +9,11 @@ Using Client
 
     from starknet_py.contract import Contract
     from starknet_py.net import Client
+    from starknet_py.net.networks import TESTNET, MAINNET
 
     # Use testnet for playing with Starknet
-    testnet_client = Client("https://alpha4.starknet.io")
-    mainnet_client = Client("https://alpha-mainnet.starknet.io")
+    testnet_client = Client(TESTNET)
+    mainnet_client = Client(MAINNET)
 
     # Local network
     from starknet_py.net.models import StarknetChainId
@@ -25,7 +26,7 @@ synchronous version. It might be helpful to play with Starknet directly in pytho
 
 .. code-block:: python
 
-    synchronous_testnet_client = Client("testnet")
+    synchronous_testnet_client = Client(TESTNET)
     call_result = synchronous_testnet_client.get_block_sync("0x495c670c53e4e76d08292524299de3ba078348d861dd7b2c7cc4933dbc27943")
 
 You can see all Client's methods :obj:`here <starknet_py.net.Client>`.
@@ -40,9 +41,10 @@ Example usage:
 .. code-block:: python
 
     from starknet_py.net import AccountClient
+    from starknet_py.net.networks import TESTNET
 
     # Creates an account on local network and returns an instance
-    acc_client = await AccountClient.create_account(net="testnet")
+    acc_client = await AccountClient.create_account(net=TESTNET)
 
     # Deploy an example contract which implements a simple k-v store. Deploy transaction is not being signed.
     deployment_result = await Contract.deploy(
@@ -66,8 +68,9 @@ Using Contract
 
     from starknet_py.contract import Contract
     from starknet_py.net.client import Client
+    from starknet_py.net.networks import TESTNET
 
-    client = Client("testnet")
+    client = Client(TESTNET)
     key = 1234
 
     # Create contract from contract's address - Contract will download contract's ABI to know its interface.
