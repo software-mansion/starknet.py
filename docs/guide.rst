@@ -228,7 +228,7 @@ Here's how you can deploy new contracts:
     await deployment_result.wait_for_acceptance()
 
     # but you can access the deployed contract object even if has not been accepted yet
-    contract = deployment_result.contract
+    contract = deployment_result.deployed_contract
 
 
 Handling client errors
