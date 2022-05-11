@@ -13,7 +13,12 @@ Using Client
 
     # Use testnet for playing with Starknet
     testnet_client = Client(TESTNET)
+    #or
+    testnet_client = Client("testnet")
+
     mainnet_client = Client(MAINNET)
+    #or
+    mainnet_client = Client("mainnet")
 
     # Local network
     from starknet_py.net.models import StarknetChainId
