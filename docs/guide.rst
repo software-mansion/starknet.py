@@ -178,7 +178,7 @@ Here's how you can deploy new contracts:
 
     contract = """
     %lang starknet
-    %builtins pedersen
+    %builtins pedersen range_check
 
     from starkware.cairo.common.cairo_builtins import HashBuiltin
 
@@ -189,9 +189,10 @@ Here's how you can deploy new contracts:
     @constructor
     func constructor{
             syscall_ptr : felt*,
-            pedersen_ptr : HashBuiltin*
-        }(public_key: felt):
-        public_key.write(public_key)
+            pedersen_ptr : HashBuiltin*,
+            range_check_ptr
+        }(_public_key: felt):
+        public_key.write(_public_key)
         return()
     end
     """
@@ -202,7 +203,7 @@ Here's how you can deploy new contracts:
     constructor_args = [123]
 
     # or use dict for keyword arguments
-    constructor_args = {"public_key": 123}
+    constructor_args = {"_public_key": 123}
 
     # contract as a string
     deployment_result = await Contract.deploy(
