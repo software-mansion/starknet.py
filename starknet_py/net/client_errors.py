@@ -27,9 +27,7 @@ class ContractNotFoundError(ClientError):
         identifier = block_hash or block_number
         self.identifier = str(identifier) if isinstance(identifier, int) else identifier
 
-        super().__init__(
-            code=-1, message=f"No contract found for identifier: {self.identifier}"
-        )
+        super().__init__(message=f"No contract found for identifier: {self.identifier}")
 
     def __str__(self):
         return self.message

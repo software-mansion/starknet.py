@@ -1,5 +1,8 @@
-import pytest
 from typing import Tuple
+
+import pytest
+
+from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.tests.e2e.gateway_client.balance_contract import BALANCE_CONTRACT
 from starknet_py.tests.e2e.utils import DevnetClientFactory
@@ -11,8 +14,6 @@ from starknet_py.net.client_models import (
 )
 
 
-from starkware.starknet.public.abi import get_selector_from_name
-
 DEPLOY_TRANSACTION_HASH = (
     0x11C1C6731ACE34AB4A9137A82092F26ECE38E7428E5E2028DA587893AAE0E02
 )
@@ -22,20 +23,20 @@ INVOKE_TRANSACTION_HASH = (
 CONTRACT_ADDRESS = 0x043D95E049C7DECE86574A8D3FB5C0F9E4422F8A7FEC6D744F26006374642252
 
 
-@pytest.fixture()
-def block_hash(run_prepared_devnet) -> str:
+@pytest.fixture(name="block_hash")
+def fixture_block_hash(run_prepared_devnet) -> str:
     _, args = run_prepared_devnet
     return args["block_hash"]
 
 
-@pytest.fixture()
-def devnet_address(run_prepared_devnet) -> str:
+@pytest.fixture(name="devnet_address")
+def fixture_devnet_address(run_prepared_devnet) -> str:
     devnet_address, _ = run_prepared_devnet
     return devnet_address
 
 
-@pytest.fixture()
-async def clients(run_prepared_devnet) -> Tuple[BaseClient, BaseClient]:
+@pytest.fixture(name="clients")
+async def fixture_clients(run_prepared_devnet) -> Tuple[BaseClient, BaseClient]:
     devnet_address, _ = run_prepared_devnet
     gateway_client = await DevnetClientFactory(
         devnet_address

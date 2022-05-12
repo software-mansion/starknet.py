@@ -10,6 +10,7 @@ def prepare_devnet(net: str) -> str:
             "./starknet_py/tests/e2e/setupy_scripts/prepare_devnet_for_gateway_test.sh",
             net,
         ],
+        check=False,
         capture_output=True,
         text=True,
     )

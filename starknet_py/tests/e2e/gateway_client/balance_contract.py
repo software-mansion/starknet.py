@@ -1,3 +1,4 @@
+# pylint: disable=too-many-lines
 BALANCE_CONTRACT = r"""
 {
     "abi": [

@@ -293,7 +293,9 @@ class StarknetClient:
         async with aiohttp.ClientSession() as session:
             async with session.get(address, params=params or {}) as request:
                 if request.status != 200:
-                    raise ClientError(code=str(request.status), message=await request.text())
+                    raise ClientError(
+                        code=str(request.status), message=await request.text()
+                    )
                 return await request.json()
 
     async def post(
@@ -307,5 +309,7 @@ class StarknetClient:
                 address, params=params or {}, json=payload
             ) as request:
                 if request.status != 200:
-                    raise ClientError(code=str(request.status), message=await request.text())
+                    raise ClientError(
+                        code=str(request.status), message=await request.text()
+                    )
                 return await request.json(content_type=None)

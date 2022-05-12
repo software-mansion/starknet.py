@@ -264,4 +264,3 @@ class RpcClient:
         raise ClientError(
             code=result["error"]["code"], message=result["error"]["message"]
         )
-
