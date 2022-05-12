@@ -4,7 +4,7 @@ import pytest
 
 from starkware.starknet.public.abi import get_selector_from_name
 
-from starknet_py.tests.e2e.gateway_client.balance_contract import BALANCE_CONTRACT
+from starknet_py.tests.e2e.client.balance_contract import BALANCE_CONTRACT
 from starknet_py.tests.e2e.utils import DevnetClientFactory
 from starknet_py.net.base_client import BaseClient
 from starknet_py.net.client_models import (
