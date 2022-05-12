@@ -94,15 +94,15 @@ async def test_balance_when_token_specified(run_devnet):
 
 
 async def mocked_call_contract(
-        self,
-        invoke_tx: InvokeFunction,
-        block_hash: Optional[CastableToHash] = None,
-        block_number: Optional[BlockIdentifier] = None,
+    self,
+    invoke_tx: InvokeFunction,
+    block_hash: Optional[CastableToHash] = None,
+    block_number: Optional[BlockIdentifier] = None,
 ) -> List[int]:
     return [0]
 
 
-@patch.object(Client, 'call_contract', mocked_call_contract)
+@patch.object(Client, "call_contract", mocked_call_contract)
 @pytest.mark.asyncio
 async def test_default_token_address(run_devnet):
     acc_client_testnet = AccountClient("0x123", KeyPair(123, 456), TESTNET)
