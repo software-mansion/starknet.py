@@ -69,6 +69,7 @@ class GatewayClient(BaseClient):
                 else tx_identifier
             },
         )
+        # TODO handle not received/unknown transactions
         return TransactionSchema().load(res["transaction"], unknown=EXCLUDE)
 
     async def get_block(
