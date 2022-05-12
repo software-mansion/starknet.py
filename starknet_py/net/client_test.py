@@ -6,6 +6,7 @@ import pytest
 
 from starkware.starknet.services.api.feeder_gateway.response_objects import (
     TransactionStatus,
+    TransactionFailureReason,
 )
 
 from starknet_py.net.client import Client
@@ -19,14 +20,26 @@ from starknet_py.transaction_exceptions import (
 @pytest.mark.asyncio
 async def test_wait_for_tx_throws_transaction_rejected():
     client = Client("testnet")
+    code = "TRANSACTION REJECTED"
+    message = "Transaction was rejected"
 
     result = Future()
-    result.set_result(MagicMock(status=TransactionStatus.REJECTED))
+    result.set_result(
+        MagicMock(
+            status=TransactionStatus.REJECTED,
+            transaction_failure_reason=TransactionFailureReason(
+                code=code, error_message=message
+            ),
+        )
+    )
     client.get_transaction = MagicMock()
     client.get_transaction.return_value = result
 
-    with pytest.raises(TransactionRejectedError):
+    with pytest.raises(TransactionRejectedError) as exinfo:
         await client.wait_for_tx(tx_hash="0x0")
+
+    assert exinfo.value.code == code
+    assert exinfo.value.message == message
 
 
 @pytest.mark.asyncio

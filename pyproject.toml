@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "starknet.py"
-version = "0.2.1-alpha"
+version = "0.2.3-alpha"
 description = "A python SDK for StarkNet"
 authors = ["Tomasz Rejowski <tomasz.rejowski@swmansion.com>", "Jakub Ptak <jakub.ptak@swmansion.com>"]
 include = ["starknet_py", "starknet_py/utils/crypto/libcrypto_c_exports.*"]
@@ -15,13 +15,12 @@ documentation = "https://starknetpy.rtfd.io/"
 
 [tool.poetry.dependencies]
 python = ">=3.7.2,<3.10"
-cairo-lang = "0.8.1"
+cairo-lang = "0.8.2.1"
 asgiref = "^3.4.1"
 sphinx = {version = "^4.3.1", optional = true}
 web3 = ">=5.28.0,<6"
 enum-tools = {extras = ["sphinx"], version = "0.9.0", optional = true}
 marshmallow = "^3.15.0"
-typing-extensions = "<4"
 
 [tool.poetry.extras]
 docs = ["sphinx", "enum-tools"]
@@ -38,22 +37,20 @@ pylint = "^2.12.2"
 setuptools = "^60.0.3"
 pytest-mock = "^3.6.1"
 web3 = {extras=["tester"], version=">=5.28.0,<6"}
-starknet-devnet = {path = "../starknet-devnet"}
+starknet-devnet = "0.2.1"
+pytest-xdist = "^2.5.0"
 
 [tool.poe.tasks]
 test = ["test_unit", "test_e2e", "test_gateway"]
 test_unit.shell = "coverage run -m pytest starknet_py --ignore=starknet_py/tests/e2e"
 test_unit.env = { COVERAGE_FILE="unit.coverage" }
 test_e2e.shell = """
-    starknet-devnet --host localhost --port $DEVNET_PORT &
-    DEVNET_PID=$!
-    sleep 1
-    coverage run -m pytest starknet_py/tests/e2e --ignore=starknet_py/tests/e2e/gateway_client
-    COV_RES=$?
-    kill $DEVNET_PID
-    exit $COV_RES
+    coverage run -m pytest starknet_py/tests/e2e
 """
 test_e2e.env = { COVERAGE_FILE="e2e.coverage", DEVNET_PORT="5001" }
+test_e2e_parallel.shell = """
+    pytest -n auto --dist loadscope starknet_py/tests/e2e -v
+"""
 test_gateway.shell = """
     starknet-devnet --host localhost --port $DEVNET_PORT &
     DEVNET_PID=$!
@@ -76,8 +73,7 @@ docs_open = { shell = "open docs/_build/html/index.html" }
 lint = "pylint starknet_py"
 format = "black starknet_py"
 format_check = "black --check starknet_py"
-type_check = "pyright"
-ci = ["type_check", "lint", "format_check", "test"]
+ci = ["lint", "format_check", "test"]
 
 [tool.coverage.run]
 source = ["starknet_py"]

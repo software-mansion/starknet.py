@@ -154,11 +154,11 @@ class AccountClient(GatewayClient):
         """
         Creates the account using
         `OpenZeppelin Account contract
-        <https://github.com/OpenZeppelin/cairo-contracts/blob/main/contracts/Account.cairo>`_
+        <https://github.com/starkware-libs/cairo-lang/blob/4e233516f52477ad158bc81a86ec2760471c1b65/src/starkware/starknet/third_party/open_zeppelin/Account.cairo>`_
 
         :param net: Target net's address or one of "mainnet", "testnet"
         :param chain: Chain used by the network. Required if you use a custom URL for ``net`` param
-        :param private_key: Public Key used for the account
+        :param private_key: Private Key used for the account
         :return: Instance of AccountClient which interacts with created account on given network
         """
         if not private_key:
