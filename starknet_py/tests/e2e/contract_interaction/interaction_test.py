@@ -10,7 +10,7 @@ from starknet_py.net.client import BadRequest, Client
 from starknet_py.net.models import InvokeFunction
 from starknet_py.tests.e2e.utils import DevnetClientFactory
 from starknet_py.utils.crypto.facade import sign_calldata
-from starknet_py.net.gateway_client import NoContractFoundError, StarknetClientError
+from starknet_py.net.client_errors import ClientError, ContractNotFoundError
 
 directory = os.path.dirname(__file__)
 
@@ -272,7 +272,7 @@ async def test_signature(run_devnet):
 async def test_get_code_not_found(run_devnet):
     client = await DevnetClientFactory(run_devnet).make_devnet_client()
 
-    with pytest.raises(NoContractFoundError) as exinfo:
+    with pytest.raises(ContractNotFoundError) as exinfo:
         await Contract.from_address(1, client)
 
     assert "No contract found" in str(exinfo.value)
@@ -282,7 +282,7 @@ async def test_get_code_not_found(run_devnet):
 async def test_call_unitinialized_contract(run_devnet):
     client = await DevnetClientFactory(run_devnet).make_devnet_client()
 
-    with pytest.raises(StarknetClientError) as exinfo:
+    with pytest.raises(ClientError) as exinfo:
         await client.call_contract(
             InvokeFunction(
                 contract_address=1,

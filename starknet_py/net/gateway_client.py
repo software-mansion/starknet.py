@@ -41,6 +41,7 @@ from starknet_py.net.gateway_schemas.gateway_schemas import (
 )
 from starknet_py.net.models import StarknetChainId, chain_from_network
 from starknet_py.net.networks import Network, net_address_from_net
+from starknet_py.net.client_errors import ClientError, ContractNotFoundError
 
 
 class GatewayClient(BaseClient):
@@ -158,7 +159,7 @@ class GatewayClient(BaseClient):
         )
 
         if len(res["bytecode"]) == 0:
-            raise NoContractFoundError(
+            raise ContractNotFoundError(
                 f"No contract found with following identifier {block_identifier}"
             )
 
@@ -264,6 +265,7 @@ class GatewayClient(BaseClient):
                 "Block_hash and block_number parameters are mutually exclusive."
             )
 
+        # TODO gateway now supports latest block
         if block_hash == "latest":
             block_hash = "pending"
 
@@ -291,7 +293,7 @@ class StarknetClient:
         async with aiohttp.ClientSession() as session:
             async with session.get(address, params=params or {}) as request:
                 if request.status != 200:
-                    raise StarknetClientError(request.status, await request.text())
+                    raise ClientError(code=str(request.status), message=await request.text())
                 return await request.json()
 
     async def post(
@@ -305,24 +307,5 @@ class StarknetClient:
                 address, params=params or {}, json=payload
             ) as request:
                 if request.status != 200:
-                    raise StarknetClientError(request.status, await request.text())
+                    raise ClientError(code=str(request.status), message=await request.text())
                 return await request.json(content_type=None)
-
-
-class StarknetClientError(Exception):
-    def __init__(self, code: int, message: str):
-        self.code = code
-        self.message = message
-        super().__init__(self.message)
-
-    def __str__(self):
-        return f"StarknetClient request failed with code: {self.code} due to {self.message}"
-
-
-class NoContractFoundError(Exception):
-    def __init__(self, message):
-        super().__init__(message)
-        self.message = message
-
-    def __str__(self):
-        return self.message

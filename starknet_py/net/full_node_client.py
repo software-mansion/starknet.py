@@ -32,6 +32,7 @@ from starknet_py.net.base_client_schemas import (
     BlockHashIdentifierSchema,
     BlockNumberIdentifierSchema,
 )
+from starknet_py.net.client_errors import ClientError
 
 
 class FullNodeClient(BaseClient):
@@ -259,17 +260,8 @@ class RpcClient:
     @staticmethod
     def handle_full_node_exceptions(result):
         if "error" not in result:
-            raise FullNodeException(code=-1, message="request failed")
-        raise FullNodeException(
+            raise ClientError(code="-1", message="request failed")
+        raise ClientError(
             code=result["error"]["code"], message=result["error"]["message"]
         )
 
-
-class FullNodeException(Exception):
-    def __init__(self, code: int, message: str):
-        self.code = code
-        self.message = message
-        super().__init__(self.message)
-
-    def __str__(self):
-        return f"FullNodeClient request failed with code {self.code}: {self.message}."
