@@ -81,6 +81,9 @@ Using Contract
     # Create contract from contract's address - Contract will download contract's ABI to know its interface.
     contract = await Contract.from_address("0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b", client)
 
+    #or if we know the contract's ABI we should create contract this way
+    contract = Contract("0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b", abi, client)
+
     # All exposed functions are available at contract.functions.
     # Here we invoke a function, creating a new transaction.
     invocation = await contract.functions["set_value"].invoke(key, 7, max_fee=0)
