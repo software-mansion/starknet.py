@@ -12,11 +12,14 @@ from starkware.starknet.core.os.transaction_hash.transaction_hash import (
     TransactionHashPrefix,
 )
 
+from starknet_py import constants
+from starknet_py.constants import MAINNET_ETH_CONTRACT, TESTNET_ETH_CONTRACT
+from starknet_py.net.client import BadRequest
 from starknet_py.utils.data_transformer.data_transformer import DataTransformer
 from starknet_py.net import Client
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
 from starknet_py.net.models import InvokeFunction, StarknetChainId, TransactionType
-from starknet_py.net.networks import Network
+from starknet_py.net.networks import Network, MAINNET, TESTNET
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.crypto.facade import message_signature
 from starknet_py.net.models.address import AddressRepresentation, parse_address
@@ -72,6 +75,34 @@ class AccountClient(Client):
             )
         )
         return nonce
+
+    async def get_balance(self, token_address: AddressRepresentation = None) -> int:
+        """
+        Checks account balance of specified token._
+
+        :param token_address: Address of the ERC20 contract.
+                              If not specified it will be mainnet or testnet payment token address.
+        :return: Account balance of token.
+        """
+        if token_address is None:
+            if self.net == MAINNET:
+                token_address = MAINNET_ETH_CONTRACT
+            elif self.net == TESTNET:
+                token_address = TESTNET_ETH_CONTRACT
+            else:
+                raise BadRequest(200, "Specify token_address for custom url.")
+
+        [balance] = await super().call_contract(
+            InvokeFunction(
+                contract_address=parse_address(token_address),
+                entry_point_selector=get_selector_from_name("balanceOf"),
+                calldata=[self.address],
+                signature=[],
+                max_fee=0,
+                version=0,
+            )
+        )
+        return balance
 
     async def add_transaction(
         self,
