@@ -4,6 +4,7 @@ API
 
    client
    contract
+   compiler
    account_client
    models
    cairo

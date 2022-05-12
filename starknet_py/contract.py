@@ -12,6 +12,7 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
     CastableToHash,
 )
 from starkware.starkware_utils.error_handling import StarkErrorCode
+from starknet_py.compile.compiler import Compiler, create_contract_definition
 
 from starknet_py.net import Client
 from starknet_py.net.models import (
@@ -22,10 +23,7 @@ from starknet_py.net.models import (
     compute_invoke_hash,
 )
 from starknet_py.net.models.address import BlockIdentifier
-from starknet_py.utils.compiler.starknet_compile import (
-    StarknetCompilationSource,
-    starknet_compile,
-)
+from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.utils.crypto.facade import pedersen_hash
 from starknet_py.utils.data_transformer import DataTransformer
 from starknet_py.utils.sync import add_sync_methods
@@ -394,7 +392,7 @@ class Contract:
         constructor_args: Optional[Union[List[any], dict]] = None,
         salt: Optional[int] = None,
         search_paths: Optional[List[str]] = None,
-    ) -> "Contract":
+    ) -> "DeployResult":
         # pylint: disable=too-many-arguments
         """
         Deploys a contract and waits until it has ``PENDING`` status.
@@ -406,13 +404,20 @@ class Contract:
         :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
         :param salt: Optional salt. Random value is selected if it is not provided.
         :param search_paths: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts.
-        :return: an initialized Contract instance
+        :raises: `ValueError` if neither compilation_source nor compiled_contract is provided.
+        :return: DeployResult instance
         """
-        definition = Contract._make_definition(
-            compilation_source=compilation_source,
-            compiled_contract=compiled_contract,
-            search_paths=search_paths,
-        )
+        if not compiled_contract and not compilation_source:
+            raise ValueError(
+                "One of compiled_contract or compilation_source is required."
+            )
+
+        if not compiled_contract:
+            compiled_contract = Compiler(
+                contract_source=compilation_source, cairo_path=search_paths
+            ).compile_contract()
+        definition = create_contract_definition(compiled_contract)
+
         translated_args = Contract._translate_constructor_args(
             definition, constructor_args
         )
@@ -453,13 +458,21 @@ class Contract:
         :param compiled_contract: string containing compiled contract. Useful for reading compiled contract from a file.
         :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
         :param search_paths: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts.
+        :raises: `ValueError` if neither compilation_source nor compiled_contract is provided.
         :return: contract's address
         """
-        definition = Contract._make_definition(
-            compilation_source=compilation_source,
-            compiled_contract=compiled_contract,
-            search_paths=search_paths,
-        )
+
+        if not compiled_contract and not compilation_source:
+            raise ValueError(
+                "One of compiled_contract or compilation_source is required."
+            )
+
+        if not compiled_contract:
+            compiled_contract = Compiler(
+                contract_source=compilation_source, cairo_path=search_paths
+            ).compile_contract()
+        definition = create_contract_definition(compiled_contract)
+
         translated_args = Contract._translate_constructor_args(
             definition, constructor_args
         )
@@ -482,32 +495,21 @@ class Contract:
         :param compilation_source: string containing source code or a list of source files paths
         :param compiled_contract: string containing compiled contract. Useful for reading compiled contract from a file.
         :param search_paths: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts.
+        :raises: `ValueError` if neither compilation_source nor compiled_contract is provided.
         :return:
         """
-        definition = Contract._make_definition(
-            compilation_source=compilation_source,
-            compiled_contract=compiled_contract,
-            search_paths=search_paths,
-        )
-        return compute_contract_hash(definition, hash_func=pedersen_hash)
-
-    @staticmethod
-    def _make_definition(
-        compilation_source: Optional[StarknetCompilationSource] = None,
-        compiled_contract: Optional[str] = None,
-        search_paths: Optional[List[str]] = None,
-    ) -> ContractDefinition:
         if not compiled_contract and not compilation_source:
             raise ValueError(
                 "One of compiled_contract or compilation_source is required."
             )
 
         if not compiled_contract:
-            compiled_contract = starknet_compile(
-                compilation_source, search_paths=search_paths
-            )
+            compiled_contract = Compiler(
+                contract_source=compilation_source, cairo_path=search_paths
+            ).compile_contract()
+        definition = create_contract_definition(compiled_contract)
 
-        return ContractDefinition.loads(compiled_contract)
+        return compute_contract_hash(definition, hash_func=pedersen_hash)
 
     @staticmethod
     def _translate_constructor_args(
