@@ -38,7 +38,7 @@ pylint = "^2.12.2"
 setuptools = "^60.0.3"
 pytest-mock = "^3.6.1"
 web3 = {extras=["tester"], version=">=5.28.0,<6"}
-starknet-devnet = "0.1.22"
+starknet-devnet = {path = "../starknet-devnet"}
 
 [tool.poe.tasks]
 test = ["test_unit", "test_e2e", "test_gateway"]
@@ -48,7 +48,7 @@ test_e2e.shell = """
     starknet-devnet --host localhost --port $DEVNET_PORT &
     DEVNET_PID=$!
     sleep 1
-    coverage run -m pytest starknet_py/tests/e2e
+    coverage run -m pytest starknet_py/tests/e2e --ignore=starknet_py/tests/e2e/gateway_client
     COV_RES=$?
     kill $DEVNET_PID
     exit $COV_RES
@@ -59,12 +59,12 @@ test_gateway.shell = """
     DEVNET_PID=$!
     sleep 1
 
-    ./starknet_py/tests/e2e/setupy_scripts/prepare_devnet_for_gateway_test.sh $DEVNET_PORT
+    BLOCK_HASH=$(./starknet_py/tests/e2e/setupy_scripts/prepare_devnet_for_gateway_test.sh $DEVNET_PORT | tail -1)
 
-    poetry run python -m pytest starknet_py/tests/e2e/gateway_client
+    poetry run python -m pytest starknet_py/tests/e2e/gateway_client --block_hash ${BLOCK_HASH}
     kill $DEVNET_PID
 """
-test_gateway.env = {DEVNET_PORT="5003"}
+test_gateway.env = {DEVNET_PORT="5002"}
 coverage_combine.shell = "coverage combine unit.coverage e2e.coverage"
 test_report = [{ shell = "poe coverage_combine" }, { shell = "coverage report" }]
 test_html = [

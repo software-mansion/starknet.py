@@ -1,13 +1,12 @@
 import pytest
 
 from starknet_py.tests.e2e.gateway_client.balance_contract import BALANCE_CONTRACT
-from starknet_py.tests.e2e.utils import DevnetClientWithoutAccount, DevnetClientRpc
+from starknet_py.tests.e2e.utils import DevnetClientWithoutAccount, DevnetClientFullNode
 from starknet_py.net.client_models import (
     TransactionType,
     TransactionStatus,
     InvokeFunction,
 )
-from starknet_py.net.base_client import BaseClient
 
 
 from starkware.starknet.public.abi import get_selector_from_name
@@ -20,10 +19,18 @@ INVOKE_TRANSACTION_HASH = (
 )
 CONTRACT_ADDRESS = 0x043D95E049C7DECE86574A8D3FB5C0F9E4422F8A7FEC6D744F26006374642252
 
+gateway_client = DevnetClientWithoutAccount()
+full_node_client = DevnetClientFullNode()
 
+
+@pytest.fixture()
+def block_hash(request):
+    return request.config.getoption("--block_hash")
+
+
+@pytest.mark.parametrize("client", (gateway_client, full_node_client))
 @pytest.mark.asyncio
-async def test_get_transaction():
-    client = DevnetClientWithoutAccount()
+async def test_get_transaction(client):
     transaction = await client.get_transaction(DEPLOY_TRANSACTION_HASH)
 
     assert transaction.contract_address == CONTRACT_ADDRESS
@@ -32,40 +39,42 @@ async def test_get_transaction():
     assert transaction.transaction_type == TransactionType.DEPLOY
 
 
+@pytest.mark.parametrize("client", (gateway_client, full_node_client))
 @pytest.mark.asyncio
-async def test_get_block():
-    client = DevnetClientWithoutAccount()
+async def test_get_block(client):
     block = await client.get_block(block_number=0)
 
     assert block.block_number == 0
     assert any(i.hash == DEPLOY_TRANSACTION_HASH for i in block.transactions)
 
 
+@pytest.mark.parametrize("client", (gateway_client, full_node_client))
 @pytest.mark.asyncio
-async def test_get_storage_at():
-    client = DevnetClientWithoutAccount()
+async def test_get_storage_at(client, block_hash):
     storage = await client.get_storage_at(
         contract_address=CONTRACT_ADDRESS,
         key=916907772491729262376534102982219947830828984996257231353398618781993312401,
+        block_hash=block_hash,
     )
 
     assert storage == 1234
 
 
+@pytest.mark.parametrize("client", (gateway_client, full_node_client))
 @pytest.mark.asyncio
-async def test_get_storage_at_incorrect_address():
-    client = DevnetClientWithoutAccount()
+async def test_get_storage_at_incorrect_address(client, block_hash):
     storage = await client.get_storage_at(
         contract_address=0x1111,
         key=916907772491729262376534102982219947830828984996257231353398618781993312401,
+        block_hash=block_hash,
     )
 
     assert storage == 0
 
 
+@pytest.mark.parametrize("client", (gateway_client, full_node_client))
 @pytest.mark.asyncio
-async def test_get_transaction_receipt():
-    client = DevnetClientWithoutAccount()
+async def test_get_transaction_receipt(client):
     receipt = await client.get_transaction_receipt(tx_hash=INVOKE_TRANSACTION_HASH)
 
     assert receipt.hash == INVOKE_TRANSACTION_HASH
@@ -75,9 +84,10 @@ async def test_get_transaction_receipt():
     )
 
 
+@pytest.mark.parametrize("client", (gateway_client, full_node_client))
 @pytest.mark.asyncio
-async def test_get_code():
-    client = DevnetClientWithoutAccount()
+async def test_get_code(client):
+    # client = DevnetClientWithoutAccount()
     code = await client.get_code(contract_address=CONTRACT_ADDRESS)
 
     assert code.abi is not None
@@ -103,9 +113,10 @@ async def test_estimate_fee():
     assert isinstance(estimate_fee, int)
 
 
+@pytest.mark.parametrize("client", (gateway_client, full_node_client))
 @pytest.mark.asyncio
-async def test_call_contract():
-    client = DevnetClientWithoutAccount()
+async def test_call_contract(client):
+    # client = DevnetClientWithoutAccount()
     invoke_function = InvokeFunction(
         contract_address=CONTRACT_ADDRESS,
         entry_point_selector=get_selector_from_name("get_balance"),
@@ -114,7 +125,7 @@ async def test_call_contract():
         version=0,
         signature=[0x0, 0x0],
     )
-    result = await client.call_contract(invoke_function)
+    result = await client.call_contract(invoke_function, block_hash="latest")
 
     assert result == [1234]
 

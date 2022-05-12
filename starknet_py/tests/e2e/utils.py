@@ -10,6 +10,7 @@ from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_C
 from starknet_py.net.models.chains import StarknetChainId
 from starknet_py.net.base_client import BaseClient
 from starknet_py.net.gateway_client import GatewayClient
+from starknet_py.net.full_node_client import FullNodeClient
 
 
 DEVNET_PORT = os.environ.get("DEVNET_PORT")
@@ -46,6 +47,13 @@ class DevnetClient(AccountClient):
         return DevnetClient(address=result.address, key_pair=key_pair)
 
 
+# TODO rename
 class DevnetClientWithoutAccount(GatewayClient):
     def __init__(self):
         super().__init__(net=DEVNET_ADDRESS, chain=StarknetChainId.TESTNET)
+
+
+# TODO rename
+class DevnetClientFullNode(FullNodeClient):
+    def __init__(self):
+        super().__init__(node_url=f"{DEVNET_ADDRESS}/rpc")
