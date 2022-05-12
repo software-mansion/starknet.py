@@ -37,29 +37,30 @@ pylint = "^2.12.2"
 setuptools = "^60.0.3"
 pytest-mock = "^3.6.1"
 web3 = {extras=["tester"], version=">=5.28.0,<6"}
-starknet-devnet = "0.2.1"
 pytest-xdist = "^2.5.0"
+starknet-devnet = {path = "../starknet-devnet"}
 
 [tool.poe.tasks]
 test = ["test_unit", "test_e2e", "test_gateway"]
 test_unit.shell = "coverage run -m pytest starknet_py --ignore=starknet_py/tests/e2e"
 test_unit.env = { COVERAGE_FILE="unit.coverage" }
 test_e2e.shell = """
-    coverage run -m pytest starknet_py/tests/e2e
+    coverage run -m pytest starknet_py/tests/e2e --ignore=starknet_py/tests/e2e/gateway_client
 """
 test_e2e.env = { COVERAGE_FILE="e2e.coverage", DEVNET_PORT="5001" }
 test_e2e_parallel.shell = """
-    pytest -n auto --dist loadscope starknet_py/tests/e2e -v
+    pytest -n auto --dist loadscope starknet_py/tests/e2e -v --ignore=starknet_py/tests/e2e/gateway_client
 """
 test_gateway.shell = """
-    starknet-devnet --host localhost --port $DEVNET_PORT &
-    DEVNET_PID=$!
-    sleep 1
-
-    BLOCK_HASH=$(./starknet_py/tests/e2e/setupy_scripts/prepare_devnet_for_gateway_test.sh $DEVNET_PORT | tail -1)
-
-    poetry run python -m pytest starknet_py/tests/e2e/gateway_client --block_hash ${BLOCK_HASH}
-    kill $DEVNET_PID
+#    shell starknet-devnet --host localhost --port $DEVNET_PORT &
+#    DEVNET_PID=$!
+#    sleep 1
+#
+#    BLOCK_HASH=$(./starknet_py/tests/e2e/setupy_scripts/prepare_devnet_for_gateway_test.sh $DEVNET_PORT | tail -1)
+#
+#    poetry run python -m pytest starknet_py/tests/e2e/gateway_client --block_hash ${BLOCK_HASH}
+#    kill $DEVNET_PID
+    poetry run python -m pytest starknet_py/tests/e2e/gateway_client
 """
 test_gateway.env = {DEVNET_PORT="5002"}
 coverage_combine.shell = "coverage combine unit.coverage e2e.coverage"
