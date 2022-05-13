@@ -4,7 +4,6 @@ import pytest
 
 from starkware.starknet.public.abi import get_selector_from_name
 
-from starknet_py.tests.e2e.client.balance_contract import BALANCE_CONTRACT
 from starknet_py.tests.e2e.utils import DevnetClientFactory
 from starknet_py.net.base_client import BaseClient
 from starknet_py.net.client_models import (
@@ -136,10 +135,10 @@ async def test_add_transaction(devnet_address, contract_address):
 
 
 @pytest.mark.asyncio
-async def test_deploy(devnet_address):
+async def test_deploy(devnet_address, balance_contract):
     client = await DevnetClientFactory(
         devnet_address
     ).make_devnet_client_without_account()
-    result = await client.deploy(contract=BALANCE_CONTRACT, constructor_calldata=[])
+    result = await client.deploy(contract=balance_contract, constructor_calldata=[])
 
     assert result.code == "TRANSACTION_RECEIVED"

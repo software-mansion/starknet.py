@@ -1,4 +1,6 @@
+import os
 import subprocess
+from pathlib import Path
 from typing import Tuple
 
 import pytest
@@ -7,11 +9,20 @@ from starknet_py.tests.e2e.utils import DevnetClientFactory
 from starknet_py.net.base_client import BaseClient
 
 
+directory = os.path.dirname(__file__)
+
+
 def prepare_devnet(net: str) -> str:
+    script_path = Path(directory, "prepare_devnet_for_gateway_test.sh")
+    contract_compiled = Path(directory, "balance_compiled.json")
+    contract_abi = Path(directory, "balance_abi.json")
+
     res = subprocess.run(
         [
-            "./starknet_py/tests/e2e/setupy_scripts/prepare_devnet_for_gateway_test.sh",
+            script_path,
             net,
+            contract_compiled,
+            contract_abi
         ],
         check=False,
         capture_output=True,
@@ -64,3 +75,8 @@ def deploy_transaction_hash():
 @pytest.fixture()
 def contract_address():
     return 0x043D95E049C7DECE86574A8D3FB5C0F9E4422F8A7FEC6D744F26006374642252
+
+
+@pytest.fixture()
+def balance_contract() -> str:
+    return Path(directory, "balance_compiled.json").read_text("utf-8")
