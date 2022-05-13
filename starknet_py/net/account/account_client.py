@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, Optional
+from typing import Optional
 
 from starkware.crypto.signature.signature import (
     private_to_stark_key,
@@ -12,6 +12,7 @@ from starkware.starknet.core.os.transaction_hash.transaction_hash import (
     TransactionHashPrefix,
 )
 
+from starknet_py.net.client_models import SentTransaction
 from starknet_py.utils.data_transformer.data_transformer import DataTransformer
 from starknet_py.net import Client
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
@@ -79,7 +80,7 @@ class AccountClient(GatewayClient):
         self,
         tx: InvokeFunction,
         token: Optional[str] = None,
-    ) -> Dict[str, int]:
+    ) -> SentTransaction:
         """
         :param tx: Transaction which invokes another contract through account proxy.
                    Signed transactions aren't supported at the moment
