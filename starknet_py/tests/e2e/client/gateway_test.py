@@ -5,6 +5,20 @@ from starknet_py.tests.e2e.utils import DevnetClientFactory
 
 
 @pytest.mark.asyncio
+async def test_gateway_raises_on_both_block_hash_and_number(devnet_address, block_hash):
+    client = await DevnetClientFactory(
+        devnet_address
+    ).make_devnet_client_without_account()
+
+    with pytest.raises(ValueError) as exinfo:
+        await client.get_block(block_hash=block_hash, block_number=0)
+
+    assert "Block_hash and block_number parameters are mutually exclusive" in str(
+        exinfo.value
+    )
+
+
+@pytest.mark.asyncio
 async def test_gateway_get_transaction_throws_on_non_int_identifier(
     devnet_address, deploy_transaction_hash
 ):

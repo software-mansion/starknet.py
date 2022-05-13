@@ -12,7 +12,6 @@ from starknet_py.net.base_client import (
 from starknet_py.net.client_models import (
     SentTransaction,
     Transaction,
-    FunctionCall,
     ContractCode,
     TransactionReceipt,
     BlockState,
@@ -69,7 +68,9 @@ class FullNodeClient(BaseClient):
             res = await self.rpc_client.call(
                 method_name="getBlockByHash",
                 params={
-                    "block_hash": str(hex(block_hash)),
+                    "block_hash": str(hex(block_hash))
+                    if isinstance(block_hash, int)
+                    else block_hash,
                     "requested_scope": "FULL_TXNS",
                 },
             )
@@ -206,7 +207,7 @@ class FullNodeClient(BaseClient):
 
     async def call_contract(
         self,
-        invoke_tx: FunctionCall,
+        invoke_tx: InvokeFunction,
         block_hash: Optional[Union[int, str]] = None,
         block_number: Optional[int] = None,
     ) -> List[int]:

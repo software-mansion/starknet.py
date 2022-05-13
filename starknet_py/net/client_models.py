@@ -26,20 +26,6 @@ class Event:
 
 
 @dataclass
-class FunctionCall:
-    """
-    Dataclass representing a call to a function
-    """
-
-    contract_address: int
-    entry_point_selector: int
-    calldata: List[int]
-    signature: List[int]
-    max_fee: int
-    version: int
-
-
-@dataclass
 class L1toL2Message:
     l1_address: int
     l2_address: int

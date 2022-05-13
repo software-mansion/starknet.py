@@ -18,12 +18,7 @@ def prepare_devnet(net: str) -> str:
     contract_abi = Path(directory, "balance_abi.json")
 
     res = subprocess.run(
-        [
-            script_path,
-            net,
-            contract_compiled,
-            contract_abi
-        ],
+        [script_path, net, contract_compiled, contract_abi],
         check=False,
         capture_output=True,
         text=True,

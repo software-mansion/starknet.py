@@ -25,7 +25,16 @@ async def test_get_transaction(clients, deploy_transaction_hash, contract_addres
 
 
 @pytest.mark.asyncio
-async def test_get_block(clients, deploy_transaction_hash):
+async def test_get_block_by_hash(clients, deploy_transaction_hash, block_hash):
+    for client in clients:
+        block = await client.get_block(block_hash=block_hash)
+
+        assert block.block_number == 0
+        assert any(i.hash == deploy_transaction_hash for i in block.transactions)
+
+
+@pytest.mark.asyncio
+async def test_get_block_by_number(clients, deploy_transaction_hash):
     for client in clients:
         block = await client.get_block(block_number=0)
 
