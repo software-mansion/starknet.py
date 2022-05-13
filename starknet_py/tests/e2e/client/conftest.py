@@ -1,7 +1,7 @@
-import pytest
 import subprocess
-
 from typing import Tuple
+
+import pytest
 
 
 def prepare_devnet(net: str) -> str:
