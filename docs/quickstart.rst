@@ -13,11 +13,11 @@ Using Client
 
     # Use testnet for playing with Starknet
     testnet_client = Client(TESTNET)
-    #or
+    # or
     testnet_client = Client("testnet")
 
     mainnet_client = Client(MAINNET)
-    #or
+    # or
     mainnet_client = Client("mainnet")
 
     # Local network
@@ -81,7 +81,7 @@ Using Contract
     # Create contract from contract's address - Contract will download contract's ABI to know its interface.
     contract = await Contract.from_address("0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b", client)
 
-    #or if we know the contract's ABI we should create contract this way
+    # If the ABI is known, create the contract directly (this is the preferred way).
     contract = Contract("0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b", abi, client)
 
     # All exposed functions are available at contract.functions.
