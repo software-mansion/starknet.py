@@ -12,7 +12,6 @@ from starkware.starknet.core.os.transaction_hash.transaction_hash import (
     TransactionHashPrefix,
 )
 
-from starknet_py import constants
 from starknet_py.constants import MAINNET_ETH_CONTRACT, TESTNET_ETH_CONTRACT
 from starknet_py.net.client import BadRequest
 from starknet_py.utils.data_transformer.data_transformer import DataTransformer
@@ -78,11 +77,11 @@ class AccountClient(Client):
 
     async def get_balance(self, token_address: AddressRepresentation = None) -> int:
         """
-        Checks account balance of specified token._
+        Checks account's balance of specified token._
 
         :param token_address: Address of the ERC20 contract.
                               If not specified it will be mainnet or testnet payment token address.
-        :return: Account balance of token.
+        :return: Account's balance of token.
         """
         if token_address is None:
             if self.net == MAINNET:

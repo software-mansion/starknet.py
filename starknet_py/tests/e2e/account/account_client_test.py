@@ -1,18 +1,14 @@
 import os.path
 from pathlib import Path
-from typing import Optional, List
+from typing import List
 from unittest.mock import create_autospec, patch
 
 import pytest
-from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
-    CastableToHash,
-    BlockIdentifier,
-)
 
 from starknet_py.constants import TESTNET_ETH_CONTRACT, MAINNET_ETH_CONTRACT
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient, KeyPair
-from starknet_py.net.client import BadRequest, Client
+from starknet_py.net.client import BadRequest
 from starknet_py.net.models import StarknetChainId, InvokeFunction, parse_address
 from starknet_py.net.networks import TESTNET, MAINNET
 
@@ -93,24 +89,19 @@ async def test_balance_when_token_specified(run_devnet):
     assert balance == 200
 
 
-async def mocked_call_contract(
-    self,
-    invoke_tx: InvokeFunction,
-    block_hash: Optional[CastableToHash] = None,
-    block_number: Optional[BlockIdentifier] = None,
-) -> List[int]:
+async def mocked_call_contract(self, invoke_tx: InvokeFunction) -> List[int]:
+    # pylint: disable=unused-argument
     pass
 
 
 @pytest.mark.asyncio
-async def test_default_token_address(run_devnet):
+async def test_default_token_address():
     acc_client_testnet = AccountClient("0x123", KeyPair(123, 456), TESTNET)
     acc_client_mainnet = AccountClient("0x321", KeyPair(456, 123), MAINNET)
 
     mock_function = create_autospec(mocked_call_contract, return_value=[0])
 
-    with patch('starknet_py.net.client.Client.call_contract', mock_function) as call_contract:
-
+    with patch("starknet_py.net.client.Client.call_contract", mock_function):
         await acc_client_testnet.get_balance()
         await acc_client_mainnet.get_balance()
 
