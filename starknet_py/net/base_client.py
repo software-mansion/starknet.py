@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from typing import Union, Optional, List
+
+# TODO add import based on python version
+from typing_extensions import TypedDict
 
 from starknet_py.net.client_models import (
     StarknetBlock,
@@ -16,14 +18,12 @@ from starknet_py.net.client_models import (
 )
 
 
-@dataclass
-class BlockHashIdentifier:
+class BlockHashIdentifier(TypedDict):
     block_hash: int
     index: int
 
 
-@dataclass
-class BlockNumberIdentifier:
+class BlockNumberIdentifier(TypedDict):
     block_number: int
     index: int
 

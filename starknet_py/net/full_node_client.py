@@ -161,8 +161,8 @@ class FullNodeClient(BaseClient):
         res = await self.rpc_client.call(
             method_name="getTransactionByBlockHashAndIndex",
             params={
-                "block_hash": str(hex(block_identifier.block_hash)),
-                "index": block_identifier.index,
+                "block_hash": str(hex(block_identifier["block_hash"])),
+                "index": block_identifier["index"],
             },
         )
         return res
@@ -173,8 +173,8 @@ class FullNodeClient(BaseClient):
         res = await self.rpc_client.call(
             method_name="getTransactionByBlockNumberAndIndex",
             params={
-                "block_number": block_identifier.block_number,
-                "index": block_identifier.index,
+                "block_number": block_identifier["block_number"],
+                "index": block_identifier["index"],
             },
         )
         return res

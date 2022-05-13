@@ -58,7 +58,7 @@ class GatewayClient(BaseClient):
         self,
         tx_identifier: Union[int, BlockHashIdentifier, BlockNumberIdentifier],
     ) -> Transaction:
-        if isinstance(tx_identifier, (BlockHashIdentifier, BlockNumberIdentifier)):
+        if isinstance(tx_identifier, dict):
             raise ValueError(
                 "BlockHashIdentifier and BlockNumberIdentifier are not supported in gateway client."
             )
