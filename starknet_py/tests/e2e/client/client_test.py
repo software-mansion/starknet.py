@@ -14,62 +14,31 @@ from starknet_py.net.client_models import (
 )
 
 
-DEPLOY_TRANSACTION_HASH = (
-    0x11C1C6731ACE34AB4A9137A82092F26ECE38E7428E5E2028DA587893AAE0E02
-)
-INVOKE_TRANSACTION_HASH = (
-    0x5A8995AE36F3A87CC217311EC9372CD16602BA0FC273F4AFD1508A627D81B30
-)
-CONTRACT_ADDRESS = 0x043D95E049C7DECE86574A8D3FB5C0F9E4422F8A7FEC6D744F26006374642252
-
-
-@pytest.fixture(name="block_hash")
-def fixture_block_hash(run_prepared_devnet) -> str:
-    _, args = run_prepared_devnet
-    return args["block_hash"]
-
-
-@pytest.fixture(name="devnet_address")
-def fixture_devnet_address(run_prepared_devnet) -> str:
-    devnet_address, _ = run_prepared_devnet
-    return devnet_address
-
-
-@pytest.fixture(name="clients")
-async def fixture_clients(run_prepared_devnet) -> Tuple[BaseClient, BaseClient]:
-    devnet_address, _ = run_prepared_devnet
-    gateway_client = await DevnetClientFactory(
-        devnet_address
-    ).make_devnet_client_without_account()
-    full_node_client = await DevnetClientFactory(devnet_address).make_rpc_client()
-    return gateway_client, full_node_client
-
-
 @pytest.mark.asyncio
-async def test_get_transaction(clients):
+async def test_get_transaction(clients, deploy_transaction_hash, contract_address):
     for client in clients:
-        transaction = await client.get_transaction(DEPLOY_TRANSACTION_HASH)
+        transaction = await client.get_transaction(deploy_transaction_hash)
 
-        assert transaction.contract_address == CONTRACT_ADDRESS
+        assert transaction.contract_address == contract_address
         assert transaction.calldata == []
         assert transaction.entry_point_selector == 0
         assert transaction.transaction_type == TransactionType.DEPLOY
 
 
 @pytest.mark.asyncio
-async def test_get_block(clients):
+async def test_get_block(clients, deploy_transaction_hash):
     for client in clients:
         block = await client.get_block(block_number=0)
 
         assert block.block_number == 0
-        assert any(i.hash == DEPLOY_TRANSACTION_HASH for i in block.transactions)
+        assert any(i.hash == deploy_transaction_hash for i in block.transactions)
 
 
 @pytest.mark.asyncio
-async def test_get_storage_at(clients, block_hash):
+async def test_get_storage_at(clients, block_hash, contract_address):
     for client in clients:
         storage = await client.get_storage_at(
-            contract_address=CONTRACT_ADDRESS,
+            contract_address=contract_address,
             key=916907772491729262376534102982219947830828984996257231353398618781993312401,
             block_hash=block_hash,
         )
@@ -90,11 +59,11 @@ async def test_get_storage_at_incorrect_address(clients, block_hash):
 
 
 @pytest.mark.asyncio
-async def test_get_transaction_receipt(clients):
+async def test_get_transaction_receipt(clients, invoke_transaction_hash):
     for client in clients:
-        receipt = await client.get_transaction_receipt(tx_hash=INVOKE_TRANSACTION_HASH)
+        receipt = await client.get_transaction_receipt(tx_hash=invoke_transaction_hash)
 
-        assert receipt.hash == INVOKE_TRANSACTION_HASH
+        assert receipt.hash == invoke_transaction_hash
         assert receipt.status in (
             TransactionStatus.ACCEPTED_ON_L1,
             TransactionStatus.ACCEPTED_ON_L2,
@@ -102,9 +71,9 @@ async def test_get_transaction_receipt(clients):
 
 
 @pytest.mark.asyncio
-async def test_get_code(clients):
+async def test_get_code(clients, contract_address):
     for client in clients:
-        code = await client.get_code(contract_address=CONTRACT_ADDRESS)
+        code = await client.get_code(contract_address=contract_address)
 
         assert code.abi is not None
         assert len(code.abi) != 0
@@ -113,12 +82,12 @@ async def test_get_code(clients):
 
 
 @pytest.mark.asyncio
-async def test_estimate_fee(devnet_address):
+async def test_estimate_fee(devnet_address, contract_address):
     client = await DevnetClientFactory(
         devnet_address
     ).make_devnet_client_without_account()
     transaction = InvokeFunction(
-        contract_address=CONTRACT_ADDRESS,
+        contract_address=contract_address,
         entry_point_selector=get_selector_from_name("increase_balance"),
         calldata=[123],
         max_fee=0,
@@ -132,10 +101,10 @@ async def test_estimate_fee(devnet_address):
 
 
 @pytest.mark.asyncio
-async def test_call_contract(clients):
+async def test_call_contract(clients, contract_address):
     for client in clients:
         invoke_function = InvokeFunction(
-            contract_address=CONTRACT_ADDRESS,
+            contract_address=contract_address,
             entry_point_selector=get_selector_from_name("get_balance"),
             calldata=[],
             max_fee=0,
@@ -148,12 +117,12 @@ async def test_call_contract(clients):
 
 
 @pytest.mark.asyncio
-async def test_add_transaction(devnet_address):
+async def test_add_transaction(devnet_address, contract_address):
     client = await DevnetClientFactory(
         devnet_address
     ).make_devnet_client_without_account()
     invoke_function = InvokeFunction(
-        contract_address=CONTRACT_ADDRESS,
+        contract_address=contract_address,
         entry_point_selector=get_selector_from_name("increase_balance"),
         calldata=[0],
         max_fee=0,
@@ -162,7 +131,7 @@ async def test_add_transaction(devnet_address):
     )
     result = await client.add_transaction(invoke_function)
 
-    assert result.address == CONTRACT_ADDRESS
+    assert result.address == contract_address
     assert result.code == "TRANSACTION_RECEIVED"
 
 
