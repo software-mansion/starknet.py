@@ -16,7 +16,6 @@ from starknet_py.net.common_schemas.common_schemas import (
     StatusField,
 )
 
-# pylint: disable=unused-argument
 # pylint: disable=no-self-use
 
 
@@ -34,6 +33,7 @@ class TransactionSchema(Schema):
 
     @post_load
     def make_transaction(self, data, **kwargs) -> Transaction:
+        # pylint: disable=unused-argument
         if data["calldata"] is None:
             data["calldata"] = []
 
@@ -53,22 +53,24 @@ class EventSchema(Schema):
 class L1toL2MessageSchema(Schema):
     # TODO handle missing fields
     l1_address = Felt(data_key="from_address")
-    l2_address = Felt()
+    l2_address = Felt(load_default=0x0)
     payload = fields.List(Felt(), data_key="payload")
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> L1toL2Message:
+        # pylint: disable=unused-argument
         return L1toL2Message(**data)
 
 
 class L2toL1MessageSchema(Schema):
     # TODO handle missing fields
-    l2_address = Felt()
+    l2_address = Felt(load_default=0x0)
     l1_address = Felt(data_key="to_address")
     payload = fields.List(Felt(), data_key="payload")
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> L2toL1Message:
+        # pylint: disable=unused-argument
         return L2toL1Message(**data)
 
 
@@ -85,6 +87,7 @@ class TransactionReceiptSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> TransactionReceipt:
+        # pylint: disable=unused-argument
         return TransactionReceipt(**data)
 
 
@@ -94,6 +97,7 @@ class ContractCodeSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> ContractCode:
+        # pylint: disable=unused-argument
         parsed_json = json.loads(data["abi"])
         data["abi"] = parsed_json
         return ContractCode(**data)
@@ -112,6 +116,7 @@ class StarknetBlockSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> StarknetBlock:
+        # pylint: disable=unused-argument
         data["root"] = int(data["root"], 16)
 
         return StarknetBlock(**data)

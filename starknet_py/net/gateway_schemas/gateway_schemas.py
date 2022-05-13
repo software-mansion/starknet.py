@@ -29,12 +29,13 @@ class EventSchema(Schema):
 
 class L1toL2MessageSchema(Schema):
     # TODO handle missing fields
-    l1_address = Felt()
-    l2_address = Felt()
-    payload = fields.List(Felt())
+    l1_address = Felt(data_key="from_address")
+    l2_address = Felt(data_key="to_address")
+    payload = fields.List(Felt(), data_key="payload")
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> L1toL2Message:
+        # pylint: disable=unused-argument
         return L1toL2Message(**data)
 
 
@@ -45,6 +46,7 @@ class L2toL1MessageSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> L2toL1Message:
+        # pylint: disable=unused-argument
         return L2toL1Message(**data)
 
 
@@ -60,6 +62,7 @@ class TransactionSchema(Schema):
 
     @pre_load
     def preprocess(self, data, **kwargs):
+        # pylint: disable=unused-argument
         if "constructor_calldata" in data:
             data["calldata"] = data["constructor_calldata"]
             del data["constructor_calldata"]
@@ -67,7 +70,7 @@ class TransactionSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> Transaction:
-        # TODO handle kwargs
+        # pylint: disable=unused-argument
         if data["transaction_type"] == TransactionType.DEPLOY:
             data["entry_point_selector"] = 0
         return Transaction(**data)
@@ -104,11 +107,8 @@ class ContractCodeSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs):
+        # pylint: disable=unused-argument
         return ContractCode(bytecode=data["bytecode"], abi=data["abi"])
-
-
-class InvokeSpecificInfoSchema(Schema):
-    transaction = fields.Nested(TransactionSchema())
 
 
 class StarknetBlockSchema(Schema):
@@ -124,6 +124,7 @@ class StarknetBlockSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs):
+        # pylint: disable=unused-argument
         data["root"] = int(data["root"], 16)
         return StarknetBlock(**data)
 
@@ -136,15 +137,5 @@ class SentTransactionSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs):
+        # pylint: disable=unused-argument
         return SentTransaction(**data)
-
-
-# TODO remove?
-class FunctionCallSchema(Schema):
-    # TODO add data_keys
-    contract_address = Felt()
-    entry_point_selector = Felt()
-    calldata = fields.List(Felt())
-    signature = fields.List(Felt())
-    max_fee = Felt()
-    version = Felt()
