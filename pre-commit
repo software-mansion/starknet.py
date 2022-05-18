@@ -2,5 +2,3 @@
 
 poetry run poe format
 poetry run poe lint
-poetry run python convert_pyproject.py
-git add setup.py
