@@ -9,10 +9,16 @@ Using Client
 
     from starknet_py.contract import Contract
     from starknet_py.net import Client
+    from starknet_py.net.networks import TESTNET, MAINNET
 
     # Use testnet for playing with Starknet
-    testnet_client = Client("https://alpha4.starknet.io")
-    mainnet_client = Client("https://alpha-mainnet.starknet.io")
+    testnet_client = Client(TESTNET)
+    # or
+    testnet_client = Client("testnet")
+
+    mainnet_client = Client(MAINNET)
+    # or
+    mainnet_client = Client("mainnet")
 
     # Local network
     from starknet_py.net.models import StarknetChainId
@@ -25,7 +31,7 @@ synchronous version. It might be helpful to play with Starknet directly in pytho
 
 .. code-block:: python
 
-    synchronous_testnet_client = Client("testnet")
+    synchronous_testnet_client = Client(TESTNET)
     call_result = synchronous_testnet_client.get_block_sync("0x495c670c53e4e76d08292524299de3ba078348d861dd7b2c7cc4933dbc27943")
 
 You can see all Client's methods :obj:`here <starknet_py.net.Client>`.
@@ -40,9 +46,10 @@ Example usage:
 .. code-block:: python
 
     from starknet_py.net import AccountClient
+    from starknet_py.net.networks import TESTNET
 
     # Creates an account on local network and returns an instance
-    acc_client = await AccountClient.create_account(net="testnet")
+    acc_client = await AccountClient.create_account(net=TESTNET)
 
     # Deploy an example contract which implements a simple k-v store. Deploy transaction is not being signed.
     deployment_result = await Contract.deploy(
@@ -52,7 +59,7 @@ Example usage:
     await deployment_result.wait_for_acceptance()
 
     # Get deployed contract
-    map_contract = deployment_result.contract
+    map_contract = deployment_result.deployed_contract
     k, v = 13, 4324
     # Adds a transaction to mutate the state of k-v store. The call goes through account proxy, because we've used AccountClient to create the contract object
     await map_contract.functions["put"].invoke(k, v)
@@ -66,16 +73,20 @@ Using Contract
 
     from starknet_py.contract import Contract
     from starknet_py.net.client import Client
+    from starknet_py.net.networks import TESTNET
 
-    client = Client("testnet")
+    client = Client(TESTNET)
     key = 1234
 
     # Create contract from contract's address - Contract will download contract's ABI to know its interface.
-    contract = Contract.sync.from_address("0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b", client)
+    contract = await Contract.from_address("0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b", client)
+
+    # If the ABI is known, create the contract directly (this is the preferred way).
+    contract = Contract("0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b", abi, client)
 
     # All exposed functions are available at contract.functions.
     # Here we invoke a function, creating a new transaction.
-    invocation = await contract.functions["set_value"].invoke(key, 7)
+    invocation = await contract.functions["set_value"].invoke(key, 7, max_fee=0)
 
     # Invocation returns InvokeResult object. It exposes a helper for waiting until transaction is accepted.
     await invocation.wait_for_acceptance()

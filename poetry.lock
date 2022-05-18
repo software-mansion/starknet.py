@@ -240,7 +240,7 @@ python-versions = "~=3.7"
 
 [[package]]
 name = "cairo-lang"
-version = "0.8.1"
+version = "0.8.2.1"
 description = "Compiler and runner for the Cairo language"
 category = "main"
 optional = false
@@ -1748,14 +1748,14 @@ test = ["pytest"]
 
 [[package]]
 name = "starknet-devnet"
-version = "0.1.23"
+version = "0.2.1"
 description = "A local testnet for Starknet"
 category = "dev"
 optional = false
 python-versions = ">=3.7.2,<4.0.0"
 
 [package.dependencies]
-cairo-lang = "0.8.1"
+cairo-lang = "0.8.2.1"
 dill = ">=0.3.4,<0.4.0"
 Flask = {version = ">=2.0.3,<2.1.0", extras = ["async"]}
 flask-cors = ">=3.0.10,<3.1.0"
@@ -1990,7 +1990,7 @@ eth-tester = []
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.2,<3.10"
-content-hash = "d5d89670845824860752e6715c33c5602911ef2b9df728fbe249f854c6a14728"
+content-hash = "9a4fa3275a82a14db844eb0b6f7d5f4422f756527bc793fbb412d8b43f1a72cc"
 
 [metadata.files]
 aiohttp = [
@@ -2159,7 +2159,7 @@ cachetools = [
     {file = "cachetools-5.0.0.tar.gz", hash = "sha256:486471dfa8799eb7ec503a8059e263db000cdda20075ce5e48903087f79d5fd6"},
 ]
 cairo-lang = [
-    {file = "cairo-lang-0.8.1.zip", hash = "sha256:e0107576f9fe9a904ea945eb04d0f5be7892b8306ae7e95a5c7cdcd4c8703b9c"},
+    {file = "cairo-lang-0.8.2.1.zip", hash = "sha256:77e9a6add0c7fdf3a5eee8c146c6e498ad1a60c366de86c03768edef967c8b7a"},
 ]
 certifi = [
     {file = "certifi-2021.10.8-py2.py3-none-any.whl", hash = "sha256:d62a0163eb4c2344ac042ab2bdf75399a71a2d8c7d47eac2e2ee91b9d6339569"},
@@ -3070,8 +3070,8 @@ sphinxcontrib-serializinghtml = [
     {file = "sphinxcontrib_serializinghtml-1.1.5-py2.py3-none-any.whl", hash = "sha256:352a9a00ae864471d3a7ead8d7d79f5fc0b57e8b3f95e9867eb9eb28999b92fd"},
 ]
 starknet-devnet = [
-    {file = "starknet_devnet-0.1.23-py3-none-any.whl", hash = "sha256:22eeb25d5e0518aa6fd6af0daae37bf0a0e5547e14c3d2db77ccd87f5af193f5"},
-    {file = "starknet_devnet-0.1.23.tar.gz", hash = "sha256:51765dc402d93709c779c7387b25873c9518218d8b973e8127b34f455285287d"},
+    {file = "starknet_devnet-0.2.1-py3-none-any.whl", hash = "sha256:440af29bf7ff65cf9c06b74ee253c3bac565c2bcb8ea324de47e9666e89f9912"},
+    {file = "starknet_devnet-0.2.1.tar.gz", hash = "sha256:f6f20e5e942e00cf4a1861aee0a56b965f73332be0f1303dc80aee21ce824028"},
 ]
 sympy = [
     {file = "sympy-1.10.1-py3-none-any.whl", hash = "sha256:df75d738930f6fe9ebe7034e59d56698f29e85f443f743e51e47df0caccc2130"},
