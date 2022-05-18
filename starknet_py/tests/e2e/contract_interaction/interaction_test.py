@@ -317,6 +317,7 @@ async def test_wait_for_tx_devnet(run_devnet):
     await client.wait_for_tx(deployment.hash)
 
 
+@pytest.mark.run_on_testnet
 @pytest.mark.asyncio
 async def test_wait_for_tx_testnet():
     client = Client(net="testnet")
