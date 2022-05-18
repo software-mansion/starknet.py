@@ -56,3 +56,16 @@ def run_devnet(request):
 @pytest.fixture
 def run_net(request):
     return request.config.getoption("--net")
+
+
+def pytest_collection_modifyitems(config, items):
+    if config.getoption("--net") == "testnet":
+        skip_devnet = pytest.mark.skip()
+        for item in items:
+            if "run_on_testnet" not in item.keywords:
+                item.add_marker(skip_devnet)
+    else:
+        skip_testnet = pytest.mark.skip()
+        for item in items:
+            if "run_on_testnet" in item.keywords:
+                item.add_marker(skip_testnet)
