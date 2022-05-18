@@ -4,7 +4,7 @@ Contract
 .. py:module:: starknet_py.contract
 
 .. autoclass:: Contract
-    :members: from_address, __init__, functions, deploy, from_address_sync, deploy_sync, compute_address, compute_contract_hash
+    :members: from_address, __init__, functions, deploy, from_address_sync, deploy_sync, compute_address, compute_contract_hash, ProxyConfig
 
 .. autoclass:: ContractFunction
     :exclude-members: __init__, __new__
