@@ -12,8 +12,7 @@ from starkware.starknet.core.os.transaction_hash.transaction_hash import (
     TransactionHashPrefix,
 )
 
-from starknet_py.constants import MAINNET_ETH_CONTRACT, TESTNET_ETH_CONTRACT
-from starknet_py.net.client import BadRequest
+from starknet_py.constants import W_ETH_CONTRACT
 from starknet_py.utils.data_transformer.data_transformer import DataTransformer
 from starknet_py.net import Client
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
@@ -75,21 +74,24 @@ class AccountClient(Client):
         )
         return nonce
 
+    def _get_default_token_address(self) -> str:
+        if self.net not in [TESTNET, MAINNET]:
+            raise ValueError(
+                "Token_address must be specified when using a custom net address"
+            )
+
+        return W_ETH_CONTRACT
+
     async def get_balance(self, token_address: AddressRepresentation = None) -> int:
         """
-        Checks account's balance of specified token._
+        Checks account's balance of specified token.
 
         :param token_address: Address of the ERC20 contract.
-                              If not specified it will be mainnet or testnet payment token address.
-        :return: Account's balance of token.
+                              If not specified it will be wETH token address.
+        :return: Token balance
         """
-        if token_address is None:
-            if self.net == MAINNET:
-                token_address = MAINNET_ETH_CONTRACT
-            elif self.net == TESTNET:
-                token_address = TESTNET_ETH_CONTRACT
-            else:
-                raise BadRequest(200, "Specify token_address for custom url.")
+
+        token_address = token_address or self._get_default_token_address()
 
         [balance] = await super().call_contract(
             InvokeFunction(

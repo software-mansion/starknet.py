@@ -5,12 +5,12 @@ from unittest.mock import patch, MagicMock
 
 import pytest
 
-from starknet_py.constants import TESTNET_ETH_CONTRACT, MAINNET_ETH_CONTRACT
+from starknet_py.constants import W_ETH_CONTRACT
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient, KeyPair
-from starknet_py.net.client import BadRequest
 from starknet_py.net.models import StarknetChainId, InvokeFunction, parse_address
 from starknet_py.net.networks import TESTNET, MAINNET
+from starknet_py.tests.e2e.utils import DevnetClientFactory
 
 directory = os.path.dirname(__file__)
 map_source_code = Path(directory, "map.cairo").read_text("utf-8")
@@ -61,22 +61,20 @@ async def test_error_when_tx_signed(run_devnet):
 
 
 @pytest.mark.asyncio
-async def test_error_when_token_not_specified(run_devnet):
-    acc_client = await AccountClient.create_account(
-        net=run_devnet, chain=StarknetChainId.TESTNET
-    )
+async def test_get_balance_throws_when_token_not_specified(run_devnet):
+    acc_client = await DevnetClientFactory(run_devnet).make_devnet_client()
 
-    with pytest.raises(BadRequest) as b_req:
+    with pytest.raises(ValueError) as err:
         await acc_client.get_balance()
 
-    assert "Specify token_address for custom url." in str(b_req.value)
+    assert "Token_address must be specified when using a custom net address" in str(
+        err.value
+    )
 
 
 @pytest.mark.asyncio
 async def test_balance_when_token_specified(run_devnet):
-    acc_client = await AccountClient.create_account(
-        net=run_devnet, chain=StarknetChainId.TESTNET
-    )
+    acc_client = await DevnetClientFactory(run_devnet).make_devnet_client()
 
     deployment_result = await Contract.deploy(
         client=acc_client, compilation_source=erc20_mock_source_code
@@ -90,10 +88,9 @@ async def test_balance_when_token_specified(run_devnet):
 
 
 @pytest.mark.asyncio
-async def test_default_token_address():
-
-    acc_client_testnet = AccountClient("0x123", KeyPair(123, 456), TESTNET)
-    acc_client_mainnet = AccountClient("0x321", KeyPair(456, 123), MAINNET)
+@pytest.mark.parametrize("net", (TESTNET, MAINNET))
+async def test_get_balance_default_token_address(net):
+    acc_client = AccountClient("0x123", KeyPair(123, 456), net)
 
     with patch(
         "starknet_py.net.client.Client.call_contract", MagicMock()
@@ -103,15 +100,10 @@ async def test_default_token_address():
 
         mocked_call_contract.return_value = result
 
-        await acc_client_testnet.get_balance()
-        await acc_client_mainnet.get_balance()
+        await acc_client.get_balance()
 
-        calls = mocked_call_contract.call_args_list
+        call = mocked_call_contract.call_args
 
-    call_testnet, call_mainnet = calls[0], calls[1]
+    (invoke_tx,) = call[0]
 
-    (invoke_tx1,) = call_testnet[0]
-    (invoke_tx2,) = call_mainnet[0]
-
-    assert invoke_tx1.contract_address == parse_address(TESTNET_ETH_CONTRACT)
-    assert invoke_tx2.contract_address == parse_address(MAINNET_ETH_CONTRACT)
+    assert invoke_tx.contract_address == parse_address(W_ETH_CONTRACT)

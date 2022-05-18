@@ -10,5 +10,5 @@ ACCEPTED_STATUSES = (TxStatus.ACCEPTED_ON_L1, TxStatus.ACCEPTED_ON_L2)
 ROOT_DIR = os.path.realpath(os.path.join(os.path.dirname(__file__), "."))
 DEFAULT_CPP_LIB_PATH = os.path.join(ROOT_DIR, "utils", "crypto")
 
-MAINNET_ETH_CONTRACT = "0xc662c410C0ECf747543f5bA90660f6ABeBD9C8c4"
-TESTNET_ETH_CONTRACT = "0xde29d060D45901Fb19ED6C6e959EB22d8626708e"
+# Address came from starkware-libs/starknet-addresses repository: https://github.com/starkware-libs/starknet-addresses
+W_ETH_CONTRACT = "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7"
