@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 
-from starkware.starknet.public.abi import get_storage_var_address
-
+from starknet_py.constants import OZ_PROXY_STORAGE_KEY
 from starknet_py.net.models import parse_address
 
 
@@ -30,7 +29,7 @@ class ArgentProxyCheck(ProxyCheck):
 
 class OpenZeppelinProxyCheck(ProxyCheck):
     def __init__(self):
-        self.storage_key = generate_oz_storage_key()
+        self.storage_key = OZ_PROXY_STORAGE_KEY
 
     async def is_proxy(self, contract: "Contract") -> bool:
         return await self.implementation_address(contract) != 0
@@ -40,7 +39,3 @@ class OpenZeppelinProxyCheck(ProxyCheck):
             contract_address=contract.address, key=self.storage_key
         )
         return parse_address(res)
-
-
-def generate_oz_storage_key():
-    return get_storage_var_address("Proxy_implementation_address")
