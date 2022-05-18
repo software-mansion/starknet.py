@@ -1,7 +1,7 @@
+import asyncio
 import os.path
 from pathlib import Path
-from typing import List
-from unittest.mock import create_autospec, patch
+from unittest.mock import patch, MagicMock
 
 import pytest
 
@@ -89,27 +89,29 @@ async def test_balance_when_token_specified(run_devnet):
     assert balance == 200
 
 
-async def mocked_call_contract(self, invoke_tx: InvokeFunction) -> List[int]:
-    # pylint: disable=unused-argument
-    pass
-
-
 @pytest.mark.asyncio
 async def test_default_token_address():
+
     acc_client_testnet = AccountClient("0x123", KeyPair(123, 456), TESTNET)
     acc_client_mainnet = AccountClient("0x321", KeyPair(456, 123), MAINNET)
 
-    mock_function = create_autospec(mocked_call_contract, return_value=[0])
+    with patch(
+        "starknet_py.net.client.Client.call_contract", MagicMock()
+    ) as mocked_call_contract:
+        result = asyncio.Future()
+        result.set_result([0])
 
-    with patch("starknet_py.net.client.Client.call_contract", mock_function):
+        mocked_call_contract.return_value = result
+
         await acc_client_testnet.get_balance()
         await acc_client_mainnet.get_balance()
 
-    calls = mock_function.call_args_list
+        calls = mocked_call_contract.call_args_list
+
     call_testnet, call_mainnet = calls[0], calls[1]
 
-    _, invoke_tx1 = call_testnet[0]
-    _, invoke_tx2 = call_mainnet[0]
+    (invoke_tx1,) = call_testnet[0]
+    (invoke_tx2,) = call_mainnet[0]
 
     assert invoke_tx1.contract_address == parse_address(TESTNET_ETH_CONTRACT)
     assert invoke_tx2.contract_address == parse_address(MAINNET_ETH_CONTRACT)
