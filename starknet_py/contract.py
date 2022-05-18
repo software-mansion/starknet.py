@@ -392,7 +392,7 @@ class Contract:
         constructor_args: Optional[Union[List[any], dict]] = None,
         salt: Optional[int] = None,
         search_paths: Optional[List[str]] = None,
-    ) -> "Contract":
+    ) -> "DeployResult":
         # pylint: disable=too-many-arguments
         """
         Deploys a contract and waits until it has ``PENDING`` status.
@@ -405,7 +405,7 @@ class Contract:
         :param salt: Optional salt. Random value is selected if it is not provided.
         :param search_paths: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts.
         :raises: `ValueError` if neither compilation_source nor compiled_contract is provided.
-        :return: an initialized Contract instance
+        :return: DeployResult instance
         """
         if not compiled_contract and not compilation_source:
             raise ValueError(
