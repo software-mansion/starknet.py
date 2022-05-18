@@ -62,10 +62,11 @@ This is how we can interact with it:
 
     from starknet_py.net.client import Client
     from starknet_py.contract import Contract
+    from starknet_py.net.networks import TESTNET
 
-    contract = Contract(address=address, abi=abi, client=Client("testnet"))
+    contract = Contract(address=address, abi=abi, client=Client(TESTNET))
     # or
-    contract = await Contract.from_address(address, Client("testnet"))
+    contract = await Contract.from_address(address, Client(TESTNET))
 
     # Using only positional arguments
     invocation = await contract.functions["transferFrom"].invoke(sender, recipient, 10000)
@@ -146,13 +147,14 @@ Here's how you could sign an invocation:
     from starknet_py.utils.crypto.facade import sign_calldata
     from starknet_py.contract import Contract
     from starknet_py.net.client import Client
+    from starknet_py.net.networks import TESTNET
 
     contract_address = "0x00178130dd6286a9a0e031e4c73b2bd04ffa92804264a25c1c08c1612559f458"
     private_key = 12345
     public_key = 1628448741648245036800002906075225705100596136133912895015035902954123957052
     value = 340282366920938463463374607431768211583
 
-    contract = await Contract.from_address(contract_address, Client("testnet"))
+    contract = await Contract.from_address(contract_address, Client(TESTNET))
     prepared = contract.functions["set_balance"].prepare(user=public_key, amount=value)
     # Every transformed argument is stored in prepared.arguments
     # prepared.arguments = {"public_key": public_key, "amount": [127, 1]}
@@ -175,10 +177,11 @@ Here's how you can deploy new contracts:
     from starknet_py.net.client import Client
     from starknet_py.contract import Contract
     from pathlib import Path
+    from starknet_py.net.networks import TESTNET
 
     contract = """
     %lang starknet
-    %builtins pedersen
+    %builtins pedersen range_check
 
     from starkware.cairo.common.cairo_builtins import HashBuiltin
 
@@ -189,20 +192,21 @@ Here's how you can deploy new contracts:
     @constructor
     func constructor{
             syscall_ptr : felt*,
-            pedersen_ptr : HashBuiltin*
-        }(public_key: felt):
-        public_key.write(public_key)
+            pedersen_ptr : HashBuiltin*,
+            range_check_ptr
+        }(_public_key: felt):
+        public_key.write(_public_key)
         return()
     end
     """
 
-    client = Client("testnet")
+    client = Client(TESTNET)
 
     # Use list for positional arguments
     constructor_args = [123]
 
     # or use dict for keyword arguments
-    constructor_args = {"public_key": 123}
+    constructor_args = {"_public_key": 123}
 
     # contract as a string
     deployment_result = await Contract.deploy(
@@ -224,7 +228,7 @@ Here's how you can deploy new contracts:
     await deployment_result.wait_for_acceptance()
 
     # but you can access the deployed contract object even if has not been accepted yet
-    contract = deployment_result.contract
+    contract = deployment_result.deployed_contract
 
 
 Handling client errors
@@ -234,9 +238,10 @@ You can use ``starknet.net.client.BadRequest`` to catch errors from invalid requ
 .. code-block:: python
 
     from starknet_py.net.client import Client, BadRequest
+    from starknet_py.net.networks import TESTNET
     try:
         contract_address = 1 # Doesn't exist
-        await Contract.from_address(contract_address, Client("testnet"))
+        await Contract.from_address(contract_address, Client(TESTNET))
     except BadRequest as e:
         print(e.status_code, e.text)
 
@@ -401,6 +406,7 @@ The return value is an `int`, representing the number of unconsumed messages on 
     )
     from starknet_py.net.client import Client
     from starknet_py.net.models import StarknetChainId
+    from starknet_py.net.networks import TESTNET
 
     ## All of the construction methods shown below are correct:
 
@@ -419,12 +425,12 @@ The return value is an `int`, representing the number of unconsumed messages on 
     )
 
     # 3. From l2 (StarkNet) transaction receipt (provided by starknet.py, like shown below)
-    tx_receipt = await Client("testnet").get_transaction_receipt("0x123123123")
+    tx_receipt = await Client(TESTNET).get_transaction_receipt("0x123123123")
     sn_to_eth_msg = MessageToEth.from_tx_receipt(tx_receipt)
 
     # 4. From transaction hash (fetches the receipt for you)
     sn_to_eth_msg = await MessageToEth.from_tx_hash( # For sync version, use 'from_tx_hash_sync'
-        "0x123123123", Client("testnet")
+        "0x123123123", Client(TESTNET)
     )
 
     # After message construction, we can fetch queued messages count
