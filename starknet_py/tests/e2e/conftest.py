@@ -47,11 +47,6 @@ def run_devnet():
     proc.kill()
 
 
-@pytest.fixture
-def run_net(request):
-    return request.config.getoption("--net")
-
-
 def pytest_collection_modifyitems(config, items):
     if config.getoption("--net") == "all":
         return
