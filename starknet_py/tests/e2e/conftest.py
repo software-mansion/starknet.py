@@ -11,7 +11,7 @@ def pytest_addoption(parser):
         "--net",
         action="store",
         default="devnet",
-        help="Network to run tests on: possible 'testnet', 'devnet'",
+        help="Network to run tests on: possible 'testnet', 'devnet', 'all'",
     )
 
 
@@ -41,16 +41,10 @@ def start_devnet():
 
 
 @pytest.fixture(scope="module", autouse=True)
-def run_devnet(request):
-    net = request.config.getoption("--net")
-    if net == "devnet":
-        devnet_port, proc = start_devnet()
-        yield f"http://localhost:{devnet_port}"
-        proc.kill()
-    elif net == "testnet":
-        yield "testnet"
-    else:
-        raise ValueError("Not supported value provided for --net")
+def run_devnet():
+    devnet_port, proc = start_devnet()
+    yield f"http://localhost:{devnet_port}"
+    proc.kill()
 
 
 @pytest.fixture
@@ -59,13 +53,12 @@ def run_net(request):
 
 
 def pytest_collection_modifyitems(config, items):
-    if config.getoption("--net") == "testnet":
-        skip_devnet = pytest.mark.skip()
-        for item in items:
-            if "run_on_testnet" not in item.keywords:
-                item.add_marker(skip_devnet)
-    else:
-        skip_testnet = pytest.mark.skip()
-        for item in items:
-            if "run_on_testnet" in item.keywords:
-                item.add_marker(skip_testnet)
+    if config.getoption("--net") == "all":
+        return
+
+    run_testnet = config.getoption("--net") == "testnet"
+    for item in items:
+        runs_on_testnet = "run_on_testnet" in item.keywords
+        should_run = run_testnet == runs_on_testnet
+        if not should_run:
+            item.add_marker(pytest.mark.skip())
