@@ -50,6 +50,7 @@ class Client:
         host = net_address_from_net(net)
         retry_config = RetryConfig(n_retries)
         feeder_gateway_url = f"{host}/feeder_gateway"
+        self.net = net
         self.chain = chain_from_network(net, chain)
         self._feeder_gateway = FeederGatewayClient(
             url=feeder_gateway_url, retry_config=retry_config
