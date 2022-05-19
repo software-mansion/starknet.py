@@ -20,6 +20,7 @@ asgiref = "^3.4.1"
 sphinx = {version = "^4.3.1", optional = true}
 web3 = ">=5.28.0,<6"
 enum-tools = {extras = ["sphinx"], version = "0.9.0", optional = true}
+crypto-cpp-py = "^1.0.1"
 
 [tool.poetry.extras]
 docs = ["sphinx", "enum-tools"]
@@ -36,8 +37,8 @@ pylint = "^2.12.2"
 setuptools = "^60.0.3"
 pytest-mock = "^3.6.1"
 web3 = {extras=["tester"], version=">=5.28.0,<6"}
-starknet-devnet = "0.2.1"
 pytest-xdist = "^2.5.0"
+starknet-devnet = "0.2.1"
 
 [tool.poe.tasks]
 test = ["test_unit", "test_e2e"]
@@ -50,6 +51,7 @@ test_e2e.env = { COVERAGE_FILE="e2e.coverage", DEVNET_PORT="5001" }
 test_e2e_parallel.shell = """
     pytest -n auto --dist loadscope starknet_py/tests/e2e -v
 """
+test_e2e_parallel.env = { DEVNET_PORT="5002" }
 coverage_combine.shell = "coverage combine unit.coverage e2e.coverage"
 test_report = [{ shell = "poe coverage_combine" }, { shell = "coverage report" }]
 test_html = [
@@ -88,3 +90,8 @@ target-version = ["py37"]
 extend-exclude = """
 crypto-cpp
 """
+
+[tool.pytest.ini_options]
+markers = [
+    "run_on_testnet: marks test that will only run on testnet (when --net=test)"
+]
