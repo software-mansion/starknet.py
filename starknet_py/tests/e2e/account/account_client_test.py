@@ -8,7 +8,7 @@ import pytest
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient, KeyPair
-from starknet_py.net.models import StarknetChainId, InvokeFunction, parse_address
+from starknet_py.net.models import InvokeFunction, parse_address
 from starknet_py.net.networks import TESTNET, MAINNET
 from starknet_py.tests.e2e.utils import DevnetClientFactory
 
@@ -19,9 +19,7 @@ erc20_mock_source_code = Path(directory, "erc20_mock.cairo").read_text("utf-8")
 
 @pytest.mark.asyncio
 async def test_deploy_account_contract_and_sign_tx(run_devnet):
-    acc_client = await AccountClient.create_account(
-        net=run_devnet, chain=StarknetChainId.TESTNET
-    )
+    acc_client = await DevnetClientFactory(run_devnet).make_devnet_client()
 
     deployment_result = await Contract.deploy(
         client=acc_client, compilation_source=map_source_code
@@ -40,9 +38,7 @@ async def test_deploy_account_contract_and_sign_tx(run_devnet):
 
 @pytest.mark.asyncio
 async def test_error_when_tx_signed(run_devnet):
-    acc_client = await AccountClient.create_account(
-        net=run_devnet, chain=StarknetChainId.TESTNET
-    )
+    acc_client = await DevnetClientFactory(run_devnet).make_devnet_client()
 
     invoke_function = InvokeFunction(
         contract_address=123,
