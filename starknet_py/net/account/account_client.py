@@ -82,7 +82,9 @@ class AccountClient(Client):
 
         return FEE_CONTRACT_ADDRESS
 
-    async def get_balance(self, token_address: Optional[AddressRepresentation] = None) -> int:
+    async def get_balance(
+        self, token_address: Optional[AddressRepresentation] = None
+    ) -> int:
         """
         Checks account's balance of specified token.
 
