@@ -320,6 +320,14 @@ python-versions = ">=3.7"
 toml = ["tomli"]
 
 [[package]]
+name = "crypto-cpp-py"
+version = "1.0.1"
+description = "This is a packaged crypto-cpp program"
+category = "main"
+optional = false
+python-versions = ">=3.7.2,<3.10"
+
+[[package]]
 name = "cssutils"
 version = "2.4.0"
 description = "A CSS Cascading Style Sheets library for Python"
@@ -1990,7 +1998,7 @@ eth-tester = []
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.2,<3.10"
-content-hash = "9a4fa3275a82a14db844eb0b6f7d5f4422f756527bc793fbb412d8b43f1a72cc"
+content-hash = "468c768b47abd88af86956a8c7b1b2c40dbb9a95c26fb0312826b18dc2c3a4e2"
 
 [metadata.files]
 aiohttp = [
@@ -2219,6 +2227,46 @@ coverage = [
     {file = "coverage-6.3.2-cp39-cp39-win_amd64.whl", hash = "sha256:9548f10d8be799551eb3a9c74bbf2b4934ddb330e08a73320123c07f95cc2d92"},
     {file = "coverage-6.3.2-pp36.pp37.pp38-none-any.whl", hash = "sha256:18d520c6860515a771708937d2f78f63cc47ab3b80cb78e86573b0a760161faf"},
     {file = "coverage-6.3.2.tar.gz", hash = "sha256:03e2a7826086b91ef345ff18742ee9fc47a6839ccd517061ef8fa1976e652ce9"},
+]
+crypto-cpp-py = [
+    {file = "crypto_cpp_py-1.0.1-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:17378094d122587cf5564b6ca5e11bb2763b7b6e163cd510b8312f0292eee56d"},
+    {file = "crypto_cpp_py-1.0.1-cp37-cp37m-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:a03c2a272ad902ded4673554cc2bb6ccc95fd4920e544d3fe7a66ba004ec89ae"},
+    {file = "crypto_cpp_py-1.0.1-cp37-cp37m-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:be0b2d0028b7feb0ad15738a0ebc092be90a123b3f7f14c2d0ec5f14941eb957"},
+    {file = "crypto_cpp_py-1.0.1-cp37-cp37m-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:07af6da16b78dde7f17ff4746af20c858fcb3b770d8ec410543cf8726a603e3f"},
+    {file = "crypto_cpp_py-1.0.1-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:2e92e220ea54a5be30f5e22aa27d7a98b445f53c89b810d6e1b6519a44990a9e"},
+    {file = "crypto_cpp_py-1.0.1-cp37-cp37m-musllinux_1_1_aarch64.whl", hash = "sha256:2be139d1220fe994d27028e8bfba2e689e00e5b6240aaf6dd45a9348847b9cf3"},
+    {file = "crypto_cpp_py-1.0.1-cp37-cp37m-musllinux_1_1_ppc64le.whl", hash = "sha256:469c9ba2bba9a6db061cc619eecf476db4dcaaeb381decf429432bdec997a5c7"},
+    {file = "crypto_cpp_py-1.0.1-cp37-cp37m-musllinux_1_1_s390x.whl", hash = "sha256:de754719fcac9f6ec25d33ff8214b1eb37486cd2e7e2f72504e2cf28f3bb8fdb"},
+    {file = "crypto_cpp_py-1.0.1-cp37-cp37m-musllinux_1_1_x86_64.whl", hash = "sha256:e82648a9273b1d87c1b50fc7dda930465ee6956d9e99be7d571b93ccdfc528ad"},
+    {file = "crypto_cpp_py-1.0.1-cp37-cp37m-win32.whl", hash = "sha256:565ed0b4d3f9f54cfdf6ed53ed1dd38fa0072d006983cc691081aa07f4cfd3ff"},
+    {file = "crypto_cpp_py-1.0.1-cp37-cp37m-win_amd64.whl", hash = "sha256:985b4f0cd3df027a29c30c59da1df7446e8d07ca4634758ee6967eae7f7f042c"},
+    {file = "crypto_cpp_py-1.0.1-cp38-cp38-macosx_10_9_universal2.whl", hash = "sha256:398f71f425c0a908f0807fdf5b8b646638107de3d49c3bbc5c6c7eba1b8d8675"},
+    {file = "crypto_cpp_py-1.0.1-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:8dcce34ef29df722a0f0ae82b5972f3e7c646440480a74514b69cb254193e3b8"},
+    {file = "crypto_cpp_py-1.0.1-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:406d73ca11c1f5b872ad7f01fd1b40706b62840d8c16e6ee9ecc2c4d04758dcb"},
+    {file = "crypto_cpp_py-1.0.1-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:3561451a90fe1b3d37e909583ec4b7d1c1d4f0e4e951d07152e35d374cb55696"},
+    {file = "crypto_cpp_py-1.0.1-cp38-cp38-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:db73cb30553ac85aaaa3e005cc1e5b634df18bc3a2e4dea0bf8aaa2b8af54c74"},
+    {file = "crypto_cpp_py-1.0.1-cp38-cp38-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:02027b911f07cffb94a62c46faef72374b3dab45254f0dd30b3fbdd288b74070"},
+    {file = "crypto_cpp_py-1.0.1-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:8084d90e14c0d81648536b7f74f3059fe78b4edd3dab590b6285dcc412d0ec17"},
+    {file = "crypto_cpp_py-1.0.1-cp38-cp38-musllinux_1_1_aarch64.whl", hash = "sha256:d0c48b0121d6b4ea0dc3c5d83152a633ff85ebfc6507f4be3e8fe870d3877a52"},
+    {file = "crypto_cpp_py-1.0.1-cp38-cp38-musllinux_1_1_ppc64le.whl", hash = "sha256:d3388757b508ef8cc91afb592192b36141c8757e83b863d57be293b1d5780936"},
+    {file = "crypto_cpp_py-1.0.1-cp38-cp38-musllinux_1_1_s390x.whl", hash = "sha256:8fc3656ec2f56695876ba18485d880a2fd111503596abb0d13d836f08cb1787c"},
+    {file = "crypto_cpp_py-1.0.1-cp38-cp38-musllinux_1_1_x86_64.whl", hash = "sha256:e38033948c4b91f0808fc268ba17c348648000d08bd4218e6cf5f0b4c5feb258"},
+    {file = "crypto_cpp_py-1.0.1-cp38-cp38-win32.whl", hash = "sha256:1fd29f849ba88b91458c8914058a5f9219328ce5416b92864d42e060fc397c8b"},
+    {file = "crypto_cpp_py-1.0.1-cp38-cp38-win_amd64.whl", hash = "sha256:e689e961a7658dd0777e59a99a843e1e209a4694cbc8f6f345265a61a75c0d56"},
+    {file = "crypto_cpp_py-1.0.1-cp39-cp39-macosx_10_9_universal2.whl", hash = "sha256:bf5613a80a840702075e4de5df8c5a0440e25554daeb9bb564f07a7bbae8602e"},
+    {file = "crypto_cpp_py-1.0.1-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:872a2d556949c51a54438389df53b4fa77d18947e1a86dc4eafd2ee6a2c2961e"},
+    {file = "crypto_cpp_py-1.0.1-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:829cbea7177256026e4dd6697f7ba5cd5d08ab37dff8541f337a67dd439e998f"},
+    {file = "crypto_cpp_py-1.0.1-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:0ec640879c889f54684159aa423f1e3d7db0c781a4ffa194d4efff6bf41f5ec8"},
+    {file = "crypto_cpp_py-1.0.1-cp39-cp39-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:8c98cdded22ae9f9f79db859777822b51b23cbc333a2c9011759cca6edd23897"},
+    {file = "crypto_cpp_py-1.0.1-cp39-cp39-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:330ce5cba3cbbd95d2e9bec3c880008a2828dfc33f9ced6f24c9fc8cc83fbc86"},
+    {file = "crypto_cpp_py-1.0.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:686e2b09de24eff2bcd63c2f680300ba90fbe54765a572c30ff713d4bd97b7d8"},
+    {file = "crypto_cpp_py-1.0.1-cp39-cp39-musllinux_1_1_aarch64.whl", hash = "sha256:850ec333dfee44ebc5fdce29c9423cfb59c8f35767e1b3777062f15bd8893c4a"},
+    {file = "crypto_cpp_py-1.0.1-cp39-cp39-musllinux_1_1_ppc64le.whl", hash = "sha256:ed0d3429531c7b94bb14ca5a746ae47fc5f33e34717d6cf0324e7638e7590e37"},
+    {file = "crypto_cpp_py-1.0.1-cp39-cp39-musllinux_1_1_s390x.whl", hash = "sha256:b8baa561b6adc4783cf38e8279ac238352fc47d4531eb61007ae0e78ba64c083"},
+    {file = "crypto_cpp_py-1.0.1-cp39-cp39-musllinux_1_1_x86_64.whl", hash = "sha256:b73c01e259c006c3fe786a6023a22afdc41aa74562327fd0c2f09f2e2b283787"},
+    {file = "crypto_cpp_py-1.0.1-cp39-cp39-win32.whl", hash = "sha256:82e41717c9006b95068ab614d85f06e5dcdb9274e6288df92098416e98abaaed"},
+    {file = "crypto_cpp_py-1.0.1-cp39-cp39-win_amd64.whl", hash = "sha256:62e6697a8b270533ef124e39229d05f8d2bde4e48a41efc7419d49813a4f235b"},
+    {file = "crypto_cpp_py-1.0.1.tar.gz", hash = "sha256:9499aa10c607d1873d6cbf0cd6aa24b4bc3bcec9c99a579fdf02fd5aa9fc40a6"},
 ]
 cssutils = [
     {file = "cssutils-2.4.0-py3-none-any.whl", hash = "sha256:6c7ab239b432c157cd55303993935b92be07272e694d66c75b95eb56928936f6"},

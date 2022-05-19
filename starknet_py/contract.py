@@ -1,7 +1,18 @@
+from __future__ import annotations
+
 import dataclasses
+import sys
 from dataclasses import dataclass
 from functools import lru_cache
-from typing import List, Optional, TypeVar, Union, Dict, Collection, NamedTuple
+from typing import (
+    List,
+    Optional,
+    TypeVar,
+    Union,
+    Dict,
+    Collection,
+    NamedTuple,
+)
 
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
 from starkware.starknet.core.os.contract_hash import compute_contract_hash
@@ -14,6 +25,7 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
 from starkware.starkware_utils.error_handling import StarkErrorCode
 from starknet_py.compile.compiler import Compiler, create_contract_definition
 
+from starknet_py.proxy_check import ProxyCheck, ArgentProxyCheck, OpenZeppelinProxyCheck
 from starknet_py.net import Client
 from starknet_py.net.models import (
     InvokeFunction,
@@ -27,6 +39,12 @@ from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.utils.crypto.facade import pedersen_hash
 from starknet_py.utils.data_transformer import DataTransformer
 from starknet_py.utils.sync import add_sync_methods
+
+if sys.version_info >= (3, 8):
+    from typing import TypedDict
+else:
+    from typing_extensions import TypedDict
+
 
 ABI = list
 ABIEntry = dict
@@ -354,8 +372,9 @@ class Contract:
         :param abi: contract's abi
         :param client: client used for API calls
         """
-        self._data = ContractData.from_abi(parse_address(address), abi)
-        self._functions = self._make_functions(self._data, client)
+        self.data = ContractData.from_abi(parse_address(address), abi)
+        self._functions = self._make_functions(self.data, client)
+        self.client = client
 
     @property
     def functions(self) -> FunctionsRepository:
@@ -366,11 +385,28 @@ class Contract:
 
     @property
     def address(self) -> int:
-        return self._data.address
+        return self.data.address
+
+    class ProxyConfig(TypedDict, total=False):
+        """
+        Proxy resolving configuration
+        """
+
+        max_steps: int
+        """
+        Max number of contracts that `Contract.from_address` will process before raising `RecursionError`.
+        """
+        proxy_checks: List[ProxyCheck]
+        """
+        List of classes implementing :class:`starknet_py.proxy_check.ProxyCheck` ABC,
+        that will be used for checking if contract at the address is a proxy contract.
+        """
 
     @staticmethod
     async def from_address(
-        address: AddressRepresentation, client: Client
+        address: AddressRepresentation,
+        client: Client,
+        proxy_config: Union[bool, ProxyConfig] = False,
     ) -> "Contract":
         """
         Fetches ABI for given contract and creates a new Contract instance with it. If you know ABI statically you
@@ -379,10 +415,33 @@ class Contract:
         :raises BadRequest: when contract is not found
         :param address: Contract's address
         :param client: Client used
+        :param proxy_config: Proxy resolving config
+        If set to ``True``, will use default proxy checks and :class:`starknet_py.proxy_check.OpenZeppelinProxyCheck`
+        and :class:`starknet_py.proxy_check.ArgentProxyCheck` and default max_steps = 5.
+
+        If set to ``False``, :meth:`Contract.from_address` will not resolve proxies.
+
+        If a valid `ProxyConfig` is provided, will use values from that instead supplementing with defaults when needed.
+
         :return: an initialized Contract instance
         """
-        code = await client.get_code(contract_address=parse_address(address))
-        return Contract(address=parse_address(address), abi=code["abi"], client=client)
+        default_config: Contract.ProxyConfig = {
+            "max_steps": 5,
+            "proxy_checks": [ArgentProxyCheck(), OpenZeppelinProxyCheck()],
+        }
+        if isinstance(proxy_config, bool):
+            proxy_config = default_config if proxy_config else {}
+        else:
+            proxy_config = {**default_config, **proxy_config}
+
+        contract = await ContractFromAddressFactory(
+            address=address,
+            client=client,
+            max_steps=proxy_config.get("max_steps", 1),
+            proxy_checks=proxy_config.get("proxy_checks", []),
+        ).make_contract()
+
+        return Contract(address=address, abi=contract.data.abi, client=client)
 
     @staticmethod
     async def deploy(
@@ -558,3 +617,52 @@ class Contract:
             )
 
         return repository
+
+
+class ContractFromAddressFactory:
+    def __init__(
+        self,
+        address: AddressRepresentation,
+        client: Client,
+        max_steps: int,
+        proxy_checks: List[ProxyCheck],
+    ):
+        self._address = address
+        self._client = client
+        self._max_steps = max_steps
+        self._proxy_checks = proxy_checks
+        self._processed_addresses = set()
+
+    async def make_contract(self) -> Contract:
+        return await self._make_contract_recursively(step=1, address=self._address)
+
+    async def _make_contract_recursively(
+        self, step: int, address: AddressRepresentation
+    ) -> Contract:
+        if address in self._processed_addresses:
+            raise RecursionError("Proxy cycle detected while resolving proxies")
+
+        if step > self._max_steps:
+            raise RecursionError("Max number of steps exceeded while resolving proxies")
+
+        code = await self._client.get_code(contract_address=parse_address(address))
+        contract = Contract(
+            address=parse_address(address), abi=code["abi"], client=self._client
+        )
+        self._processed_addresses.add(address)
+
+        is_proxy = False
+        address = 0
+        for proxy_check in self._proxy_checks:
+            if await proxy_check.is_proxy(contract):
+                is_proxy = True
+                address = await proxy_check.implementation_address(contract)
+                break
+
+        if not is_proxy:
+            return contract
+
+        return await self._make_contract_recursively(
+            address=address,
+            step=step + 1,
+        )
