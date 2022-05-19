@@ -11,4 +11,6 @@ ROOT_DIR = os.path.realpath(os.path.join(os.path.dirname(__file__), "."))
 DEFAULT_CPP_LIB_PATH = os.path.join(ROOT_DIR, "utils", "crypto")
 
 # Address came from starkware-libs/starknet-addresses repository: https://github.com/starkware-libs/starknet-addresses
-W_ETH_CONTRACT = "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7"
+FEE_CONTRACT_ADDRESS = (
+    "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7"
+)

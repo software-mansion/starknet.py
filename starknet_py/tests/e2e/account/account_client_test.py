@@ -5,7 +5,7 @@ from unittest.mock import patch, MagicMock
 
 import pytest
 
-from starknet_py.constants import W_ETH_CONTRACT
+from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient, KeyPair
 from starknet_py.net.models import StarknetChainId, InvokeFunction, parse_address
@@ -96,7 +96,7 @@ async def test_get_balance_default_token_address(net):
         "starknet_py.net.client.Client.call_contract", MagicMock()
     ) as mocked_call_contract:
         result = asyncio.Future()
-        result.set_result([0])
+        result.set_result([0, 0])
 
         mocked_call_contract.return_value = result
 
@@ -106,4 +106,4 @@ async def test_get_balance_default_token_address(net):
 
     (invoke_tx,) = call[0]
 
-    assert invoke_tx.contract_address == parse_address(W_ETH_CONTRACT)
+    assert invoke_tx.contract_address == parse_address(FEE_CONTRACT_ADDRESS)

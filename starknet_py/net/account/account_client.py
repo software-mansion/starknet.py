@@ -12,7 +12,7 @@ from starkware.starknet.core.os.transaction_hash.transaction_hash import (
     TransactionHashPrefix,
 )
 
-from starknet_py.constants import W_ETH_CONTRACT
+from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.utils.data_transformer.data_transformer import DataTransformer
 from starknet_py.net import Client
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
@@ -80,20 +80,20 @@ class AccountClient(Client):
                 "Token_address must be specified when using a custom net address"
             )
 
-        return W_ETH_CONTRACT
+        return FEE_CONTRACT_ADDRESS
 
-    async def get_balance(self, token_address: AddressRepresentation = None) -> int:
+    async def get_balance(self, token_address: Optional[AddressRepresentation] = None) -> int:
         """
         Checks account's balance of specified token.
 
         :param token_address: Address of the ERC20 contract.
-                              If not specified it will be wETH token address.
+                              If not specified it will be payment token (wrapped ETH) address.
         :return: Token balance
         """
 
         token_address = token_address or self._get_default_token_address()
 
-        [balance] = await super().call_contract(
+        low, high = await super().call_contract(
             InvokeFunction(
                 contract_address=parse_address(token_address),
                 entry_point_selector=get_selector_from_name("balanceOf"),
@@ -103,7 +103,8 @@ class AccountClient(Client):
                 version=0,
             )
         )
-        return balance
+
+        return (high << 128) + low
 
     async def add_transaction(
         self,
