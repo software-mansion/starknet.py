@@ -2,3 +2,5 @@
 
 poetry run poe format
 poetry run poe lint
+poetry export -f requirements.txt --output requirements.txt --without-hashes --extras docs
+git add requirements.txt
