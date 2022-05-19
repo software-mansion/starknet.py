@@ -25,7 +25,7 @@ Setup
 
 Crypto-cpp
 ----------
-By default, the library uses ``crypto-cpp``. To use python implementation instead, ``DISABLE_CRYPTO_C_EXTENSION`` environment variable can be set to ``false``
+By default, the library uses `crypto_cpp_py <https://github.com/software-mansion-labs/crypto-cpp-py/>`_. To use python implementation instead, ``DISABLE_CRYPTO_C_EXTENSION`` environment variable can be set to ``false``
 
 .. code-block:: sh
 
