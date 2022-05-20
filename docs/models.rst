@@ -16,7 +16,6 @@ Module containing base models and functions to operate on them.
 
 
 .. autoenum:: TransactionType
-    :members:
 
 .. autoenum:: StarknetChainId
     :members:
