@@ -16,8 +16,10 @@ Module containing base models and functions to operate on them.
 
 
 .. autoenum:: TransactionType
+    :members:
 
 .. autoenum:: StarknetChainId
+    :members:
 
 .. autofunction:: compute_deploy_hash
 .. autofunction:: compute_invoke_hash

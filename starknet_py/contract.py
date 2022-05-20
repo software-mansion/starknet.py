@@ -416,12 +416,14 @@ class Contract:
         :param address: Contract's address
         :param client: Client used
         :param proxy_config: Proxy resolving config
-        If set to ``True``, will use default proxy checks and :class:`starknet_py.proxy_check.OpenZeppelinProxyCheck`
-        and :class:`starknet_py.proxy_check.ArgentProxyCheck` and default max_steps = 5.
+            If set to ``True``, will use default proxy checks and :class:
+            `starknet_py.proxy_check.OpenZeppelinProxyCheck`
+            and :class:`starknet_py.proxy_check.ArgentProxyCheck` and default max_steps = 5.
 
-        If set to ``False``, :meth:`Contract.from_address` will not resolve proxies.
+            If set to ``False``, :meth:`Contract.from_address` will not resolve proxies.
 
-        If a valid `ProxyConfig` is provided, will use values from that instead supplementing with defaults when needed.
+            If a valid `ProxyConfig` is provided, will use values from that instead supplementing
+            with defaults when needed.
 
         :return: an initialized Contract instance
         """
