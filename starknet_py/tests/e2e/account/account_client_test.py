@@ -103,3 +103,28 @@ async def test_get_balance_default_token_address(net):
     (invoke_tx,) = call[0]
 
     assert invoke_tx.contract_address == parse_address(FEE_CONTRACT_ADDRESS)
+
+
+@pytest.mark.asyncio
+async def test_estimate_fee_called(run_devnet):
+    acc_client = await DevnetClientFactory(run_devnet).make_devnet_client()
+
+    deployment_result = await Contract.deploy(
+        client=acc_client, compilation_source=erc20_mock_source_code
+    )
+    deployment_result = await deployment_result.wait_for_acceptance()
+    erc20_contract = deployment_result.deployed_contract
+
+    with patch(
+        "starknet_py.net.account.account_client.AccountClient.estimate_fee", MagicMock()
+    ) as mocked_estimate_fee:
+        result = asyncio.Future()
+        result.set_result([0])
+
+        mocked_estimate_fee.return_value = result
+
+        await erc20_contract.functions["balanceOf"].prepare(
+            "1234", max_fee=0
+        ).estimate_fee()
+
+        mocked_estimate_fee.assert_called()
