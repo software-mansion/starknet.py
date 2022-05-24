@@ -94,7 +94,7 @@ Signing a single transaction
 ----------------------------
 You can use :obj:`ContractFunction's call <starknet_py.contract.ContractFunction.prepare>` to get calldata's parts and generate a signature from them. Here's a contract inspired by `Starknet's docs <https://www.cairo-lang.org/docs/hello_starknet/user_auth.html>`_:
 
-.. code-block:: cairo
+.. code-block:: text
 
     %lang starknet
 
