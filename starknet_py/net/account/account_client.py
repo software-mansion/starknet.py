@@ -108,10 +108,7 @@ class AccountClient(Client):
 
         return (high << 128) + low
 
-    async def _prepare_invoke_function(
-            self,
-            tx: InvokeFunction
-    ) -> InvokeFunction:
+    async def _prepare_invoke_function(self, tx: InvokeFunction) -> InvokeFunction:
         nonce = await self._get_nonce()
 
         calldata_py = [
@@ -180,9 +177,7 @@ class AccountClient(Client):
                 "Adding signatures to a signer tx currently isn't supported"
             )
 
-        return await super().add_transaction(
-            await self._prepare_invoke_function(tx)
-        )
+        return await super().add_transaction(await self._prepare_invoke_function(tx))
 
     async def estimate_fee(
         self,
@@ -192,9 +187,7 @@ class AccountClient(Client):
         :param tx: Transaction which fee we want to calculate
         :return: Estimated fee
         """
-        return await super().estimate_fee(
-            await self._prepare_invoke_function(tx)
-        )
+        return await super().estimate_fee(await self._prepare_invoke_function(tx))
 
     @staticmethod
     async def create_account(
