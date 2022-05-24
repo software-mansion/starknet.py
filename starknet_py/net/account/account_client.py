@@ -108,25 +108,10 @@ class AccountClient(Client):
 
         return (high << 128) + low
 
-    async def add_transaction(
-        self,
-        tx: InvokeFunction,
-        token: Optional[str] = None,
-    ) -> Dict[str, int]:
-        """
-        :param tx: Transaction which invokes another contract through account proxy.
-                   Signed transactions aren't supported at the moment
-        :param token: Optional token for Starknet API access, appended in a query string
-        :return: API response dictionary with `code`, `transaction_hash`
-        """
-        if tx.tx_type == TransactionType.DEPLOY:
-            return await super().add_transaction(tx, token)
-
-        if tx.signature:
-            raise TypeError(
-                "Adding signatures to a signer tx currently isn't supported"
-            )
-
+    async def _prepare_invoke_function(
+            self,
+            tx: InvokeFunction
+    ) -> InvokeFunction:
         nonce = await self._get_nonce()
 
         calldata_py = [
@@ -167,15 +152,48 @@ class AccountClient(Client):
         # pylint: disable=invalid-name
         r, s = message_signature(msg_hash=hash_new, priv_key=self.private_key)
 
-        return await super().add_transaction(
-            InvokeFunction(
-                entry_point_selector=get_selector_from_name("__execute__"),
-                calldata=wrapped_calldata,
-                contract_address=self.address,
-                signature=[r, s],
-                max_fee=tx.max_fee,
-                version=0,
+        return InvokeFunction(
+            entry_point_selector=get_selector_from_name("__execute__"),
+            calldata=wrapped_calldata,
+            contract_address=self.address,
+            signature=[r, s],
+            max_fee=tx.max_fee,
+            version=0,
+        )
+
+    async def add_transaction(
+        self,
+        tx: InvokeFunction,
+        token: Optional[str] = None,
+    ) -> Dict[str, int]:
+        """
+        :param tx: Transaction which invokes another contract through account proxy.
+                   Signed transactions aren't supported at the moment
+        :param token: Optional token for Starknet API access, appended in a query string
+        :return: API response dictionary with `code`, `transaction_hash`
+        """
+        if tx.tx_type == TransactionType.DEPLOY:
+            return await super().add_transaction(tx, token)
+
+        if tx.signature:
+            raise TypeError(
+                "Adding signatures to a signer tx currently isn't supported"
             )
+
+        return await super().add_transaction(
+            await self._prepare_invoke_function(tx)
+        )
+
+    async def estimate_fee(
+        self,
+        tx: InvokeFunction,
+    ) -> int:
+        """
+        :param tx: Transaction which fee we want to calculate
+        :return: Estimated fee
+        """
+        return await super().estimate_fee(
+            await self._prepare_invoke_function(tx)
         )
 
     @staticmethod
