@@ -11,8 +11,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-        with:
-          submodules: recursive
 
       - uses: actions/setup-python@v2
 
@@ -27,9 +25,6 @@ jobs:
 
       - name: Install poetry
         run: python -X utf8 -m pip install poetry
-
-      - name: Convert setup.py
-        run: python  -X utf8 convert_pyproject.py build_crypto_extension
 
       - name: Set up MinGW
         if: runner.os == 'Windows'
@@ -56,8 +51,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-        with:
-          submodules: true
 
       - name: Install poetry
         run: python -X utf8 -m pip install poetry

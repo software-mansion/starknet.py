@@ -12,11 +12,12 @@ from starkware.starknet.core.os.transaction_hash.transaction_hash import (
     TransactionHashPrefix,
 )
 
+from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.utils.data_transformer.data_transformer import DataTransformer
 from starknet_py.net import Client
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
 from starknet_py.net.models import InvokeFunction, StarknetChainId, TransactionType
-from starknet_py.net.networks import Network
+from starknet_py.net.networks import Network, MAINNET, TESTNET
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.crypto.facade import message_signature
 from starknet_py.net.models.address import AddressRepresentation, parse_address
@@ -73,25 +74,41 @@ class AccountClient(Client):
         )
         return nonce
 
-    async def add_transaction(
-        self,
-        tx: InvokeFunction,
-        token: Optional[str] = None,
-    ) -> Dict[str, int]:
-        """
-        :param tx: Transaction which invokes another contract through account proxy.
-                   Signed transactions aren't supported at the moment
-        :param token: Optional token for Starknet API access, appended in a query string
-        :return: API response dictionary with `code`, `transaction_hash`
-        """
-        if tx.tx_type == TransactionType.DEPLOY:
-            return await super().add_transaction(tx, token)
-
-        if tx.signature:
-            raise TypeError(
-                "Adding signatures to a signer tx currently isn't supported"
+    def _get_default_token_address(self) -> str:
+        if self.net not in [TESTNET, MAINNET]:
+            raise ValueError(
+                "Token_address must be specified when using a custom net address"
             )
 
+        return FEE_CONTRACT_ADDRESS
+
+    async def get_balance(
+        self, token_address: Optional[AddressRepresentation] = None
+    ) -> int:
+        """
+        Checks account's balance of specified token.
+
+        :param token_address: Address of the ERC20 contract.
+                              If not specified it will be payment token (wrapped ETH) address.
+        :return: Token balance
+        """
+
+        token_address = token_address or self._get_default_token_address()
+
+        low, high = await super().call_contract(
+            InvokeFunction(
+                contract_address=parse_address(token_address),
+                entry_point_selector=get_selector_from_name("balanceOf"),
+                calldata=[self.address],
+                signature=[],
+                max_fee=0,
+                version=0,
+            )
+        )
+
+        return (high << 128) + low
+
+    async def _prepare_invoke_function(self, tx: InvokeFunction) -> InvokeFunction:
         nonce = await self._get_nonce()
 
         calldata_py = [
@@ -132,16 +149,45 @@ class AccountClient(Client):
         # pylint: disable=invalid-name
         r, s = message_signature(msg_hash=hash_new, priv_key=self.private_key)
 
-        return await super().add_transaction(
-            InvokeFunction(
-                entry_point_selector=get_selector_from_name("__execute__"),
-                calldata=wrapped_calldata,
-                contract_address=self.address,
-                signature=[r, s],
-                max_fee=tx.max_fee,
-                version=0,
-            )
+        return InvokeFunction(
+            entry_point_selector=get_selector_from_name("__execute__"),
+            calldata=wrapped_calldata,
+            contract_address=self.address,
+            signature=[r, s],
+            max_fee=tx.max_fee,
+            version=0,
         )
+
+    async def add_transaction(
+        self,
+        tx: InvokeFunction,
+        token: Optional[str] = None,
+    ) -> Dict[str, int]:
+        """
+        :param tx: Transaction which invokes another contract through account proxy.
+                   Signed transactions aren't supported at the moment
+        :param token: Optional token for Starknet API access, appended in a query string
+        :return: API response dictionary with `code`, `transaction_hash`
+        """
+        if tx.tx_type == TransactionType.DEPLOY:
+            return await super().add_transaction(tx, token)
+
+        if tx.signature:
+            raise TypeError(
+                "Adding signatures to a signer tx currently isn't supported"
+            )
+
+        return await super().add_transaction(await self._prepare_invoke_function(tx))
+
+    async def estimate_fee(
+        self,
+        tx: InvokeFunction,
+    ) -> int:
+        """
+        :param tx: Transaction which fee we want to calculate
+        :return: Estimated fee
+        """
+        return await super().estimate_fee(await self._prepare_invoke_function(tx))
 
     @staticmethod
     async def create_account(
