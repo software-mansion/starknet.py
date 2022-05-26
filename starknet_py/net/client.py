@@ -71,7 +71,7 @@ class Client:
         self,
         invoke_tx: InvokeFunction,
         block_hash: Optional[CastableToHash] = None,
-        block_number: Optional[BlockIdentifier] = "latest",
+        block_number: Optional[BlockIdentifier] = "pending",
     ) -> List[int]:
         """
         Calls the contract with given instance of InvokeTransaction
@@ -91,7 +91,7 @@ class Client:
     async def get_block(
         self,
         block_hash: Optional[CastableToHash] = None,
-        block_number: Optional[BlockIdentifier] = "latest",
+        block_number: Optional[BlockIdentifier] = "pending",
     ) -> StarknetBlock:
         """
         Retrieve the block's data by its number or hash
@@ -106,7 +106,7 @@ class Client:
         self,
         contract_address: int,
         block_hash: Optional[CastableToHash] = None,
-        block_number: Optional[BlockIdentifier] = "latest",
+        block_number: Optional[BlockIdentifier] = "pending",
     ) -> dict:
         """
         Retrieve contract's bytecode and abi.
@@ -134,7 +134,7 @@ class Client:
         contract_address: int,
         key: int,
         block_hash: Optional[CastableToHash] = None,
-        block_number: Optional[BlockIdentifier] = "latest",
+        block_number: Optional[BlockIdentifier] = "pending",
     ) -> str:
         """
         :param contract_address: Contract's address on Starknet
