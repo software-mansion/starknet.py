@@ -1,3 +1,4 @@
+import asyncio
 from abc import ABC, abstractmethod
 from typing import Union, Optional, List
 
@@ -16,6 +17,11 @@ from starknet_py.net.client_models import (
     ContractDefinition,
     TransactionStatus,
     Hash,
+)
+from starknet_py.transaction_exceptions import (
+    TransactionRejectedError,
+    TransactionNotReceivedError,
+    TransactionFailedError,
 )
 
 
@@ -116,7 +122,6 @@ class BaseClient(ABC):
         :return: JSON representation of compiled: {"bytecode": list, "abi": dict}
         """
 
-    @abstractmethod
     async def wait_for_tx(
         self,
         tx_hash: Hash,
@@ -131,6 +136,32 @@ class BaseClient(ABC):
         :param check_interval: Defines interval between checks
         :return: Tuple containing block number and transaction status
         """
+        if check_interval <= 0:
+            raise ValueError("check_interval has to bigger than 0.")
+
+        first_run = True
+        while True:
+            result = await self.get_transaction_receipt(tx_hash=tx_hash)
+            status = result.status
+
+            if status in (
+                TransactionStatus.ACCEPTED_ON_L1,
+                TransactionStatus.ACCEPTED_ON_L2,
+            ):
+                return result.block_number, status
+            if status == TransactionStatus.PENDING:
+                if not wait_for_accept and result.block_number is not None:
+                    return result.block_number, status
+            elif status == TransactionStatus.REJECTED:
+                raise TransactionRejectedError(result.transaction_rejection_reason)
+            elif status == TransactionStatus.UNKNOWN:
+                if not first_run:
+                    raise TransactionNotReceivedError()
+            elif status != TransactionStatus.RECEIVED:
+                raise TransactionFailedError()
+
+            first_run = False
+            await asyncio.sleep(check_interval)
 
     @abstractmethod
     async def estimate_fee(self, tx: InvokeFunction) -> int:

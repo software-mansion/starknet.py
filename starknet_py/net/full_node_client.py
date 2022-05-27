@@ -41,14 +41,6 @@ class FullNodeClient(BaseClient):
         self.url = node_url
         self.rpc_client = RpcClient(url=node_url)
 
-    async def wait_for_tx(
-        self,
-        tx_hash: Union[int, str],
-        wait_for_accept: Optional[bool] = False,
-        check_interval=5,
-    ) -> (int, TransactionStatus):
-        pass
-
     async def estimate_fee(self, tx: InvokeFunction) -> int:
         pass
 
@@ -185,7 +177,7 @@ class FullNodeClient(BaseClient):
     ) -> ContractCode:
         res = await self.rpc_client.call(
             method_name="getCode",
-            params={"contract_address": convert_to_felt(contract_address)}
+            params={"contract_address": convert_to_felt(contract_address)},
         )
         return ContractCodeSchema().load(res, unknown=EXCLUDE)
 

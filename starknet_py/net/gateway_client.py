@@ -151,39 +151,6 @@ class GatewayClient(BaseClient):
 
         return ContractCodeSchema().load(res, unknown=EXCLUDE)
 
-    async def wait_for_tx(
-        self,
-        tx_hash: Hash,
-        wait_for_accept: Optional[bool] = False,
-        check_interval=5,
-    ) -> (int, TransactionStatus):
-        if check_interval <= 0:
-            raise ValueError("check_interval has to bigger than 0.")
-
-        first_run = True
-        while True:
-            result = await self.get_transaction_receipt(tx_hash=tx_hash)
-            status = result.status
-
-            if status in (
-                TransactionStatus.ACCEPTED_ON_L1,
-                TransactionStatus.ACCEPTED_ON_L2,
-            ):
-                return result.block_number, status
-            if status == TransactionStatus.PENDING:
-                if not wait_for_accept and result.block_number is not None:
-                    return result.block_number, status
-            elif status == TransactionStatus.REJECTED:
-                raise TransactionRejectedError(result.transaction_rejection_reason)
-            elif status == TransactionStatus.UNKNOWN:
-                if not first_run:
-                    raise TransactionNotReceivedError()
-            elif status != TransactionStatus.RECEIVED:
-                raise TransactionFailedError()
-
-            first_run = False
-            await asyncio.sleep(check_interval)
-
     async def estimate_fee(self, tx: InvokeFunction) -> int:
         res = await self._feeder_gateway_client.post(
             method_name="estimate_fee", payload=InvokeFunction.Schema().dump(tx)
