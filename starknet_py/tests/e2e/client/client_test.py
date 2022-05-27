@@ -11,6 +11,7 @@ from starknet_py.net.client_models import (
     TransactionStatus,
     InvokeFunction,
 )
+from starknet_py.net.client_errors import ClientError
 
 
 @pytest.mark.asyncio
@@ -48,7 +49,7 @@ async def test_get_storage_at(clients, block_hash, contract_address):
         storage = await client.get_storage_at(
             contract_address=contract_address,
             key=916907772491729262376534102982219947830828984996257231353398618781993312401,
-            block_hash=block_hash,
+            block_hash="latest",
         )
 
         assert storage == 1234
@@ -56,14 +57,21 @@ async def test_get_storage_at(clients, block_hash, contract_address):
 
 @pytest.mark.asyncio
 async def test_get_storage_at_incorrect_address(clients, block_hash):
-    for client in clients:
-        storage = await client.get_storage_at(
+    gateway_client, full_node_client = clients
+
+    storage = await gateway_client.get_storage_at(
+        contract_address=0x1111,
+        key=916907772491729262376534102982219947830828984996257231353398618781993312401,
+        block_hash="latest",
+    )
+    assert storage == 0
+
+    with pytest.raises(ClientError):
+        await full_node_client.get_storage_at(
             contract_address=0x1111,
             key=916907772491729262376534102982219947830828984996257231353398618781993312401,
-            block_hash=block_hash,
+            block_hash="latest",
         )
-
-        assert storage == 0
 
 
 @pytest.mark.asyncio
