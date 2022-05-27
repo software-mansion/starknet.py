@@ -3,7 +3,8 @@ import pytest
 
 @pytest.mark.asyncio
 async def test_using_client():
-    # pylint: disable=import-outside-toplevel
+    # pylint: disable=import-outside-toplevel, unused-variable
+    # add to docs: start
     from starknet_py.net import Client
     from starknet_py.net.networks import TESTNET, MAINNET
 
@@ -12,7 +13,6 @@ async def test_using_client():
     # or
     testnet_client = Client("testnet")
 
-    # pylint: disable=unused-variable
     mainnet_client = Client(MAINNET)
     # or
     mainnet_client = Client("mainnet")
@@ -27,3 +27,4 @@ async def test_using_client():
     call_result = await testnet_client.get_block(
         "0x495c670c53e4e76d08292524299de3ba078348d861dd7b2c7cc4933dbc27943"
     )
+    # add to docs: end
