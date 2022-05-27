@@ -85,3 +85,20 @@ Running e2e tests in PyCharm
 
 ⚠️ **Warning**: Make sure to fill your interpreter in the configuration, to match your project's poetry venv.
 
+Realising checklist
+-------------------
+
+Perform these actions before releasing a new StarkNet.py version
+
+1. Bump package version in ``pyproject.toml``
+2. Re-lock using ``poetry lock --no-update``
+3. Make a PR to development with name of format ``vMINOR.MAJOR.PATCHES-alpha`` and merge it making sure that the merge commit message is the same as PR name
+4. Merge development into master without squashing
+
+.. code-block:: bash
+
+    git checkout master
+    git merge development
+
+5. Make a new release on GitHub
+6. Run release action from ``master`` branch
