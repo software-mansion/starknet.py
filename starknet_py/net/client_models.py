@@ -63,12 +63,12 @@ class Transaction:
 
 
 class TransactionStatus(Enum):
-    UNKNOWN = 0
-    RECEIVED = auto()
-    PENDING = auto()
-    ACCEPTED_ON_L2 = auto()
-    ACCEPTED_ON_L1 = auto()
-    REJECTED = auto()
+    UNKNOWN = "UNKNOWN"
+    RECEIVED = "RECEIVED"
+    PENDING = "PENDING"
+    ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
+    ACCEPTED_ON_L1 = "ACCEPTED_ON_L1"
+    REJECTED = "REJECTED"
 
 
 @dataclass
@@ -100,12 +100,12 @@ class BlockStatus(Enum):
     Enum representing block status
     """
 
-    NOT_RECEIVED = 0
-    RECEIVED = auto()
-    PENDING = auto()
-    REJECTED = auto()
-    ACCEPTED_ON_L2 = auto()
-    ACCEPTED_ON_L1 = auto()
+    NOT_RECEIVED = "NOT_RECEIVED"
+    RECEIVED = "RECEIVED"
+    PENDING = "PENDING"
+    REJECTED = "REJECTED"
+    ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
+    ACCEPTED_ON_L1 = "ACCEPTED_ON_L1"
 
 
 @dataclass

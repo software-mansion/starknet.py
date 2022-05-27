@@ -49,15 +49,15 @@ class StatusField(fields.Field):
         data: Union[Mapping[str, Any], None],
         **kwargs,
     ) -> TransactionStatus:
-        enum_values = {
-            **{v.name: k for k, v in enumerate(TransactionStatus)},
-            **{"NOT_RECEIVED": 0},
-        }
+        values = [v.value for v in TransactionStatus]
 
-        if value not in enum_values:
+        if value == "NOT_RECEIVED":
+            return TransactionStatus.UNKNOWN
+
+        if value not in values:
             raise ValidationError("Invalid TransactionStatus enum key")
 
-        return TransactionStatus(enum_values[value])
+        return TransactionStatus(value)
 
 
 class BlockStatusField(fields.Field):
@@ -73,12 +73,12 @@ class BlockStatusField(fields.Field):
         **kwargs,
     ) -> BlockStatus:
         # TODO maybe simplify
-        enum_values = {v.name: k for k, v in enumerate(BlockStatus)}
+        values = [v.value for v in BlockStatus]
 
-        if value not in enum_values:
+        if value not in values:
             raise ValidationError("Invalid BlockStatus enum key")
 
-        return BlockStatus(enum_values[value])
+        return BlockStatus(value)
 
 
 class TransactionTypeField(fields.Field):
