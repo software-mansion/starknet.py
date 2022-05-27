@@ -9,86 +9,16 @@ values. Contract offers that and some other utilities.
 
 Let's say we have a contract with this interface:
 
-.. code-block:: python
-
-    abi = [
-        {
-            "inputs": [
-                {
-                    "name": "sender",
-                    "type": "felt"
-                },
-                {
-                    "name": "recipient",
-                    "type": "felt"
-                },
-                {
-                    "name": "amount",
-                    "type": "felt"
-                }
-            ],
-            "name": "transferFrom",
-            "outputs": [
-                {
-                    "name": "success",
-                    "type": "felt"
-                }
-            ],
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "name": "account",
-                    "type": "felt"
-                }
-            ],
-            "name": "balanceOf",
-            "outputs": [
-                {
-                    "name": "balance",
-                    "type": "felt"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        }
-    ]
+.. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_existing_contracts.py
+    :language: python
+    :lines: 7-25
 
 
 This is how we can interact with it:
 
-.. code-block:: python
-
-    from starknet_py.net.client import Client
-    from starknet_py.contract import Contract
-    from starknet_py.net.networks import TESTNET
-
-    contract = Contract(address=address, abi=abi, client=Client(TESTNET))
-    # or
-    contract = await Contract.from_address(address, Client(TESTNET))
-
-    # Using only positional arguments
-    invocation = await contract.functions["transferFrom"].invoke(sender, recipient, 10000)
-
-    # Using only keyword arguments
-    invocation = await contract.functions["transferFrom"].invoke(sender=sender, recipient=recipient, amount=10000)
-
-    # Mixing positional with keyword arguments
-    invocation = await contract.functions["transferFrom"].invoke(sender, recipient, amount=10000)
-
-    # Creating a PreparedFunctionCall - creates a function call with arguments - useful for signing transactions and specifying additional options
-    transfer = contract.functions["transferFrom"].prepare(sender, recipient, amount=10000)
-    await transfer.invoke()
-
-    # Wait for tx
-    await invocation.wait_for_acceptance()
-
-    (balance,) = await contract.functions["balanceOf"].call(recipient)
-
-    # You can also use key access, call returns NamedTuple
-    result = await contract.functions["balanceOf"].call(recipient)
-    balance = result.balance
+.. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_existing_contracts.py
+    :language: python
+    :lines: 37-45,61-93
 
 Signing a single transaction
 ----------------------------
@@ -142,29 +72,9 @@ You can use :obj:`ContractFunction's call <starknet_py.contract.ContractFunction
 
 Here's how you could sign an invocation:
 
-.. code-block:: python
-
-    from starknet_py.utils.crypto.facade import sign_calldata
-    from starknet_py.contract import Contract
-    from starknet_py.net.client import Client
-    from starknet_py.net.networks import TESTNET
-
-    contract_address = "0x00178130dd6286a9a0e031e4c73b2bd04ffa92804264a25c1c08c1612559f458"
-    private_key = 12345
-    public_key = 1628448741648245036800002906075225705100596136133912895015035902954123957052
-    value = 340282366920938463463374607431768211583
-
-    contract = await Contract.from_address(contract_address, Client(TESTNET))
-    prepared = contract.functions["set_balance"].prepare(user=public_key, amount=value)
-    # Every transformed argument is stored in prepared.arguments
-    # prepared.arguments = {"public_key": public_key, "amount": [127, 1]}
-
-    signature = sign_calldata(prepared.arguments["amount"], private_key)
-    invocation = await prepared.invoke(signature)
-    await invocation.wait_for_acceptance()
-
-    (stored,) = await contract.functions["get_balance"].call(public_key)
-    assert stored == value
+.. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_signing_single_transaction.py
+    :language: python
+    :lines: 14-28,41-54
 
 
 Deploying new contracts
@@ -172,78 +82,18 @@ Deploying new contracts
 
 Here's how you can deploy new contracts:
 
-.. code-block:: python
-
-    from starknet_py.net.client import Client
-    from starknet_py.contract import Contract
-    from pathlib import Path
-    from starknet_py.net.networks import TESTNET
-
-    contract = """
-    %lang starknet
-    %builtins pedersen range_check
-
-    from starkware.cairo.common.cairo_builtins import HashBuiltin
-
-    @storage_var
-    func public_key() -> (res: felt):
-    end
-
-    @constructor
-    func constructor{
-            syscall_ptr : felt*,
-            pedersen_ptr : HashBuiltin*,
-            range_check_ptr
-        }(_public_key: felt):
-        public_key.write(_public_key)
-        return()
-    end
-    """
-
-    client = Client(TESTNET)
-
-    # Use list for positional arguments
-    constructor_args = [123]
-
-    # or use dict for keyword arguments
-    constructor_args = {"_public_key": 123}
-
-    # contract as a string
-    deployment_result = await Contract.deploy(
-        client, compilation_source=contract, constructor_args=constructor_args
-    )
-
-    # dict with content - useful for multiple files
-    deployment_result = await Contract.deploy(
-        client, compilation_source={"contract.cairo": contract}, constructor_args=constructor_args
-    )
-
-    # or use already compiled program
-    compiled = Path("contract_compiled.json").read_text()
-    deployment_result = await Contract.deploy(
-        client, compiled_contract=compiled, constructor_args=constructor_args
-    )
-
-    # you can wait for transaction to be accepted
-    await deployment_result.wait_for_acceptance()
-
-    # but you can access the deployed contract object even if has not been accepted yet
-    contract = deployment_result.deployed_contract
+.. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_deploying_new_contracts.py
+    :language: python
+    :lines: 12-38,42-71
 
 
 Handling client errors
 -----------------------
 You can use ``starknet.net.client.BadRequest`` to catch errors from invalid requests:
 
-.. code-block:: python
-
-    from starknet_py.net.client import Client, BadRequest
-    from starknet_py.net.networks import TESTNET
-    try:
-        contract_address = 1 # Doesn't exist
-        await Contract.from_address(contract_address, Client(TESTNET))
-    except BadRequest as e:
-        print(e.status_code, e.text)
+.. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_handling_client_errors.py
+    :language: python
+    :lines: 9-15,19-21
 
 
 Data transformation
