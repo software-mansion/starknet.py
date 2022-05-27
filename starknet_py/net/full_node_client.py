@@ -20,6 +20,7 @@ from starknet_py.net.client_models import (
     ContractDefinition,
     InvokeFunction,
     TransactionStatus,
+    Hash,
 )
 from starknet_py.net.rpc_schemas.rpc_schemas import (
     TransactionSchema,
@@ -32,6 +33,7 @@ from starknet_py.net.base_client_schemas import (
     BlockNumberIdentifierSchema,
 )
 from starknet_py.net.client_errors import ClientError
+from starknet_py.net.client_utils import convert_to_felt
 
 
 class FullNodeClient(BaseClient):
@@ -68,9 +70,7 @@ class FullNodeClient(BaseClient):
             res = await self.rpc_client.call(
                 method_name="getBlockByHash",
                 params={
-                    "block_hash": str(hex(block_hash))
-                    if isinstance(block_hash, int)
-                    else block_hash,
+                    "block_hash": convert_to_felt(block_hash),
                     "requested_scope": "FULL_TXNS",
                 },
             )
@@ -91,9 +91,9 @@ class FullNodeClient(BaseClient):
 
     async def get_storage_at(
         self,
-        contract_address: Union[int, str],
+        contract_address: Hash,
         key: int,
-        block_hash: Optional[Union[int, str]] = None,
+        block_hash: Optional[Hash] = None,
         block_number: Optional[int] = None,
     ) -> int:
         if block_hash is None:
@@ -102,13 +102,9 @@ class FullNodeClient(BaseClient):
         res = await self.rpc_client.call(
             method_name="getStorageAt",
             params={
-                "contract_address": str(hex(contract_address))
-                if isinstance(contract_address, int)
-                else contract_address,
-                "key": str(hex(key)),
-                "block_hash": str(hex(block_hash))
-                if isinstance(block_hash, int)
-                else block_hash,
+                "contract_address": convert_to_felt(contract_address),
+                "key": convert_to_felt(key),
+                "block_hash": convert_to_felt(block_hash),
             },
         )
         res = typing.cast(str, res)
@@ -116,9 +112,7 @@ class FullNodeClient(BaseClient):
 
     async def get_transaction(
         self,
-        tx_identifier: Union[
-            Union[int, str], BlockHashIdentifier, BlockNumberIdentifier
-        ],
+        tx_identifier: Union[Hash, BlockHashIdentifier, BlockNumberIdentifier],
     ) -> Transaction:
         res = None
         error_message = None
@@ -148,11 +142,7 @@ class FullNodeClient(BaseClient):
     async def _get_transaction_by_tx_hash(self, tx_identifier):
         res = await self.rpc_client.call(
             method_name="getTransactionByHash",
-            params={
-                "transaction_hash": str(hex(tx_identifier))
-                if isinstance(tx_identifier, int)
-                else tx_identifier
-            },
+            params={"transaction_hash": convert_to_felt(tx_identifier)},
         )
         return res
 
@@ -162,7 +152,7 @@ class FullNodeClient(BaseClient):
         res = await self.rpc_client.call(
             method_name="getTransactionByBlockHashAndIndex",
             params={
-                "block_hash": str(hex(block_identifier["block_hash"])),
+                "block_hash": convert_to_felt(block_identifier["block_hash"]),
                 "index": block_identifier["index"],
             },
         )
@@ -180,35 +170,29 @@ class FullNodeClient(BaseClient):
         )
         return res
 
-    async def get_transaction_receipt(
-        self, tx_hash: Union[int, str]
-    ) -> TransactionReceipt:
+    async def get_transaction_receipt(self, tx_hash: Hash) -> TransactionReceipt:
         res = await self.rpc_client.call(
             method_name="getTransactionReceipt",
-            params={"transaction_hash": str(hex(tx_hash))}
-            if isinstance(tx_hash, int)
-            else tx_hash,
+            params={"transaction_hash": convert_to_felt(tx_hash)},
         )
         return TransactionReceiptSchema().load(res, unknown=EXCLUDE)
 
     async def get_code(
         self,
-        contract_address: Union[int, str],
-        block_hash: Optional[Union[int, str]] = None,
+        contract_address: Hash,
+        block_hash: Optional[Hash] = None,
         block_number: Optional[int] = None,
     ) -> ContractCode:
         res = await self.rpc_client.call(
             method_name="getCode",
-            params={"contract_address": str(hex(contract_address))}
-            if isinstance(contract_address, int)
-            else contract_address,
+            params={"contract_address": convert_to_felt(contract_address)}
         )
         return ContractCodeSchema().load(res, unknown=EXCLUDE)
 
     async def call_contract(
         self,
         invoke_tx: InvokeFunction,
-        block_hash: Optional[Union[int, str]] = None,
+        block_hash: Optional[Hash] = None,
         block_number: Optional[int] = None,
     ) -> List[int]:
         if block_hash is None:
@@ -217,12 +201,10 @@ class FullNodeClient(BaseClient):
         res = await self.rpc_client.call(
             method_name="call",
             params={
-                "contract_address": str(hex(invoke_tx.contract_address)),
-                "entry_point_selector": str(hex(invoke_tx.entry_point_selector)),
-                "calldata": [str(hex(i)) for i in invoke_tx.calldata],
-                "block_hash": str(int(block_hash))
-                if isinstance(block_hash, int)
-                else block_hash,
+                "contract_address": convert_to_felt(invoke_tx.contract_address),
+                "entry_point_selector": convert_to_felt(invoke_tx.entry_point_selector),
+                "calldata": [convert_to_felt(i) for i in invoke_tx.calldata],
+                "block_hash": convert_to_felt(block_hash),
             },
         )
         return [int(i, 16) for i in res["result"]]
@@ -255,7 +237,7 @@ class RpcClient:
             async with session.post(self.url, json=payload) as request:
                 result = await request.json()
                 if "result" not in result:
-                    await self.handle_full_node_exceptions(result)
+                    self.handle_full_node_exceptions(result)
                 return result["result"]
 
     @staticmethod

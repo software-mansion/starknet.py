@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import List, Any, Dict, Optional
+from typing import List, Any, Dict, Optional, Union
 
 from starkware.starknet.services.api.gateway.transaction import (
     InvokeFunction as IF,
@@ -16,6 +16,9 @@ InvokeFunction = as_our_module(IF)
 StarknetTransaction = as_our_module(T)
 ContractDefinition = as_our_module(CD)
 Deploy = as_our_module(D)
+
+
+Hash = Union[int, str]
 
 
 @dataclass

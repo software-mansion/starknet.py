@@ -31,6 +31,7 @@ from starknet_py.net.client_models import (
     ContractDefinition,
     Deploy,
     TransactionStatus,
+    Hash,
 )
 from starknet_py.net.gateway_schemas.gateway_schemas import (
     TransactionSchema,
@@ -42,6 +43,7 @@ from starknet_py.net.gateway_schemas.gateway_schemas import (
 from starknet_py.net.models import StarknetChainId, chain_from_network
 from starknet_py.net.networks import Network, net_address_from_net
 from starknet_py.net.client_errors import ClientError, ContractNotFoundError
+from starknet_py.net.client_utils import convert_to_felt
 
 
 class GatewayClient(BaseClient):
@@ -64,18 +66,14 @@ class GatewayClient(BaseClient):
             )
         res = await self._feeder_gateway_client.call(
             method_name="get_transaction",
-            params={
-                "transactionHash": str(hex(tx_identifier))
-                if isinstance(tx_identifier, int)
-                else tx_identifier
-            },
+            params={"transactionHash": convert_to_felt(tx_identifier)},
         )
         # TODO handle not received/unknown transactions
         return TransactionSchema().load(res["transaction"], unknown=EXCLUDE)
 
     async def get_block(
         self,
-        block_hash: Optional[Union[int, str]] = None,
+        block_hash: Optional[Hash] = None,
         block_number: Optional[int] = None,
     ) -> StarknetBlock:
         block_identifier = self._get_block_identifier(
@@ -89,7 +87,7 @@ class GatewayClient(BaseClient):
 
     async def get_state_update(
         self,
-        block_hash: Optional[Union[int, str]] = None,
+        block_hash: Optional[Hash] = None,
         block_number: Optional[int] = None,
     ) -> BlockState:
         # TODO implement
@@ -97,9 +95,9 @@ class GatewayClient(BaseClient):
 
     async def get_storage_at(
         self,
-        contract_address: Union[int, str],
+        contract_address: Hash,
         key: int,
-        block_hash: Optional[Union[int, str]] = None,
+        block_hash: Optional[Hash] = None,
         block_number: Optional[int] = None,
     ) -> int:
         block_identifier = self._get_block_identifier(
@@ -110,9 +108,7 @@ class GatewayClient(BaseClient):
             method_name="get_storage_at",
             params={
                 **{
-                    "contractAddress": str(hex(contract_address))
-                    if isinstance(contract_address, int)
-                    else contract_address,
+                    "contractAddress": convert_to_felt(contract_address),
                     "key": key,
                 },
                 **block_identifier,
@@ -121,36 +117,26 @@ class GatewayClient(BaseClient):
         res = typing.cast(str, res)
         return int(res, 16)
 
-    async def get_transaction_receipt(
-        self, tx_hash: Union[int, str]
-    ) -> TransactionReceipt:
+    async def get_transaction_receipt(self, tx_hash: Hash) -> TransactionReceipt:
         print("hash " + str(tx_hash))
         res = await self._feeder_gateway_client.call(
             method_name="get_transaction_receipt",
-            params={
-                "transactionHash": str(hex(tx_hash))
-                if isinstance(tx_hash, int)
-                else tx_hash
-            },
+            params={"transactionHash": convert_to_felt(tx_hash)},
         )
         print(res)
         return TransactionReceiptSchema().load(res, unknown=EXCLUDE)
 
     async def get_code(
         self,
-        contract_address: Union[int, str],
-        block_hash: Optional[Union[int, str]] = None,
+        contract_address: Hash,
+        block_hash: Optional[Hash] = None,
         block_number: Optional[int] = None,
     ) -> ContractCode:
         block_identifier = GatewayClient._get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
         params = {
-            **{
-                "contractAddress": str(hex(contract_address))
-                if isinstance(contract_address, int)
-                else contract_address
-            },
+            **{"contractAddress": convert_to_felt(contract_address)},
             **block_identifier,
         }
 
@@ -167,7 +153,7 @@ class GatewayClient(BaseClient):
 
     async def wait_for_tx(
         self,
-        tx_hash: Union[int, str],
+        tx_hash: Hash,
         wait_for_accept: Optional[bool] = False,
         check_interval=5,
     ) -> (int, TransactionStatus):
@@ -208,7 +194,7 @@ class GatewayClient(BaseClient):
     async def call_contract(
         self,
         invoke_tx: InvokeFunction,
-        block_hash: Optional[Union[int, str]] = None,
+        block_hash: Optional[Hash] = None,
         block_number: Optional[int] = None,
     ) -> List[int]:
         block_identifier = GatewayClient._get_block_identifier(
@@ -258,7 +244,7 @@ class GatewayClient(BaseClient):
 
     @staticmethod
     def _get_block_identifier(
-        block_hash: Optional[Union[int, str]] = None, block_number: Optional[int] = None
+        block_hash: Optional[Hash] = None, block_number: Optional[int] = None
     ) -> dict:
         if block_hash is not None and block_number is not None:
             raise ValueError(
@@ -270,11 +256,7 @@ class GatewayClient(BaseClient):
             block_hash = "pending"
 
         if block_hash is not None:
-            return {
-                "blockHash": str(hex(block_hash))
-                if isinstance(block_hash, int)
-                else block_hash
-            }
+            return {"blockHash": convert_to_felt(block_hash)}
 
         if block_number is not None:
             return {"blockNumber": block_number}

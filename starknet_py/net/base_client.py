@@ -15,6 +15,7 @@ from starknet_py.net.client_models import (
     StarknetTransaction,
     ContractDefinition,
     TransactionStatus,
+    Hash,
 )
 
 
@@ -46,7 +47,7 @@ class BaseClient(ABC):
     @abstractmethod
     async def get_state_update(
         self,
-        block_hash: Optional[Union[int, str]] = None,
+        block_hash: Optional[Hash] = None,
         block_number: Optional[int] = None,
     ) -> BlockState:
         """
@@ -61,9 +62,9 @@ class BaseClient(ABC):
     @abstractmethod
     async def get_storage_at(
         self,
-        contract_address: Union[int, str],
+        contract_address: Hash,
         key: int,
-        block_hash: Optional[Union[int, str]] = None,
+        block_hash: Optional[Hash] = None,
         block_number: Optional[int] = None,
     ) -> int:
         """
@@ -77,9 +78,7 @@ class BaseClient(ABC):
     @abstractmethod
     async def get_transaction(
         self,
-        tx_identifier: Union[
-            Union[int, str], BlockHashIdentifier, BlockNumberIdentifier
-        ],
+        tx_identifier: Union[Hash, BlockHashIdentifier, BlockNumberIdentifier],
     ) -> Transaction:
         """
         Get the details and status of a submitted transaction
@@ -91,7 +90,7 @@ class BaseClient(ABC):
     @abstractmethod
     async def get_transaction_receipt(
         self,
-        tx_hash: Union[int, str],
+        tx_hash: Hash,
     ) -> TransactionReceipt:
         """
         Get the transaction receipt
@@ -103,8 +102,8 @@ class BaseClient(ABC):
     @abstractmethod
     async def get_code(
         self,
-        contract_address: Union[int, str],
-        block_hash: Optional[Union[int, str]] = None,
+        contract_address: Hash,
+        block_hash: Optional[Hash] = None,
         block_number: Optional[int] = None,
     ) -> ContractCode:
         """
@@ -120,7 +119,7 @@ class BaseClient(ABC):
     @abstractmethod
     async def wait_for_tx(
         self,
-        tx_hash: Union[int, str],
+        tx_hash: Hash,
         wait_for_accept: Optional[bool] = False,
         check_interval=5,
     ) -> (int, TransactionStatus):
@@ -146,7 +145,7 @@ class BaseClient(ABC):
     async def call_contract(
         self,
         invoke_tx: InvokeFunction,
-        block_hash: Optional[Union[int, str]] = None,
+        block_hash: Optional[Hash] = None,
         block_number: Optional[int] = None,
     ) -> List[int]:
         """
