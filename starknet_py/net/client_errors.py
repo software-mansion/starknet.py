@@ -17,10 +17,6 @@ class ContractNotFoundError(ClientError):
         block_hash: Optional[Union[int, str]] = None,
         block_number: Optional[int] = None,
     ):
-        if block_hash is not None and block_number is not None:
-            raise ValueError(
-                "Block hash and number cannot be provided at the same time"
-            )
         if block_hash is None and block_number is None:
             raise ValueError("One of block hash or number must be provided")
 
