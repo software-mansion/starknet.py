@@ -49,7 +49,6 @@ class StatusField(fields.Field):
         data: Union[Mapping[str, Any], None],
         **kwargs,
     ) -> TransactionStatus:
-        # should we be treating NOT_RECEIVED as UNKNOWN?
         enum_values = {
             **{v.name: k for k, v in enumerate(TransactionStatus)},
             **{"NOT_RECEIVED": 0},
