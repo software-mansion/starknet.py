@@ -49,15 +49,6 @@ class FullNodeClient(BaseClient):
         block_hash: Optional[Union[int, str]] = None,
         block_number: Optional[int] = None,
     ) -> StarknetBlock:
-        if block_hash is not None and block_number is not None:
-            raise ValueError(
-                "Block_hash and block_number parameters are mutually exclusive."
-            )
-
-        if block_hash is None and block_number is None:
-            raise ValueError("Block_hash or block_number must be provided.")
-
-        res = None
         if block_hash is not None:
             res = await self.rpc_client.call(
                 method_name="getBlockByHash",
@@ -66,12 +57,15 @@ class FullNodeClient(BaseClient):
                     "requested_scope": "FULL_TXNS",
                 },
             )
-        if block_number is not None:
+            return StarknetBlockSchema().load(res, unknown=EXCLUDE)
+        elif block_number is not None:
             res = await self.rpc_client.call(
                 method_name="getBlockByNumber",
                 params={"block_number": block_number, "requested_scope": "FULL_TXNS"},
             )
-        return StarknetBlockSchema().load(res, unknown=EXCLUDE)
+            return StarknetBlockSchema().load(res, unknown=EXCLUDE)
+        else:
+            raise ValueError("Block_hash or block_number must be provided.")
 
     async def get_state_update(
         self,

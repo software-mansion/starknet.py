@@ -43,18 +43,6 @@ async def test_node_get_transaction_block_number_identifier(
 
 
 @pytest.mark.asyncio
-async def test_get_block_throws_on_block_hash_and_number(devnet_address, block_hash):
-    client = await DevnetClientFactory(devnet_address).make_rpc_client()
-
-    with pytest.raises(ValueError) as exinfo:
-        await client.get_block(block_hash=block_hash, block_number=0)
-
-    assert "Block_hash and block_number parameters are mutually exclusive" in str(
-        exinfo.value
-    )
-
-
-@pytest.mark.asyncio
 async def test_get_block_throws_on_no_block_hash_and_no_number(
     devnet_address, block_hash
 ):
