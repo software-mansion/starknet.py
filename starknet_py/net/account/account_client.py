@@ -14,13 +14,22 @@ from starkware.starknet.core.os.transaction_hash.transaction_hash import (
 )
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
-from starknet_py.compile.compiler import Compiler, create_contract_class, StarknetCompilationSource
+from starknet_py.compile.compiler import (
+    Compiler,
+    create_contract_class,
+    StarknetCompilationSource,
+)
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.net.models.transaction import Declare
 from starknet_py.utils.data_transformer.data_transformer import DataTransformer
 from starknet_py.net import Client
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
-from starknet_py.net.models import InvokeFunction, StarknetChainId, TransactionType, Deploy
+from starknet_py.net.models import (
+    InvokeFunction,
+    StarknetChainId,
+    TransactionType,
+    Deploy,
+)
 from starknet_py.net.networks import Network, MAINNET, TESTNET
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.crypto.facade import message_signature
@@ -230,7 +239,7 @@ class AccountClient(Client):
                 contract_address_salt=ContractAddressSalt.get_random_value()
                 if salt is None
                 else salt,
-                contract_definition=class_hash,  #TODO: for now it is wrong
+                contract_definition=class_hash,  # TODO: for now it is wrong
                 constructor_calldata=constructor_calldata,
                 version=version,
             )
