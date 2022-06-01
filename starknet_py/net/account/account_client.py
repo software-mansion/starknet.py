@@ -164,15 +164,17 @@ class AccountClient(Client):
     async def declare(
         self,
         contract_class: Union[ContractClass, str],
+        max_fee: Optional[int] = 0,
+        version: Optional[int] = 0,
     ) -> dict:
         res = await self.add_transaction(
             tx=Declare(
                 contract_class=contract_class,
                 sender_address=self.address,
-                max_fee=0,
+                max_fee=max_fee,
                 signature=[],
                 nonce=0,
-                version=0,
+                version=version,
             )
         )
 
