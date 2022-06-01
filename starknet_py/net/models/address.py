@@ -1,7 +1,7 @@
 from typing import Union, Sequence
 
 from starkware.cairo.common.hash_state import compute_hash_on_elements
-from starkware.starknet.services.api.gateway.contract_address import (
+from starkware.starknet.core.os.contract_address.contract_address import (
     CONTRACT_ADDRESS_PREFIX,
 )
 from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (

@@ -75,4 +75,5 @@ def compute_deploy_hash(
         constructor_calldata=calldata,
         chain_id=chain_id.value,
         hash_function=pedersen_hash,
+        version=0,  # FIXME add logic
     )

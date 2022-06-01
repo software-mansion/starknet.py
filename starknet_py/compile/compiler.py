@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 from typing import List, NewType, Optional, Tuple, Union
 
-from starkware.starknet.services.api.contract_definition import ContractDefinition
+from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.cairo.lang.compiler.constants import MAIN_SCOPE, LIBS_DIR_ENVVAR
 from starkware.cairo.lang.cairo_constants import DEFAULT_PRIME
 from starkware.cairo.lang.compiler.cairo_compile import (
@@ -50,13 +50,13 @@ class Compiler:
 
 def create_contract_definition(
     compiled_contract: str,
-) -> ContractDefinition:
+) -> ContractClass:
     """
     Creates ContractDefinition either from already compiled contract
 
     :return: a ContractDefinition
     """
-    return ContractDefinition.loads(compiled_contract)
+    return ContractClass.loads(compiled_contract)
 
 
 def load_cairo_source_code(filename: CairoFilename) -> str:
@@ -111,6 +111,7 @@ def starknet_compile(
         main_scope=MAIN_SCOPE,
         add_debug_info=False,
         file_contents_for_debug_info=file_contents_for_debug_info,
+        filter_identifiers=False,
     )
 
     return json.dumps(
