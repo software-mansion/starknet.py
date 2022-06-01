@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
 from starkware.crypto.signature.signature import (
     private_to_stark_key,
@@ -11,15 +11,18 @@ from starkware.starknet.core.os.transaction_hash.transaction_hash import (
     calculate_transaction_hash_common,
     TransactionHashPrefix,
 )
+from starkware.starknet.services.api.contract_class import ContractClass
+from starkware.starkware_utils.error_handling import StarkErrorCode
 
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
+from starknet_py.net.models.transaction import Declare
 from starknet_py.utils.data_transformer.data_transformer import DataTransformer
 from starknet_py.net import Client
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
 from starknet_py.net.models import InvokeFunction, StarknetChainId, TransactionType
 from starknet_py.net.networks import Network, MAINNET, TESTNET
 from starknet_py.utils.sync import add_sync_methods
-from starknet_py.utils.crypto.facade import message_signature
+from starknet_py.utils.crypto.facade import message_signature, sign_calldata
 from starknet_py.net.models.address import AddressRepresentation, parse_address
 
 
@@ -157,6 +160,26 @@ class AccountClient(Client):
             max_fee=tx.max_fee,
             version=0,
         )
+
+    async def declare(
+        self,
+        contract_class: Union[ContractClass, str],
+    ) -> dict:
+        res = await self.add_transaction(
+            tx=Declare(
+                contract_class=contract_class,
+                sender_address=self.address,
+                max_fee=0,
+                signature=[],
+                nonce=0,
+                version=0,
+            )
+        )
+
+        if res["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
+            raise Exception("Transaction not received")
+
+        return res
 
     async def add_transaction(
         self,

@@ -15,15 +15,14 @@ from typing import (
 )
 
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
-from starkware.starknet.core.os.contract_hash import compute_contract_hash
+from starkware.starknet.core.os.class_hash import compute_class_hash
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
-from starkware.starknet.services.api.contract_definition import ContractDefinition
 from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
     CastableToHash,
 )
 from starkware.starkware_utils.error_handling import StarkErrorCode
-from starknet_py.compile.compiler import Compiler, create_contract_definition
+from starknet_py.compile.compiler import Compiler, create_contract_class
 
 from starknet_py.proxy_check import ProxyCheck, ArgentProxyCheck, OpenZeppelinProxyCheck
 from starknet_py.net import Client
@@ -121,6 +120,15 @@ class DeployResult(SentTransaction):
 
     def __post_init__(self):
         assert self.deployed_contract is not None
+
+
+@add_sync_methods
+@dataclass(frozen=True)
+class DeclareResult(SentTransaction):
+    class_hash: str = None
+
+    def __post_init__(self):
+        assert self.class_hash is not None
 
 
 # pylint: disable=too-many-instance-attributes
@@ -444,6 +452,32 @@ class Contract:
         ).make_contract()
 
         return Contract(address=address, abi=contract.data.abi, client=client)
+
+    @staticmethod
+    async def declare(
+        client: Client,
+        compilation_source: Optional[StarknetCompilationSource] = None,
+        compiled_contract: Optional[str] = None,
+        search_paths: Optional[List[str]] = None,
+    ) -> DeclareResult:
+        if not compiled_contract and not compilation_source:
+            raise ValueError(
+                "One of compiled_contract or compilation_source is required."
+            )
+
+        if not compiled_contract:
+            compiled_contract = Compiler(
+                contract_source=compilation_source, cairo_path=search_paths
+            ).compile_contract()
+        contract_class = create_contract_class(compiled_contract)
+
+        res = await client.declare(contract_class)
+
+        declare_result = DeclareResult(
+            hash=res["transaction_hash"], _client=client, class_hash=res["class_hash"]
+        )
+
+        return declare_result
 
     @staticmethod
     async def deploy(

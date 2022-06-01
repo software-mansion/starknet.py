@@ -4,6 +4,7 @@ from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.services.api.gateway.transaction import (
     InvokeFunction as IF,
     Deploy as D,
+    Declare as DCL,
     Transaction as T,
 )
 from starkware.starknet.core.os.transaction_hash.transaction_hash import (
@@ -22,6 +23,7 @@ InvokeFunction = as_our_module(IF)
 Deploy = as_our_module(D)
 Transaction = as_our_module(T)
 TransactionType = as_our_module(TT)
+Declare = as_our_module(DCL)
 
 
 def compute_invoke_hash(
@@ -68,6 +70,7 @@ def compute_deploy_hash(
     :param contract_address: int
     :param calldata: Sequence[int] (constructor arguments)
     :param chain_id: StarknetChainId
+    :param version: int
     :return: calculated hash
     """
     return calculate_deploy_transaction_hash(
@@ -75,4 +78,5 @@ def compute_deploy_hash(
         constructor_calldata=calldata,
         chain_id=chain_id.value,
         hash_function=pedersen_hash,
+        version=0,
     )
