@@ -161,28 +161,6 @@ class AccountClient(Client):
             version=0,
         )
 
-    async def declare(
-        self,
-        contract_class: Union[ContractClass, str],
-        max_fee: Optional[int] = 0,
-        version: Optional[int] = 0,
-    ) -> dict:
-        res = await self.add_transaction(
-            tx=Declare(
-                contract_class=contract_class,
-                sender_address=self.address,
-                max_fee=max_fee,
-                signature=[],
-                nonce=0,
-                version=version,
-            )
-        )
-
-        if res["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
-            raise Exception("Transaction not received")
-
-        return res
-
     async def add_transaction(
         self,
         tx: InvokeFunction,

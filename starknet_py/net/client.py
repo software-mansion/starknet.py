@@ -1,9 +1,9 @@
 import asyncio
 from typing import Optional, List, Dict, Union
 
-from services.external_api.base_client import RetryConfig, BadRequest as BadRequestError
+from services.external_api.client import RetryConfig, BadRequest as BadRequestError
 from starkware.starknet.definitions.fields import ContractAddressSalt
-from starkware.starknet.services.api.contract_definition import ContractDefinition
+from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
     FeederGatewayClient,
     CastableToHash,
@@ -18,6 +18,7 @@ from starkware.starkware_utils.error_handling import StarkErrorCode
 
 from starknet_py.constants import TxStatus, ACCEPTED_STATUSES
 from starknet_py.net.models.address import BlockIdentifier
+from starknet_py.net.models.transaction import Declare
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.net.models import (
     InvokeFunction,
@@ -237,14 +238,36 @@ class Client:
         """
         return await self._gateway.add_transaction(tx, token)
 
+    async def declare(
+        self,
+        contract_class: Union[ContractClass, str],
+        max_fee: Optional[int] = 0,
+        version: Optional[int] = 0,
+    ) -> dict:
+        res = await self.add_transaction(
+            tx=Declare(
+                contract_class=contract_class,
+                sender_address=self.address,
+                max_fee=max_fee,
+                signature=[],
+                nonce=0,
+                version=version,
+            )
+        )
+
+        if res["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
+            raise Exception("Transaction not received")
+
+        return res
+
     async def deploy(
         self,
-        compiled_contract: Union[ContractDefinition, str],
+        compiled_contract: Union[ContractClass, str],
         constructor_calldata: List[int],
         salt: Optional[int] = None,
     ) -> dict:
         if isinstance(compiled_contract, str):
-            compiled_contract = ContractDefinition.loads(compiled_contract)
+            compiled_contract = ContractClass.loads(compiled_contract)
 
         res = await self.add_transaction(
             tx=Deploy(
