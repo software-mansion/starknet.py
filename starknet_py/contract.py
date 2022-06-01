@@ -15,10 +15,10 @@ from typing import (
 )
 
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
-from starkware.starknet.core.os.contract_hash import compute_contract_hash
+from starkware.starknet.core.os.class_hash import compute_class_hash
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
-from starkware.starknet.services.api.contract_definition import ContractDefinition
+from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
     CastableToHash,
 )
@@ -539,7 +539,7 @@ class Contract:
         )
         return compute_address(
             salt=salt,
-            contract_hash=compute_contract_hash(definition, hash_func=pedersen_hash),
+            contract_hash=compute_class_hash(definition, hash_func=pedersen_hash),
             constructor_calldata=translated_args,
         )
 
@@ -570,11 +570,11 @@ class Contract:
             ).compile_contract()
         definition = create_contract_definition(compiled_contract)
 
-        return compute_contract_hash(definition, hash_func=pedersen_hash)
+        return compute_class_hash(definition, hash_func=pedersen_hash)
 
     @staticmethod
     def _translate_constructor_args(
-        contract: ContractDefinition, constructor_args: any
+        contract: ContractClass, constructor_args: any
     ) -> List[int]:
         constructor_abi = next(
             (member for member in contract.abi if member["type"] == "constructor"),

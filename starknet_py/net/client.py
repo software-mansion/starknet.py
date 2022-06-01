@@ -1,9 +1,9 @@
 import asyncio
 from typing import Optional, List, Dict, Union
 
-from services.external_api.base_client import RetryConfig, BadRequest as BadRequestError
+from services.external_api.client import RetryConfig, BadRequest as BadRequestError
 from starkware.starknet.definitions.fields import ContractAddressSalt
-from starkware.starknet.services.api.contract_definition import ContractDefinition
+from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
     FeederGatewayClient,
     CastableToHash,
@@ -239,12 +239,12 @@ class Client:
 
     async def deploy(
         self,
-        compiled_contract: Union[ContractDefinition, str],
+        compiled_contract: Union[ContractClass, str],
         constructor_calldata: List[int],
         salt: Optional[int] = None,
     ) -> dict:
         if isinstance(compiled_contract, str):
-            compiled_contract = ContractDefinition.loads(compiled_contract)
+            compiled_contract = ContractClass.loads(compiled_contract)
 
         res = await self.add_transaction(
             tx=Deploy(
@@ -253,6 +253,7 @@ class Client:
                 else salt,
                 contract_definition=compiled_contract,
                 constructor_calldata=constructor_calldata,
+                version=0,  # FIXME add logic
             )
         )
 

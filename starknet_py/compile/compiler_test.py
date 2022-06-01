@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 from starkware.cairo.lang.compiler.constants import LIBS_DIR_ENVVAR
 from starkware.cairo.lang.compiler.import_loader import ImportLoaderError
-from starkware.starknet.services.api.contract_definition import ContractDefinition
+from starkware.starknet.services.api.contract_class import ContractClass
 
 from starknet_py.compile.compiler import Compiler, create_contract_definition
 
@@ -80,4 +80,4 @@ def test_create_definition():
     compiled = Compiler(contract_source=test_file_content).compile_contract()
     contract = create_contract_definition(compiled)
 
-    assert isinstance(contract, ContractDefinition)
+    assert isinstance(contract, ContractClass)
