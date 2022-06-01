@@ -1,22 +1,26 @@
 from dataclasses import dataclass
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 
 from starkware.crypto.signature.signature import (
     private_to_stark_key,
     get_random_private_key,
 )
+from starkware.starknet.definitions.fields import ContractAddressSalt
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 from starkware.starknet.core.os.transaction_hash.transaction_hash import (
     calculate_transaction_hash_common,
     TransactionHashPrefix,
 )
+from starkware.starkware_utils.error_handling import StarkErrorCode
 
+from starknet_py.compile.compiler import Compiler, create_contract_class, StarknetCompilationSource
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
+from starknet_py.net.models.transaction import Declare
 from starknet_py.utils.data_transformer.data_transformer import DataTransformer
 from starknet_py.net import Client
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
-from starknet_py.net.models import InvokeFunction, StarknetChainId, TransactionType
+from starknet_py.net.models import InvokeFunction, StarknetChainId, TransactionType, Deploy
 from starknet_py.net.networks import Network, MAINNET, TESTNET
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.crypto.facade import message_signature
@@ -178,6 +182,64 @@ class AccountClient(Client):
             )
 
         return await super().add_transaction(await self._prepare_invoke_function(tx))
+
+    async def declare(
+        self,
+        compilation_source: Optional[StarknetCompilationSource] = None,
+        compiled_contract: Optional[str] = None,
+        max_fee: Optional[int] = 0,
+        version: Optional[int] = 0,
+        search_paths: Optional[List[str]] = None,
+    ) -> dict:
+        if not compiled_contract and not compilation_source:
+            raise ValueError(
+                "One of compiled_contract or compilation_source is required."
+            )
+
+        if not compiled_contract:
+            compiled_contract = Compiler(
+                contract_source=compilation_source, cairo_path=search_paths
+            ).compile_contract()
+        contract_class = create_contract_class(compiled_contract)
+
+        res = await self.add_transaction(
+            tx=Declare(
+                contract_class=contract_class,
+                sender_address=self.address,
+                max_fee=max_fee,
+                signature=[],
+                nonce=0,
+                version=version,
+            )
+        )
+
+        if res["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
+            raise Exception("Transaction not received")
+
+        return res["class_hash"]
+
+    async def deploy(
+        self,
+        class_hash: str,
+        constructor_calldata: List[int],
+        salt: Optional[int] = None,
+        version: Optional[int] = 0,
+    ) -> AddressRepresentation:
+        res = await self.add_transaction(
+            tx=Deploy(
+                contract_address_salt=ContractAddressSalt.get_random_value()
+                if salt is None
+                else salt,
+                contract_definition=class_hash,  #TODO: for now it is wrong
+                constructor_calldata=constructor_calldata,
+                version=version,
+            )
+        )
+
+        if res["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
+            raise Exception("Transaction not received")
+
+        return res["address"]
 
     async def estimate_fee(
         self,

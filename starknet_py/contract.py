@@ -23,7 +23,7 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
     CastableToHash,
 )
 from starkware.starkware_utils.error_handling import StarkErrorCode
-from starknet_py.compile.compiler import Compiler, create_contract_definition
+from starknet_py.compile.compiler import Compiler, create_contract_class
 
 from starknet_py.proxy_check import ProxyCheck, ArgentProxyCheck, OpenZeppelinProxyCheck
 from starknet_py.net import Client
@@ -477,7 +477,7 @@ class Contract:
             compiled_contract = Compiler(
                 contract_source=compilation_source, cairo_path=search_paths
             ).compile_contract()
-        definition = create_contract_definition(compiled_contract)
+        definition = create_contract_class(compiled_contract)
 
         translated_args = Contract._translate_constructor_args(
             definition, constructor_args
@@ -532,7 +532,7 @@ class Contract:
             compiled_contract = Compiler(
                 contract_source=compilation_source, cairo_path=search_paths
             ).compile_contract()
-        definition = create_contract_definition(compiled_contract)
+        definition = create_contract_class(compiled_contract)
 
         translated_args = Contract._translate_constructor_args(
             definition, constructor_args
@@ -568,7 +568,7 @@ class Contract:
             compiled_contract = Compiler(
                 contract_source=compilation_source, cairo_path=search_paths
             ).compile_contract()
-        definition = create_contract_definition(compiled_contract)
+        definition = create_contract_class(compiled_contract)
 
         return compute_class_hash(definition, hash_func=pedersen_hash)
 

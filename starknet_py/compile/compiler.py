@@ -48,7 +48,7 @@ class Compiler:
         return starknet_compile(self.contract_source, search_paths=self.search_paths)
 
 
-def create_contract_definition(
+def create_contract_class(
     compiled_contract: str,
 ) -> ContractClass:
     """
