@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Tuple
+from typing import List
 
 from starknet_py.net.models.transaction import Transaction
 
@@ -10,10 +10,13 @@ class BaseSigner(ABC):
     """
 
     @abstractmethod
-    def sign_transaction(self, transaction: Transaction) -> Tuple[int, int]:
+    def sign_transaction(
+        self,
+        transaction: Transaction,
+    ) -> List[int]:
         """
-        Sign a transaction and return signature as two integers 'r' and 's'
+        Sign execute transaction and return a signature
 
-        :param transaction: Transaction to sign]
+        :param transaction: Execute transaction to sign
         :return: transaction signature
         """
