@@ -4,6 +4,9 @@ from typing import List, Optional
 
 from eth_utils import keccak
 from hexbytes import HexBytes
+from starkware.starknet.services.api.feeder_gateway.response_objects import (
+    TransactionReceipt,
+)
 from web3 import Web3
 from web3.types import BlockIdentifier as EthBlockIdentifier
 
@@ -20,7 +23,8 @@ from starknet_py.net.models import (
 from starknet_py.utils.sync import add_sync_methods
 
 
-def encode_packed(*args: List[int]) -> bytes:
+def encode_packed(*args: int) -> bytes:
+    # noinspection PyUnresolvedReferences
     return reduce(
         lambda acc, x: acc + x,
         [x.to_bytes(32, byteorder="big", signed=False) for x in args],
@@ -80,7 +84,7 @@ class MessageToEth:
         return cls.from_hash(msg_content.hash)
 
     @classmethod
-    def from_tx_receipt(cls, tx_receipt) -> List["MessageToEth"]:
+    def from_tx_receipt(cls, tx_receipt: TransactionReceipt) -> List["MessageToEth"]:
         """
         :param tx_receipt: A JSON from starknet.py's Client `get_transaction_receipt`
         :return: A list of Starknet to Ethereum messages
@@ -88,12 +92,12 @@ class MessageToEth:
         return [
             MessageToEth.from_content(
                 MessageToEthContent(
-                    starknet_sender=message["from_address"],
-                    eth_recipient=int(message["to_address"], 16),
-                    payload=[int(felt_str) for felt_str in message["payload"]],
+                    starknet_sender=message.from_address,
+                    eth_recipient=int(message.to_address, 16),
+                    payload=[int(felt_str) for felt_str in message.payload],
                 )
             )
-            for message in tx_receipt["l2_to_l1_messages"]
+            for message in tx_receipt.l2_to_l1_messages
         ]
 
     @classmethod
