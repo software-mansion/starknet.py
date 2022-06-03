@@ -1,6 +1,8 @@
 from typing import Union, Sequence
 
 from starkware.starknet.public.abi import get_selector_from_name
+
+# noinspection PyPep8Naming
 from starkware.starknet.services.api.gateway.transaction import (
     InvokeFunction as IF,
     Deploy as D,
@@ -11,6 +13,8 @@ from starkware.starknet.core.os.transaction_hash.transaction_hash import (
     calculate_deploy_transaction_hash,
     TransactionHashPrefix,
 )
+
+# noinspection PyPep8Naming
 from starkware.starknet.definitions.transaction_type import TransactionType as TT
 
 
@@ -40,6 +44,8 @@ def compute_invoke_hash(
     :param entry_point_selector: Union[int, str]
     :param calldata: Sequence[int]
     :param chain_id: StarknetChainId
+    :param max_fee: Max fee
+    :param version: Contract version
     :return: calculated hash
     """
     if isinstance(entry_point_selector, str):

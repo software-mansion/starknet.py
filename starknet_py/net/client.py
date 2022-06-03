@@ -1,6 +1,8 @@
 import asyncio
+import typing
 from typing import Optional, List, Dict, Union
 
+# noinspection PyPackageRequirements
 from services.external_api.base_client import RetryConfig, BadRequest as BadRequestError
 from starkware.starknet.definitions.fields import ContractAddressSalt
 from starkware.starknet.services.api.contract_definition import ContractDefinition
@@ -12,6 +14,7 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
 )
 from starkware.starknet.services.api.feeder_gateway.response_objects import (
     StarknetBlock,
+    TransactionReceipt,
 )
 from starkware.starknet.services.api.gateway.gateway_client import GatewayClient
 from starkware.starkware_utils.error_handling import StarkErrorCode
@@ -121,6 +124,7 @@ class Client:
             block_hash,
             block_number,
         )
+        code = typing.cast(dict, code)
         if len(code["bytecode"]) == 0:
             raise BadRequest(
                 200, f"Contract with address {contract_address} was not found."
@@ -164,7 +168,9 @@ class Client:
         """
         return await self._feeder_gateway.get_transaction(tx_hash)
 
-    async def get_transaction_receipt(self, tx_hash: CastableToHash) -> JsonObject:
+    async def get_transaction_receipt(
+        self, tx_hash: CastableToHash
+    ) -> TransactionReceipt:
         """
         :param tx_hash: Transaction's hash
         :return: Dictionary representing JSON of the transaction's receipt on Starknet
@@ -228,7 +234,7 @@ class Client:
     # Mutating methods
     async def add_transaction(
         self, tx: Transaction, token: Optional[str] = None
-    ) -> Dict[str, int]:
+    ) -> Dict[str, str]:
         """
         :param tx: Transaction object (i.e. InvokeFunction, Deploy).
                    A subclass of ``starkware.starknet.services.api.gateway.transaction.Transaction``

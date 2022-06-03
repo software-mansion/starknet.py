@@ -165,6 +165,7 @@ class TupleTransformer(TypeTransformer[TypeTuple, tuple]):
         results = []
 
         if TupleTransformer.isnamedtuple(values):
+            # noinspection PyUnresolvedReferences, PyProtectedMember
             values = values._asdict()
 
         for member in cairo_type.members:
@@ -206,6 +207,7 @@ class TupleTransformer(TypeTransformer[TypeTuple, tuple]):
             "Result", [(key, type(value)) for key, value in result.items()]
         )
         # pylint: disable=not-callable
+        # noinspection PyCallingNonCallable
         return res(**result), values
 
 
@@ -272,6 +274,7 @@ class DataTransformer:
     identifier_manager: IdentifierManager
 
     def resolve_type(self, cairo_type: CairoType) -> TypeTransformer:
+        # noinspection PyTypeChecker
         return mapping[cairo_type.__class__](
             identifier_manager=self.identifier_manager,
             resolve_type=self.resolve_type,
@@ -329,6 +332,7 @@ class DataTransformer:
             "Result", [(key, type(value)) for key, value in result.items()]
         )
         # pylint: disable=not-callable
+        # noinspection PyCallingNonCallable
         return result_tuple(**result)
 
     def _abi_to_types(self, abi_list) -> dict:

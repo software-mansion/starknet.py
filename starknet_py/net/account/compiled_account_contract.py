@@ -1,4 +1,5 @@
 # pylint: disable=too-many-lines
+# noinspection PyPep8
 COMPILED_ACCOUNT_CONTRACT = r"""
 {
     "abi": [
