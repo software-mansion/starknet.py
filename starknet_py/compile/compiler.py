@@ -1,5 +1,6 @@
 import json
 import os
+import typing
 from pathlib import Path
 from typing import List, NewType, Optional, Tuple, Union
 
@@ -10,7 +11,10 @@ from starkware.cairo.lang.compiler.cairo_compile import (
     get_module_reader,
 )
 from starkware.cairo.lang.compiler.preprocessor.preprocess_codes import preprocess_codes
-from starkware.starknet.compiler.compile import assemble_starknet_contract
+from starkware.starknet.compiler.compile import (
+    assemble_starknet_contract,
+    StarknetPreprocessedProgram,
+)
 from starkware.starknet.compiler.starknet_pass_manager import starknet_pass_manager
 
 CairoSourceCode = NewType("CairoSourceCode", str)
@@ -27,7 +31,7 @@ class Compiler:
 
     def __init__(
         self,
-        contract_source: List[StarknetCompilationSource],
+        contract_source: StarknetCompilationSource,
         cairo_path: Optional[List[str]] = None,
     ):
         """
@@ -72,7 +76,7 @@ def load_cairo_source_code(filename: CairoFilename) -> str:
 
 
 def load_source_code(
-    src: List[StarknetCompilationSource],
+    src: StarknetCompilationSource,
 ) -> List[Tuple[str, str]]:
     if isinstance(src, str):
         return [(src, str(hash(src)))]
@@ -80,7 +84,7 @@ def load_source_code(
 
 
 def starknet_compile(
-    source: List[StarknetCompilationSource],
+    source: StarknetCompilationSource,
     search_paths: Optional[List[str]] = None,
 ):
     file_contents_for_debug_info = {}
@@ -105,6 +109,7 @@ def starknet_compile(
         pass_manager=pass_manager,
         main_scope=MAIN_SCOPE,
     )
+    preprocessed = typing.cast(StarknetPreprocessedProgram, preprocessed)
 
     assembled_program = assemble_starknet_contract(
         preprocessed,
