@@ -1,31 +1,14 @@
 import asyncio
-from unittest.mock import Mock, MagicMock, patch
+from unittest.mock import Mock, MagicMock
 
 import pytest
 import web3
-from eth_abi.codec import ABICodec
-from web3._utils.abi import build_default_registry
-
-from starknet_py.net.l1.messages import MessageToEth, MessageToEthContent
-from starknet_py.net.l1.messaging_test import MOCK_MESSAGES_AMT
-
-
-@pytest.fixture()
-def w3_mock():
-    mock_value = MOCK_MESSAGES_AMT.to_bytes(32, "big")
-
-    mock_w3 = Mock()
-
-    def mock_call(_tx, _bn) -> bytes:
-        return mock_value
-
-    mock_w3.eth.call = mock_call
-    mock_w3.codec = ABICodec(build_default_registry())
-    return mock_w3
 
 
 @pytest.mark.asyncio
-async def test_eth_sn_messages(w3_mock):
+async def test_eth_sn_messages():
+    # pylint: disable=import-outside-toplevel, disable=duplicate-code, unused-variable
+    # add to docs: start
     from starknet_py.net.l1.messages import (
         MessageToStarknetContent,
         MessageToStarknet,
@@ -57,38 +40,37 @@ async def test_eth_sn_messages(w3_mock):
 
     # 3. From Eth transaction receipt (provided by web3.py, like shown below)
     w3 = web3.Web3(web3.providers.HTTPProvider("https://my-rpc-endpoint.com/"))
+    # add to docs: end
 
     w3 = Mock()
     w3.eth.wait_for_transaction_receipt.return_value = [0]
 
+    # add to docs: start
     tx_receipt = w3.eth.wait_for_transaction_receipt("0x123123123")
+    # add to docs: end
 
-    with patch(
-        "starknet_py.net.l1.messages.MessageToStarknet.from_tx_receipt", MagicMock()
-    ) as from_tx_receipt, patch(
-        "starknet_py.net.l1.messages.MessageToStarknet.from_tx_hash", MagicMock()
-    ) as from_tx_hash, patch(
-        "starknet_py.net.l1.messages.MessageToEth.count_queued_sync", MagicMock()
-    ):
+    MessageToStarknet.from_tx_receipt = MagicMock()
+    MessageToStarknet.from_tx_receipt.return_value = [0]
 
-        from_tx_receipt.return_value = [0]
+    from_tx_hash_result = asyncio.Future()
+    from_tx_hash_result.set_result(MagicMock())
+    MessageToStarknet.from_tx_hash = MagicMock()
+    MessageToStarknet.from_tx_hash.return_value = from_tx_hash_result
 
-        from_tx_hash_result = asyncio.Future()
-        from_tx_hash_result.set_result(MagicMock())
-        from_tx_hash.return_value = from_tx_hash_result
+    MessageToStarknet.count_queued_sync = MagicMock()
 
-        eth_to_sn_msg = MessageToStarknet.from_tx_receipt(tx_receipt, w3)
+    # add to docs: start
+    eth_to_sn_msg = MessageToStarknet.from_tx_receipt(tx_receipt, w3)
 
-        # 4. From transaction hash (fetches the receipt for you)
-        eth_to_sn_msg = await MessageToStarknet.from_tx_hash(  # For sync version, use 'from_tx_hash_sync'
-            tx_hash="0x123123123", web3=w3
-        )
+    # 4. From transaction hash (fetches the receipt for you)
+    eth_to_sn_msg = await MessageToStarknet.from_tx_hash(  # For sync version, use 'from_tx_hash_sync'
+        tx_hash="0x123123123", web3=w3
+    )
 
-        eth_to_sn_msg = MessageToEth.from_content(
-            MessageToEthContent(starknet_sender=123, eth_recipient=123, payload=[])
-        )
-
-        # After message construction, we can fetch queued messages count
-        count = eth_to_sn_msg.count_queued_sync(
-            chain_id=StarknetChainId.TESTNET, web3=w3
-        )
+    # After message construction, we can fetch queued messages count
+    count = eth_to_sn_msg[0].count_queued_sync(
+        chain_id=StarknetChainId.TESTNET,
+        web3=w3,
+        block_number="pending",  # Block number or block representation literal
+    )
+    # add to docs: end
