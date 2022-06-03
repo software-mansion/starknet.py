@@ -163,6 +163,7 @@ class AccountClient(Client):
     async def create_account(
         net: str,
         private_key: Optional[int] = None,
+        signer: Optional[BaseSigner] = None,
         chain: Optional[StarknetChainId] = None,
     ) -> "AccountClient":
         """
@@ -173,27 +174,43 @@ class AccountClient(Client):
         :param net: Target net's address or one of "mainnet", "testnet"
         :param chain: Chain used by the network. Required if you use a custom URL for ``net`` param
         :param private_key: Private Key used for the account
+        :param signer: Signer used to create account and sign transaction
         :return: Instance of AccountClient which interacts with created account on given network
         """
-        if not private_key:
-            private_key = get_random_private_key()
+        if signer is None:
+            if private_key is None:
+                private_key = get_random_private_key()
 
-        key_pair = KeyPair.from_private_key(private_key)
-
-        client = Client(net=net, chain=chain)
-        result = await client.deploy(
-            constructor_calldata=[key_pair.public_key],
-            compiled_contract=COMPILED_ACCOUNT_CONTRACT,
-        )
-        await client.wait_for_tx(
-            tx_hash=result["transaction_hash"],
-        )
-        address = result["address"]
+            key_pair = KeyPair.from_private_key(private_key)
+            address = await deploy_account_contract(
+                key_pair.public_key, net=net, chain=chain
+            )
+            signer = StarkCurveSigner(
+                address=address, key_pair=key_pair, chain_id=chain
+            )
+        else:
+            address = await deploy_account_contract(
+                signer.public_key, net=net, chain=chain
+            )
 
         return AccountClient(
             net=net,
             chain=chain,
             address=address,
-            key_pair=key_pair,
-            signer=StarkCurveSigner(address=address, key_pair=key_pair, chain_id=chain),
+            signer=signer,
         )
+
+
+async def deploy_account_contract(
+    public_key: int, net: str, chain: Optional[StarknetChainId] = None
+) -> AddressRepresentation:
+    client = Client(net=net, chain=chain)
+    result = await client.deploy(
+        constructor_calldata=[public_key],
+        compiled_contract=COMPILED_ACCOUNT_CONTRACT,
+    )
+    await client.wait_for_tx(
+        tx_hash=result["transaction_hash"],
+    )
+    address = result["address"]
+    return address

@@ -9,6 +9,15 @@ class BaseSigner(ABC):
     Base class for transaction signer. Implement methods from this ABC to use a custom signer in AccountClient
     """
 
+    @property
+    @abstractmethod
+    def public_key(self) -> int:
+        """
+        Public key of the signer
+
+        :return: public key
+        """
+
     @abstractmethod
     def sign_transaction(
         self,
