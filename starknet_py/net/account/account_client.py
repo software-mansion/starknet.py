@@ -15,7 +15,7 @@ from starknet_py.net.models import (
     Transaction,
 )
 from starknet_py.net.networks import Network, MAINNET, TESTNET
-from starknet_py.net.signer.keypair_signer import KeypairSigner, KeyPair
+from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
 from starknet_py.net.signer import BaseSigner
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.net.models.address import AddressRepresentation, parse_address
@@ -195,5 +195,5 @@ class AccountClient(Client):
             chain=chain,
             address=address,
             key_pair=key_pair,
-            signer=KeypairSigner(address=address, key_pair=key_pair, chain_id=chain),
+            signer=StarkCurveSigner(address=address, key_pair=key_pair, chain_id=chain),
         )

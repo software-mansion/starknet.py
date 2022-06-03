@@ -23,7 +23,7 @@ class KeyPair:
         return KeyPair(private_key=key, public_key=private_to_stark_key(key))
 
 
-class KeypairSigner(BaseSigner):
+class StarkCurveSigner(BaseSigner):
     def __init__(
         self,
         address: AddressRepresentation,
