@@ -19,6 +19,7 @@ This is how we can interact with it:
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_existing_contracts.py
     :language: python
     :lines: 37-45,61-93
+    :dedent: 4
 
 Signing a single transaction
 ----------------------------
@@ -75,6 +76,7 @@ Here's how you could sign an invocation:
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_signing_single_transaction.py
     :language: python
     :lines: 14-28,41-54
+    :dedent: 4
 
 
 Deploying new contracts
@@ -85,6 +87,7 @@ Here's how you can deploy new contracts:
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_deploying_new_contracts.py
     :language: python
     :lines: 12-38,42-71
+    :dedent: 4
 
 
 Handling client errors
@@ -94,6 +97,7 @@ You can use ``starknet.net.client.BadRequest`` to catch errors from invalid requ
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_handling_client_errors.py
     :language: python
     :lines: 9-15,19-21
+    :dedent: 4
 
 
 Data transformation
@@ -199,6 +203,7 @@ Since the `nonce`'s value will always be unique for each message, this value is 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_eth_sn_messages.py
     :language: python
     :lines: 12-42,49,63-75
+    :dedent: 4
 
 
 StarkNet -> Ethereum messages
@@ -210,3 +215,4 @@ The return value is an `int`, representing the number of unconsumed messages on 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_sn_eth_messages.py
     :language: python
     :lines: 12-39,45-46,60-68,74-79
+    :dedent: 4
