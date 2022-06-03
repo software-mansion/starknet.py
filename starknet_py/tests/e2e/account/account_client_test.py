@@ -128,3 +128,50 @@ async def test_estimate_fee_called(run_devnet):
         ).estimate_fee()
 
         mocked_estimate_fee.assert_called()
+
+
+@pytest.mark.asyncio
+async def test_estimated_fee_greater_than_zero(run_devnet):
+    acc_client = await DevnetClientFactory(run_devnet).make_devnet_client()
+
+    deployment_result = await Contract.deploy(
+        client=acc_client, compilation_source=erc20_mock_source_code
+    )
+    deployment_result = await deployment_result.wait_for_acceptance()
+    erc20_contract = deployment_result.deployed_contract
+
+    estimated_fee = (
+        await erc20_contract.functions["balanceOf"]
+        .prepare("1234", max_fee=0)
+        .estimate_fee()
+    )
+
+    assert estimated_fee > 0
+
+
+@pytest.mark.asyncio
+async def test_fee_higher_for_account_client(run_devnet):
+    acc_client = await DevnetClientFactory(run_devnet).make_devnet_client()
+    client = await DevnetClientFactory(run_devnet).make_devnet_client_without_account()
+
+    deployment_result = await Contract.deploy(
+        client=acc_client, compilation_source=erc20_mock_source_code
+    )
+    deployment_result = await deployment_result.wait_for_acceptance()
+
+    contract_acc = deployment_result.deployed_contract
+    contract_client = await Contract.from_address(contract_acc.address, client)
+
+    estimated_fee_signed = (
+        await contract_acc.functions["balanceOf"]
+        .prepare("1234", max_fee=0)
+        .estimate_fee()
+    )
+
+    estimated_fee = (
+        await contract_client.functions["balanceOf"]
+        .prepare("1234", max_fee=0)
+        .estimate_fee()
+    )
+
+    assert estimated_fee < estimated_fee_signed
