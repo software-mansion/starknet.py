@@ -3,7 +3,6 @@ from functools import reduce
 from typing import List, Optional
 
 from eth_utils import keccak
-from hexbytes import HexBytes
 from starkware.starknet.services.api.feeder_gateway.response_objects import (
     TransactionReceipt,
 )
@@ -51,8 +50,8 @@ class MessageToEthContent:
         )
 
 
-def int_from_hexbytes(hexb: HexBytes) -> int:
-    return int(hexb.hex(), 16)
+def int_from_bytes(byte: bytes) -> int:
+    return int(byte.hex(), 16)
 
 
 @add_sync_methods
@@ -129,7 +128,7 @@ class MessageToEth:
                              or one of "latest", "earliest", "pending"
         :return: an integer (ranging from 0 upwards, representing the number of messages on L1 waiting for consumption)
         """
-        return int_from_hexbytes(
+        return int_from_bytes(
             StarknetL1Contract(chain_id, web3).l2_to_l1_messages(
                 self.hash, block_number
             )
@@ -245,7 +244,7 @@ class MessageToStarknet:
         :return: an integer (0 or 1, 0 meaning not received or a consumed message,
                  and 1 meaning a queued message waiting for consumer)
         """
-        return int_from_hexbytes(
+        return int_from_bytes(
             StarknetL1Contract(chain_id, web3).l1_to_l2_messages(
                 self.hash, block_number
             )
