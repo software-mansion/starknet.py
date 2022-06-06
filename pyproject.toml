@@ -63,7 +63,8 @@ docs_open = { shell = "open docs/_build/html/index.html" }
 lint = "pylint starknet_py"
 format = "black starknet_py"
 format_check = "black --check starknet_py"
-ci = ["lint", "format_check", "test"]
+requirements_check.shell = "poetry export -f requirements.txt --without-hashes --extras docs | cmp - requirements.txt"
+ci = ["lint", "format_check", "requirements_check", "test"]
 
 [tool.coverage.run]
 source = ["starknet_py"]
