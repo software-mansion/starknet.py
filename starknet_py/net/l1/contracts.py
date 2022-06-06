@@ -2,6 +2,9 @@
 import typing
 from typing import Sequence
 
+
+from hexbytes import HexBytes
+
 # noinspection PyProtectedMember
 from web3._utils.contracts import prepare_transaction
 from web3 import Web3
@@ -35,8 +38,8 @@ class StarknetL1Contract:
         )
 
     def l2_to_l1_messages(
-        self, msg_hash: int, block_number: EthBlockIdentifier = None
-    ) -> int:
+        self, msg_hash: bytes, block_number: EthBlockIdentifier = None
+    ) -> HexBytes:
         abi: ABIFunction = {
             "inputs": typing.cast(
                 Sequence[ABIFunctionParams],
@@ -64,8 +67,8 @@ class StarknetL1Contract:
         )
 
     def l1_to_l2_messages(
-        self, msg_hash: int, block_number: EthBlockIdentifier = None
-    ) -> int:
+        self, msg_hash: bytes, block_number: EthBlockIdentifier = None
+    ) -> HexBytes:
         abi: ABIFunction = {
             "inputs": typing.cast(
                 Sequence[ABIFunctionParams],
