@@ -18,6 +18,31 @@ erc20_mock_source_code = Path(directory, "erc20_mock.cairo").read_text("utf-8")
 
 
 @pytest.mark.asyncio
+async def test_declare(run_devnet):
+    acc_client: AccountClient = await DevnetClientFactory(
+        run_devnet
+    ).make_devnet_client()
+
+    res = await acc_client.declare(compilation_source=erc20_mock_source_code)
+
+    assert res["class_hash"] is not None
+
+
+@pytest.mark.asyncio
+async def test_declare_raises_when_missing_source(run_devnet):
+    acc_client: AccountClient = await DevnetClientFactory(
+        run_devnet
+    ).make_devnet_client()
+
+    with pytest.raises(ValueError) as v_err:
+        await acc_client.declare()
+
+    assert "One of compiled_contract or compilation_source is required." in str(
+        v_err.value
+    )
+
+
+@pytest.mark.asyncio
 async def test_deploy_account_contract_and_sign_tx(run_devnet):
     acc_client = await DevnetClientFactory(run_devnet).make_devnet_client()
 
@@ -29,7 +54,7 @@ async def test_deploy_account_contract_and_sign_tx(run_devnet):
 
     k, v = 13, 4324
     await (
-        await map_contract.functions["put"].invoke(k, v, max_fee=0)
+        await map_contract.functions["put"].invoke(k, v, max_fee=1)
     ).wait_for_acceptance()
     (resp,) = await map_contract.functions["get"].call(k)
 

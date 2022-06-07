@@ -5,13 +5,13 @@ from starkware.crypto.signature.signature import (
     private_to_stark_key,
     get_random_private_key,
 )
-from starkware.starknet.definitions.fields import ContractAddressSalt
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 from starkware.starknet.core.os.transaction_hash.transaction_hash import (
     calculate_transaction_hash_common,
     TransactionHashPrefix,
 )
+from starkware.starknet.services.api.gateway.transaction import DECLARE_SENDER_ADDRESS
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
 from starknet_py.compile.compiler import (
@@ -29,7 +29,6 @@ from starknet_py.net.models import (
     InvokeFunction,
     StarknetChainId,
     TransactionType,
-    Deploy,
 )
 from starknet_py.net.networks import Network, MAINNET, TESTNET
 from starknet_py.utils.sync import add_sync_methods
@@ -183,7 +182,7 @@ class AccountClient(Client):
         :param token: Optional token for Starknet API access, appended in a query string
         :return: API response dictionary with `code`, `transaction_hash`
         """
-        if tx.tx_type == TransactionType.DEPLOY:
+        if tx.tx_type in (TransactionType.DECLARE, TransactionType.DEPLOY):
             return await super().add_transaction(tx, token)
 
         if tx.signature:
@@ -197,18 +196,15 @@ class AccountClient(Client):
         self,
         compilation_source: Optional[StarknetCompilationSource] = None,
         compiled_contract: Optional[str] = None,
-        max_fee: int = 0,
         version: int = 0,
         search_paths: Optional[List[str]] = None,
     ) -> dict:
-        # pylint disable: too-many-arguments
         """
         Declares contract class.
         Either `compilation_source` or `compiled_contract` is required.
 
         :param compilation_source: string containing source code or a list of source files paths
         :param compiled_contract: string containing compiled contract. Useful for reading compiled contract from a file
-        :param max_fee: Max amount of Wei to be paid when executing transaction
         :param version: PreparedFunctionCall version
         :param search_paths: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts
         :return: Dictionary with 'transaction_hash' and 'class_hash'
@@ -227,8 +223,8 @@ class AccountClient(Client):
         res = await self.add_transaction(
             tx=Declare(
                 contract_class=contract_class,
-                sender_address=self.address,
-                max_fee=max_fee,
+                sender_address=DECLARE_SENDER_ADDRESS,
+                max_fee=0,
                 signature=[],
                 nonce=0,
                 version=version,
@@ -240,28 +236,28 @@ class AccountClient(Client):
 
         return res
 
-    async def deploy(
-        self,
-        class_hash: str,
-        constructor_calldata: List[int],
-        salt: Optional[int] = None,
-        version: Optional[int] = 0,
-    ) -> AddressRepresentation:
-        res = await self.add_transaction(
-            tx=Deploy(
-                contract_address_salt=ContractAddressSalt.get_random_value()
-                if salt is None
-                else salt,
-                contract_definition=class_hash,  # TODO: for now it is wrong
-                constructor_calldata=constructor_calldata,
-                version=version,
-            )
-        )
-
-        if res["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
-            raise TransactionNotReceivedError()
-
-        return res["address"]
+    # async def deploy(
+    #     self,
+    #     class_hash: str,
+    #     constructor_calldata: List[int],
+    #     salt: Optional[int] = None,
+    #     version: Optional[int] = 0,
+    # ) -> AddressRepresentation:
+    #     res = await self.add_transaction(
+    #         tx=Deploy(
+    #             contract_address_salt=ContractAddressSalt.get_random_value()
+    #             if salt is None
+    #             else salt,
+    #             contract_definition=class_hash,  # TODO: for now it is wrong
+    #             constructor_calldata=constructor_calldata,
+    #             version=version,
+    #         )
+    #     )
+    #
+    #     if res["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
+    #         raise TransactionNotReceivedError()
+    #
+    #     return res["address"]
 
     async def estimate_fee(
         self,
