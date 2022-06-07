@@ -21,6 +21,7 @@ from starknet_py.compile.compiler import (
 )
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.net.models.transaction import Declare
+from starknet_py.transaction_exceptions import TransactionNotReceivedError
 from starknet_py.utils.data_transformer.data_transformer import DataTransformer
 from starknet_py.net import Client
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
@@ -196,10 +197,22 @@ class AccountClient(Client):
         self,
         compilation_source: Optional[StarknetCompilationSource] = None,
         compiled_contract: Optional[str] = None,
-        max_fee: Optional[int] = 0,
-        version: Optional[int] = 0,
+        max_fee: int = 0,
+        version: int = 0,
         search_paths: Optional[List[str]] = None,
     ) -> dict:
+        # pylint disable: too-many-arguments
+        """
+        Declares contract class.
+        Either `compilation_source` or `compiled_contract` is required.
+
+        :param compilation_source: string containing source code or a list of source files paths
+        :param compiled_contract: string containing compiled contract. Useful for reading compiled contract from a file
+        :param max_fee: Max amount of Wei to be paid when executing transaction
+        :param version: PreparedFunctionCall version
+        :param search_paths: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts
+        :return: Dictionary with 'transaction_hash' and 'class_hash'
+        """
         if not compiled_contract and not compilation_source:
             raise ValueError(
                 "One of compiled_contract or compilation_source is required."
@@ -223,9 +236,9 @@ class AccountClient(Client):
         )
 
         if res["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
-            raise Exception("Transaction not received")
+            raise TransactionNotReceivedError()
 
-        return res["class_hash"]
+        return res
 
     async def deploy(
         self,
@@ -246,7 +259,7 @@ class AccountClient(Client):
         )
 
         if res["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
-            raise Exception("Transaction not received")
+            raise TransactionNotReceivedError()
 
         return res["address"]
 

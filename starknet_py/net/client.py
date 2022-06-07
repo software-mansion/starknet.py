@@ -258,6 +258,5 @@ class Client:
         )
 
         if res["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
-            raise Exception("Transaction not received")
-
+            raise TransactionNotReceivedError()
         return res
