@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import dataclasses
 import sys
+import warnings
 from dataclasses import dataclass
 from functools import lru_cache
 from typing import (
@@ -229,6 +230,11 @@ class PreparedFunctionCall:
 
         if self.max_fee is None:
             raise ValueError("Max_fee must be specified when invoking a transaction")
+
+        if self.max_fee == 0:
+            warnings.warn(
+                "Transaction will fail with max_fee set to 0. Change it to a higher value."
+            )
 
         tx = self._make_invoke_function(signature=signature)
         response = await self._client.add_transaction(tx=tx)
