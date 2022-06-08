@@ -28,6 +28,7 @@ def test_deploy_hash():
             contract_address=ADDRESS,
             calldata=[],
             chain_id=StarknetChainId.TESTNET,
+            version=0,
         )
         == 0x57D49B4C979A3DACBF1D23E1DEBAAEFCAC1AB7E052CC0CE2A265B90657494BF
     )
