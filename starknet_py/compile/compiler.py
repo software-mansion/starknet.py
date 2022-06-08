@@ -50,7 +50,7 @@ class Compiler:
         :return: string of compiled contract
         """
         return starknet_compile(
-            self.contract_source,
+            source=self.contract_source,
             is_account_contract=self.is_account_contract,
             search_paths=self.search_paths,
         )
