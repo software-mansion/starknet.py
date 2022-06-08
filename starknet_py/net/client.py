@@ -245,6 +245,7 @@ class Client:
         compiled_contract: Union[ContractClass, str],
         constructor_calldata: List[int],
         salt: Optional[int] = None,
+        version: int = 0,
     ) -> dict:
         if isinstance(compiled_contract, str):
             compiled_contract = ContractClass.loads(compiled_contract)
@@ -256,7 +257,7 @@ class Client:
                 else salt,
                 contract_definition=compiled_contract,
                 constructor_calldata=constructor_calldata,
-                version=0,  # FIXME add logic
+                version=version,
             )
         )
 
