@@ -60,11 +60,9 @@ async def test_sn_eth_messages(run_devnet):
     sn_to_eth_msg = MessageToEth.from_tx_receipt(tx_receipt)
 
     # 4. From transaction hash (fetches the receipt for you)
-    sn_to_eth_msg = (
-        await MessageToEth.from_tx_hash(  # For sync version, use 'from_tx_hash_sync'
-            "0x123123123", client
-        )
-    )
+    sn_to_eth_msg = await MessageToEth.from_tx_hash(
+        "0x123123123", client
+    )  # For sync version, use 'from_tx_hash_sync'
 
     # add to docs: end
 

@@ -31,7 +31,7 @@ async def test_deploying_new_contracts(run_devnet):
                 range_check_ptr
             }(_public_key: felt):
             public_key.write(_public_key)
-            return()
+            return ()
         end
         """
 

@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 import pytest
-from starknet_py.tests.e2e.utils import DevnetClientFactory
+from starknet_py.net.models import StarknetChainId
 
 directory = os.path.dirname(__file__)
 map_source_code = Path(directory, "map.cairo").read_text("utf-8")
@@ -12,16 +12,16 @@ async def test_using_account_client(run_devnet):
     # pylint: disable=import-outside-toplevel, duplicate-code
     # add to docs: start
     from starknet_py.net import AccountClient
-    from starknet_py.net.networks import TESTNET
     from starknet_py.contract import Contract
 
-    # Creates an account on local network and returns an instance
-    acc_client = await AccountClient.create_account(net=TESTNET)
     # add to docs: end
-
-    acc_client = await DevnetClientFactory(run_devnet).make_devnet_client()
-
+    testnet = run_devnet
     # add to docs: start
+
+    # Creates an account on local network and returns an instance
+    acc_client = await AccountClient.create_account(
+        net=testnet, chain=StarknetChainId.TESTNET
+    )
 
     # Deploy an example contract which implements a simple k-v store. Deploy transaction is not being signed.
     deployment_result = await Contract.deploy(
@@ -39,9 +39,8 @@ async def test_using_account_client(run_devnet):
         await map_contract.functions["put"].invoke(k, v, max_fee=0)
     ).wait_for_acceptance()
 
-    (resp,) = await map_contract.functions["get"].call(
-        k
-    )  # Retrieves the value, which is equal to 4324 in this case
+    # Retrieves the value, which is equal to 4324 in this case
+    (resp,) = await map_contract.functions["get"].call(k)
     # add to docs: end
 
     assert resp == v

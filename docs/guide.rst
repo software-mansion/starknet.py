@@ -214,5 +214,5 @@ The return value is an `int`, representing the number of unconsumed messages on 
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_sn_eth_messages.py
     :language: python
-    :lines: 12-39,45-46,60-68,74-79
+    :lines: 12-39,45-46,60-66,72-77
     :dedent: 4

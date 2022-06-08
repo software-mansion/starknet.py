@@ -29,7 +29,7 @@ Example usage:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/quickstart/test_using_account_client.py
     :language: python
-    :lines: 14-19,25-44
+    :lines: 14-16,20-43
     :dedent: 4
 
 Using Contract
