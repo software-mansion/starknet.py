@@ -8,6 +8,7 @@ from starkware.starknet.services.api.feeder_gateway.response_objects import (
     TransactionReceipt,
     L2ToL1Message,
     TransactionInfo,
+    TransactionStatus,
 )
 
 # noinspection PyProtectedMember
@@ -148,7 +149,7 @@ async def test_messages_from_tx_hash(w3_mock):
             to_address="0x2E68120c4791c8EAb66B1DEc565E3605F2B18C4C",
             payload=[MOCK_MESSAGES_AMT],
         )
-        tx_info = TransactionInfo.create(status=None)
+        tx_info = TransactionInfo.create(status=TransactionStatus.NOT_RECEIVED)
         return TransactionReceipt.from_tx_info(
             l2_to_l1_messages=[message],
             actual_fee=0,
