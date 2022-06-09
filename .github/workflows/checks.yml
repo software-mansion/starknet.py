@@ -32,6 +32,9 @@ jobs:
     - name: Analysing the code with pylint
       run: |
         poetry run poe lint
+    - name: Check if requriements.txt is up-to-date
+      run: |
+        poetry export -f requirements.txt --without-hashes --extras docs | cmp - requirements.txt
     - name: Unit & e2e test
       run: |
         poetry run poe test
