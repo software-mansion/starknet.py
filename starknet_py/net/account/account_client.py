@@ -38,7 +38,9 @@ class AccountClient(Client):
         **kwargs,
     ):
         if signer is None and key_pair is None:
-            raise ValueError("Either a signer or a key_pair must be provied in AccountClient constructor")
+            raise ValueError(
+                "Either a signer or a key_pair must be provied in AccountClient constructor"
+            )
         super().__init__(net, *args, **kwargs)
         self.net = net
         self.address = parse_address(address)
