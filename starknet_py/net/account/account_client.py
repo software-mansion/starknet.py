@@ -188,8 +188,7 @@ class AccountClient(Client):
         :return: Instance of AccountClient which interacts with created account on given network
         """
         if signer is None:
-            if private_key is None:
-                private_key = get_random_private_key()
+            private_key = private_key or get_random_private_key()
 
             key_pair = KeyPair.from_private_key(private_key)
             address = await deploy_account_contract(
