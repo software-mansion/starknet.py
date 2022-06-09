@@ -3,7 +3,7 @@ import typing
 from typing import Optional, List, Dict, Union
 
 # noinspection PyPackageRequirements
-from services.external_api.base_client import RetryConfig, BadRequest as BadRequestError
+from services.external_api.client import RetryConfig, BadRequest as BadRequestError
 from starkware.starknet.definitions.fields import ContractAddressSalt
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
