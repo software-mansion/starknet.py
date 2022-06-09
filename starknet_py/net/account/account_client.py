@@ -32,14 +32,19 @@ class AccountClient(Client):
         self,
         address: AddressRepresentation,
         net: Network,
-        signer: BaseSigner,
         *args,
+        signer: Optional[BaseSigner] = None,
+        key_pair: Optional[KeyPair] = None,
         **kwargs,
     ):
+        if signer is None and key_pair is None:
+            raise ValueError("Either a signer or a key_pair must be provied in AccountClient constructor")
         super().__init__(net, *args, **kwargs)
         self.net = net
         self.address = parse_address(address)
-        self.signer = signer
+        self.signer = signer or StarkCurveSigner(
+            address=self.address, key_pair=key_pair, chain_id=self.chain.value
+        )
 
     async def _get_nonce(self) -> int:
         [nonce] = await super().call_contract(
