@@ -5,16 +5,16 @@ from typing import Optional, List, Dict, Union
 # noinspection PyPackageRequirements
 from services.external_api.base_client import RetryConfig, BadRequest as BadRequestError
 from starkware.starknet.definitions.fields import ContractAddressSalt
-from starkware.starknet.services.api.contract_definition import ContractDefinition
+from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
     FeederGatewayClient,
     CastableToHash,
     JsonObject,
     TransactionInfo,
+    TransactionReceipt,
 )
 from starkware.starknet.services.api.feeder_gateway.response_objects import (
     StarknetBlock,
-    TransactionReceipt,
 )
 from starkware.starknet.services.api.gateway.gateway_client import GatewayClient
 from starkware.starkware_utils.error_handling import StarkErrorCode
@@ -73,7 +73,7 @@ class Client:
         self,
         invoke_tx: InvokeFunction,
         block_hash: Optional[CastableToHash] = None,
-        block_number: Optional[BlockIdentifier] = None,
+        block_number: Optional[BlockIdentifier] = "pending",
     ) -> List[int]:
         """
         Calls the contract with given instance of InvokeTransaction
@@ -93,7 +93,7 @@ class Client:
     async def get_block(
         self,
         block_hash: Optional[CastableToHash] = None,
-        block_number: Optional[BlockIdentifier] = None,
+        block_number: Optional[BlockIdentifier] = "pending",
     ) -> StarknetBlock:
         """
         Retrieve the block's data by its number or hash
@@ -108,7 +108,7 @@ class Client:
         self,
         contract_address: int,
         block_hash: Optional[CastableToHash] = None,
-        block_number: Optional[BlockIdentifier] = None,
+        block_number: Optional[BlockIdentifier] = "pending",
     ) -> dict:
         """
         Retrieve contract's bytecode and abi.
@@ -137,7 +137,7 @@ class Client:
         contract_address: int,
         key: int,
         block_hash: Optional[CastableToHash] = None,
-        block_number: Optional[BlockIdentifier] = None,
+        block_number: Optional[BlockIdentifier] = "pending",
     ) -> str:
         """
         :param contract_address: Contract's address on Starknet
@@ -245,12 +245,13 @@ class Client:
 
     async def deploy(
         self,
-        compiled_contract: Union[ContractDefinition, str],
+        compiled_contract: Union[ContractClass, str],
         constructor_calldata: List[int],
         salt: Optional[int] = None,
+        version: int = 0,
     ) -> dict:
         if isinstance(compiled_contract, str):
-            compiled_contract = ContractDefinition.loads(compiled_contract)
+            compiled_contract = ContractClass.loads(compiled_contract)
 
         res = await self.add_transaction(
             tx=Deploy(
@@ -259,6 +260,7 @@ class Client:
                 else salt,
                 contract_definition=compiled_contract,
                 constructor_calldata=constructor_calldata,
+                version=version,
             )
         )
 

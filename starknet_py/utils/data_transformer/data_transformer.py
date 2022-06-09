@@ -344,17 +344,22 @@ class DataTransformer:
         )
 
     @staticmethod
-    def _remove_array_lengths(type_by_name: dict) -> dict:
-        """
-        If it is an array ignore array_len argument, we prepend length to <type>* by default,
-        so we can omit this input.
-        """
-
-        is_array_len = (
-            lambda name, cairo_type: name.endswith("_len")
+    def _is_array_len(name, cairo_type, type_by_name: dict) -> bool:
+        return (
+            name.endswith("_len")
             and isinstance(cairo_type, TypeFelt)
             and name[:-4] in type_by_name
             and isinstance(type_by_name[name[:-4]], TypePointer)
         )
 
-        return {k: v for k, v in type_by_name.items() if not is_array_len(k, v)}
+    @staticmethod
+    def _remove_array_lengths(type_by_name: dict) -> dict:
+        """
+        If it is an array ignore array_len argument, we prepend length to <type>* by default,
+        so we can omit this input.
+        """
+        return {
+            k: v
+            for k, v in type_by_name.items()
+            if not DataTransformer._is_array_len(k, v, type_by_name=type_by_name)
+        }
