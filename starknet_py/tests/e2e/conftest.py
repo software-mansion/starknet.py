@@ -35,7 +35,7 @@ def start_devnet():
         str(devnet_port),
         "--accounts",
         str(10),
-        "--seed", # generates same accounts each time
+        "--seed",  # generates same accounts each time
         str(1),
     ]
     # pylint: disable=consider-using-with

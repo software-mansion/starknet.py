@@ -6,7 +6,10 @@ from starkware.crypto.signature.signature import (
     get_random_private_key,
 )
 
-from starkware.starknet.public.abi import get_selector_from_name, EXECUTE_ENTRY_POINT_SELECTOR
+from starkware.starknet.public.abi import (
+    get_selector_from_name,
+    EXECUTE_ENTRY_POINT_SELECTOR,
+)
 
 from starknet_py.net import Client
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
@@ -76,7 +79,7 @@ class AccountClientForTests(Client):
                 calldata=[],
                 signature=[],
                 max_fee=tx.max_fee,
-                version=tx.version
+                version=tx.version,
             )
         )
         nonce = result[0]
@@ -93,7 +96,7 @@ class AccountClientForTests(Client):
 
         return await super().add_transaction(
             InvokeFunction(
-                entry_point_selector=EXECUTE_ENTRY_POINT_SELECTOR,#get_selector_from_name("__execute__"),
+                entry_point_selector=EXECUTE_ENTRY_POINT_SELECTOR,  # get_selector_from_name("__execute__"),
                 calldata=[
                     1,
                     tx.contract_address,
@@ -106,7 +109,7 @@ class AccountClientForTests(Client):
                 contract_address=self.address,
                 signature=[r, s],
                 max_fee=tx.max_fee,
-                version=tx.version
+                version=tx.version,
             )
         )
 
