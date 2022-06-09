@@ -131,7 +131,7 @@ class AccountClient(Client):
             version=tx.version,
         )
 
-    async def _make_signed_transaction(self, tx: InvokeFunction):
+    async def _sign_transaction(self, tx: InvokeFunction):
         execute_tx = await self._prepare_execute_transaction(tx)
         signature = self.signer.sign_transaction(execute_tx)
         execute_tx = add_signature_to_transaction(execute_tx, signature)
@@ -156,7 +156,7 @@ class AccountClient(Client):
                 "Adding signatures to a signer tx currently isn't supported"
             )
 
-        return await super().add_transaction(await self._make_signed_transaction(tx))
+        return await super().add_transaction(await self._sign_transaction(tx))
 
     async def estimate_fee(
         self,
@@ -166,7 +166,7 @@ class AccountClient(Client):
         :param tx: Transaction which fee we want to calculate
         :return: Estimated fee
         """
-        return await super().estimate_fee(await self._make_signed_transaction(tx))
+        return await super().estimate_fee(await self._sign_transaction(tx))
 
     @staticmethod
     async def create_account(
