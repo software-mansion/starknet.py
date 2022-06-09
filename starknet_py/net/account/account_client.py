@@ -221,8 +221,7 @@ async def deploy_account_contract(
     await client.wait_for_tx(
         tx_hash=result["transaction_hash"],
     )
-    address = result["address"]
-    return address
+    return result["address"]
 
 
 def add_signature_to_transaction(
