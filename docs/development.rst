@@ -85,7 +85,7 @@ Running e2e tests in PyCharm
 
 ⚠️ **Warning**: Make sure to fill your interpreter in the configuration, to match your project's poetry venv.
 
-Realising checklist
+Release checklist
 -------------------
 
 Perform these actions before releasing a new StarkNet.py version
