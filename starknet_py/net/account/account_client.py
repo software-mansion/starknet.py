@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 
 from starkware.crypto.signature.signature import get_random_private_key
 from starkware.starknet.public.abi import get_selector_from_name
@@ -38,7 +38,7 @@ class AccountClient(Client):
     ):
         super().__init__(net, *args, **kwargs)
         self.net = net
-        self.address = address
+        self.address = parse_address(address)
         self.signer = signer
 
     async def _get_nonce(self) -> int:
@@ -124,6 +124,12 @@ class AccountClient(Client):
             version=tx.version,
         )
 
+    async def _make_signed_transaction(self, tx: InvokeFunction):
+        execute_tx = await self._prepare_execute_transaction(tx)
+        signature = self.signer.sign_transaction(execute_tx)
+        execute_tx = add_signature_to_transaction(execute_tx, signature)
+        return execute_tx
+
     async def add_transaction(
         self,
         tx: InvokeFunction,
@@ -143,11 +149,7 @@ class AccountClient(Client):
                 "Adding signatures to a signer tx currently isn't supported"
             )
 
-        execute_tx = self._prepare_execute_transaction(tx)
-        signature = self.signer.sign_transaction(execute_tx)
-        execute_tx.signature = signature
-
-        return await super().add_transaction(execute_tx)
+        return await super().add_transaction(await self._make_signed_transaction(tx))
 
     async def estimate_fee(
         self,
@@ -157,7 +159,7 @@ class AccountClient(Client):
         :param tx: Transaction which fee we want to calculate
         :return: Estimated fee
         """
-        return await super().estimate_fee(await self._prepare_execute_transaction(tx))
+        return await super().estimate_fee(await self._make_signed_transaction(tx))
 
     @staticmethod
     async def create_account(
@@ -214,3 +216,16 @@ async def deploy_account_contract(
     )
     address = result["address"]
     return address
+
+
+def add_signature_to_transaction(
+    tx: InvokeFunction, signature: List[int]
+) -> InvokeFunction:
+    return InvokeFunction(
+        contract_address=tx.contract_address,
+        entry_point_selector=tx.entry_point_selector,
+        calldata=tx.calldata,
+        max_fee=tx.max_fee,
+        signature=signature,
+        version=tx.version,
+    )

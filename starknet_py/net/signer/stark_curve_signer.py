@@ -6,9 +6,15 @@ from starkware.crypto.signature.signature import (
 )
 from starkware.starknet.core.os.transaction_hash.transaction_hash import (
     calculate_transaction_hash_common,
+    TransactionHashPrefix,
 )
 
-from starknet_py.net.models import AddressRepresentation, StarknetChainId, Transaction
+from starknet_py.net.models import (
+    AddressRepresentation,
+    StarknetChainId,
+    Transaction,
+    parse_address,
+)
 from starknet_py.net.signer.base_signer import BaseSigner
 from starknet_py.utils.crypto.facade import message_signature
 
@@ -30,7 +36,7 @@ class StarkCurveSigner(BaseSigner):
         key_pair: KeyPair,
         chain_id: StarknetChainId,
     ):
-        self.address = address
+        self.address = parse_address(address)
         self.key_pair = key_pair
         self.chain_id = chain_id
 
@@ -47,10 +53,10 @@ class StarkCurveSigner(BaseSigner):
         transaction: Transaction,
     ) -> List[int]:
         tx_hash = calculate_transaction_hash_common(
-            tx_hash_prefix=transaction.tx_type,
+            tx_hash_prefix=TransactionHashPrefix.INVOKE,
             version=transaction.version,
             contract_address=self.address,
-            entry_point_selector=transaction.entry_point.selector,
+            entry_point_selector=transaction.entry_point_selector,
             calldata=transaction.calldata,
             max_fee=transaction.max_fee,
             chain_id=self.chain_id.value,
