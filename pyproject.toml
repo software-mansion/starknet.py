@@ -15,7 +15,7 @@ documentation = "https://starknetpy.rtfd.io/"
 
 [tool.poetry.dependencies]
 python = ">=3.7.2,<3.10"
-cairo-lang = "0.8.2.1"
+cairo-lang = "0.9.0"
 asgiref = "^3.4.1"
 sphinx = {version = "^4.3.1", optional = true}
 web3 = ">=5.28.0,<6"
@@ -38,7 +38,7 @@ setuptools = "^60.0.3"
 pytest-mock = "^3.6.1"
 web3 = {extras=["tester"], version=">=5.28.0,<6"}
 pytest-xdist = "^2.5.0"
-starknet-devnet = "0.2.1"
+starknet-devnet = { git = "https://github.com/Shard-Labs/starknet-devnet/", rev="2cb3af9" }
 
 [tool.poe.tasks]
 test = ["test_unit", "test_e2e"]
