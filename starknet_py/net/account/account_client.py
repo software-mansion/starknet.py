@@ -1,4 +1,5 @@
 from typing import Dict, Optional, List
+from dataclasses import replace
 
 from starkware.crypto.signature.signature import get_random_private_key
 from starkware.starknet.public.abi import get_selector_from_name
@@ -227,11 +228,4 @@ async def deploy_account_contract(
 def add_signature_to_transaction(
     tx: InvokeFunction, signature: List[int]
 ) -> InvokeFunction:
-    return InvokeFunction(
-        contract_address=tx.contract_address,
-        entry_point_selector=tx.entry_point_selector,
-        calldata=tx.calldata,
-        max_fee=tx.max_fee,
-        signature=signature,
-        version=tx.version,
-    )
+    return replace(tx, signature=signature)
