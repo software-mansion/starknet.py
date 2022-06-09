@@ -29,9 +29,9 @@ jobs:
     - name: Check formatting with black
       run: |
         poetry run poe format_check
-    - name: Analysing the code with pylint
-      run: |
-        poetry run poe lint
+#    - name: Analysing the code with pylint
+#      run: |
+#        poetry run poe lint
     - name: Check if requriements.txt is up-to-date
       run: |
         poetry export -f requirements.txt --without-hashes --extras docs | cmp - requirements.txt
