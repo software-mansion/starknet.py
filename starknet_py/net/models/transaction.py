@@ -64,12 +64,14 @@ def compute_deploy_hash(
     contract_address: int,
     calldata: Sequence[int],
     chain_id: StarknetChainId,
+    version: int,
 ) -> int:
     """
 
     :param contract_address: int
     :param calldata: Sequence[int] (constructor arguments)
     :param chain_id: StarknetChainId
+    :param version: Version of deploy transaction
     :return: calculated hash
     """
     return calculate_deploy_transaction_hash(
@@ -77,5 +79,5 @@ def compute_deploy_hash(
         constructor_calldata=calldata,
         chain_id=chain_id.value,
         hash_function=pedersen_hash,
-        version=0,  # FIXME add logic
+        version=version,
     )

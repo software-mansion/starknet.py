@@ -23,7 +23,7 @@ from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.net.models.transaction import Declare
 from starknet_py.transaction_exceptions import TransactionNotReceivedError
 from starknet_py.utils.data_transformer.data_transformer import DataTransformer
-from starknet_py.net import Client
+from starknet_py.net.client import Client
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
 from starknet_py.net.models import (
     InvokeFunction,
