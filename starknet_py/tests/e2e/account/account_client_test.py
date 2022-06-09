@@ -54,7 +54,7 @@ async def test_deploy_account_contract_and_sign_tx(run_devnet):
 
     k, v = 13, 4324
     await (
-        await map_contract.functions["put"].invoke(k, v, max_fee=1)
+        await map_contract.functions["put"].invoke(k, v, max_fee=0)
     ).wait_for_acceptance()
     (resp,) = await map_contract.functions["get"].call(k)
 

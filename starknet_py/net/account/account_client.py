@@ -236,29 +236,6 @@ class AccountClient(Client):
 
         return res
 
-    # async def deploy(
-    #     self,
-    #     class_hash: str,
-    #     constructor_calldata: List[int],
-    #     salt: Optional[int] = None,
-    #     version: Optional[int] = 0,
-    # ) -> AddressRepresentation:
-    #     res = await self.add_transaction(
-    #         tx=Deploy(
-    #             contract_address_salt=ContractAddressSalt.get_random_value()
-    #             if salt is None
-    #             else salt,
-    #             contract_definition=class_hash,  # TODO: for now it is wrong
-    #             constructor_calldata=constructor_calldata,
-    #             version=version,
-    #         )
-    #     )
-    #
-    #     if res["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
-    #         raise TransactionNotReceivedError()
-    #
-    #     return res["address"]
-
     async def estimate_fee(
         self,
         tx: InvokeFunction,
