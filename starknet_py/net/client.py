@@ -9,7 +9,6 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
     CastableToHash,
     JsonObject,
     TransactionInfo,
-    TransactionReceipt,
 )
 from starkware.starknet.services.api.feeder_gateway.response_objects import (
     StarknetBlock,
@@ -273,6 +272,14 @@ class Client:
         block_hash: Optional[CastableToHash] = None,
         block_number: Optional[BlockIdentifier] = None,
     ) -> str:
+        """
+        Returns the class hash for a given contract instance address
+
+        :param contract_address: Contract instance address
+        :param block_hash: Fetches the value of the variable at given block hash
+        :param block_number: See above, uses block number (or "pending" block) instead of hash
+        :return: Class hash
+        """
         return await self._feeder_gateway.get_class_hash_at(
             block_hash=block_hash,
             block_number=block_number,
@@ -280,6 +287,12 @@ class Client:
         )
 
     async def get_class_by_hash(self, class_hash: CastableToHash) -> Dict[str, Any]:
+        """
+        Retuns the contract class for given hash
+
+        :param class_hash: Class hash
+        :return: Dict with representation of contract class
+        """
         if isinstance(class_hash, int):
             class_hash = hex(class_hash)
 
