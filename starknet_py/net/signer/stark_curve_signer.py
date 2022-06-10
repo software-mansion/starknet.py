@@ -32,11 +32,11 @@ class KeyPair:
 class StarkCurveSigner(BaseSigner):
     def __init__(
         self,
-        address: AddressRepresentation,
+        account_address: AddressRepresentation,
         key_pair: KeyPair,
         chain_id: StarknetChainId,
     ):
-        self.address = parse_address(address)
+        self.address = parse_address(account_address)
         self.key_pair = key_pair
         self.chain_id = chain_id
 

@@ -46,7 +46,7 @@ class AccountClient(Client):
         self.net = net
         self.address = parse_address(address)
         self.signer = signer or StarkCurveSigner(
-            address=self.address, key_pair=key_pair, chain_id=self.chain.value
+            account_address=self.address, key_pair=key_pair, chain_id=self.chain.value
         )
 
     async def _get_nonce(self) -> int:
@@ -195,7 +195,7 @@ class AccountClient(Client):
                 key_pair.public_key, net=net, chain=chain
             )
             signer = StarkCurveSigner(
-                address=address, key_pair=key_pair, chain_id=chain
+                account_address=address, key_pair=key_pair, chain_id=chain
             )
         else:
             address = await deploy_account_contract(
