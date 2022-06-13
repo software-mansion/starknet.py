@@ -1748,27 +1748,20 @@ test = ["pytest"]
 
 [[package]]
 name = "starknet-devnet"
-version = "0.2.2"
+version = "0.2.3"
 description = "A local testnet for Starknet"
 category = "dev"
 optional = false
 python-versions = ">=3.7.2,<3.10"
-develop = false
 
 [package.dependencies]
 cairo-lang = "0.9.0"
-cloudpickle = "~2.1.0"
-crypto-cpp-py = "~1.0.4"
-Flask = {version = "~2.0.3", extras = ["async"]}
-flask-cors = "~3.0.10"
-meinheld = "~1.0.2"
-Werkzeug = "~2.0.3"
-
-[package.source]
-type = "git"
-url = "https://github.com/Shard-Labs/starknet-devnet/"
-reference = "2cb3af9"
-resolved_reference = "2cb3af9b648ebbded20c1fdd8ab49ffba5ef150b"
+cloudpickle = ">=2.1.0,<2.2.0"
+crypto-cpp-py = ">=1.0.4,<1.1.0"
+Flask = {version = ">=2.0.3,<2.1.0", extras = ["async"]}
+flask-cors = ">=3.0.10,<3.1.0"
+meinheld = ">=1.0.2,<1.1.0"
+Werkzeug = ">=2.0.3,<2.1.0"
 
 [[package]]
 name = "sympy"
@@ -2006,7 +1999,7 @@ eth-tester = []
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.2,<3.10"
-content-hash = "342283788a6d90731d7fdb283ae7492875773f51f806909bd1b2f489003fe538"
+content-hash = "a96f5efb7491e6c93f88ba16640b8dd9affbd750d0fc6c7fdd38ff47f225b5be"
 
 [metadata.files]
 aiohttp = [
@@ -3212,7 +3205,10 @@ sphinxcontrib-serializinghtml = [
     {file = "sphinxcontrib-serializinghtml-1.1.5.tar.gz", hash = "sha256:aa5f6de5dfdf809ef505c4895e51ef5c9eac17d0f287933eb49ec495280b6952"},
     {file = "sphinxcontrib_serializinghtml-1.1.5-py2.py3-none-any.whl", hash = "sha256:352a9a00ae864471d3a7ead8d7d79f5fc0b57e8b3f95e9867eb9eb28999b92fd"},
 ]
-starknet-devnet = []
+starknet-devnet = [
+    {file = "starknet_devnet-0.2.3-py3-none-any.whl", hash = "sha256:ba04e9e0fab69d6d0c70c6baf95f77513c28d52452bae7c3cd2e33ec46a6795a"},
+    {file = "starknet_devnet-0.2.3.tar.gz", hash = "sha256:318430951f83d9b2dba6595fb5d11afb41ed397b691507c4db58959d08687593"},
+]
 sympy = [
     {file = "sympy-1.10.1-py3-none-any.whl", hash = "sha256:df75d738930f6fe9ebe7034e59d56698f29e85f443f743e51e47df0caccc2130"},
     {file = "sympy-1.10.1.tar.gz", hash = "sha256:5939eeffdf9e152172601463626c022a2c27e75cf6278de8d401d50c9d58787b"},
