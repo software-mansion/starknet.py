@@ -5,7 +5,7 @@ from typing import List, Any, Dict, Optional, Union
 from starkware.starknet.services.api.gateway.transaction import (
     InvokeFunction as IF,
     Transaction as T,
-    ContractDefinition as CD,
+    ContractClass as CD,
     Deploy as D,
 )
 

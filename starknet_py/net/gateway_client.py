@@ -1,5 +1,4 @@
 import typing
-import asyncio
 from typing import Union, Optional, List
 
 import aiohttp
@@ -9,11 +8,6 @@ from starkware.starknet.definitions.fields import ContractAddressSalt
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
 
-from starknet_py.transaction_exceptions import (
-    TransactionFailedError,
-    TransactionRejectedError,
-    TransactionNotReceivedError,
-)
 from starknet_py.net.base_client import (
     BaseClient,
     BlockHashIdentifier,
@@ -30,7 +24,6 @@ from starknet_py.net.client_models import (
     StarknetTransaction,
     ContractDefinition,
     Deploy,
-    TransactionStatus,
     Hash,
 )
 from starknet_py.net.gateway_schemas.gateway_schemas import (
@@ -200,6 +193,7 @@ class GatewayClient(BaseClient):
                 else salt,
                 contract_definition=contract,
                 constructor_calldata=constructor_calldata,
+                version=0,
             )
         )
 
