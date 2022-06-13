@@ -33,14 +33,14 @@ async def test_deploy_with_search_path(run_devnet):
     result = await Contract.deploy(
         client=client,
         compilation_source=base_source_code,
-        search_paths=[mock_contracts_base_path],
+        search_paths=[str(mock_contracts_base_path)],
     )
     await result.wait_for_acceptance()
 
     result = await Contract.deploy(
         client=client,
         compilation_source=base_source_code,
-        search_paths=[mock_contracts_base_path],
+        search_paths=[str(mock_contracts_base_path)],
     )
     result = await result.wait_for_acceptance()
     result = result.deployed_contract

@@ -4,6 +4,7 @@ MAINNET = "mainnet"
 TESTNET = "testnet"
 
 try:
+    # noinspection PyUnresolvedReferences
     from typing import Literal  # pylint: disable=no-name-in-module
 
     PredefinedNetwork = Literal["mainnet", "testnet"]

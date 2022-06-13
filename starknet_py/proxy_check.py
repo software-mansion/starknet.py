@@ -4,6 +4,7 @@ from starknet_py.constants import OZ_PROXY_STORAGE_KEY
 from starknet_py.net.models import parse_address
 
 
+# noinspection PyUnresolvedReferences
 class ProxyCheck(ABC):
     @abstractmethod
     async def is_proxy(self, contract: "Contract") -> bool:
@@ -18,6 +19,7 @@ class ProxyCheck(ABC):
         """
 
 
+# noinspection PyUnresolvedReferences
 class ArgentProxyCheck(ProxyCheck):
     async def is_proxy(self, contract: "Contract") -> bool:
         return "get_implementation" in contract.functions
@@ -27,6 +29,7 @@ class ArgentProxyCheck(ProxyCheck):
         return res[0]
 
 
+# noinspection PyUnresolvedReferences
 class OpenZeppelinProxyCheck(ProxyCheck):
     def __init__(self):
         self.storage_key = OZ_PROXY_STORAGE_KEY

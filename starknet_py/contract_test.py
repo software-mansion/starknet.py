@@ -85,7 +85,9 @@ def test_compute_hash():
 
 def test_compute_hash_with_search_path():
     assert (
-        Contract.compute_contract_hash(SOURCE_WITH_IMPORTS, search_paths=[search_path])
+        Contract.compute_contract_hash(
+            SOURCE_WITH_IMPORTS, search_paths=[str(search_path)]
+        )
         == EXPECTED_HASH_WITH_IMPORTS
     )
 
@@ -104,7 +106,7 @@ def test_compute_address_with_imports():
         Contract.compute_address(
             compilation_source=SOURCE_WITH_IMPORTS,
             salt=1111,
-            search_paths=[search_path],
+            search_paths=[str(search_path)],
         )
         == EXPECTED_ADDRESS_WITH_IMPORTS
     )
