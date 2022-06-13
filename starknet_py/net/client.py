@@ -1,6 +1,8 @@
 import asyncio
+import typing
 from typing import Optional, List, Dict, Union
 
+# noinspection PyPackageRequirements
 from services.external_api.client import RetryConfig, BadRequest as BadRequestError
 from starkware.starknet.definitions.fields import ContractAddressSalt
 from starkware.starknet.services.api.contract_class import ContractClass
@@ -122,6 +124,7 @@ class Client:
             block_hash,
             block_number,
         )
+        code = typing.cast(dict, code)
         if len(code["bytecode"]) == 0:
             raise BadRequest(
                 200, f"Contract with address {contract_address} was not found."
