@@ -13,8 +13,6 @@
 #
 import os
 import sys
-import sphinx_rtd_theme
-import enum_tools
 
 sys.path.insert(0, os.path.abspath("."))
 sys.path.insert(0, os.path.abspath("../"))
@@ -32,7 +30,7 @@ author = "Software Mansion"
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-needs_extensions = {"enum_tools": "^0.9.0"}
+needs_extensions = {"enum_tools.autoenum": "0.9.0"}
 
 extensions = [
     "sphinx.ext.autodoc",
@@ -66,3 +64,4 @@ html_css_files = ["custom.css"]
 
 autodoc_class_signature = "separated"
 autodoc_default_options = {"exclude-members": "__new__"}
+

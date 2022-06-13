@@ -1,16 +1,20 @@
 import json
 import os
+import typing
 from pathlib import Path
 from typing import List, NewType, Optional, Tuple, Union
 
-from starkware.starknet.services.api.contract_definition import ContractDefinition
+from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.cairo.lang.compiler.constants import MAIN_SCOPE, LIBS_DIR_ENVVAR
 from starkware.cairo.lang.cairo_constants import DEFAULT_PRIME
 from starkware.cairo.lang.compiler.cairo_compile import (
     get_module_reader,
 )
 from starkware.cairo.lang.compiler.preprocessor.preprocess_codes import preprocess_codes
-from starkware.starknet.compiler.compile import assemble_starknet_contract
+from starkware.starknet.compiler.compile import (
+    assemble_starknet_contract,
+    StarknetPreprocessedProgram,
+)
 from starkware.starknet.compiler.starknet_pass_manager import starknet_pass_manager
 
 CairoSourceCode = NewType("CairoSourceCode", str)
@@ -27,36 +31,44 @@ class Compiler:
 
     def __init__(
         self,
-        contract_source: List[StarknetCompilationSource],
+        contract_source: StarknetCompilationSource,
+        is_account_contract: bool = False,
         cairo_path: Optional[List[str]] = None,
     ):
         """
         Initializes compiler.
 
         :param contract_source: a list of source files paths
+        :param is_account_contract: Set this to ``True`` to compile account contracts
         :param cairo_path: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts
         """
         self.contract_source = contract_source
+        self.is_account_contract = is_account_contract
         self.search_paths = cairo_path
 
     def compile_contract(self) -> str:
         """
         Compiles a contract and returns it as string
 
+        :raises PreprocessorError: when is_account_contract parameter is incorrectly set
         :return: string of compiled contract
         """
-        return starknet_compile(self.contract_source, search_paths=self.search_paths)
+        return starknet_compile(
+            source=self.contract_source,
+            is_account_contract=self.is_account_contract,
+            search_paths=self.search_paths,
+        )
 
 
 def create_contract_definition(
     compiled_contract: str,
-) -> ContractDefinition:
+) -> ContractClass:
     """
     Creates ContractDefinition either from already compiled contract
 
     :return: a ContractDefinition
     """
-    return ContractDefinition.loads(compiled_contract)
+    return ContractClass.loads(compiled_contract)
 
 
 def load_cairo_source_code(filename: CairoFilename) -> str:
@@ -72,7 +84,7 @@ def load_cairo_source_code(filename: CairoFilename) -> str:
 
 
 def load_source_code(
-    src: List[StarknetCompilationSource],
+    src: StarknetCompilationSource,
 ) -> List[Tuple[str, str]]:
     if isinstance(src, str):
         return [(src, str(hash(src)))]
@@ -80,7 +92,8 @@ def load_source_code(
 
 
 def starknet_compile(
-    source: List[StarknetCompilationSource],
+    source: StarknetCompilationSource,
+    is_account_contract: bool = False,
     search_paths: Optional[List[str]] = None,
 ):
     file_contents_for_debug_info = {}
@@ -105,12 +118,15 @@ def starknet_compile(
         pass_manager=pass_manager,
         main_scope=MAIN_SCOPE,
     )
+    preprocessed = typing.cast(StarknetPreprocessedProgram, preprocessed)
 
     assembled_program = assemble_starknet_contract(
         preprocessed,
         main_scope=MAIN_SCOPE,
         add_debug_info=False,
         file_contents_for_debug_info=file_contents_for_debug_info,
+        filter_identifiers=False,
+        is_account_contract=is_account_contract,
     )
 
     return json.dumps(

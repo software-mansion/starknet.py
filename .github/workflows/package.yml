@@ -2,62 +2,11 @@ name: Build wheels
 on: workflow_dispatch
 
 jobs:
-  build_wheels:
-    name: Build wheel on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [macOS-10.15, windows-2019, ubuntu-20.04]
-
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: recursive
-
-      - uses: actions/setup-python@v2
-
-      - name: Set up QEMU
-        if: runner.os == 'Linux'
-        uses: docker/setup-qemu-action@v1
-        with:
-          platforms: all
-
-      - name: Install cibuildwheel
-        run: python -X utf8 -m pip install cibuildwheel==2.3.1
-
-      - name: Install poetry
-        run: python -X utf8 -m pip install poetry
-
-      - name: Convert setup.py
-        run: python  -X utf8 convert_pyproject.py build_crypto_extension
-
-      - name: Set up MinGW
-        if: runner.os == 'Windows'
-        uses: egor-tensin/setup-mingw@v2
-        with:
-          platform: x64
-
-      - name: Build wheels
-        run: python -X utf8 -m cibuildwheel --output-dir wheelhouse
-        env:
-          CIBW_ARCHS: all
-          CIBW_ARCHS_MACOS: "arm64 universal2 x86_64"
-          CIBW_BUILD_FRONTEND: "build"
-          CIBW_BUILD: cp37-* cp38-* cp39-*
-          CIBW_SKIP: '*i686 cp39-win_arm64'
-
-      - name: Upload built wheels
-        uses: actions/upload-artifact@v2
-        with:
-          path: ./wheelhouse/*.whl
-
   build_sdist:
     name: Build SDist
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-        with:
-          submodules: true
 
       - name: Install poetry
         run: python -X utf8 -m pip install poetry
@@ -71,7 +20,7 @@ jobs:
 
   upload_pypi:
     name: Upload package to PyPI
-    needs: [build_wheels, build_sdist]
+    needs: [build_sdist]
     runs-on: ubuntu-latest
 
     steps:

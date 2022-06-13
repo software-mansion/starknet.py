@@ -2,15 +2,15 @@ version: 2
 
 sphinx:
   configuration: docs/conf.py
+  fail_on_warning: true
 
 build:
   apt_packages:
     - libgmp3-dev
 
 python:
-  version: 3.8
+  version: "3.8"
   install:
+    - requirements: requirements.txt
     - method: pip
       path: .
-      extra_requirements:
-        - docs

@@ -25,13 +25,7 @@ Setup
 
 Crypto-cpp
 ----------
-
-By default, the library uses ``crypto-cpp`` and so it must be configured properly for development:
-
-1. Compile it from sources (https://github.com/starkware-libs/crypto-cpp)
-2. Copy ``libcrypto_c_exports.dylib`` from ``crypto-cpp/src/starkware/crypto/ffi/libcrypto_c_exports.dylib`` to ``starknet_py/utils/crypto``
-
-To use python implementation instead, ``DISABLE_CRYPTO_C_EXTENSION`` environment variable can be set to ``false``
+By default, the library uses `crypto_cpp_py <https://github.com/software-mansion-labs/crypto-cpp-py/>`_. To use python implementation instead, ``DISABLE_CRYPTO_C_EXTENSION`` environment variable can be set to ``false``
 
 .. code-block:: sh
 
@@ -91,3 +85,20 @@ Running e2e tests in PyCharm
 
 ⚠️ **Warning**: Make sure to fill your interpreter in the configuration, to match your project's poetry venv.
 
+Release checklist
+-------------------
+
+Perform these actions before releasing a new StarkNet.py version
+
+1. Bump package version in ``pyproject.toml``
+2. Re-lock using ``poetry lock --no-update``
+3. Make a PR to development with name of format ``vMINOR.MAJOR.PATCHES-alpha`` and merge it making sure that the merge commit message is the same as PR name
+4. Merge development into master without squashing
+
+.. code-block:: bash
+
+    git checkout master
+    git merge development
+
+5. Make a new release on GitHub
+6. Run release action from ``master`` branch

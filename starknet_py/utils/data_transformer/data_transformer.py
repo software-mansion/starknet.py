@@ -165,6 +165,7 @@ class TupleTransformer(TypeTransformer[TypeTuple, tuple]):
         results = []
 
         if TupleTransformer.isnamedtuple(values):
+            # noinspection PyUnresolvedReferences, PyProtectedMember
             values = values._asdict()
 
         for member in cairo_type.members:
@@ -206,6 +207,7 @@ class TupleTransformer(TypeTransformer[TypeTuple, tuple]):
             "Result", [(key, type(value)) for key, value in result.items()]
         )
         # pylint: disable=not-callable
+        # noinspection PyCallingNonCallable
         return res(**result), values
 
 
@@ -272,6 +274,7 @@ class DataTransformer:
     identifier_manager: IdentifierManager
 
     def resolve_type(self, cairo_type: CairoType) -> TypeTransformer:
+        # noinspection PyTypeChecker
         return mapping[cairo_type.__class__](
             identifier_manager=self.identifier_manager,
             resolve_type=self.resolve_type,
@@ -329,6 +332,7 @@ class DataTransformer:
             "Result", [(key, type(value)) for key, value in result.items()]
         )
         # pylint: disable=not-callable
+        # noinspection PyCallingNonCallable
         return result_tuple(**result)
 
     def _abi_to_types(self, abi_list) -> dict:
@@ -340,17 +344,22 @@ class DataTransformer:
         )
 
     @staticmethod
-    def _remove_array_lengths(type_by_name: dict) -> dict:
-        """
-        If it is an array ignore array_len argument, we prepend length to <type>* by default,
-        so we can omit this input.
-        """
-
-        is_array_len = (
-            lambda name, cairo_type: name.endswith("_len")
+    def _is_array_len(name, cairo_type, type_by_name: dict) -> bool:
+        return (
+            name.endswith("_len")
             and isinstance(cairo_type, TypeFelt)
             and name[:-4] in type_by_name
             and isinstance(type_by_name[name[:-4]], TypePointer)
         )
 
-        return {k: v for k, v in type_by_name.items() if not is_array_len(k, v)}
+    @staticmethod
+    def _remove_array_lengths(type_by_name: dict) -> dict:
+        """
+        If it is an array ignore array_len argument, we prepend length to <type>* by default,
+        so we can omit this input.
+        """
+        return {
+            k: v
+            for k, v in type_by_name.items()
+            if not DataTransformer._is_array_len(k, v, type_by_name=type_by_name)
+        }

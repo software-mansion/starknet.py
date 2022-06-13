@@ -1,7 +1,7 @@
 import time
 from starkware.crypto.signature.signature import verify, private_to_stark_key
 
-from starknet_py.utils.crypto.cpp_bindings import (
+from crypto_cpp_py.cpp_bindings import (
     unload_cpp_lib,
     get_cpp_lib_file,
     load_cpp_lib,
@@ -65,7 +65,7 @@ def test_invalid_crypto_path(monkeypatch, mocker):
     unload_cpp_lib()
     monkeypatch.setenv("DISABLE_CRYPTO_C_EXTENSION", "")
     mocker.patch(
-        "starknet_py.utils.crypto.cpp_bindings.get_cpp_lib_path",
+        "crypto_cpp_py.cpp_bindings.get_cpp_lib_path",
         return_value="/an/nonexisting/directory",
     )
 
