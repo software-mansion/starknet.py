@@ -21,7 +21,7 @@ erc20_mock_source_code = Path(directory, "erc20_mock.cairo").read_text("utf-8")
 
 @pytest.mark.asyncio
 async def test_declare(run_devnet):
-    acc_client: AccountClient = await DevnetClientFactory(
+    acc_client = await DevnetClientFactory(
         run_devnet
     ).make_devnet_client()
 
@@ -32,7 +32,7 @@ async def test_declare(run_devnet):
 
 @pytest.mark.asyncio
 async def test_declare_raises_when_missing_source(run_devnet):
-    acc_client: AccountClient = await DevnetClientFactory(
+    acc_client = await DevnetClientFactory(
         run_devnet
     ).make_devnet_client()
 

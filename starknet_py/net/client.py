@@ -17,10 +17,17 @@ from starkware.starknet.services.api.feeder_gateway.response_objects import (
     StarknetBlock,
 )
 from starkware.starknet.services.api.gateway.gateway_client import GatewayClient
+from starkware.starknet.services.api.gateway.transaction import DECLARE_SENDER_ADDRESS
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
+from starknet_py.compile.compiler import (
+    StarknetCompilationSource,
+    Compiler,
+    create_contract_class,
+)
 from starknet_py.constants import TxStatus, ACCEPTED_STATUSES
 from starknet_py.net.models.address import BlockIdentifier
+from starknet_py.net.models.transaction import Declare
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.net.models import (
     InvokeFunction,
@@ -266,4 +273,48 @@ class Client:
 
         if res["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
             raise TransactionNotReceivedError()
+        return res
+
+    async def declare(
+        self,
+        compilation_source: Optional[StarknetCompilationSource] = None,
+        compiled_contract: Optional[str] = None,
+        version: int = 0,
+        search_paths: Optional[List[str]] = None,
+    ) -> dict:
+        """
+        Declares contract class.
+        Either `compilation_source` or `compiled_contract` is required.
+
+        :param compilation_source: string containing source code or a list of source files paths
+        :param compiled_contract: string containing compiled contract. Useful for reading compiled contract from a file
+        :param version: PreparedFunctionCall version
+        :param search_paths: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts
+        :return: Dictionary with 'transaction_hash' and 'class_hash'
+        """
+        if not compiled_contract and not compilation_source:
+            raise ValueError(
+                "One of compiled_contract or compilation_source is required."
+            )
+
+        if not compiled_contract:
+            compiled_contract = Compiler(
+                contract_source=compilation_source, cairo_path=search_paths
+            ).compile_contract()
+        contract_class = create_contract_class(compiled_contract)
+
+        res = await self.add_transaction(
+            tx=Declare(
+                contract_class=contract_class,
+                sender_address=DECLARE_SENDER_ADDRESS,
+                max_fee=0,
+                signature=[],
+                nonce=0,
+                version=version,
+            )
+        )
+
+        if res["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
+            raise TransactionNotReceivedError()
+
         return res
