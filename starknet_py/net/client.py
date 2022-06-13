@@ -280,7 +280,7 @@ class Client:
         compilation_source: Optional[StarknetCompilationSource] = None,
         compiled_contract: Optional[str] = None,
         version: int = 0,
-        search_paths: Optional[List[str]] = None,
+        cairo_path: Optional[List[str]] = None,
     ) -> dict:
         """
         Declares contract class.
@@ -289,7 +289,7 @@ class Client:
         :param compilation_source: string containing source code or a list of source files paths
         :param compiled_contract: string containing compiled contract. Useful for reading compiled contract from a file
         :param version: PreparedFunctionCall version
-        :param search_paths: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts
+        :param cairo_path: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts
         :return: Dictionary with 'transaction_hash' and 'class_hash'
         """
         if not compiled_contract and not compilation_source:
@@ -299,7 +299,7 @@ class Client:
 
         if not compiled_contract:
             compiled_contract = Compiler(
-                contract_source=compilation_source, cairo_path=search_paths
+                contract_source=compilation_source, cairo_path=cairo_path
             ).compile_contract()
         contract_class = create_contract_class(compiled_contract)
 
