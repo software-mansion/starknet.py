@@ -142,7 +142,7 @@ class AccountClient(Client):
         self,
         tx: InvokeFunction,
         token: Optional[str] = None,
-    ) -> Dict[str, int]:
+    ) -> Dict[str, str]:
         """
         :param tx: Transaction which invokes another contract through account proxy.
                    Signed transactions aren't supported at the moment
