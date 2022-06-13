@@ -53,7 +53,7 @@ class L2toL1MessageSchema(Schema):
 class TransactionSchema(Schema):
     hash = Felt(data_key="transaction_hash")
     contract_address = Felt(data_key="contract_address")
-    entry_point_selector = Felt(data_key="entry_point_selector")
+    entry_point_selector = Felt(data_key="entry_point_selector", load_default=0)
     calldata = fields.List(Felt(), data_key="calldata")
     transaction_type = TransactionTypeField(data_key="type")
     # TODO verify this field actually exists

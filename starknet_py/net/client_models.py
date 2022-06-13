@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from enum import Enum, auto
+from enum import Enum
 from typing import List, Any, Dict, Optional, Union
 
 from starkware.starknet.services.api.gateway.transaction import (
@@ -43,8 +43,8 @@ class L2toL1Message:
 
 
 class TransactionType(Enum):
-    INVOKE = 0
-    DEPLOY = auto()
+    INVOKE = "INVOKE"
+    DEPLOY = "DEPLOY"
 
 
 @dataclass

@@ -93,11 +93,10 @@ class TransactionTypeField(fields.Field):
         data: Union[Mapping[str, Any], None],
         **kwargs,
     ) -> TransactionType:
-        # TODO maybe simplify
-        enum_values = {v.name: k for k, v in enumerate(TransactionType)}
+        values = [v.value for v in TransactionType]
 
-        if value not in enum_values:
+        if value not in values:
             # TODO should we use different default type?
             return TransactionType.INVOKE
 
-        return TransactionType(enum_values[value])
+        return TransactionType(value)
