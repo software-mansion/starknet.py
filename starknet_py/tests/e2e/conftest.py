@@ -33,8 +33,8 @@ def start_devnet():
         "localhost",
         "--port",
         str(devnet_port),
-        "--accounts",
-        str(10),
+        "--accounts",  # deploys specified number of accounts
+        str(1),
         "--seed",  # generates same accounts each time
         str(1),
     ]
