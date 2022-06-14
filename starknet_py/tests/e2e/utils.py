@@ -1,12 +1,9 @@
 from __future__ import annotations
 import os
 
-from hexbytes import HexBytes
-
 from starknet_py.net import Client
-from starknet_py.net.account.account_client import AccountClient, KeyPair
+from starknet_py.net.account.account_client import KeyPair
 from starknet_py.net.account.account_client_for_tests import AccountClientForTests
-from starknet_py.net.l1.messages import int_from_hexbytes
 from starknet_py.net.models.chains import StarknetChainId
 
 
@@ -16,8 +13,10 @@ if not DEVNET_PORT:
 
 DEVNET_ADDRESS = f"http://localhost:{DEVNET_PORT}"
 
-addr_1 = "0x2109334107efc348a86e72fc3c313061c599e359d46d7b2cd48d22415585b24"
-priv_1 = "0xcd613e30d8f16adf91b7584a2265b1f5"
+ACCOUNT_CLIENT_ADDR = (
+    "0x2109334107efc348a86e72fc3c313061c599e359d46d7b2cd48d22415585b24"
+)
+ACCOUNT_CLIENT_PIV_KEY = "0xcd613e30d8f16adf91b7584a2265b1f5"
 
 
 class DevnetClientFactory:
@@ -32,8 +31,8 @@ class DevnetClientFactory:
     async def make_devnet_client(self) -> Client:
         # client = await AccountClient.create_account(net=self.net, chain=self.chain)
         client = AccountClientForTests(
-            addr_1,
-            KeyPair.from_private_key(int(priv_1, 0)),
+            ACCOUNT_CLIENT_ADDR,
+            KeyPair.from_private_key(int(ACCOUNT_CLIENT_PIV_KEY, 0)),
             net=self.net,
             chain=self.chain,
         )
