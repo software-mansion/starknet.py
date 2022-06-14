@@ -16,6 +16,8 @@ directory = os.path.dirname(__file__)
 map_source = Path(directory, "map.cairo").read_text("utf-8")
 proxy_source = Path(directory, "argent_proxy.cairo").read_text("utf-8")
 
+MAX_FEE = int(1e18)
+
 
 @pytest.mark.asyncio
 async def test_max_fee_is_set_in_sent_invoke(run_devnet):
@@ -185,9 +187,9 @@ async def test_latest_max_fee_takes_precedence(run_devnet):
     contract = await Contract.from_address(contract.address, client)
 
     prepared_function = contract.functions["put"].prepare(key, value, max_fee=20)
-    invocation = await prepared_function.invoke(max_fee=50)
+    invocation = await prepared_function.invoke(max_fee=MAX_FEE)
 
-    assert invocation.invoke_transaction.max_fee == 50
+    assert invocation.invoke_transaction.max_fee == MAX_FEE
 
 
 @pytest.mark.asyncio
@@ -219,7 +221,7 @@ async def test_invoke_and_call(key, value, run_devnet):
     deployment_result = await deployment_result.wait_for_acceptance()
     contract = deployment_result.deployed_contract
     contract = await Contract.from_address(contract.address, client)
-    invocation = await contract.functions["put"].invoke(key, value, max_fee=0)
+    invocation = await contract.functions["put"].invoke(key, value, max_fee=MAX_FEE)
     await invocation.wait_for_acceptance()
     (response,) = await contract.functions["get"].call(key)
 
@@ -289,7 +291,7 @@ async def test_call_unitinialized_contract(run_devnet):
                 entry_point_selector=get_selector_from_name("get_nonce"),
                 calldata=[],
                 signature=[],
-                max_fee=50000,
+                max_fee=0,
                 version=0,
             )
         )
@@ -331,7 +333,7 @@ async def test_wait_for_tx_throws_on_transaction_rejected(run_devnet):
     client = await DevnetClientFactory(run_devnet).make_devnet_client()
     deploy = await Contract.deploy(compilation_source=map_source, client=client)
     contract = deploy.deployed_contract
-    invoke = contract.functions["put"].prepare(key=0x1, value=0x1, max_fee=0)
+    invoke = contract.functions["put"].prepare(key=0x1, value=0x1, max_fee=MAX_FEE)
 
     # modify selector so that transaction will get rejected
     invoke.selector = 0x0123
