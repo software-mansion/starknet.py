@@ -522,24 +522,13 @@ class Contract:
         :raises: `ValueError` if neither compilation_source nor compiled_contract is provided.
         :return: contract's address
         """
-
-        if not compiled_contract and not compilation_source:
-            raise ValueError(
-                "One of compiled_contract or compilation_source is required."
-            )
-
-        if not compiled_contract:
-            compiled_contract = Compiler(
-                contract_source=compilation_source, cairo_path=search_paths
-            ).compile_contract()
-        definition = create_contract_class(compiled_contract)
-
+        compiled_contract = create_compiled_contract(compilation_source, compiled_contract, search_paths)
         translated_args = Contract._translate_constructor_args(
-            definition, constructor_args
+            compiled_contract, constructor_args
         )
         return compute_address(
             salt=salt,
-            contract_hash=compute_class_hash(definition, hash_func=pedersen_hash),
+            contract_hash=compute_class_hash(compiled_contract, hash_func=pedersen_hash),
             constructor_calldata=translated_args,
         )
 
@@ -559,18 +548,8 @@ class Contract:
         :raises: `ValueError` if neither compilation_source nor compiled_contract is provided.
         :return:
         """
-        if not compiled_contract and not compilation_source:
-            raise ValueError(
-                "One of compiled_contract or compilation_source is required."
-            )
-
-        if not compiled_contract:
-            compiled_contract = Compiler(
-                contract_source=compilation_source, cairo_path=search_paths
-            ).compile_contract()
-        definition = create_contract_class(compiled_contract)
-
-        return compute_class_hash(definition, hash_func=pedersen_hash)
+        compiled_contract = create_compiled_contract(compilation_source, compiled_contract, search_paths)
+        return compute_class_hash(compiled_contract, hash_func=pedersen_hash)
 
     @staticmethod
     def _translate_constructor_args(
