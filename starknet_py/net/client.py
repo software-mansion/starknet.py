@@ -20,11 +20,8 @@ from starkware.starknet.services.api.gateway.gateway_client import GatewayClient
 from starkware.starknet.services.api.gateway.transaction import DECLARE_SENDER_ADDRESS
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
-from starknet_py.compile.compiler import (
-    StarknetCompilationSource,
-    Compiler,
-    create_contract_class,
-)
+from starknet_py.common import create_compiled_contract
+from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.constants import TxStatus, ACCEPTED_STATUSES
 from starknet_py.net.models.address import BlockIdentifier
 from starknet_py.net.models.transaction import Declare
@@ -292,20 +289,13 @@ class Client:
         :param cairo_path: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts
         :return: Dictionary with 'transaction_hash' and 'class_hash'
         """
-        if not compiled_contract and not compilation_source:
-            raise ValueError(
-                "One of compiled_contract or compilation_source is required."
-            )
-
-        if not compiled_contract:
-            compiled_contract = Compiler(
-                contract_source=compilation_source, cairo_path=cairo_path
-            ).compile_contract()
-        contract_class = create_contract_class(compiled_contract)
+        compiled_contract = create_compiled_contract(
+            compilation_source, compiled_contract, cairo_path
+        )
 
         res = await self.add_transaction(
             tx=Declare(
-                contract_class=contract_class,
+                contract_class=compiled_contract,
                 sender_address=DECLARE_SENDER_ADDRESS,
                 max_fee=0,
                 signature=[],

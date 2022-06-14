@@ -24,6 +24,8 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
     CastableToHash,
 )
 from starkware.starkware_utils.error_handling import StarkErrorCode
+
+from starknet_py.common import create_compiled_contract
 from starknet_py.compile.compiler import Compiler, create_contract_class
 
 from starknet_py.proxy_check import ProxyCheck, ArgentProxyCheck, OpenZeppelinProxyCheck
@@ -474,23 +476,14 @@ class Contract:
         :raises: `ValueError` if neither compilation_source nor compiled_contract is provided.
         :return: DeployResult instance
         """
-        # pylint: disable=duplicate-code
-        if not compiled_contract and not compilation_source:
-            raise ValueError(
-                "One of compiled_contract or compilation_source is required."
-            )
-
-        if not compiled_contract:
-            compiled_contract = Compiler(
-                contract_source=compilation_source, cairo_path=search_paths
-            ).compile_contract()
-        definition = create_contract_class(compiled_contract)
-
+        compiled_contract = create_compiled_contract(
+            compilation_source, compiled_contract, search_paths
+        )
         translated_args = Contract._translate_constructor_args(
-            definition, constructor_args
+            compiled_contract, constructor_args
         )
         res = await client.deploy(
-            compiled_contract=definition,
+            compiled_contract=compiled_contract,
             constructor_calldata=translated_args,
             salt=salt,
         )
@@ -499,7 +492,7 @@ class Contract:
         deployed_contract = Contract(
             client=client,
             address=contract_address,
-            abi=definition.abi,
+            abi=compiled_contract.abi,
         )
         deploy_result = DeployResult(
             hash=res["transaction_hash"],
