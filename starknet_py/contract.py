@@ -474,6 +474,7 @@ class Contract:
         :raises: `ValueError` if neither compilation_source nor compiled_contract is provided.
         :return: DeployResult instance
         """
+        # pylint: disable=duplicate-code
         if not compiled_contract and not compilation_source:
             raise ValueError(
                 "One of compiled_contract or compilation_source is required."
