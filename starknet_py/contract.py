@@ -26,7 +26,6 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
 from starknet_py.common import create_compiled_contract
-from starknet_py.compile.compiler import Compiler, create_contract_class
 
 from starknet_py.proxy_check import ProxyCheck, ArgentProxyCheck, OpenZeppelinProxyCheck
 from starknet_py.net import Client
