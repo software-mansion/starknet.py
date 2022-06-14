@@ -1989,7 +1989,7 @@ eth-tester = []
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.2,<3.10"
-content-hash = "4445e01c7a67764bd521baa9f4e83e4eddd9e4235697dcc41b7e7dd3d3f2a106"
+content-hash = "fdf137a8055cf30987d02bea00164ebbca923518ddc55cf1d99a80560ca73a1a"
 
 [metadata.files]
 aiohttp = [
