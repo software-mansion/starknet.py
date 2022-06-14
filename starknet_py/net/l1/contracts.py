@@ -1,6 +1,17 @@
+# noinspection PyProtectedMember
+import typing
+from typing import Sequence
+
+
+# noinspection PyProtectedMember
 from web3._utils.contracts import prepare_transaction
 from web3 import Web3
-from web3.types import BlockIdentifier as EthBlockIdentifier
+from web3.types import (
+    BlockIdentifier as EthBlockIdentifier,
+    ChecksumAddress,
+    ABIFunction,
+    ABIFunctionParams,
+)
 
 from starknet_py.net.models import StarknetChainId
 
@@ -20,24 +31,30 @@ class StarknetL1Contract:
         web3: Web3,
     ):
         self.w3 = web3
-        self.contract_address = get_l1_starknet_contract_address(net)
+        self.contract_address: ChecksumAddress = typing.cast(
+            ChecksumAddress, get_l1_starknet_contract_address(net)
+        )
 
     def l2_to_l1_messages(
-        self, msg_hash: int, block_number: EthBlockIdentifier = None
-    ) -> int:
-        abi = {
-            "inputs": [
-                {"internalType": "bytes32", "name": "msgHash", "type": "bytes32"}
-            ],
+        self, msg_hash: bytes, block_number: EthBlockIdentifier = None
+    ) -> bytes:
+        abi: ABIFunction = {
+            "inputs": typing.cast(
+                Sequence[ABIFunctionParams],
+                [{"internalType": "bytes32", "name": "msgHash", "type": "bytes32"}],
+            ),
             "name": "l2ToL1Messages",
-            "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+            "outputs": typing.cast(
+                Sequence[ABIFunctionParams],
+                [{"internalType": "uint256", "name": "", "type": "uint256"}],
+            ),
             "stateMutability": "view",
             "type": "function",
         }
 
         return self.w3.eth.call(
             prepare_transaction(
-                address=self.contract_address,
+                address=typing.cast(ChecksumAddress, self.contract_address),
                 web3=self.w3,
                 transaction={"value": 0},
                 fn_identifier="l2ToL1Messages",
@@ -48,14 +65,18 @@ class StarknetL1Contract:
         )
 
     def l1_to_l2_messages(
-        self, msg_hash: int, block_number: EthBlockIdentifier = None
-    ) -> int:
-        abi = {
-            "inputs": [
-                {"internalType": "bytes32", "name": "msgHash", "type": "bytes32"}
-            ],
+        self, msg_hash: bytes, block_number: EthBlockIdentifier = None
+    ) -> bytes:
+        abi: ABIFunction = {
+            "inputs": typing.cast(
+                Sequence[ABIFunctionParams],
+                [{"internalType": "bytes32", "name": "msgHash", "type": "bytes32"}],
+            ),
             "name": "l1ToL2Messages",
-            "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+            "outputs": typing.cast(
+                Sequence[ABIFunctionParams],
+                [{"internalType": "uint256", "name": "", "type": "uint256"}],
+            ),
             "stateMutability": "view",
             "type": "function",
         }
