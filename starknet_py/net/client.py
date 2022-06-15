@@ -17,10 +17,14 @@ from starkware.starknet.services.api.feeder_gateway.response_objects import (
     StarknetBlock,
 )
 from starkware.starknet.services.api.gateway.gateway_client import GatewayClient
+from starkware.starknet.services.api.gateway.transaction import DECLARE_SENDER_ADDRESS
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
+from starknet_py.common import create_compiled_contract
+from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.constants import TxStatus, ACCEPTED_STATUSES
 from starknet_py.net.models.address import BlockIdentifier
+from starknet_py.net.models.transaction import Declare
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.net.models import (
     InvokeFunction,
@@ -265,6 +269,42 @@ class Client:
         )
 
         if res["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
-            raise Exception("Transaction not received")
+            raise TransactionNotReceivedError()
+        return res
+
+    async def declare(
+        self,
+        compilation_source: Optional[StarknetCompilationSource] = None,
+        compiled_contract: Optional[str] = None,
+        version: int = 0,
+        cairo_path: Optional[List[str]] = None,
+    ) -> dict:
+        """
+        Declares contract class.
+        Either `compilation_source` or `compiled_contract` is required.
+
+        :param compilation_source: string containing source code or a list of source files paths
+        :param compiled_contract: string containing compiled contract. Useful for reading compiled contract from a file
+        :param version: PreparedFunctionCall version
+        :param cairo_path: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts
+        :return: Dictionary with 'transaction_hash' and 'class_hash'
+        """
+        compiled_contract = create_compiled_contract(
+            compilation_source, compiled_contract, cairo_path
+        )
+
+        res = await self.add_transaction(
+            tx=Declare(
+                contract_class=compiled_contract,
+                sender_address=DECLARE_SENDER_ADDRESS,
+                max_fee=0,
+                signature=[],
+                nonce=0,
+                version=version,
+            )
+        )
+
+        if res["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
+            raise TransactionNotReceivedError()
 
         return res

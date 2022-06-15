@@ -60,7 +60,7 @@ class Compiler:
         )
 
 
-def create_contract_definition(
+def create_contract_class(
     compiled_contract: str,
 ) -> ContractClass:
     """
