@@ -3,6 +3,15 @@ import pytest
 import web3
 from eth_abi.codec import ABICodec
 from hexbytes import HexBytes
+
+from starkware.starknet.services.api.feeder_gateway.response_objects import (
+    TransactionReceipt,
+    L2ToL1Message,
+    TransactionInfo,
+    TransactionStatus,
+)
+
+# noinspection PyProtectedMember
 from web3._utils.abi import build_default_registry
 from web3.datastructures import AttributeDict
 
@@ -134,16 +143,19 @@ async def test_messages_from_tx_hash(w3_mock):
     mock_l2_client = Mock()
     # L2 Mock
 
-    async def get_l2_tx_receipt(_tx_hash):
-        return {
-            "l2_to_l1_messages": [
-                {
-                    "from_address": "0x123123123",
-                    "to_address": "0x123123123",
-                    "payload": [str(MOCK_MESSAGES_AMT)],
-                }
-            ]
-        }
+    async def get_l2_tx_receipt(_tx_hash) -> TransactionReceipt:
+        message = L2ToL1Message(
+            from_address=0x123123123,
+            to_address="0x2E68120c4791c8EAb66B1DEc565E3605F2B18C4C",
+            payload=[MOCK_MESSAGES_AMT],
+        )
+        tx_info = TransactionInfo.create(status=TransactionStatus.NOT_RECEIVED)
+        return TransactionReceipt.from_tx_info(
+            l2_to_l1_messages=[message],
+            actual_fee=0,
+            transaction_hash=0x1,
+            tx_info=tx_info,
+        )
 
     mock_l2_client.get_transaction_receipt = get_l2_tx_receipt
 

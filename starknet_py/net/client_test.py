@@ -24,6 +24,7 @@ async def test_wait_for_tx_throws_transaction_rejected():
     message = "Transaction was rejected"
 
     result = Future()
+    # noinspection PyArgumentList
     result.set_result(
         MagicMock(
             status=TransactionStatus.REJECTED,
