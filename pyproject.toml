@@ -60,7 +60,7 @@ test_html = [
 ]
 docs_create = { shell = "make -C docs html" }
 docs_open = { shell = "open docs/_build/html/index.html" }
-lint = "pylint starknet_py"
+lint = "pylint starknet_py --rcfile=.pylintrc"
 format = "black starknet_py"
 format_check = "black --check starknet_py"
 requirements_check.shell = "poetry export -f requirements.txt --without-hashes --extras docs | cmp - requirements.txt"
