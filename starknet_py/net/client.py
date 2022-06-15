@@ -323,6 +323,9 @@ class Client:
         :param block_number: See above, uses block number (or "pending" block) instead of hash
         :return: Class hash
         """
+        if isinstance(contract_address, str):
+            contract_address = int(contract_address, 16)
+
         return await self._feeder_gateway.get_class_hash_at(
             block_hash=block_hash,
             block_number=block_number,
