@@ -120,7 +120,7 @@ async def test_estimate_fee_called(run_devnet):
     erc20_contract = deployment_result.deployed_contract
 
     with patch(
-        "starknet_py.net.account.account_client_for_tests.AccountClientForTests.estimate_fee",
+        "starknet_py.tests.e2e.account.account_client_for_tests.AccountClientForTests.estimate_fee",
         MagicMock(),
     ) as mocked_estimate_fee:
         result = asyncio.Future()

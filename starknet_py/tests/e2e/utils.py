@@ -3,9 +3,8 @@ import os
 
 from starknet_py.net import Client
 from starknet_py.net.account.account_client import KeyPair
-from starknet_py.net.account.account_client_for_tests import AccountClientForTests
+from starknet_py.tests.e2e.account.account_client_for_tests import AccountClientForTests
 from starknet_py.net.models.chains import StarknetChainId
-
 
 DEVNET_PORT = os.environ.get("DEVNET_PORT")
 if not DEVNET_PORT:
@@ -29,10 +28,9 @@ class DevnetClientFactory:
         self.chain = chain
 
     async def make_devnet_client(self) -> Client:
-        # client = await AccountClient.create_account(net=self.net, chain=self.chain)
         client = AccountClientForTests(
-            ACCOUNT_CLIENT_ADDR,
-            KeyPair.from_private_key(int(ACCOUNT_CLIENT_PIV_KEY, 0)),
+            address=ACCOUNT_CLIENT_ADDR,
+            key_pair=KeyPair.from_private_key(int(ACCOUNT_CLIENT_PIV_KEY, 0)),
             net=self.net,
             chain=self.chain,
         )

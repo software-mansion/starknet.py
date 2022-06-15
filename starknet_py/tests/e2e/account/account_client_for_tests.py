@@ -22,7 +22,8 @@ class AccountClientForTests(AccountClient):
     Extends the functionality of :obj:`AccountClient <starknet_py.net.Client>`, it is used for tests on devnet
     """
 
-    async def _prepare_invoke_function(self, tx: InvokeFunction) -> InvokeFunction:
+    async def _sign_transaction(self, tx: InvokeFunction):
+        # pylint: disable=duplicate-code
         nonce = await self._get_nonce()
 
         calldata_py = [
@@ -65,7 +66,7 @@ class AccountClientForTests(AccountClient):
 
         # pylint: disable=invalid-name
         r, s = message_signature(
-            msg_hash=hash_multicall(multicall), priv_key=self.private_key
+            msg_hash=hash_multicall(multicall), priv_key=self.signer.private_key
         )
 
         return InvokeFunction(
