@@ -289,7 +289,7 @@ async def test_call_unitinialized_contract(run_devnet):
             InvokeFunction(
                 contract_address=1,
                 entry_point_selector=get_selector_from_name("get_nonce"),
-                calldata=[],
+                calldata=[1],
                 signature=[],
                 max_fee=0,
                 version=0,
