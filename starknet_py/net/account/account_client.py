@@ -169,6 +169,7 @@ class AccountClient(Client):
         block_hash: Optional[CastableToHash] = None,
         block_number: BlockIdentifier = "pending",
     ) -> int:
+        # pylint: disable=duplicate-code
         """
         :param tx: Transaction which fee we want to calculate
         :param block_hash: Estimate fee at specific block hash

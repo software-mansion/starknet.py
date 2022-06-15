@@ -187,6 +187,7 @@ class Client:
         block_hash: Optional[CastableToHash] = None,
         block_number: BlockIdentifier = "pending",
     ) -> int:
+        # pylint: disable=duplicate-code
         """
         Estimate how much Wei it will cost to run passed in transaction
 
