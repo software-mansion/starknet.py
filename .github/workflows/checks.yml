@@ -29,6 +29,9 @@ jobs:
     - name: Check formatting with black
       run: |
         poetry run poe format_check
+    - name: Check pylint version
+      run: |
+        pylint --version
     - name: Analysing the code with pylint
       run: |
         poetry run poe lint
