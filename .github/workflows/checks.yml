@@ -31,7 +31,7 @@ jobs:
         poetry run poe format_check
     - name: Check pylint version
       run: |
-        pylint --version
+        poetry run pylint --version
     - name: Analysing the code with pylint
       run: |
         poetry run poe lint
