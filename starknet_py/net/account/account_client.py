@@ -45,7 +45,7 @@ class AccountClient(Client):
         self.net = net
         self.address = parse_address(address)
         self.signer = signer or StarkCurveSigner(
-            account_address=self.address, key_pair=key_pair, chain_id=self.chain.value
+            account_address=self.address, key_pair=key_pair, chain_id=self.chain
         )
 
     async def _get_nonce(self) -> int:
