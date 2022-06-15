@@ -52,6 +52,6 @@ async def test_get_class_by_hash_error_when_contract_not_deployed(run_devnet):
     client = await DevnetClientFactory(run_devnet).make_devnet_client()
 
     with pytest.raises(BadRequest) as breq:
-        await client.get_class_by_hash("0x1")
+        await client.get_class_by_hash(1)
 
     assert "Class with hash 0x1 is not declared" in str(breq.value)
