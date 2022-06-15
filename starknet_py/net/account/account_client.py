@@ -4,7 +4,6 @@ from dataclasses import replace
 from starkware.crypto.signature.signature import get_random_private_key
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
-
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.utils.data_transformer.data_transformer import DataTransformer
 from starknet_py.net.client import Client
@@ -149,7 +148,7 @@ class AccountClient(Client):
         :param token: Optional token for Starknet API access, appended in a query string
         :return: API response dictionary with `code`, `transaction_hash`
         """
-        if tx.tx_type == TransactionType.DEPLOY:
+        if tx.tx_type in (TransactionType.DECLARE, TransactionType.DEPLOY):
             return await super().add_transaction(tx, token)
 
         if tx.signature:
