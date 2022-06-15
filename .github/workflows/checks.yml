@@ -34,7 +34,7 @@ jobs:
         poetry run pylint --version
     - name: Analysing the code with pylint
       run: |
-        poetry run poe lint
+        poetry run pylint starknet_py --rcfile=.pylintrc
     - name: Check if requriements.txt is up-to-date
       run: |
         poetry export -f requirements.txt --without-hashes --extras docs | cmp - requirements.txt
