@@ -136,9 +136,19 @@ class GatewayClient(BaseClient):
 
         return ContractCodeSchema().load(res, unknown=EXCLUDE)
 
-    async def estimate_fee(self, tx: InvokeFunction) -> int:
+    async def estimate_fee(
+        self,
+        tx: InvokeFunction,
+        block_hash: Optional[Hash] = None,
+        block_number: Optional[int] = None,
+    ) -> int:
+        block_identifier = get_block_identifier(
+            block_hash=block_hash, block_number=block_number
+        )
         res = await self._feeder_gateway_client.post(
-            method_name="estimate_fee", payload=InvokeFunction.Schema().dump(tx)
+            method_name="estimate_fee",
+            payload=InvokeFunction.Schema().dump(tx),
+            params=block_identifier,
         )
         # TODO should we have better type validation here?
         return res["amount"]

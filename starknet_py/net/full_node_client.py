@@ -34,7 +34,12 @@ class FullNodeClient(BaseClient):
         self.url = node_url
         self.rpc_client = RpcClient(url=node_url)
 
-    async def estimate_fee(self, tx: InvokeFunction) -> int:
+    async def estimate_fee(
+        self,
+        tx: InvokeFunction,
+        block_hash: Optional[Hash] = None,
+        block_number: Optional[int] = None,
+    ) -> int:
         pass
 
     async def get_block(

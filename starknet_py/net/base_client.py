@@ -151,11 +151,18 @@ class BaseClient(ABC):
             await asyncio.sleep(check_interval)
 
     @abstractmethod
-    async def estimate_fee(self, tx: InvokeFunction) -> int:
+    async def estimate_fee(
+        self,
+        tx: InvokeFunction,
+        block_hash: Optional[Hash] = None,
+        block_number: Optional[int] = None,
+    ) -> int:
         """
         Estimate how much Wei it will cost to run provided InvokeFunction
 
         :param tx: Transaction to estimate
+        :param block_hash: Get code at specific block hash
+        :param block_number: Get code at given block number (or "pending" for pending block)
         :return: Estimated amount of Wei executing specified transaction will cost
         """
 
