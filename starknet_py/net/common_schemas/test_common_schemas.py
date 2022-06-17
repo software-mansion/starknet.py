@@ -15,6 +15,15 @@ def test_serialize_felt():
     assert '"value1": "0x859"' in serialized
 
 
+def test_serialize_felt_throws_on_none():
+    class SchemaWithFelt(Schema):
+        value1 = Felt(data_key="value1")
+
+    data = {"value1": None}
+    with pytest.raises(TypeError):
+        SchemaWithFelt().dumps(data)
+
+
 def test_deserialize_felt():
     class SchemaWithFelt(Schema):
         value1 = Felt(data_key="value1")

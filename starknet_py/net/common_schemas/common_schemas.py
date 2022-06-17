@@ -19,8 +19,6 @@ class Felt(fields.Field):
     """
 
     def _serialize(self, value: Any, attr: str, obj: Any, **kwargs):
-        if value is None:
-            return None
         return str(hex(value))
 
     def _deserialize(
