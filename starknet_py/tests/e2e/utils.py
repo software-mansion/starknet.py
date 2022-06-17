@@ -5,7 +5,6 @@ import os
 from starknet_py.net.base_client import BaseClient
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.full_node_client import FullNodeClient
-from starknet_py.net import Client
 from starknet_py.net.account.account_client import AccountClient
 from starknet_py.net.models.chains import StarknetChainId
 
@@ -33,5 +32,5 @@ class DevnetClientFactory:
     async def make_devnet_client_without_account(self) -> BaseClient:
         return GatewayClient(net=self.net, chain=self.chain)
 
-    async def make_rpc_client(self) -> BaseClient:
+    async def make_rpc_client(self) -> FullNodeClient:
         return FullNodeClient(node_url=self.net + "/rpc")
