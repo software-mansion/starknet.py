@@ -94,7 +94,6 @@ class TransactionTypeField(fields.Field):
         values = [v.value for v in TransactionType]
 
         if value not in values:
-            # TODO should we use different default type?
-            return TransactionType.INVOKE
+            raise ValidationError("Invalid TransactionType enum key")
 
         return TransactionType(value)
