@@ -80,8 +80,11 @@ class FullNodeClient(BaseClient):
         block_hash: Optional[Hash] = None,
         block_number: Optional[int] = None,
     ) -> int:
+        if block_number is not None:
+            raise ValueError("Block_number is not supported in this method when using FullNodeClient")
+
         if block_hash is None:
-            raise ValueError("Block_hash must be provided when using FullNodeClient.")
+            raise ValueError("Block_hash must be provided when using FullNodeClient")
 
         res = await self.rpc_client.call(
             method_name="getStorageAt",
