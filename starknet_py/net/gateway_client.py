@@ -8,11 +8,7 @@ from starkware.starknet.definitions.fields import ContractAddressSalt
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
 
-from starknet_py.net.base_client import (
-    BaseClient,
-    BlockHashIdentifier,
-    BlockNumberIdentifier,
-)
+from starknet_py.net.base_client import BaseClient
 from starknet_py.net.client_models import (
     Transaction,
     SentTransaction,
@@ -51,15 +47,11 @@ class GatewayClient(BaseClient):
 
     async def get_transaction(
         self,
-        tx_identifier: Union[int, BlockHashIdentifier, BlockNumberIdentifier],
+        tx_hash: Hash,
     ) -> Transaction:
-        if isinstance(tx_identifier, dict):
-            raise ValueError(
-                "BlockHashIdentifier and BlockNumberIdentifier are not supported in gateway client."
-            )
         res = await self._feeder_gateway_client.call(
             method_name="get_transaction",
-            params={"transactionHash": convert_to_felt(tx_identifier)},
+            params={"transactionHash": convert_to_felt(tx_hash)},
         )
         # TODO handle not received/unknown transactions
         return TransactionSchema().load(res["transaction"], unknown=EXCLUDE)

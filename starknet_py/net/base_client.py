@@ -2,9 +2,6 @@ import asyncio
 from abc import ABC, abstractmethod
 from typing import Union, Optional, List
 
-# TODO add import based on python version
-from typing_extensions import TypedDict
-
 from starknet_py.net.client_models import (
     StarknetBlock,
     BlockState,
@@ -23,16 +20,6 @@ from starknet_py.transaction_exceptions import (
     TransactionNotReceivedError,
     TransactionFailedError,
 )
-
-
-class BlockHashIdentifier(TypedDict):
-    block_hash: int
-    index: int
-
-
-class BlockNumberIdentifier(TypedDict):
-    block_number: int
-    index: int
 
 
 class BaseClient(ABC):
@@ -84,12 +71,12 @@ class BaseClient(ABC):
     @abstractmethod
     async def get_transaction(
         self,
-        tx_identifier: Union[Hash, BlockHashIdentifier, BlockNumberIdentifier],
+        tx_hash: Hash,
     ) -> Transaction:
         """
         Get the details and status of a submitted transaction
 
-        :param tx_identifier: Transaction's identifier
+        :param tx_hash: Transaction's hash
         :return: Dictionary representing JSON of the transaction on Starknet
         """
 

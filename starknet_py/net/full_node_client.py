@@ -2,12 +2,10 @@ import typing
 from typing import List, Optional, Union
 
 import aiohttp
-from marshmallow import EXCLUDE, ValidationError
+from marshmallow import EXCLUDE
 
 from starknet_py.net.base_client import (
     BaseClient,
-    BlockHashIdentifier,
-    BlockNumberIdentifier,
 )
 from starknet_py.net.client_models import (
     SentTransaction,
@@ -19,7 +17,6 @@ from starknet_py.net.client_models import (
     StarknetTransaction,
     ContractDefinition,
     InvokeFunction,
-    TransactionStatus,
     Hash,
 )
 from starknet_py.net.rpc_schemas.rpc_schemas import (
@@ -27,10 +24,6 @@ from starknet_py.net.rpc_schemas.rpc_schemas import (
     TransactionReceiptSchema,
     ContractCodeSchema,
     StarknetBlockSchema,
-)
-from starknet_py.net.base_client_schemas import (
-    BlockHashIdentifierSchema,
-    BlockNumberIdentifierSchema,
 )
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_utils import convert_to_felt
@@ -98,63 +91,37 @@ class FullNodeClient(BaseClient):
 
     async def get_transaction(
         self,
-        tx_identifier: Union[Hash, BlockHashIdentifier, BlockNumberIdentifier],
+        tx_hash: Hash,
     ) -> Transaction:
-        res = None
-        error_message = None
-
-        if isinstance(tx_identifier, (int, str)):
-            res = await self._get_transaction_by_tx_hash(tx_identifier)
-
-        try:
-            block_hash_identifier = BlockHashIdentifierSchema().load(tx_identifier)
-            res = await self._get_transaction_by_block_hash(block_hash_identifier)
-        except ValidationError as ex:
-            error_message = error_message or str(ex)
-
-        try:
-            block_number_identifier = BlockNumberIdentifierSchema().load(tx_identifier)
-            res = await self._get_transaction_by_block_number(block_number_identifier)
-        except ValidationError as ex:
-            error_message = error_message or str(ex)
-
-        if res is None:
-            raise ValueError(
-                f"Passed argument is not a valid tx_identifier: {error_message}"
-            )
-
-        return TransactionSchema().load(res, unknown=EXCLUDE)
-
-    async def _get_transaction_by_tx_hash(self, tx_identifier):
         res = await self.rpc_client.call(
             method_name="getTransactionByHash",
-            params={"transaction_hash": convert_to_felt(tx_identifier)},
+            params={"transaction_hash": convert_to_felt(tx_hash)},
         )
-        return res
+        return TransactionSchema().load(res, unknown=EXCLUDE)
 
-    async def _get_transaction_by_block_hash(
-        self, block_identifier: BlockHashIdentifier
-    ):
+    async def get_transaciton_by_block_hash_and_index(
+        self, block_hash: Hash, index: int
+    ) -> Transaction:
         res = await self.rpc_client.call(
             method_name="getTransactionByBlockHashAndIndex",
             params={
-                "block_hash": convert_to_felt(block_identifier["block_hash"]),
-                "index": block_identifier["index"],
+                "block_hash": convert_to_felt(block_hash),
+                "index": index,
             },
         )
-        return res
+        return TransactionSchema().load(res, unknown=EXCLUDE)
 
-    async def _get_transaction_by_block_number(
-        self, block_identifier: BlockNumberIdentifier
-    ):
+    async def get_transaciton_by_block_number_and_index(
+        self, block_number: int, index: int
+    ) -> Transaction:
         res = await self.rpc_client.call(
             method_name="getTransactionByBlockNumberAndIndex",
             params={
-                "block_number": block_identifier["block_number"],
-                "index": block_identifier["index"],
+                "block_number": block_number,
+                "index": index,
             },
         )
-        return res
+        return TransactionSchema().load(res, unknown=EXCLUDE)
 
     async def get_transaction_receipt(self, tx_hash: Hash) -> TransactionReceipt:
         res = await self.rpc_client.call(
