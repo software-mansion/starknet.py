@@ -61,7 +61,7 @@ class GatewayClient(BaseClient):
         block_hash: Optional[Hash] = None,
         block_number: Optional[int] = None,
     ) -> StarknetBlock:
-        block_identifier = self._get_block_identifier(
+        block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
 
@@ -85,7 +85,7 @@ class GatewayClient(BaseClient):
         block_hash: Optional[Hash] = None,
         block_number: Optional[int] = None,
     ) -> int:
-        block_identifier = self._get_block_identifier(
+        block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
 
@@ -117,7 +117,7 @@ class GatewayClient(BaseClient):
         block_hash: Optional[Hash] = None,
         block_number: Optional[int] = None,
     ) -> ContractCode:
-        block_identifier = GatewayClient._get_block_identifier(
+        block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
         params = {
@@ -159,7 +159,7 @@ class GatewayClient(BaseClient):
         block_hash: Optional[Hash] = None,
         block_number: Optional[int] = None,
     ) -> List[int]:
-        block_identifier = GatewayClient._get_block_identifier(
+        block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
 
@@ -205,26 +205,26 @@ class GatewayClient(BaseClient):
 
         return res
 
-    @staticmethod
-    def _get_block_identifier(
-        block_hash: Optional[Hash] = None, block_number: Optional[int] = None
-    ) -> dict:
-        if block_hash is not None and block_number is not None:
-            raise ValueError(
-                "Block_hash and block_number parameters are mutually exclusive."
-            )
 
-        # TODO gateway now supports latest block
-        if block_hash == "latest":
-            block_hash = "pending"
+def get_block_identifier(
+    block_hash: Optional[Hash] = None, block_number: Optional[int] = None
+) -> dict:
+    if block_hash is not None and block_number is not None:
+        raise ValueError(
+            "Block_hash and block_number parameters are mutually exclusive."
+        )
 
-        if block_hash is not None:
-            return {"blockHash": convert_to_felt(block_hash)}
+    # TODO gateway now supports latest block
+    if block_hash == "latest":
+        block_hash = "pending"
 
-        if block_number is not None:
-            return {"blockNumber": block_number}
+    if block_hash is not None:
+        return {"blockHash": convert_to_felt(block_hash)}
 
-        return {}
+    if block_number is not None:
+        return {"blockNumber": block_number}
+
+    return {}
 
 
 # TODO rename
