@@ -9,6 +9,9 @@ from starknet_py.net.client_models import (
     TransactionReceipt,
     L1toL2Message,
     L2toL1Message,
+    BlockStateUpdate,
+    StorageDiff,
+    ContractDiff,
 )
 from starknet_py.net.common_schemas.common_schemas import (
     Felt,
@@ -122,3 +125,46 @@ class StarknetBlockSchema(Schema):
         data["root"] = int(data["root"], 16)
 
         return StarknetBlock(**data)
+
+
+class StorageDiffSchema(Schema):
+    address = Felt(data_key="address")
+    key = Felt(data_key="key")
+    value = Felt(data_key="value")
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> StorageDiff:
+        return StorageDiff(**data)
+
+
+class ContractDiffSchema(Schema):
+    address = Felt(data_key="address")
+    contract_hash = Felt(data_key="contract_hash")
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> ContractDiff:
+        return ContractDiff(**data)
+
+
+class StateDiffSchema(Schema):
+    storage_diffs = fields.List(
+        fields.Nested(StorageDiffSchema()), data_key="storage_diffs"
+    )
+    contract_diffs = fields.List(
+        fields.Nested(ContractDiffSchema()), data_key="contracts"
+    )
+
+
+class BlockStateUpdateSchema(Schema):
+    block_hash = Felt(data_key="block_hash")
+    new_root = Felt(data_key="new_root")
+    old_root = Felt(data_key="old_root")
+    state_diff = fields.Nested(StateDiffSchema(), data_key="state_diff")
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> BlockStateUpdate:
+        data["storage_diffs"] = data["state_diff"]["storage_diffs"]
+        data["contract_diffs"] = data["state_diff"]["contract_diffs"]
+        del data["state_diff"]
+
+        return BlockStateUpdate(**data)

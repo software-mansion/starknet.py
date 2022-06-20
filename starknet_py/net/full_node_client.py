@@ -12,7 +12,7 @@ from starknet_py.net.client_models import (
     Transaction,
     ContractCode,
     TransactionReceipt,
-    BlockState,
+    BlockStateUpdate,
     StarknetBlock,
     StarknetTransaction,
     ContractDefinition,
@@ -24,6 +24,7 @@ from starknet_py.net.rpc_schemas.rpc_schemas import (
     TransactionReceiptSchema,
     ContractCodeSchema,
     StarknetBlockSchema,
+    BlockStateUpdateSchema,
 )
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_utils import convert_to_felt
@@ -69,9 +70,20 @@ class FullNodeClient(BaseClient):
         self,
         block_hash: Optional[Union[int, str]] = None,
         block_number: Optional[int] = None,
-    ) -> BlockState:
-        # TODO when pathfinder node adds support (currently untestable)
-        pass
+    ) -> BlockStateUpdate:
+        if block_number is not None:
+            raise ValueError(
+                "Block_number is not supported in this method when using FullNodeClient"
+            )
+
+        if block_hash is None:
+            raise ValueError("Block_hash must be provided when using FullNodeClient")
+
+        res = await self.rpc_client.call(
+            method_name="getStateUpdateByHash",
+            params={"block_hash": convert_to_felt(block_hash)},
+        )
+        return BlockStateUpdateSchema().load(res, unknown=EXCLUDE)
 
     async def get_storage_at(
         self,
