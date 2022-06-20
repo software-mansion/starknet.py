@@ -1,6 +1,8 @@
 import pytest
 
 from marshmallow import Schema, ValidationError
+
+from starknet_py.net.common_schemas.common_schemas import NonPrefixedHex
 from starknet_py.net.rpc_schemas.rpc_schemas import Felt, StatusField, BlockStatusField
 from starknet_py.net.client_models import TransactionStatus, BlockStatus
 
@@ -43,6 +45,26 @@ def test_deserialize_felt_throws_on_invalid_data():
     with pytest.raises(ValidationError) as exinfo:
         SchemaWithFelt().load(data)
     assert "Invalid felt" in str(exinfo.value)
+
+
+def test_serialize_hex():
+    class SchemaWithHex(Schema):
+        value1 = NonPrefixedHex(data_key="value1")
+
+    data = {"value1": 123}
+
+    serialized = SchemaWithHex().dump(data)
+    assert serialized["value1"] == "7b"
+
+
+def test_deserialize_hex():
+    class SchemaWithHex(Schema):
+        value1 = NonPrefixedHex(data_key="value1")
+
+    data = {"value1": "7b"}
+
+    deserialized = SchemaWithHex().load(data)
+    assert deserialized["value1"] == 123
 
 
 def test_serialize_status_field():
