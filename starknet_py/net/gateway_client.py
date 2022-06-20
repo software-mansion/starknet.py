@@ -14,7 +14,7 @@ from starknet_py.net.client_models import (
     SentTransaction,
     ContractCode,
     TransactionReceipt,
-    BlockState,
+    BlockStateUpdate,
     StarknetBlock,
     InvokeFunction,
     StarknetTransaction,
@@ -28,6 +28,7 @@ from starknet_py.net.gateway_schemas.gateway_schemas import (
     StarknetBlockSchema,
     TransactionReceiptSchema,
     SentTransactionSchema,
+    BlockStateUpdateSchema,
 )
 from starknet_py.net.models import StarknetChainId, chain_from_network
 from starknet_py.net.networks import Network, net_address_from_net
@@ -74,9 +75,15 @@ class GatewayClient(BaseClient):
         self,
         block_hash: Optional[Hash] = None,
         block_number: Optional[int] = None,
-    ) -> BlockState:
-        # TODO implement
-        pass
+    ) -> BlockStateUpdate:
+        block_identifier = get_block_identifier(
+            block_hash=block_hash, block_number=block_number
+        )
+        res = await self._feeder_gateway_client.call(
+            method_name="get_state_update",
+            params=block_identifier,
+        )
+        return BlockStateUpdateSchema().load(res, unknown=EXCLUDE)
 
     async def get_storage_at(
         self,
@@ -103,12 +110,10 @@ class GatewayClient(BaseClient):
         return int(res, 16)
 
     async def get_transaction_receipt(self, tx_hash: Hash) -> TransactionReceipt:
-        print("hash " + str(tx_hash))
         res = await self._feeder_gateway_client.call(
             method_name="get_transaction_receipt",
             params={"transactionHash": convert_to_felt(tx_hash)},
         )
-        print(res)
         return TransactionReceiptSchema().load(res, unknown=EXCLUDE)
 
     async def get_code(

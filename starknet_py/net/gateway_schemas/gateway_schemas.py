@@ -9,12 +9,16 @@ from starknet_py.net.client_models import (
     L1toL2Message,
     SentTransaction,
     TransactionType,
+    ContractDiff,
+    StorageDiff,
+    BlockStateUpdate,
 )
 from starknet_py.net.common_schemas.common_schemas import (
     Felt,
     BlockStatusField,
     StatusField,
     TransactionTypeField,
+    NonPrefixedHex,
 )
 
 # pylint: disable=unused-argument
@@ -139,3 +143,61 @@ class SentTransactionSchema(Schema):
     def make_dataclass(self, data, **kwargs):
         # pylint: disable=unused-argument
         return SentTransaction(**data)
+
+
+class StorageDiffSchema(Schema):
+    address = Felt(data_key="address")
+    key = Felt(data_key="key")
+    value = Felt(data_key="value")
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        # pylint: disable=unused-argument
+        return StorageDiff(**data)
+
+
+class ContractDiffsSchema(Schema):
+    address = Felt(data_key="address")
+    contract_hash = NonPrefixedHex(data_key="class_hash")
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        # pylint: disable=unused-argument
+        return ContractDiff(**data)
+
+
+class BlockStateUpdateSchema(Schema):
+    block_hash = Felt(data_key="block_hash")
+    new_root = NonPrefixedHex(data_key="new_root")
+    old_root = NonPrefixedHex(data_key="old_root")
+    state_diff = fields.Dict(
+        keys=fields.String(), values=fields.Raw(), data_key="state_diff"
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        # pylint: disable=unused-argument
+        contracts_diffs = data["state_diff"]["deployed_contracts"]
+        contracts_diffs = [
+            ContractDiffsSchema().load(contract) for contract in contracts_diffs
+        ]
+
+        storage_diffs = []
+        for address, values in data["state_diff"]["storage_diffs"].items():
+            if address == "deployed_contracts":
+                continue
+            key, value = values
+            storage_diff = StorageDiffSchema().load(
+                {
+                    "address": address,
+                    "key": key,
+                    "value": value,
+                }
+            )
+            storage_diffs.append(storage_diff)
+
+        del data["state_diff"]
+
+        return BlockStateUpdate(
+            **data, storage_diffs=storage_diffs, contract_diffs=contracts_diffs
+        )
