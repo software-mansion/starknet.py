@@ -4,6 +4,10 @@ from dataclasses import replace
 from starkware.crypto.signature.signature import get_random_private_key
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
+from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
+    CastableToHash,
+)
+
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.utils.data_transformer.data_transformer import DataTransformer
 from starknet_py.net.client import Client
@@ -13,6 +17,7 @@ from starknet_py.net.models import (
     StarknetChainId,
     TransactionType,
     Transaction,
+    BlockIdentifier,
 )
 from starknet_py.net.networks import Network, MAINNET, TESTNET
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
@@ -161,12 +166,20 @@ class AccountClient(Client):
     async def estimate_fee(
         self,
         tx: InvokeFunction,
+        block_hash: Optional[CastableToHash] = None,
+        block_number: BlockIdentifier = "pending",
     ) -> int:
         """
         :param tx: Transaction which fee we want to calculate
+        :param block_hash: Estimate fee at specific block hash
+        :param block_number: Estimate fee at given block number (or "pending" for pending block)
         :return: Estimated fee
         """
-        return await super().estimate_fee(await self._sign_transaction(tx))
+        return await super().estimate_fee(
+            tx=await self._sign_transaction(tx),
+            block_hash=block_hash,
+            block_number=block_number,
+        )
 
     @staticmethod
     async def create_account(
