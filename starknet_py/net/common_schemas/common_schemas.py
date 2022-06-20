@@ -35,6 +35,20 @@ class Felt(fields.Field):
             raise ValidationError("Invalid felt") from error
 
 
+class NonPrefixedHex(fields.Field):
+    def _serialize(self, value: Any, attr: str, obj: Any, **kwargs):
+        return hex(value).lstrip("0x")
+
+    def _deserialize(
+        self,
+        value: Any,
+        attr: Optional[str],
+        data: Optional[Mapping[str, Any]],
+        **kwargs,
+    ):
+        return int(value, 16)
+
+
 class StatusField(fields.Field):
     def _serialize(self, value: Any, attr: str, obj: Any, **kwargs):
         # TODO should we serialize to string?
