@@ -169,7 +169,6 @@ class AccountClient(Client):
         block_hash: Optional[CastableToHash] = None,
         block_number: BlockIdentifier = "pending",
     ) -> int:
-        # pylint: disable=duplicate-code
         """
         :param tx: Transaction which fee we want to calculate
         :param block_hash: Estimate fee at specific block hash
@@ -177,7 +176,9 @@ class AccountClient(Client):
         :return: Estimated fee
         """
         return await super().estimate_fee(
-            await self._sign_transaction(tx), block_hash, block_number
+            tx=await self._sign_transaction(tx),
+            block_hash=block_hash,
+            block_number=block_number,
         )
 
     @staticmethod
