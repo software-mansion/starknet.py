@@ -1,15 +1,13 @@
-from typing import Tuple
-
 import pytest
 
 from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.tests.e2e.utils import DevnetClientFactory
-from starknet_py.net.base_client import BaseClient
 from starknet_py.net.client_models import (
     TransactionType,
     TransactionStatus,
     InvokeFunction,
+    BlockStateUpdate,
 )
 from starknet_py.net.client_errors import ClientError
 
@@ -130,6 +128,23 @@ async def test_call_contract(clients, contract_address):
         result = await client.call_contract(invoke_function, block_hash="latest")
 
         assert result == [1234]
+
+
+@pytest.mark.asyncio
+async def test_state_update(clients, block_hash, contract_address):
+    for client in clients:
+        state_update: BlockStateUpdate = await client.get_state_update(
+            block_hash=block_hash
+        )
+
+        assert state_update.block_hash == int(block_hash, 16)
+        assert state_update.new_root != 0
+        assert state_update.old_root == 0
+        assert state_update.storage_diffs == []
+        assert any(
+            contract.address == contract_address
+            for contract in state_update.contract_diffs
+        )
 
 
 @pytest.mark.asyncio
