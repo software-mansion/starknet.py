@@ -4,7 +4,7 @@ from typing import Union, Optional, List
 
 from starknet_py.net.client_models import (
     StarknetBlock,
-    BlockState,
+    BlockStateUpdate,
     Transaction,
     TransactionReceipt,
     ContractCode,
@@ -42,14 +42,13 @@ class BaseClient(ABC):
         self,
         block_hash: Optional[Hash] = None,
         block_number: Optional[int] = None,
-    ) -> BlockState:
+    ) -> BlockStateUpdate:
         """
-        # TODO expand specs of this class, create proper dataclass
         Get the information about the result of executing the requested block
 
         :param block_hash: Block's hash
         :param block_number: Block's number
-        :return: JsonObject object representing retrieved block
+        :return: BlockStateUpdate oject representing changes in the requested block
         """
 
     @abstractmethod

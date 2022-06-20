@@ -124,16 +124,29 @@ class StarknetBlock:
 
 
 @dataclass
-class BlockState:
+class StorageDiff:
+    address: int
+    key: int
+    value: int
+
+
+@dataclass
+class ContractDiff:
+    address: int
+    contract_hash: int
+
+
+@dataclass
+class BlockStateUpdate:
     """
     Dataclass representing a change in state of a block
     """
 
     block_hash: int
-    root: int
-    timestamp: int
-    # TODO add proper diff dataclass
-    diff: Any
+    new_root: int
+    old_root: int
+    storage_diffs: List[StorageDiff]
+    contract_diffs: List[ContractDiff]
 
 
 @dataclass
