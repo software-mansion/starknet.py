@@ -1285,26 +1285,24 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "pylint"
-version = "2.14.1"
+version = "2.13.5"
 description = "python code static checker"
 category = "dev"
 optional = false
-python-versions = ">=3.7.2"
+python-versions = ">=3.6.2"
 
 [package.dependencies]
-astroid = ">=2.11.5,<=2.12.0-dev0"
+astroid = ">=2.11.2,<=2.12.0-dev0"
 colorama = {version = "*", markers = "sys_platform == \"win32\""}
 dill = ">=0.2"
 isort = ">=4.2.5,<6"
 mccabe = ">=0.6,<0.8"
 platformdirs = ">=2.2.0"
 tomli = {version = ">=1.1.0", markers = "python_version < \"3.11\""}
-tomlkit = ">=0.10.1"
 typing-extensions = {version = ">=3.10.0", markers = "python_version < \"3.10\""}
 
 [package.extras]
-spelling = ["pyenchant (>=3.2,<4.0)"]
-testutils = ["gitpython (>3)"]
+testutil = ["gitpython (>3)"]
 
 [[package]]
 name = "pyparsing"
@@ -1802,14 +1800,6 @@ optional = false
 python-versions = ">=3.6"
 
 [[package]]
-name = "tomlkit"
-version = "0.11.0"
-description = "Style preserving TOML library"
-category = "dev"
-optional = false
-python-versions = ">=3.6,<4.0"
-
-[[package]]
 name = "toolz"
 version = "0.11.2"
 description = "List processing tools and functional utilities"
@@ -1999,7 +1989,7 @@ eth-tester = []
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.2,<3.10"
-content-hash = "fdf137a8055cf30987d02bea00164ebbca923518ddc55cf1d99a80560ca73a1a"
+content-hash = "4445e01c7a67764bd521baa9f4e83e4eddd9e4235697dcc41b7e7dd3d3f2a106"
 
 [metadata.files]
 aiohttp = [
@@ -2967,8 +2957,8 @@ pygments = [
     {file = "Pygments-2.12.0.tar.gz", hash = "sha256:5eb116118f9612ff1ee89ac96437bb6b49e8f04d8a13b514ba26f620208e26eb"},
 ]
 pylint = [
-    {file = "pylint-2.14.1-py3-none-any.whl", hash = "sha256:bb71e6d169506de585edea997e48d9ff20c0dc0e2fbc1d166bad6b640120326b"},
-    {file = "pylint-2.14.1.tar.gz", hash = "sha256:549261e0762c3466cc001024c4419c08252cb8c8d40f5c2c6966fea690e7fe2a"},
+    {file = "pylint-2.13.5-py3-none-any.whl", hash = "sha256:c149694cfdeaee1aa2465e6eaab84c87a881a7d55e6e93e09466be7164764d1e"},
+    {file = "pylint-2.13.5.tar.gz", hash = "sha256:dab221658368c7a05242e673c275c488670144123f4bd262b2777249c1c0de9b"},
 ]
 pyparsing = [
     {file = "pyparsing-3.0.9-py3-none-any.whl", hash = "sha256:5026bae9a10eeaefb61dab2f09052b9f4307d44aee4eda64b309723d8d206bbc"},
@@ -3224,10 +3214,6 @@ toml = [
 tomli = [
     {file = "tomli-1.2.3-py3-none-any.whl", hash = "sha256:e3069e4be3ead9668e21cb9b074cd948f7b3113fd9c8bba083f48247aab8b11c"},
     {file = "tomli-1.2.3.tar.gz", hash = "sha256:05b6166bff487dc068d322585c7ea4ef78deed501cc124060e0f238e89a9231f"},
-]
-tomlkit = [
-    {file = "tomlkit-0.11.0-py3-none-any.whl", hash = "sha256:0f4050db66fd445b885778900ce4dd9aea8c90c4721141fde0d6ade893820ef1"},
-    {file = "tomlkit-0.11.0.tar.gz", hash = "sha256:71ceb10c0eefd8b8f11fe34e8a51ad07812cb1dc3de23247425fbc9ddc47b9dd"},
 ]
 toolz = [
     {file = "toolz-0.11.2-py3-none-any.whl", hash = "sha256:a5700ce83414c64514d82d60bcda8aabfde092d1c1a8663f9200c07fdcc6da8f"},
