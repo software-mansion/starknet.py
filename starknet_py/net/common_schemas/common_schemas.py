@@ -1,4 +1,4 @@
-from typing import Any, Union, Mapping
+from typing import Any, Union, Mapping, Optional
 
 from marshmallow import fields, ValidationError
 
@@ -57,8 +57,8 @@ class StatusField(fields.Field):
     def _deserialize(
         self,
         value: Any,
-        attr: Union[str, None],
-        data: Union[Mapping[str, Any], None],
+        attr: Optional[str],
+        data: Optional[Mapping[str, Any]],
         **kwargs,
     ) -> TransactionStatus:
         values = [v.value for v in TransactionStatus]
@@ -80,8 +80,8 @@ class BlockStatusField(fields.Field):
     def _deserialize(
         self,
         value: Any,
-        attr: Union[str, None],
-        data: Union[Mapping[str, Any], None],
+        attr: Optional[str],
+        data: Optional[Mapping[str, Any]],
         **kwargs,
     ) -> BlockStatus:
         # TODO maybe simplify
@@ -101,8 +101,8 @@ class TransactionTypeField(fields.Field):
     def _deserialize(
         self,
         value: Any,
-        attr: Union[str, None],
-        data: Union[Mapping[str, Any], None],
+        attr: Optional[str],
+        data: Optional[Mapping[str, Any]],
         **kwargs,
     ) -> TransactionType:
         values = [v.value for v in TransactionType]
