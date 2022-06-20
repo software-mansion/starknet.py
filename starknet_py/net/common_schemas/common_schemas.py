@@ -19,7 +19,7 @@ class Felt(fields.Field):
     """
 
     def _serialize(self, value: Any, attr: str, obj: Any, **kwargs):
-        return str(hex(value))
+        return hex(value)
 
     def _deserialize(
         self,
