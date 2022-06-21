@@ -235,7 +235,7 @@ async def test_signature(run_devnet):
     Based on https://www.cairo-lang.org/docs/hello_starknet/user_auth.html#interacting-with-the-contract
     but replaced with struct
     """
-    client = await DevnetClientFactory(run_devnet).make_devnet_client_without_account()
+    client = await DevnetClientFactory(run_devnet).make_devnet_client()
     private_key = 12345
     public_key = (
         1628448741648245036800002906075225705100596136133912895015035902954123957052

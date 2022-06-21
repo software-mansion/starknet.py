@@ -242,6 +242,19 @@ class Client:
             await asyncio.sleep(check_interval)
 
     # Mutating methods
+    async def send_transaction(
+        self,
+        tx: InvokeFunction,
+        token: Optional[str] = None,
+    ) -> Dict[str, str]:
+        """
+        :param tx: Signed transaction ready to be sent.
+        :param token: Optional token for Starknet API access, appended in a query string
+        :return: API response dictionary with `code`, `transaction_hash`
+        """
+
+        return await self._gateway.add_transaction(tx, token)
+
     async def add_transaction(
         self, tx: Transaction, token: Optional[str] = None
     ) -> Dict[str, str]:

@@ -26,9 +26,10 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
 from starknet_py.common import create_compiled_contract
+from starknet_py.net.account.account_client import add_signature_to_transaction
 
 from starknet_py.proxy_check import ProxyCheck, ArgentProxyCheck, OpenZeppelinProxyCheck
-from starknet_py.net import Client
+from starknet_py.net import Client, AccountClient
 from starknet_py.net.models import (
     InvokeFunction,
     AddressRepresentation,
@@ -38,7 +39,7 @@ from starknet_py.net.models import (
 )
 from starknet_py.net.models.address import BlockIdentifier
 from starknet_py.compile.compiler import StarknetCompilationSource
-from starknet_py.utils.crypto.facade import pedersen_hash
+from starknet_py.utils.crypto.facade import pedersen_hash, Call
 from starknet_py.utils.data_transformer import DataTransformer
 from starknet_py.utils.sync import add_sync_methods
 
@@ -127,7 +128,7 @@ class DeployResult(SentTransaction):
 
 # pylint: disable=too-many-instance-attributes
 @add_sync_methods
-class PreparedFunctionCall:
+class PreparedFunctionCall(Call):
     def __init__(
         self,
         calldata: List[int],
@@ -140,18 +141,28 @@ class PreparedFunctionCall:
         version: int,
     ):
         # pylint: disable=too-many-arguments
-        self.calldata = calldata
+        super().__init__(
+            to_addr=contract_data.address, selector=selector, calldata=calldata
+        )
+
         self.arguments = arguments
-        self.selector = selector
         self._client = client
         self._payload_transformer = payload_transformer
         self._contract_data = contract_data
+
+        if max_fee is not None or version != 0:
+            warnings.warn(
+                "max_fee and version are deprecated here. Use it at the higher level"
+            )
+
         self.max_fee = max_fee
         self.version = version
 
     @property
     @lru_cache()
     def hash(self) -> int:
+        warnings.warn("Hash is deprecated and will be deleted in next releases")
+
         return compute_invoke_hash(
             contract_address=self._contract_data.address,
             entry_point_selector=self.selector,
@@ -201,7 +212,7 @@ class PreparedFunctionCall:
 
     async def invoke(
         self,
-        signature: Optional[Collection[int]] = None,
+        signature: Optional[List[int]] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> InvokeResult:
@@ -213,6 +224,9 @@ class PreparedFunctionCall:
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
         :return: InvokeResult
         """
+        if not isinstance(self._client, AccountClient):
+            raise ValueError("Use AccountClient to invoke transaction")
+
         if auto_estimate and max_fee is not None:
             raise ValueError(
                 "Max_fee and auto_estimate are exclusive and cannot be provided at the same time."
@@ -237,8 +251,17 @@ class PreparedFunctionCall:
                 "Transaction will fail with max_fee set to 0. Change it to a higher value."
             )
 
-        tx = self._make_invoke_function(signature=signature)
-        response = await self._client.add_transaction(tx=tx)
+        if signature:
+            tx = await self._client.prepare_invoke_function(
+                calls=self, max_fee=self.max_fee, version=self.version
+            )
+            tx = add_signature_to_transaction(tx, signature)
+        else:
+            tx = await self._client.sign_transaction(
+                calls=self, max_fee=self.max_fee, version=self.version
+            )
+
+        response = await self._client.send_transaction(tx=tx)
 
         if response["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
             raise Exception("Failed to send transaction. Response: {response}.")
