@@ -1,4 +1,4 @@
-from typing import Dict, Optional, List
+from typing import Dict, Optional, List, Union, Iterable
 from dataclasses import replace
 
 from starkware.crypto.signature.signature import get_random_private_key
@@ -9,6 +9,7 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
 )
 
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
+from starknet_py.utils.crypto.facade import Call
 from starknet_py.utils.data_transformer.data_transformer import DataTransformer
 from starknet_py.net.client import Client
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
@@ -24,6 +25,9 @@ from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
 from starknet_py.net.signer import BaseSigner
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.net.models.address import AddressRepresentation, parse_address
+
+
+Calls = Union[Call, Iterable[Call]]
 
 
 @add_sync_methods
@@ -99,6 +103,82 @@ class AccountClient(Client):
         )
 
         return (high << 128) + low
+
+    async def prepare_invoke_function(
+        self, calls: Calls, max_fee: Optional[int] = None, version: int = 0
+    ) -> InvokeFunction:
+        if not isinstance(calls, List):
+            calls = [calls]
+
+        nonce = await self._get_nonce()
+
+        calldata_py = [[], 0, nonce]
+        current_data_len = 0
+        entire_calldata = []
+        for call in calls:
+            calldata_py[0].append(
+                {
+                    "to": call.to_addr,
+                    "selector": call.selector,
+                    "data_offset": current_data_len,
+                    "data_len": len(call.calldata),
+                }
+            )
+            current_data_len += len(call.calldata)
+            entire_calldata += call.calldata
+
+        calldata_py[1] = entire_calldata
+
+        code = await self.get_code(contract_address=parse_address(self.address))
+        abi = code["abi"]
+        identifier_manager = identifier_manager_from_abi(abi)
+        [execute_abi] = [a for a in abi if a["name"] == "__execute__"]
+
+        payload_transformer = DataTransformer(
+            abi=execute_abi, identifier_manager=identifier_manager
+        )
+
+        wrapped_calldata, _ = payload_transformer.from_python(*calldata_py)
+
+        return InvokeFunction(
+            entry_point_selector=get_selector_from_name("__execute__"),
+            calldata=wrapped_calldata,
+            contract_address=self.address,
+            signature=[],
+            max_fee=max_fee,
+            version=version,
+        )
+
+    async def sign_transaction(
+        self, calls: Calls, max_fee: Optional[int] = None, version: int = 0
+    ) -> InvokeFunction:
+        execute_tx = await self.prepare_invoke_function(calls, max_fee, version)
+
+        signature = self.signer.sign_transaction(execute_tx)
+        execute_tx = add_signature_to_transaction(execute_tx, signature)
+
+        return execute_tx
+
+    async def send_transaction(
+        self,
+        tx: InvokeFunction,
+        token: Optional[str] = None,
+    ) -> Dict[str, str]:
+        """
+        :param tx: Signed transaction ready to be sent.
+        :param token: Optional token for Starknet API access, appended in a query string
+        :return: API response dictionary with `code`, `transaction_hash`
+        """
+        if tx.tx_type in (TransactionType.DECLARE, TransactionType.DEPLOY):
+            return await super().send_transaction(tx, token)
+
+        return await super().send_transaction(tx)
+
+    async def execute(
+        self, calls: Calls, max_fee: Optional[int] = None, version: int = 0
+    ):
+        execute_tx = await self.sign_transaction(calls, max_fee, version)
+        return await self.send_transaction(execute_tx)
 
     async def _prepare_execute_transaction(self, tx: InvokeFunction) -> Transaction:
         nonce = await self._get_nonce()
