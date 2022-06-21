@@ -212,7 +212,7 @@ class PreparedFunctionCall(Call):
 
     async def invoke(
         self,
-        signature: Optional[List[int]] = None,
+        signature: Optional[Collection[int]] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> InvokeResult:
@@ -255,7 +255,7 @@ class PreparedFunctionCall(Call):
             tx = await self._client.prepare_invoke_function(
                 calls=self, max_fee=self.max_fee, version=self.version
             )
-            tx = add_signature_to_transaction(tx, signature)
+            tx = add_signature_to_transaction(tx, list(signature))
         else:
             tx = await self._client.sign_transaction(
                 calls=self, max_fee=self.max_fee, version=self.version
