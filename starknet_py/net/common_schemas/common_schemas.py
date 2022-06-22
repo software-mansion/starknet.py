@@ -12,7 +12,6 @@ from starknet_py.net.client_models import (
 
 
 class Felt(fields.Field):
-    # TODO test that serialization and deserialization is correct
     """
     Field that serializes int to felt (hex encoded string)
     """
@@ -50,7 +49,6 @@ class NonPrefixedHex(fields.Field):
 
 class StatusField(fields.Field):
     def _serialize(self, value: Any, attr: str, obj: Any, **kwargs):
-        # TODO should we serialize to string?
         return value.name if value is not None else ""
 
     def _deserialize(
@@ -73,7 +71,6 @@ class StatusField(fields.Field):
 
 class BlockStatusField(fields.Field):
     def _serialize(self, value: Any, attr: str, obj: Any, **kwargs):
-        # TODO should we serialize to string?
         return value.name if value is not None else ""
 
     def _deserialize(
@@ -83,7 +80,6 @@ class BlockStatusField(fields.Field):
         data: Optional[Mapping[str, Any]],
         **kwargs,
     ) -> BlockStatus:
-        # TODO maybe simplify
         values = [v.value for v in BlockStatus]
 
         if value not in values:
@@ -94,7 +90,6 @@ class BlockStatusField(fields.Field):
 
 class TransactionTypeField(fields.Field):
     def _serialize(self, value: Any, attr: str, obj: Any, **kwargs):
-        # TODO should we serialize to string?
         return value.name if value is not None else ""
 
     def _deserialize(

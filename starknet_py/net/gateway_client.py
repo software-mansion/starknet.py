@@ -55,7 +55,10 @@ class GatewayClient(BaseClient):
             method_name="get_transaction",
             params={"transactionHash": convert_to_felt(tx_hash)},
         )
-        # TODO handle not received/unknown transactions
+
+        if res["status"] in ("UNKNOWN", "NOT_RECEIVED"):
+            raise TransactionNotReceivedError()
+
         return TransactionSchema().load(res["transaction"], unknown=EXCLUDE)
 
     async def get_block(

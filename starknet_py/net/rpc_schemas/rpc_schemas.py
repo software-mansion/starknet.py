@@ -20,6 +20,7 @@ from starknet_py.net.common_schemas.common_schemas import (
 )
 
 # pylint: disable=unused-argument
+# pylint: disable=no-self-use
 
 
 class FunctionCallSchema(Schema):

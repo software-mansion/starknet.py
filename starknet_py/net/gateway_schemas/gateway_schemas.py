@@ -22,6 +22,7 @@ from starknet_py.net.common_schemas.common_schemas import (
 )
 
 # pylint: disable=unused-argument
+# pylint: disable=no-self-use
 
 
 class EventSchema(Schema):
@@ -85,8 +86,7 @@ class TransactionReceiptSchema(Schema):
     l2_to_l1_messages = fields.List(
         fields.Nested(L2toL1MessageSchema()), data_key="l2_to_l1_messages"
     )
-    # TODO should we allow none if dataclass accepts optional?
-    block_number = fields.Integer(data_key="block_number", allow_none=True)
+    block_number = fields.Integer(data_key="block_number", load_default=None)
     version = fields.Integer(data_key="version", allow_none=True)
     actual_fee = Felt(data_key="actual_key", allow_none=True)
     transaction_rejection_reason = fields.String(
