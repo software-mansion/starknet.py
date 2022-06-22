@@ -33,7 +33,7 @@ from starknet_py.net.client_utils import convert_to_felt
 class FullNodeClient(BaseClient):
     def __init__(self, node_url):
         self.url = node_url
-        self.rpc_client = RpcClient(url=node_url)
+        self._client = RpcHttpClient(url=node_url)
 
     async def estimate_fee(
         self,
@@ -49,7 +49,7 @@ class FullNodeClient(BaseClient):
         block_number: Optional[int] = None,
     ) -> StarknetBlock:
         if block_hash is not None:
-            res = await self.rpc_client.call(
+            res = await self._client.call(
                 method_name="getBlockByHash",
                 params={
                     "block_hash": convert_to_felt(block_hash),
@@ -58,7 +58,7 @@ class FullNodeClient(BaseClient):
             )
             return StarknetBlockSchema().load(res, unknown=EXCLUDE)
         elif block_number is not None:
-            res = await self.rpc_client.call(
+            res = await self._client.call(
                 method_name="getBlockByNumber",
                 params={"block_number": block_number, "requested_scope": "FULL_TXNS"},
             )
@@ -79,7 +79,7 @@ class FullNodeClient(BaseClient):
         if block_hash is None:
             raise ValueError("Block_hash must be provided when using FullNodeClient")
 
-        res = await self.rpc_client.call(
+        res = await self._client.call(
             method_name="getStateUpdateByHash",
             params={"block_hash": convert_to_felt(block_hash)},
         )
@@ -100,7 +100,7 @@ class FullNodeClient(BaseClient):
         if block_hash is None:
             raise ValueError("Block_hash must be provided when using FullNodeClient")
 
-        res = await self.rpc_client.call(
+        res = await self._client.call(
             method_name="getStorageAt",
             params={
                 "contract_address": convert_to_felt(contract_address),
@@ -115,7 +115,7 @@ class FullNodeClient(BaseClient):
         self,
         tx_hash: Hash,
     ) -> Transaction:
-        res = await self.rpc_client.call(
+        res = await self._client.call(
             method_name="getTransactionByHash",
             params={"transaction_hash": convert_to_felt(tx_hash)},
         )
@@ -124,7 +124,7 @@ class FullNodeClient(BaseClient):
     async def get_transaciton_by_block_hash_and_index(
         self, block_hash: Hash, index: int
     ) -> Transaction:
-        res = await self.rpc_client.call(
+        res = await self._client.call(
             method_name="getTransactionByBlockHashAndIndex",
             params={
                 "block_hash": convert_to_felt(block_hash),
@@ -136,7 +136,7 @@ class FullNodeClient(BaseClient):
     async def get_transaciton_by_block_number_and_index(
         self, block_number: int, index: int
     ) -> Transaction:
-        res = await self.rpc_client.call(
+        res = await self._client.call(
             method_name="getTransactionByBlockNumberAndIndex",
             params={
                 "block_number": block_number,
@@ -146,7 +146,7 @@ class FullNodeClient(BaseClient):
         return TransactionSchema().load(res, unknown=EXCLUDE)
 
     async def get_transaction_receipt(self, tx_hash: Hash) -> TransactionReceipt:
-        res = await self.rpc_client.call(
+        res = await self._client.call(
             method_name="getTransactionReceipt",
             params={"transaction_hash": convert_to_felt(tx_hash)},
         )
@@ -158,7 +158,7 @@ class FullNodeClient(BaseClient):
         block_hash: Optional[Hash] = None,
         block_number: Optional[int] = None,
     ) -> ContractCode:
-        res = await self.rpc_client.call(
+        res = await self._client.call(
             method_name="getCode",
             params={"contract_address": convert_to_felt(contract_address)},
         )
@@ -178,7 +178,7 @@ class FullNodeClient(BaseClient):
         if block_hash is None:
             raise ValueError("Block_hash must be provided when using FullNodeClient")
 
-        res = await self.rpc_client.call(
+        res = await self._client.call(
             method_name="call",
             params={
                 "contract_address": convert_to_felt(invoke_tx.contract_address),
@@ -201,7 +201,7 @@ class FullNodeClient(BaseClient):
         pass
 
 
-class RpcClient:
+class RpcHttpClient:
     def __init__(self, url):
         self.url = url
 

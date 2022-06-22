@@ -43,8 +43,8 @@ class GatewayClient(BaseClient):
         gateway_url = f"{host}/gateway"
 
         self.chain = chain_from_network(net, chain)
-        self._feeder_gateway_client = StarknetClient(url=feeder_gateway_url)
-        self._gateway_client = StarknetClient(url=gateway_url)
+        self._feeder_gateway_client = GatewayHttpClient(url=feeder_gateway_url)
+        self._gateway_client = GatewayHttpClient(url=gateway_url)
 
     async def get_transaction(
         self,
@@ -232,8 +232,7 @@ def get_block_identifier(
     return {}
 
 
-# TODO rename
-class StarknetClient:
+class GatewayHttpClient:
     def __init__(self, url):
         self.url = url
 
