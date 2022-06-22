@@ -253,7 +253,6 @@ class StarknetClient:
     ) -> dict:
         address = f"{self.url}/{method_name}"
 
-        # TODO add error handling
         async with aiohttp.ClientSession() as session:
             async with session.post(
                 address, params=params or {}, json=payload
