@@ -218,11 +218,6 @@ def get_block_identifier(
         raise ValueError(
             "Block_hash and block_number parameters are mutually exclusive."
         )
-
-    # TODO gateway now supports latest block
-    if block_hash == "latest":
-        block_hash = "pending"
-
     if block_hash is not None:
         return {"blockHash": convert_to_felt(block_hash)}
 
