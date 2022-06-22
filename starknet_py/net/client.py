@@ -1,6 +1,6 @@
 import asyncio
 import typing
-from typing import Optional, List, Dict, Union
+from typing import Optional, List, Dict, Union, Any
 
 # noinspection PyPackageRequirements
 from services.external_api.client import RetryConfig, BadRequest as BadRequestError
@@ -11,16 +11,20 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
     CastableToHash,
     JsonObject,
     TransactionInfo,
-    TransactionReceipt,
 )
 from starkware.starknet.services.api.feeder_gateway.response_objects import (
     StarknetBlock,
+    TransactionReceipt,
 )
 from starkware.starknet.services.api.gateway.gateway_client import GatewayClient
+from starkware.starknet.services.api.gateway.transaction import DECLARE_SENDER_ADDRESS
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
+from starknet_py.common import create_compiled_contract
+from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.constants import TxStatus, ACCEPTED_STATUSES
 from starknet_py.net.models.address import BlockIdentifier
+from starknet_py.net.models.transaction import Declare
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.net.models import (
     InvokeFunction,
@@ -180,14 +184,20 @@ class Client:
     async def estimate_fee(
         self,
         tx: InvokeFunction,
+        block_hash: Optional[CastableToHash] = None,
+        block_number: BlockIdentifier = "pending",
     ) -> int:
         """
         Estimate how much Wei it will cost to run passed in transaction
 
         :param tx: Transaction to estimate
+        :param block_hash: Estimate fee at specific block hash
+        :param block_number: Estimate fee at given block number (or "pending" for pending block)
         :return: Estimated amount of Wei executing specified transaction will cost
         """
-        res = await self._feeder_gateway.estimate_fee(invoke_tx=tx)
+        res = await self._feeder_gateway.estimate_fee(
+            invoke_tx=tx, block_hash=block_hash, block_number=block_number
+        )
         return res["amount"]
 
     async def wait_for_tx(
@@ -265,6 +275,77 @@ class Client:
         )
 
         if res["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
-            raise Exception("Transaction not received")
+            raise TransactionNotReceivedError()
+        return res
+
+    async def declare(
+        self,
+        compilation_source: Optional[StarknetCompilationSource] = None,
+        compiled_contract: Optional[str] = None,
+        version: int = 0,
+        cairo_path: Optional[List[str]] = None,
+    ) -> dict:
+        """
+        Declares contract class.
+        Either `compilation_source` or `compiled_contract` is required.
+
+        :param compilation_source: string containing source code or a list of source files paths
+        :param compiled_contract: string containing compiled contract. Useful for reading compiled contract from a file
+        :param version: PreparedFunctionCall version
+        :param cairo_path: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts
+        :return: Dictionary with 'transaction_hash' and 'class_hash'
+        """
+        compiled_contract = create_compiled_contract(
+            compilation_source, compiled_contract, cairo_path
+        )
+
+        res = await self.add_transaction(
+            tx=Declare(
+                contract_class=compiled_contract,
+                sender_address=DECLARE_SENDER_ADDRESS,
+                max_fee=0,
+                signature=[],
+                nonce=0,
+                version=version,
+            )
+        )
+
+        if res["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
+            raise TransactionNotReceivedError()
 
         return res
+
+    async def get_class_hash_at(
+        self,
+        contract_address: CastableToHash,
+        block_hash: Optional[CastableToHash] = None,
+        block_number: Optional[BlockIdentifier] = None,
+    ) -> str:
+        """
+        Returns the class hash for a given contract instance address
+
+        :param contract_address: Contract instance address
+        :param block_hash: Fetches the value of the variable at given block hash
+        :param block_number: See above, uses block number (or "pending" block) instead of hash
+        :return: Class hash
+        """
+        if isinstance(contract_address, str):
+            contract_address = int(contract_address, 16)
+
+        return await self._feeder_gateway.get_class_hash_at(
+            block_hash=block_hash,
+            block_number=block_number,
+            contract_address=contract_address,
+        )
+
+    async def get_class_by_hash(self, class_hash: CastableToHash) -> Dict[str, Any]:
+        """
+        Retuns the contract class for given hash
+
+        :param class_hash: Class hash
+        :return: Dict with representation of contract class
+        """
+        if isinstance(class_hash, int):
+            class_hash = hex(class_hash)
+
+        return await self._feeder_gateway.get_class_by_hash(class_hash=class_hash)
