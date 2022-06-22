@@ -9,7 +9,6 @@ from starknet_py.net.client_models import (
 )
 
 # pylint: disable=unused-argument
-# pylint: disable=no-self-use
 
 
 class Felt(fields.Field):

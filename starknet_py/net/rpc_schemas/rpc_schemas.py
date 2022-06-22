@@ -19,7 +19,7 @@ from starknet_py.net.common_schemas.common_schemas import (
     StatusField,
 )
 
-# pylint: disable=no-self-use
+# pylint: disable=unused-argument
 
 
 class FunctionCallSchema(Schema):
@@ -38,7 +38,6 @@ class TransactionSchema(Schema):
 
     @post_load
     def make_transaction(self, data, **kwargs) -> Transaction:
-        # pylint: disable=unused-argument
         if data["calldata"] is None:
             data["calldata"] = []
 
@@ -63,7 +62,6 @@ class L1toL2MessageSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> L1toL2Message:
-        # pylint: disable=unused-argument
         return L1toL2Message(**data)
 
 
@@ -92,7 +90,6 @@ class TransactionReceiptSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> TransactionReceipt:
-        # pylint: disable=unused-argument
         return TransactionReceipt(**data)
 
 
@@ -102,7 +99,6 @@ class ContractCodeSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> ContractCode:
-        # pylint: disable=unused-argument
         parsed_json = json.loads(data["abi"])
         data["abi"] = parsed_json
         return ContractCode(**data)
@@ -121,7 +117,6 @@ class StarknetBlockSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> StarknetBlock:
-        # pylint: disable=unused-argument
         data["root"] = int(data["root"], 16)
 
         return StarknetBlock(**data)

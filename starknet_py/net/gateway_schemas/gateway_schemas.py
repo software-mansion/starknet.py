@@ -22,7 +22,6 @@ from starknet_py.net.common_schemas.common_schemas import (
 )
 
 # pylint: disable=unused-argument
-# pylint: disable=no-self-use
 
 
 class EventSchema(Schema):
@@ -39,7 +38,6 @@ class L1toL2MessageSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> L1toL2Message:
-        # pylint: disable=unused-argument
         return L1toL2Message(**data)
 
 
@@ -50,7 +48,6 @@ class L2toL1MessageSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> L2toL1Message:
-        # pylint: disable=unused-argument
         return L2toL1Message(**data)
 
 
@@ -66,7 +63,6 @@ class TransactionSchema(Schema):
 
     @pre_load
     def preprocess(self, data, **kwargs):
-        # pylint: disable=unused-argument
         if "constructor_calldata" in data:
             data["calldata"] = data["constructor_calldata"]
             del data["constructor_calldata"]
@@ -74,7 +70,6 @@ class TransactionSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> Transaction:
-        # pylint: disable=unused-argument
         if data["transaction_type"] == TransactionType.DEPLOY:
             data["entry_point_selector"] = 0
         return Transaction(**data)
@@ -111,7 +106,6 @@ class ContractCodeSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs):
-        # pylint: disable=unused-argument
         return ContractCode(bytecode=data["bytecode"], abi=data["abi"])
 
 
@@ -128,7 +122,6 @@ class StarknetBlockSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs):
-        # pylint: disable=unused-argument
         data["root"] = int(data["root"], 16)
         return StarknetBlock(**data)
 
@@ -141,7 +134,6 @@ class SentTransactionSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs):
-        # pylint: disable=unused-argument
         return SentTransaction(**data)
 
 
@@ -152,7 +144,6 @@ class StorageDiffSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs):
-        # pylint: disable=unused-argument
         return StorageDiff(**data)
 
 
@@ -162,7 +153,6 @@ class ContractDiffsSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs):
-        # pylint: disable=unused-argument
         return ContractDiff(**data)
 
 
@@ -176,7 +166,6 @@ class BlockStateUpdateSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs):
-        # pylint: disable=unused-argument
         contracts_diffs = data["state_diff"]["deployed_contracts"]
         contracts_diffs = [
             ContractDiffsSchema().load(contract) for contract in contracts_diffs

@@ -42,9 +42,7 @@ async def test_node_get_transaction_by_block_number_and_index(
 
 
 @pytest.mark.asyncio
-async def test_get_block_throws_on_no_block_hash_and_no_number(
-    devnet_address, block_hash
-):
+async def test_get_block_throws_on_no_block_hash_and_no_number(devnet_address):
     client = await DevnetClientFactory(devnet_address).make_rpc_client()
 
     with pytest.raises(ValueError) as exinfo:

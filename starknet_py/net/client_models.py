@@ -77,6 +77,8 @@ class TransactionReceipt:
     Dataclass representing details of sent transaction
     """
 
+    # pylint: disable=too-many-instance-attributes
+
     hash: int
     status: TransactionStatus
     events: List[Event]

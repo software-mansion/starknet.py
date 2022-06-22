@@ -6,7 +6,7 @@ from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.transaction_exceptions import TransactionRejectedError
 from starknet_py.contract import Contract
-from starknet_py.net.client import BadRequest, Client
+from starknet_py.net.client import Client
 from starknet_py.net.models import InvokeFunction
 from starknet_py.tests.e2e.utils import DevnetClientFactory
 from starknet_py.utils.crypto.facade import sign_calldata

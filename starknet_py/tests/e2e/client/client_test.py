@@ -42,7 +42,7 @@ async def test_get_block_by_number(clients, deploy_transaction_hash):
 
 
 @pytest.mark.asyncio
-async def test_get_storage_at(clients, block_hash, contract_address):
+async def test_get_storage_at(clients, contract_address):
     for client in clients:
         storage = await client.get_storage_at(
             contract_address=contract_address,
@@ -54,7 +54,7 @@ async def test_get_storage_at(clients, block_hash, contract_address):
 
 
 @pytest.mark.asyncio
-async def test_get_storage_at_incorrect_address(clients, block_hash):
+async def test_get_storage_at_incorrect_address(clients):
     gateway_client, full_node_client = clients
 
     storage = await gateway_client.get_storage_at(

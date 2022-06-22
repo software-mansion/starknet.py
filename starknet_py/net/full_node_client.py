@@ -57,14 +57,13 @@ class FullNodeClient(BaseClient):
                 },
             )
             return StarknetBlockSchema().load(res, unknown=EXCLUDE)
-        elif block_number is not None:
+        if block_number is not None:
             res = await self._client.call(
                 method_name="getBlockByNumber",
                 params={"block_number": block_number, "requested_scope": "FULL_TXNS"},
             )
             return StarknetBlockSchema().load(res, unknown=EXCLUDE)
-        else:
-            raise ValueError("Block_hash or block_number must be provided.")
+        raise ValueError("Block_hash or block_number must be provided.")
 
     async def get_state_update(
         self,
