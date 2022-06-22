@@ -8,7 +8,6 @@ from starknet_py.net.client_models import (
     L2toL1Message,
     L1toL2Message,
     SentTransaction,
-    TransactionType,
     ContractDiff,
     StorageDiff,
     BlockStateUpdate,
@@ -71,8 +70,6 @@ class TransactionSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> Transaction:
-        if data["transaction_type"] == TransactionType.DEPLOY:
-            data["entry_point_selector"] = 0
         return Transaction(**data)
 
 
@@ -106,7 +103,7 @@ class ContractCodeSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs):
-        return ContractCode(bytecode=data["bytecode"], abi=data["abi"])
+        return ContractCode(**data)
 
 
 class StarknetBlockSchema(Schema):
@@ -114,7 +111,7 @@ class StarknetBlockSchema(Schema):
     parent_block_hash = Felt(data_key="parent_block_hash")
     block_number = fields.Integer(data_key="block_number")
     status = BlockStatusField(data_key="status")
-    root = fields.String(data_key="state_root")
+    root = NonPrefixedHex(data_key="state_root")
     transactions = fields.List(
         fields.Nested(TransactionSchema(), unknown=EXCLUDE), data_key="transactions"
     )
@@ -122,7 +119,6 @@ class StarknetBlockSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs):
-        data["root"] = int(data["root"], 16)
         return StarknetBlock(**data)
 
 

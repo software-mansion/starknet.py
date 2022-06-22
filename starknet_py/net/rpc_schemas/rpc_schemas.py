@@ -1,5 +1,7 @@
 import json
-from marshmallow import Schema, fields, post_load
+from typing import Tuple, List
+
+from marshmallow import Schema, fields, post_load, pre_load
 
 from starknet_py.net.client_models import (
     Transaction,
@@ -12,11 +14,13 @@ from starknet_py.net.client_models import (
     BlockStateUpdate,
     StorageDiff,
     ContractDiff,
+    Event,
 )
 from starknet_py.net.common_schemas.common_schemas import (
     Felt,
     BlockStatusField,
     StatusField,
+    NonPrefixedHex,
 )
 
 # pylint: disable=unused-argument
@@ -33,18 +37,23 @@ class TransactionSchema(Schema):
     hash = Felt(data_key="txn_hash")
     contract_address = Felt(data_key="contract_address")
     entry_point_selector = Felt(data_key="entry_point_selector", allow_none=True)
-    calldata = fields.List(Felt(), data_key="calldata", allow_none=True)
-    version = Felt(load_default=0)
+    calldata = fields.List(Felt(), data_key="calldata")
+    version = Felt(data_key="version", load_default=0)
     max_fee = Felt(data_key="max_fee")
+
+    @pre_load
+    def preprocess(self, data, **kwargs):
+        if data["calldata"] is None:
+            data["calldata"] = []
+        return data
 
     @post_load
     def make_transaction(self, data, **kwargs) -> Transaction:
-        if data["calldata"] is None:
-            data["calldata"] = []
-
         if data["entry_point_selector"] is None:
             data["entry_point_selector"] = 0
             data["transaction_type"] = TransactionType.DEPLOY
+        else:
+            data["transaction_type"] = TransactionType.INVOKE
 
         return Transaction(**data)
 
@@ -53,6 +62,10 @@ class EventSchema(Schema):
     from_address = Felt(data_key="from_address")
     keys = fields.List(Felt(), data_key="keys")
     data = fields.List(Felt(), data_key="data")
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> Event:
+        return Event(**data)
 
 
 class L1toL2MessageSchema(Schema):
@@ -74,7 +87,6 @@ class L2toL1MessageSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> L2toL1Message:
-        # pylint: disable=unused-argument
         return L2toL1Message(**data)
 
 
@@ -100,9 +112,12 @@ class ContractCodeSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> ContractCode:
-        parsed_json = json.loads(data["abi"])
-        data["abi"] = parsed_json
+        data["abi"] = ContractCodeSchema._abi_to_dict(data["abi"])
         return ContractCode(**data)
+
+    @staticmethod
+    def _abi_to_dict(abi: str) -> dict:
+        return json.loads(abi)
 
 
 class StarknetBlockSchema(Schema):
@@ -110,7 +125,7 @@ class StarknetBlockSchema(Schema):
     parent_block_hash = Felt(data_key="parent_hash")
     block_number = fields.Integer(data_key="block_number")
     status = BlockStatusField(data_key="status")
-    root = fields.String(data_key="new_root")
+    root = NonPrefixedHex(data_key="new_root")
     transactions = fields.List(
         fields.Nested(TransactionSchema()), data_key="transactions"
     )
@@ -118,8 +133,6 @@ class StarknetBlockSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> StarknetBlock:
-        data["root"] = int(data["root"], 16)
-
         return StarknetBlock(**data)
 
 
@@ -159,8 +172,19 @@ class BlockStateUpdateSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> BlockStateUpdate:
-        data["storage_diffs"] = data["state_diff"]["storage_diffs"]
-        data["contract_diffs"] = data["state_diff"]["contract_diffs"]
+        storage_diffs, contract_diffs = BlockStateUpdateSchema._extract_diffs(
+            data["state_diff"]
+        )
         del data["state_diff"]
 
-        return BlockStateUpdate(**data)
+        return BlockStateUpdate(
+            **data, storage_diffs=storage_diffs, contract_diffs=contract_diffs
+        )
+
+    @staticmethod
+    def _extract_diffs(
+        state_diff: dict,
+    ) -> Tuple[List[StorageDiff], List[ContractDiff]]:
+        storage_diffs = state_diff["storage_diffs"]
+        contract_diffs = state_diff["contract_diffs"]
+        return storage_diffs, contract_diffs
