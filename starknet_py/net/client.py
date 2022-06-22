@@ -184,14 +184,20 @@ class Client:
     async def estimate_fee(
         self,
         tx: InvokeFunction,
+        block_hash: Optional[CastableToHash] = None,
+        block_number: BlockIdentifier = "pending",
     ) -> int:
         """
         Estimate how much Wei it will cost to run passed in transaction
 
         :param tx: Transaction to estimate
+        :param block_hash: Estimate fee at specific block hash
+        :param block_number: Estimate fee at given block number (or "pending" for pending block)
         :return: Estimated amount of Wei executing specified transaction will cost
         """
-        res = await self._feeder_gateway.estimate_fee(invoke_tx=tx)
+        res = await self._feeder_gateway.estimate_fee(
+            invoke_tx=tx, block_hash=block_hash, block_number=block_number
+        )
         return res["amount"]
 
     async def wait_for_tx(
