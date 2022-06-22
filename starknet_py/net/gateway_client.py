@@ -34,6 +34,7 @@ from starknet_py.net.models import StarknetChainId, chain_from_network
 from starknet_py.net.networks import Network, net_address_from_net
 from starknet_py.net.client_errors import ClientError, ContractNotFoundError
 from starknet_py.net.client_utils import convert_to_felt
+from starknet_py.transaction_exceptions import TransactionNotReceivedError
 
 
 class GatewayClient(BaseClient):
@@ -204,9 +205,8 @@ class GatewayClient(BaseClient):
             )
         )
 
-        # TODO maybe improve/remove this exception?
         if res.code != StarkErrorCode.TRANSACTION_RECEIVED.name:
-            raise Exception("Transaction not received")
+            raise TransactionNotReceivedError()
 
         return res
 
