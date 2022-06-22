@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "starknet.py"
-version = "0.3.2-alpha"
+version = "0.3.3-alpha"
 description = "A python SDK for StarkNet"
 authors = ["Tomasz Rejowski <tomasz.rejowski@swmansion.com>", "Jakub Ptak <jakub.ptak@swmansion.com>"]
 include = ["starknet_py", "starknet_py/utils/crypto/libcrypto_c_exports.*"]
@@ -33,7 +33,7 @@ poethepoet = "^0.11.0"
 coverage = "^6.1.2"
 pytest-asyncio = "^0.16.0"
 sphinx-rtd-theme = "^1.0.0"
-pylint = "^2.14.1"
+pylint = "2.13.5"
 setuptools = "^60.0.3"
 pytest-mock = "^3.6.1"
 web3 = {extras=["tester"], version=">=5.28.0,<6"}
