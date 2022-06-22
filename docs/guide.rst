@@ -79,6 +79,20 @@ Here's how you could sign an invocation:
     :dedent: 4
 
 
+Using different signing methods
+-------------------------------
+
+By default, :ref:`Account Client` uses signing method reflecting this required by
+OpenZeppeling account contract. If for any reason you want to use a different
+signing schema, it is possible to create ``AccountClient`` with custom
+:ref:`Signer` implementation.
+
+.. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_custom_signer.py
+    :language: python
+    :lines: 11-28
+    :dedent: 4
+
+
 Deploying new contracts
 -----------------------
 
