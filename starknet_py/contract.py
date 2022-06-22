@@ -4,7 +4,6 @@ import dataclasses
 import sys
 import warnings
 from dataclasses import dataclass
-from functools import lru_cache
 from typing import (
     List,
     Optional,
@@ -26,7 +25,6 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
 from starknet_py.common import create_compiled_contract
-from starknet_py.net.account.account_client import add_signature_to_transaction
 
 from starknet_py.proxy_check import ProxyCheck, ArgentProxyCheck, OpenZeppelinProxyCheck
 from starknet_py.net import Client, AccountClient
@@ -159,7 +157,6 @@ class PreparedFunctionCall(Call):
         self.version = version
 
     @property
-    @lru_cache()
     def hash(self) -> int:
         warnings.warn("Hash is deprecated and will be deleted in next releases")
 
@@ -212,7 +209,6 @@ class PreparedFunctionCall(Call):
 
     async def invoke(
         self,
-        signature: Optional[Collection[int]] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> InvokeResult:
@@ -251,15 +247,9 @@ class PreparedFunctionCall(Call):
                 "Transaction will fail with max_fee set to 0. Change it to a higher value."
             )
 
-        if signature:
-            tx = await self._client.prepare_invoke_function(
-                calls=self, max_fee=self.max_fee, version=self.version
-            )
-            tx = add_signature_to_transaction(tx, list(signature))
-        else:
-            tx = await self._client.sign_transaction(
-                calls=self, max_fee=self.max_fee, version=self.version
-            )
+        tx = await self._client.sign_transaction(
+            calls=self, max_fee=self.max_fee, version=self.version
+        )
 
         response = await self._client.send_transaction(tx=tx)
 

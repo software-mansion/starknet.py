@@ -32,6 +32,11 @@ class DevnetClientFactory:
         client = await AccountClient.create_account(net=self.net, chain=self.chain)
         return client
 
+    def make_devnet_client_sync(self) -> Client:
+        # pylint: disable=no-member
+        client = AccountClient.create_account_sync(net=self.net, chain=self.chain)
+        return client
+
     def make_devnet_client_from_predefined_account(self) -> AccountClient:
         key_pair = KeyPair.from_private_key(int(ACCOUNT_CLIENT_PRIVATE_KEY, 0))
         client = AccountClient(

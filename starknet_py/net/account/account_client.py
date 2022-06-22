@@ -107,6 +107,7 @@ class AccountClient(Client):
     async def prepare_invoke_function(
         self, calls: Calls, max_fee: Optional[int] = None, version: int = 0
     ) -> InvokeFunction:
+        # pylint: disable=too-many-locals
         if not isinstance(calls, List):
             calls = [calls]
 

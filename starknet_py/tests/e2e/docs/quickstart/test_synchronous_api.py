@@ -21,8 +21,7 @@ def test_synchronous_api(run_devnet):
     )
     # add to docs: end
 
-    devnet_client_factory = DevnetClientFactory(run_devnet)
-    client = Client(devnet_client_factory.net, devnet_client_factory.chain)
+    client = DevnetClientFactory(run_devnet).make_devnet_client_sync()
 
     deployment_result = Contract.deploy_sync(
         client=client, compilation_source=map_source_code

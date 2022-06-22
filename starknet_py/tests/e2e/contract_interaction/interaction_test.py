@@ -9,7 +9,6 @@ from starknet_py.contract import Contract
 from starknet_py.net.client import BadRequest, Client
 from starknet_py.net.models import InvokeFunction
 from starknet_py.tests.e2e.utils import DevnetClientFactory
-from starknet_py.utils.crypto.facade import sign_calldata
 
 directory = os.path.dirname(__file__)
 
@@ -230,45 +229,6 @@ user_auth_source = Path(directory, "user_auth.cairo").read_text("utf-8")
 
 
 @pytest.mark.asyncio
-async def test_signature(run_devnet):
-    """
-    Based on https://www.cairo-lang.org/docs/hello_starknet/user_auth.html#interacting-with-the-contract
-    but replaced with struct
-    """
-    client = await DevnetClientFactory(run_devnet).make_devnet_client()
-    private_key = 12345
-    public_key = (
-        1628448741648245036800002906075225705100596136133912895015035902954123957052
-    )
-    details = {"favourite_number": 1, "favourite_tuple": (2, 3, 4)}
-
-    deployment_result = await Contract.deploy(
-        client=client, compilation_source=user_auth_source
-    )
-    deployment_result = await deployment_result.wait_for_acceptance()
-    contract = deployment_result.deployed_contract
-
-    contract = await Contract.from_address(contract.address, client)
-
-    fun_call = contract.functions["set_details"].prepare(
-        public_key, details, max_fee=0, version=0
-    )
-
-    # Verify that it doesn't work with proper signature
-    with pytest.raises(Exception):
-        invocation = await fun_call.invoke(signature=[1, 2])
-        await invocation.wait_for_acceptance()
-
-    signature = sign_calldata(fun_call.arguments["details"], private_key)
-    invocation = await fun_call.invoke(signature=signature)
-    await invocation.wait_for_acceptance()
-
-    (balance,) = await contract.functions["get_details"].call(public_key)
-
-    assert balance == details
-
-
-@pytest.mark.asyncio
 async def test_get_code_not_found(run_devnet):
     client = await DevnetClientFactory(run_devnet).make_devnet_client()
 
@@ -411,7 +371,7 @@ async def test_contract_from_address_throws_on_too_many_steps(run_devnet):
 
 @pytest.mark.asyncio
 async def test_contract_from_address_throws_on_proxy_cycle(run_devnet):
-    client = await DevnetClientFactory(run_devnet).make_devnet_client_without_account()
+    client = await DevnetClientFactory(run_devnet).make_devnet_client()
     proxy1_deployment = await Contract.deploy(
         compilation_source=proxy_source,
         constructor_args=[0x123],

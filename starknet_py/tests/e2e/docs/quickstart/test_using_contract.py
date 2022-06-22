@@ -25,7 +25,7 @@ async def test_using_contract(run_devnet):
     key = 1234
     # add to docs: end
 
-    client = await DevnetClientFactory(run_devnet).make_devnet_client_without_account()
+    client = await DevnetClientFactory(run_devnet).make_devnet_client()
 
     deployment_result = await Contract.deploy(
         client=client, compilation_source=map_source_code

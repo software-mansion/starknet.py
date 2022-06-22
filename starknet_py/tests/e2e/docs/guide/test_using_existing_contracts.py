@@ -45,7 +45,7 @@ async def test_using_existing_contracts(run_devnet):
     client = Client(TESTNET)
     # add to docs: end
 
-    client = await DevnetClientFactory(run_devnet).make_devnet_client_without_account()
+    client = await DevnetClientFactory(run_devnet).make_devnet_client()
 
     deployment_result = await Contract.deploy(
         client=client, compilation_source=erc20_source_code
