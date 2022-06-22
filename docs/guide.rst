@@ -114,10 +114,6 @@ When max_fee is specified when preparing a call, you can invoke it without
     If ``max_fee`` is not specified at any step it will default to ``None``,
     and will raise an exception when invoking a transaction.
 
-.. note::
-
-    In future starknet versions invoke transactions with ``max_fee=0`` may be rejected.
-
 Please note you will need to have enough Wei in your starknet account otherwise
 transaction will be rejected.
 
