@@ -3,13 +3,11 @@ from dataclasses import replace
 
 from starkware.crypto.signature.signature import get_random_private_key
 from starkware.starknet.public.abi import get_selector_from_name
-from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
     CastableToHash,
 )
 
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
-from starknet_py.utils.data_transformer.data_transformer import DataTransformer
 from starknet_py.net.client import Client
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
 from starknet_py.net.models import (
@@ -22,6 +20,7 @@ from starknet_py.net.models import (
 from starknet_py.net.networks import Network, MAINNET, TESTNET
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
 from starknet_py.net.signer import BaseSigner
+from starknet_py.utils.data_transformer.execute_transformer import execute_transformer
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.net.models.address import AddressRepresentation, parse_address
 
@@ -116,16 +115,7 @@ class AccountClient(Client):
             nonce,
         ]
 
-        code = await self.get_code(contract_address=parse_address(self.address))
-        abi = code["abi"]
-        identifier_manager = identifier_manager_from_abi(abi)
-        [execute_abi] = [a for a in abi if a["name"] == "__execute__"]
-
-        payload_transformer = DataTransformer(
-            abi=execute_abi, identifier_manager=identifier_manager
-        )
-
-        wrapped_calldata, _ = payload_transformer.from_python(*calldata_py)
+        wrapped_calldata, _ = execute_transformer.from_python(*calldata_py)
 
         return InvokeFunction(
             entry_point_selector=get_selector_from_name("__execute__"),
