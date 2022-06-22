@@ -12,7 +12,7 @@ class ClientError(Exception):
 
 
 class ContractNotFoundError(ClientError):
-    def __int__(
+    def __init__(
         self,
         block_hash: Optional[Union[int, str]] = None,
         block_number: Optional[int] = None,
