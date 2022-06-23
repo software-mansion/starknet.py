@@ -1,4 +1,5 @@
 import typing
+from enum import Enum
 from typing import Union, Optional, List
 
 import aiohttp
@@ -230,32 +231,45 @@ def get_block_identifier(
     return {}
 
 
+class HttpMethod(Enum):
+    GET = "GET"
+    POST = "POST"
+
+
 class GatewayHttpClient:
     def __init__(self, url):
         self.url = url
 
-    async def call(self, method_name: str, params: Optional[dict] = None) -> dict:
+    async def gateway_request(
+        self,
+        http_method: HttpMethod,
+        method_name: str,
+        params: Optional[dict] = None,
+        payload: Optional[dict] = None,
+    ):
         address = f"{self.url}/{method_name}"
 
         async with aiohttp.ClientSession() as session:
-            async with session.get(address, params=params or {}) as request:
-                if request.status != 200:
-                    raise ClientError(
-                        code=str(request.status), message=await request.text()
-                    )
-                return await request.json()
-
-    async def post(
-        self, method_name: str, payload: dict, params: Optional[dict] = None
-    ) -> dict:
-        address = f"{self.url}/{method_name}"
-
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                address, params=params or {}, json=payload
+            async with session.request(
+                method=http_method.value, url=address, params=params or {}, json=payload
             ) as request:
                 if request.status != 200:
                     raise ClientError(
                         code=str(request.status), message=await request.text()
                     )
                 return await request.json(content_type=None)
+
+    async def call(self, method_name: str, params: Optional[dict] = None) -> dict:
+        return await self.gateway_request(
+            http_method=HttpMethod.GET, method_name=method_name, params=params
+        )
+
+    async def post(
+        self, method_name: str, payload: dict, params: Optional[dict] = None
+    ) -> dict:
+        return await self.gateway_request(
+            http_method=HttpMethod.POST,
+            method_name=method_name,
+            payload=payload,
+            params=params,
+        )
