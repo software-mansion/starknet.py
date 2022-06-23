@@ -230,11 +230,11 @@ class RpcHttpClient:
             async with session.post(self.url, json=payload) as request:
                 result = await request.json()
                 if "result" not in result:
-                    self.handle_full_node_exceptions(result)
+                    self.handle_error(result)
                 return result["result"]
 
     @staticmethod
-    def handle_full_node_exceptions(result):
+    def handle_error(result):
         if "error" not in result:
             raise ClientError(code="-1", message="request failed")
         raise ClientError(
