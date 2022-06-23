@@ -26,10 +26,12 @@ class Felt(fields.Field):
         data: Union[Mapping[str, Any], None],
         **kwargs,
     ):
+        if not isinstance(value, str) or not value.startswith("0x"):
+            raise ValidationError("Invalid felt")
+
         try:
-            assert isinstance(value, str) and value.startswith("0x")
             return int(value, 16)
-        except (ValueError, AssertionError) as error:
+        except ValueError as error:
             raise ValidationError("Invalid felt") from error
 
 
