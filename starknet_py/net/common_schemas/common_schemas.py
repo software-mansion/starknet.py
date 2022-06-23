@@ -66,7 +66,9 @@ class StatusField(fields.Field):
             return TransactionStatus.UNKNOWN
 
         if value not in values:
-            raise ValidationError(f"Invalid value provided for TransactionStatus: {value}")
+            raise ValidationError(
+                f"Invalid value provided for TransactionStatus: {value}"
+            )
 
         return TransactionStatus(value)
 
@@ -104,6 +106,8 @@ class TransactionTypeField(fields.Field):
         values = [v.value for v in TransactionType]
 
         if value not in values:
-            raise ValidationError(f"Invalid value provided for TransactionType: {value}")
+            raise ValidationError(
+                f"Invalid value provided for TransactionType: {value}"
+            )
 
         return TransactionType(value)
