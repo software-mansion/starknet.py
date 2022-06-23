@@ -4,11 +4,8 @@ from typing import Optional, Union
 class ClientError(Exception):
     def __init__(self, message: str, code: Optional[str] = None):
         self.code = code
-        self.message = message
+        self.message = f"Client failed{f' with code {code}' if code is not None else ''}: {message}"
         super().__init__(self.message)
-
-    def __str__(self):
-        return f"Client failed{f' with code {self.code}' if self.code is not None else ''}: {self.message}"
 
 
 class ContractNotFoundError(ClientError):
@@ -23,9 +20,6 @@ class ContractNotFoundError(ClientError):
         self.identifier = str(identifier) if isinstance(identifier, int) else identifier
 
         super().__init__(message=f"No contract found for identifier: {self.identifier}")
-
-    def __str__(self):
-        return self.message
 
 
 def require_block_identifier(block_hash, block_number):
