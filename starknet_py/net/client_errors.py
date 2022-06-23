@@ -17,7 +17,7 @@ class ContractNotFoundError(ClientError):
         block_hash: Optional[Union[int, str]] = None,
         block_number: Optional[int] = None,
     ):
-        require_one_of(block_hash, block_number)
+        require_block_identifier(block_hash, block_number)
 
         identifier = block_hash or block_number
         self.identifier = str(identifier) if isinstance(identifier, int) else identifier
@@ -28,6 +28,6 @@ class ContractNotFoundError(ClientError):
         return self.message
 
 
-def require_one_of(block_hash, block_number):
+def require_block_identifier(block_hash, block_number):
     if block_hash is None and block_number is None:
         raise ValueError("One of block hash or number must be provided")
