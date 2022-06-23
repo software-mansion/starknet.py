@@ -27,7 +27,6 @@ from starkware.starkware_utils.error_handling import StarkErrorCode
 
 from starknet_py.common import create_compiled_contract
 
-# from starknet_py.net import Client
 from starknet_py.proxy_check import ProxyCheck, ArgentProxyCheck, OpenZeppelinProxyCheck
 from starknet_py.net import Client
 from starknet_py.net.models import (
@@ -94,7 +93,6 @@ class SentTransaction:
         Returns a new SentTransaction instance, **does not mutate original instance**.
         """
         block_number, status = await self._client.wait_for_tx(
-            # int(self.hash, 16),
             self.hash,
             wait_for_accept=wait_for_accept,
             check_interval=check_interval,
