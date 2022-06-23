@@ -120,9 +120,16 @@ class FullNodeClient(BaseClient):
         )
         return TransactionSchema().load(res, unknown=EXCLUDE)
 
-    async def get_transaciton_by_block_hash_and_index(
+    async def get_transaction_by_block_hash(
         self, block_hash: Hash, index: int
     ) -> Transaction:
+        """
+        Get the details of transaction in block indentified block_hash and transaction index
+
+        :param block_hash: Hash of the block
+        :param index: Index of the transaction
+        :return: Transaction object
+        """
         res = await self._client.call(
             method_name="getTransactionByBlockHashAndIndex",
             params={
@@ -132,9 +139,16 @@ class FullNodeClient(BaseClient):
         )
         return TransactionSchema().load(res, unknown=EXCLUDE)
 
-    async def get_transaciton_by_block_number_and_index(
+    async def get_transaction_by_block_number(
         self, block_number: int, index: int
     ) -> Transaction:
+        """
+        Get the details of transaction in block indentified block number and transaction index
+
+        :param block_number: Number of the block
+        :param index: Index of the transaction
+        :return: Transaction object
+        """
         res = await self._client.call(
             method_name="getTransactionByBlockNumberAndIndex",
             params={

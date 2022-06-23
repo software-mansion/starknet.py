@@ -11,7 +11,7 @@ async def test_node_get_transaction_by_block_hash_and_index(
 ):
     client = await DevnetClientFactory(devnet_address).make_rpc_client()
 
-    tx = await client.get_transaciton_by_block_hash_and_index(
+    tx = await client.get_transaction_by_block_hash(
         block_hash=int(block_hash, 16), index=0
     )
 
@@ -30,7 +30,7 @@ async def test_node_get_transaction_by_block_number_and_index(
 ):
     client = await DevnetClientFactory(devnet_address).make_rpc_client()
 
-    tx = await client.get_transaciton_by_block_number_and_index(block_number=0, index=0)
+    tx = await client.get_transaction_by_block_number(block_number=0, index=0)
 
     assert tx.hash == deploy_transaction_hash
     assert tx.contract_address == contract_address
