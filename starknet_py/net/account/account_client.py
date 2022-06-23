@@ -49,7 +49,7 @@ class AccountClient(Client):
         :param address: Address of the deployed account to be used by AccountClient
         :param signer: Custom signer to be used by AccountClient.
         If none is provieded, default :ref:`Stark Curve Signer` is used.
-        :param key_pair: Key_pair that will be used to create a default Signer
+        :param key_pair: Key pair that will be used to create a default `Signer`
         """
         if signer is None and key_pair is None:
             raise ValueError(
