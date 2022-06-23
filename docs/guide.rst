@@ -82,8 +82,7 @@ Here's how you could sign an invocation:
 Using different signing methods
 -------------------------------
 
-By default, :ref:`Account Client` uses signing method reflecting this required by
-OpenZeppeling account contract. If for any reason you want to use a different
+By default, :ref:`Account Client` uses signing method of OpenZeppelin's account contract. If for any reason you want to use a different
 signing algorithm, it is possible to create ``AccountClient`` with custom
 :ref:`Signer` implementation.
 
