@@ -6,8 +6,7 @@ Signer
 .. autoclass:: BaseSigner
     :members:
 
-By default, StarkNet.py uses ``StarkCurveSigner`` with signature schema conforming
-to this used in OpenZeppelin account contract.
+By default, StarkNet.py uses ``StarkCurveSigner`` which works with OpenZeppelin's account contract.
 
 .. py:module:: starknet_py.net.signer.stark_curve_signer
 
