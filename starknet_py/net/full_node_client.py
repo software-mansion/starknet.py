@@ -45,7 +45,7 @@ class FullNodeClient(BaseClient):
 
     async def get_block(
         self,
-        block_hash: Optional[Union[int, str]] = None,
+        block_hash: Hash = None,
         block_number: Optional[int] = None,
     ) -> StarknetBlock:
         if block_hash is not None:
@@ -67,7 +67,7 @@ class FullNodeClient(BaseClient):
 
     async def get_state_update(
         self,
-        block_hash: Optional[Union[int, str]] = None,
+        block_hash: Hash = None,
         block_number: Optional[int] = None,
     ) -> BlockStateUpdate:
         if block_number is not None:
@@ -207,7 +207,7 @@ class FullNodeClient(BaseClient):
 
     async def deploy(
         self,
-        contract: ContractDefinition,
+        contract: Union[ContractDefinition, str],
         constructor_calldata: List[int],
         salt: Optional[int] = None,
     ) -> SentTransaction:

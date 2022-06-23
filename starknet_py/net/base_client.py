@@ -26,7 +26,7 @@ class BaseClient(ABC):
     @abstractmethod
     async def get_block(
         self,
-        block_hash: Optional[Union[int, str]] = None,
+        block_hash: Hash = None,
         block_number: Optional[int] = None,
     ) -> StarknetBlock:
         """
