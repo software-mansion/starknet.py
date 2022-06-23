@@ -257,7 +257,7 @@ class GatewayHttpClient:
                     raise ClientError(
                         code=str(request.status), message=await request.text()
                     )
-                return await request.json(content_type=None)
+                return await request.json()
 
     async def call(self, method_name: str, params: Optional[dict] = None) -> dict:
         return await self.gateway_request(
