@@ -76,7 +76,7 @@ class BaseClient(ABC):
         Get the details and status of a submitted transaction
 
         :param tx_hash: Transaction's hash
-        :return: Dictionary representing JSON of the transaction on Starknet
+        :return: Transaction object
         """
 
     @abstractmethod
@@ -88,7 +88,7 @@ class BaseClient(ABC):
         Get the transaction receipt
 
         :param tx_hash: Transaction's hash
-        :return: Dictionary representing JSON of the transaction's receipt on Starknet
+        :return: Transaction receipt object on Starknet
         """
 
     @abstractmethod
@@ -105,7 +105,7 @@ class BaseClient(ABC):
         :param contract_address: Address of the contract on Starknet
         :param block_hash: Get code at specific block hash
         :param block_number: Get code at given block number (or "pending" for pending block)
-        :return: JSON representation of compiled: {"bytecode": list, "abi": dict}
+        :return: ContractCode object
         """
 
     async def wait_for_tx(
@@ -190,7 +190,7 @@ class BaseClient(ABC):
         Send a transaction to the network
 
         :param tx: Transaction object (i.e. InvokeFunction, Deploy).
-        :return: Dictionary with `code`, `transaction_hash`
+        :return: SentTransaction object
         """
 
     @abstractmethod
@@ -206,5 +206,5 @@ class BaseClient(ABC):
         :param contract: Contract object or string with compiled contract
         :param constructor_calldata: Data to call the contract constructor with
         :param salt: Salt to be used when signing a transaction
-        return: Dict with result of the transaction deployment
+        return: SentTransaction object
         """
