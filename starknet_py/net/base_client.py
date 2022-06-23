@@ -40,14 +40,12 @@ class BaseClient(ABC):
     @abstractmethod
     async def get_state_update(
         self,
-        block_hash: Optional[Hash] = None,
-        block_number: Optional[int] = None,
+        block_hash: Hash,
     ) -> BlockStateUpdate:
         """
         Get the information about the result of executing the requested block
 
         :param block_hash: Block's hash
-        :param block_number: Block's number
         :return: BlockStateUpdate oject representing changes in the requested block
         """
 
@@ -56,14 +54,12 @@ class BaseClient(ABC):
         self,
         contract_address: Hash,
         key: int,
-        block_hash: Optional[Hash] = None,
-        block_number: Optional[int] = None,
+        block_hash: Hash,
     ) -> int:
         """
         :param contract_address: Contract's address on Starknet
         :param key: An address of the storage variable inside the contract.
         :param block_hash: Fetches the value of the variable at given block hash
-        :param block_number: See above, uses block number instead of hash
         :return: Storage value of given contract
         """
 
@@ -167,17 +163,13 @@ class BaseClient(ABC):
 
     @abstractmethod
     async def call_contract(
-        self,
-        invoke_tx: InvokeFunction,
-        block_hash: Optional[Hash] = None,
-        block_number: Optional[int] = None,
+        self, invoke_tx: InvokeFunction, block_hash: Hash
     ) -> List[int]:
         """
         Call the contract with given instance of InvokeTransaction
 
         :param invoke_tx: Invoke transaction
         :param block_hash: Block hash to execute the contract at specific point of time
-        :param block_number: Block number (or "pending" for pending block) to execute the contract at
         :return: List of integers representing contract's function output (structured like calldata)
         """
 

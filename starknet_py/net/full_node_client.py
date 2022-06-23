@@ -67,14 +67,8 @@ class FullNodeClient(BaseClient):
 
     async def get_state_update(
         self,
-        block_hash: Hash = None,
-        block_number: Optional[int] = None,
+        block_hash: Hash,
     ) -> BlockStateUpdate:
-        if block_number is not None:
-            raise ValueError(
-                "Block_number is not supported in this method when using FullNodeClient"
-            )
-
         if block_hash is None:
             raise ValueError("Block_hash must be provided when using FullNodeClient")
 
@@ -85,17 +79,8 @@ class FullNodeClient(BaseClient):
         return BlockStateUpdateSchema().load(res, unknown=EXCLUDE)
 
     async def get_storage_at(
-        self,
-        contract_address: Hash,
-        key: int,
-        block_hash: Optional[Hash] = None,
-        block_number: Optional[int] = None,
+        self, contract_address: Hash, key: int, block_hash: Hash
     ) -> int:
-        if block_number is not None:
-            raise ValueError(
-                "Block_number is not supported in this method when using FullNodeClient"
-            )
-
         if block_hash is None:
             raise ValueError("Block_hash must be provided when using FullNodeClient")
 
@@ -178,15 +163,8 @@ class FullNodeClient(BaseClient):
         return ContractCodeSchema().load(res, unknown=EXCLUDE)
 
     async def call_contract(
-        self,
-        invoke_tx: InvokeFunction,
-        block_hash: Optional[Hash] = None,
-        block_number: Optional[int] = None,
+        self, invoke_tx: InvokeFunction, block_hash: Hash
     ) -> List[int]:
-        if block_number is not None:
-            raise ValueError(
-                "Block_number is not supported in this method when using FullNodeClient"
-            )
 
         if block_hash is None:
             raise ValueError("Block_hash must be provided when using FullNodeClient")
