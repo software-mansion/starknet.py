@@ -1,7 +1,9 @@
 import typing
 from typing import List, Optional, Union
+from contextlib import nullcontext
 
 import aiohttp
+from aiohttp import ClientSession
 from marshmallow import EXCLUDE
 
 from starknet_py.net.base_client import (
@@ -31,9 +33,16 @@ from starknet_py.net.client_utils import convert_to_felt
 
 
 class FullNodeClient(BaseClient):
-    def __init__(self, node_url):
+    def __init__(self, node_url: str, session: Optional[aiohttp.ClientSession] = None):
+        """
+        Client for interacting with starknet json-rpc interface.
+
+        :param node_url: Url of the node providing rpc interface
+        :param session: Aiohttp session to be used for request. If not provided, client will create a session for
+                        every request. When using a custom session, user is resposible for closing it manually.
+        """
         self.url = node_url
-        self._client = RpcHttpClient(url=node_url)
+        self._client = RpcHttpClient(url=node_url, session=session)
 
     async def estimate_fee(
         self,
@@ -193,8 +202,9 @@ class FullNodeClient(BaseClient):
 
 
 class RpcHttpClient:
-    def __init__(self, url):
+    def __init__(self, url, session: Optional[aiohttp.ClientSession] = None):
         self.url = url
+        self.session = session
 
     async def call(self, method_name: str, params: dict) -> dict:
         payload = {
@@ -204,12 +214,23 @@ class RpcHttpClient:
             "id": 0,
         }
 
-        async with aiohttp.ClientSession() as session:
-            async with session.post(self.url, json=payload) as request:
-                result = await request.json()
-                if "result" not in result:
-                    self.handle_error(result)
-                return result["result"]
+        async with self.http_session() as session:
+            return await self._make_request(session=session, payload=payload)
+
+    def http_session(self) -> ClientSession:
+        if self.session is not None:
+            # noinspection PyTypeChecker
+            return nullcontext(self.session)
+        return aiohttp.ClientSession()
+
+    async def _make_request(
+        self, session: aiohttp.ClientSession, payload: dict
+    ) -> dict:
+        async with session.post(self.url, json=payload) as request:
+            result = await request.json()
+            if "result" not in result:
+                self.handle_error(result)
+            return result["result"]
 
     @staticmethod
     def handle_error(result):

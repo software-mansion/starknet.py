@@ -1,8 +1,10 @@
 import typing
+from contextlib import nullcontext
 from enum import Enum
 from typing import Union, Optional, List
 
 import aiohttp
+from aiohttp import ClientSession
 from marshmallow import EXCLUDE
 
 from starkware.starknet.definitions.fields import ContractAddressSalt
@@ -39,14 +41,29 @@ from starknet_py.transaction_exceptions import TransactionNotReceivedError
 
 
 class GatewayClient(BaseClient):
-    def __init__(self, net: Network, chain: StarknetChainId = None):
+    def __init__(
+        self,
+        net: Network,
+        chain: StarknetChainId = None,
+        session: Optional[aiohttp.ClientSession] = None,
+    ):
+        """
+        Client for interacting with starknet gateway.
+
+        :param net: Target network for the client. Can be a string with URL or one of ``"mainnet"``, ``"testnet"``
+        :param chain: Chain used by the network. Required if you use a custom URL for ``net`` param.
+        :param session: Aiohttp session to be used for request. If not provided, client will create a session for
+                        every request. When using a custom session, user is resposible for closing it manually.
+        """
         host = net_address_from_net(net)
         feeder_gateway_url = f"{host}/feeder_gateway"
         gateway_url = f"{host}/gateway"
 
         self.chain = chain_from_network(net, chain)
-        self._feeder_gateway_client = GatewayHttpClient(url=feeder_gateway_url)
-        self._gateway_client = GatewayHttpClient(url=gateway_url)
+        self._feeder_gateway_client = GatewayHttpClient(
+            url=feeder_gateway_url, session=session
+        )
+        self._gateway_client = GatewayHttpClient(url=gateway_url, session=session)
 
     async def get_transaction(
         self,
@@ -259,8 +276,9 @@ class HttpMethod(Enum):
 
 
 class GatewayHttpClient:
-    def __init__(self, url):
+    def __init__(self, url, session: Optional[aiohttp.ClientSession] = None):
         self.url = url
+        self.session = session
 
     async def gateway_request(
         self,
@@ -271,15 +289,37 @@ class GatewayHttpClient:
     ):
         address = f"{self.url}/{method_name}"
 
-        async with aiohttp.ClientSession() as session:
-            async with session.request(
-                method=http_method.value, url=address, params=params or {}, json=payload
-            ) as request:
-                if request.status != 200:
-                    raise ClientError(
-                        code=str(request.status), message=await request.text()
-                    )
-                return await request.json()
+        async with self.http_session() as session:
+            return await self._make_request(
+                session=session,
+                address=address,
+                http_method=http_method,
+                params=params or {},
+                payload=payload or {},
+            )
+
+    def http_session(self) -> ClientSession:
+        if self.session is not None:
+            # noinspection PyTypeChecker
+            return nullcontext(self.session)
+        return aiohttp.ClientSession()
+
+    @staticmethod
+    async def _make_request(
+        session: aiohttp.ClientSession,
+        address: str,
+        http_method: HttpMethod,
+        params: dict,
+        payload: dict,
+    ) -> dict:
+        async with session.request(
+            method=http_method.value, url=address, params=params or {}, json=payload
+        ) as request:
+            if request.status != 200:
+                raise ClientError(
+                    code=str(request.status), message=await request.text()
+                )
+            return await request.json()
 
     async def call(self, method_name: str, params: Optional[dict] = None) -> dict:
         return await self.gateway_request(
