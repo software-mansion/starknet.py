@@ -252,10 +252,11 @@ class PreparedFunctionCall:
 
         return invoke_result
 
-    async def estimate_fee(self):
+    async def estimate_fee(self, signature: Optional[List[int]] = None):
         """
         Estimate fee for prepared function call
 
+        :param signature: Signature to send
         :return: Estimated amount of Wei executing specified transaction will cost
         :raises ValueError: when max_fee of PreparedFunctionCall is not None or 0.
         """
@@ -264,7 +265,7 @@ class PreparedFunctionCall:
                 "Cannot estimate fee of PreparedFunctionCall with max_fee not None or 0."
             )
 
-        tx = self._make_invoke_function(signature=None)
+        tx = self._make_invoke_function(signature=signature)
         return await self._client.estimate_fee(tx=tx)
 
     def _make_invoke_function(self, signature) -> InvokeFunction:
