@@ -44,7 +44,7 @@ def test_deserialize_felt_throws_on_invalid_data():
 
     with pytest.raises(ValidationError) as exinfo:
         SchemaWithFelt().load(data)
-    assert "Invalid felt" in str(exinfo.value)
+    assert "Invalid value provided for felt" in str(exinfo.value)
 
 
 def test_serialize_hex():
@@ -96,7 +96,7 @@ def test_deserialize_status_field_throws_on_invalid_data():
     with pytest.raises(ValidationError) as exinfo:
         SchemaWithStatusField().load(data)
 
-    assert "Invalid TransactionStatus enum key" in str(exinfo.value)
+    assert "Invalid value provided for TransactionStatus" in str(exinfo.value)
 
 
 def test_serialize_block_status_field():
@@ -128,4 +128,4 @@ def test_serialize_block_status_field_throws_on_invalid_data():
     with pytest.raises(ValidationError) as exinfo:
         SchemaWithBlockStatusField().load(data)
 
-    assert "Invalid BlockStatus enum key" in str(exinfo.value)
+    assert "Invalid value for BlockStatus provided" in str(exinfo.value)

@@ -27,7 +27,7 @@ class Felt(fields.Field):
         **kwargs,
     ):
         if not isinstance(value, str) or not value.startswith("0x"):
-            raise ValidationError("Invalid felt")
+            raise ValidationError(f"Invalid value provided for felt: {value}")
 
         try:
             return int(value, 16)
@@ -66,7 +66,7 @@ class StatusField(fields.Field):
             return TransactionStatus.UNKNOWN
 
         if value not in values:
-            raise ValidationError("Invalid TransactionStatus enum key")
+            raise ValidationError(f"Invalid value provided for TransactionStatus: {value}")
 
         return TransactionStatus(value)
 
@@ -85,7 +85,7 @@ class BlockStatusField(fields.Field):
         values = [v.value for v in BlockStatus]
 
         if value not in values:
-            raise ValidationError("Invalid BlockStatus enum key")
+            raise ValidationError(f"Invalid value for BlockStatus provided: {value}")
 
         return BlockStatus(value)
 
@@ -104,6 +104,6 @@ class TransactionTypeField(fields.Field):
         values = [v.value for v in TransactionType]
 
         if value not in values:
-            raise ValidationError("Invalid TransactionType enum key")
+            raise ValidationError(f"Invalid value provided for TransactionType: {value}")
 
         return TransactionType(value)
