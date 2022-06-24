@@ -8,6 +8,7 @@ from starkware.starknet.services.api.gateway.transaction import (
     Transaction as T,
     ContractClass as CD,
     Deploy as D,
+    Declare as DCL,
 )
 
 
@@ -17,6 +18,7 @@ InvokeFunction = as_our_module(IF)
 StarknetTransaction = as_our_module(T)
 ContractDefinition = as_our_module(CD)
 Deploy = as_our_module(D)
+Declare = as_our_module(DCL)
 
 
 Hash = Union[int, str]
@@ -157,3 +159,22 @@ class BlockStateUpdate:
 class ContractCode:
     bytecode: List[int]
     abi: List[Dict[str, Any]]
+
+
+@dataclass
+class EntryPoint:
+    offset: int
+    selector: int
+
+
+@dataclass
+class EntryPointsByType:
+    constructor: List[EntryPoint]
+    external: List[EntryPoint]
+    l1_handler: List[EntryPoint]
+
+
+@dataclass
+class ContractClass:
+    program: dict
+    entry_points_by_type: EntryPointsByType

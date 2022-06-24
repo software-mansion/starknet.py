@@ -17,6 +17,7 @@ from starknet_py.net.client_models import (
     TransactionStatus,
     Hash,
     Tag,
+    ContractClass,
 )
 from starknet_py.transaction_exceptions import (
     TransactionRejectedError,
@@ -208,5 +209,31 @@ class BaseClient(ABC):
         :param contract: Contract object or string with compiled contract
         :param constructor_calldata: Data to call the contract constructor with
         :param salt: Salt to be used when signing a transaction
-        return: SentTransaction object
+        :return: SentTransaction object
+        """
+
+    @abstractmethod
+    async def declare(self, contract_class: ContractClass) -> SentTransaction:
+        """
+        Declare a contract
+
+        :param contract_class: Contract class to be declared
+        """
+
+    @abstractmethod
+    async def get_class_hash_at(self, contract_address: Hash) -> int:
+        """
+        Get the contract class hash for the contract deployed at the given address
+
+        :param contract_address: Address of the contraact whose class hash is to be returned
+        :return: Class hash
+        """
+
+    @abstractmethod
+    async def get_class_by_hash(self, class_hash: Hash) -> ContractClass:
+        """
+        Get the contract class for given class hash
+
+        :param class_hash: Class hash
+        :return: ContractClass object
         """
