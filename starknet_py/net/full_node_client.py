@@ -19,6 +19,7 @@ from starknet_py.net.client_models import (
     InvokeFunction,
     Hash,
     Tag,
+    ContractClass,
 )
 from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.rpc_schemas.rpc_schemas import (
@@ -200,4 +201,13 @@ class FullNodeClient(BaseClient):
         constructor_calldata: List[int],
         salt: Optional[int] = None,
     ) -> SentTransaction:
+        pass
+
+    async def declare(self, contract_class: ContractClass) -> SentTransaction:
+        pass
+
+    async def get_class_hash_at(self, contract_address: Hash) -> int:
+        pass
+
+    async def get_class_by_hash(self, class_hash: Hash) -> ContractClass:
         pass
