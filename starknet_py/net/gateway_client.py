@@ -5,6 +5,7 @@ import aiohttp
 from marshmallow import EXCLUDE
 
 from starkware.starknet.definitions.fields import ContractAddressSalt
+from starkware.starknet.services.api.gateway.transaction import DECLARE_SENDER_ADDRESS
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
 
@@ -22,6 +23,8 @@ from starknet_py.net.client_models import (
     Deploy,
     Hash,
     Tag,
+    ContractClass,
+    Declare,
 )
 from starknet_py.net.gateway_schemas.gateway_schemas import (
     TransactionSchema,
@@ -30,6 +33,7 @@ from starknet_py.net.gateway_schemas.gateway_schemas import (
     TransactionReceiptSchema,
     SentTransactionSchema,
     BlockStateUpdateSchema,
+    ContractClassSchema,
 )
 from starknet_py.net.http_client import GatewayHttpClient
 from starknet_py.net.models import StarknetChainId, chain_from_network
@@ -251,6 +255,38 @@ class GatewayClient(BaseClient):
             raise TransactionNotReceivedError()
 
         return res
+
+    async def declare(self, contract_class: ContractClass) -> SentTransaction:
+        res = await self.add_transaction(
+            tx=Declare(
+                contract_class=contract_class,
+                sender_address=DECLARE_SENDER_ADDRESS,
+                max_fee=0,
+                signature=[],
+                nonce=0,
+                version=0,
+            )
+        )
+
+        if res.code != StarkErrorCode.TRANSACTION_RECEIVED.name:
+            raise TransactionNotReceivedError()
+
+        return res
+
+    async def get_class_hash_at(self, contract_address: Hash) -> int:
+        res = await self._feeder_gateway_client.call(
+            method_name="get_class_hash_at",
+            params={"contractAddress": convert_to_felt(contract_address)},
+        )
+        res = typing.cast(res, str)
+        return int(res, 16)
+
+    async def get_class_by_hash(self, class_hash: Hash) -> ContractClass:
+        res = await self._feeder_gateway_client.call(
+            method_name="get_class_by_hash",
+            params={"classHash": convert_to_felt(class_hash)},
+        )
+        return ContractClassSchema().load(res)
 
 
 def get_block_identifier(

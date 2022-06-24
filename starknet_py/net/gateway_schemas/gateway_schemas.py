@@ -11,6 +11,9 @@ from starknet_py.net.client_models import (
     ContractDiff,
     StorageDiff,
     BlockStateUpdate,
+    EntryPoint,
+    EntryPointsByType,
+    ContractClass,
 )
 from starknet_py.net.common_schemas.common_schemas import (
     Felt,
@@ -97,6 +100,7 @@ class TransactionReceiptSchema(Schema):
 
 class ContractCodeSchema(Schema):
     bytecode = fields.List(Felt(), data_key="bytecode")
+    # TODO check if using raw is correct
     abi = fields.List(
         fields.Dict(keys=fields.String(), values=fields.Raw()), data_key="abi"
     )
@@ -156,6 +160,7 @@ class BlockStateUpdateSchema(Schema):
     block_hash = Felt(data_key="block_hash")
     new_root = NonPrefixedHex(data_key="new_root")
     old_root = NonPrefixedHex(data_key="old_root")
+    # TODO check if using raw is correct
     state_diff = fields.Dict(
         keys=fields.String(), values=fields.Raw(), data_key="state_diff"
     )
@@ -186,3 +191,34 @@ class BlockStateUpdateSchema(Schema):
         return BlockStateUpdate(
             **data, storage_diffs=storage_diffs, contract_diffs=contracts_diffs
         )
+
+
+class EntryPointSchema(Schema):
+    offset = Felt(data_key="offset")
+    selector = Felt(data_key="selector")
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> EntryPoint:
+        return EntryPoint(**data)
+
+
+class EntryPointsByTypeSchema(Schema):
+    constructor = fields.List(fields.Nested(EntryPointSchema()), data_key="CONSTRUCTOR")
+    external = fields.List(fields.Nested(EntryPointSchema()), data_key="EXTERNAL")
+    l1_handler = fields.List(fields.Nested(EntryPointSchema()), data_key="L1_HANDLER")
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> EntryPointsByType:
+        return EntryPointsByType(**data)
+
+
+class ContractClassSchema(Schema):
+    # TODO check if using raw is correct
+    program = fields.Dict(keys=fields.String(), values=fields.Raw(), data_key="program")
+    entry_points_by_type = fields.Nested(
+        EntryPointsByTypeSchema(), data_key="entry_points_by_type"
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> ContractClass:
+        return ContractClass(**data)
