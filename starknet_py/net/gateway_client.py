@@ -1,10 +1,7 @@
 import typing
-from contextlib import nullcontext
-from enum import Enum
 from typing import Union, Optional, List
 
 import aiohttp
-from aiohttp import ClientSession
 from marshmallow import EXCLUDE
 
 from starkware.starknet.definitions.fields import ContractAddressSalt
@@ -34,9 +31,10 @@ from starknet_py.net.gateway_schemas.gateway_schemas import (
     SentTransactionSchema,
     BlockStateUpdateSchema,
 )
+from starknet_py.net.http_client import GatewayHttpClient
 from starknet_py.net.models import StarknetChainId, chain_from_network
 from starknet_py.net.networks import Network, net_address_from_net
-from starknet_py.net.client_errors import ClientError, ContractNotFoundError
+from starknet_py.net.client_errors import ContractNotFoundError
 from starknet_py.net.client_utils import convert_to_felt, is_block_identifier
 from starknet_py.transaction_exceptions import TransactionNotReceivedError
 
@@ -273,70 +271,3 @@ def get_block_identifier(
         return {"blockNumber": block_number}
 
     return {}
-
-
-class HttpMethod(Enum):
-    GET = "GET"
-    POST = "POST"
-
-
-class GatewayHttpClient:
-    def __init__(self, url, session: Optional[aiohttp.ClientSession] = None):
-        self.url = url
-        self.session = session
-
-    async def gateway_request(
-        self,
-        http_method: HttpMethod,
-        method_name: str,
-        params: Optional[dict] = None,
-        payload: Optional[dict] = None,
-    ):
-        address = f"{self.url}/{method_name}"
-
-        async with self.http_session() as session:
-            return await self._make_request(
-                session=session,
-                address=address,
-                http_method=http_method,
-                params=params or {},
-                payload=payload or {},
-            )
-
-    def http_session(self) -> ClientSession:
-        if self.session is not None:
-            # noinspection PyTypeChecker
-            return nullcontext(self.session)
-        return aiohttp.ClientSession()
-
-    @staticmethod
-    async def _make_request(
-        session: aiohttp.ClientSession,
-        address: str,
-        http_method: HttpMethod,
-        params: dict,
-        payload: dict,
-    ) -> dict:
-        async with session.request(
-            method=http_method.value, url=address, params=params or {}, json=payload
-        ) as request:
-            if request.status != 200:
-                raise ClientError(
-                    code=str(request.status), message=await request.text()
-                )
-            return await request.json()
-
-    async def call(self, method_name: str, params: Optional[dict] = None) -> dict:
-        return await self.gateway_request(
-            http_method=HttpMethod.GET, method_name=method_name, params=params
-        )
-
-    async def post(
-        self, method_name: str, payload: dict, params: Optional[dict] = None
-    ) -> dict:
-        return await self.gateway_request(
-            http_method=HttpMethod.POST,
-            method_name=method_name,
-            payload=payload,
-            params=params,
-        )

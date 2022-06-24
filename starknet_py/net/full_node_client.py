@@ -1,9 +1,7 @@
 import typing
 from typing import List, Optional, Union
-from contextlib import nullcontext
 
 import aiohttp
-from aiohttp import ClientSession
 from marshmallow import EXCLUDE
 
 from starknet_py.net.base_client import (
@@ -22,6 +20,7 @@ from starknet_py.net.client_models import (
     Hash,
     Tag,
 )
+from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.rpc_schemas.rpc_schemas import (
     TransactionSchema,
     TransactionReceiptSchema,
@@ -29,7 +28,6 @@ from starknet_py.net.rpc_schemas.rpc_schemas import (
     StarknetBlockSchema,
     BlockStateUpdateSchema,
 )
-from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_utils import convert_to_felt
 
 
@@ -203,43 +201,3 @@ class FullNodeClient(BaseClient):
         salt: Optional[int] = None,
     ) -> SentTransaction:
         pass
-
-
-class RpcHttpClient:
-    def __init__(self, url, session: Optional[aiohttp.ClientSession] = None):
-        self.url = url
-        self.session = session
-
-    async def call(self, method_name: str, params: dict) -> dict:
-        payload = {
-            "jsonrpc": "2.0",
-            "method": f"starknet_{method_name}",
-            "params": params,
-            "id": 0,
-        }
-
-        async with self.http_session() as session:
-            return await self._make_request(session=session, payload=payload)
-
-    def http_session(self) -> ClientSession:
-        if self.session is not None:
-            # noinspection PyTypeChecker
-            return nullcontext(self.session)
-        return aiohttp.ClientSession()
-
-    async def _make_request(
-        self, session: aiohttp.ClientSession, payload: dict
-    ) -> dict:
-        async with session.post(self.url, json=payload) as request:
-            result = await request.json()
-            if "result" not in result:
-                self.handle_error(result)
-            return result["result"]
-
-    @staticmethod
-    def handle_error(result):
-        if "error" not in result:
-            raise ClientError(code="-1", message="request failed")
-        raise ClientError(
-            code=result["error"]["code"], message=result["error"]["message"]
-        )
