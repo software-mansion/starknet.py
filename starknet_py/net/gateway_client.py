@@ -24,6 +24,7 @@ from starknet_py.net.client_models import (
     ContractDefinition,
     Deploy,
     Hash,
+    Tag,
 )
 from starknet_py.net.gateway_schemas.gateway_schemas import (
     TransactionSchema,
@@ -36,7 +37,7 @@ from starknet_py.net.gateway_schemas.gateway_schemas import (
 from starknet_py.net.models import StarknetChainId, chain_from_network
 from starknet_py.net.networks import Network, net_address_from_net
 from starknet_py.net.client_errors import ClientError, ContractNotFoundError
-from starknet_py.net.client_utils import convert_to_felt
+from starknet_py.net.client_utils import convert_to_felt, is_block_identifier
 from starknet_py.transaction_exceptions import TransactionNotReceivedError
 
 
@@ -81,8 +82,8 @@ class GatewayClient(BaseClient):
 
     async def get_block(
         self,
-        block_hash: Optional[Hash] = None,
-        block_number: Optional[int] = None,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> StarknetBlock:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
@@ -95,8 +96,8 @@ class GatewayClient(BaseClient):
 
     async def get_state_update(
         self,
-        block_hash: Optional[Hash] = None,
-        block_number: Optional[int] = None,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> BlockStateUpdate:
         """
         Get the information about the result of executing the requested block
@@ -118,8 +119,8 @@ class GatewayClient(BaseClient):
         self,
         contract_address: Hash,
         key: int,
-        block_hash: Optional[Hash] = None,
-        block_number: Optional[int] = None,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> int:
         """
         :param contract_address: Contract's address on Starknet
@@ -155,8 +156,8 @@ class GatewayClient(BaseClient):
     async def get_code(
         self,
         contract_address: Hash,
-        block_hash: Optional[Hash] = None,
-        block_number: Optional[int] = None,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> ContractCode:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
@@ -180,8 +181,8 @@ class GatewayClient(BaseClient):
     async def estimate_fee(
         self,
         tx: InvokeFunction,
-        block_hash: Optional[Hash] = None,
-        block_number: Optional[int] = None,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> int:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
@@ -197,8 +198,8 @@ class GatewayClient(BaseClient):
     async def call_contract(
         self,
         invoke_tx: InvokeFunction,
-        block_hash: Optional[Hash] = None,
-        block_number: Optional[int] = None,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> List[int]:
         """
         Call the contract with given instance of InvokeTransaction
@@ -255,13 +256,17 @@ class GatewayClient(BaseClient):
 
 
 def get_block_identifier(
-    block_hash: Optional[Hash] = None, block_number: Optional[int] = None
+    block_hash: Optional[Union[Hash, Tag]] = None,
+    block_number: Optional[Union[int, Tag]] = None,
 ) -> dict:
     if block_hash is not None and block_number is not None:
         raise ValueError(
             "Block_hash and block_number parameters are mutually exclusive."
         )
+
     if block_hash is not None:
+        if is_block_identifier(block_hash):
+            return {"block_number": block_hash}
         return {"blockHash": convert_to_felt(block_hash)}
 
     if block_number is not None:

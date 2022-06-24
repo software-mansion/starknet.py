@@ -1,4 +1,7 @@
-from starknet_py.net.client_models import Hash
+from typing import Union
+from typing_extensions import get_args
+
+from starknet_py.net.client_models import Hash, Tag
 
 
 def convert_to_felt(value: Hash) -> str:
@@ -9,3 +12,7 @@ def convert_to_felt(value: Hash) -> str:
         return value
 
     return hex(value)
+
+
+def is_block_identifier(value: Union[int, Hash, Tag]) -> bool:
+    return isinstance(value, str) and value in get_args(Tag)

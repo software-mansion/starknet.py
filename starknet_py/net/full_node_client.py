@@ -20,6 +20,7 @@ from starknet_py.net.client_models import (
     ContractDefinition,
     InvokeFunction,
     Hash,
+    Tag,
 )
 from starknet_py.net.rpc_schemas.rpc_schemas import (
     TransactionSchema,
@@ -44,18 +45,10 @@ class FullNodeClient(BaseClient):
         self.url = node_url
         self._client = RpcHttpClient(url=node_url, session=session)
 
-    async def estimate_fee(
-        self,
-        tx: InvokeFunction,
-        block_hash: Optional[Hash] = None,
-        block_number: Optional[int] = None,
-    ) -> int:
-        pass
-
     async def get_block(
         self,
-        block_hash: Hash = None,
-        block_number: Optional[int] = None,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> StarknetBlock:
         if block_hash is not None:
             res = await self._client.call(
@@ -76,7 +69,7 @@ class FullNodeClient(BaseClient):
 
     async def get_state_update(
         self,
-        block_hash: Hash,
+        block_hash: Union[Hash, Tag],
     ) -> BlockStateUpdate:
         if block_hash is None:
             raise ValueError("Block_hash must be provided when using FullNodeClient")
@@ -88,7 +81,10 @@ class FullNodeClient(BaseClient):
         return BlockStateUpdateSchema().load(res, unknown=EXCLUDE)
 
     async def get_storage_at(
-        self, contract_address: Hash, key: int, block_hash: Hash
+        self,
+        contract_address: Hash,
+        key: int,
+        block_hash: Union[Hash, Tag],
     ) -> int:
         if block_hash is None:
             raise ValueError("Block_hash must be provided when using FullNodeClient")
@@ -162,8 +158,8 @@ class FullNodeClient(BaseClient):
     async def get_code(
         self,
         contract_address: Hash,
-        block_hash: Optional[Hash] = None,
-        block_number: Optional[int] = None,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> ContractCode:
         res = await self._client.call(
             method_name="getCode",
@@ -171,8 +167,16 @@ class FullNodeClient(BaseClient):
         )
         return ContractCodeSchema().load(res, unknown=EXCLUDE)
 
+    async def estimate_fee(
+        self,
+        tx: InvokeFunction,
+        block_hash: Union[Hash, Tag] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> int:
+        pass
+
     async def call_contract(
-        self, invoke_tx: InvokeFunction, block_hash: Hash
+        self, invoke_tx: InvokeFunction, block_hash: Union[Hash, Tag] = None
     ) -> List[int]:
 
         if block_hash is None:
