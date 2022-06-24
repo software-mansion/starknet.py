@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
 from typing import List, Any, Dict, Optional, Union
+from typing_extensions import Literal
 
 from starkware.starknet.services.api.gateway.transaction import (
     InvokeFunction as IF,
@@ -19,6 +20,7 @@ Deploy = as_our_module(D)
 
 
 Hash = Union[int, str]
+Tag = Literal["pending", "latest"]
 
 
 @dataclass

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 from abc import ABC, abstractmethod
 from typing import Union, Optional, List
@@ -14,6 +16,7 @@ from starknet_py.net.client_models import (
     ContractDefinition,
     TransactionStatus,
     Hash,
+    Tag,
 )
 from starknet_py.transaction_exceptions import (
     TransactionRejectedError,
@@ -26,26 +29,26 @@ class BaseClient(ABC):
     @abstractmethod
     async def get_block(
         self,
-        block_hash: Hash = None,
-        block_number: Optional[int] = None,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> StarknetBlock:
         """
         Retrieve the block's data by its number or hash
 
-        :param block_hash: Block's hash
-        :param block_number: Block's number
+        :param block_hash: Block's hash or literals `"pending"` or `"latest"`
+        :param block_number: Block's number or literals `"pending"` or `"latest"`
         :return: StarknetBlock object representing retrieved block
         """
 
     @abstractmethod
     async def get_state_update(
         self,
-        block_hash: Hash,
+        block_hash: Union[Hash, Tag],
     ) -> BlockStateUpdate:
         """
         Get the information about the result of executing the requested block
 
-        :param block_hash: Block's hash
+        :param block_hash: Block's hash or literals `"pending"` or `"latest"`
         :return: BlockStateUpdate oject representing changes in the requested block
         """
 
@@ -54,12 +57,13 @@ class BaseClient(ABC):
         self,
         contract_address: Hash,
         key: int,
-        block_hash: Hash,
+        block_hash: Union[Hash, Tag] = None,
     ) -> int:
         """
         :param contract_address: Contract's address on Starknet
         :param key: An address of the storage variable inside the contract.
-        :param block_hash: Fetches the value of the variable at given block hash
+        :param block_hash: Fetches the value of the variable at given block hash or at
+                           the block indicated by the literals `"pending"` or `"latest"`
         :return: Storage value of given contract
         """
 
@@ -91,16 +95,18 @@ class BaseClient(ABC):
     async def get_code(
         self,
         contract_address: Hash,
-        block_hash: Optional[Hash] = None,
-        block_number: Optional[int] = None,
+        block_hash: Union[Hash, Tag] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> ContractCode:
         """
         Get deployed contract's bytecode and abi.
 
         :raises BadRequest: when contract is not found
         :param contract_address: Address of the contract on Starknet
-        :param block_hash: Get code at specific block hash
-        :param block_number: Get code at given block number (or "pending" for pending block)
+        :param block_hash: Get code at specific block hash or
+                           at the block indicated by the literals `"pending"` or `"latest"`
+        :param block_number: Get code at given block number or
+                             at the block indicated by the literals `"pending"` or `"latest"`
         :return: ContractCode object
         """
 
@@ -149,27 +155,30 @@ class BaseClient(ABC):
     async def estimate_fee(
         self,
         tx: InvokeFunction,
-        block_hash: Optional[Hash] = None,
-        block_number: Optional[int] = None,
+        block_hash: Union[Hash, Tag] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> int:
         """
         Estimate how much Wei it will cost to run provided InvokeFunction
 
         :param tx: Transaction to estimate
-        :param block_hash: Get code at specific block hash
-        :param block_number: Get code at given block number (or "pending" for pending block)
+        :param block_hash: Get code at specific block hash or
+                           at the block indicated by the literals `"pending"` or `"latest"`
+        :param block_number: Get code at given block number or at
+                             the block indicated by the literals `"pending"` or `"latest"`
         :return: Estimated amount of Wei executing specified transaction will cost
         """
 
     @abstractmethod
     async def call_contract(
-        self, invoke_tx: InvokeFunction, block_hash: Hash
+        self, invoke_tx: InvokeFunction, block_hash: Union[Hash, Tag] = None
     ) -> List[int]:
         """
         Call the contract with given instance of InvokeTransaction
 
         :param invoke_tx: Invoke transaction
         :param block_hash: Block hash to execute the contract at specific point of time
+                           or at the block indicated by the literals `"pending"` or `"latest"`
         :return: List of integers representing contract's function output (structured like calldata)
         """
 
