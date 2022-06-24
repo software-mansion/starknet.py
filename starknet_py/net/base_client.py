@@ -57,7 +57,7 @@ class BaseClient(ABC):
         self,
         contract_address: Hash,
         key: int,
-        block_hash: Union[Hash, Tag] = None,
+        block_hash: Union[Hash, Tag],
     ) -> int:
         """
         :param contract_address: Contract's address on Starknet
@@ -109,6 +109,7 @@ class BaseClient(ABC):
                              at the block indicated by the literals `"pending"` or `"latest"`
         :return: ContractCode object
         """
+        # TODO remove this, replace with get_class
 
     async def wait_for_tx(
         self,
