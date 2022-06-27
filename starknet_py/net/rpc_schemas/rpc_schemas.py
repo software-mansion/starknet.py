@@ -38,6 +38,7 @@ class TransactionSchema(Schema):
     contract_address = Felt(data_key="contract_address")
     entry_point_selector = Felt(data_key="entry_point_selector", allow_none=True)
     calldata = fields.List(Felt(), data_key="calldata")
+    signature = fields.List(Felt(), data_key="signature", load_default=[])
     version = Felt(data_key="version", load_default=0)
     max_fee = Felt(data_key="max_fee")
 

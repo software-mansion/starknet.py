@@ -60,6 +60,7 @@ class TransactionSchema(Schema):
     entry_point_selector = Felt(data_key="entry_point_selector", load_default=0)
     calldata = fields.List(Felt(), data_key="calldata")
     transaction_type = TransactionTypeField(data_key="type")
+    signature = fields.List(Felt(), data_key="signature", load_default=[])
     version = fields.Integer(data_key="version", load_default=0)
     max_fee = Felt(data_key="max_fee", load_default=0)
 

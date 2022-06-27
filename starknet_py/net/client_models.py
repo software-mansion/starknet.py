@@ -79,6 +79,7 @@ class Transaction:
     calldata: List[int]
     entry_point_selector: int
     transaction_type: TransactionType
+    signature: List[int]
     version: int = 0
     max_fee: int = 0
 
