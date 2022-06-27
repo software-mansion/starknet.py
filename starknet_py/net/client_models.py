@@ -65,6 +65,7 @@ class TransactionType(Enum):
 
     INVOKE = "INVOKE"
     DEPLOY = "DEPLOY"
+    DELCLARE = "DECLARE"
 
 
 @dataclass
