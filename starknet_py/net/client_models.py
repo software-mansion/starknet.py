@@ -27,6 +27,10 @@ Tag = Literal["pending", "latest"]
 
 @dataclass
 class Event:
+    """
+    Dataclass representing an event emited by transaction
+    """
+
     from_address: int
     keys: List[int]
     data: List[int]
@@ -34,6 +38,10 @@ class Event:
 
 @dataclass
 class L1toL2Message:
+    """
+    Dataclass representing a L1->L2 message
+    """
+
     l1_address: int
     l2_address: int
     payload: List[int]
@@ -41,12 +49,20 @@ class L1toL2Message:
 
 @dataclass
 class L2toL1Message:
+    """
+    Dataclass representing a L2->L1 message
+    """
+
     l2_address: int
     l1_address: int
     payload: List[int]
 
 
 class TransactionType(Enum):
+    """
+    Enum representing transaction types
+    """
+
     INVOKE = "INVOKE"
     DEPLOY = "DEPLOY"
 
@@ -67,6 +83,10 @@ class Transaction:
 
 
 class TransactionStatus(Enum):
+    """
+    Enum representing transaction statuses
+    """
+
     UNKNOWN = "UNKNOWN"
     RECEIVED = "RECEIVED"
     PENDING = "PENDING"
@@ -96,6 +116,10 @@ class TransactionReceipt:
 
 @dataclass
 class SentTransaction:
+    """
+    Dataclass representing a result of sending a transaction to starknet
+    """
+
     hash: int
     code: str
     address: Optional[int] = None
@@ -157,18 +181,30 @@ class BlockStateUpdate:
 
 @dataclass
 class ContractCode:
+    """
+    Dataclass representing contract deployed to starknet
+    """
+
     bytecode: List[int]
     abi: List[Dict[str, Any]]
 
 
 @dataclass
 class EntryPoint:
+    """
+    Dataclass representing contract entry point
+    """
+
     offset: int
     selector: int
 
 
 @dataclass
 class EntryPointsByType:
+    """
+    Dataclass representing contract class entrypoints by entry point type
+    """
+
     constructor: List[EntryPoint]
     external: List[EntryPoint]
     l1_handler: List[EntryPoint]
@@ -176,5 +212,9 @@ class EntryPointsByType:
 
 @dataclass
 class ContractClass:
+    """
+    Dataclass representing contract declared to starknet
+    """
+
     program: dict
     entry_points_by_type: EntryPointsByType
