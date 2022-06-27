@@ -286,7 +286,7 @@ class GatewayClient(BaseClient):
             method_name="get_class_by_hash",
             params={"classHash": convert_to_felt(class_hash)},
         )
-        return ContractClassSchema().load(res)
+        return ContractClassSchema().load(res, unknown=EXCLUDE)
 
 
 def get_block_identifier(
