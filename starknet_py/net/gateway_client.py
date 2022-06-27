@@ -278,7 +278,7 @@ class GatewayClient(BaseClient):
             method_name="get_class_hash_at",
             params={"contractAddress": convert_to_felt(contract_address)},
         )
-        res = typing.cast(res, str)
+        res = typing.cast(str, res)
         return int(res, 16)
 
     async def get_class_by_hash(self, class_hash: Hash) -> ContractClass:
