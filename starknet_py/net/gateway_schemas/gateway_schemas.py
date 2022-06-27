@@ -60,7 +60,6 @@ class TransactionSchema(Schema):
     entry_point_selector = Felt(data_key="entry_point_selector", load_default=0)
     calldata = fields.List(Felt(), data_key="calldata")
     transaction_type = TransactionTypeField(data_key="type")
-    # TODO verify this field actually exists
     version = fields.Integer(data_key="version", load_default=0)
     max_fee = Felt(data_key="max_fee", load_default=0)
 
@@ -100,7 +99,6 @@ class TransactionReceiptSchema(Schema):
 
 class ContractCodeSchema(Schema):
     bytecode = fields.List(Felt(), data_key="bytecode")
-    # TODO check if using raw is correct
     abi = fields.List(
         fields.Dict(keys=fields.String(), values=fields.Raw()), data_key="abi"
     )
@@ -127,7 +125,6 @@ class StarknetBlockSchema(Schema):
 
 
 class SentTransactionSchema(Schema):
-    # TODO verify data_keys
     hash = Felt(data_key="transaction_hash")
     code = fields.String(data_key="code")
     address = Felt(data_key="address", allow_none=True)
@@ -206,8 +203,9 @@ class EntryPointsByTypeSchema(Schema):
 
 
 class ContractClassSchema(Schema):
-    # TODO check if using raw is correct
-    program = fields.Dict(keys=fields.String(), values=fields.Raw(), data_key="program")
+    program = fields.Dict(
+        keys=fields.String(), values=fields.Raw(allow_none=True), data_key="program"
+    )
     entry_points_by_type = fields.Nested(
         EntryPointsByTypeSchema(), data_key="entry_points_by_type"
     )
