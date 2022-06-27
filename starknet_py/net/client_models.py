@@ -113,7 +113,7 @@ class TransactionReceipt:
     block_number: Optional[int] = None
     version: int = 0
     actual_fee: int = 0
-    transaction_rejection_reason: str = ""
+    transaction_rejection_reason: Optional[str] = None
 
 
 @dataclass

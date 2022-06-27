@@ -90,7 +90,7 @@ class TransactionReceiptSchema(Schema):
     version = fields.Integer(data_key="version", allow_none=True)
     actual_fee = Felt(data_key="actual_key", allow_none=True)
     transaction_rejection_reason = fields.String(
-        data_key="transaction_rejection_reason", allow_none=True
+        data_key="transaction_rejection_reason", allow_none=True, load_default=None
     )
 
     @post_load
