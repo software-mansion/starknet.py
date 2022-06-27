@@ -2,8 +2,10 @@ import os
 import subprocess
 from pathlib import Path
 from typing import Tuple
+from ast import literal_eval
 
 import pytest
+from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.tests.e2e.utils import DevnetClientFactory
 from starknet_py.net.base_client import BaseClient
@@ -12,7 +14,7 @@ from starknet_py.net.base_client import BaseClient
 directory = os.path.dirname(__file__)
 
 
-def prepare_devnet(net: str) -> str:
+def prepare_devnet(net: str) -> dict:
     script_path = Path(directory, "prepare_devnet_for_gateway_test.sh")
     contract_compiled = Path(directory, "balance_compiled.json")
     contract_abi = Path(directory, "balance_abi.json")
@@ -23,22 +25,43 @@ def prepare_devnet(net: str) -> str:
         capture_output=True,
         text=True,
     )
-    block_hash = res.stdout.splitlines()[-1]
-    assert block_hash != ""
-    return block_hash
+    block = res.stdout.splitlines()[-1]
+    block = literal_eval(block)
+    assert block != ""
+    return block
 
 
 @pytest.fixture(scope="module", autouse=True)
 def run_prepared_devnet(run_devnet) -> Tuple[str, dict]:
     net = run_devnet
-    args = {"block_hash": prepare_devnet(net)}
-    yield net, args
+    block = prepare_devnet(net)
+    yield net, block
 
 
-@pytest.fixture(name="block_hash")
-def fixture_block_hash(run_prepared_devnet) -> str:
-    _, args = run_prepared_devnet
-    return args["block_hash"]
+@pytest.fixture()
+def block_with_deploy(run_prepared_devnet) -> dict:
+    _, block = run_prepared_devnet
+    return block
+
+
+@pytest.fixture()
+def block_with_deploy_hash(block_with_deploy) -> int:
+    return int(block_with_deploy["block_hash"], 16)
+
+
+@pytest.fixture()
+def block_with_deploy_number(block_with_deploy) -> int:
+    return block_with_deploy["block_number"]
+
+
+@pytest.fixture()
+def block_with_deploy_root(block_with_deploy) -> int:
+    return int(block_with_deploy["state_root"], 16)
+
+
+@pytest.fixture()
+def block_with_invoke_number() -> int:
+    return 1
 
 
 @pytest.fixture(name="devnet_address")
@@ -58,8 +81,27 @@ async def fixture_clients(run_prepared_devnet) -> Tuple[BaseClient, BaseClient]:
 
 
 @pytest.fixture()
-def invoke_transaction_hash():
-    return 0x5A8995AE36F3A87CC217311EC9372CD16602BA0FC273F4AFD1508A627D81B30
+def invoke_transaction():
+    return {
+        "hash": 0x5A8995AE36F3A87CC217311EC9372CD16602BA0FC273F4AFD1508A627D81B30,
+        "calldata": [1234],
+        "entry_point_selector": get_selector_from_name("increase_balance"),
+    }
+
+
+@pytest.fixture()
+def invoke_transaction_hash(invoke_transaction):
+    return invoke_transaction["hash"]
+
+
+@pytest.fixture()
+def invoke_transaction_calldata(invoke_transaction):
+    return invoke_transaction["calldata"]
+
+
+@pytest.fixture()
+def invoke_transaction_selector(invoke_transaction):
+    return invoke_transaction["entry_point_selector"]
 
 
 @pytest.fixture()

@@ -8,37 +8,115 @@ from starknet_py.net.client_models import (
     TransactionStatus,
     InvokeFunction,
     BlockStateUpdate,
+    Transaction,
+    StarknetBlock,
+    BlockStatus,
+    TransactionReceipt,
+    ContractDiff,
 )
 from starknet_py.net.client_errors import ClientError
 
 
 @pytest.mark.asyncio
-async def test_get_transaction(clients, deploy_transaction_hash, contract_address):
+async def test_get_deploy_transaction(
+    clients, deploy_transaction_hash, contract_address
+):
     for client in clients:
         transaction = await client.get_transaction(deploy_transaction_hash)
 
-        assert transaction.contract_address == contract_address
-        assert transaction.calldata == []
-        assert transaction.entry_point_selector == 0
-        assert transaction.transaction_type == TransactionType.DEPLOY
+        assert transaction == Transaction(
+            contract_address=contract_address,
+            calldata=[],
+            entry_point_selector=0x0,
+            hash=deploy_transaction_hash,
+            signature=[],
+            transaction_type=TransactionType.DEPLOY,
+        )
 
 
 @pytest.mark.asyncio
-async def test_get_block_by_hash(clients, deploy_transaction_hash, block_hash):
+async def test_get_invoke_transaction(
+    clients,
+    invoke_transaction_hash,
+    invoke_transaction_calldata,
+    invoke_transaction_selector,
+    contract_address,
+):
     for client in clients:
-        block = await client.get_block(block_hash=block_hash)
+        transaction = await client.get_transaction(invoke_transaction_hash)
 
-        assert block.block_number == 0
-        assert any(i.hash == deploy_transaction_hash for i in block.transactions)
+        assert transaction == Transaction(
+            contract_address=contract_address,
+            calldata=invoke_transaction_calldata,
+            entry_point_selector=invoke_transaction_selector,
+            hash=invoke_transaction_hash,
+            signature=[],
+            transaction_type=TransactionType.INVOKE,
+        )
 
 
 @pytest.mark.asyncio
-async def test_get_block_by_number(clients, deploy_transaction_hash):
+async def test_get_block_by_hash(
+    clients,
+    deploy_transaction_hash,
+    block_with_deploy_hash,
+    block_with_deploy_number,
+    block_with_deploy_root,
+    contract_address,
+):
+    for client in clients:
+        block = await client.get_block(block_hash=block_with_deploy_hash)
+
+        assert block == StarknetBlock(
+            block_number=block_with_deploy_number,
+            block_hash=block_with_deploy_hash,
+            parent_block_hash=0x0,
+            root=block_with_deploy_root,
+            status=BlockStatus.ACCEPTED_ON_L2,
+            timestamp=2137,
+            transactions=[
+                Transaction(
+                    contract_address=contract_address,
+                    calldata=[],
+                    entry_point_selector=0x0,
+                    hash=deploy_transaction_hash,
+                    signature=[],
+                    transaction_type=TransactionType.DEPLOY,
+                )
+            ],
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_block_by_number(
+    clients,
+    deploy_transaction_hash,
+    block_with_deploy_number,
+    block_with_deploy_hash,
+    block_with_deploy_root,
+    contract_address,
+):
     for client in clients:
         block = await client.get_block(block_number=0)
 
-        assert block.block_number == 0
-        assert any(i.hash == deploy_transaction_hash for i in block.transactions)
+        assert block == StarknetBlock(
+            block_number=block_with_deploy_number,
+            block_hash=block_with_deploy_hash,
+            parent_block_hash=0x0,
+            root=block_with_deploy_root,
+            status=BlockStatus.ACCEPTED_ON_L2,
+            timestamp=2137,
+            transactions=[
+                Transaction(
+                    contract_address=contract_address,
+                    calldata=[],
+                    entry_point_selector=0x0,
+                    hash=deploy_transaction_hash,
+                    signature=[],
+                    transaction_type=TransactionType.DEPLOY,
+                )
+            ],
+        )
 
 
 @pytest.mark.asyncio
@@ -77,10 +155,15 @@ async def test_get_transaction_receipt(clients, invoke_transaction_hash):
     for client in clients:
         receipt = await client.get_transaction_receipt(tx_hash=invoke_transaction_hash)
 
-        assert receipt.hash == invoke_transaction_hash
-        assert receipt.status in (
-            TransactionStatus.ACCEPTED_ON_L1,
-            TransactionStatus.ACCEPTED_ON_L2,
+        assert receipt == TransactionReceipt(
+            hash=invoke_transaction_hash,
+            status=TransactionStatus.ACCEPTED_ON_L2,
+            events=[],
+            l2_to_l1_messages=[],
+            l1_to_l2_consumed_message=None,
+            version=0,
+            actual_fee=0,
+            transaction_rejection_reason=None,
         )
 
 
@@ -110,8 +193,8 @@ async def test_estimate_fee(devnet_address, contract_address):
     )
     estimate_fee = await client.estimate_fee(tx=transaction)
 
-    assert estimate_fee is not None
     assert isinstance(estimate_fee, int)
+    assert estimate_fee > 0
 
 
 @pytest.mark.asyncio
@@ -131,24 +214,29 @@ async def test_call_contract(clients, contract_address):
 
 
 @pytest.mark.asyncio
-async def test_state_update(clients, block_hash, contract_address):
+async def test_state_update(
+    clients, block_with_deploy_hash, block_with_deploy_root, contract_address
+):
     for client in clients:
-        state_update: BlockStateUpdate = await client.get_state_update(
-            block_hash=block_hash
-        )
+        state_update = await client.get_state_update(block_hash=block_with_deploy_hash)
 
-        assert state_update.block_hash == int(block_hash, 16)
-        assert state_update.new_root != 0
-        assert state_update.old_root == 0
-        assert state_update.storage_diffs == []
-        assert any(
-            contract.address == contract_address
-            for contract in state_update.contract_diffs
+        assert state_update == BlockStateUpdate(
+            block_hash=block_with_deploy_hash,
+            new_root=block_with_deploy_root,
+            old_root=0x0,
+            storage_diffs=[],
+            contract_diffs=[
+                ContractDiff(
+                    address=contract_address,
+                    contract_hash=0x711941B11A8236B8CCA42B664E19342AC7300ABB1DC44957763CB65877C2708,
+                )
+            ],
         )
 
 
 @pytest.mark.asyncio
 async def test_add_transaction(devnet_address, contract_address):
+    # TODO extend this test to all clients
     client = await DevnetClientFactory(
         devnet_address
     ).make_devnet_client_without_account()
@@ -168,9 +256,22 @@ async def test_add_transaction(devnet_address, contract_address):
 
 @pytest.mark.asyncio
 async def test_deploy(devnet_address, balance_contract):
+    # TODO extend this test to all clients
     client = await DevnetClientFactory(
         devnet_address
     ).make_devnet_client_without_account()
     result = await client.deploy(contract=balance_contract, constructor_calldata=[])
 
     assert result.code == "TRANSACTION_RECEIVED"
+
+
+@pytest.mark.asyncio
+async def test_get_class_hash_at(devnet_address, contract_address):
+    # TODO extend this test to all clients
+    client = await DevnetClientFactory(
+        devnet_address
+    ).make_devnet_client_without_account()
+    class_hash = await client.get_class_hash_at(contract_address=contract_address)
+    assert (
+        class_hash == 0x711941B11A8236B8CCA42B664E19342AC7300ABB1DC44957763CB65877C2708
+    )

@@ -1,26 +1,29 @@
 import pytest
 
-from starknet_py.net.client_models import TransactionType
+from starknet_py.net.client_models import TransactionType, Transaction
 from starknet_py.tests.e2e.utils import DevnetClientFactory
 
 
 @pytest.mark.asyncio
 async def test_node_get_transaction_by_block_hash_and_index(
-    devnet_address, block_hash, deploy_transaction_hash, contract_address
+    devnet_address, block_with_deploy_hash, deploy_transaction_hash, contract_address
 ):
     client = await DevnetClientFactory(devnet_address).make_rpc_client()
 
     tx = await client.get_transaction_by_block_hash(
-        block_hash=int(block_hash, 16), index=0
+        block_hash=block_with_deploy_hash, index=0
     )
 
-    assert tx.hash == deploy_transaction_hash
-    assert tx.contract_address == contract_address
-    assert tx.calldata == []
-    assert tx.entry_point_selector == 0
-    assert tx.transaction_type == TransactionType.DEPLOY
-    assert tx.version == 0
-    assert tx.max_fee == 0
+    assert tx == Transaction(
+        hash=deploy_transaction_hash,
+        contract_address=contract_address,
+        calldata=[],
+        entry_point_selector=0x0,
+        transaction_type=TransactionType.DEPLOY,
+        version=0,
+        max_fee=0,
+        signature=[],
+    )
 
 
 @pytest.mark.asyncio
@@ -31,13 +34,16 @@ async def test_node_get_transaction_by_block_number_and_index(
 
     tx = await client.get_transaction_by_block_number(block_number=0, index=0)
 
-    assert tx.hash == deploy_transaction_hash
-    assert tx.contract_address == contract_address
-    assert tx.calldata == []
-    assert tx.entry_point_selector == 0
-    assert tx.transaction_type == TransactionType.DEPLOY
-    assert tx.version == 0
-    assert tx.max_fee == 0
+    assert tx == Transaction(
+        hash=deploy_transaction_hash,
+        contract_address=contract_address,
+        calldata=[],
+        entry_point_selector=0x0,
+        transaction_type=TransactionType.DEPLOY,
+        version=0,
+        max_fee=0,
+        signature=[],
+    )
 
 
 @pytest.mark.asyncio
