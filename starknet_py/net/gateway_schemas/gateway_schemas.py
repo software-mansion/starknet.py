@@ -160,7 +160,6 @@ class BlockStateUpdateSchema(Schema):
     block_hash = Felt(data_key="block_hash")
     new_root = NonPrefixedHex(data_key="new_root")
     old_root = NonPrefixedHex(data_key="old_root")
-    # TODO check if using raw is correct
     state_diff = fields.Dict(
         keys=fields.String(), values=fields.Raw(), data_key="state_diff"
     )
@@ -173,18 +172,12 @@ class BlockStateUpdateSchema(Schema):
         ]
 
         storage_diffs = []
-        for address, values in data["state_diff"]["storage_diffs"].items():
-            if address == "deployed_contracts":
-                continue
-            key, value = values
-            storage_diff = StorageDiffSchema().load(
-                {
-                    "address": address,
-                    "key": key,
-                    "value": value,
-                }
-            )
-            storage_diffs.append(storage_diff)
+        for address, diffs in data["state_diff"]["storage_diffs"].items():
+            for diff in diffs:
+                storage_diff = StorageDiffSchema().load(
+                    {"address": address, "key": diff["key"], "value": diff["value"]}
+                )
+                storage_diffs.append(storage_diff)
 
         del data["state_diff"]
 
