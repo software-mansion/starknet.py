@@ -25,4 +25,7 @@ async def test_get_class_hash_at(devnet_address, contract_address):
 
     class_hash = await client.get_class_hash_at(contract_address=contract_address)
 
-    assert class_hash == 3197248528421459336430560285234479619486870042069853528940753151314137720584
+    assert (
+        class_hash
+        == 3197248528421459336430560285234479619486870042069853528940753151314137720584
+    )
