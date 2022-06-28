@@ -19,12 +19,12 @@ from starknet_py.net.client_models import (
     StarknetBlock,
     InvokeFunction,
     StarknetTransaction,
-    ContractDefinition,
     Deploy,
     Hash,
     Tag,
-    ContractClass,
+    DeclaredContract,
     Declare,
+    ContractClass
 )
 from starknet_py.net.gateway_schemas.gateway_schemas import (
     TransactionSchema,
@@ -33,7 +33,7 @@ from starknet_py.net.gateway_schemas.gateway_schemas import (
     TransactionReceiptSchema,
     SentTransactionSchema,
     BlockStateUpdateSchema,
-    ContractClassSchema,
+    DeclaredContractSchema,
 )
 from starknet_py.net.http_client import GatewayHttpClient
 from starknet_py.net.models import StarknetChainId, chain_from_network
@@ -233,12 +233,12 @@ class GatewayClient(BaseClient):
 
     async def deploy(
         self,
-        contract: Union[ContractDefinition, str],
+        contract: Union[ContractClass, str],
         constructor_calldata: List[int],
         salt: Optional[int] = None,
     ) -> SentTransaction:
         if isinstance(contract, str):
-            contract = ContractDefinition.loads(contract)
+            contract = ContractClass.loads(contract)
 
         res = await self.add_transaction(
             tx=Deploy(
@@ -256,7 +256,7 @@ class GatewayClient(BaseClient):
 
         return res
 
-    async def declare(self, contract_class: ContractClass) -> SentTransaction:
+    async def declare(self, contract_class: DeclaredContract) -> SentTransaction:
         res = await self.add_transaction(
             tx=Declare(
                 contract_class=contract_class,
@@ -281,12 +281,12 @@ class GatewayClient(BaseClient):
         res = typing.cast(str, res)
         return int(res, 16)
 
-    async def get_class_by_hash(self, class_hash: Hash) -> ContractClass:
+    async def get_class_by_hash(self, class_hash: Hash) -> DeclaredContract:
         res = await self._feeder_gateway_client.call(
             method_name="get_class_by_hash",
             params={"classHash": convert_to_felt(class_hash)},
         )
-        return ContractClassSchema().load(res, unknown=EXCLUDE)
+        return DeclaredContractSchema().load(res, unknown=EXCLUDE)
 
 
 def get_block_identifier(

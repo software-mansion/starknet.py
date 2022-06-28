@@ -15,11 +15,10 @@ from starknet_py.net.client_models import (
     BlockStateUpdate,
     StarknetBlock,
     StarknetTransaction,
-    ContractDefinition,
     InvokeFunction,
     Hash,
     Tag,
-    ContractClass,
+    DeclaredContract, ContractClass,
 )
 from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.rpc_schemas.rpc_schemas import (
@@ -197,7 +196,7 @@ class FullNodeClient(BaseClient):
 
     async def deploy(
         self,
-        contract: Union[ContractDefinition, str],
+        contract: Union[ContractClass, str],
         constructor_calldata: List[int],
         salt: Optional[int] = None,
     ) -> SentTransaction:
@@ -209,5 +208,5 @@ class FullNodeClient(BaseClient):
     async def get_class_hash_at(self, contract_address: Hash) -> int:
         pass
 
-    async def get_class_by_hash(self, class_hash: Hash) -> ContractClass:
+    async def get_class_by_hash(self, class_hash: Hash) -> DeclaredContract:
         pass

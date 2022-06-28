@@ -13,10 +13,10 @@ from starknet_py.net.client_models import (
     SentTransaction,
     InvokeFunction,
     StarknetTransaction,
-    ContractDefinition,
     TransactionStatus,
     Hash,
     Tag,
+    DeclaredContract,
     ContractClass,
 )
 from starknet_py.transaction_exceptions import (
@@ -199,7 +199,7 @@ class BaseClient(ABC):
     @abstractmethod
     async def deploy(
         self,
-        contract: Union[ContractDefinition, str],
+        contract: Union[ContractClass, str],
         constructor_calldata: List[int],
         salt: Optional[int] = None,
     ) -> SentTransaction:
@@ -230,7 +230,7 @@ class BaseClient(ABC):
         """
 
     @abstractmethod
-    async def get_class_by_hash(self, class_hash: Hash) -> ContractClass:
+    async def get_class_by_hash(self, class_hash: Hash) -> DeclaredContract:
         """
         Get the contract class for given class hash
 

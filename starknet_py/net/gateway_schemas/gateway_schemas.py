@@ -13,7 +13,7 @@ from starknet_py.net.client_models import (
     BlockStateUpdate,
     EntryPoint,
     EntryPointsByType,
-    ContractClass,
+    DeclaredContract,
 )
 from starknet_py.net.common_schemas.common_schemas import (
     Felt,
@@ -203,7 +203,7 @@ class EntryPointsByTypeSchema(Schema):
         return EntryPointsByType(**data)
 
 
-class ContractClassSchema(Schema):
+class DeclaredContractSchema(Schema):
     program = fields.Dict(
         keys=fields.String(), values=fields.Raw(allow_none=True), data_key="program"
     )
@@ -212,5 +212,5 @@ class ContractClassSchema(Schema):
     )
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> ContractClass:
-        return ContractClass(**data)
+    def make_dataclass(self, data, **kwargs) -> DeclaredContract:
+        return DeclaredContract(**data)

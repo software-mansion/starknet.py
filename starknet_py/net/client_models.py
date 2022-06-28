@@ -16,7 +16,7 @@ from starknet_py.utils.docs import as_our_module
 
 InvokeFunction = as_our_module(IF)
 StarknetTransaction = as_our_module(T)
-ContractDefinition = as_our_module(CD)
+ContractClass = as_our_module(CD)
 Deploy = as_our_module(D)
 Declare = as_our_module(DCL)
 
@@ -213,7 +213,7 @@ class EntryPointsByType:
 
 
 @dataclass
-class ContractClass:
+class DeclaredContract:
     """
     Dataclass representing contract declared to starknet
     """
