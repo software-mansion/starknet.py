@@ -31,36 +31,36 @@ def prepare_devnet(net: str) -> dict:
     return block
 
 
-@pytest.fixture(scope="module", autouse=True)
-def run_prepared_devnet(run_devnet) -> Tuple[str, dict]:
+@pytest.fixture(name="run_prepared_devnet", scope="module", autouse=True)
+def fixture_run_prepared_devnet(run_devnet) -> Tuple[str, dict]:
     net = run_devnet
     block = prepare_devnet(net)
     yield net, block
 
 
-@pytest.fixture()
-def block_with_deploy(run_prepared_devnet) -> dict:
+@pytest.fixture(name="block_with_deploy")
+def fixture_block_with_deploy(run_prepared_devnet) -> dict:
     _, block = run_prepared_devnet
     return block
 
 
-@pytest.fixture()
-def block_with_deploy_hash(block_with_deploy) -> int:
+@pytest.fixture(name="block_with_deploy_hash")
+def fixture_block_with_deploy_hash(block_with_deploy) -> int:
     return int(block_with_deploy["block_hash"], 16)
 
 
-@pytest.fixture()
-def block_with_deploy_number(block_with_deploy) -> int:
+@pytest.fixture(name="block_with_deploy_number")
+def fixture_block_with_deploy_number(block_with_deploy) -> int:
     return block_with_deploy["block_number"]
 
 
-@pytest.fixture()
-def block_with_deploy_root(block_with_deploy) -> int:
+@pytest.fixture(name="block_with_deploy_root")
+def fixture_block_with_deploy_root(block_with_deploy) -> int:
     return int(block_with_deploy["state_root"], 16)
 
 
-@pytest.fixture()
-def block_with_invoke_number() -> int:
+@pytest.fixture(name="block_with_invoke_number")
+def fixture_block_with_invoke_number() -> int:
     return 1
 
 
@@ -80,8 +80,8 @@ async def fixture_clients(run_prepared_devnet) -> Tuple[BaseClient, BaseClient]:
     return gateway_client, full_node_client
 
 
-@pytest.fixture()
-def invoke_transaction():
+@pytest.fixture(name="invoke_transaction")
+def fixture_invoke_transaction():
     return {
         "hash": 0x5A8995AE36F3A87CC217311EC9372CD16602BA0FC273F4AFD1508A627D81B30,
         "calldata": [1234],
@@ -89,31 +89,31 @@ def invoke_transaction():
     }
 
 
-@pytest.fixture()
-def invoke_transaction_hash(invoke_transaction):
+@pytest.fixture(name="invoke_transaction_hash")
+def fixture_invoke_transaction_hash(invoke_transaction):
     return invoke_transaction["hash"]
 
 
-@pytest.fixture()
-def invoke_transaction_calldata(invoke_transaction):
+@pytest.fixture(name="invoke_transaction_calldata")
+def fixture_invoke_transaction_calldata(invoke_transaction):
     return invoke_transaction["calldata"]
 
 
-@pytest.fixture()
-def invoke_transaction_selector(invoke_transaction):
+@pytest.fixture(name="invoke_transaction_selector")
+def fixture_invoke_transaction_selector(invoke_transaction):
     return invoke_transaction["entry_point_selector"]
 
 
-@pytest.fixture()
-def deploy_transaction_hash():
+@pytest.fixture(name="deploy_transaction_hash")
+def fixture_deploy_transaction_hash():
     return 0x11C1C6731ACE34AB4A9137A82092F26ECE38E7428E5E2028DA587893AAE0E02
 
 
-@pytest.fixture()
-def contract_address():
+@pytest.fixture(name="contract_address")
+def fixture_contract_address():
     return 0x043D95E049C7DECE86574A8D3FB5C0F9E4422F8A7FEC6D744F26006374642252
 
 
-@pytest.fixture()
-def balance_contract() -> str:
+@pytest.fixture(name="balance_contract")
+def fixture_balance_contract() -> str:
     return Path(directory, "balance_compiled.json").read_text("utf-8")
