@@ -18,7 +18,8 @@ from starknet_py.net.client_models import (
     InvokeFunction,
     Hash,
     Tag,
-    DeclaredContract, ContractClass,
+    DeclaredContract,
+    ContractClass,
 )
 from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.rpc_schemas.rpc_schemas import (

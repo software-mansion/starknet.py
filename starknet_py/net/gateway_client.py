@@ -24,7 +24,7 @@ from starknet_py.net.client_models import (
     Tag,
     DeclaredContract,
     Declare,
-    ContractClass
+    ContractClass,
 )
 from starknet_py.net.gateway_schemas.gateway_schemas import (
     TransactionSchema,
