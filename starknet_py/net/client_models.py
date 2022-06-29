@@ -74,6 +74,7 @@ class Transaction:
     Dataclass representing a transaction
     """
 
+    # pylint: disable=too-many-instance-attributes
     hash: int
     contract_address: int
     calldata: List[int]
