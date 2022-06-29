@@ -1746,7 +1746,7 @@ test = ["pytest"]
 
 [[package]]
 name = "starknet-devnet"
-version = "0.2.3"
+version = "0.2.4"
 description = "A local testnet for Starknet"
 category = "dev"
 optional = false
@@ -1989,7 +1989,7 @@ eth-tester = []
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.2,<3.10"
-content-hash = "4445e01c7a67764bd521baa9f4e83e4eddd9e4235697dcc41b7e7dd3d3f2a106"
+content-hash = "bb3783917d1fb71a51788573c5cce1dd1186a80fb8200e232348c25ac70b1b6b"
 
 [metadata.files]
 aiohttp = [
@@ -3196,8 +3196,8 @@ sphinxcontrib-serializinghtml = [
     {file = "sphinxcontrib_serializinghtml-1.1.5-py2.py3-none-any.whl", hash = "sha256:352a9a00ae864471d3a7ead8d7d79f5fc0b57e8b3f95e9867eb9eb28999b92fd"},
 ]
 starknet-devnet = [
-    {file = "starknet_devnet-0.2.3-py3-none-any.whl", hash = "sha256:ba04e9e0fab69d6d0c70c6baf95f77513c28d52452bae7c3cd2e33ec46a6795a"},
-    {file = "starknet_devnet-0.2.3.tar.gz", hash = "sha256:318430951f83d9b2dba6595fb5d11afb41ed397b691507c4db58959d08687593"},
+    {file = "starknet_devnet-0.2.4-py3-none-any.whl", hash = "sha256:af4984dad86fa2ee74b74de5e6a4390e8fd6c20060f5c9b84084b06e8751152e"},
+    {file = "starknet_devnet-0.2.4.tar.gz", hash = "sha256:e11478c4fe0ce14e93bb07c1b718145d12b59f20d8ff2072559037b9d8e139c4"},
 ]
 sympy = [
     {file = "sympy-1.10.1-py3-none-any.whl", hash = "sha256:df75d738930f6fe9ebe7034e59d56698f29e85f443f743e51e47df0caccc2130"},
