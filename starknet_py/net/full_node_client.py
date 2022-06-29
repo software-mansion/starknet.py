@@ -33,16 +33,27 @@ from starknet_py.net.client_utils import convert_to_felt
 
 
 class FullNodeClient(BaseClient):
-    def __init__(self, node_url: str, session: Optional[aiohttp.ClientSession] = None):
+    def __init__(
+        self,
+        node_url: str,
+        chain: StarknetChainId,
+        session: Optional[aiohttp.ClientSession] = None,
+    ):
         """
         Client for interacting with starknet json-rpc interface.
 
         :param node_url: Url of the node providing rpc interface
+        :param chain: Chain id of the network used by the rpc client
         :param session: Aiohttp session to be used for request. If not provided, client will create a session for
                         every request. When using a custom session, user is resposible for closing it manually.
         """
         self.url = node_url
         self._client = RpcHttpClient(url=node_url, session=session)
+        self._chain = chain
+
+    @property
+    def chain(self) -> StarknetChainId:
+        return self._chain
 
     async def get_block(
         self,

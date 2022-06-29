@@ -18,6 +18,7 @@ from starknet_py.net.client_models import (
     DeclaredContract,
     ContractClass,
 )
+from starknet_py.net.models import StarknetChainId
 from starknet_py.transaction_exceptions import (
     TransactionRejectedError,
     TransactionNotReceivedError,
@@ -26,6 +27,13 @@ from starknet_py.transaction_exceptions import (
 
 
 class BaseClient(ABC):
+    @property
+    @abstractmethod
+    def chain(self) -> StarknetChainId:
+        """
+        ChainId of the chain used by the client
+        """
+
     @abstractmethod
     async def get_block(
         self,

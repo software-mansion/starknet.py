@@ -62,11 +62,15 @@ class GatewayClient(BaseClient):
         feeder_gateway_url = f"{host}/feeder_gateway"
         gateway_url = f"{host}/gateway"
 
-        self.chain = chain_from_network(net, chain)
+        self._chain = chain_from_network(net, chain)
         self._feeder_gateway_client = GatewayHttpClient(
             url=feeder_gateway_url, session=session
         )
         self._gateway_client = GatewayHttpClient(url=gateway_url, session=session)
+
+    @property
+    def chain(self) -> StarknetChainId:
+        return self._chain
 
     async def get_transaction(
         self,
