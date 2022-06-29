@@ -31,3 +31,16 @@ async def test_get_class_hash_at(devnet_address, contract_address):
         class_hash
         == 3197248528421459336430560285234479619486870042069853528940753151314137720584
     )
+
+
+@pytest.mark.asyncio
+async def test_get_code(devnet_address, contract_address):
+    client = await DevnetClientFactory(
+        devnet_address
+    ).make_devnet_client_without_account()
+    code = await client.get_code(contract_address=contract_address)
+
+    assert code.abi is not None
+    assert len(code.abi) != 0
+    assert code.bytecode is not None
+    assert len(code.bytecode) != 0
