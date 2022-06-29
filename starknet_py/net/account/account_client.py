@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional, List, Union
 from dataclasses import replace
 
 from starkware.crypto.signature.signature import get_random_private_key
@@ -7,7 +7,17 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
     CastableToHash,
 )
 
-from starknet_py.net.client_models import SentTransaction
+from starknet_py.net.base_client import BaseClient
+from starknet_py.net.client_models import (
+    SentTransaction,
+    Hash,
+    DeclaredContract,
+    Tag,
+    TransactionReceipt,
+    BlockStateUpdate,
+    StarknetBlock,
+    StarknetTransaction,
+)
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.net.client import Client
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
@@ -16,7 +26,7 @@ from starknet_py.net.models import (
     StarknetChainId,
     TransactionType,
     Transaction,
-    BlockIdentifier,
+    BlockIdentifier, chain_from_network,
 )
 from starknet_py.net.networks import Network, MAINNET, TESTNET
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
@@ -29,34 +39,82 @@ from starknet_py.net.gateway_client import GatewayClient
 
 
 @add_sync_methods
-class AccountClient(GatewayClient):
+class AccountClient(BaseClient):
     """
-    Extends the functionality of :obj:`Client <starknet_py.net.Client>`, adding additional methods for creating the
-    account contract
+    Extends the functionality of :obj:`Client <starknet_py.net.base_client.BaseClient>`,
+    adding additional methods for creating the account contract.
     """
 
     def __init__(
         self,
         address: AddressRepresentation,
         net: Network,
-        *args,
+        chain: Optional[StarknetChainId] = None,
+        client: Optional[BaseClient] = None,
         signer: Optional[BaseSigner] = None,
         key_pair: Optional[KeyPair] = None,
-        **kwargs,
     ):
+        # pylint: disable=too-many-arguments
         if signer is None and key_pair is None:
             raise ValueError(
                 "Either a signer or a key_pair must be provied in AccountClient constructor"
             )
-        super().__init__(net, *args, **kwargs)
+
+        chain = chain_from_network(net=net, chain=chain)
+
+        if chain is None and client is None:
+            raise ValueError(
+                "One of chain or client must be provided"
+            )
         self.net = net
         self.address = parse_address(address)
+        self.client = client or GatewayClient(net=self.net, chain=chain)
         self.signer = signer or StarkCurveSigner(
-            account_address=self.address, key_pair=key_pair, chain_id=self.chain
+            account_address=self.address, key_pair=key_pair, chain_id=self.client.chain
         )
 
+    @property
+    def chain(self) -> StarknetChainId:
+        return self.client.chain
+
+    async def get_block(
+        self,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> StarknetBlock:
+        return await self.client.get_block(
+            block_hash=block_hash, block_number=block_number
+        )
+
+    async def get_state_update(self, block_hash: Union[Hash, Tag]) -> BlockStateUpdate:
+        return await self.client.get_state_update(block_hash=block_hash)
+
+    async def get_storage_at(
+        self, contract_address: Hash, key: int, block_hash: Union[Hash, Tag]
+    ) -> int:
+        return await self.client.get_storage_at(
+            contract_address=contract_address, key=key, block_hash=block_hash
+        )
+
+    async def get_transaction(self, tx_hash: Hash) -> Transaction:
+        return self.client.get_transaction(tx_hash=tx_hash)
+
+    async def get_transaction_receipt(self, tx_hash: Hash) -> TransactionReceipt:
+        return await self.client.get_transaction_receipt(tx_hash=tx_hash)
+
+    async def call_contract(
+        self, invoke_tx: InvokeFunction, block_hash: Union[Hash, Tag] = None
+    ) -> List[int]:
+        return await self.client.call_contract(invoke_tx=invoke_tx)
+
+    async def get_class_hash_at(self, contract_address: Hash) -> int:
+        return await self.client.get_class_hash_at(contract_address=contract_address)
+
+    async def get_class_by_hash(self, class_hash: Hash) -> DeclaredContract:
+        return await self.client.get_class_by_hash(class_hash=class_hash)
+
     async def _get_nonce(self) -> int:
-        [nonce] = await super().call_contract(
+        [nonce] = await self.client.call_contract(
             InvokeFunction(
                 contract_address=self.address,
                 entry_point_selector=get_selector_from_name("get_nonce"),
@@ -89,7 +147,7 @@ class AccountClient(GatewayClient):
 
         token_address = token_address or self._get_default_token_address()
 
-        low, high = await super().call_contract(
+        low, high = await self.client.call_contract(
             InvokeFunction(
                 contract_address=parse_address(token_address),
                 entry_point_selector=get_selector_from_name("balanceOf"),
@@ -129,7 +187,7 @@ class AccountClient(GatewayClient):
             version=tx.version,
         )
 
-    async def _sign_transaction(self, tx: InvokeFunction):
+    async def _sign_transaction(self, tx: InvokeFunction) -> StarknetTransaction:
         execute_tx = await self._prepare_execute_transaction(tx)
         signature = self.signer.sign_transaction(execute_tx)
         execute_tx = add_signature_to_transaction(execute_tx, signature)
@@ -137,24 +195,19 @@ class AccountClient(GatewayClient):
 
     async def add_transaction(
         self,
-        tx: InvokeFunction,
-        token: Optional[str] = None,
+        tx: StarknetTransaction,
     ) -> SentTransaction:
-        """
-        :param tx: Transaction which invokes another contract through account proxy.
-                   Signed transactions aren't supported at the moment
-        :param token: Optional token for Starknet API access, appended in a query string
-        :return: API response dictionary with `code`, `transaction_hash`
-        """
         if tx.tx_type in (TransactionType.DECLARE, TransactionType.DEPLOY):
-            return await super().add_transaction(tx, token)
+            # return await super().add_transaction(tx)
+            return await self.client.add_transaction(tx)
 
         if tx.signature:
             raise TypeError(
                 "Adding signatures to a signer tx currently isn't supported"
             )
 
-        return await super().add_transaction(await self._sign_transaction(tx))
+        # return await super().add_transaction(await self._sign_transaction(tx))
+        return await self.client.add_transaction(await self._sign_transaction(tx))
 
     async def estimate_fee(
         self,
@@ -168,7 +221,7 @@ class AccountClient(GatewayClient):
         :param block_number: Estimate fee at given block number (or "pending" for pending block)
         :return: Estimated fee
         """
-        return await super().estimate_fee(
+        return await self.client.estimate_fee(
             tx=await self._sign_transaction(tx),
             block_hash=block_hash,
             block_number=block_number,
