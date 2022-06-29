@@ -31,6 +31,17 @@ def prepare_devnet(net: str) -> dict:
     return block
 
 
+def get_class_hash(net: str, contract_address: str) -> str:
+    script_path = Path(directory, "get_class_hash.sh")
+    res = subprocess.run(
+        [script_path, net, contract_address],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    return res.stdout
+
+
 @pytest.fixture(name="run_prepared_devnet", scope="module", autouse=True)
 def fixture_run_prepared_devnet(run_devnet) -> Tuple[str, dict]:
     net = run_devnet
@@ -117,3 +128,13 @@ def fixture_contract_address():
 @pytest.fixture(name="balance_contract")
 def fixture_balance_contract() -> str:
     return Path(directory, "balance_compiled.json").read_text("utf-8")
+
+
+@pytest.fixture(name="class_hash")
+def fixture_class_hash(run_prepared_devnet, contract_address) -> str:
+    net, _ = run_prepared_devnet
+    return (
+        get_class_hash(net=net, contract_address=hex(contract_address))
+        .strip()
+        .replace('"', "")
+    )

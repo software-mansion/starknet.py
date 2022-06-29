@@ -1,3 +1,4 @@
+# pylint: disable=too-many-arguments
 import pytest
 
 from starkware.starknet.public.abi import get_selector_from_name
@@ -168,17 +169,6 @@ async def test_get_transaction_receipt(clients, invoke_transaction_hash):
 
 
 @pytest.mark.asyncio
-async def test_get_code(clients, contract_address):
-    for client in clients:
-        code = await client.get_code(contract_address=contract_address)
-
-        assert code.abi is not None
-        assert len(code.abi) != 0
-        assert code.bytecode is not None
-        assert len(code.bytecode) != 0
-
-
-@pytest.mark.asyncio
 async def test_estimate_fee(devnet_address, contract_address):
     client = await DevnetClientFactory(
         devnet_address
@@ -275,3 +265,14 @@ async def test_get_class_hash_at(devnet_address, contract_address):
     assert (
         class_hash == 0x711941B11A8236B8CCA42B664E19342AC7300ABB1DC44957763CB65877C2708
     )
+
+
+@pytest.mark.asyncio
+async def test_get_class_by_hash(devnet_address, class_hash):
+    # TODO extend this test to all clients
+    client = await DevnetClientFactory(
+        devnet_address
+    ).make_devnet_client_without_account()
+    contract_class = await client.get_class_by_hash(class_hash=class_hash)
+    assert contract_class.program != ""
+    assert contract_class.entry_points_by_type is not None
