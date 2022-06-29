@@ -10,7 +10,6 @@ from starknet_py.net.base_client import (
 from starknet_py.net.client_models import (
     SentTransaction,
     Transaction,
-    ContractCode,
     TransactionReceipt,
     BlockStateUpdate,
     StarknetBlock,
@@ -22,12 +21,13 @@ from starknet_py.net.client_models import (
     ContractClass,
 )
 from starknet_py.net.http_client import RpcHttpClient
+from starknet_py.net.models import StarknetChainId
 from starknet_py.net.rpc_schemas.rpc_schemas import (
     TransactionSchema,
     TransactionReceiptSchema,
-    ContractCodeSchema,
     StarknetBlockSchema,
     BlockStateUpdateSchema,
+    DeclaredContractSchema,
 )
 from starknet_py.net.client_utils import convert_to_felt
 
@@ -165,18 +165,6 @@ class FullNodeClient(BaseClient):
         )
         return TransactionReceiptSchema().load(res, unknown=EXCLUDE)
 
-    async def get_code(
-        self,
-        contract_address: Hash,
-        block_hash: Optional[Union[Hash, Tag]] = None,
-        block_number: Optional[Union[int, Tag]] = None,
-    ) -> ContractCode:
-        res = await self._client.call(
-            method_name="getCode",
-            params={"contract_address": convert_to_felt(contract_address)},
-        )
-        return ContractCodeSchema().load(res, unknown=EXCLUDE)
-
     async def estimate_fee(
         self,
         tx: InvokeFunction,
@@ -204,7 +192,7 @@ class FullNodeClient(BaseClient):
         return [int(i, 16) for i in res["result"]]
 
     async def add_transaction(self, tx: StarknetTransaction) -> SentTransaction:
-        pass
+        raise NotImplementedError()
 
     async def deploy(
         self,
@@ -215,10 +203,17 @@ class FullNodeClient(BaseClient):
         pass
 
     async def declare(self, contract_class: ContractClass) -> SentTransaction:
-        pass
+        raise NotImplementedError()
 
     async def get_class_hash_at(self, contract_address: Hash) -> int:
-        pass
+        res = await self._client.call(
+            method_name="getClassHashAt",
+            params={"contract_address": convert_to_felt(contract_address)},
+        )
+        return int(res["result"], 16)
 
     async def get_class_by_hash(self, class_hash: Hash) -> DeclaredContract:
-        pass
+        res = await self._client.call(
+            method_name="getClass", params={"class_hash": convert_to_felt(class_hash)}
+        )
+        return DeclaredContractSchema().load(res, unknown=EXCLUDE)
