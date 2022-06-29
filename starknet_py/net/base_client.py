@@ -9,7 +9,6 @@ from starknet_py.net.client_models import (
     BlockStateUpdate,
     Transaction,
     TransactionReceipt,
-    ContractCode,
     SentTransaction,
     InvokeFunction,
     StarknetTransaction,
@@ -91,26 +90,6 @@ class BaseClient(ABC):
         :param tx_hash: Transaction's hash
         :return: Transaction receipt object on Starknet
         """
-
-    @abstractmethod
-    async def get_code(
-        self,
-        contract_address: Hash,
-        block_hash: Union[Hash, Tag] = None,
-        block_number: Optional[Union[int, Tag]] = None,
-    ) -> ContractCode:
-        """
-        Get deployed contract's bytecode and abi.
-
-        :raises BadRequest: when contract is not found
-        :param contract_address: Address of the contract on Starknet
-        :param block_hash: Get code at specific block hash or
-                           at the block indicated by the literals `"pending"` or `"latest"`
-        :param block_number: Get code at given block number or
-                             at the block indicated by the literals `"pending"` or `"latest"`
-        :return: ContractCode object
-        """
-        # TODO remove this, replace with get_class
 
     async def wait_for_tx(
         self,
