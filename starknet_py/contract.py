@@ -26,9 +26,9 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
 from starknet_py.common import create_compiled_contract
+from starknet_py.net.gateway_client import GatewayClient
 
 from starknet_py.proxy_check import ProxyCheck, ArgentProxyCheck, OpenZeppelinProxyCheck
-from starknet_py.net import Client
 from starknet_py.net.models import (
     InvokeFunction,
     AddressRepresentation,
@@ -36,7 +36,6 @@ from starknet_py.net.models import (
     compute_address,
     compute_invoke_hash,
 )
-from starknet_py.net.models.address import BlockIdentifier
 from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.utils.crypto.facade import pedersen_hash
 from starknet_py.utils.data_transformer import DataTransformer
@@ -167,38 +166,30 @@ class PreparedFunctionCall:
         self,
         signature: Optional[Collection[int]] = None,
         block_hash: Optional[str] = None,
-        block_number: Optional[int] = None,
     ) -> List[int]:
         """
         Calls a method without translating the result into python values.
 
         :param signature: Signature to send
         :param block_hash: Optional block hash
-        :param block_number: Optional block number
         :return: list of ints
         """
         tx = self._make_invoke_function(signature)
-        return await self._client.call_contract(
-            invoke_tx=tx, block_hash=block_hash, block_number=block_number
-        )
+        return await self._client.call_contract(invoke_tx=tx, block_hash=block_hash)
 
     async def call(
         self,
         signature: Optional[Collection[int]] = None,
         block_hash: Optional[str] = None,
-        block_number: Optional[BlockIdentifier] = None,
     ) -> NamedTuple:
         """
         Calls a method.
 
         :param signature: Signature to send
         :param block_hash: Optional block hash
-        :param block_number: Optional block number or "pending" for pending block
         :return: CallResult or List[int] if return_raw is used
         """
-        result = await self.call_raw(
-            signature=signature, block_hash=block_hash, block_number=block_number
-        )
+        result = await self.call_raw(signature=signature, block_hash=block_hash)
         return self._payload_transformer.to_python(result)
 
     async def invoke(
@@ -327,19 +318,17 @@ class ContractFunction:
         self,
         *args,
         block_hash: Optional[str] = None,
-        block_number: Optional[BlockIdentifier] = None,
         **kwargs,
     ) -> NamedTuple:
         """
         :param block_hash: Block hash to execute the contract at specific point of time
-        :param block_number: Block number (or "pending" for pending block) to execute the contract function at
 
         Call contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.
         The result is translated from Cairo data to python values.
         Equivalent of ``.prepare(*args, **kwargs).call()``.
         """
         return await self.prepare(max_fee=0, version=0, *args, **kwargs).call(
-            block_hash=block_hash, block_number=block_number
+            block_hash=block_hash
         )
 
     async def invoke(
@@ -414,7 +403,7 @@ class Contract:
     @staticmethod
     async def from_address(
         address: AddressRepresentation,
-        client: BaseClient,
+        client: GatewayClient,
         proxy_config: Union[bool, ProxyConfig] = False,
     ) -> "Contract":
         """
@@ -423,7 +412,7 @@ class Contract:
 
         :raises BadRequest: when contract is not found
         :param address: Contract's address
-        :param client: Client used
+        :param client: GatewayClient used, WARNING: This method does not work with other clients!
         :param proxy_config: Proxy resolving config
             If set to ``True``, will use default proxy checks and :class:
             `starknet_py.proxy_check.OpenZeppelinProxyCheck`
@@ -484,7 +473,7 @@ class Contract:
             compiled_contract, constructor_args
         )
         res = await client.deploy(
-            compiled_contract=compiled_contract,
+            contract=compiled_contract,
             constructor_calldata=translated_args,
             salt=salt,
         )
@@ -611,7 +600,7 @@ class ContractFromAddressFactory:
     def __init__(
         self,
         address: AddressRepresentation,
-        client: Client,
+        client: GatewayClient,
         max_steps: int,
         proxy_checks: List[ProxyCheck],
     ):
@@ -635,7 +624,7 @@ class ContractFromAddressFactory:
 
         code = await self._client.get_code(contract_address=parse_address(address))
         contract = Contract(
-            address=parse_address(address), abi=code["abi"], client=self._client
+            address=parse_address(address), abi=code.abi, client=self._client
         )
         self._processed_addresses.add(address)
 
