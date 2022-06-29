@@ -4,11 +4,6 @@ from typing import Union, Optional, List
 import aiohttp
 from marshmallow import EXCLUDE
 
-from starkware.starknet.definitions.fields import ContractAddressSalt
-from starkware.starknet.services.api.gateway.transaction import DECLARE_SENDER_ADDRESS
-from starkware.starkware_utils.error_handling import StarkErrorCode
-
-
 from starknet_py.net.base_client import BaseClient
 from starknet_py.net.client_models import (
     Transaction,
@@ -19,12 +14,9 @@ from starknet_py.net.client_models import (
     StarknetBlock,
     InvokeFunction,
     StarknetTransaction,
-    Deploy,
     Hash,
     Tag,
     DeclaredContract,
-    Declare,
-    ContractClass,
 )
 from starknet_py.net.gateway_schemas.gateway_schemas import (
     TransactionSchema,
@@ -234,48 +226,6 @@ class GatewayClient(BaseClient):
             payload=StarknetTransaction.Schema().dump(obj=tx),
         )
         return SentTransactionSchema().load(res, unknown=EXCLUDE)
-
-    async def deploy(
-        self,
-        contract: Union[ContractClass, str],
-        constructor_calldata: List[int],
-        salt: Optional[int] = None,
-    ) -> SentTransaction:
-        if isinstance(contract, str):
-            contract = ContractClass.loads(contract)
-
-        res = await self.add_transaction(
-            tx=Deploy(
-                contract_address_salt=ContractAddressSalt.get_random_value()
-                if salt is None
-                else salt,
-                contract_definition=contract,
-                constructor_calldata=constructor_calldata,
-                version=0,
-            )
-        )
-
-        if res.code != StarkErrorCode.TRANSACTION_RECEIVED.name:
-            raise TransactionNotReceivedError()
-
-        return res
-
-    async def declare(self, contract_class: DeclaredContract) -> SentTransaction:
-        res = await self.add_transaction(
-            tx=Declare(
-                contract_class=contract_class,
-                sender_address=DECLARE_SENDER_ADDRESS,
-                max_fee=0,
-                signature=[],
-                nonce=0,
-                version=0,
-            )
-        )
-
-        if res.code != StarkErrorCode.TRANSACTION_RECEIVED.name:
-            raise TransactionNotReceivedError()
-
-        return res
 
     async def get_class_hash_at(self, contract_address: Hash) -> int:
         res = await self._feeder_gateway_client.call(

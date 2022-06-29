@@ -4,6 +4,9 @@ import asyncio
 from abc import ABC, abstractmethod
 from typing import Union, Optional, List
 
+from starkware.starknet.definitions.fields import ContractAddressSalt
+from starkware.starknet.services.api.gateway.transaction import DECLARE_SENDER_ADDRESS
+
 from starknet_py.net.client_models import (
     StarknetBlock,
     BlockStateUpdate,
@@ -17,6 +20,8 @@ from starknet_py.net.client_models import (
     Tag,
     DeclaredContract,
     ContractClass,
+    Deploy,
+    Declare,
 )
 from starknet_py.net.models import StarknetChainId
 from starknet_py.transaction_exceptions import (
@@ -183,7 +188,6 @@ class BaseClient(ABC):
         :return: SentTransaction object
         """
 
-    @abstractmethod
     async def deploy(
         self,
         contract: Union[ContractClass, str],
@@ -198,14 +202,48 @@ class BaseClient(ABC):
         :param salt: Salt to be used when signing a transaction
         :return: SentTransaction object
         """
+        if isinstance(contract, str):
+            contract = ContractClass.loads(contract)
 
-    @abstractmethod
+        res = await self.add_transaction(
+            tx=Deploy(
+                contract_address_salt=ContractAddressSalt.get_random_value()
+                if salt is None
+                else salt,
+                contract_definition=contract,
+                constructor_calldata=constructor_calldata,
+                version=0,
+            )
+        )
+
+        receipt = await self.get_transaction_receipt(tx_hash=res.hash)
+        if receipt.status == TransactionStatus.UNKNOWN:
+            raise TransactionNotReceivedError()
+
+        return res
+
     async def declare(self, contract_class: ContractClass) -> SentTransaction:
         """
         Declare a contract
 
         :param contract_class: Contract class to be declared
         """
+        res = await self.add_transaction(
+            tx=Declare(
+                contract_class=contract_class,
+                sender_address=DECLARE_SENDER_ADDRESS,
+                max_fee=0,
+                signature=[],
+                nonce=0,
+                version=0,
+            )
+        )
+
+        receipt = await self.get_transaction_receipt(tx_hash=res.hash)
+        if receipt.status == TransactionStatus.UNKNOWN:
+            raise TransactionNotReceivedError()
+
+        return res
 
     @abstractmethod
     async def get_class_hash_at(self, contract_address: Hash) -> int:

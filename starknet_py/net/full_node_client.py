@@ -18,7 +18,6 @@ from starknet_py.net.client_models import (
     Hash,
     Tag,
     DeclaredContract,
-    ContractClass,
 )
 from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.models import StarknetChainId
@@ -192,17 +191,6 @@ class FullNodeClient(BaseClient):
         return [int(i, 16) for i in res["result"]]
 
     async def add_transaction(self, tx: StarknetTransaction) -> SentTransaction:
-        raise NotImplementedError()
-
-    async def deploy(
-        self,
-        contract: Union[ContractClass, str],
-        constructor_calldata: List[int],
-        salt: Optional[int] = None,
-    ) -> SentTransaction:
-        pass
-
-    async def declare(self, contract_class: ContractClass) -> SentTransaction:
         raise NotImplementedError()
 
     async def get_class_hash_at(self, contract_address: Hash) -> int:
