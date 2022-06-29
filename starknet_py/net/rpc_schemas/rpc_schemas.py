@@ -15,6 +15,9 @@ from starknet_py.net.client_models import (
     StorageDiff,
     ContractDiff,
     Event,
+    EntryPoint,
+    EntryPointsByType,
+    DeclaredContract,
 )
 from starknet_py.net.common_schemas.common_schemas import (
     Felt,
@@ -189,3 +192,33 @@ class BlockStateUpdateSchema(Schema):
         storage_diffs = state_diff["storage_diffs"]
         contract_diffs = state_diff["contract_diffs"]
         return storage_diffs, contract_diffs
+
+
+class EntryPointSchema(Schema):
+    offset = Felt(data_key="offset")
+    selector = Felt(data_key="selector")
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> EntryPoint:
+        return EntryPoint(**data)
+
+
+class EntryPointsByTypeSchema(Schema):
+    constructor = fields.List(fields.Nested(EntryPointSchema()), data_key="CONSTRUCTOR")
+    external = fields.List(fields.Nested(EntryPointSchema()), data_key="EXTERNAL")
+    l1_handler = fields.List(fields.Nested(EntryPointSchema()), data_key="L1_HANDLER")
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> EntryPointsByType:
+        return EntryPointsByType(**data)
+
+
+class DeclaredContractSchema(Schema):
+    program = fields.String(data_key="program")
+    entry_points_by_type = fields.Nested(
+        EntryPointsByTypeSchema(), data_key="entry_points_by_type"
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> DeclaredContract:
+        return DeclaredContract(**data)
