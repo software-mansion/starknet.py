@@ -26,7 +26,8 @@ from starknet_py.net.models import (
     StarknetChainId,
     TransactionType,
     Transaction,
-    BlockIdentifier, chain_from_network,
+    BlockIdentifier,
+    chain_from_network,
 )
 from starknet_py.net.networks import Network, MAINNET, TESTNET
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
@@ -63,9 +64,7 @@ class AccountClient(BaseClient):
         chain = chain_from_network(net=net, chain=chain)
 
         if chain is None and client is None:
-            raise ValueError(
-                "One of chain or client must be provided"
-            )
+            raise ValueError("One of chain or client must be provided")
         self.net = net
         self.address = parse_address(address)
         self.client = client or GatewayClient(net=self.net, chain=chain)
