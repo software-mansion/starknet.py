@@ -34,15 +34,15 @@ async def test_using_existing_contracts(run_devnet):
     # pylint: disable=import-outside-toplevel
 
     # add to docs: start
-    from starknet_py.net.client import Client
+    from starknet_py.net.gateway_client import GatewayClient
     from starknet_py.contract import Contract
     from starknet_py.net.networks import TESTNET
 
     address = "0x00178130dd6286a9a0e031e4c73b2bd04ffa92804264a25c1c08c1612559f458"
 
-    contract = Contract(address=address, abi=abi, client=Client(TESTNET))
+    contract = Contract(address=address, abi=abi, client=GatewayClient(TESTNET))
     # or
-    client = Client(TESTNET)
+    client = GatewayClient(TESTNET)
     # add to docs: end
 
     client = await DevnetClientFactory(run_devnet).make_devnet_client_without_account()

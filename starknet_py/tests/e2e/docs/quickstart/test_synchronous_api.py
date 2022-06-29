@@ -12,9 +12,9 @@ map_source_code = Path(directory, "map.cairo").read_text("utf-8")
 def test_synchronous_api(run_devnet):
     # add to docs: start
     from starknet_py.contract import Contract
-    from starknet_py.net.client import Client
+    from starknet_py.net.gateway_client import GatewayClient
 
-    client = Client("testnet")
+    client = GatewayClient("testnet")
 
     contract_address = (
         "0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b"
@@ -22,7 +22,7 @@ def test_synchronous_api(run_devnet):
     # add to docs: end
 
     devnet_client_factory = DevnetClientFactory(run_devnet)
-    client = Client(devnet_client_factory.net, devnet_client_factory.chain)
+    client = GatewayClient(devnet_client_factory.net, devnet_client_factory.chain)
 
     deployment_result = Contract.deploy_sync(
         client=client, compilation_source=map_source_code
