@@ -170,7 +170,7 @@ class FullNodeClient(BaseClient):
         block_hash: Union[Hash, Tag] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> int:
-        pass
+        raise NotImplementedError()
 
     async def call_contract(
         self, invoke_tx: InvokeFunction, block_hash: Union[Hash, Tag] = None
