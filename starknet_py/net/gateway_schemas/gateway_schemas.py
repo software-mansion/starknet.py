@@ -1,10 +1,8 @@
-from marshmallow import Schema, fields, post_load, pre_load, EXCLUDE
+from marshmallow import Schema, fields, post_load, EXCLUDE
 
 from starknet_py.net.client_models import (
-    Transaction,
     ContractCode,
     StarknetBlock,
-    TransactionReceipt,
     L2toL1Message,
     L1toL2Message,
     SentTransaction,
@@ -14,12 +12,17 @@ from starknet_py.net.client_models import (
     EntryPoint,
     EntryPointsByType,
     DeclaredContract,
+    InvokeTransaction,
+    DeployTransaction,
+    DeclareTransaction,
+    InvokeTransactionReceipt,
+    DeclareTransactionReceipt,
+    DeployTransactionReceipt,
 )
 from starknet_py.net.common_schemas.common_schemas import (
     Felt,
     BlockStatusField,
     StatusField,
-    TransactionTypeField,
     NonPrefixedHex,
 )
 
@@ -56,36 +59,42 @@ class L2toL1MessageSchema(Schema):
 
 class TransactionSchema(Schema):
     hash = Felt(data_key="transaction_hash")
-    contract_address = Felt(data_key="contract_address")
-    entry_point_selector = Felt(data_key="entry_point_selector", load_default=0)
-    calldata = fields.List(Felt(), data_key="calldata")
-    transaction_type = TransactionTypeField(data_key="type")
     signature = fields.List(Felt(), data_key="signature", load_default=[])
-    version = fields.Integer(data_key="version", load_default=0)
-    max_fee = Felt(data_key="max_fee", load_default=0)
+    max_fee = Felt(load_default=0)
 
-    @pre_load
-    def preprocess(self, data, **kwargs):
-        if "constructor_calldata" in data:
-            data["calldata"] = data["constructor_calldata"]
-            del data["constructor_calldata"]
-        return data
+
+class InvokeTransactionSchema(TransactionSchema):
+    contract_address = Felt(data_key="contract_address")
+    calldata = fields.List(Felt(), data_key="calldata")
+    entry_point_selector = Felt(data_key="entry_point_selector")
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> Transaction:
-        return Transaction(**data)
+    def make_dataclass(self, data, **kwargs) -> InvokeTransaction:
+        return InvokeTransaction(**data)
+
+
+class DeployTransactionSchema(TransactionSchema):
+    contract_address = Felt(data_key="contract_address")
+    constructor_calldata = fields.List(Felt(), data_key="constructor_calldata")
+    class_hash = Felt(data_key="class_hash", load_default=None)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> DeployTransaction:
+        return DeployTransaction(**data)
+
+
+class DeclareTransactionSchema(TransactionSchema):
+    class_hash = Felt(data_key="class_hash")
+    sender_address = Felt(data_key="sender_address")
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> DeclareTransaction:
+        return DeclareTransaction(**data)
 
 
 class TransactionReceiptSchema(Schema):
     hash = Felt(data_key="transaction_hash")
     status = StatusField(data_key="status")
-    events = fields.List(fields.Nested(EventSchema()), data_key="events")
-    l1_to_l2_consumed_message = fields.Nested(
-        L1toL2MessageSchema(), data_key="l1_to_l2_consumed_message", allow_none=True
-    )
-    l2_to_l1_messages = fields.List(
-        fields.Nested(L2toL1MessageSchema()), data_key="l2_to_l1_messages"
-    )
     block_number = fields.Integer(data_key="block_number", load_default=None)
     version = fields.Integer(data_key="version", allow_none=True)
     actual_fee = Felt(data_key="actual_key", allow_none=True)
@@ -93,9 +102,31 @@ class TransactionReceiptSchema(Schema):
         data_key="transaction_rejection_reason", allow_none=True, load_default=None
     )
 
+
+class InvokeTransactionReceiptSchema(TransactionReceiptSchema):
+    events = fields.List(fields.Nested(EventSchema()), data_key="events")
+    l1_to_l2_consumed_message = fields.Nested(
+        L1toL2MessageSchema(), data_key="l1_to_l2_consumed_message", allow_none=True
+    )
+    l2_to_l1_messages = fields.List(
+        fields.Nested(L2toL1MessageSchema()), data_key="l2_to_l1_messages"
+    )
+
     @post_load
-    def make_dataclass(self, data, **kwargs) -> TransactionReceipt:
-        return TransactionReceipt(**data)
+    def make_dataclass(self, data, **kwargs) -> InvokeTransactionReceipt:
+        return InvokeTransactionReceipt(**data)
+
+
+class DeclareTransactionReceiptSchema(TransactionReceiptSchema):
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> DeclareTransactionReceipt:
+        return DeclareTransactionReceipt(**data)
+
+
+class DeployTransactionReceiptSchema(TransactionReceiptSchema):
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> DeployTransactionReceipt:
+        return DeployTransactionReceipt(**data)
 
 
 class ContractCodeSchema(Schema):
@@ -116,6 +147,7 @@ class StarknetBlockSchema(Schema):
     status = BlockStatusField(data_key="status")
     root = NonPrefixedHex(data_key="state_root")
     transactions = fields.List(
+        # TODO improve
         fields.Nested(TransactionSchema(), unknown=EXCLUDE), data_key="transactions"
     )
     timestamp = fields.Integer(data_key="timestamp")
