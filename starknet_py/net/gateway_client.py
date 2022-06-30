@@ -17,15 +17,21 @@ from starknet_py.net.client_models import (
     Hash,
     Tag,
     DeclaredContract,
+    Declare,
+    Deploy,
 )
 from starknet_py.net.gateway_schemas.gateway_schemas import (
-    TransactionSchema,
     ContractCodeSchema,
     StarknetBlockSchema,
-    TransactionReceiptSchema,
     SentTransactionSchema,
     BlockStateUpdateSchema,
     DeclaredContractSchema,
+    DeclareTransactionSchema,
+    InvokeTransactionSchema,
+    DeployTransactionSchema,
+    DeclareTransactionReceiptSchema,
+    InvokeTransactionReceiptSchema,
+    DeployTransactionReceiptSchema,
 )
 from starknet_py.net.http_client import GatewayHttpClient
 from starknet_py.net.models import StarknetChainId, chain_from_network
@@ -76,7 +82,7 @@ class GatewayClient(BaseClient):
         if res["status"] in ("UNKNOWN", "NOT_RECEIVED"):
             raise TransactionNotReceivedError()
 
-        return TransactionSchema().load(res["transaction"], unknown=EXCLUDE)
+        return load_transaction(res["transaction"])
 
     async def get_block(
         self,
@@ -149,7 +155,7 @@ class GatewayClient(BaseClient):
             method_name="get_transaction_receipt",
             params={"transactionHash": convert_to_felt(tx_hash)},
         )
-        return TransactionReceiptSchema().load(res, unknown=EXCLUDE)
+        return load_receipt(res)
 
     async def get_code(
         self,
@@ -220,12 +226,14 @@ class GatewayClient(BaseClient):
         # TODO should we have better type validation here?
         return [int(v, 16) for v in res["result"]]
 
-    async def add_transaction(self, tx: StarknetTransaction) -> SentTransaction:
-        res = await self._gateway_client.post(
-            method_name="add_transaction",
-            payload=StarknetTransaction.Schema().dump(obj=tx),
-        )
-        return SentTransactionSchema().load(res, unknown=EXCLUDE)
+    async def add_transaction(self, transaction: InvokeFunction) -> SentTransaction:
+        return await self._add_transaction(transaction)
+
+    async def deploy(self, transaction: Deploy) -> SentTransaction:
+        return await self._add_transaction(transaction)
+
+    async def declare(self, transaction: Declare) -> SentTransaction:
+        return await self._add_transaction(transaction)
 
     async def get_class_hash_at(self, contract_address: Hash) -> int:
         res = await self._feeder_gateway_client.call(
@@ -241,6 +249,13 @@ class GatewayClient(BaseClient):
             params={"classHash": convert_to_felt(class_hash)},
         )
         return DeclaredContractSchema().load(res, unknown=EXCLUDE)
+
+    async def _add_transaction(self, tx: StarknetTransaction) -> SentTransaction:
+        res = await self._gateway_client.post(
+            method_name="add_transaction",
+            payload=tx.Schema().dump(obj=tx),
+        )
+        return SentTransactionSchema().load(res, unknown=EXCLUDE)
 
 
 def get_block_identifier(
@@ -261,3 +276,21 @@ def get_block_identifier(
         return {"blockNumber": block_number}
 
     return {}
+
+
+def load_transaction(tx: dict) -> Transaction:
+    mapping = {
+        "DECLARE": DeclareTransactionSchema(),
+        "INVOKE_FUNCTION": InvokeTransactionSchema(),
+        "DEPLOY": DeployTransactionSchema(),
+    }
+    return mapping[tx["type"]].load(tx, unknown=EXCLUDE)
+
+
+def load_receipt(receipt: dict) -> TransactionReceipt:
+    mapping = {
+        "DECLARE": DeclareTransactionReceiptSchema(),
+        "INVOKE_FUNCTION": InvokeTransactionReceiptSchema(),
+        "DEPLOY": DeployTransactionReceiptSchema(),
+    }
+    return mapping[receipt["type"]].load(receipt, unknown=EXCLUDE)

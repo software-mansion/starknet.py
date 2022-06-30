@@ -86,6 +86,9 @@ class BlockStatusField(fields.Field):
     ) -> BlockStatus:
         values = [v.value for v in BlockStatus]
 
+        if value in ("ABORTED", "REVERTED"):
+            return BlockStatus.REJECTED
+
         if value not in values:
             raise ValidationError(f"Invalid value for BlockStatus provided: {value}")
 

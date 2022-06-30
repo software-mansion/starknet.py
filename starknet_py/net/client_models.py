@@ -71,18 +71,44 @@ class TransactionType(Enum):
 @dataclass
 class Transaction:
     """
-    Dataclass representing a transaction
+    Dataclass representing common atributes of all transactions
     """
 
-    # pylint: disable=too-many-instance-attributes
     hash: int
+    signature: List[int]
+    max_fee: int
+
+
+@dataclass
+class InvokeTransaction(Transaction):
+    """
+    Dataclass representing invoke transaction
+    """
+
     contract_address: int
     calldata: List[int]
     entry_point_selector: int
-    transaction_type: TransactionType
-    signature: List[int]
-    version: int = 0
-    max_fee: int = 0
+
+
+@dataclass
+class DeclareTransaction(Transaction):
+    """
+    Dataclass representing declare transaction
+    """
+
+    class_hash: int
+    sender_address: int
+
+
+@dataclass
+class DeployTransaction(Transaction):
+    """
+    Dataclass representing deploy transaction
+    """
+
+    contract_address: int
+    constructor_calldata: List[int]
+    class_hash: Optional[int] = None
 
 
 class TransactionStatus(Enum):
@@ -108,13 +134,32 @@ class TransactionReceipt:
 
     hash: int
     status: TransactionStatus
-    events: List[Event]
-    l2_to_l1_messages: List[L2toL1Message]
-    l1_to_l2_consumed_message: Optional[L1toL2Message] = None
     block_number: Optional[int] = None
     version: int = 0
     actual_fee: int = 0
     transaction_rejection_reason: Optional[str] = None
+
+
+class InvokeTransactionReceipt(TransactionReceipt):
+    """
+    Dataclass representing details of invoke transaction
+    """
+
+    events: List[Event]
+    l2_to_l1_messages: List[L2toL1Message]
+    l1_to_l2_consumed_message: Optional[L1toL2Message] = None
+
+
+class DeclareTransactionReceipt(TransactionReceipt):
+    """
+    Dataclass representing details of declare transaction
+    """
+
+
+class DeployTransactionReceipt(TransactionReceipt):
+    """
+    Dataclass representing details of deploy transaction
+    """
 
 
 @dataclass
@@ -133,12 +178,11 @@ class BlockStatus(Enum):
     Enum representing block status
     """
 
-    NOT_RECEIVED = "NOT_RECEIVED"
-    RECEIVED = "RECEIVED"
     PENDING = "PENDING"
     REJECTED = "REJECTED"
     ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
     ACCEPTED_ON_L1 = "ACCEPTED_ON_L1"
+    PROVEN = "PROVEN"
 
 
 @dataclass

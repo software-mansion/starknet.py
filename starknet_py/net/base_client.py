@@ -4,9 +4,6 @@ import asyncio
 from abc import ABC, abstractmethod
 from typing import Union, Optional, List
 
-from starkware.starknet.definitions.fields import ContractAddressSalt
-from starkware.starknet.services.api.gateway.transaction import DECLARE_SENDER_ADDRESS
-
 from starknet_py.net.client_models import (
     StarknetBlock,
     BlockStateUpdate,
@@ -14,12 +11,10 @@ from starknet_py.net.client_models import (
     TransactionReceipt,
     SentTransaction,
     InvokeFunction,
-    StarknetTransaction,
     TransactionStatus,
     Hash,
     Tag,
     DeclaredContract,
-    ContractClass,
     Deploy,
     Declare,
 )
@@ -179,71 +174,31 @@ class BaseClient(ABC):
     @abstractmethod
     async def add_transaction(
         self,
-        tx: StarknetTransaction,
+        transaction: InvokeFunction,
     ) -> SentTransaction:
         """
         Send a transaction to the network
 
-        :param tx: Transaction object (i.e. InvokeFunction, Deploy).
+        :param transaction: Transaction object (i.e. InvokeFunction, Deploy).
         :return: SentTransaction object
         """
 
-    async def deploy(
-        self,
-        contract: Union[ContractClass, str],
-        constructor_calldata: List[int],
-        salt: Optional[int] = None,
-    ) -> SentTransaction:
+    @abstractmethod
+    async def deploy(self, transaction: Deploy) -> SentTransaction:
         """
         Deploy a contract to the network
 
-        :param contract: Contract object or string with compiled contract
-        :param constructor_calldata: Data to call the contract constructor with
-        :param salt: Salt to be used when signing a transaction
+        :param transaction: Deploy transaction
         :return: SentTransaction object
         """
-        if isinstance(contract, str):
-            contract = ContractClass.loads(contract)
 
-        res = await self.add_transaction(
-            tx=Deploy(
-                contract_address_salt=ContractAddressSalt.get_random_value()
-                if salt is None
-                else salt,
-                contract_definition=contract,
-                constructor_calldata=constructor_calldata,
-                version=0,
-            )
-        )
-
-        receipt = await self.get_transaction_receipt(tx_hash=res.hash)
-        if receipt.status == TransactionStatus.UNKNOWN:
-            raise TransactionNotReceivedError()
-
-        return res
-
-    async def declare(self, contract_class: ContractClass) -> SentTransaction:
+    @abstractmethod
+    async def declare(self, transaction: Declare) -> SentTransaction:
         """
-        Declare a contract
+        Send a declare trasnaction
 
-        :param contract_class: Contract class to be declared
+        :param transaction: Declare transaction
         """
-        res = await self.add_transaction(
-            tx=Declare(
-                contract_class=contract_class,
-                sender_address=DECLARE_SENDER_ADDRESS,
-                max_fee=0,
-                signature=[],
-                nonce=0,
-                version=0,
-            )
-        )
-
-        receipt = await self.get_transaction_receipt(tx_hash=res.hash)
-        if receipt.status == TransactionStatus.UNKNOWN:
-            raise TransactionNotReceivedError()
-
-        return res
 
     @abstractmethod
     async def get_class_hash_at(self, contract_address: Hash) -> int:
