@@ -103,20 +103,20 @@ def test_serialize_block_status_field():
     class SchemaWithBlockStatusField(Schema):
         value1 = BlockStatusField(data_key="value1")
 
-    data = {"value1": BlockStatus.RECEIVED}
+    data = {"value1": BlockStatus.PENDING}
 
     serialized = SchemaWithBlockStatusField().dumps(data)
-    assert '"value1": "RECEIVED"' in serialized
+    assert '"value1": "PENDING"' in serialized
 
 
 def test_deserialize_block_status_field():
     class SchemaWithBlockStatusField(Schema):
         value1 = BlockStatusField(data_key="value1")
 
-    data = {"value1": "RECEIVED"}
+    data = {"value1": "PENDING"}
 
     deserialized = SchemaWithBlockStatusField().load(data)
-    assert deserialized["value1"] == BlockStatus.RECEIVED
+    assert deserialized["value1"] == BlockStatus.PENDING
 
 
 def test_serialize_block_status_field_throws_on_invalid_data():
