@@ -9,20 +9,21 @@ from starknet_py.net.base_client import (
 )
 from starknet_py.net.client_models import (
     SentTransaction,
-    Transaction,
     TransactionReceipt,
     BlockStateUpdate,
     StarknetBlock,
-    StarknetTransaction,
     InvokeFunction,
     Hash,
     Tag,
     DeclaredContract,
+    Transaction,
+    Declare,
+    Deploy,
 )
 from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.rpc_schemas.rpc_schemas import (
-    TransactionSchema,
+    InvokeTransactionSchema,
     TransactionReceiptSchema,
     StarknetBlockSchema,
     BlockStateUpdateSchema,
@@ -117,7 +118,7 @@ class FullNodeClient(BaseClient):
             method_name="getTransactionByHash",
             params={"transaction_hash": convert_to_felt(tx_hash)},
         )
-        return TransactionSchema().load(res, unknown=EXCLUDE)
+        return InvokeTransactionSchema().load(res, unknown=EXCLUDE)
 
     async def get_transaction_by_block_hash(
         self, block_hash: Hash, index: int
@@ -136,7 +137,7 @@ class FullNodeClient(BaseClient):
                 "index": index,
             },
         )
-        return TransactionSchema().load(res, unknown=EXCLUDE)
+        return InvokeTransactionSchema().load(res, unknown=EXCLUDE)
 
     async def get_transaction_by_block_number(
         self, block_number: int, index: int
@@ -155,7 +156,7 @@ class FullNodeClient(BaseClient):
                 "index": index,
             },
         )
-        return TransactionSchema().load(res, unknown=EXCLUDE)
+        return InvokeTransactionSchema().load(res, unknown=EXCLUDE)
 
     async def get_transaction_receipt(self, tx_hash: Hash) -> TransactionReceipt:
         res = await self._client.call(
@@ -190,7 +191,13 @@ class FullNodeClient(BaseClient):
         )
         return [int(i, 16) for i in res["result"]]
 
-    async def add_transaction(self, tx: StarknetTransaction) -> SentTransaction:
+    async def add_transaction(self, transaction: InvokeFunction) -> SentTransaction:
+        raise NotImplementedError()
+
+    async def deploy(self, transaction: Deploy) -> SentTransaction:
+        raise NotImplementedError()
+
+    async def declare(self, transaction: Declare) -> SentTransaction:
         raise NotImplementedError()
 
     async def get_class_hash_at(self, contract_address: Hash) -> int:
