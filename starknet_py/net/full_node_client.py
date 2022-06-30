@@ -24,10 +24,14 @@ from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.rpc_schemas.rpc_schemas import (
     InvokeTransactionSchema,
-    TransactionReceiptSchema,
     StarknetBlockSchema,
     BlockStateUpdateSchema,
     DeclaredContractSchema,
+    DeclareTransactionSchema,
+    DeployTransactionSchema,
+    InvokeTransactionReceiptSchema,
+    DeployTransactionReceiptSchema,
+    DeclareTransactionReceiptSchema,
 )
 from starknet_py.net.client_utils import convert_to_felt
 
@@ -118,7 +122,7 @@ class FullNodeClient(BaseClient):
             method_name="getTransactionByHash",
             params={"transaction_hash": convert_to_felt(tx_hash)},
         )
-        return InvokeTransactionSchema().load(res, unknown=EXCLUDE)
+        return load_transaction(res)
 
     async def get_transaction_by_block_hash(
         self, block_hash: Hash, index: int
@@ -137,7 +141,7 @@ class FullNodeClient(BaseClient):
                 "index": index,
             },
         )
-        return InvokeTransactionSchema().load(res, unknown=EXCLUDE)
+        return load_transaction(res)
 
     async def get_transaction_by_block_number(
         self, block_number: int, index: int
@@ -156,14 +160,14 @@ class FullNodeClient(BaseClient):
                 "index": index,
             },
         )
-        return InvokeTransactionSchema().load(res, unknown=EXCLUDE)
+        return load_transaction(res)
 
     async def get_transaction_receipt(self, tx_hash: Hash) -> TransactionReceipt:
         res = await self._client.call(
             method_name="getTransactionReceipt",
             params={"transaction_hash": convert_to_felt(tx_hash)},
         )
-        return TransactionReceiptSchema().load(res, unknown=EXCLUDE)
+        return load_receipt(res)
 
     async def estimate_fee(
         self,
@@ -212,3 +216,28 @@ class FullNodeClient(BaseClient):
             method_name="getClass", params={"class_hash": convert_to_felt(class_hash)}
         )
         return DeclaredContractSchema().load(res, unknown=EXCLUDE)
+
+
+def load_transaction(tx: dict) -> Transaction:
+    if "contract_class" in tx:
+        return DeclareTransactionSchema().load(tx, unknown=EXCLUDE)
+
+    if "contract_address" in tx:
+        return InvokeTransactionSchema().load(tx, unknown=EXCLUDE)
+
+    if False:
+        # FIXME change when rpc adds proper deploy transactions
+        return DeployTransactionSchema().load(tx, unknown=EXCLUDE)
+
+    return InvokeTransactionSchema().load(tx, unknown=EXCLUDE)
+
+
+def load_receipt(receipt: dict) -> TransactionReceipt:
+    if "messages_sent" in receipt:
+        return InvokeTransactionReceiptSchema().load(receipt, unknown=EXCLUDE)
+
+    if False:
+        # FIXME change when rpc adds proper deploy transactions
+        return DeployTransactionReceiptSchema().load(receipt, unknown=EXCLUDE)
+
+    return DeclareTransactionReceiptSchema().load(receipt, unknown=EXCLUDE)

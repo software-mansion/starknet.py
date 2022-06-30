@@ -21,13 +21,17 @@ from starknet_py.net.client_models import (
     Deploy,
 )
 from starknet_py.net.gateway_schemas.gateway_schemas import (
-    TransactionSchema,
     ContractCodeSchema,
     StarknetBlockSchema,
-    TransactionReceiptSchema,
     SentTransactionSchema,
     BlockStateUpdateSchema,
     DeclaredContractSchema,
+    DeclareTransactionSchema,
+    InvokeTransactionSchema,
+    DeployTransactionSchema,
+    DeclareTransactionReceiptSchema,
+    InvokeTransactionReceiptSchema,
+    DeployTransactionReceiptSchema,
 )
 from starknet_py.net.http_client import GatewayHttpClient
 from starknet_py.net.models import StarknetChainId, chain_from_network
@@ -78,7 +82,7 @@ class GatewayClient(BaseClient):
         if res["status"] in ("UNKNOWN", "NOT_RECEIVED"):
             raise TransactionNotReceivedError()
 
-        return TransactionSchema().load(res["transaction"], unknown=EXCLUDE)
+        return load_transaction(res["transaction"])
 
     async def get_block(
         self,
@@ -151,7 +155,7 @@ class GatewayClient(BaseClient):
             method_name="get_transaction_receipt",
             params={"transactionHash": convert_to_felt(tx_hash)},
         )
-        return TransactionReceiptSchema().load(res, unknown=EXCLUDE)
+        return load_receipt(res)
 
     async def get_code(
         self,
@@ -272,3 +276,21 @@ def get_block_identifier(
         return {"blockNumber": block_number}
 
     return {}
+
+
+def load_transaction(tx: dict) -> Transaction:
+    mapping = {
+        "DECLARE": DeclareTransactionSchema(),
+        "INVOKE_FUNCTION": InvokeTransactionSchema(),
+        "DEPLOY": DeployTransactionSchema(),
+    }
+    return mapping[tx["type"]].load(tx, unknown=EXCLUDE)
+
+
+def load_receipt(receipt: dict) -> TransactionReceipt:
+    mapping = {
+        "DECLARE": DeclareTransactionReceiptSchema(),
+        "INVOKE_FUNCTION": InvokeTransactionReceiptSchema(),
+        "DEPLOY": DeployTransactionReceiptSchema(),
+    }
+    return mapping[receipt["type"]].load(receipt, unknown=EXCLUDE)
