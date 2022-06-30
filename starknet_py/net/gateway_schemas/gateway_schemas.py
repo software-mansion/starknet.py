@@ -148,7 +148,8 @@ class StarknetBlockSchema(Schema):
     root = NonPrefixedHex(data_key="state_root")
     transactions = fields.List(
         # TODO improve
-        fields.Nested(TransactionSchema(), unknown=EXCLUDE), data_key="transactions"
+        fields.Nested(TransactionSchema(), unknown=EXCLUDE),
+        data_key="transactions",
     )
     timestamp = fields.Integer(data_key="timestamp")
 
