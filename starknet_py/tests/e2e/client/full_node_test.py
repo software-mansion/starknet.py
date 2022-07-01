@@ -12,7 +12,6 @@ async def test_node_get_transaction_by_block_hash_and_index(
     block_with_deploy_hash,
     deploy_transaction_hash,
     contract_address,
-    class_hash,
 ):
     client = await DevnetClientFactory(devnet_address).make_rpc_client()
 
@@ -32,7 +31,7 @@ async def test_node_get_transaction_by_block_hash_and_index(
 
 @pytest.mark.asyncio
 async def test_node_get_transaction_by_block_number_and_index(
-    devnet_address, deploy_transaction_hash, contract_address, class_hash
+    devnet_address, deploy_transaction_hash, contract_address
 ):
     client = await DevnetClientFactory(devnet_address).make_rpc_client()
 
