@@ -271,10 +271,11 @@ async def deploy_account_contract(
     public_key: int, net: str, chain: Optional[StarknetChainId] = None
 ) -> AddressRepresentation:
     client = Client(net=net, chain=chain)
-    result = await client.deploy(
+    deploy_tx = make_deploy_tx(
         constructor_calldata=[public_key],
-        compiled_contract=COMPILED_ACCOUNT_CONTRACT,
+        compiled_contract=COMPILED_ACCOUNT_CONTRACT
     )
+    result = await client.deploy(deploy_tx)
     await client.wait_for_tx(
         tx_hash=result["transaction_hash"],
     )
