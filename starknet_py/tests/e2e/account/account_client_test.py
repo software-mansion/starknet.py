@@ -91,9 +91,9 @@ async def test_balance_when_token_specified(run_devnet):
 async def test_get_balance_default_token_address(net):
     acc_client = AccountClient("0x123", key_pair=KeyPair(123, 456), net=net)
 
-    # TODO consider better mock
     with patch(
-        "starknet_py.net.gateway_client.GatewayClient.call_contract", MagicMock()
+        "starknet_py.net.account.account_client.AccountClient.call_contract",
+        MagicMock(),
     ) as mocked_call_contract:
         result = asyncio.Future()
         result.set_result([0, 0])
