@@ -1,11 +1,9 @@
 import asyncio
 import typing
-from typing import Optional, List, Dict, Union, Any
+from typing import Optional, List, Dict, Any
 
 # noinspection PyPackageRequirements
 from services.external_api.client import RetryConfig, BadRequest as BadRequestError
-from starkware.starknet.definitions.fields import ContractAddressSalt
-from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
     FeederGatewayClient,
     CastableToHash,
@@ -17,11 +15,8 @@ from starkware.starknet.services.api.feeder_gateway.response_objects import (
     TransactionReceipt,
 )
 from starkware.starknet.services.api.gateway.gateway_client import GatewayClient
-from starkware.starknet.services.api.gateway.transaction import DECLARE_SENDER_ADDRESS
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
-from starknet_py.common import create_compiled_contract
-from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.constants import TxStatus, ACCEPTED_STATUSES
 from starknet_py.net.models.address import BlockIdentifier
 from starknet_py.net.models.transaction import Declare

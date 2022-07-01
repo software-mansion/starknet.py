@@ -33,4 +33,4 @@ class DevnetClientFactory:
         return GatewayClient(net=self.net, chain=self.chain)
 
     async def make_rpc_client(self) -> FullNodeClient:
-        return FullNodeClient(node_url=self.net + "/rpc")
+        return FullNodeClient(node_url=self.net + "/rpc", chain=self.chain)
