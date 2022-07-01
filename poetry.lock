@@ -1751,15 +1751,22 @@ description = "A local testnet for Starknet"
 category = "dev"
 optional = false
 python-versions = ">=3.7.2,<3.10"
+develop = false
 
 [package.dependencies]
 cairo-lang = "0.9.0"
-cloudpickle = ">=2.1.0,<2.2.0"
-crypto-cpp-py = ">=1.0.4,<1.1.0"
-Flask = {version = ">=2.0.3,<2.1.0", extras = ["async"]}
-flask-cors = ">=3.0.10,<3.1.0"
-meinheld = ">=1.0.2,<1.1.0"
-Werkzeug = ">=2.0.3,<2.1.0"
+cloudpickle = "~2.1.0"
+crypto-cpp-py = "~1.0.4"
+Flask = {version = "~2.0.3", extras = ["async"]}
+flask-cors = "~3.0.10"
+meinheld = "~1.0.2"
+Werkzeug = "~2.0.3"
+
+[package.source]
+type = "git"
+url = "https://github.com/Shard-Labs/starknet-devnet.git"
+reference = "master"
+resolved_reference = "6a546e3ec5cb7a7aa456c63779529c6d66850c63"
 
 [[package]]
 name = "sympy"
@@ -1989,7 +1996,7 @@ eth-tester = []
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.2,<3.10"
-content-hash = "bb3783917d1fb71a51788573c5cce1dd1186a80fb8200e232348c25ac70b1b6b"
+content-hash = "7e1d5e780fb0e401fef45cffb2fac560cadf66baf8c75070b70c406410490a0e"
 
 [metadata.files]
 aiohttp = [
@@ -3195,10 +3202,7 @@ sphinxcontrib-serializinghtml = [
     {file = "sphinxcontrib-serializinghtml-1.1.5.tar.gz", hash = "sha256:aa5f6de5dfdf809ef505c4895e51ef5c9eac17d0f287933eb49ec495280b6952"},
     {file = "sphinxcontrib_serializinghtml-1.1.5-py2.py3-none-any.whl", hash = "sha256:352a9a00ae864471d3a7ead8d7d79f5fc0b57e8b3f95e9867eb9eb28999b92fd"},
 ]
-starknet-devnet = [
-    {file = "starknet_devnet-0.2.4-py3-none-any.whl", hash = "sha256:af4984dad86fa2ee74b74de5e6a4390e8fd6c20060f5c9b84084b06e8751152e"},
-    {file = "starknet_devnet-0.2.4.tar.gz", hash = "sha256:e11478c4fe0ce14e93bb07c1b718145d12b59f20d8ff2072559037b9d8e139c4"},
-]
+starknet-devnet = []
 sympy = [
     {file = "sympy-1.10.1-py3-none-any.whl", hash = "sha256:df75d738930f6fe9ebe7034e59d56698f29e85f443f743e51e47df0caccc2130"},
     {file = "sympy-1.10.1.tar.gz", hash = "sha256:5939eeffdf9e152172601463626c022a2c27e75cf6278de8d401d50c9d58787b"},
