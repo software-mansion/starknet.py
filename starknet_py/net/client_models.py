@@ -139,27 +139,9 @@ class TransactionReceipt:
     actual_fee: int = 0
     transaction_rejection_reason: Optional[str] = None
 
-
-class InvokeTransactionReceipt(TransactionReceipt):
-    """
-    Dataclass representing details of invoke transaction
-    """
-
-    events: List[Event]
-    l2_to_l1_messages: List[L2toL1Message]
+    events: List[Event] = None
+    l2_to_l1_messages: List[L2toL1Message] = None
     l1_to_l2_consumed_message: Optional[L1toL2Message] = None
-
-
-class DeclareTransactionReceipt(TransactionReceipt):
-    """
-    Dataclass representing details of declare transaction
-    """
-
-
-class DeployTransactionReceipt(TransactionReceipt):
-    """
-    Dataclass representing details of deploy transaction
-    """
 
 
 @dataclass

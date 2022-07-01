@@ -1,4 +1,5 @@
 from marshmallow import Schema, fields, post_load, EXCLUDE
+from marshmallow_oneofschema import OneOfSchema
 
 from starknet_py.net.client_models import (
     ContractCode,
@@ -15,9 +16,7 @@ from starknet_py.net.client_models import (
     InvokeTransaction,
     DeployTransaction,
     DeclareTransaction,
-    InvokeTransactionReceipt,
-    DeclareTransactionReceipt,
-    DeployTransactionReceipt,
+    TransactionReceipt,
 )
 from starknet_py.net.common_schemas.common_schemas import (
     Felt,
@@ -92,6 +91,15 @@ class DeclareTransactionSchema(TransactionSchema):
         return DeclareTransaction(**data)
 
 
+class TypesOfTransactionsSchema(OneOfSchema):
+    type_field = "type"
+    type_schemas = {
+        "INVOKE_FUNCTION": InvokeTransactionSchema,
+        "DECLARE": DeclareTransactionSchema,
+        "DEPLOY": DeployTransactionSchema,
+    }
+
+
 class TransactionReceiptSchema(Schema):
     hash = Felt(data_key="transaction_hash")
     status = StatusField(data_key="status")
@@ -101,32 +109,21 @@ class TransactionReceiptSchema(Schema):
     transaction_rejection_reason = fields.String(
         data_key="transaction_rejection_reason", allow_none=True, load_default=None
     )
-
-
-class InvokeTransactionReceiptSchema(TransactionReceiptSchema):
-    events = fields.List(fields.Nested(EventSchema()), data_key="events")
+    events = fields.List(
+        fields.Nested(EventSchema()), data_key="events", load_default=[]
+    )
     l1_to_l2_consumed_message = fields.Nested(
-        L1toL2MessageSchema(), data_key="l1_to_l2_consumed_message", allow_none=True
+        L1toL2MessageSchema(), data_key="l1_to_l2_consumed_message", load_default=None
     )
     l2_to_l1_messages = fields.List(
-        fields.Nested(L2toL1MessageSchema()), data_key="l2_to_l1_messages"
+        fields.Nested(L2toL1MessageSchema()),
+        data_key="l2_to_l1_messages",
+        load_default=[],
     )
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> InvokeTransactionReceipt:
-        return InvokeTransactionReceipt(**data)
-
-
-class DeclareTransactionReceiptSchema(TransactionReceiptSchema):
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> DeclareTransactionReceipt:
-        return DeclareTransactionReceipt(**data)
-
-
-class DeployTransactionReceiptSchema(TransactionReceiptSchema):
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> DeployTransactionReceipt:
-        return DeployTransactionReceipt(**data)
+    def make_dataclass(self, data, **kwargs) -> TransactionReceipt:
+        return TransactionReceipt(**data)
 
 
 class ContractCodeSchema(Schema):
@@ -147,8 +144,7 @@ class StarknetBlockSchema(Schema):
     status = BlockStatusField(data_key="status")
     root = NonPrefixedHex(data_key="state_root")
     transactions = fields.List(
-        # TODO improve
-        fields.Nested(TransactionSchema(), unknown=EXCLUDE),
+        fields.Nested(TypesOfTransactionsSchema(), unknown=EXCLUDE),
         data_key="transactions",
     )
     timestamp = fields.Integer(data_key="timestamp")

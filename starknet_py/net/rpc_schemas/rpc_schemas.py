@@ -1,7 +1,8 @@
 import json
 from typing import Tuple, List
 
-from marshmallow import Schema, fields, post_load, pre_load
+from marshmallow import Schema, fields, post_load, pre_load, ValidationError
+from marshmallow_oneofschema import OneOfSchema
 
 from starknet_py.net.client_models import (
     ContractCode,
@@ -18,9 +19,7 @@ from starknet_py.net.client_models import (
     InvokeTransaction,
     DeclareTransaction,
     DeployTransaction,
-    InvokeTransactionReceipt,
-    DeclareTransactionReceipt,
-    DeployTransactionReceipt,
+    TransactionReceipt,
 )
 from starknet_py.net.common_schemas.common_schemas import (
     Felt,
@@ -78,32 +77,19 @@ class TransactionReceiptSchema(Schema):
     transaction_rejection_reason = fields.String(
         data_key="statusData", load_default=None
     )
-
-
-class InvokeTransactionReceiptSchema(TransactionReceiptSchema):
-    events = fields.List(fields.Nested(EventSchema()), data_key="events")
+    events = fields.List(
+        fields.Nested(EventSchema()), data_key="events", load_default=[]
+    )
     l1_to_l2_consumed_message = fields.Nested(
-        L1toL2MessageSchema(), data_key="l1_origin_message", allow_none=True
+        L1toL2MessageSchema(), data_key="l1_origin_message", load_default=None
     )
     l2_to_l1_messages = fields.List(
-        fields.Nested(L2toL1MessageSchema()), data_key="messages_sent"
+        fields.Nested(L2toL1MessageSchema()), data_key="messages_sent", load_default=[]
     )
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> InvokeTransactionReceipt:
-        return InvokeTransactionReceipt(**data)
-
-
-class DeclareTransactionReceiptSchema(TransactionReceiptSchema):
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> DeclareTransactionReceipt:
-        return DeclareTransactionReceipt(**data)
-
-
-class DeployTransactionReceiptSchema(TransactionReceiptSchema):
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> DeployTransactionReceipt:
-        return DeployTransactionReceipt(**data)
+    def make_dataclass(self, data, **kwargs) -> TransactionReceipt:
+        return TransactionReceipt(**data)
 
 
 class ContractCodeSchema(Schema):
@@ -120,6 +106,59 @@ class ContractCodeSchema(Schema):
         return json.loads(abi)
 
 
+class TransactionSchema(Schema):
+    hash = Felt(data_key="txn_hash")
+    signature = fields.List(Felt(), data_key="signature", load_default=[])
+    max_fee = Felt(data_key="max_fee", load_default=0)
+
+
+class InvokeTransactionSchema(TransactionSchema):
+    contract_address = Felt(data_key="contract_address")
+    entry_point_selector = Felt(data_key="entry_point_selector")
+    calldata = fields.List(Felt(), data_key="calldata")
+
+    @pre_load
+    def preprocess(self, data, **kwargs):
+        if data["calldata"] is None:
+            data["calldata"] = []
+        return data
+
+    @post_load
+    def make_transaction(self, data, **kwargs) -> InvokeTransaction:
+        return InvokeTransaction(**data)
+
+
+class DeclareTransactionSchema(TransactionSchema):
+    class_hash = Felt(data_key="class_hash")
+    sender_address = Felt(data_key="sender_address")
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> DeclareTransaction:
+        return DeclareTransaction(**data)
+
+
+class DeployTransactionSchema(TransactionSchema):
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> DeployTransaction:
+        return DeployTransaction(**data)
+
+
+class TypesOfTransactionsSchema(OneOfSchema):
+    type_field = "type"
+    type_schemas = {
+        "INVOKE_FUNCTION": InvokeTransactionSchema,
+        "DECLARE": DeclareTransactionSchema,
+        "DEPLOY": DeployTransactionSchema,
+    }
+
+    def get_data_type(self, data):
+        if "contract_class" in data:
+            return "DECLARE"
+        if "contract_address" in data:
+            return "INVOKE_FUNCTION"
+        raise ValidationError("Invalid transaction type")
+
+
 class StarknetBlockSchema(Schema):
     block_hash = Felt(data_key="block_hash")
     parent_block_hash = Felt(data_key="parent_hash")
@@ -127,8 +166,7 @@ class StarknetBlockSchema(Schema):
     status = BlockStatusField(data_key="status")
     root = NonPrefixedHex(data_key="new_root")
     transactions = fields.List(
-        # TODO improve
-        fields.Nested(InvokeTransactionSchema()),
+        fields.Nested(TypesOfTransactionsSchema()),
         data_key="transactions",
     )
     timestamp = fields.Integer(data_key="timestamp")
@@ -220,40 +258,3 @@ class DeclaredContractSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> DeclaredContract:
         return DeclaredContract(**data)
-
-
-class TransactionSchema(Schema):
-    hash = Felt(data_key="txn_hash")
-    signature = fields.List(Felt(), data_key="signature", load_default=[])
-    max_fee = Felt(data_key="max_fee", load_default=0)
-
-
-class InvokeTransactionSchema(TransactionSchema):
-    contract_address = Felt(data_key="contract_address")
-    entry_point_selector = Felt(data_key="entry_point_selector")
-    calldata = fields.List(Felt(), data_key="calldata")
-
-    @pre_load
-    def preprocess(self, data, **kwargs):
-        if data["calldata"] is None:
-            data["calldata"] = []
-        return data
-
-    @post_load
-    def make_transaction(self, data, **kwargs) -> InvokeTransaction:
-        return InvokeTransaction(**data)
-
-
-class DeclareTransactionSchema(TransactionSchema):
-    class_hash = Felt(data_key="class_hash")
-    sender_address = Felt(data_key="sender_address")
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> DeclareTransaction:
-        return DeclareTransaction(**data)
-
-
-class DeployTransactionSchema(TransactionSchema):
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> DeployTransaction:
-        return DeployTransaction(**data)
