@@ -232,7 +232,7 @@ class PreparedFunctionCall:
             )
 
         tx = self._make_invoke_function(signature=signature)
-        response = await self._client.add_transaction(tx=tx)
+        response = await self._client.add_transaction(transaction=tx)
 
         if response.code != StarkErrorCode.TRANSACTION_RECEIVED.name:
             raise Exception("Failed to send transaction. Response: {response}.")
