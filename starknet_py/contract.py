@@ -37,6 +37,7 @@ from starknet_py.net.models import (
     compute_invoke_hash,
 )
 from starknet_py.compile.compiler import StarknetCompilationSource
+from starknet_py.transactions.deploy import make_deploy_tx
 from starknet_py.utils.crypto.facade import pedersen_hash
 from starknet_py.utils.data_transformer import DataTransformer
 from starknet_py.utils.sync import add_sync_methods
@@ -472,11 +473,12 @@ class Contract:
         translated_args = Contract._translate_constructor_args(
             compiled_contract, constructor_args
         )
-        res = await client.deploy(
-            contract=compiled_contract,
+        deploy_tx = make_deploy_tx(
+            compiled_contract=compiled_contract,
             constructor_calldata=translated_args,
             salt=salt,
         )
+        res = await client.deploy(deploy_tx)
         contract_address = res.address
 
         deployed_contract = Contract(
