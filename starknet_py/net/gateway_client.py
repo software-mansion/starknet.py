@@ -192,7 +192,6 @@ class GatewayClient(BaseClient):
             payload=InvokeFunction.Schema().dump(tx),
             params=block_identifier,
         )
-        # TODO should we have better type validation here?
         return res["amount"]
 
     async def call_contract(
@@ -219,7 +218,6 @@ class GatewayClient(BaseClient):
             payload=InvokeFunction.Schema().dump(invoke_tx),
         )
 
-        # TODO should we have better type validation here?
         return [int(v, 16) for v in res["result"]]
 
     async def add_transaction(self, transaction: InvokeFunction) -> SentTransaction:
