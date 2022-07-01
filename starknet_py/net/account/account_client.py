@@ -17,6 +17,8 @@ from starknet_py.net.client_models import (
     BlockStateUpdate,
     StarknetBlock,
     StarknetTransaction,
+    Declare,
+    Deploy,
 )
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.net.client import Client
@@ -24,7 +26,6 @@ from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_C
 from starknet_py.net.models import (
     InvokeFunction,
     StarknetChainId,
-    TransactionType,
     Transaction,
     BlockIdentifier,
     chain_from_network,
@@ -32,6 +33,7 @@ from starknet_py.net.models import (
 from starknet_py.net.networks import Network, MAINNET, TESTNET
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
 from starknet_py.net.signer import BaseSigner
+from starknet_py.transactions.deploy import make_deploy_tx
 from starknet_py.utils.data_transformer.execute_transformer import execute_transformer
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.net.models.address import AddressRepresentation, parse_address
@@ -194,19 +196,23 @@ class AccountClient(BaseClient):
 
     async def add_transaction(
         self,
-        tx: StarknetTransaction,
+        transaction: InvokeFunction,
     ) -> SentTransaction:
-        if tx.tx_type in (TransactionType.DECLARE, TransactionType.DEPLOY):
-            # return await super().add_transaction(tx)
-            return await self.client.add_transaction(tx)
 
-        if tx.signature:
+        if transaction.signature:
             raise TypeError(
                 "Adding signatures to a signer tx currently isn't supported"
             )
 
-        # return await super().add_transaction(await self._sign_transaction(tx))
-        return await self.client.add_transaction(await self._sign_transaction(tx))
+        return await self.client.add_transaction(
+            await self._sign_transaction(transaction)
+        )
+
+    async def deploy(self, transaction: Deploy) -> SentTransaction:
+        return await self.client.deploy(transaction=transaction)
+
+    async def declare(self, transaction: Declare) -> SentTransaction:
+        return await self.client.declare(transaction=transaction)
 
     async def estimate_fee(
         self,

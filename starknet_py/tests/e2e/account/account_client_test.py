@@ -52,7 +52,7 @@ async def test_error_when_tx_signed(run_devnet):
         version=0,
     )
     with pytest.raises(TypeError) as t_err:
-        await acc_client.add_transaction(tx=invoke_function)
+        await acc_client.add_transaction(transaction=invoke_function)
 
     assert "Adding signatures to a signer tx currently isn't supported" in str(
         t_err.value
