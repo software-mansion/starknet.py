@@ -1,7 +1,7 @@
 import json
 from typing import Tuple, List
 
-from marshmallow import Schema, fields, post_load, pre_load, ValidationError
+from marshmallow import Schema, fields, post_load, pre_load, EXCLUDE
 from marshmallow_oneofschema import OneOfSchema
 
 from starknet_py.net.client_models import (
@@ -138,6 +138,10 @@ class DeclareTransactionSchema(TransactionSchema):
 
 
 class DeployTransactionSchema(TransactionSchema):
+    contract_address = Felt(data_key="contract_address")
+    constructor_calldata = fields.List(Felt(), data_key="calldata")
+    # class_hash = Felt(data_key="class_hash", load_default=None)
+
     @post_load
     def make_dataclass(self, data, **kwargs) -> DeployTransaction:
         return DeployTransaction(**data)
@@ -154,9 +158,9 @@ class TypesOfTransactionsSchema(OneOfSchema):
     def get_data_type(self, data):
         if "contract_class" in data:
             return "DECLARE"
-        if "contract_address" in data:
+        if "entry_point_selector" in data and data["entry_point_selector"] is not None:
             return "INVOKE_FUNCTION"
-        raise ValidationError("Invalid transaction type")
+        return "DEPLOY"
 
 
 class StarknetBlockSchema(Schema):
@@ -166,7 +170,7 @@ class StarknetBlockSchema(Schema):
     status = BlockStatusField(data_key="status")
     root = NonPrefixedHex(data_key="new_root")
     transactions = fields.List(
-        fields.Nested(TypesOfTransactionsSchema()),
+        fields.Nested(TypesOfTransactionsSchema(unknown=EXCLUDE)),
         data_key="transactions",
     )
     timestamp = fields.Integer(data_key="timestamp")
@@ -209,6 +213,13 @@ class BlockStateUpdateSchema(Schema):
     new_root = Felt(data_key="new_root")
     old_root = Felt(data_key="old_root")
     state_diff = fields.Nested(StateDiffSchema(), data_key="state_diff")
+
+    @pre_load
+    def preprocess(self, data, **kwargs):
+        # Remove this when support for nonces is added
+        del data["state_diff"]["nonces"]
+
+        return data
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> BlockStateUpdate:

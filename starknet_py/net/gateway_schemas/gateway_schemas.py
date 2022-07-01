@@ -75,7 +75,7 @@ class InvokeTransactionSchema(TransactionSchema):
 class DeployTransactionSchema(TransactionSchema):
     contract_address = Felt(data_key="contract_address")
     constructor_calldata = fields.List(Felt(), data_key="constructor_calldata")
-    class_hash = Felt(data_key="class_hash", load_default=None)
+    # class_hash = Felt(data_key="class_hash", load_default=0)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> DeployTransaction:
@@ -144,7 +144,7 @@ class StarknetBlockSchema(Schema):
     status = BlockStatusField(data_key="status")
     root = NonPrefixedHex(data_key="state_root")
     transactions = fields.List(
-        fields.Nested(TypesOfTransactionsSchema(), unknown=EXCLUDE),
+        fields.Nested(TypesOfTransactionsSchema(unknown=EXCLUDE)),
         data_key="transactions",
     )
     timestamp = fields.Integer(data_key="timestamp")

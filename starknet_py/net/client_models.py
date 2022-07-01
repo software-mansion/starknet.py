@@ -1,3 +1,4 @@
+from abc import ABC
 from dataclasses import dataclass
 from enum import Enum
 from typing import List, Any, Dict, Optional, Union
@@ -69,7 +70,7 @@ class TransactionType(Enum):
 
 
 @dataclass
-class Transaction:
+class Transaction(ABC):
     """
     Dataclass representing common atributes of all transactions
     """
@@ -77,6 +78,10 @@ class Transaction:
     hash: int
     signature: List[int]
     max_fee: int
+
+    def __post_init__(self):
+        if self.__class__ == Transaction:
+            raise TypeError("Cannot instantiate abstract Transaction class")
 
 
 @dataclass
@@ -108,7 +113,8 @@ class DeployTransaction(Transaction):
 
     contract_address: int
     constructor_calldata: List[int]
-    class_hash: Optional[int] = None
+    # TODO add once RPC supports rpc transactions better
+    # class_hash: Optional[int] = None
 
 
 class TransactionStatus(Enum):
