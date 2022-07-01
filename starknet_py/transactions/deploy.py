@@ -10,12 +10,12 @@ from starknet_py.net.models import Deploy
 
 # pylint: disable=too-many-arguments
 def make_deploy_tx(
-        compilation_source: Optional[StarknetCompilationSource] = None,
-        compiled_contract: Optional[Union[str, ContractClass]] = None,
-        constructor_calldata: List[int] = None,
-        salt: Optional[int] = None,
-        version: int = 0,
-        cairo_path: Optional[List[str]] = None,
+    compilation_source: Optional[StarknetCompilationSource] = None,
+    compiled_contract: Optional[Union[str, ContractClass]] = None,
+    constructor_calldata: List[int] = None,
+    salt: Optional[int] = None,
+    version: int = 0,
+    cairo_path: Optional[List[str]] = None,
 ) -> Deploy:
     if not constructor_calldata:
         constructor_calldata = []

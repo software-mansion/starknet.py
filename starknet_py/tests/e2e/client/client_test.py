@@ -252,8 +252,7 @@ async def test_deploy(devnet_address, balance_contract):
         devnet_address
     ).make_devnet_client_without_account()
     deploy_tx = make_deploy_tx(
-        compiled_contract=balance_contract,
-        constructor_calldata=[]
+        compiled_contract=balance_contract, constructor_calldata=[]
     )
     result = await client.deploy(deploy_tx)
 

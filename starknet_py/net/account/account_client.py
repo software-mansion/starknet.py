@@ -272,8 +272,7 @@ async def deploy_account_contract(
 ) -> AddressRepresentation:
     client = Client(net=net, chain=chain)
     deploy_tx = make_deploy_tx(
-        constructor_calldata=[public_key],
-        compiled_contract=COMPILED_ACCOUNT_CONTRACT
+        constructor_calldata=[public_key], compiled_contract=COMPILED_ACCOUNT_CONTRACT
     )
     result = await client.deploy(deploy_tx)
     await client.wait_for_tx(

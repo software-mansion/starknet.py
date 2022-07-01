@@ -9,10 +9,10 @@ from starknet_py.net.models.transaction import Declare
 
 
 def make_declare_tx(
-        compilation_source: Optional[StarknetCompilationSource] = None,
-        compiled_contract: Optional[Union[str, ContractClass]] = None,
-        version: int = 0,
-        cairo_path: Optional[List[str]] = None,
+    compilation_source: Optional[StarknetCompilationSource] = None,
+    compiled_contract: Optional[Union[str, ContractClass]] = None,
+    version: int = 0,
+    cairo_path: Optional[List[str]] = None,
 ) -> Declare:
     """
     Create declaration tx.
