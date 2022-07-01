@@ -251,69 +251,22 @@ class Client:
         :param token: Optional token for Starknet API access, appended in a query string
         :return: Dictionary with `code`, `transaction_hash`
         """
-        return await self._gateway.add_transaction(tx, token)
-
-    async def deploy(
-        self,
-        compiled_contract: Union[ContractClass, str],
-        constructor_calldata: List[int],
-        salt: Optional[int] = None,
-        version: int = 0,
-    ) -> dict:
-        if isinstance(compiled_contract, str):
-            compiled_contract = ContractClass.loads(compiled_contract)
-
-        res = await self.add_transaction(
-            tx=Deploy(
-                contract_address_salt=ContractAddressSalt.get_random_value()
-                if salt is None
-                else salt,
-                contract_definition=compiled_contract,
-                constructor_calldata=constructor_calldata,
-                version=version,
-            )
-        )
-
+        res = await self._gateway.add_transaction(tx, token)
         if res["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
             raise TransactionNotReceivedError()
         return res
 
-    async def declare(
-        self,
-        compilation_source: Optional[StarknetCompilationSource] = None,
-        compiled_contract: Optional[str] = None,
-        version: int = 0,
-        cairo_path: Optional[List[str]] = None,
-    ) -> dict:
+    async def deploy(self, tx: Deploy) -> dict:
+        return await self.add_transaction(tx)
+
+    async def declare(self, tx: Declare) -> dict:
         """
         Declares contract class.
-        Either `compilation_source` or `compiled_contract` is required.
 
-        :param compilation_source: string containing source code or a list of source files paths
-        :param compiled_contract: string containing compiled contract. Useful for reading compiled contract from a file
-        :param version: PreparedFunctionCall version
-        :param cairo_path: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts
+        :param tx: Declare transaction object
         :return: Dictionary with 'transaction_hash' and 'class_hash'
         """
-        compiled_contract = create_compiled_contract(
-            compilation_source, compiled_contract, cairo_path
-        )
-
-        res = await self.add_transaction(
-            tx=Declare(
-                contract_class=compiled_contract,
-                sender_address=DECLARE_SENDER_ADDRESS,
-                max_fee=0,
-                signature=[],
-                nonce=0,
-                version=version,
-            )
-        )
-
-        if res["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
-            raise TransactionNotReceivedError()
-
-        return res
+        return await self.add_transaction(tx)
 
     async def get_class_hash_at(
         self,

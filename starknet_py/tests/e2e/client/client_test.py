@@ -16,6 +16,7 @@ from starknet_py.net.client_models import (
     ContractDiff,
 )
 from starknet_py.net.client_errors import ClientError
+from starknet_py.transactions.deploy import make_deploy_tx
 
 
 @pytest.mark.asyncio
@@ -250,7 +251,10 @@ async def test_deploy(devnet_address, balance_contract):
     client = await DevnetClientFactory(
         devnet_address
     ).make_devnet_client_without_account()
-    result = await client.deploy(contract=balance_contract, constructor_calldata=[])
+    deploy_tx = make_deploy_tx(
+        compiled_contract=balance_contract, constructor_calldata=[]
+    )
+    result = await client.deploy(deploy_tx)
 
     assert result.code == "TRANSACTION_RECEIVED"
 
