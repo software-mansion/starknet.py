@@ -115,7 +115,7 @@ class AccountClient(BaseClient):
         return await self.client.get_class_by_hash(class_hash=class_hash)
 
     async def _get_nonce(self) -> int:
-        [nonce] = await self.client.call_contract(
+        [nonce] = await self.call_contract(
             InvokeFunction(
                 contract_address=self.address,
                 entry_point_selector=get_selector_from_name("get_nonce"),
@@ -148,7 +148,7 @@ class AccountClient(BaseClient):
 
         token_address = token_address or self._get_default_token_address()
 
-        low, high = await self.client.call_contract(
+        low, high = await self.call_contract(
             InvokeFunction(
                 contract_address=parse_address(token_address),
                 entry_point_selector=get_selector_from_name("balanceOf"),
