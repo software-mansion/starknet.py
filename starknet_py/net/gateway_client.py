@@ -78,7 +78,7 @@ class GatewayClient(BaseClient):
         if res["status"] in ("UNKNOWN", "NOT_RECEIVED"):
             raise TransactionNotReceivedError()
 
-        return TypesOfTransactionsSchema().load(res["transaction"])
+        return TypesOfTransactionsSchema().load(res["transaction"], unknown=EXCLUDE)
 
     async def get_block(
         self,
@@ -249,7 +249,7 @@ class GatewayClient(BaseClient):
     async def _add_transaction(self, tx: StarknetTransaction) -> SentTransaction:
         res = await self._gateway_client.post(
             method_name="add_transaction",
-            payload=tx.Schema().dump(obj=tx),
+            payload=StarknetTransaction.Schema().dump(obj=tx),
         )
         return SentTransactionSchema().load(res, unknown=EXCLUDE)
 
