@@ -49,9 +49,8 @@ class EventSchema(Schema):
 
 
 class L1toL2MessageSchema(Schema):
-    # TODO handle missing fields
     l1_address = Felt(data_key="from_address")
-    l2_address = Felt(load_default=0x0)
+    l2_address = Felt(load_default=None)
     payload = fields.List(Felt(), data_key="payload")
 
     @post_load
@@ -60,8 +59,7 @@ class L1toL2MessageSchema(Schema):
 
 
 class L2toL1MessageSchema(Schema):
-    # TODO handle missing fields
-    l2_address = Felt(load_default=0x0)
+    l2_address = Felt(load_default=None)
     l1_address = Felt(data_key="to_address")
     payload = fields.List(Felt(), data_key="payload")
 

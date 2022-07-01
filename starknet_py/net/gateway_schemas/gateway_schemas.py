@@ -36,7 +36,6 @@ class EventSchema(Schema):
 
 
 class L1toL2MessageSchema(Schema):
-    # TODO handle missing fields
     l1_address = Felt(data_key="from_address")
     l2_address = Felt(data_key="to_address")
     payload = fields.List(Felt(), data_key="payload")
