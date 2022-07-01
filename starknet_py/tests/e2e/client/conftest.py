@@ -131,10 +131,11 @@ def fixture_balance_contract() -> str:
 
 
 @pytest.fixture(name="class_hash")
-def fixture_class_hash(run_prepared_devnet, contract_address) -> str:
+def fixture_class_hash(run_prepared_devnet, contract_address) -> int:
     net, _ = run_prepared_devnet
-    return (
+    return int(
         get_class_hash(net=net, contract_address=hex(contract_address))
         .strip()
-        .replace('"', "")
+        .replace('"', ""),
+        16,
     )

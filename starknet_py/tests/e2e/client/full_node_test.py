@@ -1,12 +1,18 @@
 import pytest
 
-from starknet_py.net.client_models import TransactionType, Transaction
+from starknet_py.net.client_models import (
+    DeployTransaction,
+)
 from starknet_py.tests.e2e.utils import DevnetClientFactory
 
 
 @pytest.mark.asyncio
 async def test_node_get_transaction_by_block_hash_and_index(
-    devnet_address, block_with_deploy_hash, deploy_transaction_hash, contract_address
+    devnet_address,
+    block_with_deploy_hash,
+    deploy_transaction_hash,
+    contract_address,
+    class_hash,
 ):
     client = await DevnetClientFactory(devnet_address).make_rpc_client()
 
@@ -14,35 +20,31 @@ async def test_node_get_transaction_by_block_hash_and_index(
         block_hash=block_with_deploy_hash, index=0
     )
 
-    assert tx == Transaction(
+    assert tx == DeployTransaction(
         hash=deploy_transaction_hash,
         contract_address=contract_address,
-        calldata=[],
-        entry_point_selector=0x0,
-        transaction_type=TransactionType.DEPLOY,
-        version=0,
+        constructor_calldata=[],
         max_fee=0,
         signature=[],
+        # class_hash=class_hash,
     )
 
 
 @pytest.mark.asyncio
 async def test_node_get_transaction_by_block_number_and_index(
-    devnet_address, deploy_transaction_hash, contract_address
+    devnet_address, deploy_transaction_hash, contract_address, class_hash
 ):
     client = await DevnetClientFactory(devnet_address).make_rpc_client()
 
     tx = await client.get_transaction_by_block_number(block_number=0, index=0)
 
-    assert tx == Transaction(
+    assert tx == DeployTransaction(
         hash=deploy_transaction_hash,
         contract_address=contract_address,
-        calldata=[],
-        entry_point_selector=0x0,
-        transaction_type=TransactionType.DEPLOY,
-        version=0,
+        constructor_calldata=[],
         max_fee=0,
         signature=[],
+        # class_hash=class_hash,
     )
 
 

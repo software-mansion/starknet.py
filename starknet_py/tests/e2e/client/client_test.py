@@ -5,15 +5,15 @@ from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.tests.e2e.utils import DevnetClientFactory
 from starknet_py.net.client_models import (
-    TransactionType,
     TransactionStatus,
     InvokeFunction,
     BlockStateUpdate,
-    Transaction,
     StarknetBlock,
     BlockStatus,
     TransactionReceipt,
     ContractDiff,
+    DeployTransaction,
+    InvokeTransaction,
 )
 from starknet_py.net.client_errors import ClientError
 from starknet_py.transactions.deploy import make_deploy_tx
@@ -21,18 +21,18 @@ from starknet_py.transactions.deploy import make_deploy_tx
 
 @pytest.mark.asyncio
 async def test_get_deploy_transaction(
-    clients, deploy_transaction_hash, contract_address
+    clients, deploy_transaction_hash, contract_address, class_hash
 ):
     for client in clients:
         transaction = await client.get_transaction(deploy_transaction_hash)
 
-        assert transaction == Transaction(
+        assert transaction == DeployTransaction(
             contract_address=contract_address,
-            calldata=[],
-            entry_point_selector=0x0,
+            constructor_calldata=[],
             hash=deploy_transaction_hash,
             signature=[],
-            transaction_type=TransactionType.DEPLOY,
+            max_fee=0,
+            # class_hash=class_hash,
         )
 
 
@@ -47,13 +47,13 @@ async def test_get_invoke_transaction(
     for client in clients:
         transaction = await client.get_transaction(invoke_transaction_hash)
 
-        assert transaction == Transaction(
+        assert transaction == InvokeTransaction(
             contract_address=contract_address,
             calldata=invoke_transaction_calldata,
             entry_point_selector=invoke_transaction_selector,
             hash=invoke_transaction_hash,
             signature=[],
-            transaction_type=TransactionType.INVOKE,
+            max_fee=0,
         )
 
 
@@ -65,6 +65,7 @@ async def test_get_block_by_hash(
     block_with_deploy_number,
     block_with_deploy_root,
     contract_address,
+    class_hash,
 ):
     for client in clients:
         block = await client.get_block(block_hash=block_with_deploy_hash)
@@ -77,13 +78,13 @@ async def test_get_block_by_hash(
             status=BlockStatus.ACCEPTED_ON_L2,
             timestamp=2137,
             transactions=[
-                Transaction(
+                DeployTransaction(
                     contract_address=contract_address,
-                    calldata=[],
-                    entry_point_selector=0x0,
+                    constructor_calldata=[],
                     hash=deploy_transaction_hash,
                     signature=[],
-                    transaction_type=TransactionType.DEPLOY,
+                    max_fee=0,
+                    # class_hash=class_hash,
                 )
             ],
         )
@@ -97,6 +98,7 @@ async def test_get_block_by_number(
     block_with_deploy_hash,
     block_with_deploy_root,
     contract_address,
+    class_hash,
 ):
     for client in clients:
         block = await client.get_block(block_number=0)
@@ -109,13 +111,13 @@ async def test_get_block_by_number(
             status=BlockStatus.ACCEPTED_ON_L2,
             timestamp=2137,
             transactions=[
-                Transaction(
+                DeployTransaction(
                     contract_address=contract_address,
-                    calldata=[],
-                    entry_point_selector=0x0,
+                    constructor_calldata=[],
                     hash=deploy_transaction_hash,
                     signature=[],
-                    transaction_type=TransactionType.DEPLOY,
+                    # class_hash=class_hash,
+                    max_fee=0,
                 )
             ],
         )
