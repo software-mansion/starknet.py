@@ -1,8 +1,11 @@
+import asyncio
 import os
 from pathlib import Path
+from unittest.mock import patch, MagicMock
 
 import pytest
 from starkware.starknet.public.abi import get_selector_from_name
+from starkware.starkware_utils.error_handling import StarkErrorCode
 
 from starknet_py.transaction_exceptions import TransactionRejectedError
 from starknet_py.contract import Contract
@@ -417,3 +420,55 @@ async def test_contract_from_address_throws_on_proxy_cycle(run_devnet):
         )
 
     assert "Proxy cycle detected" in str(exinfo.value)
+
+
+@pytest.mark.asyncio
+async def test_warning_when_max_fee_equals_to_zero(run_devnet):
+    client = DevnetClientFactory(
+        run_devnet
+    ).make_devnet_client_from_predefined_account()
+
+    # Deploy simple k-v store
+    deployment_result = await Contract.deploy(
+        client=client, compilation_source=map_source
+    )
+    deployment_result = await deployment_result.wait_for_acceptance()
+    contract = deployment_result.deployed_contract
+
+    with pytest.warns(
+        DeprecationWarning,
+        match=r"Transaction will fail with max_fee set to 0. Change it to a higher value.",
+    ) as max_fee_warnings:
+        await contract.functions["put"].invoke(10, 20, max_fee=0)
+
+    assert len(max_fee_warnings) == 1
+
+
+@pytest.mark.asyncio
+async def test_transaction_not_received_error(run_devnet):
+    client = DevnetClientFactory(
+        run_devnet
+    ).make_devnet_client_from_predefined_account()
+
+    deployment_result = await Contract.deploy(
+        client=client, compilation_source=map_source
+    )
+    deployment_result = await deployment_result.wait_for_acceptance()
+    contract = deployment_result.deployed_contract
+
+    with patch(
+        "starknet_py.net.account.account_client.AccountClient.add_transaction",
+        MagicMock(),
+    ) as mocked_add_transaction:
+        result = asyncio.Future()
+        result.set_result({"code": StarkErrorCode.TRANSACTION_CANCELLED})
+
+        mocked_add_transaction.return_value = result
+
+        with pytest.raises(Exception) as tx_not_received:
+            await contract.functions["put"].invoke(10, 20, max_fee=MAX_FEE)
+
+        assert "Failed to send transaction." in str(tx_not_received)
+
+
+user_auth_source = Path(directory, "user_auth.cairo").read_text("utf-8")
