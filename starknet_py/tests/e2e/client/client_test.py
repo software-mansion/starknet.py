@@ -16,6 +16,7 @@ from starknet_py.net.client_models import (
     InvokeTransaction,
 )
 from starknet_py.net.client_errors import ClientError
+from starknet_py.transaction_exceptions import TransactionNotReceivedError
 from starknet_py.transactions.deploy import make_deploy_tx
 
 
@@ -55,6 +56,13 @@ async def test_get_invoke_transaction(
             signature=[],
             max_fee=0,
         )
+
+
+@pytest.mark.asyncio
+async def test_get_transaction_raises_on_not_received(clients):
+    for client in clients:
+        with pytest.raises(TransactionNotReceivedError):
+            await client.get_transaction(tx_hash=0x1)
 
 
 @pytest.mark.asyncio
