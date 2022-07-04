@@ -41,18 +41,20 @@ pytest-xdist = "^2.5.0"
 starknet-devnet = "0.2.3"
 
 [tool.poe.tasks]
-test = ["test_unit", "test_e2e"]
+test = ["test_unit", "test_e2e", "test_docs"]
 test_unit.shell = "coverage run -m pytest starknet_py --ignore=starknet_py/tests/e2e"
 test_unit.env = { COVERAGE_FILE="unit.coverage" }
 test_e2e.shell = """
-    coverage run -m pytest starknet_py/tests/e2e
+    coverage run -m pytest starknet_py/tests/e2e --ignore=starknet_py/tests/e2e/docs
 """
 test_e2e.env = { COVERAGE_FILE="e2e.coverage", DEVNET_PORT="5001" }
 test_e2e_parallel.shell = """
     pytest -n auto --dist loadscope starknet_py/tests/e2e -v
 """
 test_e2e_parallel.env = { DEVNET_PORT="5002" }
-coverage_combine.shell = "coverage combine unit.coverage e2e.coverage"
+test_docs.shell = "coverage run -m pytest starknet_py/tests/e2e/docs"
+test_docs.env = { COVERAGE_FILE="docs.coverage", DEVNET_PORT="5003" }
+coverage_combine.shell = "coverage combine unit.coverage e2e.coverage docs.coverage"
 test_report = [{ shell = "poe coverage_combine" }, { shell = "coverage report" }]
 test_html = [
     { shell = "poe coverage_combine" },
