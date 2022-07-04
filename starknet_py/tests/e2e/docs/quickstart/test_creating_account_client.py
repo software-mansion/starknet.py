@@ -34,9 +34,7 @@ async def test_creating_account_client(run_devnet):
     # add to docs: start
 
     # Instead of providing key_pair it is possible to specify a signer
-    account_client = AccountClient(
-        address="0x1234", signer=signer, net=TESTNET
-    )
+    account_client = AccountClient(address="0x1234", signer=signer, net=TESTNET)
 
     testnet = "testnet"
     # add to docs: end
