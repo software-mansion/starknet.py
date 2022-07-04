@@ -1,17 +1,8 @@
 from __future__ import annotations
-import os
-
 
 from starknet_py.net import Client, KeyPair
 from starknet_py.net.account.account_client import AccountClient
 from starknet_py.net.models.chains import StarknetChainId
-
-
-DEVNET_PORT = os.environ.get("DEVNET_PORT")
-if not DEVNET_PORT:
-    raise RuntimeError("DEVNET_PORT environment variable not provided!")
-
-DEVNET_ADDRESS = f"http://localhost:{DEVNET_PORT}"
 
 
 ACCOUNT_CLIENT_ADDRESS = (
@@ -23,7 +14,7 @@ ACCOUNT_CLIENT_PRIVATE_KEY = "0xcd613e30d8f16adf91b7584a2265b1f5"
 class DevnetClientFactory:
     def __init__(
         self,
-        net: str = DEVNET_ADDRESS,
+        net: str,
         chain: StarknetChainId = StarknetChainId.TESTNET,
     ):
         self.net = net
