@@ -3,7 +3,6 @@ from pathlib import Path
 import pytest
 
 from starknet_py.net import AccountClient
-from starknet_py.tests.e2e.account.account_client_test import MAX_FEE
 from starknet_py.tests.e2e.utils import DevnetClientFactory
 
 # add to docs: start | section abi
@@ -48,9 +47,7 @@ async def test_using_existing_contracts(run_devnet):
     client = await AccountClient.create_account(TESTNET)
     # add to docs: end
 
-    client = DevnetClientFactory(
-        run_devnet
-    ).make_devnet_client_from_predefined_account()
+    client = DevnetClientFactory(run_devnet).make_devnet_client()
 
     deployment_result = await Contract.deploy(
         client=client, compilation_source=erc20_source_code
@@ -68,23 +65,23 @@ async def test_using_existing_contracts(run_devnet):
 
     # Using only positional arguments
     invocation = await contract.functions["transferFrom"].invoke(
-        sender, recipient, 10000, max_fee=MAX_FEE
+        sender, recipient, 10000, max_fee=int(1e16)
     )
 
     # Using only keyword arguments
     invocation = await contract.functions["transferFrom"].invoke(
-        sender=sender, recipient=recipient, amount=10000, max_fee=MAX_FEE
+        sender=sender, recipient=recipient, amount=10000, max_fee=int(1e16)
     )
 
     # Mixing positional with keyword arguments
     invocation = await contract.functions["transferFrom"].invoke(
-        sender, recipient, amount=10000, max_fee=MAX_FEE
+        sender, recipient, amount=10000, max_fee=int(1e16)
     )
 
     # Creating a PreparedFunctionCall - creates a function call with arguments - useful for signing transactions and
     # specifying additional options
     transfer = contract.functions["transferFrom"].prepare(
-        sender, recipient, amount=10000, max_fee=MAX_FEE
+        sender, recipient, amount=10000, max_fee=int(1e16)
     )
     await transfer.invoke()
 

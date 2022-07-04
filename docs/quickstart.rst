@@ -29,7 +29,7 @@ Example usage:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/quickstart/test_using_account_client.py
     :language: python
-    :lines: 16-18,22-26,32-50
+    :lines: 14-17,21-25,29-47
     :dedent: 4
 
 Using Contract
@@ -38,12 +38,12 @@ Using Contract
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/quickstart/test_using_contract.py
     :language: python
-    :lines: 17-26,41-43,49-66
+    :lines: 16-25,38-40,46-63
     :dedent: 4
 
 Although asynchronous API is recommended, you can also use Contract's synchronous API:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/quickstart/test_synchronous_api.py
     :language: python
-    :lines: 16-23,38-45
+    :lines: 15-22,35-42
     :dedent: 4

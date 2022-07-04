@@ -11,14 +11,14 @@ Let's say we have a contract with this interface:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_existing_contracts.py
     :language: python
-    :lines: 10-28
+    :lines: 9-27
 
 
 This is how we can interact with it:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_existing_contracts.py
     :language: python
-    :lines: 40-48,66-98
+    :lines: 39-47,63-95
     :dedent: 4
 
 

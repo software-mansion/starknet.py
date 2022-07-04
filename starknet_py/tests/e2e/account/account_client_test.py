@@ -23,7 +23,7 @@ MAX_FEE = int(1e20)
 
 @pytest.mark.asyncio
 async def test_declare(run_devnet):
-    acc_client = await DevnetClientFactory(run_devnet).make_devnet_client()
+    acc_client = DevnetClientFactory(run_devnet).make_devnet_client()
 
     res = await acc_client.declare(compilation_source=erc20_mock_source_code)
 
@@ -32,7 +32,7 @@ async def test_declare(run_devnet):
 
 @pytest.mark.asyncio
 async def test_declare_raises_when_missing_source(run_devnet):
-    acc_client = await DevnetClientFactory(run_devnet).make_devnet_client()
+    acc_client = DevnetClientFactory(run_devnet).make_devnet_client()
 
     with pytest.raises(ValueError) as v_err:
         await acc_client.declare()
@@ -44,9 +44,7 @@ async def test_declare_raises_when_missing_source(run_devnet):
 
 @pytest.mark.asyncio
 async def test_deploy_account_contract_and_sign_tx(run_devnet):
-    acc_client = DevnetClientFactory(
-        run_devnet
-    ).make_devnet_client_from_predefined_account()
+    acc_client = DevnetClientFactory(run_devnet).make_devnet_client()
 
     deployment_result = await Contract.deploy(
         client=acc_client, compilation_source=map_source_code
@@ -65,9 +63,7 @@ async def test_deploy_account_contract_and_sign_tx(run_devnet):
 
 @pytest.mark.asyncio
 async def test_error_when_tx_signed(run_devnet):
-    acc_client = DevnetClientFactory(
-        run_devnet
-    ).make_devnet_client_from_predefined_account()
+    acc_client = DevnetClientFactory(run_devnet).make_devnet_client()
 
     invoke_function = InvokeFunction(
         contract_address=123,
@@ -87,7 +83,7 @@ async def test_error_when_tx_signed(run_devnet):
 
 @pytest.mark.asyncio
 async def test_get_balance_throws_when_token_not_specified(run_devnet):
-    acc_client = await DevnetClientFactory(run_devnet).make_devnet_client()
+    acc_client = DevnetClientFactory(run_devnet).make_devnet_client()
 
     with pytest.raises(ValueError) as err:
         await acc_client.get_balance()
@@ -99,7 +95,7 @@ async def test_get_balance_throws_when_token_not_specified(run_devnet):
 
 @pytest.mark.asyncio
 async def test_balance_when_token_specified(run_devnet):
-    acc_client = await DevnetClientFactory(run_devnet).make_devnet_client()
+    acc_client = DevnetClientFactory(run_devnet).make_devnet_client()
 
     deployment_result = await Contract.deploy(
         client=acc_client, compilation_source=erc20_mock_source_code
@@ -136,7 +132,7 @@ async def test_get_balance_default_token_address(net):
 
 @pytest.mark.asyncio
 async def test_estimate_fee_called(run_devnet):
-    acc_client = await DevnetClientFactory(run_devnet).make_devnet_client()
+    acc_client = DevnetClientFactory(run_devnet).make_devnet_client()
 
     deployment_result = await Contract.deploy(
         client=acc_client, compilation_source=erc20_mock_source_code
@@ -161,7 +157,7 @@ async def test_estimate_fee_called(run_devnet):
 
 @pytest.mark.asyncio
 async def test_estimated_fee_greater_than_zero(run_devnet):
-    acc_client = await DevnetClientFactory(run_devnet).make_devnet_client()
+    acc_client = DevnetClientFactory(run_devnet).make_devnet_client()
 
     deployment_result = await Contract.deploy(
         client=acc_client, compilation_source=erc20_mock_source_code
@@ -180,8 +176,8 @@ async def test_estimated_fee_greater_than_zero(run_devnet):
 
 @pytest.mark.asyncio
 async def test_fee_higher_for_account_client(run_devnet):
-    acc_client = await DevnetClientFactory(run_devnet).make_devnet_client()
-    client = await DevnetClientFactory(run_devnet).make_devnet_client_without_account()
+    acc_client = DevnetClientFactory(run_devnet).make_devnet_client()
+    client = DevnetClientFactory(run_devnet).make_devnet_client_without_account()
 
     deployment_result = await Contract.deploy(
         client=acc_client, compilation_source=erc20_mock_source_code

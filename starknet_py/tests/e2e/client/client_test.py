@@ -22,7 +22,7 @@ def represents_int(string):
 
 @pytest.mark.asyncio
 async def test_get_class_hash_at(run_devnet):
-    client = await DevnetClientFactory(run_devnet).make_devnet_client()
+    client = DevnetClientFactory(run_devnet).make_devnet_client()
 
     deployment_result = await Contract.deploy(
         compilation_source=map_source, client=client
@@ -37,7 +37,7 @@ async def test_get_class_hash_at(run_devnet):
 
 @pytest.mark.asyncio
 async def test_get_class_hash_at_error_when_contract_not_deployed(run_devnet):
-    client = await DevnetClientFactory(run_devnet).make_devnet_client()
+    client = DevnetClientFactory(run_devnet).make_devnet_client()
 
     with pytest.raises(BadRequest) as bad_request:
         await client.get_class_hash_at(contract_address="0x1")
@@ -47,7 +47,7 @@ async def test_get_class_hash_at_error_when_contract_not_deployed(run_devnet):
 
 @pytest.mark.asyncio
 async def test_get_class_by_hash(run_devnet):
-    client = await DevnetClientFactory(run_devnet).make_devnet_client()
+    client = DevnetClientFactory(run_devnet).make_devnet_client()
 
     declare_result = await client.declare(compilation_source=map_source)
     class_hash = declare_result["class_hash"]
@@ -57,7 +57,7 @@ async def test_get_class_by_hash(run_devnet):
 
 @pytest.mark.asyncio
 async def test_get_class_by_hash_error_when_contract_not_deployed(run_devnet):
-    client = await DevnetClientFactory(run_devnet).make_devnet_client()
+    client = DevnetClientFactory(run_devnet).make_devnet_client()
 
     with pytest.raises(BadRequest) as bad_request:
         await client.get_class_by_hash(1)

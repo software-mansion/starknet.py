@@ -29,11 +29,7 @@ class DevnetClientFactory:
         self.net = net
         self.chain = chain
 
-    async def make_devnet_client(self) -> Client:
-        client = await AccountClient.create_account(net=self.net, chain=self.chain)
-        return client
-
-    def make_devnet_client_from_predefined_account(self) -> AccountClient:
+    def make_devnet_client(self) -> Client:
         key_pair = KeyPair.from_private_key(int(ACCOUNT_CLIENT_PRIVATE_KEY, 0))
         client = AccountClient(
             address=ACCOUNT_CLIENT_ADDRESS,
@@ -44,5 +40,5 @@ class DevnetClientFactory:
 
         return client
 
-    async def make_devnet_client_without_account(self) -> Client:
+    def make_devnet_client_without_account(self) -> Client:
         return Client(net=self.net, chain=self.chain)
