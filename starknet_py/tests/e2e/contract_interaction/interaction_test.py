@@ -469,6 +469,3 @@ async def test_transaction_not_received_error(run_devnet):
             await contract.functions["put"].invoke(10, 20, max_fee=MAX_FEE)
 
         assert "Failed to send transaction." in str(tx_not_received)
-
-
-user_auth_source = Path(directory, "user_auth.cairo").read_text("utf-8")
