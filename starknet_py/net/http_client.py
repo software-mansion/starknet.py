@@ -116,7 +116,7 @@ class RpcHttpClient(HttpClient):
 
 
 async def basic_error_handle(request: ClientResponse):
-    if request.status != 200:
+    if request.status >= 300:
         raise ClientError(code=str(request.status), message=await request.text())
 
 
