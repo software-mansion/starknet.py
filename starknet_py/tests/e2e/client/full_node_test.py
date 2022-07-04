@@ -1,7 +1,9 @@
 import pytest
+from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.net.client_models import (
     DeployTransaction,
+    InvokeFunction,
 )
 from starknet_py.tests.e2e.utils import DevnetClientFactory
 
@@ -55,3 +57,21 @@ async def test_get_block_throws_on_no_block_hash_and_no_number(devnet_address):
         await client.get_block()
 
     assert "Block_hash or block_number must be provided" in str(exinfo.value)
+
+
+@pytest.mark.asyncio
+async def test_call_contract_raises_on_no_block_hash(devnet_address, contract_address):
+    client = await DevnetClientFactory(devnet_address).make_rpc_client()
+    invoke_function = InvokeFunction(
+        contract_address=contract_address,
+        entry_point_selector=get_selector_from_name("get_balance"),
+        calldata=[],
+        max_fee=0,
+        version=0,
+        signature=[0x0, 0x0],
+    )
+
+    with pytest.raises(ValueError) as exinfo:
+        await client.call_contract(invoke_tx=invoke_function)
+
+    assert "Block_hash must be provided" in str(exinfo.value)
