@@ -17,7 +17,6 @@ async def test_creating_account_client(run_devnet):
         address="0x1234",
         key_pair=KeyPair(private_key=123, public_key=456),
         net=MAINNET,
-        chain=StarknetChainId.MAINNET,
     )
 
     # testnet
@@ -25,7 +24,6 @@ async def test_creating_account_client(run_devnet):
         address="0x1234",
         key_pair=KeyPair(private_key=123, public_key=456),
         net=TESTNET,
-        chain=StarknetChainId.TESTNET,
     )
 
     # There is another way of creating key_pair
@@ -37,8 +35,10 @@ async def test_creating_account_client(run_devnet):
 
     # Instead of providing key_pair it is possible to specify a signer
     account_client = AccountClient(
-        address="0x1234", signer=signer, net=TESTNET, chain=StarknetChainId.TESTNET
+        address="0x1234", signer=signer, net=TESTNET
     )
+
+    testnet = "testnet"
     # add to docs: end
     testnet = run_devnet
     # add to docs: start
