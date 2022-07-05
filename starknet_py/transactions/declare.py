@@ -24,10 +24,9 @@ def make_declare_tx(
     :param cairo_path: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts
     :return: A "Declare" transaction object
     """
-    if isinstance(compiled_contract, str):
-        compiled_contract = create_compiled_contract(
-            compilation_source, compiled_contract, cairo_path
-        )
+    compiled_contract = create_compiled_contract(
+        compilation_source, compiled_contract, cairo_path
+    )
     return Declare(
         contract_class=compiled_contract,
         sender_address=DECLARE_SENDER_ADDRESS,
