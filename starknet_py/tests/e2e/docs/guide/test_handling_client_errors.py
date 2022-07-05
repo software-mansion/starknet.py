@@ -14,7 +14,7 @@ async def test_handling_client_errors(run_devnet):
         contract_address = "1"  # Doesn't exist
         client = Client(TESTNET)
         # add to docs: end
-        client = await DevnetClientFactory(run_devnet).make_devnet_client()
+        client = DevnetClientFactory(run_devnet).make_devnet_client()
         # add to docs: start
         await Contract.from_address(contract_address, client)
     except BadRequest as error:

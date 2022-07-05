@@ -234,7 +234,8 @@ class PreparedFunctionCall:
 
         if self.max_fee == 0:
             warnings.warn(
-                "Transaction will fail with max_fee set to 0. Change it to a higher value."
+                "Transaction will fail with max_fee set to 0. Change it to a higher value.",
+                DeprecationWarning,
             )
 
         tx = self._make_invoke_function(signature=signature)
