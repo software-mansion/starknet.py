@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 
 from starknet_py.contract import Contract, PreparedFunctionCall, ContractData
-from starknet_py.net import Client
+from starknet_py.net.gateway_client import GatewayClient
 
 SOURCE = """
 # Declare this file as a StarkNet contract and set the required
@@ -122,12 +122,11 @@ def test_compute_address_throws_on_no_source():
 
 
 def test_transaction_hash():
-    # noinspection PyTypeChecker
     call = PreparedFunctionCall(
         calldata=[1234],
         arguments={},
         selector=1530486729947006463063166157847785599120665941190480211966374137237989315360,
-        client=Client("testnet"),
+        client=GatewayClient("testnet"),
         payload_transformer=None,
         contract_data=ContractData(
             address=0x03606DB92E563E41F4A590BC01C243E8178E9BA8C980F8E464579F862DA3537C,

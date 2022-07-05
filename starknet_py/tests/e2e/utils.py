@@ -2,7 +2,6 @@ from __future__ import annotations
 import os
 
 
-from starknet_py.net.base_client import BaseClient
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.account.account_client import AccountClient
@@ -25,12 +24,17 @@ class DevnetClientFactory:
         self.net = net
         self.chain = chain
 
-    async def make_devnet_client(self) -> BaseClient:
-        client = await AccountClient.create_account(net=self.net, chain=self.chain)
-        return client
+    async def make_devnet_client(self) -> AccountClient:
+        client = GatewayClient(net=self.net, chain=self.chain)
+        acc_client = await AccountClient.create_account(client)
+        return acc_client
 
-    async def make_devnet_client_without_account(self) -> BaseClient:
+    async def make_devnet_client_without_account(self) -> GatewayClient:
         return GatewayClient(net=self.net, chain=self.chain)
 
     async def make_rpc_client(self) -> FullNodeClient:
-        return FullNodeClient(node_url=self.net + "/rpc", chain=self.chain)
+        return FullNodeClient(
+            node_url=self.net + "/rpc",
+            chain=self.chain,
+            net=self.net
+        )

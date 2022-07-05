@@ -37,8 +37,8 @@ class HttpClient(ABC):
                 session=session,
                 address=address,
                 http_method=http_method,
-                params=params or {},
-                payload=payload or {},
+                params=params,
+                payload=payload,
             )
 
     async def _make_request(
@@ -51,7 +51,7 @@ class HttpClient(ABC):
     ) -> dict:
         # pylint: disable=too-many-arguments
         async with session.request(
-            method=http_method.value, url=address, params=params or {}, json=payload
+            method=http_method.value, url=address, params=params, json=payload
         ) as request:
             await self.handle_request_error(request)
             return await request.json()

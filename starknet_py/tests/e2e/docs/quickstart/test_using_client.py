@@ -5,22 +5,22 @@ import pytest
 async def test_using_client():
     # pylint: disable=import-outside-toplevel, unused-variable
     # add to docs: start
-    from starknet_py.net import Client
+    from starknet_py.net.gateway_client import GatewayClient
     from starknet_py.net.networks import TESTNET, MAINNET
 
     # Use testnet for playing with Starknet
-    testnet_client = Client(TESTNET)
+    testnet_client = GatewayClient(TESTNET)
     # or
-    testnet_client = Client("testnet")
+    testnet_client = GatewayClient("testnet")
 
-    mainnet_client = Client(MAINNET)
+    mainnet_client = GatewayClient(MAINNET)
     # or
-    mainnet_client = Client("mainnet")
+    mainnet_client = GatewayClient("mainnet")
 
     # Local network
     from starknet_py.net.models import StarknetChainId
 
-    local_network_client = Client(
+    local_network_client = GatewayClient(
         "http://localhost:5000", chain=StarknetChainId.TESTNET
     )
 

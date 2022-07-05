@@ -13,7 +13,7 @@ async def test_signing_single_transaction(run_devnet):
     # add to docs: start
     from starknet_py.utils.crypto.facade import sign_calldata
     from starknet_py.contract import Contract
-    from starknet_py.net.client import Client
+    from starknet_py.net.gateway_client import GatewayClient
     from starknet_py.net.networks import TESTNET
 
     contract_address = (
@@ -25,7 +25,7 @@ async def test_signing_single_transaction(run_devnet):
     )
     value = 340282366920938463463374607431768211583
 
-    client = Client(TESTNET)
+    client = GatewayClient(TESTNET)
     # add to docs: end
 
     client = await DevnetClientFactory(run_devnet).make_devnet_client_without_account()
