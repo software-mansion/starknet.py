@@ -90,7 +90,9 @@ async def test_balance_when_token_specified(run_devnet):
 @pytest.mark.parametrize("net", (TESTNET, MAINNET))
 async def test_get_balance_default_token_address(net):
     client = GatewayClient(net=net)
-    acc_client = AccountClient(client=client, address="0x123", key_pair=KeyPair(123, 456))
+    acc_client = AccountClient(
+        client=client, address="0x123", key_pair=KeyPair(123, 456)
+    )
 
     with patch(
         "starknet_py.net.account.account_client.AccountClient.call_contract",
