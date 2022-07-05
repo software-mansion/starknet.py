@@ -174,6 +174,7 @@ async def test_get_transaction_receipt(clients, invoke_transaction_hash):
             version=0,
             actual_fee=0,
             transaction_rejection_reason=None,
+            block_number=1,
         )
 
 
@@ -338,8 +339,12 @@ async def test_wait_for_tx_pending(devnet_address):
         assert tx_status == TransactionStatus.PENDING
 
 
+@pytest.mark.parametrize("status, exception", (
+        (TransactionStatus.REJECTED, TransactionRejectedError),
+        (TransactionStatus.UNKNOWN, TransactionNotReceivedError),
+))
 @pytest.mark.asyncio
-async def test_wait_for_tx_rejected(devnet_address):
+async def test_wait_for_tx_rejected(status, exception, devnet_address):
     client = await DevnetClientFactory(
         devnet_address
     ).make_devnet_client_without_account()
@@ -351,36 +356,13 @@ async def test_wait_for_tx_rejected(devnet_address):
         result = asyncio.Future()
         result.set_result(
             TransactionReceipt(
-                hash=0x1, status=TransactionStatus.REJECTED, block_number=1
+                hash=0x1, status=status, block_number=1
             )
         )
 
         mocked_receipt.return_value = result
 
-        with pytest.raises(TransactionRejectedError):
-            await client.wait_for_tx(tx_hash=0x1)
-
-
-@pytest.mark.asyncio
-async def test_wait_for_tx_unknown(devnet_address):
-    client = await DevnetClientFactory(
-        devnet_address
-    ).make_devnet_client_without_account()
-
-    with patch(
-        "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt",
-        MagicMock(),
-    ) as mocked_receipt:
-        result = asyncio.Future()
-        result.set_result(
-            TransactionReceipt(
-                hash=0x1, status=TransactionStatus.UNKNOWN, block_number=1
-            )
-        )
-
-        mocked_receipt.return_value = result
-
-        with pytest.raises(TransactionNotReceivedError):
+        with pytest.raises(exception):
             await client.wait_for_tx(tx_hash=0x1)
 
 
@@ -409,5 +391,5 @@ async def test_wait_for_tx_cancelled(devnet_address):
         await asyncio.sleep(1)
         task.cancel()
 
-        with pytest.raises(asyncio.CancelledError):
+        with pytest.raises(TransactionNotReceivedError):
             await task

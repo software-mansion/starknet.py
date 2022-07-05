@@ -75,7 +75,7 @@ class FullNodeClient(BaseClient):
                 params={"block_number": block_number, "requested_scope": "FULL_TXNS"},
             )
             return StarknetBlockSchema().load(res, unknown=EXCLUDE)
-        raise ValueError("Block_hash or block_number must be provided.")
+        raise ValueError("Either block_hash or block_number is required")
 
     async def get_state_update(
         self,
@@ -167,13 +167,7 @@ class FullNodeClient(BaseClient):
     ) -> int:
         raise NotImplementedError()
 
-    async def call_contract(
-        self, invoke_tx: InvokeFunction, block_hash: Union[Hash, Tag] = None
-    ) -> List[int]:
-
-        if block_hash is None:
-            raise ValueError("Block_hash must be provided when using FullNodeClient")
-
+    async def call_contract(self, invoke_tx: InvokeFunction, block_hash: Union[Hash, Tag]) -> List[int]:
         res = await self._client.call(
             method_name="call",
             params={

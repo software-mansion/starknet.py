@@ -142,8 +142,8 @@ class BaseClient(ABC):
 
                 first_run = False
                 await asyncio.sleep(check_interval)
-            except asyncio.CancelledError:
-                raise
+            except asyncio.CancelledError as exc:
+                raise TransactionNotReceivedError from exc
 
     @abstractmethod
     async def estimate_fee(
