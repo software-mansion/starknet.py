@@ -27,7 +27,7 @@ async def test_pending_block(run_devnet):
     end
     """
 
-    client = await DevnetClientFactory(run_devnet).make_devnet_client()
+    client = DevnetClientFactory(run_devnet).make_devnet_client()
     constructor_args = [123]
     await Contract.deploy(
         client, compilation_source=contract, constructor_args=constructor_args
@@ -59,7 +59,7 @@ async def test_latest_block(run_devnet):
     end
     """
 
-    client = await DevnetClientFactory(run_devnet).make_devnet_client()
+    client = DevnetClientFactory(run_devnet).make_devnet_client()
     constructor_args = [123]
     await Contract.deploy(
         client, compilation_source=contract, constructor_args=constructor_args

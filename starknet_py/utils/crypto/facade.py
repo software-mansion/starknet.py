@@ -1,4 +1,3 @@
-import functools
 import os
 from typing import List, Callable, Iterable, Optional
 from dataclasses import dataclass
@@ -12,22 +11,6 @@ from crypto_cpp_py.cpp_bindings import (
     get_cpp_lib_file,
     ECSignature,
 )
-
-
-def sign_calldata(calldata: Iterable[int], priv_key: int):
-    """
-    Helper function that signs hash:
-    hash = pedersen_hash(calldata[0], 0)
-    hash = pedersen_hash(calldata[1], hash)
-    hash = pedersen_hash(calldata[2], hash)
-    ...
-
-    :param calldata: iterable of ints
-    :param priv_key: private key
-    :return: signed calldata's hash
-    """
-    hashed_calldata = functools.reduce(lambda x, y: pedersen_hash(y, x), calldata, 0)
-    return message_signature(hashed_calldata, priv_key)
 
 
 # PREFIX_TRANSACTION = 'StarkNet Transaction'
