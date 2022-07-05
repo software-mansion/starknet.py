@@ -339,10 +339,13 @@ async def test_wait_for_tx_pending(devnet_address):
         assert tx_status == TransactionStatus.PENDING
 
 
-@pytest.mark.parametrize("status, exception", (
+@pytest.mark.parametrize(
+    "status, exception",
+    (
         (TransactionStatus.REJECTED, TransactionRejectedError),
         (TransactionStatus.UNKNOWN, TransactionNotReceivedError),
-))
+    ),
+)
 @pytest.mark.asyncio
 async def test_wait_for_tx_rejected(status, exception, devnet_address):
     client = await DevnetClientFactory(
@@ -354,11 +357,7 @@ async def test_wait_for_tx_rejected(status, exception, devnet_address):
         MagicMock(),
     ) as mocked_receipt:
         result = asyncio.Future()
-        result.set_result(
-            TransactionReceipt(
-                hash=0x1, status=status, block_number=1
-            )
-        )
+        result.set_result(TransactionReceipt(hash=0x1, status=status, block_number=1))
 
         mocked_receipt.return_value = result
 

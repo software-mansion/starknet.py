@@ -167,7 +167,9 @@ class FullNodeClient(BaseClient):
     ) -> int:
         raise NotImplementedError()
 
-    async def call_contract(self, invoke_tx: InvokeFunction, block_hash: Union[Hash, Tag]) -> List[int]:
+    async def call_contract(
+        self, invoke_tx: InvokeFunction, block_hash: Union[Hash, Tag]
+    ) -> List[int]:
         res = await self._client.call(
             method_name="call",
             params={
