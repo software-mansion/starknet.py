@@ -28,12 +28,10 @@ async def test_creating_account_client(run_devnet):
 
     # There is another way of creating key_pair
     key_pair = KeyPair.from_private_key(key=123)
-    # add to docs: end
-
-    signer = StarkCurveSigner("0x1234", key_pair, StarknetChainId.TESTNET)
-    # add to docs: start
 
     # Instead of providing key_pair it is possible to specify a signer
+    signer = StarkCurveSigner("0x1234", key_pair, StarknetChainId.TESTNET)
+
     account_client = AccountClient(address="0x1234", signer=signer, net=TESTNET)
 
     testnet = "testnet"
@@ -41,7 +39,7 @@ async def test_creating_account_client(run_devnet):
     testnet = run_devnet
     # add to docs: start
 
-    # Deploys an account on local network and returns an instance
+    # Deploys an account on testnet and returns an instance
     account_client = await AccountClient.create_account(
         net=testnet, chain=StarknetChainId.TESTNET
     )
