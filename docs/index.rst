@@ -8,7 +8,6 @@ Welcome to Starknet.py's documentation!
    guide
    api
    development
-   migration_guide
 
 Indices and tables
 ==================

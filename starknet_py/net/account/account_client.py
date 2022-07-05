@@ -45,6 +45,17 @@ class AccountClient(Client):
         key_pair: Optional[KeyPair] = None,
         **kwargs,
     ):
+        """
+
+        :param net: Target network for the client. Can be a string with URL or one of ``"mainnet"``, ``"testnet"``
+        :param chain: Chain used by the network. Required if you use a custom URL for ``net`` param.
+        :param n_retries: Number of retries client will attempt before failing a request
+        :param address: Address of the deployed account to be used by AccountClient
+        :param signer: Custom signer to be used by AccountClient.
+                       If none is provieded, default
+                       :py:class:`starknet_py.net.signer.stark_curve_signer.StarkCurveSigner` is used.
+        :param key_pair: Key pair that will be used to create a default `Signer`
+        """
         if signer is None and key_pair is None:
             raise ValueError(
                 "Either a signer or a key_pair must be provied in AccountClient constructor"

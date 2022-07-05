@@ -11,14 +11,27 @@ Let's say we have a contract with this interface:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_existing_contracts.py
     :language: python
-    :lines: 7-25
+    :lines: 9-27
 
 
 This is how we can interact with it:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_existing_contracts.py
     :language: python
-    :lines: 37-45,61-93
+    :lines: 39-47,63-95
+    :dedent: 4
+
+
+Using different signing methods
+-------------------------------
+
+By default, :ref:`Account Client` uses signing method of OpenZeppelin's account contract. If for any reason you want to use a different
+signing algorithm, it is possible to create ``AccountClient`` with custom
+:ref:`Signer` implementation.
+
+.. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_custom_signer.py
+    :language: python
+    :lines: 11-28
     :dedent: 4
 
 
@@ -31,6 +44,60 @@ Here's how you can deploy new contracts:
     :language: python
     :lines: 12-38,42-71
     :dedent: 4
+
+
+Fees
+----
+
+Starknet.py requires you to specify amount of Wei you
+are willing to pay either when making ``.invoke()`` transactions or when preparing
+function calls with ``.prepare()``.
+
+.. code-block:: python
+
+    await contract.functions["put"].invoke(k, v, max_fee=5000)
+
+When max_fee is specified when preparing a call, you can invoke it without
+``max_fee``.
+
+.. code-block:: python
+
+    prepared_call = contract.function["put"].prepare(k, v, max_fee=5000)
+    await prepared_call.invoke()
+
+.. warning::
+
+    If ``max_fee`` is not specified at any step it will default to ``None``,
+    and will raise an exception when invoking a transaction.
+
+Please note you will need to have enough Wei in your starknet account otherwise
+transaction will be rejected.
+
+Fee estimation
+--------------
+
+You can estimate required amount of fee that will need to be paid for transaction
+using :meth:`Contract.PreparedFunctionCall.estimate_fee`
+
+.. code-block:: python
+
+    await contract.functions["put"].prepare(k, v, max_fee=5000).estimate_fee()
+
+Automatic fee estimation
+------------------------
+
+For testing purposes it is possible to enable automatic fee estimation when making
+a transaction. Starknet.py will then use ``estimate_fee()`` internally and use value
+returned by it multiplied by ``1.1`` as a ``max_fee``.
+
+.. warning::
+
+    Do not use automatic fee estimation in production code! It may lead to
+    very high fees paid as the amount returned by ``estimate_fee()`` may be arbitrarily large.
+
+.. code-block:: python
+
+    await contract.functions["put"].invoke(k, v, auto_estimate=True)
 
 
 Handling client errors
