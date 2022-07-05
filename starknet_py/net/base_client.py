@@ -118,27 +118,32 @@ class BaseClient(ABC):
 
         first_run = True
         while True:
-            result = await self.get_transaction_receipt(tx_hash=tx_hash)
-            status = result.status
+            try:
+                result = await self.get_transaction_receipt(tx_hash=tx_hash)
+                status = result.status
 
-            if status in (
-                TransactionStatus.ACCEPTED_ON_L1,
-                TransactionStatus.ACCEPTED_ON_L2,
-            ):
-                return result.block_number, status
-            if status == TransactionStatus.PENDING:
-                if not wait_for_accept and result.block_number is not None:
+                if status in (
+                    TransactionStatus.ACCEPTED_ON_L1,
+                    TransactionStatus.ACCEPTED_ON_L2,
+                ):
                     return result.block_number, status
-            elif status == TransactionStatus.REJECTED:
-                raise TransactionRejectedError(result.transaction_rejection_reason)
-            elif status == TransactionStatus.UNKNOWN:
-                if not first_run:
-                    raise TransactionNotReceivedError()
-            elif status != TransactionStatus.RECEIVED:
-                raise TransactionFailedError()
+                if status == TransactionStatus.PENDING:
+                    # FIXME this will fail as rpc receipt doesn't have block_number currently
+                    if not wait_for_accept and result.block_number is not None:
+                        return result.block_number, status
+                elif status == TransactionStatus.REJECTED:
+                    raise TransactionRejectedError(result.transaction_rejection_reason)
+                elif status == TransactionStatus.UNKNOWN:
+                    if not first_run:
+                        raise TransactionNotReceivedError()
+                elif status != TransactionStatus.RECEIVED:
+                    # This will never get executed with current possible transactions statuses
+                    raise TransactionFailedError()
 
-            first_run = False
-            await asyncio.sleep(check_interval)
+                first_run = False
+                await asyncio.sleep(check_interval)
+            except asyncio.CancelledError as exc:
+                raise TransactionNotReceivedError from exc
 
     @abstractmethod
     async def estimate_fee(

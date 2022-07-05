@@ -1,8 +1,12 @@
 # pylint: disable=too-many-arguments
+import asyncio
+from unittest.mock import patch, MagicMock
+
 import pytest
 
 from starkware.starknet.public.abi import get_selector_from_name
 
+from starknet_py.net.models import StarknetChainId
 from starknet_py.tests.e2e.utils import DevnetClientFactory
 from starknet_py.net.client_models import (
     TransactionStatus,
@@ -16,7 +20,10 @@ from starknet_py.net.client_models import (
     InvokeTransaction,
 )
 from starknet_py.net.client_errors import ClientError
-from starknet_py.transaction_exceptions import TransactionNotReceivedError
+from starknet_py.transaction_exceptions import (
+    TransactionRejectedError,
+    TransactionNotReceivedError,
+)
 from starknet_py.transactions.deploy import make_deploy_tx
 
 
@@ -162,19 +169,23 @@ async def test_get_storage_at_incorrect_address(clients):
 
 @pytest.mark.asyncio
 async def test_get_transaction_receipt(clients, invoke_transaction_hash):
-    for client in clients:
-        receipt = await client.get_transaction_receipt(tx_hash=invoke_transaction_hash)
+    # TODO: Adapt this test to work with RPC as well when it returns block number
+    gateway_client, _ = clients
+    receipt = await gateway_client.get_transaction_receipt(
+        tx_hash=invoke_transaction_hash
+    )
 
-        assert receipt == TransactionReceipt(
-            hash=invoke_transaction_hash,
-            status=TransactionStatus.ACCEPTED_ON_L2,
-            events=[],
-            l2_to_l1_messages=[],
-            l1_to_l2_consumed_message=None,
-            version=0,
-            actual_fee=0,
-            transaction_rejection_reason=None,
-        )
+    assert receipt == TransactionReceipt(
+        hash=invoke_transaction_hash,
+        status=TransactionStatus.ACCEPTED_ON_L2,
+        events=[],
+        l2_to_l1_messages=[],
+        l1_to_l2_consumed_message=None,
+        version=0,
+        actual_fee=0,
+        transaction_rejection_reason=None,
+        block_number=1,
+    )
 
 
 @pytest.mark.asyncio
@@ -268,23 +279,126 @@ async def test_deploy(devnet_address, balance_contract):
 
 
 @pytest.mark.asyncio
-async def test_get_class_hash_at(devnet_address, contract_address):
-    # TODO extend this test to all clients
-    client = await DevnetClientFactory(
-        devnet_address
-    ).make_devnet_client_without_account()
-    class_hash = await client.get_class_hash_at(contract_address=contract_address)
-    assert (
-        class_hash == 0x711941B11A8236B8CCA42B664E19342AC7300ABB1DC44957763CB65877C2708
-    )
+async def test_get_class_hash_at(clients, contract_address):
+    for client in clients:
+        class_hash = await client.get_class_hash_at(contract_address=contract_address)
+        assert (
+            class_hash
+            == 0x711941B11A8236B8CCA42B664E19342AC7300ABB1DC44957763CB65877C2708
+        )
 
 
 @pytest.mark.asyncio
-async def test_get_class_by_hash(devnet_address, class_hash):
-    # TODO extend this test to all clients
+async def test_get_class_by_hash(clients, class_hash):
+    for client in clients:
+        contract_class = await client.get_class_by_hash(class_hash=class_hash)
+        assert contract_class.program != ""
+        assert contract_class.entry_points_by_type is not None
+
+
+def test_chain_id(clients):
+    for client in clients:
+        assert client.chain == StarknetChainId.TESTNET
+
+
+@pytest.mark.asyncio
+async def test_wait_for_tx_accepted(devnet_address):
     client = await DevnetClientFactory(
         devnet_address
     ).make_devnet_client_without_account()
-    contract_class = await client.get_class_by_hash(class_hash=class_hash)
-    assert contract_class.program != ""
-    assert contract_class.entry_points_by_type is not None
+
+    with patch(
+        "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt",
+        MagicMock(),
+    ) as mocked_receipt:
+        result = asyncio.Future()
+        result.set_result(
+            TransactionReceipt(
+                hash=0x1, status=TransactionStatus.ACCEPTED_ON_L2, block_number=1
+            )
+        )
+
+        mocked_receipt.return_value = result
+
+        block_number, tx_status = await client.wait_for_tx(tx_hash=0x1)
+        assert block_number == 1
+        assert tx_status == TransactionStatus.ACCEPTED_ON_L2
+
+
+@pytest.mark.asyncio
+async def test_wait_for_tx_pending(devnet_address):
+    client = await DevnetClientFactory(
+        devnet_address
+    ).make_devnet_client_without_account()
+
+    with patch(
+        "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt",
+        MagicMock(),
+    ) as mocked_receipt:
+        result = asyncio.Future()
+        result.set_result(
+            TransactionReceipt(
+                hash=0x1, status=TransactionStatus.PENDING, block_number=1
+            )
+        )
+
+        mocked_receipt.return_value = result
+
+        block_number, tx_status = await client.wait_for_tx(tx_hash=0x1)
+        assert block_number == 1
+        assert tx_status == TransactionStatus.PENDING
+
+
+@pytest.mark.parametrize(
+    "status, exception",
+    (
+        (TransactionStatus.REJECTED, TransactionRejectedError),
+        (TransactionStatus.UNKNOWN, TransactionNotReceivedError),
+    ),
+)
+@pytest.mark.asyncio
+async def test_wait_for_tx_rejected(status, exception, devnet_address):
+    client = await DevnetClientFactory(
+        devnet_address
+    ).make_devnet_client_without_account()
+
+    with patch(
+        "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt",
+        MagicMock(),
+    ) as mocked_receipt:
+        result = asyncio.Future()
+        result.set_result(TransactionReceipt(hash=0x1, status=status, block_number=1))
+
+        mocked_receipt.return_value = result
+
+        with pytest.raises(exception):
+            await client.wait_for_tx(tx_hash=0x1)
+
+
+@pytest.mark.asyncio
+async def test_wait_for_tx_cancelled(devnet_address):
+    client = await DevnetClientFactory(
+        devnet_address
+    ).make_devnet_client_without_account()
+
+    with patch(
+        "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt",
+        MagicMock(),
+    ) as mocked_receipt:
+        result = asyncio.Future()
+        result.set_result(
+            TransactionReceipt(
+                hash=0x1, status=TransactionStatus.PENDING, block_number=1
+            )
+        )
+
+        mocked_receipt.return_value = result
+
+        task = asyncio.create_task(
+            client.wait_for_tx(tx_hash=0x1, wait_for_accept=True)
+        )
+        await asyncio.sleep(1)
+        task.cancel()
+
+        with pytest.raises(TransactionNotReceivedError):
+            await task
