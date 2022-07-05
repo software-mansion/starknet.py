@@ -74,6 +74,7 @@ async def fixture_clients(run_prepared_devnet) -> Tuple[Client, Client]:
     return gateway_client, full_node_client
 
 
+# pylint: disable=redefined-outer-name
 @pytest.fixture(name="run_prepared_devnet", scope="module", autouse=True)
 def fixture_run_prepared_devnet(run_devnet) -> Tuple[str, dict]:
     net = run_devnet
