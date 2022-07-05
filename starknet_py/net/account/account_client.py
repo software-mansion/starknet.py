@@ -62,7 +62,6 @@ class AccountClient(Client):
 
         if chain is None and client is None:
             raise ValueError("One of chain or client must be provided")
-        self._net = client.net
         self.address = parse_address(address)
         self.client = client
         self.signer = signer or StarkCurveSigner(
@@ -75,7 +74,7 @@ class AccountClient(Client):
 
     @property
     def net(self) -> Network:
-        return self._net
+        return self.client.net
 
     async def get_block(
         self,
@@ -242,10 +241,10 @@ class AccountClient(Client):
         `OpenZeppelin Account contract
         <https://github.com/starkware-libs/cairo-lang/blob/4e233516f52477ad158bc81a86ec2760471c1b65/src/starkware/starknet/third_party/open_zeppelin/Account.cairo>`_
 
-        :param net: Target net's address or one of "mainnet", "testnet"
-        :param chain: Chain used by the network. Required if you use a custom URL for ``net`` param
+        :param client: Instance of Client (i.e. FullNodeClient or GatewayClient)
+                       which will be used to add the transactions
         :param private_key: Private Key used for the account
-        :param signer : Signer used to create account and sign transaction
+        :param signer: Signer used to create account and sign transaction
         :return: Instance of AccountClient which interacts with created account on given network
         """
         if signer is None:

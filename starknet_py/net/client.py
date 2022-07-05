@@ -203,7 +203,7 @@ class Client(ABC):
     @abstractmethod
     async def declare(self, transaction: Declare) -> SentTransaction:
         """
-        Send a declare trasnaction
+        Send a declare transaction
 
         :param transaction: Declare transaction
         """
