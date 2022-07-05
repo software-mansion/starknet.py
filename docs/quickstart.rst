@@ -20,10 +20,25 @@ synchronous version. It might be helpful to play with Starknet directly in pytho
 
 You can see all Client's methods :obj:`here <starknet_py.net.Client>`.
 
-Using AccountClient
--------------------
+Creating AccountClient
+----------------------
 
 :obj:`AccountClient <starknet_py.net.account.account_client.AccountClient>` is an extension of a regular :obj:`Client <starknet_py.net.Client>`. It leverages `OpenZeppelin's Cairo contracts <https://github.com/OpenZeppelin/cairo-contracts>`_ to create an account contract which proxies (and signs) the calls to other contracts on Starknet.
+
+AccountClient can be created in two ways:
+
+* By constructor (address, key_pair and net must be known).
+* By static method AccountClient.create_account.
+
+There are some examples how to do it:
+
+.. literalinclude:: ../starknet_py/tests/e2e/docs/quickstart/test_creating_account_client.py
+    :language: python
+    :lines: 10-37,41-45
+    :dedent: 4
+
+Using AccountClient
+-------------------
 
 Example usage:
 
