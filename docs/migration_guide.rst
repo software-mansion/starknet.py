@@ -90,6 +90,6 @@ returned by it multiplied by ``1.1`` as a ``max_fee``.
 Changes
 -------
 
-* :ref:`Client` methods ``get_transaction_status``, ``get_transaction`` and ``get_transaction_receipt`` no longer accept ``tx_id`` parameter.
+* `Client` methods ``get_transaction_status``, ``get_transaction`` and ``get_transaction_receipt`` no longer accept ``tx_id`` parameter.
 
 * Starknet.py now supports named tuples from cairo-lang 0.8.0. see :ref:`Guide<Data transformation>`
