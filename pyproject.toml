@@ -43,7 +43,7 @@ pytest-xdist = "^2.5.0"
 starknet-devnet = {git = "https://github.com/Shard-Labs/starknet-devnet.git"}
 
 [tool.poe.tasks]
-test = ["test_unit", "test_e2e", "test_gateway"]
+test = ["test_unit", "test_e2e"]
 test_unit.shell = "coverage run -m pytest starknet_py --ignore=starknet_py/tests/e2e"
 test_unit.env = { COVERAGE_FILE="unit.coverage" }
 test_e2e.shell = """
@@ -53,10 +53,6 @@ test_e2e.env = { COVERAGE_FILE="e2e.coverage", DEVNET_PORT="5001" }
 test_e2e_parallel.shell = """
     pytest -n auto --dist loadscope starknet_py/tests/e2e -v --ignore=starknet_py/tests/e2e/gateway_client
 """
-test_client.shell = """
-    poetry run python -m pytest starknet_py/tests/e2e/client
-"""
-test_client.env = {DEVNET_PORT="5002"}
 coverage_combine.shell = "coverage combine unit.coverage e2e.coverage"
 test_report = [{ shell = "poe coverage_combine" }, { shell = "coverage report" }]
 test_html = [
