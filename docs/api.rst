@@ -2,7 +2,7 @@ API
 ===
 .. toctree::
 
-   client
+   gateway_client
    contract
    compiler
    account_client

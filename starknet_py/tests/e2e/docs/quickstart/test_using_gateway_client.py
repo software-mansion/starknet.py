@@ -2,7 +2,7 @@ import pytest
 
 
 @pytest.mark.asyncio
-async def test_using_client():
+async def test_using_gateway_client():
     # pylint: disable=import-outside-toplevel, unused-variable
     # add to docs: start
     from starknet_py.net.gateway_client import GatewayClient

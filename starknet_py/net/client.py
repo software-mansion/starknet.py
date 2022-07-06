@@ -25,8 +25,10 @@ from starknet_py.transaction_exceptions import (
     TransactionNotReceivedError,
     TransactionFailedError,
 )
+from starknet_py.utils.sync import add_sync_methods
 
 
+@add_sync_methods
 class Client(ABC):
     @property
     @abstractmethod

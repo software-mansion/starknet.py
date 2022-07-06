@@ -5,7 +5,7 @@ from starknet_py.net.networks import TESTNET
 
 
 @pytest.mark.asyncio
-def test_synchronous_testnet_client():
+def test_synchronous_gateway_client():
     # pylint: disable=no-member, unused-variable
     # add to docs: start
     synchronous_testnet_client = GatewayClient(TESTNET)

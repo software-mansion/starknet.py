@@ -19,6 +19,7 @@ from starknet_py.net.client_models import (
     DeclaredContract,
     Declare,
     Deploy,
+    TransactionStatusResponse,
 )
 from starknet_py.net.gateway_schemas.gateway_schemas import (
     ContractCodeSchema,
@@ -28,6 +29,7 @@ from starknet_py.net.gateway_schemas.gateway_schemas import (
     DeclaredContractSchema,
     TransactionReceiptSchema,
     TypesOfTransactionsSchema,
+    TransactionStatusSchema,
 )
 from starknet_py.net.http_client import GatewayHttpClient
 from starknet_py.net.models import StarknetChainId, chain_from_network
@@ -86,6 +88,35 @@ class GatewayClient(Client):
             raise TransactionNotReceivedError()
 
         return TypesOfTransactionsSchema().load(res["transaction"], unknown=EXCLUDE)
+
+    async def get_transaction_status(
+        self,
+        tx_hash: Hash,
+    ) -> TransactionStatusResponse:
+        """
+        Fetches the transaction's status and block number
+
+        :param tx_hash: Transaction's hash representation
+        :return: An object containing transaction's status and optional block hash, if transaction was accepted
+        """
+        res = await self._feeder_gateway_client.call(
+            params={"transactionHash": convert_to_felt(tx_hash)},
+            method_name="get_transaction_status",
+        )
+        if res["tx_status"] in ("UNKNOWN", "NOT_RECEIVED"):
+            raise TransactionNotReceivedError()
+
+        return TransactionStatusSchema().load(res)
+
+    async def get_contract_addresses(self) -> dict:
+        """
+        Fetches the addresses of the StarkNet system contracts
+
+        :return: A dictionary indexed with contract name and a value of contract's address
+        """
+        return await self._feeder_gateway_client.call(
+            method_name="get_contract_addresses",
+        )
 
     async def get_block(
         self,
