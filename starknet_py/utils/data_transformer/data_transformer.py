@@ -265,12 +265,11 @@ mapping = {
 
 
 @dataclass(frozen=True)
-class DataTransformer:
+class CairoSerializer:
     """
     Transforms data from python to Cairo format and back.
     """
 
-    abi: ABIFunctionEntry
     identifier_manager: IdentifierManager
 
     def resolve_type(self, cairo_type: CairoType) -> TypeTransformer:
@@ -280,12 +279,14 @@ class DataTransformer:
             resolve_type=self.resolve_type,
         )
 
-    def from_python(self, *args, **kwargs) -> (List[int], Dict[str, List[int]]):
+    def from_python(
+        self, value_types: List[dict], *args, **kwargs
+    ) -> (List[int], Dict[str, List[int]]):
         """
         Transforms params into Cairo representation.
         :return: tuple (full calldata, dict with all arguments with their Cairo representation)
         """
-        type_by_name = self._abi_to_types(self.abi["inputs"])
+        type_by_name = self._abi_to_types(value_types)
 
         named_arguments = {**kwargs}
 
@@ -318,8 +319,8 @@ class DataTransformer:
 
         return calldata, all_params
 
-    def to_python(self, values: CairoData) -> NamedTuple:
-        type_by_name = self._abi_to_types(self.abi["outputs"])
+    def to_python(self, value_types: List[dict], values: CairoData) -> NamedTuple:
+        type_by_name = self._abi_to_types(value_types)
 
         result = {}
         for name, cairo_type in type_by_name.items():
@@ -361,5 +362,22 @@ class DataTransformer:
         return {
             k: v
             for k, v in type_by_name.items()
-            if not DataTransformer._is_array_len(k, v, type_by_name=type_by_name)
+            if not CairoSerializer._is_array_len(k, v, type_by_name=type_by_name)
         }
+
+
+class FunctionCallSerializer:
+    def __init__(self, abi: ABIFunctionEntry, identifier_manager: IdentifierManager):
+        self.structure_transformer = CairoSerializer(identifier_manager)
+        self.abi = abi
+
+    def from_python(self, *args, **kwargs) -> (List[int], Dict[str, List[int]]):
+        return self.structure_transformer.from_python(
+            self.abi["inputs"], *args, **kwargs
+        )
+
+    def to_python(self, values: CairoData) -> NamedTuple:
+        return self.structure_transformer.to_python(self.abi["outputs"], values)
+
+
+DataTransformer = FunctionCallSerializer
