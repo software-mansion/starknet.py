@@ -89,7 +89,10 @@ async def test_balance_when_token_specified(run_devnet):
 @pytest.mark.asyncio
 @pytest.mark.parametrize("net", (TESTNET, MAINNET))
 async def test_get_balance_default_token_address(net):
-    acc_client = AccountClient("0x123", key_pair=KeyPair(123, 456), net=net)
+    client = GatewayClient(net=net)
+    acc_client = AccountClient(
+        client=client, address="0x123", key_pair=KeyPair(123, 456)
+    )
 
     with patch(
         "starknet_py.net.account.account_client.AccountClient.call_contract",
@@ -183,9 +186,8 @@ async def test_fee_higher_for_account_client(run_devnet):
 
 @pytest.mark.asyncio
 async def test_create_account_client(run_devnet):
-    acc_client = await AccountClient.create_account(
-        net=run_devnet, chain=StarknetChainId.TESTNET
-    )
+    client = GatewayClient(net=run_devnet, chain=StarknetChainId.TESTNET)
+    acc_client = await AccountClient.create_account(client)
     assert acc_client.signer is not None
     assert acc_client.address is not None
 
@@ -193,8 +195,9 @@ async def test_create_account_client(run_devnet):
 @pytest.mark.asyncio
 async def test_create_account_client_with_private_key(run_devnet):
     private_key = 1234
+    gt_client = GatewayClient(net=run_devnet, chain=StarknetChainId.TESTNET)
     acc_client = await AccountClient.create_account(
-        net=run_devnet, chain=StarknetChainId.TESTNET, private_key=private_key
+        client=gt_client, private_key=private_key
     )
     assert acc_client.signer.private_key == private_key
     assert acc_client.signer is not None
@@ -204,16 +207,19 @@ async def test_create_account_client_with_private_key(run_devnet):
 @pytest.mark.asyncio
 async def test_create_account_client_with_signer(run_devnet):
     key_pair = KeyPair.from_private_key(1234)
+    client = GatewayClient(
+        net=run_devnet,
+        chain=StarknetChainId.TESTNET,
+    )
     address = await deploy_account_contract(
-        public_key=key_pair.public_key, net=run_devnet, chain=StarknetChainId.TESTNET
+        client=client,
+        public_key=key_pair.public_key,
     )
 
     signer = StarkCurveSigner(
         account_address=address, key_pair=key_pair, chain_id=StarknetChainId.TESTNET
     )
-    acc_client = await AccountClient.create_account(
-        net=run_devnet, chain=StarknetChainId.TESTNET, signer=signer
-    )
+    acc_client = await AccountClient.create_account(client=client, signer=signer)
     assert acc_client.signer == signer
     assert acc_client.signer is not None
     assert acc_client.address is not None

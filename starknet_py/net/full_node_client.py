@@ -4,8 +4,8 @@ from typing import List, Optional, Union
 import aiohttp
 from marshmallow import EXCLUDE
 
-from starknet_py.net.base_client import (
-    BaseClient,
+from starknet_py.net.client import (
+    Client,
 )
 from starknet_py.net.client_models import (
     SentTransaction,
@@ -21,7 +21,8 @@ from starknet_py.net.client_models import (
     Deploy,
 )
 from starknet_py.net.http_client import RpcHttpClient
-from starknet_py.net.models import StarknetChainId
+from starknet_py.net.models import StarknetChainId, chain_from_network
+from starknet_py.net.networks import Network
 from starknet_py.net.rpc_schemas.rpc_schemas import (
     StarknetBlockSchema,
     BlockStateUpdateSchema,
@@ -30,26 +31,35 @@ from starknet_py.net.rpc_schemas.rpc_schemas import (
     TypesOfTransactionsSchema,
 )
 from starknet_py.net.client_utils import convert_to_felt
+from starknet_py.utils.sync import add_sync_methods
 
 
-class FullNodeClient(BaseClient):
+@add_sync_methods
+class FullNodeClient(Client):
     def __init__(
         self,
         node_url: str,
-        chain: StarknetChainId,
+        net: Network,
+        chain: Optional[StarknetChainId] = None,
         session: Optional[aiohttp.ClientSession] = None,
     ):
         """
         Client for interacting with starknet json-rpc interface.
 
         :param node_url: Url of the node providing rpc interface
+        :param net: StarkNet network identifier
         :param chain: Chain id of the network used by the rpc client
         :param session: Aiohttp session to be used for request. If not provided, client will create a session for
                         every request. When using a custom session, user is resposible for closing it manually.
         """
         self.url = node_url
         self._client = RpcHttpClient(url=node_url, session=session)
-        self._chain = chain
+        self._chain = chain_from_network(net, chain)
+        self._net = net
+
+    @property
+    def net(self) -> Network:
+        return self._net
 
     @property
     def chain(self) -> StarknetChainId:

@@ -1,5 +1,6 @@
 import pytest
 
+from starknet_py.net.client_models import TransactionStatusResponse, TransactionStatus
 from starknet_py.tests.e2e.utils import DevnetClientFactory
 
 
@@ -44,3 +45,14 @@ async def test_get_code(devnet_address, contract_address):
     assert len(code.abi) != 0
     assert code.bytecode is not None
     assert len(code.bytecode) != 0
+
+
+@pytest.mark.asyncio
+async def test_get_transaction_status(devnet_address, invoke_transaction_hash):
+    client = await DevnetClientFactory(
+        devnet_address
+    ).make_devnet_client_without_account()
+    tx_status_resp = await client.get_transaction_status(invoke_transaction_hash)
+    assert isinstance(tx_status_resp, TransactionStatusResponse)
+    assert tx_status_resp.transaction_status == TransactionStatus.ACCEPTED_ON_L2
+    assert isinstance(tx_status_resp.block_hash, int)

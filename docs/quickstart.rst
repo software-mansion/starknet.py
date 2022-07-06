@@ -1,11 +1,14 @@
 Quickstart
 ==========
 
-Using Client
-------------
-:obj:`Client <starknet_py.net.Client>` is a facade for interacting with Starknet. It requires information about used network:
+Using GatewayClient
+-------------------
+A client (i.e. :obj:`GatewayClient <starknet_py.net.gateway_client.GatewayClient>`, :obj:`FullNodeClient <starknet_py.net.full_node_client.FullNodeClient>`) is a facade for interacting with Starknet.
+Gateway client will make requests directly to starknet sequencer through `gateway` or `feeder_gateway` endpoints.
+It can be used to either query the blockchain state or add new transactions.
+It requires information about used network:
 
-.. literalinclude:: ../starknet_py/tests/e2e/docs/quickstart/test_using_client.py
+.. literalinclude:: ../starknet_py/tests/e2e/docs/quickstart/test_using_gateway_client.py
     :language: python
     :lines: 8-29
     :dedent: 4
@@ -13,17 +16,31 @@ Using Client
 The default interface is asynchronous. Although it is the recommended way of using Starknet.py, you can also use a
 synchronous version. It might be helpful to play with Starknet directly in python interpreter.
 
-.. literalinclude:: ../starknet_py/tests/e2e/docs/quickstart/test_synchronous_testnet_client.py
+.. literalinclude:: ../starknet_py/tests/e2e/docs/quickstart/test_synchronous_gateway_client.py
     :language: python
     :lines: 11-14
     :dedent: 4
 
-You can see all Client's methods :obj:`here <starknet_py.net.Client>`.
+You can see all Gateway Client's methods :obj:`here <starknet_py.net.gateway_client.GatewayClient>`.
+
+Using FullNodeClient
+--------------------
+FullNodeClient is a client which interacts with a StarkNet full node like `pathfinder <https://github.com/eqlabs/pathfinder>`_.
+For now API only supports read operations - it will change in the future along with full node write support.
+As with GatewayClient, there is both synchronous and asynchronous API available.
+Usage is a little different than the GatewayClient, see below:
+
+.. literalinclude:: ../starknet_py/tests/e2e/docs/quickstart/test_using_full_node_client.py
+    :language: python
+    :lines: 12-15,21-24
+    :dedent: 4
+
+You can see all Gateway Client's methods :obj:`here <starknet_py.net.full_node_client.FullNodeClient>`.
 
 Using AccountClient
 -------------------
 
-:obj:`AccountClient <starknet_py.net.account.account_client.AccountClient>` is an extension of a regular :obj:`Client <starknet_py.net.Client>`. It leverages `OpenZeppelin's Cairo contracts <https://github.com/OpenZeppelin/cairo-contracts>`_ to create an account contract which proxies (and signs) the calls to other contracts on Starknet.
+:obj:`AccountClient <starknet_py.net.account.account_client.AccountClient>` is an extension of a regular client. It leverages `OpenZeppelin's Cairo contracts <https://github.com/OpenZeppelin/cairo-contracts>`_ to create an account contract which proxies (and signs) the calls to other contracts on Starknet.
 
 Example usage:
 

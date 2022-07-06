@@ -4,7 +4,7 @@ Guide
 Using existing contracts
 ------------------------
 
-Although it is possible to use :ref:`Client` to interact with contracts, it requires translating python values into Cairo
+Although it is possible to use `Client` to interact with contracts, it requires translating python values into Cairo
 values. Contract offers that and some other utilities.
 
 Let's say we have a contract with this interface:

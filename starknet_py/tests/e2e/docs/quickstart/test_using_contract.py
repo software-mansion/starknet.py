@@ -14,10 +14,10 @@ map_source_code = Path(directory, "map.cairo").read_text("utf-8")
 async def test_using_contract(run_devnet):
     # add to docs: start
     from starknet_py.contract import Contract
-    from starknet_py.net.client import Client
+    from starknet_py.net.gateway_client import GatewayClient
     from starknet_py.net.networks import TESTNET
 
-    client = Client(TESTNET)
+    client = GatewayClient(TESTNET)
 
     contract_address = (
         "0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b"
