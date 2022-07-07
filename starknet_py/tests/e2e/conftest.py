@@ -38,6 +38,10 @@ def start_devnet():
         "localhost",
         "--port",
         str(devnet_port),
+        "--accounts",  # deploys specified number of accounts
+        str(1),
+        "--seed",  # generates same accounts each time
+        str(1),
     ]
     # pylint: disable=consider-using-with
     proc = subprocess.Popen(command)

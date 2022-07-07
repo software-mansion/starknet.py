@@ -11,71 +11,27 @@ Let's say we have a contract with this interface:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_existing_contracts.py
     :language: python
-    :lines: 7-25
+    :lines: 9-27
 
 
 This is how we can interact with it:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_existing_contracts.py
     :language: python
-    :lines: 37-45,61-93
+    :lines: 39-47,63-95
     :dedent: 4
 
-Signing a single transaction
-----------------------------
-You can use :obj:`ContractFunction's call <starknet_py.contract.ContractFunction.prepare>` to get calldata's parts and generate a signature from them. Here's a contract inspired by `Starknet's docs <https://www.cairo-lang.org/docs/hello_starknet/user_auth.html>`_:
 
-.. code-block:: text
+Using different signing methods
+-------------------------------
 
-    %lang starknet
+By default, :ref:`Account Client` uses signing method of OpenZeppelin's account contract. If for any reason you want to use a different
+signing algorithm, it is possible to create ``AccountClient`` with custom
+:ref:`Signer` implementation.
 
-    %builtins pedersen range_check ecdsa
-
-    from starkware.cairo.common.uint256 import Uint256
-    from starkware.cairo.common.cairo_builtins import (HashBuiltin, SignatureBuiltin)
-    from starkware.cairo.common.hash import hash2
-    from starkware.cairo.common.signature import (verify_ecdsa_signature)
-    from starkware.starknet.common.syscalls import get_tx_signature
-
-    @storage_var
-    func balance(user) -> (res: Uint256):
-    end
-
-    @external
-    func set_balance{
-            syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
-            range_check_ptr, ecdsa_ptr : SignatureBuiltin*}(
-            user : felt, amount : Uint256):
-        let (sig_len : felt, sig : felt*) = get_tx_signature()
-
-        # Verify the signature length.
-        assert sig_len = 2
-
-        let (hash) = hash2{hash_ptr=pedersen_ptr}(amount.low, 0)
-        let (amount_hash) = hash2{hash_ptr=pedersen_ptr}(amount.high, hash)
-
-        # Verify the user's signature.
-        verify_ecdsa_signature(
-            message=amount_hash,
-            public_key=user,
-            signature_r=sig[0],
-            signature_s=sig[1])
-
-        balance.write(user, amount)
-        return ()
-    end
-
-    @external
-    func get_balance{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(user : felt) -> (balance: Uint256):
-        let (value) = balance.read(user=user)
-        return (value)
-    end
-
-Here's how you could sign an invocation:
-
-.. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_signing_single_transaction.py
+.. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_custom_signer.py
     :language: python
-    :lines: 14-28,41-54
+    :lines: 11-28
     :dedent: 4
 
 
@@ -88,6 +44,60 @@ Here's how you can deploy new contracts:
     :language: python
     :lines: 12-38,42-71
     :dedent: 4
+
+
+Fees
+----
+
+Starknet.py requires you to specify amount of Wei you
+are willing to pay either when making ``.invoke()`` transactions or when preparing
+function calls with ``.prepare()``.
+
+.. code-block:: python
+
+    await contract.functions["put"].invoke(k, v, max_fee=5000)
+
+When max_fee is specified when preparing a call, you can invoke it without
+``max_fee``.
+
+.. code-block:: python
+
+    prepared_call = contract.function["put"].prepare(k, v, max_fee=5000)
+    await prepared_call.invoke()
+
+.. warning::
+
+    If ``max_fee`` is not specified at any step it will default to ``None``,
+    and will raise an exception when invoking a transaction.
+
+Please note you will need to have enough Wei in your starknet account otherwise
+transaction will be rejected.
+
+Fee estimation
+--------------
+
+You can estimate required amount of fee that will need to be paid for transaction
+using :meth:`Contract.PreparedFunctionCall.estimate_fee`
+
+.. code-block:: python
+
+    await contract.functions["put"].prepare(k, v, max_fee=5000).estimate_fee()
+
+Automatic fee estimation
+------------------------
+
+For testing purposes it is possible to enable automatic fee estimation when making
+a transaction. Starknet.py will then use ``estimate_fee()`` internally and use value
+returned by it multiplied by ``1.1`` as a ``max_fee``.
+
+.. warning::
+
+    Do not use automatic fee estimation in production code! It may lead to
+    very high fees paid as the amount returned by ``estimate_fee()`` may be arbitrarily large.
+
+.. code-block:: python
+
+    await contract.functions["put"].invoke(k, v, auto_estimate=True)
 
 
 Handling client errors

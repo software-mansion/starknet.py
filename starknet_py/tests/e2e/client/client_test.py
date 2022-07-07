@@ -1,5 +1,7 @@
 # pylint: disable=too-many-arguments
 import asyncio
+import os
+from pathlib import Path
 from unittest.mock import patch, MagicMock
 
 import pytest
@@ -25,6 +27,11 @@ from starknet_py.transaction_exceptions import (
     TransactionNotReceivedError,
 )
 from starknet_py.transactions.deploy import make_deploy_tx
+
+
+directory = os.path.dirname(__file__)
+
+map_source = Path(directory, "map.cairo").read_text("utf-8")
 
 
 @pytest.mark.asyncio
@@ -240,7 +247,7 @@ async def test_state_update(
 @pytest.mark.asyncio
 async def test_add_transaction(devnet_address, contract_address):
     # TODO extend this test to all clients
-    client = await DevnetClientFactory(
+    client = DevnetClientFactory(
         devnet_address
     ).make_devnet_client_without_account()
     invoke_function = InvokeFunction(
@@ -260,7 +267,7 @@ async def test_add_transaction(devnet_address, contract_address):
 @pytest.mark.asyncio
 async def test_deploy(devnet_address, balance_contract):
     # TODO extend this test to all clients
-    client = await DevnetClientFactory(
+    client = DevnetClientFactory(
         devnet_address
     ).make_devnet_client_without_account()
     deploy_tx = make_deploy_tx(
@@ -272,6 +279,15 @@ async def test_deploy(devnet_address, balance_contract):
 
 
 @pytest.mark.asyncio
+async def test_get_class_by_hash(run_devnet):
+    client = DevnetClientFactory(run_devnet).make_devnet_client()
+
+    declare_result = await client.declare(compilation_source=map_source)
+    class_hash = declare_result["class_hash"]
+
+    assert isinstance(await client.get_class_by_hash(class_hash), dict)
+
+
 async def test_get_class_hash_at(clients, contract_address):
     for client in clients:
         class_hash = await client.get_class_hash_at(contract_address=contract_address)
@@ -296,7 +312,7 @@ def test_chain_id(clients):
 
 @pytest.mark.asyncio
 async def test_wait_for_tx_accepted(devnet_address):
-    client = await DevnetClientFactory(
+    client = DevnetClientFactory(
         devnet_address
     ).make_devnet_client_without_account()
 

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "starknet.py"
-version = "0.3.2-alpha"
+version = "0.3.4-alpha"
 description = "A python SDK for StarkNet"
 authors = ["Tomasz Rejowski <tomasz.rejowski@swmansion.com>", "Jakub Ptak <jakub.ptak@swmansion.com>"]
 include = ["starknet_py", "starknet_py/utils/crypto/libcrypto_c_exports.*"]
@@ -40,18 +40,18 @@ setuptools = "^60.0.3"
 pytest-mock = "^3.6.1"
 web3 = {extras=["tester"], version=">=5.28.0,<6"}
 pytest-xdist = "^2.5.0"
-starknet-devnet = {git = "https://github.com/Shard-Labs/starknet-devnet.git"}
+starknet-devnet = "^0.2.4"
 
 [tool.poe.tasks]
 test = ["test_unit", "test_e2e"]
 test_unit.shell = "coverage run -m pytest starknet_py --ignore=starknet_py/tests/e2e"
 test_unit.env = { COVERAGE_FILE="unit.coverage" }
 test_e2e.shell = """
-    coverage run -m pytest starknet_py/tests/e2e --ignore=starknet_py/tests/e2e/gateway_client
+    coverage run -m pytest starknet_py/tests/e2e
 """
 test_e2e.env = { COVERAGE_FILE="e2e.coverage", DEVNET_PORT="5001" }
 test_e2e_parallel.shell = """
-    pytest -n auto --dist loadscope starknet_py/tests/e2e -v --ignore=starknet_py/tests/e2e/gateway_client
+    pytest -n auto --dist loadscope starknet_py/tests/e2e -v
 """
 coverage_combine.shell = "coverage combine unit.coverage e2e.coverage"
 test_report = [{ shell = "poe coverage_combine" }, { shell = "coverage report" }]

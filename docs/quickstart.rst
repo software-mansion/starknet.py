@@ -37,16 +37,31 @@ Usage is a little different than the GatewayClient, see below:
 
 You can see all Gateway Client's methods :obj:`here <starknet_py.net.full_node_client.FullNodeClient>`.
 
-Using AccountClient
--------------------
+Creating AccountClient
+----------------------
 
 :obj:`AccountClient <starknet_py.net.account.account_client.AccountClient>` is an extension of a regular client. It leverages `OpenZeppelin's Cairo contracts <https://github.com/OpenZeppelin/cairo-contracts>`_ to create an account contract which proxies (and signs) the calls to other contracts on Starknet.
+
+AccountClient can be created in two ways:
+
+* By constructor (address, key_pair and net must be known).
+* By static method AccountClient.create_account.
+
+There are some examples how to do it:
+
+.. literalinclude:: ../starknet_py/tests/e2e/docs/quickstart/test_creating_account_client.py
+    :language: python
+    :lines: 10-37,41-45
+    :dedent: 4
+
+Using AccountClient
+-------------------
 
 Example usage:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/quickstart/test_using_account_client.py
     :language: python
-    :lines: 14-16,20-43
+    :lines: 14-17,21-25,29-47
     :dedent: 4
 
 Using Contract
@@ -62,5 +77,5 @@ Although asynchronous API is recommended, you can also use Contract's synchronou
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/quickstart/test_synchronous_api.py
     :language: python
-    :lines: 14-21,35-42
+    :lines: 15-22,35-42
     :dedent: 4

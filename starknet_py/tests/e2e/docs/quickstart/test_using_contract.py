@@ -14,10 +14,10 @@ map_source_code = Path(directory, "map.cairo").read_text("utf-8")
 async def test_using_contract(run_devnet):
     # add to docs: start
     from starknet_py.contract import Contract
-    from starknet_py.net.gateway_client import GatewayClient
+    from starknet_py.net import AccountClient
     from starknet_py.net.networks import TESTNET
 
-    client = GatewayClient(TESTNET)
+    client = await AccountClient.create_account(TESTNET)
 
     contract_address = (
         "0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b"
@@ -25,7 +25,7 @@ async def test_using_contract(run_devnet):
     key = 1234
     # add to docs: end
 
-    client = await DevnetClientFactory(run_devnet).make_devnet_client_without_account()
+    client = DevnetClientFactory(run_devnet).make_devnet_client()
 
     deployment_result = await Contract.deploy(
         client=client, compilation_source=map_source_code
@@ -53,7 +53,7 @@ async def test_using_contract(run_devnet):
 
     # All exposed functions are available at contract.functions.
     # Here we invoke a function, creating a new transaction.
-    invocation = await contract.functions["put"].invoke(key, 7, max_fee=0)
+    invocation = await contract.functions["put"].invoke(key, 7, max_fee=int(1e16))
 
     # Invocation returns InvokeResult object. It exposes a helper for waiting until transaction is accepted.
     await invocation.wait_for_acceptance()
