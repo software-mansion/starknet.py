@@ -9,4 +9,5 @@ API
    signer
    models
    cairo
+   cairo_serializer
    messages

@@ -284,6 +284,8 @@ class CairoSerializer:
     ) -> (List[int], Dict[str, List[int]]):
         """
         Transforms params into Cairo representation.
+
+        :param value_types: Types of values to be serialized
         :return: tuple (full calldata, dict with all arguments with their Cairo representation)
         """
         type_by_name = self._abi_to_types(value_types)
@@ -320,6 +322,13 @@ class CairoSerializer:
         return calldata, all_params
 
     def to_python(self, value_types: List[dict], values: CairoData) -> NamedTuple:
+        """
+        Transforms params into Python representation.
+
+        :param value_types: Types of values to be serialized
+        :param values: Values to be serialized
+        :return: tuple (full calldata, dict with all arguments with their Cairo representation)
+        """
         type_by_name = self._abi_to_types(value_types)
 
         result = {}
@@ -367,6 +376,10 @@ class CairoSerializer:
 
 
 class FunctionCallSerializer:
+    """
+    Transforms function call data from python to Cairo format and back.
+    """
+
     def __init__(self, abi: ABIFunctionEntry, identifier_manager: IdentifierManager):
         self.structure_transformer = CairoSerializer(identifier_manager)
         self.abi = abi
