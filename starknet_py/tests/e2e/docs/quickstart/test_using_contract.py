@@ -20,7 +20,9 @@ async def test_using_contract():
 
     gateway_client = GatewayClient(TESTNET)
     # add to docs: end
-    gateway_client = DevnetClientFactory("http://localhost:5050").make_devnet_client_without_account()
+    gateway_client = DevnetClientFactory(
+        "http://localhost:5050"
+    ).make_devnet_client_without_account()
 
     # add to docs: start
 
@@ -34,8 +36,7 @@ async def test_using_contract():
     account_client = DevnetClientFactory("http://localhost:5050").make_devnet_client()
 
     deployment_result = await Contract.deploy(
-        client=account_client,
-        compilation_source=map_source_code
+        client=account_client, compilation_source=map_source_code
     )
     deployment_result = await deployment_result.wait_for_acceptance()
     contract = deployment_result.deployed_contract

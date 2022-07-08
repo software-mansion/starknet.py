@@ -190,9 +190,7 @@ async def test_get_transaction_receipt(clients, invoke_transaction_hash):
 
 @pytest.mark.asyncio
 async def test_estimate_fee(devnet_address, contract_address):
-    client = DevnetClientFactory(
-        devnet_address
-    ).make_devnet_client_without_account()
+    client = DevnetClientFactory(devnet_address).make_devnet_client_without_account()
     transaction = InvokeFunction(
         contract_address=contract_address,
         entry_point_selector=get_selector_from_name("increase_balance"),
@@ -320,9 +318,7 @@ async def test_wait_for_tx_accepted(devnet_address):
 
 @pytest.mark.asyncio
 async def test_wait_for_tx_pending(devnet_address):
-    client = DevnetClientFactory(
-        devnet_address
-    ).make_devnet_client_without_account()
+    client = DevnetClientFactory(devnet_address).make_devnet_client_without_account()
 
     with patch(
         "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt",
@@ -351,9 +347,7 @@ async def test_wait_for_tx_pending(devnet_address):
 )
 @pytest.mark.asyncio
 async def test_wait_for_tx_rejected(status, exception, devnet_address):
-    client = DevnetClientFactory(
-        devnet_address
-    ).make_devnet_client_without_account()
+    client = DevnetClientFactory(devnet_address).make_devnet_client_without_account()
 
     with patch(
         "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt",
@@ -370,9 +364,7 @@ async def test_wait_for_tx_rejected(status, exception, devnet_address):
 
 @pytest.mark.asyncio
 async def test_wait_for_tx_cancelled(devnet_address):
-    client = DevnetClientFactory(
-        devnet_address
-    ).make_devnet_client_without_account()
+    client = DevnetClientFactory(devnet_address).make_devnet_client_without_account()
 
     with patch(
         "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt",

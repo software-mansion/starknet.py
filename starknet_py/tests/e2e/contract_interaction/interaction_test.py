@@ -439,8 +439,7 @@ async def test_transaction_not_received_error(run_devnet):
         result = asyncio.Future()
         result.set_result(
             SentTransactionResponse(
-                code=StarkErrorCode.TRANSACTION_CANCELLED,
-                hash="0x123"
+                code=StarkErrorCode.TRANSACTION_CANCELLED, hash="0x123"
             )
         )
 

@@ -3,7 +3,6 @@ from typing import List
 import pytest
 
 
-
 @pytest.mark.asyncio
 async def test_custom_signer():
     # pylint: disable=import-outside-toplevel, duplicate-code, unused-variable

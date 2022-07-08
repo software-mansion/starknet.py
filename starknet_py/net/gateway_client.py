@@ -258,7 +258,9 @@ class GatewayClient(Client):
 
         return [int(v, 16) for v in res["result"]]
 
-    async def add_transaction(self, transaction: InvokeFunction) -> SentTransactionResponse:
+    async def add_transaction(
+        self, transaction: InvokeFunction
+    ) -> SentTransactionResponse:
         return await self._add_transaction(transaction)
 
     async def deploy(self, transaction: Deploy) -> SentTransactionResponse:
@@ -282,7 +284,9 @@ class GatewayClient(Client):
         )
         return DeclaredContractSchema().load(res, unknown=EXCLUDE)
 
-    async def _add_transaction(self, tx: StarknetTransaction) -> SentTransactionResponse:
+    async def _add_transaction(
+        self, tx: StarknetTransaction
+    ) -> SentTransactionResponse:
         res = await self._gateway_client.post(
             method_name="add_transaction",
             payload=StarknetTransaction.Schema().dump(obj=tx),

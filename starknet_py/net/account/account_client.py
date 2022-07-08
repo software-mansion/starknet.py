@@ -38,6 +38,7 @@ from starknet_py.utils.sync import add_sync_methods
 from starknet_py.net.models.address import AddressRepresentation, parse_address
 from starknet_py.net.gateway_client import GatewayClient
 
+
 @add_sync_methods
 class AccountClient(Client):
     """

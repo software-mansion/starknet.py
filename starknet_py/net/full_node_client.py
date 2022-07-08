@@ -198,7 +198,9 @@ class FullNodeClient(Client):
         )
         return [int(i, 16) for i in res["result"]]
 
-    async def add_transaction(self, transaction: InvokeFunction) -> SentTransactionResponse:
+    async def add_transaction(
+        self, transaction: InvokeFunction
+    ) -> SentTransactionResponse:
         raise NotImplementedError()
 
     async def deploy(self, transaction: Deploy) -> SentTransactionResponse:
