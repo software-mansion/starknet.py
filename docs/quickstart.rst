@@ -32,7 +32,7 @@ Usage is a little different than the GatewayClient, see below:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/quickstart/test_using_full_node_client.py
     :language: python
-    :lines: 12-15,21-24
+    :lines: 12-15,21-22
     :dedent: 4
 
 You can see all Gateway Client's methods :obj:`here <starknet_py.net.full_node_client.FullNodeClient>`.
@@ -61,7 +61,7 @@ Example usage:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/quickstart/test_using_account_client.py
     :language: python
-    :lines: 14-17,21-25,29-47
+    :lines: 15-18,22-25,29-47
     :dedent: 4
 
 Using Contract
@@ -70,7 +70,7 @@ Using Contract
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/quickstart/test_using_contract.py
     :language: python
-    :lines: 16-25,38-40,46-63
+    :lines: 16-21,28-34,46-48,54-71
     :dedent: 4
 
 Although asynchronous API is recommended, you can also use Contract's synchronous API:
