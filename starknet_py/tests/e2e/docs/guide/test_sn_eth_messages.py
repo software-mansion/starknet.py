@@ -13,7 +13,7 @@ async def test_sn_eth_messages(run_devnet):
         MessageToEth,
         MessageToEthContent,
     )
-    from starknet_py.net.client import Client
+    from starknet_py.net.gateway_client import GatewayClient
     from starknet_py.net.models import StarknetChainId
     from starknet_py.net.networks import TESTNET
 
@@ -35,11 +35,11 @@ async def test_sn_eth_messages(run_devnet):
         )  # Provide 32 bytes as an input here, instead of message's content
     )
 
-    client = Client(TESTNET)
+    client = GatewayClient(TESTNET)
 
     # add to docs: end
 
-    client = await DevnetClientFactory(run_devnet).make_devnet_client_without_account()
+    client = DevnetClientFactory(run_devnet).make_devnet_client_without_account()
 
     # add to docs: start
     # 3. From l2 (StarkNet) transaction receipt (provided by starknet.py, like shown below)

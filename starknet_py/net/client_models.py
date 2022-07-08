@@ -72,7 +72,7 @@ class TransactionType(Enum):
 @dataclass
 class Transaction(ABC):
     """
-    Dataclass representing common atributes of all transactions
+    Dataclass representing common attributes of all transactions
     """
 
     hash: int
@@ -151,7 +151,7 @@ class TransactionReceipt:
 
 
 @dataclass
-class SentTransaction:
+class SentTransactionResponse:
     """
     Dataclass representing a result of sending a transaction to starknet
     """
@@ -253,3 +253,9 @@ class DeclaredContract:
 
     program: dict
     entry_points_by_type: EntryPointsByType
+
+
+@dataclass
+class TransactionStatusResponse:
+    block_hash: Optional[int]
+    transaction_status: TransactionStatus

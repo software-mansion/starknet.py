@@ -1,15 +1,10 @@
 import os
 import subprocess
 from pathlib import Path
-from typing import Tuple
 from ast import literal_eval
 
 import pytest
 from starkware.starknet.public.abi import get_selector_from_name
-
-from starknet_py.tests.e2e.utils import DevnetClientFactory
-from starknet_py.net.base_client import BaseClient
-
 
 directory = os.path.dirname(__file__)
 
@@ -42,13 +37,6 @@ def get_class_hash(net: str, contract_address: str) -> str:
     return res.stdout
 
 
-@pytest.fixture(name="run_prepared_devnet", scope="module", autouse=True)
-def fixture_run_prepared_devnet(run_devnet) -> Tuple[str, dict]:
-    net = run_devnet
-    block = prepare_devnet(net)
-    yield net, block
-
-
 @pytest.fixture(name="block_with_deploy")
 def fixture_block_with_deploy(run_prepared_devnet) -> dict:
     _, block = run_prepared_devnet
@@ -79,16 +67,6 @@ def fixture_block_with_invoke_number() -> int:
 def fixture_devnet_address(run_prepared_devnet) -> str:
     devnet_address, _ = run_prepared_devnet
     return devnet_address
-
-
-@pytest.fixture(name="clients")
-async def fixture_clients(run_prepared_devnet) -> Tuple[BaseClient, BaseClient]:
-    devnet_address, _ = run_prepared_devnet
-    gateway_client = await DevnetClientFactory(
-        devnet_address
-    ).make_devnet_client_without_account()
-    full_node_client = await DevnetClientFactory(devnet_address).make_rpc_client()
-    return gateway_client, full_node_client
 
 
 @pytest.fixture(name="invoke_transaction")

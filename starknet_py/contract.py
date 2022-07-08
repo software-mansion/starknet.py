@@ -42,7 +42,7 @@ from starknet_py.utils.crypto.facade import pedersen_hash
 from starknet_py.utils.data_transformer import DataTransformer
 from starknet_py.utils.sync import add_sync_methods
 
-from starknet_py.net.base_client import BaseClient
+from starknet_py.net.client import Client
 
 if sys.version_info >= (3, 8):
     from typing import TypedDict
@@ -78,7 +78,7 @@ class SentTransaction:
     """
 
     hash: CastableToHash
-    _client: BaseClient
+    _client: Client
     status: Optional[str] = None
     block_number: Optional[int] = None
 
@@ -135,7 +135,7 @@ class PreparedFunctionCall:
         calldata: List[int],
         arguments: Dict[str, List[int]],
         selector: int,
-        client: BaseClient,
+        client: Client,
         payload_transformer: DataTransformer,
         contract_data: ContractData,
         max_fee: int,
@@ -228,7 +228,8 @@ class PreparedFunctionCall:
 
         if self.max_fee == 0:
             warnings.warn(
-                "Transaction will fail with max_fee set to 0. Change it to a higher value."
+                "Transaction will fail with max_fee set to 0. Change it to a higher value.",
+                DeprecationWarning,
             )
 
         tx = self._make_invoke_function(signature=signature)
@@ -246,10 +247,11 @@ class PreparedFunctionCall:
 
         return invoke_result
 
-    async def estimate_fee(self):
+    async def estimate_fee(self, signature: Optional[List[int]] = None):
         """
         Estimate fee for prepared function call
 
+        :param signature: Signature to send
         :return: Estimated amount of Wei executing specified transaction will cost
         :raises ValueError: when max_fee of PreparedFunctionCall is not None or 0.
         """
@@ -258,7 +260,7 @@ class PreparedFunctionCall:
                 "Cannot estimate fee of PreparedFunctionCall with max_fee not None or 0."
             )
 
-        tx = self._make_invoke_function(signature=None)
+        tx = self._make_invoke_function(signature=signature)
         return await self._client.estimate_fee(tx=tx)
 
     def _make_invoke_function(self, signature) -> InvokeFunction:
@@ -276,7 +278,7 @@ class PreparedFunctionCall:
 @add_sync_methods
 class ContractFunction:
     def __init__(
-        self, name: str, abi: ABIEntry, contract_data: ContractData, client: BaseClient
+        self, name: str, abi: ABIEntry, contract_data: ContractData, client: Client
     ):
         self.name = name
         self.abi = abi
@@ -363,7 +365,7 @@ class Contract:
     Cairo contract's model.
     """
 
-    def __init__(self, address: AddressRepresentation, abi: list, client: BaseClient):
+    def __init__(self, address: AddressRepresentation, abi: list, client: Client):
         """
         Should be used instead of ``from_address`` when ABI is known statically.
 
@@ -446,7 +448,7 @@ class Contract:
 
     @staticmethod
     async def deploy(
-        client: BaseClient,
+        client: Client,
         compilation_source: Optional[StarknetCompilationSource] = None,
         compiled_contract: Optional[str] = None,
         constructor_args: Optional[Union[List[any], dict]] = None,
@@ -579,7 +581,7 @@ class Contract:
 
     @classmethod
     def _make_functions(
-        cls, contract_data: ContractData, client: BaseClient
+        cls, contract_data: ContractData, client: Client
     ) -> FunctionsRepository:
         repository = {}
 

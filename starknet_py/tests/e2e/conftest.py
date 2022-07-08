@@ -2,8 +2,13 @@ import time
 import subprocess
 import socket
 from contextlib import closing
+from typing import Tuple
 
 import pytest
+
+from starknet_py.net.client import Client
+from starknet_py.tests.e2e.client.conftest import prepare_devnet
+from starknet_py.tests.e2e.utils import DevnetClientFactory
 
 
 def pytest_addoption(parser):
@@ -33,6 +38,10 @@ def start_devnet():
         "localhost",
         "--port",
         str(devnet_port),
+        "--accounts",  # deploys specified number of accounts
+        str(1),
+        "--seed",  # generates same accounts each time
+        str(1),
     ]
     # pylint: disable=consider-using-with
     proc = subprocess.Popen(command)
@@ -57,3 +66,21 @@ def pytest_collection_modifyitems(config, items):
         should_run = run_testnet == runs_on_testnet
         if not should_run:
             item.add_marker(pytest.mark.skip())
+
+
+@pytest.fixture(name="clients")
+def fixture_clients(run_prepared_devnet) -> Tuple[Client, Client]:
+    devnet_address, _ = run_prepared_devnet
+    gateway_client = DevnetClientFactory(
+        devnet_address
+    ).make_devnet_client_without_account()
+    full_node_client = DevnetClientFactory(devnet_address).make_rpc_client()
+    return gateway_client, full_node_client
+
+
+# pylint: disable=redefined-outer-name
+@pytest.fixture(name="run_prepared_devnet", scope="module", autouse=True)
+def fixture_run_prepared_devnet(run_devnet) -> Tuple[str, dict]:
+    net = run_devnet
+    block = prepare_devnet(net)
+    yield net, block

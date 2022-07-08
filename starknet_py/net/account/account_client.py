@@ -7,9 +7,9 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
     CastableToHash,
 )
 
-from starknet_py.net.base_client import BaseClient
+from starknet_py.net.client import Client
 from starknet_py.net.client_models import (
-    SentTransaction,
+    SentTransactionResponse,
     Hash,
     DeclaredContract,
     Tag,
@@ -21,7 +21,6 @@ from starknet_py.net.client_models import (
     Deploy,
 )
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
-from starknet_py.net.client import Client
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
 from starknet_py.net.models import (
     InvokeFunction,
@@ -37,39 +36,45 @@ from starknet_py.transactions.deploy import make_deploy_tx
 from starknet_py.utils.data_transformer.execute_transformer import execute_transformer
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.net.models.address import AddressRepresentation, parse_address
-
 from starknet_py.net.gateway_client import GatewayClient
 
-
 @add_sync_methods
-class AccountClient(BaseClient):
+class AccountClient(Client):
     """
-    Extends the functionality of :obj:`Client <starknet_py.net.base_client.BaseClient>`,
+    Extends the functionality of :obj:`Client <starknet_py.net.client.Client>`,
     adding additional methods for creating the account contract.
     """
 
     def __init__(
         self,
         address: AddressRepresentation,
-        net: Network,
-        chain: Optional[StarknetChainId] = None,
-        client: Optional[BaseClient] = None,
+        client: GatewayClient,
         signer: Optional[BaseSigner] = None,
         key_pair: Optional[KeyPair] = None,
     ):
+        """
+
+        :param net: Target network for the client. Can be a string with URL or one of ``"mainnet"``, ``"testnet"``
+        :param chain: Chain used by the network. Required if you use a custom URL for ``net`` param.
+        :param n_retries: Number of retries client will attempt before failing a request
+        :param address: Address of the deployed account to be used by AccountClient
+        :param signer: Custom signer to be used by AccountClient.
+                       If none is provieded, default
+                       :py:class:`starknet_py.net.signer.stark_curve_signer.StarkCurveSigner` is used.
+        :param key_pair: Key pair that will be used to create a default `Signer`
+        """
         # pylint: disable=too-many-arguments
         if signer is None and key_pair is None:
             raise ValueError(
                 "Either a signer or a key_pair must be provied in AccountClient constructor"
             )
 
-        chain = chain_from_network(net=net, chain=chain)
+        chain = chain_from_network(net=client.net, chain=client.chain)
 
         if chain is None and client is None:
             raise ValueError("One of chain or client must be provided")
-        self.net = net
         self.address = parse_address(address)
-        self.client = client or GatewayClient(net=self.net, chain=chain)
+        self.client = client
         self.signer = signer or StarkCurveSigner(
             account_address=self.address, key_pair=key_pair, chain_id=self.client.chain
         )
@@ -77,6 +82,10 @@ class AccountClient(BaseClient):
     @property
     def chain(self) -> StarknetChainId:
         return self.client.chain
+
+    @property
+    def net(self) -> Network:
+        return self.client.net
 
     async def get_block(
         self,
@@ -197,7 +206,7 @@ class AccountClient(BaseClient):
     async def add_transaction(
         self,
         transaction: InvokeFunction,
-    ) -> SentTransaction:
+    ) -> SentTransactionResponse:
 
         if transaction.signature:
             raise TypeError(
@@ -208,10 +217,10 @@ class AccountClient(BaseClient):
             await self._sign_transaction(transaction)
         )
 
-    async def deploy(self, transaction: Deploy) -> SentTransaction:
+    async def deploy(self, transaction: Deploy) -> SentTransactionResponse:
         return await self.client.deploy(transaction=transaction)
 
-    async def declare(self, transaction: Declare) -> SentTransaction:
+    async def declare(self, transaction: Declare) -> SentTransactionResponse:
         return await self.client.declare(transaction=transaction)
 
     async def estimate_fee(
@@ -232,20 +241,22 @@ class AccountClient(BaseClient):
             block_number=block_number,
         )
 
+    async def get_code(self, *args, **kwargs):
+        return await self.client.get_code(*args, **kwargs)
+
     @staticmethod
     async def create_account(
-        net: str,
+        client: Client,
         private_key: Optional[int] = None,
         signer: Optional[BaseSigner] = None,
-        chain: Optional[StarknetChainId] = None,
     ) -> "AccountClient":
         """
         Creates the account using
         `OpenZeppelin Account contract
         <https://github.com/starkware-libs/cairo-lang/blob/4e233516f52477ad158bc81a86ec2760471c1b65/src/starkware/starknet/third_party/open_zeppelin/Account.cairo>`_
 
-        :param net: Target net's address or one of "mainnet", "testnet"
-        :param chain: Chain used by the network. Required if you use a custom URL for ``net`` param
+        :param client: Instance of Client (i.e. FullNodeClient or GatewayClient)
+                       which will be used to add the transactions
         :param private_key: Private Key used for the account
         :param signer: Signer used to create account and sign transaction
         :return: Instance of AccountClient which interacts with created account on given network
@@ -254,37 +265,32 @@ class AccountClient(BaseClient):
             private_key = private_key or get_random_private_key()
 
             key_pair = KeyPair.from_private_key(private_key)
-            address = await deploy_account_contract(
-                key_pair.public_key, net=net, chain=chain
-            )
+            address = await deploy_account_contract(client, key_pair.public_key)
             signer = StarkCurveSigner(
-                account_address=address, key_pair=key_pair, chain_id=chain
+                account_address=address, key_pair=key_pair, chain_id=client.chain
             )
         else:
-            address = await deploy_account_contract(
-                signer.public_key, net=net, chain=chain
-            )
+            address = await deploy_account_contract(client, signer.public_key)
 
         return AccountClient(
-            net=net,
-            chain=chain,
+            client=client,
             address=address,
             signer=signer,
         )
 
 
 async def deploy_account_contract(
-    public_key: int, net: str, chain: Optional[StarknetChainId] = None
+    client: Client, public_key: int
 ) -> AddressRepresentation:
-    client = Client(net=net, chain=chain)
     deploy_tx = make_deploy_tx(
-        constructor_calldata=[public_key], compiled_contract=COMPILED_ACCOUNT_CONTRACT
+        constructor_calldata=[public_key],
+        compiled_contract=COMPILED_ACCOUNT_CONTRACT,
     )
     result = await client.deploy(deploy_tx)
     await client.wait_for_tx(
-        tx_hash=result["transaction_hash"],
+        tx_hash=result.hash,
     )
-    return result["address"]
+    return result.address
 
 
 def add_signature_to_transaction(

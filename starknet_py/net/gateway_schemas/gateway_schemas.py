@@ -6,7 +6,7 @@ from starknet_py.net.client_models import (
     StarknetBlock,
     L2toL1Message,
     L1toL2Message,
-    SentTransaction,
+    SentTransactionResponse,
     ContractDiff,
     StorageDiff,
     BlockStateUpdate,
@@ -17,6 +17,7 @@ from starknet_py.net.client_models import (
     DeployTransaction,
     DeclareTransaction,
     TransactionReceipt,
+    TransactionStatusResponse,
 )
 from starknet_py.net.common_schemas.common_schemas import (
     Felt,
@@ -160,7 +161,7 @@ class SentTransactionSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs):
-        return SentTransaction(**data)
+        return SentTransactionResponse(**data)
 
 
 class StorageDiffSchema(Schema):
@@ -242,3 +243,12 @@ class DeclaredContractSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> DeclaredContract:
         return DeclaredContract(**data)
+
+
+class TransactionStatusSchema(Schema):
+    transaction_status = StatusField(data_key="tx_status")
+    block_hash = fields.Integer(data_key="block_hash", allow_none=True)
+
+    @post_load
+    def make_result(self, data, **kwargs) -> TransactionStatusResponse:
+        return TransactionStatusResponse(**data)

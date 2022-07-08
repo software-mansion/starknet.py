@@ -9,7 +9,7 @@ directory = os.path.dirname(__file__)
 async def test_deploying_new_contracts(run_devnet):
     # pylint: disable=import-outside-toplevel, disable=duplicate-code
     # add to docs: start
-    from starknet_py.net.client import Client
+    from starknet_py.net.gateway_client import GatewayClient
     from starknet_py.contract import Contract
     from pathlib import Path
     from starknet_py.net.networks import TESTNET
@@ -35,9 +35,9 @@ async def test_deploying_new_contracts(run_devnet):
         end
         """
 
-    client = Client(TESTNET)
+    client = GatewayClient(TESTNET)
     # add to docs: end
-    client = await DevnetClientFactory(run_devnet).make_devnet_client_without_account()
+    client = DevnetClientFactory(run_devnet).make_devnet_client_without_account()
     # add to docs: start
 
     # Use list for positional arguments

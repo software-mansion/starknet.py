@@ -4,10 +4,10 @@ from typing import Union, Optional, List
 import aiohttp
 from marshmallow import EXCLUDE
 
-from starknet_py.net.base_client import BaseClient
+from starknet_py.net.client import Client
 from starknet_py.net.client_models import (
     Transaction,
-    SentTransaction,
+    SentTransactionResponse,
     ContractCode,
     TransactionReceipt,
     BlockStateUpdate,
@@ -19,6 +19,7 @@ from starknet_py.net.client_models import (
     DeclaredContract,
     Declare,
     Deploy,
+    TransactionStatusResponse,
 )
 from starknet_py.net.gateway_schemas.gateway_schemas import (
     ContractCodeSchema,
@@ -28,6 +29,7 @@ from starknet_py.net.gateway_schemas.gateway_schemas import (
     DeclaredContractSchema,
     TransactionReceiptSchema,
     TypesOfTransactionsSchema,
+    TransactionStatusSchema,
 )
 from starknet_py.net.http_client import GatewayHttpClient
 from starknet_py.net.models import StarknetChainId, chain_from_network
@@ -35,9 +37,11 @@ from starknet_py.net.networks import Network, net_address_from_net
 from starknet_py.net.client_errors import ContractNotFoundError
 from starknet_py.net.client_utils import convert_to_felt, is_block_identifier
 from starknet_py.transaction_exceptions import TransactionNotReceivedError
+from starknet_py.utils.sync import add_sync_methods
 
 
-class GatewayClient(BaseClient):
+@add_sync_methods
+class GatewayClient(Client):
     def __init__(
         self,
         net: Network,
@@ -56,6 +60,7 @@ class GatewayClient(BaseClient):
         feeder_gateway_url = f"{host}/feeder_gateway"
         gateway_url = f"{host}/gateway"
 
+        self._net = net
         self._chain = chain_from_network(net, chain)
         self._feeder_gateway_client = GatewayHttpClient(
             url=feeder_gateway_url, session=session
@@ -65,6 +70,10 @@ class GatewayClient(BaseClient):
     @property
     def chain(self) -> StarknetChainId:
         return self._chain
+
+    @property
+    def net(self) -> StarknetChainId:
+        return self._net
 
     async def get_transaction(
         self,
@@ -79,6 +88,35 @@ class GatewayClient(BaseClient):
             raise TransactionNotReceivedError()
 
         return TypesOfTransactionsSchema().load(res["transaction"], unknown=EXCLUDE)
+
+    async def get_transaction_status(
+        self,
+        tx_hash: Hash,
+    ) -> TransactionStatusResponse:
+        """
+        Fetches the transaction's status and block number
+
+        :param tx_hash: Transaction's hash representation
+        :return: An object containing transaction's status and optional block hash, if transaction was accepted
+        """
+        res = await self._feeder_gateway_client.call(
+            params={"transactionHash": convert_to_felt(tx_hash)},
+            method_name="get_transaction_status",
+        )
+        if res["tx_status"] in ("UNKNOWN", "NOT_RECEIVED"):
+            raise TransactionNotReceivedError()
+
+        return TransactionStatusSchema().load(res)
+
+    async def get_contract_addresses(self) -> dict:
+        """
+        Fetches the addresses of the StarkNet system contracts
+
+        :return: A dictionary indexed with contract name and a value of contract's address
+        """
+        return await self._feeder_gateway_client.call(
+            method_name="get_contract_addresses",
+        )
 
     async def get_block(
         self,
@@ -220,13 +258,13 @@ class GatewayClient(BaseClient):
 
         return [int(v, 16) for v in res["result"]]
 
-    async def add_transaction(self, transaction: InvokeFunction) -> SentTransaction:
+    async def add_transaction(self, transaction: InvokeFunction) -> SentTransactionResponse:
         return await self._add_transaction(transaction)
 
-    async def deploy(self, transaction: Deploy) -> SentTransaction:
+    async def deploy(self, transaction: Deploy) -> SentTransactionResponse:
         return await self._add_transaction(transaction)
 
-    async def declare(self, transaction: Declare) -> SentTransaction:
+    async def declare(self, transaction: Declare) -> SentTransactionResponse:
         return await self._add_transaction(transaction)
 
     async def get_class_hash_at(self, contract_address: Hash) -> int:
@@ -244,7 +282,7 @@ class GatewayClient(BaseClient):
         )
         return DeclaredContractSchema().load(res, unknown=EXCLUDE)
 
-    async def _add_transaction(self, tx: StarknetTransaction) -> SentTransaction:
+    async def _add_transaction(self, tx: StarknetTransaction) -> SentTransactionResponse:
         res = await self._gateway_client.post(
             method_name="add_transaction",
             payload=StarknetTransaction.Schema().dump(obj=tx),
@@ -263,7 +301,7 @@ def get_block_identifier(
 
     if block_hash is not None:
         if is_block_identifier(block_hash):
-            return {"block_number": block_hash}
+            return {"blockNumber": block_hash}
         return {"blockHash": convert_to_felt(block_hash)}
 
     if block_number is not None:
