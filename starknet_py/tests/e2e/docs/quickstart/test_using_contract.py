@@ -33,7 +33,7 @@ async def test_using_contract(run_devnet):
     )
     key = 1234
     # add to docs: end
-    account_client = DevnetClientFactory("http://localhost:5050").make_devnet_client()
+    account_client = DevnetClientFactory(run_devnet).make_devnet_client()
 
     deployment_result = await Contract.deploy(
         client=account_client, compilation_source=map_source_code

@@ -53,6 +53,8 @@ async def test_using_existing_contracts(run_devnet):
     account_client = await AccountClient.create_account(client=gateway_client)
     # add to docs: end
 
+    account_client = DevnetClientFactory(run_devnet).make_devnet_client()
+
     deployment_result = await Contract.deploy(
         client=account_client, compilation_source=erc20_source_code
     )
