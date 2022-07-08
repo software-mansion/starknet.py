@@ -73,6 +73,13 @@ async def test_get_invoke_transaction(
 
 
 @pytest.mark.asyncio
+async def test_get_transaction_raises_on_not_received(clients):
+    for client in clients:
+        with pytest.raises(TransactionNotReceivedError):
+            await client.get_transaction(tx_hash=0x1)
+
+
+@pytest.mark.asyncio
 async def test_get_block_by_hash(
     clients,
     deploy_transaction_hash,

@@ -100,13 +100,13 @@ class RpcHttpClient(HttpClient):
         )
 
         if "result" not in result:
-            self.handle_error(result)
+            self.handle_rpc_error(result)
         return result["result"]
 
     @staticmethod
-    def handle_error(result: dict):
+    def handle_rpc_error(result: dict):
         if "error" not in result:
-            raise ClientError(code="-1", message="request failed")
+            raise ServerError(body=result)
         raise ClientError(
             code=result["error"]["code"], message=result["error"]["message"]
         )
@@ -116,5 +116,12 @@ class RpcHttpClient(HttpClient):
 
 
 async def basic_error_handle(request: ClientResponse):
-    if request.status != 200:
+    if request.status >= 300:
         raise ClientError(code=str(request.status), message=await request.text())
+
+
+class ServerError(Exception):
+    def __init__(self, body: dict):
+        self.message = "Rpc request failed"
+        self.body = body
+        super().__init__(self.message)
