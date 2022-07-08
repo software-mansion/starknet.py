@@ -1746,27 +1746,20 @@ test = ["pytest"]
 
 [[package]]
 name = "starknet-devnet"
-version = "0.2.4"
+version = "0.2.5"
 description = "A local testnet for Starknet"
 category = "dev"
 optional = false
 python-versions = ">=3.7.2,<3.10"
-develop = false
 
 [package.dependencies]
 cairo-lang = "0.9.0"
-cloudpickle = "~2.1.0"
-crypto-cpp-py = "~1.0.4"
-Flask = {version = "~2.0.3", extras = ["async"]}
-flask-cors = "~3.0.10"
-meinheld = "~1.0.2"
-Werkzeug = "~2.0.3"
-
-[package.source]
-type = "git"
-url = "https://github.com/Shard-Labs/starknet-devnet.git"
-reference = "master"
-resolved_reference = "6a546e3ec5cb7a7aa456c63779529c6d66850c63"
+cloudpickle = ">=2.1.0,<2.2.0"
+crypto-cpp-py = ">=1.0.4,<1.1.0"
+Flask = {version = ">=2.0.3,<2.1.0", extras = ["async"]}
+flask-cors = ">=3.0.10,<3.1.0"
+meinheld = ">=1.0.2,<1.1.0"
+Werkzeug = ">=2.0.3,<2.1.0"
 
 [[package]]
 name = "sympy"
@@ -1996,7 +1989,7 @@ eth-tester = []
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.2,<3.10"
-content-hash = "7e1d5e780fb0e401fef45cffb2fac560cadf66baf8c75070b70c406410490a0e"
+content-hash = "9f2bed7414e9853f6dec988ec580ea4f02c0698640b4b7151141867d68a869ed"
 
 [metadata.files]
 aiohttp = [
