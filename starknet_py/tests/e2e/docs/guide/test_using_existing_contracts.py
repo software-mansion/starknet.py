@@ -43,7 +43,9 @@ async def test_using_existing_contracts(run_devnet):
     address = "0x00178130dd6286a9a0e031e4c73b2bd04ffa92804264a25c1c08c1612559f458"
     gateway_client = GatewayClient(TESTNET)
     # add to docs: end
-    gateway_client = DevnetClientFactory(run_devnet).make_devnet_client_without_account()
+    gateway_client = DevnetClientFactory(
+        run_devnet
+    ).make_devnet_client_without_account()
     # add to docs: start
 
     contract = Contract(address=address, abi=abi, client=gateway_client)
