@@ -8,7 +8,7 @@ from starknet_py.tests.e2e.utils import DevnetClientFactory
 async def test_gateway_raises_on_both_block_hash_and_number(
     devnet_address, block_with_deploy_hash
 ):
-    client = await DevnetClientFactory(
+    client = DevnetClientFactory(
         devnet_address
     ).make_devnet_client_without_account()
 
@@ -22,7 +22,7 @@ async def test_gateway_raises_on_both_block_hash_and_number(
 
 @pytest.mark.asyncio
 async def test_get_class_hash_at(devnet_address, contract_address):
-    client = await DevnetClientFactory(
+    client = DevnetClientFactory(
         devnet_address
     ).make_devnet_client_without_account()
 
@@ -36,7 +36,7 @@ async def test_get_class_hash_at(devnet_address, contract_address):
 
 @pytest.mark.asyncio
 async def test_get_code(devnet_address, contract_address):
-    client = await DevnetClientFactory(
+    client = DevnetClientFactory(
         devnet_address
     ).make_devnet_client_without_account()
     code = await client.get_code(contract_address=contract_address)
@@ -49,7 +49,7 @@ async def test_get_code(devnet_address, contract_address):
 
 @pytest.mark.asyncio
 async def test_get_transaction_status(devnet_address, invoke_transaction_hash):
-    client = await DevnetClientFactory(
+    client = DevnetClientFactory(
         devnet_address
     ).make_devnet_client_without_account()
     tx_status_resp = await client.get_transaction_status(invoke_transaction_hash)

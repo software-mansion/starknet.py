@@ -69,12 +69,12 @@ def pytest_collection_modifyitems(config, items):
 
 
 @pytest.fixture(name="clients")
-async def fixture_clients(run_prepared_devnet) -> Tuple[Client, Client]:
+def fixture_clients(run_prepared_devnet) -> Tuple[Client, Client]:
     devnet_address, _ = run_prepared_devnet
-    gateway_client = await DevnetClientFactory(
+    gateway_client = DevnetClientFactory(
         devnet_address
     ).make_devnet_client_without_account()
-    full_node_client = await DevnetClientFactory(devnet_address).make_rpc_client()
+    full_node_client = DevnetClientFactory(devnet_address).make_rpc_client()
     return gateway_client, full_node_client
 
 

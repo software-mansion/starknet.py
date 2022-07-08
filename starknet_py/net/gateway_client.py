@@ -7,7 +7,7 @@ from marshmallow import EXCLUDE
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import (
     Transaction,
-    SentTransaction,
+    SentTransactionResponse,
     ContractCode,
     TransactionReceipt,
     BlockStateUpdate,
@@ -258,13 +258,13 @@ class GatewayClient(Client):
 
         return [int(v, 16) for v in res["result"]]
 
-    async def add_transaction(self, transaction: InvokeFunction) -> SentTransaction:
+    async def add_transaction(self, transaction: InvokeFunction) -> SentTransactionResponse:
         return await self._add_transaction(transaction)
 
-    async def deploy(self, transaction: Deploy) -> SentTransaction:
+    async def deploy(self, transaction: Deploy) -> SentTransactionResponse:
         return await self._add_transaction(transaction)
 
-    async def declare(self, transaction: Declare) -> SentTransaction:
+    async def declare(self, transaction: Declare) -> SentTransactionResponse:
         return await self._add_transaction(transaction)
 
     async def get_class_hash_at(self, contract_address: Hash) -> int:
@@ -282,7 +282,7 @@ class GatewayClient(Client):
         )
         return DeclaredContractSchema().load(res, unknown=EXCLUDE)
 
-    async def _add_transaction(self, tx: StarknetTransaction) -> SentTransaction:
+    async def _add_transaction(self, tx: StarknetTransaction) -> SentTransactionResponse:
         res = await self._gateway_client.post(
             method_name="add_transaction",
             payload=StarknetTransaction.Schema().dump(obj=tx),

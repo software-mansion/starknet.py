@@ -15,7 +15,7 @@ async def test_using_full_node_client(run_devnet):
     full_node_client = FullNodeClient(node_url=node_url, net=TESTNET)
     # add to docs: end
 
-    full_node_client = await DevnetClientFactory(run_devnet).make_rpc_client()
+    full_node_client = DevnetClientFactory(run_devnet).make_rpc_client()
     node_url = run_devnet
     # add to docs: start
 

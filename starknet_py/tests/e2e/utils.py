@@ -27,9 +27,8 @@ class DevnetClientFactory:
         key_pair = KeyPair.from_private_key(int(ACCOUNT_CLIENT_PRIVATE_KEY, 0))
         client = AccountClient(
             address=ACCOUNT_CLIENT_ADDRESS,
+            client=self.make_devnet_client_without_account(),
             key_pair=key_pair,
-            net=self.net,
-            chain=self.chain,
         )
 
         return client
@@ -37,7 +36,7 @@ class DevnetClientFactory:
     def make_devnet_client_without_account(self) -> GatewayClient:
         return GatewayClient(net=self.net, chain=self.chain)
 
-    async def make_rpc_client(self) -> FullNodeClient:
+    def make_rpc_client(self) -> FullNodeClient:
         return FullNodeClient(
             node_url=self.net + "/rpc", chain=self.chain, net=self.net
         )

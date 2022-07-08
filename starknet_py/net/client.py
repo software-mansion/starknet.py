@@ -9,7 +9,7 @@ from starknet_py.net.client_models import (
     BlockStateUpdate,
     Transaction,
     TransactionReceipt,
-    SentTransaction,
+    SentTransactionResponse,
     InvokeFunction,
     TransactionStatus,
     Hash,
@@ -190,7 +190,7 @@ class Client(ABC):
     async def add_transaction(
         self,
         transaction: InvokeFunction,
-    ) -> SentTransaction:
+    ) -> SentTransactionResponse:
         """
         Send a transaction to the network
 
@@ -199,7 +199,7 @@ class Client(ABC):
         """
 
     @abstractmethod
-    async def deploy(self, transaction: Deploy) -> SentTransaction:
+    async def deploy(self, transaction: Deploy) -> SentTransactionResponse:
         """
         Deploy a contract to the network
 
@@ -208,7 +208,7 @@ class Client(ABC):
         """
 
     @abstractmethod
-    async def declare(self, transaction: Declare) -> SentTransaction:
+    async def declare(self, transaction: Declare) -> SentTransactionResponse:
         """
         Send a declare transaction
 
