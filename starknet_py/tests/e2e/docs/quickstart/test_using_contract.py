@@ -11,7 +11,7 @@ map_source_code = Path(directory, "map.cairo").read_text("utf-8")
 
 
 @pytest.mark.asyncio
-async def test_using_contract():
+async def test_using_contract(run_devnet):
     # add to docs: start
     from starknet_py.contract import Contract
     from starknet_py.net import AccountClient
@@ -20,9 +20,7 @@ async def test_using_contract():
 
     gateway_client = GatewayClient(TESTNET)
     # add to docs: end
-    gateway_client = DevnetClientFactory(
-        "http://localhost:5050"
-    ).make_devnet_client_without_account()
+    gateway_client = DevnetClientFactory(run_devnet).make_devnet_client_without_account()
 
     # add to docs: start
 
