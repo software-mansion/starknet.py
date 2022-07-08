@@ -15,7 +15,7 @@ async def test_node_get_transaction_by_block_hash_and_index(
     deploy_transaction_hash,
     contract_address,
 ):
-    client = await DevnetClientFactory(devnet_address).make_rpc_client()
+    client = DevnetClientFactory(devnet_address).make_rpc_client()
 
     tx = await client.get_transaction_by_block_hash(
         block_hash=block_with_deploy_hash, index=0
@@ -35,7 +35,7 @@ async def test_node_get_transaction_by_block_hash_and_index(
 async def test_node_get_transaction_by_block_number_and_index(
     devnet_address, deploy_transaction_hash, contract_address
 ):
-    client = await DevnetClientFactory(devnet_address).make_rpc_client()
+    client = DevnetClientFactory(devnet_address).make_rpc_client()
 
     tx = await client.get_transaction_by_block_number(block_number=0, index=0)
 
@@ -51,7 +51,7 @@ async def test_node_get_transaction_by_block_number_and_index(
 
 @pytest.mark.asyncio
 async def test_get_block_throws_on_no_block_hash_and_no_number(devnet_address):
-    client = await DevnetClientFactory(devnet_address).make_rpc_client()
+    client = DevnetClientFactory(devnet_address).make_rpc_client()
 
     with pytest.raises(ValueError) as exinfo:
         await client.get_block()

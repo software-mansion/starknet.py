@@ -151,7 +151,7 @@ class TransactionReceipt:
 
 
 @dataclass
-class SentTransaction:
+class SentTransactionResponse:
     """
     Dataclass representing a result of sending a transaction to starknet
     """

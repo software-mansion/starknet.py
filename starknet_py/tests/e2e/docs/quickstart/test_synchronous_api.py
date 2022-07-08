@@ -2,6 +2,7 @@
 import os
 from pathlib import Path
 import pytest
+
 from starknet_py.tests.e2e.utils import DevnetClientFactory
 
 directory = os.path.dirname(__file__)
@@ -21,8 +22,7 @@ def test_synchronous_api(run_devnet):
     )
     # add to docs: end
 
-    devnet_client_factory = DevnetClientFactory(run_devnet)
-    client = GatewayClient(devnet_client_factory.net, devnet_client_factory.chain)
+    client = DevnetClientFactory(run_devnet).make_devnet_client()
 
     deployment_result = Contract.deploy_sync(
         client=client, compilation_source=map_source_code
@@ -36,7 +36,7 @@ def test_synchronous_api(run_devnet):
     key = 1234
     contract = Contract.from_address_sync(contract_address, client)
 
-    invocation = contract.functions["put"].invoke_sync(key, 7, max_fee=0)
+    invocation = contract.functions["put"].invoke_sync(key, 7, max_fee=int(1e16))
     invocation.wait_for_acceptance_sync()
 
     (saved,) = contract.functions["get"].call_sync(key)  # 7

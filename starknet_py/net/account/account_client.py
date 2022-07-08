@@ -9,7 +9,7 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
 
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import (
-    SentTransaction,
+    SentTransactionResponse,
     Hash,
     DeclaredContract,
     Tag,
@@ -36,6 +36,7 @@ from starknet_py.transactions.deploy import make_deploy_tx
 from starknet_py.utils.data_transformer.execute_transformer import execute_transformer
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.net.models.address import AddressRepresentation, parse_address
+from starknet_py.net.gateway_client import GatewayClient
 
 
 @add_sync_methods
@@ -48,10 +49,21 @@ class AccountClient(Client):
     def __init__(
         self,
         address: AddressRepresentation,
-        client: Client,
+        client: GatewayClient,
         signer: Optional[BaseSigner] = None,
         key_pair: Optional[KeyPair] = None,
     ):
+        """
+
+        :param net: Target network for the client. Can be a string with URL or one of ``"mainnet"``, ``"testnet"``
+        :param chain: Chain used by the network. Required if you use a custom URL for ``net`` param.
+        :param n_retries: Number of retries client will attempt before failing a request
+        :param address: Address of the deployed account to be used by AccountClient
+        :param signer: Custom signer to be used by AccountClient.
+                       If none is provieded, default
+                       :py:class:`starknet_py.net.signer.stark_curve_signer.StarkCurveSigner` is used.
+        :param key_pair: Key pair that will be used to create a default `Signer`
+        """
         # pylint: disable=too-many-arguments
         if signer is None and key_pair is None:
             raise ValueError(
@@ -195,7 +207,7 @@ class AccountClient(Client):
     async def add_transaction(
         self,
         transaction: InvokeFunction,
-    ) -> SentTransaction:
+    ) -> SentTransactionResponse:
 
         if transaction.signature:
             raise TypeError(
@@ -206,10 +218,10 @@ class AccountClient(Client):
             await self._sign_transaction(transaction)
         )
 
-    async def deploy(self, transaction: Deploy) -> SentTransaction:
+    async def deploy(self, transaction: Deploy) -> SentTransactionResponse:
         return await self.client.deploy(transaction=transaction)
 
-    async def declare(self, transaction: Declare) -> SentTransaction:
+    async def declare(self, transaction: Declare) -> SentTransactionResponse:
         return await self.client.declare(transaction=transaction)
 
     async def estimate_fee(
@@ -229,6 +241,9 @@ class AccountClient(Client):
             block_hash=block_hash,
             block_number=block_number,
         )
+
+    async def get_code(self, *args, **kwargs):
+        return await self.client.get_code(*args, **kwargs)
 
     @staticmethod
     async def create_account(

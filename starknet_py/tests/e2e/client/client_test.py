@@ -1,5 +1,7 @@
 # pylint: disable=too-many-arguments
 import asyncio
+import os
+from pathlib import Path
 from unittest.mock import patch, MagicMock
 
 import pytest
@@ -25,6 +27,11 @@ from starknet_py.transaction_exceptions import (
     TransactionNotReceivedError,
 )
 from starknet_py.transactions.deploy import make_deploy_tx
+
+
+directory = os.path.dirname(__file__)
+
+map_source = Path(directory, "map.cairo").read_text("utf-8")
 
 
 @pytest.mark.asyncio
@@ -183,9 +190,7 @@ async def test_get_transaction_receipt(clients, invoke_transaction_hash):
 
 @pytest.mark.asyncio
 async def test_estimate_fee(devnet_address, contract_address):
-    client = await DevnetClientFactory(
-        devnet_address
-    ).make_devnet_client_without_account()
+    client = DevnetClientFactory(devnet_address).make_devnet_client_without_account()
     transaction = InvokeFunction(
         contract_address=contract_address,
         entry_point_selector=get_selector_from_name("increase_balance"),
@@ -240,9 +245,7 @@ async def test_state_update(
 @pytest.mark.asyncio
 async def test_add_transaction(devnet_address, contract_address):
     # TODO extend this test to all clients
-    client = await DevnetClientFactory(
-        devnet_address
-    ).make_devnet_client_without_account()
+    client = DevnetClientFactory(devnet_address).make_devnet_client_without_account()
     invoke_function = InvokeFunction(
         contract_address=contract_address,
         entry_point_selector=get_selector_from_name("increase_balance"),
@@ -260,9 +263,7 @@ async def test_add_transaction(devnet_address, contract_address):
 @pytest.mark.asyncio
 async def test_deploy(devnet_address, balance_contract):
     # TODO extend this test to all clients
-    client = await DevnetClientFactory(
-        devnet_address
-    ).make_devnet_client_without_account()
+    client = DevnetClientFactory(devnet_address).make_devnet_client_without_account()
     deploy_tx = make_deploy_tx(
         compiled_contract=balance_contract, constructor_calldata=[]
     )
@@ -271,7 +272,6 @@ async def test_deploy(devnet_address, balance_contract):
     assert result.code == "TRANSACTION_RECEIVED"
 
 
-@pytest.mark.asyncio
 async def test_get_class_hash_at(clients, contract_address):
     for client in clients:
         class_hash = await client.get_class_hash_at(contract_address=contract_address)
@@ -296,9 +296,7 @@ def test_chain_id(clients):
 
 @pytest.mark.asyncio
 async def test_wait_for_tx_accepted(devnet_address):
-    client = await DevnetClientFactory(
-        devnet_address
-    ).make_devnet_client_without_account()
+    client = DevnetClientFactory(devnet_address).make_devnet_client_without_account()
 
     with patch(
         "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt",
@@ -320,9 +318,7 @@ async def test_wait_for_tx_accepted(devnet_address):
 
 @pytest.mark.asyncio
 async def test_wait_for_tx_pending(devnet_address):
-    client = await DevnetClientFactory(
-        devnet_address
-    ).make_devnet_client_without_account()
+    client = DevnetClientFactory(devnet_address).make_devnet_client_without_account()
 
     with patch(
         "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt",
@@ -351,9 +347,7 @@ async def test_wait_for_tx_pending(devnet_address):
 )
 @pytest.mark.asyncio
 async def test_wait_for_tx_rejected(status, exception, devnet_address):
-    client = await DevnetClientFactory(
-        devnet_address
-    ).make_devnet_client_without_account()
+    client = DevnetClientFactory(devnet_address).make_devnet_client_without_account()
 
     with patch(
         "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt",
@@ -370,9 +364,7 @@ async def test_wait_for_tx_rejected(status, exception, devnet_address):
 
 @pytest.mark.asyncio
 async def test_wait_for_tx_cancelled(devnet_address):
-    client = await DevnetClientFactory(
-        devnet_address
-    ).make_devnet_client_without_account()
+    client = DevnetClientFactory(devnet_address).make_devnet_client_without_account()
 
     with patch(
         "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt",

@@ -8,7 +8,7 @@ from starknet_py.net.client import (
     Client,
 )
 from starknet_py.net.client_models import (
-    SentTransaction,
+    SentTransactionResponse,
     TransactionReceipt,
     BlockStateUpdate,
     StarknetBlock,
@@ -198,13 +198,15 @@ class FullNodeClient(Client):
         )
         return [int(i, 16) for i in res["result"]]
 
-    async def add_transaction(self, transaction: InvokeFunction) -> SentTransaction:
+    async def add_transaction(
+        self, transaction: InvokeFunction
+    ) -> SentTransactionResponse:
         raise NotImplementedError()
 
-    async def deploy(self, transaction: Deploy) -> SentTransaction:
+    async def deploy(self, transaction: Deploy) -> SentTransactionResponse:
         raise NotImplementedError()
 
-    async def declare(self, transaction: Declare) -> SentTransaction:
+    async def declare(self, transaction: Declare) -> SentTransactionResponse:
         raise NotImplementedError()
 
     async def get_class_hash_at(self, contract_address: Hash) -> int:
