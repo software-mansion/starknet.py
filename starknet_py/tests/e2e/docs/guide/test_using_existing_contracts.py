@@ -32,7 +32,7 @@ erc20_source_code = Path(directory, "erc20.cairo").read_text("utf-8")
 
 
 @pytest.mark.asyncio
-async def test_using_existing_contracts():
+async def test_using_existing_contracts(run_devnet):
     # pylint: disable=import-outside-toplevel
 
     # add to docs: start
@@ -43,9 +43,7 @@ async def test_using_existing_contracts():
     address = "0x00178130dd6286a9a0e031e4c73b2bd04ffa92804264a25c1c08c1612559f458"
     gateway_client = GatewayClient(TESTNET)
     # add to docs: end
-    gateway_client = DevnetClientFactory(
-        "https://localhost:5050"
-    ).make_devnet_client_without_account()
+    gateway_client = DevnetClientFactory(run_devnet).make_devnet_client_without_account()
     # add to docs: start
 
     contract = Contract(address=address, abi=abi, client=gateway_client)
