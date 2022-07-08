@@ -16,6 +16,7 @@ async def test_creating_account_client(run_devnet):
     # add to docs: end
     testnet = run_devnet
     # add to docs: start
+
     # Creates an instance of account client which is already deployed (testnet):
     client = GatewayClient(net=testnet, chain=chain_id)
     account_client_testnet = AccountClient(
