@@ -51,7 +51,7 @@ There are some examples how to do it:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/quickstart/test_creating_account_client.py
     :language: python
-    :lines: 10-37,41-45
+    :lines: 10-15,19-37
     :dedent: 4
 
 Using AccountClient
