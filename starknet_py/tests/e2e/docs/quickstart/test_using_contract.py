@@ -20,7 +20,9 @@ async def test_using_contract(run_devnet):
 
     gateway_client = GatewayClient(TESTNET)
     # add to docs: end
-    gateway_client = DevnetClientFactory(run_devnet).make_devnet_client_without_account()
+    gateway_client = DevnetClientFactory(
+        run_devnet
+    ).make_devnet_client_without_account()
 
     # add to docs: start
 
