@@ -10,7 +10,7 @@ from starkware.starkware_utils.error_handling import StarkErrorCode
 from starknet_py.net.client_models import SentTransactionResponse
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.transaction_exceptions import TransactionRejectedError
-from starknet_py.contract import Contract, SentTransaction
+from starknet_py.contract import Contract
 from starknet_py.net.models import InvokeFunction
 from starknet_py.tests.e2e.utils import DevnetClientFactory
 from starknet_py.net.client_errors import ClientError, ContractNotFoundError
