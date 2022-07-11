@@ -190,7 +190,7 @@ async def test_get_transaction_receipt(clients, invoke_transaction_hash):
         l1_to_l2_consumed_message=None,
         version=0,
         actual_fee=0,
-        transaction_rejection_reason=None,
+        rejection_reason=None,
         block_number=1,
     )
 
