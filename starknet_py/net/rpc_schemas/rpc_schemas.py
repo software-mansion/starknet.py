@@ -170,6 +170,7 @@ class StarknetBlockSchema(Schema):
         data_key="transactions",
     )
     timestamp = fields.Integer(data_key="timestamp")
+    starknet_version = fields.String(data_key="starknet_version")
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> StarknetBlock:

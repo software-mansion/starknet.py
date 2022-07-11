@@ -151,6 +151,9 @@ class StarknetBlockSchema(Schema):
         data_key="transactions",
     )
     timestamp = fields.Integer(data_key="timestamp")
+    starknet_version = fields.String(
+        data_key="starknet_version", required=False, allow_none=True
+    )
 
     @post_load
     def make_dataclass(self, data, **kwargs):
@@ -240,10 +243,15 @@ class BlockStateUpdateSchema(Schema):
                 )
                 storage_diffs.append(storage_diff)
 
+        declared_contracts = data["state_diff"]["declared_contracts"]
+
         del data["state_diff"]
 
         return BlockStateUpdate(
-            **data, storage_diffs=storage_diffs, contract_diffs=contracts_diffs
+            **data,
+            storage_diffs=storage_diffs,
+            contract_diffs=contracts_diffs,
+            declared_contracts=declared_contracts,
         )
 
 
