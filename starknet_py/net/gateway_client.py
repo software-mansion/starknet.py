@@ -23,6 +23,7 @@ from starknet_py.net.client_models import (
     Declare,
     Deploy,
     TransactionStatusResponse,
+    EstimatedFee,
 )
 from starknet_py.net.gateway_schemas.gateway_schemas import (
     ContractCodeSchema,
@@ -34,6 +35,7 @@ from starknet_py.net.gateway_schemas.gateway_schemas import (
     TypesOfTransactionsSchema,
     TransactionStatusSchema,
     BlockTransactionTracesSchema,
+    EstimatedFeeSchema,
 )
 from starknet_py.net.http_client import GatewayHttpClient
 from starknet_py.net.models import StarknetChainId, chain_from_network
@@ -239,7 +241,7 @@ class GatewayClient(Client):
         tx: InvokeFunction,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> int:
+    ) -> EstimatedFee:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -248,7 +250,8 @@ class GatewayClient(Client):
             payload=InvokeFunction.Schema().dump(tx),
             params=block_identifier,
         )
-        return res["amount"]
+
+        return EstimatedFeeSchema().load(res, unknown=EXCLUDE)
 
     async def call_contract(
         self,

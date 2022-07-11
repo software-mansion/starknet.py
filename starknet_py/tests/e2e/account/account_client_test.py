@@ -155,7 +155,7 @@ async def test_estimated_fee_greater_than_zero(run_devnet):
         .estimate_fee()
     )
 
-    assert estimated_fee > 0
+    assert estimated_fee.overall_fee > 0
 
 
 @pytest.mark.asyncio

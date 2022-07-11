@@ -21,6 +21,7 @@ from starknet_py.net.client_models import (
     DeclaredContract,
     Deploy,
     Declare,
+    EstimatedFee,
 )
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.networks import Network
@@ -182,7 +183,7 @@ class Client(ABC):
         tx: InvokeFunction,
         block_hash: Union[Hash, Tag] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> int:
+    ) -> EstimatedFee:
         """
         Estimate how much Wei it will cost to run provided InvokeFunction
 

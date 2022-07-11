@@ -208,6 +208,13 @@ class StorageDiff:
 
 
 @dataclass
+class EstimatedFee:
+    overall_fee: int
+    gas_price: int
+    gas_usage: int
+
+
+@dataclass
 class ContractDiff:
     address: int
     contract_hash: int

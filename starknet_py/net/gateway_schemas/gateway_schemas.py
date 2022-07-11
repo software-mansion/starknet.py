@@ -20,6 +20,7 @@ from starknet_py.net.client_models import (
     TransactionStatusResponse,
     BlockTransactionTraces,
     BlockSingleTransactionTrace,
+    EstimatedFee,
 )
 from starknet_py.net.common_schemas.common_schemas import (
     Felt,
@@ -175,6 +176,16 @@ class BlockTransactionTracesSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs):
         return BlockTransactionTraces(**data)
+
+
+class EstimatedFeeSchema(Schema):
+    overall_fee = fields.Integer(data_key="overall_fee")
+    gas_price = fields.Integer(data_key="gas_price")
+    gas_usage = fields.Integer(data_key="gas_usage")
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return EstimatedFee(**data)
 
 
 class SentTransactionSchema(Schema):
