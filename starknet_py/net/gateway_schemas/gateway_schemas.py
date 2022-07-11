@@ -17,7 +17,7 @@ from starknet_py.net.client_models import (
     DeployTransaction,
     DeclareTransaction,
     TransactionReceipt,
-    TransactionStatusResponse,
+    TransactionStatusResponse, BlockTransactionTraces, BlockSingleTransactionTrace,
 )
 from starknet_py.net.common_schemas.common_schemas import (
     Felt,
@@ -152,6 +152,27 @@ class StarknetBlockSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs):
         return StarknetBlock(**data)
+
+
+class BlockSingleTransactionTraceSchema(Schema):
+    function_invocation = {}
+    signature = fields.List(Felt(), data_key="signature", load_default=[])
+    transaction_hash = Felt(data_key="transaction_hash")
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return BlockSingleTransactionTrace(**data)
+
+
+class BlockTransactionTracesSchema(Schema):
+    traces = fields.List(
+        fields.Nested(BlockSingleTransactionTraceSchema(unknown=EXCLUDE)),
+        data_key='traces'
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return BlockTransactionTraces(**data)
 
 
 class SentTransactionSchema(Schema):

@@ -4,6 +4,8 @@ import asyncio
 from abc import ABC, abstractmethod
 from typing import Union, Optional, List
 
+from starkware.starknet.services.api.feeder_gateway.response_objects import BlockTransactionTraces
+
 from starknet_py.net.client_models import (
     StarknetBlock,
     BlockStateUpdate,
@@ -56,6 +58,20 @@ class Client(ABC):
         :param block_hash: Block's hash or literals `"pending"` or `"latest"`
         :param block_number: Block's number or literals `"pending"` or `"latest"`
         :return: StarknetBlock object representing retrieved block
+        """
+
+    @abstractmethod
+    async def get_block_traces(
+            self,
+            block_hash: [Union[Hash, Tag]] = None,
+            block_number: Optional[Union[int, Tag]] = None,
+    ) -> BlockTransactionTraces:
+        """
+        Receive the traces of all the transactions within specified block
+
+        :param block_hash: Block's hash
+        :param block_number: Block's number or "pending" for pending block
+        :return: BlockTransactionTraces object representing received traces
         """
 
     @abstractmethod

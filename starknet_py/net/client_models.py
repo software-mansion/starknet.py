@@ -189,6 +189,18 @@ class StarknetBlock:
 
 
 @dataclass
+class BlockSingleTransactionTrace:
+    function_invocation: dict
+    signature: List[int]
+    transaction_hash: int
+
+
+@dataclass
+class BlockTransactionTraces:
+    traces: List[BlockSingleTransactionTrace]
+
+
+@dataclass
 class StorageDiff:
     address: int
     key: int
