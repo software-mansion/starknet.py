@@ -3,7 +3,9 @@ from typing import Union, Optional, List
 
 import aiohttp
 from marshmallow import EXCLUDE
-from starkware.starknet.services.api.feeder_gateway.response_objects import BlockTransactionTraces
+from starkware.starknet.services.api.feeder_gateway.response_objects import (
+    BlockTransactionTraces,
+)
 
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import (
@@ -30,7 +32,8 @@ from starknet_py.net.gateway_schemas.gateway_schemas import (
     DeclaredContractSchema,
     TransactionReceiptSchema,
     TypesOfTransactionsSchema,
-    TransactionStatusSchema, BlockTransactionTracesSchema,
+    TransactionStatusSchema,
+    BlockTransactionTracesSchema,
 )
 from starknet_py.net.http_client import GatewayHttpClient
 from starknet_py.net.models import StarknetChainId, chain_from_network
@@ -134,9 +137,9 @@ class GatewayClient(Client):
         return StarknetBlockSchema().load(res, unknown=EXCLUDE)
 
     async def get_block_traces(
-            self,
-            block_hash: [Union[Hash, Tag]] = None,
-            block_number: Optional[Union[int, Tag]] = None,
+        self,
+        block_hash: [Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> BlockTransactionTraces:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
