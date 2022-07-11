@@ -26,9 +26,9 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
 from starknet_py.common import create_compiled_contract
+from starknet_py.net.gateway_client import GatewayClient
 
 from starknet_py.proxy_check import ProxyCheck, ArgentProxyCheck, OpenZeppelinProxyCheck
-from starknet_py.net import Client
 from starknet_py.net.models import (
     InvokeFunction,
     AddressRepresentation,
@@ -36,11 +36,13 @@ from starknet_py.net.models import (
     compute_address,
     compute_invoke_hash,
 )
-from starknet_py.net.models.address import BlockIdentifier
 from starknet_py.compile.compiler import StarknetCompilationSource
+from starknet_py.transactions.deploy import make_deploy_tx
 from starknet_py.utils.crypto.facade import pedersen_hash
 from starknet_py.utils.data_transformer import DataTransformer
 from starknet_py.utils.sync import add_sync_methods
+
+from starknet_py.net.client import Client
 
 if sys.version_info >= (3, 8):
     from typing import TypedDict
@@ -76,7 +78,7 @@ class SentTransaction:
     """
 
     hash: CastableToHash
-    _client: "Client"
+    _client: Client
     status: Optional[str] = None
     block_number: Optional[int] = None
 
@@ -91,7 +93,7 @@ class SentTransaction:
         Returns a new SentTransaction instance, **does not mutate original instance**.
         """
         block_number, status = await self._client.wait_for_tx(
-            int(self.hash, 16),
+            self.hash,
             wait_for_accept=wait_for_accept,
             check_interval=check_interval,
         )
@@ -165,38 +167,30 @@ class PreparedFunctionCall:
         self,
         signature: Optional[Collection[int]] = None,
         block_hash: Optional[str] = None,
-        block_number: Optional[int] = None,
     ) -> List[int]:
         """
         Calls a method without translating the result into python values.
 
         :param signature: Signature to send
         :param block_hash: Optional block hash
-        :param block_number: Optional block number
         :return: list of ints
         """
         tx = self._make_invoke_function(signature)
-        return await self._client.call_contract(
-            invoke_tx=tx, block_hash=block_hash, block_number=block_number
-        )
+        return await self._client.call_contract(invoke_tx=tx, block_hash=block_hash)
 
     async def call(
         self,
         signature: Optional[Collection[int]] = None,
         block_hash: Optional[str] = None,
-        block_number: Optional[BlockIdentifier] = None,
     ) -> NamedTuple:
         """
         Calls a method.
 
         :param signature: Signature to send
         :param block_hash: Optional block hash
-        :param block_number: Optional block number or "pending" for pending block
         :return: CallResult or List[int] if return_raw is used
         """
-        result = await self.call_raw(
-            signature=signature, block_hash=block_hash, block_number=block_number
-        )
+        result = await self.call_raw(signature=signature, block_hash=block_hash)
         return self._payload_transformer.to_python(result)
 
     async def invoke(
@@ -239,13 +233,13 @@ class PreparedFunctionCall:
             )
 
         tx = self._make_invoke_function(signature=signature)
-        response = await self._client.add_transaction(tx=tx)
+        response = await self._client.add_transaction(transaction=tx)
 
-        if response["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
+        if response.code != StarkErrorCode.TRANSACTION_RECEIVED.name:
             raise Exception("Failed to send transaction. Response: {response}.")
 
         invoke_result = InvokeResult(
-            hash=response["transaction_hash"],  # noinspection PyTypeChecker
+            hash=response.hash,  # noinspection PyTypeChecker
             _client=self._client,
             contract=self._contract_data,
             invoke_transaction=tx,
@@ -284,7 +278,7 @@ class PreparedFunctionCall:
 @add_sync_methods
 class ContractFunction:
     def __init__(
-        self, name: str, abi: ABIEntry, contract_data: ContractData, client: "Client"
+        self, name: str, abi: ABIEntry, contract_data: ContractData, client: Client
     ):
         self.name = name
         self.abi = abi
@@ -327,19 +321,17 @@ class ContractFunction:
         self,
         *args,
         block_hash: Optional[str] = None,
-        block_number: Optional[BlockIdentifier] = None,
         **kwargs,
     ) -> NamedTuple:
         """
         :param block_hash: Block hash to execute the contract at specific point of time
-        :param block_number: Block number (or "pending" for pending block) to execute the contract function at
 
         Call contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.
         The result is translated from Cairo data to python values.
         Equivalent of ``.prepare(*args, **kwargs).call()``.
         """
         return await self.prepare(max_fee=0, version=0, *args, **kwargs).call(
-            block_hash=block_hash, block_number=block_number
+            block_hash=block_hash
         )
 
     async def invoke(
@@ -373,7 +365,7 @@ class Contract:
     Cairo contract's model.
     """
 
-    def __init__(self, address: AddressRepresentation, abi: list, client: "Client"):
+    def __init__(self, address: AddressRepresentation, abi: list, client: Client):
         """
         Should be used instead of ``from_address`` when ABI is known statically.
 
@@ -414,7 +406,7 @@ class Contract:
     @staticmethod
     async def from_address(
         address: AddressRepresentation,
-        client: Client,
+        client: GatewayClient,
         proxy_config: Union[bool, ProxyConfig] = False,
     ) -> "Contract":
         """
@@ -423,7 +415,7 @@ class Contract:
 
         :raises BadRequest: when contract is not found
         :param address: Contract's address
-        :param client: Client used
+        :param client: GatewayClient used, WARNING: This method does not work with other clients!
         :param proxy_config: Proxy resolving config
             If set to ``True``, will use default proxy checks and :class:
             `starknet_py.proxy_check.OpenZeppelinProxyCheck`
@@ -483,12 +475,13 @@ class Contract:
         translated_args = Contract._translate_constructor_args(
             compiled_contract, constructor_args
         )
-        res = await client.deploy(
+        deploy_tx = make_deploy_tx(
             compiled_contract=compiled_contract,
             constructor_calldata=translated_args,
             salt=salt,
         )
-        contract_address = res["address"]
+        res = await client.deploy(deploy_tx)
+        contract_address = res.address
 
         deployed_contract = Contract(
             client=client,
@@ -496,7 +489,7 @@ class Contract:
             abi=compiled_contract.abi,
         )
         deploy_result = DeployResult(
-            hash=res["transaction_hash"],
+            hash=res.hash,
             _client=client,
             deployed_contract=deployed_contract,
         )
@@ -611,7 +604,7 @@ class ContractFromAddressFactory:
     def __init__(
         self,
         address: AddressRepresentation,
-        client: Client,
+        client: GatewayClient,
         max_steps: int,
         proxy_checks: List[ProxyCheck],
     ):
@@ -635,7 +628,7 @@ class ContractFromAddressFactory:
 
         code = await self._client.get_code(contract_address=parse_address(address))
         contract = Contract(
-            address=parse_address(address), abi=code["abi"], client=self._client
+            address=parse_address(address), abi=code.abi, client=self._client
         )
         self._processed_addresses.add(address)
 

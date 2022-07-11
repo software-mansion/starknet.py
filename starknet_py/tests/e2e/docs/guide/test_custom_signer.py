@@ -10,7 +10,7 @@ async def test_custom_signer():
     # add to docs: start
     from starknet_py.net import AccountClient
     from starknet_py.net.signer import BaseSigner
-    from starknet_py.net.networks import TESTNET
+    from starknet_py.net.gateway_client import GatewayClient
     from starknet_py.net.models import Transaction
 
     # Create a custom signer class implementing BaseSigner interface
@@ -24,6 +24,11 @@ async def test_custom_signer():
 
     # Create an AccountClient instance with the signer you've implemented
     custom_signer = CustomSigner()
-    account_client = AccountClient(address=0x1111, net=TESTNET, signer=custom_signer)
+    client = GatewayClient("testnet")
+    account_client = AccountClient(
+        client=client,
+        address=0x1111,
+        signer=custom_signer,
+    )
     # Now you can use AccountClient as you'd always do
     # add to docs: end

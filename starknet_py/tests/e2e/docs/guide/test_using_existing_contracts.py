@@ -36,32 +36,38 @@ async def test_using_existing_contracts(run_devnet):
     # pylint: disable=import-outside-toplevel
 
     # add to docs: start
-    from starknet_py.net.client import Client
+    from starknet_py.net.gateway_client import GatewayClient
     from starknet_py.contract import Contract
     from starknet_py.net.networks import TESTNET
 
     address = "0x00178130dd6286a9a0e031e4c73b2bd04ffa92804264a25c1c08c1612559f458"
+    gateway_client = GatewayClient(TESTNET)
+    # add to docs: end
+    gateway_client = DevnetClientFactory(
+        run_devnet
+    ).make_devnet_client_without_account()
+    # add to docs: start
 
-    contract = Contract(address=address, abi=abi, client=Client(TESTNET))
+    contract = Contract(address=address, abi=abi, client=gateway_client)
     # or
-    client = await AccountClient.create_account(TESTNET)
+    account_client = await AccountClient.create_account(client=gateway_client)
     # add to docs: end
 
-    client = DevnetClientFactory(run_devnet).make_devnet_client()
+    account_client = DevnetClientFactory(run_devnet).make_devnet_client()
 
     deployment_result = await Contract.deploy(
-        client=client, compilation_source=erc20_source_code
+        client=account_client, compilation_source=erc20_source_code
     )
     deployment_result = await deployment_result.wait_for_acceptance()
     contract = deployment_result.deployed_contract
     address = contract.address
 
+    # add to docs: start
+
     sender = "321"
     recipient = "123"
 
-    # add to docs: start
-
-    contract = await Contract.from_address(address, client)
+    contract = await Contract.from_address(client=account_client, address=address)
 
     # Using only positional arguments
     invocation = await contract.functions["transferFrom"].invoke(
@@ -83,7 +89,7 @@ async def test_using_existing_contracts(run_devnet):
     transfer = contract.functions["transferFrom"].prepare(
         sender, recipient, amount=10000, max_fee=int(1e16)
     )
-    await transfer.invoke()
+    invocation = await transfer.invoke()
 
     # Wait for tx
     await invocation.wait_for_acceptance()
