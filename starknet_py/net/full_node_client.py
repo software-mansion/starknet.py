@@ -3,7 +3,9 @@ from typing import List, Optional, Union
 
 import aiohttp
 from marshmallow import EXCLUDE
-from starkware.starknet.services.api.feeder_gateway.response_objects import BlockTransactionTraces
+from starkware.starknet.services.api.feeder_gateway.response_objects import (
+    BlockTransactionTraces,
+)
 
 from starknet_py.net.client import (
     Client,
@@ -40,8 +42,11 @@ from starknet_py.utils.sync import add_sync_methods
 
 @add_sync_methods
 class FullNodeClient(Client):
-    async def get_block_traces(self, block_hash: [Union[Hash, Tag]] = None,
-                               block_number: Optional[Union[int, Tag]] = None) -> BlockTransactionTraces:
+    async def get_block_traces(
+        self,
+        block_hash: [Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> BlockTransactionTraces:
         pass
 
     def __init__(
