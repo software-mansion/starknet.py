@@ -72,9 +72,7 @@ class TransactionReceiptSchema(Schema):
     hash = Felt(data_key="txn_hash")
     status = StatusField(data_key="status")
     actual_fee = Felt(data_key="actual_fee")
-    rejection_reason = fields.String(
-        data_key="statusData", load_default=None
-    )
+    rejection_reason = fields.String(data_key="statusData", load_default=None)
     events = fields.List(
         fields.Nested(EventSchema()), data_key="events", load_default=[]
     )
