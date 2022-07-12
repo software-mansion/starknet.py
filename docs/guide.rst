@@ -186,7 +186,7 @@ Here is a usage example:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_cairo_serializer.py
     :language: python
-    :lines: 10-42,47-49,54-87
+    :lines: 10-43,48-52,57-90
     :dedent: 4
 
 
