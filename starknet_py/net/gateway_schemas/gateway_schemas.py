@@ -17,7 +17,8 @@ from starknet_py.net.client_models import (
     DeployTransaction,
     DeclareTransaction,
     TransactionReceipt,
-    TransactionStatusResponse, Event,
+    TransactionStatusResponse,
+    Event,
 )
 from starknet_py.net.common_schemas.common_schemas import (
     Felt,
