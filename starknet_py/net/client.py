@@ -4,10 +4,6 @@ import asyncio
 from abc import ABC, abstractmethod
 from typing import Union, Optional, List
 
-from starkware.starknet.services.api.feeder_gateway.response_objects import (
-    BlockTransactionTraces,
-)
-
 from starknet_py.net.client_models import (
     StarknetBlock,
     BlockStateUpdate,
@@ -22,6 +18,7 @@ from starknet_py.net.client_models import (
     Deploy,
     Declare,
     EstimatedFee,
+    BlockTransactionTraces,
 )
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.networks import Network

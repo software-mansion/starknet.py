@@ -3,9 +3,6 @@ from typing import List, Optional, Union
 
 import aiohttp
 from marshmallow import EXCLUDE
-from starkware.starknet.services.api.feeder_gateway.response_objects import (
-    BlockTransactionTraces,
-)
 
 from starknet_py.net.client import (
     Client,
@@ -24,6 +21,7 @@ from starknet_py.net.client_models import (
     Declare,
     Deploy,
     EstimatedFee,
+    BlockTransactionTraces,
 )
 from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.models import StarknetChainId, chain_from_network
@@ -47,7 +45,7 @@ class FullNodeClient(Client):
         block_hash: [Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> BlockTransactionTraces:
-        pass
+        raise NotImplementedError()
 
     def __init__(
         self,

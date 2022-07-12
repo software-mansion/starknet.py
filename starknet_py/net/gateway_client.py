@@ -3,9 +3,6 @@ from typing import Union, Optional, List
 
 import aiohttp
 from marshmallow import EXCLUDE
-from starkware.starknet.services.api.feeder_gateway.response_objects import (
-    BlockTransactionTraces,
-)
 
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import (
@@ -24,6 +21,7 @@ from starknet_py.net.client_models import (
     Deploy,
     TransactionStatusResponse,
     EstimatedFee,
+    BlockTransactionTraces,
 )
 from starknet_py.net.gateway_schemas.gateway_schemas import (
     ContractCodeSchema,

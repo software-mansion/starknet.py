@@ -161,7 +161,9 @@ class StarknetBlockSchema(Schema):
 
 
 class BlockSingleTransactionTraceSchema(Schema):
-    function_invocation = {}
+    function_invocation = fields.Dict(
+        keys=fields.String(), values=fields.Raw(), data_key="function_invocation"
+    )
     signature = fields.List(Felt(), data_key="signature", load_default=[])
     transaction_hash = Felt(data_key="transaction_hash")
 

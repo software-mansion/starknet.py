@@ -246,6 +246,7 @@ async def test_state_update(
                     contract_hash=0x711941B11A8236B8CCA42B664E19342AC7300ABB1DC44957763CB65877C2708,
                 )
             ],
+            declared_contracts=[],
         )
 
 
