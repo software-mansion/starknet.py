@@ -13,7 +13,7 @@ async def test_sn_eth_messages(run_devnet):
         MessageToEth,
         MessageToEthContent,
     )
-    from starknet_py.net.client import Client
+    from starknet_py.net.gateway_client import GatewayClient
     from starknet_py.net.models import StarknetChainId
     from starknet_py.net.networks import TESTNET
 
@@ -35,7 +35,7 @@ async def test_sn_eth_messages(run_devnet):
         )  # Provide 32 bytes as an input here, instead of message's content
     )
 
-    client = Client(TESTNET)
+    client = GatewayClient(TESTNET)
 
     # add to docs: end
 

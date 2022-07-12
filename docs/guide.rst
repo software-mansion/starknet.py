@@ -4,7 +4,7 @@ Guide
 Using existing contracts
 ------------------------
 
-Although it is possible to use :ref:`Client` to interact with contracts, it requires translating python values into Cairo
+Although it is possible to use `Client` to interact with contracts, it requires translating python values into Cairo
 values. Contract offers that and some other utilities.
 
 Let's say we have a contract with this interface:
@@ -18,7 +18,7 @@ This is how we can interact with it:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_existing_contracts.py
     :language: python
-    :lines: 39-47,63-95
+    :lines: 39-44,50-53,66-101
     :dedent: 4
 
 
@@ -31,7 +31,7 @@ signing algorithm, it is possible to create ``AccountClient`` with custom
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_custom_signer.py
     :language: python
-    :lines: 11-28
+    :lines: 11-33
     :dedent: 4
 
 
@@ -106,7 +106,7 @@ You can use ``starknet.net.client.BadRequest`` to catch errors from invalid requ
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_handling_client_errors.py
     :language: python
-    :lines: 9-15,19-21
+    :lines: 10-17,21-23
     :dedent: 4
 
 

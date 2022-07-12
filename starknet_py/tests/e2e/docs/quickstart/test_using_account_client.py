@@ -14,15 +14,15 @@ async def test_using_account_client(run_devnet):
     # add to docs: start
     from starknet_py.net import AccountClient
     from starknet_py.contract import Contract
+    from starknet_py.net.gateway_client import GatewayClient
 
     # add to docs: end
     testnet = run_devnet
     # add to docs: start
 
-    # Creates an account on local network and returns an instance
-    acc_client = await AccountClient.create_account(
-        net=testnet, chain=StarknetChainId.TESTNET
-    )
+    # Creates an account on testnet and returns an instance
+    client = GatewayClient(net=testnet, chain=StarknetChainId.TESTNET)
+    acc_client = await AccountClient.create_account(client=client)
     # add to docs: end
     acc_client = DevnetClientFactory(run_devnet).make_devnet_client()
     # add to docs: start
