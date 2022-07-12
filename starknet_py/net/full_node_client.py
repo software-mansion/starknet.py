@@ -40,13 +40,6 @@ from starknet_py.utils.sync import add_sync_methods
 
 @add_sync_methods
 class FullNodeClient(Client):
-    async def get_block_traces(
-        self,
-        block_hash: [Union[Hash, Tag]] = None,
-        block_number: Optional[Union[int, Tag]] = None,
-    ) -> BlockTransactionTraces:
-        raise NotImplementedError()
-
     def __init__(
         self,
         node_url: str,
@@ -97,6 +90,13 @@ class FullNodeClient(Client):
             )
             return StarknetBlockSchema().load(res, unknown=EXCLUDE)
         raise ValueError("Either block_hash or block_number is required")
+
+    async def get_block_traces(
+        self,
+        block_hash: [Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> BlockTransactionTraces:
+        raise NotImplementedError()
 
     async def get_state_update(
         self,
