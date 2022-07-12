@@ -17,6 +17,19 @@ def make_deploy_tx(
     version: int = 0,
     cairo_path: Optional[List[str]] = None,
 ) -> Deploy:
+    """
+    Create deploy tx.
+    Either `compilation_source` or `compiled_contract` is required.
+
+    :param compilation_source: string containing source code or a list of source files paths
+    :param compiled_contract: string containing compiled contract bytecode.
+                              Useful for reading compiled contract from a file
+    :param constructor_calldata: Calldata to be passed to contract constructor
+    :param salt: Salt to be used when generating contract address
+    :param version: PreparedFunctionCall version
+    :param cairo_path: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts
+    :return: A "Deploy" transaction object
+    """
     if not constructor_calldata:
         constructor_calldata = []
 
