@@ -183,7 +183,7 @@ async def test_fee_higher_for_account_client(run_devnet):
         .estimate_fee()
     )
 
-    assert estimated_fee < estimated_fee_signed
+    assert estimated_fee.overall_fee < estimated_fee_signed.overall_fee
 
 
 @pytest.mark.asyncio
