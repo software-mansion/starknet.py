@@ -26,16 +26,15 @@ You can see all Gateway Client's methods :obj:`here <starknet_py.net.gateway_cli
 Using FullNodeClient
 --------------------
 FullNodeClient is a client which interacts with a StarkNet full node like `pathfinder <https://github.com/eqlabs/pathfinder>`_.
-For now API only supports read operations - it will change in the future along with full node write support.
+For now API only supports read operations - it will be changed in future versions.
 As with GatewayClient, there is both synchronous and asynchronous API available.
-Usage is a little different than the GatewayClient, see below:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/quickstart/test_using_full_node_client.py
     :language: python
     :lines: 12-15,21-22
     :dedent: 4
 
-You can see all Gateway Client's methods :obj:`here <starknet_py.net.full_node_client.FullNodeClient>`.
+You can see all Gateway Client's methods :ref:`FullNodeClient`.
 
 Creating AccountClient
 ----------------------
