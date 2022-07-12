@@ -21,7 +21,7 @@ synchronous version. It might be helpful to play with Starknet directly in pytho
     :lines: 11-14
     :dedent: 4
 
-You can see all Gateway Client's methods :obj:`here <starknet_py.net.gateway_client.GatewayClient>`.
+You can see all Gateway Client's methods :ref:`GatewayClient`.
 
 Using FullNodeClient
 --------------------
@@ -34,7 +34,7 @@ As with GatewayClient, there is both synchronous and asynchronous API available.
     :lines: 12-15,21-22
     :dedent: 4
 
-You can see all Gateway Client's methods :ref:`FullNodeClient`.
+You can see all Full Node Client's methods :ref:`FullNodeClient`.
 
 Creating AccountClient
 ----------------------
