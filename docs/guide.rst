@@ -190,7 +190,7 @@ Conversion functions and references:
 - :obj:`decode_shortstring <starknet_py.cairo.felt.decode_shortstring>`
 
 
-Using FullNodeClient
+FullNodeClient usage
 --------------------
 
 Use a :ref:`FullNodeClient` to interact with services providing `starknet rpc interface <https://github.com/starkware-libs/starknet-specs/blob/606c21e06be92ea1543fd0134b7f98df622c2fbf/api/starknet_api_openrpc.json>`_
