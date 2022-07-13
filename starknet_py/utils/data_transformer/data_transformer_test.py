@@ -2,7 +2,7 @@ from typing import NamedTuple
 import pytest
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 
-from starknet_py.utils.data_transformer.data_transformer import DataTransformer
+from starknet_py.utils.data_transformer.data_transformer import FunctionCallSerializer
 from starknet_py.cairo.felt import decode_shortstring
 
 
@@ -18,7 +18,7 @@ def transformer_for_function(inputs=None, outputs=None, structs=None):
         "type": "function",
     }
     full_abi = [fun_abi, *structs]
-    return DataTransformer(
+    return FunctionCallSerializer(
         abi=fun_abi, identifier_manager=identifier_manager_from_abi(full_abi)
     )
 
