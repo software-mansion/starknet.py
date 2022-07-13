@@ -72,7 +72,16 @@ async def test_using_cairo_serializer(run_devnet):
     events = transaction_receipt.events
 
     # Takes an abi of the event which data we want to serialize
-    emitted_event_abi = contract.data.abi[0]
+    emitted_event_abi = {
+        "data": [
+            {"name": "key", "type": "felt"},
+            {"name": "prev_value", "type": "felt"},
+            {"name": "value", "type": "felt"},
+        ],
+        "keys": [],
+        "name": "put_called",
+        "type": "event",
+    }
 
     # Creates CairoSerializer with contract's identifier manager
     cairo_serializer = CairoSerializer(
