@@ -39,7 +39,7 @@ from starknet_py.net.models import (
 from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.transactions.deploy import make_deploy_tx
 from starknet_py.utils.crypto.facade import pedersen_hash
-from starknet_py.utils.data_transformer import DataTransformer
+from starknet_py.utils.data_transformer import FunctionCallSerializer
 from starknet_py.utils.sync import add_sync_methods
 
 from starknet_py.net.client import Client
@@ -136,7 +136,7 @@ class PreparedFunctionCall:
         arguments: Dict[str, List[int]],
         selector: int,
         client: Client,
-        payload_transformer: DataTransformer,
+        payload_transformer: FunctionCallSerializer,
         contract_data: ContractData,
         max_fee: int,
         version: int,
@@ -285,7 +285,7 @@ class ContractFunction:
         self.inputs = abi["inputs"]
         self.contract_data = contract_data
         self._client = client
-        self._payload_transformer = DataTransformer(
+        self._payload_transformer = FunctionCallSerializer(
             abi=self.abi, identifier_manager=self.contract_data.identifier_manager
         )
 
@@ -574,7 +574,7 @@ class Contract:
             if isinstance(constructor_args, dict)
             else (constructor_args, {})
         )
-        calldata, _args = DataTransformer(
+        calldata, _args = FunctionCallSerializer(
             constructor_abi, identifier_manager_from_abi(contract.abi)
         ).from_python(*args, **kwargs)
         return calldata

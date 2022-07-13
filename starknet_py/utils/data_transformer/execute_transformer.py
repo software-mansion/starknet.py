@@ -1,6 +1,6 @@
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 
-from starknet_py.utils.data_transformer import DataTransformer
+from starknet_py.utils.data_transformer import FunctionCallSerializer
 
 abi = [
     {
@@ -31,6 +31,6 @@ abi = [
     },
 ]
 
-execute_transformer = DataTransformer(
+execute_transformer = FunctionCallSerializer(
     abi=abi[0], identifier_manager=identifier_manager_from_abi(abi)
 )

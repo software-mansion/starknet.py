@@ -1,3 +1,4 @@
+import warnings
 from dataclasses import dataclass
 from typing import List, Callable, TypeVar, Generic, Tuple, Dict, NamedTuple
 import itertools
@@ -393,4 +394,7 @@ class FunctionCallSerializer:
         return self.structure_transformer.to_python(self.abi["outputs"], values)
 
 
-DataTransformer = FunctionCallSerializer
+def DataTransformer(*args, **kwargs):
+    warnings.warn("DataTransformer is deprecated. Use FunctionCallSerializer instead")
+
+    return FunctionCallSerializer(*args, **kwargs)
