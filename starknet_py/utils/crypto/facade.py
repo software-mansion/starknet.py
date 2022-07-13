@@ -17,7 +17,7 @@ from crypto_cpp_py.cpp_bindings import (
 PREFIX_TRANSACTION = 476441609247967894954472788179128007176248455022
 
 
-@dataclass(frozen=True)
+@dataclass
 class Call:
     to_addr: int
     selector: int
