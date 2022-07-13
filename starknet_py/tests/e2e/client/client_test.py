@@ -261,7 +261,7 @@ async def test_add_transaction(devnet_address, contract_address):
         version=0,
         signature=[0x0, 0x0],
     )
-    result = await client.add_transaction(invoke_function)
+    result = await client.send_transaction(invoke_function)
 
     assert result.address == contract_address
     assert result.code == "TRANSACTION_RECEIVED"

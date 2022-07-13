@@ -10,7 +10,7 @@ from starknet_py.contract import Contract
 from starknet_py.net import AccountClient, KeyPair
 from starknet_py.net.account.account_client import deploy_account_contract
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models import InvokeFunction, parse_address, StarknetChainId
+from starknet_py.net.models import parse_address, StarknetChainId
 from starknet_py.net.networks import TESTNET, MAINNET
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 from starknet_py.tests.e2e.utils import DevnetClientFactory
@@ -39,26 +39,6 @@ async def test_deploy_account_contract_and_sign_tx(run_devnet):
     (resp,) = await map_contract.functions["get"].call(k)
 
     assert resp == v
-
-
-@pytest.mark.asyncio
-async def test_error_when_tx_signed(run_devnet):
-    acc_client = DevnetClientFactory(run_devnet).make_devnet_client()
-
-    invoke_function = InvokeFunction(
-        contract_address=123,
-        entry_point_selector=123,
-        calldata=[],
-        signature=[123, 321],
-        max_fee=MAX_FEE,
-        version=0,
-    )
-    with pytest.raises(TypeError) as t_err:
-        await acc_client.add_transaction(transaction=invoke_function)
-
-    assert "Adding signatures to a signer tx currently isn't supported" in str(
-        t_err.value
-    )
 
 
 @pytest.mark.asyncio
@@ -156,34 +136,6 @@ async def test_estimated_fee_greater_than_zero(run_devnet):
     )
 
     assert estimated_fee > 0
-
-
-@pytest.mark.asyncio
-async def test_fee_higher_for_account_client(run_devnet):
-    acc_client = DevnetClientFactory(run_devnet).make_devnet_client()
-    client = DevnetClientFactory(run_devnet).make_devnet_client_without_account()
-
-    deployment_result = await Contract.deploy(
-        client=acc_client, compilation_source=erc20_mock_source_code
-    )
-    deployment_result = await deployment_result.wait_for_acceptance()
-
-    contract_acc = deployment_result.deployed_contract
-    contract_client = await Contract.from_address(contract_acc.address, client)
-
-    estimated_fee_signed = (
-        await contract_acc.functions["balanceOf"]
-        .prepare("1234", max_fee=0)
-        .estimate_fee()
-    )
-
-    estimated_fee = (
-        await contract_client.functions["balanceOf"]
-        .prepare("1234", max_fee=0)
-        .estimate_fee()
-    )
-
-    assert estimated_fee < estimated_fee_signed
 
 
 @pytest.mark.asyncio
