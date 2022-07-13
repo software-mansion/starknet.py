@@ -202,6 +202,28 @@ Conversion functions and references:
 - :obj:`decode_shortstring <starknet_py.cairo.felt.decode_shortstring>`
 
 
+FullNodeClient usage
+--------------------
+
+Use a :ref:`FullNodeClient` to interact with services providing `starknet rpc interface <https://github.com/starkware-libs/starknet-specs/blob/606c21e06be92ea1543fd0134b7f98df622c2fbf/api/starknet_api_openrpc.json>`_
+like `Pathfinder Full Node <https://github.com/eqlabs/pathfinder>`_ or starknet-devnet. StarkNet.py provides uniform interface for
+both gateway and full node client - usage is exactly the same as gateway client minus some optional
+parameters.
+
+Using own full node allows for querying StarkNet with better performance.
+Since gateway will be deprecated at some point in the future, having ``FullNodeClient`` with interface uniform with that of ``GatewayClient``
+will allow for simple migration for StarkNet.py users.
+
+.. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_full_node_client.py
+    :language: python
+    :lines: 11-14,20-21
+    :dedent: 4
+
+.. note::
+
+    FullNodeClient does not currently support adding transactions and so cannot be used with
+    :ref:`AccountClient`. This feature will be added in future StarkNet.py versions.
+
 
 StarkNet <> Ethereum communication
 ----------------------------------
