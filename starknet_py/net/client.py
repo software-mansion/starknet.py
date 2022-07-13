@@ -190,7 +190,7 @@ class Client(ABC):
         """
 
     @abstractmethod
-    async def add_transaction(
+    async def send_transaction(
         self,
         transaction: InvokeFunction,
     ) -> SentTransactionResponse:

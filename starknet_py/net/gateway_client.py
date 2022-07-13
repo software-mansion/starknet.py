@@ -258,7 +258,7 @@ class GatewayClient(Client):
 
         return [int(v, 16) for v in res["result"]]
 
-    async def add_transaction(
+    async def send_transaction(
         self, transaction: InvokeFunction
     ) -> SentTransactionResponse:
         return await self._add_transaction(transaction)

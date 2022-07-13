@@ -1,4 +1,4 @@
-from typing import Optional, List, Union
+from typing import Optional, List, Union, Iterable
 from dataclasses import replace
 
 from starkware.crypto.signature.signature import get_random_private_key
@@ -16,7 +16,6 @@ from starknet_py.net.client_models import (
     TransactionReceipt,
     BlockStateUpdate,
     StarknetBlock,
-    StarknetTransaction,
     Declare,
     Deploy,
 )
@@ -33,10 +32,13 @@ from starknet_py.net.networks import Network, MAINNET, TESTNET
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
 from starknet_py.net.signer import BaseSigner
 from starknet_py.transactions.deploy import make_deploy_tx
+from starknet_py.utils.crypto.facade import Call
 from starknet_py.utils.data_transformer.execute_transformer import execute_transformer
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.net.models.address import AddressRepresentation, parse_address
 from starknet_py.net.gateway_client import GatewayClient
+
+Calls = Union[Call, Iterable[Call]]
 
 
 @add_sync_methods
@@ -171,21 +173,15 @@ class AccountClient(Client):
 
         return (high << 128) + low
 
-    async def _prepare_execute_transaction(self, tx: InvokeFunction) -> Transaction:
+    async def prepare_invoke_function(
+        self, calls: Calls, max_fee: int, version: int
+    ) -> InvokeFunction:
+        calls = calls if isinstance(calls, List) else [calls]
+
         nonce = await self._get_nonce()
 
-        calldata_py = [
-            [
-                {
-                    "to": tx.contract_address,
-                    "selector": tx.entry_point_selector,
-                    "data_offset": 0,
-                    "data_len": len(tx.calldata),
-                }
-            ],
-            tx.calldata,
-            nonce,
-        ]
+        calldata_py = merge_calls(calls)
+        calldata_py.append(nonce)
 
         wrapped_calldata, _ = execute_transformer.from_python(*calldata_py)
 
@@ -194,29 +190,30 @@ class AccountClient(Client):
             calldata=wrapped_calldata,
             contract_address=self.address,
             signature=[],
-            max_fee=tx.max_fee,
-            version=tx.version,
+            max_fee=max_fee,
+            version=version,
         )
 
-    async def _sign_transaction(self, tx: InvokeFunction) -> StarknetTransaction:
-        execute_tx = await self._prepare_execute_transaction(tx)
+    async def sign_transaction(
+        self, calls: Calls, max_fee: int, version: int
+    ) -> InvokeFunction:
+        execute_tx = await self.prepare_invoke_function(calls, max_fee, version)
+
         signature = self.signer.sign_transaction(execute_tx)
         execute_tx = add_signature_to_transaction(execute_tx, signature)
+
         return execute_tx
 
-    async def add_transaction(
-        self,
-        transaction: InvokeFunction,
+    async def send_transaction(
+        self, transaction: InvokeFunction
     ) -> SentTransactionResponse:
+        return await self.client.send_transaction(transaction=transaction)
 
-        if transaction.signature:
-            raise TypeError(
-                "Adding signatures to a signer tx currently isn't supported"
-            )
-
-        return await self.client.add_transaction(
-            await self._sign_transaction(transaction)
-        )
+    async def execute(
+        self, calls: Calls, max_fee: int, version: int
+    ) -> SentTransactionResponse:
+        execute_transaction = await self.sign_transaction(calls, max_fee, version)
+        return await self.send_transaction(execute_transaction)
 
     async def deploy(self, transaction: Deploy) -> SentTransactionResponse:
         return await self.client.deploy(transaction=transaction)
@@ -236,8 +233,11 @@ class AccountClient(Client):
         :param block_number: Estimate fee at given block number (or "pending" for pending block)
         :return: Estimated fee
         """
+        signature = self.signer.sign_transaction(tx)
+        tx = add_signature_to_transaction(tx, signature)
+
         return await self.client.estimate_fee(
-            tx=await self._sign_transaction(tx),
+            tx=tx,
             block_hash=block_hash,
             block_number=block_number,
         )
@@ -298,3 +298,27 @@ def add_signature_to_transaction(
     tx: InvokeFunction, signature: List[int]
 ) -> InvokeFunction:
     return replace(tx, signature=signature)
+
+
+def merge_calls(calls: Calls) -> List:
+    def add_call(
+        calldata: List, call: Call, current_data_len: int, entire_calldata: List
+    ):
+        calldata.append(
+            {
+                "to": call.to_addr,
+                "selector": call.selector,
+                "data_offset": current_data_len,
+                "data_len": len(call.calldata),
+            }
+        )
+        current_data_len += len(call.calldata)
+        entire_calldata += call.calldata
+
+    calldata = []
+    current_data_len = 0
+    entire_calldata = []
+    for call in calls:
+        add_call(calldata, call, current_data_len, entire_calldata)
+
+    return [calldata, entire_calldata]
