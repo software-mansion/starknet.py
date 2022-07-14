@@ -462,7 +462,9 @@ async def test_error_when_invoking_without_account_client(run_devnet):
     contract = deployment_result.deployed_contract
 
     with pytest.raises(ValueError) as wrong_client_error:
-        await contract.functions["put"].prepare(key=10, value=10).invoke(max_fee=MAX_FEE)
+        await contract.functions["put"].prepare(key=10, value=10).invoke(
+            max_fee=MAX_FEE
+        )
 
     assert "Use AccountClient to invoke transaction" in str(wrong_client_error)
 
@@ -480,4 +482,7 @@ async def test_error_when_estimating_fee_while_not_using_account_client(run_devn
     with pytest.raises(ValueError) as wrong_client_error:
         await contract.functions["put"].prepare(key=10, value=10).estimate_fee()
 
-    assert "Cannot estimate fee of PreparedFunctionCall when not using AccountClient" in str(wrong_client_error)
+    assert (
+        "Cannot estimate fee of PreparedFunctionCall when not using AccountClient"
+        in str(wrong_client_error)
+    )
