@@ -181,6 +181,16 @@ class AccountClient(Client):
         auto_estimate: bool = False,
         version: int = 0,
     ) -> InvokeFunction:
+        """
+        Takes calls and creates InvokeFunction from them
+
+        :param calls: Single call or list of calls
+        :param max_fee: Max amount of Wei to be paid when executing transaction
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
+        :param version: Transaction version
+        :return: InvokeFunction created from the calls (without the signature)
+        """
+
         calls = calls if isinstance(calls, List) else [calls]
 
         nonce = await self._get_nonce()
@@ -243,6 +253,15 @@ class AccountClient(Client):
         auto_estimate: bool = False,
         version: int = 0,
     ) -> InvokeFunction:
+        """
+        Takes calls and creates signed InvokeFunction
+
+        :param calls: Single call or list of calls
+        :param max_fee: Max amount of Wei to be paid when executing transaction
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
+        :param version: Transaction version
+        :return: InvokeFunction created from the calls
+        """
         execute_tx = await self.prepare_invoke_function(
             calls, max_fee, auto_estimate, version
         )
@@ -255,6 +274,12 @@ class AccountClient(Client):
     async def send_transaction(
         self, transaction: InvokeFunction
     ) -> SentTransactionResponse:
+        """
+        Gets InvokeFunction and sends it
+
+        :param transaction: InvokeFunction ready to be sent
+        :return: SentTransactionResponse
+        """
         return await self.client.send_transaction(transaction=transaction)
 
     async def execute(
@@ -264,6 +289,15 @@ class AccountClient(Client):
         auto_estimate: bool = False,
         version: int = 0,
     ) -> SentTransactionResponse:
+        """
+        Takes calls and executes transaction
+
+        :param calls: Single call or list of calls
+        :param max_fee: Max amount of Wei to be paid when executing transaction
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
+        :param version: Transaction version
+        :return: SentTransactionResponse
+        """
         execute_transaction = await self.sign_transaction(
             calls, max_fee, auto_estimate, version
         )
