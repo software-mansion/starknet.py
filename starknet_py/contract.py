@@ -394,7 +394,7 @@ class Contract:
     @staticmethod
     async def from_address(
         address: AddressRepresentation,
-        client: GatewayClient,
+        client: Client,
         proxy_config: Union[bool, ProxyConfig] = False,
     ) -> "Contract":
         """
@@ -403,7 +403,7 @@ class Contract:
 
         :raises BadRequest: when contract is not found
         :param address: Contract's address
-        :param client: GatewayClient used, WARNING: This method does not work with other clients!
+        :param client: Client, WARNING: This method does not work with FullNodeClient!
         :param proxy_config: Proxy resolving config
             If set to ``True``, will use default proxy checks and :class:
             `starknet_py.proxy_check.OpenZeppelinProxyCheck`
@@ -592,7 +592,7 @@ class ContractFromAddressFactory:
     def __init__(
         self,
         address: AddressRepresentation,
-        client: GatewayClient,
+        client: Client,
         max_steps: int,
         proxy_checks: List[ProxyCheck],
     ):
