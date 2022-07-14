@@ -446,6 +446,38 @@ async def test_transaction_not_received_error(run_devnet):
         mocked_send_transaction.return_value = result
 
         with pytest.raises(Exception) as tx_not_received:
-            print(await contract.functions["put"].invoke(10, 20, max_fee=MAX_FEE))
+            await contract.functions["put"].invoke(10, 20, max_fee=MAX_FEE)
 
         assert "Failed to send transaction." in str(tx_not_received)
+
+
+@pytest.mark.asyncio
+async def test_error_when_invoking_without_account_client(run_devnet):
+    client = DevnetClientFactory(run_devnet).make_devnet_client_without_account()
+
+    deployment_result = await Contract.deploy(
+        client=client, compilation_source=map_source
+    )
+    deployment_result = await deployment_result.wait_for_acceptance()
+    contract = deployment_result.deployed_contract
+
+    with pytest.raises(ValueError) as wrong_client_error:
+        await contract.functions["put"].prepare(key=10, value=10).invoke(max_fee=MAX_FEE)
+
+    assert "Use AccountClient to invoke transaction" in str(wrong_client_error)
+
+
+@pytest.mark.asyncio
+async def test_error_when_estimating_fee_while_not_using_account_client(run_devnet):
+    client = DevnetClientFactory(run_devnet).make_devnet_client_without_account()
+
+    deployment_result = await Contract.deploy(
+        client=client, compilation_source=map_source
+    )
+    deployment_result = await deployment_result.wait_for_acceptance()
+    contract = deployment_result.deployed_contract
+
+    with pytest.raises(ValueError) as wrong_client_error:
+        await contract.functions["put"].prepare(key=10, value=10).estimate_fee()
+
+    assert "Cannot estimate fee of PreparedFunctionCall when not using AccountClient" in str(wrong_client_error)
