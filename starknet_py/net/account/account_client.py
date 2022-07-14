@@ -1,3 +1,4 @@
+import warnings
 from typing import Optional, List, Union, Iterable
 from dataclasses import replace
 
@@ -17,7 +18,7 @@ from starknet_py.net.client_models import (
     BlockStateUpdate,
     StarknetBlock,
     Declare,
-    Deploy
+    Deploy,
 )
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
@@ -174,7 +175,11 @@ class AccountClient(Client):
         return (high << 128) + low
 
     async def prepare_invoke_function(
-        self, calls: Calls, max_fee: int, version: int
+        self,
+        calls: Calls,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+        version: int = 0,
     ) -> InvokeFunction:
         calls = calls if isinstance(calls, List) else [calls]
 
@@ -185,6 +190,17 @@ class AccountClient(Client):
 
         wrapped_calldata, _ = execute_transformer.from_python(*calldata_py)
 
+        transaction = InvokeFunction(
+            entry_point_selector=get_selector_from_name("__execute__"),
+            calldata=wrapped_calldata,
+            contract_address=self.address,
+            signature=[],
+            max_fee=0,
+            version=version,
+        )
+
+        max_fee = await self._get_max_fee(transaction, max_fee, auto_estimate)
+
         return InvokeFunction(
             entry_point_selector=get_selector_from_name("__execute__"),
             calldata=wrapped_calldata,
@@ -194,10 +210,42 @@ class AccountClient(Client):
             version=version,
         )
 
+    async def _get_max_fee(
+        self,
+        transaction: InvokeFunction,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+    ):
+        if auto_estimate and max_fee is not None:
+            raise ValueError(
+                "Max_fee and auto_estimate are exclusive and cannot be provided at the same time."
+            )
+
+        if auto_estimate:
+            estimate_fee = await self.estimate_fee(transaction)
+            max_fee = int(estimate_fee * 1.1)
+
+        if max_fee is None:
+            raise ValueError("Max_fee must be specified when invoking a transaction")
+
+        if max_fee == 0:
+            warnings.warn(
+                "Transaction will fail with max_fee set to 0. Change it to a higher value.",
+                DeprecationWarning,
+            )
+
+        return max_fee
+
     async def sign_transaction(
-        self, calls: Calls, max_fee: int, version: int
+        self,
+        calls: Calls,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+        version: int = 0,
     ) -> InvokeFunction:
-        execute_tx = await self.prepare_invoke_function(calls, max_fee, version)
+        execute_tx = await self.prepare_invoke_function(
+            calls, max_fee, auto_estimate, version
+        )
 
         signature = self.signer.sign_transaction(execute_tx)
         execute_tx = add_signature_to_transaction(execute_tx, signature)
@@ -210,9 +258,15 @@ class AccountClient(Client):
         return await self.client.send_transaction(transaction=transaction)
 
     async def execute(
-        self, calls: Calls, max_fee: int, version: int
+        self,
+        calls: Calls,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+        version: int = 0,
     ) -> SentTransactionResponse:
-        execute_transaction = await self.sign_transaction(calls, max_fee, version)
+        execute_transaction = await self.sign_transaction(
+            calls, max_fee, auto_estimate, version
+        )
         return await self.send_transaction(execute_transaction)
 
     async def deploy(self, transaction: Deploy) -> SentTransactionResponse:

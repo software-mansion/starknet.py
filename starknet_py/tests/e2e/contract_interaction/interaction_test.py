@@ -128,7 +128,7 @@ async def test_throws_on_both_max_fee_in_prepare_and_auto_estimate(run_devnet):
         await invocation.invoke(auto_estimate=True)
 
     assert (
-        "Auto_estimate cannot be used if max_fee was provided when preparing a function call."
+        "Max_fee and auto_estimate are exclusive and cannot be provided at the same time."
         in str(exinfo.value)
     )
 

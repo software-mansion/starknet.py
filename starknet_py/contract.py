@@ -210,33 +210,11 @@ class PreparedFunctionCall(Call):
         if not isinstance(self._client, AccountClient):
             raise ValueError("Use AccountClient to invoke transaction")
 
-        if auto_estimate and max_fee is not None:
-            raise ValueError(
-                "Max_fee and auto_estimate are exclusive and cannot be provided at the same time."
-            )
-        if auto_estimate and self.max_fee is not None:
-            raise ValueError(
-                "Auto_estimate cannot be used if max_fee was provided when preparing a function call."
-            )
-
-        if auto_estimate:
-            estimate_fee = await self.estimate_fee()
-            max_fee = int(estimate_fee * 1.1)
-
         if max_fee is not None:
             self.max_fee = max_fee
 
-        if self.max_fee is None:
-            raise ValueError("Max_fee must be specified when invoking a transaction")
-
-        if self.max_fee == 0:
-            warnings.warn(
-                "Transaction will fail with max_fee set to 0. Change it to a higher value.",
-                DeprecationWarning,
-            )
-
         transaction = await self._client.sign_transaction(
-            self, self.max_fee, self.version
+            self, self.max_fee, auto_estimate, self.version
         )
         response = await self._client.send_transaction(transaction)
 
