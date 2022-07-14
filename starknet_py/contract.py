@@ -26,7 +26,6 @@ from starkware.starkware_utils.error_handling import StarkErrorCode
 
 from starknet_py.common import create_compiled_contract
 from starknet_py.net import AccountClient
-from starknet_py.net.gateway_client import GatewayClient
 
 from starknet_py.proxy_check import ProxyCheck, ArgentProxyCheck, OpenZeppelinProxyCheck
 from starknet_py.net.models import (
