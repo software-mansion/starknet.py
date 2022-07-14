@@ -435,7 +435,7 @@ async def test_transaction_not_received_error(run_devnet):
     with patch(
         "starknet_py.net.account.account_client.AccountClient.send_transaction",
         MagicMock(),
-    ) as mocked_add_transaction:
+    ) as mocked_send_transaction:
         result = asyncio.Future()
         result.set_result(
             SentTransactionResponse(
@@ -443,7 +443,7 @@ async def test_transaction_not_received_error(run_devnet):
             )
         )
 
-        mocked_add_transaction.return_value = result
+        mocked_send_transaction.return_value = result
 
         with pytest.raises(Exception) as tx_not_received:
             print(await contract.functions["put"].invoke(10, 20, max_fee=MAX_FEE))
