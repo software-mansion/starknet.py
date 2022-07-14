@@ -17,7 +17,7 @@ from starknet_py.net.client_models import (
     BlockStateUpdate,
     StarknetBlock,
     Declare,
-    Deploy,
+    Deploy
 )
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
@@ -110,7 +110,7 @@ class AccountClient(Client):
         )
 
     async def get_transaction(self, tx_hash: Hash) -> Transaction:
-        return self.client.get_transaction(tx_hash=tx_hash)
+        return await self.client.get_transaction(tx_hash=tx_hash)
 
     async def get_transaction_receipt(self, tx_hash: Hash) -> TransactionReceipt:
         return await self.client.get_transaction_receipt(tx_hash=tx_hash)

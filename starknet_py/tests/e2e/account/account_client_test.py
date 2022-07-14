@@ -177,3 +177,23 @@ async def test_create_account_client_with_signer(run_devnet):
     assert acc_client.signer == signer
     assert acc_client.signer is not None
     assert acc_client.address is not None
+
+
+@pytest.mark.asyncio
+async def test_sending_multicall(run_devnet):
+    acc_client = DevnetClientFactory(run_devnet).make_devnet_client()
+
+    deployment_result = await Contract.deploy(
+        client=acc_client, compilation_source=map_source_code
+    )
+    deployment_result = await deployment_result.wait_for_acceptance()
+    contract = deployment_result.deployed_contract
+
+    calls = [
+        contract.functions["put"].prepare(key=10, value=10),
+        contract.functions["put"].prepare(key=20, value=20),
+    ]
+
+    res = await acc_client.execute(calls, int(1e20), 0)
+
+    assert res.code == "TRANSACTION_RECEIVED"
