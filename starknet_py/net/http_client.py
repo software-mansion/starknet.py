@@ -54,7 +54,7 @@ class HttpClient(ABC):
             method=http_method.value, url=address, params=params, json=payload
         ) as request:
             await self.handle_request_error(request)
-            return await request.json()
+            return await request.json(content_type=None)
 
     @abstractmethod
     async def handle_request_error(self, request: ClientResponse):
