@@ -466,7 +466,10 @@ async def test_error_when_invoking_without_account_client(run_devnet):
             max_fee=MAX_FEE
         )
 
-    assert "Use AccountClient to invoke transaction" in str(wrong_client_error)
+    assert (
+        "Use the AccountClient while creating Contract instance to invoke the transaction"
+        in str(wrong_client_error)
+    )
 
 
 @pytest.mark.asyncio
@@ -483,6 +486,6 @@ async def test_error_when_estimating_fee_while_not_using_account_client(run_devn
         await contract.functions["put"].prepare(key=10, value=10).estimate_fee()
 
     assert (
-        "Cannot estimate fee of PreparedFunctionCall when not using AccountClient"
+        "Use the AccountClient while creating Contract instance to estimate fee of the transaction"
         in str(wrong_client_error)
     )
