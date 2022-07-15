@@ -467,7 +467,7 @@ async def test_error_when_invoking_without_account_client(run_devnet):
         )
 
     assert (
-        "Use the AccountClient while creating Contract instance to invoke the transaction"
+        "Contract uses an account that can't invoke transactions. You need to use AccountClient for that."
         in str(wrong_client_error)
     )
 
@@ -486,6 +486,6 @@ async def test_error_when_estimating_fee_while_not_using_account_client(run_devn
         await contract.functions["put"].prepare(key=10, value=10).estimate_fee()
 
     assert (
-        "Use the AccountClient while creating Contract instance to estimate fee of the transaction"
+        "Contract uses an account that can't invoke transactions. You need to use AccountClient for that."
         in str(wrong_client_error)
     )
