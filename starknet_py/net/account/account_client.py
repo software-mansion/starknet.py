@@ -18,7 +18,9 @@ from starknet_py.net.client_models import (
     BlockStateUpdate,
     StarknetBlock,
     Declare,
-    Deploy, Calls,
+    Deploy,
+    Calls,
+    TransactionStatus,
 )
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
@@ -47,6 +49,7 @@ class AccountClient(Client):
     adding additional methods for creating the account contract.
     """
 
+    # pylint: disable=too-many-public-methods
     def __init__(
         self,
         address: AddressRepresentation,
@@ -113,6 +116,18 @@ class AccountClient(Client):
 
     async def get_transaction_receipt(self, tx_hash: Hash) -> TransactionReceipt:
         return await self.client.get_transaction_receipt(tx_hash=tx_hash)
+
+    async def wait_for_tx(
+        self,
+        tx_hash: Hash,
+        wait_for_accept: Optional[bool] = False,
+        check_interval=5,
+    ) -> (int, TransactionStatus):
+        return await self.client.wait_for_tx(
+            tx_hash=tx_hash,
+            wait_for_accept=wait_for_accept,
+            check_interval=check_interval,
+        )
 
     async def call_contract(
         self, invoke_tx: InvokeFunction, block_hash: Union[Hash, Tag] = None
