@@ -194,6 +194,6 @@ async def test_sending_multicall(run_devnet):
         contract.functions["put"].prepare(key=20, value=20),
     ]
 
-    res = await acc_client.execute(calls, int(1e20), 0)
+    res = await acc_client.execute(calls, int(1e20))
 
     assert res.code == "TRANSACTION_RECEIVED"

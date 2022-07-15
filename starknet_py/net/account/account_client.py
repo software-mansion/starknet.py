@@ -389,24 +389,25 @@ def add_signature_to_transaction(
 
 
 def merge_calls(calls: Calls) -> List:
-    def add_call(
-        calldata: List, call: Call, current_data_len: int, entire_calldata: List
-    ):
-        calldata.append(
-            {
-                "to": call.to_addr,
-                "selector": call.selector,
-                "data_offset": current_data_len,
-                "data_len": len(call.calldata),
-            }
-        )
+    def parse_call(call: Call, current_data_len: int, entire_calldata: List):
+        data = {
+            "to": call.to_addr,
+            "selector": call.selector,
+            "data_offset": current_data_len,
+            "data_len": len(call.calldata),
+        }
         current_data_len += len(call.calldata)
         entire_calldata += call.calldata
+
+        return data, current_data_len, entire_calldata
 
     calldata = []
     current_data_len = 0
     entire_calldata = []
     for call in calls:
-        add_call(calldata, call, current_data_len, entire_calldata)
+        data, current_data_len, entire_calldata = parse_call(
+            call, current_data_len, entire_calldata
+        )
+        calldata.append(data)
 
     return [calldata, entire_calldata]
