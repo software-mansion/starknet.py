@@ -63,8 +63,8 @@ The result contains (in addition to get_transaction fields):
 .. automethod:: GatewayClient.wait_for_tx
 .. automethod:: GatewayClient.wait_for_tx_sync
 
-.. automethod:: GatewayClient.add_transaction
-.. automethod:: GatewayClient.add_transaction_sync
+.. automethod:: GatewayClient.send_transaction
+.. automethod:: GatewayClient.send_transaction_sync
 
 We recommend using :obj:`ContractFunction's invoke <starknet_py.contract.ContractFunction.invoke>` or :obj:`Contract's deploy <starknet_py.contract.Contract.deploy>` instead
 

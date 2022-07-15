@@ -1,4 +1,5 @@
-from typing import Optional, List, Union
+import warnings
+from typing import Optional, List, Union, Dict
 from dataclasses import replace
 
 from starkware.crypto.signature.signature import get_random_private_key
@@ -16,9 +17,10 @@ from starknet_py.net.client_models import (
     TransactionReceipt,
     BlockStateUpdate,
     StarknetBlock,
-    StarknetTransaction,
     Declare,
     Deploy,
+    Calls,
+    TransactionStatus,
 )
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
@@ -33,6 +35,7 @@ from starknet_py.net.networks import Network, MAINNET, TESTNET
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
 from starknet_py.net.signer import BaseSigner
 from starknet_py.transactions.deploy import make_deploy_tx
+from starknet_py.utils.crypto.facade import Call
 from starknet_py.utils.data_transformer.execute_transformer import execute_transformer
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.net.models.address import AddressRepresentation, parse_address
@@ -46,6 +49,7 @@ class AccountClient(Client):
     adding additional methods for creating the account contract.
     """
 
+    # pylint: disable=too-many-public-methods
     def __init__(
         self,
         address: AddressRepresentation,
@@ -54,11 +58,8 @@ class AccountClient(Client):
         key_pair: Optional[KeyPair] = None,
     ):
         """
-
-        :param net: Target network for the client. Can be a string with URL or one of ``"mainnet"``, ``"testnet"``
-        :param chain: Chain used by the network. Required if you use a custom URL for ``net`` param.
-        :param n_retries: Number of retries client will attempt before failing a request
-        :param address: Address of the deployed account to be used by AccountClient
+        :param address: Address of the account contract
+        :param client: Instance of GatewayClient which will be used to add transactions
         :param signer: Custom signer to be used by AccountClient.
                        If none is provieded, default
                        :py:class:`starknet_py.net.signer.stark_curve_signer.StarkCurveSigner` is used.
@@ -108,10 +109,22 @@ class AccountClient(Client):
         )
 
     async def get_transaction(self, tx_hash: Hash) -> Transaction:
-        return self.client.get_transaction(tx_hash=tx_hash)
+        return await self.client.get_transaction(tx_hash=tx_hash)
 
     async def get_transaction_receipt(self, tx_hash: Hash) -> TransactionReceipt:
         return await self.client.get_transaction_receipt(tx_hash=tx_hash)
+
+    async def wait_for_tx(
+        self,
+        tx_hash: Hash,
+        wait_for_accept: Optional[bool] = False,
+        check_interval=5,
+    ) -> (int, TransactionStatus):
+        return await self.client.wait_for_tx(
+            tx_hash=tx_hash,
+            wait_for_accept=wait_for_accept,
+            check_interval=check_interval,
+        )
 
     async def call_contract(
         self, invoke_tx: InvokeFunction, block_hash: Union[Hash, Tag] = None
@@ -171,52 +184,128 @@ class AccountClient(Client):
 
         return (high << 128) + low
 
-    async def _prepare_execute_transaction(self, tx: InvokeFunction) -> Transaction:
+    async def prepare_invoke_function(
+        self,
+        calls: Calls,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+        version: int = 0,
+    ) -> InvokeFunction:
+        """
+        Takes calls and creates InvokeFunction from them
+
+        :param calls: Single call or list of calls
+        :param max_fee: Max amount of Wei to be paid when executing transaction
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
+        :param version: Transaction version
+        :return: InvokeFunction created from the calls (without the signature)
+        """
+
+        calls = calls if isinstance(calls, List) else [calls]
+
         nonce = await self._get_nonce()
 
-        calldata_py = [
-            [
-                {
-                    "to": tx.contract_address,
-                    "selector": tx.entry_point_selector,
-                    "data_offset": 0,
-                    "data_len": len(tx.calldata),
-                }
-            ],
-            tx.calldata,
-            nonce,
-        ]
+        calldata_py = merge_calls(calls)
+        calldata_py.append(nonce)
 
         wrapped_calldata, _ = execute_transformer.from_python(*calldata_py)
+
+        transaction = InvokeFunction(
+            entry_point_selector=get_selector_from_name("__execute__"),
+            calldata=wrapped_calldata,
+            contract_address=self.address,
+            signature=[],
+            max_fee=0,
+            version=version,
+        )
+
+        max_fee = await self._get_max_fee(transaction, max_fee, auto_estimate)
 
         return InvokeFunction(
             entry_point_selector=get_selector_from_name("__execute__"),
             calldata=wrapped_calldata,
             contract_address=self.address,
             signature=[],
-            max_fee=tx.max_fee,
-            version=tx.version,
+            max_fee=max_fee,
+            version=version,
         )
 
-    async def _sign_transaction(self, tx: InvokeFunction) -> StarknetTransaction:
-        execute_tx = await self._prepare_execute_transaction(tx)
-        signature = self.signer.sign_transaction(execute_tx)
-        execute_tx = add_signature_to_transaction(execute_tx, signature)
-        return execute_tx
-
-    async def add_transaction(
+    async def _get_max_fee(
         self,
         transaction: InvokeFunction,
-    ) -> SentTransactionResponse:
-
-        if transaction.signature:
-            raise TypeError(
-                "Adding signatures to a signer tx currently isn't supported"
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+    ):
+        if auto_estimate and max_fee is not None:
+            raise ValueError(
+                "Max_fee and auto_estimate are exclusive and cannot be provided at the same time."
             )
 
-        return await self.client.add_transaction(
-            await self._sign_transaction(transaction)
+        if auto_estimate:
+            estimate_fee = await self.estimate_fee(transaction)
+            max_fee = int(estimate_fee * 1.1)
+
+        if max_fee is None:
+            raise ValueError("Max_fee must be specified when invoking a transaction")
+
+        if max_fee == 0:
+            warnings.warn(
+                "Transaction will fail with max_fee set to 0. Change it to a higher value.",
+                DeprecationWarning,
+            )
+
+        return max_fee
+
+    async def sign_transaction(
+        self,
+        calls: Calls,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+        version: int = 0,
+    ) -> InvokeFunction:
+        """
+        Takes calls and creates signed InvokeFunction
+
+        :param calls: Single call or list of calls
+        :param max_fee: Max amount of Wei to be paid when executing transaction
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
+        :param version: Transaction version
+        :return: InvokeFunction created from the calls
+        """
+        execute_tx = await self.prepare_invoke_function(
+            calls, max_fee, auto_estimate, version
         )
+
+        signature = self.signer.sign_transaction(execute_tx)
+        execute_tx = add_signature_to_transaction(execute_tx, signature)
+
+        return execute_tx
+
+    async def send_transaction(
+        self, transaction: InvokeFunction
+    ) -> SentTransactionResponse:
+        return await self.client.send_transaction(transaction=transaction)
+
+    async def execute(
+        self,
+        calls: Calls,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+        version: int = 0,
+    ) -> SentTransactionResponse:
+        """
+        Takes calls and executes transaction
+
+        :param calls: Single call or list of calls
+        :param max_fee: Max amount of Wei to be paid when executing transaction
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
+        :param version: Transaction version
+        :return: SentTransactionResponse
+        """
+        execute_transaction = await self.sign_transaction(
+            calls, max_fee, auto_estimate, version
+        )
+        return await self.send_transaction(execute_transaction)
 
     async def deploy(self, transaction: Deploy) -> SentTransactionResponse:
         return await self.client.deploy(transaction=transaction)
@@ -236,8 +325,11 @@ class AccountClient(Client):
         :param block_number: Estimate fee at given block number (or "pending" for pending block)
         :return: Estimated fee
         """
+        signature = self.signer.sign_transaction(tx)
+        tx = add_signature_to_transaction(tx, signature)
+
         return await self.client.estimate_fee(
-            tx=await self._sign_transaction(tx),
+            tx=tx,
             block_hash=block_hash,
             block_number=block_number,
         )
@@ -298,3 +390,30 @@ def add_signature_to_transaction(
     tx: InvokeFunction, signature: List[int]
 ) -> InvokeFunction:
     return replace(tx, signature=signature)
+
+
+def merge_calls(calls: Calls) -> List:
+    def parse_call(
+        call: Call, current_data_len: int, entire_calldata: List
+    ) -> (Dict, int, List):
+        data = {
+            "to": call.to_addr,
+            "selector": call.selector,
+            "data_offset": current_data_len,
+            "data_len": len(call.calldata),
+        }
+        current_data_len += len(call.calldata)
+        entire_calldata += call.calldata
+
+        return data, current_data_len, entire_calldata
+
+    calldata = []
+    current_data_len = 0
+    entire_calldata = []
+    for call in calls:
+        data, current_data_len, entire_calldata = parse_call(
+            call, current_data_len, entire_calldata
+        )
+        calldata.append(data)
+
+    return [calldata, entire_calldata]

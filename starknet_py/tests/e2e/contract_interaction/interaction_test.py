@@ -128,7 +128,7 @@ async def test_throws_on_both_max_fee_in_prepare_and_auto_estimate(run_devnet):
         await invocation.invoke(auto_estimate=True)
 
     assert (
-        "Auto_estimate cannot be used if max_fee was provided when preparing a function call."
+        "Max_fee and auto_estimate are exclusive and cannot be provided at the same time."
         in str(exinfo.value)
     )
 
@@ -433,19 +433,59 @@ async def test_transaction_not_received_error(run_devnet):
     contract = deployment_result.deployed_contract
 
     with patch(
-        "starknet_py.net.account.account_client.AccountClient.add_transaction",
+        "starknet_py.net.account.account_client.AccountClient.send_transaction",
         MagicMock(),
-    ) as mocked_add_transaction:
+    ) as mocked_send_transaction:
         result = asyncio.Future()
         result.set_result(
             SentTransactionResponse(
-                code=StarkErrorCode.TRANSACTION_CANCELLED, hash="0x123"
+                code=StarkErrorCode.TRANSACTION_CANCELLED.value, hash=0x123
             )
         )
 
-        mocked_add_transaction.return_value = result
+        mocked_send_transaction.return_value = result
 
         with pytest.raises(Exception) as tx_not_received:
             await contract.functions["put"].invoke(10, 20, max_fee=MAX_FEE)
 
         assert "Failed to send transaction." in str(tx_not_received)
+
+
+@pytest.mark.asyncio
+async def test_error_when_invoking_without_account_client(run_devnet):
+    client = DevnetClientFactory(run_devnet).make_devnet_client_without_account()
+
+    deployment_result = await Contract.deploy(
+        client=client, compilation_source=map_source
+    )
+    deployment_result = await deployment_result.wait_for_acceptance()
+    contract = deployment_result.deployed_contract
+
+    with pytest.raises(ValueError) as wrong_client_error:
+        await contract.functions["put"].prepare(key=10, value=10).invoke(
+            max_fee=MAX_FEE
+        )
+
+    assert (
+        "Contract uses an account that can't invoke transactions. You need to use AccountClient for that."
+        in str(wrong_client_error)
+    )
+
+
+@pytest.mark.asyncio
+async def test_error_when_estimating_fee_while_not_using_account_client(run_devnet):
+    client = DevnetClientFactory(run_devnet).make_devnet_client_without_account()
+
+    deployment_result = await Contract.deploy(
+        client=client, compilation_source=map_source
+    )
+    deployment_result = await deployment_result.wait_for_acceptance()
+    contract = deployment_result.deployed_contract
+
+    with pytest.raises(ValueError) as wrong_client_error:
+        await contract.functions["put"].prepare(key=10, value=10).estimate_fee()
+
+    assert (
+        "Contract uses an account that can't invoke transactions. You need to use AccountClient for that."
+        in str(wrong_client_error)
+    )

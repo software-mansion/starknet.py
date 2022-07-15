@@ -45,6 +45,18 @@ async def test_using_account_client(run_devnet):
 
     # Retrieves the value, which is equal to 4324 in this case
     (resp,) = await map_contract.functions["get"].call(k)
+
+    # There is a possibility of invoking the multicall
+
+    # Creates a list of prepared function calls
+    calls = [
+        map_contract.functions["put"].prepare(key=10, value=20),
+        map_contract.functions["put"].prepare(key=30, value=40),
+    ]
+
+    # Executes only one transaction with prepared calls
+    transaction_response = await acc_client.execute(calls=calls, max_fee=int(1e16))
+    await acc_client.wait_for_tx(transaction_response.hash)
     # add to docs: end
 
     assert resp == v

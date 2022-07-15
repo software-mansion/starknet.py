@@ -22,6 +22,21 @@ This is how we can interact with it:
     :dedent: 4
 
 
+AccountClient details
+---------------------
+
+:ref:`Account Client` provides a simple way of executing transactions. To send one with few calls
+just prepare calls through contract interface and send it with AccountClient.execute method.
+
+Here is an example:
+
+.. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_account_client_details.py
+    :language: python
+    :lines: 11-16,20-24,29-56
+    :dedent: 4
+
+
+
 Using different signing methods
 -------------------------------
 

@@ -33,15 +33,20 @@ Client has been separated into two specialized modules.
 API Changes
 -----------
 
-Client methods has had some of the parameters removed, so it provied uniform interface
+Client methods has had some of the parameters removed, so it provided uniform interface
 for both gateway and rpc methods. Please refer to :ref:`GatewayClient` and :ref:`FullNodeClient`
 to see what has changed.
+There is no longer add_transaction method in the Client interface. It was renamed to send_transaction.
 
-Adding transactions
--------------------
+.. note::
 
-Adding transactions is currently only supported in ``GatewayClient``. We've also changed the flow
-of creating transations through clients:
+    Please note that send_transaction only sends a transaction, it doesn't sign it, even when using AccountClient.
+
+Sending transactions
+--------------------
+
+Sending transactions is currently only supported in ``GatewayClient``. We've also changed the flow
+of creating transactions through clients:
 
 ``Client.deploy`` and ``Client.declare`` no longer accept contract source as their input.
 Instead they require a prepared transactions. These can be created using :ref:`Transactions` module
@@ -61,4 +66,12 @@ Interface of :ref:`Contract` remains unchanged and it is still the recommended w
 AccountClient
 -------------
 
-:ref:`AccountClient` now implements ``Client`` ABC: parameters of some of its' methods has changed.
+:ref:`AccountClient` now implements Client interface: parameters of some of its methods were changed.
+It also doesn't have add_transaction method (like the rest of the clients).
+
+Quick summary about the new methods:
+
+- prepare_invoke_function - it can be used to create InvokeFunction from one or few calls (without signature)
+- sign_transaction - takes list of calls and creates signed InvokeFunction from them
+- send_transaction - implements Client interface (takes Invoke function and sends it without changes)
+- execute - can take list of calls, sign them and send
