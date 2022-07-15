@@ -207,7 +207,9 @@ class PreparedFunctionCall(Call):
         :return: InvokeResult
         """
         if not isinstance(self._client, AccountClient):
-            raise ValueError("Use AccountClient to invoke transaction")
+            raise ValueError(
+                "Use the AccountClient while creating Contract instance to invoke the transaction"
+            )
 
         if max_fee is not None:
             self.max_fee = max_fee
@@ -238,7 +240,7 @@ class PreparedFunctionCall(Call):
         """
         if not isinstance(self._client, AccountClient):
             raise ValueError(
-                "Cannot estimate fee of PreparedFunctionCall when not using AccountClient"
+                "Use the AccountClient while creating Contract instance to estimate fee of the transaction"
             )
 
         if self.max_fee is not None and self.max_fee != 0:
