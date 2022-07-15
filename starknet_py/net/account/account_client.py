@@ -1,5 +1,5 @@
 import warnings
-from typing import Optional, List, Union, Iterable
+from typing import Optional, List, Union
 from dataclasses import replace
 
 from starkware.crypto.signature.signature import get_random_private_key
@@ -18,7 +18,7 @@ from starknet_py.net.client_models import (
     BlockStateUpdate,
     StarknetBlock,
     Declare,
-    Deploy,
+    Deploy, Calls,
 )
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
@@ -38,8 +38,6 @@ from starknet_py.utils.data_transformer.execute_transformer import execute_trans
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.net.models.address import AddressRepresentation, parse_address
 from starknet_py.net.gateway_client import GatewayClient
-
-Calls = Union[Call, Iterable[Call]]
 
 
 @add_sync_methods
