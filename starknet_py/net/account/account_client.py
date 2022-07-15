@@ -274,12 +274,6 @@ class AccountClient(Client):
     async def send_transaction(
         self, transaction: InvokeFunction
     ) -> SentTransactionResponse:
-        """
-        Gets InvokeFunction and sends it
-
-        :param transaction: InvokeFunction ready to be sent
-        :return: SentTransactionResponse
-        """
         return await self.client.send_transaction(transaction=transaction)
 
     async def execute(
