@@ -1,5 +1,5 @@
 import warnings
-from typing import Optional, List, Union
+from typing import Optional, List, Union, Dict
 from dataclasses import replace
 
 from starkware.crypto.signature.signature import get_random_private_key
@@ -393,7 +393,9 @@ def add_signature_to_transaction(
 
 
 def merge_calls(calls: Calls) -> List:
-    def parse_call(call: Call, current_data_len: int, entire_calldata: List):
+    def parse_call(
+        call: Call, current_data_len: int, entire_calldata: List
+    ) -> (Dict, int, List):
         data = {
             "to": call.to_addr,
             "selector": call.selector,
