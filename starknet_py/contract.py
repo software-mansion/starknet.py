@@ -4,7 +4,6 @@ import dataclasses
 import sys
 import warnings
 from dataclasses import dataclass
-from functools import lru_cache
 from typing import (
     List,
     Optional,
@@ -26,9 +25,9 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
 from starknet_py.common import create_compiled_contract
+from starknet_py.net import AccountClient
 
 from starknet_py.proxy_check import ProxyCheck, ArgentProxyCheck, OpenZeppelinProxyCheck
-from starknet_py.net import Client
 from starknet_py.net.models import (
     InvokeFunction,
     AddressRepresentation,
@@ -36,11 +35,13 @@ from starknet_py.net.models import (
     compute_address,
     compute_invoke_hash,
 )
-from starknet_py.net.models.address import BlockIdentifier
 from starknet_py.compile.compiler import StarknetCompilationSource
-from starknet_py.utils.crypto.facade import pedersen_hash
-from starknet_py.utils.data_transformer import DataTransformer
+from starknet_py.transactions.deploy import make_deploy_tx
+from starknet_py.utils.crypto.facade import pedersen_hash, Call
+from starknet_py.utils.data_transformer import FunctionCallSerializer
 from starknet_py.utils.sync import add_sync_methods
+
+from starknet_py.net.client import Client
 
 if sys.version_info >= (3, 8):
     from typing import TypedDict
@@ -76,7 +77,7 @@ class SentTransaction:
     """
 
     hash: CastableToHash
-    _client: "Client"
+    _client: Client
     status: Optional[str] = None
     block_number: Optional[int] = None
 
@@ -91,7 +92,7 @@ class SentTransaction:
         Returns a new SentTransaction instance, **does not mutate original instance**.
         """
         block_number, status = await self._client.wait_for_tx(
-            int(self.hash, 16),
+            self.hash,
             wait_for_accept=wait_for_accept,
             check_interval=check_interval,
         )
@@ -127,22 +128,23 @@ class DeployResult(SentTransaction):
 
 # pylint: disable=too-many-instance-attributes
 @add_sync_methods
-class PreparedFunctionCall:
+class PreparedFunctionCall(Call):
     def __init__(
         self,
         calldata: List[int],
         arguments: Dict[str, List[int]],
         selector: int,
         client: Client,
-        payload_transformer: DataTransformer,
+        payload_transformer: FunctionCallSerializer,
         contract_data: ContractData,
         max_fee: int,
         version: int,
     ):
         # pylint: disable=too-many-arguments
-        self.calldata = calldata
+        super().__init__(
+            to_addr=contract_data.address, selector=selector, calldata=calldata
+        )
         self.arguments = arguments
-        self.selector = selector
         self._client = client
         self._payload_transformer = payload_transformer
         self._contract_data = contract_data
@@ -150,8 +152,9 @@ class PreparedFunctionCall:
         self.version = version
 
     @property
-    @lru_cache()
     def hash(self) -> int:
+        warnings.warn("Hash is deprecated and will be deleted in next releases")
+
         return compute_invoke_hash(
             contract_address=self._contract_data.address,
             entry_point_selector=self.selector,
@@ -165,107 +168,82 @@ class PreparedFunctionCall:
         self,
         signature: Optional[Collection[int]] = None,
         block_hash: Optional[str] = None,
-        block_number: Optional[int] = None,
     ) -> List[int]:
         """
         Calls a method without translating the result into python values.
 
         :param signature: Signature to send
         :param block_hash: Optional block hash
-        :param block_number: Optional block number
         :return: list of ints
         """
         tx = self._make_invoke_function(signature)
-        return await self._client.call_contract(
-            invoke_tx=tx, block_hash=block_hash, block_number=block_number
-        )
+        return await self._client.call_contract(invoke_tx=tx, block_hash=block_hash)
 
     async def call(
         self,
         signature: Optional[Collection[int]] = None,
         block_hash: Optional[str] = None,
-        block_number: Optional[BlockIdentifier] = None,
     ) -> NamedTuple:
         """
         Calls a method.
 
         :param signature: Signature to send
         :param block_hash: Optional block hash
-        :param block_number: Optional block number or "pending" for pending block
         :return: CallResult or List[int] if return_raw is used
         """
-        result = await self.call_raw(
-            signature=signature, block_hash=block_hash, block_number=block_number
-        )
+        result = await self.call_raw(signature=signature, block_hash=block_hash)
         return self._payload_transformer.to_python(result)
 
     async def invoke(
         self,
-        signature: Optional[Collection[int]] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> InvokeResult:
         """
         Invokes a method.
 
-        :param signature: Signature to send
         :param max_fee: Max amount of Wei to be paid when executing transaction
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
         :return: InvokeResult
         """
-        if auto_estimate and max_fee is not None:
-            raise ValueError(
-                "Max_fee and auto_estimate are exclusive and cannot be provided at the same time."
-            )
-        if auto_estimate and self.max_fee is not None:
-            raise ValueError(
-                "Auto_estimate cannot be used if max_fee was provided when preparing a function call."
-            )
-
-        if auto_estimate:
-            estimate_fee = await self.estimate_fee()
-            max_fee = int(estimate_fee * 1.1)
+        self._assert_can_invoke()
 
         if max_fee is not None:
             self.max_fee = max_fee
 
-        if self.max_fee is None:
-            raise ValueError("Max_fee must be specified when invoking a transaction")
+        transaction = await self._client.sign_transaction(
+            self, self.max_fee, auto_estimate, self.version
+        )
+        response = await self._client.send_transaction(transaction)
 
-        if self.max_fee == 0:
-            warnings.warn(
-                "Transaction will fail with max_fee set to 0. Change it to a higher value."
-            )
-
-        tx = self._make_invoke_function(signature=signature)
-        response = await self._client.add_transaction(tx=tx)
-
-        if response["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
+        if response.code != StarkErrorCode.TRANSACTION_RECEIVED.name:
             raise Exception("Failed to send transaction. Response: {response}.")
 
         invoke_result = InvokeResult(
-            hash=response["transaction_hash"],  # noinspection PyTypeChecker
+            hash=response.hash,  # noinspection PyTypeChecker
             _client=self._client,
             contract=self._contract_data,
-            invoke_transaction=tx,
+            invoke_transaction=transaction,
         )
 
         return invoke_result
 
-    async def estimate_fee(self, signature: Optional[List[int]] = None):
+    async def estimate_fee(self):
         """
         Estimate fee for prepared function call
 
-        :param signature: Signature to send
         :return: Estimated amount of Wei executing specified transaction will cost
         :raises ValueError: when max_fee of PreparedFunctionCall is not None or 0.
         """
+        self._assert_can_invoke()
+
         if self.max_fee is not None and self.max_fee != 0:
             raise ValueError(
                 "Cannot estimate fee of PreparedFunctionCall with max_fee not None or 0."
             )
 
-        tx = self._make_invoke_function(signature=signature)
+        tx = await self._client.sign_transaction(self, max_fee=0, version=0)
+
         return await self._client.estimate_fee(tx=tx)
 
     def _make_invoke_function(self, signature) -> InvokeFunction:
@@ -279,18 +257,24 @@ class PreparedFunctionCall:
             version=self.version,
         )
 
+    def _assert_can_invoke(self):
+        if not isinstance(self._client, AccountClient):
+            raise ValueError(
+                "Contract uses an account that can't invoke transactions. You need to use AccountClient for that."
+            )
+
 
 @add_sync_methods
 class ContractFunction:
     def __init__(
-        self, name: str, abi: ABIEntry, contract_data: ContractData, client: "Client"
+        self, name: str, abi: ABIEntry, contract_data: ContractData, client: Client
     ):
         self.name = name
         self.abi = abi
         self.inputs = abi["inputs"]
         self.contract_data = contract_data
         self._client = client
-        self._payload_transformer = DataTransformer(
+        self._payload_transformer = FunctionCallSerializer(
             abi=self.abi, identifier_manager=self.contract_data.identifier_manager
         )
 
@@ -326,19 +310,17 @@ class ContractFunction:
         self,
         *args,
         block_hash: Optional[str] = None,
-        block_number: Optional[BlockIdentifier] = None,
         **kwargs,
     ) -> NamedTuple:
         """
         :param block_hash: Block hash to execute the contract at specific point of time
-        :param block_number: Block number (or "pending" for pending block) to execute the contract function at
 
         Call contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.
         The result is translated from Cairo data to python values.
         Equivalent of ``.prepare(*args, **kwargs).call()``.
         """
         return await self.prepare(max_fee=0, version=0, *args, **kwargs).call(
-            block_hash=block_hash, block_number=block_number
+            block_hash=block_hash
         )
 
     async def invoke(
@@ -372,7 +354,7 @@ class Contract:
     Cairo contract's model.
     """
 
-    def __init__(self, address: AddressRepresentation, abi: list, client: "Client"):
+    def __init__(self, address: AddressRepresentation, abi: list, client: Client):
         """
         Should be used instead of ``from_address`` when ABI is known statically.
 
@@ -422,7 +404,7 @@ class Contract:
 
         :raises BadRequest: when contract is not found
         :param address: Contract's address
-        :param client: Client used
+        :param client: Client, WARNING: This method does not work with FullNodeClient!
         :param proxy_config: Proxy resolving config
             If set to ``True``, will use default proxy checks and :class:
             `starknet_py.proxy_check.OpenZeppelinProxyCheck`
@@ -482,12 +464,13 @@ class Contract:
         translated_args = Contract._translate_constructor_args(
             compiled_contract, constructor_args
         )
-        res = await client.deploy(
+        deploy_tx = make_deploy_tx(
             compiled_contract=compiled_contract,
             constructor_calldata=translated_args,
             salt=salt,
         )
-        contract_address = res["address"]
+        res = await client.deploy(deploy_tx)
+        contract_address = res.address
 
         deployed_contract = Contract(
             client=client,
@@ -495,7 +478,7 @@ class Contract:
             abi=compiled_contract.abi,
         )
         deploy_result = DeployResult(
-            hash=res["transaction_hash"],
+            hash=res.hash,
             _client=client,
             deployed_contract=deployed_contract,
         )
@@ -580,7 +563,7 @@ class Contract:
             if isinstance(constructor_args, dict)
             else (constructor_args, {})
         )
-        calldata, _args = DataTransformer(
+        calldata, _args = FunctionCallSerializer(
             constructor_abi, identifier_manager_from_abi(contract.abi)
         ).from_python(*args, **kwargs)
         return calldata
@@ -634,7 +617,7 @@ class ContractFromAddressFactory:
 
         code = await self._client.get_code(contract_address=parse_address(address))
         contract = Contract(
-            address=parse_address(address), abi=code["abi"], client=self._client
+            address=parse_address(address), abi=code.abi, client=self._client
         )
         self._processed_addresses.add(address)
 

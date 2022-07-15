@@ -4,79 +4,37 @@ Guide
 Using existing contracts
 ------------------------
 
-Although it is possible to use :ref:`Client` to interact with contracts, it requires translating python values into Cairo
+Although it is possible to use `Client` to interact with contracts, it requires translating python values into Cairo
 values. Contract offers that and some other utilities.
 
 Let's say we have a contract with this interface:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_existing_contracts.py
     :language: python
-    :lines: 7-25
+    :lines: 9-27
 
 
 This is how we can interact with it:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_existing_contracts.py
     :language: python
-    :lines: 37-45,61-93
+    :lines: 39-44,50-53,66-101
     :dedent: 4
 
-Signing a single transaction
-----------------------------
-You can use :obj:`ContractFunction's call <starknet_py.contract.ContractFunction.prepare>` to get calldata's parts and generate a signature from them. Here's a contract inspired by `Starknet's docs <https://www.cairo-lang.org/docs/hello_starknet/user_auth.html>`_:
 
-.. code-block:: text
+AccountClient details
+---------------------
 
-    %lang starknet
+:ref:`Account Client` provides a simple way of executing transactions. To send one with few calls
+just prepare calls through contract interface and send it with AccountClient.execute method.
 
-    %builtins pedersen range_check ecdsa
+Here is an example:
 
-    from starkware.cairo.common.uint256 import Uint256
-    from starkware.cairo.common.cairo_builtins import (HashBuiltin, SignatureBuiltin)
-    from starkware.cairo.common.hash import hash2
-    from starkware.cairo.common.signature import (verify_ecdsa_signature)
-    from starkware.starknet.common.syscalls import get_tx_signature
-
-    @storage_var
-    func balance(user) -> (res: Uint256):
-    end
-
-    @external
-    func set_balance{
-            syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
-            range_check_ptr, ecdsa_ptr : SignatureBuiltin*}(
-            user : felt, amount : Uint256):
-        let (sig_len : felt, sig : felt*) = get_tx_signature()
-
-        # Verify the signature length.
-        assert sig_len = 2
-
-        let (hash) = hash2{hash_ptr=pedersen_ptr}(amount.low, 0)
-        let (amount_hash) = hash2{hash_ptr=pedersen_ptr}(amount.high, hash)
-
-        # Verify the user's signature.
-        verify_ecdsa_signature(
-            message=amount_hash,
-            public_key=user,
-            signature_r=sig[0],
-            signature_s=sig[1])
-
-        balance.write(user, amount)
-        return ()
-    end
-
-    @external
-    func get_balance{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(user : felt) -> (balance: Uint256):
-        let (value) = balance.read(user=user)
-        return (value)
-    end
-
-Here's how you could sign an invocation:
-
-.. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_signing_single_transaction.py
+.. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_account_client_details.py
     :language: python
-    :lines: 14-28,41-54
+    :lines: 11-16,20-24,29-56
     :dedent: 4
+
 
 
 Using different signing methods
@@ -88,7 +46,7 @@ signing algorithm, it is possible to create ``AccountClient`` with custom
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_custom_signer.py
     :language: python
-    :lines: 11-28
+    :lines: 11-33
     :dedent: 4
 
 
@@ -163,7 +121,7 @@ You can use ``starknet.net.client.BadRequest`` to catch errors from invalid requ
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_handling_client_errors.py
     :language: python
-    :lines: 9-15,19-21
+    :lines: 10-17,21-23
     :dedent: 4
 
 
@@ -235,6 +193,18 @@ Starknet.py transforms python values to Cairo values and the other way around.
      - int
 
 
+Using CairoSerializer
+---------------------
+
+CairoSerializer can be used to transform any data (like a function call or an event) between cairo and python format. It requires an abi of the contract, types of values and data to be serialized.
+Here is a usage example:
+
+.. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_cairo_serializer.py
+    :language: python
+    :lines: 10-43,48-52,57-99
+    :dedent: 4
+
+
 Working with shortstrings
 -------------------------
 
@@ -246,6 +216,28 @@ Conversion functions and references:
 - :obj:`encode_shortstring <starknet_py.cairo.felt.encode_shortstring>`
 - :obj:`decode_shortstring <starknet_py.cairo.felt.decode_shortstring>`
 
+
+FullNodeClient usage
+--------------------
+
+Use a :ref:`FullNodeClient` to interact with services providing `starknet rpc interface <https://github.com/starkware-libs/starknet-specs/blob/606c21e06be92ea1543fd0134b7f98df622c2fbf/api/starknet_api_openrpc.json>`_
+like `Pathfinder Full Node <https://github.com/eqlabs/pathfinder>`_ or starknet-devnet. StarkNet.py provides uniform interface for
+both gateway and full node client - usage is exactly the same as gateway client minus some optional
+parameters.
+
+Using own full node allows for querying StarkNet with better performance.
+Since gateway will be deprecated at some point in the future, having ``FullNodeClient`` with interface uniform with that of ``GatewayClient``
+will allow for simple migration for StarkNet.py users.
+
+.. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_full_node_client.py
+    :language: python
+    :lines: 11-14,20-21
+    :dedent: 4
+
+.. note::
+
+    FullNodeClient does not currently support adding transactions and so cannot be used with
+    :ref:`AccountClient`. This feature will be added in future StarkNet.py versions.
 
 
 StarkNet <> Ethereum communication

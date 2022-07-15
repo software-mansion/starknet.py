@@ -2,11 +2,14 @@ API
 ===
 .. toctree::
 
-   client
+   gateway_client
+   full_node_client
+   account_client
    contract
    compiler
-   account_client
    signer
    models
    cairo
+   cairo_serializer
    messages
+   transactions

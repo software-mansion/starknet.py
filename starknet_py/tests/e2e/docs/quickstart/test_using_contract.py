@@ -14,21 +14,29 @@ map_source_code = Path(directory, "map.cairo").read_text("utf-8")
 async def test_using_contract(run_devnet):
     # add to docs: start
     from starknet_py.contract import Contract
-    from starknet_py.net.client import Client
+    from starknet_py.net import AccountClient
     from starknet_py.net.networks import TESTNET
+    from starknet_py.net.gateway_client import GatewayClient
 
-    client = Client(TESTNET)
+    gateway_client = GatewayClient(TESTNET)
+    # add to docs: end
+    gateway_client = DevnetClientFactory(
+        run_devnet
+    ).make_devnet_client_without_account()
+
+    # add to docs: start
+
+    account_client = await AccountClient.create_account(gateway_client)
 
     contract_address = (
         "0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b"
     )
     key = 1234
     # add to docs: end
-
-    client = await DevnetClientFactory(run_devnet).make_devnet_client_without_account()
+    account_client = DevnetClientFactory(run_devnet).make_devnet_client()
 
     deployment_result = await Contract.deploy(
-        client=client, compilation_source=map_source_code
+        client=account_client, compilation_source=map_source_code
     )
     deployment_result = await deployment_result.wait_for_acceptance()
     contract = deployment_result.deployed_contract
@@ -37,7 +45,7 @@ async def test_using_contract(run_devnet):
     # add to docs: start
 
     # Create contract from contract's address - Contract will download contract's ABI to know its interface.
-    contract = await Contract.from_address(contract_address, client)
+    contract = await Contract.from_address(contract_address, account_client)
     # add to docs: end
 
     abi = contract.data.abi
@@ -48,12 +56,12 @@ async def test_using_contract(run_devnet):
     contract = Contract(
         contract_address,
         abi,
-        client,
+        account_client,
     )
 
     # All exposed functions are available at contract.functions.
     # Here we invoke a function, creating a new transaction.
-    invocation = await contract.functions["put"].invoke(key, 7, max_fee=0)
+    invocation = await contract.functions["put"].invoke(key, 7, max_fee=int(1e16))
 
     # Invocation returns InvokeResult object. It exposes a helper for waiting until transaction is accepted.
     await invocation.wait_for_acceptance()
