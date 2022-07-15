@@ -206,10 +206,7 @@ class PreparedFunctionCall(Call):
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
         :return: InvokeResult
         """
-        if not isinstance(self._client, AccountClient):
-            raise ValueError(
-                "Use the AccountClient while creating Contract instance to invoke the transaction"
-            )
+        self._assert_can_invoke()
 
         if max_fee is not None:
             self.max_fee = max_fee
@@ -238,10 +235,7 @@ class PreparedFunctionCall(Call):
         :return: Estimated amount of Wei executing specified transaction will cost
         :raises ValueError: when max_fee of PreparedFunctionCall is not None or 0.
         """
-        if not isinstance(self._client, AccountClient):
-            raise ValueError(
-                "Use the AccountClient while creating Contract instance to estimate fee of the transaction"
-            )
+        self._assert_can_invoke()
 
         if self.max_fee is not None and self.max_fee != 0:
             raise ValueError(
@@ -262,6 +256,12 @@ class PreparedFunctionCall(Call):
             max_fee=self.max_fee if self.max_fee is not None else 0,
             version=self.version,
         )
+
+    def _assert_can_invoke(self):
+        if not isinstance(self._client, AccountClient):
+            raise ValueError(
+                "Contract uses an account that can't invoke transactions. You need to use AccountClient for that."
+            )
 
 
 @add_sync_methods
