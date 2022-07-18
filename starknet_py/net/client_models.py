@@ -244,7 +244,7 @@ class BlockStateUpdate:
     old_root: int
     storage_diffs: List[StorageDiff]
     contract_diffs: List[ContractDiff]
-    declared_contracts: List[hex]
+    declared_contracts: List[int]
 
 
 @dataclass
