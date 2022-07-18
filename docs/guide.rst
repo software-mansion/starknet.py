@@ -11,14 +11,14 @@ Let's say we have a contract with this interface:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_existing_contracts.py
     :language: python
-    :lines: 9-27
+    :lines: 8-26
 
 
 This is how we can interact with it:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_existing_contracts.py
     :language: python
-    :lines: 39-44,50-53,66-101
+    :lines: 37-42,46-49,62-97
     :dedent: 4
 
 
@@ -32,7 +32,7 @@ Here is an example:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_account_client_details.py
     :language: python
-    :lines: 11-16,20-24,29-56
+    :lines: 10-15,19-23,28-55
     :dedent: 4
 
 
@@ -57,7 +57,7 @@ Here's how you can deploy new contracts:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_deploying_new_contracts.py
     :language: python
-    :lines: 12-38,42-71
+    :lines: 11-37,41-70
     :dedent: 4
 
 
@@ -121,7 +121,7 @@ You can use ``starknet.net.client.BadRequest`` to catch errors from invalid requ
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_handling_client_errors.py
     :language: python
-    :lines: 10-17,21-23
+    :lines: 8-15,19-21
     :dedent: 4
 
 
@@ -201,7 +201,7 @@ Here is a usage example:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_cairo_serializer.py
     :language: python
-    :lines: 10-43,48-52,57-99
+    :lines: 9-42,47-51,56-98
     :dedent: 4
 
 
@@ -231,7 +231,7 @@ will allow for simple migration for StarkNet.py users.
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_full_node_client.py
     :language: python
-    :lines: 11-14,20-21
+    :lines: 10-13,18-19
     :dedent: 4
 
 .. note::
@@ -273,5 +273,5 @@ The return value is an `int`, representing the number of unconsumed messages on 
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_sn_eth_messages.py
     :language: python
-    :lines: 12-39,45-46,60-66,72-77
+    :lines: 11-38,44-45,59-65,71-76
     :dedent: 4
