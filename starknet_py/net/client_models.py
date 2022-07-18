@@ -1,7 +1,7 @@
 from abc import ABC
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Any, Dict, Optional, Union
+from typing import List, Any, Dict, Optional, Union, Iterable
 from typing_extensions import Literal
 
 from starkware.starknet.services.api.gateway.transaction import (
@@ -24,6 +24,16 @@ Declare = as_our_module(DCL)
 
 Hash = Union[int, str]
 Tag = Literal["pending", "latest"]
+
+
+@dataclass
+class Call:
+    to_addr: int
+    selector: int
+    calldata: List[int]
+
+
+Calls = Union[Call, Iterable[Call]]
 
 
 @dataclass

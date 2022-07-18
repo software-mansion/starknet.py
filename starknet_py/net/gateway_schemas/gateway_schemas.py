@@ -21,6 +21,7 @@ from starknet_py.net.client_models import (
     BlockTransactionTraces,
     BlockSingleTransactionTrace,
     EstimatedFee,
+    Event,
 )
 from starknet_py.net.common_schemas.common_schemas import (
     Felt,
@@ -37,6 +38,10 @@ class EventSchema(Schema):
     from_address = Felt(data_key="from_address")
     keys = fields.List(Felt(), data_key="keys")
     data = fields.List(Felt(), data_key="data")
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> Event:
+        return Event(**data)
 
 
 class L1toL2MessageSchema(Schema):

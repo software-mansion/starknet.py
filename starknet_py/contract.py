@@ -4,7 +4,6 @@ import dataclasses
 import sys
 import warnings
 from dataclasses import dataclass
-from functools import lru_cache
 from typing import (
     List,
     Optional,
@@ -26,7 +25,7 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
 from starknet_py.common import create_compiled_contract
-from starknet_py.net.gateway_client import GatewayClient
+from starknet_py.net import AccountClient
 
 from starknet_py.proxy_check import ProxyCheck, ArgentProxyCheck, OpenZeppelinProxyCheck
 from starknet_py.net.models import (
@@ -38,8 +37,8 @@ from starknet_py.net.models import (
 )
 from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.transactions.deploy import make_deploy_tx
-from starknet_py.utils.crypto.facade import pedersen_hash
-from starknet_py.utils.data_transformer import DataTransformer
+from starknet_py.utils.crypto.facade import pedersen_hash, Call
+from starknet_py.utils.data_transformer import FunctionCallSerializer
 from starknet_py.utils.sync import add_sync_methods
 
 from starknet_py.net.client import Client
@@ -129,22 +128,23 @@ class DeployResult(SentTransaction):
 
 # pylint: disable=too-many-instance-attributes
 @add_sync_methods
-class PreparedFunctionCall:
+class PreparedFunctionCall(Call):
     def __init__(
         self,
         calldata: List[int],
         arguments: Dict[str, List[int]],
         selector: int,
         client: Client,
-        payload_transformer: DataTransformer,
+        payload_transformer: FunctionCallSerializer,
         contract_data: ContractData,
         max_fee: int,
         version: int,
     ):
         # pylint: disable=too-many-arguments
-        self.calldata = calldata
+        super().__init__(
+            to_addr=contract_data.address, selector=selector, calldata=calldata
+        )
         self.arguments = arguments
-        self.selector = selector
         self._client = client
         self._payload_transformer = payload_transformer
         self._contract_data = contract_data
@@ -152,8 +152,9 @@ class PreparedFunctionCall:
         self.version = version
 
     @property
-    @lru_cache()
     def hash(self) -> int:
+        warnings.warn("Hash is deprecated and will be deleted in next releases")
+
         return compute_invoke_hash(
             contract_address=self._contract_data.address,
             entry_point_selector=self.selector,
@@ -195,45 +196,25 @@ class PreparedFunctionCall:
 
     async def invoke(
         self,
-        signature: Optional[Collection[int]] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> InvokeResult:
         """
         Invokes a method.
 
-        :param signature: Signature to send
         :param max_fee: Max amount of Wei to be paid when executing transaction
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
         :return: InvokeResult
         """
-        if auto_estimate and max_fee is not None:
-            raise ValueError(
-                "Max_fee and auto_estimate are exclusive and cannot be provided at the same time."
-            )
-        if auto_estimate and self.max_fee is not None:
-            raise ValueError(
-                "Auto_estimate cannot be used if max_fee was provided when preparing a function call."
-            )
-
-        if auto_estimate:
-            estimate_fee = await self.estimate_fee()
-            max_fee = int(estimate_fee * 1.1)
+        self._assert_can_invoke()
 
         if max_fee is not None:
             self.max_fee = max_fee
 
-        if self.max_fee is None:
-            raise ValueError("Max_fee must be specified when invoking a transaction")
-
-        if self.max_fee == 0:
-            warnings.warn(
-                "Transaction will fail with max_fee set to 0. Change it to a higher value.",
-                DeprecationWarning,
-            )
-
-        tx = self._make_invoke_function(signature=signature)
-        response = await self._client.add_transaction(transaction=tx)
+        transaction = await self._client.sign_transaction(
+            self, self.max_fee, auto_estimate, self.version
+        )
+        response = await self._client.send_transaction(transaction)
 
         if response.code != StarkErrorCode.TRANSACTION_RECEIVED.name:
             raise Exception("Failed to send transaction. Response: {response}.")
@@ -242,25 +223,27 @@ class PreparedFunctionCall:
             hash=response.hash,  # noinspection PyTypeChecker
             _client=self._client,
             contract=self._contract_data,
-            invoke_transaction=tx,
+            invoke_transaction=transaction,
         )
 
         return invoke_result
 
-    async def estimate_fee(self, signature: Optional[List[int]] = None):
+    async def estimate_fee(self):
         """
         Estimate fee for prepared function call
 
-        :param signature: Signature to send
         :return: Estimated amount of Wei executing specified transaction will cost
         :raises ValueError: when max_fee of PreparedFunctionCall is not None or 0.
         """
+        self._assert_can_invoke()
+
         if self.max_fee is not None and self.max_fee != 0:
             raise ValueError(
                 "Cannot estimate fee of PreparedFunctionCall with max_fee not None or 0."
             )
 
-        tx = self._make_invoke_function(signature=signature)
+        tx = await self._client.sign_transaction(self, max_fee=0, version=0)
+
         return await self._client.estimate_fee(tx=tx)
 
     def _make_invoke_function(self, signature) -> InvokeFunction:
@@ -274,6 +257,12 @@ class PreparedFunctionCall:
             version=self.version,
         )
 
+    def _assert_can_invoke(self):
+        if not isinstance(self._client, AccountClient):
+            raise ValueError(
+                "Contract uses an account that can't invoke transactions. You need to use AccountClient for that."
+            )
+
 
 @add_sync_methods
 class ContractFunction:
@@ -285,7 +274,7 @@ class ContractFunction:
         self.inputs = abi["inputs"]
         self.contract_data = contract_data
         self._client = client
-        self._payload_transformer = DataTransformer(
+        self._payload_transformer = FunctionCallSerializer(
             abi=self.abi, identifier_manager=self.contract_data.identifier_manager
         )
 
@@ -406,7 +395,7 @@ class Contract:
     @staticmethod
     async def from_address(
         address: AddressRepresentation,
-        client: GatewayClient,
+        client: Client,
         proxy_config: Union[bool, ProxyConfig] = False,
     ) -> "Contract":
         """
@@ -415,7 +404,7 @@ class Contract:
 
         :raises BadRequest: when contract is not found
         :param address: Contract's address
-        :param client: GatewayClient used, WARNING: This method does not work with other clients!
+        :param client: Client, WARNING: This method does not work with FullNodeClient!
         :param proxy_config: Proxy resolving config
             If set to ``True``, will use default proxy checks and :class:
             `starknet_py.proxy_check.OpenZeppelinProxyCheck`
@@ -574,7 +563,7 @@ class Contract:
             if isinstance(constructor_args, dict)
             else (constructor_args, {})
         )
-        calldata, _args = DataTransformer(
+        calldata, _args = FunctionCallSerializer(
             constructor_abi, identifier_manager_from_abi(contract.abi)
         ).from_python(*args, **kwargs)
         return calldata
@@ -604,7 +593,7 @@ class ContractFromAddressFactory:
     def __init__(
         self,
         address: AddressRepresentation,
-        client: GatewayClient,
+        client: Client,
         max_steps: int,
         proxy_checks: List[ProxyCheck],
     ):

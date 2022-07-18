@@ -22,6 +22,21 @@ This is how we can interact with it:
     :dedent: 4
 
 
+AccountClient details
+---------------------
+
+:ref:`Account Client` provides a simple way of executing transactions. To send one with few calls
+just prepare calls through contract interface and send it with AccountClient.execute method.
+
+Here is an example:
+
+.. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_account_client_details.py
+    :language: python
+    :lines: 11-16,20-24,29-56
+    :dedent: 4
+
+
+
 Using different signing methods
 -------------------------------
 
@@ -178,6 +193,18 @@ Starknet.py transforms python values to Cairo values and the other way around.
      - int
 
 
+Using CairoSerializer
+---------------------
+
+CairoSerializer can be used to transform any data (like a function call or an event) between cairo and python format. It requires an abi of the contract, types of values and data to be serialized.
+Here is a usage example:
+
+.. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_cairo_serializer.py
+    :language: python
+    :lines: 10-43,48-52,57-99
+    :dedent: 4
+
+
 Working with shortstrings
 -------------------------
 
@@ -189,6 +216,28 @@ Conversion functions and references:
 - :obj:`encode_shortstring <starknet_py.cairo.felt.encode_shortstring>`
 - :obj:`decode_shortstring <starknet_py.cairo.felt.decode_shortstring>`
 
+
+FullNodeClient usage
+--------------------
+
+Use a :ref:`FullNodeClient` to interact with services providing `starknet rpc interface <https://github.com/starkware-libs/starknet-specs/blob/606c21e06be92ea1543fd0134b7f98df622c2fbf/api/starknet_api_openrpc.json>`_
+like `Pathfinder Full Node <https://github.com/eqlabs/pathfinder>`_ or starknet-devnet. StarkNet.py provides uniform interface for
+both gateway and full node client - usage is exactly the same as gateway client minus some optional
+parameters.
+
+Using own full node allows for querying StarkNet with better performance.
+Since gateway will be deprecated at some point in the future, having ``FullNodeClient`` with interface uniform with that of ``GatewayClient``
+will allow for simple migration for StarkNet.py users.
+
+.. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_full_node_client.py
+    :language: python
+    :lines: 11-14,20-21
+    :dedent: 4
+
+.. note::
+
+    FullNodeClient does not currently support adding transactions and so cannot be used with
+    :ref:`AccountClient`. This feature will be added in future StarkNet.py versions.
 
 
 StarkNet <> Ethereum communication

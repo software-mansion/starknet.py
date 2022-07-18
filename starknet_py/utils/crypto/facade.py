@@ -1,5 +1,5 @@
 import os
-from typing import List, Callable, Iterable, Optional
+from typing import Callable, Iterable, Optional
 from dataclasses import dataclass
 
 from starkware.cairo.common.hash_state import compute_hash_on_elements
@@ -11,17 +11,11 @@ from crypto_cpp_py.cpp_bindings import (
     get_cpp_lib_file,
     ECSignature,
 )
+from starknet_py.net.client_models import Call
 
 
 # PREFIX_TRANSACTION = 'StarkNet Transaction'
 PREFIX_TRANSACTION = 476441609247967894954472788179128007176248455022
-
-
-@dataclass(frozen=True)
-class Call:
-    to_addr: int
-    selector: int
-    calldata: List[int]
 
 
 @dataclass(frozen=True)
