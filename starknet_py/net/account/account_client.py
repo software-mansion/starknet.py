@@ -260,7 +260,7 @@ class AccountClient(Client):
 
         if auto_estimate:
             estimate_fee = await self.estimate_fee(transaction)
-            max_fee = int(estimate_fee * 1.1)
+            max_fee = int(estimate_fee.overall_fee * 1.1)
 
         if max_fee is None:
             raise ValueError("Max_fee must be specified when invoking a transaction")
