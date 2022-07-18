@@ -3,7 +3,6 @@ from pathlib import Path
 import pytest
 
 from starknet_py.contract import Contract, ContractFunction
-from starknet_py.tests.e2e.utils import DevnetClientFactory
 
 directory = os.path.dirname(__file__)
 map_source_code = Path(directory, "map.cairo").read_text("utf-8")
@@ -15,30 +14,28 @@ base_source_code = Path(os.path.join(mock_contracts_base_path, "base.cairo")).re
 
 
 @pytest.mark.asyncio
-async def test_deploy_tx(run_devnet):
-    client = DevnetClientFactory(run_devnet).make_devnet_client()
-    result = await Contract.deploy(client=client, compilation_source=map_source_code)
-    await result.wait_for_acceptance()
-
-    result = await Contract.deploy(client=client, compilation_source=map_source_code)
+async def test_deploy_tx(account_client):
+    result = await Contract.deploy(
+        client=account_client, compilation_source=map_source_code
+    )
     result = await result.wait_for_acceptance()
     result = result.deployed_contract
+
     assert isinstance(result.functions["get"], ContractFunction)
     assert isinstance(result.functions["put"], ContractFunction)
 
 
 @pytest.mark.asyncio
-async def test_deploy_with_search_path(run_devnet):
-    client = DevnetClientFactory(run_devnet).make_devnet_client()
+async def test_deploy_with_search_path(account_client):
     result = await Contract.deploy(
-        client=client,
+        client=account_client,
         compilation_source=base_source_code,
         search_paths=[str(mock_contracts_base_path)],
     )
     await result.wait_for_acceptance()
 
     result = await Contract.deploy(
-        client=client,
+        client=account_client,
         compilation_source=base_source_code,
         search_paths=[str(mock_contracts_base_path)],
     )
@@ -53,24 +50,23 @@ constructor_with_arguments_source = Path(
 
 
 @pytest.mark.asyncio
-async def test_constructor_arguments(run_devnet):
+async def test_constructor_arguments(account_client):
     value = 10
     tuple_value = (1, (2, 3))
     arr = [1, 2, 3]
     struct = {"value": 12, "nested_struct": {"value": 99}}
-    client = DevnetClientFactory(run_devnet).make_devnet_client()
 
     # Contract should throw if constructor arguments were not provided
     with pytest.raises(ValueError) as err:
         await Contract.deploy(
-            client=client, compilation_source=constructor_with_arguments_source
+            client=account_client, compilation_source=constructor_with_arguments_source
         )
 
     assert "no args were provided" in str(err.value)
 
     # Positional params
     contract_1 = await Contract.deploy(
-        client=client,
+        client=account_client,
         compilation_source=constructor_with_arguments_source,
         constructor_args=[value, tuple_value, arr, struct],
     )
@@ -79,7 +75,7 @@ async def test_constructor_arguments(run_devnet):
 
     # Named params
     contract_2 = await Contract.deploy(
-        client=client,
+        client=account_client,
         compilation_source=constructor_with_arguments_source,
         constructor_args={
             "single_value": value,
@@ -106,11 +102,9 @@ constructor_without_arguments_source = Path(
 
 
 @pytest.mark.asyncio
-async def test_constructor_without_arguments(run_devnet):
-    client = DevnetClientFactory(run_devnet).make_devnet_client()
-
+async def test_constructor_without_arguments(account_client):
     result = await Contract.deploy(
-        client=client, compilation_source=constructor_without_arguments_source
+        client=account_client, compilation_source=constructor_without_arguments_source
     )
     result = await result.wait_for_acceptance()
     contract = result.deployed_contract
