@@ -1,11 +1,10 @@
 import pytest
 
 from starknet_py.tests.e2e.account.account_client_test import map_source_code
-from starknet_py.tests.e2e.utils import DevnetClientFactory
 
 
 @pytest.mark.asyncio
-async def test_account_client_details(run_devnet):
+async def test_account_client_details(run_devnet, account_client):
     # pylint: disable=import-outside-toplevel
     # add to docs: start
     from starknet_py.contract import Contract
@@ -24,7 +23,7 @@ async def test_account_client_details(run_devnet):
     )
     # add to docs: end
 
-    client = DevnetClientFactory(run_devnet).make_devnet_client()
+    client = account_client
     # add to docs: start
 
     # Deploys the contract

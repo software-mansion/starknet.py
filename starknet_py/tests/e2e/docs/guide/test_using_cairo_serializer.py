@@ -1,10 +1,9 @@
 import pytest
 from starkware.starknet.public.abi import get_selector_from_name
-from starknet_py.tests.e2e.utils import DevnetClientFactory
 
 
 @pytest.mark.asyncio
-async def test_using_cairo_serializer(run_devnet):
+async def test_using_cairo_serializer(run_devnet, account_client):
     # pylint: disable=unused-variable, too-many-locals, import-outside-toplevel
     # add to docs: start
     from starknet_py.net.gateway_client import GatewayClient
@@ -52,7 +51,7 @@ async def test_using_cairo_serializer(run_devnet):
     )
     # add to docs: end
 
-    client = DevnetClientFactory(run_devnet).make_devnet_client()
+    client = account_client
     # add to docs: start
 
     # Deploys the contract
