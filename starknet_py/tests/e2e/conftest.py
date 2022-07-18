@@ -10,10 +10,10 @@ from dotenv import load_dotenv
 
 from starknet_py.net import KeyPair, AccountClient
 from starknet_py.net.client import Client
+from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.tests.e2e.client.conftest import prepare_devnet
-from starknet_py.tests.e2e.utils import DevnetClientFactory
 
 
 load_dotenv()
@@ -82,10 +82,12 @@ def pytest_collection_modifyitems(config, items):
 @pytest.fixture(name="clients")
 def fixture_clients(run_prepared_devnet) -> Tuple[Client, Client]:
     devnet_address, _ = run_prepared_devnet
-    gateway_client = DevnetClientFactory(
-        devnet_address
-    ).make_devnet_client_without_account()
-    full_node_client = DevnetClientFactory(devnet_address).make_rpc_client()
+    gateway_client = GatewayClient(net=devnet_address, chain=StarknetChainId.TESTNET)
+    full_node_client = FullNodeClient(
+        node_url=devnet_address + "/rpc",
+        chain=StarknetChainId.TESTNET,
+        net=devnet_address,
+    )
     return gateway_client, full_node_client
 
 
@@ -107,6 +109,13 @@ def create_gateway_client(pytestconfig, run_devnet):
     }
 
     return GatewayClient(net=net_address[net], chain=StarknetChainId.TESTNET)
+
+
+@pytest.fixture(name="rpc_client", scope="function")
+def create_rpc_client(run_devnet):
+    return FullNodeClient(
+        node_url=run_devnet + "/rpc", chain=StarknetChainId.TESTNET, net=run_devnet
+    )
 
 
 @pytest.fixture(name="account_client", scope="function")
