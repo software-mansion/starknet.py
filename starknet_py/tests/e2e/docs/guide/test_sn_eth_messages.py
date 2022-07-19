@@ -2,11 +2,10 @@ import asyncio
 from unittest.mock import MagicMock, Mock
 
 import pytest
-from starknet_py.tests.e2e.utils import DevnetClientFactory
 
 
 @pytest.mark.asyncio
-async def test_sn_eth_messages(run_devnet):
+async def test_sn_eth_messages(gateway_client):
     # pylint: disable=import-outside-toplevel, disable=duplicate-code, unused-variable
     # add to docs: start
     from starknet_py.net.l1.messages import (
@@ -39,7 +38,7 @@ async def test_sn_eth_messages(run_devnet):
 
     # add to docs: end
 
-    client = DevnetClientFactory(run_devnet).make_devnet_client_without_account()
+    client = gateway_client
 
     # add to docs: start
     # 3. From l2 (StarkNet) transaction receipt (provided by starknet.py, like shown below)

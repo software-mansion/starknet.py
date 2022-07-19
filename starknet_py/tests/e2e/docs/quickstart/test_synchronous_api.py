@@ -3,14 +3,12 @@ import os
 from pathlib import Path
 import pytest
 
-from starknet_py.tests.e2e.utils import DevnetClientFactory
-
 directory = os.path.dirname(__file__)
 map_source_code = Path(directory, "map.cairo").read_text("utf-8")
 
 
 @pytest.mark.asyncio
-def test_synchronous_api(run_devnet):
+def test_synchronous_api(account_client):
     # add to docs: start
     from starknet_py.contract import Contract
     from starknet_py.net.gateway_client import GatewayClient
@@ -22,7 +20,7 @@ def test_synchronous_api(run_devnet):
     )
     # add to docs: end
 
-    client = DevnetClientFactory(run_devnet).make_devnet_client()
+    client = account_client
 
     deployment_result = Contract.deploy_sync(
         client=client, compilation_source=map_source_code
