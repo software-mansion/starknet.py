@@ -1,4 +1,3 @@
-import os
 import time
 import subprocess
 import socket
@@ -6,7 +5,6 @@ from contextlib import closing
 from typing import Tuple
 
 import pytest
-from dotenv import load_dotenv
 
 from starknet_py.net import KeyPair, AccountClient
 from starknet_py.net.client import Client
@@ -16,7 +14,14 @@ from starknet_py.net.models import StarknetChainId
 from starknet_py.tests.e2e.client.conftest import prepare_devnet
 
 
-load_dotenv()
+TESTNET_ACCOUNT_PRIVATE_KEY="0x5d6871223e9d2f6136f3913e8ccb6daae0b6b2a8452b39f92a1ddc5a76eed9a"
+TESTNET_ACCOUNT_ADDRESS="0x7536539dbba2a49ab688a1c86332625f05f660a94908f362d29212e6071432d"
+
+DEVNET_ACCOUNT_PRIVATE_KEY = "0xcd613e30d8f16adf91b7584a2265b1f5"
+DEVNET_ACCOUNT_ADDRESS = "0x7d2f37b75a5e779f7da01c22acee1b66c39e8ba470ee5448f05e1462afcedb4"
+
+INTEGRATION_ACCOUNT_PRIVATE_KEY = "0x5C09392256E68EA48445A9386668055418EAB5538ADBE4B12FD0FDC782C1A07"
+INTEGRATION_ACCOUNT_ADDRESS = "0x60D7C88541F969520E46D39EC7C9053451CFEDBC2EEB847B684981A22CD452E"
 
 
 def pytest_addoption(parser):
@@ -126,30 +131,30 @@ def create_account_client(pytestconfig, gateway_client):
 
     if net == "testnet":
         key_pair = KeyPair.from_private_key(
-            int(os.getenv("TESTNET_ACCOUNT_PRIVATE_KEY"), 0)
+            int(TESTNET_ACCOUNT_PRIVATE_KEY, 0)
         )
         client = AccountClient(
-            address=os.getenv("TESTNET_ACCOUNT_ADDRESS"),
+            address=TESTNET_ACCOUNT_ADDRESS,
             client=gateway_client,
             key_pair=key_pair,
         )
 
     if net == "integration":
         key_pair = KeyPair.from_private_key(
-            int(os.getenv("INTEGRATION_ACCOUNT_PRIVATE_KEY"), 0)
+            int(INTEGRATION_ACCOUNT_PRIVATE_KEY, 0)
         )
         client = AccountClient(
-            address=os.getenv("INTEGRATION_ACCOUNT_ADDRESS"),
+            address=INTEGRATION_ACCOUNT_ADDRESS,
             client=gateway_client,
             key_pair=key_pair,
         )
 
     if net == "devnet":
         key_pair = KeyPair.from_private_key(
-            int(os.getenv("DEVNET_ACCOUNT_PRIVATE_KEY"), 0)
+            int(DEVNET_ACCOUNT_PRIVATE_KEY, 0)
         )
         client = AccountClient(
-            address=os.getenv("DEVNET_ACCOUNT_ADDRESS"),
+            address=DEVNET_ACCOUNT_ADDRESS,
             client=gateway_client,
             key_pair=key_pair,
         )

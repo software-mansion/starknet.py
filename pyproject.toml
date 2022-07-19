@@ -41,7 +41,6 @@ pytest-mock = "^3.6.1"
 web3 = {extras=["tester"], version=">=5.28.0,<6"}
 pytest-xdist = "^2.5.0"
 starknet-devnet = "^0.2.5"
-python-dotenv = "^0.20.0"
 
 
 [tool.poe.tasks]
