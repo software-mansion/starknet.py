@@ -31,7 +31,7 @@ As with GatewayClient, there is both synchronous and asynchronous API available.
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/quickstart/test_using_full_node_client.py
     :language: python
-    :lines: 12-15,20-21
+    :lines: 14-17,27-28
     :dedent: 4
 
 You can see all Full Node Client's methods :ref:`FullNodeClient`.
