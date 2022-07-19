@@ -1,6 +1,9 @@
+from pathlib import Path
 import pytest
 
-from starknet_py.tests.e2e.account.account_client_test import map_source_code
+from starknet_py.tests.e2e.conftest import directory_with_contracts
+
+map_source_code = Path(directory_with_contracts + "/map.cairo").read_text("utf-8")
 
 
 @pytest.mark.asyncio

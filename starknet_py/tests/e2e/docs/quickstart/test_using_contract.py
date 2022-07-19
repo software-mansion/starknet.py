@@ -4,12 +4,14 @@ from pathlib import Path
 
 import pytest
 
+from starknet_py.tests.e2e.conftest import directory_with_contracts
+
 directory = os.path.dirname(__file__)
-map_source_code = Path(directory, "map.cairo").read_text("utf-8")
+map_source_code = Path(directory_with_contracts + "/map.cairo").read_text("utf-8")
 
 
 @pytest.mark.asyncio
-async def test_using_contract(gateway_client, account_client):
+async def test_using_contract(gateway_client, account_client, map_contract):
     # pylint: disable=unused-variable,too-many-locals
     # add to docs: start
     from starknet_py.contract import Contract
@@ -31,13 +33,7 @@ async def test_using_contract(gateway_client, account_client):
     key = 1234
     # add to docs: end
 
-    deployment_result = await Contract.deploy(
-        client=account_client, compilation_source=map_source_code
-    )
-    deployment_result = await deployment_result.wait_for_acceptance()
-    contract = deployment_result.deployed_contract
-    contract_address = contract.address
-
+    contract_address = map_contract.address
     # add to docs: start
 
     # Create contract from contract's address - Contract will download contract's ABI to know its interface.

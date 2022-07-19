@@ -1,9 +1,9 @@
-import os
 from pathlib import Path
 import pytest
 
 from starknet_py.contract import Contract, PreparedFunctionCall, ContractData
 from starknet_py.net.gateway_client import GatewayClient
+from starknet_py.tests.e2e.conftest import directory_with_contracts
 
 SOURCE = """
 # Declare this file as a StarkNet contract and set the required
@@ -75,8 +75,7 @@ EXPECTED_ADDRESS_WITH_IMPORTS = (
     2924990367958241019938053433987418844398143161443730738087047988090963286172
 )
 
-directory = os.path.dirname(__file__)
-search_path = Path(directory, "compile/mock-contracts")
+search_path = Path(directory_with_contracts)
 
 
 def test_compute_hash():

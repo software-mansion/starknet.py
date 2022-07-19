@@ -27,11 +27,13 @@ abi = [
 # add to docs: end | section abi
 
 directory = os.path.dirname(__file__)
-erc20_source_code = Path(directory, "erc20.cairo").read_text("utf-8")
+erc20_source_code = Path(
+    directory, "../../mocked-cairo-contracts/erc20.cairo"
+).read_text("utf-8")
 
 
 @pytest.mark.asyncio
-async def test_using_existing_contracts(gateway_client, account_client):
+async def test_using_existing_contracts(gateway_client, account_client, erc20_contract):
     # pylint: disable=import-outside-toplevel,too-many-locals,unused-variable
     # add to docs: start
     from starknet_py.net.gateway_client import GatewayClient
@@ -51,12 +53,7 @@ async def test_using_existing_contracts(gateway_client, account_client):
 
     acc_client = account_client
 
-    deployment_result = await Contract.deploy(
-        client=account_client, compilation_source=erc20_source_code
-    )
-    deployment_result = await deployment_result.wait_for_acceptance()
-    contract = deployment_result.deployed_contract
-    address = contract.address
+    address = erc20_contract.address
 
     # add to docs: start
 

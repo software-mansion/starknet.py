@@ -1,7 +1,5 @@
 # pylint: disable=too-many-arguments
 import asyncio
-import os
-from pathlib import Path
 from unittest.mock import patch, MagicMock
 
 import pytest
@@ -26,11 +24,6 @@ from starknet_py.transaction_exceptions import (
     TransactionNotReceivedError,
 )
 from starknet_py.transactions.deploy import make_deploy_tx
-
-
-directory = os.path.dirname(__file__)
-
-map_source = Path(directory, "map.cairo").read_text("utf-8")
 
 
 @pytest.mark.asyncio

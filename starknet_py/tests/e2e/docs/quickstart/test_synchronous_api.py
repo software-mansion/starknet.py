@@ -1,14 +1,9 @@
 # pylint: disable=import-outside-toplevel, no-member, duplicate-code
-import os
-from pathlib import Path
 import pytest
-
-directory = os.path.dirname(__file__)
-map_source_code = Path(directory, "map.cairo").read_text("utf-8")
 
 
 @pytest.mark.asyncio
-def test_synchronous_api(account_client):
+def test_synchronous_api(account_client, map_contract):
     # add to docs: start
     from starknet_py.contract import Contract
     from starknet_py.net.gateway_client import GatewayClient
@@ -21,13 +16,7 @@ def test_synchronous_api(account_client):
     # add to docs: end
 
     client = account_client
-
-    deployment_result = Contract.deploy_sync(
-        client=client, compilation_source=map_source_code
-    )
-    deployment_result = deployment_result.wait_for_acceptance_sync()
-    contract = deployment_result.deployed_contract
-    contract_address = contract.address
+    contract_address = map_contract.address
 
     # add to docs: start
 
