@@ -18,7 +18,7 @@ async def test_using_full_node_client(rpc_client):
     full_node_client = rpc_client
     # add to docs: start
 
-    call_result = await full_node_client.get_block(block_number=1)
+    call_result = await full_node_client.get_block(block_number=0)
     # add to docs: end
     assert isinstance(call_result, StarknetBlock)
     assert len(call_result.transactions) == 1
