@@ -8,8 +8,7 @@ import pytest
 from starknet_py.net import KeyPair, AccountClient
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models import StarknetChainId
-
+from starknet_py.net.models import StarknetChainId, AddressRepresentation
 
 TESTNET_ACCOUNT_PRIVATE_KEY = (
     "0x5d6871223e9d2f6136f3913e8ccb6daae0b6b2a8452b39f92a1ddc5a76eed9a"
@@ -110,30 +109,26 @@ def create_rpc_client(run_devnet):
     )
 
 
-@pytest.fixture(name="account_client", scope="function")
-# pylint: disable=redefined-outer-name
-def create_account_client(pytestconfig, gateway_client):
-    net = pytestconfig.getoption("--net")
-
-    if net == "testnet":
-        key_pair = KeyPair.from_private_key(int(TESTNET_ACCOUNT_PRIVATE_KEY, 0))
-        return AccountClient(
-            address=TESTNET_ACCOUNT_ADDRESS,
-            client=gateway_client,
-            key_pair=key_pair,
-        )
-
-    if net == "integration":
-        key_pair = KeyPair.from_private_key(int(INTEGRATION_ACCOUNT_PRIVATE_KEY, 0))
-        return AccountClient(
-            address=INTEGRATION_ACCOUNT_ADDRESS,
-            client=gateway_client,
-            key_pair=key_pair,
-        )
-
-    key_pair = KeyPair.from_private_key(int(DEVNET_ACCOUNT_PRIVATE_KEY, 0))
+def create_account_client(address: AddressRepresentation, private_key: str, gateway_client: GatewayClient):
+    key_pair = KeyPair.from_private_key(int(private_key, 0))
     return AccountClient(
-        address=DEVNET_ACCOUNT_ADDRESS,
+        address=address,
         client=gateway_client,
         key_pair=key_pair,
     )
+
+
+@pytest.fixture(scope="function")
+# pylint: disable=redefined-outer-name
+def account_client(pytestconfig, gateway_client):
+    net = pytestconfig.getoption("--net")
+
+    account_details = {
+        "devnet": (DEVNET_ACCOUNT_ADDRESS, DEVNET_ACCOUNT_PRIVATE_KEY),
+        "testnet": (TESTNET_ACCOUNT_ADDRESS, TESTNET_ACCOUNT_PRIVATE_KEY),
+        "integration": (INTEGRATION_ACCOUNT_ADDRESS, INTEGRATION_ACCOUNT_PRIVATE_KEY)
+    }
+
+    address, private_key = account_details[net]
+
+    return create_account_client(address, private_key, gateway_client)
