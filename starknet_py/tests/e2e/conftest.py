@@ -2,16 +2,13 @@ import time
 import subprocess
 import socket
 from contextlib import closing
-from typing import Tuple
 
 import pytest
 
 from starknet_py.net import KeyPair, AccountClient
-from starknet_py.net.client import Client
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
-from starknet_py.tests.e2e.client.conftest import prepare_devnet
 
 
 TESTNET_ACCOUNT_PRIVATE_KEY = (
@@ -94,26 +91,6 @@ def pytest_collection_modifyitems(config, items):
             item.add_marker(pytest.mark.skip())
 
 
-@pytest.fixture(name="clients")
-def fixture_clients(run_prepared_devnet) -> Tuple[Client, Client]:
-    devnet_address, _ = run_prepared_devnet
-    gateway_client = GatewayClient(net=devnet_address, chain=StarknetChainId.TESTNET)
-    full_node_client = FullNodeClient(
-        node_url=devnet_address + "/rpc",
-        chain=StarknetChainId.TESTNET,
-        net=devnet_address,
-    )
-    return gateway_client, full_node_client
-
-
-# pylint: disable=redefined-outer-name
-@pytest.fixture(name="run_prepared_devnet", scope="module", autouse=True)
-def fixture_run_prepared_devnet(run_devnet) -> Tuple[str, dict]:
-    net = run_devnet
-    block = prepare_devnet(net)
-    yield net, block
-
-
 @pytest.fixture(name="gateway_client", scope="function")
 def create_gateway_client(pytestconfig, run_devnet):
     net = pytestconfig.getoption("--net")
@@ -137,11 +114,10 @@ def create_rpc_client(run_devnet):
 # pylint: disable=redefined-outer-name
 def create_account_client(pytestconfig, gateway_client):
     net = pytestconfig.getoption("--net")
-    client = None
 
     if net == "testnet":
         key_pair = KeyPair.from_private_key(int(TESTNET_ACCOUNT_PRIVATE_KEY, 0))
-        client = AccountClient(
+        return AccountClient(
             address=TESTNET_ACCOUNT_ADDRESS,
             client=gateway_client,
             key_pair=key_pair,
@@ -149,18 +125,15 @@ def create_account_client(pytestconfig, gateway_client):
 
     if net == "integration":
         key_pair = KeyPair.from_private_key(int(INTEGRATION_ACCOUNT_PRIVATE_KEY, 0))
-        client = AccountClient(
+        return AccountClient(
             address=INTEGRATION_ACCOUNT_ADDRESS,
             client=gateway_client,
             key_pair=key_pair,
         )
 
-    if net == "devnet":
-        key_pair = KeyPair.from_private_key(int(DEVNET_ACCOUNT_PRIVATE_KEY, 0))
-        client = AccountClient(
-            address=DEVNET_ACCOUNT_ADDRESS,
-            client=gateway_client,
-            key_pair=key_pair,
-        )
-
-    return client
+    key_pair = KeyPair.from_private_key(int(DEVNET_ACCOUNT_PRIVATE_KEY, 0))
+    return AccountClient(
+        address=DEVNET_ACCOUNT_ADDRESS,
+        client=gateway_client,
+        key_pair=key_pair,
+    )
