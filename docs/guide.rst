@@ -18,7 +18,7 @@ This is how we can interact with it:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_existing_contracts.py
     :language: python
-    :lines: 37-42,46-49,62-97
+    :lines: 39-44,48-51,59-94
     :dedent: 4
 
 
@@ -32,7 +32,7 @@ Here is an example:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_account_client_details.py
     :language: python
-    :lines: 10-15,19-23,28-55
+    :lines: 13-18,22-26,31-58
     :dedent: 4
 
 
@@ -57,7 +57,7 @@ Here's how you can deploy new contracts:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_deploying_new_contracts.py
     :language: python
-    :lines: 11-37,41-70
+    :lines: 10-36,40-71
     :dedent: 4
 
 
@@ -231,7 +231,7 @@ will allow for simple migration for StarkNet.py users.
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_full_node_client.py
     :language: python
-    :lines: 12-15,25-26
+    :lines: 10-13,22-23
     :dedent: 4
 
 .. note::
@@ -261,7 +261,7 @@ Since the `nonce`'s value will always be unique for each message, this value is 
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_eth_sn_messages.py
     :language: python
-    :lines: 12-42,49,63-75
+    :lines: 12-42,49-49,63-75
     :dedent: 4
 
 

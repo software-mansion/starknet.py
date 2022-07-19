@@ -31,7 +31,7 @@ As with GatewayClient, there is both synchronous and asynchronous API available.
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/quickstart/test_using_full_node_client.py
     :language: python
-    :lines: 14-17,27-28
+    :lines: 12-15,24-25
     :dedent: 4
 
 You can see all Full Node Client's methods :ref:`FullNodeClient`.
@@ -60,7 +60,7 @@ Example usage:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/quickstart/test_using_account_client.py
     :language: python
-    :lines: 14-17,21-24,28-58
+    :lines: 15-18,22-25,29-59
     :dedent: 4
 
 Using Contract
@@ -69,12 +69,12 @@ Using Contract
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/quickstart/test_using_contract.py
     :language: python
-    :lines: 15-20,25-31,42-44,50-67
+    :lines: 17-22,27-33,38-40,46-63
     :dedent: 4
 
 Although asynchronous API is recommended, you can also use Contract's synchronous API:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/quickstart/test_synchronous_api.py
     :language: python
-    :lines: 13-20,33-40
+    :lines: 8-15,22-29
     :dedent: 4
