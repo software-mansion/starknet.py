@@ -200,3 +200,12 @@ async def test_sending_multicall(run_devnet):
 
     assert res.code == "TRANSACTION_RECEIVED"
     assert value == 20
+
+
+    @pytest.mark.asyncio
+    async def test_get_block_traces(run_devnet):
+        client = DevnetClientFactory(run_devnet).make_devnet_client()
+
+        traces = await client.get_block_traces(block_number=0)
+
+        assert traces.traces != []

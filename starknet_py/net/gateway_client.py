@@ -138,7 +138,7 @@ class GatewayClient(Client):
 
     async def get_block_traces(
         self,
-        block_hash: [Union[Hash, Tag]] = None,
+        block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> BlockTransactionTraces:
         block_identifier = get_block_identifier(
