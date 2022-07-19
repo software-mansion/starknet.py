@@ -109,7 +109,9 @@ def create_rpc_client(run_devnet):
     )
 
 
-def create_account_client(address: AddressRepresentation, private_key: str, gateway_client: GatewayClient):
+def create_account_client(
+    address: AddressRepresentation, private_key: str, gateway_client: GatewayClient
+):
     key_pair = KeyPair.from_private_key(int(private_key, 0))
     return AccountClient(
         address=address,
@@ -126,7 +128,7 @@ def account_client(pytestconfig, gateway_client):
     account_details = {
         "devnet": (DEVNET_ACCOUNT_ADDRESS, DEVNET_ACCOUNT_PRIVATE_KEY),
         "testnet": (TESTNET_ACCOUNT_ADDRESS, TESTNET_ACCOUNT_PRIVATE_KEY),
-        "integration": (INTEGRATION_ACCOUNT_ADDRESS, INTEGRATION_ACCOUNT_PRIVATE_KEY)
+        "integration": (INTEGRATION_ACCOUNT_ADDRESS, INTEGRATION_ACCOUNT_PRIVATE_KEY),
     }
 
     address, private_key = account_details[net]
