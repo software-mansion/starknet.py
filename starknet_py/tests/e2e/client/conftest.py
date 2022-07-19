@@ -11,14 +11,15 @@ from starknet_py.net.client import Client
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
+from starknet_py.tests.e2e.conftest import directory_with_contracts
 
 directory = os.path.dirname(__file__)
 
 
 def prepare_devnet(net: str) -> dict:
-    script_path = Path(directory, "prepare_devnet_for_gateway_test.sh")
-    contract_compiled = Path(directory, "balance_compiled.json")
-    contract_abi = Path(directory, "balance_abi.json")
+    script_path = Path(directory + "/prepare_devnet_for_gateway_test.sh")
+    contract_compiled = Path(directory_with_contracts + "/balance_compiled.json")
+    contract_abi = Path(directory_with_contracts + "/balance_abi.json")
 
     res = subprocess.run(
         [script_path, net, contract_compiled, contract_abi],
@@ -111,7 +112,7 @@ def fixture_contract_address():
 
 @pytest.fixture(name="balance_contract")
 def fixture_balance_contract() -> str:
-    return Path(directory, "balance_compiled.json").read_text("utf-8")
+    return Path(directory_with_contracts + "/balance_compiled.json").read_text("utf-8")
 
 
 @pytest.fixture(name="class_hash")
