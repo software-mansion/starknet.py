@@ -2,9 +2,15 @@ import os
 import subprocess
 from pathlib import Path
 from ast import literal_eval
+from typing import Tuple
 
 import pytest
 from starkware.starknet.public.abi import get_selector_from_name
+
+from starknet_py.net.client import Client
+from starknet_py.net.full_node_client import FullNodeClient
+from starknet_py.net.gateway_client import GatewayClient
+from starknet_py.net.models import StarknetChainId
 
 directory = os.path.dirname(__file__)
 
@@ -117,3 +123,23 @@ def fixture_class_hash(run_prepared_devnet, contract_address) -> int:
         .replace('"', ""),
         16,
     )
+
+
+@pytest.fixture(name="clients")
+def fixture_clients(run_prepared_devnet) -> Tuple[Client, Client]:
+    devnet_address, _ = run_prepared_devnet
+    gateway_client = GatewayClient(net=devnet_address, chain=StarknetChainId.TESTNET)
+    full_node_client = FullNodeClient(
+        node_url=devnet_address + "/rpc",
+        chain=StarknetChainId.TESTNET,
+        net=devnet_address,
+    )
+    return gateway_client, full_node_client
+
+
+# pylint: disable=redefined-outer-name
+@pytest.fixture(name="run_prepared_devnet", scope="module", autouse=True)
+def fixture_run_prepared_devnet(run_devnet) -> Tuple[str, dict]:
+    net = run_devnet
+    block = prepare_devnet(net)
+    yield net, block

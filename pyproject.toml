@@ -98,5 +98,6 @@ crypto-cpp
 
 [tool.pytest.ini_options]
 markers = [
-    "run_on_testnet: marks test that will only run on testnet (when --net=test)"
+    "run_on_testnet: marks test that will only run on testnet (when --net=testnet)",
+    "run_on_devnet: marks test that will only run on devnet (when --net=devnet)"
 ]

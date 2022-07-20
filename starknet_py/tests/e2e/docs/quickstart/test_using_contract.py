@@ -4,36 +4,32 @@ from pathlib import Path
 
 import pytest
 
-from starknet_py.tests.e2e.utils import DevnetClientFactory
-
 directory = os.path.dirname(__file__)
 map_source_code = Path(directory, "map.cairo").read_text("utf-8")
 
 
 @pytest.mark.asyncio
-async def test_using_contract(run_devnet):
+async def test_using_contract(gateway_client, account_client):
+    # pylint: disable=unused-variable,too-many-locals
     # add to docs: start
     from starknet_py.contract import Contract
     from starknet_py.net import AccountClient
     from starknet_py.net.networks import TESTNET
     from starknet_py.net.gateway_client import GatewayClient
 
-    gateway_client = GatewayClient(TESTNET)
+    client = GatewayClient(TESTNET)
     # add to docs: end
-    gateway_client = DevnetClientFactory(
-        run_devnet
-    ).make_devnet_client_without_account()
+    client = gateway_client
 
     # add to docs: start
 
-    account_client = await AccountClient.create_account(gateway_client)
+    acc_client = await AccountClient.create_account(gateway_client)
 
     contract_address = (
         "0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b"
     )
     key = 1234
     # add to docs: end
-    account_client = DevnetClientFactory(run_devnet).make_devnet_client()
 
     deployment_result = await Contract.deploy(
         client=account_client, compilation_source=map_source_code

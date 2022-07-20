@@ -1,12 +1,11 @@
 import os
 import pytest
-from starknet_py.tests.e2e.utils import DevnetClientFactory
 
 directory = os.path.dirname(__file__)
 
 
 @pytest.mark.asyncio
-async def test_deploying_new_contracts(run_devnet):
+async def test_deploying_new_contracts(gateway_client):
     # pylint: disable=import-outside-toplevel, disable=duplicate-code
     # add to docs: start
     from starknet_py.net.gateway_client import GatewayClient
@@ -37,7 +36,7 @@ async def test_deploying_new_contracts(run_devnet):
 
     client = GatewayClient(TESTNET)
     # add to docs: end
-    client = DevnetClientFactory(run_devnet).make_devnet_client_without_account()
+    client = gateway_client
     # add to docs: start
 
     # Use list for positional arguments
