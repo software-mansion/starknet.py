@@ -240,7 +240,7 @@ python-versions = "~=3.7"
 
 [[package]]
 name = "cairo-lang"
-version = "0.9.0"
+version = "0.9.1"
 description = "Compiler and runner for the Cairo language"
 category = "main"
 optional = false
@@ -1746,14 +1746,14 @@ test = ["pytest"]
 
 [[package]]
 name = "starknet-devnet"
-version = "0.2.5"
+version = "0.2.6"
 description = "A local testnet for Starknet"
 category = "dev"
 optional = false
 python-versions = ">=3.7.2,<3.10"
 
 [package.dependencies]
-cairo-lang = "0.9.0"
+cairo-lang = "0.9.1"
 cloudpickle = ">=2.1.0,<2.2.0"
 crypto-cpp-py = ">=1.0.4,<1.1.0"
 Flask = {version = ">=2.0.3,<2.1.0", extras = ["async"]}
@@ -1989,7 +1989,7 @@ eth-tester = []
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.2,<3.10"
-content-hash = "9f2bed7414e9853f6dec988ec580ea4f02c0698640b4b7151141867d68a869ed"
+content-hash = "87acdd9518fbe7c2a60ff59a20a73fe8b1b9cd1ef466ddd66bcdf8a9f75b66a2"
 
 [metadata.files]
 aiohttp = [
@@ -2205,9 +2205,7 @@ cachetools = [
     {file = "cachetools-5.2.0-py3-none-any.whl", hash = "sha256:f9f17d2aec496a9aa6b76f53e3b614c965223c061982d434d160f930c698a9db"},
     {file = "cachetools-5.2.0.tar.gz", hash = "sha256:6a94c6402995a99c3970cc7e4884bb60b4a8639938157eeed436098bf9831757"},
 ]
-cairo-lang = [
-    {file = "cairo-lang-0.9.0.zip", hash = "sha256:678627df46b3b18771e5e069af1e219bd4c88aaacd692b6042b4d45e0fc05b75"},
-]
+cairo-lang = []
 certifi = [
     {file = "certifi-2022.6.15-py3-none-any.whl", hash = "sha256:fe86415d55e84719d75f8b69414f6438ac3547d2078ab91b67e779ef69378412"},
     {file = "certifi-2022.6.15.tar.gz", hash = "sha256:84c85a9078b11105f04f3036a9482ae10e4621616db313fe045dd24743a0820d"},

@@ -15,7 +15,6 @@ documentation = "https://starknetpy.rtfd.io/"
 
 [tool.poetry.dependencies]
 python = ">=3.7.2,<3.10"
-cairo-lang = "0.9.0"
 asgiref = "^3.4.1"
 sphinx = {version = "^4.3.1", optional = true}
 web3 = ">=5.28.0,<6"
@@ -23,6 +22,7 @@ enum-tools = {extras = ["sphinx"], version = "0.9.0", optional = true}
 crypto-cpp-py = "^1.0.4"
 marshmallow = "^3.15.0"
 marshmallow-oneofschema = "^3.0.1"
+cairo-lang = "^0.9.1"
 
 [tool.poetry.extras]
 docs = ["sphinx", "enum-tools"]
@@ -40,7 +40,7 @@ setuptools = "^60.0.3"
 pytest-mock = "^3.6.1"
 web3 = {extras=["tester"], version=">=5.28.0,<6"}
 pytest-xdist = "^2.5.0"
-starknet-devnet = "^0.2.5"
+starknet-devnet = "^0.2.6"
 
 
 [tool.poe.tasks]
