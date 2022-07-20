@@ -251,6 +251,9 @@ class BlockStateUpdateSchema(Schema):
                 storage_diffs.append(storage_diff)
 
         declared_contracts = data["state_diff"]["declared_contracts"]
+        declared_contracts = [
+            int(declared_contract, 16) for declared_contract in declared_contracts
+        ]
 
         del data["state_diff"]
 

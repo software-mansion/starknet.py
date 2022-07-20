@@ -226,7 +226,10 @@ class BlockStateUpdateSchema(Schema):
         del data["state_diff"]
 
         return BlockStateUpdate(
-            **data, storage_diffs=storage_diffs, contract_diffs=contract_diffs
+            **data,
+            storage_diffs=storage_diffs,
+            contract_diffs=contract_diffs,
+            declared_contracts=[],
         )
 
     @staticmethod
