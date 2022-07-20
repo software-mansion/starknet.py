@@ -193,8 +193,9 @@ async def test_sending_multicall(account_client):
     assert res.code == "TRANSACTION_RECEIVED"
     assert value == 20
 
-    @pytest.mark.asyncio
-    async def test_get_block_traces(account_client):
-        traces = await account_client.get_block_traces(block_number=0)
 
-        assert traces.traces != []
+@pytest.mark.asyncio
+async def test_get_block_traces(account_client):
+    traces = await account_client.get_block_traces(block_number=0)
+
+    assert traces.traces != []
