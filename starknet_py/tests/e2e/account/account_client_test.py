@@ -194,9 +194,7 @@ async def test_sending_multicall(account_client):
     assert value == 20
 
     @pytest.mark.asyncio
-    async def test_get_block_traces(run_devnet):
-        client = DevnetClientFactory(run_devnet).make_devnet_client()
-
-        traces = await client.get_block_traces(block_number=0)
+    async def test_get_block_traces(account_client):
+        traces = await account_client.get_block_traces(block_number=0)
 
         assert traces.traces != []
