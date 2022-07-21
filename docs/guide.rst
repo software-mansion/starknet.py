@@ -32,7 +32,7 @@ Here is an example:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_account_client_details.py
     :language: python
-    :lines: 13-18,22-26,31-58
+    :lines: 12-17,21-25,30-57
     :dedent: 4
 
 
@@ -57,7 +57,7 @@ Here's how you can deploy new contracts:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_deploying_new_contracts.py
     :language: python
-    :lines: 10-36,40-71
+    :lines: 10-35,39-68
     :dedent: 4
 
 
