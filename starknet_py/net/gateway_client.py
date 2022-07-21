@@ -299,17 +299,11 @@ class GatewayClient(Client):
         tx: StarknetTransaction,
         token: Optional[str] = None,
     ) -> SentTransactionResponse:
-        if token is None:
-            res = await self._gateway_client.post(
-                method_name="add_transaction",
-                payload=StarknetTransaction.Schema().dump(obj=tx),
-            )
-        else:
-            res = await self._gateway_client.post(
-                method_name="add_transaction",
-                payload=StarknetTransaction.Schema().dump(obj=tx),
-                params={"token": token},
-            )
+        res = await self._gateway_client.post(
+            method_name="add_transaction",
+            payload=StarknetTransaction.Schema().dump(obj=tx),
+            params={"token": token} if token is not None else {},
+        )
         return SentTransactionSchema().load(res, unknown=EXCLUDE)
 
 
