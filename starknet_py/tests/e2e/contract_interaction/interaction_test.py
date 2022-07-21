@@ -1,5 +1,4 @@
 import asyncio
-from pathlib import Path
 from unittest.mock import patch, MagicMock
 
 import pytest
@@ -189,7 +188,7 @@ async def test_deploy_throws_on_no_compilation_source(account_client):
 
 @pytest.mark.asyncio
 async def test_wait_for_tx(account_client):
-    map_source = Path(directory_with_contracts + "/map.cairo").read_text("utf-8")
+    map_source = (directory_with_contracts / "map.cairo").read_text("utf-8")
     deployment = await Contract.deploy(
         compilation_source=map_source, client=account_client
     )
