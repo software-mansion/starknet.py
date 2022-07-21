@@ -17,9 +17,9 @@ directory = os.path.dirname(__file__)
 
 
 def prepare_devnet(net: str) -> dict:
-    script_path = Path(directory + "/prepare_devnet_for_gateway_test.sh")
-    contract_compiled = Path(directory_with_contracts + "/balance_compiled.json")
-    contract_abi = Path(directory_with_contracts + "/balance_abi.json")
+    script_path = Path(directory) / "prepare_devnet_for_gateway_test.sh"
+    contract_compiled = directory_with_contracts / "balance_compiled.json"
+    contract_abi = directory_with_contracts / "balance_abi.json"
 
     res = subprocess.run(
         [script_path, net, contract_compiled, contract_abi],
@@ -112,7 +112,7 @@ def fixture_contract_address():
 
 @pytest.fixture(name="balance_contract")
 def fixture_balance_contract() -> str:
-    return Path(directory_with_contracts + "/balance_compiled.json").read_text("utf-8")
+    return (directory_with_contracts / "balance_compiled.json").read_text("utf-8")
 
 
 @pytest.fixture(name="class_hash")

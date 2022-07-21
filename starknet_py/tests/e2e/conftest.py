@@ -139,13 +139,13 @@ def account_client(pytestconfig, gateway_client):
     return create_account_client(address, private_key, gateway_client)
 
 
-directory_with_contracts = os.path.dirname(__file__) + "/mocked-cairo-contracts"
+directory_with_contracts = Path(os.path.dirname(__file__)) / "mocked-cairo-contracts"
 
 
 @pytest.fixture(name="map_contract", scope="module")
 def deploy_map_contract(account_client) -> Contract:
     # pylint: disable=no-member
-    map_source_code = Path(directory_with_contracts + "/map.cairo").read_text("utf-8")
+    map_source_code = (directory_with_contracts / "map.cairo").read_text("utf-8")
 
     deployment_result = Contract.deploy_sync(
         client=account_client, compilation_source=map_source_code
@@ -157,9 +157,7 @@ def deploy_map_contract(account_client) -> Contract:
 @pytest.fixture(name="erc20_contract", scope="module")
 def deploy_erc20_contract(account_client) -> Contract:
     # pylint: disable=no-member
-    erc20_source_code = Path(directory_with_contracts + "/erc20.cairo").read_text(
-        "utf-8"
-    )
+    erc20_source_code = (directory_with_contracts / "erc20.cairo").read_text("utf-8")
 
     deployment_result = Contract.deploy_sync(
         client=account_client, compilation_source=erc20_source_code

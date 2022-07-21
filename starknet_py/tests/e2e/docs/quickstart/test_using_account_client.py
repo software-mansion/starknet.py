@@ -1,11 +1,10 @@
 import os
-from pathlib import Path
 import pytest
 from starknet_py.net.models import StarknetChainId
 from starknet_py.tests.e2e.conftest import directory_with_contracts
 
 directory = os.path.dirname(__file__)
-map_source_code = Path(directory_with_contracts + "/map.cairo").read_text("utf-8")
+map_source_code = (directory_with_contracts / "map.cairo").read_text("utf-8")
 
 
 @pytest.mark.asyncio

@@ -13,12 +13,12 @@ from starknet_py.tests.e2e.conftest import directory_with_contracts
 
 directory = os.path.dirname(__file__)
 
-test_file_path = Path(directory_with_contracts + "/map.cairo")
+test_file_path = directory_with_contracts / "map.cairo"
 test_file_content = test_file_path.read_text("utf-8")
 
-base_contract_path = Path(directory_with_contracts + "/base.cairo")
+base_contract_path = directory_with_contracts / "base.cairo"
 
-mock_account_path = Path(directory_with_contracts + "/mock_account.cairo")
+mock_account_path = directory_with_contracts / "mock_account.cairo"
 mock_account_content = mock_account_path.read_text("utf-8")
 
 

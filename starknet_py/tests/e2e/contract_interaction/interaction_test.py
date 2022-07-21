@@ -13,7 +13,7 @@ from starknet_py.contract import Contract
 from starknet_py.net.models import InvokeFunction
 from starknet_py.net.client_errors import ClientError, ContractNotFoundError
 
-proxy_source = Path(directory_with_contracts + "/argent_proxy.cairo").read_text("utf-8")
+proxy_source = (directory_with_contracts / "argent_proxy.cairo").read_text("utf-8")
 
 MAX_FEE = int(1e20)
 
@@ -149,9 +149,7 @@ async def test_invoke_and_call(key, value, map_contract):
     assert response == value
 
 
-user_auth_source = Path(directory_with_contracts + "/user_auth.cairo").read_text(
-    "utf-8"
-)
+user_auth_source = (directory_with_contracts / "user_auth.cairo").read_text("utf-8")
 
 
 @pytest.mark.asyncio

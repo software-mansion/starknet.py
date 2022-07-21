@@ -1,4 +1,3 @@
-from pathlib import Path
 import pytest
 
 from starknet_py.contract import Contract, PreparedFunctionCall, ContractData
@@ -75,7 +74,7 @@ EXPECTED_ADDRESS_WITH_IMPORTS = (
     2924990367958241019938053433987418844398143161443730738087047988090963286172
 )
 
-search_path = Path(directory_with_contracts)
+search_path = directory_with_contracts
 
 
 def test_compute_hash():
