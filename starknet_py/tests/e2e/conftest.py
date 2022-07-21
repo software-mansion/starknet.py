@@ -139,7 +139,7 @@ def account_client(pytestconfig, gateway_client):
     return create_account_client(address, private_key, gateway_client)
 
 
-directory_with_contracts = Path(os.path.dirname(__file__)) / "mocked-cairo-contracts"
+directory_with_contracts = Path(os.path.dirname(__file__)) / "mock_contracts_dir"
 
 
 @pytest.fixture(name="map_contract", scope="module")

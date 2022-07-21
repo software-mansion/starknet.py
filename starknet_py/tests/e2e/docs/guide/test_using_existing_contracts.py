@@ -28,7 +28,7 @@ abi = [
 
 directory = os.path.dirname(__file__)
 erc20_source_code = Path(
-    directory, "../../mocked-cairo-contracts/erc20.cairo"
+    directory, "../../mock_contracts_dir/erc20.cairo"
 ).read_text("utf-8")
 
 
