@@ -42,7 +42,7 @@ contract = await Contract.from_address("0x01336fa7c870a7403aced14dda865b75f29113
 invocation = await contract.functions["set_value"].invoke(key, 7)
 await invocation.wait_for_acceptance()
 
-(saved,) = await contract.functions["get_value"].call(key) # (7)
+(saved,) = await contract.functions["get_value"].call(key) # 7
 ```
 
 ### Synchronous API
