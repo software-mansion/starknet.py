@@ -259,15 +259,15 @@ class GatewayClient(Client):
         return [int(v, 16) for v in res["result"]]
 
     async def send_transaction(
-        self, transaction: InvokeFunction
+        self, transaction: InvokeFunction, token: Optional[str] = None,
     ) -> SentTransactionResponse:
-        return await self._add_transaction(transaction)
+        return await self._add_transaction(transaction, token)
 
-    async def deploy(self, transaction: Deploy) -> SentTransactionResponse:
-        return await self._add_transaction(transaction)
+    async def deploy(self, transaction: Deploy, token: Optional[str] = None,) -> SentTransactionResponse:
+        return await self._add_transaction(transaction, token)
 
-    async def declare(self, transaction: Declare) -> SentTransactionResponse:
-        return await self._add_transaction(transaction)
+    async def declare(self, transaction: Declare, token: Optional[str] = None,) -> SentTransactionResponse:
+        return await self._add_transaction(transaction, token)
 
     async def get_class_hash_at(self, contract_address: Hash) -> int:
         res = await self._feeder_gateway_client.call(
@@ -285,12 +285,19 @@ class GatewayClient(Client):
         return DeclaredContractSchema().load(res, unknown=EXCLUDE)
 
     async def _add_transaction(
-        self, tx: StarknetTransaction
+        self, tx: StarknetTransaction, token: Optional[str] = None,
     ) -> SentTransactionResponse:
-        res = await self._gateway_client.post(
-            method_name="add_transaction",
-            payload=StarknetTransaction.Schema().dump(obj=tx),
-        )
+        if token is None:
+            res = await self._gateway_client.post(
+                method_name="add_transaction",
+                payload=StarknetTransaction.Schema().dump(obj=tx),
+            )
+        else:
+            res = await self._gateway_client.post(
+                method_name="add_transaction",
+                payload=StarknetTransaction.Schema().dump(obj=tx),
+                params={"token": token}
+            )
         return SentTransactionSchema().load(res, unknown=EXCLUDE)
 
 
