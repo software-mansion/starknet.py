@@ -27,9 +27,9 @@ abi = [
 # add to docs: end | section abi
 
 directory = os.path.dirname(__file__)
-erc20_source_code = Path(
-    directory, "../../mock_contracts_dir/erc20.cairo"
-).read_text("utf-8")
+erc20_source_code = Path(directory, "../../mock_contracts_dir/erc20.cairo").read_text(
+    "utf-8"
+)
 
 
 @pytest.mark.asyncio
