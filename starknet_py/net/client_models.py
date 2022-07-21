@@ -198,7 +198,6 @@ class StarknetBlock:
     root: int
     transactions: List[Transaction]
     timestamp: int
-    starknet_version: Optional[str] = None
 
 
 @dataclass
