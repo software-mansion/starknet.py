@@ -75,3 +75,17 @@ Quick summary about the new methods:
 - sign_transaction - takes list of calls and creates signed InvokeFunction from them
 - send_transaction - implements Client interface (takes Invoke function and sends it without changes)
 - execute - can take list of calls, sign them and send
+
+Client errors changes
+---------------------
+
+`BadRequest` class has been removed and replaced with :ref:`Client errors` module and
+:class:`starknet_py.net.client_errors.ClientError` or more specified errors can now
+be used for handling client errors.
+See :ref:`Handling client errors` in guide for an example.
+
+Facade.py
+---------
+
+`sign_calldata` method has been removed entirely. See guide on how how you can
+now prepare and send transactions to StarkNet.

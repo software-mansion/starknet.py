@@ -117,7 +117,7 @@ returned by it multiplied by ``1.1`` as a ``max_fee``.
 
 Handling client errors
 -----------------------
-You can use ``starknet.net.client.BadRequest`` to catch errors from invalid requests:
+You can use :class:`starknet_py.net.client_errors.ClientError` to catch errors from invalid requests:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_handling_client_errors.py
     :language: python
