@@ -19,6 +19,8 @@ from starknet_py.net.client_models import (
     StarknetBlock,
     Declare,
     Deploy,
+    BlockTransactionTraces,
+    EstimatedFee,
     Calls,
     TransactionStatus,
 )
@@ -98,8 +100,23 @@ class AccountClient(Client):
             block_hash=block_hash, block_number=block_number
         )
 
-    async def get_state_update(self, block_hash: Union[Hash, Tag]) -> BlockStateUpdate:
-        return await self.client.get_state_update(block_hash=block_hash)
+    async def get_block_traces(
+        self,
+        block_hash: [Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> BlockTransactionTraces:
+        return await self.client.get_block_traces(
+            block_hash=block_hash, block_number=block_number
+        )
+
+    async def get_state_update(
+        self,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> BlockStateUpdate:
+        return await self.client.get_state_update(
+            block_hash=block_hash, block_number=block_number
+        )
 
     async def get_storage_at(
         self, contract_address: Hash, key: int, block_hash: Union[Hash, Tag]
@@ -243,7 +260,7 @@ class AccountClient(Client):
 
         if auto_estimate:
             estimate_fee = await self.estimate_fee(transaction)
-            max_fee = int(estimate_fee * 1.1)
+            max_fee = int(estimate_fee.overall_fee * 1.1)
 
         if max_fee is None:
             raise ValueError("Max_fee must be specified when invoking a transaction")
@@ -318,7 +335,7 @@ class AccountClient(Client):
         tx: InvokeFunction,
         block_hash: Optional[CastableToHash] = None,
         block_number: BlockIdentifier = "pending",
-    ) -> int:
+    ) -> EstimatedFee:
         """
         :param tx: Transaction which fee we want to calculate
         :param block_hash: Estimate fee at specific block hash

@@ -18,6 +18,9 @@ from starknet_py.net.client_models import (
     DeclareTransaction,
     TransactionReceipt,
     TransactionStatusResponse,
+    BlockTransactionTraces,
+    BlockSingleTransactionTrace,
+    EstimatedFee,
     Event,
 )
 from starknet_py.net.common_schemas.common_schemas import (
@@ -153,10 +156,46 @@ class StarknetBlockSchema(Schema):
         data_key="transactions",
     )
     timestamp = fields.Integer(data_key="timestamp")
+    starknet_version = fields.String(
+        data_key="starknet_version", required=False, allow_none=True
+    )
 
     @post_load
     def make_dataclass(self, data, **kwargs):
         return StarknetBlock(**data)
+
+
+class BlockSingleTransactionTraceSchema(Schema):
+    function_invocation = fields.Dict(
+        keys=fields.String(), values=fields.Raw(), data_key="function_invocation"
+    )
+    signature = fields.List(Felt(), data_key="signature", load_default=[])
+    transaction_hash = Felt(data_key="transaction_hash")
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return BlockSingleTransactionTrace(**data)
+
+
+class BlockTransactionTracesSchema(Schema):
+    traces = fields.List(
+        fields.Nested(BlockSingleTransactionTraceSchema(unknown=EXCLUDE)),
+        data_key="traces",
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return BlockTransactionTraces(**data)
+
+
+class EstimatedFeeSchema(Schema):
+    overall_fee = fields.Integer(data_key="overall_fee")
+    gas_price = fields.Integer(data_key="gas_price")
+    gas_usage = fields.Integer(data_key="gas_usage")
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return EstimatedFee(**data)
 
 
 class SentTransactionSchema(Schema):
@@ -211,10 +250,18 @@ class BlockStateUpdateSchema(Schema):
                 )
                 storage_diffs.append(storage_diff)
 
+        declared_contracts = data["state_diff"]["declared_contracts"]
+        declared_contracts = [
+            int(declared_contract, 16) for declared_contract in declared_contracts
+        ]
+
         del data["state_diff"]
 
         return BlockStateUpdate(
-            **data, storage_diffs=storage_diffs, contract_diffs=contracts_diffs
+            **data,
+            storage_diffs=storage_diffs,
+            contract_diffs=contracts_diffs,
+            declared_contracts=declared_contracts,
         )
 
 
