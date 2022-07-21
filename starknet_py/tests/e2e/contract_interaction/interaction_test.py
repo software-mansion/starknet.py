@@ -8,11 +8,9 @@ from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
 from starknet_py.net.client_models import SentTransactionResponse
-from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.transaction_exceptions import TransactionRejectedError
 from starknet_py.contract import Contract
 from starknet_py.net.models import InvokeFunction
-from starknet_py.tests.e2e.utils import DevnetClientFactory
 from starknet_py.net.client_errors import ClientError, ContractNotFoundError
 
 directory = os.path.dirname(__file__)
@@ -24,13 +22,12 @@ MAX_FEE = int(1e20)
 
 
 @pytest.mark.asyncio
-async def test_max_fee_is_set_in_sent_invoke(run_devnet):
-    client = DevnetClientFactory(run_devnet).make_devnet_client()
+async def test_max_fee_is_set_in_sent_invoke(account_client):
     key = 2
     value = 3
 
     deployment_result = await Contract.deploy(
-        client=client, compilation_source=map_source
+        client=account_client, compilation_source=map_source
     )
     deployment_result = await deployment_result.wait_for_acceptance()
     contract = deployment_result.deployed_contract
@@ -50,13 +47,12 @@ async def test_max_fee_is_set_in_sent_invoke(run_devnet):
 
 
 @pytest.mark.asyncio
-async def test_auto_fee_estimation(run_devnet):
-    client = DevnetClientFactory(run_devnet).make_devnet_client()
+async def test_auto_fee_estimation(account_client):
     key = 2
     value = 3
 
     deployment_result = await Contract.deploy(
-        client=client, compilation_source=map_source
+        client=account_client, compilation_source=map_source
     )
     deployment_result = await deployment_result.wait_for_acceptance()
     contract = deployment_result.deployed_contract
@@ -68,13 +64,12 @@ async def test_auto_fee_estimation(run_devnet):
 
 
 @pytest.mark.asyncio
-async def test_throws_on_estimate_with_positive_max_fee(run_devnet):
-    client = DevnetClientFactory(run_devnet).make_devnet_client()
+async def test_throws_on_estimate_with_positive_max_fee(account_client):
     key = 2
     value = 3
 
     deployment_result = await Contract.deploy(
-        client=client, compilation_source=map_source
+        client=account_client, compilation_source=map_source
     )
     deployment_result = await deployment_result.wait_for_acceptance()
     contract = deployment_result.deployed_contract
@@ -90,13 +85,12 @@ async def test_throws_on_estimate_with_positive_max_fee(run_devnet):
 
 
 @pytest.mark.asyncio
-async def test_throws_on_both_max_fee_and_auto_estimate(run_devnet):
-    client = DevnetClientFactory(run_devnet).make_devnet_client()
+async def test_throws_on_both_max_fee_and_auto_estimate(account_client):
     key = 2
     value = 3
 
     deployment_result = await Contract.deploy(
-        client=client, compilation_source=map_source
+        client=account_client, compilation_source=map_source
     )
     deployment_result = await deployment_result.wait_for_acceptance()
     contract = deployment_result.deployed_contract
@@ -112,13 +106,12 @@ async def test_throws_on_both_max_fee_and_auto_estimate(run_devnet):
 
 
 @pytest.mark.asyncio
-async def test_throws_on_both_max_fee_in_prepare_and_auto_estimate(run_devnet):
-    client = DevnetClientFactory(run_devnet).make_devnet_client()
+async def test_throws_on_both_max_fee_in_prepare_and_auto_estimate(account_client):
     key = 2
     value = 3
 
     deployment_result = await Contract.deploy(
-        client=client, compilation_source=map_source
+        client=account_client, compilation_source=map_source
     )
     deployment_result = await deployment_result.wait_for_acceptance()
     contract = deployment_result.deployed_contract
@@ -134,13 +127,12 @@ async def test_throws_on_both_max_fee_in_prepare_and_auto_estimate(run_devnet):
 
 
 @pytest.mark.asyncio
-async def test_throws_on_call_without_max_fee(run_devnet):
-    client = DevnetClientFactory(run_devnet).make_devnet_client()
+async def test_throws_on_call_without_max_fee(account_client):
     key = 2
     value = 3
 
     deployment_result = await Contract.deploy(
-        client=client, compilation_source=map_source
+        client=account_client, compilation_source=map_source
     )
     deployment_result = await deployment_result.wait_for_acceptance()
     contract = deployment_result.deployed_contract
@@ -152,13 +144,12 @@ async def test_throws_on_call_without_max_fee(run_devnet):
 
 
 @pytest.mark.asyncio
-async def test_throws_on_prepared_call_without_max_fee(run_devnet):
-    client = DevnetClientFactory(run_devnet).make_devnet_client()
+async def test_throws_on_prepared_call_without_max_fee(account_client):
     key = 2
     value = 3
 
     deployment_result = await Contract.deploy(
-        client=client, compilation_source=map_source
+        client=account_client, compilation_source=map_source
     )
     deployment_result = await deployment_result.wait_for_acceptance()
     contract = deployment_result.deployed_contract
@@ -171,13 +162,12 @@ async def test_throws_on_prepared_call_without_max_fee(run_devnet):
 
 
 @pytest.mark.asyncio
-async def test_latest_max_fee_takes_precedence(run_devnet):
-    client = DevnetClientFactory(run_devnet).make_devnet_client()
+async def test_latest_max_fee_takes_precedence(account_client):
     key = 2
     value = 3
 
     deployment_result = await Contract.deploy(
-        client=client, compilation_source=map_source
+        client=account_client, compilation_source=map_source
     )
     deployment_result = await deployment_result.wait_for_acceptance()
     contract = deployment_result.deployed_contract
@@ -189,13 +179,12 @@ async def test_latest_max_fee_takes_precedence(run_devnet):
 
 
 @pytest.mark.asyncio
-async def test_prepare_without_max_fee(run_devnet):
-    client = DevnetClientFactory(run_devnet).make_devnet_client()
+async def test_prepare_without_max_fee(account_client):
     key = 2
     value = 3
 
     deployment_result = await Contract.deploy(
-        client=client, compilation_source=map_source
+        client=account_client, compilation_source=map_source
     )
     deployment_result = await deployment_result.wait_for_acceptance()
     contract = deployment_result.deployed_contract
@@ -206,12 +195,10 @@ async def test_prepare_without_max_fee(run_devnet):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("key, value", ((2, 13), (412312, 32134), (12345, 3567)))
-async def test_invoke_and_call(key, value, run_devnet):
-    client = DevnetClientFactory(run_devnet).make_devnet_client()
-
+async def test_invoke_and_call(key, value, account_client):
     # Deploy simple k-v store
     deployment_result = await Contract.deploy(
-        client=client, compilation_source=map_source
+        client=account_client, compilation_source=map_source
     )
     deployment_result = await deployment_result.wait_for_acceptance()
     contract = deployment_result.deployed_contract
@@ -226,21 +213,17 @@ user_auth_source = Path(directory, "user_auth.cairo").read_text("utf-8")
 
 
 @pytest.mark.asyncio
-async def test_get_code_not_found(run_devnet):
-    client = DevnetClientFactory(run_devnet).make_devnet_client()
-
+async def test_get_code_not_found(account_client):
     with pytest.raises(ContractNotFoundError) as exinfo:
-        await Contract.from_address(1, client)
+        await Contract.from_address(1, account_client)
 
     assert "No contract found" in str(exinfo.value)
 
 
 @pytest.mark.asyncio
-async def test_call_unitinialized_contract(run_devnet):
-    client = DevnetClientFactory(run_devnet).make_devnet_client()
-
+async def test_call_unitinialized_contract(account_client):
     with pytest.raises(ClientError) as exinfo:
-        await client.call_contract(
+        await account_client.call_contract(
             InvokeFunction(
                 contract_address=1,
                 entry_point_selector=get_selector_from_name("get_nonce"),
@@ -255,11 +238,9 @@ async def test_call_unitinialized_contract(run_devnet):
 
 
 @pytest.mark.asyncio
-async def test_deploy_throws_on_no_compilation_source(run_devnet):
-    client = DevnetClientFactory(run_devnet).make_devnet_client()
-
+async def test_deploy_throws_on_no_compilation_source(account_client):
     with pytest.raises(ValueError) as exinfo:
-        await Contract.deploy(client=client)
+        await Contract.deploy(client=account_client)
 
     assert "One of compiled_contract or compilation_source is required." in str(
         exinfo.value
@@ -267,26 +248,16 @@ async def test_deploy_throws_on_no_compilation_source(run_devnet):
 
 
 @pytest.mark.asyncio
-async def test_wait_for_tx_devnet(run_devnet):
-    client = DevnetClientFactory(run_devnet).make_devnet_client()
-
-    deployment = await Contract.deploy(compilation_source=map_source, client=client)
-    await client.wait_for_tx(deployment.hash)
-
-
-@pytest.mark.run_on_testnet
-@pytest.mark.asyncio
-async def test_wait_for_tx_testnet():
-    client = GatewayClient(net="testnet")
-
-    deployment = await Contract.deploy(compilation_source=map_source, client=client)
-    await client.wait_for_tx(deployment.hash)
+async def test_wait_for_tx_devnet(account_client):
+    deployment = await Contract.deploy(
+        compilation_source=map_source, client=account_client
+    )
+    await account_client.wait_for_tx(deployment.hash)
 
 
 @pytest.mark.asyncio
-async def test_wait_for_tx_throws_on_transaction_rejected(run_devnet):
-    client = DevnetClientFactory(run_devnet).make_devnet_client()
-    deploy = await Contract.deploy(compilation_source=map_source, client=client)
+async def test_wait_for_tx_throws_on_transaction_rejected(account_client):
+    deploy = await Contract.deploy(compilation_source=map_source, client=account_client)
     contract = deploy.deployed_contract
     invoke = contract.functions["put"].prepare(key=0x1, value=0x1, max_fee=MAX_FEE)
 
@@ -295,22 +266,23 @@ async def test_wait_for_tx_throws_on_transaction_rejected(run_devnet):
     transaction = await invoke.invoke()
 
     with pytest.raises(TransactionRejectedError):
-        await client.wait_for_tx(transaction.hash)
+        await account_client.wait_for_tx(transaction.hash)
 
 
 @pytest.mark.asyncio
-async def test_contract_from_address_with_1_proxy(run_devnet):
-    client = DevnetClientFactory(run_devnet).make_devnet_client_without_account()
-    map_contract = await Contract.deploy(compilation_source=map_source, client=client)
+async def test_contract_from_address_with_1_proxy(gateway_client):
+    map_contract = await Contract.deploy(
+        compilation_source=map_source, client=gateway_client
+    )
     deployment_result = await Contract.deploy(
         compilation_source=proxy_source,
         constructor_args=[map_contract.deployed_contract.address],
-        client=client,
+        client=gateway_client,
     )
 
     proxy_contract = await Contract.from_address(
         deployment_result.deployed_contract.address,
-        client=client,
+        client=gateway_client,
         proxy_config=True,
     )
 
@@ -318,23 +290,24 @@ async def test_contract_from_address_with_1_proxy(run_devnet):
 
 
 @pytest.mark.asyncio
-async def test_contract_from_address_with_2_proxy(run_devnet):
-    client = DevnetClientFactory(run_devnet).make_devnet_client_without_account()
-    map_contract = await Contract.deploy(compilation_source=map_source, client=client)
+async def test_contract_from_address_with_2_proxy(gateway_client):
+    map_contract = await Contract.deploy(
+        compilation_source=map_source, client=gateway_client
+    )
     proxy1_deployment = await Contract.deploy(
         compilation_source=proxy_source,
         constructor_args=[map_contract.deployed_contract.address],
-        client=client,
+        client=gateway_client,
     )
     proxy2_deployment = await Contract.deploy(
         compilation_source=proxy_source,
         constructor_args=[proxy1_deployment.deployed_contract.address],
-        client=client,
+        client=gateway_client,
     )
 
     proxy_contract = await Contract.from_address(
         proxy2_deployment.deployed_contract.address,
-        client=client,
+        client=gateway_client,
         proxy_config=True,
     )
 
@@ -342,24 +315,25 @@ async def test_contract_from_address_with_2_proxy(run_devnet):
 
 
 @pytest.mark.asyncio
-async def test_contract_from_address_throws_on_too_many_steps(run_devnet):
-    client = DevnetClientFactory(run_devnet).make_devnet_client_without_account()
-    map_contract = await Contract.deploy(compilation_source=map_source, client=client)
+async def test_contract_from_address_throws_on_too_many_steps(gateway_client):
+    map_contract = await Contract.deploy(
+        compilation_source=map_source, client=gateway_client
+    )
     proxy1_deployment = await Contract.deploy(
         compilation_source=proxy_source,
         constructor_args=[map_contract.deployed_contract.address],
-        client=client,
+        client=gateway_client,
     )
     proxy2_deployment = await Contract.deploy(
         compilation_source=proxy_source,
         constructor_args=[proxy1_deployment.deployed_contract.address],
-        client=client,
+        client=gateway_client,
     )
 
     with pytest.raises(RecursionError) as exinfo:
         await Contract.from_address(
             proxy2_deployment.deployed_contract.address,
-            client=client,
+            client=gateway_client,
             proxy_config={"max_steps": 2},
         )
 
@@ -367,17 +341,16 @@ async def test_contract_from_address_throws_on_too_many_steps(run_devnet):
 
 
 @pytest.mark.asyncio
-async def test_contract_from_address_throws_on_proxy_cycle(run_devnet):
-    client = DevnetClientFactory(run_devnet).make_devnet_client()
+async def test_contract_from_address_throws_on_proxy_cycle(account_client):
     proxy1_deployment = await Contract.deploy(
         compilation_source=proxy_source,
         constructor_args=[0x123],
-        client=client,
+        client=account_client,
     )
     proxy2_deployment = await Contract.deploy(
         compilation_source=proxy_source,
         constructor_args=[0x123],
-        client=client,
+        client=account_client,
     )
     await proxy1_deployment.wait_for_acceptance()
     await proxy2_deployment.wait_for_acceptance()
@@ -395,7 +368,7 @@ async def test_contract_from_address_throws_on_proxy_cycle(run_devnet):
     with pytest.raises(RecursionError) as exinfo:
         await Contract.from_address(
             address=proxy2_deployment.deployed_contract.address,
-            client=client,
+            client=account_client,
             proxy_config=True,
         )
 
@@ -403,12 +376,10 @@ async def test_contract_from_address_throws_on_proxy_cycle(run_devnet):
 
 
 @pytest.mark.asyncio
-async def test_warning_when_max_fee_equals_to_zero(run_devnet):
-    client = DevnetClientFactory(run_devnet).make_devnet_client()
-
+async def test_warning_when_max_fee_equals_to_zero(account_client):
     # Deploy simple k-v store
     deployment_result = await Contract.deploy(
-        client=client, compilation_source=map_source
+        client=account_client, compilation_source=map_source
     )
     deployment_result = await deployment_result.wait_for_acceptance()
     contract = deployment_result.deployed_contract
@@ -423,11 +394,9 @@ async def test_warning_when_max_fee_equals_to_zero(run_devnet):
 
 
 @pytest.mark.asyncio
-async def test_transaction_not_received_error(run_devnet):
-    client = DevnetClientFactory(run_devnet).make_devnet_client()
-
+async def test_transaction_not_received_error(account_client):
     deployment_result = await Contract.deploy(
-        client=client, compilation_source=map_source
+        client=account_client, compilation_source=map_source
     )
     deployment_result = await deployment_result.wait_for_acceptance()
     contract = deployment_result.deployed_contract
@@ -452,11 +421,9 @@ async def test_transaction_not_received_error(run_devnet):
 
 
 @pytest.mark.asyncio
-async def test_error_when_invoking_without_account_client(run_devnet):
-    client = DevnetClientFactory(run_devnet).make_devnet_client_without_account()
-
+async def test_error_when_invoking_without_account_client(gateway_client):
     deployment_result = await Contract.deploy(
-        client=client, compilation_source=map_source
+        client=gateway_client, compilation_source=map_source
     )
     deployment_result = await deployment_result.wait_for_acceptance()
     contract = deployment_result.deployed_contract
@@ -473,11 +440,9 @@ async def test_error_when_invoking_without_account_client(run_devnet):
 
 
 @pytest.mark.asyncio
-async def test_error_when_estimating_fee_while_not_using_account_client(run_devnet):
-    client = DevnetClientFactory(run_devnet).make_devnet_client_without_account()
-
+async def test_error_when_estimating_fee_while_not_using_account_client(gateway_client):
     deployment_result = await Contract.deploy(
-        client=client, compilation_source=map_source
+        client=gateway_client, compilation_source=map_source
     )
     deployment_result = await deployment_result.wait_for_acceptance()
     contract = deployment_result.deployed_contract

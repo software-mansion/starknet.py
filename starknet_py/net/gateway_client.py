@@ -20,6 +20,8 @@ from starknet_py.net.client_models import (
     Declare,
     Deploy,
     TransactionStatusResponse,
+    EstimatedFee,
+    BlockTransactionTraces,
 )
 from starknet_py.net.gateway_schemas.gateway_schemas import (
     ContractCodeSchema,
@@ -30,6 +32,8 @@ from starknet_py.net.gateway_schemas.gateway_schemas import (
     TransactionReceiptSchema,
     TypesOfTransactionsSchema,
     TransactionStatusSchema,
+    BlockTransactionTracesSchema,
+    EstimatedFeeSchema,
 )
 from starknet_py.net.http_client import GatewayHttpClient
 from starknet_py.net.models import StarknetChainId, chain_from_network
@@ -132,6 +136,20 @@ class GatewayClient(Client):
         )
         return StarknetBlockSchema().load(res, unknown=EXCLUDE)
 
+    async def get_block_traces(
+        self,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> BlockTransactionTraces:
+        block_identifier = get_block_identifier(
+            block_hash=block_hash, block_number=block_number
+        )
+
+        res = await self._feeder_gateway_client.call(
+            method_name="get_block_traces", params=block_identifier
+        )
+        return BlockTransactionTracesSchema().load(res, unknown=EXCLUDE)
+
     async def get_state_update(
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
@@ -221,7 +239,7 @@ class GatewayClient(Client):
         tx: InvokeFunction,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> int:
+    ) -> EstimatedFee:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -230,7 +248,8 @@ class GatewayClient(Client):
             payload=InvokeFunction.Schema().dump(tx),
             params=block_identifier,
         )
-        return res["amount"]
+
+        return EstimatedFeeSchema().load(res, unknown=EXCLUDE)
 
     async def call_contract(
         self,
@@ -259,15 +278,25 @@ class GatewayClient(Client):
         return [int(v, 16) for v in res["result"]]
 
     async def send_transaction(
-        self, transaction: InvokeFunction
+        self,
+        transaction: InvokeFunction,
+        token: Optional[str] = None,
     ) -> SentTransactionResponse:
-        return await self._add_transaction(transaction)
+        return await self._add_transaction(transaction, token)
 
-    async def deploy(self, transaction: Deploy) -> SentTransactionResponse:
-        return await self._add_transaction(transaction)
+    async def deploy(
+        self,
+        transaction: Deploy,
+        token: Optional[str] = None,
+    ) -> SentTransactionResponse:
+        return await self._add_transaction(transaction, token)
 
-    async def declare(self, transaction: Declare) -> SentTransactionResponse:
-        return await self._add_transaction(transaction)
+    async def declare(
+        self,
+        transaction: Declare,
+        token: Optional[str] = None,
+    ) -> SentTransactionResponse:
+        return await self._add_transaction(transaction, token)
 
     async def get_class_hash_at(self, contract_address: Hash) -> int:
         res = await self._feeder_gateway_client.call(
@@ -285,11 +314,14 @@ class GatewayClient(Client):
         return DeclaredContractSchema().load(res, unknown=EXCLUDE)
 
     async def _add_transaction(
-        self, tx: StarknetTransaction
+        self,
+        tx: StarknetTransaction,
+        token: Optional[str] = None,
     ) -> SentTransactionResponse:
         res = await self._gateway_client.post(
             method_name="add_transaction",
             payload=StarknetTransaction.Schema().dump(obj=tx),
+            params={"token": token} if token is not None else {},
         )
         return SentTransactionSchema().load(res, unknown=EXCLUDE)
 

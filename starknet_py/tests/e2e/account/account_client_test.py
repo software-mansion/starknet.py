@@ -13,7 +13,6 @@ from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import parse_address, StarknetChainId
 from starknet_py.net.networks import TESTNET, MAINNET
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
-from starknet_py.tests.e2e.utils import DevnetClientFactory
 
 directory = os.path.dirname(__file__)
 map_source_code = Path(directory, "map.cairo").read_text("utf-8")
@@ -23,11 +22,9 @@ MAX_FEE = int(1e20)
 
 
 @pytest.mark.asyncio
-async def test_deploy_account_contract_and_sign_tx(run_devnet):
-    acc_client = DevnetClientFactory(run_devnet).make_devnet_client()
-
+async def test_deploy_account_contract_and_sign_tx(account_client):
     deployment_result = await Contract.deploy(
-        client=acc_client, compilation_source=map_source_code
+        client=account_client, compilation_source=map_source_code
     )
     deployment_result = await deployment_result.wait_for_acceptance()
     map_contract = deployment_result.deployed_contract
@@ -41,12 +38,11 @@ async def test_deploy_account_contract_and_sign_tx(run_devnet):
     assert resp == v
 
 
+@pytest.mark.run_on_devnet
 @pytest.mark.asyncio
-async def test_get_balance_throws_when_token_not_specified(run_devnet):
-    acc_client = DevnetClientFactory(run_devnet).make_devnet_client()
-
+async def test_get_balance_throws_when_token_not_specified(account_client):
     with pytest.raises(ValueError) as err:
-        await acc_client.get_balance()
+        await account_client.get_balance()
 
     assert "Token_address must be specified when using a custom net address" in str(
         err.value
@@ -54,16 +50,14 @@ async def test_get_balance_throws_when_token_not_specified(run_devnet):
 
 
 @pytest.mark.asyncio
-async def test_balance_when_token_specified(run_devnet):
-    acc_client = DevnetClientFactory(run_devnet).make_devnet_client()
-
+async def test_balance_when_token_specified(account_client):
     deployment_result = await Contract.deploy(
-        client=acc_client, compilation_source=erc20_mock_source_code
+        client=account_client, compilation_source=erc20_mock_source_code
     )
     deployment_result = await deployment_result.wait_for_acceptance()
     erc20_contract = deployment_result.deployed_contract
 
-    balance = await acc_client.get_balance(erc20_contract.address)
+    balance = await account_client.get_balance(erc20_contract.address)
 
     assert balance == 200
 
@@ -95,11 +89,9 @@ async def test_get_balance_default_token_address(net):
 
 
 @pytest.mark.asyncio
-async def test_estimate_fee_called(run_devnet):
-    acc_client = DevnetClientFactory(run_devnet).make_devnet_client()
-
+async def test_estimate_fee_called(account_client):
     deployment_result = await Contract.deploy(
-        client=acc_client, compilation_source=erc20_mock_source_code
+        client=account_client, compilation_source=erc20_mock_source_code
     )
     deployment_result = await deployment_result.wait_for_acceptance()
     erc20_contract = deployment_result.deployed_contract
@@ -120,11 +112,9 @@ async def test_estimate_fee_called(run_devnet):
 
 
 @pytest.mark.asyncio
-async def test_estimated_fee_greater_than_zero(run_devnet):
-    acc_client = DevnetClientFactory(run_devnet).make_devnet_client()
-
+async def test_estimated_fee_greater_than_zero(account_client):
     deployment_result = await Contract.deploy(
-        client=acc_client, compilation_source=erc20_mock_source_code
+        client=account_client, compilation_source=erc20_mock_source_code
     )
     deployment_result = await deployment_result.wait_for_acceptance()
     erc20_contract = deployment_result.deployed_contract
@@ -135,9 +125,10 @@ async def test_estimated_fee_greater_than_zero(run_devnet):
         .estimate_fee()
     )
 
-    assert estimated_fee > 0
+    assert estimated_fee.overall_fee > 0
 
 
+@pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_create_account_client(run_devnet):
     client = GatewayClient(net=run_devnet, chain=StarknetChainId.TESTNET)
@@ -146,6 +137,7 @@ async def test_create_account_client(run_devnet):
     assert acc_client.address is not None
 
 
+@pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_create_account_client_with_private_key(run_devnet):
     private_key = 1234
@@ -158,6 +150,7 @@ async def test_create_account_client_with_private_key(run_devnet):
     assert acc_client.address is not None
 
 
+@pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_create_account_client_with_signer(run_devnet):
     key_pair = KeyPair.from_private_key(1234)
@@ -180,11 +173,9 @@ async def test_create_account_client_with_signer(run_devnet):
 
 
 @pytest.mark.asyncio
-async def test_sending_multicall(run_devnet):
-    acc_client = DevnetClientFactory(run_devnet).make_devnet_client()
-
+async def test_sending_multicall(account_client):
     deployment_result = await Contract.deploy(
-        client=acc_client, compilation_source=map_source_code
+        client=account_client, compilation_source=map_source_code
     )
     deployment_result = await deployment_result.wait_for_acceptance()
     contract = deployment_result.deployed_contract
@@ -194,10 +185,17 @@ async def test_sending_multicall(run_devnet):
         contract.functions["put"].prepare(key=20, value=20),
     ]
 
-    res = await acc_client.execute(calls, int(1e20))
-    await acc_client.wait_for_tx(res.hash)
+    res = await account_client.execute(calls, int(1e20))
+    await account_client.wait_for_tx(res.hash)
 
     (value,) = await contract.functions["get"].call(key=20)
 
     assert res.code == "TRANSACTION_RECEIVED"
     assert value == 20
+
+
+@pytest.mark.asyncio
+async def test_get_block_traces(account_client):
+    traces = await account_client.get_block_traces(block_number=0)
+
+    assert traces.traces != []

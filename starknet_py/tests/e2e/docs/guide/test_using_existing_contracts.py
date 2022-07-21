@@ -3,7 +3,6 @@ from pathlib import Path
 import pytest
 
 from starknet_py.net import AccountClient
-from starknet_py.tests.e2e.utils import DevnetClientFactory
 
 # add to docs: start | section abi
 abi = [
@@ -32,28 +31,25 @@ erc20_source_code = Path(directory, "erc20.cairo").read_text("utf-8")
 
 
 @pytest.mark.asyncio
-async def test_using_existing_contracts(run_devnet):
-    # pylint: disable=import-outside-toplevel
-
+async def test_using_existing_contracts(gateway_client, account_client):
+    # pylint: disable=import-outside-toplevel,too-many-locals,unused-variable
     # add to docs: start
     from starknet_py.net.gateway_client import GatewayClient
     from starknet_py.contract import Contract
     from starknet_py.net.networks import TESTNET
 
     address = "0x00178130dd6286a9a0e031e4c73b2bd04ffa92804264a25c1c08c1612559f458"
-    gateway_client = GatewayClient(TESTNET)
+    client = GatewayClient(TESTNET)
     # add to docs: end
-    gateway_client = DevnetClientFactory(
-        run_devnet
-    ).make_devnet_client_without_account()
+    client = gateway_client
     # add to docs: start
 
     contract = Contract(address=address, abi=abi, client=gateway_client)
     # or
-    account_client = await AccountClient.create_account(client=gateway_client)
+    acc_client = await AccountClient.create_account(client=gateway_client)
     # add to docs: end
 
-    account_client = DevnetClientFactory(run_devnet).make_devnet_client()
+    acc_client = account_client
 
     deployment_result = await Contract.deploy(
         client=account_client, compilation_source=erc20_source_code
@@ -67,7 +63,7 @@ async def test_using_existing_contracts(run_devnet):
     sender = "321"
     recipient = "123"
 
-    contract = await Contract.from_address(client=account_client, address=address)
+    contract = await Contract.from_address(client=acc_client, address=address)
 
     # Using only positional arguments
     invocation = await contract.functions["transferFrom"].invoke(

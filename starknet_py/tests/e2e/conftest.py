@@ -2,13 +2,32 @@ import time
 import subprocess
 import socket
 from contextlib import closing
-from typing import Tuple
 
 import pytest
 
-from starknet_py.net.client import Client
-from starknet_py.tests.e2e.client.conftest import prepare_devnet
-from starknet_py.tests.e2e.utils import DevnetClientFactory
+from starknet_py.net import KeyPair, AccountClient
+from starknet_py.net.full_node_client import FullNodeClient
+from starknet_py.net.gateway_client import GatewayClient
+from starknet_py.net.models import StarknetChainId, AddressRepresentation
+
+TESTNET_ACCOUNT_PRIVATE_KEY = (
+    "0x5d6871223e9d2f6136f3913e8ccb6daae0b6b2a8452b39f92a1ddc5a76eed9a"
+)
+TESTNET_ACCOUNT_ADDRESS = (
+    "0x7536539dbba2a49ab688a1c86332625f05f660a94908f362d29212e6071432d"
+)
+
+DEVNET_ACCOUNT_PRIVATE_KEY = "0xcd613e30d8f16adf91b7584a2265b1f5"
+DEVNET_ACCOUNT_ADDRESS = (
+    "0x7d2f37b75a5e779f7da01c22acee1b66c39e8ba470ee5448f05e1462afcedb4"
+)
+
+INTEGRATION_ACCOUNT_PRIVATE_KEY = (
+    "0x5C09392256E68EA48445A9386668055418EAB5538ADBE4B12FD0FDC782C1A07"
+)
+INTEGRATION_ACCOUNT_ADDRESS = (
+    "0x60D7C88541F969520E46D39EC7C9053451CFEDBC2EEB847B684981A22CD452E"
+)
 
 
 def pytest_addoption(parser):
@@ -56,31 +75,62 @@ def run_devnet():
     proc.kill()
 
 
+# pylint: disable=redefined-outer-name
 def pytest_collection_modifyitems(config, items):
     if config.getoption("--net") == "all":
         return
 
     run_testnet = config.getoption("--net") == "testnet"
+    run_devnet = config.getoption("--net") == "devnet"
     for item in items:
         runs_on_testnet = "run_on_testnet" in item.keywords
-        should_run = run_testnet == runs_on_testnet
+        runs_on_devnet = "run_on_devnet" in item.keywords
+        should_run = run_testnet == runs_on_testnet or run_devnet == runs_on_devnet
         if not should_run:
             item.add_marker(pytest.mark.skip())
 
 
-@pytest.fixture(name="clients")
-def fixture_clients(run_prepared_devnet) -> Tuple[Client, Client]:
-    devnet_address, _ = run_prepared_devnet
-    gateway_client = DevnetClientFactory(
-        devnet_address
-    ).make_devnet_client_without_account()
-    full_node_client = DevnetClientFactory(devnet_address).make_rpc_client()
-    return gateway_client, full_node_client
+@pytest.fixture(name="gateway_client", scope="function")
+def create_gateway_client(pytestconfig, run_devnet):
+    net = pytestconfig.getoption("--net")
+    net_address = {
+        "devnet": run_devnet,
+        "testnet": "testnet",
+        "integration": "https://external.integration.starknet.io",
+    }
+
+    return GatewayClient(net=net_address[net], chain=StarknetChainId.TESTNET)
 
 
+@pytest.fixture(name="rpc_client", scope="function")
+def create_rpc_client(run_devnet):
+    return FullNodeClient(
+        node_url=run_devnet + "/rpc", chain=StarknetChainId.TESTNET, net=run_devnet
+    )
+
+
+def create_account_client(
+    address: AddressRepresentation, private_key: str, gateway_client: GatewayClient
+):
+    key_pair = KeyPair.from_private_key(int(private_key, 0))
+    return AccountClient(
+        address=address,
+        client=gateway_client,
+        key_pair=key_pair,
+    )
+
+
+@pytest.fixture(scope="function")
 # pylint: disable=redefined-outer-name
-@pytest.fixture(name="run_prepared_devnet", scope="module", autouse=True)
-def fixture_run_prepared_devnet(run_devnet) -> Tuple[str, dict]:
-    net = run_devnet
-    block = prepare_devnet(net)
-    yield net, block
+def account_client(pytestconfig, gateway_client):
+    net = pytestconfig.getoption("--net")
+
+    account_details = {
+        "devnet": (DEVNET_ACCOUNT_ADDRESS, DEVNET_ACCOUNT_PRIVATE_KEY),
+        "testnet": (TESTNET_ACCOUNT_ADDRESS, TESTNET_ACCOUNT_PRIVATE_KEY),
+        "integration": (INTEGRATION_ACCOUNT_ADDRESS, INTEGRATION_ACCOUNT_PRIVATE_KEY),
+    }
+
+    address, private_key = account_details[net]
+
+    return create_account_client(address, private_key, gateway_client)
