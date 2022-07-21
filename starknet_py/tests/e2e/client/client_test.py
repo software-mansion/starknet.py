@@ -107,7 +107,6 @@ async def test_get_block_by_hash(
                     # class_hash=class_hash,
                 )
             ],
-            starknet_version=block.starknet_version,
         )
 
 
@@ -140,7 +139,6 @@ async def test_get_block_by_number(
                     max_fee=0,
                 )
             ],
-            starknet_version=block.starknet_version,
         )
 
 
