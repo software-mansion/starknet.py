@@ -100,6 +100,7 @@ async def test_get_block_by_hash(
                     # class_hash=class_hash,
                 )
             ],
+            starknet_version=block.starknet_version,
         )
 
 
@@ -132,6 +133,7 @@ async def test_get_block_by_number(
                     max_fee=0,
                 )
             ],
+            starknet_version=block.starknet_version,
         )
 
 
@@ -199,8 +201,8 @@ async def test_estimate_fee(contract_address, gateway_client):
     )
     estimate_fee = await gateway_client.estimate_fee(tx=transaction)
 
-    assert isinstance(estimate_fee, int)
-    assert estimate_fee > 0
+    assert isinstance(estimate_fee.overall_fee, int)
+    assert estimate_fee.overall_fee > 0
 
 
 @pytest.mark.asyncio
@@ -220,24 +222,49 @@ async def test_call_contract(clients, contract_address):
 
 
 @pytest.mark.asyncio
-async def test_state_update(
-    clients, block_with_deploy_hash, block_with_deploy_root, contract_address
+async def test_state_update_gateway_client(
+    gateway_client, block_with_deploy_hash, block_with_deploy_root, contract_address
 ):
-    for client in clients:
-        state_update = await client.get_state_update(block_hash=block_with_deploy_hash)
+    state_update = await gateway_client.get_state_update(
+        block_hash=block_with_deploy_hash
+    )
 
-        assert state_update == BlockStateUpdate(
-            block_hash=block_with_deploy_hash,
-            new_root=block_with_deploy_root,
-            old_root=0x0,
-            storage_diffs=[],
-            contract_diffs=[
-                ContractDiff(
-                    address=contract_address,
-                    contract_hash=0x711941B11A8236B8CCA42B664E19342AC7300ABB1DC44957763CB65877C2708,
-                )
-            ],
-        )
+    assert state_update == BlockStateUpdate(
+        block_hash=block_with_deploy_hash,
+        new_root=block_with_deploy_root,
+        old_root=0x0,
+        storage_diffs=[],
+        contract_diffs=[
+            ContractDiff(
+                address=contract_address,
+                contract_hash=0x711941B11A8236B8CCA42B664E19342AC7300ABB1DC44957763CB65877C2708,
+            )
+        ],
+        declared_contracts=[
+            0x711941B11A8236B8CCA42B664E19342AC7300ABB1DC44957763CB65877C2708
+        ],
+    )
+
+
+@pytest.mark.asyncio
+async def test_state_update_full_node_client(
+    rpc_client, block_with_deploy_hash, block_with_deploy_root, contract_address
+):
+    state_update = await rpc_client.get_state_update(block_hash=block_with_deploy_hash)
+
+    assert state_update == BlockStateUpdate(
+        block_hash=block_with_deploy_hash,
+        new_root=block_with_deploy_root,
+        old_root=0x0,
+        storage_diffs=[],
+        contract_diffs=[
+            ContractDiff(
+                address=contract_address,
+                contract_hash=0x711941B11A8236B8CCA42B664E19342AC7300ABB1DC44957763CB65877C2708,
+            )
+        ],
+        declared_contracts=[],
+    )
 
 
 @pytest.mark.asyncio

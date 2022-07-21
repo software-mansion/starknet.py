@@ -2,6 +2,10 @@ from typing import Optional, Union
 
 
 class ClientError(Exception):
+    """
+    Base class for all errors raised while attempting to communicate with StarkNet through Client.
+    """
+
     def __init__(self, message: str, code: Optional[str] = None):
         self.code = code
         self.message = f"Client failed{f' with code {code}' if code is not None else ''}: {message}"
@@ -9,6 +13,10 @@ class ClientError(Exception):
 
 
 class ContractNotFoundError(ClientError):
+    """
+    Requested contract was not found.
+    """
+
     def __init__(
         self,
         block_hash: Optional[Union[int, str]] = None,
