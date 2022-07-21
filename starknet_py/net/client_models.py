@@ -189,6 +189,8 @@ class StarknetBlock:
     Dataclass representing a transaction on starknet
     """
 
+    # pylint: disable=too-many-instance-attributes
+
     block_hash: int
     parent_block_hash: int
     block_number: int
@@ -196,6 +198,19 @@ class StarknetBlock:
     root: int
     transactions: List[Transaction]
     timestamp: int
+    starknet_version: Optional[str] = None
+
+
+@dataclass
+class BlockSingleTransactionTrace:
+    function_invocation: dict
+    signature: List[int]
+    transaction_hash: int
+
+
+@dataclass
+class BlockTransactionTraces:
+    traces: List[BlockSingleTransactionTrace]
 
 
 @dataclass
@@ -203,6 +218,13 @@ class StorageDiff:
     address: int
     key: int
     value: int
+
+
+@dataclass
+class EstimatedFee:
+    overall_fee: int
+    gas_price: int
+    gas_usage: int
 
 
 @dataclass
@@ -222,6 +244,7 @@ class BlockStateUpdate:
     old_root: int
     storage_diffs: List[StorageDiff]
     contract_diffs: List[ContractDiff]
+    declared_contracts: List[int]
 
 
 @dataclass

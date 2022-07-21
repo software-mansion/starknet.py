@@ -20,6 +20,8 @@ from starknet_py.net.client_models import (
     Transaction,
     Declare,
     Deploy,
+    EstimatedFee,
+    BlockTransactionTraces,
 )
 from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.models import StarknetChainId, chain_from_network
@@ -88,6 +90,13 @@ class FullNodeClient(Client):
             )
             return StarknetBlockSchema().load(res, unknown=EXCLUDE)
         raise ValueError("Either block_hash or block_number is required")
+
+    async def get_block_traces(
+        self,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> BlockTransactionTraces:
+        raise NotImplementedError()
 
     async def get_state_update(
         self,
@@ -179,7 +188,7 @@ class FullNodeClient(Client):
         tx: InvokeFunction,
         block_hash: Union[Hash, Tag] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> int:
+    ) -> EstimatedFee:
         raise NotImplementedError()
 
     async def call_contract(
