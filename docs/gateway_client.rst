@@ -13,6 +13,9 @@ We recommend using :obj:`ContractFunction's call <starknet_py.contract.ContractF
 
 .. automethod:: GatewayClient.get_block
 .. automethod:: GatewayClient.get_block_sync
+.. automethod:: GatewayClient.get_block_traces
+.. automethod:: GatewayClient.get_block_traces_sync
+
 
 .. automethod:: GatewayClient.get_code
 .. automethod:: GatewayClient.get_code_sync
