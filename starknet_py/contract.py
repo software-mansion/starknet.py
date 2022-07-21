@@ -402,7 +402,7 @@ class Contract:
         Fetches ABI for given contract and creates a new Contract instance with it. If you know ABI statically you
         should create Contract's instances directly instead of using this function to avoid unnecessary API calls.
 
-        :raises BadRequest: when contract is not found
+        :raises ContractNotFoundError: when contract is not found
         :param address: Contract's address
         :param client: Client, WARNING: This method does not work with FullNodeClient!
         :param proxy_config: Proxy resolving config
