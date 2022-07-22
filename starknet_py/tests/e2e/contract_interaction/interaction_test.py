@@ -187,10 +187,9 @@ async def test_deploy_throws_on_no_compilation_source(account_client):
 
 
 @pytest.mark.asyncio
-async def test_wait_for_tx(account_client):
-    map_source = (directory_with_contracts / "map.cairo").read_text("utf-8")
+async def test_wait_for_tx(account_client, map_source_code):
     deployment = await Contract.deploy(
-        compilation_source=map_source, client=account_client
+        compilation_source=map_source_code, client=account_client
     )
     await account_client.wait_for_tx(deployment.hash)
 

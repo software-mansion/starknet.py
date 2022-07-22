@@ -3,14 +3,12 @@ import pytest
 from starknet_py.contract import Contract, ContractFunction
 from starknet_py.tests.e2e.conftest import directory_with_contracts
 
-map_source_code = (directory_with_contracts / "map.cairo").read_text("utf-8")
-
 mock_contracts_base_path = directory_with_contracts
 base_source_code = (directory_with_contracts / "base.cairo").read_text("utf-8")
 
 
 @pytest.mark.asyncio
-async def test_deploy_tx(account_client):
+async def test_deploy_tx(account_client, map_source_code):
     result = await Contract.deploy(
         client=account_client, compilation_source=map_source_code
     )

@@ -1,12 +1,8 @@
 import pytest
 
-from starknet_py.tests.e2e.conftest import directory_with_contracts
-
-map_source_code = (directory_with_contracts / "map.cairo").read_text("utf-8")
-
 
 @pytest.mark.asyncio
-async def test_account_client_details(run_devnet, account_client):
+async def test_account_client_details(run_devnet, account_client, map_source_code):
     # pylint: disable=import-outside-toplevel
     # add to docs: start
     from starknet_py.contract import Contract
