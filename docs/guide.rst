@@ -18,7 +18,7 @@ This is how we can interact with it:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_existing_contracts.py
     :language: python
-    :lines: 6-24,32-37,41-44,52-87
+    :lines: 32-37,41-44,52-87
     :dedent: 4
 
 
