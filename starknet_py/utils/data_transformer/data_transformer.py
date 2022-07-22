@@ -56,6 +56,10 @@ def construct_result_object(result: dict) -> NamedTuple:
         def __iter__(self):
             return tuple_value.__iter__()
 
+        @staticmethod
+        def _asdict():
+            return dict_value
+
     return Result()
 
 
