@@ -10,7 +10,8 @@ values. Contract offers that and some other utilities.
 Let's say we have a contract with this interface:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_existing_contracts.py
-    :language: python :lines: 6-24
+    :language: python
+    :lines: 6-24
 
 
 This is how we can interact with it:
