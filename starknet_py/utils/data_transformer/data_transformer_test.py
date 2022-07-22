@@ -499,9 +499,7 @@ def test_multiple_values():
 
     # convert Result to dict for easier comparision
     converted_result = {
-        key: value._asdict()
-        if type(value).__name__ == "Result"
-        else value
+        key: value._asdict() if type(value).__name__ == "Result" else value
         for key, value in to_python._asdict().items()
     }
     assert converted_result == {

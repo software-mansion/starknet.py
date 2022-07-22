@@ -40,10 +40,7 @@ def construct_result_object(result: dict) -> NamedTuple:
     )
     # pylint: disable=protected-access
     mappings = dict(zip(fields, res_tuple._fields))
-    value = {
-        mappings[key]: value
-        for key, value in result.items()
-    }
+    value = {mappings[key]: value for key, value in result.items()}
     tpl_value = res_tuple(**value)
 
     class Result:
