@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 import pytest
 
-from starknet_py.net import AccountClient
+from starknet_py.net.account.account_client import AccountClient
 
 # add to docs: start | section abi
 abi = [

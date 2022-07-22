@@ -8,7 +8,7 @@ async def test_account_client_details(run_devnet, account_client):
     # pylint: disable=import-outside-toplevel
     # add to docs: start
     from starknet_py.contract import Contract
-    from starknet_py.net import AccountClient
+    from starknet_py.net.account.account_client import AccountClient
     from starknet_py.net.gateway_client import GatewayClient
     from starknet_py.net.models import StarknetChainId
 

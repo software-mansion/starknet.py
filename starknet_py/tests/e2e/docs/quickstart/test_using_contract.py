@@ -13,7 +13,7 @@ async def test_using_contract(gateway_client, account_client):
     # pylint: disable=unused-variable,too-many-locals
     # add to docs: start
     from starknet_py.contract import Contract
-    from starknet_py.net import AccountClient
+    from starknet_py.net.account.account_client import AccountClient
     from starknet_py.net.networks import TESTNET
     from starknet_py.net.gateway_client import GatewayClient
 

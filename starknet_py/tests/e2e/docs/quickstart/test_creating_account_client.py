@@ -7,7 +7,7 @@ from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 async def test_creating_account_client(run_devnet):
     # pylint: disable=import-outside-toplevel, unused-variable
     # add to docs: start
-    from starknet_py.net import AccountClient, KeyPair
+    from starknet_py.net.account.account_client import AccountClient, KeyPair
     from starknet_py.net.models.chains import StarknetChainId
     from starknet_py.net.gateway_client import GatewayClient
 

@@ -158,9 +158,9 @@ async def test_create_account_client_with_signer(run_devnet):
         net=run_devnet,
         chain=StarknetChainId.TESTNET,
     )
-    address = await deploy_account_contract(
+    address, _ = await deploy_account_contract(
         client=client,
-        public_key=key_pair.public_key,
+        constructor_calldata=[key_pair.public_key],
     )
 
     signer = StarkCurveSigner(

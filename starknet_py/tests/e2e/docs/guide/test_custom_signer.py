@@ -8,7 +8,7 @@ async def test_custom_signer():
     # pylint: disable=import-outside-toplevel, duplicate-code, unused-variable
 
     # add to docs: start
-    from starknet_py.net import AccountClient
+    from starknet_py.net.account.account_client import AccountClient
     from starknet_py.net.signer import BaseSigner
     from starknet_py.net.gateway_client import GatewayClient
     from starknet_py.net.models import Transaction
