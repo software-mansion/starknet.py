@@ -497,11 +497,9 @@ def test_multiple_values():
     }
     assert to_python == (123, [10, 20], (11, 12), 123456, (22, 33))
 
-    # convert namedtuples in result to dict for easier comparision
+    # convert Result to dict for easier comparision
     converted_result = {
-        key: value._asdict()
-        if isinstance(value, tuple) and hasattr(value, "_fields")
-        else value
+        key: value._asdict() if type(value).__name__ == "Result" else value
         for key, value in to_python._asdict().items()
     }
     assert converted_result == {
@@ -602,3 +600,10 @@ def test_missing_arg():
         transformer_for_function(inputs=abi).from_python(1)
 
     assert "second not provided" in str(excinfo.value)
+
+
+def test_allow_underscores_in_abi():
+    abi = [{"name": "_first", "type": "felt"}]
+    result = transformer_for_function(outputs=abi).to_python([1])
+    # pylint: disable=protected-access
+    assert result._first == 1
