@@ -1,6 +1,7 @@
 import warnings
 from dataclasses import dataclass
 from typing import List, Callable, TypeVar, Generic, Tuple, Dict, NamedTuple
+from collections import namedtuple
 import itertools
 
 from starkware.cairo.lang.compiler.ast.cairo_types import (
@@ -28,6 +29,41 @@ from starknet_py.cairo.felt import (
 
 ABIFunctionEntry = dict
 CairoData = List[int]
+
+
+def construct_result_object(result: dict) -> NamedTuple:
+    fields = result.keys()
+    res_tuple = namedtuple(
+        field_names=fields,
+        typename="Result",
+        rename=True,
+    )
+    # pylint: disable=protected-access
+    mappings = dict(zip(fields, res_tuple._fields))
+    value = {
+        mappings[key]: value
+        for key, value in result.items()
+    }
+    tpl_value = res_tuple(**value)
+
+    class Result:
+        def __eq__(self, other):
+            return tpl_value == other
+
+        def __getattr__(self, item):
+            return getattr(tpl_value, mappings[item])
+
+        @staticmethod
+        def _asdict():
+            return value
+
+        def __getitem__(self, item):
+            return tpl_value[item]
+
+        def __iter__(self):
+            return tpl_value.__iter__()
+
+    return Result()
 
 
 def read_from_cairo_data(
@@ -204,12 +240,8 @@ class TupleTransformer(TypeTransformer[TypeTuple, tuple]):
             )
             result[name] = transformed
 
-        res = NamedTuple(
-            "Result", [(key, type(value)) for key, value in result.items()]
-        )
-        # pylint: disable=not-callable
-        # noinspection PyCallingNonCallable
-        return res(**result), values
+        res = construct_result_object(result)
+        return res, values
 
 
 class TupleItemTransformer(TypeTransformer[TypeTuple.Item, tuple]):
@@ -339,12 +371,7 @@ class CairoSerializer:
             )
             result[name] = transformed
 
-        result_tuple = NamedTuple(
-            "Result", [(key, type(value)) for key, value in result.items()]
-        )
-        # pylint: disable=not-callable
-        # noinspection PyCallingNonCallable
-        return result_tuple(**result)
+        return construct_result_object(result)
 
     def _abi_to_types(self, abi_list) -> dict:
         return self._remove_array_lengths(
