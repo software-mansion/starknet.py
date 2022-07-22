@@ -1,7 +1,9 @@
+import os
 import time
 import subprocess
 import socket
 from contextlib import closing
+from pathlib import Path
 
 import pytest
 
@@ -9,6 +11,7 @@ from starknet_py.net import KeyPair, AccountClient
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId, AddressRepresentation
+from starknet_py.contract import Contract
 
 TESTNET_ACCOUNT_PRIVATE_KEY = (
     "0x5d6871223e9d2f6136f3913e8ccb6daae0b6b2a8452b39f92a1ddc5a76eed9a"
@@ -90,7 +93,7 @@ def pytest_collection_modifyitems(config, items):
             item.add_marker(pytest.mark.skip())
 
 
-@pytest.fixture(name="gateway_client", scope="function")
+@pytest.fixture(name="gateway_client", scope="module")
 def create_gateway_client(pytestconfig, run_devnet):
     net = pytestconfig.getoption("--net")
     net_address = {
@@ -102,7 +105,7 @@ def create_gateway_client(pytestconfig, run_devnet):
     return GatewayClient(net=net_address[net], chain=StarknetChainId.TESTNET)
 
 
-@pytest.fixture(name="rpc_client", scope="function")
+@pytest.fixture(name="rpc_client", scope="module")
 def create_rpc_client(run_devnet):
     return FullNodeClient(
         node_url=run_devnet + "/rpc", chain=StarknetChainId.TESTNET, net=run_devnet
@@ -120,7 +123,7 @@ def create_account_client(
     )
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="module")
 # pylint: disable=redefined-outer-name
 def account_client(pytestconfig, gateway_client):
     net = pytestconfig.getoption("--net")
@@ -134,3 +137,36 @@ def account_client(pytestconfig, gateway_client):
     address, private_key = account_details[net]
 
     return create_account_client(address, private_key, gateway_client)
+
+
+directory_with_contracts = Path(os.path.dirname(__file__)) / "mock_contracts_dir"
+
+
+@pytest.fixture(scope="module")
+def map_source_code():
+    return (directory_with_contracts / "map.cairo").read_text("utf-8")
+
+
+@pytest.fixture(scope="module")
+def erc20_source_code():
+    return (directory_with_contracts / "erc20.cairo").read_text("utf-8")
+
+
+@pytest.fixture(name="map_contract", scope="module")
+def deploy_map_contract(account_client, map_source_code) -> Contract:
+    # pylint: disable=no-member
+    deployment_result = Contract.deploy_sync(
+        client=account_client, compilation_source=map_source_code
+    )
+    deployment_result = deployment_result.wait_for_acceptance_sync()
+    return deployment_result.deployed_contract
+
+
+@pytest.fixture(name="erc20_contract", scope="module")
+def deploy_erc20_contract(account_client, erc20_source_code) -> Contract:
+    # pylint: disable=no-member
+    deployment_result = Contract.deploy_sync(
+        client=account_client, compilation_source=erc20_source_code
+    )
+    deployment_result = deployment_result.wait_for_acceptance_sync()
+    return deployment_result.deployed_contract
