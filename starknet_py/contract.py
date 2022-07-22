@@ -363,7 +363,7 @@ class Contract:
         :param client: client used for API calls
         """
         self.data = ContractData.from_abi(parse_address(address), abi)
-        self._functions = self._make_functions(self.data, client)
+        self._functions = self.make_functions(self.data, client)
         self.client = client
 
     @property
@@ -568,9 +568,9 @@ class Contract:
         ).from_python(*args, **kwargs)
         return calldata
 
-    @classmethod
-    def _make_functions(
-        cls, contract_data: ContractData, client: Client
+    @staticmethod
+    def make_functions(
+        contract_data: ContractData, client: Client
     ) -> FunctionsRepository:
         repository = {}
 

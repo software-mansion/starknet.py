@@ -1,5 +1,5 @@
 import warnings
-from typing import Optional, List, Union, Dict
+from typing import Optional, List, Union, Dict, Tuple
 from dataclasses import replace
 
 from starkware.crypto.signature.signature import get_random_private_key
@@ -8,6 +8,9 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
     CastableToHash,
 )
 
+from starknet_py.common import create_compiled_contract
+from starknet_py.compile.compiler import StarknetCompilationSource
+from starknet_py.contract import Contract, ContractData
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import (
     SentTransactionResponse,
@@ -58,6 +61,7 @@ class AccountClient(Client):
         client: GatewayClient,
         signer: Optional[BaseSigner] = None,
         key_pair: Optional[KeyPair] = None,
+        abi: Optional[list] = None,
     ):
         """
         :param address: Address of the account contract
@@ -70,7 +74,7 @@ class AccountClient(Client):
         # pylint: disable=too-many-arguments
         if signer is None and key_pair is None:
             raise ValueError(
-                "Either a signer or a key_pair must be provied in AccountClient constructor"
+                "Either a signer or a key_pair must be provided in AccountClient constructor"
             )
 
         chain = chain_from_network(net=client.net, chain=client.chain)
@@ -83,6 +87,11 @@ class AccountClient(Client):
             account_address=self.address, key_pair=key_pair, chain_id=self.client.chain
         )
 
+        if abi is not None:
+            self._functions = Contract.make_functions(
+                ContractData.from_abi(parse_address(address), abi), self
+            )
+
     @property
     def chain(self) -> StarknetChainId:
         return self.client.chain
@@ -90,6 +99,10 @@ class AccountClient(Client):
     @property
     def net(self) -> Network:
         return self.client.net
+
+    @property
+    def functions(self):
+        return self._functions
 
     async def get_block(
         self,
@@ -359,6 +372,8 @@ class AccountClient(Client):
         client: Client,
         private_key: Optional[int] = None,
         signer: Optional[BaseSigner] = None,
+        compilation_source: Optional[StarknetCompilationSource] = None,
+        constructor_calldata: Optional[List[int]] = None,
     ) -> "AccountClient":
         """
         Creates the account using
@@ -371,36 +386,55 @@ class AccountClient(Client):
         :param signer: Signer used to create account and sign transaction
         :return: Instance of AccountClient which interacts with created account on given network
         """
+        if compilation_source and signer is None:
+            raise ValueError(
+                "Signer must be specified when providing compilation_source"
+            )
+
         if signer is None:
             private_key = private_key or get_random_private_key()
 
             key_pair = KeyPair.from_private_key(private_key)
-            address = await deploy_account_contract(client, key_pair.public_key)
+            address, abi = await deploy_account_contract(client, [key_pair.public_key])
             signer = StarkCurveSigner(
                 account_address=address, key_pair=key_pair, chain_id=client.chain
             )
+        elif constructor_calldata is None:
+            address, abi = await deploy_account_contract(client, [signer.public_key])
         else:
-            address = await deploy_account_contract(client, signer.public_key)
+            address, abi = await deploy_account_contract(
+                client, constructor_calldata, compilation_source
+            )
 
         return AccountClient(
             client=client,
             address=address,
             signer=signer,
+            abi=abi,
         )
 
 
 async def deploy_account_contract(
-    client: Client, public_key: int
-) -> AddressRepresentation:
+    client: Client,
+    constructor_calldata: List[int],
+    compilation_source: Optional[StarknetCompilationSource] = None,
+) -> Tuple[AddressRepresentation, List]:
+    compiled_contract = (
+        create_compiled_contract(compilation_source) if compilation_source else None
+    )
+
     deploy_tx = make_deploy_tx(
-        constructor_calldata=[public_key],
-        compiled_contract=COMPILED_ACCOUNT_CONTRACT,
+        constructor_calldata=constructor_calldata,
+        compiled_contract=compiled_contract or COMPILED_ACCOUNT_CONTRACT,
     )
     result = await client.deploy(deploy_tx)
     await client.wait_for_tx(
         tx_hash=result.hash,
     )
-    return result.address
+    return (
+        result.address,
+        compiled_contract.abi if compiled_contract is not None else None,
+    )
 
 
 def add_signature_to_transaction(
