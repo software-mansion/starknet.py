@@ -1,6 +1,4 @@
 import asyncio
-import os
-from pathlib import Path
 from unittest.mock import patch, MagicMock
 
 import pytest
@@ -8,73 +6,53 @@ from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
 from starknet_py.net.client_models import SentTransactionResponse
+from starknet_py.tests.e2e.conftest import directory_with_contracts
 from starknet_py.transaction_exceptions import TransactionRejectedError
 from starknet_py.contract import Contract
 from starknet_py.net.models import InvokeFunction
 from starknet_py.net.client_errors import ClientError, ContractNotFoundError
 
-directory = os.path.dirname(__file__)
-
-map_source = Path(directory, "map.cairo").read_text("utf-8")
-proxy_source = Path(directory, "argent_proxy.cairo").read_text("utf-8")
+proxy_source = (directory_with_contracts / "argent_proxy.cairo").read_text("utf-8")
 
 MAX_FEE = int(1e20)
 
 
 @pytest.mark.asyncio
-async def test_max_fee_is_set_in_sent_invoke(account_client):
+async def test_max_fee_is_set_in_sent_invoke(map_contract):
     key = 2
     value = 3
 
-    deployment_result = await Contract.deploy(
-        client=account_client, compilation_source=map_source
-    )
-    deployment_result = await deployment_result.wait_for_acceptance()
-    contract = deployment_result.deployed_contract
-
-    prepared_call = contract.functions["put"].prepare(key, value, max_fee=100)
+    prepared_call = map_contract.functions["put"].prepare(key, value, max_fee=100)
     assert prepared_call.max_fee == 100
     invocation = await prepared_call.invoke()
     assert invocation.invoke_transaction.max_fee == 100
 
-    invocation = await contract.functions["put"].invoke(key, value, max_fee=200)
+    invocation = await map_contract.functions["put"].invoke(key, value, max_fee=200)
     assert invocation.invoke_transaction.max_fee == 200
 
-    prepared_call = contract.functions["put"].prepare(key, value, max_fee=300)
+    prepared_call = map_contract.functions["put"].prepare(key, value, max_fee=300)
     assert prepared_call.max_fee == 300
     invocation = await prepared_call.invoke(max_fee=400)
     assert invocation.invoke_transaction.max_fee == 400
 
 
 @pytest.mark.asyncio
-async def test_auto_fee_estimation(account_client):
+async def test_auto_fee_estimation(map_contract):
     key = 2
     value = 3
 
-    deployment_result = await Contract.deploy(
-        client=account_client, compilation_source=map_source
-    )
-    deployment_result = await deployment_result.wait_for_acceptance()
-    contract = deployment_result.deployed_contract
-
-    prepared_call = contract.functions["put"].prepare(key, value)
+    prepared_call = map_contract.functions["put"].prepare(key, value)
     invocation = await prepared_call.invoke(auto_estimate=True)
 
     assert invocation.invoke_transaction.max_fee is not None
 
 
 @pytest.mark.asyncio
-async def test_throws_on_estimate_with_positive_max_fee(account_client):
+async def test_throws_on_estimate_with_positive_max_fee(map_contract):
     key = 2
     value = 3
 
-    deployment_result = await Contract.deploy(
-        client=account_client, compilation_source=map_source
-    )
-    deployment_result = await deployment_result.wait_for_acceptance()
-    contract = deployment_result.deployed_contract
-
-    prepared_call = contract.functions["put"].prepare(key, value, max_fee=100)
+    prepared_call = map_contract.functions["put"].prepare(key, value, max_fee=100)
     with pytest.raises(ValueError) as exinfo:
         await prepared_call.estimate_fee()
 
@@ -85,17 +63,11 @@ async def test_throws_on_estimate_with_positive_max_fee(account_client):
 
 
 @pytest.mark.asyncio
-async def test_throws_on_both_max_fee_and_auto_estimate(account_client):
+async def test_throws_on_both_max_fee_and_auto_estimate(map_contract):
     key = 2
     value = 3
 
-    deployment_result = await Contract.deploy(
-        client=account_client, compilation_source=map_source
-    )
-    deployment_result = await deployment_result.wait_for_acceptance()
-    contract = deployment_result.deployed_contract
-
-    invocation = contract.functions["put"].prepare(key, value)
+    invocation = map_contract.functions["put"].prepare(key, value)
     with pytest.raises(ValueError) as exinfo:
         await invocation.invoke(max_fee=10, auto_estimate=True)
 
@@ -106,17 +78,11 @@ async def test_throws_on_both_max_fee_and_auto_estimate(account_client):
 
 
 @pytest.mark.asyncio
-async def test_throws_on_both_max_fee_in_prepare_and_auto_estimate(account_client):
+async def test_throws_on_both_max_fee_in_prepare_and_auto_estimate(map_contract):
     key = 2
     value = 3
 
-    deployment_result = await Contract.deploy(
-        client=account_client, compilation_source=map_source
-    )
-    deployment_result = await deployment_result.wait_for_acceptance()
-    contract = deployment_result.deployed_contract
-
-    invocation = contract.functions["put"].prepare(key, value, max_fee=2000)
+    invocation = map_contract.functions["put"].prepare(key, value, max_fee=2000)
     with pytest.raises(ValueError) as exinfo:
         await invocation.invoke(auto_estimate=True)
 
@@ -127,33 +93,22 @@ async def test_throws_on_both_max_fee_in_prepare_and_auto_estimate(account_clien
 
 
 @pytest.mark.asyncio
-async def test_throws_on_call_without_max_fee(account_client):
+async def test_throws_on_call_without_max_fee(map_contract):
     key = 2
     value = 3
 
-    deployment_result = await Contract.deploy(
-        client=account_client, compilation_source=map_source
-    )
-    deployment_result = await deployment_result.wait_for_acceptance()
-    contract = deployment_result.deployed_contract
-
     with pytest.raises(ValueError) as exinfo:
-        await contract.functions["put"].invoke(key, value)
+        await map_contract.functions["put"].invoke(key, value)
 
     assert "Max_fee must be specified when invoking a transaction" in str(exinfo.value)
 
 
 @pytest.mark.asyncio
-async def test_throws_on_prepared_call_without_max_fee(account_client):
+async def test_throws_on_prepared_call_without_max_fee(map_contract):
     key = 2
     value = 3
 
-    deployment_result = await Contract.deploy(
-        client=account_client, compilation_source=map_source
-    )
-    deployment_result = await deployment_result.wait_for_acceptance()
-    contract = deployment_result.deployed_contract
-    prepared_call = contract.functions["put"].prepare(key, value)
+    prepared_call = map_contract.functions["put"].prepare(key, value)
 
     with pytest.raises(ValueError) as exinfo:
         await prepared_call.invoke()
@@ -162,54 +117,38 @@ async def test_throws_on_prepared_call_without_max_fee(account_client):
 
 
 @pytest.mark.asyncio
-async def test_latest_max_fee_takes_precedence(account_client):
+async def test_latest_max_fee_takes_precedence(map_contract):
     key = 2
     value = 3
 
-    deployment_result = await Contract.deploy(
-        client=account_client, compilation_source=map_source
-    )
-    deployment_result = await deployment_result.wait_for_acceptance()
-    contract = deployment_result.deployed_contract
-
-    prepared_function = contract.functions["put"].prepare(key, value, max_fee=20)
+    prepared_function = map_contract.functions["put"].prepare(key, value, max_fee=20)
     invocation = await prepared_function.invoke(max_fee=50)
 
     assert invocation.invoke_transaction.max_fee == 50
 
 
 @pytest.mark.asyncio
-async def test_prepare_without_max_fee(account_client):
+async def test_prepare_without_max_fee(map_contract):
     key = 2
     value = 3
 
-    deployment_result = await Contract.deploy(
-        client=account_client, compilation_source=map_source
-    )
-    deployment_result = await deployment_result.wait_for_acceptance()
-    contract = deployment_result.deployed_contract
-    prepared_call = contract.functions["put"].prepare(key, value)
+    prepared_call = map_contract.functions["put"].prepare(key, value)
 
     assert prepared_call.max_fee is None
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("key, value", ((2, 13), (412312, 32134), (12345, 3567)))
-async def test_invoke_and_call(key, value, account_client):
-    # Deploy simple k-v store
-    deployment_result = await Contract.deploy(
-        client=account_client, compilation_source=map_source
-    )
-    deployment_result = await deployment_result.wait_for_acceptance()
-    contract = deployment_result.deployed_contract
-    invocation = await contract.functions["put"].invoke(key, value, max_fee=MAX_FEE)
+async def test_invoke_and_call(key, value, map_contract):
+
+    invocation = await map_contract.functions["put"].invoke(key, value, max_fee=MAX_FEE)
     await invocation.wait_for_acceptance()
-    (response,) = await contract.functions["get"].call(key)
+    (response,) = await map_contract.functions["get"].call(key)
 
     assert response == value
 
 
-user_auth_source = Path(directory, "user_auth.cairo").read_text("utf-8")
+user_auth_source = (directory_with_contracts / "user_auth.cairo").read_text("utf-8")
 
 
 @pytest.mark.asyncio
@@ -248,18 +187,16 @@ async def test_deploy_throws_on_no_compilation_source(account_client):
 
 
 @pytest.mark.asyncio
-async def test_wait_for_tx_devnet(account_client):
+async def test_wait_for_tx(account_client, map_source_code):
     deployment = await Contract.deploy(
-        compilation_source=map_source, client=account_client
+        compilation_source=map_source_code, client=account_client
     )
     await account_client.wait_for_tx(deployment.hash)
 
 
 @pytest.mark.asyncio
-async def test_wait_for_tx_throws_on_transaction_rejected(account_client):
-    deploy = await Contract.deploy(compilation_source=map_source, client=account_client)
-    contract = deploy.deployed_contract
-    invoke = contract.functions["put"].prepare(key=0x1, value=0x1, max_fee=MAX_FEE)
+async def test_wait_for_tx_throws_on_transaction_rejected(account_client, map_contract):
+    invoke = map_contract.functions["put"].prepare(key=0x1, value=0x1, max_fee=MAX_FEE)
 
     # modify selector so that transaction will get rejected
     invoke.selector = 0x0123
@@ -270,13 +207,10 @@ async def test_wait_for_tx_throws_on_transaction_rejected(account_client):
 
 
 @pytest.mark.asyncio
-async def test_contract_from_address_with_1_proxy(gateway_client):
-    map_contract = await Contract.deploy(
-        compilation_source=map_source, client=gateway_client
-    )
+async def test_contract_from_address_with_1_proxy(gateway_client, map_contract):
     deployment_result = await Contract.deploy(
         compilation_source=proxy_source,
-        constructor_args=[map_contract.deployed_contract.address],
+        constructor_args=[map_contract.address],
         client=gateway_client,
     )
 
@@ -290,13 +224,10 @@ async def test_contract_from_address_with_1_proxy(gateway_client):
 
 
 @pytest.mark.asyncio
-async def test_contract_from_address_with_2_proxy(gateway_client):
-    map_contract = await Contract.deploy(
-        compilation_source=map_source, client=gateway_client
-    )
+async def test_contract_from_address_with_2_proxy(gateway_client, map_contract):
     proxy1_deployment = await Contract.deploy(
         compilation_source=proxy_source,
-        constructor_args=[map_contract.deployed_contract.address],
+        constructor_args=[map_contract.address],
         client=gateway_client,
     )
     proxy2_deployment = await Contract.deploy(
@@ -315,13 +246,12 @@ async def test_contract_from_address_with_2_proxy(gateway_client):
 
 
 @pytest.mark.asyncio
-async def test_contract_from_address_throws_on_too_many_steps(gateway_client):
-    map_contract = await Contract.deploy(
-        compilation_source=map_source, client=gateway_client
-    )
+async def test_contract_from_address_throws_on_too_many_steps(
+    gateway_client, map_contract
+):
     proxy1_deployment = await Contract.deploy(
         compilation_source=proxy_source,
-        constructor_args=[map_contract.deployed_contract.address],
+        constructor_args=[map_contract.address],
         client=gateway_client,
     )
     proxy2_deployment = await Contract.deploy(
@@ -376,31 +306,18 @@ async def test_contract_from_address_throws_on_proxy_cycle(account_client):
 
 
 @pytest.mark.asyncio
-async def test_warning_when_max_fee_equals_to_zero(account_client):
-    # Deploy simple k-v store
-    deployment_result = await Contract.deploy(
-        client=account_client, compilation_source=map_source
-    )
-    deployment_result = await deployment_result.wait_for_acceptance()
-    contract = deployment_result.deployed_contract
-
+async def test_warning_when_max_fee_equals_to_zero(map_contract):
     with pytest.warns(
         DeprecationWarning,
         match=r"Transaction will fail with max_fee set to 0. Change it to a higher value.",
     ) as max_fee_warnings:
-        await contract.functions["put"].invoke(10, 20, max_fee=0)
+        await map_contract.functions["put"].invoke(10, 20, max_fee=0)
 
     assert len(max_fee_warnings) == 1
 
 
 @pytest.mark.asyncio
-async def test_transaction_not_received_error(account_client):
-    deployment_result = await Contract.deploy(
-        client=account_client, compilation_source=map_source
-    )
-    deployment_result = await deployment_result.wait_for_acceptance()
-    contract = deployment_result.deployed_contract
-
+async def test_transaction_not_received_error(map_contract):
     with patch(
         "starknet_py.net.account.account_client.AccountClient.send_transaction",
         MagicMock(),
@@ -415,18 +332,14 @@ async def test_transaction_not_received_error(account_client):
         mocked_send_transaction.return_value = result
 
         with pytest.raises(Exception) as tx_not_received:
-            await contract.functions["put"].invoke(10, 20, max_fee=MAX_FEE)
+            await map_contract.functions["put"].invoke(10, 20, max_fee=MAX_FEE)
 
         assert "Failed to send transaction." in str(tx_not_received)
 
 
 @pytest.mark.asyncio
-async def test_error_when_invoking_without_account_client(gateway_client):
-    deployment_result = await Contract.deploy(
-        client=gateway_client, compilation_source=map_source
-    )
-    deployment_result = await deployment_result.wait_for_acceptance()
-    contract = deployment_result.deployed_contract
+async def test_error_when_invoking_without_account_client(gateway_client, map_contract):
+    contract = await Contract.from_address(map_contract.address, gateway_client)
 
     with pytest.raises(ValueError) as wrong_client_error:
         await contract.functions["put"].prepare(key=10, value=10).invoke(
@@ -440,12 +353,10 @@ async def test_error_when_invoking_without_account_client(gateway_client):
 
 
 @pytest.mark.asyncio
-async def test_error_when_estimating_fee_while_not_using_account_client(gateway_client):
-    deployment_result = await Contract.deploy(
-        client=gateway_client, compilation_source=map_source
-    )
-    deployment_result = await deployment_result.wait_for_acceptance()
-    contract = deployment_result.deployed_contract
+async def test_error_when_estimating_fee_while_not_using_account_client(
+    gateway_client, map_contract
+):
+    contract = await Contract.from_address(map_contract.address, gateway_client)
 
     with pytest.raises(ValueError) as wrong_client_error:
         await contract.functions["put"].prepare(key=10, value=10).estimate_fee()

@@ -1,20 +1,14 @@
-import os
-from pathlib import Path
 import pytest
 
 from starknet_py.contract import Contract, ContractFunction
+from starknet_py.tests.e2e.conftest import directory_with_contracts
 
-directory = os.path.dirname(__file__)
-map_source_code = Path(directory, "map.cairo").read_text("utf-8")
-
-mock_contracts_base_path = Path(directory, "mock-contracts")
-base_source_code = Path(os.path.join(mock_contracts_base_path, "base.cairo")).read_text(
-    "utf-8"
-)
+mock_contracts_base_path = directory_with_contracts
+base_source_code = (directory_with_contracts / "base.cairo").read_text("utf-8")
 
 
 @pytest.mark.asyncio
-async def test_deploy_tx(account_client):
+async def test_deploy_tx(account_client, map_source_code):
     result = await Contract.deploy(
         client=account_client, compilation_source=map_source_code
     )
@@ -44,8 +38,8 @@ async def test_deploy_with_search_path(account_client):
     assert isinstance(result.functions["put"], ContractFunction)
 
 
-constructor_with_arguments_source = Path(
-    directory, "constructor_with_arguments.cairo"
+constructor_with_arguments_source = (
+    directory_with_contracts / "constructor_with_arguments.cairo"
 ).read_text("utf-8")
 
 
@@ -96,8 +90,8 @@ async def test_constructor_arguments(account_client):
     assert result_2 == (value, tuple_value, sum(arr), struct)
 
 
-constructor_without_arguments_source = Path(
-    directory, "constructor_without_arguments.cairo"
+constructor_without_arguments_source = (
+    directory_with_contracts / "constructor_without_arguments.cairo"
 ).read_text("utf-8")
 
 
