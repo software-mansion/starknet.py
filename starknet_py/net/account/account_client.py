@@ -424,7 +424,9 @@ async def deploy_account_contract(
     compilation_source: Optional[StarknetCompilationSource] = None,
 ) -> Tuple[AddressRepresentation, List]:
     compiled_contract = (
-        create_compiled_contract(compilation_source, is_account_contract=True) if compilation_source else None
+        create_compiled_contract(compilation_source, is_account_contract=True)
+        if compilation_source
+        else None
     )
 
     deploy_tx = make_deploy_tx(
