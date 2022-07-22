@@ -1,12 +1,9 @@
 import asyncio
-import os.path
-from pathlib import Path
 from unittest.mock import patch, MagicMock
 
 import pytest
 
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
-from starknet_py.contract import Contract
 from starknet_py.net import AccountClient, KeyPair
 from starknet_py.net.account.account_client import deploy_account_contract
 from starknet_py.net.gateway_client import GatewayClient
@@ -14,21 +11,11 @@ from starknet_py.net.models import parse_address, StarknetChainId
 from starknet_py.net.networks import TESTNET, MAINNET
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 
-directory = os.path.dirname(__file__)
-map_source_code = Path(directory, "map.cairo").read_text("utf-8")
-erc20_mock_source_code = Path(directory, "erc20_mock.cairo").read_text("utf-8")
-
 MAX_FEE = int(1e20)
 
 
 @pytest.mark.asyncio
-async def test_deploy_account_contract_and_sign_tx(account_client):
-    deployment_result = await Contract.deploy(
-        client=account_client, compilation_source=map_source_code
-    )
-    deployment_result = await deployment_result.wait_for_acceptance()
-    map_contract = deployment_result.deployed_contract
-
+async def test_deploy_account_contract_and_sign_tx(map_contract):
     k, v = 13, 4324
     await (
         await map_contract.functions["put"].invoke(k, v, max_fee=MAX_FEE)
@@ -50,13 +37,7 @@ async def test_get_balance_throws_when_token_not_specified(account_client):
 
 
 @pytest.mark.asyncio
-async def test_balance_when_token_specified(account_client):
-    deployment_result = await Contract.deploy(
-        client=account_client, compilation_source=erc20_mock_source_code
-    )
-    deployment_result = await deployment_result.wait_for_acceptance()
-    erc20_contract = deployment_result.deployed_contract
-
+async def test_balance_when_token_specified(account_client, erc20_contract):
     balance = await account_client.get_balance(erc20_contract.address)
 
     assert balance == 200
@@ -89,13 +70,7 @@ async def test_get_balance_default_token_address(net):
 
 
 @pytest.mark.asyncio
-async def test_estimate_fee_called(account_client):
-    deployment_result = await Contract.deploy(
-        client=account_client, compilation_source=erc20_mock_source_code
-    )
-    deployment_result = await deployment_result.wait_for_acceptance()
-    erc20_contract = deployment_result.deployed_contract
-
+async def test_estimate_fee_called(erc20_contract):
     with patch(
         "starknet_py.net.account.account_client.AccountClient.estimate_fee", MagicMock()
     ) as mocked_estimate_fee:
@@ -112,13 +87,7 @@ async def test_estimate_fee_called(account_client):
 
 
 @pytest.mark.asyncio
-async def test_estimated_fee_greater_than_zero(account_client):
-    deployment_result = await Contract.deploy(
-        client=account_client, compilation_source=erc20_mock_source_code
-    )
-    deployment_result = await deployment_result.wait_for_acceptance()
-    erc20_contract = deployment_result.deployed_contract
-
+async def test_estimated_fee_greater_than_zero(erc20_contract):
     estimated_fee = (
         await erc20_contract.functions["balanceOf"]
         .prepare("1234", max_fee=0)
@@ -173,22 +142,16 @@ async def test_create_account_client_with_signer(run_devnet):
 
 
 @pytest.mark.asyncio
-async def test_sending_multicall(account_client):
-    deployment_result = await Contract.deploy(
-        client=account_client, compilation_source=map_source_code
-    )
-    deployment_result = await deployment_result.wait_for_acceptance()
-    contract = deployment_result.deployed_contract
-
+async def test_sending_multicall(account_client, map_contract):
     calls = [
-        contract.functions["put"].prepare(key=10, value=10),
-        contract.functions["put"].prepare(key=20, value=20),
+        map_contract.functions["put"].prepare(key=10, value=10),
+        map_contract.functions["put"].prepare(key=20, value=20),
     ]
 
     res = await account_client.execute(calls, int(1e20))
     await account_client.wait_for_tx(res.hash)
 
-    (value,) = await contract.functions["get"].call(key=20)
+    (value,) = await map_contract.functions["get"].call(key=20)
 
     assert res.code == "TRANSACTION_RECEIVED"
     assert value == 20
