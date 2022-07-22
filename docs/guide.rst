@@ -10,15 +10,14 @@ values. Contract offers that and some other utilities.
 Let's say we have a contract with this interface:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_existing_contracts.py
-    :language: python
-    :lines: 8-26
+    :language: python :lines: 6-24
 
 
 This is how we can interact with it:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_existing_contracts.py
     :language: python
-    :lines: 39-44,48-51,59-94
+    :lines: 6-24,32-37,41-44,52-87
     :dedent: 4
 
 
@@ -32,7 +31,7 @@ Here is an example:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_account_client_details.py
     :language: python
-    :lines: 12-17,21-25,30-57
+    :lines: 8-13,17-21,26-53
     :dedent: 4
 
 
