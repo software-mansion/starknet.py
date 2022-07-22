@@ -33,32 +33,28 @@ CairoData = List[int]
 
 def construct_result_object(result: dict) -> NamedTuple:
     fields = result.keys()
-    res_tuple = namedtuple(
+    named_tuple_class = namedtuple(
         field_names=fields,
         typename="Result",
         rename=True,
     )
     # pylint: disable=protected-access
-    mappings = dict(zip(fields, res_tuple._fields))
-    value = {mappings[key]: value for key, value in result.items()}
-    tpl_value = res_tuple(**value)
+    name_mapping = dict(zip(fields, named_tuple_class._fields))
+    dict_value = {name_mapping[key]: value for key, value in result.items()}
+    tuple_value = named_tuple_class(**dict_value)
 
     class Result:
         def __eq__(self, other):
-            return tpl_value == other
+            return tuple_value == other
 
         def __getattr__(self, item):
-            return getattr(tpl_value, mappings[item])
-
-        @staticmethod
-        def _asdict():
-            return value
+            return getattr(tuple_value, name_mapping[item])
 
         def __getitem__(self, item):
-            return tpl_value[item]
+            return tuple_value[item]
 
         def __iter__(self):
-            return tpl_value.__iter__()
+            return tuple_value.__iter__()
 
     return Result()
 
