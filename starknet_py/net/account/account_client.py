@@ -91,6 +91,9 @@ class AccountClient(Client):
             self._functions = Contract.make_functions(
                 ContractData.from_abi(parse_address(address), abi), self
             )
+    @property
+    def can_invoke(self) -> bool:
+        return True
 
     @property
     def chain(self) -> StarknetChainId:

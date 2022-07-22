@@ -46,6 +46,10 @@ from starknet_py.utils.sync import add_sync_methods
 
 @add_sync_methods
 class GatewayClient(Client):
+    @property
+    def can_invoke(self) -> bool:
+        return False
+
     def __init__(
         self,
         net: Network,

@@ -34,6 +34,13 @@ from starknet_py.utils.sync import add_sync_methods
 class Client(ABC):
     @property
     @abstractmethod
+    def can_invoke(self) -> bool:
+        """
+        A property which enables the caller to get to know about invoke capabilities of the client
+        """
+
+    @property
+    @abstractmethod
     def net(self) -> Network:
         """
         Network of the client

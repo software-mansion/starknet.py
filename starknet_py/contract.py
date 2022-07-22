@@ -25,7 +25,6 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
 from starknet_py.common import create_compiled_contract
-from starknet_py.net import AccountClient
 
 from starknet_py.proxy_check import ProxyCheck, ArgentProxyCheck, OpenZeppelinProxyCheck
 from starknet_py.net.models import (
@@ -258,7 +257,7 @@ class PreparedFunctionCall(Call):
         )
 
     def _assert_can_invoke(self):
-        if not isinstance(self._client, AccountClient):
+        if not self._client.can_invoke:
             raise ValueError(
                 "Contract uses an account that can't invoke transactions. You need to use AccountClient for that."
             )

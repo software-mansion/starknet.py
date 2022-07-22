@@ -5,7 +5,8 @@ from contextlib import closing
 
 import pytest
 
-from starknet_py.net import KeyPair, AccountClient
+from starknet_py.net.signer.stark_curve_signer import KeyPair
+from starknet_py.net.account.account_client import AccountClient
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId, AddressRepresentation

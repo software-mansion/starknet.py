@@ -66,6 +66,10 @@ class FullNodeClient(Client):
         return self._net
 
     @property
+    def can_invoke(self) -> bool:
+        return False
+
+    @property
     def chain(self) -> StarknetChainId:
         return self._chain
 
