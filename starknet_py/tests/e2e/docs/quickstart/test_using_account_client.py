@@ -1,15 +1,13 @@
 import os
-from pathlib import Path
 import pytest
 from starknet_py.net.models import StarknetChainId
 
 directory = os.path.dirname(__file__)
-map_source_code = Path(directory, "map.cairo").read_text("utf-8")
 
 
 @pytest.mark.asyncio
-async def test_using_account_client(run_devnet, account_client):
-    # pylint: disable=import-outside-toplevel, duplicate-code
+async def test_using_account_client(run_devnet, account_client, map_source_code):
+    # pylint: disable=import-outside-toplevel, duplicate-code, too-many-locals
     # add to docs: start
     from starknet_py.net import AccountClient
     from starknet_py.contract import Contract

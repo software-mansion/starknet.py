@@ -9,16 +9,16 @@ from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.compiler.validation_utils import PreprocessorError
 
 from starknet_py.compile.compiler import Compiler, create_contract_class
+from starknet_py.tests.e2e.conftest import directory_with_contracts
 
 directory = os.path.dirname(__file__)
 
-test_file_path = Path(directory, "map.cairo")
+test_file_path = directory_with_contracts / "map.cairo"
 test_file_content = test_file_path.read_text("utf-8")
 
-mock_contracts_base_path = Path(directory, "mock-contracts")
-base_contract_path = Path(os.path.join(mock_contracts_base_path, "base.cairo"))
+base_contract_path = directory_with_contracts / "base.cairo"
 
-mock_account_path = Path(directory, "mock_account.cairo")
+mock_account_path = directory_with_contracts / "mock_account.cairo"
 mock_account_content = mock_account_path.read_text("utf-8")
 
 
@@ -55,7 +55,7 @@ def test_throws_on_compile_with_wrong_extension():
 def test_compile_with_search_path():
     output_file_str = Compiler(
         contract_source=[base_contract_path.resolve().absolute()],
-        cairo_path=[str(mock_contracts_base_path)],
+        cairo_path=[str(directory_with_contracts)],
     ).compile_contract()
     output_json = json.loads(output_file_str)
 
@@ -63,7 +63,7 @@ def test_compile_with_search_path():
 
 
 def test_compile_with_env_var(monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.setenv(LIBS_DIR_ENVVAR, str(mock_contracts_base_path))
+    monkeypatch.setenv(LIBS_DIR_ENVVAR, str(directory_with_contracts))
     output_file_str = Compiler(
         contract_source=[base_contract_path.resolve().absolute()]
     ).compile_contract()
