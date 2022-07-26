@@ -132,7 +132,7 @@ class TransactionStatus(Enum):
     Enum representing transaction statuses
     """
 
-    UNKNOWN = "UNKNOWN"
+    NOT_RECEIVED = "NOT_RECEIVED"
     RECEIVED = "RECEIVED"
     PENDING = "PENDING"
     ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
@@ -166,9 +166,18 @@ class SentTransactionResponse:
     Dataclass representing a result of sending a transaction to starknet
     """
 
-    hash: int
-    code: str
-    address: Optional[int] = None
+    transaction_hash: int
+    code: Optional[str] = None
+
+
+@dataclass
+class DeclareTransactionResponse(SentTransactionResponse):
+    class_hash: int = None
+
+
+@dataclass
+class DeployTransactionResponse(SentTransactionResponse):
+    contract_address: int = None
 
 
 class BlockStatus(Enum):

@@ -176,7 +176,7 @@ lxml = ["lxml"]
 
 [[package]]
 name = "bitarray"
-version = "2.6.0"
+version = "1.2.2"
 description = "efficient arrays of booleans -- C extension"
 category = "main"
 optional = false
@@ -453,47 +453,47 @@ all = ["sphinx (>=3.2.0)", "sphinx-toolbox (>=2.16.0)"]
 
 [[package]]
 name = "eth-abi"
-version = "2.2.0"
+version = "3.0.1"
 description = "eth_abi: Python utilities for working with Ethereum ABI definitions, especially encoding and decoding"
 category = "main"
 optional = false
-python-versions = ">=3.6, <4"
+python-versions = ">=3.7, <4"
 
 [package.dependencies]
-eth-typing = ">=2.0.0,<3.0.0"
-eth-utils = ">=1.2.0,<2.0.0"
+eth-typing = ">=3.0.0,<4.0.0"
+eth-utils = ">=2.0.0,<3.0.0"
 parsimonious = ">=0.8.0,<0.9.0"
 
 [package.extras]
-dev = ["bumpversion (>=0.5.3,<1)", "pytest-watch (>=4.1.0,<5)", "wheel", "twine", "ipython", "pytest (==4.4.1)", "pytest-pythonpath (>=0.7.1)", "pytest-xdist (==1.22.3)", "tox (>=2.9.1,<3)", "eth-hash", "hypothesis (>=4.18.2,<5.0.0)", "flake8 (==4.0.1)", "isort (>=4.2.15,<5)", "mypy (==0.910)", "pydocstyle (>=3.0.0,<4)", "Sphinx (>=1.6.5,<2)", "jinja2 (>=3.0.0,<3.1.0)", "sphinx-rtd-theme (>=0.1.9)", "towncrier (>=21,<22)"]
+dev = ["bumpversion (>=0.5.3,<1)", "pytest-watch (>=4.1.0,<5)", "wheel", "twine", "ipython", "pytest (>=6.2.5,<7)", "pytest-pythonpath (>=0.7.1)", "pytest-xdist (>=2.5.0,<3)", "tox (>=2.9.1,<3)", "eth-hash", "hypothesis (>=4.18.2,<5.0.0)", "flake8 (==4.0.1)", "isort (>=4.2.15,<5)", "mypy (==0.910)", "pydocstyle (>=6.0.0,<7)", "black", "Sphinx (>=1.6.5,<2)", "jinja2 (>=3.0.0,<3.1.0)", "sphinx-rtd-theme (>=0.1.9)", "towncrier (>=21,<22)"]
 doc = ["Sphinx (>=1.6.5,<2)", "jinja2 (>=3.0.0,<3.1.0)", "sphinx-rtd-theme (>=0.1.9)", "towncrier (>=21,<22)"]
-lint = ["flake8 (==4.0.1)", "isort (>=4.2.15,<5)", "mypy (==0.910)", "pydocstyle (>=3.0.0,<4)"]
-test = ["pytest (==4.4.1)", "pytest-pythonpath (>=0.7.1)", "pytest-xdist (==1.22.3)", "tox (>=2.9.1,<3)", "eth-hash", "hypothesis (>=4.18.2,<5.0.0)"]
+lint = ["flake8 (==4.0.1)", "isort (>=4.2.15,<5)", "mypy (==0.910)", "pydocstyle (>=6.0.0,<7)", "black"]
+test = ["pytest (>=6.2.5,<7)", "pytest-pythonpath (>=0.7.1)", "pytest-xdist (>=2.5.0,<3)", "tox (>=2.9.1,<3)", "eth-hash", "hypothesis (>=4.18.2,<5.0.0)"]
 tools = ["hypothesis (>=4.18.2,<5.0.0)"]
 
 [[package]]
 name = "eth-account"
-version = "0.5.8"
+version = "0.6.1"
 description = "eth-account: Sign Ethereum transactions and messages with local private keys"
 category = "main"
 optional = false
 python-versions = ">=3.6, <4"
 
 [package.dependencies]
-bitarray = ">=1.2.1,<3"
-eth-abi = ">=2.0.0b7,<3"
-eth-keyfile = ">=0.5.0,<0.6.0"
-eth-keys = ">=0.3.4,<0.4.0"
-eth-rlp = ">=0.1.2,<2"
-eth-utils = ">=1.3.0,<2"
+bitarray = ">=1.2.1,<1.3.0"
+eth-abi = ">=3.0.0,<4"
+eth-keyfile = ">=0.6.0,<0.7.0"
+eth-keys = ">=0.4.0,<0.5"
+eth-rlp = ">=0.3.0,<1"
+eth-utils = ">=2.0.0,<3"
 hexbytes = ">=0.1.0,<1"
-rlp = ">=1.0.0,<3"
+rlp = ">=1.0.0,<4"
 
 [package.extras]
-dev = ["bumpversion (>=0.5.3,<1)", "pytest-watch (>=4.1.0,<5)", "wheel", "twine", "ipython", "hypothesis (>=4.18.0,<5)", "pytest (>=6.2.5,<7)", "pytest-xdist", "tox (==3.14.6)", "flake8 (==3.7.9)", "isort (>=4.2.15,<5)", "mypy (==0.770)", "pydocstyle (>=5.0.0,<6)", "Sphinx (>=1.6.5,<2)", "sphinx-rtd-theme (>=0.1.9,<1)", "towncrier (>=21.9.0)"]
-doc = ["Sphinx (>=1.6.5,<2)", "sphinx-rtd-theme (>=0.1.9,<1)", "towncrier (>=21.9.0)"]
-lint = ["flake8 (==3.7.9)", "isort (>=4.2.15,<5)", "mypy (==0.770)", "pydocstyle (>=5.0.0,<6)"]
-test = ["hypothesis (>=4.18.0,<5)", "pytest (>=6.2.5,<7)", "pytest-xdist", "tox (==3.14.6)"]
+test = ["tox (==3.14.6)", "pytest-xdist", "pytest (>=6.2.5,<7)", "hypothesis (>=4.18.0,<5)"]
+lint = ["pydocstyle (>=5.0.0,<6)", "mypy (==0.770)", "isort (>=4.2.15,<5)", "flake8 (==3.7.9)"]
+doc = ["towncrier (>=19.2.0,<20)", "sphinx-rtd-theme (>=0.1.9,<1)", "Sphinx (>=1.6.5,<2)"]
+dev = ["towncrier (>=19.2.0,<20)", "sphinx-rtd-theme (>=0.1.9,<1)", "Sphinx (>=1.6.5,<2)", "pydocstyle (>=5.0.0,<6)", "mypy (==0.770)", "isort (>=4.2.15,<5)", "flake8 (==3.7.9)", "tox (==3.14.6)", "pytest-xdist", "pytest (>=6.2.5,<7)", "hypothesis (>=4.18.0,<5)", "ipython", "twine", "wheel", "pytest-watch (>=4.1.0,<5)", "bumpversion (>=0.5.3,<1)"]
 
 [[package]]
 name = "eth-bloom"
@@ -534,115 +534,120 @@ test = ["pytest (==5.4.1)", "pytest-xdist", "tox (==3.14.6)"]
 
 [[package]]
 name = "eth-keyfile"
-version = "0.5.1"
+version = "0.6.0"
 description = "A library for handling the encrypted keyfiles used to store ethereum private keys."
 category = "main"
 optional = false
 python-versions = "*"
 
 [package.dependencies]
-cytoolz = ">=0.9.0,<1.0.0"
-eth-keys = ">=0.1.0-beta.4,<1.0.0"
-eth-utils = ">=1.0.0-beta.1,<2.0.0"
-pycryptodome = ">=3.4.7,<4.0.0"
+eth-keys = ">=0.4.0,<0.5.0"
+eth-utils = ">=2,<3"
+pycryptodome = ">=3.6.6,<4"
+
+[package.extras]
+test = ["pytest (>=6.2.5,<7)"]
+lint = ["flake8 (==4.0.1)"]
+keyfile = ["pycryptodome (>=3.6.6,<4)", "eth-keys (>=0.4.0,<0.5.0)", "eth-utils (>=2,<3)"]
+dev = ["flake8 (==4.0.1)", "pytest (>=6.2.5,<7)", "twine", "tox (>=2.7.0)", "requests (>=2.20,<3)", "idna (==2.7)", "pluggy (>=1.0.0,<2)", "setuptools (>=36.2.0)", "wheel", "bumpversion (>=0.5.3,<1)", "pycryptodome (>=3.6.6,<4)", "eth-keys (>=0.4.0,<0.5.0)", "eth-utils (>=2,<3)"]
 
 [[package]]
 name = "eth-keys"
-version = "0.3.4"
+version = "0.4.0"
 description = "Common API for Ethereum key operations."
 category = "main"
 optional = false
 python-versions = "*"
 
 [package.dependencies]
-eth-typing = ">=2.2.1,<3.0.0"
-eth-utils = ">=1.8.2,<2.0.0"
+eth-typing = ">=3.0.0,<4"
+eth-utils = ">=2.0.0,<3.0.0"
 
 [package.extras]
-coincurve = ["coincurve (>=7.0.0,<13.0.0)"]
-dev = ["tox (==3.20.0)", "bumpversion (==0.5.3)", "twine", "eth-utils (>=1.8.2,<2.0.0)", "eth-typing (>=2.2.1,<3.0.0)", "flake8 (==3.0.4)", "mypy (==0.782)", "asn1tools (>=0.146.2,<0.147)", "factory-boy (>=3.0.1,<3.1)", "pyasn1 (>=0.4.5,<0.5)", "pytest (==5.4.1)", "hypothesis (>=5.10.3,<6.0.0)", "eth-hash", "eth-hash"]
-eth-keys = ["eth-utils (>=1.8.2,<2.0.0)", "eth-typing (>=2.2.1,<3.0.0)"]
-lint = ["flake8 (==3.0.4)", "mypy (==0.782)"]
-test = ["asn1tools (>=0.146.2,<0.147)", "factory-boy (>=3.0.1,<3.1)", "pyasn1 (>=0.4.5,<0.5)", "pytest (==5.4.1)", "hypothesis (>=5.10.3,<6.0.0)", "eth-hash", "eth-hash"]
+test = ["eth-hash", "eth-hash", "hypothesis (>=5.10.3,<6.0.0)", "pytest (==6.2.5)", "pyasn1 (>=0.4.5,<0.5)", "factory-boy (>=3.0.1,<3.1)", "asn1tools (>=0.146.2,<0.147)"]
+lint = ["mypy (==0.782)", "flake8 (==3.0.4)"]
+eth-keys = ["eth-typing (>=3.0.0,<4)", "eth-utils (>=2.0.0,<3.0.0)"]
+dev = ["eth-hash", "eth-hash", "hypothesis (>=5.10.3,<6.0.0)", "pytest (==6.2.5)", "pyasn1 (>=0.4.5,<0.5)", "factory-boy (>=3.0.1,<3.1)", "asn1tools (>=0.146.2,<0.147)", "mypy (==0.782)", "flake8 (==3.0.4)", "eth-typing (>=3.0.0,<4)", "eth-utils (>=2.0.0,<3.0.0)", "twine", "bumpversion (==0.5.3)", "tox (==3.20.0)"]
+coincurve = ["coincurve (>=7.0.0,<16.0.0)"]
 
 [[package]]
 name = "eth-rlp"
-version = "0.2.1"
+version = "0.3.0"
 description = "eth-rlp: RLP definitions for common Ethereum objects in Python"
 category = "main"
 optional = false
-python-versions = ">=3.6, <4"
+python-versions = ">=3.7, <4"
 
 [package.dependencies]
-eth-utils = ">=1.0.1,<2"
+eth-utils = ">=2.0.0,<3"
 hexbytes = ">=0.1.0,<1"
-rlp = ">=0.6.0,<3"
+rlp = ">=0.6.0,<4"
 
 [package.extras]
-dev = ["Sphinx (>=1.6.5,<2)", "bumpversion (>=0.5.3,<1)", "eth-hash", "flake8 (==3.7.9)", "ipython", "isort (>=4.2.15,<5)", "mypy (==0.770)", "pydocstyle (>=3.0.0,<4)", "pytest-watch (>=4.1.0,<5)", "pytest-xdist", "pytest (==5.4.1)", "sphinx-rtd-theme (>=0.1.9)", "towncrier (>=19.2.0,<20)", "tox (==3.14.6)", "twine", "wheel"]
+dev = ["bumpversion (>=0.5.3,<1)", "pytest-watch (>=4.1.0,<5)", "wheel", "twine", "ipython", "eth-hash", "pytest (>=6.2.5,<7)", "pytest-xdist", "tox (==3.14.6)", "flake8 (==3.7.9)", "isort (>=4.2.15,<5)", "mypy (==0.770)", "pydocstyle (>=3.0.0,<4)", "Sphinx (>=1.6.5,<2)", "sphinx-rtd-theme (>=0.1.9)", "towncrier (>=19.2.0,<20)"]
 doc = ["Sphinx (>=1.6.5,<2)", "sphinx-rtd-theme (>=0.1.9)", "towncrier (>=19.2.0,<20)"]
 lint = ["flake8 (==3.7.9)", "isort (>=4.2.15,<5)", "mypy (==0.770)", "pydocstyle (>=3.0.0,<4)"]
-test = ["eth-hash", "pytest-xdist", "pytest (==5.4.1)", "tox (==3.14.6)"]
+test = ["eth-hash", "pytest (>=6.2.5,<7)", "pytest-xdist", "tox (==3.14.6)"]
 
 [[package]]
 name = "eth-tester"
-version = "0.6.0b6"
+version = "0.6.0b5"
 description = "Tools for testing Ethereum applications."
 category = "dev"
 optional = false
 python-versions = ">=3.6.8,<4"
 
 [package.dependencies]
-eth-abi = ">=2.0.0b4,<3.0.0"
-eth-account = ">=0.5.6,<0.6.0"
+eth-abi = ">=3.0.0,<4.0.0"
+eth-account = ">=0.6.0,<0.7.0"
 eth-hash = {version = ">=0.1.4,<1.0.0", extras = ["pysha3"], optional = true, markers = "implementation_name == \"cpython\" or implementation_name == \"pypy\" or implementation_name == \"cpython\" and extra == \"py-evm\""}
-eth-keys = ">=0.3.4,<0.4.0"
-eth-utils = ">=1.4.1,<2.0.0"
-py-evm = {version = "0.5.0a3", optional = true, markers = "extra == \"py-evm\""}
-rlp = ">=1.1.0,<3"
+eth-keys = ">=0.4.0,<0.5.0"
+eth-utils = ">=2.0.0,<3.0.0"
+py-evm = {version = "0.5.0a2", optional = true, markers = "extra == \"py-evm\""}
+rlp = ">=3.0.0,<4"
 semantic-version = ">=2.6.0,<3.0.0"
 
 [package.extras]
-dev = ["bumpversion (>=0.5.3,<1.0.0)", "tox (>=2.9.1,<3.0.0)", "wheel (>=0.30.0,<1.0.0)", "pytest (>=6.2.5,<7)", "pytest-xdist (>=2.0.0,<3)", "eth-hash[pycryptodome] (>=0.1.4,<1.0.0)", "py-evm (==0.5.0a3)", "flake8 (>=3.5.0,<4.0.0)", "towncrier (==18.5.0)", "eth-hash[pysha3] (>=0.1.4,<1.0.0)", "eth-hash[pycryptodome] (>=0.1.4,<1.0.0)"]
+dev = ["bumpversion (>=0.5.3,<1.0.0)", "tox (>=2.9.1,<3.0.0)", "wheel (>=0.30.0,<1.0.0)", "pytest (>=6.2.5,<7)", "pytest-xdist (>=2.0.0,<3)", "eth-hash[pycryptodome] (>=0.1.4,<1.0.0)", "py-evm (==0.5.0a2)", "flake8 (>=3.5.0,<4.0.0)", "towncrier (==18.5.0)", "eth-hash[pysha3] (>=0.1.4,<1.0.0)", "eth-hash[pycryptodome] (>=0.1.4,<1.0.0)"]
 docs = ["towncrier (==18.5.0)"]
 lint = ["flake8 (>=3.5.0,<4.0.0)"]
-py-evm = ["py-evm (==0.5.0a3)", "eth-hash[pysha3] (>=0.1.4,<1.0.0)", "eth-hash[pycryptodome] (>=0.1.4,<1.0.0)"]
-pyevm = ["py-evm (==0.5.0a3)", "eth-hash[pysha3] (>=0.1.4,<1.0.0)", "eth-hash[pycryptodome] (>=0.1.4,<1.0.0)"]
+py-evm = ["py-evm (==0.5.0a2)", "eth-hash[pysha3] (>=0.1.4,<1.0.0)", "eth-hash[pycryptodome] (>=0.1.4,<1.0.0)"]
+pyevm = ["py-evm (==0.5.0a2)", "eth-hash[pysha3] (>=0.1.4,<1.0.0)", "eth-hash[pycryptodome] (>=0.1.4,<1.0.0)"]
 test = ["pytest (>=6.2.5,<7)", "pytest-xdist (>=2.0.0,<3)", "eth-hash[pycryptodome] (>=0.1.4,<1.0.0)"]
 
 [[package]]
 name = "eth-typing"
-version = "2.3.0"
+version = "3.1.0"
 description = "eth-typing: Common type annotations for ethereum python packages"
 category = "main"
 optional = false
-python-versions = ">=3.5, <4"
+python-versions = ">=3.6, <3.11"
 
 [package.extras]
-dev = ["bumpversion (>=0.5.3,<1)", "pytest-watch (>=4.1.0,<5)", "wheel", "twine", "ipython", "pytest (>=4.4,<4.5)", "pytest-xdist", "tox (>=2.9.1,<3)", "flake8 (==3.8.3)", "isort (>=4.2.15,<5)", "mypy (==0.782)", "pydocstyle (>=3.0.0,<4)", "Sphinx (>=1.6.5,<2)", "sphinx-rtd-theme (>=0.1.9)"]
-doc = ["Sphinx (>=1.6.5,<2)", "sphinx-rtd-theme (>=0.1.9)"]
+dev = ["bumpversion (>=0.5.3,<1)", "pytest-watch (>=4.1.0,<5)", "wheel", "twine", "ipython", "pytest (>=6.2.5,<7)", "pytest-xdist", "tox (>=2.9.1,<3)", "flake8 (==3.8.3)", "isort (>=4.2.15,<5)", "mypy (==0.782)", "pydocstyle (>=3.0.0,<4)", "sphinx (>=4.2.0,<5)", "sphinx-rtd-theme (>=0.1.9)", "towncrier (>=21,<22)"]
+doc = ["sphinx (>=4.2.0,<5)", "sphinx-rtd-theme (>=0.1.9)", "towncrier (>=21,<22)"]
 lint = ["flake8 (==3.8.3)", "isort (>=4.2.15,<5)", "mypy (==0.782)", "pydocstyle (>=3.0.0,<4)"]
-test = ["pytest (>=4.4,<4.5)", "pytest-xdist", "tox (>=2.9.1,<3)"]
+test = ["pytest (>=6.2.5,<7)", "pytest-xdist", "tox (>=2.9.1,<3)"]
 
 [[package]]
 name = "eth-utils"
-version = "1.10.0"
+version = "2.0.0"
 description = "eth-utils: Common utility functions for python code that interacts with Ethereum"
 category = "main"
 optional = false
-python-versions = ">=3.5,!=3.5.2,<4"
+python-versions = ">=3.6,<4"
 
 [package.dependencies]
 cytoolz = {version = ">=0.10.1,<1.0.0", markers = "implementation_name == \"cpython\""}
 eth-hash = ">=0.3.1,<0.4.0"
-eth-typing = ">=2.2.1,<3.0.0"
+eth-typing = ">=3.0.0,<4.0.0"
 toolz = {version = ">0.8.2,<1", markers = "implementation_name == \"pypy\""}
 
 [package.extras]
-dev = ["bumpversion (>=0.5.3,<1)", "pytest-watch (>=4.1.0,<5)", "wheel (>=0.30.0,<1.0.0)", "twine (>=1.13,<2)", "ipython", "hypothesis (>=4.43.0,<5.0.0)", "pytest (==5.4.1)", "pytest-xdist", "tox (==3.14.6)", "black (>=18.6b4,<19)", "flake8 (==3.7.9)", "isort (>=4.2.15,<5)", "mypy (==0.720)", "pydocstyle (>=5.0.0,<6)", "pytest (>=3.4.1,<4.0.0)", "Sphinx (>=1.6.5,<2)", "sphinx-rtd-theme (>=0.1.9,<2)", "towncrier (>=19.2.0,<20)"]
-doc = ["Sphinx (>=1.6.5,<2)", "sphinx-rtd-theme (>=0.1.9,<2)", "towncrier (>=19.2.0,<20)"]
-lint = ["black (>=18.6b4,<19)", "flake8 (==3.7.9)", "isort (>=4.2.15,<5)", "mypy (==0.720)", "pydocstyle (>=5.0.0,<6)", "pytest (>=3.4.1,<4.0.0)"]
-test = ["hypothesis (>=4.43.0,<5.0.0)", "pytest (==5.4.1)", "pytest-xdist", "tox (==3.14.6)"]
+test = ["tox (==3.14.6)", "pytest-xdist", "pytest (>=6.2.5,<7)", "hypothesis (>=4.43.0,<5.0.0)"]
+lint = ["pytest (>=3.4.1,<4.0.0)", "pydocstyle (>=5.0.0,<6)", "mypy (==0.720)", "isort (>=4.2.15,<5)", "flake8 (==3.7.9)", "black (>=18.6b4,<19)"]
+doc = ["towncrier (>=19.2.0,<20)", "sphinx-rtd-theme (>=0.1.9,<2)", "Sphinx (>=1.6.5,<2)"]
+dev = ["towncrier (>=19.2.0,<20)", "sphinx-rtd-theme (>=0.1.9,<2)", "Sphinx (>=1.6.5,<2)", "pytest (>=3.4.1,<4.0.0)", "pydocstyle (>=5.0.0,<6)", "mypy (==0.720)", "isort (>=4.2.15,<5)", "flake8 (==3.7.9)", "black (>=18.6b4,<19)", "tox (==3.14.6)", "pytest-xdist", "pytest (>=6.2.5,<7)", "hypothesis (>=4.43.0,<5.0.0)", "ipython", "twine (>=1.13,<2)", "wheel (>=0.30.0,<1.0.0)", "pytest-watch (>=4.1.0,<5)", "bumpversion (>=0.5.3,<1)"]
 
 [[package]]
 name = "execnet"
@@ -1199,26 +1204,26 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
 name = "py-ecc"
-version = "5.2.0"
+version = "6.0.0"
 description = "Elliptic curve crypto in python including secp256k1 and alt_bn128"
 category = "dev"
 optional = false
-python-versions = ">=3.5, <4"
+python-versions = ">=3.6, <4"
 
 [package.dependencies]
 cached-property = ">=1.5.1,<2"
-eth-typing = ">=2.1.0,<3.0.0"
-eth-utils = ">=1.3.0,<2"
+eth-typing = ">=3.0.0,<4"
+eth-utils = ">=2.0.0,<3"
 mypy-extensions = ">=0.4.1"
 
 [package.extras]
-dev = ["bumpversion (>=0.5.3,<1)", "twine", "pytest (==3.10.1)", "pytest-xdist (==1.26.0)", "flake8 (==3.5.0)", "mypy (==0.641)", "mypy-extensions (>=0.4.1)"]
+dev = ["bumpversion (>=0.5.3,<1)", "twine", "pytest (==6.2.5)", "pytest-xdist (==1.26.0)", "flake8 (==3.5.0)", "mypy (==0.641)", "mypy-extensions (>=0.4.1)"]
 lint = ["flake8 (==3.5.0)", "mypy (==0.641)", "mypy-extensions (>=0.4.1)"]
-test = ["pytest (==3.10.1)", "pytest-xdist (==1.26.0)"]
+test = ["pytest (==6.2.5)", "pytest-xdist (==1.26.0)"]
 
 [[package]]
 name = "py-evm"
-version = "0.5.0a3"
+version = "0.5.0a2"
 description = "Python implementation of the Ethereum Virtual Machine"
 category = "dev"
 optional = false
@@ -1227,21 +1232,21 @@ python-versions = "*"
 [package.dependencies]
 cached-property = ">=1.5.1,<2"
 eth-bloom = ">=1.0.3,<2.0.0"
-eth-keys = ">=0.3.4,<0.4.0"
-eth-typing = ">=2.3.0,<3.0.0"
-eth-utils = ">=1.9.4,<2.0.0"
+eth-keys = ">=0.4.0,<0.5.0"
+eth-typing = ">=3.0.0,<4.0.0"
+eth-utils = ">=2.0.0,<3.0.0"
 lru-dict = ">=1.1.6"
 mypy-extensions = ">=0.4.1,<1.0.0"
-py-ecc = ">=1.4.7,<6.0.0"
+py-ecc = ">=1.4.7,<7.0.0"
 pyethash = ">=0.1.27,<1.0.0"
-rlp = ">=2,<3"
-trie = "2.0.0-alpha.5"
+rlp = ">=3,<4"
+trie = ">=2.0.0,<3"
 
 [package.extras]
 benchmark = ["termcolor (>=1.1.0,<2.0.0)", "web3 (>=4.1.0,<5.0.0)"]
-dev = ["bumpversion (>=0.5.3,<1)", "wheel", "setuptools (>=36.2.0)", "idna (==2.7)", "requests (>=2.20,<3)", "tox (==2.7.0)", "twine", "cached-property (>=1.5.1,<2)", "eth-bloom (>=1.0.3,<2.0.0)", "eth-keys (>=0.3.4,<0.4.0)", "eth-typing (>=2.3.0,<3.0.0)", "eth-utils (>=1.9.4,<2.0.0)", "lru-dict (>=1.1.6)", "mypy-extensions (>=0.4.1,<1.0.0)", "py-ecc (>=1.4.7,<6.0.0)", "pyethash (>=0.1.27,<1.0.0)", "rlp (>=2,<3)", "trie (==2.0.0-alpha.5)", "factory-boy (==2.11.1)", "hypothesis (>=5,<6)", "pexpect (>=4.6,<5)", "pytest (>=6.2.4,<7)", "pytest-asyncio (>=0.10.0,<0.11)", "pytest-cov (==2.5.1)", "pytest-timeout (>=1.4.2,<2)", "pytest-watch (>=4.1.0,<5)", "pytest-xdist (==2.3.0)", "py-evm (>=0.2.0-alpha.14)", "pysha3 (>=1.0.0,<2.0.0)", "Sphinx (>=1.5.5,<1.8.0)", "sphinx-rtd-theme (>=0.1.9)", "sphinxcontrib-asyncio (>=0.2.0,<0.3)", "towncrier (>=19.2.0,<20)", "flake8 (==3.8.2)", "flake8-bugbear (==20.1.4)", "mypy (==0.782)"]
+dev = ["bumpversion (>=0.5.3,<1)", "wheel", "setuptools (>=36.2.0)", "idna (==2.7)", "requests (>=2.20,<3)", "tox (==2.7.0)", "twine", "cached-property (>=1.5.1,<2)", "eth-bloom (>=1.0.3,<2.0.0)", "eth-keys (>=0.4.0,<0.5.0)", "eth-typing (>=3.0.0,<4.0.0)", "eth-utils (>=2.0.0,<3.0.0)", "lru-dict (>=1.1.6)", "mypy-extensions (>=0.4.1,<1.0.0)", "py-ecc (>=1.4.7,<7.0.0)", "pyethash (>=0.1.27,<1.0.0)", "rlp (>=3,<4)", "trie (>=2.0.0,<3)", "factory-boy (==2.11.1)", "hypothesis (>=5,<6)", "pexpect (>=4.6,<5)", "pytest (>=6.2.4,<7)", "pytest-asyncio (>=0.10.0,<0.11)", "pytest-cov (==2.5.1)", "pytest-timeout (>=1.4.2,<2)", "pytest-watch (>=4.1.0,<5)", "pytest-xdist (==2.3.0)", "py-evm (>=0.2.0-alpha.14)", "pysha3 (>=1.0.0,<2.0.0)", "Sphinx (>=1.5.5,<1.8.0)", "sphinx-rtd-theme (>=0.1.9)", "sphinxcontrib-asyncio (>=0.2.0,<0.3)", "towncrier (>=19.2.0,<20)", "flake8 (==3.8.2)", "flake8-bugbear (==20.1.4)", "mypy (==0.782)"]
 doc = ["py-evm (>=0.2.0-alpha.14)", "pysha3 (>=1.0.0,<2.0.0)", "Sphinx (>=1.5.5,<1.8.0)", "sphinx-rtd-theme (>=0.1.9)", "sphinxcontrib-asyncio (>=0.2.0,<0.3)", "towncrier (>=19.2.0,<20)"]
-eth = ["cached-property (>=1.5.1,<2)", "eth-bloom (>=1.0.3,<2.0.0)", "eth-keys (>=0.3.4,<0.4.0)", "eth-typing (>=2.3.0,<3.0.0)", "eth-utils (>=1.9.4,<2.0.0)", "lru-dict (>=1.1.6)", "mypy-extensions (>=0.4.1,<1.0.0)", "py-ecc (>=1.4.7,<6.0.0)", "pyethash (>=0.1.27,<1.0.0)", "rlp (>=2,<3)", "trie (==2.0.0-alpha.5)"]
+eth = ["cached-property (>=1.5.1,<2)", "eth-bloom (>=1.0.3,<2.0.0)", "eth-keys (>=0.4.0,<0.5.0)", "eth-typing (>=3.0.0,<4.0.0)", "eth-utils (>=2.0.0,<3.0.0)", "lru-dict (>=1.1.6)", "mypy-extensions (>=0.4.1,<1.0.0)", "py-ecc (>=1.4.7,<7.0.0)", "pyethash (>=0.1.27,<1.0.0)", "rlp (>=3,<4)", "trie (>=2.0.0,<3)"]
 eth-extra = ["blake2b-py (>=0.1.4,<0.2)", "coincurve (>=13.0.0,<14.0.0)", "plyvel (>=1.2.0,<2)", "eth-hash", "eth-hash"]
 lint = ["flake8 (==3.8.2)", "flake8-bugbear (==20.1.4)", "mypy (==0.782)"]
 test = ["factory-boy (==2.11.1)", "hypothesis (>=5,<6)", "pexpect (>=4.6,<5)", "pytest (>=6.2.4,<7)", "pytest-asyncio (>=0.10.0,<0.11)", "pytest-cov (==2.5.1)", "pytest-timeout (>=1.4.2,<2)", "pytest-watch (>=4.1.0,<5)", "pytest-xdist (==2.3.0)"]
@@ -1458,21 +1463,21 @@ use_chardet_on_py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
 name = "rlp"
-version = "2.0.1"
+version = "3.0.0"
 description = "A package for Recursive Length Prefix encoding and decoding"
 category = "main"
 optional = false
 python-versions = "*"
 
 [package.dependencies]
-eth-utils = ">=1.0.2,<2"
+eth-utils = ">=2.0.0,<3"
 
 [package.extras]
-dev = ["Sphinx (>=1.6.5,<2)", "bumpversion (>=0.5.3,<1)", "flake8 (==3.4.1)", "hypothesis (==5.19.0)", "ipython", "pytest-watch (>=4.1.0,<5)", "pytest-xdist", "pytest (==5.4.3)", "setuptools (>=36.2.0)", "sphinx-rtd-theme (>=0.1.9)", "tox (>=2.9.1,<3)", "twine", "wheel"]
-doc = ["Sphinx (>=1.6.5,<2)", "sphinx-rtd-theme (>=0.1.9)"]
+test = ["hypothesis (==5.19.0)", "tox (>=2.9.1,<3)", "pytest (>=6.2.5,<7)"]
+rust-backend = ["rusty-rlp (>=0.2.1,<0.3)"]
 lint = ["flake8 (==3.4.1)"]
-rust-backend = ["rusty-rlp (>=0.1.15,<0.2)"]
-test = ["hypothesis (==5.19.0)", "pytest (==5.4.3)", "tox (>=2.9.1,<3)"]
+doc = ["sphinx-rtd-theme (>=0.1.9)", "Sphinx (>=1.6.5,<2)"]
+dev = ["sphinx-rtd-theme (>=0.1.9)", "Sphinx (>=1.6.5,<2)", "flake8 (==3.4.1)", "hypothesis (==5.19.0)", "tox (>=2.9.1,<3)", "pytest (>=6.2.5,<7)", "twine", "ipython", "wheel", "pytest-watch (>=4.1.0,<5)", "pytest-xdist", "setuptools (>=36.2.0)", "bumpversion (>=0.5.3,<1)"]
 
 [[package]]
 name = "ruamel.yaml"
@@ -1754,15 +1759,24 @@ description = "A local testnet for Starknet"
 category = "dev"
 optional = false
 python-versions = ">=3.7.2,<3.10"
+develop = false
 
 [package.dependencies]
 cairo-lang = "0.9.1"
-cloudpickle = ">=2.1.0,<2.2.0"
-crypto-cpp-py = ">=1.0.4,<1.1.0"
-Flask = {version = ">=2.0.3,<2.1.0", extras = ["async"]}
-flask-cors = ">=3.0.10,<3.1.0"
-meinheld = ">=1.0.2,<1.1.0"
-Werkzeug = ">=2.0.3,<2.1.0"
+cloudpickle = "~2.1.0"
+crypto-cpp-py = "~1.0.4"
+Flask = {version = "~2.0.3", extras = ["async"]}
+flask-cors = "~3.0.10"
+marshmallow = "~3.17.0"
+meinheld = "~1.0.2"
+typing-extensions = "~4.3.0"
+Werkzeug = "~2.0.3"
+
+[package.source]
+type = "git"
+url = "https://github.com/Shard-Labs/starknet-devnet.git"
+reference = "master"
+resolved_reference = "24670d495880d42f56d82f5efd5f1d76cce64f08"
 
 [[package]]
 name = "sympy"
@@ -1812,7 +1826,7 @@ python-versions = ">=3.5"
 
 [[package]]
 name = "trie"
-version = "2.0.0a5"
+version = "2.0.1"
 description = "Python implementation of the Ethereum Trie structure"
 category = "dev"
 optional = false
@@ -1820,16 +1834,16 @@ python-versions = ">=3.6,<4"
 
 [package.dependencies]
 eth-hash = ">=0.1.0,<1.0.0"
-eth-utils = ">=1.6.1,<2.0.0"
+eth-utils = ">=2.0.0,<3.0.0"
 hexbytes = ">=0.2.0,<0.3.0"
-rlp = ">=1,<3"
+rlp = ">=3,<4"
 sortedcontainers = ">=2.1.0,<3"
-typing-extensions = ">=3.7.4,<4"
+typing-extensions = {version = ">=4.0.0,<5", markers = "python_version < \"3.8\""}
 
 [package.extras]
-dev = ["bumpversion (>=0.5.3,<1)", "eth-hash (>=0.1.0,<1.0.0)", "flake8 (==3.8.1)", "hypothesis (>=5.10.4,<6)", "pycryptodome", "pytest-xdist (>=1.31.0,<2)", "tox (>=2.6.0,<3)", "twine", "wheel"]
+test = ["pycryptodome", "hypothesis (>=5.10.4,<6)", "tox (>=2.6.0,<3)", "pytest-xdist (>=1.31.0,<2)"]
 lint = ["flake8 (==3.8.1)"]
-test = ["hypothesis (>=5.10.4,<6)", "pycryptodome", "pytest-xdist (>=1.31.0,<2)", "tox (>=2.6.0,<3)"]
+dev = ["flake8 (==3.8.1)", "pycryptodome", "hypothesis (>=5.10.4,<6)", "tox (>=2.6.0,<3)", "pytest-xdist (>=1.31.0,<2)", "eth-hash (>=0.1.0,<1.0.0)", "twine", "wheel", "bumpversion (>=0.5.3,<1)"]
 
 [[package]]
 name = "typed-ast"
@@ -1853,11 +1867,11 @@ test = ["pytest", "typing-extensions", "mypy"]
 
 [[package]]
 name = "typing-extensions"
-version = "3.10.0.2"
-description = "Backported and Experimental Type Hints for Python 3.5+"
+version = "4.3.0"
+description = "Backported and Experimental Type Hints for Python 3.7+"
 category = "main"
 optional = false
-python-versions = "*"
+python-versions = ">=3.7"
 
 [[package]]
 name = "typing-inspect"
@@ -1894,37 +1908,36 @@ python-versions = "*"
 
 [[package]]
 name = "web3"
-version = "5.30.0"
+version = "6.0.0b4"
 description = "Web3.py"
 category = "main"
 optional = false
-python-versions = ">=3.6,<4"
+python-versions = ">=3.7.2,<3.11"
 
 [package.dependencies]
 aiohttp = ">=3.7.4.post0,<4"
-eth-abi = ">=2.0.0b6,<3.0.0"
-eth-account = ">=0.5.7,<0.6.0"
+eth-abi = ">=3.0.0,<4.0.0"
+eth-account = ">=0.6.0,<0.7.0"
 eth-hash = {version = ">=0.2.0,<1.0.0", extras = ["pycryptodome"]}
-eth-rlp = "<0.3"
-eth-tester = {version = "v0.6.0-beta.6", extras = ["py-evm"], optional = true, markers = "extra == \"tester\""}
-eth-typing = ">=2.0.0,<3.0.0"
-eth-utils = ">=1.9.5,<2.0.0"
+eth-tester = {version = "v0.6.0-beta.5", extras = ["py-evm"], optional = true, markers = "extra == \"tester\""}
+eth-typing = ">=3.0.0,<4.0.0"
+eth-utils = ">=2.0.0,<3.0.0"
 hexbytes = ">=0.1.0,<1.0.0"
 ipfshttpclient = "0.8.0a2"
-jsonschema = ">=3.2.0,<5"
+jsonschema = ">=4.0.0,<5"
 lru-dict = ">=1.1.6,<2.0.0"
 protobuf = ">=3.10.0,<4"
 py-geth = {version = ">=3.8.0,<4", optional = true, markers = "extra == \"tester\""}
 pywin32 = {version = ">=223", markers = "platform_system == \"Windows\""}
 requests = ">=2.16.0,<3.0.0"
 typing-extensions = {version = ">=3.7.4.1,<5", markers = "python_version < \"3.8\""}
-websockets = ">=9.1,<10"
+websockets = ">=10.0.0,<11"
 
 [package.extras]
-dev = ["eth-tester[py-evm] (==v0.6.0-beta.6)", "py-geth (>=3.8.0,<4)", "flake8 (==3.8.3)", "isort (>=4.2.15,<4.3.5)", "mypy (==0.910)", "types-setuptools (>=57.4.4,<58)", "types-requests (>=2.26.1,<3)", "types-protobuf (==3.19.13)", "mock", "sphinx-better-theme (>=0.1.4)", "click (>=5.1)", "configparser (==3.5.0)", "contextlib2 (>=0.5.4)", "py-solc (>=0.4.0)", "pytest (>=4.4.0,<5.0.0)", "sphinx (>=3.0,<4)", "sphinx-rtd-theme (>=0.1.9)", "toposort (>=1.4)", "towncrier (==18.5.0)", "urllib3", "wheel", "Jinja2 (<=3.0.3)", "bumpversion", "flaky (>=3.7.0,<4)", "hypothesis (>=3.31.2,<6)", "pytest-asyncio (>=0.10.0,<0.11)", "pytest-mock (>=1.10,<2)", "pytest-pythonpath (>=0.3)", "pytest-watch (>=4.2,<5)", "pytest-xdist (>=1.29,<2)", "setuptools (>=38.6.0)", "tox (>=1.8.0)", "tqdm (>4.32,<5)", "twine (>=1.13,<2)", "pluggy (==0.13.1)", "when-changed (>=0.3.0,<0.4)"]
-docs = ["mock", "sphinx-better-theme (>=0.1.4)", "click (>=5.1)", "configparser (==3.5.0)", "contextlib2 (>=0.5.4)", "py-geth (>=3.8.0,<4)", "py-solc (>=0.4.0)", "pytest (>=4.4.0,<5.0.0)", "sphinx (>=3.0,<4)", "sphinx-rtd-theme (>=0.1.9)", "toposort (>=1.4)", "towncrier (==18.5.0)", "urllib3", "wheel", "Jinja2 (<=3.0.3)"]
-linter = ["flake8 (==3.8.3)", "isort (>=4.2.15,<4.3.5)", "mypy (==0.910)", "types-setuptools (>=57.4.4,<58)", "types-requests (>=2.26.1,<3)", "types-protobuf (==3.19.13)"]
-tester = ["eth-tester[py-evm] (==v0.6.0-beta.6)", "py-geth (>=3.8.0,<4)"]
+dev = ["eth-tester[py-evm] (==v0.6.0-beta.5)", "py-geth (>=3.8.0,<4)", "black (>=22.1.0,<23.0)", "flake8 (==3.8.3)", "isort (>=4.2.15,<4.3.5)", "mypy (==0.910)", "types-setuptools (>=57.4.4,<58)", "types-requests (>=2.26.1,<3)", "types-protobuf (==3.19.13)", "mock", "sphinx-better-theme (>=0.1.4)", "click (>=5.1)", "configparser (==3.5.0)", "contextlib2 (>=0.5.4)", "py-solc (>=0.4.0)", "pytest (>=6.2.5,<7)", "sphinx (>=4.2.0,<5)", "sphinx-rtd-theme (>=0.1.9)", "toposort (>=1.4)", "towncrier (==18.5.0)", "urllib3", "wheel", "bumpversion", "flaky (>=3.7.0,<4)", "hypothesis (>=3.31.2,<6)", "pytest-asyncio (>=0.18.1,<0.19)", "pytest-mock (>=1.10,<2)", "pytest-pythonpath (>=0.3)", "pytest-watch (>=4.2,<5)", "pytest-xdist (>=1.29,<2)", "setuptools (>=38.6.0)", "tox (>=1.8.0)", "tqdm (>4.32,<5)", "twine (>=1.13,<2)", "pluggy (==0.13.1)", "when-changed (>=0.3.0,<0.4)"]
+docs = ["mock", "sphinx-better-theme (>=0.1.4)", "click (>=5.1)", "configparser (==3.5.0)", "contextlib2 (>=0.5.4)", "py-geth (>=3.8.0,<4)", "py-solc (>=0.4.0)", "pytest (>=6.2.5,<7)", "sphinx (>=4.2.0,<5)", "sphinx-rtd-theme (>=0.1.9)", "toposort (>=1.4)", "towncrier (==18.5.0)", "urllib3", "wheel"]
+linter = ["black (>=22.1.0,<23.0)", "flake8 (==3.8.3)", "isort (>=4.2.15,<4.3.5)", "mypy (==0.910)", "types-setuptools (>=57.4.4,<58)", "types-requests (>=2.26.1,<3)", "types-protobuf (==3.19.13)"]
+tester = ["eth-tester[py-evm] (==v0.6.0-beta.5)", "py-geth (>=3.8.0,<4)"]
 
 [[package]]
 name = "webencodings"
@@ -1936,11 +1949,11 @@ python-versions = "*"
 
 [[package]]
 name = "websockets"
-version = "9.1"
+version = "10.3"
 description = "An implementation of the WebSocket Protocol (RFC 6455 & 7692)"
 category = "main"
 optional = false
-python-versions = ">=3.6.1"
+python-versions = ">=3.7"
 
 [[package]]
 name = "werkzeug"
@@ -1993,7 +2006,7 @@ eth-tester = []
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.2,<3.10"
-content-hash = "101f15dfdc33e05196f1041dbe33a322019dbd309c064c0cf6160d10511e8301"
+content-hash = "628bdfcad0925ffd128c4ec18bdcade8bc8a9bafdfeaa8a06a1f8b7686760678"
 
 [metadata.files]
 aiohttp = [
@@ -2116,7 +2129,9 @@ beautifulsoup4 = [
     {file = "beautifulsoup4-4.11.1-py3-none-any.whl", hash = "sha256:58d5c3d29f5a36ffeb94f02f0d786cd53014cf9b3b3951d42e0080d8a9498d30"},
     {file = "beautifulsoup4-4.11.1.tar.gz", hash = "sha256:ad9aa55b65ef2808eb405f46cf74df7fcb7044d5cbc26487f96eb2ef2e436693"},
 ]
-bitarray = []
+bitarray = [
+    {file = "bitarray-1.2.2.tar.gz", hash = "sha256:27a69ffcee3b868abab3ce8b17c69e02b63e722d4d64ffd91d659f81e9984954"},
+]
 black = []
 cachecontrol = [
     {file = "CacheControl-0.12.11-py2.py3-none-any.whl", hash = "sha256:2c75d6a8938cb1933c75c50184549ad42728a27e9f6b92fd677c3151aa72555b"},
@@ -2212,10 +2227,7 @@ enum-tools = [
     {file = "enum_tools-0.9.0.tar.gz", hash = "sha256:cb8d0c575e874eb17a62bb3788e7b57a6a3d5fd8ce946bf8168914ec567e2127"},
 ]
 eth-abi = []
-eth-account = [
-    {file = "eth-account-0.5.8.tar.gz", hash = "sha256:2a0b885d37fae88d7c2ffd05ba9cba100a19733fdd158b453e7567e7d35ceefb"},
-    {file = "eth_account-0.5.8-py3-none-any.whl", hash = "sha256:e39c32e3028348e194e5724e7915d2a325328092920b9865165a3c9d642a7543"},
-]
+eth-account = []
 eth-bloom = [
     {file = "eth-bloom-1.0.4.tar.gz", hash = "sha256:688317306d87b823da63d24e1ad706defadbd865887ed4bddf7fbd0410b2093c"},
     {file = "eth_bloom-1.0.4-py3-none-any.whl", hash = "sha256:5d6d28fa60ee1e25436c45b9593798d7e193224b364ea1a212050055dfa1942c"},
@@ -2224,30 +2236,15 @@ eth-hash = [
     {file = "eth-hash-0.3.3.tar.gz", hash = "sha256:8cde211519ff1a98b46e9057cb909f12ab62e263eb30a0a94e2f7e1f46ac67a0"},
     {file = "eth_hash-0.3.3-py3-none-any.whl", hash = "sha256:3c884e4f788b38cc92cff05c4e43bc6b82686066f04ecfae0e11cdcbe5a283bd"},
 ]
-eth-keyfile = [
-    {file = "eth-keyfile-0.5.1.tar.gz", hash = "sha256:939540efb503380bc30d926833e6a12b22c6750de80feef3720d79e5a79de47d"},
-    {file = "eth_keyfile-0.5.1-py3-none-any.whl", hash = "sha256:70d734af17efdf929a90bb95375f43522be4ed80c3b9e0a8bca575fb11cd1159"},
-]
-eth-keys = [
-    {file = "eth-keys-0.3.4.tar.gz", hash = "sha256:e5590797f5e2930086c705a6dd1ac14397f74f19bdcd1b5f837475554f354ad8"},
-    {file = "eth_keys-0.3.4-py3-none-any.whl", hash = "sha256:565bf62179b8143bcbd302a0ec6c49882d9c7678f9e6ab0484a8a5725f5ef10e"},
-]
+eth-keyfile = []
+eth-keys = []
 eth-rlp = [
-    {file = "eth-rlp-0.2.1.tar.gz", hash = "sha256:f016f980b0ed42ee7650ba6e4e4d3c4e9aa06d8b9c6825a36d3afe5aa0187a8b"},
-    {file = "eth_rlp-0.2.1-py3-none-any.whl", hash = "sha256:cc389ef8d7b6f76a98f90bcdbff1b8684b3a78f53d47e871191b50d4d6aee5a1"},
+    {file = "eth-rlp-0.3.0.tar.gz", hash = "sha256:f3263b548df718855d9a8dbd754473f383c0efc82914b0b849572ce3e06e71a6"},
+    {file = "eth_rlp-0.3.0-py3-none-any.whl", hash = "sha256:e88e949a533def85c69fa94224618bbbd6de00061f4cff645c44621dab11cf33"},
 ]
-eth-tester = [
-    {file = "eth-tester-0.6.0b6.tar.gz", hash = "sha256:e6673ae4b632e93ec27764b92fb3c70b808891156a43a5b1c3fa9f7d4b3f954c"},
-    {file = "eth_tester-0.6.0b6-py3-none-any.whl", hash = "sha256:593b33f28f70f13d2c7a84a44d690cd7addf9863de2d16a013d4929ccab309c6"},
-]
-eth-typing = [
-    {file = "eth-typing-2.3.0.tar.gz", hash = "sha256:39cce97f401f082739b19258dfa3355101c64390914c73fe2b90012f443e0dc7"},
-    {file = "eth_typing-2.3.0-py3-none-any.whl", hash = "sha256:b7fa58635c1cb0cbf538b2f5f1e66139575ea4853eac1d6000f0961a4b277422"},
-]
-eth-utils = [
-    {file = "eth-utils-1.10.0.tar.gz", hash = "sha256:bf82762a46978714190b0370265a7148c954d3f0adaa31c6f085ea375e4c61af"},
-    {file = "eth_utils-1.10.0-py3-none-any.whl", hash = "sha256:74240a8c6f652d085ed3c85f5f1654203d2f10ff9062f83b3bad0a12ff321c7a"},
-]
+eth-tester = []
+eth-typing = []
+eth-utils = []
 execnet = [
     {file = "execnet-1.9.0-py2.py3-none-any.whl", hash = "sha256:a295f7cc774947aac58dde7fdc85f4aa00c42adf5d8f5468fc630c1acf30a142"},
     {file = "execnet-1.9.0.tar.gz", hash = "sha256:8f694f3ba9cc92cab508b152dcfe322153975c29bda272e2fd7f3f00f36e47c5"},
@@ -2737,14 +2734,8 @@ py = [
     {file = "py-1.11.0-py2.py3-none-any.whl", hash = "sha256:607c53218732647dff4acdfcd50cb62615cedf612e72d1724fb1a0cc6405b378"},
     {file = "py-1.11.0.tar.gz", hash = "sha256:51c75c4126074b472f746a24399ad32f6053d1b34b68d2fa41e558e6f4a98719"},
 ]
-py-ecc = [
-    {file = "py_ecc-5.2.0-py3-none-any.whl", hash = "sha256:525b95aae5bbc185baff7dbfdb9bbd14d2c9454a797457f3edc85fd14c2ad7a6"},
-    {file = "py_ecc-5.2.0.tar.gz", hash = "sha256:f0aabdc82813ecb2e75e0531e3850295ff1a96bedfba42f15b5bc7f39ced64ba"},
-]
-py-evm = [
-    {file = "py-evm-0.5.0a3.tar.gz", hash = "sha256:7253dc14f5780d90eba7b236043ccacbfddee7c2a3b771584260f6f82e61486b"},
-    {file = "py_evm-0.5.0a3-py3-none-any.whl", hash = "sha256:dfea98874dcb35a4288a42ebdf52b37dc462f61fcaa3a274be276a1dd53a5e3f"},
-]
+py-ecc = []
+py-evm = []
 py-geth = [
     {file = "py-geth-3.8.0.tar.gz", hash = "sha256:3aa310510c53dcdd477e97ec19b1f63d7ce9772a45f700419c1f09a50a3b71fc"},
     {file = "py_geth-3.8.0-py3-none-any.whl", hash = "sha256:f1cd12b7b1f0aedc4870d47c84805803b35570053581336081336de79140680d"},
@@ -2921,10 +2912,7 @@ requests = [
     {file = "requests-2.28.1-py3-none-any.whl", hash = "sha256:8fefa2a1a1365bf5520aac41836fbee479da67864514bdb821f31ce07ce65349"},
     {file = "requests-2.28.1.tar.gz", hash = "sha256:7c5599b102feddaa661c826c56ab4fee28bfd17f5abca1ebbe3e7f19d7c97983"},
 ]
-rlp = [
-    {file = "rlp-2.0.1-py2.py3-none-any.whl", hash = "sha256:52a57c9f53f03c88b189283734b397314288250cc4a3c4113e9e36e2ac6bdd16"},
-    {file = "rlp-2.0.1.tar.gz", hash = "sha256:665e8312750b3fc5f7002e656d05b9dcb6e93b6063df40d95c49ad90c19d1f0e"},
-]
+rlp = []
 "ruamel.yaml" = [
     {file = "ruamel.yaml-0.17.21-py3-none-any.whl", hash = "sha256:742b35d3d665023981bd6d16b3d24248ce5df75fdb4e2924e93a05c1f8b61ca7"},
     {file = "ruamel.yaml-0.17.21.tar.gz", hash = "sha256:8b7ce697a2f212752a35c1ac414471dc16c424c9573be4926b56ff3f5d23b7af"},
@@ -3043,10 +3031,7 @@ tomli = [
     {file = "tomli-1.2.3.tar.gz", hash = "sha256:05b6166bff487dc068d322585c7ea4ef78deed501cc124060e0f238e89a9231f"},
 ]
 toolz = []
-trie = [
-    {file = "trie-2.0.0a5-py3-none-any.whl", hash = "sha256:a10a5065175b7f08f1e20b7c246b32716eedfcf29e599503af66592eae40cabc"},
-    {file = "trie-2.0.0a5.tar.gz", hash = "sha256:6385f54165a57e996e0ddbe3aee68778354be58cca1b3623e8a9a1a56680c45b"},
-]
+trie = []
 typed-ast = [
     {file = "typed_ast-1.5.4-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:669dd0c4167f6f2cd9f57041e03c3c2ebf9063d0757dc89f79ba1daa2bfca9d4"},
     {file = "typed_ast-1.5.4-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:211260621ab1cd7324e0798d6be953d00b74e0428382991adfddb352252f1d62"},
@@ -3077,11 +3062,7 @@ typeguard = [
     {file = "typeguard-2.13.3-py3-none-any.whl", hash = "sha256:5e3e3be01e887e7eafae5af63d1f36c849aaa94e3a0112097312aabfa16284f1"},
     {file = "typeguard-2.13.3.tar.gz", hash = "sha256:00edaa8da3a133674796cf5ea87d9f4b4c367d77476e185e80251cc13dfbb8c4"},
 ]
-typing-extensions = [
-    {file = "typing_extensions-3.10.0.2-py2-none-any.whl", hash = "sha256:d8226d10bc02a29bcc81df19a26e56a9647f8b0a6d4a83924139f4a8b01f17b7"},
-    {file = "typing_extensions-3.10.0.2-py3-none-any.whl", hash = "sha256:f1d25edafde516b146ecd0613dabcc61409817af4766fbbcfb8d1ad4ec441a34"},
-    {file = "typing_extensions-3.10.0.2.tar.gz", hash = "sha256:49f75d16ff11f1cd258e1b988ccff82a3ca5570217d7ad8c5f48205dd99a677e"},
-]
+typing-extensions = []
 typing-inspect = [
     {file = "typing_inspect-0.7.1-py2-none-any.whl", hash = "sha256:b1f56c0783ef0f25fb064a01be6e5407e54cf4a4bf4f3ba3fe51e0bd6dcea9e5"},
     {file = "typing_inspect-0.7.1-py3-none-any.whl", hash = "sha256:3cd7d4563e997719a710a3bfe7ffb544c6b72069b6812a02e9b414a8fa3aaa6b"},
@@ -3096,41 +3077,7 @@ webencodings = [
     {file = "webencodings-0.5.1-py2.py3-none-any.whl", hash = "sha256:a0af1213f3c2226497a97e2b3aa01a7e4bee4f403f95be16fc9acd2947514a78"},
     {file = "webencodings-0.5.1.tar.gz", hash = "sha256:b36a1c245f2d304965eb4e0a82848379241dc04b865afcc4aab16748587e1923"},
 ]
-websockets = [
-    {file = "websockets-9.1-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:d144b350045c53c8ff09aa1cfa955012dd32f00c7e0862c199edcabb1a8b32da"},
-    {file = "websockets-9.1-cp36-cp36m-manylinux1_i686.whl", hash = "sha256:b4ad84b156cf50529b8ac5cc1638c2cf8680490e3fccb6121316c8c02620a2e4"},
-    {file = "websockets-9.1-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:2cf04601633a4ec176b9cc3d3e73789c037641001dbfaf7c411f89cd3e04fcaf"},
-    {file = "websockets-9.1-cp36-cp36m-manylinux2010_i686.whl", hash = "sha256:5c8f0d82ea2468282e08b0cf5307f3ad022290ed50c45d5cb7767957ca782880"},
-    {file = "websockets-9.1-cp36-cp36m-manylinux2010_x86_64.whl", hash = "sha256:caa68c95bc1776d3521f81eeb4d5b9438be92514ec2a79fececda814099c8314"},
-    {file = "websockets-9.1-cp36-cp36m-manylinux2014_aarch64.whl", hash = "sha256:d2c2d9b24d3c65b5a02cac12cbb4e4194e590314519ed49db2f67ef561c3cf58"},
-    {file = "websockets-9.1-cp36-cp36m-win32.whl", hash = "sha256:f31722f1c033c198aa4a39a01905951c00bd1c74f922e8afc1b1c62adbcdd56a"},
-    {file = "websockets-9.1-cp36-cp36m-win_amd64.whl", hash = "sha256:3ddff38894c7857c476feb3538dd847514379d6dc844961dc99f04b0384b1b1b"},
-    {file = "websockets-9.1-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:51d04df04ed9d08077d10ccbe21e6805791b78eac49d16d30a1f1fe2e44ba0af"},
-    {file = "websockets-9.1-cp37-cp37m-manylinux1_i686.whl", hash = "sha256:f68c352a68e5fdf1e97288d5cec9296664c590c25932a8476224124aaf90dbcd"},
-    {file = "websockets-9.1-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:b43b13e5622c5a53ab12f3272e6f42f1ce37cd5b6684b2676cb365403295cd40"},
-    {file = "websockets-9.1-cp37-cp37m-manylinux2010_i686.whl", hash = "sha256:9147868bb0cc01e6846606cd65cbf9c58598f187b96d14dd1ca17338b08793bb"},
-    {file = "websockets-9.1-cp37-cp37m-manylinux2010_x86_64.whl", hash = "sha256:836d14eb53b500fd92bd5db2fc5894f7c72b634f9c2a28f546f75967503d8e25"},
-    {file = "websockets-9.1-cp37-cp37m-manylinux2014_aarch64.whl", hash = "sha256:48c222feb3ced18f3dc61168ca18952a22fb88e5eb8902d2bf1b50faefdc34a2"},
-    {file = "websockets-9.1-cp37-cp37m-win32.whl", hash = "sha256:900589e19200be76dd7cbaa95e9771605b5ce3f62512d039fb3bc5da9014912a"},
-    {file = "websockets-9.1-cp37-cp37m-win_amd64.whl", hash = "sha256:ab5ee15d3462198c794c49ccd31773d8a2b8c17d622aa184f669d2b98c2f0857"},
-    {file = "websockets-9.1-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:85e701a6c316b7067f1e8675c638036a796fe5116783a4c932e7eb8e305a3ffe"},
-    {file = "websockets-9.1-cp38-cp38-manylinux1_i686.whl", hash = "sha256:b2e71c4670ebe1067fa8632f0d081e47254ee2d3d409de54168b43b0ba9147e0"},
-    {file = "websockets-9.1-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:230a3506df6b5f446fed2398e58dcaafdff12d67fe1397dff196411a9e820d02"},
-    {file = "websockets-9.1-cp38-cp38-manylinux2010_i686.whl", hash = "sha256:7df3596838b2a0c07c6f6d67752c53859a54993d4f062689fdf547cb56d0f84f"},
-    {file = "websockets-9.1-cp38-cp38-manylinux2010_x86_64.whl", hash = "sha256:826ccf85d4514609219725ba4a7abd569228c2c9f1968e8be05be366f68291ec"},
-    {file = "websockets-9.1-cp38-cp38-manylinux2014_aarch64.whl", hash = "sha256:0dd4eb8e0bbf365d6f652711ce21b8fd2b596f873d32aabb0fbb53ec604418cc"},
-    {file = "websockets-9.1-cp38-cp38-win32.whl", hash = "sha256:1d0971cc7251aeff955aa742ec541ee8aaea4bb2ebf0245748fbec62f744a37e"},
-    {file = "websockets-9.1-cp38-cp38-win_amd64.whl", hash = "sha256:7189e51955f9268b2bdd6cc537e0faa06f8fffda7fb386e5922c6391de51b077"},
-    {file = "websockets-9.1-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:e9e5fd6dbdf95d99bc03732ded1fc8ef22ebbc05999ac7e0c7bf57fe6e4e5ae2"},
-    {file = "websockets-9.1-cp39-cp39-manylinux1_i686.whl", hash = "sha256:9e7fdc775fe7403dbd8bc883ba59576a6232eac96dacb56512daacf7af5d618d"},
-    {file = "websockets-9.1-cp39-cp39-manylinux1_x86_64.whl", hash = "sha256:597c28f3aa7a09e8c070a86b03107094ee5cdafcc0d55f2f2eac92faac8dc67d"},
-    {file = "websockets-9.1-cp39-cp39-manylinux2010_i686.whl", hash = "sha256:ad893d889bc700a5835e0a95a3e4f2c39e91577ab232a3dc03c262a0f8fc4b5c"},
-    {file = "websockets-9.1-cp39-cp39-manylinux2010_x86_64.whl", hash = "sha256:1d6b4fddb12ab9adf87b843cd4316c4bd602db8d5efd2fb83147f0458fe85135"},
-    {file = "websockets-9.1-cp39-cp39-manylinux2014_aarch64.whl", hash = "sha256:ebf459a1c069f9866d8569439c06193c586e72c9330db1390af7c6a0a32c4afd"},
-    {file = "websockets-9.1-cp39-cp39-win32.whl", hash = "sha256:be5fd35e99970518547edc906efab29afd392319f020c3c58b0e1a158e16ed20"},
-    {file = "websockets-9.1-cp39-cp39-win_amd64.whl", hash = "sha256:85db8090ba94e22d964498a47fdd933b8875a1add6ebc514c7ac8703eb97bbf0"},
-    {file = "websockets-9.1.tar.gz", hash = "sha256:276d2339ebf0df4f45df453923ebd2270b87900eda5dfd4a6b0cfa15f82111c3"},
-]
+websockets = []
 werkzeug = [
     {file = "Werkzeug-2.0.3-py3-none-any.whl", hash = "sha256:1421ebfc7648a39a5c58c601b154165d05cf47a3cd0ccb70857cbdacf6c8f2b8"},
     {file = "Werkzeug-2.0.3.tar.gz", hash = "sha256:b863f8ff057c522164b6067c9e28b041161b4be5ba4d0daceeaa50a163822d3c"},

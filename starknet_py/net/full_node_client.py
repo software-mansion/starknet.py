@@ -32,6 +32,9 @@ from starknet_py.net.rpc_schemas.rpc_schemas import (
     DeclaredContractSchema,
     TransactionReceiptSchema,
     TypesOfTransactionsSchema,
+    SentTransactionSchema,
+    DeclareTransactionResponseSchema,
+    DeployTransactionResponseSchema,
 )
 from starknet_py.net.client_utils import convert_to_felt
 from starknet_py.transaction_exceptions import TransactionNotReceivedError
@@ -215,13 +218,58 @@ class FullNodeClient(Client):
     async def send_transaction(
         self, transaction: InvokeFunction
     ) -> SentTransactionResponse:
-        raise NotImplementedError()
+        res = await self._client.call(
+            method_name="addInvokeTransaction",
+            params={
+                "function_invocation": {
+                    "contract_address": convert_to_felt(transaction.contract_address),
+                    "entry_point_selector": convert_to_felt(
+                        transaction.entry_point_selector
+                    ),
+                    "calldata": [convert_to_felt(i) for i in transaction.calldata],
+                },
+                "signature": [convert_to_felt(i) for i in transaction.signature],
+                "max_fee": hex(transaction.max_fee),
+                "version": hex(transaction.version),
+            },
+        )
+
+        return SentTransactionSchema().load(res, unknown=EXCLUDE)
 
     async def deploy(self, transaction: Deploy) -> SentTransactionResponse:
-        raise NotImplementedError()
+        contract_definition = transaction.dump()["contract_definition"]
+
+        res = await self._client.call(
+            method_name="addDeployTransaction",
+            params={
+                "contract_address_salt": transaction.contract_address_salt,
+                "constructor_calldata": [
+                    convert_to_felt(i) for i in transaction.constructor_calldata
+                ],
+                "contract_definition": {
+                    "program": contract_definition["program"],
+                    "entry_points_by_type": contract_definition["entry_points_by_type"],
+                },
+            },
+        )
+
+        return DeployTransactionResponseSchema().load(res, unknown=EXCLUDE)
 
     async def declare(self, transaction: Declare) -> SentTransactionResponse:
-        raise NotImplementedError()
+        contract_class = transaction.dump()["contract_class"]
+
+        res = await self._client.call(
+            method_name="addDeclareTransaction",
+            params={
+                "contract_class": {
+                    "program": contract_class["program"],
+                    "entry_points_by_type": contract_class["entry_points_by_type"],
+                },
+                "version": transaction.version,
+            },
+        )
+
+        return DeclareTransactionResponseSchema().load(res, unknown=EXCLUDE)
 
     async def get_class_hash_at(self, contract_address: Hash) -> int:
         res = await self._client.call(

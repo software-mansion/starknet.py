@@ -63,7 +63,7 @@ class StatusField(fields.Field):
         values = [v.value for v in TransactionStatus]
 
         if value == "NOT_RECEIVED":
-            return TransactionStatus.UNKNOWN
+            return TransactionStatus.NOT_RECEIVED
 
         if value not in values:
             raise ValidationError(
