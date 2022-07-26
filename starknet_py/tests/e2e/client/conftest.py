@@ -4,6 +4,7 @@ from pathlib import Path
 from ast import literal_eval
 from typing import Tuple
 
+import json
 import pytest
 from starkware.starknet.public.abi import get_selector_from_name
 
@@ -15,14 +16,14 @@ from starknet_py.tests.e2e.conftest import directory_with_contracts
 
 directory = os.path.dirname(__file__)
 
+SCRIPT_PATH = Path(directory) / "prepare_devnet_for_gateway_test.sh"
+CONTRACT_COMPILED = directory_with_contracts / "balance_compiled.json"
+CONTRACT_ABI = directory_with_contracts / "balance_abi.json"
+
 
 def prepare_devnet(net: str) -> dict:
-    script_path = Path(directory) / "prepare_devnet_for_gateway_test.sh"
-    contract_compiled = directory_with_contracts / "balance_compiled.json"
-    contract_abi = directory_with_contracts / "balance_abi.json"
-
     res = subprocess.run(
-        [script_path, net, contract_compiled, contract_abi],
+        [SCRIPT_PATH, net, CONTRACT_COMPILED, CONTRACT_ABI],
         check=False,
         capture_output=True,
         text=True,
@@ -31,6 +32,12 @@ def prepare_devnet(net: str) -> dict:
     block = literal_eval(block)
     assert block != ""
     return block
+
+
+@pytest.fixture(name="compiled_contract")
+def fixture_compiled_contract() -> dict:
+    with open(CONTRACT_COMPILED, encoding="utf-8") as compiled_contract_file:
+        return json.loads(compiled_contract_file.read())
 
 
 def get_class_hash(net: str, contract_address: str) -> str:
@@ -103,6 +110,11 @@ def fixture_invoke_transaction_selector(invoke_transaction):
 @pytest.fixture(name="deploy_transaction_hash")
 def fixture_deploy_transaction_hash():
     return 0x11C1C6731ACE34AB4A9137A82092F26ECE38E7428E5E2028DA587893AAE0E02
+
+
+@pytest.fixture(name="declare_transaction_hash")
+def fixture_declare_transaction_hash():
+    return 0x77CCBA4DF42CF0F74A8EB59A96D7880FAE371EDCA5D000CA5F9985652C8A8ED
 
 
 @pytest.fixture(name="contract_address")

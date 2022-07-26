@@ -16,6 +16,7 @@ from starknet_py.net.client_models import (
     TransactionReceipt,
     ContractDiff,
     DeployTransaction,
+    DeclareTransaction,
     InvokeTransaction,
 )
 from starknet_py.net.client_errors import ClientError
@@ -24,6 +25,7 @@ from starknet_py.transaction_exceptions import (
     TransactionNotReceivedError,
 )
 from starknet_py.transactions.deploy import make_deploy_tx
+from starknet_py.transactions.declare import make_declare_tx
 
 
 @pytest.mark.asyncio
@@ -41,6 +43,22 @@ async def test_get_deploy_transaction(
             max_fee=0,
             # class_hash=class_hash,
         )
+
+
+@pytest.mark.asyncio
+async def test_get_declare_transaction(clients, declare_transaction_hash, class_hash):
+    # TODO extend this test to all clients
+    gateway_client, _ = clients
+
+    transaction = await gateway_client.get_transaction(declare_transaction_hash)
+
+    assert transaction == DeclareTransaction(
+        class_hash=class_hash,
+        sender_address=1,
+        hash=declare_transaction_hash,
+        signature=[],
+        max_fee=0,
+    )
 
 
 @pytest.mark.asyncio
@@ -289,6 +307,15 @@ async def test_deploy(balance_contract, gateway_client):
         compiled_contract=balance_contract, constructor_calldata=[]
     )
     result = await gateway_client.deploy(deploy_tx)
+
+    assert result.code == "TRANSACTION_RECEIVED"
+
+
+@pytest.mark.asyncio
+async def test_declare(balance_contract, gateway_client):
+    # TODO extend this test to all clients
+    declare_tx = make_declare_tx(compiled_contract=balance_contract)
+    result = await gateway_client.declare(declare_tx)
 
     assert result.code == "TRANSACTION_RECEIVED"
 
