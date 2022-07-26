@@ -400,7 +400,7 @@ class Contract:
 
         :raises ContractNotFoundError: when contract is not found
         :param address: Contract's address
-        :param client: Client, WARNING: This method does not work with FullNodeClient!
+        :param client: Client
         :param proxy_config: Proxy resolving config
             If set to ``True``, will use default proxy checks and :class:
             `starknet_py.proxy_check.OpenZeppelinProxyCheck`
