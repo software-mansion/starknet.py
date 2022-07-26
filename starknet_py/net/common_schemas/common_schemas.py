@@ -62,9 +62,6 @@ class StatusField(fields.Field):
     ) -> TransactionStatus:
         values = [v.value for v in TransactionStatus]
 
-        if value == "NOT_RECEIVED":
-            return TransactionStatus.NOT_RECEIVED
-
         if value not in values:
             raise ValidationError(
                 f"Invalid value provided for TransactionStatus: {value}"
