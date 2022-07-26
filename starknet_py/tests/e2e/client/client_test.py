@@ -26,7 +26,6 @@ from starknet_py.transaction_exceptions import (
     TransactionNotReceivedError,
 )
 from starknet_py.transactions.deploy import make_deploy_tx
-from starknet_py.transactions.declare import make_declare_tx
 
 
 @pytest.mark.asyncio

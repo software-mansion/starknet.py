@@ -4,7 +4,6 @@ from pathlib import Path
 from ast import literal_eval
 from typing import Tuple
 
-import json
 import pytest
 from starkware.starknet.public.abi import get_selector_from_name
 
