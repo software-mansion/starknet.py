@@ -175,6 +175,7 @@ class DeclareTransactionResponse(SentTransactionResponse):
     """
     Dataclass representing a result of declaring a contract on starknet
     """
+
     class_hash: int = None
 
 
@@ -183,6 +184,7 @@ class DeployTransactionResponse(SentTransactionResponse):
     """
     Dataclass representing a result of deploying a contract to starknet
     """
+
     contract_address: int = None
 
 

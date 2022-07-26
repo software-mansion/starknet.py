@@ -22,6 +22,8 @@ from starknet_py.net.client_models import (
     Deploy,
     EstimatedFee,
     BlockTransactionTraces,
+    DeclareTransactionResponse,
+    DeployTransactionResponse,
 )
 from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.models import StarknetChainId, chain_from_network
@@ -236,7 +238,7 @@ class FullNodeClient(Client):
 
         return SentTransactionSchema().load(res, unknown=EXCLUDE)
 
-    async def deploy(self, transaction: Deploy) -> SentTransactionResponse:
+    async def deploy(self, transaction: Deploy) -> DeployTransactionResponse:
         contract_definition = transaction.dump()["contract_definition"]
 
         res = await self._client.call(
@@ -255,7 +257,7 @@ class FullNodeClient(Client):
 
         return DeployTransactionResponseSchema().load(res, unknown=EXCLUDE)
 
-    async def declare(self, transaction: Declare) -> SentTransactionResponse:
+    async def declare(self, transaction: Declare) -> DeclareTransactionResponse:
         contract_class = transaction.dump()["contract_class"]
 
         res = await self._client.call(
