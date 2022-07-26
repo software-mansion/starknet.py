@@ -1,13 +1,10 @@
-import asyncio
-from unittest.mock import patch, MagicMock
-
 import pytest
 from starkware.starknet.public.abi import get_selector_from_name
-from starkware.starkware_utils.error_handling import StarkErrorCode
 
-from starknet_py.net.client_models import SentTransactionResponse
 from starknet_py.tests.e2e.conftest import directory_with_contracts
-from starknet_py.transaction_exceptions import TransactionRejectedError
+from starknet_py.transaction_exceptions import (
+    TransactionRejectedError,
+)
 from starknet_py.contract import Contract
 from starknet_py.net.models import InvokeFunction
 from starknet_py.net.client_errors import ClientError, ContractNotFoundError
@@ -152,17 +149,17 @@ user_auth_source = (directory_with_contracts / "user_auth.cairo").read_text("utf
 
 
 @pytest.mark.asyncio
-async def test_get_code_not_found(account_client):
+async def test_get_code_not_found(gateway_account_client):
     with pytest.raises(ContractNotFoundError) as exinfo:
-        await Contract.from_address(1, account_client)
+        await Contract.from_address(1, gateway_account_client)
 
     assert "No contract found" in str(exinfo.value)
 
 
 @pytest.mark.asyncio
-async def test_call_unitinialized_contract(account_client):
+async def test_call_unitinialized_contract(gateway_account_client):
     with pytest.raises(ClientError) as exinfo:
-        await account_client.call_contract(
+        await gateway_account_client.call_contract(
             InvokeFunction(
                 contract_address=1,
                 entry_point_selector=get_selector_from_name("get_nonce"),
@@ -177,9 +174,9 @@ async def test_call_unitinialized_contract(account_client):
 
 
 @pytest.mark.asyncio
-async def test_deploy_throws_on_no_compilation_source(account_client):
+async def test_deploy_throws_on_no_compilation_source(gateway_account_client):
     with pytest.raises(ValueError) as exinfo:
-        await Contract.deploy(client=account_client)
+        await Contract.deploy(client=gateway_account_client)
 
     assert "One of compiled_contract or compilation_source is required." in str(
         exinfo.value
@@ -187,15 +184,17 @@ async def test_deploy_throws_on_no_compilation_source(account_client):
 
 
 @pytest.mark.asyncio
-async def test_wait_for_tx(account_client, map_source_code):
+async def test_wait_for_tx(gateway_account_client, map_source_code):
     deployment = await Contract.deploy(
-        compilation_source=map_source_code, client=account_client
+        compilation_source=map_source_code, client=gateway_account_client
     )
-    await account_client.wait_for_tx(deployment.hash)
+    await gateway_account_client.wait_for_tx(deployment.hash)
 
 
 @pytest.mark.asyncio
-async def test_wait_for_tx_throws_on_transaction_rejected(account_client, map_contract):
+async def test_wait_for_tx_throws_on_transaction_rejected(
+    gateway_account_client, map_contract
+):
     invoke = map_contract.functions["put"].prepare(key=0x1, value=0x1, max_fee=MAX_FEE)
 
     # modify selector so that transaction will get rejected
@@ -203,7 +202,7 @@ async def test_wait_for_tx_throws_on_transaction_rejected(account_client, map_co
     transaction = await invoke.invoke()
 
     with pytest.raises(TransactionRejectedError):
-        await account_client.wait_for_tx(transaction.hash)
+        await gateway_account_client.wait_for_tx(transaction.hash)
 
 
 @pytest.mark.asyncio
@@ -271,16 +270,16 @@ async def test_contract_from_address_throws_on_too_many_steps(
 
 
 @pytest.mark.asyncio
-async def test_contract_from_address_throws_on_proxy_cycle(account_client):
+async def test_contract_from_address_throws_on_proxy_cycle(gateway_account_client):
     proxy1_deployment = await Contract.deploy(
         compilation_source=proxy_source,
         constructor_args=[0x123],
-        client=account_client,
+        client=gateway_account_client,
     )
     proxy2_deployment = await Contract.deploy(
         compilation_source=proxy_source,
         constructor_args=[0x123],
-        client=account_client,
+        client=gateway_account_client,
     )
     await proxy1_deployment.wait_for_acceptance()
     await proxy2_deployment.wait_for_acceptance()
@@ -298,7 +297,7 @@ async def test_contract_from_address_throws_on_proxy_cycle(account_client):
     with pytest.raises(RecursionError) as exinfo:
         await Contract.from_address(
             address=proxy2_deployment.deployed_contract.address,
-            client=account_client,
+            client=gateway_account_client,
             proxy_config=True,
         )
 
@@ -314,27 +313,6 @@ async def test_warning_when_max_fee_equals_to_zero(map_contract):
         await map_contract.functions["put"].invoke(10, 20, max_fee=0)
 
     assert len(max_fee_warnings) == 1
-
-
-@pytest.mark.asyncio
-async def test_transaction_not_received_error(map_contract):
-    with patch(
-        "starknet_py.net.account.account_client.AccountClient.send_transaction",
-        MagicMock(),
-    ) as mocked_send_transaction:
-        result = asyncio.Future()
-        result.set_result(
-            SentTransactionResponse(
-                code=StarkErrorCode.TRANSACTION_CANCELLED.value, hash=0x123
-            )
-        )
-
-        mocked_send_transaction.return_value = result
-
-        with pytest.raises(Exception) as tx_not_received:
-            await map_contract.functions["put"].invoke(10, 20, max_fee=MAX_FEE)
-
-        assert "Failed to send transaction." in str(tx_not_received)
 
 
 @pytest.mark.asyncio

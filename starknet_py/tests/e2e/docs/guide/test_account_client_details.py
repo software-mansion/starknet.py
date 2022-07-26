@@ -2,7 +2,9 @@ import pytest
 
 
 @pytest.mark.asyncio
-async def test_account_client_details(run_devnet, account_client, map_source_code):
+async def test_account_client_details(
+    run_devnet, gateway_account_client, map_source_code
+):
     # pylint: disable=import-outside-toplevel
     # add to docs: start
     from starknet_py.contract import Contract
@@ -21,7 +23,7 @@ async def test_account_client_details(run_devnet, account_client, map_source_cod
     )
     # add to docs: end
 
-    client = account_client
+    client = gateway_account_client
     # add to docs: start
 
     # Deploys the contract
@@ -50,7 +52,7 @@ async def test_account_client_details(run_devnet, account_client, map_source_cod
     ]
     # Executes one transaction with three calls
     resp = await client.execute(calls=calls, max_fee=int(1e16))
-    await client.wait_for_tx(resp.hash)
+    await client.wait_for_tx(resp.transaction_hash)
     # add to docs: end
 
     (value,) = await contract.functions["get"].call(key=50)

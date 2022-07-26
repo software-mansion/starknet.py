@@ -8,9 +8,9 @@ base_source_code = (directory_with_contracts / "base.cairo").read_text("utf-8")
 
 
 @pytest.mark.asyncio
-async def test_deploy_tx(account_client, map_source_code):
+async def test_deploy_tx(gateway_account_client, map_source_code):
     result = await Contract.deploy(
-        client=account_client, compilation_source=map_source_code
+        client=gateway_account_client, compilation_source=map_source_code
     )
     result = await result.wait_for_acceptance()
     result = result.deployed_contract
@@ -20,16 +20,16 @@ async def test_deploy_tx(account_client, map_source_code):
 
 
 @pytest.mark.asyncio
-async def test_deploy_with_search_path(account_client):
+async def test_deploy_with_search_path(gateway_account_client):
     result = await Contract.deploy(
-        client=account_client,
+        client=gateway_account_client,
         compilation_source=base_source_code,
         search_paths=[str(mock_contracts_base_path)],
     )
     await result.wait_for_acceptance()
 
     result = await Contract.deploy(
-        client=account_client,
+        client=gateway_account_client,
         compilation_source=base_source_code,
         search_paths=[str(mock_contracts_base_path)],
     )
@@ -44,7 +44,7 @@ constructor_with_arguments_source = (
 
 
 @pytest.mark.asyncio
-async def test_constructor_arguments(account_client):
+async def test_constructor_arguments(gateway_account_client):
     value = 10
     tuple_value = (1, (2, 3))
     arr = [1, 2, 3]
@@ -53,14 +53,15 @@ async def test_constructor_arguments(account_client):
     # Contract should throw if constructor arguments were not provided
     with pytest.raises(ValueError) as err:
         await Contract.deploy(
-            client=account_client, compilation_source=constructor_with_arguments_source
+            client=gateway_account_client,
+            compilation_source=constructor_with_arguments_source,
         )
 
     assert "no args were provided" in str(err.value)
 
     # Positional params
     contract_1 = await Contract.deploy(
-        client=account_client,
+        client=gateway_account_client,
         compilation_source=constructor_with_arguments_source,
         constructor_args=[value, tuple_value, arr, struct],
     )
@@ -69,7 +70,7 @@ async def test_constructor_arguments(account_client):
 
     # Named params
     contract_2 = await Contract.deploy(
-        client=account_client,
+        client=gateway_account_client,
         compilation_source=constructor_with_arguments_source,
         constructor_args={
             "single_value": value,
@@ -96,9 +97,10 @@ constructor_without_arguments_source = (
 
 
 @pytest.mark.asyncio
-async def test_constructor_without_arguments(account_client):
+async def test_constructor_without_arguments(gateway_account_client):
     result = await Contract.deploy(
-        client=account_client, compilation_source=constructor_without_arguments_source
+        client=gateway_account_client,
+        compilation_source=constructor_without_arguments_source,
     )
     result = await result.wait_for_acceptance()
     contract = result.deployed_contract
