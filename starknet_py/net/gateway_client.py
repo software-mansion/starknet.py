@@ -22,7 +22,8 @@ from starknet_py.net.client_models import (
     TransactionStatusResponse,
     EstimatedFee,
     BlockTransactionTraces,
-    DeployTransactionResponse, DeclareTransactionResponse,
+    DeployTransactionResponse,
+    DeclareTransactionResponse,
 )
 from starknet_py.net.gateway_schemas.gateway_schemas import (
     ContractCodeSchema,
