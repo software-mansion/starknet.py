@@ -34,12 +34,6 @@ def prepare_devnet(net: str) -> dict:
     return block
 
 
-@pytest.fixture(name="compiled_contract")
-def fixture_compiled_contract() -> dict:
-    with open(CONTRACT_COMPILED, encoding="utf-8") as compiled_contract_file:
-        return json.loads(compiled_contract_file.read())
-
-
 def get_class_hash(net: str, contract_address: str) -> str:
     script_path = Path(directory, "get_class_hash.sh")
     res = subprocess.run(

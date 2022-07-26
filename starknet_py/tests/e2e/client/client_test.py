@@ -5,6 +5,7 @@ from unittest.mock import patch, MagicMock
 import pytest
 
 from starkware.starknet.public.abi import get_selector_from_name
+from starkware.starknet.services.api.gateway.transaction import DECLARE_SENDER_ADDRESS
 
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.client_models import (
@@ -54,7 +55,7 @@ async def test_get_declare_transaction(clients, declare_transaction_hash, class_
 
     assert transaction == DeclareTransaction(
         class_hash=class_hash,
-        sender_address=1,
+        sender_address=DECLARE_SENDER_ADDRESS,
         hash=declare_transaction_hash,
         signature=[],
         max_fee=0,
@@ -307,15 +308,6 @@ async def test_deploy(balance_contract, gateway_client):
         compiled_contract=balance_contract, constructor_calldata=[]
     )
     result = await gateway_client.deploy(deploy_tx)
-
-    assert result.code == "TRANSACTION_RECEIVED"
-
-
-@pytest.mark.asyncio
-async def test_declare(balance_contract, gateway_client):
-    # TODO extend this test to all clients
-    declare_tx = make_declare_tx(compiled_contract=balance_contract)
-    result = await gateway_client.declare(declare_tx)
 
     assert result.code == "TRANSACTION_RECEIVED"
 

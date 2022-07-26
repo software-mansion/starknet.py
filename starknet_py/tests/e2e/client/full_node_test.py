@@ -1,5 +1,6 @@
 import pytest
 from starkware.starknet.public.abi import get_selector_from_name
+from starkware.starknet.services.api.gateway.transaction import DECLARE_SENDER_ADDRESS
 
 from starknet_py.net.client_models import (
     DeclareTransaction,
@@ -79,7 +80,7 @@ async def test_node_get_declare_transaction_by_block_number_and_index(
 
     assert tx == DeclareTransaction(
         class_hash=class_hash,
-        sender_address=1,
+        sender_address=DECLARE_SENDER_ADDRESS,
         hash=declare_transaction_hash,
         signature=[],
         max_fee=0,
