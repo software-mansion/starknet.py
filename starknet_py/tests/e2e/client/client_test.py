@@ -70,6 +70,7 @@ async def test_get_transaction_raises_on_not_received(clients):
         with pytest.raises(TransactionNotReceivedError) as err:
             await client.get_transaction(tx_hash=0x1)
 
+        assert str(err.value) == "Transaction was not received on starknet"
         assert err.value.code is None
         assert err.value.message == "Transaction not received"
 

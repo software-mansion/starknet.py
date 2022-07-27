@@ -176,6 +176,7 @@ async def test_call_unitinialized_contract(account_client):
             )
         )
 
+    assert "500" in str(err.value)  # for coverage
     assert err.value.code == "500"
     assert "No contract at the provided address" in err.value.message
 
