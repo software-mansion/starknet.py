@@ -72,6 +72,10 @@ Using Contract
     :lines: 12-17,22-28,33-35,41-58
     :dedent: 4
 
+.. note::
+
+    To check if invoke succeed use wait_for_acceptance on InvokeResult and get its status.
+
 Although asynchronous API is recommended, you can also use Contract's synchronous API:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/quickstart/test_synchronous_api.py
