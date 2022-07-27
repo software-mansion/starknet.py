@@ -8,7 +8,7 @@ class ClientError(Exception):
 
     def __init__(self, message: str, code: Optional[str] = None):
         self.code = code
-        self.message = message.strip()
+        self.message = message
         super().__init__(self.message)
 
     def __str__(self):
