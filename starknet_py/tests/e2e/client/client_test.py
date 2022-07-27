@@ -297,6 +297,8 @@ async def test_deploy(balance_contract, clients):
         )
 
         assert transaction_receipt.status != TransactionStatus.NOT_RECEIVED
+        assert transaction_receipt.hash
+        assert transaction_receipt.actual_fee == 0
 
 
 async def test_get_class_hash_at(clients, contract_address):
@@ -419,3 +421,5 @@ async def test_declare_contract(clients, map_source_code):
         )
 
         assert transaction_receipt.status != TransactionStatus.NOT_RECEIVED
+        assert transaction_receipt.hash
+        assert transaction_receipt.actual_fee == 0

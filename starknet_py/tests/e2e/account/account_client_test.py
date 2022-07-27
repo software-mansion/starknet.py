@@ -175,6 +175,8 @@ async def test_deploy(account_clients, map_source_code):
     for account_client in account_clients:
         deploy_tx = make_deploy_tx(compilation_source=map_source_code)
         result = await account_client.deploy(deploy_tx)
+        await account_client.wait_for_tx(result.transaction_hash)
+
         transaction_receipt = await account_client.get_transaction_receipt(
             result.transaction_hash
         )
