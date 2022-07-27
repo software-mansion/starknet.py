@@ -153,7 +153,7 @@ class TransactionReceipt:
     block_number: Optional[int] = None
     version: int = 0
     actual_fee: int = 0
-    rejection_reason: Optional[str] = None
+    rejection_reason: Optional[Dict[str, Any]] = None
 
     events: List[Event] = None
     l2_to_l1_messages: List[L2toL1Message] = None

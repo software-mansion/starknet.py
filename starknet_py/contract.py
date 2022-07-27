@@ -36,6 +36,7 @@ from starknet_py.net.models import (
     compute_invoke_hash,
 )
 from starknet_py.compile.compiler import StarknetCompilationSource
+from starknet_py.transaction_exceptions import TransactionFailedError
 from starknet_py.transactions.deploy import make_deploy_tx
 from starknet_py.utils.crypto.facade import pedersen_hash, Call
 from starknet_py.utils.data_transformer import FunctionCallSerializer
@@ -217,7 +218,9 @@ class PreparedFunctionCall(Call):
         response = await self._client.send_transaction(transaction)
 
         if response.code != StarkErrorCode.TRANSACTION_RECEIVED.name:
-            raise Exception("Failed to send transaction. Response: {response}.")
+            raise TransactionFailedError(
+                code=response.code, error_message="Transaction not received"
+            )
 
         invoke_result = InvokeResult(
             hash=response.hash,  # noinspection PyTypeChecker

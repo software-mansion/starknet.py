@@ -7,7 +7,10 @@ from starkware.starkware_utils.error_handling import StarkErrorCode
 
 from starknet_py.net.client_models import SentTransactionResponse
 from starknet_py.tests.e2e.conftest import directory_with_contracts
-from starknet_py.transaction_exceptions import TransactionRejectedError
+from starknet_py.transaction_exceptions import (
+    TransactionFailedError,
+    TransactionRejectedError,
+)
 from starknet_py.contract import Contract
 from starknet_py.net.models import InvokeFunction
 from starknet_py.net.client_errors import ClientError, ContractNotFoundError
@@ -161,7 +164,7 @@ async def test_get_code_not_found(account_client):
 
 @pytest.mark.asyncio
 async def test_call_unitinialized_contract(account_client):
-    with pytest.raises(ClientError) as exinfo:
+    with pytest.raises(ClientError) as err:
         await account_client.call_contract(
             InvokeFunction(
                 contract_address=1,
@@ -173,7 +176,8 @@ async def test_call_unitinialized_contract(account_client):
             )
         )
 
-    assert "500" in str(exinfo.value)
+    assert err.value.code == "500"
+    assert "No contract at the provided address" in err.value.message
 
 
 @pytest.mark.asyncio
@@ -202,8 +206,11 @@ async def test_wait_for_tx_throws_on_transaction_rejected(account_client, map_co
     invoke.selector = 0x0123
     transaction = await invoke.invoke()
 
-    with pytest.raises(TransactionRejectedError):
+    with pytest.raises(TransactionRejectedError) as err:
         await account_client.wait_for_tx(transaction.hash)
+
+    assert err.value.code == "TRANSACTION_FAILED"
+    assert "Entry point 0x123 not found in contract" in err.value.message
 
 
 @pytest.mark.asyncio
@@ -331,10 +338,11 @@ async def test_transaction_not_received_error(map_contract):
 
         mocked_send_transaction.return_value = result
 
-        with pytest.raises(Exception) as tx_not_received:
+        with pytest.raises(TransactionFailedError) as err:
             await map_contract.functions["put"].invoke(10, 20, max_fee=MAX_FEE)
 
-        assert "Failed to send transaction." in str(tx_not_received)
+        assert err.value.code == 54
+        assert err.value.message == "Transaction not received"
 
 
 @pytest.mark.asyncio

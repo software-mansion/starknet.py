@@ -9,10 +9,10 @@ class TransactionFailedError(Exception):
     def __init__(
         self,
         code: Optional[str] = None,
-        message: Optional[str] = "Unknown starknet error",
+        error_message: Optional[str] = "Unknown starknet error",
     ):
         self.code = code
-        self.message = message
+        self.message = error_message
         super().__init__(self.message)
 
     def __str__(self):
@@ -40,7 +40,7 @@ class TransactionNotReceivedError(TransactionFailedError):
     """
 
     def __init__(self):
-        super().__init__(message="Transaction not received")
+        super().__init__(error_message="Transaction not received")
 
     def __str__(self):
         return "Transaction was not received on starknet"

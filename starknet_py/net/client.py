@@ -161,7 +161,8 @@ class Client(ABC):
                         if result.block_number is not None:
                             return result.block_number, status
                 elif status == TransactionStatus.REJECTED:
-                    raise TransactionRejectedError(result.rejection_reason)
+                    reason = result.rejection_reason or {}
+                    raise TransactionRejectedError(**reason)
                 elif status == TransactionStatus.UNKNOWN:
                     if not first_run:
                         raise TransactionNotReceivedError()

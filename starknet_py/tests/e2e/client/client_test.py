@@ -67,8 +67,11 @@ async def test_get_invoke_transaction(
 @pytest.mark.asyncio
 async def test_get_transaction_raises_on_not_received(clients):
     for client in clients:
-        with pytest.raises(TransactionNotReceivedError):
+        with pytest.raises(TransactionNotReceivedError) as err:
             await client.get_transaction(tx_hash=0x1)
+
+        assert err.value.code is None
+        assert err.value.message == "Transaction not received"
 
 
 @pytest.mark.asyncio
@@ -158,12 +161,15 @@ async def test_get_storage_at_incorrect_address(clients):
     )
     assert storage == 0
 
-    with pytest.raises(ClientError):
+    with pytest.raises(ClientError) as exc:
         await full_node_client.get_storage_at(
             contract_address=0x1111,
             key=916907772491729262376534102982219947830828984996257231353398618781993312401,
             block_hash="latest",
         )
+
+    assert exc.value.code == 20
+    assert exc.value.message == "Contract not found"
 
 
 @pytest.mark.asyncio
@@ -356,14 +362,26 @@ async def test_wait_for_tx_pending(gateway_client):
 
 
 @pytest.mark.parametrize(
-    "status, exception",
+    "status, exception, exc_code, exc_message",
     (
-        (TransactionStatus.REJECTED, TransactionRejectedError),
-        (TransactionStatus.UNKNOWN, TransactionNotReceivedError),
+        (
+            TransactionStatus.REJECTED,
+            TransactionRejectedError,
+            None,
+            "Unknown starknet error",
+        ),
+        (
+            TransactionStatus.UNKNOWN,
+            TransactionNotReceivedError,
+            None,
+            "Transaction not received",
+        ),
     ),
 )
 @pytest.mark.asyncio
-async def test_wait_for_tx_rejected(status, exception, gateway_client):
+async def test_wait_for_tx_rejected(
+    status, exception, exc_code, exc_message, gateway_client
+):
     with patch(
         "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt",
         MagicMock(),
@@ -373,8 +391,11 @@ async def test_wait_for_tx_rejected(status, exception, gateway_client):
 
         mocked_receipt.return_value = result
 
-        with pytest.raises(exception):
+        with pytest.raises(exception) as err:
             await gateway_client.wait_for_tx(tx_hash=0x1)
+
+        assert err.value.code == exc_code
+        assert err.value.message == exc_message
 
 
 @pytest.mark.asyncio
@@ -398,5 +419,8 @@ async def test_wait_for_tx_cancelled(gateway_client):
         await asyncio.sleep(1)
         task.cancel()
 
-        with pytest.raises(TransactionNotReceivedError):
+        with pytest.raises(TransactionNotReceivedError) as err:
             await task
+
+        assert err.value.code is None
+        assert err.value.message == "Transaction not received"
