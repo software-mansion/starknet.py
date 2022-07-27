@@ -1,4 +1,5 @@
 import os
+import re
 import subprocess
 from pathlib import Path
 from ast import literal_eval
@@ -29,16 +30,19 @@ def prepare_devnet(net: str) -> dict:
     )
     block = res.stdout.splitlines()[-1]
     block = literal_eval(block)
-    assert block != ""
-
     contract_address = res.stdout.splitlines()[2].split(sep=" ")[-1]
     deploy_transaction_hash = res.stdout.splitlines()[3].split(sep=" ")[-1]
     invoke_transaction_hash = res.stdout.splitlines()[6].split(sep=" ")[-1]
 
+    assert block != ""
+    assert re.search("^0x0[a-fA-F0-9]{1,63}$", contract_address) is not None
+    assert re.search("^0x[a-fA-F0-9]{1,63}$", deploy_transaction_hash) is not None
+    assert re.search("^0x[a-fA-F0-9]{1,63}$", invoke_transaction_hash) is not None
+
     prepared_data = {
         "block": block,
-        "contract_address": contract_address,
-        "deploy_transaction_hash": deploy_transaction_hash,
+        "contract_address": int(contract_address, 16),
+        "deploy_transaction_hash": int(deploy_transaction_hash, 16),
         "invoke_transaction_hash": invoke_transaction_hash,
     }
 
@@ -116,13 +120,13 @@ def fixture_invoke_transaction_selector(invoke_transaction):
 @pytest.fixture(name="deploy_transaction_hash")
 def fixture_deploy_transaction_hash(run_prepared_devnet):
     _, prepared_data = run_prepared_devnet
-    return int(prepared_data["deploy_transaction_hash"], 16)
+    return prepared_data["deploy_transaction_hash"]
 
 
 @pytest.fixture(name="contract_address")
 def fixture_contract_address(run_prepared_devnet):
     _, prepared_data = run_prepared_devnet
-    return int(prepared_data["contract_address"], 16)
+    return prepared_data["contract_address"]
 
 
 @pytest.fixture(name="balance_contract")
