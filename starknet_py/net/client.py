@@ -77,12 +77,14 @@ class Client(ABC):
     @abstractmethod
     async def get_state_update(
         self,
-        block_hash: Union[Hash, Tag],
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> BlockStateUpdate:
         """
         Get the information about the result of executing the requested block
 
         :param block_hash: Block's hash or literals `"pending"` or `"latest"`
+        :param block_number: Block's number or literals `"pending"` or `"latest"`
         :return: BlockStateUpdate oject representing changes in the requested block
         """
 
@@ -91,13 +93,14 @@ class Client(ABC):
         self,
         contract_address: Hash,
         key: int,
-        block_hash: Union[Hash, Tag],
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> int:
         """
         :param contract_address: Contract's address on Starknet
         :param key: An address of the storage variable inside the contract.
-        :param block_hash: Fetches the value of the variable at given block hash or at
-                           the block indicated by the literals `"pending"` or `"latest"`
+        :param block_hash: Block's hash or literals `"pending"` or `"latest"`
+        :param block_number: Block's number or literals `"pending"` or `"latest"`
         :return: Storage value of given contract
         """
 

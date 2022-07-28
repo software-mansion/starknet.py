@@ -33,7 +33,7 @@ from starknet_py.net.rpc_schemas.rpc_schemas import (
     TransactionReceiptSchema,
     TypesOfTransactionsSchema,
 )
-from starknet_py.net.client_utils import convert_to_felt
+from starknet_py.net.client_utils import convert_to_felt, is_block_identifier
 from starknet_py.transaction_exceptions import TransactionNotReceivedError
 from starknet_py.utils.sync import add_sync_methods
 
@@ -100,11 +100,16 @@ class FullNodeClient(Client):
 
     async def get_state_update(
         self,
-        block_hash: Union[Hash, Tag],
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> BlockStateUpdate:
+        block_identifier = get_block_identifier(
+            block_hash=block_hash, block_number=block_number
+        )
+
         res = await self._client.call(
-            method_name="getStateUpdateByHash",
-            params={"block_hash": convert_to_felt(block_hash)},
+            method_name="getStateUpdate",
+            params=block_identifier,
         )
         return BlockStateUpdateSchema().load(res, unknown=EXCLUDE)
 
@@ -112,14 +117,19 @@ class FullNodeClient(Client):
         self,
         contract_address: Hash,
         key: int,
-        block_hash: Union[Hash, Tag],
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> int:
+        block_identifier = get_block_identifier(
+            block_hash=block_hash, block_number=block_number
+        )
+
         res = await self._client.call(
             method_name="getStorageAt",
             params={
                 "contract_address": convert_to_felt(contract_address),
                 "key": convert_to_felt(key),
-                "block_hash": convert_to_felt(block_hash),
+                **block_identifier,
             },
         )
         res = typing.cast(str, res)
@@ -138,8 +148,11 @@ class FullNodeClient(Client):
             raise TransactionNotReceivedError() from ex
         return TypesOfTransactionsSchema().load(res, unknown=EXCLUDE)
 
-    async def get_transaction_by_block_hash(
-        self, block_hash: Hash, index: int
+    async def get_transaction_by_block_id(
+        self,
+        index: int,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> Transaction:
         """
         Get the details of transaction in block indentified block_hash and transaction index
@@ -148,29 +161,14 @@ class FullNodeClient(Client):
         :param index: Index of the transaction
         :return: Transaction object
         """
-        res = await self._client.call(
-            method_name="getTransactionByBlockHashAndIndex",
-            params={
-                "block_hash": convert_to_felt(block_hash),
-                "index": index,
-            },
+        block_identifier = get_block_identifier(
+            block_hash=block_hash, block_number=block_number
         )
-        return TypesOfTransactionsSchema().load(res, unknown=EXCLUDE)
 
-    async def get_transaction_by_block_number(
-        self, block_number: int, index: int
-    ) -> Transaction:
-        """
-        Get the details of transaction in block indentified block number and transaction index
-
-        :param block_number: Number of the block
-        :param index: Index of the transaction
-        :return: Transaction object
-        """
         res = await self._client.call(
-            method_name="getTransactionByBlockNumberAndIndex",
+            method_name="getTransactionByBlockIdAndIndex",
             params={
-                "block_number": block_number,
+                "block_id": block_identifier["block_id"],
                 "index": index,
             },
         )
@@ -236,3 +234,38 @@ class FullNodeClient(Client):
             method_name="getClass", params={"class_hash": convert_to_felt(class_hash)}
         )
         return DeclaredContractSchema().load(res, unknown=EXCLUDE)
+
+    async def get_block_transaction_count(
+        self,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> int:
+        block_identifier = get_block_identifier(
+            block_hash=block_hash, block_number=block_number
+        )
+
+        res = await self._client.call(
+            method_name="getBlockTransactionCount", params=block_identifier
+        )
+        res = typing.cast(str, res)
+        return int(res, 16)
+
+
+def get_block_identifier(
+    block_hash: Optional[Union[Hash, Tag]] = None,
+    block_number: Optional[Union[int, Tag]] = None,
+) -> dict:
+    if block_hash is not None and block_number is not None:
+        raise ValueError(
+            "Block_hash and block_number parameters are mutually exclusive."
+        )
+
+    if block_hash is not None:
+        if is_block_identifier(block_hash):
+            return {"block_id": block_hash}
+        return {"block_id": convert_to_felt(block_hash)}
+
+    if block_number is not None:
+        return {"block_id": block_number}
+
+    return {}
