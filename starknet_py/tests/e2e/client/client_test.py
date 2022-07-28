@@ -162,15 +162,15 @@ async def test_get_storage_at_incorrect_address(clients):
     )
     assert storage == 0
 
-    with pytest.raises(ClientError) as exc:
+    with pytest.raises(ClientError) as err:
         await full_node_client.get_storage_at(
             contract_address=0x1111,
             key=916907772491729262376534102982219947830828984996257231353398618781993312401,
             block_hash="latest",
         )
 
-    assert exc.value.code == 20
-    assert exc.value.message == "Contract not found"
+    assert err.value.code == 20
+    assert err.value.message == "Contract not found"
 
 
 @pytest.mark.asyncio
