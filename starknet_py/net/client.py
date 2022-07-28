@@ -21,7 +21,6 @@ from starknet_py.net.client_models import (
     BlockTransactionTraces,
     DeployTransactionResponse,
     DeclareTransactionResponse,
-    GatewayTransactionReceipt,
 )
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.networks import Network
@@ -174,10 +173,6 @@ class Client(ABC):
                         raise TransactionNotReceivedError()
                 elif status != TransactionStatus.RECEIVED:
                     # This will never get executed with current possible transactions statuses
-                    if isinstance(result, GatewayTransactionReceipt):
-                        raise TransactionFailedError(
-                            result.rejection_reason, result.code
-                        )
                     raise TransactionFailedError(
                         message=result.rejection_reason,
                         code=getattr(result, "code", None),
