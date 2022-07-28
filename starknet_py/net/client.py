@@ -19,6 +19,8 @@ from starknet_py.net.client_models import (
     Declare,
     EstimatedFee,
     BlockTransactionTraces,
+    DeployTransactionResponse,
+    DeclareTransactionResponse,
 )
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.networks import Network
@@ -162,7 +164,7 @@ class Client(ABC):
                             return result.block_number, status
                 elif status == TransactionStatus.REJECTED:
                     raise TransactionRejectedError(result.rejection_reason)
-                elif status == TransactionStatus.UNKNOWN:
+                elif status == TransactionStatus.NOT_RECEIVED:
                     if not first_run:
                         raise TransactionNotReceivedError()
                 elif status != TransactionStatus.RECEIVED:
@@ -218,7 +220,7 @@ class Client(ABC):
         """
 
     @abstractmethod
-    async def deploy(self, transaction: Deploy) -> SentTransactionResponse:
+    async def deploy(self, transaction: Deploy) -> DeployTransactionResponse:
         """
         Deploy a contract to the network
 
@@ -227,7 +229,7 @@ class Client(ABC):
         """
 
     @abstractmethod
-    async def declare(self, transaction: Declare) -> SentTransactionResponse:
+    async def declare(self, transaction: Declare) -> DeclareTransactionResponse:
         """
         Send a declare transaction
 

@@ -20,6 +20,9 @@ from starknet_py.net.client_models import (
     DeclareTransaction,
     DeployTransaction,
     TransactionReceipt,
+    SentTransactionResponse,
+    DeclareTransactionResponse,
+    DeployTransactionResponse,
 )
 from starknet_py.net.common_schemas.common_schemas import (
     Felt,
@@ -268,3 +271,27 @@ class DeclaredContractSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> DeclaredContract:
         return DeclaredContract(**data)
+
+
+class SentTransactionSchema(Schema):
+    transaction_hash = Felt(data_key="transaction_hash")
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return SentTransactionResponse(**data)
+
+
+class DeclareTransactionResponseSchema(SentTransactionSchema):
+    class_hash = Felt(data_key="class_hash")
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return DeclareTransactionResponse(**data)
+
+
+class DeployTransactionResponseSchema(SentTransactionSchema):
+    contract_address = Felt(data_key="contract_address")
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return DeployTransactionResponse(**data)

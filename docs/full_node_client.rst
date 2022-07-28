@@ -39,7 +39,16 @@ We recommend using :obj:`ContractFunction's call <starknet_py.contract.ContractF
 .. automethod:: FullNodeClient.wait_for_tx
 .. automethod:: FullNodeClient.wait_for_tx_sync
 
+.. automethod:: FullNodeClient.send_transaction
+.. automethod:: FullNodeClient.send_transaction_sync
+
 We recommend using :obj:`ContractFunction's invoke <starknet_py.contract.ContractFunction.invoke>` or :obj:`Contract's deploy <starknet_py.contract.Contract.deploy>` instead
+
+.. automethod:: FullNodeClient.declare
+.. automethod:: FullNodeClient.declare_sync
+
+.. automethod:: FullNodeClient.deploy
+.. automethod:: FullNodeClient.deploy_sync
 
 .. automethod:: FullNodeClient.estimate_fee
 .. automethod:: FullNodeClient.estimate_fee_sync

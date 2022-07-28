@@ -22,7 +22,6 @@ from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
     CastableToHash,
 )
-from starkware.starkware_utils.error_handling import StarkErrorCode
 
 from starknet_py.common import create_compiled_contract
 from starknet_py.net import AccountClient
@@ -216,11 +215,8 @@ class PreparedFunctionCall(Call):
         )
         response = await self._client.send_transaction(transaction)
 
-        if response.code != StarkErrorCode.TRANSACTION_RECEIVED.name:
-            raise Exception("Failed to send transaction. Response: {response}.")
-
         invoke_result = InvokeResult(
-            hash=response.hash,  # noinspection PyTypeChecker
+            hash=response.transaction_hash,  # noinspection PyTypeChecker
             _client=self._client,
             contract=self._contract_data,
             invoke_transaction=transaction,
@@ -404,7 +400,7 @@ class Contract:
 
         :raises ContractNotFoundError: when contract is not found
         :param address: Contract's address
-        :param client: Client, WARNING: This method does not work with FullNodeClient!
+        :param client: Client
         :param proxy_config: Proxy resolving config
             If set to ``True``, will use default proxy checks and :class:
             `starknet_py.proxy_check.OpenZeppelinProxyCheck`
@@ -470,7 +466,7 @@ class Contract:
             salt=salt,
         )
         res = await client.deploy(deploy_tx)
-        contract_address = res.address
+        contract_address = res.contract_address
 
         deployed_contract = Contract(
             client=client,
@@ -478,7 +474,7 @@ class Contract:
             abi=compiled_contract.abi,
         )
         deploy_result = DeployResult(
-            hash=res.hash,
+            hash=res.transaction_hash,
             _client=client,
             deployed_contract=deployed_contract,
         )
