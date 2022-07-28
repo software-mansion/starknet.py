@@ -93,5 +93,5 @@ now prepare and send transactions to StarkNet.
 Contract changes
 ----------------
 
-Transaction's status is not checked while invoking through Contract interface, because RPC write API don't return "code"
+Transaction's status is not checked while invoking through Contract interface, because RPC write API doesn't return "code"
 parameter. To check if the transaction passed use wait_for_acceptance on InvokeResult.
