@@ -1,5 +1,3 @@
-from typing import List
-
 import pytest
 from starknet_py.tests.e2e.conftest import directory_with_contracts
 
