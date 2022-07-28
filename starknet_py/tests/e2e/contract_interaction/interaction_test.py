@@ -12,8 +12,6 @@ from starknet_py.contract import Contract
 from starknet_py.net.models import InvokeFunction
 from starknet_py.net.client_errors import ClientError, ContractNotFoundError
 
-proxy_source = (directory_with_contracts / "argent_proxy.cairo").read_text("utf-8")
-
 MAX_FEE = int(1e20)
 
 
@@ -160,7 +158,7 @@ async def test_get_code_not_found(account_client):
 
 
 @pytest.mark.asyncio
-async def test_call_unitinialized_contract(account_client):
+async def test_call_uninitialized_contract(account_client):
     with pytest.raises(ClientError) as exinfo:
         await account_client.call_contract(
             InvokeFunction(
@@ -207,102 +205,122 @@ async def test_wait_for_tx_throws_on_transaction_rejected(account_client, map_co
 
 
 @pytest.mark.asyncio
-async def test_contract_from_address_with_1_proxy(gateway_client, map_contract):
-    deployment_result = await Contract.deploy(
-        compilation_source=proxy_source,
-        constructor_args=[map_contract.address],
-        client=gateway_client,
-    )
+async def test_contract_from_address_with_1_proxy(
+    gateway_client, map_contract, proxy_sources
+):
+    for proxy_source in proxy_sources:
+        deployment_result = await Contract.deploy(
+            compilation_source=proxy_source,
+            constructor_args=[map_contract.address],
+            client=gateway_client,
+        )
 
-    proxy_contract = await Contract.from_address(
-        deployment_result.deployed_contract.address,
-        client=gateway_client,
-        proxy_config=True,
-    )
+        proxy_contract = await Contract.from_address(
+            deployment_result.deployed_contract.address,
+            client=gateway_client,
+            proxy_config=True,
+        )
 
-    assert all(f in proxy_contract.functions for f in ("put", "get"))
+        assert all(f in proxy_contract.functions for f in ("put", "get"))
 
 
 @pytest.mark.asyncio
-async def test_contract_from_address_with_2_proxy(gateway_client, map_contract):
-    proxy1_deployment = await Contract.deploy(
-        compilation_source=proxy_source,
-        constructor_args=[map_contract.address],
-        client=gateway_client,
-    )
-    proxy2_deployment = await Contract.deploy(
-        compilation_source=proxy_source,
-        constructor_args=[proxy1_deployment.deployed_contract.address],
-        client=gateway_client,
-    )
+async def test_contract_from_address_with_2_proxy(
+    gateway_client, map_contract, proxy_sources
+):
+    for proxy_source in proxy_sources:
+        proxy1_deployment = await Contract.deploy(
+            compilation_source=proxy_source,
+            constructor_args=[map_contract.address],
+            client=gateway_client,
+        )
+        proxy2_deployment = await Contract.deploy(
+            compilation_source=proxy_source,
+            constructor_args=[proxy1_deployment.deployed_contract.address],
+            client=gateway_client,
+        )
 
-    proxy_contract = await Contract.from_address(
-        proxy2_deployment.deployed_contract.address,
-        client=gateway_client,
-        proxy_config=True,
-    )
+        proxy_contract = await Contract.from_address(
+            proxy2_deployment.deployed_contract.address,
+            client=gateway_client,
+            proxy_config=True,
+        )
 
-    assert all(f in proxy_contract.functions for f in ("put", "get"))
+        assert all(f in proxy_contract.functions for f in ("put", "get"))
 
 
 @pytest.mark.asyncio
 async def test_contract_from_address_throws_on_too_many_steps(
-    gateway_client, map_contract
+    gateway_client, map_contract, proxy_sources
 ):
-    proxy1_deployment = await Contract.deploy(
-        compilation_source=proxy_source,
-        constructor_args=[map_contract.address],
-        client=gateway_client,
-    )
-    proxy2_deployment = await Contract.deploy(
-        compilation_source=proxy_source,
-        constructor_args=[proxy1_deployment.deployed_contract.address],
-        client=gateway_client,
-    )
-
-    with pytest.raises(RecursionError) as exinfo:
-        await Contract.from_address(
-            proxy2_deployment.deployed_contract.address,
+    for proxy_source in proxy_sources:
+        proxy1_deployment = await Contract.deploy(
+            compilation_source=proxy_source,
+            constructor_args=[map_contract.address],
             client=gateway_client,
-            proxy_config={"max_steps": 2},
+        )
+        proxy2_deployment = await Contract.deploy(
+            compilation_source=proxy_source,
+            constructor_args=[proxy1_deployment.deployed_contract.address],
+            client=gateway_client,
         )
 
-    assert "Max number of steps exceeded" in str(exinfo.value)
+        with pytest.raises(RecursionError) as exinfo:
+            await Contract.from_address(
+                proxy2_deployment.deployed_contract.address,
+                client=gateway_client,
+                proxy_config={"max_steps": 2},
+            )
+
+        assert "Max number of steps exceeded" in str(exinfo.value)
 
 
 @pytest.mark.asyncio
-async def test_contract_from_address_throws_on_proxy_cycle(account_client):
-    proxy1_deployment = await Contract.deploy(
-        compilation_source=proxy_source,
-        constructor_args=[0x123],
-        client=account_client,
-    )
-    proxy2_deployment = await Contract.deploy(
-        compilation_source=proxy_source,
-        constructor_args=[0x123],
-        client=account_client,
-    )
-    await proxy1_deployment.wait_for_acceptance()
-    await proxy2_deployment.wait_for_acceptance()
-
-    proxy1 = proxy1_deployment.deployed_contract
-    proxy2 = proxy2_deployment.deployed_contract
-
-    await proxy1.functions["_set_implementation"].invoke(
-        implementation=proxy2.address, max_fee=MAX_FEE
-    )
-    await proxy2.functions["_set_implementation"].invoke(
-        implementation=proxy1.address, max_fee=MAX_FEE
-    )
-
-    with pytest.raises(RecursionError) as exinfo:
-        await Contract.from_address(
-            address=proxy2_deployment.deployed_contract.address,
+async def test_contract_from_address_throws_on_proxy_cycle(
+    account_client, proxy_sources
+):
+    for proxy_source in proxy_sources:
+        proxy1_deployment = await Contract.deploy(
+            compilation_source=proxy_source,
+            constructor_args=[0x123],
             client=account_client,
-            proxy_config=True,
         )
+        proxy2_deployment = await Contract.deploy(
+            compilation_source=proxy_source,
+            constructor_args=[0x123],
+            client=account_client,
+        )
+        await proxy1_deployment.wait_for_acceptance()
+        await proxy2_deployment.wait_for_acceptance()
 
-    assert "Proxy cycle detected" in str(exinfo.value)
+        proxy1 = proxy1_deployment.deployed_contract
+        proxy2 = proxy2_deployment.deployed_contract
+
+        argent_proxy = "_set_implementation" in proxy1.functions
+
+        if argent_proxy:
+            await proxy1.functions["_set_implementation"].invoke(
+                implementation=proxy2.address, max_fee=MAX_FEE
+            )
+            await proxy2.functions["_set_implementation"].invoke(
+                implementation=proxy1.address, max_fee=MAX_FEE
+            )
+        else:
+            await proxy1.functions["_set_implementation_hash"].invoke(
+                new_implementation=proxy2.address, max_fee=MAX_FEE
+            )
+            await proxy2.functions["_set_implementation_hash"].invoke(
+                new_implementation=proxy1.address, max_fee=MAX_FEE
+            )
+
+        with pytest.raises(RecursionError) as exinfo:
+            await Contract.from_address(
+                address=proxy2_deployment.deployed_contract.address,
+                client=account_client,
+                proxy_config=True,
+            )
+
+        assert "Proxy cycle detected" in str(exinfo.value)
 
 
 @pytest.mark.asyncio

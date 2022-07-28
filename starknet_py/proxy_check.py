@@ -39,6 +39,8 @@ class OpenZeppelinProxyCheck(ProxyCheck):
 
     async def implementation_address(self, contract: "Contract") -> int:
         res = await contract.client.get_storage_at(
-            contract_address=contract.address, key=self.storage_key
+            contract_address=contract.address,
+            key=self.storage_key,
+            block_hash="latest",
         )
         return parse_address(res)
