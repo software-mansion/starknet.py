@@ -22,6 +22,8 @@ from starknet_py.net.client_models import (
     BlockSingleTransactionTrace,
     EstimatedFee,
     Event,
+    DeclareTransactionResponse,
+    DeployTransactionResponse,
 )
 from starknet_py.net.common_schemas.common_schemas import (
     Felt,
@@ -196,13 +198,28 @@ class EstimatedFeeSchema(Schema):
 
 
 class SentTransactionSchema(Schema):
-    hash = Felt(data_key="transaction_hash")
+    transaction_hash = Felt(data_key="transaction_hash")
     code = fields.String(data_key="code")
-    address = Felt(data_key="address", allow_none=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs):
         return SentTransactionResponse(**data)
+
+
+class DeclareTransactionResponseSchema(SentTransactionSchema):
+    class_hash = Felt(data_key="class_hash")
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return DeclareTransactionResponse(**data)
+
+
+class DeployTransactionResponseSchema(SentTransactionSchema):
+    contract_address = Felt(data_key="address")
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return DeployTransactionResponse(**data)
 
 
 class StorageDiffSchema(Schema):

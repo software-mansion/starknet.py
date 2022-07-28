@@ -23,6 +23,7 @@ from starknet_py.transaction_exceptions import (
     TransactionRejectedError,
     TransactionNotReceivedError,
 )
+from starknet_py.transactions.declare import make_declare_tx
 from starknet_py.transactions.deploy import make_deploy_tx
 
 
@@ -266,31 +267,38 @@ async def test_state_update_full_node_client(
 
 
 @pytest.mark.asyncio
-async def test_add_transaction(contract_address, gateway_client):
-    # TODO extend this test to all clients
-    invoke_function = InvokeFunction(
-        contract_address=contract_address,
-        entry_point_selector=get_selector_from_name("increase_balance"),
-        calldata=[0],
-        max_fee=0,
-        version=0,
-        signature=[0x0, 0x0],
-    )
-    result = await gateway_client.send_transaction(invoke_function)
+async def test_add_transaction(contract_address, clients):
+    for client in clients:
+        invoke_function = InvokeFunction(
+            contract_address=contract_address,
+            entry_point_selector=get_selector_from_name("increase_balance"),
+            calldata=[0],
+            max_fee=0,
+            version=0,
+            signature=[0x0, 0x0],
+        )
+        result = await client.send_transaction(invoke_function)
+        transaction_receipt = await client.get_transaction_receipt(
+            result.transaction_hash
+        )
 
-    assert result.address == contract_address
-    assert result.code == "TRANSACTION_RECEIVED"
+        assert transaction_receipt.status != TransactionStatus.NOT_RECEIVED
 
 
 @pytest.mark.asyncio
-async def test_deploy(balance_contract, gateway_client):
-    # TODO extend this test to all clients
-    deploy_tx = make_deploy_tx(
-        compiled_contract=balance_contract, constructor_calldata=[]
-    )
-    result = await gateway_client.deploy(deploy_tx)
+async def test_deploy(balance_contract, clients):
+    for client in clients:
+        deploy_tx = make_deploy_tx(
+            compiled_contract=balance_contract, constructor_calldata=[]
+        )
+        result = await client.deploy(deploy_tx)
+        transaction_receipt = await client.get_transaction_receipt(
+            result.transaction_hash
+        )
 
-    assert result.code == "TRANSACTION_RECEIVED"
+        assert transaction_receipt.status != TransactionStatus.NOT_RECEIVED
+        assert transaction_receipt.hash
+        assert transaction_receipt.actual_fee == 0
 
 
 async def test_get_class_hash_at(clients, contract_address):
@@ -359,7 +367,7 @@ async def test_wait_for_tx_pending(gateway_client):
     "status, exception",
     (
         (TransactionStatus.REJECTED, TransactionRejectedError),
-        (TransactionStatus.UNKNOWN, TransactionNotReceivedError),
+        (TransactionStatus.NOT_RECEIVED, TransactionNotReceivedError),
     ),
 )
 @pytest.mark.asyncio
@@ -400,3 +408,18 @@ async def test_wait_for_tx_cancelled(gateway_client):
 
         with pytest.raises(TransactionNotReceivedError):
             await task
+
+
+@pytest.mark.asyncio
+async def test_declare_contract(clients, map_source_code):
+    for client in clients:
+        declare_tx = make_declare_tx(compilation_source=map_source_code)
+
+        result = await client.declare(declare_tx)
+        transaction_receipt = await client.get_transaction_receipt(
+            result.transaction_hash
+        )
+
+        assert transaction_receipt.status != TransactionStatus.NOT_RECEIVED
+        assert transaction_receipt.hash
+        assert transaction_receipt.actual_fee == 0

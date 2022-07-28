@@ -124,8 +124,7 @@ def create_account_client(
 
 
 @pytest.fixture(scope="module")
-# pylint: disable=redefined-outer-name
-def account_client(pytestconfig, gateway_client):
+def address_and_private_key(pytestconfig):
     net = pytestconfig.getoption("--net")
 
     account_details = {
@@ -134,9 +133,27 @@ def account_client(pytestconfig, gateway_client):
         "integration": (INTEGRATION_ACCOUNT_ADDRESS, INTEGRATION_ACCOUNT_PRIVATE_KEY),
     }
 
-    address, private_key = account_details[net]
+    return account_details[net]
+
+
+@pytest.fixture(scope="module")
+# pylint: disable=redefined-outer-name
+def gateway_account_client(address_and_private_key, gateway_client):
+    address, private_key = address_and_private_key
 
     return create_account_client(address, private_key, gateway_client)
+
+
+@pytest.fixture(scope="module")
+def rpc_account_client(address_and_private_key, rpc_client):
+    address, private_key = address_and_private_key
+
+    return create_account_client(address, private_key, rpc_client)
+
+
+@pytest.fixture(scope="module")
+def account_clients(gateway_account_client, rpc_account_client):
+    return gateway_account_client, rpc_account_client
 
 
 directory_with_contracts = Path(os.path.dirname(__file__)) / "mock_contracts_dir"
@@ -153,20 +170,20 @@ def erc20_source_code():
 
 
 @pytest.fixture(name="map_contract", scope="module")
-def deploy_map_contract(account_client, map_source_code) -> Contract:
+def deploy_map_contract(gateway_account_client, map_source_code) -> Contract:
     # pylint: disable=no-member
     deployment_result = Contract.deploy_sync(
-        client=account_client, compilation_source=map_source_code
+        client=gateway_account_client, compilation_source=map_source_code
     )
     deployment_result = deployment_result.wait_for_acceptance_sync()
     return deployment_result.deployed_contract
 
 
 @pytest.fixture(name="erc20_contract", scope="module")
-def deploy_erc20_contract(account_client, erc20_source_code) -> Contract:
+def deploy_erc20_contract(gateway_account_client, erc20_source_code) -> Contract:
     # pylint: disable=no-member
     deployment_result = Contract.deploy_sync(
-        client=account_client, compilation_source=erc20_source_code
+        client=gateway_account_client, compilation_source=erc20_source_code
     )
     deployment_result = deployment_result.wait_for_acceptance_sync()
     return deployment_result.deployed_contract
