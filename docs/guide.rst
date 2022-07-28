@@ -18,7 +18,7 @@ This is how we can interact with it:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_existing_contracts.py
     :language: python
-    :lines: 32-37,41-44,52-87
+    :lines: 34-39,43-46,54-89
     :dedent: 4
 
 
@@ -32,7 +32,7 @@ Here is an example:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_account_client_details.py
     :language: python
-    :lines: 8-13,17-21,26-53
+    :lines: 10-15,19-23,28-55
     :dedent: 4
 
 

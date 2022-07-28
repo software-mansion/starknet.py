@@ -23,6 +23,8 @@ from starknet_py.net.client_models import (
     EstimatedFee,
     Calls,
     TransactionStatus,
+    DeployTransactionResponse,
+    DeclareTransactionResponse,
 )
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
@@ -41,7 +43,6 @@ from starknet_py.utils.crypto.facade import Call
 from starknet_py.utils.data_transformer.execute_transformer import execute_transformer
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.net.models.address import AddressRepresentation, parse_address
-from starknet_py.net.gateway_client import GatewayClient
 
 
 @add_sync_methods
@@ -55,7 +56,7 @@ class AccountClient(Client):
     def __init__(
         self,
         address: AddressRepresentation,
-        client: GatewayClient,
+        client: Client,
         signer: Optional[BaseSigner] = None,
         key_pair: Optional[KeyPair] = None,
     ):
@@ -146,7 +147,9 @@ class AccountClient(Client):
     async def call_contract(
         self, invoke_tx: InvokeFunction, block_hash: Union[Hash, Tag] = None
     ) -> List[int]:
-        return await self.client.call_contract(invoke_tx=invoke_tx)
+        return await self.client.call_contract(
+            invoke_tx=invoke_tx, block_hash=block_hash
+        )
 
     async def get_class_hash_at(self, contract_address: Hash) -> int:
         return await self.client.get_class_hash_at(contract_address=contract_address)
@@ -163,7 +166,8 @@ class AccountClient(Client):
                 signature=[],
                 max_fee=0,
                 version=0,
-            )
+            ),
+            block_hash="latest",
         )
         return nonce
 
@@ -324,10 +328,10 @@ class AccountClient(Client):
         )
         return await self.send_transaction(execute_transaction)
 
-    async def deploy(self, transaction: Deploy) -> SentTransactionResponse:
+    async def deploy(self, transaction: Deploy) -> DeployTransactionResponse:
         return await self.client.deploy(transaction=transaction)
 
-    async def declare(self, transaction: Declare) -> SentTransactionResponse:
+    async def declare(self, transaction: Declare) -> DeclareTransactionResponse:
         return await self.client.declare(transaction=transaction)
 
     async def estimate_fee(
@@ -398,9 +402,9 @@ async def deploy_account_contract(
     )
     result = await client.deploy(deploy_tx)
     await client.wait_for_tx(
-        tx_hash=result.hash,
+        tx_hash=result.transaction_hash,
     )
-    return result.address
+    return result.contract_address
 
 
 def add_signature_to_transaction(
