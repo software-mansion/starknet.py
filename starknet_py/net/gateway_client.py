@@ -9,7 +9,6 @@ from starknet_py.net.client_models import (
     Transaction,
     SentTransactionResponse,
     ContractCode,
-    TransactionReceipt,
     BlockStateUpdate,
     StarknetBlock,
     InvokeFunction,
@@ -24,6 +23,7 @@ from starknet_py.net.client_models import (
     BlockTransactionTraces,
     DeployTransactionResponse,
     DeclareTransactionResponse,
+    GatewayTransactionReceipt,
 )
 from starknet_py.net.gateway_schemas.gateway_schemas import (
     ContractCodeSchema,
@@ -31,13 +31,13 @@ from starknet_py.net.gateway_schemas.gateway_schemas import (
     SentTransactionSchema,
     BlockStateUpdateSchema,
     DeclaredContractSchema,
-    TransactionReceiptSchema,
     TypesOfTransactionsSchema,
     TransactionStatusSchema,
     BlockTransactionTracesSchema,
     EstimatedFeeSchema,
     DeployTransactionResponseSchema,
     DeclareTransactionResponseSchema,
+    GatewayTransactionReceiptSchema,
 )
 from starknet_py.net.http_client import GatewayHttpClient
 from starknet_py.net.models import StarknetChainId, chain_from_network
@@ -206,12 +206,12 @@ class GatewayClient(Client):
         res = typing.cast(str, res)
         return int(res, 16)
 
-    async def get_transaction_receipt(self, tx_hash: Hash) -> TransactionReceipt:
+    async def get_transaction_receipt(self, tx_hash: Hash) -> GatewayTransactionReceipt:
         res = await self._feeder_gateway_client.call(
             method_name="get_transaction_receipt",
             params={"transactionHash": convert_to_felt(tx_hash)},
         )
-        return TransactionReceiptSchema().load(res, unknown=EXCLUDE)
+        return GatewayTransactionReceiptSchema().load(res, unknown=EXCLUDE)
 
     async def get_code(
         self,

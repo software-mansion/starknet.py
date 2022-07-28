@@ -24,6 +24,7 @@ from starknet_py.net.client_models import (
     Event,
     DeclareTransactionResponse,
     DeployTransactionResponse,
+    GatewayTransactionReceipt,
 )
 from starknet_py.net.common_schemas.common_schemas import (
     Felt,
@@ -116,8 +117,11 @@ class TransactionReceiptSchema(Schema):
     block_number = fields.Integer(data_key="block_number", load_default=None)
     version = fields.Integer(data_key="version", allow_none=True)
     actual_fee = Felt(data_key="actual_key", allow_none=True)
-    rejection_reason = fields.String(
-        data_key="transaction_rejection_reason", allow_none=True, load_default=None
+    rejection_reason = fields.Dict(
+        keys=fields.String(),
+        values=fields.Raw(),
+        data_key="transaction_failure_reason",
+        allow_none=True,
     )
     events = fields.List(
         fields.Nested(EventSchema()), data_key="events", load_default=[]
@@ -134,6 +138,21 @@ class TransactionReceiptSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> TransactionReceipt:
         return TransactionReceipt(**data)
+
+
+class GatewayTransactionReceiptSchema(TransactionReceiptSchema):
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> GatewayTransactionReceipt:
+        if data.get("rejection_reason", None) is not None:
+            code = data["rejection_reason"]["code"]
+            rejection_reason = data["rejection_reason"]["error_message"]
+            del data["rejection_reason"]
+
+            return GatewayTransactionReceipt(
+                **data, code=code, rejection_reason=rejection_reason
+            )
+
+        return GatewayTransactionReceipt(**data)
 
 
 class ContractCodeSchema(Schema):

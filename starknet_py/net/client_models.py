@@ -161,6 +161,15 @@ class TransactionReceipt:
 
 
 @dataclass
+class GatewayTransactionReceipt(TransactionReceipt):
+    """
+    Dataclass extending TransactionReceipt with code field
+    """
+
+    code: str = None
+
+
+@dataclass
 class SentTransactionResponse:
     """
     Dataclass representing a result of sending a transaction to starknet
