@@ -165,11 +165,10 @@ class Client(ABC):
                         if result.block_number is not None:
                             return result.block_number, status
                 elif status == TransactionStatus.REJECTED:
-                    if isinstance(result, GatewayTransactionReceipt):
-                        raise TransactionRejectedError(
-                            result.rejection_reason, result.code
-                        )
-                    raise TransactionRejectedError(result.rejection_reason)
+                    raise TransactionRejectedError(
+                        message=result.rejection_reason,
+                        code=getattr(result, "code", None),
+                    )
                 elif status == TransactionStatus.NOT_RECEIVED:
                     if not first_run:
                         raise TransactionNotReceivedError()
@@ -179,7 +178,10 @@ class Client(ABC):
                         raise TransactionFailedError(
                             result.rejection_reason, result.code
                         )
-                    raise TransactionFailedError(result.rejection_reason)
+                    raise TransactionFailedError(
+                        message=result.rejection_reason,
+                        code=getattr(result, "code", None),
+                    )
 
                 first_run = False
                 await asyncio.sleep(check_interval)
