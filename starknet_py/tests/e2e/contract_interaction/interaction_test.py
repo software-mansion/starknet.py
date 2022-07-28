@@ -1,9 +1,15 @@
+import asyncio
+from unittest.mock import patch, MagicMock
+
 import pytest
 from starkware.starknet.public.abi import get_selector_from_name
+from starkware.starkware_utils.error_handling import StarkErrorCode
 
+from starknet_py.net.client_models import SentTransactionResponse
 from starknet_py.tests.e2e.conftest import directory_with_contracts
 from starknet_py.transaction_exceptions import (
     TransactionRejectedError,
+    TransactionNotReceivedError,
 )
 from starknet_py.contract import Contract
 from starknet_py.net.models import InvokeFunction
@@ -313,6 +319,28 @@ async def test_warning_when_max_fee_equals_to_zero(map_contract):
         await map_contract.functions["put"].invoke(10, 20, max_fee=0)
 
     assert len(max_fee_warnings) == 1
+
+
+@pytest.mark.asyncio
+async def test_transaction_not_received_error(map_contract):
+    with patch(
+        "starknet_py.net.account.account_client.AccountClient.send_transaction",
+        MagicMock(),
+    ) as mocked_send_transaction:
+        result = asyncio.Future()
+        result.set_result(
+            SentTransactionResponse(
+                code=StarkErrorCode.TRANSACTION_CANCELLED.value, transaction_hash=0x123
+            )
+        )
+
+        mocked_send_transaction.return_value = result
+
+        with pytest.raises(TransactionNotReceivedError) as tx_not_received:
+            result = await map_contract.functions["put"].invoke(10, 20, max_fee=MAX_FEE)
+            await result.wait_for_acceptance()
+
+        assert "Transaction not received" in str(tx_not_received)
 
 
 @pytest.mark.asyncio
