@@ -16,7 +16,8 @@ from starknet_py.net.client_models import (
     TransactionReceipt,
     ContractDiff,
     DeployTransaction,
-    InvokeTransaction, GatewayTransactionReceipt,
+    InvokeTransaction,
+    GatewayTransactionReceipt,
 )
 from starknet_py.net.client_errors import ClientError
 from starknet_py.transaction_exceptions import (
