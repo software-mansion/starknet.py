@@ -8,51 +8,6 @@ MAX_FEE = int(1e20)
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("proxy_source", PROXY_SOURCES, indirect=True)
-async def test_contract_from_address_with_1_proxy(
-    gateway_client, map_contract, proxy_source
-):
-    deployment_result = await Contract.deploy(
-        compilation_source=proxy_source,
-        constructor_args=[map_contract.address],
-        client=gateway_client,
-    )
-
-    proxy_contract = await Contract.from_address(
-        deployment_result.deployed_contract.address,
-        client=gateway_client,
-        proxy_config=True,
-    )
-
-    assert all(f in proxy_contract.functions for f in ("put", "get"))
-
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize("proxy_source", PROXY_SOURCES, indirect=True)
-async def test_contract_from_address_with_2_proxy(
-    gateway_client, map_contract, proxy_source
-):
-    proxy1_deployment = await Contract.deploy(
-        compilation_source=proxy_source,
-        constructor_args=[map_contract.address],
-        client=gateway_client,
-    )
-    proxy2_deployment = await Contract.deploy(
-        compilation_source=proxy_source,
-        constructor_args=[proxy1_deployment.deployed_contract.address],
-        client=gateway_client,
-    )
-
-    proxy_contract = await Contract.from_address(
-        proxy2_deployment.deployed_contract.address,
-        client=gateway_client,
-        proxy_config=True,
-    )
-
-    assert all(f in proxy_contract.functions for f in ("put", "get"))
-
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize("proxy_source", PROXY_SOURCES, indirect=True)
 async def test_contract_from_address_throws_on_too_many_steps(
     gateway_client, map_contract, proxy_source
 ):
@@ -123,3 +78,48 @@ async def test_contract_from_address_throws_on_proxy_cycle(
         )
 
     assert "Proxy cycle detected" in str(exinfo.value)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("proxy_source", PROXY_SOURCES, indirect=True)
+async def test_contract_from_address_with_1_proxy(
+    gateway_client, map_contract, proxy_source
+):
+    deployment_result = await Contract.deploy(
+        compilation_source=proxy_source,
+        constructor_args=[map_contract.address],
+        client=gateway_client,
+    )
+
+    proxy_contract = await Contract.from_address(
+        deployment_result.deployed_contract.address,
+        client=gateway_client,
+        proxy_config=True,
+    )
+
+    assert all(f in proxy_contract.functions for f in ("put", "get"))
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("proxy_source", PROXY_SOURCES, indirect=True)
+async def test_contract_from_address_with_2_proxy(
+    gateway_client, map_contract, proxy_source
+):
+    proxy1_deployment = await Contract.deploy(
+        compilation_source=proxy_source,
+        constructor_args=[map_contract.address],
+        client=gateway_client,
+    )
+    proxy2_deployment = await Contract.deploy(
+        compilation_source=proxy_source,
+        constructor_args=[proxy1_deployment.deployed_contract.address],
+        client=gateway_client,
+    )
+
+    proxy_contract = await Contract.from_address(
+        proxy2_deployment.deployed_contract.address,
+        client=gateway_client,
+        proxy_config=True,
+    )
+
+    assert all(f in proxy_contract.functions for f in ("put", "get"))
