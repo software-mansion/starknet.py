@@ -55,7 +55,7 @@ class StarknetL1Contract:
         return self.w3.eth.call(
             prepare_transaction(
                 address=typing.cast(ChecksumAddress, self.contract_address),
-                web3=self.w3,
+                w3=self.w3,
                 transaction={"value": 0},
                 fn_identifier="l2ToL1Messages",
                 fn_abi=abi,
@@ -84,7 +84,7 @@ class StarknetL1Contract:
         return self.w3.eth.call(
             prepare_transaction(
                 address=self.contract_address,
-                web3=self.w3,
+                w3=self.w3,
                 transaction={"value": 0},
                 fn_identifier="l1ToL2Messages",
                 fn_abi=abi,

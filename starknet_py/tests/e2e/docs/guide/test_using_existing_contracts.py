@@ -26,7 +26,9 @@ abi = [
 
 
 @pytest.mark.asyncio
-async def test_using_existing_contracts(gateway_client, account_client, erc20_contract):
+async def test_using_existing_contracts(
+    gateway_client, gateway_account_client, erc20_contract
+):
     # pylint: disable=import-outside-toplevel,too-many-locals,unused-variable
     # add to docs: start
     from starknet_py.net.gateway_client import GatewayClient
@@ -44,7 +46,7 @@ async def test_using_existing_contracts(gateway_client, account_client, erc20_co
     acc_client = await AccountClient.create_account(client=gateway_client)
     # add to docs: end
 
-    acc_client = account_client
+    acc_client = gateway_account_client
 
     address = erc20_contract.address
 
