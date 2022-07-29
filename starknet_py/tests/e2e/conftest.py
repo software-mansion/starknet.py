@@ -32,8 +32,6 @@ INTEGRATION_ACCOUNT_ADDRESS = (
     "0x60D7C88541F969520E46D39EC7C9053451CFEDBC2EEB847B684981A22CD452E"
 )
 
-PROXY_SOURCES = ["argent_proxy.cairo"]
-
 
 def pytest_addoption(parser):
     parser.addoption(
@@ -189,8 +187,3 @@ def deploy_erc20_contract(gateway_account_client, erc20_source_code) -> Contract
     )
     deployment_result = deployment_result.wait_for_acceptance_sync()
     return deployment_result.deployed_contract
-
-
-@pytest.fixture(name="proxy_source", scope="function")
-def proxy_source(request) -> str:
-    return (directory_with_contracts / request.param).read_text("utf-8")

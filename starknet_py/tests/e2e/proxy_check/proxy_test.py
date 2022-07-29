@@ -1,23 +1,32 @@
 import pytest
 
-from starknet_py.tests.e2e.conftest import PROXY_SOURCES
+from starknet_py.tests.e2e.conftest import directory_with_contracts
 from starknet_py.contract import Contract
 
 MAX_FEE = int(1e20)
 
+ARGENT_PROXY_COMPILED = (
+    directory_with_contracts / "argent_proxy_compiled.json"
+).read_text("utf-8")
+OZ_PROXY_COMPILED = (directory_with_contracts / "oz_proxy_compiled.json").read_text(
+    "utf-8"
+)
+
+COMPILED_PROXIES = [ARGENT_PROXY_COMPILED, OZ_PROXY_COMPILED]
+
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("proxy_source", PROXY_SOURCES, indirect=True)
+@pytest.mark.parametrize("compiled_proxy", COMPILED_PROXIES)
 async def test_contract_from_address_throws_on_too_many_steps(
-    gateway_client, map_contract, proxy_source
+    gateway_client, map_contract, compiled_proxy
 ):
     proxy1_deployment = await Contract.deploy(
-        compilation_source=proxy_source,
+        compiled_contract=compiled_proxy,
         constructor_args=[map_contract.address],
         client=gateway_client,
     )
     proxy2_deployment = await Contract.deploy(
-        compilation_source=proxy_source,
+        compiled_contract=compiled_proxy,
         constructor_args=[proxy1_deployment.deployed_contract.address],
         client=gateway_client,
     )
@@ -33,17 +42,17 @@ async def test_contract_from_address_throws_on_too_many_steps(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("proxy_source", PROXY_SOURCES, indirect=True)
+@pytest.mark.parametrize("compiled_proxy", COMPILED_PROXIES)
 async def test_contract_from_address_throws_on_proxy_cycle(
-    gateway_account_client, proxy_source
+    gateway_account_client, compiled_proxy
 ):
     proxy1_deployment = await Contract.deploy(
-        compilation_source=proxy_source,
+        compiled_contract=compiled_proxy,
         constructor_args=[0x123],
         client=gateway_account_client,
     )
     proxy2_deployment = await Contract.deploy(
-        compilation_source=proxy_source,
+        compiled_contract=compiled_proxy,
         constructor_args=[0x123],
         client=gateway_account_client,
     )
@@ -81,12 +90,12 @@ async def test_contract_from_address_throws_on_proxy_cycle(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("proxy_source", PROXY_SOURCES, indirect=True)
+@pytest.mark.parametrize("compiled_proxy", COMPILED_PROXIES)
 async def test_contract_from_address_with_1_proxy(
-    gateway_client, map_contract, proxy_source
+    gateway_client, map_contract, compiled_proxy
 ):
     deployment_result = await Contract.deploy(
-        compilation_source=proxy_source,
+        compiled_contract=compiled_proxy,
         constructor_args=[map_contract.address],
         client=gateway_client,
     )
@@ -101,17 +110,17 @@ async def test_contract_from_address_with_1_proxy(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("proxy_source", PROXY_SOURCES, indirect=True)
+@pytest.mark.parametrize("compiled_proxy", COMPILED_PROXIES)
 async def test_contract_from_address_with_2_proxy(
-    gateway_client, map_contract, proxy_source
+    gateway_client, map_contract, compiled_proxy
 ):
     proxy1_deployment = await Contract.deploy(
-        compilation_source=proxy_source,
+        compiled_contract=compiled_proxy,
         constructor_args=[map_contract.address],
         client=gateway_client,
     )
     proxy2_deployment = await Contract.deploy(
-        compilation_source=proxy_source,
+        compiled_contract=compiled_proxy,
         constructor_args=[proxy1_deployment.deployed_contract.address],
         client=gateway_client,
     )
