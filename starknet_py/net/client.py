@@ -166,7 +166,6 @@ class Client(ABC):
                 elif status == TransactionStatus.REJECTED:
                     raise TransactionRejectedError(
                         message=result.rejection_reason,
-                        code=getattr(result, "code", None),
                     )
                 elif status == TransactionStatus.NOT_RECEIVED:
                     if not first_run:
@@ -175,7 +174,6 @@ class Client(ABC):
                     # This will never get executed with current possible transactions statuses
                     raise TransactionFailedError(
                         message=result.rejection_reason,
-                        code=getattr(result, "code", None),
                     )
 
                 first_run = False
