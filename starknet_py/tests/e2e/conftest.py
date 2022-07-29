@@ -32,6 +32,8 @@ INTEGRATION_ACCOUNT_ADDRESS = (
     "0x60D7C88541F969520E46D39EC7C9053451CFEDBC2EEB847B684981A22CD452E"
 )
 
+PROXY_SOURCES = ["argent_proxy.cairo", "oz_proxy.cairo"]
+
 
 def pytest_addoption(parser):
     parser.addoption(
@@ -71,7 +73,7 @@ def start_devnet():
     return devnet_port, proc
 
 
-@pytest.fixture(scope="module", autouse=True)
+@pytest.fixture(scope="function", autouse=True)
 def run_devnet():
     devnet_port, proc = start_devnet()
     yield f"http://localhost:{devnet_port}"
@@ -93,7 +95,7 @@ def pytest_collection_modifyitems(config, items):
             item.add_marker(pytest.mark.skip())
 
 
-@pytest.fixture(name="gateway_client", scope="module")
+@pytest.fixture(name="gateway_client", scope="function")
 def create_gateway_client(pytestconfig, run_devnet):
     net = pytestconfig.getoption("--net")
     net_address = {
@@ -105,7 +107,7 @@ def create_gateway_client(pytestconfig, run_devnet):
     return GatewayClient(net=net_address[net], chain=StarknetChainId.TESTNET)
 
 
-@pytest.fixture(name="rpc_client", scope="module")
+@pytest.fixture(name="rpc_client", scope="function")
 def create_rpc_client(run_devnet):
     return FullNodeClient(
         node_url=run_devnet + "/rpc", chain=StarknetChainId.TESTNET, net=run_devnet
@@ -123,7 +125,7 @@ def create_account_client(
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def address_and_private_key(pytestconfig):
     net = pytestconfig.getoption("--net")
 
@@ -136,7 +138,7 @@ def address_and_private_key(pytestconfig):
     return account_details[net]
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 # pylint: disable=redefined-outer-name
 def gateway_account_client(address_and_private_key, gateway_client):
     address, private_key = address_and_private_key
@@ -144,14 +146,14 @@ def gateway_account_client(address_and_private_key, gateway_client):
     return create_account_client(address, private_key, gateway_client)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def rpc_account_client(address_and_private_key, rpc_client):
     address, private_key = address_and_private_key
 
     return create_account_client(address, private_key, rpc_client)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def account_clients(gateway_account_client, rpc_account_client):
     return gateway_account_client, rpc_account_client
 
@@ -159,17 +161,17 @@ def account_clients(gateway_account_client, rpc_account_client):
 directory_with_contracts = Path(os.path.dirname(__file__)) / "mock_contracts_dir"
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def map_source_code():
     return (directory_with_contracts / "map.cairo").read_text("utf-8")
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def erc20_source_code():
     return (directory_with_contracts / "erc20.cairo").read_text("utf-8")
 
 
-@pytest.fixture(name="map_contract", scope="module")
+@pytest.fixture(name="map_contract", scope="function")
 def deploy_map_contract(gateway_account_client, map_source_code) -> Contract:
     # pylint: disable=no-member
     deployment_result = Contract.deploy_sync(
@@ -179,7 +181,7 @@ def deploy_map_contract(gateway_account_client, map_source_code) -> Contract:
     return deployment_result.deployed_contract
 
 
-@pytest.fixture(name="erc20_contract", scope="module")
+@pytest.fixture(name="erc20_contract", scope="function")
 def deploy_erc20_contract(gateway_account_client, erc20_source_code) -> Contract:
     # pylint: disable=no-member
     deployment_result = Contract.deploy_sync(
@@ -187,3 +189,8 @@ def deploy_erc20_contract(gateway_account_client, erc20_source_code) -> Contract
     )
     deployment_result = deployment_result.wait_for_acceptance_sync()
     return deployment_result.deployed_contract
+
+
+@pytest.fixture(name="proxy_source", scope="function")
+def proxy_source(request) -> str:
+    return (directory_with_contracts / request.param).read_text("utf-8")

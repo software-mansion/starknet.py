@@ -1,6 +1,6 @@
 import pytest
 
-from starknet_py.tests.e2e.proxy_check.conftest import PROXY_SOURCES
+from starknet_py.tests.e2e.conftest import PROXY_SOURCES
 from starknet_py.contract import Contract
 
 MAX_FEE = int(1e20)
