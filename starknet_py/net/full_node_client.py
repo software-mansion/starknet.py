@@ -25,8 +25,13 @@ from starknet_py.net.client_models import (
     DeclareTransactionResponse,
     DeployTransactionResponse,
 )
+from starknet_py.net.gateway_schemas.gateway_schemas import EstimatedFeeSchema
 from starknet_py.net.http_client import RpcHttpClient
-from starknet_py.net.models import StarknetChainId, chain_from_network
+from starknet_py.net.models import (
+    StarknetChainId,
+    chain_from_network,
+    compute_invoke_hash,
+)
 from starknet_py.net.networks import Network
 from starknet_py.net.rpc_schemas.rpc_schemas import (
     StarknetBlockSchema,
@@ -192,25 +197,51 @@ class FullNodeClient(Client):
         block_hash: Union[Hash, Tag] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
-        raise NotImplementedError()
+        block_identifier = get_block_identifier(
+            block_hash=block_hash, block_number=block_number
+        )
+
+        res = await self._client.call(
+            method_name="estimateFee",
+            params={
+                "request": {
+                    "transaction_hash": convert_to_felt(compute_invoke_hash(**tx)),
+                    "max_fee": convert_to_felt(tx.max_fee),
+                    "version": hex(tx.version),
+                    "signature": [convert_to_felt(i) for i in tx.signature],
+                    "nonce": convert_to_felt(tx.nonce),  # TODO: do something with nonce
+                    "type": "INVOKE",
+                    "contract_address": convert_to_felt(tx.contract_address),
+                    "entry_point_selector": convert_to_felt(tx.entry_point_selector),
+                    "calldata": [convert_to_felt(i) for i in tx.calldata],
+                },
+                "block_id": block_identifier["block_id"],
+            },
+        )
+
+        return EstimatedFeeSchema().load(res, unknown=EXCLUDE)
 
     async def call_contract(
         self,
         invoke_tx: InvokeFunction,
-        block_hash: Union[Hash, Tag] = None,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> List[int]:
-        if block_hash is None:
-            raise ValueError(
-                "block_hash is required for calls when using FullNodeClient"
-            )
+        block_identifier = get_block_identifier(
+            block_hash=block_hash, block_number=block_number
+        )
 
         res = await self._client.call(
             method_name="call",
             params={
-                "contract_address": convert_to_felt(invoke_tx.contract_address),
-                "entry_point_selector": convert_to_felt(invoke_tx.entry_point_selector),
-                "calldata": [convert_to_felt(i) for i in invoke_tx.calldata],
-                "block_hash": convert_to_felt(block_hash),
+                "request": {
+                    "contract_address": convert_to_felt(invoke_tx.contract_address),
+                    "entry_point_selector": convert_to_felt(
+                        invoke_tx.entry_point_selector
+                    ),
+                    "calldata": [convert_to_felt(i) for i in invoke_tx.calldata],
+                },
+                "block_id": block_identifier["block_id"],
             },
         )
         return [int(i, 16) for i in res["result"]]
