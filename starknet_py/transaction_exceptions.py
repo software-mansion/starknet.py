@@ -11,7 +11,7 @@ class TransactionFailedError(Exception):
         super().__init__(self.message)
 
     def __str__(self):
-        return f"Transaction failed with following starknet error: " f"{self.message}."
+        return f"Transaction failed with following starknet error: {self.message}."
 
 
 class TransactionRejectedError(TransactionFailedError):
