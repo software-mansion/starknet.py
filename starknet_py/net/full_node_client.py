@@ -250,6 +250,26 @@ class FullNodeClient(Client):
         res = typing.cast(str, res)
         return int(res, 16)
 
+    async def get_class_at(
+        self,
+        contract_address: Hash,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> DeclaredContract:
+        block_identifier = get_block_identifier(
+            block_hash=block_hash, block_number=block_number
+        )
+
+        res = await self._client.call(
+            method_name="getClassAt",
+            params={
+                "block_id": block_identifier["block_id"],
+                "contract_address": convert_to_felt(contract_address),
+            },
+        )
+
+        return DeclaredContractSchema().load(res, unknown=EXCLUDE)
+
 
 def get_block_identifier(
     block_hash: Optional[Union[Hash, Tag]] = None,
