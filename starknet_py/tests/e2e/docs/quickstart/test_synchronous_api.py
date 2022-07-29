@@ -3,7 +3,7 @@ import pytest
 
 
 @pytest.mark.asyncio
-def test_synchronous_api(account_client, map_contract):
+def test_synchronous_api(gateway_account_client, map_contract):
     # add to docs: start
     from starknet_py.contract import Contract
     from starknet_py.net.gateway_client import GatewayClient
@@ -15,7 +15,7 @@ def test_synchronous_api(account_client, map_contract):
     )
     # add to docs: end
 
-    client = account_client
+    client = gateway_account_client
     contract_address = map_contract.address
 
     # add to docs: start

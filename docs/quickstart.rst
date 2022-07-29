@@ -60,7 +60,7 @@ Example usage:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/quickstart/test_using_account_client.py
     :language: python
-    :lines: 12-15,19-22,26-56
+    :lines: 14-17,21-24,28-58
     :dedent: 4
 
 Using Contract
@@ -71,6 +71,10 @@ Using Contract
     :language: python
     :lines: 12-17,22-28,33-35,41-58
     :dedent: 4
+
+.. note::
+
+    To check if invoke succeed use wait_for_acceptance on InvokeResult and get its status.
 
 Although asynchronous API is recommended, you can also use Contract's synchronous API:
 
