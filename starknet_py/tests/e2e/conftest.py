@@ -187,3 +187,8 @@ def deploy_erc20_contract(gateway_account_client, erc20_source_code) -> Contract
     )
     deployment_result = deployment_result.wait_for_acceptance_sync()
     return deployment_result.deployed_contract
+
+
+@pytest.fixture(name="compiled_proxy")
+def compiled_proxy(request) -> str:
+    return (directory_with_contracts / request.param).read_text("utf-8")
