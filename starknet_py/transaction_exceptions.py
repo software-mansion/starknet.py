@@ -21,7 +21,7 @@ class TransactionRejectedError(TransactionFailedError):
 
     def __str__(self):
         return (
-            f"Transaction was rejected with following starknet error: "
+            "Transaction was rejected with following starknet error: "
             f"{self.message}."
         )
 
