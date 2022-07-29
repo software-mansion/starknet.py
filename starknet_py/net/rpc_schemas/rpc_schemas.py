@@ -36,15 +36,17 @@ from starknet_py.net.common_schemas.common_schemas import (
 
 
 class FunctionCallSchema(Schema):
-    contract_address = fields.Integer(data_key="contract_address")
-    entry_point_selector = fields.Integer(data_key="entry_point_selector")
-    calldata = fields.List(fields.Integer(), data_key="calldata")
+    contract_address = fields.Integer(data_key="contract_address", required=True)
+    entry_point_selector = fields.Integer(
+        data_key="entry_point_selector", required=True
+    )
+    calldata = fields.List(fields.Integer(), data_key="calldata", required=True)
 
 
 class EventSchema(Schema):
-    from_address = Felt(data_key="from_address")
-    keys = fields.List(Felt(), data_key="keys")
-    data = fields.List(Felt(), data_key="data")
+    from_address = Felt(data_key="from_address", required=True)
+    keys = fields.List(Felt(), data_key="keys", required=True)
+    data = fields.List(Felt(), data_key="data", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> Event:
@@ -52,9 +54,9 @@ class EventSchema(Schema):
 
 
 class L1toL2MessageSchema(Schema):
-    l1_address = Felt(data_key="from_address")
+    l1_address = Felt(data_key="from_address", required=True)
     l2_address = Felt(load_default=None)
-    payload = fields.List(Felt(), data_key="payload")
+    payload = fields.List(Felt(), data_key="payload", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> L1toL2Message:
@@ -63,8 +65,8 @@ class L1toL2MessageSchema(Schema):
 
 class L2toL1MessageSchema(Schema):
     l2_address = Felt(load_default=None)
-    l1_address = Felt(data_key="to_address")
-    payload = fields.List(Felt(), data_key="payload")
+    l1_address = Felt(data_key="to_address", required=True)
+    payload = fields.List(Felt(), data_key="payload", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> L2toL1Message:
@@ -72,9 +74,9 @@ class L2toL1MessageSchema(Schema):
 
 
 class TransactionReceiptSchema(Schema):
-    hash = Felt(data_key="txn_hash")
-    status = StatusField(data_key="status")
-    actual_fee = Felt(data_key="actual_fee")
+    hash = Felt(data_key="txn_hash", required=True)
+    status = StatusField(data_key="status", required=True)
+    actual_fee = Felt(data_key="actual_fee", required=True)
     rejection_reason = fields.String(data_key="statusData", load_default=None)
     events = fields.List(
         fields.Nested(EventSchema()), data_key="events", load_default=[]
@@ -92,8 +94,8 @@ class TransactionReceiptSchema(Schema):
 
 
 class ContractCodeSchema(Schema):
-    bytecode = fields.List(Felt(), data_key="bytecode")
-    abi = fields.String(data_key="abi")
+    bytecode = fields.List(Felt(), data_key="bytecode", required=True)
+    abi = fields.String(data_key="abi", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> ContractCode:
@@ -106,15 +108,15 @@ class ContractCodeSchema(Schema):
 
 
 class TransactionSchema(Schema):
-    hash = Felt(data_key="txn_hash")
+    hash = Felt(data_key="txn_hash", required=True)
     signature = fields.List(Felt(), data_key="signature", load_default=[])
     max_fee = Felt(data_key="max_fee", load_default=0)
 
 
 class InvokeTransactionSchema(TransactionSchema):
-    contract_address = Felt(data_key="contract_address")
-    entry_point_selector = Felt(data_key="entry_point_selector")
-    calldata = fields.List(Felt(), data_key="calldata")
+    contract_address = Felt(data_key="contract_address", required=True)
+    entry_point_selector = Felt(data_key="entry_point_selector", required=True)
+    calldata = fields.List(Felt(), data_key="calldata", required=True)
 
     @pre_load
     def preprocess(self, data, **kwargs):
@@ -128,8 +130,8 @@ class InvokeTransactionSchema(TransactionSchema):
 
 
 class DeclareTransactionSchema(TransactionSchema):
-    class_hash = Felt(data_key="class_hash")
-    sender_address = Felt(data_key="sender_address")
+    class_hash = Felt(data_key="class_hash", required=True)
+    sender_address = Felt(data_key="sender_address", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> DeclareTransaction:
@@ -137,8 +139,8 @@ class DeclareTransactionSchema(TransactionSchema):
 
 
 class DeployTransactionSchema(TransactionSchema):
-    contract_address = Felt(data_key="contract_address")
-    constructor_calldata = fields.List(Felt(), data_key="calldata")
+    contract_address = Felt(data_key="contract_address", required=True)
+    constructor_calldata = fields.List(Felt(), data_key="calldata", required=True)
     # class_hash = Felt(data_key="class_hash", load_default=None)
 
     @post_load
@@ -163,16 +165,17 @@ class TypesOfTransactionsSchema(OneOfSchema):
 
 
 class StarknetBlockSchema(Schema):
-    block_hash = Felt(data_key="block_hash")
-    parent_block_hash = Felt(data_key="parent_hash")
-    block_number = fields.Integer(data_key="block_number")
-    status = BlockStatusField(data_key="status")
-    root = NonPrefixedHex(data_key="new_root")
+    block_hash = Felt(data_key="block_hash", required=True)
+    parent_block_hash = Felt(data_key="parent_hash", required=True)
+    block_number = fields.Integer(data_key="block_number", required=True)
+    status = BlockStatusField(data_key="status", required=True)
+    root = NonPrefixedHex(data_key="new_root", required=True)
     transactions = fields.List(
         fields.Nested(TypesOfTransactionsSchema(unknown=EXCLUDE)),
         data_key="transactions",
+        required=True,
     )
-    timestamp = fields.Integer(data_key="timestamp")
+    timestamp = fields.Integer(data_key="timestamp", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> StarknetBlock:
@@ -180,9 +183,9 @@ class StarknetBlockSchema(Schema):
 
 
 class StorageDiffSchema(Schema):
-    address = Felt(data_key="address")
-    key = Felt(data_key="key")
-    value = Felt(data_key="value")
+    address = Felt(data_key="address", required=True)
+    key = Felt(data_key="key", required=True)
+    value = Felt(data_key="value", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> StorageDiff:
@@ -190,8 +193,8 @@ class StorageDiffSchema(Schema):
 
 
 class ContractDiffSchema(Schema):
-    address = Felt(data_key="address")
-    contract_hash = Felt(data_key="contract_hash")
+    address = Felt(data_key="address", required=True)
+    contract_hash = Felt(data_key="contract_hash", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> ContractDiff:
@@ -200,18 +203,18 @@ class ContractDiffSchema(Schema):
 
 class StateDiffSchema(Schema):
     storage_diffs = fields.List(
-        fields.Nested(StorageDiffSchema()), data_key="storage_diffs"
+        fields.Nested(StorageDiffSchema()), data_key="storage_diffs", required=True
     )
     contract_diffs = fields.List(
-        fields.Nested(ContractDiffSchema()), data_key="contracts"
+        fields.Nested(ContractDiffSchema()), data_key="contracts", required=True
     )
 
 
 class BlockStateUpdateSchema(Schema):
-    block_hash = Felt(data_key="block_hash")
-    new_root = Felt(data_key="new_root")
-    old_root = Felt(data_key="old_root")
-    state_diff = fields.Nested(StateDiffSchema(), data_key="state_diff")
+    block_hash = Felt(data_key="block_hash", required=True)
+    new_root = Felt(data_key="new_root", required=True)
+    old_root = Felt(data_key="old_root", required=True)
+    state_diff = fields.Nested(StateDiffSchema(), data_key="state_diff", required=True)
 
     @pre_load
     def preprocess(self, data, **kwargs):
@@ -244,8 +247,8 @@ class BlockStateUpdateSchema(Schema):
 
 
 class EntryPointSchema(Schema):
-    offset = Felt(data_key="offset")
-    selector = Felt(data_key="selector")
+    offset = Felt(data_key="offset", required=True)
+    selector = Felt(data_key="selector", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> EntryPoint:
@@ -253,9 +256,15 @@ class EntryPointSchema(Schema):
 
 
 class EntryPointsByTypeSchema(Schema):
-    constructor = fields.List(fields.Nested(EntryPointSchema()), data_key="CONSTRUCTOR")
-    external = fields.List(fields.Nested(EntryPointSchema()), data_key="EXTERNAL")
-    l1_handler = fields.List(fields.Nested(EntryPointSchema()), data_key="L1_HANDLER")
+    constructor = fields.List(
+        fields.Nested(EntryPointSchema()), data_key="CONSTRUCTOR", required=True
+    )
+    external = fields.List(
+        fields.Nested(EntryPointSchema()), data_key="EXTERNAL", required=True
+    )
+    l1_handler = fields.List(
+        fields.Nested(EntryPointSchema()), data_key="L1_HANDLER", required=True
+    )
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> EntryPointsByType:
@@ -263,9 +272,9 @@ class EntryPointsByTypeSchema(Schema):
 
 
 class DeclaredContractSchema(Schema):
-    program = fields.String(data_key="program")
+    program = fields.String(data_key="program", required=True)
     entry_points_by_type = fields.Nested(
-        EntryPointsByTypeSchema(), data_key="entry_points_by_type"
+        EntryPointsByTypeSchema(), data_key="entry_points_by_type", required=True
     )
 
     @post_load
@@ -274,7 +283,7 @@ class DeclaredContractSchema(Schema):
 
 
 class SentTransactionSchema(Schema):
-    transaction_hash = Felt(data_key="transaction_hash")
+    transaction_hash = Felt(data_key="transaction_hash", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs):
@@ -282,7 +291,7 @@ class SentTransactionSchema(Schema):
 
 
 class DeclareTransactionResponseSchema(SentTransactionSchema):
-    class_hash = Felt(data_key="class_hash")
+    class_hash = Felt(data_key="class_hash", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs):
@@ -290,7 +299,7 @@ class DeclareTransactionResponseSchema(SentTransactionSchema):
 
 
 class DeployTransactionResponseSchema(SentTransactionSchema):
-    contract_address = Felt(data_key="contract_address")
+    contract_address = Felt(data_key="contract_address", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs):
