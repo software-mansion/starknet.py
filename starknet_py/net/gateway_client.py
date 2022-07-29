@@ -9,7 +9,6 @@ from starknet_py.net.client_models import (
     Transaction,
     SentTransactionResponse,
     ContractCode,
-    TransactionReceipt,
     BlockStateUpdate,
     StarknetBlock,
     InvokeFunction,
@@ -24,6 +23,7 @@ from starknet_py.net.client_models import (
     BlockTransactionTraces,
     DeployTransactionResponse,
     DeclareTransactionResponse,
+    TransactionReceipt,
 )
 from starknet_py.net.gateway_schemas.gateway_schemas import (
     ContractCodeSchema,
@@ -31,13 +31,13 @@ from starknet_py.net.gateway_schemas.gateway_schemas import (
     SentTransactionSchema,
     BlockStateUpdateSchema,
     DeclaredContractSchema,
-    TransactionReceiptSchema,
     TypesOfTransactionsSchema,
     TransactionStatusSchema,
     BlockTransactionTracesSchema,
     EstimatedFeeSchema,
     DeployTransactionResponseSchema,
     DeclareTransactionResponseSchema,
+    TransactionReceiptSchema,
 )
 from starknet_py.net.http_client import GatewayHttpClient
 from starknet_py.net.models import StarknetChainId, chain_from_network

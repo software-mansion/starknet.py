@@ -133,6 +133,7 @@ class Client(ABC):
         wait_for_accept: Optional[bool] = False,
         check_interval=5,
     ) -> (int, TransactionStatus):
+        # pylint: disable=too-many-branches
         """
         Awaits for transaction to get accepted or at least pending by polling its status
 
@@ -163,13 +164,17 @@ class Client(ABC):
                         if result.block_number is not None:
                             return result.block_number, status
                 elif status == TransactionStatus.REJECTED:
-                    raise TransactionRejectedError(result.rejection_reason)
+                    raise TransactionRejectedError(
+                        message=result.rejection_reason,
+                    )
                 elif status == TransactionStatus.NOT_RECEIVED:
                     if not first_run:
                         raise TransactionNotReceivedError()
                 elif status != TransactionStatus.RECEIVED:
                     # This will never get executed with current possible transactions statuses
-                    raise TransactionFailedError()
+                    raise TransactionFailedError(
+                        message=result.rejection_reason,
+                    )
 
                 first_run = False
                 await asyncio.sleep(check_interval)
