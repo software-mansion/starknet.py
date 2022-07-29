@@ -7,7 +7,6 @@ from starkware.starkware_utils.error_handling import StarkErrorCode
 
 from starknet_py.net.client_models import SentTransactionResponse
 from starknet_py.tests.e2e.conftest import directory_with_contracts
-from starknet_py.tests.e2e.proxy_check.conftest import PROXY_SOURCES
 from starknet_py.transaction_exceptions import (
     TransactionRejectedError,
     TransactionNotReceivedError,
