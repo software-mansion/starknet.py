@@ -118,8 +118,12 @@ class TransactionReceiptSchema(Schema):
     block_number = fields.Integer(data_key="block_number", load_default=None)
     version = fields.Integer(data_key="version", allow_none=True)
     actual_fee = Felt(data_key="actual_fee", allow_none=True)
-    rejection_reason = fields.String(
-        data_key="transaction_rejection_reason", allow_none=True, load_default=None
+    rejection_reason = fields.Dict(
+        keys=fields.String(),
+        values=fields.Raw(),
+        data_key="transaction_failure_reason",
+        allow_none=True,
+        default=None,
     )
     events = fields.List(
         fields.Nested(EventSchema()), data_key="events", load_default=[]
@@ -135,6 +139,12 @@ class TransactionReceiptSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> TransactionReceipt:
+        if data.get("rejection_reason", None) is not None:
+            rejection_reason = data["rejection_reason"]["error_message"]
+            del data["rejection_reason"]
+
+            return TransactionReceipt(**data, rejection_reason=rejection_reason)
+
         return TransactionReceipt(**data)
 
 
