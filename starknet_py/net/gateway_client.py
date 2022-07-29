@@ -232,7 +232,9 @@ class GatewayClient(Client):
         )
 
         if len(res["bytecode"]) == 0:
-            raise ContractNotFoundError(block_hash=block_hash, block_number=block_number)
+            raise ContractNotFoundError(
+                block_hash=block_hash, block_number=block_number
+            )
 
         return ContractCodeSchema().load(res, unknown=EXCLUDE)
 
