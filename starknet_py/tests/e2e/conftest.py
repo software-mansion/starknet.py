@@ -32,7 +32,7 @@ INTEGRATION_ACCOUNT_ADDRESS = (
     "0x60D7C88541F969520E46D39EC7C9053451CFEDBC2EEB847B684981A22CD452E"
 )
 
-PROXY_SOURCES = ["argent_proxy.cairo", "oz_proxy.cairo"]
+PROXY_SOURCES = ["argent_proxy.cairo"]
 
 
 def pytest_addoption(parser):
