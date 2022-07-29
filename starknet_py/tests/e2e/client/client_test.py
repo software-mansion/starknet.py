@@ -5,6 +5,7 @@ from unittest.mock import patch, MagicMock
 import pytest
 
 from starkware.starknet.public.abi import get_selector_from_name
+from starkware.starknet.services.api.gateway.transaction import DECLARE_SENDER_ADDRESS
 
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.client_models import (
@@ -16,6 +17,7 @@ from starknet_py.net.client_models import (
     TransactionReceipt,
     ContractDiff,
     DeployTransaction,
+    DeclareTransaction,
     InvokeTransaction,
 )
 from starknet_py.net.client_errors import ClientError
@@ -42,6 +44,22 @@ async def test_get_deploy_transaction(
             max_fee=0,
             # class_hash=class_hash,
         )
+
+
+@pytest.mark.asyncio
+async def test_get_declare_transaction(clients, declare_transaction_hash, class_hash):
+    # TODO extend this test to all clients
+    gateway_client, _ = clients
+
+    transaction = await gateway_client.get_transaction(declare_transaction_hash)
+
+    assert transaction == DeclareTransaction(
+        class_hash=class_hash,
+        sender_address=DECLARE_SENDER_ADDRESS,
+        hash=declare_transaction_hash,
+        signature=[],
+        max_fee=0,
+    )
 
 
 @pytest.mark.asyncio
