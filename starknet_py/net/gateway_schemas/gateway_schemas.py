@@ -24,7 +24,6 @@ from starknet_py.net.client_models import (
     Event,
     DeclareTransactionResponse,
     DeployTransactionResponse,
-    GatewayTransactionReceipt,
 )
 from starknet_py.net.common_schemas.common_schemas import (
     Felt,
@@ -122,6 +121,7 @@ class TransactionReceiptSchema(Schema):
         values=fields.Raw(),
         data_key="transaction_failure_reason",
         allow_none=True,
+        default=None,
     )
     events = fields.List(
         fields.Nested(EventSchema()), data_key="events", load_default=[]
@@ -137,22 +137,13 @@ class TransactionReceiptSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> TransactionReceipt:
-        return TransactionReceipt(**data)
-
-
-class GatewayTransactionReceiptSchema(TransactionReceiptSchema):
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> GatewayTransactionReceipt:
         if data.get("rejection_reason", None) is not None:
-            code = data["rejection_reason"]["code"]
             rejection_reason = data["rejection_reason"]["error_message"]
             del data["rejection_reason"]
 
-            return GatewayTransactionReceipt(
-                **data, code=code, rejection_reason=rejection_reason
-            )
+            return TransactionReceipt(**data, rejection_reason=rejection_reason)
 
-        return GatewayTransactionReceipt(**data)
+        return TransactionReceipt(**data)
 
 
 class ContractCodeSchema(Schema):

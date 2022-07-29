@@ -17,7 +17,6 @@ from starknet_py.net.client_models import (
     ContractDiff,
     DeployTransaction,
     InvokeTransaction,
-    GatewayTransactionReceipt,
 )
 from starknet_py.net.client_errors import ClientError
 from starknet_py.transaction_exceptions import (
@@ -176,7 +175,7 @@ async def test_get_transaction_receipt(clients, invoke_transaction_hash):
         tx_hash=invoke_transaction_hash
     )
 
-    assert receipt == GatewayTransactionReceipt(
+    assert receipt == TransactionReceipt(
         hash=invoke_transaction_hash,
         status=TransactionStatus.ACCEPTED_ON_L2,
         events=[],
