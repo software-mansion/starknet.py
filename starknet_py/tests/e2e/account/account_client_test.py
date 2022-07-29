@@ -179,3 +179,12 @@ async def test_deploy(account_clients, map_source_code):
 
         assert transaction_receipt.status != TransactionStatus.NOT_RECEIVED
         assert result.contract_address
+
+
+@pytest.mark.asyncio
+async def test_rejection_reason_in_transaction_receipt(account_clients, map_contract):
+    for account_client in account_clients:
+        res = await map_contract.functions["put"].invoke(key=10, value=20, max_fee=1)
+        transaction_receipt = await account_client.get_transaction_receipt(res.hash)
+
+        assert "Actual fee exceeded max fee." in transaction_receipt.rejection_reason
