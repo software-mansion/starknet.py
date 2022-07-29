@@ -163,8 +163,8 @@ async def test_get_code_not_found(gateway_account_client):
 
 
 @pytest.mark.asyncio
-async def test_call_unitinialized_contract(gateway_account_client):
-    with pytest.raises(ClientError) as exinfo:
+async def test_call_uninitialized_contract(gateway_account_client):
+    with pytest.raises(ClientError) as err:
         await gateway_account_client.call_contract(
             InvokeFunction(
                 contract_address=1,
@@ -176,7 +176,8 @@ async def test_call_unitinialized_contract(gateway_account_client):
             )
         )
 
-    assert "500" in str(exinfo.value)
+    assert "500" in str(err.value)
+    assert "No contract at the provided address" in err.value.message
 
 
 @pytest.mark.asyncio
@@ -207,8 +208,10 @@ async def test_wait_for_tx_throws_on_transaction_rejected(
     invoke.selector = 0x0123
     transaction = await invoke.invoke()
 
-    with pytest.raises(TransactionRejectedError):
+    with pytest.raises(TransactionRejectedError) as err:
         await gateway_account_client.wait_for_tx(transaction.hash)
+
+    assert "Entry point 0x123 not found in contract" in err.value.message
 
 
 @pytest.mark.asyncio
@@ -340,7 +343,7 @@ async def test_transaction_not_received_error(map_contract):
             result = await map_contract.functions["put"].invoke(10, 20, max_fee=MAX_FEE)
             await result.wait_for_acceptance()
 
-        assert "Transaction not received" in str(tx_not_received)
+        assert "Transaction not received" == tx_not_received.value.message
 
 
 @pytest.mark.asyncio
