@@ -173,6 +173,7 @@ class StarknetBlockSchema(Schema):
         required=True,
     )
     timestamp = fields.Integer(data_key="timestamp", required=True)
+    gas_price = fields.Integer(data_key="gas_price")
 
     @post_load
     def make_dataclass(self, data, **kwargs):

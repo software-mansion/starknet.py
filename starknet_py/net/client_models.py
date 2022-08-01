@@ -215,6 +215,7 @@ class StarknetBlock:
     root: int
     transactions: List[Transaction]
     timestamp: int
+    gas_price: int
 
 
 @dataclass
