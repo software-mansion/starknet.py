@@ -41,7 +41,8 @@ from starknet_py.net.rpc_schemas.rpc_schemas import (
     TypesOfTransactionsSchema,
     SentTransactionSchema,
     DeclareTransactionResponseSchema,
-    DeployTransactionResponseSchema, PendingTransactionsSchema,
+    DeployTransactionResponseSchema,
+    PendingTransactionsSchema,
 )
 from starknet_py.net.client_utils import convert_to_felt, is_block_identifier
 from starknet_py.transaction_exceptions import TransactionNotReceivedError
@@ -358,10 +359,7 @@ class FullNodeClient(Client):
         return DeclaredContractSchema().load(res, unknown=EXCLUDE)
 
     async def get_pending_transactions(self) -> List[Transaction]:
-        res = await self._client.call(
-            method_name="pendingTransactions",
-            params={}
-        )
+        res = await self._client.call(method_name="pendingTransactions", params={})
 
         return PendingTransactionsSchema().load(res, unknown=EXCLUDE)
 
