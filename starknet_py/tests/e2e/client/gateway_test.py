@@ -12,7 +12,7 @@ async def test_gateway_raises_on_both_block_hash_and_number(
             block_hash=block_with_deploy_hash, block_number=0
         )
 
-    assert "Block_hash and block_number parameters are mutually exclusive" in str(
+    assert "block_hash and block_number parameters are mutually exclusive" in str(
         exinfo.value
     )
 

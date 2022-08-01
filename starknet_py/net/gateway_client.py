@@ -217,7 +217,7 @@ class GatewayClient(Client):
         self,
         contract_address: Hash,
         block_hash: Optional[Union[Hash, Tag]] = None,
-        block_number: Optional[Union[int, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = "pending",
     ) -> ContractCode:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
@@ -233,7 +233,7 @@ class GatewayClient(Client):
 
         if len(res["bytecode"]) == 0:
             raise ContractNotFoundError(
-                f"No contract found with following identifier {block_identifier}"
+                block_hash=block_hash, block_number=block_number
             )
 
         return ContractCodeSchema().load(res, unknown=EXCLUDE)
@@ -339,7 +339,7 @@ def get_block_identifier(
 ) -> dict:
     if block_hash is not None and block_number is not None:
         raise ValueError(
-            "Block_hash and block_number parameters are mutually exclusive."
+            "block_hash and block_number parameters are mutually exclusive."
         )
 
     if block_hash is not None:
