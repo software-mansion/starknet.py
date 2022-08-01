@@ -84,22 +84,15 @@ class FullNodeClient(Client):
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> StarknetBlock:
-        if block_hash is not None:
-            res = await self._client.call(
-                method_name="getBlockByHash",
-                params={
-                    "block_hash": convert_to_felt(block_hash),
-                    "requested_scope": "FULL_TXNS",
-                },
-            )
-            return StarknetBlockSchema().load(res, unknown=EXCLUDE)
-        if block_number is not None:
-            res = await self._client.call(
-                method_name="getBlockByNumber",
-                params={"block_number": block_number, "requested_scope": "FULL_TXNS"},
-            )
-            return StarknetBlockSchema().load(res, unknown=EXCLUDE)
-        raise ValueError("Either block_hash or block_number is required")
+        block_identifier = get_block_identifier(
+            block_hash=block_hash, block_number=block_number
+        )
+
+        res = await self._client.call(
+            method_name="getBlockWithTxs",
+            params=block_identifier,
+        )
+        return StarknetBlockSchema().load(res, unknown=EXCLUDE)
 
     async def get_block_traces(
         self,
@@ -156,32 +149,6 @@ class FullNodeClient(Client):
             )
         except ClientError as ex:
             raise TransactionNotReceivedError() from ex
-        return TypesOfTransactionsSchema().load(res, unknown=EXCLUDE)
-
-    async def get_transaction_by_block_id(
-        self,
-        index: int,
-        block_hash: Optional[Union[Hash, Tag]] = None,
-        block_number: Optional[Union[int, Tag]] = None,
-    ) -> Transaction:
-        """
-        Get the details of transaction in block indentified block_hash and transaction index
-
-        :param block_hash: Hash of the block
-        :param index: Index of the transaction
-        :return: Transaction object
-        """
-        block_identifier = get_block_identifier(
-            block_hash=block_hash, block_number=block_number
-        )
-
-        res = await self._client.call(
-            method_name="getTransactionByBlockIdAndIndex",
-            params={
-                "block_id": block_identifier["block_id"],
-                "index": index,
-            },
-        )
         return TypesOfTransactionsSchema().load(res, unknown=EXCLUDE)
 
     async def get_transaction_receipt(self, tx_hash: Hash) -> TransactionReceipt:
@@ -302,10 +269,21 @@ class FullNodeClient(Client):
 
         return DeclareTransactionResponseSchema().load(res, unknown=EXCLUDE)
 
-    async def get_class_hash_at(self, contract_address: Hash) -> int:
+    async def get_class_hash_at(
+        self,
+        contract_address: Hash,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> int:
+        block_identifier = get_block_identifier(
+            block_hash=block_hash, block_number=block_number
+        )
         res = await self._client.call(
             method_name="getClassHashAt",
-            params={"contract_address": convert_to_felt(contract_address)},
+            params={
+                "contract_address": convert_to_felt(contract_address),
+                **block_identifier,
+            },
         )
         res = typing.cast(str, res)
         return int(res, 16)
@@ -315,6 +293,34 @@ class FullNodeClient(Client):
             method_name="getClass", params={"class_hash": convert_to_felt(class_hash)}
         )
         return DeclaredContractSchema().load(res, unknown=EXCLUDE)
+
+    # Only RPC methods
+
+    async def get_transaction_by_block_id(
+        self,
+        index: int,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> Transaction:
+        """
+        Get the details of transaction in block indentified block_hash and transaction index
+
+        :param block_hash: Hash of the block
+        :param index: Index of the transaction
+        :return: Transaction object
+        """
+        block_identifier = get_block_identifier(
+            block_hash=block_hash, block_number=block_number
+        )
+
+        res = await self._client.call(
+            method_name="getTransactionByBlockIdAndIndex",
+            params={
+                "block_id": block_identifier["block_id"],
+                "index": index,
+            },
+        )
+        return TypesOfTransactionsSchema().load(res, unknown=EXCLUDE)
 
     async def get_block_transaction_count(
         self,
