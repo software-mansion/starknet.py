@@ -185,7 +185,7 @@ class Client(ABC):
     async def estimate_fee(
         self,
         tx: InvokeFunction,
-        block_hash: Union[Hash, Tag] = None,
+        block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
         """
