@@ -343,9 +343,6 @@ def get_block_identifier(
             "block_hash and block_number parameters are mutually exclusive."
         )
 
-    if block_hash is None and block_number is None:
-        return {"blockNumber": "pending"}
-
     if block_hash is not None:
         if is_block_identifier(block_hash):
             return {"blockNumber": block_hash}
@@ -354,4 +351,4 @@ def get_block_identifier(
     if block_number is not None:
         return {"blockNumber": block_number}
 
-    return {}
+    return {"blockNumber": "pending"}
