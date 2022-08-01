@@ -1,3 +1,4 @@
+import asyncio
 import os
 from pathlib import Path
 
@@ -7,7 +8,7 @@ from starknet_py.contract import Contract
 
 MAX_FEE = int(1e20)
 
-COMPILED_PROXY_SOURCES = ["argent_proxy_compiled.json", "oz_proxy_compiled.json"]
+COMPILED_PROXY_SOURCES = ["argent_proxy_compiled.json", "argent_proxy_compiled.json"]
 
 
 @pytest.mark.asyncio
@@ -48,6 +49,8 @@ async def test_contract_from_address_throws_on_proxy_cycle(gateway_account_clien
             await proxy2.functions["_set_implementation_hash"].invoke(
                 new_implementation=proxy1.address, max_fee=MAX_FEE
             )
+
+        await asyncio.sleep(2000)
 
         with pytest.raises(RecursionError) as exinfo:
             await Contract.from_address(
