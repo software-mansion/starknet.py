@@ -108,7 +108,7 @@ async def test_get_block_by_hash(
         assert block == StarknetBlock(
             block_number=block_with_deploy_number,
             block_hash=block_with_deploy_hash,
-            gas_price=60_000_000_000,
+            gas_price=100_000_000_000,
             parent_block_hash=0x0,
             root=block_with_deploy_root,
             status=BlockStatus.ACCEPTED_ON_L2,
@@ -141,7 +141,7 @@ async def test_get_block_by_number(
         assert block == StarknetBlock(
             block_number=block_with_deploy_number,
             block_hash=block_with_deploy_hash,
-            gas_price=60_000_000_000,
+            gas_price=100_000_000_000,
             parent_block_hash=0x0,
             root=block_with_deploy_root,
             status=BlockStatus.ACCEPTED_ON_L2,
