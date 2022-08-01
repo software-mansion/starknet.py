@@ -64,4 +64,3 @@ html_css_files = ["custom.css"]
 
 autodoc_class_signature = "separated"
 autodoc_default_options = {"exclude-members": "__new__"}
-
