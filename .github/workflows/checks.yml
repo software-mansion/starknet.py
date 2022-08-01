@@ -35,6 +35,7 @@ jobs:
     - name: Check if requriements.txt is up-to-date
       run: |
         poetry export -f requirements.txt --without-hashes --extras docs | cmp - requirements.txt
+    - uses: mxschmitt/action-tmate@v3
     - name: Unit & e2e test
       run: |
         poetry run poe test
