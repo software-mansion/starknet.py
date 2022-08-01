@@ -163,8 +163,8 @@ class GatewayClient(Client):
         Get the information about the result of executing the requested block
 
         :param block_hash: Block's hash
-        :param block_number: Block's number
-        :return: BlockStateUpdate oject representing changes in the requested block
+        :param block_number: Block's number (default "pending")
+        :return: BlockStateUpdate object representing changes in the requested block
         """
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
@@ -186,7 +186,7 @@ class GatewayClient(Client):
         :param contract_address: Contract's address on Starknet
         :param key: An address of the storage variable inside the contract.
         :param block_hash: Fetches the value of the variable at given block hash
-        :param block_number: See above, uses block number instead of hash
+        :param block_number: See above, uses block number instead of hash (default "pending")
         :return: Storage value of given contract
         """
         block_identifier = get_block_identifier(
@@ -217,7 +217,7 @@ class GatewayClient(Client):
         self,
         contract_address: Hash,
         block_hash: Optional[Union[Hash, Tag]] = None,
-        block_number: Optional[Union[int, Tag]] = "pending",
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> ContractCode:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
@@ -233,7 +233,8 @@ class GatewayClient(Client):
 
         if len(res["bytecode"]) == 0:
             raise ContractNotFoundError(
-                block_hash=block_hash, block_number=block_number
+                block_hash=block_hash,
+                block_number=block_identifier.get("blockNumber", None),
             )
 
         return ContractCodeSchema().load(res, unknown=EXCLUDE)
@@ -266,7 +267,8 @@ class GatewayClient(Client):
 
         :param invoke_tx: Invoke transaction
         :param block_hash: Block hash to execute the contract at specific point of time
-        :param block_number: Block number (or "pending" for pending block) to execute the contract at
+        :param block_number: Block number (or "pending" for pending block)
+            to execute the contract at (default "pending")
         :return: List of integers representing contract's function output (structured like calldata)
         """
         block_identifier = get_block_identifier(
@@ -350,4 +352,4 @@ def get_block_identifier(
     if block_number is not None:
         return {"blockNumber": block_number}
 
-    return {}
+    return {"blockNumber": "pending"}
