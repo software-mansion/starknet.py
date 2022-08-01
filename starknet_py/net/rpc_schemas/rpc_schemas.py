@@ -304,3 +304,15 @@ class DeployTransactionResponseSchema(SentTransactionSchema):
     @post_load
     def make_dataclass(self, data, **kwargs):
         return DeployTransactionResponse(**data)
+
+
+class PendingTransactionsSchema(Schema):
+    pending_transactions = fields.List(
+        fields.Nested(TypesOfTransactionsSchema(unknown=EXCLUDE)),
+        data_key="transactions",
+        required=True,
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return data["pending_transactions"]

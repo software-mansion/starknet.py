@@ -41,7 +41,7 @@ from starknet_py.net.rpc_schemas.rpc_schemas import (
     TypesOfTransactionsSchema,
     SentTransactionSchema,
     DeclareTransactionResponseSchema,
-    DeployTransactionResponseSchema,
+    DeployTransactionResponseSchema, PendingTransactionsSchema,
 )
 from starknet_py.net.client_utils import convert_to_felt, is_block_identifier
 from starknet_py.transaction_exceptions import TransactionNotReceivedError
@@ -316,7 +316,7 @@ class FullNodeClient(Client):
         res = await self._client.call(
             method_name="getTransactionByBlockIdAndIndex",
             params={
-                "block_id": block_identifier["block_id"],
+                **block_identifier,
                 "index": index,
             },
         )
@@ -357,6 +357,14 @@ class FullNodeClient(Client):
 
         return DeclaredContractSchema().load(res, unknown=EXCLUDE)
 
+    async def get_pending_transactions(self) -> List[Transaction]:
+        res = await self._client.call(
+            method_name="pendingTransactions",
+            params={}
+        )
+
+        return PendingTransactionsSchema().load(res, unknown=EXCLUDE)
+
 
 def get_block_identifier(
     block_hash: Optional[Union[Hash, Tag]] = None,
@@ -375,4 +383,4 @@ def get_block_identifier(
     if block_number is not None:
         return {"block_id": block_number}
 
-    return {}
+    return {"block_id": "pending"}
