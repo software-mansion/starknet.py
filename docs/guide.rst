@@ -18,7 +18,7 @@ This is how we can interact with it:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_existing_contracts.py
     :language: python
-    :lines: 34-39,43-46,54-89
+    :lines: 34-40,44-47,55-90
     :dedent: 4
 
 
@@ -201,7 +201,7 @@ Here is a usage example:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_cairo_serializer.py
     :language: python
-    :lines: 9-41,46-48,53-95
+    :lines: 9-42,47-49,54-96
     :dedent: 4
 
 

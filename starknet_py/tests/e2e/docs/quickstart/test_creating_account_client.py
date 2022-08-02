@@ -35,5 +35,5 @@ async def test_creating_account_client(run_devnet):
     account_client = AccountClient(client=client, address="0x1234", signer=signer)
 
     # Deploys an account on testnet and returns an instance
-    account_client = await AccountClient.create_account(client=client)
+    account_client = await AccountClient.create_account(client=client, chain=StarknetChainId.TESTNET)
     # add to docs: end
