@@ -374,9 +374,18 @@ class AccountClient(Client):
         :return: Instance of AccountClient which interacts with created account on given network
         :param chain: ChainId of the chain used by the client
         """
+        if signer is None and private_key is None:
+            raise ValueError(
+                "Either a signer or a private_key must be provided in AccountClient constructor"
+            )
+
+        if chain is None and signer is None:
+            raise ValueError("One of chain or signer must be provided")
+
         if signer is None:
             private_key = private_key or get_random_private_key()
 
+            chain = chain_from_network(net=client.net, chain=chain)
             key_pair = KeyPair.from_private_key(private_key)
             address = await deploy_account_contract(client, key_pair.public_key)
             signer = StarkCurveSigner(
