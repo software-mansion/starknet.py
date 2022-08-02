@@ -23,6 +23,7 @@ async def test_creating_account_client(run_devnet):
         client=client,
         address="0x1234",
         key_pair=KeyPair(private_key=123, public_key=456),
+        chain=StarknetChainId.TESTNET,
     )
 
     # There is another way of creating key_pair

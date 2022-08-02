@@ -32,7 +32,7 @@ Here is an example:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_account_client_details.py
     :language: python
-    :lines: 10-15,19-23,28-55
+    :lines: 10-14,18-20,25-52
     :dedent: 4
 
 
@@ -201,7 +201,7 @@ Here is a usage example:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_cairo_serializer.py
     :language: python
-    :lines: 9-42,47-51,56-98
+    :lines: 9-41,46-48,53-95
     :dedent: 4
 
 
