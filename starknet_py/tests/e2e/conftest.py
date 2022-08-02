@@ -10,7 +10,7 @@ import pytest
 from starknet_py.net import KeyPair, AccountClient
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models import StarknetChainId, AddressRepresentation
+from starknet_py.net.models import AddressRepresentation, StarknetChainId
 from starknet_py.contract import Contract
 
 TESTNET_ACCOUNT_PRIVATE_KEY = (
@@ -102,24 +102,23 @@ def create_gateway_client(pytestconfig, run_devnet):
         "integration": "https://external.integration.starknet.io",
     }
 
-    return GatewayClient(net=net_address[net], chain=StarknetChainId.TESTNET)
+    return GatewayClient(net=net_address[net])
 
 
 @pytest.fixture(name="rpc_client", scope="module")
 def create_rpc_client(run_devnet):
-    return FullNodeClient(
-        node_url=run_devnet + "/rpc", chain=StarknetChainId.TESTNET, net=run_devnet
-    )
+    return FullNodeClient(node_url=run_devnet + "/rpc", net=run_devnet)
 
 
 def create_account_client(
-    address: AddressRepresentation, private_key: str, gateway_client: GatewayClient
+    address: AddressRepresentation,
+    private_key: str,
+    gateway_client: GatewayClient,
+    chain: StarknetChainId,
 ):
     key_pair = KeyPair.from_private_key(int(private_key, 0))
     return AccountClient(
-        address=address,
-        client=gateway_client,
-        key_pair=key_pair,
+        address=address, client=gateway_client, key_pair=key_pair, chain=chain
     )
 
 
@@ -141,14 +140,18 @@ def address_and_private_key(pytestconfig):
 def gateway_account_client(address_and_private_key, gateway_client):
     address, private_key = address_and_private_key
 
-    return create_account_client(address, private_key, gateway_client)
+    return create_account_client(
+        address, private_key, gateway_client, StarknetChainId.TESTNET
+    )
 
 
 @pytest.fixture(scope="module")
 def rpc_account_client(address_and_private_key, rpc_client):
     address, private_key = address_and_private_key
 
-    return create_account_client(address, private_key, rpc_client)
+    return create_account_client(
+        address, private_key, rpc_client, StarknetChainId.TESTNET
+    )
 
 
 @pytest.fixture(scope="module")

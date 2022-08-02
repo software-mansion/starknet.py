@@ -1,6 +1,5 @@
 import os
 import pytest
-from starknet_py.net.models import StarknetChainId
 
 directory = os.path.dirname(__file__)
 
@@ -20,7 +19,7 @@ async def test_using_account_client(
     # add to docs: start
 
     # Creates an account on testnet and returns an instance
-    client = GatewayClient(net=testnet, chain=StarknetChainId.TESTNET)
+    client = GatewayClient(net=testnet)
     acc_client = await AccountClient.create_account(client=client)
     # add to docs: end
     acc_client = gateway_account_client
