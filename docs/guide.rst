@@ -32,7 +32,7 @@ Here is an example:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_account_client_details.py
     :language: python
-    :lines: 10-14,18-20,25-52
+    :lines: 10-15,19-23,28-55
     :dedent: 4
 
 
