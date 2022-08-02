@@ -33,14 +33,17 @@ class ArgentProxyCheck(ProxyCheck):
 class OpenZeppelinProxyCheck(ProxyCheck):
     def __init__(self):
         self.storage_key = OZ_PROXY_STORAGE_KEY
+        self.cache = {}
 
     async def is_proxy(self, contract: "Contract") -> bool:
         return await self.implementation_address(contract) != 0
 
     async def implementation_address(self, contract: "Contract") -> int:
-        res = await contract.client.get_storage_at(
-            contract_address=contract.address,
-            key=self.storage_key,
-            block_hash="latest",
-        )
-        return parse_address(res)
+        if contract.address not in self.cache:
+            res = await contract.client.get_storage_at(
+                contract_address=contract.address,
+                key=self.storage_key,
+                block_hash="latest",
+            )
+            self.cache[contract.address] = parse_address(res)
+        return self.cache[contract.address]
