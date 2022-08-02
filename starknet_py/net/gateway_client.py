@@ -40,7 +40,6 @@ from starknet_py.net.gateway_schemas.gateway_schemas import (
     TransactionReceiptSchema,
 )
 from starknet_py.net.http_client import GatewayHttpClient
-from starknet_py.net.models import StarknetChainId, chain_from_network
 from starknet_py.net.networks import Network, net_address_from_net
 from starknet_py.net.client_errors import ContractNotFoundError
 from starknet_py.net.client_utils import convert_to_felt, is_block_identifier
@@ -53,14 +52,12 @@ class GatewayClient(Client):
     def __init__(
         self,
         net: Network,
-        chain: StarknetChainId = None,
         session: Optional[aiohttp.ClientSession] = None,
     ):
         """
         Client for interacting with starknet gateway.
 
         :param net: Target network for the client. Can be a string with URL or one of ``"mainnet"``, ``"testnet"``
-        :param chain: Chain used by the network. Required if you use a custom URL for ``net`` param.
         :param session: Aiohttp session to be used for request. If not provided, client will create a session for
                         every request. When using a custom session, user is resposible for closing it manually.
         """
@@ -69,18 +66,13 @@ class GatewayClient(Client):
         gateway_url = f"{host}/gateway"
 
         self._net = net
-        self._chain = chain_from_network(net, chain)
         self._feeder_gateway_client = GatewayHttpClient(
             url=feeder_gateway_url, session=session
         )
         self._gateway_client = GatewayHttpClient(url=gateway_url, session=session)
 
     @property
-    def chain(self) -> StarknetChainId:
-        return self._chain
-
-    @property
-    def net(self) -> StarknetChainId:
+    def net(self) -> Network:
         return self._net
 
     async def get_transaction(

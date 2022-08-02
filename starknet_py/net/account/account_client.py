@@ -55,14 +55,16 @@ class AccountClient(Client):
         client: Client,
         signer: Optional[BaseSigner] = None,
         key_pair: Optional[KeyPair] = None,
+        chain: Optional[StarknetChainId] = None,
     ):
         """
         :param address: Address of the account contract
         :param client: Instance of GatewayClient which will be used to add transactions
         :param signer: Custom signer to be used by AccountClient.
-                       If none is provieded, default
+                       If none is provided, default
                        :py:class:`starknet_py.net.signer.stark_curve_signer.StarkCurveSigner` is used.
         :param key_pair: Key pair that will be used to create a default `Signer`
+        :param chain: ChainId of the chain used by the client
         """
         # pylint: disable=too-many-arguments
         if signer is None and key_pair is None:
@@ -70,19 +72,19 @@ class AccountClient(Client):
                 "Either a signer or a key_pair must be provied in AccountClient constructor"
             )
 
-        chain = chain_from_network(net=client.net, chain=client.chain)
+        chain = chain_from_network(net=client.net, chain=chain)
 
         if chain is None and client is None:
             raise ValueError("One of chain or client must be provided")
         self.address = parse_address(address)
         self.client = client
         self.signer = signer or StarkCurveSigner(
-            account_address=self.address, key_pair=key_pair, chain_id=self.client.chain
+            account_address=self.address, key_pair=key_pair, chain_id=chain
         )
 
     @property
     def chain(self) -> StarknetChainId:
-        return self.client.chain
+        return self.signer.chain_id
 
     @property
     def net(self) -> Network:
@@ -359,6 +361,7 @@ class AccountClient(Client):
         client: Client,
         private_key: Optional[int] = None,
         signer: Optional[BaseSigner] = None,
+        chain: Optional[StarknetChainId] = None,
     ) -> "AccountClient":
         """
         Creates the account using
@@ -370,6 +373,7 @@ class AccountClient(Client):
         :param private_key: Private Key used for the account
         :param signer: Signer used to create account and sign transaction
         :return: Instance of AccountClient which interacts with created account on given network
+        :param chain: ChainId of the chain used by the client
         """
         if signer is None:
             private_key = private_key or get_random_private_key()
@@ -377,7 +381,7 @@ class AccountClient(Client):
             key_pair = KeyPair.from_private_key(private_key)
             address = await deploy_account_contract(client, key_pair.public_key)
             signer = StarkCurveSigner(
-                account_address=address, key_pair=key_pair, chain_id=client.chain
+                account_address=address, key_pair=key_pair, chain_id=chain
             )
         else:
             address = await deploy_account_contract(client, signer.public_key)
