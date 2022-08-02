@@ -9,8 +9,8 @@ async def test_account_client_details(
     # add to docs: start
     from starknet_py.contract import Contract
     from starknet_py.net import AccountClient
-    from starknet_py.net.gateway_client import GatewayClient
     from starknet_py.net.models import StarknetChainId
+    from starknet_py.net.gateway_client import GatewayClient
 
     net = "testnet"
     # add to docs: end
@@ -19,7 +19,7 @@ async def test_account_client_details(
 
     # Creates an account
     client = await AccountClient.create_account(
-        client=GatewayClient(net=net, chain=StarknetChainId.TESTNET)
+        client=GatewayClient(net=net), chain=StarknetChainId.TESTNET
     )
     # add to docs: end
 

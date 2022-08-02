@@ -18,11 +18,12 @@ async def test_creating_account_client(run_devnet):
     # add to docs: start
 
     # Creates an instance of account client which is already deployed (testnet):
-    client = GatewayClient(net=testnet, chain=chain_id)
+    client = GatewayClient(net=testnet)
     account_client_testnet = AccountClient(
         client=client,
         address="0x1234",
         key_pair=KeyPair(private_key=123, public_key=456),
+        chain=StarknetChainId.TESTNET,
     )
 
     # There is another way of creating key_pair
@@ -34,5 +35,7 @@ async def test_creating_account_client(run_devnet):
     account_client = AccountClient(client=client, address="0x1234", signer=signer)
 
     # Deploys an account on testnet and returns an instance
-    account_client = await AccountClient.create_account(client=client)
+    account_client = await AccountClient.create_account(
+        client=client, chain=StarknetChainId.TESTNET
+    )
     # add to docs: end

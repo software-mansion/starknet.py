@@ -1,7 +1,6 @@
 import pytest
 
-from starknet_py.contract import Contract, PreparedFunctionCall, ContractData
-from starknet_py.net.gateway_client import GatewayClient
+from starknet_py.contract import Contract
 from starknet_py.tests.e2e.conftest import directory_with_contracts
 
 SOURCE = """
@@ -117,24 +116,6 @@ def test_compute_address_throws_on_no_source():
     assert "One of compiled_contract or compilation_source is required." in str(
         exinfo.value
     )
-
-
-def test_transaction_hash():
-    call = PreparedFunctionCall(
-        calldata=[1234],
-        arguments={},
-        selector=1530486729947006463063166157847785599120665941190480211966374137237989315360,
-        client=GatewayClient("testnet"),
-        payload_transformer=None,
-        contract_data=ContractData(
-            address=0x03606DB92E563E41F4A590BC01C243E8178E9BA8C980F8E464579F862DA3537C,
-            abi=None,
-            identifier_manager=None,
-        ),
-        version=0,
-        max_fee=0,
-    )
-    assert call.hash == 0xD0A52D6E77B836613B9F709AD7F4A88297697FEFBEF1ADA3C59692FF46702C
 
 
 def test_no_valid_source():

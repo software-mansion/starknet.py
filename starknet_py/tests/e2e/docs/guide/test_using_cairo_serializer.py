@@ -7,9 +7,9 @@ async def test_using_cairo_serializer(run_devnet, gateway_account_client):
     # pylint: disable=unused-variable, too-many-locals, import-outside-toplevel
     # add to docs: start
     from starknet_py.net.gateway_client import GatewayClient
-    from starknet_py.net.models import StarknetChainId
     from starknet_py.contract import Contract
     from starknet_py.net import AccountClient
+    from starknet_py.net.models import StarknetChainId
     from starknet_py.utils.data_transformer.data_transformer import CairoSerializer
 
     # Code of the contract which emits an event
@@ -47,7 +47,7 @@ async def test_using_cairo_serializer(run_devnet, gateway_account_client):
 
     # Creates an account
     client = await AccountClient.create_account(
-        client=GatewayClient(net=net, chain=StarknetChainId.TESTNET)
+        client=GatewayClient(net=net), chain=StarknetChainId.TESTNET
     )
     # add to docs: end
 
