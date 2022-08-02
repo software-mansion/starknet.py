@@ -2,10 +2,6 @@ name: format -> lint -> test
 
 on:
   push:
-    branches:
-      - master
-      - development
-  pull_request:
 
 jobs:
   build:
