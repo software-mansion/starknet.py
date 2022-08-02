@@ -86,10 +86,6 @@ class AccountClient(Client):
         self.signer = signer
 
     @property
-    def chain(self) -> StarknetChainId:
-        return self.signer.chain_id
-
-    @property
     def net(self) -> Network:
         return self.client.net
 
