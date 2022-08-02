@@ -72,15 +72,18 @@ class AccountClient(Client):
                 "Either a signer or a key_pair must be provied in AccountClient constructor"
             )
 
-        chain = chain_from_network(net=client.net, chain=chain)
+        if chain is None and signer is None:
+            raise ValueError("One of chain or signer must be provided")
 
-        if chain is None and client is None:
-            raise ValueError("One of chain or client must be provided")
         self.address = parse_address(address)
         self.client = client
-        self.signer = signer or StarkCurveSigner(
-            account_address=self.address, key_pair=key_pair, chain_id=chain
-        )
+
+        if signer is None:
+            chain = chain_from_network(net=client.net, chain=chain)
+            signer = StarkCurveSigner(
+                account_address=self.address, key_pair=key_pair, chain_id=chain
+            )
+        self.signer = signer
 
     @property
     def chain(self) -> StarknetChainId:
