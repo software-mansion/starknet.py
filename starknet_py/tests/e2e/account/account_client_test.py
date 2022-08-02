@@ -106,7 +106,7 @@ async def test_estimated_fee_greater_than_zero(erc20_contract):
 @pytest.mark.asyncio
 async def test_create_account_client(run_devnet):
     client = GatewayClient(net=run_devnet)
-    acc_client = await AccountClient.create_account(client)
+    acc_client = await AccountClient.create_account(client=client, chain=StarknetChainId.TESTNET)
     assert acc_client.signer is not None
     assert acc_client.address is not None
 

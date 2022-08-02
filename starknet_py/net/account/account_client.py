@@ -374,11 +374,6 @@ class AccountClient(Client):
         :return: Instance of AccountClient which interacts with created account on given network
         :param chain: ChainId of the chain used by the client
         """
-        if signer is None and private_key is None:
-            raise ValueError(
-                "Either a signer or a private_key must be provided in AccountClient constructor"
-            )
-
         if chain is None and signer is None:
             raise ValueError("One of chain or signer must be provided")
 
