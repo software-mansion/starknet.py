@@ -44,7 +44,9 @@ async def test_using_existing_contracts(
 
     contract = Contract(address=address, abi=abi, client=gateway_client)
     # or
-    acc_client = await AccountClient.create_account(client=gateway_client, chain=StarknetChainId.TESTNET)
+    acc_client = await AccountClient.create_account(
+        client=gateway_client, chain=StarknetChainId.TESTNET
+    )
     # add to docs: end
 
     acc_client = gateway_account_client

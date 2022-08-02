@@ -21,7 +21,9 @@ async def test_using_contract(gateway_client, gateway_account_client, map_contra
 
     # add to docs: start
 
-    acc_client = await AccountClient.create_account(gateway_client, chain=StarknetChainId.TESTNET)
+    acc_client = await AccountClient.create_account(
+        gateway_client, chain=StarknetChainId.TESTNET
+    )
 
     contract_address = (
         "0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b"

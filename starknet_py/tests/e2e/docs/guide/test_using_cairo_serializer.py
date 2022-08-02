@@ -46,7 +46,9 @@ async def test_using_cairo_serializer(run_devnet, gateway_account_client):
     # add to docs: start
 
     # Creates an account
-    client = await AccountClient.create_account(client=GatewayClient(net=net), chain=StarknetChainId.TESTNET)
+    client = await AccountClient.create_account(
+        client=GatewayClient(net=net), chain=StarknetChainId.TESTNET
+    )
     # add to docs: end
 
     client = gateway_account_client
