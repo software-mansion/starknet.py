@@ -4,9 +4,6 @@ from dataclasses import replace
 
 from starkware.crypto.signature.signature import get_random_private_key
 from starkware.starknet.public.abi import get_selector_from_name
-from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
-    CastableToHash,
-)
 
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import (
@@ -32,7 +29,6 @@ from starknet_py.net.models import (
     InvokeFunction,
     StarknetChainId,
     Transaction,
-    BlockIdentifier,
     chain_from_network,
 )
 from starknet_py.net.networks import Network, MAINNET, TESTNET
@@ -356,13 +352,13 @@ class AccountClient(Client):
     async def estimate_fee(
         self,
         tx: InvokeFunction,
-        block_hash: Optional[CastableToHash] = None,
-        block_number: BlockIdentifier = "pending",
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
         """
         :param tx: Transaction which fee we want to calculate
         :param block_hash: Estimate fee at specific block hash
-        :param block_number: Estimate fee at given block number (or "pending" for pending block)
+        :param block_number: Estimate fee at given block number (or "pending" for pending block), default is "pending"
         :return: Estimated fee
         """
         signature = self.signer.sign_transaction(tx)
