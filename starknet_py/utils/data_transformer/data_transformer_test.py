@@ -647,5 +647,6 @@ def test_result_warpper_as_str(result_dict, expected):
     ],
 )
 def test_result_wrapper_repr(result_dict, expected):
+    # pylint: disable=unused-argument
     result = construct_result_object(result_dict)
     assert str(result) == repr(result)
