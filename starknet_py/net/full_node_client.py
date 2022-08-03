@@ -244,7 +244,9 @@ class FullNodeClient(Client):
         res = await self._client.call(
             method_name="addDeployTransaction",
             params={
-                "contract_address_salt": transaction.contract_address_salt,
+                "contract_address_salt": convert_to_felt(
+                    transaction.contract_address_salt
+                ),
                 "constructor_calldata": [
                     convert_to_felt(i) for i in transaction.constructor_calldata
                 ],
@@ -267,7 +269,7 @@ class FullNodeClient(Client):
                     "program": contract_class["program"],
                     "entry_points_by_type": contract_class["entry_points_by_type"],
                 },
-                "version": transaction.version,
+                "version": hex(transaction.version),
             },
         )
 
