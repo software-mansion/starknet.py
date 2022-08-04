@@ -123,8 +123,7 @@ class DeployTransaction(Transaction):
 
     contract_address: int
     constructor_calldata: List[int]
-    # TODO add once RPC supports rpc transactions better
-    # class_hash: Optional[int] = None
+    class_hash: int
 
 
 class TransactionStatus(Enum):

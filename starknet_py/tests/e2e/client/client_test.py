@@ -31,7 +31,7 @@ from starknet_py.transactions.deploy import make_deploy_tx
 
 @pytest.mark.asyncio
 async def test_get_deploy_transaction(
-    clients, deploy_transaction_hash, contract_address
+    clients, deploy_transaction_hash, contract_address, class_hash
 ):
     for client in clients:
         transaction = await client.get_transaction(deploy_transaction_hash)
@@ -42,7 +42,7 @@ async def test_get_deploy_transaction(
             hash=deploy_transaction_hash,
             signature=[],
             max_fee=0,
-            # class_hash=class_hash,
+            class_hash=class_hash,
         )
 
 
@@ -101,6 +101,7 @@ async def test_get_block_by_hash(
     block_with_deploy_number,
     block_with_deploy_root,
     contract_address,
+    class_hash,
 ):
     for client in clients:
         block = await client.get_block(block_hash=block_with_deploy_hash)
@@ -119,7 +120,7 @@ async def test_get_block_by_hash(
                     hash=deploy_transaction_hash,
                     signature=[],
                     max_fee=0,
-                    # class_hash=class_hash,
+                    class_hash=class_hash,
                 )
             ],
         )
@@ -133,6 +134,7 @@ async def test_get_block_by_number(
     block_with_deploy_hash,
     block_with_deploy_root,
     contract_address,
+    class_hash,
 ):
     for client in clients:
         block = await client.get_block(block_number=0)
@@ -150,7 +152,7 @@ async def test_get_block_by_number(
                     constructor_calldata=[],
                     hash=deploy_transaction_hash,
                     signature=[],
-                    # class_hash=class_hash,
+                    class_hash=class_hash,
                     max_fee=0,
                 )
             ],

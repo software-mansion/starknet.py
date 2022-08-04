@@ -108,7 +108,7 @@ class ContractCodeSchema(Schema):
 
 
 class TransactionSchema(Schema):
-    hash = Felt(data_key="txn_hash", required=True)
+    hash = Felt(data_key="transaction_hash", required=True)
     signature = fields.List(Felt(), data_key="signature", load_default=[])
     max_fee = Felt(data_key="max_fee", load_default=0)
 
@@ -140,8 +140,10 @@ class DeclareTransactionSchema(TransactionSchema):
 
 class DeployTransactionSchema(TransactionSchema):
     contract_address = Felt(data_key="contract_address", required=True)
-    constructor_calldata = fields.List(Felt(), data_key="calldata", required=True)
-    # class_hash = Felt(data_key="class_hash", load_default=None)
+    constructor_calldata = fields.List(
+        Felt(), data_key="constructor_calldata", required=True
+    )
+    class_hash = Felt(data_key="class_hash", load_default=None)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> DeployTransaction:

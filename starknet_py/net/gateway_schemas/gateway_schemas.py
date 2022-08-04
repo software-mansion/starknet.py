@@ -87,7 +87,7 @@ class DeployTransactionSchema(TransactionSchema):
     constructor_calldata = fields.List(
         Felt(), data_key="constructor_calldata", required=True
     )
-    # class_hash = Felt(data_key="class_hash", load_default=0)
+    class_hash = Felt(data_key="class_hash", load_default=0)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> DeployTransaction:
