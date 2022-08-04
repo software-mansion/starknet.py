@@ -1,5 +1,4 @@
 import json
-from typing import Tuple, List
 
 from marshmallow import Schema, fields, post_load, pre_load, EXCLUDE
 from marshmallow_oneofschema import OneOfSchema
@@ -11,7 +10,7 @@ from starknet_py.net.client_models import (
     L2toL1Message,
     BlockStateUpdate,
     StorageDiff,
-    ContractDiff,
+    DeployedContract,
     Event,
     EntryPoint,
     EntryPointsByType,
@@ -199,24 +198,26 @@ class ContractDiffSchema(Schema):
     contract_hash = Felt(data_key="contract_hash", required=True)
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> ContractDiff:
-        return ContractDiff(**data)
+    def make_dataclass(self, data, **kwargs) -> DeployedContract:
+        return DeployedContract(**data)
 
 
-class StateDiffSchema(Schema):
-    storage_diffs = fields.List(
-        fields.Nested(StorageDiffSchema()), data_key="storage_diffs", required=True
-    )
-    contract_diffs = fields.List(
-        fields.Nested(ContractDiffSchema()), data_key="contracts", required=True
-    )
+class DeployedContractSchema(Schema):
+    address = Felt(data_key="address", required=True)
+    class_hash = NonPrefixedHex(data_key="class_hash", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return DeployedContract(**data)
 
 
 class BlockStateUpdateSchema(Schema):
     block_hash = Felt(data_key="block_hash", required=True)
     new_root = Felt(data_key="new_root", required=True)
     old_root = Felt(data_key="old_root", required=True)
-    state_diff = fields.Nested(StateDiffSchema(), data_key="state_diff", required=True)
+    state_diff = fields.Dict(
+        keys=fields.String(), values=fields.Raw(), data_key="state_diff", required=True
+    )
 
     @pre_load
     def preprocess(self, data, **kwargs):
@@ -227,25 +228,31 @@ class BlockStateUpdateSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> BlockStateUpdate:
-        storage_diffs, contract_diffs = BlockStateUpdateSchema._extract_diffs(
-            data["state_diff"]
-        )
+        deployed_contracts = data["state_diff"]["deployed_contracts"]
+        deployed_contracts = [
+            DeployedContractSchema().load(contract) for contract in deployed_contracts
+        ]
+
+        storage_diffs = []
+        for diff in data["state_diff"]["storage_diffs"]:
+            storage_diff = StorageDiffSchema().load(
+                {"address": diff["address"], "key": diff["key"], "value": diff["value"]}
+            )
+            storage_diffs.append(storage_diff)
+
+        declared_contracts = data["state_diff"]["declared_contracts"]
+        declared_contracts = [
+            int(declared_contract["class_hash"], 16) for declared_contract in declared_contracts
+        ]
+
         del data["state_diff"]
 
         return BlockStateUpdate(
             **data,
             storage_diffs=storage_diffs,
-            contract_diffs=contract_diffs,
-            declared_contracts=[],
+            deployed_contracts=deployed_contracts,
+            declared_contracts=declared_contracts,
         )
-
-    @staticmethod
-    def _extract_diffs(
-        state_diff: dict,
-    ) -> Tuple[List[StorageDiff], List[ContractDiff]]:
-        storage_diffs = state_diff["storage_diffs"]
-        contract_diffs = state_diff["contract_diffs"]
-        return storage_diffs, contract_diffs
 
 
 class EntryPointSchema(Schema):

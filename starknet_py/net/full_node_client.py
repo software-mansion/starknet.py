@@ -183,7 +183,7 @@ class FullNodeClient(Client):
                     "entry_point_selector": convert_to_felt(tx.entry_point_selector),
                     "calldata": [convert_to_felt(i) for i in tx.calldata],
                 },
-                "block_id": block_identifier["block_id"],
+                **block_identifier,
             },
         )
 
@@ -209,7 +209,7 @@ class FullNodeClient(Client):
                     ),
                     "calldata": [convert_to_felt(i) for i in invoke_tx.calldata],
                 },
-                "block_id": block_identifier["block_id"],
+                **block_identifier
             },
         )
         return [int(i, 16) for i in res["result"]]
@@ -353,7 +353,7 @@ class FullNodeClient(Client):
         res = await self._client.call(
             method_name="getClassAt",
             params={
-                "block_id": block_identifier["block_id"],
+                **block_identifier,
                 "contract_address": convert_to_felt(contract_address),
             },
         )
@@ -375,12 +375,15 @@ def get_block_identifier(
             "Block_hash and block_number parameters are mutually exclusive."
         )
 
+    if isinstance(block_hash, str) or isinstance(block_number, str):
+        return {"block_id": block_hash or block_number}
+
     if block_hash is not None:
         if is_block_identifier(block_hash):
-            return {"block_id": block_hash}
-        return {"block_id": convert_to_felt(block_hash)}
+            return {"block_id": {"block_hash": block_hash}}
+        return {"block_id": {"block_hash": convert_to_felt(block_hash)}}
 
     if block_number is not None:
-        return {"block_id": block_number}
+        return {"block_id": {"block_number": block_number}}
 
     return {"block_id": "pending"}

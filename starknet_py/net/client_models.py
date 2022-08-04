@@ -243,9 +243,9 @@ class EstimatedFee:
 
 
 @dataclass
-class ContractDiff:
+class DeployedContract:
     address: int
-    contract_hash: int
+    class_hash: int
 
 
 @dataclass
@@ -258,7 +258,7 @@ class BlockStateUpdate:
     new_root: int
     old_root: int
     storage_diffs: List[StorageDiff]
-    contract_diffs: List[ContractDiff]
+    deployed_contracts: List[DeployedContract]
     declared_contracts: List[int]
 
 

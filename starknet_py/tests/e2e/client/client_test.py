@@ -15,7 +15,7 @@ from starknet_py.net.client_models import (
     StarknetBlock,
     BlockStatus,
     TransactionReceipt,
-    ContractDiff,
+    DeployedContract,
     DeployTransaction,
     DeclareTransaction,
     InvokeTransaction,
@@ -257,10 +257,10 @@ async def test_state_update_gateway_client(
         new_root=block_with_deploy_root,
         old_root=0x0,
         storage_diffs=[],
-        contract_diffs=[
-            ContractDiff(
+        deployed_contracts=[
+            DeployedContract(
                 address=contract_address,
-                contract_hash=0x711941B11A8236B8CCA42B664E19342AC7300ABB1DC44957763CB65877C2708,
+                class_hash=0x711941B11A8236B8CCA42B664E19342AC7300ABB1DC44957763CB65877C2708,
             )
         ],
         declared_contracts=[
@@ -280,13 +280,15 @@ async def test_state_update_full_node_client(
         new_root=block_with_deploy_root,
         old_root=0x0,
         storage_diffs=[],
-        contract_diffs=[
-            ContractDiff(
+        deployed_contracts=[
+            DeployedContract(
                 address=contract_address,
-                contract_hash=0x711941B11A8236B8CCA42B664E19342AC7300ABB1DC44957763CB65877C2708,
+                class_hash=0x711941B11A8236B8CCA42B664E19342AC7300ABB1DC44957763CB65877C2708,
             )
         ],
-        declared_contracts=[],
+        declared_contracts=[
+            0x711941B11A8236B8CCA42B664E19342AC7300ABB1DC44957763CB65877C2708
+        ],
     )
 
 
