@@ -1,17 +1,15 @@
 import pytest
-from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.services.api.gateway.transaction import DECLARE_SENDER_ADDRESS
 
 from starknet_py.net.client_models import (
     DeclareTransaction,
     DeployTransaction,
-    InvokeFunction,
 )
 
 
 @pytest.mark.asyncio
 async def test_node_get_transaction_by_block_id_and_index(
-    block_with_deploy_hash, deploy_transaction_hash, contract_address, rpc_client
+    block_with_deploy_hash, deploy_transaction_hash, contract_address, rpc_client, class_hash
 ):
     tx = await rpc_client.get_transaction_by_block_id(
         block_hash=block_with_deploy_hash, index=0
@@ -23,13 +21,13 @@ async def test_node_get_transaction_by_block_id_and_index(
         constructor_calldata=[],
         max_fee=0,
         signature=[],
-        # class_hash=class_hash,
+        class_hash=class_hash,
     )
 
 
 @pytest.mark.asyncio
 async def test_node_get_deploy_transaction_by_block_id_and_index(
-    deploy_transaction_hash, contract_address, rpc_client
+    deploy_transaction_hash, contract_address, rpc_client, class_hash
 ):
     tx = await rpc_client.get_transaction_by_block_id(block_number=0, index=0)
 
@@ -39,26 +37,8 @@ async def test_node_get_deploy_transaction_by_block_id_and_index(
         constructor_calldata=[],
         max_fee=0,
         signature=[],
-        # class_hash=class_hash,
+        class_hash=class_hash,
     )
-
-
-@pytest.mark.asyncio
-async def test_call_contract_raises_on_no_block_hash(clients, contract_address):
-    _, client = clients
-    invoke_function = InvokeFunction(
-        contract_address=contract_address,
-        entry_point_selector=get_selector_from_name("get_balance"),
-        calldata=[],
-        max_fee=0,
-        version=0,
-        signature=[0x0, 0x0],
-    )
-
-    with pytest.raises(ValueError) as exinfo:
-        await client.call_contract(invoke_tx=invoke_function)
-
-    assert "block_hash is required" in str(exinfo.value)
 
 
 # This test will fail as in RPC 0.15.0 specification DECLARE_TXN has contract_class as a key
