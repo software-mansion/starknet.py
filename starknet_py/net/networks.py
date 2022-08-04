@@ -11,7 +11,7 @@ try:
 except ImportError:
     PredefinedNetwork = str
 
-Network = Union[PredefinedNetwork, str]
+Network = Union[PredefinedNetwork, str, dict]
 
 
 def net_address_from_net(net: Network) -> str:
