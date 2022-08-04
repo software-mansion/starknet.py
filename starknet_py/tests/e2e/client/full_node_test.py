@@ -9,7 +9,11 @@ from starknet_py.net.client_models import (
 
 @pytest.mark.asyncio
 async def test_node_get_transaction_by_block_id_and_index(
-    block_with_deploy_hash, deploy_transaction_hash, contract_address, rpc_client, class_hash
+    block_with_deploy_hash,
+    deploy_transaction_hash,
+    contract_address,
+    rpc_client,
+    class_hash,
 ):
     tx = await rpc_client.get_transaction_by_block_id(
         block_hash=block_with_deploy_hash, index=0
