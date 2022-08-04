@@ -68,7 +68,8 @@ class GatewayClient(Client):
         """
         if chain is not None:
             warnings.warn(
-                "Chain is deprecated and will be deleted in the next releases"
+                "Chain is deprecated and will be deleted in the next releases",
+                category=DeprecationWarning,
             )
 
         host = net_address_from_net(net)
@@ -84,7 +85,10 @@ class GatewayClient(Client):
 
     @property
     def chain(self) -> StarknetChainId:
-        warnings.warn("Chain is deprecated and will be deleted in the next releases")
+        warnings.warn(
+            "Chain is deprecated and will be deleted in the next releases",
+            category=DeprecationWarning,
+        )
         return self._chain
 
     @property
