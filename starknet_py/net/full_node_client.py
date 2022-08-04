@@ -63,12 +63,6 @@ class FullNodeClient(Client):
         :param session: Aiohttp session to be used for request. If not provided, client will create a session for
                         every request. When using a custom session, user is responsible for closing it manually.
         """
-        if chain is not None:
-            warnings.warn(
-                "Chain is deprecated and will be deleted in the next releases",
-                category=DeprecationWarning,
-            )
-
         self.url = node_url
         self._client = RpcHttpClient(url=node_url, session=session)
         self._chain = chain_from_network(net, chain)
