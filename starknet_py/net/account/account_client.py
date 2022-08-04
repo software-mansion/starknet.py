@@ -64,7 +64,7 @@ class AccountClient(Client):
                        If none is provided, default
                        :py:class:`starknet_py.net.signer.stark_curve_signer.StarkCurveSigner` is used.
         :param key_pair: Key pair that will be used to create a default `Signer`
-        :param chain: ChainId of the chain used by the client
+        :param chain: ChainId of the chain used to create the default signer
         """
         # pylint: disable=too-many-arguments
         if signer is None and key_pair is None:
@@ -379,7 +379,7 @@ class AccountClient(Client):
                        which will be used to add the transactions
         :param private_key: Private Key used for the account
         :param signer: Signer used to create account and sign transaction
-        :param chain: ChainId of the chain used by the client
+        :param chain: ChainId of the chain used to create the default signer
         :return: Instance of AccountClient which interacts with created account on given network
         """
         if chain is None and client.chain is None and signer is None:
