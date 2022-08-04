@@ -29,3 +29,8 @@ starknet get_block --number 0 \
   --gateway_url "$DEVNET_ADDRESS"/gateway \
   --feeder_gateway_url "$DEVNET_ADDRESS"/feeder_gateway |
   python3 -c "import sys, json; print(json.load(sys.stdin))"
+
+starknet get_block --number 1 \
+  --gateway_url "$DEVNET_ADDRESS"/gateway \
+  --feeder_gateway_url "$DEVNET_ADDRESS"/feeder_gateway |
+  python3 -c "import sys, json; print(json.load(sys.stdin))"
