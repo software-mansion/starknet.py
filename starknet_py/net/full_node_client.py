@@ -209,7 +209,7 @@ class FullNodeClient(Client):
                     ),
                     "calldata": [convert_to_felt(i) for i in invoke_tx.calldata],
                 },
-                **block_identifier
+                **block_identifier,
             },
         )
         return [int(i, 16) for i in res["result"]]

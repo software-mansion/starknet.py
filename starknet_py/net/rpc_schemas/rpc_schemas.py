@@ -242,7 +242,8 @@ class BlockStateUpdateSchema(Schema):
 
         declared_contracts = data["state_diff"]["declared_contracts"]
         declared_contracts = [
-            int(declared_contract["class_hash"], 16) for declared_contract in declared_contracts
+            int(declared_contract["class_hash"], 16)
+            for declared_contract in declared_contracts
         ]
 
         del data["state_diff"]
