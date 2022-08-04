@@ -31,6 +31,38 @@ ABIFunctionEntry = dict
 CairoData = List[int]
 
 
+class Result:
+    def __init__(self, tuple_value: namedtuple, name_mapping: dict, dict_value: dict):
+        self.tuple_value = tuple_value
+        self.name_mapping = name_mapping
+        self.dict_value = dict_value
+
+    def __eq__(self, other):
+        return self.tuple_value == other
+
+    def __getattr__(self, item):
+        return getattr(self.tuple_value, self.name_mapping[item])
+
+    def __getitem__(self, item):
+        return self.tuple_value[item]
+
+    def __iter__(self):
+        return self.tuple_value.__iter__()
+
+    def __str__(self):
+        result = ", ".join(
+            f"{name}={getattr(self.tuple_value, key)}"
+            for name, key in self.name_mapping.items()
+        )
+        return f"Result({result})"
+
+    def __repr__(self):
+        return self.__str__()
+
+    def _asdict(self):
+        return self.dict_value
+
+
 def construct_result_object(result: dict) -> NamedTuple:
     fields = result.keys()
     named_tuple_class = namedtuple(
@@ -43,24 +75,9 @@ def construct_result_object(result: dict) -> NamedTuple:
     dict_value = {name_mapping[key]: value for key, value in result.items()}
     tuple_value = named_tuple_class(**dict_value)
 
-    class Result:
-        def __eq__(self, other):
-            return tuple_value == other
-
-        def __getattr__(self, item):
-            return getattr(tuple_value, name_mapping[item])
-
-        def __getitem__(self, item):
-            return tuple_value[item]
-
-        def __iter__(self):
-            return tuple_value.__iter__()
-
-        @staticmethod
-        def _asdict():
-            return dict_value
-
-    return Result()
+    return Result(
+        tuple_value=tuple_value, name_mapping=name_mapping, dict_value=dict_value
+    )
 
 
 def read_from_cairo_data(
