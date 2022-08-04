@@ -69,7 +69,7 @@ class AccountClient(Client):
         # pylint: disable=too-many-arguments
         if signer is None and key_pair is None:
             raise ValueError(
-                "Either a signer or a key_pair must be provied in AccountClient constructor"
+                "Either a signer or a key_pair must be provided in AccountClient constructor"
             )
 
         if chain is None and client.chain is None and signer is None:
@@ -91,6 +91,10 @@ class AccountClient(Client):
 
     @property
     def chain(self) -> StarknetChainId:
+        warnings.warn(
+            "Chain is deprecated and will be deleted in the next releases",
+            category=DeprecationWarning,
+        )
         return self.signer.chain_id
 
     async def get_block(
