@@ -1754,7 +1754,7 @@ test = ["pytest"]
 
 [[package]]
 name = "starknet-devnet"
-version = "0.2.7"
+version = "0.2.8"
 description = "A local testnet for Starknet"
 category = "dev"
 optional = false
@@ -1999,7 +1999,7 @@ eth-tester = []
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.2,<3.10"
-content-hash = "756389bcb65c8cfbcb2055d2c02239304c433045a583c2bd636b6839f4f637fc"
+content-hash = "672597b6467680ac57b5a688085fbbc4191159243d1719f023959dfc75d4d7eb"
 
 [metadata.files]
 aiohttp = []
