@@ -28,6 +28,9 @@ def prepare_devnet(net: str) -> dict:
         capture_output=True,
         text=True,
     )
+
+    genesis_block = res.stdout.splitlines()[-2]
+    genesis_block = literal_eval(genesis_block)
     block = res.stdout.splitlines()[-1]
     block = literal_eval(block)
     contract_address = res.stdout.splitlines()[2].split(sep=" ")[-1]
@@ -35,6 +38,7 @@ def prepare_devnet(net: str) -> dict:
     invoke_transaction_hash = res.stdout.splitlines()[6].split(sep=" ")[-1]
     declare_transaction_hash = res.stdout.splitlines()[9].split(sep=" ")[-1]
 
+    assert genesis_block != ""
     assert block != ""
     assert re.search("^0x0[a-fA-F0-9]{1,63}$", contract_address) is not None
     assert re.search("^0x[a-fA-F0-9]{1,63}$", deploy_transaction_hash) is not None
@@ -42,6 +46,7 @@ def prepare_devnet(net: str) -> dict:
     assert re.search("^0x[a-fA-F0-9]{1,63}$", declare_transaction_hash) is not None
 
     prepared_data = {
+        "genesis_block": genesis_block,
         "block": block,
         "contract_address": int(contract_address, 16),
         "deploy_transaction_hash": int(deploy_transaction_hash, 16),
@@ -72,6 +77,13 @@ def fixture_block_with_deploy(run_prepared_devnet) -> dict:
 @pytest.fixture(name="block_with_deploy_hash")
 def fixture_block_with_deploy_hash(block_with_deploy) -> int:
     return int(block_with_deploy["block_hash"], 16)
+
+
+@pytest.fixture(name="genesis_block_root")
+def fixture_genesis_block_root(run_prepared_devnet) -> int:
+    _, prepared_data = run_prepared_devnet
+    genesis_block = prepared_data["genesis_block"]
+    return int(genesis_block["state_root"], 16)
 
 
 @pytest.fixture(name="block_with_deploy_number")

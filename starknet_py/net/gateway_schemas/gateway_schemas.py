@@ -341,7 +341,7 @@ class DeclaredContractSchema(Schema):
 
 class TransactionStatusSchema(Schema):
     transaction_status = StatusField(data_key="tx_status", required=True)
-    block_hash = fields.Integer(data_key="block_hash", allow_none=True)
+    block_hash = Felt(data_key="block_hash", allow_none=True)
 
     @post_load
     def make_result(self, data, **kwargs) -> TransactionStatusResponse:

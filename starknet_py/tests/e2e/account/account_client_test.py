@@ -166,7 +166,7 @@ async def test_sending_multicall(account_clients, map_contract):
 
 @pytest.mark.asyncio
 async def test_get_block_traces(gateway_account_client):
-    traces = await gateway_account_client.get_block_traces(block_number=0)
+    traces = await gateway_account_client.get_block_traces(block_number=1)
 
     assert traces.traces != []
 
