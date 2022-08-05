@@ -50,7 +50,10 @@ async def test_balance_when_token_specified(gateway_account_client, erc20_contra
 async def test_get_balance_default_token_address(net):
     client = GatewayClient(net=net)
     acc_client = AccountClient(
-        client=client, address="0x123", key_pair=KeyPair(123, 456)
+        client=client,
+        address="0x123",
+        key_pair=KeyPair(123, 456),
+        chain=StarknetChainId.TESTNET,
     )
 
     with patch(
@@ -103,7 +106,9 @@ async def test_estimated_fee_greater_than_zero(erc20_contract):
 @pytest.mark.asyncio
 async def test_create_account_client(run_devnet):
     client = GatewayClient(net=run_devnet, chain=StarknetChainId.TESTNET)
-    acc_client = await AccountClient.create_account(client)
+    acc_client = await AccountClient.create_account(
+        client=client, chain=StarknetChainId.TESTNET
+    )
     assert acc_client.signer is not None
     assert acc_client.address is not None
 
@@ -114,7 +119,7 @@ async def test_create_account_client_with_private_key(run_devnet):
     private_key = 1234
     gt_client = GatewayClient(net=run_devnet, chain=StarknetChainId.TESTNET)
     acc_client = await AccountClient.create_account(
-        client=gt_client, private_key=private_key
+        client=gt_client, private_key=private_key, chain=StarknetChainId.TESTNET
     )
     assert acc_client.signer.private_key == private_key
     assert acc_client.signer is not None
