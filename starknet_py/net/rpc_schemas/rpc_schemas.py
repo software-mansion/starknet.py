@@ -152,17 +152,10 @@ class DeployTransactionSchema(TransactionSchema):
 class TypesOfTransactionsSchema(OneOfSchema):
     type_field = "type"
     type_schemas = {
-        "INVOKE_FUNCTION": InvokeTransactionSchema,
+        "INVOKE": InvokeTransactionSchema,
         "DECLARE": DeclareTransactionSchema,
         "DEPLOY": DeployTransactionSchema,
     }
-
-    def get_data_type(self, data):
-        if "contract_class" in data:
-            return "DECLARE"
-        if "entry_point_selector" in data and data["entry_point_selector"] is not None:
-            return "INVOKE_FUNCTION"
-        return "DEPLOY"
 
 
 class StarknetBlockSchema(Schema):

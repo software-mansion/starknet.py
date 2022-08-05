@@ -45,14 +45,11 @@ async def test_node_get_deploy_transaction_by_block_id_and_index(
     )
 
 
-# This test will fail as in RPC 0.15.0 specification DECLARE_TXN has contract_class as a key
-# In RPC 0.20.0 the field changed to class_hash and the change is yet to be implemented in devnet
-@pytest.mark.xfail
 @pytest.mark.asyncio
 async def test_node_get_declare_transaction_by_block_number_and_index(
     declare_transaction_hash, rpc_client, class_hash
 ):
-    tx = await rpc_client.get_transaction_by_block_number(block_number=0, index=0)
+    tx = await rpc_client.get_transaction_by_block_id(block_number=3, index=0)
 
     assert tx == DeclareTransaction(
         class_hash=class_hash,
