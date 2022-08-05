@@ -33,7 +33,7 @@ async def test_node_get_transaction_by_block_id_and_index(
 async def test_node_get_deploy_transaction_by_block_id_and_index(
     deploy_transaction_hash, contract_address, rpc_client, class_hash
 ):
-    tx = await rpc_client.get_transaction_by_block_number(block_number=1, index=0)
+    tx = await rpc_client.get_transaction_by_block_id(block_number=1, index=0)
 
     assert tx == DeployTransaction(
         hash=deploy_transaction_hash,

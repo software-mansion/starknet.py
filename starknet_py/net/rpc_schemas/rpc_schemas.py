@@ -73,10 +73,10 @@ class L2toL1MessageSchema(Schema):
 
 
 class TransactionReceiptSchema(Schema):
-    hash = Felt(data_key="txn_hash", required=True)
+    hash = Felt(data_key="transaction_hash", required=True)
     status = StatusField(data_key="status", required=True)
     actual_fee = Felt(data_key="actual_fee", required=True)
-    rejection_reason = fields.String(data_key="statusData", load_default=None)
+    rejection_reason = fields.String(data_key="status_data", load_default=None)
     events = fields.List(
         fields.Nested(EventSchema()), data_key="events", load_default=[]
     )

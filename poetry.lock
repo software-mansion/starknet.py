@@ -1754,22 +1754,29 @@ test = ["pytest"]
 
 [[package]]
 name = "starknet-devnet"
-version = "0.2.8"
+version = "0.2.7"
 description = "A local testnet for Starknet"
 category = "dev"
 optional = false
 python-versions = ">=3.7.2,<3.10"
+develop = false
 
 [package.dependencies]
 cairo-lang = "0.9.1"
-cloudpickle = ">=2.1.0,<2.2.0"
-crypto-cpp-py = ">=1.0.4,<1.1.0"
-Flask = {version = ">=2.0.3,<2.1.0", extras = ["async"]}
-flask-cors = ">=3.0.10,<3.1.0"
-marshmallow = ">=3.17.0,<3.18.0"
-meinheld = ">=1.0.2,<1.1.0"
-typing-extensions = ">=4.3.0,<4.4.0"
-Werkzeug = ">=2.0.3,<2.1.0"
+cloudpickle = "~2.1.0"
+crypto-cpp-py = "~1.0.4"
+Flask = {version = "~2.0.3", extras = ["async"]}
+flask-cors = "~3.0.10"
+marshmallow = "~3.17.0"
+meinheld = "~1.0.2"
+typing-extensions = "~4.3.0"
+Werkzeug = "~2.0.3"
+
+[package.source]
+type = "git"
+url = "https://github.com/drknzz/starknet-devnet.git"
+reference = "feat/update-rpc"
+resolved_reference = "fd6b16759ea414fbae4e7f22e9f0e867c56ca6fa"
 
 [[package]]
 name = "sympy"
@@ -1999,7 +2006,7 @@ eth-tester = []
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.2,<3.10"
-content-hash = "672597b6467680ac57b5a688085fbbc4191159243d1719f023959dfc75d4d7eb"
+content-hash = "a7d32ff4d6407874e79fef5284ec6f788f666cec14ed272759d49335f09ed93d"
 
 [metadata.files]
 aiohttp = []
