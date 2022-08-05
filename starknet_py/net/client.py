@@ -213,10 +213,8 @@ class Client(ABC):
         Call the contract with given instance of InvokeTransaction
 
         :param invoke_tx: Invoke transaction
-        :param block_hash: Get code at specific block hash or
-                           at the block indicated by the literals `"pending"` or `"latest"`
-        :param block_number: Get code at given block number or at
-                             the block indicated by the literals `"pending"` or `"latest"`
+        :param block_hash: Block's hash or literals `"pending"` or `"latest"`
+        :param block_number: Block's number or literals `"pending"` or `"latest"`
         :return: List of integers representing contract's function output (structured like calldata)
         """
 
@@ -260,10 +258,8 @@ class Client(ABC):
         Get the contract class hash for the contract deployed at the given address
 
         :param contract_address: Address of the contraact whose class hash is to be returned
-        :param block_hash: Get code at specific block hash or
-                           at the block indicated by the literals `"pending"` or `"latest"`
-        :param block_number: Get code at given block number or at
-                             the block indicated by the literals `"pending"` or `"latest"`
+        :param block_hash: Block's hash or literals `"pending"` or `"latest"`
+        :param block_number: Block's number or literals `"pending"` or `"latest"`
         :return: Class hash
         """
 
