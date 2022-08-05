@@ -45,7 +45,7 @@ from starknet_py.net.rpc_schemas.rpc_schemas import (
     DeployTransactionResponseSchema,
     PendingTransactionsSchema,
 )
-from starknet_py.net.client_utils import convert_to_felt, is_block_identifier
+from starknet_py.net.client_utils import convert_to_felt
 from starknet_py.transaction_exceptions import TransactionNotReceivedError
 from starknet_py.utils.sync import add_sync_methods
 
@@ -385,8 +385,6 @@ def get_block_identifier(
         return {"block_id": block_hash or block_number}
 
     if block_hash is not None:
-        if is_block_identifier(block_hash):
-            return {"block_id": {"block_hash": block_hash}}
         return {"block_id": {"block_hash": convert_to_felt(block_hash)}}
 
     if block_number is not None:
