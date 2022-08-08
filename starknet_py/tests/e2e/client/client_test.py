@@ -251,7 +251,7 @@ async def test_state_update_gateway_client(
     block_with_deploy_root,
     contract_address,
     genesis_block_root,
-    class_hash
+    class_hash,
 ):
     state_update = await gateway_client.get_state_update(
         block_hash=block_with_deploy_hash
@@ -268,9 +268,7 @@ async def test_state_update_gateway_client(
                 class_hash=class_hash,
             )
         ],
-        declared_contracts=[
-            class_hash
-        ],
+        declared_contracts=[class_hash],
     )
 
 
