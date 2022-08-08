@@ -204,3 +204,13 @@ async def test_rejection_reason_in_transaction_receipt(account_clients, map_cont
         transaction_receipt = await account_client.get_transaction_receipt(res.hash)
 
         assert "Actual fee exceeded max fee." in transaction_receipt.rejection_reason
+
+
+@pytest.mark.asyncio
+async def test_get_class_hash_at(map_contract, account_clients):
+    for account_client in account_clients:
+        class_hash = await account_client.get_class_hash_at(
+            map_contract.address, block_hash="latest"
+        )
+
+        assert class_hash != 0

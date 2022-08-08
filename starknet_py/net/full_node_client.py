@@ -352,8 +352,8 @@ class FullNodeClient(Client):
         res = await self._client.call(
             method_name="getBlockTransactionCount", params=block_identifier
         )
-        res = typing.cast(str, res)
-        return int(res, 16)
+        res = typing.cast(int, res)
+        return res
 
     async def get_class_at(
         self,
