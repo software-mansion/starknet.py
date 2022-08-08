@@ -22,6 +22,7 @@ from starknet_py.net.client_models import (
     SentTransactionResponse,
     DeclareTransactionResponse,
     DeployTransactionResponse,
+    EstimatedFee,
 )
 from starknet_py.net.common_schemas.common_schemas import (
     Felt,
@@ -104,6 +105,16 @@ class ContractCodeSchema(Schema):
     @staticmethod
     def _abi_to_dict(abi: str) -> dict:
         return json.loads(abi)
+
+
+class EstimatedFeeSchema(Schema):
+    overall_fee = Felt(data_key="overall_fee", required=True)
+    gas_price = Felt(data_key="gas_price", required=True)
+    gas_usage = Felt(data_key="gas_consumed", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return EstimatedFee(**data)
 
 
 class TransactionSchema(Schema):

@@ -4,6 +4,7 @@ from unittest.mock import patch, MagicMock
 import pytest
 
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
+from starknet_py.contract import Contract
 from starknet_py.net import AccountClient, KeyPair
 from starknet_py.net.account.account_client import deploy_account_contract
 from starknet_py.net.client_models import TransactionStatus
@@ -92,14 +93,24 @@ async def test_estimate_fee_called(erc20_contract):
 
 
 @pytest.mark.asyncio
-async def test_estimated_fee_greater_than_zero(erc20_contract):
-    estimated_fee = (
-        await erc20_contract.functions["balanceOf"]
-        .prepare("1234", max_fee=0)
-        .estimate_fee()
-    )
+async def test_estimated_fee_greater_than_zero(erc20_contract, account_clients):
 
-    assert estimated_fee.overall_fee > 0
+    for account_client in account_clients:
+        erc20_contract = Contract(
+            erc20_contract.address, erc20_contract.data.abi, account_client
+        )
+
+        estimated_fee = (
+            await erc20_contract.functions["balanceOf"]
+            .prepare("1234", max_fee=0)
+            .estimate_fee(block_hash="latest")
+        )
+
+        assert estimated_fee.overall_fee > 0
+        assert (
+            estimated_fee.gas_price * estimated_fee.gas_usage
+            == estimated_fee.overall_fee
+        )
 
 
 @pytest.mark.run_on_devnet

@@ -26,7 +26,6 @@ from starknet_py.net.client_models import (
     DeclareTransactionResponse,
     DeployTransactionResponse,
 )
-from starknet_py.net.gateway_schemas.gateway_schemas import EstimatedFeeSchema
 from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.models import (
     StarknetChainId,
@@ -44,6 +43,7 @@ from starknet_py.net.rpc_schemas.rpc_schemas import (
     DeclareTransactionResponseSchema,
     DeployTransactionResponseSchema,
     PendingTransactionsSchema,
+    EstimatedFeeSchema,
 )
 from starknet_py.net.client_utils import convert_to_felt
 from starknet_py.transaction_exceptions import TransactionNotReceivedError
@@ -175,15 +175,24 @@ class FullNodeClient(Client):
             block_hash=block_hash, block_number=block_number
         )
 
+        tx_hash = compute_invoke_hash(
+            contract_address=tx.contract_address,
+            entry_point_selector=tx.entry_point_selector,
+            calldata=tx.calldata,
+            chain_id=self._chain,
+            max_fee=tx.max_fee,
+            version=tx.version,
+        )
+
         res = await self._client.call(
             method_name="estimateFee",
             params={
                 "request": {
-                    "transaction_hash": convert_to_felt(compute_invoke_hash(**tx)),
+                    "transaction_hash": convert_to_felt(tx_hash),
                     "max_fee": convert_to_felt(tx.max_fee),
                     "version": hex(tx.version),
                     "signature": [convert_to_felt(i) for i in tx.signature],
-                    "nonce": convert_to_felt(tx.nonce),  # TODO: do something with nonce
+                    "nonce": convert_to_felt(0),  # TODO: do something with nonce
                     "type": "INVOKE",
                     "contract_address": convert_to_felt(tx.contract_address),
                     "entry_point_selector": convert_to_felt(tx.entry_point_selector),
