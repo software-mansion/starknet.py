@@ -18,7 +18,7 @@ def chain_from_network(
         TESTNET: StarknetChainId.TESTNET,
     }
 
-    if net in mapping:
+    if isinstance(net, str) and net in mapping:
         return mapping[net]
 
     if not chain:

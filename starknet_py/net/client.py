@@ -45,7 +45,7 @@ class Client(ABC):
     @abstractmethod
     def chain(self) -> StarknetChainId:
         """
-        ChainId of the chain used by the client
+        ChainId of the chain used by the client. Chain is deprecated!
         """
 
     @abstractmethod
