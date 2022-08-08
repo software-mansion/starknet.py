@@ -163,9 +163,6 @@ class FullNodeClient(Client):
             method_name="getTransactionReceipt",
             params={"transaction_hash": convert_to_felt(tx_hash)},
         )
-
-        print(res)
-
         return TransactionReceiptSchema().load(res, unknown=EXCLUDE)
 
     async def estimate_fee(

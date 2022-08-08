@@ -192,6 +192,4 @@ async def test_rejection_reason_in_transaction_receipt(account_clients, map_cont
         res = await map_contract.functions["put"].invoke(key=10, value=20, max_fee=1)
         transaction_receipt = await account_client.get_transaction_receipt(res.hash)
 
-        print(transaction_receipt)
-
         assert "Actual fee exceeded max fee." in transaction_receipt.rejection_reason
