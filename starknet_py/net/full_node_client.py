@@ -390,7 +390,7 @@ def get_block_identifier(
             "Block_hash and block_number parameters are mutually exclusive."
         )
 
-    if isinstance(block_hash, str) or isinstance(block_number, str):
+    if block_hash or block_number in ("latest", "pending"):
         return {"block_id": block_hash or block_number}
 
     if block_hash is not None:
