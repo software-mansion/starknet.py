@@ -135,7 +135,7 @@ async def test_get_block_by_number(
     contract_address,
 ):
     for client in clients:
-        block = await client.get_block(block_number=0)
+        block = await client.get_block(block_number=1)
 
         assert block == StarknetBlock(
             block_number=block_with_deploy_number,
@@ -206,7 +206,7 @@ async def test_get_transaction_receipt(clients, invoke_transaction_hash):
         version=0,
         actual_fee=0,
         rejection_reason=None,
-        block_number=1,
+        block_number=2,
     )
 
 
@@ -244,7 +244,11 @@ async def test_call_contract(clients, contract_address):
 
 @pytest.mark.asyncio
 async def test_state_update_gateway_client(
-    gateway_client, block_with_deploy_hash, block_with_deploy_root, contract_address
+    gateway_client,
+    block_with_deploy_hash,
+    block_with_deploy_root,
+    contract_address,
+    genesis_block_root,
 ):
     state_update = await gateway_client.get_state_update(
         block_hash=block_with_deploy_hash
@@ -253,7 +257,7 @@ async def test_state_update_gateway_client(
     assert state_update == BlockStateUpdate(
         block_hash=block_with_deploy_hash,
         new_root=block_with_deploy_root,
-        old_root=0x0,
+        old_root=genesis_block_root,
         storage_diffs=[],
         contract_diffs=[
             ContractDiff(
@@ -269,14 +273,18 @@ async def test_state_update_gateway_client(
 
 @pytest.mark.asyncio
 async def test_state_update_full_node_client(
-    rpc_client, block_with_deploy_hash, block_with_deploy_root, contract_address
+    rpc_client,
+    block_with_deploy_hash,
+    block_with_deploy_root,
+    contract_address,
+    genesis_block_root,
 ):
     state_update = await rpc_client.get_state_update(block_hash=block_with_deploy_hash)
 
     assert state_update == BlockStateUpdate(
         block_hash=block_with_deploy_hash,
         new_root=block_with_deploy_root,
-        old_root=0x0,
+        old_root=genesis_block_root,
         storage_diffs=[],
         contract_diffs=[
             ContractDiff(

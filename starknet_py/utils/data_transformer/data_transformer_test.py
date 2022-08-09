@@ -2,7 +2,10 @@ from typing import NamedTuple
 import pytest
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 
-from starknet_py.utils.data_transformer.data_transformer import FunctionCallSerializer
+from starknet_py.utils.data_transformer.data_transformer import (
+    FunctionCallSerializer,
+    construct_result_object,
+)
 from starknet_py.cairo.felt import decode_shortstring
 
 
@@ -607,3 +610,43 @@ def test_allow_underscores_in_abi():
     result = transformer_for_function(outputs=abi).to_python([1])
     # pylint: disable=protected-access
     assert result._first == 1
+
+
+@pytest.mark.parametrize(
+    "result_dict, expected",
+    [
+        ({"a": 1, "b": 2}, "Result(a=1, b=2)"),
+        ({"a": 1, "_b": 2}, "Result(a=1, _b=2)"),
+        ({"a": 1, "_b": 2, "def": 3}, "Result(a=1, _b=2, def=3)"),
+        ({"a": [1, 2, 3]}, "Result(a=[1, 2, 3])"),
+        ({"a": (1, 2, 3)}, "Result(a=(1, 2, 3))"),
+        (
+            {"a": {"val1": 1, "val2": [2, 3], "val3": (4, 5)}},
+            "Result(a={'val1': 1, 'val2': [2, 3], 'val3': (4, 5)})",
+        ),
+        ({}, "Result()"),
+    ],
+)
+def test_result_warpper_as_str(result_dict, expected):
+    assert str(construct_result_object(result_dict)) == expected
+
+
+@pytest.mark.parametrize(
+    "result_dict, expected",
+    [
+        ({"a": 1, "b": 2}, "Result(a=1, b=2)"),
+        ({"a": 1, "_b": 2}, "Result(a=1, _b=2)"),
+        ({"a": 1, "_b": 2, "def": 3}, "Result(a=1, _b=2, def=3)"),
+        ({"a": [1, 2, 3]}, "Result(a=[1, 2, 3])"),
+        ({"a": (1, 2, 3)}, "Result(a=(1, 2, 3))"),
+        (
+            {"a": {"val1": 1, "val2": [2, 3], "val3": (4, 5)}},
+            "Result(a={'val1': 1, 'val2': [2, 3], 'val3': (4, 5)})",
+        ),
+        ({}, "Result()"),
+    ],
+)
+def test_result_wrapper_repr(result_dict, expected):
+    # pylint: disable=unused-argument
+    result = construct_result_object(result_dict)
+    assert str(result) == repr(result)

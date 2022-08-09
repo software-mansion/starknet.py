@@ -105,7 +105,7 @@ tabulate==0.8.10; python_version >= "3.7" and python_full_version < "3.0.0" or p
 toml==0.10.2; python_version >= "3.6" and python_full_version >= "3.7.2"
 toolz==0.12.0
 typeguard==2.13.3; python_version >= "3.6" and python_full_version >= "3.7.2"
-typing-extensions==4.3.0; python_version < "3.8" and python_version >= "3.7" and python_full_version >= "3.7.2"
+typing-extensions==4.3.0; python_version >= "3.7"
 typing-inspect==0.7.1; python_version >= "3.7" and python_version < "3.8" and python_full_version >= "3.7.2"
 urllib3==1.26.11; python_full_version >= "3.7.2" and python_version < "3.11" and python_version >= "3.7"
 varint==1.0.2; python_full_version >= "3.7.2" and python_version < "3.11" and python_version >= "3.6"

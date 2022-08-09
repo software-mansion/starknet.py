@@ -1,4 +1,5 @@
 import typing
+import warnings
 from typing import Union, Optional, List
 
 import aiohttp
@@ -53,20 +54,26 @@ class GatewayClient(Client):
     def __init__(
         self,
         net: Network,
-        chain: StarknetChainId = None,
+        chain: Optional[StarknetChainId] = None,
         session: Optional[aiohttp.ClientSession] = None,
     ):
         """
         Client for interacting with starknet gateway.
 
-        :param net: Target network for the client. Can be a string with URL or one of ``"mainnet"``, ``"testnet"``
-        :param chain: Chain used by the network. Required if you use a custom URL for ``net`` param.
+        :param net: Target network for the client. Can be a string with URL, one of ``"mainnet"``, ``"testnet"``
+                    or dict with ``"feeder_gateway_url"`` and ``"gateway_url"`` fields
+        :param chain: Chain used by the network. Required if you use a custom URL for ``net`` param. Chain is deprecated
+                        and will be removed in the next releases
         :param session: Aiohttp session to be used for request. If not provided, client will create a session for
                         every request. When using a custom session, user is resposible for closing it manually.
         """
-        host = net_address_from_net(net)
-        feeder_gateway_url = f"{host}/feeder_gateway"
-        gateway_url = f"{host}/gateway"
+        if isinstance(net, str):
+            host = net_address_from_net(net)
+            feeder_gateway_url = f"{host}/feeder_gateway"
+            gateway_url = f"{host}/gateway"
+        else:
+            feeder_gateway_url = net["feeder_gateway_url"]
+            gateway_url = net["gateway_url"]
 
         self._net = net
         self._chain = chain_from_network(net, chain)
@@ -77,10 +84,14 @@ class GatewayClient(Client):
 
     @property
     def chain(self) -> StarknetChainId:
+        warnings.warn(
+            "Chain is deprecated and will be deleted in the next releases",
+            category=DeprecationWarning,
+        )
         return self._chain
 
     @property
-    def net(self) -> StarknetChainId:
+    def net(self) -> Network:
         return self._net
 
     async def get_transaction(
