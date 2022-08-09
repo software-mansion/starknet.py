@@ -48,12 +48,16 @@ async def set_implementation(proxy1: Contract, proxy2: Contract):
         "proxy2": {implementation: proxy1.address},
     }
 
-    await proxy1.functions[set_implementation_name].invoke(
-        **params["proxy2"], max_fee=MAX_FEE
-    )
-    await proxy2.functions[set_implementation_name].invoke(
-        **params["proxy1"], max_fee=MAX_FEE
-    )
+    await (
+        await proxy1.functions[set_implementation_name].invoke(
+            **params["proxy2"], max_fee=MAX_FEE
+        )
+    ).wait_for_acceptance()
+    await (
+        await proxy2.functions[set_implementation_name].invoke(
+            **params["proxy1"], max_fee=MAX_FEE
+        )
+    ).wait_for_acceptance()
 
 
 @pytest.mark.asyncio
