@@ -128,6 +128,6 @@ async def test_pending_transactions(rpc_client):
         pending_transactions = await rpc_client.get_pending_transactions()
 
         assert len(pending_transactions) == 1
-        assert pending_transactions[0].hash == 1
+        assert pending_transactions[0].hash == 0x1
         assert pending_transactions[0].signature == []
         assert pending_transactions[0].max_fee == 0
