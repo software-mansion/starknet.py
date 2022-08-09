@@ -33,6 +33,24 @@ async def test_argent_contract_from_address_throws_on_too_many_steps(
     assert "Max number of steps exceeded" in str(exinfo.value)
 
 
+async def set_implementation(proxy1: Contract, proxy2: Contract):
+    argent_proxy = "_set_implementation" in proxy1.functions
+    set_implementation_name = "_set_implementation" if argent_proxy else "_set_implementation_hash"
+    implementation = "implementation" if argent_proxy else "new_implementation"
+
+    params = {
+        "proxy1": {implementation: proxy2.address},
+        "proxy2": {implementation: proxy1.address},
+    }
+
+    await proxy1.functions[set_implementation_name].invoke(
+        **params["proxy2"], max_fee=MAX_FEE
+    )
+    await proxy2.functions[set_implementation_name].invoke(
+        **params["proxy1"], max_fee=MAX_FEE
+    )
+
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize("compiled_proxy", COMPILED_PROXY_SOURCES, indirect=True)
 async def test_contract_from_address_throws_on_proxy_cycle(
@@ -54,22 +72,7 @@ async def test_contract_from_address_throws_on_proxy_cycle(
     proxy1 = proxy1_deployment.deployed_contract
     proxy2 = proxy2_deployment.deployed_contract
 
-    argent_proxy = "_set_implementation" in proxy1.functions
-
-    if argent_proxy:
-        await proxy1.functions["_set_implementation"].invoke(
-            implementation=proxy2.address, max_fee=MAX_FEE
-        )
-        await proxy2.functions["_set_implementation"].invoke(
-            implementation=proxy1.address, max_fee=MAX_FEE
-        )
-    else:
-        await proxy1.functions["_set_implementation_hash"].invoke(
-            new_implementation=proxy2.address, max_fee=MAX_FEE
-        )
-        await proxy2.functions["_set_implementation_hash"].invoke(
-            new_implementation=proxy1.address, max_fee=MAX_FEE
-        )
+    await set_implementation(proxy1, proxy2)
 
     with pytest.raises(RecursionError) as exinfo:
         await Contract.from_address(
