@@ -266,6 +266,12 @@ class FullNodeClient(Client):
         return DeployTransactionResponseSchema().load(res, unknown=EXCLUDE)
 
     async def declare(self, transaction: Declare) -> DeclareTransactionResponse:
+        if transaction.signature:
+            warnings.warn(
+                "FullNodeClient does not currently support signed declare. This transaction will be treated as "
+                "unsigned."
+            )
+
         contract_class = transaction.dump()["contract_class"]
 
         res = await self._client.call(

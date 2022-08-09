@@ -314,22 +314,45 @@ class AccountClient(Client):
 
     async def execute(
         self,
-        calls: Calls,
+        calls: Calls = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
         version: int = 0,
+        transaction: Optional[Union[Calls, Declare]] = None,
     ) -> SentTransactionResponse:
         """
         Takes calls and executes transaction
 
-        :param calls: Single call or list of calls
+        :param calls: Single call or list of calls. Calls is deprecated and will be removed in future versions,
+                      use transaction parameter instead
+        :param transaction: Either single call, list of calls or declare transaction to be signed and executed
         :param max_fee: Max amount of Wei to be paid when executing transaction
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
         :param version: Transaction version
         :return: SentTransactionResponse
         """
+        # pylint: disable=too-many-arguments
+        if calls is not None and transaction is not None:
+            raise ValueError("Calls and transaction are mutually exclusive")
+
+        if calls is None and transaction is None:
+            raise ValueError("Either calls or transaction must be provided")
+
+        if calls is not None:
+            warnings.warn(
+                "Calls is deprecated and will be removed in future versions, use transaction parameter instead",
+                category=DeprecationWarning,
+            )
+
+        transaction = transaction or calls
+
+        if isinstance(transaction, Declare):
+            signature = self.signer.sign_transaction(transaction)
+            signed_declare = add_signature_to_transaction(transaction, signature)
+            return await self.declare(signed_declare)
+
         execute_transaction = await self.sign_transaction(
-            calls, max_fee, auto_estimate, version
+            transaction, max_fee, auto_estimate, version
         )
         return await self.send_transaction(execute_transaction)
 
