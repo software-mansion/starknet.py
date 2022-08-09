@@ -263,6 +263,13 @@ class BlockStateUpdate:
 
 
 @dataclass
+class StateDiff:
+    deployed_contracts: List[DeployedContract]
+    storage_diffs: List[StorageDiff]
+    declared_contracts: List[int]
+
+
+@dataclass
 class ContractCode:
     """
     Dataclass representing contract deployed to starknet
