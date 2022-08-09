@@ -1,10 +1,7 @@
-import json
-
 from marshmallow import Schema, fields, post_load, pre_load, EXCLUDE
 from marshmallow_oneofschema import OneOfSchema
 
 from starknet_py.net.client_models import (
-    ContractCode,
     StarknetBlock,
     L1toL2Message,
     L2toL1Message,
@@ -93,20 +90,6 @@ class TransactionReceiptSchema(Schema):
         return TransactionReceipt(**data)
 
 
-class ContractCodeSchema(Schema):
-    bytecode = fields.List(Felt(), data_key="bytecode", required=True)
-    abi = fields.String(data_key="abi", required=True)
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> ContractCode:
-        data["abi"] = ContractCodeSchema._abi_to_dict(data["abi"])
-        return ContractCode(**data)
-
-    @staticmethod
-    def _abi_to_dict(abi: str) -> dict:
-        return json.loads(abi)
-
-
 class EstimatedFeeSchema(Schema):
     overall_fee = Felt(data_key="overall_fee", required=True)
     gas_price = Felt(data_key="gas_price", required=True)
@@ -130,8 +113,6 @@ class InvokeTransactionSchema(TransactionSchema):
 
     @pre_load
     def preprocess(self, data, **kwargs):
-        if data["calldata"] is None:
-            data["calldata"] = []
         return data
 
     @post_load
@@ -323,7 +304,6 @@ class DeployTransactionResponseSchema(SentTransactionSchema):
 class PendingTransactionsSchema(Schema):
     pending_transactions = fields.List(
         fields.Nested(TypesOfTransactionsSchema(unknown=EXCLUDE)),
-        data_key="transactions",
         required=True,
     )
 

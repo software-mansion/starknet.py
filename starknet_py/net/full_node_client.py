@@ -345,6 +345,13 @@ class FullNodeClient(Client):
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> int:
+        """
+        Get the number of transactions in a block given a block id
+
+        :param block_hash: Block's hash or literals `"pending"` or `"latest"`
+        :param block_number: Block's number or literals `"pending"` or `"latest"`
+        :return: Number of transactions in the designated block
+        """
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -361,6 +368,14 @@ class FullNodeClient(Client):
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> DeclaredContract:
+        """
+        Get the contract class definition in the given block at the given address
+
+        :param contract_address: The address of the contract whose class definition will be returned
+        :param block_hash: Block's hash or literals `"pending"` or `"latest"`
+        :param block_number: Block's number or literals `"pending"` or `"latest"`
+        :return: Contract declared to Starknet
+        """
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -376,7 +391,13 @@ class FullNodeClient(Client):
         return DeclaredContractSchema().load(res, unknown=EXCLUDE)
 
     async def get_pending_transactions(self) -> List[Transaction]:
+        """
+        Returns the transactions in the transaction pool, recognized by sequencer
+
+        :returns: List of transactions
+        """
         res = await self._client.call(method_name="pendingTransactions", params={})
+        res = {"pending_transactions": res}
 
         return PendingTransactionsSchema().load(res, unknown=EXCLUDE)
 
