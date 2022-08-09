@@ -23,6 +23,9 @@ async def test_argent_contract_from_address_throws_on_too_many_steps(
         client=gateway_client,
     )
 
+    await proxy1_deployment.wait_for_acceptance()
+    await proxy2_deployment.wait_for_acceptance()
+
     with pytest.raises(RecursionError) as exinfo:
         await Contract.from_address(
             proxy2_deployment.deployed_contract.address,
@@ -35,7 +38,9 @@ async def test_argent_contract_from_address_throws_on_too_many_steps(
 
 async def set_implementation(proxy1: Contract, proxy2: Contract):
     argent_proxy = "_set_implementation" in proxy1.functions
-    set_implementation_name = "_set_implementation" if argent_proxy else "_set_implementation_hash"
+    set_implementation_name = (
+        "_set_implementation" if argent_proxy else "_set_implementation_hash"
+    )
     implementation = "implementation" if argent_proxy else "new_implementation"
 
     params = {
@@ -94,6 +99,7 @@ async def test_contract_from_address_with_1_proxy(
         constructor_args=[map_contract.address],
         client=gateway_client,
     )
+    await deployment_result.wait_for_acceptance()
 
     proxy_contract = await Contract.from_address(
         deployment_result.deployed_contract.address,
@@ -119,6 +125,9 @@ async def test_contract_from_address_with_2_proxy(
         constructor_args=[proxy1_deployment.deployed_contract.address],
         client=gateway_client,
     )
+
+    await proxy1_deployment.wait_for_acceptance()
+    await proxy2_deployment.wait_for_acceptance()
 
     proxy_contract = await Contract.from_address(
         proxy2_deployment.deployed_contract.address,

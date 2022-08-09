@@ -67,7 +67,7 @@ def start_devnet():
     ]
     # pylint: disable=consider-using-with
     proc = subprocess.Popen(command)
-    time.sleep(10)
+    time.sleep(5)
     return devnet_port, proc
 
 
