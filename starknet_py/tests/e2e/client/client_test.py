@@ -334,6 +334,7 @@ async def test_deploy(balance_contract, clients):
         assert transaction_receipt.actual_fee == 0
 
 
+@pytest.mark.asyncio
 async def test_get_class_hash_at(clients, contract_address):
     for client in clients:
         class_hash = await client.get_class_hash_at(contract_address=contract_address)
