@@ -41,7 +41,8 @@ from starknet_py.net.gateway_schemas.gateway_schemas import (
     TransactionReceiptSchema,
 )
 from starknet_py.net.http_client import GatewayHttpClient
-from starknet_py.net.models import StarknetChainId, chain_from_network
+from starknet_py.net.models import chain_from_network
+from starknet_py.net.models.chains import ChainId
 from starknet_py.net.networks import Network, net_address_from_net
 from starknet_py.net.client_errors import ContractNotFoundError
 from starknet_py.net.client_utils import convert_to_felt, is_block_identifier
@@ -54,7 +55,7 @@ class GatewayClient(Client):
     def __init__(
         self,
         net: Network,
-        chain: Optional[StarknetChainId] = None,
+        chain: Optional[ChainId] = None,
         session: Optional[aiohttp.ClientSession] = None,
     ):
         """
@@ -83,7 +84,7 @@ class GatewayClient(Client):
         self._gateway_client = GatewayHttpClient(url=gateway_url, session=session)
 
     @property
-    def chain(self) -> StarknetChainId:
+    def chain(self) -> ChainId:
         warnings.warn(
             "Chain is deprecated and will be deleted in the next releases",
             category=DeprecationWarning,

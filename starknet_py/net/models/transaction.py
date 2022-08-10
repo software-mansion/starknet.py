@@ -19,7 +19,7 @@ from starkware.starknet.core.os.transaction_hash.transaction_hash import (
 from starkware.starknet.definitions.transaction_type import TransactionType as TT
 
 
-from starknet_py.net.models.chains import StarknetChainId
+from starknet_py.net.models.chains import ChainId
 from starknet_py.utils.crypto.facade import pedersen_hash
 from starknet_py.utils.docs import as_our_module
 
@@ -34,7 +34,7 @@ def compute_invoke_hash(
     contract_address: int,
     entry_point_selector: Union[int, str],
     calldata: Sequence[int],
-    chain_id: StarknetChainId,
+    chain_id: ChainId,
     max_fee: int,
     version: int,
 ) -> int:
@@ -45,7 +45,7 @@ def compute_invoke_hash(
     :param contract_address: int
     :param entry_point_selector: Union[int, str]
     :param calldata: Sequence[int]
-    :param chain_id: StarknetChainId
+    :param chain_id: ChainId
     :param max_fee: Max fee
     :param version: Contract version
     :return: calculated hash
@@ -58,7 +58,7 @@ def compute_invoke_hash(
         contract_address=contract_address,
         entry_point_selector=entry_point_selector,
         calldata=calldata,
-        chain_id=chain_id.value,
+        chain_id=chain_id if isinstance(chain_id, int) else chain_id.value,
         hash_function=pedersen_hash,
         additional_data=[],
         max_fee=max_fee,
@@ -69,21 +69,21 @@ def compute_invoke_hash(
 def compute_deploy_hash(
     contract_address: int,
     calldata: Sequence[int],
-    chain_id: StarknetChainId,
+    chain_id: ChainId,
     version: int,
 ) -> int:
     """
 
     :param contract_address: int
     :param calldata: Sequence[int] (constructor arguments)
-    :param chain_id: StarknetChainId
+    :param chain_id: ChainId
     :param version: Version of deploy transaction
     :return: calculated hash
     """
     return calculate_deploy_transaction_hash(
         contract_address=contract_address,
         constructor_calldata=calldata,
-        chain_id=chain_id.value,
+        chain_id=chain_id if isinstance(chain_id, int) else chain_id.value,
         hash_function=pedersen_hash,
         version=version,
     )

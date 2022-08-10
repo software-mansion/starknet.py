@@ -27,10 +27,10 @@ from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
 from starknet_py.net.models import (
     InvokeFunction,
-    StarknetChainId,
     Transaction,
     chain_from_network,
 )
+from starknet_py.net.models.chains import ChainId
 from starknet_py.net.networks import Network, MAINNET, TESTNET
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
 from starknet_py.net.signer import BaseSigner
@@ -55,7 +55,7 @@ class AccountClient(Client):
         client: Client,
         signer: Optional[BaseSigner] = None,
         key_pair: Optional[KeyPair] = None,
-        chain: Optional[StarknetChainId] = None,
+        chain: Optional[ChainId] = None,
     ):
         """
         :param address: Address of the account contract
@@ -90,7 +90,7 @@ class AccountClient(Client):
         return self.client.net
 
     @property
-    def chain(self) -> StarknetChainId:
+    def chain(self) -> ChainId:
         warnings.warn(
             "Chain is deprecated and will be deleted in the next releases",
             category=DeprecationWarning,
@@ -368,7 +368,7 @@ class AccountClient(Client):
         client: Client,
         private_key: Optional[int] = None,
         signer: Optional[BaseSigner] = None,
-        chain: Optional[StarknetChainId] = None,
+        chain: Optional[ChainId] = None,
     ) -> "AccountClient":
         """
         Creates the account using

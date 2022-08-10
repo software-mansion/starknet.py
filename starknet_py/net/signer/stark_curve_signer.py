@@ -11,10 +11,10 @@ from starkware.starknet.core.os.transaction_hash.transaction_hash import (
 
 from starknet_py.net.models import (
     AddressRepresentation,
-    StarknetChainId,
     Transaction,
     parse_address,
 )
+from starknet_py.net.models.chains import ChainId
 from starknet_py.net.signer.base_signer import BaseSigner
 from starknet_py.utils.crypto.facade import message_signature
 
@@ -34,7 +34,7 @@ class StarkCurveSigner(BaseSigner):
         self,
         account_address: AddressRepresentation,
         key_pair: KeyPair,
-        chain_id: StarknetChainId,
+        chain_id: ChainId,
     ):
         self.address = parse_address(account_address)
         self.key_pair = key_pair
@@ -59,7 +59,9 @@ class StarkCurveSigner(BaseSigner):
             entry_point_selector=transaction.entry_point_selector,
             calldata=transaction.calldata,
             max_fee=transaction.max_fee,
-            chain_id=self.chain_id.value,
+            chain_id=self.chain_id
+            if isinstance(self.chain_id, int)
+            else self.chain_id.value,
             additional_data=[],
         )
         # pylint: disable=invalid-name

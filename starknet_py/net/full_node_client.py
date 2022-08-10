@@ -27,7 +27,8 @@ from starknet_py.net.client_models import (
     DeployTransactionResponse,
 )
 from starknet_py.net.http_client import RpcHttpClient
-from starknet_py.net.models import StarknetChainId, chain_from_network
+from starknet_py.net.models import chain_from_network
+from starknet_py.net.models.chains import ChainId
 from starknet_py.net.networks import Network
 from starknet_py.net.rpc_schemas.rpc_schemas import (
     StarknetBlockSchema,
@@ -50,7 +51,7 @@ class FullNodeClient(Client):
         self,
         node_url: str,
         net: Network,
-        chain: Optional[StarknetChainId] = None,
+        chain: Optional[ChainId] = None,
         session: Optional[aiohttp.ClientSession] = None,
     ):
         """
@@ -73,7 +74,7 @@ class FullNodeClient(Client):
         return self._net
 
     @property
-    def chain(self) -> StarknetChainId:
+    def chain(self) -> ChainId:
         warnings.warn(
             "Chain is deprecated and will be deleted in the next releases",
             category=DeprecationWarning,
