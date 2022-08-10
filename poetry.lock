@@ -716,12 +716,18 @@ optional = false
 python-versions = ">=3.7"
 
 [[package]]
-name = "greenlet"
-version = "0.4.17"
-description = "Lightweight in-process concurrent programming"
+name = "gunicorn"
+version = "20.1.0"
+description = "WSGI HTTP Server for UNIX"
 category = "dev"
 optional = false
-python-versions = "*"
+python-versions = ">=3.5"
+
+[package.extras]
+eventlet = ["eventlet (>=0.24.1)"]
+gevent = ["gevent (>=1.4.0)"]
+setproctitle = ["setproctitle"]
+tornado = ["tornado (>=0.2)"]
 
 [[package]]
 name = "hexbytes"
@@ -997,17 +1003,6 @@ description = "McCabe checker, plugin for flake8"
 category = "dev"
 optional = false
 python-versions = ">=3.6"
-
-[[package]]
-name = "meinheld"
-version = "1.0.2"
-description = "High performance asynchronous Python WSGI Web Server"
-category = "dev"
-optional = false
-python-versions = "*"
-
-[package.dependencies]
-greenlet = ">=0.4.5,<0.5"
 
 [[package]]
 name = "mpmath"
@@ -1754,7 +1749,7 @@ test = ["pytest"]
 
 [[package]]
 name = "starknet-devnet"
-version = "0.2.7"
+version = "0.2.8"
 description = "A local testnet for Starknet"
 category = "dev"
 optional = false
@@ -1767,8 +1762,8 @@ cloudpickle = "~2.1.0"
 crypto-cpp-py = "~1.0.4"
 Flask = {version = "~2.0.3", extras = ["async"]}
 flask-cors = "~3.0.10"
+gunicorn = "~20.1.0"
 marshmallow = "~3.17.0"
-meinheld = "~1.0.2"
 typing-extensions = "~4.3.0"
 Werkzeug = "~2.0.3"
 
@@ -1776,7 +1771,7 @@ Werkzeug = "~2.0.3"
 type = "git"
 url = "https://github.com/drknzz/starknet-devnet.git"
 reference = "feat/update-rpc"
-resolved_reference = "fd6b16759ea414fbae4e7f22e9f0e867c56ca6fa"
+resolved_reference = "4e6d420c1f0179eabc171723e95fb8c3dd5d9d8b"
 
 [[package]]
 name = "sympy"
@@ -2060,7 +2055,7 @@ flask = []
 flask-cors = []
 frozendict = []
 frozenlist = []
-greenlet = []
+gunicorn = []
 hexbytes = []
 html5lib = []
 idna = []
@@ -2083,7 +2078,6 @@ marshmallow-dataclass = []
 marshmallow-enum = []
 marshmallow-oneofschema = []
 mccabe = []
-meinheld = []
 mpmath = []
 msgpack = []
 multiaddr = []
