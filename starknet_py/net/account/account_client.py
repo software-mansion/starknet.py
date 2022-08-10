@@ -22,12 +22,12 @@ from starknet_py.net.client_models import (
     TransactionStatus,
     DeployTransactionResponse,
     DeclareTransactionResponse,
+    Transaction,
 )
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
 from starknet_py.net.models import (
     InvokeFunction,
-    Transaction,
     chain_from_network,
 )
 from starknet_py.net.models.chains import ChainId
