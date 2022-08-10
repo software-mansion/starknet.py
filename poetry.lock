@@ -1758,7 +1758,7 @@ test = ["pytest"]
 
 [[package]]
 name = "starknet-devnet"
-version = "0.2.9"
+version = "0.2.8"
 description = "A local testnet for Starknet"
 category = "dev"
 optional = false

@@ -228,7 +228,7 @@ class PreparedFunctionCall(Call):
     async def estimate_fee(
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
-        block_number: Union[int, Tag] = "pending",
+        block_number: Optional[Union[int, Tag]] = None,
     ):
         """
         Estimate fee for prepared function call
