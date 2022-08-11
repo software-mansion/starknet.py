@@ -279,6 +279,7 @@ async def test_state_update_full_node_client(
     block_with_deploy_root,
     contract_address,
     genesis_block_root,
+    class_hash,
 ):
     state_update = await rpc_client.get_state_update(block_hash=block_with_deploy_hash)
 
@@ -290,12 +291,10 @@ async def test_state_update_full_node_client(
         deployed_contracts=[
             DeployedContract(
                 address=contract_address,
-                class_hash=0x711941B11A8236B8CCA42B664E19342AC7300ABB1DC44957763CB65877C2708,
+                class_hash=class_hash,
             )
         ],
-        declared_contracts=[
-            0x711941B11A8236B8CCA42B664E19342AC7300ABB1DC44957763CB65877C2708
-        ],
+        declared_contracts=[class_hash],
     )
 
 
