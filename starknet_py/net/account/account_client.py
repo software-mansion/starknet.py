@@ -56,6 +56,7 @@ class AccountClient(Client):
         signer: Optional[BaseSigner] = None,
         key_pair: Optional[KeyPair] = None,
         chain: Optional[StarknetChainId] = None,
+        supported_tx_version: int = 0,
     ):
         """
         :param address: Address of the account contract
@@ -65,6 +66,7 @@ class AccountClient(Client):
                        :py:class:`starknet_py.net.signer.stark_curve_signer.StarkCurveSigner` is used.
         :param key_pair: Key pair that will be used to create a default `Signer`
         :param chain: ChainId of the chain used to create the default signer
+        :param supported_tx_version: Version of transactions supported by account
         """
         # pylint: disable=too-many-arguments
         if signer is None and key_pair is None:
@@ -84,6 +86,7 @@ class AccountClient(Client):
                 account_address=self.address, key_pair=key_pair, chain_id=chain
             )
         self.signer = signer
+        self.supported_tx_version = supported_tx_version
 
     @property
     def net(self) -> Network:
@@ -170,7 +173,7 @@ class AccountClient(Client):
                 calldata=[],
                 signature=[],
                 max_fee=0,
-                version=0,
+                version=self.supported_tx_version,
             ),
             block_hash="latest",
         )
@@ -204,7 +207,7 @@ class AccountClient(Client):
                 calldata=[self.address],
                 signature=[],
                 max_fee=0,
-                version=0,
+                version=self.supported_tx_version,
             )
         )
 
@@ -226,6 +229,7 @@ class AccountClient(Client):
         :param version: Transaction version
         :return: InvokeFunction created from the calls (without the signature)
         """
+        self._assert_version_matches_supported_tx_version(version)
 
         calls = calls if isinstance(calls, List) else [calls]
 
@@ -236,24 +240,26 @@ class AccountClient(Client):
 
         wrapped_calldata, _ = execute_transformer.from_python(*calldata_py)
 
-        transaction = InvokeFunction(
-            entry_point_selector=get_selector_from_name("__execute__"),
+        transaction = invoke_function_by_version(
+            account_contract_address=self.address,
             calldata=wrapped_calldata,
-            contract_address=self.address,
             signature=[],
             max_fee=0,
             version=version,
+            nonce=nonce,
+            entry_point_selector=get_selector_from_name("__execute__"),
         )
 
         max_fee = await self._get_max_fee(transaction, max_fee, auto_estimate)
 
-        return InvokeFunction(
-            entry_point_selector=get_selector_from_name("__execute__"),
+        return invoke_function_by_version(
+            account_contract_address=self.address,
             calldata=wrapped_calldata,
-            contract_address=self.address,
             signature=[],
             max_fee=max_fee,
             version=version,
+            nonce=nonce,
+            entry_point_selector=get_selector_from_name("__execute__"),
         )
 
     async def _get_max_fee(
@@ -363,6 +369,13 @@ class AccountClient(Client):
     async def get_code(self, *args, **kwargs):
         return await self.client.get_code(*args, **kwargs)
 
+    def _assert_version_matches_supported_tx_version(self, version: int):
+        if version != self.supported_tx_version:
+            raise ValueError(
+                f"Provided version: {version} is not equal to account's "
+                f"supported_tx_version: {self.supported_tx_version}"
+            )
+
     @staticmethod
     async def create_account(
         client: Client,
@@ -397,10 +410,13 @@ class AccountClient(Client):
         else:
             address = await deploy_account_contract(client, signer.public_key)
 
+        version = get_account_version()
+
         return AccountClient(
             client=client,
             address=address,
             signer=signer,
+            supported_tx_version=version,
         )
 
 
@@ -449,3 +465,36 @@ def merge_calls(calls: Calls) -> List:
         calldata.append(data)
 
     return [calldata, entire_calldata]
+
+
+def invoke_function_by_version(
+    # pylint: disable=too-many-arguments
+    account_contract_address: AddressRepresentation,
+    calldata: List[int],
+    signature: List[int],
+    max_fee: int,
+    version: int,
+    nonce: int,
+    entry_point_selector: int,
+) -> InvokeFunction:
+    common_params = {
+        "calldata": calldata,
+        "signature": signature,
+        "max_fee": max_fee,
+        "version": version,
+    }
+
+    if version == 0:
+        return InvokeFunction(
+            contract_address=account_contract_address,
+            entry_point_selector=entry_point_selector,
+            **common_params,
+        )
+
+    return InvokeFunction(
+        account_contract_address=account_contract_address, nonce=nonce, **common_params
+    )
+
+
+def get_account_version():
+    return 1 if "__validate__" in COMPILED_ACCOUNT_CONTRACT else 0
