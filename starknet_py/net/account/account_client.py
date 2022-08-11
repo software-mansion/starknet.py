@@ -6,6 +6,8 @@ from dataclasses import replace
 from starkware.crypto.signature.signature import get_random_private_key
 from starkware.starknet.public.abi import get_selector_from_name
 
+from starknet_py.common import create_compiled_contract
+from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import (
     SentTransactionResponse,
@@ -298,10 +300,10 @@ class AccountClient(Client):
 
     async def _get_max_fee(
         self,
-        transaction: InvokeFunction,
+        transaction: Union[InvokeFunction, Declare],
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-    ):
+    ) -> int:
         if auto_estimate and max_fee is not None:
             raise ValueError(
                 "Max_fee and auto_estimate are exclusive and cannot be provided at the same time."
@@ -309,6 +311,12 @@ class AccountClient(Client):
 
         if auto_estimate:
             estimate_fee = await self.estimate_fee(transaction)
+            # TODO restore this once estimate_fee supports declare transactions
+            # estimate_fee = (
+            #     await self.estimate_fee(transaction)
+            #     if isinstance(transaction, InvokeFunction)
+            #     else self.estimate_declare_fee(transaction)
+            # )
             max_fee = int(estimate_fee.overall_fee * 1.1)
 
         if max_fee is None:
@@ -316,7 +324,7 @@ class AccountClient(Client):
 
         return max_fee
 
-    async def sign_transaction(
+    async def create_invoke_transaction(
         self,
         calls: Calls,
         max_fee: Optional[int] = None,
@@ -340,6 +348,74 @@ class AccountClient(Client):
         execute_tx = add_signature_to_transaction(execute_tx, signature)
 
         return execute_tx
+
+    async def sign_transaction(
+        self,
+        calls: Calls,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+        version: int = 0,
+    ) -> InvokeFunction:
+        """
+        Takes calls and creates signed InvokeFunction
+
+        :param calls: Single call or list of calls
+        :param max_fee: Max amount of Wei to be paid when executing transaction
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
+        :param version: Transaction version
+        :return: InvokeFunction created from the calls
+
+        .. deprecated:: 0.4.6
+            This method has been replaced by :meth:`AccountClient.create_invoke_function`
+        """
+        # TODO add correct deprecation version
+        warnings.warn(
+            "Sign_transaction is deprecated. Use create_invoke_function instead.",
+            category=DeprecationWarning,
+        )
+        return await self.create_invoke_transaction(
+            calls=calls, max_fee=max_fee, auto_estimate=auto_estimate, version=version
+        )
+
+    def create_declare_tx(
+        self,
+        compilation_source: Optional[StarknetCompilationSource] = None,
+        compiled_contract: Optional[str] = None,
+        cairo_path: Optional[List[str]] = None,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+    ) -> Declare:
+        """
+        Create declaration tx.
+        Either `compilation_source` or `compiled_contract` is required.
+
+        :param compilation_source: string containing source code or a list of source files paths
+        :param compiled_contract: string containing compiled contract bytecode.
+                                  Useful for reading compiled contract from a file
+        :param cairo_path: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts
+        :param max_fee: Max amount of Wei to be paid when executing transaction
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
+        :return: A "Declare" transaction object
+        """
+        # pylint: disable=too-many-arguments
+        compiled_contract = create_compiled_contract(
+            compilation_source, compiled_contract, cairo_path
+        )
+        declare_tx = Declare(
+            contract_class=compiled_contract,
+            sender_address=self.address,
+            max_fee=0,
+            signature=[],
+            nonce=self._get_nonce(),
+            version=1,
+        )
+
+        max_fee = self._get_max_fee(
+            transaction=declare_tx, max_fee=max_fee, auto_estimate=auto_estimate
+        )
+        signature = self.signer.sign_transaction(declare_tx)
+
+        return dataclasses.replace(declare_tx, signature=signature, max_fee=max_fee)
 
     async def send_transaction(
         self, transaction: InvokeFunction
@@ -368,7 +444,7 @@ class AccountClient(Client):
         :param version: Transaction version
         :return: SentTransactionResponse
         """
-        execute_transaction = await self.sign_transaction(
+        execute_transaction = await self.create_invoke_transaction(
             calls, max_fee, auto_estimate, version
         )
         return await self.send_transaction(execute_transaction)
@@ -467,10 +543,13 @@ class AccountClient(Client):
 async def deploy_account_contract(
     client: Client, public_key: int
 ) -> AddressRepresentation:
-    deploy_tx = make_deploy_tx(
-        constructor_calldata=[public_key],
-        compiled_contract=COMPILED_ACCOUNT_CONTRACT,
-    )
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        deploy_tx = make_deploy_tx(
+            constructor_calldata=[public_key],
+            compiled_contract=COMPILED_ACCOUNT_CONTRACT,
+        )
+
     result = await client.deploy(deploy_tx)
     await client.wait_for_tx(
         tx_hash=result.transaction_hash,
