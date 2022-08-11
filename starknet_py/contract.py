@@ -35,7 +35,7 @@ from starknet_py.net.models import (
     compute_address,
 )
 from starknet_py.compile.compiler import StarknetCompilationSource
-from starknet_py.transactions.deploy import make_deploy_tx
+from starknet_py.net.transactions.deploy import make_deploy_tx
 from starknet_py.utils.crypto.facade import pedersen_hash, Call
 from starknet_py.utils.data_transformer import FunctionCallSerializer
 from starknet_py.utils.sync import add_sync_methods

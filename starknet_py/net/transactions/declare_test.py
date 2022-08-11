@@ -1,5 +1,5 @@
 from starknet_py.net.models.transaction import Declare
-from starknet_py.transactions.declare import make_declare_tx
+from starknet_py.net.transactions.declare import make_declare_tx
 
 
 def test_make_declare_tx():
