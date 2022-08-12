@@ -123,7 +123,7 @@ class TransactionReceiptSchema(Schema):
         values=fields.Raw(),
         data_key="transaction_failure_reason",
         allow_none=True,
-        default=None,
+        load_default=None,
     )
     events = fields.List(
         fields.Nested(EventSchema()), data_key="events", load_default=[]
