@@ -7,7 +7,6 @@ import pytest
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.services.api.gateway.transaction import DECLARE_SENDER_ADDRESS
 
-from starknet_py.net.models import StarknetChainId
 from starknet_py.net.client_models import (
     TransactionStatus,
     InvokeFunction,
@@ -347,11 +346,6 @@ async def test_get_class_by_hash(clients, class_hash):
         contract_class = await client.get_class_by_hash(class_hash=class_hash)
         assert contract_class.program != ""
         assert contract_class.entry_points_by_type is not None
-
-
-def test_chain_id(clients):
-    for client in clients:
-        assert client.chain == StarknetChainId.TESTNET
 
 
 @pytest.mark.asyncio

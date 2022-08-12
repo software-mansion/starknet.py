@@ -76,7 +76,12 @@ class GatewayClient(Client):
             gateway_url = net["gateway_url"]
 
         self._net = net
-        self._chain = chain_from_network(net, chain)
+
+        try:
+            self._chain = chain_from_network(net, chain)
+        except ValueError:
+            self._chain = None
+
         self._feeder_gateway_client = GatewayHttpClient(
             url=feeder_gateway_url, session=session
         )

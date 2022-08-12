@@ -72,7 +72,7 @@ class AccountClient(Client):
                 "Either a signer or a key_pair must be provided in AccountClient constructor"
             )
 
-        if chain is None and client.chain is None and signer is None:
+        if chain is None and signer is None and client.chain is None:
             raise ValueError("One of chain or signer must be provided")
 
         self.address = parse_address(address)
@@ -382,7 +382,7 @@ class AccountClient(Client):
         :param chain: ChainId of the chain used to create the default signer
         :return: Instance of AccountClient which interacts with created account on given network
         """
-        if chain is None and client.chain is None and signer is None:
+        if chain is None and signer is None and client.chain is None:
             raise ValueError("One of chain or signer must be provided")
 
         if signer is None:

@@ -102,14 +102,12 @@ def create_gateway_client(pytestconfig, run_devnet):
         "integration": "https://external.integration.starknet.io",
     }
 
-    return GatewayClient(net=net_address[net], chain=StarknetChainId.TESTNET)
+    return GatewayClient(net=net_address[net])
 
 
 @pytest.fixture(name="rpc_client", scope="module")
 def create_rpc_client(run_devnet):
-    return FullNodeClient(
-        node_url=run_devnet + "/rpc", chain=StarknetChainId.TESTNET, net=run_devnet
-    )
+    return FullNodeClient(node_url=run_devnet + "/rpc", net=run_devnet)
 
 
 def create_account_client(
@@ -120,6 +118,7 @@ def create_account_client(
         address=address,
         client=gateway_client,
         key_pair=key_pair,
+        chain=StarknetChainId.TESTNET,
     )
 
 

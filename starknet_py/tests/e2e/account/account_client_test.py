@@ -132,7 +132,6 @@ async def test_create_account_client_with_signer(run_devnet):
     key_pair = KeyPair.from_private_key(1234)
     client = GatewayClient(
         net=run_devnet,
-        chain=StarknetChainId.TESTNET,
     )
     address = await deploy_account_contract(
         client=client,

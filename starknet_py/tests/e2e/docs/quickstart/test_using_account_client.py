@@ -20,9 +20,9 @@ async def test_using_account_client(
     # add to docs: start
 
     # Creates an account on testnet and returns an instance
-    client = GatewayClient(net=testnet, chain=StarknetChainId.TESTNET)
+    client = GatewayClient(net=testnet)
     acc_client = await AccountClient.create_account(
-        client=client, chain=StarknetChainId
+        client=client, chain=StarknetChainId.TESTNET
     )
     # add to docs: end
     acc_client = gateway_account_client
