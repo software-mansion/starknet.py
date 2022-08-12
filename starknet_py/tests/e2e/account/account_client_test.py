@@ -84,9 +84,7 @@ async def test_estimate_fee_called(erc20_contract):
 
         mocked_estimate_fee.return_value = result
 
-        await erc20_contract.functions["balanceOf"].prepare(
-            "1234", max_fee=0
-        ).estimate_fee()
+        await erc20_contract.functions["balanceOf"].prepare("1234").estimate_fee()
 
         mocked_estimate_fee.assert_called()
 
@@ -94,9 +92,7 @@ async def test_estimate_fee_called(erc20_contract):
 @pytest.mark.asyncio
 async def test_estimated_fee_greater_than_zero(erc20_contract):
     estimated_fee = (
-        await erc20_contract.functions["balanceOf"]
-        .prepare("1234", max_fee=0)
-        .estimate_fee()
+        await erc20_contract.functions["balanceOf"].prepare("1234").estimate_fee()
     )
 
     assert estimated_fee.overall_fee > 0
