@@ -274,12 +274,6 @@ class AccountClient(Client):
         if max_fee is None:
             raise ValueError("Max_fee must be specified when invoking a transaction")
 
-        if max_fee == 0:
-            warnings.warn(
-                "Transaction will fail with max_fee set to 0. Change it to a higher value.",
-                DeprecationWarning,
-            )
-
         return max_fee
 
     async def sign_transaction(
@@ -310,6 +304,12 @@ class AccountClient(Client):
     async def send_transaction(
         self, transaction: InvokeFunction
     ) -> SentTransactionResponse:
+        if transaction.max_fee == 0:
+            warnings.warn(
+                "Transaction will fail with max_fee set to 0. Change it to a higher value.",
+                DeprecationWarning,
+            )
+
         return await self.client.send_transaction(transaction=transaction)
 
     async def execute(
