@@ -1,3 +1,4 @@
+import asyncio
 import os
 import time
 import subprocess
@@ -32,32 +33,6 @@ INTEGRATION_ACCOUNT_PRIVATE_KEY = (
 INTEGRATION_ACCOUNT_ADDRESS = (
     "0x60D7C88541F969520E46D39EC7C9053451CFEDBC2EEB847B684981A22CD452E"
 )
-
-CONTRACT = """
-        %lang starknet
-        %builtins pedersen range_check
-
-        from starkware.cairo.common.cairo_builtins import HashBuiltin
-
-        @storage_var
-        func storage(key : felt) -> (value : felt):
-        end
-
-        @event
-        func put_called(
-            key : felt, prev_value : felt, value : felt
-        ):
-        end
-
-        @external
-        func put{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-                key : felt, value : felt):
-            let (prev_value) = storage.read(key)
-            put_called.emit(key=key, prev_value=prev_value, value=value)
-            storage.write(key, value)
-            return ()
-        end
-        """
 
 
 def pytest_addoption(parser):
@@ -222,12 +197,24 @@ def compiled_proxy(request) -> str:
 
 
 @pytest.mark.asyncio
-@pytest.fixture(name="cairo_serializer")
+@pytest.fixture(name="cairo_serializer", scope="module")
 async def cairo_serializer(gateway_account_client) -> str:
     client = gateway_account_client
+    contract_content = (
+        directory_with_contracts / "cairo_serializer_contract.cairo"
+    ).read_text("utf-8")
 
-    deployment_result = await Contract.deploy(client, compilation_source=CONTRACT)
+    deployment_result = await Contract.deploy(
+        client, compilation_source=contract_content
+    )
     await deployment_result.wait_for_acceptance()
     contract = deployment_result.deployed_contract
 
     return CairoSerializer(identifier_manager=contract.data.identifier_manager)
+
+
+# Redefine event_loop fixture with scope="session" for cairo_serializer fixture to work properly with scope="module"
+# https://github.com/tortoise/tortoise-orm/issues/638#issuecomment-830124562
+@pytest.fixture(scope="session")
+def event_loop():
+    return asyncio.get_event_loop()

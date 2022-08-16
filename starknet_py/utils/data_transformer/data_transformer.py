@@ -344,9 +344,10 @@ class CairoSerializer:
                 f"Provided {len(args)} positional arguments, {len(type_by_name)} possible."
             )
 
-        for key, val in named_arguments.items():
-            if key not in type_by_name:
-                raise TypeError(f"Unnecessary named argument {key}={val} provided.")
+        key_diff = set(named_arguments.keys()).difference(set(type_by_name))
+
+        if key_diff:
+            raise TypeError(f"Unnecessary named arguments provided: {key_diff}.")
 
         # Assign args to named arguments
         for arg, input_name in zip(args, type_by_name.keys()):

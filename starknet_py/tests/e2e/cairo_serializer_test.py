@@ -40,6 +40,8 @@ async def test_from_python_invalid_positional(cairo_serializer):
 @pytest.mark.asyncio
 async def test_from_python_unnecessary_named(cairo_serializer):
     args = [10, 11]
-    kwargs = {"value": 20, "count": 4}
-    with pytest.raises(TypeError, match="Unnecessary named argument count=4 provided."):
+    kwargs = {"count": 3, "value": 20, "val": 4}
+    with pytest.raises(
+        TypeError, match="Unnecessary named arguments provided: {'count', 'val'}."
+    ):
         cairo_serializer.from_python(value_types, *args, **kwargs)
