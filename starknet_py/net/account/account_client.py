@@ -88,6 +88,13 @@ class AccountClient(Client):
         self.signer = signer
         self.supported_tx_version = supported_tx_version
 
+        if self.supported_tx_version == 0:
+            warnings.warn(
+                "Account supporting the first version of transaction is deprecated. "
+                "Use the new account and set supported_tx_version parameter to 1",
+                category=DeprecationWarning,
+            )
+
     @property
     def net(self) -> Network:
         return self.client.net
