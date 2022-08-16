@@ -491,6 +491,8 @@ def invoke_function_by_version(
             **common_params,
         )
 
+    # remove when new cairo will be released
+    # pylint: disable=unexpected-keyword-arg
     return InvokeFunction(
         account_contract_address=account_contract_address, nonce=nonce, **common_params
     )
