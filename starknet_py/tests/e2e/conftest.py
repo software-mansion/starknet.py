@@ -1,4 +1,3 @@
-import asyncio
 import os
 import time
 import subprocess
@@ -196,25 +195,18 @@ def compiled_proxy(request) -> str:
     return (directory_with_contracts / request.param).read_text("utf-8")
 
 
-@pytest.mark.asyncio
 @pytest.fixture(name="cairo_serializer", scope="module")
-async def cairo_serializer(gateway_account_client) -> CairoSerializer:
+def cairo_serializer(gateway_account_client) -> CairoSerializer:
     client = gateway_account_client
     contract_content = (
-        directory_with_contracts / "cairo_serializer_contract.cairo"
+        directory_with_contracts / "simple_storage_with_event.cairo"
     ).read_text("utf-8")
 
-    deployment_result = await Contract.deploy(
+    # pylint: disable=no-member
+    deployment_result = Contract.deploy_sync(
         client, compilation_source=contract_content
     )
-    await deployment_result.wait_for_acceptance()
+    deployment_result.wait_for_acceptance_sync()
     contract = deployment_result.deployed_contract
 
     return CairoSerializer(identifier_manager=contract.data.identifier_manager)
-
-
-# Redefine event_loop fixture with scope="session" for cairo_serializer fixture to work properly with scope="module"
-# https://github.com/tortoise/tortoise-orm/issues/638#issuecomment-830124562
-@pytest.fixture(scope="session")
-def event_loop():
-    return asyncio.get_event_loop()
