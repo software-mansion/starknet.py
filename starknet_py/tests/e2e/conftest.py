@@ -198,7 +198,7 @@ def compiled_proxy(request) -> str:
 
 @pytest.mark.asyncio
 @pytest.fixture(name="cairo_serializer", scope="module")
-async def cairo_serializer(gateway_account_client) -> str:
+async def cairo_serializer(gateway_account_client) -> CairoSerializer:
     client = gateway_account_client
     contract_content = (
         directory_with_contracts / "cairo_serializer_contract.cairo"
