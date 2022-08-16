@@ -77,10 +77,8 @@ class GatewayClient(Client):
 
         self._net = net
 
-        try:
+        if chain is not None and net in ["testnet", "mainnet"]:
             self._chain = chain_from_network(net, chain)
-        except ValueError:
-            self._chain = None
 
         self._feeder_gateway_client = GatewayHttpClient(
             url=feeder_gateway_url, session=session

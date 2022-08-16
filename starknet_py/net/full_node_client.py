@@ -66,10 +66,8 @@ class FullNodeClient(Client):
         self.url = node_url
         self._client = RpcHttpClient(url=node_url, session=session)
 
-        try:
+        if chain is not None and net in ["testnet", "mainnet"]:
             self._chain = chain_from_network(net, chain)
-        except ValueError:
-            self._chain = None
 
         self._net = net
 
