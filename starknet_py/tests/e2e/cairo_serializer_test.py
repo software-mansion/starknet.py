@@ -1,6 +1,5 @@
 import pytest
 
-
 value_types = [
     {"name": "key", "type": "felt"},
     {"name": "prev_value", "type": "felt"},
@@ -41,7 +40,10 @@ async def test_from_python_invalid_positional(cairo_serializer):
 async def test_from_python_unnecessary_named(cairo_serializer):
     args = [10, 11]
     kwargs = {"count": 3, "value": 20, "val": 4}
+
+    key_diff = set(kwargs).difference(set(d["name"] for d in value_types))
+
     with pytest.raises(
-        TypeError, match="Unnecessary named arguments provided: {'count', 'val'}."
+        TypeError, match=f"Unnecessary named arguments provided: {key_diff}."
     ):
         cairo_serializer.from_python(value_types, *args, **kwargs)
