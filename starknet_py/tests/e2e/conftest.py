@@ -12,6 +12,7 @@ from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId, AddressRepresentation
 from starknet_py.contract import Contract
+from starknet_py.utils.data_transformer.data_transformer import CairoSerializer
 
 TESTNET_ACCOUNT_PRIVATE_KEY = (
     "0x5d6871223e9d2f6136f3913e8ccb6daae0b6b2a8452b39f92a1ddc5a76eed9a"
@@ -31,6 +32,32 @@ INTEGRATION_ACCOUNT_PRIVATE_KEY = (
 INTEGRATION_ACCOUNT_ADDRESS = (
     "0x60D7C88541F969520E46D39EC7C9053451CFEDBC2EEB847B684981A22CD452E"
 )
+
+CONTRACT = """
+        %lang starknet
+        %builtins pedersen range_check
+
+        from starkware.cairo.common.cairo_builtins import HashBuiltin
+
+        @storage_var
+        func storage(key : felt) -> (value : felt):
+        end
+
+        @event
+        func put_called(
+            key : felt, prev_value : felt, value : felt
+        ):
+        end
+
+        @external
+        func put{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+                key : felt, value : felt):
+            let (prev_value) = storage.read(key)
+            put_called.emit(key=key, prev_value=prev_value, value=value)
+            storage.write(key, value)
+            return ()
+        end
+        """
 
 
 def pytest_addoption(parser):
@@ -192,3 +219,15 @@ def deploy_erc20_contract(gateway_account_client, erc20_source_code) -> Contract
 @pytest.fixture(name="compiled_proxy")
 def compiled_proxy(request) -> str:
     return (directory_with_contracts / request.param).read_text("utf-8")
+
+
+@pytest.mark.asyncio
+@pytest.fixture(name="cairo_serializer")
+async def cairo_serializer(gateway_account_client) -> str:
+    client = gateway_account_client
+
+    deployment_result = await Contract.deploy(client, compilation_source=CONTRACT)
+    await deployment_result.wait_for_acceptance()
+    contract = deployment_result.deployed_contract
+
+    return CairoSerializer(identifier_manager=contract.data.identifier_manager)
