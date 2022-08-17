@@ -12,6 +12,7 @@ from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId, AddressRepresentation
 from starknet_py.contract import Contract
+from starknet_py.utils.data_transformer.data_transformer import CairoSerializer
 
 TESTNET_ACCOUNT_PRIVATE_KEY = (
     "0x5d6871223e9d2f6136f3913e8ccb6daae0b6b2a8452b39f92a1ddc5a76eed9a"
@@ -192,3 +193,20 @@ def deploy_erc20_contract(gateway_account_client, erc20_source_code) -> Contract
 @pytest.fixture(name="compiled_proxy")
 def compiled_proxy(request) -> str:
     return (directory_with_contracts / request.param).read_text("utf-8")
+
+
+@pytest.fixture(name="cairo_serializer", scope="module")
+def cairo_serializer(gateway_account_client) -> CairoSerializer:
+    client = gateway_account_client
+    contract_content = (
+        directory_with_contracts / "simple_storage_with_event.cairo"
+    ).read_text("utf-8")
+
+    # pylint: disable=no-member
+    deployment_result = Contract.deploy_sync(
+        client, compilation_source=contract_content
+    )
+    deployment_result.wait_for_acceptance_sync()
+    contract = deployment_result.deployed_contract
+
+    return CairoSerializer(identifier_manager=contract.data.identifier_manager)
