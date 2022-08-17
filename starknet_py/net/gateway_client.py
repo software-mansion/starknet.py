@@ -77,8 +77,10 @@ class GatewayClient(Client):
 
         self._net = net
 
-        if chain is not None and net in ["testnet", "mainnet"]:
+        if net in ["testnet", "mainnet"]:
             self._chain = chain_from_network(net, chain)
+        elif chain is not None:
+            self._chain = chain
 
         self._feeder_gateway_client = GatewayHttpClient(
             url=feeder_gateway_url, session=session
