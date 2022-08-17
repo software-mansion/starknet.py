@@ -35,8 +35,8 @@ def uint256_range_check(value: int):
         raise ValueError(f"UInt256 is expected to be in range [0;2^256), got {value}")
 
 
-MIN_FELT = -FIELD_PRIME / 2
-MAX_FELT = FIELD_PRIME / 2
+MIN_FELT = -FIELD_PRIME // 2
+MAX_FELT = FIELD_PRIME // 2
 
 
 def cairo_vm_range_check(value: int):
