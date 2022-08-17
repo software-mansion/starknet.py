@@ -217,10 +217,8 @@ async def test_warning_when_max_fee_equals_to_zero(map_contract):
     with pytest.warns(
         DeprecationWarning,
         match=r"Transaction will fail with max_fee set to 0. Change it to a higher value.",
-    ) as max_fee_warnings:
+    ):
         await map_contract.functions["put"].invoke(10, 20, max_fee=0)
-
-    assert len(max_fee_warnings) == 1
 
 
 @pytest.mark.asyncio

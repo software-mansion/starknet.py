@@ -299,6 +299,13 @@ class GatewayClient(Client):
         transaction: InvokeFunction,
         token: Optional[str] = None,
     ) -> SentTransactionResponse:
+        if transaction.version == 0:
+            warnings.warn(
+                "Transaction with version 0 is deprecated and will be removed in the next releases. "
+                "Set version to 1 while creating transaction",
+                category=DeprecationWarning,
+            )
+
         res = await self._add_transaction(transaction, token)
         return SentTransactionSchema().load(res, unknown=EXCLUDE)
 
