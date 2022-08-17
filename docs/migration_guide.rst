@@ -4,7 +4,7 @@
 0.5.0 updates project to support cairo 0.10.0
 
 New transaction version
-=======================
+-----------------------
 
 Cairo 0.10.0 brings new version of the transaction.
 The differences:
@@ -16,7 +16,7 @@ The differences:
 For now both (0 nad 1) transaction versions will be accepted but there will be a DeprecationWarning while using version 0.
 
 AccountClient
-=============
+-------------
 
 AccountClient's constructor has a new parameter now. ``supported_tx_version`` is used to differentiate between old and new accounts.
 It is set to 0 as default so there is no need to set it while using old account.
