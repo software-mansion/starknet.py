@@ -22,13 +22,13 @@ from starknet_py.net.client_models import (
     TransactionStatus,
     DeployTransactionResponse,
     DeclareTransactionResponse,
+    Transaction,
 )
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
 from starknet_py.net.models import (
     InvokeFunction,
     StarknetChainId,
-    Transaction,
     chain_from_network,
 )
 from starknet_py.net.networks import Network, MAINNET, TESTNET
@@ -55,38 +55,47 @@ class AccountClient(Client):
         client: Client,
         signer: Optional[BaseSigner] = None,
         key_pair: Optional[KeyPair] = None,
+        chain: Optional[StarknetChainId] = None,
     ):
         """
         :param address: Address of the account contract
         :param client: Instance of GatewayClient which will be used to add transactions
         :param signer: Custom signer to be used by AccountClient.
-                       If none is provieded, default
+                       If none is provided, default
                        :py:class:`starknet_py.net.signer.stark_curve_signer.StarkCurveSigner` is used.
         :param key_pair: Key pair that will be used to create a default `Signer`
+        :param chain: ChainId of the chain used to create the default signer
         """
         # pylint: disable=too-many-arguments
         if signer is None and key_pair is None:
             raise ValueError(
-                "Either a signer or a key_pair must be provied in AccountClient constructor"
+                "Either a signer or a key_pair must be provided in AccountClient constructor"
             )
 
-        chain = chain_from_network(net=client.net, chain=client.chain)
+        if chain is None and signer is None and client.chain is None:
+            raise ValueError("One of chain or signer must be provided")
 
-        if chain is None and client is None:
-            raise ValueError("One of chain or client must be provided")
         self.address = parse_address(address)
         self.client = client
-        self.signer = signer or StarkCurveSigner(
-            account_address=self.address, key_pair=key_pair, chain_id=self.client.chain
-        )
 
-    @property
-    def chain(self) -> StarknetChainId:
-        return self.client.chain
+        if signer is None:
+            chain = chain_from_network(net=client.net, chain=chain or self.client.chain)
+            signer = StarkCurveSigner(
+                account_address=self.address, key_pair=key_pair, chain_id=chain
+            )
+        self.signer = signer
 
     @property
     def net(self) -> Network:
         return self.client.net
+
+    @property
+    def chain(self) -> StarknetChainId:
+        warnings.warn(
+            "Chain is deprecated and will be deleted in the next releases",
+            category=DeprecationWarning,
+        )
+        return self.signer.chain_id
 
     async def get_block(
         self,
@@ -265,12 +274,6 @@ class AccountClient(Client):
         if max_fee is None:
             raise ValueError("Max_fee must be specified when invoking a transaction")
 
-        if max_fee == 0:
-            warnings.warn(
-                "Transaction will fail with max_fee set to 0. Change it to a higher value.",
-                DeprecationWarning,
-            )
-
         return max_fee
 
     async def sign_transaction(
@@ -301,6 +304,12 @@ class AccountClient(Client):
     async def send_transaction(
         self, transaction: InvokeFunction
     ) -> SentTransactionResponse:
+        if transaction.max_fee == 0:
+            warnings.warn(
+                "Transaction will fail with max_fee set to 0. Change it to a higher value.",
+                DeprecationWarning,
+            )
+
         return await self.client.send_transaction(transaction=transaction)
 
     async def execute(
@@ -359,6 +368,7 @@ class AccountClient(Client):
         client: Client,
         private_key: Optional[int] = None,
         signer: Optional[BaseSigner] = None,
+        chain: Optional[StarknetChainId] = None,
     ) -> "AccountClient":
         """
         Creates the account using
@@ -369,15 +379,20 @@ class AccountClient(Client):
                        which will be used to add the transactions
         :param private_key: Private Key used for the account
         :param signer: Signer used to create account and sign transaction
+        :param chain: ChainId of the chain used to create the default signer
         :return: Instance of AccountClient which interacts with created account on given network
         """
+        if chain is None and signer is None and client.chain is None:
+            raise ValueError("One of chain or signer must be provided")
+
         if signer is None:
             private_key = private_key or get_random_private_key()
 
+            chain = chain_from_network(net=client.net, chain=chain or client.chain)
             key_pair = KeyPair.from_private_key(private_key)
             address = await deploy_account_contract(client, key_pair.public_key)
             signer = StarkCurveSigner(
-                account_address=address, key_pair=key_pair, chain_id=client.chain
+                account_address=address, key_pair=key_pair, chain_id=chain
             )
         else:
             address = await deploy_account_contract(client, signer.public_key)

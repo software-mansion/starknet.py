@@ -18,7 +18,7 @@ This is how we can interact with it:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_existing_contracts.py
     :language: python
-    :lines: 34-39,43-46,54-89
+    :lines: 34-40,44-49,57-92
     :dedent: 4
 
 
@@ -46,7 +46,7 @@ signing algorithm, it is possible to create ``AccountClient`` with custom
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_custom_signer.py
     :language: python
-    :lines: 11-33
+    :lines: 11-35
     :dedent: 4
 
 
@@ -201,7 +201,7 @@ Here is a usage example:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_cairo_serializer.py
     :language: python
-    :lines: 9-42,47-51,56-98
+    :lines: 9-42,47-52,57-99
     :dedent: 4
 
 

@@ -19,7 +19,7 @@ async def test_account_client_details(
 
     # Creates an account
     client = await AccountClient.create_account(
-        client=GatewayClient(net=net, chain=StarknetChainId.TESTNET)
+        client=GatewayClient(net=net), chain=StarknetChainId.TESTNET
     )
     # add to docs: end
 

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "starknet.py"
-version = "0.4.4-alpha"
+version = "0.4.5-alpha"
 description = "A python SDK for StarkNet"
 authors = ["Tomasz Rejowski <tomasz.rejowski@swmansion.com>", "Jakub Ptak <jakub.ptak@swmansion.com>"]
 include = ["starknet_py", "starknet_py/utils/crypto/libcrypto_c_exports.*"]
@@ -22,6 +22,7 @@ crypto-cpp-py = "^1.0.4"
 marshmallow = "^3.15.0"
 marshmallow-oneofschema = "^3.0.1"
 cairo-lang = "0.9.1"
+typing-extensions = "^4.3.0"
 
 [tool.poetry.extras]
 docs = ["sphinx", "enum-tools"]
@@ -39,7 +40,7 @@ setuptools = "^60.0.3"
 pytest-mock = "^3.6.1"
 pytest-xdist = "^2.5.0"
 web3 = {extras=["tester"], version="6.0.0b4"}
-starknet-devnet = {git = "https://github.com/Shard-Labs/starknet-devnet.git", rev = "d5350504cfa88c2b4ccfb288680e4bf435998404"}
+starknet-devnet = "^0.2.10"
 
 
 [tool.poe.tasks]

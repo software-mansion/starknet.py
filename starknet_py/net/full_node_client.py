@@ -1,4 +1,5 @@
 import typing
+import warnings
 from typing import List, Optional, Union
 
 import aiohttp
@@ -57,13 +58,18 @@ class FullNodeClient(Client):
 
         :param node_url: Url of the node providing rpc interface
         :param net: StarkNet network identifier
-        :param chain: Chain id of the network used by the rpc client
+        :param chain: Chain id of the network used by the rpc client. Chain is deprecated
+                        and will be removed in the next releases
         :param session: Aiohttp session to be used for request. If not provided, client will create a session for
-                        every request. When using a custom session, user is resposible for closing it manually.
+                        every request. When using a custom session, user is responsible for closing it manually.
         """
         self.url = node_url
         self._client = RpcHttpClient(url=node_url, session=session)
-        self._chain = chain_from_network(net, chain)
+
+        if net in ["testnet", "mainnet"]:
+            chain = chain_from_network(net, chain)
+        self._chain = chain
+
         self._net = net
 
     @property
@@ -72,6 +78,10 @@ class FullNodeClient(Client):
 
     @property
     def chain(self) -> StarknetChainId:
+        warnings.warn(
+            "Chain is deprecated and will be deleted in the next releases",
+            category=DeprecationWarning,
+        )
         return self._chain
 
     async def get_block(
@@ -244,7 +254,9 @@ class FullNodeClient(Client):
         res = await self._client.call(
             method_name="addDeployTransaction",
             params={
-                "contract_address_salt": transaction.contract_address_salt,
+                "contract_address_salt": convert_to_felt(
+                    transaction.contract_address_salt
+                ),
                 "constructor_calldata": [
                     convert_to_felt(i) for i in transaction.constructor_calldata
                 ],
@@ -267,7 +279,7 @@ class FullNodeClient(Client):
                     "program": contract_class["program"],
                     "entry_points_by_type": contract_class["entry_points_by_type"],
                 },
-                "version": transaction.version,
+                "version": hex(transaction.version),
             },
         )
 

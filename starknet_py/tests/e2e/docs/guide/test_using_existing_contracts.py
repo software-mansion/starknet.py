@@ -34,6 +34,7 @@ async def test_using_existing_contracts(
     from starknet_py.net.gateway_client import GatewayClient
     from starknet_py.contract import Contract
     from starknet_py.net.networks import TESTNET
+    from starknet_py.net.models import StarknetChainId
 
     address = "0x00178130dd6286a9a0e031e4c73b2bd04ffa92804264a25c1c08c1612559f458"
     client = GatewayClient(TESTNET)
@@ -43,7 +44,9 @@ async def test_using_existing_contracts(
 
     contract = Contract(address=address, abi=abi, client=gateway_client)
     # or
-    acc_client = await AccountClient.create_account(client=gateway_client)
+    acc_client = await AccountClient.create_account(
+        client=gateway_client, chain=StarknetChainId.TESTNET
+    )
     # add to docs: end
 
     acc_client = gateway_account_client

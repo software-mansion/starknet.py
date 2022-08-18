@@ -7,7 +7,6 @@ import pytest
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.services.api.gateway.transaction import DECLARE_SENDER_ADDRESS
 
-from starknet_py.net.models import StarknetChainId
 from starknet_py.net.client_models import (
     TransactionStatus,
     InvokeFunction,
@@ -136,7 +135,7 @@ async def test_get_block_by_number(
     contract_address,
 ):
     for client in clients:
-        block = await client.get_block(block_number=0)
+        block = await client.get_block(block_number=1)
 
         assert block == StarknetBlock(
             block_number=block_with_deploy_number,
@@ -208,7 +207,7 @@ async def test_get_transaction_receipt(clients, invoke_transaction_hash):
         version=0,
         actual_fee=0,
         rejection_reason=None,
-        block_number=1,
+        block_number=2,
     )
 
 
@@ -246,7 +245,11 @@ async def test_call_contract(clients, contract_address):
 
 @pytest.mark.asyncio
 async def test_state_update_gateway_client(
-    gateway_client, block_with_deploy_hash, block_with_deploy_root, contract_address
+    gateway_client,
+    block_with_deploy_hash,
+    block_with_deploy_root,
+    contract_address,
+    genesis_block_root,
 ):
     state_update = await gateway_client.get_state_update(
         block_hash=block_with_deploy_hash
@@ -255,7 +258,7 @@ async def test_state_update_gateway_client(
     assert state_update == BlockStateUpdate(
         block_hash=block_with_deploy_hash,
         new_root=block_with_deploy_root,
-        old_root=0x0,
+        old_root=genesis_block_root,
         storage_diffs=[],
         contract_diffs=[
             ContractDiff(
@@ -271,14 +274,18 @@ async def test_state_update_gateway_client(
 
 @pytest.mark.asyncio
 async def test_state_update_full_node_client(
-    rpc_client, block_with_deploy_hash, block_with_deploy_root, contract_address
+    rpc_client,
+    block_with_deploy_hash,
+    block_with_deploy_root,
+    contract_address,
+    genesis_block_root,
 ):
     state_update = await rpc_client.get_state_update(block_hash=block_with_deploy_hash)
 
     assert state_update == BlockStateUpdate(
         block_hash=block_with_deploy_hash,
         new_root=block_with_deploy_root,
-        old_root=0x0,
+        old_root=genesis_block_root,
         storage_diffs=[],
         contract_diffs=[
             ContractDiff(
@@ -325,6 +332,7 @@ async def test_deploy(balance_contract, clients):
         assert transaction_receipt.actual_fee == 0
 
 
+@pytest.mark.asyncio
 async def test_get_class_hash_at(clients, contract_address):
     for client in clients:
         class_hash = await client.get_class_hash_at(contract_address=contract_address)
@@ -340,11 +348,6 @@ async def test_get_class_by_hash(clients, class_hash):
         contract_class = await client.get_class_by_hash(class_hash=class_hash)
         assert contract_class.program != ""
         assert contract_class.entry_points_by_type is not None
-
-
-def test_chain_id(clients):
-    for client in clients:
-        assert client.chain == StarknetChainId.TESTNET
 
 
 @pytest.mark.asyncio
