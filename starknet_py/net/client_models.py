@@ -222,6 +222,7 @@ class GatewayBlock(StarknetBlock):
     """
     Dataclass representing a block from the starknet gateway
     """
+
     gas_price: int
 
 

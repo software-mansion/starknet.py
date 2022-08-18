@@ -122,7 +122,9 @@ async def test_get_block_by_hash(
             )
         ],
     )
-    expected_gateway_block = GatewayBlock(**vars(expected_fullnode_block), gas_price=100_000_000_000)
+    expected_gateway_block = GatewayBlock(
+        **vars(expected_fullnode_block), gas_price=100_000_000_000
+    )
     fullnode_block = await fullnode_client.get_block(block_hash=block_with_deploy_hash)
     gateway_block = await gateway_client.get_block(block_hash=block_with_deploy_hash)
     assert fullnode_block == expected_fullnode_block
@@ -158,7 +160,9 @@ async def test_get_block_by_number(
             )
         ],
     )
-    expected_gateway_block = GatewayBlock(**vars(expected_fullnode_block), gas_price=100_000_000_000)
+    expected_gateway_block = GatewayBlock(
+        **vars(expected_fullnode_block), gas_price=100_000_000_000
+    )
     fullnode_block = await fullnode_client.get_block(block_hash=block_with_deploy_hash)
     gateway_block = await gateway_client.get_block(block_hash=block_with_deploy_hash)
     assert fullnode_block == expected_fullnode_block
