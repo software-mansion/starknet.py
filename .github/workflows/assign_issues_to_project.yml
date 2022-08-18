@@ -1,0 +1,16 @@
+name: Auto assign issue to project
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  assign_one_project:
+    runs-on: ubuntu-latest
+    name: Assign to Project
+    steps:
+    - name: Assign new issues to the project board
+      uses: actions/add-to-project@v0.1.0
+      with:
+        project-url: https://github.com/orgs/software-mansion/projects/1
+        github-token: ${{ secrets.PROTOSTAR_GITHUB_TOKEN }}

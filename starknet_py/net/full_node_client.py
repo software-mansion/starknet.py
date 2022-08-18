@@ -65,7 +65,11 @@ class FullNodeClient(Client):
         """
         self.url = node_url
         self._client = RpcHttpClient(url=node_url, session=session)
-        self._chain = chain_from_network(net, chain)
+
+        if net in ["testnet", "mainnet"]:
+            chain = chain_from_network(net, chain)
+        self._chain = chain
+
         self._net = net
 
     @property

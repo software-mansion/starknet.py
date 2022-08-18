@@ -46,7 +46,7 @@ signing algorithm, it is possible to create ``AccountClient`` with custom
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_custom_signer.py
     :language: python
-    :lines: 11-33
+    :lines: 11-35
     :dedent: 4
 
 
