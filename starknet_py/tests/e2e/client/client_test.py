@@ -11,6 +11,7 @@ from starknet_py.net.client_models import (
     TransactionStatus,
     InvokeFunction,
     BlockStateUpdate,
+    GatewayBlock,
     StarknetBlock,
     BlockStatus,
     TransactionReceipt,
@@ -101,28 +102,31 @@ async def test_get_block_by_hash(
     block_with_deploy_root,
     contract_address,
 ):
-    for client in clients:
-        block = await client.get_block(block_hash=block_with_deploy_hash)
-
-        assert block == StarknetBlock(
-            block_number=block_with_deploy_number,
-            block_hash=block_with_deploy_hash,
-            gas_price=100_000_000_000,
-            parent_block_hash=0x0,
-            root=block_with_deploy_root,
-            status=BlockStatus.ACCEPTED_ON_L2,
-            timestamp=2137,
-            transactions=[
-                DeployTransaction(
-                    contract_address=contract_address,
-                    constructor_calldata=[],
-                    hash=deploy_transaction_hash,
-                    signature=[],
-                    max_fee=0,
-                    # class_hash=class_hash,
-                )
-            ],
-        )
+    gateway_client = clients[0]
+    fullnode_client = clients[1]
+    expected_fullnode_block = StarknetBlock(
+        block_number=block_with_deploy_number,
+        block_hash=block_with_deploy_hash,
+        parent_block_hash=0x0,
+        root=block_with_deploy_root,
+        status=BlockStatus.ACCEPTED_ON_L2,
+        timestamp=2137,
+        transactions=[
+            DeployTransaction(
+                contract_address=contract_address,
+                constructor_calldata=[],
+                hash=deploy_transaction_hash,
+                signature=[],
+                max_fee=0,
+                # class_hash=class_hash,
+            )
+        ],
+    )
+    expected_gateway_block = GatewayBlock(**vars(expected_fullnode_block), gas_price=100_000_000_000)
+    fullnode_block = await fullnode_client.get_block(block_hash=block_with_deploy_hash)
+    gateway_block = await gateway_client.get_block(block_hash=block_with_deploy_hash)
+    assert fullnode_block == expected_fullnode_block
+    assert gateway_block == expected_gateway_block
 
 
 @pytest.mark.asyncio
@@ -134,28 +138,31 @@ async def test_get_block_by_number(
     block_with_deploy_root,
     contract_address,
 ):
-    for client in clients:
-        block = await client.get_block(block_number=1)
-
-        assert block == StarknetBlock(
-            block_number=block_with_deploy_number,
-            block_hash=block_with_deploy_hash,
-            gas_price=100_000_000_000,
-            parent_block_hash=0x0,
-            root=block_with_deploy_root,
-            status=BlockStatus.ACCEPTED_ON_L2,
-            timestamp=2137,
-            transactions=[
-                DeployTransaction(
-                    contract_address=contract_address,
-                    constructor_calldata=[],
-                    hash=deploy_transaction_hash,
-                    signature=[],
-                    # class_hash=class_hash,
-                    max_fee=0,
-                )
-            ],
-        )
+    gateway_client = clients[0]
+    fullnode_client = clients[1]
+    expected_fullnode_block = StarknetBlock(
+        block_number=block_with_deploy_number,
+        block_hash=block_with_deploy_hash,
+        parent_block_hash=0x0,
+        root=block_with_deploy_root,
+        status=BlockStatus.ACCEPTED_ON_L2,
+        timestamp=2137,
+        transactions=[
+            DeployTransaction(
+                contract_address=contract_address,
+                constructor_calldata=[],
+                hash=deploy_transaction_hash,
+                signature=[],
+                # class_hash=class_hash,
+                max_fee=0,
+            )
+        ],
+    )
+    expected_gateway_block = GatewayBlock(**vars(expected_fullnode_block), gas_price=100_000_000_000)
+    fullnode_block = await fullnode_client.get_block(block_hash=block_with_deploy_hash)
+    gateway_block = await gateway_client.get_block(block_hash=block_with_deploy_hash)
+    assert fullnode_block == expected_fullnode_block
+    assert gateway_block == expected_gateway_block
 
 
 @pytest.mark.asyncio
