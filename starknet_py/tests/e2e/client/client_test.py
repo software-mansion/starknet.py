@@ -4,6 +4,7 @@ from unittest.mock import patch, MagicMock
 
 import pytest
 
+from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.services.api.gateway.transaction import DECLARE_SENDER_ADDRESS
 
@@ -27,6 +28,9 @@ from starknet_py.transaction_exceptions import (
 )
 from starknet_py.transactions.declare import make_declare_tx
 from starknet_py.transactions.deploy import make_deploy_tx
+
+
+DEFAULT_GATEWAY_GAS_PRICE = StarknetGeneralConfig().min_gas_price
 
 
 @pytest.mark.asyncio
@@ -95,16 +99,15 @@ async def test_get_transaction_raises_on_not_received(clients):
 
 @pytest.mark.asyncio
 async def test_get_block_by_hash(
-    clients,
+    gateway_client,
+    rpc_client,
     deploy_transaction_hash,
     block_with_deploy_hash,
     block_with_deploy_number,
     block_with_deploy_root,
     contract_address,
 ):
-    gateway_client = clients[0]
-    fullnode_client = clients[1]
-    expected_fullnode_block = StarknetBlock(
+    expected_rpc_block = StarknetBlock(
         block_number=block_with_deploy_number,
         block_hash=block_with_deploy_hash,
         parent_block_hash=0x0,
@@ -123,26 +126,25 @@ async def test_get_block_by_hash(
         ],
     )
     expected_gateway_block = GatewayBlock(
-        **vars(expected_fullnode_block), gas_price=100_000_000_000
+        **vars(expected_rpc_block), gas_price=DEFAULT_GATEWAY_GAS_PRICE
     )
-    fullnode_block = await fullnode_client.get_block(block_hash=block_with_deploy_hash)
+    rpc_block = await rpc_client.get_block(block_hash=block_with_deploy_hash)
     gateway_block = await gateway_client.get_block(block_hash=block_with_deploy_hash)
-    assert fullnode_block == expected_fullnode_block
+    assert rpc_block == expected_rpc_block
     assert gateway_block == expected_gateway_block
 
 
 @pytest.mark.asyncio
 async def test_get_block_by_number(
-    clients,
+    gateway_client,
+    rpc_client,
     deploy_transaction_hash,
     block_with_deploy_number,
     block_with_deploy_hash,
     block_with_deploy_root,
     contract_address,
 ):
-    gateway_client = clients[0]
-    fullnode_client = clients[1]
-    expected_fullnode_block = StarknetBlock(
+    expected_rpc_block = StarknetBlock(
         block_number=block_with_deploy_number,
         block_hash=block_with_deploy_hash,
         parent_block_hash=0x0,
@@ -161,11 +163,11 @@ async def test_get_block_by_number(
         ],
     )
     expected_gateway_block = GatewayBlock(
-        **vars(expected_fullnode_block), gas_price=100_000_000_000
+        **vars(expected_rpc_block), gas_price=DEFAULT_GATEWAY_GAS_PRICE
     )
-    fullnode_block = await fullnode_client.get_block(block_hash=block_with_deploy_hash)
+    rpc_block = await rpc_client.get_block(block_hash=block_with_deploy_hash)
     gateway_block = await gateway_client.get_block(block_hash=block_with_deploy_hash)
-    assert fullnode_block == expected_fullnode_block
+    assert rpc_block == expected_rpc_block
     assert gateway_block == expected_gateway_block
 
 
