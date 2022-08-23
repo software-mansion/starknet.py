@@ -377,7 +377,7 @@ class AccountClient(Client):
             calls=calls, max_fee=max_fee, auto_estimate=auto_estimate, version=version
         )
 
-    def create_declare_tx(
+    def create_declare_transaction(
         self,
         compilation_source: Optional[StarknetCompilationSource] = None,
         compiled_contract: Optional[str] = None,

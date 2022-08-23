@@ -29,12 +29,12 @@ def make_declare_tx(
 
     .. deprecated:: 0.4.6
         Unsigned declare transactions will not be supported in the future versions of StarkNet.
-        Use :meth:`AccountClient.create_declare_transactions` instead.
+        Use :meth:`AccountClient.create_declare_transaction` instead.
     """
     # TODO add correct deprecation version
     warnings.warn(
         "Unsigned declare transactions will not be supported in the future versions of StarkNet. Please use "
-        "AccountClient.create_declare_transactions instead,",
+        "AccountClient.create_declare_transaction instead,",
         category=DeprecationWarning,
     )
     compiled_contract = create_compiled_contract(
