@@ -10,6 +10,7 @@ async def test_custom_signer():
     # add to docs: start
     from starknet_py.net import AccountClient
     from starknet_py.net.signer import BaseSigner
+    from starknet_py.net.signer.base_signer import TypedData
     from starknet_py.net.gateway_client import GatewayClient
     from starknet_py.net.models import Transaction
 
@@ -20,6 +21,11 @@ async def test_custom_signer():
             return 0x123
 
         def sign_transaction(self, transaction: Transaction) -> List[int]:
+            return [0x0, 0x1]
+
+        def sign_message(
+            self, typed_data: TypedData, account_address: str
+        ) -> List[int]:
             return [0x0, 0x1]
 
     # Create an AccountClient instance with the signer you've implemented

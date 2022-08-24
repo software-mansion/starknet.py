@@ -39,6 +39,8 @@ from starknet_py.utils.crypto.facade import Call
 from starknet_py.utils.data_transformer.execute_transformer import execute_transformer
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.net.models.address import AddressRepresentation, parse_address
+from starknet_py.utils.typed_data.functions import get_message_hash
+from starknet_py.utils.typed_data.types import TypedData
 
 
 @add_sync_methods
@@ -402,6 +404,72 @@ class AccountClient(Client):
             address=address,
             signer=signer,
         )
+
+    def sign_message(self, typed_data: TypedData) -> List[int]:
+        """
+        Sign an TypedData object for off-chain usage with the starknet private key and return the signature
+        This adds a message prefix, so it can't be interchanged with transactions
+
+        :param typed_data: TypedData object to be signed
+        :return: The signature of the TypedData object
+        """
+        return self.signer.sign_message(typed_data, self.address)
+
+    def hash_message(self, typed_data: TypedData) -> int:
+        """
+        Hash a TypedData object with pedersen hash and return the hash
+        This adds a message prefix, so it can't be interchanged with transactions
+
+        :param typed_data: TypedData object to be hashed
+        :return: the hash of the TypedData object
+        """
+        return get_message_hash(typed_data, self.address)
+
+    async def verify_message(self, typed_data: TypedData, signature: List[int]) -> bool:
+        """
+        Verify a signature of a TypedData object
+
+        :param typed_data: TypedData object to be verified
+        :param signature: signature of the TypedData object
+        :return: true if the signature is valid, false otherwise
+        """
+        msg_hash = self.hash_message(typed_data)
+        return await self.verify_message_hash(msg_hash, signature)
+
+    async def verify_message_hash(self, msg_hash: int, signature: List[int]) -> bool:
+        """
+        Verify a signature of a given hash
+
+        :param msg_hash: hash to be verified
+        :param signature: signature of the hash
+        :return: true if the signature is valid, false otherwise
+        """
+        calldata = {"hash": msg_hash, "signature": signature}
+        compiled_calldata = compile_calldata(calldata)
+
+        invoke_tx = InvokeFunction(
+            contract_address=self.address,
+            entry_point_selector=get_selector_from_name("is_valid_signature"),
+            calldata=compiled_calldata,
+            signature=[],
+            max_fee=0,
+            version=0,
+        )
+        try:
+            await self.call_contract(invoke_tx=invoke_tx)
+            return True
+        # pylint: disable=bare-except
+        except:
+            return False
+
+
+def compile_calldata(calldata) -> List[int]:
+    def compile_val(val):
+        if isinstance(val, int):
+            return [val]
+        return [len(val)] + list(val)
+
+    return [x for value in calldata.values() for x in compile_val(value)]
 
 
 async def deploy_account_contract(

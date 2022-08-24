@@ -1,4 +1,5 @@
 import time
+import pytest
 from starkware.crypto.signature.signature import verify, private_to_stark_key
 
 from crypto_cpp_py.cpp_bindings import (
@@ -13,6 +14,25 @@ from starknet_py.utils.crypto.facade import (
     hash_multicall,
     message_signature,
 )
+
+
+@pytest.mark.asyncio
+async def test_sign_and_verify_offchain_message_fail(
+    gateway_account_client, typed_data
+):
+    signature = gateway_account_client.sign_message(typed_data)
+    signature = (signature[0] + 1, signature[1])
+    result = await gateway_account_client.verify_message(typed_data, signature)
+
+    assert result is False
+
+
+@pytest.mark.asyncio
+async def test_sign_and_verify_offchain_message(gateway_account_client, typed_data):
+    signature = gateway_account_client.sign_message(typed_data)
+    result = await gateway_account_client.verify_message(typed_data, signature)
+
+    assert result is True
 
 
 def test_hashing(monkeypatch):
