@@ -305,7 +305,11 @@ class ContractFunction:
         )
 
     async def invoke(
-        self, *args, max_fee: Optional[int] = None, auto_estimate: bool = False, **kwargs
+        self,
+        *args,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+        **kwargs,
     ) -> InvokeResult:
         """
         Invoke contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.
