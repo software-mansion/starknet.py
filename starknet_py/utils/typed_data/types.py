@@ -1,6 +1,7 @@
+from dataclasses import dataclass
 from typing import Optional, Union
 
-from typing_extensions import TypedDict
+from starknet_py.utils.typing import TypedDict
 
 
 class StarkNetDomain(TypedDict):
@@ -9,14 +10,9 @@ class StarkNetDomain(TypedDict):
     chainId: Optional[Union[str, int]]
 
 
+@dataclass(frozen=True)
 class TypedData:
     types: dict
     primary_type: str
     domain: StarkNetDomain
     message: dict
-
-    def __init__(self, types, primary_type, domain, message):
-        self.types = types
-        self.primary_type = primary_type
-        self.domain = domain
-        self.message = message

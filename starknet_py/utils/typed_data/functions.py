@@ -38,16 +38,11 @@ def encode_type(typed_data: TypedData, type_: str) -> str:
     [primary, *dependencies] = get_dependencies(typed_data, type_)
     types = [primary, *sorted(dependencies)]
 
-    def format_dependency(dependency):
+    def make_dependency_str(dependency):
         lst = [f"{t['name']}:{t['type']}" for t in typed_data.types[dependency]]
-        res = f"{dependency}("
-        for idx, item in enumerate(lst):
-            if idx > 0:
-                res += ","
-            res += item
-        return res + ")"
+        return f"{dependency}({','.join(lst)})"
 
-    return "".join([format_dependency(x) for x in types])
+    return "".join([make_dependency_str(x) for x in types])
 
 
 def get_type_hash(typed_data: TypedData, type_: str) -> int:

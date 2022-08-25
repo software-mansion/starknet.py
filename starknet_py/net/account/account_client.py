@@ -1,4 +1,5 @@
 import warnings
+import re
 from typing import Optional, List, Union, Dict
 from dataclasses import replace
 
@@ -6,6 +7,7 @@ from starkware.crypto.signature.signature import get_random_private_key
 from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.net.client import Client
+from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     SentTransactionResponse,
     Hash,
@@ -434,9 +436,9 @@ class AccountClient(Client):
         :return: true if the signature is valid, false otherwise
         """
         msg_hash = self.hash_message(typed_data)
-        return await self.verify_message_hash(msg_hash, signature)
+        return await self._verify_message_hash(msg_hash, signature)
 
-    async def verify_message_hash(self, msg_hash: int, signature: List[int]) -> bool:
+    async def _verify_message_hash(self, msg_hash: int, signature: List[int]) -> bool:
         """
         Verify a signature of a given hash
 
@@ -444,13 +446,12 @@ class AccountClient(Client):
         :param signature: signature of the hash
         :return: true if the signature is valid, false otherwise
         """
-        calldata = {"hash": msg_hash, "signature": signature}
-        compiled_calldata = compile_calldata(calldata)
+        calldata = [msg_hash, len(signature), *signature]
 
         invoke_tx = InvokeFunction(
             contract_address=self.address,
             entry_point_selector=get_selector_from_name("is_valid_signature"),
-            calldata=compiled_calldata,
+            calldata=calldata,
             signature=[],
             max_fee=0,
             version=0,
@@ -458,18 +459,10 @@ class AccountClient(Client):
         try:
             await self.call_contract(invoke_tx=invoke_tx)
             return True
-        # pylint: disable=bare-except
-        except:
-            return False
-
-
-def compile_calldata(calldata) -> List[int]:
-    def compile_val(val):
-        if isinstance(val, int):
-            return [val]
-        return [len(val)] + list(val)
-
-    return [x for value in calldata.values() for x in compile_val(value)]
+        except ClientError as ex:
+            if re.search(r"Signature\s.+,\sis\sinvalid", ex.message):
+                return False
+            raise ex
 
 
 async def deploy_account_contract(

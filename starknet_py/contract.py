@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import dataclasses
-import sys
 import warnings
 from dataclasses import dataclass
 from typing import (
@@ -39,13 +38,9 @@ from starknet_py.transactions.deploy import make_deploy_tx
 from starknet_py.utils.crypto.facade import pedersen_hash, Call
 from starknet_py.utils.data_transformer import FunctionCallSerializer
 from starknet_py.utils.sync import add_sync_methods
+from starknet_py.utils.typing import TypedDict
 
 from starknet_py.net.client import Client
-
-if sys.version_info >= (3, 8):
-    from typing import TypedDict
-else:
-    from typing_extensions import TypedDict
 
 
 ABI = list

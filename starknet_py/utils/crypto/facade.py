@@ -14,9 +14,7 @@ from crypto_cpp_py.cpp_bindings import (
 from starknet_py.net.client_models import Call
 
 
-# PREFIX_TRANSACTION = 'StarkNet Transaction'
-
-# encoded shortstring 'StarkNet Transaction'
+# PREFIX_TRANSACTION = encoded 'StarkNet Transaction'
 PREFIX_TRANSACTION = 476441609247967894954472788179128007176248455022
 
 
