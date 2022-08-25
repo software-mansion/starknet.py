@@ -504,8 +504,22 @@ class AccountClient(Client):
         :param signer: Signer used to create account and sign transaction
         :param chain: ChainId of the chain used to create the default signer
         :return: Instance of AccountClient which interacts with created account on given network
+
+        .. deprecated:: 0.4.6
+            This method has been deprecated and will be removed once transaction version 1 becomes default.
+            Compiled account contract will no longer be bundled with StarkNet.py and manaul account deployment
+            will be necessary. Consider transitioning to manual contract deployment and creating AccountClient
+            through a constructor.
         """
         if chain is None and signer is None and client.chain is None:
+        warnings.warn(
+            "Account deployment through AccountClient is deprecated and will be removed once transaction version"
+            "1 becomes default on StarkNet. StarkNet.py will not bundle compiled account contract in future releases"
+            "and will require manual contract deployment.",
+            category=DeprecationWarning,
+        )
+
+        if chain is None and client.chain is None and signer is None:
             raise ValueError("One of chain or signer must be provided")
 
         if signer is None:
