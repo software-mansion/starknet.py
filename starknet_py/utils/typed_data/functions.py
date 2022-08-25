@@ -16,6 +16,9 @@ def get_hex(value: Union[int, str]):
 
 
 def get_dependencies(typed_data: TypedData, type_: str) -> List[str]:
+    if type_ and type_[-1] == "*":
+        type_ = type_[:-1]
+
     if type_ not in typed_data.types:
         return []
     dependencies = set()
