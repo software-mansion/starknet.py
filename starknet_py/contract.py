@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 import dataclasses
-import warnings
-import sys
 from dataclasses import dataclass
 from typing import (
     List,
@@ -24,24 +22,21 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
 )
 
 from starknet_py.common import create_compiled_contract
+from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.net import AccountClient
-
-from starknet_py.proxy_check import ProxyCheck, ArgentProxyCheck, OpenZeppelinProxyCheck
+from starknet_py.net.client import Client
 from starknet_py.net.models import (
     InvokeFunction,
     AddressRepresentation,
     parse_address,
     compute_address,
 )
-from starknet_py.compile.compiler import StarknetCompilationSource
+from starknet_py.proxy_check import ProxyCheck, ArgentProxyCheck, OpenZeppelinProxyCheck
 from starknet_py.transactions.deploy import make_deploy_tx
 from starknet_py.utils.crypto.facade import pedersen_hash, Call
 from starknet_py.utils.data_transformer import FunctionCallSerializer
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.typing import TypedDict
-
-from starknet_py.net.client import Client
-
 
 ABI = list
 ABIEntry = dict
