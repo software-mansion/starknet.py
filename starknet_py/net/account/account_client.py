@@ -366,11 +366,11 @@ class AccountClient(Client):
         :return: InvokeFunction created from the calls
 
         .. deprecated:: 0.4.6
-            This method has been replaced by :meth:`AccountClient.create_invoke_function`
+            This method has been replaced by :meth:`AccountClient.create_invoke_transaction`
         """
         # TODO add correct deprecation version
         warnings.warn(
-            "Sign_transaction is deprecated. Use create_invoke_function instead.",
+            "Sign_transaction is deprecated. Use create_invoke_transaction instead.",
             category=DeprecationWarning,
         )
         return await self.create_invoke_transaction(
