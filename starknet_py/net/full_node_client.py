@@ -29,7 +29,7 @@ from starknet_py.net.client_models import (
 from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.models import StarknetChainId, chain_from_network
 from starknet_py.net.networks import Network
-from starknet_py.net.schemas.rpc.schemas import (
+from starknet_py.net.schemas.rpc import (
     StarknetBlockSchema,
     BlockStateUpdateSchema,
     DeclaredContractSchema,

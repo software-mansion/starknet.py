@@ -25,7 +25,7 @@ from starknet_py.net.client_models import (
     DeclareTransactionResponse,
     DeployTransactionResponse,
 )
-from starknet_py.net.schemas.common.schemas import (
+from starknet_py.net.schemas.common import (
     Felt,
     BlockStatusField,
     StatusField,
