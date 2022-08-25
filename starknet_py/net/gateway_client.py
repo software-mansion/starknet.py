@@ -26,7 +26,7 @@ from starknet_py.net.client_models import (
     DeclareTransactionResponse,
     TransactionReceipt,
 )
-from starknet_py.net.gateway_schemas.gateway_schemas import (
+from starknet_py.net.schemas.gateway.schemas import (
     ContractCodeSchema,
     StarknetBlockSchema,
     SentTransactionSchema,
