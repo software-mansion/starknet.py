@@ -1,3 +1,4 @@
+import json
 import os
 import time
 import subprocess
@@ -12,6 +13,7 @@ from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId, AddressRepresentation
 from starknet_py.contract import Contract
+from starknet_py.utils.typed_data.types import TypedData, StarkNetDomain
 
 TESTNET_ACCOUNT_PRIVATE_KEY = (
     "0x5d6871223e9d2f6136f3913e8ccb6daae0b6b2a8452b39f92a1ddc5a76eed9a"
@@ -192,3 +194,27 @@ def deploy_erc20_contract(gateway_account_client, erc20_source_code) -> Contract
 @pytest.fixture(name="compiled_proxy")
 def compiled_proxy(request) -> str:
     return (directory_with_contracts / request.param).read_text("utf-8")
+
+
+@pytest.fixture(name="typed_data")
+def fixture_typed_data() -> TypedData:
+    directory = Path(os.path.dirname(__file__))
+    file_path = directory / "account" / "typed_data_example.json"
+
+    with open(file_path, "r", encoding="utf-8") as file:
+        data = json.load(file)
+
+    domain = StarkNetDomain(
+        name=data["domain"]["name"],
+        version=data["domain"]["version"],
+        chainId=data["domain"]["chainId"],
+    )
+
+    typed_data = TypedData(
+        types=data["types"],
+        primary_type=data["primaryType"],
+        domain=domain,
+        message=data["message"],
+    )
+
+    return typed_data
