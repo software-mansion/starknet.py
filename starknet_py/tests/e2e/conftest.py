@@ -14,6 +14,7 @@ from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId, AddressRepresentation
 from starknet_py.contract import Contract
 from starknet_py.utils.typed_data.types import TypedData, StarkNetDomain
+from starknet_py.utils.data_transformer.data_transformer import CairoSerializer
 
 TESTNET_ACCOUNT_PRIVATE_KEY = (
     "0x5d6871223e9d2f6136f3913e8ccb6daae0b6b2a8452b39f92a1ddc5a76eed9a"
@@ -104,14 +105,12 @@ def create_gateway_client(pytestconfig, run_devnet):
         "integration": "https://external.integration.starknet.io",
     }
 
-    return GatewayClient(net=net_address[net], chain=StarknetChainId.TESTNET)
+    return GatewayClient(net=net_address[net])
 
 
 @pytest.fixture(name="rpc_client", scope="module")
 def create_rpc_client(run_devnet):
-    return FullNodeClient(
-        node_url=run_devnet + "/rpc", chain=StarknetChainId.TESTNET, net=run_devnet
-    )
+    return FullNodeClient(node_url=run_devnet + "/rpc", net=run_devnet)
 
 
 def create_account_client(
@@ -122,6 +121,7 @@ def create_account_client(
         address=address,
         client=gateway_client,
         key_pair=key_pair,
+        chain=StarknetChainId.TESTNET,
     )
 
 
@@ -218,3 +218,20 @@ def fixture_typed_data() -> TypedData:
     )
 
     return typed_data
+
+
+@pytest.fixture(name="cairo_serializer", scope="module")
+def cairo_serializer(gateway_account_client) -> CairoSerializer:
+    client = gateway_account_client
+    contract_content = (
+        directory_with_contracts / "simple_storage_with_event.cairo"
+    ).read_text("utf-8")
+
+    # pylint: disable=no-member
+    deployment_result = Contract.deploy_sync(
+        client, compilation_source=contract_content
+    )
+    deployment_result.wait_for_acceptance_sync()
+    contract = deployment_result.deployed_contract
+
+    return CairoSerializer(identifier_manager=contract.data.identifier_manager)
