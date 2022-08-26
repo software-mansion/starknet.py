@@ -382,6 +382,7 @@ class CairoSerializer:
         :return: tuple (full calldata, dict with all arguments with their Cairo representation)
         """
         type_by_name = self._abi_to_types(value_types)
+        initial_len = len(values)
 
         result = {}
         for name, cairo_type in type_by_name.items():
@@ -389,6 +390,11 @@ class CairoSerializer:
                 cairo_type, name, values
             )
             result[name] = transformed
+
+        if len(values) > 0:
+            raise ValueError(
+                f"Too many values provided, expected {initial_len-len(values)} got {initial_len}."
+            )
 
         return construct_result_object(result)
 
