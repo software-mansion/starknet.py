@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import dataclasses
 import sys
-import warnings
 from dataclasses import dataclass
 from typing import (
     List,
@@ -32,7 +31,6 @@ from starknet_py.net.models import (
     AddressRepresentation,
     parse_address,
     compute_address,
-    compute_invoke_hash,
 )
 from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.transactions.deploy import make_deploy_tx
@@ -149,19 +147,6 @@ class PreparedFunctionCall(Call):
         self._contract_data = contract_data
         self.max_fee = max_fee
         self.version = version
-
-    @property
-    def hash(self) -> int:
-        warnings.warn("Hash is deprecated and will be deleted in next releases")
-
-        return compute_invoke_hash(
-            contract_address=self._contract_data.address,
-            entry_point_selector=self.selector,
-            calldata=self.calldata,
-            chain_id=self._client.chain,
-            max_fee=self.max_fee if self.max_fee is not None else 0,
-            version=self.version,
-        )
 
     async def call_raw(
         self,
@@ -329,7 +314,11 @@ class ContractFunction:
         )
 
     async def invoke(
-        self, *args, max_fee: int = None, auto_estimate: bool = False, **kwargs
+        self,
+        *args,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+        **kwargs,
     ) -> InvokeResult:
         """
         Invoke contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.

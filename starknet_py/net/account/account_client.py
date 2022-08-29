@@ -74,7 +74,7 @@ class AccountClient(Client):
                 "Either a signer or a key_pair must be provided in AccountClient constructor"
             )
 
-        if chain is None and client.chain is None and signer is None:
+        if chain is None and signer is None and client.chain is None:
             raise ValueError("One of chain or signer must be provided")
 
         self.address = parse_address(address)
@@ -287,12 +287,6 @@ class AccountClient(Client):
         if max_fee is None:
             raise ValueError("Max_fee must be specified when invoking a transaction")
 
-        if max_fee == 0:
-            warnings.warn(
-                "Transaction will fail with max_fee set to 0. Change it to a higher value.",
-                DeprecationWarning,
-            )
-
         return max_fee
 
     async def sign_transaction(
@@ -323,6 +317,12 @@ class AccountClient(Client):
     async def send_transaction(
         self, transaction: InvokeFunction
     ) -> SentTransactionResponse:
+        if transaction.max_fee == 0:
+            warnings.warn(
+                "Transaction will fail with max_fee set to 0. Change it to a higher value.",
+                DeprecationWarning,
+            )
+
         return await self.client.send_transaction(transaction=transaction)
 
     async def execute(
@@ -402,7 +402,7 @@ class AccountClient(Client):
         :param chain: ChainId of the chain used to create the default signer
         :return: Instance of AccountClient which interacts with created account on given network
         """
-        if chain is None and client.chain is None and signer is None:
+        if chain is None and signer is None and client.chain is None:
             raise ValueError("One of chain or signer must be provided")
 
         if signer is None:

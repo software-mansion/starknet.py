@@ -26,7 +26,7 @@ from starknet_py.net.client_models import (
     DeclareTransactionResponse,
     TransactionReceipt,
 )
-from starknet_py.net.gateway_schemas.gateway_schemas import (
+from starknet_py.net.schemas.gateway import (
     ContractCodeSchema,
     StarknetBlockSchema,
     SentTransactionSchema,
@@ -76,7 +76,11 @@ class GatewayClient(Client):
             gateway_url = net["gateway_url"]
 
         self._net = net
-        self._chain = chain_from_network(net, chain)
+
+        if net in ["testnet", "mainnet"]:
+            chain = chain_from_network(net, chain)
+        self._chain = chain
+
         self._feeder_gateway_client = GatewayHttpClient(
             url=feeder_gateway_url, session=session
         )
