@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from typing import Union, Dict, List
 
-from marshmallow import Schema, fields, post_load
 from starkware.cairo.common.hash_state import compute_hash_on_elements
 from starkware.starknet.public.abi import get_selector_from_name
 
@@ -114,31 +113,3 @@ def get_hex(value: Union[int, str]):
     if value.isnumeric():
         return hex(int(value))
     return hex(encode_shortstring(value))
-
-
-# pylint: disable=unused-argument
-# pylint: disable=no-self-use
-
-
-class ParameterSchema(Schema):
-    name = fields.String(data_key="name", required=True)
-    type = fields.String(data_key="type", required=True)
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> Parameter:
-        return Parameter(**data)
-
-
-class TypedDataSchema(Schema):
-    types = fields.Dict(
-        data_key="types",
-        keys=fields.Str(),
-        values=fields.List(fields.Nested(ParameterSchema())),
-    )
-    primary_type = fields.String(data_key="primaryType", required=True)
-    domain = fields.Dict(data_key="domain", required=True)
-    message = fields.Dict(data_key="message", required=True)
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> TypedData:
-        return TypedData(**data)

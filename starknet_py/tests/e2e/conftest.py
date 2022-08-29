@@ -13,7 +13,8 @@ from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId, AddressRepresentation
 from starknet_py.contract import Contract
-from starknet_py.utils.typed_data import TypedData, TypedDataSchema
+from starknet_py.net.schemas.gateway import TypedDataSchema
+from starknet_py.utils.typed_data import TypedData
 from starknet_py.utils.data_transformer.data_transformer import CairoSerializer
 
 TESTNET_ACCOUNT_PRIVATE_KEY = (
