@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import dataclasses
 import sys
+import warnings
 from dataclasses import dataclass
 from typing import (
     List,
@@ -289,6 +290,13 @@ class ContractFunction:
                 self._client.supported_tx_version
                 if isinstance(self._client, AccountClient)
                 else 0
+            )
+
+        if version == 0:
+            warnings.warn(
+                "Transaction with version 0 is deprecated and will be removed in the next releases. "
+                "Use AccountClient supporting the transaction version 1",
+                category=DeprecationWarning,
             )
 
         calldata, arguments = self._payload_transformer.from_python(*args, **kwargs)

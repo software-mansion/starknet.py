@@ -258,6 +258,13 @@ class AccountClient(Client):
         """
         self._assert_version_matches_supported_tx_version(version)
 
+        if version == 0:
+            warnings.warn(
+                "Transaction with version 0 is deprecated and will be removed in the next releases. "
+                "Use AccountClient supporting the transaction version 1",
+                category=DeprecationWarning,
+            )
+
         calls = calls if isinstance(calls, List) else [calls]
 
         nonce = await self._get_nonce()

@@ -229,13 +229,6 @@ class FullNodeClient(Client):
     async def send_transaction(
         self, transaction: InvokeFunction
     ) -> SentTransactionResponse:
-        if transaction.version == 0:
-            warnings.warn(
-                "Transaction with version 0 is deprecated and will be removed in the next releases. "
-                "Use AccountClient supporting the transaction version 1",
-                category=DeprecationWarning,
-            )
-
         res = await self._client.call(
             method_name="addInvokeTransaction",
             params={
