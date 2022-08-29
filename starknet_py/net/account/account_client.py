@@ -247,7 +247,7 @@ class AccountClient(Client):
 
         wrapped_calldata, _ = execute_transformer.from_python(*calldata_py)
 
-        transaction = invoke_function_by_version(
+        transaction = make_invoke_function_by_version(
             account_contract_address=self.address,
             calldata=wrapped_calldata,
             signature=[],
@@ -259,7 +259,7 @@ class AccountClient(Client):
 
         max_fee = await self._get_max_fee(transaction, max_fee, auto_estimate)
 
-        return invoke_function_by_version(
+        return make_invoke_function_by_version(
             account_contract_address=self.address,
             calldata=wrapped_calldata,
             signature=[],
@@ -474,7 +474,7 @@ def merge_calls(calls: Calls) -> List:
     return [calldata, entire_calldata]
 
 
-def invoke_function_by_version(
+def make_invoke_function_by_version(
     # pylint: disable=too-many-arguments
     account_contract_address: AddressRepresentation,
     calldata: List[int],
