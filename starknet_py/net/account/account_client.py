@@ -1,3 +1,4 @@
+import dataclasses
 import warnings
 from typing import Optional, List, Union, Dict
 from dataclasses import replace
@@ -259,15 +260,7 @@ class AccountClient(Client):
 
         max_fee = await self._get_max_fee(transaction, max_fee, auto_estimate)
 
-        return make_invoke_function_by_version(
-            account_contract_address=self.address,
-            calldata=wrapped_calldata,
-            signature=[],
-            max_fee=max_fee,
-            version=version,
-            nonce=nonce,
-            entry_point_selector=get_selector_from_name("__execute__"),
-        )
+        return dataclasses.replace(transaction, max_fee=max_fee)
 
     async def _get_max_fee(
         self,
