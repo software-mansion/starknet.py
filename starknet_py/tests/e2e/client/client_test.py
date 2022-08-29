@@ -333,15 +333,12 @@ async def test_deploy(balance_contract, clients):
 
 
 @pytest.mark.asyncio
-async def test_get_class_hash_at(clients, contract_address):
+async def test_get_class_hash_at(clients, contract_address, class_hash):
     for client in clients:
-        class_hash = await client.get_class_hash_at(
+        received_class_hash = await client.get_class_hash_at(
             contract_address=contract_address, block_hash="latest"
         )
-        assert (
-            class_hash
-            == 0x711941B11A8236B8CCA42B664E19342AC7300ABB1DC44957763CB65877C2708
-        )
+        assert received_class_hash == class_hash
 
 
 @pytest.mark.asyncio
