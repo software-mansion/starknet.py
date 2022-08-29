@@ -233,7 +233,7 @@ class FullNodeClient(Client):
         if transaction.version == 0:
             warnings.warn(
                 "Transaction with version 0 is deprecated and will be removed in the next releases. "
-                "Set version to 1 while creating transaction",
+                "Use AccountClient supporting the transaction version 1",
                 category=DeprecationWarning,
             )
 
