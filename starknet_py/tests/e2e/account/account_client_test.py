@@ -188,3 +188,18 @@ async def test_rejection_reason_in_transaction_receipt(account_clients, map_cont
         transaction_receipt = await account_client.get_transaction_receipt(res.hash)
 
         assert "Actual fee exceeded max fee." in transaction_receipt.rejection_reason
+
+
+@pytest.mark.asyncio
+async def test_throws_on_wrong_transaction_version(account_clients, map_contract):
+    for account_client in account_clients:
+        account_client.supported_tx_version = 0
+        map_contract.client = account_client
+
+        with pytest.raises(ValueError) as err:
+            await map_contract.functions["put"].invoke(key=10, value=20, version=1)
+
+        assert (
+            "Provided version: 1 is not equal to account's supported_tx_version: 0"
+            in str(err.value)
+        )

@@ -90,7 +90,7 @@ class AccountClient(Client):
 
         if self.supported_tx_version == 0:
             warnings.warn(
-                "Account supporting the first version of transaction is deprecated. "
+                "Account supporting transaction version 0 is deprecated. "
                 "Use the new account and set supported_tx_version parameter to 1",
                 category=DeprecationWarning,
             )
