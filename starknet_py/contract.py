@@ -24,6 +24,7 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
 
 from starknet_py.common import create_compiled_contract
 from starknet_py.net import AccountClient
+from starknet_py.net.client_models import Hash, Tag
 
 from starknet_py.proxy_check import ProxyCheck, ArgentProxyCheck, OpenZeppelinProxyCheck
 from starknet_py.net.models import (
@@ -209,10 +210,16 @@ class PreparedFunctionCall(Call):
 
         return invoke_result
 
-    async def estimate_fee(self):
+    async def estimate_fee(
+        self,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ):
         """
         Estimate fee for prepared function call
 
+        :param block_hash: Estimate fee at specific block hash
+        :param block_number: Estimate fee at given block number (or "pending" for pending block), default is "pending"
         :return: Estimated amount of Wei executing specified transaction will cost
         :raises ValueError: when max_fee of PreparedFunctionCall is not None or 0.
         """
@@ -225,7 +232,9 @@ class PreparedFunctionCall(Call):
 
         tx = await self._client.sign_transaction(self, max_fee=0, version=0)
 
-        return await self._client.estimate_fee(tx=tx)
+        return await self._client.estimate_fee(
+            tx=tx, block_hash=block_hash, block_number=block_number
+        )
 
     def _make_invoke_function(self, signature) -> InvokeFunction:
         return InvokeFunction(

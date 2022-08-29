@@ -14,7 +14,7 @@ from starknet_py.net.client_models import (
     StarknetBlock,
     BlockStatus,
     TransactionReceipt,
-    ContractDiff,
+    DeployedContract,
     DeployTransaction,
     DeclareTransaction,
     InvokeTransaction,
@@ -30,7 +30,7 @@ from starknet_py.transactions.deploy import make_deploy_tx
 
 @pytest.mark.asyncio
 async def test_get_deploy_transaction(
-    clients, deploy_transaction_hash, contract_address
+    clients, deploy_transaction_hash, contract_address, class_hash
 ):
     for client in clients:
         transaction = await client.get_transaction(deploy_transaction_hash)
@@ -41,7 +41,7 @@ async def test_get_deploy_transaction(
             hash=deploy_transaction_hash,
             signature=[],
             max_fee=0,
-            # class_hash=class_hash,
+            class_hash=class_hash,
         )
 
 
@@ -100,6 +100,7 @@ async def test_get_block_by_hash(
     block_with_deploy_number,
     block_with_deploy_root,
     contract_address,
+    class_hash,
 ):
     for client in clients:
         block = await client.get_block(block_hash=block_with_deploy_hash)
@@ -118,7 +119,7 @@ async def test_get_block_by_hash(
                     hash=deploy_transaction_hash,
                     signature=[],
                     max_fee=0,
-                    # class_hash=class_hash,
+                    class_hash=class_hash,
                 )
             ],
         )
@@ -132,6 +133,7 @@ async def test_get_block_by_number(
     block_with_deploy_hash,
     block_with_deploy_root,
     contract_address,
+    class_hash,
 ):
     for client in clients:
         block = await client.get_block(block_number=1)
@@ -149,7 +151,7 @@ async def test_get_block_by_number(
                     constructor_calldata=[],
                     hash=deploy_transaction_hash,
                     signature=[],
-                    # class_hash=class_hash,
+                    class_hash=class_hash,
                     max_fee=0,
                 )
             ],
@@ -248,6 +250,7 @@ async def test_state_update_gateway_client(
     block_with_deploy_root,
     contract_address,
     genesis_block_root,
+    class_hash,
 ):
     state_update = await gateway_client.get_state_update(
         block_hash=block_with_deploy_hash
@@ -258,15 +261,13 @@ async def test_state_update_gateway_client(
         new_root=block_with_deploy_root,
         old_root=genesis_block_root,
         storage_diffs=[],
-        contract_diffs=[
-            ContractDiff(
+        deployed_contracts=[
+            DeployedContract(
                 address=contract_address,
-                contract_hash=0x711941B11A8236B8CCA42B664E19342AC7300ABB1DC44957763CB65877C2708,
+                class_hash=class_hash,
             )
         ],
-        declared_contracts=[
-            0x711941B11A8236B8CCA42B664E19342AC7300ABB1DC44957763CB65877C2708
-        ],
+        declared_contracts=[class_hash],
     )
 
 
@@ -277,6 +278,7 @@ async def test_state_update_full_node_client(
     block_with_deploy_root,
     contract_address,
     genesis_block_root,
+    class_hash,
 ):
     state_update = await rpc_client.get_state_update(block_hash=block_with_deploy_hash)
 
@@ -285,13 +287,13 @@ async def test_state_update_full_node_client(
         new_root=block_with_deploy_root,
         old_root=genesis_block_root,
         storage_diffs=[],
-        contract_diffs=[
-            ContractDiff(
+        deployed_contracts=[
+            DeployedContract(
                 address=contract_address,
-                contract_hash=0x711941B11A8236B8CCA42B664E19342AC7300ABB1DC44957763CB65877C2708,
+                class_hash=class_hash,
             )
         ],
-        declared_contracts=[],
+        declared_contracts=[class_hash],
     )
 
 
@@ -331,13 +333,12 @@ async def test_deploy(balance_contract, clients):
 
 
 @pytest.mark.asyncio
-async def test_get_class_hash_at(clients, contract_address):
+async def test_get_class_hash_at(clients, contract_address, class_hash):
     for client in clients:
-        class_hash = await client.get_class_hash_at(contract_address=contract_address)
-        assert (
-            class_hash
-            == 0x711941B11A8236B8CCA42B664E19342AC7300ABB1DC44957763CB65877C2708
+        received_class_hash = await client.get_class_hash_at(
+            contract_address=contract_address, block_hash="latest"
         )
+        assert received_class_hash == class_hash
 
 
 @pytest.mark.asyncio

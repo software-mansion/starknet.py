@@ -87,59 +87,16 @@ class GatewayClient(Client):
         self._gateway_client = GatewayHttpClient(url=gateway_url, session=session)
 
     @property
+    def net(self) -> Network:
+        return self._net
+
+    @property
     def chain(self) -> StarknetChainId:
         warnings.warn(
             "Chain is deprecated and will be deleted in the next releases",
             category=DeprecationWarning,
         )
         return self._chain
-
-    @property
-    def net(self) -> Network:
-        return self._net
-
-    async def get_transaction(
-        self,
-        tx_hash: Hash,
-    ) -> Transaction:
-        res = await self._feeder_gateway_client.call(
-            method_name="get_transaction",
-            params={"transactionHash": convert_to_felt(tx_hash)},
-        )
-
-        if res["status"] in ("UNKNOWN", "NOT_RECEIVED"):
-            raise TransactionNotReceivedError()
-
-        return TypesOfTransactionsSchema().load(res["transaction"], unknown=EXCLUDE)
-
-    async def get_transaction_status(
-        self,
-        tx_hash: Hash,
-    ) -> TransactionStatusResponse:
-        """
-        Fetches the transaction's status and block number
-
-        :param tx_hash: Transaction's hash representation
-        :return: An object containing transaction's status and optional block hash, if transaction was accepted
-        """
-        res = await self._feeder_gateway_client.call(
-            params={"transactionHash": convert_to_felt(tx_hash)},
-            method_name="get_transaction_status",
-        )
-        if res["tx_status"] in ("UNKNOWN", "NOT_RECEIVED"):
-            raise TransactionNotReceivedError()
-
-        return TransactionStatusSchema().load(res)
-
-    async def get_contract_addresses(self) -> dict:
-        """
-        Fetches the addresses of the StarkNet system contracts
-
-        :return: A dictionary indexed with contract name and a value of contract's address
-        """
-        return await self._feeder_gateway_client.call(
-            method_name="get_contract_addresses",
-        )
 
     async def get_block(
         self,
@@ -221,38 +178,27 @@ class GatewayClient(Client):
         res = typing.cast(str, res)
         return int(res, 16)
 
+    async def get_transaction(
+        self,
+        tx_hash: Hash,
+    ) -> Transaction:
+        res = await self._feeder_gateway_client.call(
+            method_name="get_transaction",
+            params={"transactionHash": convert_to_felt(tx_hash)},
+        )
+
+        if res["status"] in ("UNKNOWN", "NOT_RECEIVED"):
+            raise TransactionNotReceivedError()
+
+        return TypesOfTransactionsSchema().load(res["transaction"], unknown=EXCLUDE)
+
     async def get_transaction_receipt(self, tx_hash: Hash) -> TransactionReceipt:
         res = await self._feeder_gateway_client.call(
             method_name="get_transaction_receipt",
             params={"transactionHash": convert_to_felt(tx_hash)},
         )
+
         return TransactionReceiptSchema().load(res, unknown=EXCLUDE)
-
-    async def get_code(
-        self,
-        contract_address: Hash,
-        block_hash: Optional[Union[Hash, Tag]] = None,
-        block_number: Optional[Union[int, Tag]] = None,
-    ) -> ContractCode:
-        block_identifier = get_block_identifier(
-            block_hash=block_hash, block_number=block_number
-        )
-        params = {
-            **{"contractAddress": convert_to_felt(contract_address)},
-            **block_identifier,
-        }
-
-        res = await self._feeder_gateway_client.call(
-            method_name="get_code", params=params
-        )
-
-        if len(res["bytecode"]) == 0:
-            raise ContractNotFoundError(
-                block_hash=block_hash,
-                block_number=block_identifier.get("blockNumber", None),
-            )
-
-        return ContractCodeSchema().load(res, unknown=EXCLUDE)
 
     async def estimate_fee(
         self,
@@ -322,10 +268,21 @@ class GatewayClient(Client):
         res = await self._add_transaction(transaction, token)
         return DeclareTransactionResponseSchema().load(res, unknown=EXCLUDE)
 
-    async def get_class_hash_at(self, contract_address: Hash) -> int:
+    async def get_class_hash_at(
+        self,
+        contract_address: Hash,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> int:
+        block_identifier = get_block_identifier(
+            block_hash=block_hash, block_number=block_number
+        )
         res = await self._feeder_gateway_client.call(
             method_name="get_class_hash_at",
-            params={"contractAddress": convert_to_felt(contract_address)},
+            params={
+                "contractAddress": convert_to_felt(contract_address),
+                **block_identifier,
+            },
         )
         res = typing.cast(str, res)
         return int(res, 16)
@@ -336,6 +293,8 @@ class GatewayClient(Client):
             params={"classHash": convert_to_felt(class_hash)},
         )
         return DeclaredContractSchema().load(res, unknown=EXCLUDE)
+
+    # Only gateway methods
 
     async def _add_transaction(
         self,
@@ -348,6 +307,61 @@ class GatewayClient(Client):
             params={"token": token} if token is not None else {},
         )
         return res
+
+    async def get_transaction_status(
+        self,
+        tx_hash: Hash,
+    ) -> TransactionStatusResponse:
+        """
+        Fetches the transaction's status and block number
+
+        :param tx_hash: Transaction's hash representation
+        :return: An object containing transaction's status and optional block hash, if transaction was accepted
+        """
+        res = await self._feeder_gateway_client.call(
+            params={"transactionHash": convert_to_felt(tx_hash)},
+            method_name="get_transaction_status",
+        )
+        if res["tx_status"] in ("UNKNOWN", "NOT_RECEIVED"):
+            raise TransactionNotReceivedError()
+
+        return TransactionStatusSchema().load(res)
+
+    async def get_contract_addresses(self) -> dict:
+        """
+        Fetches the addresses of the StarkNet system contracts
+
+        :return: A dictionary indexed with contract name and a value of contract's address
+        """
+        return await self._feeder_gateway_client.call(
+            method_name="get_contract_addresses",
+        )
+
+    async def get_code(
+        self,
+        contract_address: Hash,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> ContractCode:
+        block_identifier = get_block_identifier(
+            block_hash=block_hash, block_number=block_number
+        )
+        params = {
+            **{"contractAddress": convert_to_felt(contract_address)},
+            **block_identifier,
+        }
+
+        res = await self._feeder_gateway_client.call(
+            method_name="get_code", params=params
+        )
+
+        if len(res["bytecode"]) == 0:
+            raise ContractNotFoundError(
+                block_hash=block_hash,
+                block_number=block_identifier.get("blockNumber", None),
+            )
+
+        return ContractCodeSchema().load(res, unknown=EXCLUDE)
 
 
 def get_block_identifier(
