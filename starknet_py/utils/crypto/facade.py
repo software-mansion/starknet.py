@@ -1,18 +1,17 @@
 import os
-from typing import Callable, Iterable, Optional
 from dataclasses import dataclass
-
-from starkware.cairo.common.hash_state import compute_hash_on_elements
-from starkware.cairo.lang.vm.crypto import pedersen_hash as default_hash
-from starkware.crypto.signature.signature import sign
+from typing import Callable, Iterable, Optional
 
 from crypto_cpp_py.cpp_bindings import (
     cpp_hash,
     get_cpp_lib_file,
     ECSignature,
 )
-from starknet_py.net.client_models import Call
+from starkware.cairo.common.hash_state import compute_hash_on_elements
+from starkware.cairo.lang.vm.crypto import pedersen_hash as default_hash
+from starkware.crypto.signature.signature import sign
 
+from starknet_py.net.client_models import Call
 
 # PREFIX_TRANSACTION = encoded 'StarkNet Transaction'
 PREFIX_TRANSACTION = 476441609247967894954472788179128007176248455022

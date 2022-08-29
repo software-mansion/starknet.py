@@ -1,21 +1,21 @@
 import json
 import os
-import time
-import subprocess
 import socket
+import subprocess
+import time
 from contextlib import closing
 from pathlib import Path
 
 import pytest
 
+from starknet_py.contract import Contract
 from starknet_py.net import KeyPair, AccountClient
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId, AddressRepresentation
-from starknet_py.contract import Contract
 from starknet_py.net.schemas.gateway import TypedDataSchema
-from starknet_py.utils.typed_data import TypedData
 from starknet_py.utils.data_transformer.data_transformer import CairoSerializer
+from starknet_py.utils.typed_data import TypedData
 
 TESTNET_ACCOUNT_PRIVATE_KEY = (
     "0x5d6871223e9d2f6136f3913e8ccb6daae0b6b2a8452b39f92a1ddc5a76eed9a"
