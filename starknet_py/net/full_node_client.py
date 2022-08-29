@@ -30,7 +30,6 @@ from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.models import (
     StarknetChainId,
     chain_from_network,
-    compute_invoke_hash,
 )
 from starknet_py.net.networks import Network
 from starknet_py.net.schemas.rpc import (
@@ -179,20 +178,10 @@ class FullNodeClient(Client):
             block_hash=block_hash, block_number=block_number
         )
 
-        tx_hash = compute_invoke_hash(
-            contract_address=tx.contract_address,
-            entry_point_selector=tx.entry_point_selector,
-            calldata=tx.calldata,
-            chain_id=self._chain,
-            max_fee=tx.max_fee,
-            version=tx.version,
-        )
-
         res = await self._client.call(
             method_name="estimateFee",
             params={
                 "request": {
-                    "transaction_hash": convert_to_felt(tx_hash),
                     "max_fee": convert_to_felt(tx.max_fee),
                     "version": hex(tx.version),
                     "signature": [convert_to_felt(i) for i in tx.signature],
