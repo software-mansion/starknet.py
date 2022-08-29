@@ -13,7 +13,7 @@ from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId, AddressRepresentation
 from starknet_py.contract import Contract
-from starknet_py.utils.typed_data.types import TypedData, StarkNetDomain
+from starknet_py.utils.typed_data import TypedData, TypedDataSchema
 from starknet_py.utils.data_transformer.data_transformer import CairoSerializer
 
 TESTNET_ACCOUNT_PRIVATE_KEY = (
@@ -197,26 +197,16 @@ def compiled_proxy(request) -> str:
 
 
 @pytest.fixture(name="typed_data")
-def fixture_typed_data() -> TypedData:
+def typed_data(request) -> TypedData:
+    file_name = getattr(request, "param", "typed_data_example.json")
+
     directory = Path(os.path.dirname(__file__))
-    file_path = directory / "account" / "typed_data_example.json"
+    file_path = directory / "account" / file_name
 
     with open(file_path, "r", encoding="utf-8") as file:
         data = json.load(file)
 
-    domain = StarkNetDomain(
-        name=data["domain"]["name"],
-        version=data["domain"]["version"],
-        chainId=data["domain"]["chainId"],
-    )
-
-    typed_data = TypedData(
-        types=data["types"],
-        primary_type=data["primaryType"],
-        domain=domain,
-        message=data["message"],
-    )
-
+    typed_data = TypedDataSchema().load(data)
     return typed_data
 
 

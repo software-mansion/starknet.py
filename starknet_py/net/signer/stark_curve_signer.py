@@ -17,8 +17,7 @@ from starknet_py.net.models import (
 )
 from starknet_py.net.signer.base_signer import BaseSigner
 from starknet_py.utils.crypto.facade import message_signature
-from starknet_py.utils.typed_data.functions import get_message_hash
-from starknet_py.utils.typed_data.types import TypedData
+from starknet_py.utils.typed_data import TypedData
 
 
 @dataclass
@@ -69,5 +68,5 @@ class StarkCurveSigner(BaseSigner):
         return [r, s]
 
     def sign_message(self, typed_data: TypedData, account_address: int) -> List[int]:
-        msg_hash = get_message_hash(typed_data, account_address)
+        msg_hash = typed_data.message_hash(account_address)
         return message_signature(msg_hash=msg_hash, priv_key=self.private_key)

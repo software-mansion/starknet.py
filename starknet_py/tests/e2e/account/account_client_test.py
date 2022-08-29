@@ -14,6 +14,10 @@ from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 from starknet_py.transactions.deploy import make_deploy_tx
 
 MAX_FEE = int(1e20)
+TYPED_DATA_EXAMPLES = [
+    "typed_data_example.json",
+    "typed_data_struct_array_example.json",
+]
 
 
 @pytest.mark.asyncio
@@ -202,6 +206,7 @@ async def test_sign_and_verify_offchain_message_fail(
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("typed_data", TYPED_DATA_EXAMPLES, indirect=True)
 async def test_sign_and_verify_offchain_message(gateway_account_client, typed_data):
     signature = gateway_account_client.sign_message(typed_data)
     result = await gateway_account_client.verify_message(typed_data, signature)

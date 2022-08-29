@@ -41,8 +41,7 @@ from starknet_py.utils.crypto.facade import Call
 from starknet_py.utils.data_transformer.execute_transformer import execute_transformer
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.net.models.address import AddressRepresentation, parse_address
-from starknet_py.utils.typed_data.functions import get_message_hash
-from starknet_py.utils.typed_data.types import TypedData
+from starknet_py.utils.typed_data import TypedData
 
 
 @add_sync_methods
@@ -425,7 +424,7 @@ class AccountClient(Client):
         :param typed_data: TypedData object to be hashed
         :return: the hash of the TypedData object
         """
-        return get_message_hash(typed_data, self.address)
+        return typed_data.message_hash(self.address)
 
     async def verify_message(self, typed_data: TypedData, signature: List[int]) -> bool:
         """
