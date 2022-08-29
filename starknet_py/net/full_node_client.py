@@ -181,6 +181,8 @@ class FullNodeClient(Client):
         res = await self._client.call(
             method_name="estimateFee",
             params={
+                # There is no transaction_hash field in "request" since it was an error
+                # in RPC v0.1.0 specification. It has been removed in the latest specification.
                 "request": {
                     "max_fee": convert_to_felt(tx.max_fee),
                     "version": hex(tx.version),
