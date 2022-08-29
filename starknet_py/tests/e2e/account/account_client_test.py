@@ -85,9 +85,7 @@ async def test_estimate_fee_called(erc20_contract):
 
         mocked_estimate_fee.return_value = result
 
-        await erc20_contract.functions["balanceOf"].prepare(
-            "1234", max_fee=0
-        ).estimate_fee()
+        await erc20_contract.functions["balanceOf"].prepare("1234").estimate_fee()
 
         mocked_estimate_fee.assert_called()
 
@@ -143,7 +141,6 @@ async def test_create_account_client_with_signer(run_devnet):
     key_pair = KeyPair.from_private_key(1234)
     client = GatewayClient(
         net=run_devnet,
-        chain=StarknetChainId.TESTNET,
     )
     address = await deploy_account_contract(
         client=client,

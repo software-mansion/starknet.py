@@ -12,7 +12,7 @@ Contract
 
 .. autoclass:: PreparedFunctionCall
     :exclude-members: __init__, __new__
-    :members: call, call_raw, invoke, call_sync, call_raw_sync, invoke_sync, hash, estimate_fee, estimate_fee_sync
+    :members: call, call_raw, invoke, call_sync, call_raw_sync, invoke_sync, estimate_fee, estimate_fee_sync
 
 .. autoclass:: InvokeResult
     :exclude-members: __init__, __new__

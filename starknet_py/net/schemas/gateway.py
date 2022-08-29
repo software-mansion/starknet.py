@@ -25,7 +25,7 @@ from starknet_py.net.client_models import (
     DeclareTransactionResponse,
     DeployTransactionResponse,
 )
-from starknet_py.net.common_schemas.common_schemas import (
+from starknet_py.net.schemas.common import (
     Felt,
     BlockStatusField,
     StatusField,
@@ -123,7 +123,7 @@ class TransactionReceiptSchema(Schema):
         values=fields.Raw(),
         data_key="transaction_failure_reason",
         allow_none=True,
-        default=None,
+        load_default=None,
     )
     events = fields.List(
         fields.Nested(EventSchema()), data_key="events", load_default=[]

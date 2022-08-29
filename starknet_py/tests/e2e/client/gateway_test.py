@@ -2,7 +2,6 @@ import pytest
 
 from starknet_py.net.client_models import TransactionStatusResponse, TransactionStatus
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models import StarknetChainId
 from starknet_py.net.networks import TESTNET, MAINNET
 
 
@@ -54,29 +53,27 @@ async def test_get_transaction_status(invoke_transaction_hash, gateway_client):
 
 # pylint: disable=protected-access
 @pytest.mark.parametrize(
-    "net, net_address, chain",
+    "net, net_address",
     (
-        (TESTNET, "https://alpha4.starknet.io", StarknetChainId.TESTNET),
-        (MAINNET, "https://alpha-mainnet.starknet.io", StarknetChainId.MAINNET),
+        (TESTNET, "https://alpha4.starknet.io"),
+        (MAINNET, "https://alpha-mainnet.starknet.io"),
     ),
 )
-def test_creating_client_from_predefined_network(net, net_address, chain):
+def test_creating_client_from_predefined_network(net, net_address):
     gateway_client = GatewayClient(net=net)
 
     assert gateway_client.net == net
     assert gateway_client._feeder_gateway_client.url == f"{net_address}/feeder_gateway"
     assert gateway_client._gateway_client.url == f"{net_address}/gateway"
-    assert gateway_client.chain == chain
 
 
 def test_creating_client_with_custom_net():
     custom_net = "custom.net"
-    gateway_client = GatewayClient(net=custom_net, chain=StarknetChainId.TESTNET)
+    gateway_client = GatewayClient(net=custom_net)
 
     assert gateway_client.net == custom_net
     assert gateway_client._feeder_gateway_client.url == f"{custom_net}/feeder_gateway"
     assert gateway_client._gateway_client.url == f"{custom_net}/gateway"
-    assert gateway_client.chain == StarknetChainId.TESTNET
 
 
 def test_creating_client_with_custom_net_dict():
@@ -86,26 +83,8 @@ def test_creating_client_with_custom_net_dict():
         "gateway_url": f"{custom_net}/gateway",
     }
 
-    gateway_client = GatewayClient(net=net, chain=StarknetChainId.TESTNET)
+    gateway_client = GatewayClient(net=net)
 
     assert gateway_client.net == net
     assert gateway_client._feeder_gateway_client.url == net["feeder_gateway_url"]
     assert gateway_client._gateway_client.url == net["gateway_url"]
-    assert gateway_client.chain == StarknetChainId.TESTNET
-
-
-@pytest.mark.parametrize(
-    "net",
-    (
-        {
-            "feeder_gateway_url": "custom.net/feeder_gateway",
-            "gateway_url": "custom.net/gateway",
-        },
-        "custom.net",
-    ),
-)
-def test_throwing_on_custom_net_without_chain(net):
-    with pytest.raises(ValueError) as err:
-        GatewayClient(net=net)
-
-    assert "Chain is required when not using predefined networks." == str(err.value)

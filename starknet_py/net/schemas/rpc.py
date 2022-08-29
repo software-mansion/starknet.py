@@ -22,7 +22,7 @@ from starknet_py.net.client_models import (
     EstimatedFee,
     StateDiff,
 )
-from starknet_py.net.common_schemas.common_schemas import (
+from starknet_py.net.schemas.common import (
     Felt,
     BlockStatusField,
     StatusField,
