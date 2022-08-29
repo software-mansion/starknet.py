@@ -123,8 +123,7 @@ class DeployTransaction(Transaction):
 
     contract_address: int
     constructor_calldata: List[int]
-    # TODO add once RPC supports rpc transactions better
-    # class_hash: Optional[int] = None
+    class_hash: int
 
 
 class TransactionStatus(Enum):
@@ -244,9 +243,9 @@ class EstimatedFee:
 
 
 @dataclass
-class ContractDiff:
+class DeployedContract:
     address: int
-    contract_hash: int
+    class_hash: int
 
 
 @dataclass
@@ -259,7 +258,14 @@ class BlockStateUpdate:
     new_root: int
     old_root: int
     storage_diffs: List[StorageDiff]
-    contract_diffs: List[ContractDiff]
+    deployed_contracts: List[DeployedContract]
+    declared_contracts: List[int]
+
+
+@dataclass
+class StateDiff:
+    deployed_contracts: List[DeployedContract]
+    storage_diffs: List[StorageDiff]
     declared_contracts: List[int]
 
 

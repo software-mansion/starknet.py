@@ -21,11 +21,8 @@ We recommend using :obj:`ContractFunction's call <starknet_py.contract.ContractF
 .. automethod:: FullNodeClient.get_transaction
 .. automethod:: FullNodeClient.get_transaction_sync
 
-.. automethod:: FullNodeClient.get_transaction_by_block_hash
-.. automethod:: FullNodeClient.get_transaction_by_block_hash_sync
-
-.. automethod:: FullNodeClient.get_transaction_by_block_number
-.. automethod:: FullNodeClient.get_transaction_by_block_number_sync
+.. automethod:: FullNodeClient.get_transaction_by_block_id
+.. automethod:: FullNodeClient.get_transaction_by_block_id_sync
 
 .. automethod:: FullNodeClient.get_transaction_receipt
 .. automethod:: FullNodeClient.get_transaction_receipt_sync
