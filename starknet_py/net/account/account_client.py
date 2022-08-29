@@ -136,10 +136,17 @@ class AccountClient(Client):
         )
 
     async def get_storage_at(
-        self, contract_address: Hash, key: int, block_hash: Union[Hash, Tag]
+        self,
+        contract_address: Hash,
+        key: int,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> int:
         return await self.client.get_storage_at(
-            contract_address=contract_address, key=key, block_hash=block_hash
+            contract_address=contract_address,
+            key=key,
+            block_hash=block_hash,
+            block_number=block_number,
         )
 
     async def get_transaction(self, tx_hash: Hash) -> Transaction:
@@ -161,14 +168,26 @@ class AccountClient(Client):
         )
 
     async def call_contract(
-        self, invoke_tx: InvokeFunction, block_hash: Union[Hash, Tag] = None
+        self,
+        invoke_tx: InvokeFunction,
+        block_hash: Union[Hash, Tag] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> List[int]:
         return await self.client.call_contract(
-            invoke_tx=invoke_tx, block_hash=block_hash
+            invoke_tx=invoke_tx, block_hash=block_hash, block_number=block_number
         )
 
-    async def get_class_hash_at(self, contract_address: Hash) -> int:
-        return await self.client.get_class_hash_at(contract_address=contract_address)
+    async def get_class_hash_at(
+        self,
+        contract_address: Hash,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> int:
+        return await self.client.get_class_hash_at(
+            contract_address=contract_address,
+            block_hash=block_hash,
+            block_number=block_number,
+        )
 
     async def get_class_by_hash(self, class_hash: Hash) -> DeclaredContract:
         return await self.client.get_class_by_hash(class_hash=class_hash)

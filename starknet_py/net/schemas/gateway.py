@@ -7,7 +7,7 @@ from starknet_py.net.client_models import (
     L2toL1Message,
     L1toL2Message,
     SentTransactionResponse,
-    ContractDiff,
+    DeployedContract,
     StorageDiff,
     BlockStateUpdate,
     EntryPoint,
@@ -87,7 +87,7 @@ class DeployTransactionSchema(TransactionSchema):
     constructor_calldata = fields.List(
         Felt(), data_key="constructor_calldata", required=True
     )
-    # class_hash = Felt(data_key="class_hash", load_default=0)
+    class_hash = Felt(data_key="class_hash", load_default=0)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> DeployTransaction:
@@ -251,13 +251,13 @@ class StorageDiffSchema(Schema):
         return StorageDiff(**data)
 
 
-class ContractDiffsSchema(Schema):
+class DeployedContractSchema(Schema):
     address = Felt(data_key="address", required=True)
-    contract_hash = NonPrefixedHex(data_key="class_hash", required=True)
+    class_hash = NonPrefixedHex(data_key="class_hash", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs):
-        return ContractDiff(**data)
+        return DeployedContract(**data)
 
 
 class BlockStateUpdateSchema(Schema):
@@ -270,9 +270,9 @@ class BlockStateUpdateSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs):
-        contracts_diffs = data["state_diff"]["deployed_contracts"]
-        contracts_diffs = [
-            ContractDiffsSchema().load(contract) for contract in contracts_diffs
+        deployed_contracts = data["state_diff"]["deployed_contracts"]
+        deployed_contracts = [
+            DeployedContractSchema().load(contract) for contract in deployed_contracts
         ]
 
         storage_diffs = []
@@ -293,7 +293,7 @@ class BlockStateUpdateSchema(Schema):
         return BlockStateUpdate(
             **data,
             storage_diffs=storage_diffs,
-            contract_diffs=contracts_diffs,
+            deployed_contracts=deployed_contracts,
             declared_contracts=declared_contracts,
         )
 
