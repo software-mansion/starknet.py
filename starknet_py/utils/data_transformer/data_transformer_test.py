@@ -523,6 +523,15 @@ def test_not_enough_felts():
     assert "second expected 1 values" in str(excinfo.value)
 
 
+def test_too_many_felts():
+    abi = [{"name": "first", "type": "felt"}, {"name": "second", "type": "felt"}]
+
+    with pytest.raises(ValueError) as excinfo:
+        transformer_for_function(outputs=abi).to_python([1, 2, 3])
+
+    assert "Too many values provided, expected 2 got 3" in str(excinfo.value)
+
+
 def test_invalid_tuple_length():
     abi = [{"name": "value", "type": "(felt, felt, felt)"}]
 
