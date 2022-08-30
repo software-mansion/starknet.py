@@ -245,7 +245,7 @@ class AccountClient(Client):
         calls: Calls,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-        version: int = 0,
+        version: Optional[int] = None,
     ) -> InvokeFunction:
         """
         Takes calls and creates InvokeFunction from them
@@ -253,14 +253,17 @@ class AccountClient(Client):
         :param calls: Single call or list of calls
         :param max_fee: Max amount of Wei to be paid when executing transaction
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
-        :param version: Transaction version
+        :param version: Transaction version is supported_tx_version as a default
         :return: InvokeFunction created from the calls (without the signature)
         """
+        if version is None:
+            version = self.supported_tx_version
+
         self._assert_version_matches_supported_tx_version(version)
 
         if version == 0:
             warnings.warn(
-                "Transaction with version 0 is deprecated and will be removed in the next releases. "
+                "Transaction with version 0 is deprecated and will be removed in the next release. "
                 "Use AccountClient supporting the transaction version 1",
                 category=DeprecationWarning,
             )
