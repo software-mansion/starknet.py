@@ -294,7 +294,7 @@ class ContractFunction:
 
         if version == 0:
             warnings.warn(
-                "Transaction with version 0 is deprecated and will be removed in the next release. "
+                "Transaction with version 0 is deprecated and will be removed in the future. "
                 "Use AccountClient supporting the transaction version 1",
                 category=DeprecationWarning,
             )

@@ -103,7 +103,7 @@ class AccountClient(Client):
     @property
     def chain(self) -> StarknetChainId:
         warnings.warn(
-            "Chain is deprecated and will be deleted in the next releases",
+            "Chain is deprecated and will be deleted in the future",
             category=DeprecationWarning,
         )
         return self.signer.chain_id
@@ -263,7 +263,7 @@ class AccountClient(Client):
 
         if version == 0:
             warnings.warn(
-                "Transaction with version 0 is deprecated and will be removed in the next release. "
+                "Transaction with version 0 is deprecated and will be removed in the future. "
                 "Use AccountClient supporting the transaction version 1",
                 category=DeprecationWarning,
             )

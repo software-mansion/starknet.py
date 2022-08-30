@@ -63,7 +63,7 @@ class GatewayClient(Client):
         :param net: Target network for the client. Can be a string with URL, one of ``"mainnet"``, ``"testnet"``
                     or dict with ``"feeder_gateway_url"`` and ``"gateway_url"`` fields
         :param chain: Chain used by the network. Required if you use a custom URL for ``net`` param. Chain is deprecated
-                        and will be removed in the next releases
+                        and will be removed in the future
         :param session: Aiohttp session to be used for request. If not provided, client will create a session for
                         every request. When using a custom session, user is resposible for closing it manually.
         """
@@ -93,7 +93,7 @@ class GatewayClient(Client):
     @property
     def chain(self) -> StarknetChainId:
         warnings.warn(
-            "Chain is deprecated and will be deleted in the next releases",
+            "Chain is deprecated and will be deleted in the future",
             category=DeprecationWarning,
         )
         return self._chain
