@@ -79,12 +79,14 @@ class Client(ABC):
     @abstractmethod
     async def get_state_update(
         self,
-        block_hash: Union[Hash, Tag],
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> BlockStateUpdate:
         """
         Get the information about the result of executing the requested block
 
         :param block_hash: Block's hash or literals `"pending"` or `"latest"`
+        :param block_number: Block's number or literals `"pending"` or `"latest"`
         :return: BlockStateUpdate oject representing changes in the requested block
         """
 
@@ -93,13 +95,14 @@ class Client(ABC):
         self,
         contract_address: Hash,
         key: int,
-        block_hash: Union[Hash, Tag],
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> int:
         """
         :param contract_address: Contract's address on Starknet
         :param key: An address of the storage variable inside the contract.
-        :param block_hash: Fetches the value of the variable at given block hash or at
-                           the block indicated by the literals `"pending"` or `"latest"`
+        :param block_hash: Block's hash or literals `"pending"` or `"latest"`
+        :param block_number: Block's number or literals `"pending"` or `"latest"`
         :return: Storage value of given contract
         """
 
@@ -201,14 +204,17 @@ class Client(ABC):
 
     @abstractmethod
     async def call_contract(
-        self, invoke_tx: InvokeFunction, block_hash: Union[Hash, Tag] = None
+        self,
+        invoke_tx: InvokeFunction,
+        block_hash: Union[Hash, Tag] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> List[int]:
         """
         Call the contract with given instance of InvokeTransaction
 
         :param invoke_tx: Invoke transaction
-        :param block_hash: Block hash to execute the contract at specific point of time
-                           or at the block indicated by the literals `"pending"` or `"latest"`
+        :param block_hash: Block's hash or literals `"pending"` or `"latest"`
+        :param block_number: Block's number or literals `"pending"` or `"latest"`
         :return: List of integers representing contract's function output (structured like calldata)
         """
 
@@ -242,11 +248,18 @@ class Client(ABC):
         """
 
     @abstractmethod
-    async def get_class_hash_at(self, contract_address: Hash) -> int:
+    async def get_class_hash_at(
+        self,
+        contract_address: Hash,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> int:
         """
         Get the contract class hash for the contract deployed at the given address
 
         :param contract_address: Address of the contraact whose class hash is to be returned
+        :param block_hash: Block's hash or literals `"pending"` or `"latest"`
+        :param block_number: Block's number or literals `"pending"` or `"latest"`
         :return: Class hash
         """
 
