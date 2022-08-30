@@ -316,7 +316,7 @@ class AccountClient(Client):
         calls: Calls,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-        version: int = 0,
+        version: Optional[int] = None,
     ) -> InvokeFunction:
         """
         Takes calls and creates signed InvokeFunction
@@ -352,7 +352,7 @@ class AccountClient(Client):
         calls: Calls,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-        version: int = 0,
+        version: Optional[int] = None,
     ) -> SentTransactionResponse:
         """
         Takes calls and executes transaction
