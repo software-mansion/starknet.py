@@ -1,13 +1,14 @@
-import warnings
 from typing import Union, List, Optional
 
 from starkware.starknet.definitions.fields import ContractAddressSalt
 
 from starknet_py.common import create_compiled_contract
 from starknet_py.compile.compiler import StarknetCompilationSource
-from starknet_py.net.client_models import ContractClass, Deploy
+from starknet_py.net.client_models import ContractClass
+from starknet_py.net.models import Deploy
 
 
+# pylint: disable=too-many-arguments
 def make_deploy_tx(
     compilation_source: Optional[StarknetCompilationSource] = None,
     compiled_contract: Optional[Union[str, ContractClass]] = None,
@@ -28,18 +29,7 @@ def make_deploy_tx(
     :param version: PreparedFunctionCall version
     :param cairo_path: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts
     :return: A "Deploy" transaction object
-
-    .. deprecated:: 0.4.6
-        Deploy transactions will not be supported in the future versions of StarkNet. Consider transitioning
-        to Declare transactions and deploying through cairo syscall. See <add docs about this
     """
-    # pylint: disable=too-many-arguments
-    # TODO add better warning, include docs, add correct deprecation version
-    warnings.warn(
-        "Deploy transactions will not be supported in the future versions of StarkNet. Consider transitioning "
-        "to Declare transactions and deploying through cairo syscall. See <add docs about this>",
-    )
-
     if not constructor_calldata:
         constructor_calldata = []
 

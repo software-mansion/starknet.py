@@ -12,7 +12,7 @@ from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import parse_address, StarknetChainId
 from starknet_py.net.networks import TESTNET, MAINNET
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
-from starknet_py.net.transactions.deploy import make_deploy_tx
+from starknet_py.transactions.deploy import make_deploy_tx
 
 MAX_FEE = int(1e20)
 
