@@ -171,6 +171,7 @@ async def test_call_uninitialized_contract(gateway_account_client):
                 signature=[],
                 max_fee=MAX_FEE,
                 version=0,
+                nonce=None,
             )
         )
 

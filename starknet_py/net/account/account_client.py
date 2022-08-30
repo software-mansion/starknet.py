@@ -190,6 +190,7 @@ class AccountClient(Client):
                 signature=[],
                 max_fee=0,
                 version=0,
+                nonce=None,
             ),
             block_hash="latest",
         )
@@ -224,6 +225,7 @@ class AccountClient(Client):
                 signature=[],
                 max_fee=0,
                 version=0,
+                nonce=None,
             )
         )
 
@@ -262,6 +264,7 @@ class AccountClient(Client):
             signature=[],
             max_fee=0,
             version=version,
+            nonce=None,
         )
 
         max_fee = await self._get_max_fee(transaction, max_fee, auto_estimate)
@@ -273,6 +276,7 @@ class AccountClient(Client):
             signature=[],
             max_fee=max_fee,
             version=version,
+            nonce=None,
         )
 
     async def _get_max_fee(
