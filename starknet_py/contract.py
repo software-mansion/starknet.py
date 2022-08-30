@@ -245,6 +245,7 @@ class PreparedFunctionCall(Call):
             signature=[*signature] if signature else [],
             max_fee=self.max_fee if self.max_fee is not None else 0,
             version=self.version,
+            nonce=None,
         )
 
     def _assert_can_invoke(self):

@@ -222,6 +222,7 @@ async def test_estimate_fee(contract_address, gateway_client):
         max_fee=0,
         version=0,
         signature=[0x0, 0x0],
+        nonce=None,
     )
     estimate_fee = await gateway_client.estimate_fee(tx=transaction)
 
@@ -239,6 +240,7 @@ async def test_call_contract(clients, contract_address):
             max_fee=0,
             version=0,
             signature=[0x0, 0x0],
+            nonce=None,
         )
         result = await client.call_contract(invoke_function, block_hash="latest")
 
@@ -309,6 +311,7 @@ async def test_add_transaction(contract_address, clients):
             max_fee=0,
             version=0,
             signature=[0x0, 0x0],
+            nonce=None,
         )
         result = await client.send_transaction(invoke_function)
         transaction_receipt = await client.get_transaction_receipt(
