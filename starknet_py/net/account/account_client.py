@@ -512,12 +512,12 @@ class AccountClient(Client):
             through a constructor.
         """
         if chain is None and signer is None and client.chain is None:
-        warnings.warn(
-            "Account deployment through AccountClient is deprecated and will be removed once transaction version"
-            "1 becomes default on StarkNet. StarkNet.py will not bundle compiled account contract in future releases"
-            "and will require manual contract deployment.",
-            category=DeprecationWarning,
-        )
+            warnings.warn(
+                "Account deployment through AccountClient is deprecated and will be removed once transaction version"
+                "1 becomes default on StarkNet. StarkNet.py will not bundle compiled account contract in future"
+                " releases and will require manual contract deployment.",
+                category=DeprecationWarning,
+            )
 
         if chain is None and client.chain is None and signer is None:
             raise ValueError("One of chain or signer must be provided")
