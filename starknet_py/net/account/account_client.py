@@ -410,7 +410,7 @@ class AccountClient(Client):
             max_fee=0,
             signature=[],
             nonce=self._get_nonce(),
-            version=1,
+            version=self.supported_tx_version,
         )
 
         max_fee = self._get_max_fee(
