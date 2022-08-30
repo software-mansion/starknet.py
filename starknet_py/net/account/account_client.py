@@ -37,7 +37,6 @@ from starknet_py.net.models import (
 from starknet_py.net.networks import Network, MAINNET, TESTNET
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
 from starknet_py.net.signer import BaseSigner
-from starknet_py.transactions.deploy import make_deploy_tx
 from starknet_py.utils.crypto.facade import Call
 from starknet_py.utils.data_transformer.execute_transformer import execute_transformer
 from starknet_py.utils.sync import add_sync_methods
@@ -556,6 +555,10 @@ class AccountClient(Client):
 async def deploy_account_contract(
     client: Client, public_key: int
 ) -> AddressRepresentation:
+    # pylint: disable=import-outside-toplevel
+    # FIXME move this import to top once circular import is resolved
+    from starknet_py.transactions.deploy import make_deploy_tx
+
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         deploy_tx = make_deploy_tx(
