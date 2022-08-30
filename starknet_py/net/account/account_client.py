@@ -365,10 +365,9 @@ class AccountClient(Client):
         :param version: Transaction version
         :return: InvokeFunction created from the calls
 
-        .. deprecated:: 0.4.6
+        .. deprecated:: 0.4.7
             This method has been replaced by :meth:`AccountClient.create_invoke_transaction`
         """
-        # TODO add correct deprecation version
         warnings.warn(
             "Sign_transaction is deprecated. Use create_invoke_transaction instead.",
             category=DeprecationWarning,
@@ -505,7 +504,7 @@ class AccountClient(Client):
         :param chain: ChainId of the chain used to create the default signer
         :return: Instance of AccountClient which interacts with created account on given network
 
-        .. deprecated:: 0.4.6
+        .. deprecated:: 0.4.7
             This method has been deprecated and will be removed once transaction version 1 becomes default.
             Compiled account contract will no longer be bundled with StarkNet.py and manaul account deployment
             will be necessary. Consider transitioning to manual contract deployment and creating AccountClient
