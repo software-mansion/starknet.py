@@ -308,6 +308,11 @@ class AccountClient(Client):
                 "Max_fee and auto_estimate are exclusive and cannot be provided at the same time."
             )
 
+        if isinstance(transaction, Declare) and transaction.version != 1:
+            raise ValueError(
+                "Estimating fee for Declare transactions with versions other than 1 is not supported."
+            )
+
         if auto_estimate:
             estimate_fee = await self.estimate_fee(transaction)
             # TODO restore this once estimate_fee supports declare transactions
