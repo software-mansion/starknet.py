@@ -14,7 +14,7 @@ beautifulsoup4==4.11.1; python_version >= "3.7" and python_full_version >= "3.6.
 bitarray==1.2.2; python_version >= "3.6" and python_version < "3.11" and python_full_version >= "3.7.2"
 cachecontrol==0.12.11; python_version >= "3.7"
 cachetools==5.2.0; python_version >= "3.7" and python_version < "4.0" and python_full_version >= "3.7.2"
-cairo-lang==0.9.1; python_version >= "3.6"
+cairo-lang @ https://github.com/starkware-libs/cairo-lang/releases/download/v0.10.0-pre/cairo-lang-0.10.0.zip ; python_version >= "3.6"
 certifi==2022.6.15; python_version >= "3.7" and python_version < "3.11" and python_full_version >= "3.7.2"
 charset-normalizer==2.1.0; python_version >= "3.7" and python_version < "3.11" and python_full_version >= "3.7.2"
 colorama==0.4.5; sys_platform == "win32" and python_version >= "3.6" and python_full_version >= "3.7.2" and (python_version >= "3.6" and python_full_version < "3.0.0" and sys_platform == "win32" or sys_platform == "win32" and python_version >= "3.6" and python_full_version >= "3.5.0")

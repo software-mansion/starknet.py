@@ -240,7 +240,7 @@ python-versions = "~=3.7"
 
 [[package]]
 name = "cairo-lang"
-version = "0.9.1"
+version = "0.10.0"
 description = "Compiler and runner for the Cairo language"
 category = "main"
 optional = false
@@ -269,6 +269,9 @@ sympy = "*"
 typeguard = "*"
 Web3 = "*"
 
+[package.source]
+type = "url"
+url = "https://github.com/starkware-libs/cairo-lang/releases/download/v0.10.0-pre/cairo-lang-0.10.0.zip"
 [[package]]
 name = "certifi"
 version = "2022.6.15"
@@ -299,14 +302,6 @@ python-versions = ">=3.7"
 [package.dependencies]
 colorama = {version = "*", markers = "platform_system == \"Windows\""}
 importlib-metadata = {version = "*", markers = "python_version < \"3.8\""}
-
-[[package]]
-name = "cloudpickle"
-version = "2.1.0"
-description = "Extended pickling support for Python objects"
-category = "dev"
-optional = false
-python-versions = ">=3.6"
 
 [[package]]
 name = "colorama"
@@ -669,37 +664,6 @@ optional = false
 python-versions = "*"
 
 [[package]]
-name = "flask"
-version = "2.0.3"
-description = "A simple framework for building complex web applications."
-category = "dev"
-optional = false
-python-versions = ">=3.6"
-
-[package.dependencies]
-asgiref = {version = ">=3.2", optional = true, markers = "extra == \"async\""}
-click = ">=7.1.2"
-itsdangerous = ">=2.0"
-Jinja2 = ">=3.0"
-Werkzeug = ">=2.0"
-
-[package.extras]
-async = ["asgiref (>=3.2)"]
-dotenv = ["python-dotenv"]
-
-[[package]]
-name = "flask-cors"
-version = "3.0.10"
-description = "A Flask extension adding a decorator for CORS support"
-category = "dev"
-optional = false
-python-versions = "*"
-
-[package.dependencies]
-Flask = ">=0.9"
-Six = "*"
-
-[[package]]
 name = "frozendict"
 version = "1.2"
 description = "An immutable dictionary"
@@ -714,20 +678,6 @@ description = "A list-like structure which implements collections.abc.MutableSeq
 category = "main"
 optional = false
 python-versions = ">=3.7"
-
-[[package]]
-name = "gunicorn"
-version = "20.1.0"
-description = "WSGI HTTP Server for UNIX"
-category = "dev"
-optional = false
-python-versions = ">=3.5"
-
-[package.extras]
-eventlet = ["eventlet (>=0.24.1)"]
-gevent = ["gevent (>=1.4.0)"]
-setproctitle = ["setproctitle"]
-tornado = ["tornado (>=0.2)"]
 
 [[package]]
 name = "hexbytes"
@@ -842,14 +792,6 @@ pipfile_deprecated_finder = ["pipreqs", "requirementslib"]
 requirements_deprecated_finder = ["pipreqs", "pip-api"]
 colors = ["colorama (>=0.4.3,<0.5.0)"]
 plugins = ["setuptools"]
-
-[[package]]
-name = "itsdangerous"
-version = "2.1.2"
-description = "Safely pass data to untrusted environments and back."
-category = "dev"
-optional = false
-python-versions = ">=3.7"
 
 [[package]]
 name = "jinja2"
@@ -1757,25 +1699,6 @@ lint = ["flake8", "mypy", "docutils-stubs"]
 test = ["pytest"]
 
 [[package]]
-name = "starknet-devnet"
-version = "0.2.11"
-description = "A local testnet for Starknet"
-category = "dev"
-optional = false
-python-versions = ">=3.7.2,<3.10"
-
-[package.dependencies]
-cairo-lang = "0.9.1"
-cloudpickle = ">=2.1.0,<2.2.0"
-crypto-cpp-py = ">=1.0.4,<1.1.0"
-Flask = {version = ">=2.0.3,<2.1.0", extras = ["async"]}
-flask-cors = ">=3.0.10,<3.1.0"
-gunicorn = ">=20.1.0,<20.2.0"
-marshmallow = ">=3.17.0,<3.18.0"
-typing-extensions = ">=4.3.0,<4.4.0"
-Werkzeug = ">=2.0.3,<2.1.0"
-
-[[package]]
 name = "sympy"
 version = "1.10.1"
 description = "Computer algebra system (CAS) in Python"
@@ -1953,17 +1876,6 @@ optional = false
 python-versions = ">=3.7"
 
 [[package]]
-name = "werkzeug"
-version = "2.0.3"
-description = "The comprehensive WSGI web application library."
-category = "dev"
-optional = false
-python-versions = ">=3.6"
-
-[package.extras]
-watchdog = ["watchdog"]
-
-[[package]]
 name = "wrapt"
 version = "1.14.1"
 description = "Module for decorators, wrappers and monkey patching."
@@ -2003,7 +1915,7 @@ eth-tester = []
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.2,<3.10"
-content-hash = "b868b01a8f36c404c79c723b6e1191feb5d699a4092daeec3cb6bb42086e5b53"
+content-hash = "f00a61499031eb3b624166da0b01332096e252ce15f95a2bdf9b74b2e3bc4716"
 
 [metadata.files]
 aiohttp = []
@@ -2029,7 +1941,6 @@ cairo-lang = []
 certifi = []
 charset-normalizer = []
 click = []
-cloudpickle = []
 colorama = []
 coverage = []
 crypto-cpp-py = []
@@ -2053,11 +1964,8 @@ eth-typing = []
 eth-utils = []
 execnet = []
 fastecdsa = []
-flask = []
-flask-cors = []
 frozendict = []
 frozenlist = []
-gunicorn = []
 hexbytes = []
 html5lib = []
 idna = []
@@ -2067,7 +1975,6 @@ importlib-resources = []
 iniconfig = []
 ipfshttpclient = []
 isort = []
-itsdangerous = []
 jinja2 = []
 jsonschema = []
 lark-parser = []
@@ -2140,7 +2047,6 @@ sphinxcontrib-htmlhelp = []
 sphinxcontrib-jsmath = []
 sphinxcontrib-qthelp = []
 sphinxcontrib-serializinghtml = []
-starknet-devnet = []
 sympy = []
 tabulate = []
 toml = []
@@ -2156,7 +2062,6 @@ varint = []
 web3 = []
 webencodings = []
 websockets = []
-werkzeug = []
 wrapt = []
 yarl = []
 zipp = []
