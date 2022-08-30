@@ -271,3 +271,19 @@ class Client(ABC):
         :param class_hash: Class hash
         :return: ContractClass object
         """
+
+    @abstractmethod
+    async def get_nonce(
+        self,
+        contract_address: int,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> int:
+        """
+        Get the latest nonce associated with the given address
+
+        :param contract_address: Get the latest nonce associated with the given address
+        :param block_hash: Block's hash or literals `"pending"` or `"latest"`
+        :param block_number: Block's number or literals `"pending"` or `"latest"`
+        :return: The last nonce used for the given contract
+        """

@@ -426,6 +426,14 @@ class AccountClient(Client):
             signer=signer,
         )
 
+    async def get_nonce(
+        self,
+        contract_address: int,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> int:
+        return self._get_nonce()
+
 
 async def deploy_account_contract(
     client: Client, public_key: int

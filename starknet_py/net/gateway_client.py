@@ -363,6 +363,26 @@ class GatewayClient(Client):
 
         return ContractCodeSchema().load(res, unknown=EXCLUDE)
 
+    async def get_nonce(
+        self,
+        contract_address: int,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> int:
+        block_identifier = get_block_identifier(
+            block_hash=block_hash, block_number=block_number
+        )
+        params = {
+            **{"contractAddress": convert_to_felt(contract_address)},
+            **block_identifier,
+        }
+
+        nonce = await self._feeder_gateway_client.call(
+            method_name="get_nonce", params=params
+        )
+
+        return nonce
+
 
 def get_block_identifier(
     block_hash: Optional[Union[Hash, Tag]] = None,
