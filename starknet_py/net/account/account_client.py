@@ -450,13 +450,15 @@ class AccountClient(Client):
             supported_tx_version=version,
         )
 
-    async def get_nonce(
+    async def get_contract_nonce(
         self,
         contract_address: int,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> int:
-        return self._get_nonce()
+        return await self.client.get_contract_nonce(
+            contract_address, block_hash, block_number
+        )
 
 
 async def deploy_account_contract(

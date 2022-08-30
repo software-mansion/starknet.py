@@ -398,13 +398,24 @@ class FullNodeClient(Client):
 
         return PendingTransactionsSchema().load(res, unknown=EXCLUDE)
 
-    async def get_nonce(
+    async def get_contract_nonce(
         self,
         contract_address: int,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> int:
-        raise NotImplementedError
+        block_identifier = get_block_identifier(
+            block_hash=block_hash, block_number=block_number
+        )
+        res = await self._client.call(
+            method_name="getNonce",
+            params={
+                "contract_address": convert_to_felt(contract_address),
+                **block_identifier,
+            },
+        )
+        res = typing.cast(str, res)
+        return int(res, 16)
 
 
 def get_block_identifier(

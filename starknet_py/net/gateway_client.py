@@ -363,7 +363,7 @@ class GatewayClient(Client):
 
         return ContractCodeSchema().load(res, unknown=EXCLUDE)
 
-    async def get_nonce(
+    async def get_contract_nonce(
         self,
         contract_address: int,
         block_hash: Optional[Union[Hash, Tag]] = None,
