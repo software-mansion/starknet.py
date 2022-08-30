@@ -5,7 +5,9 @@ from unittest.mock import patch, MagicMock
 import pytest
 
 from starkware.starknet.public.abi import get_selector_from_name
-from starkware.starknet.services.api.gateway.transaction import DECLARE_SENDER_ADDRESS
+from starkware.starknet.services.api.gateway.transaction import (
+    DEFAULT_DECLARE_SENDER_ADDRESS,
+)
 
 from starknet_py.net.client_models import (
     TransactionStatus,
@@ -54,7 +56,7 @@ async def test_get_declare_transaction(clients, declare_transaction_hash, class_
 
     assert transaction == DeclareTransaction(
         class_hash=class_hash,
-        sender_address=DECLARE_SENDER_ADDRESS,
+        sender_address=DEFAULT_DECLARE_SENDER_ADDRESS,
         hash=declare_transaction_hash,
         signature=[],
         max_fee=0,
