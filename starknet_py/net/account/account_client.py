@@ -280,7 +280,7 @@ class AccountClient(Client):
         wrapped_calldata, _ = execute_transformer.from_python(*calldata_py)
 
         transaction = make_invoke_function_by_version(
-            account_contract_address=self.address,
+            contract_address=self.address,
             calldata=wrapped_calldata,
             signature=[],
             max_fee=0,
@@ -500,31 +500,27 @@ def merge_calls(calls: Calls) -> List:
 
 def make_invoke_function_by_version(
     # pylint: disable=too-many-arguments
-    account_contract_address: AddressRepresentation,
+    contract_address: AddressRepresentation,
     calldata: List[int],
     signature: List[int],
     max_fee: int,
     version: int,
-    nonce: int,
+    nonce: Optional[int],
     entry_point_selector: int,
 ) -> InvokeFunction:
-    common_params = {
+    params = {
         "calldata": calldata,
         "signature": signature,
         "max_fee": max_fee,
         "version": version,
+        "nonce": nonce,
+        "contract_address": contract_address,
     }
 
     if version == 0:
-        return InvokeFunction(
-            contract_address=account_contract_address,
-            entry_point_selector=entry_point_selector,
-            **common_params,
-        )
+        params["entry_point_selector"] = entry_point_selector
 
-    return InvokeFunction(
-        account_contract_address=account_contract_address, nonce=nonce, **common_params
-    )
+    return InvokeFunction(**params)
 
 
 def get_account_version():
