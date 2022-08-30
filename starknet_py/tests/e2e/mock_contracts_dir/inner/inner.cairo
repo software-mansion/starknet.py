@@ -1,3 +1,3 @@
-struct MockStruct:
-    member x : felt
-end
+struct MockStruct {
+    x: felt,
+}

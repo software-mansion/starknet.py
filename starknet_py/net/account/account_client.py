@@ -201,6 +201,7 @@ class AccountClient(Client):
                 signature=[],
                 max_fee=0,
                 version=self.supported_tx_version,
+                nonce=None,
             ),
             block_hash="latest",
         )
@@ -235,6 +236,7 @@ class AccountClient(Client):
                 signature=[],
                 max_fee=0,
                 version=self.supported_tx_version,
+                nonce=None,
             )
         )
 
@@ -283,8 +285,8 @@ class AccountClient(Client):
             signature=[],
             max_fee=0,
             version=version,
-            nonce=nonce,
             entry_point_selector=get_selector_from_name("__execute__"),
+            nonce=None,
         )
 
         max_fee = await self._get_max_fee(transaction, max_fee, auto_estimate)
@@ -520,8 +522,6 @@ def make_invoke_function_by_version(
             **common_params,
         )
 
-    # remove when new cairo will be released
-    # pylint: disable=unexpected-keyword-arg
     return InvokeFunction(
         account_contract_address=account_contract_address, nonce=nonce, **common_params
     )

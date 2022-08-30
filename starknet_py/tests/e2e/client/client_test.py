@@ -5,7 +5,9 @@ from unittest.mock import patch, MagicMock
 import pytest
 
 from starkware.starknet.public.abi import get_selector_from_name
-from starkware.starknet.services.api.gateway.transaction import DECLARE_SENDER_ADDRESS
+from starkware.starknet.services.api.gateway.transaction import (
+    DEFAULT_DECLARE_SENDER_ADDRESS,
+)
 
 from starknet_py.net.client_models import (
     TransactionStatus,
@@ -54,7 +56,7 @@ async def test_get_declare_transaction(clients, declare_transaction_hash, class_
 
     assert transaction == DeclareTransaction(
         class_hash=class_hash,
-        sender_address=DECLARE_SENDER_ADDRESS,
+        sender_address=DEFAULT_DECLARE_SENDER_ADDRESS,
         hash=declare_transaction_hash,
         signature=[],
         max_fee=0,
@@ -220,6 +222,7 @@ async def test_estimate_fee(contract_address, gateway_client):
         max_fee=0,
         version=0,
         signature=[0x0, 0x0],
+        nonce=None,
     )
     estimate_fee = await gateway_client.estimate_fee(tx=transaction)
 
@@ -237,6 +240,7 @@ async def test_call_contract(clients, contract_address):
             max_fee=0,
             version=0,
             signature=[0x0, 0x0],
+            nonce=None,
         )
         result = await client.call_contract(invoke_function, block_hash="latest")
 
@@ -307,6 +311,7 @@ async def test_add_transaction(contract_address, clients):
             max_fee=0,
             version=0,
             signature=[0x0, 0x0],
+            nonce=None,
         )
         result = await client.send_transaction(invoke_function)
         transaction_receipt = await client.get_transaction_receipt(

@@ -1,6 +1,8 @@
 from typing import Optional, List
 
-from starkware.starknet.services.api.gateway.transaction import DECLARE_SENDER_ADDRESS
+from starkware.starknet.services.api.gateway.transaction import (
+    DEFAULT_DECLARE_SENDER_ADDRESS,
+)
 
 from starknet_py.common import create_compiled_contract
 from starknet_py.compile.compiler import StarknetCompilationSource
@@ -29,7 +31,7 @@ def make_declare_tx(
     )
     return Declare(
         contract_class=compiled_contract,
-        sender_address=DECLARE_SENDER_ADDRESS,
+        sender_address=DEFAULT_DECLARE_SENDER_ADDRESS,
         max_fee=0,
         signature=[],
         nonce=0,
