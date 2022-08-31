@@ -328,12 +328,12 @@ class AccountClient(Client):
 
         return max_fee
 
-    async def create_invoke_transaction(
+    async def sign_transaction(
         self,
         calls: Calls,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-        version: Optional[int] = None,
+        version: int = 0,
     ) -> InvokeFunction:
         """
         Takes calls and creates signed InvokeFunction
@@ -352,33 +352,6 @@ class AccountClient(Client):
         execute_tx = add_signature_to_transaction(execute_tx, signature)
 
         return execute_tx
-
-    async def sign_transaction(
-        self,
-        calls: Calls,
-        max_fee: Optional[int] = None,
-        auto_estimate: bool = False,
-        version: int = 0,
-    ) -> InvokeFunction:
-        """
-        Takes calls and creates signed InvokeFunction
-
-        :param calls: Single call or list of calls
-        :param max_fee: Max amount of Wei to be paid when executing transaction
-        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
-        :param version: Transaction version
-        :return: InvokeFunction created from the calls
-
-        .. deprecated:: 0.4.7
-            This method has been replaced by :meth:`AccountClient.create_invoke_transaction`
-        """
-        warnings.warn(
-            "Sign_transaction is deprecated. Use create_invoke_transaction instead.",
-            category=DeprecationWarning,
-        )
-        return await self.create_invoke_transaction(
-            calls=calls, max_fee=max_fee, auto_estimate=auto_estimate, version=version
-        )
 
     def create_declare_transaction(
         self,
