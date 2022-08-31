@@ -38,7 +38,9 @@ from starknet_py.net.networks import Network, MAINNET, TESTNET
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
 from starknet_py.net.signer import BaseSigner
 from starknet_py.utils.crypto.facade import Call
-from starknet_py.utils.data_transformer.execute_transformer import execute_transformer
+from starknet_py.utils.data_transformer.execute_transformer import (
+    execute_transformer_by_version,
+)
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.net.models.address import AddressRepresentation, parse_address
 
@@ -195,7 +197,8 @@ class AccountClient(Client):
 
     async def _get_nonce(self) -> int:
         if self.supported_tx_version == 1:
-            return await self.get_contract_nonce(self.address)
+            nonce = await self.get_contract_nonce(self.address)
+            return int(nonce, 16)
 
         [nonce] = await self.call_contract(
             InvokeFunction(
@@ -283,6 +286,7 @@ class AccountClient(Client):
         if version == 0:
             calldata_py.append(nonce)
 
+        execute_transformer = execute_transformer_by_version(version)
         wrapped_calldata, _ = execute_transformer.from_python(*calldata_py)
 
         transaction = make_invoke_function_by_version(
