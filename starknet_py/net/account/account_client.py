@@ -329,7 +329,7 @@ class AccountClient(Client):
         calls: Calls,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-        version: int = 0,
+        version: Optional[int] = None,
     ) -> InvokeFunction:
         """
         Takes calls and creates signed InvokeFunction
@@ -340,6 +340,8 @@ class AccountClient(Client):
         :param version: Transaction version
         :return: InvokeFunction created from the calls
         """
+        version = version or self.supported_tx_version
+
         execute_tx = await self.prepare_invoke_function(
             calls, max_fee, auto_estimate, version
         )
