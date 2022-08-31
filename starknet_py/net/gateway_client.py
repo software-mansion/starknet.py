@@ -202,7 +202,7 @@ class GatewayClient(Client):
 
     async def estimate_fee(
         self,
-        tx: Union[InvokeFunction | Declare],
+        tx: Union[InvokeFunction, Declare],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
