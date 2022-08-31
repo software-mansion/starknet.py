@@ -202,7 +202,7 @@ class GatewayClient(Client):
 
     async def estimate_fee(
         self,
-        tx: InvokeFunction,
+        tx: Union[InvokeFunction, Declare],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
@@ -380,7 +380,7 @@ class GatewayClient(Client):
         nonce = await self._feeder_gateway_client.call(
             method_name="get_nonce", params=params
         )
-
+        nonce = typing.cast(int, nonce)
         return nonce
 
 

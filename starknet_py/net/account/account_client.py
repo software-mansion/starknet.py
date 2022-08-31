@@ -6,6 +6,8 @@ from dataclasses import replace
 from starkware.crypto.signature.signature import get_random_private_key
 from starkware.starknet.public.abi import get_selector_from_name
 
+from starknet_py.common import create_compiled_contract
+from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import (
     SentTransactionResponse,
@@ -35,7 +37,6 @@ from starknet_py.net.models import (
 from starknet_py.net.networks import Network, MAINNET, TESTNET
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
 from starknet_py.net.signer import BaseSigner
-from starknet_py.transactions.deploy import make_deploy_tx
 from starknet_py.utils.crypto.facade import Call
 from starknet_py.utils.data_transformer.execute_transformer import execute_transformer
 from starknet_py.utils.sync import add_sync_methods
@@ -194,7 +195,7 @@ class AccountClient(Client):
 
     async def _get_nonce(self) -> int:
         if self.supported_tx_version == 1:
-            return self.get_contract_nonce(self.address)
+            return await self.get_contract_nonce(self.address)
 
         [nonce] = await self.call_contract(
             InvokeFunction(
@@ -278,7 +279,9 @@ class AccountClient(Client):
         nonce = await self._get_nonce()
 
         calldata_py = merge_calls(calls)
-        calldata_py.append(nonce)
+
+        if version == 0:
+            calldata_py.append(nonce)
 
         wrapped_calldata, _ = execute_transformer.from_python(*calldata_py)
 
@@ -289,7 +292,7 @@ class AccountClient(Client):
             max_fee=0,
             version=version,
             entry_point_selector=get_selector_from_name("__execute__"),
-            nonce=None,
+            nonce=None if version == 0 else nonce,
         )
 
         max_fee = await self._get_max_fee(transaction, max_fee, auto_estimate)
@@ -298,13 +301,18 @@ class AccountClient(Client):
 
     async def _get_max_fee(
         self,
-        transaction: InvokeFunction,
+        transaction: Union[InvokeFunction, Declare],
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-    ):
+    ) -> int:
         if auto_estimate and max_fee is not None:
             raise ValueError(
                 "Max_fee and auto_estimate are exclusive and cannot be provided at the same time."
+            )
+
+        if isinstance(transaction, Declare) and transaction.version != 1:
+            raise ValueError(
+                "Estimating fee for Declare transactions with versions other than 1 is not supported."
             )
 
         if auto_estimate:
@@ -332,6 +340,9 @@ class AccountClient(Client):
         :param version: Transaction version
         :return: InvokeFunction created from the calls
         """
+        if version is None:
+            version = self.supported_tx_version
+
         execute_tx = await self.prepare_invoke_function(
             calls, max_fee, auto_estimate, version
         )
@@ -340,6 +351,46 @@ class AccountClient(Client):
         execute_tx = add_signature_to_transaction(execute_tx, signature)
 
         return execute_tx
+
+    def create_declare_transaction(
+        self,
+        compilation_source: Optional[StarknetCompilationSource] = None,
+        compiled_contract: Optional[str] = None,
+        cairo_path: Optional[List[str]] = None,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+    ) -> Declare:
+        """
+        Create declaration tx.
+        Either `compilation_source` or `compiled_contract` is required.
+
+        :param compilation_source: string containing source code or a list of source files paths
+        :param compiled_contract: string containing compiled contract bytecode.
+                                  Useful for reading compiled contract from a file
+        :param cairo_path: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts
+        :param max_fee: Max amount of Wei to be paid when executing transaction
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
+        :return: A "Declare" transaction object
+        """
+        # pylint: disable=too-many-arguments
+        compiled_contract = create_compiled_contract(
+            compilation_source, compiled_contract, cairo_path
+        )
+        declare_tx = Declare(
+            contract_class=compiled_contract,
+            sender_address=self.address,
+            max_fee=0,
+            signature=[],
+            nonce=self._get_nonce(),
+            version=self.supported_tx_version,
+        )
+
+        max_fee = self._get_max_fee(
+            transaction=declare_tx, max_fee=max_fee, auto_estimate=auto_estimate
+        )
+        signature = self.signer.sign_transaction(declare_tx)
+
+        return dataclasses.replace(declare_tx, signature=signature, max_fee=max_fee)
 
     async def send_transaction(
         self, transaction: InvokeFunction
@@ -428,8 +479,21 @@ class AccountClient(Client):
         :param signer: Signer used to create account and sign transaction
         :param chain: ChainId of the chain used to create the default signer
         :return: Instance of AccountClient which interacts with created account on given network
+
+        .. deprecated:: 0.4.7
+            This method has been deprecated and will be deleted once transaction version 0 is removed.
+            Compiled account contract will no longer be bundled with StarkNet.py.
+            Consider transitioning to deploying account contract of choice and creating AccountClient
+            through a constructor.
         """
         if chain is None and signer is None and client.chain is None:
+            warnings.warn(
+                "Account deployment through AccountClient is deprecated and will be deleted once transaction version "
+                "0 is removed. Consider transitioning to creating AccountClient through a constructor.",
+                category=DeprecationWarning,
+            )
+
+        if chain is None and client.chain is None and signer is None:
             raise ValueError("One of chain or signer must be provided")
 
         if signer is None:
@@ -467,10 +531,17 @@ class AccountClient(Client):
 async def deploy_account_contract(
     client: Client, public_key: int
 ) -> AddressRepresentation:
-    deploy_tx = make_deploy_tx(
-        constructor_calldata=[public_key],
-        compiled_contract=COMPILED_ACCOUNT_CONTRACT,
-    )
+    # pylint: disable=import-outside-toplevel
+    # FIXME move this import to top once circular import is resolved
+    from starknet_py.transactions.deploy import make_deploy_tx
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        deploy_tx = make_deploy_tx(
+            constructor_calldata=[public_key],
+            compiled_contract=COMPILED_ACCOUNT_CONTRACT,
+        )
+
     result = await client.deploy(deploy_tx)
     await client.wait_for_tx(
         tx_hash=result.transaction_hash,

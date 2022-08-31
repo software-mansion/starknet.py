@@ -1,3 +1,4 @@
+import warnings
 from typing import Optional, List
 
 from starkware.starknet.services.api.gateway.transaction import (
@@ -6,7 +7,7 @@ from starkware.starknet.services.api.gateway.transaction import (
 
 from starknet_py.common import create_compiled_contract
 from starknet_py.compile.compiler import StarknetCompilationSource
-from starknet_py.net.models.transaction import Declare
+from starknet_py.net.client_models import Declare
 
 
 def make_declare_tx(
@@ -25,7 +26,16 @@ def make_declare_tx(
     :param version: PreparedFunctionCall version
     :param cairo_path: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts
     :return: A "Declare" transaction object
+
+    .. deprecated:: 0.4.7
+        Unsigned declare transactions will not be supported in the future versions of StarkNet.
+        Use :meth:`AccountClient.create_declare_transaction` instead.
     """
+    warnings.warn(
+        "Unsigned declare transactions will not be supported in the future versions of StarkNet. Please use "
+        "AccountClient.create_declare_transaction instead,",
+        category=DeprecationWarning,
+    )
     compiled_contract = create_compiled_contract(
         compilation_source, compiled_contract, cairo_path
     )
