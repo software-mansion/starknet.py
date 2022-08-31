@@ -176,7 +176,7 @@ class FullNodeClient(Client):
     ) -> EstimatedFee:
         if isinstance(tx, Declare):
             raise ValueError(
-                "Estimating fee for Declare transactions is currently not supported in gateway"
+                "Estimating fee for Declare transactions is currently not supported in FullNodeClient"
             )
 
         block_identifier = get_block_identifier(
