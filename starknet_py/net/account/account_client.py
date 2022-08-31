@@ -340,7 +340,8 @@ class AccountClient(Client):
         :param version: Transaction version
         :return: InvokeFunction created from the calls
         """
-        version = version or self.supported_tx_version
+        if version is None:
+            version = self.supported_tx_version
 
         execute_tx = await self.prepare_invoke_function(
             calls, max_fee, auto_estimate, version
