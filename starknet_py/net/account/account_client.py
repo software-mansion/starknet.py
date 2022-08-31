@@ -481,7 +481,7 @@ class AccountClient(Client):
 
         .. deprecated:: 0.4.7
             This method has been deprecated and will be removed once transaction version 1 becomes default.
-            Compiled account contract will no longer be bundled with StarkNet.py and manaul account deployment
+            Compiled account contract will no longer be bundled with StarkNet.py and manual account deployment
             will be necessary. Consider transitioning to manual contract deployment and creating AccountClient
             through a constructor.
         """
