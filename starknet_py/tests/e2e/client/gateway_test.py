@@ -88,3 +88,14 @@ def test_creating_client_with_custom_net_dict():
     assert gateway_client.net == net
     assert gateway_client._feeder_gateway_client.url == net["feeder_gateway_url"]
     assert gateway_client._gateway_client.url == net["gateway_url"]
+
+
+@pytest.mark.asyncio
+async def test_get_contract_nonce():
+    gateway_client = GatewayClient(net="https://external.integration.starknet.io")
+
+    nonce = await gateway_client.get_contract_nonce(
+        contract_address=0x1111,
+        block_hash="latest",
+    )
+    assert nonce == "0x0"
