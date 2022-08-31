@@ -36,7 +36,7 @@ coverage = "^6.1.2"
 pytest-asyncio = "^0.16.0"
 sphinx-rtd-theme = "^1.0.0"
 pylint = "2.13.5"
-setuptools = "^60.0.3"
+setuptools = "^65.3.0"
 pytest-mock = "^3.6.1"
 pytest-xdist = "^2.5.0"
 web3 = {extras=["tester"], version="6.0.0b4"}
