@@ -1,3 +1,84 @@
+0.4.8 Migration guide
+=====================
+
+0.4.8 of starknet.py brings fresh changes including a breaking change in contracts' code.
+To ensure smooth migration to this version please familiarize yourself with this
+migration guide.
+
+Breaking Changes
+-----------------------
+
+New Cairo syntax
+^^^^^^^^^^^^^^^^^^^^^^^
+
+With the update of `cairo-lang <https://github.com/starkware-libs/cairo-lang>`_ to version ``0.10.0``,
+the syntax of contracts written in cairo changes significantly.
+You can see the new syntax `here <https://starkware.notion.site/starkware/StarkNet-0-10-0-4ac978234c384a30a195ce4070461257#8bfeb76259234f32b5f42376f0d976b9>`_.
+
+As a result, the **old syntax is no longer supported**.
+
+For the already existent programs to be compatible with the new StarkNet version,
+they would have to be migrated using ``cairo-migrate`` command from CLI.
+
+.. code-block::
+
+    > cairo-migrate --help
+    usage: cairo-migrate [-h] [-v] [--one_item_per_line] [--no_one_item_per_line] [-i | -c] [--migrate_syntax] [--no_migrate_syntax] [--single_return_functions]
+                         [--no_single_return_functions]
+                         file [file ...]
+
+    A tool to migrate Cairo code from versions before 0.10.0.
+
+    positional arguments:
+      file                  File names
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      -v, --version         show program's version number and exit
+      --one_item_per_line   Put each list item (e.g., function arguments) in a separate line, if the list doesn't fit into a single line.
+      --no_one_item_per_line
+                            Don't use one per line formatting (see --one_item_per_line).
+      -i                    Edit files inplace.
+      -c                    Check files' formats.
+      --migrate_syntax      Convert the syntax from Cairo versions before 0.10.0.
+      --no_migrate_syntax   Don't convert the syntax. This flag should only be used if the syntax was already migrated.
+      --single_return_functions
+                            In version 0.10.0 some standard library functions, such as abs(), have changed to return 'felt' instead of '(res: felt)'. This requires syntax
+                            changes in the calling functions. For example, 'let (x) = abs(-5)' should change to 'let x = abs(-5)'.
+      --no_single_return_functions
+                            Don't migrate calls to some single-return functions, such as abs(). See '--single_return_functions'.
+
+Python versions
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Following Cairo's technical change of moving from ``python3.7`` to ``python3.9``,
+starknet.py has dropped support for version ``python3.7``.
+
+Currently, compatible Python versions are ``python3.8`` and ``python3.9``.
+
+New Transaction version
+-----------------------
+
+Cairo 0.10.0 brings new version of the transaction.
+The differences:
+
+- ``contract_address`` field is now called ``account_contract_address``
+- The field ``entry_point_selector`` is removed
+- A nonce field is added
+
+For now both (0 nad 1) transaction versions will be accepted but there will be a ``DeprecationWarning`` while using version 0.
+
+AccountClient constructor
+-------------------------
+
+AccountClient's constructor has a new parameter now. ``supported_tx_version`` is used to differentiate between old and new accounts.
+It is set to 0 as default so there is no need to set it while using old account.
+
+.. note::
+
+    In the future versions default value of ``supported_tx_version`` will be changed to 1. This will happen when the old account is deprecated.
+
+
 0.4.0 Migration guide
 =====================
 
