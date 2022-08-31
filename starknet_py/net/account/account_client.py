@@ -279,7 +279,9 @@ class AccountClient(Client):
         nonce = await self._get_nonce()
 
         calldata_py = merge_calls(calls)
-        calldata_py.append(nonce)
+
+        if version == 0:
+            calldata_py.append(nonce)
 
         wrapped_calldata, _ = execute_transformer.from_python(*calldata_py)
 
@@ -290,7 +292,7 @@ class AccountClient(Client):
             max_fee=0,
             version=version,
             entry_point_selector=get_selector_from_name("__execute__"),
-            nonce=None,
+            nonce=None if version == 0 else nonce,
         )
 
         max_fee = await self._get_max_fee(transaction, max_fee, auto_estimate)
