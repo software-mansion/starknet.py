@@ -193,6 +193,9 @@ class AccountClient(Client):
         return await self.client.get_class_by_hash(class_hash=class_hash)
 
     async def _get_nonce(self) -> int:
+        if self.supported_tx_version == 1:
+            return self.get_contract_nonce(self.address)
+
         [nonce] = await self.call_contract(
             InvokeFunction(
                 contract_address=self.address,
@@ -448,6 +451,16 @@ class AccountClient(Client):
             address=address,
             signer=signer,
             supported_tx_version=version,
+        )
+
+    async def get_contract_nonce(
+        self,
+        contract_address: int,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> int:
+        return await self.client.get_contract_nonce(
+            contract_address, block_hash, block_number
         )
 
 
