@@ -480,16 +480,15 @@ class AccountClient(Client):
         :return: Instance of AccountClient which interacts with created account on given network
 
         .. deprecated:: 0.4.7
-            This method has been deprecated and will be removed once transaction version 1 becomes default.
-            Compiled account contract will no longer be bundled with StarkNet.py and manual account deployment
-            will be necessary. Consider transitioning to manual contract deployment and creating AccountClient
+            This method has been deprecated and will be deleted once transaction version 0 is removed.
+            Compiled account contract will no longer be bundled with StarkNet.py.
+            Consider transitioning to deploying account contract of choice and creating AccountClient
             through a constructor.
         """
         if chain is None and signer is None and client.chain is None:
             warnings.warn(
-                "Account deployment through AccountClient is deprecated and will be removed once transaction version"
-                "1 becomes default on StarkNet. StarkNet.py will not bundle compiled account contract in future"
-                " releases and will require manual contract deployment.",
+                "Account deployment through AccountClient is deprecated and will be deleted once transaction version "
+                "0 is removed. Consider transitioning to creating AccountClient through a constructor.",
                 category=DeprecationWarning,
             )
 
