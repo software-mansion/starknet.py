@@ -315,12 +315,6 @@ class AccountClient(Client):
 
         if auto_estimate:
             estimate_fee = await self.estimate_fee(transaction)
-            # TODO restore this once estimate_fee supports declare transactions
-            # estimate_fee = (
-            #     await self.estimate_fee(transaction)
-            #     if isinstance(transaction, InvokeFunction)
-            #     else self.estimate_declare_fee(transaction)
-            # )
             max_fee = int(estimate_fee.overall_fee * 1.1)
 
         if max_fee is None:

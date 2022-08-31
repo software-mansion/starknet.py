@@ -170,10 +170,15 @@ class FullNodeClient(Client):
 
     async def estimate_fee(
         self,
-        tx: InvokeFunction,
+        tx: Union[InvokeFunction | Declare],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
+        if isinstance(tx, Declare):
+            raise ValueError(
+                "Estimating fee for Declare transactions is currently not supported in gateway"
+            )
+
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
