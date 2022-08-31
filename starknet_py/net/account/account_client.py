@@ -414,7 +414,7 @@ class AccountClient(Client):
         :param version: Transaction version
         :return: SentTransactionResponse
         """
-        execute_transaction = await self.create_invoke_transaction(
+        execute_transaction = await self.sign_transaction(
             calls, max_fee, auto_estimate, version
         )
         return await self.send_transaction(execute_transaction)
