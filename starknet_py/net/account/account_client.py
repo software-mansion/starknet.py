@@ -365,7 +365,8 @@ class AccountClient(Client):
         auto_estimate: bool = False,
     ) -> Declare:
         """
-        Create declaration tx.
+        Create and sign declare transaction.
+
         Either `compilation_source` or `compiled_contract` is required.
 
         :param compilation_source: string containing source code or a list of source files paths
@@ -374,7 +375,7 @@ class AccountClient(Client):
         :param cairo_path: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts
         :param max_fee: Max amount of Wei to be paid when executing transaction
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
-        :return: A "Declare" transaction object
+        :return: Signed Declare transaction
         """
         # pylint: disable=too-many-arguments
         compiled_contract = create_compiled_contract(
