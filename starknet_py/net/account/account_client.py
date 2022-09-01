@@ -198,7 +198,7 @@ class AccountClient(Client):
     async def _get_nonce(self) -> int:
         if self.supported_tx_version == 1:
             nonce = await self.get_contract_nonce(self.address)
-            return int(nonce, 16)
+            return nonce
 
         [nonce] = await self.call_contract(
             InvokeFunction(

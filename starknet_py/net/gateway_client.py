@@ -381,8 +381,8 @@ class GatewayClient(Client):
         nonce = await self._feeder_gateway_client.call(
             method_name="get_nonce", params=params
         )
-        nonce = typing.cast(int, nonce)
-        return nonce
+        nonce = typing.cast(str, nonce)
+        return int(nonce, 16)
 
 
 def get_block_identifier(
