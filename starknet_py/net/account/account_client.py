@@ -378,6 +378,11 @@ class AccountClient(Client):
         :return: Signed Declare transaction
         """
         # pylint: disable=too-many-arguments
+        if self.supported_tx_version != 1:
+            raise ValueError(
+                "Signing declare transactions is only supported with transaction version 1"
+            )
+
         compiled_contract = create_compiled_contract(
             compilation_source, compiled_contract, cairo_path
         )
