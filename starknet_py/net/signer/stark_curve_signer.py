@@ -84,5 +84,6 @@ class StarkCurveSigner(BaseSigner):
             version=transaction.version,
             nonce=transaction.nonce,
         )
+        # pylint: disable=invalid-name
         r, s = message_signature(msg_hash=tx_hash, priv_key=self.private_key)
         return [r, s]
