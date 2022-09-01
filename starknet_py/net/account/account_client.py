@@ -38,7 +38,9 @@ from starknet_py.net.networks import Network, MAINNET, TESTNET
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
 from starknet_py.net.signer import BaseSigner
 from starknet_py.utils.crypto.facade import Call
-from starknet_py.utils.data_transformer.execute_transformer import execute_transformer
+from starknet_py.utils.data_transformer.execute_transformer import (
+    execute_transformer_by_version,
+)
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.net.models.address import AddressRepresentation, parse_address
 
@@ -261,7 +263,17 @@ class AccountClient(Client):
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
         :param version: Transaction version is supported_tx_version as a default
         :return: InvokeFunction created from the calls (without the signature)
+
+        .. deprecated:: 0.4.7
+            This method has been deprecated. Use :meth:`AccountClient.sign_invoke_transaction` to create an already
+            signed invoke transactions from calls.
         """
+        warnings.warn(
+            "prepare_invoke_function has been deprecated. "
+            "Use AccountClient.sign_invoke_transaction to create an already signed invoke function.",
+            category=DeprecationWarning,
+        )
+
         if version is None:
             version = self.supported_tx_version
 
@@ -283,6 +295,7 @@ class AccountClient(Client):
         if version == 0:
             calldata_py.append(nonce)
 
+        execute_transformer = execute_transformer_by_version(version)
         wrapped_calldata, _ = execute_transformer.from_python(*calldata_py)
 
         transaction = make_invoke_function_by_version(
@@ -339,20 +352,49 @@ class AccountClient(Client):
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
         :param version: Transaction version
         :return: InvokeFunction created from the calls
+
+        .. deprecated:: 0.4.7
+            sign_transaction has been deprecated. Use :meth:`AccountClient.sign_invoke_transaction` instead.
+        """
+        warnings.warn(
+            "sign_transaction has been deprecated. Use AccountClient.sign_invoke_transaction instead.",
+            category=DeprecationWarning,
+        )
+        return await self.sign_invoke_transaction(
+            calls, max_fee, auto_estimate, version
+        )
+
+    async def sign_invoke_transaction(
+        self,
+        calls: Calls,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+        version: Optional[int] = None,
+    ) -> InvokeFunction:
+        """
+        Takes calls and creates signed InvokeFunction
+
+        :param calls: Single call or list of calls
+        :param max_fee: Max amount of Wei to be paid when executing transaction
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
+        :param version: Transaction version
+        :return: InvokeFunction created from the calls
         """
         if version is None:
             version = self.supported_tx_version
 
-        execute_tx = await self.prepare_invoke_function(
-            calls, max_fee, auto_estimate, version
-        )
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            execute_tx = await self.prepare_invoke_function(
+                calls, max_fee, auto_estimate, version
+            )
 
         signature = self.signer.sign_transaction(execute_tx)
         execute_tx = add_signature_to_transaction(execute_tx, signature)
 
         return execute_tx
 
-    def create_declare_transaction(
+    async def sign_declare_transaction(
         self,
         compilation_source: Optional[StarknetCompilationSource] = None,
         compiled_contract: Optional[str] = None,
@@ -361,7 +403,8 @@ class AccountClient(Client):
         auto_estimate: bool = False,
     ) -> Declare:
         """
-        Create declaration tx.
+        Create and sign declare transaction.
+
         Either `compilation_source` or `compiled_contract` is required.
 
         :param compilation_source: string containing source code or a list of source files paths
@@ -370,9 +413,14 @@ class AccountClient(Client):
         :param cairo_path: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts
         :param max_fee: Max amount of Wei to be paid when executing transaction
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
-        :return: A "Declare" transaction object
+        :return: Signed Declare transaction
         """
         # pylint: disable=too-many-arguments
+        if self.supported_tx_version != 1:
+            raise ValueError(
+                "Signing declare transactions is only supported with transaction version 1"
+            )
+
         compiled_contract = create_compiled_contract(
             compilation_source, compiled_contract, cairo_path
         )
@@ -381,13 +429,14 @@ class AccountClient(Client):
             sender_address=self.address,
             max_fee=0,
             signature=[],
-            nonce=self._get_nonce(),
+            nonce=await self._get_nonce(),
             version=self.supported_tx_version,
         )
 
-        max_fee = self._get_max_fee(
+        max_fee = await self._get_max_fee(
             transaction=declare_tx, max_fee=max_fee, auto_estimate=auto_estimate
         )
+        declare_tx = dataclasses.replace(declare_tx, max_fee=max_fee)
         signature = self.signer.sign_transaction(declare_tx)
 
         return dataclasses.replace(declare_tx, signature=signature, max_fee=max_fee)
@@ -419,7 +468,7 @@ class AccountClient(Client):
         :param version: Transaction version
         :return: SentTransactionResponse
         """
-        execute_transaction = await self.sign_transaction(
+        execute_transaction = await self.sign_invoke_transaction(
             calls, max_fee, auto_estimate, version
         )
         return await self.send_transaction(execute_transaction)

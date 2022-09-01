@@ -4,6 +4,7 @@ from typing import Union, Optional, List
 
 import aiohttp
 from marshmallow import EXCLUDE
+from starkware.starknet.services.api.gateway.transaction import AccountTransaction
 
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import (
@@ -211,7 +212,7 @@ class GatewayClient(Client):
         )
         res = await self._feeder_gateway_client.post(
             method_name="estimate_fee",
-            payload=InvokeFunction.Schema().dump(tx),
+            payload=AccountTransaction.Schema().dump(tx),
             params=block_identifier,
         )
 
@@ -380,8 +381,8 @@ class GatewayClient(Client):
         nonce = await self._feeder_gateway_client.call(
             method_name="get_nonce", params=params
         )
-        nonce = typing.cast(int, nonce)
-        return nonce
+        nonce = typing.cast(str, nonce)
+        return int(nonce, 16)
 
 
 def get_block_identifier(
