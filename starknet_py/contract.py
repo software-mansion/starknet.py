@@ -162,7 +162,11 @@ class PreparedFunctionCall(Call):
         :param block_hash: Optional block hash
         :return: list of ints
         """
-        tx = self._make_invoke_function(signature)
+        if self.version == 1:
+            tx = self
+        else:
+            tx = self._make_invoke_function(signature)
+
         return await self._client.call_contract(invoke_tx=tx, block_hash=block_hash)
 
     async def call(
@@ -240,7 +244,7 @@ class PreparedFunctionCall(Call):
     def _make_invoke_function(self, signature) -> InvokeFunction:
         return InvokeFunction(
             contract_address=self._contract_data.address,
-            entry_point_selector=self.selector,
+            entry_point_selector=None if self.version == 1 else self.selector,
             calldata=self.calldata,
             # List is required here
             signature=[*signature] if signature else [],

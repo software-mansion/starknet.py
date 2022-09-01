@@ -172,7 +172,7 @@ class AccountClient(Client):
 
     async def call_contract(
         self,
-        invoke_tx: InvokeFunction,
+        invoke_tx: Union[InvokeFunction, Call],
         block_hash: Union[Hash, Tag] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> List[int]:
