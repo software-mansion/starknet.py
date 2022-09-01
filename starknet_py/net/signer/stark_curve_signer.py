@@ -7,7 +7,10 @@ from starkware.crypto.signature.signature import (
 from starkware.starknet.core.os.transaction_hash.transaction_hash import (
     calculate_transaction_hash_common,
     TransactionHashPrefix,
+    calculate_declare_transaction_hash,
 )
+
+from starknet_py.net.client_models import Declare, InvokeFunction
 from starknet_py.net.models import (
     AddressRepresentation,
     StarknetChainId,
@@ -51,6 +54,11 @@ class StarkCurveSigner(BaseSigner):
         self,
         transaction: Transaction,
     ) -> List[int]:
+        if isinstance(transaction, Declare):
+            return self._sign_declare_transaction(transaction)
+        return self._sign_transaction(transaction)
+
+    def _sign_transaction(self, transaction: InvokeFunction):
         tx_hash = calculate_transaction_hash_common(
             tx_hash_prefix=TransactionHashPrefix.INVOKE,
             version=transaction.version,
@@ -64,5 +72,17 @@ class StarkCurveSigner(BaseSigner):
             additional_data=[transaction.nonce] if transaction.version == 1 else [],
         )
         # pylint: disable=invalid-name
+        r, s = message_signature(msg_hash=tx_hash, priv_key=self.private_key)
+        return [r, s]
+
+    def _sign_declare_transaction(self, transaction: Declare) -> List[int]:
+        tx_hash = calculate_declare_transaction_hash(
+            contract_class=transaction.contract_class,
+            chain_id=self.chain_id.value,
+            sender_address=self.address,
+            max_fee=transaction.max_fee,
+            version=transaction.version,
+            nonce=transaction.nonce,
+        )
         r, s = message_signature(msg_hash=tx_hash, priv_key=self.private_key)
         return [r, s]
