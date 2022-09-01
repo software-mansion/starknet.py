@@ -18,18 +18,18 @@ from starkware.starknet.core.os.transaction_hash.transaction_hash import (
 
 # noinspection PyPep8Naming
 from starkware.starknet.definitions.transaction_type import TransactionType as TT
-
+from starkware.starknet.definitions import fields
 
 from starknet_py.net.models.chains import StarknetChainId
 from starknet_py.utils.crypto.facade import pedersen_hash
 from starknet_py.utils.docs import as_our_module
-from starkware.starknet.definitions import fields
 
-
+# pylint: disable=too-many-ancestors
 class InvokeFunction(IF):
     # We need to add our default = None here
     # TODO: Remove when tx=0 is removed
     nonce = field(metadata=fields.optional_nonce_metadata, default=None)
+
 
 Deploy = as_our_module(D)
 Transaction = as_our_module(T)

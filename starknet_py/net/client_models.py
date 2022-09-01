@@ -4,17 +4,16 @@ from enum import Enum
 from typing import List, Any, Dict, Optional, Union, Iterable
 from typing_extensions import Literal
 
-from models.transaction import (
+from starkware.starknet.services.api.gateway.transaction import (
+    ContractClass as CD,
+)
+
+from starknet_py.net.models.transaction import (
     InvokeFunction as IF,
     Transaction as T,
     Deploy as D,
     Declare as DCL,
 )
-from starkware.starknet.services.api.gateway.transaction import (
-    ContractClass as CD,
-)
-
-
 from starknet_py.utils.docs import as_our_module
 
 # TODO: Remove those from here in the future
