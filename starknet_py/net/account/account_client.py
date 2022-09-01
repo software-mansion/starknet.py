@@ -267,7 +267,7 @@ class AccountClient(Client):
 
         .. deprecated:: 0.4.7
             This method has been deprecated. Use :meth:`AccountClient.sign_invoke_transaction` to create an already
-            signed invoke transactions from calls..
+            signed invoke transactions from calls.
         """
         warnings.warn(
             "prepare_invoke_function has been deprecated. "
