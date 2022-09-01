@@ -213,7 +213,9 @@ class Client(ABC):
         """
         Call the contract with given instance of InvokeTransaction
 
-        :param invoke_tx: Invoke transaction
+        Warning, InvokeFunction as call_contract parameter has been deprecated in favor of Call.
+
+        :param invoke_tx: Call or InvokeFunction (deprecated)
         :param block_hash: Block's hash or literals `"pending"` or `"latest"`
         :param block_number: Block's number or literals `"pending"` or `"latest"`
         :return: List of integers representing contract's function output (structured like calldata)

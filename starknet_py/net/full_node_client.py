@@ -213,6 +213,12 @@ class FullNodeClient(Client):
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> List[int]:
+        if isinstance(invoke_tx, InvokeFunction):
+            warnings.warn(
+                "InvokeFunctions has been deprecated as a call_contract parameter, use Call instead.",
+                category=DeprecationWarning,
+            )
+
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )

@@ -225,8 +225,11 @@ class GatewayClient(Client):
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> List[int]:
-        """
-        Call the contract with given instance of InvokeTransaction
+        if isinstance(invoke_tx, InvokeFunction):
+            warnings.warn(
+                "InvokeFunctions has been deprecated as a call_contract parameter, use Call instead.",
+                category=DeprecationWarning,
+            )
 
         :param invoke_tx: Invoke transaction
         :param block_hash: Block hash to execute the contract at specific point of time
