@@ -1,3 +1,4 @@
+from dataclasses import field
 from typing import Union, Sequence
 
 from starkware.starknet.public.abi import get_selector_from_name
@@ -22,8 +23,14 @@ from starkware.starknet.definitions.transaction_type import TransactionType as T
 from starknet_py.net.models.chains import StarknetChainId
 from starknet_py.utils.crypto.facade import pedersen_hash
 from starknet_py.utils.docs import as_our_module
+from starkware.starknet.definitions import fields
 
-InvokeFunction = as_our_module(IF)
+
+class InvokeFunction(IF):
+    # We need to add our default = None here
+    # TODO: Remove when tx=0 is removed
+    nonce = field(metadata=fields.optional_nonce_metadata, default=None)
+
 Deploy = as_our_module(D)
 Transaction = as_our_module(T)
 TransactionType = as_our_module(TT)

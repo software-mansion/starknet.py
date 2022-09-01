@@ -4,22 +4,25 @@ from enum import Enum
 from typing import List, Any, Dict, Optional, Union, Iterable
 from typing_extensions import Literal
 
-from starkware.starknet.services.api.gateway.transaction import (
+from models.transaction import (
     InvokeFunction as IF,
     Transaction as T,
-    ContractClass as CD,
     Deploy as D,
     Declare as DCL,
+)
+from starkware.starknet.services.api.gateway.transaction import (
+    ContractClass as CD,
 )
 
 
 from starknet_py.utils.docs import as_our_module
 
-InvokeFunction = as_our_module(IF)
-StarknetTransaction = as_our_module(T)
+# TODO: Remove those from here in the future
+InvokeFunction = IF
+StarknetTransaction = T
 ContractClass = as_our_module(CD)
-Deploy = as_our_module(D)
-Declare = as_our_module(DCL)
+Deploy = D
+Declare = DCL
 
 
 Hash = Union[int, str]
