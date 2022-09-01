@@ -345,6 +345,7 @@ class AccountClient(Client):
         :return: InvokeFunction created from the calls
 
         .. deprecated:: 0.4.7
+            sign_transaction has been deprecate. Use :meth:`AccountClient.sign_invoke_transaction` instead.
         """
         warnings.warn(
             "sign_transaction has been deprecate. Use AccountClient.sign_invoke_transaction instead.",
