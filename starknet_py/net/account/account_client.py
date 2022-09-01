@@ -356,7 +356,7 @@ class AccountClient(Client):
 
         return execute_tx
 
-    def create_declare_transaction(
+    async def create_declare_transaction(
         self,
         compilation_source: Optional[StarknetCompilationSource] = None,
         compiled_contract: Optional[str] = None,
@@ -385,13 +385,14 @@ class AccountClient(Client):
             sender_address=self.address,
             max_fee=0,
             signature=[],
-            nonce=self._get_nonce(),
+            nonce=await self._get_nonce(),
             version=self.supported_tx_version,
         )
 
-        max_fee = self._get_max_fee(
+        max_fee = await self._get_max_fee(
             transaction=declare_tx, max_fee=max_fee, auto_estimate=auto_estimate
         )
+        declare_tx = dataclasses.replace(declare_tx, max_fee=max_fee)
         signature = self.signer.sign_transaction(declare_tx)
 
         return dataclasses.replace(declare_tx, signature=signature, max_fee=max_fee)
