@@ -350,7 +350,9 @@ class AccountClient(Client):
             "sign_transaction has been deprecate. Use AccountClient.sign_invoke_transaction instead.",
             category=DeprecationWarning,
         )
-        return await self.sign_invoke_transaction(calls, max_fee, auto_estimate, version)
+        return await self.sign_invoke_transaction(
+            calls, max_fee, auto_estimate, version
+        )
 
     async def sign_invoke_transaction(
         self,
