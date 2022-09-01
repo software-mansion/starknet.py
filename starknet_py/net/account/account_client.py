@@ -343,6 +343,30 @@ class AccountClient(Client):
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
         :param version: Transaction version
         :return: InvokeFunction created from the calls
+
+        .. deprecated:: 0.4.7
+        """
+        warnings.warn(
+            "sign_transaction has been deprecate. Use AccountClient.sign_invoke_transaction instead.",
+            category=DeprecationWarning,
+        )
+        return await self.sign_invoke_transaction(calls, max_fee, auto_estimate, version)
+
+    async def sign_invoke_transaction(
+        self,
+        calls: Calls,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+        version: Optional[int] = None,
+    ) -> InvokeFunction:
+        """
+        Takes calls and creates signed InvokeFunction
+
+        :param calls: Single call or list of calls
+        :param max_fee: Max amount of Wei to be paid when executing transaction
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
+        :param version: Transaction version
+        :return: InvokeFunction created from the calls
         """
         if version is None:
             version = self.supported_tx_version
@@ -356,7 +380,7 @@ class AccountClient(Client):
 
         return execute_tx
 
-    async def create_declare_transaction(
+    async def sign_declare_transaction(
         self,
         compilation_source: Optional[StarknetCompilationSource] = None,
         compiled_contract: Optional[str] = None,
@@ -430,7 +454,7 @@ class AccountClient(Client):
         :param version: Transaction version
         :return: SentTransactionResponse
         """
-        execute_transaction = await self.sign_transaction(
+        execute_transaction = await self.sign_invoke_transaction(
             calls, max_fee, auto_estimate, version
         )
         return await self.send_transaction(execute_transaction)
