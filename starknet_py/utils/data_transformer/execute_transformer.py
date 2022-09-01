@@ -59,6 +59,7 @@ abi_v1 = [
     },
 ]
 
+abi = abi_v0
 
 execute_transformer = FunctionCallSerializer(
     abi=abi_v0[0], identifier_manager=identifier_manager_from_abi(abi_v0)
