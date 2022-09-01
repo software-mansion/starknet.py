@@ -264,7 +264,17 @@ class AccountClient(Client):
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
         :param version: Transaction version is supported_tx_version as a default
         :return: InvokeFunction created from the calls (without the signature)
+
+        .. deprecated:: 0.4.7
+            This method has been deprecated. Use :meth:`AccountClient.sign_invoke_transaction` to create an already
+            signed invoke transactions from calls..
         """
+        warnings.warn(
+            "prepare_invoke_function has been deprecated. "
+            "Use AccountClient.sign_invoke_transaction to create an already signed invoke function.",
+            category=DeprecationWarning,
+        )
+
         if version is None:
             version = self.supported_tx_version
 
@@ -374,9 +384,11 @@ class AccountClient(Client):
         if version is None:
             version = self.supported_tx_version
 
-        execute_tx = await self.prepare_invoke_function(
-            calls, max_fee, auto_estimate, version
-        )
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            execute_tx = await self.prepare_invoke_function(
+                calls, max_fee, auto_estimate, version
+            )
 
         signature = self.signer.sign_transaction(execute_tx)
         execute_tx = add_signature_to_transaction(execute_tx, signature)
