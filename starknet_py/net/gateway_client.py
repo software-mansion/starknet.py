@@ -231,12 +231,6 @@ class GatewayClient(Client):
                 category=DeprecationWarning,
             )
 
-        :param invoke_tx: Invoke transaction
-        :param block_hash: Block hash to execute the contract at specific point of time
-        :param block_number: Block number (or "pending" for pending block)
-            to execute the contract at (default "pending")
-        :return: List of integers representing contract's function output (structured like calldata)
-        """
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
