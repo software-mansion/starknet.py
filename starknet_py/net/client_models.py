@@ -1,3 +1,4 @@
+import warnings
 from abc import ABC
 from dataclasses import dataclass
 from enum import Enum
@@ -152,13 +153,20 @@ class TransactionReceipt:
     hash: int
     status: TransactionStatus
     block_number: Optional[int] = None
-    version: int = 0
     actual_fee: int = 0
     rejection_reason: Optional[str] = None
 
     events: List[Event] = None
     l2_to_l1_messages: List[L2toL1Message] = None
     l1_to_l2_consumed_message: Optional[L1toL2Message] = None
+
+    @property
+    def version(self):
+        warnings.warn(
+            "Field version is deprecated as it is always incorrectly set to 0. It will be removed in the future",
+            category=DeprecationWarning,
+        )
+        return 0
 
 
 @dataclass
