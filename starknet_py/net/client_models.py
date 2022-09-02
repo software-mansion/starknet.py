@@ -88,6 +88,8 @@ class Transaction(ABC):
     hash: int
     signature: List[int]
     max_fee: int
+    version: int
+    nonce: int
 
     def __post_init__(self):
         if self.__class__ == Transaction:

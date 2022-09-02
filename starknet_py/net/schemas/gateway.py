@@ -69,7 +69,9 @@ class L2toL1MessageSchema(Schema):
 class TransactionSchema(Schema):
     hash = Felt(data_key="transaction_hash", required=True)
     signature = fields.List(Felt(), data_key="signature", load_default=[])
-    max_fee = Felt(load_default=0)
+    max_fee = Felt(data_key="max_fee", load_default=0)
+    version = Felt(data_key="version", required=True)
+    nonce = Felt(data_key="nonce", load_default=None)
 
 
 class InvokeTransactionSchema(TransactionSchema):
