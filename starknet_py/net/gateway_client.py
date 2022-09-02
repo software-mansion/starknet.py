@@ -238,7 +238,7 @@ class GatewayClient(Client):
         res = await self._feeder_gateway_client.post(
             method_name="call_contract",
             params=block_identifier,
-            payload=get_call_payload(invoke_tx),
+            payload=_get_call_payload(invoke_tx),
         )
 
         return [int(v, 16) for v in res["result"]]
@@ -403,7 +403,7 @@ def get_block_identifier(
     return {"blockNumber": "pending"}
 
 
-def get_call_payload(tx: Union[InvokeFunction, Call]) -> dict:
+def _get_call_payload(tx: Union[InvokeFunction, Call]) -> dict:
     if isinstance(tx, InvokeFunction):
         return tx.dump()
     return {

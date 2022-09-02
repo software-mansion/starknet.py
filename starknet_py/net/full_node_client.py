@@ -225,7 +225,7 @@ class FullNodeClient(Client):
         res = await self._client.call(
             method_name="call",
             params={
-                "request": get_call_payload(invoke_tx),
+                "request": _get_call_payload(invoke_tx),
                 **block_identifier,
             },
         )
@@ -444,7 +444,7 @@ def get_block_identifier(
     return {"block_id": "pending"}
 
 
-def get_call_payload(tx: Union[InvokeFunction, Call]) -> dict:
+def _get_call_payload(tx: Union[InvokeFunction, Call]) -> dict:
     if isinstance(tx, InvokeFunction):
         return {
             "contract_address": convert_to_felt(tx.contract_address),
