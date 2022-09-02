@@ -44,6 +44,7 @@ async def test_get_deploy_transaction(
             signature=[],
             max_fee=0,
             class_hash=class_hash,
+            version=0,
         )
 
 
@@ -60,6 +61,8 @@ async def test_get_declare_transaction(clients, declare_transaction_hash, class_
         hash=declare_transaction_hash,
         signature=[],
         max_fee=0,
+        version=0,
+        nonce=None,
     )
 
 
@@ -81,6 +84,8 @@ async def test_get_invoke_transaction(
             hash=invoke_transaction_hash,
             signature=[],
             max_fee=0,
+            version=0,
+            nonce=None,
         )
 
 
@@ -122,6 +127,7 @@ async def test_get_block_by_hash(
                     signature=[],
                     max_fee=0,
                     class_hash=class_hash,
+                    version=0,
                 )
             ],
         )
@@ -155,6 +161,7 @@ async def test_get_block_by_number(
                     signature=[],
                     class_hash=class_hash,
                     max_fee=0,
+                    version=0,
                 )
             ],
         )

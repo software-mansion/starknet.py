@@ -70,14 +70,14 @@ class TransactionSchema(Schema):
     hash = Felt(data_key="transaction_hash", required=True)
     signature = fields.List(Felt(), data_key="signature", load_default=[])
     max_fee = Felt(data_key="max_fee", load_default=0)
-    version = Felt(data_key="version", required=True)
-    nonce = Felt(data_key="nonce", load_default=None)
+    version = Felt(data_key="version", load_default=0)
 
 
 class InvokeTransactionSchema(TransactionSchema):
     contract_address = Felt(data_key="contract_address", required=True)
     calldata = fields.List(Felt(), data_key="calldata", required=True)
     entry_point_selector = Felt(data_key="entry_point_selector", required=True)
+    nonce = Felt(data_key="nonce", load_default=None)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> InvokeTransaction:
@@ -99,6 +99,7 @@ class DeployTransactionSchema(TransactionSchema):
 class DeclareTransactionSchema(TransactionSchema):
     class_hash = Felt(data_key="class_hash", required=True)
     sender_address = Felt(data_key="sender_address", required=True)
+    nonce = Felt(data_key="nonce", load_default=None)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> DeclareTransaction:

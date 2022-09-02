@@ -32,6 +32,7 @@ async def test_node_get_transaction_by_block_id_and_index(
         max_fee=0,
         signature=[],
         class_hash=class_hash,
+        version=0,
     )
 
 
@@ -48,6 +49,7 @@ async def test_node_get_deploy_transaction_by_block_id_and_index(
         max_fee=0,
         signature=[],
         class_hash=class_hash,
+        version=0,
     )
 
 
@@ -63,6 +65,8 @@ async def test_node_get_declare_transaction_by_block_number_and_index(
         hash=declare_transaction_hash,
         signature=[],
         max_fee=0,
+        version=0,
+        nonce=None,
     )
 
 
