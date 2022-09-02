@@ -1,9 +1,15 @@
-0.4.8 Migration guide
+0.5.0 Migration guide
 =====================
 
-0.4.8 of starknet.py brings fresh changes including a breaking change in contracts' code.
-To ensure smooth migration to this version please familiarize yourself with this
-migration guide.
+``cairo-lang`` 0.10.0 brings a lot of new exciting changes, like:
+
+- new cairo syntax,
+- new transaction version (1),
+- new ``__validate__`` endpoint in accounts.
+
+``starknet.py`` 0.5.0 has an experimental support for new features and tries to minimize number of breaking changes for
+users who want to use the old transaction version (0). Please note that support for this transaction version will be
+removed in the future.
 
 Breaking Changes
 -----------------------
@@ -17,53 +23,43 @@ You can see the new syntax `here <https://starkware.notion.site/starkware/StarkN
 
 As a result, the **old syntax is no longer supported**.
 
+.. note::
+
+    This only applies to you if you compile your cairo programs using starknet.py. If you use
+    programs that are already compiled you don't need to worry.
+
+
 For the already existent programs to be compatible with the new StarkNet version,
-they would have to be migrated using ``cairo-migrate`` command from CLI.
+they would have to be migrated using ``cairo-migrate`` command from CLI. It is a part of `cairo-lang` package.
+
+To migrate old syntax to the old one in place run:
 
 .. code-block::
 
-    > cairo-migrate --help
-    usage: cairo-migrate [-h] [-v] [--one_item_per_line] [--no_one_item_per_line] [-i | -c] [--migrate_syntax] [--no_migrate_syntax] [--single_return_functions]
-                         [--no_single_return_functions]
-                         file [file ...]
-
-    A tool to migrate Cairo code from versions before 0.10.0.
-
-    positional arguments:
-      file                  File names
-
-    optional arguments:
-      -h, --help            show this help message and exit
-      -v, --version         show program's version number and exit
-      --one_item_per_line   Put each list item (e.g., function arguments) in a separate line, if the list doesn't fit into a single line.
-      --no_one_item_per_line
-                            Don't use one per line formatting (see --one_item_per_line).
-      -i                    Edit files inplace.
-      -c                    Check files' formats.
-      --migrate_syntax      Convert the syntax from Cairo versions before 0.10.0.
-      --no_migrate_syntax   Don't convert the syntax. This flag should only be used if the syntax was already migrated.
-      --single_return_functions
-                            In version 0.10.0 some standard library functions, such as abs(), have changed to return 'felt' instead of '(res: felt)'. This requires syntax
-                            changes in the calling functions. For example, 'let (x) = abs(-5)' should change to 'let x = abs(-5)'.
-      --no_single_return_functions
-                            Don't migrate calls to some single-return functions, such as abs(). See '--single_return_functions'.
+    > cairo-migrate FILES_LIST -i
 
 Python versions
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-Following Cairo's technical change of moving from ``python3.7`` to ``python3.9``,
-starknet.py has dropped support for version ``python3.7``.
+We drop support for python 3.7.X, following `cairo-lang` support. You must use python 3.8+ to use starknet.py 0.5.0.
 
-Currently, compatible Python versions are ``python3.8`` and ``python3.9``.
+InvokeFunction and Declare
+^^^^^^^^^^^^^^^^^^^^^^^
+
+A new required parameter, ``nonce``, was added to them. Use ``None`` for transaction version = 0 and a proper nonce value for
+new transaction version = 1.
 
 New Transaction version
 -----------------------
 
-Cairo 0.10.0 brings new version of the transaction.
-The differences:
+Cairo 0.10.0 brings a transaction version = 1:
+- `Deploy` transactions are no longer available,
+- user accounts need to have `__validate__` and `__validate_declare__` functions,
+- transactions have different fields,
+- contracts have a native nonce field available.
 
-- The field ``entry_point_selector`` is removed
-- A nonce field is added
+You can still use the old transaction version, but please note it will be removed in the future. Please refer to deprecation
+warnings to see required changes.
 
 For now both (0 nad 1) transaction versions will be accepted but there will be a ``DeprecationWarning`` while using version 0.
 
