@@ -62,7 +62,6 @@ New Transaction version
 Cairo 0.10.0 brings new version of the transaction.
 The differences:
 
-- ``contract_address`` field is now called ``account_contract_address``
 - The field ``entry_point_selector`` is removed
 - A nonce field is added
 

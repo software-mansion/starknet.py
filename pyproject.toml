@@ -14,14 +14,14 @@ repository = "https://github.com/software-mansion/starknet.py"
 documentation = "https://starknetpy.rtfd.io/"
 
 [tool.poetry.dependencies]
-python = ">=3.7.2,<3.10"
+python = ">=3.8, <3.10"
 asgiref = "^3.4.1"
 sphinx = {version = "^4.3.1", optional = true}
 enum-tools = {extras = ["sphinx"], version = "0.9.0", optional = true}
 crypto-cpp-py = "^1.0.4"
 marshmallow = "^3.15.0"
 marshmallow-oneofschema = "^3.0.1"
-cairo-lang = "0.9.1"
+cairo-lang = { url = "https://github.com/starkware-libs/cairo-lang/releases/download/v0.10.0-pre/cairo-lang-0.10.0.zip" }
 typing-extensions = "^4.3.0"
 
 [tool.poetry.extras]
@@ -36,11 +36,10 @@ coverage = "^6.1.2"
 pytest-asyncio = "^0.16.0"
 sphinx-rtd-theme = "^1.0.0"
 pylint = "2.13.5"
-setuptools = "^60.0.3"
+setuptools = "^65.3.0"
 pytest-mock = "^3.6.1"
 pytest-xdist = "^2.5.0"
 web3 = {extras=["tester"], version="6.0.0b4"}
-starknet-devnet = "0.2.11"
 
 
 [tool.poe.tasks]
