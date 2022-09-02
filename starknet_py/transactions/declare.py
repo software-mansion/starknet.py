@@ -33,7 +33,7 @@ def make_declare_tx(
     """
     warnings.warn(
         "Unsigned declare transactions will not be supported in the future versions of StarkNet. Please use "
-        "AccountClient.create_declare_transaction instead,",
+        "AccountClient.sign_declare_transaction instead,",
         category=DeprecationWarning,
     )
     compiled_contract = create_compiled_contract(

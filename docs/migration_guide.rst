@@ -74,6 +74,39 @@ It is set to 0 as default so there is no need to set it while using old account.
 
     In the future versions default value of ``supported_tx_version`` will be changed to 1. This will happen when the old account is deprecated.
 
+Deprecated Features
+-------------------
+
+InvokeFunction as call_contract parameter
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``InvokeFunction`` has been deprecated as a call_contract parameter. Users should use ``Call`` instead.
+
+Transaction version 0
+^^^^^^^^^^^^^^^^^^^^^
+
+Although transactions version 0 are still valid, users should switch to Accounts supporting transaction version 1.
+
+AccountClient's methods
+^^^^^^^^^^^^^^^^^^^^^^^
+
+The following :ref:`AccountClient`'s methods has been deprecated:
+
+- :meth:`~starknet_py.net.account.account_client.AccountClient.prepare_invoke_function`, :meth:`~starknet_py.net.account.account_client.AccountClient.sign_invoke_transaction` should be used instead.
+- :meth:`~starknet_py.net.account.account_client.AccountClient.sign_transaction`, :meth:`~starknet_py.net.account.account_client.AccountClient.sign_invoke_transaction` should be used instead.
+
+Unsigned declare transaction
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``make_declare_tx`` is deprecated, because in the future versions of StarkNet unsigned declare transactions will not be
+supported. :meth:`~starknet_py.net.account.account_client.AccountClient.sign_declare_transaction` should be used to create
+and sign declare transaction.
+
+Deploy transaction
+^^^^^^^^^^^^^^^^^^
+
+Deploy transactions will not be supported in the future versions of StarkNet, so ``make_deploy_tx`` is deprecated.
+Contracts should be deployed through cairo syscall.
 
 0.4.0 Migration guide
 =====================
