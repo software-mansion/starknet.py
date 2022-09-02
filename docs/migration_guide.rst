@@ -39,12 +39,12 @@ To migrate old syntax to the old one in place run:
     > cairo-migrate FILES_LIST -i
 
 Python versions
-^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^
 
 We drop support for python 3.7.X, following `cairo-lang` support. You must use python 3.8+ to use starknet.py 0.5.0.
 
 InvokeFunction and Declare
-^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 A new required parameter, ``nonce``, was added to them. Use ``None`` for transaction version = 0 and a proper nonce value for
 new transaction version = 1.
@@ -53,6 +53,7 @@ New Transaction version
 -----------------------
 
 Cairo 0.10.0 brings a transaction version = 1:
+
 - `Deploy` transactions are no longer available,
 - user accounts need to have `__validate__` and `__validate_declare__` functions,
 - transactions have different fields,
