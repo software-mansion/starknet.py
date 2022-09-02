@@ -25,6 +25,7 @@ from starknet_py.net.client_models import (
     BlockTransactionTraces,
     DeclareTransactionResponse,
     DeployTransactionResponse,
+    Call,
 )
 from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.models import (
@@ -208,24 +209,23 @@ class FullNodeClient(Client):
 
     async def call_contract(
         self,
-        invoke_tx: InvokeFunction,
+        invoke_tx: Union[InvokeFunction, Call],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> List[int]:
+        if isinstance(invoke_tx, InvokeFunction):
+            warnings.warn(
+                "InvokeFunctions has been deprecated as a call_contract parameter, use Call instead.",
+                category=DeprecationWarning,
+            )
+
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
-
         res = await self._client.call(
             method_name="call",
             params={
-                "request": {
-                    "contract_address": convert_to_felt(invoke_tx.contract_address),
-                    "entry_point_selector": convert_to_felt(
-                        invoke_tx.entry_point_selector
-                    ),
-                    "calldata": [convert_to_felt(i) for i in invoke_tx.calldata],
-                },
+                "request": _get_call_payload(invoke_tx),
                 **block_identifier,
             },
         )
@@ -442,3 +442,18 @@ def get_block_identifier(
         return {"block_id": {"block_number": block_number}}
 
     return {"block_id": "pending"}
+
+
+def _get_call_payload(tx: Union[InvokeFunction, Call]) -> dict:
+    if isinstance(tx, InvokeFunction):
+        return {
+            "contract_address": convert_to_felt(tx.contract_address),
+            "entry_point_selector": convert_to_felt(tx.entry_point_selector),
+            "calldata": [convert_to_felt(i) for i in tx.calldata],
+        }
+
+    return {
+        "contract_address": convert_to_felt(tx.to_addr),
+        "entry_point_selector": convert_to_felt(tx.selector),
+        "calldata": [convert_to_felt(i) for i in tx.calldata],
+    }

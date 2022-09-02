@@ -26,6 +26,7 @@ from starknet_py.net.client_models import (
     DeployTransactionResponse,
     DeclareTransactionResponse,
     TransactionReceipt,
+    Call,
 )
 from starknet_py.net.schemas.gateway import (
     ContractCodeSchema,
@@ -220,19 +221,16 @@ class GatewayClient(Client):
 
     async def call_contract(
         self,
-        invoke_tx: InvokeFunction,
+        invoke_tx: Union[InvokeFunction, Call],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> List[int]:
-        """
-        Call the contract with given instance of InvokeTransaction
+        if isinstance(invoke_tx, InvokeFunction):
+            warnings.warn(
+                "InvokeFunctions has been deprecated as a call_contract parameter, use Call instead.",
+                category=DeprecationWarning,
+            )
 
-        :param invoke_tx: Invoke transaction
-        :param block_hash: Block hash to execute the contract at specific point of time
-        :param block_number: Block number (or "pending" for pending block)
-            to execute the contract at (default "pending")
-        :return: List of integers representing contract's function output (structured like calldata)
-        """
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -240,7 +238,7 @@ class GatewayClient(Client):
         res = await self._feeder_gateway_client.post(
             method_name="call_contract",
             params=block_identifier,
-            payload=InvokeFunction.Schema().dump(invoke_tx),
+            payload=_get_call_payload(invoke_tx),
         )
 
         return [int(v, 16) for v in res["result"]]
@@ -403,3 +401,13 @@ def get_block_identifier(
         return {"blockNumber": block_number}
 
     return {"blockNumber": "pending"}
+
+
+def _get_call_payload(tx: Union[InvokeFunction, Call]) -> dict:
+    if isinstance(tx, InvokeFunction):
+        return tx.dump()
+    return {
+        "contract_address": hex(tx.to_addr),
+        "entry_point_selector": hex(tx.selector),
+        "calldata": [str(i) for i in tx.calldata],
+    }
