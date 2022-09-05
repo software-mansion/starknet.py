@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import dataclasses
 import sys
+import warnings
 from dataclasses import dataclass
 from typing import (
     List,
@@ -161,7 +162,11 @@ class PreparedFunctionCall(Call):
         :param block_hash: Optional block hash
         :return: list of ints
         """
-        tx = self._make_invoke_function(signature)
+        if self.version == 1:
+            tx = self
+        else:
+            tx = self._make_invoke_function(signature)
+
         return await self._client.call_contract(invoke_tx=tx, block_hash=block_hash)
 
     async def call(
@@ -230,7 +235,7 @@ class PreparedFunctionCall(Call):
                 "Cannot estimate fee of PreparedFunctionCall with max_fee not None or 0."
             )
 
-        tx = await self._client.sign_transaction(self, max_fee=0, version=0)
+        tx = await self._client.sign_transaction(self, max_fee=0, version=self.version)
 
         return await self._client.estimate_fee(
             tx=tx, block_hash=block_hash, block_number=block_number
@@ -239,12 +244,13 @@ class PreparedFunctionCall(Call):
     def _make_invoke_function(self, signature) -> InvokeFunction:
         return InvokeFunction(
             contract_address=self._contract_data.address,
-            entry_point_selector=self.selector,
+            entry_point_selector=None if self.version == 1 else self.selector,
             calldata=self.calldata,
             # List is required here
             signature=[*signature] if signature else [],
             max_fee=self.max_fee if self.max_fee is not None else 0,
             version=self.version,
+            nonce=None,
         )
 
     def _assert_can_invoke(self):
@@ -271,7 +277,7 @@ class ContractFunction:
     def prepare(
         self,
         *args,
-        version: int = 0,
+        version: Optional[int] = None,
         max_fee: Optional[int] = None,
         **kwargs,
     ) -> PreparedFunctionCall:
@@ -284,6 +290,20 @@ class ContractFunction:
         :param max_fee: Max amount of Wei to be paid when executing transaction
         :return: PreparedFunctionCall
         """
+        if version is None:
+            version = (
+                self._client.supported_tx_version
+                if isinstance(self._client, AccountClient)
+                else 0
+            )
+
+        if version == 0:
+            warnings.warn(
+                "Transaction with version 0 is deprecated and will be removed in the future. "
+                "Use AccountClient supporting the transaction version 1",
+                category=DeprecationWarning,
+            )
+
         calldata, arguments = self._payload_transformer.from_python(*args, **kwargs)
         return PreparedFunctionCall(
             calldata=calldata,
@@ -300,16 +320,18 @@ class ContractFunction:
         self,
         *args,
         block_hash: Optional[str] = None,
+        version: Optional[int] = None,
         **kwargs,
     ) -> NamedTuple:
         """
         :param block_hash: Block hash to execute the contract at specific point of time
+        :param version: Call version
 
         Call contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.
         The result is translated from Cairo data to python values.
         Equivalent of ``.prepare(*args, **kwargs).call()``.
         """
-        return await self.prepare(max_fee=0, version=0, *args, **kwargs).call(
+        return await self.prepare(max_fee=0, version=version, *args, **kwargs).call(
             block_hash=block_hash
         )
 
