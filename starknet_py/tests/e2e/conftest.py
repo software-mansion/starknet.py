@@ -152,7 +152,11 @@ def rpc_account_client(address_and_private_key, rpc_client):
 
 
 @pytest.fixture(scope="module")
-def account_clients(gateway_account_client, rpc_account_client):
+def account_clients(gateway_account_client, rpc_account_client, pytestconfig):
+    net = pytestconfig.getoption("--net")
+    if net != "devnet":
+        return [gateway_account_client]
+
     return gateway_account_client, rpc_account_client
 
 

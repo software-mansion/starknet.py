@@ -12,6 +12,7 @@ from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import parse_address, StarknetChainId
 from starknet_py.net.networks import TESTNET, MAINNET
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
+from starknet_py.transaction_exceptions import TransactionRejectedError
 from starknet_py.transactions.deploy import make_deploy_tx
 
 MAX_FEE = int(1e20)
@@ -198,6 +199,10 @@ async def test_deploy(account_clients, map_source_code):
 async def test_rejection_reason_in_transaction_receipt(account_clients, map_contract):
     for account_client in account_clients:
         res = await map_contract.functions["put"].invoke(key=10, value=20, max_fee=1)
+
+        with pytest.raises(TransactionRejectedError):
+            await account_client.wait_for_tx(res.hash)
+
         transaction_receipt = await account_client.get_transaction_receipt(res.hash)
 
         assert "Actual fee exceeded max fee." in transaction_receipt.rejection_reason
