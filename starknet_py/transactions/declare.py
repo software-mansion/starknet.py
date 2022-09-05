@@ -27,13 +27,13 @@ def make_declare_tx(
     :param cairo_path: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts
     :return: A "Declare" transaction object
 
-    .. deprecated:: 0.4.7
+    .. deprecated:: 0.5.0
         Unsigned declare transactions will not be supported in the future versions of StarkNet.
         Use :meth:`AccountClient.create_declare_transaction` instead.
     """
     warnings.warn(
         "Unsigned declare transactions will not be supported in the future versions of StarkNet. Please use "
-        "AccountClient.create_declare_transaction instead,",
+        "AccountClient.sign_declare_transaction instead,",
         category=DeprecationWarning,
     )
     compiled_contract = create_compiled_contract(
