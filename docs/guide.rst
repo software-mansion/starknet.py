@@ -57,7 +57,7 @@ Here's how you can deploy new contracts:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_deploying_new_contracts.py
     :language: python
-    :lines: 10-35,39-68
+    :lines: 10-33,37-66
     :dedent: 4
 
 
@@ -201,7 +201,7 @@ Here is a usage example:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_cairo_serializer.py
     :language: python
-    :lines: 9-42,47-52,57-99
+    :lines: 9-39,44-49,54-96
     :dedent: 4
 
 

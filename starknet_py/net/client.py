@@ -21,6 +21,7 @@ from starknet_py.net.client_models import (
     BlockTransactionTraces,
     DeployTransactionResponse,
     DeclareTransactionResponse,
+    Call,
 )
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.networks import Network
@@ -187,7 +188,7 @@ class Client(ABC):
     @abstractmethod
     async def estimate_fee(
         self,
-        tx: InvokeFunction,
+        tx: Union[InvokeFunction, Declare],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
@@ -205,17 +206,23 @@ class Client(ABC):
     @abstractmethod
     async def call_contract(
         self,
-        invoke_tx: InvokeFunction,
+        invoke_tx: Union[InvokeFunction, Call],
         block_hash: Union[Hash, Tag] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> List[int]:
         """
         Call the contract with given instance of InvokeTransaction
 
-        :param invoke_tx: Invoke transaction
+        Warning, InvokeFunction as call_contract parameter has been deprecated in favor of Call.
+
+        :param invoke_tx: Call or InvokeFunction (deprecated)
         :param block_hash: Block's hash or literals `"pending"` or `"latest"`
         :param block_number: Block's number or literals `"pending"` or `"latest"`
         :return: List of integers representing contract's function output (structured like calldata)
+
+        .. versionchanged:: 5.0.0
+            Added `Call` as possible invoke_tx type.
+            Deprecated InvokeFunction as possible invoke_tx type.
         """
 
     @abstractmethod
@@ -270,4 +277,20 @@ class Client(ABC):
 
         :param class_hash: Class hash
         :return: ContractClass object
+        """
+
+    @abstractmethod
+    async def get_contract_nonce(
+        self,
+        contract_address: int,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> int:
+        """
+        Get the latest nonce associated with the given address
+
+        :param contract_address: Get the latest nonce associated with the given address
+        :param block_hash: Block's hash or literals `"pending"` or `"latest"`
+        :param block_number: Block's number or literals `"pending"` or `"latest"`
+        :return: The last nonce used for the given contract
         """
