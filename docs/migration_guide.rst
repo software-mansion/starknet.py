@@ -11,11 +11,19 @@
 users who want to use the old transaction version (0). Please note that support for this transaction version will be
 removed in the future.
 
+.. note::
+
+    There is no need to upgrade ``starknet.py`` to the newest version because the old one is still compatible with StarkNet.
+    However, an upgrade is required to use the new features.
+
+
 Breaking Changes
 -----------------------
 
 New Cairo syntax
 ^^^^^^^^^^^^^^^^^^^^^^^
+
+.. TODO: Change the new syntax link with a better one once StarkWare releases it.
 
 With the update of `cairo-lang <https://github.com/starkware-libs/cairo-lang>`_ to version ``0.10.0``,
 the syntax of contracts written in cairo changes significantly.
@@ -72,7 +80,7 @@ It is set to 0 as default so there is no need to set it while using old account.
 
 .. note::
 
-    In the future versions default value of ``supported_tx_version`` will be changed to 1. This will happen when the old account is deprecated.
+    In the future versions default value of ``supported_tx_version`` will be changed to 1. This will happen when transaction version = 0 is removed.
 
 Deprecated Features
 -------------------
