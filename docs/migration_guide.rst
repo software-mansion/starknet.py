@@ -1,3 +1,124 @@
+0.5.0 Migration guide
+=====================
+
+``cairo-lang`` 0.10.0 brings a lot of new exciting changes, like:
+
+- new cairo syntax,
+- new transaction version (1),
+- new ``__validate__`` endpoint in accounts.
+
+``starknet.py`` 0.5.0 has an experimental support for new features and tries to minimize number of breaking changes for
+users who want to use the old transaction version (0). Please note that support for this transaction version will be
+removed in the future.
+
+.. note::
+
+    There is no need to upgrade ``starknet.py`` to the newest version because the old one is still compatible with StarkNet.
+    However, an upgrade is required to use the new features.
+
+
+Breaking Changes
+-----------------------
+
+New Cairo syntax
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.. TODO: Change the new syntax link with a better one once StarkWare releases it.
+
+With the update of `cairo-lang <https://github.com/starkware-libs/cairo-lang>`_ to version ``0.10.0``,
+the syntax of contracts written in cairo changes significantly.
+You can see the new syntax `here <https://starkware.notion.site/starkware/StarkNet-0-10-0-4ac978234c384a30a195ce4070461257#8bfeb76259234f32b5f42376f0d976b9>`_.
+
+As a result, the **old syntax is no longer supported**.
+
+.. note::
+
+    This only applies to you if you compile your cairo programs using starknet.py. If you use
+    programs that are already compiled you don't need to worry.
+
+
+For the already existent programs to be compatible with the new StarkNet version,
+they would have to be migrated using ``cairo-migrate`` command from CLI. It is a part of `cairo-lang` package.
+
+To migrate old syntax to the old one in place run:
+
+.. code-block::
+
+    > cairo-migrate FILES_LIST -i
+
+See `cairo-lang release notes <https://github.com/starkware-libs/cairo-lang/releases>`_ for more details about
+the new syntax.
+
+Python versions
+^^^^^^^^^^^^^^^
+
+We drop support for python 3.7.X, following `cairo-lang` support. You must use python 3.8+ to use starknet.py 0.5.0.
+
+InvokeFunction and Declare
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A new required parameter, ``nonce``, was added to them. Use ``None`` for transaction version = 0 and a proper nonce value for
+new transaction version = 1.
+
+New Transaction version
+-----------------------
+
+Cairo 0.10.0 brings a transaction version = 1:
+
+- `Deploy` transactions are no longer available,
+- user accounts need to have `__validate__` and `__validate_declare__` functions,
+- transactions have different fields,
+- contracts have a native nonce field available.
+
+You can still use the old transaction version, but please note it will be removed in the future. Please refer to deprecation
+warnings to see required changes.
+
+For now both (0 nad 1) transaction versions will be accepted but there will be a ``DeprecationWarning`` while using version 0.
+
+AccountClient constructor
+-------------------------
+
+AccountClient's constructor has a new parameter now. ``supported_tx_version`` is used to differentiate between old and new accounts.
+It is set to 0 as default so there is no need to set it while using old account.
+
+.. note::
+
+    In the future versions default value of ``supported_tx_version`` will be changed to 1. This will happen when transaction version = 0 is removed.
+
+Deprecated Features
+-------------------
+
+InvokeFunction as call_contract parameter
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``InvokeFunction`` has been deprecated as a call_contract parameter. Users should use ``Call`` instead.
+
+Transaction version 0
+^^^^^^^^^^^^^^^^^^^^^
+
+Although transactions version 0 are still valid, users should switch to Accounts supporting transaction version 1.
+
+AccountClient's methods
+^^^^^^^^^^^^^^^^^^^^^^^
+
+The following :ref:`AccountClient`'s methods has been deprecated:
+
+- :meth:`~starknet_py.net.account.account_client.AccountClient.prepare_invoke_function`, :meth:`~starknet_py.net.account.account_client.AccountClient.sign_invoke_transaction` should be used instead.
+- :meth:`~starknet_py.net.account.account_client.AccountClient.sign_transaction`, :meth:`~starknet_py.net.account.account_client.AccountClient.sign_invoke_transaction` should be used instead.
+
+Unsigned declare transaction
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``make_declare_tx`` is deprecated, because in the future versions of StarkNet unsigned declare transactions will not be
+supported. :meth:`~starknet_py.net.account.account_client.AccountClient.sign_declare_transaction` should be used to create
+and sign declare transaction.
+
+Deploy transaction
+^^^^^^^^^^^^^^^^^^
+
+Deploy transactions will not be supported in the future versions of StarkNet, so ``make_deploy_tx`` is deprecated.
+Contracts should be deployed through cairo syscall.
+
 0.4.0 Migration guide
 =====================
 

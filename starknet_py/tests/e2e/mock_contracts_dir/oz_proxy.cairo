@@ -4,198 +4,164 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import (
     library_call,
     library_call_l1_handler,
-    get_caller_address
+    get_caller_address,
 )
 from starkware.cairo.common.bool import TRUE, FALSE
 from starkware.cairo.common.math import assert_not_zero
 
-#
-# Constructor
-#
+//
+// Constructor
+//
 
 @constructor
-func constructor{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    }(implementation_hash: felt):
-    Proxy._set_implementation_hash(implementation_hash)
-    return ()
-end
+func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    implementation_hash: felt
+) {
+    Proxy._set_implementation_hash(implementation_hash);
+    return ();
+}
 
-#
-# Fallback functions
-#
+//
+// Fallback functions
+//
 
 @external
 @raw_input
 @raw_output
-func __default__{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    }(
-        selector: felt,
-        calldata_size: felt,
-        calldata: felt*
-    ) -> (
-        retdata_size: felt,
-        retdata: felt*
-    ):
-    let (class_hash) = Proxy.get_implementation_hash()
+func __default__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    selector: felt, calldata_size: felt, calldata: felt*
+) -> (retdata_size: felt, retdata: felt*) {
+    let (class_hash) = Proxy.get_implementation_hash();
 
     let (retdata_size: felt, retdata: felt*) = library_call(
         class_hash=class_hash,
         function_selector=selector,
         calldata_size=calldata_size,
         calldata=calldata,
-    )
-    return (retdata_size=retdata_size, retdata=retdata)
-end
-
+    );
+    return (retdata_size=retdata_size, retdata=retdata);
+}
 
 @l1_handler
 @raw_input
-func __l1_default__{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    }(
-        selector: felt,
-        calldata_size: felt,
-        calldata: felt*
-    ):
-    let (class_hash) = Proxy.get_implementation_hash()
+func __l1_default__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    selector: felt, calldata_size: felt, calldata: felt*
+) {
+    let (class_hash) = Proxy.get_implementation_hash();
 
     library_call_l1_handler(
         class_hash=class_hash,
         function_selector=selector,
         calldata_size=calldata_size,
         calldata=calldata,
-    )
-    return ()
-end
+    );
+    return ();
+}
 
-#
-# Events
-#
-
-@event
-func Upgraded(implementation: felt):
-end
+//
+// Events
+//
 
 @event
-func AdminChanged(previousAdmin: felt, newAdmin: felt):
-end
+func Upgraded(implementation: felt) {
+}
 
-#
-# Storage variables
-#
+@event
+func AdminChanged(previousAdmin: felt, newAdmin: felt) {
+}
 
-@storage_var
-func Proxy_implementation_hash() -> (class_hash: felt):
-end
-
-@storage_var
-func Proxy_admin() -> (proxy_admin: felt):
-end
+//
+// Storage variables
+//
 
 @storage_var
-func Proxy_initialized() -> (initialized: felt):
-end
+func Proxy_implementation_hash() -> (class_hash: felt) {
+}
 
-namespace Proxy:
-    #
-    # Initializer
-    #
+@storage_var
+func Proxy_admin() -> (proxy_admin: felt) {
+}
 
-    func initializer{
-            syscall_ptr: felt*,
-            pedersen_ptr: HashBuiltin*,
-            range_check_ptr
-        }(proxy_admin: felt):
-        let (initialized) = Proxy_initialized.read()
-        with_attr error_message("Proxy: contract already initialized"):
-            assert initialized = FALSE
-        end
+@storage_var
+func Proxy_initialized() -> (initialized: felt) {
+}
 
-        Proxy_initialized.write(TRUE)
-        _set_admin(proxy_admin)
-        return ()
-    end
+namespace Proxy {
+    //
+    // Initializer
+    //
 
-    #
-    # Guards
-    #
+    func initializer{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        proxy_admin: felt
+    ) {
+        let (initialized) = Proxy_initialized.read();
+        with_attr error_message("Proxy: contract already initialized") {
+            assert initialized = FALSE;
+        }
 
-    func assert_only_admin{
-            syscall_ptr: felt*,
-            pedersen_ptr: HashBuiltin*,
-            range_check_ptr
-        }():
-        let (caller) = get_caller_address()
-        let (admin) = Proxy_admin.read()
-        with_attr error_message("Proxy: caller is not admin"):
-            assert admin = caller
-        end
-        return ()
-    end
+        Proxy_initialized.write(TRUE);
+        _set_admin(proxy_admin);
+        return ();
+    }
 
-    #
-    # Getters
-    #
+    //
+    // Guards
+    //
 
-    func get_implementation_hash{
-            syscall_ptr: felt*,
-            pedersen_ptr: HashBuiltin*,
-            range_check_ptr
-        }() -> (implementation: felt):
-        let (implementation) = Proxy_implementation_hash.read()
-        return (implementation)
-    end
+    func assert_only_admin{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
+        let (caller) = get_caller_address();
+        let (admin) = Proxy_admin.read();
+        with_attr error_message("Proxy: caller is not admin") {
+            assert admin = caller;
+        }
+        return ();
+    }
 
-    func get_admin{
-            syscall_ptr: felt*,
-            pedersen_ptr: HashBuiltin*,
-            range_check_ptr
-        }() -> (admin: felt):
-        let (admin) = Proxy_admin.read()
-        return (admin)
-    end
+    //
+    // Getters
+    //
 
-    #
-    # Unprotected
-    #
+    func get_implementation_hash{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        ) -> (implementation: felt) {
+        let (implementation) = Proxy_implementation_hash.read();
+        return (implementation,);
+    }
 
-    func _set_admin{
-            syscall_ptr: felt*,
-            pedersen_ptr: HashBuiltin*,
-            range_check_ptr
-        }(new_admin: felt):
-        let (previous_admin) = get_admin()
-        Proxy_admin.write(new_admin)
-        AdminChanged.emit(previous_admin, new_admin)
-        return ()
-    end
+    func get_admin{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
+        admin: felt
+    ) {
+        let (admin) = Proxy_admin.read();
+        return (admin,);
+    }
 
-    #
-    # Upgrade
-    #
+    //
+    // Unprotected
+    //
 
-    # added for testing purposes
+    func _set_admin{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        new_admin: felt
+    ) {
+        let (previous_admin) = get_admin();
+        Proxy_admin.write(new_admin);
+        AdminChanged.emit(previous_admin, new_admin);
+        return ();
+    }
+
+    //
+    // Upgrade
+    //
+
+    // added for testing purposes
     @external
-    func _set_implementation_hash{
-            syscall_ptr: felt*,
-            pedersen_ptr: HashBuiltin*,
-            range_check_ptr
-        }(new_implementation: felt):
-        with_attr error_message("Proxy: implementation hash cannot be zero"):
-            assert_not_zero(new_implementation)
-        end
+    func _set_implementation_hash{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        new_implementation: felt
+    ) {
+        with_attr error_message("Proxy: implementation hash cannot be zero") {
+            assert_not_zero(new_implementation);
+        }
 
-        Proxy_implementation_hash.write(new_implementation)
-        Upgraded.emit(new_implementation)
-        return ()
-    end
-
-end
+        Proxy_implementation_hash.write(new_implementation);
+        Upgraded.emit(new_implementation);
+        return ();
+    }
+}
