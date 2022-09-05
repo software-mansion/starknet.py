@@ -46,6 +46,9 @@ To migrate old syntax to the old one in place run:
 
     > cairo-migrate FILES_LIST -i
 
+See `cairo-lang release notes <https://github.com/starkware-libs/cairo-lang/releases>`_ for more details about
+the new syntax.
+
 Python versions
 ^^^^^^^^^^^^^^^
 
