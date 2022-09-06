@@ -4,6 +4,7 @@ from typing import Union, Optional, List
 
 import aiohttp
 from marshmallow import EXCLUDE
+from starkware.starknet.services.api.gateway.transaction import AccountTransaction
 
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import (
@@ -25,6 +26,7 @@ from starknet_py.net.client_models import (
     DeployTransactionResponse,
     DeclareTransactionResponse,
     TransactionReceipt,
+    Call,
 )
 from starknet_py.net.schemas.gateway import (
     ContractCodeSchema,
@@ -63,7 +65,7 @@ class GatewayClient(Client):
         :param net: Target network for the client. Can be a string with URL, one of ``"mainnet"``, ``"testnet"``
                     or dict with ``"feeder_gateway_url"`` and ``"gateway_url"`` fields
         :param chain: Chain used by the network. Required if you use a custom URL for ``net`` param. Chain is deprecated
-                        and will be removed in the next releases
+                        and will be removed in the future
         :param session: Aiohttp session to be used for request. If not provided, client will create a session for
                         every request. When using a custom session, user is resposible for closing it manually.
         """
@@ -93,7 +95,7 @@ class GatewayClient(Client):
     @property
     def chain(self) -> StarknetChainId:
         warnings.warn(
-            "Chain is deprecated and will be deleted in the next releases",
+            "Chain is deprecated and will be deleted in the future",
             category=DeprecationWarning,
         )
         return self._chain
@@ -202,7 +204,7 @@ class GatewayClient(Client):
 
     async def estimate_fee(
         self,
-        tx: InvokeFunction,
+        tx: Union[InvokeFunction, Declare],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
@@ -211,7 +213,7 @@ class GatewayClient(Client):
         )
         res = await self._feeder_gateway_client.post(
             method_name="estimate_fee",
-            payload=InvokeFunction.Schema().dump(tx),
+            payload=AccountTransaction.Schema().dump(tx),
             params=block_identifier,
         )
 
@@ -219,19 +221,16 @@ class GatewayClient(Client):
 
     async def call_contract(
         self,
-        invoke_tx: InvokeFunction,
+        invoke_tx: Union[InvokeFunction, Call],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> List[int]:
-        """
-        Call the contract with given instance of InvokeTransaction
+        if isinstance(invoke_tx, InvokeFunction):
+            warnings.warn(
+                "InvokeFunctions has been deprecated as a call_contract parameter, use Call instead.",
+                category=DeprecationWarning,
+            )
 
-        :param invoke_tx: Invoke transaction
-        :param block_hash: Block hash to execute the contract at specific point of time
-        :param block_number: Block number (or "pending" for pending block)
-            to execute the contract at (default "pending")
-        :return: List of integers representing contract's function output (structured like calldata)
-        """
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -239,7 +238,7 @@ class GatewayClient(Client):
         res = await self._feeder_gateway_client.post(
             method_name="call_contract",
             params=block_identifier,
-            payload=InvokeFunction.Schema().dump(invoke_tx),
+            payload=_get_call_payload(invoke_tx),
         )
 
         return [int(v, 16) for v in res["result"]]
@@ -363,6 +362,26 @@ class GatewayClient(Client):
 
         return ContractCodeSchema().load(res, unknown=EXCLUDE)
 
+    async def get_contract_nonce(
+        self,
+        contract_address: int,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> int:
+        block_identifier = get_block_identifier(
+            block_hash=block_hash, block_number=block_number
+        )
+        params = {
+            **{"contractAddress": convert_to_felt(contract_address)},
+            **block_identifier,
+        }
+
+        nonce = await self._feeder_gateway_client.call(
+            method_name="get_nonce", params=params
+        )
+        nonce = typing.cast(str, nonce)
+        return int(nonce, 16)
+
 
 def get_block_identifier(
     block_hash: Optional[Union[Hash, Tag]] = None,
@@ -382,3 +401,13 @@ def get_block_identifier(
         return {"blockNumber": block_number}
 
     return {"blockNumber": "pending"}
+
+
+def _get_call_payload(tx: Union[InvokeFunction, Call]) -> dict:
+    if isinstance(tx, InvokeFunction):
+        return tx.dump()
+    return {
+        "contract_address": hex(tx.to_addr),
+        "entry_point_selector": hex(tx.selector),
+        "calldata": [str(i) for i in tx.calldata],
+    }

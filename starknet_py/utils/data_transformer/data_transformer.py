@@ -132,14 +132,10 @@ class FeltTransformer(TypeTransformer[TypeFelt, int]):
 
 class StructTransformer(TypeTransformer[TypeStruct, dict]):
     def _definition(self, cairo_type: TypeStruct) -> StructDefinition:
-        definition = self.identifier_manager.get(
-            cairo_type.resolved_scope
-        ).identifier_definition
+        definition = self.identifier_manager.get(cairo_type.scope).identifier_definition
 
         if not isinstance(definition, StructDefinition):
-            raise ValueError(
-                f"Invalid definition found for {cairo_type.resolved_scope}."
-            )
+            raise ValueError(f"Invalid definition found for {cairo_type.scope}.")
 
         return definition
 

@@ -1,3 +1,4 @@
+import dataclasses
 import warnings
 from typing import Optional, List, Union, Dict
 from dataclasses import replace
@@ -5,6 +6,8 @@ from dataclasses import replace
 from starkware.crypto.signature.signature import get_random_private_key
 from starkware.starknet.public.abi import get_selector_from_name
 
+from starknet_py.common import create_compiled_contract
+from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import (
     SentTransactionResponse,
@@ -34,9 +37,10 @@ from starknet_py.net.models import (
 from starknet_py.net.networks import Network, MAINNET, TESTNET
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
 from starknet_py.net.signer import BaseSigner
-from starknet_py.transactions.deploy import make_deploy_tx
 from starknet_py.utils.crypto.facade import Call
-from starknet_py.utils.data_transformer.execute_transformer import execute_transformer
+from starknet_py.utils.data_transformer.execute_transformer import (
+    execute_transformer_by_version,
+)
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.net.models.address import AddressRepresentation, parse_address
 
@@ -56,6 +60,7 @@ class AccountClient(Client):
         signer: Optional[BaseSigner] = None,
         key_pair: Optional[KeyPair] = None,
         chain: Optional[StarknetChainId] = None,
+        supported_tx_version: int = 0,
     ):
         """
         :param address: Address of the account contract
@@ -65,6 +70,7 @@ class AccountClient(Client):
                        :py:class:`starknet_py.net.signer.stark_curve_signer.StarkCurveSigner` is used.
         :param key_pair: Key pair that will be used to create a default `Signer`
         :param chain: ChainId of the chain used to create the default signer
+        :param supported_tx_version: Version of transactions supported by account
         """
         # pylint: disable=too-many-arguments
         if signer is None and key_pair is None:
@@ -84,6 +90,14 @@ class AccountClient(Client):
                 account_address=self.address, key_pair=key_pair, chain_id=chain
             )
         self.signer = signer
+        self.supported_tx_version = supported_tx_version
+
+        if self.supported_tx_version == 0:
+            warnings.warn(
+                "Account supporting transaction version 0 is deprecated. "
+                "Use the new account and set supported_tx_version parameter to 1",
+                category=DeprecationWarning,
+            )
 
     @property
     def net(self) -> Network:
@@ -92,7 +106,7 @@ class AccountClient(Client):
     @property
     def chain(self) -> StarknetChainId:
         warnings.warn(
-            "Chain is deprecated and will be deleted in the next releases",
+            "Chain is deprecated and will be deleted in the future",
             category=DeprecationWarning,
         )
         return self.signer.chain_id
@@ -158,7 +172,7 @@ class AccountClient(Client):
 
     async def call_contract(
         self,
-        invoke_tx: InvokeFunction,
+        invoke_tx: Union[InvokeFunction, Call],
         block_hash: Union[Hash, Tag] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> List[int]:
@@ -182,6 +196,9 @@ class AccountClient(Client):
         return await self.client.get_class_by_hash(class_hash=class_hash)
 
     async def _get_nonce(self) -> int:
+        if self.supported_tx_version == 1:
+            return await self.get_contract_nonce(self.address)
+
         [nonce] = await self.call_contract(
             InvokeFunction(
                 contract_address=self.address,
@@ -189,7 +206,8 @@ class AccountClient(Client):
                 calldata=[],
                 signature=[],
                 max_fee=0,
-                version=0,
+                version=self.supported_tx_version,
+                nonce=None,
             ),
             block_hash="latest",
         )
@@ -223,7 +241,8 @@ class AccountClient(Client):
                 calldata=[self.address],
                 signature=[],
                 max_fee=0,
-                version=0,
+                version=self.supported_tx_version,
+                nonce=None,
             )
         )
 
@@ -234,7 +253,7 @@ class AccountClient(Client):
         calls: Calls,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-        version: int = 0,
+        version: Optional[int] = None,
     ) -> InvokeFunction:
         """
         Takes calls and creates InvokeFunction from them
@@ -242,48 +261,71 @@ class AccountClient(Client):
         :param calls: Single call or list of calls
         :param max_fee: Max amount of Wei to be paid when executing transaction
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
-        :param version: Transaction version
+        :param version: Transaction version is supported_tx_version as a default
         :return: InvokeFunction created from the calls (without the signature)
+
+        .. deprecated:: 0.5.0
+            This method has been deprecated. Use :meth:`AccountClient.sign_invoke_transaction` to create an already
+            signed invoke transactions from calls.
         """
+        warnings.warn(
+            "prepare_invoke_function has been deprecated. "
+            "Use AccountClient.sign_invoke_transaction to create an already signed invoke function.",
+            category=DeprecationWarning,
+        )
+
+        if version is None:
+            version = self.supported_tx_version
+
+        self._assert_version_matches_supported_tx_version(version)
+
+        if version == 0:
+            warnings.warn(
+                "Transaction with version 0 is deprecated and will be removed in the future. "
+                "Use AccountClient supporting the transaction version 1",
+                category=DeprecationWarning,
+            )
 
         calls = calls if isinstance(calls, List) else [calls]
 
         nonce = await self._get_nonce()
 
         calldata_py = merge_calls(calls)
-        calldata_py.append(nonce)
 
+        if version == 0:
+            calldata_py.append(nonce)
+
+        execute_transformer = execute_transformer_by_version(version)
         wrapped_calldata, _ = execute_transformer.from_python(*calldata_py)
 
-        transaction = InvokeFunction(
-            entry_point_selector=get_selector_from_name("__execute__"),
-            calldata=wrapped_calldata,
+        transaction = make_invoke_function_by_version(
             contract_address=self.address,
+            calldata=wrapped_calldata,
             signature=[],
             max_fee=0,
             version=version,
+            entry_point_selector=get_selector_from_name("__execute__"),
+            nonce=None if version == 0 else nonce,
         )
 
         max_fee = await self._get_max_fee(transaction, max_fee, auto_estimate)
 
-        return InvokeFunction(
-            entry_point_selector=get_selector_from_name("__execute__"),
-            calldata=wrapped_calldata,
-            contract_address=self.address,
-            signature=[],
-            max_fee=max_fee,
-            version=version,
-        )
+        return dataclasses.replace(transaction, max_fee=max_fee)
 
     async def _get_max_fee(
         self,
-        transaction: InvokeFunction,
+        transaction: Union[InvokeFunction, Declare],
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-    ):
+    ) -> int:
         if auto_estimate and max_fee is not None:
             raise ValueError(
                 "Max_fee and auto_estimate are exclusive and cannot be provided at the same time."
+            )
+
+        if isinstance(transaction, Declare) and transaction.version != 1:
+            raise ValueError(
+                "Estimating fee for Declare transactions with versions other than 1 is not supported."
             )
 
         if auto_estimate:
@@ -300,7 +342,34 @@ class AccountClient(Client):
         calls: Calls,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-        version: int = 0,
+        version: Optional[int] = None,
+    ) -> InvokeFunction:
+        """
+        Takes calls and creates signed InvokeFunction
+
+        :param calls: Single call or list of calls
+        :param max_fee: Max amount of Wei to be paid when executing transaction
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
+        :param version: Transaction version
+        :return: InvokeFunction created from the calls
+
+        .. deprecated:: 0.5.0
+            sign_transaction has been deprecated. Use :meth:`AccountClient.sign_invoke_transaction` instead.
+        """
+        warnings.warn(
+            "sign_transaction has been deprecated. Use AccountClient.sign_invoke_transaction instead.",
+            category=DeprecationWarning,
+        )
+        return await self.sign_invoke_transaction(
+            calls, max_fee, auto_estimate, version
+        )
+
+    async def sign_invoke_transaction(
+        self,
+        calls: Calls,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+        version: Optional[int] = None,
     ) -> InvokeFunction:
         """
         Takes calls and creates signed InvokeFunction
@@ -311,14 +380,66 @@ class AccountClient(Client):
         :param version: Transaction version
         :return: InvokeFunction created from the calls
         """
-        execute_tx = await self.prepare_invoke_function(
-            calls, max_fee, auto_estimate, version
-        )
+        if version is None:
+            version = self.supported_tx_version
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            execute_tx = await self.prepare_invoke_function(
+                calls, max_fee, auto_estimate, version
+            )
 
         signature = self.signer.sign_transaction(execute_tx)
         execute_tx = add_signature_to_transaction(execute_tx, signature)
 
         return execute_tx
+
+    async def sign_declare_transaction(
+        self,
+        compilation_source: Optional[StarknetCompilationSource] = None,
+        compiled_contract: Optional[str] = None,
+        cairo_path: Optional[List[str]] = None,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+    ) -> Declare:
+        """
+        Create and sign declare transaction.
+
+        Either `compilation_source` or `compiled_contract` is required.
+
+        :param compilation_source: string containing source code or a list of source files paths
+        :param compiled_contract: string containing compiled contract bytecode.
+                                  Useful for reading compiled contract from a file
+        :param cairo_path: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts
+        :param max_fee: Max amount of Wei to be paid when executing transaction
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
+        :return: Signed Declare transaction
+        """
+        # pylint: disable=too-many-arguments
+        if self.supported_tx_version != 1:
+            raise ValueError(
+                "Signing declare transactions is only supported with transaction version 1"
+            )
+
+        compiled_contract = create_compiled_contract(
+            compilation_source, compiled_contract, cairo_path
+        )
+        declare_tx = Declare(
+            contract_class=compiled_contract,
+            sender_address=self.address,
+            max_fee=0,
+            signature=[],
+            nonce=await self._get_nonce(),
+            version=self.supported_tx_version,
+        )
+
+        max_fee = await self._get_max_fee(
+            transaction=declare_tx, max_fee=max_fee, auto_estimate=auto_estimate
+        )
+        declare_tx = dataclasses.replace(declare_tx, max_fee=max_fee)
+        signature = self.signer.sign_transaction(declare_tx)
+
+        return dataclasses.replace(declare_tx, signature=signature, max_fee=max_fee)
 
     async def send_transaction(
         self, transaction: InvokeFunction
@@ -336,7 +457,7 @@ class AccountClient(Client):
         calls: Calls,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-        version: int = 0,
+        version: Optional[int] = None,
     ) -> SentTransactionResponse:
         """
         Takes calls and executes transaction
@@ -347,7 +468,7 @@ class AccountClient(Client):
         :param version: Transaction version
         :return: SentTransactionResponse
         """
-        execute_transaction = await self.sign_transaction(
+        execute_transaction = await self.sign_invoke_transaction(
             calls, max_fee, auto_estimate, version
         )
         return await self.send_transaction(execute_transaction)
@@ -382,6 +503,13 @@ class AccountClient(Client):
     async def get_code(self, *args, **kwargs):
         return await self.client.get_code(*args, **kwargs)
 
+    def _assert_version_matches_supported_tx_version(self, version: int):
+        if version != self.supported_tx_version:
+            raise ValueError(
+                f"Provided version: {version} is not equal to account's "
+                f"supported_tx_version: {self.supported_tx_version}"
+            )
+
     @staticmethod
     async def create_account(
         client: Client,
@@ -400,8 +528,21 @@ class AccountClient(Client):
         :param signer: Signer used to create account and sign transaction
         :param chain: ChainId of the chain used to create the default signer
         :return: Instance of AccountClient which interacts with created account on given network
+
+        .. deprecated:: 0.5.0
+            This method has been deprecated and will be deleted once transaction version 0 is removed.
+            Compiled account contract will no longer be bundled with StarkNet.py.
+            Consider transitioning to deploying account contract of choice and creating AccountClient
+            through a constructor.
         """
         if chain is None and signer is None and client.chain is None:
+            warnings.warn(
+                "Account deployment through AccountClient is deprecated and will be deleted once transaction version "
+                "0 is removed. Consider transitioning to creating AccountClient through a constructor.",
+                category=DeprecationWarning,
+            )
+
+        if chain is None and client.chain is None and signer is None:
             raise ValueError("One of chain or signer must be provided")
 
         if signer is None:
@@ -416,20 +557,40 @@ class AccountClient(Client):
         else:
             address = await deploy_account_contract(client, signer.public_key)
 
+        version = get_account_version()
+
         return AccountClient(
             client=client,
             address=address,
             signer=signer,
+            supported_tx_version=version,
+        )
+
+    async def get_contract_nonce(
+        self,
+        contract_address: int,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> int:
+        return await self.client.get_contract_nonce(
+            contract_address, block_hash, block_number
         )
 
 
 async def deploy_account_contract(
     client: Client, public_key: int
 ) -> AddressRepresentation:
-    deploy_tx = make_deploy_tx(
-        constructor_calldata=[public_key],
-        compiled_contract=COMPILED_ACCOUNT_CONTRACT,
-    )
+    # pylint: disable=import-outside-toplevel
+    # FIXME move this import to top once circular import is resolved
+    from starknet_py.transactions.deploy import make_deploy_tx
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        deploy_tx = make_deploy_tx(
+            constructor_calldata=[public_key],
+            compiled_contract=COMPILED_ACCOUNT_CONTRACT,
+        )
+
     result = await client.deploy(deploy_tx)
     await client.wait_for_tx(
         tx_hash=result.transaction_hash,
@@ -468,3 +629,32 @@ def merge_calls(calls: Calls) -> List:
         calldata.append(data)
 
     return [calldata, entire_calldata]
+
+
+def make_invoke_function_by_version(
+    # pylint: disable=too-many-arguments
+    contract_address: AddressRepresentation,
+    calldata: List[int],
+    signature: List[int],
+    max_fee: int,
+    version: int,
+    nonce: Optional[int],
+    entry_point_selector: int,
+) -> InvokeFunction:
+    params = {
+        "calldata": calldata,
+        "signature": signature,
+        "max_fee": max_fee,
+        "version": version,
+        "nonce": nonce,
+        "contract_address": contract_address,
+    }
+
+    if version == 0:
+        params["entry_point_selector"] = entry_point_selector
+
+    return InvokeFunction(**params)
+
+
+def get_account_version():
+    return 1 if "__validate__" in COMPILED_ACCOUNT_CONTRACT else 0

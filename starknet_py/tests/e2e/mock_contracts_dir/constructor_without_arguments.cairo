@@ -1,6 +1,6 @@
 %lang starknet
 
 @constructor
-func constructor{}():
-    return ()
-end
+func constructor{}() {
+    return ();
+}
