@@ -1,3 +1,4 @@
+import asyncio
 import os
 import time
 import subprocess
@@ -6,6 +7,7 @@ from contextlib import closing
 from pathlib import Path
 
 import pytest
+import pytest_asyncio
 
 from starknet_py.net import KeyPair, AccountClient
 from starknet_py.net.full_node_client import FullNodeClient
@@ -32,6 +34,20 @@ INTEGRATION_ACCOUNT_PRIVATE_KEY = (
 INTEGRATION_ACCOUNT_ADDRESS = (
     "0x60D7C88541F969520E46D39EC7C9053451CFEDBC2EEB847B684981A22CD452E"
 )
+
+INTEGRATION_NEW_ACCOUNT_PRIVATE_KEY = "0x1"
+
+INTEGRATION_NEW_ACCOUNT_ADDRESS = (
+    "0X126FAB6AE8ACA83E2DD00B92F94F3402397D527798E18DC28D76B7740638D23"
+)
+
+
+@pytest.fixture(scope="module")
+def event_loop():
+    policy = asyncio.get_event_loop_policy()
+    loop = policy.new_event_loop()
+    yield loop
+    loop.close()
 
 
 def pytest_addoption(parser):
@@ -72,7 +88,7 @@ def start_devnet():
     return devnet_port, proc
 
 
-@pytest.fixture(scope="module", autouse=True)
+@pytest.fixture(scope="module")
 def run_devnet():
     devnet_port, proc = start_devnet()
     yield f"http://localhost:{devnet_port}"
@@ -95,7 +111,7 @@ def pytest_collection_modifyitems(config, items):
 
 
 @pytest.fixture(name="gateway_client", scope="module")
-def create_gateway_client(pytestconfig, run_devnet):
+def create_gateway_client(pytestconfig):
     net = pytestconfig.getoption("--net")
     net_address = {
         "devnet": run_devnet,
@@ -112,7 +128,10 @@ def create_rpc_client(run_devnet):
 
 
 def create_account_client(
-    address: AddressRepresentation, private_key: str, gateway_client: GatewayClient
+    address: AddressRepresentation,
+    private_key: str,
+    gateway_client: GatewayClient,
+    supported_tx_version: int,
 ):
     key_pair = KeyPair.from_private_key(int(private_key, 0))
     return AccountClient(
@@ -120,6 +139,7 @@ def create_account_client(
         client=gateway_client,
         key_pair=key_pair,
         chain=StarknetChainId.TESTNET,
+        supported_tx_version=supported_tx_version,
     )
 
 
@@ -141,19 +161,57 @@ def address_and_private_key(pytestconfig):
 def gateway_account_client(address_and_private_key, gateway_client):
     address, private_key = address_and_private_key
 
-    return create_account_client(address, private_key, gateway_client)
+    return create_account_client(
+        address, private_key, gateway_client, supported_tx_version=0
+    )
 
 
 @pytest.fixture(scope="module")
 def rpc_account_client(address_and_private_key, rpc_client):
     address, private_key = address_and_private_key
 
-    return create_account_client(address, private_key, rpc_client)
+    return create_account_client(
+        address, private_key, rpc_client, supported_tx_version=0
+    )
 
 
 @pytest.fixture(scope="module")
-def account_clients(gateway_account_client, rpc_account_client):
-    return gateway_account_client, rpc_account_client
+def new_address_and_private_key(pytestconfig):
+    net = pytestconfig.getoption("--net")
+
+    account_details = {
+        # TODO configure for other envs
+        "devnet": None,
+        "testnet": None,
+        "integration": (
+            INTEGRATION_NEW_ACCOUNT_ADDRESS,
+            INTEGRATION_NEW_ACCOUNT_PRIVATE_KEY,
+        ),
+    }
+
+    return account_details[net]
+
+
+@pytest.fixture(scope="module")
+def new_gateway_account_client(new_address_and_private_key, gateway_client):
+    address, private_key = new_address_and_private_key
+
+    return create_account_client(
+        address, private_key, gateway_client, supported_tx_version=1
+    )
+
+
+@pytest.fixture(
+    scope="module", params=["gateway_account_client", "new_gateway_account_client"]
+)
+def account_clients(request):
+    # FIXME add rpc client for devnet tests
+    return request.getfixturevalue(request.param)
+
+
+@pytest.fixture(scope="module", params=["new_map_contract", "map_contract"])
+def map_contracts(request):
+    return request.getfixturevalue(request.param)
 
 
 directory_with_contracts = Path(os.path.dirname(__file__)) / "mock_contracts_dir"
@@ -176,6 +234,18 @@ def deploy_map_contract(gateway_account_client, map_source_code) -> Contract:
         client=gateway_account_client, compilation_source=map_source_code
     )
     deployment_result = deployment_result.wait_for_acceptance_sync()
+    return deployment_result.deployed_contract
+
+
+@pytest_asyncio.fixture(scope="module", name="new_map_contract")
+async def new_deploy_map_contract(
+    new_gateway_account_client, map_source_code
+) -> Contract:
+    # pylint: disable=no-member
+    deployment_result = await Contract.deploy(
+        client=new_gateway_account_client, compilation_source=map_source_code
+    )
+    deployment_result = await deployment_result.wait_for_acceptance()
     return deployment_result.deployed_contract
 
 
