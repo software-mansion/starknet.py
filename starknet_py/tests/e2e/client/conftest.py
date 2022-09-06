@@ -30,6 +30,7 @@ def prepare_network(gateway_account_client: AccountClient) -> dict:
         contract_address,
         deploy_transaction_hash,
         block_with_deploy_number,
+        block_with_deploy_hash,
         invoke_transaction_hash,
         block_with_invoke_number,
         declare_transaction_hash,
@@ -42,6 +43,7 @@ def prepare_network(gateway_account_client: AccountClient) -> dict:
         "contract_address": contract_address,
         "deploy_transaction_hash": deploy_transaction_hash,
         "block_with_deploy_number": block_with_deploy_number,
+        "block_with_deploy_hash": block_with_deploy_hash,
         "invoke_transaction_hash": invoke_transaction_hash,
         "block_with_invoke_number": block_with_invoke_number,
         "declare_transaction_hash": declare_transaction_hash,
@@ -62,23 +64,16 @@ def get_class_hash(net: str, contract_address: str) -> str:
     return res.stdout
 
 
-# @pytest.fixture(name="block_with_deploy")
-# def fixture_block_with_deploy(run_prepared_devnet) -> dict:
-#     _, prepared_data = run_prepared_devnet
-#     return prepared_data["block"]
-
-
 @pytest.fixture(name="block_with_deploy_number")
 def fixture_block_with_deploy_number(prepare_network) -> int:
     _, prepared_data = prepare_network
     return prepared_data["block_with_deploy_number"]
 
 
-# @pytest.fixture(name="genesis_block_root")
-# def fixture_genesis_block_root(run_prepared_devnet) -> int:
-#     _, prepared_data = run_prepared_devnet
-#     genesis_block = prepared_data["genesis_block"]
-#     return int(genesis_block["state_root"], 16)
+@pytest.fixture(name="block_with_deploy_hash")
+def fixture_block_with_deploy_hash(prepare_network) -> int:
+    _, prepared_data = prepare_network
+    return prepared_data["block_with_deploy_hash"]
 
 
 @pytest.fixture(name="block_with_invoke_number")

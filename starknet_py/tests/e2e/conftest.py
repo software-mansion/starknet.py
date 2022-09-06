@@ -74,7 +74,7 @@ def start_devnet():
     return devnet_port, proc
 
 
-@pytest.fixture(scope="module", autouse=True)
+@pytest.fixture(scope="module")
 def run_devnet():
     devnet_port, proc = start_devnet()
     yield f"http://localhost:{devnet_port}"

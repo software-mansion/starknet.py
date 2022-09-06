@@ -44,7 +44,7 @@ async def test_get_contract_nonce(gateway_client):
         contract_address=0x1111,
         block_hash="latest",
     )
-    assert nonce == "0x0"
+    assert nonce == 0
 
 
 @pytest.mark.asyncio

@@ -47,7 +47,7 @@ test = ["test_unit", "test_e2e", "test_docs"]
 test_unit.shell = "coverage run -m pytest starknet_py --ignore=starknet_py/tests/e2e"
 test_unit.env = { COVERAGE_FILE="unit.coverage" }
 test_e2e.shell = """
-    coverage run -m pytest starknet_py/tests/e2e/client/client_test.py::test_add_transaction --ignore=starknet_py/tests/e2e/docs --net=integration
+    coverage run -m pytest starknet_py/tests/e2e --ignore=starknet_py/tests/e2e/docs
 """
 test_e2e.env = { COVERAGE_FILE="e2e.coverage", DEVNET_PORT="5001" }
 test_e2e_parallel.shell = """

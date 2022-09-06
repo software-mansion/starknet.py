@@ -8,8 +8,6 @@ from starkware.starknet.public.abi import (
     get_selector_from_name,
     get_storage_var_address,
 )
-from starkware.starknet.services.api.gateway.transaction import DECLARE_SENDER_ADDRESS
-from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.services.api.gateway.transaction import (
     DEFAULT_DECLARE_SENDER_ADDRESS,
 )
@@ -64,7 +62,7 @@ async def test_get_declare_transaction(clients, declare_transaction_hash, class_
         signature=[],
         max_fee=0,
         version=0,
-        nonce=None,
+        nonce=0,
     )
 
 
@@ -97,31 +95,25 @@ async def test_get_block_by_hash(
     deploy_transaction_hash,
     block_with_deploy_hash,
     block_with_deploy_number,
-    block_with_deploy_root,
     contract_address,
     class_hash,
 ):
     for client in clients:
         block = await client.get_block(block_hash=block_with_deploy_hash)
 
-        assert block == StarknetBlock(
-            block_number=block_with_deploy_number,
-            block_hash=block_with_deploy_hash,
-            parent_block_hash=0x0,
-            root=block_with_deploy_root,
-            status=BlockStatus.ACCEPTED_ON_L2,
-            timestamp=2137,
-            transactions=[
-                DeployTransaction(
-                    contract_address=contract_address,
-                    constructor_calldata=[],
-                    hash=deploy_transaction_hash,
-                    signature=[],
-                    max_fee=0,
-                    class_hash=class_hash,
-                    version=0,
-                )
-            ],
+        assert block.block_number == block_with_deploy_number
+        assert block.block_hash == block_with_deploy_hash
+        assert (
+            DeployTransaction(
+                contract_address=contract_address,
+                constructor_calldata=[],
+                hash=deploy_transaction_hash,
+                signature=[],
+                max_fee=0,
+                class_hash=class_hash,
+                version=0,
+            )
+            in block.transactions
         )
 
 
@@ -145,6 +137,7 @@ async def test_get_block_by_number(
                 signature=[],
                 class_hash=class_hash,
                 max_fee=0,
+                version=0,
             )
             in block.transactions
         )
@@ -248,7 +241,6 @@ async def test_state_update_gateway_client(
         )
         in state_update.deployed_contracts
     )
-    assert class_hash in state_update.declared_contracts
 
 
 @pytest.mark.asyncio
@@ -273,18 +265,14 @@ async def test_state_update_full_node_client(
 
 
 @pytest.mark.asyncio
-async def test_add_transaction(contract_address, clients):
+async def test_add_transaction(map_contract, clients, gateway_account_client):
     for client in clients:
-        invoke_function = InvokeFunction(
-            contract_address=contract_address,
-            entry_point_selector=get_selector_from_name("increase_balance"),
-            calldata=[0],
-            max_fee=MAX_FEE,
-            version=0,
-            signature=[],
-            nonce=None,
+        prepared_function_call = map_contract.functions["put"].prepare(key=73, value=12)
+        signed_invoke = await gateway_account_client.sign_invoke_transaction(
+            calls=prepared_function_call, max_fee=MAX_FEE
         )
-        result = await client.send_transaction(invoke_function)
+
+        result = await client.send_transaction(signed_invoke)
         await client.wait_for_tx(result.transaction_hash)
         transaction_receipt = await client.get_transaction_receipt(
             result.transaction_hash
@@ -434,6 +422,7 @@ async def test_declare_contract(clients, map_source_code):
         declare_tx = make_declare_tx(compilation_source=map_source_code)
 
         result = await client.declare(declare_tx)
+        await client.wait_for_tx(result.transaction_hash)
         transaction_receipt = await client.get_transaction_receipt(
             result.transaction_hash
         )

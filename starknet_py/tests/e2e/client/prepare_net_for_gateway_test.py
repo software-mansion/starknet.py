@@ -4,18 +4,20 @@ from starknet_py.transactions.declare import make_declare_tx
 
 
 def prepare_net_for_tests(account_client: AccountClient, compiled_contract: str):
-    # pylint: disable=no-member
+    # pylint: disable=no-member, too-many-locals
     deployment_result = Contract.deploy_sync(
         client=account_client, compiled_contract=compiled_contract
     )
-    deployment_result = deployment_result.wait_for_acceptance_sync()
+    deployment_result = deployment_result.wait_for_acceptance_sync(wait_for_accept=True)
     contract = deployment_result.deployed_contract
 
     contract_address = contract.address
     deploy_transaction_hash = deployment_result.hash
-    block_with_deploy_number = account_client.get_transaction_receipt_sync(
+    deploy_receipt = account_client.get_transaction_receipt_sync(
         deploy_transaction_hash
-    ).block_number
+    )
+    block_with_deploy_number = deploy_receipt.block_number
+    block_with_deploy_hash = deploy_receipt.block_hash
 
     invoke_res = contract.functions["increase_balance"].invoke_sync(
         amount=1234, max_fee=int(1e20)
@@ -40,6 +42,7 @@ def prepare_net_for_tests(account_client: AccountClient, compiled_contract: str)
         contract_address,
         deploy_transaction_hash,
         block_with_deploy_number,
+        block_with_deploy_hash,
         invoke_transaction_hash,
         block_with_invoke_number,
         declare_transaction_hash,
