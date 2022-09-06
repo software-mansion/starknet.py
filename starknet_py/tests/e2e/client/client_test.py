@@ -9,6 +9,10 @@ from starkware.starknet.public.abi import (
     get_storage_var_address,
 )
 from starkware.starknet.services.api.gateway.transaction import DECLARE_SENDER_ADDRESS
+from starkware.starknet.public.abi import get_selector_from_name
+from starkware.starknet.services.api.gateway.transaction import (
+    DEFAULT_DECLARE_SENDER_ADDRESS,
+)
 
 from starknet_py.net.client_models import (
     TransactionStatus,
@@ -42,6 +46,7 @@ async def test_get_deploy_transaction(
             signature=[],
             max_fee=0,
             class_hash=class_hash,
+            version=0,
         )
 
 
@@ -54,10 +59,12 @@ async def test_get_declare_transaction(clients, declare_transaction_hash, class_
 
     assert transaction == DeclareTransaction(
         class_hash=class_hash,
-        sender_address=DECLARE_SENDER_ADDRESS,
+        sender_address=DEFAULT_DECLARE_SENDER_ADDRESS,
         hash=declare_transaction_hash,
         signature=[],
         max_fee=0,
+        version=0,
+        nonce=None,
     )
 
 
@@ -84,37 +91,38 @@ async def test_get_transaction_raises_on_not_received(clients):
         assert err.value.message == "Transaction not received"
 
 
-# @pytest.mark.asyncio
-# async def test_get_block_by_hash(
-#     clients,
-#     deploy_transaction_hash,
-#     block_with_deploy_hash,
-#     block_with_deploy_number,
-#     block_with_deploy_root,
-#     contract_address,
-#     class_hash,
-# ):
-#     for client in clients:
-#         block = await client.get_block(block_hash=block_with_deploy_hash)
-#
-#         assert block == StarknetBlock(
-#             block_number=block_with_deploy_number,
-#             block_hash=block_with_deploy_hash,
-#             parent_block_hash=0x0,
-#             root=block_with_deploy_root,
-#             status=BlockStatus.ACCEPTED_ON_L2,
-#             timestamp=2137,
-#             transactions=[
-#                 DeployTransaction(
-#                     contract_address=contract_address,
-#                     constructor_calldata=[],
-#                     hash=deploy_transaction_hash,
-#                     signature=[],
-#                     max_fee=0,
-#                     class_hash=class_hash,
-#                 )
-#             ],
-#         )
+@pytest.mark.asyncio
+async def test_get_block_by_hash(
+    clients,
+    deploy_transaction_hash,
+    block_with_deploy_hash,
+    block_with_deploy_number,
+    block_with_deploy_root,
+    contract_address,
+    class_hash,
+):
+    for client in clients:
+        block = await client.get_block(block_hash=block_with_deploy_hash)
+
+        assert block == StarknetBlock(
+            block_number=block_with_deploy_number,
+            block_hash=block_with_deploy_hash,
+            parent_block_hash=0x0,
+            root=block_with_deploy_root,
+            status=BlockStatus.ACCEPTED_ON_L2,
+            timestamp=2137,
+            transactions=[
+                DeployTransaction(
+                    contract_address=contract_address,
+                    constructor_calldata=[],
+                    hash=deploy_transaction_hash,
+                    signature=[],
+                    max_fee=0,
+                    class_hash=class_hash,
+                    version=0,
+                )
+            ],
+        )
 
 
 @pytest.mark.asyncio
@@ -197,6 +205,7 @@ async def test_estimate_fee(contract_address, gateway_client):
         max_fee=0,
         version=0,
         signature=[0x0, 0x0],
+        nonce=None,
     )
     estimate_fee = await gateway_client.estimate_fee(tx=transaction)
 
@@ -214,6 +223,7 @@ async def test_call_contract(clients, contract_address):
             max_fee=0,
             version=0,
             signature=[0x0, 0x0],
+            nonce=None,
         )
         result = await client.call_contract(invoke_function, block_hash="latest")
 
@@ -272,6 +282,7 @@ async def test_add_transaction(contract_address, clients):
             max_fee=MAX_FEE,
             version=0,
             signature=[],
+            nonce=None,
         )
         result = await client.send_transaction(invoke_function)
         await client.wait_for_tx(result.transaction_hash)

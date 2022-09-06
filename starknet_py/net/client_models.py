@@ -1,3 +1,4 @@
+import warnings
 from abc import ABC
 from dataclasses import dataclass
 from enum import Enum
@@ -88,6 +89,7 @@ class Transaction(ABC):
     hash: int
     signature: List[int]
     max_fee: int
+    version: int
 
     def __post_init__(self):
         if self.__class__ == Transaction:
@@ -103,6 +105,7 @@ class InvokeTransaction(Transaction):
     contract_address: int
     calldata: List[int]
     entry_point_selector: int
+    nonce: Optional[int] = None
 
 
 @dataclass
@@ -113,6 +116,7 @@ class DeclareTransaction(Transaction):
 
     class_hash: int
     sender_address: int
+    nonce: Optional[int] = None
 
 
 @dataclass
@@ -150,13 +154,27 @@ class TransactionReceipt:
     hash: int
     status: TransactionStatus
     block_number: Optional[int] = None
-    version: int = 0
     actual_fee: int = 0
     rejection_reason: Optional[str] = None
 
     events: List[Event] = None
     l2_to_l1_messages: List[L2toL1Message] = None
     l1_to_l2_consumed_message: Optional[L1toL2Message] = None
+
+    # TODO: remove in the future (gateway and rpc does not return this value)
+    version: int = 0
+
+    @property
+    def version(self) -> int:
+        warnings.warn(
+            "Field version is deprecated as it is always incorrectly set to 0. It will be removed in the future",
+            category=DeprecationWarning,
+        )
+        return 0
+
+    @version.setter
+    def version(self, v) -> None:
+        pass
 
 
 @dataclass

@@ -171,6 +171,7 @@ async def test_call_uninitialized_contract(gateway_account_client):
                 signature=[],
                 max_fee=0,
                 version=0,
+                nonce=None,
             )
         )
 
@@ -217,14 +218,12 @@ async def test_warning_when_max_fee_equals_to_zero(map_contract):
     with pytest.warns(
         DeprecationWarning,
         match=r"Transaction will fail with max_fee set to 0. Change it to a higher value.",
-    ) as max_fee_warnings:
+    ):
         # try except have to be added because when running on integration it will throw an error (max_fee=0)
         try:
             await map_contract.functions["put"].invoke(10, 20, max_fee=0)
         except ClientError:
             pass
-
-    assert len(max_fee_warnings) == 1
 
 
 @pytest.mark.asyncio
