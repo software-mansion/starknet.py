@@ -229,7 +229,7 @@ class FullNodeClient(Client):
                 **block_identifier,
             },
         )
-        return [int(i, 16) for i in res["result"]]
+        return [int(i, 16) for i in res]
 
     async def send_transaction(
         self, transaction: InvokeFunction
