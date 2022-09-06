@@ -114,8 +114,8 @@ async def test_estimated_fee_greater_than_zero(erc20_contract, account_clients):
 
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
-async def test_create_account_client(run_devnet):
-    client = GatewayClient(net=run_devnet, chain=StarknetChainId.TESTNET)
+async def test_create_account_client(network):
+    client = GatewayClient(net=network, chain=StarknetChainId.TESTNET)
     acc_client = await AccountClient.create_account(
         client=client, chain=StarknetChainId.TESTNET
     )
@@ -125,9 +125,9 @@ async def test_create_account_client(run_devnet):
 
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
-async def test_create_account_client_with_private_key(run_devnet):
+async def test_create_account_client_with_private_key(network):
     private_key = 1234
-    gt_client = GatewayClient(net=run_devnet, chain=StarknetChainId.TESTNET)
+    gt_client = GatewayClient(net=network, chain=StarknetChainId.TESTNET)
     acc_client = await AccountClient.create_account(
         client=gt_client, private_key=private_key, chain=StarknetChainId.TESTNET
     )
@@ -138,10 +138,10 @@ async def test_create_account_client_with_private_key(run_devnet):
 
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
-async def test_create_account_client_with_signer(run_devnet):
+async def test_create_account_client_with_signer(network):
     key_pair = KeyPair.from_private_key(1234)
     client = GatewayClient(
-        net=run_devnet,
+        net=network,
     )
     address = await deploy_account_contract(
         client=client,

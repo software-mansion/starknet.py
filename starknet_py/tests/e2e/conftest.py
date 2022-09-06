@@ -1,3 +1,5 @@
+# pylint: disable=redefined-outer-name
+
 import os
 import time
 import subprocess
@@ -79,6 +81,18 @@ def run_devnet():
     proc.kill()
 
 
+@pytest.fixture(scope="module")
+def network(pytestconfig, run_devnet):
+    net = pytestconfig.getoption("--net")
+    net_address = {
+        "devnet": run_devnet,
+        "testnet": "testnet",
+        "integration": "https://external.integration.starknet.io",
+    }
+
+    return net_address[net]
+
+
 # pylint: disable=redefined-outer-name
 def pytest_collection_modifyitems(config, items):
     if config.getoption("--net") == "all":
@@ -95,15 +109,8 @@ def pytest_collection_modifyitems(config, items):
 
 
 @pytest.fixture(name="gateway_client", scope="module")
-def create_gateway_client(pytestconfig, run_devnet):
-    net = pytestconfig.getoption("--net")
-    net_address = {
-        "devnet": run_devnet,
-        "testnet": "testnet",
-        "integration": "https://external.integration.starknet.io",
-    }
-
-    return GatewayClient(net=net_address[net])
+def create_gateway_client(network):
+    return GatewayClient(net=network)
 
 
 @pytest.fixture(name="rpc_client", scope="module")

@@ -2,9 +2,7 @@ import pytest
 
 
 @pytest.mark.asyncio
-async def test_account_client_details(
-    run_devnet, gateway_account_client, map_source_code
-):
+async def test_account_client_details(network, gateway_account_client, map_source_code):
     # pylint: disable=import-outside-toplevel
     # add to docs: start
     from starknet_py.contract import Contract
@@ -14,7 +12,7 @@ async def test_account_client_details(
 
     net = "testnet"
     # add to docs: end
-    net = run_devnet
+    net = network
     # add to docs: start
 
     # Creates an account

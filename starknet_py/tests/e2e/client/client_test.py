@@ -4,22 +4,22 @@ from unittest.mock import patch, MagicMock
 
 import pytest
 
-from starkware.starknet.public.abi import get_selector_from_name
+from starkware.starknet.public.abi import (
+    get_selector_from_name,
+    get_storage_var_address,
+)
 from starkware.starknet.services.api.gateway.transaction import DECLARE_SENDER_ADDRESS
 
 from starknet_py.net.client_models import (
     TransactionStatus,
     InvokeFunction,
-    BlockStateUpdate,
-    StarknetBlock,
-    BlockStatus,
     TransactionReceipt,
     DeployedContract,
     DeployTransaction,
     DeclareTransaction,
-    InvokeTransaction,
 )
 from starknet_py.net.client_errors import ClientError
+from starknet_py.tests.e2e.account.account_client_test import MAX_FEE
 from starknet_py.transaction_exceptions import (
     TransactionRejectedError,
     TransactionNotReceivedError,
@@ -66,20 +66,12 @@ async def test_get_invoke_transaction(
     clients,
     invoke_transaction_hash,
     invoke_transaction_calldata,
-    invoke_transaction_selector,
-    contract_address,
 ):
     for client in clients:
         transaction = await client.get_transaction(invoke_transaction_hash)
 
-        assert transaction == InvokeTransaction(
-            contract_address=contract_address,
-            calldata=invoke_transaction_calldata,
-            entry_point_selector=invoke_transaction_selector,
-            hash=invoke_transaction_hash,
-            signature=[],
-            max_fee=0,
-        )
+        assert invoke_transaction_calldata[0] in transaction.calldata
+        assert transaction.hash == invoke_transaction_hash
 
 
 @pytest.mark.asyncio
@@ -92,37 +84,37 @@ async def test_get_transaction_raises_on_not_received(clients):
         assert err.value.message == "Transaction not received"
 
 
-@pytest.mark.asyncio
-async def test_get_block_by_hash(
-    clients,
-    deploy_transaction_hash,
-    block_with_deploy_hash,
-    block_with_deploy_number,
-    block_with_deploy_root,
-    contract_address,
-    class_hash,
-):
-    for client in clients:
-        block = await client.get_block(block_hash=block_with_deploy_hash)
-
-        assert block == StarknetBlock(
-            block_number=block_with_deploy_number,
-            block_hash=block_with_deploy_hash,
-            parent_block_hash=0x0,
-            root=block_with_deploy_root,
-            status=BlockStatus.ACCEPTED_ON_L2,
-            timestamp=2137,
-            transactions=[
-                DeployTransaction(
-                    contract_address=contract_address,
-                    constructor_calldata=[],
-                    hash=deploy_transaction_hash,
-                    signature=[],
-                    max_fee=0,
-                    class_hash=class_hash,
-                )
-            ],
-        )
+# @pytest.mark.asyncio
+# async def test_get_block_by_hash(
+#     clients,
+#     deploy_transaction_hash,
+#     block_with_deploy_hash,
+#     block_with_deploy_number,
+#     block_with_deploy_root,
+#     contract_address,
+#     class_hash,
+# ):
+#     for client in clients:
+#         block = await client.get_block(block_hash=block_with_deploy_hash)
+#
+#         assert block == StarknetBlock(
+#             block_number=block_with_deploy_number,
+#             block_hash=block_with_deploy_hash,
+#             parent_block_hash=0x0,
+#             root=block_with_deploy_root,
+#             status=BlockStatus.ACCEPTED_ON_L2,
+#             timestamp=2137,
+#             transactions=[
+#                 DeployTransaction(
+#                     contract_address=contract_address,
+#                     constructor_calldata=[],
+#                     hash=deploy_transaction_hash,
+#                     signature=[],
+#                     max_fee=0,
+#                     class_hash=class_hash,
+#                 )
+#             ],
+#         )
 
 
 @pytest.mark.asyncio
@@ -130,31 +122,23 @@ async def test_get_block_by_number(
     clients,
     deploy_transaction_hash,
     block_with_deploy_number,
-    block_with_deploy_hash,
-    block_with_deploy_root,
     contract_address,
     class_hash,
 ):
     for client in clients:
-        block = await client.get_block(block_number=1)
+        block = await client.get_block(block_number=block_with_deploy_number)
 
-        assert block == StarknetBlock(
-            block_number=block_with_deploy_number,
-            block_hash=block_with_deploy_hash,
-            parent_block_hash=0x0,
-            root=block_with_deploy_root,
-            status=BlockStatus.ACCEPTED_ON_L2,
-            timestamp=2137,
-            transactions=[
-                DeployTransaction(
-                    contract_address=contract_address,
-                    constructor_calldata=[],
-                    hash=deploy_transaction_hash,
-                    signature=[],
-                    class_hash=class_hash,
-                    max_fee=0,
-                )
-            ],
+        assert block.block_number == block_with_deploy_number
+        assert (
+            DeployTransaction(
+                contract_address=contract_address,
+                constructor_calldata=[],
+                hash=deploy_transaction_hash,
+                signature=[],
+                class_hash=class_hash,
+                max_fee=0,
+            )
+            in block.transactions
         )
 
 
@@ -163,7 +147,7 @@ async def test_get_storage_at(clients, contract_address):
     for client in clients:
         storage = await client.get_storage_at(
             contract_address=contract_address,
-            key=916907772491729262376534102982219947830828984996257231353398618781993312401,
+            key=get_storage_var_address("balance"),
             block_hash="latest",
         )
 
@@ -176,7 +160,7 @@ async def test_get_storage_at_incorrect_address(clients):
 
     storage = await gateway_client.get_storage_at(
         contract_address=0x1111,
-        key=916907772491729262376534102982219947830828984996257231353398618781993312401,
+        key=get_storage_var_address("balance"),
         block_hash="latest",
     )
     assert storage == 0
@@ -184,31 +168,24 @@ async def test_get_storage_at_incorrect_address(clients):
     with pytest.raises(ClientError) as err:
         await full_node_client.get_storage_at(
             contract_address=0x1111,
-            key=916907772491729262376534102982219947830828984996257231353398618781993312401,
+            key=get_storage_var_address("balance"),
             block_hash="latest",
         )
     assert "Contract not found" in err.value.message
 
 
 @pytest.mark.asyncio
-async def test_get_transaction_receipt(clients, invoke_transaction_hash):
+async def test_get_transaction_receipt(
+    clients, invoke_transaction_hash, block_with_invoke_number
+):
     # TODO: Adapt this test to work with RPC as well when it returns block number
     gateway_client, _ = clients
     receipt = await gateway_client.get_transaction_receipt(
         tx_hash=invoke_transaction_hash
     )
 
-    assert receipt == TransactionReceipt(
-        hash=invoke_transaction_hash,
-        status=TransactionStatus.ACCEPTED_ON_L2,
-        events=[],
-        l2_to_l1_messages=[],
-        l1_to_l2_consumed_message=None,
-        version=0,
-        actual_fee=0,
-        rejection_reason=None,
-        block_number=2,
-    )
+    assert receipt.hash == invoke_transaction_hash
+    assert receipt.block_number == block_with_invoke_number
 
 
 @pytest.mark.asyncio
@@ -246,55 +223,43 @@ async def test_call_contract(clients, contract_address):
 @pytest.mark.asyncio
 async def test_state_update_gateway_client(
     gateway_client,
-    block_with_deploy_hash,
-    block_with_deploy_root,
+    block_with_deploy_number,
     contract_address,
-    genesis_block_root,
     class_hash,
 ):
     state_update = await gateway_client.get_state_update(
-        block_hash=block_with_deploy_hash
+        block_number=block_with_deploy_number
     )
 
-    assert state_update == BlockStateUpdate(
-        block_hash=block_with_deploy_hash,
-        new_root=block_with_deploy_root,
-        old_root=genesis_block_root,
-        storage_diffs=[],
-        deployed_contracts=[
-            DeployedContract(
-                address=contract_address,
-                class_hash=class_hash,
-            )
-        ],
-        declared_contracts=[class_hash],
+    assert (
+        DeployedContract(
+            address=contract_address,
+            class_hash=class_hash,
+        )
+        in state_update.deployed_contracts
     )
+    assert class_hash in state_update.declared_contracts
 
 
 @pytest.mark.asyncio
 async def test_state_update_full_node_client(
     rpc_client,
-    block_with_deploy_hash,
-    block_with_deploy_root,
+    block_with_deploy_number,
     contract_address,
-    genesis_block_root,
     class_hash,
 ):
-    state_update = await rpc_client.get_state_update(block_hash=block_with_deploy_hash)
-
-    assert state_update == BlockStateUpdate(
-        block_hash=block_with_deploy_hash,
-        new_root=block_with_deploy_root,
-        old_root=genesis_block_root,
-        storage_diffs=[],
-        deployed_contracts=[
-            DeployedContract(
-                address=contract_address,
-                class_hash=class_hash,
-            )
-        ],
-        declared_contracts=[class_hash],
+    state_update = await rpc_client.get_state_update(
+        block_number=block_with_deploy_number
     )
+
+    assert (
+        DeployedContract(
+            address=contract_address,
+            class_hash=class_hash,
+        )
+        in state_update.deployed_contracts
+    )
+    assert class_hash in state_update.declared_contracts
 
 
 @pytest.mark.asyncio
@@ -304,11 +269,12 @@ async def test_add_transaction(contract_address, clients):
             contract_address=contract_address,
             entry_point_selector=get_selector_from_name("increase_balance"),
             calldata=[0],
-            max_fee=0,
+            max_fee=MAX_FEE,
             version=0,
-            signature=[0x0, 0x0],
+            signature=[],
         )
         result = await client.send_transaction(invoke_function)
+        await client.wait_for_tx(result.transaction_hash)
         transaction_receipt = await client.get_transaction_receipt(
             result.transaction_hash
         )
@@ -323,6 +289,7 @@ async def test_deploy(balance_contract, clients):
             compiled_contract=balance_contract, constructor_calldata=[]
         )
         result = await client.deploy(deploy_tx)
+        await client.wait_for_tx(result.transaction_hash)
         transaction_receipt = await client.get_transaction_receipt(
             result.transaction_hash
         )
