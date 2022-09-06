@@ -536,7 +536,7 @@ def test_felts_out_of_range():
     abi = [{"name": "first", "type": "felt"}, {"name": "second", "type": "felt"}]
 
     with pytest.raises(ValueError) as excinfo:
-        transformer_for_function(outputs=abi).to_python([1<<321, -(1<<317)])
+        transformer_for_function(outputs=abi).to_python([1 << 321, -(1 << 317)])
 
     assert "Felt is expected to be in range [0; " in str(excinfo.value)
 
