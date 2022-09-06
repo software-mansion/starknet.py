@@ -122,6 +122,7 @@ async def test_get_block_by_number(
     clients,
     deploy_transaction_hash,
     block_with_deploy_number,
+    block_with_deploy_hash,
     contract_address,
     class_hash,
 ):
@@ -129,6 +130,7 @@ async def test_get_block_by_number(
         block = await client.get_block(block_number=block_with_deploy_number)
 
         assert block.block_number == block_with_deploy_number
+        assert block.block_hash == block_with_deploy_hash
         assert (
             DeployTransaction(
                 contract_address=contract_address,

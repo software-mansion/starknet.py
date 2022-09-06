@@ -3,7 +3,7 @@
 import os
 import subprocess
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, List
 
 import pytest
 from starkware.starknet.public.abi import get_selector_from_name
@@ -147,14 +147,17 @@ def fixture_class_hash(network, contract_address) -> int:
 
 
 @pytest.fixture(name="clients")
-def fixture_clients(network) -> Tuple[Client, Client]:
+def fixture_clients(network, run_devnet) -> List[Client]:
     gateway_client = GatewayClient(net=network, chain=StarknetChainId.TESTNET)
     full_node_client = FullNodeClient(
         node_url=network + "/rpc",
         chain=StarknetChainId.TESTNET,
         net=network,
     )
-    return gateway_client, full_node_client
+    if network != run_devnet:
+        return [gateway_client]
+
+    return [gateway_client, full_node_client]
 
 
 # pylint: disable=redefined-outer-name
