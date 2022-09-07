@@ -45,7 +45,9 @@ async def test_deploying_new_contracts(gateway_client):
     deployment_result = await Contract.deploy(
         client, compilation_source=contract, constructor_args=constructor_args
     )
+    # add to docs: end
     await deployment_result.wait_for_acceptance()
+    # add to docs: start
 
     # list with filepaths - useful for multiple files
     deployment_result = await Contract.deploy(
@@ -53,7 +55,9 @@ async def test_deploying_new_contracts(gateway_client):
         compilation_source=[directory_with_contracts / "contract.cairo"],
         constructor_args=constructor_args,
     )
+    # add to docs: end
     await deployment_result.wait_for_acceptance()
+    # add to docs: start
 
     # or use already compiled program
     compiled = (directory_with_contracts / "contract_compiled.json").read_text("utf-8")
