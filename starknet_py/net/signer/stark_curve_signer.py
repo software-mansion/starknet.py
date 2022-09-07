@@ -89,6 +89,7 @@ class StarkCurveSigner(BaseSigner):
         r, s = message_signature(msg_hash=tx_hash, priv_key=self.private_key)
         return [r, s]
 
-    def sign_message(self, typed_data: TypedData, account_address: int) -> List[int]:
+    def sign_message(self, typed_data: dict, account_address: int) -> List[int]:
+        typed_data = TypedData.from_dict(typed_data)
         msg_hash = typed_data.message_hash(account_address)
         return message_signature(msg_hash=msg_hash, priv_key=self.private_key)

@@ -13,7 +13,6 @@ from starknet_py.net import KeyPair, AccountClient
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId, AddressRepresentation
-from starknet_py.net.schemas.gateway import TypedDataSchema
 from starknet_py.utils.data_transformer.data_transformer import CairoSerializer
 from starknet_py.utils.typed_data import TypedData
 
@@ -208,9 +207,8 @@ def typed_data(request) -> TypedData:
     file_path = directory / "account" / file_name
 
     with open(file_path, "r", encoding="utf-8") as file:
-        data = json.load(file)
+        typed_data = json.load(file)
 
-    typed_data = TypedDataSchema().load(data)
     return typed_data
 
 

@@ -14,3 +14,4 @@ from .transaction import (
     TransactionType,
 )
 from .chains import chain_from_network, StarknetChainId
+from .typed_data import TypedData

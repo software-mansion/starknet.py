@@ -1,21 +1,12 @@
 from dataclasses import dataclass
 from typing import Union, Dict, List
 
+from marshmallow import Schema, fields, post_load
 from starkware.cairo.common.hash_state import compute_hash_on_elements
 from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.cairo.felt import encode_shortstring
-from starknet_py.utils.typing import TypedDict
-
-
-class StarkNetDomain(TypedDict):
-    """
-    TypedDict representing a StarkNetDomain object
-    """
-
-    name: str
-    version: str
-    chainId: Union[str, int]
+from starknet_py.net.models.typed_data import StarkNetDomain
 
 
 @dataclass(frozen=True)
@@ -39,45 +30,48 @@ class TypedData:
     domain: StarkNetDomain
     message: dict
 
-    def _encode_value(self, type_: str, value: Union[int, str]) -> str:
-        if type_[-1] == "*":
+    @staticmethod
+    def from_dict(data: dict) -> "TypedData":
+        return TypedDataSchema().load(data)
+
+    def _encode_value(self, type_name: str, value: Union[int, str]) -> str:
+        if is_pointer(type_name):
             return compute_hash_on_elements(
-                [self.struct_hash(type_[:-1], data) for data in value]
+                [self.struct_hash(strip_pointer(type_name), data) for data in value]
             )
-        if type_ in self.types:
-            return self.struct_hash(type_, value)
+        if type_name in self.types:
+            return self.struct_hash(type_name, value)
         return int(get_hex(value), 16)
 
-    def _encode_data(self, type_: str, data: dict) -> List[str]:
+    def _encode_data(self, type_name: str, data: dict) -> List[str]:
         values = []
-        for param in self.types[type_]:
+        for param in self.types[type_name]:
             encoded_value = self._encode_value(param.type, data[param.name])
             values.append(encoded_value)
 
         return values
 
-    def _get_dependencies(self, type_: str) -> List[str]:
-        if type_ not in self.types:
-            # type_ is a primitive type, has no dependencies
+    def _get_dependencies(self, type_name: str) -> List[str]:
+        if type_name not in self.types:
+            # type_name is a primitive type, has no dependencies
             return []
 
         dependencies = set()
 
-        def collect_deps(type_: str) -> None:
-            for param in self.types[type_]:
-                # strip the pointer
-                fixed_type = param.type[:-1] if param.type[-1] == "*" else param.type
+        def collect_deps(type_name: str) -> None:
+            for param in self.types[type_name]:
+                fixed_type = strip_pointer(param.type)
                 if fixed_type in self.types and fixed_type not in dependencies:
                     dependencies.add(fixed_type)
                     # recursive call
                     collect_deps(fixed_type)
 
         # collect dependencies into a set
-        collect_deps(type_)
-        return [type_, *list(dependencies)]
+        collect_deps(type_name)
+        return [type_name, *list(dependencies)]
 
-    def _encode_type(self, type_: str) -> str:
-        [primary, *dependencies] = self._get_dependencies(type_)
+    def _encode_type(self, type_name: str) -> str:
+        primary, *dependencies = self._get_dependencies(type_name)
         types = [primary, *sorted(dependencies)]
 
         def make_dependency_str(dependency):
@@ -86,12 +80,12 @@ class TypedData:
 
         return "".join([make_dependency_str(x) for x in types])
 
-    def type_hash(self, type_: str) -> int:
-        return get_selector_from_name(self._encode_type(type_))
+    def type_hash(self, type_name: str) -> int:
+        return get_selector_from_name(self._encode_type(type_name))
 
-    def struct_hash(self, type_: str, data: dict) -> int:
+    def struct_hash(self, type_name: str, data: dict) -> int:
         return compute_hash_on_elements(
-            [self.type_hash(type_), *self._encode_data(type_, data)]
+            [self.type_hash(type_name), *self._encode_data(type_name, data)]
         )
 
     def message_hash(self, account_address: int) -> int:
@@ -105,7 +99,7 @@ class TypedData:
         return compute_hash_on_elements(message)
 
 
-def get_hex(value: Union[int, str]):
+def get_hex(value: Union[int, str]) -> str:
     if isinstance(value, int):
         return hex(value)
     if value[:2] == "0x":
@@ -113,3 +107,41 @@ def get_hex(value: Union[int, str]):
     if value.isnumeric():
         return hex(int(value))
     return hex(encode_shortstring(value))
+
+
+def is_pointer(value: str) -> bool:
+    return value and value[-1] == "*"
+
+
+def strip_pointer(value: str) -> str:
+    if is_pointer(value):
+        return value[:-1]
+    return value
+
+
+# pylint: disable=unused-argument
+# pylint: disable=no-self-use
+
+
+class ParameterSchema(Schema):
+    name = fields.String(data_key="name", required=True)
+    type = fields.String(data_key="type", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> Parameter:
+        return Parameter(**data)
+
+
+class TypedDataSchema(Schema):
+    types = fields.Dict(
+        data_key="types",
+        keys=fields.Str(),
+        values=fields.List(fields.Nested(ParameterSchema())),
+    )
+    primary_type = fields.String(data_key="primaryType", required=True)
+    domain = fields.Dict(data_key="domain", required=True)
+    message = fields.Dict(data_key="message", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> TypedData:
+        return TypedData(**data)

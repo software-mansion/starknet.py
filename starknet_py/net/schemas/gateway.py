@@ -34,7 +34,6 @@ from starknet_py.net.schemas.common import (
 
 # pylint: disable=unused-argument
 # pylint: disable=no-self-use
-from starknet_py.utils.typed_data import TypedData, Parameter
 
 
 class EventSchema(Schema):
@@ -350,27 +349,3 @@ class TransactionStatusSchema(Schema):
     @post_load
     def make_result(self, data, **kwargs) -> TransactionStatusResponse:
         return TransactionStatusResponse(**data)
-
-
-class ParameterSchema(Schema):
-    name = fields.String(data_key="name", required=True)
-    type = fields.String(data_key="type", required=True)
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> Parameter:
-        return Parameter(**data)
-
-
-class TypedDataSchema(Schema):
-    types = fields.Dict(
-        data_key="types",
-        keys=fields.Str(),
-        values=fields.List(fields.Nested(ParameterSchema())),
-    )
-    primary_type = fields.String(data_key="primaryType", required=True)
-    domain = fields.Dict(data_key="domain", required=True)
-    message = fields.Dict(data_key="message", required=True)
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> TypedData:
-        return TypedData(**data)

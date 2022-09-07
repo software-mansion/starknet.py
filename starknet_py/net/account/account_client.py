@@ -45,7 +45,8 @@ from starknet_py.utils.data_transformer.execute_transformer import (
     execute_transformer_by_version,
 )
 from starknet_py.utils.sync import add_sync_methods
-from starknet_py.utils.typed_data import TypedData
+from starknet_py.utils.typed_data import TypedData as TypedDataDataclass
+from starknet_py.net.models import TypedData
 
 
 @add_sync_methods
@@ -597,6 +598,7 @@ class AccountClient(Client):
         :param typed_data: TypedData object to be hashed
         :return: the hash of the TypedData object
         """
+        typed_data = TypedDataDataclass.from_dict(typed_data)
         return typed_data.message_hash(self.address)
 
     async def verify_message(self, typed_data: TypedData, signature: List[int]) -> bool:
