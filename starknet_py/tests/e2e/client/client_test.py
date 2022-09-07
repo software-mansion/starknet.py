@@ -18,7 +18,6 @@ from starknet_py.net.client_models import (
     TransactionReceipt,
     DeployedContract,
     DeployTransaction,
-    DeclareTransaction,
 )
 from starknet_py.net.client_errors import ClientError
 from starknet_py.tests.e2e.account.account_client_test import MAX_FEE
@@ -49,21 +48,22 @@ async def test_get_deploy_transaction(
 
 
 @pytest.mark.asyncio
-async def test_get_declare_transaction(clients, declare_transaction_hash, class_hash):
+async def test_get_declare_transaction(
+    clients, declare_transaction_hash, class_hash, gateway_account_client
+):
     # TODO extend this test to all clients
     gateway_client, _ = clients
 
     transaction = await gateway_client.get_transaction(declare_transaction_hash)
-
-    assert transaction == DeclareTransaction(
-        class_hash=class_hash,
-        sender_address=DEFAULT_DECLARE_SENDER_ADDRESS,
-        hash=declare_transaction_hash,
-        signature=[],
-        max_fee=0,
-        version=0,
-        nonce=0,
+    sender_address = (
+        gateway_account_client.address
+        if transaction.version == 1
+        else DEFAULT_DECLARE_SENDER_ADDRESS
     )
+
+    assert transaction.class_hash == class_hash
+    assert transaction.hash == declare_transaction_hash
+    assert transaction.sender_address == sender_address
 
 
 @pytest.mark.asyncio
