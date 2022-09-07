@@ -235,3 +235,18 @@ async def test_get_class_hash_at(map_contract, account_clients):
         )
 
         assert class_hash != 0
+
+
+@pytest.mark.asyncio
+async def test_throws_on_wrong_transaction_version(account_clients, map_contract):
+    for account_client in account_clients:
+        account_client.supported_tx_version = 0
+        map_contract.client = account_client
+
+        with pytest.raises(ValueError) as err:
+            await map_contract.functions["put"].invoke(key=10, value=20, version=1)
+
+        assert (
+            "Provided version: 1 is not equal to account's supported_tx_version: 0"
+            in str(err.value)
+        )

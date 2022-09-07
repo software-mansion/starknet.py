@@ -4,117 +4,92 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.math import assert_not_zero
 from starkware.starknet.common.syscalls import library_call, library_call_l1_handler
 
-####################
-# CONSTRUCTOR
-####################
+//###################
+// CONSTRUCTOR
+//###################
 
 @constructor
-func constructor{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    } (
-        implementation: felt
-    ):
-    _set_implementation(implementation)
-    return ()
-end
+func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    implementation: felt
+) {
+    _set_implementation(implementation);
+    return ();
+}
 
-####################
-# EXTERNAL FUNCTIONS
-####################
+//###################
+// EXTERNAL FUNCTIONS
+//###################
 
 @external
 @raw_input
 @raw_output
-func __default__{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    } (
-        selector : felt,
-        calldata_size : felt,
-        calldata : felt*
-    ) -> (
-        retdata_size : felt,
-        retdata : felt*
-    ):
-    let (implementation) = _get_implementation()
+func __default__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    selector: felt, calldata_size: felt, calldata: felt*
+) -> (retdata_size: felt, retdata: felt*) {
+    let (implementation) = _get_implementation();
 
-    let (retdata_size : felt, retdata : felt*) = library_call(
+    let (retdata_size: felt, retdata: felt*) = library_call(
         class_hash=implementation,
         function_selector=selector,
         calldata_size=calldata_size,
-        calldata=calldata)
-    return (retdata_size=retdata_size, retdata=retdata)
-end
+        calldata=calldata,
+    );
+    return (retdata_size=retdata_size, retdata=retdata);
+}
 
 @l1_handler
 @raw_input
-func __l1_default__{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    } (
-        selector : felt,
-        calldata_size : felt,
-        calldata : felt*
-    ):
-    let (implementation) = _get_implementation()
+func __l1_default__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    selector: felt, calldata_size: felt, calldata: felt*
+) {
+    let (implementation) = _get_implementation();
 
     library_call_l1_handler(
         class_hash=implementation,
         function_selector=selector,
         calldata_size=calldata_size,
-        calldata=calldata)
-    return ()
-end
+        calldata=calldata,
+    );
+    return ();
+}
 
-####################
-# VIEW FUNCTIONS
-####################
+//###################
+// VIEW FUNCTIONS
+//###################
 
 @view
-func get_implementation{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    } () -> (implementation: felt):
-    let (implementation) = _get_implementation()
-    return (implementation=implementation)
-end
+func get_implementation{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
+    implementation: felt
+) {
+    let (implementation) = _get_implementation();
+    return (implementation=implementation);
+}
 
-####################
-# STORAGE VARIABLES
-####################
+//###################
+// STORAGE VARIABLES
+//###################
 
 @storage_var
-func _implementation() -> (address : felt):
-end
+func _implementation() -> (address: felt) {
+}
 
-####################
-# INTERNAL FUNCTIONS
-####################
+//###################
+// INTERNAL FUNCTIONS
+//###################
 
-func _get_implementation{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    } () -> (implementation: felt):
-    let (res) = _implementation.read()
-    return (implementation=res)
-end
+func _get_implementation{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
+    implementation: felt
+) {
+    let (res) = _implementation.read();
+    return (implementation=res);
+}
 
-# added for testing purposes
+// added for testing purposes
 @external
-func _set_implementation{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    } (
-        implementation: felt
-    ):
-    assert_not_zero(implementation)
-    _implementation.write(implementation)
-    return ()
-end
+func _set_implementation{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    implementation: felt
+) {
+    assert_not_zero(implementation);
+    _implementation.write(implementation);
+    return ();
+}

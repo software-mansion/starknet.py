@@ -42,6 +42,15 @@ async def test_get_code(contract_address, gateway_client):
 
 
 @pytest.mark.asyncio
+async def test_get_contract_nonce(gateway_client):
+    nonce = await gateway_client.get_contract_nonce(
+        contract_address=0x1111,
+        block_hash="latest",
+    )
+    assert nonce == "0x0"
+
+
+@pytest.mark.asyncio
 async def test_get_transaction_status(invoke_transaction_hash, gateway_client):
     tx_status_resp = await gateway_client.get_transaction_status(
         invoke_transaction_hash
