@@ -197,9 +197,9 @@ def compiled_proxy(request) -> str:
     return (directory_with_contracts / request.param).read_text("utf-8")
 
 
-@pytest.fixture(name="typed_data")
+@pytest.fixture(name="typed_data", params=["typed_data_example.json", "typed_data_struct_array_example.json"])
 def typed_data(request) -> TypedData:
-    file_name = getattr(request, "param", "typed_data_example.json")
+    file_name = getattr(request, "param")
 
     directory = Path(os.path.dirname(__file__))
     file_path = directory / "account" / file_name

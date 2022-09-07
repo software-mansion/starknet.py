@@ -627,7 +627,7 @@ class AccountClient(Client):
             signature=[],
             max_fee=0,
             version=0,
-            nonce=self._get_nonce(),
+            nonce=None,
         )
         try:
             await self.call_contract(invoke_tx=invoke_tx)
