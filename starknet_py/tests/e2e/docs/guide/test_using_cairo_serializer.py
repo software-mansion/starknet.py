@@ -61,6 +61,7 @@ async def test_using_cairo_serializer(network, gateway_account_client):
     invoke_result = (
         await contract.functions["put"].prepare(10, 20, max_fee=int(1e16)).invoke()
     )
+    await invoke_result.wait_for_acceptance()
 
     transaction_hash = invoke_result.hash
     transaction_receipt = await client.get_transaction_receipt(transaction_hash)

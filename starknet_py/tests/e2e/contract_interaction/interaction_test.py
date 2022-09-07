@@ -143,7 +143,7 @@ async def test_prepare_without_max_fee(map_contract):
 async def test_invoke_and_call(key, value, map_contract):
 
     invocation = await map_contract.functions["put"].invoke(key, value, max_fee=MAX_FEE)
-    await invocation.wait_for_acceptance()
+    await invocation.wait_for_acceptance(wait_for_accept=True)
     (response,) = await map_contract.functions["get"].call(key)
 
     assert response == value

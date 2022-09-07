@@ -34,12 +34,15 @@ async def test_account_client_details(network, gateway_account_client, map_sourc
     # There are two options of executing transactions
     # 1. Use contract interface
 
-    await contract.functions["put"].invoke(key=10, value=20, max_fee=int(1e16))
+    await (
+        await contract.functions["put"].invoke(key=10, value=20, max_fee=int(1e16))
+    ).wait_for_acceptance()
 
     # 2. Use AccountClient's execute method
 
     call = contract.functions["put"].prepare(key=10, value=20)
-    await client.execute(calls=call, max_fee=int(1e16))
+    resp = await client.execute(calls=call, max_fee=int(1e16))
+    await client.wait_for_tx(resp.transaction_hash)
 
     # The advantage of using the second approach is there can be more than only one call
 
