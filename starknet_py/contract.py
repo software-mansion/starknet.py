@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import dataclasses
-import sys
 import warnings
 from dataclasses import dataclass
 from typing import (

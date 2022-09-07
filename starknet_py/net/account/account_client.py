@@ -40,7 +40,6 @@ from starknet_py.net.models.address import AddressRepresentation, parse_address
 from starknet_py.net.networks import Network, MAINNET, TESTNET
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
-from starknet_py.transactions.deploy import make_deploy_tx
 from starknet_py.utils.crypto.facade import Call
 from starknet_py.utils.data_transformer.execute_transformer import (
     execute_transformer_by_version,
@@ -628,6 +627,7 @@ class AccountClient(Client):
             signature=[],
             max_fee=0,
             version=0,
+            nonce=self._get_nonce(),
         )
         try:
             await self.call_contract(invoke_tx=invoke_tx)
