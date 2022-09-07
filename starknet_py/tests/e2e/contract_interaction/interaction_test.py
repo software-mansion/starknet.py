@@ -142,7 +142,7 @@ async def test_prepare_without_max_fee(map_contract):
 async def test_invoke_and_call(key, value, map_contract):
 
     invocation = await map_contract.functions["put"].invoke(key, value, max_fee=MAX_FEE)
-    await invocation.wait_for_acceptance()
+    await invocation.wait_for_acceptance(wait_for_accept=True)
     (response,) = await map_contract.functions["get"].call(key)
 
     assert response == value
@@ -171,7 +171,7 @@ async def test_call_uninitialized_contract(account_client):
         )
 
     assert "500" in str(err.value)
-    assert "No contract at the provided address" in err.value.message
+    assert "StarknetErrorCode.UNINITIALIZED_CONTRACT" in err.value.message
 
 
 @pytest.mark.asyncio
@@ -212,7 +212,11 @@ async def test_warning_when_max_fee_equals_to_zero(map_contract):
         DeprecationWarning,
         match=r"Transaction will fail with max_fee set to 0. Change it to a higher value.",
     ):
-        await map_contract.functions["put"].invoke(10, 20, max_fee=0)
+        # try except have to be added because when running on integration it will throw an error (max_fee=0)
+        try:
+            await map_contract.functions["put"].invoke(10, 20, max_fee=0)
+        except ClientError:
+            pass
 
 
 @pytest.mark.asyncio

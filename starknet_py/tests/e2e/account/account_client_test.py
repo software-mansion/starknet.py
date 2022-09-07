@@ -12,6 +12,7 @@ from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import parse_address, StarknetChainId
 from starknet_py.net.networks import TESTNET, MAINNET
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
+from starknet_py.transaction_exceptions import TransactionRejectedError
 from starknet_py.transactions.deploy import make_deploy_tx
 
 MAX_FEE = int(1e20)
@@ -110,8 +111,8 @@ async def test_estimated_fee_greater_than_zero(erc20_contract, account_client):
 
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
-async def test_create_account_client(run_devnet):
-    client = GatewayClient(net=run_devnet, chain=StarknetChainId.TESTNET)
+async def test_create_account_client(network):
+    client = GatewayClient(net=network, chain=StarknetChainId.TESTNET)
     acc_client = await AccountClient.create_account(
         client=client, chain=StarknetChainId.TESTNET
     )
@@ -121,9 +122,9 @@ async def test_create_account_client(run_devnet):
 
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
-async def test_create_account_client_with_private_key(run_devnet):
+async def test_create_account_client_with_private_key(network):
     private_key = 1234
-    gt_client = GatewayClient(net=run_devnet, chain=StarknetChainId.TESTNET)
+    gt_client = GatewayClient(net=network, chain=StarknetChainId.TESTNET)
     acc_client = await AccountClient.create_account(
         client=gt_client, private_key=private_key, chain=StarknetChainId.TESTNET
     )
@@ -134,10 +135,10 @@ async def test_create_account_client_with_private_key(run_devnet):
 
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
-async def test_create_account_client_with_signer(run_devnet):
+async def test_create_account_client_with_signer(network):
     key_pair = KeyPair.from_private_key(1234)
     client = GatewayClient(
-        net=run_devnet,
+        net=network,
     )
     address = await deploy_account_contract(
         client=client,
@@ -192,8 +193,12 @@ async def test_deploy(account_client, map_source_code):
 
 @pytest.mark.asyncio
 async def test_rejection_reason_in_transaction_receipt(account_client, map_contract):
-    res = await map_contract.functions["put"].invoke(key=10, value=20, max_fee=1)
-    transaction_receipt = await account_client.get_transaction_receipt(res.hash)
+      res = await map_contract.functions["put"].invoke(key=10, value=20, max_fee=1)
+
+      with pytest.raises(TransactionRejectedError):
+          await account_client.wait_for_tx(res.hash)
+
+      transaction_receipt = await account_client.get_transaction_receipt(res.hash)
 
     assert "Actual fee exceeded max fee." in transaction_receipt.rejection_reason
 

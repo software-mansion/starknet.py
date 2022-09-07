@@ -18,7 +18,7 @@ This is how we can interact with it:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_existing_contracts.py
     :language: python
-    :lines: 34-40,44-49,57-92
+    :lines: 34-40,44-49,57-66,70-74,78-82,86-101
     :dedent: 4
 
 
@@ -32,7 +32,7 @@ Here is an example:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_account_client_details.py
     :language: python
-    :lines: 10-15,19-23,28-55
+    :lines: 8-13,17-21,26-56
     :dedent: 4
 
 
@@ -57,7 +57,7 @@ Here's how you can deploy new contracts:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_deploying_new_contracts.py
     :language: python
-    :lines: 10-33,37-66
+    :lines: 10-33,37-68
     :dedent: 4
 
 
@@ -201,7 +201,7 @@ Here is a usage example:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_cairo_serializer.py
     :language: python
-    :lines: 9-39,44-49,54-96
+    :lines: 9-39,44-49,54-97
     :dedent: 4
 
 
