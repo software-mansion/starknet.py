@@ -193,12 +193,12 @@ async def test_deploy(account_client, map_source_code):
 
 @pytest.mark.asyncio
 async def test_rejection_reason_in_transaction_receipt(account_client, map_contract):
-      res = await map_contract.functions["put"].invoke(key=10, value=20, max_fee=1)
+    res = await map_contract.functions["put"].invoke(key=10, value=20, max_fee=1)
 
-      with pytest.raises(TransactionRejectedError):
-          await account_client.wait_for_tx(res.hash)
+    with pytest.raises(TransactionRejectedError):
+        await account_client.wait_for_tx(res.hash)
 
-      transaction_receipt = await account_client.get_transaction_receipt(res.hash)
+    transaction_receipt = await account_client.get_transaction_receipt(res.hash)
 
     assert "Actual fee exceeded max fee." in transaction_receipt.rejection_reason
 
