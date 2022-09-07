@@ -218,7 +218,7 @@ async def test_throws_on_wrong_transaction_version(account_client, map_contract)
     map_contract.client = account_client
 
     with pytest.raises(ValueError) as err:
-        await map_contract.functions["put"].invoke(key=10, value=20, version=1)
+        await map_contract.functions["put"].invoke(key=10, value=20, version=1, max_fee=MAX_FEE)
 
     assert (
         "Provided version: 1 is not equal to account's supported_tx_version: 0"

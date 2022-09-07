@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Tuple
 
 import pytest
+import pytest_asyncio
 from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.net import AccountClient
@@ -21,7 +22,7 @@ from starknet_py.tests.e2e.conftest import directory_with_contracts
 directory = os.path.dirname(__file__)
 
 
-def prepare_network(gateway_account_client: AccountClient) -> dict:
+async def prepare_network(gateway_account_client: AccountClient) -> dict:
     contract_compiled = Path(
         directory_with_contracts / "balance_compiled.json"
     ).read_text("utf-8")
@@ -35,7 +36,7 @@ def prepare_network(gateway_account_client: AccountClient) -> dict:
         block_with_invoke_number,
         declare_transaction_hash,
         block_with_declare_number,
-    ) = prepare_net_for_tests(
+    ) = await prepare_net_for_tests(
         gateway_account_client, compiled_contract=contract_compiled
     )
 
@@ -159,8 +160,8 @@ def fixture_clients(network) -> Tuple[Client, Client]:
 
 
 # pylint: disable=redefined-outer-name
-@pytest.fixture(name="prepare_network", scope="module", autouse=True)
-def fixture_prepare_network(network, gateway_account_client) -> Tuple[str, dict]:
+@pytest_asyncio.fixture(name="prepare_network", scope="module", autouse=True)
+async def fixture_prepare_network(network, gateway_account_client) -> Tuple[str, dict]:
     net = network
-    prepared_data = prepare_network(gateway_account_client)
+    prepared_data = await prepare_network(gateway_account_client)
     yield net, prepared_data
