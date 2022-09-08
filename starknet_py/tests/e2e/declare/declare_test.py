@@ -2,6 +2,7 @@ import pytest
 
 
 @pytest.mark.asyncio
+# FIXME: remove skip
 @pytest.mark.skip
 async def test_declare_tx(new_gateway_account_client, map_source_code):
     declare_tx = await new_gateway_account_client.sign_declare_transaction(

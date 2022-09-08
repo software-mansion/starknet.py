@@ -37,6 +37,7 @@ async def test_max_fee_is_set_in_sent_invoke(map_contract):
 
 
 @pytest.mark.asyncio
+# FIXME: remove skip
 @pytest.mark.skip
 async def test_auto_fee_estimation(map_contract):
     key = 2
@@ -161,6 +162,7 @@ async def test_get_code_not_found(gateway_account_client):
 
 
 @pytest.mark.asyncio
+# FIXME: remove skip
 @pytest.mark.skip
 async def test_call_uninitialized_contract(account_client):
     with pytest.raises(ClientError) as err:

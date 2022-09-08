@@ -90,6 +90,7 @@ async def test_get_transaction_raises_on_not_received(clients):
 
 
 @pytest.mark.asyncio
+# FIXME: remove skip
 @pytest.mark.skip
 async def test_get_block_by_hash(
     clients,
@@ -119,6 +120,7 @@ async def test_get_block_by_hash(
 
 
 @pytest.mark.asyncio
+# FIXME: remove skip
 @pytest.mark.skip
 async def test_get_block_by_number(
     clients,
@@ -194,6 +196,7 @@ async def test_get_transaction_receipt(
 
 
 @pytest.mark.asyncio
+# FIXME: remove skip
 @pytest.mark.skip
 async def test_estimate_fee(contract_address, gateway_client):
     transaction = InvokeFunction(
@@ -212,6 +215,7 @@ async def test_estimate_fee(contract_address, gateway_client):
 
 
 @pytest.mark.asyncio
+# FIXME: remove skip
 @pytest.mark.skip
 async def test_call_contract(clients, contract_address):
     for client in clients:
@@ -230,6 +234,7 @@ async def test_call_contract(clients, contract_address):
 
 
 @pytest.mark.asyncio
+# FIXME: remove skip
 @pytest.mark.skip
 async def test_state_update_gateway_client(
     gateway_client,
