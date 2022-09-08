@@ -8,6 +8,9 @@ from typing import Tuple
 import pytest
 import pytest_asyncio
 from starkware.starknet.public.abi import get_selector_from_name
+from starkware.starknet.services.api.gateway.transaction import (
+    DEFAULT_DECLARE_SENDER_ADDRESS,
+)
 
 from starknet_py.net import AccountClient
 from starknet_py.net.client import Client
@@ -156,3 +159,8 @@ async def fixture_prepare_network(
     net = network
     prepared_data = await prepare_network(gateway_account_client)
     yield net, prepared_data
+
+
+@pytest.fixture(scope="module")
+def sender_address(gateway_account_client):
+    return {0: DEFAULT_DECLARE_SENDER_ADDRESS, 1: gateway_account_client.address}

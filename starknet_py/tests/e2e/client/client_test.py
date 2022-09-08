@@ -8,9 +8,6 @@ from starkware.starknet.public.abi import (
     get_selector_from_name,
     get_storage_var_address,
 )
-from starkware.starknet.services.api.gateway.transaction import (
-    DEFAULT_DECLARE_SENDER_ADDRESS,
-)
 
 from starknet_py.net.client_models import (
     TransactionStatus,
@@ -49,33 +46,30 @@ async def test_get_deploy_transaction(
 
 @pytest.mark.asyncio
 async def test_get_declare_transaction(
-    clients, declare_transaction_hash, class_hash, gateway_account_client
+    clients,
+    declare_transaction_hash,
+    class_hash,
+    sender_address,
 ):
     # TODO extend this test to all clients
     gateway_client, _ = clients
 
     transaction = await gateway_client.get_transaction(declare_transaction_hash)
-    sender_address = (
-        gateway_account_client.address
-        if transaction.version == 1
-        else DEFAULT_DECLARE_SENDER_ADDRESS
-    )
 
     assert transaction.class_hash == class_hash
     assert transaction.hash == declare_transaction_hash
-    assert transaction.sender_address == sender_address
+    assert transaction.sender_address == sender_address[transaction.version]
 
 
 @pytest.mark.asyncio
 async def test_get_invoke_transaction(
     clients,
     invoke_transaction_hash,
-    invoke_transaction_calldata,
 ):
     for client in clients:
         transaction = await client.get_transaction(invoke_transaction_hash)
 
-        assert invoke_transaction_calldata[0] in transaction.calldata
+        assert any(data == 1234 for data in transaction.calldata)
         assert transaction.hash == invoke_transaction_hash
 
 
