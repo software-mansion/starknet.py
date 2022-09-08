@@ -44,6 +44,7 @@ INTEGRATION_NEW_ACCOUNT_ADDRESS = (
 )
 
 
+# This fixture was added to enable using async fixtures
 @pytest.fixture(scope="module")
 def event_loop():
     policy = asyncio.get_event_loop_policy()
