@@ -244,7 +244,7 @@ class AccountClient(Client):
                 version=self.supported_tx_version,
                 nonce=None,
             ),
-            block_hash="latest"
+            block_hash="latest",
         )
 
         return (high << 128) + low
