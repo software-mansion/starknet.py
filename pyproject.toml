@@ -42,6 +42,9 @@ pytest-xdist = "^2.5.0"
 web3 = {extras=["tester"], version="6.0.0b4"}
 
 
+[tool.poetry.group.dev.dependencies]
+starknet-devnet = "^0.3.0"
+
 [tool.poe.tasks]
 test = ["test_unit", "test_e2e", "test_docs"]
 test_unit.shell = "coverage run -m pytest starknet_py --ignore=starknet_py/tests/e2e"

@@ -209,7 +209,7 @@ def new_gateway_account_client(new_address_and_private_key, gateway_client):
 
 
 @pytest.fixture(
-    scope="module", params=["gateway_account_client", "new_gateway_account_client"]
+    scope="module", params=["gateway_account_client", "rpc_account_client"]
 )
 def account_client(request):
     # FIXME add rpc client for devnet tests
@@ -217,7 +217,7 @@ def account_client(request):
 
 
 @pytest.fixture(
-    scope="module", params=["deploy_map_contract", "new_deploy_map_contract"]
+    scope="module", params=["deploy_map_contract"]
 )
 def map_contract(request):
     return request.getfixturevalue(request.param)

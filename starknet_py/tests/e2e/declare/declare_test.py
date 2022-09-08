@@ -2,13 +2,14 @@ import pytest
 
 
 @pytest.mark.asyncio
-async def test_declare_tx(account_client, map_source_code):
-    declare_tx = await account_client.sign_declare_transaction(
+@pytest.mark.skip
+async def test_declare_tx(new_gateway_account_client, map_source_code):
+    declare_tx = await new_gateway_account_client.sign_declare_transaction(
         compilation_source=map_source_code
     )
-    result = await account_client.declare(declare_tx)
+    result = await new_gateway_account_client.declare(declare_tx)
 
-    await account_client.wait_for_tx(
+    await new_gateway_account_client.wait_for_tx(
         tx_hash=result.transaction_hash, wait_for_accept=True
     )
 

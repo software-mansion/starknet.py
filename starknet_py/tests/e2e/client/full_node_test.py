@@ -74,7 +74,7 @@ async def test_node_get_declare_transaction_by_block_number_and_index(
         signature=[],
         max_fee=0,
         version=0,
-        nonce=None,
+        nonce=0,
     )
 
 
