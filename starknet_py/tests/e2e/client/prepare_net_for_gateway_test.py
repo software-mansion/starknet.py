@@ -6,7 +6,7 @@ from starknet_py.transactions.declare import make_declare_tx
 
 
 @dataclass
-class PreparedData:
+class PreparedNetworkData:
     # pylint: disable=too-many-instance-attributes
     contract_address: int
     deploy_transaction_hash: int
@@ -18,8 +18,9 @@ class PreparedData:
     block_with_declare_number: int
 
 
-async def prepare_net_for_tests(account_client: AccountClient, compiled_contract: str):
-    # pylint: disable=no-member, too-many-locals
+async def prepare_net_for_tests(
+    account_client: AccountClient, compiled_contract: str
+) -> PreparedNetworkData:
     deployment_result = await Contract.deploy(
         client=account_client, compiled_contract=compiled_contract
     )
@@ -28,10 +29,8 @@ async def prepare_net_for_tests(account_client: AccountClient, compiled_contract
     )
     contract = deployment_result.deployed_contract
 
-    contract_address = contract.address
-    deploy_transaction_hash = deployment_result.hash
     deploy_receipt = await account_client.get_transaction_receipt(
-        deploy_transaction_hash
+        deployment_result.hash
     )
     block_with_deploy_number = deploy_receipt.block_number
     block_with_deploy_hash = deploy_receipt.block_hash
@@ -41,27 +40,25 @@ async def prepare_net_for_tests(account_client: AccountClient, compiled_contract
     )
     await invoke_res.wait_for_acceptance()
 
-    invoke_transaction_hash = invoke_res.hash
     block_with_invoke_number = (
-        await account_client.get_transaction_receipt(invoke_transaction_hash)
+        await account_client.get_transaction_receipt(invoke_res.hash)
     ).block_number
 
     declare_tx = make_declare_tx(compiled_contract=compiled_contract)
     declare_result = await account_client.declare(declare_tx)
     await account_client.wait_for_tx(declare_result.transaction_hash)
 
-    declare_transaction_hash = declare_result.transaction_hash
     block_with_declare_number = (
-        await account_client.get_transaction_receipt(declare_transaction_hash)
+        await account_client.get_transaction_receipt(declare_result.transaction_hash)
     ).block_number
 
-    return PreparedData(
-        contract_address,
-        deploy_transaction_hash,
-        block_with_deploy_number,
-        block_with_deploy_hash,
-        invoke_transaction_hash,
-        block_with_invoke_number,
-        declare_transaction_hash,
-        block_with_declare_number,
+    return PreparedNetworkData(
+        contract_address=contract.address,
+        deploy_transaction_hash=deployment_result.hash,
+        block_with_deploy_number=block_with_deploy_number,
+        block_with_deploy_hash=block_with_deploy_hash,
+        invoke_transaction_hash=invoke_res.hash,
+        block_with_invoke_number=block_with_invoke_number,
+        declare_transaction_hash=declare_result.transaction_hash,
+        block_with_declare_number=block_with_declare_number,
     )

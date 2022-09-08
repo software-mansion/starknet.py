@@ -16,14 +16,14 @@ from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.tests.e2e.client.prepare_net_for_gateway_test import (
     prepare_net_for_tests,
-    PreparedData,
+    PreparedNetworkData,
 )
 from starknet_py.tests.e2e.conftest import directory_with_contracts
 
 directory = os.path.dirname(__file__)
 
 
-async def prepare_network(gateway_account_client: AccountClient) -> PreparedData:
+async def prepare_network(gateway_account_client: AccountClient) -> PreparedNetworkData:
     contract_compiled = Path(
         directory_with_contracts / "balance_compiled.json"
     ).read_text("utf-8")
@@ -47,31 +47,39 @@ def get_class_hash(net: str, contract_address: str) -> str:
 
 
 @pytest.fixture(name="block_with_deploy_number")
-def fixture_block_with_deploy_number(prepare_network: Tuple[str, PreparedData]) -> int:
+def fixture_block_with_deploy_number(
+    prepare_network: Tuple[str, PreparedNetworkData]
+) -> int:
     _, prepared_data = prepare_network
     return prepared_data.block_with_deploy_number
 
 
 @pytest.fixture(name="block_with_deploy_hash")
-def fixture_block_with_deploy_hash(prepare_network: Tuple[str, PreparedData]) -> int:
+def fixture_block_with_deploy_hash(
+    prepare_network: Tuple[str, PreparedNetworkData]
+) -> int:
     _, prepared_data = prepare_network
     return prepared_data.block_with_deploy_hash
 
 
 @pytest.fixture(name="block_with_invoke_number")
-def fixture_block_with_invoke_number(prepare_network: Tuple[str, PreparedData]) -> int:
+def fixture_block_with_invoke_number(
+    prepare_network: Tuple[str, PreparedNetworkData]
+) -> int:
     _, prepared_data = prepare_network
     return prepared_data.block_with_invoke_number
 
 
 @pytest.fixture(name="block_with_declare_number")
-def fixture_block_with_declare_number(prepare_network: Tuple[str, PreparedData]) -> int:
+def fixture_block_with_declare_number(
+    prepare_network: Tuple[str, PreparedNetworkData]
+) -> int:
     _, prepared_data = prepare_network
     return prepared_data.block_with_declare_number
 
 
 @pytest.fixture(name="invoke_transaction")
-def fixture_invoke_transaction(prepare_network: Tuple[str, PreparedData]):
+def fixture_invoke_transaction(prepare_network: Tuple[str, PreparedNetworkData]):
     _, prepared_data = prepare_network
     return {
         "hash": prepared_data.invoke_transaction_hash,
@@ -96,19 +104,19 @@ def fixture_invoke_transaction_selector(invoke_transaction):
 
 
 @pytest.fixture(name="deploy_transaction_hash")
-def fixture_deploy_transaction_hash(prepare_network: Tuple[str, PreparedData]):
+def fixture_deploy_transaction_hash(prepare_network: Tuple[str, PreparedNetworkData]):
     _, prepared_data = prepare_network
     return prepared_data.deploy_transaction_hash
 
 
 @pytest.fixture(name="declare_transaction_hash")
-def fixture_declare_transaction_hash(prepare_network: Tuple[str, PreparedData]):
+def fixture_declare_transaction_hash(prepare_network: Tuple[str, PreparedNetworkData]):
     _, prepared_data = prepare_network
     return prepared_data.declare_transaction_hash
 
 
 @pytest.fixture(name="contract_address")
-def fixture_contract_address(prepare_network: Tuple[str, PreparedData]):
+def fixture_contract_address(prepare_network: Tuple[str, PreparedNetworkData]):
     _, prepared_data = prepare_network
     return prepared_data.contract_address
 
@@ -144,7 +152,7 @@ def fixture_clients(network) -> Tuple[Client, Client]:
 @pytest_asyncio.fixture(name="prepare_network", scope="module", autouse=True)
 async def fixture_prepare_network(
     network, gateway_account_client
-) -> Tuple[str, PreparedData]:
+) -> Tuple[str, PreparedNetworkData]:
     net = network
     prepared_data = await prepare_network(gateway_account_client)
     yield net, prepared_data
