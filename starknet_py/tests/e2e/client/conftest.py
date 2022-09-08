@@ -16,40 +16,21 @@ from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.tests.e2e.client.prepare_net_for_gateway_test import (
     prepare_net_for_tests,
+    PreparedData,
 )
 from starknet_py.tests.e2e.conftest import directory_with_contracts
 
 directory = os.path.dirname(__file__)
 
 
-async def prepare_network(gateway_account_client: AccountClient) -> dict:
+async def prepare_network(gateway_account_client: AccountClient) -> PreparedData:
     contract_compiled = Path(
         directory_with_contracts / "balance_compiled.json"
     ).read_text("utf-8")
 
-    (
-        contract_address,
-        deploy_transaction_hash,
-        block_with_deploy_number,
-        block_with_deploy_hash,
-        invoke_transaction_hash,
-        block_with_invoke_number,
-        declare_transaction_hash,
-        block_with_declare_number,
-    ) = await prepare_net_for_tests(
+    prepared_data = await prepare_net_for_tests(
         gateway_account_client, compiled_contract=contract_compiled
     )
-
-    prepared_data = {
-        "contract_address": contract_address,
-        "deploy_transaction_hash": deploy_transaction_hash,
-        "block_with_deploy_number": block_with_deploy_number,
-        "block_with_deploy_hash": block_with_deploy_hash,
-        "invoke_transaction_hash": invoke_transaction_hash,
-        "block_with_invoke_number": block_with_invoke_number,
-        "declare_transaction_hash": declare_transaction_hash,
-        "block_with_declare_number": block_with_declare_number,
-    }
 
     return prepared_data
 
@@ -66,34 +47,34 @@ def get_class_hash(net: str, contract_address: str) -> str:
 
 
 @pytest.fixture(name="block_with_deploy_number")
-def fixture_block_with_deploy_number(prepare_network) -> int:
+def fixture_block_with_deploy_number(prepare_network: Tuple[str, PreparedData]) -> int:
     _, prepared_data = prepare_network
-    return prepared_data["block_with_deploy_number"]
+    return prepared_data.block_with_deploy_number
 
 
 @pytest.fixture(name="block_with_deploy_hash")
-def fixture_block_with_deploy_hash(prepare_network) -> int:
+def fixture_block_with_deploy_hash(prepare_network: Tuple[str, PreparedData]) -> int:
     _, prepared_data = prepare_network
-    return prepared_data["block_with_deploy_hash"]
+    return prepared_data.block_with_deploy_hash
 
 
 @pytest.fixture(name="block_with_invoke_number")
-def fixture_block_with_invoke_number(prepare_network) -> int:
+def fixture_block_with_invoke_number(prepare_network: Tuple[str, PreparedData]) -> int:
     _, prepared_data = prepare_network
-    return prepared_data["block_with_invoke_number"]
+    return prepared_data.block_with_invoke_number
 
 
 @pytest.fixture(name="block_with_declare_number")
-def fixture_block_with_declare_number(prepare_network) -> int:
+def fixture_block_with_declare_number(prepare_network: Tuple[str, PreparedData]) -> int:
     _, prepared_data = prepare_network
-    return prepared_data["block_with_declare_number"]
+    return prepared_data.block_with_declare_number
 
 
 @pytest.fixture(name="invoke_transaction")
-def fixture_invoke_transaction(prepare_network):
+def fixture_invoke_transaction(prepare_network: Tuple[str, PreparedData]):
     _, prepared_data = prepare_network
     return {
-        "hash": prepared_data["invoke_transaction_hash"],
+        "hash": prepared_data.invoke_transaction_hash,
         "calldata": [1234],
         "entry_point_selector": get_selector_from_name("increase_balance"),
     }
@@ -115,21 +96,21 @@ def fixture_invoke_transaction_selector(invoke_transaction):
 
 
 @pytest.fixture(name="deploy_transaction_hash")
-def fixture_deploy_transaction_hash(prepare_network):
+def fixture_deploy_transaction_hash(prepare_network: Tuple[str, PreparedData]):
     _, prepared_data = prepare_network
-    return prepared_data["deploy_transaction_hash"]
+    return prepared_data.deploy_transaction_hash
 
 
 @pytest.fixture(name="declare_transaction_hash")
-def fixture_declare_transaction_hash(prepare_network):
+def fixture_declare_transaction_hash(prepare_network: Tuple[str, PreparedData]):
     _, prepared_data = prepare_network
-    return prepared_data["declare_transaction_hash"]
+    return prepared_data.declare_transaction_hash
 
 
 @pytest.fixture(name="contract_address")
-def fixture_contract_address(prepare_network):
+def fixture_contract_address(prepare_network: Tuple[str, PreparedData]):
     _, prepared_data = prepare_network
-    return prepared_data["contract_address"]
+    return prepared_data.contract_address
 
 
 @pytest.fixture(name="balance_contract")
@@ -161,7 +142,9 @@ def fixture_clients(network) -> Tuple[Client, Client]:
 
 # pylint: disable=redefined-outer-name
 @pytest_asyncio.fixture(name="prepare_network", scope="module", autouse=True)
-async def fixture_prepare_network(network, gateway_account_client) -> Tuple[str, dict]:
+async def fixture_prepare_network(
+    network, gateway_account_client
+) -> Tuple[str, PreparedData]:
     net = network
     prepared_data = await prepare_network(gateway_account_client)
     yield net, prepared_data

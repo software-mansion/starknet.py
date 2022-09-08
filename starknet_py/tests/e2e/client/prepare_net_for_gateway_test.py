@@ -1,6 +1,21 @@
+from dataclasses import dataclass
+
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient
 from starknet_py.transactions.declare import make_declare_tx
+
+
+@dataclass
+class PreparedData:
+    # pylint: disable=too-many-instance-attributes
+    contract_address: int
+    deploy_transaction_hash: int
+    block_with_deploy_number: int
+    block_with_deploy_hash: int
+    invoke_transaction_hash: int
+    block_with_invoke_number: int
+    declare_transaction_hash: int
+    block_with_declare_number: int
 
 
 async def prepare_net_for_tests(account_client: AccountClient, compiled_contract: str):
@@ -40,7 +55,7 @@ async def prepare_net_for_tests(account_client: AccountClient, compiled_contract
         await account_client.get_transaction_receipt(declare_transaction_hash)
     ).block_number
 
-    return (
+    return PreparedData(
         contract_address,
         deploy_transaction_hash,
         block_with_deploy_number,

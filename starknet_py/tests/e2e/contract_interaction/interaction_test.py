@@ -216,7 +216,7 @@ async def test_warning_when_max_fee_equals_to_zero(map_contract):
         DeprecationWarning,
         match=r"Transaction will fail with max_fee set to 0. Change it to a higher value.",
     ):
-        # try except have to be added because when running on integration it will throw an error (max_fee=0)
+        # try except have to be added because when running on a real environment it will throw an error (max_fee=0)
         try:
             await map_contract.functions["put"].invoke(10, 20, max_fee=0)
         except ClientError:
