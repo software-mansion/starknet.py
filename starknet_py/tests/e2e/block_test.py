@@ -4,6 +4,8 @@ from starknet_py.contract import Contract
 
 
 @pytest.mark.asyncio
+# FIXME: remove skip
+@pytest.mark.skip
 async def test_pending_block(gateway_account_client):
     contract = """
         %lang starknet
@@ -35,6 +37,8 @@ async def test_pending_block(gateway_account_client):
 
 
 @pytest.mark.asyncio
+# FIXME: remove skip
+@pytest.mark.skip
 async def test_latest_block(gateway_account_client):
     contract = """
         %lang starknet

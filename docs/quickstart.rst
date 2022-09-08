@@ -60,7 +60,7 @@ Example usage:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/quickstart/test_using_account_client.py
     :language: python
-    :lines: 14-17,21-26,30-60
+    :lines: 12-15,19-24,28-58
     :dedent: 4
 
 Using Contract
