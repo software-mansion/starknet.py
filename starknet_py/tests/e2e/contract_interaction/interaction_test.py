@@ -170,7 +170,7 @@ async def test_call_uninitialized_contract(gateway_account_client):
                 selector=get_selector_from_name("get_nonce"),
                 calldata=[],
             ),
-            block_hash="latest"
+            block_hash="latest",
         )
 
     assert "500" in str(err.value)
