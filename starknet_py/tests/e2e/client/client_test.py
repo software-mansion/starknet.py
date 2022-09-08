@@ -215,8 +215,6 @@ async def test_estimate_fee(contract_address, gateway_client):
 
 
 @pytest.mark.asyncio
-# FIXME: remove skip
-@pytest.mark.skip
 async def test_call_contract(clients, contract_address):
     for client in clients:
         invoke_function = InvokeFunction(
