@@ -162,20 +162,19 @@ async def test_get_code_not_found(gateway_account_client):
 
 
 @pytest.mark.asyncio
-# FIXME: remove skip
-@pytest.mark.skip
-async def test_call_uninitialized_contract(account_client):
+async def test_call_uninitialized_contract(gateway_account_client):
     with pytest.raises(ClientError) as err:
-        await account_client.call_contract(
+        await gateway_account_client.call_contract(
             Call(
                 to_addr=1,
                 selector=get_selector_from_name("get_nonce"),
                 calldata=[],
-            )
+            ),
+            block_hash="latest"
         )
 
     assert "500" in str(err.value)
-    assert "StarknetErrorCode.UNINITIALIZED_CONTRACT" in err.value.message
+    assert "Requested contract address 0x1 is not deployed." in err.value.message
 
 
 @pytest.mark.asyncio
