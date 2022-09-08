@@ -4,7 +4,7 @@ TypedDict structures for TypedData
 
 from typing import Dict, List, Union
 
-from starknet_py.utils.typing import TypedDict
+from typing import TypedDict
 
 
 class Parameter(TypedDict):

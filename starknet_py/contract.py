@@ -12,6 +12,7 @@ from typing import (
     Collection,
     NamedTuple,
 )
+from typing import TypedDict
 
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
 from starkware.starknet.core.os.class_hash import compute_class_hash
@@ -38,7 +39,6 @@ from starknet_py.transactions.deploy import make_deploy_tx
 from starknet_py.utils.crypto.facade import pedersen_hash, Call
 from starknet_py.utils.data_transformer import FunctionCallSerializer
 from starknet_py.utils.sync import add_sync_methods
-from starknet_py.utils.typing import TypedDict
 
 ABI = list
 ABIEntry = dict

@@ -1,7 +1,5 @@
+from typing import TypedDict
 from typing import Union
-
-from starknet_py.utils.typing import TypedDict
-
 
 MAINNET = "mainnet"
 TESTNET = "testnet"
