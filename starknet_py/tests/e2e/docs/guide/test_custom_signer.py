@@ -13,7 +13,7 @@ async def test_custom_signer():
     from starknet_py.net.gateway_client import GatewayClient
     from starknet_py.net.models import Transaction
     from starknet_py.net.models import StarknetChainId
-    from starknet_py.net.models import TypedData
+    from starknet_py.net.models.typed_data import TypedData
 
     # Create a custom signer class implementing BaseSigner interface
     class CustomSigner(BaseSigner):

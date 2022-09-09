@@ -46,7 +46,7 @@ from starknet_py.utils.data_transformer.execute_transformer import (
 )
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.typed_data import TypedData as TypedDataDataclass
-from starknet_py.net.models import TypedData
+from starknet_py.net.models.typed_data import TypedData
 
 
 @add_sync_methods
@@ -582,31 +582,31 @@ class AccountClient(Client):
 
     def sign_message(self, typed_data: TypedData) -> List[int]:
         """
-        Sign an TypedData object for off-chain usage with the starknet private key and return the signature
+        Sign an TypedData TypedDict for off-chain usage with the starknet private key and return the signature
         This adds a message prefix, so it can't be interchanged with transactions
 
-        :param typed_data: TypedData object to be signed
-        :return: The signature of the TypedData object
+        :param typed_data: TypedData TypedDict to be signed
+        :return: The signature of the TypedData TypedDict
         """
         return self.signer.sign_message(typed_data, self.address)
 
     def hash_message(self, typed_data: TypedData) -> int:
         """
-        Hash a TypedData object with pedersen hash and return the hash
+        Hash a TypedData TypedDict with pedersen hash and return the hash
         This adds a message prefix, so it can't be interchanged with transactions
 
-        :param typed_data: TypedData object to be hashed
-        :return: the hash of the TypedData object
+        :param typed_data: TypedData TypedDict to be hashed
+        :return: the hash of the TypedData TypedDict
         """
         typed_data = TypedDataDataclass.from_dict(typed_data)
         return typed_data.message_hash(self.address)
 
     async def verify_message(self, typed_data: TypedData, signature: List[int]) -> bool:
         """
-        Verify a signature of a TypedData object
+        Verify a signature of a TypedData TypedDict
 
-        :param typed_data: TypedData object to be verified
-        :param signature: signature of the TypedData object
+        :param typed_data: TypedData TypedDict to be verified
+        :param signature: signature of the TypedData TypedDict
         :return: true if the signature is valid, false otherwise
         """
         msg_hash = self.hash_message(typed_data)

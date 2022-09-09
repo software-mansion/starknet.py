@@ -2,9 +2,7 @@
 TypedDict structures for TypedData
 """
 
-from typing import Dict, List, Union
-
-from typing import TypedDict
+from typing import Dict, Union, TypedDict, Any
 
 
 class Parameter(TypedDict):
@@ -31,7 +29,7 @@ class TypedData(TypedDict):
     TypedDict representing a TypedData object
     """
 
-    types: Dict[str, List[Parameter]]
+    types: Dict[str, Any]
     primary_type: str
     domain: StarkNetDomain
     message: dict
