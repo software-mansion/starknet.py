@@ -1,14 +1,18 @@
 import dataclasses
+import re
 import warnings
-from typing import Optional, List, Union, Dict
 from dataclasses import replace
+from typing import Optional, List, Union, Dict
 
 from starkware.crypto.signature.signature import get_random_private_key
 from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.common import create_compiled_contract
 from starknet_py.compile.compiler import StarknetCompilationSource
+from starknet_py.constants import FEE_CONTRACT_ADDRESS
+from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
 from starknet_py.net.client import Client
+from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     SentTransactionResponse,
     Hash,
@@ -27,22 +31,22 @@ from starknet_py.net.client_models import (
     DeclareTransactionResponse,
     Transaction,
 )
-from starknet_py.constants import FEE_CONTRACT_ADDRESS
-from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
 from starknet_py.net.models import (
     InvokeFunction,
     StarknetChainId,
     chain_from_network,
 )
+from starknet_py.net.models.address import AddressRepresentation, parse_address
 from starknet_py.net.networks import Network, MAINNET, TESTNET
-from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
 from starknet_py.net.signer import BaseSigner
+from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
 from starknet_py.utils.crypto.facade import Call
 from starknet_py.utils.data_transformer.execute_transformer import (
     execute_transformer_by_version,
 )
 from starknet_py.utils.sync import add_sync_methods
-from starknet_py.net.models.address import AddressRepresentation, parse_address
+from starknet_py.utils.typed_data import TypedData as TypedDataDataclass
+from starknet_py.net.models.typed_data import TypedData
 
 
 @add_sync_methods
@@ -576,6 +580,65 @@ class AccountClient(Client):
         return await self.client.get_contract_nonce(
             contract_address, block_hash, block_number
         )
+
+    def sign_message(self, typed_data: TypedData) -> List[int]:
+        """
+        Sign an TypedData TypedDict for off-chain usage with the starknet private key and return the signature
+        This adds a message prefix, so it can't be interchanged with transactions
+
+        :param typed_data: TypedData TypedDict to be signed
+        :return: The signature of the TypedData TypedDict
+        """
+        return self.signer.sign_message(typed_data, self.address)
+
+    def hash_message(self, typed_data: TypedData) -> int:
+        """
+        Hash a TypedData TypedDict with pedersen hash and return the hash
+        This adds a message prefix, so it can't be interchanged with transactions
+
+        :param typed_data: TypedData TypedDict to be hashed
+        :return: the hash of the TypedData TypedDict
+        """
+        typed_data = TypedDataDataclass.from_dict(typed_data)
+        return typed_data.message_hash(self.address)
+
+    async def verify_message(self, typed_data: TypedData, signature: List[int]) -> bool:
+        """
+        Verify a signature of a TypedData TypedDict
+
+        :param typed_data: TypedData TypedDict to be verified
+        :param signature: signature of the TypedData TypedDict
+        :return: true if the signature is valid, false otherwise
+        """
+        msg_hash = self.hash_message(typed_data)
+        return await self._verify_message_hash(msg_hash, signature)
+
+    async def _verify_message_hash(self, msg_hash: int, signature: List[int]) -> bool:
+        """
+        Verify a signature of a given hash
+
+        :param msg_hash: hash to be verified
+        :param signature: signature of the hash
+        :return: true if the signature is valid, false otherwise
+        """
+        calldata = [msg_hash, len(signature), *signature]
+
+        invoke_tx = InvokeFunction(
+            contract_address=self.address,
+            entry_point_selector=get_selector_from_name("is_valid_signature"),
+            calldata=calldata,
+            signature=[],
+            max_fee=0,
+            version=0,
+            nonce=None,
+        )
+        try:
+            await self.call_contract(invoke_tx=invoke_tx)
+            return True
+        except ClientError as ex:
+            if re.search(r"Signature\s.+,\sis\sinvalid", ex.message):
+                return False
+            raise ex
 
 
 async def deploy_account_contract(

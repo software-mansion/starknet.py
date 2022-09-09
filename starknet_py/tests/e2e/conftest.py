@@ -1,22 +1,24 @@
 # pylint: disable=redefined-outer-name
 
 import asyncio
+import json
 import os
-import time
-import subprocess
 import socket
+import subprocess
+import time
 from contextlib import closing
 from pathlib import Path
 
 import pytest
 import pytest_asyncio
 
+from starknet_py.contract import Contract
 from starknet_py.net import KeyPair, AccountClient
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId, AddressRepresentation
-from starknet_py.contract import Contract
 from starknet_py.utils.data_transformer.data_transformer import CairoSerializer
+from starknet_py.utils.typed_data import TypedData
 
 TESTNET_ACCOUNT_PRIVATE_KEY = (
     "0x5d6871223e9d2f6136f3913e8ccb6daae0b6b2a8452b39f92a1ddc5a76eed9a"
@@ -265,6 +267,22 @@ async def deploy_erc20_contract(gateway_account_client, erc20_source_code) -> Co
 @pytest.fixture(name="compiled_proxy")
 def compiled_proxy(request) -> str:
     return (directory_with_contracts / request.param).read_text("utf-8")
+
+
+@pytest.fixture(
+    name="typed_data",
+    params=["typed_data_example.json", "typed_data_struct_array_example.json"],
+)
+def typed_data(request) -> TypedData:
+    file_name = getattr(request, "param")
+
+    directory = Path(os.path.dirname(__file__))
+    file_path = directory / "account" / file_name
+
+    with open(file_path, "r", encoding="utf-8") as file:
+        typed_data = json.load(file)
+
+    return typed_data
 
 
 @pytest_asyncio.fixture(name="cairo_serializer", scope="module")

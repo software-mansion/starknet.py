@@ -206,6 +206,25 @@ async def test_rejection_reason_in_transaction_receipt(account_client, map_contr
 
 
 @pytest.mark.asyncio
+async def test_sign_and_verify_offchain_message_fail(
+    gateway_account_client, typed_data
+):
+    signature = gateway_account_client.sign_message(typed_data)
+    signature = (signature[0] + 1, signature[1])
+    result = await gateway_account_client.verify_message(typed_data, signature)
+
+    assert result is False
+
+
+@pytest.mark.asyncio
+async def test_sign_and_verify_offchain_message(gateway_account_client, typed_data):
+    signature = gateway_account_client.sign_message(typed_data)
+    result = await gateway_account_client.verify_message(typed_data, signature)
+
+    assert result is True
+
+
+@pytest.mark.asyncio
 async def test_get_class_hash_at(map_contract, account_client):
     class_hash = await account_client.get_class_hash_at(
         map_contract.address, block_hash="latest"
