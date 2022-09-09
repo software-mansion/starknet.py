@@ -10,12 +10,15 @@ from pathlib import Path
 
 import pytest
 import pytest_asyncio
+from starkware.crypto.signature.signature import get_random_private_key
 
 from starknet_py.net import KeyPair, AccountClient
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
+from starknet_py.net.http_client import GatewayHttpClient
 from starknet_py.net.models import StarknetChainId, AddressRepresentation
 from starknet_py.contract import Contract
+from starknet_py.transactions.deploy import make_deploy_tx
 from starknet_py.utils.data_transformer.data_transformer import CairoSerializer
 
 TESTNET_ACCOUNT_PRIVATE_KEY = (
@@ -151,21 +154,38 @@ def create_account_client(
     )
 
 
-@pytest.fixture(scope="module")
-def address_and_private_key(pytestconfig):
+async def devnet_account_details(network, gateway_client):
+    devnet_account = await AccountClient.create_account(
+        client=gateway_client, chain=StarknetChainId.TESTNET
+    )
+
+    http_client = GatewayHttpClient(network)
+    await http_client.post(
+        method_name="mint",
+        payload={
+            "address": hex(devnet_account.address),
+            "amount": int(1e30),
+        },
+    )
+
+    return hex(devnet_account.address), hex(devnet_account.signer.private_key)
+
+
+@pytest_asyncio.fixture(scope="module")
+async def address_and_private_key(pytestconfig, network, gateway_client):
     net = pytestconfig.getoption("--net")
 
     account_details = {
-        "devnet": (DEVNET_ACCOUNT_ADDRESS, DEVNET_ACCOUNT_PRIVATE_KEY),
         "testnet": (TESTNET_ACCOUNT_ADDRESS, TESTNET_ACCOUNT_PRIVATE_KEY),
         "integration": (INTEGRATION_ACCOUNT_ADDRESS, INTEGRATION_ACCOUNT_PRIVATE_KEY),
     }
 
+    if net == "devnet":
+        return await devnet_account_details(network, gateway_client)
     return account_details[net]
 
 
 @pytest.fixture(scope="module")
-# pylint: disable=redefined-outer-name
 def gateway_account_client(address_and_private_key, gateway_client):
     address, private_key = address_and_private_key
 
@@ -183,13 +203,40 @@ def rpc_account_client(address_and_private_key, rpc_client):
     )
 
 
-@pytest.fixture(scope="module")
-def new_address_and_private_key(pytestconfig):
+async def new_devnet_account_details(network, gateway_client):
+    private_key = get_random_private_key()
+
+    key_pair = KeyPair.from_private_key(private_key)
+    deploy_tx = make_deploy_tx(
+        constructor_calldata=[key_pair.public_key],
+        compiled_contract=(
+            directory_with_contracts / "new_account_compiled.json"
+        ).read_text("utf-8"),
+    )
+
+    result = await gateway_client.deploy(deploy_tx)
+    await gateway_client.wait_for_tx(
+        tx_hash=result.transaction_hash,
+    )
+    address = result.contract_address
+
+    http_client = GatewayHttpClient(network)
+    await http_client.post(
+        method_name="mint",
+        payload={
+            "address": hex(address),
+            "amount": int(1e30),
+        },
+    )
+
+    return hex(address), hex(key_pair.private_key)
+
+
+@pytest_asyncio.fixture(scope="module")
+async def new_address_and_private_key(pytestconfig, network, gateway_client):
     net = pytestconfig.getoption("--net")
 
     account_details = {
-        # TODO configure for other envs
-        "devnet": None,
         "testnet": None,
         "integration": (
             INTEGRATION_NEW_ACCOUNT_ADDRESS,
@@ -197,6 +244,8 @@ def new_address_and_private_key(pytestconfig):
         ),
     }
 
+    if net == "devnet":
+        return await new_devnet_account_details(network, gateway_client)
     return account_details[net]
 
 
@@ -209,13 +258,21 @@ def new_gateway_account_client(new_address_and_private_key, gateway_client):
     )
 
 
-@pytest.fixture(scope="module", params=["gateway_account_client", "rpc_account_client"])
+@pytest.fixture(
+    scope="module",
+    params=[
+        "gateway_account_client",
+        "new_gateway_account_client",
+        "rpc_account_client",
+    ],
+)
 def account_client(request):
-    # FIXME add rpc client for devnet tests
     return request.getfixturevalue(request.param)
 
 
-@pytest.fixture(scope="module", params=["deploy_map_contract"])
+@pytest.fixture(
+    scope="module", params=["deploy_map_contract", "new_deploy_map_contract"]
+)
 def map_contract(request):
     return request.getfixturevalue(request.param)
 
