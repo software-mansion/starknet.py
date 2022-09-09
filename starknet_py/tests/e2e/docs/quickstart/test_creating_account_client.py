@@ -4,7 +4,7 @@ from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 
 
 @pytest.mark.asyncio
-async def test_creating_account_client(run_devnet):
+async def test_creating_account_client(network):
     # pylint: disable=import-outside-toplevel, unused-variable
     # add to docs: start
     from starknet_py.net import AccountClient, KeyPair
@@ -14,7 +14,7 @@ async def test_creating_account_client(run_devnet):
     testnet = "testnet"
     chain_id = StarknetChainId.TESTNET
     # add to docs: end
-    testnet = run_devnet
+    testnet = network
     # add to docs: start
 
     # Creates an instance of account client which is already deployed (testnet):
