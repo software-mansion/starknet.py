@@ -13,7 +13,6 @@ import pytest
 import pytest_asyncio
 from starkware.crypto.signature.signature import get_random_private_key
 
-from starknet_py.contract import Contract
 from starknet_py.net import KeyPair, AccountClient
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
