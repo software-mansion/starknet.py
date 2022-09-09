@@ -41,8 +41,8 @@ async def test_get_balance_throws_when_token_not_specified(account_client):
 
 
 @pytest.mark.asyncio
-async def test_balance_when_token_specified(gateway_account_client, erc20_contract):
-    balance = await gateway_account_client.get_balance(erc20_contract.address)
+async def test_balance_when_token_specified(account_client, erc20_contract):
+    balance = await account_client.get_balance(erc20_contract.address)
 
     assert balance == 200
 
@@ -71,9 +71,9 @@ async def test_get_balance_default_token_address(net):
 
         call = mocked_call_contract.call_args
 
-    (invoke_tx,) = call[0]
+    (call,) = call[0]
 
-    assert invoke_tx.contract_address == parse_address(FEE_CONTRACT_ADDRESS)
+    assert call.to_addr == parse_address(FEE_CONTRACT_ADDRESS)
 
 
 @pytest.mark.asyncio
@@ -157,15 +157,15 @@ async def test_create_account_client_with_signer(network):
 
 
 @pytest.mark.asyncio
-async def test_sending_multicall(gateway_account_client, map_contract):
+async def test_sending_multicall(account_client, map_contract):
     for (k, v) in ((20, 20), (30, 30)):
         calls = [
             map_contract.functions["put"].prepare(key=10, value=10),
             map_contract.functions["put"].prepare(key=k, value=v),
         ]
 
-        res = await gateway_account_client.execute(calls, int(1e20))
-        await gateway_account_client.wait_for_tx(res.transaction_hash)
+        res = await account_client.execute(calls, int(1e20))
+        await account_client.wait_for_tx(res.transaction_hash)
 
         (value,) = await map_contract.functions["get"].call(key=k)
 
@@ -215,16 +215,13 @@ async def test_get_class_hash_at(map_contract, account_client):
 
 
 @pytest.mark.asyncio
-async def test_throws_on_wrong_transaction_version(account_client, map_contract):
-    account_client.supported_tx_version = 0
-    map_contract.client = account_client
-
+async def test_throws_on_wrong_transaction_version(new_deploy_map_contract):
     with pytest.raises(ValueError) as err:
-        await map_contract.functions["put"].invoke(
-            key=10, value=20, version=1, max_fee=MAX_FEE
+        await new_deploy_map_contract.functions["put"].invoke(
+            key=10, value=20, version=0, max_fee=MAX_FEE
         )
 
     assert (
-        "Provided version: 1 is not equal to account's supported_tx_version: 0"
+        "Provided version: 0 is not equal to account's supported_tx_version: 1"
         in str(err.value)
     )
