@@ -235,14 +235,10 @@ class AccountClient(Client):
         token_address = token_address or self._get_default_token_address()
 
         low, high = await self.call_contract(
-            InvokeFunction(
-                contract_address=parse_address(token_address),
-                entry_point_selector=get_selector_from_name("balanceOf"),
+            Call(
+                to_addr=parse_address(token_address),
+                selector=get_selector_from_name("balanceOf"),
                 calldata=[self.address],
-                signature=[],
-                max_fee=0,
-                version=self.supported_tx_version,
-                nonce=None,
             ),
             block_hash="latest",
         )
