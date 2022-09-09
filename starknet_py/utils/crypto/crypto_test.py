@@ -1,11 +1,12 @@
 import time
-from starkware.crypto.signature.signature import verify, private_to_stark_key
 
 from crypto_cpp_py.cpp_bindings import (
     unload_cpp_lib,
     get_cpp_lib_file,
     load_cpp_lib,
 )
+from starkware.crypto.signature.signature import verify, private_to_stark_key
+
 from starknet_py.utils.crypto.facade import (
     MultiCall,
     Call,
