@@ -331,8 +331,7 @@ def account_client(request) -> AccountClient:
 )
 def map_contract(request) -> Contract:
     """
-    Returns two map contracts, one by one.
-    First with the old account and the second with the new one.
+    Returns account contracts using old and new account versions
     """
     return request.getfixturevalue(request.param)
 
