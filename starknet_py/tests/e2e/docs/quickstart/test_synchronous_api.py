@@ -1,8 +1,6 @@
 # pylint: disable=import-outside-toplevel, no-member, duplicate-code
-import pytest
 
 
-@pytest.mark.asyncio
 def test_synchronous_api(gateway_account_client, map_contract):
     # add to docs: start
     from starknet_py.contract import Contract

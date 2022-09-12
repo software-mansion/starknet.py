@@ -92,8 +92,6 @@ async def test_estimate_fee_called(erc20_contract):
 
 
 @pytest.mark.asyncio
-# FIXME: remove skip
-@pytest.mark.skip
 async def test_estimated_fee_greater_than_zero(erc20_contract, account_client):
     erc20_contract = Contract(
         erc20_contract.address, erc20_contract.data.abi, account_client

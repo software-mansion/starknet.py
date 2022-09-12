@@ -46,7 +46,7 @@ signing algorithm, it is possible to create ``AccountClient`` with custom
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_custom_signer.py
     :language: python
-    :lines: 11-35
+    :lines: 11-41
     :dedent: 4
 
 
@@ -57,7 +57,7 @@ Here's how you can deploy new contracts:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_deploying_new_contracts.py
     :language: python
-    :lines: 10-33,37-68
+    :lines: 10-33,37-47,51-57,61-72
     :dedent: 4
 
 
