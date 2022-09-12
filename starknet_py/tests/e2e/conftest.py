@@ -48,6 +48,9 @@ INTEGRATION_NEW_ACCOUNT_ADDRESS = (
     "0X126FAB6AE8ACA83E2DD00B92F94F3402397D527798E18DC28D76B7740638D23"
 )
 
+directory_with_contracts = Path(os.path.dirname(__file__)) / "mock_contracts_dir"
+mocks_dir = Path(os.path.dirname(__file__)) / "mocks"
+
 
 # This fixture was added to enable using async fixtures
 @pytest.fixture(scope="module")
@@ -279,9 +282,6 @@ def map_contract(request):
     return request.getfixturevalue(request.param)
 
 
-directory_with_contracts = Path(os.path.dirname(__file__)) / "mock_contracts_dir"
-
-
 @pytest.fixture(scope="module")
 def map_source_code():
     return (directory_with_contracts / "map.cairo").read_text("utf-8")
@@ -332,9 +332,7 @@ def compiled_proxy(request) -> str:
 )
 def typed_data(request) -> TypedData:
     file_name = getattr(request, "param")
-
-    directory = Path(os.path.dirname(__file__))
-    file_path = directory / "account" / file_name
+    file_path = mocks_dir / file_name
 
     with open(file_path, "r", encoding="utf-8") as file:
         typed_data = json.load(file)
