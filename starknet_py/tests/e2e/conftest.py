@@ -217,7 +217,7 @@ def gateway_account_client(
     address_and_private_key: Tuple[str, str], gateway_client: GatewayClient
 ) -> AccountClient:
     """
-    Returns an AccountClient with GatewayClient inside
+    Returns an AccountClient created with GatewayClient
     """
     address, private_key = address_and_private_key
 
