@@ -58,7 +58,7 @@ You can also **verify a message**, which is done by a call to ``is_valid_signatu
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_sign_offchain_message.py
     :language: python
-    :lines: 9-48,55-63,70-80
+    :lines: 9-44,51-59,66-76
     :dedent: 4
 
 
