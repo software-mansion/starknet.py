@@ -29,7 +29,6 @@ docs = ["sphinx", "enum-tools"]
 eth-tester = ["tester"]
 
 [tool.poetry.group.dev.dependencies]
-starknet-devnet = {git = "https://github.com/Shard-Labs/starknet-devnet.git", rev = "03e77ec828418ce158af2294926b62dadc406747"}
 pytest = "^6.2.5"
 black = "^22.3.0"
 poethepoet = "^0.11.0"
@@ -41,6 +40,7 @@ setuptools = "^65.3.0"
 pytest-mock = "^3.6.1"
 pytest-xdist = "^2.5.0"
 web3 = {extras=["tester"], version="6.0.0b4"}
+starknet-devnet = {git = "https://github.com/Shard-Labs/starknet-devnet.git", rev = "01f82adb1df88c801adb5bf37bdb453321c5348e"}
 
 [tool.poe.tasks]
 test = ["test_unit", "test_e2e", "test_docs"]

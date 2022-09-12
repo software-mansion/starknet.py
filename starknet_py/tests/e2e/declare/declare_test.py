@@ -1,12 +1,12 @@
 import pytest
 
+from starknet_py.tests.e2e.account.account_client_test import MAX_FEE
+
 
 @pytest.mark.asyncio
-# FIXME: remove skip
-@pytest.mark.skip
 async def test_declare_tx(new_gateway_account_client, map_source_code):
     declare_tx = await new_gateway_account_client.sign_declare_transaction(
-        compilation_source=map_source_code
+        compilation_source=map_source_code, max_fee=MAX_FEE
     )
     result = await new_gateway_account_client.declare(declare_tx)
 
@@ -15,6 +15,7 @@ async def test_declare_tx(new_gateway_account_client, map_source_code):
     )
 
 
+@pytest.mark.asyncio
 async def test_sign_declare_tx_fails_with_old_account(
     gateway_account_client, map_source_code
 ):

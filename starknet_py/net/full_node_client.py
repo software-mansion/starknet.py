@@ -193,9 +193,9 @@ class FullNodeClient(Client):
                     "max_fee": convert_to_felt(tx.max_fee),
                     "version": hex(tx.version),
                     "signature": [convert_to_felt(i) for i in tx.signature],
-                    "nonce": convert_to_felt(
-                        0
-                    ),  # TODO: this will be used in the next cairo version
+                    "nonce": (
+                        convert_to_felt(tx.nonce) if tx.nonce is not None else None
+                    ),  # TODO: verify this is correct
                     "type": "INVOKE",
                     "contract_address": convert_to_felt(tx.contract_address),
                     "entry_point_selector": convert_to_felt(tx.entry_point_selector),

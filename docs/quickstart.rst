@@ -18,7 +18,7 @@ synchronous version. It might be helpful to play with Starknet directly in pytho
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/quickstart/test_synchronous_gateway_client.py
     :language: python
-    :lines: 11-14
+    :lines: 8-11
     :dedent: 4
 
 You can see all Gateway Client's methods :ref:`GatewayClient`.
@@ -80,5 +80,5 @@ Although asynchronous API is recommended, you can also use Contract's synchronou
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/quickstart/test_synchronous_api.py
     :language: python
-    :lines: 8-15,22-29
+    :lines: 6-13,20-27
     :dedent: 4
