@@ -231,7 +231,7 @@ def rpc_account_client(
     address_and_private_key: Tuple[str, str], rpc_client: FullNodeClient
 ) -> AccountClient:
     """
-    Returns an AccountClient with FullNodeClient inside
+    Returns an AccountClient created with FullNodeClient
     """
     address, private_key = address_and_private_key
 
@@ -301,7 +301,7 @@ def new_gateway_account_client(
     new_address_and_private_key: Tuple[str, str], gateway_client: GatewayClient
 ) -> AccountClient:
     """
-    Returns a new AccountClient with GatewayClient inside
+    Returns a new AccountClient created with GatewayClient
     """
     address, private_key = new_address_and_private_key
 
