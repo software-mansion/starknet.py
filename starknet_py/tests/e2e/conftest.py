@@ -175,7 +175,7 @@ async def devnet_account_details(
     network: str, gateway_client: GatewayClient
 ) -> Tuple[str, str]:
     """
-    Creates an AccountClient and adds fee tokens to its balance (only on devnet)
+    Creates an AccountClient (and when using devnet adds fee tokens to its balance)
     """
     devnet_account = await AccountClient.create_account(
         client=gateway_client, chain=StarknetChainId.TESTNET
