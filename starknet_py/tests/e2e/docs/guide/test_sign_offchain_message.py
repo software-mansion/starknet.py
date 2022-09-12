@@ -2,59 +2,67 @@ import pytest
 
 
 @pytest.mark.asyncio
-async def test_sign_offchain_message():
+async def test_sign_offchain_message(account_client):
     # pylint: disable=import-outside-toplevel, duplicate-code, unused-variable
 
     # add to docs: start
     from starknet_py.net import AccountClient, KeyPair
     from starknet_py.net.gateway_client import GatewayClient
     from starknet_py.net.models import StarknetChainId
-    from starknet_py.net.models.typed_data import Parameter, StarkNetDomain, TypedData
-
-    # Create components of TypedData TypedDict
-    starknet_domain = StarkNetDomain(name="StarkNet Mail", version="1", chainId=1)
-
-    types = {
-        "StarkNetDomain": [
-            Parameter(name="name", type="felt"),
-            Parameter(name="version", type="felt"),
-            Parameter(name="chainId", type="felt"),
-        ],
-        "Person": [
-            Parameter(name="name", type="felt"),
-            Parameter(name="wallet", type="felt"),
-        ],
-        "Mail": [
-            Parameter(name="from", type="Person"),
-            Parameter(name="to", type="Person"),
-            Parameter(name="contents", type="felt"),
-        ],
-    }
-
-    message = {
-        "from": {"name": "Cow", "wallet": "0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826"},
-        "to": {"name": "Bob", "wallet": "0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB"},
-        "contents": "Hello, Bob!",
-    }
 
     # Create a TypedData dictionary
-    typed_data = TypedData(
-        types=types,
-        primaryType="Mail",
-        domain=starknet_domain,
-        message=message,
-    )
+    typed_data = {
+        "types": {
+            "StarkNetDomain": [
+                {"name": "name", "type": "felt"},
+                {"name": "version", "type": "felt"},
+                {"name": "chainId", "type": "felt"},
+            ],
+            "Person": [
+                {"name": "name", "type": "felt"},
+                {"name": "wallet", "type": "felt"},
+            ],
+            "Mail": [
+                {"name": "from", "type": "Person"},
+                {"name": "to", "type": "Person"},
+                {"name": "contents", "type": "felt"},
+            ],
+        },
+        "primaryType": "Mail",
+        "domain": {"name": "StarkNet Mail", "version": "1", "chainId": 1},
+        "message": {
+            "from": {
+                "name": "Cow",
+                "wallet": "0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826",
+            },
+            "to": {
+                "name": "Bob",
+                "wallet": "0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB",
+            },
+            "contents": "Hello, Bob!",
+        },
+    }
+    # add to docs: end
+
+    # save account_client fixture
+    account_client_fixture = account_client
+
+    # add to docs: start
 
     # Create an AccountClient instance
     client = GatewayClient("testnet")
     account_client = AccountClient(
         client=client,
-        address="0x7536539dbba2a49ab688a1c86332625f05f660a94908f362d29212e6071432d",
+        address="0x1111",
+        key_pair=KeyPair(private_key=123, public_key=456),
         chain=StarknetChainId.TESTNET,
-        key_pair=KeyPair.from_private_key(
-            2640601739596882773716581229189050365310622467205517187262055898295170952602
-        ),
     )
+    # add to docs: end
+
+    # retrieve account_client
+    account_client = account_client_fixture
+
+    # add to docs: start
 
     # We can calculate the message hash
     msg_hash = account_client.hash_message(typed_data=typed_data)
