@@ -195,7 +195,7 @@ class FullNodeClient(Client):
                     "signature": [convert_to_felt(i) for i in tx.signature],
                     "nonce": (
                         convert_to_felt(tx.nonce) if tx.nonce is not None else None
-                    ),
+                    ),  # TODO: verify this is correct
                     "type": "INVOKE",
                     "contract_address": convert_to_felt(tx.contract_address),
                     "entry_point_selector": convert_to_felt(tx.entry_point_selector),
