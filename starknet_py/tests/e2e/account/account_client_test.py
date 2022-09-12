@@ -12,6 +12,7 @@ from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import parse_address, StarknetChainId
 from starknet_py.net.networks import TESTNET, MAINNET
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
+from starknet_py.transaction_exceptions import TransactionRejectedError
 from starknet_py.transactions.deploy import make_deploy_tx
 
 MAX_FEE = int(1e20)
@@ -30,9 +31,9 @@ async def test_deploy_account_contract_and_sign_tx(map_contract):
 
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
-async def test_get_balance_throws_when_token_not_specified(gateway_account_client):
+async def test_get_balance_throws_when_token_not_specified(account_client):
     with pytest.raises(ValueError) as err:
-        await gateway_account_client.get_balance()
+        await account_client.get_balance()
 
     assert "Token_address must be specified when using a custom net address" in str(
         err.value
@@ -40,8 +41,8 @@ async def test_get_balance_throws_when_token_not_specified(gateway_account_clien
 
 
 @pytest.mark.asyncio
-async def test_balance_when_token_specified(gateway_account_client, erc20_contract):
-    balance = await gateway_account_client.get_balance(erc20_contract.address)
+async def test_balance_when_token_specified(account_client, erc20_contract):
+    balance = await account_client.get_balance(erc20_contract.address)
 
     assert balance == 200
 
@@ -70,9 +71,9 @@ async def test_get_balance_default_token_address(net):
 
         call = mocked_call_contract.call_args
 
-    (invoke_tx,) = call[0]
+    (call,) = call[0]
 
-    assert invoke_tx.contract_address == parse_address(FEE_CONTRACT_ADDRESS)
+    assert call.to_addr == parse_address(FEE_CONTRACT_ADDRESS)
 
 
 @pytest.mark.asyncio
@@ -91,30 +92,29 @@ async def test_estimate_fee_called(erc20_contract):
 
 
 @pytest.mark.asyncio
-async def test_estimated_fee_greater_than_zero(erc20_contract, account_clients):
+# FIXME: remove skip
+@pytest.mark.skip
+async def test_estimated_fee_greater_than_zero(erc20_contract, account_client):
+    erc20_contract = Contract(
+        erc20_contract.address, erc20_contract.data.abi, account_client
+    )
 
-    for account_client in account_clients:
-        erc20_contract = Contract(
-            erc20_contract.address, erc20_contract.data.abi, account_client
-        )
+    estimated_fee = (
+        await erc20_contract.functions["balanceOf"]
+        .prepare("1234", max_fee=0)
+        .estimate_fee(block_hash="latest")
+    )
 
-        estimated_fee = (
-            await erc20_contract.functions["balanceOf"]
-            .prepare("1234", max_fee=0)
-            .estimate_fee(block_hash="latest")
-        )
-
-        assert estimated_fee.overall_fee > 0
-        assert (
-            estimated_fee.gas_price * estimated_fee.gas_usage
-            == estimated_fee.overall_fee
-        )
+    assert estimated_fee.overall_fee > 0
+    assert (
+        estimated_fee.gas_price * estimated_fee.gas_usage == estimated_fee.overall_fee
+    )
 
 
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
-async def test_create_account_client(run_devnet):
-    client = GatewayClient(net=run_devnet, chain=StarknetChainId.TESTNET)
+async def test_create_account_client(network):
+    client = GatewayClient(net=network, chain=StarknetChainId.TESTNET)
     acc_client = await AccountClient.create_account(
         client=client, chain=StarknetChainId.TESTNET
     )
@@ -124,9 +124,9 @@ async def test_create_account_client(run_devnet):
 
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
-async def test_create_account_client_with_private_key(run_devnet):
+async def test_create_account_client_with_private_key(network):
     private_key = 1234
-    gt_client = GatewayClient(net=run_devnet, chain=StarknetChainId.TESTNET)
+    gt_client = GatewayClient(net=network, chain=StarknetChainId.TESTNET)
     acc_client = await AccountClient.create_account(
         client=gt_client, private_key=private_key, chain=StarknetChainId.TESTNET
     )
@@ -137,10 +137,10 @@ async def test_create_account_client_with_private_key(run_devnet):
 
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
-async def test_create_account_client_with_signer(run_devnet):
+async def test_create_account_client_with_signer(network):
     key_pair = KeyPair.from_private_key(1234)
     client = GatewayClient(
-        net=run_devnet,
+        net=network,
     )
     address = await deploy_account_contract(
         client=client,
@@ -157,8 +157,8 @@ async def test_create_account_client_with_signer(run_devnet):
 
 
 @pytest.mark.asyncio
-async def test_sending_multicall(account_clients, map_contract):
-    for account_client, (k, v) in zip(account_clients, ((20, 20), (30, 30))):
+async def test_sending_multicall(account_client, map_contract):
+    for (k, v) in ((20, 20), (30, 30)):
         calls = [
             map_contract.functions["put"].prepare(key=10, value=10),
             map_contract.functions["put"].prepare(key=k, value=v),
@@ -172,6 +172,7 @@ async def test_sending_multicall(account_clients, map_contract):
         assert value == v
 
 
+@pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_block_traces(gateway_account_client):
     traces = await gateway_account_client.get_block_traces(block_number=1)
@@ -180,49 +181,67 @@ async def test_get_block_traces(gateway_account_client):
 
 
 @pytest.mark.asyncio
-async def test_deploy(account_clients, map_source_code):
-    for account_client in account_clients:
-        deploy_tx = make_deploy_tx(compilation_source=map_source_code)
-        result = await account_client.deploy(deploy_tx)
-        await account_client.wait_for_tx(result.transaction_hash)
+async def test_deploy(account_client, map_source_code):
+    deploy_tx = make_deploy_tx(compilation_source=map_source_code)
+    result = await account_client.deploy(deploy_tx)
+    await account_client.wait_for_tx(result.transaction_hash)
 
-        transaction_receipt = await account_client.get_transaction_receipt(
-            result.transaction_hash
-        )
+    transaction_receipt = await account_client.get_transaction_receipt(
+        result.transaction_hash
+    )
 
-        assert transaction_receipt.status != TransactionStatus.NOT_RECEIVED
-        assert result.contract_address
-
-
-@pytest.mark.asyncio
-async def test_rejection_reason_in_transaction_receipt(account_clients, map_contract):
-    for account_client in account_clients:
-        res = await map_contract.functions["put"].invoke(key=10, value=20, max_fee=1)
-        transaction_receipt = await account_client.get_transaction_receipt(res.hash)
-
-        assert "Actual fee exceeded max fee." in transaction_receipt.rejection_reason
+    assert transaction_receipt.status != TransactionStatus.NOT_RECEIVED
+    assert result.contract_address
 
 
 @pytest.mark.asyncio
-async def test_get_class_hash_at(map_contract, account_clients):
-    for account_client in account_clients:
-        class_hash = await account_client.get_class_hash_at(
-            map_contract.address, block_hash="latest"
-        )
+async def test_rejection_reason_in_transaction_receipt(account_client, map_contract):
+    res = await map_contract.functions["put"].invoke(key=10, value=20, max_fee=1)
 
-        assert class_hash != 0
+    with pytest.raises(TransactionRejectedError):
+        await account_client.wait_for_tx(res.hash)
+
+    transaction_receipt = await account_client.get_transaction_receipt(res.hash)
+
+    assert "Actual fee exceeded max fee." in transaction_receipt.rejection_reason
 
 
 @pytest.mark.asyncio
-async def test_throws_on_wrong_transaction_version(account_clients, map_contract):
-    for account_client in account_clients:
-        account_client.supported_tx_version = 0
-        map_contract.client = account_client
+async def test_sign_and_verify_offchain_message_fail(
+    gateway_account_client, typed_data
+):
+    signature = gateway_account_client.sign_message(typed_data)
+    signature = (signature[0] + 1, signature[1])
+    result = await gateway_account_client.verify_message(typed_data, signature)
 
-        with pytest.raises(ValueError) as err:
-            await map_contract.functions["put"].invoke(key=10, value=20, version=1)
+    assert result is False
 
-        assert (
-            "Provided version: 1 is not equal to account's supported_tx_version: 0"
-            in str(err.value)
+
+@pytest.mark.asyncio
+async def test_sign_and_verify_offchain_message(gateway_account_client, typed_data):
+    signature = gateway_account_client.sign_message(typed_data)
+    result = await gateway_account_client.verify_message(typed_data, signature)
+
+    assert result is True
+
+
+@pytest.mark.asyncio
+async def test_get_class_hash_at(map_contract, account_client):
+    class_hash = await account_client.get_class_hash_at(
+        map_contract.address, block_hash="latest"
+    )
+
+    assert class_hash != 0
+
+
+@pytest.mark.asyncio
+async def test_throws_on_wrong_transaction_version(new_deploy_map_contract):
+    with pytest.raises(ValueError) as err:
+        await new_deploy_map_contract.functions["put"].invoke(
+            key=10, value=20, version=0, max_fee=MAX_FEE
         )
+
+    assert (
+        "Provided version: 0 is not equal to account's supported_tx_version: 1"
+        in str(err.value)
+    )

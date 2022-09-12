@@ -119,6 +119,7 @@ class TransactionReceiptSchema(Schema):
     hash = Felt(data_key="transaction_hash", required=True)
     status = StatusField(data_key="status", required=True)
     block_number = fields.Integer(data_key="block_number", load_default=None)
+    block_hash = Felt(data_key="block_hash", load_default=None)
     version = fields.Integer(data_key="version", allow_none=True)
     actual_fee = Felt(data_key="actual_fee", allow_none=True)
     rejection_reason = fields.Dict(

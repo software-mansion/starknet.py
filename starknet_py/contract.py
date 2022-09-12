@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import dataclasses
-import sys
 import warnings
 from dataclasses import dataclass
 from typing import (
@@ -13,6 +12,7 @@ from typing import (
     Collection,
     NamedTuple,
 )
+from typing import TypedDict
 
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
 from starkware.starknet.core.os.class_hash import compute_class_hash
@@ -24,29 +24,21 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
 )
 
 from starknet_py.common import create_compiled_contract
+from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.net import AccountClient
+from starknet_py.net.client import Client
 from starknet_py.net.client_models import Hash, Tag
-
-from starknet_py.proxy_check import ProxyCheck, ArgentProxyCheck, OpenZeppelinProxyCheck
 from starknet_py.net.models import (
     InvokeFunction,
     AddressRepresentation,
     parse_address,
     compute_address,
 )
-from starknet_py.compile.compiler import StarknetCompilationSource
+from starknet_py.proxy_check import ProxyCheck, ArgentProxyCheck, OpenZeppelinProxyCheck
 from starknet_py.transactions.deploy import make_deploy_tx
 from starknet_py.utils.crypto.facade import pedersen_hash, Call
 from starknet_py.utils.data_transformer import FunctionCallSerializer
 from starknet_py.utils.sync import add_sync_methods
-
-from starknet_py.net.client import Client
-
-if sys.version_info >= (3, 8):
-    from typing import TypedDict
-else:
-    from typing_extensions import TypedDict
-
 
 ABI = list
 ABIEntry = dict

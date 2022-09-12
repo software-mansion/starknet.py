@@ -64,16 +64,25 @@ async def test_using_existing_contracts(
     invocation = await contract.functions["transferFrom"].invoke(
         sender, recipient, 10000, max_fee=int(1e16)
     )
+    # add to docs: end
+    await invocation.wait_for_acceptance()
+    # add to docs: start
 
     # Using only keyword arguments
     invocation = await contract.functions["transferFrom"].invoke(
         sender=sender, recipient=recipient, amount=10000, max_fee=int(1e16)
     )
+    # add to docs: end
+    await invocation.wait_for_acceptance()
+    # add to docs: start
 
     # Mixing positional with keyword arguments
     invocation = await contract.functions["transferFrom"].invoke(
         sender, recipient, amount=10000, max_fee=int(1e16)
     )
+    # add to docs: end
+    await invocation.wait_for_acceptance()
+    # add to docs: start
 
     # Creating a PreparedFunctionCall - creates a function call with arguments - useful for signing transactions and
     # specifying additional options
