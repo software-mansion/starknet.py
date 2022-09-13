@@ -52,6 +52,10 @@ INTEGRATION_NEW_ACCOUNT_ADDRESS = (
     "0X126FAB6AE8ACA83E2DD00B92F94F3402397D527798E18DC28D76B7740638D23"
 )
 
+mock_dir = Path(os.path.dirname(__file__)) / "mock"
+typed_data_dir = mock_dir / "typed_data"
+contracts_dir = mock_dir / "contracts"
+
 
 # This fixture was added to enable using async fixtures
 @pytest.fixture(scope="module")
@@ -251,9 +255,9 @@ async def new_devnet_account_details(
     key_pair = KeyPair.from_private_key(private_key)
     deploy_tx = make_deploy_tx(
         constructor_calldata=[key_pair.public_key],
-        compiled_contract=(
-            directory_with_contracts / "new_account_compiled.json"
-        ).read_text("utf-8"),
+        compiled_contract=(contracts_dir / "new_account_compiled.json").read_text(
+            "utf-8"
+        ),
     )
 
     result = await gateway_client.deploy(deploy_tx)
@@ -336,15 +340,12 @@ def map_contract(request) -> Contract:
     return request.getfixturevalue(request.param)
 
 
-directory_with_contracts = Path(os.path.dirname(__file__)) / "mock_contracts_dir"
-
-
 @pytest.fixture(scope="module")
 def map_source_code() -> str:
     """
     Returns source code of the map contract
     """
-    return (directory_with_contracts / "map.cairo").read_text("utf-8")
+    return (contracts_dir / "map.cairo").read_text("utf-8")
 
 
 @pytest.fixture(scope="module")
@@ -352,7 +353,7 @@ def erc20_source_code() -> str:
     """
     Returns source code of the erc20 contract
     """
-    return (directory_with_contracts / "erc20.cairo").read_text("utf-8")
+    return (contracts_dir / "erc20.cairo").read_text("utf-8")
 
 
 @pytest_asyncio.fixture(name="deploy_map_contract", scope="module")
@@ -397,9 +398,15 @@ async def deploy_erc20_contract(
     return deployment_result.deployed_contract
 
 
-@pytest.fixture(name="compiled_proxy")
+@pytest.fixture(
+    name="compiled_proxy",
+    params=["argent_proxy_compiled.json", "oz_proxy_compiled.json"],
+)
 def compiled_proxy(request) -> str:
-    return (directory_with_contracts / request.param).read_text("utf-8")
+    """
+    Returns source code of compiled proxy contract
+    """
+    return (contracts_dir / request.param).read_text("utf-8")
 
 
 @pytest.fixture(
@@ -407,10 +414,11 @@ def compiled_proxy(request) -> str:
     params=["typed_data_example.json", "typed_data_struct_array_example.json"],
 )
 def typed_data(request) -> TypedData:
+    """
+    Returns TypedData dictionary example
+    """
     file_name = getattr(request, "param")
-
-    directory = Path(os.path.dirname(__file__))
-    file_path = directory / "account" / file_name
+    file_path = typed_data_dir / file_name
 
     with open(file_path, "r", encoding="utf-8") as file:
         typed_data = json.load(file)
@@ -424,9 +432,9 @@ async def cairo_serializer(gateway_account_client: AccountClient) -> CairoSerial
     Returns CairoSerializer for "simple_storage_with_event.cairo"
     """
     client = gateway_account_client
-    contract_content = (
-        directory_with_contracts / "simple_storage_with_event.cairo"
-    ).read_text("utf-8")
+    contract_content = (contracts_dir / "simple_storage_with_event.cairo").read_text(
+        "utf-8"
+    )
 
     deployment_result = await Contract.deploy(
         client, compilation_source=contract_content

@@ -4,11 +4,8 @@ from starknet_py.contract import Contract
 
 MAX_FEE = int(1e20)
 
-COMPILED_PROXY_SOURCES = ["argent_proxy_compiled.json", "oz_proxy_compiled.json"]
-
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("compiled_proxy", COMPILED_PROXY_SOURCES, indirect=True)
 async def test_argent_contract_from_address_throws_on_too_many_steps(
     gateway_client, map_contract, compiled_proxy
 ):
@@ -61,7 +58,6 @@ async def set_implementation(proxy1: Contract, proxy2: Contract):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("compiled_proxy", COMPILED_PROXY_SOURCES, indirect=True)
 async def test_contract_from_address_throws_on_proxy_cycle(
     gateway_account_client, compiled_proxy
 ):
@@ -94,7 +90,6 @@ async def test_contract_from_address_throws_on_proxy_cycle(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("compiled_proxy", COMPILED_PROXY_SOURCES, indirect=True)
 async def test_contract_from_address_with_1_proxy(
     gateway_client, map_contract, compiled_proxy
 ):
@@ -115,7 +110,6 @@ async def test_contract_from_address_with_1_proxy(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("compiled_proxy", COMPILED_PROXY_SOURCES, indirect=True)
 async def test_contract_from_address_with_2_proxy(
     gateway_client, map_contract, compiled_proxy
 ):
