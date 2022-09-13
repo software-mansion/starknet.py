@@ -398,8 +398,14 @@ async def deploy_erc20_contract(
     return deployment_result.deployed_contract
 
 
-@pytest.fixture(name="compiled_proxy")
+@pytest.fixture(
+    name="compiled_proxy",
+    params=["argent_proxy_compiled.json", "oz_proxy_compiled.json"],
+)
 def compiled_proxy(request) -> str:
+    """
+    Returns source code of compiled proxy contract
+    """
     return (contracts_dir / request.param).read_text("utf-8")
 
 
@@ -408,6 +414,9 @@ def compiled_proxy(request) -> str:
     params=["typed_data_example.json", "typed_data_struct_array_example.json"],
 )
 def typed_data(request) -> TypedData:
+    """
+    Returns TypedData dictionary example
+    """
     file_name = getattr(request, "param")
     file_path = typed_data_dir / file_name
 
