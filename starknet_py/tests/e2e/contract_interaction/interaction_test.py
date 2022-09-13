@@ -37,8 +37,6 @@ async def test_max_fee_is_set_in_sent_invoke(map_contract):
 
 
 @pytest.mark.asyncio
-# FIXME: remove skip
-@pytest.mark.skip
 async def test_auto_fee_estimation(map_contract):
     key = 2
     value = 3

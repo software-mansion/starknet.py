@@ -69,7 +69,7 @@ Here's how you can deploy new contracts:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_deploying_new_contracts.py
     :language: python
-    :lines: 10-33,37-68
+    :lines: 10-33,37-47,51-57,61-72
     :dedent: 4
 
 
