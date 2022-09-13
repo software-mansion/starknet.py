@@ -71,7 +71,9 @@ async def test_sign_offchain_message(account_client):
     signature = account_client.sign_message(typed_data=typed_data)
 
     # Verify the message
-    assert await account_client.verify_message(
+    verify_result = await account_client.verify_message(
         typed_data=typed_data, signature=signature
     )
     # add to docs: end
+
+    assert verify_result
