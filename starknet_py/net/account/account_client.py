@@ -629,7 +629,7 @@ class AccountClient(Client):
             nonce=None,
         )
         try:
-            await self.call_contract(invoke_tx=invoke_tx)
+            await self.call_contract(invoke_tx=invoke_tx, block_hash="latest")
             return True
         except ClientError as ex:
             if re.search(r"Signature\s.+,\sis\sinvalid", ex.message):

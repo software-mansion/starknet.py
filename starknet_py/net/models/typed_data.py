@@ -30,6 +30,6 @@ class TypedData(TypedDict):
     """
 
     types: Dict[str, List[Parameter]]
-    primary_type: str
+    primaryType: str
     domain: StarkNetDomain
     message: Dict[str, Any]
