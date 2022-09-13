@@ -9,7 +9,6 @@ from typing import (
     TypeVar,
     Union,
     Dict,
-    Collection,
     NamedTuple,
 )
 from typing import TypedDict
@@ -144,36 +143,27 @@ class PreparedFunctionCall(Call):
 
     async def call_raw(
         self,
-        signature: Optional[Collection[int]] = None,
         block_hash: Optional[str] = None,
     ) -> List[int]:
         """
         Calls a method without translating the result into python values.
 
-        :param signature: Signature to send
         :param block_hash: Optional block hash
         :return: list of ints
         """
-        if self.version == 1:
-            tx = self
-        else:
-            tx = self._make_invoke_function(signature)
-
-        return await self._client.call_contract(invoke_tx=tx, block_hash=block_hash)
+        return await self._client.call_contract(invoke_tx=self, block_hash=block_hash)
 
     async def call(
         self,
-        signature: Optional[Collection[int]] = None,
         block_hash: Optional[str] = None,
     ) -> NamedTuple:
         """
         Calls a method.
 
-        :param signature: Signature to send
         :param block_hash: Optional block hash
         :return: CallResult or List[int] if return_raw is used
         """
-        result = await self.call_raw(signature=signature, block_hash=block_hash)
+        result = await self.call_raw(block_hash=block_hash)
         return self._payload_transformer.to_python(result)
 
     async def invoke(
@@ -193,8 +183,11 @@ class PreparedFunctionCall(Call):
         if max_fee is not None:
             self.max_fee = max_fee
 
-        transaction = await self._client.sign_transaction(
-            self, self.max_fee, auto_estimate, self.version
+        transaction = await self._client.sign_invoke_transaction(
+            calls=self,
+            max_fee=self.max_fee,
+            auto_estimate=auto_estimate,
+            version=self.version,
         )
         response = await self._client.send_transaction(transaction)
 
@@ -227,7 +220,9 @@ class PreparedFunctionCall(Call):
                 "Cannot estimate fee of PreparedFunctionCall with max_fee not None or 0."
             )
 
-        tx = await self._client.sign_transaction(self, max_fee=0, version=self.version)
+        tx = await self._client.sign_invoke_transaction(
+            calls=self, max_fee=0, version=self.version
+        )
 
         return await self._client.estimate_fee(
             tx=tx, block_hash=block_hash, block_number=block_number
