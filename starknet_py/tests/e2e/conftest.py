@@ -139,7 +139,9 @@ def pytest_collection_modifyitems(config, items):
     for item in items:
         runs_on_testnet = "run_on_testnet" in item.keywords
         runs_on_devnet = "run_on_devnet" in item.keywords
-        should_not_run = (runs_on_devnet and not run_devnet) or (runs_on_testnet and not run_testnet)
+        should_not_run = (runs_on_devnet and not run_devnet) or (
+            runs_on_testnet and not run_testnet
+        )
         if should_not_run:
             item.add_marker(pytest.mark.skip())
 
