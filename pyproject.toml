@@ -51,7 +51,7 @@ test_e2e.shell = """
 """
 test_e2e.env = { COVERAGE_FILE="e2e.coverage", DEVNET_PORT="5001" }
 test_e2e_parallel.shell = """
-    coverage run -m pytest -n auto --dist loadscope starknet_py/tests/e2e -v --ignore=starknet_py/tests/e2e/docs
+    pytest -n auto --dist loadscope starknet_py/tests/e2e -v --ignore=starknet_py/tests/e2e/docs
 """
 test_e2e_parallel.env = { COVERAGE_FILE="e2e.coverage", DEVNET_PORT="5001" }
 test_docs.shell = "coverage run -m pytest starknet_py/tests/e2e/docs"
