@@ -2,7 +2,6 @@ from dataclasses import dataclass
 
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient
-from starknet_py.transactions.declare import make_declare_tx
 
 
 @dataclass
@@ -44,7 +43,9 @@ async def prepare_net_for_tests(
         await account_client.get_transaction_receipt(invoke_res.hash)
     ).block_number
 
-    declare_tx = make_declare_tx(compiled_contract=compiled_contract)
+    declare_tx = await account_client.sign_declare_transaction(
+        compiled_contract=compiled_contract, max_fee=int(1e16)
+    )
     declare_result = await account_client.declare(declare_tx)
     await account_client.wait_for_tx(declare_result.transaction_hash)
 

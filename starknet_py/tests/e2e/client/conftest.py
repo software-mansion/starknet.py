@@ -26,11 +26,13 @@ from starknet_py.tests.e2e.conftest import contracts_dir
 directory = os.path.dirname(__file__)
 
 
-async def prepare_network(gateway_account_client: AccountClient) -> PreparedNetworkData:
+async def prepare_network(
+    new_gateway_account_client: AccountClient,
+) -> PreparedNetworkData:
     contract_compiled = Path(contracts_dir / "balance_compiled.json").read_text("utf-8")
 
     prepared_data = await prepare_net_for_tests(
-        gateway_account_client, compiled_contract=contract_compiled
+        new_gateway_account_client, compiled_contract=contract_compiled
     )
 
     return prepared_data
@@ -199,19 +201,19 @@ def fixture_clients(network: str) -> Tuple[Client, Client]:
 
 @pytest_asyncio.fixture(name="prepare_network", scope="module", autouse=True)
 async def fixture_prepare_network(
-    network: str, gateway_account_client: AccountClient
+    network: str, new_gateway_account_client: AccountClient
 ) -> Tuple[str, PreparedNetworkData]:
     """
     Adds transactions to the network. Returns network address and PreparedNetworkData
     """
     net = network
-    prepared_data = await prepare_network(gateway_account_client)
+    prepared_data = await prepare_network(new_gateway_account_client)
     yield net, prepared_data
 
 
 @pytest.fixture(scope="module")
-def sender_address(gateway_account_client: AccountClient) -> Dict:
+def sender_address(new_gateway_account_client: AccountClient) -> Dict:
     """
     Returns dict with DeclareTransaction sender_addresses depending on transaction version
     """
-    return {0: DEFAULT_DECLARE_SENDER_ADDRESS, 1: gateway_account_client.address}
+    return {0: DEFAULT_DECLARE_SENDER_ADDRESS, 1: new_gateway_account_client.address}
