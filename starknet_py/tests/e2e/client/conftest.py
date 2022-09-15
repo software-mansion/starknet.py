@@ -16,7 +16,6 @@ from starknet_py.net import AccountClient
 from starknet_py.net.client import Client
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models import StarknetChainId
 from starknet_py.tests.e2e.client.prepare_net_for_gateway_test import (
     prepare_net_for_tests,
     PreparedNetworkData,
@@ -187,10 +186,9 @@ def fixture_clients(network: str) -> Tuple[Client, Client]:
     """
     Returns Gateway and FullNode Clients
     """
-    gateway_client = GatewayClient(net=network, chain=StarknetChainId.TESTNET)
+    gateway_client = GatewayClient(net=network)
     full_node_client = FullNodeClient(
         node_url=network + "/rpc",
-        chain=StarknetChainId.TESTNET,
         net=network,
     )
 

@@ -23,7 +23,6 @@ from starknet_py.net.client_models import (
     DeclareTransactionResponse,
     Call,
 )
-from starknet_py.net.models import StarknetChainId
 from starknet_py.net.networks import Network
 from starknet_py.transaction_exceptions import (
     TransactionRejectedError,
@@ -40,13 +39,6 @@ class Client(ABC):
     def net(self) -> Network:
         """
         Network of the client
-        """
-
-    @property
-    @abstractmethod
-    def chain(self) -> StarknetChainId:
-        """
-        ChainId of the chain used by the client. Chain is deprecated!
         """
 
     @abstractmethod
