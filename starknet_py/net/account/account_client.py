@@ -472,7 +472,12 @@ class AccountClient(Client):
         return await self.client.deploy(transaction=transaction)
 
     async def deploy_contract(
-        self, class_hash: Hash, salt: int, unique: bool, constructor_calldata: List[int], max_fee: Optional[int] = None
+        self,
+        class_hash: Hash,
+        salt: int,
+        unique: bool,
+        constructor_calldata: List[int],
+        max_fee: Optional[int] = None,
     ):
         call = Call(
             to_addr=UNIVERSAL_DEPLOYER_ADDRESS,
@@ -482,13 +487,11 @@ class AccountClient(Client):
                 salt,
                 unique,
                 len(constructor_calldata),
-                constructor_calldata
+                constructor_calldata,
             ],
         )
 
         res = await self.execute(calls=call, max_fee=max_fee)
-
-
 
     async def declare(self, transaction: Declare) -> DeclareTransactionResponse:
         return await self.client.declare(transaction=transaction)
