@@ -10,7 +10,7 @@ It requires information about used network:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/quickstart/test_using_gateway_client.py
     :language: python
-    :lines: 8-29
+    :lines: 8-25
     :dedent: 4
 
 The default interface is asynchronous. Although it is the recommended way of using Starknet.py, you can also use a
