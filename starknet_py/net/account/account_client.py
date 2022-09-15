@@ -82,14 +82,14 @@ class AccountClient(Client):
                 "Either a signer or a key_pair must be provided in AccountClient constructor"
             )
 
-        if chain is None and signer is None and client.chain is None:
+        if chain is None and signer is None:
             raise ValueError("One of chain or signer must be provided")
 
         self.address = parse_address(address)
         self.client = client
 
         if signer is None:
-            chain = chain_from_network(net=client.net, chain=chain or self.client.chain)
+            chain = chain_from_network(net=client.net, chain=chain)
             signer = StarkCurveSigner(
                 account_address=self.address, key_pair=key_pair, chain_id=chain
             )
@@ -106,14 +106,6 @@ class AccountClient(Client):
     @property
     def net(self) -> Network:
         return self.client.net
-
-    @property
-    def chain(self) -> StarknetChainId:
-        warnings.warn(
-            "Chain is deprecated and will be deleted in the future",
-            category=DeprecationWarning,
-        )
-        return self.signer.chain_id
 
     async def get_block(
         self,
@@ -536,20 +528,19 @@ class AccountClient(Client):
             Consider transitioning to deploying account contract of choice and creating AccountClient
             through a constructor.
         """
-        if chain is None and signer is None and client.chain is None:
-            warnings.warn(
-                "Account deployment through AccountClient is deprecated and will be deleted once transaction version "
-                "0 is removed. Consider transitioning to creating AccountClient through a constructor.",
-                category=DeprecationWarning,
-            )
+        warnings.warn(
+            "Account deployment through AccountClient is deprecated and will be deleted once transaction version "
+            "0 is removed. Consider transitioning to creating AccountClient through a constructor.",
+            category=DeprecationWarning,
+        )
 
-        if chain is None and client.chain is None and signer is None:
+        if chain is None and signer is None:
             raise ValueError("One of chain or signer must be provided")
 
         if signer is None:
             private_key = private_key or get_random_private_key()
 
-            chain = chain_from_network(net=client.net, chain=chain or client.chain)
+            chain = chain_from_network(net=client.net, chain=chain)
             key_pair = KeyPair.from_private_key(private_key)
             address = await deploy_account_contract(client, key_pair.public_key)
             signer = StarkCurveSigner(
