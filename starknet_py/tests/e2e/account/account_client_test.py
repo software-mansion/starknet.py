@@ -209,7 +209,7 @@ async def test_sign_and_verify_offchain_message_fail(
     gateway_account_client, typed_data
 ):
     signature = gateway_account_client.sign_message(typed_data)
-    signature = (signature[0] + 1, signature[1])
+    signature = [signature[0] + 1, signature[1]]
     result = await gateway_account_client.verify_message(typed_data, signature)
 
     assert result is False

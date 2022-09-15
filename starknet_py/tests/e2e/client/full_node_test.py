@@ -2,13 +2,9 @@ import asyncio
 from unittest.mock import patch, MagicMock
 
 import pytest
-from starkware.starknet.services.api.gateway.transaction import (
-    DEFAULT_DECLARE_SENDER_ADDRESS,
-)
 
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
-    DeclareTransaction,
     DeployTransaction,
 )
 
@@ -70,15 +66,9 @@ async def test_node_get_declare_transaction_by_block_number_and_index(
         block_number=block_with_declare_number, index=0
     )
 
-    assert tx == DeclareTransaction(
-        class_hash=class_hash,
-        sender_address=DEFAULT_DECLARE_SENDER_ADDRESS,
-        hash=declare_transaction_hash,
-        signature=[],
-        max_fee=0,
-        version=0,
-        nonce=0,
-    )
+    assert tx.hash == declare_transaction_hash
+    assert tx.class_hash == class_hash
+    assert tx.version == 1
 
 
 @pytest.mark.run_on_devnet
