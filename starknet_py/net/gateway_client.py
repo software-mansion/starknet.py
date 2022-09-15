@@ -405,7 +405,11 @@ def get_block_identifier(
 
 def _get_call_payload(tx: Union[InvokeFunction, Call]) -> dict:
     if isinstance(tx, InvokeFunction):
-        return tx.dump()
+        return {
+            "contract_address": hex(tx.contract_address),
+            "entry_point_selector": hex(tx.entry_point_selector),
+            "calldata": [str(i) for i in tx.calldata],
+        }
     return {
         "contract_address": hex(tx.to_addr),
         "entry_point_selector": hex(tx.selector),
