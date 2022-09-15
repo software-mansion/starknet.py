@@ -1,4 +1,3 @@
-import warnings
 from abc import ABC
 from dataclasses import dataclass
 from enum import Enum
@@ -161,21 +160,6 @@ class TransactionReceipt:
     events: List[Event] = None
     l2_to_l1_messages: List[L2toL1Message] = None
     l1_to_l2_consumed_message: Optional[L1toL2Message] = None
-
-    # TODO: remove in the future (gateway and rpc does not return this value)
-    version: int = 0
-
-    @property
-    def version(self) -> int:
-        warnings.warn(
-            "Field version is deprecated as it is always incorrectly set to 0. It will be removed in the future",
-            category=DeprecationWarning,
-        )
-        return 0
-
-    @version.setter
-    def version(self, v) -> None:
-        pass
 
 
 @dataclass

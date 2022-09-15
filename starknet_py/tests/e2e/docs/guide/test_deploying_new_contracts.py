@@ -1,6 +1,6 @@
 import pytest
 
-from starknet_py.tests.e2e.conftest import directory_with_contracts
+from starknet_py.tests.e2e.conftest import contracts_dir
 
 
 @pytest.mark.asyncio
@@ -52,7 +52,7 @@ async def test_deploying_new_contracts(gateway_client):
     # list with filepaths - useful for multiple files
     deployment_result = await Contract.deploy(
         client,
-        compilation_source=[directory_with_contracts / "contract.cairo"],
+        compilation_source=[contracts_dir / "contract.cairo"],
         constructor_args=constructor_args,
     )
     # add to docs: end
@@ -60,7 +60,7 @@ async def test_deploying_new_contracts(gateway_client):
     # add to docs: start
 
     # or use already compiled program
-    compiled = (directory_with_contracts / "contract_compiled.json").read_text("utf-8")
+    compiled = (contracts_dir / "contract_compiled.json").read_text("utf-8")
     deployment_result = await Contract.deploy(
         client, compiled_contract=compiled, constructor_args=constructor_args
     )

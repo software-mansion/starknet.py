@@ -28,10 +28,6 @@ from starknet_py.net.client_models import (
     Call,
 )
 from starknet_py.net.http_client import RpcHttpClient
-from starknet_py.net.models import (
-    StarknetChainId,
-    chain_from_network,
-)
 from starknet_py.net.networks import Network
 from starknet_py.net.schemas.rpc import (
     StarknetBlockSchema,
@@ -56,7 +52,6 @@ class FullNodeClient(Client):
         self,
         node_url: str,
         net: Network,
-        chain: Optional[StarknetChainId] = None,
         session: Optional[aiohttp.ClientSession] = None,
     ):
         """
@@ -64,31 +59,16 @@ class FullNodeClient(Client):
 
         :param node_url: Url of the node providing rpc interface
         :param net: StarkNet network identifier
-        :param chain: Chain id of the network used by the rpc client. Chain is deprecated
-                        and will be removed in the future
         :param session: Aiohttp session to be used for request. If not provided, client will create a session for
                         every request. When using a custom session, user is responsible for closing it manually.
         """
         self.url = node_url
         self._client = RpcHttpClient(url=node_url, session=session)
-
-        if net in ["testnet", "mainnet"]:
-            chain = chain_from_network(net, chain)
-        self._chain = chain
-
         self._net = net
 
     @property
     def net(self) -> Network:
         return self._net
-
-    @property
-    def chain(self) -> StarknetChainId:
-        warnings.warn(
-            "Chain is deprecated and will be deleted in the future",
-            category=DeprecationWarning,
-        )
-        return self._chain
 
     async def get_block(
         self,
@@ -193,9 +173,9 @@ class FullNodeClient(Client):
                     "max_fee": convert_to_felt(tx.max_fee),
                     "version": hex(tx.version),
                     "signature": [convert_to_felt(i) for i in tx.signature],
-                    "nonce": convert_to_felt(
-                        0
-                    ),  # TODO: this will be used in the next cairo version
+                    "nonce": (
+                        convert_to_felt(tx.nonce) if tx.nonce is not None else None
+                    ),  # TODO: verify this is correct
                     "type": "INVOKE",
                     "contract_address": convert_to_felt(tx.contract_address),
                     "entry_point_selector": convert_to_felt(tx.entry_point_selector),

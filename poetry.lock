@@ -1783,8 +1783,8 @@ Werkzeug = "~2.0.3"
 [package.source]
 type = "git"
 url = "https://github.com/Shard-Labs/starknet-devnet.git"
-reference = "03e77ec828418ce158af2294926b62dadc406747"
-resolved_reference = "03e77ec828418ce158af2294926b62dadc406747"
+reference = "01f82adb1df88c801adb5bf37bdb453321c5348e"
+resolved_reference = "01f82adb1df88c801adb5bf37bdb453321c5348e"
 
 [[package]]
 name = "sympy"
@@ -2003,7 +2003,7 @@ eth-tester = []
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8, <3.10"
-content-hash = "072d4edcee59962564862d9eb3e910e4fb39cf31476cefa64c34f9094d4ef646"
+content-hash = "d46eea1e4be69ee6340bb15ab68de9873f68227de43a942fb242f8e93ebd580a"
 
 [metadata.files]
 aiohttp = [

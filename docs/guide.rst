@@ -46,7 +46,19 @@ signing algorithm, it is possible to create ``AccountClient`` with custom
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_custom_signer.py
     :language: python
-    :lines: 11-35
+    :lines: 11-41
+    :dedent: 4
+
+
+Signing off-chain messages
+-------------------------------
+
+:ref:`Account Client` lets you sign an off-chain message by using encoding standard proposed `here <https://github.com/argentlabs/argent-x/discussions/14>`_.
+You can also **verify a message**, which is done by a call to ``is_valid_signature`` endpoint in the account's contract (e.g. `OpenZeppelin's account contract <https://github.com/starkware-libs/cairo-lang/blob/4e233516f52477ad158bc81a86ec2760471c1b65/src/starkware/starknet/third_party/open_zeppelin/Account.cairo#L115>`_).
+
+.. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_sign_offchain_message.py
+    :language: python
+    :lines: 9-44,51-59,66-76
     :dedent: 4
 
 
@@ -57,7 +69,7 @@ Here's how you can deploy new contracts:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_deploying_new_contracts.py
     :language: python
-    :lines: 10-33,37-68
+    :lines: 10-33,37-47,51-57,61-72
     :dedent: 4
 
 
