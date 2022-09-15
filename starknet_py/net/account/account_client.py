@@ -48,7 +48,7 @@ from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.typed_data import TypedData as TypedDataDataclass
 from starknet_py.net.models.typed_data import TypedData
 
-UNIVERSAL_DEPLOYER_ADDRESS = 123
+UNIVERSAL_DEPLOYER_ADDRESS = 3535039556444417991176651179174910414271245019603772658822093308202034211348
 
 
 @add_sync_methods
@@ -478,7 +478,7 @@ class AccountClient(Client):
         unique: bool,
         constructor_calldata: List[int],
         max_fee: Optional[int] = None,
-    ):
+    ) -> int:
         call = Call(
             to_addr=UNIVERSAL_DEPLOYER_ADDRESS,
             selector=get_selector_from_name("deployContract"),
@@ -492,6 +492,12 @@ class AccountClient(Client):
         )
 
         res = await self.execute(calls=call, max_fee=max_fee)
+        await self.wait_for_tx(tx_hash=res.transaction_hash)
+
+        receipt = await self.get_transaction_receipt(tx_hash=res.transaction_hash)
+        address = receipt.events[0].data[0]
+
+        return address
 
     async def declare(self, transaction: Declare) -> DeclareTransactionResponse:
         return await self.client.declare(transaction=transaction)
