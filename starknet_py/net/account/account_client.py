@@ -48,7 +48,9 @@ from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.typed_data import TypedData as TypedDataDataclass
 from starknet_py.net.models.typed_data import TypedData
 
-UNIVERSAL_DEPLOYER_ADDRESS = 3535039556444417991176651179174910414271245019603772658822093308202034211348
+UNIVERSAL_DEPLOYER_ADDRESS = (
+    3535039556444417991176651179174910414271245019603772658822093308202034211348
+)
 
 
 @add_sync_methods
