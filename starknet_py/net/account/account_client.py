@@ -610,17 +610,13 @@ class AccountClient(Client):
         """
         calldata = [msg_hash, len(signature), *signature]
 
-        invoke_tx = InvokeFunction(
-            contract_address=self.address,
-            entry_point_selector=get_selector_from_name("is_valid_signature"),
+        call = Call(
+            to_addr=self.address,
+            selector=get_selector_from_name("is_valid_signature"),
             calldata=calldata,
-            signature=[],
-            max_fee=0,
-            version=0,
-            nonce=None,
         )
         try:
-            await self.call_contract(invoke_tx=invoke_tx, block_hash="latest")
+            await self.call_contract(invoke_tx=call, block_hash="latest")
             return True
         except ClientError as ex:
             if re.search(r"Signature\s.+,\sis\sinvalid", ex.message):

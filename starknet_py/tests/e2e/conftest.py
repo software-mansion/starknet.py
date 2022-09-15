@@ -5,10 +5,11 @@ import json
 import os
 import socket
 import subprocess
+import sys
 import time
 from contextlib import closing
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, List
 
 import pytest
 import pytest_asyncio
@@ -21,9 +22,9 @@ from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.http_client import GatewayHttpClient
 from starknet_py.net.models import StarknetChainId, AddressRepresentation
 from starknet_py.contract import Contract
+from starknet_py.net.models.typed_data import TypedData
 from starknet_py.transactions.deploy import make_deploy_tx
 from starknet_py.utils.data_transformer.data_transformer import CairoSerializer
-from starknet_py.utils.typed_data import TypedData
 
 TESTNET_ACCOUNT_PRIVATE_KEY = (
     "0x5d6871223e9d2f6136f3913e8ccb6daae0b6b2a8452b39f92a1ddc5a76eed9a"
@@ -138,8 +139,10 @@ def pytest_collection_modifyitems(config, items):
     for item in items:
         runs_on_testnet = "run_on_testnet" in item.keywords
         runs_on_devnet = "run_on_devnet" in item.keywords
-        should_run = run_testnet == runs_on_testnet or run_devnet == runs_on_devnet
-        if not should_run:
+        should_not_run = (runs_on_devnet and not run_devnet) or (
+            runs_on_testnet and not run_testnet
+        )
+        if should_not_run:
             item.add_marker(pytest.mark.skip())
 
 
@@ -314,13 +317,24 @@ def new_gateway_account_client(
     )
 
 
-@pytest.fixture(
-    scope="module",
-    params=[
+def net_to_accounts() -> List[str]:
+    accounts = [
         "gateway_account_client",
         "new_gateway_account_client",
         "rpc_account_client",
-    ],
+    ]
+    if any(
+        net in sys.argv
+        for net in ["--net=integration", "--net=testnet", "testnet", "integration"]
+    ):
+        accounts.remove("rpc_account_client")
+
+    return accounts
+
+
+@pytest.fixture(
+    scope="module",
+    params=net_to_accounts(),
 )
 def account_client(request) -> AccountClient:
     """
