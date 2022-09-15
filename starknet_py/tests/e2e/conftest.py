@@ -323,7 +323,10 @@ def net_to_accounts() -> List[str]:
         "new_gateway_account_client",
         "rpc_account_client",
     ]
-    if any(net in sys.argv for net in ["--net=integration", "--net=testnet"]):
+    if any(
+        net in sys.argv
+        for net in ["--net=integration", "--net=testnet", "testnet", "integration"]
+    ):
         accounts.remove("rpc_account_client")
 
     return accounts
