@@ -44,12 +44,15 @@ from starknet_py.utils.crypto.facade import Call
 from starknet_py.utils.data_transformer.execute_transformer import (
     execute_transformer_by_version,
 )
+from starknet_py.utils.data_transformer.universal_deployer_serializer import (
+    universal_deployer_serializer,
+)
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.typed_data import TypedData as TypedDataDataclass
 from starknet_py.net.models.typed_data import TypedData
 
 UNIVERSAL_DEPLOYER_ADDRESS = (
-    3535039556444417991176651179174910414271245019603772658822093308202034211348
+    2702093810438963782792385212670226402931270181328742685393860489509268428420
 )
 
 
@@ -481,16 +484,18 @@ class AccountClient(Client):
         constructor_calldata: List[int],
         max_fee: Optional[int] = None,
     ) -> int:
+        # pylint: disable=too-many-arguments
+        calldata, _ = universal_deployer_serializer.from_python(
+            class_hash=class_hash,
+            salt=salt,
+            unique=unique,
+            constructor_calldata=constructor_calldata,
+        )
+
         call = Call(
             to_addr=UNIVERSAL_DEPLOYER_ADDRESS,
             selector=get_selector_from_name("deployContract"),
-            calldata=[
-                class_hash,
-                salt,
-                unique,
-                len(constructor_calldata),
-                constructor_calldata,
-            ],
+            calldata=calldata,
         )
 
         res = await self.execute(calls=call, max_fee=max_fee)
