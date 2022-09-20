@@ -51,6 +51,7 @@ from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.typed_data import TypedData as TypedDataDataclass
 from starknet_py.net.models.typed_data import TypedData
 
+# FIXME: Find better solution for keeping an address
 UNIVERSAL_DEPLOYER_ADDRESS = (
     2702093810438963782792385212670226402931270181328742685393860489509268428420
 )
