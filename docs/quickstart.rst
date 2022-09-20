@@ -55,9 +55,9 @@ There are some examples how to do it:
 
 .. note::
 
-Since 0.5.0 :obj:`AccountClient <starknet_py.net.account.account_client.AccountClient>` has `supported_tx_version` parameter.
-It is responsible for keeping an information about transaction version used by the account. The `AccountClient`'s constructor
-takes `supported_tx_version` as an argument (it is set to 0 by default).
+    Since 0.5.0 :obj:`AccountClient <starknet_py.net.account.account_client.AccountClient>` has `supported_tx_version` parameter.
+    It is responsible for keeping an information about transaction version used by the account. The `AccountClient`'s constructor
+    takes `supported_tx_version` as an argument (it is set to 0 by default).
 
 Using AccountClient
 -------------------
