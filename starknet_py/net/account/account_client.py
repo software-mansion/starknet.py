@@ -5,6 +5,7 @@ from dataclasses import replace
 from typing import Optional, List, Union, Dict
 
 from starkware.crypto.signature.signature import get_random_private_key
+from starkware.starknet.definitions.fields import ContractAddressSalt
 from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.common import create_compiled_contract
@@ -41,6 +42,7 @@ from starknet_py.net.models.deployer_addresses import deployer_address_from_netw
 from starknet_py.net.networks import Network, MAINNET, TESTNET
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
+from starknet_py.utils.contructor_args_translator import translate_constructor_args
 from starknet_py.utils.crypto.facade import Call
 from starknet_py.utils.data_transformer.execute_transformer import (
     execute_transformer_by_version,
@@ -476,9 +478,10 @@ class AccountClient(Client):
     async def deploy_contract(
         self,
         class_hash: Hash,
-        salt: int,
-        unique: bool,
-        constructor_calldata: List[int],
+        salt: Optional[int] = None,
+        unique: bool = True,
+        abi: Optional[list] = None,
+        constructor_calldata: Optional[Union[List[any], dict]] = None,
         deployer_address: Optional[AddressRepresentation] = None,
         max_fee: Optional[int] = None,
     ) -> int:
@@ -487,10 +490,18 @@ class AccountClient(Client):
             net=self.net, deployer_address=deployer_address
         )
 
+        if not abi and constructor_calldata:
+            raise ValueError(
+                "constructor_calldata was provided without an abi"
+            )
+        constructor_calldata = translate_constructor_args(
+            abi=abi or [], constructor_args=constructor_calldata
+        )
+
         calldata, _ = universal_deployer_serializer.from_python(
             class_hash=class_hash,
-            salt=salt,
-            unique=unique,
+            salt=ContractAddressSalt.get_random_value() if salt is None else salt,
+            unique=int(unique),
             constructor_calldata=constructor_calldata,
         )
 
