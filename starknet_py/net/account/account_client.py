@@ -37,6 +37,7 @@ from starknet_py.net.models import (
     chain_from_network,
 )
 from starknet_py.net.models.address import AddressRepresentation, parse_address
+from starknet_py.net.models.deployer_addresses import deployer_address_from_network
 from starknet_py.net.networks import Network, MAINNET, TESTNET
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
@@ -50,11 +51,6 @@ from starknet_py.utils.data_transformer.universal_deployer_serializer import (
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.typed_data import TypedData as TypedDataDataclass
 from starknet_py.net.models.typed_data import TypedData
-
-# FIXME: Find better solution for keeping an address
-UNIVERSAL_DEPLOYER_ADDRESS = (
-    2702093810438963782792385212670226402931270181328742685393860489509268428420
-)
 
 
 @add_sync_methods
@@ -483,9 +479,14 @@ class AccountClient(Client):
         salt: int,
         unique: bool,
         constructor_calldata: List[int],
+        deployer_address: Optional[AddressRepresentation] = None,
         max_fee: Optional[int] = None,
     ) -> int:
         # pylint: disable=too-many-arguments
+        deployer_address = deployer_address_from_network(
+            net=self.net, deployer_address=deployer_address
+        )
+
         calldata, _ = universal_deployer_serializer.from_python(
             class_hash=class_hash,
             salt=salt,
@@ -494,7 +495,7 @@ class AccountClient(Client):
         )
 
         call = Call(
-            to_addr=UNIVERSAL_DEPLOYER_ADDRESS,
+            to_addr=deployer_address,
             selector=get_selector_from_name("deployContract"),
             calldata=calldata,
         )
