@@ -457,3 +457,25 @@ async def cairo_serializer(gateway_account_client: AccountClient) -> CairoSerial
     contract = deployment_result.deployed_contract
 
     return CairoSerializer(identifier_manager=contract.data.identifier_manager)
+
+
+@pytest_asyncio.fixture(scope="module")
+async def deployer_address(gateway_client: AccountClient) -> int:
+    deploy_tx = make_deploy_tx(
+        compilation_source=(mock_dir / "contracts/universal_deployer.cairo").read_text(
+            "utf-8"
+        )
+    )
+    res = await gateway_client.deploy(deploy_tx)
+    return res.contract_address
+
+
+@pytest_asyncio.fixture(scope="module")
+async def map_class_hash(new_gateway_account_client, map_source_code):
+    declare = await new_gateway_account_client.sign_declare_transaction(
+        compilation_source=map_source_code,
+        max_fee=int(1e16),
+    )
+    res = await new_gateway_account_client.declare(declare)
+    await new_gateway_account_client.wait_for_tx(res.transaction_hash)
+    return res.class_hash
