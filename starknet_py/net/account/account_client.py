@@ -491,9 +491,7 @@ class AccountClient(Client):
         )
 
         if not abi and constructor_calldata:
-            raise ValueError(
-                "constructor_calldata was provided without an abi"
-            )
+            raise ValueError("constructor_calldata was provided without an abi")
         constructor_calldata = translate_constructor_args(
             abi=abi or [], constructor_args=constructor_calldata
         )
