@@ -212,7 +212,8 @@ async def test_constructor_arguments_deploy_contract(
     # Positional params
     contract_1_address = await account_client.deploy_contract(
         DeployerConfig(
-            class_hash=class_hash, constructor_calldata=[value, tuple_value, arr, struct]
+            class_hash=class_hash,
+            constructor_calldata=[value, tuple_value, arr, struct],
         ),
         abi=abi,
         deployer_address=deployer_address,
