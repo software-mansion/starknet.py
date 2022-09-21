@@ -54,7 +54,7 @@ from starknet_py.utils.data_transformer.universal_deployer_serializer import (
 )
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.typed_data import TypedData as TypedDataDataclass
-from starknet_py.net.models.typed_data import TypedData
+from starknet_py.net.models.typed_data import TypedData, DeployerConfig
 
 
 @add_sync_methods
@@ -479,11 +479,8 @@ class AccountClient(Client):
 
     async def deploy_contract(
         self,
-        class_hash: Hash,
-        salt: Optional[int] = None,
-        unique: bool = True,
+        deployer_config: DeployerConfig,
         abi: Optional[list] = None,
-        constructor_calldata: Optional[Union[List[any], dict]] = None,
         deployer_address: Optional[AddressRepresentation] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
@@ -493,11 +490,12 @@ class AccountClient(Client):
         """
         Deploys contract through Universal Deployer Contract (UDC)
 
-        :param class_hash: The class_hash of the contract to be deployed
-        :param salt: Optional salt. Random value is selected if it is not provided
-        :param unique: Boolean determining if the salt should be connected with the account's address
+        :param deployer_config: Arguments for the UDC:
+            - class_hash: The class_hash of the contract to be deployed
+            - salt: Optional salt. Random value is selected if it is not provided
+            - unique: Boolean determining if the salt should be connected with the account's address
+            - constructor_calldata: Constructor args of the contract to be deployed
         :param abi: ABI of the contract to be deployed
-        :param constructor_calldata: Constructor args of the contract to be deployed
         :param deployer_address: Address of the UDC. Must be set when using a custom network
         :param max_fee: Max amount of Wei to be paid when executing transaction
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
@@ -509,17 +507,17 @@ class AccountClient(Client):
             net=self.net, deployer_address=deployer_address
         )
 
-        if not abi and constructor_calldata:
+        if not abi and deployer_config.get("constructor_calldata"):
             raise ValueError("constructor_calldata was provided without an abi")
         constructor_calldata = translate_constructor_args(
-            abi=abi or [], constructor_args=constructor_calldata
+            abi=abi or [], constructor_args=deployer_config.get("constructor_calldata")
         )
 
         calldata, _ = universal_deployer_serializer.from_python(
             value_types=deploy_contract_abi["inputs"],
-            class_hash=class_hash,
-            salt=ContractAddressSalt.get_random_value() if salt is None else salt,
-            unique=int(unique),
+            class_hash=deployer_config["class_hash"],
+            salt=deployer_config.get("salt", ContractAddressSalt.get_random_value()),
+            unique=int(deployer_config.get("unique", True)),
             constructor_calldata=constructor_calldata,
         )
 
