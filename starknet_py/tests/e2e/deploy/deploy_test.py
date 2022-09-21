@@ -60,7 +60,7 @@ async def test_constructor_arguments(gateway_account_client):
             compilation_source=constructor_with_arguments_source,
         )
 
-    assert "no args were provided" in str(err.value)
+    assert "no arguments were provided" in str(err.value)
 
     # Positional params
     contract_1 = await Contract.deploy(
@@ -208,7 +208,7 @@ async def test_constructor_arguments_deploy_contract(
             max_fee=MAX_FEE,
         )
 
-    assert "no args were provided" in str(err.value)
+    assert "no arguments were provided" in str(err.value)
 
     # Positional params
     contract_1_address = await account_client.deploy_contract(
