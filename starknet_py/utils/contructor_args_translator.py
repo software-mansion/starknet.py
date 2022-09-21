@@ -17,7 +17,7 @@ def translate_constructor_args(abi: list, constructor_args: any) -> List[int]:
 
     if not constructor_args:
         raise ValueError(
-            "Provided contract has a constructor and no args were provided."
+            "Provided contract has a constructor and no arguments were provided."
         )
 
     args, kwargs = (
