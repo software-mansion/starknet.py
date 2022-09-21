@@ -173,7 +173,7 @@ async def test_throws_when_constructor_calldata_not_provided(
             max_fee=MAX_FEE,
         )
 
-    assert "Provided contract has a constructor and no args were provided." in str(
+    assert "Provided contract has a constructor and no arguments were provided." in str(
         err.value
     )
 
