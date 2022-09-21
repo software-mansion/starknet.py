@@ -19,7 +19,7 @@ async def test_creating_account_client(network):
 
     # Creates an instance of account client which is already deployed (testnet)
 
-    # old AccountClient using transaction version=0
+    # old AccountClient using transaction version=0 (doesn't have __validate__ function)
     client = GatewayClient(net=testnet)
     account_client_testnet = AccountClient(
         client=client,
@@ -29,7 +29,7 @@ async def test_creating_account_client(network):
         supported_tx_version=0,
     )
 
-    # new AccountClient using transaction version=1
+    # new AccountClient using transaction version=1 (does have __validate__ function)
     client = GatewayClient(net=testnet)
     account_client_testnet = AccountClient(
         client=client,
