@@ -486,8 +486,25 @@ class AccountClient(Client):
         constructor_calldata: Optional[Union[List[any], dict]] = None,
         deployer_address: Optional[AddressRepresentation] = None,
         max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+        version: Optional[int] = None,
     ) -> int:
-        # pylint: disable=too-many-arguments
+        # pylint: disable=too-many-arguments, too-many-locals
+        """
+        Deploys contract through Universal Deployer Contract (UDC)
+
+        :param class_hash: The class_hash of the contract to be deployed
+        :param salt: Optional salt. Random value is selected if it is not provided
+        :param unique: Boolean determining if the salt should be connected with the account's address
+        :param abi: ABI of the contract to be deployed
+        :param constructor_calldata: Constructor args of the contract to be deployed
+        :param deployer_address: Address of the UDC. Must be set when using a custom network
+        :param max_fee: Max amount of Wei to be paid when executing transaction
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
+        :param version: Transaction version
+        :return: Address of the deployed contract
+        """
+
         deployer_address = deployer_address_from_network(
             net=self.net, deployer_address=deployer_address
         )
@@ -512,7 +529,9 @@ class AccountClient(Client):
             calldata=calldata,
         )
 
-        res = await self.execute(calls=call, max_fee=max_fee)
+        res = await self.execute(
+            calls=call, max_fee=max_fee, auto_estimate=auto_estimate, version=version
+        )
         await self.wait_for_tx(tx_hash=res.transaction_hash)
 
         receipt = await self.get_transaction_receipt(tx_hash=res.transaction_hash)
