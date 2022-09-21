@@ -126,7 +126,9 @@ class GatewayClient(Client):
         res = await self._feeder_gateway_client.call(
             method_name="get_block_traces", params=block_identifier
         )
-        return BlockTransactionTracesSchema().load(res, unknown=EXCLUDE)  # pyright: ignore
+        return BlockTransactionTracesSchema().load(
+            res, unknown=EXCLUDE
+        )  # pyright: ignore
 
     async def get_state_update(
         self,
@@ -257,7 +259,9 @@ class GatewayClient(Client):
         token: Optional[str] = None,
     ) -> DeployTransactionResponse:
         res = await self._add_transaction(transaction, token)
-        return DeployTransactionResponseSchema().load(res, unknown=EXCLUDE)  # pyright: ignore
+        return DeployTransactionResponseSchema().load(
+            res, unknown=EXCLUDE
+        )  # pyright: ignore
 
     async def declare(
         self,
@@ -265,7 +269,9 @@ class GatewayClient(Client):
         token: Optional[str] = None,
     ) -> DeclareTransactionResponse:
         res = await self._add_transaction(transaction, token)
-        return dict(DeclareTransactionResponseSchema().load(res, unknown=EXCLUDE))  # pyright: ignore
+        return dict(
+            DeclareTransactionResponseSchema().load(res, unknown=EXCLUDE)
+        )  # pyright: ignore
 
     async def get_class_hash_at(
         self,

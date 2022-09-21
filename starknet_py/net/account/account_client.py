@@ -85,7 +85,9 @@ class AccountClient(Client):
 
         if signer is None:
             if key_pair is None:
-                raise ValueError("Either a signer or a key_pair must be provided in AccountClient constructor")
+                raise ValueError(
+                    "Either a signer or a key_pair must be provided in AccountClient constructor"
+                )
             actual_key_pair: KeyPair = key_pair
 
             chain = chain_from_network(net=client.net, chain=chain or self.client.chain)
@@ -594,7 +596,9 @@ class AccountClient(Client):
         :param typed_data: TypedData TypedDict to be hashed
         :return: the hash of the TypedData TypedDict
         """
-        typed_data_dataclass: TypedDataDataclass = TypedDataDataclass.from_dict(typed_data)
+        typed_data_dataclass: TypedDataDataclass = TypedDataDataclass.from_dict(
+            typed_data
+        )
         return typed_data_dataclass.message_hash(self.address)
 
     async def verify_message(self, typed_data: TypedData, signature: List[int]) -> bool:
