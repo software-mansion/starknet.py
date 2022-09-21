@@ -119,6 +119,7 @@ async def test_default_deploy_with_class_hash(
     )
 
     assert isinstance(res, int)
+    assert res != 0
 
 
 @pytest.mark.asyncio
