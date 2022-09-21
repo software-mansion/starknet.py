@@ -48,7 +48,9 @@ from starknet_py.utils.data_transformer.execute_transformer import (
     execute_transformer_by_version,
 )
 from starknet_py.utils.data_transformer.universal_deployer_serializer import (
-    universal_deployer_serializer, deploy_contract_event_abi, deploy_contract_abi,
+    universal_deployer_serializer,
+    deploy_contract_event_abi,
+    deploy_contract_abi,
 )
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.typed_data import TypedData as TypedDataDataclass
