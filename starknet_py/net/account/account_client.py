@@ -48,7 +48,7 @@ from starknet_py.utils.data_transformer.execute_transformer import (
     execute_transformer_by_version,
 )
 from starknet_py.utils.data_transformer.universal_deployer_serializer import (
-    universal_deployer_serializer,
+    universal_deployer_serializer, deploy_contract_event_abi, deploy_contract_abi,
 )
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.typed_data import TypedData as TypedDataDataclass
@@ -497,6 +497,7 @@ class AccountClient(Client):
         )
 
         calldata, _ = universal_deployer_serializer.from_python(
+            value_types=deploy_contract_abi["inputs"],
             class_hash=class_hash,
             salt=ContractAddressSalt.get_random_value() if salt is None else salt,
             unique=int(unique),
@@ -513,9 +514,11 @@ class AccountClient(Client):
         await self.wait_for_tx(tx_hash=res.transaction_hash)
 
         receipt = await self.get_transaction_receipt(tx_hash=res.transaction_hash)
-        address = receipt.events[0].data[0]
+        event = universal_deployer_serializer.to_python(
+            value_types=deploy_contract_event_abi["data"], values=receipt.events[0].data
+        )
 
-        return address
+        return event.contractAddress
 
     async def declare(self, transaction: Declare) -> DeclareTransactionResponse:
         return await self.client.declare(transaction=transaction)
