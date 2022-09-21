@@ -82,7 +82,7 @@ def construct_result_object(result: dict) -> NamedTuple:
 
 def read_from_cairo_data(
     name: str, values: CairoData, n: int
-) -> (CairoData, CairoData):
+) -> Tuple[CairoData, CairoData]:
     if len(values) < n:
         raise ValueError(
             f"Output {name} expected {n} values, {len(values)} values are available."
@@ -160,7 +160,7 @@ class StructTransformer(TypeTransformer[TypeStruct, dict]):
 
         return result
 
-    def to_python(self, cairo_type, name, values) -> (dict, CairoData):
+    def to_python(self, cairo_type, name, values) -> Tuple[dict, CairoData]:
         definition = self._definition(cairo_type)
         if is_uint256(definition):
             low, high, *values = values
@@ -324,7 +324,7 @@ class CairoSerializer:
 
     def from_python(
         self, value_types: List[dict], *args, **kwargs
-    ) -> (List[int], Dict[str, List[int]]):
+    ) -> Tuple[List[int], Dict[str, List[int]]]:
         """
         Transforms params into Cairo representation.
 
@@ -433,7 +433,7 @@ class FunctionCallSerializer:
         self.structure_transformer = CairoSerializer(identifier_manager)
         self.abi = abi
 
-    def from_python(self, *args, **kwargs) -> (List[int], Dict[str, List[int]]):
+    def from_python(self, *args, **kwargs) -> Tuple[List[int], Dict[str, List[int]]]:
         return self.structure_transformer.from_python(
             self.abi["inputs"], *args, **kwargs
         )

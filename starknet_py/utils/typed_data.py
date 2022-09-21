@@ -7,6 +7,7 @@ from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.cairo.felt import encode_shortstring
 from starknet_py.net.models.typed_data import StarkNetDomain
+from starknet_py.net.models.typed_data import TypedData as TypedDataDict
 
 
 @dataclass(frozen=True)
@@ -31,10 +32,10 @@ class TypedData:
     message: dict
 
     @staticmethod
-    def from_dict(data: dict) -> "TypedData":
+    def from_dict(data: TypedDataDict) -> "TypedData":
         return TypedDataSchema().load(data)
 
-    def _encode_value(self, type_name: str, value: Union[int, str]) -> str:
+    def _encode_value(self, type_name: str, value: Union[int, str]) -> int:
         if is_pointer(type_name):
             return compute_hash_on_elements(
                 [self.struct_hash(strip_pointer(type_name), data) for data in value]
@@ -110,7 +111,7 @@ def get_hex(value: Union[int, str]) -> str:
 
 
 def is_pointer(value: str) -> bool:
-    return value and value[-1] == "*"
+    return len(value) > 0 and value[-1] == "*"
 
 
 def strip_pointer(value: str) -> str:
