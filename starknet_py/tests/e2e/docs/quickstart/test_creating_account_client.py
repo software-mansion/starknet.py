@@ -29,7 +29,7 @@ async def test_creating_account_client(network):
         supported_tx_version=0,
     )
 
-    # new AccountClient using transaction version=1 (does have __validate__ function)
+    # new AccountClient using transaction version=1 (has __validate__ function)
     client = GatewayClient(net=testnet)
     account_client_testnet = AccountClient(
         client=client,
