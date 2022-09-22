@@ -35,7 +35,9 @@ class ContractDeployment:
 
         calldata, _ = universal_deployer_serializer.from_python(
             value_types=deploy_contract_abi["inputs"],
-            class_hash=self.class_hash if isinstance(self.class_hash, int) else int(self.class_hash, 16),
+            class_hash=self.class_hash
+            if isinstance(self.class_hash, int)
+            else int(self.class_hash, 16),
             salt=self.deployer.salt or ContractAddressSalt.get_random_value(),
             unique=int(self.deployer.unique),
             constructor_calldata=constructor_calldata,
