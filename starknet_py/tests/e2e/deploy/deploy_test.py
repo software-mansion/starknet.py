@@ -115,7 +115,7 @@ async def test_constructor_without_arguments(gateway_account_client):
 async def test_default_deploy_with_class_hash(
     deployer_address, account_client, map_class_hash
 ):
-    res = await account_client.deploy_contract(
+    res = await account_client.deploy_through_udc(
         DeployerConfig(class_hash=map_class_hash),
         deployer_address=deployer_address,
         max_fee=MAX_FEE,
@@ -130,7 +130,7 @@ async def test_throws_when_deployer_address_not_specified_on_custom_network(
     account_client, map_class_hash
 ):
     with pytest.raises(ValueError) as err:
-        await account_client.deploy_contract(
+        await account_client.deploy_through_udc(
             DeployerConfig(class_hash=map_class_hash), max_fee=MAX_FEE
         )
 
@@ -144,7 +144,7 @@ async def test_throws_when_constructor_calldata_without_abi(
     account_client, map_class_hash, deployer_address
 ):
     with pytest.raises(ValueError) as err:
-        await account_client.deploy_contract(
+        await account_client.deploy_through_udc(
             DeployerConfig(
                 class_hash=map_class_hash,
                 constructor_calldata=[12, 34],
@@ -166,7 +166,7 @@ async def test_throws_when_constructor_calldata_not_provided(
     abi = compiled_contract.abi
 
     with pytest.raises(ValueError) as err:
-        await account_client.deploy_contract(
+        await account_client.deploy_through_udc(
             DeployerConfig(class_hash=1234),
             abi=abi,
             deployer_address=deployer_address,
@@ -198,7 +198,7 @@ async def test_constructor_arguments_contract_deploy(
     constructor_with_arguments_class_hash,
     constructor_calldata,
 ):
-    contract_address = await account_client.deploy_contract(
+    contract_address = await account_client.deploy_through_udc(
         DeployerConfig(
             class_hash=constructor_with_arguments_class_hash,
             constructor_calldata=constructor_calldata,

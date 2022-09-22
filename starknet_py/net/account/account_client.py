@@ -477,7 +477,7 @@ class AccountClient(Client):
     async def deploy(self, transaction: Deploy) -> DeployTransactionResponse:
         return await self.client.deploy(transaction=transaction)
 
-    async def deploy_contract(
+    async def deploy_through_udc(
         self,
         deployer_config: DeployerConfig,
         abi: Optional[list] = None,
@@ -486,7 +486,7 @@ class AccountClient(Client):
         auto_estimate: bool = False,
         version: Optional[int] = None,
     ) -> int:
-        # pylint: disable=too-many-arguments, too-many-locals
+        # pylint: disable=too-many-arguments
         """
         Deploys contract through Universal Deployer Contract (UDC)
 

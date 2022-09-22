@@ -462,6 +462,9 @@ async def cairo_serializer(gateway_account_client: AccountClient) -> CairoSerial
 
 @pytest_asyncio.fixture(scope="module")
 async def deployer_address(gateway_client: AccountClient) -> int:
+    """
+    Returns an address of the UDC
+    """
     deploy_tx = make_deploy_tx(
         compilation_source=(mock_dir / "contracts/universal_deployer.cairo").read_text(
             "utf-8"
@@ -472,7 +475,10 @@ async def deployer_address(gateway_client: AccountClient) -> int:
 
 
 @pytest_asyncio.fixture(scope="module")
-async def map_class_hash(new_gateway_account_client, map_source_code):
+async def map_class_hash(new_gateway_account_client, map_source_code) -> int:
+    """
+    Returns class_hash of the map.cairo
+    """
     declare = await new_gateway_account_client.sign_declare_transaction(
         compilation_source=map_source_code,
         max_fee=int(1e16),
@@ -489,6 +495,9 @@ constructor_with_arguments_source = (
 
 @pytest.fixture(scope="module")
 def constructor_with_arguments_abi() -> List:
+    """
+    Returns an abi of the constructor_with_arguments.cairo
+    """
     return (
         create_compiled_contract(compilation_source=constructor_with_arguments_source)
     ).abi
@@ -496,6 +505,9 @@ def constructor_with_arguments_abi() -> List:
 
 @pytest_asyncio.fixture(scope="module")
 async def constructor_with_arguments_class_hash(new_gateway_account_client) -> int:
+    """
+    Returns a class_hash of the constructor_with_arguments.cairo
+    """
     return (
         await new_gateway_account_client.declare(
             await new_gateway_account_client.sign_declare_transaction(
