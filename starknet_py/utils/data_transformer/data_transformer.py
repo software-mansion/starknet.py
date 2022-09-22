@@ -126,6 +126,7 @@ class FeltTransformer(TypeTransformer[TypeFelt, int]):
 
     def to_python(self, cairo_type, name, values):
         [val], rest = read_from_cairo_data(name, values, 1)
+        cairo_vm_range_check(val)
         return val, rest
 
 

@@ -4,7 +4,6 @@ import warnings
 from dataclasses import replace
 from typing import Optional, List, Union, Dict, Tuple
 
-from starkware.crypto.signature.signature import get_random_private_key
 from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.common import create_compiled_contract
@@ -77,22 +76,21 @@ class AccountClient(Client):
         :param supported_tx_version: Version of transactions supported by account
         """
         # pylint: disable=too-many-arguments
-        if chain is None and signer is None and client.chain is None:
+        if signer is None and key_pair is None:
+            raise ValueError(
+                "Either a signer or a key_pair must be provided in AccountClient constructor"
+            )
+
+        if chain is None and signer is None:
             raise ValueError("One of chain or signer must be provided")
 
         self.address = parse_address(address)
         self.client = client
 
         if signer is None:
-            if key_pair is None:
-                raise ValueError(
-                    "Either a signer or a key_pair must be provided in AccountClient constructor"
-                )
-            actual_key_pair: KeyPair = key_pair
-
-            chain = chain_from_network(net=client.net, chain=chain or self.client.chain)
+            chain = chain_from_network(net=client.net, chain=chain)
             signer = StarkCurveSigner(
-                account_address=self.address, key_pair=actual_key_pair, chain_id=chain
+                account_address=self.address, key_pair=key_pair, chain_id=chain
             )
         self.signer = signer
         self.supported_tx_version = supported_tx_version
@@ -107,14 +105,6 @@ class AccountClient(Client):
     @property
     def net(self) -> Network:
         return self.client.net
-
-    @property
-    def chain(self) -> StarknetChainId:
-        warnings.warn(
-            "Chain is deprecated and will be deleted in the future",
-            category=DeprecationWarning,
-        )
-        return self.signer.chain_id
 
     async def get_block(
         self,
@@ -537,21 +527,18 @@ class AccountClient(Client):
             Consider transitioning to deploying account contract of choice and creating AccountClient
             through a constructor.
         """
-        if chain is None and signer is None and client.chain is None:
-            warnings.warn(
-                "Account deployment through AccountClient is deprecated and will be deleted once transaction version "
-                "0 is removed. Consider transitioning to creating AccountClient through a constructor.",
-                category=DeprecationWarning,
-            )
+        warnings.warn(
+            "Account deployment through AccountClient is deprecated and will be deleted once transaction version "
+            "0 is removed. Consider transitioning to creating AccountClient through a constructor.",
+            category=DeprecationWarning,
+        )
 
-        if chain is None and client.chain is None and signer is None:
+        if chain is None and signer is None:
             raise ValueError("One of chain or signer must be provided")
 
         if signer is None:
-            actual_private_key = private_key or get_random_private_key()
-
-            chain = chain_from_network(net=client.net, chain=chain or client.chain)
-            key_pair = KeyPair.from_private_key(actual_private_key)
+            chain = chain_from_network(net=client.net, chain=chain)
+            key_pair = KeyPair.from_private_key(private_key)
             address = await deploy_account_contract(client, key_pair.public_key)
             signer = StarkCurveSigner(
                 account_address=address, key_pair=key_pair, chain_id=chain
@@ -622,17 +609,13 @@ class AccountClient(Client):
         """
         calldata = [msg_hash, len(signature), *signature]
 
-        invoke_tx = InvokeFunction(
-            contract_address=self.address,
-            entry_point_selector=get_selector_from_name("is_valid_signature"),
+        call = Call(
+            to_addr=self.address,
+            selector=get_selector_from_name("is_valid_signature"),
             calldata=calldata,
-            signature=[],
-            max_fee=0,
-            version=0,
-            nonce=None,
         )
         try:
-            await self.call_contract(invoke_tx=invoke_tx)
+            await self.call_contract(invoke_tx=call, block_hash="latest")
             return True
         except ClientError as ex:
             if re.search(r"Signature\s.+,\sis\sinvalid", ex.message):

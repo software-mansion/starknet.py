@@ -92,8 +92,6 @@ async def test_estimate_fee_called(erc20_contract):
 
 
 @pytest.mark.asyncio
-# FIXME: remove skip
-@pytest.mark.skip
 async def test_estimated_fee_greater_than_zero(erc20_contract, account_client):
     erc20_contract = Contract(
         erc20_contract.address, erc20_contract.data.abi, account_client
@@ -114,7 +112,7 @@ async def test_estimated_fee_greater_than_zero(erc20_contract, account_client):
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_create_account_client(network):
-    client = GatewayClient(net=network, chain=StarknetChainId.TESTNET)
+    client = GatewayClient(net=network)
     acc_client = await AccountClient.create_account(
         client=client, chain=StarknetChainId.TESTNET
     )
@@ -126,7 +124,7 @@ async def test_create_account_client(network):
 @pytest.mark.asyncio
 async def test_create_account_client_with_private_key(network):
     private_key = 1234
-    gt_client = GatewayClient(net=network, chain=StarknetChainId.TESTNET)
+    gt_client = GatewayClient(net=network)
     acc_client = await AccountClient.create_account(
         client=gt_client, private_key=private_key, chain=StarknetChainId.TESTNET
     )
@@ -211,7 +209,7 @@ async def test_sign_and_verify_offchain_message_fail(
     gateway_account_client, typed_data
 ):
     signature = gateway_account_client.sign_message(typed_data)
-    signature = (signature[0] + 1, signature[1])
+    signature = [signature[0] + 1, signature[1]]
     result = await gateway_account_client.verify_message(typed_data, signature)
 
     assert result is False

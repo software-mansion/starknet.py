@@ -10,7 +10,7 @@ It requires information about used network:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/quickstart/test_using_gateway_client.py
     :language: python
-    :lines: 8-29
+    :lines: 8-25
     :dedent: 4
 
 The default interface is asynchronous. Although it is the recommended way of using Starknet.py, you can also use a
@@ -18,7 +18,7 @@ synchronous version. It might be helpful to play with Starknet directly in pytho
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/quickstart/test_synchronous_gateway_client.py
     :language: python
-    :lines: 11-14
+    :lines: 8-11
     :dedent: 4
 
 You can see all Gateway Client's methods :ref:`GatewayClient`.
@@ -50,8 +50,18 @@ There are some examples how to do it:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/quickstart/test_creating_account_client.py
     :language: python
-    :lines: 10-15,19-40
+    :lines: 10-15,19-53
     :dedent: 4
+
+.. note::
+
+    Since 0.5.0 :obj:`AccountClient <starknet_py.net.account.account_client.AccountClient>` has `supported_tx_version` parameter.
+    It is responsible for keeping an information about transaction version supported by the account. The `AccountClient`'s constructor
+    takes `supported_tx_version` as an argument (it is set to 0 by default).
+
+.. note::
+
+    We encourage you to upgrade your accounts to ones supporting latest transaction version.
 
 Using AccountClient
 -------------------
@@ -80,5 +90,5 @@ Although asynchronous API is recommended, you can also use Contract's synchronou
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/quickstart/test_synchronous_api.py
     :language: python
-    :lines: 8-15,22-29
+    :lines: 6-13,20-27
     :dedent: 4

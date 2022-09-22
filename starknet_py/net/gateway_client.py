@@ -43,7 +43,6 @@ from starknet_py.net.schemas.gateway import (
     TransactionReceiptSchema,
 )
 from starknet_py.net.http_client import GatewayHttpClient
-from starknet_py.net.models import StarknetChainId, chain_from_network
 from starknet_py.net.networks import Network, net_address_from_net
 from starknet_py.net.client_errors import ContractNotFoundError
 from starknet_py.net.client_utils import convert_to_felt, is_block_identifier
@@ -56,7 +55,6 @@ class GatewayClient(Client):
     def __init__(
         self,
         net: Network,
-        chain: Optional[StarknetChainId] = None,
         session: Optional[aiohttp.ClientSession] = None,
     ):
         """
@@ -64,8 +62,6 @@ class GatewayClient(Client):
 
         :param net: Target network for the client. Can be a string with URL, one of ``"mainnet"``, ``"testnet"``
                     or dict with ``"feeder_gateway_url"`` and ``"gateway_url"`` fields
-        :param chain: Chain used by the network. Required if you use a custom URL for ``net`` param. Chain is deprecated
-                        and will be removed in the future
         :param session: Aiohttp session to be used for request. If not provided, client will create a session for
                         every request. When using a custom session, user is resposible for closing it manually.
         """
@@ -79,10 +75,6 @@ class GatewayClient(Client):
 
         self._net = net
 
-        if net in ["testnet", "mainnet"]:
-            chain = chain_from_network(net, chain)
-        self._chain = chain
-
         self._feeder_gateway_client = GatewayHttpClient(
             url=feeder_gateway_url, session=session
         )
@@ -91,14 +83,6 @@ class GatewayClient(Client):
     @property
     def net(self) -> Network:
         return self._net
-
-    @property
-    def chain(self) -> StarknetChainId:
-        warnings.warn(
-            "Chain is deprecated and will be deleted in the future",
-            category=DeprecationWarning,
-        )
-        return self._chain
 
     async def get_block(
         self,
@@ -411,7 +395,11 @@ def get_block_identifier(
 
 def _get_call_payload(tx: Union[InvokeFunction, Call]) -> dict:
     if isinstance(tx, InvokeFunction):
-        return tx.dump()  # pyright: ignore [reportGeneralTypeIssues]
+        return {
+            "contract_address": hex(tx.contract_address),
+            "entry_point_selector": hex(tx.entry_point_selector),
+            "calldata": [str(i) for i in tx.calldata],
+        }
     return {
         "contract_address": hex(tx.to_addr),
         "entry_point_selector": hex(tx.selector),

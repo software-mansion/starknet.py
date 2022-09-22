@@ -15,6 +15,7 @@ from starknet_py.net.client_models import (
     TransactionReceipt,
     DeployedContract,
     DeployTransaction,
+    Call,
 )
 from starknet_py.net.client_errors import ClientError
 from starknet_py.tests.e2e.account.account_client_test import MAX_FEE
@@ -84,8 +85,6 @@ async def test_get_transaction_raises_on_not_received(clients):
 
 
 @pytest.mark.asyncio
-# FIXME: remove skip
-@pytest.mark.skip
 async def test_get_block_by_hash(
     clients,
     deploy_transaction_hash,
@@ -114,8 +113,6 @@ async def test_get_block_by_hash(
 
 
 @pytest.mark.asyncio
-# FIXME: remove skip
-@pytest.mark.skip
 async def test_get_block_by_number(
     clients,
     deploy_transaction_hash,
@@ -190,8 +187,6 @@ async def test_get_transaction_receipt(
 
 
 @pytest.mark.asyncio
-# FIXME: remove skip
-@pytest.mark.skip
 async def test_estimate_fee(contract_address, gateway_client):
     transaction = InvokeFunction(
         contract_address=contract_address,
@@ -211,23 +206,18 @@ async def test_estimate_fee(contract_address, gateway_client):
 @pytest.mark.asyncio
 async def test_call_contract(clients, contract_address):
     for client in clients:
-        invoke_function = InvokeFunction(
-            contract_address=contract_address,
-            entry_point_selector=get_selector_from_name("get_balance"),
+        call = Call(
+            to_addr=contract_address,
+            selector=get_selector_from_name("get_balance"),
             calldata=[],
-            max_fee=0,
-            version=0,
-            signature=[0x0, 0x0],
-            nonce=None,
         )
-        result = await client.call_contract(invoke_function, block_hash="latest")
+
+        result = await client.call_contract(call, block_hash="latest")
 
         assert result == [1234]
 
 
 @pytest.mark.asyncio
-# FIXME: remove skip
-@pytest.mark.skip
 async def test_state_update_gateway_client(
     gateway_client,
     block_with_deploy_number,
