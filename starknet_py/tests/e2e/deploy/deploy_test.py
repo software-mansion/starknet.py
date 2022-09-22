@@ -1,8 +1,6 @@
 import pytest
 
-from starknet_py.common import create_compiled_contract
 from starknet_py.contract import Contract, ContractFunction
-from starknet_py.net.models.typed_data import DeployerConfig
 from starknet_py.tests.e2e.account.account_client_test import MAX_FEE
 from starknet_py.tests.e2e.conftest import contracts_dir
 
@@ -115,24 +113,25 @@ async def test_constructor_without_arguments(gateway_account_client):
 async def test_default_deploy_with_class_hash(
     deployer_address, account_client, map_class_hash
 ):
-    res = await account_client.deploy_through_udc(
-        DeployerConfig(class_hash=map_class_hash),
-        deployer_address=deployer_address,
-        max_fee=MAX_FEE,
+    contract_deployment = account_client.create_deployer(
+        deployer_address=deployer_address
+    ).for_contract(class_hash=map_class_hash)
+
+    deploy_invoke_tx = await contract_deployment.prepare_transaction(max_fee=MAX_FEE)
+    deployed_contract_address = await contract_deployment.send_transaction(
+        deploy_invoke_transaction=deploy_invoke_tx
     )
 
-    assert isinstance(res, int)
-    assert res != 0
+    assert isinstance(deployed_contract_address, int)
+    assert deployed_contract_address != 0
 
 
 @pytest.mark.asyncio
 async def test_throws_when_deployer_address_not_specified_on_custom_network(
-    account_client, map_class_hash
+    account_client,
 ):
     with pytest.raises(ValueError) as err:
-        await account_client.deploy_through_udc(
-            DeployerConfig(class_hash=map_class_hash), max_fee=MAX_FEE
-        )
+        account_client.create_deployer()
 
     assert "deployer_address is required when not using predefined networks." in str(
         err.value
@@ -143,35 +142,26 @@ async def test_throws_when_deployer_address_not_specified_on_custom_network(
 async def test_throws_when_constructor_calldata_without_abi(
     account_client, map_class_hash, deployer_address
 ):
+    contract_deployment = account_client.create_deployer(
+        deployer_address=deployer_address
+    ).for_contract(class_hash=map_class_hash)
+
     with pytest.raises(ValueError) as err:
-        await account_client.deploy_through_udc(
-            DeployerConfig(
-                class_hash=map_class_hash,
-                constructor_calldata=[12, 34],
-            ),
-            deployer_address=deployer_address,
-            max_fee=MAX_FEE,
-        )
+        await contract_deployment.prepare_transaction(constructor_calldata=[12, 34])
 
     assert "constructor_calldata was provided without an abi" in str(err.value)
 
 
 @pytest.mark.asyncio
 async def test_throws_when_constructor_calldata_not_provided(
-    account_client, deployer_address
+    account_client, deployer_address, constructor_with_arguments_abi
 ):
-    compiled_contract = create_compiled_contract(
-        compilation_source=constructor_with_arguments_source
-    )
-    abi = compiled_contract.abi
+    contract_deployment = account_client.create_deployer(
+        deployer_address=deployer_address
+    ).for_contract(class_hash=1234, abi=constructor_with_arguments_abi)
 
     with pytest.raises(ValueError) as err:
-        await account_client.deploy_through_udc(
-            DeployerConfig(class_hash=1234),
-            abi=abi,
-            deployer_address=deployer_address,
-            max_fee=MAX_FEE,
-        )
+        await contract_deployment.prepare_transaction()
 
     assert "Provided contract has a constructor and no arguments were provided." in str(
         err.value
@@ -198,15 +188,20 @@ async def test_constructor_arguments_contract_deploy(
     constructor_with_arguments_class_hash,
     constructor_calldata,
 ):
-    contract_address = await account_client.deploy_through_udc(
-        DeployerConfig(
-            class_hash=constructor_with_arguments_class_hash,
-            constructor_calldata=constructor_calldata,
-        ),
+    contract_deployer = account_client.create_deployer(
+        deployer_address=deployer_address
+    ).for_contract(
+        class_hash=constructor_with_arguments_class_hash,
         abi=constructor_with_arguments_abi,
-        deployer_address=deployer_address,
-        max_fee=MAX_FEE,
     )
+
+    deploy_invoke_transaction = await contract_deployer.prepare_transaction(
+        constructor_calldata=constructor_calldata, max_fee=MAX_FEE
+    )
+    contract_address = await contract_deployer.send_transaction(
+        deploy_invoke_transaction=deploy_invoke_transaction
+    )
+
     contract = Contract(
         address=contract_address,
         abi=constructor_with_arguments_abi,

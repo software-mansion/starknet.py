@@ -5,7 +5,6 @@ from dataclasses import replace
 from typing import Optional, List, Union, Dict
 
 from starkware.crypto.signature.signature import get_random_private_key
-from starkware.starknet.definitions.fields import ContractAddressSalt
 from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.common import create_compiled_contract
@@ -32,6 +31,7 @@ from starknet_py.net.client_models import (
     DeclareTransactionResponse,
     Transaction,
 )
+from starknet_py.net.deployer.deployer import Deployer
 from starknet_py.net.models import (
     InvokeFunction,
     StarknetChainId,
@@ -42,19 +42,13 @@ from starknet_py.net.models.deployer_addresses import deployer_address_from_netw
 from starknet_py.net.networks import Network, MAINNET, TESTNET
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
-from starknet_py.utils.contructor_args_translator import translate_constructor_args
 from starknet_py.utils.crypto.facade import Call
 from starknet_py.utils.data_transformer.execute_transformer import (
     execute_transformer_by_version,
 )
-from starknet_py.utils.data_transformer.universal_deployer_serializer import (
-    universal_deployer_serializer,
-    deploy_contract_event_abi,
-    deploy_contract_abi,
-)
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.typed_data import TypedData as TypedDataDataclass
-from starknet_py.net.models.typed_data import TypedData, DeployerConfig
+from starknet_py.net.models.typed_data import TypedData
 
 
 @add_sync_methods
@@ -477,67 +471,19 @@ class AccountClient(Client):
     async def deploy(self, transaction: Deploy) -> DeployTransactionResponse:
         return await self.client.deploy(transaction=transaction)
 
-    async def deploy_through_udc(
+    def create_deployer(
         self,
-        deployer_config: DeployerConfig,
-        abi: Optional[list] = None,
         deployer_address: Optional[AddressRepresentation] = None,
-        max_fee: Optional[int] = None,
-        auto_estimate: bool = False,
-        version: Optional[int] = None,
-    ) -> int:
-        # pylint: disable=too-many-arguments
-        """
-        Deploys contract through Universal Deployer Contract (UDC)
-
-        :param deployer_config: Arguments for the UDC:
-            - class_hash: The class_hash of the contract to be deployed
-            - salt: Optional salt. Random value is selected if it is not provided
-            - unique: Boolean determining if the salt should be connected with the account's address
-            - constructor_calldata: Constructor args of the contract to be deployed
-        :param abi: ABI of the contract to be deployed
-        :param deployer_address: Address of the UDC. Must be set when using a custom network
-        :param max_fee: Max amount of Wei to be paid when executing transaction
-        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
-        :param version: Transaction version
-        :return: Address of the deployed contract
-        """
-
+        salt: Optional[int] = None,
+        unique: Optional[bool] = True,
+    ) -> Deployer:
         deployer_address = deployer_address_from_network(
             net=self.net, deployer_address=deployer_address
         )
 
-        if not abi and deployer_config.get("constructor_calldata"):
-            raise ValueError("constructor_calldata was provided without an abi")
-        constructor_calldata = translate_constructor_args(
-            abi=abi or [], constructor_args=deployer_config.get("constructor_calldata")
+        return Deployer(
+            account=self, address=deployer_address, salt=salt, unique=unique
         )
-
-        calldata, _ = universal_deployer_serializer.from_python(
-            value_types=deploy_contract_abi["inputs"],
-            class_hash=deployer_config["class_hash"],
-            salt=deployer_config.get("salt", ContractAddressSalt.get_random_value()),
-            unique=int(deployer_config.get("unique", True)),
-            constructor_calldata=constructor_calldata,
-        )
-
-        call = Call(
-            to_addr=deployer_address,
-            selector=get_selector_from_name("deployContract"),
-            calldata=calldata,
-        )
-
-        res = await self.execute(
-            calls=call, max_fee=max_fee, auto_estimate=auto_estimate, version=version
-        )
-        await self.wait_for_tx(tx_hash=res.transaction_hash)
-
-        receipt = await self.get_transaction_receipt(tx_hash=res.transaction_hash)
-        event = universal_deployer_serializer.to_python(
-            value_types=deploy_contract_event_abi["data"], values=receipt.events[0].data
-        )
-
-        return event.contractAddress
 
     async def declare(self, transaction: Declare) -> DeclareTransactionResponse:
         return await self.client.declare(transaction=transaction)

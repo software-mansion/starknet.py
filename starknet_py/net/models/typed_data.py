@@ -2,9 +2,7 @@
 TypedDict structures for TypedData
 """
 
-from typing import Dict, Union, TypedDict, Any, List, Optional
-
-from starknet_py.net.client_models import Hash
+from typing import Dict, Union, TypedDict, Any, List
 
 
 class Parameter(TypedDict):
@@ -35,21 +33,3 @@ class TypedData(TypedDict):
     primaryType: str
     domain: StarkNetDomain
     message: Dict[str, Any]
-
-
-class DeployerConfigRequiredArgs(TypedDict):
-    """
-    TypedDict representing a UDC required arguments
-    """
-
-    class_hash: Hash
-
-
-class DeployerConfig(DeployerConfigRequiredArgs, total=False):
-    """
-    TypedDict representing a UDC arguments
-    """
-
-    salt: Optional[int]
-    unique: Optional[bool]
-    constructor_calldata: Optional[Union[List[any], dict]]
