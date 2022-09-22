@@ -1,9 +1,12 @@
+# pyright: reportGeneralTypeIssues=false
+
 import dataclasses
 import re
 import warnings
 from dataclasses import replace
 from typing import Optional, List, Union, Dict, Tuple
 
+from starkware.crypto.signature.signature import get_random_private_key
 from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.common import create_compiled_contract
@@ -538,7 +541,8 @@ class AccountClient(Client):
 
         if signer is None:
             chain = chain_from_network(net=client.net, chain=chain)
-            key_pair = KeyPair.from_private_key(private_key)
+            used_private_key = private_key or get_random_private_key()
+            key_pair = KeyPair.from_private_key(used_private_key)
             address = await deploy_account_contract(client, key_pair.public_key)
             signer = StarkCurveSigner(
                 account_address=address, key_pair=key_pair, chain_id=chain

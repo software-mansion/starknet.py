@@ -1,3 +1,5 @@
+# pyright: reportGeneralTypeIssues=false
+
 import typing
 import warnings
 from typing import Union, Optional, List
@@ -253,8 +255,8 @@ class GatewayClient(Client):
         token: Optional[str] = None,
     ) -> DeclareTransactionResponse:
         res = await self._add_transaction(transaction, token)
-        return dict(
-            DeclareTransactionResponseSchema().load(res, unknown=EXCLUDE)
+        return DeclareTransactionResponseSchema().load(
+            res, unknown=EXCLUDE
         )  # pyright: ignore
 
     async def get_class_hash_at(

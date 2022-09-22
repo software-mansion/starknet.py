@@ -17,7 +17,7 @@
       { "name": "from", "type": "Person" },
       { "name": "to", "type": "Person" },
       { "name": "posts_len", "type": "felt" },
-      { "name": "posts", "type": "Post*" }
+      { "name": "posts", "type": "felt*" }
     ]
   },
   "primaryType": "Mail",
@@ -35,10 +35,9 @@
       "name": "Bob",
       "wallet": "0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB"
     },
-    "posts_len": 2,
+    "posts_len": 5,
     "posts": [
-      { "title": "Greeting", "content": "Hello, Bob!" },
-      { "title": "Farewell", "content": "Goodbye, Bob!" }
+      1, 2, 3, 4, 5
     ]
   }
 }

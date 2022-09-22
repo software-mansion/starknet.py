@@ -22,7 +22,7 @@ class HttpClient(ABC):
     def http_session(self) -> ClientSession:
         if self.session is not None:
             # noinspection PyTypeChecker
-            return nullcontext(self.session)
+            return nullcontext(self.session)  # pyright: ignore
         return aiohttp.ClientSession()
 
     async def request(
@@ -37,8 +37,8 @@ class HttpClient(ABC):
                 session=session,
                 address=address,
                 http_method=http_method,
-                params=params,
-                payload=payload,
+                params=params,  # pyright: ignore
+                payload=payload,  # pyright: ignore
             )
 
     async def _make_request(

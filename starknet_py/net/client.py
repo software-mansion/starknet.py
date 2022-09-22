@@ -1,8 +1,10 @@
+# pyright: reportGeneralTypeIssues=false
+
 from __future__ import annotations
 
 import asyncio
 from abc import ABC, abstractmethod
-from typing import Union, Optional, List
+from typing import Union, Optional, List, Tuple
 
 from starknet_py.net.client_models import (
     StarknetBlock,
@@ -128,7 +130,7 @@ class Client(ABC):
         tx_hash: Hash,
         wait_for_accept: Optional[bool] = False,
         check_interval=5,
-    ) -> (int, TransactionStatus):
+    ) -> Tuple[int, TransactionStatus]:
         # pylint: disable=too-many-branches
         """
         Awaits for transaction to get accepted or at least pending by polling its status

@@ -1,3 +1,5 @@
+# pyright: reportGeneralTypeIssues=false
+
 from dataclasses import dataclass
 from typing import Union, Dict, List
 

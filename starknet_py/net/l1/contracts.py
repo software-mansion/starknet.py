@@ -1,4 +1,5 @@
-# noinspection PyProtectedMember
+# pyright: reportGeneralTypeIssues=false
+
 import typing
 from typing import Sequence
 
@@ -8,9 +9,11 @@ from web3._utils.contracts import prepare_transaction
 from web3 import Web3
 from web3.types import (
     BlockIdentifier as EthBlockIdentifier,
-    ChecksumAddress,
     ABIFunction,
     ABIFunctionParams,
+)
+from eth_typing import (
+    ChecksumAddress,
 )
 
 from starknet_py.net.models import StarknetChainId

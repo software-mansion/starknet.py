@@ -67,7 +67,7 @@ docs_open = { shell = "open docs/_build/html/index.html" }
 lint = "pylint starknet_py"
 format = "black starknet_py"
 format_check = "black --check starknet_py"
-type_check = "pyright starknet_py"
+typecheck = "pyright starknet_py"
 requirements_check.shell = "poetry export -f requirements.txt --without-hashes --extras docs | cmp - requirements.txt"
 ci = ["lint", "format_check", "type_check", "requirements_check", "test"]
 
@@ -101,4 +101,12 @@ crypto-cpp
 markers = [
     "run_on_testnet: marks test that will only run on testnet (when --net=testnet)",
     "run_on_devnet: marks test that will only run on devnet (when --net=devnet)"
+]
+
+[tool.pyright]
+include = ["starknet_py/"]
+exclude = [
+    "**/__pycache__",
+    "starknet_py/tests",
+    "**/*_test.py",
 ]
