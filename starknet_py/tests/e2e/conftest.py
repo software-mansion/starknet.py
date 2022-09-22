@@ -15,6 +15,7 @@ import pytest
 import pytest_asyncio
 from starkware.crypto.signature.signature import get_random_private_key
 
+from starknet_py.common import create_compiled_contract
 from starknet_py.net import KeyPair, AccountClient
 from starknet_py.net.client import Client
 from starknet_py.net.full_node_client import FullNodeClient
@@ -479,3 +480,26 @@ async def map_class_hash(new_gateway_account_client, map_source_code):
     res = await new_gateway_account_client.declare(declare)
     await new_gateway_account_client.wait_for_tx(res.transaction_hash)
     return res.class_hash
+
+
+constructor_with_arguments_source = (
+    contracts_dir / "constructor_with_arguments.cairo"
+).read_text("utf-8")
+
+
+@pytest.fixture(scope="module")
+def constructor_with_arguments_abi() -> List:
+    return (
+        create_compiled_contract(compilation_source=constructor_with_arguments_source)
+    ).abi
+
+
+@pytest_asyncio.fixture(scope="module")
+async def constructor_with_arguments_class_hash(new_gateway_account_client) -> int:
+    return (
+        await new_gateway_account_client.declare(
+            await new_gateway_account_client.sign_declare_transaction(
+                compilation_source=constructor_with_arguments_source, max_fee=int(1e16)
+            )
+        )
+    ).class_hash

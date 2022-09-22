@@ -179,70 +179,45 @@ async def test_throws_when_constructor_calldata_not_provided(
 
 
 @pytest.mark.asyncio
-async def test_constructor_arguments_deploy_contract(
-    account_client, new_gateway_account_client, deployer_address
+@pytest.mark.parametrize(
+    "constructor_calldata",
+    [
+        [10, (1, (2, 3)), [1, 2, 3], {"value": 12, "nested_struct": {"value": 99}}],
+        {
+            "single_value": 10,
+            "tuple": (1, (2, 3)),
+            "arr": [1, 2, 3],
+            "dict": {"value": 12, "nested_struct": {"value": 99}},
+        },
+    ],
+)
+async def test_constructor_arguments_contract_deploy(
+    account_client,
+    deployer_address,
+    constructor_with_arguments_abi,
+    constructor_with_arguments_class_hash,
+    constructor_calldata,
 ):
-    # pylint: disable=too-many-locals
-    abi = (
-        create_compiled_contract(compilation_source=constructor_with_arguments_source)
-    ).abi
-    class_hash = (
-        await new_gateway_account_client.declare(
-            await new_gateway_account_client.sign_declare_transaction(
-                compilation_source=constructor_with_arguments_source, max_fee=MAX_FEE
-            )
-        )
-    ).class_hash
-
-    value = 10
-    tuple_value = (1, (2, 3))
-    arr = [1, 2, 3]
-    struct = {"value": 12, "nested_struct": {"value": 99}}
-
-    # Contract should throw if constructor arguments were not provided
-    with pytest.raises(ValueError) as err:
-        await account_client.deploy_contract(
-            DeployerConfig(class_hash=class_hash),
-            deployer_address=deployer_address,
-            abi=abi,
-            max_fee=MAX_FEE,
-        )
-
-    assert "no arguments were provided" in str(err.value)
-
-    # Positional params
-    contract_1_address = await account_client.deploy_contract(
+    contract_address = await account_client.deploy_contract(
         DeployerConfig(
-            class_hash=class_hash,
-            constructor_calldata=[value, tuple_value, arr, struct],
+            class_hash=constructor_with_arguments_class_hash,
+            constructor_calldata=constructor_calldata,
         ),
-        abi=abi,
+        abi=constructor_with_arguments_abi,
         deployer_address=deployer_address,
         max_fee=MAX_FEE,
     )
-    contract_1 = Contract(address=contract_1_address, abi=abi, client=account_client)
-
-    # Named params
-    contract_2_address = await account_client.deploy_contract(
-        DeployerConfig(
-            class_hash=class_hash,
-            constructor_calldata={
-                "single_value": value,
-                "tuple": tuple_value,
-                "arr": arr,
-                "dict": struct,
-            },
-        ),
-        abi=abi,
-        deployer_address=deployer_address,
-        max_fee=MAX_FEE,
+    contract = Contract(
+        address=contract_address,
+        abi=constructor_with_arguments_abi,
+        client=account_client,
     )
-    contract_2 = Contract(address=contract_2_address, abi=abi, client=account_client)
 
-    assert contract_1.address != contract_2.address
+    result = await contract.functions["get"].call(block_hash="latest")
 
-    result_1 = await contract_1.functions["get"].call(block_hash="latest")
-    result_2 = await contract_1.functions["get"].call(block_hash="latest")
-
-    assert result_1 == (value, tuple_value, sum(arr), struct)
-    assert result_2 == (value, tuple_value, sum(arr), struct)
+    assert result == (
+        10,
+        (1, (2, 3)),
+        sum([1, 2, 3]),
+        {"value": 12, "nested_struct": {"value": 99}},
+    )
