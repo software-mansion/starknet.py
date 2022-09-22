@@ -13,6 +13,10 @@ from starknet_py.utils.data_transformer.universal_deployer_serializer import (
 
 
 class ContractDeployment:
+    """
+    ContractDeployment used to prepare and send deploy invoke transactions
+    """
+
     def __init__(
         self, deployer: "Deployer", class_hash: Hash, abi: Optional[List] = None
     ):
@@ -26,6 +30,14 @@ class ContractDeployment:
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> InvokeFunction:
+        """
+        Prepares deploy invoke transaction
+
+        :param constructor_calldata: Constructor args of the contract to be deployed
+        :param max_fee: Max amount of Wei to be paid when executing transaction
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
+        :return: InvokeFunction
+        """
         if not self.abi and constructor_calldata:
             raise ValueError("constructor_calldata was provided without an abi")
 
@@ -56,6 +68,12 @@ class ContractDeployment:
         return transaction
 
     async def send_transaction(self, deploy_invoke_transaction: InvokeFunction) -> int:
+        """
+        Sends deploy invoke transaction
+
+        :param deploy_invoke_transaction: Transaction which will deploy a contract
+        :returns: An address of the deployed contract
+        """
         resp = await self.deployer.account.send_transaction(
             transaction=deploy_invoke_transaction
         )

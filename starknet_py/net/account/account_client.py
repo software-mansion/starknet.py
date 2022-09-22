@@ -477,6 +477,14 @@ class AccountClient(Client):
         salt: Optional[int] = None,
         unique: Optional[bool] = True,
     ) -> Deployer:
+        """
+        Creates a Deployer instance which is used to deploy contracts through Universal Deployer Contract (UDC)
+
+        :param deployer_address: Address of the UDC. Must be set when using a custom network
+        :param salt: The salt for a contract to be deployed. Random value is selected if it is not provided
+        :param unique: Boolean determining if the salt should be connected with the account's address
+        :returns: Deployer
+        """
         deployer_address = deployer_address_from_network(
             net=self.net, deployer_address=deployer_address
         )
