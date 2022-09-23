@@ -31,6 +31,7 @@ from starknet_py.net.client_models import (
     DeclareTransactionResponse,
     Transaction,
 )
+from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import (
     InvokeFunction,
     StarknetChainId,
@@ -494,6 +495,15 @@ class AccountClient(Client):
         )
 
     async def get_code(self, *args, **kwargs):
+        warnings.warn(
+            "Get_code was removed from Client interface and will be removed from AccountClient in future versions",
+            category=DeprecationWarning,
+        )
+        if not isinstance(self.client, GatewayClient):
+            raise TypeError(
+                "Contract.from_address only supports AccountClients using GatewayClient"
+            )
+
         return await self.client.get_code(*args, **kwargs)
 
     def _assert_version_matches_supported_tx_version(self, version: int):
