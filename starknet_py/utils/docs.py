@@ -20,5 +20,5 @@ def as_our_module(cls: T) -> T:
 
     frm = inspect.stack()[1]
     mod = inspect.getmodule(frm[0])
-    cls.__module__ = mod.__name__
+    cls.__module__ = mod.__name__  # pyright: ignore [reportOptionalMemberAccess]
     return cls

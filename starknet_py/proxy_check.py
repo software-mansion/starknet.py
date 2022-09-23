@@ -1,3 +1,5 @@
+# pyright: reportGeneralTypeIssues=false, reportUndefinedVariable=false
+
 from abc import ABC, abstractmethod
 
 from starknet_py.constants import OZ_PROXY_STORAGE_KEY
