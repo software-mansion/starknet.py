@@ -1,3 +1,5 @@
+# pyright: reportGeneralTypeIssues=false
+
 from typing import Optional, List, Union
 
 from starkware.starknet.definitions.fields import ContractAddressSalt
@@ -33,6 +35,9 @@ class Deployer:
         :param salt: The salt for a contract to be deployed. Random value is selected if it is not provided
         :param unique: Boolean determining if the salt should be connected with the account's address. Default to True
         """
+        address = (
+            address if isinstance(address, int) or address is None else int(address, 16)
+        )
         address = address or deployer_address_from_network(
             net=account.net, deployer_address=address
         )
@@ -75,7 +80,7 @@ class Deployer:
             values=event.data,
         )
 
-        return event.contractAddress
+        return event[0]
 
     async def _get_deploy_event(self, transaction_hash: Hash) -> Optional[Event]:
         receipt = await self.account.get_transaction_receipt(tx_hash=transaction_hash)

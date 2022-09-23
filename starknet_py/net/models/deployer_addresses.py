@@ -1,11 +1,10 @@
 from typing import Optional
 
-from starknet_py.net.models import AddressRepresentation
 from starknet_py.net.networks import Network, MAINNET, TESTNET
 
 
 def deployer_address_from_network(
-    net: Network, deployer_address: Optional[AddressRepresentation] = None
+    net: Network, deployer_address: Optional[int] = None
 ) -> int:
     # FIXME: change to real addresses once deployed
     mapping = {

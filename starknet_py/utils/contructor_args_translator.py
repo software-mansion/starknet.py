@@ -1,3 +1,5 @@
+# pyright: reportGeneralTypeIssues=false
+
 from typing import List
 
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
@@ -5,7 +7,7 @@ from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 from starknet_py.utils.data_transformer import FunctionCallSerializer
 
 
-def translate_constructor_args(abi: list, constructor_args: any) -> List[int]:
+def translate_constructor_args(abi: List, constructor_args: any) -> List[int]:
     constructor_abi = next(
         (member for member in abi if member["type"] == "constructor"),
         None,
