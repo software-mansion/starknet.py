@@ -500,9 +500,7 @@ class AccountClient(Client):
             category=DeprecationWarning,
         )
         if not isinstance(self.client, GatewayClient):
-            raise TypeError(
-                "AccountClient.get_code only supports using GatewayClient"
-            )
+            raise TypeError("AccountClient.get_code only supports using GatewayClient")
 
         return await self.client.get_code(*args, **kwargs)
 
