@@ -31,14 +31,12 @@ from starknet_py.net.client_models import (
     DeclareTransactionResponse,
     Transaction,
 )
-from starknet_py.net.deployer.deployer import Deployer
 from starknet_py.net.models import (
     InvokeFunction,
     StarknetChainId,
     chain_from_network,
 )
 from starknet_py.net.models.address import AddressRepresentation, parse_address
-from starknet_py.net.models.deployer_addresses import deployer_address_from_network
 from starknet_py.net.networks import Network, MAINNET, TESTNET
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
@@ -470,28 +468,6 @@ class AccountClient(Client):
 
     async def deploy(self, transaction: Deploy) -> DeployTransactionResponse:
         return await self.client.deploy(transaction=transaction)
-
-    def create_deployer(
-        self,
-        deployer_address: Optional[AddressRepresentation] = None,
-        salt: Optional[int] = None,
-        unique: Optional[bool] = True,
-    ) -> Deployer:
-        """
-        Creates a Deployer instance which is used to deploy contracts through Universal Deployer Contract (UDC)
-
-        :param deployer_address: Address of the UDC. Must be set when using a custom network
-        :param salt: The salt for a contract to be deployed. Random value is selected if it is not provided
-        :param unique: Boolean determining if the salt should be connected with the account's address
-        :returns: Deployer
-        """
-        deployer_address = deployer_address_from_network(
-            net=self.net, deployer_address=deployer_address
-        )
-
-        return Deployer(
-            account=self, address=deployer_address, salt=salt, unique=unique
-        )
 
     async def declare(self, transaction: Declare) -> DeclareTransactionResponse:
         return await self.client.declare(transaction=transaction)

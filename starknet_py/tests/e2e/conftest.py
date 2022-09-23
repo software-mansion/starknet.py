@@ -24,6 +24,7 @@ from starknet_py.net.http_client import GatewayHttpClient
 from starknet_py.net.models import StarknetChainId, AddressRepresentation
 from starknet_py.contract import Contract
 from starknet_py.net.models.typed_data import TypedData
+from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.transactions.deploy import make_deploy_tx
 from starknet_py.utils.data_transformer.data_transformer import CairoSerializer
 
@@ -475,7 +476,9 @@ async def deployer_address(gateway_client: AccountClient) -> int:
 
 
 @pytest_asyncio.fixture(scope="module")
-async def map_class_hash(new_gateway_account_client, map_source_code) -> int:
+async def map_class_hash(
+    new_gateway_account_client: AccountClient, map_source_code: str
+) -> int:
     """
     Returns class_hash of the map.cairo
     """
@@ -504,7 +507,9 @@ def constructor_with_arguments_abi() -> List:
 
 
 @pytest_asyncio.fixture(scope="module")
-async def constructor_with_arguments_class_hash(new_gateway_account_client) -> int:
+async def constructor_with_arguments_class_hash(
+    new_gateway_account_client: AccountClient,
+) -> int:
     """
     Returns a class_hash of the constructor_with_arguments.cairo
     """
@@ -515,3 +520,46 @@ async def constructor_with_arguments_class_hash(new_gateway_account_client) -> i
             )
         )
     ).class_hash
+
+
+@pytest_asyncio.fixture(scope="module")
+async def put_with_event_transaction_hash(
+    new_gateway_account_client: AccountClient, deployer_address: int
+) -> int:
+    """
+    Returns hash of the transaction with an event
+    """
+    declare_tx = await new_gateway_account_client.sign_declare_transaction(
+        compilation_source=(
+            contracts_dir / "simple_storage_with_event.cairo"
+        ).read_text("utf-8"),
+        max_fee=int(1e16),
+    )
+    resp = await new_gateway_account_client.declare(declare_tx)
+    await new_gateway_account_client.wait_for_tx(resp.transaction_hash)
+
+    deployer = Deployer(account=new_gateway_account_client, address=deployer_address)
+    deploy_tx = await deployer.make_deployment(
+        class_hash=resp.class_hash
+    ).prepare_transaction(max_fee=int(1e16))
+
+    resp = await new_gateway_account_client.send_transaction(deploy_tx)
+    await new_gateway_account_client.wait_for_tx(
+        resp.transaction_hash, wait_for_accept=True
+    )
+
+    address = await deployer.get_deployed_contract_address(
+        transaction_hash=resp.transaction_hash
+    )
+    abi = create_compiled_contract(
+        compilation_source=(
+            contracts_dir / "simple_storage_with_event.cairo"
+        ).read_text("utf-8")
+    ).abi
+
+    contract = Contract(address=address, abi=abi, client=new_gateway_account_client)
+
+    resp = await contract.functions["put"].invoke(key=10, value=20, max_fee=int(1e16))
+    await resp.wait_for_acceptance()
+
+    return resp.hash
