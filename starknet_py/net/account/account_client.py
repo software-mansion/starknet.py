@@ -501,7 +501,7 @@ class AccountClient(Client):
         )
         if not isinstance(self.client, GatewayClient):
             raise TypeError(
-                "Contract.from_address only supports AccountClients using GatewayClient"
+                "AccountClient.get_code only supports using GatewayClient"
             )
 
         return await self.client.get_code(*args, **kwargs)
