@@ -1,3 +1,5 @@
+# pyright: reportGeneralTypeIssues=false
+
 import typing
 import warnings
 from typing import Union, Optional, List
@@ -96,7 +98,7 @@ class GatewayClient(Client):
         res = await self._feeder_gateway_client.call(
             method_name="get_block", params=block_identifier
         )
-        return StarknetBlockSchema().load(res, unknown=EXCLUDE)
+        return StarknetBlockSchema().load(res, unknown=EXCLUDE)  # pyright: ignore
 
     async def get_block_traces(
         self,
@@ -110,7 +112,9 @@ class GatewayClient(Client):
         res = await self._feeder_gateway_client.call(
             method_name="get_block_traces", params=block_identifier
         )
-        return BlockTransactionTracesSchema().load(res, unknown=EXCLUDE)
+        return BlockTransactionTracesSchema().load(
+            res, unknown=EXCLUDE
+        )  # pyright: ignore
 
     async def get_state_update(
         self,
@@ -131,7 +135,7 @@ class GatewayClient(Client):
             method_name="get_state_update",
             params=block_identifier,
         )
-        return BlockStateUpdateSchema().load(res, unknown=EXCLUDE)
+        return BlockStateUpdateSchema().load(res, unknown=EXCLUDE)  # pyright: ignore
 
     async def get_storage_at(
         self,
@@ -184,7 +188,7 @@ class GatewayClient(Client):
             params={"transactionHash": convert_to_felt(tx_hash)},
         )
 
-        return TransactionReceiptSchema().load(res, unknown=EXCLUDE)
+        return TransactionReceiptSchema().load(res, unknown=EXCLUDE)  # pyright: ignore
 
     async def estimate_fee(
         self,
@@ -201,7 +205,7 @@ class GatewayClient(Client):
             params=block_identifier,
         )
 
-        return EstimatedFeeSchema().load(res, unknown=EXCLUDE)
+        return EstimatedFeeSchema().load(res, unknown=EXCLUDE)  # pyright: ignore
 
     async def call_contract(
         self,
@@ -233,7 +237,7 @@ class GatewayClient(Client):
         token: Optional[str] = None,
     ) -> SentTransactionResponse:
         res = await self._add_transaction(transaction, token)
-        return SentTransactionSchema().load(res, unknown=EXCLUDE)
+        return SentTransactionSchema().load(res, unknown=EXCLUDE)  # pyright: ignore
 
     async def deploy(
         self,
@@ -241,7 +245,9 @@ class GatewayClient(Client):
         token: Optional[str] = None,
     ) -> DeployTransactionResponse:
         res = await self._add_transaction(transaction, token)
-        return DeployTransactionResponseSchema().load(res, unknown=EXCLUDE)
+        return DeployTransactionResponseSchema().load(
+            res, unknown=EXCLUDE
+        )  # pyright: ignore
 
     async def declare(
         self,
@@ -249,7 +255,9 @@ class GatewayClient(Client):
         token: Optional[str] = None,
     ) -> DeclareTransactionResponse:
         res = await self._add_transaction(transaction, token)
-        return DeclareTransactionResponseSchema().load(res, unknown=EXCLUDE)
+        return DeclareTransactionResponseSchema().load(
+            res, unknown=EXCLUDE
+        )  # pyright: ignore
 
     async def get_class_hash_at(
         self,
@@ -275,7 +283,7 @@ class GatewayClient(Client):
             method_name="get_class_by_hash",
             params={"classHash": convert_to_felt(class_hash)},
         )
-        return DeclaredContractSchema().load(res, unknown=EXCLUDE)
+        return DeclaredContractSchema().load(res, unknown=EXCLUDE)  # pyright: ignore
 
     # Only gateway methods
 
@@ -308,7 +316,7 @@ class GatewayClient(Client):
         if res["tx_status"] in ("UNKNOWN", "NOT_RECEIVED"):
             raise TransactionNotReceivedError()
 
-        return TransactionStatusSchema().load(res)
+        return TransactionStatusSchema().load(res)  # pyright: ignore
 
     async def get_contract_addresses(self) -> dict:
         """
@@ -344,7 +352,7 @@ class GatewayClient(Client):
                 block_number=block_identifier.get("blockNumber", None),
             )
 
-        return ContractCodeSchema().load(res, unknown=EXCLUDE)
+        return ContractCodeSchema().load(res, unknown=EXCLUDE)  # pyright: ignore
 
     async def get_contract_nonce(
         self,

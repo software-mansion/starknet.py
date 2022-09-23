@@ -33,6 +33,7 @@ def test_deserialize_felt():
     data = {"value1": "0x859"}
 
     deserialized = SchemaWithFelt().load(data)
+    assert isinstance(deserialized, dict)
     assert deserialized["value1"] == 2137
 
 
@@ -54,6 +55,7 @@ def test_serialize_hex():
     data = {"value1": 123}
 
     serialized = SchemaWithHex().dump(data)
+    assert isinstance(serialized, dict)
     assert serialized["value1"] == "7b"
 
 
@@ -64,6 +66,7 @@ def test_deserialize_hex():
     data = {"value1": "7b"}
 
     deserialized = SchemaWithHex().load(data)
+    assert isinstance(deserialized, dict)
     assert deserialized["value1"] == 123
 
 
@@ -84,6 +87,7 @@ def test_deserialize_status_field():
     data = {"value1": "RECEIVED"}
 
     deserialized = SchemaWithStatusField().load(data)
+    assert isinstance(deserialized, dict)
     assert deserialized["value1"] == TransactionStatus.RECEIVED
 
 
@@ -116,6 +120,7 @@ def test_deserialize_block_status_field():
     data = {"value1": "PENDING"}
 
     deserialized = SchemaWithBlockStatusField().load(data)
+    assert isinstance(deserialized, dict)
     assert deserialized["value1"] == BlockStatus.PENDING
 
 
