@@ -29,6 +29,7 @@ from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.net import AccountClient
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import Hash, Tag
+from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import (
     InvokeFunction,
     AddressRepresentation,
@@ -396,6 +397,7 @@ class Contract:
         should create Contract's instances directly instead of using this function to avoid unnecessary API calls.
 
         :raises ContractNotFoundError: when contract is not found
+        :raises TypeError: when Client not supporting `get_code` methods is used
         :param address: Contract's address
         :param client: Client
         :param proxy_config: Proxy resolving config
@@ -419,9 +421,15 @@ class Contract:
         else:
             proxy_config = {**default_config, **proxy_config}
 
+        proxy_client = client.client if isinstance(client, AccountClient) else client
+        if not isinstance(proxy_client, GatewayClient):
+            raise TypeError(
+                "Contract.from_address only supports GatewayClient or AccountClients using GatewayClient"
+            )
+
         contract = await ContractFromAddressFactory(
             address=address,
-            client=client,
+            client=proxy_client,
             max_steps=proxy_config.get("max_steps", 1),
             proxy_checks=proxy_config.get("proxy_checks", []),
         ).make_contract()
@@ -586,7 +594,7 @@ class ContractFromAddressFactory:
     def __init__(
         self,
         address: AddressRepresentation,
-        client: Client,
+        client: GatewayClient,
         max_steps: int,
         proxy_checks: List[ProxyCheck],
     ):
