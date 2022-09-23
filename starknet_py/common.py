@@ -1,3 +1,5 @@
+# pyright: reportGeneralTypeIssues=false
+
 from typing import Optional, List
 
 from starkware.starknet.services.api.contract_class import ContractClass

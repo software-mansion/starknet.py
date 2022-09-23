@@ -626,8 +626,7 @@ def test_missing_arg():
 def test_allow_underscores_in_abi():
     abi = [{"name": "_first", "type": "felt"}]
     result = transformer_for_function(outputs=abi).to_python([1])
-    # pylint: disable=protected-access
-    assert result._first == 1
+    assert result[0] == 1
 
 
 @pytest.mark.parametrize(

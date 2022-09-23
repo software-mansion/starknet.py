@@ -1,3 +1,5 @@
+# pyright: reportGeneralTypeIssues=false
+
 import warnings
 from typing import Union, List, Optional
 
