@@ -69,7 +69,7 @@ format = "black starknet_py"
 format_check = "black --check starknet_py"
 typecheck = "pyright starknet_py"
 requirements_check.shell = "poetry export -f requirements.txt --without-hashes --extras docs | cmp - requirements.txt"
-ci = ["lint", "format_check", "type_check", "requirements_check", "test"]
+ci = ["lint", "format_check", "typecheck", "requirements_check", "test"]
 
 [tool.coverage.run]
 source = ["starknet_py"]
