@@ -104,7 +104,9 @@ class FullNodeClient(Client):
             method_name="getStateUpdate",
             params=block_identifier,
         )
-        return cast(BlockStateUpdate, BlockStateUpdateSchema().load(res, unknown=EXCLUDE))
+        return cast(
+            BlockStateUpdate, BlockStateUpdateSchema().load(res, unknown=EXCLUDE)
+        )
 
     async def get_storage_at(
         self,
@@ -146,7 +148,9 @@ class FullNodeClient(Client):
             method_name="getTransactionReceipt",
             params={"transaction_hash": convert_to_felt(tx_hash)},
         )
-        return cast(TransactionReceipt, TransactionReceiptSchema().load(res, unknown=EXCLUDE))
+        return cast(
+            TransactionReceipt, TransactionReceiptSchema().load(res, unknown=EXCLUDE)
+        )
 
     async def estimate_fee(
         self,
@@ -229,7 +233,9 @@ class FullNodeClient(Client):
             },
         )
 
-        return cast(SentTransactionResponse, SentTransactionSchema().load(res, unknown=EXCLUDE))
+        return cast(
+            SentTransactionResponse, SentTransactionSchema().load(res, unknown=EXCLUDE)
+        )
 
     async def deploy(self, transaction: Deploy) -> DeployTransactionResponse:
         contract_definition = transaction.dump()["contract_definition"]
@@ -250,7 +256,10 @@ class FullNodeClient(Client):
             },
         )
 
-        return cast(DeployTransactionResponse, DeployTransactionResponseSchema().load(res, unknown=EXCLUDE))
+        return cast(
+            DeployTransactionResponse,
+            DeployTransactionResponseSchema().load(res, unknown=EXCLUDE),
+        )
 
     async def declare(self, transaction: Declare) -> DeclareTransactionResponse:
         contract_class = transaction.dump()["contract_class"]
@@ -266,7 +275,10 @@ class FullNodeClient(Client):
             },
         )
 
-        return cast(DeclareTransactionResponse, DeclareTransactionResponseSchema().load(res, unknown=EXCLUDE))
+        return cast(
+            DeclareTransactionResponse,
+            DeclareTransactionResponseSchema().load(res, unknown=EXCLUDE),
+        )
 
     async def get_class_hash_at(
         self,
@@ -291,7 +303,9 @@ class FullNodeClient(Client):
         res = await self._client.call(
             method_name="getClass", params={"class_hash": convert_to_felt(class_hash)}
         )
-        return cast(DeclaredContract, DeclaredContractSchema().load(res, unknown=EXCLUDE))
+        return cast(
+            DeclaredContract, DeclaredContractSchema().load(res, unknown=EXCLUDE)
+        )
 
     # Only RPC methods
 
@@ -369,7 +383,9 @@ class FullNodeClient(Client):
             },
         )
 
-        return cast(DeclaredContract, DeclaredContractSchema().load(res, unknown=EXCLUDE))
+        return cast(
+            DeclaredContract, DeclaredContractSchema().load(res, unknown=EXCLUDE)
+        )
 
     async def get_pending_transactions(self) -> List[Transaction]:
         """
@@ -380,7 +396,9 @@ class FullNodeClient(Client):
         res = await self._client.call(method_name="pendingTransactions", params={})
         res = {"pending_transactions": res}
 
-        return cast(List[Transaction], PendingTransactionsSchema().load(res, unknown=EXCLUDE))
+        return cast(
+            List[Transaction], PendingTransactionsSchema().load(res, unknown=EXCLUDE)
+        )
 
     async def get_contract_nonce(
         self,
