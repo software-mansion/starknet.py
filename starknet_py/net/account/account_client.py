@@ -496,7 +496,7 @@ class AccountClient(Client):
 
     async def get_code(self, *args, **kwargs):
         warnings.warn(
-            "Get_code was removed from Client interface and will be removed from AccountClient in future versions",
+            "get_code was removed from Client interface and will be removed from AccountClient in future versions",
             category=DeprecationWarning,
         )
         if not isinstance(self.client, GatewayClient):
