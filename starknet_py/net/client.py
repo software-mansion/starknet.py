@@ -151,7 +151,8 @@ class Client(ABC):
                     TransactionStatus.ACCEPTED_ON_L1,
                     TransactionStatus.ACCEPTED_ON_L2,
                 ):
-                    return cast(int, result.block_number), status
+                    assert result.block_number is not None
+                    return result.block_number, status
                 if status == TransactionStatus.PENDING:
                     if not wait_for_accept:
                         # FIXME rpc receipt doesn't have block_number currently, fix this in future spec version
@@ -161,7 +162,7 @@ class Client(ABC):
                             return result.block_number, status
                 elif status == TransactionStatus.REJECTED:
                     raise TransactionRejectedError(
-                        message=result.rejection_reason or "No message.",
+                        message=result.rejection_reason,
                     )
                 elif status == TransactionStatus.NOT_RECEIVED:
                     if not first_run:
@@ -169,7 +170,7 @@ class Client(ABC):
                 elif status != TransactionStatus.RECEIVED:
                     # This will never get executed with current possible transactions statuses
                     raise TransactionFailedError(
-                        message=cast(str, result.rejection_reason) or "No message.",
+                        message=cast(str, result.rejection_reason),
                     )
 
                 first_run = False
