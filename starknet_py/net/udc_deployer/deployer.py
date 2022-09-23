@@ -1,4 +1,5 @@
 # pyright: reportGeneralTypeIssues=false
+from __future__ import annotations
 
 from typing import Optional, List, Union
 
@@ -47,7 +48,9 @@ class Deployer:
         self.salt = salt
         self.unique = unique
 
-    def make_deployment(self, class_hash: Hash, abi: Optional[List] = None):
+    def make_deployment(
+        self, class_hash: Hash, abi: Optional[List] = None
+    ) -> ContractDeployment:
         """
         Creates a ContractDeployment instance which is used to prepare and send deploy invoke transactions
 
