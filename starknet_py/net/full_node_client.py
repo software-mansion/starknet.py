@@ -1,8 +1,5 @@
-# pyright: reportGeneralTypeIssues=false
-
-import typing
 import warnings
-from typing import List, Optional, Union
+from typing import List, Optional, Union, cast
 
 import aiohttp
 from marshmallow import EXCLUDE
@@ -85,7 +82,7 @@ class FullNodeClient(Client):
             method_name="getBlockWithTxs",
             params=block_identifier,
         )
-        return StarknetBlockSchema().load(res, unknown=EXCLUDE)
+        return cast(StarknetBlock, StarknetBlockSchema().load(res, unknown=EXCLUDE))
 
     async def get_block_traces(
         self,
@@ -107,7 +104,7 @@ class FullNodeClient(Client):
             method_name="getStateUpdate",
             params=block_identifier,
         )
-        return BlockStateUpdateSchema().load(res, unknown=EXCLUDE)
+        return cast(BlockStateUpdate, BlockStateUpdateSchema().load(res, unknown=EXCLUDE))
 
     async def get_storage_at(
         self,
@@ -128,7 +125,7 @@ class FullNodeClient(Client):
                 **block_identifier,
             },
         )
-        res = typing.cast(str, res)
+        res = cast(str, res)
         return int(res, 16)
 
     async def get_transaction(
@@ -142,14 +139,14 @@ class FullNodeClient(Client):
             )
         except ClientError as ex:
             raise TransactionNotReceivedError() from ex
-        return TypesOfTransactionsSchema().load(res, unknown=EXCLUDE)
+        return cast(Transaction, TypesOfTransactionsSchema().load(res, unknown=EXCLUDE))
 
     async def get_transaction_receipt(self, tx_hash: Hash) -> TransactionReceipt:
         res = await self._client.call(
             method_name="getTransactionReceipt",
             params={"transaction_hash": convert_to_felt(tx_hash)},
         )
-        return TransactionReceiptSchema().load(res, unknown=EXCLUDE)
+        return cast(TransactionReceipt, TransactionReceiptSchema().load(res, unknown=EXCLUDE))
 
     async def estimate_fee(
         self,
@@ -187,7 +184,7 @@ class FullNodeClient(Client):
             },
         )
 
-        return EstimatedFeeSchema().load(res, unknown=EXCLUDE)
+        return cast(EstimatedFee, EstimatedFeeSchema().load(res, unknown=EXCLUDE))
 
     async def call_contract(
         self,
@@ -232,7 +229,7 @@ class FullNodeClient(Client):
             },
         )
 
-        return SentTransactionSchema().load(res, unknown=EXCLUDE)
+        return cast(SentTransactionResponse, SentTransactionSchema().load(res, unknown=EXCLUDE))
 
     async def deploy(self, transaction: Deploy) -> DeployTransactionResponse:
         contract_definition = transaction.dump()["contract_definition"]
@@ -253,7 +250,7 @@ class FullNodeClient(Client):
             },
         )
 
-        return DeployTransactionResponseSchema().load(res, unknown=EXCLUDE)
+        return cast(DeployTransactionResponse, DeployTransactionResponseSchema().load(res, unknown=EXCLUDE))
 
     async def declare(self, transaction: Declare) -> DeclareTransactionResponse:
         contract_class = transaction.dump()["contract_class"]
@@ -269,7 +266,7 @@ class FullNodeClient(Client):
             },
         )
 
-        return DeclareTransactionResponseSchema().load(res, unknown=EXCLUDE)
+        return cast(DeclareTransactionResponse, DeclareTransactionResponseSchema().load(res, unknown=EXCLUDE))
 
     async def get_class_hash_at(
         self,
@@ -287,14 +284,14 @@ class FullNodeClient(Client):
                 **block_identifier,
             },
         )
-        res = typing.cast(str, res)
+        res = cast(str, res)
         return int(res, 16)
 
     async def get_class_by_hash(self, class_hash: Hash) -> DeclaredContract:
         res = await self._client.call(
             method_name="getClass", params={"class_hash": convert_to_felt(class_hash)}
         )
-        return DeclaredContractSchema().load(res, unknown=EXCLUDE)
+        return cast(DeclaredContract, DeclaredContractSchema().load(res, unknown=EXCLUDE))
 
     # Only RPC methods
 
@@ -322,7 +319,7 @@ class FullNodeClient(Client):
                 "index": index,
             },
         )
-        return TypesOfTransactionsSchema().load(res, unknown=EXCLUDE)
+        return cast(Transaction, TypesOfTransactionsSchema().load(res, unknown=EXCLUDE))
 
     async def get_block_transaction_count(
         self,
@@ -343,7 +340,7 @@ class FullNodeClient(Client):
         res = await self._client.call(
             method_name="getBlockTransactionCount", params=block_identifier
         )
-        res = typing.cast(int, res)
+        res = cast(int, res)
         return res
 
     async def get_class_at(
@@ -372,7 +369,7 @@ class FullNodeClient(Client):
             },
         )
 
-        return DeclaredContractSchema().load(res, unknown=EXCLUDE)
+        return cast(DeclaredContract, DeclaredContractSchema().load(res, unknown=EXCLUDE))
 
     async def get_pending_transactions(self) -> List[Transaction]:
         """
@@ -383,7 +380,7 @@ class FullNodeClient(Client):
         res = await self._client.call(method_name="pendingTransactions", params={})
         res = {"pending_transactions": res}
 
-        return PendingTransactionsSchema().load(res, unknown=EXCLUDE)
+        return cast(List[Transaction], PendingTransactionsSchema().load(res, unknown=EXCLUDE))
 
     async def get_contract_nonce(
         self,
@@ -401,7 +398,7 @@ class FullNodeClient(Client):
                 **block_identifier,
             },
         )
-        res = typing.cast(str, res)
+        res = cast(str, res)
         return int(res, 16)
 
 
@@ -428,14 +425,16 @@ def get_block_identifier(
 
 def _get_call_payload(tx: Union[InvokeFunction, Call]) -> dict:
     if isinstance(tx, InvokeFunction):
+        invoke = cast(InvokeFunction, tx)
         return {
-            "contract_address": convert_to_felt(tx.contract_address),
-            "entry_point_selector": convert_to_felt(tx.entry_point_selector),
-            "calldata": [convert_to_felt(i) for i in tx.calldata],
+            "contract_address": convert_to_felt(invoke.contract_address),
+            "entry_point_selector": convert_to_felt(invoke.entry_point_selector),
+            "calldata": [convert_to_felt(i) for i in invoke.calldata],
         }
 
+    call = cast(Call, tx)
     return {
-        "contract_address": convert_to_felt(tx.to_addr),
-        "entry_point_selector": convert_to_felt(tx.selector),
-        "calldata": [convert_to_felt(i) for i in tx.calldata],
+        "contract_address": convert_to_felt(call.to_addr),
+        "entry_point_selector": convert_to_felt(call.selector),
+        "calldata": [convert_to_felt(i) for i in call.calldata],
     }
