@@ -18,7 +18,7 @@ This is how we can interact with it:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_existing_contracts.py
     :language: python
-    :lines: 34-40,44-49,57-92
+    :lines: 34-40,44-49,57-66,70-74,78-82,86-101
     :dedent: 4
 
 
@@ -32,7 +32,7 @@ Here is an example:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_account_client_details.py
     :language: python
-    :lines: 10-15,19-23,28-55
+    :lines: 8-13,17-21,26-56
     :dedent: 4
 
 
@@ -46,7 +46,19 @@ signing algorithm, it is possible to create ``AccountClient`` with custom
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_custom_signer.py
     :language: python
-    :lines: 11-35
+    :lines: 11-41
+    :dedent: 4
+
+
+Signing off-chain messages
+-------------------------------
+
+:ref:`Account Client` lets you sign an off-chain message by using encoding standard proposed `here <https://github.com/argentlabs/argent-x/discussions/14>`_.
+You can also **verify a message**, which is done by a call to ``is_valid_signature`` endpoint in the account's contract (e.g. `OpenZeppelin's account contract <https://github.com/starkware-libs/cairo-lang/blob/4e233516f52477ad158bc81a86ec2760471c1b65/src/starkware/starknet/third_party/open_zeppelin/Account.cairo#L115>`_).
+
+.. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_sign_offchain_message.py
+    :language: python
+    :lines: 9-44,51-59,66-76
     :dedent: 4
 
 
@@ -57,7 +69,7 @@ Here's how you can deploy new contracts:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_deploying_new_contracts.py
     :language: python
-    :lines: 10-35,39-68
+    :lines: 10-33,37-47,51-57,61-72
     :dedent: 4
 
 
@@ -201,7 +213,7 @@ Here is a usage example:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_cairo_serializer.py
     :language: python
-    :lines: 9-42,47-52,57-99
+    :lines: 9-39,44-49,54-97
     :dedent: 4
 
 

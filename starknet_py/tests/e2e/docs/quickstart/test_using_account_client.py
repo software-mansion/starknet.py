@@ -6,9 +6,7 @@ directory = os.path.dirname(__file__)
 
 
 @pytest.mark.asyncio
-async def test_using_account_client(
-    run_devnet, gateway_account_client, map_source_code
-):
+async def test_using_account_client(network, gateway_account_client, map_source_code):
     # pylint: disable=import-outside-toplevel, duplicate-code, too-many-locals
     # add to docs: start
     from starknet_py.net import AccountClient
@@ -16,7 +14,7 @@ async def test_using_account_client(
     from starknet_py.net.gateway_client import GatewayClient
 
     # add to docs: end
-    testnet = run_devnet
+    testnet = network
     # add to docs: start
 
     # Creates an account on testnet and returns an instance

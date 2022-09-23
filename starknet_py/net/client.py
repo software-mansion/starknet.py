@@ -1,8 +1,10 @@
+# pyright: reportGeneralTypeIssues=false
+
 from __future__ import annotations
 
 import asyncio
 from abc import ABC, abstractmethod
-from typing import Union, Optional, List
+from typing import Union, Optional, List, Tuple
 
 from starknet_py.net.client_models import (
     StarknetBlock,
@@ -21,8 +23,8 @@ from starknet_py.net.client_models import (
     BlockTransactionTraces,
     DeployTransactionResponse,
     DeclareTransactionResponse,
+    Call,
 )
-from starknet_py.net.models import StarknetChainId
 from starknet_py.net.networks import Network
 from starknet_py.transaction_exceptions import (
     TransactionRejectedError,
@@ -39,13 +41,6 @@ class Client(ABC):
     def net(self) -> Network:
         """
         Network of the client
-        """
-
-    @property
-    @abstractmethod
-    def chain(self) -> StarknetChainId:
-        """
-        ChainId of the chain used by the client. Chain is deprecated!
         """
 
     @abstractmethod
@@ -79,12 +74,14 @@ class Client(ABC):
     @abstractmethod
     async def get_state_update(
         self,
-        block_hash: Union[Hash, Tag],
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> BlockStateUpdate:
         """
         Get the information about the result of executing the requested block
 
         :param block_hash: Block's hash or literals `"pending"` or `"latest"`
+        :param block_number: Block's number or literals `"pending"` or `"latest"`
         :return: BlockStateUpdate oject representing changes in the requested block
         """
 
@@ -93,13 +90,14 @@ class Client(ABC):
         self,
         contract_address: Hash,
         key: int,
-        block_hash: Union[Hash, Tag],
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> int:
         """
         :param contract_address: Contract's address on Starknet
         :param key: An address of the storage variable inside the contract.
-        :param block_hash: Fetches the value of the variable at given block hash or at
-                           the block indicated by the literals `"pending"` or `"latest"`
+        :param block_hash: Block's hash or literals `"pending"` or `"latest"`
+        :param block_number: Block's number or literals `"pending"` or `"latest"`
         :return: Storage value of given contract
         """
 
@@ -132,7 +130,7 @@ class Client(ABC):
         tx_hash: Hash,
         wait_for_accept: Optional[bool] = False,
         check_interval=5,
-    ) -> (int, TransactionStatus):
+    ) -> Tuple[int, TransactionStatus]:
         # pylint: disable=too-many-branches
         """
         Awaits for transaction to get accepted or at least pending by polling its status
@@ -184,7 +182,7 @@ class Client(ABC):
     @abstractmethod
     async def estimate_fee(
         self,
-        tx: InvokeFunction,
+        tx: Union[InvokeFunction, Declare],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
@@ -201,15 +199,24 @@ class Client(ABC):
 
     @abstractmethod
     async def call_contract(
-        self, invoke_tx: InvokeFunction, block_hash: Union[Hash, Tag] = None
+        self,
+        invoke_tx: Union[InvokeFunction, Call],
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> List[int]:
         """
         Call the contract with given instance of InvokeTransaction
 
-        :param invoke_tx: Invoke transaction
-        :param block_hash: Block hash to execute the contract at specific point of time
-                           or at the block indicated by the literals `"pending"` or `"latest"`
+        Warning, InvokeFunction as call_contract parameter has been deprecated in favor of Call.
+
+        :param invoke_tx: Call or InvokeFunction (deprecated)
+        :param block_hash: Block's hash or literals `"pending"` or `"latest"`
+        :param block_number: Block's number or literals `"pending"` or `"latest"`
         :return: List of integers representing contract's function output (structured like calldata)
+
+        .. versionchanged:: 5.0.0
+            Added `Call` as possible invoke_tx type.
+            Deprecated InvokeFunction as possible invoke_tx type.
         """
 
     @abstractmethod
@@ -242,11 +249,18 @@ class Client(ABC):
         """
 
     @abstractmethod
-    async def get_class_hash_at(self, contract_address: Hash) -> int:
+    async def get_class_hash_at(
+        self,
+        contract_address: Hash,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> int:
         """
         Get the contract class hash for the contract deployed at the given address
 
         :param contract_address: Address of the contraact whose class hash is to be returned
+        :param block_hash: Block's hash or literals `"pending"` or `"latest"`
+        :param block_number: Block's number or literals `"pending"` or `"latest"`
         :return: Class hash
         """
 
@@ -257,4 +271,20 @@ class Client(ABC):
 
         :param class_hash: Class hash
         :return: ContractClass object
+        """
+
+    @abstractmethod
+    async def get_contract_nonce(
+        self,
+        contract_address: int,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> int:
+        """
+        Get the latest nonce associated with the given address
+
+        :param contract_address: Get the latest nonce associated with the given address
+        :param block_hash: Block's hash or literals `"pending"` or `"latest"`
+        :param block_number: Block's number or literals `"pending"` or `"latest"`
+        :return: The last nonce used for the given contract
         """

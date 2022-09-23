@@ -5,14 +5,13 @@ import pytest
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
-from starknet_py.net.client_models import SentTransactionResponse
-from starknet_py.tests.e2e.conftest import directory_with_contracts
+from starknet_py.net.client_models import SentTransactionResponse, Call
+from starknet_py.tests.e2e.conftest import contracts_dir
 from starknet_py.transaction_exceptions import (
     TransactionRejectedError,
     TransactionNotReceivedError,
 )
 from starknet_py.contract import Contract
-from starknet_py.net.models import InvokeFunction
 from starknet_py.net.client_errors import ClientError, ContractNotFoundError
 
 MAX_FEE = int(1e20)
@@ -143,13 +142,13 @@ async def test_prepare_without_max_fee(map_contract):
 async def test_invoke_and_call(key, value, map_contract):
 
     invocation = await map_contract.functions["put"].invoke(key, value, max_fee=MAX_FEE)
-    await invocation.wait_for_acceptance()
+    await invocation.wait_for_acceptance(wait_for_accept=True)
     (response,) = await map_contract.functions["get"].call(key)
 
     assert response == value
 
 
-user_auth_source = (directory_with_contracts / "user_auth.cairo").read_text("utf-8")
+user_auth_source = (contracts_dir / "user_auth.cairo").read_text("utf-8")
 
 
 @pytest.mark.asyncio
@@ -164,24 +163,22 @@ async def test_get_code_not_found(gateway_account_client):
 async def test_call_uninitialized_contract(gateway_account_client):
     with pytest.raises(ClientError) as err:
         await gateway_account_client.call_contract(
-            InvokeFunction(
-                contract_address=1,
-                entry_point_selector=get_selector_from_name("get_nonce"),
+            Call(
+                to_addr=1,
+                selector=get_selector_from_name("get_nonce"),
                 calldata=[],
-                signature=[],
-                max_fee=MAX_FEE,
-                version=0,
-            )
+            ),
+            block_hash="latest",
         )
 
     assert "500" in str(err.value)
-    assert "No contract at the provided address" in err.value.message
+    assert "Requested contract address 0x1 is not deployed." in err.value.message
 
 
 @pytest.mark.asyncio
-async def test_deploy_throws_on_no_compilation_source(gateway_account_client):
+async def test_deploy_throws_on_no_compilation_source(account_client):
     with pytest.raises(ValueError) as exinfo:
-        await Contract.deploy(client=gateway_account_client)
+        await Contract.deploy(client=account_client)
 
     assert "One of compiled_contract or compilation_source is required." in str(
         exinfo.value
@@ -189,17 +186,15 @@ async def test_deploy_throws_on_no_compilation_source(gateway_account_client):
 
 
 @pytest.mark.asyncio
-async def test_wait_for_tx(gateway_account_client, map_source_code):
+async def test_wait_for_tx(account_client, map_source_code):
     deployment = await Contract.deploy(
-        compilation_source=map_source_code, client=gateway_account_client
+        compilation_source=map_source_code, client=account_client
     )
-    await gateway_account_client.wait_for_tx(deployment.hash)
+    await account_client.wait_for_tx(deployment.hash)
 
 
 @pytest.mark.asyncio
-async def test_wait_for_tx_throws_on_transaction_rejected(
-    gateway_account_client, map_contract
-):
+async def test_wait_for_tx_throws_on_transaction_rejected(account_client, map_contract):
     invoke = map_contract.functions["put"].prepare(key=0x1, value=0x1, max_fee=MAX_FEE)
 
     # modify selector so that transaction will get rejected
@@ -207,7 +202,7 @@ async def test_wait_for_tx_throws_on_transaction_rejected(
     transaction = await invoke.invoke()
 
     with pytest.raises(TransactionRejectedError) as err:
-        await gateway_account_client.wait_for_tx(transaction.hash)
+        await account_client.wait_for_tx(transaction.hash)
 
     assert "Entry point 0x123 not found in contract" in err.value.message
 
@@ -217,10 +212,12 @@ async def test_warning_when_max_fee_equals_to_zero(map_contract):
     with pytest.warns(
         DeprecationWarning,
         match=r"Transaction will fail with max_fee set to 0. Change it to a higher value.",
-    ) as max_fee_warnings:
-        await map_contract.functions["put"].invoke(10, 20, max_fee=0)
-
-    assert len(max_fee_warnings) == 1
+    ):
+        # try except have to be added because when running on a real environment it will throw an error (max_fee=0)
+        try:
+            await map_contract.functions["put"].invoke(10, 20, max_fee=0)
+        except ClientError:
+            pass
 
 
 @pytest.mark.asyncio

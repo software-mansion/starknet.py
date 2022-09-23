@@ -1,7 +1,9 @@
+# pyright: reportGeneralTypeIssues=false, reportOptionalMemberAccess=false
+
 from __future__ import annotations
 
 import dataclasses
-import sys
+import warnings
 from dataclasses import dataclass
 from typing import (
     List,
@@ -9,9 +11,9 @@ from typing import (
     TypeVar,
     Union,
     Dict,
-    Collection,
     NamedTuple,
 )
+from typing import TypedDict
 
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
 from starkware.starknet.core.os.class_hash import compute_class_hash
@@ -23,28 +25,22 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
 )
 
 from starknet_py.common import create_compiled_contract
+from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.net import AccountClient
-
-from starknet_py.proxy_check import ProxyCheck, ArgentProxyCheck, OpenZeppelinProxyCheck
+from starknet_py.net.client import Client
+from starknet_py.net.client_models import Hash, Tag
+from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import (
     InvokeFunction,
     AddressRepresentation,
     parse_address,
     compute_address,
 )
-from starknet_py.compile.compiler import StarknetCompilationSource
+from starknet_py.proxy_check import ProxyCheck, ArgentProxyCheck, OpenZeppelinProxyCheck
 from starknet_py.transactions.deploy import make_deploy_tx
 from starknet_py.utils.crypto.facade import pedersen_hash, Call
 from starknet_py.utils.data_transformer import FunctionCallSerializer
 from starknet_py.utils.sync import add_sync_methods
-
-from starknet_py.net.client import Client
-
-if sys.version_info >= (3, 8):
-    from typing import TypedDict
-else:
-    from typing_extensions import TypedDict
-
 
 ABI = list
 ABIEntry = dict
@@ -150,32 +146,27 @@ class PreparedFunctionCall(Call):
 
     async def call_raw(
         self,
-        signature: Optional[Collection[int]] = None,
         block_hash: Optional[str] = None,
     ) -> List[int]:
         """
         Calls a method without translating the result into python values.
 
-        :param signature: Signature to send
         :param block_hash: Optional block hash
         :return: list of ints
         """
-        tx = self._make_invoke_function(signature)
-        return await self._client.call_contract(invoke_tx=tx, block_hash=block_hash)
+        return await self._client.call_contract(invoke_tx=self, block_hash=block_hash)
 
     async def call(
         self,
-        signature: Optional[Collection[int]] = None,
         block_hash: Optional[str] = None,
     ) -> NamedTuple:
         """
         Calls a method.
 
-        :param signature: Signature to send
         :param block_hash: Optional block hash
         :return: CallResult or List[int] if return_raw is used
         """
-        result = await self.call_raw(signature=signature, block_hash=block_hash)
+        result = await self.call_raw(block_hash=block_hash)
         return self._payload_transformer.to_python(result)
 
     async def invoke(
@@ -195,8 +186,11 @@ class PreparedFunctionCall(Call):
         if max_fee is not None:
             self.max_fee = max_fee
 
-        transaction = await self._client.sign_transaction(
-            self, self.max_fee, auto_estimate, self.version
+        transaction = await self._client.sign_invoke_transaction(
+            calls=self,
+            max_fee=self.max_fee,
+            auto_estimate=auto_estimate,
+            version=self.version,
         )
         response = await self._client.send_transaction(transaction)
 
@@ -209,10 +203,16 @@ class PreparedFunctionCall(Call):
 
         return invoke_result
 
-    async def estimate_fee(self):
+    async def estimate_fee(
+        self,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ):
         """
         Estimate fee for prepared function call
 
+        :param block_hash: Estimate fee at specific block hash
+        :param block_number: Estimate fee at given block number (or "pending" for pending block), default is "pending"
         :return: Estimated amount of Wei executing specified transaction will cost
         :raises ValueError: when max_fee of PreparedFunctionCall is not None or 0.
         """
@@ -223,19 +223,12 @@ class PreparedFunctionCall(Call):
                 "Cannot estimate fee of PreparedFunctionCall with max_fee not None or 0."
             )
 
-        tx = await self._client.sign_transaction(self, max_fee=0, version=0)
+        tx = await self._client.sign_invoke_transaction(
+            calls=self, max_fee=0, version=self.version
+        )
 
-        return await self._client.estimate_fee(tx=tx)
-
-    def _make_invoke_function(self, signature) -> InvokeFunction:
-        return InvokeFunction(
-            contract_address=self._contract_data.address,
-            entry_point_selector=self.selector,
-            calldata=self.calldata,
-            # List is required here
-            signature=[*signature] if signature else [],
-            max_fee=self.max_fee if self.max_fee is not None else 0,
-            version=self.version,
+        return await self._client.estimate_fee(
+            tx=tx, block_hash=block_hash, block_number=block_number
         )
 
     def _assert_can_invoke(self):
@@ -262,7 +255,7 @@ class ContractFunction:
     def prepare(
         self,
         *args,
-        version: int = 0,
+        version: Optional[int] = None,
         max_fee: Optional[int] = None,
         **kwargs,
     ) -> PreparedFunctionCall:
@@ -275,6 +268,20 @@ class ContractFunction:
         :param max_fee: Max amount of Wei to be paid when executing transaction
         :return: PreparedFunctionCall
         """
+        if version is None:
+            version = (
+                self._client.supported_tx_version
+                if isinstance(self._client, AccountClient)
+                else 0
+            )
+
+        if version == 0:
+            warnings.warn(
+                "Transaction with version 0 is deprecated and will be removed in the future. "
+                "Use AccountClient supporting the transaction version 1",
+                category=DeprecationWarning,
+            )
+
         calldata, arguments = self._payload_transformer.from_python(*args, **kwargs)
         return PreparedFunctionCall(
             calldata=calldata,
@@ -291,16 +298,18 @@ class ContractFunction:
         self,
         *args,
         block_hash: Optional[str] = None,
+        version: Optional[int] = None,
         **kwargs,
     ) -> NamedTuple:
         """
         :param block_hash: Block hash to execute the contract at specific point of time
+        :param version: Call version
 
         Call contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.
         The result is translated from Cairo data to python values.
         Equivalent of ``.prepare(*args, **kwargs).call()``.
         """
-        return await self.prepare(max_fee=0, version=0, *args, **kwargs).call(
+        return await self.prepare(max_fee=0, version=version, *args, **kwargs).call(
             block_hash=block_hash
         )
 
@@ -388,6 +397,7 @@ class Contract:
         should create Contract's instances directly instead of using this function to avoid unnecessary API calls.
 
         :raises ContractNotFoundError: when contract is not found
+        :raises TypeError: when Client not supporting `get_code` methods is used
         :param address: Contract's address
         :param client: Client
         :param proxy_config: Proxy resolving config
@@ -411,9 +421,15 @@ class Contract:
         else:
             proxy_config = {**default_config, **proxy_config}
 
+        proxy_client = client.client if isinstance(client, AccountClient) else client
+        if not isinstance(proxy_client, GatewayClient):
+            raise TypeError(
+                "Contract.from_address only supports GatewayClient or AccountClients using GatewayClient"
+            )
+
         contract = await ContractFromAddressFactory(
             address=address,
-            client=client,
+            client=proxy_client,
             max_steps=proxy_config.get("max_steps", 1),
             proxy_checks=proxy_config.get("proxy_checks", []),
         ).make_contract()
@@ -578,7 +594,7 @@ class ContractFromAddressFactory:
     def __init__(
         self,
         address: AddressRepresentation,
-        client: Client,
+        client: GatewayClient,
         max_steps: int,
         proxy_checks: List[ProxyCheck],
     ):

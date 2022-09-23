@@ -3,7 +3,7 @@ from starkware.starknet.public.abi import get_selector_from_name
 
 
 @pytest.mark.asyncio
-async def test_using_cairo_serializer(run_devnet, gateway_account_client):
+async def test_using_cairo_serializer(network, gateway_account_client):
     # pylint: disable=unused-variable, too-many-locals, import-outside-toplevel
     # add to docs: start
     from starknet_py.net.gateway_client import GatewayClient
@@ -20,29 +20,26 @@ async def test_using_cairo_serializer(run_devnet, gateway_account_client):
         from starkware.cairo.common.cairo_builtins import HashBuiltin
         
         @storage_var
-        func storage(key : felt) -> (value : felt):
-        end
+        func storage(key: felt) -> (value: felt) {
+        }
         
         @event
-        func put_called(
-            key : felt, prev_value : felt, value : felt
-        ):
-        end
+        func put_called(key: felt, prev_value: felt, value: felt) {
+        }
         
         @external
-        func put{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-                key : felt, value : felt):
-            let (prev_value) = storage.read(key)
-            put_called.emit(key=key, prev_value=prev_value, value=value)
-            storage.write(key, value)
-            return ()
-        end
-        """
+        func put{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(key: felt, value: felt) {
+            let (prev_value) = storage.read(key);
+            put_called.emit(key=key, prev_value=prev_value, value=value);
+            storage.write(key, value);
+            return ();
+        }
+    """
 
     net = "testnet"  # Can be "mainnet" or other custom net too
     # add to docs: end
 
-    net = run_devnet
+    net = network
     # add to docs: start
 
     # Creates an account
@@ -64,6 +61,7 @@ async def test_using_cairo_serializer(run_devnet, gateway_account_client):
     invoke_result = (
         await contract.functions["put"].prepare(10, 20, max_fee=int(1e16)).invoke()
     )
+    await invoke_result.wait_for_acceptance()
 
     transaction_hash = invoke_result.hash
     transaction_receipt = await client.get_transaction_receipt(transaction_hash)

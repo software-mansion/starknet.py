@@ -1,3 +1,5 @@
+# pyright: reportGeneralTypeIssues=false
+
 from marshmallow import Schema, fields, post_load, EXCLUDE
 from marshmallow_oneofschema import OneOfSchema
 
@@ -7,7 +9,7 @@ from starknet_py.net.client_models import (
     L2toL1Message,
     L1toL2Message,
     SentTransactionResponse,
-    ContractDiff,
+    DeployedContract,
     StorageDiff,
     BlockStateUpdate,
     EntryPoint,
@@ -69,13 +71,15 @@ class L2toL1MessageSchema(Schema):
 class TransactionSchema(Schema):
     hash = Felt(data_key="transaction_hash", required=True)
     signature = fields.List(Felt(), data_key="signature", load_default=[])
-    max_fee = Felt(load_default=0)
+    max_fee = Felt(data_key="max_fee", load_default=0)
+    version = Felt(data_key="version", required=True)
 
 
 class InvokeTransactionSchema(TransactionSchema):
     contract_address = Felt(data_key="contract_address", required=True)
     calldata = fields.List(Felt(), data_key="calldata", required=True)
     entry_point_selector = Felt(data_key="entry_point_selector", required=True)
+    nonce = Felt(data_key="nonce", load_default=None)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> InvokeTransaction:
@@ -87,7 +91,7 @@ class DeployTransactionSchema(TransactionSchema):
     constructor_calldata = fields.List(
         Felt(), data_key="constructor_calldata", required=True
     )
-    # class_hash = Felt(data_key="class_hash", load_default=0)
+    class_hash = Felt(data_key="class_hash", load_default=0)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> DeployTransaction:
@@ -97,6 +101,7 @@ class DeployTransactionSchema(TransactionSchema):
 class DeclareTransactionSchema(TransactionSchema):
     class_hash = Felt(data_key="class_hash", required=True)
     sender_address = Felt(data_key="sender_address", required=True)
+    nonce = Felt(data_key="nonce", load_default=None)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> DeclareTransaction:
@@ -116,7 +121,7 @@ class TransactionReceiptSchema(Schema):
     hash = Felt(data_key="transaction_hash", required=True)
     status = StatusField(data_key="status", required=True)
     block_number = fields.Integer(data_key="block_number", load_default=None)
-    version = fields.Integer(data_key="version", allow_none=True)
+    block_hash = Felt(data_key="block_hash", load_default=None)
     actual_fee = Felt(data_key="actual_fee", allow_none=True)
     rejection_reason = fields.Dict(
         keys=fields.String(),
@@ -252,13 +257,13 @@ class StorageDiffSchema(Schema):
         return StorageDiff(**data)
 
 
-class ContractDiffsSchema(Schema):
+class DeployedContractSchema(Schema):
     address = Felt(data_key="address", required=True)
-    contract_hash = NonPrefixedHex(data_key="class_hash", required=True)
+    class_hash = NonPrefixedHex(data_key="class_hash", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs):
-        return ContractDiff(**data)
+        return DeployedContract(**data)
 
 
 class BlockStateUpdateSchema(Schema):
@@ -271,9 +276,9 @@ class BlockStateUpdateSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs):
-        contracts_diffs = data["state_diff"]["deployed_contracts"]
-        contracts_diffs = [
-            ContractDiffsSchema().load(contract) for contract in contracts_diffs
+        deployed_contracts = data["state_diff"]["deployed_contracts"]
+        deployed_contracts = [
+            DeployedContractSchema().load(contract) for contract in deployed_contracts
         ]
 
         storage_diffs = []
@@ -294,7 +299,7 @@ class BlockStateUpdateSchema(Schema):
         return BlockStateUpdate(
             **data,
             storage_diffs=storage_diffs,
-            contract_diffs=contracts_diffs,
+            deployed_contracts=deployed_contracts,
             declared_contracts=declared_contracts,
         )
 

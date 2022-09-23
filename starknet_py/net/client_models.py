@@ -1,5 +1,5 @@
 from abc import ABC
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import List, Any, Dict, Optional, Union, Iterable
 from typing_extensions import Literal
@@ -88,6 +88,7 @@ class Transaction(ABC):
     hash: int
     signature: List[int]
     max_fee: int
+    version: int
 
     def __post_init__(self):
         if self.__class__ == Transaction:
@@ -103,6 +104,7 @@ class InvokeTransaction(Transaction):
     contract_address: int
     calldata: List[int]
     entry_point_selector: int
+    nonce: Optional[int] = None
 
 
 @dataclass
@@ -113,6 +115,7 @@ class DeclareTransaction(Transaction):
 
     class_hash: int
     sender_address: int
+    nonce: Optional[int] = None
 
 
 @dataclass
@@ -123,8 +126,7 @@ class DeployTransaction(Transaction):
 
     contract_address: int
     constructor_calldata: List[int]
-    # TODO add once RPC supports rpc transactions better
-    # class_hash: Optional[int] = None
+    class_hash: int
 
 
 class TransactionStatus(Enum):
@@ -151,12 +153,12 @@ class TransactionReceipt:
     hash: int
     status: TransactionStatus
     block_number: Optional[int] = None
-    version: int = 0
+    block_hash: Optional[int] = None
     actual_fee: int = 0
     rejection_reason: Optional[str] = None
 
-    events: List[Event] = None
-    l2_to_l1_messages: List[L2toL1Message] = None
+    events: List[Event] = field(default_factory=list)
+    l2_to_l1_messages: List[L2toL1Message] = field(default_factory=list)
     l1_to_l2_consumed_message: Optional[L1toL2Message] = None
 
 
@@ -176,7 +178,7 @@ class DeclareTransactionResponse(SentTransactionResponse):
     Dataclass representing a result of declaring a contract on starknet
     """
 
-    class_hash: int = None
+    class_hash: int = 0
 
 
 @dataclass
@@ -185,7 +187,7 @@ class DeployTransactionResponse(SentTransactionResponse):
     Dataclass representing a result of deploying a contract to starknet
     """
 
-    contract_address: int = None
+    contract_address: int = 0
 
 
 class BlockStatus(Enum):
@@ -253,9 +255,9 @@ class EstimatedFee:
 
 
 @dataclass
-class ContractDiff:
+class DeployedContract:
     address: int
-    contract_hash: int
+    class_hash: int
 
 
 @dataclass
@@ -268,7 +270,14 @@ class BlockStateUpdate:
     new_root: int
     old_root: int
     storage_diffs: List[StorageDiff]
-    contract_diffs: List[ContractDiff]
+    deployed_contracts: List[DeployedContract]
+    declared_contracts: List[int]
+
+
+@dataclass
+class StateDiff:
+    deployed_contracts: List[DeployedContract]
+    storage_diffs: List[StorageDiff]
     declared_contracts: List[int]
 
 

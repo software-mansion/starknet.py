@@ -7,11 +7,11 @@ from starknet_py.net.networks import TESTNET, MAINNET
 
 @pytest.mark.asyncio
 async def test_gateway_raises_on_both_block_hash_and_number(
-    block_with_deploy_hash, gateway_client
+    block_with_deploy_number, gateway_client
 ):
     with pytest.raises(ValueError) as exinfo:
         await gateway_client.get_block(
-            block_hash=block_with_deploy_hash, block_number=0
+            block_hash="0x0", block_number=block_with_deploy_number
         )
 
     assert "block_hash and block_number parameters are mutually exclusive" in str(
@@ -20,15 +20,12 @@ async def test_gateway_raises_on_both_block_hash_and_number(
 
 
 @pytest.mark.asyncio
-async def test_get_class_hash_at(contract_address, gateway_client):
-    class_hash = await gateway_client.get_class_hash_at(
+async def test_get_class_hash_at(contract_address, gateway_client, class_hash):
+    class_hash_resp = await gateway_client.get_class_hash_at(
         contract_address=contract_address
     )
 
-    assert (
-        class_hash
-        == 3197248528421459336430560285234479619486870042069853528940753151314137720584
-    )
+    assert class_hash_resp == class_hash
 
 
 @pytest.mark.asyncio
@@ -39,6 +36,15 @@ async def test_get_code(contract_address, gateway_client):
     assert len(code.abi) != 0
     assert code.bytecode is not None
     assert len(code.bytecode) != 0
+
+
+@pytest.mark.asyncio
+async def test_get_contract_nonce(gateway_client):
+    nonce = await gateway_client.get_contract_nonce(
+        contract_address=0x1111,
+        block_hash="latest",
+    )
+    assert nonce == 0
 
 
 @pytest.mark.asyncio

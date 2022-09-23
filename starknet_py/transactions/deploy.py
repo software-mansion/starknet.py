@@ -1,3 +1,6 @@
+# pyright: reportGeneralTypeIssues=false
+
+import warnings
 from typing import Union, List, Optional
 
 from starkware.starknet.definitions.fields import ContractAddressSalt
@@ -29,7 +32,17 @@ def make_deploy_tx(
     :param version: PreparedFunctionCall version
     :param cairo_path: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts
     :return: A "Deploy" transaction object
+
+    .. deprecated:: 0.5.0
+        Deploy transactions will not be supported in the future versions of StarkNet. Consider transitioning
+        to Declare transactions and deploying through cairo syscall.
     """
+    warnings.warn(
+        "Deploy transactions will not be supported in the future versions of StarkNet. "
+        "Consider transitioning to Declare transactions and deploying through cairo syscall.",
+        category=DeprecationWarning,
+    )
+
     if not constructor_calldata:
         constructor_calldata = []
 

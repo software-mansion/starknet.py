@@ -523,6 +523,24 @@ def test_not_enough_felts():
     assert "second expected 1 values" in str(excinfo.value)
 
 
+def test_too_many_felts():
+    abi = [{"name": "first", "type": "felt"}, {"name": "second", "type": "felt"}]
+
+    with pytest.raises(ValueError) as excinfo:
+        transformer_for_function(outputs=abi).to_python([1, 2, 3])
+
+    assert "Too many values provided, expected 2 got 3" in str(excinfo.value)
+
+
+def test_felts_out_of_range():
+    abi = [{"name": "first", "type": "felt"}, {"name": "second", "type": "felt"}]
+
+    with pytest.raises(ValueError) as excinfo:
+        transformer_for_function(outputs=abi).to_python([1 << 321, -(1 << 317)])
+
+    assert "Felt is expected to be in range [0; " in str(excinfo.value)
+
+
 def test_invalid_tuple_length():
     abi = [{"name": "value", "type": "(felt, felt, felt)"}]
 
@@ -608,8 +626,7 @@ def test_missing_arg():
 def test_allow_underscores_in_abi():
     abi = [{"name": "_first", "type": "felt"}]
     result = transformer_for_function(outputs=abi).to_python([1])
-    # pylint: disable=protected-access
-    assert result._first == 1
+    assert result[0] == 1
 
 
 @pytest.mark.parametrize(

@@ -1,46 +1,44 @@
 import pytest
 
 from starknet_py.contract import Contract
-from starknet_py.tests.e2e.conftest import directory_with_contracts
+from starknet_py.tests.e2e.conftest import contracts_dir
 
 SOURCE = """
-# Declare this file as a StarkNet contract and set the required
-# builtins.
+// Declare this file as a StarkNet contract and set the required
+// builtins.
 %lang starknet
 %builtins pedersen range_check
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 
-# Define a storage variable.
+// Define a storage variable.
 @storage_var
-func balance() -> (res : felt):
-end
+func balance() -> (res: felt) {
+}
 
-# Increases the balance by the given amount.
+// Increases the balance by the given amount.
 @external
-func increase_balance{
-        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
-        range_check_ptr}(amount : felt):
-    let (res) = balance.read()
-    balance.write(res + amount)
-    return ()
-end
+func increase_balance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    amount: felt
+) {
+    let (res) = balance.read();
+    balance.write(res + amount);
+    return ();
+}
 
-# Returns the current balance.
+// Returns the current balance.
 @view
-func get_balance{
-        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
-        range_check_ptr}() -> (res : felt):
-    let (res) = balance.read()
-    return (res)
-end
+func get_balance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (res: felt) {
+    let (res) = balance.read();
+    return (res,);
+}
 
 @constructor
-func constructor{
-        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
-        range_check_ptr}(a: felt, b: felt):
-    return ()
-end
+func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    a: felt, b: felt
+) {
+    return ();
+}
 """
 
 SOURCE_WITH_IMPORTS = """
@@ -50,30 +48,29 @@ SOURCE_WITH_IMPORTS = """
 from inner.inner import MockStruct
 
 @external
-func put{syscall_ptr : felt*, pedersen_ptr, range_check_ptr}(
-        key : felt, value : felt):
-    return ()
-end
+func put{syscall_ptr: felt*, pedersen_ptr, range_check_ptr}(key: felt, value: felt) {
+    return ();
+}
 """
 
 EXPECTED_HASH = (
-    1892731831934066874728410725693996320817715498036758855123096090612616235406
+    59796004090676193477156334357335769146616822222924884531861796638754858565
 )
 
 
 EXPECTED_HASH_WITH_IMPORTS = (
-    926369282343348219942101980113868855686618634853342865522701026378397773444
+    1660283819326006729930852394676591088728841641287494160212970585278003471330
 )
 
 EXPECTED_ADDRESS = (
-    1083001908392921285100974237993866439691161504159129826788430749220491526389
+    1137929495741405662588620210985073364961683439179866224790109707037343317227
 )
 
 EXPECTED_ADDRESS_WITH_IMPORTS = (
-    2130674097911462130576494609777169854496165901369578590961619672480039377033
+    2215802380634391255523792220475859318374841631894501575098737573407681278580
 )
 
-search_path = directory_with_contracts
+search_path = contracts_dir
 
 
 def test_compute_hash():

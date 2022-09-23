@@ -4,7 +4,7 @@ from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 
 
 @pytest.mark.asyncio
-async def test_creating_account_client(run_devnet):
+async def test_creating_account_client(network):
     # pylint: disable=import-outside-toplevel, unused-variable
     # add to docs: start
     from starknet_py.net import AccountClient, KeyPair
@@ -14,16 +14,29 @@ async def test_creating_account_client(run_devnet):
     testnet = "testnet"
     chain_id = StarknetChainId.TESTNET
     # add to docs: end
-    testnet = run_devnet
+    testnet = network
     # add to docs: start
 
-    # Creates an instance of account client which is already deployed (testnet):
+    # Creates an instance of account client which is already deployed (testnet)
+
+    # old AccountClient using transaction version=0 (doesn't have __validate__ function)
     client = GatewayClient(net=testnet)
     account_client_testnet = AccountClient(
         client=client,
         address="0x1234",
         key_pair=KeyPair(private_key=123, public_key=456),
         chain=StarknetChainId.TESTNET,
+        supported_tx_version=0,
+    )
+
+    # new AccountClient using transaction version=1 (has __validate__ function)
+    client = GatewayClient(net=testnet)
+    account_client_testnet = AccountClient(
+        client=client,
+        address="0x4321",
+        key_pair=KeyPair(private_key=654, public_key=321),
+        chain=StarknetChainId.TESTNET,
+        supported_tx_version=1,
     )
 
     # There is another way of creating key_pair
