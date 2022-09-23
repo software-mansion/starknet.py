@@ -1,5 +1,3 @@
-# pyright: reportGeneralTypeIssues=false
-
 import json
 import os
 import typing

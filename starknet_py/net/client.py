@@ -1,10 +1,8 @@
-# pyright: reportGeneralTypeIssues=false
-
 from __future__ import annotations
 
 import asyncio
 from abc import ABC, abstractmethod
-from typing import Union, Optional, List, Tuple
+from typing import Union, Optional, List, Tuple, cast
 
 from starknet_py.net.client_models import (
     StarknetBlock,
@@ -153,7 +151,7 @@ class Client(ABC):
                     TransactionStatus.ACCEPTED_ON_L1,
                     TransactionStatus.ACCEPTED_ON_L2,
                 ):
-                    return result.block_number, status
+                    return cast(int, result.block_number), status
                 if status == TransactionStatus.PENDING:
                     if not wait_for_accept:
                         # FIXME rpc receipt doesn't have block_number currently, fix this in future spec version
@@ -163,7 +161,7 @@ class Client(ABC):
                             return result.block_number, status
                 elif status == TransactionStatus.REJECTED:
                     raise TransactionRejectedError(
-                        message=result.rejection_reason,
+                        message=result.rejection_reason or "No message.",
                     )
                 elif status == TransactionStatus.NOT_RECEIVED:
                     if not first_run:
@@ -171,7 +169,7 @@ class Client(ABC):
                 elif status != TransactionStatus.RECEIVED:
                     # This will never get executed with current possible transactions statuses
                     raise TransactionFailedError(
-                        message=result.rejection_reason,
+                        message=cast(str, result.rejection_reason) or "No message.",
                     )
 
                 first_run = False

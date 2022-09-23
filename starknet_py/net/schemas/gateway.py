@@ -1,5 +1,3 @@
-# pyright: reportGeneralTypeIssues=false
-
 from marshmallow import Schema, fields, post_load, EXCLUDE
 from marshmallow_oneofschema import OneOfSchema
 
@@ -298,7 +296,7 @@ class BlockStateUpdateSchema(Schema):
         return BlockStateUpdate(
             **data,
             storage_diffs=storage_diffs,
-            deployed_contracts=deployed_contracts,
+            deployed_contracts=deployed_contracts,  # pyright: ignore
             declared_contracts=declared_contracts,
         )
 

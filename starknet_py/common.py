@@ -1,6 +1,4 @@
-# pyright: reportGeneralTypeIssues=false
-
-from typing import Optional, List
+from typing import Optional, List, cast
 
 from starkware.starknet.services.api.contract_class import ContractClass
 
@@ -19,6 +17,7 @@ def create_compiled_contract(
     if not compiled_contract and not compilation_source:
         raise ValueError("One of compiled_contract or compilation_source is required.")
 
+    compilation_source = cast(StarknetCompilationSource, compilation_source)
     if not compiled_contract:
         compiled_contract = Compiler(
             contract_source=compilation_source, cairo_path=search_paths
