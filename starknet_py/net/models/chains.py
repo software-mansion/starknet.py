@@ -10,6 +10,7 @@ from starknet_py.utils.docs import as_our_module
 StarknetChainId = as_our_module(_StarknetChainId)
 
 
+# pyright: reportGeneralTypeIssues=false
 def chain_from_network(
     net: Network, chain: Optional[StarknetChainId]
 ) -> StarknetChainId:

@@ -40,6 +40,7 @@ setuptools = "^65.3.0"
 pytest-mock = "^3.6.1"
 pytest-xdist = "^2.5.0"
 web3 = {extras=["tester"], version="6.0.0b4"}
+pyright = "^1.1.270"
 starknet-devnet = "0.3.1"
 
 [tool.poe.tasks]
@@ -66,8 +67,9 @@ docs_open = { shell = "open docs/_build/html/index.html" }
 lint = "pylint starknet_py"
 format = "black starknet_py"
 format_check = "black --check starknet_py"
+typecheck = "pyright starknet_py"
 requirements_check.shell = "poetry export -f requirements.txt --without-hashes --extras docs | cmp - requirements.txt"
-ci = ["lint", "format_check", "requirements_check", "test"]
+ci = ["lint", "format_check", "typecheck", "requirements_check", "test"]
 
 [tool.coverage.run]
 source = ["starknet_py"]
@@ -90,7 +92,7 @@ build-backend = "setuptools.build_meta"
 
 
 [tool.black]
-target-version = ["py37"]
+target-version = ["py38"]
 extend-exclude = """
 crypto-cpp
 """
@@ -99,4 +101,12 @@ crypto-cpp
 markers = [
     "run_on_testnet: marks test that will only run on testnet (when --net=testnet)",
     "run_on_devnet: marks test that will only run on devnet (when --net=devnet)"
+]
+
+[tool.pyright]
+include = ["starknet_py/"]
+exclude = [
+    "**/__pycache__",
+    "starknet_py/tests",
+    "**/*_test.py",
 ]

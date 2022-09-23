@@ -1,3 +1,5 @@
+# pyright: reportGeneralTypeIssues=false
+
 from marshmallow import Schema, fields, post_load, EXCLUDE
 from marshmallow_oneofschema import OneOfSchema
 
