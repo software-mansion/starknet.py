@@ -449,10 +449,8 @@ def _get_call_payload(tx: Union[InvokeFunction, Call]) -> dict:
             "entry_point_selector": convert_to_felt(invoke.entry_point_selector),
             "calldata": [convert_to_felt(i) for i in invoke.calldata],
         }
-
-    call = cast(Call, tx)
     return {
-        "contract_address": convert_to_felt(call.to_addr),
-        "entry_point_selector": convert_to_felt(call.selector),
-        "calldata": [convert_to_felt(i) for i in call.calldata],
+        "contract_address": convert_to_felt(tx.to_addr),
+        "entry_point_selector": convert_to_felt(tx.selector),
+        "calldata": [convert_to_felt(i) for i in tx.calldata],
     }
