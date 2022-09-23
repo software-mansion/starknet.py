@@ -1,4 +1,3 @@
-
 # pylint: disable=too-many-arguments
 import asyncio
 from unittest.mock import patch, MagicMock
@@ -122,7 +121,6 @@ async def test_get_block_by_hash(
 
         if isinstance(client, GatewayClient):
             assert block.gas_price == default_gateway_gas_price
-
 
 
 @pytest.mark.asyncio
