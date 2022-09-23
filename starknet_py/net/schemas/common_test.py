@@ -2,8 +2,8 @@ import pytest
 
 from marshmallow import Schema, ValidationError
 
-from starknet_py.net.common_schemas.common_schemas import NonPrefixedHex
-from starknet_py.net.rpc_schemas.rpc_schemas import Felt, StatusField, BlockStatusField
+from starknet_py.net.schemas.common import NonPrefixedHex
+from starknet_py.net.schemas.rpc import Felt, StatusField, BlockStatusField
 from starknet_py.net.client_models import TransactionStatus, BlockStatus
 
 
