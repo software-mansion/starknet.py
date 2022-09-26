@@ -1,3 +1,6 @@
+from typing import Optional
+
+
 class TransactionFailedError(Exception):
     """
     Base exception for transaction failure
@@ -5,8 +8,10 @@ class TransactionFailedError(Exception):
 
     def __init__(
         self,
-        message: str = "Unknown starknet error",
+        message: Optional[str] = None,
     ):
+        if message is None:
+            message = "Unknown starknet error"
         self.message = message
         super().__init__(self.message)
 
