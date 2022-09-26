@@ -4,13 +4,11 @@ from unittest.mock import patch, MagicMock
 
 import pytest
 
-from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.public.abi import (
     get_selector_from_name,
     get_storage_var_address,
 )
 
-from net.gateway_client import GatewayClient
 from starknet_py.net.client_models import (
     TransactionStatus,
     InvokeFunction,
@@ -20,6 +18,7 @@ from starknet_py.net.client_models import (
     Call,
 )
 from starknet_py.net.client_errors import ClientError
+from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.tests.e2e.account.account_client_test import MAX_FEE
 from starknet_py.transaction_exceptions import (
     TransactionRejectedError,
@@ -27,11 +26,6 @@ from starknet_py.transaction_exceptions import (
 )
 from starknet_py.transactions.declare import make_declare_tx
 from starknet_py.transactions.deploy import make_deploy_tx
-
-
-@pytest.fixture
-def default_gateway_gas_price():
-    return StarknetGeneralConfig().min_gas_price
 
 
 @pytest.mark.asyncio
