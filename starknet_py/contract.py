@@ -9,7 +9,8 @@ from typing import (
     TypeVar,
     Union,
     Dict,
-    NamedTuple, Any,
+    NamedTuple,
+    Any,
 )
 from typing import TypedDict
 
