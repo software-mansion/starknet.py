@@ -48,7 +48,7 @@ from starknet_py.utils.data_transformer.execute_transformer import (
     execute_transformer_by_version,
 )
 from starknet_py.utils.sync import add_sync_methods
-from starknet_py.utils.typed_data import TypedData as TypedDataDataclass
+from starknet_py.utils.typed_data.typed_data import TypedData as TypedDataDataclass
 from starknet_py.net.models.typed_data import TypedData
 
 
