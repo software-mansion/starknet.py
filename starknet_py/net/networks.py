@@ -14,7 +14,7 @@ class CustomGatewayUrls(TypedDict):
 Network = Union[PredefinedNetwork, str, CustomGatewayUrls]
 
 
-def net_address_from_net(net: PredefinedNetwork) -> str:
+def net_address_from_net(net: str) -> str:
     return {
         MAINNET: "https://alpha-mainnet.starknet.io",
         TESTNET: "https://alpha4.starknet.io",
