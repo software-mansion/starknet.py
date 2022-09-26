@@ -1,5 +1,7 @@
 import pytest
 
+from starknet_py.utils.data_transformer.errors import CairoSerializerException
+
 value_types = [
     {"name": "key", "type": "felt"},
     {"name": "prev_value", "type": "felt"},
@@ -21,7 +23,8 @@ async def test_from_python_both_positional_and_named(cairo_serializer):
     args = [10, 11]
     kwargs = {"prev_value": 0, "value": 20}
     with pytest.raises(
-        TypeError, match="Both positional and named argument provided for prev_value."
+        CairoSerializerException,
+        match="Both positional and named argument provided for prev_value.",
     ):
         cairo_serializer.from_python(value_types, *args, **kwargs)
 
@@ -30,7 +33,7 @@ async def test_from_python_both_positional_and_named(cairo_serializer):
 async def test_from_python_invalid_positional(cairo_serializer):
     args = [10, 11, 12, 13]
     with pytest.raises(
-        TypeError,
+        CairoSerializerException,
         match=f"Provided {len(args)} positional arguments, {len(value_types)} possible.",
     ):
         cairo_serializer.from_python(value_types, *args)
@@ -44,6 +47,7 @@ async def test_from_python_unnecessary_named(cairo_serializer):
     key_diff = set(kwargs).difference(set(d["name"] for d in value_types))
 
     with pytest.raises(
-        TypeError, match=f"Unnecessary named arguments provided: {key_diff}."
+        CairoSerializerException,
+        match=f"Unnecessary named arguments provided: {key_diff}.",
     ):
         cairo_serializer.from_python(value_types, *args, **kwargs)
