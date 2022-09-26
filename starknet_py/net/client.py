@@ -1,5 +1,3 @@
-# pyright: reportGeneralTypeIssues=false
-
 from __future__ import annotations
 
 import asyncio
@@ -153,6 +151,7 @@ class Client(ABC):
                     TransactionStatus.ACCEPTED_ON_L1,
                     TransactionStatus.ACCEPTED_ON_L2,
                 ):
+                    assert result.block_number is not None
                     return result.block_number, status
                 if status == TransactionStatus.PENDING:
                     if not wait_for_accept:
