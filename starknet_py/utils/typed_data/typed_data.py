@@ -1,7 +1,5 @@
-# pyright: reportGeneralTypeIssues=false
-
 from dataclasses import dataclass
-from typing import Union, Dict, List
+from typing import Union, Dict, List, cast
 
 from marshmallow import Schema, fields, post_load
 from starkware.cairo.common.hash_state import compute_hash_on_elements
@@ -35,16 +33,25 @@ class TypedData:
 
     @staticmethod
     def from_dict(data: TypedDataDict) -> "TypedData":
-        return TypedDataSchema().load(data)
+        return cast(TypedData, TypedDataSchema().load(data))
 
-    def _encode_value(self, type_name: str, value: Union[int, str]) -> int:
-        if is_pointer(type_name):
+    def _encode_value(self, type_name: str, value: Union[int, str, dict, list]) -> int:
+        if is_pointer(type_name) and isinstance(value, list):
+            type_name = strip_pointer(type_name)
+
+            # if type_name is not a struct
+            if type_name not in self.types:
+                return compute_hash_on_elements(
+                    [int(get_hex(val), 16) for val in value]
+                )
+
             return compute_hash_on_elements(
-                [self.struct_hash(strip_pointer(type_name), data) for data in value]
+                [self.struct_hash(type_name, data) for data in value]
             )
-        if type_name in self.types:
+        # if type_name is a struct
+        if type_name in self.types and isinstance(value, dict):
             return self.struct_hash(type_name, value)
-        return int(get_hex(value), 16)
+        return int(get_hex(str(value)), 16)
 
     def _encode_data(self, type_name: str, data: dict) -> List[str]:
         values = []
@@ -94,7 +101,7 @@ class TypedData:
     def message_hash(self, account_address: int) -> int:
         message = [
             encode_shortstring("StarkNet Message"),
-            self.struct_hash("StarkNetDomain", self.domain),
+            self.struct_hash("StarkNetDomain", dict(self.domain)),
             account_address,
             self.struct_hash(self.primary_type, self.message),
         ]
