@@ -39,6 +39,10 @@ from starknet_py.cairo.felt import (
     cairo_vm_range_check,
     encode_shortstring,
 )
+from starknet_py.utils.data_transformer.errors import (
+    CairoSerializerException,
+    InvalidDataException,
+)
 
 ABIFunctionEntry = dict
 CairoData = List[int]
@@ -97,7 +101,7 @@ def read_from_cairo_data(
     name: str, values: CairoData, n: int
 ) -> Tuple[CairoData, CairoData]:
     if len(values) < n:
-        raise ValueError(
+        raise InvalidDataException(
             f"Output {name} expected {n} values, {len(values)} values are available."
         )
 
@@ -137,7 +141,7 @@ class FeltTransformer(TypeTransformer[TypeFelt, int]):
             return [value]
 
         if not isinstance(value, int):
-            raise TypeError(f"{name} should be int.")
+            raise InvalidDataException(f"{name} should be int.")
         cairo_vm_range_check(value)
         return [value]
 
@@ -156,7 +160,9 @@ class StructTransformer(TypeTransformer[TypeStruct, StructTransformerResult]):
         definition = self.identifier_manager.get(cairo_type.scope).identifier_definition
 
         if not isinstance(definition, StructDefinition):
-            raise ValueError(f"Invalid definition found for {cairo_type.scope}.")
+            raise InvalidDataException(
+                f"Invalid definition found for {cairo_type.scope}."
+            )
 
         return definition
 
@@ -168,12 +174,12 @@ class StructTransformer(TypeTransformer[TypeStruct, StructTransformerResult]):
             return [value & ((1 << 128) - 1), value >> 128]
 
         if not isinstance(value, dict):
-            raise TypeError(f"Expected {name} to be a dict.")
+            raise InvalidDataException(f"Expected {name} to be a dict.")
 
         result = []
         for member_name, member in definition.members.items():
             if member_name not in value:
-                raise ValueError(f"{name}[{member_name}] not provided.")
+                raise InvalidDataException(f"{name}[{member_name}] not provided.")
 
             values = self.resolve_type(member.cairo_type).from_python(
                 member.cairo_type, f"{name}.{member_name}", value[member_name]
@@ -205,7 +211,7 @@ class StructTransformer(TypeTransformer[TypeStruct, StructTransformerResult]):
 class TupleTransformer(TypeTransformer[TypeTuple, Tuple]):
     def from_python(self, cairo_type, name, value) -> CairoData:
         if len(value) != len(cairo_type.members):
-            raise ValueError(
+            raise InvalidDataException(
                 f"Input {name} length mismatch: {len(value)} != {len(cairo_type.members)}."
             )
 
@@ -229,7 +235,7 @@ class TupleTransformer(TypeTransformer[TypeTuple, Tuple]):
 
     def _from_python_named(self, cairo_type, name, values):
         if not isinstance(values, dict) and not TupleTransformer.isnamedtuple(values):
-            raise ValueError(
+            raise InvalidDataException(
                 f"Input {name} is a named tuple and must be dict or NamedTuple"
             )
 
@@ -358,25 +364,29 @@ class CairoSerializer:
 
         :param value_types: Types of values to be serialized
         :return: tuple (full calldata, dict with all arguments with their Cairo representation)
+        :raises CairoSerializerException: when general error occurred
+        :raises InvalidDataException: when an error occurred while transforming a value
         """
         type_by_name = self._abi_to_types(value_types)
 
         named_arguments = {**kwargs}
 
         if len(args) > len(type_by_name):
-            raise TypeError(
+            raise CairoSerializerException(
                 f"Provided {len(args)} positional arguments, {len(type_by_name)} possible."
             )
 
         key_diff = set(named_arguments.keys()).difference(set(type_by_name))
 
         if key_diff:
-            raise TypeError(f"Unnecessary named arguments provided: {key_diff}.")
+            raise CairoSerializerException(
+                f"Unnecessary named arguments provided: {key_diff}."
+            )
 
         # Assign args to named arguments
         for arg, input_name in zip(args, type_by_name.keys()):
             if input_name in named_arguments:
-                raise TypeError(
+                raise CairoSerializerException(
                     f"Both positional and named argument provided for {input_name}."
                 )
             named_arguments[input_name] = arg
@@ -385,11 +395,14 @@ class CairoSerializer:
         calldata: List[int] = []
         for name, cairo_type in type_by_name.items():
             if name not in named_arguments:
-                raise TypeError(f"Input {name} not provided.")
+                raise CairoSerializerException(f"Input {name} not provided.")
 
-            values = self.resolve_type(cairo_type).from_python(
-                cairo_type, name, named_arguments[name]
-            )
+            try:
+                values = self.resolve_type(cairo_type).from_python(
+                    cairo_type, name, named_arguments[name]
+                )
+            except (TypeError, ValueError) as err:
+                raise InvalidDataException(str(err)) from err
 
             all_params[name] = values
 
@@ -404,19 +417,25 @@ class CairoSerializer:
         :param value_types: Types of values to be serialized
         :param values: Values to be serialized
         :return: tuple (full calldata, dict with all arguments with their Cairo representation)
+        :raises CairoSerializerException: when general error occurred
+        :raises InvalidDataException: when an error occurred while transforming a value
         """
         type_by_name = self._abi_to_types(value_types)
         initial_len = len(values)
 
         result = {}
         for name, cairo_type in type_by_name.items():
-            transformed, values = self.resolve_type(cairo_type).to_python(
-                cairo_type, name, values
-            )
+            try:
+                transformed, values = self.resolve_type(cairo_type).to_python(
+                    cairo_type, name, values
+                )
+            except ValueError as err:
+                raise InvalidDataException(str(err)) from err
+
             result[name] = transformed
 
         if len(values) > 0:
-            raise ValueError(
+            raise CairoSerializerException(
                 f"Too many values provided, expected {initial_len - len(values)} got {initial_len}."
             )
 
