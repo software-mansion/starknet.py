@@ -1,4 +1,4 @@
-from typing import Optional, cast
+from typing import Optional
 
 
 class TransactionFailedError(Exception):
@@ -10,7 +10,9 @@ class TransactionFailedError(Exception):
         self,
         message: Optional[str] = None,
     ):
-        self.message = cast(str, message or "Unknown starknet error")
+        if message is None:
+            message = "Unknown starknet error"
+        self.message = message
         super().__init__(self.message)
 
     def __str__(self):

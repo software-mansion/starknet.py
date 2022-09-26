@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 from abc import ABC, abstractmethod
-from typing import Union, Optional, List, Tuple, cast
+from typing import Union, Optional, List, Tuple
 
 from starknet_py.net.client_models import (
     StarknetBlock,
@@ -170,7 +170,7 @@ class Client(ABC):
                 elif status != TransactionStatus.RECEIVED:
                     # This will never get executed with current possible transactions statuses
                     raise TransactionFailedError(
-                        message=cast(str, result.rejection_reason),
+                        message=result.rejection_reason,
                     )
 
                 first_run = False
