@@ -98,7 +98,7 @@ class SentTransaction:
 @add_sync_methods
 @dataclass(frozen=True)
 class InvokeResult(SentTransaction):
-    # We ensure these not None in __post_init__
+    # We ensure these are not None in __post_init__
     contract: ContractData = None  # pyright: ignore
     invoke_transaction: InvokeFunction = None  # pyright: ignore
 
