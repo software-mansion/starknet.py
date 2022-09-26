@@ -86,9 +86,12 @@ def construct_result_object(result: dict) -> NamedTuple:
     dict_value = {name_mapping[key]: value for key, value in result.items()}
     tuple_value = named_tuple_class(**dict_value)
 
-    return cast(NamedTuple, Result(
-        tuple_value=tuple_value, name_mapping=name_mapping, dict_value=dict_value
-    ))  # We pretend Result is a named tuple
+    return cast(
+        NamedTuple,
+        Result(
+            tuple_value=tuple_value, name_mapping=name_mapping, dict_value=dict_value
+        ),
+    )  # We pretend Result is a named tuple
 
 
 def read_from_cairo_data(
