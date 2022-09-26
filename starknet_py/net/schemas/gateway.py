@@ -1,4 +1,4 @@
-# pyright: reportGeneralTypeIssues=false
+from typing import cast
 
 from marshmallow import Schema, fields, post_load, EXCLUDE
 from marshmallow_oneofschema import OneOfSchema
@@ -278,7 +278,8 @@ class BlockStateUpdateSchema(Schema):
     def make_dataclass(self, data, **kwargs):
         deployed_contracts = data["state_diff"]["deployed_contracts"]
         deployed_contracts = [
-            DeployedContractSchema().load(contract) for contract in deployed_contracts
+            cast(DeployedContract, DeployedContractSchema().load(contract))
+            for contract in deployed_contracts
         ]
 
         storage_diffs = []
