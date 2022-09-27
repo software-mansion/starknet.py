@@ -1,10 +1,8 @@
-# pyright: reportGeneralTypeIssues=false
-
 import dataclasses
 import re
 import warnings
 from dataclasses import replace
-from typing import Optional, List, Union, Dict, Tuple
+from typing import Optional, List, Union, Dict, Tuple, Iterable
 
 from starkware.crypto.signature.signature import get_random_private_key
 from starkware.starknet.public.abi import get_selector_from_name
@@ -47,6 +45,7 @@ from starknet_py.utils.crypto.facade import Call
 from starknet_py.utils.data_transformer.execute_transformer import (
     execute_transformer_by_version,
 )
+from starknet_py.utils.iterable import ensure_iterable
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.typed_data.typed_data import TypedData as TypedDataDataclass
 from starknet_py.net.models.typed_data import TypedData
@@ -80,11 +79,6 @@ class AccountClient(Client):
         :param supported_tx_version: Version of transactions supported by account
         """
         # pylint: disable=too-many-arguments
-        if signer is None and key_pair is None:
-            raise ValueError(
-                "Either a signer or a key_pair must be provided in AccountClient constructor"
-            )
-
         if chain is None and signer is None:
             raise ValueError("One of chain or signer must be provided")
 
@@ -92,6 +86,11 @@ class AccountClient(Client):
         self.client = client
 
         if signer is None:
+            if key_pair is None:
+                raise ValueError(
+                    "Either a signer or a key_pair must be provided in AccountClient constructor"
+                )
+
             chain = chain_from_network(net=client.net, chain=chain)
             signer = StarkCurveSigner(
                 account_address=self.address, key_pair=key_pair, chain_id=chain
@@ -282,11 +281,9 @@ class AccountClient(Client):
                 category=DeprecationWarning,
             )
 
-        calls = calls if isinstance(calls, List) else [calls]
-
         nonce = await self._get_nonce()
 
-        calldata_py = merge_calls(calls)
+        calldata_py = merge_calls(ensure_iterable(calls))
 
         if version == 0:
             calldata_py.append(nonce)
@@ -662,7 +659,7 @@ def add_signature_to_transaction(
     return replace(tx, signature=signature)
 
 
-def merge_calls(calls: Calls) -> List:
+def merge_calls(calls: Iterable[Call]) -> List:
     def parse_call(
         call: Call, current_data_len: int, entire_calldata: List
     ) -> Tuple[Dict, int, List]:
