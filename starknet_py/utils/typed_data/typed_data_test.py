@@ -2,6 +2,8 @@
 # fmt: off
 
 import json
+from pathlib import Path
+
 import pytest
 
 from starknet_py.tests.e2e.conftest import typed_data_dir
@@ -19,8 +21,8 @@ def load_typed_data(file_name: str) -> TypedData:
     """
     file_path = typed_data_dir / file_name
 
-    with open(file_path, "r", encoding="utf-8") as file:
-        typed_data = json.load(file)
+    text = Path(file_path).read_text("utf-8")
+    typed_data = json.loads(text)
 
     return TypedData.from_dict(typed_data)
 
@@ -48,6 +50,7 @@ def test_encode_type(example, type_name, encoded_type):
     assert res == encoded_type
 
 
+# The expected hashes here and in tests below were calculated using starknet.js (https://github.com/0xs34n/starknet.js)
 @pytest.mark.parametrize(
     "example, type_name, type_hash",
     [
