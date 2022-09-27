@@ -27,6 +27,7 @@ from starknet_py.net.client_models import (
     DeclareTransactionResponse,
     TransactionReceipt,
     Call,
+    GatewayBlock,
 )
 from starknet_py.net.schemas.gateway import (
     ContractCodeSchema,
@@ -88,7 +89,7 @@ class GatewayClient(Client):
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> StarknetBlock:
+    ) -> GatewayBlock:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )

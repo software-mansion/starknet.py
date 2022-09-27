@@ -461,5 +461,10 @@ async def cairo_serializer(gateway_account_client: AccountClient) -> CairoSerial
 
 
 @pytest_asyncio.fixture(name="default_gateway_gas_price", scope="module")
-def default_gateway_gas_price():
+def default_gateway_gas_price() -> int:
+    """
+    Returns the default min gas price from the StarknetGeneralConfig.
+    Useful for asserting that the gas price appears in the block response from
+    the GatewayClient.
+    """
     return StarknetGeneralConfig().min_gas_price
