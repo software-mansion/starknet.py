@@ -1,5 +1,3 @@
-# pyright: reportGeneralTypeIssues=false
-
 import warnings
 from dataclasses import dataclass
 from typing import (
@@ -44,12 +42,12 @@ from starknet_py.utils.data_transformer.errors import (
     InvalidDataException,
 )
 
-ABIFunctionEntry = dict
+ABIFunctionEntry = Dict
 CairoData = List[int]
 
 
 class Result:
-    def __init__(self, tuple_value: namedtuple, name_mapping: dict, dict_value: dict):
+    def __init__(self, tuple_value: NamedTuple, name_mapping: Dict, dict_value: Dict):
         self.tuple_value = tuple_value
         self.name_mapping = name_mapping
         self.dict_value = dict_value
@@ -92,9 +90,12 @@ def construct_result_object(result: dict) -> NamedTuple:
     dict_value = {name_mapping[key]: value for key, value in result.items()}
     tuple_value = named_tuple_class(**dict_value)
 
-    return Result(
-        tuple_value=tuple_value, name_mapping=name_mapping, dict_value=dict_value
-    )
+    return cast(
+        NamedTuple,
+        Result(
+            tuple_value=tuple_value, name_mapping=name_mapping, dict_value=dict_value
+        ),
+    )  # We pretend Result is a named tuple
 
 
 def read_from_cairo_data(
@@ -124,7 +125,7 @@ class TypeTransformer(Generic[UsedCairoType, PythonType]):
     resolve_type: Callable[[CairoType], "TypeTransformer"]
 
     def from_python(
-        self, cairo_type: UsedCairoType, name: str, value: any
+        self, cairo_type: UsedCairoType, name: str, value: Any
     ) -> CairoData:
         raise NotImplementedError()
 
@@ -242,8 +243,8 @@ class TupleTransformer(TypeTransformer[TypeTuple, Tuple]):
         results = []
 
         if TupleTransformer.isnamedtuple(values):
-            # noinspection PyUnresolvedReferences, PyProtectedMember, reportGeneralTypeIssues
-            values = values._asdict()
+            # noinspection PyUnresolvedReferences, PyProtectedMember
+            values = values._asdict()  # pyright: ignore
 
         for member in cairo_type.members:
             result = self.resolve_type(member).from_python(
@@ -254,7 +255,7 @@ class TupleTransformer(TypeTransformer[TypeTuple, Tuple]):
         return results
 
     @staticmethod
-    def isnamedtuple(value):
+    def isnamedtuple(value) -> bool:
         return isinstance(value, tuple) and hasattr(value, "_fields")
 
     def to_python(self, cairo_type, name, values) -> PythonResult[Tuple]:
@@ -286,7 +287,7 @@ class TupleTransformer(TypeTransformer[TypeTuple, Tuple]):
 
 class TupleItemTransformer(TypeTransformer[TypeTuple.Item, Any]):
     def from_python(
-        self, cairo_type: TypeTuple.Item, name: str, value: any
+        self, cairo_type: TypeTuple.Item, name: str, value: Any
     ) -> CairoData:
         value = self.resolve_type(cairo_type.typ).from_python(
             cairo_type.typ,

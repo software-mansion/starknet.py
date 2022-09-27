@@ -1,4 +1,5 @@
-# pyright: reportGeneralTypeIssues=false, reportUndefinedVariable=false
+# Needed because of string typed Contract
+# pyright: reportUndefinedVariable=false
 
 from abc import ABC, abstractmethod
 
