@@ -175,7 +175,7 @@ class StructTransformer(TypeTransformer[TypeStruct, StructTransformerResult]):
             return [value & ((1 << 128) - 1), value >> 128]
 
         if not isinstance(value, dict):
-            raise InvalidDataException(f"Expected {name} to be a dict.")
+            raise TypeError(f"Expected {name} to be a dict.")
 
         result = []
         for member_name, member in definition.members.items():
@@ -418,7 +418,6 @@ class CairoSerializer:
         :param value_types: Types of values to be serialized
         :param values: Values to be serialized
         :return: tuple (full calldata, dict with all arguments with their Cairo representation)
-        :raises CairoSerializerException: when general error occurred
         :raises InvalidDataException: when an error occurred while transforming a value
         """
         type_by_name = self._abi_to_types(value_types)
@@ -436,7 +435,7 @@ class CairoSerializer:
             result[name] = transformed
 
         if len(values) > 0:
-            raise CairoSerializerException(
+            raise InvalidDataException(
                 f"Too many values provided, expected {initial_len - len(values)} got {initial_len}."
             )
 
