@@ -80,7 +80,7 @@ async def test_deploying_with_udc(
         max_fee=int(1e16),
     )
 
-    # When transaction is prepared it can be sent with an Account
+    # Once transaction is prepared it can be sent with an Account
     resp = await account_client.send_transaction(transaction=deploy_invoke_transaction)
     await account_client.wait_for_tx(resp.transaction_hash)
 
