@@ -26,7 +26,7 @@ async def test_deploying_with_udc(
     )
 
     # add to docs: start
-    # If the account is deployed on testnet there is no need to explicitly specify
+    # If the account is deployed on testnet or mainnet there is no need to explicitly specify
     # address of the deployer (default one will be used)
     deployer = Deployer(account=testnet_account_client)
 
