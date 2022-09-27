@@ -12,7 +12,6 @@ from starknet_py.net.client_models import (
     SentTransactionResponse,
     ContractCode,
     BlockStateUpdate,
-    StarknetBlock,
     InvokeFunction,
     StarknetTransaction,
     Hash,
