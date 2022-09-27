@@ -86,7 +86,10 @@ There are two classes responsible for the deployment (:ref:`API<Deployer>`):
 
 Short code example how to use it:
 
-
+.. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_deploying_with_udc.py
+    :language: python
+    :lines: 18-19,29-35,40-51,57-90
+    :dedent: 4
 
 
 Fees

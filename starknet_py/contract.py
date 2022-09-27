@@ -462,9 +462,7 @@ class Contract:
         compiled = create_compiled_contract(
             compilation_source, compiled_contract, search_paths
         )
-        translated_args = translate_constructor_args(
-            compiled_contract.abi, constructor_args
-        )
+        translated_args = translate_constructor_args(compiled.abi, constructor_args)
         deploy_tx = make_deploy_tx(
             compiled_contract=compiled,
             constructor_calldata=translated_args,
