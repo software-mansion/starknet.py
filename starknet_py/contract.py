@@ -504,17 +504,13 @@ class Contract:
         :raises: `ValueError` if neither compilation_source nor compiled_contract is provided.
         :return: contract's address
         """
-        compiled_contract = create_compiled_contract(
+        compiled = create_compiled_contract(
             compilation_source, compiled_contract, search_paths
         )
-        translated_args = translate_constructor_args(
-            compiled_contract.abi, constructor_args
-        )
+        translated_args = translate_constructor_args(compiled.abi, constructor_args)
         return compute_address(
             salt=salt,
-            contract_hash=compute_class_hash(
-                compiled_contract, hash_func=pedersen_hash
-            ),
+            contract_hash=compute_class_hash(compiled, hash_func=pedersen_hash),
             constructor_calldata=translated_args,
         )
 
