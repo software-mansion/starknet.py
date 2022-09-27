@@ -10,7 +10,6 @@ from typing import (
     Union,
     Dict,
     NamedTuple,
-    Any,
 )
 from typing import TypedDict
 

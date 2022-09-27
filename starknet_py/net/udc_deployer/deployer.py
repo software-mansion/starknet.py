@@ -99,8 +99,13 @@ class Deployer:
         """
 
         def __init__(
-            self, deployer: "Deployer", class_hash: Hash, abi: Optional[List] = None
+            self, deployer: Deployer, class_hash: Hash, abi: Optional[List] = None
         ):
+            """
+            :param deployer: Deployer used to deploy a contract
+            :param class_hash: The class_hash of the contract to be deployed
+            :param abi: ABI of the contract to be deployed
+            """
             self.deployer = deployer
             self.class_hash = class_hash
             self.abi: List = abi or []
