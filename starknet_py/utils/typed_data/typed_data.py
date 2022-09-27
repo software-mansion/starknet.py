@@ -35,23 +35,24 @@ class TypedData:
     def from_dict(data: TypedDataDict) -> "TypedData":
         return cast(TypedData, TypedDataSchema().load(data))
 
+    def _is_struct(self, type_name: str) -> bool:
+        return type_name in self.types
+
     def _encode_value(self, type_name: str, value: Union[int, str, dict, list]) -> int:
         if is_pointer(type_name) and isinstance(value, list):
             type_name = strip_pointer(type_name)
 
-            # if type_name is not a struct
-            if type_name not in self.types:
+            if self._is_struct(type_name):
                 return compute_hash_on_elements(
-                    [int(get_hex(val), 16) for val in value]
+                    [self.struct_hash(type_name, data) for data in value]
                 )
+            return compute_hash_on_elements([int(get_hex(val), 16) for val in value])
 
-            return compute_hash_on_elements(
-                [self.struct_hash(type_name, data) for data in value]
-            )
-        # if type_name is a struct
-        if type_name in self.types and isinstance(value, dict):
+        if self._is_struct(type_name) and isinstance(value, dict):
             return self.struct_hash(type_name, value)
-        return int(get_hex(str(value)), 16)
+
+        value = cast(Union[int, str], value)
+        return int(get_hex(value), 16)
 
     def _encode_data(self, type_name: str, data: dict) -> List[str]:
         values = []
