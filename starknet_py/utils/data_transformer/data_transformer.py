@@ -142,7 +142,7 @@ class FeltTransformer(TypeTransformer[TypeFelt, int]):
             return [value]
 
         if not isinstance(value, int):
-            raise InvalidDataException(f"{name} should be int.")
+            raise TypeError(f"{name} should be int.")
         cairo_vm_range_check(value)
         return [value]
 
@@ -402,8 +402,10 @@ class CairoSerializer:
                 values = self.resolve_type(cairo_type).from_python(
                     cairo_type, name, named_arguments[name]
                 )
-            except (TypeError, ValueError) as err:
+            except ValueError as err:
                 raise InvalidDataException(str(err)) from err
+            except TypeError as err:
+                raise CairoSerializerException(str(err)) from err
 
             all_params[name] = values
 
@@ -431,6 +433,8 @@ class CairoSerializer:
                 )
             except ValueError as err:
                 raise InvalidDataException(str(err)) from err
+            except TypeError as err:
+                raise CairoSerializerException(str(err)) from err
 
             result[name] = transformed
 

@@ -596,7 +596,7 @@ def test_wrong_types(cairo_type, value):
         }
     ]
 
-    with pytest.raises(InvalidDataException):
+    with pytest.raises(CairoSerializerException):
         transformer_for_function(inputs=abi, structs=structs).from_python(value)
 
 
