@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 
 from starknet_py.tests.e2e.conftest import typed_data_dir
-from starknet_py.utils.typed_data.typed_data import TypedData, get_hex
+from starknet_py.utils.typed_data import TypedData, get_hex
 
 TD = "typed_data_example.json"
 TD_STRING = "typed_data_long_string_example.json"
