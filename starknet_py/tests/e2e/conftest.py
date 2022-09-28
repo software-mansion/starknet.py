@@ -14,6 +14,7 @@ from typing import Tuple, List
 import pytest
 import pytest_asyncio
 from starkware.crypto.signature.signature import get_random_private_key
+from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 
 from starknet_py.common import create_compiled_contract
 from starknet_py.net import KeyPair, AccountClient
@@ -563,3 +564,13 @@ async def put_with_event_transaction_hash(
     await resp.wait_for_acceptance()
 
     return resp.hash
+
+
+@pytest_asyncio.fixture(name="default_gateway_gas_price", scope="module")
+def default_gateway_gas_price() -> int:
+    """
+    Returns the default min gas price from the StarknetGeneralConfig.
+    Useful for asserting that the gas price appears in the block response from
+    the GatewayClient.
+    """
+    return StarknetGeneralConfig().min_gas_price
