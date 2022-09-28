@@ -76,12 +76,12 @@ async def test_asynchronous_versions():
 
 def test_sync_versions():
     contract = Contract("1")
-    repository = contract.get_repository_sync()  # pyright: ignore
-    function = repository.get_function_sync()  # pyright: ignore
+    repository = contract.get_repository_sync()
+    function = repository.get_function_sync()
 
     assert function.call_sync() == 1
     assert function.get_name() == "function X"
-    assert contract.example_class_method_sync() == 2  # pyright: ignore
+    assert contract.example_class_method_sync() == 2
 
     with pytest.raises(Exception):
         function.failure_sync()

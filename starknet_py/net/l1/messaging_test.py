@@ -1,9 +1,7 @@
-from typing import cast
 from unittest.mock import Mock
 import pytest
 import web3
 from eth_abi.codec import ABICodec
-from eth_typing import HexStr
 from hexbytes import HexBytes
 
 from starkware.starknet.services.api.feeder_gateway.response_objects import (
@@ -140,7 +138,7 @@ async def test_messages_from_tx_hash(w3_mock):
             }
         )
 
-    w3_mock_receipt.eth.get_transaction_receipt = get_tx_receipt  # pyright: ignore
+    w3_mock_receipt.eth.get_transaction_receipt = get_tx_receipt
 
     mock_l2_client = Mock()
     # L2 Mock
@@ -166,7 +164,7 @@ async def test_messages_from_tx_hash(w3_mock):
         client=mock_l2_client,
     )
     eth_to_sn_msgs = await MessageToStarknet.from_tx_hash(
-        tx_hash=cast(HexStr, "0x123123123"),
+        tx_hash="0x123123123",
         web3=w3_mock_receipt,
     )
 
