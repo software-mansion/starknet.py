@@ -205,7 +205,7 @@ class BlockStatus(Enum):
 @dataclass
 class StarknetBlock:
     """
-    Dataclass representing a transaction on starknet
+    Dataclass representing a block on starknet
     """
 
     # pylint: disable=too-many-instance-attributes
@@ -217,6 +217,15 @@ class StarknetBlock:
     root: int
     transactions: List[Transaction]
     timestamp: int
+
+
+@dataclass
+class GatewayBlock(StarknetBlock):
+    """
+    Dataclass representing a block from the starknet gateway
+    """
+
+    gas_price: int
 
 
 @dataclass
