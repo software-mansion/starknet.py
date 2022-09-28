@@ -9,15 +9,11 @@
       { "name": "name", "type": "felt" },
       { "name": "wallet", "type": "felt" }
     ],
-    "Post": [
-      { "name": "title", "type": "felt" },
-      { "name": "content", "type": "felt" }
-    ],
     "Mail": [
       { "name": "from", "type": "Person" },
       { "name": "to", "type": "Person" },
-      { "name": "posts_len", "type": "felt" },
-      { "name": "posts", "type": "Post*" }
+      { "name": "felts_len", "type": "felt" },
+      { "name": "felts", "type": "felt*" }
     ]
   },
   "primaryType": "Mail",
@@ -35,10 +31,7 @@
       "name": "Bob",
       "wallet": "0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB"
     },
-    "posts_len": 2,
-    "posts": [
-      { "title": "Greeting", "content": "Hello, Bob!" },
-      { "title": "Farewell", "content": "Goodbye, Bob!" }
-    ]
+    "felts_len": 3,
+    "felts": [1, 2, 3]
   }
 }
