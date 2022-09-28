@@ -9,13 +9,14 @@ import sys
 import time
 from contextlib import closing
 from pathlib import Path
-from typing import Tuple, List
+from typing import Tuple, List, cast, Generator
 
 import pytest
 import pytest_asyncio
 from starkware.crypto.signature.signature import get_random_private_key
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 
+from starknet_py.compile.compiler import CairoSourceCode
 from starknet_py.net import KeyPair, AccountClient
 from starknet_py.net.client import Client
 from starknet_py.net.full_node_client import FullNodeClient
@@ -107,7 +108,7 @@ def start_devnet():
 
 
 @pytest.fixture(scope="module")
-def run_devnet() -> str:
+def run_devnet() -> Generator[str, None, None]:
     """
     Runs devnet instance once per module and returns it's address
     """
@@ -198,7 +199,9 @@ async def devnet_account_details(
         },
     )
 
-    return hex(devnet_account.address), hex(devnet_account.signer.private_key)
+    return hex(devnet_account.address), hex(
+        devnet_account.signer.private_key  # pyright: ignore
+    )
 
 
 @pytest_asyncio.fixture(scope="module")
@@ -356,24 +359,24 @@ def map_contract(request) -> Contract:
 
 
 @pytest.fixture(scope="module")
-def map_source_code() -> str:
+def map_source_code() -> CairoSourceCode:
     """
     Returns source code of the map contract
     """
-    return (contracts_dir / "map.cairo").read_text("utf-8")
+    return cast(CairoSourceCode, (contracts_dir / "map.cairo").read_text("utf-8"))
 
 
 @pytest.fixture(scope="module")
-def erc20_source_code() -> str:
+def erc20_source_code() -> CairoSourceCode:
     """
     Returns source code of the erc20 contract
     """
-    return (contracts_dir / "erc20.cairo").read_text("utf-8")
+    return cast(CairoSourceCode, (contracts_dir / "erc20.cairo").read_text("utf-8"))
 
 
 @pytest_asyncio.fixture(name="deploy_map_contract", scope="module")
 async def deploy_map_contract(
-    gateway_account_client: AccountClient, map_source_code: str
+    gateway_account_client: AccountClient, map_source_code: CairoSourceCode
 ) -> Contract:
     """
     Deploys map contract and returns its instance
@@ -387,7 +390,7 @@ async def deploy_map_contract(
 
 @pytest_asyncio.fixture(name="new_deploy_map_contract", scope="module")
 async def new_deploy_map_contract(
-    new_gateway_account_client: AccountClient, map_source_code: str
+    new_gateway_account_client: AccountClient, map_source_code: CairoSourceCode
 ) -> Contract:
     """
     Deploys new map contract and returns its instance
@@ -401,7 +404,7 @@ async def new_deploy_map_contract(
 
 @pytest_asyncio.fixture(name="erc20_contract", scope="module")
 async def deploy_erc20_contract(
-    gateway_account_client: AccountClient, erc20_source_code: str
+    gateway_account_client: AccountClient, erc20_source_code: CairoSourceCode
 ) -> Contract:
     """
     Deploys erc20 contract and returns its instance
@@ -447,8 +450,9 @@ async def cairo_serializer(gateway_account_client: AccountClient) -> CairoSerial
     Returns CairoSerializer for "simple_storage_with_event.cairo"
     """
     client = gateway_account_client
-    contract_content = (contracts_dir / "simple_storage_with_event.cairo").read_text(
-        "utf-8"
+    contract_content = cast(
+        CairoSourceCode,
+        (contracts_dir / "simple_storage_with_event.cairo").read_text("utf-8"),
     )
 
     deployment_result = await Contract.deploy(
