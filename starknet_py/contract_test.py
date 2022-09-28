@@ -1,5 +1,8 @@
+from typing import cast
+
 import pytest
 
+from starknet_py.compile.compiler import CairoSourceCode
 from starknet_py.contract import Contract
 from starknet_py.tests.e2e.conftest import contracts_dir
 
@@ -40,6 +43,7 @@ func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     return ();
 }
 """
+SOURCE = cast(CairoSourceCode, SOURCE)
 
 SOURCE_WITH_IMPORTS = """
 %lang starknet
@@ -52,6 +56,7 @@ func put{syscall_ptr: felt*, pedersen_ptr, range_check_ptr}(key: felt, value: fe
     return ();
 }
 """
+SOURCE_WITH_IMPORTS = cast(CairoSourceCode, SOURCE_WITH_IMPORTS)
 
 EXPECTED_HASH = (
     59796004090676193477156334357335769146616822222924884531861796638754858565

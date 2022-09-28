@@ -158,7 +158,7 @@ def test_named_tuple(value, cairo_value):
 
     assert from_python == cairo_value
     # noinspection PyUnresolvedReferences
-    assert dict(to_python.value._asdict()) == (
+    assert dict(to_python.value._asdict()) == (  # pyright: ignore
         value if isinstance(value, dict) else value._asdict()
     )
 
@@ -176,7 +176,7 @@ def test_named_tuple_order_dict():
 
     assert from_python == cairo_value
     # noinspection PyUnresolvedReferences
-    assert dict(to_python.value._asdict()) == value
+    assert dict(to_python.value._asdict()) == value  # pyright: ignore
 
 
 def test_named_tuple_order_namedtuple():
@@ -194,7 +194,7 @@ def test_named_tuple_order_namedtuple():
 
     assert from_python == cairo_value
     # noinspection PyUnresolvedReferences
-    assert dict(to_python.value._asdict()) == dict(value._asdict())
+    assert dict(to_python.value._asdict()) == dict(value._asdict())  # pyright: ignore
 
 
 def test_named_tuple_nested():
@@ -208,7 +208,7 @@ def test_named_tuple_nested():
 
     assert from_python == cairo_value
     # noinspection PyUnresolvedReferences
-    assert dict(to_python.value._asdict()) == value
+    assert dict(to_python.value._asdict()) == value  # pyright: ignore
 
 
 @pytest.mark.parametrize(
