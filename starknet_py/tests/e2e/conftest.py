@@ -429,7 +429,12 @@ def compiled_proxy(request) -> str:
 
 @pytest.fixture(
     name="typed_data",
-    params=["typed_data_example.json", "typed_data_struct_array_example.json"],
+    params=[
+        "typed_data_example.json",
+        "typed_data_felt_array_example.json",
+        "typed_data_long_string_example.json",
+        "typed_data_struct_array_example.json",
+    ],
 )
 def typed_data(request) -> TypedData:
     """
