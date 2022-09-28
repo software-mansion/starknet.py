@@ -102,7 +102,7 @@ class TypedData:
     def message_hash(self, account_address: int) -> int:
         message = [
             encode_shortstring("StarkNet Message"),
-            self.struct_hash("StarkNetDomain", dict(self.domain)),
+            self.struct_hash("StarkNetDomain", cast(dict, self.domain)),
             account_address,
             self.struct_hash(self.primary_type, self.message),
         ]
