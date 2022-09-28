@@ -365,8 +365,8 @@ class CairoSerializer:
 
         :param value_types: Types of values to be serialized
         :return: tuple (full calldata, dict with all arguments with their Cairo representation)
-        :raises CairoSerializerException: when general error occurred
-        :raises InvalidDataException: when an error occurred while transforming a value
+        :raises InvalidValueException: when an error occurred while transforming a value
+        :raises InvalidTypeException: when wrong type was provided
         """
         type_by_name = self._abi_to_types(value_types)
 
@@ -420,7 +420,8 @@ class CairoSerializer:
         :param value_types: Types of values to be serialized
         :param values: Values to be serialized
         :return: tuple (full calldata, dict with all arguments with their Cairo representation)
-        :raises InvalidDataException: when an error occurred while transforming a value
+        :raises InvalidValueException: when an error occurred while transforming a value
+        :raises InvalidTypeException: when wrong type was provided
         """
         type_by_name = self._abi_to_types(value_types)
         initial_len = len(values)
