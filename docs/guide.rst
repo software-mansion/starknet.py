@@ -65,8 +65,8 @@ You can also **verify a message**, which is done by a call to ``is_valid_signatu
 Declaring contracts
 -------------------
 
-Since Cairo 0.10.0 Declare transactions can be signed and in the future, declaring without the signature
-(and without the fee) will be impossible. That is why :ref:`AccountClient` has
+Since Cairo 0.10.0 Declare transactions can be signed and in the future, declaring without signing the transaction
+(and without paying the fee) will be impossible. That is why :ref:`AccountClient` has
 :meth:`sign_declare_transaction()` method.
 
 Here's an example how to use it.
