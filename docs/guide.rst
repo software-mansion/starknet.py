@@ -246,11 +246,6 @@ will allow for simple migration for StarkNet.py users.
     :lines: 10-13,22-23
     :dedent: 4
 
-.. note::
-
-    FullNodeClient does not currently support adding transactions and so cannot be used with
-    :ref:`AccountClient`. This feature will be added in future StarkNet.py versions.
-
 
 StarkNet <> Ethereum communication
 ----------------------------------
