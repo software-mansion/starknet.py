@@ -5,7 +5,7 @@ from marshmallow_oneofschema import OneOfSchema
 
 from starknet_py.net.client_models import (
     ContractCode,
-    StarknetBlock,
+    GatewayBlock,
     L2toL1Message,
     L1toL2Message,
     SentTransactionResponse,
@@ -178,10 +178,11 @@ class StarknetBlockSchema(Schema):
         required=True,
     )
     timestamp = fields.Integer(data_key="timestamp", required=True)
+    gas_price = Felt(data_key="gas_price")
 
     @post_load
     def make_dataclass(self, data, **kwargs):
-        return StarknetBlock(**data)
+        return GatewayBlock(**data)
 
 
 class BlockSingleTransactionTraceSchema(Schema):

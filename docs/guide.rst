@@ -62,6 +62,25 @@ You can also **verify a message**, which is done by a call to ``is_valid_signatu
     :dedent: 4
 
 
+Declaring contracts
+-------------------
+
+Since Cairo 0.10.0 Declare transactions can be signed and in the future, declaring without signing the transaction
+(and without paying the fee) will be impossible. That is why :ref:`AccountClient` has
+:meth:`sign_declare_transaction()` method.
+
+Here's an example how to use it.
+
+.. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_declaring_contracts.py
+    :language: python
+    :lines: 10-20
+    :dedent: 4
+
+.. note::
+
+    Signing Declare transactions is possible only with Accounts having `__validate__` entrypoint (with `supported_tx_version = 1`).
+
+
 Deploying new contracts
 -----------------------
 

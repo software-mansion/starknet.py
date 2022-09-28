@@ -18,6 +18,7 @@ from starknet_py.net.client_models import (
     Call,
 )
 from starknet_py.net.client_errors import ClientError
+from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.tests.e2e.account.account_client_test import MAX_FEE
 from starknet_py.transaction_exceptions import (
     TransactionRejectedError,
@@ -92,6 +93,7 @@ async def test_get_block_by_hash(
     block_with_deploy_number,
     contract_address,
     class_hash,
+    default_gateway_gas_price,
 ):
     for client in clients:
         block = await client.get_block(block_hash=block_with_deploy_hash)
@@ -111,6 +113,9 @@ async def test_get_block_by_hash(
             in block.transactions
         )
 
+        if isinstance(client, GatewayClient):
+            assert block.gas_price == default_gateway_gas_price
+
 
 @pytest.mark.asyncio
 async def test_get_block_by_number(
@@ -120,6 +125,7 @@ async def test_get_block_by_number(
     block_with_deploy_hash,
     contract_address,
     class_hash,
+    default_gateway_gas_price,
 ):
     for client in clients:
         block = await client.get_block(block_number=block_with_deploy_number)
@@ -138,6 +144,9 @@ async def test_get_block_by_number(
             )
             in block.transactions
         )
+
+        if isinstance(client, GatewayClient):
+            assert block.gas_price == default_gateway_gas_price
 
 
 @pytest.mark.asyncio
