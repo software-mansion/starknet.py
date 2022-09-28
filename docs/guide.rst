@@ -78,7 +78,7 @@ Here's an example how to use it.
 
 .. note::
 
-    Signing Declare transactions is possible only with Accounts having `__validate__` entrypoint.
+    Signing Declare transactions is possible only with Accounts having `__validate__` entrypoint (with `supported_tx_version = 1`).
 
 
 Deploying new contracts
