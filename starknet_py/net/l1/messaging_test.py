@@ -1,4 +1,3 @@
-from typing import cast
 from unittest.mock import Mock
 import pytest
 import web3
@@ -166,7 +165,7 @@ async def test_messages_from_tx_hash(w3_mock):
         client=mock_l2_client,
     )
     eth_to_sn_msgs = await MessageToStarknet.from_tx_hash(
-        tx_hash=cast(HexStr, "0x123123123"),
+        tx_hash=HexStr("0x123123123"),
         web3=w3_mock_receipt,
     )
 

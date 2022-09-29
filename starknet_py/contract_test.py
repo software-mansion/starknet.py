@@ -1,14 +1,9 @@
-from typing import cast
-
 import pytest
 
-from starknet_py.compile.compiler import CairoSourceCode
 from starknet_py.contract import Contract
 from starknet_py.tests.e2e.conftest import contracts_dir
 
-SOURCE = cast(
-    CairoSourceCode,
-    """
+SOURCE = """
 // Declare this file as a StarkNet contract and set the required
 // builtins.
 %lang starknet
@@ -44,12 +39,9 @@ func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 ) {
     return ();
 }
-""",
-)
+"""
 
-SOURCE_WITH_IMPORTS = cast(
-    CairoSourceCode,
-    """
+SOURCE_WITH_IMPORTS = """
 %lang starknet
 %builtins pedersen range_check
 
@@ -59,8 +51,7 @@ from inner.inner import MockStruct
 func put{syscall_ptr: felt*, pedersen_ptr, range_check_ptr}(key: felt, value: felt) {
     return ();
 }
-""",
-)
+"""
 
 EXPECTED_HASH = (
     59796004090676193477156334357335769146616822222924884531861796638754858565
