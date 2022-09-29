@@ -198,6 +198,7 @@ async def devnet_account_details(
         },
     )
 
+    # Ignore typing, because BaseSigner doesn't have private_key property, but this one has
     return hex(devnet_account.address), hex(
         devnet_account.signer.private_key  # pyright: ignore
     )
