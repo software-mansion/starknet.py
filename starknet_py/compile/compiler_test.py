@@ -34,7 +34,7 @@ def test_compile_direct_load():
 
 def test_compile_file_load():
     output_file_str = Compiler(
-        contract_source=[test_file_path.resolve().absolute().name]
+        contract_source=[str(test_file_path.resolve().absolute())]
     ).compile_contract()
     output_json = json.loads(output_file_str)
 
@@ -49,7 +49,7 @@ def test_compile_throws_on_non_existing_file():
 
 def test_throws_on_compile_with_wrong_extension():
     current_filename = f"{__name__.rsplit('.', maxsplit=1)[-1]}.py"
-    full_current_file_pathname = Path(directory, current_filename).name
+    full_current_file_pathname = str(Path(directory, current_filename))
     with pytest.raises(ValueError) as t_err:
         Compiler(contract_source=[full_current_file_pathname]).compile_contract()
     assert "is not a cairo source file" in str(t_err.value)
@@ -57,8 +57,8 @@ def test_throws_on_compile_with_wrong_extension():
 
 def test_compile_with_search_path():
     output_file_str = Compiler(
-        contract_source=[base_contract_path.resolve().absolute().name],
-        cairo_path=[contracts_dir.name],
+        contract_source=[str(base_contract_path.resolve().absolute())],
+        cairo_path=[str(contracts_dir)],
     ).compile_contract()
     output_json = json.loads(output_file_str)
 
@@ -68,7 +68,7 @@ def test_compile_with_search_path():
 def test_compile_with_env_var(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv(LIBS_DIR_ENVVAR, str(contracts_dir))
     output_file_str = Compiler(
-        contract_source=[base_contract_path.resolve().absolute().name]
+        contract_source=[str(base_contract_path.resolve().absolute())]
     ).compile_contract()
     output_json = json.loads(output_file_str)
 
@@ -78,7 +78,7 @@ def test_compile_with_env_var(monkeypatch: pytest.MonkeyPatch):
 def test_throws_on_compile_without_search_path_and_env_var():
     with pytest.raises(ImportLoaderError) as m_err:
         Compiler(
-            contract_source=[base_contract_path.resolve().absolute().name]
+            contract_source=[str(base_contract_path.resolve().absolute())]
         ).compile_contract()
     assert "Could not find module 'inner.inner'." in str(m_err.value)
 
