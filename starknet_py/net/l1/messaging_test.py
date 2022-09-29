@@ -139,6 +139,7 @@ async def test_messages_from_tx_hash(w3_mock):
             }
         )
 
+    # Ignore typing, because get_tx_receipt is not compatible with eth.get_transaction_receipt
     w3_mock_receipt.eth.get_transaction_receipt = get_tx_receipt  # pyright: ignore
 
     mock_l2_client = Mock()

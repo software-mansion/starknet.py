@@ -157,6 +157,7 @@ def test_named_tuple(value, cairo_value):
     to_python = transformer_for_function(outputs=abi).to_python(cairo_value)
 
     assert from_python == cairo_value
+    # Ignore typing, because pyright doesn't work with NamedTuples
     # noinspection PyUnresolvedReferences
     assert dict(to_python.value._asdict()) == (  # pyright: ignore
         value if isinstance(value, dict) else value._asdict()
@@ -175,6 +176,7 @@ def test_named_tuple_order_dict():
     to_python = transformer_for_function(outputs=abi).to_python(cairo_value)
 
     assert from_python == cairo_value
+    # Ignore typing, because pyright doesn't work with NamedTuples
     # noinspection PyUnresolvedReferences
     assert dict(to_python.value._asdict()) == value  # pyright: ignore
 
@@ -193,6 +195,7 @@ def test_named_tuple_order_namedtuple():
     to_python = transformer_for_function(outputs=abi).to_python(cairo_value)
 
     assert from_python == cairo_value
+    # Ignore typing, because pyright doesn't work with NamedTuples
     # noinspection PyUnresolvedReferences
     assert dict(to_python.value._asdict()) == dict(value._asdict())  # pyright: ignore
 
@@ -207,6 +210,7 @@ def test_named_tuple_nested():
     to_python = transformer_for_function(outputs=abi).to_python(cairo_value)
 
     assert from_python == cairo_value
+    # Ignore typing, because pyright doesn't work with NamedTuples
     # noinspection PyUnresolvedReferences
     assert dict(to_python.value._asdict()) == value  # pyright: ignore
 

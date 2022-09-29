@@ -76,6 +76,7 @@ async def test_asynchronous_versions():
 
 def test_sync_versions():
     contract = Contract("1")
+    # Ignore typing, because _sync is added dynamically
     repository = contract.get_repository_sync()  # pyright: ignore
     function = repository.get_function_sync()  # pyright: ignore
 
