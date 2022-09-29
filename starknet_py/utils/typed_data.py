@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Union, Dict, List
+from typing import Union, Dict, List, cast
 
 from marshmallow import Schema, fields, post_load
 from starkware.cairo.common.hash_state import compute_hash_on_elements
@@ -7,6 +7,7 @@ from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.cairo.felt import encode_shortstring
 from starknet_py.net.models.typed_data import StarkNetDomain
+from starknet_py.net.models.typed_data import TypedData as TypedDataDict
 
 
 @dataclass(frozen=True)
@@ -31,16 +32,26 @@ class TypedData:
     message: dict
 
     @staticmethod
-    def from_dict(data: dict) -> "TypedData":
-        return TypedDataSchema().load(data)
+    def from_dict(data: TypedDataDict) -> "TypedData":
+        return cast(TypedData, TypedDataSchema().load(data))
 
-    def _encode_value(self, type_name: str, value: Union[int, str]) -> str:
-        if is_pointer(type_name):
-            return compute_hash_on_elements(
-                [self.struct_hash(strip_pointer(type_name), data) for data in value]
-            )
-        if type_name in self.types:
+    def _is_struct(self, type_name: str) -> bool:
+        return type_name in self.types
+
+    def _encode_value(self, type_name: str, value: Union[int, str, dict, list]) -> int:
+        if is_pointer(type_name) and isinstance(value, list):
+            type_name = strip_pointer(type_name)
+
+            if self._is_struct(type_name):
+                return compute_hash_on_elements(
+                    [self.struct_hash(type_name, data) for data in value]
+                )
+            return compute_hash_on_elements([int(get_hex(val), 16) for val in value])
+
+        if self._is_struct(type_name) and isinstance(value, dict):
             return self.struct_hash(type_name, value)
+
+        value = cast(Union[int, str], value)
         return int(get_hex(value), 16)
 
     def _encode_data(self, type_name: str, data: dict) -> List[str]:
@@ -91,7 +102,7 @@ class TypedData:
     def message_hash(self, account_address: int) -> int:
         message = [
             encode_shortstring("StarkNet Message"),
-            self.struct_hash("StarkNetDomain", self.domain),
+            self.struct_hash("StarkNetDomain", cast(dict, self.domain)),
             account_address,
             self.struct_hash(self.primary_type, self.message),
         ]
@@ -110,7 +121,7 @@ def get_hex(value: Union[int, str]) -> str:
 
 
 def is_pointer(value: str) -> bool:
-    return value and value[-1] == "*"
+    return len(value) > 0 and value[-1] == "*"
 
 
 def strip_pointer(value: str) -> str:

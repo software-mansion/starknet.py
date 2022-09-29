@@ -13,7 +13,7 @@ from starknet_py.net.models import Deploy
 def make_deploy_tx(
     compilation_source: Optional[StarknetCompilationSource] = None,
     compiled_contract: Optional[Union[str, ContractClass]] = None,
-    constructor_calldata: List[int] = None,
+    constructor_calldata: Optional[List[int]] = None,
     salt: Optional[int] = None,
     version: int = 0,
     cairo_path: Optional[List[str]] = None,

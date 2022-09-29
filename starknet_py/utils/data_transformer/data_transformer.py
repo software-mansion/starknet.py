@@ -1,6 +1,17 @@
 import warnings
 from dataclasses import dataclass
-from typing import List, Callable, TypeVar, Generic, Tuple, Dict, NamedTuple
+from typing import (
+    List,
+    Callable,
+    TypeVar,
+    Generic,
+    Tuple,
+    Dict,
+    NamedTuple,
+    Any,
+    cast,
+    Union,
+)
 from collections import namedtuple
 import itertools
 
@@ -26,13 +37,17 @@ from starknet_py.cairo.felt import (
     cairo_vm_range_check,
     encode_shortstring,
 )
+from starknet_py.utils.data_transformer.errors import (
+    InvalidValueException,
+    InvalidTypeException,
+)
 
-ABIFunctionEntry = dict
+ABIFunctionEntry = Dict
 CairoData = List[int]
 
 
 class Result:
-    def __init__(self, tuple_value: namedtuple, name_mapping: dict, dict_value: dict):
+    def __init__(self, tuple_value: NamedTuple, name_mapping: Dict, dict_value: Dict):
         self.tuple_value = tuple_value
         self.name_mapping = name_mapping
         self.dict_value = dict_value
@@ -75,16 +90,19 @@ def construct_result_object(result: dict) -> NamedTuple:
     dict_value = {name_mapping[key]: value for key, value in result.items()}
     tuple_value = named_tuple_class(**dict_value)
 
-    return Result(
-        tuple_value=tuple_value, name_mapping=name_mapping, dict_value=dict_value
-    )
+    return cast(
+        NamedTuple,
+        Result(
+            tuple_value=tuple_value, name_mapping=name_mapping, dict_value=dict_value
+        ),
+    )  # We pretend Result is a named tuple
 
 
 def read_from_cairo_data(
     name: str, values: CairoData, n: int
-) -> (CairoData, CairoData):
+) -> Tuple[CairoData, CairoData]:
     if len(values) < n:
-        raise ValueError(
+        raise InvalidValueException(
             f"Output {name} expected {n} values, {len(values)} values are available."
         )
 
@@ -96,6 +114,10 @@ UsedCairoType = TypeVar("UsedCairoType", bound=CairoType)
 
 PythonType = TypeVar("PythonType")
 
+RemainingFelts = CairoData
+T = TypeVar("T")
+PythonResult = Tuple[T, RemainingFelts]
+
 
 @dataclass
 class TypeTransformer(Generic[UsedCairoType, PythonType]):
@@ -103,43 +125,49 @@ class TypeTransformer(Generic[UsedCairoType, PythonType]):
     resolve_type: Callable[[CairoType], "TypeTransformer"]
 
     def from_python(
-        self, cairo_type: UsedCairoType, name: str, value: any
+        self, cairo_type: UsedCairoType, name: str, value: Any
     ) -> CairoData:
         raise NotImplementedError()
 
     def to_python(
         self, cairo_type: UsedCairoType, name: str, values: CairoData
-    ) -> Tuple[PythonType, CairoData]:
+    ) -> PythonResult[PythonType]:
         raise NotImplementedError()
 
 
 class FeltTransformer(TypeTransformer[TypeFelt, int]):
-    def from_python(self, cairo_type, name, value):
+    def from_python(self, cairo_type, name, value) -> CairoData:
         if isinstance(value, str):
             value = encode_shortstring(value)
             return [value]
 
         if not isinstance(value, int):
-            raise TypeError(f"{name} should be int.")
+            raise InvalidTypeException(f"{name} should be int.")
         cairo_vm_range_check(value)
         return [value]
 
-    def to_python(self, cairo_type, name, values):
+    def to_python(self, cairo_type, name, values) -> PythonResult[int]:
         [val], rest = read_from_cairo_data(name, values, 1)
         cairo_vm_range_check(val)
-        return val, rest
+        return cast(int, val), rest
 
 
-class StructTransformer(TypeTransformer[TypeStruct, dict]):
+# Uint256 are structs as well, we return them as integers
+StructTransformerResult = Union[Dict, int]
+
+
+class StructTransformer(TypeTransformer[TypeStruct, StructTransformerResult]):
     def _definition(self, cairo_type: TypeStruct) -> StructDefinition:
         definition = self.identifier_manager.get(cairo_type.scope).identifier_definition
 
         if not isinstance(definition, StructDefinition):
-            raise ValueError(f"Invalid definition found for {cairo_type.scope}.")
+            raise InvalidValueException(
+                f"Invalid definition found for {cairo_type.scope}."
+            )
 
         return definition
 
-    def from_python(self, cairo_type, name, value):
+    def from_python(self, cairo_type, name, value) -> CairoData:
         definition = self._definition(cairo_type)
 
         if is_uint256(definition) and isinstance(value, int):
@@ -147,12 +175,12 @@ class StructTransformer(TypeTransformer[TypeStruct, dict]):
             return [value & ((1 << 128) - 1), value >> 128]
 
         if not isinstance(value, dict):
-            raise TypeError(f"Expected {name} to be a dict.")
+            raise InvalidTypeException(f"Expected {name} to be a dict.")
 
         result = []
         for member_name, member in definition.members.items():
             if member_name not in value:
-                raise ValueError(f"{name}[{member_name}] not provided.")
+                raise InvalidValueException(f"{name}[{member_name}] not provided.")
 
             values = self.resolve_type(member.cairo_type).from_python(
                 member.cairo_type, f"{name}.{member_name}", value[member_name]
@@ -161,7 +189,9 @@ class StructTransformer(TypeTransformer[TypeStruct, dict]):
 
         return result
 
-    def to_python(self, cairo_type, name, values) -> (dict, CairoData):
+    def to_python(
+        self, cairo_type, name, values
+    ) -> PythonResult[StructTransformerResult]:
         definition = self._definition(cairo_type)
         if is_uint256(definition):
             low, high, *values = values
@@ -179,10 +209,10 @@ class StructTransformer(TypeTransformer[TypeStruct, dict]):
         return result, values
 
 
-class TupleTransformer(TypeTransformer[TypeTuple, tuple]):
-    def from_python(self, cairo_type, name, value):
+class TupleTransformer(TypeTransformer[TypeTuple, Tuple]):
+    def from_python(self, cairo_type, name, value) -> CairoData:
         if len(value) != len(cairo_type.members):
-            raise ValueError(
+            raise InvalidValueException(
                 f"Input {name} length mismatch: {len(value)} != {len(cairo_type.members)}."
             )
 
@@ -206,7 +236,7 @@ class TupleTransformer(TypeTransformer[TypeTuple, tuple]):
 
     def _from_python_named(self, cairo_type, name, values):
         if not isinstance(values, dict) and not TupleTransformer.isnamedtuple(values):
-            raise ValueError(
+            raise InvalidValueException(
                 f"Input {name} is a named tuple and must be dict or NamedTuple"
             )
 
@@ -214,7 +244,7 @@ class TupleTransformer(TypeTransformer[TypeTuple, tuple]):
 
         if TupleTransformer.isnamedtuple(values):
             # noinspection PyUnresolvedReferences, PyProtectedMember
-            values = values._asdict()
+            values = values._asdict()  # pyright: ignore
 
         for member in cairo_type.members:
             result = self.resolve_type(member).from_python(
@@ -225,10 +255,10 @@ class TupleTransformer(TypeTransformer[TypeTuple, tuple]):
         return results
 
     @staticmethod
-    def isnamedtuple(value):
+    def isnamedtuple(value) -> bool:
         return isinstance(value, tuple) and hasattr(value, "_fields")
 
-    def to_python(self, cairo_type, name, values):
+    def to_python(self, cairo_type, name, values) -> PythonResult[Tuple]:
         if not cairo_type.is_named:
             return self._to_python_unnamed(cairo_type, name, values)
         return self._to_python_named(cairo_type, name, values)
@@ -255,8 +285,10 @@ class TupleTransformer(TypeTransformer[TypeTuple, tuple]):
         return res, values
 
 
-class TupleItemTransformer(TypeTransformer[TypeTuple.Item, tuple]):
-    def from_python(self, cairo_type: UsedCairoType, name: str, value: any):
+class TupleItemTransformer(TypeTransformer[TypeTuple.Item, Any]):
+    def from_python(
+        self, cairo_type: TypeTuple.Item, name: str, value: Any
+    ) -> CairoData:
         value = self.resolve_type(cairo_type.typ).from_python(
             cairo_type.typ,
             cairo_type.name or "",
@@ -264,7 +296,9 @@ class TupleItemTransformer(TypeTransformer[TypeTuple.Item, tuple]):
         )
         return value
 
-    def to_python(self, cairo_type: UsedCairoType, name: str, values: CairoData):
+    def to_python(
+        self, cairo_type: TypeTuple.Item, name: str, values: CairoData
+    ) -> PythonResult[Any]:
         name = cairo_type.name or ""
         result, values = self.resolve_type(cairo_type.typ).to_python(
             cairo_type.typ, name, values
@@ -273,7 +307,7 @@ class TupleItemTransformer(TypeTransformer[TypeTuple.Item, tuple]):
 
 
 class ArrayTransformer(TypeTransformer[TypePointer, List[int]]):
-    def from_python(self, cairo_type, name, value):
+    def from_python(self, cairo_type, name, value) -> CairoData:
         inner_type = cairo_type.pointee
 
         transformer = self.resolve_type(inner_type)
@@ -285,7 +319,7 @@ class ArrayTransformer(TypeTransformer[TypePointer, List[int]]):
         array_data = list(itertools.chain(*transformed))
         return [array_len, *array_data]
 
-    def to_python(self, cairo_type, name, values):
+    def to_python(self, cairo_type, name, values) -> PythonResult[List[int]]:
         [length], values = read_from_cairo_data(name, values, 1)
         inner_type = cairo_type.pointee
         transformer = self.resolve_type(inner_type)
@@ -325,31 +359,35 @@ class CairoSerializer:
 
     def from_python(
         self, value_types: List[dict], *args, **kwargs
-    ) -> (List[int], Dict[str, List[int]]):
+    ) -> Tuple[List[int], Dict[str, List[int]]]:
         """
         Transforms params into Cairo representation.
 
         :param value_types: Types of values to be serialized
         :return: tuple (full calldata, dict with all arguments with their Cairo representation)
+        :raises InvalidValueException: when an error occurred while transforming a value
+        :raises InvalidTypeException: when wrong type was provided
         """
         type_by_name = self._abi_to_types(value_types)
 
         named_arguments = {**kwargs}
 
         if len(args) > len(type_by_name):
-            raise TypeError(
+            raise InvalidTypeException(
                 f"Provided {len(args)} positional arguments, {len(type_by_name)} possible."
             )
 
         key_diff = set(named_arguments.keys()).difference(set(type_by_name))
 
         if key_diff:
-            raise TypeError(f"Unnecessary named arguments provided: {key_diff}.")
+            raise InvalidTypeException(
+                f"Unnecessary named arguments provided: {key_diff}."
+            )
 
         # Assign args to named arguments
         for arg, input_name in zip(args, type_by_name.keys()):
             if input_name in named_arguments:
-                raise TypeError(
+                raise InvalidTypeException(
                     f"Both positional and named argument provided for {input_name}."
                 )
             named_arguments[input_name] = arg
@@ -358,11 +396,16 @@ class CairoSerializer:
         calldata: List[int] = []
         for name, cairo_type in type_by_name.items():
             if name not in named_arguments:
-                raise TypeError(f"Input {name} not provided.")
+                raise InvalidTypeException(f"Input {name} not provided.")
 
-            values = self.resolve_type(cairo_type).from_python(
-                cairo_type, name, named_arguments[name]
-            )
+            try:
+                values = self.resolve_type(cairo_type).from_python(
+                    cairo_type, name, named_arguments[name]
+                )
+            except ValueError as err:
+                raise InvalidValueException(str(err)) from err
+            except TypeError as err:
+                raise InvalidTypeException(str(err)) from err
 
             all_params[name] = values
 
@@ -377,20 +420,28 @@ class CairoSerializer:
         :param value_types: Types of values to be serialized
         :param values: Values to be serialized
         :return: tuple (full calldata, dict with all arguments with their Cairo representation)
+        :raises InvalidValueException: when an error occurred while transforming a value
+        :raises InvalidTypeException: when wrong type was provided
         """
         type_by_name = self._abi_to_types(value_types)
         initial_len = len(values)
 
         result = {}
         for name, cairo_type in type_by_name.items():
-            transformed, values = self.resolve_type(cairo_type).to_python(
-                cairo_type, name, values
-            )
+            try:
+                transformed, values = self.resolve_type(cairo_type).to_python(
+                    cairo_type, name, values
+                )
+            except ValueError as err:
+                raise InvalidValueException(str(err)) from err
+            except TypeError as err:
+                raise InvalidTypeException(str(err)) from err
+
             result[name] = transformed
 
         if len(values) > 0:
-            raise ValueError(
-                f"Too many values provided, expected {initial_len-len(values)} got {initial_len}."
+            raise InvalidValueException(
+                f"Too many values provided, expected {initial_len - len(values)} got {initial_len}."
             )
 
         return construct_result_object(result)
@@ -434,7 +485,7 @@ class FunctionCallSerializer:
         self.structure_transformer = CairoSerializer(identifier_manager)
         self.abi = abi
 
-    def from_python(self, *args, **kwargs) -> (List[int], Dict[str, List[int]]):
+    def from_python(self, *args, **kwargs) -> Tuple[List[int], Dict[str, List[int]]]:
         return self.structure_transformer.from_python(
             self.abi["inputs"], *args, **kwargs
         )

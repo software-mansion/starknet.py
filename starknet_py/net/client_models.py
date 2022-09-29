@@ -1,5 +1,5 @@
 from abc import ABC
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import List, Any, Dict, Optional, Union, Iterable
 from typing_extensions import Literal
@@ -157,8 +157,8 @@ class TransactionReceipt:
     actual_fee: int = 0
     rejection_reason: Optional[str] = None
 
-    events: List[Event] = None
-    l2_to_l1_messages: List[L2toL1Message] = None
+    events: List[Event] = field(default_factory=list)
+    l2_to_l1_messages: List[L2toL1Message] = field(default_factory=list)
     l1_to_l2_consumed_message: Optional[L1toL2Message] = None
 
 
@@ -178,7 +178,7 @@ class DeclareTransactionResponse(SentTransactionResponse):
     Dataclass representing a result of declaring a contract on starknet
     """
 
-    class_hash: int = None
+    class_hash: int = 0
 
 
 @dataclass
@@ -187,7 +187,7 @@ class DeployTransactionResponse(SentTransactionResponse):
     Dataclass representing a result of deploying a contract to starknet
     """
 
-    contract_address: int = None
+    contract_address: int = 0
 
 
 class BlockStatus(Enum):
@@ -205,7 +205,7 @@ class BlockStatus(Enum):
 @dataclass
 class StarknetBlock:
     """
-    Dataclass representing a transaction on starknet
+    Dataclass representing a block on starknet
     """
 
     # pylint: disable=too-many-instance-attributes
@@ -217,6 +217,15 @@ class StarknetBlock:
     root: int
     transactions: List[Transaction]
     timestamp: int
+
+
+@dataclass
+class GatewayBlock(StarknetBlock):
+    """
+    Dataclass representing a block from the starknet gateway
+    """
+
+    gas_price: int
 
 
 @dataclass

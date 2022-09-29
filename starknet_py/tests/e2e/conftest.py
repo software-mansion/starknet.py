@@ -14,6 +14,7 @@ from typing import Tuple, List
 import pytest
 import pytest_asyncio
 from starkware.crypto.signature.signature import get_random_private_key
+from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 
 from starknet_py.net import KeyPair, AccountClient
 from starknet_py.net.client import Client
@@ -425,7 +426,12 @@ def compiled_proxy(request) -> str:
 
 @pytest.fixture(
     name="typed_data",
-    params=["typed_data_example.json", "typed_data_struct_array_example.json"],
+    params=[
+        "typed_data_example.json",
+        "typed_data_felt_array_example.json",
+        "typed_data_long_string_example.json",
+        "typed_data_struct_array_example.json",
+    ],
 )
 def typed_data(request) -> TypedData:
     """
@@ -457,3 +463,13 @@ async def cairo_serializer(gateway_account_client: AccountClient) -> CairoSerial
     contract = deployment_result.deployed_contract
 
     return CairoSerializer(identifier_manager=contract.data.identifier_manager)
+
+
+@pytest_asyncio.fixture(name="default_gateway_gas_price", scope="module")
+def default_gateway_gas_price() -> int:
+    """
+    Returns the default min gas price from the StarknetGeneralConfig.
+    Useful for asserting that the gas price appears in the block response from
+    the GatewayClient.
+    """
+    return StarknetGeneralConfig().min_gas_price

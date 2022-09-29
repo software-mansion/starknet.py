@@ -19,9 +19,7 @@ from starkware.starknet.compiler.starknet_pass_manager import starknet_pass_mana
 
 CairoSourceCode = NewType("CairoSourceCode", str)
 CairoFilename = NewType("CairoFilename", str)
-StarknetCompilationSource = NewType(
-    "CairoSource", Union[CairoSourceCode, List[CairoFilename]]
-)
+StarknetCompilationSource = Union[CairoSourceCode, List[CairoFilename]]
 
 
 class Compiler:

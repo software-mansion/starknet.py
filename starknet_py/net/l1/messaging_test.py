@@ -138,7 +138,7 @@ async def test_messages_from_tx_hash(w3_mock):
             }
         )
 
-    w3_mock_receipt.eth.getTransactionReceipt = get_tx_receipt
+    w3_mock_receipt.eth.get_transaction_receipt = get_tx_receipt
 
     mock_l2_client = Mock()
     # L2 Mock

@@ -2,7 +2,7 @@ import dataclasses
 import re
 import warnings
 from dataclasses import replace
-from typing import Optional, List, Union, Dict
+from typing import Optional, List, Union, Dict, Tuple, Iterable
 
 from starkware.crypto.signature.signature import get_random_private_key
 from starkware.starknet.public.abi import get_selector_from_name
@@ -31,6 +31,7 @@ from starknet_py.net.client_models import (
     DeclareTransactionResponse,
     Transaction,
 )
+from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import (
     InvokeFunction,
     StarknetChainId,
@@ -44,6 +45,7 @@ from starknet_py.utils.crypto.facade import Call
 from starknet_py.utils.data_transformer.execute_transformer import (
     execute_transformer_by_version,
 )
+from starknet_py.utils.iterable import ensure_iterable
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.typed_data import TypedData as TypedDataDataclass
 from starknet_py.net.models.typed_data import TypedData
@@ -77,11 +79,6 @@ class AccountClient(Client):
         :param supported_tx_version: Version of transactions supported by account
         """
         # pylint: disable=too-many-arguments
-        if signer is None and key_pair is None:
-            raise ValueError(
-                "Either a signer or a key_pair must be provided in AccountClient constructor"
-            )
-
         if chain is None and signer is None:
             raise ValueError("One of chain or signer must be provided")
 
@@ -89,6 +86,11 @@ class AccountClient(Client):
         self.client = client
 
         if signer is None:
+            if key_pair is None:
+                raise ValueError(
+                    "Either a signer or a key_pair must be provided in AccountClient constructor"
+                )
+
             chain = chain_from_network(net=client.net, chain=chain)
             signer = StarkCurveSigner(
                 account_address=self.address, key_pair=key_pair, chain_id=chain
@@ -118,7 +120,7 @@ class AccountClient(Client):
 
     async def get_block_traces(
         self,
-        block_hash: [Union[Hash, Tag]] = None,
+        block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> BlockTransactionTraces:
         return await self.client.get_block_traces(
@@ -159,7 +161,7 @@ class AccountClient(Client):
         tx_hash: Hash,
         wait_for_accept: Optional[bool] = False,
         check_interval=5,
-    ) -> (int, TransactionStatus):
+    ) -> Tuple[int, TransactionStatus]:
         return await self.client.wait_for_tx(
             tx_hash=tx_hash,
             wait_for_accept=wait_for_accept,
@@ -169,7 +171,7 @@ class AccountClient(Client):
     async def call_contract(
         self,
         invoke_tx: Union[InvokeFunction, Call],
-        block_hash: Union[Hash, Tag] = None,
+        block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> List[int]:
         return await self.client.call_contract(
@@ -279,11 +281,9 @@ class AccountClient(Client):
                 category=DeprecationWarning,
             )
 
-        calls = calls if isinstance(calls, List) else [calls]
-
         nonce = await self._get_nonce()
 
-        calldata_py = merge_calls(calls)
+        calldata_py = merge_calls(ensure_iterable(calls))
 
         if version == 0:
             calldata_py.append(nonce)
@@ -494,6 +494,13 @@ class AccountClient(Client):
         )
 
     async def get_code(self, *args, **kwargs):
+        warnings.warn(
+            "get_code was removed from Client interface and will be removed from AccountClient in future versions",
+            category=DeprecationWarning,
+        )
+        if not isinstance(self.client, GatewayClient):
+            raise TypeError("AccountClient.get_code only supports using GatewayClient")
+
         return await self.client.get_code(*args, **kwargs)
 
     def _assert_version_matches_supported_tx_version(self, version: int):
@@ -538,10 +545,9 @@ class AccountClient(Client):
             raise ValueError("One of chain or signer must be provided")
 
         if signer is None:
-            private_key = private_key or get_random_private_key()
-
             chain = chain_from_network(net=client.net, chain=chain)
-            key_pair = KeyPair.from_private_key(private_key)
+            used_private_key = private_key or get_random_private_key()
+            key_pair = KeyPair.from_private_key(used_private_key)
             address = await deploy_account_contract(client, key_pair.public_key)
             signer = StarkCurveSigner(
                 account_address=address, key_pair=key_pair, chain_id=chain
@@ -586,8 +592,10 @@ class AccountClient(Client):
         :param typed_data: TypedData TypedDict to be hashed
         :return: the hash of the TypedData TypedDict
         """
-        typed_data = TypedDataDataclass.from_dict(typed_data)
-        return typed_data.message_hash(self.address)
+        typed_data_dataclass: TypedDataDataclass = TypedDataDataclass.from_dict(
+            typed_data
+        )
+        return typed_data_dataclass.message_hash(self.address)
 
     async def verify_message(self, typed_data: TypedData, signature: List[int]) -> bool:
         """
@@ -651,10 +659,10 @@ def add_signature_to_transaction(
     return replace(tx, signature=signature)
 
 
-def merge_calls(calls: Calls) -> List:
+def merge_calls(calls: Iterable[Call]) -> List:
     def parse_call(
         call: Call, current_data_len: int, entire_calldata: List
-    ) -> (Dict, int, List):
+    ) -> Tuple[Dict, int, List]:
         data = {
             "to": call.to_addr,
             "selector": call.selector,

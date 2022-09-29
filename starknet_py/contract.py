@@ -10,6 +10,7 @@ from typing import (
     Union,
     Dict,
     NamedTuple,
+    Any,
 )
 from typing import TypedDict
 
@@ -27,6 +28,7 @@ from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.net import AccountClient
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import Hash, Tag
+from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import (
     InvokeFunction,
     AddressRepresentation,
@@ -96,8 +98,9 @@ class SentTransaction:
 @add_sync_methods
 @dataclass(frozen=True)
 class InvokeResult(SentTransaction):
-    contract: ContractData = None
-    invoke_transaction: InvokeFunction = None
+    # We ensure these are not None in __post_init__
+    contract: ContractData = None  # pyright: ignore
+    invoke_transaction: InvokeFunction = None  # pyright: ignore
 
     def __post_init__(self):
         assert self.contract is not None
@@ -110,7 +113,8 @@ InvocationResult = InvokeResult
 @add_sync_methods
 @dataclass(frozen=True)
 class DeployResult(SentTransaction):
-    deployed_contract: "Contract" = None
+    # We ensure this is not None in __post_init__
+    deployed_contract: "Contract" = None  # pyright: ignore
 
     def __post_init__(self):
         assert self.deployed_contract is not None
@@ -127,7 +131,7 @@ class PreparedFunctionCall(Call):
         client: Client,
         payload_transformer: FunctionCallSerializer,
         contract_data: ContractData,
-        max_fee: int,
+        max_fee: Optional[int],
         version: int,
     ):
         # pylint: disable=too-many-arguments
@@ -178,22 +182,20 @@ class PreparedFunctionCall(Call):
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
         :return: InvokeResult
         """
-        self._assert_can_invoke()
-
         if max_fee is not None:
             self.max_fee = max_fee
 
-        transaction = await self._client.sign_invoke_transaction(
+        transaction = await self._account_client.sign_invoke_transaction(
             calls=self,
             max_fee=self.max_fee,
             auto_estimate=auto_estimate,
             version=self.version,
         )
-        response = await self._client.send_transaction(transaction)
+        response = await self._account_client.send_transaction(transaction)
 
         invoke_result = InvokeResult(
             hash=response.transaction_hash,  # noinspection PyTypeChecker
-            _client=self._client,
+            _client=self._account_client,
             contract=self._contract_data,
             invoke_transaction=transaction,
         )
@@ -213,26 +215,28 @@ class PreparedFunctionCall(Call):
         :return: Estimated amount of Wei executing specified transaction will cost
         :raises ValueError: when max_fee of PreparedFunctionCall is not None or 0.
         """
-        self._assert_can_invoke()
-
         if self.max_fee is not None and self.max_fee != 0:
             raise ValueError(
                 "Cannot estimate fee of PreparedFunctionCall with max_fee not None or 0."
             )
 
-        tx = await self._client.sign_invoke_transaction(
+        tx = await self._account_client.sign_invoke_transaction(
             calls=self, max_fee=0, version=self.version
         )
 
-        return await self._client.estimate_fee(
+        return await self._account_client.estimate_fee(
             tx=tx, block_hash=block_hash, block_number=block_number
         )
 
-    def _assert_can_invoke(self):
-        if not isinstance(self._client, AccountClient):
-            raise ValueError(
-                "Contract uses an account that can't invoke transactions. You need to use AccountClient for that."
-            )
+    @property
+    def _account_client(self) -> AccountClient:
+        client = self._client
+        if isinstance(client, AccountClient):
+            return client
+
+        raise ValueError(
+            "Contract uses an account that can't invoke transactions. You need to use AccountClient for that."
+        )
 
 
 @add_sync_methods
@@ -394,6 +398,7 @@ class Contract:
         should create Contract's instances directly instead of using this function to avoid unnecessary API calls.
 
         :raises ContractNotFoundError: when contract is not found
+        :raises TypeError: when Client not supporting `get_code` methods is used
         :param address: Contract's address
         :param client: Client
         :param proxy_config: Proxy resolving config
@@ -417,9 +422,15 @@ class Contract:
         else:
             proxy_config = {**default_config, **proxy_config}
 
+        proxy_client = client.client if isinstance(client, AccountClient) else client
+        if not isinstance(proxy_client, GatewayClient):
+            raise TypeError(
+                "Contract.from_address only supports GatewayClient or AccountClients using GatewayClient"
+            )
+
         contract = await ContractFromAddressFactory(
             address=address,
-            client=client,
+            client=proxy_client,
             max_steps=proxy_config.get("max_steps", 1),
             proxy_checks=proxy_config.get("proxy_checks", []),
         ).make_contract()
@@ -431,7 +442,7 @@ class Contract:
         client: Client,
         compilation_source: Optional[StarknetCompilationSource] = None,
         compiled_contract: Optional[str] = None,
-        constructor_args: Optional[Union[List[any], dict]] = None,
+        constructor_args: Optional[Union[List, Dict]] = None,
         salt: Optional[int] = None,
         search_paths: Optional[List[str]] = None,
     ) -> "DeployResult":
@@ -449,14 +460,14 @@ class Contract:
         :raises: `ValueError` if neither compilation_source nor compiled_contract is provided.
         :return: DeployResult instance
         """
-        compiled_contract = create_compiled_contract(
+        compiled = create_compiled_contract(
             compilation_source, compiled_contract, search_paths
         )
         translated_args = Contract._translate_constructor_args(
-            compiled_contract, constructor_args
+            compiled, constructor_args
         )
         deploy_tx = make_deploy_tx(
-            compiled_contract=compiled_contract,
+            compiled_contract=compiled,
             constructor_calldata=translated_args,
             salt=salt,
         )
@@ -466,7 +477,7 @@ class Contract:
         deployed_contract = Contract(
             client=client,
             address=contract_address,
-            abi=compiled_contract.abi,
+            abi=compiled.abi,
         )
         deploy_result = DeployResult(
             hash=res.transaction_hash,
@@ -481,7 +492,7 @@ class Contract:
         salt: int,
         compilation_source: Optional[StarknetCompilationSource] = None,
         compiled_contract: Optional[str] = None,
-        constructor_args: Optional[Union[List[any], dict]] = None,
+        constructor_args: Optional[Union[List, Dict]] = None,
         search_paths: Optional[List[str]] = None,
     ) -> int:
         """
@@ -533,7 +544,7 @@ class Contract:
 
     @staticmethod
     def _translate_constructor_args(
-        contract: ContractClass, constructor_args: any
+        contract: ContractClass, constructor_args: Any
     ) -> List[int]:
         constructor_abi = next(
             (member for member in contract.abi if member["type"] == "constructor"),
@@ -584,7 +595,7 @@ class ContractFromAddressFactory:
     def __init__(
         self,
         address: AddressRepresentation,
-        client: Client,
+        client: GatewayClient,
         max_steps: int,
         proxy_checks: List[ProxyCheck],
     ):

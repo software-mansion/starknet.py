@@ -1,9 +1,11 @@
+from typing import cast
+
 from marshmallow import Schema, fields, post_load, EXCLUDE
 from marshmallow_oneofschema import OneOfSchema
 
 from starknet_py.net.client_models import (
     ContractCode,
-    StarknetBlock,
+    GatewayBlock,
     L2toL1Message,
     L1toL2Message,
     SentTransactionResponse,
@@ -176,10 +178,11 @@ class StarknetBlockSchema(Schema):
         required=True,
     )
     timestamp = fields.Integer(data_key="timestamp", required=True)
+    gas_price = Felt(data_key="gas_price")
 
     @post_load
     def make_dataclass(self, data, **kwargs):
-        return StarknetBlock(**data)
+        return GatewayBlock(**data)
 
 
 class BlockSingleTransactionTraceSchema(Schema):
@@ -275,7 +278,8 @@ class BlockStateUpdateSchema(Schema):
     def make_dataclass(self, data, **kwargs):
         deployed_contracts = data["state_diff"]["deployed_contracts"]
         deployed_contracts = [
-            DeployedContractSchema().load(contract) for contract in deployed_contracts
+            cast(DeployedContract, DeployedContractSchema().load(contract))
+            for contract in deployed_contracts
         ]
 
         storage_diffs = []

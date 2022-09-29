@@ -2,7 +2,8 @@ from dataclasses import dataclass
 from functools import reduce
 from typing import List, Optional
 
-from eth_utils import keccak
+from eth_typing import HexStr
+from eth_utils.crypto import keccak
 from starkware.starknet.services.api.feeder_gateway.response_objects import (
     TransactionReceipt,
 )
@@ -218,14 +219,16 @@ class MessageToStarknet:
         ]
 
     @classmethod
-    async def from_tx_hash(cls, tx_hash: str, web3: Web3) -> List["MessageToStarknet"]:
+    async def from_tx_hash(
+        cls, tx_hash: HexStr, web3: Web3
+    ) -> List["MessageToStarknet"]:
         """
 
         :param tx_hash: Transaction hash including some L1 to L2 messages
         :param web3: Web3 instance from web3.py
         :return: A list of messages to StarkNet in this transaction
         """
-        receipt = web3.eth.getTransactionReceipt(tx_hash)
+        receipt = web3.eth.get_transaction_receipt(tx_hash)
         return cls.from_tx_receipt(receipt, web3)
 
     def count_queued_sync(
