@@ -117,17 +117,13 @@ class InvokeTransactionSchema(TransactionSchema):
     calldata = fields.List(Felt(), data_key="calldata", required=True)
     nonce = Felt(data_key="nonce", load_default=None)
 
-    @pre_load
-    def preprocess(self, data, **kwargs):
+    @post_load
+    def make_transaction(self, data, **kwargs) -> InvokeTransaction:
         data["contract_address"] = data.get("contract_address") or data.get(
             "sender_address"
         )
         del data["sender_address"]
 
-        return data
-
-    @post_load
-    def make_transaction(self, data, **kwargs) -> InvokeTransaction:
         return InvokeTransaction(**data)
 
 
