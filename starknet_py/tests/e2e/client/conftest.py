@@ -20,7 +20,7 @@ from starknet_py.tests.e2e.client.prepare_net_for_gateway_test import (
     prepare_net_for_tests,
     PreparedNetworkData,
 )
-from starknet_py.tests.e2e.conftest import contracts_dir
+from starknet_py.tests.e2e.conftest import contracts_compiled_dir
 
 directory = os.path.dirname(__file__)
 
@@ -28,7 +28,9 @@ directory = os.path.dirname(__file__)
 async def prepare_network(
     new_gateway_account_client: AccountClient,
 ) -> PreparedNetworkData:
-    contract_compiled = Path(contracts_dir / "balance_compiled.json").read_text("utf-8")
+    contract_compiled = Path(
+        contracts_compiled_dir / "balance_compiled.json"
+    ).read_text("utf-8")
 
     prepared_data = await prepare_net_for_tests(
         new_gateway_account_client, compiled_contract=contract_compiled
@@ -167,7 +169,7 @@ def fixture_balance_contract() -> str:
     """
     Returns compiled code of the balance.cairo contract
     """
-    return (contracts_dir / "balance_compiled.json").read_text("utf-8")
+    return (contracts_compiled_dir / "balance_compiled.json").read_text("utf-8")
 
 
 @pytest.fixture(name="class_hash")

@@ -39,7 +39,7 @@ func __default__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
         calldata_size=calldata_size,
         calldata=calldata,
     );
-    return (retdata_size=retdata_size, retdata=retdata);
+    return (retdata_size, retdata);
 }
 
 @l1_handler
@@ -75,11 +75,11 @@ func AdminChanged(previousAdmin: felt, newAdmin: felt) {
 //
 
 @storage_var
-func Proxy_implementation_hash() -> (class_hash: felt) {
+func Proxy_implementation_hash() -> (implementation: felt) {
 }
 
 @storage_var
-func Proxy_admin() -> (proxy_admin: felt) {
+func Proxy_admin() -> (admin: felt) {
 }
 
 @storage_var
@@ -123,15 +123,13 @@ namespace Proxy {
 
     func get_implementation_hash{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         ) -> (implementation: felt) {
-        let (implementation) = Proxy_implementation_hash.read();
-        return (implementation,);
+        return Proxy_implementation_hash.read();
     }
 
     func get_admin{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
         admin: felt
     ) {
-        let (admin) = Proxy_admin.read();
-        return (admin,);
+        return Proxy_admin.read();
     }
 
     //
@@ -151,8 +149,6 @@ namespace Proxy {
     // Upgrade
     //
 
-    // added for testing purposes
-    @external
     func _set_implementation_hash{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         new_implementation: felt
     ) {
@@ -164,4 +160,13 @@ namespace Proxy {
         Upgraded.emit(new_implementation);
         return ();
     }
+}
+
+// added for testing purposes
+@external
+func set_implementation_hash{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    new_implementation: felt
+) {
+    Proxy._set_implementation_hash(new_implementation);
+    return ();
 }

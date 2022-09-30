@@ -36,7 +36,7 @@ async def test_argent_contract_from_address_throws_on_too_many_steps(
 async def set_implementation(proxy1: Contract, proxy2: Contract):
     argent_proxy = "_set_implementation" in proxy1.functions
     set_implementation_name = (
-        "_set_implementation" if argent_proxy else "_set_implementation_hash"
+        "_set_implementation" if argent_proxy else "set_implementation_hash"
     )
     implementation = "implementation" if argent_proxy else "new_implementation"
 

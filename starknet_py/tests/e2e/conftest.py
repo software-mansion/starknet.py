@@ -57,6 +57,8 @@ INTEGRATION_NEW_ACCOUNT_ADDRESS = (
 mock_dir = Path(os.path.dirname(__file__)) / "mock"
 typed_data_dir = mock_dir / "typed_data"
 contracts_dir = mock_dir / "contracts"
+account_dir = mock_dir / "account"
+contracts_compiled_dir = mock_dir / "contracts_compiled"
 
 
 # This fixture was added to enable using async fixtures
@@ -259,7 +261,7 @@ async def new_devnet_account_details(
     key_pair = KeyPair.from_private_key(private_key)
     deploy_tx = make_deploy_tx(
         constructor_calldata=[key_pair.public_key],
-        compiled_contract=(contracts_dir / "new_account_compiled.json").read_text(
+        compiled_contract=(account_dir / "new_account_compiled.json").read_text(
             "utf-8"
         ),
     )
@@ -421,7 +423,7 @@ def compiled_proxy(request) -> str:
     """
     Returns source code of compiled proxy contract
     """
-    return (contracts_dir / request.param).read_text("utf-8")
+    return (contracts_compiled_dir / request.param).read_text("utf-8")
 
 
 @pytest.fixture(
