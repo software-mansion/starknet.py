@@ -68,6 +68,7 @@ lint = "pylint starknet_py"
 format = "black starknet_py"
 format_check = "black --check starknet_py"
 typecheck = "pyright starknet_py"
+compile_contracts = "bash starknet_py/tests/e2e/mock/compile_contracts.sh"
 requirements_check.shell = "poetry export -f requirements.txt --without-hashes --extras docs | cmp - requirements.txt"
 ci = ["lint", "format_check", "typecheck", "requirements_check", "test"]
 

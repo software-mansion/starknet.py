@@ -144,3 +144,6 @@ cython_debug/
 *.dylib
 /e2e.coverage
 /unit.coverage
+
+# Compiled contracts
+starknet_py/tests/e2e/mock/contracts_compiled/
