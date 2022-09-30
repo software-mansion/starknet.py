@@ -111,9 +111,9 @@ class TransactionSchema(Schema):
 
 
 class InvokeTransactionSchema(TransactionSchema):
-    contract_address = Felt(data_key="contract_address", default=None)
-    sender_address = Felt(data_key="sender_address", default=None)
-    entry_point_selector = Felt(data_key="entry_point_selector", default=None)
+    contract_address = Felt(data_key="contract_address", load_default=None)
+    sender_address = Felt(data_key="sender_address", load_default=None)
+    entry_point_selector = Felt(data_key="entry_point_selector", load_default=None)
     calldata = fields.List(Felt(), data_key="calldata", required=True)
     nonce = Felt(data_key="nonce", load_default=None)
 
