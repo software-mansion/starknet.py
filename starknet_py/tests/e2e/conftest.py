@@ -318,17 +318,33 @@ def new_gateway_account_client(
     )
 
 
+@pytest.fixture(scope="module")
+def new_rpc_account_client(
+    new_address_and_private_key: Tuple[str, str], rpc_client: FullNodeClient
+) -> AccountClient:
+    """
+    Returns a new AccountClient created with FullNodeClient
+    """
+    address, private_key = new_address_and_private_key
+
+    return create_account_client(
+        address, private_key, rpc_client, supported_tx_version=1
+    )
+
+
 def net_to_accounts() -> List[str]:
     accounts = [
         "gateway_account_client",
         "new_gateway_account_client",
         "rpc_account_client",
+        "new_rpc_account_client",
     ]
     if any(
         net in sys.argv
         for net in ["--net=integration", "--net=testnet", "testnet", "integration"]
     ):
         accounts.remove("rpc_account_client")
+        accounts.remove("new_rpc_account_client")
 
     return accounts
 

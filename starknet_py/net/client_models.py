@@ -103,7 +103,7 @@ class InvokeTransaction(Transaction):
 
     contract_address: int
     calldata: List[int]
-    entry_point_selector: int
+    entry_point_selector: Optional[int] = None
     nonce: Optional[int] = None
 
 
@@ -278,7 +278,7 @@ class BlockStateUpdate:
 class StateDiff:
     deployed_contracts: List[DeployedContract]
     storage_diffs: List[StorageDiff]
-    declared_contracts: List[int]
+    declared_contract_hashes: List[int]
 
 
 @dataclass

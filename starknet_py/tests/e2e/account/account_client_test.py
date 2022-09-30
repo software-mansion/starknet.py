@@ -201,7 +201,8 @@ async def test_rejection_reason_in_transaction_receipt(account_client, map_contr
 
     transaction_receipt = await account_client.get_transaction_receipt(res.hash)
 
-    assert "Actual fee exceeded max fee." in transaction_receipt.rejection_reason
+    if isinstance(account_client.client, GatewayClient):
+        assert "Actual fee exceeded max fee." in transaction_receipt.rejection_reason
 
 
 @pytest.mark.asyncio

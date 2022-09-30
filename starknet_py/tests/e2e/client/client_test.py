@@ -311,11 +311,19 @@ async def test_get_class_hash_at(clients, contract_address, class_hash):
 
 
 @pytest.mark.asyncio
-async def test_get_class_by_hash(clients, class_hash):
-    for client in clients:
-        contract_class = await client.get_class_by_hash(class_hash=class_hash)
-        assert contract_class.program != ""
-        assert contract_class.entry_points_by_type is not None
+async def test_get_class_by_hash_gateway(gateway_client, class_hash):
+    contract_class = await gateway_client.get_class_by_hash(class_hash=class_hash)
+    assert contract_class.program != ""
+    assert contract_class.entry_points_by_type is not None
+
+
+@pytest.mark.asyncio
+async def test_get_class_by_hash_rpc(rpc_client, class_hash):
+    contract_class = await rpc_client.get_class_by_hash(
+        class_hash=class_hash, block_hash="latest"
+    )
+    assert contract_class.program != ""
+    assert contract_class.entry_points_by_type is not None
 
 
 @pytest.mark.asyncio

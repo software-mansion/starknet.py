@@ -111,13 +111,19 @@ class TransactionSchema(Schema):
 
 
 class InvokeTransactionSchema(TransactionSchema):
-    contract_address = Felt(data_key="contract_address", required=True)
-    entry_point_selector = Felt(data_key="entry_point_selector", required=True)
+    contract_address = Felt(data_key="contract_address", default=None)
+    sender_address = Felt(data_key="sender_address", default=None)
+    entry_point_selector = Felt(data_key="entry_point_selector", default=None)
     calldata = fields.List(Felt(), data_key="calldata", required=True)
     nonce = Felt(data_key="nonce", load_default=None)
 
     @pre_load
     def preprocess(self, data, **kwargs):
+        data["contract_address"] = data.get("contract_address") or data.get(
+            "sender_address"
+        )
+        del data["sender_address"]
+
         return data
 
     @post_load
@@ -202,23 +208,15 @@ class DeployedContractSchema(Schema):
         return DeployedContract(**data)
 
 
-class DeclaredContractClassHashSchema(Schema):
-    class_hash = Felt(data_key="class_hash", required=True)
-
-    @post_load
-    def return_class_hash(self, data, **kwargs):
-        return data["class_hash"]
-
-
 class StateDiffSchema(Schema):
     deployed_contracts = fields.List(
         fields.Nested(DeployedContractSchema()),
         data_key="deployed_contracts",
         required=True,
     )
-    declared_contracts = fields.List(
-        fields.Nested(DeclaredContractClassHashSchema()),
-        data_key="declared_contracts",
+    declared_contract_hashes = fields.List(
+        Felt(),
+        data_key="declared_contract_hashes",
         required=True,
     )
     storage_diffs = fields.List(
@@ -246,7 +244,7 @@ class BlockStateUpdateSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> BlockStateUpdate:
-        declared_contracts = data["state_diff"].declared_contracts
+        declared_contracts = data["state_diff"].declared_contract_hashes
         deployed_contracts = data["state_diff"].deployed_contracts
         storage_diffs = data["state_diff"].storage_diffs
         del data["state_diff"]

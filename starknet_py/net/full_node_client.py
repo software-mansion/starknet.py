@@ -1,5 +1,5 @@
 import warnings
-from typing import List, Optional, Union, cast
+from typing import List, Optional, Union, cast, Dict
 
 import aiohttp
 from marshmallow import EXCLUDE
@@ -27,6 +27,7 @@ from starknet_py.net.client_models import (
     Call,
 )
 from starknet_py.net.http_client import RpcHttpClient
+from starknet_py.net.models import TransactionType
 from starknet_py.net.networks import Network
 from starknet_py.net.schemas.rpc import (
     StarknetBlockSchema,
@@ -167,23 +168,12 @@ class FullNodeClient(Client):
             block_hash=block_hash, block_number=block_number
         )
 
+        transaction_params = _create_broadcasted_txn(transaction=tx)
+
         res = await self._client.call(
             method_name="estimateFee",
             params={
-                # There is no transaction_hash field in "request" since it was an error
-                # in RPC v0.1.0 specification. It has been removed in the latest specification.
-                "request": {
-                    "max_fee": convert_to_felt(tx.max_fee),
-                    "version": hex(tx.version),
-                    "signature": [convert_to_felt(i) for i in tx.signature],
-                    "nonce": (
-                        convert_to_felt(tx.nonce) if tx.nonce is not None else None
-                    ),  # TODO: verify this is correct
-                    "type": "INVOKE",
-                    "contract_address": convert_to_felt(tx.contract_address),
-                    "entry_point_selector": convert_to_felt(tx.entry_point_selector),
-                    "calldata": [convert_to_felt(i) for i in tx.calldata],
-                },
+                "request": {**transaction_params},
                 **block_identifier,
             },
         )
@@ -217,20 +207,11 @@ class FullNodeClient(Client):
     async def send_transaction(
         self, transaction: InvokeFunction
     ) -> SentTransactionResponse:
+        params = _create_broadcasted_txn(transaction=transaction)
+
         res = await self._client.call(
             method_name="addInvokeTransaction",
-            params={
-                "function_invocation": {
-                    "contract_address": convert_to_felt(transaction.contract_address),
-                    "entry_point_selector": convert_to_felt(
-                        transaction.entry_point_selector
-                    ),
-                    "calldata": [convert_to_felt(i) for i in transaction.calldata],
-                },
-                "signature": [convert_to_felt(i) for i in transaction.signature],
-                "max_fee": hex(transaction.max_fee),
-                "version": hex(transaction.version),
-            },
+            params={"invoke_transaction": {**params}},
         )
 
         return cast(
@@ -243,15 +224,22 @@ class FullNodeClient(Client):
         res = await self._client.call(
             method_name="addDeployTransaction",
             params={
-                "contract_address_salt": convert_to_felt(
-                    transaction.contract_address_salt
-                ),
-                "constructor_calldata": [
-                    convert_to_felt(i) for i in transaction.constructor_calldata
-                ],
-                "contract_definition": {
-                    "program": contract_definition["program"],
-                    "entry_points_by_type": contract_definition["entry_points_by_type"],
+                "deploy_transaction": {
+                    "contract_class": {
+                        "program": contract_definition["program"],
+                        "entry_points_by_type": contract_definition[
+                            "entry_points_by_type"
+                        ],
+                        "abi": contract_definition["abi"],
+                    },
+                    "version": hex(transaction.version),
+                    "type": "DEPLOY",
+                    "contract_address_salt": convert_to_felt(
+                        transaction.contract_address_salt
+                    ),
+                    "constructor_calldata": [
+                        convert_to_felt(i) for i in transaction.constructor_calldata
+                    ],
                 },
             },
         )
@@ -262,17 +250,11 @@ class FullNodeClient(Client):
         )
 
     async def declare(self, transaction: Declare) -> DeclareTransactionResponse:
-        contract_class = transaction.dump()["contract_class"]
+        params = _create_broadcasted_txn(transaction=transaction)
 
         res = await self._client.call(
             method_name="addDeclareTransaction",
-            params={
-                "contract_class": {
-                    "program": contract_class["program"],
-                    "entry_points_by_type": contract_class["entry_points_by_type"],
-                },
-                "version": hex(transaction.version),
-            },
+            params={"declare_transaction": {**params}},
         )
 
         return cast(
@@ -299,9 +281,19 @@ class FullNodeClient(Client):
         res = cast(str, res)
         return int(res, 16)
 
-    async def get_class_by_hash(self, class_hash: Hash) -> DeclaredContract:
+    async def get_class_by_hash(
+        self,
+        class_hash: Hash,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> DeclaredContract:
+        block_identifier = get_block_identifier(
+            block_hash=block_hash, block_number=block_number
+        )
+
         res = await self._client.call(
-            method_name="getClass", params={"class_hash": convert_to_felt(class_hash)}
+            method_name="getClass",
+            params={"class_hash": convert_to_felt(class_hash), **block_identifier},
         )
         return cast(
             DeclaredContract, DeclaredContractSchema().load(res, unknown=EXCLUDE)
@@ -454,3 +446,53 @@ def _get_call_payload(tx: Union[InvokeFunction, Call]) -> dict:
         "entry_point_selector": convert_to_felt(tx.selector),
         "calldata": [convert_to_felt(i) for i in tx.calldata],
     }
+
+
+def _create_broadcasted_txn(transaction: Union[InvokeFunction, Declare]) -> Dict:
+    common_params = {
+        "type": "INVOKE",
+        "max_fee": hex(transaction.max_fee),
+        "version": hex(transaction.version),
+        "signature": [convert_to_felt(i) for i in transaction.signature],
+        "nonce": convert_to_felt(transaction.nonce)
+        if transaction.nonce is not None
+        else transaction.nonce,
+    }
+
+    if transaction.tx_type == TransactionType.INVOKE_FUNCTION:
+        invoke_specific_params = {
+            "calldata": [convert_to_felt(i) for i in transaction.calldata],
+        }
+        if transaction.version == 0:
+            params_depending_on_version = {
+                "contract_address": convert_to_felt(transaction.contract_address),
+                "entry_point_selector": convert_to_felt(
+                    transaction.entry_point_selector
+                ),
+            }
+        else:
+            params_depending_on_version = {
+                "sender_address": convert_to_felt(transaction.contract_address),
+            }
+
+        return {
+            **common_params,
+            **params_depending_on_version,
+            **invoke_specific_params,
+        }
+
+    if transaction.tx_type == TransactionType.DECLARE:
+        contract_class = transaction.dump()["contract_class"]
+
+        declare_params = {
+            "contract_class": {
+                "program": contract_class["program"],
+                "entry_points_by_type": contract_class["entry_points_by_type"],
+                "abi": contract_class["abi"],
+            },
+            "sender_address": convert_to_felt(transaction.sender_address),
+        }
+
+        return {**common_params, **declare_params}
+
+    return {}
