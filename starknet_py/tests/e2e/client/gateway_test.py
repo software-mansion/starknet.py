@@ -2,7 +2,7 @@ import pytest
 
 from starknet_py.net.client_models import TransactionStatusResponse, TransactionStatus
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.networks import TESTNET, MAINNET
+from starknet_py.net.networks import TESTNET, MAINNET, CustomGatewayUrls
 
 
 @pytest.mark.asyncio
@@ -84,10 +84,10 @@ def test_creating_client_with_custom_net():
 
 def test_creating_client_with_custom_net_dict():
     custom_net = "custom.net"
-    net = {
-        "feeder_gateway_url": f"{custom_net}/feeder_gateway",
-        "gateway_url": f"{custom_net}/gateway",
-    }
+    net = CustomGatewayUrls(
+        feeder_gateway_url=f"{custom_net}/feeder_gateway",
+        gateway_url=f"{custom_net}/gateway",
+    )
 
     gateway_client = GatewayClient(net=net)
 
