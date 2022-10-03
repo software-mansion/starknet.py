@@ -28,6 +28,7 @@ class Deployer:
     def __init__(
         self,
         account: AccountClient,
+        *,
         deployer_address: Optional[AddressRepresentation] = None,
         salt: Optional[int] = None,
         unique: bool = True,
@@ -50,12 +51,13 @@ class Deployer:
             )
 
         self.account = account
-        self.address = deployer_address
+        self.deployer_address = deployer_address
         self.salt = salt
         self.unique = unique
 
     async def prepare_contract_deployment(
         self,
+        *,
         class_hash: Hash,
         abi: Optional[List] = None,
         calldata: Optional[Union[List[any], dict]] = None,
@@ -90,7 +92,7 @@ class Deployer:
         )
 
         call = Call(
-            to_addr=self.address,
+            to_addr=self.deployer_address,
             selector=get_selector_from_name("deployContract"),
             calldata=calldata,
         )

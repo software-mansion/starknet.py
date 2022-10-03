@@ -124,7 +124,7 @@ async def test_default_deploy_with_class_hash(
     await account_client.wait_for_tx(resp.transaction_hash)
 
     deployed_contract_address = await deployer.find_deployed_contract_address(
-        resp.transaction_hash
+        transaction_hash=resp.transaction_hash
     )
 
     assert isinstance(deployed_contract_address, int)
