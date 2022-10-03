@@ -8,7 +8,10 @@ from starkware.cairo.lang.compiler.import_loader import ImportLoaderError
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.compiler.validation_utils import PreprocessorError
 
-from starknet_py.compile.compiler import Compiler, create_contract_class
+from starknet_py.compile.compiler import (
+    Compiler,
+    create_contract_class,
+)
 from starknet_py.tests.e2e.conftest import contracts_dir
 
 directory = os.path.dirname(__file__)
@@ -31,7 +34,7 @@ def test_compile_direct_load():
 
 def test_compile_file_load():
     output_file_str = Compiler(
-        contract_source=[test_file_path.resolve().absolute()]
+        contract_source=[str(test_file_path.resolve().absolute())]
     ).compile_contract()
     output_json = json.loads(output_file_str)
 
@@ -54,7 +57,7 @@ def test_throws_on_compile_with_wrong_extension():
 
 def test_compile_with_search_path():
     output_file_str = Compiler(
-        contract_source=[base_contract_path.resolve().absolute()],
+        contract_source=[str(base_contract_path.resolve().absolute())],
         cairo_path=[str(contracts_dir)],
     ).compile_contract()
     output_json = json.loads(output_file_str)
@@ -65,7 +68,7 @@ def test_compile_with_search_path():
 def test_compile_with_env_var(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv(LIBS_DIR_ENVVAR, str(contracts_dir))
     output_file_str = Compiler(
-        contract_source=[base_contract_path.resolve().absolute()]
+        contract_source=[str(base_contract_path.resolve().absolute())]
     ).compile_contract()
     output_json = json.loads(output_file_str)
 
@@ -75,7 +78,7 @@ def test_compile_with_env_var(monkeypatch: pytest.MonkeyPatch):
 def test_throws_on_compile_without_search_path_and_env_var():
     with pytest.raises(ImportLoaderError) as m_err:
         Compiler(
-            contract_source=[base_contract_path.resolve().absolute()]
+            contract_source=[str(base_contract_path.resolve().absolute())]
         ).compile_contract()
     assert "Could not find module 'inner.inner'." in str(m_err.value)
 
