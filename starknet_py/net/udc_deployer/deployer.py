@@ -6,6 +6,7 @@ from typing import Optional, List, Union
 from starkware.starknet.definitions.fields import ContractAddressSalt
 from starkware.starknet.public.abi import get_selector_from_name
 
+from starknet_py.common import int_from_hex
 from starknet_py.net import AccountClient
 from starknet_py.net.client_models import Hash, InvokeFunction, Call, Event
 from starknet_py.net.models import AddressRepresentation
@@ -44,11 +45,7 @@ class Deployer:
                 net=account.net, deployer_address=deployer_address
             )
         else:
-            deployer_address = (
-                deployer_address
-                if isinstance(deployer_address, int)
-                else int(deployer_address, 16)
-            )
+            deployer_address = int_from_hex(deployer_address)
 
         self.account = account
         self.deployer_address = deployer_address
@@ -83,9 +80,7 @@ class Deployer:
 
         calldata, _ = universal_deployer_serializer.from_python(
             value_types=deploy_contract_abi["inputs"],
-            class_hash=class_hash
-            if isinstance(class_hash, int)
-            else int(class_hash, 16),
+            class_hash=int_from_hex(class_hash),
             salt=self.salt or ContractAddressSalt.get_random_value(),
             unique=int(self.unique),
             constructor_calldata=calldata,
