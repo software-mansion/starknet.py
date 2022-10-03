@@ -108,5 +108,4 @@ include = ["starknet_py/"]
 exclude = [
     "**/__pycache__",
     "starknet_py/tests/e2e/docs",
-    "**/*_test.py",
 ]
