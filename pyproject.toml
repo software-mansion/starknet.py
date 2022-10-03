@@ -41,7 +41,7 @@ pytest-mock = "^3.6.1"
 pytest-xdist = "^2.5.0"
 web3 = {extras=["tester"], version="6.0.0b4"}
 pyright = "^1.1.270"
-starknet-devnet = "0.3.1"
+starknet-devnet = {git = "https://github.com/Solpatium/starknet-devnet.git", rev = "62475a0e52a2a9393cf832fc604df9fce8f72a18"}
 
 [tool.poe.tasks]
 test = ["test_unit", "test_e2e", "test_docs"]
