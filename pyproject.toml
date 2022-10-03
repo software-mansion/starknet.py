@@ -107,5 +107,5 @@ markers = [
 include = ["starknet_py/"]
 exclude = [
     "**/__pycache__",
-    "starknet_py/tests",
+    "starknet_py/tests/e2e/docs",
 ]
