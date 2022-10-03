@@ -551,8 +551,8 @@ async def put_with_event_transaction_hash(
         account=new_gateway_account_client, deployer_address=deployer_address
     )
     deploy_tx = await deployer.prepare_contract_deployment(
-        class_hash=resp.class_hash
-    ).prepare_transaction(max_fee=int(1e16))
+        class_hash=resp.class_hash, max_fee=int(1e16)
+    )
 
     resp = await new_gateway_account_client.send_transaction(deploy_tx)
     await new_gateway_account_client.wait_for_tx(
