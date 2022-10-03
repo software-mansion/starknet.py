@@ -547,8 +547,10 @@ async def put_with_event_transaction_hash(
     resp = await new_gateway_account_client.declare(declare_tx)
     await new_gateway_account_client.wait_for_tx(resp.transaction_hash)
 
-    deployer = Deployer(account=new_gateway_account_client, address=deployer_address)
-    deploy_tx = await deployer.make_deployment(
+    deployer = Deployer(
+        account=new_gateway_account_client, deployer_address=deployer_address
+    )
+    deploy_tx = await deployer.prepare_contract_deployment(
         class_hash=resp.class_hash
     ).prepare_transaction(max_fee=int(1e16))
 
@@ -557,7 +559,7 @@ async def put_with_event_transaction_hash(
         resp.transaction_hash, wait_for_accept=True
     )
 
-    address = await deployer.get_deployed_contract_address(
+    address = await deployer.find_deployed_contract_address(
         transaction_hash=resp.transaction_hash
     )
     abi = create_compiled_contract(

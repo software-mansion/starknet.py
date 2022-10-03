@@ -16,8 +16,10 @@ from starknet_py.utils.data_transformer.universal_deployer_serializer import (
     deploy_contract_abi,
     deploy_contract_event_abi,
 )
+from starknet_py.utils.sync import add_sync_methods
 
 
+@add_sync_methods
 class Deployer:
     """
     Deployer used to deploy contracts through Universal Deployer Contract (UDC)
@@ -26,44 +28,80 @@ class Deployer:
     def __init__(
         self,
         account: AccountClient,
-        address: Optional[AddressRepresentation] = None,
+        deployer_address: Optional[AddressRepresentation] = None,
         salt: Optional[int] = None,
         unique: bool = True,
     ):
         """
         :param account: AccountClient used to sign and send transactions
-        :param address: Address of the UDC. Must be set when using a custom network
+        :param deployer_address: Address of the UDC. Must be set when using a custom network
         :param salt: The salt for a contract to be deployed. Random value is selected if it is not provided
         :param unique: Boolean determining if the salt should be connected with the account's address. Default to True
         """
-        address = (
-            address if isinstance(address, int) or address is None else int(address, 16)
-        )
-        address = address or deployer_address_from_network(
-            net=account.net, deployer_address=address
-        )
+        if deployer_address is None:
+            deployer_address = deployer_address_from_network(
+                net=account.net, deployer_address=deployer_address
+            )
+        else:
+            deployer_address = (
+                deployer_address
+                if isinstance(deployer_address, int)
+                else int(deployer_address, 16)
+            )
 
         self.account = account
-        self.address = address
+        self.address = deployer_address
         self.salt = salt
         self.unique = unique
 
-    def make_deployment(
-        self, class_hash: Hash, abi: Optional[List] = None
-    ) -> ContractDeployment:
+    async def prepare_contract_deployment(
+        self,
+        class_hash: Hash,
+        abi: Optional[List] = None,
+        calldata: Optional[Union[List[any], dict]] = None,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+    ) -> InvokeFunction:
+        # pylint: disable=too-many-arguments
         """
-        Creates a ContractDeployment instance which is used to prepare and send deploy invoke transactions
+        Prepares deploy invoke transaction
 
         :param class_hash: The class_hash of the contract to be deployed
         :param abi: ABI of the contract to be deployed
-        :returns: ContractDeployment
+        :param calldata: Constructor args of the contract to be deployed
+        :param max_fee: Max amount of Wei to be paid when executing transaction
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
+        :return: InvokeFunction
         """
 
-        return Deployer.ContractDeployment(
-            deployer=self, class_hash=class_hash, abi=abi
+        if not abi and calldata:
+            raise ValueError("calldata was provided without an abi")
+
+        calldata = translate_constructor_args(abi=abi or [], constructor_args=calldata)
+
+        calldata, _ = universal_deployer_serializer.from_python(
+            value_types=deploy_contract_abi["inputs"],
+            class_hash=class_hash
+            if isinstance(class_hash, int)
+            else int(class_hash, 16),
+            salt=self.salt or ContractAddressSalt.get_random_value(),
+            unique=int(self.unique),
+            constructor_calldata=calldata,
         )
 
-    async def get_deployed_contract_address(self, transaction_hash: Hash) -> int:
+        call = Call(
+            to_addr=self.address,
+            selector=get_selector_from_name("deployContract"),
+            calldata=calldata,
+        )
+
+        transaction = await self.account.sign_invoke_transaction(
+            calls=call, max_fee=max_fee, auto_estimate=auto_estimate
+        )
+
+        return transaction
+
+    async def find_deployed_contract_address(self, transaction_hash: Hash) -> int:
         """
         Returns deployed contract address
 
@@ -92,63 +130,3 @@ class Deployer:
             if get_selector_from_name("ContractDeployed") == event.keys[0]:
                 return event
         return None
-
-    class ContractDeployment:
-        """
-        ContractDeployment used to prepare and send deploy invoke transactions
-        """
-
-        def __init__(
-            self, deployer: Deployer, class_hash: Hash, abi: Optional[List] = None
-        ):
-            """
-            :param deployer: Deployer used to deploy a contract
-            :param class_hash: The class_hash of the contract to be deployed
-            :param abi: ABI of the contract to be deployed
-            """
-            self.deployer = deployer
-            self.class_hash = class_hash
-            self.abi: List = abi or []
-
-        async def prepare_transaction(
-            self,
-            constructor_calldata: Optional[Union[List[any], dict]] = None,
-            max_fee: Optional[int] = None,
-            auto_estimate: bool = False,
-        ) -> InvokeFunction:
-            """
-            Prepares deploy invoke transaction
-
-            :param constructor_calldata: Constructor args of the contract to be deployed
-            :param max_fee: Max amount of Wei to be paid when executing transaction
-            :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
-            :return: InvokeFunction
-            """
-            if not self.abi and constructor_calldata:
-                raise ValueError("constructor_calldata was provided without an abi")
-
-            constructor_calldata = translate_constructor_args(
-                abi=self.abi or [], constructor_args=constructor_calldata
-            )
-
-            calldata, _ = universal_deployer_serializer.from_python(
-                value_types=deploy_contract_abi["inputs"],
-                class_hash=self.class_hash
-                if isinstance(self.class_hash, int)
-                else int(self.class_hash, 16),
-                salt=self.deployer.salt or ContractAddressSalt.get_random_value(),
-                unique=int(self.deployer.unique),
-                constructor_calldata=constructor_calldata,
-            )
-
-            call = Call(
-                to_addr=self.deployer.address,
-                selector=get_selector_from_name("deployContract"),
-                calldata=calldata,
-            )
-
-            transaction = await self.deployer.account.sign_invoke_transaction(
-                calls=call, max_fee=max_fee, auto_estimate=auto_estimate
-            )
-
-            return transaction

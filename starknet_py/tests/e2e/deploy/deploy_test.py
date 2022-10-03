@@ -114,16 +114,16 @@ async def test_constructor_without_arguments(gateway_account_client):
 async def test_default_deploy_with_class_hash(
     deployer_address, account_client, map_class_hash
 ):
-    deployer = Deployer(account=account_client, address=deployer_address)
+    deployer = Deployer(account=account_client, deployer_address=deployer_address)
 
-    deploy_invoke_tx = await deployer.make_deployment(
-        class_hash=map_class_hash
-    ).prepare_transaction(max_fee=MAX_FEE)
+    deploy_invoke_tx = await deployer.prepare_contract_deployment(
+        class_hash=map_class_hash, max_fee=MAX_FEE
+    )
 
     resp = await account_client.send_transaction(deploy_invoke_tx)
     await account_client.wait_for_tx(resp.transaction_hash)
 
-    deployed_contract_address = await deployer.get_deployed_contract_address(
+    deployed_contract_address = await deployer.find_deployed_contract_address(
         resp.transaction_hash
     )
 
@@ -144,29 +144,29 @@ async def test_throws_when_deployer_address_not_specified_on_custom_network(
 
 
 @pytest.mark.asyncio
-async def test_throws_when_constructor_calldata_without_abi(
+async def test_throws_when_calldata_without_abi(
     account_client, map_class_hash, deployer_address
 ):
-    deployer = Deployer(account=account_client, address=deployer_address)
+    deployer = Deployer(account=account_client, deployer_address=deployer_address)
 
     with pytest.raises(ValueError) as err:
-        await deployer.make_deployment(class_hash=map_class_hash).prepare_transaction(
-            constructor_calldata=[12, 34]
+        await deployer.prepare_contract_deployment(
+            class_hash=map_class_hash, calldata=[12, 34]
         )
 
-    assert "constructor_calldata was provided without an abi" in str(err.value)
+    assert "calldata was provided without an abi" in str(err.value)
 
 
 @pytest.mark.asyncio
-async def test_throws_when_constructor_calldata_not_provided(
+async def test_throws_when_calldata_not_provided(
     account_client, deployer_address, constructor_with_arguments_abi
 ):
-    deployer = Deployer(account=account_client, address=deployer_address)
+    deployer = Deployer(account=account_client, deployer_address=deployer_address)
 
     with pytest.raises(ValueError) as err:
-        await deployer.make_deployment(
+        await deployer.prepare_contract_deployment(
             class_hash=1234, abi=constructor_with_arguments_abi
-        ).prepare_transaction()
+        )
 
     assert "Provided contract has a constructor and no arguments were provided." in str(
         err.value
@@ -175,7 +175,7 @@ async def test_throws_when_constructor_calldata_not_provided(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "constructor_calldata",
+    "calldata",
     [
         [10, (1, (2, 3)), [1, 2, 3], {"value": 12, "nested_struct": {"value": 99}}],
         {
@@ -191,19 +191,21 @@ async def test_constructor_arguments_contract_deploy(
     deployer_address,
     constructor_with_arguments_abi,
     constructor_with_arguments_class_hash,
-    constructor_calldata,
+    calldata,
 ):
-    deployer = Deployer(account=account_client, address=deployer_address)
+    deployer = Deployer(account=account_client, deployer_address=deployer_address)
 
-    deploy_invoke_transaction = await deployer.make_deployment(
+    deploy_invoke_transaction = await deployer.prepare_contract_deployment(
         class_hash=constructor_with_arguments_class_hash,
         abi=constructor_with_arguments_abi,
-    ).prepare_transaction(constructor_calldata=constructor_calldata, max_fee=MAX_FEE)
+        calldata=calldata,
+        max_fee=MAX_FEE,
+    )
 
     resp = await account_client.send_transaction(deploy_invoke_transaction)
     await account_client.wait_for_tx(resp.transaction_hash)
 
-    contract_address = await deployer.get_deployed_contract_address(
+    contract_address = await deployer.find_deployed_contract_address(
         transaction_hash=resp.transaction_hash
     )
 
@@ -227,10 +229,12 @@ async def test_constructor_arguments_contract_deploy(
 async def test_throws_when_wrong_tx_hash_provided(
     gateway_account_client, deployer_address, put_with_event_transaction_hash
 ):
-    deployer = Deployer(account=gateway_account_client, address=deployer_address)
+    deployer = Deployer(
+        account=gateway_account_client, deployer_address=deployer_address
+    )
 
     with pytest.raises(ValueError) as err:
-        await deployer.get_deployed_contract_address(
+        await deployer.find_deployed_contract_address(
             transaction_hash=put_with_event_transaction_hash
         )
 
