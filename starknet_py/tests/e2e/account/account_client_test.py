@@ -128,7 +128,9 @@ async def test_create_account_client_with_private_key(network):
     acc_client = await AccountClient.create_account(
         client=gt_client, private_key=private_key, chain=StarknetChainId.TESTNET
     )
-    assert acc_client.signer.private_key == private_key
+
+    # Ignore typing, because BaseSigner doesn't have private_key property, but this one has
+    assert acc_client.signer.private_key == private_key  # pyright: ignore
     assert acc_client.signer is not None
     assert acc_client.address is not None
 
