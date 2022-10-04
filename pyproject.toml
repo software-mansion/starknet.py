@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "starknet-py"
-version = "0.6.1-alpha"
+version = "0.6.2-alpha"
 description = "A python SDK for StarkNet"
 authors = ["Tomasz Rejowski <tomasz.rejowski@swmansion.com>", "Jakub Ptak <jakub.ptak@swmansion.com>"]
 include = ["starknet_py", "starknet_py/utils/crypto/libcrypto_c_exports.*"]
@@ -108,6 +108,5 @@ markers = [
 include = ["starknet_py/"]
 exclude = [
     "**/__pycache__",
-    "starknet_py/tests",
-    "**/*_test.py",
+    "starknet_py/tests/e2e/docs",
 ]

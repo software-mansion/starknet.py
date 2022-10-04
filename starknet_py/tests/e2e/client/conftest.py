@@ -3,7 +3,7 @@
 import os
 import subprocess
 from pathlib import Path
-from typing import Tuple, Dict
+from typing import Tuple, Dict, AsyncGenerator
 
 import pytest
 import pytest_asyncio
@@ -202,7 +202,7 @@ def fixture_clients(network: str) -> Tuple[Client, Client]:
 @pytest_asyncio.fixture(name="prepare_network", scope="module", autouse=True)
 async def fixture_prepare_network(
     network: str, new_gateway_account_client: AccountClient
-) -> Tuple[str, PreparedNetworkData]:
+) -> AsyncGenerator[Tuple[str, PreparedNetworkData], None]:
     """
     Adds transactions to the network. Returns network address and PreparedNetworkData
     """
