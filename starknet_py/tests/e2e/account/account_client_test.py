@@ -179,8 +179,8 @@ async def test_get_block_traces(gateway_account_client):
 
 
 @pytest.mark.asyncio
-async def test_deploy(account_client, map_source_code):
-    deploy_tx = make_deploy_tx(compilation_source=map_source_code)
+async def test_deploy(account_client, map_compiled_contract):
+    deploy_tx = make_deploy_tx(compiled_contract=map_compiled_contract)
     result = await account_client.deploy(deploy_tx)
     await account_client.wait_for_tx(result.transaction_hash)
 

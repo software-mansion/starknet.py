@@ -1,16 +1,17 @@
 import pytest
 
 from starknet_py.contract import Contract, ContractFunction
-from starknet_py.tests.e2e.conftest import contracts_dir
+from starknet_py.tests.e2e.conftest import contracts_compiled_dir
 
-mock_contracts_base_path = contracts_dir
-base_source_code = (contracts_dir / "base.cairo").read_text("utf-8")
+base_compiled_contract = (contracts_compiled_dir / "base_compiled.json").read_text(
+    "utf-8"
+)
 
 
 @pytest.mark.asyncio
-async def test_deploy_tx(gateway_account_client, map_source_code):
+async def test_deploy_tx(gateway_account_client, map_compiled_contract):
     result = await Contract.deploy(
-        client=gateway_account_client, compilation_source=map_source_code
+        client=gateway_account_client, compiled_contract=map_compiled_contract
     )
     result = await result.wait_for_acceptance()
     result = result.deployed_contract
@@ -23,23 +24,21 @@ async def test_deploy_tx(gateway_account_client, map_source_code):
 async def test_deploy_with_search_path(gateway_account_client):
     result = await Contract.deploy(
         client=gateway_account_client,
-        compilation_source=base_source_code,
-        search_paths=[str(mock_contracts_base_path)],
+        compiled_contract=base_compiled_contract,
     )
     await result.wait_for_acceptance()
 
     result = await Contract.deploy(
         client=gateway_account_client,
-        compilation_source=base_source_code,
-        search_paths=[str(mock_contracts_base_path)],
+        compiled_contract=base_compiled_contract,
     )
     result = await result.wait_for_acceptance()
     result = result.deployed_contract
     assert isinstance(result.functions["put"], ContractFunction)
 
 
-constructor_with_arguments_source = (
-    contracts_dir / "constructor_with_arguments.cairo"
+constructor_with_arguments_compiled_contract = (
+    contracts_compiled_dir / "constructor_with_arguments_compiled.json"
 ).read_text("utf-8")
 
 
@@ -54,7 +53,7 @@ async def test_constructor_arguments(gateway_account_client):
     with pytest.raises(ValueError) as err:
         await Contract.deploy(
             client=gateway_account_client,
-            compilation_source=constructor_with_arguments_source,
+            compiled_contract=constructor_with_arguments_compiled_contract,
         )
 
     assert "no args were provided" in str(err.value)
@@ -62,7 +61,7 @@ async def test_constructor_arguments(gateway_account_client):
     # Positional params
     contract_1 = await Contract.deploy(
         client=gateway_account_client,
-        compilation_source=constructor_with_arguments_source,
+        compiled_contract=constructor_with_arguments_compiled_contract,
         constructor_args=[value, tuple_value, arr, struct],
     )
     contract_1 = await contract_1.wait_for_acceptance()
@@ -71,7 +70,7 @@ async def test_constructor_arguments(gateway_account_client):
     # Named params
     contract_2 = await Contract.deploy(
         client=gateway_account_client,
-        compilation_source=constructor_with_arguments_source,
+        compiled_contract=constructor_with_arguments_compiled_contract,
         constructor_args={
             "single_value": value,
             "tuple": tuple_value,
@@ -91,8 +90,8 @@ async def test_constructor_arguments(gateway_account_client):
     assert result_2 == (value, tuple_value, sum(arr), struct)
 
 
-constructor_without_arguments_source = (
-    contracts_dir / "constructor_without_arguments.cairo"
+constructor_without_arguments_compiled_contract = (
+    contracts_compiled_dir / "constructor_without_arguments_compiled.json"
 ).read_text("utf-8")
 
 
@@ -100,7 +99,7 @@ constructor_without_arguments_source = (
 async def test_constructor_without_arguments(gateway_account_client):
     result = await Contract.deploy(
         client=gateway_account_client,
-        compilation_source=constructor_without_arguments_source,
+        compiled_contract=constructor_without_arguments_compiled_contract,
     )
     result = await result.wait_for_acceptance()
     contract = result.deployed_contract

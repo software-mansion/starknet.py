@@ -366,22 +366,30 @@ def map_source_code() -> str:
 
 
 @pytest.fixture(scope="module")
-def erc20_source_code() -> str:
+def map_compiled_contract() -> str:
     """
-    Returns source code of the erc20 contract
+    Returns compiled map contract
     """
-    return (contracts_dir / "erc20.cairo").read_text("utf-8")
+    return (contracts_compiled_dir / "map_compiled.json").read_text("utf-8")
+
+
+@pytest.fixture(scope="module")
+def erc20_compiled_contract() -> str:
+    """
+    Returns compiled erc20 contract
+    """
+    return (contracts_compiled_dir / "erc20_compiled.json").read_text("utf-8")
 
 
 @pytest_asyncio.fixture(name="deploy_map_contract", scope="module")
 async def deploy_map_contract(
-    gateway_account_client: AccountClient, map_source_code: str
+    gateway_account_client: AccountClient, map_compiled_contract: str
 ) -> Contract:
     """
     Deploys map contract and returns its instance
     """
     deployment_result = await Contract.deploy(
-        client=gateway_account_client, compilation_source=map_source_code
+        client=gateway_account_client, compiled_contract=map_compiled_contract
     )
     deployment_result = await deployment_result.wait_for_acceptance()
     return deployment_result.deployed_contract
@@ -389,13 +397,13 @@ async def deploy_map_contract(
 
 @pytest_asyncio.fixture(name="new_deploy_map_contract", scope="module")
 async def new_deploy_map_contract(
-    new_gateway_account_client: AccountClient, map_source_code: str
+    new_gateway_account_client: AccountClient, map_compiled_contract: str
 ) -> Contract:
     """
     Deploys new map contract and returns its instance
     """
     deployment_result = await Contract.deploy(
-        client=new_gateway_account_client, compilation_source=map_source_code
+        client=new_gateway_account_client, compiled_contract=map_compiled_contract
     )
     deployment_result = await deployment_result.wait_for_acceptance()
     return deployment_result.deployed_contract
@@ -403,13 +411,13 @@ async def new_deploy_map_contract(
 
 @pytest_asyncio.fixture(name="erc20_contract", scope="module")
 async def deploy_erc20_contract(
-    gateway_account_client: AccountClient, erc20_source_code: str
+    gateway_account_client: AccountClient, erc20_compiled_contract: str
 ) -> Contract:
     """
     Deploys erc20 contract and returns its instance
     """
     deployment_result = await Contract.deploy(
-        client=gateway_account_client, compilation_source=erc20_source_code
+        client=gateway_account_client, compiled_contract=erc20_compiled_contract
     )
     deployment_result = await deployment_result.wait_for_acceptance()
     return deployment_result.deployed_contract
@@ -454,12 +462,12 @@ async def cairo_serializer(gateway_account_client: AccountClient) -> CairoSerial
     Returns CairoSerializer for "simple_storage_with_event.cairo"
     """
     client = gateway_account_client
-    contract_content = (contracts_dir / "simple_storage_with_event.cairo").read_text(
-        "utf-8"
-    )
+    compiled_contract = (
+        contracts_compiled_dir / "simple_storage_with_event_compiled.json"
+    ).read_text("utf-8")
 
     deployment_result = await Contract.deploy(
-        client, compilation_source=contract_content
+        client, compiled_contract=compiled_contract
     )
     await deployment_result.wait_for_acceptance()
     contract = deployment_result.deployed_contract
