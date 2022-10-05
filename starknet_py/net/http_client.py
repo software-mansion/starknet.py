@@ -31,14 +31,10 @@ class HttpClient(ABC):
             "payload": payload,
         }
         if self.session:
-            return await self._make_request(
-                session=self.session, **kwargs
-            )  # pyright: ignore
+            return await self._make_request(session=self.session, **kwargs)
 
         async with ClientSession() as session:
-            return await self._make_request(
-                session=session, **kwargs
-            )  # pyright: ignore
+            return await self._make_request(session=session, **kwargs)
 
     async def _make_request(
         self,
