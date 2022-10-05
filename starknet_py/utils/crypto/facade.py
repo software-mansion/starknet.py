@@ -10,7 +10,7 @@ from starkware.cairo.common.hash_state import compute_hash_on_elements
 from starkware.cairo.lang.vm.crypto import pedersen_hash as default_hash
 from starkware.crypto.signature.signature import sign
 
-from starknet_py.net.client_models import Call
+from starknet_py.net.models.client import Call
 
 # PREFIX_TRANSACTION = encoded 'StarkNet Transaction'
 PREFIX_TRANSACTION = 476441609247967894954472788179128007176248455022

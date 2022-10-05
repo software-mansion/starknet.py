@@ -1,7 +1,7 @@
 from marshmallow import Schema, fields, post_load, pre_load, EXCLUDE
 from marshmallow_oneofschema import OneOfSchema
 
-from starknet_py.net.client_models import (
+from starknet_py.net.models.client import (
     StarknetBlock,
     L1toL2Message,
     L2toL1Message,

@@ -3,7 +3,7 @@ from typing import cast
 from marshmallow import Schema, fields, post_load, EXCLUDE
 from marshmallow_oneofschema import OneOfSchema
 
-from starknet_py.net.client_models import (
+from starknet_py.net.models.client import (
     ContractCode,
     GatewayBlock,
     L2toL1Message,

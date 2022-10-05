@@ -9,7 +9,7 @@ from starkware.starknet.public.abi import (
     get_storage_var_address,
 )
 
-from starknet_py.net.client_models import (
+from starknet_py.net.models.client import (
     TransactionStatus,
     InvokeFunction,
     TransactionReceipt,

@@ -5,7 +5,7 @@ import pytest
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
-from starknet_py.net.client_models import SentTransactionResponse, Call
+from starknet_py.net.models.client import SentTransactionResponse, Call
 from starknet_py.tests.e2e.conftest import contracts_dir
 from starknet_py.transaction_exceptions import (
     TransactionRejectedError,

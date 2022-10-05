@@ -13,7 +13,7 @@ from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError
-from starknet_py.net.client_models import (
+from starknet_py.net.models.client import (
     SentTransactionResponse,
     Hash,
     DeclaredContract,

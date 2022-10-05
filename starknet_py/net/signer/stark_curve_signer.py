@@ -10,7 +10,7 @@ from starkware.starknet.core.os.transaction_hash.transaction_hash import (
     calculate_declare_transaction_hash,
 )
 
-from starknet_py.net.client_models import Declare, InvokeFunction
+from starknet_py.net.models.client import Declare, InvokeFunction
 from starknet_py.net.models import (
     AddressRepresentation,
     StarknetChainId,

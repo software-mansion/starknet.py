@@ -1,6 +1,6 @@
 import pytest
 
-from starknet_py.net.client_models import TransactionStatusResponse, TransactionStatus
+from starknet_py.net.models.client import TransactionStatusResponse, TransactionStatus
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.networks import TESTNET, MAINNET, CustomGatewayUrls
 

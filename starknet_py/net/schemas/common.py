@@ -2,7 +2,7 @@ from typing import Any, Union, Mapping, Optional
 
 from marshmallow import fields, ValidationError
 
-from starknet_py.net.client_models import (
+from starknet_py.net.models.client import (
     TransactionStatus,
     BlockStatus,
     TransactionType,

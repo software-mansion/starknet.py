@@ -4,7 +4,7 @@ import asyncio
 from abc import ABC, abstractmethod
 from typing import Union, Optional, List, Tuple
 
-from starknet_py.net.client_models import (
+from starknet_py.net.models.client import (
     StarknetBlock,
     BlockStateUpdate,
     Transaction,

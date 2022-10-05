@@ -8,7 +8,7 @@ from starknet_py.net.client import (
     Client,
 )
 from starknet_py.net.client_errors import ClientError
-from starknet_py.net.client_models import (
+from starknet_py.net.models.client import (
     SentTransactionResponse,
     TransactionReceipt,
     BlockStateUpdate,

@@ -27,7 +27,7 @@ from starknet_py.common import create_compiled_contract
 from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.net import AccountClient
 from starknet_py.net.client import Client
-from starknet_py.net.client_models import Hash, Tag
+from starknet_py.net.models.client import Hash, Tag
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import (
     InvokeFunction,
