@@ -144,7 +144,7 @@ async def test_throws_when_deployer_address_not_specified_on_custom_network(
 
 
 @pytest.mark.asyncio
-async def test_throws_when_calldata_without_abi(
+async def test_throws_when_calldata_provided_without_abi(
     account_client, map_class_hash, deployer_address
 ):
     deployer = Deployer(account=account_client, deployer_address=deployer_address)
