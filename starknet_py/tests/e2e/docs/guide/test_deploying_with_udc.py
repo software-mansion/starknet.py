@@ -47,7 +47,7 @@ async def test_deploying_with_udc(
     )
 
     # If contract we want to deploy does not have constructor, or the constructor
-    # does not have arguments, abi does not have to be passed to the `.prepare_contract_deployment` method
+    # does not have arguments, abi is not a required parameter of `.prepare_contract_deployment` method
     deploy_invoke_transaction = await deployer.prepare_contract_deployment(
         class_hash=map_class_hash, max_fee=int(1e16)
     )
