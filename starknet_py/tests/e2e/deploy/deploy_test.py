@@ -227,7 +227,7 @@ async def test_constructor_arguments_contract_deploy(
 
 @pytest.mark.asyncio
 async def test_throws_when_wrong_tx_hash_provided(
-    gateway_account_client, deployer_address, put_with_event_transaction_hash
+    gateway_account_client, deployer_address, transaction_with_event_transaction_hash
 ):
     deployer = Deployer(
         account=gateway_account_client, deployer_address=deployer_address
@@ -235,7 +235,7 @@ async def test_throws_when_wrong_tx_hash_provided(
 
     with pytest.raises(ValueError) as err:
         await deployer.find_deployed_contract_address(
-            transaction_hash=put_with_event_transaction_hash
+            transaction_hash=transaction_with_event_transaction_hash
         )
 
     assert "ContractDeployed event was not found." in str(err.value)

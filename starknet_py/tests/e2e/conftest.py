@@ -532,7 +532,7 @@ async def constructor_with_arguments_class_hash(
 
 
 @pytest_asyncio.fixture(scope="module")
-async def put_with_event_transaction_hash(
+async def transaction_with_event_transaction_hash(
     new_gateway_account_client: AccountClient, deployer_address: int
 ) -> int:
     """
