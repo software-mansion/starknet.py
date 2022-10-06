@@ -3,6 +3,7 @@ import asyncio
 from unittest.mock import patch, MagicMock
 
 import pytest
+from aiohttp import ClientSession
 
 from starkware.starknet.public.abi import (
     get_selector_from_name,
@@ -433,3 +434,41 @@ async def test_declare_contract(clients, map_compiled_contract):
         assert transaction_receipt.status != TransactionStatus.NOT_RECEIVED
         assert transaction_receipt.hash
         assert transaction_receipt.actual_fee == 0
+
+
+@pytest.mark.asyncio
+async def test_custom_session(map_contract, network):
+    # We must access protected `feeder_gateway_client` to test session
+    # pylint: disable=protected-access
+
+    session = ClientSession()
+
+    tx_hash = (
+        await (
+            await map_contract.functions["put"].invoke(
+                key=10, value=20, max_fee=MAX_FEE
+            )
+        ).wait_for_acceptance()
+    ).hash
+
+    gateway_client1 = GatewayClient(net=network, session=session)
+    gateway_client2 = GatewayClient(net=network, session=session)
+
+    assert gateway_client1._feeder_gateway_client.session is not None
+    assert gateway_client1._feeder_gateway_client.session == session
+    assert gateway_client1._feeder_gateway_client.session.closed is False
+    assert gateway_client2._feeder_gateway_client.session is not None
+    assert gateway_client2._feeder_gateway_client.session == session
+    assert gateway_client2._feeder_gateway_client.session.closed is False
+
+    gateway1_response = await gateway_client1.get_transaction_receipt(tx_hash=tx_hash)
+    gateway2_response = await gateway_client2.get_transaction_receipt(tx_hash=tx_hash)
+    assert gateway1_response == gateway2_response
+
+    assert gateway_client1._feeder_gateway_client.session.closed is False
+    assert gateway_client2._feeder_gateway_client.session.closed is False
+
+    await session.close()
+
+    assert gateway_client1._feeder_gateway_client.session.closed is True
+    assert gateway_client2._feeder_gateway_client.session.closed is True
