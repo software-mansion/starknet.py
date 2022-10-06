@@ -2,7 +2,7 @@ import json
 import os
 import typing
 from pathlib import Path
-from typing import List, NewType, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.cairo.lang.compiler.constants import MAIN_SCOPE, LIBS_DIR_ENVVAR
@@ -17,8 +17,8 @@ from starkware.starknet.compiler.compile import (
 )
 from starkware.starknet.compiler.starknet_pass_manager import starknet_pass_manager
 
-CairoSourceCode = NewType("CairoSourceCode", str)
-CairoFilename = NewType("CairoFilename", str)
+CairoSourceCode = str
+CairoFilename = str
 StarknetCompilationSource = Union[CairoSourceCode, List[CairoFilename]]
 
 

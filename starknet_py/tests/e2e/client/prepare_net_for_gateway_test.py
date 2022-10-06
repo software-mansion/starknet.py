@@ -53,6 +53,11 @@ async def prepare_net_for_tests(
         await account_client.get_transaction_receipt(declare_result.transaction_hash)
     ).block_number
 
+    assert block_with_deploy_number is not None
+    assert block_with_deploy_hash is not None
+    assert block_with_invoke_number is not None
+    assert block_with_declare_number is not None
+
     return PreparedNetworkData(
         contract_address=contract.address,
         deploy_transaction_hash=deployment_result.hash,
