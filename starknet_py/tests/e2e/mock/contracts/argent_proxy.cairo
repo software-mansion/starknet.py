@@ -1,24 +1,31 @@
 %lang starknet
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
-from starkware.cairo.common.math import assert_not_zero
 from starkware.starknet.common.syscalls import library_call, library_call_l1_handler
 
-//###################
+from contracts.upgrade.Upgradable import _get_implementation, _set_implementation
+
+/////////////////////
 // CONSTRUCTOR
-//###################
+/////////////////////
 
 @constructor
 func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    implementation: felt
+    implementation: felt, selector: felt, calldata_len: felt, calldata: felt*
 ) {
     _set_implementation(implementation);
+    library_call(
+        class_hash=implementation,
+        function_selector=selector,
+        calldata_size=calldata_len,
+        calldata=calldata,
+    );
     return ();
 }
 
-//###################
+/////////////////////
 // EXTERNAL FUNCTIONS
-//###################
+/////////////////////
 
 @external
 @raw_input
@@ -53,9 +60,9 @@ func __l1_default__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_
     return ();
 }
 
-//###################
+/////////////////////
 // VIEW FUNCTIONS
-//###################
+/////////////////////
 
 @view
 func get_implementation{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
@@ -63,33 +70,4 @@ func get_implementation{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_ch
 ) {
     let (implementation) = _get_implementation();
     return (implementation=implementation);
-}
-
-//###################
-// STORAGE VARIABLES
-//###################
-
-@storage_var
-func _implementation() -> (address: felt) {
-}
-
-//###################
-// INTERNAL FUNCTIONS
-//###################
-
-func _get_implementation{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
-    implementation: felt
-) {
-    let (res) = _implementation.read();
-    return (implementation=res);
-}
-
-// added for testing purposes
-@external
-func _set_implementation{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    implementation: felt
-) {
-    assert_not_zero(implementation);
-    _implementation.write(implementation);
-    return ();
 }

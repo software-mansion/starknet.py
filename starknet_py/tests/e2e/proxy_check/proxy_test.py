@@ -5,6 +5,7 @@ from starknet_py.contract import Contract
 MAX_FEE = int(1e20)
 
 
+@pytest.mark.skip
 @pytest.mark.asyncio
 async def test_argent_contract_from_address_throws_on_too_many_steps(
     gateway_client, map_contract, compiled_proxy
@@ -57,6 +58,7 @@ async def set_implementation(proxy1: Contract, proxy2: Contract):
     ).wait_for_acceptance()
 
 
+@pytest.mark.skip
 @pytest.mark.asyncio
 async def test_contract_from_address_throws_on_proxy_cycle(
     gateway_account_client, compiled_proxy
@@ -89,6 +91,7 @@ async def test_contract_from_address_throws_on_proxy_cycle(
     assert "Proxy cycle detected" in str(exinfo.value)
 
 
+@pytest.mark.skip
 @pytest.mark.asyncio
 async def test_contract_from_address_with_1_proxy(
     gateway_client, map_contract, compiled_proxy
@@ -109,6 +112,7 @@ async def test_contract_from_address_with_1_proxy(
     assert all(f in proxy_contract.functions for f in ("put", "get"))
 
 
+@pytest.mark.skip
 @pytest.mark.asyncio
 async def test_contract_from_address_with_2_proxy(
     gateway_client, map_contract, compiled_proxy
