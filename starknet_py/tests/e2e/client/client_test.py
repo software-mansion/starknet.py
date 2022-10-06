@@ -1,5 +1,6 @@
 # pylint: disable=too-many-arguments
 import asyncio
+import typing
 from unittest.mock import patch, MagicMock
 
 import pytest
@@ -17,6 +18,7 @@ from starknet_py.net.client_models import (
     DeployedContract,
     DeployTransaction,
     Call,
+    GatewayBlock,
 )
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.gateway_client import GatewayClient
@@ -115,7 +117,8 @@ async def test_get_block_by_hash(
         )
 
         if isinstance(client, GatewayClient):
-            assert block.gas_price == default_gateway_gas_price
+            block = typing.cast(GatewayBlock, block)
+            assert block.gas_price > 0
 
 
 @pytest.mark.asyncio
@@ -147,7 +150,8 @@ async def test_get_block_by_number(
         )
 
         if isinstance(client, GatewayClient):
-            assert block.gas_price == default_gateway_gas_price
+            block = typing.cast(GatewayBlock, block)
+            assert block.gas_price > 0
 
 
 @pytest.mark.asyncio
