@@ -110,7 +110,7 @@ class StarkCurveSigner(BaseSigner):
             salt=transaction.contract_address_salt,
             max_fee=transaction.max_fee,
             version=transaction.version,
-            chain_id=self.chain_id,
+            chain_id=self.chain_id.value,
             nonce=transaction.nonce,
         )
         # pylint: disable=invalid-name
