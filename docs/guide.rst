@@ -262,7 +262,7 @@ will allow for simple migration for StarkNet.py users.
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_full_node_client.py
     :language: python
-    :lines: 10-13,22-23
+    :lines: 10-13,21-22
     :dedent: 4
 
 

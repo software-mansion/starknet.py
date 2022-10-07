@@ -6,7 +6,7 @@ from starknet_py.net.networks import TESTNET
 
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
-async def test_using_full_node_client(rpc_client, map_contract):
+async def test_using_full_node_client(full_node_client, map_contract):
     # pylint: disable=import-outside-toplevel, unused-variable
     # add to docs: start
     from starknet_py.net.full_node_client import FullNodeClient
@@ -19,7 +19,6 @@ async def test_using_full_node_client(rpc_client, map_contract):
         max_fee=int(1e20)
     )
 
-    full_node_client = rpc_client
     # add to docs: start
 
     call_result = await full_node_client.get_block(block_number=1)
