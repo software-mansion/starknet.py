@@ -157,19 +157,19 @@ async def test_create_account_client_with_signer(network):
 
 
 @pytest.mark.asyncio
-async def test_sending_multicall(account_client, map_contract):
-    for (k, v) in ((20, 20), (30, 30)):
-        calls = [
-            map_contract.functions["put"].prepare(key=10, value=10),
-            map_contract.functions["put"].prepare(key=k, value=v),
-        ]
+@pytest.mark.parametrize("key, val", [(20, 20), (30, 30)])
+async def test_sending_multicall(account_client, map_contract, key, val):
+    calls = [
+        map_contract.functions["put"].prepare(key=10, value=10),
+        map_contract.functions["put"].prepare(key=key, value=val),
+    ]
 
-        res = await account_client.execute(calls, int(1e20))
-        await account_client.wait_for_tx(res.transaction_hash)
+    res = await account_client.execute(calls, int(1e20))
+    await account_client.wait_for_tx(res.transaction_hash)
 
-        (value,) = await map_contract.functions["get"].call(key=k)
+    (value,) = await map_contract.functions["get"].call(key=key)
 
-        assert value == v
+    assert value == val
 
 
 @pytest.mark.run_on_devnet
