@@ -38,6 +38,7 @@ from starknet_py.net.models import (
     chain_from_network,
 )
 from starknet_py.net.models.address import AddressRepresentation, parse_address
+from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.net.networks import Network, MAINNET, TESTNET
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
@@ -433,6 +434,47 @@ class AccountClient(Client):
         signature = self.signer.sign_transaction(declare_tx)
 
         return dataclasses.replace(declare_tx, signature=signature, max_fee=max_fee)
+
+    async def sign_deploy_account_transaction(
+        self,
+        *,
+        class_hash: int,
+        contract_address_salt: int,
+        constructor_calldata: Optional[List[int]] = None,
+        max_fee: int,
+    ) -> DeployAccount:
+        """
+        Create and sign deploy account transaction
+
+        :param class_hash: Class hash of the contract class to be deployed
+        :param contract_address_salt: A salt used to calculate deployed contract address
+        :param constructor_calldata: Calldata to be passed to contract constructor
+            and used to calculate deployed contract address
+        :param max_fee: Max fee to be paid for deploying account transaction. Enough tokens must be prefunded before
+            sending the transaction for it to succeed.
+        :return: Signed DeployAccount transaction
+        """
+        # TODO add auto estimate parameter
+        if self.supported_tx_version != 1:
+            raise ValueError(
+                "Signing deploy account transactions is only supported with transaction version 1"
+            )
+
+        constructor_calldata = constructor_calldata or []
+
+        deploy_account_tx = DeployAccount(
+            class_hash=class_hash,
+            contract_address_salt=contract_address_salt,
+            constructor_calldata=constructor_calldata,
+            version=self.supported_tx_version,
+            max_fee=max_fee,
+            signature=[],
+            nonce=await self._get_nonce(),
+        )
+
+        signature = self.signer.sign_transaction(deploy_account_tx)
+
+        return dataclasses.replace(deploy_account_tx, signature=signature)
 
     async def send_transaction(
         self, transaction: InvokeFunction
