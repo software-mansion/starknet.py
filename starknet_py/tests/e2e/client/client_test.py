@@ -17,7 +17,6 @@ from starknet_py.net.client_models import (
     DeployedContract,
     DeployTransaction,
     Call,
-    GatewayBlock,
 )
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.gateway_client import GatewayClient
