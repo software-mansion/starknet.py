@@ -1,6 +1,5 @@
 # pylint: disable=too-many-arguments
 import asyncio
-import typing
 from unittest.mock import patch, MagicMock
 
 import pytest
@@ -116,7 +115,6 @@ async def test_get_block_by_hash(
         )
 
         if isinstance(client, GatewayClient):
-            block = typing.cast(GatewayBlock, block)
             assert block.gas_price > 0
 
 
@@ -148,7 +146,6 @@ async def test_get_block_by_number(
         )
 
         if isinstance(client, GatewayClient):
-            block = typing.cast(GatewayBlock, block)
             assert block.gas_price > 0
 
 
