@@ -96,7 +96,6 @@ async def test_get_block_by_hash(
     block_with_deploy_number,
     contract_address,
     class_hash,
-    default_gateway_gas_price,
 ):
     for client in clients:
         block = await client.get_block(block_hash=block_with_deploy_hash)
@@ -129,7 +128,6 @@ async def test_get_block_by_number(
     block_with_deploy_hash,
     contract_address,
     class_hash,
-    default_gateway_gas_price,
 ):
     for client in clients:
         block = await client.get_block(block_number=block_with_deploy_number)
