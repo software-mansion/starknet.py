@@ -25,8 +25,10 @@ from starknet_py.net.client_models import (
     DeclareTransactionResponse,
     DeployTransactionResponse,
     Call,
+    DeployAccountTransactionResponse,
 )
 from starknet_py.net.http_client import RpcHttpClient
+from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.net.networks import Network
 from starknet_py.net.schemas.rpc import (
     StarknetBlockSchema,
@@ -260,6 +262,11 @@ class FullNodeClient(Client):
             DeployTransactionResponse,
             DeployTransactionResponseSchema().load(res, unknown=EXCLUDE),
         )
+
+    async def deploy_prefunded(
+        self, transaction: DeployAccount
+    ) -> DeployAccountTransactionResponse:
+        raise NotImplementedError()
 
     async def declare(self, transaction: Declare) -> DeclareTransactionResponse:
         contract_class = transaction.dump()["contract_class"]
