@@ -27,7 +27,7 @@ from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
         ),
     ],
 )
-def test_sign_invoke_transaction(transaction):
+def test_sign_transaction(transaction):
     signer = StarkCurveSigner(
         account_address=0x1,
         key_pair=KeyPair.from_private_key(0x1),
