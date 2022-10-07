@@ -454,6 +454,7 @@ class AccountClient(Client):
             sending the transaction for it to succeed.
         :return: Signed DeployAccount transaction
         """
+        # TODO add auto estimate parameter
         if self.supported_tx_version != 1:
             raise ValueError(
                 "Signing deploy account transactions is only supported with transaction version 1"
