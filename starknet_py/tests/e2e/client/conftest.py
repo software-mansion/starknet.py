@@ -184,7 +184,7 @@ def fixture_class_hash(network: str, contract_address: int) -> int:
 
 def net_to_clients() -> List[str]:
     """
-    Return client names based on network in sys.argv
+    Return client fixture names based on network in sys.argv
     """
     clients = ["gateway_client"]
     nets = ["--net=integration", "--net=testnet", "testnet", "integration"]

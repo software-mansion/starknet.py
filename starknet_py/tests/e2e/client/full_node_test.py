@@ -2,10 +2,12 @@ import asyncio
 from unittest.mock import patch, MagicMock
 
 import pytest
+from starkware.starknet.public.abi import get_storage_var_address
 
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     DeployTransaction,
+    DeployedContract,
 )
 
 
@@ -141,3 +143,34 @@ async def test_pending_transactions(full_node_client):
         assert pending_transactions[0].hash == 0x1
         assert pending_transactions[0].signature == []
         assert pending_transactions[0].max_fee == 0
+
+
+@pytest.mark.asyncio
+async def test_state_update_full_node_client(
+    full_node_client,
+    block_with_deploy_number,
+    contract_address,
+    class_hash,
+):
+    state_update = await full_node_client.get_state_update(
+        block_number=block_with_deploy_number
+    )
+
+    assert (
+        DeployedContract(
+            address=contract_address,
+            class_hash=class_hash,
+        )
+        in state_update.deployed_contracts
+    )
+    assert class_hash in state_update.declared_contracts
+
+
+@pytest.mark.asyncio
+async def test_get_storage_at_incorrect_address_full_node_client(full_node_client):
+    with pytest.raises(ClientError, match="Contract not found"):
+        await full_node_client.get_storage_at(
+            contract_address=0x1111,
+            key=get_storage_var_address("balance"),
+            block_hash="latest",
+        )

@@ -14,12 +14,9 @@ from starknet_py.net.client_models import (
     TransactionStatus,
     InvokeFunction,
     TransactionReceipt,
-    DeployedContract,
     DeployTransaction,
     Call,
 )
-from starknet_py.net.client_errors import ClientError
-from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.tests.e2e.account.account_client_test import MAX_FEE
 from starknet_py.transaction_exceptions import (
@@ -155,26 +152,6 @@ async def test_get_storage_at(client, contract_address):
 
 
 @pytest.mark.asyncio
-async def test_get_storage_at_incorrect_address_gateway_client(gateway_client):
-    storage = await gateway_client.get_storage_at(
-        contract_address=0x1111,
-        key=get_storage_var_address("balance"),
-        block_hash="latest",
-    )
-    assert storage == 0
-
-
-@pytest.mark.asyncio
-async def test_get_storage_at_incorrect_address_full_node_client(full_node_client):
-    with pytest.raises(ClientError, match="Contract not found"):
-        await full_node_client.get_storage_at(
-            contract_address=0x1111,
-            key=get_storage_var_address("balance"),
-            block_hash="latest",
-        )
-
-
-@pytest.mark.asyncio
 async def test_get_transaction_receipt(
     client, invoke_transaction_hash, block_with_invoke_number
 ):
@@ -195,11 +172,8 @@ async def test_estimate_fee(contract_address, client):
         signature=[0x0, 0x0],
         nonce=None,
     )
-    kwargs = {"tx": transaction}
-    if isinstance(client, FullNodeClient):
-        kwargs["block_number"] = "latest"
 
-    estimate_fee = await client.estimate_fee(**kwargs)
+    estimate_fee = await client.estimate_fee(tx=transaction, block_number="latest")
 
     assert isinstance(estimate_fee.overall_fee, int)
     assert estimate_fee.overall_fee > 0
@@ -216,47 +190,6 @@ async def test_call_contract(client, contract_address):
     result = await client.call_contract(call, block_hash="latest")
 
     assert result == [1234]
-
-
-@pytest.mark.asyncio
-async def test_state_update_gateway_client(
-    gateway_client,
-    block_with_deploy_number,
-    contract_address,
-    class_hash,
-):
-    state_update = await gateway_client.get_state_update(
-        block_number=block_with_deploy_number
-    )
-
-    assert (
-        DeployedContract(
-            address=contract_address,
-            class_hash=class_hash,
-        )
-        in state_update.deployed_contracts
-    )
-
-
-@pytest.mark.asyncio
-async def test_state_update_full_node_client(
-    full_node_client,
-    block_with_deploy_number,
-    contract_address,
-    class_hash,
-):
-    state_update = await full_node_client.get_state_update(
-        block_number=block_with_deploy_number
-    )
-
-    assert (
-        DeployedContract(
-            address=contract_address,
-            class_hash=class_hash,
-        )
-        in state_update.deployed_contracts
-    )
-    assert class_hash in state_update.declared_contracts
 
 
 @pytest.mark.asyncio
