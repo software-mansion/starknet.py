@@ -30,6 +30,7 @@ from starknet_py.net.client_models import (
     DeployTransactionResponse,
     DeclareTransactionResponse,
     Transaction,
+    DeployAccountTransactionResponse,
 )
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import (
@@ -510,6 +511,11 @@ class AccountClient(Client):
 
     async def deploy(self, transaction: Deploy) -> DeployTransactionResponse:
         return await self.client.deploy(transaction=transaction)
+
+    async def deploy_prefunded(
+        self, transaction: DeployAccount
+    ) -> DeployAccountTransactionResponse:
+        return await self.client.deploy_prefunded(transaction=transaction)
 
     async def declare(self, transaction: Declare) -> DeclareTransactionResponse:
         return await self.client.declare(transaction=transaction)

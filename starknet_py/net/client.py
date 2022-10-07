@@ -22,7 +22,9 @@ from starknet_py.net.client_models import (
     DeployTransactionResponse,
     DeclareTransactionResponse,
     Call,
+    DeployAccountTransactionResponse,
 )
+from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.net.networks import Network
 from starknet_py.transaction_exceptions import (
     TransactionRejectedError,
@@ -227,7 +229,7 @@ class Client(ABC):
         Send a transaction to the network
 
         :param transaction: Transaction object (i.e. InvokeFunction, Deploy).
-        :return: SentTransaction object
+        :return: SentTransactionResponse object
         """
 
     @abstractmethod
@@ -236,7 +238,18 @@ class Client(ABC):
         Deploy a contract to the network
 
         :param transaction: Deploy transaction
-        :return: SentTransaction object
+        :return: SentTransactionResponse object
+        """
+
+    @abstractmethod
+    async def deploy_prefunded(
+        self, transaction: DeployAccount
+    ) -> DeployAccountTransactionResponse:
+        """
+        Deploy an account contract to the network
+
+        :param transaction: DeployAccount transaction
+        :return: SentTransactionResponse object
         """
 
     @abstractmethod
@@ -245,6 +258,7 @@ class Client(ABC):
         Send a declare transaction
 
         :param transaction: Declare transaction
+        :return: SentTransactionResponse object
         """
 
     @abstractmethod

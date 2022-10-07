@@ -27,7 +27,9 @@ from starknet_py.net.client_models import (
     TransactionReceipt,
     Call,
     GatewayBlock,
+    DeployAccountTransactionResponse,
 )
+from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.net.schemas.gateway import (
     ContractCodeSchema,
     StarknetBlockSchema,
@@ -41,6 +43,7 @@ from starknet_py.net.schemas.gateway import (
     DeployTransactionResponseSchema,
     DeclareTransactionResponseSchema,
     TransactionReceiptSchema,
+    DeployAccountTransactionResponseSchema,
 )
 from starknet_py.net.http_client import GatewayHttpClient
 from starknet_py.net.networks import Network, net_address_from_net
@@ -244,6 +247,14 @@ class GatewayClient(Client):
     ) -> DeployTransactionResponse:
         res = await self._add_transaction(transaction, token)
         return DeployTransactionResponseSchema().load(
+            res, unknown=EXCLUDE
+        )  # pyright: ignore
+
+    async def deploy_prefunded(
+        self, transaction: DeployAccount, token: Optional[str] = None
+    ) -> DeployAccountTransactionResponse:
+        res = await self._add_transaction(transaction, token)
+        return DeployAccountTransactionResponseSchema().load(
             res, unknown=EXCLUDE
         )  # pyright: ignore
 
