@@ -324,14 +324,11 @@ def net_to_accounts() -> List[str]:
     accounts = [
         "gateway_account_client",
         "new_gateway_account_client",
-        "rpc_account_client",
     ]
-    if any(
-        net in sys.argv
-        for net in ["--net=integration", "--net=testnet", "testnet", "integration"]
-    ):
-        accounts.remove("rpc_account_client")
+    nets = ["--net=integration", "--net=testnet", "testnet", "integration"]
 
+    if set(nets).isdisjoint(sys.argv):
+        accounts.append("rpc_account_client")
     return accounts
 
 
