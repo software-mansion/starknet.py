@@ -246,7 +246,7 @@ class Client(ABC):
         self, transaction: DeployAccount
     ) -> DeployAccountTransactionResponse:
         """
-        Deploy an account contract to the network
+        Deploy a pre-funded account contract to the network
 
         :param transaction: DeployAccount transaction
         :return: SentTransactionResponse object
