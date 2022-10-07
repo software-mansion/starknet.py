@@ -2,8 +2,9 @@
 
 import os
 import subprocess
+import sys
 from pathlib import Path
-from typing import Tuple, Dict, AsyncGenerator
+from typing import Tuple, Dict, AsyncGenerator, List
 
 import pytest
 import pytest_asyncio
@@ -195,6 +196,40 @@ def fixture_clients(network: str) -> Tuple[Client, Client]:
     )
 
     return gateway_client, full_node_client
+
+
+@pytest.fixture(name="full_node_client", scope="module")
+def create_full_node_client(network: str) -> FullNodeClient:
+    """
+    Creates and returns FullNodeClient
+    """
+    return FullNodeClient(
+        node_url=network + "/rpc",
+        net=network,
+    )
+
+
+def net_to_clients() -> List[str]:
+    """
+    Return client names based on network in sys.argv
+    """
+    clients = ["gateway_client"]
+    nets = ["--net=integration", "--net=testnet", "testnet", "integration"]
+
+    if set(nets).isdisjoint(sys.argv):
+        clients.append("full_node_client")
+    return clients
+
+
+@pytest.fixture(
+    scope="module",
+    params=net_to_clients(),
+)
+def client(request) -> Client:
+    """
+    Returns Client instances
+    """
+    return request.getfixturevalue(request.param)
 
 
 @pytest_asyncio.fixture(name="prepare_network", scope="module", autouse=True)
