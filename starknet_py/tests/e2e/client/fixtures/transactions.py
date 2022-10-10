@@ -13,11 +13,11 @@ async def deploy_account_transaction(
 ) -> DeployAccount:
     account_client = new_gateway_account_client
 
-    compiled_contract = Path(
+    contract_source = Path(
         contracts_dir / "contract_with_validate_deploy.cairo"
     ).read_text("utf-8")
     declare_tx = await account_client.sign_declare_transaction(
-        compilation_source=compiled_contract, max_fee=MAX_FEE
+        compilation_source=contract_source, max_fee=MAX_FEE
     )
     declare_result = await account_client.declare(declare_tx)
     await account_client.wait_for_tx(declare_result.transaction_hash)
