@@ -135,7 +135,7 @@ async def test_get_block_by_number(
     )
 
     if isinstance(client, GatewayClient):
-        assert block.gas_price == default_gateway_gas_price
+        assert block.gas_price > 0
 
 
 @pytest.mark.asyncio
