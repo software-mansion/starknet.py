@@ -245,6 +245,12 @@ class GatewayClient(Client):
         transaction: Deploy,
         token: Optional[str] = None,
     ) -> DeployTransactionResponse:
+        warnings.warn(
+            "Deploy transaction is deprecated."
+            "Use deploy_prefunded method or deploy through cairo syscall",
+            category=DeprecationWarning,
+        )
+
         res = await self._add_transaction(transaction, token)
         return DeployTransactionResponseSchema().load(
             res, unknown=EXCLUDE

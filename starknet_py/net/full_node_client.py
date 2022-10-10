@@ -245,6 +245,12 @@ class FullNodeClient(Client):
         )
 
     async def deploy(self, transaction: Deploy) -> DeployTransactionResponse:
+        warnings.warn(
+            "Deploy transaction is deprecated."
+            "Use deploy_prefunded method or deploy through cairo syscall",
+            category=DeprecationWarning,
+        )
+
         contract_definition = transaction.dump()["contract_definition"]
 
         res = await self._client.call(
