@@ -10,13 +10,10 @@ from starknet_py.net.client_models import (
     Transaction,
     TransactionReceipt,
     SentTransactionResponse,
-    InvokeFunction,
     TransactionStatus,
     Hash,
     Tag,
     DeclaredContract,
-    Deploy,
-    Declare,
     EstimatedFee,
     BlockTransactionTraces,
     DeployTransactionResponse,
@@ -24,7 +21,12 @@ from starknet_py.net.client_models import (
     Call,
     DeployAccountTransactionResponse,
 )
-from starknet_py.net.models.transaction import DeployAccount
+from starknet_py.net.models.transaction import (
+    Deploy,
+    Declare,
+    InvokeFunction,
+    DeployAccount,
+)
 from starknet_py.net.networks import Network
 from starknet_py.transaction_exceptions import (
     TransactionRejectedError,
@@ -183,7 +185,7 @@ class Client(ABC):
     @abstractmethod
     async def estimate_fee(
         self,
-        tx: Union[InvokeFunction, Declare],
+        tx: Union[InvokeFunction, Declare, DeployAccount],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:

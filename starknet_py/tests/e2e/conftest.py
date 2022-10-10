@@ -53,10 +53,15 @@ INTEGRATION_NEW_ACCOUNT_ADDRESS = (
     "0X126FAB6AE8ACA83E2DD00B92F94F3402397D527798E18DC28D76B7740638D23"
 )
 
+MAX_FEE = int(1e20)
+
 mock_dir = Path(os.path.dirname(__file__)) / "mock"
 typed_data_dir = mock_dir / "typed_data"
 contracts_dir = mock_dir / "contracts"
 
+
+# This is needed for importing fixtures from `fixtures` directory
+pytest_plugins = ["starknet_py.tests.e2e.client.fixtures.transactions"]
 
 # This fixture was added to enable using async fixtures
 @pytest.fixture(scope="module")
