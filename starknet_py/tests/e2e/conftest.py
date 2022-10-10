@@ -477,6 +477,9 @@ async def cairo_serializer(gateway_account_client: AccountClient) -> CairoSerial
 
 @pytest.fixture(scope="module")
 def fee_contract(pytestconfig, new_gateway_account_client: AccountClient) -> Contract:
+    """
+    Returns an instance of the fee contract. It is used to transfer tokens
+    """
     abi = [
         {
             "inputs": [
@@ -515,6 +518,9 @@ def fee_contract(pytestconfig, new_gateway_account_client: AccountClient) -> Con
 async def account_with_validate_deploy_class_hash(
     new_gateway_account_client: AccountClient,
 ) -> int:
+    """
+    Returns a clas_hash of the account_with_validate_deploy.cairo
+    """
     compiled_contract = Compiler(
         contract_source=(
             contracts_dir / "account_with_validate_deploy.cairo"
@@ -537,6 +543,10 @@ async def details_of_account_to_be_deployed(
     account_with_validate_deploy_class_hash: int,
     fee_contract: Contract,
 ) -> Tuple[int, KeyPair, int, int]:
+    """
+    Returns address, key_pair, salt and class_hash of the account with validate deploy.
+    Used to test DeployAccount transaction
+    """
     priv_key = get_random_private_key()
     key_pair = KeyPair.from_private_key(priv_key)
     salt = ContractAddressSalt.get_random_value()

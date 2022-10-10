@@ -9,9 +9,11 @@ from starknet_py.tests.e2e.conftest import MAX_FEE
 
 @pytest_asyncio.fixture
 async def deploy_account_transaction(
-    details_of_account_to_be_deployed,
-    network: str
+    details_of_account_to_be_deployed, network: str
 ) -> DeployAccount:
+    """
+    Returns a DeployAccount transaction
+    """
     address, key_pair, salt, class_hash = details_of_account_to_be_deployed
 
     account = AccountClient(
