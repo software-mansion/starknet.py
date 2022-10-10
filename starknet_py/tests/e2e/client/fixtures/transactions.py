@@ -26,5 +26,5 @@ async def deploy_account_transaction(
         class_hash=declare_result.class_hash,
         contract_address_salt=10,
         constructor_calldata=[],
-        max_fee=10000000000,
+        max_fee=MAX_FEE,
     )
