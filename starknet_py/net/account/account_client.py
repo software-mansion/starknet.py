@@ -470,7 +470,7 @@ class AccountClient(Client):
             version=self.supported_tx_version,
             max_fee=max_fee,
             signature=[],
-            nonce=await self._get_nonce(),
+            nonce=0,
         )
 
         signature = self.signer.sign_transaction(deploy_account_tx)
