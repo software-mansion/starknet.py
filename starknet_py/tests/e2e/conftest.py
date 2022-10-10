@@ -29,7 +29,6 @@ from starknet_py.net.http_client import GatewayHttpClient
 from starknet_py.net.models import StarknetChainId, AddressRepresentation
 from starknet_py.contract import Contract
 from starknet_py.net.models.typed_data import TypedData
-from starknet_py.tests.e2e.account.account_client_test import MAX_FEE
 from starknet_py.transactions.deploy import make_deploy_tx
 from starknet_py.utils.data_transformer.data_transformer import CairoSerializer
 
