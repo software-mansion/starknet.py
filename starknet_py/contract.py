@@ -460,6 +460,12 @@ class Contract:
         :raises: `ValueError` if neither compilation_source nor compiled_contract is provided.
         :return: DeployResult instance
         """
+        warnings.warn(
+            "In the future versions of StarkNet, Deploy transaction will not be supported."
+            "To deploy a contract use cairo syscall or Universal Deployer Contract",
+            category=DeprecationWarning,
+        )
+
         compiled = create_compiled_contract(
             compilation_source, compiled_contract, search_paths
         )
