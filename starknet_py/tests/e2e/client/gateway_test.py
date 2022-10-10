@@ -1,6 +1,11 @@
 import pytest
+from starkware.starknet.public.abi import get_storage_var_address
 
-from starknet_py.net.client_models import TransactionStatusResponse, TransactionStatus
+from starknet_py.net.client_models import (
+    TransactionStatusResponse,
+    TransactionStatus,
+    DeployedContract,
+)
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.networks import TESTNET, MAINNET, CustomGatewayUrls
 
@@ -102,3 +107,33 @@ async def test_estimate_fee_deploy_account(gateway_client, deploy_account_transa
 
     assert isinstance(estimate_fee.overall_fee, int)
     assert estimate_fee.overall_fee > 0
+
+
+@pytest.mark.asyncio
+async def test_state_update_gateway_client(
+    gateway_client,
+    block_with_deploy_number,
+    contract_address,
+    class_hash,
+):
+    state_update = await gateway_client.get_state_update(
+        block_number=block_with_deploy_number
+    )
+
+    assert (
+        DeployedContract(
+            address=contract_address,
+            class_hash=class_hash,
+        )
+        in state_update.deployed_contracts
+    )
+
+
+@pytest.mark.asyncio
+async def test_get_storage_at_incorrect_address_gateway_client(gateway_client):
+    storage = await gateway_client.get_storage_at(
+        contract_address=0x1111,
+        key=get_storage_var_address("balance"),
+        block_hash="latest",
+    )
+    assert storage == 0
