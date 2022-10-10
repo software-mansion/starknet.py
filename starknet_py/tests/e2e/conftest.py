@@ -14,7 +14,13 @@ from typing import Tuple, List, Generator
 import pytest
 import pytest_asyncio
 from starkware.crypto.signature.signature import get_random_private_key
+from starkware.starknet.core.os.contract_address.contract_address import (
+    calculate_contract_address_from_hash,
+)
+from starkware.starknet.definitions.fields import ContractAddressSalt
 
+from starknet_py.compile.compiler import Compiler
+from starknet_py.constants import FEE_CONTRACT_ADDRESS, DEVNET_FEE_CONTRACT_ADDRESS
 from starknet_py.net import KeyPair, AccountClient
 from starknet_py.net.client import Client
 from starknet_py.net.full_node_client import FullNodeClient
@@ -23,6 +29,7 @@ from starknet_py.net.http_client import GatewayHttpClient
 from starknet_py.net.models import StarknetChainId, AddressRepresentation
 from starknet_py.contract import Contract
 from starknet_py.net.models.typed_data import TypedData
+from starknet_py.tests.e2e.account.account_client_test import MAX_FEE
 from starknet_py.transactions.deploy import make_deploy_tx
 from starknet_py.utils.data_transformer.data_transformer import CairoSerializer
 
@@ -465,3 +472,84 @@ async def cairo_serializer(gateway_account_client: AccountClient) -> CairoSerial
     contract = deployment_result.deployed_contract
 
     return CairoSerializer(identifier_manager=contract.data.identifier_manager)
+
+
+@pytest.fixture(scope="module")
+def fee_contract(pytestconfig, new_gateway_account_client: AccountClient) -> Contract:
+    abi = [
+        {
+            "inputs": [
+                {"name": "recipient", "type": "felt"},
+                {"name": "amount", "type": "Uint256"},
+            ],
+            "name": "transfer",
+            "outputs": [{"name": "success", "type": "felt"}],
+            "type": "function",
+        },
+        {
+            "members": [
+                {"name": "low", "offset": 0, "type": "felt"},
+                {"name": "high", "offset": 1, "type": "felt"},
+            ],
+            "name": "Uint256",
+            "size": 2,
+            "type": "struct",
+        },
+    ]
+
+    address = (
+        FEE_CONTRACT_ADDRESS
+        if pytestconfig.getoption("--net") != "devnet"
+        else DEVNET_FEE_CONTRACT_ADDRESS
+    )
+
+    return Contract(
+        address=address,
+        abi=abi,
+        client=new_gateway_account_client,
+    )
+
+
+@pytest_asyncio.fixture(scope="module")
+async def account_with_validate_deploy_class_hash(
+    new_gateway_account_client: AccountClient,
+) -> int:
+    compiled_contract = Compiler(
+        contract_source=(
+            contracts_dir / "account_with_validate_deploy.cairo"
+        ).read_text("utf-8"),
+        is_account_contract=True,
+    ).compile_contract()
+
+    declare_tx = await new_gateway_account_client.sign_declare_transaction(
+        compiled_contract=compiled_contract,
+        max_fee=MAX_FEE,
+    )
+    resp = await new_gateway_account_client.declare(transaction=declare_tx)
+    await new_gateway_account_client.wait_for_tx(resp.transaction_hash)
+
+    return resp.class_hash
+
+
+@pytest_asyncio.fixture(scope="module")
+async def details_of_account_to_be_deployed(
+    account_with_validate_deploy_class_hash: int,
+    fee_contract: Contract,
+) -> Tuple[int, KeyPair, int, int]:
+    priv_key = get_random_private_key()
+    key_pair = KeyPair.from_private_key(priv_key)
+    salt = ContractAddressSalt.get_random_value()
+
+    address = calculate_contract_address_from_hash(
+        salt=salt,
+        class_hash=account_with_validate_deploy_class_hash,
+        constructor_calldata=[key_pair.public_key],
+        deployer_address=0,
+    )
+
+    res = await fee_contract.functions["transfer"].invoke(
+        recipient=address, amount=int(1e15), max_fee=MAX_FEE
+    )
+    await res.wait_for_acceptance()
+
+    return address, key_pair, salt, account_with_validate_deploy_class_hash
