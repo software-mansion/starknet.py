@@ -2,10 +2,7 @@
 # pyright: reportUndefinedVariable=false
 
 from abc import ABC, abstractmethod
-
-from starknet_py.constants import OZ_PROXY_STORAGE_KEY
-from starknet_py.net.models import parse_address
-
+from starkware.starknet.public.abi import get_storage_var_address
 
 # noinspection PyUnresolvedReferences
 class ProxyCheck(ABC):
@@ -16,9 +13,11 @@ class ProxyCheck(ABC):
         """
 
     @abstractmethod
-    async def implementation_address(self, contract: "Contract") -> int:
+    async def implementation(self, contract: "Contract") -> int:
         """
-        :return: Address of contract being proxied by `contract` given as a parameter
+        :return: Implementation (either class hash or contract address)
+            of contract being proxied by `contract` given as a parameter
+            or 0 if implementation does not exist
         """
 
 
@@ -27,26 +26,31 @@ class ArgentProxyCheck(ProxyCheck):
     async def is_proxy(self, contract: "Contract") -> bool:
         return "get_implementation" in contract.functions
 
-    async def implementation_address(self, contract: "Contract") -> int:
-        res = await contract.functions["get_implementation"].call()
-        return res[0]
+    async def implementation(self, contract: "Contract") -> int:
+        try:
+            (result,) = await contract.functions["get_implementation"].call()
+            return result
+        except KeyError:
+            return 0
 
 
 # noinspection PyUnresolvedReferences
 class OpenZeppelinProxyCheck(ProxyCheck):
-    def __init__(self):
-        self.storage_key = OZ_PROXY_STORAGE_KEY
-        self.cache = {}
-
     async def is_proxy(self, contract: "Contract") -> bool:
-        return await self.implementation_address(contract) != 0
+        return await self.implementation(contract) != 0
 
-    async def implementation_address(self, contract: "Contract") -> int:
-        if contract.address not in self.cache:
-            res = await contract.client.get_storage_at(
-                contract_address=contract.address,
-                key=self.storage_key,
-                block_hash="latest",
-            )
-            self.cache[contract.address] = parse_address(res)
-        return self.cache[contract.address]
+    async def implementation(self, contract: "Contract") -> int:
+        proxy_implementation_hash = await contract.client.get_storage_at(
+            contract_address=contract.address,
+            key=get_storage_var_address("Proxy_implementation_hash"),
+            block_hash="latest",
+        )
+        if proxy_implementation_hash != 0:
+            return proxy_implementation_hash
+
+        proxy_implementation_address = await contract.client.get_storage_at(
+            contract_address=contract.address,
+            key=get_storage_var_address("Proxy_implementation_address"),
+            block_hash="latest",
+        )
+        return proxy_implementation_address

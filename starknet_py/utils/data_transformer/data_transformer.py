@@ -368,21 +368,21 @@ class CairoSerializer:
         :raises InvalidValueException: when an error occurred while transforming a value
         :raises InvalidTypeException: when wrong type was provided
         """
-        type_by_name = self._abi_to_types(value_types)
-
-        named_arguments = {**kwargs}
-
-        if len(args) > len(type_by_name):
+        if len(args) > len(value_types):
             raise InvalidTypeException(
-                f"Provided {len(args)} positional arguments, {len(type_by_name)} possible."
+                f"Provided {len(args)} positional arguments, {len(value_types)} possible."
             )
 
-        key_diff = set(named_arguments.keys()).difference(set(type_by_name))
-
+        named_arguments = {**kwargs}
+        key_diff = set(named_arguments.keys()).difference(
+            set(val["name"] for val in value_types)
+        )
         if key_diff:
             raise InvalidTypeException(
                 f"Unnecessary named arguments provided: {key_diff}."
             )
+
+        type_by_name = self._abi_to_types(value_types)
 
         # Assign args to named arguments
         for arg, input_name in zip(args, type_by_name.keys()):

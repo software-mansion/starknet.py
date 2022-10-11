@@ -320,6 +320,7 @@ class DeclaredContract:
 
     program: dict
     entry_points_by_type: EntryPointsByType
+    abi: Optional[List[Dict[str, Any]]] = None
 
 
 @dataclass
