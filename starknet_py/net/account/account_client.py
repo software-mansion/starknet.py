@@ -309,7 +309,7 @@ class AccountClient(Client):
 
     async def _get_max_fee(
         self,
-        transaction: Union[InvokeFunction, Declare],
+        transaction: Union[InvokeFunction, Declare, DeployAccount],
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> int:
@@ -318,9 +318,12 @@ class AccountClient(Client):
                 "Max_fee and auto_estimate are exclusive and cannot be provided at the same time."
             )
 
-        if isinstance(transaction, Declare) and transaction.version != 1:
+        if (
+            isinstance(transaction, (Declare, DeployAccount))
+            and transaction.version != 1
+        ):
             raise ValueError(
-                "Estimating fee for Declare transactions with versions other than 1 is not supported."
+                "Estimating fee for Declare/DeployAccount transactions with versions other than 1 is not supported."
             )
 
         if auto_estimate:
@@ -442,7 +445,8 @@ class AccountClient(Client):
         class_hash: int,
         contract_address_salt: int,
         constructor_calldata: Optional[List[int]] = None,
-        max_fee: int,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
     ) -> DeployAccount:
         """
         Create and sign deploy account transaction
@@ -453,9 +457,9 @@ class AccountClient(Client):
             and used to calculate deployed contract address
         :param max_fee: Max fee to be paid for deploying account transaction. Enough tokens must be prefunded before
             sending the transaction for it to succeed.
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
         :return: Signed DeployAccount transaction
         """
-        # TODO add auto estimate parameter
         if self.supported_tx_version != 1:
             raise ValueError(
                 "Signing deploy account transactions is only supported with transaction version 1"
@@ -468,11 +472,15 @@ class AccountClient(Client):
             contract_address_salt=contract_address_salt,
             constructor_calldata=constructor_calldata,
             version=self.supported_tx_version,
-            max_fee=max_fee,
+            max_fee=0,
             signature=[],
             nonce=0,
         )
 
+        max_fee = await self._get_max_fee(
+            transaction=deploy_account_tx, max_fee=max_fee, auto_estimate=auto_estimate
+        )
+        deploy_account_tx = dataclasses.replace(deploy_account_tx, max_fee=max_fee)
         signature = self.signer.sign_transaction(deploy_account_tx)
 
         return dataclasses.replace(deploy_account_tx, signature=signature)
@@ -522,7 +530,7 @@ class AccountClient(Client):
 
     async def estimate_fee(
         self,
-        tx: InvokeFunction,
+        tx: Union[InvokeFunction, Declare, DeployAccount],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
