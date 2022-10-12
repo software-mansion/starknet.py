@@ -16,7 +16,6 @@ from starknet_py.net.client_models import (
     TransactionReceipt,
     DeployTransaction,
     Call,
-    GatewayBlock,
 )
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.tests.e2e.account.account_client_test import MAX_FEE
@@ -136,7 +135,7 @@ async def test_get_block_by_number(
     )
 
     if isinstance(client, GatewayClient):
-        assert block.gas_price == default_gateway_gas_price
+        assert block.gas_price > 0
 
 
 @pytest.mark.asyncio
