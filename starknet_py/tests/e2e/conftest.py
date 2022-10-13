@@ -15,6 +15,7 @@ import pytest
 import pytest_asyncio
 from starkware.crypto.signature.signature import get_random_private_key
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
+from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.net import KeyPair, AccountClient
 from starknet_py.net.client import Client
@@ -22,8 +23,9 @@ from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.http_client import GatewayHttpClient
 from starknet_py.net.models import StarknetChainId, AddressRepresentation
-from starknet_py.contract import Contract
+from starknet_py.contract import Contract, DeployResult
 from starknet_py.net.models.typed_data import TypedData
+from starknet_py.transactions.declare import make_declare_tx
 from starknet_py.transactions.deploy import make_deploy_tx
 from starknet_py.utils.data_transformer.data_transformer import CairoSerializer
 
@@ -452,6 +454,37 @@ def old_proxy() -> str:
     """
     old_proxy_name = "_oz_proxy_address_0.8.1_compiled.json"
     return (contracts_compiled_dir / old_proxy_name).read_text("utf-8")
+
+
+@pytest_asyncio.fixture(name="deploy_proxy_to_contract")
+async def deploy_proxy_to_contract(request, gateway_account_client) -> DeployResult:
+    """
+    Declares a contract and deploys a proxy pointing to that contract.
+    """
+    compiled_proxy_name, compiled_contract_name = request.param
+    compiled_proxy = (contracts_compiled_dir / compiled_proxy_name).read_text("utf-8")
+    compiled_contract = (contracts_compiled_dir / compiled_contract_name).read_text("utf-8")
+
+    declare_tx = make_declare_tx(compiled_contract=compiled_contract)
+    declare_result = await gateway_account_client.declare(declare_tx)
+
+    implementation_key = (
+        "implementation_hash"
+        if "implementation_hash" in compiled_proxy
+        else "implementation"
+    )
+    deployment_result = await Contract.deploy(
+        compiled_contract=compiled_proxy,
+        constructor_args={
+            implementation_key: declare_result.class_hash,
+            "selector": get_selector_from_name("put"),
+            "calldata_len": 2,
+            "calldata": [69, 420],
+        },
+        client=gateway_account_client,
+    )
+    await deployment_result.wait_for_acceptance()
+    return deployment_result
 
 
 @pytest.fixture(
