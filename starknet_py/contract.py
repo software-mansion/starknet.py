@@ -494,6 +494,7 @@ class Contract:
         compiled_contract: Optional[str] = None,
         constructor_args: Optional[Union[List, Dict]] = None,
         search_paths: Optional[List[str]] = None,
+        deployer_address: int = 0,
     ) -> int:
         """
         Computes address for given contract.
@@ -504,9 +505,13 @@ class Contract:
         :param compiled_contract: string containing compiled contract. Useful for reading compiled contract from a file.
         :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
         :param search_paths: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts.
+        :param deployer_address: address of the deployer (if not provided default 0 is used)
+
         :raises: `ValueError` if neither compilation_source nor compiled_contract is provided.
+
         :return: contract's address
         """
+        # pylint: disable=too-many-arguments
         compiled_contract = create_compiled_contract(
             compilation_source, compiled_contract, search_paths
         )
@@ -517,6 +522,7 @@ class Contract:
             salt=salt,
             class_hash=compute_class_hash(compiled_contract, hash_func=pedersen_hash),
             constructor_calldata=translated_args,
+            deployer_address=deployer_address,
         )
 
     @staticmethod
