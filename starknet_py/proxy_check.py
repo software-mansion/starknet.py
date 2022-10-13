@@ -64,8 +64,8 @@ class ProxyResolutionError(Exception):
     """
 
     def __init__(self, proxy_checks: List[ProxyCheck]):
-        proxy_checks_classes = [
-            proxy_check.__class__ for proxy_check in proxy_checks
-        ]
-        self.message = f"Couldn't resolve proxy using given ProxyChecks ({proxy_checks_classes})"
+        proxy_checks_classes = [proxy_check.__class__ for proxy_check in proxy_checks]
+        self.message = (
+            f"Couldn't resolve proxy using given ProxyChecks ({proxy_checks_classes})"
+        )
         super().__init__(self.message)

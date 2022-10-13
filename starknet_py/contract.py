@@ -27,7 +27,11 @@ from starknet_py.common import create_compiled_contract
 from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.net import AccountClient
 from starknet_py.net.client import Client
-from starknet_py.net.client_errors import ClientError, ContractNotFoundError, ClassHashNotFoundError
+from starknet_py.net.client_errors import (
+    ClientError,
+    ContractNotFoundError,
+    ClassHashNotFoundError,
+)
 from starknet_py.net.client_models import Hash, Tag, DeclaredContract
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import (
@@ -37,7 +41,12 @@ from starknet_py.net.models import (
     compute_address,
     Address,
 )
-from starknet_py.proxy_check import ProxyCheck, ArgentProxyCheck, OpenZeppelinProxyCheck, ProxyResolutionError
+from starknet_py.proxy_check import (
+    ProxyCheck,
+    ArgentProxyCheck,
+    OpenZeppelinProxyCheck,
+    ProxyResolutionError,
+)
 from starknet_py.transactions.deploy import make_deploy_tx
 from starknet_py.utils.crypto.facade import pedersen_hash, Call
 from starknet_py.utils.data_transformer import FunctionCallSerializer
@@ -424,11 +433,15 @@ class Contract:
                 "Contract.from_address only supports GatewayClient or AccountClients using GatewayClient"
             )
 
-        direct_contract = await Contract._from_address_direct(address=address, client=client)
+        direct_contract = await Contract._from_address_direct(
+            address=address, client=client
+        )
         if not proxy_config:
             return direct_contract
 
-        return await Contract._from_address_proxy_step(proxy_contract=direct_contract, proxy_config=proxy_config)
+        return await Contract._from_address_proxy_step(
+            proxy_contract=direct_contract, proxy_config=proxy_config
+        )
 
     @staticmethod
     async def deploy(
@@ -592,18 +605,22 @@ class Contract:
         Creates a Contract instance directly from given address.
         """
         actual_client = get_actual_client(client)
-        contract_class = await get_class_by_address(address=address, client=actual_client)
+        contract_class = await get_class_by_address(
+            address=address, client=actual_client
+        )
         return Contract(address=address, abi=contract_class.abi or [], client=client)
 
     @staticmethod
     async def _from_address_proxy_step(
-            proxy_contract: Contract,
-            proxy_config: Contract.ProxyConfig,
+        proxy_contract: Contract,
+        proxy_config: Contract.ProxyConfig,
     ) -> "Contract":
         """
         Creates a Contract instance of a contract that is being proxied by proxy_contract.
         """
-        implementation = await get_implementation_from_proxy(proxy_contract=proxy_contract, proxy_config=proxy_config)
+        implementation = await get_implementation_from_proxy(
+            proxy_contract=proxy_contract, proxy_config=proxy_config
+        )
         actual_client = get_actual_client(proxy_contract.client)
 
         try:
@@ -611,12 +628,20 @@ class Contract:
         except ClientError as err:
             if "is not declared" not in err.message:
                 raise err
-            contract_class = await get_class_by_address(address=implementation, client=actual_client)
+            contract_class = await get_class_by_address(
+                address=implementation, client=actual_client
+            )
 
-        return Contract(address=proxy_contract.address, abi=contract_class.abi or [], client=proxy_contract.client)
+        return Contract(
+            address=proxy_contract.address,
+            abi=contract_class.abi or [],
+            client=proxy_contract.client,
+        )
 
 
-def prepare_proxy_config(proxy_config: Union[bool, Contract.ProxyConfig]) -> Contract.ProxyConfig:
+def prepare_proxy_config(
+    proxy_config: Union[bool, Contract.ProxyConfig]
+) -> Contract.ProxyConfig:
     if isinstance(proxy_config, bool):
         if not proxy_config:
             return {}
@@ -646,7 +671,9 @@ async def get_class_by_address(address: Address, client: Client) -> DeclaredCont
     return contract_class
 
 
-async def get_implementation_from_proxy(proxy_contract: Contract, proxy_config: Contract.ProxyConfig) -> int:
+async def get_implementation_from_proxy(
+    proxy_contract: Contract, proxy_config: Contract.ProxyConfig
+) -> int:
     implementation, proxy_checks = 0, proxy_config.get("proxy_checks", [])
     for proxy_check in proxy_checks:
         implementation = await proxy_check.implementation(proxy_contract)
