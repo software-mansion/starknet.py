@@ -604,10 +604,7 @@ class Contract:
         """
         Creates a Contract instance directly from given address.
         """
-        actual_client = get_actual_client(client)
-        contract_class = await get_class_by_address(
-            address=address, client=actual_client
-        )
+        contract_class = await get_class_by_address(address=address, client=client)
         return Contract(address=address, abi=contract_class.abi or [], client=client)
 
     @staticmethod
@@ -621,21 +618,21 @@ class Contract:
         implementation = await get_implementation_from_proxy(
             proxy_contract=proxy_contract, proxy_config=proxy_config
         )
-        actual_client = get_actual_client(proxy_contract.client)
+        proxy_client = proxy_contract.client
 
         try:
-            contract_class = await actual_client.get_class_by_hash(implementation)
+            contract_class = await proxy_client.get_class_by_hash(implementation)
         except ClientError as err:
             if "is not declared" not in err.message:
                 raise err
             contract_class = await get_class_by_address(
-                address=implementation, client=actual_client
+                address=implementation, client=proxy_client
             )
 
         return Contract(
             address=proxy_contract.address,
             abi=contract_class.abi or [],
-            client=proxy_contract.client,
+            client=proxy_client,
         )
 
 
