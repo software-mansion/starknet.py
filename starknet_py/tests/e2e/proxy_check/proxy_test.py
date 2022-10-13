@@ -43,9 +43,9 @@ async def test_contract_from_address_no_proxy(
     "deploy_proxy_to_contract",
     [
         ("oz_proxy_compiled.json", "map_compiled.json"),
-        ("argent_proxy_compiled.json", "map_compiled.json")
+        ("argent_proxy_compiled.json", "map_compiled.json"),
     ],
-    indirect=True
+    indirect=True,
 )
 async def test_contract_from_address_with_proxy(
     gateway_account_client, deploy_proxy_to_contract
@@ -91,7 +91,7 @@ async def test_contract_from_invalid_address(gateway_account_client):
 @pytest.mark.parametrize(
     "deploy_proxy_to_contract",
     [("oz_proxy_custom_compiled.json", "map_compiled.json")],
-    indirect=True
+    indirect=True,
 )
 async def test_contract_from_address_invalid_proxy_checks(
     gateway_account_client, deploy_proxy_to_contract
@@ -108,7 +108,7 @@ async def test_contract_from_address_invalid_proxy_checks(
 @pytest.mark.parametrize(
     "deploy_proxy_to_contract",
     [("oz_proxy_custom_compiled.json", "map_compiled.json")],
-    indirect=True
+    indirect=True,
 )
 async def test_contract_from_address_custom_proxy_check(
     gateway_account_client, deploy_proxy_to_contract

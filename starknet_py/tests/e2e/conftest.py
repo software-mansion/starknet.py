@@ -375,7 +375,7 @@ def map_compiled_contract() -> str:
     """
     Returns compiled map contract
     """
-    return (contracts_compiled_dir / "map_compiled.json").read_text("utf-8")
+    return read_compiled_contract("map_compiled.json")
 
 
 @pytest.fixture(scope="module")
@@ -383,7 +383,7 @@ def erc20_compiled_contract() -> str:
     """
     Returns compiled erc20 contract
     """
-    return (contracts_compiled_dir / "erc20_compiled.json").read_text("utf-8")
+    return read_compiled_contract("erc20_compiled.json")
 
 
 @pytest_asyncio.fixture(name="deploy_map_contract", scope="module")
@@ -436,7 +436,7 @@ def compiled_proxy(request) -> str:
     """
     Returns source code of compiled proxy contract
     """
-    return (contracts_compiled_dir / request.param).read_text("utf-8")
+    return read_compiled_contract(request.param)
 
 
 @pytest.fixture(name="custom_proxy")
@@ -444,7 +444,7 @@ def custom_proxy() -> str:
     """
     Returns compiled source code of a custom proxy
     """
-    return (contracts_compiled_dir / "oz_proxy_custom_compiled.json").read_text("utf-8")
+    return read_compiled_contract("oz_proxy_custom_compiled.json")
 
 
 @pytest.fixture(name="old_proxy")
@@ -452,8 +452,7 @@ def old_proxy() -> str:
     """
     Returns compiled (using starknet-compile 0.8.1) source code of OpenZeppelin's proxy using address and delegate_call.
     """
-    old_proxy_name = "_oz_proxy_address_0.8.1_compiled.json"
-    return (contracts_compiled_dir / old_proxy_name).read_text("utf-8")
+    return read_compiled_contract("_oz_proxy_address_0.8.1_compiled.json")
 
 
 @pytest_asyncio.fixture(name="deploy_proxy_to_contract")
@@ -462,8 +461,8 @@ async def deploy_proxy_to_contract(request, gateway_account_client) -> DeployRes
     Declares a contract and deploys a proxy pointing to that contract.
     """
     compiled_proxy_name, compiled_contract_name = request.param
-    compiled_proxy = (contracts_compiled_dir / compiled_proxy_name).read_text("utf-8")
-    compiled_contract = (contracts_compiled_dir / compiled_contract_name).read_text("utf-8")
+    compiled_proxy = read_compiled_contract(compiled_proxy_name)
+    compiled_contract = read_compiled_contract(compiled_contract_name)
 
     declare_tx = make_declare_tx(compiled_contract=compiled_contract)
     declare_result = await gateway_account_client.declare(declare_tx)
@@ -515,9 +514,9 @@ async def cairo_serializer(gateway_account_client: AccountClient) -> CairoSerial
     Returns CairoSerializer for "simple_storage_with_event.cairo"
     """
     client = gateway_account_client
-    compiled_contract = (
-        contracts_compiled_dir / "simple_storage_with_event_compiled.json"
-    ).read_text("utf-8")
+    compiled_contract = read_compiled_contract(
+        "simple_storage_with_event_compiled.json"
+    )
 
     deployment_result = await Contract.deploy(
         client, compiled_contract=compiled_contract
@@ -536,3 +535,7 @@ def default_gateway_gas_price() -> int:
     the GatewayClient.
     """
     return StarknetGeneralConfig().min_gas_price
+
+
+def read_compiled_contract(file_name: str) -> str:
+    return (contracts_compiled_dir / file_name).read_text("utf-8")
