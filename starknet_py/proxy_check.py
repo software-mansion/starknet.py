@@ -2,6 +2,8 @@
 # pyright: reportUndefinedVariable=false
 
 from abc import ABC, abstractmethod
+from typing import List
+
 from starkware.starknet.public.abi import get_storage_var_address
 
 # noinspection PyUnresolvedReferences
@@ -54,3 +56,16 @@ class OpenZeppelinProxyCheck(ProxyCheck):
             block_hash="latest",
         )
         return proxy_implementation_address
+
+
+class ProxyResolutionError(Exception):
+    """
+    Error while resolving proxy using ProxyChecks.
+    """
+
+    def __init__(self, proxy_checks: List[ProxyCheck]):
+        proxy_checks_classes = [
+            proxy_check.__class__ for proxy_check in proxy_checks
+        ]
+        self.message = f"Couldn't resolve proxy using given ProxyChecks ({proxy_checks_classes})"
+        super().__init__(self.message)

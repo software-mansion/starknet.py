@@ -27,16 +27,17 @@ from starknet_py.common import create_compiled_contract
 from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.net import AccountClient
 from starknet_py.net.client import Client
-from starknet_py.net.client_errors import ClientError, ContractNotFoundError
-from starknet_py.net.client_models import Hash, Tag
+from starknet_py.net.client_errors import ClientError, ContractNotFoundError, ClassHashNotFoundError
+from starknet_py.net.client_models import Hash, Tag, DeclaredContract
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import (
     InvokeFunction,
     AddressRepresentation,
     parse_address,
     compute_address,
+    Address,
 )
-from starknet_py.proxy_check import ProxyCheck, ArgentProxyCheck, OpenZeppelinProxyCheck
+from starknet_py.proxy_check import ProxyCheck, ArgentProxyCheck, OpenZeppelinProxyCheck, ProxyResolutionError
 from starknet_py.transactions.deploy import make_deploy_tx
 from starknet_py.utils.crypto.facade import pedersen_hash, Call
 from starknet_py.utils.data_transformer import FunctionCallSerializer
@@ -400,7 +401,7 @@ class Contract:
 
         :raises ContractNotFoundError: when contract is not found
         :raises TypeError: when given client's `get_class_by_hash` method does not return abi
-        :raises ValueError: when given ProxyChecks were not sufficient to resolve proxy's implementation
+        :raises ProxyResolutionError: when given ProxyChecks were not sufficient to resolve proxy's implementation
         :param address: Contract's address
         :param client: Client
         :param proxy_config: Proxy resolving config
@@ -416,54 +417,18 @@ class Contract:
         :return: an initialized Contract instance
         """
         address = parse_address(address)
-        if isinstance(proxy_config, bool):
-            proxy_config = Contract._prepare_proxy_config({}) if proxy_config else {}
-        else:
-            proxy_config = Contract._prepare_proxy_config(proxy_config)
-
-        proxy_client = client.client if isinstance(client, AccountClient) else client
-        if not isinstance(proxy_client, GatewayClient):
+        proxy_config = prepare_proxy_config(proxy_config)
+        actual_client = get_actual_client(client)
+        if not isinstance(actual_client, GatewayClient):
             raise TypeError(
                 "Contract.from_address only supports GatewayClient or AccountClients using GatewayClient"
             )
 
-        try:
-            proxy_class_hash = await proxy_client.get_class_hash_at(
-                contract_address=address
-            )
-            proxy_class = await proxy_client.get_class_by_hash(proxy_class_hash)
-        except ClientError as err:
-            if "is not deployed" in err.message:
-                raise ContractNotFoundError(block_hash="latest")
-            raise err
-
-        contract = Contract(address=address, abi=proxy_class.abi or [], client=client)
+        direct_contract = await Contract._from_address_direct(address=address, client=client)
         if not proxy_config:
-            return contract
+            return direct_contract
 
-        implementation, proxy_checks = 0, proxy_config.get("proxy_checks", [])
-        for proxy_check in proxy_checks:
-            implementation = await proxy_check.implementation(contract)
-            if implementation != 0:
-                break
-
-        if implementation == 0:
-            proxy_checks_classes = [
-                proxy_check.__class__ for proxy_check in proxy_checks
-            ]
-            raise ValueError(
-                f"Couldn't resolve proxy using given ProxyChecks ({proxy_checks_classes})"
-            )
-
-        try:
-            contract_class = await proxy_client.get_class_by_hash(implementation)
-        except ClientError as err:
-            if "Class with hash" not in err.message:
-                raise err
-            class_hash = await proxy_client.get_class_hash_at(implementation)
-            contract_class = await proxy_client.get_class_by_hash(class_hash)
-
-        return Contract(address=address, abi=contract_class.abi or [], client=client)
+        return await Contract._from_address_proxy_step(proxy_contract=direct_contract, proxy_config=proxy_config)
 
     @staticmethod
     async def deploy(
@@ -619,11 +584,79 @@ class Contract:
         return repository
 
     @staticmethod
-    def _prepare_proxy_config(proxy_config: ProxyConfig) -> ProxyConfig:
-        if "max_steps" in proxy_config:
-            warnings.warn(
-                "ProxyConfig.max_steps is deprecated. Contract.from_address always makes at most 1 step.",
-                category=DeprecationWarning,
-            )
-        proxy_checks = [OpenZeppelinProxyCheck(), ArgentProxyCheck()]
-        return {"proxy_checks": proxy_checks, **proxy_config}
+    async def _from_address_direct(
+        address: Address,
+        client: Client,
+    ) -> "Contract":
+        """
+        Creates a Contract instance directly from given address.
+        """
+        actual_client = get_actual_client(client)
+        contract_class = await get_class_by_address(address=address, client=actual_client)
+        return Contract(address=address, abi=contract_class.abi or [], client=client)
+
+    @staticmethod
+    async def _from_address_proxy_step(
+            proxy_contract: Contract,
+            proxy_config: Contract.ProxyConfig,
+    ) -> "Contract":
+        """
+        Creates a Contract instance of a contract that is being proxied by proxy_contract.
+        """
+        implementation = await get_implementation_from_proxy(proxy_contract=proxy_contract, proxy_config=proxy_config)
+        actual_client = get_actual_client(proxy_contract.client)
+
+        try:
+            contract_class = await actual_client.get_class_by_hash(implementation)
+        except ClientError as err:
+            if "is not declared" not in err.message:
+                raise err
+            contract_class = await get_class_by_address(address=implementation, client=actual_client)
+
+        return Contract(address=proxy_contract.address, abi=contract_class.abi or [], client=proxy_contract.client)
+
+
+def prepare_proxy_config(proxy_config: Union[bool, Contract.ProxyConfig]) -> Contract.ProxyConfig:
+    if isinstance(proxy_config, bool):
+        if not proxy_config:
+            return {}
+        proxy_config = {}
+
+    if "max_steps" in proxy_config:
+        warnings.warn(
+            "ProxyConfig.max_steps is deprecated. Contract.from_address always makes at most 1 step.",
+            category=DeprecationWarning,
+        )
+    proxy_checks = [OpenZeppelinProxyCheck(), ArgentProxyCheck()]
+    return {"proxy_checks": proxy_checks, **proxy_config}
+
+
+async def get_class_by_address(address: Address, client: Client) -> DeclaredContract:
+    contract_class_hash = 0
+    try:
+        contract_class_hash = await client.get_class_hash_at(contract_address=address)
+        contract_class = await client.get_class_by_hash(class_hash=contract_class_hash)
+    except ClientError as err:
+        if "is not deployed" in err.message:
+            raise ContractNotFoundError(block_hash="latest") from err
+        if "is not declared" in err.message:
+            raise ClassHashNotFoundError(contract_class_hash) from err
+        raise err
+
+    return contract_class
+
+
+async def get_implementation_from_proxy(proxy_contract: Contract, proxy_config: Contract.ProxyConfig) -> int:
+    implementation, proxy_checks = 0, proxy_config.get("proxy_checks", [])
+    for proxy_check in proxy_checks:
+        implementation = await proxy_check.implementation(proxy_contract)
+        if implementation != 0:
+            break
+
+    if implementation == 0:
+        raise ProxyResolutionError(proxy_checks)
+    return implementation
+
+
+def get_actual_client(client: Client) -> Client:
+    return client.client if isinstance(client, AccountClient) else client
