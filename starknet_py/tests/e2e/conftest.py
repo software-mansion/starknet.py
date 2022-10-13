@@ -437,6 +437,23 @@ def compiled_proxy(request) -> str:
     return (contracts_compiled_dir / request.param).read_text("utf-8")
 
 
+@pytest.fixture(name="custom_proxy")
+def custom_proxy() -> str:
+    """
+    Returns compiled source code of a custom proxy
+    """
+    return (contracts_compiled_dir / "oz_proxy_custom_compiled.json").read_text("utf-8")
+
+
+@pytest.fixture(name="old_proxy")
+def old_proxy() -> str:
+    """
+    Returns compiled (using starknet-compile 0.8.1) source code of OpenZeppelin's proxy using address and delegate_call.
+    """
+    old_proxy_name = "_oz_proxy_address_0.8.1_compiled.json"
+    return (contracts_compiled_dir / old_proxy_name).read_text("utf-8")
+
+
 @pytest.fixture(
     name="typed_data",
     params=[

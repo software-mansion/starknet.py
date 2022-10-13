@@ -4,9 +4,8 @@ MOCK_DIRECTORY=starknet_py/tests/e2e/mock
 CONTRACTS_DIRECTORY="$MOCK_DIRECTORY"/contracts
 CONTRACTS_COMPILED_DIRECTORY="$MOCK_DIRECTORY"/contracts_compiled
 
-# delete all artifacts
-rm -rf $CONTRACTS_COMPILED_DIRECTORY
-mkdir $CONTRACTS_COMPILED_DIRECTORY
+# delete all artifacts except those starting with _
+find $CONTRACTS_COMPILED_DIRECTORY -not -regex '.*/_.*json$' -regex '.*json$' -delete
 
 # compile Cairo test contracts
 echo "Compiling Cairo contracts with $(poetry run starknet-compile --version)"
