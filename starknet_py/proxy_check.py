@@ -9,12 +9,6 @@ from starkware.starknet.public.abi import get_storage_var_address
 # noinspection PyUnresolvedReferences
 class ProxyCheck(ABC):
     @abstractmethod
-    async def is_proxy(self, contract: "Contract") -> bool:
-        """
-        :return: `True` if contract is a proxy or `False` if it is not
-        """
-
-    @abstractmethod
     async def implementation(self, contract: "Contract") -> int:
         """
         :return: Implementation (either class hash or contract address)
@@ -25,9 +19,6 @@ class ProxyCheck(ABC):
 
 # noinspection PyUnresolvedReferences
 class ArgentProxyCheck(ProxyCheck):
-    async def is_proxy(self, contract: "Contract") -> bool:
-        return "get_implementation" in contract.functions
-
     async def implementation(self, contract: "Contract") -> int:
         try:
             (result,) = await contract.functions["get_implementation"].call()
@@ -38,9 +29,6 @@ class ArgentProxyCheck(ProxyCheck):
 
 # noinspection PyUnresolvedReferences
 class OpenZeppelinProxyCheck(ProxyCheck):
-    async def is_proxy(self, contract: "Contract") -> bool:
-        return await self.implementation(contract) != 0
-
     async def implementation(self, contract: "Contract") -> int:
         proxy_implementation_hash = await contract.client.get_storage_at(
             contract_address=contract.address,

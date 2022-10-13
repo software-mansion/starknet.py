@@ -30,15 +30,6 @@ class ContractNotFoundError(ClientError):
         super().__init__(message=f"No contract found for identifier: {self.identifier}")
 
 
-class ClassHashNotFoundError(ClientError):
-    """
-    Requested class hash was not found.
-    """
-
-    def __init__(self, class_hash: int):
-        super().__init__(message=f"Class hash {class_hash} not found.")
-
-
 def require_block_identifier(block_hash, block_number):
     if block_hash is None and block_number is None:
         raise ValueError("One of block hash or number must be provided")

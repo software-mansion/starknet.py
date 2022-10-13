@@ -114,9 +114,6 @@ async def test_contract_from_address_custom_proxy_check(
     gateway_account_client, deploy_proxy_to_contract
 ):
     class CustomProxyCheck(ProxyCheck):
-        async def is_proxy(self, contract: "Contract") -> bool:
-            return False
-
         async def implementation(self, contract: "Contract") -> int:
             return await contract.client.get_storage_at(
                 contract_address=contract.address,

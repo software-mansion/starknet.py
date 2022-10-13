@@ -30,7 +30,6 @@ from starknet_py.net.client import Client
 from starknet_py.net.client_errors import (
     ClientError,
     ContractNotFoundError,
-    ClassHashNotFoundError,
 )
 from starknet_py.net.client_models import Hash, Tag, DeclaredContract
 from starknet_py.net.gateway_client import GatewayClient
@@ -661,8 +660,6 @@ async def get_class_by_address(address: Address, client: Client) -> DeclaredCont
     except ClientError as err:
         if "is not deployed" in err.message:
             raise ContractNotFoundError(block_hash="latest") from err
-        if "is not declared" in err.message:
-            raise ClassHashNotFoundError(contract_class_hash) from err
         raise err
 
     return contract_class
