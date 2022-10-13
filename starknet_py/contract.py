@@ -515,9 +515,7 @@ class Contract:
         )
         return compute_address(
             salt=salt,
-            contract_hash=compute_class_hash(
-                compiled_contract, hash_func=pedersen_hash
-            ),
+            class_hash=compute_class_hash(compiled_contract, hash_func=pedersen_hash),
             constructor_calldata=translated_args,
         )
 
