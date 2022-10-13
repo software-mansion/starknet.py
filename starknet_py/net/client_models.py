@@ -135,6 +135,7 @@ class L1HandlerTransaction(Transaction):
     """
     Dataclass representing l1 handler transaction
     """
+
     contract_address: int
     calldata: List[int]
     entry_point_selector: int
