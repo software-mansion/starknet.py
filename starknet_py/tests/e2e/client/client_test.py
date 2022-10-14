@@ -58,12 +58,14 @@ async def test_get_declare_transaction(
     assert transaction.sender_address == sender_address[transaction.version]
 
 
+# TODO: change gateway_client to clients when devnet support v1 transactions
+# invoke_transaction_hash is a hash of the v1 transaction (full_node_client.get_transaction will fail)
 @pytest.mark.asyncio
 async def test_get_invoke_transaction(
-    client,
+    gateway_client,
     invoke_transaction_hash,
 ):
-    transaction = await client.get_transaction(invoke_transaction_hash)
+    transaction = await gateway_client.get_transaction(invoke_transaction_hash)
 
     assert any(data == 1234 for data in transaction.calldata)
     assert transaction.hash == invoke_transaction_hash
