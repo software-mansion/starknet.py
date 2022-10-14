@@ -132,6 +132,7 @@ class DeployTransaction(Transaction):
     class_hash: int
 
 
+@dataclass
 class DeployAccountTransaction(Transaction):
     """
     Dataclass representing deploy account transaction
@@ -143,6 +144,7 @@ class DeployAccountTransaction(Transaction):
     nonce: int
 
 
+@dataclass
 class L1HandlerTransaction(Transaction):
     """
     Dataclass representing l1 handler transaction
