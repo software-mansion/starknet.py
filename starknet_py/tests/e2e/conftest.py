@@ -9,7 +9,7 @@ import sys
 import time
 from contextlib import closing
 from pathlib import Path
-from typing import Tuple, List
+from typing import Tuple, List, Generator
 
 import pytest
 import pytest_asyncio
@@ -107,7 +107,7 @@ def start_devnet():
 
 
 @pytest.fixture(scope="module")
-def run_devnet() -> str:
+def run_devnet() -> Generator[str, None, None]:
     """
     Runs devnet instance once per module and returns it's address
     """
@@ -155,12 +155,12 @@ def create_gateway_client(network: str) -> GatewayClient:
     return GatewayClient(net=network)
 
 
-@pytest.fixture(name="rpc_client", scope="module")
-def create_rpc_client(run_devnet: str) -> FullNodeClient:
+@pytest.fixture(name="full_node_client", scope="module")
+def create_full_node_client(network: str) -> FullNodeClient:
     """
     Creates and returns FullNodeClient
     """
-    return FullNodeClient(node_url=run_devnet + "/rpc", net=run_devnet)
+    return FullNodeClient(node_url=network + "/rpc", net=network)
 
 
 def create_account_client(
@@ -198,7 +198,10 @@ async def devnet_account_details(
         },
     )
 
-    return hex(devnet_account.address), hex(devnet_account.signer.private_key)
+    # Ignore typing, because BaseSigner doesn't have private_key property, but this one has
+    return hex(devnet_account.address), hex(
+        devnet_account.signer.private_key  # pyright: ignore
+    )
 
 
 @pytest_asyncio.fixture(scope="module")
@@ -235,8 +238,8 @@ def gateway_account_client(
 
 
 @pytest.fixture(scope="module")
-def rpc_account_client(
-    address_and_private_key: Tuple[str, str], rpc_client: FullNodeClient
+def full_node_account_client(
+    address_and_private_key: Tuple[str, str], full_node_client: FullNodeClient
 ) -> AccountClient:
     """
     Returns an AccountClient created with FullNodeClient
@@ -244,7 +247,7 @@ def rpc_account_client(
     address, private_key = address_and_private_key
 
     return create_account_client(
-        address, private_key, rpc_client, supported_tx_version=0
+        address, private_key, full_node_client, supported_tx_version=0
     )
 
 
@@ -322,14 +325,11 @@ def net_to_accounts() -> List[str]:
     accounts = [
         "gateway_account_client",
         "new_gateway_account_client",
-        "rpc_account_client",
     ]
-    if any(
-        net in sys.argv
-        for net in ["--net=integration", "--net=testnet", "testnet", "integration"]
-    ):
-        accounts.remove("rpc_account_client")
+    nets = ["--net=integration", "--net=testnet", "testnet", "integration"]
 
+    if set(nets).isdisjoint(sys.argv):
+        accounts.append("full_node_account_client")
     return accounts
 
 

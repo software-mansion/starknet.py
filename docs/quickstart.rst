@@ -31,7 +31,7 @@ there is both synchronous and asynchronous API available.
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/quickstart/test_using_full_node_client.py
     :language: python
-    :lines: 12-15,24-25
+    :lines: 14-17,26-27
     :dedent: 4
 
 You can see all Full Node Client's methods :ref:`FullNodeClient`.
