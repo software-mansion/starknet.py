@@ -1,9 +1,14 @@
+from typing import Tuple
+
 import pytest_asyncio
 
 from starknet_py.net import AccountClient
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import DeployAccount
+from starknet_py.tests.e2e.client.prepare_net_for_gateway_test import (
+    PreparedNetworkData,
+)
 from starknet_py.tests.e2e.conftest import MAX_FEE
 
 
@@ -29,3 +34,11 @@ async def deploy_account_transaction(
         constructor_calldata=[key_pair.public_key],
         max_fee=MAX_FEE,
     )
+
+
+@pytest_asyncio.fixture(name="deploy_account_transaction_hash")
+async def fixture_deploy_account_transaction_hash(
+    prepare_network: Tuple[str, PreparedNetworkData]
+) -> int:
+    _, prepared_data = prepare_network
+    return prepared_data.deploy_account_transaction_hash

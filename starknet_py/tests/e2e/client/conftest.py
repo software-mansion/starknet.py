@@ -19,18 +19,21 @@ from starknet_py.tests.e2e.client.prepare_net_for_gateway_test import (
     prepare_net_for_tests,
     PreparedNetworkData,
 )
-from starknet_py.tests.e2e.conftest import contracts_dir
+from starknet_py.tests.e2e.conftest import contracts_dir, AccountToBeDeployedDetails
 
 directory = os.path.dirname(__file__)
 
 
 async def prepare_network(
     new_gateway_account_client: AccountClient,
+    deploy_account_details: AccountToBeDeployedDetails,
 ) -> PreparedNetworkData:
     contract_compiled = Path(contracts_dir / "balance_compiled.json").read_text("utf-8")
 
     prepared_data = await prepare_net_for_tests(
-        new_gateway_account_client, compiled_contract=contract_compiled
+        new_gateway_account_client,
+        compiled_contract=contract_compiled,
+        deploy_account_details=deploy_account_details,
     )
 
     return prepared_data
@@ -207,13 +210,17 @@ def client(request) -> Client:
 
 @pytest_asyncio.fixture(name="prepare_network", scope="module", autouse=True)
 async def fixture_prepare_network(
-    network: str, new_gateway_account_client: AccountClient
+    network: str,
+    new_gateway_account_client: AccountClient,
+    details_of_account_to_be_deployed: AccountToBeDeployedDetails,
 ) -> AsyncGenerator[Tuple[str, PreparedNetworkData], None]:
     """
     Adds transactions to the network. Returns network address and PreparedNetworkData
     """
     net = network
-    prepared_data = await prepare_network(new_gateway_account_client)
+    prepared_data = await prepare_network(
+        new_gateway_account_client, details_of_account_to_be_deployed
+    )
     yield net, prepared_data
 
 
