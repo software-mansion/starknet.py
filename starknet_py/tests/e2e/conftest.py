@@ -538,11 +538,14 @@ async def account_with_validate_deploy_class_hash(
     return resp.class_hash
 
 
+AccountToBeDeployedDetails = Tuple[int, KeyPair, int, int]
+
+
 @pytest_asyncio.fixture(scope="module")
 async def details_of_account_to_be_deployed(
     account_with_validate_deploy_class_hash: int,
     fee_contract: Contract,
-) -> Tuple[int, KeyPair, int, int]:
+) -> AccountToBeDeployedDetails:
     """
     Returns address, key_pair, salt and class_hash of the account with validate deploy.
     Used to test DeployAccount transaction
