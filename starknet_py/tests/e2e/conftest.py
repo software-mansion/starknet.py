@@ -237,7 +237,7 @@ def gateway_account_client(
 
 
 @pytest.fixture(scope="module")
-def rpc_account_client(
+def full_node_account_client(
     address_and_private_key: Tuple[str, str], full_node_client: FullNodeClient
 ) -> AccountClient:
     """
@@ -328,7 +328,7 @@ def net_to_accounts() -> List[str]:
     nets = ["--net=integration", "--net=testnet", "testnet", "integration"]
 
     if set(nets).isdisjoint(sys.argv):
-        accounts.append("rpc_account_client")
+        accounts.append("full_node_account_client")
     return accounts
 
 

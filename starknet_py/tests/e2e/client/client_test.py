@@ -1,6 +1,6 @@
 # pylint: disable=too-many-arguments
 import asyncio
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, AsyncMock
 
 import pytest
 from aiohttp import ClientSession
@@ -16,6 +16,8 @@ from starknet_py.net.client_models import (
     TransactionReceipt,
     DeployTransaction,
     Call,
+    DeclareTransaction,
+    InvokeTransaction,
 )
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.tests.e2e.account.account_client_test import MAX_FEE
@@ -53,6 +55,7 @@ async def test_get_declare_transaction(
 ):
     transaction = await client.get_transaction(declare_transaction_hash)
 
+    assert isinstance(transaction, DeclareTransaction)
     assert transaction.class_hash == class_hash
     assert transaction.hash == declare_transaction_hash
     assert transaction.sender_address == sender_address[transaction.version]
@@ -67,6 +70,7 @@ async def test_get_invoke_transaction(
 ):
     transaction = await gateway_client.get_transaction(invoke_transaction_hash)
 
+    assert isinstance(transaction, InvokeTransaction)
     assert any(data == 1234 for data in transaction.calldata)
     assert transaction.hash == invoke_transaction_hash
 
@@ -239,16 +243,11 @@ async def test_get_class_by_hash(client, class_hash):
 async def test_wait_for_tx_accepted(gateway_client):
     with patch(
         "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt",
-        MagicMock(),
+        AsyncMock(),
     ) as mocked_receipt:
-        result = asyncio.Future()
-        result.set_result(
-            TransactionReceipt(
-                hash=0x1, status=TransactionStatus.ACCEPTED_ON_L2, block_number=1
-            )
+        mocked_receipt.return_value = TransactionReceipt(
+            hash=0x1, status=TransactionStatus.ACCEPTED_ON_L2, block_number=1
         )
-
-        mocked_receipt.return_value = result
 
         block_number, tx_status = await gateway_client.wait_for_tx(tx_hash=0x1)
         assert block_number == 1
@@ -259,16 +258,11 @@ async def test_wait_for_tx_accepted(gateway_client):
 async def test_wait_for_tx_pending(gateway_client):
     with patch(
         "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt",
-        MagicMock(),
+        AsyncMock(),
     ) as mocked_receipt:
-        result = asyncio.Future()
-        result.set_result(
-            TransactionReceipt(
-                hash=0x1, status=TransactionStatus.PENDING, block_number=1
-            )
+        mocked_receipt.return_value = TransactionReceipt(
+            hash=0x1, status=TransactionStatus.PENDING, block_number=1
         )
-
-        mocked_receipt.return_value = result
 
         block_number, tx_status = await gateway_client.wait_for_tx(tx_hash=0x1)
         assert block_number == 1
@@ -294,16 +288,11 @@ async def test_wait_for_tx_pending(gateway_client):
 async def test_wait_for_tx_rejected(status, exception, exc_message, gateway_client):
     with patch(
         "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt",
-        MagicMock(),
+        AsyncMock(),
     ) as mocked_receipt:
-        result = asyncio.Future()
-        result.set_result(
-            TransactionReceipt(
-                hash=0x1, status=status, block_number=1, rejection_reason=exc_message
-            )
+        mocked_receipt.return_value = TransactionReceipt(
+            hash=0x1, status=status, block_number=1, rejection_reason=exc_message
         )
-
-        mocked_receipt.return_value = result
 
         with pytest.raises(exception) as err:
             await gateway_client.wait_for_tx(tx_hash=0x1)
@@ -315,16 +304,11 @@ async def test_wait_for_tx_rejected(status, exception, exc_message, gateway_clie
 async def test_wait_for_tx_cancelled(gateway_client):
     with patch(
         "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt",
-        MagicMock(),
+        AsyncMock(),
     ) as mocked_receipt:
-        result = asyncio.Future()
-        result.set_result(
-            TransactionReceipt(
-                hash=0x1, status=TransactionStatus.PENDING, block_number=1
-            )
+        mocked_receipt.return_value = TransactionReceipt(
+            hash=0x1, status=TransactionStatus.PENDING, block_number=1
         )
-
-        mocked_receipt.return_value = result
 
         task = asyncio.create_task(
             gateway_client.wait_for_tx(tx_hash=0x1, wait_for_accept=True)

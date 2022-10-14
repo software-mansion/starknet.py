@@ -27,6 +27,7 @@ from starknet_py.net.client_models import (
     DeclareTransactionResponse,
     DeployTransactionResponse,
     DeployAccountTransaction,
+    L1HandlerTransaction,
 )
 from starknet_py.net.schemas.common import (
     Felt,
@@ -122,6 +123,17 @@ class DeployAccountTransactionSchema(TransactionSchema):
         return DeployAccountTransaction(**data)
 
 
+class L1HandlerTransactionSchema(TransactionSchema):
+    contract_address = Felt(data_key="contract_address", required=True)
+    calldata = fields.List(Felt(), data_key="calldata", required=True)
+    entry_point_selector = Felt(data_key="entry_point_selector", required=True)
+    nonce = Felt(data_key="nonce", load_default=None)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> L1HandlerTransaction:
+        return L1HandlerTransaction(**data)
+
+
 class TypesOfTransactionsSchema(OneOfSchema):
     type_field = "type"
     type_schemas = {
@@ -129,6 +141,7 @@ class TypesOfTransactionsSchema(OneOfSchema):
         "DECLARE": DeclareTransactionSchema,
         "DEPLOY": DeployTransactionSchema,
         "DEPLOY_ACCOUNT": DeployAccountTransactionSchema,
+        "L1_HANDLER": L1HandlerTransactionSchema,
     }
 
 
