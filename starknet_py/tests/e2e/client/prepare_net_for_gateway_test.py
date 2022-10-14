@@ -64,7 +64,6 @@ async def prepare_net_for_tests(
         await account_client.get_transaction_receipt(declare_result.transaction_hash)
     ).block_number
 
-    _, key_pair, salt, class_hash = deploy_account_details
     deploy_account_tx = await _signed_deploy_account_transaction(
         account_client.client, deploy_account_details
     )
