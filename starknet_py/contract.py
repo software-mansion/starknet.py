@@ -462,7 +462,7 @@ class Contract:
         """
         warnings.warn(
             "In the future versions of StarkNet, Deploy transaction will not be supported."
-            "To deploy a contract use cairo syscall or Universal Deployer Contract",
+            "To deploy a contract use cairo syscall",
             category=DeprecationWarning,
         )
 
