@@ -1,3 +1,5 @@
+from typing import Optional
+
 import pytest
 from starkware.starknet.public.abi import (
     get_storage_var_address,
@@ -114,12 +116,15 @@ async def test_contract_from_address_custom_proxy_check(
     gateway_account_client, deploy_proxy_to_contract
 ):
     class CustomProxyCheck(ProxyCheck):
-        async def implementation(self, contract: "Contract") -> int:
+        async def implementation_hash(self, contract: "Contract") -> Optional[int]:
             return await contract.client.get_storage_at(
                 contract_address=contract.address,
                 key=get_storage_var_address("Proxy_implementation_hash_custom"),
                 block_hash="latest",
             )
+
+        async def implementation_address(self, contract: "Contract") -> Optional[int]:
+            return None
 
     await Contract.from_address(
         address=deploy_proxy_to_contract.deployed_contract.address,

@@ -25,6 +25,8 @@ Declare = as_our_module(DCL)
 Hash = Union[int, str]
 Tag = Literal["pending", "latest"]
 
+Abi = List[Dict[str, Any]]
+
 
 @dataclass
 class Call:
@@ -320,7 +322,7 @@ class DeclaredContract:
 
     program: dict
     entry_points_by_type: EntryPointsByType
-    abi: Optional[List[Dict[str, Any]]] = None
+    abi: Optional[Abi] = None
 
 
 @dataclass
