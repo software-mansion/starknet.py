@@ -397,8 +397,8 @@ class Contract:
 
             If set to ``False``, :meth:`Contract.from_address` will not resolve proxies.
 
-            If a valid `starknet_py.contract_abi_resolver.ProxyConfig` is provided, will use its values instead,
-            supplementing with defaults when needed.
+            If a valid :class:`starknet_py.contract_abi_resolver.ProxyConfig` is provided, will use
+            its values instead, supplementing with defaults when needed.
 
         :return: an initialized Contract instance
         """
