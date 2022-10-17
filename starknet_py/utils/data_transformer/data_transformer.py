@@ -362,27 +362,26 @@ class CairoSerializer:
     ) -> Tuple[List[int], Dict[str, List[int]]]:
         """
         Transforms params into Cairo representation.
-
         :param value_types: Types of values to be serialized
         :return: tuple (full calldata, dict with all arguments with their Cairo representation)
         :raises InvalidValueException: when an error occurred while transforming a value
         :raises InvalidTypeException: when wrong type was provided
         """
-        if len(args) > len(value_types):
-            raise InvalidTypeException(
-                f"Provided {len(args)} positional arguments, {len(value_types)} possible."
-            )
+        type_by_name = self._abi_to_types(value_types)
 
         named_arguments = {**kwargs}
-        key_diff = set(named_arguments.keys()).difference(
-            set(val["name"] for val in value_types)
-        )
+
+        if len(args) > len(type_by_name):
+            raise InvalidTypeException(
+                f"Provided {len(args)} positional arguments, {len(type_by_name)} possible."
+            )
+
+        key_diff = set(named_arguments.keys()).difference(set(type_by_name))
+
         if key_diff:
             raise InvalidTypeException(
                 f"Unnecessary named arguments provided: {key_diff}."
             )
-
-        type_by_name = self._abi_to_types(value_types)
 
         # Assign args to named arguments
         for arg, input_name in zip(args, type_by_name.keys()):
