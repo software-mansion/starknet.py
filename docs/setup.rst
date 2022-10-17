@@ -9,7 +9,7 @@ An account is needed to start interacting with StarkNet. There are a few ways of
  - using DeployAccount transaction
  - deploy through Cairo syscall (another account is needed)
 
-The first approach is recommended since relying on third-party contracts is not necessary.
+The first approach is recommended since it doesn't rely on third-party contracts.
 
 Deploying an account with DeployAccount transaction requires the following:
 
