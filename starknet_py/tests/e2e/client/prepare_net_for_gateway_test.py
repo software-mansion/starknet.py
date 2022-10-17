@@ -2,10 +2,8 @@ from dataclasses import dataclass
 
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient
-from starknet_py.net.client import Client
-from starknet_py.net.models import StarknetChainId
-from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.tests.e2e.conftest import AccountToBeDeployedDetails
+from starknet_py.tests.e2e.utils import get_deploy_account_transaction
 
 
 @dataclass
@@ -64,8 +62,13 @@ async def prepare_net_for_tests(
         await account_client.get_transaction_receipt(declare_result.transaction_hash)
     ).block_number
 
-    deploy_account_tx = await _signed_deploy_account_transaction(
-        account_client.client, deploy_account_details
+    address, key_pair, salt, class_hash = deploy_account_details
+    deploy_account_tx = await get_deploy_account_transaction(
+        address=address,
+        key_pair=key_pair,
+        salt=salt,
+        class_hash=class_hash,
+        client=account_client,
     )
     deploy_account_result = await account_client.deploy_prefunded(deploy_account_tx)
     await account_client.wait_for_tx(deploy_account_result.transaction_hash)
@@ -95,26 +98,4 @@ async def prepare_net_for_tests(
         deploy_account_transaction_hash=deploy_account_result.transaction_hash,
         block_with_deploy_account_hash=block_with_deploy_account_hash,
         block_with_deploy_account_number=block_with_deploy_account_number,
-    )
-
-
-async def _signed_deploy_account_transaction(
-    client: Client, details: AccountToBeDeployedDetails
-) -> DeployAccount:
-    """
-    Create a signed DEPLOY_ACCOUNT transaction using account details
-    """
-    address, key_pair, salt, class_hash = details
-    account_client = AccountClient(
-        address=address,
-        client=client,
-        key_pair=key_pair,
-        chain=StarknetChainId.TESTNET,
-        supported_tx_version=1,
-    )
-    return await account_client.sign_deploy_account_transaction(
-        class_hash=class_hash,
-        contract_address_salt=salt,
-        constructor_calldata=[key_pair.public_key],
-        max_fee=int(1e16),
     )
