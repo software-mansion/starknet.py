@@ -213,6 +213,7 @@ async def test_get_l1_handler_transaction_without_nonce(gateway_client):
 async def test_get_deploy_account_transaction(
     gateway_client, deploy_account_transaction_hash
 ):
+    # TODO Modify this test to also use FullNodeClient (move to client_test)
     transaction = await gateway_client.get_transaction(deploy_account_transaction_hash)
 
     assert isinstance(transaction, DeployAccountTransaction)
