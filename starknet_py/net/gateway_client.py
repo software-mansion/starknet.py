@@ -210,7 +210,7 @@ class GatewayClient(Client):
 
     async def call_contract(
         self,
-        invoke_tx: Call,
+        call: Call,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> List[int]:
@@ -221,7 +221,7 @@ class GatewayClient(Client):
         res = await self._feeder_gateway_client.post(
             method_name="call_contract",
             params=block_identifier,
-            payload=_get_call_payload(invoke_tx),
+            payload=_get_call_payload(call),
         )
 
         return [int(v, 16) for v in res["result"]]
@@ -404,9 +404,9 @@ def get_block_identifier(
     return {"blockNumber": "pending"}
 
 
-def _get_call_payload(tx: Call) -> dict:
+def _get_call_payload(call: Call) -> dict:
     return {
-        "contract_address": hex(tx.to_addr),
-        "entry_point_selector": hex(tx.selector),
-        "calldata": [str(i) for i in tx.calldata],
+        "contract_address": hex(call.to_addr),
+        "entry_point_selector": hex(call.selector),
+        "calldata": [str(i) for i in call.calldata],
     }

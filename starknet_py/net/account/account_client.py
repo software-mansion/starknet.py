@@ -172,12 +172,12 @@ class AccountClient(Client):
 
     async def call_contract(
         self,
-        invoke_tx: Union[InvokeFunction, Call],
+        call: Union[InvokeFunction, Call],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> List[int]:
         return await self.client.call_contract(
-            invoke_tx=invoke_tx, block_hash=block_hash, block_number=block_number
+            call=call, block_hash=block_hash, block_number=block_number
         )
 
     async def get_class_hash_at(
@@ -649,7 +649,7 @@ class AccountClient(Client):
             calldata=calldata,
         )
         try:
-            await self.call_contract(invoke_tx=call, block_hash="latest")
+            await self.call_contract(call=call, block_hash="latest")
             return True
         except ClientError as ex:
             if re.search(r"Signature\s.+,\sis\sinvalid", ex.message):

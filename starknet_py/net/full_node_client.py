@@ -199,7 +199,7 @@ class FullNodeClient(Client):
 
     async def call_contract(
         self,
-        invoke_tx: Call,
+        call: Call,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> List[int]:
@@ -209,7 +209,7 @@ class FullNodeClient(Client):
         res = await self._client.call(
             method_name="call",
             params={
-                "request": _get_call_payload(invoke_tx),
+                "request": _get_call_payload(call),
                 **block_identifier,
             },
         )
@@ -453,9 +453,9 @@ def get_block_identifier(
     return {"block_id": "pending"}
 
 
-def _get_call_payload(tx: Call) -> dict:
+def _get_call_payload(call: Call) -> dict:
     return {
-        "contract_address": convert_to_felt(tx.to_addr),
-        "entry_point_selector": convert_to_felt(tx.selector),
-        "calldata": [convert_to_felt(i) for i in tx.calldata],
+        "contract_address": convert_to_felt(call.to_addr),
+        "entry_point_selector": convert_to_felt(call.selector),
+        "calldata": [convert_to_felt(i) for i in call.calldata],
     }

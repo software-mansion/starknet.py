@@ -203,7 +203,7 @@ class Client(ABC):
     @abstractmethod
     async def call_contract(
         self,
-        invoke_tx: Call,
+        call: Call,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> List[int]:
@@ -212,7 +212,7 @@ class Client(ABC):
 
         Warning, InvokeFunction as call_contract parameter has been deprecated in favor of Call.
 
-        :param invoke_tx: Call or InvokeFunction (deprecated)
+        :param call: Call or InvokeFunction (deprecated)
         :param block_hash: Block's hash or literals `"pending"` or `"latest"`
         :param block_number: Block's number or literals `"pending"` or `"latest"`
         :return: List of integers representing contract's function output (structured like calldata)
