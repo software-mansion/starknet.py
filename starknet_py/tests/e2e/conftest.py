@@ -477,7 +477,6 @@ async def deploy_proxy_to_contract(request, gateway_account_client) -> DeployRes
         constructor_args={
             implementation_key: declare_result.class_hash,
             "selector": get_selector_from_name("put"),
-            "calldata_len": 2,
             "calldata": [69, 420],
         },
         client=gateway_account_client,
