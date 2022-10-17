@@ -1,3 +1,28 @@
+0.8.0 Migration guide
+=====================
+
+Cairo-lang 0.10.1 brings support for `DEPLOY_ACCOUNT` transactions that will completely
+replace currently used `DEPLOY` transactions sometime in the future. You should
+already modify your applications to use new deployment flow.
+
+1. Declare a contract on starknet using `Declare` transaction
+2. Pre-fund the address of new account with enough tokens to cover transaction costs
+3. Send a `DeployAccount` transaction to the pre-funded address
+
+Breaking Changes
+----------------
+
+- `entry_point_selector` has been removed from `v1` transactions. `InvokeTransaction`'s field has been changed to `Optional[int]`
+- `net.models.address.compute_address` signature has been changed and use of keyword arguments is now mandatory
+- `Client.estimate_fee` ABC now also accepts `DeployAccount` transaction as `tx` parameter
+
+
+Deprecations
+------------
+
+- `Contract.deploy` has been deprecated in favor of new `DeployAccount` flow
+- `Client.deploy` has been deprecated
+
 0.5.0 Migration guide
 =====================
 
