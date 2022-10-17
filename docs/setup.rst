@@ -14,7 +14,7 @@ The first approach is recommended since it doesn't rely on third-party contracts
 Deploying an account with DeployAccount transaction requires the following:
 
  - class_hash of the account contract
- - generating an account's secrets
+ - generating an account private key and deployment salt
  - computing an address based on the account's secrets
  - pre-founding an address with the fee tokens (e.g. using the bridge)
  - creating and signing a DeployAccount transaction with generated secrets
