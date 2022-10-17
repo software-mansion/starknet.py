@@ -14,7 +14,7 @@ Breaking Changes
 
 - `entry_point_selector` has been removed from `v1` transactions. `InvokeTransaction`'s field has been changed to `Optional[int]`
 - `net.models.address.compute_address` signature has been changed and use of keyword arguments is now mandatory
-- `Client.estimate_fee` ABC now also accepts `DeployAccount` transaction as `tx` parameter
+- `Client.estimate_fee` ABC now also accepts `DeployAccount` transaction as `tx` parameter. Custom clients should be updated to reflect this change.
 
 
 Deprecations
