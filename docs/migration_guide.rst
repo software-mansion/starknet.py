@@ -9,7 +9,7 @@ using new flow:
 
 1. Declare a contract on starknet using `Declare` transaction
 2. Pre-fund the address of new account with enough tokens to cover transaction costs
-3. Send a `DeployAccount` transaction to the pre-funded address
+3. Send a `DeployAccount` transaction with the pre-funded address
 
 or support deploying through syscall or `Universal Deployer Contract <https://community.starknet.io/t/universal-deployer-contract-proposal/1864>`_.
 
