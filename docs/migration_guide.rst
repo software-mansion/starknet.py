@@ -2,12 +2,16 @@
 =====================
 
 Cairo-lang 0.10.1 brings support for `DEPLOY_ACCOUNT` transactions that will completely
-replace currently used `DEPLOY` transactions sometime in the future. You should
-already modify your applications to use new deployment flow.
+replace currently used `DEPLOY` transactions sometime in the future.
+
+You should already modify your applications to use new deployment flow to either support deployments
+using new flow:
 
 1. Declare a contract on starknet using `Declare` transaction
 2. Pre-fund the address of new account with enough tokens to cover transaction costs
 3. Send a `DeployAccount` transaction to the pre-funded address
+
+or support deploying through syscall or `Universal Deployer Contract <https://community.starknet.io/t/universal-deployer-contract-proposal/1864>`_.
 
 Breaking Changes
 ----------------
