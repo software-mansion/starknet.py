@@ -18,7 +18,7 @@ Deploying an account with DeployAccount transaction requires the following:
  - computing an address based on the account's secrets
  - pre-founding an address with the fee tokens (e.g. using the bridge)
  - creating and signing a DeployAccount transaction with generated secrets
- - sending the transaction to the StarkNet
+ - sending the transaction to StarkNet
 
 Here is step by step example:
 
