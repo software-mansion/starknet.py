@@ -203,7 +203,7 @@ class Client(ABC):
     @abstractmethod
     async def call_contract(
         self,
-        invoke_tx: Union[InvokeFunction, Call],
+        invoke_tx: Call,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> List[int]:

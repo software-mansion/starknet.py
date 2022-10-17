@@ -210,16 +210,10 @@ class GatewayClient(Client):
 
     async def call_contract(
         self,
-        invoke_tx: Union[InvokeFunction, Call],
+        invoke_tx: Call,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> List[int]:
-        if isinstance(invoke_tx, InvokeFunction):
-            warnings.warn(
-                "InvokeFunctions has been deprecated as a call_contract parameter, use Call instead.",
-                category=DeprecationWarning,
-            )
-
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -410,15 +404,9 @@ def get_block_identifier(
     return {"blockNumber": "pending"}
 
 
-def _get_call_payload(tx: Union[InvokeFunction, Call]) -> dict:
-    if isinstance(tx, Call):
-        return {
-            "contract_address": hex(tx.to_addr),
-            "entry_point_selector": hex(tx.selector),
-            "calldata": [str(i) for i in tx.calldata],
-        }
+def _get_call_payload(tx: Call) -> dict:
     return {
-        "contract_address": hex(tx.contract_address),
-        "entry_point_selector": hex(tx.entry_point_selector),
+        "contract_address": hex(tx.to_addr),
+        "entry_point_selector": hex(tx.selector),
         "calldata": [str(i) for i in tx.calldata],
     }

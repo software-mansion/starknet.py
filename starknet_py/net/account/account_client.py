@@ -200,14 +200,10 @@ class AccountClient(Client):
             return await self.get_contract_nonce(self.address)
 
         [nonce] = await self.call_contract(
-            InvokeFunction(
-                contract_address=self.address,
-                entry_point_selector=get_selector_from_name("get_nonce"),
+            Call(
+                to_addr=self.address,
+                selector=get_selector_from_name("get_nonce"),
                 calldata=[],
-                signature=[],
-                max_fee=0,
-                version=self.supported_tx_version,
-                nonce=None,
             ),
             block_hash="latest",
         )
