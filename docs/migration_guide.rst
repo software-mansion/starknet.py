@@ -42,7 +42,7 @@ removed in the future.
     However, an upgrade is required to use the new features.
 
 
-Breaking Changes
+0.5.0 Breaking Changes
 -----------------------
 
 New Cairo syntax
