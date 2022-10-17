@@ -362,6 +362,7 @@ class CairoSerializer:
     ) -> Tuple[List[int], Dict[str, List[int]]]:
         """
         Transforms params into Cairo representation.
+
         :param value_types: Types of values to be serialized
         :return: tuple (full calldata, dict with all arguments with their Cairo representation)
         :raises InvalidValueException: when an error occurred while transforming a value
