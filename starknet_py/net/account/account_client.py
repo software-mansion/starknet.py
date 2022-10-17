@@ -172,10 +172,25 @@ class AccountClient(Client):
 
     async def call_contract(
         self,
-        call: Union[InvokeFunction, Call],
+        call: Call = None,  # pyright: ignore
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
+        *,
+        invoke_tx: Call = None,  # pyright: ignore
     ) -> List[int]:
+        if call is not None and invoke_tx is not None:
+            raise ValueError("invoke_tx and call are mutually exclusive")
+
+        if invoke_tx is not None:
+            warnings.warn(
+                "invoke_tx parameter is deprecated. Use call instead",
+                category=DeprecationWarning,
+            )
+            call = call or invoke_tx
+
+        if call is None:
+            raise ValueError("Call is a required parameter")
+
         return await self.client.call_contract(
             call=call, block_hash=block_hash, block_number=block_number
         )
