@@ -1,0 +1,71 @@
+import pytest
+
+from starknet_py.contract import Contract
+from starknet_py.tests.e2e.conftest import MAX_FEE
+
+
+@pytest.mark.asyncio
+async def test_deploy_prefunded_account(
+    account_with_validate_deploy_class_hash: int, network: str, fee_contract: Contract
+):
+    # pylint: disable=import-outside-toplevel, too-many-locals
+    # add to docs: start
+    from starkware.crypto.signature.signature import get_random_private_key
+    from starkware.starknet.definitions.fields import ContractAddressSalt
+    from starkware.starknet.core.os.contract_address.contract_address import (
+        calculate_contract_address_from_hash,
+    )
+
+    from starknet_py.net import AccountClient
+    from starknet_py.net import KeyPair
+    from starknet_py.net.gateway_client import GatewayClient
+    from starknet_py.net.models import StarknetChainId
+
+    # Generate account's secrets
+    priv_key = get_random_private_key()
+    key_pair = KeyPair.from_private_key(priv_key)
+    salt = ContractAddressSalt.get_random_value()
+    # add to docs: end
+    class_hash = account_with_validate_deploy_class_hash
+    # add to docs: start
+
+    # Compute an address
+    address = calculate_contract_address_from_hash(
+        salt=salt,
+        class_hash=class_hash,  # class_hash of the Account declared on the StarkNet
+        constructor_calldata=[key_pair.public_key],
+        deployer_address=0,
+    )
+
+    # Pre-found the address (using the bridge or by simply sending fee tokens to the computed address)
+    # add to docs: end
+    res = await fee_contract.functions["transfer"].invoke(
+        recipient=address, amount=int(1e15), max_fee=MAX_FEE
+    )
+    await res.wait_for_acceptance()
+    # add to docs: start
+
+    # Create an AccountClient instance
+    account = AccountClient(
+        address=address,
+        client=GatewayClient(net=network),
+        key_pair=key_pair,
+        chain=StarknetChainId.TESTNET,
+        supported_tx_version=1,
+    )
+
+    # Create and sign DeployAccount transaction
+    deploy_account_tx = await account.sign_deploy_account_transaction(
+        class_hash=class_hash,
+        contract_address_salt=salt,
+        constructor_calldata=[key_pair.public_key],
+        max_fee=int(1e15),
+    )
+
+    resp = await account.deploy_prefunded(transaction=deploy_account_tx)
+    await account.wait_for_tx(resp.transaction_hash)
+
+    # Since this moment account can be used to sign other transactions
+    # add to docs: end
+
+    assert address == resp.address

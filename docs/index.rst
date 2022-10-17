@@ -4,6 +4,7 @@ Welcome to Starknet.py's documentation!
 .. toctree::
 
    installation
+   setup
    quickstart
    guide
    api
