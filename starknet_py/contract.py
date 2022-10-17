@@ -391,8 +391,8 @@ class Contract:
         :param address: Contract's address
         :param client: Client
         :param proxy_config: Proxy resolving config
-            If set to ``True``, will use default proxy checks :class:
-            `starknet_py.proxy_check.OpenZeppelinProxyCheck`
+            If set to ``True``, will use default proxy checks
+            :class:`starknet_py.proxy_check.OpenZeppelinProxyCheck`
             and :class:`starknet_py.proxy_check.ArgentProxyCheck`.
 
             If set to ``False``, :meth:`Contract.from_address` will not resolve proxies.
@@ -406,6 +406,7 @@ class Contract:
         proxy_config = prepare_proxy_config(proxy_config)
         actual_client = client.client if isinstance(client, AccountClient) else client
         if not isinstance(actual_client, GatewayClient):
+            # TODO: Add support for FullNodeClient once abi is available in RPC
             raise TypeError(
                 "Contract.from_address only supports GatewayClient or AccountClients using GatewayClient"
             )
