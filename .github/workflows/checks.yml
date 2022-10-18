@@ -45,10 +45,9 @@ jobs:
         poetry export -f requirements.txt --without-hashes --extras docs | cmp - requirements.txt
     - name: Unit & e2e test
       run: |
-        poetry run poe test
+        poetry run poe test_all
     - name: Generate coverage in XML
       run: |
-        poetry run poe coverage_combine
         poetry run coverage xml
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v2
