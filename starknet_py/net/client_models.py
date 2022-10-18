@@ -77,6 +77,7 @@ class TransactionType(Enum):
     INVOKE = "INVOKE"
     DEPLOY = "DEPLOY"
     DECLARE = "DECLARE"
+    DEPLOY_ACCOUNT = "DEPLOY_ACCOUNT"
     L1_HANDLER = "L1_HANDLER"
 
 
@@ -104,7 +105,8 @@ class InvokeTransaction(Transaction):
 
     contract_address: int
     calldata: List[int]
-    entry_point_selector: int
+    # This field is always None for transactions with version = 1
+    entry_point_selector: Optional[int] = None
     nonce: Optional[int] = None
 
 
@@ -128,6 +130,18 @@ class DeployTransaction(Transaction):
     contract_address: int
     constructor_calldata: List[int]
     class_hash: int
+
+
+@dataclass
+class DeployAccountTransaction(Transaction):
+    """
+    Dataclass representing deploy account transaction
+    """
+
+    contract_address_salt: int
+    class_hash: int
+    constructor_calldata: List[int]
+    nonce: int
 
 
 @dataclass
