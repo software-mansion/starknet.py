@@ -8,6 +8,7 @@ from starkware.starknet.services.api.gateway.transaction import (
     Deploy as D,
     Transaction as T,
     Declare as DCL,
+    DeployAccount as DAC,
 )
 from starkware.starknet.core.os.transaction_hash.transaction_hash import (
     calculate_transaction_hash_common,
@@ -28,6 +29,7 @@ Deploy = as_our_module(D)
 Transaction = as_our_module(T)
 TransactionType = as_our_module(TT)
 Declare = as_our_module(DCL)
+DeployAccount = as_our_module(DAC)
 
 
 def compute_invoke_hash(

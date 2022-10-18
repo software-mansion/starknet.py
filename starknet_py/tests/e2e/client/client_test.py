@@ -61,12 +61,14 @@ async def test_get_declare_transaction(
     assert transaction.sender_address == sender_address[transaction.version]
 
 
+# TODO: change gateway_client to clients when devnet support v1 transactions
+# invoke_transaction_hash is a hash of the v1 transaction (full_node_client.get_transaction will fail)
 @pytest.mark.asyncio
 async def test_get_invoke_transaction(
-    client,
+    gateway_client,
     invoke_transaction_hash,
 ):
-    transaction = await client.get_transaction(invoke_transaction_hash)
+    transaction = await gateway_client.get_transaction(invoke_transaction_hash)
 
     assert isinstance(transaction, InvokeTransaction)
     assert any(data == 1234 for data in transaction.calldata)
@@ -90,7 +92,6 @@ async def test_get_block_by_hash(
     block_with_deploy_number,
     contract_address,
     class_hash,
-    default_gateway_gas_price,
 ):
     block = await client.get_block(block_hash=block_with_deploy_hash)
 
@@ -110,7 +111,7 @@ async def test_get_block_by_hash(
     )
 
     if isinstance(client, GatewayClient):
-        assert block.gas_price == default_gateway_gas_price
+        assert block.gas_price > 0
 
 
 @pytest.mark.asyncio
@@ -121,7 +122,6 @@ async def test_get_block_by_number(
     block_with_deploy_hash,
     contract_address,
     class_hash,
-    default_gateway_gas_price,
 ):
     block = await client.get_block(block_number=block_with_deploy_number)
 
@@ -141,7 +141,7 @@ async def test_get_block_by_number(
     )
 
     if isinstance(client, GatewayClient):
-        assert block.gas_price == default_gateway_gas_price
+        assert block.gas_price > 0
 
 
 @pytest.mark.asyncio
