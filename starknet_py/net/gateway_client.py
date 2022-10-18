@@ -229,7 +229,11 @@ class GatewayClient(Client):
         res = await self._feeder_gateway_client.post(
             method_name="call_contract",
             params=block_identifier,
-            payload=_get_call_payload(call),
+            payload={
+                "contract_address": hex(call.to_addr),
+                "entry_point_selector": hex(call.selector),
+                "calldata": [str(i) for i in call.calldata],
+            },
         )
 
         return [int(v, 16) for v in res["result"]]
@@ -410,11 +414,3 @@ def get_block_identifier(
         return {"blockNumber": block_number}
 
     return {"blockNumber": "pending"}
-
-
-def _get_call_payload(call: Call) -> dict:
-    return {
-        "contract_address": hex(call.to_addr),
-        "entry_point_selector": hex(call.selector),
-        "calldata": [str(i) for i in call.calldata],
-    }

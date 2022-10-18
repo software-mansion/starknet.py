@@ -213,7 +213,11 @@ class FullNodeClient(Client):
         res = await self._client.call(
             method_name="call",
             params={
-                "request": _get_call_payload(call),
+                "request": {
+                    "contract_address": convert_to_felt(call.to_addr),
+                    "entry_point_selector": convert_to_felt(call.selector),
+                    "calldata": [convert_to_felt(i1) for i1 in call.calldata],
+                },
                 **block_identifier,
             },
         )
@@ -455,11 +459,3 @@ def get_block_identifier(
         return {"block_id": {"block_number": block_number}}
 
     return {"block_id": "pending"}
-
-
-def _get_call_payload(call: Call) -> dict:
-    return {
-        "contract_address": convert_to_felt(call.to_addr),
-        "entry_point_selector": convert_to_felt(call.selector),
-        "calldata": [convert_to_felt(i) for i in call.calldata],
-    }
