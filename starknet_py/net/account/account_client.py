@@ -32,6 +32,7 @@ from starknet_py.net.client_models import (
     Transaction,
     DeployAccountTransactionResponse,
 )
+from starknet_py.net.client_utils import invoke_tx_to_call
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import (
     InvokeFunction,
@@ -178,18 +179,7 @@ class AccountClient(Client):
         *,
         invoke_tx: Call = None,  # pyright: ignore
     ) -> List[int]:
-        if call is not None and invoke_tx is not None:
-            raise ValueError("invoke_tx and call are mutually exclusive")
-
-        if invoke_tx is not None:
-            warnings.warn(
-                "invoke_tx parameter is deprecated. Use call instead",
-                category=DeprecationWarning,
-            )
-            call = call or invoke_tx
-
-        if call is None:
-            raise ValueError("Call is a required parameter")
+        call = invoke_tx_to_call(call=call, invoke_tx=invoke_tx)
 
         return await self.client.call_contract(
             call=call, block_hash=block_hash, block_number=block_number

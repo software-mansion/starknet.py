@@ -42,7 +42,7 @@ from starknet_py.net.schemas.rpc import (
     PendingTransactionsSchema,
     EstimatedFeeSchema,
 )
-from starknet_py.net.client_utils import convert_to_felt
+from starknet_py.net.client_utils import convert_to_felt, invoke_tx_to_call
 from starknet_py.transaction_exceptions import TransactionNotReceivedError
 from starknet_py.utils.sync import add_sync_methods
 
@@ -205,18 +205,7 @@ class FullNodeClient(Client):
         *,
         invoke_tx: Call = None,  # pyright: ignore
     ) -> List[int]:
-        if call is not None and invoke_tx is not None:
-            raise ValueError("invoke_tx and call are mutually exclusive")
-
-        if invoke_tx is not None:
-            warnings.warn(
-                "invoke_tx parameter is deprecated. Use call instead",
-                category=DeprecationWarning,
-            )
-            call = call or invoke_tx
-
-        if call is None:
-            raise ValueError("Call is a required parameter")
+        call = invoke_tx_to_call(call=call, invoke_tx=invoke_tx)
 
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
