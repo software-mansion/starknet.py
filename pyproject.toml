@@ -46,7 +46,7 @@ pytest-cov = "^4.0.0"
 
 [tool.poe.tasks]
 test = "pytest -n auto -v --cov=starknet_py starknet_py"
-test_ci = "pytest --cov=starknet_py starknet_py"
+test_ci = "pytest starknet_py"
 test_unit = "pytest -n auto -v starknet_py --ignore=starknet_py/tests/e2e"
 test_e2e = """
     pytest -n auto -v starknet_py/tests/e2e --ignore=starknet_py/tests/e2e/docs
