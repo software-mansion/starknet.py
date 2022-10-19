@@ -11,14 +11,14 @@ Let's say we have a contract with this interface:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_existing_contracts.py
     :language: python
-    :lines: 6-24
+    :lines: 5-23
 
 
 This is how we can interact with it:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_existing_contracts.py
     :language: python
-    :lines: 34-40,44-49,57-66,70-74,78-82,86-101
+    :lines: 33-38,42-44,51-60,64-68,72-76,80-95
     :dedent: 4
 
 
@@ -32,7 +32,7 @@ Here is an example:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_account_client_details.py
     :language: python
-    :lines: 8-13,17-21,26-56
+    :lines: 8-9,13-43
     :dedent: 4
 
 
@@ -232,7 +232,7 @@ Here is a usage example:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_cairo_serializer.py
     :language: python
-    :lines: 9-39,44-49,54-97
+    :lines: 9-36,42-85
     :dedent: 4
 
 

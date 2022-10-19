@@ -6,10 +6,6 @@ async def test_sign_offchain_message(account_client):
     # pylint: disable=import-outside-toplevel, duplicate-code, unused-variable
 
     # add to docs: start
-    from starknet_py.net import AccountClient, KeyPair
-    from starknet_py.net.gateway_client import GatewayClient
-    from starknet_py.net.models import StarknetChainId
-
     # Create a TypedData dictionary
     typed_data = {
         "types": {
@@ -42,27 +38,6 @@ async def test_sign_offchain_message(account_client):
             "contents": "Hello, Bob!",
         },
     }
-    # add to docs: end
-
-    # save account_client fixture
-    account_client_fixture = account_client
-
-    # add to docs: start
-
-    # Create an AccountClient instance
-    client = GatewayClient("testnet")
-    account_client = AccountClient(
-        client=client,
-        address="0x1111",
-        key_pair=KeyPair(private_key=123, public_key=456),
-        chain=StarknetChainId.TESTNET,
-    )
-    # add to docs: end
-
-    # retrieve account_client
-    account_client = account_client_fixture
-
-    # add to docs: start
 
     # We can calculate the message hash
     msg_hash = account_client.hash_message(typed_data=typed_data)

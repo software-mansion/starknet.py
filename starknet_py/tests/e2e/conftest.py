@@ -14,6 +14,10 @@ from typing import Tuple, List, Generator
 import pytest
 import pytest_asyncio
 from starkware.crypto.signature.signature import get_random_private_key
+from starkware.starknet.core.os.contract_address.contract_address import (
+    calculate_contract_address_from_hash,
+)
+from starkware.starknet.definitions.fields import ContractAddressSalt
 
 from starknet_py.compile.compiler import Compiler
 from starknet_py.constants import FEE_CONTRACT_ADDRESS, DEVNET_FEE_CONTRACT_ADDRESS
@@ -25,8 +29,10 @@ from starknet_py.net.http_client import GatewayHttpClient
 from starknet_py.net.models import StarknetChainId, AddressRepresentation
 from starknet_py.contract import Contract
 from starknet_py.net.models.typed_data import TypedData
-from starknet_py.tests.e2e.utils import get_deploy_account_details
-from starknet_py.transactions.deploy import make_deploy_tx
+from starknet_py.tests.e2e.utils import (
+    get_deploy_account_details,
+    get_deploy_account_transaction,
+)
 from starknet_py.utils.data_transformer.data_transformer import CairoSerializer
 
 TESTNET_ACCOUNT_PRIVATE_KEY = (
@@ -256,26 +262,21 @@ def full_node_account_client(
 
 
 async def new_devnet_account_details(
-    network: str, gateway_client: GatewayClient
+    network: str, gateway_client: GatewayClient, class_hash: int
 ) -> Tuple[str, str]:
     """
     Deploys a new AccountClient and adds fee tokens to its balance (only on devnet)
     """
-    private_key = get_random_private_key()
+    priv_key = get_random_private_key()
+    key_pair = KeyPair.from_private_key(priv_key)
+    salt = ContractAddressSalt.get_random_value()
 
-    key_pair = KeyPair.from_private_key(private_key)
-    deploy_tx = make_deploy_tx(
+    address = calculate_contract_address_from_hash(
+        salt=salt,
+        class_hash=class_hash,
         constructor_calldata=[key_pair.public_key],
-        compiled_contract=(contracts_dir / "new_account_compiled.json").read_text(
-            "utf-8"
-        ),
+        deployer_address=0,
     )
-
-    result = await gateway_client.deploy(deploy_tx)
-    await gateway_client.wait_for_tx(
-        tx_hash=result.transaction_hash,
-    )
-    address = result.contract_address
 
     http_client = GatewayHttpClient(network)
     await http_client.post(
@@ -286,12 +287,33 @@ async def new_devnet_account_details(
         },
     )
 
+    deploy_account_tx = await get_deploy_account_transaction(
+        address=address,
+        key_pair=key_pair,
+        salt=salt,
+        class_hash=class_hash,
+        network=network,
+    )
+
+    account = AccountClient(
+        address=address,
+        client=gateway_client,
+        key_pair=key_pair,
+        chain=StarknetChainId.TESTNET,
+        supported_tx_version=1,
+    )
+    res = await account.deploy_prefunded(deploy_account_tx)
+    await account.wait_for_tx(res.transaction_hash)
+
     return hex(address), hex(key_pair.private_key)
 
 
 @pytest_asyncio.fixture(scope="module")
 async def new_address_and_private_key(
-    pytestconfig, network: str, gateway_client: GatewayClient
+    pytestconfig,
+    network: str,
+    gateway_client: GatewayClient,
+    account_with_validate_deploy_class_hash: int,
 ) -> Tuple[str, str]:
     """
     Returns address and private key of a new account, depending on the network
@@ -307,7 +329,9 @@ async def new_address_and_private_key(
     }
 
     if net == "devnet":
-        return await new_devnet_account_details(network, gateway_client)
+        return await new_devnet_account_details(
+            network, gateway_client, account_with_validate_deploy_class_hash
+        )
     return account_details[net]
 
 
@@ -509,9 +533,7 @@ def fee_contract(pytestconfig, new_gateway_account_client: AccountClient) -> Con
 
 
 @pytest_asyncio.fixture(scope="module")
-async def account_with_validate_deploy_class_hash(
-    new_gateway_account_client: AccountClient,
-) -> int:
+async def account_with_validate_deploy_class_hash(pytestconfig, network: str) -> int:
     """
     Returns a clas_hash of the account_with_validate_deploy.cairo
     """
@@ -522,12 +544,35 @@ async def account_with_validate_deploy_class_hash(
         is_account_contract=True,
     ).compile_contract()
 
-    declare_tx = await new_gateway_account_client.sign_declare_transaction(
+    address_and_priv_key = {
+        "devnet": (
+            "0x7d2f37b75a5e779f7da01c22acee1b66c39e8ba470ee5448f05e1462afcedb4",
+            "0xcd613e30d8f16adf91b7584a2265b1f5",
+        ),
+        "testnet": (TESTNET_NEW_ACCOUNT_ADDRESS, TESTNET_NEW_ACCOUNT_PRIVATE_KEY),
+        "integration": (
+            INTEGRATION_NEW_ACCOUNT_ADDRESS,
+            INTEGRATION_NEW_ACCOUNT_PRIVATE_KEY,
+        ),
+    }
+
+    net = pytestconfig.getoption("--net")
+    address, private_key = address_and_priv_key[net]
+
+    account = AccountClient(
+        address=address,
+        client=GatewayClient(net=network),
+        key_pair=KeyPair.from_private_key(int(private_key, 16)),
+        chain=StarknetChainId.TESTNET,
+        supported_tx_version=1,
+    )
+
+    declare_tx = await account.sign_declare_transaction(
         compiled_contract=compiled_contract,
         max_fee=MAX_FEE,
     )
-    resp = await new_gateway_account_client.declare(transaction=declare_tx)
-    await new_gateway_account_client.wait_for_tx(resp.transaction_hash)
+    resp = await account.declare(transaction=declare_tx)
+    await account.wait_for_tx(resp.transaction_hash)
 
     return resp.class_hash
 

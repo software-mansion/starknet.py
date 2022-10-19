@@ -50,7 +50,7 @@ There are some examples how to do it:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/quickstart/test_creating_account_client.py
     :language: python
-    :lines: 10-15,19-53
+    :lines: 10-15,19-48
     :dedent: 4
 
 .. note::
@@ -70,7 +70,7 @@ Example usage:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/quickstart/test_using_account_client.py
     :language: python
-    :lines: 12-15,19-24,28-58
+    :lines: 11-12,16-46
     :dedent: 4
 
 Using Contract
@@ -79,7 +79,7 @@ Using Contract
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/quickstart/test_using_contract.py
     :language: python
-    :lines: 12-18,23-31,36-38,44-61
+    :lines: 12-16,21-25,30-32,38-55
     :dedent: 4
 
 .. note::

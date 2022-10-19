@@ -1,27 +1,15 @@
 import os
 import pytest
-from starknet_py.net.models import StarknetChainId
 
 directory = os.path.dirname(__file__)
 
 
 @pytest.mark.asyncio
-async def test_using_account_client(network, gateway_account_client, map_source_code):
+async def test_using_account_client(gateway_account_client, map_source_code):
     # pylint: disable=import-outside-toplevel, duplicate-code, too-many-locals
     # add to docs: start
-    from starknet_py.net import AccountClient
     from starknet_py.contract import Contract
-    from starknet_py.net.gateway_client import GatewayClient
 
-    # add to docs: end
-    testnet = network
-    # add to docs: start
-
-    # Creates an account on testnet and returns an instance
-    client = GatewayClient(net=testnet)
-    acc_client = await AccountClient.create_account(
-        client=client, chain=StarknetChainId.TESTNET
-    )
     # add to docs: end
     acc_client = gateway_account_client
     # add to docs: start
