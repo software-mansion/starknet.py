@@ -1,3 +1,5 @@
+import warnings
+
 # pylint: disable=unused-import
 from starknet_py.net.models.blocks import (
     BlockStatus,
@@ -42,4 +44,10 @@ from starknet_py.net.models.transaction_payloads import (
     DeployTransactionResponse,
     TransactionStatusResponse,
     EstimatedFee,
+)
+
+warnings.warn(
+    "Importing from starknet_py.net.client_models has been deprecated. "
+    "Use imports from specific modules in starknet_py.net.models.",
+    category=DeprecationWarning,
 )

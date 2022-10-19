@@ -3,8 +3,8 @@ from enum import Enum
 from typing import List, Union
 from typing_extensions import Literal
 
-from .contracts import DeployedContract
-from . import Transaction
+from starknet_py.net.models.contracts import DeployedContract
+from starknet_py.net.models.transaction_payloads import Transaction
 
 
 class BlockStatus(Enum):
