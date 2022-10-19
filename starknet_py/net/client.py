@@ -212,7 +212,7 @@ class Client(ABC):
 
         Warning, InvokeFunction as call_contract parameter has been deprecated in favor of Call.
 
-        :param call: Call or InvokeFunction (deprecated)
+        :param call: Call
         :param block_hash: Block's hash or literals `"pending"` or `"latest"`
         :param block_number: Block's number or literals `"pending"` or `"latest"`
         :return: List of integers representing contract's function output (structured like calldata)
