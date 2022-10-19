@@ -10,6 +10,12 @@ If you don't have one there are a few ways of creating one programmatically:
  - using DeployAccount transaction
  - deploy through Cairo syscall (another account is needed)
 
+.. note::
+
+    In the future users would be able to use
+    `Universal Deployer Contract <https://community.starknet.io/t/universal-deployer-contract-proposal/1864>`_
+    to deploy any contract, including an Account.
+
 The first approach is recommended since it doesn't rely on third-party contracts.
 The concept behind the DeployAccount transaction is based on prefunding a generated address with tokens
 and then creating the transaction which will charge the fee from the address.
