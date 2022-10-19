@@ -78,6 +78,7 @@ class TransactionType(Enum):
     DEPLOY = "DEPLOY"
     DECLARE = "DECLARE"
     DEPLOY_ACCOUNT = "DEPLOY_ACCOUNT"
+    L1_HANDLER = "L1_HANDLER"
 
 
 @dataclass
@@ -141,6 +142,18 @@ class DeployAccountTransaction(Transaction):
     class_hash: int
     constructor_calldata: List[int]
     nonce: int
+
+
+@dataclass
+class L1HandlerTransaction(Transaction):
+    """
+    Dataclass representing l1 handler transaction
+    """
+
+    contract_address: int
+    calldata: List[int]
+    entry_point_selector: int
+    nonce: Optional[int] = None
 
 
 class TransactionStatus(Enum):
