@@ -27,5 +27,5 @@ Here is step by step example:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/account_creation/test_deploy_prefunded_account.py
     :language: python
-    :lines: 13-39,46-65
+    :lines: 16-22,28-40,47-68
     :dedent: 4

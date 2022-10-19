@@ -1,5 +1,8 @@
 import pytest
 
+from starkware.crypto.signature.signature import get_random_private_key
+from starkware.starknet.definitions.fields import ContractAddressSalt
+
 from starknet_py.contract import Contract
 from starknet_py.tests.e2e.conftest import MAX_FEE
 
@@ -10,27 +13,23 @@ async def test_deploy_prefunded_account(
 ):
     # pylint: disable=import-outside-toplevel, too-many-locals
     # add to docs: start
-    from starkware.crypto.signature.signature import get_random_private_key
-    from starkware.starknet.definitions.fields import ContractAddressSalt
-    from starkware.starknet.core.os.contract_address.contract_address import (
-        calculate_contract_address_from_hash,
-    )
-
     from starknet_py.net import AccountClient
     from starknet_py.net import KeyPair
     from starknet_py.net.gateway_client import GatewayClient
     from starknet_py.net.models import StarknetChainId
+    from starknet_py.net.models import compute_address
 
-    # Generate account's secrets
-    priv_key = get_random_private_key()
-    key_pair = KeyPair.from_private_key(priv_key)
-    salt = ContractAddressSalt.get_random_value()
+    # First, make sure to generate private key and salt
     # add to docs: end
+    private_key = get_random_private_key()
+    salt = ContractAddressSalt.get_random_value()
     class_hash = account_with_validate_deploy_class_hash
     # add to docs: start
 
+    key_pair = KeyPair.from_private_key(private_key)
+
     # Compute an address
-    address = calculate_contract_address_from_hash(
+    address = compute_address(
         salt=salt,
         class_hash=class_hash,  # class_hash of the Account declared on the StarkNet
         constructor_calldata=[key_pair.public_key],
