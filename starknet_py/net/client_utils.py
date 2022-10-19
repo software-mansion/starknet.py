@@ -19,7 +19,7 @@ def is_block_identifier(value: Union[int, Hash, Tag]) -> bool:
     return isinstance(value, str) and value in get_args(Tag)
 
 
-def invoke_tx_to_call(
+def _invoke_tx_to_call(
     call: Optional[Call] = None, invoke_tx: Optional[Call] = None
 ) -> Call:
     if call is not None and invoke_tx is not None:

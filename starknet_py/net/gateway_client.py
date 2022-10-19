@@ -51,7 +51,7 @@ from starknet_py.net.client_errors import ContractNotFoundError
 from starknet_py.net.client_utils import (
     convert_to_felt,
     is_block_identifier,
-    invoke_tx_to_call,
+    _invoke_tx_to_call,
 )
 from starknet_py.transaction_exceptions import TransactionNotReceivedError
 from starknet_py.utils.sync import add_sync_methods
@@ -220,7 +220,7 @@ class GatewayClient(Client):
         *,
         invoke_tx: Call = None,  # pyright: ignore
     ) -> List[int]:
-        call = invoke_tx_to_call(call=call, invoke_tx=invoke_tx)
+        call = _invoke_tx_to_call(call=call, invoke_tx=invoke_tx)
 
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number

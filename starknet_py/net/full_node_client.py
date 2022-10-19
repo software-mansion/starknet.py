@@ -42,7 +42,7 @@ from starknet_py.net.schemas.rpc import (
     PendingTransactionsSchema,
     EstimatedFeeSchema,
 )
-from starknet_py.net.client_utils import convert_to_felt, invoke_tx_to_call
+from starknet_py.net.client_utils import convert_to_felt, _invoke_tx_to_call
 from starknet_py.transaction_exceptions import TransactionNotReceivedError
 from starknet_py.utils.sync import add_sync_methods
 
@@ -205,7 +205,7 @@ class FullNodeClient(Client):
         *,
         invoke_tx: Call = None,  # pyright: ignore
     ) -> List[int]:
-        call = invoke_tx_to_call(call=call, invoke_tx=invoke_tx)
+        call = _invoke_tx_to_call(call=call, invoke_tx=invoke_tx)
 
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
