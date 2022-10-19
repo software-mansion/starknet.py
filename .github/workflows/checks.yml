@@ -48,6 +48,7 @@ jobs:
         poetry run poe test
     - name: Generate coverage in XML
       run: |
+        poetry run poe coverage_combine
         poetry run coverage xml
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v2
