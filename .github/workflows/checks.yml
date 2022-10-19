@@ -45,7 +45,7 @@ jobs:
         poetry export -f requirements.txt --without-hashes --extras docs | cmp - requirements.txt
     - name: Unit & e2e test
       run: |
-        poetry run poe test_ci
+        poetry run poe test
     - name: Generate coverage in XML
       run: |
         poetry run coverage xml
