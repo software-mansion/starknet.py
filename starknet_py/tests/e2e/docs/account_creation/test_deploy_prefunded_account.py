@@ -37,7 +37,8 @@ async def test_deploy_prefunded_account(
         deployer_address=0,
     )
 
-    # Pre-found the address (using the bridge or by simply sending fee tokens to the computed address)
+    # Prefund the address (using the bridge or by simply sending fee tokens to the computed address)
+    # Make sure the tx has been accepted on L2 before proceeding
     # add to docs: end
     res = await fee_contract.functions["transfer"].invoke(
         recipient=address, amount=int(1e15), max_fee=MAX_FEE
