@@ -11,6 +11,8 @@ If you don't have one there are a few ways of creating one programmatically:
  - deploy through Cairo syscall (another account is needed)
 
 The first approach is recommended since it doesn't rely on third-party contracts.
+The concept behind the DeployAccount transaction is based on prefunding a generated address with tokens
+and then creating the transaction which will charge the fee from the address.
 
 Deploying an account with DeployAccount transaction requires the following:
 
