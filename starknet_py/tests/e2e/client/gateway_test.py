@@ -3,11 +3,11 @@ from unittest.mock import patch, AsyncMock
 import pytest
 from starkware.starknet.public.abi import get_storage_var_address
 
-from starknet_py.net.client_models import (
-    TransactionStatusResponse,
-    TransactionStatus,
-    DeployedContract,
+from starknet_py.net.models.contracts import DeployedContract
+from starknet_py.net.models.transaction_payloads import (
     L1HandlerTransaction,
+    TransactionStatus,
+    TransactionStatusResponse,
 )
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.networks import TESTNET, MAINNET, CustomGatewayUrls

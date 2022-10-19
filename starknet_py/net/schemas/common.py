@@ -2,11 +2,8 @@ from typing import Any, Union, Mapping, Optional
 
 from marshmallow import fields, ValidationError
 
-from starknet_py.net.client_models import (
-    TransactionStatus,
-    BlockStatus,
-    TransactionType,
-)
+from starknet_py.net.models.blocks import BlockStatus
+from starknet_py.net.models.transaction_payloads import TransactionStatus
 
 # pylint: disable=unused-argument
 
@@ -90,27 +87,3 @@ class BlockStatusField(fields.Field):
             raise ValidationError(f"Invalid value for BlockStatus provided: {value}")
 
         return BlockStatus(value)
-
-
-class TransactionTypeField(fields.Field):
-    def _serialize(self, value: Any, attr: str, obj: Any, **kwargs):
-        return value.name if value is not None else ""
-
-    def _deserialize(
-        self,
-        value: Any,
-        attr: Optional[str],
-        data: Optional[Mapping[str, Any]],
-        **kwargs,
-    ) -> TransactionType:
-        values = [v.value for v in TransactionType]
-
-        if value == "INVOKE_FUNCTION":
-            value = "INVOKE"
-
-        if value not in values:
-            raise ValidationError(
-                f"Invalid value provided for TransactionType: {value}"
-            )
-
-        return TransactionType(value)

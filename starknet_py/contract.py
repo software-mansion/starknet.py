@@ -27,7 +27,7 @@ from starknet_py.common import create_compiled_contract
 from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.net import AccountClient
 from starknet_py.net.client import Client
-from starknet_py.net.client_models import Hash, Tag
+from starknet_py.net.models.blocks import Hash, Tag
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import (
     InvokeFunction,
@@ -37,7 +37,8 @@ from starknet_py.net.models import (
 )
 from starknet_py.proxy_check import ProxyCheck, ArgentProxyCheck, OpenZeppelinProxyCheck
 from starknet_py.transactions.deploy import make_deploy_tx
-from starknet_py.utils.crypto.facade import pedersen_hash, Call
+from starknet_py.utils.crypto.facade import pedersen_hash
+from starknet_py.net.models.contracts import Call
 from starknet_py.utils.data_transformer import FunctionCallSerializer
 from starknet_py.utils.sync import add_sync_methods
 

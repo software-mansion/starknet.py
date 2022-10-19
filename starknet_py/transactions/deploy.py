@@ -2,10 +2,10 @@ import warnings
 from typing import Union, List, Optional
 
 from starkware.starknet.definitions.fields import ContractAddressSalt
+from starkware.starknet.services.api.contract_class import ContractClass
 
 from starknet_py.common import create_compiled_contract
 from starknet_py.compile.compiler import StarknetCompilationSource
-from starknet_py.net.client_models import ContractClass
 from starknet_py.net.models import Deploy
 
 

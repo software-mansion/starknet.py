@@ -10,13 +10,13 @@ from starkware.starknet.core.os.transaction_hash.transaction_hash import (
     calculate_declare_transaction_hash,
 )
 
-from starknet_py.net.client_models import Declare, InvokeFunction
 from starknet_py.net.models import (
     AddressRepresentation,
     StarknetChainId,
-    Transaction,
     parse_address,
+    Transaction,
 )
+from starknet_py.net.models.transaction import Declare, InvokeFunction
 from starknet_py.net.signer.base_signer import BaseSigner
 from starknet_py.utils.crypto.facade import message_signature
 from starknet_py.utils.typed_data import TypedData as TypedDataDataclass

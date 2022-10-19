@@ -13,35 +13,34 @@ from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError
-from starknet_py.net.client_models import (
-    SentTransactionResponse,
-    Hash,
-    DeclaredContract,
-    Tag,
-    TransactionReceipt,
-    BlockStateUpdate,
+from starknet_py.net.models.contracts import DeclaredContract, Call, Calls
+from starknet_py.net.models.blocks import (
     StarknetBlock,
-    Declare,
-    Deploy,
     BlockTransactionTraces,
-    EstimatedFee,
-    Calls,
+    BlockStateUpdate,
+    Hash,
+    Tag,
+)
+from starknet_py.net.models.transaction import Declare, Deploy
+from starknet_py.net.models.transaction_payloads import (
     TransactionStatus,
-    DeployTransactionResponse,
+    TransactionReceipt,
+    SentTransactionResponse,
     DeclareTransactionResponse,
-    Transaction,
+    DeployTransactionResponse,
+    EstimatedFee,
 )
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import (
     InvokeFunction,
     StarknetChainId,
     chain_from_network,
+    Transaction,
 )
 from starknet_py.net.models.address import AddressRepresentation, parse_address
 from starknet_py.net.networks import Network, MAINNET, TESTNET
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
-from starknet_py.utils.crypto.facade import Call
 from starknet_py.utils.data_transformer.execute_transformer import (
     execute_transformer_by_version,
 )

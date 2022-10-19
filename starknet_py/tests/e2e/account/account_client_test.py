@@ -7,7 +7,7 @@ from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient, KeyPair
 from starknet_py.net.account.account_client import deploy_account_contract
-from starknet_py.net.client_models import TransactionStatus
+from starknet_py.net.models.transaction_payloads import TransactionStatus
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import parse_address, StarknetChainId
 from starknet_py.net.networks import TESTNET, MAINNET

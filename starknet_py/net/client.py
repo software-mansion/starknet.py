@@ -4,25 +4,24 @@ import asyncio
 from abc import ABC, abstractmethod
 from typing import Union, Optional, List, Tuple
 
-from starknet_py.net.client_models import (
+from starknet_py.net.models.contracts import DeclaredContract, Call
+from starknet_py.net.models.blocks import (
     StarknetBlock,
+    BlockTransactionTraces,
     BlockStateUpdate,
-    Transaction,
-    TransactionReceipt,
-    SentTransactionResponse,
-    InvokeFunction,
-    TransactionStatus,
     Hash,
     Tag,
-    DeclaredContract,
-    Deploy,
-    Declare,
-    EstimatedFee,
-    BlockTransactionTraces,
-    DeployTransactionResponse,
-    DeclareTransactionResponse,
-    Call,
 )
+from starknet_py.net.models.transaction import InvokeFunction, Deploy, Declare
+from starknet_py.net.models.transaction_payloads import (
+    TransactionStatus,
+    TransactionReceipt,
+    SentTransactionResponse,
+    DeclareTransactionResponse,
+    DeployTransactionResponse,
+    EstimatedFee,
+)
+from starknet_py.net.models import Transaction
 from starknet_py.net.networks import Network
 from starknet_py.transaction_exceptions import (
     TransactionRejectedError,

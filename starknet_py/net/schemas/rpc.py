@@ -1,26 +1,29 @@
 from marshmallow import Schema, fields, post_load, pre_load, EXCLUDE
 from marshmallow_oneofschema import OneOfSchema
 
-from starknet_py.net.client_models import (
-    StarknetBlock,
-    L1toL2Message,
-    L2toL1Message,
-    BlockStateUpdate,
-    StorageDiff,
+from starknet_py.net.models.contracts import (
     DeployedContract,
-    Event,
     EntryPoint,
     EntryPointsByType,
     DeclaredContract,
+)
+from starknet_py.net.models.blocks import (
+    StarknetBlock,
+    StateDiff,
+    BlockStateUpdate,
+    StorageDiff,
+)
+from starknet_py.net.models.messages import L1toL2Message, L2toL1Message
+from starknet_py.net.models.transaction_payloads import (
     InvokeTransaction,
     DeclareTransaction,
     DeployTransaction,
+    Event,
     TransactionReceipt,
     SentTransactionResponse,
     DeclareTransactionResponse,
     DeployTransactionResponse,
     EstimatedFee,
-    StateDiff,
 )
 from starknet_py.net.schemas.common import (
     Felt,

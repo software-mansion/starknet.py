@@ -1,7 +1,7 @@
 from typing import Union
 from typing_extensions import get_args
 
-from starknet_py.net.client_models import Hash, Tag
+from starknet_py.net.models.blocks import Hash, Tag
 
 
 def convert_to_felt(value: Hash) -> str:

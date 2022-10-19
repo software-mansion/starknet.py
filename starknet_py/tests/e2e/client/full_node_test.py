@@ -5,10 +5,8 @@ import pytest
 from starkware.starknet.public.abi import get_storage_var_address
 
 from starknet_py.net.client_errors import ClientError
-from starknet_py.net.client_models import (
-    DeployTransaction,
-    DeployedContract,
-)
+from starknet_py.net.models.contracts import DeployedContract
+from starknet_py.net.models.transaction_payloads import DeployTransaction
 
 
 @pytest.mark.run_on_devnet

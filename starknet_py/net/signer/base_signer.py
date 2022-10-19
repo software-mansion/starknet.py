@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from starknet_py.net.models.transaction import Transaction
+from starknet_py.net.models import Transaction
 from starknet_py.net.models.typed_data import TypedData
 
 

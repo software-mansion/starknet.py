@@ -10,14 +10,14 @@ from starkware.starknet.public.abi import (
     get_storage_var_address,
 )
 
-from starknet_py.net.client_models import (
-    TransactionStatus,
-    InvokeFunction,
-    TransactionReceipt,
-    DeployTransaction,
-    Call,
-    DeclareTransaction,
+from starknet_py.net.models.contracts import Call
+from starknet_py.net.models.transaction import InvokeFunction
+from starknet_py.net.models.transaction_payloads import (
     InvokeTransaction,
+    DeclareTransaction,
+    DeployTransaction,
+    TransactionStatus,
+    TransactionReceipt,
 )
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.tests.e2e.account.account_client_test import MAX_FEE

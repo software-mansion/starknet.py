@@ -4,7 +4,8 @@ from marshmallow import Schema, ValidationError
 
 from starknet_py.net.schemas.common import NonPrefixedHex
 from starknet_py.net.schemas.rpc import Felt, StatusField, BlockStatusField
-from starknet_py.net.client_models import TransactionStatus, BlockStatus
+from starknet_py.net.models.blocks import BlockStatus
+from starknet_py.net.models.transaction_payloads import TransactionStatus
 
 
 def test_serialize_felt():

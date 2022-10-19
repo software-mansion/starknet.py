@@ -8,24 +8,23 @@ from starknet_py.net.client import (
     Client,
 )
 from starknet_py.net.client_errors import ClientError
-from starknet_py.net.client_models import (
-    SentTransactionResponse,
-    TransactionReceipt,
-    BlockStateUpdate,
+from starknet_py.net.models.contracts import DeclaredContract, Call
+from starknet_py.net.models.blocks import (
     StarknetBlock,
-    InvokeFunction,
+    BlockTransactionTraces,
+    BlockStateUpdate,
     Hash,
     Tag,
-    DeclaredContract,
-    Transaction,
-    Declare,
-    Deploy,
-    EstimatedFee,
-    BlockTransactionTraces,
+)
+from starknet_py.net.models.transaction import InvokeFunction, Declare, Deploy
+from starknet_py.net.models.transaction_payloads import (
+    TransactionReceipt,
+    SentTransactionResponse,
     DeclareTransactionResponse,
     DeployTransactionResponse,
-    Call,
+    EstimatedFee,
 )
+from starknet_py.net.models import Transaction
 from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.networks import Network
 from starknet_py.net.schemas.rpc import (

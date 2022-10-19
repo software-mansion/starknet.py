@@ -7,26 +7,28 @@ from marshmallow import EXCLUDE
 from starkware.starknet.services.api.gateway.transaction import AccountTransaction
 
 from starknet_py.net.client import Client
-from starknet_py.net.client_models import (
-    Transaction,
-    SentTransactionResponse,
-    ContractCode,
+
+from starknet_py.net.models.contracts import ContractCode, DeclaredContract, Call
+from starknet_py.net.models.blocks import (
+    GatewayBlock,
+    BlockTransactionTraces,
     BlockStateUpdate,
-    InvokeFunction,
-    StarknetTransaction,
     Hash,
     Tag,
-    DeclaredContract,
+)
+from starknet_py.net.models.transaction import (
+    Transaction,
+    InvokeFunction,
     Declare,
     Deploy,
+)
+from starknet_py.net.models.transaction_payloads import (
+    TransactionReceipt,
+    SentTransactionResponse,
+    DeclareTransactionResponse,
+    DeployTransactionResponse,
     TransactionStatusResponse,
     EstimatedFee,
-    BlockTransactionTraces,
-    DeployTransactionResponse,
-    DeclareTransactionResponse,
-    TransactionReceipt,
-    Call,
-    GatewayBlock,
 )
 from starknet_py.net.schemas.gateway import (
     ContractCodeSchema,
@@ -287,12 +289,12 @@ class GatewayClient(Client):
 
     async def _add_transaction(
         self,
-        tx: StarknetTransaction,
+        tx: Transaction,
         token: Optional[str] = None,
     ) -> dict:
         res = await self._gateway_client.post(
             method_name="add_transaction",
-            payload=StarknetTransaction.Schema().dump(obj=tx),
+            payload=Transaction.Schema().dump(obj=tx),
             params={"token": token} if token is not None else {},
         )
         return res
