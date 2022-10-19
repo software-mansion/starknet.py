@@ -45,12 +45,12 @@ starknet-devnet = {git = "https://github.com/Shard-Labs/starknet-devnet.git", re
 pytest-cov = "^4.0.0"
 
 [tool.poe.tasks]
-test = "pytest -n auto --cov=starknet_py starknet_py"
-test_unit = "pytest -n auto starknet_py --ignore=starknet_py/tests/e2e"
+test = "pytest -n auto -v --cov=starknet_py starknet_py"
+test_unit = "pytest -n auto -v starknet_py --ignore=starknet_py/tests/e2e"
 test_e2e = """
-    pytest -n auto starknet_py/tests/e2e --ignore=starknet_py/tests/e2e/docs
+    pytest -n auto -v starknet_py/tests/e2e --ignore=starknet_py/tests/e2e/docs
 """
-test_docs = "pytest -n auto starknet_py/tests/e2e/docs"
+test_docs = "pytest -n auto -v starknet_py/tests/e2e/docs"
 test_report = "coverage report"
 test_html = [
     { ref = "test"},
