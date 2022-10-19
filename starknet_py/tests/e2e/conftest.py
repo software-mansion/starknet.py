@@ -63,8 +63,6 @@ typed_data_dir = mock_dir / "typed_data"
 contracts_dir = mock_dir / "contracts"
 
 
-# This is needed for importing fixtures from `fixtures` directory
-pytest_plugins = ["starknet_py.tests.e2e.client.fixtures.transactions"]
 
 # This fixture was added to enable using async fixtures
 @pytest.fixture(scope="module")
