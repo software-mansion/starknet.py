@@ -30,7 +30,7 @@ def _invoke_tx_to_call(
             "invoke_tx parameter is deprecated. Use call instead",
             category=DeprecationWarning,
         )
-        call = call or invoke_tx
+        call = invoke_tx
 
     if call is None:
         raise ValueError("Call is a required parameter")
