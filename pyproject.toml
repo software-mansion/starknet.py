@@ -44,11 +44,11 @@ pyright = "^1.1.270"
 starknet-devnet = {git = "https://github.com/Shard-Labs/starknet-devnet.git", rev = "373cb165e36cad3edce7d38f9d7ccc9ea516687b"}
 
 [tool.poe.tasks]
-test = ["test_unit", "test_e2e", "test_docs"]
+test.shell = "pytest -n auto -v --cov=starknet_py starknet_py"
 test_ci.shell = "coverage run -m pytest starknet_py"
-test_unit.shell = "pytest -n auto pytest starknet_py --ignore=starknet_py/tests/e2e"
-test_e2e.shell = "pytest -n auto starknet_py/tests/e2e --ignore=starknet_py/tests/e2e/docs"
-test_docs.shell = "pytest -n auto starknet_py/tests/e2e/docs"
+test_unit.shell = "pytest -n auto -v starknet_py --ignore=starknet_py/tests/e2e"
+test_e2e.shell = "pytest -n auto -v starknet_py/tests/e2e --ignore=starknet_py/tests/e2e/docs"
+test_docs.shell = "pytest -n auto -v starknet_py/tests/e2e/docs"
 test_report.shell = "coverage report"
 test_html.shell = "coverage html && open ./htmlcov/index.html"
 docs_create = { shell = "make -C docs html" }
