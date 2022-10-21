@@ -30,6 +30,7 @@ from starknet_py.net.client_models import (
     DeployTransactionResponse,
     DeclareTransactionResponse,
     Transaction,
+    DeployAccountTransactionResponse,
 )
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import (
@@ -38,6 +39,7 @@ from starknet_py.net.models import (
     chain_from_network,
 )
 from starknet_py.net.models.address import AddressRepresentation, parse_address
+from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.net.networks import Network, MAINNET, TESTNET
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
@@ -307,7 +309,7 @@ class AccountClient(Client):
 
     async def _get_max_fee(
         self,
-        transaction: Union[InvokeFunction, Declare],
+        transaction: Union[InvokeFunction, Declare, DeployAccount],
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> int:
@@ -316,9 +318,12 @@ class AccountClient(Client):
                 "Max_fee and auto_estimate are exclusive and cannot be provided at the same time."
             )
 
-        if isinstance(transaction, Declare) and transaction.version != 1:
+        if (
+            isinstance(transaction, (Declare, DeployAccount))
+            and transaction.version != 1
+        ):
             raise ValueError(
-                "Estimating fee for Declare transactions with versions other than 1 is not supported."
+                "Estimating fee for Declare/DeployAccount transactions with versions other than 1 is not supported."
             )
 
         if auto_estimate:
@@ -434,6 +439,52 @@ class AccountClient(Client):
 
         return dataclasses.replace(declare_tx, signature=signature, max_fee=max_fee)
 
+    async def sign_deploy_account_transaction(
+        self,
+        *,
+        class_hash: int,
+        contract_address_salt: int,
+        constructor_calldata: Optional[List[int]] = None,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+    ) -> DeployAccount:
+        """
+        Create and sign deploy account transaction
+
+        :param class_hash: Class hash of the contract class to be deployed
+        :param contract_address_salt: A salt used to calculate deployed contract address
+        :param constructor_calldata: Calldata to be passed to contract constructor
+            and used to calculate deployed contract address
+        :param max_fee: Max fee to be paid for deploying account transaction. Enough tokens must be prefunded before
+            sending the transaction for it to succeed.
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
+        :return: Signed DeployAccount transaction
+        """
+        if self.supported_tx_version != 1:
+            raise ValueError(
+                "Signing deploy account transactions is only supported with transaction version 1"
+            )
+
+        constructor_calldata = constructor_calldata or []
+
+        deploy_account_tx = DeployAccount(
+            class_hash=class_hash,
+            contract_address_salt=contract_address_salt,
+            constructor_calldata=constructor_calldata,
+            version=self.supported_tx_version,
+            max_fee=0,
+            signature=[],
+            nonce=0,
+        )
+
+        max_fee = await self._get_max_fee(
+            transaction=deploy_account_tx, max_fee=max_fee, auto_estimate=auto_estimate
+        )
+        deploy_account_tx = dataclasses.replace(deploy_account_tx, max_fee=max_fee)
+        signature = self.signer.sign_transaction(deploy_account_tx)
+
+        return dataclasses.replace(deploy_account_tx, signature=signature)
+
     async def send_transaction(
         self, transaction: InvokeFunction
     ) -> SentTransactionResponse:
@@ -469,12 +520,17 @@ class AccountClient(Client):
     async def deploy(self, transaction: Deploy) -> DeployTransactionResponse:
         return await self.client.deploy(transaction=transaction)
 
+    async def deploy_account(
+        self, transaction: DeployAccount
+    ) -> DeployAccountTransactionResponse:
+        return await self.client.deploy_account(transaction=transaction)
+
     async def declare(self, transaction: Declare) -> DeclareTransactionResponse:
         return await self.client.declare(transaction=transaction)
 
     async def estimate_fee(
         self,
-        tx: InvokeFunction,
+        tx: Union[InvokeFunction, Declare, DeployAccount],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:

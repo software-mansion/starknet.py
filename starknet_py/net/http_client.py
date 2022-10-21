@@ -1,9 +1,7 @@
 from abc import abstractmethod, ABC
-from contextlib import nullcontext
 from enum import Enum
 from typing import Optional
 
-import aiohttp
 from aiohttp import ClientSession, ClientResponse
 
 from starknet_py.net.client_errors import ClientError
@@ -15,15 +13,9 @@ class HttpMethod(Enum):
 
 
 class HttpClient(ABC):
-    def __init__(self, url, session: Optional[aiohttp.ClientSession] = None):
+    def __init__(self, url, session: Optional[ClientSession] = None):
         self.url = url
         self.session = session
-
-    def http_session(self) -> ClientSession:
-        if self.session is not None:
-            # noinspection PyTypeChecker
-            return nullcontext(self.session)  # pyright: ignore
-        return aiohttp.ClientSession()
 
     async def request(
         self,
@@ -32,18 +24,21 @@ class HttpClient(ABC):
         params: Optional[dict] = None,
         payload: Optional[dict] = None,
     ):
-        async with self.http_session() as session:
-            return await self._make_request(
-                session=session,
-                address=address,
-                http_method=http_method,
-                params=params,  # pyright: ignore
-                payload=payload,  # pyright: ignore
-            )
+        kwargs = {
+            "address": address,
+            "http_method": http_method,
+            "params": params,
+            "payload": payload,
+        }
+        if self.session:
+            return await self._make_request(session=self.session, **kwargs)
+
+        async with ClientSession() as session:
+            return await self._make_request(session=session, **kwargs)
 
     async def _make_request(
         self,
-        session: aiohttp.ClientSession,
+        session: ClientSession,
         address: str,
         http_method: HttpMethod,
         params: dict,

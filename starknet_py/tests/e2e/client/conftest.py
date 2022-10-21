@@ -2,8 +2,9 @@
 
 import os
 import subprocess
+import sys
 from pathlib import Path
-from typing import Tuple, Dict
+from typing import Tuple, Dict, AsyncGenerator, List
 
 import pytest
 import pytest_asyncio
@@ -14,24 +15,25 @@ from starkware.starknet.services.api.gateway.transaction import (
 
 from starknet_py.net import AccountClient
 from starknet_py.net.client import Client
-from starknet_py.net.full_node_client import FullNodeClient
-from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.tests.e2e.client.prepare_net_for_gateway_test import (
     prepare_net_for_tests,
     PreparedNetworkData,
 )
-from starknet_py.tests.e2e.conftest import contracts_dir
+from starknet_py.tests.e2e.conftest import contracts_dir, AccountToBeDeployedDetails
 
 directory = os.path.dirname(__file__)
 
 
 async def prepare_network(
     new_gateway_account_client: AccountClient,
+    deploy_account_details: AccountToBeDeployedDetails,
 ) -> PreparedNetworkData:
     contract_compiled = Path(contracts_dir / "balance_compiled.json").read_text("utf-8")
 
     prepared_data = await prepare_net_for_tests(
-        new_gateway_account_client, compiled_contract=contract_compiled
+        new_gateway_account_client,
+        compiled_contract=contract_compiled,
+        deploy_account_details=deploy_account_details,
     )
 
     return prepared_data
@@ -183,29 +185,42 @@ def fixture_class_hash(network: str, contract_address: int) -> int:
     )
 
 
-@pytest.fixture(name="clients")
-def fixture_clients(network: str) -> Tuple[Client, Client]:
+def net_to_clients() -> List[str]:
     """
-    Returns Gateway and FullNode Clients
+    Return client fixture names based on network in sys.argv
     """
-    gateway_client = GatewayClient(net=network)
-    full_node_client = FullNodeClient(
-        node_url=network + "/rpc",
-        net=network,
-    )
+    clients = ["gateway_client"]
+    nets = ["--net=integration", "--net=testnet", "testnet", "integration"]
 
-    return gateway_client, full_node_client
+    if set(nets).isdisjoint(sys.argv):
+        clients.append("full_node_client")
+    return clients
+
+
+@pytest.fixture(
+    scope="module",
+    params=net_to_clients(),
+)
+def client(request) -> Client:
+    """
+    Returns Client instances
+    """
+    return request.getfixturevalue(request.param)
 
 
 @pytest_asyncio.fixture(name="prepare_network", scope="module", autouse=True)
 async def fixture_prepare_network(
-    network: str, new_gateway_account_client: AccountClient
-) -> Tuple[str, PreparedNetworkData]:
+    network: str,
+    new_gateway_account_client: AccountClient,
+    details_of_account_to_be_deployed: AccountToBeDeployedDetails,
+) -> AsyncGenerator[Tuple[str, PreparedNetworkData], None]:
     """
     Adds transactions to the network. Returns network address and PreparedNetworkData
     """
     net = network
-    prepared_data = await prepare_network(new_gateway_account_client)
+    prepared_data = await prepare_network(
+        new_gateway_account_client, details_of_account_to_be_deployed
+    )
     yield net, prepared_data
 
 

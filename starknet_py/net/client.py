@@ -10,18 +10,22 @@ from starknet_py.net.client_models import (
     Transaction,
     TransactionReceipt,
     SentTransactionResponse,
-    InvokeFunction,
     TransactionStatus,
     Hash,
     Tag,
     DeclaredContract,
-    Deploy,
-    Declare,
     EstimatedFee,
     BlockTransactionTraces,
     DeployTransactionResponse,
     DeclareTransactionResponse,
     Call,
+    DeployAccountTransactionResponse,
+)
+from starknet_py.net.models.transaction import (
+    Deploy,
+    Declare,
+    InvokeFunction,
+    DeployAccount,
 )
 from starknet_py.net.networks import Network
 from starknet_py.transaction_exceptions import (
@@ -181,7 +185,7 @@ class Client(ABC):
     @abstractmethod
     async def estimate_fee(
         self,
-        tx: Union[InvokeFunction, Declare],
+        tx: Union[InvokeFunction, Declare, DeployAccount],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
@@ -227,7 +231,7 @@ class Client(ABC):
         Send a transaction to the network
 
         :param transaction: Transaction object (i.e. InvokeFunction, Deploy).
-        :return: SentTransaction object
+        :return: SentTransactionResponse object
         """
 
     @abstractmethod
@@ -236,7 +240,21 @@ class Client(ABC):
         Deploy a contract to the network
 
         :param transaction: Deploy transaction
-        :return: SentTransaction object
+        :return: SentTransactionResponse object
+
+        .. deprecated:: 0.8.0
+            This metod has been deprecated in favor of deploy_prefunded method or deploying through cairo syscall.
+        """
+
+    @abstractmethod
+    async def deploy_account(
+        self, transaction: DeployAccount
+    ) -> DeployAccountTransactionResponse:
+        """
+        Deploy a pre-funded account contract to the network
+
+        :param transaction: DeployAccount transaction
+        :return: SentTransactionResponse object
         """
 
     @abstractmethod
@@ -245,6 +263,7 @@ class Client(ABC):
         Send a declare transaction
 
         :param transaction: Declare transaction
+        :return: SentTransactionResponse object
         """
 
     @abstractmethod

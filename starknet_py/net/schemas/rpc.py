@@ -155,6 +155,8 @@ class TypesOfTransactionsSchema(OneOfSchema):
         "INVOKE": InvokeTransactionSchema,
         "DECLARE": DeclareTransactionSchema,
         "DEPLOY": DeployTransactionSchema,
+        # FIXME add proper handling/serialization
+        "DEPLOY_ACCOUNT": None,
     }
 
 

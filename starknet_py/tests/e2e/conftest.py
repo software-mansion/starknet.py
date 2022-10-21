@@ -9,13 +9,14 @@ import sys
 import time
 from contextlib import closing
 from pathlib import Path
-from typing import Tuple, List
+from typing import Tuple, List, Generator
 
 import pytest
 import pytest_asyncio
 from starkware.crypto.signature.signature import get_random_private_key
-from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 
+from starknet_py.compile.compiler import Compiler
+from starknet_py.constants import FEE_CONTRACT_ADDRESS, DEVNET_FEE_CONTRACT_ADDRESS
 from starknet_py.net import KeyPair, AccountClient
 from starknet_py.net.client import Client
 from starknet_py.net.full_node_client import FullNodeClient
@@ -24,6 +25,7 @@ from starknet_py.net.http_client import GatewayHttpClient
 from starknet_py.net.models import StarknetChainId, AddressRepresentation
 from starknet_py.contract import Contract
 from starknet_py.net.models.typed_data import TypedData
+from starknet_py.tests.e2e.utils import get_deploy_account_details
 from starknet_py.transactions.deploy import make_deploy_tx
 from starknet_py.utils.data_transformer.data_transformer import CairoSerializer
 
@@ -53,6 +55,8 @@ INTEGRATION_NEW_ACCOUNT_PRIVATE_KEY = "0x1"
 INTEGRATION_NEW_ACCOUNT_ADDRESS = (
     "0X126FAB6AE8ACA83E2DD00B92F94F3402397D527798E18DC28D76B7740638D23"
 )
+
+MAX_FEE = int(1e20)
 
 mock_dir = Path(os.path.dirname(__file__)) / "mock"
 typed_data_dir = mock_dir / "typed_data"
@@ -107,7 +111,7 @@ def start_devnet():
 
 
 @pytest.fixture(scope="module")
-def run_devnet() -> str:
+def run_devnet() -> Generator[str, None, None]:
     """
     Runs devnet instance once per module and returns it's address
     """
@@ -155,12 +159,12 @@ def create_gateway_client(network: str) -> GatewayClient:
     return GatewayClient(net=network)
 
 
-@pytest.fixture(name="rpc_client", scope="module")
-def create_rpc_client(run_devnet: str) -> FullNodeClient:
+@pytest.fixture(name="full_node_client", scope="module")
+def create_full_node_client(network: str) -> FullNodeClient:
     """
     Creates and returns FullNodeClient
     """
-    return FullNodeClient(node_url=run_devnet + "/rpc", net=run_devnet)
+    return FullNodeClient(node_url=network + "/rpc", net=network)
 
 
 def create_account_client(
@@ -198,7 +202,10 @@ async def devnet_account_details(
         },
     )
 
-    return hex(devnet_account.address), hex(devnet_account.signer.private_key)
+    # Ignore typing, because BaseSigner doesn't have private_key property, but this one has
+    return hex(devnet_account.address), hex(
+        devnet_account.signer.private_key  # pyright: ignore
+    )
 
 
 @pytest_asyncio.fixture(scope="module")
@@ -235,8 +242,8 @@ def gateway_account_client(
 
 
 @pytest.fixture(scope="module")
-def rpc_account_client(
-    address_and_private_key: Tuple[str, str], rpc_client: FullNodeClient
+def full_node_account_client(
+    address_and_private_key: Tuple[str, str], full_node_client: FullNodeClient
 ) -> AccountClient:
     """
     Returns an AccountClient created with FullNodeClient
@@ -244,7 +251,7 @@ def rpc_account_client(
     address, private_key = address_and_private_key
 
     return create_account_client(
-        address, private_key, rpc_client, supported_tx_version=0
+        address, private_key, full_node_client, supported_tx_version=0
     )
 
 
@@ -336,16 +343,11 @@ def net_to_accounts() -> List[str]:
     accounts = [
         "gateway_account_client",
         "new_gateway_account_client",
-        "rpc_account_client",
-        "new_rpc_account_client",
     ]
-    if any(
-        net in sys.argv
-        for net in ["--net=integration", "--net=testnet", "testnet", "integration"]
-    ):
-        accounts.remove("rpc_account_client")
-        accounts.remove("new_rpc_account_client")
+    nets = ["--net=integration", "--net=testnet", "testnet", "integration"]
 
+    if set(nets).isdisjoint(sys.argv):
+        accounts + ["full_node_account_client", "new_rpc_account_client"]
     return accounts
 
 
@@ -481,11 +483,81 @@ async def cairo_serializer(gateway_account_client: AccountClient) -> CairoSerial
     return CairoSerializer(identifier_manager=contract.data.identifier_manager)
 
 
-@pytest_asyncio.fixture(name="default_gateway_gas_price", scope="module")
-def default_gateway_gas_price() -> int:
+@pytest.fixture(scope="module")
+def fee_contract(pytestconfig, new_gateway_account_client: AccountClient) -> Contract:
     """
-    Returns the default min gas price from the StarknetGeneralConfig.
-    Useful for asserting that the gas price appears in the block response from
-    the GatewayClient.
+    Returns an instance of the fee contract. It is used to transfer tokens
     """
-    return StarknetGeneralConfig().min_gas_price
+    abi = [
+        {
+            "inputs": [
+                {"name": "recipient", "type": "felt"},
+                {"name": "amount", "type": "Uint256"},
+            ],
+            "name": "transfer",
+            "outputs": [{"name": "success", "type": "felt"}],
+            "type": "function",
+        },
+        {
+            "members": [
+                {"name": "low", "offset": 0, "type": "felt"},
+                {"name": "high", "offset": 1, "type": "felt"},
+            ],
+            "name": "Uint256",
+            "size": 2,
+            "type": "struct",
+        },
+    ]
+
+    address = (
+        FEE_CONTRACT_ADDRESS
+        if pytestconfig.getoption("--net") != "devnet"
+        else DEVNET_FEE_CONTRACT_ADDRESS
+    )
+
+    return Contract(
+        address=address,
+        abi=abi,
+        client=new_gateway_account_client,
+    )
+
+
+@pytest_asyncio.fixture(scope="module")
+async def account_with_validate_deploy_class_hash(
+    new_gateway_account_client: AccountClient,
+) -> int:
+    """
+    Returns a clas_hash of the account_with_validate_deploy.cairo
+    """
+    compiled_contract = Compiler(
+        contract_source=(
+            contracts_dir / "account_with_validate_deploy.cairo"
+        ).read_text("utf-8"),
+        is_account_contract=True,
+    ).compile_contract()
+
+    declare_tx = await new_gateway_account_client.sign_declare_transaction(
+        compiled_contract=compiled_contract,
+        max_fee=MAX_FEE,
+    )
+    resp = await new_gateway_account_client.declare(transaction=declare_tx)
+    await new_gateway_account_client.wait_for_tx(resp.transaction_hash)
+
+    return resp.class_hash
+
+
+AccountToBeDeployedDetails = Tuple[int, KeyPair, int, int]
+
+
+@pytest_asyncio.fixture(scope="module")
+async def details_of_account_to_be_deployed(
+    account_with_validate_deploy_class_hash: int,
+    fee_contract: Contract,
+) -> AccountToBeDeployedDetails:
+    """
+    Returns address, key_pair, salt and class_hash of the account with validate deploy.
+    Prefunds the address with enough tokens to allow for deployment.
+    """
+    return await get_deploy_account_details(
+        class_hash=account_with_validate_deploy_class_hash, fee_contract=fee_contract
+    )
