@@ -62,7 +62,7 @@ async def test_deploy_prefunded_account(
         max_fee=int(1e15),
     )
 
-    resp = await account.deploy_prefunded(transaction=deploy_account_tx)
+    resp = await account.deploy_account(transaction=deploy_account_tx)
     await account.wait_for_tx(resp.transaction_hash)
 
     # Since this moment account can be used to sign other transactions

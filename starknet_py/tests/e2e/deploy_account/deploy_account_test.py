@@ -25,7 +25,7 @@ async def test_general_flow(details_of_account_to_be_deployed, network):
         constructor_calldata=[key_pair.public_key],
         max_fee=MAX_FEE,
     )
-    resp = await account.deploy_prefunded(transaction=deploy_account_tx)
+    resp = await account.deploy_account(transaction=deploy_account_tx)
 
     assert resp.address == address
 
