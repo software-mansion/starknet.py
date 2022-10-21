@@ -14,7 +14,7 @@ If you don't have one there are a few ways of creating one programmatically:
 
     In the future users will be able to use
     `Universal Deployer Contract <https://community.starknet.io/t/universal-deployer-contract-proposal/1864>`_
-    to deploy any contract, including an Account.
+    to deploy contracts.
 
 The first approach is recommended since it doesn't rely on third-party contracts.
 The concept behind the DeployAccount transaction is based on prefunding a generated address with tokens
