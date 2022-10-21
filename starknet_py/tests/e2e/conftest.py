@@ -548,7 +548,7 @@ async def account_with_validate_deploy_class_hash(pytestconfig, network: str) ->
         "devnet": (
             "0x7d2f37b75a5e779f7da01c22acee1b66c39e8ba470ee5448f05e1462afcedb4",
             "0xcd613e30d8f16adf91b7584a2265b1f5",
-        ),
+        ),  # address and private key of the pre-deployed account
         "testnet": (TESTNET_NEW_ACCOUNT_ADDRESS, TESTNET_NEW_ACCOUNT_PRIVATE_KEY),
         "integration": (
             INTEGRATION_NEW_ACCOUNT_ADDRESS,
