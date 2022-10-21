@@ -542,7 +542,7 @@ async def details_of_account_to_be_deployed(
 ) -> AccountToBeDeployedDetails:
     """
     Returns address, key_pair, salt and class_hash of the account with validate deploy.
-    Used to test DeployAccount transaction
+    Prefunds the address with enough tokens to allow for deployment.
     """
     return await get_deploy_account_details(
         class_hash=account_with_validate_deploy_class_hash, fee_contract=fee_contract
