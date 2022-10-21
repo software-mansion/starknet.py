@@ -209,7 +209,7 @@ class AccountClient(Client):
                 version=self.supported_tx_version,
                 nonce=None,
             ),
-            block_hash="latest",
+            block_hash="pending",
         )
         return nonce
 
@@ -240,7 +240,7 @@ class AccountClient(Client):
                 selector=get_selector_from_name("balanceOf"),
                 calldata=[self.address],
             ),
-            block_hash="latest",
+            block_hash="pending",
         )
 
         return (high << 128) + low
@@ -680,7 +680,7 @@ class AccountClient(Client):
             calldata=calldata,
         )
         try:
-            await self.call_contract(invoke_tx=call, block_hash="latest")
+            await self.call_contract(invoke_tx=call, block_hash="pending")
             return True
         except ClientError as ex:
             if re.search(r"Signature\s.+,\sis\sinvalid", ex.message):
