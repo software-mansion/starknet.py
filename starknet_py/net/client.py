@@ -241,6 +241,9 @@ class Client(ABC):
 
         :param transaction: Deploy transaction
         :return: SentTransactionResponse object
+
+        .. deprecated:: 0.8.0
+            This metod has been deprecated in favor of deploy_prefunded method or deploying through cairo syscall.
         """
 
     @abstractmethod

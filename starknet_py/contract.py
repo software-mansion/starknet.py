@@ -459,6 +459,9 @@ class Contract:
         :param search_paths: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts.
         :raises: `ValueError` if neither compilation_source nor compiled_contract is provided.
         :return: DeployResult instance
+
+        .. deprecated:: 0.8.0
+            This metod has been deprecated in favor of deploying through cairo syscall.
         """
         warnings.warn(
             "In the future versions of StarkNet, Deploy transaction will not be supported."

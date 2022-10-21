@@ -8,6 +8,7 @@ from starknet_py.net.client_models import (
     TransactionStatus,
     DeployedContract,
     L1HandlerTransaction,
+    DeployAccountTransaction,
 )
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.networks import TESTNET, MAINNET, CustomGatewayUrls
@@ -206,3 +207,16 @@ async def test_get_l1_handler_transaction_without_nonce(gateway_client):
 
         assert isinstance(transaction, L1HandlerTransaction)
         assert transaction.nonce is None
+
+
+@pytest.mark.asyncio
+async def test_get_deploy_account_transaction(
+    gateway_client, deploy_account_transaction_hash
+):
+    # TODO Modify this test to also use FullNodeClient (move to client_test)
+    transaction = await gateway_client.get_transaction(deploy_account_transaction_hash)
+
+    assert isinstance(transaction, DeployAccountTransaction)
+    assert transaction.hash == deploy_account_transaction_hash
+    assert len(transaction.signature) > 0
+    assert transaction.nonce == 0
