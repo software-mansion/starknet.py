@@ -326,8 +326,8 @@ def new_gateway_account_client(
 
 
 @pytest.fixture(scope="module")
-def new_rpc_account_client(
-    new_address_and_private_key: Tuple[str, str], rpc_client: FullNodeClient
+def new_full_node_account_client(
+    new_address_and_private_key: Tuple[str, str], full_node_client: FullNodeClient
 ) -> AccountClient:
     """
     Returns a new AccountClient created with FullNodeClient
@@ -335,7 +335,7 @@ def new_rpc_account_client(
     address, private_key = new_address_and_private_key
 
     return create_account_client(
-        address, private_key, rpc_client, supported_tx_version=1
+        address, private_key, full_node_client, supported_tx_version=1
     )
 
 
@@ -347,7 +347,7 @@ def net_to_accounts() -> List[str]:
     nets = ["--net=integration", "--net=testnet", "testnet", "integration"]
 
     if set(nets).isdisjoint(sys.argv):
-        accounts + ["full_node_account_client", "new_rpc_account_client"]
+        accounts.extend(["full_node_account_client", "new_full_node_account_client"])
     return accounts
 
 

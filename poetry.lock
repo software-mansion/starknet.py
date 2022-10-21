@@ -1796,7 +1796,7 @@ test = ["pytest"]
 
 [[package]]
 name = "starknet-devnet"
-version = "0.3.3"
+version = "0.3.4"
 description = "A local testnet for Starknet"
 category = "dev"
 optional = false
@@ -1804,7 +1804,7 @@ python-versions = ">=3.8,<3.10"
 develop = false
 
 [package.dependencies]
-cairo-lang = {url = "https://github.com/starkware-libs/cairo-lang/releases/download/v0.10.1-pre/cairo-lang-0.10.1.zip"}
+cairo-lang = "0.10.1"
 cloudpickle = "~2.1.0"
 crypto-cpp-py = "~1.0.4"
 Flask = {version = "~2.0.3", extras = ["async"]}
@@ -1817,8 +1817,8 @@ Werkzeug = "~2.0.3"
 [package.source]
 type = "git"
 url = "https://github.com/Shard-Labs/starknet-devnet.git"
-reference = "373cb165e36cad3edce7d38f9d7ccc9ea516687b"
-resolved_reference = "373cb165e36cad3edce7d38f9d7ccc9ea516687b"
+reference = "b616ed9925d0b3a0c1dafdef7c5f6f1c05eced61"
+resolved_reference = "b616ed9925d0b3a0c1dafdef7c5f6f1c05eced61"
 
 [[package]]
 name = "sympy"
@@ -2037,7 +2037,7 @@ eth-tester = []
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8, <3.10"
-content-hash = "ee6529985f30a152adbd203eab23c0b08c6999d6e5a9232394894526fa77a615"
+content-hash = "6c7ad11750687edf71ac1c8921f081ddc5b6ffb42de305a992b1f42e0ab7ab27"
 
 [metadata.files]
 aiohttp = [
