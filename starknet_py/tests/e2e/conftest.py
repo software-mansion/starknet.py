@@ -29,8 +29,6 @@ from starknet_py.net.http_client import GatewayHttpClient
 from starknet_py.net.models import StarknetChainId, AddressRepresentation
 from starknet_py.contract import Contract
 from starknet_py.net.models.typed_data import TypedData
-from starknet_py.tests.e2e.utils import get_deploy_account_details
-from starknet_py.transactions.deploy import make_deploy_tx
 from starknet_py.tests.e2e.utils import (
     get_deploy_account_details,
     get_deploy_account_transaction,
@@ -304,7 +302,7 @@ async def new_devnet_account_details(
         chain=StarknetChainId.TESTNET,
         supported_tx_version=1,
     )
-    res = await account.deploy_prefunded(deploy_account_tx)
+    res = await account.deploy_account(deploy_account_tx)
     await account.wait_for_tx(res.transaction_hash)
 
     return hex(address), hex(key_pair.private_key)
