@@ -70,7 +70,7 @@ async def prepare_net_for_tests(
         class_hash=class_hash,
         client=account_client,
     )
-    deploy_account_result = await account_client.deploy_prefunded(deploy_account_tx)
+    deploy_account_result = await account_client.deploy_account(deploy_account_tx)
     await account_client.wait_for_tx(deploy_account_result.transaction_hash)
 
     declare_account_receipt = await account_client.get_transaction_receipt(

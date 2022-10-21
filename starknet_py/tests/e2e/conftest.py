@@ -29,6 +29,8 @@ from starknet_py.net.http_client import GatewayHttpClient
 from starknet_py.net.models import StarknetChainId, AddressRepresentation
 from starknet_py.contract import Contract
 from starknet_py.net.models.typed_data import TypedData
+from starknet_py.tests.e2e.utils import get_deploy_account_details
+from starknet_py.transactions.deploy import make_deploy_tx
 from starknet_py.tests.e2e.utils import (
     get_deploy_account_details,
     get_deploy_account_transaction,
@@ -587,7 +589,7 @@ async def details_of_account_to_be_deployed(
 ) -> AccountToBeDeployedDetails:
     """
     Returns address, key_pair, salt and class_hash of the account with validate deploy.
-    Used to test DeployAccount transaction
+    Prefunds the address with enough tokens to allow for deployment.
     """
     return await get_deploy_account_details(
         class_hash=account_with_validate_deploy_class_hash, fee_contract=fee_contract

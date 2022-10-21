@@ -520,10 +520,10 @@ class AccountClient(Client):
     async def deploy(self, transaction: Deploy) -> DeployTransactionResponse:
         return await self.client.deploy(transaction=transaction)
 
-    async def deploy_prefunded(
+    async def deploy_account(
         self, transaction: DeployAccount
     ) -> DeployAccountTransactionResponse:
-        return await self.client.deploy_prefunded(transaction=transaction)
+        return await self.client.deploy_account(transaction=transaction)
 
     async def declare(self, transaction: Declare) -> DeclareTransactionResponse:
         return await self.client.declare(transaction=transaction)

@@ -247,7 +247,7 @@ class Client(ABC):
         """
 
     @abstractmethod
-    async def deploy_prefunded(
+    async def deploy_account(
         self, transaction: DeployAccount
     ) -> DeployAccountTransactionResponse:
         """

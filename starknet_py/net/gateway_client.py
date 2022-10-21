@@ -256,7 +256,7 @@ class GatewayClient(Client):
             res, unknown=EXCLUDE
         )  # pyright: ignore
 
-    async def deploy_prefunded(
+    async def deploy_account(
         self, transaction: DeployAccount, token: Optional[str] = None
     ) -> DeployAccountTransactionResponse:
         res = await self._add_transaction(transaction, token)
