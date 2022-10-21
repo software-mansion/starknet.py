@@ -6,17 +6,19 @@ from starkware.starknet.public.abi import (
 )
 
 from starknet_py.contract import Contract
+from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ContractNotFoundError
+from starknet_py.net.models import Address
 from starknet_py.proxy_check import ProxyResolutionError, ProxyCheck
 
 
-async def put_and_get_map_contract(map_contract: Contract, key: int, val: int) -> int:
-    """Put (key, val) into map_contract's storage and retrieve value under the key"""
+async def map_works_properly(map_contract: Contract, key: int, val: int) -> bool:
+    """Put (key, val) into map_contract's storage and check if value under the key is val"""
     await (
         await map_contract.functions["put"].invoke(key, val, max_fee=int(1e16))
     ).wait_for_acceptance()
     (result,) = await map_contract.functions["get"].call(key=key)
-    return result
+    return result == val
 
 
 @pytest.mark.asyncio
@@ -34,10 +36,9 @@ async def test_contract_from_address_no_proxy(
         client=gateway_account_client,
     )
 
-    assert all(f in contract.functions for f in ("put", "get"))
-
-    result = await put_and_get_map_contract(map_contract=contract, key=69, val=13)
-    assert result == 13
+    assert contract.functions.keys() == {"put", "get"}
+    assert contract.address == deployment_result.deployed_contract.address
+    assert await map_works_properly(map_contract=contract, key=69, val=13)
 
 
 @pytest.mark.asyncio
@@ -62,13 +63,9 @@ async def test_contract_from_address_with_proxy(
         proxy_config=True,
     )
 
-    assert all(f in proxied_contract.functions for f in ("put", "get"))
+    assert proxied_contract.functions.keys() == {"put", "get"}
     assert proxied_contract.address == proxy_contract.address
-
-    result = await put_and_get_map_contract(
-        map_contract=proxied_contract, key=69, val=13
-    )
-    assert result == 13
+    assert await map_works_properly(map_contract=proxied_contract, key=69, val=13)
 
 
 @pytest.mark.asyncio
@@ -116,21 +113,29 @@ async def test_contract_from_address_custom_proxy_check(
     gateway_account_client, deploy_proxy_to_contract
 ):
     class CustomProxyCheck(ProxyCheck):
-        async def implementation_hash(self, contract: "Contract") -> Optional[int]:
-            return await contract.client.get_storage_at(
-                contract_address=contract.address,
+        async def implementation_address(
+            self, address: Address, client: Client
+        ) -> Optional[int]:
+            return None
+
+        async def implementation_hash(
+            self, address: Address, client: Client
+        ) -> Optional[int]:
+            return await client.get_storage_at(
+                contract_address=address,
                 key=get_storage_var_address("Proxy_implementation_hash_custom"),
                 block_hash="latest",
             )
 
-        async def implementation_address(self, contract: "Contract") -> Optional[int]:
-            return None
-
-    await Contract.from_address(
+    contract = await Contract.from_address(
         address=deploy_proxy_to_contract.deployed_contract.address,
         client=gateway_account_client,
         proxy_config={"proxy_checks": [CustomProxyCheck()]},
     )
+
+    assert contract.functions.keys() == {"put", "get"}
+    assert contract.address == deploy_proxy_to_contract.deployed_contract.address
+    assert await map_works_properly(map_contract=contract, key=69, val=13)
 
 
 @pytest.mark.asyncio
@@ -162,10 +167,6 @@ async def test_contract_from_address_with_old_address_proxy(
         proxy_config=True,
     )
 
-    assert all(f in proxied_contract.functions for f in ("put", "get"))
+    assert proxied_contract.functions.keys() == {"put", "get"}
     assert proxied_contract.address == proxy_contract.address
-
-    result = await put_and_get_map_contract(
-        map_contract=proxied_contract, key=69, val=13
-    )
-    assert result == 13
+    assert await map_works_properly(map_contract=proxied_contract, key=69, val=13)

@@ -403,7 +403,14 @@ class Contract:
         :return: an initialized Contract instance
         """
         address = parse_address(address)
-        proxy_config = prepare_proxy_config(proxy_config)
+        if isinstance(proxy_config, bool) and not proxy_config:
+            proxy_config = ProxyConfig()
+        else:
+            proxy_arg = (
+                ProxyConfig() if isinstance(proxy_config, bool) else proxy_config
+            )
+            proxy_config = prepare_proxy_config(proxy_arg)
+
         actual_client = client.client if isinstance(client, AccountClient) else client
         if not isinstance(actual_client, GatewayClient):
             # TODO: Add support for FullNodeClient once abi is available in RPC
@@ -411,16 +418,10 @@ class Contract:
                 "Contract.from_address only supports GatewayClient or AccountClients using GatewayClient"
             )
 
-        direct_abi = await ContractAbiResolver.resolve_direct(
-            address=address, client=client
-        )
-        direct_contract = Contract(address=address, abi=direct_abi, client=client)
-        if not proxy_config:
-            return direct_contract
+        abi = await ContractAbiResolver(
+            address=address, client=client, proxy_config=proxy_config
+        ).resolve()
 
-        abi = await ContractAbiResolver.resolve_proxy_step(
-            proxy_contract=direct_contract, proxy_config=proxy_config
-        )
         return Contract(address=address, abi=abi, client=client)
 
     @staticmethod

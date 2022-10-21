@@ -1,62 +1,88 @@
-# Needed because of string typed Contract
-# pyright: reportUndefinedVariable=false
-
 from abc import ABC, abstractmethod
 from typing import List, Optional
 
-from starkware.starknet.public.abi import get_storage_var_address
+from starkware.starknet.public.abi import (
+    get_storage_var_address,
+    get_selector_from_name,
+)
 
-# noinspection PyUnresolvedReferences
+from starknet_py.net.client import Client
+from starknet_py.net.client_errors import ClientError
+from starknet_py.net.client_models import Call
+from starknet_py.net.models import Address
+
+
 class ProxyCheck(ABC):
     @abstractmethod
-    async def implementation_address(self, contract: "Contract") -> Optional[int]:
+    async def implementation_address(
+        self, address: Address, client: Client
+    ) -> Optional[int]:
         """
-        :return: Implementation address of contract being proxied by `contract`
+        :return: Implementation address of contract being proxied by proxy contract at `address`
             given as a parameter or None if implementation does not exist.
         """
 
     @abstractmethod
-    async def implementation_hash(self, contract: "Contract") -> Optional[int]:
+    async def implementation_hash(
+        self, address: Address, client: Client
+    ) -> Optional[int]:
         """
-        :return: Implementation class hash of contract being proxied by `contract`
+        :return: Implementation class hash of contract being proxied by proxy contract at `address`
             given as a parameter or None if implementation does not exist.
         """
 
 
-# noinspection PyUnresolvedReferences
 class ArgentProxyCheck(ProxyCheck):
-    async def implementation_address(self, contract: "Contract") -> Optional[int]:
-        if "get_implementation" not in contract.functions:
+    async def implementation_address(
+        self, address: Address, client: Client
+    ) -> Optional[int]:
+        call = Call(
+            to_addr=address,
+            selector=get_selector_from_name("get_implementation"),
+            calldata=[],
+        )
+        try:
+            (implementation_address,) = await client.call_contract(invoke_tx=call)
+            await client.get_class_hash_at(contract_address=implementation_address)
+        except ClientError:
             return None
+        return implementation_address
 
-        (result,) = await contract.functions["get_implementation"].call()
-        return result
-
-    async def implementation_hash(self, contract: "Contract") -> Optional[int]:
-        if "get_implementation" not in contract.functions:
+    async def implementation_hash(
+        self, address: Address, client: Client
+    ) -> Optional[int]:
+        call = Call(
+            to_addr=address,
+            selector=get_selector_from_name("get_implementation"),
+            calldata=[],
+        )
+        try:
+            (implementation_hash,) = await client.call_contract(invoke_tx=call)
+            await client.get_class_by_hash(class_hash=implementation_hash)
+        except ClientError:
             return None
-
-        (result,) = await contract.functions["get_implementation"].call()
-        return result
+        return implementation_hash
 
 
-# noinspection PyUnresolvedReferences
 class OpenZeppelinProxyCheck(ProxyCheck):
-    async def implementation_address(self, contract: "Contract") -> Optional[int]:
-        proxy_implementation_address = await contract.client.get_storage_at(
-            contract_address=contract.address,
+    async def implementation_address(
+        self, address: Address, client: Client
+    ) -> Optional[int]:
+        proxy_implementation_address = await client.get_storage_at(
+            contract_address=address,
             key=get_storage_var_address("Proxy_implementation_address"),
             block_hash="latest",
         )
         return proxy_implementation_address or None
 
-    async def implementation_hash(self, contract: "Contract") -> Optional[int]:
-        proxy_implementation_hash = await contract.client.get_storage_at(
-            contract_address=contract.address,
+    async def implementation_hash(
+        self, address: Address, client: Client
+    ) -> Optional[int]:
+        proxy_implementation_hash = await client.get_storage_at(
+            contract_address=address,
             key=get_storage_var_address("Proxy_implementation_hash"),
             block_hash="latest",
         )
-
         return proxy_implementation_hash or None
 
 

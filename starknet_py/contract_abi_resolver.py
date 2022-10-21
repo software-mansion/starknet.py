@@ -1,8 +1,7 @@
-# Needed because of string typed Contract
 # pyright: reportUndefinedVariable=false
 import warnings
 from enum import Enum
-from typing import Union, List, TypedDict, Tuple
+from typing import List, TypedDict, Tuple, Optional
 
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ContractNotFoundError, ClientError
@@ -28,12 +27,7 @@ class ProxyConfig(TypedDict, total=False):
     """
 
 
-def prepare_proxy_config(proxy_config: Union[bool, ProxyConfig]) -> ProxyConfig:
-    if isinstance(proxy_config, bool):
-        if not proxy_config:
-            return ProxyConfig()
-        proxy_config = ProxyConfig()
-
+def prepare_proxy_config(proxy_config: ProxyConfig) -> ProxyConfig:
     if "max_steps" in proxy_config:
         warnings.warn(
             "ProxyConfig.max_steps is deprecated. Contract.from_address always makes at most 1 step.",
@@ -57,70 +51,78 @@ class ContractAbiResolver:
     Class for resolving abi of a contract
     """
 
-    @staticmethod
-    async def resolve_direct(
+    def __init__(
+        self,
         address: Address,
         client: Client,
-    ) -> Abi:
+        proxy_config: Optional[ProxyConfig] = None,
+    ):
         """
-        Returns abi of a contract directly from given address.
+        :param address: Contract's address
+        :param client: Client used for resolving abi
+        :param proxy_config: Proxy config for resolving proxy
         """
-        contract_class = await ContractAbiResolver._get_class_by_address(
-            address=address, client=client
-        )
-        return contract_class.abi or []
+        self.address = address
+        self.client = client
+        self.proxy_config = ProxyConfig() if proxy_config is None else proxy_config
 
-    @staticmethod
-    async def resolve_proxy_step(
-        proxy_contract: "Contract",
-        proxy_config: ProxyConfig,
-    ) -> Abi:
+    async def resolve(self) -> Abi:
         """
-        Returns abi of a contract that is being proxied by proxy_contract.
+        Returns abi of either direct contract or contract proxied by direct contract depending on proxy_config.
         """
-        impl = await ContractAbiResolver._get_implementation_from_proxy(
-            proxy_contract=proxy_contract, proxy_config=proxy_config
-        )
+        if self.proxy_config:
+            return await self.resolve_abi()
+        return await self.get_abi_for_address()
+
+    async def get_abi_for_address(self) -> Abi:
+        """
+        Returns abi of a contract directly from address.
+        """
+        contract_class = await self._get_class_by_address(address=self.address)
+        if contract_class.abi is None:
+            raise AbiNotFoundError()
+        return contract_class.abi
+
+    async def resolve_abi(self) -> Abi:
+        """
+        Returns abi of a contract that is being proxied by contract at address.
+        """
+        impl = await self._get_implementation_from_proxy()
         implementation, implementation_type = impl
-        proxy_client = proxy_contract.client
 
         if implementation_type == ImplementationType.CLASS_HASH:
-            contract_class = await proxy_client.get_class_by_hash(implementation)
-        elif implementation_type == ImplementationType.ADDRESS:
-            contract_class = await ContractAbiResolver._get_class_by_address(
-                address=implementation, client=proxy_client
-            )
+            contract_class = await self.client.get_class_by_hash(implementation)
         else:
-            return []
+            contract_class = await self._get_class_by_address(address=implementation)
 
-        return contract_class.abi or []
+        if contract_class.abi is None:
+            raise AbiNotFoundError()
+        return contract_class.abi
 
-    @staticmethod
-    async def _get_implementation_from_proxy(
-        proxy_contract: "Contract", proxy_config: ProxyConfig
-    ) -> Tuple[int, ImplementationType]:
-        implementation, proxy_checks = None, proxy_config.get("proxy_checks", [])
+    async def _get_implementation_from_proxy(self) -> Tuple[int, ImplementationType]:
+        implementation, proxy_checks = None, self.proxy_config.get("proxy_checks", [])
         for proxy_check in proxy_checks:
-            implementation = await proxy_check.implementation_hash(proxy_contract)
+            implementation = await proxy_check.implementation_hash(
+                address=self.address, client=self.client
+            )
             if implementation is not None:
                 return implementation, ImplementationType.CLASS_HASH
 
-            implementation = await proxy_check.implementation_address(proxy_contract)
+            implementation = await proxy_check.implementation_address(
+                address=self.address, client=self.client
+            )
             if implementation is not None:
                 return implementation, ImplementationType.ADDRESS
 
         raise ProxyResolutionError(proxy_checks)
 
-    @staticmethod
-    async def _get_class_by_address(
-        address: Address, client: Client
-    ) -> DeclaredContract:
+    async def _get_class_by_address(self, address: Address) -> DeclaredContract:
         contract_class_hash = 0
         try:
-            contract_class_hash = await client.get_class_hash_at(
+            contract_class_hash = await self.client.get_class_hash_at(
                 contract_address=address
             )
-            contract_class = await client.get_class_by_hash(
+            contract_class = await self.client.get_class_by_hash(
                 class_hash=contract_class_hash
             )
         except ClientError as err:
@@ -129,3 +131,9 @@ class ContractAbiResolver:
             raise err
 
         return contract_class
+
+
+class AbiNotFoundError(Exception):
+    """
+    Error while resolving contract abi.
+    """
