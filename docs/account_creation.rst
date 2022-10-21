@@ -12,7 +12,7 @@ If you don't have one there are a few ways of creating one programmatically:
 
 .. note::
 
-    In the future users would be able to use
+    In the future users will be able to use
     `Universal Deployer Contract <https://community.starknet.io/t/universal-deployer-contract-proposal/1864>`_
     to deploy any contract, including an Account.
 
