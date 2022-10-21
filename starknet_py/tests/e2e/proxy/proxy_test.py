@@ -1,9 +1,7 @@
 from typing import Optional
 
 import pytest
-from starkware.starknet.public.abi import (
-    get_storage_var_address,
-)
+from starkware.starknet.public.abi import get_storage_var_address
 
 from starknet_py.contract import Contract
 from starknet_py.net.client import Client
@@ -96,7 +94,9 @@ async def test_contract_from_invalid_address(gateway_account_client):
 async def test_contract_from_address_invalid_proxy_checks(
     gateway_account_client, deploy_proxy_to_contract
 ):
-    with pytest.raises(ProxyResolutionError):
+    message = "Couldn't resolve proxy using given ProxyChecks"
+
+    with pytest.raises(ProxyResolutionError, match=message):
         await Contract.from_address(
             address=deploy_proxy_to_contract.deployed_contract.address,
             client=gateway_account_client,

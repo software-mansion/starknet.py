@@ -1,6 +1,6 @@
 import warnings
 from enum import Enum
-from typing import List, TypedDict, Tuple, Optional
+from typing import List, TypedDict, Tuple
 
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ContractNotFoundError, ClientError
@@ -53,7 +53,7 @@ class ContractAbiResolver:
         self,
         address: Address,
         client: Client,
-        proxy_config: Optional[ProxyConfig] = None,
+        proxy_config: ProxyConfig,
     ):
         """
         :param address: Contract's address
@@ -62,7 +62,7 @@ class ContractAbiResolver:
         """
         self.address = address
         self.client = client
-        self.proxy_config = ProxyConfig() if proxy_config is None else proxy_config
+        self.proxy_config = proxy_config
 
     async def resolve(self) -> Abi:
         """
@@ -112,7 +112,7 @@ class ContractAbiResolver:
             if implementation is not None:
                 return implementation, ImplementationType.ADDRESS
 
-        raise ProxyResolutionError(proxy_checks)
+        raise ProxyResolutionError()
 
     async def _get_class_by_address(self, address: Address) -> DeclaredContract:
         contract_class_hash = 0
@@ -142,9 +142,6 @@ class ProxyResolutionError(Exception):
     Error while resolving proxy using ProxyChecks.
     """
 
-    def __init__(self, proxy_checks: List[ProxyCheck]):
-        proxy_checks_classes = [proxy_check.__class__ for proxy_check in proxy_checks]
-        self.message = (
-            f"Couldn't resolve proxy using given ProxyChecks ({proxy_checks_classes})"
-        )
+    def __init__(self):
+        self.message = "Couldn't resolve proxy using given ProxyChecks"
         super().__init__(self.message)

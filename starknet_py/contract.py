@@ -403,12 +403,10 @@ class Contract:
         :return: an initialized Contract instance
         """
         address = parse_address(address)
-        if isinstance(proxy_config, bool) and not proxy_config:
+        if proxy_config is False:
             proxy_config = ProxyConfig()
-        else:
-            proxy_arg = (
-                ProxyConfig() if isinstance(proxy_config, bool) else proxy_config
-            )
+        elif proxy_config is True:
+            proxy_arg = ProxyConfig() if proxy_config is True else proxy_config
             proxy_config = prepare_proxy_config(proxy_arg)
 
         actual_client = client.client if isinstance(client, AccountClient) else client
