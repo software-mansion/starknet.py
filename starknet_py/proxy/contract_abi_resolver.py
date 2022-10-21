@@ -1,4 +1,3 @@
-# pyright: reportUndefinedVariable=false
 import warnings
 from enum import Enum
 from typing import List, TypedDict, Tuple, Optional
@@ -7,8 +6,7 @@ from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ContractNotFoundError, ClientError
 from starknet_py.net.client_models import Abi, DeclaredContract
 from starknet_py.net.models import Address
-from starknet_py.proxy_check import (
-    ProxyResolutionError,
+from starknet_py.proxy.proxy_check import (
     OpenZeppelinProxyCheck,
     ArgentProxyCheck,
     ProxyCheck,
@@ -22,7 +20,7 @@ class ProxyConfig(TypedDict, total=False):
 
     proxy_checks: List[ProxyCheck]
     """
-    List of classes implementing :class:`starknet_py.proxy_check.ProxyCheck` ABC,
+    List of classes implementing :class:`starknet_py.proxy.proxy_check.ProxyCheck` ABC,
     that will be used for checking if contract at the address is a proxy contract.
     """
 
@@ -137,3 +135,16 @@ class AbiNotFoundError(Exception):
     """
     Error while resolving contract abi.
     """
+
+
+class ProxyResolutionError(Exception):
+    """
+    Error while resolving proxy using ProxyChecks.
+    """
+
+    def __init__(self, proxy_checks: List[ProxyCheck]):
+        proxy_checks_classes = [proxy_check.__class__ for proxy_check in proxy_checks]
+        self.message = (
+            f"Couldn't resolve proxy using given ProxyChecks ({proxy_checks_classes})"
+        )
+        super().__init__(self.message)

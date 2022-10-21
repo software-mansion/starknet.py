@@ -24,7 +24,7 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
 
 from starknet_py.common import create_compiled_contract
 from starknet_py.compile.compiler import StarknetCompilationSource
-from starknet_py.contract_abi_resolver import (
+from starknet_py.proxy.contract_abi_resolver import (
     ProxyConfig,
     ContractAbiResolver,
     prepare_proxy_config,
@@ -392,8 +392,8 @@ class Contract:
         :param client: Client
         :param proxy_config: Proxy resolving config
             If set to ``True``, will use default proxy checks
-            :class:`starknet_py.proxy_check.OpenZeppelinProxyCheck`
-            and :class:`starknet_py.proxy_check.ArgentProxyCheck`.
+            :class:`starknet_py.proxy.proxy_check.OpenZeppelinProxyCheck`
+            and :class:`starknet_py.proxy.proxy_check.ArgentProxyCheck`.
 
             If set to ``False``, :meth:`Contract.from_address` will not resolve proxies.
 

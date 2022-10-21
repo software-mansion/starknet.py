@@ -9,7 +9,8 @@ from starknet_py.contract import Contract
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ContractNotFoundError
 from starknet_py.net.models import Address
-from starknet_py.proxy_check import ProxyResolutionError, ProxyCheck
+from starknet_py.proxy.contract_abi_resolver import ProxyResolutionError
+from starknet_py.proxy.proxy_check import ProxyCheck
 
 
 async def map_works_properly(map_contract: Contract, key: int, val: int) -> bool:
