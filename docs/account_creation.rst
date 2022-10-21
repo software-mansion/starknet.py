@@ -1,8 +1,6 @@
 Account creation
 ================
 
-Creating an account on StarkNet
--------------------------------
 
 An account is needed to start interacting with StarkNet.
 If you don't have one there are a few ways of creating one programmatically:
