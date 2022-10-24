@@ -175,12 +175,10 @@ class FullNodeClient(Client):
             block_hash=block_hash, block_number=block_number
         )
 
-        transaction_params = _create_broadcasted_txn(transaction=tx)
-
         res = await self._client.call(
             method_name="estimateFee",
             params={
-                "request": {**transaction_params},
+                "request": _create_broadcasted_txn(transaction=tx),
                 **block_identifier,
             },
         )
@@ -468,7 +466,6 @@ def _get_call_payload(tx: Union[InvokeFunction, Call]) -> dict:
 
 def _create_broadcasted_txn(transaction: Union[InvokeFunction, Declare]) -> Dict:
     common_params = {
-        "type": "INVOKE",
         "max_fee": hex(transaction.max_fee),
         "version": hex(transaction.version),
         "signature": [convert_to_felt(i) for i in transaction.signature],
@@ -479,6 +476,7 @@ def _create_broadcasted_txn(transaction: Union[InvokeFunction, Declare]) -> Dict
 
     if transaction.tx_type == TransactionType.INVOKE_FUNCTION:
         invoke_specific_params = {
+            "type": "INVOKE",
             "calldata": [convert_to_felt(i) for i in transaction.calldata],
         }
         if transaction.version == 0:
@@ -509,8 +507,9 @@ def _create_broadcasted_txn(transaction: Union[InvokeFunction, Declare]) -> Dict
                 "abi": contract_class["abi"],
             },
             "sender_address": convert_to_felt(transaction.sender_address),
+            "type": "DECLARE",
         }
 
         return {**common_params, **declare_params}
 
-    return {}
+    raise TypeError("Transaction should be of type InvokeFunction or Declare")

@@ -358,7 +358,6 @@ def net_to_accounts() -> List[str]:
 def account_client(request) -> AccountClient:
     """
     This parametrized fixture returns all AccountClients, one by one.
-    Test using this fixture will be run three times, once per account.
     """
     return request.getfixturevalue(request.param)
 
