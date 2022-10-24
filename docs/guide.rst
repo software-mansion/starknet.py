@@ -96,7 +96,7 @@ Deploying new contracts with Universal Deployer Contract (UDC)
 --------------------------------------------------------------
 
 The best way of deploying contracts on Starknet is to use UDC. starknet.py assumes you use an implementation compatible
-with `OpenZeppelin's UDC implementation <https://github.com/OpenZeppelin/cairo-contracts/blob/deployer/src/openzeppelin/utils/presets/UniversalDeployer.cairo>`_.
+with `OpenZeppelin's UDC implementation <https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/utils/presets/UniversalDeployer.cairo>`_.
 
 There is a class responsible for the deployment (:ref:`Deployer<Deployer>`).
 
