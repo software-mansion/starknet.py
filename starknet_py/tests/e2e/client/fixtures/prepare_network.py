@@ -1,5 +1,5 @@
 # pylint: disable=redefined-outer-name
-
+import os
 import subprocess
 from pathlib import Path
 from typing import Tuple, Dict, AsyncGenerator
@@ -9,13 +9,14 @@ import pytest_asyncio
 from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.net import AccountClient
-from starknet_py.tests.e2e.client.conftest import directory
-from starknet_py.tests.e2e.client.prepare_net_for_gateway_test import (
+from starknet_py.tests.e2e.client.fixtures.prepare_net_for_gateway_test import (
     PreparedNetworkData,
     prepare_net_for_tests,
 )
 from starknet_py.tests.e2e.conftest import contracts_dir
 from starknet_py.tests.e2e.utils import AccountToBeDeployedDetails
+
+directory = os.path.dirname(__file__)
 
 
 async def prepare_network(
