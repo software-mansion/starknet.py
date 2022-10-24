@@ -18,6 +18,7 @@ from starknet_py.net.client_models import (
     Call,
     DeclareTransaction,
     InvokeTransaction,
+    L1HandlerTransaction,
 )
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.tests.e2e.conftest import MAX_FEE
@@ -368,3 +369,77 @@ async def test_custom_session(map_contract, network):
 
     assert gateway_client1._feeder_gateway_client.session.closed is True
     assert gateway_client2._feeder_gateway_client.session.closed is True
+
+
+@pytest.mark.asyncio
+async def test_get_l1_handler_transaction(client):
+    with patch(
+        "starknet_py.net.http_client.GatewayHttpClient.call", AsyncMock()
+    ) as mocked_transaction_call_gateway, patch(
+        "starknet_py.net.http_client.RpcHttpClient.call", AsyncMock()
+    ) as mocked_transaction_call_rpc:
+        return_value = {
+            "status": "ACCEPTED_ON_L1",
+            "block_hash": "0x38ce7678420eaff5cd62597643ca515d0887579a8be69563067fe79a624592b",
+            "block_number": 370459,
+            "transaction_index": 9,
+            "transaction": {
+                "version": "0x0",
+                "contract_address": "0x278f24c3e74cbf7a375ec099df306289beb0605a346277d200b791a7f811a19",
+                "entry_point_selector": "0x2d757788a8d8d6f21d1cd40bce38a8222d70654214e96ff95d8086e684fbee5",
+                "nonce": "0x34c20",
+                "calldata": [
+                    "0xd8beaa22894cd33f24075459cfba287a10a104e4",
+                    "0x3f9c67ef1d31e24b386184b4ede63a869c4659de093ef437ee235cae4daf2be",
+                    "0x3635c9adc5dea00000",
+                    "0x0",
+                    "0x7cb4539b69a2371f75d21160026b76a7a7c1cacb",
+                ],
+                "transaction_hash": "0x7e1ed66dbccf915857c6367fc641c24292c063e54a5dd55947c2d958d94e1a9",
+                "type": "L1_HANDLER",
+            },
+        }
+        mocked_transaction_call_gateway.return_value = return_value
+        mocked_transaction_call_rpc.return_value = return_value["transaction"]
+
+        transaction = await client.get_transaction(tx_hash=0x1)
+
+        assert isinstance(transaction, L1HandlerTransaction)
+        assert transaction.nonce is not None
+        assert transaction.nonce == 0x34C20
+
+
+@pytest.mark.asyncio
+async def test_get_l1_handler_transaction_without_nonce(client):
+    with patch(
+        "starknet_py.net.http_client.GatewayHttpClient.call", AsyncMock()
+    ) as mocked_transaction_call_gateway, patch(
+        "starknet_py.net.http_client.RpcHttpClient.call", AsyncMock()
+    ) as mocked_transaction_call_rpc:
+        return_value = {
+            "status": "ACCEPTED_ON_L1",
+            "block_hash": "0x38ce7678420eaff5cd62597643ca515d0887579a8be69563067fe79a624592b",
+            "block_number": 370459,
+            "transaction_index": 9,
+            "transaction": {
+                "version": "0x0",
+                "contract_address": "0x278f24c3e74cbf7a375ec099df306289beb0605a346277d200b791a7f811a19",
+                "entry_point_selector": "0x2d757788a8d8d6f21d1cd40bce38a8222d70654214e96ff95d8086e684fbee5",
+                "calldata": [
+                    "0xd8beaa22894cd33f24075459cfba287a10a104e4",
+                    "0x3f9c67ef1d31e24b386184b4ede63a869c4659de093ef437ee235cae4daf2be",
+                    "0x3635c9adc5dea00000",
+                    "0x0",
+                    "0x7cb4539b69a2371f75d21160026b76a7a7c1cacb",
+                ],
+                "transaction_hash": "0x7e1ed66dbccf915857c6367fc641c24292c063e54a5dd55947c2d958d94e1a9",
+                "type": "L1_HANDLER",
+            },
+        }
+        mocked_transaction_call_gateway.return_value = return_value
+        mocked_transaction_call_rpc.return_value = return_value["transaction"]
+
+        transaction = await client.get_transaction(tx_hash=0x1)
+
+        assert isinstance(transaction, L1HandlerTransaction)
+        assert transaction.nonce is None
