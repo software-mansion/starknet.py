@@ -523,13 +523,13 @@ async def constructor_with_arguments_class_hash(
     """
     Returns a class_hash of the constructor_with_arguments.cairo
     """
-    return (
-        await new_gateway_account_client.declare(
-            await new_gateway_account_client.sign_declare_transaction(
-                compilation_source=constructor_with_arguments_source, max_fee=int(1e16)
-            )
-        )
-    ).class_hash
+    declare = await new_gateway_account_client.sign_declare_transaction(
+        compilation_source=constructor_with_arguments_source,
+        max_fee=int(1e16),
+    )
+    res = await new_gateway_account_client.declare(declare)
+    await new_gateway_account_client.wait_for_tx(res.transaction_hash)
+    return res.class_hash
 
 
 @pytest_asyncio.fixture(scope="module")

@@ -61,7 +61,6 @@ class Deployer:
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> InvokeFunction:
-        # pylint: disable=too-many-arguments
         """
         Prepares deploy invoke transaction
 
@@ -118,7 +117,7 @@ class Deployer:
             values=event.data,
         )
 
-        return event[0]
+        return event.address
 
     async def _get_deploy_event(self, transaction_hash: Hash) -> Optional[Event]:
         receipt = await self.account.get_transaction_receipt(tx_hash=transaction_hash)
