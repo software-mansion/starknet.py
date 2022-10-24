@@ -25,8 +25,10 @@ from starknet_py.net.client_models import (
     DeclareTransactionResponse,
     DeployTransactionResponse,
     Call,
+    DeployAccountTransactionResponse,
 )
 from starknet_py.net.http_client import RpcHttpClient
+from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.net.networks import Network
 from starknet_py.net.schemas.rpc import (
     StarknetBlockSchema,
@@ -154,13 +156,18 @@ class FullNodeClient(Client):
 
     async def estimate_fee(
         self,
-        tx: Union[InvokeFunction, Declare],
+        tx: Union[InvokeFunction, Declare, DeployAccount],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
         if isinstance(tx, Declare):
             raise ValueError(
                 "Estimating fee for Declare transactions is currently not supported in FullNodeClient"
+            )
+
+        if isinstance(tx, DeployAccount):
+            raise ValueError(
+                "Estimating fee for DeployAccount transactions is currently not supported in FullNodeClient"
             )
 
         block_identifier = get_block_identifier(
@@ -238,6 +245,12 @@ class FullNodeClient(Client):
         )
 
     async def deploy(self, transaction: Deploy) -> DeployTransactionResponse:
+        warnings.warn(
+            "Deploy transaction is deprecated."
+            "Use deploy_prefunded method or deploy through cairo syscall",
+            category=DeprecationWarning,
+        )
+
         contract_definition = transaction.dump()["contract_definition"]
 
         res = await self._client.call(
@@ -260,6 +273,11 @@ class FullNodeClient(Client):
             DeployTransactionResponse,
             DeployTransactionResponseSchema().load(res, unknown=EXCLUDE),
         )
+
+    async def deploy_account(
+        self, transaction: DeployAccount
+    ) -> DeployAccountTransactionResponse:
+        raise NotImplementedError()
 
     async def declare(self, transaction: Declare) -> DeclareTransactionResponse:
         contract_class = transaction.dump()["contract_class"]

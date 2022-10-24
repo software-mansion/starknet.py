@@ -458,7 +458,16 @@ class Contract:
         :param search_paths: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts.
         :raises: `ValueError` if neither compilation_source nor compiled_contract is provided.
         :return: DeployResult instance
+
+        .. deprecated:: 0.8.0
+            This metodh has been deprecated in favor of deploying through cairo syscall.
         """
+        warnings.warn(
+            "In the future versions of StarkNet, Deploy transaction will not be supported."
+            "To deploy a contract use cairo syscall",
+            category=DeprecationWarning,
+        )
+
         compiled = create_compiled_contract(
             compilation_source, compiled_contract, search_paths
         )
@@ -491,6 +500,7 @@ class Contract:
         compiled_contract: Optional[str] = None,
         constructor_args: Optional[Union[List, Dict]] = None,
         search_paths: Optional[List[str]] = None,
+        deployer_address: int = 0,
     ) -> int:
         """
         Computes address for given contract.
@@ -501,17 +511,22 @@ class Contract:
         :param compiled_contract: string containing compiled contract. Useful for reading compiled contract from a file.
         :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
         :param search_paths: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts.
+        :param deployer_address: address of the deployer (if not provided default 0 is used)
+
         :raises: `ValueError` if neither compilation_source nor compiled_contract is provided.
+
         :return: contract's address
         """
+        # pylint: disable=too-many-arguments
         compiled = create_compiled_contract(
             compilation_source, compiled_contract, search_paths
         )
         translated_args = translate_constructor_args(compiled.abi, constructor_args)
         return compute_address(
             salt=salt,
-            contract_hash=compute_class_hash(compiled, hash_func=pedersen_hash),
+            class_hash=compute_class_hash(compiled, hash_func=pedersen_hash),
             constructor_calldata=translated_args,
+            deployer_address=deployer_address,
         )
 
     @staticmethod
