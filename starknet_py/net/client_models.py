@@ -217,6 +217,15 @@ class DeployTransactionResponse(SentTransactionResponse):
     contract_address: int = 0
 
 
+@dataclass
+class DeployAccountTransactionResponse(SentTransactionResponse):
+    """
+    Dataclass representing a result of deploying an account contract to starknet
+    """
+
+    address: int = 0
+
+
 class BlockStatus(Enum):
     """
     Enum representing block status

@@ -27,6 +27,7 @@ from starknet_py.net.client_models import (
     DeclareTransactionResponse,
     DeployTransactionResponse,
     DeployAccountTransaction,
+    DeployAccountTransactionResponse,
     L1HandlerTransaction,
 )
 from starknet_py.net.schemas.common import (
@@ -273,6 +274,14 @@ class DeployTransactionResponseSchema(SentTransactionSchema):
     @post_load
     def make_dataclass(self, data, **kwargs):
         return DeployTransactionResponse(**data)
+
+
+class DeployAccountTransactionResponseSchema(SentTransactionSchema):
+    address = Felt(data_key="address", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return DeployAccountTransactionResponse(**data)
 
 
 class StorageDiffSchema(Schema):
