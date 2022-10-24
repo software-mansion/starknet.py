@@ -537,4 +537,7 @@ def default_gateway_gas_price() -> int:
 
 
 def read_compiled_contract(file_name: str) -> str:
+    """
+    Return contents of file_name from contracts_compiled_dir
+    """
     return (contracts_compiled_dir / file_name).read_text("utf-8")

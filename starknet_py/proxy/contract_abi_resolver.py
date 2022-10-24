@@ -67,6 +67,9 @@ class ContractAbiResolver:
     async def resolve(self) -> Abi:
         """
         Returns abi of either direct contract or contract proxied by direct contract depending on proxy_config.
+        :raises ContractNotFoundError: when contract could not be found at address
+        :raises ProxyResolutionError: when given ProxyChecks were not sufficient to resolve proxy
+        :raises AbiNotFoundError: when abi is not present in contract class at address
         """
         if self.proxy_config:
             return await self.resolve_abi()
@@ -75,6 +78,8 @@ class ContractAbiResolver:
     async def get_abi_for_address(self) -> Abi:
         """
         Returns abi of a contract directly from address.
+        :raises ContractNotFoundError: when contract could not be found at address
+        :raises AbiNotFoundError: when abi is not present in contract class at address
         """
         contract_class = await self._get_class_by_address(address=self.address)
         if contract_class.abi is None:
@@ -84,6 +89,9 @@ class ContractAbiResolver:
     async def resolve_abi(self) -> Abi:
         """
         Returns abi of a contract that is being proxied by contract at address.
+        :raises ContractNotFoundError: when contract could not be found at address
+        :raises ProxyResolutionError: when given ProxyChecks were not sufficient to resolve proxy
+        :raises AbiNotFoundError: when abi is not present in proxied contract class at address
         """
         impl = await self._get_implementation_from_proxy()
         implementation, implementation_type = impl

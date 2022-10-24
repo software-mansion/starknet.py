@@ -403,14 +403,9 @@ class Contract:
         :return: an initialized Contract instance
         """
         address = parse_address(address)
-        if proxy_config is False:
-            proxy_config = ProxyConfig()
-        elif proxy_config is True:
-            proxy_arg = ProxyConfig() if proxy_config is True else proxy_config
-            proxy_config = prepare_proxy_config(proxy_arg)
+        proxy_config = Contract._create_proxy_config(proxy_config)
 
-        actual_client = client.client if isinstance(client, AccountClient) else client
-        if not isinstance(actual_client, GatewayClient):
+        if not Contract._abi_compatible_client(client):
             # TODO: Add support for FullNodeClient once abi is available in RPC
             raise TypeError(
                 "Contract.from_address only supports GatewayClient or AccountClients using GatewayClient"
@@ -574,3 +569,15 @@ class Contract:
             )
 
         return repository
+
+    @staticmethod
+    def _create_proxy_config(proxy_config) -> ProxyConfig:
+        if proxy_config is False:
+            return ProxyConfig()
+        proxy_arg = ProxyConfig() if proxy_config is True else proxy_config
+        return prepare_proxy_config(proxy_arg)
+
+    @staticmethod
+    def _abi_compatible_client(client) -> bool:
+        actual_client = client.client if isinstance(client, AccountClient) else client
+        return isinstance(actual_client, GatewayClient)
