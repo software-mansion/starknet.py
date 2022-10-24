@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo v0.4.0 (utils/presets/UniversalDeployer.cairo)
+
 %lang starknet
 
 from starkware.starknet.common.syscalls import get_caller_address, deploy
@@ -7,9 +10,12 @@ from starkware.cairo.common.bool import FALSE, TRUE
 
 @event
 func ContractDeployed(
-    contractAddress: felt,
+    address: felt,
     deployer: felt,
+    unique: felt,
     classHash: felt,
+    calldata_len: felt,
+    calldata: felt*,
     salt: felt
 ) {
 }
@@ -20,38 +26,47 @@ func deployContract{
     pedersen_ptr: HashBuiltin*,
     range_check_ptr
 }(
-    class_hash: felt,
+    classHash: felt,
     salt: felt,
     unique: felt,
-    constructor_calldata_len: felt,
-    constructor_calldata: felt*
-) -> (contract_address: felt) {
+    calldata_len: felt,
+    calldata: felt*
+) -> (address: felt) {
     alloc_locals;
-    local prefix;
     let (deployer) = get_caller_address();
 
+    local _salt;
+    local from_zero;
     if (unique == TRUE) {
-        prefix = deployer;
+        let (unique_salt) = hash2{hash_ptr=pedersen_ptr}(deployer, salt);
+        _salt = unique_salt;
+        from_zero = FALSE;
+        tempvar _pedersen = pedersen_ptr;
     } else {
-        prefix = 'UniversalDeployerContract';
+        _salt = salt;
+        from_zero = TRUE;
+        tempvar _pedersen = pedersen_ptr;
     }
 
-    let (_salt) = hash2{hash_ptr=pedersen_ptr}(prefix, salt);
+    let pedersen_ptr = _pedersen;
 
-    let (contract_address) = deploy(
-        class_hash=class_hash,
+    let (address) = deploy(
+        class_hash=classHash,
         contract_address_salt=_salt,
-        constructor_calldata_size=constructor_calldata_len,
-        constructor_calldata=constructor_calldata,
-        deploy_from_zero=FALSE,
+        constructor_calldata_size=calldata_len,
+        constructor_calldata=calldata,
+        deploy_from_zero=from_zero,
     );
 
     ContractDeployed.emit(
-        contractAddress=contract_address,
+        address=address,
         deployer=deployer,
-        classHash=class_hash,
+        unique=unique,
+        classHash=classHash,
+        calldata_len=calldata_len,
+        calldata=calldata,
         salt=salt
     );
 
-    return (contract_address=contract_address);
+    return (address=address);
 }

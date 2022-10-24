@@ -80,10 +80,10 @@ class Deployer:
 
         calldata, _ = universal_deployer_serializer.from_python(
             value_types=deploy_contract_abi["inputs"],
-            class_hash=int_from_hex(class_hash),
+            classHash=int_from_hex(class_hash),
             salt=self.salt or ContractAddressSalt.get_random_value(),
             unique=int(self.unique),
-            constructor_calldata=calldata,
+            calldata=calldata,
         )
 
         call = Call(
