@@ -1,7 +1,7 @@
 import pytest
 
 from starknet_py.contract import Contract
-from starknet_py.tests.e2e.conftest import contracts_dir
+from starknet_py.tests.e2e.fixtures.constants import contracts_dir
 
 SOURCE = """
 // Declare this file as a StarkNet contract and set the required

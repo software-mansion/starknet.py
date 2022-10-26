@@ -1,7 +1,7 @@
 import pytest
 
 from starknet_py.contract import Contract, ContractFunction
-from starknet_py.tests.e2e.conftest import contracts_dir
+from starknet_py.tests.e2e.fixtures.constants import contracts_dir
 
 mock_contracts_base_path = contracts_dir
 base_source_code = (contracts_dir / "base.cairo").read_text("utf-8")

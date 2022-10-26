@@ -12,7 +12,7 @@ from starknet_py.compile.compiler import (
     Compiler,
     create_contract_class,
 )
-from starknet_py.tests.e2e.conftest import contracts_dir
+from starknet_py.tests.e2e.fixtures.constants import contracts_dir
 
 directory = os.path.dirname(__file__)
 

@@ -10,13 +10,14 @@ from starkware.starknet.services.api.gateway.transaction import (
     DEFAULT_DECLARE_SENDER_ADDRESS,
 )
 
+from starknet_py.contract import Contract
 from starknet_py.net import AccountClient, KeyPair
 from starknet_py.net.client import Client
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.http_client import GatewayHttpClient
 from starknet_py.net.models import AddressRepresentation, StarknetChainId
-from starknet_py.tests.e2e.conftest import (
+from starknet_py.tests.e2e.fixtures.constants import (
     TESTNET_ACCOUNT_ADDRESS,
     TESTNET_ACCOUNT_PRIVATE_KEY,
     INTEGRATION_ACCOUNT_ADDRESS,
@@ -26,6 +27,10 @@ from starknet_py.tests.e2e.conftest import (
     TESTNET_NEW_ACCOUNT_PRIVATE_KEY,
     INTEGRATION_NEW_ACCOUNT_ADDRESS,
     INTEGRATION_NEW_ACCOUNT_PRIVATE_KEY,
+)
+from starknet_py.tests.e2e.utils import (
+    AccountToBeDeployedDetails,
+    get_deploy_account_details,
 )
 from starknet_py.transactions.deploy import make_deploy_tx
 
@@ -210,6 +215,20 @@ def account_client(request) -> AccountClient:
     Test using this fixture will be run three times, once per account.
     """
     return request.getfixturevalue(request.param)
+
+
+@pytest_asyncio.fixture(scope="module")
+async def details_of_account_to_be_deployed(
+    account_with_validate_deploy_class_hash: int,
+    fee_contract: Contract,
+) -> AccountToBeDeployedDetails:
+    """
+    Returns address, key_pair, salt and class_hash of the account with validate deploy.
+    Prefunds the address with enough tokens to allow for deployment.
+    """
+    return await get_deploy_account_details(
+        class_hash=account_with_validate_deploy_class_hash, fee_contract=fee_contract
+    )
 
 
 @pytest.fixture(scope="module")

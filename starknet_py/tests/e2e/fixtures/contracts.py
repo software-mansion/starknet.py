@@ -3,10 +3,11 @@
 import pytest
 import pytest_asyncio
 
+from starknet_py.compile.compiler import Compiler
 from starknet_py.constants import FEE_CONTRACT_ADDRESS, DEVNET_FEE_CONTRACT_ADDRESS
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient
-from starknet_py.tests.e2e.conftest import contracts_dir
+from starknet_py.tests.e2e.fixtures.constants import contracts_dir, MAX_FEE
 
 
 @pytest.fixture(
@@ -133,3 +134,27 @@ def fixture_balance_contract() -> str:
     Returns compiled code of the balance.cairo contract
     """
     return (contracts_dir / "balance_compiled.json").read_text("utf-8")
+
+
+@pytest_asyncio.fixture(scope="module")
+async def account_with_validate_deploy_class_hash(
+    new_gateway_account_client: AccountClient,
+) -> int:
+    """
+    Returns a clas_hash of the account_with_validate_deploy.cairo
+    """
+    compiled_contract = Compiler(
+        contract_source=(
+            contracts_dir / "account_with_validate_deploy.cairo"
+        ).read_text("utf-8"),
+        is_account_contract=True,
+    ).compile_contract()
+
+    declare_tx = await new_gateway_account_client.sign_declare_transaction(
+        compiled_contract=compiled_contract,
+        max_fee=MAX_FEE,
+    )
+    resp = await new_gateway_account_client.declare(transaction=declare_tx)
+    await new_gateway_account_client.wait_for_tx(resp.transaction_hash)
+
+    return resp.class_hash

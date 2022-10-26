@@ -20,7 +20,7 @@ from starknet_py.net.client_models import (
     InvokeTransaction,
 )
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.tests.e2e.conftest import MAX_FEE
+from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.transaction_exceptions import (
     TransactionRejectedError,
     TransactionNotReceivedError,

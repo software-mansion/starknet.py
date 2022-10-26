@@ -13,7 +13,7 @@ from starknet_py.tests.e2e.client.fixtures.prepare_net_for_gateway_test import (
     PreparedNetworkData,
     prepare_net_for_tests,
 )
-from starknet_py.tests.e2e.conftest import contracts_dir
+from starknet_py.tests.e2e.fixtures.constants import contracts_dir
 from starknet_py.tests.e2e.utils import AccountToBeDeployedDetails
 
 directory = os.path.dirname(__file__)

@@ -11,13 +11,11 @@ from typing import Generator
 import pytest
 import pytest_asyncio
 
-from starknet_py.compile.compiler import Compiler
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient
-from starknet_py.tests.e2e.conftest import typed_data_dir, contracts_dir, MAX_FEE
-from starknet_py.tests.e2e.utils import (
-    AccountToBeDeployedDetails,
-    get_deploy_account_details,
+from starknet_py.tests.e2e.fixtures.constants import (
+    typed_data_dir,
+    contracts_dir,
 )
 from starknet_py.utils.data_transformer.data_transformer import CairoSerializer
 from starknet_py.utils.typed_data import TypedData
@@ -39,6 +37,22 @@ def pytest_addoption(parser):
         default="devnet",
         help="Network to run tests on: possible 'testnet', 'devnet', 'all'",
     )
+
+
+def pytest_collection_modifyitems(config, items):
+    if config.getoption("--net") == "all":
+        return
+
+    run_testnet = config.getoption("--net") == "testnet"
+    run_devnet = config.getoption("--net") == "devnet"
+    for item in items:
+        runs_on_testnet = "run_on_testnet" in item.keywords
+        runs_on_devnet = "run_on_devnet" in item.keywords
+        should_not_run = (runs_on_devnet and not run_devnet) or (
+            runs_on_testnet and not run_testnet
+        )
+        if should_not_run:
+            item.add_marker(pytest.mark.skip())
 
 
 def get_available_port() -> int:
@@ -95,22 +109,6 @@ def network(pytestconfig, run_devnet: str) -> str:
     return net_address[net]
 
 
-def pytest_collection_modifyitems(config, items):
-    if config.getoption("--net") == "all":
-        return
-
-    run_testnet = config.getoption("--net") == "testnet"
-    run_devnet = config.getoption("--net") == "devnet"
-    for item in items:
-        runs_on_testnet = "run_on_testnet" in item.keywords
-        runs_on_devnet = "run_on_devnet" in item.keywords
-        should_not_run = (runs_on_devnet and not run_devnet) or (
-            runs_on_testnet and not run_testnet
-        )
-        if should_not_run:
-            item.add_marker(pytest.mark.skip())
-
-
 @pytest.fixture(
     name="typed_data",
     params=[
@@ -150,41 +148,3 @@ async def cairo_serializer(gateway_account_client: AccountClient) -> CairoSerial
     contract = deployment_result.deployed_contract
 
     return CairoSerializer(identifier_manager=contract.data.identifier_manager)
-
-
-@pytest_asyncio.fixture(scope="module")
-async def account_with_validate_deploy_class_hash(
-    new_gateway_account_client: AccountClient,
-) -> int:
-    """
-    Returns a clas_hash of the account_with_validate_deploy.cairo
-    """
-    compiled_contract = Compiler(
-        contract_source=(
-            contracts_dir / "account_with_validate_deploy.cairo"
-        ).read_text("utf-8"),
-        is_account_contract=True,
-    ).compile_contract()
-
-    declare_tx = await new_gateway_account_client.sign_declare_transaction(
-        compiled_contract=compiled_contract,
-        max_fee=MAX_FEE,
-    )
-    resp = await new_gateway_account_client.declare(transaction=declare_tx)
-    await new_gateway_account_client.wait_for_tx(resp.transaction_hash)
-
-    return resp.class_hash
-
-
-@pytest_asyncio.fixture(scope="module")
-async def details_of_account_to_be_deployed(
-    account_with_validate_deploy_class_hash: int,
-    fee_contract: Contract,
-) -> AccountToBeDeployedDetails:
-    """
-    Returns address, key_pair, salt and class_hash of the account with validate deploy.
-    Prefunds the address with enough tokens to allow for deployment.
-    """
-    return await get_deploy_account_details(
-        class_hash=account_with_validate_deploy_class_hash, fee_contract=fee_contract
-    )
