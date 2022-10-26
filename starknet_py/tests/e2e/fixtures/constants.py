@@ -31,6 +31,6 @@ INTEGRATION_NEW_ACCOUNT_ADDRESS = (
 
 MAX_FEE = int(1e20)
 
-mock_dir = Path(os.path.dirname(__file__)) / "mock"
+mock_dir = Path(os.path.dirname(__file__)) / "../mock"
 typed_data_dir = mock_dir / "typed_data"
 contracts_dir = mock_dir / "contracts"
