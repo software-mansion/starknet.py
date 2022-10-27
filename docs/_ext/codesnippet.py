@@ -36,6 +36,8 @@ class CodeSnippet(SphinxDirective):
     """
     Directive class that allows multiple uses of :start-after: and :end-before: options
     """
+    default_start = "docs: start"
+    default_end = "docs: end"
 
     has_content = False
     required_arguments = 1
@@ -49,6 +51,7 @@ class CodeSnippet(SphinxDirective):
     }
 
     def run(self) -> List[Node]:
+        self._set_options()
         end_marker = self._get_end_marker()
         filename = self._get_filename()
         code_snippets = self._get_code_snippets(filename, end_marker)
@@ -88,6 +91,10 @@ class CodeSnippet(SphinxDirective):
         if "language" in self.options:
             node["language"] = self.options["language"]
         return node
+
+    def _set_options(self) -> None:
+        self.options["start-after"] = self.options.get("start-after", self.default_start)
+        self.options["end-before"] = self.options.get("end-after", self.default_end)
 
 
 def setup(app) -> Dict[str, Any]:
