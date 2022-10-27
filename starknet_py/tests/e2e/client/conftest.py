@@ -19,7 +19,11 @@ from starknet_py.tests.e2e.client.prepare_net_for_gateway_test import (
     prepare_net_for_tests,
     PreparedNetworkData,
 )
-from starknet_py.tests.e2e.conftest import contracts_dir, AccountToBeDeployedDetails
+from starknet_py.tests.e2e.conftest import (
+    contracts_dir,
+    AccountToBeDeployedDetails,
+    AccountToBeDeployedDetailsFactory,
+)
 
 directory = os.path.dirname(__file__)
 
@@ -212,15 +216,14 @@ def client(request) -> Client:
 async def fixture_prepare_network(
     network: str,
     new_gateway_account_client: AccountClient,
-    details_of_account_to_be_deployed: AccountToBeDeployedDetails,
+    deploy_account_details_factory: AccountToBeDeployedDetailsFactory,
 ) -> AsyncGenerator[Tuple[str, PreparedNetworkData], None]:
     """
     Adds transactions to the network. Returns network address and PreparedNetworkData
     """
     net = network
-    prepared_data = await prepare_network(
-        new_gateway_account_client, details_of_account_to_be_deployed
-    )
+    details = await deploy_account_details_factory.get()
+    prepared_data = await prepare_network(new_gateway_account_client, details)
     yield net, prepared_data
 
 
