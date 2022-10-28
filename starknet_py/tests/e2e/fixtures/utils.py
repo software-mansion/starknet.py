@@ -110,7 +110,6 @@ def network(pytestconfig, run_devnet: str) -> str:
 
 
 @pytest.fixture(
-    name="typed_data",
     params=[
         "typed_data_example.json",
         "typed_data_felt_array_example.json",
@@ -131,7 +130,7 @@ def typed_data(request) -> TypedData:
     return typed_data
 
 
-@pytest_asyncio.fixture(name="cairo_serializer", scope="module")
+@pytest_asyncio.fixture(scope="module")
 async def cairo_serializer(gateway_account_client: AccountClient) -> CairoSerializer:
     """
     Returns CairoSerializer for "simple_storage_with_event.cairo"

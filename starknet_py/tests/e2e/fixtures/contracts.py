@@ -36,7 +36,7 @@ def erc20_source_code() -> str:
     return (CONTRACTS_DIR / "erc20.cairo").read_text("utf-8")
 
 
-@pytest_asyncio.fixture(name="deploy_map_contract", scope="module")
+@pytest_asyncio.fixture(scope="module")
 async def deploy_map_contract(
     gateway_account_client: AccountClient, map_source_code: str
 ) -> Contract:
@@ -50,7 +50,7 @@ async def deploy_map_contract(
     return deployment_result.deployed_contract
 
 
-@pytest_asyncio.fixture(name="new_deploy_map_contract", scope="module")
+@pytest_asyncio.fixture(scope="module")
 async def new_deploy_map_contract(
     new_gateway_account_client: AccountClient, map_source_code: str
 ) -> Contract:
@@ -79,8 +79,8 @@ async def deploy_erc20_contract(
 
 
 @pytest.fixture(
-    name="compiled_proxy",
     params=["argent_proxy_compiled.json", "oz_proxy_compiled.json"],
+    scope="session",
 )
 def compiled_proxy(request) -> str:
     """
