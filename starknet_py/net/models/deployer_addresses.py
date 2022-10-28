@@ -1,5 +1,6 @@
 from typing import Optional
 
+from starknet_py.common import int_from_hex
 from starknet_py.net.networks import Network, MAINNET, TESTNET
 
 
@@ -20,4 +21,4 @@ def deployer_address_from_network(
             "deployer_address is required when not using predefined networks."
         )
 
-    return deployer_address
+    return int_from_hex(deployer_address)

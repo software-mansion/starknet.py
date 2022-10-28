@@ -477,7 +477,7 @@ async def deployer_address(gateway_client: AccountClient) -> int:
     Returns an address of the UDC
     """
     deploy_tx = make_deploy_tx(
-        compilation_source=(mock_dir / "contracts/universal_deployer.cairo").read_text(
+        compilation_source=(contracts_dir / "universal_deployer.cairo").read_text(
             "utf-8"
         )
     )
@@ -511,9 +511,10 @@ def constructor_with_arguments_abi() -> List:
     """
     Returns an abi of the constructor_with_arguments.cairo
     """
-    return (
-        create_compiled_contract(compilation_source=constructor_with_arguments_source)
-    ).abi
+    compiled_contract = create_compiled_contract(
+        compilation_source=constructor_with_arguments_source
+    )
+    return compiled_contract.abi
 
 
 @pytest_asyncio.fixture(scope="module")

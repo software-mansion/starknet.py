@@ -1,4 +1,3 @@
-# pyright: reportGeneralTypeIssues=false
 from __future__ import annotations
 
 from typing import Optional, List, Union
@@ -40,12 +39,9 @@ class Deployer:
         :param salt: The salt for a contract to be deployed. Random value is selected if it is not provided
         :param unique: Boolean determining if the salt should be connected with the account's address. Default to True
         """
-        if deployer_address is None:
-            deployer_address = deployer_address_from_network(
-                net=account.net, deployer_address=deployer_address
-            )
-        else:
-            deployer_address = int_from_hex(deployer_address)
+        deployer_address = deployer_address_from_network(
+            net=account.net, deployer_address=deployer_address
+        )
 
         self.account = account
         self.deployer_address = deployer_address
@@ -57,7 +53,7 @@ class Deployer:
         *,
         class_hash: Hash,
         abi: Optional[List] = None,
-        calldata: Optional[Union[List[any], dict]] = None,
+        calldata: Optional[Union[List, dict]] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> InvokeFunction:
@@ -117,7 +113,8 @@ class Deployer:
             values=event.data,
         )
 
-        return event.address
+        # Ignore typing, because event is a NamedTuple
+        return event.address  # pyright: ignore
 
     async def _get_deploy_event(self, transaction_hash: Hash) -> Optional[Event]:
         receipt = await self.account.get_transaction_receipt(tx_hash=transaction_hash)
