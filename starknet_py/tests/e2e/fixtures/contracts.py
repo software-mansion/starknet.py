@@ -145,7 +145,7 @@ async def account_with_validate_deploy_class_hash(
     """
     compiled_contract = Compiler(
         contract_source=(
-                CONTRACTS_DIR / "account_with_validate_deploy.cairo"
+            CONTRACTS_DIR / "account_with_validate_deploy.cairo"
         ).read_text("utf-8"),
         is_account_contract=True,
     ).compile_contract()

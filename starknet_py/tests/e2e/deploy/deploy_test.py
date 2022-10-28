@@ -39,7 +39,7 @@ async def test_deploy_with_search_path(gateway_account_client):
 
 
 constructor_with_arguments_source = (
-        CONTRACTS_DIR / "constructor_with_arguments.cairo"
+    CONTRACTS_DIR / "constructor_with_arguments.cairo"
 ).read_text("utf-8")
 
 
@@ -92,7 +92,7 @@ async def test_constructor_arguments(gateway_account_client):
 
 
 constructor_without_arguments_source = (
-        CONTRACTS_DIR / "constructor_without_arguments.cairo"
+    CONTRACTS_DIR / "constructor_without_arguments.cairo"
 ).read_text("utf-8")
 
 
