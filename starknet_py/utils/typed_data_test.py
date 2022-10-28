@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from starknet_py.tests.e2e.fixtures.constants import typed_data_dir
+from starknet_py.tests.e2e.fixtures.constants import TYPED_DATA_DIR
 from starknet_py.utils.typed_data import TypedData, get_hex
 
 TD = "typed_data_example.json"
@@ -19,7 +19,7 @@ def load_typed_data(file_name: str) -> TypedData:
     """
     Load TypedData object from file
     """
-    file_path = typed_data_dir / file_name
+    file_path = TYPED_DATA_DIR / file_name
 
     text = Path(file_path).read_text("utf-8")
     typed_data = json.loads(text)

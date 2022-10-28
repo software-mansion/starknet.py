@@ -7,7 +7,7 @@ from starknet_py.compile.compiler import Compiler
 from starknet_py.constants import FEE_CONTRACT_ADDRESS, DEVNET_FEE_CONTRACT_ADDRESS
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient
-from starknet_py.tests.e2e.fixtures.constants import contracts_dir, MAX_FEE
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_DIR, MAX_FEE
 
 
 @pytest.fixture(
@@ -25,7 +25,7 @@ def map_source_code() -> str:
     """
     Returns source code of the map contract
     """
-    return (contracts_dir / "map.cairo").read_text("utf-8")
+    return (CONTRACTS_DIR / "map.cairo").read_text("utf-8")
 
 
 @pytest.fixture(scope="module")
@@ -33,7 +33,7 @@ def erc20_source_code() -> str:
     """
     Returns source code of the erc20 contract
     """
-    return (contracts_dir / "erc20.cairo").read_text("utf-8")
+    return (CONTRACTS_DIR / "erc20.cairo").read_text("utf-8")
 
 
 @pytest_asyncio.fixture(name="deploy_map_contract", scope="module")
@@ -86,7 +86,7 @@ def compiled_proxy(request) -> str:
     """
     Returns source code of compiled proxy contract
     """
-    return (contracts_dir / request.param).read_text("utf-8")
+    return (CONTRACTS_DIR / request.param).read_text("utf-8")
 
 
 @pytest.fixture(scope="module")
@@ -133,7 +133,7 @@ def fixture_balance_contract() -> str:
     """
     Returns compiled code of the balance.cairo contract
     """
-    return (contracts_dir / "balance_compiled.json").read_text("utf-8")
+    return (CONTRACTS_DIR / "balance_compiled.json").read_text("utf-8")
 
 
 @pytest_asyncio.fixture(scope="module")
@@ -145,7 +145,7 @@ async def account_with_validate_deploy_class_hash(
     """
     compiled_contract = Compiler(
         contract_source=(
-            contracts_dir / "account_with_validate_deploy.cairo"
+                CONTRACTS_DIR / "account_with_validate_deploy.cairo"
         ).read_text("utf-8"),
         is_account_contract=True,
     ).compile_contract()

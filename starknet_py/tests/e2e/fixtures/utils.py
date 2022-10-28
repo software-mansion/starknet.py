@@ -14,8 +14,8 @@ import pytest_asyncio
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient
 from starknet_py.tests.e2e.fixtures.constants import (
-    typed_data_dir,
-    contracts_dir,
+    TYPED_DATA_DIR,
+    CONTRACTS_DIR,
 )
 from starknet_py.utils.data_transformer.data_transformer import CairoSerializer
 from starknet_py.utils.typed_data import TypedData
@@ -123,7 +123,7 @@ def typed_data(request) -> TypedData:
     Returns TypedData dictionary example
     """
     file_name = getattr(request, "param")
-    file_path = typed_data_dir / file_name
+    file_path = TYPED_DATA_DIR / file_name
 
     with open(file_path, "r", encoding="utf-8") as file:
         typed_data = json.load(file)
@@ -137,7 +137,7 @@ async def cairo_serializer(gateway_account_client: AccountClient) -> CairoSerial
     Returns CairoSerializer for "simple_storage_with_event.cairo"
     """
     client = gateway_account_client
-    contract_content = (contracts_dir / "simple_storage_with_event.cairo").read_text(
+    contract_content = (CONTRACTS_DIR / "simple_storage_with_event.cairo").read_text(
         "utf-8"
     )
 

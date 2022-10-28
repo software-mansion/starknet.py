@@ -13,7 +13,7 @@ from starknet_py.tests.e2e.client.fixtures.prepare_net_for_gateway_test import (
     PreparedNetworkData,
     prepare_net_for_tests,
 )
-from starknet_py.tests.e2e.fixtures.constants import contracts_dir
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_DIR
 from starknet_py.tests.e2e.utils import AccountToBeDeployedDetails
 
 directory = os.path.dirname(__file__)
@@ -23,7 +23,7 @@ async def prepare_network(
     new_gateway_account_client: AccountClient,
     deploy_account_details: AccountToBeDeployedDetails,
 ) -> PreparedNetworkData:
-    contract_compiled = Path(contracts_dir / "balance_compiled.json").read_text("utf-8")
+    contract_compiled = Path(CONTRACTS_DIR / "balance_compiled.json").read_text("utf-8")
 
     prepared_data = await prepare_net_for_tests(
         new_gateway_account_client,

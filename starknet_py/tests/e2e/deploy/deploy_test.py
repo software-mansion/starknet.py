@@ -1,10 +1,10 @@
 import pytest
 
 from starknet_py.contract import Contract, ContractFunction
-from starknet_py.tests.e2e.fixtures.constants import contracts_dir
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_DIR
 
-mock_contracts_base_path = contracts_dir
-base_source_code = (contracts_dir / "base.cairo").read_text("utf-8")
+mock_contracts_base_path = CONTRACTS_DIR
+base_source_code = (CONTRACTS_DIR / "base.cairo").read_text("utf-8")
 
 
 @pytest.mark.asyncio
@@ -39,7 +39,7 @@ async def test_deploy_with_search_path(gateway_account_client):
 
 
 constructor_with_arguments_source = (
-    contracts_dir / "constructor_with_arguments.cairo"
+        CONTRACTS_DIR / "constructor_with_arguments.cairo"
 ).read_text("utf-8")
 
 
@@ -92,7 +92,7 @@ async def test_constructor_arguments(gateway_account_client):
 
 
 constructor_without_arguments_source = (
-    contracts_dir / "constructor_without_arguments.cairo"
+        CONTRACTS_DIR / "constructor_without_arguments.cairo"
 ).read_text("utf-8")
 
 

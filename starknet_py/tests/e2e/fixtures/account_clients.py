@@ -22,7 +22,7 @@ from starknet_py.tests.e2e.fixtures.constants import (
     TESTNET_ACCOUNT_PRIVATE_KEY,
     INTEGRATION_ACCOUNT_ADDRESS,
     INTEGRATION_ACCOUNT_PRIVATE_KEY,
-    contracts_dir,
+    CONTRACTS_DIR,
     TESTNET_NEW_ACCOUNT_ADDRESS,
     TESTNET_NEW_ACCOUNT_PRIVATE_KEY,
     INTEGRATION_NEW_ACCOUNT_ADDRESS,
@@ -134,7 +134,7 @@ async def new_devnet_account_details(
     key_pair = KeyPair.from_private_key(private_key)
     deploy_tx = make_deploy_tx(
         constructor_calldata=[key_pair.public_key],
-        compiled_contract=(contracts_dir / "new_account_compiled.json").read_text(
+        compiled_contract=(CONTRACTS_DIR / "new_account_compiled.json").read_text(
             "utf-8"
         ),
     )

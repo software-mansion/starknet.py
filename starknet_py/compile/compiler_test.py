@@ -12,16 +12,16 @@ from starknet_py.compile.compiler import (
     Compiler,
     create_contract_class,
 )
-from starknet_py.tests.e2e.fixtures.constants import contracts_dir
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_DIR
 
 directory = os.path.dirname(__file__)
 
-test_file_path = contracts_dir / "map.cairo"
+test_file_path = CONTRACTS_DIR / "map.cairo"
 test_file_content = test_file_path.read_text("utf-8")
 
-base_contract_path = contracts_dir / "base.cairo"
+base_contract_path = CONTRACTS_DIR / "base.cairo"
 
-mock_account_path = contracts_dir / "mock_account.cairo"
+mock_account_path = CONTRACTS_DIR / "mock_account.cairo"
 mock_account_content = mock_account_path.read_text("utf-8")
 
 
@@ -58,7 +58,7 @@ def test_throws_on_compile_with_wrong_extension():
 def test_compile_with_search_path():
     output_file_str = Compiler(
         contract_source=[str(base_contract_path.resolve().absolute())],
-        cairo_path=[str(contracts_dir)],
+        cairo_path=[str(CONTRACTS_DIR)],
     ).compile_contract()
     output_json = json.loads(output_file_str)
 
@@ -66,7 +66,7 @@ def test_compile_with_search_path():
 
 
 def test_compile_with_env_var(monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.setenv(LIBS_DIR_ENVVAR, str(contracts_dir))
+    monkeypatch.setenv(LIBS_DIR_ENVVAR, str(CONTRACTS_DIR))
     output_file_str = Compiler(
         contract_source=[str(base_contract_path.resolve().absolute())]
     ).compile_contract()
