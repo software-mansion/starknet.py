@@ -6,10 +6,10 @@ from starkware.starknet.definitions.fields import ContractAddressSalt
 from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.common import int_from_hex
+from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
 from starknet_py.net import AccountClient
 from starknet_py.net.client_models import Hash, InvokeFunction, Call, Event
 from starknet_py.net.models import AddressRepresentation
-from starknet_py.net.models.deployer_addresses import deployer_address_from_network
 from starknet_py.utils.contructor_args_translator import translate_constructor_args
 from starknet_py.utils.data_transformer.universal_deployer_serializer import (
     universal_deployer_serializer,
@@ -30,28 +30,24 @@ class Deployer:
         account: AccountClient,
         *,
         deployer_address: Optional[AddressRepresentation] = None,
-        salt: Optional[int] = None,
         unique: bool = True,
     ):
         """
         :param account: AccountClient used to sign and send transactions
         :param deployer_address: Address of the UDC. Must be set when using a custom network
-        :param salt: The salt for a contract to be deployed. Random value is selected if it is not provided
         :param unique: Boolean determining if the salt should be connected with the account's address. Default to True
         """
-        deployer_address = deployer_address_from_network(
-            net=account.net, deployer_address=deployer_address
-        )
+        deployer_address = deployer_address or DEFAULT_DEPLOYER_ADDRESS
 
         self.account = account
         self.deployer_address = deployer_address
-        self.salt = salt
         self.unique = unique
 
     async def prepare_contract_deployment(
         self,
         *,
         class_hash: Hash,
+        salt: Optional[int] = None,
         abi: Optional[List] = None,
         calldata: Optional[Union[List, dict]] = None,
         max_fee: Optional[int] = None,
@@ -61,6 +57,7 @@ class Deployer:
         Prepares deploy invoke transaction
 
         :param class_hash: The class_hash of the contract to be deployed
+        :param salt: The salt for a contract to be deployed. Random value is selected if it is not provided
         :param abi: ABI of the contract to be deployed
         :param calldata: Constructor args of the contract to be deployed
         :param max_fee: Max amount of Wei to be paid when executing transaction
@@ -76,7 +73,7 @@ class Deployer:
         calldata, _ = universal_deployer_serializer.from_python(
             value_types=deploy_contract_abi["inputs"],
             classHash=int_from_hex(class_hash),
-            salt=self.salt or ContractAddressSalt.get_random_value(),
+            salt=salt or ContractAddressSalt.get_random_value(),
             unique=int(self.unique),
             calldata=calldata,
         )
