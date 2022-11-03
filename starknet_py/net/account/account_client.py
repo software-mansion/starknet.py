@@ -32,6 +32,7 @@ from starknet_py.net.client_models import (
     Transaction,
     DeployAccountTransactionResponse,
 )
+from starknet_py.net.client_utils import _invoke_tx_to_call
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import (
     InvokeFunction,
@@ -172,12 +173,16 @@ class AccountClient(Client):
 
     async def call_contract(
         self,
-        invoke_tx: Union[InvokeFunction, Call],
+        call: Call = None,  # pyright: ignore
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
+        *,
+        invoke_tx: Call = None,  # pyright: ignore
     ) -> List[int]:
+        call = _invoke_tx_to_call(call=call, invoke_tx=invoke_tx)
+
         return await self.client.call_contract(
-            invoke_tx=invoke_tx, block_hash=block_hash, block_number=block_number
+            call=call, block_hash=block_hash, block_number=block_number
         )
 
     async def get_class_hash_at(
@@ -200,14 +205,10 @@ class AccountClient(Client):
             return await self.get_contract_nonce(self.address)
 
         [nonce] = await self.call_contract(
-            InvokeFunction(
-                contract_address=self.address,
-                entry_point_selector=get_selector_from_name("get_nonce"),
+            Call(
+                to_addr=self.address,
+                selector=get_selector_from_name("get_nonce"),
                 calldata=[],
-                signature=[],
-                max_fee=0,
-                version=self.supported_tx_version,
-                nonce=None,
             ),
             block_hash="pending",
         )
@@ -334,33 +335,6 @@ class AccountClient(Client):
             raise ValueError("Max_fee must be specified when invoking a transaction")
 
         return max_fee
-
-    async def sign_transaction(
-        self,
-        calls: Calls,
-        max_fee: Optional[int] = None,
-        auto_estimate: bool = False,
-        version: Optional[int] = None,
-    ) -> InvokeFunction:
-        """
-        Takes calls and creates signed InvokeFunction
-
-        :param calls: Single call or list of calls
-        :param max_fee: Max amount of Wei to be paid when executing transaction
-        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
-        :param version: Transaction version
-        :return: InvokeFunction created from the calls
-
-        .. deprecated:: 0.5.0
-            sign_transaction has been deprecated. Use :meth:`AccountClient.sign_invoke_transaction` instead.
-        """
-        warnings.warn(
-            "sign_transaction has been deprecated. Use AccountClient.sign_invoke_transaction instead.",
-            category=DeprecationWarning,
-        )
-        return await self.sign_invoke_transaction(
-            calls, max_fee, auto_estimate, version
-        )
 
     async def sign_invoke_transaction(
         self,
@@ -680,7 +654,7 @@ class AccountClient(Client):
             calldata=calldata,
         )
         try:
-            await self.call_contract(invoke_tx=call, block_hash="pending")
+            await self.call_contract(call=call, block_hash="pending")
             return True
         except ClientError as ex:
             if re.search(r"Signature\s.+,\sis\sinvalid", ex.message):
