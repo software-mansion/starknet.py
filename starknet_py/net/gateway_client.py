@@ -48,7 +48,11 @@ from starknet_py.net.schemas.gateway import (
 from starknet_py.net.http_client import GatewayHttpClient
 from starknet_py.net.networks import Network, net_address_from_net
 from starknet_py.net.client_errors import ContractNotFoundError
-from starknet_py.net.client_utils import convert_to_felt, is_block_identifier
+from starknet_py.net.client_utils import (
+    convert_to_felt,
+    is_block_identifier,
+    _invoke_tx_to_call,
+)
 from starknet_py.transaction_exceptions import TransactionNotReceivedError
 from starknet_py.utils.sync import add_sync_methods
 
@@ -210,15 +214,13 @@ class GatewayClient(Client):
 
     async def call_contract(
         self,
-        invoke_tx: Union[InvokeFunction, Call],
+        call: Call = None,  # pyright: ignore
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
+        *,
+        invoke_tx: Call = None,  # pyright: ignore
     ) -> List[int]:
-        if isinstance(invoke_tx, InvokeFunction):
-            warnings.warn(
-                "InvokeFunctions has been deprecated as a call_contract parameter, use Call instead.",
-                category=DeprecationWarning,
-            )
+        call = _invoke_tx_to_call(call=call, invoke_tx=invoke_tx)
 
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
@@ -227,7 +229,11 @@ class GatewayClient(Client):
         res = await self._feeder_gateway_client.post(
             method_name="call_contract",
             params=block_identifier,
-            payload=_get_call_payload(invoke_tx),
+            payload={
+                "contract_address": hex(call.to_addr),
+                "entry_point_selector": hex(call.selector),
+                "calldata": [str(i) for i in call.calldata],
+            },
         )
 
         return [int(v, 16) for v in res["result"]]
@@ -408,17 +414,3 @@ def get_block_identifier(
         return {"blockNumber": block_number}
 
     return {"blockNumber": "pending"}
-
-
-def _get_call_payload(tx: Union[InvokeFunction, Call]) -> dict:
-    if isinstance(tx, Call):
-        return {
-            "contract_address": hex(tx.to_addr),
-            "entry_point_selector": hex(tx.selector),
-            "calldata": [str(i) for i in tx.calldata],
-        }
-    return {
-        "contract_address": hex(tx.contract_address),
-        "entry_point_selector": hex(tx.entry_point_selector),
-        "calldata": [str(i) for i in tx.calldata],
-    }

@@ -154,7 +154,7 @@ class PreparedFunctionCall(Call):
         :param block_hash: Optional block hash
         :return: list of ints
         """
-        return await self._client.call_contract(invoke_tx=self, block_hash=block_hash)
+        return await self._client.call_contract(call=self, block_hash=block_hash)
 
     async def call(
         self,
