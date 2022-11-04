@@ -43,7 +43,7 @@ from starknet_py.net.schemas.rpc import (
     PendingTransactionsSchema,
     EstimatedFeeSchema,
 )
-from starknet_py.net.client_utils import convert_to_felt
+from starknet_py.net.client_utils import convert_to_felt, _invoke_tx_to_call
 from starknet_py.transaction_exceptions import TransactionNotReceivedError
 from starknet_py.utils.sync import add_sync_methods
 
@@ -187,15 +187,13 @@ class FullNodeClient(Client):
 
     async def call_contract(
         self,
-        invoke_tx: Union[InvokeFunction, Call],
+        call: Call = None,  # pyright: ignore
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
+        *,
+        invoke_tx: Call = None,  # pyright: ignore
     ) -> List[int]:
-        if isinstance(invoke_tx, InvokeFunction):
-            warnings.warn(
-                "InvokeFunctions has been deprecated as a call_contract parameter, use Call instead.",
-                category=DeprecationWarning,
-            )
+        call = _invoke_tx_to_call(call=call, invoke_tx=invoke_tx)
 
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
@@ -203,7 +201,11 @@ class FullNodeClient(Client):
         res = await self._client.call(
             method_name="call",
             params={
-                "request": _get_call_payload(invoke_tx),
+                "request": {
+                    "contract_address": convert_to_felt(call.to_addr),
+                    "entry_point_selector": convert_to_felt(call.selector),
+                    "calldata": [convert_to_felt(i1) for i1 in call.calldata],
+                },
                 **block_identifier,
             },
         )
@@ -447,21 +449,6 @@ def get_block_identifier(
         return {"block_id": {"block_number": block_number}}
 
     return {"block_id": "pending"}
-
-
-def _get_call_payload(tx: Union[InvokeFunction, Call]) -> dict:
-    if isinstance(tx, InvokeFunction):
-        invoke = cast(InvokeFunction, tx)
-        return {
-            "contract_address": convert_to_felt(invoke.contract_address),
-            "entry_point_selector": convert_to_felt(invoke.entry_point_selector),
-            "calldata": [convert_to_felt(i) for i in invoke.calldata],
-        }
-    return {
-        "contract_address": convert_to_felt(tx.to_addr),
-        "entry_point_selector": convert_to_felt(tx.selector),
-        "calldata": [convert_to_felt(i) for i in tx.calldata],
-    }
 
 
 def _create_broadcasted_txn(transaction: Union[InvokeFunction, Declare]) -> Dict:
