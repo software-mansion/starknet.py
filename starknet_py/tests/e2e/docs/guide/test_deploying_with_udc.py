@@ -37,19 +37,18 @@ async def test_deploying_with_udc(
     salt = None
 
     # add to docs: start
-    # Deployer has two more optional parameters `salt` and `unique`,
-    # read about them in the API section
+    # Deployer has one more optional parameter `unique`,
+    # read about it in the API section
     deployer = Deployer(
         account=account_client,
         deployer_address=deployer_address,
-        salt=salt,
         unique=False,
     )
 
     # If contract we want to deploy does not have constructor, or the constructor
     # does not have arguments, abi is not a required parameter of `deployer.prepare_contract_deployment` method
     deploy_invoke_transaction = await deployer.prepare_contract_deployment(
-        class_hash=map_class_hash, max_fee=int(1e16)
+        class_hash=map_class_hash, salt=salt, max_fee=int(1e16)
     )
 
     # add to docs: end

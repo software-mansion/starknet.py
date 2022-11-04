@@ -2,6 +2,7 @@ import pytest
 
 from starknet_py.contract import Contract
 from starknet_py.net.udc_deployer.deployer import Deployer
+from starknet_py.net.udc_deployer.errors import ContractDeployedEventNotFound
 from starknet_py.tests.e2e.conftest import MAX_FEE
 
 
@@ -128,9 +129,9 @@ async def test_throws_when_wrong_tx_hash_provided(
         account=gateway_account_client, deployer_address=deployer_address
     )
 
-    with pytest.raises(ValueError) as err:
+    with pytest.raises(ContractDeployedEventNotFound) as err:
         await deployer.find_deployed_contract_address(
             transaction_hash=transaction_with_event_transaction_hash
         )
 
-    assert "ContractDeployed event was not found." in str(err.value)
+    assert "ContractDeployed event was not found" in str(err.value)

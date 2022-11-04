@@ -10,6 +10,7 @@ from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
 from starknet_py.net import AccountClient
 from starknet_py.net.client_models import Hash, InvokeFunction, Call, Event
 from starknet_py.net.models import AddressRepresentation
+from starknet_py.net.udc_deployer.errors import ContractDeployedEventNotFound
 from starknet_py.utils.contructor_args_translator import translate_constructor_args
 from starknet_py.utils.data_transformer.universal_deployer_serializer import (
     universal_deployer_serializer,
@@ -100,10 +101,7 @@ class Deployer:
         event = await self._get_deploy_event(transaction_hash=transaction_hash)
 
         if not event:
-            raise ValueError(
-                "ContractDeployed event was not found."
-                "Make sure that transaction_hash is the hash of UDC deploy transaction"
-            )
+            raise ContractDeployedEventNotFound(transaction_hash=transaction_hash)
 
         event = universal_deployer_serializer.to_python(
             value_types=deploy_contract_event_abi["data"],
