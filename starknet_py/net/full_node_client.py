@@ -161,11 +161,6 @@ class FullNodeClient(Client):
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
-        if isinstance(tx, Declare):
-            raise ValueError(
-                "Estimating fee for Declare transactions is currently not supported in FullNodeClient"
-            )
-
         if isinstance(tx, DeployAccount):
             raise ValueError(
                 "Estimating fee for DeployAccount transactions is currently not supported in FullNodeClient"

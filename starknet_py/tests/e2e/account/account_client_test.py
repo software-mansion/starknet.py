@@ -110,14 +110,13 @@ async def test_estimated_fee_greater_than_zero(erc20_contract, account_client):
 
 @pytest.mark.asyncio
 async def test_estimate_fee_for_declare_transaction(
-    new_gateway_account_client, map_source_code
+    new_account_client, map_source_code
 ):
-    # TODO: add test for new_full_node_account_client once devnet supports RPC 0.2.0
-    declare_tx = await new_gateway_account_client.sign_declare_transaction(
+    declare_tx = await new_account_client.sign_declare_transaction(
         compilation_source=map_source_code, max_fee=MAX_FEE
     )
 
-    estimated_fee = await new_gateway_account_client.estimate_fee(tx=declare_tx)
+    estimated_fee = await new_account_client.estimate_fee(tx=declare_tx)
 
     assert isinstance(estimated_fee.overall_fee, int)
     assert estimated_fee.overall_fee > 0

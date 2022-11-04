@@ -362,6 +362,28 @@ def account_client(request) -> AccountClient:
     return request.getfixturevalue(request.param)
 
 
+def net_to_new_accounts() -> List[str]:
+    accounts = [
+        "new_gateway_account_client",
+    ]
+    nets = ["--net=integration", "--net=testnet", "testnet", "integration"]
+
+    if set(nets).isdisjoint(sys.argv):
+        accounts.extend(["new_full_node_account_client"])
+    return accounts
+
+
+@pytest.fixture(
+    scope="module",
+    params=net_to_new_accounts(),
+)
+def new_account_client(request) -> AccountClient:
+    """
+    This parametrized fixture returns all new AccountClients, one by one.
+    """
+    return request.getfixturevalue(request.param)
+
+
 @pytest.fixture(
     scope="module", params=["deploy_map_contract", "new_deploy_map_contract"]
 )
