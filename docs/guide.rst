@@ -104,7 +104,7 @@ Short code example how to use it:
 
 .. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_deploying_with_udc.py
     :language: python
-    :lines: 18-19,29-35,40-54,60-93
+    :lines: 18-19,29-35,40-53,59-92
     :dedent: 4
 
 
