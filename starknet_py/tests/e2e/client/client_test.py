@@ -195,7 +195,9 @@ async def test_get_transaction_receipt(
 @pytest.mark.asyncio
 async def test_estimate_fee(transaction, contract_address, client):
     if isinstance(transaction, InvokeFunction):
-        transaction = dataclasses.replace(transaction, contract_address=contract_address)
+        transaction = dataclasses.replace(
+            transaction, contract_address=contract_address
+        )
 
     estimate_fee = await client.estimate_fee(tx=transaction, block_number="latest")
 
