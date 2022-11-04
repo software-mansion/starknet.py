@@ -154,7 +154,7 @@ class L1HandlerTransactionSchema(TransactionSchema):
     contract_address = Felt(data_key="contract_address", required=True)
     calldata = fields.List(Felt(), data_key="calldata", required=True)
     entry_point_selector = Felt(data_key="entry_point_selector", required=True)
-    nonce = Felt(data_key="nonce", load_default=None)
+    nonce = Felt(data_key="nonce", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> L1HandlerTransaction:
