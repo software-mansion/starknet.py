@@ -1,6 +1,5 @@
 # pylint: disable=redefined-outer-name
 
-import asyncio
 import json
 import subprocess
 import time
@@ -19,15 +18,6 @@ from starknet_py.tests.e2e.fixtures.constants import (
 )
 from starknet_py.utils.data_transformer.data_transformer import CairoSerializer
 from starknet_py.utils.typed_data import TypedData
-
-
-# This fixture was added to enable using async fixtures
-@pytest.fixture(scope="module")
-def event_loop():
-    policy = asyncio.get_event_loop_policy()
-    loop = policy.new_event_loop()
-    yield loop
-    loop.close()
 
 
 def pytest_addoption(parser):
