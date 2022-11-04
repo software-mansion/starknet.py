@@ -9,7 +9,7 @@ from starknet_py.common import int_from_hex
 from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
 from starknet_py.net import AccountClient
 from starknet_py.net.client_models import Hash, InvokeFunction, Call, Event
-from starknet_py.net.models import AddressRepresentation
+from starknet_py.net.models import AddressRepresentation, parse_address
 from starknet_py.net.udc_deployer.errors import ContractDeployedEventNotFound
 from starknet_py.utils.contructor_args_translator import translate_constructor_args
 from starknet_py.utils.data_transformer.universal_deployer_serializer import (
@@ -42,7 +42,7 @@ class Deployer:
         """
 
         self.account = account
-        self.deployer_address = deployer_address
+        self.deployer_address = parse_address(deployer_address)
         self.unique = unique
 
     async def prepare_contract_deployment(
