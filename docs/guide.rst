@@ -30,9 +30,8 @@ just prepare calls through contract interface and send it with AccountClient.exe
 
 Here is an example:
 
-.. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_account_client_details.py
+.. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_account_client_details.py
     :language: python
-    :lines: 8-13,17-21,26-56
     :dedent: 4
 
 
@@ -44,9 +43,8 @@ By default, :ref:`Account Client` uses signing method of OpenZeppelin's account 
 signing algorithm, it is possible to create ``AccountClient`` with custom
 :ref:`Signer` implementation.
 
-.. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_custom_signer.py
+.. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_custom_signer.py
     :language: python
-    :lines: 11-41
     :dedent: 4
 
 
@@ -56,9 +54,8 @@ Signing off-chain messages
 :ref:`Account Client` lets you sign an off-chain message by using encoding standard proposed `here <https://github.com/argentlabs/argent-x/discussions/14>`_.
 You can also **verify a message**, which is done by a call to ``is_valid_signature`` endpoint in the account's contract (e.g. `OpenZeppelin's account contract <https://github.com/starkware-libs/cairo-lang/blob/4e233516f52477ad158bc81a86ec2760471c1b65/src/starkware/starknet/third_party/open_zeppelin/Account.cairo#L115>`_).
 
-.. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_sign_offchain_message.py
+.. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_sign_offchain_message.py
     :language: python
-    :lines: 9-44,51-59,66-76
     :dedent: 4
 
 
@@ -71,9 +68,8 @@ Since Cairo 0.10.0 Declare transactions can be signed and in the future, declari
 
 Here's an example how to use it.
 
-.. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_declaring_contracts.py
+.. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_declaring_contracts.py
     :language: python
-    :lines: 10-20
     :dedent: 4
 
 .. note::
@@ -86,9 +82,8 @@ Deploying new contracts
 
 Here's how you can deploy new contracts:
 
-.. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_deploying_new_contracts.py
+.. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_deploying_new_contracts.py
     :language: python
-    :lines: 10-33,37-47,51-57,61-72
     :dedent: 4
 
 
@@ -150,9 +145,8 @@ Handling client errors
 -----------------------
 You can use :class:`starknet_py.net.client_errors.ClientError` to catch errors from invalid requests:
 
-.. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_handling_client_errors.py
+.. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_handling_client_errors.py
     :language: python
-    :lines: 8-15,19-21
     :dedent: 4
 
 
@@ -230,9 +224,8 @@ Using CairoSerializer
 CairoSerializer can be used to transform any data (like a function call or an event) between cairo and python format. It requires an abi of the contract, types of values and data to be serialized.
 Here is a usage example:
 
-.. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_using_cairo_serializer.py
+.. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_using_cairo_serializer.py
     :language: python
-    :lines: 9-39,44-49,54-97
     :dedent: 4
 
 
@@ -260,9 +253,8 @@ Using own full node allows for querying StarkNet with better performance.
 Since gateway will be deprecated at some point in the future, having ``FullNodeClient`` with interface uniform with that of ``GatewayClient``
 will allow for simple migration for StarkNet.py users.
 
-.. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_full_node_client.py
+.. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_full_node_client.py
     :language: python
-    :lines: 12-15,24-25
     :dedent: 4
 
 
@@ -285,9 +277,8 @@ The message's count is an `int`, representing the number of unconsumed messages 
 Since the `nonce`'s value will always be unique for each message, this value is either 0 or 1
 (0 meaning the message is consumed or not received yet, and 1 for unconsumed, queued message).
 
-.. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_eth_sn_messages.py
+.. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_eth_sn_messages.py
     :language: python
-    :lines: 12-42,49-49,63-75
     :dedent: 4
 
 
@@ -297,7 +288,6 @@ StarkNet -> Ethereum messages
 As in previous section, you can provide L1 message content, and then fetch the queued message count.
 The return value is an `int`, representing the number of unconsumed messages on L1 of that exact content.
 
-.. literalinclude:: ../starknet_py/tests/e2e/docs/guide/test_sn_eth_messages.py
+.. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_sn_eth_messages.py
     :language: python
-    :lines: 11-38,44-45,59-65,71-76
     :dedent: 4

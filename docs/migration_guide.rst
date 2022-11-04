@@ -54,8 +54,6 @@ removed in the future.
 New Cairo syntax
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-.. TODO: Change the new syntax link with a better one once StarkWare releases it.
-
 With the update of `cairo-lang <https://github.com/starkware-libs/cairo-lang>`_ to version ``0.10.0``,
 the syntax of contracts written in cairo changes significantly.
 You can see the new syntax `here <https://starkware.notion.site/starkware/StarkNet-0-10-0-4ac978234c384a30a195ce4070461257#8bfeb76259234f32b5f42376f0d976b9>`_.

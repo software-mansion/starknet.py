@@ -6,7 +6,7 @@ async def test_declaring_contracts(new_gateway_account_client, map_source_code):
     account_client = new_gateway_account_client
     contract_source_code = map_source_code
 
-    # add to docs: start
+    # docs: start
     # AccountClient.sign_declare_transaction takes contract source code or compiled contract
     # and returns Declare transaction
     declare_transaction = await account_client.sign_declare_transaction(
@@ -18,6 +18,6 @@ async def test_declaring_contracts(new_gateway_account_client, map_source_code):
     await account_client.wait_for_tx(resp.transaction_hash)
 
     declared_contract_class_hash = resp.class_hash
-    # add to docs: end
+    # docs: end
 
     assert declared_contract_class_hash != 0

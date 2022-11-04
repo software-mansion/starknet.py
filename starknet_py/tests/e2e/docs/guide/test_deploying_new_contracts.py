@@ -6,7 +6,7 @@ from starknet_py.tests.e2e.conftest import contracts_dir
 @pytest.mark.asyncio
 async def test_deploying_new_contracts(gateway_client):
     # pylint: disable=import-outside-toplevel, disable=duplicate-code
-    # add to docs: start
+    # docs: start
     from starknet_py.net.gateway_client import GatewayClient
     from starknet_py.contract import Contract
     from starknet_py.net.networks import TESTNET
@@ -31,9 +31,9 @@ async def test_deploying_new_contracts(gateway_client):
     """
 
     client = GatewayClient(TESTNET)
-    # add to docs: end
+    # docs: end
     client = gateway_client
-    # add to docs: start
+    # docs: start
 
     # Use list for positional arguments
     constructor_args = [123]
@@ -45,9 +45,9 @@ async def test_deploying_new_contracts(gateway_client):
     deployment_result = await Contract.deploy(
         client, compilation_source=contract, constructor_args=constructor_args
     )
-    # add to docs: end
+    # docs: end
     await deployment_result.wait_for_acceptance()
-    # add to docs: start
+    # docs: start
 
     # list with filepaths - useful for multiple files
     deployment_result = await Contract.deploy(
@@ -55,9 +55,9 @@ async def test_deploying_new_contracts(gateway_client):
         compilation_source=[contracts_dir / "contract.cairo"],
         constructor_args=constructor_args,
     )
-    # add to docs: end
+    # docs: end
     await deployment_result.wait_for_acceptance()
-    # add to docs: start
+    # docs: start
 
     # or use already compiled program
     compiled = (contracts_dir / "contract_compiled.json").read_text("utf-8")
@@ -70,4 +70,4 @@ async def test_deploying_new_contracts(gateway_client):
 
     # but you can access the deployed contract object even if has not been accepted yet
     contract = deployment_result.deployed_contract
-    # add to docs: end
+    # docs: end
