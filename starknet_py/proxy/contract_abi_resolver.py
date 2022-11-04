@@ -31,8 +31,11 @@ def prepare_proxy_config(proxy_config: ProxyConfig) -> ProxyConfig:
             "ProxyConfig.max_steps is deprecated. Contract.from_address always makes at most 1 step.",
             category=DeprecationWarning,
         )
+    if "proxy_checks" in proxy_config:
+        return proxy_config
+
     proxy_checks = [OpenZeppelinProxyCheck(), ArgentProxyCheck()]
-    return {"proxy_checks": proxy_checks, **proxy_config}
+    return {"proxy_checks": proxy_checks}
 
 
 class ImplementationType(Enum):
@@ -71,9 +74,9 @@ class ContractAbiResolver:
         :raises ProxyResolutionError: when given ProxyChecks were not sufficient to resolve proxy
         :raises AbiNotFoundError: when abi is not present in contract class at address
         """
-        if self.proxy_config:
-            return await self.resolve_abi()
-        return await self.get_abi_for_address()
+        if len(self.proxy_config) == 0:
+            return await self.get_abi_for_address()
+        return await self.resolve_abi()
 
     async def get_abi_for_address(self) -> Abi:
         """
@@ -106,7 +109,7 @@ class ContractAbiResolver:
         return contract_class.abi
 
     async def _get_implementation_from_proxy(self) -> Tuple[int, ImplementationType]:
-        implementation, proxy_checks = None, self.proxy_config.get("proxy_checks", [])
+        proxy_checks = self.proxy_config.get("proxy_checks", [])
         for proxy_check in proxy_checks:
             implementation = await proxy_check.implementation_hash(
                 address=self.address, client=self.client
@@ -123,7 +126,6 @@ class ContractAbiResolver:
         raise ProxyResolutionError()
 
     async def _get_class_by_address(self, address: Address) -> DeclaredContract:
-        contract_class_hash = 0
         try:
             contract_class_hash = await self.client.get_class_hash_at(
                 contract_address=address

@@ -11,7 +11,7 @@ from starknet_py.proxy.contract_abi_resolver import ProxyResolutionError
 from starknet_py.proxy.proxy_check import ProxyCheck
 
 
-async def map_works_properly(map_contract: Contract, key: int, val: int) -> bool:
+async def is_map_working_properly(map_contract: Contract, key: int, val: int) -> bool:
     """Put (key, val) into map_contract's storage and check if value under the key is val"""
     await (
         await map_contract.functions["put"].invoke(key, val, max_fee=int(1e16))
@@ -37,39 +37,31 @@ async def test_contract_from_address_no_proxy(
 
     assert contract.functions.keys() == {"put", "get"}
     assert contract.address == deployment_result.deployed_contract.address
-    assert await map_works_properly(map_contract=contract, key=69, val=13)
+    assert await is_map_working_properly(map_contract=contract, key=69, val=13)
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "deploy_proxy_to_contract",
-    [
-        ("oz_proxy_compiled.json", "map_compiled.json"),
-        ("argent_proxy_compiled.json", "map_compiled.json"),
-    ],
-    indirect=True,
-)
 async def test_contract_from_address_with_proxy(
-    gateway_account_client, deploy_proxy_to_contract
+    gateway_account_client, deploy_proxy_to_contract_oz_argent
 ):
     proxy_contract = await Contract.from_address(
-        address=deploy_proxy_to_contract.deployed_contract.address,
+        address=deploy_proxy_to_contract_oz_argent.deployed_contract.address,
         client=gateway_account_client,
     )
     proxied_contract = await Contract.from_address(
-        address=deploy_proxy_to_contract.deployed_contract.address,
+        address=deploy_proxy_to_contract_oz_argent.deployed_contract.address,
         client=gateway_account_client,
         proxy_config=True,
     )
 
     assert proxied_contract.functions.keys() == {"put", "get"}
     assert proxied_contract.address == proxy_contract.address
-    assert await map_works_properly(map_contract=proxied_contract, key=69, val=13)
+    assert await is_map_working_properly(map_contract=proxied_contract, key=69, val=13)
 
 
 @pytest.mark.asyncio
 async def test_contract_from_address_unsupported_client(rpc_account_client):
-    with pytest.raises(TypeError, match=r".only supports GatewayClient."):
+    with pytest.raises(TypeError, match=r"only supports GatewayClient"):
         await Contract.from_address(
             address=123,
             client=rpc_account_client,
@@ -86,32 +78,22 @@ async def test_contract_from_invalid_address(gateway_account_client):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "deploy_proxy_to_contract",
-    [("oz_proxy_custom_compiled.json", "map_compiled.json")],
-    indirect=True,
-)
 async def test_contract_from_address_invalid_proxy_checks(
-    gateway_account_client, deploy_proxy_to_contract
+    gateway_account_client, deploy_proxy_to_contract_custom
 ):
     message = "Couldn't resolve proxy using given ProxyChecks"
 
     with pytest.raises(ProxyResolutionError, match=message):
         await Contract.from_address(
-            address=deploy_proxy_to_contract.deployed_contract.address,
+            address=deploy_proxy_to_contract_custom.deployed_contract.address,
             client=gateway_account_client,
             proxy_config=True,
         )
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "deploy_proxy_to_contract",
-    [("oz_proxy_custom_compiled.json", "map_compiled.json")],
-    indirect=True,
-)
 async def test_contract_from_address_custom_proxy_check(
-    gateway_account_client, deploy_proxy_to_contract
+    gateway_account_client, deploy_proxy_to_contract_custom
 ):
     class CustomProxyCheck(ProxyCheck):
         async def implementation_address(
@@ -129,14 +111,14 @@ async def test_contract_from_address_custom_proxy_check(
             )
 
     contract = await Contract.from_address(
-        address=deploy_proxy_to_contract.deployed_contract.address,
+        address=deploy_proxy_to_contract_custom.deployed_contract.address,
         client=gateway_account_client,
         proxy_config={"proxy_checks": [CustomProxyCheck()]},
     )
 
     assert contract.functions.keys() == {"put", "get"}
-    assert contract.address == deploy_proxy_to_contract.deployed_contract.address
-    assert await map_works_properly(map_contract=contract, key=69, val=13)
+    assert contract.address == deploy_proxy_to_contract_custom.deployed_contract.address
+    assert await is_map_working_properly(map_contract=contract, key=69, val=13)
 
 
 @pytest.mark.asyncio
@@ -170,4 +152,4 @@ async def test_contract_from_address_with_old_address_proxy(
 
     assert proxied_contract.functions.keys() == {"put", "get"}
     assert proxied_contract.address == proxy_contract.address
-    assert await map_works_properly(map_contract=proxied_contract, key=69, val=13)
+    assert await is_map_working_properly(map_contract=proxied_contract, key=69, val=13)

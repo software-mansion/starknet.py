@@ -45,7 +45,7 @@ class ArgentProxyCheck(ProxyCheck):
             if re.search(
                 r"(Entry point 0x[0-9a-f]+ not found in contract)|(is not declared)",
                 err.message,
-                re.I,
+                re.IGNORECASE,
             ):
                 return None
             raise err
@@ -54,7 +54,7 @@ class ArgentProxyCheck(ProxyCheck):
     async def implementation_hash(
         self, address: Address, client: Client
     ) -> Optional[int]:
-        call = ArgentProxyCheck._get_implementation_call(address=address)
+        call = self._get_implementation_call(address=address)
         try:
             (implementation_hash,) = await client.call_contract(invoke_tx=call)
             await client.get_class_by_hash(class_hash=implementation_hash)
@@ -62,7 +62,7 @@ class ArgentProxyCheck(ProxyCheck):
             if re.search(
                 r"(Entry point 0x[0-9a-f]+ not found in contract)|(is not deployed)",
                 err.message,
-                re.I,
+                re.IGNORECASE,
             ):
                 return None
             raise err
@@ -81,19 +81,19 @@ class OpenZeppelinProxyCheck(ProxyCheck):
     async def implementation_address(
         self, address: Address, client: Client
     ) -> Optional[int]:
-        return await self._get_storage_at(
+        return await self._get_storage_at_or_none(
             address=address, client=client, key="Proxy_implementation_address"
         )
 
     async def implementation_hash(
         self, address: Address, client: Client
     ) -> Optional[int]:
-        return await self._get_storage_at(
+        return await self._get_storage_at_or_none(
             address=address, client=client, key="Proxy_implementation_hash"
         )
 
     @staticmethod
-    async def _get_storage_at(
+    async def _get_storage_at_or_none(
         address: Address, client: Client, key: str
     ) -> Optional[int]:
         result = await client.get_storage_at(

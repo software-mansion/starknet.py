@@ -455,12 +455,43 @@ def old_proxy() -> str:
     return read_compiled_contract("_oz_proxy_address_0.8.1_compiled.json")
 
 
-@pytest_asyncio.fixture(name="deploy_proxy_to_contract")
-async def deploy_proxy_to_contract(request, gateway_account_client) -> DeployResult:
+@pytest_asyncio.fixture(
+    params=[
+        ("oz_proxy_compiled.json", "map_compiled.json"),
+        ("argent_proxy_compiled.json", "map_compiled.json"),
+    ]
+)
+async def deploy_proxy_to_contract_oz_argent(
+    request, gateway_account_client
+) -> DeployResult:
+    """
+    Declares a contract and deploys a proxy (OZ, Argent) pointing to that contract.
+    """
+    compiled_proxy_name, compiled_contract_name = request.param
+    return await deploy_proxy_to_contract(
+        compiled_proxy_name, compiled_contract_name, gateway_account_client
+    )
+
+
+@pytest_asyncio.fixture(params=[("oz_proxy_custom_compiled.json", "map_compiled.json")])
+async def deploy_proxy_to_contract_custom(
+    request, gateway_account_client
+) -> DeployResult:
+    """
+    Declares a contract and deploys a custom proxy pointing to that contract.
+    """
+    compiled_proxy_name, compiled_contract_name = request.param
+    return await deploy_proxy_to_contract(
+        compiled_proxy_name, compiled_contract_name, gateway_account_client
+    )
+
+
+async def deploy_proxy_to_contract(
+    compiled_proxy_name, compiled_contract_name, gateway_account_client
+) -> DeployResult:
     """
     Declares a contract and deploys a proxy pointing to that contract.
     """
-    compiled_proxy_name, compiled_contract_name = request.param
     compiled_proxy = read_compiled_contract(compiled_proxy_name)
     compiled_contract = read_compiled_contract(compiled_contract_name)
 
