@@ -28,18 +28,6 @@ async def test_default_deploy_with_class_hash(
 
 
 @pytest.mark.asyncio
-async def test_throws_when_deployer_address_not_specified_on_custom_network(
-    account_client,
-):
-    with pytest.raises(ValueError) as err:
-        Deployer(account=account_client)
-
-    assert "deployer_address is required when not using predefined networks." in str(
-        err.value
-    )
-
-
-@pytest.mark.asyncio
 async def test_throws_when_calldata_provided_without_abi(
     account_client, map_class_hash, deployer_address
 ):

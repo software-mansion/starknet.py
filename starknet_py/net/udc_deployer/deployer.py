@@ -30,15 +30,16 @@ class Deployer:
         self,
         account: AccountClient,
         *,
-        deployer_address: Optional[AddressRepresentation] = None,
+        deployer_address: AddressRepresentation = DEFAULT_DEPLOYER_ADDRESS,
         unique: bool = True,
     ):
         """
         :param account: AccountClient used to sign and send transactions
-        :param deployer_address: Address of the UDC. Must be set when using a custom network
+        :param deployer_address: Address of the UDC. Is set to the address of
+            the default UDC (same address on real nets and devnet) by default.
+            Must be set when using custom network other than devnet.
         :param unique: Boolean determining if the salt should be connected with the account's address. Default to True
         """
-        deployer_address = deployer_address or DEFAULT_DEPLOYER_ADDRESS
 
         self.account = account
         self.deployer_address = deployer_address
