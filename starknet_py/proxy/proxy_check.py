@@ -1,6 +1,6 @@
 import re
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, Callable
 
 from starkware.starknet.public.abi import (
     get_storage_var_address,
@@ -37,36 +37,37 @@ class ArgentProxyCheck(ProxyCheck):
     async def implementation_address(
         self, address: Address, client: Client
     ) -> Optional[int]:
-        call = self._get_implementation_call(address=address)
-        try:
-            (implementation_address,) = await client.call_contract(invoke_tx=call)
-            await client.get_class_hash_at(contract_address=implementation_address)
-        except ClientError as err:
-            if re.search(
-                r"(Entry point 0x[0-9a-f]+ not found in contract)|(is not declared)",
-                err.message,
-                re.IGNORECASE,
-            ):
-                return None
-            raise err
-        return implementation_address
+        return await self.get_implementation(
+            address=address,
+            client=client,
+            get_class_func=client.get_class_hash_at,
+            regex_err_msg=r"(is not deployed)",
+        )
 
     async def implementation_hash(
         self, address: Address, client: Client
     ) -> Optional[int]:
-        call = self._get_implementation_call(address=address)
+        return await self.get_implementation(
+            address=address,
+            client=client,
+            get_class_func=client.get_class_by_hash,
+            regex_err_msg=r"(is not declared)",
+        )
+
+    @staticmethod
+    async def get_implementation(
+        address: Address, client: Client, get_class_func: Callable, regex_err_msg: str
+    ) -> Optional[int]:
+        call = ArgentProxyCheck._get_implementation_call(address=address)
+        err_msg = r"(Entry point 0x[0-9a-f]+ not found in contract)|" + regex_err_msg
         try:
-            (implementation_hash,) = await client.call_contract(invoke_tx=call)
-            await client.get_class_by_hash(class_hash=implementation_hash)
+            (implementation,) = await client.call_contract(invoke_tx=call)
+            await get_class_func(implementation)
         except ClientError as err:
-            if re.search(
-                r"(Entry point 0x[0-9a-f]+ not found in contract)|(is not deployed)",
-                err.message,
-                re.IGNORECASE,
-            ):
+            if re.search(err_msg, err.message, re.IGNORECASE):
                 return None
             raise err
-        return implementation_hash
+        return implementation
 
     @staticmethod
     def _get_implementation_call(address: Address) -> Call:
