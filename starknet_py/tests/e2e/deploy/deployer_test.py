@@ -2,7 +2,6 @@ import pytest
 
 from starknet_py.contract import Contract
 from starknet_py.net.udc_deployer.deployer import Deployer
-from starknet_py.net.udc_deployer.errors import ContractDeployedEventNotFound
 from starknet_py.tests.e2e.conftest import MAX_FEE
 
 
@@ -12,19 +11,15 @@ async def test_default_deploy_with_class_hash(
 ):
     deployer = Deployer(account=account_client, deployer_address=deployer_address)
 
-    deploy_invoke_tx = await deployer.prepare_contract_deployment(
+    deploy_invoke_tx, address = await deployer.prepare_contract_deployment(
         class_hash=map_class_hash, max_fee=MAX_FEE
     )
 
     resp = await account_client.send_transaction(deploy_invoke_tx)
     await account_client.wait_for_tx(resp.transaction_hash)
 
-    deployed_contract_address = await deployer.find_deployed_contract_address(
-        transaction_hash=resp.transaction_hash
-    )
-
-    assert isinstance(deployed_contract_address, int)
-    assert deployed_contract_address != 0
+    assert isinstance(address, int)
+    assert address != 0
 
 
 @pytest.mark.asyncio
@@ -79,7 +74,10 @@ async def test_constructor_arguments_contract_deploy(
 ):
     deployer = Deployer(account=account_client, deployer_address=deployer_address)
 
-    deploy_invoke_transaction = await deployer.prepare_contract_deployment(
+    (
+        deploy_invoke_transaction,
+        contract_address,
+    ) = await deployer.prepare_contract_deployment(
         class_hash=constructor_with_arguments_class_hash,
         abi=constructor_with_arguments_abi,
         calldata=calldata,
@@ -88,10 +86,6 @@ async def test_constructor_arguments_contract_deploy(
 
     resp = await account_client.send_transaction(deploy_invoke_transaction)
     await account_client.wait_for_tx(resp.transaction_hash)
-
-    contract_address = await deployer.find_deployed_contract_address(
-        transaction_hash=resp.transaction_hash
-    )
 
     contract = Contract(
         address=contract_address,
@@ -107,19 +101,3 @@ async def test_constructor_arguments_contract_deploy(
         sum([1, 2, 3]),
         {"value": 12, "nested_struct": {"value": 99}},
     )
-
-
-@pytest.mark.asyncio
-async def test_throws_when_wrong_tx_hash_provided(
-    gateway_account_client, deployer_address, transaction_with_event_transaction_hash
-):
-    deployer = Deployer(
-        account=gateway_account_client, deployer_address=deployer_address
-    )
-
-    with pytest.raises(ContractDeployedEventNotFound) as err:
-        await deployer.find_deployed_contract_address(
-            transaction_hash=transaction_with_event_transaction_hash
-        )
-
-    assert "ContractDeployed event was not found" in str(err.value)

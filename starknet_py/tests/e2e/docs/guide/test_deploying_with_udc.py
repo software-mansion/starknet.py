@@ -69,7 +69,8 @@ async def test_deploying_with_udc(
 
     # If contract constructor accepts arguments, as shown above,
     # abi needs to be passed to `deployer.prepare_contract_deployment`
-    deploy_invoke_transaction = await deployer.prepare_contract_deployment(
+    # Note that this method also returns address of the contract we want to deploy
+    deploy_invoke_transaction, address = await deployer.prepare_contract_deployment(
         class_hash=contract_with_constructor_class_hash,
         abi=contract_with_constructor_abi,
         calldata={
@@ -85,11 +86,8 @@ async def test_deploying_with_udc(
     resp = await account_client.send_transaction(transaction=deploy_invoke_transaction)
     await account_client.wait_for_tx(resp.transaction_hash)
 
-    # `Deployer.find_deployed_contract_address` is used to get an address of the deployed contract
-    # It takes a hash of the transaction which deployed a contract
-    address = await deployer.find_deployed_contract_address(
-        transaction_hash=resp.transaction_hash
-    )
+    # After waiting for a transaction
+    # contract is accessible at the address returned by `deployer.prepare_contract_deployment`
     # add to docs: end
 
     assert address != 0

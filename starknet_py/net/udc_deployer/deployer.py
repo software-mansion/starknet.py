@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Optional, List, Union
+from collections import namedtuple
+from typing import Optional, List, Union, cast, NamedTuple
 
 from starkware.starknet.definitions.fields import ContractAddressSalt
 from starkware.starknet.public.abi import get_selector_from_name
@@ -8,14 +9,13 @@ from starkware.starknet.public.abi import get_selector_from_name
 from starknet_py.common import int_from_hex
 from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
 from starknet_py.net import AccountClient
-from starknet_py.net.client_models import Hash, InvokeFunction, Call, Event
-from starknet_py.net.models import AddressRepresentation, parse_address
-from starknet_py.net.udc_deployer.errors import ContractDeployedEventNotFound
+from starknet_py.net.client_models import Hash, InvokeFunction, Call
+from starknet_py.net.models import AddressRepresentation, parse_address, compute_address
 from starknet_py.utils.contructor_args_translator import translate_constructor_args
+from starknet_py.utils.crypto.facade import pedersen_hash
 from starknet_py.utils.data_transformer.universal_deployer_serializer import (
     universal_deployer_serializer,
     deploy_contract_abi,
-    deploy_contract_event_abi,
 )
 from starknet_py.utils.sync import add_sync_methods
 
@@ -64,20 +64,52 @@ class Deployer:
         :param calldata: Constructor args of the contract to be deployed
         :param max_fee: Max amount of Wei to be paid when executing transaction
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
-        :return: InvokeFunction
+        :return: NamedTuple with invoke_tx and address fields
         """
+        call, address = await self.create_deployment_call(
+            class_hash=class_hash, salt=salt, abi=abi, calldata=calldata
+        )
 
+        transaction = await self.account.sign_invoke_transaction(
+            calls=call, max_fee=max_fee, auto_estimate=auto_estimate
+        )
+
+        return namedtuple(
+            typename="InvokeAndAddress", field_names=["invoke_tx", "address"]
+        )(transaction, address)
+
+    async def create_deployment_call(
+        self,
+        *,
+        class_hash: Hash,
+        salt: Optional[int] = None,
+        abi: Optional[List] = None,
+        calldata: Optional[Union[List, dict]] = None,
+    ) -> NamedTuple:
+        """
+        Creates deployment call to the UDC contract
+
+        :param class_hash: The class_hash of the contract to be deployed
+        :param salt: The salt for a contract to be deployed. Random value is selected if it is not provided
+        :param abi: ABI of the contract to be deployed
+        :param calldata: Constructor args of the contract to be deployed
+        :return: NamedTuple with call and address fields
+        """
         if not abi and calldata:
             raise ValueError("calldata was provided without an abi")
 
-        calldata = translate_constructor_args(abi=abi or [], constructor_args=calldata)
+        salt = cast(int, salt or ContractAddressSalt.get_random_value())
+        class_hash = int_from_hex(class_hash)
 
+        constructor_calldata = translate_constructor_args(
+            abi=abi or [], constructor_args=calldata
+        )
         calldata, _ = universal_deployer_serializer.from_python(
             value_types=deploy_contract_abi["inputs"],
-            classHash=int_from_hex(class_hash),
-            salt=salt or ContractAddressSalt.get_random_value(),
+            classHash=class_hash,
+            salt=salt,
             unique=int(self.unique),
-            calldata=calldata,
+            calldata=constructor_calldata,
         )
 
         call = Call(
@@ -86,36 +118,15 @@ class Deployer:
             calldata=calldata,
         )
 
-        transaction = await self.account.sign_invoke_transaction(
-            calls=call, max_fee=max_fee, auto_estimate=auto_estimate
+        deployer_address = self.deployer_address if self.unique else 0
+        salt = pedersen_hash(self.account.address, salt) if self.unique else salt
+        address = compute_address(
+            class_hash=class_hash,
+            constructor_calldata=constructor_calldata,
+            salt=salt,
+            deployer_address=deployer_address,
         )
 
-        return transaction
-
-    async def find_deployed_contract_address(self, transaction_hash: Hash) -> int:
-        """
-        Returns deployed contract address
-
-        :param transaction_hash: Hash of the already send and accepted deploy invoke transaction
-        :returns: An address of the deployed contract
-        """
-        event = await self._get_deploy_event(transaction_hash=transaction_hash)
-
-        if not event:
-            raise ContractDeployedEventNotFound(transaction_hash=transaction_hash)
-
-        event = universal_deployer_serializer.to_python(
-            value_types=deploy_contract_event_abi["data"],
-            values=event.data,
+        return namedtuple(typename="CallAndAddress", field_names=["call", "address"])(
+            call, address
         )
-
-        # Ignore typing, because event is a NamedTuple
-        return event.address  # pyright: ignore
-
-    async def _get_deploy_event(self, transaction_hash: Hash) -> Optional[Event]:
-        receipt = await self.account.get_transaction_receipt(tx_hash=transaction_hash)
-
-        for event in receipt.events:
-            if get_selector_from_name("ContractDeployed") == event.keys[0]:
-                return event
-        return None
