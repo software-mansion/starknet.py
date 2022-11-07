@@ -8,7 +8,7 @@ directory = os.path.dirname(__file__)
 @pytest.mark.asyncio
 async def test_using_contract(gateway_client, gateway_account_client, map_contract):
     # pylint: disable=unused-variable,too-many-locals
-    # add to docs: start
+    # docs: start
     from starknet_py.contract import Contract
     from starknet_py.net import AccountClient
     from starknet_py.net.networks import TESTNET
@@ -16,10 +16,10 @@ async def test_using_contract(gateway_client, gateway_account_client, map_contra
     from starknet_py.net.models import StarknetChainId
 
     client = GatewayClient(TESTNET)
-    # add to docs: end
+    # docs: end
     client = gateway_client
 
-    # add to docs: start
+    # docs: start
 
     acc_client = await AccountClient.create_account(
         gateway_client, chain=StarknetChainId.TESTNET
@@ -29,18 +29,18 @@ async def test_using_contract(gateway_client, gateway_account_client, map_contra
         "0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b"
     )
     key = 1234
-    # add to docs: end
+    # docs: end
 
     contract_address = map_contract.address
-    # add to docs: start
+    # docs: start
 
     # Create contract from contract's address - Contract will download contract's ABI to know its interface.
     contract = await Contract.from_address(contract_address, gateway_account_client)
-    # add to docs: end
+    # docs: end
 
     abi = contract.data.abi
 
-    # add to docs: start
+    # docs: start
 
     # If the ABI is known, create the contract directly (this is the preferred way).
     contract = Contract(
@@ -59,6 +59,6 @@ async def test_using_contract(gateway_client, gateway_account_client, map_contra
     # Calling contract's function doesn't create a new transaction, you get the function's result.
     (saved,) = await contract.functions["get"].call(key)
     # saved = 7 now
-    # add to docs: end
+    # docs: end
 
     assert saved == 7

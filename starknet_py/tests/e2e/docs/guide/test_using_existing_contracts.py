@@ -2,7 +2,7 @@ import pytest
 
 from starknet_py.net import AccountClient
 
-# add to docs: start | section abi
+# docs-abi: start
 abi = [
     {
         "inputs": [
@@ -22,7 +22,7 @@ abi = [
         "type": "function",
     },
 ]
-# add to docs: end | section abi
+# docs-abi: end
 
 
 @pytest.mark.asyncio
@@ -30,7 +30,7 @@ async def test_using_existing_contracts(
     gateway_client, gateway_account_client, erc20_contract
 ):
     # pylint: disable=import-outside-toplevel,too-many-locals,unused-variable
-    # add to docs: start
+    # docs: start
     from starknet_py.net.gateway_client import GatewayClient
     from starknet_py.contract import Contract
     from starknet_py.net.networks import TESTNET
@@ -38,22 +38,22 @@ async def test_using_existing_contracts(
 
     address = "0x00178130dd6286a9a0e031e4c73b2bd04ffa92804264a25c1c08c1612559f458"
     client = GatewayClient(TESTNET)
-    # add to docs: end
+    # docs: end
     client = gateway_client
-    # add to docs: start
+    # docs: start
 
     contract = Contract(address=address, abi=abi, client=gateway_client)
     # or
     acc_client = await AccountClient.create_account(
         client=gateway_client, chain=StarknetChainId.TESTNET
     )
-    # add to docs: end
+    # docs: end
 
     acc_client = gateway_account_client
 
     address = erc20_contract.address
 
-    # add to docs: start
+    # docs: start
 
     sender = "321"
     recipient = "123"
@@ -64,25 +64,25 @@ async def test_using_existing_contracts(
     invocation = await contract.functions["transferFrom"].invoke(
         sender, recipient, 10000, max_fee=int(1e16)
     )
-    # add to docs: end
+    # docs: end
     await invocation.wait_for_acceptance()
-    # add to docs: start
+    # docs: start
 
     # Using only keyword arguments
     invocation = await contract.functions["transferFrom"].invoke(
         sender=sender, recipient=recipient, amount=10000, max_fee=int(1e16)
     )
-    # add to docs: end
+    # docs: end
     await invocation.wait_for_acceptance()
-    # add to docs: start
+    # docs: start
 
     # Mixing positional with keyword arguments
     invocation = await contract.functions["transferFrom"].invoke(
         sender, recipient, amount=10000, max_fee=int(1e16)
     )
-    # add to docs: end
+    # docs: end
     await invocation.wait_for_acceptance()
-    # add to docs: start
+    # docs: start
 
     # Creating a PreparedFunctionCall - creates a function call with arguments - useful for signing transactions and
     # specifying additional options
@@ -99,6 +99,6 @@ async def test_using_existing_contracts(
     # You can also use key access, call returns NamedTuple
     result = await contract.functions["balanceOf"].call(recipient)
     balance = result.balance
-    # add to docs: end
+    # docs: end
 
     assert balance == 200
