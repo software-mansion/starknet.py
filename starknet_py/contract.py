@@ -404,7 +404,7 @@ class Contract:
         address = parse_address(address)
         proxy_config = Contract._create_proxy_config(proxy_config)
 
-        if not Contract._abi_compatible_client(client):
+        if not Contract._is_abi_compatible_client(client):
             # TODO: Add support for FullNodeClient once abi is available in RPC
             raise TypeError(
                 "Contract.from_address only supports GatewayClient or AccountClients using GatewayClient"
@@ -577,6 +577,6 @@ class Contract:
         return prepare_proxy_config(proxy_arg)
 
     @staticmethod
-    def _abi_compatible_client(client) -> bool:
+    def _is_abi_compatible_client(client) -> bool:
         actual_client = client.client if isinstance(client, AccountClient) else client
         return isinstance(actual_client, GatewayClient)
