@@ -1,7 +1,7 @@
 import pytest
 
 from starknet_py.contract import Contract
-from starknet_py.tests.e2e.conftest import contracts_dir
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_DIR
 
 SOURCE = """
 // Declare this file as a StarkNet contract and set the required
@@ -70,7 +70,7 @@ EXPECTED_ADDRESS_WITH_IMPORTS = (
     1539179502839850929772015442738227060010315268355136760060396349750739505823
 )
 
-search_path = contracts_dir
+search_path = CONTRACTS_DIR
 
 
 def test_compute_hash():
