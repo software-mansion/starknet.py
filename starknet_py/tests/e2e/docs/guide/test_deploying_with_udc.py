@@ -86,7 +86,7 @@ async def test_deploying_with_udc(
     await account_client.wait_for_tx(resp.transaction_hash)
 
     # After waiting for a transaction
-    # contract is accessible at the address returned by `deployer.prepare_contract_deployment`
+    # contract is accessible at the address returned by `deployer.create_deployment_call`
     # docs: end
 
     assert address != 0
