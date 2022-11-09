@@ -47,8 +47,8 @@ class Deployer:
 
     async def create_deployment_call(
         self,
-        *,
         class_hash: Hash,
+        *,
         salt: Optional[int] = None,
         abi: Optional[List] = None,
         calldata: Optional[Union[List, dict]] = None,
