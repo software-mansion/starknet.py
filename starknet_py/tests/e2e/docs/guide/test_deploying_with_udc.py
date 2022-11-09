@@ -64,11 +64,16 @@ async def test_deploying_with_udc(
         },
     )
 
-    # Once call is prepared it can be signed and send with an Account
+    # Once call is prepared, it can be executed with an account (preferred way)
+    resp = await account_client.execute(deploy_call, max_fee=int(1e16))
+
+    # Or signed and send with an account
     invoke_tx = await account_client.sign_invoke_transaction(
         deploy_call, max_fee=int(1e16)
     )
-    resp = await account_client.send_transaction(transaction=invoke_tx)
+    resp = await account_client.send_transaction(invoke_tx)
+
+    # Wait for transaction
     await account_client.wait_for_tx(resp.transaction_hash)
 
     # After waiting for a transaction
