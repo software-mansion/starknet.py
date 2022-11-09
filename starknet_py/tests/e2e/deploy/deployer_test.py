@@ -2,7 +2,7 @@ import pytest
 
 from starknet_py.contract import Contract
 from starknet_py.net.udc_deployer.deployer import Deployer
-from starknet_py.tests.e2e.conftest import MAX_FEE
+from starknet_py.tests.e2e.utils import MAX_FEE
 
 
 @pytest.mark.asyncio
@@ -26,10 +26,8 @@ async def test_default_deploy_with_class_hash(
 
 
 @pytest.mark.asyncio
-async def test_throws_when_calldata_provided_without_abi(
-    map_class_hash, deployer_address
-):
-    deployer = Deployer(deployer_address=deployer_address)
+async def test_throws_when_calldata_provided_without_abi(map_class_hash):
+    deployer = Deployer()
 
     with pytest.raises(ValueError) as err:
         await deployer.create_deployment_call(
@@ -40,10 +38,8 @@ async def test_throws_when_calldata_provided_without_abi(
 
 
 @pytest.mark.asyncio
-async def test_throws_when_calldata_not_provided(
-    deployer_address, constructor_with_arguments_abi
-):
-    deployer = Deployer(deployer_address=deployer_address)
+async def test_throws_when_calldata_not_provided(constructor_with_arguments_abi):
+    deployer = Deployer()
 
     with pytest.raises(ValueError) as err:
         await deployer.create_deployment_call(
@@ -70,14 +66,11 @@ async def test_throws_when_calldata_not_provided(
 )
 async def test_constructor_arguments_contract_deploy(
     account_client,
-    deployer_address,
     constructor_with_arguments_abi,
     constructor_with_arguments_class_hash,
     calldata,
 ):
-    deployer = Deployer(
-        deployer_address=deployer_address, account_address=account_client.address
-    )
+    deployer = Deployer(account_address=account_client.address)
 
     (deploy_call, contract_address,) = await deployer.create_deployment_call(
         class_hash=constructor_with_arguments_class_hash,

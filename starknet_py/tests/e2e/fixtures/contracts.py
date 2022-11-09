@@ -179,7 +179,7 @@ async def map_class_hash(
 
 
 constructor_with_arguments_source = (
-    contracts_dir / "constructor_with_arguments.cairo"
+    CONTRACTS_DIR / "constructor_with_arguments.cairo"
 ).read_text("utf-8")
 
 
