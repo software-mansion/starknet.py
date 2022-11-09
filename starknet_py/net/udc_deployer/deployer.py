@@ -20,6 +20,11 @@ from starknet_py.utils.data_transformer.universal_deployer_serializer import (
 from starknet_py.utils.sync import add_sync_methods
 
 
+ContractDeployment = NamedTuple(
+    "ContractDeployment", [("udc_call", Call), ("address", int)]
+)
+
+
 @add_sync_methods
 class Deployer:
     """
@@ -85,7 +90,7 @@ class Deployer:
         salt: Optional[int] = None,
         abi: Optional[List] = None,
         calldata: Optional[Union[List, dict]] = None,
-    ) -> NamedTuple:
+    ) -> ContractDeployment:
         """
         Creates deployment call to the UDC contract
 
@@ -93,7 +98,7 @@ class Deployer:
         :param salt: The salt for a contract to be deployed. Random value is selected if it is not provided
         :param abi: ABI of the contract to be deployed
         :param calldata: Constructor args of the contract to be deployed
-        :return: NamedTuple with call and address fields
+        :return: NamedTuple with call and address of the contract to be deployed
         """
         if not abi and calldata:
             raise ValueError("calldata was provided without an abi")
@@ -127,6 +132,4 @@ class Deployer:
             deployer_address=deployer_address,
         )
 
-        return namedtuple(typename="CallAndAddress", field_names=["call", "address"])(
-            call, address
-        )
+        return ContractDeployment(udc_call=call, address=address)
