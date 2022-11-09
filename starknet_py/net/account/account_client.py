@@ -202,7 +202,7 @@ class AccountClient(Client):
 
     async def _get_nonce(self) -> int:
         if self.supported_tx_version == 1:
-            return await self.get_contract_nonce(self.address)
+            return await self.get_contract_nonce(self.address, block_hash="latest")
 
         [nonce] = await self.call_contract(
             Call(

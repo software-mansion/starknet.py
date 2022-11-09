@@ -108,7 +108,7 @@ python-versions = ">=3.5"
 dev = ["cloudpickle", "coverage[toml] (>=5.0.2)", "furo", "hypothesis", "mypy (>=0.900,!=0.940)", "pre-commit", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins", "sphinx", "sphinx-notfound-page", "zope.interface"]
 docs = ["furo", "sphinx", "sphinx-notfound-page", "zope.interface"]
 tests = ["cloudpickle", "coverage[toml] (>=5.0.2)", "hypothesis", "mypy (>=0.900,!=0.940)", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins", "zope.interface"]
-tests-no-zope = ["cloudpickle", "coverage[toml] (>=5.0.2)", "hypothesis", "mypy (>=0.900,!=0.940)", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins"]
+tests_no_zope = ["cloudpickle", "coverage[toml] (>=5.0.2)", "hypothesis", "mypy (>=0.900,!=0.940)", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins"]
 
 [[package]]
 name = "autodocsumm"
@@ -269,7 +269,7 @@ optional = false
 python-versions = ">=3.6.0"
 
 [package.extras]
-unicode-backport = ["unicodedata2"]
+unicode_backport = ["unicodedata2"]
 
 [[package]]
 name = "click"
@@ -826,9 +826,9 @@ python-versions = ">=3.6.1,<4.0"
 
 [package.extras]
 colors = ["colorama (>=0.4.3,<0.5.0)"]
-pipfile-deprecated-finder = ["pipreqs", "requirementslib"]
+pipfile_deprecated_finder = ["pipreqs", "requirementslib"]
 plugins = ["setuptools"]
-requirements-deprecated-finder = ["pip-api", "pipreqs"]
+requirements_deprecated_finder = ["pip-api", "pipreqs"]
 
 [[package]]
 name = "itsdangerous"
@@ -879,7 +879,7 @@ optional = false
 python-versions = "*"
 
 [package.extras]
-atomic-cache = ["atomicwrites"]
+atomic_cache = ["atomicwrites"]
 nearley = ["js2py"]
 regex = ["regex"]
 
@@ -1489,7 +1489,7 @@ urllib3 = ">=1.21.1,<1.27"
 
 [package.extras]
 socks = ["PySocks (>=1.5.6,!=1.5.7)"]
-use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
+use_chardet_on_py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
 name = "rlp"
@@ -1634,7 +1634,7 @@ Sphinx = ">=4.5"
 
 [package.extras]
 testing = ["covdefaults (>=2.2)", "coverage (>=6.3)", "diff-cover (>=6.4)", "nptyping (>=2.1.2)", "pytest (>=7.1)", "pytest-cov (>=3)", "sphobjinv (>=2)", "typing-extensions (>=4.1)"]
-type-comments = ["typed-ast (>=1.5.2)"]
+type_comments = ["typed-ast (>=1.5.2)"]
 
 [[package]]
 name = "sphinx-jinja2-compat"
@@ -1690,7 +1690,7 @@ pygments = "*"
 sphinx = ">=2,<6"
 
 [package.extras]
-code-style = ["pre-commit (==2.13.0)"]
+code_style = ["pre-commit (==2.13.0)"]
 testing = ["bs4", "coverage", "pygments", "pytest (>=7.1,<8)", "pytest-cov", "pytest-regressions", "rinohtype", "sphinx-testing"]
 
 [[package]]
@@ -1797,7 +1797,7 @@ test = ["pytest"]
 
 [[package]]
 name = "starknet-devnet"
-version = "0.3.4"
+version = "0.3.5"
 description = "A local testnet for Starknet"
 category = "dev"
 optional = false
@@ -1818,8 +1818,8 @@ Werkzeug = "~2.0.3"
 [package.source]
 type = "git"
 url = "https://github.com/Shard-Labs/starknet-devnet.git"
-reference = "715612bddae0d29520594421aa030d8f7272ad18"
-resolved_reference = "715612bddae0d29520594421aa030d8f7272ad18"
+reference = "e353f2432a2eda173192482d2569ab6b99c1231d"
+resolved_reference = "e353f2432a2eda173192482d2569ab6b99c1231d"
 
 [[package]]
 name = "sympy"
@@ -2038,7 +2038,7 @@ eth-tester = []
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8, <3.10"
-content-hash = "885152f1fa4edbea70a6bf6609a0198733a1bb33e24503d5e69fbccd7c9a41b6"
+content-hash = "e18889c7a2d698f7e011e9276ad1a4886eb613bcee5f7f15c1882e02c5d16dfc"
 
 [metadata.files]
 aiohttp = [
