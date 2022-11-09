@@ -6,10 +6,8 @@ from starknet_py.tests.e2e.utils import MAX_FEE
 
 
 @pytest.mark.asyncio
-async def test_default_deploy_with_class_hash(
-    deployer_address, account_client, map_class_hash
-):
-    deployer = Deployer(deployer_address=deployer_address)
+async def test_default_deploy_with_class_hash(account_client, map_class_hash):
+    deployer = Deployer()
 
     deploy_call, address = await deployer.create_deployment_call(
         class_hash=map_class_hash

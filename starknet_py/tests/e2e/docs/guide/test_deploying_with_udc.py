@@ -1,15 +1,10 @@
 import pytest
 
-from starknet_py.net import AccountClient, KeyPair
-from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models import StarknetChainId
-
 
 @pytest.mark.asyncio
 async def test_deploying_with_udc(
     account_client,
     map_class_hash,
-    deployer_address,
     constructor_with_arguments_abi,
     constructor_with_arguments_class_hash,
 ):
@@ -18,12 +13,8 @@ async def test_deploying_with_udc(
     from starknet_py.net.udc_deployer.deployer import Deployer
 
     # docs: end
-    testnet_account_client = AccountClient(
-        address=123,
-        client=GatewayClient(net="testnet"),
-        key_pair=KeyPair.from_private_key(123),
-        chain=StarknetChainId.TESTNET,
-    )
+    deployer_address = "0x123"
+    salt = None
 
     # docs: start
     # If you use mainnet/testnet/devnet there is no need to explicitly specify
@@ -35,12 +26,7 @@ async def test_deploying_with_udc(
 
     # Deployer has one more optional parameter `account_address`
     # It is used to salt address of the contract with address of an account which deploys it
-    deployer = Deployer(
-        deployer_address=deployer_address, account_address=account_client.address
-    )
-    # docs: end
-    salt = None
-    # docs: start
+    deployer = Deployer(account_address=account_client.address)
 
     # If contract we want to deploy does not have constructor, or the constructor
     # does not have arguments, abi is not a required parameter of `deployer.create_deployment_call` method
