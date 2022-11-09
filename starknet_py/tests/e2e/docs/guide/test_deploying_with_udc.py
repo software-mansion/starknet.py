@@ -67,6 +67,18 @@ async def test_deploying_with_udc(
     # Once call is prepared, it can be executed with an account (preferred way)
     resp = await account_client.execute(deploy_call, max_fee=int(1e16))
 
+    # docs: end
+    deploy_call, _ = await deployer.create_deployment_call(
+        class_hash=contract_with_constructor_class_hash,
+        abi=contract_with_constructor_abi,
+        calldata={
+            "single_value": 0,
+            "tuple": (1, (2, 3)),
+            "arr": [1],
+            "dict": {"value": 12, "nested_struct": {"value": 99}},
+        },
+    )
+    # docs: start
     # Or signed and send with an account
     invoke_tx = await account_client.sign_invoke_transaction(
         deploy_call, max_fee=int(1e16)
