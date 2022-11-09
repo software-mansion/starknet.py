@@ -1,8 +1,10 @@
 # pylint: disable=redefined-outer-name
+from typing import List
 
 import pytest
 import pytest_asyncio
 
+from starknet_py.common import create_compiled_contract
 from starknet_py.compile.compiler import Compiler
 from starknet_py.constants import FEE_CONTRACT_ADDRESS, DEVNET_FEE_CONTRACT_ADDRESS
 from starknet_py.contract import Contract
@@ -158,3 +160,51 @@ async def account_with_validate_deploy_class_hash(
     await new_gateway_account_client.wait_for_tx(resp.transaction_hash)
 
     return resp.class_hash
+
+
+@pytest_asyncio.fixture(scope="module")
+async def map_class_hash(
+    new_gateway_account_client: AccountClient, map_source_code: str
+) -> int:
+    """
+    Returns class_hash of the map.cairo
+    """
+    declare = await new_gateway_account_client.sign_declare_transaction(
+        compilation_source=map_source_code,
+        max_fee=int(1e16),
+    )
+    res = await new_gateway_account_client.declare(declare)
+    await new_gateway_account_client.wait_for_tx(res.transaction_hash)
+    return res.class_hash
+
+
+constructor_with_arguments_source = (
+    contracts_dir / "constructor_with_arguments.cairo"
+).read_text("utf-8")
+
+
+@pytest.fixture(scope="module")
+def constructor_with_arguments_abi() -> List:
+    """
+    Returns an abi of the constructor_with_arguments.cairo
+    """
+    compiled_contract = create_compiled_contract(
+        compilation_source=constructor_with_arguments_source
+    )
+    return compiled_contract.abi
+
+
+@pytest_asyncio.fixture(scope="module")
+async def constructor_with_arguments_class_hash(
+    new_gateway_account_client: AccountClient,
+) -> int:
+    """
+    Returns a class_hash of the constructor_with_arguments.cairo
+    """
+    declare = await new_gateway_account_client.sign_declare_transaction(
+        compilation_source=constructor_with_arguments_source,
+        max_fee=int(1e16),
+    )
+    res = await new_gateway_account_client.declare(declare)
+    await new_gateway_account_client.wait_for_tx(res.transaction_hash)
+    return res.class_hash
