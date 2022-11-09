@@ -24,7 +24,7 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models.transaction import Declare
-from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
+from starknet_py.tests.e2e.fixtures.constants import MAX_FEE, CONTRACTS_DIR
 from starknet_py.transaction_exceptions import (
     TransactionRejectedError,
     TransactionNotReceivedError,
@@ -182,7 +182,7 @@ async def test_get_transaction_receipt(
         ),
         Declare(
             contract_class=create_compiled_contract(
-                compilation_source=(contracts_dir / "map.cairo").read_text("utf-8")
+                compilation_source=(CONTRACTS_DIR / "map.cairo").read_text("utf-8")
             ),
             sender_address=0x1,
             max_fee=0,
