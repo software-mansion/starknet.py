@@ -13,7 +13,7 @@ async def test_deploying_with_udc(
     constructor_with_arguments_abi,
     constructor_with_arguments_class_hash,
 ):
-    # pylint: disable=unused-variable, import-outside-toplevel
+    # pylint: disable=unused-variable, import-outside-toplevel, too-many-locals
     # add to docs: start
     from starknet_py.net.udc_deployer.deployer import Deployer
 
@@ -28,27 +28,24 @@ async def test_deploying_with_udc(
     # add to docs: start
     # If you use mainnet/testnet/devnet there is no need to explicitly specify
     # address of the deployer (default one will be used)
-    deployer = Deployer(account=testnet_account_client)
+    deployer = Deployer()
 
     # If custom net is used address of the deployer contract is required
-    deployer = Deployer(account=account_client, deployer_address=deployer_address)
+    deployer = Deployer(deployer_address=deployer_address)
 
+    # Deployer has one more optional parameter `account_address`
+    # It is used to salt address of the contract with address of an account which deploys it
+    deployer = Deployer(
+        deployer_address=deployer_address, account_address=account_client.address
+    )
     # add to docs: end
     salt = None
-
     # add to docs: start
-    # Deployer has one more optional parameter `unique`,
-    # read about it in the API section
-    deployer = Deployer(
-        account=account_client,
-        deployer_address=deployer_address,
-        unique=False,
-    )
 
     # If contract we want to deploy does not have constructor, or the constructor
-    # does not have arguments, abi is not a required parameter of `deployer.prepare_contract_deployment` method
-    deploy_invoke_transaction, address = await deployer.prepare_contract_deployment(
-        class_hash=map_class_hash, salt=salt, max_fee=int(1e16)
+    # does not have arguments, abi is not a required parameter of `deployer.create_deployment_call` method
+    deploy_call, address = await deployer.create_deployment_call(
+        class_hash=map_class_hash, salt=salt
     )
 
     # add to docs: end
@@ -68,9 +65,9 @@ async def test_deploying_with_udc(
     """
 
     # If contract constructor accepts arguments, as shown above,
-    # abi needs to be passed to `deployer.prepare_contract_deployment`
+    # abi needs to be passed to `deployer.create_deployment_call`
     # Note that this method also returns address of the contract we want to deploy
-    deploy_invoke_transaction, address = await deployer.prepare_contract_deployment(
+    deploy_call, address = await deployer.create_deployment_call(
         class_hash=contract_with_constructor_class_hash,
         abi=contract_with_constructor_abi,
         calldata={
@@ -79,11 +76,13 @@ async def test_deploying_with_udc(
             "arr": [1, 2, 3],
             "dict": {"value": 12, "nested_struct": {"value": 99}},
         },
-        max_fee=int(1e16),
     )
 
-    # Once transaction is prepared it can be sent with an Account
-    resp = await account_client.send_transaction(transaction=deploy_invoke_transaction)
+    # Once call is prepared it can be signed and send with an Account
+    invoke_tx = await account_client.sign_invoke_transaction(
+        deploy_call, max_fee=int(1e16)
+    )
+    resp = await account_client.send_transaction(transaction=invoke_tx)
     await account_client.wait_for_tx(resp.transaction_hash)
 
     # After waiting for a transaction
