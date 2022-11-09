@@ -9,12 +9,15 @@ from starknet_py.tests.e2e.conftest import MAX_FEE
 async def test_default_deploy_with_class_hash(
     deployer_address, account_client, map_class_hash
 ):
-    deployer = Deployer(account=account_client, deployer_address=deployer_address)
+    deployer = Deployer(deployer_address=deployer_address)
 
-    deploy_invoke_tx, address = await deployer.prepare_contract_deployment(
-        class_hash=map_class_hash, max_fee=MAX_FEE
+    deploy_call, address = await deployer.create_deployment_call(
+        class_hash=map_class_hash
     )
 
+    deploy_invoke_tx = await account_client.sign_invoke_transaction(
+        deploy_call, max_fee=MAX_FEE
+    )
     resp = await account_client.send_transaction(deploy_invoke_tx)
     await account_client.wait_for_tx(resp.transaction_hash)
 
@@ -24,12 +27,12 @@ async def test_default_deploy_with_class_hash(
 
 @pytest.mark.asyncio
 async def test_throws_when_calldata_provided_without_abi(
-    account_client, map_class_hash, deployer_address
+    map_class_hash, deployer_address
 ):
-    deployer = Deployer(account=account_client, deployer_address=deployer_address)
+    deployer = Deployer(deployer_address=deployer_address)
 
     with pytest.raises(ValueError) as err:
-        await deployer.prepare_contract_deployment(
+        await deployer.create_deployment_call(
             class_hash=map_class_hash, calldata=[12, 34]
         )
 
@@ -38,12 +41,12 @@ async def test_throws_when_calldata_provided_without_abi(
 
 @pytest.mark.asyncio
 async def test_throws_when_calldata_not_provided(
-    account_client, deployer_address, constructor_with_arguments_abi
+    deployer_address, constructor_with_arguments_abi
 ):
-    deployer = Deployer(account=account_client, deployer_address=deployer_address)
+    deployer = Deployer(deployer_address=deployer_address)
 
     with pytest.raises(ValueError) as err:
-        await deployer.prepare_contract_deployment(
+        await deployer.create_deployment_call(
             class_hash=1234, abi=constructor_with_arguments_abi
         )
 
@@ -72,18 +75,19 @@ async def test_constructor_arguments_contract_deploy(
     constructor_with_arguments_class_hash,
     calldata,
 ):
-    deployer = Deployer(account=account_client, deployer_address=deployer_address)
+    deployer = Deployer(
+        deployer_address=deployer_address, account_address=account_client.address
+    )
 
-    (
-        deploy_invoke_transaction,
-        contract_address,
-    ) = await deployer.prepare_contract_deployment(
+    (deploy_call, contract_address,) = await deployer.create_deployment_call(
         class_hash=constructor_with_arguments_class_hash,
         abi=constructor_with_arguments_abi,
         calldata=calldata,
-        max_fee=MAX_FEE,
     )
 
+    deploy_invoke_transaction = await account_client.sign_invoke_transaction(
+        deploy_call, max_fee=MAX_FEE
+    )
     resp = await account_client.send_transaction(deploy_invoke_transaction)
     await account_client.wait_for_tx(resp.transaction_hash)
 
