@@ -43,7 +43,7 @@ class Deployer:
 
         self.deployer_address = parse_address(deployer_address)
         self.account_address = account_address
-        self.unique = account_address is not None
+        self._unique = account_address is not None
 
     async def create_deployment_call(
         self,
@@ -75,7 +75,7 @@ class Deployer:
             value_types=deploy_contract_abi["inputs"],
             classHash=class_hash,
             salt=salt,
-            unique=int(self.unique),
+            unique=int(self._unique),
             calldata=constructor_calldata,
         )
 
@@ -85,8 +85,12 @@ class Deployer:
             calldata=calldata,
         )
 
-        deployer_address = self.deployer_address if self.unique else 0
-        salt = pedersen_hash(self.account_address, salt) if self.unique else salt
+        deployer_address = self.deployer_address if self._unique else 0
+        salt = (
+            pedersen_hash(parse_address(self.account_address), salt)
+            if self.account_address is not None
+            else salt
+        )
         address = compute_address(
             class_hash=class_hash,
             constructor_calldata=constructor_calldata,
