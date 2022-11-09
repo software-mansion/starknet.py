@@ -17,6 +17,7 @@ import sys
 sys.path.insert(0, os.path.abspath("."))
 sys.path.insert(0, os.path.abspath("../"))
 sys.path.insert(1, os.path.dirname(os.path.abspath("../")) + os.sep + "starknet")
+sys.path.append(os.path.abspath("./_ext"))
 
 # -- Project information -----------------------------------------------------
 
@@ -37,6 +38,7 @@ extensions = [
     "sphinx.ext.autosectionlabel",
     "sphinx_rtd_theme",
     "enum_tools.autoenum",
+    "codesnippet",
 ]
 
 # Add any paths that contain templates here, relative to this directory.

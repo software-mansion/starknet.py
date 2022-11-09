@@ -16,6 +16,8 @@ or support deploying through syscall or `Universal Deployer Contract <https://co
 Breaking Changes
 ----------------
 
+- Removed deprecated `Account.sign_transaction`. Use new `Account.sign_invoke_transaction`.
+- Removed deprecated `InvokeFunction` as `call_contract` parameter. Use `Call` class instead.
 - `entry_point_selector` has been removed from `v1` transactions. `InvokeTransaction`'s field has been changed to `Optional[int]`
 - `net.models.address.compute_address` signature has been changed and use of keyword arguments is now mandatory
 - `Client.estimate_fee` ABC now also accepts `DeployAccount` transaction as `tx` parameter. Custom clients should be updated to reflect this change.
@@ -51,8 +53,6 @@ removed in the future.
 
 New Cairo syntax
 ^^^^^^^^^^^^^^^^^^^^^^^
-
-.. TODO: Change the new syntax link with a better one once StarkWare releases it.
 
 With the update of `cairo-lang <https://github.com/starkware-libs/cairo-lang>`_ to version ``0.10.0``,
 the syntax of contracts written in cairo changes significantly.

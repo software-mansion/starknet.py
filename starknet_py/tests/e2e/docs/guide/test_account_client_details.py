@@ -4,25 +4,25 @@ import pytest
 @pytest.mark.asyncio
 async def test_account_client_details(network, gateway_account_client, map_source_code):
     # pylint: disable=import-outside-toplevel
-    # add to docs: start
+    # docs: start
     from starknet_py.contract import Contract
     from starknet_py.net import AccountClient
     from starknet_py.net.gateway_client import GatewayClient
     from starknet_py.net.models import StarknetChainId
 
     net = "testnet"
-    # add to docs: end
+    # docs: end
     net = network
-    # add to docs: start
+    # docs: start
 
     # Creates an account
     client = await AccountClient.create_account(
         client=GatewayClient(net=net), chain=StarknetChainId.TESTNET
     )
-    # add to docs: end
+    # docs: end
 
     client = gateway_account_client
-    # add to docs: start
+    # docs: start
 
     # Deploys the contract
     deployment_result = await Contract.deploy(
@@ -54,7 +54,7 @@ async def test_account_client_details(network, gateway_account_client, map_sourc
     # Executes one transaction with three calls
     resp = await client.execute(calls=calls, max_fee=int(1e16))
     await client.wait_for_tx(resp.transaction_hash)
-    # add to docs: end
+    # docs: end
 
     (value,) = await contract.functions["get"].call(key=50)
     assert value == 60

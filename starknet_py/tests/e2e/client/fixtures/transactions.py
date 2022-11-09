@@ -5,7 +5,7 @@ import pytest_asyncio
 
 from starknet_py.contract import Contract
 from starknet_py.net.models.transaction import DeployAccount
-from starknet_py.tests.e2e.client.prepare_net_for_gateway_test import (
+from starknet_py.tests.e2e.client.fixtures.prepare_net_for_gateway_test import (
     PreparedNetworkData,
 )
 from starknet_py.tests.e2e.utils import (
