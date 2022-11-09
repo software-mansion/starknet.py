@@ -7,9 +7,9 @@ from starknet_py.tests.e2e.account.account_client_test import MAX_FEE
 
 
 @pytest.mark.asyncio
-async def test_general_flow(details_of_account_to_be_deployed, network):
+async def test_general_flow(deploy_account_details_factory, network):
     # TODO: Extend to other clients (Full Node)
-    address, key_pair, salt, class_hash = details_of_account_to_be_deployed
+    address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
 
     account = AccountClient(
         address=address,
