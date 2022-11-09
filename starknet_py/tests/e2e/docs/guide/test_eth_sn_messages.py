@@ -8,7 +8,7 @@ import web3
 @pytest.mark.asyncio
 async def test_eth_sn_messages():
     # pylint: disable=import-outside-toplevel, disable=duplicate-code, unused-variable
-    # add to docs: start
+    # docs: start
     from starknet_py.net.l1.messages import (
         MessageToStarknetContent,
         MessageToStarknet,
@@ -40,14 +40,14 @@ async def test_eth_sn_messages():
 
     # 3. From Eth transaction receipt (provided by web3.py, like shown below)
     w3 = web3.Web3(web3.providers.HTTPProvider("https://my-rpc-endpoint.com/"))
-    # add to docs: end
+    # docs: end
 
     w3 = Mock()
     w3.eth.wait_for_transaction_receipt.return_value = [0]
 
-    # add to docs: start
+    # docs: start
     tx_receipt = w3.eth.wait_for_transaction_receipt("0x123123123")
-    # add to docs: end
+    # docs: end
 
     MessageToStarknet.from_tx_receipt = MagicMock()
     MessageToStarknet.from_tx_receipt.return_value = [0]
@@ -59,7 +59,7 @@ async def test_eth_sn_messages():
 
     MessageToStarknet.count_queued_sync = MagicMock()
 
-    # add to docs: start
+    # docs: start
     eth_to_sn_msg = MessageToStarknet.from_tx_receipt(tx_receipt, w3)
 
     # 4. From transaction hash (fetches the receipt for you)
@@ -73,4 +73,4 @@ async def test_eth_sn_messages():
         web3=w3,
         block_number="pending",  # Block number or block representation literal
     )
-    # add to docs: end
+    # docs: end

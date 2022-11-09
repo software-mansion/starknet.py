@@ -4,7 +4,7 @@ from starkware.crypto.signature.signature import get_random_private_key
 from starkware.starknet.definitions.fields import ContractAddressSalt
 
 from starknet_py.contract import Contract
-from starknet_py.tests.e2e.conftest import MAX_FEE
+from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 
 
 @pytest.mark.asyncio
@@ -12,7 +12,7 @@ async def test_deploy_prefunded_account(
     account_with_validate_deploy_class_hash: int, network: str, fee_contract: Contract
 ):
     # pylint: disable=import-outside-toplevel, too-many-locals
-    # add to docs: start
+    # docs: start
     from starknet_py.net import AccountClient
     from starknet_py.net import KeyPair
     from starknet_py.net.gateway_client import GatewayClient
@@ -20,11 +20,11 @@ async def test_deploy_prefunded_account(
     from starknet_py.net.models import compute_address
 
     # First, make sure to generate private key and salt
-    # add to docs: end
+    # docs: end
     private_key = get_random_private_key()
     salt = ContractAddressSalt.get_random_value()
     class_hash = account_with_validate_deploy_class_hash
-    # add to docs: start
+    # docs: start
 
     key_pair = KeyPair.from_private_key(private_key)
 
@@ -38,12 +38,12 @@ async def test_deploy_prefunded_account(
 
     # Prefund the address (using the token bridge or by sending fee tokens to the computed address)
     # Make sure the tx has been accepted on L2 before proceeding
-    # add to docs: end
+    # docs: end
     res = await fee_contract.functions["transfer"].invoke(
         recipient=address, amount=int(1e15), max_fee=MAX_FEE
     )
     await res.wait_for_acceptance()
-    # add to docs: start
+    # docs: start
 
     # Create an AccountClient instance
     account = AccountClient(
@@ -66,6 +66,6 @@ async def test_deploy_prefunded_account(
     await account.wait_for_tx(resp.transaction_hash)
 
     # Since this moment account can be used to sign other transactions
-    # add to docs: end
+    # docs: end
 
     assert address == resp.address

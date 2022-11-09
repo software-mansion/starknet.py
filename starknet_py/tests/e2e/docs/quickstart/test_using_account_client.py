@@ -8,23 +8,23 @@ directory = os.path.dirname(__file__)
 @pytest.mark.asyncio
 async def test_using_account_client(network, gateway_account_client, map_source_code):
     # pylint: disable=import-outside-toplevel, duplicate-code, too-many-locals
-    # add to docs: start
+    # docs: start
     from starknet_py.net import AccountClient
     from starknet_py.contract import Contract
     from starknet_py.net.gateway_client import GatewayClient
 
-    # add to docs: end
+    # docs: end
     testnet = network
-    # add to docs: start
+    # docs: start
 
     # Creates an account on testnet and returns an instance
     client = GatewayClient(net=testnet)
     acc_client = await AccountClient.create_account(
         client=client, chain=StarknetChainId.TESTNET
     )
-    # add to docs: end
+    # docs: end
     acc_client = gateway_account_client
-    # add to docs: start
+    # docs: start
 
     # Deploy an example contract which implements a simple k-v store. Deploy transaction is not being signed.
     deployment_result = await Contract.deploy(
@@ -56,6 +56,6 @@ async def test_using_account_client(network, gateway_account_client, map_source_
     # Executes only one transaction with prepared calls
     transaction_response = await acc_client.execute(calls=calls, max_fee=int(1e16))
     await acc_client.wait_for_tx(transaction_response.transaction_hash)
-    # add to docs: end
+    # docs: end
 
     assert resp == v
