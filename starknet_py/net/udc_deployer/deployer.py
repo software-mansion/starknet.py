@@ -43,7 +43,7 @@ class Deployer:
 
         self.deployer_address = parse_address(deployer_address)
         self.account_address = account_address
-        self.unique = True if account_address is not None else False
+        self.unique = account_address is not None
 
     async def create_deployment_call(
         self,
