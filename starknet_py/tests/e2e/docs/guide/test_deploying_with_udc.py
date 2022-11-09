@@ -14,10 +14,10 @@ async def test_deploying_with_udc(
     constructor_with_arguments_class_hash,
 ):
     # pylint: disable=unused-variable, import-outside-toplevel, too-many-locals
-    # add to docs: start
+    # docs: start
     from starknet_py.net.udc_deployer.deployer import Deployer
 
-    # add to docs: end
+    # docs: end
     testnet_account_client = AccountClient(
         address=123,
         client=GatewayClient(net="testnet"),
@@ -25,7 +25,7 @@ async def test_deploying_with_udc(
         chain=StarknetChainId.TESTNET,
     )
 
-    # add to docs: start
+    # docs: start
     # If you use mainnet/testnet/devnet there is no need to explicitly specify
     # address of the deployer (default one will be used)
     deployer = Deployer()
@@ -38,9 +38,9 @@ async def test_deploying_with_udc(
     deployer = Deployer(
         deployer_address=deployer_address, account_address=account_client.address
     )
-    # add to docs: end
+    # docs: end
     salt = None
-    # add to docs: start
+    # docs: start
 
     # If contract we want to deploy does not have constructor, or the constructor
     # does not have arguments, abi is not a required parameter of `deployer.create_deployment_call` method
@@ -48,11 +48,11 @@ async def test_deploying_with_udc(
         class_hash=map_class_hash, salt=salt
     )
 
-    # add to docs: end
+    # docs: end
     contract_with_constructor_class_hash = constructor_with_arguments_class_hash
     contract_with_constructor_abi = constructor_with_arguments_abi
 
-    # add to docs: start
+    # docs: start
     contract_constructor = """
         @constructor
         func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
@@ -87,6 +87,6 @@ async def test_deploying_with_udc(
 
     # After waiting for a transaction
     # contract is accessible at the address returned by `deployer.prepare_contract_deployment`
-    # add to docs: end
+    # docs: end
 
     assert address != 0
