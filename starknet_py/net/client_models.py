@@ -314,7 +314,7 @@ class BlockStateUpdate:
 class StateDiff:
     deployed_contracts: List[DeployedContract]
     storage_diffs: List[StorageDiff]
-    declared_contracts: List[int]
+    declared_contract_hashes: List[int]
 
 
 @dataclass

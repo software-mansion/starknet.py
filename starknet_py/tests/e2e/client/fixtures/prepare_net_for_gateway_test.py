@@ -2,8 +2,10 @@ from dataclasses import dataclass
 
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient
-from starknet_py.tests.e2e.conftest import AccountToBeDeployedDetails
-from starknet_py.tests.e2e.utils import get_deploy_account_transaction
+from starknet_py.tests.e2e.utils import (
+    get_deploy_account_transaction,
+    AccountToBeDeployedDetails,
+)
 
 
 @dataclass

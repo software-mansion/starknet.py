@@ -12,7 +12,7 @@ from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import parse_address, StarknetChainId
 from starknet_py.net.networks import TESTNET, MAINNET
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
-from starknet_py.tests.e2e.conftest import MAX_FEE
+from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.transaction_exceptions import TransactionRejectedError
 from starknet_py.transactions.deploy import make_deploy_tx
 
@@ -110,14 +110,13 @@ async def test_estimated_fee_greater_than_zero(erc20_contract, account_client):
 
 @pytest.mark.asyncio
 async def test_estimate_fee_for_declare_transaction(
-    new_gateway_account_client, map_source_code
+    new_account_client, map_source_code
 ):
-    # TODO: add test for new_full_node_account_client once devnet supports RPC 0.2.0
-    declare_tx = await new_gateway_account_client.sign_declare_transaction(
+    declare_tx = await new_account_client.sign_declare_transaction(
         compilation_source=map_source_code, max_fee=MAX_FEE
     )
 
-    estimated_fee = await new_gateway_account_client.estimate_fee(tx=declare_tx)
+    estimated_fee = await new_account_client.estimate_fee(tx=declare_tx)
 
     assert isinstance(estimated_fee.overall_fee, int)
     assert estimated_fee.overall_fee > 0
@@ -220,7 +219,8 @@ async def test_rejection_reason_in_transaction_receipt(account_client, map_contr
 
     transaction_receipt = await account_client.get_transaction_receipt(res.hash)
 
-    assert "Actual fee exceeded max fee." in transaction_receipt.rejection_reason
+    if isinstance(account_client.client, GatewayClient):
+        assert "Actual fee exceeded max fee." in transaction_receipt.rejection_reason
 
 
 @pytest.mark.asyncio

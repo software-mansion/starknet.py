@@ -6,7 +6,8 @@ from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
 from starknet_py.net.client_models import SentTransactionResponse, Call
-from starknet_py.tests.e2e.conftest import contracts_dir
+from starknet_py.net.gateway_client import GatewayClient
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_DIR
 from starknet_py.transaction_exceptions import (
     TransactionRejectedError,
     TransactionNotReceivedError,
@@ -148,7 +149,7 @@ async def test_invoke_and_call(key, value, map_contract):
     assert response == value
 
 
-user_auth_source = (contracts_dir / "user_auth.cairo").read_text("utf-8")
+user_auth_source = (CONTRACTS_DIR / "user_auth.cairo").read_text("utf-8")
 
 
 @pytest.mark.asyncio
@@ -204,7 +205,8 @@ async def test_wait_for_tx_throws_on_transaction_rejected(account_client, map_co
     with pytest.raises(TransactionRejectedError) as err:
         await account_client.wait_for_tx(transaction.hash)
 
-    assert "Entry point 0x123 not found in contract" in err.value.message
+    if isinstance(account_client.client, GatewayClient):
+        assert "Entry point 0x123 not found in contract" in err.value.message
 
 
 @pytest.mark.asyncio

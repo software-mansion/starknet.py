@@ -159,9 +159,6 @@ class Client(ABC):
                     return result.block_number, status
                 if status == TransactionStatus.PENDING:
                     if not wait_for_accept:
-                        # FIXME rpc receipt doesn't have block_number currently, fix this in future spec version
-                        if self.__class__.__name__ == "FullNodeClient":
-                            return -1, status
                         if result.block_number is not None:
                             return result.block_number, status
                 elif status == TransactionStatus.REJECTED:
