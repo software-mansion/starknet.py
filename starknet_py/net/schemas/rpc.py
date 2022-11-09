@@ -125,6 +125,8 @@ class InvokeTransactionSchema(TransactionSchema):
         )
         del data["sender_address"]
 
+        assert data["contract_address"] is not None
+
         return InvokeTransaction(**data)
 
 

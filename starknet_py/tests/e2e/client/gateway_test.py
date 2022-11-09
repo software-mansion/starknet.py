@@ -161,7 +161,7 @@ async def test_get_l1_handler_transaction_without_nonce(gateway_client):
     with patch(
         "starknet_py.net.http_client.GatewayHttpClient.call", AsyncMock()
     ) as mocked_transaction_call:
-        return_value = {
+        mocked_transaction_call.return_value = {
             "status": "ACCEPTED_ON_L1",
             "block_hash": "0x38ce7678420eaff5cd62597643ca515d0887579a8be69563067fe79a624592b",
             "block_number": 370459,
@@ -181,7 +181,6 @@ async def test_get_l1_handler_transaction_without_nonce(gateway_client):
                 "type": "L1_HANDLER",
             },
         }
-        mocked_transaction_call.return_value = return_value
 
         transaction = await gateway_client.get_transaction(tx_hash=0x1)
 
