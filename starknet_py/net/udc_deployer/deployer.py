@@ -20,9 +20,7 @@ from starknet_py.utils.data_transformer.universal_deployer_serializer import (
 from starknet_py.utils.sync import add_sync_methods
 
 
-ContractDeployment = NamedTuple(
-    "ContractDeployment", [("udc_call", Call), ("address", int)]
-)
+ContractDeployment = NamedTuple("ContractDeployment", [("udc", Call), ("address", int)])
 
 
 @add_sync_methods
@@ -132,4 +130,4 @@ class Deployer:
             deployer_address=deployer_address,
         )
 
-        return ContractDeployment(udc_call=call, address=address)
+        return ContractDeployment(udc=call, address=address)
