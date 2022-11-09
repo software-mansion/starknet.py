@@ -13,13 +13,11 @@ from starknet_py.tests.e2e.client.fixtures.prepare_net_for_gateway_test import (
     PreparedNetworkData,
     prepare_net_for_tests,
 )
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_DIR
-from starknet_py.tests.e2e.utils import AccountToBeDeployedDetails
-from starknet_py.tests.e2e.conftest import (
-    contracts_dir,
-    AccountToBeDeployedDetails,
+from starknet_py.tests.e2e.fixtures.account_clients import (
     AccountToBeDeployedDetailsFactory,
 )
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_DIR
+from starknet_py.tests.e2e.utils import AccountToBeDeployedDetails
 
 directory = os.path.dirname(__file__)
 
@@ -177,7 +175,7 @@ def fixture_class_hash(network: str, contract_address: int) -> int:
     )
 
 
-@pytest_asyncio.fixture(name="prepare_network", scope="module", autouse=True)
+@pytest_asyncio.fixture(name="prepare_network", scope="module")
 async def fixture_prepare_network(
     network: str,
     new_gateway_account_client: AccountClient,
