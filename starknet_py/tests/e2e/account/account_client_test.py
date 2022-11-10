@@ -12,10 +12,9 @@ from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import parse_address, StarknetChainId
 from starknet_py.net.networks import TESTNET, MAINNET
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
+from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.transaction_exceptions import TransactionRejectedError
 from starknet_py.transactions.deploy import make_deploy_tx
-
-MAX_FEE = int(1e20)
 
 
 @pytest.mark.asyncio
@@ -109,6 +108,23 @@ async def test_estimated_fee_greater_than_zero(erc20_contract, account_client):
     )
 
 
+@pytest.mark.asyncio
+async def test_estimate_fee_for_declare_transaction(
+    new_account_client, map_source_code
+):
+    declare_tx = await new_account_client.sign_declare_transaction(
+        compilation_source=map_source_code, max_fee=MAX_FEE
+    )
+
+    estimated_fee = await new_account_client.estimate_fee(tx=declare_tx)
+
+    assert isinstance(estimated_fee.overall_fee, int)
+    assert estimated_fee.overall_fee > 0
+    assert (
+        estimated_fee.gas_usage * estimated_fee.gas_price == estimated_fee.overall_fee
+    )
+
+
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_create_account_client(network):
@@ -157,19 +173,19 @@ async def test_create_account_client_with_signer(network):
 
 
 @pytest.mark.asyncio
-async def test_sending_multicall(account_client, map_contract):
-    for (k, v) in ((20, 20), (30, 30)):
-        calls = [
-            map_contract.functions["put"].prepare(key=10, value=10),
-            map_contract.functions["put"].prepare(key=k, value=v),
-        ]
+@pytest.mark.parametrize("key, val", [(20, 20), (30, 30)])
+async def test_sending_multicall(account_client, map_contract, key, val):
+    calls = [
+        map_contract.functions["put"].prepare(key=10, value=10),
+        map_contract.functions["put"].prepare(key=key, value=val),
+    ]
 
-        res = await account_client.execute(calls, int(1e20))
-        await account_client.wait_for_tx(res.transaction_hash)
+    res = await account_client.execute(calls, int(1e20))
+    await account_client.wait_for_tx(res.transaction_hash)
 
-        (value,) = await map_contract.functions["get"].call(key=k)
+    (value,) = await map_contract.functions["get"].call(key=key)
 
-        assert value == v
+    assert value == val
 
 
 @pytest.mark.run_on_devnet
@@ -203,7 +219,8 @@ async def test_rejection_reason_in_transaction_receipt(account_client, map_contr
 
     transaction_receipt = await account_client.get_transaction_receipt(res.hash)
 
-    assert "Actual fee exceeded max fee." in transaction_receipt.rejection_reason
+    if isinstance(account_client.client, GatewayClient):
+        assert "Actual fee exceeded max fee." in transaction_receipt.rejection_reason
 
 
 @pytest.mark.asyncio

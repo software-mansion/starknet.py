@@ -10,18 +10,22 @@ from starknet_py.net.client_models import (
     Transaction,
     TransactionReceipt,
     SentTransactionResponse,
-    InvokeFunction,
     TransactionStatus,
     Hash,
     Tag,
     DeclaredContract,
-    Deploy,
-    Declare,
     EstimatedFee,
     BlockTransactionTraces,
     DeployTransactionResponse,
     DeclareTransactionResponse,
     Call,
+    DeployAccountTransactionResponse,
+)
+from starknet_py.net.models.transaction import (
+    Deploy,
+    Declare,
+    InvokeFunction,
+    DeployAccount,
 )
 from starknet_py.net.networks import Network
 from starknet_py.transaction_exceptions import (
@@ -155,9 +159,6 @@ class Client(ABC):
                     return result.block_number, status
                 if status == TransactionStatus.PENDING:
                     if not wait_for_accept:
-                        # FIXME rpc receipt doesn't have block_number currently, fix this in future spec version
-                        if self.__class__.__name__ == "FullNodeClient":
-                            return -1, status
                         if result.block_number is not None:
                             return result.block_number, status
                 elif status == TransactionStatus.REJECTED:
@@ -181,7 +182,7 @@ class Client(ABC):
     @abstractmethod
     async def estimate_fee(
         self,
-        tx: Union[InvokeFunction, Declare],
+        tx: Union[InvokeFunction, Declare, DeployAccount],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
@@ -199,7 +200,7 @@ class Client(ABC):
     @abstractmethod
     async def call_contract(
         self,
-        invoke_tx: Union[InvokeFunction, Call],
+        call: Call,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> List[int]:
@@ -208,7 +209,7 @@ class Client(ABC):
 
         Warning, InvokeFunction as call_contract parameter has been deprecated in favor of Call.
 
-        :param invoke_tx: Call or InvokeFunction (deprecated)
+        :param call: Call
         :param block_hash: Block's hash or literals `"pending"` or `"latest"`
         :param block_number: Block's number or literals `"pending"` or `"latest"`
         :return: List of integers representing contract's function output (structured like calldata)
@@ -227,7 +228,7 @@ class Client(ABC):
         Send a transaction to the network
 
         :param transaction: Transaction object (i.e. InvokeFunction, Deploy).
-        :return: SentTransaction object
+        :return: SentTransactionResponse object
         """
 
     @abstractmethod
@@ -236,7 +237,21 @@ class Client(ABC):
         Deploy a contract to the network
 
         :param transaction: Deploy transaction
-        :return: SentTransaction object
+        :return: SentTransactionResponse object
+
+        .. deprecated:: 0.8.0
+            This metod has been deprecated in favor of deploy_prefunded method or deploying through cairo syscall.
+        """
+
+    @abstractmethod
+    async def deploy_account(
+        self, transaction: DeployAccount
+    ) -> DeployAccountTransactionResponse:
+        """
+        Deploy a pre-funded account contract to the network
+
+        :param transaction: DeployAccount transaction
+        :return: SentTransactionResponse object
         """
 
     @abstractmethod
@@ -245,6 +260,7 @@ class Client(ABC):
         Send a declare transaction
 
         :param transaction: Declare transaction
+        :return: SentTransactionResponse object
         """
 
     @abstractmethod

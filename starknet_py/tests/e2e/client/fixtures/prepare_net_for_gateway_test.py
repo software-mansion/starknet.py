@@ -2,6 +2,10 @@ from dataclasses import dataclass
 
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient
+from starknet_py.tests.e2e.utils import (
+    get_deploy_account_transaction,
+    AccountToBeDeployedDetails,
+)
 
 
 @dataclass
@@ -15,11 +19,18 @@ class PreparedNetworkData:
     block_with_invoke_number: int
     declare_transaction_hash: int
     block_with_declare_number: int
+    deploy_account_transaction_hash: int
+    block_with_deploy_account_number: int
+    block_with_deploy_account_hash: int
 
 
 async def prepare_net_for_tests(
-    account_client: AccountClient, compiled_contract: str
+    account_client: AccountClient,
+    compiled_contract: str,
+    deploy_account_details: AccountToBeDeployedDetails,
 ) -> PreparedNetworkData:
+    # pylint: disable=too-many-locals
+
     deployment_result = await Contract.deploy(
         client=account_client, compiled_contract=compiled_contract
     )
@@ -53,10 +64,29 @@ async def prepare_net_for_tests(
         await account_client.get_transaction_receipt(declare_result.transaction_hash)
     ).block_number
 
+    address, key_pair, salt, class_hash = deploy_account_details
+    deploy_account_tx = await get_deploy_account_transaction(
+        address=address,
+        key_pair=key_pair,
+        salt=salt,
+        class_hash=class_hash,
+        client=account_client,
+    )
+    deploy_account_result = await account_client.deploy_account(deploy_account_tx)
+    await account_client.wait_for_tx(deploy_account_result.transaction_hash)
+
+    declare_account_receipt = await account_client.get_transaction_receipt(
+        deploy_account_result.transaction_hash
+    )
+    block_with_deploy_account_number = declare_account_receipt.block_number
+    block_with_deploy_account_hash = declare_account_receipt.block_hash
+
     assert block_with_deploy_number is not None
     assert block_with_deploy_hash is not None
     assert block_with_invoke_number is not None
     assert block_with_declare_number is not None
+    assert block_with_deploy_account_number is not None
+    assert block_with_deploy_account_hash is not None
 
     return PreparedNetworkData(
         contract_address=contract.address,
@@ -67,4 +97,7 @@ async def prepare_net_for_tests(
         block_with_invoke_number=block_with_invoke_number,
         declare_transaction_hash=declare_result.transaction_hash,
         block_with_declare_number=block_with_declare_number,
+        deploy_account_transaction_hash=deploy_account_result.transaction_hash,
+        block_with_deploy_account_hash=block_with_deploy_account_hash,
+        block_with_deploy_account_number=block_with_deploy_account_number,
     )

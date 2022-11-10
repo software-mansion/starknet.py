@@ -30,7 +30,9 @@ from starknet_py.net.client_models import (
     DeployTransactionResponse,
     DeclareTransactionResponse,
     Transaction,
+    DeployAccountTransactionResponse,
 )
+from starknet_py.net.client_utils import _invoke_tx_to_call
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import (
     InvokeFunction,
@@ -38,6 +40,7 @@ from starknet_py.net.models import (
     chain_from_network,
 )
 from starknet_py.net.models.address import AddressRepresentation, parse_address
+from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.net.networks import Network, MAINNET, TESTNET
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
@@ -170,12 +173,16 @@ class AccountClient(Client):
 
     async def call_contract(
         self,
-        invoke_tx: Union[InvokeFunction, Call],
+        call: Call = None,  # pyright: ignore
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
+        *,
+        invoke_tx: Call = None,  # pyright: ignore
     ) -> List[int]:
+        call = _invoke_tx_to_call(call=call, invoke_tx=invoke_tx)
+
         return await self.client.call_contract(
-            invoke_tx=invoke_tx, block_hash=block_hash, block_number=block_number
+            call=call, block_hash=block_hash, block_number=block_number
         )
 
     async def get_class_hash_at(
@@ -195,19 +202,15 @@ class AccountClient(Client):
 
     async def _get_nonce(self) -> int:
         if self.supported_tx_version == 1:
-            return await self.get_contract_nonce(self.address)
+            return await self.get_contract_nonce(self.address, block_hash="latest")
 
         [nonce] = await self.call_contract(
-            InvokeFunction(
-                contract_address=self.address,
-                entry_point_selector=get_selector_from_name("get_nonce"),
+            Call(
+                to_addr=self.address,
+                selector=get_selector_from_name("get_nonce"),
                 calldata=[],
-                signature=[],
-                max_fee=0,
-                version=self.supported_tx_version,
-                nonce=None,
             ),
-            block_hash="latest",
+            block_hash="pending",
         )
         return nonce
 
@@ -238,7 +241,7 @@ class AccountClient(Client):
                 selector=get_selector_from_name("balanceOf"),
                 calldata=[self.address],
             ),
-            block_hash="latest",
+            block_hash="pending",
         )
 
         return (high << 128) + low
@@ -307,7 +310,7 @@ class AccountClient(Client):
 
     async def _get_max_fee(
         self,
-        transaction: Union[InvokeFunction, Declare],
+        transaction: Union[InvokeFunction, Declare, DeployAccount],
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> int:
@@ -316,9 +319,12 @@ class AccountClient(Client):
                 "Max_fee and auto_estimate are exclusive and cannot be provided at the same time."
             )
 
-        if isinstance(transaction, Declare) and transaction.version != 1:
+        if (
+            isinstance(transaction, (Declare, DeployAccount))
+            and transaction.version != 1
+        ):
             raise ValueError(
-                "Estimating fee for Declare transactions with versions other than 1 is not supported."
+                "Estimating fee for Declare/DeployAccount transactions with versions other than 1 is not supported."
             )
 
         if auto_estimate:
@@ -329,33 +335,6 @@ class AccountClient(Client):
             raise ValueError("Max_fee must be specified when invoking a transaction")
 
         return max_fee
-
-    async def sign_transaction(
-        self,
-        calls: Calls,
-        max_fee: Optional[int] = None,
-        auto_estimate: bool = False,
-        version: Optional[int] = None,
-    ) -> InvokeFunction:
-        """
-        Takes calls and creates signed InvokeFunction
-
-        :param calls: Single call or list of calls
-        :param max_fee: Max amount of Wei to be paid when executing transaction
-        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
-        :param version: Transaction version
-        :return: InvokeFunction created from the calls
-
-        .. deprecated:: 0.5.0
-            sign_transaction has been deprecated. Use :meth:`AccountClient.sign_invoke_transaction` instead.
-        """
-        warnings.warn(
-            "sign_transaction has been deprecated. Use AccountClient.sign_invoke_transaction instead.",
-            category=DeprecationWarning,
-        )
-        return await self.sign_invoke_transaction(
-            calls, max_fee, auto_estimate, version
-        )
 
     async def sign_invoke_transaction(
         self,
@@ -434,6 +413,52 @@ class AccountClient(Client):
 
         return dataclasses.replace(declare_tx, signature=signature, max_fee=max_fee)
 
+    async def sign_deploy_account_transaction(
+        self,
+        *,
+        class_hash: int,
+        contract_address_salt: int,
+        constructor_calldata: Optional[List[int]] = None,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+    ) -> DeployAccount:
+        """
+        Create and sign deploy account transaction
+
+        :param class_hash: Class hash of the contract class to be deployed
+        :param contract_address_salt: A salt used to calculate deployed contract address
+        :param constructor_calldata: Calldata to be passed to contract constructor
+            and used to calculate deployed contract address
+        :param max_fee: Max fee to be paid for deploying account transaction. Enough tokens must be prefunded before
+            sending the transaction for it to succeed.
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
+        :return: Signed DeployAccount transaction
+        """
+        if self.supported_tx_version != 1:
+            raise ValueError(
+                "Signing deploy account transactions is only supported with transaction version 1"
+            )
+
+        constructor_calldata = constructor_calldata or []
+
+        deploy_account_tx = DeployAccount(
+            class_hash=class_hash,
+            contract_address_salt=contract_address_salt,
+            constructor_calldata=constructor_calldata,
+            version=self.supported_tx_version,
+            max_fee=0,
+            signature=[],
+            nonce=0,
+        )
+
+        max_fee = await self._get_max_fee(
+            transaction=deploy_account_tx, max_fee=max_fee, auto_estimate=auto_estimate
+        )
+        deploy_account_tx = dataclasses.replace(deploy_account_tx, max_fee=max_fee)
+        signature = self.signer.sign_transaction(deploy_account_tx)
+
+        return dataclasses.replace(deploy_account_tx, signature=signature)
+
     async def send_transaction(
         self, transaction: InvokeFunction
     ) -> SentTransactionResponse:
@@ -469,12 +494,17 @@ class AccountClient(Client):
     async def deploy(self, transaction: Deploy) -> DeployTransactionResponse:
         return await self.client.deploy(transaction=transaction)
 
+    async def deploy_account(
+        self, transaction: DeployAccount
+    ) -> DeployAccountTransactionResponse:
+        return await self.client.deploy_account(transaction=transaction)
+
     async def declare(self, transaction: Declare) -> DeclareTransactionResponse:
         return await self.client.declare(transaction=transaction)
 
     async def estimate_fee(
         self,
-        tx: InvokeFunction,
+        tx: Union[InvokeFunction, Declare, DeployAccount],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
@@ -624,7 +654,7 @@ class AccountClient(Client):
             calldata=calldata,
         )
         try:
-            await self.call_contract(invoke_tx=call, block_hash="latest")
+            await self.call_contract(call=call, block_hash="pending")
             return True
         except ClientError as ex:
             if re.search(r"Signature\s.+,\sis\sinvalid", ex.message):

@@ -1,6 +1,6 @@
 import pytest
 
-from starknet_py.tests.e2e.account.account_client_test import MAX_FEE
+from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 
 
 @pytest.mark.asyncio

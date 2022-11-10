@@ -26,6 +26,9 @@ from starknet_py.net.client_models import (
     Event,
     DeclareTransactionResponse,
     DeployTransactionResponse,
+    DeployAccountTransaction,
+    DeployAccountTransactionResponse,
+    L1HandlerTransaction,
 )
 from starknet_py.net.schemas.common import (
     Felt,
@@ -78,7 +81,7 @@ class TransactionSchema(Schema):
 class InvokeTransactionSchema(TransactionSchema):
     contract_address = Felt(data_key="contract_address", required=True)
     calldata = fields.List(Felt(), data_key="calldata", required=True)
-    entry_point_selector = Felt(data_key="entry_point_selector", required=True)
+    entry_point_selector = Felt(data_key="entry_point_selector", load_default=None)
     nonce = Felt(data_key="nonce", load_default=None)
 
     @post_load
@@ -108,12 +111,38 @@ class DeclareTransactionSchema(TransactionSchema):
         return DeclareTransaction(**data)
 
 
+class DeployAccountTransactionSchema(TransactionSchema):
+    contract_address_salt = Felt(data_key="contract_address_salt", required=True)
+    class_hash = Felt(data_key="class_hash", required=True)
+    constructor_calldata = fields.List(
+        Felt(), data_key="constructor_calldata", required=True
+    )
+    nonce = Felt(data_key="nonce", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> DeployAccountTransaction:
+        return DeployAccountTransaction(**data)
+
+
+class L1HandlerTransactionSchema(TransactionSchema):
+    contract_address = Felt(data_key="contract_address", required=True)
+    calldata = fields.List(Felt(), data_key="calldata", required=True)
+    entry_point_selector = Felt(data_key="entry_point_selector", required=True)
+    nonce = Felt(data_key="nonce", load_default=None)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> L1HandlerTransaction:
+        return L1HandlerTransaction(**data)
+
+
 class TypesOfTransactionsSchema(OneOfSchema):
     type_field = "type"
     type_schemas = {
         "INVOKE_FUNCTION": InvokeTransactionSchema,
         "DECLARE": DeclareTransactionSchema,
         "DEPLOY": DeployTransactionSchema,
+        "DEPLOY_ACCOUNT": DeployAccountTransactionSchema,
+        "L1_HANDLER": L1HandlerTransactionSchema,
     }
 
 
@@ -245,6 +274,14 @@ class DeployTransactionResponseSchema(SentTransactionSchema):
     @post_load
     def make_dataclass(self, data, **kwargs):
         return DeployTransactionResponse(**data)
+
+
+class DeployAccountTransactionResponseSchema(SentTransactionSchema):
+    address = Felt(data_key="address", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return DeployAccountTransactionResponse(**data)
 
 
 class StorageDiffSchema(Schema):

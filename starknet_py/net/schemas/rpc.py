@@ -21,6 +21,7 @@ from starknet_py.net.client_models import (
     DeployTransactionResponse,
     EstimatedFee,
     StateDiff,
+    L1HandlerTransaction,
 )
 from starknet_py.net.schemas.common import (
     Felt,
@@ -111,17 +112,19 @@ class TransactionSchema(Schema):
 
 
 class InvokeTransactionSchema(TransactionSchema):
-    contract_address = Felt(data_key="contract_address", required=True)
-    entry_point_selector = Felt(data_key="entry_point_selector", required=True)
+    contract_address = Felt(data_key="contract_address", load_default=None)
+    sender_address = Felt(data_key="sender_address", load_default=None)
+    entry_point_selector = Felt(data_key="entry_point_selector", load_default=None)
     calldata = fields.List(Felt(), data_key="calldata", required=True)
     nonce = Felt(data_key="nonce", load_default=None)
 
-    @pre_load
-    def preprocess(self, data, **kwargs):
-        return data
-
     @post_load
     def make_transaction(self, data, **kwargs) -> InvokeTransaction:
+        data["contract_address"] = data.get("contract_address") or data.get(
+            "sender_address"
+        )
+        del data["sender_address"]
+
         return InvokeTransaction(**data)
 
 
@@ -147,12 +150,26 @@ class DeployTransactionSchema(TransactionSchema):
         return DeployTransaction(**data)
 
 
+class L1HandlerTransactionSchema(TransactionSchema):
+    contract_address = Felt(data_key="contract_address", required=True)
+    calldata = fields.List(Felt(), data_key="calldata", required=True)
+    entry_point_selector = Felt(data_key="entry_point_selector", required=True)
+    nonce = Felt(data_key="nonce", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> L1HandlerTransaction:
+        return L1HandlerTransaction(**data)
+
+
 class TypesOfTransactionsSchema(OneOfSchema):
     type_field = "type"
     type_schemas = {
         "INVOKE": InvokeTransactionSchema,
         "DECLARE": DeclareTransactionSchema,
         "DEPLOY": DeployTransactionSchema,
+        # FIXME add proper handling/serialization
+        "DEPLOY_ACCOUNT": None,
+        "L1_HANDLER": L1HandlerTransactionSchema,
     }
 
 
@@ -202,23 +219,15 @@ class DeployedContractSchema(Schema):
         return DeployedContract(**data)
 
 
-class DeclaredContractClassHashSchema(Schema):
-    class_hash = Felt(data_key="class_hash", required=True)
-
-    @post_load
-    def return_class_hash(self, data, **kwargs):
-        return data["class_hash"]
-
-
 class StateDiffSchema(Schema):
     deployed_contracts = fields.List(
         fields.Nested(DeployedContractSchema()),
         data_key="deployed_contracts",
         required=True,
     )
-    declared_contracts = fields.List(
-        fields.Nested(DeclaredContractClassHashSchema()),
-        data_key="declared_contracts",
+    declared_contract_hashes = fields.List(
+        Felt(),
+        data_key="declared_contract_hashes",
         required=True,
     )
     storage_diffs = fields.List(
@@ -246,7 +255,7 @@ class BlockStateUpdateSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> BlockStateUpdate:
-        declared_contracts = data["state_diff"].declared_contracts
+        declared_contracts = data["state_diff"].declared_contract_hashes
         deployed_contracts = data["state_diff"].deployed_contracts
         storage_diffs = data["state_diff"].storage_diffs
         del data["state_diff"]

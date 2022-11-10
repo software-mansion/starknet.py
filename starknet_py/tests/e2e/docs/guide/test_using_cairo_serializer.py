@@ -5,7 +5,7 @@ from starkware.starknet.public.abi import get_selector_from_name
 @pytest.mark.asyncio
 async def test_using_cairo_serializer(network, gateway_account_client):
     # pylint: disable=unused-variable, too-many-locals, import-outside-toplevel
-    # add to docs: start
+    # docs: start
     from starknet_py.net.gateway_client import GatewayClient
     from starknet_py.net.models import StarknetChainId
     from starknet_py.contract import Contract
@@ -37,20 +37,20 @@ async def test_using_cairo_serializer(network, gateway_account_client):
     """
 
     net = "testnet"  # Can be "mainnet" or other custom net too
-    # add to docs: end
+    # docs: end
 
     net = network
-    # add to docs: start
+    # docs: start
 
     # Creates an account
     client = await AccountClient.create_account(
         client=GatewayClient(net=net),
         chain=StarknetChainId.TESTNET,
     )
-    # add to docs: end
+    # docs: end
 
     client = gateway_account_client
-    # add to docs: start
+    # docs: start
 
     # Deploys the contract
     deployment_result = await Contract.deploy(client, compilation_source=contract)
@@ -95,7 +95,7 @@ async def test_using_cairo_serializer(network, gateway_account_client):
     cairo_data = cairo_serializer.from_python(emitted_event_abi["data"], *python_data)
 
     # Function's data can be serialized in the same way
-    # add to docs: end
+    # docs: end
 
     assert events[0].from_address == contract.address
     assert events[0].keys[0] == get_selector_from_name("put_called")

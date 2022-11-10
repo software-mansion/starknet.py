@@ -48,10 +48,9 @@ jobs:
         poetry run poe compile_contracts
     - name: Unit & e2e test
       run: |
-        poetry run poe test
+        poetry run poe test_ci
     - name: Generate coverage in XML
       run: |
-        poetry run poe coverage_combine
         poetry run coverage xml
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v2

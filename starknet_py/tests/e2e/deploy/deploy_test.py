@@ -1,9 +1,9 @@
 import pytest
 
 from starknet_py.contract import Contract, ContractFunction
-from starknet_py.tests.e2e.conftest import contracts_compiled_dir
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_DIR, CONTRACTS_COMPILED_DIR
 
-base_compiled_contract = (contracts_compiled_dir / "base_compiled.json").read_text(
+base_compiled_contract = (CONTRACTS_COMPILED_DIR / "base_compiled.json").read_text(
     "utf-8"
 )
 
@@ -38,7 +38,7 @@ async def test_deploy_with_search_path(gateway_account_client):
 
 
 constructor_with_arguments_compiled_contract = (
-    contracts_compiled_dir / "constructor_with_arguments_compiled.json"
+    CONTRACTS_COMPILED_DIR / "constructor_with_arguments_compiled.json"
 ).read_text("utf-8")
 
 
@@ -91,7 +91,7 @@ async def test_constructor_arguments(gateway_account_client):
 
 
 constructor_without_arguments_compiled_contract = (
-    contracts_compiled_dir / "constructor_without_arguments_compiled.json"
+    CONTRACTS_COMPILED_DIR / "constructor_without_arguments_compiled.json"
 ).read_text("utf-8")
 
 
