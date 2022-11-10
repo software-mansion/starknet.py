@@ -10,7 +10,8 @@ from starknet_py.contract import Contract
 from starknet_py.net import AccountClient
 from starknet_py.tests.e2e.fixtures.constants import (
     TYPED_DATA_DIR,
-    CONTRACTS_COMPILED_DIR, CONTRACTS_DIR,
+    CONTRACTS_COMPILED_DIR,
+    CONTRACTS_DIR,
 )
 from starknet_py.utils.data_transformer.data_transformer import CairoSerializer
 from starknet_py.utils.typed_data import TypedData
@@ -83,7 +84,9 @@ async def cairo_serializer(gateway_account_client: AccountClient) -> CairoSerial
     Returns CairoSerializer for "simple_storage_with_event.cairo"
     """
     client = gateway_account_client
-    contract_content = read_contract("simple_storage_with_event.cairo", directory=CONTRACTS_DIR)
+    contract_content = read_contract(
+        "simple_storage_with_event.cairo", directory=CONTRACTS_DIR
+    )
 
     deployment_result = await Contract.deploy(
         client, compilation_source=contract_content
@@ -94,9 +97,7 @@ async def cairo_serializer(gateway_account_client: AccountClient) -> CairoSerial
     return CairoSerializer(identifier_manager=contract.data.identifier_manager)
 
 
-def read_contract(
-    file_name: str, *, directory: Path = CONTRACTS_COMPILED_DIR
-) -> str:
+def read_contract(file_name: str, *, directory: Path = CONTRACTS_COMPILED_DIR) -> str:
     """
     Return contents of file_name from directory
     """
