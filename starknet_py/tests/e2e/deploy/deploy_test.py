@@ -1,14 +1,6 @@
 import pytest
 
 from starknet_py.contract import Contract, ContractFunction
-from starknet_py.tests.e2e.fixtures.constants import (
-    CONTRACTS_COMPILED_DIR,
-)
-from starknet_py.tests.e2e.fixtures.misc import read_contract
-
-base_compiled_contract = (CONTRACTS_COMPILED_DIR / "base_compiled.json").read_text(
-    "utf-8"
-)
 
 
 @pytest.mark.asyncio
@@ -24,7 +16,7 @@ async def test_deploy_tx(gateway_account_client, map_compiled_contract):
 
 
 @pytest.mark.asyncio
-async def test_deploy_with_search_path(gateway_account_client):
+async def test_deploy_with_search_path(gateway_account_client, base_compiled_contract):
     result = await Contract.deploy(
         client=gateway_account_client,
         compiled_contract=base_compiled_contract,
@@ -40,13 +32,10 @@ async def test_deploy_with_search_path(gateway_account_client):
     assert isinstance(result.functions["put"], ContractFunction)
 
 
-constructor_with_arguments_compiled_contract = read_contract(
-    "constructor_with_arguments_compiled.json"
-)
-
-
 @pytest.mark.asyncio
-async def test_constructor_arguments(gateway_account_client):
+async def test_constructor_arguments(
+    gateway_account_client, constructor_with_arguments_compiled_contract
+):
     value = 10
     tuple_value = (1, (2, 3))
     arr = [1, 2, 3]
@@ -93,13 +82,10 @@ async def test_constructor_arguments(gateway_account_client):
     assert result_2 == (value, tuple_value, sum(arr), struct)
 
 
-constructor_without_arguments_compiled_contract = read_contract(
-    "constructor_without_arguments_compiled.json"
-)
-
-
 @pytest.mark.asyncio
-async def test_constructor_without_arguments(gateway_account_client):
+async def test_constructor_without_arguments(
+    gateway_account_client, constructor_without_arguments_compiled_contract
+):
     result = await Contract.deploy(
         client=gateway_account_client,
         compiled_contract=constructor_without_arguments_compiled_contract,

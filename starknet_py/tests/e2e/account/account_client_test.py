@@ -110,10 +110,10 @@ async def test_estimated_fee_greater_than_zero(erc20_contract, account_client):
 
 @pytest.mark.asyncio
 async def test_estimate_fee_for_declare_transaction(
-    new_account_client, map_source_code
+    new_account_client, map_compiled_contract
 ):
     declare_tx = await new_account_client.sign_declare_transaction(
-        compilation_source=map_source_code, max_fee=MAX_FEE
+        compiled_contract=map_compiled_contract, max_fee=MAX_FEE
     )
 
     estimated_fee = await new_account_client.estimate_fee(tx=declare_tx)
