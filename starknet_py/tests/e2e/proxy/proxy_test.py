@@ -60,11 +60,11 @@ async def test_contract_from_address_with_proxy(
 
 
 @pytest.mark.asyncio
-async def test_contract_from_address_unsupported_client(rpc_account_client):
+async def test_contract_from_address_unsupported_client(full_node_account_client):
     with pytest.raises(TypeError, match=r"only supports GatewayClient"):
         await Contract.from_address(
             address=123,
-            client=rpc_account_client,
+            client=full_node_account_client,
         )
 
 

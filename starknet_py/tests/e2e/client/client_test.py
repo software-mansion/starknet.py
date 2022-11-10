@@ -343,9 +343,8 @@ async def test_wait_for_tx_cancelled(gateway_client):
 
 
 @pytest.mark.asyncio
-async def test_declare_contract(clients, map_compiled_contract):
-    for client in clients:
-        declare_tx = make_declare_tx(compiled_contract=map_compiled_contract)
+async def test_declare_contract(client, map_compiled_contract):
+    declare_tx = make_declare_tx(compiled_contract=map_compiled_contract)
 
     result = await client.declare(declare_tx)
     await client.wait_for_tx(result.transaction_hash)

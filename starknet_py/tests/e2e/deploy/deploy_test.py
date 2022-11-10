@@ -1,7 +1,10 @@
 import pytest
 
 from starknet_py.contract import Contract, ContractFunction
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_DIR, CONTRACTS_COMPILED_DIR
+from starknet_py.tests.e2e.fixtures.constants import (
+    CONTRACTS_COMPILED_DIR,
+)
+from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 base_compiled_contract = (CONTRACTS_COMPILED_DIR / "base_compiled.json").read_text(
     "utf-8"
@@ -37,9 +40,9 @@ async def test_deploy_with_search_path(gateway_account_client):
     assert isinstance(result.functions["put"], ContractFunction)
 
 
-constructor_with_arguments_compiled_contract = (
-    CONTRACTS_COMPILED_DIR / "constructor_with_arguments_compiled.json"
-).read_text("utf-8")
+constructor_with_arguments_compiled_contract = read_contract(
+    "constructor_with_arguments_compiled.json"
+)
 
 
 @pytest.mark.asyncio
@@ -90,9 +93,9 @@ async def test_constructor_arguments(gateway_account_client):
     assert result_2 == (value, tuple_value, sum(arr), struct)
 
 
-constructor_without_arguments_compiled_contract = (
-    CONTRACTS_COMPILED_DIR / "constructor_without_arguments_compiled.json"
-).read_text("utf-8")
+constructor_without_arguments_compiled_contract = read_contract(
+    "constructor_without_arguments_compiled.json"
+)
 
 
 @pytest.mark.asyncio

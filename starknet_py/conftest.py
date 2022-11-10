@@ -7,6 +7,7 @@ pytest_plugins = [
     "starknet_py.tests.e2e.fixtures.misc",
     "starknet_py.tests.e2e.fixtures.devnet",
     "starknet_py.tests.e2e.fixtures.constants",
+    "starknet_py.tests.e2e.fixtures.proxy",
     "starknet_py.tests.e2e.client.fixtures.transactions",
     "starknet_py.tests.e2e.client.fixtures.prepare_network",
 ]

@@ -1,6 +1,9 @@
 import pytest
 
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_DIR, CONTRACTS_COMPILED_DIR
+from starknet_py.tests.e2e.fixtures.constants import (
+    CONTRACTS_DIR,
+    CONTRACTS_COMPILED_DIR,
+)
 
 
 @pytest.mark.asyncio
