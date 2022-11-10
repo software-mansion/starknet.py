@@ -61,7 +61,7 @@ class ArgentProxyCheck(ProxyCheck):
         call = ArgentProxyCheck._get_implementation_call(address=address)
         err_msg = r"(Entry point 0x[0-9a-f]+ not found in contract)|" + regex_err_msg
         try:
-            (implementation,) = await client.call_contract(invoke_tx=call)
+            (implementation,) = await client.call_contract(call=call)
             await get_class_func(implementation)
         except ClientError as err:
             if re.search(err_msg, err.message, re.IGNORECASE):
