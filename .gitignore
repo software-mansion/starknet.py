@@ -145,5 +145,8 @@ cython_debug/
 /e2e.coverage
 /unit.coverage
 
-# Compiled contracts other than those starting with _
-starknet_py/tests/e2e/mock/contracts_compiled/[!_]*
+# Compiled contracts
+/starknet_py/tests/e2e/mock/contracts_compiled/*
+
+# Allow precompiled contracts
+!/starknet_py/tests/e2e/mock/contracts_compiled/precompiled/

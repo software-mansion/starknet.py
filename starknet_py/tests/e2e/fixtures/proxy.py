@@ -5,6 +5,7 @@ import pytest_asyncio
 from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.contract import Contract, DeployResult
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_PRECOMPILED_DIR
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 from starknet_py.transactions.declare import make_declare_tx
 
@@ -33,7 +34,9 @@ def old_proxy() -> str:
     """
     Returns compiled (using starknet-compile 0.8.1) source code of OpenZeppelin's proxy using address and delegate_call.
     """
-    return read_contract("_oz_proxy_address_0.8.1_compiled.json")
+    return read_contract(
+        "oz_proxy_address_0.8.1_compiled.json", directory=CONTRACTS_PRECOMPILED_DIR
+    )
 
 
 @pytest_asyncio.fixture(
@@ -79,18 +82,13 @@ async def deploy_proxy_to_contract(
     declare_tx = make_declare_tx(compiled_contract=compiled_contract)
     declare_result = await gateway_account_client.declare(declare_tx)
 
-    implementation_key = (
-        "implementation_hash"
-        if "implementation_hash" in compiled_proxy
-        else "implementation"
-    )
     deployment_result = await Contract.deploy(
         compiled_contract=compiled_proxy,
-        constructor_args={
-            implementation_key: declare_result.class_hash,
-            "selector": get_selector_from_name("put"),
-            "calldata": [69, 420],
-        },
+        constructor_args=[
+            declare_result.class_hash,
+            get_selector_from_name("put"),
+            [69, 420],
+        ],
         client=gateway_account_client,
     )
     await deployment_result.wait_for_acceptance()
