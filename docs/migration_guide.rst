@@ -10,7 +10,7 @@ Breaking Changes
 - Removed deprecated `Account.sign_transaction`. Use new `Account.sign_invoke_transaction`.
 - Removed deprecated `InvokeFunction` as `call_contract` parameter. Use `Call` class instead.
 - `StateDiff` has `declared_contract_hashes` instead of `declared_contracts` field (only name has changed).
-- Support for RPC 0.1.0 has been dropped in favour of RPC 0.2.0
+- Support for RPC 0.1.0 has been dropped in favour of RPC 0.2.0.
 
 
 Contract.from_address
