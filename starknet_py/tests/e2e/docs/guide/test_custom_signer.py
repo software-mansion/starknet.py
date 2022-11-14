@@ -7,7 +7,7 @@ import pytest
 async def test_custom_signer():
     # pylint: disable=import-outside-toplevel, duplicate-code, unused-variable
 
-    # add to docs: start
+    # docs: start
     from starknet_py.net import AccountClient
     from starknet_py.net.signer import BaseSigner
     from starknet_py.net.gateway_client import GatewayClient
@@ -39,4 +39,4 @@ async def test_custom_signer():
         chain=StarknetChainId.TESTNET,
     )
     # Now you can use AccountClient as you'd always do
-    # add to docs: end
+    # docs: end

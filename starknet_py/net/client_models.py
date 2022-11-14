@@ -25,6 +25,8 @@ Declare = as_our_module(DCL)
 Hash = Union[int, str]
 Tag = Literal["pending", "latest"]
 
+Abi = List[Dict[str, Any]]
+
 
 @dataclass
 class Call:
@@ -314,7 +316,7 @@ class BlockStateUpdate:
 class StateDiff:
     deployed_contracts: List[DeployedContract]
     storage_diffs: List[StorageDiff]
-    declared_contracts: List[int]
+    declared_contract_hashes: List[int]
 
 
 @dataclass
@@ -356,6 +358,7 @@ class DeclaredContract:
 
     program: dict
     entry_points_by_type: EntryPointsByType
+    abi: Optional[Abi] = None
 
 
 @dataclass

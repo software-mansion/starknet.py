@@ -43,6 +43,9 @@ jobs:
     - name: Check if requirements.txt is up-to-date
       run: |
         poetry export -f requirements.txt --without-hashes --extras docs | cmp - requirements.txt
+    - name: Compile contracts
+      run: |
+        poetry run poe compile_contracts
     - name: Unit & e2e test
       run: |
         poetry run poe test_ci

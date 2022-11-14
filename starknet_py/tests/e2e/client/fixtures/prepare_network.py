@@ -1,25 +1,23 @@
 # pylint: disable=redefined-outer-name
-
 import os
 import subprocess
-import sys
 from pathlib import Path
-from typing import Tuple, Dict, AsyncGenerator, List
+from typing import Tuple, Dict, AsyncGenerator
 
 import pytest
 import pytest_asyncio
 from starkware.starknet.public.abi import get_selector_from_name
-from starkware.starknet.services.api.gateway.transaction import (
-    DEFAULT_DECLARE_SENDER_ADDRESS,
-)
 
 from starknet_py.net import AccountClient
-from starknet_py.net.client import Client
-from starknet_py.tests.e2e.client.prepare_net_for_gateway_test import (
-    prepare_net_for_tests,
+from starknet_py.tests.e2e.client.fixtures.prepare_net_for_gateway_test import (
     PreparedNetworkData,
+    prepare_net_for_tests,
 )
-from starknet_py.tests.e2e.conftest import contracts_dir, AccountToBeDeployedDetails
+from starknet_py.tests.e2e.fixtures.account_clients import (
+    AccountToBeDeployedDetailsFactory,
+)
+from starknet_py.tests.e2e.fixtures.misc import read_contract
+from starknet_py.tests.e2e.utils import AccountToBeDeployedDetails
 
 directory = os.path.dirname(__file__)
 
@@ -28,7 +26,7 @@ async def prepare_network(
     new_gateway_account_client: AccountClient,
     deploy_account_details: AccountToBeDeployedDetails,
 ) -> PreparedNetworkData:
-    contract_compiled = Path(contracts_dir / "balance_compiled.json").read_text("utf-8")
+    contract_compiled = read_contract("balance_compiled.json")
 
     prepared_data = await prepare_net_for_tests(
         new_gateway_account_client,
@@ -169,7 +167,7 @@ def fixture_balance_contract() -> str:
     """
     Returns compiled code of the balance.cairo contract
     """
-    return (contracts_dir / "balance_compiled.json").read_text("utf-8")
+    return read_contract("balance_compiled.json")
 
 
 @pytest.fixture(name="class_hash")
@@ -185,48 +183,16 @@ def fixture_class_hash(network: str, contract_address: int) -> int:
     )
 
 
-def net_to_clients() -> List[str]:
-    """
-    Return client fixture names based on network in sys.argv
-    """
-    clients = ["gateway_client"]
-    nets = ["--net=integration", "--net=testnet", "testnet", "integration"]
-
-    if set(nets).isdisjoint(sys.argv):
-        clients.append("full_node_client")
-    return clients
-
-
-@pytest.fixture(
-    scope="module",
-    params=net_to_clients(),
-)
-def client(request) -> Client:
-    """
-    Returns Client instances
-    """
-    return request.getfixturevalue(request.param)
-
-
-@pytest_asyncio.fixture(name="prepare_network", scope="module", autouse=True)
+@pytest_asyncio.fixture(name="prepare_network", scope="module")
 async def fixture_prepare_network(
     network: str,
     new_gateway_account_client: AccountClient,
-    details_of_account_to_be_deployed: AccountToBeDeployedDetails,
+    deploy_account_details_factory: AccountToBeDeployedDetailsFactory,
 ) -> AsyncGenerator[Tuple[str, PreparedNetworkData], None]:
     """
     Adds transactions to the network. Returns network address and PreparedNetworkData
     """
     net = network
-    prepared_data = await prepare_network(
-        new_gateway_account_client, details_of_account_to_be_deployed
-    )
+    details = await deploy_account_details_factory.get()
+    prepared_data = await prepare_network(new_gateway_account_client, details)
     yield net, prepared_data
-
-
-@pytest.fixture(scope="module")
-def sender_address(new_gateway_account_client: AccountClient) -> Dict:
-    """
-    Returns dict with DeclareTransaction sender_addresses depending on transaction version
-    """
-    return {0: DEFAULT_DECLARE_SENDER_ADDRESS, 1: new_gateway_account_client.address}

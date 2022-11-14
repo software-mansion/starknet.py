@@ -159,9 +159,6 @@ class Client(ABC):
                     return result.block_number, status
                 if status == TransactionStatus.PENDING:
                     if not wait_for_accept:
-                        # FIXME rpc receipt doesn't have block_number currently, fix this in future spec version
-                        if self.__class__.__name__ == "FullNodeClient":
-                            return -1, status
                         if result.block_number is not None:
                             return result.block_number, status
                 elif status == TransactionStatus.REJECTED:
@@ -203,7 +200,7 @@ class Client(ABC):
     @abstractmethod
     async def call_contract(
         self,
-        invoke_tx: Union[InvokeFunction, Call],
+        call: Call,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> List[int]:
@@ -212,7 +209,7 @@ class Client(ABC):
 
         Warning, InvokeFunction as call_contract parameter has been deprecated in favor of Call.
 
-        :param invoke_tx: Call or InvokeFunction (deprecated)
+        :param call: Call
         :param block_hash: Block's hash or literals `"pending"` or `"latest"`
         :param block_number: Block's number or literals `"pending"` or `"latest"`
         :return: List of integers representing contract's function output (structured like calldata)

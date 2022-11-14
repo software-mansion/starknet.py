@@ -1,3 +1,24 @@
+0.9.0 Migration guide
+=====================
+
+Starknet.py 0.9.0 brings support for `RPC 0.2.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.2.0>`_,
+updates :meth:`Contract.from_address` method to work with the newest proxies and removes some deprecated features.
+
+Breaking Changes
+----------------
+
+- Removed deprecated `Account.sign_transaction`. Use new `Account.sign_invoke_transaction`.
+- Removed deprecated `InvokeFunction` as `call_contract` parameter. Use `Call` class instead.
+- `StateDiff` has `declared_contract_hashes` instead of `declared_contracts` field (only name has changed).
+- Support for RPC 0.1.0 has been dropped in favour of RPC 0.2.0.
+
+
+Contract.from_address
+---------------------
+
+Check out the Guide with the new section :ref:`Resolving proxies` to see how to easily use proxies with the Starknet.py.
+
+
 0.8.0 Migration guide
 =====================
 
@@ -13,8 +34,8 @@ using new flow:
 
 or support deploying through syscall or `Universal Deployer Contract <https://community.starknet.io/t/universal-deployer-contract-proposal/1864>`_.
 
-Breaking Changes
-----------------
+0.8.0 Breaking Changes
+----------------------
 
 - `entry_point_selector` has been removed from `v1` transactions. `InvokeTransaction`'s field has been changed to `Optional[int]`
 - `net.models.address.compute_address` signature has been changed and use of keyword arguments is now mandatory
@@ -51,8 +72,6 @@ removed in the future.
 
 New Cairo syntax
 ^^^^^^^^^^^^^^^^^^^^^^^
-
-.. TODO: Change the new syntax link with a better one once StarkWare releases it.
 
 With the update of `cairo-lang <https://github.com/starkware-libs/cairo-lang>`_ to version ``0.10.0``,
 the syntax of contracts written in cairo changes significantly.

@@ -6,7 +6,7 @@ from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
 from starknet_py.net.client_models import SentTransactionResponse, Call
-from starknet_py.tests.e2e.conftest import contracts_dir
+from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.transaction_exceptions import (
     TransactionRejectedError,
     TransactionNotReceivedError,
@@ -148,9 +148,6 @@ async def test_invoke_and_call(key, value, map_contract):
     assert response == value
 
 
-user_auth_source = (contracts_dir / "user_auth.cairo").read_text("utf-8")
-
-
 @pytest.mark.asyncio
 async def test_get_code_not_found(gateway_account_client):
     with pytest.raises(ContractNotFoundError) as exinfo:
@@ -186,9 +183,9 @@ async def test_deploy_throws_on_no_compilation_source(account_client):
 
 
 @pytest.mark.asyncio
-async def test_wait_for_tx(account_client, map_source_code):
+async def test_wait_for_tx(account_client, map_compiled_contract):
     deployment = await Contract.deploy(
-        compilation_source=map_source_code, client=account_client
+        compiled_contract=map_compiled_contract, client=account_client
     )
     await account_client.wait_for_tx(deployment.hash)
 
@@ -204,7 +201,8 @@ async def test_wait_for_tx_throws_on_transaction_rejected(account_client, map_co
     with pytest.raises(TransactionRejectedError) as err:
         await account_client.wait_for_tx(transaction.hash)
 
-    assert "Entry point 0x123 not found in contract" in err.value.message
+    if isinstance(account_client.client, GatewayClient):
+        assert "Entry point 0x123 not found in contract" in err.value.message
 
 
 @pytest.mark.asyncio
