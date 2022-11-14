@@ -85,17 +85,22 @@ class Deployer:
             calldata=calldata,
         )
 
+        address = self._compute_address(salt, class_hash, constructor_calldata)
+
+        return ContractDeployment(udc=call, address=address)
+
+    def _compute_address(
+        self, salt: int, class_hash: int, constructor_calldata: List[int]
+    ) -> int:
         deployer_address = self.deployer_address if self._unique else 0
         salt = (
             pedersen_hash(parse_address(self.account_address), salt)
             if self.account_address is not None
             else salt
         )
-        address = compute_address(
+        return compute_address(
             class_hash=class_hash,
             constructor_calldata=constructor_calldata,
             salt=salt,
             deployer_address=deployer_address,
         )
-
-        return ContractDeployment(udc=call, address=address)
