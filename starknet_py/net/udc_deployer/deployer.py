@@ -37,8 +37,8 @@ class Deployer:
         :param deployer_address: Address of the UDC. Is set to the address of
             the default UDC (same address on real nets and devnet) by default.
             Must be set when using custom network other than devnet.
-        :param account_address: Address of an account which will send the transaction.
-            If passed, address of the contract to be deployed will be connected with it.
+        :param account_address: Should be equal to the address of the account which will send the transaction.
+            If passed, it will be used to modify the salt, otherwise, salt will not be affected.
         """
 
         self.deployer_address = parse_address(deployer_address)
