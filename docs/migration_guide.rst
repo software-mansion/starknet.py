@@ -2,7 +2,7 @@
 =====================
 
 Starknet.py 0.9.0 brings support for `RPC 0.2.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.2.0>`_,
-updates `Contract.from_address` method to work with the newest proxies and removes some deprecated features.
+updates :meth:`Contract.from_address` method to work with the newest proxies and removes some deprecated features.
 
 Breaking Changes
 ----------------
@@ -14,7 +14,7 @@ Breaking Changes
 Contract.from_address
 ---------------------
 
-Check out the Guide with the new section `Resolving proxies` to see how to easily use proxies with the Starknet.py.
+Check out the Guide with the new section :ref:`Resolving proxies` to see how to easily use proxies with the Starknet.py.
 
 
 0.8.0 Migration guide
