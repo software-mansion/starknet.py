@@ -30,7 +30,7 @@ async def test_deploying_with_udc(
 
     # If contract we want to deploy does not have constructor, or the constructor
     # does not have arguments, abi is not a required parameter of `deployer.create_deployment_call` method
-    deploy_call, address = await deployer.create_deployment_call(
+    deploy_call, address = deployer.create_deployment_call(
         class_hash=map_class_hash, salt=salt
     )
 
@@ -53,7 +53,7 @@ async def test_deploying_with_udc(
     # If contract constructor accepts arguments, as shown above,
     # abi needs to be passed to `deployer.create_deployment_call`
     # Note that this method also returns address of the contract we want to deploy
-    deploy_call, address = await deployer.create_deployment_call(
+    deploy_call, address = deployer.create_deployment_call(
         class_hash=contract_with_constructor_class_hash,
         abi=contract_with_constructor_abi,
         calldata={
@@ -68,7 +68,7 @@ async def test_deploying_with_udc(
     resp = await account_client.execute(deploy_call, max_fee=int(1e16))
 
     # docs: end
-    deploy_call, _ = await deployer.create_deployment_call(
+    deploy_call, _ = deployer.create_deployment_call(
         class_hash=contract_with_constructor_class_hash,
         abi=contract_with_constructor_abi,
         calldata={

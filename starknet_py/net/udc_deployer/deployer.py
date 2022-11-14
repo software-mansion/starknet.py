@@ -45,7 +45,7 @@ class Deployer:
         self.account_address = account_address
         self._unique = account_address is not None
 
-    async def create_deployment_call(
+    def create_deployment_call(
         self,
         class_hash: Hash,
         *,

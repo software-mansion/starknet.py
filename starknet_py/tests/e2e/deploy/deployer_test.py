@@ -9,9 +9,7 @@ from starknet_py.tests.e2e.utils import MAX_FEE
 async def test_default_deploy_with_class_hash(account_client, map_class_hash):
     deployer = Deployer()
 
-    deploy_call, address = await deployer.create_deployment_call(
-        class_hash=map_class_hash
-    )
+    deploy_call, address = deployer.create_deployment_call(class_hash=map_class_hash)
 
     deploy_invoke_tx = await account_client.sign_invoke_transaction(
         deploy_call, max_fee=MAX_FEE
@@ -28,9 +26,7 @@ async def test_throws_when_calldata_provided_without_abi(map_class_hash):
     deployer = Deployer()
 
     with pytest.raises(ValueError) as err:
-        await deployer.create_deployment_call(
-            class_hash=map_class_hash, calldata=[12, 34]
-        )
+        deployer.create_deployment_call(class_hash=map_class_hash, calldata=[12, 34])
 
     assert "calldata was provided without an abi" in str(err.value)
 
@@ -40,7 +36,7 @@ async def test_throws_when_calldata_not_provided(constructor_with_arguments_abi)
     deployer = Deployer()
 
     with pytest.raises(ValueError) as err:
-        await deployer.create_deployment_call(
+        deployer.create_deployment_call(
             class_hash=1234, abi=constructor_with_arguments_abi
         )
 
@@ -70,7 +66,7 @@ async def test_constructor_arguments_contract_deploy(
 ):
     deployer = Deployer(account_address=account_client.address)
 
-    (deploy_call, contract_address,) = await deployer.create_deployment_call(
+    (deploy_call, contract_address,) = deployer.create_deployment_call(
         class_hash=constructor_with_arguments_class_hash,
         abi=constructor_with_arguments_abi,
         calldata=calldata,
@@ -111,7 +107,7 @@ async def test_if_address_computation_works_properly(
         else None
     )
 
-    deploy_call, computed_address = await deployer.create_deployment_call(
+    deploy_call, computed_address = deployer.create_deployment_call(
         class_hash=map_class_hash, salt=salt
     )
 
