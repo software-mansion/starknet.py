@@ -22,6 +22,21 @@ This is how we can interact with it:
     :dedent: 4
 
 
+Resolving proxies
+-----------------
+
+Resolving proxies is a powerful feature of Starknet.py. If your contract is a proxy to some implementation, you can use
+high-level :meth:`Contract.from_address` method to get a contract instance.
+:meth:`Contract.from_address` works with contracts which are not proxies, so it is the most universal method of getting
+a contract not knowing an abi.
+
+Check out the code!
+
+.. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_resolving_proxies.py
+    :language: python
+    :dedent: 4
+
+
 AccountClient details
 ---------------------
 
