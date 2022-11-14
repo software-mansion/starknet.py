@@ -99,21 +99,28 @@ async def test_constructor_arguments_contract_deploy(
 
 
 @pytest.mark.asyncio
-async def test_if_address_computation_works_properly(account_client, map_class_hash):
-    deployer = Deployer()
+@pytest.mark.parametrize(
+    "salt, pass_account_address", [(1, True), (2, False), (None, True), (None, False)]
+)
+async def test_if_address_computation_works_properly(
+    salt, pass_account_address, new_gateway_account_client, map_class_hash
+):
+    deployer = Deployer(
+        account_address=new_gateway_account_client.address if pass_account_address else None
+    )
 
     deploy_call, computed_address = await deployer.create_deployment_call(
-        class_hash=map_class_hash
+        class_hash=map_class_hash, salt=salt
     )
 
-    deploy_invoke_tx = await account_client.sign_invoke_transaction(
+    deploy_invoke_tx = await new_gateway_account_client.sign_invoke_transaction(
         deploy_call, max_fee=MAX_FEE
     )
-    resp = await account_client.send_transaction(deploy_invoke_tx)
-    await account_client.wait_for_tx(resp.transaction_hash)
+    resp = await new_gateway_account_client.send_transaction(deploy_invoke_tx)
+    await new_gateway_account_client.wait_for_tx(resp.transaction_hash)
 
     address_from_event = (
-        (await account_client.get_transaction_receipt(resp.transaction_hash))
+        (await new_gateway_account_client.get_transaction_receipt(resp.transaction_hash))
         .events[0]
         .data[0]
     )
