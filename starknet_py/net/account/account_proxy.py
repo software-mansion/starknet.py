@@ -8,9 +8,6 @@ from starknet_py.net.client_models import (
     SentTransactionResponse,
     Declare,
     InvokeFunction,
-    EstimatedFee,
-    Hash,
-    Tag,
 )
 from starknet_py.net.models import AddressRepresentation
 from starknet_py.net.models.transaction import DeployAccount
@@ -29,17 +26,8 @@ class _AccountProxy(BaseAccount):
     def supported_tx_version(self) -> int:
         return self._account_client.supported_tx_version
 
-    async def signed_estimate_fee(
-        self,
-        tx: Union[InvokeFunction, Declare, DeployAccount],
-        block_hash: Optional[Union[Hash, Tag]] = None,
-        block_number: Optional[Union[int, Tag]] = None,
-    ) -> EstimatedFee:
-        return await self._account_client.estimate_fee(
-            tx=tx, block_hash=block_hash, block_number=block_number
-        )
-
     async def get_nonce(self) -> int:
+        # pylint: disable=protected-access
         return await self._account_client._get_nonce()
 
     async def get_balance(
