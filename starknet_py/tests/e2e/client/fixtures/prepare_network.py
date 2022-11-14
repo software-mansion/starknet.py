@@ -16,7 +16,7 @@ from starknet_py.tests.e2e.client.fixtures.prepare_net_for_gateway_test import (
 from starknet_py.tests.e2e.fixtures.account_clients import (
     AccountToBeDeployedDetailsFactory,
 )
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_DIR
+from starknet_py.tests.e2e.fixtures.misc import read_contract
 from starknet_py.tests.e2e.utils import AccountToBeDeployedDetails
 
 directory = os.path.dirname(__file__)
@@ -26,7 +26,7 @@ async def prepare_network(
     new_gateway_account_client: AccountClient,
     deploy_account_details: AccountToBeDeployedDetails,
 ) -> PreparedNetworkData:
-    contract_compiled = Path(CONTRACTS_DIR / "balance_compiled.json").read_text("utf-8")
+    contract_compiled = read_contract("balance_compiled.json")
 
     prepared_data = await prepare_net_for_tests(
         new_gateway_account_client,
@@ -160,6 +160,14 @@ def fixture_contract_address(prepare_network: Tuple[str, PreparedNetworkData]) -
     """
     _, prepared_data = prepare_network
     return prepared_data.contract_address
+
+
+@pytest.fixture(name="balance_contract")
+def fixture_balance_contract() -> str:
+    """
+    Returns compiled code of the balance.cairo contract
+    """
+    return read_contract("balance_compiled.json")
 
 
 @pytest.fixture(name="class_hash")
