@@ -117,3 +117,22 @@ async def test_if_udc_has_expected_abi(gateway_client):
     code = await gateway_client.get_code(contract_address=DEFAULT_DEPLOYER_ADDRESS)
 
     assert code.abi == universal_deployer_abi
+
+
+@pytest.mark.asyncio
+async def test_if_address_computation_works_properly(account_client, map_class_hash):
+    deployer = Deployer()
+
+    deploy_call, computed_address = await deployer.create_deployment_call(
+        class_hash=map_class_hash
+    )
+
+    deploy_invoke_tx = await account_client.sign_invoke_transaction(
+        deploy_call, max_fee=MAX_FEE
+    )
+    resp = await account_client.send_transaction(deploy_invoke_tx)
+    await account_client.wait_for_tx(resp.transaction_hash)
+
+    address_from_event = (await account_client.get_transaction_receipt(resp.transaction_hash)).events[0].data[0]
+
+    assert computed_address == address_from_event
