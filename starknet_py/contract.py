@@ -11,6 +11,7 @@ from typing import (
     Dict,
     NamedTuple,
     Any,
+    Tuple,
 )
 from typing import TypedDict
 
@@ -25,6 +26,9 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
 
 from starknet_py.common import create_compiled_contract
 from starknet_py.compile.compiler import StarknetCompilationSource
+from starknet_py.net.account.account_proxy import _AccountProxy
+from starknet_py.net.account.base_account import BaseAccount
+
 from starknet_py.net import AccountClient
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import Hash, Tag
@@ -129,6 +133,7 @@ class PreparedFunctionCall(Call):
         arguments: Dict[str, List[int]],
         selector: int,
         client: Client,
+        account: Optional[BaseAccount],
         payload_transformer: FunctionCallSerializer,
         contract_data: ContractData,
         max_fee: Optional[int],
@@ -140,10 +145,20 @@ class PreparedFunctionCall(Call):
         )
         self.arguments = arguments
         self._client = client
+        self._internal_account = account
         self._payload_transformer = payload_transformer
         self._contract_data = contract_data
         self.max_fee = max_fee
         self.version = version
+
+    @property
+    def _account(self) -> BaseAccount:
+        if self._internal_account is not None:
+            return self._internal_account
+
+        raise ValueError(
+            "Contract was created without Account provided or with Client that is not an account."
+        )
 
     async def call_raw(
         self,
@@ -185,17 +200,17 @@ class PreparedFunctionCall(Call):
         if max_fee is not None:
             self.max_fee = max_fee
 
-        transaction = await self._account_client.sign_invoke_transaction(
+        transaction = await self._account.sign_invoke_transaction(
             calls=self,
             max_fee=self.max_fee,
             auto_estimate=auto_estimate,
             version=self.version,
         )
-        response = await self._account_client.send_transaction(transaction)
+        response = await self._client.send_transaction(transaction)
 
         invoke_result = InvokeResult(
             hash=response.transaction_hash,  # noinspection PyTypeChecker
-            _client=self._account_client,
+            _client=self._client,
             contract=self._contract_data,
             invoke_transaction=transaction,
         )
@@ -220,35 +235,32 @@ class PreparedFunctionCall(Call):
                 "Cannot estimate fee of PreparedFunctionCall with max_fee not None or 0."
             )
 
-        tx = await self._account_client.sign_invoke_transaction(
+        tx = await self._account.sign_invoke_transaction(
             calls=self, max_fee=0, version=self.version
         )
 
-        return await self._account_client.estimate_fee(
+        return await self._client.estimate_fee(
             tx=tx, block_hash=block_hash, block_number=block_number
-        )
-
-    @property
-    def _account_client(self) -> AccountClient:
-        client = self._client
-        if isinstance(client, AccountClient):
-            return client
-
-        raise ValueError(
-            "Contract uses an account that can't invoke transactions. You need to use AccountClient for that."
         )
 
 
 @add_sync_methods
 class ContractFunction:
     def __init__(
-        self, name: str, abi: ABIEntry, contract_data: ContractData, client: Client
+        self,
+        name: str,
+        abi: ABIEntry,
+        contract_data: ContractData,
+        client: Client,
+        account: Optional[BaseAccount],
     ):
+        # pylint: disable=too-many-arguments
         self.name = name
         self.abi = abi
         self.inputs = abi["inputs"]
         self.contract_data = contract_data
-        self._client = client
+        self.client = client
+        self.account = account
         self._payload_transformer = FunctionCallSerializer(
             abi=self.abi, identifier_manager=self.contract_data.identifier_manager
         )
@@ -270,13 +282,18 @@ class ContractFunction:
         :return: PreparedFunctionCall
         """
         if version is None:
+            # version = (
+            #     self._client.supported_tx_version
+            #     if isinstance(self._client, AccountClient)
+            #     else 0
+            # )
+            # TODO add better logic without using internal account
             version = (
-                self._client.supported_tx_version
-                if isinstance(self._client, AccountClient)
-                else 0
+                self.account.supported_tx_version if self.account is not None else 0
             )
 
         if version == 0:
+            # TODO consider better warning
             warnings.warn(
                 "Transaction with version 0 is deprecated and will be removed in the future. "
                 "Use AccountClient supporting the transaction version 1",
@@ -288,7 +305,8 @@ class ContractFunction:
             calldata=calldata,
             arguments=arguments,
             contract_data=self.contract_data,
-            client=self._client,
+            client=self.client,
+            account=self.account,
             payload_transformer=self._payload_transformer,
             selector=self.get_selector(self.name),
             max_fee=max_fee,
@@ -349,7 +367,13 @@ class Contract:
     Cairo contract's model.
     """
 
-    def __init__(self, address: AddressRepresentation, abi: list, client: Client):
+    def __init__(
+        self,
+        address: AddressRepresentation,
+        abi: list,
+        client: Optional[Client] = None,
+        account: Optional[BaseAccount] = None,
+    ):
         """
         Should be used instead of ``from_address`` when ABI is known statically.
 
@@ -357,9 +381,12 @@ class Contract:
         :param abi: contract's abi
         :param client: client used for API calls
         """
+        client, account = _convert_args(client, account)
+
+        self.account: Optional[BaseAccount] = account
+        self.client: Client = client
         self.data = ContractData.from_abi(parse_address(address), abi)
-        self._functions = self._make_functions(self.data, client)
-        self.client = client
+        self._functions = self._make_functions(self.data, self.client, self.account)
 
     @property
     def functions(self) -> FunctionsRepository:
@@ -390,8 +417,9 @@ class Contract:
     @staticmethod
     async def from_address(
         address: AddressRepresentation,
-        client: Client,
+        client: Optional[Client] = None,
         proxy_config: Union[bool, ProxyConfig] = False,
+        account: Optional[BaseAccount] = None,
     ) -> "Contract":
         """
         Fetches ABI for given contract and creates a new Contract instance with it. If you know ABI statically you
@@ -413,6 +441,8 @@ class Contract:
 
         :return: an initialized Contract instance
         """
+        client, account = _convert_args(client, account)
+
         default_config: Contract.ProxyConfig = {
             "max_steps": 5,
             "proxy_checks": [ArgentProxyCheck(), OpenZeppelinProxyCheck()],
@@ -422,19 +452,21 @@ class Contract:
         else:
             proxy_config = {**default_config, **proxy_config}
 
-        proxy_client = client.client if isinstance(client, AccountClient) else client
-        if not isinstance(proxy_client, GatewayClient):
+        if not isinstance(client, GatewayClient):
             raise TypeError(
                 "Contract.from_address only supports GatewayClient or AccountClients using GatewayClient"
             )
 
         contract = await ContractFromAddressFactory(
             address=address,
-            client=proxy_client,
+            client=client,
+            account=account,
             max_steps=proxy_config.get("max_steps", 1),
             proxy_checks=proxy_config.get("proxy_checks", []),
         ).make_contract()
 
+        if account is not None:
+            return Contract(address=address, abi=contract.data.abi, account=account)
         return Contract(address=address, abi=contract.data.abi, client=client)
 
     @staticmethod
@@ -585,7 +617,7 @@ class Contract:
 
     @classmethod
     def _make_functions(
-        cls, contract_data: ContractData, client: Client
+        cls, contract_data: ContractData, client: Client, account: Optional[BaseAccount]
     ) -> FunctionsRepository:
         repository = {}
 
@@ -599,6 +631,7 @@ class Contract:
                 abi=abi_entry,
                 contract_data=contract_data,
                 client=client,
+                account=account,
             )
 
         return repository
@@ -611,12 +644,15 @@ class ContractFromAddressFactory:
         client: GatewayClient,
         max_steps: int,
         proxy_checks: List[ProxyCheck],
+        account: Optional[BaseAccount] = None,
     ):
+        # pylint: disable=too-many-arguments
         self._address = address
         self._client = client
         self._max_steps = max_steps
         self._proxy_checks = proxy_checks
         self._processed_addresses = set()
+        self._account = account
 
     async def make_contract(self) -> Contract:
         return await self._make_contract_recursively(step=1, address=self._address)
@@ -631,9 +667,20 @@ class ContractFromAddressFactory:
             raise RecursionError("Max number of steps exceeded while resolving proxies")
 
         code = await self._client.get_code(contract_address=parse_address(address))
-        contract = Contract(
-            address=parse_address(address), abi=code.abi, client=self._client
-        )
+
+        if self._account is not None:
+            contract = Contract(
+                address=parse_address(address),
+                abi=code.abi,
+                account=self._account,
+            )
+        else:
+            contract = Contract(
+                address=parse_address(address),
+                abi=code.abi,
+                client=self._client,
+            )
+
         self._processed_addresses.add(address)
 
         is_proxy = False
@@ -651,3 +698,25 @@ class ContractFromAddressFactory:
             address=address,
             step=step + 1,
         )
+
+
+# TODO rename
+def _convert_args(
+    client: Optional[Client] = None, account: Optional[BaseAccount] = None
+) -> Tuple[Client, Optional[BaseAccount]]:
+    if client is not None and account is not None:
+        raise ValueError("account and client are mutually exclusive")
+
+    if client is None and account is None:
+        raise ValueError("One of client or account must be provided")
+
+    if client is not None:
+        if isinstance(client, AccountClient):
+            return client.client, _AccountProxy(client)
+
+        return client, None
+
+    if account is not None:
+        return account.client, account
+
+    raise ValueError()  # TODO fix typechecker
