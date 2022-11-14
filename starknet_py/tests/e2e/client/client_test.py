@@ -24,7 +24,8 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models.transaction import Declare
-from starknet_py.tests.e2e.fixtures.constants import MAX_FEE, CONTRACTS_DIR
+from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
+from starknet_py.tests.e2e.fixtures.misc import read_contract
 from starknet_py.transaction_exceptions import (
     TransactionRejectedError,
     TransactionNotReceivedError,
@@ -182,7 +183,7 @@ async def test_get_transaction_receipt(
         ),
         Declare(
             contract_class=create_compiled_contract(
-                compilation_source=(CONTRACTS_DIR / "map.cairo").read_text("utf-8")
+                compiled_contract=read_contract("map_compiled.json")
             ),
             sender_address=0x1,
             max_fee=0,
@@ -343,8 +344,8 @@ async def test_wait_for_tx_cancelled(gateway_client):
 
 
 @pytest.mark.asyncio
-async def test_declare_contract(client, map_source_code):
-    declare_tx = make_declare_tx(compilation_source=map_source_code)
+async def test_declare_contract(client, map_compiled_contract):
+    declare_tx = make_declare_tx(compiled_contract=map_compiled_contract)
 
     result = await client.declare(declare_tx)
     await client.wait_for_tx(result.transaction_hash)

@@ -1,7 +1,6 @@
 from starkware.starknet.services.api.feeder_gateway.response_objects import (
     TransactionStatus,
 )
-from starkware.starknet.public.abi import get_storage_var_address
 
 TxStatus = TransactionStatus
 
@@ -16,8 +15,6 @@ FEE_CONTRACT_ADDRESS = (
 DEVNET_FEE_CONTRACT_ADDRESS = (
     "0x62230ea046a9a5fbc261ac77d03c8d41e5d442db2284587570ab46455fd2488"
 )
-
-OZ_PROXY_STORAGE_KEY = get_storage_var_address("Proxy_implementation_hash")
 
 DEFAULT_DEPLOYER_ADDRESS = (
     "0x041a78e741e5aF2fEc34B695679bC6891742439f7AFB8484Ecd7766661aD02BF"

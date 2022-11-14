@@ -11,7 +11,6 @@ from typing import (
     Dict,
     NamedTuple,
 )
-from typing import TypedDict
 
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
 from starkware.starknet.core.os.class_hash import compute_class_hash
@@ -23,6 +22,11 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
 
 from starknet_py.common import create_compiled_contract
 from starknet_py.compile.compiler import StarknetCompilationSource
+from starknet_py.proxy.contract_abi_resolver import (
+    ProxyConfig,
+    ContractAbiResolver,
+    prepare_proxy_config,
+)
 from starknet_py.net import AccountClient
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import Hash, Tag
@@ -33,7 +37,6 @@ from starknet_py.net.models import (
     parse_address,
     compute_address,
 )
-from starknet_py.proxy_check import ProxyCheck, ArgentProxyCheck, OpenZeppelinProxyCheck
 from starknet_py.transactions.deploy import make_deploy_tx
 from starknet_py.utils.contructor_args_translator import translate_constructor_args
 from starknet_py.utils.crypto.facade import pedersen_hash, Call
@@ -371,21 +374,6 @@ class Contract:
     def address(self) -> int:
         return self.data.address
 
-    class ProxyConfig(TypedDict, total=False):
-        """
-        Proxy resolving configuration
-        """
-
-        max_steps: int
-        """
-        Max number of contracts that `Contract.from_address` will process before raising `RecursionError`.
-        """
-        proxy_checks: List[ProxyCheck]
-        """
-        List of classes implementing :class:`starknet_py.proxy_check.ProxyCheck` ABC,
-        that will be used for checking if contract at the address is a proxy contract.
-        """
-
     @staticmethod
     async def from_address(
         address: AddressRepresentation,
@@ -397,44 +385,35 @@ class Contract:
         should create Contract's instances directly instead of using this function to avoid unnecessary API calls.
 
         :raises ContractNotFoundError: when contract is not found
-        :raises TypeError: when Client not supporting `get_code` methods is used
+        :raises TypeError: when given client's `get_class_by_hash` method does not return abi
+        :raises ProxyResolutionError: when given ProxyChecks were not sufficient to resolve proxy's implementation
         :param address: Contract's address
         :param client: Client
         :param proxy_config: Proxy resolving config
-            If set to ``True``, will use default proxy checks and :class:
-            `starknet_py.proxy_check.OpenZeppelinProxyCheck`
-            and :class:`starknet_py.proxy_check.ArgentProxyCheck` and default max_steps = 5.
+            If set to ``True``, will use default proxy checks
+            :class:`starknet_py.proxy.proxy_check.OpenZeppelinProxyCheck`
+            and :class:`starknet_py.proxy.proxy_check.ArgentProxyCheck`.
 
             If set to ``False``, :meth:`Contract.from_address` will not resolve proxies.
 
-            If a valid `ProxyConfig` is provided, will use values from that instead supplementing
-            with defaults when needed.
+            If a valid :class:`starknet_py.contract_abi_resolver.ProxyConfig` is provided, will use its values instead.
 
         :return: an initialized Contract instance
         """
-        default_config: Contract.ProxyConfig = {
-            "max_steps": 5,
-            "proxy_checks": [ArgentProxyCheck(), OpenZeppelinProxyCheck()],
-        }
-        if isinstance(proxy_config, bool):
-            proxy_config = default_config if proxy_config else {}
-        else:
-            proxy_config = {**default_config, **proxy_config}
+        address = parse_address(address)
+        proxy_config = Contract._create_proxy_config(proxy_config)
 
-        proxy_client = client.client if isinstance(client, AccountClient) else client
-        if not isinstance(proxy_client, GatewayClient):
+        if not Contract._is_abi_compatible_client(client):
+            # TODO: Add support for FullNodeClient once abi is available in RPC
             raise TypeError(
                 "Contract.from_address only supports GatewayClient or AccountClients using GatewayClient"
             )
 
-        contract = await ContractFromAddressFactory(
-            address=address,
-            client=proxy_client,
-            max_steps=proxy_config.get("max_steps", 1),
-            proxy_checks=proxy_config.get("proxy_checks", []),
-        ).make_contract()
+        abi = await ContractAbiResolver(
+            address=address, client=client, proxy_config=proxy_config
+        ).resolve()
 
-        return Contract(address=address, abi=contract.data.abi, client=client)
+        return Contract(address=address, abi=abi, client=client)
 
     @staticmethod
     async def deploy(
@@ -570,51 +549,14 @@ class Contract:
 
         return repository
 
+    @staticmethod
+    def _create_proxy_config(proxy_config) -> ProxyConfig:
+        if proxy_config is False:
+            return ProxyConfig()
+        proxy_arg = ProxyConfig() if proxy_config is True else proxy_config
+        return prepare_proxy_config(proxy_arg)
 
-class ContractFromAddressFactory:
-    def __init__(
-        self,
-        address: AddressRepresentation,
-        client: GatewayClient,
-        max_steps: int,
-        proxy_checks: List[ProxyCheck],
-    ):
-        self._address = address
-        self._client = client
-        self._max_steps = max_steps
-        self._proxy_checks = proxy_checks
-        self._processed_addresses = set()
-
-    async def make_contract(self) -> Contract:
-        return await self._make_contract_recursively(step=1, address=self._address)
-
-    async def _make_contract_recursively(
-        self, step: int, address: AddressRepresentation
-    ) -> Contract:
-        if address in self._processed_addresses:
-            raise RecursionError("Proxy cycle detected while resolving proxies")
-
-        if step > self._max_steps:
-            raise RecursionError("Max number of steps exceeded while resolving proxies")
-
-        code = await self._client.get_code(contract_address=parse_address(address))
-        contract = Contract(
-            address=parse_address(address), abi=code.abi, client=self._client
-        )
-        self._processed_addresses.add(address)
-
-        is_proxy = False
-        address = 0
-        for proxy_check in self._proxy_checks:
-            if await proxy_check.is_proxy(contract):
-                is_proxy = True
-                address = await proxy_check.implementation_address(contract)
-                break
-
-        if not is_proxy:
-            return contract
-
-        return await self._make_contract_recursively(
-            address=address,
-            step=step + 1,
-        )
+    @staticmethod
+    def _is_abi_compatible_client(client) -> bool:
+        actual_client = client.client if isinstance(client, AccountClient) else client
+        return isinstance(actual_client, GatewayClient)

@@ -20,6 +20,9 @@ Setup
     # Install dependencies
     poetry install
 
+    # Compile contracts
+    poe compile_contracts
+
     # Make sure everything was installed properly
     poe test
 
