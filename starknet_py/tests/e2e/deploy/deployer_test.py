@@ -106,7 +106,9 @@ async def test_if_address_computation_works_properly(
     salt, pass_account_address, new_gateway_account_client, map_class_hash
 ):
     deployer = Deployer(
-        account_address=new_gateway_account_client.address if pass_account_address else None
+        account_address=new_gateway_account_client.address
+        if pass_account_address
+        else None
     )
 
     deploy_call, computed_address = await deployer.create_deployment_call(
@@ -119,10 +121,9 @@ async def test_if_address_computation_works_properly(
     resp = await new_gateway_account_client.send_transaction(deploy_invoke_tx)
     await new_gateway_account_client.wait_for_tx(resp.transaction_hash)
 
-    address_from_event = (
-        (await new_gateway_account_client.get_transaction_receipt(resp.transaction_hash))
-        .events[0]
-        .data[0]
+    tx_receipt = await new_gateway_account_client.get_transaction_receipt(
+        resp.transaction_hash
     )
+    address_from_event = tx_receipt.events[0].data[0]
 
     assert computed_address == address_from_event
