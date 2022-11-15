@@ -381,7 +381,7 @@ class Contract:
         :param abi: contract's abi
         :param client: client used for API calls
         """
-        client, account = _convert_args(client, account)
+        client, account = _unpack_client_and_account(client, account)
 
         self.account: Optional[BaseAccount] = account
         self.client: Client = client
@@ -441,7 +441,7 @@ class Contract:
 
         :return: an initialized Contract instance
         """
-        client, account = _convert_args(client, account)
+        client, account = _unpack_client_and_account(client, account)
 
         default_config: Contract.ProxyConfig = {
             "max_steps": 5,
@@ -700,8 +700,7 @@ class ContractFromAddressFactory:
         )
 
 
-# TODO rename
-def _convert_args(
+def _unpack_client_and_account(
     client: Optional[Client] = None, account: Optional[BaseAccount] = None
 ) -> Tuple[Client, Optional[BaseAccount]]:
     if client is not None and account is not None:
