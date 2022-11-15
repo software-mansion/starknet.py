@@ -96,9 +96,6 @@ class _AccountProxy(BaseAccount):
     def sign_message(self, typed_data: TypedData) -> List[int]:
         return self._account_client.sign_message(typed_data=typed_data)
 
-    def hash_message(self, typed_data: TypedData) -> int:
-        return self._account_client.hash_message(typed_data=typed_data)
-
     async def verify_message(self, typed_data: TypedData, signature: List[int]) -> bool:
         return await self._account_client.verify_message(
             typed_data=typed_data, signature=signature

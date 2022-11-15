@@ -34,7 +34,7 @@ from starknet_py.utils.data_transformer.execute_transformer import (
     execute_transformer_v1,
 )
 from starknet_py.utils.iterable import ensure_iterable
-from starknet_py.utils.typed_data import TypedData as TypedDataDataclass
+from starknet_py.utils.typed_data import hash_message
 from starknet_py.net.models.typed_data import TypedData
 
 
@@ -351,19 +351,6 @@ class Account(BaseAccount):
         """
         return self.signer.sign_message(typed_data, self.address)
 
-    def hash_message(self, typed_data: TypedData) -> int:
-        """
-        Hash a TypedData TypedDict with pedersen hash and return the hash
-        This adds a message prefix, so it can't be interchanged with transactions
-
-        :param typed_data: TypedData TypedDict to be hashed
-        :return: the hash of the TypedData TypedDict
-        """
-        typed_data_dataclass: TypedDataDataclass = TypedDataDataclass.from_dict(
-            typed_data
-        )
-        return typed_data_dataclass.message_hash(self.address)
-
     async def verify_message(self, typed_data: TypedData, signature: List[int]) -> bool:
         """
         Verify a signature of a TypedData TypedDict
@@ -372,7 +359,7 @@ class Account(BaseAccount):
         :param signature: signature of the TypedData TypedDict
         :return: true if the signature is valid, false otherwise
         """
-        msg_hash = self.hash_message(typed_data)
+        msg_hash = hash_message(typed_data=typed_data, account_address=self.address)
         return await self._verify_message_hash(msg_hash, signature)
 
 

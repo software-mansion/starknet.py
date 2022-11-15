@@ -10,7 +10,7 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.models import AddressRepresentation
 from starknet_py.net.models.transaction import DeployAccount
-from starknet_py.utils.typed_data import TypedData
+from starknet_py.net.models.typed_data import TypedData
 
 
 class BaseAccount(ABC):
@@ -137,16 +137,6 @@ class BaseAccount(ABC):
 
         :param typed_data: TypedData TypedDict to be signed
         :return: The signature of the TypedData TypedDict
-        """
-
-    @abstractmethod
-    def hash_message(self, typed_data: TypedData) -> int:
-        """
-        Hash a TypedData TypedDict with pedersen hash and return the hash
-        This adds a message prefix, so it can't be interchanged with transactions
-
-        :param typed_data: TypedData TypedDict to be hashed
-        :return: the hash of the TypedData TypedDict
         """
 
     @abstractmethod
