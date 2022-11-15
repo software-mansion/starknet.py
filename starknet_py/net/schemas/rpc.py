@@ -1,3 +1,5 @@
+from dataclasses import asdict
+
 from marshmallow import Schema, fields, post_load, pre_load, EXCLUDE
 from marshmallow_oneofschema import OneOfSchema
 
@@ -380,6 +382,8 @@ class DeclaredContractSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> DeclaredContract:
+        # Gateway uses Abi defined vaguely as a list of dicts, hence need for casting in order to be compliant
+        data["abi"] = [asdict(abi_entry) for abi_entry in data["abi"]]
         return DeclaredContract(**data)
 
 

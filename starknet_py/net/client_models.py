@@ -95,7 +95,8 @@ class StructAbiEntry:
 
 
 ContractAbiEntry = Union[FunctionAbiEntry, EventAbiEntry, StructAbiEntry]
-Abi = List[ContractAbiEntry]
+
+Abi = List[Dict[str, Any]]
 
 
 @dataclass

@@ -64,7 +64,7 @@ class ArgentProxyCheck(ProxyCheck):
             (implementation,) = await client.call_contract(call=call)
             await get_class_func(implementation)
         except ClientError as err:
-            if re.search(err_msg, err.message, re.IGNORECASE):
+            if re.search(err_msg, err.message, re.IGNORECASE) or err.code == 21:
                 return None
             raise err
         return implementation

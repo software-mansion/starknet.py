@@ -134,7 +134,7 @@ class ContractAbiResolver:
                 class_hash=contract_class_hash
             )
         except ClientError as err:
-            if "is not deployed" in err.message:
+            if "is not deployed" in err.message or err.code == 28:
                 raise ContractNotFoundError(block_hash="latest") from err
             raise err
 
