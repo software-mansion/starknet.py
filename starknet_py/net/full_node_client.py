@@ -20,6 +20,7 @@ from starknet_py.net.client_models import (
     Transaction,
     Declare,
     Deploy,
+    DeployAccount,
     EstimatedFee,
     BlockTransactionTraces,
     DeclareTransactionResponse,
@@ -28,7 +29,6 @@ from starknet_py.net.client_models import (
     DeployAccountTransactionResponse,
 )
 from starknet_py.net.http_client import RpcHttpClient
-from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.net.models import TransactionType
 from starknet_py.net.networks import Network
 from starknet_py.net.schemas.rpc import (
@@ -42,6 +42,7 @@ from starknet_py.net.schemas.rpc import (
     DeployTransactionResponseSchema,
     PendingTransactionsSchema,
     EstimatedFeeSchema,
+    DeployAccountTransactionResponseSchema,
 )
 from starknet_py.net.client_utils import convert_to_felt, _invoke_tx_to_call
 from starknet_py.transaction_exceptions import TransactionNotReceivedError
@@ -161,11 +162,6 @@ class FullNodeClient(Client):
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
-        if isinstance(tx, DeployAccount):
-            raise ValueError(
-                "Estimating fee for DeployAccount transactions is currently not supported in FullNodeClient"
-            )
-
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -213,7 +209,7 @@ class FullNodeClient(Client):
 
         res = await self._client.call(
             method_name="addInvokeTransaction",
-            params={"invoke_transaction": {**params}},
+            params={"invoke_transaction": params},
         )
 
         return cast(
@@ -260,7 +256,18 @@ class FullNodeClient(Client):
     async def deploy_account(
         self, transaction: DeployAccount
     ) -> DeployAccountTransactionResponse:
-        raise NotImplementedError()
+
+        params = _create_broadcasted_deploy_account_txn(transaction=transaction)
+
+        res = await self._client.call(
+            method_name="addDeployAccountTransaction",
+            params={"deploy_account_transaction": params},
+        )
+
+        return cast(
+            DeployAccountTransactionResponse,
+            DeployAccountTransactionResponseSchema().load(res, unknown=EXCLUDE),
+        )
 
     async def declare(self, transaction: Declare) -> DeclareTransactionResponse:
         params = _create_broadcasted_txn(transaction=transaction)
@@ -446,7 +453,12 @@ def get_block_identifier(
     return {"block_id": "pending"}
 
 
-def _create_broadcasted_txn(transaction: Union[InvokeFunction, Declare]) -> Dict:
+def _create_broadcasted_txn(
+    transaction: Union[InvokeFunction, Declare, DeployAccount]
+) -> Dict:
+    if transaction.tx_type == TransactionType.DEPLOY_ACCOUNT:
+        return _create_broadcasted_deploy_account_txn(transaction)
+
     common_params = {
         "max_fee": hex(transaction.max_fee),
         "version": hex(transaction.version),
@@ -495,3 +507,30 @@ def _create_broadcasted_txn(transaction: Union[InvokeFunction, Declare]) -> Dict
         return {**common_params, **declare_params}
 
     raise TypeError("Transaction should be of type InvokeFunction or Declare")
+
+
+def _create_broadcasted_deploy_account_txn(transaction: DeployAccount) -> dict:
+    broadcasted_txn_common_properties = {
+        "type": "INVOKE"
+        if transaction.tx_type == TransactionType.INVOKE_FUNCTION
+        else transaction.tx_type.name,
+        "max_fee": hex(transaction.max_fee),
+        "version": hex(transaction.version),
+        "signature": [hex(sig) for sig in transaction.signature],
+        "nonce": hex(transaction.nonce),
+    }
+
+    deploy_account_txn_properties = {
+        "contract_address_salt": hex(transaction.contract_address_salt),
+        "constructor_calldata": [
+            hex(data) for data in transaction.constructor_calldata
+        ],
+        "class_hash": hex(transaction.class_hash),
+    }
+
+    broadcasted_deploy_account_txn = {
+        **broadcasted_txn_common_properties,
+        **deploy_account_txn_properties,
+    }
+
+    return broadcasted_deploy_account_txn

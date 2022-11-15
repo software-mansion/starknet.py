@@ -42,7 +42,7 @@ pytest-xdist = "^2.5.0"
 web3 = { extras = ["tester"], version = "6.0.0b4" }
 pyright = "^1.1.270"
 pytest-cov = "^4.0.0"
-starknet-devnet = {git = "https://github.com/Shard-Labs/starknet-devnet.git", rev = "e353f2432a2eda173192482d2569ab6b99c1231d"}
+starknet-devnet = {git = "https://github.com/Shard-Labs/starknet-devnet.git", rev = "2979e80586745f92a67a8f3687297c90bcaba380"}
 
 [tool.poe.tasks]
 test.shell = "pytest -n auto -v --cov=starknet_py starknet_py"

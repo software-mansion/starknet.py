@@ -10,6 +10,7 @@ from starkware.starknet.services.api.gateway.transaction import (
     ContractClass as CD,
     Deploy as D,
     Declare as DCL,
+    DeployAccount as DAC,
 )
 
 
@@ -20,6 +21,7 @@ StarknetTransaction = as_our_module(T)
 ContractClass = as_our_module(CD)
 Deploy = as_our_module(D)
 Declare = as_our_module(DCL)
+DeployAccount = as_our_module(DAC)
 
 
 Hash = Union[int, str]

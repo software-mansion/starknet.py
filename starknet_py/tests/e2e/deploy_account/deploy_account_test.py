@@ -1,19 +1,17 @@
 import pytest
 
 from starknet_py.net import AccountClient
-from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.tests.e2e.account.account_client_test import MAX_FEE
 
 
 @pytest.mark.asyncio
-async def test_general_flow(deploy_account_details_factory, network):
-    # TODO: Extend to other clients (Full Node)
+async def test_general_flow(client, deploy_account_details_factory):
     address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
 
     account = AccountClient(
         address=address,
-        client=GatewayClient(net=network),
+        client=client,
         key_pair=key_pair,
         chain=StarknetChainId.TESTNET,
         supported_tx_version=1,

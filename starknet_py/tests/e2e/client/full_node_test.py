@@ -96,20 +96,14 @@ async def test_get_class_at_throws_on_wrong_address(full_node_client):
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_block_transaction_count(full_node_client):
-    # TODO restore whole tests when devnet RPC supports DEPLOY_ACCOUNT transactions
-    # latest_block = (await full_node_client.get_block("latest")).block_number
-    #
-    # for block_number in range(1, latest_block):
-    #     transaction_count = await full_node_client.get_block_transaction_count(
-    #         block_number=block_number
-    #     )
-    #
-    #     assert transaction_count == 1
-    transaction_count = await full_node_client.get_block_transaction_count(
-        block_number=1
-    )
+    latest_block = await full_node_client.get_block("latest")
 
-    assert transaction_count == 1
+    for block_number in range(1, latest_block.block_number + 1):
+        transaction_count = await full_node_client.get_block_transaction_count(
+            block_number=block_number
+        )
+
+        assert transaction_count == 1
 
 
 @pytest.mark.asyncio
