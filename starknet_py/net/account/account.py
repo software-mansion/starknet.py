@@ -221,7 +221,6 @@ class Account(BaseAccount):
         *,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-        **kwargs,
     ) -> InvokeFunction:
         """
         Takes calls and creates signed InvokeFunction
@@ -243,7 +242,6 @@ class Account(BaseAccount):
         cairo_path: Optional[List[str]] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-        **kwargs,
     ) -> Declare:
         """
         Create and sign declare transaction.
@@ -321,7 +319,6 @@ class Account(BaseAccount):
         *,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-        **kwargs,
     ) -> SentTransactionResponse:
         """
         Takes calls and executes transaction

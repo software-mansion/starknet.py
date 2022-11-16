@@ -61,8 +61,6 @@ class BaseAccount(ABC):
         *,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-        # TODO remove this
-        **kwargs,
     ) -> InvokeFunction:
         """
         Takes calls and creates signed InvokeFunction
@@ -81,8 +79,6 @@ class BaseAccount(ABC):
         cairo_path: Optional[List[str]] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-        # TODO remove this
-        **kwargs,
     ) -> Declare:
         """
         Create and sign declare transaction.
@@ -125,8 +121,6 @@ class BaseAccount(ABC):
         *,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-        # TODO remove this
-        **kwargs,
     ) -> SentTransactionResponse:
         """
         Takes calls and executes transaction

@@ -200,12 +200,20 @@ class PreparedFunctionCall(Call):
         if max_fee is not None:
             self.max_fee = max_fee
 
-        transaction = await self._account.sign_invoke_transaction(
-            calls=self,
-            max_fee=self.max_fee,
-            auto_estimate=auto_estimate,
-            version=self.version,
-        )
+        if isinstance(self._account, _AccountProxy):
+            transaction = await self._account.sign_invoke_transaction(
+                calls=self,
+                max_fee=self.max_fee,
+                auto_estimate=auto_estimate,
+                version=self.version,
+            )
+        else:
+            transaction = await self._account.sign_invoke_transaction(
+                calls=self,
+                max_fee=self.max_fee,
+                auto_estimate=auto_estimate,
+            )
+
         response = await self._client.send_transaction(transaction)
 
         invoke_result = InvokeResult(
@@ -235,9 +243,12 @@ class PreparedFunctionCall(Call):
                 "Cannot estimate fee of PreparedFunctionCall with max_fee not None or 0."
             )
 
-        tx = await self._account.sign_invoke_transaction(
-            calls=self, max_fee=0, version=self.version
-        )
+        if isinstance(self._account, _AccountProxy):
+            tx = await self._account.sign_invoke_transaction(
+                calls=self, max_fee=0, version=self.version
+            )
+        else:
+            tx = await self._account.sign_invoke_transaction(calls=self, max_fee=0)
 
         return await self._client.estimate_fee(
             tx=tx, block_hash=block_hash, block_number=block_number
