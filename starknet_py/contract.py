@@ -484,6 +484,7 @@ class Contract:
     async def declare(
         account: AccountClient,
         compiled_contract: str,
+        *,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> DeclareResult:
