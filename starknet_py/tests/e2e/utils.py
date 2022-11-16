@@ -1,4 +1,4 @@
-from typing import Tuple, Optional, cast
+from typing import Tuple, Optional, cast, Union, List, Dict
 
 from starkware.crypto.signature.signature import get_random_private_key
 from starkware.starknet.core.os.contract_address.contract_address import (
@@ -6,13 +6,17 @@ from starkware.starknet.core.os.contract_address.contract_address import (
 )
 from starkware.starknet.definitions.fields import ContractAddressSalt
 
-from starknet_py.contract import Contract
+from starknet_py.common import create_compiled_contract
+from starknet_py.compile.compiler import StarknetCompilationSource
+from starknet_py.contract import Contract, _unpack_client_and_account, DeployResult
 from starknet_py.net import KeyPair, AccountClient
+from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.net.networks import Network
+from starknet_py.transactions.deploy import make_deploy_tx
 
 AccountToBeDeployedDetails = Tuple[int, KeyPair, int, int]
 MAX_FEE = int(1e20)
@@ -79,3 +83,67 @@ async def get_deploy_account_transaction(
         constructor_calldata=[key_pair.public_key],
         max_fee=MAX_FEE,
     )
+
+
+async def deploy(
+    *,
+    account: Optional[BaseAccount] = None,
+    compilation_source: Optional[StarknetCompilationSource] = None,
+    compiled_contract: Optional[str] = None,
+    constructor_args: Optional[Union[List, Dict]] = None,
+    salt: Optional[int] = None,
+    search_paths: Optional[List[str]] = None,
+    client: Optional[Client] = None,
+) -> DeployAccount:
+    # pylint: disable=too-many-arguments
+    """
+    Deploys a contract and waits until it has ``PENDING`` status.
+    Either `compilation_source` or `compiled_contract` is required.
+
+    :param client: Client
+    :param compilation_source: string containing source code or a list of source files paths
+    :param compiled_contract: string containing compiled contract. Useful for reading compiled contract from a file.
+    :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
+    :param salt: Optional salt. Random value is selected if it is not provided.
+    :param search_paths: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts.
+    :raises: `ValueError` if neither compilation_source nor compiled_contract is provided.
+    :return: DeployResult instance
+
+    .. deprecated:: 0.8.0
+        This metodh has been deprecated in favor of deploying through cairo syscall.
+    """
+    client, account = _unpack_client_and_account(client, account)
+
+    compiled = create_compiled_contract(
+        compilation_source, compiled_contract, search_paths
+    )
+    # pylint: disable=protected-access
+    translated_args = Contract._translate_constructor_args(compiled, constructor_args)
+    deploy_tx = make_deploy_tx(
+        compiled_contract=compiled,
+        constructor_calldata=translated_args,
+        salt=salt,
+    )
+    res = await client.deploy(deploy_tx)
+    contract_address = res.contract_address
+
+    if account is not None:
+        deployed_contract = Contract(
+            account=account,
+            address=contract_address,
+            abi=compiled.abi,
+        )
+    else:
+        deployed_contract = Contract(
+            client=client,
+            address=contract_address,
+            abi=compiled.abi,
+        )
+
+    deploy_result = DeployResult(
+        hash=res.transaction_hash,
+        _client=client,
+        deployed_contract=deployed_contract,
+    )
+
+    return deploy_result
