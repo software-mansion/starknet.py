@@ -13,6 +13,9 @@ from starkware.starknet.services.api.gateway.transaction import (
 
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient, KeyPair
+from starknet_py.net.account.account import Account
+from starknet_py.net.account.account_proxy import _AccountProxy
+from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
@@ -195,6 +198,23 @@ def new_gateway_account_client(
 
 
 @pytest.fixture(scope="module")
+def new_account(
+    new_address_and_private_key: Tuple[str, str], gateway_client: GatewayClient
+) -> Account:
+    """
+    Returns a Account
+    """
+    address, private_key = new_address_and_private_key
+
+    return Account(
+        address=address,
+        client=gateway_client,
+        key_pair=KeyPair.from_private_key(int(private_key, 0)),
+        chain=StarknetChainId.TESTNET,
+    )
+
+
+@pytest.fixture(scope="module")
 def new_full_node_account_client(
     new_address_and_private_key: Tuple[str, str], full_node_client: FullNodeClient
 ) -> AccountClient:
@@ -208,7 +228,7 @@ def new_full_node_account_client(
     )
 
 
-def net_to_accounts() -> List[str]:
+def net_to_account_clients() -> List[str]:
     accounts = [
         "gateway_account_client",
         "new_gateway_account_client",
@@ -222,13 +242,31 @@ def net_to_accounts() -> List[str]:
 
 @pytest.fixture(
     scope="module",
-    params=net_to_accounts(),
+    params=net_to_account_clients(),
 )
 def account_client(request) -> AccountClient:
     """
     This parametrized fixture returns all AccountClients, one by one.
     """
     return request.getfixturevalue(request.param)
+
+
+def net_to_accounts() -> List[str]:
+    accounts = ["new_gateway_account_client", "new_account"]
+    nets = ["--net=integration", "--net=testnet", "testnet", "integration"]
+
+    if set(nets).isdisjoint(sys.argv):
+        accounts.extend(["new_full_node_account_client"])
+    return accounts
+
+
+@pytest.fixture(scope="module", params=net_to_accounts())
+def account(request) -> BaseAccount:
+    _account = request.getfixturevalue(request.param)
+
+    if isinstance(_account, AccountClient):
+        return _AccountProxy(_account)
+    return _account
 
 
 def net_to_new_accounts() -> List[str]:
