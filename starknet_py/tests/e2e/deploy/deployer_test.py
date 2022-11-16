@@ -99,7 +99,7 @@ async def test_constructor_arguments_contract_deploy(
 @pytest.mark.parametrize(
     "salt, pass_account_address", [(1, True), (2, False), (None, True), (None, False)]
 )
-async def test_if_address_computation_works_properly(
+async def test_address_computation(
     salt, pass_account_address, new_gateway_account_client, map_class_hash
 ):
     deployer = Deployer(
