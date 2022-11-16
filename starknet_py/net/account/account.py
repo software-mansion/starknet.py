@@ -276,7 +276,6 @@ class Account(BaseAccount):
         )
         declare_tx = dataclasses.replace(declare_tx, max_fee=max_fee)
         signature = self.signer.sign_transaction(declare_tx)
-        # return dataclasses.replace(declare_tx, signature=signature, max_fee=max_fee)
         return _add_signature_to_transaction(declare_tx, signature)
 
     async def sign_deploy_account_transaction(
@@ -317,7 +316,6 @@ class Account(BaseAccount):
         )
         deploy_account_tx = dataclasses.replace(deploy_account_tx, max_fee=max_fee)
         signature = self.signer.sign_transaction(deploy_account_tx)
-        # return dataclasses.replace(deploy_account_tx, signature=signature)
         return _add_signature_to_transaction(deploy_account_tx, signature)
 
     async def execute(
