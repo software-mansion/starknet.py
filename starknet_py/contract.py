@@ -10,14 +10,12 @@ from typing import (
     Union,
     Dict,
     NamedTuple,
-    Any,
 )
 
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
 from starkware.starknet.core.os.class_hash import compute_class_hash
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
-from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
     CastableToHash,
 )
@@ -40,6 +38,7 @@ from starknet_py.net.models import (
     compute_address,
 )
 from starknet_py.transactions.deploy import make_deploy_tx
+from starknet_py.utils.contructor_args_translator import translate_constructor_args
 from starknet_py.utils.crypto.facade import pedersen_hash, Call
 from starknet_py.utils.data_transformer import FunctionCallSerializer
 from starknet_py.utils.sync import add_sync_methods
@@ -451,9 +450,7 @@ class Contract:
         compiled = create_compiled_contract(
             compilation_source, compiled_contract, search_paths
         )
-        translated_args = Contract._translate_constructor_args(
-            compiled, constructor_args
-        )
+        translated_args = translate_constructor_args(compiled.abi, constructor_args)
         deploy_tx = make_deploy_tx(
             compiled_contract=compiled,
             constructor_calldata=translated_args,
@@ -500,15 +497,13 @@ class Contract:
         :return: contract's address
         """
         # pylint: disable=too-many-arguments
-        compiled_contract = create_compiled_contract(
+        compiled = create_compiled_contract(
             compilation_source, compiled_contract, search_paths
         )
-        translated_args = Contract._translate_constructor_args(
-            compiled_contract, constructor_args
-        )
+        translated_args = translate_constructor_args(compiled.abi, constructor_args)
         return compute_address(
             salt=salt,
-            class_hash=compute_class_hash(compiled_contract, hash_func=pedersen_hash),
+            class_hash=compute_class_hash(compiled, hash_func=pedersen_hash),
             constructor_calldata=translated_args,
             deployer_address=deployer_address,
         )
@@ -533,34 +528,6 @@ class Contract:
             compilation_source, compiled_contract, search_paths
         )
         return compute_class_hash(compiled_contract, hash_func=pedersen_hash)
-
-    @staticmethod
-    def _translate_constructor_args(
-        contract: ContractClass, constructor_args: Any
-    ) -> List[int]:
-        constructor_abi = next(
-            (member for member in contract.abi if member["type"] == "constructor"),
-            None,
-        )
-
-        # Constructor might not accept any arguments
-        if not constructor_abi or not constructor_abi["inputs"]:
-            return []
-
-        if not constructor_args:
-            raise ValueError(
-                "Provided contract has a constructor and no args were provided."
-            )
-
-        args, kwargs = (
-            ([], constructor_args)
-            if isinstance(constructor_args, dict)
-            else (constructor_args, {})
-        )
-        calldata, _args = FunctionCallSerializer(
-            constructor_abi, identifier_manager_from_abi(contract.abi)
-        ).from_python(*args, **kwargs)
-        return calldata
 
     @classmethod
     def _make_functions(
