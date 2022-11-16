@@ -39,11 +39,8 @@ from starknet_py.utils.typed_data import TypedData as TypedDataDataclass
 
 
 class Account(BaseAccount):
-    # TODO better docstring
     """
-    Account API separate from the Client interface
-
-    Signd and prepares transactions and sends them
+    Default Account implementation.
     """
 
     def __init__(

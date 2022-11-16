@@ -14,6 +14,12 @@ from starknet_py.net.models.typed_data import TypedData
 
 
 class BaseAccount(ABC):
+    """
+    Base class for all account implementations.
+
+    Signs, prepares and executes transactions.
+    """
+
     @property
     @abstractmethod
     def client(self) -> Client:
