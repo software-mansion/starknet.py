@@ -1,10 +1,10 @@
 import pytest
 
-from starknet_py.contract import Contract
+from starknet_py.tests.e2e.utils import deploy
 
 
 @pytest.mark.asyncio
-async def test_pending_block(gateway_account_client):
+async def test_pending_block(new_account):
     contract = """
         %lang starknet
         %builtins pedersen range_check
@@ -25,17 +25,17 @@ async def test_pending_block(gateway_account_client):
     """
 
     constructor_args = [123]
-    await Contract.deploy(
-        gateway_account_client,
+    await deploy(
+        account=new_account,
         compilation_source=contract,
         constructor_args=constructor_args,
     )
-    blk = await gateway_account_client.get_block(block_number="pending")
+    blk = await new_account.client.get_block(block_number="pending")
     assert blk.block_hash
 
 
 @pytest.mark.asyncio
-async def test_latest_block(gateway_account_client):
+async def test_latest_block(new_account):
     contract = """
         %lang starknet
         %builtins pedersen range_check
@@ -56,10 +56,10 @@ async def test_latest_block(gateway_account_client):
     """
 
     constructor_args = [123]
-    await Contract.deploy(
-        gateway_account_client,
+    await deploy(
+        account=new_account,
         compilation_source=contract,
         constructor_args=constructor_args,
     )
-    blk = await gateway_account_client.get_block(block_number="latest")
+    blk = await new_account.client.get_block(block_number="latest")
     assert blk.block_hash
