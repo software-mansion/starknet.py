@@ -1,4 +1,4 @@
-from typing import List, Optional, Union
+from typing import List, Optional
 
 from starknet_py.net import AccountClient
 from starknet_py.net.account.base_account import BaseAccount
@@ -100,11 +100,3 @@ class _AccountProxy(BaseAccount):
         return await self._account_client.verify_message(
             typed_data=typed_data, signature=signature
         )
-
-    @staticmethod
-    def account_or_proxy(account: Union[AccountClient, BaseAccount]) -> BaseAccount:
-        if isinstance(account, BaseAccount):
-            return account
-        if isinstance(account, AccountClient):
-            return _AccountProxy(account)
-        raise ValueError("Incompatible account passed to account_or_proxy")
