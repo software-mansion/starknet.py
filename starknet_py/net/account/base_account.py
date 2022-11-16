@@ -42,7 +42,7 @@ class BaseAccount(ABC):
         Checks account's balance of specified token.
 
         :param token_address: Address of the ERC20 contract.
-            If not specified it will be payment token (wrapped ETH) address.
+            If not specified it will be payment token address.
         :return: Token balance
         """
 
