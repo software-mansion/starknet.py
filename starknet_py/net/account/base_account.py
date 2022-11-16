@@ -23,14 +23,17 @@ class BaseAccount(ABC):
     @property
     @abstractmethod
     def client(self) -> Client:
-        """"""
-        # TODO docstring
+        """
+        Get the Client used by the Account
+        """
 
     @property
     @abstractmethod
     def supported_tx_version(self) -> int:
-        """"""
-        # TODO docstring
+        """
+        Get transaction verison supported by the account
+        """
+
 
     @abstractmethod
     async def get_nonce(self) -> int:
