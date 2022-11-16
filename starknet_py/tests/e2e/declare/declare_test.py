@@ -4,13 +4,13 @@ from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 
 
 @pytest.mark.asyncio
-async def test_declare_tx(new_gateway_account_client, map_source_code):
-    declare_tx = await new_gateway_account_client.sign_declare_transaction(
-        compilation_source=map_source_code, max_fee=MAX_FEE
+async def test_declare_tx(account, map_compiled):
+    declare_tx = await account.sign_declare_transaction(
+        compiled_contract=map_compiled, max_fee=MAX_FEE
     )
-    result = await new_gateway_account_client.declare(declare_tx)
+    result = await account.client.declare(declare_tx)
 
-    await new_gateway_account_client.wait_for_tx(
+    await account.client.wait_for_tx(
         tx_hash=result.transaction_hash, wait_for_accept=True
     )
 
