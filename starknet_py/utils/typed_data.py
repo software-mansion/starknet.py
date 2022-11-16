@@ -6,7 +6,6 @@ from starkware.cairo.common.hash_state import compute_hash_on_elements
 from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.cairo.felt import encode_shortstring
-from starknet_py.net.models import Address
 from starknet_py.net.models.typed_data import StarkNetDomain
 from starknet_py.net.models.typed_data import TypedData as TypedDataDict
 
@@ -157,8 +156,3 @@ class TypedDataSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> TypedData:
         return TypedData(**data)
-
-
-def hash_message(typed_data: TypedDataDict, account_address: Address):
-    typed_data_dataclass: TypedData = TypedData.from_dict(typed_data)
-    return typed_data_dataclass.message_hash(account_address)

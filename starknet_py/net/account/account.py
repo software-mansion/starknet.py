@@ -34,8 +34,8 @@ from starknet_py.utils.data_transformer.execute_transformer import (
     execute_transformer_v1,
 )
 from starknet_py.utils.iterable import ensure_iterable
-from starknet_py.utils.typed_data import hash_message
 from starknet_py.net.models.typed_data import TypedData
+from starknet_py.utils.typed_data import TypedData as TypedDataDataclass
 
 
 class Account(BaseAccount):
@@ -359,8 +359,9 @@ class Account(BaseAccount):
         :param signature: signature of the TypedData TypedDict
         :return: true if the signature is valid, false otherwise
         """
-        msg_hash = hash_message(typed_data=typed_data, account_address=self.address)
-        return await self._verify_message_hash(msg_hash, signature)
+        typed_data_dataclass = TypedDataDataclass.from_dict(typed_data)
+        message_hash = typed_data_dataclass.message_hash(account_address=self.address)
+        return await self._verify_message_hash(message_hash, signature)
 
 
 SignableTransaction = TypeVar(
