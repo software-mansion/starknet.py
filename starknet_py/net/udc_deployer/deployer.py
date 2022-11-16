@@ -52,7 +52,6 @@ class Deployer:
         salt: Optional[int] = None,
         abi: Optional[List] = None,
         calldata: Optional[Union[List, dict]] = None,
-        cairo_calldata: Optional[List[int]] = None,
     ) -> ContractDeployment:
         """
         Creates deployment call to the UDC contract
@@ -61,30 +60,43 @@ class Deployer:
         :param salt: The salt for a contract to be deployed. Random value is selected if it is not provided
         :param abi: ABI of the contract to be deployed
         :param calldata: Constructor args of the contract to be deployed
-        :param cairo_calldata: Plain Cairo constructor args of the contract to be deployed
         :return: NamedTuple with call and address of the contract to be deployed
         """
         if not abi and calldata:
             raise ValueError("calldata was provided without an abi")
 
-        if calldata and cairo_calldata:
-            raise ValueError(
-                "calldata and cairo_calldata were provided at the same time. Choose one of them"
-            )
+        raw_calldata = translate_constructor_args(
+            abi=abi or [], constructor_args=calldata
+        )
 
+        return self.create_deployment_call_raw(
+            class_hash=class_hash, salt=salt, raw_calldata=raw_calldata
+        )
+
+    def create_deployment_call_raw(
+        self,
+        class_hash: Hash,
+        *,
+        salt: Optional[int] = None,
+        raw_calldata: Optional[List[int]] = None,
+    ) -> ContractDeployment:
+        """
+        Creates deployment call to the UDC contract with plain Cairo calldata
+
+        :param class_hash: The class_hash of the contract to be deployed
+        :param salt: The salt for a contract to be deployed. Random value is selected if it is not provided
+        :param raw_calldata: Plain Cairo constructor args of the contract to be deployed
+        :return: NamedTuple with call and address of the contract to be deployed
+        """
         salt = cast(int, salt or ContractAddressSalt.get_random_value())
         class_hash = int_from_hex(class_hash)
 
-        if cairo_calldata is None:
-            cairo_calldata = translate_constructor_args(
-                abi=abi or [], constructor_args=calldata
-            )
         calldata, _ = universal_deployer_serializer.from_python(
             value_types=deploy_contract_abi["inputs"],
             classHash=class_hash,
             salt=salt,
             unique=int(self._unique),
-            calldata=cairo_calldata,
+            calldata=raw_calldata or [],
         )
 
         call = Call(
@@ -93,7 +105,7 @@ class Deployer:
             calldata=calldata,
         )
 
-        address = self._compute_address(salt, class_hash, cairo_calldata)
+        address = self._compute_address(salt, class_hash, raw_calldata or [])
 
         return ContractDeployment(udc=call, address=address)
 

@@ -33,26 +33,6 @@ async def test_throws_when_calldata_provided_without_abi(map_class_hash):
 
 
 @pytest.mark.asyncio
-async def test_throws_when_calldata_and_cairo_calldata_provided(
-    constructor_with_arguments_abi,
-    constructor_with_arguments_class_hash,
-):
-    deployer = Deployer()
-
-    with pytest.raises(ValueError) as err:
-        deployer.create_deployment_call(
-            class_hash=constructor_with_arguments_class_hash,
-            abi=constructor_with_arguments_abi,
-            calldata=[12],
-            cairo_calldata=[12],
-        )
-
-    assert "calldata and cairo_calldata were provided at the same time" in str(
-        err.value
-    )
-
-
-@pytest.mark.asyncio
 async def test_throws_when_calldata_not_provided(constructor_with_arguments_abi):
     deployer = Deployer()
 
@@ -159,7 +139,7 @@ async def test_if_address_computation_works_properly(
         },
     ],
 )
-async def test_passing_plain_cairo_calldata(
+async def test_create_deployment_call_raw(
     account_client,
     constructor_with_arguments_abi,
     constructor_with_arguments_class_hash,
@@ -167,14 +147,13 @@ async def test_passing_plain_cairo_calldata(
 ):
     deployer = Deployer(account_address=account_client.address)
 
-    cairo_calldata = translate_constructor_args(
+    raw_calldata = translate_constructor_args(
         abi=constructor_with_arguments_abi or [], constructor_args=calldata
     )
 
-    (deploy_call, contract_address,) = deployer.create_deployment_call(
+    (deploy_call, contract_address,) = deployer.create_deployment_call_raw(
         class_hash=constructor_with_arguments_class_hash,
-        abi=constructor_with_arguments_abi,
-        cairo_calldata=cairo_calldata,
+        raw_calldata=raw_calldata,
     )
 
     deploy_invoke_transaction = await account_client.sign_invoke_transaction(
