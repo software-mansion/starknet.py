@@ -275,7 +275,9 @@ async def test_general_simplified_deployment_flow(
     new_account_client, map_compiled_contract
 ):
     declare_result = await Contract.declare(
-        account=new_account_client, compiled_contract=map_compiled_contract, max_fee=MAX_FEE
+        account=new_account_client,
+        compiled_contract=map_compiled_contract,
+        max_fee=MAX_FEE,
     )
     await declare_result.wait_for_acceptance()
     deployment = await declare_result.deploy(max_fee=MAX_FEE)
