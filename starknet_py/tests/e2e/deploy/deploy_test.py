@@ -44,7 +44,7 @@ constructor_with_arguments_source = (
 
 
 @pytest.mark.asyncio
-async def test_constructor_arguments(gateway_account_client):
+async def test_constructor_arguments():
     value = 10
     tuple_value = (1, (2, 3))
     arr = [1, 2, 3]
@@ -52,25 +52,23 @@ async def test_constructor_arguments(gateway_account_client):
 
     # Contract should throw if constructor arguments were not provided
     with pytest.raises(ValueError) as err:
-        await Contract.deploy(
-            client=gateway_account_client,
+        Contract.compute_address(
             compilation_source=constructor_with_arguments_source,
+            salt=1234,
         )
 
     assert "no args were provided" in str(err.value)
 
     # Positional params
-    contract_1 = await Contract.deploy(
-        client=gateway_account_client,
+    address1 = Contract.compute_address(
         compilation_source=constructor_with_arguments_source,
         constructor_args=[value, tuple_value, arr, struct],
+        salt=1234,
     )
-    contract_1 = await contract_1.wait_for_acceptance()
-    contract_1 = contract_1.deployed_contract
+    assert address1
 
     # Named params
-    contract_2 = await Contract.deploy(
-        client=gateway_account_client,
+    address2 = Contract.compute_address(
         compilation_source=constructor_with_arguments_source,
         constructor_args={
             "single_value": value,
@@ -78,17 +76,9 @@ async def test_constructor_arguments(gateway_account_client):
             "arr": arr,
             "dict": struct,
         },
+        salt=1234,
     )
-    await contract_2.wait_for_acceptance()
-    contract_2 = contract_2.deployed_contract
-
-    assert contract_1.address != contract_2.address
-
-    result_1 = await contract_1.functions["get"].call()
-    result_2 = await contract_1.functions["get"].call()
-
-    assert result_1 == (value, tuple_value, sum(arr), struct)
-    assert result_2 == (value, tuple_value, sum(arr), struct)
+    assert address2
 
 
 constructor_without_arguments_source = (
@@ -97,12 +87,8 @@ constructor_without_arguments_source = (
 
 
 @pytest.mark.asyncio
-async def test_constructor_without_arguments(gateway_account_client):
-    result = await Contract.deploy(
-        client=gateway_account_client,
+async def test_constructor_without_arguments():
+    assert Contract.compute_address(
         compilation_source=constructor_without_arguments_source,
+        salt=1234,
     )
-    result = await result.wait_for_acceptance()
-    contract = result.deployed_contract
-
-    assert contract.address is not None
