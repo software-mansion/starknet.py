@@ -34,7 +34,6 @@ class BaseAccount(ABC):
         Get transaction verison supported by the account
         """
 
-
     @abstractmethod
     async def get_nonce(self) -> int:
         """
