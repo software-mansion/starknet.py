@@ -8,6 +8,7 @@ from starkware.starkware_utils.error_handling import StarkErrorCode
 from starknet_py.net.client_models import SentTransactionResponse, Call
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_DIR
+from starknet_py.tests.e2e.utils import deploy
 from starknet_py.transaction_exceptions import (
     TransactionRejectedError,
     TransactionNotReceivedError,
@@ -153,9 +154,9 @@ user_auth_source = (CONTRACTS_DIR / "user_auth.cairo").read_text("utf-8")
 
 
 @pytest.mark.asyncio
-async def test_get_code_not_found(gateway_account_client):
+async def test_get_code_not_found(new_account):
     with pytest.raises(ContractNotFoundError) as exinfo:
-        await Contract.from_address(1, gateway_account_client)
+        await Contract.from_address(1, account=new_account)
 
     assert "No contract found" in str(exinfo.value)
 
@@ -177,25 +178,16 @@ async def test_call_uninitialized_contract(gateway_account_client):
 
 
 @pytest.mark.asyncio
-async def test_deploy_throws_on_no_compilation_source(account_client):
-    with pytest.raises(ValueError) as exinfo:
-        await Contract.deploy(client=account_client)
-
-    assert "One of compiled_contract or compilation_source is required." in str(
-        exinfo.value
+async def test_wait_for_tx(account, map_source_code):
+    deployment = await deploy(
+        compilation_source=map_source_code,
+        account=account,
     )
+    await account.client.wait_for_tx(deployment.hash)
 
 
 @pytest.mark.asyncio
-async def test_wait_for_tx(account_client, map_source_code):
-    deployment = await Contract.deploy(
-        compilation_source=map_source_code, client=account_client
-    )
-    await account_client.wait_for_tx(deployment.hash)
-
-
-@pytest.mark.asyncio
-async def test_wait_for_tx_throws_on_transaction_rejected(account_client, map_contract):
+async def test_wait_for_tx_throws_on_transaction_rejected(account, map_contract):
     invoke = map_contract.functions["put"].prepare(key=0x1, value=0x1, max_fee=MAX_FEE)
 
     # modify selector so that transaction will get rejected
@@ -203,29 +195,16 @@ async def test_wait_for_tx_throws_on_transaction_rejected(account_client, map_co
     transaction = await invoke.invoke()
 
     with pytest.raises(TransactionRejectedError) as err:
-        await account_client.wait_for_tx(transaction.hash)
+        await account.client.wait_for_tx(transaction.hash)
 
-    if isinstance(account_client.client, GatewayClient):
+    if isinstance(account.client, GatewayClient):
         assert "Entry point 0x123 not found in contract" in err.value.message
-
-
-@pytest.mark.asyncio
-async def test_warning_when_max_fee_equals_to_zero(map_contract):
-    with pytest.warns(
-        DeprecationWarning,
-        match=r"Transaction will fail with max_fee set to 0. Change it to a higher value.",
-    ):
-        # try except have to be added because when running on a real environment it will throw an error (max_fee=0)
-        try:
-            await map_contract.functions["put"].invoke(10, 20, max_fee=0)
-        except ClientError:
-            pass
 
 
 @pytest.mark.asyncio
 async def test_transaction_not_received_error(map_contract):
     with patch(
-        "starknet_py.net.account.account_client.AccountClient.send_transaction",
+        "starknet_py.net.gateway_client.GatewayClient.send_transaction",
         MagicMock(),
     ) as mocked_send_transaction:
         result = asyncio.Future()
@@ -246,7 +225,7 @@ async def test_transaction_not_received_error(map_contract):
 
 @pytest.mark.asyncio
 async def test_error_when_invoking_without_account_client(gateway_client, map_contract):
-    contract = await Contract.from_address(map_contract.address, gateway_client)
+    contract = await Contract.from_address(map_contract.address, client=gateway_client)
 
     with pytest.raises(ValueError) as wrong_client_error:
         await contract.functions["put"].prepare(key=10, value=10).invoke(
@@ -254,7 +233,7 @@ async def test_error_when_invoking_without_account_client(gateway_client, map_co
         )
 
     assert (
-        "Contract uses an account that can't invoke transactions. You need to use AccountClient for that."
+        "Contract was created without Account provided or with Client that is not an account."
         in str(wrong_client_error)
     )
 
@@ -263,12 +242,12 @@ async def test_error_when_invoking_without_account_client(gateway_client, map_co
 async def test_error_when_estimating_fee_while_not_using_account_client(
     gateway_client, map_contract
 ):
-    contract = await Contract.from_address(map_contract.address, gateway_client)
+    contract = await Contract.from_address(map_contract.address, client=gateway_client)
 
     with pytest.raises(ValueError) as wrong_client_error:
         await contract.functions["put"].prepare(key=10, value=10).estimate_fee()
 
     assert (
-        "Contract uses an account that can't invoke transactions. You need to use AccountClient for that."
+        "Contract was created without Account provided or with Client that is not an account."
         in str(wrong_client_error)
     )
