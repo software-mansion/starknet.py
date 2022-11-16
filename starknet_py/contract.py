@@ -703,8 +703,15 @@ class ContractFromAddressFactory:
 def _unpack_client_and_account(
     client: Optional[Client] = None, account: Optional[BaseAccount] = None
 ) -> Tuple[Client, Optional[BaseAccount]]:
+    """
+    Get the client and optional account to be used by Contract
+
+    If provided with AccountClient, returns underlying Client and _AccountProxy
+    If provided with Client, returns this Client and None
+    If provided with Account, returns underlying Client and the account
+    """
     if client is not None and account is not None:
-        raise ValueError("account and client are mutually exclusive")
+        raise ValueError("Account and client are mutually exclusive")
 
     if client is None and account is None:
         raise ValueError("One of client or account must be provided")
@@ -718,4 +725,4 @@ def _unpack_client_and_account(
     if account is not None:
         return account.client, account
 
-    raise ValueError()  # TODO fix typechecker
+    raise ValueError()  # This is needed for typechecker
