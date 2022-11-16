@@ -95,7 +95,7 @@ async def test_get_class_at_throws_on_wrong_address(full_node_client):
 
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
-async def test_block_transaction_count(full_node_client):
+async def test_block_transaction_count(full_node_client, block_with_deploy_number):
     # TODO restore whole tests when devnet RPC supports DEPLOY_ACCOUNT transactions
     # latest_block = (await full_node_client.get_block("latest")).block_number
     #
@@ -105,6 +105,11 @@ async def test_block_transaction_count(full_node_client):
     #     )
     #
     #     assert transaction_count == 1
+
+    # We need to request "some" fixture so prepare_network is triggered
+    # as it is not longer autoused
+    # pylint: disable=unused-argument
+
     transaction_count = await full_node_client.get_block_transaction_count(
         block_number=1
     )
