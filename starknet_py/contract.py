@@ -22,6 +22,8 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
 
 from starknet_py.common import create_compiled_contract
 from starknet_py.compile.compiler import StarknetCompilationSource
+from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
+from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.proxy.contract_abi_resolver import (
     ProxyConfig,
     ContractAbiResolver,
@@ -110,6 +112,69 @@ class InvokeResult(SentTransaction):
 
 
 InvocationResult = InvokeResult
+
+
+@add_sync_methods
+@dataclass(frozen=True)
+class DeclareResult(SentTransaction):
+    class_hash: int = None  # pyright: ignore
+    account: AccountClient = None  # pyright: ignore
+    compiled_contract: str = None  # pyright: ignore
+
+    def __post_init__(self):
+        assert self.class_hash is not None
+        assert self.account is not None
+        assert self.compiled_contract is not None
+
+    async def deploy(
+        self,
+        *,
+        deployer_address: AddressRepresentation = DEFAULT_DEPLOYER_ADDRESS,
+        salt: Optional[int] = None,
+        unique: bool = True,
+        constructor_args: Optional[Union[List, Dict]] = None,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+    ) -> "DeployResult":
+        """
+        Deploys a contract
+
+        :param deployer_address: Address of the UDC. Is set to the address of
+            the default UDC (same address on real nets and devnet) by default.
+            Must be set when using custom network other than devnet.
+        :param salt: Optional salt. Random value is selected if it is not provided.
+        :param unique: Determines if the contract should be salted with the account address.
+        :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
+        :param max_fee: Max amount of Wei to be paid when executing transaction.
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :return: DeployResult instance
+        """
+        # pylint: disable=too-many-arguments
+        abi = create_compiled_contract(compiled_contract=self.compiled_contract).abi
+
+        deployer = Deployer(
+            deployer_address=deployer_address,
+            account_address=self.account.address if unique else None,
+        )
+        deploy_call, address = deployer.create_deployment_call(
+            class_hash=self.class_hash, salt=salt, abi=abi, calldata=constructor_args
+        )
+        res = await self.account.execute(
+            calls=deploy_call, max_fee=max_fee, auto_estimate=auto_estimate
+        )
+
+        deployed_contract = Contract(
+            client=self.account,
+            address=address,
+            abi=abi,
+        )
+        deploy_result = DeployResult(
+            hash=res.transaction_hash,
+            _client=self.account.client,
+            deployed_contract=deployed_contract,
+        )
+
+        return deploy_result
 
 
 @add_sync_methods
@@ -414,6 +479,28 @@ class Contract:
         ).resolve()
 
         return Contract(address=address, abi=abi, client=client)
+
+    @staticmethod
+    async def declare(
+        account: AccountClient,
+        compiled_contract: str,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+    ) -> DeclareResult:
+        declare_tx = await account.sign_declare_transaction(
+            compiled_contract=compiled_contract,
+            max_fee=max_fee,
+            auto_estimate=auto_estimate,
+        )
+        res = await account.declare(transaction=declare_tx)
+
+        return DeclareResult(
+            hash=res.transaction_hash,
+            _client=account.client,
+            class_hash=res.class_hash,
+            account=account,
+            compiled_contract=compiled_contract,
+        )
 
     @staticmethod
     async def deploy(
