@@ -504,6 +504,45 @@ class Contract:
         )
 
     @staticmethod
+    async def deploy_contract(
+        class_hash: Hash,
+        account: AccountClient,
+        abi: List,
+        constructor_args: Optional[Union[List, Dict]] = None,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+    ) -> "DeployResult":
+        """
+        Deploys a contract
+
+        :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
+        :param max_fee: Max amount of Wei to be paid when executing transaction.
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :return: DeployResult instance
+        """
+        # pylint: disable=too-many-arguments
+        deployer = Deployer(account_address=account.address)
+        deploy_call, address = deployer.create_deployment_call(
+            class_hash=class_hash, abi=abi, calldata=constructor_args
+        )
+        res = await account.execute(
+            calls=deploy_call, max_fee=max_fee, auto_estimate=auto_estimate
+        )
+
+        deployed_contract = Contract(
+            client=account,
+            address=address,
+            abi=abi,
+        )
+        deploy_result = DeployResult(
+            hash=res.transaction_hash,
+            _client=account.client,
+            deployed_contract=deployed_contract,
+        )
+
+        return deploy_result
+
+    @staticmethod
     async def deploy(
         client: Client,
         compilation_source: Optional[StarknetCompilationSource] = None,
