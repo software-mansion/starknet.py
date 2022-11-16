@@ -1,5 +1,6 @@
+import warnings
 from dataclasses import dataclass
-from typing import List
+from typing import List, Union
 
 from starkware.crypto.signature.signature import (
     private_to_stark_key,
@@ -117,8 +118,20 @@ class StarkCurveSigner(BaseSigner):
         r, s = message_signature(msg_hash=tx_hash, priv_key=self.private_key)
         return [r, s]
 
-    def sign_message(self, typed_data: TypedData, account_address: int) -> List[int]:
-        typed_data_dataclass = TypedDataDataclass.from_dict(data=typed_data)
+    def sign_message(
+        self, typed_data: Union[TypedData, TypedDataDataclass], account_address: int
+    ) -> List[int]:
+        if isinstance(typed_data, dict):
+            warnings.warn(
+                "TypedData as dict has been deprecated. Use starknet_py.utils.TypedData dataclass instead.",
+                category=DeprecationWarning,
+            )
+
+        typed_data_dataclass = (
+            TypedDataDataclass.from_dict(data=typed_data)
+            if isinstance(typed_data, dict)
+            else typed_data
+        )
         msg_hash = typed_data_dataclass.message_hash(account_address)
         # pylint: disable=invalid-name
         r, s = message_signature(msg_hash=msg_hash, priv_key=self.private_key)

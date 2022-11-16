@@ -71,7 +71,7 @@ class Account(BaseAccount):
             signer = StarkCurveSigner(
                 account_address=self.address, key_pair=key_pair, chain_id=chain
             )
-        self.signer = signer
+        self.signer: BaseSigner = signer
         self._version = 1
 
     @property
