@@ -251,3 +251,57 @@ async def test_error_when_estimating_fee_while_not_using_account_client(
         "Contract was created without Account provided or with Client that is not an account."
         in str(wrong_client_error)
     )
+
+
+@pytest.mark.asyncio
+async def test_constructor_arguments():
+    value = 10
+    tuple_value = (1, (2, 3))
+    arr = [1, 2, 3]
+    struct = {"value": 12, "nested_struct": {"value": 99}}
+
+    constructor_with_arguments_source = (
+        CONTRACTS_DIR / "constructor_with_arguments.cairo"
+    ).read_text("utf-8")
+
+    # Contract should throw if constructor arguments were not provided
+    with pytest.raises(ValueError) as err:
+        Contract.compute_address(
+            compilation_source=constructor_with_arguments_source,
+            salt=1234,
+        )
+
+    assert "no args were provided" in str(err.value)
+
+    # Positional params
+    address1 = Contract.compute_address(
+        compilation_source=constructor_with_arguments_source,
+        constructor_args=[value, tuple_value, arr, struct],
+        salt=1234,
+    )
+    assert address1
+
+    # Named params
+    address2 = Contract.compute_address(
+        compilation_source=constructor_with_arguments_source,
+        constructor_args={
+            "single_value": value,
+            "tuple": tuple_value,
+            "arr": arr,
+            "dict": struct,
+        },
+        salt=1234,
+    )
+    assert address2
+
+
+@pytest.mark.asyncio
+async def test_constructor_without_arguments():
+    constructor_without_arguments_source = (
+        CONTRACTS_DIR / "constructor_without_arguments.cairo"
+    ).read_text("utf-8")
+
+    assert Contract.compute_address(
+        compilation_source=constructor_without_arguments_source,
+        salt=1234,
+    )
