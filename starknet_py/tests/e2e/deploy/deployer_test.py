@@ -3,6 +3,7 @@ import pytest
 from starknet_py.contract import Contract
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.utils import MAX_FEE
+from starknet_py.utils.contructor_args_translator import translate_constructor_args
 
 
 @pytest.mark.asyncio
@@ -29,6 +30,26 @@ async def test_throws_when_calldata_provided_without_abi(map_class_hash):
         deployer.create_deployment_call(class_hash=map_class_hash, calldata=[12, 34])
 
     assert "calldata was provided without an abi" in str(err.value)
+
+
+@pytest.mark.asyncio
+async def test_throws_when_calldata_and_cairo_calldata_provided(
+    constructor_with_arguments_abi,
+    constructor_with_arguments_class_hash,
+):
+    deployer = Deployer()
+
+    with pytest.raises(ValueError) as err:
+        deployer.create_deployment_call(
+            class_hash=constructor_with_arguments_class_hash,
+            abi=constructor_with_arguments_abi,
+            calldata=[12],
+            cairo_calldata=[12],
+        )
+
+    assert "calldata and cairo_calldata were provided at the same time" in str(
+        err.value
+    )
 
 
 @pytest.mark.asyncio
@@ -123,3 +144,44 @@ async def test_if_address_computation_works_properly(
     address_from_event = tx_receipt.events[0].data[0]
 
     assert computed_address == address_from_event
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "calldata",
+    [
+        [10, (1, (2, 3)), [1, 2, 3], {"value": 12, "nested_struct": {"value": 99}}],
+        {
+            "single_value": 10,
+            "tuple": (1, (2, 3)),
+            "arr": [1, 2, 3],
+            "dict": {"value": 12, "nested_struct": {"value": 99}},
+        },
+    ],
+)
+async def test_passing_plain_cairo_calldata(
+    account_client,
+    constructor_with_arguments_abi,
+    constructor_with_arguments_class_hash,
+    calldata,
+):
+    deployer = Deployer(account_address=account_client.address)
+
+    cairo_calldata = translate_constructor_args(
+        abi=constructor_with_arguments_abi or [], constructor_args=calldata
+    )
+
+    (deploy_call, contract_address,) = deployer.create_deployment_call(
+        class_hash=constructor_with_arguments_class_hash,
+        abi=constructor_with_arguments_abi,
+        cairo_calldata=cairo_calldata,
+    )
+
+    deploy_invoke_transaction = await account_client.sign_invoke_transaction(
+        deploy_call, max_fee=MAX_FEE
+    )
+    resp = await account_client.send_transaction(deploy_invoke_transaction)
+    await account_client.wait_for_tx(resp.transaction_hash)
+
+    assert isinstance(contract_address, int)
+    assert contract_address != 0
