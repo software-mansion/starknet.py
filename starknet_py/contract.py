@@ -282,18 +282,11 @@ class ContractFunction:
         :return: PreparedFunctionCall
         """
         if version is None:
-            # version = (
-            #     self._client.supported_tx_version
-            #     if isinstance(self._client, AccountClient)
-            #     else 0
-            # )
-            # TODO add better logic without using internal account
             version = (
                 self.account.supported_tx_version if self.account is not None else 0
             )
 
         if version == 0:
-            # TODO consider better warning
             warnings.warn(
                 "Transaction with version 0 is deprecated and will be removed in the future. "
                 "Use AccountClient supporting the transaction version 1",
