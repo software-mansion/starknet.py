@@ -8,7 +8,8 @@ import pytest
 import pytest_asyncio
 from starkware.starknet.public.abi import get_selector_from_name
 
-from starknet_py.net import AccountClient
+from starknet_py.net.account.account import Account
+from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.tests.e2e.client.fixtures.prepare_net_for_gateway_test import (
     PreparedNetworkData,
     prepare_net_for_tests,
@@ -23,13 +24,13 @@ directory = os.path.dirname(__file__)
 
 
 async def prepare_network(
-    new_gateway_account_client: AccountClient,
+    account: BaseAccount,
     deploy_account_details: AccountToBeDeployedDetails,
 ) -> PreparedNetworkData:
     contract_compiled = Path(CONTRACTS_DIR / "balance_compiled.json").read_text("utf-8")
 
     prepared_data = await prepare_net_for_tests(
-        new_gateway_account_client,
+        account=account,
         compiled_contract=contract_compiled,
         deploy_account_details=deploy_account_details,
     )
@@ -178,7 +179,7 @@ def fixture_class_hash(network: str, contract_address: int) -> int:
 @pytest_asyncio.fixture(name="prepare_network", scope="module")
 async def fixture_prepare_network(
     network: str,
-    new_gateway_account_client: AccountClient,
+    new_account: Account,
     deploy_account_details_factory: AccountToBeDeployedDetailsFactory,
 ) -> AsyncGenerator[Tuple[str, PreparedNetworkData], None]:
     """
@@ -186,5 +187,5 @@ async def fixture_prepare_network(
     """
     net = network
     details = await deploy_account_details_factory.get()
-    prepared_data = await prepare_network(new_gateway_account_client, details)
+    prepared_data = await prepare_network(new_account, details)
     yield net, prepared_data

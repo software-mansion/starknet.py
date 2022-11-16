@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 
-from starknet_py.contract import Contract
-from starknet_py.net import AccountClient
+from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.tests.e2e.utils import (
     get_deploy_account_transaction,
     AccountToBeDeployedDetails,
+    deploy,
 )
 
 
@@ -25,21 +25,21 @@ class PreparedNetworkData:
 
 
 async def prepare_net_for_tests(
-    account_client: AccountClient,
+    account: BaseAccount,
     compiled_contract: str,
     deploy_account_details: AccountToBeDeployedDetails,
 ) -> PreparedNetworkData:
     # pylint: disable=too-many-locals
 
-    deployment_result = await Contract.deploy(
-        client=account_client, compiled_contract=compiled_contract
+    deployment_result = await deploy(
+        account=account, compiled_contract=compiled_contract
     )
     deployment_result = await deployment_result.wait_for_acceptance(
         wait_for_accept=True
     )
     contract = deployment_result.deployed_contract
 
-    deploy_receipt = await account_client.get_transaction_receipt(
+    deploy_receipt = await account.client.get_transaction_receipt(
         deployment_result.hash
     )
     block_with_deploy_number = deploy_receipt.block_number
@@ -51,17 +51,17 @@ async def prepare_net_for_tests(
     await invoke_res.wait_for_acceptance()
 
     block_with_invoke_number = (
-        await account_client.get_transaction_receipt(invoke_res.hash)
+        await account.client.get_transaction_receipt(invoke_res.hash)
     ).block_number
 
-    declare_tx = await account_client.sign_declare_transaction(
+    declare_tx = await account.sign_declare_transaction(
         compiled_contract=compiled_contract, max_fee=int(1e16)
     )
-    declare_result = await account_client.declare(declare_tx)
-    await account_client.wait_for_tx(declare_result.transaction_hash)
+    declare_result = await account.client.declare(declare_tx)
+    await account.client.wait_for_tx(declare_result.transaction_hash)
 
     block_with_declare_number = (
-        await account_client.get_transaction_receipt(declare_result.transaction_hash)
+        await account.client.get_transaction_receipt(declare_result.transaction_hash)
     ).block_number
 
     address, key_pair, salt, class_hash = deploy_account_details
@@ -70,12 +70,12 @@ async def prepare_net_for_tests(
         key_pair=key_pair,
         salt=salt,
         class_hash=class_hash,
-        client=account_client,
+        client=account.client,
     )
-    deploy_account_result = await account_client.deploy_account(deploy_account_tx)
-    await account_client.wait_for_tx(deploy_account_result.transaction_hash)
+    deploy_account_result = await account.client.deploy_account(deploy_account_tx)
+    await account.client.wait_for_tx(deploy_account_result.transaction_hash)
 
-    declare_account_receipt = await account_client.get_transaction_receipt(
+    declare_account_receipt = await account.client.get_transaction_receipt(
         deploy_account_result.transaction_hash
     )
     block_with_deploy_account_number = declare_account_receipt.block_number
