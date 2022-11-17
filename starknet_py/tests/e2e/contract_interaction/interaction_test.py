@@ -12,7 +12,7 @@ from starknet_py.transaction_exceptions import (
     TransactionNotReceivedError,
 )
 from starknet_py.contract import Contract
-from starknet_py.net.client_errors import ClientError, ContractNotFoundError
+from starknet_py.net.client_errors import ClientError
 
 MAX_FEE = int(1e20)
 
@@ -146,14 +146,6 @@ async def test_invoke_and_call(key, value, map_contract):
     (response,) = await map_contract.functions["get"].call(key)
 
     assert response == value
-
-
-@pytest.mark.asyncio
-async def test_get_code_not_found(gateway_account_client):
-    with pytest.raises(ContractNotFoundError) as exinfo:
-        await Contract.from_address(1, gateway_account_client)
-
-    assert "No contract found" in str(exinfo.value)
 
 
 @pytest.mark.asyncio
