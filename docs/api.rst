@@ -7,6 +7,7 @@ API
    account_client
    client_errors
    contract
+   udc_deployer
    compiler
    signer
    models

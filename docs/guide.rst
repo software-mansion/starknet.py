@@ -108,6 +108,21 @@ Here's how you can deploy new contracts:
     :dedent: 4
 
 
+Deploying new contracts with Universal Deployer Contract (UDC)
+--------------------------------------------------------------
+
+Using UDC is a way of deploying contracts if you already have an account. starknet.py assumes you use an implementation compatible
+with `OpenZeppelin's UDC implementation <https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/utils/presets/UniversalDeployer.cairo>`_.
+
+There is a class responsible for the deployment (:ref:`Deployer<Deployer>`).
+
+Short code example how to use it:
+
+.. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_deploying_with_udc.py
+    :language: python
+    :dedent: 4
+
+
 Fees
 ----
 
@@ -239,11 +254,13 @@ Starknet.py transforms python values to Cairo values and the other way around.
      - int
 
 
-Using CairoSerializer
----------------------
+Parsing emitted events
+----------------------
 
-CairoSerializer can be used to transform any data (like a function call or an event) between cairo and python format. It requires an abi of the contract, types of values and data to be serialized.
-Here is a usage example:
+CairoSerializer can be used to transform data between cairo and python format.
+It requires an abi of the contract, types of values and data to be serialized.
+
+In particular, it can be used to parse an event emmited by a transaction to python usable format.
 
 .. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_using_cairo_serializer.py
     :language: python
