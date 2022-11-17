@@ -473,8 +473,13 @@ def _create_broadcasted_txn(
 
 
 def _create_broadcasted_declare_properties(transaction: Declare) -> dict:
+    contract_class = transaction.dump()["contract_class"]
     declare_properties = {
-        "contract_class": transaction.dump()["contract_class"],
+        "contract_class": {
+            "program": contract_class["program"],
+            "entry_points_by_type": contract_class["entry_points_by_type"],
+            "abi": contract_class["abi"],
+        },
         "sender_address": hash_to_felt(transaction.sender_address),
     }
     return declare_properties
