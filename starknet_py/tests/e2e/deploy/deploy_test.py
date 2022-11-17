@@ -48,7 +48,7 @@ async def test_constructor_arguments(
             compiled_contract=constructor_with_arguments_compiled_contract,
         )
 
-    assert "no args were provided" in str(err.value)
+    assert "no arguments were provided" in str(err.value)
 
     # Positional params
     contract_1 = await Contract.deploy(
