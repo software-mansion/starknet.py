@@ -254,11 +254,13 @@ Starknet.py transforms python values to Cairo values and the other way around.
      - int
 
 
-Using CairoSerializer
----------------------
+Parsing emitted events
+----------------------
 
-CairoSerializer can be used to transform any data (like a function call or an event) between cairo and python format. It requires an abi of the contract, types of values and data to be serialized.
-Here is a usage example:
+CairoSerializer can be used to transform data between cairo and python format.
+It requires an abi of the contract, types of values and data to be serialized.
+
+In particular, it can be used to parse an event emmited by a transaction to python usable format.
 
 .. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_using_cairo_serializer.py
     :language: python
