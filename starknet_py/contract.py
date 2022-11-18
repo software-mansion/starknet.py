@@ -140,13 +140,13 @@ class DeclareResult(SentTransaction):
         Deploys a contract
 
         :param deployer_address: Address of the UDC. Is set to the address of
-            the default UDC (same address on real nets and devnet) by default.
-            Must be set when using custom network other than devnet.
+            the default UDC (same address on mainnet/testnet/devnet) by default.
+            Must be set when using custom network other than ones listed above.
         :param salt: Optional salt. Random value is selected if it is not provided.
         :param unique: Determines if the contract should be salted with the account address.
         :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
-        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :return: DeployResult instance
         """
         # pylint: disable=too-many-arguments
