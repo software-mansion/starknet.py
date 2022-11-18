@@ -488,6 +488,15 @@ class Contract:
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> DeclareResult:
+        """
+        Declares a contract
+
+        :param account: An AccountClient used to sign and send declare transaction.
+        :param compiled_contract: String containing compiled contract.
+        :param max_fee: Max amount of Wei to be paid when executing transaction.
+        :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
+        :return: DeclareResult instance
+        """
         declare_tx = await account.sign_declare_transaction(
             compiled_contract=compiled_contract,
             max_fee=max_fee,
@@ -509,15 +518,19 @@ class Contract:
         account: AccountClient,
         abi: List,
         constructor_args: Optional[Union[List, Dict]] = None,
+        *,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> "DeployResult":
         """
-        Deploys a contract
+        Deploys a contract through Universal Deployer Contract
 
+        :param class_hash: The class_hash of the contract to be deployed.
+        :param account: An AccountClient used to sign and send deploy transaction.
+        :param abi: An abi of the contract to be deployed.
         :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
-        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :return: DeployResult instance
         """
         # pylint: disable=too-many-arguments
