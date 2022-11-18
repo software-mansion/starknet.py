@@ -279,6 +279,7 @@ async def test_get_class_by_hash(client, class_hash):
     contract_class = await client.get_class_by_hash(class_hash=class_hash)
     assert contract_class.program != ""
     assert contract_class.entry_points_by_type is not None
+    assert contract_class.abi is not None
 
 
 @pytest.mark.asyncio

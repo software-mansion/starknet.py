@@ -82,6 +82,7 @@ async def test_get_class_at(full_node_client, contract_address):
 
     assert declared_contract.program != {}
     assert declared_contract.entry_points_by_type is not None
+    assert declared_contract.abi is not None
 
 
 @pytest.mark.run_on_devnet
