@@ -122,7 +122,10 @@ class DeclareResult(SentTransaction):
     compiled_contract: str = None  # pyright: ignore
 
     def __post_init__(self):
-        if any(field is None for field in [self.class_hash, self.account, self.compiled_contract]):
+        if any(
+            field is None
+            for field in [self.class_hash, self.account, self.compiled_contract]
+        ):
             raise ValueError("None of the DeclareResult fields can be None")
 
     async def deploy(
