@@ -12,7 +12,7 @@ async def test_deploying_in_multicall(
     from starknet_py.contract import Contract
     from starknet_py.net.udc_deployer.deployer import Deployer
 
-    # First, create Deployer instance. For more details go to previous paragraph
+    # First, create Deployer instance. For more details see previous paragraph
     deployer = Deployer()
 
     # Create deployment call. We will be deploying the `map` contract
