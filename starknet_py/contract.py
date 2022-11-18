@@ -523,8 +523,8 @@ class Contract:
         class_hash: Hash,
         abi: List,
         constructor_args: Optional[Union[List, Dict]] = None,
-        deployer_address: AddressRepresentation = DEFAULT_DEPLOYER_ADDRESS,
         *,
+        deployer_address: AddressRepresentation = DEFAULT_DEPLOYER_ADDRESS,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> "DeployResult":
