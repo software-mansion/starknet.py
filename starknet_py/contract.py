@@ -126,7 +126,7 @@ class DeclareResult(SentTransaction):
             field is None
             for field in [self.class_hash, self.account, self.compiled_contract]
         ):
-            raise ValueError("None of the DeclareResult fields can be None")
+            raise ValueError("None of the class_hash, account and compiled_contract fields can be None")
 
     async def deploy(
         self,
