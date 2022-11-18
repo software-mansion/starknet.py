@@ -21,18 +21,16 @@ async def is_map_working_properly(map_contract: Contract, key: int, val: int) ->
 
 
 @pytest.mark.asyncio
-async def test_contract_from_address_no_proxy(
-    gateway_account_client, map_compiled_contract
-):
+async def test_contract_from_address_no_proxy(account_client, map_compiled_contract):
     deployment_result = await Contract.deploy(
         compiled_contract=map_compiled_contract,
-        client=gateway_account_client,
+        client=account_client,
     )
     await deployment_result.wait_for_acceptance()
 
     contract = await Contract.from_address(
         address=deployment_result.deployed_contract.address,
-        client=gateway_account_client,
+        client=account_client,
     )
 
     assert contract.functions.keys() == {"put", "get"}
@@ -42,15 +40,15 @@ async def test_contract_from_address_no_proxy(
 
 @pytest.mark.asyncio
 async def test_contract_from_address_with_proxy(
-    gateway_account_client, deploy_proxy_to_contract_oz_argent
+    account_client, deploy_proxy_to_contract_oz_argent
 ):
     proxy_contract = await Contract.from_address(
         address=deploy_proxy_to_contract_oz_argent.deployed_contract.address,
-        client=gateway_account_client,
+        client=account_client,
     )
     proxied_contract = await Contract.from_address(
         address=deploy_proxy_to_contract_oz_argent.deployed_contract.address,
-        client=gateway_account_client,
+        client=account_client,
         proxy_config=True,
     )
 
@@ -60,40 +58,31 @@ async def test_contract_from_address_with_proxy(
 
 
 @pytest.mark.asyncio
-async def test_contract_from_address_unsupported_client(full_node_account_client):
-    with pytest.raises(TypeError, match=r"only supports GatewayClient"):
-        await Contract.from_address(
-            address=123,
-            client=full_node_account_client,
-        )
-
-
-@pytest.mark.asyncio
-async def test_contract_from_invalid_address(gateway_account_client):
+async def test_contract_from_invalid_address(account_client):
     with pytest.raises(ContractNotFoundError):
         await Contract.from_address(
             address=123,
-            client=gateway_account_client,
+            client=account_client,
         )
 
 
 @pytest.mark.asyncio
 async def test_contract_from_address_invalid_proxy_checks(
-    gateway_account_client, deploy_proxy_to_contract_custom
+    account_client, deploy_proxy_to_contract_custom
 ):
     message = "Couldn't resolve proxy using given ProxyChecks"
 
     with pytest.raises(ProxyResolutionError, match=message):
         await Contract.from_address(
             address=deploy_proxy_to_contract_custom.deployed_contract.address,
-            client=gateway_account_client,
+            client=account_client,
             proxy_config=True,
         )
 
 
 @pytest.mark.asyncio
 async def test_contract_from_address_custom_proxy_check(
-    gateway_account_client, deploy_proxy_to_contract_custom
+    account_client, deploy_proxy_to_contract_custom
 ):
     class CustomProxyCheck(ProxyCheck):
         async def implementation_address(
@@ -112,7 +101,7 @@ async def test_contract_from_address_custom_proxy_check(
 
     contract = await Contract.from_address(
         address=deploy_proxy_to_contract_custom.deployed_contract.address,
-        client=gateway_account_client,
+        client=account_client,
         proxy_config={"proxy_checks": [CustomProxyCheck()]},
     )
 
@@ -123,11 +112,11 @@ async def test_contract_from_address_custom_proxy_check(
 
 @pytest.mark.asyncio
 async def test_contract_from_address_with_old_address_proxy(
-    gateway_account_client, old_proxy, map_compiled_contract
+    account_client, old_proxy, map_compiled_contract
 ):
     map_deployment_result = await Contract.deploy(
         compiled_contract=map_compiled_contract,
-        client=gateway_account_client,
+        client=account_client,
     )
     await map_deployment_result.wait_for_acceptance()
 
@@ -136,17 +125,17 @@ async def test_contract_from_address_with_old_address_proxy(
         constructor_args={
             "implementation_address": map_deployment_result.deployed_contract.address
         },
-        client=gateway_account_client,
+        client=account_client,
     )
     await deployment_result.wait_for_acceptance()
 
     proxy_contract = await Contract.from_address(
         address=deployment_result.deployed_contract.address,
-        client=gateway_account_client,
+        client=account_client,
     )
     proxied_contract = await Contract.from_address(
         address=deployment_result.deployed_contract.address,
-        client=gateway_account_client,
+        client=account_client,
         proxy_config=True,
     )
 
