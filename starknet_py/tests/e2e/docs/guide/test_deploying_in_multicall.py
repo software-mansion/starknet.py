@@ -29,6 +29,7 @@ async def test_deploying_in_multicall(
     put_call = map_contract.functions["put"].prepare(key=10, value=20)
 
     # After that multicall transaction can be sent
+    # Note that `deploy_call` and `put_call` are two regular calls!
     invoke_tx = await account_client.sign_invoke_transaction(
         calls=[deploy_call, put_call], max_fee=int(1e16)
     )
