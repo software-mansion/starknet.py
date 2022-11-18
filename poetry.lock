@@ -616,23 +616,23 @@ test = ["pytest (>=6.2.5,<7)", "pytest-xdist", "tox (>=2.9.1,<3)"]
 
 [[package]]
 name = "eth-utils"
-version = "2.0.0"
+version = "2.1.0"
 description = "eth-utils: Common utility functions for python code that interacts with Ethereum"
 category = "main"
 optional = false
-python-versions = ">=3.6,<4"
+python-versions = ">=3.7,<4"
 
 [package.dependencies]
-cytoolz = {version = ">=0.10.1,<1.0.0", markers = "implementation_name == \"cpython\""}
-eth-hash = ">=0.3.1,<0.4.0"
-eth-typing = ">=3.0.0,<4.0.0"
-toolz = {version = ">0.8.2,<1", markers = "implementation_name == \"pypy\""}
+cytoolz = {version = ">=0.10.1", markers = "implementation_name == \"cpython\""}
+eth-hash = ">=0.3.1"
+eth-typing = ">=3.0.0"
+toolz = {version = ">0.8.2", markers = "implementation_name == \"pypy\""}
 
 [package.extras]
-dev = ["Sphinx (>=1.6.5,<2)", "black (>=18.6b4,<19)", "bumpversion (>=0.5.3,<1)", "flake8 (==3.7.9)", "hypothesis (>=4.43.0,<5.0.0)", "ipython", "isort (>=4.2.15,<5)", "mypy (==0.720)", "pydocstyle (>=5.0.0,<6)", "pytest (>=3.4.1,<4.0.0)", "pytest (>=6.2.5,<7)", "pytest-watch (>=4.1.0,<5)", "pytest-xdist", "sphinx-rtd-theme (>=0.1.9,<2)", "towncrier (>=19.2.0,<20)", "tox (==3.14.6)", "twine (>=1.13,<2)", "wheel (>=0.30.0,<1.0.0)"]
-doc = ["Sphinx (>=1.6.5,<2)", "sphinx-rtd-theme (>=0.1.9,<2)", "towncrier (>=19.2.0,<20)"]
-lint = ["black (>=18.6b4,<19)", "flake8 (==3.7.9)", "isort (>=4.2.15,<5)", "mypy (==0.720)", "pydocstyle (>=5.0.0,<6)", "pytest (>=3.4.1,<4.0.0)"]
-test = ["hypothesis (>=4.43.0,<5.0.0)", "pytest (>=6.2.5,<7)", "pytest-xdist", "tox (==3.14.6)"]
+dev = ["Sphinx (>=1.6.5,<2)", "black (>=22)", "bumpversion (>=0.5.3,<1)", "flake8 (==3.7.9)", "hypothesis (>=4.43.0,<5.0.0)", "ipython", "isort (>=4.2.15,<5)", "jinja2 (>=3.0.0,<3.0.1)", "mypy (==0.910)", "pydocstyle (>=5.0.0,<6)", "pytest (>=6.2.5,<7)", "pytest-watch (>=4.1.0,<5)", "pytest-xdist", "sphinx-rtd-theme (>=0.1.9,<2)", "towncrier (>=21,<22)", "tox (==3.14.6)", "twine (>=1.13,<2)", "types-setuptools", "wheel (>=0.30.0,<1.0.0)"]
+doc = ["Sphinx (>=1.6.5,<2)", "jinja2 (>=3.0.0,<3.0.1)", "sphinx-rtd-theme (>=0.1.9,<2)", "towncrier (>=21,<22)"]
+lint = ["black (>=22)", "flake8 (==3.7.9)", "isort (>=4.2.15,<5)", "mypy (==0.910)", "pydocstyle (>=5.0.0,<6)", "pytest (>=6.2.5,<7)", "types-setuptools"]
+test = ["hypothesis (>=4.43.0,<5.0.0)", "pytest (>=6.2.5,<7)", "pytest-xdist", "tox (==3.14.6)", "types-setuptools"]
 
 [[package]]
 name = "execnet"
@@ -1326,7 +1326,7 @@ diagrams = ["jinja2", "railroad-diagrams"]
 
 [[package]]
 name = "pyright"
-version = "1.1.279"
+version = "1.1.280"
 description = "Command line wrapper for pyright"
 category = "dev"
 optional = false
@@ -1798,29 +1798,22 @@ test = ["pytest"]
 
 [[package]]
 name = "starknet-devnet"
-version = "0.3.5"
+version = "0.4.0"
 description = "A local testnet for Starknet"
 category = "dev"
 optional = false
 python-versions = ">=3.8,<3.10"
-develop = false
 
 [package.dependencies]
 cairo-lang = "0.10.1"
-cloudpickle = "~2.1.0"
-crypto-cpp-py = "~1.0.4"
-Flask = {version = "~2.0.3", extras = ["async"]}
-flask-cors = "~3.0.10"
-gunicorn = "~20.1.0"
-marshmallow = "~3.17.0"
-typing-extensions = "~4.3.0"
-Werkzeug = "~2.0.3"
-
-[package.source]
-type = "git"
-url = "https://github.com/Shard-Labs/starknet-devnet.git"
-reference = "2979e80586745f92a67a8f3687297c90bcaba380"
-resolved_reference = "2979e80586745f92a67a8f3687297c90bcaba380"
+cloudpickle = ">=2.1.0,<2.2.0"
+crypto-cpp-py = ">=1.0.4,<1.1.0"
+Flask = {version = ">=2.0.3,<2.1.0", extras = ["async"]}
+flask-cors = ">=3.0.10,<3.1.0"
+gunicorn = ">=20.1.0,<20.2.0"
+marshmallow = ">=3.17.0,<3.18.0"
+typing-extensions = ">=4.3.0,<4.4.0"
+Werkzeug = ">=2.0.3,<2.1.0"
 
 [[package]]
 name = "sympy"
@@ -2039,7 +2032,7 @@ eth-tester = []
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8, <3.10"
-content-hash = "21d053c2e43ec230b25bf350f23e00de12f1d92ff73105049213a8772c366cbe"
+content-hash = "d16753006dcb6c4ef751de059db5fd1894a690505325ac416750f75a9aae143a"
 
 [metadata.files]
 aiohttp = [
@@ -2487,8 +2480,8 @@ eth-typing = [
     {file = "eth_typing-3.2.0-py3-none-any.whl", hash = "sha256:2d7540c1c65c0e686c1dc357b8376a53caf4e1693724a90191ad133be568841d"},
 ]
 eth-utils = [
-    {file = "eth-utils-2.0.0.tar.gz", hash = "sha256:32f50edb14c5be0c4f0e8c2e6117286ccc5dfda21d170f358add554a048398e3"},
-    {file = "eth_utils-2.0.0-py3-none-any.whl", hash = "sha256:209dc12255398f2a88f12de78f338b974861f9aefa981af5b68a5d102c9b2043"},
+    {file = "eth-utils-2.1.0.tar.gz", hash = "sha256:fcb4c3c1b32947ba92970963f9aaf40da73b04ea1034964ff8c0e70595127138"},
+    {file = "eth_utils-2.1.0-py3-none-any.whl", hash = "sha256:63901e54ec9e4ac16ae0a0d28e1dc48b968c20184d22f2727e5f3ca24b6250bc"},
 ]
 execnet = [
     {file = "execnet-1.9.0-py2.py3-none-any.whl", hash = "sha256:a295f7cc774947aac58dde7fdc85f4aa00c42adf5d8f5468fc630c1acf30a142"},
@@ -3078,8 +3071,8 @@ pyparsing = [
     {file = "pyparsing-3.0.9.tar.gz", hash = "sha256:2b020ecf7d21b687f219b71ecad3631f644a47f01403fa1d1036b0c6416d70fb"},
 ]
 pyright = [
-    {file = "pyright-1.1.279-py3-none-any.whl", hash = "sha256:5eaa6830c0a701dc72586277be98d35762d2c27e01a9c2fbf01ee4e84e785797"},
-    {file = "pyright-1.1.279.tar.gz", hash = "sha256:6f3ac7d12e036e0d1a57c1581d03d781e99b42408b8a6f0ef8ae85bcfe58fa57"},
+    {file = "pyright-1.1.280-py3-none-any.whl", hash = "sha256:25917a14d873252c5c2e6fdbec322888c0480f6db95068ff6459befa9af3c92a"},
+    {file = "pyright-1.1.280.tar.gz", hash = "sha256:4bcb167251419b3b736137b0535cb6bbfb5bef16eb74057eaf3ccaccb01d74c1"},
 ]
 pyrsistent = [
     {file = "pyrsistent-0.19.2-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:d6982b5a0237e1b7d876b60265564648a69b14017f3b5f908c5be2de3f9abb7a"},
@@ -3329,7 +3322,10 @@ sphinxcontrib-serializinghtml = [
     {file = "sphinxcontrib-serializinghtml-1.1.5.tar.gz", hash = "sha256:aa5f6de5dfdf809ef505c4895e51ef5c9eac17d0f287933eb49ec495280b6952"},
     {file = "sphinxcontrib_serializinghtml-1.1.5-py2.py3-none-any.whl", hash = "sha256:352a9a00ae864471d3a7ead8d7d79f5fc0b57e8b3f95e9867eb9eb28999b92fd"},
 ]
-starknet-devnet = []
+starknet-devnet = [
+    {file = "starknet_devnet-0.4.0-py3-none-any.whl", hash = "sha256:4f780b2b4b08bc2be9edd68126fe37ca631b774cb2be226429a4914124f9ab4d"},
+    {file = "starknet_devnet-0.4.0.tar.gz", hash = "sha256:a8961a3851e0bf2f0a9394a6bd350e071c751ce3c61f0aeaefcc72a7cc0af223"},
+]
 sympy = [
     {file = "sympy-1.11.1-py3-none-any.whl", hash = "sha256:938f984ee2b1e8eae8a07b884c8b7a1146010040fccddc6539c54f401c8f6fcf"},
     {file = "sympy-1.11.1.tar.gz", hash = "sha256:e32380dce63cb7c0108ed525570092fd45168bdae2faa17e528221ef72e88658"},
