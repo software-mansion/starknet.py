@@ -140,7 +140,7 @@ class DeclareResult(SentTransaction):
         Deploys a contract
 
         :param deployer_address: Address of the UDC. Is set to the address of
-            the default UDC (same address on real nets and devnet) by default.
+            the default UDC (same address on mainnet/testnet/devnet) by default.
             Must be set when using custom network other than devnet.
         :param salt: Optional salt. Random value is selected if it is not provided.
         :param unique: Determines if the contract should be salted with the account address.
