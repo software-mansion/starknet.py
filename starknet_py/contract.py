@@ -30,7 +30,6 @@ from starknet_py.proxy.contract_abi_resolver import (
 from starknet_py.net import AccountClient
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import Hash, Tag
-from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import (
     InvokeFunction,
     AddressRepresentation,
@@ -403,12 +402,6 @@ class Contract:
         address = parse_address(address)
         proxy_config = Contract._create_proxy_config(proxy_config)
 
-        if not Contract._is_abi_compatible_client(client):
-            # TODO: Add support for FullNodeClient once abi is available in RPC
-            raise TypeError(
-                "Contract.from_address only supports GatewayClient or AccountClients using GatewayClient"
-            )
-
         abi = await ContractAbiResolver(
             address=address, client=client, proxy_config=proxy_config
         ).resolve()
@@ -555,8 +548,3 @@ class Contract:
             return ProxyConfig()
         proxy_arg = ProxyConfig() if proxy_config is True else proxy_config
         return prepare_proxy_config(proxy_arg)
-
-    @staticmethod
-    def _is_abi_compatible_client(client) -> bool:
-        actual_client = client.client if isinstance(client, AccountClient) else client
-        return isinstance(actual_client, GatewayClient)

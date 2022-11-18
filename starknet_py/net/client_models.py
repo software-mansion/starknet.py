@@ -25,8 +25,6 @@ Declare = as_our_module(DCL)
 Hash = Union[int, str]
 Tag = Literal["pending", "latest"]
 
-Abi = List[Dict[str, Any]]
-
 
 @dataclass
 class Call:
@@ -39,9 +37,72 @@ Calls = Union[Call, Iterable[Call]]
 
 
 @dataclass
+class StructMember:
+    """
+    Dataclass representing struct member
+    """
+
+    name: str
+    type: str
+    offset: int
+
+
+@dataclass
+class TypedParameter:
+    """
+    Dataclass representing typed parameter
+    """
+
+    name: str
+    type: str
+
+
+@dataclass
+class FunctionAbiEntry:
+    """
+    Dataclass representing function abi entry
+    """
+
+    name: str
+    type: str
+    inputs: List[TypedParameter]
+    outputs: List[TypedParameter]
+    stateMutability: Optional[str] = None  # pylint: disable=invalid-name
+
+
+@dataclass
+class EventAbiEntry:
+    """
+    Dataclass representing event abi entry
+    """
+
+    name: str
+    type: str
+    keys: List[TypedParameter]
+    data: List[TypedParameter]
+
+
+@dataclass
+class StructAbiEntry:
+    """
+    Dataclass representing struct abi entry
+    """
+
+    name: str
+    type: str
+    size: List[TypedParameter]
+    members: List[StructMember]
+
+
+ContractAbiEntry = Union[FunctionAbiEntry, EventAbiEntry, StructAbiEntry]
+
+Abi = List[Dict[str, Any]]
+
+
+@dataclass
 class Event:
     """
-    Dataclass representing an event emited by transaction
+    Dataclass representing an event emitted by transaction
     """
 
     from_address: int
