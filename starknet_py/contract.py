@@ -117,16 +117,18 @@ InvocationResult = InvokeResult
 @add_sync_methods
 @dataclass(frozen=True)
 class DeclareResult(SentTransaction):
+    _account: AccountClient = None  # pyright: ignore
     class_hash: int = None  # pyright: ignore
-    account: AccountClient = None  # pyright: ignore
     compiled_contract: str = None  # pyright: ignore
 
     def __post_init__(self):
         if any(
             field is None
-            for field in [self.class_hash, self.account, self.compiled_contract]
+            for field in [self.class_hash, self._account, self.compiled_contract]
         ):
-            raise ValueError("None of the class_hash, account and compiled_contract fields can be None")
+            raise ValueError(
+                "None of the account, class_hash and compiled_contract fields can be None"
+            )
 
     async def deploy(
         self,
@@ -156,23 +158,23 @@ class DeclareResult(SentTransaction):
 
         deployer = Deployer(
             deployer_address=deployer_address,
-            account_address=self.account.address if unique else None,
+            account_address=self._account.address if unique else None,
         )
         deploy_call, address = deployer.create_deployment_call(
             class_hash=self.class_hash, salt=salt, abi=abi, calldata=constructor_args
         )
-        res = await self.account.execute(
+        res = await self._account.execute(
             calls=deploy_call, max_fee=max_fee, auto_estimate=auto_estimate
         )
 
         deployed_contract = Contract(
-            client=self.account,
+            client=self._account,
             address=address,
             abi=abi,
         )
         deploy_result = DeployResult(
             hash=res.transaction_hash,
-            _client=self.account.client,
+            _client=self._account.client,
             deployed_contract=deployed_contract,
         )
 
@@ -511,16 +513,17 @@ class Contract:
             hash=res.transaction_hash,
             _client=account.client,
             class_hash=res.class_hash,
-            account=account,
+            _account=account,
             compiled_contract=compiled_contract,
         )
 
     @staticmethod
     async def deploy_contract(
-        class_hash: Hash,
         account: AccountClient,
+        class_hash: Hash,
         abi: List,
         constructor_args: Optional[Union[List, Dict]] = None,
+        deployer_address: AddressRepresentation = DEFAULT_DEPLOYER_ADDRESS,
         *,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
@@ -528,16 +531,21 @@ class Contract:
         """
         Deploys a contract through Universal Deployer Contract
 
-        :param class_hash: The class_hash of the contract to be deployed.
         :param account: An AccountClient used to sign and send deploy transaction.
+        :param class_hash: The class_hash of the contract to be deployed.
         :param abi: An abi of the contract to be deployed.
         :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
+        :param deployer_address: Address of the UDC. Is set to the address of
+            the default UDC (same address on mainnet/testnet/devnet) by default.
+            Must be set when using custom network other than ones listed above.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :return: DeployResult instance
         """
         # pylint: disable=too-many-arguments
-        deployer = Deployer(account_address=account.address)
+        deployer = Deployer(
+            deployer_address=deployer_address, account_address=account.address
+        )
         deploy_call, address = deployer.create_deployment_call(
             class_hash=class_hash, abi=abi, calldata=constructor_args
         )
