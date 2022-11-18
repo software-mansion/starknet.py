@@ -590,7 +590,8 @@ class Contract:
         :return: DeployResult instance
 
         .. deprecated:: 0.8.0
-            This metodh has been deprecated in favor of deploying through cairo syscall.
+            This method has been deprecated in favor of deploying through cairo syscall.
+            To deploy a contract use `Contract.deploy_contract`.
         """
         warnings.warn(
             "In the future versions of StarkNet, Deploy transaction will not be supported."
