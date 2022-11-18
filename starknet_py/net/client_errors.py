@@ -31,7 +31,7 @@ class ContractNotFoundError(ClientError):
         identifier_name = "block_hash" if block_hash else "block_number"
 
         message = f"No contract with address {address} found"
-        block_info = f" for block with {identifier_name}: {identifier}"
-        full_message = f"{message}{block_info if is_identifier else ''}"
+        block_info = f" for block with {identifier_name}: {identifier}" if is_identifier else ""
+        full_message = message + block_info
 
         super().__init__(message=full_message)
