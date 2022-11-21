@@ -100,7 +100,7 @@ class Account(BaseAccount):
             )
 
         if auto_estimate:
-            estimate_fee = await self._signed_estimate_fee(transaction)
+            estimate_fee = await self._estimate_fee(transaction)
             max_fee = int(estimate_fee.overall_fee * 1.1)
 
         if max_fee is None:
@@ -163,7 +163,7 @@ class Account(BaseAccount):
                 return False
             raise ex
 
-    async def _signed_estimate_fee(
+    async def _estimate_fee(
         self,
         tx: Union[InvokeFunction, Declare, DeployAccount],
         block_hash: Optional[Union[Hash, Tag]] = None,
