@@ -52,7 +52,6 @@ class Account(BaseAccount):
         key_pair: Optional[KeyPair] = None,
         chain: Optional[StarknetChainId] = None,
     ):
-        # pylint: disable=too-many-arguments
         if chain is None and signer is None:
             raise ValueError("One of chain or signer must be provided")
 
@@ -254,7 +253,6 @@ class Account(BaseAccount):
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
         :return: Signed Declare transaction
         """
-        # pylint: disable=too-many-arguments
         compiled_contract = create_compiled_contract(
             compiled_contract=compiled_contract, search_paths=cairo_path
         )
