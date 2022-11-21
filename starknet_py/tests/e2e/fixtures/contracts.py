@@ -6,7 +6,7 @@ import pytest_asyncio
 
 from starknet_py.common import create_compiled_contract
 from starknet_py.compile.compiler import Compiler
-from starknet_py.constants import FEE_CONTRACT_ADDRESS, DEVNET_FEE_CONTRACT_ADDRESS
+from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient
 from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_DIR, MAX_FEE
@@ -115,7 +115,7 @@ async def deploy_erc20_contract(
 
 
 @pytest.fixture(scope="module")
-def fee_contract(pytestconfig, new_gateway_account_client: AccountClient) -> Contract:
+def fee_contract(new_gateway_account_client: AccountClient) -> Contract:
     """
     Returns an instance of the fee contract. It is used to transfer tokens
     """
@@ -140,14 +140,8 @@ def fee_contract(pytestconfig, new_gateway_account_client: AccountClient) -> Con
         },
     ]
 
-    address = (
-        FEE_CONTRACT_ADDRESS
-        if pytestconfig.getoption("--net") != "devnet"
-        else DEVNET_FEE_CONTRACT_ADDRESS
-    )
-
     return Contract(
-        address=address,
+        address=FEE_CONTRACT_ADDRESS,
         abi=abi,
         client=new_gateway_account_client,
     )

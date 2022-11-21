@@ -1797,29 +1797,22 @@ test = ["pytest"]
 
 [[package]]
 name = "starknet-devnet"
-version = "0.3.5"
+version = "0.4.0"
 description = "A local testnet for Starknet"
 category = "dev"
 optional = false
 python-versions = ">=3.8,<3.10"
-develop = false
 
 [package.dependencies]
 cairo-lang = "0.10.1"
-cloudpickle = "~2.1.0"
-crypto-cpp-py = "~1.0.4"
-Flask = {version = "~2.0.3", extras = ["async"]}
-flask-cors = "~3.0.10"
-gunicorn = "~20.1.0"
-marshmallow = "~3.17.0"
-typing-extensions = "~4.3.0"
-Werkzeug = "~2.0.3"
-
-[package.source]
-type = "git"
-url = "https://github.com/Shard-Labs/starknet-devnet.git"
-reference = "40d5b6f"
-resolved_reference = "40d5b6f75fd80e5adea989e5f45ebb76c5c25cde"
+cloudpickle = ">=2.1.0,<2.2.0"
+crypto-cpp-py = ">=1.0.4,<1.1.0"
+Flask = {version = ">=2.0.3,<2.1.0", extras = ["async"]}
+flask-cors = ">=3.0.10,<3.1.0"
+gunicorn = ">=20.1.0,<20.2.0"
+marshmallow = ">=3.17.0,<3.18.0"
+typing-extensions = ">=4.3.0,<4.4.0"
+Werkzeug = ">=2.0.3,<2.1.0"
 
 [[package]]
 name = "sympy"
@@ -2038,7 +2031,7 @@ eth-tester = []
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8, <3.10"
-content-hash = "5b7e7ce592f26c16969ed8c277878e2ca7c9e399fccd17046e516d8a490a2038"
+content-hash = "d16753006dcb6c4ef751de059db5fd1894a690505325ac416750f75a9aae143a"
 
 [metadata.files]
 aiohttp = [
@@ -3338,7 +3331,10 @@ sphinxcontrib-serializinghtml = [
     {file = "sphinxcontrib-serializinghtml-1.1.5.tar.gz", hash = "sha256:aa5f6de5dfdf809ef505c4895e51ef5c9eac17d0f287933eb49ec495280b6952"},
     {file = "sphinxcontrib_serializinghtml-1.1.5-py2.py3-none-any.whl", hash = "sha256:352a9a00ae864471d3a7ead8d7d79f5fc0b57e8b3f95e9867eb9eb28999b92fd"},
 ]
-starknet-devnet = []
+starknet-devnet = [
+    {file = "starknet_devnet-0.4.0-py3-none-any.whl", hash = "sha256:4f780b2b4b08bc2be9edd68126fe37ca631b774cb2be226429a4914124f9ab4d"},
+    {file = "starknet_devnet-0.4.0.tar.gz", hash = "sha256:a8961a3851e0bf2f0a9394a6bd350e071c751ce3c61f0aeaefcc72a7cc0af223"},
+]
 sympy = [
     {file = "sympy-1.11.1-py3-none-any.whl", hash = "sha256:938f984ee2b1e8eae8a07b884c8b7a1146010040fccddc6539c54f401c8f6fcf"},
     {file = "sympy-1.11.1.tar.gz", hash = "sha256:e32380dce63cb7c0108ed525570092fd45168bdae2faa17e528221ef72e88658"},
