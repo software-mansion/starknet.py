@@ -137,7 +137,7 @@ class Account(BaseAccount):
 
         max_fee = await self._get_max_fee(transaction, max_fee, auto_estimate)
 
-        return dataclasses.replace(transaction, max_fee=max_fee)
+        return _add_max_fee_to_transaction(transaction, max_fee)
 
     async def _verify_message_hash(self, msg_hash: int, signature: List[int]) -> bool:
         """
@@ -268,7 +268,7 @@ class Account(BaseAccount):
         max_fee = await self._get_max_fee(
             transaction=declare_tx, max_fee=max_fee, auto_estimate=auto_estimate
         )
-        declare_tx = dataclasses.replace(declare_tx, max_fee=max_fee)
+        declare_tx = _add_max_fee_to_transaction(declare_tx, max_fee)
         signature = self.signer.sign_transaction(declare_tx)
         return _add_signature_to_transaction(declare_tx, signature)
 
@@ -308,7 +308,7 @@ class Account(BaseAccount):
         max_fee = await self._get_max_fee(
             transaction=deploy_account_tx, max_fee=max_fee, auto_estimate=auto_estimate
         )
-        deploy_account_tx = dataclasses.replace(deploy_account_tx, max_fee=max_fee)
+        _add_max_fee_to_transaction(deploy_account_tx, max_fee)
         signature = self.signer.sign_transaction(deploy_account_tx)
         return _add_signature_to_transaction(deploy_account_tx, signature)
 
@@ -364,6 +364,12 @@ def _add_signature_to_transaction(
     tx: SignableTransaction, signature: List[int]
 ) -> SignableTransaction:
     return dataclasses.replace(tx, signature=signature)
+
+
+def _add_max_fee_to_transaction(
+    tx: SignableTransaction, max_fee: int
+) -> SignableTransaction:
+    return dataclasses.replace(tx, max_fee=max_fee)
 
 
 def _parse_call(
