@@ -24,6 +24,8 @@ from starknet_py.net.client_models import (
     EstimatedFee,
     StateDiff,
     L1HandlerTransaction,
+    DeployAccountTransaction,
+    DeployAccountTransactionResponse,
     TypedParameter,
     StructMember,
     StructAbiEntry,
@@ -157,6 +159,19 @@ class DeployTransactionSchema(TransactionSchema):
         return DeployTransaction(**data)
 
 
+class DeployAccountTransactionSchema(TransactionSchema):
+    contract_address_salt = Felt(data_key="contract_address_salt", required=True)
+    constructor_calldata = fields.List(
+        Felt(), data_key="constructor_calldata", required=True
+    )
+    class_hash = Felt(data_key="class_hash", required=True)
+    nonce = Felt(data_key="nonce", load_default=None)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> DeployAccountTransaction:
+        return DeployAccountTransaction(**data)
+
+
 class L1HandlerTransactionSchema(TransactionSchema):
     contract_address = Felt(data_key="contract_address", required=True)
     calldata = fields.List(Felt(), data_key="calldata", required=True)
@@ -174,8 +189,7 @@ class TypesOfTransactionsSchema(OneOfSchema):
         "INVOKE": InvokeTransactionSchema,
         "DECLARE": DeclareTransactionSchema,
         "DEPLOY": DeployTransactionSchema,
-        # FIXME add proper handling/serialization
-        "DEPLOY_ACCOUNT": None,
+        "DEPLOY_ACCOUNT": DeployAccountTransactionSchema,
         "L1_HANDLER": L1HandlerTransactionSchema,
     }
 
@@ -409,6 +423,14 @@ class DeployTransactionResponseSchema(SentTransactionSchema):
     @post_load
     def make_dataclass(self, data, **kwargs):
         return DeployTransactionResponse(**data)
+
+
+class DeployAccountTransactionResponseSchema(SentTransactionSchema):
+    address = Felt(data_key="contract_address", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return DeployAccountTransactionResponse(**data)
 
 
 class PendingTransactionsSchema(Schema):
