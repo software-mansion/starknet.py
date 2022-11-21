@@ -139,7 +139,7 @@ class ContractAbiResolver:
                 "is not deployed" in err.message
                 or err.code == RPC_CLASS_HASH_NOT_FOUND_ERROR
             ):
-                raise ContractNotFoundError(block_hash="latest") from err
+                raise ContractNotFoundError(address=address) from err
             raise err
 
         return contract_class
