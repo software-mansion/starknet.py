@@ -144,7 +144,7 @@ class BaseAccount(ABC):
     @abstractmethod
     async def verify_message(self, typed_data: TypedData, signature: List[int]) -> bool:
         """
-        Verify a signature of a TypedData dict
+        Verify a signature of a TypedData dict on StarkNet.
 
         :param typed_data: TypedData TypedDict to be verified
         :param signature: signature of the TypedData TypedDict
