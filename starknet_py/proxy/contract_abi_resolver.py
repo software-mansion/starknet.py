@@ -2,6 +2,7 @@ import warnings
 from enum import Enum
 from typing import List, TypedDict, Tuple
 
+from starknet_py.constants import RPC_CLASS_HASH_NOT_FOUND_ERROR
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ContractNotFoundError, ClientError
 from starknet_py.net.client_models import Abi, DeclaredContract
@@ -134,8 +135,11 @@ class ContractAbiResolver:
                 class_hash=contract_class_hash
             )
         except ClientError as err:
-            if "is not deployed" in err.message:
-                raise ContractNotFoundError(block_hash="latest") from err
+            if (
+                "is not deployed" in err.message
+                or err.code == RPC_CLASS_HASH_NOT_FOUND_ERROR
+            ):
+                raise ContractNotFoundError(address=address) from err
             raise err
 
         return contract_class

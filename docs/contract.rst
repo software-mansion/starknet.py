@@ -21,3 +21,7 @@ Contract
 .. autoclass:: DeployResult
     :exclude-members: __init__, __new__
     :members: wait_for_acceptance, wait_for_acceptance_sync
+
+.. autoclass:: DeclareResult
+    :exclude-members: __init__, __new__
+    :members: deploy, deploy_sync, wait_for_acceptance, wait_for_acceptance_sync

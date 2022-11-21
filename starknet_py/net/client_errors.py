@@ -1,5 +1,8 @@
 from typing import Optional, Union
 
+from starknet_py.net.client_models import Hash, Tag
+from starknet_py.net.models import AddressRepresentation
+
 
 class ClientError(Exception):
     """
@@ -19,17 +22,18 @@ class ContractNotFoundError(ClientError):
 
     def __init__(
         self,
-        block_hash: Optional[Union[int, str]] = None,
-        block_number: Optional[int] = None,
+        address: AddressRepresentation,
+        block_hash: Optional[Hash] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ):
-        require_block_identifier(block_hash, block_number)
-
+        is_identifier = block_hash is not None or block_number is not None
         identifier = block_hash or block_number
-        self.identifier = str(identifier) if isinstance(identifier, int) else identifier
+        identifier_name = "block_hash" if block_hash else "block_number"
 
-        super().__init__(message=f"No contract found for identifier: {self.identifier}")
+        message = f"No contract with address {address} found"
+        block_info = (
+            f" for block with {identifier_name}: {identifier}" if is_identifier else ""
+        )
+        full_message = message + block_info
 
-
-def require_block_identifier(block_hash, block_number):
-    if block_hash is None and block_number is None:
-        raise ValueError("One of block hash or number must be provided")
+        super().__init__(message=full_message)
