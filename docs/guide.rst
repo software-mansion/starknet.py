@@ -1,6 +1,74 @@
 Guide
 =====
 
+Declaring contracts
+-------------------
+
+Since Cairo 0.10.0 Declare transactions can be signed and in the future, declaring without signing the transaction
+(and without paying the fee) will be impossible. That is why :ref:`AccountClient` has
+:meth:`sign_declare_transaction()` method.
+
+Here's an example how to use it.
+
+.. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_declaring_contracts.py
+    :language: python
+    :dedent: 4
+
+.. note::
+
+    Signing Declare transactions is possible only with Accounts having `__validate__` entrypoint (with `supported_tx_version = 1`).
+
+
+Deploying contracts
+-------------------
+
+Simple declare and deploy
+#########################
+
+The simplest way of declaring and deploying contracts on the StarkNet is to use the :ref:`Contract` class.
+Under the hood, this flow sends :meth:`Declare` transaction and then sends :meth:`InvokeFunction`
+through Universal Deployment Contract (UDC) to deploy a contract.
+
+.. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_simple_declare_and_deploy.py
+    :language: python
+    :dedent: 4
+
+Simple deploy
+#############
+
+If you already know a class_hash of a contract you want to deploy just use the :meth:`Contract.deploy_contract`.
+It will deploy the contract using funds from your account. Deployment is handled by UDC.
+
+.. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_simple_deploy.py
+    :language: python
+    :dedent: 4
+
+Using Universal Deployer Contract (UDC)
+#######################################
+
+Using UDC is a way of deploying contracts if you already have an account. starknet.py assumes that UDC use an implementation compatible
+with `OpenZeppelin's UDC implementation <https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/utils/presets/UniversalDeployer.cairo>`_.
+
+There is a class responsible for the deployment (:ref:`Deployer<Deployer>`).
+
+Short code example how to use it:
+
+.. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_deploying_with_udc.py
+    :language: python
+    :dedent: 4
+
+Deploying and using deployed contract in the same transaction
+#############################################################
+
+:ref:`Deployer` is designed to work with multicalls too. It allows to deploy a contract
+and call its methods in the same multicall, ensuring atomicity of all operations combined.
+Isn't it brilliant? Check out the code!
+
+.. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_deploying_in_multicall.py
+    :language: python
+    :dedent: 4
+
+
 Using existing contracts
 ------------------------
 
@@ -80,71 +148,28 @@ You can also **verify a message**, which is done by a call to ``is_valid_signatu
     :dedent: 4
 
 
-Declaring contracts
--------------------
+FullNodeClient usage
+--------------------
 
-Since Cairo 0.10.0 Declare transactions can be signed and in the future, declaring without signing the transaction
-(and without paying the fee) will be impossible. That is why :ref:`AccountClient` has
-:meth:`sign_declare_transaction()` method.
+Use a :ref:`FullNodeClient` to interact with services providing `starknet rpc interface <https://github.com/starkware-libs/starknet-specs/blob/606c21e06be92ea1543fd0134b7f98df622c2fbf/api/starknet_api_openrpc.json>`_
+like `Pathfinder Full Node <https://github.com/eqlabs/pathfinder>`_ or starknet-devnet. StarkNet.py provides uniform interface for
+both gateway and full node client - usage is exactly the same as gateway client minus some optional
+parameters.
 
-Here's an example how to use it.
+Using own full node allows for querying StarkNet with better performance.
+Since gateway will be deprecated at some point in the future, having ``FullNodeClient`` with interface uniform with that of ``GatewayClient``
+will allow for simple migration for StarkNet.py users.
 
-.. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_declaring_contracts.py
-    :language: python
-    :dedent: 4
-
-.. note::
-
-    Signing Declare transactions is possible only with Accounts having `__validate__` entrypoint (with `supported_tx_version = 1`).
-
-
-Deploying contracts
--------------------
-
-Simple declare and deploy
-#########################
-
-The simplest way of declaring and deploying contracts on the StarkNet is to use the :ref:`Contract` class.
-Under the hood, this flow sends :meth:`Declare` transaction and then sends :meth:`InvokeFunction`
-through Universal Deployment Contract (UDC) to deploy a contract.
-
-.. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_simple_declare_and_deploy.py
+.. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_full_node_client.py
     :language: python
     :dedent: 4
 
 
-Simple deploy
-#############
+Handling client errors
+-----------------------
+You can use :class:`starknet_py.net.client_errors.ClientError` to catch errors from invalid requests:
 
-If you already know a class_hash of a contract you want to deploy just use the :meth:`Contract.deploy_contract`.
-It will deploy the contract using funds from your account. Deployment is handled by UDC.
-
-.. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_simple_deploy.py
-    :language: python
-    :dedent: 4
-
-Using Universal Deployer Contract (UDC)
-#######################################
-
-Using UDC is a way of deploying contracts if you already have an account. starknet.py assumes that UDC use an implementation compatible
-with `OpenZeppelin's UDC implementation <https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/utils/presets/UniversalDeployer.cairo>`_.
-
-There is a class responsible for the deployment (:ref:`Deployer<Deployer>`).
-
-Short code example how to use it:
-
-.. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_deploying_with_udc.py
-    :language: python
-    :dedent: 4
-
-Deploying and using deployed contract in the same transaction
-#############################################################
-
-:ref:`Deployer` is designed to work with multicalls too. It allows to deploy a contract
-and call its methods in the same multicall, ensuring atomicity of all operations combined.
-Isn't it brilliant? Check out the code!
-
-.. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_deploying_in_multicall.py
+.. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_handling_client_errors.py
     :language: python
     :dedent: 4
 
@@ -201,15 +226,6 @@ returned by it multiplied by ``1.1`` as a ``max_fee``.
 .. code-block:: python
 
     await contract.functions["put"].invoke(k, v, auto_estimate=True)
-
-
-Handling client errors
------------------------
-You can use :class:`starknet_py.net.client_errors.ClientError` to catch errors from invalid requests:
-
-.. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_handling_client_errors.py
-    :language: python
-    :dedent: 4
 
 
 Data transformation
@@ -303,23 +319,6 @@ Conversion functions and references:
 
 - :obj:`encode_shortstring <starknet_py.cairo.felt.encode_shortstring>`
 - :obj:`decode_shortstring <starknet_py.cairo.felt.decode_shortstring>`
-
-
-FullNodeClient usage
---------------------
-
-Use a :ref:`FullNodeClient` to interact with services providing `starknet rpc interface <https://github.com/starkware-libs/starknet-specs/blob/606c21e06be92ea1543fd0134b7f98df622c2fbf/api/starknet_api_openrpc.json>`_
-like `Pathfinder Full Node <https://github.com/eqlabs/pathfinder>`_ or starknet-devnet. StarkNet.py provides uniform interface for
-both gateway and full node client - usage is exactly the same as gateway client minus some optional
-parameters.
-
-Using own full node allows for querying StarkNet with better performance.
-Since gateway will be deprecated at some point in the future, having ``FullNodeClient`` with interface uniform with that of ``GatewayClient``
-will allow for simple migration for StarkNet.py users.
-
-.. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_full_node_client.py
-    :language: python
-    :dedent: 4
 
 
 StarkNet <> Ethereum communication
