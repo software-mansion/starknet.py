@@ -1,34 +1,18 @@
 import os
 import pytest
-from starknet_py.net.models import StarknetChainId
 
 directory = os.path.dirname(__file__)
 
 
 @pytest.mark.asyncio
-async def test_using_account_client(network, gateway_account_client, map_source_code):
+async def test_using_account_client(account_client, map_source_code):
     # pylint: disable=import-outside-toplevel, duplicate-code, too-many-locals
     # docs: start
-    from starknet_py.net import AccountClient
     from starknet_py.contract import Contract
-    from starknet_py.net.gateway_client import GatewayClient
-
-    # docs: end
-    testnet = network
-    # docs: start
-
-    # Creates an account on testnet and returns an instance
-    client = GatewayClient(net=testnet)
-    acc_client = await AccountClient.create_account(
-        client=client, chain=StarknetChainId.TESTNET
-    )
-    # docs: end
-    acc_client = gateway_account_client
-    # docs: start
 
     # Deploy an example contract which implements a simple k-v store. Deploy transaction is not being signed.
     deployment_result = await Contract.deploy(
-        client=acc_client, compilation_source=map_source_code
+        client=account_client, compilation_source=map_source_code
     )
     # Wait until deployment transaction is accepted
     await deployment_result.wait_for_acceptance()
@@ -54,8 +38,8 @@ async def test_using_account_client(network, gateway_account_client, map_source_
     ]
 
     # Executes only one transaction with prepared calls
-    transaction_response = await acc_client.execute(calls=calls, max_fee=int(1e16))
-    await acc_client.wait_for_tx(transaction_response.transaction_hash)
+    transaction_response = await account_client.execute(calls=calls, max_fee=int(1e16))
+    await account_client.wait_for_tx(transaction_response.transaction_hash)
     # docs: end
 
     assert resp == v

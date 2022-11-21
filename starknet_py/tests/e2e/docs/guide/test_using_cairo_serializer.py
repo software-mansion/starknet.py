@@ -3,13 +3,10 @@ from starkware.starknet.public.abi import get_selector_from_name
 
 
 @pytest.mark.asyncio
-async def test_using_cairo_serializer(network, gateway_account_client):
-    # pylint: disable=unused-variable, too-many-locals, import-outside-toplevel
+async def test_using_cairo_serializer(account_client):
+    # pylint: disable=unused-variable, import-outside-toplevel
     # docs: start
-    from starknet_py.net.gateway_client import GatewayClient
-    from starknet_py.net.models import StarknetChainId
     from starknet_py.contract import Contract
-    from starknet_py.net import AccountClient
     from starknet_py.utils.data_transformer.data_transformer import CairoSerializer
 
     # Code of the contract which emits an event
@@ -36,24 +33,10 @@ async def test_using_cairo_serializer(network, gateway_account_client):
         }
     """
 
-    net = "testnet"  # Can be "mainnet" or other custom net too
-    # docs: end
-
-    net = network
-    # docs: start
-
-    # Creates an account
-    client = await AccountClient.create_account(
-        client=GatewayClient(net=net),
-        chain=StarknetChainId.TESTNET,
-    )
-    # docs: end
-
-    client = gateway_account_client
-    # docs: start
-
     # Deploys the contract
-    deployment_result = await Contract.deploy(client, compilation_source=contract)
+    deployment_result = await Contract.deploy(
+        account_client, compilation_source=contract
+    )
     await deployment_result.wait_for_acceptance()
     contract = deployment_result.deployed_contract
 
@@ -64,7 +47,7 @@ async def test_using_cairo_serializer(network, gateway_account_client):
     await invoke_result.wait_for_acceptance()
 
     transaction_hash = invoke_result.hash
-    transaction_receipt = await client.get_transaction_receipt(transaction_hash)
+    transaction_receipt = await account_client.get_transaction_receipt(transaction_hash)
 
     # Takes events from transaction receipt
     events = transaction_receipt.events

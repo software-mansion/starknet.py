@@ -1,6 +1,5 @@
 import pytest
 
-from starknet_py.net import AccountClient
 
 # docs-abi: start
 abi = [
@@ -26,39 +25,23 @@ abi = [
 
 
 @pytest.mark.asyncio
-async def test_using_existing_contracts(
-    gateway_client, gateway_account_client, erc20_contract
-):
+async def test_using_existing_contracts(account_client, erc20_contract):
     # pylint: disable=import-outside-toplevel,too-many-locals,unused-variable
     # docs: start
-    from starknet_py.net.gateway_client import GatewayClient
     from starknet_py.contract import Contract
-    from starknet_py.net.networks import TESTNET
-    from starknet_py.net.models import StarknetChainId
 
     address = "0x00178130dd6286a9a0e031e4c73b2bd04ffa92804264a25c1c08c1612559f458"
-    client = GatewayClient(TESTNET)
-    # docs: end
-    client = gateway_client
-    # docs: start
 
-    contract = Contract(address=address, abi=abi, client=gateway_client)
+    contract = Contract(address=address, abi=abi, client=account_client)
     # or
-    acc_client = await AccountClient.create_account(
-        client=gateway_client, chain=StarknetChainId.TESTNET
-    )
     # docs: end
-
-    acc_client = gateway_account_client
 
     address = erc20_contract.address
-
     # docs: start
+    contract = await Contract.from_address(client=account_client, address=address)
 
     sender = "321"
     recipient = "123"
-
-    contract = await Contract.from_address(client=acc_client, address=address)
 
     # Using only positional arguments
     invocation = await contract.functions["transferFrom"].invoke(
