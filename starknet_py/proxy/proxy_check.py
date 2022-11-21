@@ -7,6 +7,7 @@ from starkware.starknet.public.abi import (
     get_selector_from_name,
 )
 
+from starknet_py.constants import RPC_INVALID_MESSAGE_SELECTOR_ERROR
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import Call
@@ -64,7 +65,10 @@ class ArgentProxyCheck(ProxyCheck):
             (implementation,) = await client.call_contract(call=call)
             await get_class_func(implementation)
         except ClientError as err:
-            if re.search(err_msg, err.message, re.IGNORECASE):
+            if (
+                re.search(err_msg, err.message, re.IGNORECASE)
+                or err.code == RPC_INVALID_MESSAGE_SELECTOR_ERROR
+            ):
                 return None
             raise err
         return implementation

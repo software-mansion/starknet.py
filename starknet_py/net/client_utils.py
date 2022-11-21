@@ -5,7 +5,7 @@ from typing_extensions import get_args
 from starknet_py.net.client_models import Hash, Tag, Call
 
 
-def convert_to_felt(value: Hash) -> str:
+def hash_to_felt(value: Hash) -> str:
     """
     Convert hash to hexadecimal string
     """

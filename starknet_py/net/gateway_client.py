@@ -49,7 +49,7 @@ from starknet_py.net.http_client import GatewayHttpClient
 from starknet_py.net.networks import Network, net_address_from_net
 from starknet_py.net.client_errors import ContractNotFoundError
 from starknet_py.net.client_utils import (
-    convert_to_felt,
+    hash_to_felt,
     is_block_identifier,
     _invoke_tx_to_call,
 )
@@ -164,7 +164,7 @@ class GatewayClient(Client):
             method_name="get_storage_at",
             params={
                 **{
-                    "contractAddress": convert_to_felt(contract_address),
+                    "contractAddress": hash_to_felt(contract_address),
                     "key": key,
                 },
                 **block_identifier,
@@ -179,7 +179,7 @@ class GatewayClient(Client):
     ) -> Transaction:
         res = await self._feeder_gateway_client.call(
             method_name="get_transaction",
-            params={"transactionHash": convert_to_felt(tx_hash)},
+            params={"transactionHash": hash_to_felt(tx_hash)},
         )
 
         if res["status"] in ("UNKNOWN", "NOT_RECEIVED"):
@@ -190,7 +190,7 @@ class GatewayClient(Client):
     async def get_transaction_receipt(self, tx_hash: Hash) -> TransactionReceipt:
         res = await self._feeder_gateway_client.call(
             method_name="get_transaction_receipt",
-            params={"transactionHash": convert_to_felt(tx_hash)},
+            params={"transactionHash": hash_to_felt(tx_hash)},
         )
 
         return TransactionReceiptSchema().load(res, unknown=EXCLUDE)  # pyright: ignore
@@ -292,7 +292,7 @@ class GatewayClient(Client):
         res = await self._feeder_gateway_client.call(
             method_name="get_class_hash_at",
             params={
-                "contractAddress": convert_to_felt(contract_address),
+                "contractAddress": hash_to_felt(contract_address),
                 **block_identifier,
             },
         )
@@ -302,7 +302,7 @@ class GatewayClient(Client):
     async def get_class_by_hash(self, class_hash: Hash) -> DeclaredContract:
         res = await self._feeder_gateway_client.call(
             method_name="get_class_by_hash",
-            params={"classHash": convert_to_felt(class_hash)},
+            params={"classHash": hash_to_felt(class_hash)},
         )
         return DeclaredContractSchema().load(res, unknown=EXCLUDE)  # pyright: ignore
 
@@ -331,7 +331,7 @@ class GatewayClient(Client):
         :return: An object containing transaction's status and optional block hash, if transaction was accepted
         """
         res = await self._feeder_gateway_client.call(
-            params={"transactionHash": convert_to_felt(tx_hash)},
+            params={"transactionHash": hash_to_felt(tx_hash)},
             method_name="get_transaction_status",
         )
         if res["tx_status"] in ("UNKNOWN", "NOT_RECEIVED"):
@@ -359,7 +359,7 @@ class GatewayClient(Client):
             block_hash=block_hash, block_number=block_number
         )
         params = {
-            **{"contractAddress": convert_to_felt(contract_address)},
+            **{"contractAddress": hash_to_felt(contract_address)},
             **block_identifier,
         }
 
@@ -386,7 +386,7 @@ class GatewayClient(Client):
             block_hash=block_hash, block_number=block_number
         )
         params = {
-            **{"contractAddress": convert_to_felt(contract_address)},
+            **{"contractAddress": hash_to_felt(contract_address)},
             **block_identifier,
         }
 
@@ -409,7 +409,7 @@ def get_block_identifier(
     if block_hash is not None:
         if is_block_identifier(block_hash):
             return {"blockNumber": block_hash}
-        return {"blockHash": convert_to_felt(block_hash)}
+        return {"blockHash": hash_to_felt(block_hash)}
 
     if block_number is not None:
         return {"blockNumber": block_number}

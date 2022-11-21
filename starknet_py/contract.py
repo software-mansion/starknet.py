@@ -22,6 +22,8 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
 
 from starknet_py.common import create_compiled_contract
 from starknet_py.compile.compiler import StarknetCompilationSource
+from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
+from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.proxy.contract_abi_resolver import (
     ProxyConfig,
     ContractAbiResolver,
@@ -30,7 +32,6 @@ from starknet_py.proxy.contract_abi_resolver import (
 from starknet_py.net import AccountClient
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import Hash, Tag
-from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import (
     InvokeFunction,
     AddressRepresentation,
@@ -114,12 +115,80 @@ InvocationResult = InvokeResult
 
 @add_sync_methods
 @dataclass(frozen=True)
+class DeclareResult(SentTransaction):
+    _account: AccountClient = None  # pyright: ignore
+    class_hash: int = None  # pyright: ignore
+    compiled_contract: str = None  # pyright: ignore
+
+    def __post_init__(self):
+        if any(
+            field is None
+            for field in [self.class_hash, self._account, self.compiled_contract]
+        ):
+            raise ValueError(
+                "None of the account, class_hash and compiled_contract fields can be None"
+            )
+
+    async def deploy(
+        self,
+        *,
+        deployer_address: AddressRepresentation = DEFAULT_DEPLOYER_ADDRESS,
+        salt: Optional[int] = None,
+        unique: bool = True,
+        constructor_args: Optional[Union[List, Dict]] = None,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+    ) -> "DeployResult":
+        """
+        Deploys a contract
+
+        :param deployer_address: Address of the UDC. Is set to the address of
+            the default UDC (same address on mainnet/testnet/devnet) by default.
+            Must be set when using custom network other than ones listed above.
+        :param salt: Optional salt. Random value is selected if it is not provided.
+        :param unique: Determines if the contract should be salted with the account address.
+        :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
+        :param max_fee: Max amount of Wei to be paid when executing transaction.
+        :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
+        :return: DeployResult instance
+        """
+        # pylint: disable=too-many-arguments
+        abi = create_compiled_contract(compiled_contract=self.compiled_contract).abi
+
+        deployer = Deployer(
+            deployer_address=deployer_address,
+            account_address=self._account.address if unique else None,
+        )
+        deploy_call, address = deployer.create_deployment_call(
+            class_hash=self.class_hash, salt=salt, abi=abi, calldata=constructor_args
+        )
+        res = await self._account.execute(
+            calls=deploy_call, max_fee=max_fee, auto_estimate=auto_estimate
+        )
+
+        deployed_contract = Contract(
+            client=self._account,
+            address=address,
+            abi=abi,
+        )
+        deploy_result = DeployResult(
+            hash=res.transaction_hash,
+            _client=self._account.client,
+            deployed_contract=deployed_contract,
+        )
+
+        return deploy_result
+
+
+@add_sync_methods
+@dataclass(frozen=True)
 class DeployResult(SentTransaction):
     # We ensure this is not None in __post_init__
     deployed_contract: "Contract" = None  # pyright: ignore
 
     def __post_init__(self):
-        assert self.deployed_contract is not None
+        if self.deployed_contract is None:
+            raise ValueError("deployed_contract can't be None")
 
 
 # pylint: disable=too-many-instance-attributes
@@ -403,17 +472,92 @@ class Contract:
         address = parse_address(address)
         proxy_config = Contract._create_proxy_config(proxy_config)
 
-        if not Contract._is_abi_compatible_client(client):
-            # TODO: Add support for FullNodeClient once abi is available in RPC
-            raise TypeError(
-                "Contract.from_address only supports GatewayClient or AccountClients using GatewayClient"
-            )
-
         abi = await ContractAbiResolver(
             address=address, client=client, proxy_config=proxy_config
         ).resolve()
 
         return Contract(address=address, abi=abi, client=client)
+
+    @staticmethod
+    async def declare(
+        account: AccountClient,
+        compiled_contract: str,
+        *,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+    ) -> DeclareResult:
+        """
+        Declares a contract
+
+        :param account: An AccountClient used to sign and send declare transaction.
+        :param compiled_contract: String containing compiled contract.
+        :param max_fee: Max amount of Wei to be paid when executing transaction.
+        :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
+        :return: DeclareResult instance
+        """
+        declare_tx = await account.sign_declare_transaction(
+            compiled_contract=compiled_contract,
+            max_fee=max_fee,
+            auto_estimate=auto_estimate,
+        )
+        res = await account.declare(transaction=declare_tx)
+
+        return DeclareResult(
+            hash=res.transaction_hash,
+            _client=account.client,
+            class_hash=res.class_hash,
+            _account=account,
+            compiled_contract=compiled_contract,
+        )
+
+    @staticmethod
+    async def deploy_contract(
+        account: AccountClient,
+        class_hash: Hash,
+        abi: List,
+        constructor_args: Optional[Union[List, Dict]] = None,
+        *,
+        deployer_address: AddressRepresentation = DEFAULT_DEPLOYER_ADDRESS,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+    ) -> "DeployResult":
+        """
+        Deploys a contract through Universal Deployer Contract
+
+        :param account: An AccountClient used to sign and send deploy transaction.
+        :param class_hash: The class_hash of the contract to be deployed.
+        :param abi: An abi of the contract to be deployed.
+        :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
+        :param deployer_address: Address of the UDC. Is set to the address of
+            the default UDC (same address on mainnet/testnet/devnet) by default.
+            Must be set when using custom network other than ones listed above.
+        :param max_fee: Max amount of Wei to be paid when executing transaction.
+        :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
+        :return: DeployResult instance
+        """
+        # pylint: disable=too-many-arguments
+        deployer = Deployer(
+            deployer_address=deployer_address, account_address=account.address
+        )
+        deploy_call, address = deployer.create_deployment_call(
+            class_hash=class_hash, abi=abi, calldata=constructor_args
+        )
+        res = await account.execute(
+            calls=deploy_call, max_fee=max_fee, auto_estimate=auto_estimate
+        )
+
+        deployed_contract = Contract(
+            client=account,
+            address=address,
+            abi=abi,
+        )
+        deploy_result = DeployResult(
+            hash=res.transaction_hash,
+            _client=account.client,
+            deployed_contract=deployed_contract,
+        )
+
+        return deploy_result
 
     @staticmethod
     async def deploy(
@@ -439,7 +583,8 @@ class Contract:
         :return: DeployResult instance
 
         .. deprecated:: 0.8.0
-            This metodh has been deprecated in favor of deploying through cairo syscall.
+            This method has been deprecated in favor of deploying through cairo syscall.
+            To deploy a contract use `Contract.deploy_contract`.
         """
         warnings.warn(
             "In the future versions of StarkNet, Deploy transaction will not be supported."
@@ -555,8 +700,3 @@ class Contract:
             return ProxyConfig()
         proxy_arg = ProxyConfig() if proxy_config is True else proxy_config
         return prepare_proxy_config(proxy_arg)
-
-    @staticmethod
-    def _is_abi_compatible_client(client) -> bool:
-        actual_client = client.client if isinstance(client, AccountClient) else client
-        return isinstance(actual_client, GatewayClient)
