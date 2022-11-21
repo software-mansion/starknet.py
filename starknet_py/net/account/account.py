@@ -45,6 +45,7 @@ class Account(BaseAccount):
 
     def __init__(
         self,
+        *,
         address: AddressRepresentation,
         client: Client,
         signer: Optional[BaseSigner] = None,
