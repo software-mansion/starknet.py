@@ -24,22 +24,22 @@ class BaseAccount(ABC):
     @abstractmethod
     def client(self) -> Client:
         """
-        Get the Client used by the Account
+        Get the Client used by the Account.
         """
 
     @property
     @abstractmethod
     def supported_tx_version(self) -> int:
         """
-        Get transaction verison supported by the account
+        Get transaction verison supported by the account.
         """
 
     @abstractmethod
     async def get_nonce(self) -> int:
         """
-        Get the current nonce of the account
+        Get the current nonce of the account.
 
-        :return: nonce
+        :return: nonce of the account.
         """
 
     @abstractmethod
@@ -63,12 +63,12 @@ class BaseAccount(ABC):
         auto_estimate: bool = False,
     ) -> InvokeFunction:
         """
-        Takes calls and creates signed InvokeFunction
+        Takes calls and creates signed InvokeFunction.
 
-        :param calls: Single call or list of calls
-        :param max_fee: Max amount of Wei to be paid when executing transaction
-        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
-        :return: InvokeFunction created from the calls
+        :param calls: Single call or list of calls.
+        :param max_fee: Max amount of Wei to be paid when executing transaction.
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :return: InvokeFunction created from the calls.
         """
 
     @abstractmethod
@@ -84,11 +84,11 @@ class BaseAccount(ABC):
         Create and sign declare transaction.
 
         :param compiled_contract: string containing compiled contract bytecode.
-                                  Useful for reading compiled contract from a file
-        :param cairo_path: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts
-        :param max_fee: Max amount of Wei to be paid when executing transaction
-        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
-        :return: Signed Declare transaction
+            Useful for reading compiled contract from a file.
+        :param cairo_path: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts.
+        :param max_fee: Max amount of Wei to be paid when executing transaction.
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :return: Signed Declare transaction.
         """
 
     @abstractmethod
@@ -102,16 +102,16 @@ class BaseAccount(ABC):
         auto_estimate: bool = False,
     ) -> DeployAccount:
         """
-        Create and sign deploy account transaction
+        Create and sign deploy account transaction.
 
-        :param class_hash: Class hash of the contract class to be deployed
-        :param contract_address_salt: A salt used to calculate deployed contract address
+        :param class_hash: Class hash of the contract class to be deployed.
+        :param contract_address_salt: A salt used to calculate deployed contract address.
         :param constructor_calldata: Calldata to be ed to contract constructor
-            and used to calculate deployed contract address
+            and used to calculate deployed contract address.
         :param max_fee: Max fee to be paid for deploying account transaction. Enough tokens must be prefunded before
             sending the transaction for it to succeed.
-        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
-        :return: Signed DeployAccount transaction
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :return: Signed DeployAccount transaction.
         """
 
     @abstractmethod
@@ -123,22 +123,22 @@ class BaseAccount(ABC):
         auto_estimate: bool = False,
     ) -> SentTransactionResponse:
         """
-        Takes calls and executes transaction
+        Takes calls and executes transaction.
 
-        :param calls: Single call or list of calls
-        :param max_fee: Max amount of Wei to be paid when executing transaction
-        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
-        :return: SentTransactionResponse
+        :param calls: Single call or list of calls.
+        :param max_fee: Max amount of Wei to be paid when executing transaction.
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :return: SentTransactionResponse.
         """
 
     @abstractmethod
     def sign_message(self, typed_data: TypedData) -> List[int]:
         """
-        Sign an TypedData TypedDict for off-chain usage with the starknet private key and return the signature
-        This adds a message prefix, so it can't be interchanged with transactions
+        Sign an TypedData TypedDict for off-chain usage with the starknet private key and return the signature.
+        This adds a message prefix, so it can't be interchanged with transactions.
 
-        :param typed_data: TypedData TypedDict to be signed
-        :return: The signature of the TypedData TypedDict
+        :param typed_data: TypedData TypedDict to be signed.
+        :return: The signature of the TypedData TypedDict.
         """
 
     @abstractmethod
@@ -146,7 +146,7 @@ class BaseAccount(ABC):
         """
         Verify a signature of a TypedData dict on StarkNet.
 
-        :param typed_data: TypedData TypedDict to be verified
-        :param signature: signature of the TypedData TypedDict
-        :return: true if the signature is valid, false otherwise
+        :param typed_data: TypedData TypedDict to be verified.
+        :param signature: signature of the TypedData TypedDict.
+        :return: true if the signature is valid, false otherwise.
         """
