@@ -34,3 +34,6 @@ MAX_FEE = int(1e20)
 MOCK_DIR = Path(os.path.dirname(__file__)) / "../mock"
 TYPED_DATA_DIR = MOCK_DIR / "typed_data"
 CONTRACTS_DIR = MOCK_DIR / "contracts"
+CONTRACTS_COMPILED_DIR = MOCK_DIR / "contracts_compiled"
+CONTRACTS_PRECOMPILED_DIR = CONTRACTS_COMPILED_DIR / "precompiled"
+ACCOUNT_DIR = MOCK_DIR / "account"

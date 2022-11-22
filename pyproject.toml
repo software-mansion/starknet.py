@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "starknet-py"
-version = "0.8.0-alpha"
+version = "0.10.0-alpha"
 description = "A python SDK for StarkNet"
 authors = ["Tomasz Rejowski <tomasz.rejowski@swmansion.com>", "Jakub Ptak <jakub.ptak@swmansion.com>"]
 include = ["starknet_py", "starknet_py/utils/crypto/libcrypto_c_exports.*"]
@@ -42,7 +42,7 @@ pytest-xdist = "^2.5.0"
 web3 = { extras = ["tester"], version = "6.0.0b4" }
 pyright = "^1.1.270"
 pytest-cov = "^4.0.0"
-starknet-devnet = {git = "https://github.com/Shard-Labs/starknet-devnet.git", rev = "e353f2432a2eda173192482d2569ab6b99c1231d"}
+starknet-devnet = "^0.4.0"
 
 [tool.poe.tasks]
 test.shell = "pytest -n auto -v --cov=starknet_py starknet_py"
@@ -57,7 +57,9 @@ docs_open = { shell = "open docs/_build/html/index.html" }
 lint = "pylint starknet_py"
 format = "black starknet_py"
 format_check = "black --check starknet_py"
+format_diff = "black --diff starknet_py"
 typecheck = "pyright starknet_py"
+compile_contracts = "bash starknet_py/tests/e2e/mock/compile_contracts.sh"
 requirements_check.shell = "poetry export -f requirements.txt --without-hashes --extras docs | cmp - requirements.txt"
 ci = ["lint", "format_check", "typecheck", "requirements_check", "test_ci"]
 

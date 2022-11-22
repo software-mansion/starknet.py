@@ -1,5 +1,5 @@
 import warnings
-from typing import List, Optional, Union, cast, Dict
+from typing import List, Optional, Union, cast
 
 import aiohttp
 from marshmallow import EXCLUDE
@@ -20,15 +20,16 @@ from starknet_py.net.client_models import (
     Transaction,
     Declare,
     Deploy,
+    DeployAccount,
     EstimatedFee,
     BlockTransactionTraces,
     DeclareTransactionResponse,
     DeployTransactionResponse,
     Call,
     DeployAccountTransactionResponse,
+    AccountTransaction,
 )
 from starknet_py.net.http_client import RpcHttpClient
-from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.net.models import TransactionType
 from starknet_py.net.networks import Network
 from starknet_py.net.schemas.rpc import (
@@ -42,8 +43,9 @@ from starknet_py.net.schemas.rpc import (
     DeployTransactionResponseSchema,
     PendingTransactionsSchema,
     EstimatedFeeSchema,
+    DeployAccountTransactionResponseSchema,
 )
-from starknet_py.net.client_utils import convert_to_felt, _invoke_tx_to_call
+from starknet_py.net.client_utils import hash_to_felt, _invoke_tx_to_call
 from starknet_py.transaction_exceptions import TransactionNotReceivedError
 from starknet_py.utils.sync import add_sync_methods
 
@@ -125,8 +127,8 @@ class FullNodeClient(Client):
         res = await self._client.call(
             method_name="getStorageAt",
             params={
-                "contract_address": convert_to_felt(contract_address),
-                "key": convert_to_felt(key),
+                "contract_address": hash_to_felt(contract_address),
+                "key": hash_to_felt(key),
                 **block_identifier,
             },
         )
@@ -140,7 +142,7 @@ class FullNodeClient(Client):
         try:
             res = await self._client.call(
                 method_name="getTransactionByHash",
-                params={"transaction_hash": convert_to_felt(tx_hash)},
+                params={"transaction_hash": hash_to_felt(tx_hash)},
             )
         except ClientError as ex:
             raise TransactionNotReceivedError() from ex
@@ -149,7 +151,7 @@ class FullNodeClient(Client):
     async def get_transaction_receipt(self, tx_hash: Hash) -> TransactionReceipt:
         res = await self._client.call(
             method_name="getTransactionReceipt",
-            params={"transaction_hash": convert_to_felt(tx_hash)},
+            params={"transaction_hash": hash_to_felt(tx_hash)},
         )
         return cast(
             TransactionReceipt, TransactionReceiptSchema().load(res, unknown=EXCLUDE)
@@ -161,11 +163,6 @@ class FullNodeClient(Client):
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
-        if isinstance(tx, DeployAccount):
-            raise ValueError(
-                "Estimating fee for DeployAccount transactions is currently not supported in FullNodeClient"
-            )
-
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -197,9 +194,9 @@ class FullNodeClient(Client):
             method_name="call",
             params={
                 "request": {
-                    "contract_address": convert_to_felt(call.to_addr),
-                    "entry_point_selector": convert_to_felt(call.selector),
-                    "calldata": [convert_to_felt(i1) for i1 in call.calldata],
+                    "contract_address": hash_to_felt(call.to_addr),
+                    "entry_point_selector": hash_to_felt(call.selector),
+                    "calldata": [hash_to_felt(i1) for i1 in call.calldata],
                 },
                 **block_identifier,
             },
@@ -213,7 +210,7 @@ class FullNodeClient(Client):
 
         res = await self._client.call(
             method_name="addInvokeTransaction",
-            params={"invoke_transaction": {**params}},
+            params={"invoke_transaction": params},
         )
 
         return cast(
@@ -242,11 +239,11 @@ class FullNodeClient(Client):
                     },
                     "version": hex(transaction.version),
                     "type": "DEPLOY",
-                    "contract_address_salt": convert_to_felt(
+                    "contract_address_salt": hash_to_felt(
                         transaction.contract_address_salt
                     ),
                     "constructor_calldata": [
-                        convert_to_felt(i) for i in transaction.constructor_calldata
+                        hash_to_felt(i) for i in transaction.constructor_calldata
                     ],
                 },
             },
@@ -260,7 +257,18 @@ class FullNodeClient(Client):
     async def deploy_account(
         self, transaction: DeployAccount
     ) -> DeployAccountTransactionResponse:
-        raise NotImplementedError()
+
+        params = _create_broadcasted_txn(transaction=transaction)
+
+        res = await self._client.call(
+            method_name="addDeployAccountTransaction",
+            params={"deploy_account_transaction": params},
+        )
+
+        return cast(
+            DeployAccountTransactionResponse,
+            DeployAccountTransactionResponseSchema().load(res, unknown=EXCLUDE),
+        )
 
     async def declare(self, transaction: Declare) -> DeclareTransactionResponse:
         params = _create_broadcasted_txn(transaction=transaction)
@@ -287,7 +295,7 @@ class FullNodeClient(Client):
         res = await self._client.call(
             method_name="getClassHashAt",
             params={
-                "contract_address": convert_to_felt(contract_address),
+                "contract_address": hash_to_felt(contract_address),
                 **block_identifier,
             },
         )
@@ -306,7 +314,7 @@ class FullNodeClient(Client):
 
         res = await self._client.call(
             method_name="getClass",
-            params={"class_hash": convert_to_felt(class_hash), **block_identifier},
+            params={"class_hash": hash_to_felt(class_hash), **block_identifier},
         )
         return cast(
             DeclaredContract, DeclaredContractSchema().load(res, unknown=EXCLUDE)
@@ -384,7 +392,7 @@ class FullNodeClient(Client):
             method_name="getClassAt",
             params={
                 **block_identifier,
-                "contract_address": convert_to_felt(contract_address),
+                "contract_address": hash_to_felt(contract_address),
             },
         )
 
@@ -417,7 +425,7 @@ class FullNodeClient(Client):
         res = await self._client.call(
             method_name="getNonce",
             params={
-                "contract_address": convert_to_felt(contract_address),
+                "contract_address": hash_to_felt(contract_address),
                 **block_identifier,
             },
         )
@@ -438,7 +446,7 @@ def get_block_identifier(
         return {"block_id": block_hash or block_number}
 
     if block_hash is not None:
-        return {"block_id": {"block_hash": convert_to_felt(block_hash)}}
+        return {"block_id": {"block_hash": hash_to_felt(block_hash)}}
 
     if block_number is not None:
         return {"block_id": {"block_number": block_number}}
@@ -446,52 +454,81 @@ def get_block_identifier(
     return {"block_id": "pending"}
 
 
-def _create_broadcasted_txn(transaction: Union[InvokeFunction, Declare]) -> Dict:
-    common_params = {
-        "max_fee": hex(transaction.max_fee),
-        "version": hex(transaction.version),
-        "signature": [convert_to_felt(i) for i in transaction.signature],
-        "nonce": convert_to_felt(transaction.nonce)
-        if transaction.nonce is not None
-        else transaction.nonce,
+def _create_broadcasted_txn(
+    transaction: Union[InvokeFunction, Declare, DeployAccount]
+) -> dict:
+    txn_map = {
+        TransactionType.DECLARE: _create_broadcasted_declare_properties,
+        TransactionType.INVOKE_FUNCTION: _create_broadcasted_invoke_properties,
+        TransactionType.DEPLOY_ACCOUNT: _create_broadcasted_deploy_account_properties,
     }
 
-    if transaction.tx_type == TransactionType.INVOKE_FUNCTION:
-        invoke_specific_params = {
-            "type": "INVOKE",
-            "calldata": [convert_to_felt(i) for i in transaction.calldata],
-        }
-        if transaction.version == 0:
-            params_depending_on_version = {
-                "contract_address": convert_to_felt(transaction.contract_address),
-                "entry_point_selector": convert_to_felt(
-                    transaction.entry_point_selector
-                ),
-            }
-        else:
-            params_depending_on_version = {
-                "sender_address": convert_to_felt(transaction.contract_address),
-            }
+    common_properties = _create_broadcasted_txn_common_properties(transaction)
+    transaction_specific_properties = txn_map[transaction.tx_type](transaction)
 
-        return {
-            **common_params,
-            **params_depending_on_version,
-            **invoke_specific_params,
-        }
+    return {
+        **common_properties,
+        **transaction_specific_properties,
+    }
 
-    if transaction.tx_type == TransactionType.DECLARE:
-        contract_class = transaction.dump()["contract_class"]
 
-        declare_params = {
-            "contract_class": {
-                "program": contract_class["program"],
-                "entry_points_by_type": contract_class["entry_points_by_type"],
-                "abi": contract_class["abi"],
-            },
-            "sender_address": convert_to_felt(transaction.sender_address),
-            "type": "DECLARE",
-        }
+def _create_broadcasted_declare_properties(transaction: Declare) -> dict:
+    contract_class = transaction.dump()["contract_class"]
+    declare_properties = {
+        "contract_class": {
+            "program": contract_class["program"],
+            "entry_points_by_type": contract_class["entry_points_by_type"],
+            "abi": contract_class["abi"],
+        },
+        "sender_address": hash_to_felt(transaction.sender_address),
+    }
+    return declare_properties
 
-        return {**common_params, **declare_params}
 
-    raise TypeError("Transaction should be of type InvokeFunction or Declare")
+def _create_broadcasted_invoke_properties(transaction: InvokeFunction) -> dict:
+    if transaction.version == 0:
+        return _create_invoke_v0_properties(transaction)
+    return _create_invoke_v1_properties(transaction)
+
+
+def _create_invoke_v0_properties(transaction: InvokeFunction) -> dict:
+    invoke_properties = {
+        "contract_address": hash_to_felt(transaction.contract_address),
+        "entry_point_selector": hash_to_felt(transaction.entry_point_selector),
+        "calldata": [hash_to_felt(data) for data in transaction.calldata],
+    }
+    return invoke_properties
+
+
+def _create_invoke_v1_properties(transaction: InvokeFunction) -> dict:
+    invoke_properties = {
+        "sender_address": hash_to_felt(transaction.contract_address),
+        "calldata": [hash_to_felt(data) for data in transaction.calldata],
+    }
+    return invoke_properties
+
+
+def _create_broadcasted_deploy_account_properties(transaction: DeployAccount) -> dict:
+    deploy_account_txn_properties = {
+        "contract_address_salt": hash_to_felt(transaction.contract_address_salt),
+        "constructor_calldata": [
+            hash_to_felt(data) for data in transaction.constructor_calldata
+        ],
+        "class_hash": hash_to_felt(transaction.class_hash),
+    }
+    return deploy_account_txn_properties
+
+
+def _create_broadcasted_txn_common_properties(transaction: AccountTransaction) -> dict:
+    broadcasted_txn_common_properties = {
+        "type": "INVOKE"
+        if transaction.tx_type == TransactionType.INVOKE_FUNCTION
+        else transaction.tx_type.name,
+        "max_fee": hash_to_felt(transaction.max_fee),
+        "version": hash_to_felt(transaction.version),
+        "signature": [hash_to_felt(sig) for sig in transaction.signature],
+        "nonce": hash_to_felt(transaction.nonce)
+        if transaction.nonce is not None
+        else None,
+    }
+    return broadcasted_txn_common_properties

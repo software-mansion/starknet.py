@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional, List, Union
 
 from starkware.starknet.services.api.contract_class import ContractClass
 
@@ -25,3 +25,7 @@ def create_compiled_contract(
         ).compile_contract()
     definition = create_contract_class(compiled_contract)
     return definition
+
+
+def int_from_hex(number: Union[str, int]) -> int:
+    return number if isinstance(number, int) else int(number, 16)

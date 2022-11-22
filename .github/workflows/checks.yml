@@ -1,4 +1,4 @@
-name: format -> lint -> test
+name: format -> lint -> typecheck -> test
 
 on:
   push:
@@ -14,11 +14,11 @@ jobs:
       matrix:
         python-version: ["3.8", "3.9"]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install poetry
@@ -43,6 +43,9 @@ jobs:
     - name: Check if requirements.txt is up-to-date
       run: |
         poetry export -f requirements.txt --without-hashes --extras docs | cmp - requirements.txt
+    - name: Compile contracts
+      run: |
+        poetry run poe compile_contracts
     - name: Unit & e2e test
       run: |
         poetry run poe test_ci
@@ -50,4 +53,4 @@ jobs:
       run: |
         poetry run coverage xml
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v2
+      uses: codecov/codecov-action@v3

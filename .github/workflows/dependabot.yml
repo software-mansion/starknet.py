@@ -1,0 +1,27 @@
+name: Dependabot
+on:
+  push:
+    branches:
+      - "dependabot/pip/**"
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: "3.8"
+    - name: Install poetry
+      run: |
+        python -m pip install --upgrade pip
+        pip install poetry
+    - name: Export package list to requirements.txt
+      run: poetry export -f requirements.txt --output requirements.txt --without-hashes --extras docs
+    - name: Commit & Push changes
+      uses: actions-js/push@v1.3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        message: '[dependabot][actions] Update requirements.txt'
+        branch: ${{ github.ref_name }}

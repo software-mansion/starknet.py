@@ -3,11 +3,11 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from starkware.starknet.public.abi import get_storage_var_address
 
+from starknet_py.net.client_errors import ContractNotFoundError
 from starknet_py.net.client_models import (
     TransactionStatusResponse,
     TransactionStatus,
     DeployedContract,
-    DeployAccountTransaction,
     L1HandlerTransaction,
 )
 from starknet_py.net.gateway_client import GatewayClient
@@ -45,6 +45,21 @@ async def test_get_code(contract_address, gateway_client):
     assert len(code.abi) != 0
     assert code.bytecode is not None
     assert len(code.bytecode) != 0
+
+
+@pytest.mark.asyncio
+async def test_get_code_invalid_address(gateway_client):
+    with pytest.raises(
+        ContractNotFoundError,
+        match="^Client failed: No contract with address 123 found$",
+    ):
+        await gateway_client.get_code(contract_address=123)
+
+    with pytest.raises(
+        ContractNotFoundError,
+        match="^Client failed: No contract with address 123 found for block with block_number: latest$",
+    ):
+        await gateway_client.get_code(contract_address=123, block_number="latest")
 
 
 @pytest.mark.asyncio
@@ -106,14 +121,6 @@ def test_creating_client_with_custom_net_dict():
 
 
 @pytest.mark.asyncio
-async def test_estimate_fee_deploy_account(gateway_client, deploy_account_transaction):
-    estimate_fee = await gateway_client.estimate_fee(tx=deploy_account_transaction)
-
-    assert isinstance(estimate_fee.overall_fee, int)
-    assert estimate_fee.overall_fee > 0
-
-
-@pytest.mark.asyncio
 async def test_state_update_gateway_client(
     gateway_client,
     block_with_deploy_number,
@@ -141,19 +148,6 @@ async def test_get_storage_at_incorrect_address_gateway_client(gateway_client):
         block_hash="latest",
     )
     assert storage == 0
-
-
-@pytest.mark.asyncio
-async def test_get_deploy_account_transaction(
-    gateway_client, deploy_account_transaction_hash
-):
-    # TODO Modify this test to also use FullNodeClient (move to client_test)
-    transaction = await gateway_client.get_transaction(deploy_account_transaction_hash)
-
-    assert isinstance(transaction, DeployAccountTransaction)
-    assert transaction.hash == deploy_account_transaction_hash
-    assert len(transaction.signature) > 0
-    assert transaction.nonce == 0
 
 
 @pytest.mark.asyncio

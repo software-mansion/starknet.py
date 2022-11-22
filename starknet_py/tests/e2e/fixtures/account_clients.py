@@ -23,12 +23,13 @@ from starknet_py.tests.e2e.fixtures.constants import (
     TESTNET_ACCOUNT_PRIVATE_KEY,
     INTEGRATION_ACCOUNT_ADDRESS,
     INTEGRATION_ACCOUNT_PRIVATE_KEY,
-    CONTRACTS_DIR,
     TESTNET_NEW_ACCOUNT_ADDRESS,
     TESTNET_NEW_ACCOUNT_PRIVATE_KEY,
     INTEGRATION_NEW_ACCOUNT_ADDRESS,
     INTEGRATION_NEW_ACCOUNT_PRIVATE_KEY,
+    ACCOUNT_DIR,
 )
+from starknet_py.tests.e2e.fixtures.misc import read_contract
 from starknet_py.tests.e2e.utils import (
     AccountToBeDeployedDetails,
     get_deploy_account_details,
@@ -135,8 +136,8 @@ async def new_devnet_account_details(
     key_pair = KeyPair.from_private_key(private_key)
     deploy_tx = make_deploy_tx(
         constructor_calldata=[key_pair.public_key],
-        compiled_contract=(CONTRACTS_DIR / "new_account_compiled.json").read_text(
-            "utf-8"
+        compiled_contract=read_contract(
+            "new_account_compiled.json", directory=ACCOUNT_DIR
         ),
     )
 

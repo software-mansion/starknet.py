@@ -5,15 +5,15 @@ import pytest
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
+from starknet_py.common import create_compiled_contract
 from starknet_py.net.client_models import SentTransactionResponse, Call
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_DIR
 from starknet_py.transaction_exceptions import (
     TransactionRejectedError,
     TransactionNotReceivedError,
 )
 from starknet_py.contract import Contract
-from starknet_py.net.client_errors import ClientError, ContractNotFoundError
+from starknet_py.net.client_errors import ClientError
 
 MAX_FEE = int(1e20)
 
@@ -149,17 +149,6 @@ async def test_invoke_and_call(key, value, map_contract):
     assert response == value
 
 
-user_auth_source = (CONTRACTS_DIR / "user_auth.cairo").read_text("utf-8")
-
-
-@pytest.mark.asyncio
-async def test_get_code_not_found(gateway_account_client):
-    with pytest.raises(ContractNotFoundError) as exinfo:
-        await Contract.from_address(1, gateway_account_client)
-
-    assert "No contract found" in str(exinfo.value)
-
-
 @pytest.mark.asyncio
 async def test_call_uninitialized_contract(gateway_account_client):
     with pytest.raises(ClientError) as err:
@@ -187,9 +176,9 @@ async def test_deploy_throws_on_no_compilation_source(account_client):
 
 
 @pytest.mark.asyncio
-async def test_wait_for_tx(account_client, map_source_code):
+async def test_wait_for_tx(account_client, map_compiled_contract):
     deployment = await Contract.deploy(
-        compilation_source=map_source_code, client=account_client
+        compiled_contract=map_compiled_contract, client=account_client
     )
     await account_client.wait_for_tx(deployment.hash)
 
@@ -272,3 +261,39 @@ async def test_error_when_estimating_fee_while_not_using_account_client(
         "Contract uses an account that can't invoke transactions. You need to use AccountClient for that."
         in str(wrong_client_error)
     )
+
+
+@pytest.mark.asyncio
+async def test_general_simplified_deployment_flow(
+    new_account_client, map_compiled_contract
+):
+    declare_result = await Contract.declare(
+        account=new_account_client,
+        compiled_contract=map_compiled_contract,
+        max_fee=MAX_FEE,
+    )
+    await declare_result.wait_for_acceptance()
+    deployment = await declare_result.deploy(max_fee=MAX_FEE)
+    await deployment.wait_for_acceptance()
+
+    contract = deployment.deployed_contract
+
+    assert isinstance(contract.address, int)
+    assert len(contract.functions) != 0
+
+
+@pytest.mark.asyncio
+async def test_deploy_contract_flow(
+    account_client, map_compiled_contract, map_class_hash
+):
+    abi = create_compiled_contract(compiled_contract=map_compiled_contract).abi
+
+    deploy_result = await Contract.deploy_contract(
+        class_hash=map_class_hash, account=account_client, abi=abi, max_fee=MAX_FEE
+    )
+    await deploy_result.wait_for_acceptance()
+
+    contract = deploy_result.deployed_contract
+
+    assert isinstance(contract.address, int)
+    assert len(contract.functions) != 0
