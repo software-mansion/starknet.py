@@ -531,7 +531,7 @@ class Contract:
 
     @staticmethod
     async def deploy_contract(
-        account: AccountClient,
+        account: Union[AccountClient, BaseAccount],
         class_hash: Hash,
         abi: List,
         constructor_args: Optional[Union[List, Dict]] = None,
@@ -555,6 +555,8 @@ class Contract:
         :return: DeployResult instance
         """
         # pylint: disable=too-many-arguments
+        account = _account_or_proxy(account)
+
         deployer = Deployer(
             deployer_address=deployer_address, account_address=account.address
         )
@@ -566,7 +568,7 @@ class Contract:
         )
 
         deployed_contract = Contract(
-            client=account,
+            account=account,
             address=address,
             abi=abi,
         )
