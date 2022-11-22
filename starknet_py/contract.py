@@ -201,6 +201,7 @@ class PreparedFunctionCall(Call):
             self.max_fee = max_fee
 
         if isinstance(self._account, AccountProxy):
+            # noinspection PyArgumentList
             transaction = await self._account.sign_invoke_transaction(
                 calls=self,
                 max_fee=self.max_fee,
@@ -244,6 +245,7 @@ class PreparedFunctionCall(Call):
             )
 
         if isinstance(self._account, AccountProxy):
+            # noinspection PyArgumentList
             tx = await self._account.sign_invoke_transaction(
                 calls=self, max_fee=0, version=self.version
             )
