@@ -22,6 +22,13 @@ class BaseAccount(ABC):
 
     @property
     @abstractmethod
+    def address(self) -> int:
+        """
+        Get the address of the account
+        """
+
+    @property
+    @abstractmethod
     def client(self) -> Client:
         """
         Get the Client used by the Account.
