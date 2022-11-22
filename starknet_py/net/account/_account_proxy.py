@@ -1,3 +1,5 @@
+__all__ = []
+
 from typing import List, Optional
 
 from starknet_py.net import AccountClient
@@ -14,7 +16,7 @@ from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.net.models.typed_data import TypedData
 
 
-class _AccountProxy(BaseAccount):
+class AccountProxy(BaseAccount):
     def __init__(self, account_client: AccountClient):
         self._account_client = account_client
 

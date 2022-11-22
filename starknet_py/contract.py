@@ -26,7 +26,7 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
 
 from starknet_py.common import create_compiled_contract
 from starknet_py.compile.compiler import StarknetCompilationSource
-from starknet_py.net.account.account_proxy import _AccountProxy
+from starknet_py.net.account._account_proxy import AccountProxy
 from starknet_py.net.account.base_account import BaseAccount
 
 from starknet_py.net import AccountClient
@@ -200,7 +200,7 @@ class PreparedFunctionCall(Call):
         if max_fee is not None:
             self.max_fee = max_fee
 
-        if isinstance(self._account, _AccountProxy):
+        if isinstance(self._account, AccountProxy):
             transaction = await self._account.sign_invoke_transaction(
                 calls=self,
                 max_fee=self.max_fee,
@@ -243,7 +243,7 @@ class PreparedFunctionCall(Call):
                 "Cannot estimate fee of PreparedFunctionCall with max_fee not None or 0."
             )
 
-        if isinstance(self._account, _AccountProxy):
+        if isinstance(self._account, AccountProxy):
             tx = await self._account.sign_invoke_transaction(
                 calls=self, max_fee=0, version=self.version
             )
@@ -722,7 +722,7 @@ def _unpack_client_and_account(
 
     if client is not None:
         if isinstance(client, AccountClient):
-            return client.client, _AccountProxy(client)
+            return client.client, AccountProxy(client)
 
         return client, None
 
