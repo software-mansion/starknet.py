@@ -469,6 +469,7 @@ class Contract:
         :raises ProxyResolutionError: when given ProxyChecks were not sufficient to resolve proxy's implementation
         :param address: Contract's address
         :param client: Client
+        :param account: BaseAccount
         :param proxy_config: Proxy resolving config
             If set to ``True``, will use default proxy checks
             :class:`starknet_py.proxy.proxy_check.OpenZeppelinProxyCheck`
@@ -480,12 +481,17 @@ class Contract:
 
         :return: an initialized Contract instance
         """
+        client, account = _unpack_client_and_account(client, account)
+
         address = parse_address(address)
         proxy_config = Contract._create_proxy_config(proxy_config)
 
         abi = await ContractAbiResolver(
             address=address, client=client, proxy_config=proxy_config
         ).resolve()
+
+        if account is not None:
+            return Contract(address=address, abi=abi, account=account)
 
         return Contract(address=address, abi=abi, client=client)
 
