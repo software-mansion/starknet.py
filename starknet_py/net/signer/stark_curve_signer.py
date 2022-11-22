@@ -24,8 +24,7 @@ from starknet_py.net.models import (
 from starknet_py.net.models.transaction import DeployAccount, Declare, InvokeFunction
 from starknet_py.net.signer.base_signer import BaseSigner
 from starknet_py.utils.crypto.facade import message_signature
-from starknet_py.utils.typed_data import TypedData as TypedDataDataclass
-from starknet_py.net.models.typed_data import TypedData
+from starknet_py.utils.typed_data import TypedData
 
 
 @dataclass
@@ -119,7 +118,7 @@ class StarkCurveSigner(BaseSigner):
         return [r, s]
 
     def sign_message(
-        self, typed_data: Union[TypedData, TypedDataDataclass], account_address: int
+        self, typed_data: Union[dict, TypedData], account_address: int
     ) -> List[int]:
         if isinstance(typed_data, dict):
             warnings.warn(
@@ -128,7 +127,7 @@ class StarkCurveSigner(BaseSigner):
             )
 
         typed_data_dataclass = (
-            TypedDataDataclass.from_dict(data=typed_data)
+            TypedData.from_dict(data=typed_data)
             if isinstance(typed_data, dict)
             else typed_data
         )
