@@ -457,8 +457,9 @@ class Contract:
     @staticmethod
     async def from_address(
         address: AddressRepresentation,
-        client: Client,
+        client: Optional[Client] = None,
         proxy_config: Union[bool, ProxyConfig] = False,
+        account: Optional[BaseAccount] = None,
     ) -> "Contract":
         """
         Fetches ABI for given contract and creates a new Contract instance with it. If you know ABI statically you
