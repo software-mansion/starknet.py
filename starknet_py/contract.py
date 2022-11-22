@@ -497,7 +497,7 @@ class Contract:
 
     @staticmethod
     async def declare(
-        account: AccountClient,
+        account: Union[AccountClient, BaseAccount],
         compiled_contract: str,
         *,
         max_fee: Optional[int] = None,
@@ -512,12 +512,14 @@ class Contract:
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :return: DeclareResult instance
         """
+        account = _account_or_proxy(account)
+
         declare_tx = await account.sign_declare_transaction(
             compiled_contract=compiled_contract,
             max_fee=max_fee,
             auto_estimate=auto_estimate,
         )
-        res = await account.declare(transaction=declare_tx)
+        res = await account.client.declare(transaction=declare_tx)
 
         return DeclareResult(
             hash=res.transaction_hash,
@@ -746,3 +748,9 @@ def _unpack_client_and_account(
         return account.client, account
 
     raise ValueError()  # This is needed for typechecker
+
+
+def _account_or_proxy(account: Union[BaseAccount, AccountClient]) -> BaseAccount:
+    if isinstance(account, AccountClient):
+        return AccountProxy(account)
+    return account
