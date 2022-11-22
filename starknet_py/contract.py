@@ -120,7 +120,7 @@ InvocationResult = InvokeResult
 @add_sync_methods
 @dataclass(frozen=True)
 class DeclareResult(SentTransaction):
-    _account: AccountClient = None  # pyright: ignore
+    _account: BaseAccount = None  # pyright: ignore
     class_hash: int = None  # pyright: ignore
     compiled_contract: str = None  # pyright: ignore
 
@@ -171,7 +171,7 @@ class DeclareResult(SentTransaction):
         )
 
         deployed_contract = Contract(
-            client=self._account,
+            client=self._account.client,
             address=address,
             abi=abi,
         )
