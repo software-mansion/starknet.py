@@ -120,7 +120,7 @@ InvocationResult = InvokeResult
 @add_sync_methods
 @dataclass(frozen=True)
 class DeclareResult(SentTransaction):
-    _account: AccountClient = None  # pyright: ignore
+    _account: BaseAccount = None  # pyright: ignore
     class_hash: int = None  # pyright: ignore
     compiled_contract: str = None  # pyright: ignore
 
@@ -171,7 +171,7 @@ class DeclareResult(SentTransaction):
         )
 
         deployed_contract = Contract(
-            client=self._account,
+            client=self._account.client,
             address=address,
             abi=abi,
         )
@@ -457,8 +457,9 @@ class Contract:
     @staticmethod
     async def from_address(
         address: AddressRepresentation,
-        client: Client,
+        client: Optional[Client] = None,
         proxy_config: Union[bool, ProxyConfig] = False,
+        account: Optional[BaseAccount] = None,
     ) -> "Contract":
         """
         Fetches ABI for given contract and creates a new Contract instance with it. If you know ABI statically you
@@ -469,6 +470,7 @@ class Contract:
         :raises ProxyResolutionError: when given ProxyChecks were not sufficient to resolve proxy's implementation
         :param address: Contract's address
         :param client: Client
+        :param account: BaseAccount
         :param proxy_config: Proxy resolving config
             If set to ``True``, will use default proxy checks
             :class:`starknet_py.proxy.proxy_check.OpenZeppelinProxyCheck`
@@ -480,6 +482,8 @@ class Contract:
 
         :return: an initialized Contract instance
         """
+        client, account = _unpack_client_and_account(client, account)
+
         address = parse_address(address)
         proxy_config = Contract._create_proxy_config(proxy_config)
 
@@ -487,11 +491,14 @@ class Contract:
             address=address, client=client, proxy_config=proxy_config
         ).resolve()
 
+        if account is not None:
+            return Contract(address=address, abi=abi, account=account)
+
         return Contract(address=address, abi=abi, client=client)
 
     @staticmethod
     async def declare(
-        account: AccountClient,
+        account: Union[AccountClient, BaseAccount],
         compiled_contract: str,
         *,
         max_fee: Optional[int] = None,
@@ -506,12 +513,14 @@ class Contract:
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :return: DeclareResult instance
         """
+        account = _account_or_proxy(account)
+
         declare_tx = await account.sign_declare_transaction(
             compiled_contract=compiled_contract,
             max_fee=max_fee,
             auto_estimate=auto_estimate,
         )
-        res = await account.declare(transaction=declare_tx)
+        res = await account.client.declare(transaction=declare_tx)
 
         return DeclareResult(
             hash=res.transaction_hash,
@@ -523,7 +532,7 @@ class Contract:
 
     @staticmethod
     async def deploy_contract(
-        account: AccountClient,
+        account: Union[AccountClient, BaseAccount],
         class_hash: Hash,
         abi: List,
         constructor_args: Optional[Union[List, Dict]] = None,
@@ -547,6 +556,8 @@ class Contract:
         :return: DeployResult instance
         """
         # pylint: disable=too-many-arguments
+        account = _account_or_proxy(account)
+
         deployer = Deployer(
             deployer_address=deployer_address, account_address=account.address
         )
@@ -558,7 +569,7 @@ class Contract:
         )
 
         deployed_contract = Contract(
-            client=account,
+            account=account,
             address=address,
             abi=abi,
         )
@@ -740,3 +751,9 @@ def _unpack_client_and_account(
         return account.client, account
 
     raise ValueError()  # This is needed for typechecker
+
+
+def _account_or_proxy(account: Union[BaseAccount, AccountClient]) -> BaseAccount:
+    if isinstance(account, AccountClient):
+        return AccountProxy(account)
+    return account

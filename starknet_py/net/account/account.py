@@ -55,7 +55,7 @@ class Account(BaseAccount):
         if chain is None and signer is None:
             raise ValueError("One of chain or signer must be provided")
 
-        self.address = parse_address(address)
+        self._address = parse_address(address)
         self._client = client
 
         if signer is None:
@@ -70,6 +70,10 @@ class Account(BaseAccount):
             )
         self.signer: BaseSigner = signer
         self._version = 1
+
+    @property
+    def address(self) -> int:
+        return self._address
 
     @property
     def client(self) -> Client:

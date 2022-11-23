@@ -21,6 +21,10 @@ class AccountProxy(BaseAccount):
         self._account_client = account_client
 
     @property
+    def address(self) -> int:
+        return self._account_client.address
+
+    @property
     def client(self) -> Client:
         return self._account_client.client
 
