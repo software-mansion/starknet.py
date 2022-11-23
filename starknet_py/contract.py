@@ -10,7 +10,6 @@ from typing import (
     Union,
     Dict,
     NamedTuple,
-    Any,
     Tuple,
 )
 
@@ -272,20 +271,11 @@ class PreparedFunctionCall(Call):
         if max_fee is not None:
             self.max_fee = max_fee
 
-        if isinstance(self._account, AccountProxy):
-            # noinspection PyArgumentList
-            transaction = await self._account.sign_invoke_transaction(
-                calls=self,
-                max_fee=self.max_fee,
-                auto_estimate=auto_estimate,
-                version=self.version,
-            )
-        else:
-            transaction = await self._account.sign_invoke_transaction(
-                calls=self,
-                max_fee=self.max_fee,
-                auto_estimate=auto_estimate,
-            )
+        transaction = await self._account.sign_invoke_transaction(
+            calls=self,
+            max_fee=self.max_fee,
+            auto_estimate=auto_estimate,
+        )
 
         response = await self._client.send_transaction(transaction)
 
@@ -316,13 +306,7 @@ class PreparedFunctionCall(Call):
                 "Cannot estimate fee of PreparedFunctionCall with max_fee not None or 0."
             )
 
-        if isinstance(self._account, AccountProxy):
-            # noinspection PyArgumentList
-            tx = await self._account.sign_invoke_transaction(
-                calls=self, max_fee=0, version=self.version
-            )
-        else:
-            tx = await self._account.sign_invoke_transaction(calls=self, max_fee=0)
+        tx = await self._account.sign_invoke_transaction(calls=self, max_fee=0)
 
         return await self._client.estimate_fee(
             tx=tx, block_hash=block_hash, block_number=block_number
@@ -353,7 +337,6 @@ class ContractFunction:
     def prepare(
         self,
         *args,
-        version: Optional[int] = None,
         max_fee: Optional[int] = None,
         **kwargs,
     ) -> PreparedFunctionCall:
@@ -362,14 +345,10 @@ class ContractFunction:
          Creates a ``PreparedFunctionCall`` instance
          which exposes calldata for every argument and adds more arguments when calling methods.
 
-        :param version: PreparedFunctionCall version
         :param max_fee: Max amount of Wei to be paid when executing transaction
         :return: PreparedFunctionCall
         """
-        if version is None:
-            version = (
-                self.account.supported_tx_version if self.account is not None else 0
-            )
+        version = self.account.supported_tx_version if self.account is not None else 0
 
         if version == 0:
             warnings.warn(
@@ -395,18 +374,16 @@ class ContractFunction:
         self,
         *args,
         block_hash: Optional[str] = None,
-        version: Optional[int] = None,
         **kwargs,
     ) -> NamedTuple:
         """
-        :param block_hash: Block hash to execute the contract at specific point of time
-        :param version: Call version
-
         Call contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.
         The result is translated from Cairo data to python values.
         Equivalent of ``.prepare(*args, **kwargs).call()``.
+
+        :param block_hash: Block hash to execute the contract at specific point of time
         """
-        return await self.prepare(max_fee=0, version=version, *args, **kwargs).call(
+        return await self.prepare(max_fee=0, *args, **kwargs).call(
             block_hash=block_hash
         )
 
