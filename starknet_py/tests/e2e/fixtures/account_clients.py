@@ -64,7 +64,7 @@ async def devnet_account_details(
     account: AccountClient, class_hash: int
 ) -> Tuple[str, str]:
     """
-    Creates an AccountClient (and when using devnet adds fee tokens to its balance)
+    Deploys an AccountClient and adds fee tokens to its balance
     """
     private_key = get_random_private_key()
     key_pair = KeyPair.from_private_key(private_key)
