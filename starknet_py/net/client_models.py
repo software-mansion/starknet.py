@@ -194,7 +194,7 @@ class DeployTransaction(Transaction):
     Dataclass representing deploy transaction
     """
 
-    contract_address: int
+    contract_address: Optional[int]
     constructor_calldata: List[int]
     class_hash: int
 
