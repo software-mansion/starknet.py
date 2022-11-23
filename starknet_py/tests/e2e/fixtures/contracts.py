@@ -5,6 +5,7 @@ import pytest
 import pytest_asyncio
 
 from starknet_py.common import create_compiled_contract
+from starknet_py.compile.compiler import create_contract_class
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient
@@ -75,13 +76,13 @@ def constructor_without_arguments_compiled_contract() -> str:
 
 
 async def deploy_contract(
-    account_client: AccountClient, compiled_contract: str
+    account_client: AccountClient, class_hash: int, abi: List
 ) -> Contract:
     """
     Deploys a contract and returns its instance
     """
-    deployment_result = await Contract.deploy(
-        client=account_client, compiled_contract=compiled_contract
+    deployment_result = await Contract.deploy_contract(
+        account=account_client, class_hash=class_hash, abi=abi, max_fee=MAX_FEE
     )
     deployment_result = await deployment_result.wait_for_acceptance()
     return deployment_result.deployed_contract
@@ -89,32 +90,41 @@ async def deploy_contract(
 
 @pytest_asyncio.fixture(scope="module")
 async def deploy_map_contract(
-    gateway_account_client: AccountClient, map_compiled_contract: str
+    gateway_account_client: AccountClient,
+    map_compiled_contract: str,
+    map_class_hash: int,
 ) -> Contract:
     """
     Deploys map contract and returns its instance
     """
-    return await deploy_contract(gateway_account_client, map_compiled_contract)
+    abi = create_contract_class(compiled_contract=map_compiled_contract).abi
+    return await deploy_contract(gateway_account_client, map_class_hash, abi)
 
 
 @pytest_asyncio.fixture(scope="module")
 async def new_deploy_map_contract(
-    new_gateway_account_client: AccountClient, map_compiled_contract: str
+    new_gateway_account_client: AccountClient,
+    map_compiled_contract: str,
+    map_class_hash: int,
 ) -> Contract:
     """
     Deploys new map contract and returns its instance
     """
-    return await deploy_contract(new_gateway_account_client, map_compiled_contract)
+    abi = create_contract_class(compiled_contract=map_compiled_contract).abi
+    return await deploy_contract(new_gateway_account_client, map_class_hash, abi)
 
 
 @pytest_asyncio.fixture(name="erc20_contract", scope="module")
 async def deploy_erc20_contract(
-    gateway_account_client: AccountClient, erc20_compiled_contract: str
+    gateway_account_client: AccountClient,
+    erc20_compiled_contract: str,
+    erc20_class_hash: int,
 ) -> Contract:
     """
     Deploys erc20 contract and returns its instance
     """
-    return await deploy_contract(gateway_account_client, erc20_compiled_contract)
+    abi = create_contract_class(compiled_contract=erc20_compiled_contract).abi
+    return await deploy_contract(gateway_account_client, erc20_class_hash, abi)
 
 
 @pytest.fixture(scope="module")
@@ -203,6 +213,22 @@ async def map_class_hash(
     """
     declare = await new_gateway_account_client.sign_declare_transaction(
         compilation_source=map_source_code,
+        max_fee=int(1e16),
+    )
+    res = await new_gateway_account_client.declare(declare)
+    await new_gateway_account_client.wait_for_tx(res.transaction_hash)
+    return res.class_hash
+
+
+@pytest_asyncio.fixture(scope="module")
+async def erc20_class_hash(
+    new_gateway_account_client: AccountClient, erc20_compiled_contract: str
+) -> int:
+    """
+    Returns class_hash of the erc20.cairo
+    """
+    declare = await new_gateway_account_client.sign_declare_transaction(
+        compilation_source=erc20_compiled_contract,
         max_fee=int(1e16),
     )
     res = await new_gateway_account_client.declare(declare)
