@@ -166,24 +166,6 @@ async def test_call_uninitialized_contract(gateway_account_client):
 
 
 @pytest.mark.asyncio
-async def test_deploy_throws_on_no_compilation_source(account_client):
-    with pytest.raises(ValueError) as exinfo:
-        await Contract.deploy(client=account_client)
-
-    assert "One of compiled_contract or compilation_source is required." in str(
-        exinfo.value
-    )
-
-
-@pytest.mark.asyncio
-async def test_wait_for_tx(account_client, map_compiled_contract):
-    deployment = await Contract.deploy(
-        compiled_contract=map_compiled_contract, client=account_client
-    )
-    await account_client.wait_for_tx(deployment.hash)
-
-
-@pytest.mark.asyncio
 async def test_wait_for_tx_throws_on_transaction_rejected(account_client, map_contract):
     invoke = map_contract.functions["put"].prepare(key=0x1, value=0x1, max_fee=MAX_FEE)
 

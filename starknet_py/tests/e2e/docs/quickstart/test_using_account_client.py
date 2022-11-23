@@ -1,24 +1,31 @@
 import os
 import pytest
 
+from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
+
 directory = os.path.dirname(__file__)
 
 
 @pytest.mark.asyncio
-async def test_using_account_client(account_client, map_source_code):
+async def test_using_account_client(new_account_client, map_compiled_contract):
     # pylint: disable=import-outside-toplevel, duplicate-code, too-many-locals
     # docs: start
     from starknet_py.contract import Contract
+    # docs: end
+    account_client = new_account_client
+    # docs: start
 
-    # Deploy an example contract which implements a simple k-v store. Deploy transaction is not being signed.
-    deployment_result = await Contract.deploy(
-        client=account_client, compilation_source=map_source_code
+    # Declare and deploy an example contract which implements a simple k-v store.
+    declare_result = await Contract.declare(
+        account=account_client, compiled_contract=map_compiled_contract, max_fee=MAX_FEE
     )
+    await declare_result.wait_for_acceptance()
+    deploy_result = await declare_result.deploy(max_fee=MAX_FEE)
     # Wait until deployment transaction is accepted
-    await deployment_result.wait_for_acceptance()
+    await deploy_result.wait_for_acceptance()
 
     # Get deployed contract
-    map_contract = deployment_result.deployed_contract
+    map_contract = deploy_result.deployed_contract
     k, v = 13, 4324
     # Adds a transaction to mutate the state of k-v store. The call goes through account proxy, because we've used
     # AccountClient to create the contract object
