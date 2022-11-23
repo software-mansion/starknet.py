@@ -36,9 +36,7 @@ async def prepare_net_for_tests(
     deploy_result = await declare_result.deploy(max_fee=MAX_FEE)
     await deploy_result.wait_for_acceptance()
 
-    declare_receipt = await account_client.get_transaction_receipt(
-        declare_result.transaction_hash
-    )
+    declare_receipt = await account_client.get_transaction_receipt(declare_result.hash)
     block_with_declare_number = declare_receipt.block_number
     block_with_declare_hash = declare_receipt.block_hash
 
@@ -80,7 +78,7 @@ async def prepare_net_for_tests(
         contract_address=contract.address,
         invoke_transaction_hash=invoke_res.hash,
         block_with_invoke_number=block_with_invoke_number,
-        declare_transaction_hash=declare_result.transaction_hash,
+        declare_transaction_hash=declare_result.hash,
         block_with_declare_number=block_with_declare_number,
         block_with_declare_hash=block_with_declare_hash,
         deploy_account_transaction_hash=deploy_account_result.transaction_hash,

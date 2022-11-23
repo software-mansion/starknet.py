@@ -7,7 +7,6 @@ from starknet_py.net.client_errors import ContractNotFoundError
 from starknet_py.net.client_models import (
     TransactionStatusResponse,
     TransactionStatus,
-    DeployedContract,
     L1HandlerTransaction,
 )
 from starknet_py.net.gateway_client import GatewayClient
@@ -16,11 +15,11 @@ from starknet_py.net.networks import TESTNET, MAINNET, CustomGatewayUrls
 
 @pytest.mark.asyncio
 async def test_gateway_raises_on_both_block_hash_and_number(
-    block_with_deploy_number, gateway_client
+    block_with_declare_number, gateway_client
 ):
     with pytest.raises(ValueError) as exinfo:
         await gateway_client.get_block(
-            block_hash="0x0", block_number=block_with_deploy_number
+            block_hash="0x0", block_number=block_with_declare_number
         )
 
     assert "block_hash and block_number parameters are mutually exclusive" in str(
@@ -123,21 +122,14 @@ def test_creating_client_with_custom_net_dict():
 @pytest.mark.asyncio
 async def test_state_update_gateway_client(
     gateway_client,
-    block_with_deploy_number,
-    contract_address,
+    block_with_declare_number,
     class_hash,
 ):
     state_update = await gateway_client.get_state_update(
-        block_number=block_with_deploy_number
+        block_number=block_with_declare_number
     )
 
-    assert (
-        DeployedContract(
-            address=contract_address,
-            class_hash=class_hash,
-        )
-        in state_update.deployed_contracts
-    )
+    assert class_hash in state_update.declared_contracts
 
 
 @pytest.mark.asyncio
