@@ -80,7 +80,7 @@ async def devnet_account_details(
     resp = await account.send_transaction(invoke_tx)
     await account.wait_for_tx(resp.transaction_hash)
 
-    http_client = GatewayHttpClient(account.client.net)
+    http_client = GatewayHttpClient(account.net)
     await http_client.post(
         method_name="mint",
         payload={
@@ -145,8 +145,7 @@ def full_node_account_client(
 
 
 async def new_devnet_account_details(
-    network: str,
-    gateway_client: GatewayClient,
+    account: AccountClient,
     class_hash: int,
 ) -> Tuple[str, str]:
     """
@@ -163,7 +162,7 @@ async def new_devnet_account_details(
         deployer_address=0,
     )
 
-    http_client = GatewayHttpClient(network)
+    http_client = GatewayHttpClient(account.net)
     await http_client.post(
         method_name="mint",
         payload={
@@ -177,12 +176,12 @@ async def new_devnet_account_details(
         key_pair=key_pair,
         salt=salt,
         class_hash=class_hash,
-        network=network,
+        network=account.net,
     )
 
     account = AccountClient(
         address=address,
-        client=gateway_client,
+        client=account.client,
         key_pair=key_pair,
         chain=StarknetChainId.TESTNET,
         supported_tx_version=1,
@@ -196,8 +195,7 @@ async def new_devnet_account_details(
 @pytest_asyncio.fixture(scope="module")
 async def new_address_and_private_key(
     pytestconfig,
-    network: str,
-    gateway_client: GatewayClient,
+    pre_deployed_account_with_validate_deploy: AccountClient,
     account_with_validate_deploy_class_hash: int,
 ) -> Tuple[str, str]:
     """
@@ -215,7 +213,8 @@ async def new_address_and_private_key(
 
     if net == "devnet":
         return await new_devnet_account_details(
-            network, gateway_client, account_with_validate_deploy_class_hash
+            pre_deployed_account_with_validate_deploy,
+            account_with_validate_deploy_class_hash,
         )
     return account_details[net]
 
