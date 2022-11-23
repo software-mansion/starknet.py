@@ -32,8 +32,10 @@ async def test_using_existing_contracts(account_client, erc20_contract):
 
     address = "0x00178130dd6286a9a0e031e4c73b2bd04ffa92804264a25c1c08c1612559f458"
 
+    # When ABI is known statically just use the Contract constructor
     contract = Contract(address=address, abi=abi, client=account_client)
-    # or
+    # or if it is not known
+    # Contract.from_address makes additional request to fetch the ABI
     # docs: end
 
     address = erc20_contract.address
