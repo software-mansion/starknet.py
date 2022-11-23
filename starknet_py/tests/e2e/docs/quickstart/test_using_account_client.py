@@ -11,10 +11,10 @@ async def test_using_account_client(new_account_client, map_compiled_contract):
     # pylint: disable=import-outside-toplevel, duplicate-code, too-many-locals
     # docs: start
     from starknet_py.contract import Contract
+
     # docs: end
     account_client = new_account_client
     # docs: start
-
     # Declare and deploy an example contract which implements a simple k-v store.
     declare_result = await Contract.declare(
         account=account_client, compiled_contract=map_compiled_contract, max_fee=MAX_FEE
