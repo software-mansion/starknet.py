@@ -34,6 +34,8 @@ from starknet_py.tests.e2e.fixtures.constants import (
     INTEGRATION_NEW_ACCOUNT_ADDRESS,
     INTEGRATION_NEW_ACCOUNT_PRIVATE_KEY,
     MAX_FEE,
+    DEVNET_PRE_DEPLOYED_ACCOUNT_ADDRESS,
+    DEVNET_PRE_DEPLOYED_ACCOUNT_PRIVATE_KEY,
 )
 from starknet_py.tests.e2e.utils import (
     AccountToBeDeployedDetails,
@@ -338,9 +340,9 @@ def pre_deployed_account_with_validate_deploy(
     """
     address_and_priv_key = {
         "devnet": (
-            "0x7d2f37b75a5e779f7da01c22acee1b66c39e8ba470ee5448f05e1462afcedb4",
-            "0xcd613e30d8f16adf91b7584a2265b1f5",
-        ),  # address and private key of the pre-deployed account
+            DEVNET_PRE_DEPLOYED_ACCOUNT_ADDRESS,
+            DEVNET_PRE_DEPLOYED_ACCOUNT_PRIVATE_KEY,
+        ),
         "testnet": (TESTNET_NEW_ACCOUNT_ADDRESS, TESTNET_NEW_ACCOUNT_PRIVATE_KEY),
         "integration": (
             INTEGRATION_NEW_ACCOUNT_ADDRESS,
