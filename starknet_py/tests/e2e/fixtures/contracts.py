@@ -228,7 +228,7 @@ async def erc20_class_hash(
     Returns class_hash of the erc20.cairo
     """
     declare = await new_gateway_account_client.sign_declare_transaction(
-        compilation_source=erc20_compiled_contract,
+        compiled_contract=erc20_compiled_contract,
         max_fee=int(1e16),
     )
     res = await new_gateway_account_client.declare(declare)
