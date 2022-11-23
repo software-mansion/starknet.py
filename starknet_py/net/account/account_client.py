@@ -21,12 +21,10 @@ from starknet_py.net.client_models import (
     BlockStateUpdate,
     StarknetBlock,
     Declare,
-    Deploy,
     BlockTransactionTraces,
     EstimatedFee,
     Calls,
     TransactionStatus,
-    DeployTransactionResponse,
     DeclareTransactionResponse,
     Transaction,
     DeployAccountTransactionResponse,
@@ -489,9 +487,6 @@ class AccountClient(Client):
             calls, max_fee, auto_estimate, version
         )
         return await self.send_transaction(execute_transaction)
-
-    async def deploy(self, transaction: Deploy) -> DeployTransactionResponse:
-        return await self.client.deploy(transaction=transaction)
 
     async def deploy_account(
         self, transaction: DeployAccount
