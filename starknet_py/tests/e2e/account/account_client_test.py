@@ -6,12 +6,10 @@ import pytest
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient, KeyPair
-from starknet_py.net.account.account_client import deploy_account_contract
 from starknet_py.net.client_models import TransactionStatus
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import parse_address, StarknetChainId
 from starknet_py.net.networks import TESTNET, MAINNET
-from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.transaction_exceptions import TransactionRejectedError
 from starknet_py.transactions.deploy import make_deploy_tx
@@ -125,53 +123,6 @@ async def test_estimate_fee_for_declare_transaction(
     )
 
 
-@pytest.mark.run_on_devnet
-@pytest.mark.asyncio
-async def test_create_account_client(network):
-    client = GatewayClient(net=network)
-    acc_client = await AccountClient.create_account(
-        client=client, chain=StarknetChainId.TESTNET
-    )
-    assert acc_client.signer is not None
-    assert acc_client.address is not None
-
-
-@pytest.mark.run_on_devnet
-@pytest.mark.asyncio
-async def test_create_account_client_with_private_key(network):
-    private_key = 1234
-    gt_client = GatewayClient(net=network)
-    acc_client = await AccountClient.create_account(
-        client=gt_client, private_key=private_key, chain=StarknetChainId.TESTNET
-    )
-
-    # Ignore typing, because BaseSigner doesn't have private_key property, but this one has
-    assert acc_client.signer.private_key == private_key  # pyright: ignore
-    assert acc_client.signer is not None
-    assert acc_client.address is not None
-
-
-@pytest.mark.run_on_devnet
-@pytest.mark.asyncio
-async def test_create_account_client_with_signer(network):
-    key_pair = KeyPair.from_private_key(1234)
-    client = GatewayClient(
-        net=network,
-    )
-    address = await deploy_account_contract(
-        client=client,
-        public_key=key_pair.public_key,
-    )
-
-    signer = StarkCurveSigner(
-        account_address=address, key_pair=key_pair, chain_id=StarknetChainId.TESTNET
-    )
-    acc_client = await AccountClient.create_account(client=client, signer=signer)
-    assert acc_client.signer == signer
-    assert acc_client.signer is not None
-    assert acc_client.address is not None
-
-
 @pytest.mark.asyncio
 @pytest.mark.parametrize("key, val", [(20, 20), (30, 30)])
 async def test_sending_multicall(account_client, map_contract, key, val):
@@ -191,7 +142,7 @@ async def test_sending_multicall(account_client, map_contract, key, val):
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_block_traces(gateway_account_client):
-    traces = await gateway_account_client.get_block_traces(block_number=1)
+    traces = await gateway_account_client.get_block_traces(block_number=2)
 
     assert traces.traces != []
 

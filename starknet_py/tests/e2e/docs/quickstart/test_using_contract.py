@@ -6,24 +6,10 @@ directory = os.path.dirname(__file__)
 
 
 @pytest.mark.asyncio
-async def test_using_contract(gateway_client, gateway_account_client, map_contract):
+async def test_using_contract(account_client, map_contract):
     # pylint: disable=unused-variable,too-many-locals
     # docs: start
     from starknet_py.contract import Contract
-    from starknet_py.net import AccountClient
-    from starknet_py.net.networks import TESTNET
-    from starknet_py.net.gateway_client import GatewayClient
-    from starknet_py.net.models import StarknetChainId
-
-    client = GatewayClient(TESTNET)
-    # docs: end
-    client = gateway_client
-
-    # docs: start
-
-    acc_client = await AccountClient.create_account(
-        gateway_client, chain=StarknetChainId.TESTNET
-    )
 
     contract_address = (
         "0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b"
@@ -35,7 +21,7 @@ async def test_using_contract(gateway_client, gateway_account_client, map_contra
     # docs: start
 
     # Create contract from contract's address - Contract will download contract's ABI to know its interface.
-    contract = await Contract.from_address(contract_address, gateway_account_client)
+    contract = await Contract.from_address(contract_address, account_client)
     # docs: end
 
     abi = contract.data.abi
@@ -46,7 +32,7 @@ async def test_using_contract(gateway_client, gateway_account_client, map_contra
     contract = Contract(
         contract_address,
         abi,
-        gateway_account_client,
+        account_client,
     )
 
     # All exposed functions are available at contract.functions.

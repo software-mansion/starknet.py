@@ -5,11 +5,14 @@ import pytest
 import pytest_asyncio
 
 from starknet_py.common import create_compiled_contract
-from starknet_py.compile.compiler import Compiler
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_DIR, MAX_FEE
+from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
+from starknet_py.tests.e2e.fixtures.constants import (
+    CONTRACTS_DIR,
+    MAX_FEE,
+)
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
@@ -155,28 +158,40 @@ def fixture_balance_contract() -> str:
     return read_contract("balance_compiled.json")
 
 
-@pytest_asyncio.fixture(scope="module")
-async def account_with_validate_deploy_class_hash(
-    new_gateway_account_client: AccountClient,
+async def declare_account(
+    account: AccountClient, compiled_account_contract: str
 ) -> int:
     """
-    Returns a class_hash of the account_with_validate_deploy.cairo
+    Declares a specified account
     """
-    compiled_contract = Compiler(
-        contract_source=read_contract(
-            "account_with_validate_deploy.cairo", directory=CONTRACTS_DIR
-        ),
-        is_account_contract=True,
-    ).compile_contract()
 
-    declare_tx = await new_gateway_account_client.sign_declare_transaction(
-        compiled_contract=compiled_contract,
+    declare_tx = await account.sign_declare_transaction(
+        compiled_contract=compiled_account_contract,
         max_fee=MAX_FEE,
     )
-    resp = await new_gateway_account_client.declare(transaction=declare_tx)
-    await new_gateway_account_client.wait_for_tx(resp.transaction_hash)
+    resp = await account.declare(transaction=declare_tx)
+    await account.wait_for_tx(resp.transaction_hash)
 
     return resp.class_hash
+
+
+@pytest_asyncio.fixture(scope="module")
+async def account_with_validate_deploy_class_hash(
+    pre_deployed_account_with_validate_deploy: AccountClient,
+) -> int:
+    compiled_contract = read_contract("account_with_validate_deploy_compiled.json")
+    return await declare_account(
+        pre_deployed_account_with_validate_deploy, compiled_contract
+    )
+
+
+@pytest_asyncio.fixture(scope="module")
+async def account_without_validate_deploy_class_hash(
+    pre_deployed_account_with_validate_deploy: AccountClient,
+) -> int:
+    return await declare_account(
+        pre_deployed_account_with_validate_deploy, COMPILED_ACCOUNT_CONTRACT
+    )
 
 
 @pytest_asyncio.fixture(scope="module")
