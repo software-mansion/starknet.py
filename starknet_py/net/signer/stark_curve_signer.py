@@ -1,6 +1,6 @@
 import warnings
 from dataclasses import dataclass
-from typing import List, Union
+from typing import List, Union, Dict
 
 from starkware.crypto.signature.signature import (
     private_to_stark_key,
@@ -118,7 +118,7 @@ class StarkCurveSigner(BaseSigner):
         return [r, s]
 
     def sign_message(
-        self, typed_data: Union[dict, TypedData], account_address: int
+        self, typed_data: Union[Dict, TypedData], account_address: int
     ) -> List[int]:
         if isinstance(typed_data, dict):
             warnings.warn(
