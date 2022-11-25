@@ -71,7 +71,9 @@ async def deploy_proxy_to_contract_custom(
 
 
 async def deploy_proxy_to_contract(
-    compiled_proxy_name: str, compiled_contract_name: str, gateway_account_client: AccountClient
+    compiled_proxy_name: str,
+    compiled_contract_name: str,
+    gateway_account_client: AccountClient,
 ) -> DeployResult:
     """
     Declares a contract and deploys a proxy pointing to that contract.
