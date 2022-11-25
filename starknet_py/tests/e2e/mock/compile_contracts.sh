@@ -23,6 +23,7 @@ for contract in "$CONTRACTS_DIRECTORY"/*.cairo; do
       account_contract_flag="--account_contract"
     fi
 
+    echo "Compiling $contract..."
     # run starknet-compile
     poetry run starknet-compile $account_contract_flag --cairo_path $CONTRACTS_DIRECTORY:$MOCK_DIRECTORY --output $output --abi $abi $contract
     number_of_contracts=$((number_of_contracts+1))
