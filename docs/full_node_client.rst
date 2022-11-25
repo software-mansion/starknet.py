@@ -44,8 +44,5 @@ We recommend using :obj:`ContractFunction's invoke <starknet_py.contract.Contrac
 .. automethod:: FullNodeClient.declare
 .. automethod:: FullNodeClient.declare_sync
 
-.. automethod:: FullNodeClient.deploy
-.. automethod:: FullNodeClient.deploy_sync
-
 .. automethod:: FullNodeClient.estimate_fee
 .. automethod:: FullNodeClient.estimate_fee_sync
