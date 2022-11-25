@@ -50,6 +50,7 @@ from starknet_py.transaction_exceptions import TransactionNotReceivedError
 from starknet_py.utils.sync import add_sync_methods
 
 
+# pylint: disable=too-many-public-methods
 @add_sync_methods
 class FullNodeClient(Client):
     def __init__(
@@ -176,6 +177,14 @@ class FullNodeClient(Client):
         )
 
         return cast(EstimatedFee, EstimatedFeeSchema().load(res, unknown=EXCLUDE))
+
+    async def estimate_fee_bulk(
+        self,
+        txs: List[Union[InvokeFunction, Declare, DeployAccount]],
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> List[EstimatedFee]:
+        raise NotImplementedError()
 
     async def call_contract(
         self,

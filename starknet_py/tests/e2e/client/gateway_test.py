@@ -1,17 +1,25 @@
+import dataclasses
 from unittest.mock import AsyncMock, patch
 
 import pytest
-from starkware.starknet.public.abi import get_storage_var_address
+from starkware.starknet.public.abi import (
+    get_storage_var_address,
+    get_selector_from_name,
+)
 
+from starknet_py.common import create_compiled_contract
 from starknet_py.net.client_errors import ContractNotFoundError
 from starknet_py.net.client_models import (
     TransactionStatusResponse,
     TransactionStatus,
     DeployedContract,
     L1HandlerTransaction,
+    InvokeFunction,
+    Declare,
 )
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.networks import TESTNET, MAINNET, CustomGatewayUrls
+from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
 @pytest.mark.asyncio
@@ -35,6 +43,52 @@ async def test_get_class_hash_at(contract_address, gateway_client, class_hash):
     )
 
     assert class_hash_resp == class_hash
+
+
+@pytest.mark.parametrize(
+    "transactions",
+    [
+        [
+            InvokeFunction(
+                contract_address=0x1,
+                entry_point_selector=get_selector_from_name("increase_balance"),
+                calldata=[123],
+                max_fee=0,
+                version=0,
+                signature=[0x0, 0x0],
+                nonce=None,
+            ),
+            Declare(
+                contract_class=create_compiled_contract(
+                    compiled_contract=read_contract("map_compiled.json")
+                ),
+                sender_address=0x1,
+                max_fee=0,
+                signature=[0x0, 0x0],
+                nonce=0,
+                version=0,
+            ),
+        ]
+    ],
+)
+@pytest.mark.asyncio
+async def test_estimate_fee_bulk(
+    transactions, contract_address, gateway_client, deploy_account_transaction
+):
+    for idx, _ in enumerate(transactions):
+        if isinstance(transactions[idx], InvokeFunction):
+            transactions[idx] = dataclasses.replace(
+                transactions[idx], contract_address=contract_address
+            )
+    transactions.append(deploy_account_transaction)
+
+    estimated_fees = await gateway_client.estimate_fee_bulk(
+        txs=transactions, block_number="latest"
+    )
+
+    for estimated_fee in estimated_fees:
+        assert isinstance(estimated_fee.overall_fee, int)
+        assert estimated_fee.overall_fee > 0
 
 
 @pytest.mark.asyncio

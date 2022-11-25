@@ -198,6 +198,24 @@ class Client(ABC):
         """
 
     @abstractmethod
+    async def estimate_fee_bulk(
+        self,
+        txs: List[Union[InvokeFunction, Declare, DeployAccount]],
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> List[EstimatedFee]:
+        """
+        Estimate how much Wei it will cost to run provided InvokeFunction
+
+        :param txs: Transactions to estimate
+        :param block_hash: Get code at specific block hash or
+                           at the block indicated by the literals `"pending"` or `"latest"`
+        :param block_number: Get code at given block number or at
+                             the block indicated by the literals `"pending"` or `"latest"`
+        :return: List of estimated amount of Wei executing specified transactions will cost
+        """
+
+    @abstractmethod
     async def call_contract(
         self,
         call: Call,
