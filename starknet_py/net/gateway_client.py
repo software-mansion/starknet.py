@@ -214,7 +214,7 @@ class GatewayClient(Client):
 
     async def estimate_fee_bulk(
         self,
-        txs: List[Union[InvokeFunction, Declare, DeployAccount]],
+        transactions: List[Union[InvokeFunction, Declare, DeployAccount]],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> List[EstimatedFee]:
@@ -223,7 +223,7 @@ class GatewayClient(Client):
         )
         res = await self._feeder_gateway_client.post(
             method_name="estimate_fee_bulk",
-            payload=AccountTransaction.Schema().dump(txs, many=True),
+            payload=AccountTransaction.Schema().dump(transactions, many=True),
             params=block_identifier,
         )
 

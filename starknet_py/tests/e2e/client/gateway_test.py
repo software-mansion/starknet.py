@@ -83,7 +83,7 @@ async def test_estimate_fee_bulk(
     transactions.append(deploy_account_transaction)
 
     estimated_fees = await gateway_client.estimate_fee_bulk(
-        txs=transactions, block_number="latest"
+        transactions=transactions, block_number="latest"
     )
 
     assert isinstance(estimated_fees, list)
