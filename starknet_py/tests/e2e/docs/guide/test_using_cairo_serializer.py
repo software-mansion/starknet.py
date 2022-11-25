@@ -1,10 +1,12 @@
 import pytest
 from starkware.starknet.public.abi import get_selector_from_name
 
+from starknet_py.compile.compiler import Compiler
+
 
 @pytest.mark.asyncio
-async def test_using_cairo_serializer(account_client):
-    # pylint: disable=unused-variable, import-outside-toplevel
+async def test_using_cairo_serializer(new_account_client):
+    # pylint: disable=unused-variable, import-outside-toplevel, too-many-locals
     # docs: start
     from starknet_py.contract import Contract
     from starknet_py.utils.data_transformer.data_transformer import CairoSerializer
@@ -32,13 +34,19 @@ async def test_using_cairo_serializer(account_client):
             return ();
         }
     """
+    # docs: end
+    account_client = new_account_client
+    compiled_contract = Compiler(contract_source=contract).compile_contract()
+    # docs: start
 
-    # Deploys the contract
-    deployment_result = await Contract.deploy(
-        account_client, compilation_source=contract
+    # Declares and deploys the contract
+    declare_result = await Contract.declare(
+        account=account_client, compiled_contract=compiled_contract, max_fee=int(1e16)
     )
-    await deployment_result.wait_for_acceptance()
-    contract = deployment_result.deployed_contract
+    await declare_result.wait_for_acceptance()
+    deploy_result = await declare_result.deploy(max_fee=int(1e16))
+    await deploy_result.wait_for_acceptance()
+    contract = deploy_result.deployed_contract
 
     # Invokes "put" function (which emits an event)
     invoke_result = (
