@@ -9,7 +9,6 @@ from starkware.starknet.services.api.gateway.transaction import (
     Transaction as T,
     AccountTransaction as AT,
     ContractClass as CD,
-    Deploy as D,
     Declare as DCL,
     DeployAccount as DAC,
 )
@@ -21,7 +20,6 @@ InvokeFunction = as_our_module(IF)
 StarknetTransaction = as_our_module(T)
 AccountTransaction = as_our_module(AT)
 ContractClass = as_our_module(CD)
-Deploy = as_our_module(D)
 Declare = as_our_module(DCL)
 DeployAccount = as_our_module(DAC)
 
