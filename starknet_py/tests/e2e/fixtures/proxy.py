@@ -46,7 +46,7 @@ def old_proxy() -> str:
     ]
 )
 async def deploy_proxy_to_contract_oz_argent(
-    request, new_gateway_account_client
+    request, new_gateway_account_client: AccountClient
 ) -> DeployResult:
     """
     Declares a contract and deploys a proxy (OZ, Argent) pointing to that contract.
@@ -59,7 +59,7 @@ async def deploy_proxy_to_contract_oz_argent(
 
 @pytest_asyncio.fixture(params=[("oz_proxy_custom_compiled.json", "map_compiled.json")])
 async def deploy_proxy_to_contract_custom(
-    request, new_gateway_account_client
+    request, new_gateway_account_client: AccountClient
 ) -> DeployResult:
     """
     Declares a contract and deploys a custom proxy pointing to that contract.
@@ -71,7 +71,7 @@ async def deploy_proxy_to_contract_custom(
 
 
 async def deploy_proxy_to_contract(
-    compiled_proxy_name, compiled_contract_name, gateway_account_client: AccountClient
+    compiled_proxy_name: str, compiled_contract_name: str, gateway_account_client: AccountClient
 ) -> DeployResult:
     """
     Declares a contract and deploys a proxy pointing to that contract.
