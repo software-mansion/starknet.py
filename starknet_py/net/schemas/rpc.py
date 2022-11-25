@@ -187,6 +187,7 @@ class TypesOfTransactionsSchema(OneOfSchema):
     type_schemas = {
         "INVOKE": InvokeTransactionSchema,
         "DECLARE": DeclareTransactionSchema,
+        "DEPLOY": DeployTransactionSchema,
         "DEPLOY_ACCOUNT": DeployAccountTransactionSchema,
         "L1_HANDLER": L1HandlerTransactionSchema,
     }
