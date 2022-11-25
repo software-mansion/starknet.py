@@ -524,32 +524,6 @@ class AccountClient(Client):
             block_number=block_number,
         )
 
-    async def estimate_fee_bulk(
-        self,
-        txs: List[Union[InvokeFunction, Declare, DeployAccount]],
-        block_hash: Optional[Union[Hash, Tag]] = None,
-        block_number: Optional[Union[int, Tag]] = None,
-    ) -> List[EstimatedFee]:
-        """
-        :param txs: Transactions which fees we want to calculate
-        :param block_hash: Estimate fee at specific block hash
-        :param block_number: Estimate fee at given block number
-            (or "latest" / "pending" for the latest / pending block), default is "pending"
-        :return: List of estimated fees
-        """
-        if not isinstance(self.client, GatewayClient):
-            raise TypeError(
-                "AccountClient.estimate_fee_bulk only supports using GatewayClient"
-            )
-
-        signed_txs = sign_transactions(signer=self.signer, txs=txs)
-
-        return await self.client.estimate_fee_bulk(
-            txs=signed_txs,
-            block_hash=block_hash,
-            block_number=block_number,
-        )
-
     async def get_code(self, *args, **kwargs):
         warnings.warn(
             "get_code was removed from Client interface and will be removed from AccountClient in future versions",
@@ -770,14 +744,3 @@ def make_invoke_function_by_version(
 
 def get_account_version():
     return 1 if "__validate__" in COMPILED_ACCOUNT_CONTRACT else 0
-
-
-def sign_transactions(
-    signer: BaseSigner, txs: List[Union[InvokeFunction, Declare, DeployAccount]]
-):
-    signed_txs = []
-    for tx in txs:
-        signature = signer.sign_transaction(tx)
-        signed_txs.append(add_signature_to_transaction(tx, signature))
-
-    return signed_txs

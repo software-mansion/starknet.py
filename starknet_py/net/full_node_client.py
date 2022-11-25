@@ -50,7 +50,6 @@ from starknet_py.transaction_exceptions import TransactionNotReceivedError
 from starknet_py.utils.sync import add_sync_methods
 
 
-# pylint: disable=too-many-public-methods
 @add_sync_methods
 class FullNodeClient(Client):
     def __init__(

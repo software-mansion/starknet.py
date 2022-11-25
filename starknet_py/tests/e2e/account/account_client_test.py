@@ -108,40 +108,6 @@ async def test_estimated_fee_greater_than_zero(erc20_contract, account_client):
     )
 
 
-@pytest.mark.asyncio
-async def test_estimate_fee_for_declare_transaction(
-    new_account_client, map_compiled_contract
-):
-    declare_tx = await new_account_client.sign_declare_transaction(
-        compiled_contract=map_compiled_contract, max_fee=MAX_FEE
-    )
-
-    estimated_fee = await new_account_client.estimate_fee(tx=declare_tx)
-
-    assert isinstance(estimated_fee.overall_fee, int)
-    assert estimated_fee.overall_fee > 0
-    assert (
-        estimated_fee.gas_usage * estimated_fee.gas_price == estimated_fee.overall_fee
-    )
-
-
-@pytest.mark.asyncio
-async def test_estimate_fee_for_declare_transactions(
-    new_gateway_account_client, declare_transactions
-):
-    estimated_fees = await new_gateway_account_client.estimate_fee_bulk(
-        txs=declare_transactions
-    )
-
-    for estimated_fee in estimated_fees:
-        assert isinstance(estimated_fee.overall_fee, int)
-        assert estimated_fee.overall_fee > 0
-        assert (
-            estimated_fee.gas_usage * estimated_fee.gas_price
-            == estimated_fee.overall_fee
-        )
-
-
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_create_account_client(network):
