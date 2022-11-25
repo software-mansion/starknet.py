@@ -73,7 +73,7 @@ class AccountClient(Client):
     ):
         """
         :param address: Address of the account contract
-        :param client: Instance of GatewayClient / FullNodeClient which will be used to add transactions
+        :param client: Instance of Client which will be used to add transactions
         :param signer: Custom signer to be used by AccountClient.
                        If none is provided, default
                        :py:class:`starknet_py.net.signer.stark_curve_signer.StarkCurveSigner` is used.
