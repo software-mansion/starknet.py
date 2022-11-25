@@ -8,6 +8,7 @@ from starknet_py.net.client_models import (
     TransactionStatusResponse,
     TransactionStatus,
     L1HandlerTransaction,
+    DeployTransaction,
 )
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.networks import TESTNET, MAINNET, CustomGatewayUrls
@@ -172,3 +173,27 @@ async def test_get_l1_handler_transaction_without_nonce(gateway_client):
 
         assert isinstance(transaction, L1HandlerTransaction)
         assert transaction.nonce is None
+
+
+# Check if the `Deploy` transaction is fetched correctly
+@pytest.mark.asyncio
+async def test_get_deploy_tx():
+    client = GatewayClient(net=TESTNET)
+    deploy_tx = await client.get_transaction(
+        tx_hash="0x068d6145cb99622cc930f9b26034c6f5127c348e8c21a5e232e36540a48622bb"
+    )
+
+    assert deploy_tx == DeployTransaction(
+        hash=2963673878706802757881372249643497924351429288158219425664578299882910393019,
+        signature=[],
+        max_fee=0,
+        version=0,
+        contract_address=3201539328574232511583948975549924874632298555514040085947217389204344560301,
+        constructor_calldata=[
+            2977964825119970114006147768568360818918965859196023865674869683232138769290,
+            1295919550572838631247819983596733806859788957403169325509326258146877103642,
+            1,
+            1755481054165712359795659576392952180676068046985196641715115837975005192835,
+        ],
+        class_hash=1390726910323976264396851446996494490757233897803493337751952271375342730526,
+    )
