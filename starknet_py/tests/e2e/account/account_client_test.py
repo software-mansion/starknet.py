@@ -1,15 +1,13 @@
 import asyncio
-import dataclasses
 from unittest.mock import patch, MagicMock
 
 import pytest
 
-from starknet_py.common import create_compiled_contract
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient, KeyPair
 from starknet_py.net.account.account_client import deploy_account_contract
-from starknet_py.net.client_models import TransactionStatus, Declare
+from starknet_py.net.client_models import TransactionStatus
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import parse_address, StarknetChainId
 from starknet_py.net.networks import TESTNET, MAINNET
@@ -129,34 +127,11 @@ async def test_estimate_fee_for_declare_transaction(
 
 @pytest.mark.asyncio
 async def test_estimate_fee_for_declare_transactions(
-    new_gateway_account_client, map_compiled_contract, erc20_compiled_contract
+    new_gateway_account_client, declare_transactions
 ):
-    declare_tx_map = await new_gateway_account_client.sign_declare_transaction(
-        compiled_contract=map_compiled_contract, max_fee=MAX_FEE
+    estimated_fees = await new_gateway_account_client.estimate_fee_bulk(
+        txs=declare_transactions
     )
-
-    compiled_contract = create_compiled_contract(
-        compiled_contract=erc20_compiled_contract
-    )
-    new_nonce = declare_tx_map.nonce + 1
-    declare_tx = Declare(
-        contract_class=compiled_contract,
-        sender_address=new_gateway_account_client.address,
-        max_fee=0,
-        signature=[],
-        nonce=new_nonce,
-        version=new_gateway_account_client.supported_tx_version,
-    )
-
-    max_fee = await new_gateway_account_client._get_max_fee(  # pylint: disable=protected-access
-        transaction=declare_tx, max_fee=MAX_FEE
-    )
-    declare_tx = dataclasses.replace(declare_tx, max_fee=max_fee)
-    signature = new_gateway_account_client.signer.sign_transaction(declare_tx)
-    dataclasses.replace(declare_tx, signature=signature, max_fee=max_fee)
-
-    declare_txs = [declare_tx_map, declare_tx]
-    estimated_fees = await new_gateway_account_client.estimate_fee_bulk(txs=declare_txs)
 
     for estimated_fee in estimated_fees:
         assert isinstance(estimated_fee.overall_fee, int)
