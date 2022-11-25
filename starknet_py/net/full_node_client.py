@@ -178,14 +178,6 @@ class FullNodeClient(Client):
 
         return cast(EstimatedFee, EstimatedFeeSchema().load(res, unknown=EXCLUDE))
 
-    async def estimate_fee_bulk(
-        self,
-        txs: List[Union[InvokeFunction, Declare, DeployAccount]],
-        block_hash: Optional[Union[Hash, Tag]] = None,
-        block_number: Optional[Union[int, Tag]] = None,
-    ) -> List[EstimatedFee]:
-        raise NotImplementedError()
-
     async def call_contract(
         self,
         call: Call = None,  # pyright: ignore

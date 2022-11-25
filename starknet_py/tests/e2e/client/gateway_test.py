@@ -86,6 +86,8 @@ async def test_estimate_fee_bulk(
         txs=transactions, block_number="latest"
     )
 
+    assert isinstance(estimated_fees, list)
+
     for estimated_fee in estimated_fees:
         assert isinstance(estimated_fee.overall_fee, int)
         assert estimated_fee.overall_fee > 0

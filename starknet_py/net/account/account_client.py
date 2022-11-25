@@ -73,7 +73,7 @@ class AccountClient(Client):
     ):
         """
         :param address: Address of the account contract
-        :param client: Instance of GatewayClient which will be used to add transactions
+        :param client: Instance of GatewayClient / FullNodeClient which will be used to add transactions
         :param signer: Custom signer to be used by AccountClient.
                        If none is provided, default
                        :py:class:`starknet_py.net.signer.stark_curve_signer.StarkCurveSigner` is used.
@@ -535,6 +535,11 @@ class AccountClient(Client):
         :param block_number: Estimate fee at given block number (or "pending" for pending block), default is "pending"
         :return: List of estimated fees
         """
+        if not isinstance(self.client, GatewayClient):
+            raise TypeError(
+                "AccountClient.estimate_fee_bulk only supports using GatewayClient"
+            )
+
         signed_txs = sign_transactions(signer=self.signer, txs=txs)
 
         return await self.client.estimate_fee_bulk(

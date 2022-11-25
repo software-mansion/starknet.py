@@ -131,7 +131,6 @@ async def test_estimate_fee_for_declare_transaction(
 async def test_estimate_fee_for_declare_transactions(
     new_gateway_account_client, map_compiled_contract, erc20_compiled_contract
 ):
-    # TODO: extend this test to new_account_client
     declare_tx_map = await new_gateway_account_client.sign_declare_transaction(
         compiled_contract=map_compiled_contract, max_fee=MAX_FEE
     )
