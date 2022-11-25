@@ -165,6 +165,7 @@ async def test_call_uninitialized_contract(gateway_account_client):
     assert "Requested contract address 0x1 is not deployed." in err.value.message
 
 
+@pytest.mark.asyncio
 async def test_wait_for_tx(account_client, map_contract):
     transaction = await map_contract.functions["put"].invoke(
         key=10, value=20, max_fee=MAX_FEE
@@ -172,6 +173,7 @@ async def test_wait_for_tx(account_client, map_contract):
     await account_client.wait_for_tx(transaction.hash)
 
 
+@pytest.mark.asyncio
 async def test_wait_for_tx_throws_on_transaction_rejected(account_client, map_contract):
     invoke = map_contract.functions["put"].prepare(key=0x1, value=0x1, max_fee=MAX_FEE)
 
