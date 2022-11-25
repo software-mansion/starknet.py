@@ -16,13 +16,11 @@ from starknet_py.net.client_models import (
     DeclaredContract,
     EstimatedFee,
     BlockTransactionTraces,
-    DeployTransactionResponse,
     DeclareTransactionResponse,
     Call,
     DeployAccountTransactionResponse,
 )
 from starknet_py.net.models.transaction import (
-    Deploy,
     Declare,
     InvokeFunction,
     DeployAccount,
@@ -227,20 +225,8 @@ class Client(ABC):
         """
         Send a transaction to the network
 
-        :param transaction: Transaction object (i.e. InvokeFunction, Deploy).
+        :param transaction: Transaction object (i.e. InvokeFunction).
         :return: SentTransactionResponse object
-        """
-
-    @abstractmethod
-    async def deploy(self, transaction: Deploy) -> DeployTransactionResponse:
-        """
-        Deploy a contract to the network
-
-        :param transaction: Deploy transaction
-        :return: SentTransactionResponse object
-
-        .. deprecated:: 0.8.0
-            This metod has been deprecated in favor of deploy_prefunded method or deploying through cairo syscall.
         """
 
     @abstractmethod

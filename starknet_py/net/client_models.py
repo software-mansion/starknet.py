@@ -276,15 +276,6 @@ class DeclareTransactionResponse(SentTransactionResponse):
 
 
 @dataclass
-class DeployTransactionResponse(SentTransactionResponse):
-    """
-    Dataclass representing a result of deploying a contract to starknet
-    """
-
-    contract_address: int = 0
-
-
-@dataclass
 class DeployAccountTransactionResponse(SentTransactionResponse):
     """
     Dataclass representing a result of deploying an account contract to starknet

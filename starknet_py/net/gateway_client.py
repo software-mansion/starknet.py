@@ -1,5 +1,4 @@
 import typing
-import warnings
 from typing import Union, Optional, List
 
 import aiohttp
@@ -18,11 +17,9 @@ from starknet_py.net.client_models import (
     Tag,
     DeclaredContract,
     Declare,
-    Deploy,
     TransactionStatusResponse,
     EstimatedFee,
     BlockTransactionTraces,
-    DeployTransactionResponse,
     DeclareTransactionResponse,
     TransactionReceipt,
     Call,
@@ -40,7 +37,6 @@ from starknet_py.net.schemas.gateway import (
     TransactionStatusSchema,
     BlockTransactionTracesSchema,
     EstimatedFeeSchema,
-    DeployTransactionResponseSchema,
     DeclareTransactionResponseSchema,
     TransactionReceiptSchema,
     DeployAccountTransactionResponseSchema,
@@ -245,22 +241,6 @@ class GatewayClient(Client):
     ) -> SentTransactionResponse:
         res = await self._add_transaction(transaction, token)
         return SentTransactionSchema().load(res, unknown=EXCLUDE)  # pyright: ignore
-
-    async def deploy(
-        self,
-        transaction: Deploy,
-        token: Optional[str] = None,
-    ) -> DeployTransactionResponse:
-        warnings.warn(
-            "Deploy transaction is deprecated."
-            "Use deploy_prefunded method or deploy through cairo syscall",
-            category=DeprecationWarning,
-        )
-
-        res = await self._add_transaction(transaction, token)
-        return DeployTransactionResponseSchema().load(
-            res, unknown=EXCLUDE
-        )  # pyright: ignore
 
     async def deploy_account(
         self, transaction: DeployAccount, token: Optional[str] = None

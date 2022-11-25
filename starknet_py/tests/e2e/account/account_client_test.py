@@ -6,13 +6,11 @@ import pytest
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient, KeyPair
-from starknet_py.net.client_models import TransactionStatus
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import parse_address, StarknetChainId
 from starknet_py.net.networks import TESTNET, MAINNET
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.transaction_exceptions import TransactionRejectedError
-from starknet_py.transactions.deploy import make_deploy_tx
 
 
 @pytest.mark.asyncio
@@ -145,20 +143,6 @@ async def test_get_block_traces(gateway_account_client):
     traces = await gateway_account_client.get_block_traces(block_number=2)
 
     assert traces.traces != []
-
-
-@pytest.mark.asyncio
-async def test_deploy(account_client, map_compiled_contract):
-    deploy_tx = make_deploy_tx(compiled_contract=map_compiled_contract)
-    result = await account_client.deploy(deploy_tx)
-    await account_client.wait_for_tx(result.transaction_hash)
-
-    transaction_receipt = await account_client.get_transaction_receipt(
-        result.transaction_hash
-    )
-
-    assert transaction_receipt.status != TransactionStatus.NOT_RECEIVED
-    assert result.contract_address
 
 
 @pytest.mark.asyncio
