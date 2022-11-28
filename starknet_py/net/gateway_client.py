@@ -212,6 +212,25 @@ class GatewayClient(Client):
 
         return EstimatedFeeSchema().load(res, unknown=EXCLUDE)  # pyright: ignore
 
+    async def estimate_fee_bulk(
+        self,
+        transactions: List[Union[InvokeFunction, Declare, DeployAccount]],
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> List[EstimatedFee]:
+        block_identifier = get_block_identifier(
+            block_hash=block_hash, block_number=block_number
+        )
+        res = await self._feeder_gateway_client.post(
+            method_name="estimate_fee_bulk",
+            payload=AccountTransaction.Schema().dump(transactions, many=True),
+            params=block_identifier,
+        )
+
+        return EstimatedFeeSchema().load(
+            res, unknown=EXCLUDE, many=True
+        )  # pyright: ignore
+
     async def call_contract(
         self,
         call: Call = None,  # pyright: ignore

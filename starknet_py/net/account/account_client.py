@@ -73,7 +73,7 @@ class AccountClient(Client):
     ):
         """
         :param address: Address of the account contract
-        :param client: Instance of GatewayClient which will be used to add transactions
+        :param client: Instance of Client which will be used to add transactions
         :param signer: Custom signer to be used by AccountClient.
                        If none is provided, default
                        :py:class:`starknet_py.net.signer.stark_curve_signer.StarkCurveSigner` is used.
@@ -511,7 +511,8 @@ class AccountClient(Client):
         """
         :param tx: Transaction which fee we want to calculate
         :param block_hash: Estimate fee at specific block hash
-        :param block_number: Estimate fee at given block number (or "pending" for pending block), default is "pending"
+        :param block_number: Estimate fee at given block number
+            (or "latest" / "pending" for the latest / pending block), default is "pending"
         :return: Estimated fee
         """
         signature = self.signer.sign_transaction(tx)
