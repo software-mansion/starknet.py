@@ -281,7 +281,8 @@ class PreparedFunctionCall(Call):
         Estimate fee for prepared function call
 
         :param block_hash: Estimate fee at specific block hash
-        :param block_number: Estimate fee at given block number (or "pending" for pending block), default is "pending"
+        :param block_number: Estimate fee at given block number
+            (or "latest" / "pending" for the latest / pending block), default is "pending"
         :return: Estimated amount of Wei executing specified transaction will cost
         :raises ValueError: when max_fee of PreparedFunctionCall is not None or 0.
         """
