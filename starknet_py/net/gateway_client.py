@@ -1,5 +1,4 @@
 import typing
-import warnings
 from typing import Union, Optional, List
 
 import aiohttp
@@ -18,11 +17,9 @@ from starknet_py.net.client_models import (
     Tag,
     DeclaredContract,
     Declare,
-    Deploy,
     TransactionStatusResponse,
     EstimatedFee,
     BlockTransactionTraces,
-    DeployTransactionResponse,
     DeclareTransactionResponse,
     TransactionReceipt,
     Call,
@@ -40,7 +37,6 @@ from starknet_py.net.schemas.gateway import (
     TransactionStatusSchema,
     BlockTransactionTracesSchema,
     EstimatedFeeSchema,
-    DeployTransactionResponseSchema,
     DeclareTransactionResponseSchema,
     TransactionReceiptSchema,
     DeployAccountTransactionResponseSchema,
@@ -212,6 +208,25 @@ class GatewayClient(Client):
 
         return EstimatedFeeSchema().load(res, unknown=EXCLUDE)  # pyright: ignore
 
+    async def estimate_fee_bulk(
+        self,
+        transactions: List[Union[InvokeFunction, Declare, DeployAccount]],
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> List[EstimatedFee]:
+        block_identifier = get_block_identifier(
+            block_hash=block_hash, block_number=block_number
+        )
+        res = await self._feeder_gateway_client.post(
+            method_name="estimate_fee_bulk",
+            payload=AccountTransaction.Schema().dump(transactions, many=True),
+            params=block_identifier,
+        )
+
+        return EstimatedFeeSchema().load(
+            res, unknown=EXCLUDE, many=True
+        )  # pyright: ignore
+
     async def call_contract(
         self,
         call: Call = None,  # pyright: ignore
@@ -245,22 +260,6 @@ class GatewayClient(Client):
     ) -> SentTransactionResponse:
         res = await self._add_transaction(transaction, token)
         return SentTransactionSchema().load(res, unknown=EXCLUDE)  # pyright: ignore
-
-    async def deploy(
-        self,
-        transaction: Deploy,
-        token: Optional[str] = None,
-    ) -> DeployTransactionResponse:
-        warnings.warn(
-            "Deploy transaction is deprecated."
-            "Use deploy_prefunded method or deploy through cairo syscall",
-            category=DeprecationWarning,
-        )
-
-        res = await self._add_transaction(transaction, token)
-        return DeployTransactionResponseSchema().load(
-            res, unknown=EXCLUDE
-        )  # pyright: ignore
 
     async def deploy_account(
         self, transaction: DeployAccount, token: Optional[str] = None

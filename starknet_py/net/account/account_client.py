@@ -4,7 +4,6 @@ import warnings
 from dataclasses import replace
 from typing import Optional, List, Union, Dict, Tuple, Iterable
 
-from starkware.crypto.signature.signature import get_random_private_key
 from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.common import create_compiled_contract
@@ -22,12 +21,10 @@ from starknet_py.net.client_models import (
     BlockStateUpdate,
     StarknetBlock,
     Declare,
-    Deploy,
     BlockTransactionTraces,
     EstimatedFee,
     Calls,
     TransactionStatus,
-    DeployTransactionResponse,
     DeclareTransactionResponse,
     Transaction,
     DeployAccountTransactionResponse,
@@ -73,7 +70,7 @@ class AccountClient(Client):
     ):
         """
         :param address: Address of the account contract
-        :param client: Instance of GatewayClient which will be used to add transactions
+        :param client: Instance of Client which will be used to add transactions
         :param signer: Custom signer to be used by AccountClient.
                        If none is provided, default
                        :py:class:`starknet_py.net.signer.stark_curve_signer.StarkCurveSigner` is used.
@@ -491,9 +488,6 @@ class AccountClient(Client):
         )
         return await self.send_transaction(execute_transaction)
 
-    async def deploy(self, transaction: Deploy) -> DeployTransactionResponse:
-        return await self.client.deploy(transaction=transaction)
-
     async def deploy_account(
         self, transaction: DeployAccount
     ) -> DeployAccountTransactionResponse:
@@ -511,7 +505,8 @@ class AccountClient(Client):
         """
         :param tx: Transaction which fee we want to calculate
         :param block_hash: Estimate fee at specific block hash
-        :param block_number: Estimate fee at given block number (or "pending" for pending block), default is "pending"
+        :param block_number: Estimate fee at given block number
+            (or "latest" / "pending" for the latest / pending block), default is "pending"
         :return: Estimated fee
         """
         signature = self.signer.sign_transaction(tx)
@@ -539,60 +534,6 @@ class AccountClient(Client):
                 f"Provided version: {version} is not equal to account's "
                 f"supported_tx_version: {self.supported_tx_version}"
             )
-
-    @staticmethod
-    async def create_account(
-        client: Client,
-        private_key: Optional[int] = None,
-        signer: Optional[BaseSigner] = None,
-        chain: Optional[StarknetChainId] = None,
-    ) -> "AccountClient":
-        """
-        Creates the account using
-        `OpenZeppelin Account contract
-        <https://github.com/starkware-libs/cairo-lang/blob/4e233516f52477ad158bc81a86ec2760471c1b65/src/starkware/starknet/third_party/open_zeppelin/Account.cairo>`_
-
-        :param client: Instance of Client (i.e. FullNodeClient or GatewayClient)
-                       which will be used to add the transactions
-        :param private_key: Private Key used for the account
-        :param signer: Signer used to create account and sign transaction
-        :param chain: ChainId of the chain used to create the default signer
-        :return: Instance of AccountClient which interacts with created account on given network
-
-        .. deprecated:: 0.5.0
-            This method has been deprecated and will be deleted once transaction version 0 is removed.
-            Compiled account contract will no longer be bundled with StarkNet.py.
-            Consider transitioning to deploying account contract of choice and creating AccountClient
-            through a constructor.
-        """
-        warnings.warn(
-            "Account deployment through AccountClient is deprecated and will be deleted once transaction version "
-            "0 is removed. Consider transitioning to creating AccountClient through a constructor.",
-            category=DeprecationWarning,
-        )
-
-        if chain is None and signer is None:
-            raise ValueError("One of chain or signer must be provided")
-
-        if signer is None:
-            chain = chain_from_network(net=client.net, chain=chain)
-            used_private_key = private_key or get_random_private_key()
-            key_pair = KeyPair.from_private_key(used_private_key)
-            address = await deploy_account_contract(client, key_pair.public_key)
-            signer = StarkCurveSigner(
-                account_address=address, key_pair=key_pair, chain_id=chain
-            )
-        else:
-            address = await deploy_account_contract(client, signer.public_key)
-
-        version = get_account_version()
-
-        return AccountClient(
-            client=client,
-            address=address,
-            signer=signer,
-            supported_tx_version=version,
-        )
 
     async def get_contract_nonce(
         self,
@@ -661,27 +602,6 @@ class AccountClient(Client):
             if re.search(r"Signature\s.+,\sis\sinvalid", ex.message):
                 return False
             raise ex
-
-
-async def deploy_account_contract(
-    client: Client, public_key: int
-) -> AddressRepresentation:
-    # pylint: disable=import-outside-toplevel
-    # FIXME move this import to top once circular import is resolved
-    from starknet_py.transactions.deploy import make_deploy_tx
-
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        deploy_tx = make_deploy_tx(
-            constructor_calldata=[public_key],
-            compiled_contract=COMPILED_ACCOUNT_CONTRACT,
-        )
-
-    result = await client.deploy(deploy_tx)
-    await client.wait_for_tx(
-        tx_hash=result.transaction_hash,
-    )
-    return result.contract_address
 
 
 def add_signature_to_transaction(

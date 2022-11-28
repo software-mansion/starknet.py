@@ -5,58 +5,6 @@ import pytest
 from starkware.starknet.public.abi import get_storage_var_address
 
 from starknet_py.net.client_errors import ClientError
-from starknet_py.net.client_models import (
-    DeployTransaction,
-    DeployedContract,
-)
-
-
-@pytest.mark.run_on_devnet
-@pytest.mark.asyncio
-async def test_node_get_transaction_by_block_id_and_index(
-    block_with_deploy_number,
-    deploy_transaction_hash,
-    contract_address,
-    full_node_client,
-    class_hash,
-):
-    tx = await full_node_client.get_transaction_by_block_id(
-        block_number=block_with_deploy_number, index=0
-    )
-
-    assert tx == DeployTransaction(
-        hash=deploy_transaction_hash,
-        contract_address=contract_address,
-        constructor_calldata=[],
-        max_fee=0,
-        signature=[],
-        class_hash=class_hash,
-        version=0,
-    )
-
-
-@pytest.mark.run_on_devnet
-@pytest.mark.asyncio
-async def test_node_get_deploy_transaction_by_block_id_and_index(
-    deploy_transaction_hash,
-    block_with_deploy_number,
-    contract_address,
-    full_node_client,
-    class_hash,
-):
-    tx = await full_node_client.get_transaction_by_block_id(
-        block_number=block_with_deploy_number, index=0
-    )
-
-    assert tx == DeployTransaction(
-        hash=deploy_transaction_hash,
-        contract_address=contract_address,
-        constructor_calldata=[],
-        max_fee=0,
-        signature=[],
-        class_hash=class_hash,
-        version=0,
-    )
 
 
 @pytest.mark.run_on_devnet
@@ -150,21 +98,13 @@ async def test_pending_transactions(full_node_client):
 @pytest.mark.asyncio
 async def test_state_update_full_node_client(
     full_node_client,
-    block_with_deploy_number,
-    contract_address,
+    block_with_declare_number,
     class_hash,
 ):
     state_update = await full_node_client.get_state_update(
-        block_number=block_with_deploy_number
+        block_number=block_with_declare_number
     )
 
-    assert (
-        DeployedContract(
-            address=contract_address,
-            class_hash=class_hash,
-        )
-        in state_update.deployed_contracts
-    )
     assert class_hash in state_update.declared_contracts
 
 

@@ -1,26 +1,34 @@
+import dataclasses
 from unittest.mock import AsyncMock, patch
 
 import pytest
-from starkware.starknet.public.abi import get_storage_var_address
+from starkware.starknet.public.abi import (
+    get_storage_var_address,
+    get_selector_from_name,
+)
 
+from starknet_py.common import create_compiled_contract
 from starknet_py.net.client_errors import ContractNotFoundError
 from starknet_py.net.client_models import (
     TransactionStatusResponse,
     TransactionStatus,
-    DeployedContract,
     L1HandlerTransaction,
+    InvokeFunction,
+    Declare,
+    DeployTransaction,
 )
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.networks import TESTNET, MAINNET, CustomGatewayUrls
+from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
 @pytest.mark.asyncio
 async def test_gateway_raises_on_both_block_hash_and_number(
-    block_with_deploy_number, gateway_client
+    block_with_declare_number, gateway_client
 ):
     with pytest.raises(ValueError) as exinfo:
         await gateway_client.get_block(
-            block_hash="0x0", block_number=block_with_deploy_number
+            block_hash="0x0", block_number=block_with_declare_number
         )
 
     assert "block_hash and block_number parameters are mutually exclusive" in str(
@@ -35,6 +43,54 @@ async def test_get_class_hash_at(contract_address, gateway_client, class_hash):
     )
 
     assert class_hash_resp == class_hash
+
+
+@pytest.mark.parametrize(
+    "transactions",
+    [
+        [
+            InvokeFunction(
+                contract_address=0x1,
+                entry_point_selector=get_selector_from_name("increase_balance"),
+                calldata=[123],
+                max_fee=0,
+                version=0,
+                signature=[0x0, 0x0],
+                nonce=None,
+            ),
+            Declare(
+                contract_class=create_compiled_contract(
+                    compiled_contract=read_contract("map_compiled.json")
+                ),
+                sender_address=0x1,
+                max_fee=0,
+                signature=[0x0, 0x0],
+                nonce=0,
+                version=0,
+            ),
+        ]
+    ],
+)
+@pytest.mark.asyncio
+async def test_estimate_fee_bulk(
+    transactions, contract_address, gateway_client, deploy_account_transaction
+):
+    for idx, _ in enumerate(transactions):
+        if isinstance(transactions[idx], InvokeFunction):
+            transactions[idx] = dataclasses.replace(
+                transactions[idx], contract_address=contract_address
+            )
+    transactions.append(deploy_account_transaction)
+
+    estimated_fees = await gateway_client.estimate_fee_bulk(
+        transactions=transactions, block_number="latest"
+    )
+
+    assert isinstance(estimated_fees, list)
+
+    for estimated_fee in estimated_fees:
+        assert isinstance(estimated_fee.overall_fee, int)
+        assert estimated_fee.overall_fee > 0
 
 
 @pytest.mark.asyncio
@@ -123,21 +179,14 @@ def test_creating_client_with_custom_net_dict():
 @pytest.mark.asyncio
 async def test_state_update_gateway_client(
     gateway_client,
-    block_with_deploy_number,
-    contract_address,
+    block_with_declare_number,
     class_hash,
 ):
     state_update = await gateway_client.get_state_update(
-        block_number=block_with_deploy_number
+        block_number=block_with_declare_number
     )
 
-    assert (
-        DeployedContract(
-            address=contract_address,
-            class_hash=class_hash,
-        )
-        in state_update.deployed_contracts
-    )
+    assert class_hash in state_update.declared_contracts
 
 
 @pytest.mark.asyncio
@@ -180,3 +229,27 @@ async def test_get_l1_handler_transaction_without_nonce(gateway_client):
 
         assert isinstance(transaction, L1HandlerTransaction)
         assert transaction.nonce is None
+
+
+# Check if the `Deploy` transaction is fetched correctly
+@pytest.mark.asyncio
+async def test_get_deploy_tx():
+    client = GatewayClient(net=TESTNET)
+    deploy_tx = await client.get_transaction(
+        tx_hash="0x068d6145cb99622cc930f9b26034c6f5127c348e8c21a5e232e36540a48622bb"
+    )
+
+    assert deploy_tx == DeployTransaction(
+        hash=2963673878706802757881372249643497924351429288158219425664578299882910393019,
+        signature=[],
+        max_fee=0,
+        version=0,
+        contract_address=3201539328574232511583948975549924874632298555514040085947217389204344560301,
+        constructor_calldata=[
+            2977964825119970114006147768568360818918965859196023865674869683232138769290,
+            1295919550572838631247819983596733806859788957403169325509326258146877103642,
+            1,
+            1755481054165712359795659576392952180676068046985196641715115837975005192835,
+        ],
+        class_hash=1390726910323976264396851446996494490757233897803493337751952271375342730526,
+    )
