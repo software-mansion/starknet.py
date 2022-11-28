@@ -1,40 +1,31 @@
 import os
 import pytest
-from starknet_py.net.models import StarknetChainId
+
+from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 
 directory = os.path.dirname(__file__)
 
 
 @pytest.mark.asyncio
-async def test_using_account_client(network, gateway_account_client, map_source_code):
+async def test_using_account_client(new_account_client, map_compiled_contract):
     # pylint: disable=import-outside-toplevel, duplicate-code, too-many-locals
     # docs: start
-    from starknet_py.net import AccountClient
     from starknet_py.contract import Contract
-    from starknet_py.net.gateway_client import GatewayClient
 
     # docs: end
-    testnet = network
+    account_client = new_account_client
     # docs: start
-
-    # Creates an account on testnet and returns an instance
-    client = GatewayClient(net=testnet)
-    acc_client = await AccountClient.create_account(
-        client=client, chain=StarknetChainId.TESTNET
+    # Declare and deploy an example contract which implements a simple k-v store.
+    declare_result = await Contract.declare(
+        account=account_client, compiled_contract=map_compiled_contract, max_fee=MAX_FEE
     )
-    # docs: end
-    acc_client = gateway_account_client
-    # docs: start
-
-    # Deploy an example contract which implements a simple k-v store. Deploy transaction is not being signed.
-    deployment_result = await Contract.deploy(
-        client=acc_client, compilation_source=map_source_code
-    )
+    await declare_result.wait_for_acceptance()
+    deploy_result = await declare_result.deploy(max_fee=MAX_FEE)
     # Wait until deployment transaction is accepted
-    await deployment_result.wait_for_acceptance()
+    await deploy_result.wait_for_acceptance()
 
     # Get deployed contract
-    map_contract = deployment_result.deployed_contract
+    map_contract = deploy_result.deployed_contract
     k, v = 13, 4324
     # Adds a transaction to mutate the state of k-v store. The call goes through account proxy, because we've used
     # AccountClient to create the contract object
@@ -54,8 +45,8 @@ async def test_using_account_client(network, gateway_account_client, map_source_
     ]
 
     # Executes only one transaction with prepared calls
-    transaction_response = await acc_client.execute(calls=calls, max_fee=int(1e16))
-    await acc_client.wait_for_tx(transaction_response.transaction_hash)
+    transaction_response = await account_client.execute(calls=calls, max_fee=int(1e16))
+    await account_client.wait_for_tx(transaction_response.transaction_hash)
     # docs: end
 
     assert resp == v

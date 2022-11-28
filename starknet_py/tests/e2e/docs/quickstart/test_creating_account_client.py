@@ -46,9 +46,4 @@ async def test_creating_account_client(network):
     signer = StarkCurveSigner("0x1234", key_pair, StarknetChainId.TESTNET)
 
     account_client = AccountClient(client=client, address="0x1234", signer=signer)
-
-    # Deploys an account on testnet and returns an instance
-    account_client = await AccountClient.create_account(
-        client=client, chain=StarknetChainId.TESTNET
-    )
     # docs: end

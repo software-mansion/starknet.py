@@ -1,4 +1,3 @@
-import warnings
 from typing import List, Optional, Union, cast
 
 import aiohttp
@@ -19,12 +18,10 @@ from starknet_py.net.client_models import (
     DeclaredContract,
     Transaction,
     Declare,
-    Deploy,
     DeployAccount,
     EstimatedFee,
     BlockTransactionTraces,
     DeclareTransactionResponse,
-    DeployTransactionResponse,
     Call,
     DeployAccountTransactionResponse,
     AccountTransaction,
@@ -40,7 +37,6 @@ from starknet_py.net.schemas.rpc import (
     TypesOfTransactionsSchema,
     SentTransactionSchema,
     DeclareTransactionResponseSchema,
-    DeployTransactionResponseSchema,
     PendingTransactionsSchema,
     EstimatedFeeSchema,
     DeployAccountTransactionResponseSchema,
@@ -215,43 +211,6 @@ class FullNodeClient(Client):
 
         return cast(
             SentTransactionResponse, SentTransactionSchema().load(res, unknown=EXCLUDE)
-        )
-
-    async def deploy(self, transaction: Deploy) -> DeployTransactionResponse:
-        warnings.warn(
-            "Deploy transaction is deprecated."
-            "Use deploy_prefunded method or deploy through cairo syscall",
-            category=DeprecationWarning,
-        )
-
-        contract_definition = transaction.dump()["contract_definition"]
-
-        res = await self._client.call(
-            method_name="addDeployTransaction",
-            params={
-                "deploy_transaction": {
-                    "contract_class": {
-                        "program": contract_definition["program"],
-                        "entry_points_by_type": contract_definition[
-                            "entry_points_by_type"
-                        ],
-                        "abi": contract_definition["abi"],
-                    },
-                    "version": hex(transaction.version),
-                    "type": "DEPLOY",
-                    "contract_address_salt": hash_to_felt(
-                        transaction.contract_address_salt
-                    ),
-                    "constructor_calldata": [
-                        hash_to_felt(i) for i in transaction.constructor_calldata
-                    ],
-                },
-            },
-        )
-
-        return cast(
-            DeployTransactionResponse,
-            DeployTransactionResponseSchema().load(res, unknown=EXCLUDE),
         )
 
     async def deploy_account(
