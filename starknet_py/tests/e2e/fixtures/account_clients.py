@@ -63,7 +63,7 @@ def create_account_client(
 
 
 async def devnet_account_details(
-    account: AccountClient, class_hash: int
+    account: BaseAccount, class_hash: int
 ) -> Tuple[str, str]:
     """
     Deploys an AccountClient and adds fee tokens to its balance
@@ -79,10 +79,10 @@ async def devnet_account_details(
     invoke_tx = await account.sign_invoke_transaction(
         calls=deploy_call, max_fee=MAX_FEE
     )
-    resp = await account.send_transaction(invoke_tx)
-    await account.wait_for_tx(resp.transaction_hash)
+    resp = await account.client.send_transaction(invoke_tx)
+    await account.client.wait_for_tx(resp.transaction_hash)
 
-    http_client = GatewayHttpClient(account.net)
+    http_client = GatewayHttpClient(account.client.net)
     await http_client.post(
         method_name="mint",
         payload={
@@ -97,7 +97,7 @@ async def devnet_account_details(
 @pytest_asyncio.fixture(scope="module")
 async def address_and_private_key(
     pytestconfig,
-    pre_deployed_account_with_validate_deploy: AccountClient,
+    pre_deployed_account_with_validate_deploy: BaseAccount,
     account_without_validate_deploy_class_hash: int,
 ) -> Tuple[str, str]:
     """
@@ -147,7 +147,7 @@ def full_node_account_client(
 
 
 async def new_devnet_account_details(
-    account: AccountClient,
+    account: BaseAccount,
     class_hash: int,
 ) -> Tuple[str, str]:
     """
@@ -164,7 +164,7 @@ async def new_devnet_account_details(
         deployer_address=0,
     )
 
-    http_client = GatewayHttpClient(account.net)
+    http_client = GatewayHttpClient(account.client.net)
     await http_client.post(
         method_name="mint",
         payload={
@@ -178,18 +178,17 @@ async def new_devnet_account_details(
         key_pair=key_pair,
         salt=salt,
         class_hash=class_hash,
-        network=account.net,
+        network=account.client.net,
     )
 
-    account = AccountClient(
+    account = Account(
         address=address,
         client=account.client,
         key_pair=key_pair,
         chain=StarknetChainId.TESTNET,
-        supported_tx_version=1,
     )
-    res = await account.deploy_account(deploy_account_tx)
-    await account.wait_for_tx(res.transaction_hash)
+    res = await account.client.deploy_account(deploy_account_tx)
+    await account.client.wait_for_tx(res.transaction_hash)
 
     return hex(address), hex(key_pair.private_key)
 
@@ -197,7 +196,7 @@ async def new_devnet_account_details(
 @pytest_asyncio.fixture(scope="module")
 async def new_address_and_private_key(
     pytestconfig,
-    pre_deployed_account_with_validate_deploy: AccountClient,
+    pre_deployed_account_with_validate_deploy: BaseAccount,
     account_with_validate_deploy_class_hash: int,
 ) -> Tuple[str, str]:
     """

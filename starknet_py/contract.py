@@ -169,11 +169,19 @@ class DeclareResult(SentTransaction):
             calls=deploy_call, max_fee=max_fee, auto_estimate=auto_estimate
         )
 
-        deployed_contract = Contract(
-            client=self._account.client,
-            address=address,
-            abi=abi,
-        )
+        if self._account is not None:
+            deployed_contract = Contract(
+                account=self._account,
+                address=address,
+                abi=abi,
+            )
+        else:
+            deployed_contract = Contract(
+                client=self._client,
+                address=address,
+                abi=abi,
+            )
+
         deploy_result = DeployResult(
             hash=res.transaction_hash,
             _client=self._account.client,
