@@ -73,8 +73,5 @@ We recommend using :obj:`ContractFunction's invoke <starknet_py.contract.Contrac
 .. automethod:: GatewayClient.declare
 .. automethod:: GatewayClient.declare_sync
 
-.. automethod:: GatewayClient.deploy
-.. automethod:: GatewayClient.deploy_sync
-
 .. automethod:: GatewayClient.estimate_fee
 .. automethod:: GatewayClient.estimate_fee_sync

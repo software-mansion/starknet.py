@@ -5,9 +5,9 @@ import pytest_asyncio
 from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.contract import Contract, DeployResult
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_PRECOMPILED_DIR
+from starknet_py.net import AccountClient
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_PRECOMPILED_DIR, MAX_FEE
 from starknet_py.tests.e2e.fixtures.misc import read_contract
-from starknet_py.transactions.declare import make_declare_tx
 
 
 @pytest.fixture(
@@ -46,32 +46,34 @@ def old_proxy() -> str:
     ]
 )
 async def deploy_proxy_to_contract_oz_argent(
-    request, gateway_account_client
+    request, new_gateway_account_client: AccountClient
 ) -> DeployResult:
     """
     Declares a contract and deploys a proxy (OZ, Argent) pointing to that contract.
     """
     compiled_proxy_name, compiled_contract_name = request.param
     return await deploy_proxy_to_contract(
-        compiled_proxy_name, compiled_contract_name, gateway_account_client
+        compiled_proxy_name, compiled_contract_name, new_gateway_account_client
     )
 
 
 @pytest_asyncio.fixture(params=[("oz_proxy_custom_compiled.json", "map_compiled.json")])
 async def deploy_proxy_to_contract_custom(
-    request, gateway_account_client
+    request, new_gateway_account_client: AccountClient
 ) -> DeployResult:
     """
     Declares a contract and deploys a custom proxy pointing to that contract.
     """
     compiled_proxy_name, compiled_contract_name = request.param
     return await deploy_proxy_to_contract(
-        compiled_proxy_name, compiled_contract_name, gateway_account_client
+        compiled_proxy_name, compiled_contract_name, new_gateway_account_client
     )
 
 
 async def deploy_proxy_to_contract(
-    compiled_proxy_name, compiled_contract_name, gateway_account_client
+    compiled_proxy_name: str,
+    compiled_contract_name: str,
+    gateway_account_client: AccountClient,
 ) -> DeployResult:
     """
     Declares a contract and deploys a proxy pointing to that contract.
@@ -79,17 +81,25 @@ async def deploy_proxy_to_contract(
     compiled_proxy = read_contract(compiled_proxy_name)
     compiled_contract = read_contract(compiled_contract_name)
 
-    declare_tx = make_declare_tx(compiled_contract=compiled_contract)
+    declare_tx = await gateway_account_client.sign_declare_transaction(
+        compiled_contract=compiled_contract, max_fee=MAX_FEE
+    )
     declare_result = await gateway_account_client.declare(declare_tx)
+    await gateway_account_client.wait_for_tx(declare_result.transaction_hash)
 
-    deployment_result = await Contract.deploy(
+    declare_proxy_result = await Contract.declare(
+        account=gateway_account_client,
         compiled_contract=compiled_proxy,
+        max_fee=MAX_FEE,
+    )
+    await declare_proxy_result.wait_for_acceptance()
+    deploy_result = await declare_proxy_result.deploy(
         constructor_args=[
             declare_result.class_hash,
             get_selector_from_name("put"),
             [69, 420],
         ],
-        client=gateway_account_client,
+        max_fee=MAX_FEE,
     )
-    await deployment_result.wait_for_acceptance()
-    return deployment_result
+    await deploy_result.wait_for_acceptance()
+    return deploy_result

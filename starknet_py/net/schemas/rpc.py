@@ -20,7 +20,6 @@ from starknet_py.net.client_models import (
     TransactionReceipt,
     SentTransactionResponse,
     DeclareTransactionResponse,
-    DeployTransactionResponse,
     EstimatedFee,
     StateDiff,
     L1HandlerTransaction,
@@ -415,14 +414,6 @@ class DeclareTransactionResponseSchema(SentTransactionSchema):
     @post_load
     def make_dataclass(self, data, **kwargs):
         return DeclareTransactionResponse(**data)
-
-
-class DeployTransactionResponseSchema(SentTransactionSchema):
-    contract_address = Felt(data_key="contract_address", required=True)
-
-    @post_load
-    def make_dataclass(self, data, **kwargs):
-        return DeployTransactionResponse(**data)
 
 
 class DeployAccountTransactionResponseSchema(SentTransactionSchema):
