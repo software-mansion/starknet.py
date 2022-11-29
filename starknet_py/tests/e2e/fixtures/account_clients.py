@@ -14,6 +14,8 @@ from starkware.starknet.services.api.gateway.transaction import (
 
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient, KeyPair
+from starknet_py.net.account.account import Account
+from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
@@ -286,6 +288,62 @@ def net_to_new_accounts() -> List[str]:
     params=net_to_new_accounts(),
 )
 def new_account_client(request) -> AccountClient:
+    """
+    This parametrized fixture returns all new AccountClients, one by one.
+    """
+    return request.getfixturevalue(request.param)
+
+
+@pytest.fixture(scope="module")
+def gateway_account(
+    new_address_and_private_key: Tuple[str, str], gateway_client: GatewayClient
+) -> BaseAccount:
+    """
+    Returns a new AccountClient created with FullNodeClient
+    """
+    address, private_key = new_address_and_private_key
+
+    return Account(
+        address=address,
+        client=gateway_client,
+        key_pair=KeyPair.from_private_key(int(private_key, 0)),
+        chain=StarknetChainId.TESTNET,
+    )
+
+
+@pytest.fixture(scope="module")
+def full_node_account(
+    new_address_and_private_key: Tuple[str, str], full_node_client: FullNodeClient
+) -> BaseAccount:
+    """
+    Returns a new AccountClient created with FullNodeClient
+    """
+    address, private_key = new_address_and_private_key
+
+    return Account(
+        address=address,
+        client=full_node_client,
+        key_pair=KeyPair.from_private_key(int(private_key, 0)),
+        chain=StarknetChainId.TESTNET,
+    )
+
+
+def net_to_base_accounts() -> List[str]:
+    accounts = [
+        "gateway_account",
+    ]
+    nets = ["--net=integration", "--net=testnet", "testnet", "integration"]
+
+    if set(nets).isdisjoint(sys.argv):
+        accounts.extend(["full_node_account"])
+    return accounts
+
+
+@pytest.fixture(
+    scope="module",
+    params=net_to_base_accounts(),
+)
+def account(request) -> BaseAccount:
     """
     This parametrized fixture returns all new AccountClients, one by one.
     """
