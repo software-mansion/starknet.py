@@ -388,7 +388,7 @@ class Account(BaseAccount):
         if address != (
             computed := compute_address(
                 salt=salt,
-                class_hash=class_hash,  # class_hash of the Account declared on the StarkNet
+                class_hash=class_hash,
                 constructor_calldata=[key_pair.public_key],
                 deployer_address=0,
             )
