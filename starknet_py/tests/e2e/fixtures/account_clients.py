@@ -14,6 +14,7 @@ from starkware.starknet.services.api.gateway.transaction import (
 
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient, KeyPair
+from starknet_py.net.account._account_proxy import AccountProxy
 from starknet_py.net.account.account import Account
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
@@ -311,6 +312,16 @@ def gateway_account(
 
 
 @pytest.fixture(scope="module")
+def gateway_account_proxy(new_gateway_account_client: AccountClient) -> BaseAccount:
+    return AccountProxy(new_gateway_account_client)
+
+
+@pytest.fixture(scope="module")
+def full_node_account_proxy(new_full_node_account_client: AccountClient) -> BaseAccount:
+    return AccountProxy(new_full_node_account_client)
+
+
+@pytest.fixture(scope="module")
 def full_node_account(
     new_address_and_private_key: Tuple[str, str], full_node_client: FullNodeClient
 ) -> BaseAccount:
@@ -328,13 +339,11 @@ def full_node_account(
 
 
 def net_to_base_accounts() -> List[str]:
-    accounts = [
-        "gateway_account",
-    ]
+    accounts = ["gateway_account", "gateway_account_proxy"]
     nets = ["--net=integration", "--net=testnet", "testnet", "integration"]
 
     if set(nets).isdisjoint(sys.argv):
-        accounts.extend(["full_node_account"])
+        accounts.extend(["full_node_account", "full_node_account_proxy"])
     return accounts
 
 
