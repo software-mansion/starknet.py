@@ -373,7 +373,7 @@ class Account(BaseAccount):
     ) -> "Account":
         """
         Deploys an account contract with provided class_hash on starknet and returns
-        a Account instance to be used.
+        an Account instance to be used.
 
         Provided address must be first prefunded with enough tokens, otherwise the method will fail.
 
