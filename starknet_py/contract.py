@@ -32,8 +32,9 @@ from starknet_py.proxy.contract_abi_resolver import (
 from starknet_py.net import AccountClient
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import Hash, Tag
-from starknet_py.net.models import (
-    InvokeFunction,
+from starknet_py.net.models import (  # pylint: disable=unused-import
+    InvokeFunction,  # backward compatibility
+    Invoke,
     AddressRepresentation,
     parse_address,
     compute_address,
@@ -102,7 +103,7 @@ class SentTransaction:
 class InvokeResult(SentTransaction):
     # We ensure these are not None in __post_init__
     contract: ContractData = None  # pyright: ignore
-    invoke_transaction: InvokeFunction = None  # pyright: ignore
+    invoke_transaction: Invoke = None  # pyright: ignore
 
     def __post_init__(self):
         assert self.contract is not None

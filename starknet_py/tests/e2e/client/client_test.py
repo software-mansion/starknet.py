@@ -15,6 +15,7 @@ from starknet_py.common import create_compiled_contract
 from starknet_py.net.client_models import (
     TransactionStatus,
     InvokeFunction,
+    Invoke,
     TransactionReceipt,
     Call,
     DeclareTransaction,
@@ -135,7 +136,7 @@ async def test_get_transaction_receipt(
 @pytest.mark.parametrize(
     "transaction",
     [
-        InvokeFunction(
+        Invoke(
             contract_address=0x1,
             entry_point_selector=get_selector_from_name("increase_balance"),
             calldata=[123],

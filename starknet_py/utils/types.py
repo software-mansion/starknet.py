@@ -3,6 +3,7 @@
 # noinspection PyUnresolvedReferences
 from starknet_py.net.models import (
     InvokeFunction,
+    Invoke,
     Transaction,
 )
 

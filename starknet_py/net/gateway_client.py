@@ -6,12 +6,13 @@ from marshmallow import EXCLUDE
 from starkware.starknet.services.api.gateway.transaction import AccountTransaction
 
 from starknet_py.net.client import Client
-from starknet_py.net.client_models import (
+from starknet_py.net.client_models import (  # pylint: disable=unused-import
     Transaction,
     SentTransactionResponse,
     ContractCode,
     BlockStateUpdate,
-    InvokeFunction,
+    InvokeFunction,  # backward compatibility
+    Invoke,
     StarknetTransaction,
     Hash,
     Tag,
@@ -193,7 +194,7 @@ class GatewayClient(Client):
 
     async def estimate_fee(
         self,
-        tx: Union[InvokeFunction, Declare, DeployAccount],
+        tx: Union[Invoke, Declare, DeployAccount],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
@@ -210,7 +211,7 @@ class GatewayClient(Client):
 
     async def estimate_fee_bulk(
         self,
-        transactions: List[Union[InvokeFunction, Declare, DeployAccount]],
+        transactions: List[Union[Invoke, Declare, DeployAccount]],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> List[EstimatedFee]:
@@ -255,7 +256,7 @@ class GatewayClient(Client):
 
     async def send_transaction(
         self,
-        transaction: InvokeFunction,
+        transaction: Invoke,
         token: Optional[str] = None,
     ) -> SentTransactionResponse:
         res = await self._add_transaction(transaction, token)
