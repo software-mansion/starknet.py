@@ -391,7 +391,7 @@ def sender_address(new_gateway_account_client: AccountClient) -> Dict:
 @pytest.fixture(scope="module")
 def pre_deployed_account_with_validate_deploy(
     pytestconfig, network: str
-) -> AccountClient:
+) -> BaseAccount:
     """
     Returns an AccountClient pre-deployed on specified network. Used to deploy other accounts
     """
@@ -410,10 +410,9 @@ def pre_deployed_account_with_validate_deploy(
     net = pytestconfig.getoption("--net")
     address, private_key = address_and_priv_key[net]
 
-    return AccountClient(
+    return Account(
         address=address,
         client=GatewayClient(net=network),
         key_pair=KeyPair.from_private_key(int(private_key, 16)),
         chain=StarknetChainId.TESTNET,
-        supported_tx_version=1,
     )
