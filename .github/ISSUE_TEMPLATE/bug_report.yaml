@@ -1,0 +1,66 @@
+name: Bug Report
+description: File a bug report
+title: "[BUG] <title>"
+labels: [ "bug" ]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: Describe the issue here.
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Stack trace
+      description: Please provide stack trace output of the error.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Please provide the steps required to reproduce the issue.
+      value: "1. "
+    validations:
+      required: true
+
+  - type: input
+    id: sdk-version
+    attributes:
+      label: SDK Version
+      description: What SDK version are you using?
+    validations:
+      required: true
+
+  - type: input
+    id: python-version
+    attributes:
+      label: Python version
+      description: What version of Python are you using?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: operating-systems
+    attributes:
+      label: What operating system are you using?
+      multiple: true
+      options:
+        - Linux
+        - Windows
+        - Mac
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: verified-not-exists
+    attributes:
+      label: Is there an existing issue for this?
+      options:
+        - label: I have searched the existing issues and verified no issue exits for this problem.
+
+# Thanks to https://github.com/MarketingPipeline/Awesome-Repo-Template
