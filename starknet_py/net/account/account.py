@@ -367,9 +367,10 @@ class Account(BaseAccount):
         class_hash: int,
         salt: int,
         key_pair: KeyPair,
-        chain: StarknetChainId,
-        max_fee: int,
         client: Client,
+        chain: StarknetChainId,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
     ) -> "Account":
         """
         Deploys an account contract with provided class_hash on StarkNet and returns
@@ -384,6 +385,7 @@ class Account(BaseAccount):
         :param key_pair: KeyPair used to calculate address and sign deploy account transaction.
         :param chain: id of the StarkNet chain used.
         :param max_fee: max fee to be paid for deployment, must be less or equal to the amount of tokens prefunded.
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
         """
         if address != (
             computed := compute_address(
@@ -406,6 +408,7 @@ class Account(BaseAccount):
             contract_address_salt=salt,
             constructor_calldata=[key_pair.public_key],
             max_fee=max_fee,
+            auto_estimate=auto_estimate,
         )
         result = await client.deploy_account(deploy_account_tx)
         await client.wait_for_tx(result.transaction_hash)
