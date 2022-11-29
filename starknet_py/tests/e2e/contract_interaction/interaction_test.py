@@ -1,5 +1,4 @@
-import asyncio
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, AsyncMock
 
 import pytest
 from starkware.starknet.public.abi import get_selector_from_name
@@ -188,33 +187,28 @@ async def test_wait_for_tx_throws_on_transaction_rejected(account_client, map_co
         assert "Entry point 0x123 not found in contract" in err.value.message
 
 
-@pytest.mark.asyncio
-async def test_warning_when_max_fee_equals_to_zero(map_contract):
-    with pytest.warns(
-        DeprecationWarning,
-        match=r"Transaction will fail with max_fee set to 0. Change it to a higher value.",
-    ):
-        # try except have to be added because when running on a real environment it will throw an error (max_fee=0)
-        try:
-            await map_contract.functions["put"].invoke(10, 20, max_fee=0)
-        except ClientError:
-            pass
+# @pytest.mark.asyncio
+# async def test_warning_when_max_fee_equals_to_zero(map_contract):
+#     with pytest.warns(
+#         DeprecationWarning,
+#         match=r"Transaction will fail with max_fee set to 0. Change it to a higher value.",
+#     ):
+#         # try except have to be added because when running on a real environment it will throw an error (max_fee=0)
+#         try:
+#             await map_contract.functions["put"].invoke(10, 20, max_fee=0)
+#         except ClientError:
+#             pass
 
 
 @pytest.mark.asyncio
 async def test_transaction_not_received_error(map_contract):
     with patch(
-        "starknet_py.net.account.account_client.AccountClient.send_transaction",
-        MagicMock(),
+        "starknet_py.net.gateway_client.GatewayClient.send_transaction",
+        AsyncMock(),
     ) as mocked_send_transaction:
-        result = asyncio.Future()
-        result.set_result(
-            SentTransactionResponse(
-                code=StarkErrorCode.TRANSACTION_CANCELLED.value, transaction_hash=0x123
-            )
+        mocked_send_transaction.return_value = SentTransactionResponse(
+            code=StarkErrorCode.TRANSACTION_CANCELLED.value, transaction_hash=0x123
         )
-
-        mocked_send_transaction.return_value = result
 
         with pytest.raises(TransactionNotReceivedError) as tx_not_received:
             result = await map_contract.functions["put"].invoke(10, 20, max_fee=MAX_FEE)
@@ -233,7 +227,7 @@ async def test_error_when_invoking_without_account_client(gateway_client, map_co
         )
 
     assert (
-        "Contract uses an account that can't invoke transactions. You need to use AccountClient for that."
+        "Contract was created without Account provided or with Client that is not an account."
         in str(wrong_client_error)
     )
 
@@ -248,7 +242,7 @@ async def test_error_when_estimating_fee_while_not_using_account_client(
         await contract.functions["put"].prepare(key=10, value=10).estimate_fee()
 
     assert (
-        "Contract uses an account that can't invoke transactions. You need to use AccountClient for that."
+        "Contract was created without Account provided or with Client that is not an account."
         in str(wrong_client_error)
     )
 
