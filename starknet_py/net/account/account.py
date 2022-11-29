@@ -378,7 +378,7 @@ class Account(BaseAccount):
         Provided address must be first prefunded with enough tokens, otherwise the method will fail.
 
         :param address: calculated and prefunded address of the new account.
-        :param class_hash: class_hash of the account contracat to be deployed.
+        :param class_hash: class_hash of the account contract to be deployed.
         :param salt: salt used to calculate the address.
         :param client: a Client instance used for deployment.
         :param key_pair: KeyPair used to calculate address and sign deploy account transaction.
