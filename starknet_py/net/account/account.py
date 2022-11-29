@@ -25,6 +25,7 @@ from starknet_py.net.models import (
     StarknetChainId,
     parse_address,
     chain_from_network,
+    compute_address,
 )
 from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.net.networks import TESTNET, MAINNET
@@ -358,6 +359,57 @@ class Account(BaseAccount):
         typed_data_dataclass = TypedDataDataclass.from_dict(typed_data)
         message_hash = typed_data_dataclass.message_hash(account_address=self.address)
         return await self._verify_message_hash(message_hash, signature)
+
+    @staticmethod
+    async def deploy_account(
+        *,
+        address: int,
+        class_hash: int,
+        salt: int,
+        key_pair: KeyPair,
+        chain: StarknetChainId,
+        max_fee: int,
+        client: Client,
+    ) -> "Account":
+        """
+        Deploys an account contract with provided class_hash on starknet and returns
+        a Account instance to be used.
+
+        Provided address must be first prefunded with enough tokens, otherwise the method will fail.
+
+        :param address: calculated and prefunded address of the new account.
+        :param class_hash: class_hash of the account contracat to be deployed.
+        :param salt: salt used to calculate the address.
+        :param client: a Client instance used for deployment.
+        :param key_pair: KeyPair used to calculate address and sign deploy account transaction.
+        :param chain: id of the StarkNet chain used.
+        :param max_fee: max fee to be paid for deployment, must be less or equal to the amount of tokens prefunded.
+        """
+        if address != (
+            computed := compute_address(
+                salt=salt,
+                class_hash=class_hash,  # class_hash of the Account declared on the StarkNet
+                constructor_calldata=[key_pair.public_key],
+                deployer_address=0,
+            )
+        ):
+            raise ValueError(
+                f"Provided address {hex(address)} is different than computed address {hex(computed)} "
+                f"for the given class_hash and salt"
+            )
+
+        account = Account(
+            address=address, client=client, key_pair=key_pair, chain=chain
+        )
+        deploy_account_tx = await account.sign_deploy_account_transaction(
+            class_hash=class_hash,
+            contract_address_salt=salt,
+            constructor_calldata=[key_pair.public_key],
+            max_fee=max_fee,
+        )
+        result = await client.deploy_account(deploy_account_tx)
+        await client.wait_for_tx(result.transaction_hash)
+        return account
 
 
 SignableTransaction = TypeVar(
