@@ -165,11 +165,11 @@ async def test_call_uninitialized_contract(gateway_client):
 
 
 @pytest.mark.asyncio
-async def test_wait_for_tx(gateway_client, map_contract):
+async def test_wait_for_tx(client, map_contract):
     transaction = await map_contract.functions["put"].invoke(
         key=10, value=20, max_fee=MAX_FEE
     )
-    await gateway_client.wait_for_tx(transaction.hash)
+    await client.wait_for_tx(transaction.hash)
 
 
 @pytest.mark.asyncio
