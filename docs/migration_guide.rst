@@ -7,12 +7,12 @@ Cairo-lang 0.10.3 dropped support for the `Deploy` transaction. To be compatible
 Breaking Changes
 ----------------
 
-Methods below are removed:
+Removed methods:
 
-- deprecated `Contract.deploy`. Read more about deployment in the `Deploying contracts <https://starknetpy.readthedocs.io/en/latest/guide.html#deploying-contracts>`_ section.
-- deprecated `AccountClient.create_account`. `Account creation <https://starknetpy.readthedocs.io/en/latest/account_creation.html>`_ docs are here to help you!
+- `Contract.deploy`. Read more about deployment in the `Deploying contracts <https://starknetpy.readthedocs.io/en/latest/guide.html#deploying-contracts>`_ section.
+- `AccountClient.create_account`. `Account creation <https://starknetpy.readthedocs.io/en/latest/account_creation.html>`_ docs are here to help you!
 - `Client.deploy` method (from the interface and all implementations)
-- deprecated `make_deploy_tx`
+- `make_deploy_tx`
 - `compute_deploy_hash`
 - the `Deploy` transaction
 
