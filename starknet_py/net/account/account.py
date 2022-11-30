@@ -385,7 +385,7 @@ class Account(BaseAccount):
         :param key_pair: KeyPair used to calculate address and sign deploy account transaction.
         :param chain: id of the StarkNet chain used.
         :param max_fee: max fee to be paid for deployment, must be less or equal to the amount of tokens prefunded.
-        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         """
         if address != (
             computed := compute_address(
