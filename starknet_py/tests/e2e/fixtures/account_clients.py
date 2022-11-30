@@ -299,7 +299,7 @@ def gateway_account(
     new_address_and_private_key: Tuple[str, str], gateway_client: GatewayClient
 ) -> BaseAccount:
     """
-    Returns a new AccountClient created with FullNodeClient
+    Returns a new Account created with GatewayClient
     """
     address, private_key = new_address_and_private_key
 
@@ -326,7 +326,7 @@ def full_node_account(
     new_address_and_private_key: Tuple[str, str], full_node_client: FullNodeClient
 ) -> BaseAccount:
     """
-    Returns a new AccountClient created with FullNodeClient
+    Returns a new Account created with FullNodeClient
     """
     address, private_key = new_address_and_private_key
 
@@ -353,7 +353,7 @@ def net_to_base_accounts() -> List[str]:
 )
 def account(request) -> BaseAccount:
     """
-    This parametrized fixture returns all new AccountClients, one by one.
+    This parametrized fixture returns all new Accounts, one by one.
     """
     return request.getfixturevalue(request.param)
 
