@@ -149,9 +149,9 @@ async def test_invoke_and_call(key, value, map_contract):
 
 
 @pytest.mark.asyncio
-async def test_call_uninitialized_contract(gateway_account_client):
+async def test_call_uninitialized_contract(gateway_client):
     with pytest.raises(ClientError) as err:
-        await gateway_account_client.call_contract(
+        await gateway_client.call_contract(
             Call(
                 to_addr=1,
                 selector=get_selector_from_name("get_nonce"),
@@ -165,15 +165,15 @@ async def test_call_uninitialized_contract(gateway_account_client):
 
 
 @pytest.mark.asyncio
-async def test_wait_for_tx(account_client, map_contract):
+async def test_wait_for_tx(gateway_client, map_contract):
     transaction = await map_contract.functions["put"].invoke(
         key=10, value=20, max_fee=MAX_FEE
     )
-    await account_client.wait_for_tx(transaction.hash)
+    await gateway_client.wait_for_tx(transaction.hash)
 
 
 @pytest.mark.asyncio
-async def test_wait_for_tx_throws_on_transaction_rejected(account_client, map_contract):
+async def test_wait_for_tx_throws_on_transaction_rejected(client, map_contract):
     invoke = map_contract.functions["put"].prepare(key=0x1, value=0x1, max_fee=MAX_FEE)
 
     # modify selector so that transaction will get rejected
@@ -181,9 +181,9 @@ async def test_wait_for_tx_throws_on_transaction_rejected(account_client, map_co
     transaction = await invoke.invoke()
 
     with pytest.raises(TransactionRejectedError) as err:
-        await account_client.wait_for_tx(transaction.hash)
+        await client.wait_for_tx(transaction.hash)
 
-    if isinstance(account_client.client, GatewayClient):
+    if isinstance(client, GatewayClient):
         assert "Entry point 0x123 not found in contract" in err.value.message
 
 
@@ -248,11 +248,9 @@ async def test_error_when_estimating_fee_while_not_using_account_client(
 
 
 @pytest.mark.asyncio
-async def test_general_simplified_deployment_flow(
-    new_account_client, map_compiled_contract
-):
+async def test_general_simplified_deployment_flow(account, map_compiled_contract):
     declare_result = await Contract.declare(
-        account=new_account_client,
+        account=account,
         compiled_contract=map_compiled_contract,
         max_fee=MAX_FEE,
     )
@@ -267,13 +265,11 @@ async def test_general_simplified_deployment_flow(
 
 
 @pytest.mark.asyncio
-async def test_deploy_contract_flow(
-    account_client, map_compiled_contract, map_class_hash
-):
+async def test_deploy_contract_flow(account, map_compiled_contract, map_class_hash):
     abi = create_compiled_contract(compiled_contract=map_compiled_contract).abi
 
     deploy_result = await Contract.deploy_contract(
-        class_hash=map_class_hash, account=account_client, abi=abi, max_fee=MAX_FEE
+        class_hash=map_class_hash, account=account, abi=abi, max_fee=MAX_FEE
     )
     await deploy_result.wait_for_acceptance()
 
