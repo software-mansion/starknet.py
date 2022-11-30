@@ -187,19 +187,6 @@ async def test_wait_for_tx_throws_on_transaction_rejected(client, map_contract):
         assert "Entry point 0x123 not found in contract" in err.value.message
 
 
-# @pytest.mark.asyncio
-# async def test_warning_when_max_fee_equals_to_zero(map_contract):
-#     with pytest.warns(
-#         DeprecationWarning,
-#         match=r"Transaction will fail with max_fee set to 0. Change it to a higher value.",
-#     ):
-#         # try except have to be added because when running on a real environment it will throw an error (max_fee=0)
-#         try:
-#             await map_contract.functions["put"].invoke(10, 20, max_fee=0)
-#         except ClientError:
-#             pass
-
-
 @pytest.mark.asyncio
 async def test_transaction_not_received_error(map_contract):
     with patch(
