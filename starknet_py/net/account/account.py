@@ -369,7 +369,7 @@ class Account(BaseAccount):
         key_pair: KeyPair,
         client: Client,
         chain: StarknetChainId,
-        constructor_calldata: List[int] = None,
+        constructor_calldata: Optional[List[int]] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> "Account":
