@@ -264,3 +264,10 @@ async def test_deploy_contract_flow(account, map_compiled_contract, map_class_ha
 
     assert isinstance(contract.address, int)
     assert len(contract.functions) != 0
+
+
+def test_contract_raises_on_both_client_and_account(gateway_client, gateway_account):
+    with pytest.raises(ValueError) as exinfo:
+        Contract(address=1234, abi=[], client=gateway_client, account=gateway_account)
+
+    assert "Account and client are mutually exclusive" in str(exinfo.value)

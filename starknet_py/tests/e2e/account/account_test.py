@@ -177,10 +177,3 @@ async def test_sign_deploy_account_transaction(gateway_account):
     assert signed_tx.class_hash == class_hash
     assert signed_tx.contract_address_salt == salt
     assert signed_tx.constructor_calldata == calldata
-
-
-def test_contract_raises_on_both_client_and_account(gateway_client, gateway_account):
-    with pytest.raises(ValueError) as exinfo:
-        Contract(address=1234, abi=[], client=gateway_client, account=gateway_account)
-
-    assert "Account and client are mutually exclusive" in str(exinfo.value)
