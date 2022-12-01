@@ -7,6 +7,7 @@ from starkware.starknet.public.abi import get_selector_from_name
 from starknet_py.common import create_compiled_contract
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.net import KeyPair
+from starknet_py.net.account.account_deployment_result import AccountDeploymentResult
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError
@@ -372,10 +373,10 @@ class Account(BaseAccount):
         constructor_calldata: Optional[List[int]] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-    ) -> "Account":
+    ) -> AccountDeploymentResult:
         """
         Deploys an account contract with provided class_hash on StarkNet and returns
-        an Account instance to be used.
+        an AccountDeploymentResult that allows waiting for transaction acceptence.
 
         Provided address must be first prefunded with enough tokens, otherwise the method will fail.
 
@@ -410,6 +411,7 @@ class Account(BaseAccount):
         account = Account(
             address=address, client=client, key_pair=key_pair, chain=chain
         )
+
         deploy_account_tx = await account.sign_deploy_account_transaction(
             class_hash=class_hash,
             contract_address_salt=salt,
@@ -418,8 +420,10 @@ class Account(BaseAccount):
             auto_estimate=auto_estimate,
         )
         result = await client.deploy_account(deploy_account_tx)
-        await client.wait_for_tx(result.transaction_hash)
-        return account
+
+        return AccountDeploymentResult(
+            hash=result.transaction_hash, account=account, _client=account.client
+        )
 
 
 SignableTransaction = TypeVar(
