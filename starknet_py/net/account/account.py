@@ -419,6 +419,14 @@ class Account(BaseAccount):
             max_fee=max_fee,
             auto_estimate=auto_estimate,
         )
+
+        if client.net in (TESTNET, MAINNET):
+            balance = await account.get_balance()
+            if balance < deploy_account_tx.max_fee:
+                raise ValueError(
+                    "Not enough tokens at the specified address to cover deployment costs"
+                )
+
         result = await client.deploy_account(deploy_account_tx)
 
         return AccountDeploymentResult(
