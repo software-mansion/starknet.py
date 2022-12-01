@@ -6,6 +6,7 @@ import pytest
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient, KeyPair
+from starknet_py.net.client_models import Call
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import parse_address, StarknetChainId
 from starknet_py.net.networks import TESTNET, MAINNET
@@ -182,3 +183,28 @@ async def test_get_class_hash_at(map_contract, account_client):
     )
 
     assert class_hash != 0
+
+
+@pytest.mark.asyncio
+async def test_sign_transaction_unsupported_version(new_account_client):
+    with pytest.raises(ValueError) as exinfo:
+        await new_account_client.sign_invoke_transaction(
+            calls=Call(0x1, 0x1, [0x1]), max_fee=MAX_FEE, version=0
+        )
+
+    assert (
+        "Provided version: 0 is not equal to account's supported_tx_version: 1"
+        in str(exinfo.value)
+    )
+
+
+@pytest.mark.asyncio
+async def test_sign_wanrs_on_max_fee_0(account_client):
+    with pytest.warns(
+        DeprecationWarning,
+        match="Transaction will fail with max_fee set to 0. Change it to a higher value.",
+    ):
+        tx = await account_client.sign_invoke_transaction(
+            calls=Call(0x1, 0x1, [0x1]), max_fee=0
+        )
+        await account_client.send_transaction(tx)
