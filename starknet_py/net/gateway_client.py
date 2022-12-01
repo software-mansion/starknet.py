@@ -6,12 +6,11 @@ from marshmallow import EXCLUDE
 from starkware.starknet.services.api.gateway.transaction import AccountTransaction
 
 from starknet_py.net.client import Client
-from starknet_py.net.client_models import (  # pylint: disable=unused-import
+from starknet_py.net.client_models import (
     Transaction,
     SentTransactionResponse,
     ContractCode,
     BlockStateUpdate,
-    InvokeFunction,  # backward compatibility
     Invoke,
     StarknetTransaction,
     Hash,

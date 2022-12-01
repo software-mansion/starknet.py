@@ -32,8 +32,7 @@ from starknet_py.proxy.contract_abi_resolver import (
 from starknet_py.net import AccountClient
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import Hash, Tag
-from starknet_py.net.models import (  # pylint: disable=unused-import
-    InvokeFunction,  # backward compatibility
+from starknet_py.net.models import (
     Invoke,
     AddressRepresentation,
     parse_address,

@@ -20,9 +20,8 @@ from starknet_py.net.client_models import (
     Call,
     DeployAccountTransactionResponse,
 )
-from starknet_py.net.models.transaction import (  # pylint: disable=unused-import
+from starknet_py.net.models.transaction import (
     Declare,
-    InvokeFunction,  # backward compatibility
     Invoke,
     DeployAccount,
 )

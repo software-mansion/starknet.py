@@ -9,11 +9,10 @@ from starkware.starknet.public.abi import (
 
 from starknet_py.common import create_compiled_contract
 from starknet_py.net.client_errors import ContractNotFoundError
-from starknet_py.net.client_models import (  # pylint: disable=unused-import
+from starknet_py.net.client_models import (
     TransactionStatusResponse,
     TransactionStatus,
     L1HandlerTransaction,
-    InvokeFunction,  # backward compatibility
     Invoke,
     Declare,
     DeployTransaction,

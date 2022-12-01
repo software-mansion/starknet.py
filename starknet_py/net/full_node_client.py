@@ -7,12 +7,11 @@ from starknet_py.net.client import (
     Client,
 )
 from starknet_py.net.client_errors import ClientError
-from starknet_py.net.client_models import (  # pylint: disable=unused-import
+from starknet_py.net.client_models import (
     SentTransactionResponse,
     TransactionReceipt,
     BlockStateUpdate,
     StarknetBlock,
-    InvokeFunction,  # backward compatibility
     Invoke,
     Hash,
     Tag,

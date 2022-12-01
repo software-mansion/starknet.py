@@ -5,8 +5,7 @@ import pytest
 
 from starknet_py.common import create_compiled_contract
 from starknet_py.net.models import StarknetChainId
-from starknet_py.net.models.transaction import (  # pylint: disable=unused-import
-    InvokeFunction,  # backward compatibility
+from starknet_py.net.models.transaction import (
     Invoke,
     DeployAccount,
     Declare,

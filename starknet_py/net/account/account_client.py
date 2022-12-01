@@ -292,7 +292,7 @@ class AccountClient(Client):
         execute_transformer = execute_transformer_by_version(version)
         wrapped_calldata, _ = execute_transformer.from_python(*calldata_py)
 
-        transaction = make_invoke_by_version(
+        transaction = _make_invoke_by_version(
             contract_address=self.address,
             calldata=wrapped_calldata,
             signature=[],
@@ -633,7 +633,7 @@ def merge_calls(calls: Iterable[Call]) -> List:
     return [calldata, entire_calldata]
 
 
-def make_invoke_by_version(
+def _make_invoke_by_version(
     # pylint: disable=too-many-arguments
     contract_address: AddressRepresentation,
     calldata: List[int],

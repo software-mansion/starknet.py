@@ -20,10 +20,9 @@ from starknet_py.net.models import (
     Transaction,
     parse_address,
 )
-from starknet_py.net.models.transaction import (  # pylint: disable=unused-import
+from starknet_py.net.models.transaction import (
     DeployAccount,
     Declare,
-    InvokeFunction,  # backward compatibility
     Invoke,
 )
 from starknet_py.net.signer.base_signer import BaseSigner
