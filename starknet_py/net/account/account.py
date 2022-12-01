@@ -369,6 +369,7 @@ class Account(BaseAccount):
         key_pair: KeyPair,
         client: Client,
         chain: StarknetChainId,
+        constructor_calldata: List[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> "Account":
@@ -384,6 +385,8 @@ class Account(BaseAccount):
         :param client: a Client instance used for deployment.
         :param key_pair: KeyPair used to calculate address and sign deploy account transaction.
         :param chain: id of the StarkNet chain used.
+        :param constructor_calldata: optional calldata to account contract constructor. If ``None`` is passed,
+            ``key_pair.public_key`` will be used as calldata.
         :param max_fee: max fee to be paid for deployment, must be less or equal to the amount of tokens prefunded.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         """
@@ -393,7 +396,9 @@ class Account(BaseAccount):
             computed := compute_address(
                 salt=salt,
                 class_hash=class_hash,
-                constructor_calldata=[key_pair.public_key],
+                constructor_calldata=constructor_calldata
+                if constructor_calldata is not None
+                else [key_pair.public_key],
                 deployer_address=0,
             )
         ):
