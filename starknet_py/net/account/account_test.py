@@ -9,6 +9,7 @@ from starknet_py.net.account.account import Account
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId, parse_address
 from starknet_py.net.networks import TESTNET, MAINNET
+from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 
 
 def test_contract_raises_on_no_client_and_account():
@@ -42,3 +43,75 @@ async def test_get_balance_default_token_address(net):
     (call,) = call[0]
 
     assert call.to_addr == parse_address(FEE_CONTRACT_ADDRESS)
+
+
+@pytest.mark.asyncio
+async def test_create_account():
+    key_pair = KeyPair.from_private_key(0x111)
+    account = Account(
+        address=0x1,
+        client=GatewayClient(net=TESTNET),
+        key_pair=key_pair,
+        chain=StarknetChainId.TESTNET,
+    )
+
+    assert account.address == 0x1
+    assert account.signer.public_key == key_pair.public_key
+
+
+@pytest.mark.asyncio
+async def test_create_account_from_signer():
+    signer = StarkCurveSigner(
+        account_address=0x1,
+        key_pair=KeyPair.from_private_key(0x111),
+        chain_id=StarknetChainId.TESTNET,
+    )
+    account = Account(address=0x1, client=GatewayClient(net=TESTNET), signer=signer)
+
+    assert account.address == 0x1
+    assert account.signer == signer
+
+
+@pytest.mark.asyncio
+async def test_create_account_raises_on_no_chain_and_signer():
+    with pytest.raises(ValueError) as exinfo:
+        Account(
+            address=0x1,
+            client=GatewayClient(net=TESTNET),
+            key_pair=KeyPair.from_private_key(0x111),
+        )
+
+    assert "One of chain or signer must be provided" in str(exinfo.value)
+
+
+@pytest.mark.asyncio
+async def test_create_account_raises_on_no_keypair_and_signer():
+    with pytest.raises(ValueError) as exinfo:
+        Account(
+            address=0x1,
+            client=GatewayClient(net=TESTNET),
+            chain=StarknetChainId.TESTNET,
+        )
+
+    assert (
+        "Either a signer or a key_pair must be provided in AccountClient constructor"
+        in str(exinfo.value)
+    )
+
+
+@pytest.mark.asyncio
+async def test_create_account_raises_on_both_keypair_and_signer():
+    with pytest.raises(ValueError) as exinfo:
+        Account(
+            address=0x1,
+            client=GatewayClient(net=TESTNET),
+            chain=StarknetChainId.TESTNET,
+            key_pair=KeyPair.from_private_key(0x111),
+            signer=StarkCurveSigner(
+                account_address=0x1,
+                key_pair=KeyPair.from_private_key(0x11),
+                chain_id=StarknetChainId.TESTNET,
+            ),
+        )
+
+    assert "Signer and key_pair are mutually exclusive" in str(exinfo.value)
