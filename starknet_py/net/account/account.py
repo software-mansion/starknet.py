@@ -363,7 +363,7 @@ class Account(BaseAccount):
     @staticmethod
     async def deploy_account(
         *,
-        address: int,
+        address: AddressRepresentation,
         class_hash: int,
         salt: int,
         key_pair: KeyPair,
@@ -387,6 +387,8 @@ class Account(BaseAccount):
         :param max_fee: max fee to be paid for deployment, must be less or equal to the amount of tokens prefunded.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         """
+        address = parse_address(address)
+
         if address != (
             computed := compute_address(
                 salt=salt,
