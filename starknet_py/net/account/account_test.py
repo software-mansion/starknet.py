@@ -74,34 +74,30 @@ async def test_create_account_from_signer():
 
 @pytest.mark.asyncio
 async def test_create_account_raises_on_no_chain_and_signer():
-    with pytest.raises(ValueError) as exinfo:
+    with pytest.raises(ValueError, match="One of chain or signer must be provided"):
         Account(
             address=0x1,
             client=GatewayClient(net=TESTNET),
             key_pair=KeyPair.from_private_key(0x111),
         )
 
-    assert "One of chain or signer must be provided" in str(exinfo.value)
-
 
 @pytest.mark.asyncio
 async def test_create_account_raises_on_no_keypair_and_signer():
-    with pytest.raises(ValueError) as exinfo:
+    with pytest.raises(
+        ValueError,
+        match="Either a signer or a key_pair must be provided in AccountClient constructor",
+    ):
         Account(
             address=0x1,
             client=GatewayClient(net=TESTNET),
             chain=StarknetChainId.TESTNET,
         )
 
-    assert (
-        "Either a signer or a key_pair must be provided in AccountClient constructor"
-        in str(exinfo.value)
-    )
-
 
 @pytest.mark.asyncio
 async def test_create_account_raises_on_both_keypair_and_signer():
-    with pytest.raises(ValueError) as exinfo:
+    with pytest.raises(ValueError, match="Signer and key_pair are mutually exclusive"):
         Account(
             address=0x1,
             client=GatewayClient(net=TESTNET),
@@ -113,5 +109,3 @@ async def test_create_account_raises_on_both_keypair_and_signer():
                 chain_id=StarknetChainId.TESTNET,
             ),
         )
-
-    assert "Signer and key_pair are mutually exclusive" in str(exinfo.value)
