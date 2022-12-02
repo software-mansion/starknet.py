@@ -53,13 +53,11 @@ async def test_throws_on_estimate_with_positive_max_fee(map_contract):
     value = 3
 
     prepared_call = map_contract.functions["put"].prepare(key, value, max_fee=100)
-    with pytest.raises(ValueError) as exinfo:
+    with pytest.raises(
+        ValueError,
+        match="Cannot estimate fee of PreparedFunctionCall with max_fee not None or 0.",
+    ):
         await prepared_call.estimate_fee()
-
-    assert (
-        "Cannot estimate fee of PreparedFunctionCall with max_fee not None or 0."
-        in str(exinfo.value)
-    )
 
 
 @pytest.mark.asyncio
@@ -68,13 +66,11 @@ async def test_throws_on_both_max_fee_and_auto_estimate(map_contract):
     value = 3
 
     invocation = map_contract.functions["put"].prepare(key, value)
-    with pytest.raises(ValueError) as exinfo:
+    with pytest.raises(
+        ValueError,
+        match="Max_fee and auto_estimate are exclusive and cannot be provided at the same time.",
+    ):
         await invocation.invoke(max_fee=10, auto_estimate=True)
-
-    assert (
-        "Max_fee and auto_estimate are exclusive and cannot be provided at the same time."
-        in str(exinfo.value)
-    )
 
 
 @pytest.mark.asyncio
@@ -83,13 +79,11 @@ async def test_throws_on_both_max_fee_in_prepare_and_auto_estimate(map_contract)
     value = 3
 
     invocation = map_contract.functions["put"].prepare(key, value, max_fee=2000)
-    with pytest.raises(ValueError) as exinfo:
+    with pytest.raises(
+        ValueError,
+        match="Max_fee and auto_estimate are exclusive and cannot be provided at the same time.",
+    ):
         await invocation.invoke(auto_estimate=True)
-
-    assert (
-        "Max_fee and auto_estimate are exclusive and cannot be provided at the same time."
-        in str(exinfo.value)
-    )
 
 
 @pytest.mark.asyncio
@@ -97,10 +91,10 @@ async def test_throws_on_call_without_max_fee(map_contract):
     key = 2
     value = 3
 
-    with pytest.raises(ValueError) as exinfo:
+    with pytest.raises(
+        ValueError, match="Max_fee must be specified when invoking a transaction"
+    ):
         await map_contract.functions["put"].invoke(key, value)
-
-    assert "Max_fee must be specified when invoking a transaction" in str(exinfo.value)
 
 
 @pytest.mark.asyncio
@@ -110,10 +104,10 @@ async def test_throws_on_prepared_call_without_max_fee(map_contract):
 
     prepared_call = map_contract.functions["put"].prepare(key, value)
 
-    with pytest.raises(ValueError) as exinfo:
+    with pytest.raises(
+        ValueError, match="Max_fee must be specified when invoking a transaction"
+    ):
         await prepared_call.invoke()
-
-    assert "Max_fee must be specified when invoking a transaction" in str(exinfo.value)
 
 
 @pytest.mark.asyncio
@@ -197,26 +191,24 @@ async def test_transaction_not_received_error(map_contract):
             code=StarkErrorCode.TRANSACTION_CANCELLED.value, transaction_hash=0x123
         )
 
-        with pytest.raises(TransactionNotReceivedError) as tx_not_received:
+        with pytest.raises(
+            TransactionNotReceivedError, match="Transaction not received"
+        ):
             result = await map_contract.functions["put"].invoke(10, 20, max_fee=MAX_FEE)
             await result.wait_for_acceptance()
-
-        assert "Transaction not received" == tx_not_received.value.message
 
 
 @pytest.mark.asyncio
 async def test_error_when_invoking_without_account_client(gateway_client, map_contract):
     contract = await Contract.from_address(map_contract.address, gateway_client)
 
-    with pytest.raises(ValueError) as wrong_client_error:
+    with pytest.raises(
+        ValueError,
+        match="Contract was created without Account provided or with Client that is not an account.",
+    ):
         await contract.functions["put"].prepare(key=10, value=10).invoke(
             max_fee=MAX_FEE
         )
-
-    assert (
-        "Contract was created without Account provided or with Client that is not an account."
-        in str(wrong_client_error)
-    )
 
 
 @pytest.mark.asyncio
@@ -225,13 +217,11 @@ async def test_error_when_estimating_fee_while_not_using_account_client(
 ):
     contract = await Contract.from_address(map_contract.address, gateway_client)
 
-    with pytest.raises(ValueError) as wrong_client_error:
+    with pytest.raises(
+        ValueError,
+        match="Contract was created without Account provided or with Client that is not an account.",
+    ):
         await contract.functions["put"].prepare(key=10, value=10).estimate_fee()
-
-    assert (
-        "Contract was created without Account provided or with Client that is not an account."
-        in str(wrong_client_error)
-    )
 
 
 @pytest.mark.asyncio
@@ -267,7 +257,5 @@ async def test_deploy_contract_flow(account, map_compiled_contract, map_class_ha
 
 
 def test_contract_raises_on_both_client_and_account(gateway_client, gateway_account):
-    with pytest.raises(ValueError) as exinfo:
+    with pytest.raises(ValueError, match="Account and client are mutually exclusive"):
         Contract(address=1234, abi=[], client=gateway_client, account=gateway_account)
-
-    assert "Account and client are mutually exclusive" in str(exinfo.value)
