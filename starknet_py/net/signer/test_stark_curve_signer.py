@@ -5,7 +5,11 @@ import pytest
 
 from starknet_py.common import create_compiled_contract
 from starknet_py.net.models import StarknetChainId
-from starknet_py.net.models.transaction import InvokeFunction, DeployAccount, Declare
+from starknet_py.net.models.transaction import (
+    Invoke,
+    DeployAccount,
+    Declare,
+)
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
 
 contract_source = (
@@ -16,7 +20,7 @@ contract_source = (
 @pytest.mark.parametrize(
     "transaction",
     [
-        InvokeFunction(
+        Invoke(
             contract_address=0x1,
             calldata=[1, 2, 3],
             max_fee=10000,
