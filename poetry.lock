@@ -223,7 +223,7 @@ python-versions = "~=3.7"
 
 [[package]]
 name = "cairo-lang"
-version = "0.10.2"
+version = "0.10.3a0"
 description = "Compiler and runner for the Cairo language"
 category = "main"
 optional = false
@@ -281,14 +281,6 @@ python-versions = ">=3.7"
 
 [package.dependencies]
 colorama = {version = "*", markers = "platform_system == \"Windows\""}
-
-[[package]]
-name = "cloudpickle"
-version = "2.1.0"
-description = "Extended pickling support for Python objects"
-category = "dev"
-optional = false
-python-versions = ">=3.6"
 
 [[package]]
 name = "colorama"
@@ -654,37 +646,6 @@ optional = false
 python-versions = "*"
 
 [[package]]
-name = "Flask"
-version = "2.0.3"
-description = "A simple framework for building complex web applications."
-category = "dev"
-optional = false
-python-versions = ">=3.6"
-
-[package.dependencies]
-asgiref = {version = ">=3.2", optional = true, markers = "extra == \"async\""}
-click = ">=7.1.2"
-itsdangerous = ">=2.0"
-Jinja2 = ">=3.0"
-Werkzeug = ">=2.0"
-
-[package.extras]
-async = ["asgiref (>=3.2)"]
-dotenv = ["python-dotenv"]
-
-[[package]]
-name = "Flask-Cors"
-version = "3.0.10"
-description = "A Flask extension adding a decorator for CORS support"
-category = "dev"
-optional = false
-python-versions = "*"
-
-[package.dependencies]
-Flask = ">=0.9"
-Six = "*"
-
-[[package]]
 name = "frozendict"
 version = "1.2"
 description = "An immutable dictionary"
@@ -699,23 +660,6 @@ description = "A list-like structure which implements collections.abc.MutableSeq
 category = "main"
 optional = false
 python-versions = ">=3.7"
-
-[[package]]
-name = "gunicorn"
-version = "20.1.0"
-description = "WSGI HTTP Server for UNIX"
-category = "dev"
-optional = false
-python-versions = ">=3.5"
-
-[package.dependencies]
-setuptools = ">=3.0"
-
-[package.extras]
-eventlet = ["eventlet (>=0.24.1)"]
-gevent = ["gevent (>=1.4.0)"]
-setproctitle = ["setproctitle"]
-tornado = ["tornado (>=0.2)"]
 
 [[package]]
 name = "hexbytes"
@@ -829,14 +773,6 @@ colors = ["colorama (>=0.4.3,<0.5.0)"]
 pipfile_deprecated_finder = ["pipreqs", "requirementslib"]
 plugins = ["setuptools"]
 requirements_deprecated_finder = ["pip-api", "pipreqs"]
-
-[[package]]
-name = "itsdangerous"
-version = "2.1.2"
-description = "Safely pass data to untrusted environments and back."
-category = "dev"
-optional = false
-python-versions = ">=3.7"
 
 [[package]]
 name = "Jinja2"
@@ -1797,25 +1733,6 @@ lint = ["docutils-stubs", "flake8", "mypy"]
 test = ["pytest"]
 
 [[package]]
-name = "starknet-devnet"
-version = "0.4.1"
-description = "A local testnet for Starknet"
-category = "dev"
-optional = false
-python-versions = ">=3.8,<3.10"
-
-[package.dependencies]
-cairo-lang = "0.10.2"
-cloudpickle = ">=2.1.0,<2.2.0"
-crypto-cpp-py = ">=1.0.4,<1.1.0"
-Flask = {version = ">=2.0.3,<2.1.0", extras = ["async"]}
-flask-cors = ">=3.0.10,<3.1.0"
-gunicorn = ">=20.1.0,<20.2.0"
-marshmallow = ">=3.17.0,<3.18.0"
-typing-extensions = ">=4.3.0,<4.4.0"
-Werkzeug = ">=2.0.3,<2.1.0"
-
-[[package]]
 name = "sympy"
 version = "1.11.1"
 description = "Computer algebra system (CAS) in Python"
@@ -1983,17 +1900,6 @@ optional = false
 python-versions = ">=3.7"
 
 [[package]]
-name = "Werkzeug"
-version = "2.0.3"
-description = "The comprehensive WSGI web application library."
-category = "dev"
-optional = false
-python-versions = ">=3.6"
-
-[package.extras]
-watchdog = ["watchdog"]
-
-[[package]]
 name = "wrapt"
 version = "1.14.1"
 description = "Module for decorators, wrappers and monkey patching."
@@ -2032,7 +1938,7 @@ eth-tester = []
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8, <3.10"
-content-hash = "4aeb429ea01ad03d6fbddeea47907eae0a4309ec4a3658ad4ba6a60db91c51a7"
+content-hash = "6fc48fd8d68437a0b574e3ce191bbe0b3ebfb4ee3cb0ab2f20a6e6fcc2a80a44"
 
 [metadata.files]
 aiohttp = [
@@ -2210,7 +2116,7 @@ cachetools = [
     {file = "cachetools-5.2.0.tar.gz", hash = "sha256:6a94c6402995a99c3970cc7e4884bb60b4a8639938157eeed436098bf9831757"},
 ]
 cairo-lang = [
-    {file = "cairo-lang-0.10.2.zip", hash = "sha256:4454e6e31dd49491ac4e17c6e0408baa1e7c3d08736cb556d9c7d40c555420c4"},
+    {file = "cairo-lang-0.10.3a0.zip", hash = "sha256:432c94135090f799fce8e6cfa763d98a336080e3c2576bdd110c3aa26b004eaf"},
 ]
 certifi = [
     {file = "certifi-2022.9.24-py3-none-any.whl", hash = "sha256:90c1a32f1d68f940488354e36370f6cca89f0f106db09518524c88d6ed83f382"},
@@ -2223,10 +2129,6 @@ charset-normalizer = [
 click = [
     {file = "click-8.1.3-py3-none-any.whl", hash = "sha256:bb4d8133cb15a609f44e8213d9b391b0809795062913b383c62be0ee95b1db48"},
     {file = "click-8.1.3.tar.gz", hash = "sha256:7682dc8afb30297001674575ea00d1814d808d6a36af415a82bd481d37ba7b8e"},
-]
-cloudpickle = [
-    {file = "cloudpickle-2.1.0-py3-none-any.whl", hash = "sha256:b5c434f75c34624eedad3a14f2be5ac3b5384774d5b0e3caf905c21479e6c4b1"},
-    {file = "cloudpickle-2.1.0.tar.gz", hash = "sha256:bb233e876a58491d9590a676f93c7a5473a08f747d5ab9df7f9ce564b3e7938e"},
 ]
 colorama = [
     {file = "colorama-0.4.6-py2.py3-none-any.whl", hash = "sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6"},
@@ -2499,14 +2401,6 @@ fastecdsa = [
     {file = "fastecdsa-2.2.3-cp39-cp39-macosx_11_0_x86_64.whl", hash = "sha256:376af4d45ae82a2e9c25f0a0d9b50c7d63ba881e273ab69db184a0493c688619"},
     {file = "fastecdsa-2.2.3.tar.gz", hash = "sha256:269bdb0f618b38f8f6aec9d23d23db518046c3cee01a954fa6aa7322a1a7db8f"},
 ]
-Flask = [
-    {file = "Flask-2.0.3-py3-none-any.whl", hash = "sha256:59da8a3170004800a2837844bfa84d49b022550616070f7cb1a659682b2e7c9f"},
-    {file = "Flask-2.0.3.tar.gz", hash = "sha256:e1120c228ca2f553b470df4a5fa927ab66258467526069981b3eb0a91902687d"},
-]
-Flask-Cors = [
-    {file = "Flask-Cors-3.0.10.tar.gz", hash = "sha256:b60839393f3b84a0f3746f6cdca56c1ad7426aa738b70d6c61375857823181de"},
-    {file = "Flask_Cors-3.0.10-py2.py3-none-any.whl", hash = "sha256:74efc975af1194fc7891ff5cd85b0f7478be4f7f59fe158102e91abb72bb4438"},
-]
 frozendict = [
     {file = "frozendict-1.2.tar.gz", hash = "sha256:774179f22db2ef8a106e9c38d4d1f8503864603db08de2e33be5b778230f6e45"},
 ]
@@ -2586,10 +2480,6 @@ frozenlist = [
     {file = "frozenlist-1.3.3-cp39-cp39-win_amd64.whl", hash = "sha256:cfe33efc9cb900a4c46f91a5ceba26d6df370ffddd9ca386eb1d4f0ad97b9ea9"},
     {file = "frozenlist-1.3.3.tar.gz", hash = "sha256:58bcc55721e8a90b88332d6cd441261ebb22342e238296bb330968952fbb3a6a"},
 ]
-gunicorn = [
-    {file = "gunicorn-20.1.0-py3-none-any.whl", hash = "sha256:9dcc4547dbb1cb284accfb15ab5667a0e5d1881cc443e0677b4882a4067a807e"},
-    {file = "gunicorn-20.1.0.tar.gz", hash = "sha256:e0a968b5ba15f8a328fdfd7ab1fcb5af4470c28aaf7e55df02a99bc13138e6e8"},
-]
 hexbytes = [
     {file = "hexbytes-0.3.0-py3-none-any.whl", hash = "sha256:21c3a5bd00a383097f0369c387174e79839d75c4ccc3a7edda315c9644f4458a"},
     {file = "hexbytes-0.3.0.tar.gz", hash = "sha256:afeebfb800f5f15a3ca5bab52e49eabcb4b6dac06ec8ff01a94fdb890c6c0712"},
@@ -2625,10 +2515,6 @@ ipfshttpclient = [
 isort = [
     {file = "isort-5.10.1-py3-none-any.whl", hash = "sha256:6f62d78e2f89b4500b080fe3a81690850cd254227f27f75c3a0c491a1f351ba7"},
     {file = "isort-5.10.1.tar.gz", hash = "sha256:e8443a5e7a020e9d7f97f1d7d9cd17c88bcb3bc7e218bf9cf5095fe550be2951"},
-]
-itsdangerous = [
-    {file = "itsdangerous-2.1.2-py3-none-any.whl", hash = "sha256:2c2349112351b88699d8d4b6b075022c0808887cb7ad10069318a8b0bc88db44"},
-    {file = "itsdangerous-2.1.2.tar.gz", hash = "sha256:5dbbc68b317e5e42f327f9021763545dc3fc3bfe22e6deb96aaf1fc38874156a"},
 ]
 Jinja2 = [
     {file = "Jinja2-3.0.3-py3-none-any.whl", hash = "sha256:077ce6014f7b40d03b47d1f1ca4b0fc8328a692bd284016f806ed0eaca390ad8"},
@@ -3333,10 +3219,6 @@ sphinxcontrib-serializinghtml = [
     {file = "sphinxcontrib-serializinghtml-1.1.5.tar.gz", hash = "sha256:aa5f6de5dfdf809ef505c4895e51ef5c9eac17d0f287933eb49ec495280b6952"},
     {file = "sphinxcontrib_serializinghtml-1.1.5-py2.py3-none-any.whl", hash = "sha256:352a9a00ae864471d3a7ead8d7d79f5fc0b57e8b3f95e9867eb9eb28999b92fd"},
 ]
-starknet-devnet = [
-    {file = "starknet_devnet-0.4.1-py3-none-any.whl", hash = "sha256:355bd90ff45005c5e7725acefbcf472faa7383fe8563c32c99b89871f1eab43e"},
-    {file = "starknet_devnet-0.4.1.tar.gz", hash = "sha256:c1c9df4a083afde7027c69a24317a9c42c4409cfe399acff75287511174fbadb"},
-]
 sympy = [
     {file = "sympy-1.11.1-py3-none-any.whl", hash = "sha256:938f984ee2b1e8eae8a07b884c8b7a1146010040fccddc6539c54f401c8f6fcf"},
     {file = "sympy-1.11.1.tar.gz", hash = "sha256:e32380dce63cb7c0108ed525570092fd45168bdae2faa17e528221ef72e88658"},
@@ -3458,10 +3340,6 @@ websockets = [
     {file = "websockets-10.4-pp39-pypy39_pp73-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:b627c266f295de9dea86bd1112ed3d5fafb69a348af30a2422e16590a8ecba13"},
     {file = "websockets-10.4-pp39-pypy39_pp73-win_amd64.whl", hash = "sha256:05a7233089f8bd355e8cbe127c2e8ca0b4ea55467861906b80d2ebc7db4d6b72"},
     {file = "websockets-10.4.tar.gz", hash = "sha256:eef610b23933c54d5d921c92578ae5f89813438fded840c2e9809d378dc765d3"},
-]
-Werkzeug = [
-    {file = "Werkzeug-2.0.3-py3-none-any.whl", hash = "sha256:1421ebfc7648a39a5c58c601b154165d05cf47a3cd0ccb70857cbdacf6c8f2b8"},
-    {file = "Werkzeug-2.0.3.tar.gz", hash = "sha256:b863f8ff057c522164b6067c9e28b041161b4be5ba4d0daceeaa50a163822d3c"},
 ]
 wrapt = [
     {file = "wrapt-1.14.1-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:1b376b3f4896e7930f1f772ac4b064ac12598d1c38d04907e696cc4d794b43d3"},
