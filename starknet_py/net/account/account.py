@@ -7,6 +7,7 @@ from starkware.starknet.public.abi import get_selector_from_name
 from starknet_py.common import create_compiled_contract
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.net import KeyPair
+from starknet_py.net.account.account_deployment_result import AccountDeploymentResult
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError
@@ -25,6 +26,7 @@ from starknet_py.net.models import (
     StarknetChainId,
     parse_address,
     chain_from_network,
+    compute_address,
 )
 from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.net.networks import TESTNET, MAINNET
@@ -361,6 +363,81 @@ class Account(BaseAccount):
         typed_data_dataclass = TypedDataDataclass.from_dict(typed_data)
         message_hash = typed_data_dataclass.message_hash(account_address=self.address)
         return await self._verify_message_hash(message_hash, signature)
+
+    @staticmethod
+    async def deploy_account(
+        *,
+        address: AddressRepresentation,
+        class_hash: int,
+        salt: int,
+        key_pair: KeyPair,
+        client: Client,
+        chain: StarknetChainId,
+        constructor_calldata: Optional[List[int]] = None,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+    ) -> AccountDeploymentResult:
+        """
+        Deploys an account contract with provided class_hash on StarkNet and returns
+        an AccountDeploymentResult that allows waiting for transaction acceptence.
+
+        Provided address must be first prefunded with enough tokens, otherwise the method will fail.
+
+        :param address: calculated and prefunded address of the new account.
+        :param class_hash: class_hash of the account contract to be deployed.
+        :param salt: salt used to calculate the address.
+        :param client: a Client instance used for deployment.
+        :param key_pair: KeyPair used to calculate address and sign deploy account transaction.
+        :param chain: id of the StarkNet chain used.
+        :param constructor_calldata: optional calldata to account contract constructor. If ``None`` is passed,
+            ``key_pair.public_key`` will be used as calldata.
+        :param max_fee: max fee to be paid for deployment, must be less or equal to the amount of tokens prefunded.
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        """
+        address = parse_address(address)
+        calldata = (
+            constructor_calldata
+            if constructor_calldata is not None
+            else [key_pair.public_key]
+        )
+
+        if address != (
+            computed := compute_address(
+                salt=salt,
+                class_hash=class_hash,
+                constructor_calldata=calldata,
+                deployer_address=0,
+            )
+        ):
+            raise ValueError(
+                f"Provided address {hex(address)} is different than computed address {hex(computed)} "
+                f"for the given class_hash and salt"
+            )
+
+        account = Account(
+            address=address, client=client, key_pair=key_pair, chain=chain
+        )
+
+        deploy_account_tx = await account.sign_deploy_account_transaction(
+            class_hash=class_hash,
+            contract_address_salt=salt,
+            constructor_calldata=calldata,
+            max_fee=max_fee,
+            auto_estimate=auto_estimate,
+        )
+
+        if client.net in (TESTNET, MAINNET):
+            balance = await account.get_balance()
+            if balance < deploy_account_tx.max_fee:
+                raise ValueError(
+                    "Not enough tokens at the specified address to cover deployment costs"
+                )
+
+        result = await client.deploy_account(deploy_account_tx)
+
+        return AccountDeploymentResult(
+            hash=result.transaction_hash, account=account, _client=account.client
+        )
 
 
 SignableTransaction = TypeVar(
