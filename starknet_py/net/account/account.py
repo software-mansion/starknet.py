@@ -392,14 +392,17 @@ class Account(BaseAccount):
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         """
         address = parse_address(address)
+        calldata = (
+            constructor_calldata
+            if constructor_calldata is not None
+            else [key_pair.public_key]
+        )
 
         if address != (
             computed := compute_address(
                 salt=salt,
                 class_hash=class_hash,
-                constructor_calldata=constructor_calldata
-                if constructor_calldata is not None
-                else [key_pair.public_key],
+                constructor_calldata=calldata,
                 deployer_address=0,
             )
         ):
@@ -415,7 +418,7 @@ class Account(BaseAccount):
         deploy_account_tx = await account.sign_deploy_account_transaction(
             class_hash=class_hash,
             contract_address_salt=salt,
-            constructor_calldata=[key_pair.public_key],
+            constructor_calldata=calldata,
             max_fee=max_fee,
             auto_estimate=auto_estimate,
         )
