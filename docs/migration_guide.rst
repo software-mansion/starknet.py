@@ -1,13 +1,12 @@
 0.11.0 Migration guide
 ======================
 
-Cairo-lang 0.10.3 dropped support for the `Deploy` transaction. To be compatible we had to remove some
-(already deprecated) features.
+Cairo-lang 0.10.3 dropped support for the `Deploy` transaction. To be compatible we had to remove some deprecated features.
 
 Breaking Changes
 ----------------
 
-Removed methods:
+Removed API:
 
 - `Contract.deploy`. Read more about deployment in the `Deploying contracts <https://starknetpy.readthedocs.io/en/latest/guide.html#deploying-contracts>`_ section.
 - `AccountClient.create_account`. `Account creation <https://starknetpy.readthedocs.io/en/latest/account_creation.html>`_ docs are here to help you!
