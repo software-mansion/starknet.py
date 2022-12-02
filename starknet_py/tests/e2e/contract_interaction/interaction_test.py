@@ -192,7 +192,7 @@ async def test_transaction_not_received_error(map_contract):
         )
 
         with pytest.raises(
-            TransactionNotReceivedError, match="Transaction not received"
+            TransactionNotReceivedError, match="Transaction was not received"
         ):
             result = await map_contract.functions["put"].invoke(10, 20, max_fee=MAX_FEE)
             await result.wait_for_acceptance()
