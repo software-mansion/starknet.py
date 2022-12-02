@@ -1,13 +1,13 @@
+from enum import Enum
 from typing import Optional
 
-from starkware.starknet.definitions.general_config import (
-    StarknetChainId as _StarknetChainId,
-)
+from starknet_py.net.networks import Network, MAINNET, TESTNET, TESTNET2
 
-from starknet_py.net.networks import Network, MAINNET, TESTNET
-from starknet_py.utils.docs import as_our_module
 
-StarknetChainId = as_our_module(_StarknetChainId)
+class StarknetChainId(Enum):
+    MAINNET = int.from_bytes(b"SN_MAIN", byteorder="big", signed=False)
+    TESTNET = int.from_bytes(b"SN_GOERLI", byteorder="big", signed=False)
+    TESTNET2 = int.from_bytes(b"SN_GOERLI2", byteorder="big", signed=False)
 
 
 # Pyright ignores were added because it doesn't allow StarknetChainId as a type here.
@@ -18,6 +18,7 @@ def chain_from_network(
     mapping = {
         MAINNET: StarknetChainId.MAINNET,
         TESTNET: StarknetChainId.TESTNET,
+        TESTNET2: StarknetChainId.TESTNET2,
     }
 
     if isinstance(net, str) and net in mapping:
