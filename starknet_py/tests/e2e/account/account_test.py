@@ -1,9 +1,18 @@
+from unittest.mock import patch, AsyncMock
+
 import pytest
 from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.contract import Contract
-from starknet_py.net.client_models import Call
+from starknet_py.net.account.account import Account
+from starknet_py.net.account.base_account import BaseAccount
+from starknet_py.net.client_models import (
+    Call,
+    TransactionStatus,
+    DeployAccountTransaction,
+)
 from starknet_py.net.gateway_client import GatewayClient
+from starknet_py.net.models import StarknetChainId, compute_address
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.transaction_exceptions import TransactionRejectedError
 
@@ -178,3 +187,138 @@ async def test_sign_deploy_account_transaction(gateway_account):
     assert signed_tx.class_hash == class_hash
     assert signed_tx.contract_address_salt == salt
     assert signed_tx.constructor_calldata == calldata
+
+
+@pytest.mark.asyncio
+async def test_deploy_account(
+    client, deploy_account_details_factory, base_account_deploy_map_contract
+):
+    address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
+
+    deploy_result = await Account.deploy_account(
+        address=address,
+        class_hash=class_hash,
+        salt=salt,
+        key_pair=key_pair,
+        client=client,
+        chain=StarknetChainId.TESTNET,
+        max_fee=MAX_FEE,
+    )
+    await deploy_result.wait_for_acceptance()
+
+    account = deploy_result.account
+
+    assert isinstance(account, BaseAccount)
+    assert account.address == address
+
+    # Test making a tx
+    res = await account.execute(
+        calls=Call(
+            to_addr=base_account_deploy_map_contract.address,
+            selector=get_selector_from_name("put"),
+            calldata=[30, 40],
+        ),
+        max_fee=MAX_FEE,
+    )
+    _, status = await account.client.wait_for_tx(
+        res.transaction_hash, wait_for_accept=True
+    )
+
+    assert status in (
+        TransactionStatus.ACCEPTED_ON_L1,
+        TransactionStatus.ACCEPTED_ON_L2,
+    )
+
+
+@pytest.mark.asyncio
+async def test_deploy_account_raises_on_incorrect_address(
+    client, deploy_account_details_factory
+):
+    address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
+
+    with pytest.raises(
+        ValueError,
+        match=f"Provided address {hex(0x111)} is different than computed address {hex(address)}",
+    ):
+        await Account.deploy_account(
+            address=0x111,
+            class_hash=class_hash,
+            salt=salt,
+            key_pair=key_pair,
+            client=client,
+            chain=StarknetChainId.TESTNET,
+            max_fee=MAX_FEE,
+        )
+
+
+@pytest.mark.asyncio
+async def test_deploy_account_raises_on_no_enough_funds(deploy_account_details_factory):
+    address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
+
+    with patch(
+        "starknet_py.net.gateway_client.GatewayClient.call_contract", AsyncMock()
+    ) as mocked_balance:
+        mocked_balance.return_value = (0, 0)
+
+        with pytest.raises(
+            ValueError,
+            match="Not enough tokens at the specified address to cover deployment costs",
+        ):
+            await Account.deploy_account(
+                address=address,
+                class_hash=class_hash,
+                salt=salt,
+                key_pair=key_pair,
+                client=GatewayClient(net="testnet"),
+                chain=StarknetChainId.TESTNET,
+                max_fee=MAX_FEE,
+            )
+
+
+@pytest.mark.asyncio
+async def test_deploy_account_passes_on_enough_funds(deploy_account_details_factory):
+    address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
+
+    with patch(
+        "starknet_py.net.gateway_client.GatewayClient.call_contract", AsyncMock()
+    ) as mocked_balance:
+        mocked_balance.return_value = (0, 100)
+
+        await Account.deploy_account(
+            address=address,
+            class_hash=class_hash,
+            salt=salt,
+            key_pair=key_pair,
+            client=GatewayClient(net="testnet"),
+            chain=StarknetChainId.TESTNET,
+            max_fee=MAX_FEE,
+        )
+
+
+@pytest.mark.asyncio
+async def test_deploy_account_uses_custom_calldata(
+    client, deploy_account_details_factory
+):
+    _, key_pair, salt, class_hash = await deploy_account_details_factory.get()
+    calldata = [1, 2, 3, 4]
+    address = compute_address(
+        salt=salt,
+        class_hash=class_hash,
+        constructor_calldata=calldata,
+        deployer_address=0,
+    )
+
+    deploy_result = await Account.deploy_account(
+        address=address,
+        class_hash=class_hash,
+        salt=salt,
+        key_pair=key_pair,
+        client=client,
+        chain=StarknetChainId.TESTNET,
+        constructor_calldata=calldata,
+        max_fee=MAX_FEE,
+    )
+
+    tx = await client.get_transaction(deploy_result.hash)
+    assert isinstance(tx, DeployAccountTransaction)
+    assert tx.constructor_calldata == calldata
