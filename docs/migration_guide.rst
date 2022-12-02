@@ -17,6 +17,12 @@ Removed methods:
 - the `Deploy` transaction
 
 
+Invoke Transaction
+------------------
+
+Old `InvokeFunction` transaction is now aliased as `Invoke`. We suggest to start using the new `Invoke`.
+
+
 0.9.0 Migration guide
 =====================
 
