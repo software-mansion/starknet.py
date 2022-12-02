@@ -86,7 +86,7 @@ def fixture_invoke_transaction(
     prepare_network: Tuple[str, PreparedNetworkData]
 ) -> Dict:
     """
-    Returns basic data of the InvokeFunction
+    Returns basic data of Invoke
     """
     _, prepared_data = prepare_network
     return {
@@ -99,7 +99,7 @@ def fixture_invoke_transaction(
 @pytest.fixture(name="invoke_transaction_hash")
 def fixture_invoke_transaction_hash(invoke_transaction: Dict) -> int:
     """
-    Returns hash of the InvokeFunction
+    Returns hash of Invoke
     """
     return invoke_transaction["hash"]
 
@@ -107,7 +107,7 @@ def fixture_invoke_transaction_hash(invoke_transaction: Dict) -> int:
 @pytest.fixture(name="invoke_transaction_calldata")
 def fixture_invoke_transaction_calldata(invoke_transaction: Dict) -> int:
     """
-    Returns calldata of the InvokeFunction
+    Returns calldata of Invoke
     """
     return invoke_transaction["calldata"]
 
@@ -115,7 +115,7 @@ def fixture_invoke_transaction_calldata(invoke_transaction: Dict) -> int:
 @pytest.fixture(name="invoke_transaction_selector")
 def fixture_invoke_transaction_selector(invoke_transaction: Dict) -> int:
     """
-    Returns entry_point_selector of the InvokeFunction
+    Returns entry_point_selector of Invoke
     """
     return invoke_transaction["entry_point_selector"]
 
