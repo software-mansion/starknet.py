@@ -1,11 +1,12 @@
 import asyncio
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, AsyncMock
 
 import pytest
 
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient, KeyPair
+from starknet_py.net.client_models import Call
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import parse_address, StarknetChainId
 from starknet_py.net.networks import TESTNET, MAINNET
@@ -13,26 +14,14 @@ from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.transaction_exceptions import TransactionRejectedError
 
 
-@pytest.mark.asyncio
-async def test_deploy_account_contract_and_sign_tx(map_contract):
-    k, v = 13, 4324
-    await (
-        await map_contract.functions["put"].invoke(k, v, max_fee=MAX_FEE)
-    ).wait_for_acceptance()
-    (resp,) = await map_contract.functions["get"].call(k)
-
-    assert resp == v
-
-
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_balance_throws_when_token_not_specified(account_client):
-    with pytest.raises(ValueError) as err:
+    with pytest.raises(
+        ValueError,
+        match="Token_address must be specified when using a custom net address",
+    ):
         await account_client.get_balance()
-
-    assert "Token_address must be specified when using a custom net address" in str(
-        err.value
-    )
 
 
 @pytest.mark.asyncio
@@ -74,12 +63,10 @@ async def test_get_balance_default_token_address(net):
 @pytest.mark.asyncio
 async def test_estimate_fee_called(erc20_contract):
     with patch(
-        "starknet_py.net.account.account_client.AccountClient.estimate_fee", MagicMock()
+        "starknet_py.net.gateway_client.GatewayClient.estimate_fee",
+        AsyncMock(),
     ) as mocked_estimate_fee:
-        result = asyncio.Future()
-        result.set_result([0])
-
-        mocked_estimate_fee.return_value = result
+        mocked_estimate_fee.return_value = [0]
 
         await erc20_contract.functions["balanceOf"].prepare("1234").estimate_fee()
 
@@ -187,13 +174,23 @@ async def test_get_class_hash_at(map_contract, account_client):
 
 
 @pytest.mark.asyncio
-async def test_throws_on_wrong_transaction_version(new_deploy_map_contract):
-    with pytest.raises(ValueError) as err:
-        await new_deploy_map_contract.functions["put"].invoke(
-            key=10, value=20, version=0, max_fee=MAX_FEE
+async def test_sign_transaction_unsupported_version(new_account_client):
+    with pytest.raises(
+        ValueError,
+        match="Provided version: 0 is not equal to account's supported_tx_version: 1",
+    ):
+        await new_account_client.sign_invoke_transaction(
+            calls=Call(0x1, 0x1, [0x1]), max_fee=MAX_FEE, version=0
         )
 
-    assert (
-        "Provided version: 0 is not equal to account's supported_tx_version: 1"
-        in str(err.value)
-    )
+
+@pytest.mark.asyncio
+async def test_sign_warns_on_max_fee_0(account_client):
+    with pytest.warns(
+        DeprecationWarning,
+        match="Transaction will fail with max_fee set to 0. Change it to a higher value.",
+    ):
+        tx = await account_client.sign_invoke_transaction(
+            calls=Call(0x1, 0x1, [0x1]), max_fee=0
+        )
+        await account_client.send_transaction(tx)

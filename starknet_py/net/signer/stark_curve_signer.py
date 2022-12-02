@@ -122,7 +122,7 @@ class StarkCurveSigner(BaseSigner):
     ) -> List[int]:
         if isinstance(typed_data, dict):
             warnings.warn(
-                "TypedData as dict has been deprecated. Use starknet_py.utils.TypedData dataclass instead.",
+                "Argument typed_data as dict has been deprecated. Use starknet_py.utils.TypedData dataclass instead.",
                 category=DeprecationWarning,
             )
 

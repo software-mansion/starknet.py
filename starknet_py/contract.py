@@ -170,10 +170,11 @@ class DeclareResult(SentTransaction):
         )
 
         deployed_contract = Contract(
-            client=self._account.client,
+            account=self._account,
             address=address,
             abi=abi,
         )
+
         deploy_result = DeployResult(
             hash=res.transaction_hash,
             _client=self._account.client,
@@ -692,7 +693,8 @@ def _unpack_client_and_account(
     if account is not None:
         return account.client, account
 
-    raise ValueError()  # This is needed for typechecker
+    # This is needed for typechecker
+    raise ValueError()  # pragma: no cover
 
 
 def _account_or_proxy(account: Union[BaseAccount, AccountClient]) -> BaseAccount:

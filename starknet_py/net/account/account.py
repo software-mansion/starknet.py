@@ -60,6 +60,9 @@ class Account(BaseAccount):
         self._address = parse_address(address)
         self._client = client
 
+        if signer is not None and key_pair is not None:
+            raise ValueError("Signer and key_pair are mutually exclusive")
+
         if signer is None:
             if key_pair is None:
                 raise ValueError(
