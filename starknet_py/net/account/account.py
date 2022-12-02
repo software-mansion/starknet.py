@@ -58,6 +58,9 @@ class Account(BaseAccount):
         self._address = parse_address(address)
         self._client = client
 
+        if signer is not None and key_pair is not None:
+            raise ValueError("Signer and key_pair are mutually exclusive")
+
         if signer is None:
             if key_pair is None:
                 raise ValueError(
@@ -312,7 +315,7 @@ class Account(BaseAccount):
         max_fee = await self._get_max_fee(
             transaction=deploy_account_tx, max_fee=max_fee, auto_estimate=auto_estimate
         )
-        _add_max_fee_to_transaction(deploy_account_tx, max_fee)
+        deploy_account_tx = _add_max_fee_to_transaction(deploy_account_tx, max_fee)
         signature = self.signer.sign_transaction(deploy_account_tx)
         return _add_signature_to_transaction(deploy_account_tx, signature)
 
