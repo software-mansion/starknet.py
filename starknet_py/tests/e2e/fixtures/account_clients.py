@@ -67,7 +67,7 @@ async def devnet_account_details(
     account: BaseAccount, class_hash: int
 ) -> Tuple[str, str]:
     """
-    Deploys an AccountClient and adds fee tokens to its balance
+    Deploys an AccountClient and adds fee tokens to its balance.
     """
     private_key = get_random_private_key()
     key_pair = KeyPair.from_private_key(private_key)
@@ -102,7 +102,7 @@ async def address_and_private_key(
     account_without_validate_deploy_class_hash: int,
 ) -> Tuple[str, str]:
     """
-    Returns address and private key of an account, depending on the network
+    Returns address and private key of an account, depending on the network.
     """
     net = pytestconfig.getoption("--net")
 
@@ -124,7 +124,7 @@ def gateway_account_client(
     address_and_private_key: Tuple[str, str], gateway_client: GatewayClient
 ) -> AccountClient:
     """
-    Returns an AccountClient created with GatewayClient
+    Returns an AccountClient created with GatewayClient.
     """
     address, private_key = address_and_private_key
 
@@ -152,7 +152,7 @@ async def new_devnet_account_details(
     class_hash: int,
 ) -> Tuple[str, str]:
     """
-    Deploys a new AccountClient and adds fee tokens to its balance (only on devnet)
+    Deploys a new AccountClient and adds fee tokens to its balance (only on devnet).
     """
     private_key = get_random_private_key()
     key_pair = KeyPair.from_private_key(private_key)
@@ -201,7 +201,7 @@ async def new_address_and_private_key(
     account_with_validate_deploy_class_hash: int,
 ) -> Tuple[str, str]:
     """
-    Returns address and private key of a new account, depending on the network
+    Returns address and private key of a new account, depending on the network.
     """
     net = pytestconfig.getoption("--net")
 
@@ -226,7 +226,7 @@ def new_gateway_account_client(
     new_address_and_private_key: Tuple[str, str], gateway_client: GatewayClient
 ) -> AccountClient:
     """
-    Returns a new AccountClient created with GatewayClient
+    Returns a new AccountClient created with GatewayClient.
     """
     address, private_key = new_address_and_private_key
 
@@ -299,7 +299,7 @@ def gateway_account(
     new_address_and_private_key: Tuple[str, str], gateway_client: GatewayClient
 ) -> BaseAccount:
     """
-    Returns a new Account created with GatewayClient
+    Returns a new Account created with GatewayClient.
     """
     address, private_key = new_address_and_private_key
 
@@ -326,7 +326,7 @@ def full_node_account(
     new_address_and_private_key: Tuple[str, str], full_node_client: FullNodeClient
 ) -> BaseAccount:
     """
-    Returns a new Account created with FullNodeClient
+    Returns a new Account created with FullNodeClient.
     """
     address, private_key = new_address_and_private_key
 
@@ -391,7 +391,7 @@ async def deploy_account_details_factory(
 @pytest.fixture(scope="module")
 def sender_address(new_gateway_account_client: AccountClient) -> Dict:
     """
-    Returns dict with DeclareTransaction sender_addresses depending on transaction version
+    Returns dict with DeclareTransaction sender_addresses depending on transaction version.
     """
     return {0: DEFAULT_DECLARE_SENDER_ADDRESS, 1: new_gateway_account_client.address}
 
@@ -401,7 +401,7 @@ def pre_deployed_account_with_validate_deploy(
     pytestconfig, network: str
 ) -> BaseAccount:
     """
-    Returns an AccountClient pre-deployed on specified network. Used to deploy other accounts
+    Returns an AccountClient pre-deployed on specified network. Used to deploy other accounts.
     """
     address_and_priv_key = {
         "devnet": (

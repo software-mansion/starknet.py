@@ -45,7 +45,7 @@ def pytest_collection_modifyitems(config, items):
 @pytest.fixture(scope="module")
 def network(pytestconfig, run_devnet: str) -> str:
     """
-    Returns network address depending on the --net parameter
+    Returns network address depending on the --net parameter.
     """
     net = pytestconfig.getoption("--net")
     net_address = {
@@ -67,7 +67,7 @@ def network(pytestconfig, run_devnet: str) -> str:
 )
 def typed_data(request) -> TypedData:
     """
-    Returns TypedData dictionary example
+    Returns TypedData dictionary example.
     """
     file_name = getattr(request, "param")
     file_path = TYPED_DATA_DIR / file_name
@@ -83,7 +83,7 @@ async def cairo_serializer(
     new_gateway_account_client: AccountClient,
 ) -> CairoSerializer:
     """
-    Returns CairoSerializer for "simple_storage_with_event.cairo"
+    Returns CairoSerializer for "simple_storage_with_event.cairo".
     """
     account = new_gateway_account_client
     compiled_contract = read_contract("simple_storage_with_event_compiled.json")
@@ -102,6 +102,6 @@ async def cairo_serializer(
 
 def read_contract(file_name: str, *, directory: Path = CONTRACTS_COMPILED_DIR) -> str:
     """
-    Return contents of file_name from directory
+    Return contents of file_name from directory.
     """
     return (directory / file_name).read_text("utf-8")
