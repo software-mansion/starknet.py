@@ -13,7 +13,7 @@ from starknet_py.net.client_models import (
     TransactionStatusResponse,
     TransactionStatus,
     L1HandlerTransaction,
-    InvokeFunction,
+    Invoke,
     Declare,
     DeployTransaction,
 )
@@ -49,7 +49,7 @@ async def test_get_class_hash_at(contract_address, gateway_client, class_hash):
     "transactions",
     [
         [
-            InvokeFunction(
+            Invoke(
                 contract_address=0x1,
                 entry_point_selector=get_selector_from_name("increase_balance"),
                 calldata=[123],
@@ -76,7 +76,7 @@ async def test_estimate_fee_bulk(
     transactions, contract_address, gateway_client, deploy_account_transaction
 ):
     for idx, _ in enumerate(transactions):
-        if isinstance(transactions[idx], InvokeFunction):
+        if isinstance(transactions[idx], Invoke):
             transactions[idx] = dataclasses.replace(
                 transactions[idx], contract_address=contract_address
             )

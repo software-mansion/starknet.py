@@ -16,7 +16,7 @@ from starkware.starknet.services.api.gateway.transaction import (
 
 from starknet_py.utils.docs import as_our_module
 
-InvokeFunction = as_our_module(IF)
+Invoke = InvokeFunction = as_our_module(IF)
 StarknetTransaction = as_our_module(T)
 AccountTransaction = as_our_module(AT)
 ContractClass = as_our_module(CD)
