@@ -14,7 +14,7 @@ from starknet_py.tests.e2e.fixtures.constants import (
     MAX_FEE,
 )
 from starknet_py.utils.data_transformer.data_transformer import CairoSerializer
-from starknet_py.utils.typed_data import TypedData
+from starknet_py.net.models.typed_data import TypedData
 
 
 def pytest_addoption(parser):
