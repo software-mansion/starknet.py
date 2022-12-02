@@ -1,4 +1,5 @@
 import pytest
+from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.contract import Contract
 from starknet_py.net.client_models import Call
@@ -122,10 +123,22 @@ async def test_get_class_hash_at(map_contract, account):
 
 
 @pytest.mark.asyncio()
-async def test_get_nonce(gateway_account):
+async def test_get_nonce(gateway_account, base_account_deploy_map_contract):
     nonce = await gateway_account.get_nonce()
+    address = base_account_deploy_map_contract.address
 
-    assert nonce >= 0  # TODO maybe better test
+    tx = await gateway_account.execute(
+        Call(
+            to_addr=address, selector=get_selector_from_name("put"), calldata=[10, 20]
+        ),
+        max_fee=MAX_FEE,
+    )
+    await gateway_account.client.wait_for_tx(tx.transaction_hash)
+
+    new_nonce = await gateway_account.get_nonce()
+
+    assert isinstance(nonce, int) and isinstance(new_nonce, int)
+    assert new_nonce > nonce
 
 
 @pytest.mark.asyncio
