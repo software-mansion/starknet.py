@@ -45,8 +45,7 @@ async def test_get_balance_default_token_address(net):
     assert call.to_addr == parse_address(FEE_CONTRACT_ADDRESS)
 
 
-@pytest.mark.asyncio
-async def test_create_account():
+def test_create_account():
     key_pair = KeyPair.from_private_key(0x111)
     account = Account(
         address=0x1,
@@ -59,8 +58,7 @@ async def test_create_account():
     assert account.signer.public_key == key_pair.public_key
 
 
-@pytest.mark.asyncio
-async def test_create_account_from_signer():
+def test_create_account_from_signer():
     signer = StarkCurveSigner(
         account_address=0x1,
         key_pair=KeyPair.from_private_key(0x111),
@@ -72,8 +70,7 @@ async def test_create_account_from_signer():
     assert account.signer == signer
 
 
-@pytest.mark.asyncio
-async def test_create_account_raises_on_no_chain_and_signer():
+def test_create_account_raises_on_no_chain_and_signer():
     with pytest.raises(ValueError, match="One of chain or signer must be provided"):
         Account(
             address=0x1,
@@ -82,8 +79,7 @@ async def test_create_account_raises_on_no_chain_and_signer():
         )
 
 
-@pytest.mark.asyncio
-async def test_create_account_raises_on_no_keypair_and_signer():
+def test_create_account_raises_on_no_keypair_and_signer():
     with pytest.raises(
         ValueError,
         match="Either a signer or a key_pair must be provided in AccountClient constructor",
@@ -95,8 +91,7 @@ async def test_create_account_raises_on_no_keypair_and_signer():
         )
 
 
-@pytest.mark.asyncio
-async def test_create_account_raises_on_both_keypair_and_signer():
+def test_create_account_raises_on_both_keypair_and_signer():
     with pytest.raises(ValueError, match="Signer and key_pair are mutually exclusive"):
         Account(
             address=0x1,
