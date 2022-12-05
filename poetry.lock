@@ -223,7 +223,7 @@ python-versions = "~=3.7"
 
 [[package]]
 name = "cairo-lang"
-version = "0.10.3a0"
+version = "0.10.3"
 description = "Compiler and runner for the Cairo language"
 category = "main"
 optional = false
@@ -1938,7 +1938,7 @@ eth-tester = []
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8, <3.10"
-content-hash = "6fc48fd8d68437a0b574e3ce191bbe0b3ebfb4ee3cb0ab2f20a6e6fcc2a80a44"
+content-hash = "b650b302bb4b59d84c577e2995d8a4ca2d354510c242ec60e1a9157f95fe8dec"
 
 [metadata.files]
 aiohttp = [
@@ -2116,7 +2116,7 @@ cachetools = [
     {file = "cachetools-5.2.0.tar.gz", hash = "sha256:6a94c6402995a99c3970cc7e4884bb60b4a8639938157eeed436098bf9831757"},
 ]
 cairo-lang = [
-    {file = "cairo-lang-0.10.3a0.zip", hash = "sha256:432c94135090f799fce8e6cfa763d98a336080e3c2576bdd110c3aa26b004eaf"},
+    {file = "cairo-lang-0.10.3.zip", hash = "sha256:3093946334590f199d99471912049c182cec1f90d4ad02029f460a0de3a27502"},
 ]
 certifi = [
     {file = "certifi-2022.9.24-py3-none-any.whl", hash = "sha256:90c1a32f1d68f940488354e36370f6cca89f0f106db09518524c88d6ed83f382"},
