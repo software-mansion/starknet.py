@@ -284,13 +284,7 @@ class PreparedFunctionCall(Call):
         :param block_number: Estimate fee at given block number
             (or "latest" / "pending" for the latest / pending block), default is "pending"
         :return: Estimated amount of Wei executing specified transaction will cost
-        :raises ValueError: when max_fee of PreparedFunctionCall is not None or 0.
         """
-        if self.max_fee is not None and self.max_fee != 0:
-            raise ValueError(
-                "Cannot estimate fee of PreparedFunctionCall with max_fee not None or 0."
-            )
-
         tx = await self._account_client.sign_invoke_transaction(
             calls=self, max_fee=0, version=self.version
         )
