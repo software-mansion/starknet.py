@@ -1,11 +1,35 @@
+0.11.0 Migration guide
+======================
+
+Cairo-lang 0.10.3 dropped support for the `Deploy` transaction. To be compatible we had to remove some deprecated features.
+
+Breaking Changes
+----------------
+
+Removed APIs:
+
+- `Contract.deploy`. Read more about deployment in the `Deploying contracts <https://starknetpy.readthedocs.io/en/latest/guide.html#deploying-contracts>`_ section.
+- `AccountClient.create_account`. `Account creation <https://starknetpy.readthedocs.io/en/latest/account_creation.html>`_ docs are here to help you!
+- `Client.deploy` method (from the interface and all implementations)
+- `make_deploy_tx`
+- `compute_deploy_hash`
+- the `Deploy` transaction
+
+
+Invoke Transaction
+------------------
+
+Old `InvokeFunction` transaction is now aliased as `Invoke`. We suggest to start using the new `Invoke`.
+
+
 0.9.0 Migration guide
 =====================
 
 Starknet.py 0.9.0 brings support for `RPC 0.2.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.2.0>`_,
 updates :meth:`Contract.from_address` method to work with the newest proxies and removes some deprecated features.
 
-Breaking Changes
-----------------
+0.9.0 Breaking Changes
+----------------------
 
 - Removed deprecated `Account.sign_transaction`. Use new `Account.sign_invoke_transaction`.
 - Removed deprecated `InvokeFunction` as `call_contract` parameter. Use `Call` class instead.
