@@ -1,15 +1,14 @@
 import pytest
 from starkware.starknet.public.abi import get_selector_from_name
 
+from starknet_py.compile.compiler import Compiler
+
 
 @pytest.mark.asyncio
-async def test_using_cairo_serializer(network, gateway_account_client):
-    # pylint: disable=unused-variable, too-many-locals, import-outside-toplevel
+async def test_using_cairo_serializer(new_account_client):
+    # pylint: disable=unused-variable, import-outside-toplevel, too-many-locals
     # docs: start
-    from starknet_py.net.gateway_client import GatewayClient
-    from starknet_py.net.models import StarknetChainId
     from starknet_py.contract import Contract
-    from starknet_py.net import AccountClient
     from starknet_py.utils.data_transformer.data_transformer import CairoSerializer
 
     # Code of the contract which emits an event
@@ -35,27 +34,19 @@ async def test_using_cairo_serializer(network, gateway_account_client):
             return ();
         }
     """
-
-    net = "testnet"  # Can be "mainnet" or other custom net too
     # docs: end
-
-    net = network
+    account_client = new_account_client
+    compiled_contract = Compiler(contract_source=contract).compile_contract()
     # docs: start
 
-    # Creates an account
-    client = await AccountClient.create_account(
-        client=GatewayClient(net=net),
-        chain=StarknetChainId.TESTNET,
+    # Declares and deploys the contract
+    declare_result = await Contract.declare(
+        account=account_client, compiled_contract=compiled_contract, max_fee=int(1e16)
     )
-    # docs: end
-
-    client = gateway_account_client
-    # docs: start
-
-    # Deploys the contract
-    deployment_result = await Contract.deploy(client, compilation_source=contract)
-    await deployment_result.wait_for_acceptance()
-    contract = deployment_result.deployed_contract
+    await declare_result.wait_for_acceptance()
+    deploy_result = await declare_result.deploy(max_fee=int(1e16))
+    await deploy_result.wait_for_acceptance()
+    contract = deploy_result.deployed_contract
 
     # Invokes "put" function (which emits an event)
     invoke_result = (
@@ -64,7 +55,7 @@ async def test_using_cairo_serializer(network, gateway_account_client):
     await invoke_result.wait_for_acceptance()
 
     transaction_hash = invoke_result.hash
-    transaction_receipt = await client.get_transaction_receipt(transaction_hash)
+    transaction_receipt = await account_client.get_transaction_receipt(transaction_hash)
 
     # Takes events from transaction receipt
     events = transaction_receipt.events

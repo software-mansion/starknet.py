@@ -4,7 +4,6 @@ import warnings
 from dataclasses import replace
 from typing import Optional, List, Union, Dict, Tuple, Iterable
 
-from starkware.crypto.signature.signature import get_random_private_key
 from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.common import create_compiled_contract
@@ -22,12 +21,10 @@ from starknet_py.net.client_models import (
     BlockStateUpdate,
     StarknetBlock,
     Declare,
-    Deploy,
     BlockTransactionTraces,
     EstimatedFee,
     Calls,
     TransactionStatus,
-    DeployTransactionResponse,
     DeclareTransactionResponse,
     Transaction,
     DeployAccountTransactionResponse,
@@ -36,6 +33,7 @@ from starknet_py.net.client_utils import _invoke_tx_to_call
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import (
     InvokeFunction,
+    Invoke,
     StarknetChainId,
     chain_from_network,
 )
@@ -294,7 +292,7 @@ class AccountClient(Client):
         execute_transformer = execute_transformer_by_version(version)
         wrapped_calldata, _ = execute_transformer.from_python(*calldata_py)
 
-        transaction = make_invoke_function_by_version(
+        transaction = _make_invoke_by_version(
             contract_address=self.address,
             calldata=wrapped_calldata,
             signature=[],
@@ -310,7 +308,7 @@ class AccountClient(Client):
 
     async def _get_max_fee(
         self,
-        transaction: Union[InvokeFunction, Declare, DeployAccount],
+        transaction: Union[Invoke, Declare, DeployAccount],
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> int:
@@ -342,15 +340,15 @@ class AccountClient(Client):
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
         version: Optional[int] = None,
-    ) -> InvokeFunction:
+    ) -> Invoke:
         """
-        Takes calls and creates signed InvokeFunction
+        Takes calls and creates signed Invoke
 
         :param calls: Single call or list of calls
         :param max_fee: Max amount of Wei to be paid when executing transaction
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
         :param version: Transaction version
-        :return: InvokeFunction created from the calls
+        :return: Invoke created from the calls
         """
         if version is None:
             version = self.supported_tx_version
@@ -459,9 +457,7 @@ class AccountClient(Client):
 
         return dataclasses.replace(deploy_account_tx, signature=signature)
 
-    async def send_transaction(
-        self, transaction: InvokeFunction
-    ) -> SentTransactionResponse:
+    async def send_transaction(self, transaction: Invoke) -> SentTransactionResponse:
         if transaction.max_fee == 0:
             warnings.warn(
                 "Transaction will fail with max_fee set to 0. Change it to a higher value.",
@@ -491,9 +487,6 @@ class AccountClient(Client):
         )
         return await self.send_transaction(execute_transaction)
 
-    async def deploy(self, transaction: Deploy) -> DeployTransactionResponse:
-        return await self.client.deploy(transaction=transaction)
-
     async def deploy_account(
         self, transaction: DeployAccount
     ) -> DeployAccountTransactionResponse:
@@ -504,7 +497,7 @@ class AccountClient(Client):
 
     async def estimate_fee(
         self,
-        tx: Union[InvokeFunction, Declare, DeployAccount],
+        tx: Union[Invoke, Declare, DeployAccount],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
@@ -540,60 +533,6 @@ class AccountClient(Client):
                 f"Provided version: {version} is not equal to account's "
                 f"supported_tx_version: {self.supported_tx_version}"
             )
-
-    @staticmethod
-    async def create_account(
-        client: Client,
-        private_key: Optional[int] = None,
-        signer: Optional[BaseSigner] = None,
-        chain: Optional[StarknetChainId] = None,
-    ) -> "AccountClient":
-        """
-        Creates the account using
-        `OpenZeppelin Account contract
-        <https://github.com/starkware-libs/cairo-lang/blob/4e233516f52477ad158bc81a86ec2760471c1b65/src/starkware/starknet/third_party/open_zeppelin/Account.cairo>`_
-
-        :param client: Instance of Client (i.e. FullNodeClient or GatewayClient)
-                       which will be used to add the transactions
-        :param private_key: Private Key used for the account
-        :param signer: Signer used to create account and sign transaction
-        :param chain: ChainId of the chain used to create the default signer
-        :return: Instance of AccountClient which interacts with created account on given network
-
-        .. deprecated:: 0.5.0
-            This method has been deprecated and will be deleted once transaction version 0 is removed.
-            Compiled account contract will no longer be bundled with StarkNet.py.
-            Consider transitioning to deploying account contract of choice and creating AccountClient
-            through a constructor.
-        """
-        warnings.warn(
-            "Account deployment through AccountClient is deprecated and will be deleted once transaction version "
-            "0 is removed. Consider transitioning to creating AccountClient through a constructor.",
-            category=DeprecationWarning,
-        )
-
-        if chain is None and signer is None:
-            raise ValueError("One of chain or signer must be provided")
-
-        if signer is None:
-            chain = chain_from_network(net=client.net, chain=chain)
-            used_private_key = private_key or get_random_private_key()
-            key_pair = KeyPair.from_private_key(used_private_key)
-            address = await deploy_account_contract(client, key_pair.public_key)
-            signer = StarkCurveSigner(
-                account_address=address, key_pair=key_pair, chain_id=chain
-            )
-        else:
-            address = await deploy_account_contract(client, signer.public_key)
-
-        version = get_account_version()
-
-        return AccountClient(
-            client=client,
-            address=address,
-            signer=signer,
-            supported_tx_version=version,
-        )
 
     async def get_contract_nonce(
         self,
@@ -663,30 +602,7 @@ class AccountClient(Client):
             raise ex
 
 
-async def deploy_account_contract(
-    client: Client, public_key: int
-) -> AddressRepresentation:
-    # pylint: disable=import-outside-toplevel
-    # FIXME move this import to top once circular import is resolved
-    from starknet_py.transactions.deploy import make_deploy_tx
-
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        deploy_tx = make_deploy_tx(
-            constructor_calldata=[public_key],
-            compiled_contract=COMPILED_ACCOUNT_CONTRACT,
-        )
-
-    result = await client.deploy(deploy_tx)
-    await client.wait_for_tx(
-        tx_hash=result.transaction_hash,
-    )
-    return result.contract_address
-
-
-def add_signature_to_transaction(
-    tx: InvokeFunction, signature: List[int]
-) -> InvokeFunction:
+def add_signature_to_transaction(tx: Invoke, signature: List[int]) -> Invoke:
     return replace(tx, signature=signature)
 
 
@@ -717,7 +633,7 @@ def merge_calls(calls: Iterable[Call]) -> List:
     return [calldata, entire_calldata]
 
 
-def make_invoke_function_by_version(
+def _make_invoke_by_version(
     # pylint: disable=too-many-arguments
     contract_address: AddressRepresentation,
     calldata: List[int],
@@ -726,7 +642,7 @@ def make_invoke_function_by_version(
     version: int,
     nonce: Optional[int],
     entry_point_selector: int,
-) -> InvokeFunction:
+) -> Invoke:
     params = {
         "calldata": calldata,
         "signature": signature,
@@ -739,7 +655,7 @@ def make_invoke_function_by_version(
     if version == 0:
         params["entry_point_selector"] = entry_point_selector
 
-    return InvokeFunction(**params)
+    return Invoke(**params)
 
 
 def get_account_version():

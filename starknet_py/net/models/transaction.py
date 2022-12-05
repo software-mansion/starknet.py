@@ -5,14 +5,12 @@ from starkware.starknet.public.abi import get_selector_from_name
 # noinspection PyPep8Naming
 from starkware.starknet.services.api.gateway.transaction import (
     InvokeFunction as IF,
-    Deploy as D,
     Transaction as T,
     Declare as DCL,
     DeployAccount as DAC,
 )
 from starkware.starknet.core.os.transaction_hash.transaction_hash import (
     calculate_transaction_hash_common,
-    calculate_deploy_transaction_hash,
     TransactionHashPrefix,
 )
 
@@ -24,8 +22,7 @@ from starknet_py.net.models.chains import StarknetChainId
 from starknet_py.utils.crypto.facade import pedersen_hash
 from starknet_py.utils.docs import as_our_module
 
-InvokeFunction = as_our_module(IF)
-Deploy = as_our_module(D)
+Invoke = InvokeFunction = as_our_module(IF)
 Transaction = as_our_module(T)
 TransactionType = as_our_module(TT)
 Declare = as_our_module(DCL)
@@ -64,28 +61,5 @@ def compute_invoke_hash(
         hash_function=pedersen_hash,
         additional_data=[],
         max_fee=max_fee,
-        version=version,
-    )
-
-
-def compute_deploy_hash(
-    contract_address: int,
-    calldata: Sequence[int],
-    chain_id: StarknetChainId,
-    version: int,
-) -> int:
-    """
-
-    :param contract_address: int
-    :param calldata: Sequence[int] (constructor arguments)
-    :param chain_id: StarknetChainId
-    :param version: Version of deploy transaction
-    :return: calculated hash
-    """
-    return calculate_deploy_transaction_hash(
-        contract_address=contract_address,
-        constructor_calldata=calldata,
-        chain_id=chain_id.value,
-        hash_function=pedersen_hash,
         version=version,
     )

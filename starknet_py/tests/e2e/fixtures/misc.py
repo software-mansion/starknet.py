@@ -11,7 +11,7 @@ from starknet_py.net import AccountClient
 from starknet_py.tests.e2e.fixtures.constants import (
     TYPED_DATA_DIR,
     CONTRACTS_COMPILED_DIR,
-    CONTRACTS_DIR,
+    MAX_FEE,
 )
 from starknet_py.utils.data_transformer.data_transformer import CairoSerializer
 from starknet_py.utils.typed_data import TypedData
@@ -79,20 +79,23 @@ def typed_data(request) -> TypedData:
 
 
 @pytest_asyncio.fixture(scope="module")
-async def cairo_serializer(gateway_account_client: AccountClient) -> CairoSerializer:
+async def cairo_serializer(
+    new_gateway_account_client: AccountClient,
+) -> CairoSerializer:
     """
     Returns CairoSerializer for "simple_storage_with_event.cairo"
     """
-    client = gateway_account_client
-    contract_content = read_contract(
-        "simple_storage_with_event.cairo", directory=CONTRACTS_DIR
-    )
+    account = new_gateway_account_client
+    compiled_contract = read_contract("simple_storage_with_event_compiled.json")
 
-    deployment_result = await Contract.deploy(
-        client, compilation_source=contract_content
+    declare_result = await Contract.declare(
+        account=account, compiled_contract=compiled_contract, max_fee=MAX_FEE
     )
-    await deployment_result.wait_for_acceptance()
-    contract = deployment_result.deployed_contract
+    await declare_result.wait_for_acceptance()
+    deploy_result = await declare_result.deploy(max_fee=MAX_FEE)
+    await deploy_result.wait_for_acceptance()
+
+    contract = deploy_result.deployed_contract
 
     return CairoSerializer(identifier_manager=contract.data.identifier_manager)
 

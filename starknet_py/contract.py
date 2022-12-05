@@ -33,12 +33,11 @@ from starknet_py.net import AccountClient
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import Hash, Tag
 from starknet_py.net.models import (
-    InvokeFunction,
+    Invoke,
     AddressRepresentation,
     parse_address,
     compute_address,
 )
-from starknet_py.transactions.deploy import make_deploy_tx
 from starknet_py.utils.contructor_args_translator import translate_constructor_args
 from starknet_py.utils.crypto.facade import pedersen_hash, Call
 from starknet_py.utils.data_transformer import FunctionCallSerializer
@@ -103,7 +102,7 @@ class SentTransaction:
 class InvokeResult(SentTransaction):
     # We ensure these are not None in __post_init__
     contract: ContractData = None  # pyright: ignore
-    invoke_transaction: InvokeFunction = None  # pyright: ignore
+    invoke_transaction: Invoke = None  # pyright: ignore
 
     def __post_init__(self):
         assert self.contract is not None
@@ -285,13 +284,7 @@ class PreparedFunctionCall(Call):
         :param block_number: Estimate fee at given block number
             (or "latest" / "pending" for the latest / pending block), default is "pending"
         :return: Estimated amount of Wei executing specified transaction will cost
-        :raises ValueError: when max_fee of PreparedFunctionCall is not None or 0.
         """
-        if self.max_fee is not None and self.max_fee != 0:
-            raise ValueError(
-                "Cannot estimate fee of PreparedFunctionCall with max_fee not None or 0."
-            )
-
         tx = await self._account_client.sign_invoke_transaction(
             calls=self, max_fee=0, version=self.version
         )
@@ -555,64 +548,6 @@ class Contract:
         deploy_result = DeployResult(
             hash=res.transaction_hash,
             _client=account.client,
-            deployed_contract=deployed_contract,
-        )
-
-        return deploy_result
-
-    @staticmethod
-    async def deploy(
-        client: Client,
-        compilation_source: Optional[StarknetCompilationSource] = None,
-        compiled_contract: Optional[str] = None,
-        constructor_args: Optional[Union[List, Dict]] = None,
-        salt: Optional[int] = None,
-        search_paths: Optional[List[str]] = None,
-    ) -> "DeployResult":
-        # pylint: disable=too-many-arguments
-        """
-        Deploys a contract and waits until it has ``PENDING`` status.
-        Either `compilation_source` or `compiled_contract` is required.
-
-        :param client: Client
-        :param compilation_source: string containing source code or a list of source files paths
-        :param compiled_contract: string containing compiled contract. Useful for reading compiled contract from a file.
-        :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
-        :param salt: Optional salt. Random value is selected if it is not provided.
-        :param search_paths: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts.
-        :raises: `ValueError` if neither compilation_source nor compiled_contract is provided.
-        :return: DeployResult instance
-
-        .. deprecated:: 0.8.0
-            This method has been deprecated in favor of deploying through cairo syscall.
-            To deploy a contract use `Contract.deploy_contract`.
-        """
-        warnings.warn(
-            "In the future versions of StarkNet, Deploy transaction will not be supported."
-            "To deploy a contract use cairo syscall",
-            category=DeprecationWarning,
-        )
-
-        compiled = create_compiled_contract(
-            compilation_source, compiled_contract, search_paths
-        )
-        translated_args = translate_constructor_args(compiled.abi, constructor_args)
-        deploy_tx = make_deploy_tx(
-            compiled_contract=compiled,
-            constructor_calldata=translated_args,
-            salt=salt,
-        )
-        res = await client.deploy(deploy_tx)
-        contract_address = res.contract_address
-
-        deployed_contract = Contract(
-            client=client,
-            address=contract_address,
-            abi=compiled.abi,
-        )
-        deploy_result = DeployResult(
-            hash=res.transaction_hash,
-            _client=client,
             deployed_contract=deployed_contract,
         )
 

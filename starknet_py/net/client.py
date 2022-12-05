@@ -16,15 +16,13 @@ from starknet_py.net.client_models import (
     DeclaredContract,
     EstimatedFee,
     BlockTransactionTraces,
-    DeployTransactionResponse,
     DeclareTransactionResponse,
     Call,
     DeployAccountTransactionResponse,
 )
 from starknet_py.net.models.transaction import (
-    Deploy,
     Declare,
-    InvokeFunction,
+    Invoke,
     DeployAccount,
 )
 from starknet_py.net.networks import Network
@@ -182,12 +180,12 @@ class Client(ABC):
     @abstractmethod
     async def estimate_fee(
         self,
-        tx: Union[InvokeFunction, Declare, DeployAccount],
+        tx: Union[Invoke, Declare, DeployAccount],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
         """
-        Estimate how much Wei it will cost to run provided InvokeFunction
+        Estimate how much Wei it will cost to run provided Invoke
 
         :param tx: Transaction to estimate
         :param block_hash: Get code at specific block hash or
@@ -222,25 +220,13 @@ class Client(ABC):
     @abstractmethod
     async def send_transaction(
         self,
-        transaction: InvokeFunction,
+        transaction: Invoke,
     ) -> SentTransactionResponse:
         """
         Send a transaction to the network
 
-        :param transaction: Transaction object (i.e. InvokeFunction, Deploy).
+        :param transaction: Transaction object (i.e. Invoke).
         :return: SentTransactionResponse object
-        """
-
-    @abstractmethod
-    async def deploy(self, transaction: Deploy) -> DeployTransactionResponse:
-        """
-        Deploy a contract to the network
-
-        :param transaction: Deploy transaction
-        :return: SentTransactionResponse object
-
-        .. deprecated:: 0.8.0
-            This metod has been deprecated in favor of deploy_prefunded method or deploying through cairo syscall.
         """
 
     @abstractmethod

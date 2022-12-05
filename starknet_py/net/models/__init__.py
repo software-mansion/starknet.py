@@ -8,8 +8,7 @@ from .address import (
 from .transaction import (
     Transaction,
     InvokeFunction,
-    Deploy,
-    compute_deploy_hash,
+    Invoke,
     compute_invoke_hash,
     TransactionType,
 )

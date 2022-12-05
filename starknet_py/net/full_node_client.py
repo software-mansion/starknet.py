@@ -1,4 +1,3 @@
-import warnings
 from typing import List, Optional, Union, cast
 
 import aiohttp
@@ -13,18 +12,16 @@ from starknet_py.net.client_models import (
     TransactionReceipt,
     BlockStateUpdate,
     StarknetBlock,
-    InvokeFunction,
+    Invoke,
     Hash,
     Tag,
     DeclaredContract,
     Transaction,
     Declare,
-    Deploy,
     DeployAccount,
     EstimatedFee,
     BlockTransactionTraces,
     DeclareTransactionResponse,
-    DeployTransactionResponse,
     Call,
     DeployAccountTransactionResponse,
     AccountTransaction,
@@ -40,7 +37,6 @@ from starknet_py.net.schemas.rpc import (
     TypesOfTransactionsSchema,
     SentTransactionSchema,
     DeclareTransactionResponseSchema,
-    DeployTransactionResponseSchema,
     PendingTransactionsSchema,
     EstimatedFeeSchema,
     DeployAccountTransactionResponseSchema,
@@ -159,7 +155,7 @@ class FullNodeClient(Client):
 
     async def estimate_fee(
         self,
-        tx: Union[InvokeFunction, Declare, DeployAccount],
+        tx: Union[Invoke, Declare, DeployAccount],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
@@ -203,9 +199,7 @@ class FullNodeClient(Client):
         )
         return [int(i, 16) for i in res]
 
-    async def send_transaction(
-        self, transaction: InvokeFunction
-    ) -> SentTransactionResponse:
+    async def send_transaction(self, transaction: Invoke) -> SentTransactionResponse:
         params = _create_broadcasted_txn(transaction=transaction)
 
         res = await self._client.call(
@@ -215,43 +209,6 @@ class FullNodeClient(Client):
 
         return cast(
             SentTransactionResponse, SentTransactionSchema().load(res, unknown=EXCLUDE)
-        )
-
-    async def deploy(self, transaction: Deploy) -> DeployTransactionResponse:
-        warnings.warn(
-            "Deploy transaction is deprecated."
-            "Use deploy_prefunded method or deploy through cairo syscall",
-            category=DeprecationWarning,
-        )
-
-        contract_definition = transaction.dump()["contract_definition"]
-
-        res = await self._client.call(
-            method_name="addDeployTransaction",
-            params={
-                "deploy_transaction": {
-                    "contract_class": {
-                        "program": contract_definition["program"],
-                        "entry_points_by_type": contract_definition[
-                            "entry_points_by_type"
-                        ],
-                        "abi": contract_definition["abi"],
-                    },
-                    "version": hex(transaction.version),
-                    "type": "DEPLOY",
-                    "contract_address_salt": hash_to_felt(
-                        transaction.contract_address_salt
-                    ),
-                    "constructor_calldata": [
-                        hash_to_felt(i) for i in transaction.constructor_calldata
-                    ],
-                },
-            },
-        )
-
-        return cast(
-            DeployTransactionResponse,
-            DeployTransactionResponseSchema().load(res, unknown=EXCLUDE),
         )
 
     async def deploy_account(
@@ -454,9 +411,7 @@ def get_block_identifier(
     return {"block_id": "pending"}
 
 
-def _create_broadcasted_txn(
-    transaction: Union[InvokeFunction, Declare, DeployAccount]
-) -> dict:
+def _create_broadcasted_txn(transaction: Union[Invoke, Declare, DeployAccount]) -> dict:
     txn_map = {
         TransactionType.DECLARE: _create_broadcasted_declare_properties,
         TransactionType.INVOKE_FUNCTION: _create_broadcasted_invoke_properties,
@@ -485,13 +440,13 @@ def _create_broadcasted_declare_properties(transaction: Declare) -> dict:
     return declare_properties
 
 
-def _create_broadcasted_invoke_properties(transaction: InvokeFunction) -> dict:
+def _create_broadcasted_invoke_properties(transaction: Invoke) -> dict:
     if transaction.version == 0:
         return _create_invoke_v0_properties(transaction)
     return _create_invoke_v1_properties(transaction)
 
 
-def _create_invoke_v0_properties(transaction: InvokeFunction) -> dict:
+def _create_invoke_v0_properties(transaction: Invoke) -> dict:
     invoke_properties = {
         "contract_address": hash_to_felt(transaction.contract_address),
         "entry_point_selector": hash_to_felt(transaction.entry_point_selector),
@@ -500,7 +455,7 @@ def _create_invoke_v0_properties(transaction: InvokeFunction) -> dict:
     return invoke_properties
 
 
-def _create_invoke_v1_properties(transaction: InvokeFunction) -> dict:
+def _create_invoke_v1_properties(transaction: Invoke) -> dict:
     invoke_properties = {
         "sender_address": hash_to_felt(transaction.contract_address),
         "calldata": [hash_to_felt(data) for data in transaction.calldata],
