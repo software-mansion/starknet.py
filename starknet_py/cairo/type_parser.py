@@ -50,7 +50,7 @@ class TypeParser:
     def parse_inline_type(self, type_string: str) -> CairoType:
         """
         Inline type it one that can be used inline. For instance (a: Uint256, b: felt*, c: (felt, felt)).
-        
+
         :param type_string: type to parse
         """
         parsed = parse_type(type_string)
