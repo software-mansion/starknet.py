@@ -1,6 +1,6 @@
 from __future__ import annotations
 from collections import OrderedDict
-from typing import Dict, Optional
+from typing import Dict
 
 from starkware.cairo.lang.compiler.parser import parse_type
 import starkware.cairo.lang.compiler.ast.cairo_types as cairo_lang_types
