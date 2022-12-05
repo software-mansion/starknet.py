@@ -2,13 +2,15 @@ import pytest
 
 
 @pytest.mark.asyncio
-async def test_sign_offchain_message(account_client):
+async def test_sign_offchain_message(account):
     # pylint: disable=import-outside-toplevel, duplicate-code, unused-variable
 
     # docs: start
-    from starknet_py.net import AccountClient, KeyPair
+    from starknet_py.net.account.account import Account
+    from starknet_py.net import KeyPair
     from starknet_py.net.gateway_client import GatewayClient
     from starknet_py.net.models import StarknetChainId
+    from starknet_py.utils.typed_data import TypedData
 
     # Create a TypedData dictionary
     typed_data = {
@@ -45,13 +47,13 @@ async def test_sign_offchain_message(account_client):
     # docs: end
 
     # save account_client fixture
-    account_client_fixture = account_client
+    account_fixture = account
 
     # docs: start
 
-    # Create an AccountClient instance
+    # Create an Account instance
     client = GatewayClient("testnet")
-    account_client = AccountClient(
+    account = Account(
         client=client,
         address="0x1111",
         key_pair=KeyPair(private_key=123, public_key=456),
@@ -60,20 +62,22 @@ async def test_sign_offchain_message(account_client):
     # docs: end
 
     # retrieve account_client
-    account_client = account_client_fixture
+    account = account_fixture
 
     # docs: start
 
-    # We can calculate the message hash
-    msg_hash = account_client.hash_message(typed_data=typed_data)
-
     # Sign the message
-    signature = account_client.sign_message(typed_data=typed_data)
+    signature = account.sign_message(typed_data=typed_data)
 
     # Verify the message
-    verify_result = await account_client.verify_message(
+    verify_result = await account.verify_message(
         typed_data=typed_data, signature=signature
     )
+
+    # Or if just a message hash is needed
+    data = TypedData.from_dict(typed_data)
+    message_hash = data.message_hash(account.address)
+
     # docs: end
 
     assert verify_result

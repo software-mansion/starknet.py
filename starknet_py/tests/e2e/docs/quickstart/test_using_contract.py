@@ -6,7 +6,7 @@ directory = os.path.dirname(__file__)
 
 
 @pytest.mark.asyncio
-async def test_using_contract(account_client, map_contract):
+async def test_using_contract(account, map_contract):
     # pylint: disable=unused-variable,too-many-locals
     # docs: start
     from starknet_py.contract import Contract
@@ -21,7 +21,7 @@ async def test_using_contract(account_client, map_contract):
     # docs: start
 
     # Create contract from contract's address - Contract will download contract's ABI to know its interface.
-    contract = await Contract.from_address(contract_address, account_client)
+    contract = await Contract.from_address(address=contract_address, account=account)
     # docs: end
 
     abi = contract.data.abi
@@ -30,9 +30,9 @@ async def test_using_contract(account_client, map_contract):
 
     # If the ABI is known, create the contract directly (this is the preferred way).
     contract = Contract(
-        contract_address,
-        abi,
-        account_client,
+        address=contract_address,
+        abi=abi,
+        account=account,
     )
 
     # All exposed functions are available at contract.functions.

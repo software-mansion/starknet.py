@@ -4,9 +4,7 @@ from starknet_py.common import create_compiled_contract
 
 
 @pytest.mark.asyncio
-async def test_deploying_in_multicall(
-    account_client, map_class_hash, map_compiled_contract
-):
+async def test_deploying_in_multicall(account, map_class_hash, map_compiled_contract):
     # pylint: disable=import-outside-toplevel,
     # docs: start
     from starknet_py.contract import Contract
@@ -23,19 +21,19 @@ async def test_deploying_in_multicall(
     # docs: start
 
     # Address of the `map` contract is known here, so we can create its instance!
-    map_contract = Contract(address=address, abi=map_abi, client=account_client)
+    map_contract = Contract(address=address, abi=map_abi, account=account)
 
     # And now we can prepare a call
     put_call = map_contract.functions["put"].prepare(key=10, value=20)
 
     # After that multicall transaction can be sent
     # Note that `deploy_call` and `put_call` are two regular calls!
-    invoke_tx = await account_client.sign_invoke_transaction(
+    invoke_tx = await account.sign_invoke_transaction(
         calls=[deploy_call, put_call], max_fee=int(1e16)
     )
 
-    resp = await account_client.send_transaction(invoke_tx)
-    await account_client.wait_for_tx(resp.transaction_hash)
+    resp = await account.client.send_transaction(invoke_tx)
+    await account.client.wait_for_tx(resp.transaction_hash)
 
     (value,) = await map_contract.functions["get"].call(key=10)
     # value = 20
