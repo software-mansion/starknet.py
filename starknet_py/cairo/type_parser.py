@@ -37,7 +37,8 @@ class TypeParser:
     def __init__(self, defined_types: Dict[str, StructType]):
         """
         TypeParser constructor.
-        :param defined_structs: dictionary containing all defined types. For now they can only be structures.
+
+        :param defined_types: dictionary containing all defined types. For now they can only be structures.
         """
         self.defined_types = defined_types
         for name, struct in defined_types.items():
@@ -49,6 +50,7 @@ class TypeParser:
     def parse_inline_type(self, type_string: str) -> CairoType:
         """
         Inline type it one that can be used inline. For instance (a: Uint256, b: felt*, c: (felt, felt)).
+        
         :param type_string: type to parse
         """
         parsed = parse_type(type_string)
