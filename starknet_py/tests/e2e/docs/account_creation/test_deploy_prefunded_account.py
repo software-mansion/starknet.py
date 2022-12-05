@@ -13,7 +13,7 @@ async def test_deploy_prefunded_account(
 ):
     # pylint: disable=import-outside-toplevel, too-many-locals
     # docs: start
-    from starknet_py.net import AccountClient
+    from starknet_py.net.account.account import Account
     from starknet_py.net import KeyPair
     from starknet_py.net.gateway_client import GatewayClient
     from starknet_py.net.models import StarknetChainId
@@ -45,13 +45,12 @@ async def test_deploy_prefunded_account(
     await res.wait_for_acceptance()
     # docs: start
 
-    # Create an AccountClient instance
-    account = AccountClient(
+    # Create an Account instance
+    account = Account(
         address=address,
         client=GatewayClient(net=network),
         key_pair=key_pair,
         chain=StarknetChainId.TESTNET,
-        supported_tx_version=1,
     )
 
     # Create and sign DeployAccount transaction
@@ -62,8 +61,8 @@ async def test_deploy_prefunded_account(
         max_fee=int(1e15),
     )
 
-    resp = await account.deploy_account(transaction=deploy_account_tx)
-    await account.wait_for_tx(resp.transaction_hash)
+    resp = await account.client.deploy_account(transaction=deploy_account_tx)
+    await account.client.wait_for_tx(resp.transaction_hash)
 
     # Since this moment account can be used to sign other transactions
     # docs: end
