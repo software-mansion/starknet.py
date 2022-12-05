@@ -32,7 +32,7 @@ class TypeParser:
     Low level utility class for parsing Cairo types that can be used in external methods.
     """
 
-    defined_types: Optional[Dict[str, StructType]]
+    defined_types: Dict[str, StructType]
 
     def __init__(self, defined_types: Dict[str, StructType]):
         """
