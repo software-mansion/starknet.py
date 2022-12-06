@@ -14,7 +14,7 @@ from starkware.starknet.public.abi import (
 from starknet_py.common import create_compiled_contract
 from starknet_py.net.client_models import (
     TransactionStatus,
-    InvokeFunction,
+    Invoke,
     TransactionReceipt,
     Call,
     DeclareTransaction,
@@ -135,7 +135,7 @@ async def test_get_transaction_receipt(
 @pytest.mark.parametrize(
     "transaction",
     [
-        InvokeFunction(
+        Invoke(
             contract_address=0x1,
             entry_point_selector=get_selector_from_name("increase_balance"),
             calldata=[123],
@@ -158,7 +158,7 @@ async def test_get_transaction_receipt(
 )
 @pytest.mark.asyncio
 async def test_estimate_fee(transaction, contract_address, client):
-    if isinstance(transaction, InvokeFunction):
+    if isinstance(transaction, Invoke):
         transaction = dataclasses.replace(
             transaction, contract_address=contract_address
         )

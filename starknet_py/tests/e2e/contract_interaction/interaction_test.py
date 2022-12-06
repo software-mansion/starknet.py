@@ -48,19 +48,6 @@ async def test_auto_fee_estimation(map_contract):
 
 
 @pytest.mark.asyncio
-async def test_throws_on_estimate_with_positive_max_fee(map_contract):
-    key = 2
-    value = 3
-
-    prepared_call = map_contract.functions["put"].prepare(key, value, max_fee=100)
-    with pytest.raises(
-        ValueError,
-        match="Cannot estimate fee of PreparedFunctionCall with max_fee not None or 0.",
-    ):
-        await prepared_call.estimate_fee()
-
-
-@pytest.mark.asyncio
 async def test_throws_on_both_max_fee_and_auto_estimate(map_contract):
     key = 2
     value = 3

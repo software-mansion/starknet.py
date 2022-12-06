@@ -37,7 +37,7 @@ from starknet_py.net import AccountClient
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import Hash, Tag
 from starknet_py.net.models import (
-    InvokeFunction,
+    Invoke,
     AddressRepresentation,
     parse_address,
     compute_address,
@@ -106,7 +106,7 @@ class SentTransaction:
 class InvokeResult(SentTransaction):
     # We ensure these are not None in __post_init__
     contract: ContractData = None  # pyright: ignore
-    invoke_transaction: InvokeFunction = None  # pyright: ignore
+    invoke_transaction: Invoke = None  # pyright: ignore
 
     def __post_init__(self):
         assert self.contract is not None
@@ -300,13 +300,7 @@ class PreparedFunctionCall(Call):
         :param block_number: Estimate fee at given block number
             (or "latest" / "pending" for the latest / pending block), default is "pending"
         :return: Estimated amount of Wei executing specified transaction will cost
-        :raises ValueError: when max_fee of PreparedFunctionCall is not None or 0.
         """
-        if self.max_fee is not None and self.max_fee != 0:
-            raise ValueError(
-                "Cannot estimate fee of PreparedFunctionCall with max_fee not None or 0."
-            )
-
         tx = await self._account.sign_invoke_transaction(calls=self, max_fee=0)
 
         return await self._client.estimate_fee(

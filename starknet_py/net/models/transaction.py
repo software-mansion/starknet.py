@@ -22,7 +22,7 @@ from starknet_py.net.models.chains import StarknetChainId
 from starknet_py.utils.crypto.facade import pedersen_hash
 from starknet_py.utils.docs import as_our_module
 
-InvokeFunction = as_our_module(IF)
+Invoke = InvokeFunction = as_our_module(IF)
 Transaction = as_our_module(T)
 TransactionType = as_our_module(TT)
 Declare = as_our_module(DCL)

@@ -21,7 +21,11 @@ from starknet_py.net.models import (
     Transaction,
     parse_address,
 )
-from starknet_py.net.models.transaction import DeployAccount, Declare, InvokeFunction
+from starknet_py.net.models.transaction import (
+    DeployAccount,
+    Declare,
+    Invoke,
+)
 from starknet_py.net.signer.base_signer import BaseSigner
 from starknet_py.utils.crypto.facade import message_signature
 from starknet_py.utils.typed_data import TypedData
@@ -66,7 +70,7 @@ class StarkCurveSigner(BaseSigner):
             return self._sign_deploy_account_transaction(transaction)
         return self._sign_transaction(transaction)
 
-    def _sign_transaction(self, transaction: InvokeFunction):
+    def _sign_transaction(self, transaction: Invoke):
         tx_hash = calculate_transaction_hash_common(
             tx_hash_prefix=TransactionHashPrefix.INVOKE,
             version=transaction.version,

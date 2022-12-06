@@ -81,7 +81,7 @@ async def test_estimated_fee_greater_than_zero(erc20_contract, account_client):
 
     estimated_fee = (
         await erc20_contract.functions["balanceOf"]
-        .prepare("1234", max_fee=0)
+        .prepare("1234", max_fee=10)
         .estimate_fee(block_hash="latest")
     )
 

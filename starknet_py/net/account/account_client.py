@@ -33,6 +33,7 @@ from starknet_py.net.client_utils import _invoke_tx_to_call
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import (
     InvokeFunction,
+    Invoke,
     StarknetChainId,
     chain_from_network,
 )
@@ -296,7 +297,7 @@ class AccountClient(Client):
         execute_transformer = execute_transformer_by_version(version)
         wrapped_calldata, _ = execute_transformer.from_python(*calldata_py)
 
-        transaction = make_invoke_function_by_version(
+        transaction = _make_invoke_by_version(
             contract_address=self.address,
             calldata=wrapped_calldata,
             signature=[],
@@ -312,7 +313,7 @@ class AccountClient(Client):
 
     async def _get_max_fee(
         self,
-        transaction: Union[InvokeFunction, Declare, DeployAccount],
+        transaction: Union[Invoke, Declare, DeployAccount],
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> int:
@@ -344,15 +345,15 @@ class AccountClient(Client):
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
         version: Optional[int] = None,
-    ) -> InvokeFunction:
+    ) -> Invoke:
         """
-        Takes calls and creates signed InvokeFunction
+        Takes calls and creates signed Invoke
 
         :param calls: Single call or list of calls
         :param max_fee: Max amount of Wei to be paid when executing transaction
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
         :param version: Transaction version
-        :return: InvokeFunction created from the calls
+        :return: Invoke created from the calls
         """
         if version is None:
             version = self.supported_tx_version
@@ -461,9 +462,7 @@ class AccountClient(Client):
 
         return dataclasses.replace(deploy_account_tx, signature=signature)
 
-    async def send_transaction(
-        self, transaction: InvokeFunction
-    ) -> SentTransactionResponse:
+    async def send_transaction(self, transaction: Invoke) -> SentTransactionResponse:
         if transaction.max_fee == 0:
             warnings.warn(
                 "Transaction will fail with max_fee set to 0. Change it to a higher value.",
@@ -503,7 +502,7 @@ class AccountClient(Client):
 
     async def estimate_fee(
         self,
-        tx: Union[InvokeFunction, Declare, DeployAccount],
+        tx: Union[Invoke, Declare, DeployAccount],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
@@ -609,9 +608,7 @@ class AccountClient(Client):
             raise ex
 
 
-def add_signature_to_transaction(
-    tx: InvokeFunction, signature: List[int]
-) -> InvokeFunction:
+def add_signature_to_transaction(tx: Invoke, signature: List[int]) -> Invoke:
     return replace(tx, signature=signature)
 
 
@@ -642,7 +639,7 @@ def merge_calls(calls: Iterable[Call]) -> List:
     return [calldata, entire_calldata]
 
 
-def make_invoke_function_by_version(
+def _make_invoke_by_version(
     # pylint: disable=too-many-arguments
     contract_address: AddressRepresentation,
     calldata: List[int],
@@ -651,7 +648,7 @@ def make_invoke_function_by_version(
     version: int,
     nonce: Optional[int],
     entry_point_selector: int,
-) -> InvokeFunction:
+) -> Invoke:
     params = {
         "calldata": calldata,
         "signature": signature,
@@ -664,7 +661,7 @@ def make_invoke_function_by_version(
     if version == 0:
         params["entry_point_selector"] = entry_point_selector
 
-    return InvokeFunction(**params)
+    return Invoke(**params)
 
 
 def get_account_version():
