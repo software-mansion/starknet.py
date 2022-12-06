@@ -5,11 +5,10 @@ import pytest
 
 from starknet_py.cairo.type_parser import UnknownCairoTypeError
 from starknet_py.net.models.abi.definition import AbiDefinition, AbiDecodingError
-from starknet_py.net.models.abi.shape import StructDict, EventDict, FunctionDict
 from starknet_py.cairo.data_types import StructType, FeltType, ArrayType
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
-uint256_dict: StructDict = {
+uint256_dict = {
     "type": "struct",
     "name": "Uint256",
     "size": 2,
@@ -21,7 +20,7 @@ uint256_dict: StructDict = {
 }
 uint256_struct = StructType("Uint256", OrderedDict(low=FeltType(), high=FeltType()))
 
-pool_id_dict: StructDict = {
+pool_id_dict = {
     "type": "struct",
     "name": "PoolId",
     "size": 1,
@@ -31,7 +30,7 @@ pool_id_dict: StructDict = {
 }
 pool_id_struct = StructType("PoolId", OrderedDict(value=uint256_struct))
 
-user_dict: StructDict = {
+user_dict = {
     "type": "struct",
     "name": "User",
     "size": 4,
@@ -52,7 +51,7 @@ user_struct = StructType(
     ),
 )
 
-user_added_dict: EventDict = {
+user_added_dict = {
     "type": "event",
     "name": "UserAdded",
     "data": [
@@ -65,7 +64,7 @@ user_added_event: AbiDefinition.Event = AbiDefinition.Event(
     OrderedDict(user=user_struct),
 )
 
-pool_id_added_dict: EventDict = {
+pool_id_added_dict = {
     "type": "event",
     "name": "PoolIdAdded",
     "data": [
@@ -78,7 +77,7 @@ pool_id_added_event: AbiDefinition.Event = AbiDefinition.Event(
     OrderedDict(pool_id=pool_id_struct),
 )
 
-get_user_dict: FunctionDict = {
+get_user_dict = {
     "type": "function",
     "name": "get_user",
     "inputs": [
@@ -93,7 +92,7 @@ get_user_fn = AbiDefinition.Function(
     "get_user", OrderedDict(id=uint256_struct), OrderedDict(user=user_struct)
 )
 
-delete_pool_dict: FunctionDict = {
+delete_pool_dict = {
     "type": "function",
     "name": "delete_pool",
     "inputs": [
