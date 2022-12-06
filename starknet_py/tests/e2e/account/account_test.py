@@ -10,6 +10,7 @@ from starknet_py.net.client_models import (
     Call,
     TransactionStatus,
     DeployAccountTransaction,
+    DeployAccountTransactionResponse,
 )
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId, compute_address
@@ -281,8 +282,13 @@ async def test_deploy_account_passes_on_enough_funds(deploy_account_details_fact
 
     with patch(
         "starknet_py.net.gateway_client.GatewayClient.call_contract", AsyncMock()
-    ) as mocked_balance:
+    ) as mocked_balance, patch(
+        "starknet_py.net.gateway_client.GatewayClient.deploy_account", AsyncMock()
+    ) as mocked_deploy:
         mocked_balance.return_value = (0, 100)
+        mocked_deploy.return_value = DeployAccountTransactionResponse(
+            transaction_hash=0x1
+        )
 
         await Account.deploy_account(
             address=address,
