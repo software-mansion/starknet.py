@@ -9,7 +9,7 @@ from starknet_py.cairo.data_types import (
     ArrayType,
     StructType,
 )
-from starknet_py.cairo.type_parser import TypeParser, UnknownTypeError
+from starknet_py.cairo.type_parser import TypeParser, UnknownCairoTypeError
 
 
 @pytest.mark.parametrize(
@@ -90,14 +90,22 @@ def test_parse_with_defined_types(type_string, expected):
 
 
 def test_code_offset():
-    with pytest.raises(UnknownTypeError) as err_info:
+    # cairo-lang parser treats codeoffset specially, but we just want to treat it as a type defined by the user.
+
+    # codeoffset is not defined
+    with pytest.raises(UnknownCairoTypeError) as err_info:
         TypeParser({}).parse_inline_type("codeoffset")
 
     assert err_info.value.type_name == "codeoffset"
 
+    # codeoffset is defined
+    struct = StructType("codeoffset", OrderedDict(value=FeltType()))
+    parsed = TypeParser({"codeoffset": struct}).parse_inline_type("codeoffset")
+    assert parsed == struct
+
 
 def test_missing_type():
-    with pytest.raises(UnknownTypeError) as err_info:
+    with pytest.raises(UnknownCairoTypeError) as err_info:
         TypeParser({}).parse_inline_type("Uint256")
 
     assert err_info.value.type_name == "Uint256"

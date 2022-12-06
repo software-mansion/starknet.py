@@ -15,7 +15,7 @@ from starknet_py.cairo.data_types import (
 )
 
 
-class UnknownTypeError(ValueError):
+class UnknownCairoTypeError(ValueError):
     """
     Error thrown when TypeParser finds type that was not declared prior to parsing.
     """
@@ -44,14 +44,16 @@ class TypeParser:
         for name, struct in defined_types.items():
             if name != struct.name:
                 raise ValueError(
-                    f"Keys must match name of type, [{name}] != [{struct.name}]"
+                    f"Keys must match name of type, '{name}' != '{struct.name}'"
                 )
 
     def parse_inline_type(self, type_string: str) -> CairoType:
         """
-        Inline type it one that can be used inline. For instance (a: Uint256, b: felt*, c: (felt, felt)).
+        Inline type is one that can be used inline, for instance as return type. For instance
+        (a: Uint256, b: felt*, c: (felt, felt)). Structure can only be referenced in inline type, can't be defined
+        this way.
 
-        :param type_string: type to parse
+        :param type_string: type to parse.
         """
         parsed = parse_type(type_string)
         return self._transform_cairo_lang_type(parsed)
@@ -59,6 +61,14 @@ class TypeParser:
     def _transform_cairo_lang_type(
         self, cairo_type: cairo_lang_types.CairoType
     ) -> CairoType:
+        """
+        For now, we use parse function from cairo-lang pacakge. It will be replaced in the future, but we need to hide it
+        from the users.
+        This function takes types returned by cairo-lang package and maps them to our type classes.
+
+        :param cairo_type: type returned from parse_type function.
+        :return: CairoType defined by our package.
+        """
         if isinstance(cairo_type, cairo_lang_types.TypeFelt):
             return FeltType()
 
@@ -94,9 +104,9 @@ class TypeParser:
         # info about other structs, so they will be just TypeIdentifier (structure that was not parsed).
 
         # This is an error of our logic, so we throw a RuntimeError.
-        raise RuntimeError(f"Received unknown type [{cairo_type}] from parser")
+        raise RuntimeError(f"Received unknown type '{cairo_type}' from parser")
 
     def _get_struct(self, name: str):
         if name not in self.defined_types:
-            raise UnknownTypeError(name)
+            raise UnknownCairoTypeError(name)
         return self.defined_types[name]
