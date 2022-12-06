@@ -43,7 +43,7 @@ Creating Account
     We recommend migrating to new Account as AccountClient will be removed in the future.
 
 :obj:`Account <starknet_py.net.account.account.Account>` is a default implementation of :obj:`BaseAccount <starknet_py.net.account.base_account.BaseAccount>` interface.
-It supports an account contract which proxies (and signs) the calls to other contracts on Starknet.
+It supports an account contract which proxies (and signs) the calls to other contracts on StarkNet.
 
 Account can be created in two ways:
 

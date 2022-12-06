@@ -46,7 +46,7 @@ async def test_sign_offchain_message(account):
     }
     # docs: end
 
-    # save account_client fixture
+    # save account fixture
     account_fixture = account
 
     # docs: start
@@ -61,7 +61,7 @@ async def test_sign_offchain_message(account):
     )
     # docs: end
 
-    # retrieve account_client
+    # retrieve account
     account = account_fixture
 
     # docs: start

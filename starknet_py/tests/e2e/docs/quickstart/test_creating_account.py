@@ -21,7 +21,7 @@ async def test_creating_account(network):
     # Creates an instance of account client which is already deployed (testnet)
 
     # old AccountClient using transaction version=0 (doesn't have __validate__ function)
-    # Warning: AccountClient is deprecated! Unless you need to use transactions version=0,
+    # Warning: AccountClient is deprecated! Unless you need to use transactions with version=0,
     # please migrate to using new Account.
     client = GatewayClient(net=testnet)
     account_client_testnet = AccountClient(
@@ -47,5 +47,5 @@ async def test_creating_account(network):
     # Instead of providing key_pair it is possible to specify a signer
     signer = StarkCurveSigner("0x1234", key_pair, StarknetChainId.TESTNET)
 
-    account_client = Account(client=client, address="0x1234", signer=signer)
+    account = Account(client=client, address="0x1234", signer=signer)
     # docs: end
