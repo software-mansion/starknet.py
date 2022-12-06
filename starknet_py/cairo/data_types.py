@@ -37,5 +37,5 @@ class StructType(CairoType):
     types: OrderedDict[str, CairoType]
 
 
-# Inline type it one that can be used inline. For instance (a: felt, b: felt*, c: (felt, felt)).
+# Inline type is one that can be used inline. For instance (a: felt, b: felt*, c: (felt, felt)).
 InlineType = Union[FeltType, ArrayType, TupleType, NamedTupleType]
