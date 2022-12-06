@@ -28,6 +28,7 @@ from starknet_py.net.client_models import (
     DeclareTransactionResponse,
     Transaction,
     DeployAccountTransactionResponse,
+    Call,
 )
 from starknet_py.net.client_utils import _invoke_tx_to_call
 from starknet_py.net.gateway_client import GatewayClient
@@ -42,7 +43,6 @@ from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.net.networks import Network, MAINNET, TESTNET
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
-from starknet_py.utils.crypto.facade import Call
 from starknet_py.utils.data_transformer.execute_transformer import (
     execute_transformer_by_version,
 )
