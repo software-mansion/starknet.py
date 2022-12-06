@@ -44,8 +44,8 @@ from starknet_py.net.gateway_client import GatewayClient
 
 key = 1234
 contract = await Contract.from_address(
-    "0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b",
-    GatewayClient("testnet"),
+    address="0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b",
+    client=GatewayClient("testnet"),
 )
 (saved,) = await contract.functions["get_value"].call(key)  # 7
 ```
