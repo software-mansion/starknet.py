@@ -62,8 +62,8 @@ class TypeParser:
         self, cairo_type: cairo_lang_types.CairoType
     ) -> CairoType:
         """
-        For now, we use parse function from cairo-lang pacakge. It will be replaced in the future, but we need to hide it
-        from the users.
+        For now, we use parse function from cairo-lang pacakge. It will be replaced in the future, but we need to hide
+        it from the users.
         This function takes types returned by cairo-lang package and maps them to our type classes.
 
         :param cairo_type: type returned from parse_type function.
