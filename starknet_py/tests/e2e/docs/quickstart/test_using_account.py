@@ -27,7 +27,7 @@ async def test_using_account(account, map_compiled_contract):
     map_contract = deploy_result.deployed_contract
     k, v = 13, 4324
     # Adds a transaction to mutate the state of k-v store. The call goes through account proxy, because we've used
-    # AccountClient to create the contract object
+    # Account to create the contract object
     await (
         await map_contract.functions["put"].invoke(k, v, max_fee=int(1e16))
     ).wait_for_acceptance()
