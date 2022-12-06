@@ -33,6 +33,7 @@ async def test_creating_account(network):
     )
 
     # new Account using transaction version=1 (has __validate__ function)
+    # It is not compatible with version=0. To use an old account contract, AccountClient must be used.
     client = GatewayClient(net=testnet)
     account = Account(
         client=client,
