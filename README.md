@@ -62,7 +62,7 @@ contract = Contract.from_address_sync(
     address="0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b",
     client=GatewayClient("testnet"),
 )
-(saved,) = contract.functions["get_value"].call_sync(key)  # 7
+(value,) = contract.functions["get_value"].call_sync(key)
 ```
 
 For more examples click [here](https://starknetpy.rtfd.io/en/latest/quickstart.html).
