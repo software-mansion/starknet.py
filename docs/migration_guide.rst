@@ -27,7 +27,7 @@ just as simple as ``AccountClient`` was. For example:
     tx = await account_client.sign_invoke_transaction(call, 10000)
     await account_client.send_transaction(tx)
     # becomes
-    tx = await account.sign_invoke_transaction(call, max_fee=1000)  # Not that max_fee is now keyword-only argument
+    tx = await account.sign_invoke_transaction(call, max_fee=1000)  # Note that max_fee is now keyword-only argument
     await account.client.send_transaction(tx)
 
     # Using execute method
