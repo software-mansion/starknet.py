@@ -13,14 +13,32 @@ DeserializationType = TypeVar("DeserializationType")
 
 
 class Transformer(ABC, Generic[SerializationType, DeserializationType]):
+    """
+    Interface for serializing/deserializing data to/from calldata.
+    """
+
     @abstractmethod
     def deserialize(
         self, context: TransformContext, reader: CalldataReader
     ) -> DeserializationType:
+        """
+        Transform calldata into python value.
+
+        :param context: context of this transformation.
+        :param reader: calldata reader.
+        :return: defined DeserializationType.
+        """
         pass
 
     @abstractmethod
     def serialize(
         self, context: TransformContext, value: SerializationType
     ) -> CairoData:
+        """
+        Transform python value into calldata.
+
+        :param context: context of this transformation.
+        :param value: python value to transform.
+        :return: defined SerializationType.
+        """
         pass
