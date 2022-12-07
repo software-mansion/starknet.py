@@ -15,9 +15,34 @@ just as simple as ``AccountClient`` was. For example:
 
 .. code-block:: python
 
-    account_client.get_storage_at(contract_address=0x1234)
+    # Inspecting storage
+    await account_client.get_storage_at(contract_address=0x1234)
     # becomes
-    account.client.get_storage_at(contract_address=0x1234)
+    await account.client.get_storage_at(contract_address=0x1234)
+
+
+    call = Call(to_addr=0x1, selector=0x1234, calldata=[])
+
+    # Sending transactions
+    tx = await account_client.sign_invoke_transaction(call, 10000)
+    await account_client.send_transaction(tx)
+    # becomes
+    tx = await account.sign_invoke_transaction(call, max_fee=1000)  # Not that max_fee is now keyword-only argument
+    await account.client.send_transaction(tx)
+
+    # Using execute method
+    await accout_client.execute(call, 1000)
+    # becomes
+    await account.execute(call, max_fee=1000)
+
+
+    # Estimating fee for already created transactions
+    declare_tx = Declare(...)
+    estimate = await account_client.estimate_fee(declare_tx)  # Transaction is implicitly signed
+    # Becomes
+    signature = account.signer.sign_transaction(declare_tx)
+    declare_tx = dataclasses.replace(signature=signature)
+    esitmate = await account.client.estimate_fee(declare_tx)
 
 Replacing inheritance with composition simplifies the ``Account`` interface and will make
 maintaining ``Account`` simpler.
