@@ -113,10 +113,8 @@ class AbiParser:
         self._type_parser = TypeParser(structs)
         for name, struct in structs.items():
             members = self._parse_members(
-                f"members of structure '{name}'",
-                # pyright can't handle list of StructMemberDict here, even though TypedMemberDict
-                # is parent of StructMemberDict
                 cast(List[TypedMemberDict], struct_members[name]),
+                f"members of structure '{name}'",
             )
             struct.types.update(members)
 
@@ -126,18 +124,18 @@ class AbiParser:
     def _parse_function(self, function: FunctionDict) -> Abi.Function:
         return Abi.Function(
             name=function["name"],
-            inputs=self._parse_members(function["name"], function["inputs"]),
-            outputs=self._parse_members(function["name"], function["outputs"]),
+            inputs=self._parse_members(function["inputs"], function["name"]),
+            outputs=self._parse_members(function["outputs"], function["name"]),
         )
 
     def _parse_event(self, event: EventDict) -> Abi.Event:
         return Abi.Event(
             name=event["name"],
-            data=self._parse_members(event["name"], event["data"]),
+            data=self._parse_members(event["data"], event["name"]),
         )
 
     def _parse_members(
-        self, entity_name: str, params: List[TypedMemberDict]
+        self, params: List[TypedMemberDict], entity_name: str
     ) -> OrderedDict[str, CairoType]:
         # Without cast it complains that
         # 'Type "TypedMemberDict" cannot be assigned to type "T@_group_by_name"'
