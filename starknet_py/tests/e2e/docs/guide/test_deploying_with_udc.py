@@ -3,7 +3,7 @@ import pytest
 
 @pytest.mark.asyncio
 async def test_deploying_with_udc(
-    account_client,
+    account,
     map_class_hash,
     constructor_with_arguments_abi,
     constructor_with_arguments_class_hash,
@@ -26,7 +26,7 @@ async def test_deploying_with_udc(
 
     # Deployer has one more optional parameter `account_address`
     # It is used to salt address of the contract with address of an account which deploys it
-    deployer = Deployer(account_address=account_client.address)
+    deployer = Deployer(account_address=account.address)
 
     # If contract we want to deploy does not have constructor, or the constructor
     # does not have arguments, abi is not a required parameter of `deployer.create_deployment_call` method
@@ -65,7 +65,7 @@ async def test_deploying_with_udc(
     )
 
     # Once call is prepared, it can be executed with an account (preferred way)
-    resp = await account_client.execute(deploy_call, max_fee=int(1e16))
+    resp = await account.execute(deploy_call, max_fee=int(1e16))
 
     # docs: end
     deploy_call, _ = deployer.create_deployment_call(
@@ -80,13 +80,11 @@ async def test_deploying_with_udc(
     )
     # docs: start
     # Or signed and send with an account
-    invoke_tx = await account_client.sign_invoke_transaction(
-        deploy_call, max_fee=int(1e16)
-    )
-    resp = await account_client.send_transaction(invoke_tx)
+    invoke_tx = await account.sign_invoke_transaction(deploy_call, max_fee=int(1e16))
+    resp = await account.client.send_transaction(invoke_tx)
 
     # Wait for transaction
-    await account_client.wait_for_tx(resp.transaction_hash)
+    await account.client.wait_for_tx(resp.transaction_hash)
 
     # After waiting for a transaction
     # contract is accessible at the address returned by `deployer.create_deployment_call`

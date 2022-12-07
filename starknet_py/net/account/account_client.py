@@ -80,6 +80,11 @@ class AccountClient(Client):
         :param supported_tx_version: Version of transactions supported by account
         """
         # pylint: disable=too-many-arguments
+        warnings.warn(
+            "AccountClient has been depreacted in favor of Account.",
+            category=DeprecationWarning,
+        )
+
         if chain is None and signer is None:
             raise ValueError("One of chain or signer must be provided")
 
