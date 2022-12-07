@@ -10,7 +10,7 @@ default implementation :class:`Account <starknet_py.net.account.account.Account>
 Unlike ``AccountClient``, an ``Account`` is not a Client anymore. That means that methods like
 ``get_storage_at``, ``call_contract`` etc. are not available in the Account interface.
 
-However ``Account`` now exposes a `.`client`` property, which means using an ``Account`` is
+However, ``Account`` now exposes a `.`client`` property, which means using an ``Account`` is
 just as simple as ``AccountClient`` was. For example:
 
 .. code-block:: python
@@ -26,7 +26,7 @@ Changes in the Account interface
 --------------------------------
 
 1. Removed ``hash_message`` method. Use ``TypedData.message_hash`` directly instead.
-2. ``Account`` doesn't expose a ``net`` property
+2. ``Account`` doesn't expose a ``net`` property.
 3. ``Account`` doesn't accept a ``supported_tx_version`` parameter. It currently always uses version 1.
 
 
