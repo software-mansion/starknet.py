@@ -1,9 +1,21 @@
+0.12.0 Migration guide
+======================
+
+StarkNet.py 0.12.0 brings support for the Cairo-lang 0.10.3 and the new TESTNET2 chainId.
+
+Breaking Changes
+----------------
+
+There should not be any breaking changes if you are using the `StarknetChainId` imported from the `starknet_py.net.models`,
+but if you are importing it from the Cairo-lang package, please switch to the one from StarkNet.py.
+
+
 0.11.0 Migration guide
 ======================
 
 Cairo-lang 0.10.3 dropped support for the `Deploy` transaction. To be compatible we had to remove some deprecated features.
 
-Breaking Changes
+0.11.0 Breaking Changes
 ----------------
 
 Removed APIs:
