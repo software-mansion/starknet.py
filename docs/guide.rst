@@ -128,7 +128,7 @@ Here is an example:
 Using different signing methods
 -------------------------------
 
-By default, :ref:`Account` uses signing method of OpenZeppelin's account contract. If for any reason you want to use a different
+By default, an :ref:`Account` uses the signing method of OpenZeppelin's account contract. If for any reason you want to use a different
 signing algorithm, it is possible to create ``Account`` with custom
 :ref:`Signer` implementation.
 
