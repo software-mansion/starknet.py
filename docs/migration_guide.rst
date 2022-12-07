@@ -16,7 +16,7 @@ but if you are importing it from the Cairo-lang package, please switch to the on
 Cairo-lang 0.10.3 dropped support for the `Deploy` transaction. To be compatible we had to remove some deprecated features.
 
 0.11.0 Breaking Changes
-----------------
+-----------------------
 
 Removed APIs:
 
