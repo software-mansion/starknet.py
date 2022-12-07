@@ -28,6 +28,7 @@ Changes in the Account interface
 1. Removed ``hash_message`` method. Use ``TypedData.message_hash`` directly instead.
 2. ``Account`` doesn't expose a ``net`` property.
 3. ``Account`` doesn't accept a ``supported_tx_version`` parameter. It currently always uses version 1.
+4. Some parameters liek ``max_fee`` or `auto_estimate`` are now keyword only arguments. They have to be explicitily named like ``account.sign_invoke_transaction(Call(...), max_fee=1000)``. Writing ``account.sign_invoke_transaction(Call(...), 1000)`` will not work.
 
 
 Deprecatations
