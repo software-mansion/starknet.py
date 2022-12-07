@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections import OrderedDict, defaultdict
 from dataclasses import dataclass
-from typing import Dict, List, Iterable, TypeVar, Optional, Union, cast, Sequence
+from typing import Dict, List, TypeVar, Optional, cast
 
 from marshmallow import EXCLUDE
 
