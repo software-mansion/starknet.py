@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import OrderedDict, defaultdict
-from typing import Dict, List, TypeVar, Optional, cast, DefaultDict
+from typing import Dict, List, Optional, cast, DefaultDict
 
 from marshmallow import EXCLUDE
 
@@ -19,7 +19,6 @@ from starknet_py.net.models.abi.shape import (
     CONSTRUCTOR_ENTRY,
     L1_HANDLER_ENTRY,
     StructMemberDict,
-    AbiDictList,
 )
 
 
@@ -27,16 +26,13 @@ class AbiParsingError(ValueError):
     pass
 
 
-Entry = TypeVar("Entry", bound=Dict)
-
-
 class AbiParser:
     # Entries from ABI grouped by entry type
-    _grouped: DefaultDict[str, AbiDictList]
+    _grouped: DefaultDict[str, List[Dict]]
     # lazy init property
     _type_parser: Optional[TypeParser] = None
 
-    def __init__(self, abi_list: AbiDictList):
+    def __init__(self, abi_list: List[Dict]):
         abi = [
             ContractAbiEntrySchema().load(entry, unknown=EXCLUDE) for entry in abi_list
         ]
@@ -48,14 +44,20 @@ class AbiParser:
 
     def parse(self) -> Abi:
         structures = self._parse_structures()
-        functions_dict = AbiParser._group_by_entry_name(
-            self._grouped[FUNCTION_ENTRY], "defined functions"
+        functions_dict = cast(
+            Dict[str, FunctionDict],
+            AbiParser._group_by_entry_name(
+                self._grouped[FUNCTION_ENTRY], "defined functions"
+            ),
         )
-        events_dict = AbiParser._group_by_entry_name(
-            self._grouped[EVENT_ENTRY], "defined events"
+        events_dict = cast(
+            Dict[str, EventDict],
+            AbiParser._group_by_entry_name(
+                self._grouped[EVENT_ENTRY], "defined events"
+            ),
         )
-        constructors = self._grouped[CONSTRUCTOR_ENTRY]
-        l1_handlers = self._grouped[L1_HANDLER_ENTRY]
+        constructors = cast(List[FunctionDict], self._grouped[CONSTRUCTOR_ENTRY])
+        l1_handlers = cast(List[FunctionDict], self._grouped[L1_HANDLER_ENTRY])
 
         if len(l1_handlers) > 1:
             raise AbiParsingError("L1 handler in ABI must be defined at most once")
@@ -147,8 +149,8 @@ class AbiParser:
 
     @staticmethod
     def _group_by_entry_name(
-        dicts: List[Entry], entity_name: str
-    ) -> OrderedDict[str, Entry]:
+        dicts: List[Dict], entity_name: str
+    ) -> OrderedDict[str, Dict]:
         grouped = OrderedDict()
         for entry in dicts:
             name = entry["name"]
