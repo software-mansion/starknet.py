@@ -2,7 +2,7 @@ import json
 
 from marshmallow import EXCLUDE
 
-from starknet_py.net.schemas.rpc import ContractAbiEntrySchema
+from starknet_py.net.models.abi.schemas import ContractAbiEntrySchema
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
