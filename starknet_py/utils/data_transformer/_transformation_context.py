@@ -1,5 +1,5 @@
 from contextlib import contextmanager
-from typing import List
+from typing import List, Generator
 
 from starknet_py.utils.data_transformer._calldata_reader import OutOfBoundsError
 from starknet_py.utils.data_transformer.errors import (
@@ -25,7 +25,7 @@ class TransformationContext:
         return ".".join(self._namespace_stack)
 
     @contextmanager
-    def nest(self, name: str) -> None:
+    def nest(self, name: str) -> Generator:
         """
         Manager used for maintaining information about names of transformed types.
 

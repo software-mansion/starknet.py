@@ -30,7 +30,7 @@ class ArrayTransformer(Transformer[List, List]):
 
     def serialize(self, context: TransformationContext, value: List) -> CairoData:
         result = [len(value)]
-        for index, value in enumerate(List):
+        for index, value in enumerate(value):
             with context.nest(f"[{index}]"):
                 transformed = self.inner_transformer.serialize(context, value[index])
                 result.extend(transformed)

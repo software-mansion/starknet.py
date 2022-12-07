@@ -39,8 +39,12 @@ MIN_FELT = -FIELD_PRIME // 2
 MAX_FELT = FIELD_PRIME // 2
 
 
+def is_in_felt_range(value: int) -> bool:
+    return 0 <= value < FIELD_PRIME
+
+
 def cairo_vm_range_check(value: int):
-    if not 0 <= value < FIELD_PRIME:
+    if not is_in_felt_range(value):
         raise ValueError(
             f"Felt is expected to be in range [0; {FIELD_PRIME}), got {value}"
         )
