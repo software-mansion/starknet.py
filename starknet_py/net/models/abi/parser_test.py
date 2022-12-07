@@ -4,8 +4,9 @@ from collections import OrderedDict
 import pytest
 
 from starknet_py.cairo.type_parser import UnknownCairoTypeError
-from starknet_py.net.models.abi.definition import AbiDefinition, AbiDecodingError
+from starknet_py.net.models.abi.model import Abi
 from starknet_py.cairo.data_types import StructType, FeltType, ArrayType
+from starknet_py.net.models.abi.parser import AbiParser, AbiParsingError
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 uint256_dict = {
@@ -13,7 +14,7 @@ uint256_dict = {
     "name": "Uint256",
     "size": 2,
     "members": [
-        # low and high were switched on purpose
+        # low and high were switched on purpose. Parser has to use offset to order them properly.
         {"name": "high", "offset": 1, "type": "felt"},
         {"name": "low", "offset": 0, "type": "felt"},
     ],
@@ -59,7 +60,7 @@ user_added_dict = {
     ],
     "keys": [],
 }
-user_added_event: AbiDefinition.Event = AbiDefinition.Event(
+user_added_event: Abi.Event = Abi.Event(
     "UserAdded",
     OrderedDict(user=user_struct),
 )
@@ -72,7 +73,7 @@ pool_id_added_dict = {
     ],
     "keys": [],
 }
-pool_id_added_event: AbiDefinition.Event = AbiDefinition.Event(
+pool_id_added_event: Abi.Event = Abi.Event(
     "PoolIdAdded",
     OrderedDict(pool_id=pool_id_struct),
 )
@@ -88,7 +89,7 @@ get_user_dict = {
     ],
     "outputs": [{"name": "user", "type": "User"}],
 }
-get_user_fn = AbiDefinition.Function(
+get_user_fn = Abi.Function(
     "get_user", OrderedDict(id=uint256_struct), OrderedDict(user=user_struct)
 )
 
@@ -104,14 +105,14 @@ delete_pool_dict = {
     ],
     "outputs": [],
 }
-delete_pool_fn = AbiDefinition.Function(
+delete_pool_fn = Abi.Function(
     "delete_pool", OrderedDict(id=pool_id_struct, user_id=uint256_struct), OrderedDict()
 )
 
 
 def test_parsing_types_abi():
     # Even though user depend on pool id and uint256 it is defined first. Parser has to consider those cases
-    abi = AbiDefinition.from_list(
+    abi = AbiParser(
         [
             user_dict,
             pool_id_dict,
@@ -121,7 +122,7 @@ def test_parsing_types_abi():
             get_user_dict,
             delete_pool_dict,
         ]
-    )
+    ).parse()
 
     assert abi.defined_structures == {
         "Uint256": uint256_struct,
@@ -137,28 +138,28 @@ def test_parsing_types_abi():
 
 def test_duplicated_structure():
     with pytest.raises(
-        AbiDecodingError,
+        AbiParsingError,
         match="Name 'Uint256' was used more than once in defined structures",
     ):
-        AbiDefinition.from_list([uint256_dict, pool_id_dict, uint256_dict])
+        AbiParser([uint256_dict, pool_id_dict, uint256_dict]).parse()
 
 
 def test_duplicated_function():
     with pytest.raises(
-        AbiDecodingError,
+        AbiParsingError,
         match="Name 'get_user' was used more than once in defined functions",
     ):
-        AbiDefinition.from_list(
+        AbiParser(
             [get_user_dict, delete_pool_dict, get_user_dict, delete_pool_dict]
-        )
+        ).parse()
 
 
 def test_duplicated_event():
     with pytest.raises(
-        AbiDecodingError,
+        AbiParsingError,
         match="Name 'UserAdded' was used more than once in defined events",
     ):
-        AbiDefinition.from_list([user_added_dict, delete_pool_dict, user_added_dict])
+        AbiParser([user_added_dict, delete_pool_dict, user_added_dict]).parse()
 
 
 def test_duplicated_type_members():
@@ -174,36 +175,36 @@ def test_duplicated_type_members():
         ],
     }
     with pytest.raises(
-        AbiDecodingError,
+        AbiParsingError,
         match="Name 'value' was used more than once in members of structure 'Record'",
     ):
-        AbiDefinition.from_list([type_dict])
+        AbiParser([type_dict]).parse()
 
 
 def test_missing_type_used_by_other_type():
     with pytest.raises(UnknownCairoTypeError, match="Type 'Uint256' is not defined"):
-        AbiDefinition.from_list([pool_id_dict])
+        AbiParser([pool_id_dict]).parse()
 
 
 def test_missing_type_used_by_function():
     with pytest.raises(UnknownCairoTypeError, match="Type 'Uint256' is not defined"):
-        AbiDefinition.from_list([get_user_dict])
+        AbiParser([get_user_dict]).parse()
 
 
 def test_missing_type_used_by_event():
     with pytest.raises(UnknownCairoTypeError, match="Type 'User' is not defined"):
-        AbiDefinition.from_list([user_added_dict])
+        AbiParser([user_added_dict]).parse()
 
 
 def test_deserialize_proxy_abi():
     # Contains all types of ABI apart from structures
     abi = json.loads(read_contract("oz_proxy_abi.json"))
-    deserialized = AbiDefinition.from_list(abi)
+    deserialized = AbiParser(abi).parse()
 
-    assert deserialized == AbiDefinition(
+    assert deserialized == Abi(
         defined_structures={},
         functions={
-            "__default__": AbiDefinition.Function(
+            "__default__": Abi.Function(
                 name="__default__",
                 inputs=OrderedDict(
                     [
@@ -220,7 +221,7 @@ def test_deserialize_proxy_abi():
                 ),
             )
         },
-        constructor=AbiDefinition.Function(
+        constructor=Abi.Function(
             name="constructor",
             inputs=OrderedDict(
                 [
@@ -232,7 +233,7 @@ def test_deserialize_proxy_abi():
             ),
             outputs=OrderedDict(),
         ),
-        l1_handler=AbiDefinition.Function(
+        l1_handler=Abi.Function(
             name="__l1_default__",
             inputs=OrderedDict(
                 [
@@ -244,10 +245,10 @@ def test_deserialize_proxy_abi():
             outputs=OrderedDict(),
         ),
         events={
-            "Upgraded": AbiDefinition.Event(
+            "Upgraded": Abi.Event(
                 name="Upgraded", data=OrderedDict([("implementation", FeltType())])
             ),
-            "AdminChanged": AbiDefinition.Event(
+            "AdminChanged": Abi.Event(
                 name="AdminChanged",
                 data=OrderedDict(
                     [("previousAdmin", FeltType()), ("newAdmin", FeltType())]
@@ -260,9 +261,8 @@ def test_deserialize_proxy_abi():
 def test_deserialize_balance_struct_event_abi():
     # Contains all types of ABI apart from structures
     abi = json.loads(read_contract("balance_struct_event_abi.json"))
-    deserialized = AbiDefinition.from_list(abi)
+    deserialized = AbiParser(abi).parse()
 
-    print(deserialized)
     nested_struct = StructType(
         name="NestedStruct", types=OrderedDict([("value", FeltType())])
     )
@@ -270,13 +270,13 @@ def test_deserialize_balance_struct_event_abi():
         name="TopStruct",
         types=OrderedDict(value=FeltType(), nested_struct=nested_struct),
     )
-    assert deserialized == AbiDefinition(
+    assert deserialized == Abi(
         defined_structures={
             "TopStruct": top_struct,
             "NestedStruct": nested_struct,
         },
         functions={
-            "increase_balance": AbiDefinition.Function(
+            "increase_balance": Abi.Function(
                 name="increase_balance",
                 inputs=OrderedDict(
                     [
@@ -289,7 +289,7 @@ def test_deserialize_balance_struct_event_abi():
                 ),
                 outputs=OrderedDict(),
             ),
-            "get_balance": AbiDefinition.Function(
+            "get_balance": Abi.Function(
                 name="get_balance",
                 inputs=OrderedDict([("key", FeltType())]),
                 outputs=OrderedDict(value=top_struct),
@@ -298,7 +298,7 @@ def test_deserialize_balance_struct_event_abi():
         constructor=None,
         l1_handler=None,
         events={
-            "increase_balance_called": AbiDefinition.Event(
+            "increase_balance_called": Abi.Event(
                 name="increase_balance_called",
                 data=OrderedDict(
                     key=FeltType(), prev_amount=top_struct, amount=top_struct
@@ -316,9 +316,9 @@ def test_duplicated_constructor():
         "type": "constructor",
     }
     with pytest.raises(
-        AbiDecodingError, match="Constructor in ABI must be defined at most once"
+        AbiParsingError, match="Constructor in ABI must be defined at most once"
     ):
-        AbiDefinition.from_list([constructor, constructor])
+        AbiParser([constructor, constructor]).parse()
 
 
 def test_duplicated_l1_handler():
@@ -329,6 +329,6 @@ def test_duplicated_l1_handler():
         "type": "l1_handler",
     }
     with pytest.raises(
-        AbiDecodingError, match="L1 handler in ABI must be defined at most once"
+        AbiParsingError, match="L1 handler in ABI must be defined at most once"
     ):
-        AbiDefinition.from_list([l1_handler, l1_handler])
+        AbiParser([l1_handler, l1_handler]).parse()
