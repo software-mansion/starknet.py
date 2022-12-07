@@ -1,0 +1,59 @@
+from contextlib import contextmanager
+from typing import List
+
+from starknet_py.utils.data_transformer._calldata_reader import OutOfBoundsError
+from starknet_py.utils.data_transformer.errors import (
+    InvalidTypeException,
+    InvalidValueException,
+)
+
+
+class TransformationContext:
+    """
+    Holds information about context when transforming data.
+    """
+
+    _namespace_stack: List[str]
+
+    @property
+    def current_entity(self):
+        """
+        Name of currently processed entity.
+
+        :return: transformed path.
+        """
+        return ".".join(self._namespace_stack)
+
+    @contextmanager
+    def nest(self, name: str) -> None:
+        """
+        Manager used for maintaining information about names of transformed types.
+
+        :param name: name of transformed entity.
+        """
+        self._namespace_stack.append(name)
+        try:
+            yield
+        except OutOfBoundsError as err:
+            # This way we can precisely inform user what's wrong when reading calldata.
+            raise InvalidValueException(
+                f"Not enough data to deserialize '{self.current_entity}'. "
+                f"Can't read {err.requested_size} values at position {err.position}, only {err.remaining_len} available"
+            ) from err
+        except ValueError as err:
+            # This is needed to allow libraries dependent on data transformers to catch all issues related to it.
+            raise InvalidValueException(
+                f"Error at '{self.current_entity}': {err}"
+            ) from err
+        finally:
+            self._namespace_stack.pop()
+
+    def assert_value(self, valid: bool, text: str):
+        if not valid:
+            raise InvalidValueException(f"Error at '{self.current_entity}': {text}")
+
+    def assert_type(self, valid: bool, expected_type: str):
+        if not valid:
+            raise InvalidTypeException(
+                f"Type of {self.current_entity} must be {expected_type}"
+            )
