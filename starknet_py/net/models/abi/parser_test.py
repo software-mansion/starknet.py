@@ -103,7 +103,7 @@ def test_duplicated_type_members():
         # Function
         ("Uint256", fixtures.get_user_dict),
         # Event
-        ("Uint256", fixtures.user_added_dict),
+        ("User", fixtures.user_added_dict),
     ],
 )
 def test_missing_type_used(missing_name, input_dict):
