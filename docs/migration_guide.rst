@@ -13,36 +13,9 @@ Unlike ``AccountClient``, an ``Account`` is not a Client anymore. That means tha
 However, ``Account`` now exposes a `.`client`` property, which means using an ``Account`` is
 just as simple as ``AccountClient`` was. For example:
 
-.. code-block:: python
-
-    # Inspecting storage
-    await account_client.get_storage_at(contract_address=0x1234)
-    # becomes
-    await account.client.get_storage_at(contract_address=0x1234)
-
-
-    call = Call(to_addr=0x1, selector=0x1234, calldata=[])
-
-    # Sending transactions
-    tx = await account_client.sign_invoke_transaction(call, 10000)
-    await account_client.send_transaction(tx)
-    # becomes
-    tx = await account.sign_invoke_transaction(call, max_fee=1000)  # Note that max_fee is now keyword-only argument
-    await account.client.send_transaction(tx)
-
-    # Using execute method
-    await accout_client.execute(call, 1000)
-    # becomes
-    await account.execute(call, max_fee=1000)
-
-
-    # Estimating fee for already created transactions
-    declare_tx = Declare(...)
-    estimate = await account_client.estimate_fee(declare_tx)  # Transaction is implicitly signed
-    # Becomes
-    signature = account.signer.sign_transaction(declare_tx)
-    declare_tx = dataclasses.replace(signature=signature)
-    esitmate = await account.client.estimate_fee(declare_tx)
+.. codesnippet:: ../starknet_py/tests/e2e/docs/migration_guide/test_account_comparision.py
+    :language: python
+    :dedent: 4
 
 Replacing inheritance with composition simplifies the ``Account`` interface and will make
 maintaining ``Account`` simpler.
