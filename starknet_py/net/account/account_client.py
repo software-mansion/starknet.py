@@ -39,7 +39,7 @@ from starknet_py.net.models import (
 )
 from starknet_py.net.models.address import AddressRepresentation, parse_address
 from starknet_py.net.models.transaction import DeployAccount
-from starknet_py.net.networks import Network, MAINNET, TESTNET
+from starknet_py.net.networks import Network, MAINNET, TESTNET, TESTNET2
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
 from starknet_py.utils.crypto.facade import Call
@@ -213,7 +213,7 @@ class AccountClient(Client):
         return nonce
 
     def _get_default_token_address(self) -> str:
-        if self.net not in [TESTNET, MAINNET]:
+        if self.net not in [TESTNET, TESTNET2, MAINNET]:
             raise ValueError(
                 "Token_address must be specified when using a custom net address"
             )
