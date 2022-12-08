@@ -48,11 +48,11 @@ class TransformationContext:
         finally:
             self._namespace_stack.pop()
 
-    def assert_value(self, valid: bool, text: str):
+    def ensure_valid_value(self, valid: bool, text: str):
         if not valid:
             raise InvalidValueException(f"Error at '{self.current_entity}': {text}")
 
-    def assert_type(self, valid: bool, expected_type: str):
+    def ensure_valid_type(self, valid: bool, expected_type: str):
         if not valid:
             raise InvalidTypeException(
                 f"Type of {self.current_entity} must be {expected_type}"

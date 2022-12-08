@@ -26,7 +26,7 @@ class FeltTransformer(Transformer[TransformableToFelt, int]):
     def serialize(
         self, context: TransformationContext, value: TransformableToFelt
     ) -> CairoData:
-        context.assert_type(isinstance(value, (int, str)), "int or short string")
+        context.ensure_valid_type(isinstance(value, (int, str)), "int or short string")
 
         if isinstance(value, str):
             value = encode_shortstring(value)
@@ -37,6 +37,6 @@ class FeltTransformer(Transformer[TransformableToFelt, int]):
 
     @staticmethod
     def _assert_felt(context: TransformationContext, value: int):
-        context.assert_value(
+        context.ensure_valid_value(
             is_in_felt_range(value), f"value must be in [0, {FIELD_PRIME}) range"
         )

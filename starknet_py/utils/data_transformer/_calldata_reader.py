@@ -4,13 +4,13 @@ CairoData = List[int]
 
 
 class OutOfBoundsError(Exception):
-    def __init__(self, position: int, requested_size: int, remaining_len: int):
+    def __init__(self, position: int, requested_size: int, remaining_size: int):
         super().__init__(
-            f"Requested {requested_size} elements, {remaining_len} available."
+            f"Requested {requested_size} elements, {remaining_size} available."
         )
         self.position = position
         self.requested_size = requested_size
-        self.remaining_len = remaining_len
+        self.remaining_len = remaining_size
 
 
 class CalldataReader:
@@ -33,7 +33,7 @@ class CalldataReader:
             raise OutOfBoundsError(
                 position=self._position,
                 requested_size=size,
-                remaining_len=self.remaining_len,
+                remaining_size=self.remaining_len,
             )
         data = self._data[self._position : self._position + size]
         self._position += size
