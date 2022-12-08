@@ -1,10 +1,54 @@
+X.X.X migration guide
+=======================
+
+TODO(Update this with correct version or move to separate file)
+
+This version deprecates the AccountClient, which is a major change to the StarkNet.py
+It is being replaced with new :class:`BaseAccount <starknet_py.net.account.base_account.BaseAccount>` ABC and its
+default implementation :class:`Account <starknet_py.net.account.account.Account>`.
+
+Unlike ``AccountClient``, an ``Account`` is not a Client anymore. That means that methods like
+``get_storage_at``, ``call_contract`` etc. are not available in the Account interface.
+
+However, ``Account`` now exposes a `.`client`` property, which means using an ``Account`` is
+just as simple as ``AccountClient`` was. For example:
+
+.. codesnippet:: ../starknet_py/tests/e2e/docs/migration_guide/test_account_comparision.py
+    :language: python
+    :dedent: 4
+
+Replacing inheritance with composition simplifies the ``Account`` interface and will make
+maintaining ``Account`` simpler.
+
+Changes in the Account interface
+--------------------------------
+
+1. Removed ``hash_message`` method. Use ``TypedData.message_hash`` directly instead.
+2. ``Account`` doesn't expose a ``net`` property.
+3. ``Account`` doesn't accept a ``supported_tx_version`` parameter. It currently always uses version 1.
+4. Some parameters liek ``max_fee`` or `auto_estimate`` are now keyword only arguments. They have to be explicitily named like ``account.sign_invoke_transaction(Call(...), max_fee=1000)``. Writing ``account.sign_invoke_transaction(Call(...), 1000)`` will not work.
+
+
+Deprecatations
+--------------
+
+1. Passing a dict as ``BaseSigner.sign_message`` parameter has been deprecated in favor of :class:`starknet_py.utils.TypedData` dataclass.
+
+
+Breaking changes
+----------------
+
+1. ``version`` parameter has been removed from the most ``Contract`` methods. ``Contract`` will now use version that the ``Account`` or ``AccountClient`` is using.
+2. ``DeclareResult`` now only accepts :class:`BaseAccount <starknet_py.net.account.base_account.BaseAccount>`.
+
+
 0.11.0 Migration guide
 ======================
 
 Cairo-lang 0.10.3 dropped support for the `Deploy` transaction. To be compatible we had to remove some deprecated features.
 
-Breaking Changes
-----------------
+0.11.0 Breaking Changes
+-----------------------
 
 Removed APIs:
 
@@ -66,8 +110,8 @@ or support deploying through syscall or `Universal Deployer Contract <https://co
 - `Client.estimate_fee` ABC now also accepts `DeployAccount` transaction as `tx` parameter. Custom clients should be updated to reflect this change.
 
 
-Deprecations
-------------
+0.8.0 Deprecations
+------------------
 
 - `Contract.deploy` has been deprecated in favor of new `DeployAccount` flow
 - `Client.deploy` has been deprecated
