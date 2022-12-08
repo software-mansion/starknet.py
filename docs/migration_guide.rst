@@ -48,7 +48,7 @@ Breaking changes
 StarkNet.py 0.12.0 brings support for the Cairo-lang 0.10.3 and the new TESTNET2 chainId.
 
 0.12.0 Breaking Changes
-----------------
+-----------------------
 
 There should not be any breaking changes if you are using the `StarknetChainId` imported from the `starknet_py.net.models`,
 but if you are importing it from the Cairo-lang package, please switch to the one from StarkNet.py.
