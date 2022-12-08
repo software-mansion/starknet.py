@@ -3,14 +3,14 @@ X.X.X migration guide
 
 TODO(Update this with correct version or move to separate file)
 
-This version deprecates the AccountClient, which is a major change to the StarkNet.py
+This version deprecates the :class:`AccountClient <starknet_py.net.account.AccountClient>`, which is a major change to the StarkNet.py
 It is being replaced with new :class:`BaseAccount <starknet_py.net.account.base_account.BaseAccount>` ABC and its
 default implementation :class:`Account <starknet_py.net.account.account.Account>`.
 
-Unlike ``AccountClient``, an ``Account`` is not a Client anymore. That means that methods like
+Unlike ``AccountClient``, an ``Account`` is not a :class:`Client <starknet_py.net.client.Client>` anymore. That means that methods like
 ``get_storage_at``, ``call_contract`` etc. are not available in the Account interface.
 
-However, ``Account`` now exposes a `.`client`` property, which means using an ``Account`` is
+However, ``Account`` now exposes a ``.client`` property, which means using an ``Account`` is
 just as simple as ``AccountClient`` was. For example:
 
 .. codesnippet:: ../starknet_py/tests/e2e/docs/migration_guide/test_account_comparision.py
@@ -23,16 +23,16 @@ maintaining ``Account`` simpler.
 Changes in the Account interface
 --------------------------------
 
-1. Removed ``hash_message`` method. Use ``TypedData.message_hash`` directly instead.
+1. Removed ``hash_message`` method. Use :meth:`TypedData.message_hash <starknet_py.utils.typed_data.TypedData.message_hash>` directly instead.
 2. ``Account`` doesn't expose a ``net`` property.
 3. ``Account`` doesn't accept a ``supported_tx_version`` parameter. It currently always uses version 1.
-4. Some parameters liek ``max_fee`` or `auto_estimate`` are now keyword only arguments. They have to be explicitily named like ``account.sign_invoke_transaction(Call(...), max_fee=1000)``. Writing ``account.sign_invoke_transaction(Call(...), 1000)`` will not work.
+4. Some parameters like ``max_fee`` or ``auto_estimate`` are now keyword only arguments. They have to be explicitily named like ``account.sign_invoke_transaction(Call(...), max_fee=1000)``. Writing ``account.sign_invoke_transaction(Call(...), 1000)`` will not work.
 
 
-Deprecatations
---------------
+Deprecations
+------------
 
-1. Passing a dict as ``BaseSigner.sign_message`` parameter has been deprecated in favor of :class:`starknet_py.utils.TypedData` dataclass.
+1. Passing a dict to ``BaseSigner.sign_message`` as parameter has been deprecated in favor of :class:`TypedData <starknet_py.utils.typed_data.TypedData>` dataclass.
 
 
 Breaking changes
