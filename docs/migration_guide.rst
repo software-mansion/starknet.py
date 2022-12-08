@@ -55,6 +55,8 @@ Breaking changes
 1. ``version`` parameter has been removed from the most ``Contract`` methods. ``Contract`` will now use version that the ``Account`` or ``AccountClient`` is using.
 2. ``DeclareResult`` now only accepts :class:`BaseAccount <starknet_py.net.account.base_account.BaseAccount>`.
 
+|
+|
 
 0.12.0 Migration guide
 ======================
@@ -67,6 +69,8 @@ StarkNet.py 0.12.0 brings support for the Cairo-lang 0.10.3 and the new TESTNET2
 There should not be any breaking changes if you are using the `StarknetChainId` imported from the `starknet_py.net.models`,
 but if you are importing it from the Cairo-lang package, please switch to the one from StarkNet.py.
 
+|
+|
 
 0.11.0 Migration guide
 ======================
@@ -91,6 +95,8 @@ Invoke Transaction
 
 Old `InvokeFunction` transaction is now aliased as `Invoke`. We suggest to start using the new `Invoke`.
 
+|
+|
 
 0.9.0 Migration guide
 =====================
@@ -112,6 +118,8 @@ Contract.from_address
 
 Check out the Guide with the new section :ref:`Resolving proxies` to see how to easily use proxies with the Starknet.py.
 
+|
+|
 
 0.8.0 Migration guide
 =====================
@@ -141,6 +149,9 @@ or support deploying through syscall or `Universal Deployer Contract <https://co
 
 - `Contract.deploy` has been deprecated in favor of new `DeployAccount` flow
 - `Client.deploy` has been deprecated
+
+|
+|
 
 0.5.0 Migration guide
 =====================
@@ -260,6 +271,9 @@ Deploy transaction
 
 Deploy transactions will not be supported in the future versions of StarkNet, so ``make_deploy_tx`` is deprecated.
 Contracts should be deployed through cairo syscall.
+
+|
+|
 
 0.4.0 Migration guide
 =====================
