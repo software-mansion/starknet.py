@@ -10,7 +10,8 @@ from starknet_py.utils.data_transformer.errors import (
 
 class TransformationContext:
     """
-    Holds information about context when transforming data.
+    Holds information about context when transforming data. This is needed to inform what and where went wrong during
+    transformation. Every transformation should have its own transformation context.
     """
 
     _namespace_stack: List[str]
