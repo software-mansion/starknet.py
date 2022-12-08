@@ -7,7 +7,7 @@ This version deprecates the :class:`AccountClient <starknet_py.net.account.Accou
 It is being replaced with new :class:`BaseAccount <starknet_py.net.account.base_account.BaseAccount>` ABC and its
 default implementation :class:`Account <starknet_py.net.account.account.Account>`.
 
-Unlike ``AccountClient``, an ``Account`` is not a :class:`Client <starknet_py.net.client.Client>` anymore. That means that methods like
+Unlike ``AccountClient``, an ``Account`` is not a :class:`Client <starknet_py.net.client.Client>` anymore. This means that methods like
 ``get_storage_at``, ``call_contract`` etc. are not available in the Account interface.
 
 However, ``Account`` now exposes a ``.client`` property, which means using an ``Account`` is
