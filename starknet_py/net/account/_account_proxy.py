@@ -57,14 +57,12 @@ class AccountProxy(BaseAccount):
         self,
         compiled_contract: str,
         *,
-        cairo_path: Optional[List[str]] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
         **kwargs,
     ) -> Declare:
         return await self._account_client.sign_declare_transaction(
             compiled_contract=compiled_contract,
-            cairo_path=cairo_path,
             max_fee=max_fee,
             auto_estimate=auto_estimate,
             **kwargs,

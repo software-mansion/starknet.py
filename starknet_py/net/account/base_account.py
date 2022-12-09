@@ -83,7 +83,6 @@ class BaseAccount(ABC):
         self,
         compiled_contract: str,
         *,
-        cairo_path: Optional[List[str]] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> Declare:
@@ -92,7 +91,6 @@ class BaseAccount(ABC):
 
         :param compiled_contract: string containing compiled contract bytecode.
             Useful for reading compiled contract from a file.
-        :param cairo_path: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :return: Signed Declare transaction.

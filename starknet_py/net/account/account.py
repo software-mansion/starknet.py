@@ -29,7 +29,7 @@ from starknet_py.net.models import (
     compute_address,
 )
 from starknet_py.net.models.transaction import DeployAccount
-from starknet_py.net.networks import TESTNET, MAINNET
+from starknet_py.net.networks import TESTNET, MAINNET, TESTNET2
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 from starknet_py.utils.data_transformer.execute_transformer import (
@@ -248,7 +248,6 @@ class Account(BaseAccount):
         self,
         compiled_contract: str,
         *,
-        cairo_path: Optional[List[str]] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> Declare:
@@ -257,13 +256,12 @@ class Account(BaseAccount):
 
         :param compiled_contract: string containing compiled contract bytecode.
                                   Useful for reading compiled contract from a file
-        :param cairo_path: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts
         :param max_fee: Max amount of Wei to be paid when executing transaction
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
         :return: Signed Declare transaction
         """
         compiled_contract = create_compiled_contract(
-            compiled_contract=compiled_contract, search_paths=cairo_path
+            compiled_contract=compiled_contract
         )
         declare_tx = Declare(
             contract_class=compiled_contract,
