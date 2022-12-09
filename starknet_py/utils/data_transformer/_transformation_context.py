@@ -26,9 +26,10 @@ class TransformationContext:
         return ".".join(self._namespace_stack)
 
     @contextmanager
-    def nest(self, name: str) -> Generator:
+    def push_entity(self, name: str) -> Generator:
         """
-        Manager used for maintaining information about names of transformed types.
+        Manager used for maintaining information about names of transformed types. Will wrap some errors with
+        custom errors, adding information about the context.
 
         :param name: name of transformed entity.
         """

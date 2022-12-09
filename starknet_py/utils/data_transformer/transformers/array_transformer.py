@@ -6,33 +6,35 @@ from starknet_py.utils.data_transformer._transformation_context import (
     TransformationContext,
 )
 from starknet_py.utils.data_transformer.data_transformer import CairoData
-from starknet_py.utils.data_transformer.transformers.interface import Transformer
+from starknet_py.utils.data_transformer.transformers.base_transformer import (
+    BaseTransformer,
+)
 
 
 @dataclass
-class ArrayTransformer(Transformer[List, List]):
-    inner_transformer: Transformer
+class ArrayTransformer(BaseTransformer[List, List]):
+    inner_transformer: BaseTransformer
 
-    def deserialize(
-        self, context: TransformationContext, reader: CalldataReader
+    def _deserialize(
+        self, reader: CalldataReader, context: TransformationContext
     ) -> List:
         result = []
 
-        with context.nest(f"len"):
-            [size] = reader.consume(1)
+        with context.push_entity(f"len"):
+            [size] = reader.read(1)
 
         for index in range(size):
-            with context.nest(f"[{index}]"):
-                transformed = self.inner_transformer.deserialize(context, reader)
+            with context.push_entity(f"[{index}]"):
+                transformed = self.inner_transformer._deserialize(reader, context)
                 result.append(transformed)
 
         return result
 
-    def serialize(self, context: TransformationContext, value: List) -> CairoData:
+    def _serialize(self, value: List, context: TransformationContext) -> CairoData:
         result = [len(value)]
         for index, value in enumerate(value):
-            with context.nest(f"[{index}]"):
-                transformed = self.inner_transformer.serialize(context, value[index])
+            with context.push_entity(f"[{index}]"):
+                transformed = self.inner_transformer._serialize(value, context)
                 result.extend(transformed)
 
         return result

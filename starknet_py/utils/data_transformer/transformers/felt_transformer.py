@@ -10,21 +10,23 @@ from starknet_py.cairo.felt import encode_shortstring, is_in_felt_range
 from starknet_py.utils.data_transformer._transformation_context import (
     TransformationContext,
 )
-from starknet_py.utils.data_transformer.transformers.interface import Transformer
+from starknet_py.utils.data_transformer.transformers.base_transformer import (
+    BaseTransformer,
+)
 
 TransformableToFelt = Union[int, str]
 
 
-class FeltTransformer(Transformer[TransformableToFelt, int]):
-    def deserialize(
-        self, context: TransformationContext, reader: CalldataReader
+class FeltTransformer(BaseTransformer[TransformableToFelt, int]):
+    def _deserialize(
+        self, reader: CalldataReader, context: TransformationContext
     ) -> int:
-        [val] = reader.consume(1)
-        self._assert_felt(context, val)
+        [val] = reader.read(1)
+        self._ensure_felt(context, val)
         return val
 
-    def serialize(
-        self, context: TransformationContext, value: TransformableToFelt
+    def _serialize(
+        self, value: TransformableToFelt, context: TransformationContext
     ) -> CairoData:
         context.ensure_valid_type(isinstance(value, (int, str)), "int or short string")
 
@@ -32,11 +34,11 @@ class FeltTransformer(Transformer[TransformableToFelt, int]):
             value = encode_shortstring(value)
             return [value]
 
-        self._assert_felt(context, value)
+        self._ensure_felt(context, value)
         return [value]
 
     @staticmethod
-    def _assert_felt(context: TransformationContext, value: int):
+    def _ensure_felt(context: TransformationContext, value: int):
         context.ensure_valid_value(
             is_in_felt_range(value), f"value must be in [0, {FIELD_PRIME}) range"
         )

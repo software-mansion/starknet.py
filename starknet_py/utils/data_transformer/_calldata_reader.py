@@ -25,9 +25,9 @@ class CalldataReader:
     def remaining_len(self) -> int:
         return len(self._data) - self._position
 
-    def consume(self, size: int) -> CairoData:
+    def read(self, size: int) -> CairoData:
         if size < 1:
-            raise ValueError("size must be bigger than 0")
+            raise ValueError("size must be greater than 0")
 
         if size > self.remaining_len:
             raise OutOfBoundsError(
