@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import TypeVar, Generic, Optional
+from typing import TypeVar, Generic, Optional, Union, List, Generator
 
 from starknet_py.utils.data_transformer._calldata_reader import CalldataReader
 from starknet_py.utils.data_transformer.data_transformer import CairoData
@@ -19,29 +19,23 @@ class BaseTransformer(ABC, Generic[SerializationType, DeserializationType]):
     Base class for serializing/deserializing data to/from calldata.
     """
 
-    def deserialize(
-        self, reader: CalldataReader, context: Optional[TransformationContext] = None
-    ) -> DeserializationType:
+    def deserialize(self, data: List[int]) -> DeserializationType:
         """
         Transform calldata into python value.
 
-        :param reader: calldata reader.
-        :param context: optional context of this transformation. New context will be created when not provided.
+        :param data: calldata to deserialize.
         :return: defined DeserializationType.
         """
-        return self._deserialize(reader, context or TransformationContext())
+        return self._deserialize(CalldataReader(data), TransformationContext())
 
-    def serialize(
-        self, reader: SerializationType, context: Optional[TransformationContext] = None
-    ) -> CairoData:
+    def serialize(self, data: SerializationType) -> CairoData:
         """
         Transform calldata into python value.
 
-        :param reader: calldata reader.
-        :param context: optional context of this transformation. New context will be created when not provided.
+        :param data: data to serialize.
         :return: defined DeserializationType.
         """
-        return self._serialize(reader, context or TransformationContext())
+        return list(self._serialize(data, TransformationContext()))
 
     @abstractmethod
     def _deserialize(
@@ -59,7 +53,7 @@ class BaseTransformer(ABC, Generic[SerializationType, DeserializationType]):
     @abstractmethod
     def _serialize(
         self, value: SerializationType, context: TransformationContext
-    ) -> CairoData:
+    ) -> Generator[int, None, None]:
         """
         Transform python value into calldata.
 

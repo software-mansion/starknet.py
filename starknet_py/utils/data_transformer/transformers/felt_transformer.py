@@ -1,10 +1,9 @@
 # Just an integer or short string
-from typing import Union
+from typing import Union, Generator
 
 from starkware.crypto.signature.signature import FIELD_PRIME
 
 from starknet_py.utils.data_transformer._calldata_reader import CalldataReader
-from starknet_py.utils.data_transformer.data_transformer import CairoData
 
 from starknet_py.cairo.felt import encode_shortstring, is_in_felt_range
 from starknet_py.utils.data_transformer._transformation_context import (
@@ -27,15 +26,15 @@ class FeltTransformer(BaseTransformer[TransformableToFelt, int]):
 
     def _serialize(
         self, value: TransformableToFelt, context: TransformationContext
-    ) -> CairoData:
+    ) -> Generator[int, None, None]:
         context.ensure_valid_type(isinstance(value, (int, str)), "int or short string")
 
         if isinstance(value, str):
             value = encode_shortstring(value)
-            return [value]
-
-        self._ensure_felt(context, value)
-        return [value]
+            yield value
+        else:
+            self._ensure_felt(context, value)
+            yield value
 
     @staticmethod
     def _ensure_felt(context: TransformationContext, value: int):

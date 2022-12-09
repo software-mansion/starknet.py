@@ -1,11 +1,10 @@
 from dataclasses import dataclass
-from typing import List
+from typing import List, Generator
 
 from starknet_py.utils.data_transformer._calldata_reader import CalldataReader
 from starknet_py.utils.data_transformer._transformation_context import (
     TransformationContext,
 )
-from starknet_py.utils.data_transformer.data_transformer import CairoData
 from starknet_py.utils.data_transformer.transformers.base_transformer import (
     BaseTransformer,
 )
@@ -30,11 +29,10 @@ class ArrayTransformer(BaseTransformer[List, List]):
 
         return result
 
-    def _serialize(self, value: List, context: TransformationContext) -> CairoData:
-        result = [len(value)]
+    def _serialize(
+        self, value: List, context: TransformationContext
+    ) -> Generator[int, None, None]:
+        yield len(value)
         for index, value in enumerate(value):
             with context.push_entity(f"[{index}]"):
-                transformed = self.inner_transformer._serialize(value, context)
-                result.extend(transformed)
-
-        return result
+                yield from self.inner_transformer._serialize(value, context)
