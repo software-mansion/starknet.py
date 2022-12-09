@@ -89,7 +89,7 @@ class Account(BaseAccount):
         return self._version
 
     def _get_default_token_address(self) -> str:
-        if self._client.net not in [TESTNET, MAINNET]:
+        if self._client.net not in [TESTNET, TESTNET2, MAINNET]:
             raise ValueError(
                 "Token_address must be specified when using a custom net address"
             )
@@ -207,7 +207,7 @@ class Account(BaseAccount):
         Checks account's balance of specified token.
 
         :param token_address: Address of the ERC20 contract.
-            If not specified it will be payment token (wrapped ETH) address.
+            If not specified it will be payment token address.
         :return: Token balance
         """
 
@@ -383,7 +383,7 @@ class Account(BaseAccount):
 
         Provided address must be first prefunded with enough tokens, otherwise the method will fail.
 
-        If using Client for either TESTNET or MAINNET, this method will verify if the address balance
+        If using Client for either TESTNET, TESTNET2 or MAINNET, this method will verify if the address balance
         is high enough, to cover deployment costs.
 
         :param address: calculated and prefunded address of the new account.
@@ -393,7 +393,7 @@ class Account(BaseAccount):
         :param key_pair: KeyPair used to calculate address and sign deploy account transaction.
         :param chain: id of the StarkNet chain used.
         :param constructor_calldata: optional calldata to account contract constructor. If ``None`` is passed,
-            ``key_pair.public_key`` will be used as calldata.
+            ``[key_pair.public_key]`` will be used as calldata.
         :param max_fee: max fee to be paid for deployment, must be less or equal to the amount of tokens prefunded.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         """
@@ -429,7 +429,7 @@ class Account(BaseAccount):
             auto_estimate=auto_estimate,
         )
 
-        if client.net in (TESTNET, MAINNET):
+        if client.net in (TESTNET, TESTNET2, MAINNET):
             balance = await account.get_balance()
             if balance < deploy_account_tx.max_fee:
                 raise ValueError(

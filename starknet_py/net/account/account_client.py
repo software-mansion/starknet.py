@@ -81,7 +81,7 @@ class AccountClient(Client):
         """
         # pylint: disable=too-many-arguments
         warnings.warn(
-            "AccountClient has been depreacted in favor of Account.",
+            "AccountClient has been deprecated in favor of the Account.",
             category=DeprecationWarning,
         )
 
