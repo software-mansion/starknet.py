@@ -8,7 +8,7 @@ from starknet_py.net import KeyPair
 from starknet_py.net.account.account import Account
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId, parse_address
-from starknet_py.net.networks import TESTNET, MAINNET
+from starknet_py.net.networks import TESTNET, MAINNET, TESTNET2
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 
 
@@ -20,7 +20,7 @@ def test_contract_raises_on_no_client_and_account():
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("net", (TESTNET, MAINNET))
+@pytest.mark.parametrize("net", (TESTNET, TESTNET2, MAINNET))
 async def test_get_balance_default_token_address(net):
     client = GatewayClient(net=net)
     acc_client = Account(
