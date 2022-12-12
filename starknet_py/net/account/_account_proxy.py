@@ -47,10 +47,9 @@ class AccountProxy(BaseAccount):
         *,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-        **kwargs,
     ) -> InvokeFunction:
         return await self._account_client.sign_invoke_transaction(
-            calls=calls, max_fee=max_fee, auto_estimate=auto_estimate, **kwargs
+            calls=calls, max_fee=max_fee, auto_estimate=auto_estimate
         )
 
     async def sign_declare_transaction(
@@ -59,13 +58,11 @@ class AccountProxy(BaseAccount):
         *,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-        **kwargs,
     ) -> Declare:
         return await self._account_client.sign_declare_transaction(
             compiled_contract=compiled_contract,
             max_fee=max_fee,
             auto_estimate=auto_estimate,
-            **kwargs,
         )
 
     async def sign_deploy_account_transaction(
@@ -91,10 +88,9 @@ class AccountProxy(BaseAccount):
         *,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-        **kwargs,
     ) -> SentTransactionResponse:
         return await self._account_client.execute(
-            calls=calls, max_fee=max_fee, auto_estimate=auto_estimate, **kwargs
+            calls=calls, max_fee=max_fee, auto_estimate=auto_estimate
         )
 
     def sign_message(self, typed_data: TypedData) -> List[int]:
