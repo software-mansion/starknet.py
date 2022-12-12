@@ -43,7 +43,6 @@ from starknet_py.utils.sync import add_sync_methods
 ABI = list
 ABIEntry = dict
 TSentTransaction = TypeVar("TSentTransaction", bound="SentTransaction")
-CastableToHash = Union[int, str]
 
 
 @dataclass(frozen=True)
@@ -68,7 +67,7 @@ class SentTransaction:
     Dataclass exposing the interface of transaction related to a performed action
     """
 
-    hash: CastableToHash
+    hash: int
     _client: Client
     status: Optional[str] = None
     block_number: Optional[int] = None
