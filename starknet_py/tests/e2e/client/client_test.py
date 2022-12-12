@@ -6,9 +6,9 @@ from unittest.mock import patch, AsyncMock
 import pytest
 from aiohttp import ClientSession
 
-from starkware.starknet.public.abi import (
-    get_selector_from_name,
+from starknet_py.common import (
     get_storage_var_address,
+    get_selector_from_name,
 )
 
 from starknet_py.common import create_compiled_contract

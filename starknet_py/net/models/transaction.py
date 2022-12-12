@@ -1,7 +1,5 @@
 from typing import Union, Sequence
 
-from starkware.starknet.public.abi import get_selector_from_name
-
 # noinspection PyPep8Naming
 from starkware.starknet.services.api.gateway.transaction import (
     InvokeFunction as IF,
@@ -17,7 +15,7 @@ from starkware.starknet.core.os.transaction_hash.transaction_hash import (
 # noinspection PyPep8Naming
 from starkware.starknet.definitions.transaction_type import TransactionType as TT
 
-
+from starknet_py.common import get_selector_from_name
 from starknet_py.net.models.chains import StarknetChainId
 from starknet_py.utils.crypto.facade import pedersen_hash
 from starknet_py.utils.docs import as_our_module

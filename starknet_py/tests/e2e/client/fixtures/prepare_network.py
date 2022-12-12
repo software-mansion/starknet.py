@@ -6,8 +6,8 @@ from typing import Tuple, Dict, AsyncGenerator
 
 import pytest
 import pytest_asyncio
-from starkware.starknet.public.abi import get_selector_from_name
 
+from starknet_py.common import get_selector_from_name
 from starknet_py.net import AccountClient
 from starknet_py.tests.e2e.client.fixtures.prepare_net_for_gateway_test import (
     PreparedNetworkData,

@@ -4,9 +4,10 @@ import warnings
 from dataclasses import replace
 from typing import Optional, List, Union, Dict, Tuple, Iterable
 
-from starkware.starknet.public.abi import get_selector_from_name
-
-from starknet_py.common import create_compiled_contract
+from starknet_py.common import (
+    create_compiled_contract,
+    get_selector_from_name,
+)
 from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT

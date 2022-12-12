@@ -2,7 +2,7 @@ import asyncio
 from unittest.mock import patch, MagicMock
 
 import pytest
-from starkware.starknet.public.abi import get_storage_var_address
+from starknet_py.common import get_storage_var_address
 
 from starknet_py.net.client_errors import ClientError
 

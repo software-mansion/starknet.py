@@ -14,13 +14,15 @@ from typing import (
 
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
 from starkware.starknet.core.os.class_hash import compute_class_hash
-from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
     CastableToHash,
 )
 
-from starknet_py.common import create_compiled_contract
+from starknet_py.common import (
+    create_compiled_contract,
+    get_selector_from_name,
+)
 from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
 from starknet_py.net.udc_deployer.deployer import Deployer

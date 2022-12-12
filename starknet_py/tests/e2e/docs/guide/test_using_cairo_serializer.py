@@ -1,6 +1,6 @@
 import pytest
-from starkware.starknet.public.abi import get_selector_from_name
 
+from starknet_py.common import get_selector_from_name
 from starknet_py.compile.compiler import Compiler
 
 

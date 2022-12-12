@@ -2,12 +2,12 @@ import dataclasses
 from unittest.mock import AsyncMock, patch
 
 import pytest
-from starkware.starknet.public.abi import (
+
+from starknet_py.common import (
+    create_compiled_contract,
     get_storage_var_address,
     get_selector_from_name,
 )
-
-from starknet_py.common import create_compiled_contract
 from starknet_py.net.client_errors import ContractNotFoundError
 from starknet_py.net.client_models import (
     TransactionStatusResponse,
