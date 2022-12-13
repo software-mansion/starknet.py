@@ -458,29 +458,23 @@ def _add_max_fee_to_transaction(
     return dataclasses.replace(tx, max_fee=max_fee)
 
 
-def _parse_call(
-    _call: Call, _current_data_len: int, _entire_calldata: List
-) -> Tuple[Dict, int, List]:
+def _parse_call(call: Call, entire_calldata: List) -> Tuple[Dict, List]:
     _data = {
-        "to": _call.to_addr,
-        "selector": _call.selector,
-        "data_offset": _current_data_len,
-        "data_len": len(_call.calldata),
+        "to": call.to_addr,
+        "selector": call.selector,
+        "data_offset": len(entire_calldata),
+        "data_len": len(call.calldata),
     }
-    _current_data_len += len(_call.calldata)
-    _entire_calldata += _call.calldata
+    entire_calldata += call.calldata
 
-    return _data, _current_data_len, _entire_calldata
+    return _data, entire_calldata
 
 
 def _merge_calls(calls: Iterable[Call]) -> List:
     calldata = []
-    current_data_len = 0
     entire_calldata = []
     for call in calls:
-        data, current_data_len, entire_calldata = _parse_call(
-            call, current_data_len, entire_calldata
-        )
+        data, entire_calldata = _parse_call(call, entire_calldata)
         calldata.append(data)
 
     return [calldata, entire_calldata]
