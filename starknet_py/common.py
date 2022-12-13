@@ -1,6 +1,6 @@
 from typing import Optional, List, Union, Literal
 
-from eth_hash.auto import keccak
+from eth_utils import keccak
 from starkware.cairo.lang.vm.crypto import pedersen_hash
 from starkware.starknet.services.api.contract_class import ContractClass
 
