@@ -205,14 +205,6 @@ class Account(BaseAccount):
     async def get_balance(
         self, token_address: Optional[AddressRepresentation] = None
     ) -> int:
-        """
-        Checks account's balance of specified token.
-
-        :param token_address: Address of the ERC20 contract.
-            If not specified it will be payment token address.
-        :return: Token balance
-        """
-
         token_address = token_address or self._get_default_token_address()
 
         low, high = await self._client.call_contract(
@@ -233,15 +225,6 @@ class Account(BaseAccount):
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> Invoke:
-        """
-        Takes calls and creates signed Invoke
-
-        :param calls: Single call or list of calls
-        :param max_fee: Max amount of Wei to be paid when executing transaction
-        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
-        :return: Invoke created from the calls
-        """
-
         execute_tx = await self._prepare_invoke_function(calls, max_fee, auto_estimate)
         signature = self.signer.sign_transaction(execute_tx)
         return _add_signature_to_transaction(execute_tx, signature)
@@ -253,15 +236,6 @@ class Account(BaseAccount):
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> Declare:
-        """
-        Create and sign declare transaction.
-
-        :param compiled_contract: string containing compiled contract bytecode.
-                                  Useful for reading compiled contract from a file
-        :param max_fee: Max amount of Wei to be paid when executing transaction
-        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
-        :return: Signed Declare transaction
-        """
         compiled_contract = create_compiled_contract(
             compiled_contract=compiled_contract
         )
@@ -290,18 +264,6 @@ class Account(BaseAccount):
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> DeployAccount:
-        """
-        Create and sign deploy account transaction
-
-        :param class_hash: Class hash of the contract class to be deployed
-        :param contract_address_salt: A salt used to calculate deployed contract address
-        :param constructor_calldata: Calldata to be passed to contract constructor
-            and used to calculate deployed contract address
-        :param max_fee: Max fee to be paid for deploying account transaction. Enough tokens must be prefunded before
-            sending the transaction for it to succeed.
-        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
-        :return: Signed DeployAccount transaction
-        """
         constructor_calldata = constructor_calldata or []
 
         deploy_account_tx = DeployAccount(
@@ -328,38 +290,16 @@ class Account(BaseAccount):
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> SentTransactionResponse:
-        """
-        Takes calls and executes transaction
-
-        :param calls: Single call or list of calls
-        :param max_fee: Max amount of Wei to be paid when executing transaction
-        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
-        :return: SentTransactionResponse
-        """
         execute_transaction = await self.sign_invoke_transaction(
             calls, max_fee=max_fee, auto_estimate=auto_estimate
         )
         return await self._client.send_transaction(execute_transaction)
 
     def sign_message(self, typed_data: TypedData) -> List[int]:
-        """
-        Sign an TypedData TypedDict for off-chain usage with the starknet private key and return the signature
-        This adds a message prefix, so it can't be interchanged with transactions
-
-        :param typed_data: TypedData TypedDict to be signed
-        :return: The signature of the TypedData TypedDict
-        """
         typed_data_dataclass = TypedDataDataclass.from_dict(typed_data)
         return self.signer.sign_message(typed_data_dataclass, self.address)
 
     async def verify_message(self, typed_data: TypedData, signature: List[int]) -> bool:
-        """
-        Verify a signature of a TypedData TypedDict
-
-        :param typed_data: TypedData TypedDict to be verified
-        :param signature: signature of the TypedData TypedDict
-        :return: true if the signature is valid, false otherwise
-        """
         typed_data_dataclass = TypedDataDataclass.from_dict(typed_data)
         message_hash = typed_data_dataclass.message_hash(account_address=self.address)
         return await self._verify_message_hash(message_hash, signature)
