@@ -13,10 +13,8 @@ from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 
 
 def test_contract_raises_on_no_client_and_account():
-    with pytest.raises(ValueError) as exinfo:
+    with pytest.raises(ValueError, match="One of client or account must be provided"):
         Contract(address=1234, abi=[])
-
-    assert "One of client or account must be provided" in str(exinfo.value)
 
 
 @pytest.mark.asyncio
