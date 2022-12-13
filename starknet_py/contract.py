@@ -675,9 +675,6 @@ def _unpack_client_and_account(
     if client is not None and account is not None:
         raise ValueError("Account and client are mutually exclusive")
 
-    if client is None and account is None:
-        raise ValueError("One of client or account must be provided")
-
     if client is not None:
         if isinstance(client, AccountClient):
             return client.client, AccountProxy(client)
@@ -687,8 +684,7 @@ def _unpack_client_and_account(
     if account is not None:
         return account.client, account
 
-    # This is needed for typechecker
-    raise ValueError()  # pragma: no cover
+    raise ValueError("One of client or account must be provided")
 
 
 def _account_or_proxy(account: Union[BaseAccount, AccountClient]) -> BaseAccount:
