@@ -4,7 +4,7 @@ from typing import Optional, List
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import (
     Calls,
-    InvokeFunction,
+    Invoke,
     Declare,
     SentTransactionResponse,
 )
@@ -68,7 +68,7 @@ class BaseAccount(ABC):
         *,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-    ) -> InvokeFunction:
+    ) -> Invoke:
         """
         Takes calls and creates signed InvokeFunction.
 

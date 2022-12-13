@@ -13,7 +13,7 @@ from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     Call,
-    InvokeFunction,
+    Invoke,
     Declare,
     Calls,
     SentTransactionResponse,
@@ -98,7 +98,7 @@ class Account(BaseAccount):
 
     async def _get_max_fee(
         self,
-        transaction: Union[InvokeFunction, Declare, DeployAccount],
+        transaction: Union[Invoke, Declare, DeployAccount],
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> int:
@@ -121,21 +121,21 @@ class Account(BaseAccount):
         calls: Calls,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-    ) -> InvokeFunction:
+    ) -> Invoke:
         """
-        Takes calls and creates InvokeFunction from them
+        Takes calls and creates Invoke from them
 
         :param calls: Single call or list of calls
         :param max_fee: Max amount of Wei to be paid when executing transaction
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
-        :return: InvokeFunction created from the calls (without the signature)
+        :return: Invoke created from the calls (without the signature)
         """
         nonce = await self.get_nonce()
 
         calldata_py = _merge_calls(ensure_iterable(calls))
         wrapped_calldata, _ = execute_transformer_v1.from_python(*calldata_py)
 
-        transaction = InvokeFunction(
+        transaction = Invoke(
             calldata=wrapped_calldata,
             signature=[],
             max_fee=0,
@@ -173,7 +173,7 @@ class Account(BaseAccount):
 
     async def _estimate_fee(
         self,
-        tx: Union[InvokeFunction, Declare, DeployAccount],
+        tx: Union[Invoke, Declare, DeployAccount],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
@@ -230,14 +230,14 @@ class Account(BaseAccount):
         *,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-    ) -> InvokeFunction:
+    ) -> Invoke:
         """
-        Takes calls and creates signed InvokeFunction
+        Takes calls and creates signed Invoke
 
         :param calls: Single call or list of calls
         :param max_fee: Max amount of Wei to be paid when executing transaction
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
-        :return: InvokeFunction created from the calls
+        :return: Invoke created from the calls
         """
 
         execute_tx = await self._prepare_invoke_function(calls, max_fee, auto_estimate)
@@ -441,9 +441,7 @@ class Account(BaseAccount):
         )
 
 
-SignableTransaction = TypeVar(
-    "SignableTransaction", InvokeFunction, Declare, DeployAccount
-)
+SignableTransaction = TypeVar("SignableTransaction", Invoke, Declare, DeployAccount)
 
 
 def _add_signature_to_transaction(

@@ -9,7 +9,7 @@ from starknet_py.net.client_models import (
     Calls,
     SentTransactionResponse,
     Declare,
-    InvokeFunction,
+    Invoke,
 )
 from starknet_py.net.models import AddressRepresentation
 from starknet_py.net.models.transaction import DeployAccount
@@ -47,7 +47,7 @@ class AccountProxy(BaseAccount):
         *,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-    ) -> InvokeFunction:
+    ) -> Invoke:
         return await self._account_client.sign_invoke_transaction(
             calls=calls, max_fee=max_fee, auto_estimate=auto_estimate
         )
