@@ -1,0 +1,41 @@
+from __future__ import annotations
+from dataclasses import dataclass, fields, make_dataclass
+from typing import Dict, Optional, Tuple
+
+
+@dataclass(frozen=True)
+class TupleDataclass:
+    """
+    Dataclass that behaves like a tuple at the same time.
+    """
+
+    # getattr is called when attribute is not found in object
+    # This way pyright will know that there might be some arguments it doesn't know about and will stop complaining
+    # about some fields that don't exist statically.
+    def __getattr__(self, item):
+        # This should always fail - only attributes that don't exist end up in here.
+        # We use __getattribute__ to get the native error.
+        return super().__getattribute__(item)
+
+    def __getitem__(self, item):
+        field = fields(self)[item]
+        return getattr(self, field.name)
+
+    def __iter__(self):
+        return (getattr(self, field.name) for field in fields(self))
+
+    def as_tuple(self) -> Tuple:
+        return tuple(self)
+
+    def as_dict(self) -> Dict:
+        return {field.name: getattr(self, field.name) for field in fields(self)}
+
+    @staticmethod
+    def from_dict(data: Dict, *, name: Optional[str] = None) -> TupleDataclass:
+        result_class = make_dataclass(
+            name or "TupleDataclass",
+            fields=[(key, type(value)) for key, value in data.items()],
+            bases=(TupleDataclass,),
+            frozen=True,
+        )
+        return result_class(**data)
