@@ -329,8 +329,8 @@ class Account(BaseAccount):
         :param address: calculated and prefunded address of the new account.
         :param class_hash: class_hash of the account contract to be deployed.
         :param salt: salt used to calculate the address.
-        :param client: a Client instance used for deployment.
         :param key_pair: KeyPair used to calculate address and sign deploy account transaction.
+        :param client: a Client instance used for deployment.
         :param chain: id of the StarkNet chain used.
         :param constructor_calldata: optional calldata to account contract constructor. If ``None`` is passed,
             ``[key_pair.public_key]`` will be used as calldata.
