@@ -38,7 +38,7 @@ class BaseAccount(ABC):
     @abstractmethod
     def supported_tx_version(self) -> int:
         """
-        Get transaction verison supported by the account.
+        Get transaction version supported by the account.
         """
 
     @abstractmethod
@@ -58,7 +58,7 @@ class BaseAccount(ABC):
 
         :param token_address: Address of the ERC20 contract.
             If not specified it will be payment token address.
-        :return: Token balance
+        :return: Token balance.
         """
 
     @abstractmethod

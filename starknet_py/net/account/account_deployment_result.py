@@ -11,4 +11,4 @@ class AccountDeploymentResult(SentTransaction):
 
     def __post_init__(self):
         if self.account is None:
-            raise ValueError("Account cannot be none in AccountDeploymentResult")
+            raise ValueError("Account cannot be None in AccountDeploymentResult")

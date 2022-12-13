@@ -82,7 +82,7 @@ def test_create_account_raises_on_no_chain_and_signer():
 def test_create_account_raises_on_no_keypair_and_signer():
     with pytest.raises(
         ValueError,
-        match="Either a signer or a key_pair must be provided in AccountClient constructor",
+        match="Either a signer or a key_pair must be provided in Account constructor",
     ):
         Account(
             address=0x1,
