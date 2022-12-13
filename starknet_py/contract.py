@@ -16,9 +16,6 @@ from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
 from starkware.starknet.core.os.class_hash import compute_class_hash
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
-from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
-    CastableToHash,
-)
 
 from starknet_py.common import create_compiled_contract
 from starknet_py.compile.compiler import StarknetCompilationSource
@@ -70,7 +67,7 @@ class SentTransaction:
     Dataclass exposing the interface of transaction related to a performed action
     """
 
-    hash: CastableToHash
+    hash: int
     _client: Client
     status: Optional[str] = None
     block_number: Optional[int] = None
