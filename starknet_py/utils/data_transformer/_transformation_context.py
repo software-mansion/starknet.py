@@ -47,6 +47,11 @@ class TransformationContext:
             raise InvalidValueException(
                 f"Error at '{self.current_entity}': {err}"
             ) from err
+        except TypeError as err:
+            # This is needed to allow libraries dependent on data transformers to catch all issues related to it.
+            raise InvalidTypeException(
+                f"Error at '{self.current_entity}': {err}"
+            ) from err
         finally:
             self._namespace_stack.pop()
 

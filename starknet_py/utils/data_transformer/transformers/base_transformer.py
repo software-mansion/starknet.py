@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import TypeVar, Generic, Optional, Union, List, Generator
 
+from starknet_py.utils.data_transformer.errors import InvalidValueException
+
 from starknet_py.utils.data_transformer._calldata_reader import CalldataReader
 from starknet_py.utils.data_transformer.data_transformer import CairoData
 from starknet_py.utils.data_transformer._transformation_context import (
@@ -26,14 +28,21 @@ class BaseTransformer(ABC, Generic[SerializationType, DeserializationType]):
         :param data: calldata to deserialize.
         :return: defined DeserializationType.
         """
-        return self._deserialize(CalldataReader(data), TransformationContext())
+        reader = CalldataReader(data)
+        result = self._deserialize(CalldataReader(data), TransformationContext())
+        if reader.remaining_len != 0:
+            raise InvalidValueException(
+                f"Provided {reader.remaining_len} excessive values out of total {len(data)} values for deserialization"
+            )
+
+        return result
 
     def serialize(self, data: SerializationType) -> CairoData:
         """
-        Transform calldata into python value.
+        Transform python data into calldata.
 
         :param data: data to serialize.
-        :return: defined DeserializationType.
+        :return: calldata.
         """
         return list(self._serialize(data, TransformationContext()))
 
