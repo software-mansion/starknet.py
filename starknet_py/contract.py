@@ -71,7 +71,7 @@ class ContractData:
 @dataclass(frozen=True)
 class SentTransaction:
     """
-    Dataclass exposing the interface of transaction related to a performed action
+    Dataclass exposing the interface of transaction related to a performed action.
     """
 
     hash: CastableToHash
@@ -143,7 +143,7 @@ class DeclareResult(SentTransaction):
         auto_estimate: bool = False,
     ) -> "DeployResult":
         """
-        Deploys a contract
+        Deploys a contract.
 
         :param deployer_address: Address of the UDC. Is set to the address of
             the default UDC (same address on mainnet/testnet/devnet) by default.
@@ -153,7 +153,7 @@ class DeclareResult(SentTransaction):
         :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
-        :return: DeployResult instance
+        :return: DeployResult instance.
         """
         # pylint: disable=too-many-arguments
         abi = create_compiled_contract(compiled_contract=self.compiled_contract).abi
@@ -238,8 +238,8 @@ class PreparedFunctionCall(Call):
         """
         Calls a method without translating the result into python values.
 
-        :param block_hash: Optional block hash
-        :return: list of ints
+        :param block_hash: Optional block hash.
+        :return: list of ints.
         """
         return await self._client.call_contract(call=self, block_hash=block_hash)
 
@@ -250,8 +250,8 @@ class PreparedFunctionCall(Call):
         """
         Calls a method.
 
-        :param block_hash: Optional block hash
-        :return: CallResult or List[int] if return_raw is used
+        :param block_hash: Optional block hash.
+        :return: CallResult or List[int] if return_raw is used.
         """
         result = await self.call_raw(block_hash=block_hash)
         return self._payload_transformer.to_python(result)
@@ -264,9 +264,9 @@ class PreparedFunctionCall(Call):
         """
         Invokes a method.
 
-        :param max_fee: Max amount of Wei to be paid when executing transaction
-        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
-        :return: InvokeResult
+        :param max_fee: Max amount of Wei to be paid when executing transaction.
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :return: InvokeResult.
         """
         if max_fee is not None:
             self.max_fee = max_fee
@@ -294,12 +294,12 @@ class PreparedFunctionCall(Call):
         block_number: Optional[Union[int, Tag]] = None,
     ):
         """
-        Estimate fee for prepared function call
+        Estimate fee for prepared function call.
 
-        :param block_hash: Estimate fee at specific block hash
+        :param block_hash: Estimate fee at specific block hash.
         :param block_number: Estimate fee at given block number
-            (or "latest" / "pending" for the latest / pending block), default is "pending"
-        :return: Estimated amount of Wei executing specified transaction will cost
+            (or "latest" / "pending" for the latest / pending block), default is "pending".
+        :return: Estimated amount of Wei executing specified transaction will cost.
         """
         tx = await self._account.sign_invoke_transaction(calls=self, max_fee=0)
 
@@ -337,11 +337,11 @@ class ContractFunction:
     ) -> PreparedFunctionCall:
         """
         ``*args`` and ``**kwargs`` are translated into Cairo calldata.
-         Creates a ``PreparedFunctionCall`` instance
-         which exposes calldata for every argument and adds more arguments when calling methods.
+        Creates a ``PreparedFunctionCall`` instance which exposes calldata for every argument
+        and adds more arguments when calling methods.
 
-        :param max_fee: Max amount of Wei to be paid when executing transaction
-        :return: PreparedFunctionCall
+        :param max_fee: Max amount of Wei to be paid when executing transaction.
+        :return: PreparedFunctionCall.
         """
         version = self.account.supported_tx_version if self.account is not None else 0
 
@@ -376,7 +376,7 @@ class ContractFunction:
         The result is translated from Cairo data to python values.
         Equivalent of ``.prepare(*args, **kwargs).call()``.
 
-        :param block_hash: Block hash to execute the contract at specific point of time
+        :param block_hash: Block hash to execute the contract at specific point of time.
         """
         return await self.prepare(max_fee=0, *args, **kwargs).call(
             block_hash=block_hash
@@ -393,8 +393,8 @@ class ContractFunction:
         Invoke contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.
         Equivalent of ``.prepare(*args, **kwargs).invoke()``.
 
-        :param max_fee: Max amount of Wei to be paid when executing transaction
-        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
+        :param max_fee: Max amount of Wei to be paid when executing transaction.
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         """
         prepared_call = self.prepare(*args, **kwargs)
         return await prepared_call.invoke(max_fee=max_fee, auto_estimate=auto_estimate)
@@ -402,8 +402,8 @@ class ContractFunction:
     @staticmethod
     def get_selector(function_name: str):
         """
-        :param function_name: Contract function's name
-        :return: A StarkNet integer selector for this function inside the contract
+        :param function_name: Contract function's name.
+        :return: A StarkNet integer selector for this function inside the contract.
         """
         return get_selector_from_name(function_name)
 
@@ -427,9 +427,9 @@ class Contract:
         """
         Should be used instead of ``from_address`` when ABI is known statically.
 
-        :param address: contract's address
-        :param abi: contract's abi
-        :param client: client used for API calls
+        :param address: contract's address.
+        :param abi: contract's abi.
+        :param client: client used for API calls.
         """
         client, account = _unpack_client_and_account(client, account)
 
@@ -460,12 +460,12 @@ class Contract:
         Fetches ABI for given contract and creates a new Contract instance with it. If you know ABI statically you
         should create Contract's instances directly instead of using this function to avoid unnecessary API calls.
 
-        :raises ContractNotFoundError: when contract is not found
-        :raises TypeError: when given client's `get_class_by_hash` method does not return abi
-        :raises ProxyResolutionError: when given ProxyChecks were not sufficient to resolve proxy's implementation
-        :param address: Contract's address
-        :param client: Client
-        :param account: BaseAccount
+        :raises ContractNotFoundError: when contract is not found.
+        :raises TypeError: when given client's `get_class_by_hash` method does not return abi.
+        :raises ProxyResolutionError: when given ProxyChecks were not sufficient to resolve proxy's implementation.
+        :param address: Contract's address.
+        :param client: Client.
+        :param account: BaseAccount.
         :param proxy_config: Proxy resolving config
             If set to ``True``, will use default proxy checks
             :class:`starknet_py.proxy.proxy_check.OpenZeppelinProxyCheck`
@@ -475,7 +475,7 @@ class Contract:
 
             If a valid :class:`starknet_py.contract_abi_resolver.ProxyConfig` is provided, will use its values instead.
 
-        :return: an initialized Contract instance
+        :return: an initialized Contract instance.
         """
         client, account = _unpack_client_and_account(client, account)
 
@@ -500,13 +500,13 @@ class Contract:
         auto_estimate: bool = False,
     ) -> DeclareResult:
         """
-        Declares a contract
+        Declares a contract.
 
         :param account: An AccountClient used to sign and send declare transaction.
         :param compiled_contract: String containing compiled contract.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
-        :return: DeclareResult instance
+        :return: DeclareResult instance.
         """
         account = _account_or_proxy(account)
 
@@ -548,7 +548,7 @@ class Contract:
             Must be set when using custom network other than ones listed above.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
-        :return: DeployResult instance
+        :return: DeployResult instance.
         """
         # pylint: disable=too-many-arguments
         account = _account_or_proxy(account)
@@ -666,11 +666,11 @@ def _unpack_client_and_account(
     client: Optional[Client] = None, account: Optional[BaseAccount] = None
 ) -> Tuple[Client, Optional[BaseAccount]]:
     """
-    Get the client and optional account to be used by Contract
+    Get the client and optional account to be used by Contract.
 
-    If provided with AccountClient, returns underlying Client and _AccountProxy
-    If provided with Client, returns this Client and None
-    If provided with Account, returns underlying Client and the account
+    If provided with AccountClient, returns underlying Client and _AccountProxy.
+    If provided with Client, returns this Client and None.
+    If provided with Account, returns underlying Client and the account.
     """
     if client is not None and account is not None:
         raise ValueError("Account and client are mutually exclusive")
