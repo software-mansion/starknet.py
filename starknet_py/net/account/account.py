@@ -178,7 +178,9 @@ class Account(BaseAccount):
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
         """
-        :param tx: Transaction which fee we want to calculate
+        :param tx: Transaction which fee we want to calculate.
+        :param block_hash: a block hash.
+        :param block_number: a block number.
         :return: Estimated fee
         """
         signature = self.signer.sign_transaction(tx)
