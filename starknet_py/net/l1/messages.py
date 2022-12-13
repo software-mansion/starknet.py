@@ -3,7 +3,7 @@ from functools import reduce
 from typing import List, Optional
 
 from eth_typing import HexStr
-from eth_utils import keccak
+from eth_utils.crypto import keccak
 from starkware.starknet.services.api.feeder_gateway.response_objects import (
     TransactionReceipt,
 )
