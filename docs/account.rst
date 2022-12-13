@@ -13,7 +13,7 @@ The default implementation, supplied with StarkNet.py is Account
 .. autoclass:: Account
     :members:
 
-Resukt of the Account deployment
+Result of the Account deployment
 
 .. py:module:: starknet_py.net.account.account_deployment_result
 
