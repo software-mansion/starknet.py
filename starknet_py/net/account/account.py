@@ -66,7 +66,7 @@ class Account(BaseAccount):
         if signer is None:
             if key_pair is None:
                 raise ValueError(
-                    "Either a signer or a key_pair must be provided in AccountClient constructor"
+                    "Either a signer or a key_pair must be provided in Account constructor"
                 )
 
             chain = chain_from_network(net=client.net, chain=chain)
