@@ -319,7 +319,7 @@ class Account(BaseAccount):
     ) -> AccountDeploymentResult:
         """
         Deploys an account contract with provided class_hash on StarkNet and returns
-        an AccountDeploymentResult that allows waiting for transaction acceptence.
+        an AccountDeploymentResult that allows waiting for transaction acceptance.
 
         Provided address must be first prefunded with enough tokens, otherwise the method will fail.
 
