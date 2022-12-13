@@ -1,3 +1,4 @@
+from functools import reduce
 from typing import Optional, List, Union, Literal
 
 from eth_utils.crypto import keccak
@@ -47,10 +48,10 @@ def get_selector_from_name(func_name: str) -> int:
     if func_name in [DEFAULT_ENTRY_POINT_NAME, DEFAULT_L1_ENTRY_POINT_NAME]:
         return DEFAULT_ENTRY_POINT_SELECTOR
 
-    return starknet_keccak(data=func_name.encode("ascii"))
+    return _starknet_keccak(data=func_name.encode("ascii"))
 
 
-def starknet_keccak(data: bytes) -> int:
+def _starknet_keccak(data: bytes) -> int:
     """
     A variant of eth-keccak that computes a value that fits in a StarkNet field element.
     """
@@ -68,15 +69,9 @@ def int_from_bytes(
     return int.from_bytes(value, byteorder=byte_order, signed=signed)
 
 
-def get_storage_var_address(var_name: str, *args) -> int:
+def get_storage_var_address(var_name: str, *args: int) -> int:
     """
     Returns the storage address of a StarkNet storage variable given its name and arguments.
     """
-    res = starknet_keccak(var_name.encode("ascii"))
-
-    for arg in args:
-        if not isinstance(arg, int):
-            raise TypeError(f"Expected arguments to be integers. Found: {arg}.")
-        res = pedersen_hash(res, arg)
-
-    return res % ADDR_BOUND
+    res = _starknet_keccak(var_name.encode("ascii"))
+    return reduce(pedersen_hash, args, res) % ADDR_BOUND
