@@ -4,10 +4,8 @@ from unittest.mock import patch, MagicMock
 import pytest
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
-from starknet_py.common import (
-    create_compiled_contract,
-    get_selector_from_name,
-)
+from starknet_py.cairo.selector import get_selector_from_name
+from starknet_py.common import create_compiled_contract
 from starknet_py.net.client_models import SentTransactionResponse, Call
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.transaction_exceptions import (

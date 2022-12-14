@@ -6,11 +6,8 @@ from unittest.mock import patch, AsyncMock
 import pytest
 from aiohttp import ClientSession
 
-from starknet_py.common import (
-    get_storage_var_address,
-    get_selector_from_name,
-)
-
+from starknet_py.cairo.selector import get_selector_from_name
+from starknet_py.cairo.storage import get_storage_var_address
 from starknet_py.common import create_compiled_contract
 from starknet_py.net.client_models import (
     TransactionStatus,

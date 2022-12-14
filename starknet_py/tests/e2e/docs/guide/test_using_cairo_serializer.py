@@ -1,6 +1,6 @@
 import pytest
 
-from starknet_py.common import get_selector_from_name
+from starknet_py.cairo.selector import get_selector_from_name
 from starknet_py.compile.compiler import Compiler
 
 

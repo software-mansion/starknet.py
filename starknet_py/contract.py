@@ -19,10 +19,8 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
     CastableToHash,
 )
 
-from starknet_py.common import (
-    create_compiled_contract,
-    get_selector_from_name,
-)
+from starknet_py.cairo.selector import get_selector_from_name
+from starknet_py.common import create_compiled_contract
 from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
 from starknet_py.net.udc_deployer.deployer import Deployer
