@@ -9,7 +9,7 @@ class TupleDataclass:
     Dataclass that behaves like a tuple at the same time.
     """
 
-    # getattr is called when attribute is not found in object
+    # getattr is called when attribute is not found in object. For instance when using object.unknown_attribute.
     # This way pyright will know that there might be some arguments it doesn't know about and will stop complaining
     # about some fields that don't exist statically.
     def __getattr__(self, item):
@@ -17,7 +17,7 @@ class TupleDataclass:
         # We use __getattribute__ to get the native error.
         return super().__getattribute__(item)
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: int):
         field = fields(self)[item]
         return getattr(self, field.name)
 
