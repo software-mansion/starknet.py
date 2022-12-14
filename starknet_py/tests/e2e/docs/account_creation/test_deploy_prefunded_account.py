@@ -1,10 +1,10 @@
 import pytest
 
-from starkware.crypto.signature.signature import get_random_private_key
 from starkware.starknet.definitions.fields import ContractAddressSalt
 
 from starknet_py.contract import Contract
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
+from starknet_py.utils.crypto.facade import get_random_private_key
 
 
 @pytest.mark.asyncio

@@ -6,7 +6,6 @@ from typing import Tuple, List, Dict
 
 import pytest
 import pytest_asyncio
-from starkware.crypto.signature.signature import get_random_private_key
 from starkware.starknet.definitions.fields import ContractAddressSalt
 from starkware.starknet.services.api.gateway.transaction import (
     DEFAULT_DECLARE_SENDER_ADDRESS,
@@ -42,6 +41,7 @@ from starknet_py.tests.e2e.utils import (
     get_deploy_account_details,
     get_deploy_account_transaction,
 )
+from starknet_py.utils.crypto.facade import get_random_private_key
 
 
 def create_account_client(
