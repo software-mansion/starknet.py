@@ -1,9 +1,6 @@
 from typing import Tuple, Optional, cast
 
 from starkware.crypto.signature.signature import get_random_private_key
-from starkware.starknet.core.os.contract_address.contract_address import (
-    calculate_contract_address_from_hash,
-)
 from starkware.starknet.definitions.fields import ContractAddressSalt
 
 from starknet_py.contract import Contract
@@ -13,6 +10,7 @@ from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.net.networks import Network
+from starknet_py.utils.crypto.facade import calculate_contract_address_from_hash
 
 AccountToBeDeployedDetails = Tuple[int, KeyPair, int, int]
 MAX_FEE = int(1e20)

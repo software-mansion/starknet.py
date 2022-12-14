@@ -1,13 +1,10 @@
 from typing import Union, Sequence
 
-from starkware.starknet.core.os.contract_address.contract_address import (
-    calculate_contract_address_from_hash,
-)
 from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
     BlockIdentifier,
 )
 
-
+from starknet_py.utils.crypto.facade import calculate_contract_address_from_hash
 from starknet_py.utils.docs import as_our_module
 
 AddressRepresentation = Union[int, str]

@@ -1,6 +1,6 @@
 import functools
 import os
-from typing import Optional
+from typing import Optional, Sequence, Callable
 
 from crypto_cpp_py.cpp_bindings import (
     cpp_hash,
@@ -10,10 +10,14 @@ from crypto_cpp_py.cpp_bindings import (
 from starkware.cairo.lang.vm.crypto import pedersen_hash as default_hash
 from starkware.crypto.signature.signature import sign
 
+from starknet_py.common import int_from_bytes
 from starknet_py.net.client_models import Call
 
 # PREFIX_TRANSACTION = encoded 'StarkNet Transaction'
 PREFIX_TRANSACTION = 476441609247967894954472788179128007176248455022
+# From cairo-lang
+CONTRACT_ADDRESS_PREFIX = int_from_bytes(b"STARKNET_CONTRACT_ADDRESS")
+L2_ADDRESS_UPPER_BOUND = 2**251 - 256
 
 
 # Interface
@@ -41,6 +45,40 @@ def compute_hash_on_elements(data, hash_func=pedersen_hash):
     H([x,y,z]) = h(h(x,y),z) = H([w, z]) where w = h(x,y).
     """
     return functools.reduce(hash_func, [*data, len(data)], 0)
+
+
+def calculate_contract_address_from_hash(
+    salt: int,
+    class_hash: int,
+    constructor_calldata: Sequence[int],
+    deployer_address: int,
+    hash_function: Callable[[int, int], int] = pedersen_hash,
+) -> int:
+    """
+    Calculates the contract address in the starkNet network - a unique identifier of the contract.
+    The contract address is a hash chain of the following information:
+        1. Prefix.
+        2. Deployer address.
+        3. Salt.
+        4. Class hash.
+    To avoid exceeding the maximum address we take modulus L2_ADDRESS_UPPER_BOUND of the above
+    result.
+    """
+    constructor_calldata_hash = compute_hash_on_elements(
+        data=constructor_calldata, hash_func=hash_function
+    )
+    raw_address = compute_hash_on_elements(
+        data=[
+            CONTRACT_ADDRESS_PREFIX,
+            deployer_address,
+            salt,
+            class_hash,
+            constructor_calldata_hash,
+        ],
+        hash_func=hash_function,
+    )
+
+    return raw_address % L2_ADDRESS_UPPER_BOUND
 
 
 def hash_call_with(call: Call, hash_fun):

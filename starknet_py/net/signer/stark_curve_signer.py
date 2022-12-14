@@ -4,9 +4,6 @@ from typing import List
 from starkware.crypto.signature.signature import (
     private_to_stark_key,
 )
-from starkware.starknet.core.os.contract_address.contract_address import (
-    calculate_contract_address_from_hash,
-)
 from starkware.starknet.core.os.transaction_hash.transaction_hash import (
     calculate_transaction_hash_common,
     TransactionHashPrefix,
@@ -26,7 +23,10 @@ from starknet_py.net.models.transaction import (
     Invoke,
 )
 from starknet_py.net.signer.base_signer import BaseSigner
-from starknet_py.utils.crypto.facade import message_signature
+from starknet_py.utils.crypto.facade import (
+    message_signature,
+    calculate_contract_address_from_hash,
+)
 from starknet_py.utils.typed_data import TypedData as TypedDataDataclass
 from starknet_py.net.models.typed_data import TypedData
 
