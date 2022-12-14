@@ -30,6 +30,10 @@ class TupleDataclass:
     def as_dict(self) -> Dict:
         return {field.name: getattr(self, field.name) for field in fields(self)}
 
+    # Added for backward compatibility with previous implementation based on NamedTuple
+    def _asdict(self):
+        return self.as_dict()
+
     @staticmethod
     def from_dict(data: Dict, *, name: Optional[str] = None) -> TupleDataclass:
         result_class = make_dataclass(
