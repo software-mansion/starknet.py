@@ -1,3 +1,5 @@
+import pytest
+
 from starknet_py.utils.tuple_dataclass import TupleDataclass
 
 
@@ -10,9 +12,12 @@ def test_wrapped_named_tuple():
     input_tuple = tuple(input_dict.values())
 
     result = TupleDataclass.from_dict(input_dict)
+
     # __eq__ check
     assert input_tuple == result
     assert result == input_tuple
+    assert result == TupleDataclass.from_dict(input_dict, name="OtherNAme")
+
     assert result.as_tuple() == input_tuple
     assert result.as_dict() == input_dict
     assert result._asdict() == input_dict
@@ -24,3 +29,8 @@ def test_wrapped_named_tuple():
     result = TupleDataclass.from_dict(input_dict, name="CustomClass")
     assert str(result) == "CustomClass(first=1, second=2, third={'key': 'value'})"
     assert repr(result) == "CustomClass(first=1, second=2, third={'key': 'value'})"
+
+    with pytest.raises(
+        AttributeError, match="object has no attribute 'unknown_attribute'"
+    ):
+        result.unknown_attribute()
