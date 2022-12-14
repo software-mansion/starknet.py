@@ -5,7 +5,6 @@ from typing import Optional, Union, List, Iterable, Tuple, Dict, TypeVar
 from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.common import create_compiled_contract
-from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.net import KeyPair
 from starknet_py.net.account.account_deployment_result import AccountDeploymentResult
 from starknet_py.net.account.base_account import BaseAccount
@@ -29,7 +28,12 @@ from starknet_py.net.models import (
     compute_address,
 )
 from starknet_py.net.models.transaction import DeployAccount
-from starknet_py.net.networks import TESTNET, MAINNET, TESTNET2
+from starknet_py.net.networks import (
+    TESTNET,
+    MAINNET,
+    TESTNET2,
+    default_token_address_for_network,
+)
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 from starknet_py.utils.data_transformer.execute_transformer import (
@@ -87,14 +91,6 @@ class Account(BaseAccount):
     @property
     def supported_tx_version(self) -> int:
         return self._version
-
-    def _get_default_token_address(self) -> str:
-        if self._client.net not in [TESTNET, TESTNET2, MAINNET]:
-            raise ValueError(
-                "Token_address must be specified when using a custom net address"
-            )
-
-        return FEE_CONTRACT_ADDRESS
 
     async def _get_max_fee(
         self,
@@ -205,7 +201,9 @@ class Account(BaseAccount):
     async def get_balance(
         self, token_address: Optional[AddressRepresentation] = None
     ) -> int:
-        token_address = token_address or self._get_default_token_address()
+        token_address = token_address or default_token_address_for_network(
+            self._client.net
+        )
 
         low, high = await self._client.call_contract(
             Call(
