@@ -1,22 +1,22 @@
 from abc import ABC, abstractmethod
-from typing import TypeVar, Generic, Optional, Union, List, Generator
+from typing import TypeVar, Generic, List, Generator
 
-from starknet_py.utils.data_transformer.errors import InvalidValueException
+from starknet_py.cairo.serialization._serialization_context import SerializationContext
+from starknet_py.cairo.serialization.errors import InvalidValueException
 
-from starknet_py.utils.data_transformer._calldata_reader import CalldataReader
+from starknet_py.cairo.serialization._calldata_reader import CalldataReader
 from starknet_py.utils.data_transformer.data_transformer import CairoData
-from starknet_py.utils.data_transformer._transformation_context import (
-    TransformationContext,
-)
 
 # Python type that is accepted by a transformer
+# pylint: disable=invalid-name
 SerializationType = TypeVar("SerializationType")
 
 # Python type that will be returned from a transformer. Often same as SerializationType.
+# pylint: disable=invalid-name
 DeserializationType = TypeVar("DeserializationType")
 
 
-class BaseTransformer(ABC, Generic[SerializationType, DeserializationType]):
+class CairoDataSerializer(ABC, Generic[SerializationType, DeserializationType]):
     """
     Base class for serializing/deserializing data to/from calldata.
     """
@@ -29,7 +29,9 @@ class BaseTransformer(ABC, Generic[SerializationType, DeserializationType]):
         :return: defined DeserializationType.
         """
         reader = CalldataReader(data)
-        result = self._deserialize(CalldataReader(data), TransformationContext())
+        result = self.deserialize_with_context(
+            CalldataReader(data), SerializationContext()
+        )
         if reader.remaining_len != 0:
             raise InvalidValueException(
                 f"Provided {reader.remaining_len} excessive values out of total {len(data)} values for deserialization"
@@ -44,11 +46,11 @@ class BaseTransformer(ABC, Generic[SerializationType, DeserializationType]):
         :param data: data to serialize.
         :return: calldata.
         """
-        return list(self._serialize(data, TransformationContext()))
+        return list(self.serialize_with_context(data, SerializationContext()))
 
     @abstractmethod
-    def _deserialize(
-        self, reader: CalldataReader, context: TransformationContext
+    def deserialize_with_context(
+        self, reader: CalldataReader, context: SerializationContext
     ) -> DeserializationType:
         """
         Transform calldata into python value.
@@ -57,11 +59,10 @@ class BaseTransformer(ABC, Generic[SerializationType, DeserializationType]):
         :param context: context of this transformation.
         :return: defined DeserializationType.
         """
-        pass
 
     @abstractmethod
-    def _serialize(
-        self, value: SerializationType, context: TransformationContext
+    def serialize_with_context(
+        self, value: SerializationType, context: SerializationContext
     ) -> Generator[int, None, None]:
         """
         Transform python value into calldata.
@@ -70,4 +71,3 @@ class BaseTransformer(ABC, Generic[SerializationType, DeserializationType]):
         :param context: context of this transformation.
         :return: defined SerializationType.
         """
-        pass
