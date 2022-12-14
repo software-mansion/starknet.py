@@ -673,7 +673,7 @@ def _unpack_client_and_account(
     If provided with Account, returns underlying Client and the account.
     """
     if client is not None and account is not None:
-        raise ValueError("Account and client are mutually exclusive")
+        raise ValueError("account and client are mutually exclusive")
 
     if client is not None:
         if isinstance(client, AccountClient):
