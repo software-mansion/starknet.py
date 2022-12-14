@@ -3,7 +3,7 @@ from dataclasses import dataclass, fields, make_dataclass
 from typing import Dict, Optional, Tuple
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class TupleDataclass:
     """
     Dataclass that behaves like a tuple at the same time.
@@ -34,6 +34,11 @@ class TupleDataclass:
     def _asdict(self):
         return self.as_dict()
 
+    def __eq__(self, other):
+        if isinstance(other, TupleDataclass):
+            return self.as_tuple() == other.as_tuple()
+        return self.as_tuple() == other
+
     @staticmethod
     def from_dict(data: Dict, *, name: Optional[str] = None) -> TupleDataclass:
         result_class = make_dataclass(
@@ -41,5 +46,6 @@ class TupleDataclass:
             fields=[(key, type(value)) for key, value in data.items()],
             bases=(TupleDataclass,),
             frozen=True,
+            eq=False,
         )
         return result_class(**data)
