@@ -7,7 +7,6 @@ from typing import Tuple, List, Dict
 import pytest
 import pytest_asyncio
 from starkware.crypto.signature.signature import get_random_private_key
-from starkware.starknet.definitions.fields import ContractAddressSalt
 from starkware.starknet.services.api.gateway.transaction import (
     DEFAULT_DECLARE_SENDER_ADDRESS,
 )
@@ -42,6 +41,7 @@ from starknet_py.tests.e2e.utils import (
     get_deploy_account_details,
     get_deploy_account_transaction,
 )
+from starknet_py.utils.crypto.facade import get_random_value
 
 
 def create_account_client(
@@ -153,7 +153,7 @@ async def new_devnet_account_details(
     """
     private_key = get_random_private_key()
     key_pair = KeyPair.from_private_key(private_key)
-    salt = ContractAddressSalt.get_random_value()
+    salt = get_random_value()
 
     address = compute_address(
         class_hash=class_hash,
