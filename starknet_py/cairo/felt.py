@@ -4,7 +4,8 @@ from starkware.cairo.lang.compiler.ast.cairo_types import (
     TypeFelt,
 )
 from starkware.cairo.lang.compiler.identifier_definition import StructDefinition
-from starkware.crypto.signature.signature import FIELD_PRIME
+
+from starknet_py.constants import FIELD_PRIME
 
 
 def is_felt_pointer(cairo_type: CairoType) -> bool:
