@@ -1,6 +1,10 @@
 StarkNet <> Ethereum Messaging
 ==============================
 
+.. warning::
+    StarkNet <> Ethereum Messaging module is deprecated. If you are using it,
+    please contact us on our StarkNet discord channel: starknet-py.
+
 .. _Messaging:
 
 Module containing utilities to operate on StarkNet ->  Ethereum and Ethereum -> StarkNet messages
