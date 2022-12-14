@@ -41,7 +41,7 @@ from starknet_py.tests.e2e.utils import (
     get_deploy_account_details,
     get_deploy_account_transaction,
 )
-from starknet_py.utils.crypto.facade import get_random_value
+from starknet_py.utils.crypto.facade import get_random_salt
 
 
 def create_account_client(
@@ -153,7 +153,7 @@ async def new_devnet_account_details(
     """
     private_key = get_random_private_key()
     key_pair = KeyPair.from_private_key(private_key)
-    salt = get_random_value()
+    salt = get_random_salt()
 
     address = compute_address(
         class_hash=class_hash,

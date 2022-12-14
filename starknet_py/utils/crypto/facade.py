@@ -50,5 +50,5 @@ def pedersen_hash(left: int, right: int) -> int:
     return default_hash(left, right)
 
 
-def get_random_value() -> int:
+def get_random_salt() -> int:
     return random.Random().randrange(0, FIELD_PRIME)

@@ -9,7 +9,7 @@ from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
 from starknet_py.net.client_models import Hash, Call
 from starknet_py.net.models import AddressRepresentation, parse_address, compute_address
 from starknet_py.utils.contructor_args_translator import translate_constructor_args
-from starknet_py.utils.crypto.facade import pedersen_hash, get_random_value
+from starknet_py.utils.crypto.facade import pedersen_hash, get_random_salt
 from starknet_py.utils.data_transformer.universal_deployer_serializer import (
     universal_deployer_serializer,
     deploy_contract_abi,
@@ -87,7 +87,7 @@ class Deployer:
         :param raw_calldata: Plain Cairo constructor args of the contract to be deployed
         :return: NamedTuple with call and address of the contract to be deployed
         """
-        salt = cast(int, salt or get_random_value())
+        salt = cast(int, salt or get_random_salt())
         class_hash = int_from_hex(class_hash)
 
         calldata, _ = universal_deployer_serializer.from_python(

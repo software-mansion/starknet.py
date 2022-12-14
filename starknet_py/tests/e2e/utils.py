@@ -12,7 +12,7 @@ from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.net.networks import Network
-from starknet_py.utils.crypto.facade import get_random_value
+from starknet_py.utils.crypto.facade import get_random_salt
 
 AccountToBeDeployedDetails = Tuple[int, KeyPair, int, int]
 MAX_FEE = int(1e20)
@@ -29,7 +29,7 @@ async def get_deploy_account_details(
     """
     priv_key = get_random_private_key()
     key_pair = KeyPair.from_private_key(priv_key)
-    salt = get_random_value()
+    salt = get_random_salt()
 
     address = calculate_contract_address_from_hash(
         salt=salt,
