@@ -10,10 +10,9 @@ def test_wrapped_named_tuple():
     input_tuple = tuple(input_dict.values())
 
     result = TupleDataclass.from_dict(input_dict)
-    first = input_tuple == result
-    second = result == input_tuple
-    assert first
-    assert second
+    # __eq__ check
+    assert input_tuple == result
+    assert result == input_tuple
     assert result.as_tuple() == input_tuple
     assert result.as_dict() == input_dict
     assert result._asdict() == input_dict
