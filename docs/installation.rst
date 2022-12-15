@@ -5,42 +5,37 @@ To use StarkNet.py, ``ecdsa, fastecdsa, sympy`` dependencies are required. Depen
 different installation steps must be performed.
 
 Linux
-^^^^^
+-----
 
 .. code-block:: console
 
     sudo apt install -y libgmp3-dev
     pip install starknet-py
 
-MacOS with Intel processor
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+MacOS
+-----
 
-Requires `Homebrew <https://brew.sh/>`_  installation.
+Instructions assume `Homebrew <https://brew.sh/>`_ being installed.
+
+Intel processor
+^^^^^^^^^^^^^^^
 
 .. code-block:: console
 
     brew install gmp
     pip install starknet-py
 
-MacOS with Apple silicon
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-Requires `Homebrew <https://brew.sh/>`_  installation.
-First install gmp:
+Apple silicon
+^^^^^^^^^^^^^
 
 .. code-block:: console
 
     brew install gmp
-
-Then install required dependencies and StarkNet.py itself:
-
-.. code-block:: console
-
     CFLAGS=-I`brew --prefix gmp`/include LDFLAGS=-L`brew --prefix gmp`/lib pip install ecdsa fastecdsa sympy
     pip install starknet-py
 
 Windows
-^^^^^^^
+-------
 
 This library is incompatible with Windows devices.
 Use virtual machine with Linux, `Windows Subsystem for Linux 2 <https://learn.microsoft.com/en-us/windows/wsl/>`_ (WSL2) or other solution.
