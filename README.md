@@ -22,17 +22,10 @@
 - [API](https://starknetpy.rtfd.io/en/latest/api.html)
 
 ## ⚙️ Installation
-To install this package run
 
-```
-pip install starknet.py
-```
+Installation varies between operating systems. 
 
-or using Poetry:
-
-```
-poetry add starknet.py
-```
+[See our documentation on complete instructions](https://starknetpy.rtfd.io/en/latest/installation.html)
 
 ## ▶️ Example usage
 ### Asynchronous API
