@@ -2,7 +2,7 @@ Installation
 ============
 
 To use StarkNet.py, ``ecdsa, fastecdsa, sympy`` dependencies are required. Depending on the operating system,
-different install steps must be performed.
+different installation steps must be performed.
 
 Linux
 ^^^^^
