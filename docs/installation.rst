@@ -43,4 +43,4 @@ Windows
 ^^^^^^^
 
 This library is incompatible with Windows devices.
-Use virtual machine with Linux, Windows Subsystem for Linux 2 (WSL2) or other solution.
+Use virtual machine with Linux, `Windows Subsystem for Linux 2 <https://learn.microsoft.com/en-us/windows/wsl/>`_ (WSL2) or other solution.
