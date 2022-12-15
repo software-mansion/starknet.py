@@ -1,5 +1,4 @@
 import os
-import random
 from typing import Optional
 
 from crypto_cpp_py.cpp_bindings import (
@@ -11,7 +10,6 @@ from starkware.cairo.common.hash_state import compute_hash_on_elements
 from starkware.cairo.lang.vm.crypto import pedersen_hash as default_hash
 from starkware.crypto.signature.signature import sign
 
-from starknet_py.constants import EC_ORDER
 from starknet_py.net.client_models import Call
 
 # PREFIX_TRANSACTION = encoded 'StarkNet Transaction'
@@ -48,10 +46,3 @@ def pedersen_hash(left: int, right: int) -> int:
     if use_cpp_variant():
         return cpp_hash(left, right)
     return default_hash(left, right)
-
-
-def _get_random_private_key() -> int:
-    """
-    Returns a private key in the range [1, EC_ORDER).
-    """
-    return random.randint(1, EC_ORDER - 1)

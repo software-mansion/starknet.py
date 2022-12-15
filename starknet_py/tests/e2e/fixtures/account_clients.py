@@ -40,8 +40,8 @@ from starknet_py.tests.e2e.utils import (
     AccountToBeDeployedDetails,
     get_deploy_account_details,
     get_deploy_account_transaction,
+    _get_random_private_key,
 )
-from starknet_py.utils.crypto.facade import _get_random_private_key
 
 
 def create_account_client(

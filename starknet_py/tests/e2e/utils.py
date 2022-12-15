@@ -1,3 +1,4 @@
+import random
 from typing import Tuple, Optional, cast
 
 from starkware.starknet.core.os.contract_address.contract_address import (
@@ -5,6 +6,7 @@ from starkware.starknet.core.os.contract_address.contract_address import (
 )
 from starkware.starknet.definitions.fields import ContractAddressSalt
 
+from starknet_py.constants import EC_ORDER
 from starknet_py.contract import Contract
 from starknet_py.net import KeyPair, AccountClient
 from starknet_py.net.client import Client
@@ -12,7 +14,6 @@ from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.net.networks import Network
-from starknet_py.utils.crypto.facade import _get_random_private_key
 
 AccountToBeDeployedDetails = Tuple[int, KeyPair, int, int]
 MAX_FEE = int(1e20)
@@ -79,3 +80,10 @@ async def get_deploy_account_transaction(
         constructor_calldata=[key_pair.public_key],
         max_fee=MAX_FEE,
     )
+
+
+def _get_random_private_key() -> int:
+    """
+    Returns a private key in the range [1, EC_ORDER).
+    """
+    return random.randint(1, EC_ORDER - 1)
