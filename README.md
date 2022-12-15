@@ -16,6 +16,7 @@
 </div>
 
 ## 📘 Documentation
+
 - [Installation](https://starknetpy.rtfd.io/en/latest/installation.html)
 - [Quickstart](https://starknetpy.rtfd.io/en/latest/quickstart.html)
 - [Guide](https://starknetpy.rtfd.io/en/latest/guide.html)
@@ -23,12 +24,14 @@
 
 ## ⚙️ Installation
 
-Installation varies between operating systems. 
+Installation varies between operating systems.
 
 [See our documentation on complete instructions](https://starknetpy.rtfd.io/en/latest/installation.html)
 
 ## ▶️ Example usage
+
 ### Asynchronous API
+
 This is the recommended way of using the SDK.
 
 ```python
@@ -44,6 +47,7 @@ contract = await Contract.from_address(
 ```
 
 ### Synchronous API
+
 You can access synchronous world with `_sync` postfix.
 
 ```python
