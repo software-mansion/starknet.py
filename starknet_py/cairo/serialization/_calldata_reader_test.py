@@ -1,6 +1,6 @@
 import pytest
 
-from starknet_py.utils.data_transformer._calldata_reader import (
+from starknet_py.cairo.serialization._calldata_reader import (
     CalldataReader,
     OutOfBoundsError,
 )

@@ -1,17 +1,17 @@
 from contextlib import contextmanager
 from typing import List, Generator
 
-from starknet_py.utils.data_transformer._calldata_reader import OutOfBoundsError
-from starknet_py.utils.data_transformer.errors import (
+from starknet_py.cairo.serialization._calldata_reader import OutOfBoundsError
+from starknet_py.cairo.serialization.errors import (
     InvalidTypeException,
     InvalidValueException,
 )
 
 
-class TransformationContext:
+class SerializationContext:
     """
-    Holds information about context when transforming data. This is needed to inform what and where went wrong during
-    transformation. Every transformation should have its own transformation context.
+    Holds information about context when serializing data. This is needed to inform what and where went wrong during
+    transformation. Every seperate serialization should have its own transformation context.
     """
 
     _namespace_stack: List[str]
