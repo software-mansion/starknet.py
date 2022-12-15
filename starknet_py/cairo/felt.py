@@ -1,3 +1,5 @@
+from typing import List
+
 from starkware.cairo.lang.compiler.ast.cairo_types import (
     CairoType,
     TypePointer,
@@ -5,6 +7,8 @@ from starkware.cairo.lang.compiler.ast.cairo_types import (
 )
 from starkware.cairo.lang.compiler.identifier_definition import StructDefinition
 from starkware.crypto.signature.signature import FIELD_PRIME
+
+CairoData = List[int]
 
 
 def is_felt_pointer(cairo_type: CairoType) -> bool:
