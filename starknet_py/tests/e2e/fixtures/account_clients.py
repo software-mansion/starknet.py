@@ -41,7 +41,7 @@ from starknet_py.tests.e2e.utils import (
     get_deploy_account_details,
     get_deploy_account_transaction,
 )
-from starknet_py.utils.crypto.facade import get_random_private_key
+from starknet_py.utils.crypto.facade import _get_random_private_key
 
 
 def create_account_client(
@@ -66,7 +66,7 @@ async def devnet_account_details(
     """
     Deploys an AccountClient and adds fee tokens to its balance
     """
-    private_key = get_random_private_key()
+    private_key = _get_random_private_key()
     key_pair = KeyPair.from_private_key(private_key)
 
     deployer = Deployer()
@@ -151,7 +151,7 @@ async def new_devnet_account_details(
     """
     Deploys a new AccountClient and adds fee tokens to its balance (only on devnet)
     """
-    private_key = get_random_private_key()
+    private_key = _get_random_private_key()
     key_pair = KeyPair.from_private_key(private_key)
     salt = ContractAddressSalt.get_random_value()
 

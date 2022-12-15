@@ -4,7 +4,7 @@ from starkware.starknet.definitions.fields import ContractAddressSalt
 
 from starknet_py.contract import Contract
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
-from starknet_py.utils.crypto.facade import get_random_private_key
+from starknet_py.utils.crypto.facade import _get_random_private_key
 
 
 @pytest.mark.asyncio
@@ -21,7 +21,7 @@ async def test_deploy_prefunded_account(
 
     # First, make sure to generate private key and salt
     # docs: end
-    private_key = get_random_private_key()
+    private_key = _get_random_private_key()
     salt = ContractAddressSalt.get_random_value()
     class_hash = account_with_validate_deploy_class_hash
     # docs: start

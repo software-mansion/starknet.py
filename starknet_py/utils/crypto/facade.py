@@ -1,5 +1,5 @@
 import os
-import secrets
+import random
 from typing import Optional
 
 from crypto_cpp_py.cpp_bindings import (
@@ -50,8 +50,8 @@ def pedersen_hash(left: int, right: int) -> int:
     return default_hash(left, right)
 
 
-def get_random_private_key() -> int:
+def _get_random_private_key() -> int:
     """
     Returns a private key in the range [1, EC_ORDER).
     """
-    return secrets.randbelow(EC_ORDER - 1) + 1
+    return random.randint(1, EC_ORDER - 1)

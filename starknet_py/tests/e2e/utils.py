@@ -12,7 +12,7 @@ from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.net.networks import Network
-from starknet_py.utils.crypto.facade import get_random_private_key
+from starknet_py.utils.crypto.facade import _get_random_private_key
 
 AccountToBeDeployedDetails = Tuple[int, KeyPair, int, int]
 MAX_FEE = int(1e20)
@@ -27,7 +27,7 @@ async def get_deploy_account_details(
     :param class_hash: Class hash of account to be deployed
     :param fee_contract: Contract for prefunding deployments
     """
-    priv_key = get_random_private_key()
+    priv_key = _get_random_private_key()
     key_pair = KeyPair.from_private_key(priv_key)
     salt = ContractAddressSalt.get_random_value()
 
