@@ -4,7 +4,6 @@ from typing import Tuple, Optional, cast
 from starkware.starknet.core.os.contract_address.contract_address import (
     calculate_contract_address_from_hash,
 )
-from starkware.starknet.definitions.fields import ContractAddressSalt
 
 from starknet_py.constants import EC_ORDER
 from starknet_py.contract import Contract
@@ -30,7 +29,7 @@ async def get_deploy_account_details(
     """
     priv_key = _get_random_private_key()
     key_pair = KeyPair.from_private_key(priv_key)
-    salt = ContractAddressSalt.get_random_value()
+    salt = 1
 
     address = calculate_contract_address_from_hash(
         salt=salt,

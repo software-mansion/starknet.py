@@ -1,8 +1,7 @@
 from __future__ import annotations
 
+import random
 from typing import Optional, List, Union, cast, NamedTuple
-
-from starkware.starknet.definitions.fields import ContractAddressSalt
 
 from starknet_py.cairo.selector import get_selector_from_name
 from starknet_py.common import int_from_hex
@@ -16,6 +15,7 @@ from starknet_py.utils.data_transformer.universal_deployer_serializer import (
     deploy_contract_abi,
 )
 from starknet_py.utils.sync import add_sync_methods
+from starknet_py.constants import FIELD_PRIME
 
 
 ContractDeployment = NamedTuple("ContractDeployment", [("udc", Call), ("address", int)])
@@ -88,7 +88,7 @@ class Deployer:
         :param raw_calldata: Plain Cairo constructor args of the contract to be deployed
         :return: NamedTuple with call and address of the contract to be deployed
         """
-        salt = cast(int, salt or ContractAddressSalt.get_random_value())
+        salt = cast(int, salt or _get_random_salt())
         class_hash = int_from_hex(class_hash)
 
         calldata, _ = universal_deployer_serializer.from_python(
@@ -124,3 +124,7 @@ class Deployer:
             salt=salt,
             deployer_address=deployer_address,
         )
+
+
+def _get_random_salt() -> int:
+    return random.Random().randrange(0, FIELD_PRIME)

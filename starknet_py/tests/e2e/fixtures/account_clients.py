@@ -6,7 +6,7 @@ from typing import Tuple, List, Dict
 
 import pytest
 import pytest_asyncio
-from starkware.starknet.definitions.fields import ContractAddressSalt
+
 from starkware.starknet.services.api.gateway.transaction import (
     DEFAULT_DECLARE_SENDER_ADDRESS,
 )
@@ -153,7 +153,7 @@ async def new_devnet_account_details(
     """
     private_key = _get_random_private_key()
     key_pair = KeyPair.from_private_key(private_key)
-    salt = ContractAddressSalt.get_random_value()
+    salt = 1
 
     address = compute_address(
         class_hash=class_hash,
