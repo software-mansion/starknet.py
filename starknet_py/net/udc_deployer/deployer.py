@@ -3,8 +3,8 @@ from __future__ import annotations
 from typing import Optional, List, Union, cast, NamedTuple
 
 from starkware.starknet.definitions.fields import ContractAddressSalt
-from starkware.starknet.public.abi import get_selector_from_name
 
+from starknet_py.cairo.selector import get_selector_from_name
 from starknet_py.common import int_from_hex
 from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
 from starknet_py.net.client_models import Hash, Call
