@@ -85,5 +85,6 @@ async def get_deploy_account_transaction(
 def _get_random_private_key() -> int:
     """
     Returns a private key in the range [1, EC_ORDER).
+    This is not a safe way of generating private keys and should be used only in tests.
     """
     return random.randint(1, EC_ORDER - 1)
