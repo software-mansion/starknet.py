@@ -55,7 +55,7 @@ def calculate_contract_address_from_hash(
     hash_function: Callable[[int, int], int] = pedersen_hash,
 ) -> int:
     """
-    Calculates the contract address in the starkNet network - a unique identifier of the contract.
+    Calculates the contract address in the StarkNet network - a unique identifier of the contract.
     The contract address is a hash chain of the following information:
         1. Prefix.
         2. Deployer address.
