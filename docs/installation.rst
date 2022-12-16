@@ -31,8 +31,7 @@ Apple silicon
 .. code-block:: console
 
     brew install gmp
-    CFLAGS=-I`brew --prefix gmp`/include LDFLAGS=-L`brew --prefix gmp`/lib pip install ecdsa fastecdsa sympy
-    pip install starknet-py
+    CFLAGS=-I`brew --prefix gmp`/include LDFLAGS=-L`brew --prefix gmp`/lib pip install starknet-py
 
 Windows
 -------
