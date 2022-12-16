@@ -12,7 +12,7 @@
 [![license](https://img.shields.io/badge/license-MIT-black)](https://github.com/software-mansion/starknet.py/blob/master/LICENSE.txt)
 [![stars](https://img.shields.io/github/stars/software-mansion/starknet.py?color=yellow)](https://github.com/software-mansion/starknet.py/stargazers)
 [![starkware](https://img.shields.io/badge/powered_by-StarkWare-navy)](https://starkware.co)
-
+[![Read FAQ](https://img.shields.io/badge/Ask%20Question-Read%20FAQ-000000)](https://www.newton.so/view?tags=starknetpy)
 </div>
 
 ## 📘 Documentation
@@ -21,6 +21,7 @@
 - [Quickstart](https://starknetpy.rtfd.io/en/latest/quickstart.html)
 - [Guide](https://starknetpy.rtfd.io/en/latest/guide.html)
 - [API](https://starknetpy.rtfd.io/en/latest/api.html)
+- [FAQ](https://www.newton.so/view?tags=starknetpy)
 
 ## ⚙️ Installation
 
@@ -63,3 +64,17 @@ contract = Contract.from_address_sync(
 ```
 
 For more examples click [here](https://starknetpy.rtfd.io/en/latest/quickstart.html).
+
+## ❓Questions / FAQ
+
+Questions are welcome!
+If you have any questions regarding Starknetpy, feel free to ask them using [Newton](https://www.newton.so/view?tags=starknetpy).
+
+### FAQ
+- [How to get the contract ABI using Starknet.Py?](https://www.newton.so/view/6396da0279d6fc052ee89836)
+- [How to deploy a contract through starknet.py?](https://www.newton.so/view/639988001b2d6ff34ff7c303)
+- [How to send tokens through StarkNet.py?](https://www.newton.so/view/639c3115c2fdce3d188d0293)
+- [How to use await in StarkNet.py?](https://www.newton.so/view/639c307fc2fdce3d188d0292)
+- [What does this error means? (AssertionError: assert_not_zero failed: 0 = 0.)](https://www.newton.so/view/639c295efd8cf7a2c25adbc8)
+- [How to use Argent (or any from the main providers) account in the StarkNet.py?](https://www.newton.so/view/639c2b32fd8cf7a2c25adbc9)
+- [StarknetPy Error in get_balance_sync (StarknetErrorCode.ENTRY_POINT_NOT_FOUND_IN_CONTRACT)](https://www.newton.so/view/63983e3fa99cb007b4a247c6)
