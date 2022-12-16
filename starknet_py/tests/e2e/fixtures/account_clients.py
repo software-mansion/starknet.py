@@ -22,7 +22,7 @@ from starknet_py.net.models import (
     StarknetChainId,
     compute_address,
 )
-from starknet_py.net.udc_deployer.deployer import Deployer
+from starknet_py.net.udc_deployer.deployer import Deployer, get_random_salt
 from starknet_py.tests.e2e.fixtures.constants import (
     TESTNET_ACCOUNT_ADDRESS,
     TESTNET_ACCOUNT_PRIVATE_KEY,
@@ -41,7 +41,6 @@ from starknet_py.tests.e2e.utils import (
     get_deploy_account_details,
     get_deploy_account_transaction,
 )
-from starknet_py.utils.crypto.facade import get_random_salt
 
 
 def create_account_client(

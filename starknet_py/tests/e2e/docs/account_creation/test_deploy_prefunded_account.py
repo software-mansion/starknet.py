@@ -3,8 +3,8 @@ import pytest
 from starkware.crypto.signature.signature import get_random_private_key
 
 from starknet_py.contract import Contract
+from starknet_py.net.udc_deployer.deployer import get_random_salt
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
-from starknet_py.utils.crypto.facade import get_random_salt
 
 
 @pytest.mark.asyncio

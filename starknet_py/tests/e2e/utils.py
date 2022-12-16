@@ -12,7 +12,7 @@ from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.net.networks import Network
-from starknet_py.utils.crypto.facade import get_random_salt
+from starknet_py.net.udc_deployer.deployer import get_random_salt
 
 AccountToBeDeployedDetails = Tuple[int, KeyPair, int, int]
 MAX_FEE = int(1e20)
