@@ -22,7 +22,7 @@ from starknet_py.net.models import (
     StarknetChainId,
     compute_address,
 )
-from starknet_py.net.udc_deployer.deployer import Deployer, get_random_salt
+from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import (
     TESTNET_ACCOUNT_ADDRESS,
     TESTNET_ACCOUNT_PRIVATE_KEY,
@@ -152,7 +152,7 @@ async def new_devnet_account_details(
     """
     private_key = get_random_private_key()
     key_pair = KeyPair.from_private_key(private_key)
-    salt = get_random_salt()
+    salt = 1
 
     address = compute_address(
         class_hash=class_hash,
