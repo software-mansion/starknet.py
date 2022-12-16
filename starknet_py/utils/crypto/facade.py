@@ -10,12 +10,8 @@ from crypto_cpp_py.cpp_bindings import (
 from starkware.cairo.lang.vm.crypto import pedersen_hash as default_hash
 from starkware.crypto.signature.signature import sign
 
-from starknet_py.common import int_from_bytes
+from starknet_py.constants import CONTRACT_ADDRESS_PREFIX, L2_ADDRESS_UPPER_BOUND
 from starknet_py.net.client_models import Call
-
-# From cairo-lang
-CONTRACT_ADDRESS_PREFIX = int_from_bytes(b"STARKNET_CONTRACT_ADDRESS")
-L2_ADDRESS_UPPER_BOUND = 2**251 - 256
 
 
 # Interface

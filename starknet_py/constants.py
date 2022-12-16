@@ -5,6 +5,8 @@ from starkware.starknet.services.api.feeder_gateway.response_objects import (
     TransactionStatus,
 )
 
+from starknet_py.common import int_from_bytes
+
 TxStatus = TransactionStatus
 
 ACCEPTED_STATUSES = (TxStatus.ACCEPTED_ON_L1, TxStatus.ACCEPTED_ON_L2)
@@ -28,3 +30,7 @@ ADDR_BOUND = 2**251 - MAX_STORAGE_ITEM_SIZE
 
 FIELD_PRIME = 0x800000000000011000000000000000000000000000000000000000000000001
 EC_ORDER = 0x800000000000010FFFFFFFFFFFFFFFFB781126DCAE7B2321E66A241ADC64D2F
+
+# From cairo-lang
+CONTRACT_ADDRESS_PREFIX = int_from_bytes(b"STARKNET_CONTRACT_ADDRESS")
+L2_ADDRESS_UPPER_BOUND = 2**251 - 256
