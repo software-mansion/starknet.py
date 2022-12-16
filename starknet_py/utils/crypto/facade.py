@@ -34,7 +34,7 @@ def pedersen_hash(left: int, right: int) -> int:
 
 
 def compute_hash_on_elements(
-    data, hash_func: Callable[[int, int], int] = pedersen_hash
+    data: Sequence, hash_func: Callable[[int, int], int] = pedersen_hash
 ):
     """
     Computes a hash chain over the data, in the following order:
