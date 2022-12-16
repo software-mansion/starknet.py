@@ -22,7 +22,7 @@ DEFAULT_ENTRY_POINT_SELECTOR = 0
 MASK_250 = 2**250 - 1
 
 # MAX_STORAGE_ITEM_SIZE and ADDR_BOUND must be consistent with the corresponding constant in
-# starkware/starknet/common/storage/storage.cairo.
+# starkware/starknet/common/storage.cairo.
 MAX_STORAGE_ITEM_SIZE = 256
 ADDR_BOUND = 2**251 - MAX_STORAGE_ITEM_SIZE
 
