@@ -13,8 +13,6 @@ from starkware.crypto.signature.signature import sign
 from starknet_py.common import int_from_bytes
 from starknet_py.net.client_models import Call
 
-# PREFIX_TRANSACTION = encoded 'StarkNet Transaction'
-PREFIX_TRANSACTION = 476441609247967894954472788179128007176248455022
 # From cairo-lang
 CONTRACT_ADDRESS_PREFIX = int_from_bytes(b"STARKNET_CONTRACT_ADDRESS")
 L2_ADDRESS_UPPER_BOUND = 2**251 - 256
