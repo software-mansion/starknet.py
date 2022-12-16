@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC
 from contextlib import contextmanager
-from typing import List, Generator, ContextManager, Any
+from typing import List, Generator, Any, Iterator
 
 from starknet_py.cairo.serialization._calldata_reader import (
     OutOfBoundsError,
@@ -49,11 +49,9 @@ class Context(ABC):
         yield
         self._namespace_stack.pop()
 
-    def ensure_valid_value(self, value: Any, valid: bool, text: str):
+    def ensure_valid_value(self, valid: bool, text: str):
         if not valid:
-            raise InvalidValueException(
-                f"{self._error_prefix}: invalid value '{value}' - {text}."
-            )
+            raise InvalidValueException(f"{self._error_prefix}: {text}.")
 
     def ensure_valid_type(self, value: Any, valid: bool, expected_type: str):
         if not valid:
@@ -63,7 +61,7 @@ class Context(ABC):
             )
 
     @contextmanager
-    def _wrap_errors(self) -> ContextManager:
+    def _wrap_errors(self):
         try:
             yield
         except OutOfBoundsError as err:
@@ -94,9 +92,11 @@ class SerializationContext(Context):
     Context used during serialization.
     """
 
+    # Type is iterator, because ContextManager doesn't work with pyright :|
+    # https://github.com/microsoft/pyright/issues/476
     @classmethod
     @contextmanager
-    def create(cls) -> ContextManager[SerializationContext]:
+    def create(cls) -> Iterator[SerializationContext]:
         context = cls()
         with context._wrap_errors():
             yield context
@@ -119,7 +119,7 @@ class DeserializationContext(Context):
 
     @classmethod
     @contextmanager
-    def create(cls, data: CairoData) -> ContextManager[DeserializationContext]:
+    def create(cls, data: CairoData) -> Iterator[DeserializationContext]:
         context = cls(data)
         with context._wrap_errors():
             yield context

@@ -5,6 +5,10 @@ from starknet_py.cairo.serialization._context import (
     DeserializationContext,
     SerializationContext,
 )
+from starknet_py.cairo.serialization.data_serializers._common import (
+    deserialize_to_list,
+    serialize_from_list,
+)
 from starknet_py.cairo.serialization.data_serializers.cairo_data_serializer import (
     CairoDataSerializer,
 )
@@ -21,23 +25,15 @@ class ArraySerializer(CairoDataSerializer[Iterable, List]):
     inner_serializer: CairoDataSerializer
 
     def deserialize_with_context(self, context: DeserializationContext) -> List:
-        result = []
-
         with context.push_entity("len"):
             [size] = context.reader.read(1)
 
-        for index in range(size):
-            with context.push_entity(f"[{index}]"):
-                result.append(self.inner_serializer.deserialize_with_context(context))
-
-        return result
+        return deserialize_to_list([self.inner_serializer] * size, context)
 
     def serialize_with_context(
         self, context: SerializationContext, value: List
     ) -> Generator[int, None, None]:
         yield len(value)
-        for index, element in enumerate(value):
-            with context.push_entity(f"[{index}]"):
-                yield from self.inner_serializer.serialize_with_context(
-                    context, element
-                )
+        yield from serialize_from_list(
+            [self.inner_serializer] * len(value), context, value
+        )

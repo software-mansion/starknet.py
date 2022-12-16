@@ -45,5 +45,6 @@ class FeltSerializer(CairoDataSerializer[int, int]):
     @staticmethod
     def _ensure_felt(context: Context, value: int):
         context.ensure_valid_value(
-            value, is_in_felt_range(value), f"must be in [0, {FIELD_PRIME}) range"
+            is_in_felt_range(value),
+            f"invalid value '{value}' - must be in [0, {FIELD_PRIME}) range",
         )
