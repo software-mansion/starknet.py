@@ -1,6 +1,6 @@
 from typing import List
 
-CairoData = List[int]
+from starknet_py.cairo.felt import CairoData
 
 
 class OutOfBoundsError(Exception):
