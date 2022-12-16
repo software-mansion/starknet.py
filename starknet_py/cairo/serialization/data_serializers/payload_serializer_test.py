@@ -21,7 +21,7 @@ def test_remove_array_lengths():
         )
     )
     # len parameters have to be removed
-    assert "values_len" not in serializer.serializers
+    assert set(serializer.serializers.keys()) == {"x", "y", "values"}
 
     data = {"x": 1, "y": 2, "values": [0, 0, 0]}
     serialized = [1, 2, 3, 0, 0, 0]
