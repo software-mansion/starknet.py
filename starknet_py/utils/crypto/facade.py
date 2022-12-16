@@ -33,7 +33,9 @@ def pedersen_hash(left: int, right: int) -> int:
     return default_hash(left, right)
 
 
-def compute_hash_on_elements(data, hash_func=pedersen_hash):
+def compute_hash_on_elements(
+    data, hash_func: Callable[[int, int], int] = pedersen_hash
+):
     """
     Computes a hash chain over the data, in the following order:
         h(h(h(h(0, data[0]), data[1]), ...), data[n-1]), n).
