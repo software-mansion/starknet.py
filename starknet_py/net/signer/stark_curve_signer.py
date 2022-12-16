@@ -16,6 +16,7 @@ from starknet_py.net.models import (
     StarknetChainId,
     Transaction,
     parse_address,
+    compute_address,
 )
 from starknet_py.net.models.transaction import (
     DeployAccount,
@@ -25,7 +26,6 @@ from starknet_py.net.models.transaction import (
 from starknet_py.net.signer.base_signer import BaseSigner
 from starknet_py.utils.crypto.facade import (
     message_signature,
-    calculate_contract_address_from_hash,
 )
 from starknet_py.utils.typed_data import TypedData as TypedDataDataclass
 from starknet_py.net.models.typed_data import TypedData
@@ -101,7 +101,7 @@ class StarkCurveSigner(BaseSigner):
         return [r, s]
 
     def _sign_deploy_account_transaction(self, transaction: DeployAccount) -> List[int]:
-        contract_address = calculate_contract_address_from_hash(
+        contract_address = compute_address(
             salt=transaction.contract_address_salt,
             class_hash=transaction.class_hash,
             constructor_calldata=transaction.constructor_calldata,

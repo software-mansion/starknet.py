@@ -9,7 +9,6 @@ from starknet_py.utils.crypto.facade import (
     use_cpp_variant,
     message_signature,
     compute_hash_on_elements,
-    calculate_contract_address_from_hash,
 )
 
 
@@ -57,20 +56,3 @@ def test_invalid_crypto_path(monkeypatch, mocker):
 )
 def test_compute_hash_on_elements(data, calculated_hash):
     assert compute_hash_on_elements(data) == calculated_hash
-
-
-@pytest.mark.parametrize(
-    "arguments, address",
-    (
-        (
-            [1, 2, [3], 4],
-            296466049769010619130055662555465001815173386550478216966400522667014690526,
-        ),
-        (
-            [28, 15, [39], 74],
-            1877227104558966757770142952736747103261834251226178222423748494213739781291,
-        ),
-    ),
-)
-def test_calculate_contract_address_from_hash(arguments, address):
-    assert calculate_contract_address_from_hash(*arguments) == address

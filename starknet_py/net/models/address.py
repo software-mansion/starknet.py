@@ -4,7 +4,11 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
     BlockIdentifier,
 )
 
-from starknet_py.utils.crypto.facade import calculate_contract_address_from_hash
+from starknet_py.constants import CONTRACT_ADDRESS_PREFIX, L2_ADDRESS_UPPER_BOUND
+from starknet_py.utils.crypto.facade import (
+    compute_hash_on_elements,
+    pedersen_hash,
+)
 from starknet_py.utils.docs import as_our_module
 
 AddressRepresentation = Union[int, str]
@@ -29,7 +33,7 @@ def compute_address(
     deployer_address: int = 0,
 ) -> int:
     """
-    Computes contract's address.
+    Computes the contract address in the StarkNet network - a unique identifier of the contract.
 
     :param class_hash: class hash of the contract
     :param constructor_calldata: calldata for the contract constructor
@@ -38,12 +42,21 @@ def compute_address(
     :return: Contract's address
     """
 
-    return calculate_contract_address_from_hash(
-        class_hash=class_hash,
-        constructor_calldata=constructor_calldata,
-        salt=salt,
-        deployer_address=deployer_address,
+    constructor_calldata_hash = compute_hash_on_elements(
+        data=constructor_calldata, hash_func=pedersen_hash
     )
+    raw_address = compute_hash_on_elements(
+        data=[
+            CONTRACT_ADDRESS_PREFIX,
+            deployer_address,
+            salt,
+            class_hash,
+            constructor_calldata_hash,
+        ],
+        hash_func=pedersen_hash,
+    )
+
+    return raw_address % L2_ADDRESS_UPPER_BOUND
 
 
 BlockIdentifier = as_our_module(BlockIdentifier)
