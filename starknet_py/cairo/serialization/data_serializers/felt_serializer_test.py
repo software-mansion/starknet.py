@@ -17,7 +17,6 @@ from starknet_py.cairo.serialization.errors import (
     [0, 1, 322132123, FIELD_PRIME - 1],
 )
 def test_valid_felt_values(value):
-    print(value)
     serialized = FeltSerializer().serialize(value)
     deserialized = FeltSerializer().deserialize([value])
 
@@ -43,7 +42,7 @@ def test_invalid_shortstrings():
     with pytest.raises(
         InvalidValueException, match="cannot be longer than 31 characters"
     ):
-        FeltSerializer().serialize(cast(int, "12345678901234567890123456789012"))
+        FeltSerializer().serialize(cast(int, "a" * 32))
 
 
 def test_invalid_type():

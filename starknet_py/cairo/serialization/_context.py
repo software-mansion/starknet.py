@@ -38,11 +38,13 @@ class Context(ABC):
     @contextmanager
     def push_entity(self, name: str) -> Generator:
         """
-        Manager used for maintaining information about names of (de)serialized types. Will wrap some errors with
+        Manager used for maintaining information about names of (de)serialized types. Wraps some errors with
         custom errors, adding information about the context.
 
         :param name: name of (de)serialized entity.
         """
+        # This ensures the name will be popped if everything is ok. In case an exception is raised we want the stack to
+        # be filled to wrap the error at the end.
         self._namespace_stack.append(name)
         yield
         self._namespace_stack.pop()
@@ -92,11 +94,10 @@ class SerializationContext(Context):
     Context used during serialization.
     """
 
-    @staticmethod
+    @classmethod
     @contextmanager
-    def create() -> ContextManager[SerializationContext]:
-        context = SerializationContext()
-        # pylint: disable=protected-access
+    def create(cls) -> ContextManager[SerializationContext]:
+        context = cls()
         with context._wrap_errors():
             yield context
 
@@ -116,11 +117,10 @@ class DeserializationContext(Context):
         self._namespace_stack = []
         self.reader = CalldataReader(calldata)
 
-    @staticmethod
+    @classmethod
     @contextmanager
-    def create(data: CairoData) -> ContextManager[DeserializationContext]:
-        context = DeserializationContext(data)
-        # pylint: disable=protected-access
+    def create(cls, data: CairoData) -> ContextManager[DeserializationContext]:
+        context = cls(data)
         with context._wrap_errors():
             yield context
             values_not_used = context.reader.remaining_len
