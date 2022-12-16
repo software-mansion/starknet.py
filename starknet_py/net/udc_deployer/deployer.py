@@ -89,7 +89,7 @@ class Deployer:
         :param raw_calldata: Plain Cairo constructor args of the contract to be deployed
         :return: NamedTuple with call and address of the contract to be deployed
         """
-        salt = cast(int, salt or get_random_salt())
+        salt = cast(int, salt or _get_random_salt())
         class_hash = int_from_hex(class_hash)
 
         calldata, _ = universal_deployer_serializer.from_python(
@@ -127,5 +127,5 @@ class Deployer:
         )
 
 
-def get_random_salt() -> int:
+def _get_random_salt() -> int:
     return random.Random().randrange(0, FIELD_PRIME)
