@@ -83,7 +83,7 @@ def serialize_from_dict_by_key(
     Serializes data from dict. It emits tuples (name, generator for value). This makes it possible to know serialized
     values for each key.
     """
-    excessive_keys = get_excessive_keys(serializers.keys(), values)
+    excessive_keys = set(values.keys()).difference(serializers.keys())
     context.ensure_valid_value(
         not excessive_keys,
         f"unexpected keys '{','.join(excessive_keys)}' were provided",
@@ -93,10 +93,3 @@ def serialize_from_dict_by_key(
         with context.push_entity(name):
             context.ensure_valid_value(name in values, f"key '{name}' is missing")
             yield name, serializer.serialize_with_context(context, values[name])
-
-
-def get_excessive_keys(expected: Iterable[str], arguments: Dict) -> Set[str]:
-    """
-    Returns arguments that were provided, but were not defined in the API.
-    """
-    return set(arguments.keys()).difference(expected)
