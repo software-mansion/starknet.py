@@ -1,10 +1,11 @@
+import random
 from typing import Tuple, Optional, cast
 
-from starkware.crypto.signature.signature import get_random_private_key
 from starkware.starknet.core.os.contract_address.contract_address import (
     calculate_contract_address_from_hash,
 )
 
+from starknet_py.constants import EC_ORDER
 from starknet_py.contract import Contract
 from starknet_py.net import KeyPair, AccountClient
 from starknet_py.net.client import Client
@@ -26,7 +27,7 @@ async def get_deploy_account_details(
     :param class_hash: Class hash of account to be deployed
     :param fee_contract: Contract for prefunding deployments
     """
-    priv_key = get_random_private_key()
+    priv_key = _get_random_private_key()
     key_pair = KeyPair.from_private_key(priv_key)
     salt = 1
 
@@ -78,3 +79,11 @@ async def get_deploy_account_transaction(
         constructor_calldata=[key_pair.public_key],
         max_fee=MAX_FEE,
     )
+
+
+def _get_random_private_key() -> int:
+    """
+    Returns a private key in the range [1, EC_ORDER).
+    This is not a safe way of generating private keys and should be used only in tests.
+    """
+    return random.randint(1, EC_ORDER - 1)
