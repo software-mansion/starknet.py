@@ -343,7 +343,11 @@ class ContractFunction:
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :return: PreparedFunctionCall.
         """
-        version = self.account.supported_tx_version if self.account is not None else 0
+        version = (
+            self.account.supported_transaction_version
+            if self.account is not None
+            else 0
+        )
 
         if version == 0:
             warnings.warn(

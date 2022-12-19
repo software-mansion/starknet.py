@@ -29,7 +29,7 @@ class AccountProxy(BaseAccount):
         return self._account_client.client
 
     @property
-    def supported_tx_version(self) -> int:
+    def supported_transaction_version(self) -> int:
         return self._account_client.supported_tx_version
 
     async def get_nonce(self) -> int:

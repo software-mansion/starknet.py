@@ -89,7 +89,7 @@ class Account(BaseAccount):
         return self._client
 
     @property
-    def supported_tx_version(self) -> int:
+    def supported_transaction_version(self) -> int:
         return self._version
 
     async def _get_max_fee(
