@@ -25,6 +25,9 @@ from starknet_py.cairo.serialization.serialized_payload import SerializedPayload
 
 from starknet_py.utils.tuple_dataclass import TupleDataclass
 
+SIZE_SUFFIX = "_len"
+SIZE_SUFFIX_LEN = len(SIZE_SUFFIX)
+
 
 @dataclass
 class PayloadSerializer(CairoDataSerializer[Dict, TupleDataclass]):
@@ -77,9 +80,12 @@ class PayloadSerializer(CairoDataSerializer[Dict, TupleDataclass]):
         yield from serialize_from_dict(self.serializers, context, value)
 
     @staticmethod
-    def _is_len_arg(arg_name: str, transfomers: Dict[str, CairoDataSerializer]) -> bool:
+    def _is_len_arg(arg_name: str, serializers: Dict[str, CairoDataSerializer]) -> bool:
         return (
-            arg_name.endswith("_len")
-            and isinstance(transfomers[arg_name], FeltSerializer)
-            and isinstance(transfomers.get(arg_name[:-4]), ArraySerializer)
+            arg_name.endswith(SIZE_SUFFIX)
+            and isinstance(serializers[arg_name], FeltSerializer)
+            # There is an ArraySerializer under key that is arg_name without the size suffix
+            and isinstance(
+                serializers.get(arg_name[:-SIZE_SUFFIX_LEN]), ArraySerializer
+            )
         )

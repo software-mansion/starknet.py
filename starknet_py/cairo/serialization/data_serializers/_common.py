@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import Dict, Iterable, Generator, List, Tuple, Set
+from typing import Dict, Iterable, Generator, List, Tuple
 
 from starknet_py.cairo.serialization._context import (
     DeserializationContext,
@@ -10,7 +10,7 @@ from starknet_py.cairo.serialization.data_serializers.cairo_data_serializer impo
 )
 
 
-# The actual serialization logic is actually very similar among all serializers: they either serialize data based on
+# The actual serialization logic is very similar among all serializers: they either serialize data based on
 # position or their name. Having this logic reused adds indirection, but makes sure proper logic is used everywhere.
 
 
