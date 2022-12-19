@@ -191,7 +191,7 @@ async def test_error_when_invoking_without_account_client(gateway_client, map_co
 
     with pytest.raises(
         ValueError,
-        match="Contract was created without Account provided or with Client that is not an account.",
+        match="Contract was created without Account or with Client that is not an account.",
     ):
         await contract.functions["put"].prepare(key=10, value=10).invoke(
             max_fee=MAX_FEE
@@ -206,7 +206,7 @@ async def test_error_when_estimating_fee_while_not_using_account_client(
 
     with pytest.raises(
         ValueError,
-        match="Contract was created without Account provided or with Client that is not an account.",
+        match="Contract was created without Account or with Client that is not an account.",
     ):
         await contract.functions["put"].prepare(key=10, value=10).estimate_fee()
 

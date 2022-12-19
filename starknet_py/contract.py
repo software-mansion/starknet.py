@@ -228,7 +228,7 @@ class PreparedFunctionCall(Call):
             return self._internal_account
 
         raise ValueError(
-            "Contract was created without Account provided or with Client that is not an account."
+            "Contract was created without Account or with Client that is not an account."
         )
 
     async def call_raw(
