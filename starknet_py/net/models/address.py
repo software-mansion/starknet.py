@@ -7,7 +7,6 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
 from starknet_py.constants import CONTRACT_ADDRESS_PREFIX, L2_ADDRESS_UPPER_BOUND
 from starknet_py.utils.crypto.facade import (
     compute_hash_on_elements,
-    pedersen_hash,
 )
 from starknet_py.utils.docs import as_our_module
 
@@ -42,9 +41,7 @@ def compute_address(
     :return: Contract's address
     """
 
-    constructor_calldata_hash = compute_hash_on_elements(
-        data=constructor_calldata, hash_func=pedersen_hash
-    )
+    constructor_calldata_hash = compute_hash_on_elements(data=constructor_calldata)
     raw_address = compute_hash_on_elements(
         data=[
             CONTRACT_ADDRESS_PREFIX,
@@ -53,7 +50,6 @@ def compute_address(
             class_hash,
             constructor_calldata_hash,
         ],
-        hash_func=pedersen_hash,
     )
 
     return raw_address % L2_ADDRESS_UPPER_BOUND

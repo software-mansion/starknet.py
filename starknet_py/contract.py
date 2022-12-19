@@ -28,7 +28,7 @@ from starknet_py.proxy.contract_abi_resolver import (
 )
 from starknet_py.net import AccountClient
 from starknet_py.net.client import Client
-from starknet_py.net.client_models import Hash, Tag
+from starknet_py.net.client_models import Hash, Tag, Call
 from starknet_py.net.models import (
     Invoke,
     AddressRepresentation,
@@ -36,7 +36,7 @@ from starknet_py.net.models import (
     compute_address,
 )
 from starknet_py.utils.contructor_args_translator import translate_constructor_args
-from starknet_py.utils.crypto.facade import pedersen_hash, Call
+from starknet_py.utils.crypto.facade import pedersen_hash
 from starknet_py.utils.data_transformer import FunctionCallSerializer
 from starknet_py.utils.sync import add_sync_methods
 
