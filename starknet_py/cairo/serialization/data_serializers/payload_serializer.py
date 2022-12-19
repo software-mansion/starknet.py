@@ -37,7 +37,8 @@ class PayloadSerializer(CairoDataSerializer[Dict, TupleDataclass]):
     Deserializes data to a TupleDataclass.
     """
 
-    # Value present only in constructor
+    # Value present only in constructor.
+    # We don't want to mutate the serializers received in constructor.
     input_serializers: InitVar[OrderedDict[str, CairoDataSerializer]]
 
     serializers: OrderedDict[str, CairoDataSerializer] = field(init=False)
