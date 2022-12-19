@@ -25,12 +25,12 @@ class NamedTupleSerializer(
     Deserializes data to a TupleDataclass.
     """
 
-    types: OrderedDict[str, CairoDataSerializer]
+    serializers: OrderedDict[str, CairoDataSerializer]
 
     def deserialize_with_context(
         self, context: DeserializationContext
     ) -> TupleDataclass:
-        as_dictionary = deserialize_to_dict(self.types, context)
+        as_dictionary = deserialize_to_dict(self.serializers, context)
         return TupleDataclass.from_dict(as_dictionary)
 
     def serialize_with_context(
@@ -48,7 +48,7 @@ class NamedTupleSerializer(
         # noinspection PyUnresolvedReferences, PyProtectedMember
         values: Dict = value if isinstance(value, dict) else value._asdict()
 
-        yield from serialize_from_dict(self.types, context, values)
+        yield from serialize_from_dict(self.serializers, context, values)
 
     @staticmethod
     def _is_namedtuple(value) -> bool:
