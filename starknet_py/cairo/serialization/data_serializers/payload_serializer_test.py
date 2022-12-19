@@ -25,10 +25,5 @@ def test_remove_array_lengths():
 
     data = {"x": 1, "y": 2, "values": [0, 0, 0]}
     serialized = [1, 2, 3, 0, 0, 0]
-    assert serializer.serialize_members(data) == {
-        "x": [1],
-        "y": [2],
-        "values": [3, 0, 0, 0],
-    }
     assert serializer.serialize(data) == serialized
     assert serializer.deserialize(serialized) == tuple(data.values())

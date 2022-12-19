@@ -8,7 +8,6 @@ from starknet_py.cairo.serialization._context import (
 )
 from starknet_py.cairo.serialization.data_serializers._common import (
     deserialize_to_dict,
-    serialize_from_dict_by_key,
     serialize_from_dict,
 )
 from starknet_py.cairo.serialization.data_serializers.array_serializer import (
@@ -20,8 +19,6 @@ from starknet_py.cairo.serialization.data_serializers.cairo_data_serializer impo
 from starknet_py.cairo.serialization.data_serializers.felt_serializer import (
     FeltSerializer,
 )
-
-from starknet_py.cairo.serialization.serialized_payload import SerializedPayload
 
 from starknet_py.utils.tuple_dataclass import TupleDataclass
 
@@ -53,21 +50,6 @@ class PayloadSerializer(CairoDataSerializer[Dict, TupleDataclass]):
             for key, serializer in input_serializers.items()
             if not self._is_len_arg(key, input_serializers)
         )
-
-    # This is added because PreparedFunctionCall has a dict with every member serialized.
-    def serialize_members(self, members: Dict) -> SerializedPayload:
-        """
-        Method accepting members as a dictionary and serializing them separately.
-
-        :return: Members serialized separately in SerializedPayload.
-        """
-        with SerializationContext.create() as context:
-            return SerializedPayload(
-                (name, list(values))
-                for name, values in serialize_from_dict_by_key(
-                    self.serializers, context, members
-                )
-            )
 
     def deserialize_with_context(
         self, context: DeserializationContext

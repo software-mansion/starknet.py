@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import Dict, Iterable, Generator, List, Tuple
+from typing import Dict, Generator, List
 
 from starknet_py.cairo.serialization._context import (
     DeserializationContext,
@@ -70,19 +70,6 @@ def serialize_from_dict(
     """
     Serializes data from dict. This logic is used in every type with named fields (structs, named tuples and payloads).
     """
-    for _name, data in serialize_from_dict_by_key(serializers, context, values):
-        yield from data
-
-
-def serialize_from_dict_by_key(
-    serializers: OrderedDict[str, CairoDataSerializer],
-    context: SerializationContext,
-    values: Dict,
-) -> Generator[Tuple[str, Iterable[int]], None, None]:
-    """
-    Serializes data from dict. It emits tuples (name, generator for value). This makes it possible to know serialized
-    values for each key.
-    """
     excessive_keys = set(values.keys()).difference(serializers.keys())
     context.ensure_valid_value(
         not excessive_keys,
@@ -92,4 +79,4 @@ def serialize_from_dict_by_key(
     for name, serializer in serializers.items():
         with context.push_entity(name):
             context.ensure_valid_value(name in values, f"key '{name}' is missing")
-            yield name, serializer.serialize_with_context(context, values[name])
+            yield from serializer.serialize_with_context(context, values[name])
