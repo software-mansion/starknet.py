@@ -1,16 +1,12 @@
 import random
 from typing import Tuple, Optional, cast
 
-from starkware.starknet.core.os.contract_address.contract_address import (
-    calculate_contract_address_from_hash,
-)
-
 from starknet_py.constants import EC_ORDER
 from starknet_py.contract import Contract
 from starknet_py.net import KeyPair, AccountClient
 from starknet_py.net.client import Client
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models import StarknetChainId
+from starknet_py.net.models import StarknetChainId, compute_address
 from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.net.networks import Network
 
@@ -31,7 +27,7 @@ async def get_deploy_account_details(
     key_pair = KeyPair.from_private_key(priv_key)
     salt = 1
 
-    address = calculate_contract_address_from_hash(
+    address = compute_address(
         salt=salt,
         class_hash=class_hash,
         constructor_calldata=[key_pair.public_key],
