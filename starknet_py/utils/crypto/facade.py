@@ -1,6 +1,6 @@
 import functools
 import os
-from typing import Optional, Sequence, Callable
+from typing import Optional, Sequence
 
 from crypto_cpp_py.cpp_bindings import (
     cpp_hash,
@@ -9,8 +9,6 @@ from crypto_cpp_py.cpp_bindings import (
 )
 from starkware.cairo.lang.vm.crypto import pedersen_hash as default_hash
 from starkware.crypto.signature.signature import sign
-
-from starknet_py.net.client_models import Call
 
 
 # Interface
@@ -28,9 +26,7 @@ def pedersen_hash(left: int, right: int) -> int:
     return default_hash(left, right)
 
 
-def compute_hash_on_elements(
-    data: Sequence, hash_func: Callable[[int, int], int] = pedersen_hash
-):
+def compute_hash_on_elements(data: Sequence):
     """
     Computes a hash chain over the data, in the following order:
         h(h(h(h(0, data[0]), data[1]), ...), data[n-1]), n).
@@ -39,20 +35,7 @@ def compute_hash_on_elements(
     The length is appended in order to avoid collisions of the following kind:
     H([x,y,z]) = h(h(x,y),z) = H([w, z]) where w = h(x,y).
     """
-    return functools.reduce(hash_func, [*data, len(data)], 0)
-
-
-def hash_call_with(call: Call, hash_fun):
-    return compute_hash_on_elements(
-        [
-            call.to_addr,
-            call.selector,
-            compute_hash_on_elements(
-                call.calldata,
-                hash_func=hash_fun,
-            ),
-        ]
-    )
+    return functools.reduce(pedersen_hash, [*data, len(data)], 0)
 
 
 def message_signature(msg_hash, priv_key, seed: Optional[int] = 32) -> ECSignature:
