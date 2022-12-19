@@ -29,7 +29,6 @@ from starknet_py.net.client_models import (
     Transaction,
     DeployAccountTransactionResponse,
 )
-from starknet_py.net.client_utils import _invoke_tx_to_call
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import (
     InvokeFunction,
@@ -171,14 +170,10 @@ class AccountClient(Client):
 
     async def call_contract(
         self,
-        call: Call = None,  # pyright: ignore
+        call: Call,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-        *,
-        invoke_tx: Call = None,  # pyright: ignore
     ) -> List[int]:
-        call = _invoke_tx_to_call(call=call, invoke_tx=invoke_tx)
-
         return await self.client.call_contract(
             call=call, block_hash=block_hash, block_number=block_number
         )
