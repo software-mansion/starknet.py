@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Generator
 
 from starknet_py.cairo.felt import uint256_range_check
@@ -13,9 +14,10 @@ from starknet_py.cairo.serialization.data_serializers.cairo_data_serializer impo
 U128_UPPER_BOUND = 2**128
 
 
+@dataclass
 class Uint256Serializer(CairoDataSerializer[int, int]):
     """
-    Serializer of Uint256. In Cairo it is represented by structure {low, high}.
+    Serializer of Uint256. In Cairo it is represented by structure {low: Uint128, high: Uint128}.
     Can serialize an int.
     Deserializes data to an int.
     """
@@ -23,7 +25,7 @@ class Uint256Serializer(CairoDataSerializer[int, int]):
     def deserialize_with_context(self, context: DeserializationContext) -> int:
         [low, high] = context.reader.read(2)
 
-        # Checking if resulting value is in [o, 2^256) range is not enough. Uint256 should be made of two uint128.
+        # Checking if resulting value is in [0, 2^256) range is not enough. Uint256 should be made of two uint128.
         with context.push_entity("low"):
             self._ensure_valid_uint128(low, context)
         with context.push_entity("high"):

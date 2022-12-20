@@ -64,8 +64,6 @@ def test_values_out_of_range(value):
 
 
 def test_not_all_values_used():
-    error_message = (
-        "Error: 1 values out of total 2 values were not used during deserialization."
-    )
+    error_message = "Last 1 values '0x2' out of total 2 values were not used during deserialization."
     with pytest.raises(InvalidValueException, match=error_message):
         FeltSerializer().deserialize([1, 2])

@@ -65,9 +65,14 @@ class Context(ABC):
         try:
             yield
         except OutOfBoundsError as err:
+            action_name = (
+                f"deserialize '{self.current_entity}'"
+                if self._namespace_stack
+                else "deserialize"
+            )
             # This way we can precisely inform user what's wrong when reading calldata.
             raise InvalidValueException(
-                f"{self._error_prefix}: not enough data to deserialize. "
+                f"Not enough data to {action_name}. "
                 f"Can't read {err.requested_size} values at position {err.position}, {err.remaining_len} available."
             ) from err
 
@@ -125,6 +130,11 @@ class DeserializationContext(Context):
             yield context
             values_not_used = context.reader.remaining_len
             if values_not_used != 0:
-                raise ValueError(
-                    f"{values_not_used} values out of total {len(data)} values were not used during deserialization."
+                max_values = 3
+                values_to_show = min(values_not_used, max_values)
+                example = ",".join(hex(v) for v in context.reader.read(values_to_show))
+                suffix = "..." if max_values == values_to_show else ""
+                raise InvalidValueException(
+                    f"Last {values_not_used} values '{example}{suffix}' out of total {len(data)} "
+                    "values were not used during deserialization."
                 )

@@ -17,22 +17,27 @@ from starknet_py.cairo.serialization.function_serialization_adapter import (
 )
 from starknet_py.utils.tuple_dataclass import TupleDataclass
 
-payload_serializer = PayloadSerializer(
-    OrderedDict(
-        x=FeltSerializer(),
-        y=FeltSerializer(),
-        z=FeltSerializer(),
-    )
-)
 serializer = FunctionSerializationAdapter(
-    payload_serializer,
-    payload_serializer,
+    inputs_serializer=PayloadSerializer(
+        OrderedDict(
+            x=FeltSerializer(),
+            y=FeltSerializer(),
+            z=FeltSerializer(),
+        )
+    ),
+    outputs_deserializer=PayloadSerializer(
+        OrderedDict(
+            a=FeltSerializer(),
+            b=FeltSerializer(),
+            c=FeltSerializer(),
+        )
+    ),
 )
 
 
 def test_serialize():
-    # pylint: disable=invalid-name
     serialized = [1, 2, 3]
+    # pylint: disable=invalid-name
     x, y, z = serialized
 
     assert serializer.serialize(x, y, z) == serialized
@@ -62,17 +67,23 @@ def test_serialize():
 
 def test_deserialize():
     assert serializer.deserialize([1, 2, 3]) == TupleDataclass.from_dict(
-        {"x": 1, "y": 2, "z": 3}
+        {"a": 1, "b": 2, "c": 3}
     )
 
     with pytest.raises(
         InvalidValueException,
-        match="Error: 2 values out of total 5 values were not used during deserialization.",
+        match="Last 2 values '0x4,0x5' out of total 5 values were not used during deserialization.",
     ):
         serializer.deserialize([1, 2, 3, 4, 5])
 
     with pytest.raises(
         InvalidValueException,
-        match="Error at path 'z': not enough data to deserialize. Can't read 1 values at position 2, 0 available.",
+        match="Last 4 values '0x4,0x5,0x6...' out of total 7 values were not used during deserialization.",
+    ):
+        serializer.deserialize([1, 2, 3, 4, 5, 6, 7])
+
+    with pytest.raises(
+        InvalidValueException,
+        match="Not enough data to deserialize 'c'. Can't read 1 values at position 2, 0 available.",
     ):
         serializer.deserialize([1, 2])
