@@ -67,7 +67,7 @@ html_css_files = ["custom.css"]
 autodoc_class_signature = "separated"
 autodoc_default_options = {"exclude-members": "__new__"}
 
-html_favicon = "logo.png"
+html_favicon = "logo_square.png"
 html_logo = "logo.png"
 html_title = "Starknet.py Documentation"
 html_short_title = "Starknet.py"
