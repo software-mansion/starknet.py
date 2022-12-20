@@ -141,7 +141,7 @@ class Client(ABC):
         :return: Tuple containing block number and transaction status
         """
         if check_interval <= 0:
-            raise ValueError("check_interval has to bigger than 0.")
+            raise ValueError("Argument check_interval has to greater than 0.")
 
         first_run = True
         try:

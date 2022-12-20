@@ -39,7 +39,7 @@ async def test_get_class_at_throws_on_wrong_address(full_node_client):
     with pytest.raises(ClientError) as err:
         await full_node_client.get_class_at(contract_address=0, block_hash="latest")
 
-    assert "Client failed with code 20: Contract not found" == str(err.value)
+    assert "Client failed with code 20: Contract not found." == str(err.value)
 
 
 @pytest.mark.run_on_devnet
@@ -60,7 +60,7 @@ async def test_method_raises_on_both_block_hash_and_number(full_node_client):
     with pytest.raises(ValueError) as err:
         await full_node_client.get_block(block_number=0, block_hash="0x0")
 
-    assert "Block_hash and block_number parameters are mutually exclusive." == str(
+    assert "Parameters block_hash and block_number are mutually exclusive." == str(
         err.value
     )
 

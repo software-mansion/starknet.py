@@ -397,7 +397,7 @@ def get_block_identifier(
 ) -> dict:
     if block_hash is not None and block_number is not None:
         raise ValueError(
-            "block_hash and block_number parameters are mutually exclusive."
+            "Parameters block_hash and block_number are mutually exclusive."
         )
 
     if block_hash is not None:

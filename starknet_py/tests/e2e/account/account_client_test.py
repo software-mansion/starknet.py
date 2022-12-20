@@ -30,8 +30,9 @@ async def test_get_balance_throws_when_token_not_specified(account_client):
     with pytest.raises(ValueError) as err:
         await account_client.get_balance()
 
-    assert "Token_address must be specified when using a custom net address" in str(
-        err.value
+    assert (
+        "Parameter token_address must be specified when using a custom net address."
+        in str(err.value)
     )
 
 

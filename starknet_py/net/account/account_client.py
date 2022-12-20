@@ -80,7 +80,7 @@ class AccountClient(Client):
         """
         # pylint: disable=too-many-arguments
         if chain is None and signer is None:
-            raise ValueError("One of chain or signer must be provided")
+            raise ValueError("One of chain or signer must be provided.")
 
         self.address = parse_address(address)
         self.client = client
@@ -88,7 +88,7 @@ class AccountClient(Client):
         if signer is None:
             if key_pair is None:
                 raise ValueError(
-                    "Either a signer or a key_pair must be provided in AccountClient constructor"
+                    "Either a signer or a key_pair must be provided in AccountClient constructor."
                 )
 
             chain = chain_from_network(net=client.net, chain=chain)
@@ -210,7 +210,7 @@ class AccountClient(Client):
     def _get_default_token_address(self) -> str:
         if self.net not in [TESTNET, TESTNET2, MAINNET]:
             raise ValueError(
-                "Token_address must be specified when using a custom net address"
+                "Parameter token_address must be specified when using a custom net address."
             )
 
         return FEE_CONTRACT_ADDRESS
@@ -309,7 +309,7 @@ class AccountClient(Client):
     ) -> int:
         if auto_estimate and max_fee is not None:
             raise ValueError(
-                "Max_fee and auto_estimate are exclusive and cannot be provided at the same time."
+                "Parameters max_fee and auto_estimate are mutually exclusive."
             )
 
         if (
@@ -325,7 +325,9 @@ class AccountClient(Client):
             max_fee = int(estimate_fee.overall_fee * 1.1)
 
         if max_fee is None:
-            raise ValueError("Max_fee must be specified when invoking a transaction")
+            raise ValueError(
+                "Parameter max_fee must be specified when invoking a transaction."
+            )
 
         return max_fee
 
@@ -383,7 +385,7 @@ class AccountClient(Client):
         # pylint: disable=too-many-arguments
         if self.supported_tx_version != 1:
             raise ValueError(
-                "Signing declare transactions is only supported with transaction version 1"
+                "Signing declare transactions is only supported with transaction version 1."
             )
 
         compiled_contract = create_compiled_contract(
@@ -429,7 +431,7 @@ class AccountClient(Client):
         """
         if self.supported_tx_version != 1:
             raise ValueError(
-                "Signing deploy account transactions is only supported with transaction version 1"
+                "Signing deploy account transactions is only supported with transaction version 1."
             )
 
         constructor_calldata = constructor_calldata or []
@@ -518,7 +520,9 @@ class AccountClient(Client):
             category=DeprecationWarning,
         )
         if not isinstance(self.client, GatewayClient):
-            raise TypeError("AccountClient.get_code only supports using GatewayClient")
+            raise TypeError(
+                "Method AccountClient.get_code only supports using GatewayClient."
+            )
 
         return await self.client.get_code(*args, **kwargs)
 
@@ -526,7 +530,7 @@ class AccountClient(Client):
         if version != self.supported_tx_version:
             raise ValueError(
                 f"Provided version: {version} is not equal to account's "
-                f"supported_tx_version: {self.supported_tx_version}"
+                f"supported_tx_version: {self.supported_tx_version}."
             )
 
     async def get_contract_nonce(
