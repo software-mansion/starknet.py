@@ -53,7 +53,7 @@ def test_invalid_ranges():
     with pytest.raises(InvalidValueException, match=high_error_message):
         serializer.deserialize([0, -1])
 
-    error_message = re.escape("Error: UInt256 is expected to be in range [0;2^256)")
+    error_message = re.escape("Error: Uint256 is expected to be in range [0;2^256)")
     with pytest.raises(InvalidValueException, match=error_message):
         serializer.serialize(2**256)
     with pytest.raises(InvalidValueException, match=error_message):
