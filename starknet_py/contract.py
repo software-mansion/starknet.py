@@ -208,12 +208,20 @@ class PreparedFunctionCall(Call):
         super().__init__(
             to_addr=contract_data.address, selector=selector, calldata=calldata
         )
-        self.arguments = arguments
+        self._arguments = arguments
         self._client = client
         self._payload_transformer = payload_transformer
         self._contract_data = contract_data
         self.max_fee = max_fee
         self.version = version
+
+    @property
+    def arguments(self) -> Dict[str, List[int]]:
+        warnings.warn(
+            "PreparedFunctionCall.arguments is deprecated and will be deleted in the future.",
+            category=DeprecationWarning,
+        )
+        return self._arguments
 
     async def call_raw(
         self,
