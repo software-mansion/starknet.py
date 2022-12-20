@@ -36,7 +36,7 @@ MIN_UINT256 = 0
 
 def uint256_range_check(value: int):
     if not MIN_UINT256 <= value <= MAX_UINT256:
-        raise ValueError(f"UInt256 is expected to be in range [0;2^256), got {value}")
+        raise ValueError(f"Uint256 is expected to be in range [0;2^256), got {value}")
 
 
 MIN_FELT = -FIELD_PRIME // 2
