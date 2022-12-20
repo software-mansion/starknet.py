@@ -188,7 +188,7 @@ class DeployResult(SentTransaction):
 
     def __post_init__(self):
         if self.deployed_contract is None:
-            raise ValueError("Argument deployed_contract can't be None")
+            raise ValueError("Argument deployed_contract can't be None.")
 
 
 # pylint: disable=too-many-instance-attributes
