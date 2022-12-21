@@ -55,7 +55,7 @@ async def test_throws_on_both_max_fee_and_auto_estimate(map_contract):
     invocation = map_contract.functions["put"].prepare(key, value)
     with pytest.raises(
         ValueError,
-        match="Max_fee and auto_estimate are exclusive and cannot be provided at the same time.",
+        match=r".*[mM]ax_fee and auto_estimate are.*",
     ):
         await invocation.invoke(max_fee=10, auto_estimate=True)
 
@@ -68,7 +68,7 @@ async def test_throws_on_both_max_fee_in_prepare_and_auto_estimate(map_contract)
     invocation = map_contract.functions["put"].prepare(key, value, max_fee=2000)
     with pytest.raises(
         ValueError,
-        match="Max_fee and auto_estimate are exclusive and cannot be provided at the same time.",
+        match=r".*[mM]ax_fee and auto_estimate are.*",
     ):
         await invocation.invoke(auto_estimate=True)
 
@@ -79,7 +79,7 @@ async def test_throws_on_call_without_max_fee(map_contract):
     value = 3
 
     with pytest.raises(
-        ValueError, match="Max_fee must be specified when invoking a transaction"
+        ValueError, match=r".*[mM]ax_fee must be specified when invoking a transaction"
     ):
         await map_contract.functions["put"].invoke(key, value)
 
@@ -92,7 +92,7 @@ async def test_throws_on_prepared_call_without_max_fee(map_contract):
     prepared_call = map_contract.functions["put"].prepare(key, value)
 
     with pytest.raises(
-        ValueError, match="Max_fee must be specified when invoking a transaction"
+        ValueError, match=r".*[mM]ax_fee must be specified when invoking a transaction"
     ):
         await prepared_call.invoke()
 
