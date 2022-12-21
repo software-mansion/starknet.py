@@ -59,18 +59,18 @@ class Account(BaseAccount):
         chain: Optional[StarknetChainId] = None,
     ):
         if chain is None and signer is None:
-            raise ValueError("One of chain or signer must be provided")
+            raise ValueError("One of chain or signer must be provided.")
 
         self._address = parse_address(address)
         self._client = client
 
         if signer is not None and key_pair is not None:
-            raise ValueError("Signer and key_pair are mutually exclusive")
+            raise ValueError("Arguments signer and key_pair are mutually exclusive.")
 
         if signer is None:
             if key_pair is None:
                 raise ValueError(
-                    "Either a signer or a key_pair must be provided in Account constructor"
+                    "Either a signer or a key_pair must be provided in Account constructor."
                 )
 
             chain = chain_from_network(net=client.net, chain=chain)
@@ -100,7 +100,7 @@ class Account(BaseAccount):
     ) -> int:
         if auto_estimate and max_fee is not None:
             raise ValueError(
-                "Max_fee and auto_estimate are exclusive and cannot be provided at the same time."
+                "Arguments max_fee and auto_estimate are mutually exclusive."
             )
 
         if auto_estimate:
@@ -108,7 +108,9 @@ class Account(BaseAccount):
             max_fee = int(estimate_fee.overall_fee * 1.1)
 
         if max_fee is None:
-            raise ValueError("Max_fee must be specified when invoking a transaction")
+            raise ValueError(
+                "Argument max_fee must be specified when invoking a transaction."
+            )
 
         return max_fee
 
@@ -352,7 +354,7 @@ class Account(BaseAccount):
         ):
             raise ValueError(
                 f"Provided address {hex(address)} is different than computed address {hex(computed)} "
-                f"for the given class_hash and salt"
+                f"for the given class_hash and salt."
             )
 
         account = Account(
@@ -371,7 +373,7 @@ class Account(BaseAccount):
             balance = await account.get_balance()
             if balance < deploy_account_tx.max_fee:
                 raise ValueError(
-                    "Not enough tokens at the specified address to cover deployment costs"
+                    "Not enough tokens at the specified address to cover deployment costs."
                 )
 
         result = await client.deploy_account(deploy_account_tx)

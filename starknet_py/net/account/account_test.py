@@ -90,7 +90,9 @@ def test_create_account_raises_on_no_keypair_and_signer():
 
 
 def test_create_account_raises_on_both_keypair_and_signer():
-    with pytest.raises(ValueError, match="Signer and key_pair are mutually exclusive"):
+    with pytest.raises(
+        ValueError, match="Arguments signer and key_pair are mutually exclusive"
+    ):
         Account(
             address=0x1,
             client=GatewayClient(net=TESTNET),
