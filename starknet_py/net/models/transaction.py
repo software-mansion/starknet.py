@@ -15,7 +15,7 @@ from starkware.starknet.definitions.transaction_type import TransactionType as T
 from starknet_py.cairo.selector import get_selector_from_name
 from starknet_py.net.models.chains import StarknetChainId
 from starknet_py.utils.crypto.transaction_hash import (
-    compute_transaction_hash_common,
+    compute_transaction_hash,
     TransactionHashPrefix,
 )
 from starknet_py.utils.docs import as_our_module
@@ -56,7 +56,7 @@ def compute_invoke_hash(
     if isinstance(entry_point_selector, str):
         entry_point_selector = get_selector_from_name(entry_point_selector)
 
-    return compute_transaction_hash_common(
+    return compute_transaction_hash(
         tx_hash_prefix=TransactionHashPrefix.INVOKE,
         contract_address=contract_address,
         entry_point_selector=entry_point_selector,

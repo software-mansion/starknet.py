@@ -18,7 +18,7 @@ class TransactionHashPrefix(Enum):
 
 
 # pylint: disable=too-many-arguments
-def compute_transaction_hash_common(
+def compute_transaction_hash(
     tx_hash_prefix: TransactionHashPrefix,
     version: int,
     contract_address: int,
@@ -55,7 +55,7 @@ def compute_deploy_account_transaction_hash(
     salt: int,
     chain_id: int,
 ) -> int:
-    return compute_transaction_hash_common(
+    return compute_transaction_hash(
         tx_hash_prefix=TransactionHashPrefix.DEPLOY_ACCOUNT,
         version=version,
         contract_address=contract_address,
@@ -84,7 +84,7 @@ def compute_declare_transaction_hash(
         calldata = [class_hash]
         additional_data = [nonce]
 
-    return compute_transaction_hash_common(
+    return compute_transaction_hash(
         tx_hash_prefix=TransactionHashPrefix.DECLARE,
         version=version,
         contract_address=sender_address,

@@ -22,7 +22,7 @@ from starknet_py.utils.crypto.facade import (
     message_signature,
 )
 from starknet_py.utils.crypto.transaction_hash import (
-    compute_transaction_hash_common,
+    compute_transaction_hash,
     TransactionHashPrefix,
     compute_declare_transaction_hash,
     compute_deploy_account_transaction_hash,
@@ -71,7 +71,7 @@ class StarkCurveSigner(BaseSigner):
         return self._sign_transaction(transaction)
 
     def _sign_transaction(self, transaction: Invoke):
-        tx_hash = compute_transaction_hash_common(
+        tx_hash = compute_transaction_hash(
             tx_hash_prefix=TransactionHashPrefix.INVOKE,
             version=transaction.version,
             contract_address=self.address,
