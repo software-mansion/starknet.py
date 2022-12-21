@@ -65,9 +65,14 @@ class Context(ABC):
         try:
             yield
         except OutOfBoundsError as err:
+            action_name = (
+                f"deserialize '{self.current_entity}'"
+                if self._namespace_stack
+                else "deserialize"
+            )
             # This way we can precisely inform user what's wrong when reading calldata.
             raise InvalidValueException(
-                f"{self._error_prefix}: not enough data to deserialize. "
+                f"Not enough data to {action_name}. "
                 f"Can't read {err.requested_size} values at position {err.position}, {err.remaining_len} available."
             ) from err
 
@@ -123,8 +128,18 @@ class DeserializationContext(Context):
         context = cls(data)
         with context._wrap_errors():
             yield context
-            values_not_used = context.reader.remaining_len
-            if values_not_used != 0:
-                raise ValueError(
-                    f"{values_not_used} values out of total {len(data)} values were not used during deserialization."
-                )
+            context._ensure_all_values_read(len(data))
+
+    def _ensure_all_values_read(self, total_len: int):
+        values_not_used = self.reader.remaining_len
+        if values_not_used != 0:
+            # We want to output up to 3 values. It there is more they will be truncated like "0x1,0x1,0x1..."
+            max_values_to_show = 3
+            values_to_show = min(values_not_used, max_values_to_show)
+            example = ",".join(hex(v) for v in self.reader.read(values_to_show))
+            suffix = "..." if values_not_used > max_values_to_show else ""
+
+            raise InvalidValueException(
+                f"Last {values_not_used} values '{example}{suffix}' out of total {total_len} "
+                "values were not used during deserialization."
+            )

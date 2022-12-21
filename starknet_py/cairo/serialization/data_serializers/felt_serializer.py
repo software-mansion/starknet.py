@@ -1,4 +1,5 @@
 import warnings
+from dataclasses import dataclass
 from typing import Generator
 
 from starkware.crypto.signature.signature import FIELD_PRIME
@@ -15,6 +16,7 @@ from starknet_py.cairo.serialization.data_serializers.cairo_data_serializer impo
 )
 
 
+@dataclass
 class FeltSerializer(CairoDataSerializer[int, int]):
     """
     Serializer for field element. At the time of writing it is the only existing numeric type.
