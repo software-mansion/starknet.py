@@ -239,7 +239,7 @@ class PreparedFunctionCall(Call):
         super().__init__(
             to_addr=contract_data.address, selector=selector, calldata=calldata
         )
-        self.arguments = arguments
+        self._arguments = arguments
         self._client = client
         self._internal_account = account
         self._payload_transformer = payload_transformer
@@ -255,6 +255,14 @@ class PreparedFunctionCall(Call):
         raise ValueError(
             "Contract was created without Account or with Client that is not an account."
         )
+
+    @property
+    def arguments(self) -> Dict[str, List[int]]:
+        warnings.warn(
+            "PreparedFunctionCall.arguments is deprecated and will be deleted in the future.",
+            category=DeprecationWarning,
+        )
+        return self._arguments
 
     async def call_raw(
         self,
