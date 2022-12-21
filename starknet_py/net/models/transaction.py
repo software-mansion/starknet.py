@@ -49,7 +49,7 @@ def compute_invoke_hash(
     """
     warnings.warn(
         "Function compute_invoke_hash is deprecated."
-        "To compute hash of an invoke transaction use compute_transaction_hash_common.",
+        "To compute hash of an invoke transaction use compute_transaction_hash.",
         category=DeprecationWarning,
     )
 

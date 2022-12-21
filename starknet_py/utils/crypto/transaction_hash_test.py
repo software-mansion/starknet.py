@@ -23,7 +23,7 @@ from starknet_py.utils.crypto.transaction_hash import (
         ),
     ),
 )
-def test_compute_transaction_hash_common(data, calculated_hash):
+def test_compute_transaction_hash(data, calculated_hash):
     assert compute_transaction_hash(*data) == calculated_hash
 
 
