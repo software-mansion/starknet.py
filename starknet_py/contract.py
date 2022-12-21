@@ -75,9 +75,14 @@ class SentTransaction:
     """
 
     hash: CastableToHash
+    """Hash of the transaction."""
+
     _client: Client
     status: Optional[str] = None
+    """Status of the transaction."""
+
     block_number: Optional[int] = None
+    """Number of the block in which transaction was included."""
 
     async def wait_for_acceptance(
         self: TSentTransaction,
@@ -104,9 +109,16 @@ class SentTransaction:
 @add_sync_methods
 @dataclass(frozen=True)
 class InvokeResult(SentTransaction):
+    """
+    Result of the Invoke transaction.
+    """
+
     # We ensure these are not None in __post_init__
     contract: ContractData = None  # pyright: ignore
+    """Additional information about the Contract that made the transaction."""
+
     invoke_transaction: Invoke = None  # pyright: ignore
+    """A InvokeTransaction instance used."""
 
     def __post_init__(self):
         assert self.contract is not None
@@ -119,9 +131,17 @@ InvocationResult = InvokeResult
 @add_sync_methods
 @dataclass(frozen=True)
 class DeclareResult(SentTransaction):
+    """
+    Result of the Declare transaction.
+    """
+
     _account: BaseAccount = None  # pyright: ignore
+
     class_hash: int = None  # pyright: ignore
+    """Class hash of the declared contract."""
+
     compiled_contract: str = None  # pyright: ignore
+    """Compiled contract that was declared."""
 
     def __post_init__(self):
         if any(
@@ -187,8 +207,13 @@ class DeclareResult(SentTransaction):
 @add_sync_methods
 @dataclass(frozen=True)
 class DeployResult(SentTransaction):
+    """
+    Result of the contract deployment.
+    """
+
     # We ensure this is not None in __post_init__
     deployed_contract: "Contract" = None  # pyright: ignore
+    """A Contract instance representing the deployed contract."""
 
     def __post_init__(self):
         if self.deployed_contract is None:
