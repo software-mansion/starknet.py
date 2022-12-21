@@ -1,3 +1,4 @@
+import warnings
 from typing import Union, Sequence
 
 # noinspection PyPep8Naming
@@ -46,6 +47,12 @@ def compute_invoke_hash(
     :param version: Contract version
     :return: calculated hash
     """
+    warnings.warn(
+        "Function compute_invoke_hash is deprecated."
+        "To compute hash of an invoke transaction use compute_transaction_hash_common.",
+        category=DeprecationWarning,
+    )
+
     if isinstance(entry_point_selector, str):
         entry_point_selector = get_selector_from_name(entry_point_selector)
 
