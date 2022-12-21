@@ -137,7 +137,7 @@ class DeserializationContext(Context):
             max_values_to_show = 3
             values_to_show = min(values_not_used, max_values_to_show)
             example = ",".join(hex(v) for v in self.reader.read(values_to_show))
-            suffix = "..." if max_values_to_show == values_to_show else ""
+            suffix = "..." if values_not_used > max_values_to_show else ""
 
             raise InvalidValueException(
                 f"Last {values_not_used} values '{example}{suffix}' out of total {total_len} "
