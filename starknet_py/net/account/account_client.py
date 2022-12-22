@@ -514,16 +514,6 @@ class AccountClient(Client):
             block_number=block_number,
         )
 
-    async def get_code(self, *args, **kwargs):
-        warnings.warn(
-            "get_code was removed from Client interface and will be removed from AccountClient in future versions",
-            category=DeprecationWarning,
-        )
-        if not isinstance(self.client, GatewayClient):
-            raise TypeError("AccountClient.get_code only supports using GatewayClient.")
-
-        return await self.client.get_code(*args, **kwargs)
-
     def _assert_version_matches_supported_tx_version(self, version: int):
         if version != self.supported_tx_version:
             raise ValueError(
