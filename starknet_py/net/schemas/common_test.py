@@ -43,9 +43,12 @@ def test_deserialize_felt_throws_on_invalid_data():
 
     data = {"value1": "2137"}
 
-    with pytest.raises(ValidationError) as exinfo:
+    with pytest.raises(ValidationError, match="Invalid value provided for felt"):
         SchemaWithFelt().load(data)
-    assert "Invalid value provided for felt" in str(exinfo.value)
+
+    data = {"value1": "0xwww"}
+    with pytest.raises(ValidationError, match="Invalid felt."):
+        SchemaWithFelt().load(data)
 
 
 def test_serialize_hex():
