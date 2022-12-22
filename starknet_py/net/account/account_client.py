@@ -29,7 +29,6 @@ from starknet_py.net.client_models import (
     Transaction,
     DeployAccountTransactionResponse,
 )
-from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import (
     InvokeFunction,
     Invoke,

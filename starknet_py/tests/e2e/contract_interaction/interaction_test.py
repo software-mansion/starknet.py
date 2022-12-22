@@ -109,7 +109,9 @@ async def test_invoke_and_call(key, value, map_contract):
 
 @pytest.mark.asyncio
 async def test_call_uninitialized_contract(gateway_account_client):
-    with pytest.raises(ClientError) as err:
+    with pytest.raises(
+        ClientError, match="Requested contract address 0x1 is not deployed."
+    ) as err:
         await gateway_account_client.call_contract(
             Call(
                 to_addr=1,
@@ -120,7 +122,6 @@ async def test_call_uninitialized_contract(gateway_account_client):
         )
 
     assert "500" in str(err.value)
-    assert "Requested contract address 0x1 is not deployed." in err.value.message
 
 
 @pytest.mark.asyncio
@@ -185,15 +186,13 @@ async def test_transaction_not_received_error(map_contract):
 async def test_error_when_invoking_without_account_client(gateway_client, map_contract):
     contract = await Contract.from_address(map_contract.address, gateway_client)
 
-    with pytest.raises(ValueError) as wrong_client_error:
+    with pytest.raises(
+        ValueError,
+        match="Contract uses an account that can't invoke transactions. You need to use AccountClient for that.",
+    ):
         await contract.functions["put"].prepare(key=10, value=10).invoke(
             max_fee=MAX_FEE
         )
-
-    assert (
-        "Contract uses an account that can't invoke transactions. You need to use AccountClient for that."
-        in str(wrong_client_error)
-    )
 
 
 @pytest.mark.asyncio
@@ -202,13 +201,11 @@ async def test_error_when_estimating_fee_while_not_using_account_client(
 ):
     contract = await Contract.from_address(map_contract.address, gateway_client)
 
-    with pytest.raises(ValueError) as wrong_client_error:
+    with pytest.raises(
+        ValueError,
+        match="Contract uses an account that can't invoke transactions. You need to use AccountClient for that.",
+    ):
         await contract.functions["put"].prepare(key=10, value=10).estimate_fee()
-
-    assert (
-        "Contract uses an account that can't invoke transactions. You need to use AccountClient for that."
-        in str(wrong_client_error)
-    )
 
 
 @pytest.mark.asyncio

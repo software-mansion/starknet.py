@@ -100,10 +100,10 @@ def test_deserialize_status_field_throws_on_invalid_data():
 
     data = {"value1": "SENT"}
 
-    with pytest.raises(ValidationError) as exinfo:
+    with pytest.raises(
+        ValidationError, match="Invalid value provided for TransactionStatus"
+    ):
         SchemaWithStatusField().load(data)
-
-    assert "Invalid value provided for TransactionStatus" in str(exinfo.value)
 
 
 def test_serialize_block_status_field():
@@ -133,7 +133,5 @@ def test_serialize_block_status_field_throws_on_invalid_data():
 
     data = {"value1": "SENT"}
 
-    with pytest.raises(ValidationError) as exinfo:
+    with pytest.raises(ValidationError, match="Invalid value for BlockStatus provided"):
         SchemaWithBlockStatusField().load(data)
-
-    assert "Invalid value for BlockStatus provided" in str(exinfo.value)
