@@ -49,33 +49,30 @@ async def test_auto_fee_estimation(map_contract):
 
 
 @pytest.mark.asyncio
-async def test_throws(map_contract):
+async def test_throws_invoke_without_max_fee(map_contract):
     key, value = 2, 3
+    error_message = "Parameter max_fee must be specified when invoking a transaction."
 
-    with pytest.raises(
-        ValueError,
-        match="Parameter max_fee must be specified when invoking a transaction.",
-    ):
+    with pytest.raises(ValueError, match=error_message):
         await map_contract.functions["put"].invoke(key, value)
 
+    prepared_call = map_contract.functions["put"].prepare(key, value)
+    with pytest.raises(ValueError, match=error_message):
+        await prepared_call.invoke()
+
+
+@pytest.mark.asyncio
+async def test_throws_invoke_with_both_max_fee_and_auto_estimate(map_contract):
+    key, value = 2, 3
+    error_message = "Parameters max_fee and auto_estimate are mutually exclusive."
+
     invocation = map_contract.functions["put"].prepare(key, value, max_fee=2000)
-    with pytest.raises(
-        ValueError, match="Parameters max_fee and auto_estimate are mutually exclusive."
-    ):
+    with pytest.raises(ValueError, match=error_message):
         await invocation.invoke(auto_estimate=True)
 
     prepared_call = map_contract.functions["put"].prepare(key, value)
-    with pytest.raises(
-        ValueError, match="Parameters max_fee and auto_estimate are mutually exclusive."
-    ):
+    with pytest.raises(ValueError, match=error_message):
         await prepared_call.invoke(max_fee=10, auto_estimate=True)
-
-    prepared_call = map_contract.functions["put"].prepare(key, value)
-    with pytest.raises(
-        ValueError,
-        match="Parameter max_fee must be specified when invoking a transaction.",
-    ):
-        await prepared_call.invoke()
 
 
 @pytest.mark.asyncio
