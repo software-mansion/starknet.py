@@ -563,7 +563,7 @@ def test_missing_struct_key():
         }
     ]
 
-    with pytest.raises(InvalidValueException, match="value[second] not provided."):
+    with pytest.raises(InvalidValueException, match="value\\[second\\] not provided."):
         transformer_for_function(inputs=abi, structs=structs).from_python({"first": 1})
 
 
