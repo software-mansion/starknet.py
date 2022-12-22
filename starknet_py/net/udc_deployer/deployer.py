@@ -63,7 +63,7 @@ class Deployer:
         :return: NamedTuple with call and address of the contract to be deployed
         """
         if not abi and calldata:
-            raise ValueError("Argument calldata was provided without an abi.")
+            raise ValueError("Argument calldata was provided without an ABI.")
 
         raw_calldata = translate_constructor_args(
             abi=abi or [], constructor_args=calldata
