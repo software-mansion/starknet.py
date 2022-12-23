@@ -69,7 +69,7 @@ async def test_throws_prepared_call_invoke_without_max_fee(map_contract):
 async def test_throws_prepared_call_with_max_fee_invoke_with_auto_estimate(
     map_contract,
 ):
-    error_message = "Argument max_fee and auto_estimate are mutually exclusive."
+    error_message = "Arguments max_fee and auto_estimate are mutually exclusive."
 
     invocation = map_contract.functions["put"].prepare(2, 3, max_fee=2000)
     with pytest.raises(ValueError, match=error_message):
@@ -78,7 +78,7 @@ async def test_throws_prepared_call_with_max_fee_invoke_with_auto_estimate(
 
 @pytest.mark.asyncio
 async def test_throws_invoke_with_both_max_fee_and_auto_estimate(map_contract):
-    error_message = "Argument max_fee and auto_estimate are mutually exclusive."
+    error_message = "Arguments max_fee and auto_estimate are mutually exclusive."
 
     prepared_call = map_contract.functions["put"].prepare(2, 3)
     with pytest.raises(ValueError, match=error_message):
