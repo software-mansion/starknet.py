@@ -29,7 +29,7 @@ async def test_deploy_account_contract_and_sign_tx(map_contract):
 async def test_get_balance_throws_when_token_not_specified(account_client):
     with pytest.raises(
         ValueError,
-        match="Parameter token_address must be specified when using a custom net address.",
+        match="Argument token_address must be specified when using a custom net address.",
     ):
         await account_client.get_balance()
 

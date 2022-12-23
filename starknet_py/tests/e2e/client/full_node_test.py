@@ -59,7 +59,7 @@ async def test_block_transaction_count(full_node_client):
 async def test_method_raises_on_both_block_hash_and_number(full_node_client):
     with pytest.raises(
         ValueError,
-        match="Parameters block_hash and block_number are mutually exclusive.",
+        match="Argument block_hash and block_number are mutually exclusive.",
     ):
         await full_node_client.get_block(block_number=0, block_hash="0x0")
 

@@ -28,7 +28,7 @@ async def test_gateway_raises_on_both_block_hash_and_number(
 ):
     with pytest.raises(
         ValueError,
-        match="Parameters block_hash and block_number are mutually exclusive.",
+        match="Argument block_hash and block_number are mutually exclusive.",
     ):
         await gateway_client.get_block(
             block_hash="0x0", block_number=block_with_declare_number

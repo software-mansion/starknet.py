@@ -100,7 +100,7 @@ class AccountClient(Client):
         if self.supported_tx_version == 0:
             warnings.warn(
                 "Account supporting transaction version 0 is deprecated. "
-                "Use the new account and set supported_tx_version parameter to 1",
+                "Use the new account and set supported_tx_version argument to 1",
                 category=DeprecationWarning,
             )
 
@@ -209,7 +209,7 @@ class AccountClient(Client):
     def _get_default_token_address(self) -> str:
         if self.net not in [TESTNET, TESTNET2, MAINNET]:
             raise ValueError(
-                "Parameter token_address must be specified when using a custom net address."
+                "Argument token_address must be specified when using a custom net address."
             )
 
         return FEE_CONTRACT_ADDRESS
@@ -308,7 +308,7 @@ class AccountClient(Client):
     ) -> int:
         if auto_estimate and max_fee is not None:
             raise ValueError(
-                "Parameters max_fee and auto_estimate are mutually exclusive."
+                "Arguments max_fee and auto_estimate are mutually exclusive."
             )
 
         if (
@@ -325,7 +325,7 @@ class AccountClient(Client):
 
         if max_fee is None:
             raise ValueError(
-                "Parameter max_fee must be specified when invoking a transaction."
+                "Argument max_fee must be specified when invoking a transaction."
             )
 
         return max_fee

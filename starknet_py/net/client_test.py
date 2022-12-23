@@ -12,7 +12,7 @@ async def test_wait_for_tx_negative_check_interval(client):
         await client.wait_for_tx(tx_hash=0, check_interval=-1)
 
 
-def test_transaction_post_init():
+def test_cannot_instantiate_abstract_transaction_class():
     with pytest.raises(
         TypeError, match="Cannot instantiate abstract Transaction class."
     ):
