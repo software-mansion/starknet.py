@@ -28,6 +28,31 @@ def compute_transaction_hash(
     chain_id: int,
     additional_data: Sequence[int],
 ) -> int:
+    """
+    Calculates the transaction hash in the StarkNet network - a unique identifier of the
+    transaction.
+    The transaction hash is a hash chain of the following information:
+        1. A prefix that depends on the transaction type.
+        2. The transaction's version.
+        3. Contract address.
+        4. Entry point selector.
+        5. A hash chain of the calldata.
+        6. The transaction's maximum fee.
+        7. The network's chain ID.
+    Each hash chain computation begins with 0 as initialization and ends with its length appended.
+    The length is appended in order to avoid collisions of the following kind:
+    H([x,y,z]) = h(h(x,y),z) = H([w, z]) where w = h(x,y).
+
+    :param tx_hash_prefix: A prefix that depends on the transaction type.
+    :param version: The transaction's version.
+    :param contract_address: Contract address.
+    :param entry_point_selector: Entry point selector.
+    :param calldata: Calldata of the transaction.
+    :param max_fee: The transaction's maximum fee.
+    :param chain_id: The network's chain ID.
+    :param additional_data: Additional data, required for some transactions (e.g. DeployAccount, Declare).
+    :return: Hash of the transaction.
+    """
     calldata_hash = compute_hash_on_elements(data=calldata)
     data_to_hash = [
         tx_hash_prefix.value,
@@ -55,6 +80,19 @@ def compute_deploy_account_transaction_hash(
     salt: int,
     chain_id: int,
 ) -> int:
+    """
+    Computes hash of the DeployAccount transaction.
+
+    :param version: The transaction's version.
+    :param contract_address: Contract address.
+    :param class_hash: The class hash of the contract.
+    :param constructor_calldata: Constructor calldata of the contract.
+    :param max_fee: The transaction's maximum fee.
+    :param nonce: Nonce of the transaction.
+    :param salt: The contract's address salt.
+    :param chain_id: The network's chain ID.
+    :return: Hash of the transaction.
+    """
     return compute_transaction_hash(
         tx_hash_prefix=TransactionHashPrefix.DEPLOY_ACCOUNT,
         version=version,
@@ -75,6 +113,17 @@ def compute_declare_transaction_hash(
     version: int,
     nonce: int,
 ) -> int:
+    """
+    Computes hash of the Declare transaction.
+
+    :param contract_class: ContractClass of the contract.
+    :param chain_id: The network's chain ID.
+    :param sender_address: Address which sends the transaction.
+    :param max_fee: The transaction's maximum fee.
+    :param version: The transaction's version.
+    :param nonce: Nonce of the transaction.
+    :return: Hash of the transaction.
+    """
     class_hash = compute_class_hash(contract_class=contract_class)
 
     if version in [0, QUERY_VERSION_BASE]:
