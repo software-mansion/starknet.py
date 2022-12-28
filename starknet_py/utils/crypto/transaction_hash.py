@@ -4,7 +4,7 @@ from typing import Sequence
 from starkware.starknet.core.os.class_hash import compute_class_hash
 
 from starknet_py.common import int_from_bytes
-from starknet_py.constants import QUERY_VERSION_BASE
+from starknet_py.constants import QUERY_VERSION_BASE, DEFAULT_ENTRY_POINT_SELECTOR
 from starknet_py.net.client_models import ContractClass
 from starknet_py.utils.crypto.facade import compute_hash_on_elements
 
@@ -97,7 +97,7 @@ def compute_deploy_account_transaction_hash(
         tx_hash_prefix=TransactionHashPrefix.DEPLOY_ACCOUNT,
         version=version,
         contract_address=contract_address,
-        entry_point_selector=0,
+        entry_point_selector=DEFAULT_ENTRY_POINT_SELECTOR,
         calldata=[class_hash, salt, *constructor_calldata],
         max_fee=max_fee,
         chain_id=chain_id,
@@ -137,7 +137,7 @@ def compute_declare_transaction_hash(
         tx_hash_prefix=TransactionHashPrefix.DECLARE,
         version=version,
         contract_address=sender_address,
-        entry_point_selector=0,
+        entry_point_selector=DEFAULT_ENTRY_POINT_SELECTOR,
         calldata=calldata,
         max_fee=max_fee,
         chain_id=chain_id,
