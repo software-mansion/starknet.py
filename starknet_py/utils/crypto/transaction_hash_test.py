@@ -51,8 +51,8 @@ def test_compute_deploy_account_transaction_hash(data, calculated_hash):
             create_compiled_contract(
                 compiled_contract=read_contract("map_compiled.json")
             ),
-            [3, 4, 5, 6, 7],
-            2843974871781692509870230531571882855744972478472998075181491131922130281171,
+            [3, 4, 5, 0, 7],
+            3541774834156044173802833283101285248062762410120835876882604474241326048804,
         ),
         (
             create_compiled_contract(
