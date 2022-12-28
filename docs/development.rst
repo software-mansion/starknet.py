@@ -80,13 +80,42 @@ Tests
     # Run only e2e tests
     poe test_e2e
 
-
 Running e2e tests in PyCharm
 ----------------------------
 1. Run ``starkware-devnet`` script before running e2e tests in PyCharm.
 2. Use ``E2E tests`` configuration to run or debug.
 
 ⚠️ **Warning**: Make sure to fill your interpreter in the configuration, to match your project's poetry venv.
+
+Code style guide
+----------------
+
+Rules to follow when writing a code:
+
+1. Check the code with pylint
+
+.. code-block:: bash
+
+    poe lint
+
+2. Format the code with black
+
+.. code-block:: bash
+
+    poe format
+
+3. Run a typechecker (pyright)
+
+.. code-block:: bash
+
+    poe typecheck
+
+4. Add constant values to the constants.py file.
+5. Add keyword-only arguments when necessary.
+6. All classes should be marked with the `@add_sync_methods` decorator.
+7. Error messages should start with a capital letter.
+8. All sentences (in docstrings/errors/comments?) should be ended with a dot.
+9. TODO: rules about the comments
 
 Release checklist
 -------------------
