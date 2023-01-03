@@ -2,6 +2,7 @@ from typing import Optional, Sequence, cast
 
 from eth_typing import ChecksumAddress
 from web3 import Web3
+
 # noinspection PyProtectedMember
 from web3._utils.contracts import prepare_transaction
 from web3.types import ABIFunction, ABIFunctionParams
