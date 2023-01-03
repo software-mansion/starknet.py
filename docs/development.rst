@@ -111,7 +111,7 @@ Rules to follow when writing a code:
     poe typecheck
 
 4. Add constant values to the constants.py file.
-5. Add keyword-only arguments when necessary.
+5. Prefer keyword-only arguments where appropriate.
 6. All classes should be marked with the `@add_sync_methods` decorator.
 7. Error messages should start with a capital letter.
 8. All sentences (in docstrings/errors/comments?) should be ended with a dot.
