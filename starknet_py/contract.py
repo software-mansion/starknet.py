@@ -3,15 +3,7 @@ from __future__ import annotations
 import dataclasses
 import warnings
 from dataclasses import dataclass
-from typing import (
-    List,
-    Optional,
-    TypeVar,
-    Union,
-    Dict,
-    NamedTuple,
-    Tuple,
-)
+from typing import Dict, List, NamedTuple, Optional, Tuple, TypeVar, Union
 
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
 from starkware.starknet.core.os.class_hash import compute_class_hash
@@ -21,26 +13,25 @@ from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 from starknet_py.common import create_compiled_contract
 from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
-from starknet_py.net.udc_deployer.deployer import Deployer
-from starknet_py.proxy.contract_abi_resolver import (
-    ProxyConfig,
-    ContractAbiResolver,
-    prepare_proxy_config,
-)
+from starknet_py.net import AccountClient
 from starknet_py.net.account._account_proxy import AccountProxy
 from starknet_py.net.account.base_account import BaseAccount
-
-from starknet_py.net import AccountClient
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import Hash, Tag
 from starknet_py.net.models import (
-    Invoke,
     AddressRepresentation,
-    parse_address,
+    Invoke,
     compute_address,
+    parse_address,
+)
+from starknet_py.net.udc_deployer.deployer import Deployer
+from starknet_py.proxy.contract_abi_resolver import (
+    ContractAbiResolver,
+    ProxyConfig,
+    prepare_proxy_config,
 )
 from starknet_py.utils.contructor_args_translator import translate_constructor_args
-from starknet_py.utils.crypto.facade import pedersen_hash, Call
+from starknet_py.utils.crypto.facade import Call, pedersen_hash
 from starknet_py.utils.data_transformer import FunctionCallSerializer
 from starknet_py.utils.sync import add_sync_methods
 

@@ -1,6 +1,6 @@
 import dataclasses
 import re
-from typing import Optional, Union, List, Iterable, Tuple, Dict, TypeVar
+from typing import Dict, Iterable, List, Optional, Tuple, TypeVar, Union
 
 from starkware.starknet.public.abi import get_selector_from_name
 
@@ -12,25 +12,26 @@ from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     Call,
-    Invoke,
-    Declare,
     Calls,
-    SentTransactionResponse,
+    Declare,
     EstimatedFee,
     Hash,
+    Invoke,
+    SentTransactionResponse,
     Tag,
 )
 from starknet_py.net.models import (
     AddressRepresentation,
     StarknetChainId,
-    parse_address,
     chain_from_network,
     compute_address,
+    parse_address,
 )
 from starknet_py.net.models.transaction import DeployAccount
+from starknet_py.net.models.typed_data import TypedData
 from starknet_py.net.networks import (
-    TESTNET,
     MAINNET,
+    TESTNET,
     TESTNET2,
     default_token_address_for_network,
 )
@@ -40,7 +41,6 @@ from starknet_py.utils.data_transformer.execute_transformer import (
     execute_transformer_v1,
 )
 from starknet_py.utils.iterable import ensure_iterable
-from starknet_py.net.models.typed_data import TypedData
 from starknet_py.utils.typed_data import TypedData as TypedDataDataclass
 
 

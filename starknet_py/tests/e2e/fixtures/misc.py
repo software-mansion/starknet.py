@@ -8,13 +8,13 @@ import pytest_asyncio
 
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient
+from starknet_py.net.models.typed_data import TypedData
 from starknet_py.tests.e2e.fixtures.constants import (
     CONTRACTS_COMPILED_DIR,
     MAX_FEE,
     TYPED_DATA_DIR,
 )
 from starknet_py.utils.data_transformer.data_transformer import CairoSerializer
-from starknet_py.net.models.typed_data import TypedData
 
 
 def pytest_addoption(parser):

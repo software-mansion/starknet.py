@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Union, Dict
+from typing import Dict, List, Union
 
 from starknet_py.net.models.transaction import Transaction
 from starknet_py.utils.typed_data import TypedData

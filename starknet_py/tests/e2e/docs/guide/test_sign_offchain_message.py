@@ -6,8 +6,8 @@ async def test_sign_offchain_message(account):
     # pylint: disable=import-outside-toplevel, duplicate-code, unused-variable
 
     # docs: start
-    from starknet_py.net.account.account import Account
     from starknet_py.net import KeyPair
+    from starknet_py.net.account.account import Account
     from starknet_py.net.gateway_client import GatewayClient
     from starknet_py.net.models import StarknetChainId
     from starknet_py.utils.typed_data import TypedData

@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
-from typing import Optional, List
+from typing import List, Optional
 
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import (
     Calls,
-    Invoke,
     Declare,
+    Invoke,
     SentTransactionResponse,
 )
 from starknet_py.net.models import AddressRepresentation
