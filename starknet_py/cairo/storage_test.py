@@ -1,8 +1,8 @@
-# fmt: off
-
 import pytest
 
 from starknet_py.cairo.storage import get_storage_var_address
+
+# fmt: off
 
 
 @pytest.mark.parametrize(

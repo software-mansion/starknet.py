@@ -1,11 +1,13 @@
-# fmt: off
-
 import pytest
 
 from starknet_py.cairo.selector import get_selector_from_name
-from starknet_py.constants import (DEFAULT_ENTRY_POINT_NAME,
-                                   DEFAULT_ENTRY_POINT_SELECTOR,
-                                   DEFAULT_L1_ENTRY_POINT_NAME)
+from starknet_py.constants import (
+    DEFAULT_ENTRY_POINT_NAME,
+    DEFAULT_ENTRY_POINT_SELECTOR,
+    DEFAULT_L1_ENTRY_POINT_NAME,
+)
+
+# fmt: off
 
 
 @pytest.mark.parametrize(
