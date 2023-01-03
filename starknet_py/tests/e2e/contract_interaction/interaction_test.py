@@ -10,8 +10,10 @@ from starknet_py.contract import Contract
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import Call, SentTransactionResponse
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.transaction_exceptions import (TransactionNotReceivedError,
-                                                TransactionRejectedError)
+from starknet_py.transaction_exceptions import (
+    TransactionNotReceivedError,
+    TransactionRejectedError,
+)
 
 MAX_FEE = int(1e20)
 

@@ -2,8 +2,10 @@ import re
 from abc import ABC, abstractmethod
 from typing import Callable, Optional
 
-from starkware.starknet.public.abi import (get_selector_from_name,
-                                           get_storage_var_address)
+from starkware.starknet.public.abi import (
+    get_selector_from_name,
+    get_storage_var_address,
+)
 
 from starknet_py.constants import RPC_INVALID_MESSAGE_SELECTOR_ERROR
 from starknet_py.net.client import Client

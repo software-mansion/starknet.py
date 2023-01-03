@@ -9,8 +9,7 @@ from starknet_py.compile.compiler import create_contract_class
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient
-from starknet_py.net.account.compiled_account_contract import \
-    COMPILED_ACCOUNT_CONTRACT
+from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
 from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_DIR, MAX_FEE
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 

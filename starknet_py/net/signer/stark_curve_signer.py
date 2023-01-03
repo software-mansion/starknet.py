@@ -2,15 +2,22 @@ from dataclasses import dataclass
 from typing import List
 
 from starkware.crypto.signature.signature import private_to_stark_key
-from starkware.starknet.core.os.contract_address.contract_address import \
-    calculate_contract_address_from_hash
+from starkware.starknet.core.os.contract_address.contract_address import (
+    calculate_contract_address_from_hash,
+)
 from starkware.starknet.core.os.transaction_hash.transaction_hash import (
-    TransactionHashPrefix, calculate_declare_transaction_hash,
+    TransactionHashPrefix,
+    calculate_declare_transaction_hash,
     calculate_deploy_account_transaction_hash,
-    calculate_transaction_hash_common)
+    calculate_transaction_hash_common,
+)
 
-from starknet_py.net.models import (AddressRepresentation, StarknetChainId,
-                                    Transaction, parse_address)
+from starknet_py.net.models import (
+    AddressRepresentation,
+    StarknetChainId,
+    Transaction,
+    parse_address,
+)
 from starknet_py.net.models.transaction import Declare, DeployAccount, Invoke
 from starknet_py.net.models.typed_data import TypedData
 from starknet_py.net.signer.base_signer import BaseSigner

@@ -2,8 +2,11 @@ from typing import Any, Mapping, Optional, Union
 
 from marshmallow import ValidationError, fields
 
-from starknet_py.net.client_models import (BlockStatus, TransactionStatus,
-                                           TransactionType)
+from starknet_py.net.client_models import (
+    BlockStatus,
+    TransactionStatus,
+    TransactionType,
+)
 
 # pylint: disable=unused-argument
 

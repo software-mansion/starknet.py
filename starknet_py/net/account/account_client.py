@@ -9,23 +9,33 @@ from starkware.starknet.public.abi import get_selector_from_name
 from starknet_py.common import create_compiled_contract
 from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
-from starknet_py.net.account.compiled_account_contract import \
-    COMPILED_ACCOUNT_CONTRACT
+from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError
-from starknet_py.net.client_models import (BlockStateUpdate,
-                                           BlockTransactionTraces, Calls,
-                                           Declare, DeclaredContract,
-                                           DeclareTransactionResponse,
-                                           DeployAccountTransactionResponse,
-                                           EstimatedFee, Hash,
-                                           SentTransactionResponse,
-                                           StarknetBlock, Tag, Transaction,
-                                           TransactionReceipt,
-                                           TransactionStatus)
+from starknet_py.net.client_models import (
+    BlockStateUpdate,
+    BlockTransactionTraces,
+    Calls,
+    Declare,
+    DeclaredContract,
+    DeclareTransactionResponse,
+    DeployAccountTransactionResponse,
+    EstimatedFee,
+    Hash,
+    SentTransactionResponse,
+    StarknetBlock,
+    Tag,
+    Transaction,
+    TransactionReceipt,
+    TransactionStatus,
+)
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models import (Invoke, InvokeFunction, StarknetChainId,
-                                    chain_from_network)
+from starknet_py.net.models import (
+    Invoke,
+    InvokeFunction,
+    StarknetChainId,
+    chain_from_network,
+)
 from starknet_py.net.models.address import AddressRepresentation, parse_address
 from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.net.models.typed_data import TypedData
@@ -33,8 +43,9 @@ from starknet_py.net.networks import MAINNET, TESTNET, TESTNET2, Network
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 from starknet_py.utils.crypto.facade import Call
-from starknet_py.utils.data_transformer.execute_transformer import \
-    execute_transformer_by_version
+from starknet_py.utils.data_transformer.execute_transformer import (
+    execute_transformer_by_version,
+)
 from starknet_py.utils.iterable import ensure_iterable
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.typed_data import TypedData as TypedDataDataclass

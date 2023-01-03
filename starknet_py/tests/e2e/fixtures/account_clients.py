@@ -8,8 +8,9 @@ import pytest
 import pytest_asyncio
 from starkware.crypto.signature.signature import get_random_private_key
 from starkware.starknet.definitions.fields import ContractAddressSalt
-from starkware.starknet.services.api.gateway.transaction import \
-    DEFAULT_DECLARE_SENDER_ADDRESS
+from starkware.starknet.services.api.gateway.transaction import (
+    DEFAULT_DECLARE_SENDER_ADDRESS,
+)
 
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient, KeyPair
@@ -17,19 +18,30 @@ from starknet_py.net.client import Client
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.http_client import GatewayHttpClient
-from starknet_py.net.models import (AddressRepresentation, StarknetChainId,
-                                    compute_address)
+from starknet_py.net.models import (
+    AddressRepresentation,
+    StarknetChainId,
+    compute_address,
+)
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import (
     DEVNET_PRE_DEPLOYED_ACCOUNT_ADDRESS,
-    DEVNET_PRE_DEPLOYED_ACCOUNT_PRIVATE_KEY, INTEGRATION_ACCOUNT_ADDRESS,
-    INTEGRATION_ACCOUNT_PRIVATE_KEY, INTEGRATION_NEW_ACCOUNT_ADDRESS,
-    INTEGRATION_NEW_ACCOUNT_PRIVATE_KEY, MAX_FEE, TESTNET_ACCOUNT_ADDRESS,
-    TESTNET_ACCOUNT_PRIVATE_KEY, TESTNET_NEW_ACCOUNT_ADDRESS,
-    TESTNET_NEW_ACCOUNT_PRIVATE_KEY)
-from starknet_py.tests.e2e.utils import (AccountToBeDeployedDetails,
-                                         get_deploy_account_details,
-                                         get_deploy_account_transaction)
+    DEVNET_PRE_DEPLOYED_ACCOUNT_PRIVATE_KEY,
+    INTEGRATION_ACCOUNT_ADDRESS,
+    INTEGRATION_ACCOUNT_PRIVATE_KEY,
+    INTEGRATION_NEW_ACCOUNT_ADDRESS,
+    INTEGRATION_NEW_ACCOUNT_PRIVATE_KEY,
+    MAX_FEE,
+    TESTNET_ACCOUNT_ADDRESS,
+    TESTNET_ACCOUNT_PRIVATE_KEY,
+    TESTNET_NEW_ACCOUNT_ADDRESS,
+    TESTNET_NEW_ACCOUNT_PRIVATE_KEY,
+)
+from starknet_py.tests.e2e.utils import (
+    AccountToBeDeployedDetails,
+    get_deploy_account_details,
+    get_deploy_account_transaction,
+)
 
 
 def create_account_client(

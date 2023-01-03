@@ -10,8 +10,7 @@ async def test_eth_sn_messages():
     # pylint: disable=import-outside-toplevel, disable=duplicate-code, unused-variable
     # docs: start
     from starknet_py.contract import ContractFunction
-    from starknet_py.net.l1.messages import (MessageToStarknet,
-                                             MessageToStarknetContent)
+    from starknet_py.net.l1.messages import MessageToStarknet, MessageToStarknetContent
     from starknet_py.net.models import StarknetChainId
 
     ## All of the construction methods shown below are correct:

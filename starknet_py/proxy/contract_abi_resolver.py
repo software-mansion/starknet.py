@@ -7,8 +7,11 @@ from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError, ContractNotFoundError
 from starknet_py.net.client_models import Abi, DeclaredContract
 from starknet_py.net.models import Address
-from starknet_py.proxy.proxy_check import (ArgentProxyCheck,
-                                           OpenZeppelinProxyCheck, ProxyCheck)
+from starknet_py.proxy.proxy_check import (
+    ArgentProxyCheck,
+    OpenZeppelinProxyCheck,
+    ProxyCheck,
+)
 
 
 class ProxyConfig(TypedDict, total=False):

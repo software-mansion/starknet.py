@@ -3,25 +3,38 @@ from typing import cast
 from marshmallow import EXCLUDE, Schema, fields, post_load
 from marshmallow_oneofschema import OneOfSchema
 
-from starknet_py.net.client_models import (BlockSingleTransactionTrace,
-                                           BlockStateUpdate,
-                                           BlockTransactionTraces,
-                                           ContractCode, DeclaredContract,
-                                           DeclareTransaction,
-                                           DeclareTransactionResponse,
-                                           DeployAccountTransaction,
-                                           DeployAccountTransactionResponse,
-                                           DeployedContract, DeployTransaction,
-                                           EntryPoint, EntryPointsByType,
-                                           EstimatedFee, Event, GatewayBlock,
-                                           InvokeTransaction,
-                                           L1HandlerTransaction, L1toL2Message,
-                                           L2toL1Message,
-                                           SentTransactionResponse,
-                                           StorageDiff, TransactionReceipt,
-                                           TransactionStatusResponse)
-from starknet_py.net.schemas.common import (BlockStatusField, Felt,
-                                            NonPrefixedHex, StatusField)
+from starknet_py.net.client_models import (
+    BlockSingleTransactionTrace,
+    BlockStateUpdate,
+    BlockTransactionTraces,
+    ContractCode,
+    DeclaredContract,
+    DeclareTransaction,
+    DeclareTransactionResponse,
+    DeployAccountTransaction,
+    DeployAccountTransactionResponse,
+    DeployedContract,
+    DeployTransaction,
+    EntryPoint,
+    EntryPointsByType,
+    EstimatedFee,
+    Event,
+    GatewayBlock,
+    InvokeTransaction,
+    L1HandlerTransaction,
+    L1toL2Message,
+    L2toL1Message,
+    SentTransactionResponse,
+    StorageDiff,
+    TransactionReceipt,
+    TransactionStatusResponse,
+)
+from starknet_py.net.schemas.common import (
+    BlockStatusField,
+    Felt,
+    NonPrefixedHex,
+    StatusField,
+)
 
 # pylint: disable=unused-argument
 # pylint: disable=no-self-use
