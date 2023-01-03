@@ -114,7 +114,7 @@ Rules to follow when writing a code:
 5. Prefer keyword-only arguments where appropriate.
 6. All public classes providing async api should be marked with the `@add_sync_methods` decorator.
 7. Error messages should start with a capital letter.
-8. Use `Argument x is...` instead of `X is...` when constructing error messages.
+8. Use `Argument x is...` instead of `X is...` when error message starts with argument (property) name.
 9. All sentences (in docstrings/errors) should be ended with a period.
 
 Release checklist
