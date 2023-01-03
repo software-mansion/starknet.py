@@ -2,15 +2,14 @@
    :class: starknetpy-logo
 
 
+.. rst-class:: description-cls
+
+StarkNet SDK for Python
+
+
 .. rst-class:: get-started-cls
 
 :doc:`Get Started<quickstart>`
-
-
-.. rst-class:: indices-cls
-
-:ref:`genindex`
-:ref:`modindex`
 
 
 .. toctree::

@@ -38,14 +38,10 @@ dl.method .sig-object {
     }
 }
 
-.indices-cls {
+.description-cls {
+    font-size: 1.5em;
     text-align: center;
-    font-size: 1.2em;
-    display: inline-block;
-    margin: 12px 24px;
-    float: right;
-}
-
-.indices-cls a {
-    margin: 20px 10px;
+    font-weight: 600;
+    margin-bottom: 1em;
+    margin-top: 0;
 }
