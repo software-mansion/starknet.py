@@ -146,7 +146,7 @@ class DeclareResult(SentTransaction):
             for field in [self.class_hash, self._account, self.compiled_contract]
         ):
             raise ValueError(
-                "None of the account, class_hash and compiled_contract fields can be None"
+                "None of the account, class_hash and compiled_contract fields can be None."
             )
 
     async def deploy(
@@ -214,7 +214,7 @@ class DeployResult(SentTransaction):
 
     def __post_init__(self):
         if self.deployed_contract is None:
-            raise ValueError("deployed_contract can't be None")
+            raise ValueError("Argument deployed_contract can't be None")
 
 
 # pylint: disable=too-many-instance-attributes
@@ -710,7 +710,7 @@ def _unpack_client_and_account(
     If provided with Account, returns underlying Client and the account.
     """
     if client is not None and account is not None:
-        raise ValueError("account and client are mutually exclusive")
+        raise ValueError("Arguments account and client are mutually exclusive.")
 
     if client is not None:
         if isinstance(client, AccountClient):
@@ -721,7 +721,7 @@ def _unpack_client_and_account(
     if account is not None:
         return account.client, account
 
-    raise ValueError("One of client or account must be provided")
+    raise ValueError("One of client or account must be provided.")
 
 
 def _account_or_proxy(account: Union[BaseAccount, AccountClient]) -> BaseAccount:
