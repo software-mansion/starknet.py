@@ -4,8 +4,9 @@ from starkware.crypto.signature.signature import private_to_stark_key, verify
 
 from starknet_py.utils.crypto.facade import (
     compute_hash_on_elements,
+    message_signature,
+    use_cpp_variant,
 )
-from starknet_py.utils.crypto.facade import message_signature, use_cpp_variant
 
 
 def test_signing(monkeypatch):

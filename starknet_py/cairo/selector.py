@@ -1,8 +1,8 @@
 from starknet_py.cairo.utils import _starknet_keccak
 from starknet_py.constants import (
     DEFAULT_ENTRY_POINT_NAME,
-    DEFAULT_L1_ENTRY_POINT_NAME,
     DEFAULT_ENTRY_POINT_SELECTOR,
+    DEFAULT_L1_ENTRY_POINT_NAME,
 )
 
 

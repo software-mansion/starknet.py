@@ -4,7 +4,7 @@ from typing import Sequence
 from starkware.starknet.core.os.class_hash import compute_class_hash
 
 from starknet_py.common import int_from_bytes
-from starknet_py.constants import QUERY_VERSION_BASE, DEFAULT_ENTRY_POINT_SELECTOR
+from starknet_py.constants import DEFAULT_ENTRY_POINT_SELECTOR, QUERY_VERSION_BASE
 from starknet_py.net.client_models import ContractClass
 from starknet_py.utils.crypto.facade import compute_hash_on_elements
 

@@ -5,9 +5,7 @@ from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import
 )
 
 from starknet_py.constants import CONTRACT_ADDRESS_PREFIX, L2_ADDRESS_UPPER_BOUND
-from starknet_py.utils.crypto.facade import (
-    compute_hash_on_elements,
-)
+from starknet_py.utils.crypto.facade import compute_hash_on_elements
 from starknet_py.utils.docs import as_our_module
 
 AddressRepresentation = Union[int, str]

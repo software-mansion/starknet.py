@@ -1,34 +1,26 @@
 from dataclasses import dataclass
 from typing import List
 
-from starkware.crypto.signature.signature import (
-    private_to_stark_key,
-)
+from starkware.crypto.signature.signature import private_to_stark_key
 
 from starknet_py.net.models import (
     AddressRepresentation,
     StarknetChainId,
     Transaction,
-    parse_address,
     compute_address,
+    parse_address,
 )
-from starknet_py.net.models.transaction import (
-    DeployAccount,
-    Declare,
-    Invoke,
-)
+from starknet_py.net.models.transaction import Declare, DeployAccount, Invoke
+from starknet_py.net.models.typed_data import TypedData
 from starknet_py.net.signer.base_signer import BaseSigner
-from starknet_py.utils.crypto.facade import (
-    message_signature,
-)
+from starknet_py.utils.crypto.facade import message_signature
 from starknet_py.utils.crypto.transaction_hash import (
-    compute_transaction_hash,
     TransactionHashPrefix,
     compute_declare_transaction_hash,
     compute_deploy_account_transaction_hash,
+    compute_transaction_hash,
 )
 from starknet_py.utils.typed_data import TypedData as TypedDataDataclass
-from starknet_py.net.models.typed_data import TypedData
 
 
 @dataclass

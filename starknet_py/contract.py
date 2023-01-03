@@ -15,7 +15,7 @@ from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
 from starknet_py.net import AccountClient
 from starknet_py.net.client import Client
-from starknet_py.net.client_models import Hash, Tag, Call
+from starknet_py.net.client_models import Call, Hash, Tag
 from starknet_py.net.models import (
     AddressRepresentation,
     Invoke,

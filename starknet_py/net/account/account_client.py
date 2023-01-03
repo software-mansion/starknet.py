@@ -14,12 +14,12 @@ from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     BlockStateUpdate,
     BlockTransactionTraces,
+    Call,
     Calls,
     Declare,
     DeclaredContract,
     DeclareTransactionResponse,
     DeployAccountTransactionResponse,
-    Call,
     EstimatedFee,
     Hash,
     SentTransactionResponse,

@@ -6,7 +6,6 @@ from typing import Dict, List, Tuple
 
 import pytest
 import pytest_asyncio
-
 from starkware.starknet.services.api.gateway.transaction import (
     DEFAULT_DECLARE_SENDER_ADDRESS,
 )
@@ -38,9 +37,9 @@ from starknet_py.tests.e2e.fixtures.constants import (
 )
 from starknet_py.tests.e2e.utils import (
     AccountToBeDeployedDetails,
+    _get_random_private_key,
     get_deploy_account_details,
     get_deploy_account_transaction,
-    _get_random_private_key,
 )
 
 

@@ -3,7 +3,6 @@ import os
 from typing import Optional, Sequence
 
 from crypto_cpp_py.cpp_bindings import ECSignature, cpp_hash, get_cpp_lib_file
-from starkware.cairo.common.hash_state import compute_hash_on_elements
 from starkware.cairo.lang.vm.crypto import pedersen_hash as default_hash
 from starkware.crypto.signature.signature import sign
 
