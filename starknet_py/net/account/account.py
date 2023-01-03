@@ -120,12 +120,12 @@ class Account(BaseAccount):
         auto_estimate: bool = False,
     ) -> Invoke:
         """
-        Takes calls and creates Invoke from them
+        Takes calls and creates Invoke from them.
 
-        :param calls: Single call or list of calls
-        :param max_fee: Max amount of Wei to be paid when executing transaction
-        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
-        :return: Invoke created from the calls (without the signature)
+        :param calls: Single call or list of calls.
+        :param max_fee: Max amount of Wei to be paid when executing transaction.
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :return: Invoke created from the calls (without the signature).
         """
         nonce = await self.get_nonce()
 
@@ -147,11 +147,11 @@ class Account(BaseAccount):
 
     async def _verify_message_hash(self, msg_hash: int, signature: List[int]) -> bool:
         """
-        Verify a signature of a given hash
+        Verify a signature of a given hash.
 
-        :param msg_hash: hash to be verified
-        :param signature: signature of the hash
-        :return: true if the signature is valid, false otherwise
+        :param msg_hash: hash to be verified.
+        :param signature: signature of the hash.
+        :return: true if the signature is valid, false otherwise.
         """
         calldata = [msg_hash, len(signature), *signature]
 
@@ -178,7 +178,7 @@ class Account(BaseAccount):
         :param tx: Transaction which fee we want to calculate.
         :param block_hash: a block hash.
         :param block_number: a block number.
-        :return: Estimated fee
+        :return: Estimated fee.
         """
         signature = self.signer.sign_transaction(tx)
         tx = _add_signature_to_transaction(tx, signature)
@@ -191,9 +191,9 @@ class Account(BaseAccount):
 
     async def get_nonce(self) -> int:
         """
-        Get the current nonce of the account
+        Get the current nonce of the account.
 
-        :return: nonce
+        :return: nonce.
         """
         return await self._client.get_contract_nonce(
             self.address, block_number="pending"
