@@ -461,9 +461,12 @@ class Contract:
         """
         Should be used instead of ``from_address`` when ABI is known statically.
 
+        Arguments account and client are mutually exclusive and cannot be provided at the same time.
+
         :param address: contract's address.
         :param abi: contract's abi.
-        :param client: client used for API calls.
+        :param client: client used to perform transactions.
+        :param account: account used to perform transactions.
         """
         client, account = _unpack_client_and_account(client, account)
 
