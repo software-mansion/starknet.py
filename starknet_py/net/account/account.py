@@ -78,7 +78,6 @@ class Account(BaseAccount):
                 account_address=self.address, key_pair=key_pair, chain_id=chain
             )
         self.signer: BaseSigner = signer
-        self._version = 1
 
     @property
     def address(self) -> int:
@@ -90,7 +89,7 @@ class Account(BaseAccount):
 
     @property
     def supported_transaction_version(self) -> int:
-        return self._version
+        return 1
 
     async def _get_max_fee(
         self,
@@ -137,7 +136,7 @@ class Account(BaseAccount):
             calldata=wrapped_calldata,
             signature=[],
             max_fee=0,
-            version=self._version,
+            version=self.supported_transaction_version,
             nonce=nonce,
             contract_address=self.address,
         )
@@ -245,7 +244,7 @@ class Account(BaseAccount):
             max_fee=0,
             signature=[],
             nonce=await self.get_nonce(),
-            version=self._version,
+            version=self.supported_transaction_version,
         )
 
         max_fee = await self._get_max_fee(
@@ -270,7 +269,7 @@ class Account(BaseAccount):
             class_hash=class_hash,
             contract_address_salt=contract_address_salt,
             constructor_calldata=constructor_calldata,
-            version=self._version,
+            version=self.supported_transaction_version,
             max_fee=0,
             signature=[],
             nonce=0,
