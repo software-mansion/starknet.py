@@ -1,6 +1,6 @@
 import pytest
 
-from starknet_py.net.models.address import parse_address, compute_address
+from starknet_py.net.models.address import compute_address, parse_address
 
 
 @pytest.mark.parametrize(

@@ -1,9 +1,7 @@
-from starkware.cairo.lang.compiler.ast.cairo_types import (
-    CairoType,
-    TypePointer,
-    TypeFelt,
-)
-from starkware.cairo.lang.compiler.identifier_definition import StructDefinition
+from starkware.cairo.lang.compiler.ast.cairo_types import (CairoType, TypeFelt,
+                                                           TypePointer)
+from starkware.cairo.lang.compiler.identifier_definition import \
+    StructDefinition
 from starkware.crypto.signature.signature import FIELD_PRIME
 
 

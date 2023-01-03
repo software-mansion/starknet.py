@@ -3,7 +3,8 @@ import pytest
 from starknet_py.contract import Contract
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.utils import MAX_FEE
-from starknet_py.utils.contructor_args_translator import translate_constructor_args
+from starknet_py.utils.contructor_args_translator import \
+    translate_constructor_args
 
 
 @pytest.mark.asyncio

@@ -4,18 +4,16 @@ import typing
 from pathlib import Path
 from typing import List, Optional, Tuple, Union
 
-from starkware.starknet.services.api.contract_class import ContractClass
-from starkware.cairo.lang.compiler.constants import MAIN_SCOPE, LIBS_DIR_ENVVAR
 from starkware.cairo.lang.cairo_constants import DEFAULT_PRIME
-from starkware.cairo.lang.compiler.cairo_compile import (
-    get_module_reader,
-)
-from starkware.cairo.lang.compiler.preprocessor.preprocess_codes import preprocess_codes
-from starkware.starknet.compiler.compile import (
-    assemble_starknet_contract,
-    StarknetPreprocessedProgram,
-)
-from starkware.starknet.compiler.starknet_pass_manager import starknet_pass_manager
+from starkware.cairo.lang.compiler.cairo_compile import get_module_reader
+from starkware.cairo.lang.compiler.constants import LIBS_DIR_ENVVAR, MAIN_SCOPE
+from starkware.cairo.lang.compiler.preprocessor.preprocess_codes import \
+    preprocess_codes
+from starkware.starknet.compiler.compile import (StarknetPreprocessedProgram,
+                                                 assemble_starknet_contract)
+from starkware.starknet.compiler.starknet_pass_manager import \
+    starknet_pass_manager
+from starkware.starknet.services.api.contract_class import ContractClass
 
 CairoSourceCode = str
 CairoFilename = str

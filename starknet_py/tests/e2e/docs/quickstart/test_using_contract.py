@@ -1,5 +1,6 @@
 # pylint: disable=import-outside-toplevel, duplicate-code
 import os
+
 import pytest
 
 directory = os.path.dirname(__file__)

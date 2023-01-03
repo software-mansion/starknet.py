@@ -1,17 +1,14 @@
 import warnings
 from enum import Enum
-from typing import List, TypedDict, Tuple
+from typing import List, Tuple, TypedDict
 
 from starknet_py.constants import RPC_CLASS_HASH_NOT_FOUND_ERROR
 from starknet_py.net.client import Client
-from starknet_py.net.client_errors import ContractNotFoundError, ClientError
+from starknet_py.net.client_errors import ClientError, ContractNotFoundError
 from starknet_py.net.client_models import Abi, DeclaredContract
 from starknet_py.net.models import Address
-from starknet_py.proxy.proxy_check import (
-    OpenZeppelinProxyCheck,
-    ArgentProxyCheck,
-    ProxyCheck,
-)
+from starknet_py.proxy.proxy_check import (ArgentProxyCheck,
+                                           OpenZeppelinProxyCheck, ProxyCheck)
 
 
 class ProxyConfig(TypedDict, total=False):

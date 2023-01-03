@@ -1,9 +1,8 @@
 import pytest
 
 from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
-from starknet_py.utils.data_transformer.universal_deployer_serializer import (
-    universal_deployer_abi,
-)
+from starknet_py.utils.data_transformer.universal_deployer_serializer import \
+    universal_deployer_abi
 
 
 @pytest.fixture(scope="module", autouse=True)

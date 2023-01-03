@@ -6,7 +6,8 @@ from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.contract import Contract, DeployResult
 from starknet_py.net import AccountClient
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_PRECOMPILED_DIR, MAX_FEE
+from starknet_py.tests.e2e.fixtures.constants import (
+    CONTRACTS_PRECOMPILED_DIR, MAX_FEE)
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 

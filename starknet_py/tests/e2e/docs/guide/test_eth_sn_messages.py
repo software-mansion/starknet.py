@@ -1,5 +1,5 @@
 import asyncio
-from unittest.mock import Mock, MagicMock
+from unittest.mock import MagicMock, Mock
 
 import pytest
 import web3
@@ -9,15 +9,12 @@ import web3
 async def test_eth_sn_messages():
     # pylint: disable=import-outside-toplevel, disable=duplicate-code, unused-variable
     # docs: start
-    from starknet_py.net.l1.messages import (
-        MessageToStarknetContent,
-        MessageToStarknet,
-    )
-    from starknet_py.net.models import StarknetChainId
     from starknet_py.contract import ContractFunction
+    from starknet_py.net.l1.messages import (MessageToStarknet,
+                                             MessageToStarknetContent)
+    from starknet_py.net.models import StarknetChainId
 
     ## All of the construction methods shown below are correct:
-
     # 1. From message content
     eth_to_sn_msg = MessageToStarknet.from_content(
         MessageToStarknetContent(

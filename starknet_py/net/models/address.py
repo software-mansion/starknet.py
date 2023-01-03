@@ -1,12 +1,9 @@
-from typing import Union, Sequence
+from typing import Sequence, Union
 
-from starkware.starknet.core.os.contract_address.contract_address import (
-    calculate_contract_address_from_hash,
-)
-from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
-    BlockIdentifier,
-)
-
+from starkware.starknet.core.os.contract_address.contract_address import \
+    calculate_contract_address_from_hash
+from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import \
+    BlockIdentifier
 
 from starknet_py.utils.docs import as_our_module
 

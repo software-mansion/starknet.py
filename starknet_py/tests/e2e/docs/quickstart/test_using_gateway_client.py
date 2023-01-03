@@ -6,7 +6,7 @@ async def test_using_gateway_client():
     # pylint: disable=import-outside-toplevel, unused-variable
     # docs: start
     from starknet_py.net.gateway_client import GatewayClient
-    from starknet_py.net.networks import TESTNET, MAINNET
+    from starknet_py.net.networks import MAINNET, TESTNET
 
     # Use testnet for playing with Starknet
     testnet_client = GatewayClient(TESTNET)

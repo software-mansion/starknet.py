@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Optional
 
 from starknet_py.common import int_from_bytes
-from starknet_py.net.networks import Network, MAINNET, TESTNET, TESTNET2
+from starknet_py.net.networks import MAINNET, TESTNET, TESTNET2, Network
 
 
 class StarknetChainId(Enum):

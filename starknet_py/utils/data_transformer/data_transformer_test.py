@@ -1,16 +1,13 @@
 from typing import NamedTuple
+
 import pytest
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 
-from starknet_py.utils.data_transformer.data_transformer import (
-    FunctionCallSerializer,
-    construct_result_object,
-)
 from starknet_py.cairo.felt import decode_shortstring
-from starknet_py.utils.data_transformer.errors import (
-    InvalidValueException,
-    InvalidTypeException,
-)
+from starknet_py.utils.data_transformer.data_transformer import (
+    FunctionCallSerializer, construct_result_object)
+from starknet_py.utils.data_transformer.errors import (InvalidTypeException,
+                                                       InvalidValueException)
 
 
 def transformer_for_function(inputs=None, outputs=None, structs=None):
