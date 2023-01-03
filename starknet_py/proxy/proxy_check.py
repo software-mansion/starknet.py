@@ -18,7 +18,7 @@ class ProxyCheck(ABC):
     ) -> Optional[int]:
         """
         :return: Implementation address of contract being proxied by proxy contract at `address`
-            given as a parameter or None if implementation does not exist.
+            given as an argument or None if implementation does not exist.
         """
 
     @abstractmethod
@@ -27,7 +27,7 @@ class ProxyCheck(ABC):
     ) -> Optional[int]:
         """
         :return: Implementation class hash of contract being proxied by proxy contract at `address`
-            given as a parameter or None if implementation does not exist.
+            given as an argument or None if implementation does not exist.
         """
 
 

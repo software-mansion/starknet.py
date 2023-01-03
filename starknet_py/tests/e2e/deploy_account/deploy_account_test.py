@@ -30,12 +30,10 @@ async def test_general_flow(client, deploy_account_details_factory):
 
 @pytest.mark.asyncio
 async def test_throws_on_transaction_version_0(gateway_account_client):
-    with pytest.raises(ValueError) as err:
+    with pytest.raises(
+        ValueError,
+        match="Signing deploy account transactions is only supported with transaction version 1",
+    ):
         await gateway_account_client.sign_deploy_account_transaction(
             class_hash=2, contract_address_salt=1, constructor_calldata=[3], max_fee=7
         )
-
-    assert (
-        "Signing deploy account transactions is only supported with transaction version 1"
-        in str(err.value)
-    )
