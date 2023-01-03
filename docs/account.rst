@@ -6,14 +6,14 @@ Account
 .. autoclass:: BaseAccount
     :members:
 
-The default implementation, supplied with StarkNet.py is Account
+The default implementation of BaseAccount.
 
 .. py:module:: starknet_py.net.account.account
 
 .. autoclass:: Account
     :members:
 
-Result of the Account deployment
+Result of the Account deployment.
 
 .. py:module:: starknet_py.net.account.account_deployment_result
 

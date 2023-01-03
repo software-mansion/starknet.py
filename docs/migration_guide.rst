@@ -3,8 +3,8 @@ X.X.X migration guide
 
 TODO(Update this with correct version or move to separate file)
 
-This version deprecates the :class:`AccountClient <starknet_py.net.account.AccountClient>`, which is a major change to the StarkNet.py
-It is being replaced with new :class:`BaseAccount <starknet_py.net.account.base_account.BaseAccount>` ABC and its
+This version deprecates the :class:`AccountClient <starknet_py.net.account.AccountClient>`, which is a major change to the StarkNet.py.
+It is replaced with new :class:`BaseAccount <starknet_py.net.account.base_account.BaseAccount>` ABC and its
 default implementation :class:`Account <starknet_py.net.account.account.Account>`.
 
 Unlike ``AccountClient``, an ``Account`` is not a :class:`Client <starknet_py.net.client.Client>` anymore. This means that methods like
