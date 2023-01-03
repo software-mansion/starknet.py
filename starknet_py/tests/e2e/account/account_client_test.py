@@ -1,5 +1,5 @@
 import asyncio
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -7,8 +7,8 @@ from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient, KeyPair
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models import parse_address, StarknetChainId
-from starknet_py.net.networks import TESTNET, MAINNET, TESTNET2
+from starknet_py.net.models import StarknetChainId, parse_address
+from starknet_py.net.networks import MAINNET, TESTNET, TESTNET2
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.transaction_exceptions import TransactionRejectedError
 

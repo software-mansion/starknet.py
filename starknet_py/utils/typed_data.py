@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Union, Dict, List, cast
+from typing import Dict, List, Union, cast
 
 from marshmallow import Schema, fields, post_load
 from starkware.cairo.common.hash_state import compute_hash_on_elements

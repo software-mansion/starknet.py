@@ -1,4 +1,4 @@
-from typing import List, Union, Optional
+from typing import List, Optional, Union
 
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 

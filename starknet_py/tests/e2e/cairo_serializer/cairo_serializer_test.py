@@ -1,8 +1,6 @@
 import pytest
 
-from starknet_py.utils.data_transformer.errors import (
-    InvalidTypeException,
-)
+from starknet_py.utils.data_transformer.errors import InvalidTypeException
 
 value_types = [
     {"name": "key", "type": "felt"},

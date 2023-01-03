@@ -1,22 +1,21 @@
 from __future__ import annotations
 
-from typing import Optional, List, Union, cast, NamedTuple
+from typing import List, NamedTuple, Optional, Union, cast
 
 from starkware.starknet.definitions.fields import ContractAddressSalt
 from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.common import int_from_hex
 from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
-from starknet_py.net.client_models import Hash, Call
-from starknet_py.net.models import AddressRepresentation, parse_address, compute_address
+from starknet_py.net.client_models import Call, Hash
+from starknet_py.net.models import AddressRepresentation, compute_address, parse_address
 from starknet_py.utils.contructor_args_translator import translate_constructor_args
 from starknet_py.utils.crypto.facade import pedersen_hash
 from starknet_py.utils.data_transformer.universal_deployer_serializer import (
-    universal_deployer_serializer,
     deploy_contract_abi,
+    universal_deployer_serializer,
 )
 from starknet_py.utils.sync import add_sync_methods
-
 
 ContractDeployment = NamedTuple("ContractDeployment", [("udc", Call), ("address", int)])
 
