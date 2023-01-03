@@ -1,4 +1,5 @@
 import asyncio
+
 import pytest
 
 from starknet_py.utils.sync import add_sync_methods

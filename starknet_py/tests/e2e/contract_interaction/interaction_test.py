@@ -5,14 +5,14 @@ from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
 from starknet_py.common import create_compiled_contract
-from starknet_py.net.client_models import SentTransactionResponse, Call
-from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.transaction_exceptions import (
-    TransactionRejectedError,
-    TransactionNotReceivedError,
-)
 from starknet_py.contract import Contract
 from starknet_py.net.client_errors import ClientError
+from starknet_py.net.client_models import Call, SentTransactionResponse
+from starknet_py.net.gateway_client import GatewayClient
+from starknet_py.transaction_exceptions import (
+    TransactionNotReceivedError,
+    TransactionRejectedError,
+)
 
 MAX_FEE = int(1e20)
 
@@ -48,53 +48,40 @@ async def test_auto_fee_estimation(map_contract):
 
 
 @pytest.mark.asyncio
-async def test_throws_on_both_max_fee_and_auto_estimate(map_contract):
-    key = 2
-    value = 3
+async def test_throws_invoke_without_max_fee(map_contract):
+    error_message = "Argument max_fee must be specified when invoking a transaction."
 
-    invocation = map_contract.functions["put"].prepare(key, value)
-    with pytest.raises(
-        ValueError,
-        match=r".*[mM]ax_fee and auto_estimate are.*",
-    ):
-        await invocation.invoke(max_fee=10, auto_estimate=True)
+    with pytest.raises(ValueError, match=error_message):
+        await map_contract.functions["put"].invoke(2, 3)
 
 
 @pytest.mark.asyncio
-async def test_throws_on_both_max_fee_in_prepare_and_auto_estimate(map_contract):
-    key = 2
-    value = 3
+async def test_throws_prepared_call_invoke_without_max_fee(map_contract):
+    error_message = "Argument max_fee must be specified when invoking a transaction."
 
-    invocation = map_contract.functions["put"].prepare(key, value, max_fee=2000)
-    with pytest.raises(
-        ValueError,
-        match=r".*[mM]ax_fee and auto_estimate are.*",
-    ):
+    prepared_call = map_contract.functions["put"].prepare(2, 3)
+    with pytest.raises(ValueError, match=error_message):
+        await prepared_call.invoke()
+
+
+@pytest.mark.asyncio
+async def test_throws_prepared_call_with_max_fee_invoke_with_auto_estimate(
+    map_contract,
+):
+    error_message = "Arguments max_fee and auto_estimate are mutually exclusive."
+
+    invocation = map_contract.functions["put"].prepare(2, 3, max_fee=2000)
+    with pytest.raises(ValueError, match=error_message):
         await invocation.invoke(auto_estimate=True)
 
 
 @pytest.mark.asyncio
 async def test_throws_on_call_without_max_fee(map_contract):
-    key = 2
-    value = 3
+    error_message = "Arguments max_fee and auto_estimate are mutually exclusive."
 
-    with pytest.raises(
-        ValueError, match=r".*[mM]ax_fee must be specified when invoking a transaction"
-    ):
-        await map_contract.functions["put"].invoke(key, value)
-
-
-@pytest.mark.asyncio
-async def test_throws_on_prepared_call_without_max_fee(map_contract):
-    key = 2
-    value = 3
-
-    prepared_call = map_contract.functions["put"].prepare(key, value)
-
-    with pytest.raises(
-        ValueError, match=r".*[mM]ax_fee must be specified when invoking a transaction"
-    ):
-        await prepared_call.invoke()
+    prepared_call = map_contract.functions["put"].prepare(2, 3)
+    with pytest.raises(ValueError, match=error_message):
+        await prepared_call.invoke(max_fee=10, auto_estimate=True)
 
 
 @pytest.mark.asyncio
@@ -131,7 +118,9 @@ async def test_invoke_and_call(key, value, map_contract):
 
 @pytest.mark.asyncio
 async def test_call_uninitialized_contract(gateway_client):
-    with pytest.raises(ClientError) as err:
+    with pytest.raises(
+        ClientError, match="Requested contract address 0x1 is not deployed."
+    ) as err:
         await gateway_client.call_contract(
             Call(
                 to_addr=1,
@@ -142,7 +131,6 @@ async def test_call_uninitialized_contract(gateway_client):
         )
 
     assert "500" in str(err.value)
-    assert "Requested contract address 0x1 is not deployed." in err.value.message
 
 
 @pytest.mark.asyncio

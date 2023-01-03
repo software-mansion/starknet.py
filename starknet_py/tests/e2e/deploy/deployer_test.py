@@ -26,24 +26,21 @@ async def test_default_deploy_with_class_hash(account, map_class_hash):
 async def test_throws_when_calldata_provided_without_abi(map_class_hash):
     deployer = Deployer()
 
-    with pytest.raises(ValueError) as err:
+    with pytest.raises(ValueError, match="calldata was provided without an ABI."):
         deployer.create_deployment_call(class_hash=map_class_hash, calldata=[12, 34])
-
-    assert "calldata was provided without an abi" in str(err.value)
 
 
 @pytest.mark.asyncio
 async def test_throws_when_calldata_not_provided(constructor_with_arguments_abi):
     deployer = Deployer()
 
-    with pytest.raises(ValueError) as err:
+    with pytest.raises(
+        ValueError,
+        match="Provided contract has a constructor and no arguments were provided.",
+    ):
         deployer.create_deployment_call(
             class_hash=1234, abi=constructor_with_arguments_abi
         )
-
-    assert "Provided contract has a constructor and no arguments were provided." in str(
-        err.value
-    )
 
 
 @pytest.mark.asyncio

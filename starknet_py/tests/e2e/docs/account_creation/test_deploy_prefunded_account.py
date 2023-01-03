@@ -1,5 +1,4 @@
 import pytest
-
 from starkware.crypto.signature.signature import get_random_private_key
 from starkware.starknet.definitions.fields import ContractAddressSalt
 

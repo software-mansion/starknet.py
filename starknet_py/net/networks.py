@@ -1,4 +1,4 @@
-from typing import TypedDict, Union, Literal
+from typing import Literal, TypedDict, Union
 
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 

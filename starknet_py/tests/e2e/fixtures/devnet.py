@@ -1,7 +1,7 @@
+import socket
 import subprocess
 import time
 from contextlib import closing
-import socket
 from typing import Generator
 
 import pytest
