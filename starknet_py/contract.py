@@ -17,9 +17,6 @@ from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
 from starkware.starknet.core.os.class_hash import compute_class_hash
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
-from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
-    CastableToHash,
-)
 
 from starknet_py.common import create_compiled_contract
 from starknet_py.compile.compiler import StarknetCompilationSource
@@ -413,7 +410,7 @@ class ContractFunction:
         The result is translated from Cairo data to python values.
         Equivalent of ``.prepare(*args, **kwargs).call()``.
 
-        :param block_hash: Block hash to execute the contract at specific point of time.
+        :param block_hash: Block hash to perform the call to the contract at specific point of time.
         """
         return await self.prepare(max_fee=0, *args, **kwargs).call(
             block_hash=block_hash
