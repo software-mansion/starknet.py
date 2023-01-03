@@ -57,7 +57,7 @@ test_html.shell = "coverage html && open ./htmlcov/index.html"
 docs_create = { shell = "make -C docs html" }
 docs_open = { shell = "open docs/_build/html/index.html" }
 lint = "pylint starknet_py"
-format.shell = "isort . && black starknet_py"
+format.shell = "isort . && black ."
 format_check = "black --check starknet_py"
 format_diff = "black --diff starknet_py"
 typecheck = "pyright starknet_py"
