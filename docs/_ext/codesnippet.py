@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, Tuple
+from typing import Any, Dict, List, Tuple
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -18,10 +18,11 @@ class CodeSnippet(SphinxDirective):
     """
     Directive class that allows multiple uses of :start-after: and :end-before: options
     """
+
     default_start_marker = "docs: start"
     default_end_marker = "docs: end"
 
-    has_content = False     # No content, like a block of code, in the directive
+    has_content = False  # No content, like a block of code, in the directive
     required_arguments = 1  # Source file path is needed
     optional_arguments = 0
     final_argument_whitespace = True
@@ -60,9 +61,13 @@ class CodeSnippet(SphinxDirective):
         """Returns the first code snippet from lines and the rest of lines after that"""
         try:
             code_snippet_to_end = self.reader.end_filter(lines, self.location)
-            lines = lines[len(code_snippet_to_end):]
-            code_snippet_start_to_end = self.reader.start_filter(code_snippet_to_end, self.location)
-            code_snippet = self.reader.dedent_filter(code_snippet_start_to_end, self.location)
+            lines = lines[len(code_snippet_to_end) :]
+            code_snippet_start_to_end = self.reader.start_filter(
+                code_snippet_to_end, self.location
+            )
+            code_snippet = self.reader.dedent_filter(
+                code_snippet_start_to_end, self.location
+            )
         except ValueError as err:
             if "pattern not found" in str(err):
                 return [], []
@@ -70,8 +75,12 @@ class CodeSnippet(SphinxDirective):
         return code_snippet, lines
 
     def _set_options(self) -> None:
-        self.options["start-after"] = self.options.get("start-after", self.default_start_marker)
-        self.options["end-before"] = self.options.get("end-after", self.default_end_marker)
+        self.options["start-after"] = self.options.get(
+            "start-after", self.default_start_marker
+        )
+        self.options["end-before"] = self.options.get(
+            "end-after", self.default_end_marker
+        )
 
     def _set_locals(self) -> None:
         self.end_marker = self._get_end_marker()

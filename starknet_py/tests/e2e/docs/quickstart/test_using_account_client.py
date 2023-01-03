@@ -1,4 +1,5 @@
 import os
+
 import pytest
 
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE

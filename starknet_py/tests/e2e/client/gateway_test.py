@@ -3,22 +3,22 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 from starkware.starknet.public.abi import (
-    get_storage_var_address,
     get_selector_from_name,
+    get_storage_var_address,
 )
 
 from starknet_py.common import create_compiled_contract
 from starknet_py.net.client_errors import ContractNotFoundError
 from starknet_py.net.client_models import (
-    TransactionStatusResponse,
-    TransactionStatus,
-    L1HandlerTransaction,
-    Invoke,
     Declare,
     DeployTransaction,
+    Invoke,
+    L1HandlerTransaction,
+    TransactionStatus,
+    TransactionStatusResponse,
 )
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.networks import TESTNET, MAINNET, CustomGatewayUrls
+from starknet_py.net.networks import MAINNET, TESTNET, CustomGatewayUrls
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
@@ -26,14 +26,13 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
 async def test_gateway_raises_on_both_block_hash_and_number(
     block_with_declare_number, gateway_client
 ):
-    with pytest.raises(ValueError) as exinfo:
+    with pytest.raises(
+        ValueError,
+        match="Arguments block_hash and block_number are mutually exclusive.",
+    ):
         await gateway_client.get_block(
             block_hash="0x0", block_number=block_with_declare_number
         )
-
-    assert "block_hash and block_number parameters are mutually exclusive" in str(
-        exinfo.value
-    )
 
 
 @pytest.mark.asyncio
@@ -107,13 +106,13 @@ async def test_get_code(contract_address, gateway_client):
 async def test_get_code_invalid_address(gateway_client):
     with pytest.raises(
         ContractNotFoundError,
-        match="^Client failed: No contract with address 123 found$",
+        match="^Client failed: No contract with address 123 found.$",
     ):
         await gateway_client.get_code(contract_address=123)
 
     with pytest.raises(
         ContractNotFoundError,
-        match="^Client failed: No contract with address 123 found for block with block_number: latest$",
+        match="^Client failed: No contract with address 123 found for block with block_number: latest.$",
     ):
         await gateway_client.get_code(contract_address=123, block_number="latest")
 

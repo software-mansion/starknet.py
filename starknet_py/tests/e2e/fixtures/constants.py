@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
 
-
 TESTNET_ACCOUNT_PRIVATE_KEY = (
     "0x5d6871223e9d2f6136f3913e8ccb6daae0b6b2a8452b39f92a1ddc5a76eed9a"
 )

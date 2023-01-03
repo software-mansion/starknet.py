@@ -1,10 +1,10 @@
-from typing import Optional, List, Union, Literal
+from typing import List, Literal, Optional, Union
 
 from starkware.starknet.services.api.contract_class import ContractClass
 
 from starknet_py.compile.compiler import (
-    StarknetCompilationSource,
     Compiler,
+    StarknetCompilationSource,
     create_contract_class,
 )
 

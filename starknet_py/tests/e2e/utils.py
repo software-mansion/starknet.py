@@ -1,4 +1,4 @@
-from typing import Tuple, Optional, cast
+from typing import Optional, Tuple, cast
 
 from starkware.crypto.signature.signature import get_random_private_key
 from starkware.starknet.core.os.contract_address.contract_address import (
@@ -7,7 +7,7 @@ from starkware.starknet.core.os.contract_address.contract_address import (
 from starkware.starknet.definitions.fields import ContractAddressSalt
 
 from starknet_py.contract import Contract
-from starknet_py.net import KeyPair, AccountClient
+from starknet_py.net import AccountClient, KeyPair
 from starknet_py.net.client import Client
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
@@ -59,7 +59,7 @@ async def get_deploy_account_transaction(
     Get a signed DeployAccount transaction from provided details
     """
     if network is None and client is None:
-        raise ValueError("One of network or client must be provided")
+        raise ValueError("One of network or client must be provided.")
 
     account = AccountClient(
         address=address,

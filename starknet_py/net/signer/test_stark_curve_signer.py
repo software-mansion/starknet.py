@@ -5,12 +5,8 @@ import pytest
 
 from starknet_py.common import create_compiled_contract
 from starknet_py.net.models import StarknetChainId
-from starknet_py.net.models.transaction import (
-    Invoke,
-    DeployAccount,
-    Declare,
-)
-from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
+from starknet_py.net.models.transaction import Declare, DeployAccount, Invoke
+from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 
 contract_source = (
     Path(os.path.dirname(__file__)) / "../../tests/e2e/mock/contracts/erc20.cairo"
