@@ -19,12 +19,10 @@ async def test_declare_tx(new_account_client, map_compiled_contract):
 async def test_sign_declare_tx_fails_with_old_account(
     gateway_account_client, map_compiled_contract
 ):
-    with pytest.raises(ValueError) as exinfo:
+    with pytest.raises(
+        ValueError,
+        match="Signing declare transactions is only supported with transaction version 1",
+    ):
         await gateway_account_client.sign_declare_transaction(
             compiled_contract=map_compiled_contract
         )
-
-    assert (
-        "Signing declare transactions is only supported with transaction version 1"
-        in str(exinfo.value)
-    )
