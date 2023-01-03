@@ -74,7 +74,7 @@ class SentTransaction:
     Dataclass exposing the interface of transaction related to a performed action.
     """
 
-    hash: CastableToHash
+    hash: int
     """Hash of the transaction."""
 
     _client: Client
