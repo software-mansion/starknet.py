@@ -112,7 +112,7 @@ Rules to follow when writing a code:
 
 4. Add constant values to the constants.py file.
 5. Prefer keyword-only arguments where appropriate.
-6. All classes should be marked with the `@add_sync_methods` decorator.
+6. All public classes providing async api should be marked with the `@add_sync_methods` decorator.
 7. Error messages should start with a capital letter.
 8. All sentences (in docstrings/errors/comments?) should be ended with a dot.
 9. TODO: rules about the comments
