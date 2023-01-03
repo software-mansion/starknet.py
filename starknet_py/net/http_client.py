@@ -117,6 +117,6 @@ async def basic_error_handle(request: ClientResponse):
 
 class ServerError(Exception):
     def __init__(self, body: dict):
-        self.message = "Rpc request failed"
+        self.message = "RPC request failed."
         self.body = body
         super().__init__(self.message)

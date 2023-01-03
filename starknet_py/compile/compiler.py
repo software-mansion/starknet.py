@@ -71,10 +71,10 @@ def load_cairo_source_code(filename: CairoFilename) -> str:
     source_file = Path(filename)
 
     if not source_file.is_file():
-        raise ValueError(f"{filename} does not exist")
+        raise ValueError(f"File {filename} does not exist.")
 
     if source_file.suffix != ".cairo":
-        raise ValueError(f"{filename} is not a cairo source file")
+        raise ValueError(f"File {filename} is not a cairo source file.")
 
     return Path(filename).read_text("utf-8")
 

@@ -157,5 +157,5 @@ class ProxyResolutionError(Exception):
     """
 
     def __init__(self):
-        self.message = "Couldn't resolve proxy using given ProxyChecks"
+        self.message = "Couldn't resolve proxy using given ProxyChecks."
         super().__init__(self.message)

@@ -113,13 +113,14 @@ class DeclareResult(SentTransaction):
     compiled_contract: str = None  # pyright: ignore
 
     def __post_init__(self):
-        if any(
-            field is None
-            for field in [self.class_hash, self._account, self.compiled_contract]
-        ):
-            raise ValueError(
-                "None of the account, class_hash and compiled_contract fields can be None"
-            )
+        if self._account is None:
+            raise ValueError("Argument _account can't be None.")
+
+        if self.class_hash is None:
+            raise ValueError("Argument class_hash can't be None.")
+
+        if self.compiled_contract is None:
+            raise ValueError("Argument compiled_contract can't be None.")
 
     async def deploy(
         self,
@@ -180,7 +181,7 @@ class DeployResult(SentTransaction):
 
     def __post_init__(self):
         if self.deployed_contract is None:
-            raise ValueError("deployed_contract can't be None")
+            raise ValueError("Argument deployed_contract can't be None.")
 
 
 # pylint: disable=too-many-instance-attributes
