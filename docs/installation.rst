@@ -7,7 +7,7 @@ different installation steps must be performed.
 Linux
 -----
 
-.. code-block:: console
+.. code-block:: bash
 
     sudo apt install -y libgmp3-dev
     pip install starknet-py
@@ -20,7 +20,7 @@ Instructions assume `Homebrew <https://brew.sh/>`_ being installed.
 Intel processor
 ^^^^^^^^^^^^^^^
 
-.. code-block:: console
+.. code-block:: bash
 
     brew install gmp
     pip install starknet-py
@@ -28,7 +28,7 @@ Intel processor
 Apple silicon
 ^^^^^^^^^^^^^
 
-.. code-block:: console
+.. code-block:: bash
 
     brew install gmp
     CFLAGS=-I`brew --prefix gmp`/include LDFLAGS=-L`brew --prefix gmp`/lib pip install starknet-py
