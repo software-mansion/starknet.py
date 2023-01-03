@@ -10,9 +10,12 @@ from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.net import AccountClient
 from starknet_py.tests.e2e.client.fixtures.prepare_net_for_gateway_test import (
-    PreparedNetworkData, prepare_net_for_tests)
-from starknet_py.tests.e2e.fixtures.account_clients import \
-    AccountToBeDeployedDetailsFactory
+    PreparedNetworkData,
+    prepare_net_for_tests,
+)
+from starknet_py.tests.e2e.fixtures.account_clients import (
+    AccountToBeDeployedDetailsFactory,
+)
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 from starknet_py.tests.e2e.utils import AccountToBeDeployedDetails
 

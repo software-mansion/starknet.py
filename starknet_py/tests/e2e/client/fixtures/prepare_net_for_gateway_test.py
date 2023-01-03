@@ -3,8 +3,10 @@ from dataclasses import dataclass
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
-from starknet_py.tests.e2e.utils import (AccountToBeDeployedDetails,
-                                         get_deploy_account_transaction)
+from starknet_py.tests.e2e.utils import (
+    AccountToBeDeployedDetails,
+    get_deploy_account_transaction,
+)
 
 
 @dataclass

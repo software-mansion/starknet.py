@@ -2,23 +2,41 @@ import itertools
 import warnings
 from collections import namedtuple
 from dataclasses import dataclass
-from typing import (Any, Callable, Dict, Generic, List, NamedTuple, Tuple,
-                    TypeVar, Union, cast)
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Generic,
+    List,
+    NamedTuple,
+    Tuple,
+    TypeVar,
+    Union,
+    cast,
+)
 
-from starkware.cairo.lang.compiler.ast.cairo_types import (CairoType, TypeFelt,
-                                                           TypePointer,
-                                                           TypeStruct,
-                                                           TypeTuple)
-from starkware.cairo.lang.compiler.identifier_definition import \
-    StructDefinition
+from starkware.cairo.lang.compiler.ast.cairo_types import (
+    CairoType,
+    TypeFelt,
+    TypePointer,
+    TypeStruct,
+    TypeTuple,
+)
+from starkware.cairo.lang.compiler.identifier_definition import StructDefinition
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
 from starkware.cairo.lang.compiler.parser import parse_type
 from starkware.cairo.lang.compiler.type_system import mark_type_resolved
 
-from starknet_py.cairo.felt import (cairo_vm_range_check, encode_shortstring,
-                                    is_uint256, uint256_range_check)
-from starknet_py.utils.data_transformer.errors import (InvalidTypeException,
-                                                       InvalidValueException)
+from starknet_py.cairo.felt import (
+    cairo_vm_range_check,
+    encode_shortstring,
+    is_uint256,
+    uint256_range_check,
+)
+from starknet_py.utils.data_transformer.errors import (
+    InvalidTypeException,
+    InvalidValueException,
+)
 
 ABIFunctionEntry = Dict
 CairoData = List[int]
