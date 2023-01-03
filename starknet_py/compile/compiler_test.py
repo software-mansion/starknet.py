@@ -5,13 +5,10 @@ from pathlib import Path
 import pytest
 from starkware.cairo.lang.compiler.constants import LIBS_DIR_ENVVAR
 from starkware.cairo.lang.compiler.import_loader import ImportLoaderError
-from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.compiler.validation_utils import PreprocessorError
+from starkware.starknet.services.api.contract_class import ContractClass
 
-from starknet_py.compile.compiler import (
-    Compiler,
-    create_contract_class,
-)
+from starknet_py.compile.compiler import Compiler, create_contract_class
 from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_DIR
 
 directory = os.path.dirname(__file__)

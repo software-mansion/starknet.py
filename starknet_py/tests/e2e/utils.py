@@ -1,9 +1,9 @@
 import random
-from typing import Tuple, Optional, cast
+from typing import Optional, Tuple, cast
 
 from starknet_py.constants import EC_ORDER
 from starknet_py.contract import Contract
-from starknet_py.net import KeyPair, AccountClient
+from starknet_py.net import AccountClient, KeyPair
 from starknet_py.net.client import Client
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId, compute_address

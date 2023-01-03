@@ -1,4 +1,4 @@
-from typing import Union, Sequence
+from typing import Sequence, Union
 
 from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
     BlockIdentifier,

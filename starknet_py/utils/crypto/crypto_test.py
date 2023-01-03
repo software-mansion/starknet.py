@@ -1,15 +1,11 @@
 import pytest
-from crypto_cpp_py.cpp_bindings import (
-    unload_cpp_lib,
-    get_cpp_lib_file,
-)
-from starkware.crypto.signature.signature import verify, private_to_stark_key
+from crypto_cpp_py.cpp_bindings import get_cpp_lib_file, unload_cpp_lib
+from starkware.crypto.signature.signature import private_to_stark_key, verify
 
 from starknet_py.utils.crypto.facade import (
-    use_cpp_variant,
-    message_signature,
     compute_hash_on_elements,
 )
+from starknet_py.utils.crypto.facade import message_signature, use_cpp_variant
 
 
 def test_signing(monkeypatch):

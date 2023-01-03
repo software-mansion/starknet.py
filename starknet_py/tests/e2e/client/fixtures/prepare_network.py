@@ -2,7 +2,7 @@
 import os
 import subprocess
 from pathlib import Path
-from typing import Tuple, Dict, AsyncGenerator
+from typing import AsyncGenerator, Dict, Tuple
 
 import pytest
 import pytest_asyncio

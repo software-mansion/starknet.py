@@ -1,6 +1,5 @@
 import pytest
 
-
 # docs-abi: start
 abi = [
     {

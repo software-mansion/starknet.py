@@ -1,39 +1,39 @@
 from typing import cast
 
-from marshmallow import Schema, fields, post_load, EXCLUDE
+from marshmallow import EXCLUDE, Schema, fields, post_load
 from marshmallow_oneofschema import OneOfSchema
 
 from starknet_py.net.client_models import (
-    ContractCode,
-    GatewayBlock,
-    L2toL1Message,
-    L1toL2Message,
-    SentTransactionResponse,
-    DeployedContract,
-    StorageDiff,
-    BlockStateUpdate,
-    EntryPoint,
-    EntryPointsByType,
-    DeclaredContract,
-    InvokeTransaction,
-    DeployTransaction,
-    DeclareTransaction,
-    TransactionReceipt,
-    TransactionStatusResponse,
-    BlockTransactionTraces,
     BlockSingleTransactionTrace,
-    EstimatedFee,
-    Event,
+    BlockStateUpdate,
+    BlockTransactionTraces,
+    ContractCode,
+    DeclaredContract,
+    DeclareTransaction,
     DeclareTransactionResponse,
     DeployAccountTransaction,
     DeployAccountTransactionResponse,
+    DeployedContract,
+    DeployTransaction,
+    EntryPoint,
+    EntryPointsByType,
+    EstimatedFee,
+    Event,
+    GatewayBlock,
+    InvokeTransaction,
     L1HandlerTransaction,
+    L1toL2Message,
+    L2toL1Message,
+    SentTransactionResponse,
+    StorageDiff,
+    TransactionReceipt,
+    TransactionStatusResponse,
 )
 from starknet_py.net.schemas.common import (
-    Felt,
     BlockStatusField,
-    StatusField,
+    Felt,
     NonPrefixedHex,
+    StatusField,
 )
 
 # pylint: disable=unused-argument

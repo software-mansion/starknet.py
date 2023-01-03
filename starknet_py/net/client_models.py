@@ -1,18 +1,15 @@
 from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Any, Dict, Optional, Union, Iterable
+from typing import Any, Dict, Iterable, List, Optional, Union
+
+from starkware.starknet.services.api.gateway.transaction import AccountTransaction as AT
+from starkware.starknet.services.api.gateway.transaction import ContractClass as CD
+from starkware.starknet.services.api.gateway.transaction import Declare as DCL
+from starkware.starknet.services.api.gateway.transaction import DeployAccount as DAC
+from starkware.starknet.services.api.gateway.transaction import InvokeFunction as IF
+from starkware.starknet.services.api.gateway.transaction import Transaction as T
 from typing_extensions import Literal
-
-from starkware.starknet.services.api.gateway.transaction import (
-    InvokeFunction as IF,
-    Transaction as T,
-    AccountTransaction as AT,
-    ContractClass as CD,
-    Declare as DCL,
-    DeployAccount as DAC,
-)
-
 
 from starknet_py.utils.docs import as_our_module
 

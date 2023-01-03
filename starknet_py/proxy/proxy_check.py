@@ -1,6 +1,6 @@
 import re
 from abc import ABC, abstractmethod
-from typing import Optional, Callable
+from typing import Callable, Optional
 
 from starknet_py.cairo.selector import get_selector_from_name
 from starknet_py.cairo.storage import get_storage_var_address

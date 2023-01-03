@@ -1,7 +1,7 @@
 from starkware.cairo.lang.compiler.ast.cairo_types import (
     CairoType,
-    TypePointer,
     TypeFelt,
+    TypePointer,
 )
 from starkware.cairo.lang.compiler.identifier_definition import StructDefinition
 

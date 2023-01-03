@@ -2,7 +2,7 @@ import dataclasses
 import re
 import warnings
 from dataclasses import replace
-from typing import Optional, List, Union, Dict, Tuple, Iterable
+from typing import Dict, Iterable, List, Optional, Tuple, Union
 
 from starknet_py.cairo.selector import get_selector_from_name
 from starknet_py.common import create_compiled_contract
@@ -12,41 +12,41 @@ from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_C
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
-    SentTransactionResponse,
-    Hash,
-    DeclaredContract,
-    Tag,
-    TransactionReceipt,
     BlockStateUpdate,
-    StarknetBlock,
-    Declare,
     BlockTransactionTraces,
-    EstimatedFee,
     Calls,
-    TransactionStatus,
+    Declare,
+    DeclaredContract,
     DeclareTransactionResponse,
-    Transaction,
     DeployAccountTransactionResponse,
     Call,
+    EstimatedFee,
+    Hash,
+    SentTransactionResponse,
+    StarknetBlock,
+    Tag,
+    Transaction,
+    TransactionReceipt,
+    TransactionStatus,
 )
 from starknet_py.net.models import (
-    InvokeFunction,
     Invoke,
+    InvokeFunction,
     StarknetChainId,
     chain_from_network,
 )
 from starknet_py.net.models.address import AddressRepresentation, parse_address
 from starknet_py.net.models.transaction import DeployAccount
-from starknet_py.net.networks import Network, MAINNET, TESTNET, TESTNET2
+from starknet_py.net.models.typed_data import TypedData
+from starknet_py.net.networks import MAINNET, TESTNET, TESTNET2, Network
 from starknet_py.net.signer import BaseSigner
-from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
+from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 from starknet_py.utils.data_transformer.execute_transformer import (
     execute_transformer_by_version,
 )
 from starknet_py.utils.iterable import ensure_iterable
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.typed_data import TypedData as TypedDataDataclass
-from starknet_py.net.models.typed_data import TypedData
 
 
 @add_sync_methods
