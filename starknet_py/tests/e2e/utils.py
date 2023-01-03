@@ -59,7 +59,7 @@ async def get_deploy_account_transaction(
     Get a signed DeployAccount transaction from provided details
     """
     if network is None and client is None:
-        raise ValueError("One of network or client must be provided")
+        raise ValueError("One of network or client must be provided.")
 
     account = AccountClient(
         address=address,

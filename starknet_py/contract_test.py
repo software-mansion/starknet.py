@@ -1,6 +1,6 @@
 import pytest
 
-from starknet_py.contract import Contract
+from starknet_py.contract import Contract, DeclareResult, DeployResult
 from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_DIR
 
 SOURCE = """
@@ -107,18 +107,35 @@ def test_compute_address_with_imports():
 
 
 def test_compute_address_throws_on_no_source():
-    with pytest.raises(ValueError) as exinfo:
+    with pytest.raises(
+        ValueError, match="One of compiled_contract or compilation_source is required."
+    ):
         Contract.compute_address(salt=1111)
-
-    assert "One of compiled_contract or compilation_source is required." in str(
-        exinfo.value
-    )
 
 
 def test_no_valid_source():
-    with pytest.raises(ValueError) as v_err:
+    with pytest.raises(
+        ValueError, match="One of compiled_contract or compilation_source is required."
+    ):
         Contract.compute_contract_hash()
 
-    assert "One of compiled_contract or compilation_source is required." in str(
-        v_err.value
-    )
+
+@pytest.mark.parametrize("param", ["_account", "class_hash", "compiled_contract"])
+def test_declare_result_post_init(param, new_gateway_account_client):
+    kwargs = {
+        "_account": new_gateway_account_client,
+        "class_hash": 0,
+        "compiled_contract": "",
+    }
+    del kwargs[param]
+
+    with pytest.raises(ValueError, match=f"Argument {param} can't be None."):
+        _ = DeclareResult(hash=0, _client=new_gateway_account_client.client, **kwargs)
+
+
+def test_deploy_result_post_init(gateway_client):
+    with pytest.raises(ValueError, match="Argument deployed_contract can't be None."):
+        _ = DeployResult(
+            hash=0,
+            _client=gateway_client,
+        )

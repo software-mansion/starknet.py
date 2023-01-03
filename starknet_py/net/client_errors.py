@@ -11,7 +11,7 @@ class ClientError(Exception):
 
     def __init__(self, message: str, code: Optional[str] = None):
         self.code = code
-        self.message = f"Client failed{f' with code {code}' if code is not None else ''}: {message}"
+        self.message = f"Client failed{f' with code {code}' if code is not None else ''}: {message}."
         super().__init__(self.message)
 
 

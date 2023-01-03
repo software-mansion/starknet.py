@@ -43,9 +43,12 @@ def test_deserialize_felt_throws_on_invalid_data():
 
     data = {"value1": "2137"}
 
-    with pytest.raises(ValidationError) as exinfo:
+    with pytest.raises(ValidationError, match="Invalid value provided for felt"):
         SchemaWithFelt().load(data)
-    assert "Invalid value provided for felt" in str(exinfo.value)
+
+    data = {"value1": "0xwww"}
+    with pytest.raises(ValidationError, match="Invalid felt."):
+        SchemaWithFelt().load(data)
 
 
 def test_serialize_hex():
@@ -97,10 +100,10 @@ def test_deserialize_status_field_throws_on_invalid_data():
 
     data = {"value1": "SENT"}
 
-    with pytest.raises(ValidationError) as exinfo:
+    with pytest.raises(
+        ValidationError, match="Invalid value provided for TransactionStatus"
+    ):
         SchemaWithStatusField().load(data)
-
-    assert "Invalid value provided for TransactionStatus" in str(exinfo.value)
 
 
 def test_serialize_block_status_field():
@@ -130,7 +133,5 @@ def test_serialize_block_status_field_throws_on_invalid_data():
 
     data = {"value1": "SENT"}
 
-    with pytest.raises(ValidationError) as exinfo:
+    with pytest.raises(ValidationError, match="Invalid value for BlockStatus provided"):
         SchemaWithBlockStatusField().load(data)
-
-    assert "Invalid value for BlockStatus provided" in str(exinfo.value)

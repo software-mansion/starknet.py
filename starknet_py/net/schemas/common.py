@@ -27,12 +27,12 @@ class Felt(fields.Field):
         **kwargs,
     ):
         if not isinstance(value, str) or not value.startswith("0x"):
-            raise ValidationError(f"Invalid value provided for felt: {value}")
+            raise ValidationError(f"Invalid value provided for felt: {value}.")
 
         try:
             return int(value, 16)
         except ValueError as error:
-            raise ValidationError("Invalid felt") from error
+            raise ValidationError("Invalid felt.") from error
 
 
 class NonPrefixedHex(fields.Field):
@@ -64,7 +64,7 @@ class StatusField(fields.Field):
 
         if value not in values:
             raise ValidationError(
-                f"Invalid value provided for TransactionStatus: {value}"
+                f"Invalid value provided for TransactionStatus: {value}."
             )
 
         return TransactionStatus(value)
@@ -87,7 +87,7 @@ class BlockStatusField(fields.Field):
             return BlockStatus.REJECTED
 
         if value not in values:
-            raise ValidationError(f"Invalid value for BlockStatus provided: {value}")
+            raise ValidationError(f"Invalid value for BlockStatus provided: {value}.")
 
         return BlockStatus(value)
 
@@ -110,7 +110,7 @@ class TransactionTypeField(fields.Field):
 
         if value not in values:
             raise ValidationError(
-                f"Invalid value provided for TransactionType: {value}"
+                f"Invalid value provided for TransactionType: {value}."
             )
 
         return TransactionType(value)

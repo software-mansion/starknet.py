@@ -159,7 +159,7 @@ class Transaction(ABC):
 
     def __post_init__(self):
         if self.__class__ == Transaction:
-            raise TypeError("Cannot instantiate abstract Transaction class")
+            raise TypeError("Cannot instantiate abstract Transaction class.")
 
 
 @dataclass
