@@ -23,7 +23,7 @@ from starknet_py.transaction_exceptions import TransactionRejectedError
 async def test_get_balance_throws_when_token_not_specified(account):
     with pytest.raises(
         ValueError,
-        match="Token_address must be specified when using a custom net address",
+        match="Argument token_address must be specified when using a custom net address",
     ):
         await account.get_balance()
 
