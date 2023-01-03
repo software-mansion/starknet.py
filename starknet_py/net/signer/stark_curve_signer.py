@@ -4,12 +4,6 @@ from typing import List
 from starkware.crypto.signature.signature import (
     private_to_stark_key,
 )
-from starkware.starknet.core.os.transaction_hash.transaction_hash import (
-    calculate_transaction_hash_common,
-    TransactionHashPrefix,
-    calculate_declare_transaction_hash,
-    calculate_deploy_account_transaction_hash,
-)
 
 from starknet_py.net.models import (
     AddressRepresentation,
@@ -26,6 +20,12 @@ from starknet_py.net.models.transaction import (
 from starknet_py.net.signer.base_signer import BaseSigner
 from starknet_py.utils.crypto.facade import (
     message_signature,
+)
+from starknet_py.utils.crypto.transaction_hash import (
+    compute_transaction_hash,
+    TransactionHashPrefix,
+    compute_declare_transaction_hash,
+    compute_deploy_account_transaction_hash,
 )
 from starknet_py.utils.typed_data import TypedData as TypedDataDataclass
 from starknet_py.net.models.typed_data import TypedData
@@ -71,7 +71,7 @@ class StarkCurveSigner(BaseSigner):
         return self._sign_transaction(transaction)
 
     def _sign_transaction(self, transaction: Invoke):
-        tx_hash = calculate_transaction_hash_common(
+        tx_hash = compute_transaction_hash(
             tx_hash_prefix=TransactionHashPrefix.INVOKE,
             version=transaction.version,
             contract_address=self.address,
@@ -88,7 +88,7 @@ class StarkCurveSigner(BaseSigner):
         return [r, s]
 
     def _sign_declare_transaction(self, transaction: Declare) -> List[int]:
-        tx_hash = calculate_declare_transaction_hash(
+        tx_hash = compute_declare_transaction_hash(
             contract_class=transaction.contract_class,
             chain_id=self.chain_id.value,
             sender_address=self.address,
@@ -107,7 +107,7 @@ class StarkCurveSigner(BaseSigner):
             constructor_calldata=transaction.constructor_calldata,
             deployer_address=0,
         )
-        tx_hash = calculate_deploy_account_transaction_hash(
+        tx_hash = compute_deploy_account_transaction_hash(
             contract_address=contract_address,
             class_hash=transaction.class_hash,
             constructor_calldata=transaction.constructor_calldata,
