@@ -160,11 +160,8 @@ def test_contract_raises_on_both_provider_and_client(
 
 
 def test_contract_raises_on_incorrect_provider_type():
-    class MyClass:
-        pass
-
     with pytest.raises(ValueError, match="Argument provider is not of accepted type."):
-        Contract(address=0x1, abi=[], provider=MyClass())  # pyright: ignore
+        Contract(address=0x1, abi=[], provider=1)  # pyright: ignore
 
 
 def test_contract_create_with_base_account(gateway_account):
