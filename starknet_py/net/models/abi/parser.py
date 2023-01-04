@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import dataclasses
+import json
 from collections import OrderedDict, defaultdict
 from typing import Dict, List, Optional, cast, DefaultDict
 
@@ -119,7 +121,19 @@ class AbiParser:
             struct.types.update(members)
 
         # All types have their members assigned now
+
+        self._check_for_cycles(structs)
+
         return structs
+
+    @staticmethod
+    def _check_for_cycles(structs: Dict[str, StructType]):
+        # We want to avoid creating our own cycle checker as it would make it more complex. json module has a built-in
+        # checker for cycles.
+        try:
+            _to_json(structs)
+        except ValueError as err:
+            raise AbiParsingError(err) from ValueError
 
     def _parse_function(self, function: FunctionDict) -> Abi.Function:
         return Abi.Function(
@@ -137,8 +151,7 @@ class AbiParser:
     def _parse_members(
         self, params: List[TypedMemberDict], entity_name: str
     ) -> OrderedDict[str, CairoType]:
-        # Without cast it complains that
-        # 'Type "TypedMemberDict" cannot be assigned to type "T@_group_by_name"'
+        # Without cast it complains that 'Type "TypedMemberDict" cannot be assigned to type "T@_group_by_name"'
         members = AbiParser._group_by_entry_name(cast(List[Dict], params), entity_name)
         return OrderedDict(
             (name, self.type_parser.parse_inline_type(param["type"]))
@@ -158,3 +171,15 @@ class AbiParser:
                 )
             grouped[name] = entry
         return grouped
+
+
+def _to_json(value):
+    class DataclassSupportingEncoder(json.JSONEncoder):
+        def default(self, o):
+            # Dataclasses are not supported by json. Additionally, dataclasses.asdict() works recursively and doesn't
+            # check for cycles, so we need to flatten dataclasses (by ONE LEVEL) ourselves.
+            if dataclasses.is_dataclass(o):
+                return tuple(getattr(o, field.name) for field in dataclasses.fields(o))
+            return super().default(o)
+
+    return json.dumps(value, cls=DataclassSupportingEncoder)

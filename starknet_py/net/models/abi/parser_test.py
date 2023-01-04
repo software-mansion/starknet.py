@@ -37,6 +37,49 @@ def test_parsing_types_abi():
     }
 
 
+def test_self_cycle():
+    self_referencing_struct = {
+        "type": "struct",
+        "name": "Infinite",
+        "size": 1,
+        "members": [
+            {"name": "value", "offset": 0, "type": "Infinite"},
+        ],
+    }
+    with pytest.raises(
+        AbiParsingError,
+        match="Circular reference detected",
+    ):
+        AbiParser([self_referencing_struct]).parse()
+
+
+def test_bigger_cycle():
+    # first -> seconds -> third -> first...
+    first = {
+        "type": "struct",
+        "name": "First",
+        "size": 1,
+        "members": [{"name": "value", "offset": 0, "type": "Second"}],
+    }
+    second = {
+        "type": "struct",
+        "name": "Second",
+        "size": 1,
+        "members": [{"name": "value", "offset": 0, "type": "Third"}],
+    }
+    third = {
+        "type": "struct",
+        "name": "Third",
+        "size": 1,
+        "members": [{"name": "value", "offset": 0, "type": "First"}],
+    }
+    with pytest.raises(
+        AbiParsingError,
+        match="Circular reference detected",
+    ):
+        AbiParser([first, second, third]).parse()
+
+
 def test_duplicated_structure():
     with pytest.raises(
         AbiParsingError,
