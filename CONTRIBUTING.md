@@ -101,4 +101,4 @@ We follow the [PEP 8](https://peps.python.org/pep-0008/) style guide for Python 
 In addition to [PEP 8](https://peps.python.org/pep-0008/), we have some style guidelines which you can find in the development section of our [documentation](https://starknetpy.readthedocs.io/en/latest/development.html)
 
 ---
-Thank you for your interest in contributing to starknet.py! We look forward to working with you.
+Thank you for your interest in contributing to StarkNet.py! We look forward to working with you.
