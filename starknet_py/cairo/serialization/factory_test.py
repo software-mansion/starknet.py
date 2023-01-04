@@ -68,24 +68,31 @@ user_serializer = StructSerializer(
 )
 
 
-def test_getting_type_serializer():
-    assert serializer_for_type(abi.defined_structures["Uint256"]) == Uint256Serializer()
-    assert serializer_for_type(abi.defined_structures["PoolId"]) == pool_id_serializer
-    assert serializer_for_type(abi.defined_structures["User"]) == user_serializer
-
-    struct_with_tuples = StructType(
-        "structure",
-        OrderedDict(
-            regular=TupleType([FeltType()]),
-            named=NamedTupleType(OrderedDict(value=FeltType())),
+@pytest.mark.parametrize(
+    "structure, serializer",
+    (
+        (abi.defined_structures["Uint256"], Uint256Serializer()),
+        (abi.defined_structures["PoolId"], pool_id_serializer),
+        (abi.defined_structures["User"], user_serializer),
+        (
+            StructType(
+                "structure",
+                OrderedDict(
+                    regular=TupleType([FeltType()]),
+                    named=NamedTupleType(OrderedDict(value=FeltType())),
+                ),
+            ),
+            StructSerializer(
+                OrderedDict(
+                    regular=TupleSerializer([FeltSerializer()]),
+                    named=NamedTupleSerializer(OrderedDict(value=FeltSerializer())),
+                )
+            ),
         ),
-    )
-    assert serializer_for_type(struct_with_tuples) == StructSerializer(
-        OrderedDict(
-            regular=TupleSerializer([FeltSerializer()]),
-            named=NamedTupleSerializer(OrderedDict(value=FeltSerializer())),
-        )
-    )
+    ),
+)
+def test_getting_type_serializer(structure, serializer):
+    assert serializer_for_type(structure) == serializer
 
 
 def test_getting_payload_serializer():
