@@ -1,6 +1,8 @@
 import pytest
 
 from starknet_py.contract import Contract, DeclareResult, DeployResult
+from starknet_py.net.account._account_proxy import AccountProxy
+from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_DIR
 
 SOURCE = """
@@ -139,3 +141,46 @@ def test_deploy_result_post_init(gateway_client):
             hash=0,
             _client=gateway_client,
         )
+
+
+def test_contract_raises_on_no_provider_and_client():
+    with pytest.raises(ValueError, match="One of provider or client must be provided."):
+        Contract(address=1234, abi=[])
+
+
+def test_contract_raises_on_both_provider_and_client(
+    gateway_account_client, gateway_client
+):
+    with pytest.raises(
+        ValueError, match="Arguments provider and client are mutually exclusive."
+    ):
+        Contract(
+            address=1234, abi=[], provider=gateway_account_client, client=gateway_client
+        )
+
+
+def test_contract_create_with_base_account(gateway_account):
+    contract = Contract(address=0x1, abi=[], provider=gateway_account)
+    assert isinstance(contract.account, BaseAccount)
+    assert contract.account == gateway_account
+    assert contract.client == gateway_account.client
+
+
+def test_contract_create_with_account_client(gateway_account_client):
+    contract = Contract(address=0x1, abi=[], provider=gateway_account_client)
+    assert isinstance(contract.account, AccountProxy)
+    assert contract.client == gateway_account_client.client
+
+    contract = Contract(address=0x1, abi=[], client=gateway_account_client)
+    assert isinstance(contract.account, AccountProxy)
+    assert contract.client == gateway_account_client.client
+
+
+def test_contract_create_with_client(gateway_client):
+    contract = Contract(address=0x1, abi=[], provider=gateway_client)
+    assert contract.account is None
+    assert contract.client == gateway_client
+
+    contract = Contract(address=0x1, abi=[], client=gateway_client)
+    assert contract.account is None
+    assert contract.client == gateway_client
