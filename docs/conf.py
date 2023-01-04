@@ -78,4 +78,3 @@ html_theme_options = {
     "light_logo": "logo.png",
     "dark_logo": "logo-contour-white.png",
 }
-
