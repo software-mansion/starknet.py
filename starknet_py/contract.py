@@ -517,10 +517,7 @@ class Contract:
             address=address, client=client, proxy_config=proxy_config
         ).resolve()
 
-        if account is not None:
-            return Contract(address=address, abi=abi, provider=account)
-
-        return Contract(address=address, abi=abi, client=client)
+        return Contract(address=address, abi=abi, provider=account or client)
 
     @staticmethod
     async def declare(
