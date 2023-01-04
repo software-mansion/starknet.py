@@ -3,18 +3,12 @@ from unittest.mock import AsyncMock, patch
 import pytest
 
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
-from starknet_py.contract import Contract
 from starknet_py.net import KeyPair
 from starknet_py.net.account.account import Account
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId, parse_address
 from starknet_py.net.networks import MAINNET, TESTNET, TESTNET2
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
-
-
-def test_contract_raises_on_no_client_and_account():
-    with pytest.raises(ValueError, match="One of client or account must be provided"):
-        Contract(address=1234, abi=[])
 
 
 @pytest.mark.asyncio

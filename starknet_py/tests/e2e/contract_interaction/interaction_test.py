@@ -232,5 +232,7 @@ async def test_deploy_contract_flow(account, map_compiled_contract, map_class_ha
 
 
 def test_contract_raises_on_both_client_and_account(gateway_client, gateway_account):
-    with pytest.raises(ValueError, match="account and client are mutually exclusive"):
-        Contract(address=1234, abi=[], client=gateway_client, account=gateway_account)
+    with pytest.raises(
+        ValueError, match="Arguments provider and client are mutually exclusive"
+    ):
+        Contract(address=1234, abi=[], client=gateway_client, provider=gateway_account)

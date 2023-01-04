@@ -175,7 +175,7 @@ def fee_contract(gateway_account: BaseAccount) -> Contract:
     return Contract(
         address=FEE_CONTRACT_ADDRESS,
         abi=abi,
-        account=gateway_account,
+        provider=gateway_account,
     )
 
 

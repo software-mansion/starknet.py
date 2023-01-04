@@ -79,7 +79,7 @@ async def test_constructor_arguments_contract_deploy(
     contract = Contract(
         address=contract_address,
         abi=constructor_with_arguments_abi,
-        account=account,
+        provider=account,
     )
 
     result = await contract.functions["get"].call(block_hash="latest")
