@@ -2,11 +2,11 @@ from marshmallow import Schema, fields
 from marshmallow_oneofschema import OneOfSchema
 
 from starknet_py.net.models.abi.shape import (
-    STRUCT_ENTRY,
-    FUNCTION_ENTRY,
     CONSTRUCTOR_ENTRY,
-    L1_HANDLER_ENTRY,
     EVENT_ENTRY,
+    FUNCTION_ENTRY,
+    L1_HANDLER_ENTRY,
+    STRUCT_ENTRY,
 )
 
 

@@ -5,11 +5,10 @@ from typing import Generator
 from starkware.crypto.signature.signature import FIELD_PRIME
 
 from starknet_py.cairo.felt import encode_shortstring, is_in_felt_range
-
 from starknet_py.cairo.serialization._context import (
-    SerializationContext,
-    DeserializationContext,
     Context,
+    DeserializationContext,
+    SerializationContext,
 )
 from starknet_py.cairo.serialization.data_serializers.cairo_data_serializer import (
     CairoDataSerializer,

@@ -2,10 +2,10 @@ import json
 
 import pytest
 
+import starknet_py.tests.e2e.fixtures.abi_structures as fixtures
 from starknet_py.cairo.type_parser import UnknownCairoTypeError
 from starknet_py.net.models.abi.parser import AbiParser, AbiParsingError
 from starknet_py.tests.e2e.fixtures.misc import read_contract
-import starknet_py.tests.e2e.fixtures.abi_structures as fixtures
 
 
 def test_parsing_types_abi():

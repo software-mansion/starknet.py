@@ -1,10 +1,10 @@
 from collections import OrderedDict
-from dataclasses import dataclass, InitVar, field
+from dataclasses import InitVar, dataclass, field
 from typing import Dict, Generator
 
 from starknet_py.cairo.serialization._context import (
-    SerializationContext,
     DeserializationContext,
+    SerializationContext,
 )
 from starknet_py.cairo.serialization.data_serializers._common import (
     deserialize_to_dict,
@@ -19,7 +19,6 @@ from starknet_py.cairo.serialization.data_serializers.cairo_data_serializer impo
 from starknet_py.cairo.serialization.data_serializers.felt_serializer import (
     FeltSerializer,
 )
-
 from starknet_py.utils.tuple_dataclass import TupleDataclass
 
 SIZE_SUFFIX = "_len"

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Union, Dict, NamedTuple, OrderedDict, Generator
+from typing import Dict, Generator, NamedTuple, OrderedDict, Union
 
 from starknet_py.cairo.serialization._context import (
     DeserializationContext,

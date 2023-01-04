@@ -1,12 +1,11 @@
 from abc import ABC, abstractmethod
-from typing import TypeVar, Generic, List, Generator
-
-from starknet_py.cairo.serialization._context import (
-    SerializationContext,
-    DeserializationContext,
-)
+from typing import Generator, Generic, List, TypeVar
 
 from starknet_py.cairo.serialization._calldata_reader import CairoData
+from starknet_py.cairo.serialization._context import (
+    DeserializationContext,
+    SerializationContext,
+)
 
 # Python type that is accepted by a serializer
 # pylint: disable=invalid-name

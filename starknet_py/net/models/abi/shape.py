@@ -1,4 +1,4 @@
-from typing import TypedDict, Literal, List, Union
+from typing import List, Literal, TypedDict, Union
 
 STRUCT_ENTRY = "struct"
 FUNCTION_ENTRY = "function"

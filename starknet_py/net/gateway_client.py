@@ -1,53 +1,49 @@
 import typing
-from typing import Union, Optional, List
+from typing import List, Optional, Union
 
 import aiohttp
 from marshmallow import EXCLUDE
 from starkware.starknet.services.api.gateway.transaction import AccountTransaction
 
 from starknet_py.net.client import Client
-from starknet_py.net.client_models import (
-    Transaction,
-    SentTransactionResponse,
-    ContractCode,
-    BlockStateUpdate,
-    Invoke,
-    StarknetTransaction,
-    Hash,
-    Tag,
-    DeclaredContract,
-    Declare,
-    TransactionStatusResponse,
-    EstimatedFee,
-    BlockTransactionTraces,
-    DeclareTransactionResponse,
-    TransactionReceipt,
-    Call,
-    GatewayBlock,
-    DeployAccountTransactionResponse,
-)
-from starknet_py.net.models.transaction import DeployAccount
-from starknet_py.net.schemas.gateway import (
-    ContractCodeSchema,
-    StarknetBlockSchema,
-    SentTransactionSchema,
-    BlockStateUpdateSchema,
-    DeclaredContractSchema,
-    TypesOfTransactionsSchema,
-    TransactionStatusSchema,
-    BlockTransactionTracesSchema,
-    EstimatedFeeSchema,
-    DeclareTransactionResponseSchema,
-    TransactionReceiptSchema,
-    DeployAccountTransactionResponseSchema,
-)
-from starknet_py.net.http_client import GatewayHttpClient
-from starknet_py.net.networks import Network, net_address_from_net
 from starknet_py.net.client_errors import ContractNotFoundError
-from starknet_py.net.client_utils import (
-    hash_to_felt,
-    is_block_identifier,
-    _invoke_tx_to_call,
+from starknet_py.net.client_models import (
+    BlockStateUpdate,
+    BlockTransactionTraces,
+    Call,
+    ContractCode,
+    Declare,
+    DeclaredContract,
+    DeclareTransactionResponse,
+    DeployAccountTransactionResponse,
+    EstimatedFee,
+    GatewayBlock,
+    Hash,
+    Invoke,
+    SentTransactionResponse,
+    StarknetTransaction,
+    Tag,
+    Transaction,
+    TransactionReceipt,
+    TransactionStatusResponse,
+)
+from starknet_py.net.client_utils import hash_to_felt, is_block_identifier
+from starknet_py.net.http_client import GatewayHttpClient
+from starknet_py.net.models.transaction import DeployAccount
+from starknet_py.net.networks import Network, net_address_from_net
+from starknet_py.net.schemas.gateway import (
+    BlockStateUpdateSchema,
+    BlockTransactionTracesSchema,
+    ContractCodeSchema,
+    DeclaredContractSchema,
+    DeclareTransactionResponseSchema,
+    DeployAccountTransactionResponseSchema,
+    EstimatedFeeSchema,
+    SentTransactionSchema,
+    StarknetBlockSchema,
+    TransactionReceiptSchema,
+    TransactionStatusSchema,
+    TypesOfTransactionsSchema,
 )
 from starknet_py.transaction_exceptions import TransactionNotReceivedError
 from starknet_py.utils.sync import add_sync_methods
@@ -229,14 +225,10 @@ class GatewayClient(Client):
 
     async def call_contract(
         self,
-        call: Call = None,  # pyright: ignore
+        call: Call,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-        *,
-        invoke_tx: Call = None,  # pyright: ignore
     ) -> List[int]:
-        call = _invoke_tx_to_call(call=call, invoke_tx=invoke_tx)
-
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -402,7 +394,7 @@ def get_block_identifier(
 ) -> dict:
     if block_hash is not None and block_number is not None:
         raise ValueError(
-            "block_hash and block_number parameters are mutually exclusive."
+            "Arguments block_hash and block_number are mutually exclusive."
         )
 
     if block_hash is not None:

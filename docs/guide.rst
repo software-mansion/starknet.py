@@ -43,6 +43,8 @@ It will deploy the contract using funds from your account. Deployment is handled
     :language: python
     :dedent: 4
 
+.. _UDC paragraph:
+
 Using Universal Deployer Contract (UDC)
 #######################################
 
@@ -323,6 +325,10 @@ Conversion functions and references:
 
 StarkNet <> Ethereum communication
 ----------------------------------
+
+.. warning::
+    StarkNet <> Ethereum Messaging module is deprecated. If you are using it,
+    please contact us on our StarkNet discord channel: starknet-py.
 
 To retrieve the StarkNet -> Ethereum or Ethereum -> StarkNet message count, you need to provide some data that you used to create that message.
 Then after creating the message's representation, you can query it's current count.

@@ -1,6 +1,6 @@
 import pytest
 
-from starknet_py.contract import Contract
+from starknet_py.contract import Contract, DeclareResult, DeployResult
 from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_DIR
 
 SOURCE = """
@@ -54,20 +54,20 @@ func put{syscall_ptr: felt*, pedersen_ptr, range_check_ptr}(key: felt, value: fe
 """
 
 EXPECTED_HASH = (
-    3367838347353300235055654117917719323547984219752473389753894357016269254734
+    503253050526186908280124384407865038867585652783408167932765780369167667415
 )
 
 
 EXPECTED_HASH_WITH_IMPORTS = (
-    394612860274779992636772576769032218460224860384497578864113218631617224375
+    261412312091196127884045926298824262716023266111934769893960173054947391504
 )
 
 EXPECTED_ADDRESS = (
-    878904409216462285990057377997922238496967480540445690861347599705332330230
+    189023603034557919684596652904755695539249539924658863620932079547695762912
 )
 
 EXPECTED_ADDRESS_WITH_IMPORTS = (
-    2140704691203678994647087333657911647290304656457358230588767005576977811517
+    1265406736018442209950241864397668901077908617314293391280948790921629758434
 )
 
 search_path = CONTRACTS_DIR
@@ -107,18 +107,35 @@ def test_compute_address_with_imports():
 
 
 def test_compute_address_throws_on_no_source():
-    with pytest.raises(ValueError) as exinfo:
+    with pytest.raises(
+        ValueError, match="One of compiled_contract or compilation_source is required."
+    ):
         Contract.compute_address(salt=1111)
-
-    assert "One of compiled_contract or compilation_source is required." in str(
-        exinfo.value
-    )
 
 
 def test_no_valid_source():
-    with pytest.raises(ValueError) as v_err:
+    with pytest.raises(
+        ValueError, match="One of compiled_contract or compilation_source is required."
+    ):
         Contract.compute_contract_hash()
 
-    assert "One of compiled_contract or compilation_source is required." in str(
-        v_err.value
-    )
+
+@pytest.mark.parametrize("param", ["_account", "class_hash", "compiled_contract"])
+def test_declare_result_post_init(param, new_gateway_account_client):
+    kwargs = {
+        "_account": new_gateway_account_client,
+        "class_hash": 0,
+        "compiled_contract": "",
+    }
+    del kwargs[param]
+
+    with pytest.raises(ValueError, match=f"Argument {param} can't be None."):
+        _ = DeclareResult(hash=0, _client=new_gateway_account_client.client, **kwargs)
+
+
+def test_deploy_result_post_init(gateway_client):
+    with pytest.raises(ValueError, match="Argument deployed_contract can't be None."):
+        _ = DeployResult(
+            hash=0,
+            _client=gateway_client,
+        )

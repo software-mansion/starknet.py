@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from typing import Generator
 
 from starknet_py.cairo.felt import uint256_range_check
-
 from starknet_py.cairo.serialization._context import (
     DeserializationContext,
     SerializationContext,

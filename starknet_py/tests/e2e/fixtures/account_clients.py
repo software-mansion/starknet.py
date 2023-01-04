@@ -2,7 +2,7 @@
 
 import sys
 from dataclasses import dataclass
-from typing import Tuple, List, Dict
+from typing import Dict, List, Tuple
 
 import pytest
 import pytest_asyncio
@@ -25,17 +25,17 @@ from starknet_py.net.models import (
 )
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import (
-    TESTNET_ACCOUNT_ADDRESS,
-    TESTNET_ACCOUNT_PRIVATE_KEY,
+    DEVNET_PRE_DEPLOYED_ACCOUNT_ADDRESS,
+    DEVNET_PRE_DEPLOYED_ACCOUNT_PRIVATE_KEY,
     INTEGRATION_ACCOUNT_ADDRESS,
     INTEGRATION_ACCOUNT_PRIVATE_KEY,
-    TESTNET_NEW_ACCOUNT_ADDRESS,
-    TESTNET_NEW_ACCOUNT_PRIVATE_KEY,
     INTEGRATION_NEW_ACCOUNT_ADDRESS,
     INTEGRATION_NEW_ACCOUNT_PRIVATE_KEY,
     MAX_FEE,
-    DEVNET_PRE_DEPLOYED_ACCOUNT_ADDRESS,
-    DEVNET_PRE_DEPLOYED_ACCOUNT_PRIVATE_KEY,
+    TESTNET_ACCOUNT_ADDRESS,
+    TESTNET_ACCOUNT_PRIVATE_KEY,
+    TESTNET_NEW_ACCOUNT_ADDRESS,
+    TESTNET_NEW_ACCOUNT_PRIVATE_KEY,
 )
 from starknet_py.tests.e2e.utils import (
     AccountToBeDeployedDetails,

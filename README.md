@@ -16,53 +16,50 @@
 </div>
 
 ## 📘 Documentation
+
 - [Installation](https://starknetpy.rtfd.io/en/latest/installation.html)
 - [Quickstart](https://starknetpy.rtfd.io/en/latest/quickstart.html)
 - [Guide](https://starknetpy.rtfd.io/en/latest/guide.html)
 - [API](https://starknetpy.rtfd.io/en/latest/api.html)
 
 ## ⚙️ Installation
-To install this package run
 
-```
-pip install starknet.py
-```
+Installation varies between operating systems.
 
-or using Poetry:
-
-```
-poetry add starknet.py
-```
+[See our documentation on complete instructions](https://starknetpy.rtfd.io/en/latest/installation.html)
 
 ## ▶️ Example usage
+
 ### Asynchronous API
+
 This is the recommended way of using the SDK.
 
 ```python
 from starknet_py.contract import Contract
-from starknet_py.net.client import Client
+from starknet_py.net.gateway_client import GatewayClient
 
 key = 1234
-contract = await Contract.from_address("0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b", Client("testnet"))
-invocation = await contract.functions["set_value"].invoke(key, 7)
-await invocation.wait_for_acceptance()
-
-(saved,) = await contract.functions["get_value"].call(key) # 7
+contract = await Contract.from_address(
+    address="0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b",
+    client=GatewayClient("testnet"),
+)
+(value,) = await contract.functions["get_value"].call(key)
 ```
 
 ### Synchronous API
+
 You can access synchronous world with `_sync` postfix.
 
 ```python
 from starknet_py.contract import Contract
-from starknet_py.net.client import Client
+from starknet_py.net.gateway_client import GatewayClient
 
 key = 1234
-contract = Contract.from_address_sync("0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b", Client("testnet"))
-invocation = contract.functions["set_value"].invoke_sync(key, 7)
-invocation.wait_for_acceptance_sync()
-
-(saved,) = contract.functions["get_value"].call_sync(key) # 7
+contract = Contract.from_address_sync(
+    address="0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b",
+    client=GatewayClient("testnet"),
+)
+(value,) = contract.functions["get_value"].call_sync(key)
 ```
 
 For more examples click [here](https://starknetpy.rtfd.io/en/latest/quickstart.html).

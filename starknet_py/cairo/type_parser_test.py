@@ -3,11 +3,11 @@ from collections import OrderedDict
 import pytest
 
 from starknet_py.cairo.data_types import (
+    ArrayType,
     FeltType,
     NamedTupleType,
-    TupleType,
-    ArrayType,
     StructType,
+    TupleType,
 )
 from starknet_py.cairo.type_parser import TypeParser, UnknownCairoTypeError
 

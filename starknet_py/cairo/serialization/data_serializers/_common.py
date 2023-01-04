@@ -9,7 +9,6 @@ from starknet_py.cairo.serialization.data_serializers.cairo_data_serializer impo
     CairoDataSerializer,
 )
 
-
 # The actual serialization logic is very similar among all serializers: they either serialize data based on
 # position or their name. Having this logic reused adds indirection, but makes sure proper logic is used everywhere.
 

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Generator, Iterable
+from typing import Generator, Iterable, List
 
 from starknet_py.cairo.serialization._context import (
     DeserializationContext,

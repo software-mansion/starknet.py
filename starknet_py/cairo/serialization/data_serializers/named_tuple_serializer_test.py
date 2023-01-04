@@ -1,4 +1,4 @@
-from collections import namedtuple, OrderedDict
+from collections import OrderedDict, namedtuple
 
 import pytest
 
@@ -11,7 +11,6 @@ from starknet_py.cairo.serialization.data_serializers.felt_serializer import (
 from starknet_py.cairo.serialization.data_serializers.named_tuple_serializer import (
     NamedTupleSerializer,
 )
-
 from starknet_py.utils.tuple_dataclass import TupleDataclass
 
 felt_array_serializer = ArraySerializer(FeltSerializer())

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import List, Tuple, Dict, Set
+from typing import Dict, List, Set, Tuple
 
 from starknet_py.cairo.felt import CairoData
 from starknet_py.cairo.serialization.data_serializers.payload_serializer import (

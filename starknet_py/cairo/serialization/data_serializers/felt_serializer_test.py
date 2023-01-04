@@ -2,13 +2,13 @@ from typing import cast
 
 import pytest
 
+from starknet_py.cairo.felt import FIELD_PRIME
 from starknet_py.cairo.serialization.data_serializers.felt_serializer import (
     FeltSerializer,
 )
-from starknet_py.cairo.felt import FIELD_PRIME
 from starknet_py.cairo.serialization.errors import (
-    InvalidValueException,
     InvalidTypeException,
+    InvalidValueException,
 )
 
 

@@ -1,37 +1,36 @@
-from marshmallow import Schema, fields, post_load, pre_load, EXCLUDE
+from marshmallow import EXCLUDE, Schema, fields, post_load, pre_load
 from marshmallow_oneofschema import OneOfSchema
 
-from starknet_py.net.models.abi.schemas import ContractAbiEntrySchema
 from starknet_py.net.client_models import (
-    StarknetBlock,
-    L1toL2Message,
-    L2toL1Message,
     BlockStateUpdate,
-    StorageDiff,
-    DeployedContract,
-    Event,
-    EntryPoint,
-    EntryPointsByType,
     DeclaredContract,
-    InvokeTransaction,
     DeclareTransaction,
-    DeployTransaction,
-    TransactionReceipt,
-    SentTransactionResponse,
     DeclareTransactionResponse,
-    EstimatedFee,
-    StateDiff,
-    L1HandlerTransaction,
     DeployAccountTransaction,
     DeployAccountTransactionResponse,
+    DeployedContract,
+    DeployTransaction,
+    EntryPoint,
+    EntryPointsByType,
+    EstimatedFee,
+    Event,
+    InvokeTransaction,
+    L1HandlerTransaction,
+    L1toL2Message,
+    L2toL1Message,
+    SentTransactionResponse,
+    StarknetBlock,
+    StateDiff,
+    StorageDiff,
+    TransactionReceipt,
 )
+from starknet_py.net.models.abi.schemas import ContractAbiEntrySchema
 from starknet_py.net.schemas.common import (
-    Felt,
     BlockStatusField,
-    StatusField,
+    Felt,
     NonPrefixedHex,
+    StatusField,
 )
-
 
 # pylint: disable=unused-argument
 # pylint: disable=no-self-use

@@ -2,8 +2,8 @@ from typing import List
 
 from starkware.cairo.lang.compiler.ast.cairo_types import (
     CairoType,
-    TypePointer,
     TypeFelt,
+    TypePointer,
 )
 from starkware.cairo.lang.compiler.identifier_definition import StructDefinition
 from starkware.crypto.signature.signature import FIELD_PRIME
@@ -36,7 +36,7 @@ MIN_UINT256 = 0
 
 def uint256_range_check(value: int):
     if not MIN_UINT256 <= value <= MAX_UINT256:
-        raise ValueError(f"Uint256 is expected to be in range [0;2^256), got {value}")
+        raise ValueError(f"Uint256 is expected to be in range [0;2^256), got: {value}.")
 
 
 MIN_FELT = -FIELD_PRIME // 2
@@ -50,7 +50,7 @@ def is_in_felt_range(value: int) -> bool:
 def cairo_vm_range_check(value: int):
     if not is_in_felt_range(value):
         raise ValueError(
-            f"Felt is expected to be in range [0; {FIELD_PRIME}), got {value}"
+            f"Felt is expected to be in range [0; {FIELD_PRIME}), got: {value}."
         )
 
 

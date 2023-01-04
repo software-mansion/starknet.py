@@ -1,11 +1,7 @@
 import os
 from typing import Optional
 
-from crypto_cpp_py.cpp_bindings import (
-    cpp_hash,
-    get_cpp_lib_file,
-    ECSignature,
-)
+from crypto_cpp_py.cpp_bindings import ECSignature, cpp_hash, get_cpp_lib_file
 from starkware.cairo.lang.vm.crypto import pedersen_hash as default_hash
 from starkware.crypto.signature.signature import sign
 

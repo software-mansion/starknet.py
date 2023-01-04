@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from dataclasses import dataclass, fields, make_dataclass
 from typing import Dict, Optional, Tuple
 

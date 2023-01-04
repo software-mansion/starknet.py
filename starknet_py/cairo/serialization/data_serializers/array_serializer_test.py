@@ -1,12 +1,12 @@
 import pytest
 
+from starknet_py.cairo.felt import FIELD_PRIME
 from starknet_py.cairo.serialization.data_serializers.array_serializer import (
     ArraySerializer,
 )
 from starknet_py.cairo.serialization.data_serializers.felt_serializer import (
     FeltSerializer,
 )
-from starknet_py.cairo.felt import FIELD_PRIME
 
 felt_array_serializer = ArraySerializer(FeltSerializer())
 

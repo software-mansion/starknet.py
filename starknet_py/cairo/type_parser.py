@@ -1,17 +1,18 @@
 from __future__ import annotations
+
 from collections import OrderedDict
 from typing import Dict
 
-from starkware.cairo.lang.compiler.parser import parse_type
 import starkware.cairo.lang.compiler.ast.cairo_types as cairo_lang_types
+from starkware.cairo.lang.compiler.parser import parse_type
 
 from starknet_py.cairo.data_types import (
+    ArrayType,
     CairoType,
     FeltType,
-    TupleType,
     NamedTupleType,
-    ArrayType,
     StructType,
+    TupleType,
 )
 
 

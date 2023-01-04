@@ -3,24 +3,24 @@ from __future__ import annotations
 import dataclasses
 import json
 from collections import OrderedDict, defaultdict
-from typing import Dict, List, Optional, cast, DefaultDict
+from typing import DefaultDict, Dict, List, Optional, cast
 
 from marshmallow import EXCLUDE
 
+from starknet_py.cairo.data_types import CairoType, StructType
 from starknet_py.cairo.type_parser import TypeParser
-from starknet_py.cairo.data_types import StructType, CairoType
 from starknet_py.net.models.abi.model import Abi
 from starknet_py.net.models.abi.schemas import ContractAbiEntrySchema
 from starknet_py.net.models.abi.shape import (
-    FunctionDict,
-    TypedMemberDict,
-    EventDict,
-    STRUCT_ENTRY,
-    FUNCTION_ENTRY,
-    EVENT_ENTRY,
     CONSTRUCTOR_ENTRY,
+    EVENT_ENTRY,
+    FUNCTION_ENTRY,
     L1_HANDLER_ENTRY,
+    STRUCT_ENTRY,
+    EventDict,
+    FunctionDict,
     StructMemberDict,
+    TypedMemberDict,
 )
 
 

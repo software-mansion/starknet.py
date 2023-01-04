@@ -2,16 +2,16 @@ from __future__ import annotations
 
 from abc import ABC
 from contextlib import contextmanager
-from typing import List, Generator, Any, Iterator
+from typing import Any, Generator, Iterator, List
 
 from starknet_py.cairo.serialization._calldata_reader import (
-    OutOfBoundsError,
-    CalldataReader,
     CairoData,
+    CalldataReader,
+    OutOfBoundsError,
 )
 from starknet_py.cairo.serialization.errors import (
-    InvalidValueException,
     InvalidTypeException,
+    InvalidValueException,
 )
 
 

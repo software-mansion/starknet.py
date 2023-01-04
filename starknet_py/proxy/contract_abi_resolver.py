@@ -1,16 +1,16 @@
 import warnings
 from enum import Enum
-from typing import List, TypedDict, Tuple
+from typing import List, Tuple, TypedDict
 
 from starknet_py.constants import RPC_CLASS_HASH_NOT_FOUND_ERROR
 from starknet_py.net.client import Client
-from starknet_py.net.client_errors import ContractNotFoundError, ClientError
+from starknet_py.net.client_errors import ClientError, ContractNotFoundError
 from starknet_py.net.client_models import DeclaredContract
 from starknet_py.net.models import Address
 from starknet_py.net.models.abi.shape import AbiDictList
 from starknet_py.proxy.proxy_check import (
-    OpenZeppelinProxyCheck,
     ArgentProxyCheck,
+    OpenZeppelinProxyCheck,
     ProxyCheck,
 )
 
@@ -158,5 +158,5 @@ class ProxyResolutionError(Exception):
     """
 
     def __init__(self):
-        self.message = "Couldn't resolve proxy using given ProxyChecks"
+        self.message = "Couldn't resolve proxy using given ProxyChecks."
         super().__init__(self.message)

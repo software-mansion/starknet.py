@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 import pytest
 
-from starknet_py.cairo.data_types import StructType, TupleType, FeltType, NamedTupleType
+from starknet_py.cairo.data_types import FeltType, NamedTupleType, StructType, TupleType
 from starknet_py.cairo.serialization.data_serializers.array_serializer import (
     ArraySerializer,
 )
@@ -26,19 +26,19 @@ from starknet_py.cairo.serialization.data_serializers.uint256_serializer import 
 )
 from starknet_py.cairo.serialization.errors import InvalidTypeException
 from starknet_py.cairo.serialization.factory import (
-    serializer_for_type,
-    serializer_for_payload,
     serializer_for_function,
+    serializer_for_payload,
+    serializer_for_type,
 )
 from starknet_py.cairo.serialization.function_serialization_adapter import (
     FunctionSerializationAdapter,
 )
 from starknet_py.net.models.abi.model import Abi
 from starknet_py.tests.e2e.fixtures.abi_structures import (
-    uint256_struct,
-    pool_id_struct,
-    pool_id_added_event,
     get_user_fn,
+    pool_id_added_event,
+    pool_id_struct,
+    uint256_struct,
     user_struct,
 )
 

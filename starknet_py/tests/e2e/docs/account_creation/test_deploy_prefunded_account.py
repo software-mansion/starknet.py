@@ -1,5 +1,4 @@
 import pytest
-
 from starkware.crypto.signature.signature import get_random_private_key
 from starkware.starknet.definitions.fields import ContractAddressSalt
 
@@ -13,11 +12,9 @@ async def test_deploy_prefunded_account(
 ):
     # pylint: disable=import-outside-toplevel, too-many-locals
     # docs: start
-    from starknet_py.net import AccountClient
-    from starknet_py.net import KeyPair
+    from starknet_py.net import AccountClient, KeyPair
     from starknet_py.net.gateway_client import GatewayClient
-    from starknet_py.net.models import StarknetChainId
-    from starknet_py.net.models import compute_address
+    from starknet_py.net.models import StarknetChainId, compute_address
 
     # First, make sure to generate private key and salt
     # docs: end
