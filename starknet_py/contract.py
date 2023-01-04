@@ -179,7 +179,7 @@ class DeclareResult(SentTransaction):
         )
 
         deployed_contract = Contract(
-            account=self._account,
+            provider=self._account,
             address=address,
             abi=abi,
         )
@@ -447,8 +447,9 @@ class Contract:
         self,
         address: AddressRepresentation,
         abi: list,
+        provider: Union[BaseAccount, Client] = None,  # pyright: ignore
+        *,
         client: Optional[Client] = None,
-        account: Optional[BaseAccount] = None,
     ):
         """
         Should be used instead of ``from_address`` when ABI is known statically.
@@ -457,10 +458,10 @@ class Contract:
 
         :param address: contract's address.
         :param abi: contract's abi.
+        :param provider: BaseAccount or Client used to perform transactions.
         :param client: client used to perform transactions.
-        :param account: account used to perform transactions.
         """
-        client, account = _unpack_client_and_account(client, account)
+        client, account = _unpack_provider(provider, client)
 
         self.account: Optional[BaseAccount] = account
         self.client: Client = client
@@ -481,9 +482,10 @@ class Contract:
     @staticmethod
     async def from_address(
         address: AddressRepresentation,
-        client: Optional[Client] = None,
+        provider: Union[BaseAccount, Client] = None,  # pyright: ignore
         proxy_config: Union[bool, ProxyConfig] = False,
-        account: Optional[BaseAccount] = None,
+        *,
+        client: Optional[Client] = None,
     ) -> "Contract":
         """
         Fetches ABI for given contract and creates a new Contract instance with it. If you know ABI statically you
@@ -493,8 +495,7 @@ class Contract:
         :raises TypeError: when given client's `get_class_by_hash` method does not return abi.
         :raises ProxyResolutionError: when given ProxyChecks were not sufficient to resolve proxy's implementation.
         :param address: Contract's address.
-        :param client: Client.
-        :param account: BaseAccount.
+        :param provider: BaseAccount or Client.
         :param proxy_config: Proxy resolving config
             If set to ``True``, will use default proxy checks
             :class:`starknet_py.proxy.proxy_check.OpenZeppelinProxyCheck`
@@ -503,10 +504,11 @@ class Contract:
             If set to ``False``, :meth:`Contract.from_address` will not resolve proxies.
 
             If a valid :class:`starknet_py.contract_abi_resolver.ProxyConfig` is provided, will use its values instead.
+        :param client: Client.
 
         :return: an initialized Contract instance.
         """
-        client, account = _unpack_client_and_account(client, account)
+        client, account = _unpack_provider(provider, client)
 
         address = parse_address(address)
         proxy_config = Contract._create_proxy_config(proxy_config)
@@ -515,10 +517,7 @@ class Contract:
             address=address, client=client, proxy_config=proxy_config
         ).resolve()
 
-        if account is not None:
-            return Contract(address=address, abi=abi, account=account)
-
-        return Contract(address=address, abi=abi, client=client)
+        return Contract(address=address, abi=abi, provider=account or client)
 
     @staticmethod
     async def declare(
@@ -593,7 +592,7 @@ class Contract:
         )
 
         deployed_contract = Contract(
-            account=account,
+            provider=account,
             address=address,
             abi=abi,
         )
@@ -691,8 +690,8 @@ class Contract:
         return prepare_proxy_config(proxy_arg)
 
 
-def _unpack_client_and_account(
-    client: Optional[Client] = None, account: Optional[BaseAccount] = None
+def _unpack_provider(
+    provider: Union[BaseAccount, Client], client: Optional[Client] = None
 ) -> Tuple[Client, Optional[BaseAccount]]:
     """
     Get the client and optional account to be used by Contract.
@@ -701,19 +700,30 @@ def _unpack_client_and_account(
     If provided with Client, returns this Client and None.
     If provided with Account, returns underlying Client and the account.
     """
-    if client is not None and account is not None:
-        raise ValueError("Arguments account and client are mutually exclusive.")
-
     if client is not None:
-        if isinstance(client, AccountClient):
-            return client.client, AccountProxy(client)
+        warnings.warn(
+            "Argument client has been deprecated. Use provider instead.",
+            category=DeprecationWarning,
+        )
 
-        return client, None
+    if provider is not None and client is not None:
+        raise ValueError("Arguments provider and client are mutually exclusive.")
 
-    if account is not None:
-        return account.client, account
+    if provider is None and client is None:
+        raise ValueError("One of provider or client must be provided.")
 
-    raise ValueError("One of client or account must be provided.")
+    provider = provider or client
+
+    if isinstance(provider, Client):
+        if isinstance(provider, AccountClient):
+            return provider.client, AccountProxy(provider)
+
+        return provider, None
+
+    if isinstance(provider, BaseAccount):
+        return provider.client, provider
+
+    raise ValueError("Argument provider is not of accepted type.")
 
 
 def _account_or_proxy(account: Union[BaseAccount, AccountClient]) -> BaseAccount:

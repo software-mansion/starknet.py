@@ -15,7 +15,7 @@ def test_synchronous_api(account, map_contract):
     # docs: start
 
     key = 1234
-    contract = Contract.from_address_sync(address=contract_address, account=account)
+    contract = Contract.from_address_sync(address=contract_address, provider=account)
 
     invocation = contract.functions["put"].invoke_sync(key, 7, max_fee=int(1e16))
     invocation.wait_for_acceptance_sync()

@@ -22,7 +22,7 @@ async def test_using_contract(account, map_contract):
     # docs: start
 
     # Create contract from contract's address - Contract will download contract's ABI to know its interface.
-    contract = await Contract.from_address(address=contract_address, account=account)
+    contract = await Contract.from_address(address=contract_address, provider=account)
     # docs: end
 
     abi = contract.data.abi
@@ -33,7 +33,7 @@ async def test_using_contract(account, map_contract):
     contract = Contract(
         address=contract_address,
         abi=abi,
-        account=account,
+        provider=account,
     )
 
     # All exposed functions are available at contract.functions.

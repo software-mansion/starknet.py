@@ -13,7 +13,7 @@ async def test_handling_client_errors(gateway_account):
         # docs: end
         account = gateway_account
         # docs: start
-        await Contract.from_address(address=contract_address, account=account)
+        await Contract.from_address(address=contract_address, provider=account)
     except ClientError as error:
         print(error.code, error.message)
     # docs: end
