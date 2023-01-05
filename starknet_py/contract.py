@@ -52,9 +52,6 @@ TSentTransaction = TypeVar("TSentTransaction", bound="SentTransaction")
 class ContractData:
     address: int
     abi: ABI
-    # Make sure the constructor remains the same
-    # noinspection PyDataclass
-    identifier_manager: dataclasses.InitVar[Optional[IdentifierManager]] = None
 
     @cached_property
     def identifier_manager(self) -> IdentifierManager:

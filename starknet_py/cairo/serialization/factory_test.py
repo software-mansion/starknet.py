@@ -114,6 +114,4 @@ def test_invalid_type():
     with pytest.raises(
         InvalidTypeException, match="Received unknown Cairo type 'test'."
     ):
-        # noinspection PyTypeChecker
-        # pyright: ignore
-        serializer_for_type("test")
+        serializer_for_type("test")  # type: ignore
