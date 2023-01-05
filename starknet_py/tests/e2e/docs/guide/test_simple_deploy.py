@@ -5,7 +5,7 @@ from starknet_py.common import create_compiled_contract
 
 @pytest.mark.asyncio
 async def test_simple_declare_and_deploy(
-    account_client, map_class_hash, map_compiled_contract
+    account, map_class_hash, map_compiled_contract
 ):
     # pylint: disable=import-outside-toplevel
     # docs: start
@@ -28,7 +28,7 @@ async def test_simple_declare_and_deploy(
 
     # docs: start
     deploy_result = await Contract.deploy_contract(
-        account=account_client,
+        account=account,
         class_hash=class_hash,
         abi=abi,
         constructor_args=constructor_args,
