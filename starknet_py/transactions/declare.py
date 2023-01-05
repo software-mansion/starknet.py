@@ -36,6 +36,12 @@ def make_declare_tx(
         "AccountClient.sign_declare_transaction instead,",
         category=DeprecationWarning,
     )
+
+    warnings.warn(
+        "Argument compilation_source will be deprecated in the future. Consider using already compiled contracts.",
+        category=PendingDeprecationWarning,
+    )
+
     compiled_contract = create_compiled_contract(
         compilation_source, compiled_contract, cairo_path
     )

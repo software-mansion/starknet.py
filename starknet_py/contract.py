@@ -629,6 +629,11 @@ class Contract:
         :return: contract's address
         """
         # pylint: disable=too-many-arguments
+        warnings.warn(
+            "Argument compilation_source will be deprecated in the future. Consider using already compiled contracts.",
+            category=PendingDeprecationWarning,
+        )
+
         compiled = create_compiled_contract(
             compilation_source, compiled_contract, search_paths
         )
@@ -656,6 +661,11 @@ class Contract:
         :raises: `ValueError` if neither compilation_source nor compiled_contract is provided.
         :return:
         """
+        warnings.warn(
+            "Argument compilation_source will be deprecated in the future. Consider using already compiled contracts.",
+            category=PendingDeprecationWarning,
+        )
+
         compiled_contract = create_compiled_contract(
             compilation_source, compiled_contract, search_paths
         )
