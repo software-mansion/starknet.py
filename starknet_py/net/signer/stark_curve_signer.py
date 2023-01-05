@@ -20,7 +20,7 @@ from starknet_py.utils.crypto.transaction_hash import (
     compute_deploy_account_transaction_hash,
     compute_transaction_hash,
 )
-from starknet_py.utils.typed_data import TypedData as TypedDataDataclass
+from starknet_py.utils.typed_data import TypedData
 
 
 @dataclass
