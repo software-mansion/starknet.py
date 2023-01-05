@@ -14,6 +14,9 @@ from starkware.starknet.services.api.gateway.transaction import (
 
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient, KeyPair
+from starknet_py.net.account._account_proxy import AccountProxy
+from starknet_py.net.account.account import Account
+from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
@@ -61,10 +64,10 @@ def create_account_client(
 
 
 async def devnet_account_details(
-    account: AccountClient, class_hash: int
+    account: BaseAccount, class_hash: int
 ) -> Tuple[str, str]:
     """
-    Deploys an AccountClient and adds fee tokens to its balance
+    Deploys an AccountClient and adds fee tokens to its balance.
     """
     private_key = get_random_private_key()
     key_pair = KeyPair.from_private_key(private_key)
@@ -77,10 +80,10 @@ async def devnet_account_details(
     invoke_tx = await account.sign_invoke_transaction(
         calls=deploy_call, max_fee=MAX_FEE
     )
-    resp = await account.send_transaction(invoke_tx)
-    await account.wait_for_tx(resp.transaction_hash)
+    resp = await account.client.send_transaction(invoke_tx)
+    await account.client.wait_for_tx(resp.transaction_hash)
 
-    http_client = GatewayHttpClient(account.net)
+    http_client = GatewayHttpClient(account.client.net)
     await http_client.post(
         method_name="mint",
         payload={
@@ -95,11 +98,11 @@ async def devnet_account_details(
 @pytest_asyncio.fixture(scope="module")
 async def address_and_private_key(
     pytestconfig,
-    pre_deployed_account_with_validate_deploy: AccountClient,
+    pre_deployed_account_with_validate_deploy: BaseAccount,
     account_without_validate_deploy_class_hash: int,
 ) -> Tuple[str, str]:
     """
-    Returns address and private key of an account, depending on the network
+    Returns address and private key of an account, depending on the network.
     """
     net = pytestconfig.getoption("--net")
 
@@ -121,7 +124,7 @@ def gateway_account_client(
     address_and_private_key: Tuple[str, str], gateway_client: GatewayClient
 ) -> AccountClient:
     """
-    Returns an AccountClient created with GatewayClient
+    Returns an AccountClient created with GatewayClient.
     """
     address, private_key = address_and_private_key
 
@@ -145,11 +148,11 @@ def full_node_account_client(
 
 
 async def new_devnet_account_details(
-    account: AccountClient,
+    account: BaseAccount,
     class_hash: int,
 ) -> Tuple[str, str]:
     """
-    Deploys a new AccountClient and adds fee tokens to its balance (only on devnet)
+    Deploys a new AccountClient and adds fee tokens to its balance (only on devnet).
     """
     private_key = get_random_private_key()
     key_pair = KeyPair.from_private_key(private_key)
@@ -162,7 +165,7 @@ async def new_devnet_account_details(
         deployer_address=0,
     )
 
-    http_client = GatewayHttpClient(account.net)
+    http_client = GatewayHttpClient(account.client.net)
     await http_client.post(
         method_name="mint",
         payload={
@@ -176,18 +179,17 @@ async def new_devnet_account_details(
         key_pair=key_pair,
         salt=salt,
         class_hash=class_hash,
-        network=account.net,
+        network=account.client.net,
     )
 
-    account = AccountClient(
+    account = Account(
         address=address,
         client=account.client,
         key_pair=key_pair,
         chain=StarknetChainId.TESTNET,
-        supported_tx_version=1,
     )
-    res = await account.deploy_account(deploy_account_tx)
-    await account.wait_for_tx(res.transaction_hash)
+    res = await account.client.deploy_account(deploy_account_tx)
+    await account.client.wait_for_tx(res.transaction_hash)
 
     return hex(address), hex(key_pair.private_key)
 
@@ -195,11 +197,11 @@ async def new_devnet_account_details(
 @pytest_asyncio.fixture(scope="module")
 async def new_address_and_private_key(
     pytestconfig,
-    pre_deployed_account_with_validate_deploy: AccountClient,
+    pre_deployed_account_with_validate_deploy: BaseAccount,
     account_with_validate_deploy_class_hash: int,
 ) -> Tuple[str, str]:
     """
-    Returns address and private key of a new account, depending on the network
+    Returns address and private key of a new account, depending on the network.
     """
     net = pytestconfig.getoption("--net")
 
@@ -224,7 +226,7 @@ def new_gateway_account_client(
     new_address_and_private_key: Tuple[str, str], gateway_client: GatewayClient
 ) -> AccountClient:
     """
-    Returns a new AccountClient created with GatewayClient
+    Returns a new AccountClient created with GatewayClient.
     """
     address, private_key = new_address_and_private_key
 
@@ -292,6 +294,70 @@ def new_account_client(request) -> AccountClient:
     return request.getfixturevalue(request.param)
 
 
+@pytest.fixture(scope="module")
+def gateway_account(
+    new_address_and_private_key: Tuple[str, str], gateway_client: GatewayClient
+) -> BaseAccount:
+    """
+    Returns a new Account created with GatewayClient.
+    """
+    address, private_key = new_address_and_private_key
+
+    return Account(
+        address=address,
+        client=gateway_client,
+        key_pair=KeyPair.from_private_key(int(private_key, 0)),
+        chain=StarknetChainId.TESTNET,
+    )
+
+
+@pytest.fixture(scope="module")
+def gateway_account_proxy(new_gateway_account_client: AccountClient) -> BaseAccount:
+    return AccountProxy(new_gateway_account_client)
+
+
+@pytest.fixture(scope="module")
+def full_node_account_proxy(new_full_node_account_client: AccountClient) -> BaseAccount:
+    return AccountProxy(new_full_node_account_client)
+
+
+@pytest.fixture(scope="module")
+def full_node_account(
+    new_address_and_private_key: Tuple[str, str], full_node_client: FullNodeClient
+) -> BaseAccount:
+    """
+    Returns a new Account created with FullNodeClient.
+    """
+    address, private_key = new_address_and_private_key
+
+    return Account(
+        address=address,
+        client=full_node_client,
+        key_pair=KeyPair.from_private_key(int(private_key, 0)),
+        chain=StarknetChainId.TESTNET,
+    )
+
+
+def net_to_base_accounts() -> List[str]:
+    accounts = ["gateway_account", "gateway_account_proxy"]
+    nets = ["--net=integration", "--net=testnet", "testnet", "integration"]
+
+    if set(nets).isdisjoint(sys.argv):
+        accounts.extend(["full_node_account", "full_node_account_proxy"])
+    return accounts
+
+
+@pytest.fixture(
+    scope="module",
+    params=net_to_base_accounts(),
+)
+def account(request) -> BaseAccount:
+    """
+    This parametrized fixture returns all new Accounts, one by one.
+    """
+    return request.getfixturevalue(request.param)
+
+
 @dataclass
 class AccountToBeDeployedDetailsFactory:
 
@@ -325,7 +391,7 @@ async def deploy_account_details_factory(
 @pytest.fixture(scope="module")
 def sender_address(new_gateway_account_client: AccountClient) -> Dict:
     """
-    Returns dict with DeclareTransaction sender_addresses depending on transaction version
+    Returns dict with DeclareTransaction sender_addresses depending on transaction version.
     """
     return {0: DEFAULT_DECLARE_SENDER_ADDRESS, 1: new_gateway_account_client.address}
 
@@ -333,9 +399,9 @@ def sender_address(new_gateway_account_client: AccountClient) -> Dict:
 @pytest.fixture(scope="module")
 def pre_deployed_account_with_validate_deploy(
     pytestconfig, network: str
-) -> AccountClient:
+) -> BaseAccount:
     """
-    Returns an AccountClient pre-deployed on specified network. Used to deploy other accounts
+    Returns an AccountClient pre-deployed on specified network. Used to deploy other accounts.
     """
     address_and_priv_key = {
         "devnet": (
@@ -352,10 +418,9 @@ def pre_deployed_account_with_validate_deploy(
     net = pytestconfig.getoption("--net")
     address, private_key = address_and_priv_key[net]
 
-    return AccountClient(
+    return Account(
         address=address,
         client=GatewayClient(net=network),
         key_pair=KeyPair.from_private_key(int(private_key, 16)),
         chain=StarknetChainId.TESTNET,
-        supported_tx_version=1,
     )

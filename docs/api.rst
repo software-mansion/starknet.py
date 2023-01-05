@@ -4,6 +4,7 @@ API
 
    gateway_client
    full_node_client
+   account
    account_client
    client_errors
    contract
