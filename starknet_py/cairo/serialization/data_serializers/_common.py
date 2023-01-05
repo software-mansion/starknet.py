@@ -1,5 +1,6 @@
-from collections import OrderedDict
-from typing import Dict, Generator, List
+# We have to use parametrised type from typing
+from collections import OrderedDict as _OrderedDict
+from typing import Dict, Generator, List, OrderedDict
 
 from starknet_py.cairo.serialization._context import (
     DeserializationContext,
@@ -36,7 +37,7 @@ def deserialize_to_dict(
     Deserializes data from context to dictionary. This logic is used in every type with named fields (structs,
     named tuples and payloads).
     """
-    result = OrderedDict()
+    result = _OrderedDict()
 
     for key, serializer in deserializers.items():
         with context.push_entity(key):

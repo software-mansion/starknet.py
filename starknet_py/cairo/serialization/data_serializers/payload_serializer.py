@@ -1,6 +1,6 @@
-from collections import OrderedDict
+from collections import OrderedDict as _OrderedDict
 from dataclasses import InitVar, dataclass, field
-from typing import Dict, Generator
+from typing import Dict, Generator, OrderedDict
 
 from starknet_py.cairo.serialization._context import (
     DeserializationContext,
@@ -44,7 +44,7 @@ class PayloadSerializer(CairoDataSerializer[Dict, TupleDataclass]):
         ABI adds ARG_len for every argument ARG that is an array. We parse length as a part of ArraySerializer, so we
         need to remove those lengths from args.
         """
-        self.serializers = OrderedDict(
+        self.serializers = _OrderedDict(
             (key, serializer)
             for key, serializer in input_serializers.items()
             if not self._is_len_arg(key, input_serializers)
