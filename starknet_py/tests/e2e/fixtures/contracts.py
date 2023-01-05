@@ -4,8 +4,7 @@ from typing import List, Union
 import pytest
 import pytest_asyncio
 
-from starknet_py.common import create_compiled_contract
-from starknet_py.compile.compiler import create_contract_class
+from starknet_py.common import create_compiled_contract, create_contract_class
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient
@@ -45,6 +44,14 @@ def map_compiled_contract() -> str:
     Returns compiled map contract.
     """
     return read_contract("map_compiled.json")
+
+
+@pytest.fixture(scope="module")
+def simple_storage_with_event_compiled_contract() -> str:
+    """
+    Returns compiled simple storage contract that emits an event
+    """
+    return read_contract("simple_storage_with_event_compiled.json")
 
 
 @pytest.fixture(scope="module")

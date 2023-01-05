@@ -8,8 +8,9 @@ from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import Declare, DeployAccount, Invoke
 from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 
-contract_source = (
-    Path(os.path.dirname(__file__)) / "../../tests/e2e/mock/contracts/erc20.cairo"
+compiled_contract = (
+    Path(os.path.dirname(__file__))
+    / "../../tests/e2e/mock/contracts_compiled/erc20_compiled.json"
 ).read_text("utf-8")
 
 
@@ -34,7 +35,9 @@ contract_source = (
             version=1,
         ),
         Declare(
-            contract_class=create_compiled_contract(compilation_source=contract_source),
+            contract_class=create_compiled_contract(
+                compiled_contract=compiled_contract
+            ),
             sender_address=123,
             max_fee=10000,
             signature=[],
