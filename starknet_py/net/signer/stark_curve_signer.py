@@ -10,7 +10,12 @@ from starknet_py.net.models import (
     compute_address,
     parse_address,
 )
-from starknet_py.net.models.transaction import Declare, DeployAccount, Invoke
+from starknet_py.net.models.transaction import (
+    Declare,
+    DeployAccount,
+    Invoke,
+    TransactionType,
+)
 from starknet_py.net.models.typed_data import TypedData
 from starknet_py.net.signer.base_signer import BaseSigner
 from starknet_py.utils.crypto.facade import message_signature
@@ -56,7 +61,7 @@ class StarkCurveSigner(BaseSigner):
         self,
         transaction: Transaction,
     ) -> List[int]:
-        if isinstance(transaction, Declare):
+        if transaction.tx_type == TransactionType.DECLARE:
             return self._sign_declare_transaction(transaction)
         if isinstance(transaction, DeployAccount):
             return self._sign_deploy_account_transaction(transaction)

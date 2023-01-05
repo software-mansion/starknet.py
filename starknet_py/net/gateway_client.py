@@ -29,7 +29,11 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.client_utils import hash_to_felt, is_block_identifier
 from starknet_py.net.http_client import GatewayHttpClient
-from starknet_py.net.models.transaction import DeployAccount
+from starknet_py.net.models.transaction import (
+    DeclareSchema,
+    DeployAccount,
+    TransactionType,
+)
 from starknet_py.net.networks import Network, net_address_from_net
 from starknet_py.net.schemas.gateway import (
     BlockStateUpdateSchema,
@@ -304,9 +308,15 @@ class GatewayClient(Client):
         tx: StarknetTransaction,
         token: Optional[str] = None,
     ) -> dict:
+        if tx.tx_type == TransactionType.DECLARE:
+            payload = DeclareSchema().dump(obj=tx)
+            print(payload)
+        else:
+            payload = StarknetTransaction.Schema().dump(obj=tx)
+
         res = await self._gateway_client.post(
             method_name="add_transaction",
-            payload=StarknetTransaction.Schema().dump(obj=tx),
+            payload=payload,
             params={"token": token} if token is not None else {},
         )
         return res
