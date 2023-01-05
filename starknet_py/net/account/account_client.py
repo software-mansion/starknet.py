@@ -77,6 +77,11 @@ class AccountClient(Client):
         :param supported_tx_version: Version of transactions supported by account
         """
         # pylint: disable=too-many-arguments
+        warnings.warn(
+            "AccountClient has been deprecated in favor of the Account.",
+            category=DeprecationWarning,
+        )
+
         if chain is None and signer is None:
             raise ValueError("One of chain or signer must be provided.")
 
@@ -537,7 +542,8 @@ class AccountClient(Client):
         :param typed_data: TypedData TypedDict to be signed
         :return: The signature of the TypedData TypedDict
         """
-        return self.signer.sign_message(typed_data, self.address)
+        typed_data_dataclass = TypedDataDataclass.from_dict(typed_data)
+        return self.signer.sign_message(typed_data_dataclass, self.address)
 
     def hash_message(self, typed_data: TypedData) -> int:
         """

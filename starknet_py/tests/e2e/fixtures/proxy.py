@@ -16,7 +16,7 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
 )
 def compiled_proxy(request) -> str:
     """
-    Returns source code of compiled proxy contract
+    Returns source code of compiled proxy contract.
     """
     return read_contract(request.param)
 
@@ -24,7 +24,7 @@ def compiled_proxy(request) -> str:
 @pytest.fixture(scope="session")
 def custom_proxy() -> str:
     """
-    Returns compiled source code of a custom proxy
+    Returns compiled source code of a custom proxy.
     """
     return read_contract("oz_proxy_custom_compiled.json")
 

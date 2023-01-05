@@ -8,7 +8,7 @@ async def test_custom_signer():
     # pylint: disable=import-outside-toplevel, duplicate-code, unused-variable
 
     # docs: start
-    from starknet_py.net import AccountClient
+    from starknet_py.net.account.account import Account
     from starknet_py.net.gateway_client import GatewayClient
     from starknet_py.net.models import StarknetChainId, Transaction
     from starknet_py.net.models.typed_data import TypedData
@@ -28,14 +28,14 @@ async def test_custom_signer():
         ) -> List[int]:
             return [0x0, 0x1]
 
-    # Create an AccountClient instance with the signer you've implemented
+    # Create an Account instance with the signer you've implemented
     custom_signer = CustomSigner()
     client = GatewayClient("testnet")
-    account_client = AccountClient(
+    account = Account(
         client=client,
         address=0x1111,
         signer=custom_signer,
         chain=StarknetChainId.TESTNET,
     )
-    # Now you can use AccountClient as you'd always do
+    # Now you can use Account as you'd always do
     # docs: end

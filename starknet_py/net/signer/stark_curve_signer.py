@@ -1,5 +1,6 @@
+import warnings
 from dataclasses import dataclass
-from typing import List
+from typing import Dict, List, Union
 
 from starkware.crypto.signature.signature import private_to_stark_key
 
@@ -11,7 +12,6 @@ from starknet_py.net.models import (
     parse_address,
 )
 from starknet_py.net.models.transaction import Declare, DeployAccount, Invoke
-from starknet_py.net.models.typed_data import TypedData
 from starknet_py.net.signer.base_signer import BaseSigner
 from starknet_py.utils.crypto.facade import message_signature
 from starknet_py.utils.crypto.transaction_hash import (
@@ -113,8 +113,21 @@ class StarkCurveSigner(BaseSigner):
         r, s = message_signature(msg_hash=tx_hash, priv_key=self.private_key)
         return [r, s]
 
-    def sign_message(self, typed_data: TypedData, account_address: int) -> List[int]:
-        typed_data_dataclass = TypedDataDataclass.from_dict(data=typed_data)
+    def sign_message(
+        self, typed_data: Union[Dict, TypedData], account_address: int
+    ) -> List[int]:
+        if isinstance(typed_data, dict):
+            warnings.warn(
+                "Argument typed_data as dict has been deprecated. Use starknet_py.utils.TypedData dataclass instead.",
+                category=DeprecationWarning,
+            )
+
+        typed_data_dataclass = (
+            # Typechecker expects typed_data to be a TypedDict but typing of sign_message changed due to depreaction
+            TypedData.from_dict(data=typed_data)  # pyright: ignore
+            if isinstance(typed_data, dict)
+            else typed_data
+        )
         msg_hash = typed_data_dataclass.message_hash(account_address)
         # pylint: disable=invalid-name
         r, s = message_signature(msg_hash=msg_hash, priv_key=self.private_key)
