@@ -36,7 +36,7 @@ def create_contract_class(
     """
     Creates ContractDefinition either from already compiled contract
 
-    :return: a ContractDefinition
+    :return: a ContractClass
     """
     return ContractClass.loads(compiled_contract)
 
