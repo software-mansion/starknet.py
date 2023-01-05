@@ -12,9 +12,9 @@ def create_compiled_contract(
     search_paths: Optional[List[str]] = None,
 ) -> ContractClass:
     warnings.warn(
-        "Function create_compiled_contract will be deprecated in the future. "
+        "Function create_compiled_contract is deprecated and will be removed in the future. "
         "Consider using create_contract_class instead.",
-        category=PendingDeprecationWarning,
+        category=DeprecationWarning,
     )
 
     if not compiled_contract:

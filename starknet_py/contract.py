@@ -630,8 +630,9 @@ class Contract:
         """
         # pylint: disable=too-many-arguments
         warnings.warn(
-            "Argument compilation_source will be deprecated in the future. Consider using already compiled contracts.",
-            category=PendingDeprecationWarning,
+            "Argument compilation_source is deprecated and will be removed in the future. "
+            "Consider using already compiled contracts.",
+            category=DeprecationWarning,
         )
 
         compiled = create_compiled_contract(
@@ -662,8 +663,9 @@ class Contract:
         :return:
         """
         warnings.warn(
-            "Argument compilation_source will be deprecated in the future. Consider using already compiled contracts.",
-            category=PendingDeprecationWarning,
+            "Argument compilation_source is deprecated and will be removed in the future. "
+            "Consider using already compiled contracts.",
+            category=DeprecationWarning,
         )
 
         compiled_contract = create_compiled_contract(

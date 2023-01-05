@@ -40,8 +40,9 @@ class Compiler:
         :param cairo_path: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts
         """
         warnings.warn(
-            "Compiler module will be deprecated in the future. Consider compiling contracts using other tools.",
-            category=PendingDeprecationWarning,
+            "Compiler module is deprecated and will be removed in the future. "
+            "Consider compiling contracts using other tools.",
+            category=DeprecationWarning,
         )
         self.contract_source = contract_source
         self.is_account_contract = is_account_contract
