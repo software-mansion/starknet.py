@@ -62,6 +62,10 @@ class ContractData:
 
     @cached_property
     def parsed_abi(self) -> Abi:
+        """
+        Abi parsed into proper dataclass.
+        :return: Abi
+        """
         return AbiParser(self.abi).parse()
 
     @staticmethod
