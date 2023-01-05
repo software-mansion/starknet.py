@@ -71,7 +71,9 @@ class AccountTransaction(Transaction):
     # The signature of the transaction.
     # The exact way this field is handled is defined by the called contract's function,
     # similar to calldata.
-    signature: List[int] = dataclasses.field(metadata={"marshmallow_field": fields.List(fields.String())})
+    signature: List[int] = dataclasses.field(
+        metadata={"marshmallow_field": fields.List(fields.String())}
+    )
     # The nonce of the transaction.
     # A sequential number attached to the account contract, that prevents transaction replay
     # and guarantees the order of execution and uniqueness of the transaction hash.
