@@ -23,7 +23,6 @@ from starknet_py.net.client_models import (
     SentTransactionResponse,
     StarknetTransaction,
     Tag,
-    Transaction,
     TransactionReceipt,
     TransactionStatusResponse,
 )
@@ -305,12 +304,11 @@ class GatewayClient(Client):
 
     async def _add_transaction(
         self,
-        tx: StarknetTransaction,
+        tx: Transaction,
         token: Optional[str] = None,
     ) -> dict:
         if tx.tx_type == TransactionType.DECLARE:
             payload = DeclareSchema().dump(obj=tx)
-            print(payload)
         else:
             payload = StarknetTransaction.Schema().dump(obj=tx)
 
