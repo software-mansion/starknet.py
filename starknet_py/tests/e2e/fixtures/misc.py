@@ -6,9 +6,9 @@ from pathlib import Path
 import pytest
 import pytest_asyncio
 
-from starknet_py.contract import Contract
-from starknet_py.net import AccountClient
-from starknet_py.net.models.typed_data import TypedData
+from starknet_py.account.account_client import AccountClient
+from starknet_py.client.models.typed_data import TypedData
+from starknet_py.contract.contract import Contract
 from starknet_py.tests.e2e.fixtures.constants import (
     CONTRACTS_COMPILED_DIR,
     MAX_FEE,
@@ -19,7 +19,7 @@ from starknet_py.utils.data_transformer.data_transformer import CairoSerializer
 
 def pytest_addoption(parser):
     parser.addoption(
-        "--net",
+        "--client",
         action="store",
         default="devnet",
         help="Network to run tests on: possible 'testnet', 'devnet', 'all'",
@@ -27,11 +27,11 @@ def pytest_addoption(parser):
 
 
 def pytest_collection_modifyitems(config, items):
-    if config.getoption("--net") == "all":
+    if config.getoption("--client") == "all":
         return
 
-    run_testnet = config.getoption("--net") == "testnet"
-    run_devnet = config.getoption("--net") == "devnet"
+    run_testnet = config.getoption("--client") == "testnet"
+    run_devnet = config.getoption("--client") == "devnet"
     for item in items:
         runs_on_testnet = "run_on_testnet" in item.keywords
         runs_on_devnet = "run_on_devnet" in item.keywords
@@ -45,9 +45,9 @@ def pytest_collection_modifyitems(config, items):
 @pytest.fixture(scope="module")
 def network(pytestconfig, run_devnet: str) -> str:
     """
-    Returns network address depending on the --net parameter.
+    Returns network address depending on the --client parameter.
     """
-    net = pytestconfig.getoption("--net")
+    net = pytestconfig.getoption("--client")
     net_address = {
         "devnet": run_devnet,
         "testnet": "testnet",

@@ -1,7 +1,8 @@
 import pytest
 
-from starknet_py.net.client_models import StarknetBlock, Transaction
-from starknet_py.net.networks import TESTNET
+from starknet_py.client.models import Transaction
+from starknet_py.client.models.block import StarknetBlock
+from starknet_py.client.networks import TESTNET
 
 
 @pytest.mark.run_on_devnet
@@ -11,7 +12,7 @@ async def test_using_full_node_client(full_node_client, map_contract):
     full_node_client_fixture = full_node_client
 
     # docs: start
-    from starknet_py.net.full_node_client import FullNodeClient
+    from starknet_py.client.full_node_client import FullNodeClient
 
     node_url = "https://your.node.url"
     full_node_client = FullNodeClient(node_url=node_url, net=TESTNET)

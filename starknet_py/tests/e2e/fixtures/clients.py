@@ -3,9 +3,9 @@ from typing import List
 
 import pytest
 
-from starknet_py.net.client import Client
-from starknet_py.net.full_node_client import FullNodeClient
-from starknet_py.net.gateway_client import GatewayClient
+from starknet_py.client.client import Client
+from starknet_py.client.full_node_client import FullNodeClient
+from starknet_py.client.gateway_client import GatewayClient
 
 
 @pytest.fixture(name="gateway_client", scope="module")
@@ -29,7 +29,7 @@ def net_to_clients() -> List[str]:
     Return client fixture names based on network in sys.argv.
     """
     clients = ["gateway_client"]
-    nets = ["--net=integration", "--net=testnet", "testnet", "integration"]
+    nets = ["--client=integration", "--client=testnet", "testnet", "integration"]
 
     if set(nets).isdisjoint(sys.argv):
         clients.append("full_node_client")

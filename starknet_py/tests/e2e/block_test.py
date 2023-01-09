@@ -1,8 +1,8 @@
 import pytest
 
+from starknet_py.account.base_account import BaseAccount
 from starknet_py.compile.compiler import Compiler
-from starknet_py.contract import Contract
-from starknet_py.net.account.base_account import BaseAccount
+from starknet_py.contract.contract import Contract
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 
 

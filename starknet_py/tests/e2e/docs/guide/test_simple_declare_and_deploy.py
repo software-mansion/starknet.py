@@ -5,7 +5,7 @@ import pytest
 async def test_simple_declare_and_deploy(account, map_compiled_contract):
     # pylint: disable=import-outside-toplevel
     # docs: start
-    from starknet_py.contract import Contract
+    from starknet_py.contract.contract import Contract
 
     # docs: end
 

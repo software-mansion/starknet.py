@@ -9,9 +9,12 @@ import web3
 async def test_eth_sn_messages():
     # pylint: disable=import-outside-toplevel, disable=duplicate-code, unused-variable
     # docs: start
-    from starknet_py.contract import ContractFunction
-    from starknet_py.net.l1.messages import MessageToStarknet, MessageToStarknetContent
-    from starknet_py.net.models import StarknetChainId
+    from starknet_py.client.l1.messages import (
+        MessageToStarknet,
+        MessageToStarknetContent,
+    )
+    from starknet_py.client.models import StarknetChainId
+    from starknet_py.contract.contract import ContractFunction
 
     ## All of the construction methods shown below are correct:
     # 1. From message content

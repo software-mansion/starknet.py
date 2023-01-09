@@ -1,4 +1,4 @@
-from starknet_py.net.models.transaction import Declare
+from starknet_py.client.models.transaction import Declare
 from starknet_py.transactions.declare import make_declare_tx
 
 SOURCE = """

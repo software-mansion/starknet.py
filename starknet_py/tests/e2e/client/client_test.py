@@ -10,19 +10,19 @@ from starkware.starknet.public.abi import (
     get_storage_var_address,
 )
 
-from starknet_py.common import create_compiled_contract
-from starknet_py.net.client_models import (
-    Call,
+from starknet_py.client.client_models import Invoke
+from starknet_py.client.gateway_client import GatewayClient
+from starknet_py.client.models.call import Call
+from starknet_py.client.models.transaction import (
+    Declare,
     DeclareTransaction,
     DeployAccountTransaction,
-    Invoke,
     InvokeTransaction,
     L1HandlerTransaction,
     TransactionReceipt,
     TransactionStatus,
 )
-from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models.transaction import Declare
+from starknet_py.common import create_compiled_contract
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 from starknet_py.transaction_exceptions import (
@@ -221,7 +221,7 @@ async def test_get_class_by_hash(client, class_hash):
 @pytest.mark.asyncio
 async def test_wait_for_tx_accepted(gateway_client):
     with patch(
-        "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt",
+        "starknet_py.client.gateway_client.GatewayClient.get_transaction_receipt",
         AsyncMock(),
     ) as mocked_receipt:
         mocked_receipt.return_value = TransactionReceipt(
@@ -236,7 +236,7 @@ async def test_wait_for_tx_accepted(gateway_client):
 @pytest.mark.asyncio
 async def test_wait_for_tx_pending(gateway_client):
     with patch(
-        "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt",
+        "starknet_py.client.gateway_client.GatewayClient.get_transaction_receipt",
         AsyncMock(),
     ) as mocked_receipt:
         mocked_receipt.return_value = TransactionReceipt(
@@ -266,7 +266,7 @@ async def test_wait_for_tx_pending(gateway_client):
 @pytest.mark.asyncio
 async def test_wait_for_tx_rejected(status, exception, exc_message, gateway_client):
     with patch(
-        "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt",
+        "starknet_py.client.gateway_client.GatewayClient.get_transaction_receipt",
         AsyncMock(),
     ) as mocked_receipt:
         mocked_receipt.return_value = TransactionReceipt(
@@ -282,7 +282,7 @@ async def test_wait_for_tx_rejected(status, exception, exc_message, gateway_clie
 @pytest.mark.asyncio
 async def test_wait_for_tx_cancelled(gateway_client):
     with patch(
-        "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt",
+        "starknet_py.client.gateway_client.GatewayClient.get_transaction_receipt",
         AsyncMock(),
     ) as mocked_receipt:
         mocked_receipt.return_value = TransactionReceipt(
@@ -353,9 +353,9 @@ async def test_custom_session(map_contract, network):
 @pytest.mark.asyncio
 async def test_get_l1_handler_transaction(client):
     with patch(
-        "starknet_py.net.http_client.GatewayHttpClient.call", AsyncMock()
+        "starknet_py.client.http.http_client.GatewayHttpClient.call", AsyncMock()
     ) as mocked_transaction_call_gateway, patch(
-        "starknet_py.net.http_client.RpcHttpClient.call", AsyncMock()
+        "starknet_py.client.http.http_client.RpcHttpClient.call", AsyncMock()
     ) as mocked_transaction_call_rpc:
         return_value = {
             "status": "ACCEPTED_ON_L1",

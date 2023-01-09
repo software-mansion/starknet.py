@@ -11,7 +11,7 @@ directory = os.path.dirname(__file__)
 async def test_using_account(account, map_compiled_contract):
     # pylint: disable=import-outside-toplevel, duplicate-code, too-many-locals
     # docs: start
-    from starknet_py.contract import Contract
+    from starknet_py.contract.contract import Contract
 
     # docs: end
     # docs: start

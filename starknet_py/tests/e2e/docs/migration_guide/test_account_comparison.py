@@ -1,6 +1,6 @@
 import pytest
 
-from starknet_py.net.client_models import Call
+from starknet_py.client.models.call import Call
 
 
 @pytest.mark.asyncio

@@ -2,11 +2,13 @@ import warnings
 from enum import Enum
 from typing import List, Tuple, TypedDict
 
+from starknet_py.client.client import Client
+from starknet_py.client.errors import ContractNotFoundError
+from starknet_py.client.http.errors import ClientError
+from starknet_py.client.models import Address
+from starknet_py.client.models.abi import Abi
+from starknet_py.client.models.contract import DeclaredContract
 from starknet_py.constants import RPC_CLASS_HASH_NOT_FOUND_ERROR
-from starknet_py.net.client import Client
-from starknet_py.net.client_errors import ClientError, ContractNotFoundError
-from starknet_py.net.client_models import Abi, DeclaredContract
-from starknet_py.net.models import Address
 from starknet_py.proxy.proxy_check import (
     ArgentProxyCheck,
     OpenZeppelinProxyCheck,

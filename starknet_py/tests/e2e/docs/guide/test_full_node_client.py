@@ -1,6 +1,6 @@
 import pytest
 
-from starknet_py.net.networks import TESTNET
+from starknet_py.client.networks import TESTNET
 
 
 @pytest.mark.asyncio
@@ -9,7 +9,7 @@ async def test_full_node_client(full_node_client, map_contract):
     full_node_client_fixture = full_node_client
 
     # docs: start
-    from starknet_py.net.full_node_client import FullNodeClient
+    from starknet_py.client.full_node_client import FullNodeClient
 
     node_url = "https://your.node.url"
     full_node_client = FullNodeClient(node_url=node_url, net=TESTNET)

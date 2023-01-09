@@ -6,8 +6,8 @@ from starkware.cairo.common.hash_state import compute_hash_on_elements
 from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.cairo.felt import encode_shortstring
-from starknet_py.net.models.typed_data import StarkNetDomain
-from starknet_py.net.models.typed_data import TypedData as TypedDataDict
+from starknet_py.client.models.typed_data import StarkNetDomain
+from starknet_py.client.models.typed_data import TypedData as TypedDataDict
 
 
 @dataclass(frozen=True)

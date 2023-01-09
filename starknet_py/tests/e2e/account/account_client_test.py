@@ -3,13 +3,14 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+from starknet_py.account.account_client import AccountClient
+from starknet_py.client.gateway_client import GatewayClient
+from starknet_py.client.models import StarknetChainId, parse_address
+from starknet_py.client.models.call import Call
+from starknet_py.client.networks import MAINNET, TESTNET, TESTNET2
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
-from starknet_py.contract import Contract
-from starknet_py.net import AccountClient, KeyPair
-from starknet_py.net.client_models import Call
-from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models import StarknetChainId, parse_address
-from starknet_py.net.networks import MAINNET, TESTNET, TESTNET2
+from starknet_py.contract.contract import Contract
+from starknet_py.signer.stark_curve_signer import KeyPair
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.transaction_exceptions import TransactionRejectedError
 
@@ -19,7 +20,7 @@ from starknet_py.transaction_exceptions import TransactionRejectedError
 async def test_get_balance_throws_when_token_not_specified(account_client):
     with pytest.raises(
         ValueError,
-        match="Argument token_address must be specified when using a custom net address",
+        match="Argument token_address must be specified when using a custom client address",
     ):
         await account_client.get_balance()
 
@@ -43,7 +44,7 @@ async def test_get_balance_default_token_address(net):
     )
 
     with patch(
-        "starknet_py.net.account.account_client.AccountClient.call_contract",
+        "starknet_py.account.account_client.AccountClient.call_contract",
         MagicMock(),
     ) as mocked_call_contract:
         result = asyncio.Future()
@@ -63,7 +64,7 @@ async def test_get_balance_default_token_address(net):
 @pytest.mark.asyncio
 async def test_estimate_fee_called(erc20_contract):
     with patch(
-        "starknet_py.net.gateway_client.GatewayClient.estimate_fee",
+        "starknet_py.client.gateway_client.GatewayClient.estimate_fee",
         AsyncMock(),
     ) as mocked_estimate_fee:
         mocked_estimate_fee.return_value = [0]

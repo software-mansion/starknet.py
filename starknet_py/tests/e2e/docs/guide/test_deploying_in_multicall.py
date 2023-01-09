@@ -7,8 +7,8 @@ from starknet_py.common import create_compiled_contract
 async def test_deploying_in_multicall(account, map_class_hash, map_compiled_contract):
     # pylint: disable=import-outside-toplevel,
     # docs: start
-    from starknet_py.contract import Contract
-    from starknet_py.net.udc_deployer.deployer import Deployer
+    from starknet_py.contract.contract import Contract
+    from starknet_py.udc_deployer.deployer import Deployer
 
     # First, create Deployer instance. For more details see previous paragraph
     deployer = Deployer()

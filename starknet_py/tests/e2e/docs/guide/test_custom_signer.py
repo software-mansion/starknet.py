@@ -8,11 +8,11 @@ async def test_custom_signer():
     # pylint: disable=import-outside-toplevel, duplicate-code, unused-variable
 
     # docs: start
-    from starknet_py.net.account.account import Account
-    from starknet_py.net.gateway_client import GatewayClient
-    from starknet_py.net.models import StarknetChainId, Transaction
-    from starknet_py.net.models.typed_data import TypedData
-    from starknet_py.net.signer import BaseSigner
+    from starknet_py.account.account import Account
+    from starknet_py.client.gateway_client import GatewayClient
+    from starknet_py.client.models import StarknetChainId, Transaction
+    from starknet_py.client.models.typed_data import TypedData
+    from starknet_py.signer import BaseSigner
 
     # Create a custom signer class implementing BaseSigner interface
     class CustomSigner(BaseSigner):

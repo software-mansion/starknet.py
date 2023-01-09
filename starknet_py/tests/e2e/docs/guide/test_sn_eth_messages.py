@@ -8,10 +8,10 @@ import pytest
 async def test_sn_eth_messages(gateway_client):
     # pylint: disable=import-outside-toplevel, disable=duplicate-code, unused-variable
     # docs: start
-    from starknet_py.net.gateway_client import GatewayClient
-    from starknet_py.net.l1.messages import MessageToEth, MessageToEthContent
-    from starknet_py.net.models import StarknetChainId
-    from starknet_py.net.networks import TESTNET
+    from starknet_py.client.gateway_client import GatewayClient
+    from starknet_py.client.l1.messages import MessageToEth, MessageToEthContent
+    from starknet_py.client.models import StarknetChainId
+    from starknet_py.client.networks import TESTNET
 
     ## All of the construction methods shown below are correct:
     # 1. From message content

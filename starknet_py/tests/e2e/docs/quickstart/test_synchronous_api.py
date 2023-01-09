@@ -3,7 +3,7 @@
 
 def test_synchronous_api(account, map_contract):
     # docs: start
-    from starknet_py.contract import Contract
+    from starknet_py.contract.contract import Contract
 
     contract_address = (
         "0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b"

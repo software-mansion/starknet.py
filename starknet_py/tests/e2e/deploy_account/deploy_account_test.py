@@ -1,7 +1,7 @@
 import pytest
 
-from starknet_py.net.account.account import Account
-from starknet_py.net.models import StarknetChainId
+from starknet_py.account.account import Account
+from starknet_py.client.models import StarknetChainId
 from starknet_py.tests.e2e.account.account_client_test import MAX_FEE
 
 

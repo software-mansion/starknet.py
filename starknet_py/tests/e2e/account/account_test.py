@@ -3,17 +3,17 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from starkware.starknet.public.abi import get_selector_from_name
 
-from starknet_py.contract import Contract
-from starknet_py.net.account.account import Account
-from starknet_py.net.account.base_account import BaseAccount
-from starknet_py.net.client_models import (
-    Call,
+from starknet_py.account.account import Account
+from starknet_py.account.base_account import BaseAccount
+from starknet_py.client.gateway_client import GatewayClient
+from starknet_py.client.models import StarknetChainId, compute_address
+from starknet_py.client.models.call import Call
+from starknet_py.client.models.response import DeployAccountTransactionResponse
+from starknet_py.client.models.transaction import (
     DeployAccountTransaction,
-    DeployAccountTransactionResponse,
     TransactionStatus,
 )
-from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models import StarknetChainId, compute_address
+from starknet_py.contract.contract import Contract
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.transaction_exceptions import TransactionRejectedError
 
@@ -23,7 +23,7 @@ from starknet_py.transaction_exceptions import TransactionRejectedError
 async def test_get_balance_throws_when_token_not_specified(account):
     with pytest.raises(
         ValueError,
-        match="Argument token_address must be specified when using a custom net address",
+        match="Argument token_address must be specified when using a custom client address",
     ):
         await account.get_balance()
 
@@ -257,7 +257,7 @@ async def test_deploy_account_raises_on_no_enough_funds(deploy_account_details_f
     address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
 
     with patch(
-        "starknet_py.net.gateway_client.GatewayClient.call_contract", AsyncMock()
+        "starknet_py.client.gateway_client.GatewayClient.call_contract", AsyncMock()
     ) as mocked_balance:
         mocked_balance.return_value = (0, 0)
 
@@ -281,9 +281,9 @@ async def test_deploy_account_passes_on_enough_funds(deploy_account_details_fact
     address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
 
     with patch(
-        "starknet_py.net.gateway_client.GatewayClient.call_contract", AsyncMock()
+        "starknet_py.client.gateway_client.GatewayClient.call_contract", AsyncMock()
     ) as mocked_balance, patch(
-        "starknet_py.net.gateway_client.GatewayClient.deploy_account", AsyncMock()
+        "starknet_py.client.gateway_client.GatewayClient.deploy_account", AsyncMock()
     ) as mocked_deploy:
         mocked_balance.return_value = (0, 100)
         mocked_deploy.return_value = DeployAccountTransactionResponse(

@@ -4,11 +4,12 @@ import pytest
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
+from starknet_py.client.gateway_client import GatewayClient
+from starknet_py.client.http.errors import ClientError
+from starknet_py.client.models.call import Call
+from starknet_py.client.models.response import SentTransactionResponse
 from starknet_py.common import create_compiled_contract
-from starknet_py.contract import Contract
-from starknet_py.net.client_errors import ClientError
-from starknet_py.net.client_models import Call, SentTransactionResponse
-from starknet_py.net.gateway_client import GatewayClient
+from starknet_py.contract.contract import Contract
 from starknet_py.transaction_exceptions import (
     TransactionNotReceivedError,
     TransactionRejectedError,
@@ -159,7 +160,7 @@ async def test_wait_for_tx_throws_on_transaction_rejected(client, map_contract):
 @pytest.mark.asyncio
 async def test_transaction_not_received_error(map_contract):
     with patch(
-        "starknet_py.net.gateway_client.GatewayClient.send_transaction",
+        "starknet_py.client.gateway_client.GatewayClient.send_transaction",
         AsyncMock(),
     ) as mocked_send_transaction:
         mocked_send_transaction.return_value = SentTransactionResponse(

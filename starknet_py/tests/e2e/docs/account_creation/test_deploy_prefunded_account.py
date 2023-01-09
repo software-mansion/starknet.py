@@ -2,7 +2,8 @@ import pytest
 from starkware.crypto.signature.signature import get_random_private_key
 from starkware.starknet.definitions.fields import ContractAddressSalt
 
-from starknet_py.contract import Contract
+from starknet_py.contract.contract import Contract
+from starknet_py.signer.stark_curve_signer import KeyPair
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 
 
@@ -12,10 +13,9 @@ async def test_deploy_prefunded_account(
 ):
     # pylint: disable=import-outside-toplevel, too-many-locals
     # docs: start
-    from starknet_py.net import KeyPair
-    from starknet_py.net.account.account import Account
-    from starknet_py.net.gateway_client import GatewayClient
-    from starknet_py.net.models import StarknetChainId, compute_address
+    from starknet_py.account.account import Account
+    from starknet_py.client.gateway_client import GatewayClient
+    from starknet_py.client.models import StarknetChainId, compute_address
 
     # First, make sure to generate private key and salt
     # docs: end

@@ -10,7 +10,7 @@ async def test_deploying_with_udc(
 ):
     # pylint: disable=unused-variable, import-outside-toplevel, too-many-locals
     # docs: start
-    from starknet_py.net.udc_deployer.deployer import Deployer
+    from starknet_py.udc_deployer.deployer import Deployer
 
     # docs: end
     deployer_address = "0x123"
@@ -21,7 +21,7 @@ async def test_deploying_with_udc(
     # address of the deployer (default one will be used)
     deployer = Deployer()
 
-    # If custom net is used address of the deployer contract is required
+    # If custom client is used address of the deployer contract is required
     deployer = Deployer(deployer_address=deployer_address)
 
     # Deployer has one more optional parameter `account_address`

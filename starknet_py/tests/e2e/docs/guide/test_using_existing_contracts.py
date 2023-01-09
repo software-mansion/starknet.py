@@ -27,7 +27,7 @@ abi = [
 async def test_using_existing_contracts(account, erc20_contract):
     # pylint: disable=import-outside-toplevel,too-many-locals,unused-variable
     # docs: start
-    from starknet_py.contract import Contract
+    from starknet_py.contract.contract import Contract
 
     address = "0x00178130dd6286a9a0e031e4c73b2bd04ffa92804264a25c1c08c1612559f458"
 

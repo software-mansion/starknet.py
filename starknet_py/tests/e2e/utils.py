@@ -6,13 +6,14 @@ from starkware.starknet.core.os.contract_address.contract_address import (
 )
 from starkware.starknet.definitions.fields import ContractAddressSalt
 
-from starknet_py.contract import Contract
-from starknet_py.net import AccountClient, KeyPair
-from starknet_py.net.client import Client
-from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models import StarknetChainId
-from starknet_py.net.models.transaction import DeployAccount
-from starknet_py.net.networks import Network
+from starknet_py.account.account_client import AccountClient
+from starknet_py.client.client import Client
+from starknet_py.client.gateway_client import GatewayClient
+from starknet_py.client.models import StarknetChainId
+from starknet_py.client.models.transaction import DeployAccount
+from starknet_py.client.networks import Network
+from starknet_py.contract.contract import Contract
+from starknet_py.signer.stark_curve_signer import KeyPair
 
 AccountToBeDeployedDetails = Tuple[int, KeyPair, int, int]
 MAX_FEE = int(1e20)

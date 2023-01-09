@@ -4,14 +4,14 @@ from typing import List, Union
 import pytest
 import pytest_asyncio
 
+from starknet_py.account._account_proxy import AccountProxy
+from starknet_py.account.account_client import AccountClient
+from starknet_py.account.base_account import BaseAccount
+from starknet_py.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
 from starknet_py.common import create_compiled_contract
 from starknet_py.compile.compiler import create_contract_class
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
-from starknet_py.contract import Contract
-from starknet_py.net import AccountClient
-from starknet_py.net.account._account_proxy import AccountProxy
-from starknet_py.net.account.base_account import BaseAccount
-from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
+from starknet_py.contract.contract import Contract
 from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_DIR, MAX_FEE
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
@@ -53,6 +53,14 @@ def erc20_compiled_contract() -> str:
     Returns compiled erc20 contract.
     """
     return read_contract("erc20_compiled.json")
+
+
+@pytest.fixture(scope="module")
+def erc20_source_code() -> str:
+    """
+    Returns compiled erc20 contract.
+    """
+    return read_contract("erc20.cairo", directory=CONTRACTS_DIR)
 
 
 @pytest.fixture(scope="module")

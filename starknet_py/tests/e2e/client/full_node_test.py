@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from starkware.starknet.public.abi import get_storage_var_address
 
-from starknet_py.net.client_errors import ClientError
+from starknet_py.client.http.errors import ClientError
 
 
 @pytest.mark.run_on_devnet
@@ -67,7 +67,7 @@ async def test_method_raises_on_both_block_hash_and_number(full_node_client):
 @pytest.mark.asyncio
 async def test_pending_transactions(full_node_client):
     with patch(
-        "starknet_py.net.http_client.RpcHttpClient.call", MagicMock()
+        "starknet_py.client.http.http_client.RpcHttpClient.call", MagicMock()
     ) as mocked_http_call:
         result = asyncio.Future()
         result.set_result(

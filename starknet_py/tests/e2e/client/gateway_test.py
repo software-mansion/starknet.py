@@ -7,18 +7,17 @@ from starkware.starknet.public.abi import (
     get_storage_var_address,
 )
 
-from starknet_py.common import create_compiled_contract
-from starknet_py.net.client_errors import ContractNotFoundError
-from starknet_py.net.client_models import (
-    Declare,
+from starknet_py.client.client_models import Declare, Invoke
+from starknet_py.client.errors import ContractNotFoundError
+from starknet_py.client.gateway_client import GatewayClient
+from starknet_py.client.models.response import TransactionStatusResponse
+from starknet_py.client.models.transaction import (
     DeployTransaction,
-    Invoke,
     L1HandlerTransaction,
     TransactionStatus,
-    TransactionStatusResponse,
 )
-from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.networks import MAINNET, TESTNET, CustomGatewayUrls
+from starknet_py.client.networks import MAINNET, TESTNET, CustomGatewayUrls
+from starknet_py.common import create_compiled_contract
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
@@ -153,7 +152,7 @@ def test_creating_client_from_predefined_network(net, net_address):
 
 
 def test_creating_client_with_custom_net():
-    custom_net = "custom.net"
+    custom_net = "custom.client"
     gateway_client = GatewayClient(net=custom_net)
 
     assert gateway_client.net == custom_net
@@ -162,7 +161,7 @@ def test_creating_client_with_custom_net():
 
 
 def test_creating_client_with_custom_net_dict():
-    custom_net = "custom.net"
+    custom_net = "custom.client"
     net = CustomGatewayUrls(
         feeder_gateway_url=f"{custom_net}/feeder_gateway",
         gateway_url=f"{custom_net}/gateway",
@@ -201,7 +200,7 @@ async def test_get_storage_at_incorrect_address_gateway_client(gateway_client):
 @pytest.mark.asyncio
 async def test_get_l1_handler_transaction_without_nonce(gateway_client):
     with patch(
-        "starknet_py.net.http_client.GatewayHttpClient.call", AsyncMock()
+        "starknet_py.client.http.http_client.GatewayHttpClient.call", AsyncMock()
     ) as mocked_transaction_call:
         mocked_transaction_call.return_value = {
             "status": "ACCEPTED_ON_L1",

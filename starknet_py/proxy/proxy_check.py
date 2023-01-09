@@ -7,11 +7,11 @@ from starkware.starknet.public.abi import (
     get_storage_var_address,
 )
 
+from starknet_py.client.client import Client
+from starknet_py.client.http.errors import ClientError
+from starknet_py.client.models import Address
+from starknet_py.client.models.call import Call
 from starknet_py.constants import RPC_INVALID_MESSAGE_SELECTOR_ERROR
-from starknet_py.net.client import Client
-from starknet_py.net.client_errors import ClientError
-from starknet_py.net.client_models import Call
-from starknet_py.net.models import Address
 
 
 class ProxyCheck(ABC):

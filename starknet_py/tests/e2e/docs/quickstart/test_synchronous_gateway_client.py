@@ -1,5 +1,5 @@
-from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.networks import TESTNET
+from starknet_py.client.gateway_client import GatewayClient
+from starknet_py.client.networks import TESTNET
 
 
 def test_synchronous_gateway_client():

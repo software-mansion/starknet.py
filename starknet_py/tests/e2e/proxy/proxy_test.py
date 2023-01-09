@@ -3,10 +3,10 @@ from typing import Optional
 import pytest
 from starkware.starknet.public.abi import get_storage_var_address
 
-from starknet_py.contract import Contract
-from starknet_py.net.client import Client
-from starknet_py.net.client_errors import ContractNotFoundError
-from starknet_py.net.models import Address
+from starknet_py.client.client import Client
+from starknet_py.client.errors import ContractNotFoundError
+from starknet_py.client.models import Address
+from starknet_py.contract.contract import Contract
 from starknet_py.proxy.contract_abi_resolver import ProxyResolutionError
 from starknet_py.proxy.proxy_check import ProxyCheck
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE

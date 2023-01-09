@@ -12,21 +12,21 @@ from starkware.starknet.services.api.gateway.transaction import (
     DEFAULT_DECLARE_SENDER_ADDRESS,
 )
 
-from starknet_py.contract import Contract
-from starknet_py.net import AccountClient, KeyPair
-from starknet_py.net.account._account_proxy import AccountProxy
-from starknet_py.net.account.account import Account
-from starknet_py.net.account.base_account import BaseAccount
-from starknet_py.net.client import Client
-from starknet_py.net.full_node_client import FullNodeClient
-from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.http_client import GatewayHttpClient
-from starknet_py.net.models import (
+from starknet_py.account._account_proxy import AccountProxy
+from starknet_py.account.account import Account
+from starknet_py.account.account_client import AccountClient
+from starknet_py.account.base_account import BaseAccount
+from starknet_py.client.client import Client
+from starknet_py.client.full_node_client import FullNodeClient
+from starknet_py.client.gateway_client import GatewayClient
+from starknet_py.client.http.http_client import GatewayHttpClient
+from starknet_py.client.models import (
     AddressRepresentation,
     StarknetChainId,
     compute_address,
 )
-from starknet_py.net.udc_deployer.deployer import Deployer
+from starknet_py.contract.contract import Contract
+from starknet_py.signer.stark_curve_signer import KeyPair
 from starknet_py.tests.e2e.fixtures.constants import (
     DEVNET_PRE_DEPLOYED_ACCOUNT_ADDRESS,
     DEVNET_PRE_DEPLOYED_ACCOUNT_PRIVATE_KEY,
@@ -45,6 +45,7 @@ from starknet_py.tests.e2e.utils import (
     get_deploy_account_details,
     get_deploy_account_transaction,
 )
+from starknet_py.udc_deployer.deployer import Deployer
 
 
 def create_account_client(
@@ -104,7 +105,7 @@ async def address_and_private_key(
     """
     Returns address and private key of an account, depending on the network.
     """
-    net = pytestconfig.getoption("--net")
+    net = pytestconfig.getoption("--client")
 
     account_details = {
         "testnet": (TESTNET_ACCOUNT_ADDRESS, TESTNET_ACCOUNT_PRIVATE_KEY),
@@ -203,7 +204,7 @@ async def new_address_and_private_key(
     """
     Returns address and private key of a new account, depending on the network.
     """
-    net = pytestconfig.getoption("--net")
+    net = pytestconfig.getoption("--client")
 
     account_details = {
         "testnet": (TESTNET_NEW_ACCOUNT_ADDRESS, TESTNET_NEW_ACCOUNT_PRIVATE_KEY),
@@ -254,7 +255,7 @@ def net_to_accounts() -> List[str]:
         "gateway_account_client",
         "new_gateway_account_client",
     ]
-    nets = ["--net=integration", "--net=testnet", "testnet", "integration"]
+    nets = ["--client=integration", "--client=testnet", "testnet", "integration"]
 
     if set(nets).isdisjoint(sys.argv):
         accounts.extend(["full_node_account_client", "new_full_node_account_client"])
@@ -276,7 +277,7 @@ def net_to_new_accounts() -> List[str]:
     accounts = [
         "new_gateway_account_client",
     ]
-    nets = ["--net=integration", "--net=testnet", "testnet", "integration"]
+    nets = ["--client=integration", "--client=testnet", "testnet", "integration"]
 
     if set(nets).isdisjoint(sys.argv):
         accounts.extend(["new_full_node_account_client"])
@@ -340,7 +341,7 @@ def full_node_account(
 
 def net_to_base_accounts() -> List[str]:
     accounts = ["gateway_account", "gateway_account_proxy"]
-    nets = ["--net=integration", "--net=testnet", "testnet", "integration"]
+    nets = ["--client=integration", "--client=testnet", "testnet", "integration"]
 
     if set(nets).isdisjoint(sys.argv):
         accounts.extend(["full_node_account", "full_node_account_proxy"])
@@ -415,7 +416,7 @@ def pre_deployed_account_with_validate_deploy(
         ),
     }
 
-    net = pytestconfig.getoption("--net")
+    net = pytestconfig.getoption("--client")
     address, private_key = address_and_priv_key[net]
 
     return Account(

@@ -9,7 +9,7 @@ async def test_simple_declare_and_deploy(
 ):
     # pylint: disable=import-outside-toplevel
     # docs: start
-    from starknet_py.contract import Contract
+    from starknet_py.contract.contract import Contract
 
     # docs: end
 
@@ -36,7 +36,7 @@ async def test_simple_declare_and_deploy(
     )
 
     # `Contract.deploy_contract` method have one more optional parameter
-    # `deployer_address` needs to be specified when using net other than mainnet/testnet or devnet
+    # `deployer_address` needs to be specified when using client other than mainnet/testnet or devnet
     # Read more about it in the API section
 
     # Wait for the transaction
