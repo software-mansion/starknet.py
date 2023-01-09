@@ -1,20 +1,26 @@
 from __future__ import annotations
 
+from collections import OrderedDict
 from typing import List, NamedTuple, Optional, Union, cast
 
 from starkware.starknet.definitions.fields import ContractAddressSalt
 from starkware.starknet.public.abi import get_selector_from_name
 
+from starknet_py.cairo.serialization.data_serializers.array_serializer import (
+    ArraySerializer,
+)
+from starknet_py.cairo.serialization.data_serializers.felt_serializer import (
+    FeltSerializer,
+)
+from starknet_py.cairo.serialization.data_serializers.payload_serializer import (
+    PayloadSerializer,
+)
 from starknet_py.common import int_from_hex
 from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
 from starknet_py.net.client_models import Call, Hash
 from starknet_py.net.models import AddressRepresentation, compute_address, parse_address
 from starknet_py.utils.contructor_args_translator import translate_constructor_args
 from starknet_py.utils.crypto.facade import pedersen_hash
-from starknet_py.utils.data_transformer.universal_deployer_serializer import (
-    deploy_contract_abi,
-    universal_deployer_serializer,
-)
 from starknet_py.utils.sync import add_sync_methods
 
 ContractDeployment = NamedTuple("ContractDeployment", [("udc", Call), ("address", int)])
@@ -90,12 +96,13 @@ class Deployer:
         salt = cast(int, salt or ContractAddressSalt.get_random_value())
         class_hash = int_from_hex(class_hash)
 
-        calldata, _ = universal_deployer_serializer.from_python(
-            value_types=deploy_contract_abi["inputs"],
-            classHash=class_hash,
-            salt=salt,
-            unique=int(self._unique),
-            calldata=raw_calldata or [],
+        calldata = _deployer_payload_serializer.serialize(
+            dict(
+                classHash=class_hash,
+                salt=salt,
+                unique=int(self._unique),
+                calldata=raw_calldata or [],
+            )
         )
 
         call = Call(
@@ -123,3 +130,13 @@ class Deployer:
             salt=salt,
             deployer_address=deployer_address,
         )
+
+
+_deployer_payload_serializer = PayloadSerializer(
+    OrderedDict(
+        classHash=FeltSerializer(),
+        salt=FeltSerializer(),
+        unique=FeltSerializer(),
+        calldata=ArraySerializer(FeltSerializer()),
+    )
+)

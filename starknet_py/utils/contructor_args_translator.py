@@ -1,20 +1,16 @@
 from typing import List, Optional, Union
 
-from starkware.starknet.public.abi_structs import identifier_manager_from_abi
-
-from starknet_py.utils.data_transformer import FunctionCallSerializer
+from starknet_py.cairo.serialization.factory import serializer_for_function
+from starknet_py.net.models.abi.parser import AbiParser
 
 
 def translate_constructor_args(
     abi: List, constructor_args: Optional[Union[List, dict]]
 ) -> List[int]:
-    constructor_abi = next(
-        (member for member in abi if member["type"] == "constructor"),
-        None,
-    )
+    parsed = AbiParser(abi).parse()
 
     # Constructor might not accept any arguments
-    if not constructor_abi or not constructor_abi["inputs"]:
+    if not parsed.constructor or not parsed.constructor.inputs:
         return []
 
     if not constructor_args:
@@ -27,7 +23,4 @@ def translate_constructor_args(
         if isinstance(constructor_args, dict)
         else (constructor_args, {})
     )
-    calldata, _args = FunctionCallSerializer(
-        constructor_abi, identifier_manager_from_abi(abi)
-    ).from_python(*args, **kwargs)
-    return calldata
+    return serializer_for_function(parsed.constructor).serialize(*args, **kwargs)

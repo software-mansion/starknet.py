@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from collections import OrderedDict
 from dataclasses import dataclass
-from typing import Dict, Optional
+from typing import Dict, Optional, OrderedDict
 
 from starknet_py.cairo.data_types import CairoType, StructType
 

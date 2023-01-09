@@ -1,9 +1,22 @@
 import dataclasses
 import re
+from collections import OrderedDict
 from typing import Dict, Iterable, List, Optional, Tuple, TypeVar, Union
 
 from starkware.starknet.public.abi import get_selector_from_name
 
+from starknet_py.cairo.serialization.data_serializers.array_serializer import (
+    ArraySerializer,
+)
+from starknet_py.cairo.serialization.data_serializers.felt_serializer import (
+    FeltSerializer,
+)
+from starknet_py.cairo.serialization.data_serializers.payload_serializer import (
+    PayloadSerializer,
+)
+from starknet_py.cairo.serialization.data_serializers.struct_serializer import (
+    StructSerializer,
+)
 from starknet_py.common import create_compiled_contract
 from starknet_py.net import KeyPair
 from starknet_py.net.account.account_deployment_result import AccountDeploymentResult
@@ -37,9 +50,6 @@ from starknet_py.net.networks import (
 )
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
-from starknet_py.utils.data_transformer.execute_transformer import (
-    execute_transformer_v1,
-)
 from starknet_py.utils.iterable import ensure_iterable
 from starknet_py.utils.typed_data import TypedData as TypedDataDataclass
 
@@ -129,8 +139,10 @@ class Account(BaseAccount):
         """
         nonce = await self.get_nonce()
 
-        calldata_py = _merge_calls(ensure_iterable(calls))
-        wrapped_calldata, _ = execute_transformer_v1.from_python(*calldata_py)
+        call_descriptions, calldata = _merge_calls(ensure_iterable(calls))
+        wrapped_calldata = _execute_payload_serializer.serialize(
+            {"call_array": call_descriptions, "calldata": calldata}
+        )
 
         transaction = Invoke(
             calldata=wrapped_calldata,
@@ -409,11 +421,30 @@ def _parse_call(call: Call, entire_calldata: List) -> Tuple[Dict, List]:
     return _data, entire_calldata
 
 
-def _merge_calls(calls: Iterable[Call]) -> List:
-    calldata = []
+def _merge_calls(calls: Iterable[Call]) -> Tuple[List[Dict], List[int]]:
+    call_descriptions = []
     entire_calldata = []
     for call in calls:
         data, entire_calldata = _parse_call(call, entire_calldata)
-        calldata.append(data)
+        call_descriptions.append(data)
 
-    return [calldata, entire_calldata]
+    return call_descriptions, entire_calldata
+
+
+# Lengths are added automatically
+_felt_serializer = FeltSerializer()
+_execute_payload_serializer = PayloadSerializer(
+    OrderedDict(
+        call_array=ArraySerializer(
+            StructSerializer(
+                OrderedDict(
+                    to=_felt_serializer,
+                    selector=_felt_serializer,
+                    data_offset=_felt_serializer,
+                    data_len=_felt_serializer,
+                )
+            )
+        ),
+        calldata=ArraySerializer(_felt_serializer),
+    )
+)
