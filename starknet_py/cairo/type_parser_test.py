@@ -110,3 +110,10 @@ def test_missing_type():
 
     assert err_info.value.type_name == "Uint256"
     assert str(err_info.value) == "Type 'Uint256' is not defined"
+
+
+def test_names_not_matching():
+    with pytest.raises(
+        ValueError, match="Keys must match name of type, 'OtherName' != 'Uint256'."
+    ):
+        TypeParser({"OtherName": uint256_type})

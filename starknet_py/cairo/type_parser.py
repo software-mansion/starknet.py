@@ -45,7 +45,7 @@ class TypeParser:
         for name, struct in defined_types.items():
             if name != struct.name:
                 raise ValueError(
-                    f"Keys must match name of type, '{name}' != '{struct.name}'"
+                    f"Keys must match name of type, '{name}' != '{struct.name}'."
                 )
 
     def parse_inline_type(self, type_string: str) -> CairoType:
@@ -105,7 +105,9 @@ class TypeParser:
         # info about other structs, so they will be just TypeIdentifier (structure that was not parsed).
 
         # This is an error of our logic, so we throw a RuntimeError.
-        raise RuntimeError(f"Received unknown type '{cairo_type}' from parser")
+        raise RuntimeError(
+            f"Received unknown type '{cairo_type}' from parser"
+        )  # pragma: no cover
 
     def _get_struct(self, name: str):
         if name not in self.defined_types:
