@@ -424,8 +424,8 @@ def _get_payload(
 
     if isinstance(tx, List):
         return [
-            type_to_schema[transaction.tx_type].dump(obj=transaction)
+            type_to_schema[transaction.tx_type()].dump(obj=transaction)
             for transaction in tx
         ]
 
-    return type_to_schema[tx.tx_type].dump(obj=tx)
+    return type_to_schema[tx.tx_type()].dump(obj=tx)

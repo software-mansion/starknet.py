@@ -61,7 +61,7 @@ class StarkCurveSigner(BaseSigner):
         self,
         transaction: Transaction,
     ) -> List[int]:
-        if transaction.tx_type == TransactionType.DECLARE:
+        if transaction.tx_type() == TransactionType.DECLARE:
             return self._sign_declare_transaction(transaction)
         if isinstance(transaction, DeployAccount):
             return self._sign_deploy_account_transaction(transaction)

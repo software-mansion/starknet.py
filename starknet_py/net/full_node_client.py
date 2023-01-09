@@ -416,7 +416,7 @@ def _create_broadcasted_txn(transaction: Union[Invoke, Declare, DeployAccount]) 
     }
 
     common_properties = _create_broadcasted_txn_common_properties(transaction)
-    transaction_specific_properties = txn_map[transaction.tx_type](transaction)
+    transaction_specific_properties = txn_map[transaction.tx_type()](transaction)
 
     return {
         **common_properties,
@@ -474,8 +474,8 @@ def _create_broadcasted_deploy_account_properties(transaction: DeployAccount) ->
 def _create_broadcasted_txn_common_properties(transaction: AccountTransaction) -> dict:
     broadcasted_txn_common_properties = {
         "type": "INVOKE"
-        if transaction.tx_type == TransactionType.INVOKE_FUNCTION
-        else transaction.tx_type.name,
+        if transaction.tx_type() == TransactionType.INVOKE_FUNCTION
+        else transaction.tx_type().name,
         "max_fee": hash_to_felt(transaction.max_fee),
         "version": hash_to_felt(transaction.version),
         "signature": [hash_to_felt(sig) for sig in transaction.signature],

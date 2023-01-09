@@ -2,7 +2,7 @@ import warnings
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import Any, ClassVar, Dict, List, Optional, Sequence, Union
+from typing import Any, Dict, List, Optional, Sequence, Union
 
 import marshmallow
 import marshmallow_dataclass
@@ -44,15 +44,14 @@ class Transaction:
     @abstractmethod
     def tx_type(cls) -> TransactionType:
         """
-        Returns the corresponding TransactionType enum. Used in TransacactionSchema.
-        Subclasses should define it as a class variable.
+        Returns the corresponding TransactionType enum.
         """
 
     @abstractmethod
     def calculate_hash(self, chain_id: StarknetChainId) -> int:
         """
         Calculates the transaction hash in the StarkNet network - a unique identifier of the
-        transaction. See calculate_transaction_hash_common() docstring for more details.
+        transaction. See compute_transaction_hash() docstring for more details.
         """
 
 
@@ -66,8 +65,6 @@ class AccountTransaction(Transaction, ABC):
     # The maximal fee to be paid in Wei for executing the transaction.
     max_fee: int = field(metadata={"marshmallow_field": Felt()})
     # The signature of the transaction.
-    # The exact way this field is handled is defined by the called contract's function,
-    # similar to calldata.
     signature: List[int] = field(
         metadata={"marshmallow_field": fields.List(fields.String())}
     )
@@ -87,10 +84,10 @@ class Declare(AccountTransaction):
     contract_class: ContractClass
     # The address of the account contract sending the declaration transaction.
     sender_address: int = field(metadata={"marshmallow_field": Felt()})
-    # Repeat `nonce` to narrow its type to non-optional int.
 
-    # Class variables.
-    tx_type: ClassVar[TransactionType] = TransactionType.DECLARE
+    @classmethod
+    def tx_type(cls) -> TransactionType:
+        return TransactionType.DECLARE
 
     @staticmethod
     def compress_program(program_json: dict):
@@ -123,9 +120,6 @@ class Declare(AccountTransaction):
         )
 
 
-DeclareSchema = marshmallow_dataclass.class_schema(Declare)
-
-
 @dataclass(frozen=True)
 class DeployAccount(AccountTransaction):
     """
@@ -139,10 +133,10 @@ class DeployAccount(AccountTransaction):
         metadata={"marshmallow_field": fields.List(fields.String())}
     )
     version: int = field(metadata={"marshmallow_field": Felt()})
-    # Repeat `nonce` to narrow its type to non-optional int.
 
-    # Class variables.
-    tx_type: ClassVar[TransactionType] = TransactionType.DEPLOY_ACCOUNT
+    @classmethod
+    def tx_type(cls) -> TransactionType:
+        return TransactionType.DEPLOY_ACCOUNT
 
     @marshmallow.decorators.post_dump
     def post_dump(self, data: Dict[str, Any], many: bool, **kwargs) -> Dict[str, Any]:
@@ -171,9 +165,6 @@ class DeployAccount(AccountTransaction):
         )
 
 
-DeployAccountSchema = marshmallow_dataclass.class_schema(DeployAccount)
-
-
 @dataclass(frozen=True)
 class InvokeFunction(AccountTransaction):
     """
@@ -185,16 +176,16 @@ class InvokeFunction(AccountTransaction):
     calldata: List[int] = field(
         metadata={"marshmallow_field": fields.List(fields.String())}
     )
-
-    # Class variables.
-    tx_type: ClassVar[TransactionType] = TransactionType.INVOKE_FUNCTION
-
     # A field element that encodes the signature of the invoked function.
     # The entry_point_selector is deprecated for version 1 and above (transactions
     # should go through the '__execute__' entry point).
     entry_point_selector: Optional[int] = field(
         default=None, metadata={"marshmallow_field": NoneFelt()}
     )
+
+    @classmethod
+    def tx_type(cls) -> TransactionType:
+        return TransactionType.INVOKE_FUNCTION
 
     @marshmallow.decorators.post_dump
     def remove_entry_point_selector(
@@ -248,6 +239,8 @@ class InvokeFunction(AccountTransaction):
 
 Invoke = InvokeFunction
 InvokeSchema = marshmallow_dataclass.class_schema(InvokeFunction)
+DeclareSchema = marshmallow_dataclass.class_schema(Declare)
+DeployAccountSchema = marshmallow_dataclass.class_schema(DeployAccount)
 
 
 def compute_invoke_hash(
