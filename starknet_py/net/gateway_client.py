@@ -413,9 +413,7 @@ def get_block_identifier(
     return {"blockNumber": "pending"}
 
 
-def _get_payload(
-    tx: Union[StarknetTransaction, List[StarknetTransaction]]
-) -> dict:
+def _get_payload(tx: Union[StarknetTransaction, List[StarknetTransaction]]) -> dict:
     type_to_schema = {
         TransactionType.DECLARE: DeclareSchema(),
         TransactionType.DEPLOY_ACCOUNT: DeployAccountSchema(),
@@ -423,6 +421,9 @@ def _get_payload(
     }
 
     if isinstance(tx, List):
-        return [type_to_schema[transaction.tx_type].dump(obj=transaction) for transaction in tx]
+        return [
+            type_to_schema[transaction.tx_type].dump(obj=transaction)
+            for transaction in tx
+        ]
 
     return type_to_schema[tx.tx_type].dump(obj=tx)
