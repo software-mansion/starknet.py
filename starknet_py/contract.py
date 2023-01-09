@@ -68,7 +68,7 @@ class ContractData:
         return AbiParser(self.abi).parse()
 
     @staticmethod
-    def from_abi(address: int, abi: ABI) -> "ContractData":
+    def from_abi(address: int, abi: ABI) -> ContractData:
         return ContractData(
             address=address,
             abi=abi,
@@ -495,7 +495,7 @@ class Contract:
         proxy_config: Union[bool, ProxyConfig] = False,
         *,
         client: Optional[Client] = None,
-    ) -> "Contract":
+    ) -> Contract:
         """
         Fetches ABI for given contract and creates a new Contract instance with it. If you know ABI statically you
         should create Contract's instances directly instead of using this function to avoid unnecessary API calls.
