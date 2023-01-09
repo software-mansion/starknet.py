@@ -1,4 +1,6 @@
-# Reporting Issues
+# Contribution Guide
+
+## Reporting Issues
 If you find a bug or have a suggestion for a feature, you can open a new [issue](https://github.com/software-mansion/starknet.py/issues/new/choose).
 
 When opening an issue:
@@ -7,7 +9,7 @@ When opening an issue:
 > 2. Follow the provided template.
 > 3. Provide as much detail as possible about the issue, including steps to reproduce the issue if applicable.
 
-# Submitting Pull Requests
+## Submitting Pull Requests
 We welcome contributions to the ***StarkNet.py*** repository.  
   
 If you want to contribute a feature or fix a bug, please follow these steps:
