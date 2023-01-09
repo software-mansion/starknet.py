@@ -1,4 +1,4 @@
-from typing import List, Tuple, TypedDict, Optional, Callable, Dict, Any
+from typing import Any, Callable, Dict, List, Optional, Tuple, TypedDict
 
 from starkware.starknet.public.abi import (
     get_selector_from_name,
@@ -12,7 +12,7 @@ from starknet_py.constants import (
 )
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError, ContractNotFoundError
-from starknet_py.net.client_models import Abi, DeclaredContract, Call
+from starknet_py.net.client_models import Abi, Call, DeclaredContract
 from starknet_py.net.models import Address
 from starknet_py.proxy.proxy_check import ProxyCheck
 
