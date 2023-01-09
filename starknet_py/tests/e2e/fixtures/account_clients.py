@@ -6,10 +6,8 @@ from typing import Dict, List, Tuple
 
 import pytest
 import pytest_asyncio
-from starkware.starknet.services.api.gateway.transaction import (
-    DEFAULT_DECLARE_SENDER_ADDRESS,
-)
 
+from starknet_py.constants import DEFAULT_DECLARE_SENDER_ADDRESS
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient, KeyPair
 from starknet_py.net.client import Client
