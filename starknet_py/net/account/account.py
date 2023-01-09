@@ -431,20 +431,18 @@ def _merge_calls(calls: Iterable[Call]) -> Tuple[List[Dict], List[int]]:
     return call_descriptions, entire_calldata
 
 
-# Lengths are added automatically
 _felt_serializer = FeltSerializer()
+_call_description = StructSerializer(
+    OrderedDict(
+        to=_felt_serializer,
+        selector=_felt_serializer,
+        data_offset=_felt_serializer,
+        data_len=_felt_serializer,
+    )
+)
 _execute_payload_serializer = PayloadSerializer(
     OrderedDict(
-        call_array=ArraySerializer(
-            StructSerializer(
-                OrderedDict(
-                    to=_felt_serializer,
-                    selector=_felt_serializer,
-                    data_offset=_felt_serializer,
-                    data_len=_felt_serializer,
-                )
-            )
-        ),
+        call_array=ArraySerializer(_call_description),
         calldata=ArraySerializer(_felt_serializer),
     )
 )
