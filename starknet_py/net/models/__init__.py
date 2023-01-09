@@ -1,7 +1,6 @@
 from .address import (
     Address,
     AddressRepresentation,
-    BlockIdentifier,
     compute_address,
     parse_address,
 )

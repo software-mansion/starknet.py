@@ -1,12 +1,7 @@
 from typing import Sequence, Union
 
-from starkware.starknet.services.api.feeder_gateway.feeder_gateway_client import (
-    BlockIdentifier,
-)
-
 from starknet_py.constants import CONTRACT_ADDRESS_PREFIX, L2_ADDRESS_UPPER_BOUND
 from starknet_py.utils.crypto.facade import compute_hash_on_elements
-from starknet_py.utils.docs import as_our_module
 
 AddressRepresentation = Union[int, str]
 Address = int
@@ -51,6 +46,3 @@ def compute_address(
     )
 
     return raw_address % L2_ADDRESS_UPPER_BOUND
-
-
-BlockIdentifier = as_our_module(BlockIdentifier)
