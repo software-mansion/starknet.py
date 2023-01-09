@@ -28,10 +28,7 @@ from starknet_py.net.client_models import (
     TransactionReceipt,
     TransactionStatus,
 )
-from starknet_py.net.models import (
-    StarknetChainId,
-    chain_from_network,
-)
+from starknet_py.net.models import StarknetChainId, chain_from_network
 from starknet_py.net.models.address import AddressRepresentation, parse_address
 from starknet_py.net.models.transaction import Declare, DeployAccount, Invoke
 from starknet_py.net.models.typed_data import TypedData
