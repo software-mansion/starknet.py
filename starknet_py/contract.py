@@ -221,7 +221,7 @@ class DeployResult(SentTransaction):
     """
 
     # We ensure this is not None in __post_init__
-    deployed_contract: "Contract" = None  # pyright: ignore
+    deployed_contract: Contract = None  # pyright: ignore
     """A Contract instance representing the deployed contract."""
 
     def __post_init__(self):
