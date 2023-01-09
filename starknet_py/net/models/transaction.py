@@ -8,7 +8,6 @@ from typing import Any, ClassVar, Dict, List, Optional, Sequence, Union
 import marshmallow
 import marshmallow_dataclass
 from marshmallow import fields
-from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 
 # noinspection PyPep8Naming
 from starkware.starknet.services.api.contract_class import ContractClass
@@ -53,7 +52,7 @@ class Transaction:
         """
 
     @abstractmethod
-    def calculate_hash(self, general_config: StarknetGeneralConfig) -> int:
+    def calculate_hash(self, chain_id: StarknetChainId) -> int:
         """
         Calculates the transaction hash in the StarkNet network - a unique identifier of the
         transaction. See calculate_transaction_hash_common() docstring for more details.
@@ -113,13 +112,13 @@ class Declare(AccountTransaction):
     ) -> Dict[str, Any]:
         return decompress_program(data=data, many=many)
 
-    def calculate_hash(self, general_config: StarknetGeneralConfig) -> int:
+    def calculate_hash(self, chain_id: StarknetChainId) -> int:
         """
         Calculates the transaction hash in the StarkNet network.
         """
         return compute_declare_transaction_hash(
             contract_class=self.contract_class,
-            chain_id=general_config.chain_id.value,
+            chain_id=chain_id.value,
             sender_address=self.sender_address,
             max_fee=self.max_fee,
             version=self.version,
@@ -153,7 +152,7 @@ class DeployAccount(AccountTransaction):
         data["type"] = "DEPLOY_ACCOUNT"
         return data
 
-    def calculate_hash(self, general_config: StarknetGeneralConfig) -> int:
+    def calculate_hash(self, chain_id: StarknetChainId) -> int:
         """
         Calculates the transaction hash in the StarkNet network.
         """
@@ -171,7 +170,7 @@ class DeployAccount(AccountTransaction):
             max_fee=self.max_fee,
             nonce=self.nonce,
             salt=self.contract_address_salt,
-            chain_id=general_config.chain_id.value,
+            chain_id=chain_id.value,
         )
 
 
@@ -217,7 +216,7 @@ class InvokeFunction(AccountTransaction):
 
         return data
 
-    def calculate_hash(self, general_config: StarknetGeneralConfig) -> int:
+    def calculate_hash(self, chain_id: StarknetChainId) -> int:
         """
         Calculates the transaction hash in the StarkNet network.
         """
@@ -245,7 +244,7 @@ class InvokeFunction(AccountTransaction):
             entry_point_selector=entry_point_selector_field,
             calldata=self.calldata,
             max_fee=self.max_fee,
-            chain_id=general_config.chain_id.value,
+            chain_id=chain_id.value,
             additional_data=additional_data,
         )
 
