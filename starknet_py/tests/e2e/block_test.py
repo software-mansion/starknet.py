@@ -2,11 +2,11 @@ import pytest
 
 from starknet_py.compile.compiler import Compiler
 from starknet_py.contract import Contract
-from starknet_py.net import AccountClient
+from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 
 
-async def declare_contract(account_client: AccountClient):
+async def declare_contract(account: BaseAccount):
     contract = """
             %lang starknet
             %builtins pedersen range_check
@@ -28,7 +28,7 @@ async def declare_contract(account_client: AccountClient):
     compiled_contract = Compiler(contract_source=contract).compile_contract()
 
     declare_result = await Contract.declare(
-        account=account_client,
+        account=account,
         compiled_contract=compiled_contract,
         max_fee=MAX_FEE,
     )
@@ -36,17 +36,16 @@ async def declare_contract(account_client: AccountClient):
 
 
 @pytest.mark.asyncio
-async def test_pending_block(new_gateway_account_client):
-    # TODO: change to new_account_client once devnet repaired
-    await declare_contract(new_gateway_account_client)
+async def test_pending_block(account):
+    await declare_contract(account)
 
-    blk = await new_gateway_account_client.get_block(block_number="pending")
+    blk = await account.client.get_block(block_number="pending")
     assert blk.block_hash
 
 
 @pytest.mark.asyncio
-async def test_latest_block(new_account_client):
-    await declare_contract(new_account_client)
+async def test_latest_block(account):
+    await declare_contract(account)
 
-    blk = await new_account_client.get_block(block_number="latest")
+    blk = await account.client.get_block(block_number="latest")
     assert blk.block_hash
