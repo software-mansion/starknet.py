@@ -68,3 +68,13 @@ autodoc_class_signature = "separated"
 autodoc_default_options = {"exclude-members": "__new__"}
 
 pygments_dark_style = "dracula"
+
+html_favicon = "_static/favicon.png"
+html_title = "StarkNet.py Documentation"
+html_short_title = "StarkNet.py"
+html_permalinks_icon = "#"
+
+html_theme_options = {
+    "light_logo": "logo.png",
+    "dark_logo": "logo-contour-white.png",
+}

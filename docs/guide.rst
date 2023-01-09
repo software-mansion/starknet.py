@@ -5,7 +5,7 @@ Declaring contracts
 -------------------
 
 Since Cairo 0.10.0 Declare transactions can be signed and in the future, declaring without signing the transaction
-(and without paying the fee) will be impossible. That is why :ref:`AccountClient` has
+(and without paying the fee) will be impossible. That is why :ref:`Account` has
 :meth:`sign_declare_transaction()` method.
 
 Here's an example how to use it.
@@ -113,15 +113,15 @@ Check out the code!
     If you know the abi statically just use the :ref:`Contract` constructor. It will save some time!
 
 
-AccountClient details
+Account details
 ---------------------
 
-:ref:`Account Client` provides a simple way of executing transactions. To send one with few calls
-just prepare calls through contract interface and send it with AccountClient.execute method.
+:ref:`Account` provides a simple way of executing transactions. To send one with few calls
+just prepare calls through contract interface and send it with Account.execute method.
 
 Here is an example:
 
-.. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_account_client_details.py
+.. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_account_details.py
     :language: python
     :dedent: 4
 
@@ -130,8 +130,8 @@ Here is an example:
 Using different signing methods
 -------------------------------
 
-By default, :ref:`Account Client` uses signing method of OpenZeppelin's account contract. If for any reason you want to use a different
-signing algorithm, it is possible to create ``AccountClient`` with custom
+By default, an :ref:`Account` uses the signing method of OpenZeppelin's account contract. If for any reason you want to use a different
+signing algorithm, it is possible to create ``Account`` with custom
 :ref:`Signer` implementation.
 
 .. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_custom_signer.py
@@ -142,7 +142,7 @@ signing algorithm, it is possible to create ``AccountClient`` with custom
 Signing off-chain messages
 -------------------------------
 
-:ref:`Account Client` lets you sign an off-chain message by using encoding standard proposed `here <https://github.com/argentlabs/argent-x/discussions/14>`_.
+:ref:`Account` lets you sign an off-chain message by using encoding standard proposed `here <https://github.com/argentlabs/argent-x/discussions/14>`_.
 You can also **verify a message**, which is done by a call to ``is_valid_signature`` endpoint in the account's contract (e.g. `OpenZeppelin's account contract <https://github.com/starkware-libs/cairo-lang/blob/4e233516f52477ad158bc81a86ec2760471c1b65/src/starkware/starknet/third_party/open_zeppelin/Account.cairo#L115>`_).
 
 .. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_sign_offchain_message.py

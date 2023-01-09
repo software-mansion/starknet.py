@@ -1,3 +1,5 @@
+@import '../furo.css'
+
 .class {
     margin: 40px 0;
 }
@@ -8,4 +10,38 @@ dl.method {
 
 dl.method .sig-object {
     margin-bottom: 15px;
+}
+
+.sidebar-brand {
+    text-align: center;
+}
+
+.starknetpy-logo {
+    margin: 5% auto;
+}
+
+.get-started-cls {
+    text-align: center;
+    font-size: 2em;
+    outline: none;
+    cursor: pointer;
+    font-weight: 600;
+    border-radius: 3px;
+    padding: 12px 24px;
+    border: 0;
+    color: #3a4149;
+    background: var(--color-background-secondary);
+    line-height: 1.15;
+    :hover {
+        transition: all .1s ease;
+        box-shadow: 0 0 0 0 #fff, 0 0 0 3px #1de9b6;
+    }
+}
+
+.description-cls {
+    font-size: 1.5em;
+    text-align: center;
+    font-weight: 600;
+    margin-bottom: 1em;
+    margin-top: 0;
 }
