@@ -1,6 +1,6 @@
 import pytest
 
-from starknet_py.net.models.address import parse_address, compute_address
+from starknet_py.net.models.address import compute_address, parse_address
 
 
 @pytest.mark.parametrize(
@@ -12,12 +12,10 @@ def test_parse_address(input_addr, output):
 
 
 def test_parse_invalid_address():
-    with pytest.raises(TypeError) as excinfo:
+    with pytest.raises(TypeError, match="address format"):
         # Ignore typing, because it is an error check (float can't be passed here)
         # noinspection PyTypeChecker
         parse_address(0.22)  # pyright: ignore
-
-    assert "address format" in str(excinfo.value)
 
 
 def test_compute_address():

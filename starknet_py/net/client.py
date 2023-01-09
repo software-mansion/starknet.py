@@ -2,34 +2,30 @@ from __future__ import annotations
 
 import asyncio
 from abc import ABC, abstractmethod
-from typing import Union, Optional, List, Tuple
+from typing import List, Optional, Tuple, Union
 
 from starknet_py.net.client_models import (
-    StarknetBlock,
     BlockStateUpdate,
+    BlockTransactionTraces,
+    Call,
+    DeclaredContract,
+    DeclareTransactionResponse,
+    DeployAccountTransactionResponse,
+    EstimatedFee,
+    Hash,
+    SentTransactionResponse,
+    StarknetBlock,
+    Tag,
     Transaction,
     TransactionReceipt,
-    SentTransactionResponse,
     TransactionStatus,
-    Hash,
-    Tag,
-    DeclaredContract,
-    EstimatedFee,
-    BlockTransactionTraces,
-    DeclareTransactionResponse,
-    Call,
-    DeployAccountTransactionResponse,
 )
-from starknet_py.net.models.transaction import (
-    Declare,
-    Invoke,
-    DeployAccount,
-)
+from starknet_py.net.models.transaction import Declare, DeployAccount, Invoke
 from starknet_py.net.networks import Network
 from starknet_py.transaction_exceptions import (
-    TransactionRejectedError,
-    TransactionNotReceivedError,
     TransactionFailedError,
+    TransactionNotReceivedError,
+    TransactionRejectedError,
 )
 from starknet_py.utils.sync import add_sync_methods
 
@@ -141,7 +137,7 @@ class Client(ABC):
         :return: Tuple containing block number and transaction status
         """
         if check_interval <= 0:
-            raise ValueError("check_interval has to bigger than 0.")
+            raise ValueError("Argument check_interval has to be greater than 0.")
 
         first_run = True
         try:
@@ -205,16 +201,10 @@ class Client(ABC):
         """
         Call the contract with given instance of InvokeTransaction
 
-        Warning, InvokeFunction as call_contract parameter has been deprecated in favor of Call.
-
         :param call: Call
         :param block_hash: Block's hash or literals `"pending"` or `"latest"`
         :param block_number: Block's number or literals `"pending"` or `"latest"`
         :return: List of integers representing contract's function output (structured like calldata)
-
-        .. versionchanged:: 5.0.0
-            Added `Call` as possible invoke_tx type.
-            Deprecated InvokeFunction as possible invoke_tx type.
         """
 
     @abstractmethod

@@ -1,14 +1,79 @@
+0.13.0 Migration guide
+=======================
+
+This version deprecates the :class:`AccountClient <starknet_py.net.account.AccountClient>`, which is a major change to the StarkNet.py.
+It is replaced with new :class:`BaseAccount <starknet_py.net.account.base_account.BaseAccount>` ABC and its
+default implementation :class:`Account <starknet_py.net.account.account.Account>`.
+
+Unlike ``AccountClient``, an ``Account`` is not a :class:`Client <starknet_py.net.client.Client>` anymore. This means that methods like
+``get_storage_at``, ``call_contract`` etc. are not available in the Account interface.
+
+However, ``Account`` now exposes a ``.client`` property, which means using an ``Account`` is
+just as simple as ``AccountClient`` was. For example:
+
+.. literalinclude:: ../starknet_py/tests/e2e/docs/migration_guide/test_account_comparison.py
+    :language: python
+    :dedent: 4
+    :start-after: docs-1: start
+    :end-before: docs-1: end
+
+.. literalinclude:: ../starknet_py/tests/e2e/docs/migration_guide/test_account_comparison.py
+    :language: python
+    :dedent: 4
+    :start-after: docs-2: start
+    :end-before: docs-2: end
+
+.. literalinclude:: ../starknet_py/tests/e2e/docs/migration_guide/test_account_comparison.py
+    :language: python
+    :dedent: 4
+    :start-after: docs-3: start
+    :end-before: docs-3: end
+
+Replacing inheritance with composition simplifies the ``Account`` interface and will make
+maintaining ``Account`` simpler.
+
+Changes in the Account interface
+--------------------------------
+
+1. Removed ``hash_message`` method. Use :meth:`TypedData.message_hash <starknet_py.utils.typed_data.TypedData.message_hash>` directly instead.
+2. ``Account`` doesn't expose a ``net`` property.
+3. ``Account`` doesn't accept a ``supported_tx_version`` parameter. It currently always uses version 1.
+4. Some parameters like ``max_fee`` or ``auto_estimate`` are now keyword only arguments. They have to be explicitly named like ``account.sign_invoke_transaction(Call(...), max_fee=1000)``. Writing ``account.sign_invoke_transaction(Call(...), 1000)`` will not work.
+
+
+Deprecations
+------------
+
+1. Passing a dict to ``BaseSigner.sign_message`` as parameter has been deprecated in favor of :class:`TypedData <starknet_py.utils.typed_data.TypedData>` dataclass.
+2. Argument ``client`` of ``Contract`.__init__` and ``Contract.from_address`` has been deprecated and replaced with ``provider``.
+3. StarkNet <> Ethereum Messaging module has been deprecated.
+4. ``PreparedFunctionCall.arguments`` has been deprecated to simplify the upcoming ``serialization`` module.
+
+
+Breaking changes
+----------------
+
+1. ``version`` parameter has been removed from the most ``Contract`` methods. ``Contract`` will now use version that the ``Account`` or ``AccountClient`` is using.
+2. ``DeclareResult`` now only accepts :class:`BaseAccount <starknet_py.net.account.base_account.BaseAccount>`.
+3. ``invoke_tx`` has been removed from the ``Client.call_contract`` parameters. ``call`` should be used instead.
+4. All error messages have been standardized with capitalization at the beginning and a full stop at the end.
+
+|
+|
+
 0.12.0 Migration guide
 ======================
 
 StarkNet.py 0.12.0 brings support for the Cairo-lang 0.10.3 and the new TESTNET2 chainId.
 
-Breaking Changes
-----------------
+0.12.0 Breaking Changes
+-----------------------
 
 There should not be any breaking changes if you are using the `StarknetChainId` imported from the `starknet_py.net.models`,
 but if you are importing it from the Cairo-lang package, please switch to the one from StarkNet.py.
 
+|
+|
 
 0.11.0 Migration guide
 ======================
@@ -33,6 +98,8 @@ Invoke Transaction
 
 Old `InvokeFunction` transaction is now aliased as `Invoke`. We suggest to start using the new `Invoke`.
 
+|
+|
 
 0.9.0 Migration guide
 =====================
@@ -54,6 +121,8 @@ Contract.from_address
 
 Check out the Guide with the new section :ref:`Resolving proxies` to see how to easily use proxies with the Starknet.py.
 
+|
+|
 
 0.8.0 Migration guide
 =====================
@@ -78,11 +147,14 @@ or support deploying through syscall or `Universal Deployer Contract <https://co
 - `Client.estimate_fee` ABC now also accepts `DeployAccount` transaction as `tx` parameter. Custom clients should be updated to reflect this change.
 
 
-Deprecations
-------------
+0.8.0 Deprecations
+------------------
 
 - `Contract.deploy` has been deprecated in favor of new `DeployAccount` flow
 - `Client.deploy` has been deprecated
+
+|
+|
 
 0.5.0 Migration guide
 =====================
@@ -202,6 +274,9 @@ Deploy transaction
 
 Deploy transactions will not be supported in the future versions of StarkNet, so ``make_deploy_tx`` is deprecated.
 Contracts should be deployed through cairo syscall.
+
+|
+|
 
 0.4.0 Migration guide
 =====================

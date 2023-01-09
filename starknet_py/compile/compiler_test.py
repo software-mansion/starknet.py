@@ -5,13 +5,10 @@ from pathlib import Path
 import pytest
 from starkware.cairo.lang.compiler.constants import LIBS_DIR_ENVVAR
 from starkware.cairo.lang.compiler.import_loader import ImportLoaderError
-from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.compiler.validation_utils import PreprocessorError
+from starkware.starknet.services.api.contract_class import ContractClass
 
-from starknet_py.compile.compiler import (
-    Compiler,
-    create_contract_class,
-)
+from starknet_py.compile.compiler import Compiler, create_contract_class
 from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_DIR
 
 directory = os.path.dirname(__file__)
@@ -42,17 +39,15 @@ def test_compile_file_load():
 
 
 def test_compile_throws_on_non_existing_file():
-    with pytest.raises(ValueError) as t_err:
+    with pytest.raises(ValueError, match="does not exist"):
         Compiler(contract_source=["nonexisting.cairo"]).compile_contract()
-    assert "does not exist" in str(t_err.value)
 
 
 def test_throws_on_compile_with_wrong_extension():
     current_filename = f"{__name__.rsplit('.', maxsplit=1)[-1]}.py"
     full_current_file_pathname = str(Path(directory, current_filename))
-    with pytest.raises(ValueError) as t_err:
+    with pytest.raises(ValueError, match="is not a cairo source file"):
         Compiler(contract_source=[full_current_file_pathname]).compile_contract()
-    assert "is not a cairo source file" in str(t_err.value)
 
 
 def test_compile_with_search_path():
@@ -76,11 +71,10 @@ def test_compile_with_env_var(monkeypatch: pytest.MonkeyPatch):
 
 
 def test_throws_on_compile_without_search_path_and_env_var():
-    with pytest.raises(ImportLoaderError) as m_err:
+    with pytest.raises(ImportLoaderError, match="Could not find module 'inner.inner'."):
         Compiler(
             contract_source=[str(base_contract_path.resolve().absolute())]
         ).compile_contract()
-    assert "Could not find module 'inner.inner'." in str(m_err.value)
 
 
 def test_create_definition():

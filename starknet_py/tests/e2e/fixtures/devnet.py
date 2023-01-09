@@ -1,7 +1,7 @@
+import socket
 import subprocess
 import time
 from contextlib import closing
-import socket
 from typing import Generator
 
 import pytest
@@ -39,7 +39,7 @@ def start_devnet():
 @pytest.fixture(scope="module")
 def run_devnet() -> Generator[str, None, None]:
     """
-    Runs devnet instance once per module and returns it's address
+    Runs devnet instance once per module and returns it's address.
     """
     devnet_port, proc = start_devnet()
     yield f"http://localhost:{devnet_port}"

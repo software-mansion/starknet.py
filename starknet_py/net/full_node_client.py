@@ -3,45 +3,43 @@ from typing import List, Optional, Union, cast
 import aiohttp
 from marshmallow import EXCLUDE
 
-from starknet_py.net.client import (
-    Client,
-)
+from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
-    SentTransactionResponse,
-    TransactionReceipt,
-    BlockStateUpdate,
-    StarknetBlock,
-    Invoke,
-    Hash,
-    Tag,
-    DeclaredContract,
-    Transaction,
-    Declare,
-    DeployAccount,
-    EstimatedFee,
-    BlockTransactionTraces,
-    DeclareTransactionResponse,
-    Call,
-    DeployAccountTransactionResponse,
     AccountTransaction,
+    BlockStateUpdate,
+    BlockTransactionTraces,
+    Call,
+    Declare,
+    DeclaredContract,
+    DeclareTransactionResponse,
+    DeployAccount,
+    DeployAccountTransactionResponse,
+    EstimatedFee,
+    Hash,
+    Invoke,
+    SentTransactionResponse,
+    StarknetBlock,
+    Tag,
+    Transaction,
+    TransactionReceipt,
 )
+from starknet_py.net.client_utils import hash_to_felt
 from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.models import TransactionType
 from starknet_py.net.networks import Network
 from starknet_py.net.schemas.rpc import (
-    StarknetBlockSchema,
     BlockStateUpdateSchema,
     DeclaredContractSchema,
+    DeclareTransactionResponseSchema,
+    DeployAccountTransactionResponseSchema,
+    EstimatedFeeSchema,
+    PendingTransactionsSchema,
+    SentTransactionSchema,
+    StarknetBlockSchema,
     TransactionReceiptSchema,
     TypesOfTransactionsSchema,
-    SentTransactionSchema,
-    DeclareTransactionResponseSchema,
-    PendingTransactionsSchema,
-    EstimatedFeeSchema,
-    DeployAccountTransactionResponseSchema,
 )
-from starknet_py.net.client_utils import hash_to_felt, _invoke_tx_to_call
 from starknet_py.transaction_exceptions import TransactionNotReceivedError
 from starknet_py.utils.sync import add_sync_methods
 
@@ -175,14 +173,10 @@ class FullNodeClient(Client):
 
     async def call_contract(
         self,
-        call: Call = None,  # pyright: ignore
+        call: Call,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-        *,
-        invoke_tx: Call = None,  # pyright: ignore
     ) -> List[int]:
-        call = _invoke_tx_to_call(call=call, invoke_tx=invoke_tx)
-
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -396,7 +390,7 @@ def get_block_identifier(
 ) -> dict:
     if block_hash is not None and block_number is not None:
         raise ValueError(
-            "Block_hash and block_number parameters are mutually exclusive."
+            "Arguments block_hash and block_number are mutually exclusive."
         )
 
     if block_hash in ("latest", "pending") or block_number in ("latest", "pending"):

@@ -2,21 +2,18 @@ import pytest
 
 
 @pytest.mark.asyncio
-async def test_handling_client_errors(gateway_account_client):
+async def test_handling_client_errors(gateway_account):
     # pylint: disable=import-outside-toplevel
     # docs: start
-    from starknet_py.net.gateway_client import GatewayClient
-    from starknet_py.net.networks import TESTNET
-    from starknet_py.net.client_errors import ClientError
     from starknet_py.contract import Contract
+    from starknet_py.net.client_errors import ClientError
 
     try:
         contract_address = "1"  # Doesn't exist
-        client = GatewayClient(TESTNET)
         # docs: end
-        client = gateway_account_client
+        account = gateway_account
         # docs: start
-        await Contract.from_address(contract_address, client)
+        await Contract.from_address(address=contract_address, provider=account)
     except ClientError as error:
         print(error.code, error.message)
     # docs: end

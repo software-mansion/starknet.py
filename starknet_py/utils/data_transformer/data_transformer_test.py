@@ -1,15 +1,16 @@
 from typing import NamedTuple
+
 import pytest
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 
+from starknet_py.cairo.felt import decode_shortstring
 from starknet_py.utils.data_transformer.data_transformer import (
     FunctionCallSerializer,
     construct_result_object,
 )
-from starknet_py.cairo.felt import decode_shortstring
 from starknet_py.utils.data_transformer.errors import (
-    InvalidValueException,
     InvalidTypeException,
+    InvalidValueException,
 )
 
 
@@ -324,10 +325,8 @@ def test_invalid_uint256(invalid_value: int):
             "type": "struct",
         }
     ]
-    with pytest.raises(InvalidValueException) as v_err:
+    with pytest.raises(InvalidValueException, match="in range \\[0;2\\^256\\)"):
         transformer_for_function(inputs=abi, structs=structs).from_python(invalid_value)
-
-    assert "in range [0;2^256)" in str(v_err.value)
 
 
 @pytest.mark.parametrize(
@@ -384,10 +383,8 @@ def test_encoding_shortstring(value):
 def test_shortstring_unicode_error(value):
     abi = [{"name": "value", "type": "felt"}]
 
-    with pytest.raises(InvalidValueException) as v_err:
+    with pytest.raises(InvalidValueException, match="Expected an ascii string"):
         transformer_for_function(inputs=abi).from_python(value)
-
-    assert "Expected an ascii string" in str(v_err.value)
 
 
 @pytest.mark.parametrize("value", [0, 1, 2, 340282366920938463463374607431768211455])
@@ -399,11 +396,10 @@ def test_decoding_shortstring(value):
 def test_too_long_shortstring():
     abi = [{"name": "value", "type": "felt"}]
 
-    with pytest.raises(InvalidValueException) as v_err:
-        transformer_for_function(inputs=abi).from_python(
-            "12345678901234567890123456789012"
-        )
-    assert "cannot be longer than 31 characters" in str(v_err.value)
+    with pytest.raises(
+        InvalidValueException, match="cannot be longer than 31 characters"
+    ):
+        transformer_for_function(inputs=abi).from_python("a" * 32)
 
 
 def test_nested_struct():
@@ -525,37 +521,33 @@ def test_multiple_values():
 def test_not_enough_felts():
     abi = [{"name": "first", "type": "felt"}, {"name": "second", "type": "felt"}]
 
-    with pytest.raises(InvalidValueException) as excinfo:
+    with pytest.raises(InvalidValueException, match="second expected 1 values"):
         transformer_for_function(outputs=abi).to_python([1])
-
-    assert "second expected 1 values" in str(excinfo.value)
 
 
 def test_too_many_felts():
     abi = [{"name": "first", "type": "felt"}, {"name": "second", "type": "felt"}]
 
-    with pytest.raises(InvalidValueException) as excinfo:
+    with pytest.raises(
+        InvalidValueException, match="Too many values provided, expected 2 got 3"
+    ):
         transformer_for_function(outputs=abi).to_python([1, 2, 3])
-
-    assert "Too many values provided, expected 2 got 3" in str(excinfo.value)
 
 
 def test_felts_out_of_range():
     abi = [{"name": "first", "type": "felt"}, {"name": "second", "type": "felt"}]
 
-    with pytest.raises(InvalidValueException) as excinfo:
+    with pytest.raises(
+        InvalidValueException, match="Felt is expected to be in range \\[0; "
+    ):
         transformer_for_function(outputs=abi).to_python([1 << 321, -(1 << 317)])
-
-    assert "Felt is expected to be in range [0; " in str(excinfo.value)
 
 
 def test_invalid_tuple_length():
     abi = [{"name": "value", "type": "(felt, felt, felt)"}]
 
-    with pytest.raises(InvalidValueException) as excinfo:
+    with pytest.raises(InvalidValueException, match="2 != 3"):
         transformer_for_function(inputs=abi).from_python((1, 2))
-
-    assert "2 != 3" in str(excinfo.value)
 
 
 def test_missing_struct_key():
@@ -572,10 +564,8 @@ def test_missing_struct_key():
         }
     ]
 
-    with pytest.raises(InvalidValueException) as excinfo:
+    with pytest.raises(InvalidValueException, match="value\\[second\\] not provided."):
         transformer_for_function(inputs=abi, structs=structs).from_python({"first": 1})
-
-    assert "value[second] not provided" in str(excinfo.value)
 
 
 @pytest.mark.parametrize(
@@ -607,28 +597,24 @@ def test_wrong_types(cairo_type, value):
 def test_too_many_positional_args():
     abi = [{"name": "value", "type": "felt"}]
 
-    with pytest.raises(InvalidTypeException) as excinfo:
+    with pytest.raises(InvalidTypeException, match="2 positional arguments"):
         transformer_for_function(inputs=abi).from_python(1, 2)
-
-    assert "2 positional arguments" in str(excinfo.value)
 
 
 def test_arg_provided_twice():
     abi = [{"name": "value", "type": "felt"}]
 
-    with pytest.raises(InvalidTypeException) as excinfo:
+    with pytest.raises(
+        InvalidTypeException, match="positional and named argument provided"
+    ):
         transformer_for_function(inputs=abi).from_python(1, value=2)
-
-    assert "positional and named argument provided" in str(excinfo.value)
 
 
 def test_missing_arg():
     abi = [{"name": "first", "type": "felt"}, {"name": "second", "type": "felt"}]
 
-    with pytest.raises(InvalidTypeException) as excinfo:
+    with pytest.raises(InvalidTypeException, match="second not provided"):
         transformer_for_function(inputs=abi).from_python(1)
-
-    assert "second not provided" in str(excinfo.value)
 
 
 def test_allow_underscores_in_abi():

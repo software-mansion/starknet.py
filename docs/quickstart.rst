@@ -33,19 +33,26 @@ there is both synchronous and asynchronous API available.
 
 You can see all Full Node Client's methods :ref:`FullNodeClient`.
 
-Creating AccountClient
+Creating Account
 ----------------------
 
-:obj:`AccountClient <starknet_py.net.account.account_client.AccountClient>` is an extension of a regular client. It leverages `OpenZeppelin's Cairo contracts <https://github.com/OpenZeppelin/cairo-contracts>`_ to create an account contract which proxies (and signs) the calls to other contracts on Starknet.
+.. warning::
 
-AccountClient can be created in two ways:
+    ``AccountClient`` has been deprecated in favor of the new ``Account``.
+    New ``Account`` doesn't implement a ``Client`` interface in favor of composition.
+    We recommend migrating to new Account as ``AccountClient`` will be removed in the future.
+
+:obj:`Account <starknet_py.net.account.account.Account>` is the default implementation of :obj:`BaseAccount <starknet_py.net.account.base_account.BaseAccount>` interface.
+It supports an account contract which proxies the calls to other contracts on StarkNet.
+
+Account can be created in two ways:
 
 * By constructor (address, key_pair and net must be known).
-* By static method AccountClient.create_account.
+* By static method ``Account.deploy_account``
 
 There are some examples how to do it:
 
-.. codesnippet:: ../starknet_py/tests/e2e/docs/quickstart/test_creating_account_client.py
+.. codesnippet:: ../starknet_py/tests/e2e/docs/quickstart/test_creating_account.py
     :language: python
     :dedent: 4
 
@@ -59,12 +66,12 @@ There are some examples how to do it:
 
     We encourage you to upgrade your accounts to ones supporting latest transaction version.
 
-Using AccountClient
+Using Account
 -------------------
 
 Example usage:
 
-.. codesnippet:: ../starknet_py/tests/e2e/docs/quickstart/test_using_account_client.py
+.. codesnippet:: ../starknet_py/tests/e2e/docs/quickstart/test_using_account.py
     :language: python
     :dedent: 4
 

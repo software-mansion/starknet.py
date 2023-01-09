@@ -1,8 +1,8 @@
-from abc import abstractmethod, ABC
+from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Optional
 
-from aiohttp import ClientSession, ClientResponse
+from aiohttp import ClientResponse, ClientSession
 
 from starknet_py.net.client_errors import ClientError
 
@@ -117,6 +117,6 @@ async def basic_error_handle(request: ClientResponse):
 
 class ServerError(Exception):
     def __init__(self, body: dict):
-        self.message = "Rpc request failed"
+        self.message = "RPC request failed."
         self.body = body
         super().__init__(self.message)

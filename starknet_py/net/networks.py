@@ -1,4 +1,6 @@
-from typing import TypedDict, Union, Literal
+from typing import Literal, TypedDict, Union
+
+from starknet_py.constants import FEE_CONTRACT_ADDRESS
 
 MAINNET = "mainnet"
 TESTNET = "testnet"
@@ -21,3 +23,12 @@ def net_address_from_net(net: str) -> str:
         TESTNET: "https://alpha4.starknet.io",
         TESTNET2: "https://alpha4-2.starknet.io",
     }.get(net, net)
+
+
+def default_token_address_for_network(net: Network) -> str:
+    if net not in [TESTNET, TESTNET2, MAINNET]:
+        raise ValueError(
+            "Argument token_address must be specified when using a custom net address"
+        )
+
+    return FEE_CONTRACT_ADDRESS
