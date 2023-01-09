@@ -5,7 +5,7 @@ from starkware.starknet.core.os.class_hash import compute_class_hash
 from starkware.starknet.services.api.contract_class import ContractClass
 
 from starknet_py.common import int_from_bytes
-from starknet_py.constants import DEFAULT_ENTRY_POINT_SELECTOR, QUERY_VERSION_BASE
+from starknet_py.constants import DEFAULT_ENTRY_POINT_SELECTOR
 from starknet_py.utils.crypto.facade import compute_hash_on_elements
 
 
@@ -126,7 +126,7 @@ def compute_declare_transaction_hash(
     """
     class_hash = compute_class_hash(contract_class=contract_class)
 
-    if version in [0, QUERY_VERSION_BASE]:
+    if version == 0:
         calldata = []
         additional_data = [class_hash]
     else:

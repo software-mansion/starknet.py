@@ -1,6 +1,7 @@
 import warnings
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+from enum import Enum, auto
 from typing import Any, ClassVar, Dict, List, Optional, Sequence, Union
 
 # noinspection PyPep8Naming
@@ -8,7 +9,6 @@ import marshmallow
 import marshmallow_dataclass
 from marshmallow import fields
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
-from starkware.starknet.definitions.transaction_type import TransactionType as TT
 
 # noinspection PyPep8Naming
 from starkware.starknet.services.api.contract_class import ContractClass
@@ -19,7 +19,6 @@ from starkware.starknet.services.api.gateway.transaction_utils import (
 )
 
 from starknet_py.cairo.selector import get_selector_from_name
-from starknet_py.constants import QUERY_VERSION_BASE
 from starknet_py.net.models import compute_address
 from starknet_py.net.models.chains import StarknetChainId
 from starknet_py.net.schemas.common import Felt, NoneFelt
@@ -29,11 +28,18 @@ from starknet_py.utils.crypto.transaction_hash import (
     compute_deploy_account_transaction_hash,
     compute_transaction_hash,
 )
-from starknet_py.utils.docs import as_our_module
-
-TransactionType = as_our_module(TT)
 
 
+class TransactionType(Enum):
+    DECLARE = 0
+    DEPLOY = auto()
+    DEPLOY_ACCOUNT = auto()
+    INITIALIZE_BLOCK_INFO = auto()
+    INVOKE_FUNCTION = auto()
+    L1_HANDLER = auto()
+
+
+# pylint: disable=no-self-use, unused-argument
 @dataclass(frozen=True)
 class Transaction:
     version: int = field(metadata={"marshmallow_field": Felt()})
@@ -201,7 +207,7 @@ class InvokeFunction(AccountTransaction):
         data["type"] = "INVOKE_FUNCTION"
 
         version = int(data["version"], 16)
-        if version in (0, QUERY_VERSION_BASE):
+        if version == 0:
             return data
 
         assert (
@@ -215,7 +221,7 @@ class InvokeFunction(AccountTransaction):
         """
         Calculates the transaction hash in the StarkNet network.
         """
-        if self.version in [0, QUERY_VERSION_BASE]:
+        if self.version == 0:
             assert (
                 self.nonce is None
             ), f"nonce is not None ({self.nonce}) for version={self.version}."

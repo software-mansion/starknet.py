@@ -22,13 +22,13 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.client_utils import hash_to_felt
 from starknet_py.net.http_client import RpcHttpClient
-from starknet_py.net.models import TransactionType
 from starknet_py.net.models.transaction import (
     AccountTransaction,
     Declare,
     DeclareSchema,
     DeployAccount,
     Invoke,
+    TransactionType,
 )
 from starknet_py.net.networks import Network
 from starknet_py.net.schemas.rpc import (
