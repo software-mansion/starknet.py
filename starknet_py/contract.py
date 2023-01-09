@@ -68,7 +68,7 @@ class ContractData:
         return AbiParser(self.abi).parse()
 
     @staticmethod
-    def from_abi(address: int, abi: ABI) -> "ContractData":
+    def from_abi(address: int, abi: ABI) -> ContractData:
         return ContractData(
             address=address,
             abi=abi,
@@ -221,7 +221,7 @@ class DeployResult(SentTransaction):
     """
 
     # We ensure this is not None in __post_init__
-    deployed_contract: "Contract" = None  # pyright: ignore
+    deployed_contract: Contract = None  # pyright: ignore
     """A Contract instance representing the deployed contract."""
 
     def __post_init__(self):
@@ -495,7 +495,7 @@ class Contract:
         proxy_config: Union[bool, ProxyConfig] = False,
         *,
         client: Optional[Client] = None,
-    ) -> "Contract":
+    ) -> Contract:
         """
         Fetches ABI for given contract and creates a new Contract instance with it. If you know ABI statically you
         should create Contract's instances directly instead of using this function to avoid unnecessary API calls.
