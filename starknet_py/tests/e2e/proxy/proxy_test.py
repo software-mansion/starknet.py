@@ -1,4 +1,4 @@
-from typing import Tuple, List
+from typing import List, Tuple
 
 import pytest
 from starkware.starknet.public.abi import get_storage_var_address
@@ -9,10 +9,7 @@ from starknet_py.net.client_errors import ContractNotFoundError
 from starknet_py.net.client_models import Abi
 from starknet_py.net.models import Address
 from starknet_py.proxy.contract_abi_resolver import AbiNotFoundError
-from starknet_py.proxy.proxy_check import (
-    ArgentProxyCheck,
-    OpenZeppelinProxyCheck,
-)
+from starknet_py.proxy.proxy_check import ArgentProxyCheck, OpenZeppelinProxyCheck
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 
 
@@ -29,7 +26,7 @@ async def is_map_working_properly(map_contract: Contract, key: int, val: int) ->
 async def test_contract_from_address_no_proxy(account_client, map_contract):
     contract = await Contract.from_address(
         address=map_contract.address,
-        client=account_client,
+        provider=account_client,
     )
 
     assert contract.functions.keys() == {"put", "get"}
@@ -43,11 +40,11 @@ async def test_contract_from_address_with_proxy(
 ):
     proxy_contract = await Contract.from_address(
         address=deploy_proxy_to_contract_oz_argent.deployed_contract.address,
-        client=account_client,
+        provider=account_client,
     )
     proxied_contract = await Contract.from_address(
         address=deploy_proxy_to_contract_oz_argent.deployed_contract.address,
-        client=account_client,
+        provider=account_client,
         get_implementation_func=True,
     )
 
@@ -61,7 +58,7 @@ async def test_contract_from_invalid_address(account_client):
     with pytest.raises(ContractNotFoundError):
         await Contract.from_address(
             address=123,
-            client=account_client,
+            provider=account_client,
         )
 
 
@@ -72,7 +69,7 @@ async def test_contract_from_address_unsupported_proxy(
     with pytest.raises(AbiNotFoundError):
         await Contract.from_address(
             address=deploy_proxy_to_contract_custom.deployed_contract.address,
-            client=account_client,
+            provider=account_client,
             get_implementation_func=True,
         )
 
@@ -95,7 +92,7 @@ async def test_contract_from_address_custom_func(
 
     contract = await Contract.from_address(
         address=deploy_proxy_to_contract_custom.deployed_contract.address,
-        client=account_client,
+        provider=account_client,
         get_implementation_func=custom_get_implementation_func,
     )
 
@@ -111,7 +108,7 @@ async def test_contract_from_address_two_implementations(
     with pytest.raises(AbiNotFoundError):
         await Contract.from_address(
             address=deploy_proxy_to_contract_multiple_vars.deployed_contract.address,
-            client=account_client,
+            provider=account_client,
             get_implementation_func=True,
         )
 
@@ -133,11 +130,11 @@ async def test_contract_from_address_with_old_address_proxy(
 
     proxy_contract = await Contract.from_address(
         address=deploy_result.deployed_contract.address,
-        client=account_client,
+        provider=account_client,
     )
     proxied_contract = await Contract.from_address(
         address=deploy_result.deployed_contract.address,
-        client=account_client,
+        provider=account_client,
         proxy_config=True,
     )
 
