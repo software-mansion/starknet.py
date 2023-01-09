@@ -3,7 +3,6 @@ from typing import List, Optional, Union
 
 import aiohttp
 from marshmallow import EXCLUDE
-from starkware.starknet.services.api.gateway.transaction import AccountTransaction
 
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ContractNotFoundError
@@ -204,7 +203,7 @@ class GatewayClient(Client):
         )
         res = await self._feeder_gateway_client.post(
             method_name="estimate_fee",
-            payload=AccountTransaction.Schema().dump(tx),
+            payload=_get_payload(tx),
             params=block_identifier,
         )
 
@@ -221,7 +220,7 @@ class GatewayClient(Client):
         )
         res = await self._feeder_gateway_client.post(
             method_name="estimate_fee_bulk",
-            payload=AccountTransaction.Schema().dump(transactions, many=True),
+            payload=_get_payload(transactions),
             params=block_identifier,
         )
 
@@ -310,15 +309,9 @@ class GatewayClient(Client):
         tx: StarknetTransaction,
         token: Optional[str] = None,
     ) -> dict:
-        type_to_schema = {
-            TransactionType.DECLARE: DeclareSchema(),
-            TransactionType.DEPLOY_ACCOUNT: DeployAccountSchema(),
-            TransactionType.INVOKE_FUNCTION: InvokeSchema(),
-        }
-
         res = await self._gateway_client.post(
             method_name="add_transaction",
-            payload=type_to_schema[tx.tx_type].dump(obj=tx),
+            payload=_get_payload(tx),
             params={"token": token} if token is not None else {},
         )
         return res
@@ -418,3 +411,18 @@ def get_block_identifier(
         return {"blockNumber": block_number}
 
     return {"blockNumber": "pending"}
+
+
+def _get_payload(
+    tx: Union[StarknetTransaction, List[StarknetTransaction]]
+) -> dict:
+    type_to_schema = {
+        TransactionType.DECLARE: DeclareSchema(),
+        TransactionType.DEPLOY_ACCOUNT: DeployAccountSchema(),
+        TransactionType.INVOKE_FUNCTION: InvokeSchema(),
+    }
+
+    if isinstance(tx, List):
+        return [type_to_schema[transaction.tx_type].dump(obj=transaction) for transaction in tx]
+
+    return type_to_schema[tx.tx_type].dump(obj=tx)

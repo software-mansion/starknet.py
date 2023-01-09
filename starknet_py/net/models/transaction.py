@@ -4,12 +4,9 @@ from dataclasses import dataclass, field
 from enum import Enum, auto
 from typing import Any, ClassVar, Dict, List, Optional, Sequence, Union
 
-# noinspection PyPep8Naming
 import marshmallow
 import marshmallow_dataclass
 from marshmallow import fields
-
-# noinspection PyPep8Naming
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.services.api.gateway.transaction_utils import (
     compress_program,
