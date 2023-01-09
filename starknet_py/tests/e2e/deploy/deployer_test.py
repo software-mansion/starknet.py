@@ -7,16 +7,16 @@ from starknet_py.utils.contructor_args_translator import translate_constructor_a
 
 
 @pytest.mark.asyncio
-async def test_default_deploy_with_class_hash(account_client, map_class_hash):
+async def test_default_deploy_with_class_hash(account, map_class_hash):
     deployer = Deployer()
 
     deploy_call, address = deployer.create_deployment_call(class_hash=map_class_hash)
 
-    deploy_invoke_tx = await account_client.sign_invoke_transaction(
+    deploy_invoke_tx = await account.sign_invoke_transaction(
         deploy_call, max_fee=MAX_FEE
     )
-    resp = await account_client.send_transaction(deploy_invoke_tx)
-    await account_client.wait_for_tx(resp.transaction_hash)
+    resp = await account.client.send_transaction(deploy_invoke_tx)
+    await account.client.wait_for_tx(resp.transaction_hash)
 
     assert isinstance(address, int)
     assert address != 0
@@ -26,24 +26,21 @@ async def test_default_deploy_with_class_hash(account_client, map_class_hash):
 async def test_throws_when_calldata_provided_without_abi(map_class_hash):
     deployer = Deployer()
 
-    with pytest.raises(ValueError) as err:
+    with pytest.raises(ValueError, match="calldata was provided without an ABI."):
         deployer.create_deployment_call(class_hash=map_class_hash, calldata=[12, 34])
-
-    assert "calldata was provided without an abi" in str(err.value)
 
 
 @pytest.mark.asyncio
 async def test_throws_when_calldata_not_provided(constructor_with_arguments_abi):
     deployer = Deployer()
 
-    with pytest.raises(ValueError) as err:
+    with pytest.raises(
+        ValueError,
+        match="Provided contract has a constructor and no arguments were provided.",
+    ):
         deployer.create_deployment_call(
             class_hash=1234, abi=constructor_with_arguments_abi
         )
-
-    assert "Provided contract has a constructor and no arguments were provided." in str(
-        err.value
-    )
 
 
 @pytest.mark.asyncio
@@ -60,12 +57,12 @@ async def test_throws_when_calldata_not_provided(constructor_with_arguments_abi)
     ],
 )
 async def test_constructor_arguments_contract_deploy(
-    account_client,
+    account,
     constructor_with_arguments_abi,
     constructor_with_arguments_class_hash,
     calldata,
 ):
-    deployer = Deployer(account_address=account_client.address)
+    deployer = Deployer(account_address=account.address)
 
     (deploy_call, contract_address,) = deployer.create_deployment_call(
         class_hash=constructor_with_arguments_class_hash,
@@ -73,16 +70,16 @@ async def test_constructor_arguments_contract_deploy(
         calldata=calldata,
     )
 
-    deploy_invoke_transaction = await account_client.sign_invoke_transaction(
+    deploy_invoke_transaction = await account.sign_invoke_transaction(
         deploy_call, max_fee=MAX_FEE
     )
-    resp = await account_client.send_transaction(deploy_invoke_transaction)
-    await account_client.wait_for_tx(resp.transaction_hash)
+    resp = await account.client.send_transaction(deploy_invoke_transaction)
+    await account.client.wait_for_tx(resp.transaction_hash)
 
     contract = Contract(
         address=contract_address,
         abi=constructor_with_arguments_abi,
-        client=account_client,
+        provider=account,
     )
 
     result = await contract.functions["get"].call(block_hash="latest")
@@ -100,25 +97,23 @@ async def test_constructor_arguments_contract_deploy(
     "salt, pass_account_address", [(1, True), (2, False), (None, True), (None, False)]
 )
 async def test_address_computation(
-    salt, pass_account_address, new_gateway_account_client, map_class_hash
+    salt, pass_account_address, gateway_account, map_class_hash
 ):
     deployer = Deployer(
-        account_address=new_gateway_account_client.address
-        if pass_account_address
-        else None
+        account_address=gateway_account.address if pass_account_address else None
     )
 
     deploy_call, computed_address = deployer.create_deployment_call(
         class_hash=map_class_hash, salt=salt
     )
 
-    deploy_invoke_tx = await new_gateway_account_client.sign_invoke_transaction(
+    deploy_invoke_tx = await gateway_account.sign_invoke_transaction(
         deploy_call, max_fee=MAX_FEE
     )
-    resp = await new_gateway_account_client.send_transaction(deploy_invoke_tx)
-    await new_gateway_account_client.wait_for_tx(resp.transaction_hash)
+    resp = await gateway_account.client.send_transaction(deploy_invoke_tx)
+    await gateway_account.client.wait_for_tx(resp.transaction_hash)
 
-    tx_receipt = await new_gateway_account_client.get_transaction_receipt(
+    tx_receipt = await gateway_account.client.get_transaction_receipt(
         resp.transaction_hash
     )
     address_from_event = tx_receipt.events[0].data[0]
@@ -140,12 +135,12 @@ async def test_address_computation(
     ],
 )
 async def test_create_deployment_call_raw(
-    account_client,
+    account,
     constructor_with_arguments_abi,
     constructor_with_arguments_class_hash,
     calldata,
 ):
-    deployer = Deployer(account_address=account_client.address)
+    deployer = Deployer(account_address=account.address)
 
     raw_calldata = translate_constructor_args(
         abi=constructor_with_arguments_abi or [], constructor_args=calldata
@@ -156,11 +151,11 @@ async def test_create_deployment_call_raw(
         raw_calldata=raw_calldata,
     )
 
-    deploy_invoke_transaction = await account_client.sign_invoke_transaction(
+    deploy_invoke_transaction = await account.sign_invoke_transaction(
         deploy_call, max_fee=MAX_FEE
     )
-    resp = await account_client.send_transaction(deploy_invoke_transaction)
-    await account_client.wait_for_tx(resp.transaction_hash)
+    resp = await account.client.send_transaction(deploy_invoke_transaction)
+    await account.client.wait_for_tx(resp.transaction_hash)
 
     assert isinstance(contract_address, int)
     assert contract_address != 0

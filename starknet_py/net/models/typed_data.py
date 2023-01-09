@@ -2,7 +2,7 @@
 TypedDict structures for TypedData
 """
 
-from typing import Dict, Union, TypedDict, Any, List
+from typing import Any, Dict, List, TypedDict, Union
 
 
 class Parameter(TypedDict):

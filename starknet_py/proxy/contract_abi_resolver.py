@@ -1,4 +1,6 @@
-from typing import List, TypedDict, Tuple, Dict, Any, Callable, Optional
+import warnings
+from enum import Enum
+from typing import List, TypedDict, Tuple
 
 from starkware.starknet.public.abi import (
     get_selector_from_name,
@@ -12,9 +14,13 @@ from starknet_py.constants import (
 )
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ContractNotFoundError, ClientError
-from starknet_py.net.client_models import Abi, DeclaredContract, Call
+from starknet_py.net.client_models import Abi, DeclaredContract
 from starknet_py.net.models import Address
-from starknet_py.proxy.proxy_check import ProxyCheck
+from starknet_py.proxy.proxy_check import (
+    ArgentProxyCheck,
+    OpenZeppelinProxyCheck,
+    ProxyCheck
+)
 
 
 class ProxyConfig(TypedDict, total=False):

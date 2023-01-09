@@ -1,6 +1,5 @@
 import pytest
 
-
 # docs-abi: start
 abi = [
     {
@@ -25,7 +24,7 @@ abi = [
 
 
 @pytest.mark.asyncio
-async def test_using_existing_contracts(account_client, erc20_contract):
+async def test_using_existing_contracts(account, erc20_contract):
     # pylint: disable=import-outside-toplevel,too-many-locals,unused-variable
     # docs: start
     from starknet_py.contract import Contract
@@ -33,14 +32,14 @@ async def test_using_existing_contracts(account_client, erc20_contract):
     address = "0x00178130dd6286a9a0e031e4c73b2bd04ffa92804264a25c1c08c1612559f458"
 
     # When ABI is known statically just use the Contract constructor
-    contract = Contract(address=address, abi=abi, client=account_client)
+    contract = Contract(address=address, abi=abi, provider=account)
     # or if it is not known
     # Contract.from_address makes additional request to fetch the ABI
     # docs: end
 
     address = erc20_contract.address
     # docs: start
-    contract = await Contract.from_address(client=account_client, address=address)
+    contract = await Contract.from_address(provider=account, address=address)
 
     sender = "321"
     recipient = "123"

@@ -2,7 +2,7 @@ import dataclasses
 import re
 import warnings
 from dataclasses import replace
-from typing import Optional, List, Union, Dict, Tuple, Iterable
+from typing import Dict, Iterable, List, Optional, Tuple, Union
 
 from starkware.starknet.public.abi import get_selector_from_name
 
@@ -13,34 +13,34 @@ from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_C
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
-    SentTransactionResponse,
-    Hash,
-    DeclaredContract,
-    Tag,
-    TransactionReceipt,
     BlockStateUpdate,
-    StarknetBlock,
-    Declare,
     BlockTransactionTraces,
-    EstimatedFee,
     Calls,
-    TransactionStatus,
+    Declare,
+    DeclaredContract,
     DeclareTransactionResponse,
-    Transaction,
     DeployAccountTransactionResponse,
+    EstimatedFee,
+    Hash,
+    SentTransactionResponse,
+    StarknetBlock,
+    Tag,
+    Transaction,
+    TransactionReceipt,
+    TransactionStatus,
 )
-from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import (
-    InvokeFunction,
     Invoke,
+    InvokeFunction,
     StarknetChainId,
     chain_from_network,
 )
 from starknet_py.net.models.address import AddressRepresentation, parse_address
 from starknet_py.net.models.transaction import DeployAccount
-from starknet_py.net.networks import Network, MAINNET, TESTNET, TESTNET2
+from starknet_py.net.models.typed_data import TypedData
+from starknet_py.net.networks import MAINNET, TESTNET, TESTNET2, Network
 from starknet_py.net.signer import BaseSigner
-from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
+from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 from starknet_py.utils.crypto.facade import Call
 from starknet_py.utils.data_transformer.execute_transformer import (
     execute_transformer_by_version,
@@ -48,7 +48,6 @@ from starknet_py.utils.data_transformer.execute_transformer import (
 from starknet_py.utils.iterable import ensure_iterable
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.typed_data import TypedData as TypedDataDataclass
-from starknet_py.net.models.typed_data import TypedData
 
 
 @add_sync_methods
@@ -79,8 +78,13 @@ class AccountClient(Client):
         :param supported_tx_version: Version of transactions supported by account
         """
         # pylint: disable=too-many-arguments
+        warnings.warn(
+            "AccountClient has been deprecated in favor of the Account.",
+            category=DeprecationWarning,
+        )
+
         if chain is None and signer is None:
-            raise ValueError("One of chain or signer must be provided")
+            raise ValueError("One of chain or signer must be provided.")
 
         self.address = parse_address(address)
         self.client = client
@@ -88,7 +92,7 @@ class AccountClient(Client):
         if signer is None:
             if key_pair is None:
                 raise ValueError(
-                    "Either a signer or a key_pair must be provided in AccountClient constructor"
+                    "Either a signer or a key_pair must be provided in AccountClient constructor."
                 )
 
             chain = chain_from_network(net=client.net, chain=chain)
@@ -101,7 +105,7 @@ class AccountClient(Client):
         if self.supported_tx_version == 0:
             warnings.warn(
                 "Account supporting transaction version 0 is deprecated. "
-                "Use the new account and set supported_tx_version parameter to 1",
+                "Use the new account and set supported_tx_version argument to 1",
                 category=DeprecationWarning,
             )
 
@@ -210,7 +214,7 @@ class AccountClient(Client):
     def _get_default_token_address(self) -> str:
         if self.net not in [TESTNET, TESTNET2, MAINNET]:
             raise ValueError(
-                "Token_address must be specified when using a custom net address"
+                "Argument token_address must be specified when using a custom net address."
             )
 
         return FEE_CONTRACT_ADDRESS
@@ -309,7 +313,7 @@ class AccountClient(Client):
     ) -> int:
         if auto_estimate and max_fee is not None:
             raise ValueError(
-                "Max_fee and auto_estimate are exclusive and cannot be provided at the same time."
+                "Arguments max_fee and auto_estimate are mutually exclusive."
             )
 
         if (
@@ -325,7 +329,9 @@ class AccountClient(Client):
             max_fee = int(estimate_fee.overall_fee * 1.1)
 
         if max_fee is None:
-            raise ValueError("Max_fee must be specified when invoking a transaction")
+            raise ValueError(
+                "Argument max_fee must be specified when invoking a transaction."
+            )
 
         return max_fee
 
@@ -383,7 +389,7 @@ class AccountClient(Client):
         # pylint: disable=too-many-arguments
         if self.supported_tx_version != 1:
             raise ValueError(
-                "Signing declare transactions is only supported with transaction version 1"
+                "Signing declare transactions is only supported with transaction version 1."
             )
 
         compiled_contract = create_compiled_contract(
@@ -429,7 +435,7 @@ class AccountClient(Client):
         """
         if self.supported_tx_version != 1:
             raise ValueError(
-                "Signing deploy account transactions is only supported with transaction version 1"
+                "Signing deploy account transactions is only supported with transaction version 1."
             )
 
         constructor_calldata = constructor_calldata or []
@@ -512,21 +518,11 @@ class AccountClient(Client):
             block_number=block_number,
         )
 
-    async def get_code(self, *args, **kwargs):
-        warnings.warn(
-            "get_code was removed from Client interface and will be removed from AccountClient in future versions",
-            category=DeprecationWarning,
-        )
-        if not isinstance(self.client, GatewayClient):
-            raise TypeError("AccountClient.get_code only supports using GatewayClient")
-
-        return await self.client.get_code(*args, **kwargs)
-
     def _assert_version_matches_supported_tx_version(self, version: int):
         if version != self.supported_tx_version:
             raise ValueError(
                 f"Provided version: {version} is not equal to account's "
-                f"supported_tx_version: {self.supported_tx_version}"
+                f"supported_tx_version: {self.supported_tx_version}."
             )
 
     async def get_contract_nonce(
@@ -547,7 +543,8 @@ class AccountClient(Client):
         :param typed_data: TypedData TypedDict to be signed
         :return: The signature of the TypedData TypedDict
         """
-        return self.signer.sign_message(typed_data, self.address)
+        typed_data_dataclass = TypedDataDataclass.from_dict(typed_data)
+        return self.signer.sign_message(typed_data_dataclass, self.address)
 
     def hash_message(self, typed_data: TypedData) -> int:
         """

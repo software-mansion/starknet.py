@@ -23,6 +23,7 @@ marshmallow = "^3.15.0"
 marshmallow-oneofschema = "^3.0.1"
 typing-extensions = "^4.3.0"
 cairo-lang = "==0.10.3"
+furo = "^2022.12.7"
 
 [tool.poetry.extras]
 docs = ["sphinx", "enum-tools"]
@@ -42,7 +43,8 @@ pytest-xdist = "^2.5.0"
 web3 = { extras = ["tester"], version = "6.0.0b4" }
 pyright = "^1.1.270"
 pytest-cov = "^4.0.0"
-starknet-devnet = "^0.4.2"
+starknet-devnet = "^0.4.3"
+isort = "^5.11.4"
 
 [tool.poe.tasks]
 test.shell = "pytest -n auto -v --cov=starknet_py starknet_py"
@@ -55,9 +57,9 @@ test_html.shell = "coverage html && open ./htmlcov/index.html"
 docs_create = { shell = "make -C docs html" }
 docs_open = { shell = "open docs/_build/html/index.html" }
 lint = "pylint starknet_py"
-format = "black starknet_py"
-format_check = "black --check starknet_py"
-format_diff = "black --diff starknet_py"
+format.shell = "isort . && black ."
+format_check = "black --check ."
+format_diff = "black --diff ."
 typecheck = "pyright starknet_py"
 compile_contracts = "bash starknet_py/tests/e2e/mock/compile_contracts.sh"
 requirements_check.shell = "poetry export -f requirements.txt --without-hashes --extras docs | cmp - requirements.txt"

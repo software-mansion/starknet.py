@@ -1,17 +1,13 @@
-from typing import Sequence, cast, Optional
+from typing import Optional, Sequence, cast
+
+from eth_typing import ChecksumAddress
+from web3 import Web3
 
 # noinspection PyProtectedMember
 from web3._utils.contracts import prepare_transaction
-from web3 import Web3
-from web3.types import (
-    BlockIdentifier as EthBlockIdentifier,
-    ABIFunction,
-    ABIFunctionParams,
-    TxParams,
-)
-from eth_typing import (
-    ChecksumAddress,
-)
+from web3.types import ABIFunction, ABIFunctionParams
+from web3.types import BlockIdentifier as EthBlockIdentifier
+from web3.types import TxParams
 
 from starknet_py.net.models import StarknetChainId
 

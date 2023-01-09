@@ -55,7 +55,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "sphinx_rtd_theme"
+html_theme = "furo"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -67,3 +67,14 @@ html_css_files = ["custom.css"]
 autodoc_class_signature = "separated"
 autodoc_default_options = {"exclude-members": "__new__"}
 
+pygments_dark_style = "dracula"
+
+html_favicon = "_static/favicon.png"
+html_title = "StarkNet.py Documentation"
+html_short_title = "StarkNet.py"
+html_permalinks_icon = "#"
+
+html_theme_options = {
+    "light_logo": "logo.png",
+    "dark_logo": "logo-contour-white.png",
+}

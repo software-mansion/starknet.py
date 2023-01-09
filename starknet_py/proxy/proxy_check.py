@@ -1,11 +1,11 @@
 import re
 import warnings
 from abc import ABC, abstractmethod
-from typing import Optional, Callable
+from typing import Callable, Optional
 
 from starkware.starknet.public.abi import (
-    get_storage_var_address,
     get_selector_from_name,
+    get_storage_var_address,
 )
 
 from starknet_py.constants import RPC_INVALID_MESSAGE_SELECTOR_ERROR
@@ -30,7 +30,7 @@ class ProxyCheck(ABC):
     ) -> Optional[int]:
         """
         :return: Implementation address of contract being proxied by proxy contract at `address`
-            given as a parameter or None if implementation does not exist.
+            given as an argument or None if implementation does not exist.
         """
 
     @abstractmethod
@@ -39,7 +39,7 @@ class ProxyCheck(ABC):
     ) -> Optional[int]:
         """
         :return: Implementation class hash of contract being proxied by proxy contract at `address`
-            given as a parameter or None if implementation does not exist.
+            given as an argument or None if implementation does not exist.
         """
 
 

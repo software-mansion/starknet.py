@@ -1,5 +1,5 @@
 import warnings
-from typing import Optional, List
+from typing import List, Optional
 
 from starkware.starknet.services.api.gateway.transaction import (
     DEFAULT_DECLARE_SENDER_ADDRESS,
