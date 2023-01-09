@@ -13,10 +13,8 @@ from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     Call,
     Calls,
-    Declare,
     EstimatedFee,
     Hash,
-    Invoke,
     SentTransactionResponse,
     Tag,
 )
@@ -27,7 +25,7 @@ from starknet_py.net.models import (
     compute_address,
     parse_address,
 )
-from starknet_py.net.models.transaction import DeployAccount
+from starknet_py.net.models.transaction import Declare, DeployAccount, Invoke
 from starknet_py.net.models.typed_data import TypedData
 from starknet_py.net.networks import (
     MAINNET,

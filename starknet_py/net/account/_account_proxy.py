@@ -5,14 +5,9 @@ from typing import List, Optional
 from starknet_py.net import AccountClient
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
-from starknet_py.net.client_models import (
-    Calls,
-    Declare,
-    Invoke,
-    SentTransactionResponse,
-)
+from starknet_py.net.client_models import Calls, SentTransactionResponse
 from starknet_py.net.models import AddressRepresentation
-from starknet_py.net.models.transaction import DeployAccount
+from starknet_py.net.models.transaction import Declare, DeployAccount, Invoke
 from starknet_py.net.models.typed_data import TypedData
 
 

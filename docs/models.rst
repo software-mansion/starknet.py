@@ -10,8 +10,6 @@ Module containing base models and functions to operate on them.
 .. autoclass:: Transaction
     :exclude-members: __init__, __new__
 
-.. autoclass:: BlockIdentifier
-
 
 .. autoenum:: TransactionType
     :members:

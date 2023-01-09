@@ -17,7 +17,6 @@ from starknet_py.net.models.transaction import (
     Invoke,
     TransactionType,
 )
-from starknet_py.net.models.typed_data import TypedData
 from starknet_py.net.signer.base_signer import BaseSigner
 from starknet_py.utils.crypto.facade import message_signature
 from starknet_py.utils.crypto.transaction_hash import (
