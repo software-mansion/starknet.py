@@ -14,7 +14,7 @@ CairoData = List[int]
 
 def is_felt_pointer(cairo_type: CairoType) -> bool:
     warnings.warn(
-        "is_felt_pointer is deprecated. Use new starknet_py.cairo.type_parser instead.",
+        "Function is_felt_pointer is deprecated. Use starknet_py.cairo.type_parser module instead.",
         category=DeprecationWarning,
     )
     return isinstance(cairo_type, TypePointer) and isinstance(
@@ -24,7 +24,7 @@ def is_felt_pointer(cairo_type: CairoType) -> bool:
 
 def is_uint256(definition: StructDefinition) -> bool:
     warnings.warn(
-        "is_uint256 is deprecated. Use new starknet_py.cairo.type_parser instead.",
+        "Function is_uint256 is deprecated. Use starknet_py.cairo.type_parser module instead.",
         category=DeprecationWarning,
     )
     (struct_name, *_) = definition.full_name.path
