@@ -16,7 +16,6 @@ from starknet_py.net.client_models import (
     BlockTransactionTraces,
     Call,
     Calls,
-    Declare,
     DeclaredContract,
     DeclareTransactionResponse,
     DeployAccountTransactionResponse,
@@ -30,13 +29,11 @@ from starknet_py.net.client_models import (
     TransactionStatus,
 )
 from starknet_py.net.models import (
-    Invoke,
-    InvokeFunction,
     StarknetChainId,
     chain_from_network,
 )
 from starknet_py.net.models.address import AddressRepresentation, parse_address
-from starknet_py.net.models.transaction import DeployAccount
+from starknet_py.net.models.transaction import Declare, DeployAccount, Invoke
 from starknet_py.net.models.typed_data import TypedData
 from starknet_py.net.networks import MAINNET, TESTNET, TESTNET2, Network
 from starknet_py.net.signer import BaseSigner
@@ -243,7 +240,7 @@ class AccountClient(Client):
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
         version: Optional[int] = None,
-    ) -> InvokeFunction:
+    ) -> Invoke:
         """
         Takes calls and creates InvokeFunction from them
 

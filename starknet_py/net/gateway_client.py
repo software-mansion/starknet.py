@@ -12,27 +12,30 @@ from starknet_py.net.client_models import (
     BlockTransactionTraces,
     Call,
     ContractCode,
-    Declare,
     DeclaredContract,
     DeclareTransactionResponse,
     DeployAccountTransactionResponse,
     EstimatedFee,
     GatewayBlock,
     Hash,
-    Invoke,
     SentTransactionResponse,
-    StarknetTransaction,
     Tag,
+    Transaction,
     TransactionReceipt,
     TransactionStatusResponse,
 )
 from starknet_py.net.client_utils import hash_to_felt, is_block_identifier
 from starknet_py.net.http_client import GatewayHttpClient
 from starknet_py.net.models.transaction import (
+    Declare,
     DeclareSchema,
     DeployAccount,
-    TransactionType,
+    DeployAccountSchema,
+    Invoke,
+    InvokeSchema,
 )
+from starknet_py.net.models.transaction import Transaction as StarknetTransaction
+from starknet_py.net.models.transaction import TransactionType
 from starknet_py.net.networks import Network, net_address_from_net
 from starknet_py.net.schemas.gateway import (
     BlockStateUpdateSchema,
@@ -304,17 +307,18 @@ class GatewayClient(Client):
 
     async def _add_transaction(
         self,
-        tx: Transaction,
+        tx: StarknetTransaction,
         token: Optional[str] = None,
     ) -> dict:
-        if tx.tx_type == TransactionType.DECLARE:
-            payload = DeclareSchema().dump(obj=tx)
-        else:
-            payload = StarknetTransaction.Schema().dump(obj=tx)
+        type_to_schema = {
+            TransactionType.DECLARE: DeclareSchema(),
+            TransactionType.DEPLOY_ACCOUNT: DeployAccountSchema(),
+            TransactionType.INVOKE_FUNCTION: InvokeSchema(),
+        }
 
         res = await self._gateway_client.post(
             method_name="add_transaction",
-            payload=payload,
+            payload=type_to_schema[tx.tx_type].dump(obj=tx),
             params={"token": token} if token is not None else {},
         )
         return res

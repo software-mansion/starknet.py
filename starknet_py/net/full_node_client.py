@@ -6,18 +6,14 @@ from marshmallow import EXCLUDE
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
-    AccountTransaction,
     BlockStateUpdate,
     BlockTransactionTraces,
     Call,
-    Declare,
     DeclaredContract,
     DeclareTransactionResponse,
-    DeployAccount,
     DeployAccountTransactionResponse,
     EstimatedFee,
     Hash,
-    Invoke,
     SentTransactionResponse,
     StarknetBlock,
     Tag,
@@ -27,7 +23,13 @@ from starknet_py.net.client_models import (
 from starknet_py.net.client_utils import hash_to_felt
 from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.models import TransactionType
-from starknet_py.net.models.transaction import DeclareSchema
+from starknet_py.net.models.transaction import (
+    AccountTransaction,
+    Declare,
+    DeclareSchema,
+    DeployAccount,
+    Invoke,
+)
 from starknet_py.net.networks import Network
 from starknet_py.net.schemas.rpc import (
     BlockStateUpdateSchema,

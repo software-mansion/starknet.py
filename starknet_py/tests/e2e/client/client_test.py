@@ -13,14 +13,13 @@ from starknet_py.net.client_models import (
     Call,
     DeclareTransaction,
     DeployAccountTransaction,
-    Invoke,
     InvokeTransaction,
     L1HandlerTransaction,
     TransactionReceipt,
     TransactionStatus,
 )
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models.transaction import Declare
+from starknet_py.net.models.transaction import Declare, Invoke
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 from starknet_py.transaction_exceptions import (

@@ -22,7 +22,7 @@ from starknet_py.cairo.selector import get_selector_from_name
 from starknet_py.constants import QUERY_VERSION_BASE
 from starknet_py.net.models import compute_address
 from starknet_py.net.models.chains import StarknetChainId
-from starknet_py.net.schemas.common import Felt
+from starknet_py.net.schemas.common import Felt, NoneFelt
 from starknet_py.utils.crypto.transaction_hash import (
     TransactionHashPrefix,
     compute_declare_transaction_hash,
@@ -72,6 +72,7 @@ class AccountTransaction(Transaction, ABC):
     # The nonce of the transaction.
     # A sequential number attached to the account contract, that prevents transaction replay
     # and guarantees the order of execution and uniqueness of the transaction hash.
+    nonce: int = field(metadata={"marshmallow_field": NoneFelt()})
 
 
 @dataclass(frozen=True)
@@ -85,7 +86,6 @@ class Declare(AccountTransaction):
     # The address of the account contract sending the declaration transaction.
     sender_address: int = field(metadata={"marshmallow_field": Felt()})
     # Repeat `nonce` to narrow its type to non-optional int.
-    nonce: int = field(metadata={"marshmallow_field": Felt()})
 
     # Class variables.
     tx_type: ClassVar[TransactionType] = TransactionType.DECLARE
@@ -134,14 +134,18 @@ class DeployAccount(AccountTransaction):
     class_hash: int = field(metadata={"marshmallow_field": Felt()})
     contract_address_salt: int = field(metadata={"marshmallow_field": Felt()})
     constructor_calldata: List[int] = field(
-        metadata={"marshmallow_field": fields.List(Felt())}
+        metadata={"marshmallow_field": fields.List(fields.String())}
     )
     version: int = field(metadata={"marshmallow_field": Felt()})
     # Repeat `nonce` to narrow its type to non-optional int.
-    nonce: int = field(metadata={"marshmallow_field": Felt()})
 
     # Class variables.
     tx_type: ClassVar[TransactionType] = TransactionType.DEPLOY_ACCOUNT
+
+    @marshmallow.decorators.post_dump
+    def post_dump(self, data: Dict[str, Any], many: bool, **kwargs) -> Dict[str, Any]:
+        data["type"] = "DEPLOY_ACCOUNT"
+        return data
 
     def calculate_hash(self, general_config: StarknetGeneralConfig) -> int:
         """
@@ -176,25 +180,27 @@ class InvokeFunction(AccountTransaction):
     """
 
     contract_address: int = field(metadata={"marshmallow_field": Felt()})
-    calldata: List[int] = field(metadata={"marshmallow_field": fields.List(Felt())})
+    calldata: List[int] = field(
+        metadata={"marshmallow_field": fields.List(fields.String())}
+    )
 
     # Class variables.
     tx_type: ClassVar[TransactionType] = TransactionType.INVOKE_FUNCTION
-
-    nonce: int = field(metadata={"marshmallow_field": Felt()})
 
     # A field element that encodes the signature of the invoked function.
     # The entry_point_selector is deprecated for version 1 and above (transactions
     # should go through the '__execute__' entry point).
     entry_point_selector: Optional[int] = field(
-        default=None, metadata={"marshmallow_field": Felt()}
+        default=None, metadata={"marshmallow_field": NoneFelt()}
     )
 
     @marshmallow.decorators.post_dump
     def remove_entry_point_selector(
         self, data: Dict[str, Any], many: bool, **kwargs
     ) -> Dict[str, Any]:
-        version = data["version"]
+        data["type"] = "INVOKE_FUNCTION"
+
+        version = int(data["version"], 16)
         if version in (0, QUERY_VERSION_BASE):
             return data
 

@@ -35,6 +35,13 @@ class Felt(fields.Field):
             raise ValidationError("Invalid felt.") from error
 
 
+class NoneFelt(Felt):
+    def _serialize(self, value: Any, attr: str, obj: Any, **kwargs):
+        if value is None:
+            return None
+        return hex(value)
+
+
 class NonPrefixedHex(fields.Field):
     def _serialize(self, value: Any, attr: str, obj: Any, **kwargs):
         return hex(value).lstrip("0x")
