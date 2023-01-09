@@ -1,4 +1,5 @@
 import re
+import warnings
 from abc import ABC, abstractmethod
 from typing import Optional, Callable
 
@@ -15,6 +16,14 @@ from starknet_py.net.models import Address
 
 
 class ProxyCheck(ABC):
+    def __init__(self, *args, **kwargs):
+        warnings.warn(
+            f"{self.__class__.__name__} is deprecated and will be removed in the future."
+            "To resolve custom Proxies, use keyword parameter `get_implementation_func` in Contract.from_address.",
+            category=DeprecationWarning,
+        )
+        super().__init__(*args, **kwargs)
+
     @abstractmethod
     async def implementation_address(
         self, address: Address, client: Client

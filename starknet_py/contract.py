@@ -10,6 +10,7 @@ from typing import (
     Union,
     Dict,
     NamedTuple,
+    Callable,
 )
 
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
@@ -25,9 +26,10 @@ from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.proxy.contract_abi_resolver import (
-    ProxyConfig,
     ContractAbiResolver,
-    prepare_proxy_config,
+    ProxyConfig,
+    AbiNotFoundError,
+    ProxyResolver,
 )
 from starknet_py.net import AccountClient
 from starknet_py.net.client import Client
@@ -449,18 +451,17 @@ class Contract:
     async def from_address(
         address: AddressRepresentation,
         client: Client,
+        *,
         proxy_config: Union[bool, ProxyConfig] = False,
+        get_implementation_func: Union[bool, Callable] = False,
     ) -> "Contract":
         """
-        Fetches ABI for given contract and creates a new Contract instance with it. If you know ABI statically you
-        should create Contract's instances directly instead of using this function to avoid unnecessary API calls.
+        Fetches ABI of a contract deployed at `address` and creates a new Contract instance with it.
+        If ABI is known, Contract's default constructor should be used instead to avoid unnecessary API calls.
 
-        :raises ContractNotFoundError: when contract is not found
-        :raises TypeError: when given client's `get_class_by_hash` method does not return abi
-        :raises ProxyResolutionError: when given ProxyChecks were not sufficient to resolve proxy's implementation
-        :param address: Contract's address
-        :param client: Client
-        :param proxy_config: Proxy resolving config
+        :param address: Address of the contract to be fetched.
+        :param client: Client used for fetching contract.
+        :param proxy_config: Proxy resolving config.
             If set to ``True``, will use default proxy checks
             :class:`starknet_py.proxy.proxy_check.OpenZeppelinProxyCheck`
             and :class:`starknet_py.proxy.proxy_check.ArgentProxyCheck`.
@@ -469,15 +470,43 @@ class Contract:
 
             If a valid :class:`starknet_py.contract_abi_resolver.ProxyConfig` is provided, will use its values instead.
 
-        :return: an initialized Contract instance
-        """
-        address = parse_address(address)
-        proxy_config = Contract._create_proxy_config(proxy_config)
+            .. deprecated:: 0.X.0 TODO
+                This parameter has been deprecated. Use `get_implementation_func` instead.
 
-        abi = await ContractAbiResolver(
-            address=address, client=client, proxy_config=proxy_config
+        :param get_implementation_func: Used for resolving Proxy contracts.
+            Function returning class_hash / address of the proxied implementation.
+
+            If set to ``False``, :meth:`Contract.from_address` will not resolve Proxy contracts.
+
+            If set to ``True``, will use :meth:`ProxyResolver.default_get_implementation_func`.
+
+            For detailed specification of a custom `get_implementation_func` argument,
+            check :meth:`ProxyResolver.default_get_implementation_func`.
+
+        :raises AbiNotFoundError: When abi of a contract was not found.
+        :return: An initialized Contract instance.
+        """
+        if proxy_config is not False:
+            warnings.warn(
+                "Parameter `proxy_config` is deprecated and will be removed in the future."
+                "To resolve custom Proxies, use keyword parameter `get_implementation_func`.",
+                category=DeprecationWarning,
+            )
+            if proxy_config is True:
+                get_implementation_func = get_implementation_func or True
+
+        address = parse_address(address)
+        proxy_func = _default_proxy_func(get_implementation_func)
+
+        direct_abi, proxied_abi = await ContractAbiResolver(
+            address=address,
+            client=client,
+            get_implementation_func=proxy_func,
         ).resolve()
 
+        abi = direct_abi if proxy_func is None else proxied_abi
+        if abi is None:
+            raise AbiNotFoundError()
         return Contract(address=address, abi=abi, client=client)
 
     @staticmethod
@@ -638,9 +667,12 @@ class Contract:
 
         return repository
 
-    @staticmethod
-    def _create_proxy_config(proxy_config) -> ProxyConfig:
-        if proxy_config is False:
-            return ProxyConfig()
-        proxy_arg = ProxyConfig() if proxy_config is True else proxy_config
-        return prepare_proxy_config(proxy_arg)
+
+def _default_proxy_func(
+    get_implementation_func: Union[bool, Callable]
+) -> Optional[Callable]:
+    if get_implementation_func is False:
+        return None
+    if get_implementation_func is True:
+        return ProxyResolver.default_get_implementation_func
+    return get_implementation_func

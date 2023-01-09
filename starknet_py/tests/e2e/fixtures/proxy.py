@@ -70,6 +70,23 @@ async def deploy_proxy_to_contract_custom(
     )
 
 
+@pytest_asyncio.fixture(
+    params=[
+        ("oz_proxy_custom_multiple_storage_vars_compiled.json", "map_compiled.json")
+    ]
+)
+async def deploy_proxy_to_contract_multiple_vars(
+    request, new_gateway_account_client: AccountClient
+) -> DeployResult:
+    """
+    Declares a contract and deploys a custom proxy pointing to that contract.
+    """
+    compiled_proxy_name, compiled_contract_name = request.param
+    return await deploy_proxy_to_contract(
+        compiled_proxy_name, compiled_contract_name, new_gateway_account_client
+    )
+
+
 async def deploy_proxy_to_contract(
     compiled_proxy_name: str,
     compiled_contract_name: str,

@@ -10,6 +10,7 @@ find $CONTRACTS_COMPILED_DIRECTORY -maxdepth 1 -type f -delete
 # compile Cairo test contracts
 echo "Compiling Cairo contracts with $(poetry run starknet-compile --version)"
 
+number_of_successfully_compiled=0
 number_of_contracts=0
 for contract in "$CONTRACTS_DIRECTORY"/*.cairo; do
     basename=$(basename "$contract")
@@ -26,7 +27,11 @@ for contract in "$CONTRACTS_DIRECTORY"/*.cairo; do
     echo "Compiling $contract..."
     # run starknet-compile
     poetry run starknet-compile $account_contract_flag --cairo_path $CONTRACTS_DIRECTORY:$MOCK_DIRECTORY --output $output --abi $abi $contract
+    result=$?
+    if [ $result -eq 0 ]; then
+      number_of_successfully_compiled=$((number_of_successfully_compiled+1))
+    fi
     number_of_contracts=$((number_of_contracts+1))
 done
 
-echo "Compiled $number_of_contracts Cairo files successfully"
+echo "Successfully compiled $number_of_successfully_compiled/$number_of_contracts Cairo files successfully"
