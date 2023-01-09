@@ -1,5 +1,5 @@
 import typing
-from typing import List, Optional, Union
+from typing import Dict, List, Optional, Union
 
 import aiohttp
 from marshmallow import EXCLUDE
@@ -413,7 +413,9 @@ def get_block_identifier(
     return {"blockNumber": "pending"}
 
 
-def _get_payload(tx: Union[StarknetTransaction, List[StarknetTransaction]]) -> dict:
+def _get_payload(
+    tx: Union[StarknetTransaction, List[StarknetTransaction]]
+) -> Union[List, Dict]:
     type_to_schema = {
         TransactionType.DECLARE: DeclareSchema(),
         TransactionType.DEPLOY_ACCOUNT: DeployAccountSchema(),
