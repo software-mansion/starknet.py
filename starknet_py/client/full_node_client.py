@@ -3,17 +3,11 @@ from typing import List, Optional, Union, cast
 import aiohttp
 from marshmallow import EXCLUDE
 from starkware.starknet.definitions.transaction_type import TransactionType
+from starkware.starknet.services.api.gateway.transaction import AccountTransaction
 
 from starknet_py.client.client import Client
-from starknet_py.client.client_models import (
-    AccountTransaction,
-    Declare,
-    DeployAccount,
-    Invoke,
-)
 from starknet_py.client.http.errors import ClientError
 from starknet_py.client.http.http_client import RpcHttpClient
-from starknet_py.client.models import Transaction
 from starknet_py.client.models.block import (
     BlockStateUpdate,
     BlockTransactionTraces,
@@ -29,7 +23,13 @@ from starknet_py.client.models.response import (
     DeployAccountTransactionResponse,
     SentTransactionResponse,
 )
-from starknet_py.client.models.transaction import TransactionReceipt
+from starknet_py.client.models.transaction import (
+    Declare,
+    DeployAccount,
+    Invoke,
+    Transaction,
+    TransactionReceipt,
+)
 from starknet_py.client.networks import Network
 from starknet_py.client.schemas.rpc import (
     BlockStateUpdateSchema,

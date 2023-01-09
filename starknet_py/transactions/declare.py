@@ -5,7 +5,7 @@ from starkware.starknet.services.api.gateway.transaction import (
     DEFAULT_DECLARE_SENDER_ADDRESS,
 )
 
-from starknet_py.client.client_models import Declare
+from starknet_py.client.models.transaction import Declare
 from starknet_py.common import create_compiled_contract
 from starknet_py.compile.compiler import StarknetCompilationSource
 

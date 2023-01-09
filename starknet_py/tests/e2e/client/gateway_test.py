@@ -7,12 +7,13 @@ from starkware.starknet.public.abi import (
     get_storage_var_address,
 )
 
-from starknet_py.client.client_models import Declare, Invoke
 from starknet_py.client.errors import ContractNotFoundError
 from starknet_py.client.gateway_client import GatewayClient
 from starknet_py.client.models.response import TransactionStatusResponse
 from starknet_py.client.models.transaction import (
+    Declare,
     DeployTransaction,
+    Invoke,
     L1HandlerTransaction,
     TransactionStatus,
 )

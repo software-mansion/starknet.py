@@ -8,13 +8,11 @@ from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
 from starknet_py.client.client import Client
-from starknet_py.client.client_models import Declare
 from starknet_py.client.http.errors import ClientError
 from starknet_py.client.models import (
+    Declare,
     Invoke,
-    InvokeFunction,
     StarknetChainId,
-    Transaction,
     chain_from_network,
 )
 from starknet_py.client.models.address import AddressRepresentation, parse_address
@@ -35,6 +33,7 @@ from starknet_py.client.models.response import (
 )
 from starknet_py.client.models.transaction import (
     DeployAccount,
+    Transaction,
     TransactionReceipt,
     TransactionStatus,
 )
@@ -252,7 +251,7 @@ class AccountClient(Client):
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
         version: Optional[int] = None,
-    ) -> InvokeFunction:
+    ) -> Invoke:
         """
         Takes calls and creates InvokeFunction from them
 

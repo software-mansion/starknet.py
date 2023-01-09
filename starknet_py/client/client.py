@@ -4,7 +4,6 @@ import asyncio
 from abc import ABC, abstractmethod
 from typing import List, Optional, Tuple, Union
 
-from starknet_py.client.models import Transaction
 from starknet_py.client.models.block import (
     BlockStateUpdate,
     BlockTransactionTraces,
@@ -24,6 +23,7 @@ from starknet_py.client.models.transaction import (
     Declare,
     DeployAccount,
     Invoke,
+    Transaction,
     TransactionReceipt,
     TransactionStatus,
 )

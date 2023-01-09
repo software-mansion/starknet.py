@@ -15,6 +15,7 @@ from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.services.api.gateway.transaction import Declare as DCL
 from starkware.starknet.services.api.gateway.transaction import DeployAccount as DAC
 from starkware.starknet.services.api.gateway.transaction import InvokeFunction as IF
+from starkware.starknet.services.api.gateway.transaction import Transaction as T
 
 from starknet_py.client.models.chains import StarknetChainId
 from starknet_py.client.models.event import Event
@@ -22,6 +23,7 @@ from starknet_py.client.models.message import L1toL2Message, L2toL1Message
 from starknet_py.utils.crypto.facade import pedersen_hash
 from starknet_py.utils.docs import as_our_module
 
+StarknetTransaction = as_our_module(T)
 Invoke = InvokeFunction = as_our_module(IF)
 Declare = as_our_module(DCL)
 DeployAccount = as_our_module(DAC)

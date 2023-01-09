@@ -16,10 +16,14 @@ from starkware.starknet.core.os.transaction_hash.transaction_hash import (
 from starknet_py.client.models import (
     AddressRepresentation,
     StarknetChainId,
-    Transaction,
     parse_address,
 )
-from starknet_py.client.models.transaction import Declare, DeployAccount, Invoke
+from starknet_py.client.models.transaction import (
+    Declare,
+    DeployAccount,
+    Invoke,
+    StarknetTransaction,
+)
 from starknet_py.signer.base_signer import BaseSigner
 from starknet_py.utils.crypto.facade import message_signature
 from starknet_py.utils.typed_data import TypedData
@@ -56,7 +60,7 @@ class StarkCurveSigner(BaseSigner):
 
     def sign_transaction(
         self,
-        transaction: Transaction,
+        transaction: StarknetTransaction,
     ) -> List[int]:
         if isinstance(transaction, Declare):
             return self._sign_declare_transaction(transaction)

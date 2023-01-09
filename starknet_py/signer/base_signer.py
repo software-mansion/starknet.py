@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Dict, List, Union
 
-from starknet_py.client.models.transaction import Transaction
+from starknet_py.client.models.transaction import StarknetTransaction
 from starknet_py.utils.typed_data import TypedData
 
 
@@ -20,7 +20,7 @@ class BaseSigner(ABC):
         """
 
     @abstractmethod
-    def sign_transaction(self, transaction: Transaction) -> List[int]:
+    def sign_transaction(self, transaction: StarknetTransaction) -> List[int]:
         """
         Sign execute transaction and return a signature
 

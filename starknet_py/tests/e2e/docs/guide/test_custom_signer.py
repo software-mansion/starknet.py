@@ -10,7 +10,8 @@ async def test_custom_signer():
     # docs: start
     from starknet_py.account.account import Account
     from starknet_py.client.gateway_client import GatewayClient
-    from starknet_py.client.models import StarknetChainId, Transaction
+    from starknet_py.client.models import StarknetChainId
+    from starknet_py.client.models.transaction import Transaction
     from starknet_py.client.models.typed_data import TypedData
     from starknet_py.signer import BaseSigner
 

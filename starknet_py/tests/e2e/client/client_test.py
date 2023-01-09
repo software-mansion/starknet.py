@@ -10,8 +10,8 @@ from starkware.starknet.public.abi import (
     get_storage_var_address,
 )
 
-from starknet_py.client.client_models import Invoke
 from starknet_py.client.gateway_client import GatewayClient
+from starknet_py.client.models import Invoke
 from starknet_py.client.models.call import Call
 from starknet_py.client.models.transaction import (
     Declare,

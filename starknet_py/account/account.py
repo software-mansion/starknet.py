@@ -7,10 +7,11 @@ from starkware.starknet.public.abi import get_selector_from_name
 from starknet_py.account.account_deployment_result import AccountDeploymentResult
 from starknet_py.account.base_account import BaseAccount
 from starknet_py.client.client import Client
-from starknet_py.client.client_models import Declare, Invoke
 from starknet_py.client.http.errors import ClientError
 from starknet_py.client.models import (
     AddressRepresentation,
+    Declare,
+    Invoke,
     StarknetChainId,
     chain_from_network,
     compute_address,

@@ -1,7 +1,7 @@
 import pytest
 
-from starknet_py.client.models import Transaction
 from starknet_py.client.models.block import StarknetBlock
+from starknet_py.client.models.transaction import Transaction
 from starknet_py.client.networks import TESTNET
 
 

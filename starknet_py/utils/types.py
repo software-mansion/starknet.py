@@ -3,7 +3,6 @@
 # noinspection PyUnresolvedReferences
 # noinspection PyUnresolvedReferences
 from starknet_py.cairo.felt import decode_shortstring, encode_shortstring
-from starknet_py.client.models import Invoke, InvokeFunction, Transaction
 
 # noinspection PyUnresolvedReferences
 from starknet_py.client.models.address import parse_address

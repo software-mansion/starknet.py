@@ -4,7 +4,7 @@ from typing import List, Union
 
 from typing_extensions import Literal
 
-from starknet_py.client.models import Transaction
+from starknet_py.client.models.transaction import Transaction
 
 
 class BlockStatus(Enum):

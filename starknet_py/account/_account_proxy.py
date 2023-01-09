@@ -5,8 +5,7 @@ from typing import List, Optional
 from starknet_py.account.account_client import AccountClient
 from starknet_py.account.base_account import BaseAccount
 from starknet_py.client.client import Client
-from starknet_py.client.client_models import Declare, Invoke
-from starknet_py.client.models import AddressRepresentation
+from starknet_py.client.models import AddressRepresentation, Declare, Invoke
 from starknet_py.client.models.call import Calls
 from starknet_py.client.models.response import SentTransactionResponse
 from starknet_py.client.models.transaction import DeployAccount

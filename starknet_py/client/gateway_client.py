@@ -4,12 +4,14 @@ from typing import List, Optional, Union
 import aiohttp
 from marshmallow import EXCLUDE
 from starkware.starknet.services.api.gateway.transaction import AccountTransaction
+from starkware.starknet.services.api.gateway.transaction import (
+    Transaction as StarknetTransaction,
+)
 
 from starknet_py.client.client import Client
-from starknet_py.client.client_models import Declare, Invoke, StarknetTransaction
 from starknet_py.client.errors import ContractNotFoundError
 from starknet_py.client.http.http_client import GatewayHttpClient
-from starknet_py.client.models import Transaction
+from starknet_py.client.models import Declare, Invoke
 from starknet_py.client.models.block import (
     BlockStateUpdate,
     BlockTransactionTraces,
@@ -26,7 +28,11 @@ from starknet_py.client.models.response import (
     SentTransactionResponse,
     TransactionStatusResponse,
 )
-from starknet_py.client.models.transaction import DeployAccount, TransactionReceipt
+from starknet_py.client.models.transaction import (
+    DeployAccount,
+    Transaction,
+    TransactionReceipt,
+)
 from starknet_py.client.networks import Network, net_address_from_net
 from starknet_py.client.schemas.gateway import (
     BlockStateUpdateSchema,

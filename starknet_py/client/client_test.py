@@ -1,7 +1,7 @@
 import pytest
 
 from starknet_py.client.http.http_client import RpcHttpClient, ServerError
-from starknet_py.client.models import Transaction
+from starknet_py.client.models.transaction import Transaction
 
 
 @pytest.mark.asyncio
