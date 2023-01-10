@@ -39,7 +39,7 @@ class BaseSigner(ABC):
         :param typed_data:
             TypedData TypedDict to be signed
 
-             .. deprecated:: 1.0.0
+             .. deprecated:: 0.13.0
                 TypedData as dict has been deprecated as possible argument.
                 Use :py:class:`starknet_py.utils.TypedData` instead
         :param account_address: account address
@@ -47,4 +47,3 @@ class BaseSigner(ABC):
 
 
         """
-        # TODO use proper deprecated version
