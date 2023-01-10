@@ -93,14 +93,14 @@ class Declare(AccountTransaction):
     def compress_program(program_json: dict):
         return compress_program(program_json=program_json)
 
-    @marshmallow.decorators.post_dump
+    @marshmallow.post_dump
     def compress_program_post_dump(
         self, data: Dict[str, Any], many: bool, **kwargs
     ) -> Dict[str, Any]:
         data["type"] = "DECLARE"
         return compress_program_post_dump(data=data, many=many)
 
-    @marshmallow.decorators.pre_load
+    @marshmallow.pre_load
     def decompress_program(
         self, data: Dict[str, Any], many: bool, **kwargs
     ) -> Dict[str, Any]:
@@ -138,7 +138,7 @@ class DeployAccount(AccountTransaction):
     def tx_type(cls) -> TransactionType:
         return TransactionType.DEPLOY_ACCOUNT
 
-    @marshmallow.decorators.post_dump
+    @marshmallow.post_dump
     def post_dump(self, data: Dict[str, Any], many: bool, **kwargs) -> Dict[str, Any]:
         data["type"] = "DEPLOY_ACCOUNT"
         return data
@@ -187,7 +187,7 @@ class InvokeFunction(AccountTransaction):
     def tx_type(cls) -> TransactionType:
         return TransactionType.INVOKE_FUNCTION
 
-    @marshmallow.decorators.post_dump
+    @marshmallow.post_dump
     def remove_entry_point_selector(
         self, data: Dict[str, Any], many: bool, **kwargs
     ) -> Dict[str, Any]:

@@ -1,5 +1,5 @@
 import typing
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, cast
 
 import aiohttp
 from marshmallow import EXCLUDE
@@ -220,7 +220,7 @@ class GatewayClient(Client):
         )
         res = await self._feeder_gateway_client.post(
             method_name="estimate_fee_bulk",
-            payload=_get_payload(transactions),
+            payload=_get_payload(cast(List[StarknetTransaction], transactions)),
             params=block_identifier,
         )
 

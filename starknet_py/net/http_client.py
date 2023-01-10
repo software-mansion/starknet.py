@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Optional
+from typing import Optional, Union
 
 from aiohttp import ClientResponse, ClientSession
 
@@ -22,7 +22,7 @@ class HttpClient(ABC):
         address: str,
         http_method: HttpMethod,
         params: Optional[dict] = None,
-        payload: Optional[dict] = None,
+        payload: Optional[Union[dict, list]] = None,
     ):
         kwargs = {
             "address": address,
@@ -65,7 +65,10 @@ class GatewayHttpClient(HttpClient):
         )
 
     async def post(
-        self, method_name: str, payload: dict, params: Optional[dict] = None
+        self,
+        method_name: str,
+        payload: Union[dict, list],
+        params: Optional[dict] = None,
     ) -> dict:
         return await self.request(
             http_method=HttpMethod.POST,

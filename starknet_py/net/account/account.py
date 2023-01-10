@@ -1,6 +1,6 @@
 import dataclasses
 import re
-from typing import Dict, Iterable, List, Optional, Tuple, TypeVar, Union
+from typing import Dict, Iterable, List, Optional, Tuple, TypeVar, Union, cast
 
 from starkware.starknet.public.abi import get_selector_from_name
 
@@ -179,7 +179,7 @@ class Account(BaseAccount):
         :return: Estimated fee.
         """
         signature = self.signer.sign_transaction(tx)
-        tx = _add_signature_to_transaction(tx, signature)
+        tx = _add_signature_to_transaction(cast(SignableTransaction, tx), signature)
 
         return await self._client.estimate_fee(
             tx=tx,

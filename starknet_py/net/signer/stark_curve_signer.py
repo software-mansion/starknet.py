@@ -1,6 +1,6 @@
 import warnings
 from dataclasses import dataclass
-from typing import Dict, List, Union
+from typing import Dict, List, Union, cast
 
 from starkware.crypto.signature.signature import private_to_stark_key
 
@@ -15,7 +15,6 @@ from starknet_py.net.models.transaction import (
     Declare,
     DeployAccount,
     Invoke,
-    TransactionType,
 )
 from starknet_py.net.signer.base_signer import BaseSigner
 from starknet_py.utils.crypto.facade import message_signature
@@ -61,11 +60,11 @@ class StarkCurveSigner(BaseSigner):
         self,
         transaction: Transaction,
     ) -> List[int]:
-        if transaction.tx_type() == TransactionType.DECLARE:
+        if isinstance(transaction, Declare):
             return self._sign_declare_transaction(transaction)
         if isinstance(transaction, DeployAccount):
             return self._sign_deploy_account_transaction(transaction)
-        return self._sign_transaction(transaction)
+        return self._sign_transaction(cast(Invoke, transaction))
 
     def _sign_transaction(self, transaction: Invoke):
         tx_hash = compute_transaction_hash(
@@ -74,7 +73,7 @@ class StarkCurveSigner(BaseSigner):
             contract_address=self.address,
             entry_point_selector=0
             if transaction.version == 1
-            else transaction.entry_point_selector,
+            else cast(int, transaction.entry_point_selector),
             calldata=transaction.calldata,
             max_fee=transaction.max_fee,
             chain_id=self.chain_id.value,

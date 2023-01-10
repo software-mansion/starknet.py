@@ -1,4 +1,4 @@
-from typing import List, Optional, Union, cast
+from typing import Dict, List, Optional, Union, cast
 
 import aiohttp
 from marshmallow import EXCLUDE
@@ -425,7 +425,7 @@ def _create_broadcasted_txn(transaction: Union[Invoke, Declare, DeployAccount]) 
 
 
 def _create_broadcasted_declare_properties(transaction: Declare) -> dict:
-    contract_class = DeclareSchema().dump(obj=transaction)["contract_class"]
+    contract_class = cast(Dict, DeclareSchema().dump(obj=transaction))["contract_class"]
     declare_properties = {
         "contract_class": {
             "program": contract_class["program"],
@@ -446,7 +446,9 @@ def _create_broadcasted_invoke_properties(transaction: Invoke) -> dict:
 def _create_invoke_v0_properties(transaction: Invoke) -> dict:
     invoke_properties = {
         "contract_address": hash_to_felt(transaction.contract_address),
-        "entry_point_selector": hash_to_felt(transaction.entry_point_selector),
+        "entry_point_selector": hash_to_felt(
+            cast(int, transaction.entry_point_selector)
+        ),
         "calldata": [hash_to_felt(data) for data in transaction.calldata],
     }
     return invoke_properties
