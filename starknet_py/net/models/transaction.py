@@ -71,7 +71,7 @@ class AccountTransaction(Transaction, ABC):
     # The nonce of the transaction.
     # A sequential number attached to the account contract, that prevents transaction replay
     # and guarantees the order of execution and uniqueness of the transaction hash.
-    nonce: int = field(metadata={"marshmallow_field": NoneFelt()})
+    nonce: int = field(metadata={"marshmallow_field": Felt()})
 
 
 @dataclass(frozen=True)
@@ -176,6 +176,7 @@ class InvokeFunction(AccountTransaction):
     calldata: List[int] = field(
         metadata={"marshmallow_field": fields.List(fields.String())}
     )
+    nonce: Optional[int] = field(metadata={"marshmallow_field": NoneFelt()})
     # A field element that encodes the signature of the invoked function.
     # The entry_point_selector is deprecated for version 1 and above (transactions
     # should go through the '__execute__' entry point).

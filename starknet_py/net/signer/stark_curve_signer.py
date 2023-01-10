@@ -73,7 +73,7 @@ class StarkCurveSigner(BaseSigner):
             calldata=transaction.calldata,
             max_fee=transaction.max_fee,
             chain_id=self.chain_id.value,
-            additional_data=[transaction.nonce] if transaction.version == 1 else [],
+            additional_data=[cast(int, transaction.nonce)] if transaction.version == 1 else [],
         )
         # pylint: disable=invalid-name
         r, s = message_signature(msg_hash=tx_hash, priv_key=self.private_key)
