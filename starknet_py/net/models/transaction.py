@@ -29,6 +29,7 @@ class TransactionType(Enum):
     """
     Enum representing transaction types.
     """
+
     DECLARE = 0
     DEPLOY = auto()
     DEPLOY_ACCOUNT = auto()
@@ -43,6 +44,7 @@ class Transaction:
     """
     StarkNet transaction base class.
     """
+
     version: int = field(metadata={"marshmallow_field": Felt()})
 
     @classmethod
