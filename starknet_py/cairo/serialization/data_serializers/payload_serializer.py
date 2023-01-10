@@ -31,6 +31,9 @@ class PayloadSerializer(CairoDataSerializer[Dict, TupleDataclass]):
     Serializer for payloads like function arguments/function outputs/events.
     Can serialize a dictionary.
     Deserializes data to a TupleDataclass.
+
+    Example:
+    {"a": 1, "b": 2} => [1,2]
     """
 
     # Value present only in constructor.

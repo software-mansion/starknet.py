@@ -20,6 +20,9 @@ class StructSerializer(CairoDataSerializer[Dict, Dict]):
     Serializer of custom structures.
     Can serialize a dictionary.
     Deserializes data to a dictionary.
+
+    Example:
+    {"a": 1, "b": 2} => [1,2]
     """
 
     serializers: OrderedDict[str, CairoDataSerializer]

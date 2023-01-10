@@ -20,6 +20,9 @@ class TupleSerializer(CairoDataSerializer[Iterable, Tuple]):
     Serializer for tuples without named fields.
     Can serialize any iterable.
     Deserializes data to a python tuple.
+
+    Example:
+    (1,2,(3,4)) => [1,2,3,4]
     """
 
     serializers: List[CairoDataSerializer]
