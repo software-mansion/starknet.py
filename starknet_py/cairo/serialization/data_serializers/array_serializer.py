@@ -18,8 +18,12 @@ from starknet_py.cairo.serialization.data_serializers.cairo_data_serializer impo
 class ArraySerializer(CairoDataSerializer[Iterable, List]):
     """
     Serializer for arrays. In abi they are represented as a pointer to a type.
-    Can serialize any iterable.
+    Can serialize any iterable and prepends its length to resulting list.
     Deserializes data to a TupleDataclass.
+
+    Examples:
+    [1,2,3] => [3,1,2,3]
+    [] => [0]
     """
 
     inner_serializer: CairoDataSerializer

@@ -23,6 +23,9 @@ class NamedTupleSerializer(
     Serializer for tuples with named fields.
     Can serialize a dictionary, a named tuple and TupleDataclass.
     Deserializes data to a TupleDataclass.
+
+    Example:
+    {"a": 1, "b": 2} => [1,2]
     """
 
     serializers: OrderedDict[str, CairoDataSerializer]
