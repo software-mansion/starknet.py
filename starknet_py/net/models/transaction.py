@@ -47,9 +47,9 @@ class Transaction(ABC):
 
     version: int = field(metadata={"marshmallow_field": Felt()})
 
-    @classmethod
+    @property
     @abstractmethod
-    def tx_type(cls) -> TransactionType:
+    def tx_type(self) -> TransactionType:
         """
         Returns the corresponding TransactionType enum.
         """
@@ -87,8 +87,8 @@ class Declare(AccountTransaction):
     # The address of the account contract sending the declaration transaction.
     sender_address: int = field(metadata={"marshmallow_field": Felt()})
 
-    @classmethod
-    def tx_type(cls) -> TransactionType:
+    @property
+    def tx_type(self) -> TransactionType:
         return TransactionType.DECLARE
 
     @marshmallow.post_dump
@@ -132,8 +132,8 @@ class DeployAccount(AccountTransaction):
     )
     version: int = field(metadata={"marshmallow_field": Felt()})
 
-    @classmethod
-    def tx_type(cls) -> TransactionType:
+    @property
+    def tx_type(self) -> TransactionType:
         return TransactionType.DEPLOY_ACCOUNT
 
     @marshmallow.post_dump
@@ -182,8 +182,8 @@ class Invoke(AccountTransaction):
         default=None, metadata={"marshmallow_field": NoneFelt()}
     )
 
-    @classmethod
-    def tx_type(cls) -> TransactionType:
+    @property
+    def tx_type(self) -> TransactionType:
         return TransactionType.INVOKE
 
     @marshmallow.post_dump

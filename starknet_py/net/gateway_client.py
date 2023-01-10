@@ -1,5 +1,5 @@
 import typing
-from typing import Dict, List, Optional, Union, cast
+from typing import Dict, List, Optional, Union
 
 import aiohttp
 from marshmallow import EXCLUDE
@@ -33,9 +33,8 @@ from starknet_py.net.models.transaction import (
     DeployAccountSchema,
     Invoke,
     InvokeSchema,
+    TransactionType,
 )
-from starknet_py.net.models.transaction import Transaction as StarknetTransaction
-from starknet_py.net.models.transaction import TransactionType
 from starknet_py.net.networks import Network, net_address_from_net
 from starknet_py.net.schemas.gateway import (
     BlockStateUpdateSchema,
@@ -221,7 +220,7 @@ class GatewayClient(Client):
         )
         res = await self._feeder_gateway_client.post(
             method_name="estimate_fee_bulk",
-            payload=_get_payload(cast(List[StarknetTransaction], transactions)),
+            payload=_get_payload(transactions),
             params=block_identifier,
         )
 
@@ -307,7 +306,7 @@ class GatewayClient(Client):
 
     async def _add_transaction(
         self,
-        tx: StarknetTransaction,
+        tx: AccountTransaction,
         token: Optional[str] = None,
     ) -> dict:
         res = await self._gateway_client.post(
@@ -415,7 +414,7 @@ def get_block_identifier(
 
 
 def _get_payload(
-    tx: Union[StarknetTransaction, List[StarknetTransaction]]
+    tx: Union[AccountTransaction, List[AccountTransaction]]
 ) -> Union[List, Dict]:
     type_to_schema = {
         TransactionType.DECLARE: DeclareSchema(),
@@ -425,8 +424,8 @@ def _get_payload(
 
     if isinstance(tx, List):
         return [
-            type_to_schema[transaction.tx_type()].dump(obj=transaction)
+            type_to_schema[transaction.tx_type].dump(obj=transaction)
             for transaction in tx
         ]
 
-    return type_to_schema[tx.tx_type()].dump(obj=tx)
+    return type_to_schema[tx.tx_type].dump(obj=tx)
