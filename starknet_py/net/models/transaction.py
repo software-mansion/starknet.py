@@ -34,7 +34,7 @@ class TransactionType(Enum):
     DEPLOY = auto()
     DEPLOY_ACCOUNT = auto()
     INITIALIZE_BLOCK_INFO = auto()
-    INVOKE_FUNCTION = auto()
+    INVOKE = auto()
     L1_HANDLER = auto()
 
 
@@ -164,7 +164,7 @@ class DeployAccount(AccountTransaction):
 
 
 @dataclass(frozen=True)
-class InvokeFunction(AccountTransaction):
+class Invoke(AccountTransaction):
     """
     Represents a transaction in the StarkNet network that is an invocation of a Cairo contract
     function.
@@ -184,7 +184,7 @@ class InvokeFunction(AccountTransaction):
 
     @classmethod
     def tx_type(cls) -> TransactionType:
-        return TransactionType.INVOKE_FUNCTION
+        return TransactionType.INVOKE
 
     @marshmallow.post_dump
     def remove_entry_point_selector(
@@ -236,8 +236,7 @@ class InvokeFunction(AccountTransaction):
         )
 
 
-Invoke = InvokeFunction
-InvokeSchema = marshmallow_dataclass.class_schema(InvokeFunction)
+InvokeSchema = marshmallow_dataclass.class_schema(Invoke)
 DeclareSchema = marshmallow_dataclass.class_schema(Declare)
 DeployAccountSchema = marshmallow_dataclass.class_schema(DeployAccount)
 

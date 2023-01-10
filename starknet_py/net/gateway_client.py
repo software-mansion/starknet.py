@@ -419,7 +419,7 @@ def _get_payload(
     type_to_schema = {
         TransactionType.DECLARE: DeclareSchema(),
         TransactionType.DEPLOY_ACCOUNT: DeployAccountSchema(),
-        TransactionType.INVOKE_FUNCTION: InvokeSchema(),
+        TransactionType.INVOKE: InvokeSchema(),
     }
 
     if isinstance(tx, List):

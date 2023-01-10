@@ -411,7 +411,7 @@ def get_block_identifier(
 def _create_broadcasted_txn(transaction: Union[Invoke, Declare, DeployAccount]) -> dict:
     txn_map = {
         TransactionType.DECLARE: _create_broadcasted_declare_properties,
-        TransactionType.INVOKE_FUNCTION: _create_broadcasted_invoke_properties,
+        TransactionType.INVOKE: _create_broadcasted_invoke_properties,
         TransactionType.DEPLOY_ACCOUNT: _create_broadcasted_deploy_account_properties,
     }
 
@@ -476,7 +476,7 @@ def _create_broadcasted_deploy_account_properties(transaction: DeployAccount) ->
 def _create_broadcasted_txn_common_properties(transaction: AccountTransaction) -> dict:
     broadcasted_txn_common_properties = {
         "type": "INVOKE"
-        if transaction.tx_type() == TransactionType.INVOKE_FUNCTION
+        if transaction.tx_type() == TransactionType.INVOKE
         else transaction.tx_type().name,
         "max_fee": hash_to_felt(transaction.max_fee),
         "version": hash_to_felt(transaction.version),
