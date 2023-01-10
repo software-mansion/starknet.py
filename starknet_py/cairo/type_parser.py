@@ -106,7 +106,7 @@ class TypeParser:
 
         # This is an error of our logic, so we throw a RuntimeError.
         raise RuntimeError(
-            f"Received unknown type '{cairo_type}' from parser"
+            f"Received unknown type '{cairo_type}' from parser."
         )  # pragma: no cover
 
     def _get_struct(self, name: str):
