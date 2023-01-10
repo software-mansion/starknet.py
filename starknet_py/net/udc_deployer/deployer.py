@@ -38,6 +38,12 @@ class Deployer:
             Must be set when using custom network other than devnet.
         :param account_address: Should be equal to the address of the account which will send the transaction.
             If passed, it will be used to modify the salt, otherwise, salt will not be affected.
+
+        .. literalinclude:: ../starknet_py/tests/e2e/docs/code_examples/test_deployer.py
+            :language: python
+            :start-after: docs: init_start
+            :end-before: docs: init_end
+            :dedent: 4
         """
 
         self.deployer_address = parse_address(deployer_address)
@@ -60,6 +66,12 @@ class Deployer:
         :param abi: ABI of the contract to be deployed
         :param calldata: Constructor args of the contract to be deployed
         :return: NamedTuple with call and address of the contract to be deployed
+
+        .. literalinclude:: ../starknet_py/tests/e2e/docs/code_examples/test_deployer.py
+            :language: python
+            :start-after: docs: create_deployment_call_start
+            :end-before: docs: create_deployment_call_end
+            :dedent: 4
         """
         if not abi and calldata:
             raise ValueError("Argument calldata was provided without an ABI.")
