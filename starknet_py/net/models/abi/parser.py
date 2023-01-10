@@ -62,10 +62,10 @@ class AbiParser:
         l1_handlers = cast(List[FunctionDict], self._grouped[L1_HANDLER_ENTRY])
 
         if len(l1_handlers) > 1:
-            raise AbiParsingError("L1 handler in ABI must be defined at most once")
+            raise AbiParsingError("L1 handler in ABI must be defined at most once.")
 
         if len(constructors) > 1:
-            raise AbiParsingError("Constructor in ABI must be defined at most once")
+            raise AbiParsingError("Constructor in ABI must be defined at most once.")
 
         return Abi(
             defined_structures=structures,
@@ -87,7 +87,7 @@ class AbiParser:
         if self._type_parser:
             return self._type_parser
 
-        raise RuntimeError("Tried to get type_parser before it was set")
+        raise RuntimeError("Tried to get type_parser before it was set.")
 
     def _parse_structures(self) -> Dict[str, StructType]:
         structs_dict = AbiParser._group_by_entry_name(
@@ -167,7 +167,7 @@ class AbiParser:
             name = entry["name"]
             if name in grouped:
                 raise AbiParsingError(
-                    f"Name '{name}' was used more than once in {entity_name}"
+                    f"Name '{name}' was used more than once in {entity_name}."
                 )
             grouped[name] = entry
         return grouped
