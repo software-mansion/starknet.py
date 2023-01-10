@@ -9,7 +9,6 @@ import marshmallow_dataclass
 from marshmallow import fields
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.services.api.gateway.transaction_utils import (
-    compress_program,
     compress_program_post_dump,
     decompress_program,
 )
@@ -27,6 +26,9 @@ from starknet_py.utils.crypto.transaction_hash import (
 
 
 class TransactionType(Enum):
+    """
+    Enum representing transaction types.
+    """
     DECLARE = 0
     DEPLOY = auto()
     DEPLOY_ACCOUNT = auto()
@@ -38,6 +40,9 @@ class TransactionType(Enum):
 # pylint: disable=no-self-use, unused-argument
 @dataclass(frozen=True)
 class Transaction:
+    """
+    StarkNet transaction base class.
+    """
     version: int = field(metadata={"marshmallow_field": Felt()})
 
     @classmethod
@@ -62,15 +67,10 @@ class AccountTransaction(Transaction, ABC):
     account.
     """
 
-    # The maximal fee to be paid in Wei for executing the transaction.
     max_fee: int = field(metadata={"marshmallow_field": Felt()})
-    # The signature of the transaction.
     signature: List[int] = field(
         metadata={"marshmallow_field": fields.List(fields.String())}
     )
-    # The nonce of the transaction.
-    # A sequential number attached to the account contract, that prevents transaction replay
-    # and guarantees the order of execution and uniqueness of the transaction hash.
     nonce: int = field(metadata={"marshmallow_field": Felt()})
 
 
@@ -88,10 +88,6 @@ class Declare(AccountTransaction):
     @classmethod
     def tx_type(cls) -> TransactionType:
         return TransactionType.DECLARE
-
-    @staticmethod
-    def compress_program(program_json: dict):
-        return compress_program(program_json=program_json)
 
     @marshmallow.post_dump
     def compress_program_post_dump(
