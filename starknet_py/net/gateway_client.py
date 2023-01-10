@@ -26,6 +26,7 @@ from starknet_py.net.client_models import (
 from starknet_py.net.client_utils import hash_to_felt, is_block_identifier
 from starknet_py.net.http_client import GatewayHttpClient
 from starknet_py.net.models.transaction import (
+    AccountTransaction,
     Declare,
     DeclareSchema,
     DeployAccount,
@@ -194,7 +195,7 @@ class GatewayClient(Client):
 
     async def estimate_fee(
         self,
-        tx: Union[Invoke, Declare, DeployAccount],
+        tx: AccountTransaction,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
@@ -211,7 +212,7 @@ class GatewayClient(Client):
 
     async def estimate_fee_bulk(
         self,
-        transactions: List[Union[Invoke, Declare, DeployAccount]],
+        transactions: List[AccountTransaction],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> List[EstimatedFee]:

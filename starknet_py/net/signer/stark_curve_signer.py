@@ -4,14 +4,19 @@ from typing import Dict, List, Union, cast
 
 from starkware.crypto.signature.signature import private_to_stark_key
 
+from starknet_py.constants import DEFAULT_ENTRY_POINT_SELECTOR
 from starknet_py.net.models import (
     AddressRepresentation,
     StarknetChainId,
-    Transaction,
     compute_address,
     parse_address,
 )
-from starknet_py.net.models.transaction import Declare, DeployAccount, Invoke
+from starknet_py.net.models.transaction import (
+    AccountTransaction,
+    Declare,
+    DeployAccount,
+    Invoke,
+)
 from starknet_py.net.signer.base_signer import BaseSigner
 from starknet_py.utils.crypto.facade import message_signature
 from starknet_py.utils.crypto.transaction_hash import (
@@ -54,7 +59,7 @@ class StarkCurveSigner(BaseSigner):
 
     def sign_transaction(
         self,
-        transaction: Transaction,
+        transaction: AccountTransaction,
     ) -> List[int]:
         if isinstance(transaction, Declare):
             return self._sign_declare_transaction(transaction)
@@ -67,7 +72,7 @@ class StarkCurveSigner(BaseSigner):
             tx_hash_prefix=TransactionHashPrefix.INVOKE,
             version=transaction.version,
             contract_address=self.address,
-            entry_point_selector=0
+            entry_point_selector=DEFAULT_ENTRY_POINT_SELECTOR
             if transaction.version == 1
             else cast(int, transaction.entry_point_selector),
             calldata=transaction.calldata,

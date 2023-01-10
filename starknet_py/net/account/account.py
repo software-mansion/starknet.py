@@ -1,6 +1,6 @@
 import dataclasses
 import re
-from typing import Dict, Iterable, List, Optional, Tuple, TypeVar, Union, cast
+from typing import Dict, Iterable, List, Optional, Tuple, Union, cast
 
 from starkware.starknet.public.abi import get_selector_from_name
 
@@ -25,7 +25,12 @@ from starknet_py.net.models import (
     compute_address,
     parse_address,
 )
-from starknet_py.net.models.transaction import Declare, DeployAccount, Invoke
+from starknet_py.net.models.transaction import (
+    AccountTransaction,
+    Declare,
+    DeployAccount,
+    Invoke,
+)
 from starknet_py.net.models.typed_data import TypedData
 from starknet_py.net.networks import (
     MAINNET,
@@ -91,7 +96,7 @@ class Account(BaseAccount):
 
     async def _get_max_fee(
         self,
-        transaction: Union[Invoke, Declare, DeployAccount],
+        transaction: AccountTransaction,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> int:
@@ -141,7 +146,7 @@ class Account(BaseAccount):
 
         max_fee = await self._get_max_fee(transaction, max_fee, auto_estimate)
 
-        return _add_max_fee_to_transaction(transaction, max_fee)
+        return cast(Invoke, _add_max_fee_to_transaction(transaction, max_fee))
 
     async def _verify_message_hash(self, msg_hash: int, signature: List[int]) -> bool:
         """
@@ -168,7 +173,7 @@ class Account(BaseAccount):
 
     async def _estimate_fee(
         self,
-        tx: Union[Invoke, Declare, DeployAccount],
+        tx: AccountTransaction,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
@@ -179,7 +184,7 @@ class Account(BaseAccount):
         :return: Estimated fee.
         """
         signature = self.signer.sign_transaction(tx)
-        tx = _add_signature_to_transaction(cast(SignableTransaction, tx), signature)
+        tx = _add_signature_to_transaction(tx, signature)
 
         return await self._client.estimate_fee(
             tx=tx,
@@ -224,7 +229,7 @@ class Account(BaseAccount):
     ) -> Invoke:
         execute_tx = await self._prepare_invoke_function(calls, max_fee, auto_estimate)
         signature = self.signer.sign_transaction(execute_tx)
-        return _add_signature_to_transaction(execute_tx, signature)
+        return cast(Invoke, _add_signature_to_transaction(execute_tx, signature))
 
     async def sign_declare_transaction(
         self,
@@ -250,7 +255,7 @@ class Account(BaseAccount):
         )
         declare_tx = _add_max_fee_to_transaction(declare_tx, max_fee)
         signature = self.signer.sign_transaction(declare_tx)
-        return _add_signature_to_transaction(declare_tx, signature)
+        return cast(Declare, _add_signature_to_transaction(declare_tx, signature))
 
     async def sign_deploy_account_transaction(
         self,
@@ -278,7 +283,9 @@ class Account(BaseAccount):
         )
         deploy_account_tx = _add_max_fee_to_transaction(deploy_account_tx, max_fee)
         signature = self.signer.sign_transaction(deploy_account_tx)
-        return _add_signature_to_transaction(deploy_account_tx, signature)
+        return cast(
+            DeployAccount, _add_signature_to_transaction(deploy_account_tx, signature)
+        )
 
     async def execute(
         self,
@@ -380,18 +387,15 @@ class Account(BaseAccount):
         )
 
 
-SignableTransaction = TypeVar("SignableTransaction", Invoke, Declare, DeployAccount)
-
-
 def _add_signature_to_transaction(
-    tx: SignableTransaction, signature: List[int]
-) -> SignableTransaction:
+    tx: AccountTransaction, signature: List[int]
+) -> AccountTransaction:
     return dataclasses.replace(tx, signature=signature)
 
 
 def _add_max_fee_to_transaction(
-    tx: SignableTransaction, max_fee: int
-) -> SignableTransaction:
+    tx: AccountTransaction, max_fee: int
+) -> AccountTransaction:
     return dataclasses.replace(tx, max_fee=max_fee)
 
 

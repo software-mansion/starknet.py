@@ -40,7 +40,7 @@ class TransactionType(Enum):
 
 # pylint: disable=no-self-use, unused-argument
 @dataclass(frozen=True)
-class Transaction:
+class Transaction(ABC):
     """
     StarkNet transaction base class.
     """
@@ -58,12 +58,12 @@ class Transaction:
     def calculate_hash(self, chain_id: StarknetChainId) -> int:
         """
         Calculates the transaction hash in the StarkNet network - a unique identifier of the
-        transaction. See compute_transaction_hash() docstring for more details.
+        transaction. See :ref:`compute_transaction_hash` docstring for more details.
         """
 
 
 @dataclass(frozen=True)
-class AccountTransaction(Transaction, ABC):
+class AccountTransaction(Transaction):
     """
     Represents a transaction in the StarkNet network that is originated from an action of an
     account.

@@ -156,7 +156,7 @@ class FullNodeClient(Client):
 
     async def estimate_fee(
         self,
-        tx: Union[Invoke, Declare, DeployAccount],
+        tx: AccountTransaction,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
@@ -408,7 +408,7 @@ def get_block_identifier(
     return {"block_id": "pending"}
 
 
-def _create_broadcasted_txn(transaction: Union[Invoke, Declare, DeployAccount]) -> dict:
+def _create_broadcasted_txn(transaction: AccountTransaction) -> dict:
     txn_map = {
         TransactionType.DECLARE: _create_broadcasted_declare_properties,
         TransactionType.INVOKE: _create_broadcasted_invoke_properties,

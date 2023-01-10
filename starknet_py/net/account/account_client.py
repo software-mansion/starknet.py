@@ -30,7 +30,12 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.models import StarknetChainId, chain_from_network
 from starknet_py.net.models.address import AddressRepresentation, parse_address
-from starknet_py.net.models.transaction import Declare, DeployAccount, Invoke
+from starknet_py.net.models.transaction import (
+    AccountTransaction,
+    Declare,
+    DeployAccount,
+    Invoke,
+)
 from starknet_py.net.models.typed_data import TypedData
 from starknet_py.net.networks import MAINNET, TESTNET, TESTNET2, Network
 from starknet_py.net.signer import BaseSigner
@@ -300,7 +305,7 @@ class AccountClient(Client):
 
     async def _get_max_fee(
         self,
-        transaction: Union[Invoke, Declare, DeployAccount],
+        transaction: AccountTransaction,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> int:
@@ -491,7 +496,7 @@ class AccountClient(Client):
 
     async def estimate_fee(
         self,
-        tx: Union[Invoke, Declare, DeployAccount],
+        tx: AccountTransaction,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
@@ -588,8 +593,8 @@ class AccountClient(Client):
 
 
 def add_signature_to_transaction(
-    tx: Union[Invoke, Declare, DeployAccount], signature: List[int]
-) -> Union[Invoke, Declare, DeployAccount]:
+    tx: AccountTransaction, signature: List[int]
+) -> AccountTransaction:
     return replace(tx, signature=signature)
 
 
