@@ -1,3 +1,4 @@
+import warnings
 from typing import List
 
 from starkware.cairo.lang.compiler.ast.cairo_types import (
@@ -12,12 +13,20 @@ CairoData = List[int]
 
 
 def is_felt_pointer(cairo_type: CairoType) -> bool:
+    warnings.warn(
+        "Function is_felt_pointer is deprecated. Use starknet_py.cairo.type_parser module instead.",
+        category=DeprecationWarning,
+    )
     return isinstance(cairo_type, TypePointer) and isinstance(
         cairo_type.pointee, TypeFelt
     )
 
 
 def is_uint256(definition: StructDefinition) -> bool:
+    warnings.warn(
+        "Function is_uint256 is deprecated. Use starknet_py.cairo.type_parser module instead.",
+        category=DeprecationWarning,
+    )
     (struct_name, *_) = definition.full_name.path
 
     return (
