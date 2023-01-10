@@ -244,7 +244,7 @@ class AccountClient(Client):
         version: Optional[int] = None,
     ) -> Invoke:
         """
-        Takes calls and creates InvokeFunction from them
+        Takes calls and creates Invoke from them
 
         :param calls: Single call or list of calls
         :param max_fee: Max amount of Wei to be paid when executing transaction
