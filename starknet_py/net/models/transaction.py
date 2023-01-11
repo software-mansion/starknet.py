@@ -92,7 +92,6 @@ class Declare(AccountTransaction):
     def compress_program_post_dump(
         self, data: Dict[str, Any], many: bool, **kwargs
     ) -> Dict[str, Any]:
-        # data["type"] = "DECLARE"
         return compress_program_post_dump(data=data, many=many)
 
     @marshmallow.pre_load
