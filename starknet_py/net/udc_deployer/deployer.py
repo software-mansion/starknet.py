@@ -98,6 +98,12 @@ class Deployer:
         :param salt: The salt for a contract to be deployed. Random value is selected if it is not provided
         :param raw_calldata: Plain Cairo constructor args of the contract to be deployed
         :return: NamedTuple with call and address of the contract to be deployed
+
+        .. literalinclude:: ../starknet_py/tests/e2e/docs/code_examples/test_deployer.py
+            :language: python
+            :start-after: docs: create_deployment_call_raw_start
+            :end-before: docs: create_deployment_call_raw_end
+            :dedent: 4
         """
         salt = cast(int, salt or ContractAddressSalt.get_random_value())
         class_hash = int_from_hex(class_hash)
