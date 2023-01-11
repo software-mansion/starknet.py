@@ -49,7 +49,7 @@ class Transaction(ABC):
 
     @property
     @abstractmethod
-    def tx_type(self) -> TransactionType:
+    def type(self) -> TransactionType:
         """
         Returns the corresponding TransactionType enum.
         """
@@ -86,16 +86,13 @@ class Declare(AccountTransaction):
     contract_class: ContractClass
     # The address of the account contract sending the declaration transaction.
     sender_address: int = field(metadata={"marshmallow_field": Felt()})
-
-    @property
-    def tx_type(self) -> TransactionType:
-        return TransactionType.DECLARE
+    type: TransactionType = TransactionType.DECLARE
 
     @marshmallow.post_dump
     def compress_program_post_dump(
         self, data: Dict[str, Any], many: bool, **kwargs
     ) -> Dict[str, Any]:
-        data["type"] = "DECLARE"
+        # data["type"] = "DECLARE"
         return compress_program_post_dump(data=data, many=many)
 
     @marshmallow.pre_load
@@ -132,14 +129,7 @@ class DeployAccount(AccountTransaction):
     )
     version: int = field(metadata={"marshmallow_field": Felt()})
 
-    @property
-    def tx_type(self) -> TransactionType:
-        return TransactionType.DEPLOY_ACCOUNT
-
-    @marshmallow.post_dump
-    def post_dump(self, data: Dict[str, Any], many: bool, **kwargs) -> Dict[str, Any]:
-        data["type"] = "DEPLOY_ACCOUNT"
-        return data
+    type: TransactionType = TransactionType.DEPLOY_ACCOUNT
 
     def calculate_hash(self, chain_id: StarknetChainId) -> int:
         """
@@ -182,9 +172,7 @@ class Invoke(AccountTransaction):
         default=None, metadata={"marshmallow_field": NoneFelt()}
     )
 
-    @property
-    def tx_type(self) -> TransactionType:
-        return TransactionType.INVOKE
+    type: TransactionType = TransactionType.INVOKE
 
     @marshmallow.post_dump
     def remove_entry_point_selector(
