@@ -36,6 +36,10 @@ class Felt(fields.Field):
 
 
 class NoneFelt(Felt):
+    """
+    Class used to serialize v0 Invoke transaction. Could be removed when StarkNet 0.11.0 arrives.
+    """
+
     def _serialize(self, value: Any, attr: str, obj: Any, **kwargs):
         if value is None:
             return None
