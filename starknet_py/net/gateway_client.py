@@ -22,6 +22,7 @@ from starknet_py.net.client_models import (
     Transaction,
     TransactionReceipt,
     TransactionStatusResponse,
+    TransactionType,
 )
 from starknet_py.net.client_utils import hash_to_felt, is_block_identifier
 from starknet_py.net.http_client import GatewayHttpClient
@@ -33,7 +34,6 @@ from starknet_py.net.models.transaction import (
     DeployAccountSchema,
     Invoke,
     InvokeSchema,
-    TransactionType,
 )
 from starknet_py.net.networks import Network, net_address_from_net
 from starknet_py.net.schemas.gateway import (

@@ -112,9 +112,6 @@ class TransactionTypeField(fields.Field):
     ) -> TransactionType:
         values = [v.value for v in TransactionType]
 
-        if value == "INVOKE_FUNCTION":
-            value = "INVOKE"
-
         if value not in values:
             raise ValidationError(
                 f"Invalid value provided for TransactionType: {value}."
