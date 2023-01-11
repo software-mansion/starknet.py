@@ -174,7 +174,7 @@ class Invoke(AccountTransaction):
     type: TransactionType = TransactionType.INVOKE
 
     @marshmallow.post_dump
-    def remove_entry_point_selector(
+    def _remove_entry_point_selector(
         self, data: Dict[str, Any], many: bool, **kwargs
     ) -> Dict[str, Any]:
         data["type"] = "INVOKE_FUNCTION"
