@@ -8,6 +8,7 @@ from starkware.starknet.public.abi import get_selector_from_name
 from starknet_py.common import int_from_hex
 from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
 from starknet_py.net.client_models import Call, Hash
+from starknet_py.net.gateway_client import add_code_examples
 from starknet_py.net.models import AddressRepresentation, compute_address, parse_address
 from starknet_py.utils.contructor_args_translator import translate_constructor_args
 from starknet_py.utils.crypto.facade import pedersen_hash
@@ -21,6 +22,7 @@ ContractDeployment = NamedTuple("ContractDeployment", [("udc", Call), ("address"
 
 
 @add_sync_methods
+@add_code_examples
 class Deployer:
     """
     Deployer used to deploy contracts through Universal Deployer Contract (UDC)
@@ -38,12 +40,6 @@ class Deployer:
             Must be set when using custom network other than devnet.
         :param account_address: Should be equal to the address of the account which will send the transaction.
             If passed, it will be used to modify the salt, otherwise, salt will not be affected.
-
-        .. literalinclude:: ../starknet_py/tests/e2e/docs/code_examples/test_deployer.py
-            :language: python
-            :start-after: docs: init_start
-            :end-before: docs: init_end
-            :dedent: 4
         """
 
         self.deployer_address = parse_address(deployer_address)
@@ -66,12 +62,6 @@ class Deployer:
         :param abi: ABI of the contract to be deployed
         :param calldata: Constructor args of the contract to be deployed
         :return: NamedTuple with call and address of the contract to be deployed
-
-        .. literalinclude:: ../starknet_py/tests/e2e/docs/code_examples/test_deployer.py
-            :language: python
-            :start-after: docs: create_deployment_call_start
-            :end-before: docs: create_deployment_call_end
-            :dedent: 4
         """
         if not abi and calldata:
             raise ValueError("Argument calldata was provided without an ABI.")
@@ -98,12 +88,6 @@ class Deployer:
         :param salt: The salt for a contract to be deployed. Random value is selected if it is not provided
         :param raw_calldata: Plain Cairo constructor args of the contract to be deployed
         :return: NamedTuple with call and address of the contract to be deployed
-
-        .. literalinclude:: ../starknet_py/tests/e2e/docs/code_examples/test_deployer.py
-            :language: python
-            :start-after: docs: create_deployment_call_raw_start
-            :end-before: docs: create_deployment_call_raw_end
-            :dedent: 4
         """
         salt = cast(int, salt or ContractAddressSalt.get_random_value())
         class_hash = int_from_hex(class_hash)

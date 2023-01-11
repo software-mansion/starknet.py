@@ -47,9 +47,34 @@ from starknet_py.net.schemas.gateway import (
 )
 from starknet_py.transaction_exceptions import TransactionNotReceivedError
 from starknet_py.utils.sync import add_sync_methods
+from starknet_py.utils.sync.sync import T
+
+
+def add_code_examples(original_class) -> T:
+    base_class = original_class.__base__  # pyright: ignore
+    for method_name, method in original_class.__dict__.items():
+        docstring = f"""
+        .. literalinclude:: ../starknet_py/tests/e2e/docs/code_examples/test_{original_class.__name__}.py
+            :language: python
+            :start-after: docs: {method_name.strip("_")}_start
+            :end-before: docs: {method_name.strip("_")}_end
+            :dedent: 4
+        """
+
+        if (
+            callable(method)
+            and method.__doc__ is None
+            and method_name in base_class.__dict__
+        ):
+            method.__doc__ = getattr(base_class, method_name).__doc__ + docstring
+        elif callable(method):
+            method.__doc__ = (method.__doc__ or "") + docstring
+
+    return original_class
 
 
 @add_sync_methods
+@add_code_examples
 class GatewayClient(Client):
     def __init__(
         self,
@@ -62,7 +87,7 @@ class GatewayClient(Client):
         :param net: Target network for the client. Can be a string with URL, one of ``"mainnet"``, ``"testnet"``
                     or dict with ``"feeder_gateway_url"`` and ``"gateway_url"`` fields
         :param session: Aiohttp session to be used for request. If not provided, client will create a session for
-                        every request. When using a custom session, user is resposible for closing it manually.
+                        every request. When using a custom session, user is responsible for closing it manually.
         """
         if isinstance(net, str):
             host = net_address_from_net(net)
