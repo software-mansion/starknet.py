@@ -116,7 +116,7 @@ class Account(BaseAccount):
 
         return max_fee
 
-    async def _prepare_invoke_function(
+    async def _prepare_invoke(
         self,
         calls: Calls,
         max_fee: Optional[int] = None,
@@ -227,7 +227,7 @@ class Account(BaseAccount):
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> Invoke:
-        execute_tx = await self._prepare_invoke_function(calls, max_fee, auto_estimate)
+        execute_tx = await self._prepare_invoke(calls, max_fee, auto_estimate)
         signature = self.signer.sign_transaction(execute_tx)
         return cast(Invoke, _add_signature_to_transaction(execute_tx, signature))
 
