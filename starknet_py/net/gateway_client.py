@@ -414,7 +414,7 @@ def get_block_identifier(
 
 
 def _get_payload(
-    tx: Union[AccountTransaction, List[AccountTransaction]]
+    txs: Union[AccountTransaction, List[AccountTransaction]]
 ) -> Union[List, Dict]:
     type_to_schema = {
         TransactionType.DECLARE: DeclareSchema(),
@@ -422,9 +422,7 @@ def _get_payload(
         TransactionType.INVOKE: InvokeSchema(),
     }
 
-    if isinstance(tx, List):
-        return [
-            type_to_schema[transaction.type].dump(obj=transaction) for transaction in tx
-        ]
+    if isinstance(txs, AccountTransaction):
+        return type_to_schema[txs.type].dump(obj=txs)
 
-    return type_to_schema[tx.type].dump(obj=tx)
+    return [type_to_schema[tx.type].dump(obj=tx) for tx in txs]

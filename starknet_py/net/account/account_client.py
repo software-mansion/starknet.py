@@ -255,7 +255,7 @@ class AccountClient(Client):
         :param max_fee: Max amount of Wei to be paid when executing transaction
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
         :param version: Transaction version is supported_tx_version as a default
-        :return: InvokeFunction created from the calls (without the signature)
+        :return: Invoke created from the calls (without the signature)
 
         .. deprecated:: 0.5.0
             This method has been deprecated. Use :meth:`AccountClient.sign_invoke_transaction` to create an already
