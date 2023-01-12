@@ -65,12 +65,12 @@ class BaseAccount(ABC):
         auto_estimate: bool = False,
     ) -> Invoke:
         """
-        Takes calls and creates signed InvokeFunction.
+        Takes calls and creates signed Invoke.
 
         :param calls: Single call or list of calls.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
-        :return: InvokeFunction created from the calls.
+        :return: Invoke created from the calls.
         """
 
     @abstractmethod
