@@ -1,8 +1,12 @@
+import re
 import warnings
 from enum import Enum
-from typing import List, Tuple, TypedDict
+from typing import AsyncGenerator, List, Tuple, TypedDict
 
-from starknet_py.constants import RPC_CLASS_HASH_NOT_FOUND_ERROR
+from starknet_py.constants import (
+    RPC_CLASS_HASH_NOT_FOUND_ERROR,
+    RPC_INVALID_MESSAGE_SELECTOR_ERROR,
+)
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError, ContractNotFoundError
 from starknet_py.net.client_models import Abi, DeclaredContract
@@ -97,34 +101,53 @@ class ContractAbiResolver:
         :raises ProxyResolutionError: when given ProxyChecks were not sufficient to resolve proxy
         :raises AbiNotFoundError: when abi is not present in proxied contract class at address
         """
-        impl = await self._get_implementation_from_proxy()
-        implementation, implementation_type = impl
+        implementation_generator = self._get_implementation_from_proxy()
+        async for implementation, implementation_type in implementation_generator:
+            try:
+                if implementation_type == ImplementationType.CLASS_HASH:
+                    contract_class = await self.client.get_class_by_hash(implementation)
+                else:
+                    contract_class = await self._get_class_by_address(
+                        address=implementation
+                    )
 
-        if implementation_type == ImplementationType.CLASS_HASH:
-            contract_class = await self.client.get_class_by_hash(implementation)
-        else:
-            contract_class = await self._get_class_by_address(address=implementation)
-
-        if contract_class.abi is None:
-            raise AbiNotFoundError()
-        return contract_class.abi
-
-    async def _get_implementation_from_proxy(self) -> Tuple[int, ImplementationType]:
-        proxy_checks = self.proxy_config.get("proxy_checks", [])
-        for proxy_check in proxy_checks:
-            implementation = await proxy_check.implementation_hash(
-                address=self.address, client=self.client
-            )
-            if implementation is not None:
-                return implementation, ImplementationType.CLASS_HASH
-
-            implementation = await proxy_check.implementation_address(
-                address=self.address, client=self.client
-            )
-            if implementation is not None:
-                return implementation, ImplementationType.ADDRESS
+                if contract_class.abi is None:
+                    raise AbiNotFoundError()
+                return contract_class.abi
+            except ClientError as err:
+                if not (
+                    "is not declared" in err.message
+                    or err.code == RPC_CLASS_HASH_NOT_FOUND_ERROR
+                    or isinstance(err, ContractNotFoundError)
+                ):
+                    raise err
 
         raise ProxyResolutionError()
+
+    async def _get_implementation_from_proxy(
+        self,
+    ) -> AsyncGenerator[Tuple[int, ImplementationType], None]:
+        proxy_checks = self.proxy_config.get("proxy_checks", [])
+        for proxy_check in proxy_checks:
+            try:
+                implementation = await proxy_check.implementation_hash(
+                    address=self.address, client=self.client
+                )
+                if implementation is not None:
+                    yield implementation, ImplementationType.CLASS_HASH
+
+                implementation = await proxy_check.implementation_address(
+                    address=self.address, client=self.client
+                )
+                if implementation is not None:
+                    yield implementation, ImplementationType.ADDRESS
+            except ClientError as err:
+                err_msg = r"Entry point 0x[0-9a-f]+ not found in contract"
+                if not (
+                    re.search(err_msg, err.message, re.IGNORECASE)
+                    or err.code == RPC_INVALID_MESSAGE_SELECTOR_ERROR
+                ):
+                    raise err
 
     async def _get_class_by_address(self, address: Address) -> DeclaredContract:
         try:
