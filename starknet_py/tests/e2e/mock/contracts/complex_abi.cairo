@@ -35,7 +35,6 @@ func PersonHired(
 ) {
 }
 
-// Increases the balance by the given amount.
 @external
 func hire{
     syscall_ptr: felt*,
