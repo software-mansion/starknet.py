@@ -951,7 +951,7 @@ tests = ["pytest", "pytz", "simplejson"]
 
 [[package]]
 name = "marshmallow-dataclass"
-version = "8.5.10"
+version = "8.5.4"
 description = "Python library to convert dataclasses into marshmallow schemas."
 category = "main"
 optional = false
@@ -2060,7 +2060,7 @@ eth-tester = []
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8, <3.10"
-content-hash = "5fe199a656099b24c3ba0935f25a99040b8acec685a66249f65bc283a47bf0d9"
+content-hash = "f0083b7e42d0fe0985c1bb11d4621e59404d3a9c18e8369dccc2bb190c5e42bc"
 
 [metadata.files]
 aiohttp = [
@@ -2796,8 +2796,8 @@ marshmallow = [
     {file = "marshmallow-3.17.1.tar.gz", hash = "sha256:48e2d88d4ab431ad5a17c25556d9da529ea6e966876f2a38d274082e270287f0"},
 ]
 marshmallow-dataclass = [
-    {file = "marshmallow_dataclass-8.5.10-py3-none-any.whl", hash = "sha256:2a645ce0bec1bb7b24a00f08aaad7d56e3cde8c4b3cdef5f908afbd29b8ff5f7"},
-    {file = "marshmallow_dataclass-8.5.10.tar.gz", hash = "sha256:a7ab243fcb12cf2fe07dce852a0e8d91bfcb02e2447e629eb8752554dd20f106"},
+    {file = "marshmallow_dataclass-8.5.4-py3-none-any.whl", hash = "sha256:0d9bfc0feb45d5ee587f0603e9cbc8ae6ec7b4bb94376dc34075dcc05f61bea7"},
+    {file = "marshmallow_dataclass-8.5.4.tar.gz", hash = "sha256:665d83756a313f5cb40a5927ef0b29c906df21174089a1865a16fe5a94e51566"},
 ]
 marshmallow-enum = [
     {file = "marshmallow-enum-1.5.1.tar.gz", hash = "sha256:38e697e11f45a8e64b4a1e664000897c659b60aa57bfa18d44e226a9920b6e58"},
