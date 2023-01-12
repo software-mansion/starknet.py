@@ -1,5 +1,4 @@
-import typing
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, cast
 
 import aiohttp
 from marshmallow import EXCLUDE
@@ -167,7 +166,7 @@ class GatewayClient(Client):
                 **block_identifier,
             },
         )
-        res = typing.cast(str, res)
+        res = cast(str, res)
         return int(res, 16)
 
     async def get_transaction(
@@ -292,7 +291,7 @@ class GatewayClient(Client):
                 **block_identifier,
             },
         )
-        res = typing.cast(str, res)
+        res = cast(str, res)
         return int(res, 16)
 
     async def get_class_by_hash(self, class_hash: Hash) -> DeclaredContract:
@@ -389,7 +388,7 @@ class GatewayClient(Client):
         nonce = await self._feeder_gateway_client.call(
             method_name="get_nonce", params=params
         )
-        nonce = typing.cast(str, nonce)
+        nonce = cast(str, nonce)
         return int(nonce, 16)
 
 
