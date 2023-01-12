@@ -951,22 +951,22 @@ tests = ["pytest", "pytz", "simplejson"]
 
 [[package]]
 name = "marshmallow-dataclass"
-version = "8.5.10"
+version = "8.4.2"
 description = "Python library to convert dataclasses into marshmallow schemas."
 category = "main"
 optional = false
 python-versions = ">=3.6"
 
 [package.dependencies]
-marshmallow = ">=3.13.0,<4.0"
+marshmallow = ">=3.0.0,<4.0"
 typing-inspect = ">=0.7.1"
 
 [package.extras]
-dev = ["marshmallow-enum", "pre-commit (>=2.17,<3.0)", "pytest (>=5.4)", "pytest-mypy-plugins (>=1.2.0)", "sphinx", "typeguard", "typing-extensions (>=3.7.2)"]
+dev = ["marshmallow-enum", "pre-commit (>=1.18,<2.0)", "pytest (>=5.4)", "pytest-mypy-plugins (>=1.2.0)", "sphinx", "typeguard", "typing-extensions (>=3.7.2,<3.8.0)"]
 docs = ["sphinx"]
 enum = ["marshmallow-enum"]
-lint = ["pre-commit (>=2.17,<3.0)"]
-tests = ["pytest (>=5.4)", "pytest-mypy-plugins (>=1.2.0)", "typing-extensions (>=3.7.2)"]
+lint = ["pre-commit (>=1.18,<2.0)"]
+tests = ["pytest (>=5.4)", "pytest-mypy-plugins (>=1.2.0)", "typing-extensions (>=3.7.2,<3.8.0)"]
 union = ["typeguard"]
 
 [[package]]
@@ -2060,7 +2060,7 @@ eth-tester = []
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8, <3.10"
-content-hash = "5fe199a656099b24c3ba0935f25a99040b8acec685a66249f65bc283a47bf0d9"
+content-hash = "e27a7809dfd48543fbd4d58352e240ccaff76064304ee5795120c72fd76c7dfe"
 
 [metadata.files]
 aiohttp = [
@@ -2796,8 +2796,8 @@ marshmallow = [
     {file = "marshmallow-3.17.1.tar.gz", hash = "sha256:48e2d88d4ab431ad5a17c25556d9da529ea6e966876f2a38d274082e270287f0"},
 ]
 marshmallow-dataclass = [
-    {file = "marshmallow_dataclass-8.5.10-py3-none-any.whl", hash = "sha256:2a645ce0bec1bb7b24a00f08aaad7d56e3cde8c4b3cdef5f908afbd29b8ff5f7"},
-    {file = "marshmallow_dataclass-8.5.10.tar.gz", hash = "sha256:a7ab243fcb12cf2fe07dce852a0e8d91bfcb02e2447e629eb8752554dd20f106"},
+    {file = "marshmallow_dataclass-8.4.2-py3-none-any.whl", hash = "sha256:f3b39bfb9da25f46f12f118b067f9eebc754472d76259b525e561e429337530f"},
+    {file = "marshmallow_dataclass-8.4.2.tar.gz", hash = "sha256:2948a0e1ffbec5ecc41242ec194216be99264cbb23ee117c90b97bfbbe7d0566"},
 ]
 marshmallow-enum = [
     {file = "marshmallow-enum-1.5.1.tar.gz", hash = "sha256:38e697e11f45a8e64b4a1e664000897c659b60aa57bfa18d44e226a9920b6e58"},
