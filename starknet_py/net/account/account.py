@@ -1,6 +1,6 @@
 import dataclasses
 import re
-from typing import Dict, Iterable, List, Optional, Tuple, Union, cast
+from typing import Dict, Iterable, List, Optional, Tuple, Union
 
 from starkware.starknet.public.abi import get_selector_from_name
 
@@ -30,6 +30,7 @@ from starknet_py.net.models.transaction import (
     Declare,
     DeployAccount,
     Invoke,
+    TypeAccountTransaction,
 )
 from starknet_py.net.models.typed_data import TypedData
 from starknet_py.net.networks import (
@@ -146,7 +147,7 @@ class Account(BaseAccount):
 
         max_fee = await self._get_max_fee(transaction, max_fee, auto_estimate)
 
-        return cast(Invoke, _add_max_fee_to_transaction(transaction, max_fee))
+        return _add_max_fee_to_transaction(transaction, max_fee)
 
     async def _verify_message_hash(self, msg_hash: int, signature: List[int]) -> bool:
         """
@@ -229,7 +230,7 @@ class Account(BaseAccount):
     ) -> Invoke:
         execute_tx = await self._prepare_invoke(calls, max_fee, auto_estimate)
         signature = self.signer.sign_transaction(execute_tx)
-        return cast(Invoke, _add_signature_to_transaction(execute_tx, signature))
+        return _add_signature_to_transaction(execute_tx, signature)
 
     async def sign_declare_transaction(
         self,
@@ -255,7 +256,7 @@ class Account(BaseAccount):
         )
         declare_tx = _add_max_fee_to_transaction(declare_tx, max_fee)
         signature = self.signer.sign_transaction(declare_tx)
-        return cast(Declare, _add_signature_to_transaction(declare_tx, signature))
+        return _add_signature_to_transaction(declare_tx, signature)
 
     async def sign_deploy_account_transaction(
         self,
@@ -283,9 +284,7 @@ class Account(BaseAccount):
         )
         deploy_account_tx = _add_max_fee_to_transaction(deploy_account_tx, max_fee)
         signature = self.signer.sign_transaction(deploy_account_tx)
-        return cast(
-            DeployAccount, _add_signature_to_transaction(deploy_account_tx, signature)
-        )
+        return _add_signature_to_transaction(deploy_account_tx, signature)
 
     async def execute(
         self,
@@ -388,14 +387,14 @@ class Account(BaseAccount):
 
 
 def _add_signature_to_transaction(
-    tx: AccountTransaction, signature: List[int]
-) -> AccountTransaction:
+    tx: TypeAccountTransaction, signature: List[int]
+) -> TypeAccountTransaction:
     return dataclasses.replace(tx, signature=signature)
 
 
 def _add_max_fee_to_transaction(
-    tx: AccountTransaction, max_fee: int
-) -> AccountTransaction:
+    tx: TypeAccountTransaction, max_fee: int
+) -> TypeAccountTransaction:
     return dataclasses.replace(tx, max_fee=max_fee)
 
 

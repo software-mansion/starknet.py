@@ -2,7 +2,7 @@ import dataclasses
 import re
 import warnings
 from dataclasses import replace
-from typing import Dict, Iterable, List, Optional, Tuple, Union, cast
+from typing import Dict, Iterable, List, Optional, Tuple, Union
 
 from starknet_py.cairo.selector import get_selector_from_name
 from starknet_py.common import create_compiled_contract
@@ -35,6 +35,7 @@ from starknet_py.net.models.transaction import (
     Declare,
     DeployAccount,
     Invoke,
+    TypeAccountTransaction,
 )
 from starknet_py.net.models.typed_data import TypedData
 from starknet_py.net.networks import MAINNET, TESTNET, TESTNET2, Network
@@ -359,7 +360,7 @@ class AccountClient(Client):
             )
 
         signature = self.signer.sign_transaction(execute_tx)
-        execute_tx = cast(Invoke, add_signature_to_transaction(execute_tx, signature))
+        execute_tx = add_signature_to_transaction(execute_tx, signature)
 
         return execute_tx
 
@@ -593,8 +594,8 @@ class AccountClient(Client):
 
 
 def add_signature_to_transaction(
-    tx: AccountTransaction, signature: List[int]
-) -> AccountTransaction:
+    tx: TypeAccountTransaction, signature: List[int]
+) -> TypeAccountTransaction:
     return replace(tx, signature=signature)
 
 

@@ -1,7 +1,7 @@
 import warnings
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Sequence, Union
+from typing import Any, Dict, List, Optional, Sequence, TypeVar, Union
 
 import marshmallow
 import marshmallow_dataclass
@@ -61,6 +61,10 @@ class AccountTransaction(Transaction):
         metadata={"marshmallow_field": fields.List(fields.String())}
     )
     nonce: int = field(metadata={"marshmallow_field": Felt()})
+
+
+# Used in the Account instead of Union[Invoke, Declare, DeployAccount]
+TypeAccountTransaction = TypeVar("TypeAccountTransaction", bound=AccountTransaction)
 
 
 @dataclass(frozen=True)
