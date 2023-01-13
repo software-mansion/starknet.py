@@ -73,11 +73,8 @@ def _compute_hinted_class_hash(contract_class: DeclaredContract) -> int:
             "Calculating it's class_hash is not supported."
         )
 
-    # ContractClass stores keys of `hints` field as integers, resulting in different sorting order
-    program["hints"] = {int(key): val for key, val in program["hints"].items()}
-
-    class_ = dict(program=program, abi=contract_class.abi)
-    serialized_contract_class = json.dumps(obj=class_, sort_keys=True)
+    class_ = dict(abi=contract_class.abi, program=program)
+    serialized_contract_class = json.dumps(obj=class_)
     return _starknet_keccak(data=serialized_contract_class.encode())
 
 
