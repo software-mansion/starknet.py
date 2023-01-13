@@ -5,6 +5,7 @@ from typing import AsyncGenerator, List, Tuple, TypedDict
 
 from starknet_py.constants import (
     RPC_CLASS_HASH_NOT_FOUND_ERROR,
+    RPC_CONTRACT_NOT_FOUND_ERROR,
     RPC_INVALID_MESSAGE_SELECTOR_ERROR,
 )
 from starknet_py.net.client import Client
@@ -142,10 +143,15 @@ class ContractAbiResolver:
                 if implementation is not None:
                     yield implementation, ImplementationType.ADDRESS
             except ClientError as err:
-                err_msg = r"Entry point 0x[0-9a-f]+ not found in contract"
+                err_msg = r"(Entry point 0x[0-9a-f]+ not found in contract)|(is not declared)|(is not deployed)"
                 if not (
                     re.search(err_msg, err.message, re.IGNORECASE)
-                    or err.code == RPC_INVALID_MESSAGE_SELECTOR_ERROR
+                    or err.code
+                    in [
+                        RPC_INVALID_MESSAGE_SELECTOR_ERROR,
+                        RPC_CLASS_HASH_NOT_FOUND_ERROR,
+                        RPC_CONTRACT_NOT_FOUND_ERROR,
+                    ]
                 ):
                     raise err
 
