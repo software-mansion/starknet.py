@@ -67,7 +67,6 @@ def _compute_hinted_class_hash(contract_class: DeclaredContract) -> int:
 
     # Compilers in version < 0.10.0 did not have "compiler_version" field
     if "compiler_version" not in program:
-        # The syntax used "(a: felt)" instead of "(a : felt)"
         raise ValueError(
             "Argument contract_class was compiled with a compiler before version 0.10.0. "
             "Calculating it's class_hash is not supported."
@@ -83,12 +82,13 @@ def _delete_attributes(program) -> dict:
         # Remove attributes field from raw dictionary, for hash backward compatibility of
         # contracts deployed prior to adding this feature.
         del program["attributes"]
-    else:
-        # Remove accessible_scopes and flow_tracking_data fields from raw dictionary, for hash
-        # backward compatibility of contracts deployed prior to adding this feature.
-        for attr in program["attributes"]:
-            if "accessible_scopes" in attr and len(attr["accessible_scopes"]) == 0:
-                del attr["accessible_scopes"]
-            if "flow_tracking_data" in attr and attr["flow_tracking_data"] is None:
-                del attr["flow_tracking_data"]
+        return program
+
+    # Remove accessible_scopes and flow_tracking_data fields from raw dictionary, for hash
+    # backward compatibility of contracts deployed prior to adding this feature.
+    for attr in program["attributes"]:
+        if "accessible_scopes" in attr and len(attr["accessible_scopes"]) == 0:
+            del attr["accessible_scopes"]
+        if "flow_tracking_data" in attr and attr["flow_tracking_data"] is None:
+            del attr["flow_tracking_data"]
     return program
