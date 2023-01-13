@@ -19,7 +19,7 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
         ("universal_deployer_compiled.json", 0x56679f765a989444f0db426e54ee779b7685ccfd4e39113b9c963eb903e20e3),
     ]
 )
-def test(contract_source, hash_):
+def test_compute_class_hash(contract_source, hash_):
     compiled_contract = read_contract(contract_source)
     contract_class = cast(DeclaredContract, DeclaredContractSchema().loads(compiled_contract))
     class_hash = compute_class_hash(contract_class)
