@@ -19,14 +19,21 @@ dog_serialized = [dog["name"], dog["species"]]
 cat = {"name": encode_shortstring("Bob"), "species": encode_shortstring("cat")}
 cat_serialized = [cat["name"], cat["species"]]
 
-ceo = {"name": encode_shortstring("Scrooge McDuck"), "pet": dog}
-ceo_serialized = [ceo["name"], *dog_serialized]
+bird = {
+    "name": encode_shortstring("Yacub"),
+    "species": encode_shortstring("Parus major"),
+}
+bird_serialized = [bird["name"], bird["species"]]
+
+ceo = {"name": encode_shortstring("Scrooge McDuck"), "pets": (dog, cat, bird)}
+ceo_serialized = [ceo["name"], *dog_serialized, *cat_serialized, *bird_serialized]
 
 company = {
     "id": 2**254 + 1234567890123457890,
     "name": encode_shortstring("McDuck Enterprises"),
     "address": encode_shortstring("Duckburg"),
     "owner": ceo,
+    "company_structure": (1, (2, (3, 4, 5), 6, (7, 8), 9, (10,))),
 }
 company_serialized = [
     company["id"] % 2**128,
@@ -34,6 +41,7 @@ company_serialized = [
     company["name"],
     company["address"],
     *ceo_serialized,
+    *range(1, 11),
 ]
 
 

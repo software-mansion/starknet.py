@@ -11,7 +11,7 @@ struct Pet {
 
 struct BusinessOwner {
     name: felt,
-    pet: Pet,
+    pets: (Pet, Pet, Pet),
 }
 
 struct Company {
@@ -19,6 +19,7 @@ struct Company {
     name: felt,
     address: felt,
     owner: BusinessOwner,
+    company_structure: (felt, (felt, (felt, felt, felt), felt, (felt, felt), felt, (felt))),
 }
 
 struct Person {
