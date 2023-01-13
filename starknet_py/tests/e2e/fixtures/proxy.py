@@ -70,7 +70,9 @@ async def deploy_proxy_to_contract_custom(
     )
 
 
-@pytest_asyncio.fixture(params=[("oz_proxy_exposed_compiled.json", "map_compiled.json")])
+@pytest_asyncio.fixture(
+    params=[("oz_proxy_exposed_compiled.json", "map_compiled.json")]
+)
 async def deploy_proxy_to_contract_exposed(
     request, new_gateway_account_client: AccountClient
 ) -> DeployResult:

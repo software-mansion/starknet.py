@@ -7,12 +7,19 @@ from starknet_py.net.client import Client
 from starknet_py.net.client_models import Call
 from starknet_py.net.models import Address
 from starknet_py.proxy.contract_abi_resolver import ProxyConfig
-from starknet_py.proxy.proxy_check import ProxyCheck, ArgentProxyCheck, OpenZeppelinProxyCheck
+from starknet_py.proxy.proxy_check import (
+    ArgentProxyCheck,
+    OpenZeppelinProxyCheck,
+    ProxyCheck,
+)
 
 
 @pytest.mark.asyncio
 async def test_resolving_proxies(
-    gateway_client, map_contract, deploy_proxy_to_contract_exposed, deploy_proxy_to_contract_oz_argent
+    gateway_client,
+    map_contract,
+    deploy_proxy_to_contract_exposed,
+    deploy_proxy_to_contract_oz_argent,
 ):
     # pylint: disable=import-outside-toplevel
     # docs: start
