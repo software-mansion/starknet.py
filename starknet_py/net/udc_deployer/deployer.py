@@ -8,8 +8,8 @@ from starkware.starknet.public.abi import get_selector_from_name
 from starknet_py.common import int_from_hex
 from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
 from starknet_py.net.client_models import Call, Hash
-from starknet_py.net.gateway_client import add_code_examples
 from starknet_py.net.models import AddressRepresentation, compute_address, parse_address
+from starknet_py.utils.code_examples import add_code_examples
 from starknet_py.utils.contructor_args_translator import translate_constructor_args
 from starknet_py.utils.crypto.facade import pedersen_hash
 from starknet_py.utils.data_transformer.universal_deployer_serializer import (
