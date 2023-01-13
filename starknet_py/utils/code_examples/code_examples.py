@@ -1,7 +1,7 @@
 from starknet_py.utils.sync.sync import T
 
 
-def add_code_examples(original_class) -> T:
+def add_code_examples(original_class: T) -> T:
     base_class = original_class.__base__  # pyright: ignore
     for method_name, method in original_class.__dict__.items():
         docstring = f"""
