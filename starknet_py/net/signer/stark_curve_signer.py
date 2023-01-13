@@ -1,17 +1,22 @@
 import warnings
 from dataclasses import dataclass
-from typing import Dict, List, Union
+from typing import Dict, List, Union, cast
 
 from starkware.crypto.signature.signature import private_to_stark_key
 
+from starknet_py.constants import DEFAULT_ENTRY_POINT_SELECTOR
 from starknet_py.net.models import (
     AddressRepresentation,
     StarknetChainId,
-    Transaction,
     compute_address,
     parse_address,
 )
-from starknet_py.net.models.transaction import Declare, DeployAccount, Invoke
+from starknet_py.net.models.transaction import (
+    AccountTransaction,
+    Declare,
+    DeployAccount,
+    Invoke,
+)
 from starknet_py.net.signer.base_signer import BaseSigner
 from starknet_py.utils.crypto.facade import message_signature
 from starknet_py.utils.crypto.transaction_hash import (
@@ -54,26 +59,28 @@ class StarkCurveSigner(BaseSigner):
 
     def sign_transaction(
         self,
-        transaction: Transaction,
+        transaction: AccountTransaction,
     ) -> List[int]:
         if isinstance(transaction, Declare):
             return self._sign_declare_transaction(transaction)
         if isinstance(transaction, DeployAccount):
             return self._sign_deploy_account_transaction(transaction)
-        return self._sign_transaction(transaction)
+        return self._sign_transaction(cast(Invoke, transaction))
 
     def _sign_transaction(self, transaction: Invoke):
         tx_hash = compute_transaction_hash(
             tx_hash_prefix=TransactionHashPrefix.INVOKE,
             version=transaction.version,
             contract_address=self.address,
-            entry_point_selector=0
+            entry_point_selector=DEFAULT_ENTRY_POINT_SELECTOR
             if transaction.version == 1
-            else transaction.entry_point_selector,
+            else cast(int, transaction.entry_point_selector),
             calldata=transaction.calldata,
             max_fee=transaction.max_fee,
             chain_id=self.chain_id.value,
-            additional_data=[transaction.nonce] if transaction.version == 1 else [],
+            additional_data=[cast(int, transaction.nonce)]
+            if transaction.version == 1
+            else [],
         )
         # pylint: disable=invalid-name
         r, s = message_signature(msg_hash=tx_hash, priv_key=self.private_key)

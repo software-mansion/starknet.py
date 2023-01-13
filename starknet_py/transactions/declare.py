@@ -1,13 +1,10 @@
 import warnings
 from typing import List, Optional
 
-from starkware.starknet.services.api.gateway.transaction import (
-    DEFAULT_DECLARE_SENDER_ADDRESS,
-)
-
 from starknet_py.common import create_compiled_contract
 from starknet_py.compile.compiler import StarknetCompilationSource
-from starknet_py.net.client_models import Declare
+from starknet_py.constants import DEFAULT_DECLARE_SENDER_ADDRESS
+from starknet_py.net.models.transaction import Declare
 
 
 def make_declare_tx(

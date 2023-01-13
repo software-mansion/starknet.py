@@ -16,7 +16,6 @@ from starknet_py.net.client_models import (
     BlockTransactionTraces,
     Call,
     Calls,
-    Declare,
     DeclaredContract,
     DeclareTransactionResponse,
     DeployAccountTransactionResponse,
@@ -29,14 +28,15 @@ from starknet_py.net.client_models import (
     TransactionReceipt,
     TransactionStatus,
 )
-from starknet_py.net.models import (
-    Invoke,
-    InvokeFunction,
-    StarknetChainId,
-    chain_from_network,
-)
+from starknet_py.net.models import StarknetChainId, chain_from_network
 from starknet_py.net.models.address import AddressRepresentation, parse_address
-from starknet_py.net.models.transaction import DeployAccount
+from starknet_py.net.models.transaction import (
+    AccountTransaction,
+    Declare,
+    DeployAccount,
+    Invoke,
+    TypeAccountTransaction,
+)
 from starknet_py.net.models.typed_data import TypedData
 from starknet_py.net.networks import MAINNET, TESTNET, TESTNET2, Network
 from starknet_py.net.signer import BaseSigner
@@ -248,15 +248,15 @@ class AccountClient(Client):
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
         version: Optional[int] = None,
-    ) -> InvokeFunction:
+    ) -> Invoke:
         """
-        Takes calls and creates InvokeFunction from them
+        Takes calls and creates Invoke from them
 
         :param calls: Single call or list of calls
         :param max_fee: Max amount of Wei to be paid when executing transaction
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
         :param version: Transaction version is supported_tx_version as a default
-        :return: InvokeFunction created from the calls (without the signature)
+        :return: Invoke created from the calls (without the signature)
 
         .. deprecated:: 0.5.0
             This method has been deprecated. Use :meth:`AccountClient.sign_invoke_transaction` to create an already
@@ -306,7 +306,7 @@ class AccountClient(Client):
 
     async def _get_max_fee(
         self,
-        transaction: Union[Invoke, Declare, DeployAccount],
+        transaction: AccountTransaction,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> int:
@@ -497,7 +497,7 @@ class AccountClient(Client):
 
     async def estimate_fee(
         self,
-        tx: Union[Invoke, Declare, DeployAccount],
+        tx: AccountTransaction,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
@@ -593,7 +593,9 @@ class AccountClient(Client):
             raise ex
 
 
-def add_signature_to_transaction(tx: Invoke, signature: List[int]) -> Invoke:
+def add_signature_to_transaction(
+    tx: TypeAccountTransaction, signature: List[int]
+) -> TypeAccountTransaction:
     return replace(tx, signature=signature)
 
 

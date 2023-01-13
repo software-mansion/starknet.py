@@ -2,14 +2,9 @@ from abc import ABC, abstractmethod
 from typing import List, Optional
 
 from starknet_py.net.client import Client
-from starknet_py.net.client_models import (
-    Calls,
-    Declare,
-    Invoke,
-    SentTransactionResponse,
-)
+from starknet_py.net.client_models import Calls, SentTransactionResponse
 from starknet_py.net.models import AddressRepresentation
-from starknet_py.net.models.transaction import DeployAccount
+from starknet_py.net.models.transaction import Declare, DeployAccount, Invoke
 from starknet_py.net.models.typed_data import TypedData
 
 
@@ -70,12 +65,12 @@ class BaseAccount(ABC):
         auto_estimate: bool = False,
     ) -> Invoke:
         """
-        Takes calls and creates signed InvokeFunction.
+        Takes calls and creates signed Invoke.
 
         :param calls: Single call or list of calls.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
-        :return: InvokeFunction created from the calls.
+        :return: Invoke created from the calls.
         """
 
     @abstractmethod
