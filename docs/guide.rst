@@ -101,7 +101,55 @@ high-level :meth:`Contract.from_address` method to get a contract instance.
 :meth:`Contract.from_address` works with contracts which are not proxies, so it is the most universal method of getting
 a contract not knowing the abi.
 
-Check out the code!
+ProxyChecks
+###########
+
+Since the Proxy contracts on StarkNet can have different implementations (especially, since everyone can write their own), there is no single way of checking if some contract is a Proxy contract.
+
+Also, there are two ways of proxying a contract on StarkNet:
+ - make `implementation` in a Proxy contract store a `class hash` of the proxied contract
+ - make `implementation` in a Proxy contract store an `address` of the proxied contract
+
+`ProxyChecks` check whether the contract is a Proxy contract.
+They do that by trying to get the `address` or `class_hash` of the implementation.
+
+`Contract.from_address` uses these `ProxyChecks` to fetch the `implementation` (address or class hash) of the proxied contract.
+
+There exists a default `proxy_config` that tries to resolve the Proxy using two `ProxyChecks` implemented by default:
+ - ArgentProxyCheck - resolves `Argent Proxy <https://github.com/argentlabs/argent-contracts-starknet/blob/b7c4af7462a461386d29551400b985832ba942de/contracts/upgrade/Proxy.cairo>`_.
+ - OpenZeppelinProxyCheck - resolves `OpenZeppelin Proxy <https://github.com/OpenZeppelin/cairo-contracts/blob/d12abf335f5c778fd19d6f99e91c099b40865deb/src/openzeppelin/upgrades/presets/Proxy.cairo>`_.
+
+It's possible to define own ProxyCheck subclass and later pass it to `Contract.from_address`, so it knows how to resolve the Proxy.
+
+The ProxyCheck base class implements the following interface:
+
+.. code-block:: python
+
+        class ProxyCheck(ABC):
+            @abstractmethod
+            async def implementation_address(
+                self, address: Address, client: Client
+            ) -> Optional[int]:
+                """
+                :return: Implementation address of contract being proxied by proxy contract at `address`
+                    given as a parameter or None if implementation does not exist.
+                """
+
+            @abstractmethod
+            async def implementation_hash(
+                self, address: Address, client: Client
+            ) -> Optional[int]:
+                """
+                :return: Implementation class hash of contract being proxied by proxy contract at `address`
+                    given as a parameter or None if implementation does not exist.
+                """
+
+It has two methods:
+ - `implementation_address` - returns the `address` of the proxied contract (implement this if your Proxy contract uses the `address` of another contract as `implementation`)
+ - `implementation_hash` - returns the `class_hash` of the proxied contract (implement this if your Proxy contract uses the `class_hash` of another contract as `implementation`)
+
+
+Here is the code in practice:
 
 .. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_resolving_proxies.py
     :language: python
@@ -109,8 +157,8 @@ Check out the code!
 
 .. note::
 
-    Although :meth:`Contract.from_address()` works like a charm it must perform some calls to get an abi of the contract.
-    If you know the abi statically just use the :ref:`Contract` constructor. It will save some time!
+    :meth:`Contract.from_address()` must perform some calls to get an abi of the contract.
+    If you know the abi statically, just use the :ref:`Contract` constructor.
 
 
 Account details
