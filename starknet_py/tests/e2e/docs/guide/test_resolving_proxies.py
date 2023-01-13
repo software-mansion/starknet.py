@@ -43,10 +43,6 @@ async def test_resolving_proxies(
     # After that contract can be used as usual
 
     # To resolve proxy contract other than OpenZeppelin or ArgentX, a custom ProxyCheck is needed
-    # It should be a subclass of ProxyCheck and have methods:
-    # - implementation_address - returns address of the proxied implementation or None
-    # - implementation_hash - returns class_hash of the proxied implementation or None
-
     # The ProxyCheck below resolves proxy contracts which have implementation
     # stored in implementation() function as address
     class CustomProxyCheck(ProxyCheck):
