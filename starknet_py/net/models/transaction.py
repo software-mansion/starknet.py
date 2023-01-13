@@ -25,7 +25,6 @@ from starknet_py.utils.crypto.transaction_hash import (
 )
 
 
-# pylint: disable=no-self-use, unused-argument
 @dataclass(frozen=True)
 class Transaction(ABC):
     """
@@ -83,12 +82,14 @@ class Declare(AccountTransaction):
     def compress_program_post_dump(
         self, data: Dict[str, Any], many: bool, **kwargs
     ) -> Dict[str, Any]:
+        # pylint: disable=no-self-use, unused-argument
         return compress_program_post_dump(data=data, many=many)
 
     @marshmallow.pre_load
     def decompress_program(
         self, data: Dict[str, Any], many: bool, **kwargs
     ) -> Dict[str, Any]:
+        # pylint: disable=no-self-use, unused-argument
         return decompress_program(data=data, many=many)
 
     def calculate_hash(self, chain_id: StarknetChainId) -> int:
@@ -168,6 +169,7 @@ class Invoke(AccountTransaction):
     def _remove_entry_point_selector(
         self, data: Dict[str, Any], many: bool, **kwargs
     ) -> Dict[str, Any]:
+        # pylint: disable=no-self-use, unused-argument
         data["type"] = "INVOKE_FUNCTION"
 
         version = int(data["version"], 16)
