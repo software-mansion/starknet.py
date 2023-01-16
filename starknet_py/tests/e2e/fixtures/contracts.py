@@ -49,7 +49,7 @@ def map_compiled_contract() -> str:
 @pytest.fixture(scope="module")
 def simple_storage_with_event_compiled_contract() -> str:
     """
-    Returns compiled simple storage contract that emits an event
+    Returns compiled simple storage contract that emits an event.
     """
     return read_contract("simple_storage_with_event_compiled.json")
 
