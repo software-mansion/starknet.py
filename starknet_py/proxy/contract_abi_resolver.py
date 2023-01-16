@@ -105,6 +105,7 @@ class ContractAbiResolver:
         implementation_generator = self._get_implementation_from_proxy()
         async for implementation, implementation_type in implementation_generator:
             try:
+                # implementation is either a class_hash or address
                 if implementation_type == ImplementationType.CLASS_HASH:
                     contract_class = await self.client.get_class_by_hash(implementation)
                 else:
