@@ -78,7 +78,7 @@ class Client(ABC):
 
         :param block_hash: Block's hash or literals `"pending"` or `"latest"`
         :param block_number: Block's number or literals `"pending"` or `"latest"`
-        :return: BlockStateUpdate oject representing changes in the requested block
+        :return: BlockStateUpdate object representing changes in the requested block
         """
 
     @abstractmethod
