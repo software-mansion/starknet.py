@@ -1,7 +1,7 @@
 0.X.X Migration guide
 =====================
 
-0.X.X makes first step to remove the Cairo lang dependency!
+0.X.X makes the first step to remove the Cairo lang dependency!
 Some classes/functions from the Cairo lang are rewritten and are the part of our library:
 
 - transactions' dataclasses
