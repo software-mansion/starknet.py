@@ -1,3 +1,37 @@
+0.X.X Migration guide
+=====================
+
+0.X.X makes first step to remove the Cairo lang dependency!
+Some classes/functions from the Cairo lang are rewritten and are the part of our library:
+
+- transactions' dataclasses
+- `get_selector_from_name` and `get_storage_var_address` functions
+
+Deprecation
+-----------
+
+`compute_invoke_hash` is deprecated in favour of `compute_transaction_hash`.
+
+Breaking changes
+----------------
+
+1. `InvokeFunction` is replaced by the `Invoke` dataclass (behaviour is the same, just the name is changed).
+2. client_models.py does not contain:
+
+- Invoke,
+- InvokeFunction,
+- StarknetTransaction,
+- AccountTransaction,
+- ContractClass,
+- Declare,
+- DeployAccount.
+
+3. Transaction's `tx_type` field is renamed to `type`.
+4. The `types.py` is removed (outdated file containing only imports).
+
+|
+|
+
 0.13.0 Migration guide
 =======================
 
@@ -41,8 +75,8 @@ Changes in the Account interface
 4. Some parameters like ``max_fee`` or ``auto_estimate`` are now keyword only arguments. They have to be explicitly named like ``account.sign_invoke_transaction(Call(...), max_fee=1000)``. Writing ``account.sign_invoke_transaction(Call(...), 1000)`` will not work.
 
 
-Deprecations
-------------
+0.13.0 Deprecations
+-------------------
 
 1. Passing a dict to ``BaseSigner.sign_message`` as parameter has been deprecated in favor of :class:`TypedData <starknet_py.utils.typed_data.TypedData>` dataclass.
 2. Argument ``client`` of ``Contract`.__init__` and ``Contract.from_address`` has been deprecated and replaced with ``provider``.
@@ -50,8 +84,8 @@ Deprecations
 4. ``PreparedFunctionCall.arguments`` has been deprecated to simplify the upcoming ``serialization`` module.
 
 
-Breaking changes
-----------------
+0.13.0 Breaking changes
+-----------------------
 
 1. ``version`` parameter has been removed from the most ``Contract`` methods. ``Contract`` will now use version that the ``Account`` or ``AccountClient`` is using.
 2. ``DeclareResult`` now only accepts :class:`BaseAccount <starknet_py.net.account.base_account.BaseAccount>`.
