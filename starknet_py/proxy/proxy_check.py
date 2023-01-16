@@ -35,6 +35,15 @@ class ArgentProxyCheck(ProxyCheck):
     async def implementation_address(
         self, address: Address, client: Client
     ) -> Optional[int]:
+        return await self.get_implementation(address, client)
+
+    async def implementation_hash(
+        self, address: Address, client: Client
+    ) -> Optional[int]:
+        return await self.get_implementation(address, client)
+
+    @staticmethod
+    async def get_implementation(address: Address, client: Client) -> Optional[int]:
         call = Call(
             to_addr=address,
             selector=get_selector_from_name("get_implementation"),
@@ -42,11 +51,6 @@ class ArgentProxyCheck(ProxyCheck):
         )
         (implementation,) = await client.call_contract(call=call)
         return implementation
-
-    async def implementation_hash(
-        self, address: Address, client: Client
-    ) -> Optional[int]:
-        return await self.implementation_address(address, client)
 
 
 class OpenZeppelinProxyCheck(ProxyCheck):
