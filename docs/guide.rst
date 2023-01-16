@@ -48,12 +48,12 @@ It will deploy the contract using funds from your account. Deployment is handled
 Using Universal Deployer Contract (UDC)
 #######################################
 
-Using UDC is a way of deploying contracts if you already have an account. starknet.py assumes that UDC use an implementation compatible
+Using UDC is a way of deploying contracts if you already have an account. starknet.py assumes that UDC uses an implementation compatible
 with `OpenZeppelin's UDC implementation <https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/utils/presets/UniversalDeployer.cairo>`_.
 
 There is a class responsible for the deployment (:ref:`Deployer<Deployer>`).
 
-Short code example how to use it:
+Short code example of how to use it:
 
 .. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_deploying_with_udc.py
     :language: python
@@ -304,7 +304,7 @@ Parsing emitted events
 CairoSerializer can be used to transform data between cairo and python format.
 It requires an abi of the contract, types of values and data to be serialized.
 
-In particular, it can be used to parse an event emmited by a transaction to python usable format.
+In particular, it can be used to parse an event emitted by a transaction to python usable format.
 
 .. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_using_cairo_serializer.py
     :language: python
@@ -314,7 +314,7 @@ In particular, it can be used to parse an event emmited by a transaction to pyth
 Working with shortstrings
 -------------------------
 
-To make working with short strings easier we provide some utility functions to translate the felt value received from the contract, into a short string value. A function which translates a string into a felt is also available, but the transformation is done automatically when calling the contract with shortstring in place of felt - they are interchangable.
+To make working with short strings easier we provide some utility functions to translate the felt value received from the contract, into a short string value. A function which translates a string into a felt is also available, but the transformation is done automatically when calling the contract with shortstring in place of felt - they are interchangeable.
 You can read more about how cairo treats shortstrings in `the documentation <https://www.cairo-lang.org/docs/how_cairo_works/consts.html#short-string-literals>`_.
 
 Conversion functions and references:
@@ -331,7 +331,7 @@ StarkNet <> Ethereum communication
     please contact us on our StarkNet discord channel: starknet-py.
 
 To retrieve the StarkNet -> Ethereum or Ethereum -> StarkNet message count, you need to provide some data that you used to create that message.
-Then after creating the message's representation, you can query it's current count.
+Then after creating the message's representation, you can query its current count.
 
 You can find out more about StarkNet <> Ethereum messaging here: https://starknet.io/documentation/l1-l2-messaging/
 

@@ -62,7 +62,7 @@ class GatewayClient(Client):
         :param net: Target network for the client. Can be a string with URL, one of ``"mainnet"``, ``"testnet"``
                     or dict with ``"feeder_gateway_url"`` and ``"gateway_url"`` fields
         :param session: Aiohttp session to be used for request. If not provided, client will create a session for
-                        every request. When using a custom session, user is resposible for closing it manually.
+                        every request. When using a custom session, user is responsible for closing it manually.
         """
         if isinstance(net, str):
             host = net_address_from_net(net)
