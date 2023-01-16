@@ -109,7 +109,9 @@ class ContractAbiResolver:
                 if implementation_type == ImplementationType.CLASS_HASH:
                     contract_class = await self.client.get_class_by_hash(implementation)
                 else:
-                    contract_class = await _get_class_at(address=implementation, client=self.client)
+                    contract_class = await _get_class_at(
+                        address=implementation, client=self.client
+                    )
 
                 if contract_class.abi is None:
                     raise AbiNotFoundError()
@@ -173,12 +175,8 @@ class ProxyResolutionError(Exception):
 
 async def _get_class_at(address: Address, client: Client) -> DeclaredContract:
     try:
-        contract_class_hash = await client.get_class_hash_at(
-            contract_address=address
-        )
-        contract_class = await client.get_class_by_hash(
-            class_hash=contract_class_hash
-        )
+        contract_class_hash = await client.get_class_hash_at(contract_address=address)
+        contract_class = await client.get_class_by_hash(class_hash=contract_class_hash)
     except ClientError as err:
         if (
             "is not deployed" in err.message
