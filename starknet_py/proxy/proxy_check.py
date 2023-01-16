@@ -1,15 +1,12 @@
-import re
 from abc import ABC, abstractmethod
-from typing import Callable, Optional
+from typing import Optional
 
 from starkware.starknet.public.abi import (
     get_selector_from_name,
     get_storage_var_address,
 )
 
-from starknet_py.constants import RPC_INVALID_MESSAGE_SELECTOR_ERROR
 from starknet_py.net.client import Client
-from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import Call
 from starknet_py.net.models import Address
 
@@ -42,48 +39,22 @@ class ArgentProxyCheck(ProxyCheck):
     async def implementation_address(
         self, address: Address, client: Client
     ) -> Optional[int]:
-        return await self.get_implementation(
-            address=address,
-            client=client,
-            get_class_func=client.get_class_hash_at,
-            regex_err_msg=r"(is not deployed)",
-        )
+        return await self.get_implementation(address, client)
 
     async def implementation_hash(
         self, address: Address, client: Client
     ) -> Optional[int]:
-        return await self.get_implementation(
-            address=address,
-            client=client,
-            get_class_func=client.get_class_by_hash,
-            regex_err_msg=r"(is not declared)",
-        )
+        return await self.get_implementation(address, client)
 
     @staticmethod
-    async def get_implementation(
-        address: Address, client: Client, get_class_func: Callable, regex_err_msg: str
-    ) -> Optional[int]:
-        call = ArgentProxyCheck._get_implementation_call(address=address)
-        err_msg = r"(Entry point 0x[0-9a-f]+ not found in contract)|" + regex_err_msg
-        try:
-            (implementation,) = await client.call_contract(call=call)
-            await get_class_func(implementation)
-        except ClientError as err:
-            if (
-                re.search(err_msg, err.message, re.IGNORECASE)
-                or err.code == RPC_INVALID_MESSAGE_SELECTOR_ERROR
-            ):
-                return None
-            raise err
-        return implementation
-
-    @staticmethod
-    def _get_implementation_call(address: Address) -> Call:
-        return Call(
+    async def get_implementation(address: Address, client: Client) -> Optional[int]:
+        call = Call(
             to_addr=address,
             selector=get_selector_from_name("get_implementation"),
             calldata=[],
         )
+        (implementation,) = await client.call_contract(call=call)
+        return implementation
 
 
 class OpenZeppelinProxyCheck(ProxyCheck):
