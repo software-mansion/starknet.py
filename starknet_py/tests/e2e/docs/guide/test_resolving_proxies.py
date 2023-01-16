@@ -49,7 +49,7 @@ async def test_resolving_proxies(
         async def implementation_address(
             self, address: Address, client: Client
         ) -> Optional[int]:
-            # Note that None is returned, since the Proxy uses
+            # Note that None is returned, since our custom Proxy uses
             # the address of another contract as implementation and not the class hash
             return None
 
