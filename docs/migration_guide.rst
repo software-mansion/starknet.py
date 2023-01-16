@@ -1,7 +1,5 @@
-X.X.X migration guide
+0.13.0 Migration guide
 =======================
-
-TODO(Update this with correct version or move to separate file)
 
 This version deprecates the :class:`AccountClient <starknet_py.net.account.AccountClient>`, which is a major change to the StarkNet.py.
 It is replaced with new :class:`BaseAccount <starknet_py.net.account.base_account.BaseAccount>` ABC and its
@@ -40,7 +38,7 @@ Changes in the Account interface
 1. Removed ``hash_message`` method. Use :meth:`TypedData.message_hash <starknet_py.utils.typed_data.TypedData.message_hash>` directly instead.
 2. ``Account`` doesn't expose a ``net`` property.
 3. ``Account`` doesn't accept a ``supported_tx_version`` parameter. It currently always uses version 1.
-4. Some parameters like ``max_fee`` or ``auto_estimate`` are now keyword only arguments. They have to be explicitily named like ``account.sign_invoke_transaction(Call(...), max_fee=1000)``. Writing ``account.sign_invoke_transaction(Call(...), 1000)`` will not work.
+4. Some parameters like ``max_fee`` or ``auto_estimate`` are now keyword only arguments. They have to be explicitly named like ``account.sign_invoke_transaction(Call(...), max_fee=1000)``. Writing ``account.sign_invoke_transaction(Call(...), 1000)`` will not work.
 
 
 Deprecations
@@ -48,6 +46,8 @@ Deprecations
 
 1. Passing a dict to ``BaseSigner.sign_message`` as parameter has been deprecated in favor of :class:`TypedData <starknet_py.utils.typed_data.TypedData>` dataclass.
 2. Argument ``client`` of ``Contract`.__init__` and ``Contract.from_address`` has been deprecated and replaced with ``provider``.
+3. StarkNet <> Ethereum Messaging module has been deprecated.
+4. ``PreparedFunctionCall.arguments`` has been deprecated to simplify the upcoming ``serialization`` module.
 
 
 Breaking changes
@@ -55,6 +55,8 @@ Breaking changes
 
 1. ``version`` parameter has been removed from the most ``Contract`` methods. ``Contract`` will now use version that the ``Account`` or ``AccountClient`` is using.
 2. ``DeclareResult`` now only accepts :class:`BaseAccount <starknet_py.net.account.base_account.BaseAccount>`.
+3. ``invoke_tx`` has been removed from the ``Client.call_contract`` parameters. ``call`` should be used instead.
+4. All error messages have been standardized with capitalization at the beginning and a full stop at the end.
 
 |
 |

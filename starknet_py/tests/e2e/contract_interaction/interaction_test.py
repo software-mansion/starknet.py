@@ -174,7 +174,7 @@ async def test_transaction_not_received_error(map_contract):
 
 
 @pytest.mark.asyncio
-async def test_error_when_invoking_without_account_client(gateway_client, map_contract):
+async def test_error_when_invoking_without_account(gateway_client, map_contract):
     contract = await Contract.from_address(map_contract.address, gateway_client)
 
     with pytest.raises(
@@ -187,7 +187,7 @@ async def test_error_when_invoking_without_account_client(gateway_client, map_co
 
 
 @pytest.mark.asyncio
-async def test_error_when_estimating_fee_while_not_using_account_client(
+async def test_error_when_estimating_fee_while_not_using_account(
     gateway_client, map_contract
 ):
     contract = await Contract.from_address(map_contract.address, gateway_client)
