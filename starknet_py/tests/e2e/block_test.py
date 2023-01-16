@@ -16,7 +16,6 @@ async def declare_contract(account: BaseAccount, compiled_contract: str):
 
 @pytest.mark.asyncio
 async def test_pending_block(account, map_compiled_contract):
-    # TODO: change to new_account_client once devnet repaired
     await declare_contract(account, map_compiled_contract)
 
     blk = await account.client.get_block(block_number="pending")
