@@ -19,7 +19,7 @@ class ArraySerializer(CairoDataSerializer[Iterable, List]):
     """
     Serializer for arrays. In abi they are represented as a pointer to a type.
     Can serialize any iterable and prepends its length to resulting list.
-    Deserializes data to a TupleDataclass.
+    Deserializes data to a list.
 
     Examples:
     [1,2,3] => [3,1,2,3]
