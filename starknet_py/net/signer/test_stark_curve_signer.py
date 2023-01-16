@@ -1,17 +1,12 @@
-import os
-from pathlib import Path
-
 import pytest
 
 from starknet_py.common import create_compiled_contract
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import Declare, DeployAccount, Invoke
 from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
+from starknet_py.tests.e2e.fixtures.misc import read_contract
 
-compiled_contract = (
-    Path(os.path.dirname(__file__))
-    / "../../tests/e2e/mock/contracts_compiled/erc20_compiled.json"
-).read_text("utf-8")
+compiled_contract = read_contract("erc20_compiled.json")
 
 
 @pytest.mark.parametrize(
