@@ -26,8 +26,8 @@ from starknet_py.cairo.serialization.data_serializers.uint256_serializer import 
 )
 from starknet_py.cairo.serialization.errors import InvalidTypeException
 from starknet_py.cairo.serialization.factory import (
+    serializer_for_event,
     serializer_for_function,
-    serializer_for_payload,
     serializer_for_type,
 )
 from starknet_py.cairo.serialization.function_serialization_adapter import (
@@ -96,7 +96,7 @@ def test_getting_type_serializer(structure, serializer):
 
 
 def test_getting_payload_serializer():
-    assert serializer_for_payload(abi.events["PoolIdAdded"].data) == PayloadSerializer(
+    assert serializer_for_event(abi.events["PoolIdAdded"]) == PayloadSerializer(
         OrderedDict(pool_id=pool_id_serializer)
     )
 

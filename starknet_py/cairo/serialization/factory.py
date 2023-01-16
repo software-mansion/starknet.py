@@ -102,6 +102,16 @@ def serializer_for_payload(payload: Dict[str, CairoType]) -> PayloadSerializer:
     )
 
 
+def serializer_for_event(event: Abi.Event) -> PayloadSerializer:
+    """
+    Create serializer for an event.
+
+    :param event: parsed event.
+    :return: PayloadSerializer that can be used to (de)serialize events.
+    """
+    return serializer_for_payload(event.data)
+
+
 def serializer_for_function(abi_function: Abi.Function) -> FunctionSerializationAdapter:
     """
     Create FunctionSerializationAdapter for serializing function inputs and deserializing function outputs.
