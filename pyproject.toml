@@ -58,8 +58,8 @@ docs_create = { shell = "make -C docs html" }
 docs_open = { shell = "open docs/_build/html/index.html" }
 lint = "pylint starknet_py"
 format.shell = "isort . && black ."
-format_check = "black --check ."
-format_diff = "black --diff ."
+format_check.shell = "isort --check . && black --check ."
+format_diff.shell = "isort --diff . && black --diff ."
 typecheck = "pyright starknet_py"
 compile_contracts = "bash starknet_py/tests/e2e/mock/compile_contracts.sh"
 requirements_check.shell = "poetry export -f requirements.txt --without-hashes --extras docs | cmp - requirements.txt"
@@ -90,6 +90,10 @@ target-version = ["py38"]
 extend-exclude = """
 crypto-cpp
 """
+
+[tool.isort]
+profile = "black"
+skip_gitignore = true
 
 [tool.pytest.ini_options]
 markers = [
