@@ -115,6 +115,7 @@ class ContractAbiResolver:
                     )
 
                 if contract_class.abi is None:
+                    # Some contract_class has been found, but it does not have abi
                     raise AbiNotFoundError()
                 return contract_class.abi
             except ClientError as err:
