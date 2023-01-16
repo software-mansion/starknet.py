@@ -90,7 +90,7 @@ class ContractAbiResolver:
         :raises ContractNotFoundError: when contract could not be found at address
         :raises AbiNotFoundError: when abi is not present in contract class at address
         """
-        contract_class = await self._get_class_by_address(address=self.address)
+        contract_class = await _get_class_at(address=self.address, client=self.client)
         if contract_class.abi is None:
             raise AbiNotFoundError()
         return contract_class.abi
@@ -109,9 +109,7 @@ class ContractAbiResolver:
                 if implementation_type == ImplementationType.CLASS_HASH:
                     contract_class = await self.client.get_class_by_hash(implementation)
                 else:
-                    contract_class = await self._get_class_by_address(
-                        address=implementation
-                    )
+                    contract_class = await _get_class_at(address=implementation, client=self.client)
 
                 if contract_class.abi is None:
                     raise AbiNotFoundError()
@@ -156,24 +154,6 @@ class ContractAbiResolver:
                 ):
                     raise err
 
-    async def _get_class_by_address(self, address: Address) -> DeclaredContract:
-        try:
-            contract_class_hash = await self.client.get_class_hash_at(
-                contract_address=address
-            )
-            contract_class = await self.client.get_class_by_hash(
-                class_hash=contract_class_hash
-            )
-        except ClientError as err:
-            if (
-                "is not deployed" in err.message
-                or err.code == RPC_CLASS_HASH_NOT_FOUND_ERROR
-            ):
-                raise ContractNotFoundError(address=address) from err
-            raise err
-
-        return contract_class
-
 
 class AbiNotFoundError(Exception):
     """
@@ -189,3 +169,22 @@ class ProxyResolutionError(Exception):
     def __init__(self):
         self.message = "Couldn't resolve proxy using given ProxyChecks."
         super().__init__(self.message)
+
+
+async def _get_class_at(address: Address, client: Client) -> DeclaredContract:
+    try:
+        contract_class_hash = await client.get_class_hash_at(
+            contract_address=address
+        )
+        contract_class = await client.get_class_by_hash(
+            class_hash=contract_class_hash
+        )
+    except ClientError as err:
+        if (
+            "is not deployed" in err.message
+            or err.code == RPC_CLASS_HASH_NOT_FOUND_ERROR
+        ):
+            raise ContractNotFoundError(address=address) from err
+        raise err
+
+    return contract_class
