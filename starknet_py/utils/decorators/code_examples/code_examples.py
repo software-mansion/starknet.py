@@ -1,10 +1,8 @@
-from typing import TypeVar
-
-T = TypeVar("T")
+from typing import Any
 
 
-def add_code_examples(original_class: T) -> T:
-    base_class = original_class.__base__  # pyright: ignore
+def add_code_examples(original_class: Any) -> Any:
+    base_class = original_class.__base__
     for method_name, method in original_class.__dict__.items():
         docstring = f"""
         .. literalinclude:: ../starknet_py/tests/e2e/docs/code_examples/test_{original_class.__name__}.py
