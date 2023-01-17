@@ -1,11 +1,13 @@
+import re
 from typing import Any
 
 
 def add_code_examples(original_class: Any) -> Any:
     base_class = original_class.__base__
     for method_name, method in original_class.__dict__.items():
+        file_name = "test_" + _camel_to_snake(original_class.__name__)
         docstring = f"""
-        .. literalinclude:: ../starknet_py/tests/e2e/docs/code_examples/test_{original_class.__name__}.py
+        .. literalinclude:: ../starknet_py/tests/e2e/docs/code_examples/{file_name}.py
             :language: python
             :start-after: docs: {method_name.strip("_")}_start
             :end-before: docs: {method_name.strip("_")}_end
@@ -23,3 +25,7 @@ def add_code_examples(original_class: Any) -> Any:
             method.__doc__ = (method.__doc__ or "") + docstring
 
     return original_class
+
+
+def _camel_to_snake(text: str) -> str:
+    return re.sub(r'(?<!^)(?=[A-Z])', '_', text).lower()

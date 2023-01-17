@@ -1,4 +1,4 @@
-# pylint: disable=unused-variable, invalid-name
+# pylint: disable=unused-variable
 from starknet_py.net.udc_deployer.deployer import Deployer
 
 
