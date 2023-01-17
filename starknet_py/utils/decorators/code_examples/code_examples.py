@@ -14,6 +14,7 @@ def add_code_examples(original_class: T) -> T:
             :dedent: 4
         """
 
+        # if method does not have __doc__ take it from the base method
         if (
             callable(method)
             and method.__doc__ is None
