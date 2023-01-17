@@ -1,6 +1,7 @@
 import json
 import os
 import typing
+import warnings
 from pathlib import Path
 from typing import List, Optional, Tuple, Union
 
@@ -38,6 +39,11 @@ class Compiler:
         :param is_account_contract: Set this to ``True`` to compile account contracts
         :param cairo_path: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts
         """
+        warnings.warn(
+            "Compiler module is deprecated and will be removed in the future. "
+            "Consider compiling contracts using other tools.",
+            category=DeprecationWarning,
+        )
         self.contract_source = contract_source
         self.is_account_contract = is_account_contract
         self.search_paths = cairo_path
