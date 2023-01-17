@@ -116,9 +116,9 @@ There are two main ways of proxying a contract on StarkNet:
  - forward the calls using ``library_call`` and ``class_hash`` of proxied contract
  - forward the calls using ``delegate_call`` and ``address`` of proxied contract
 
-:meth:`Contract.from_address <starknet_py.contract.Contract.from_address>` uses ``ProxyChecks`` to fetch the ``implementation`` (address or class hash) of the proxied contract.
+:meth:`Contract.from_address <starknet_py.contract.Contract.from_address>` uses ``proxy_checks`` to fetch the ``implementation`` (address or class hash) of the proxied contract.
 
-**ProxyChecks** check whether the contract is a Proxy contract.
+**ProxyCheck** checks whether the contract is a Proxy contract.
 It does that by trying to get the ``address`` or ``class_hash`` of the implementation.
 
 By default, ``proxy_config`` uses a configuration with two **ProxyChecks**:
