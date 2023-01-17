@@ -4,10 +4,10 @@ from typing import Dict, List, Union, cast
 from marshmallow import Schema, fields, post_load
 
 from starknet_py.cairo.felt import encode_shortstring
-from starknet_py.cairo.selector import get_selector_from_name
+from starknet_py.hash.selector import get_selector_from_name
+from starknet_py.hash.utils import compute_hash_on_elements
 from starknet_py.net.models.typed_data import StarkNetDomain
 from starknet_py.net.models.typed_data import TypedData as TypedDataDict
-from starknet_py.utils.crypto.facade import compute_hash_on_elements
 
 
 @dataclass(frozen=True)

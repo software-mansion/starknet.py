@@ -12,17 +12,17 @@ from starkware.starknet.services.api.gateway.transaction_utils import (
     decompress_program,
 )
 
-from starknet_py.cairo.selector import get_selector_from_name
-from starknet_py.net.client_models import TransactionType
-from starknet_py.net.models import compute_address
-from starknet_py.net.models.chains import StarknetChainId
-from starknet_py.net.schemas.common import Felt, NoneFelt
-from starknet_py.utils.crypto.transaction_hash import (
+from starknet_py.hash.address import compute_address
+from starknet_py.hash.selector import get_selector_from_name
+from starknet_py.hash.transaction import (
     TransactionHashPrefix,
     compute_declare_transaction_hash,
     compute_deploy_account_transaction_hash,
     compute_transaction_hash,
 )
+from starknet_py.net.client_models import TransactionType
+from starknet_py.net.models.chains import StarknetChainId
+from starknet_py.net.schemas.common import Felt, NoneFelt
 
 
 @dataclass(frozen=True)

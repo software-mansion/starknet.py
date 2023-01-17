@@ -2,10 +2,9 @@ import json
 from typing import List
 
 from starknet_py.cairo.felt import encode_shortstring
-from starknet_py.cairo.utils import _starknet_keccak
 from starknet_py.constants import API_VERSION
+from starknet_py.hash.utils import _starknet_keccak, compute_hash_on_elements
 from starknet_py.net.client_models import DeclaredContract, EntryPoint
-from starknet_py.utils.crypto.facade import compute_hash_on_elements
 
 
 def compute_class_hash(contract_class: DeclaredContract) -> int:
