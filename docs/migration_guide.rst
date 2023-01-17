@@ -2,6 +2,7 @@
 =====================
 
 0.X.X makes the first step to remove the Cairo lang dependency!
+
 Some classes/functions from the Cairo lang are rewritten and are the part of our library:
 
 - transactions' dataclasses
@@ -18,21 +19,21 @@ Breaking changes
 1. `InvokeFunction` is replaced by the `Invoke` dataclass (behaviour is the same, just the name is changed).
 2. client_models.py does not contain:
 
-- Invoke,
-- InvokeFunction,
-- StarknetTransaction,
-- AccountTransaction,
-- ContractClass,
-- Declare,
-- DeployAccount.
+   - Invoke,
+   - InvokeFunction,
+   - StarknetTransaction,
+   - AccountTransaction,
+   - ContractClass,
+   - Declare,
+   - DeployAccount.
 
 3. Transaction's `tx_type` field is renamed to `type`.
 4. The `types.py` is removed (outdated file containing only imports):
 
-- import `decode_shortstring` and `encode_shortstring` from `starknet_py.cairo.felt`
-- import `Invoke`, `InvokeFunction` and `Transaction` from `starknet_py.net.models.transaction`
-- import `parse_address` from `starknet_py.net.models.address`
-- import `net_address_from_net` from `starknet_py.net.networks`
+   - import `decode_shortstring` and `encode_shortstring` from `starknet_py.cairo.felt`,
+   - import `Invoke`, `InvokeFunction` and `Transaction` from `starknet_py.net.models.transaction`,
+   - import `parse_address` from `starknet_py.net.models.address`,
+   - import `net_address_from_net` from `starknet_py.net.networks`.
 
 |
 |
