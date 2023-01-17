@@ -28,4 +28,4 @@ def add_code_examples(original_class: Any) -> Any:
 
 
 def _camel_to_snake(text: str) -> str:
-    return re.sub(r'(?<!^)(?=[A-Z])', '_', text).lower()
+    return re.sub(r"(?<!^)(?=[A-Z])", "_", text).lower()
