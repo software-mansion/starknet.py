@@ -18,10 +18,7 @@ from starknet_py.net.client import Client
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.http_client import GatewayHttpClient
-from starknet_py.net.models import (
-    AddressRepresentation,
-    StarknetChainId,
-)
+from starknet_py.net.models import AddressRepresentation, StarknetChainId
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import (
     DEVNET_PRE_DEPLOYED_ACCOUNT_ADDRESS,
