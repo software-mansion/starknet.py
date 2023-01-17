@@ -46,8 +46,8 @@ Changes in the Account interface
 4. Some parameters like ``max_fee`` or ``auto_estimate`` are now keyword only arguments. They have to be explicitly named like ``account.sign_invoke_transaction(Call(...), max_fee=1000)``. Writing ``account.sign_invoke_transaction(Call(...), 1000)`` will not work.
 
 
-Deprecations
-------------
+0.13.0 Deprecations
+-------------------
 
 1. Passing a dict to ``BaseSigner.sign_message`` as parameter has been deprecated in favor of :class:`TypedData <starknet_py.utils.typed_data.TypedData>` dataclass.
 2. Argument ``client`` of ``Contract`.__init__` and ``Contract.from_address`` has been deprecated and replaced with ``provider``.
@@ -55,8 +55,8 @@ Deprecations
 4. ``PreparedFunctionCall.arguments`` has been deprecated to simplify the upcoming ``serialization`` module.
 
 
-Breaking changes
-----------------
+0.13.0 Breaking changes
+-----------------------
 
 1. ``version`` parameter has been removed from the most ``Contract`` methods. ``Contract`` will now use version that the ``Account`` or ``AccountClient`` is using.
 2. ``DeclareResult`` now only accepts :class:`BaseAccount <starknet_py.net.account.base_account.BaseAccount>`.
@@ -64,9 +64,11 @@ Breaking changes
 4. All error messages have been standardized with capitalization at the beginning and a full stop at the end.
 
 |
+
 .. raw:: html
 
-   <hr>
+  <hr>
+
 |
 
 **********************
@@ -75,16 +77,18 @@ Breaking changes
 
 StarkNet.py 0.12.0 brings support for the Cairo-lang 0.10.3 and the new TESTNET2 chainId.
 
-Breaking Changes
+0.12.0 Breaking Changes
 -----------------------
 
 There should not be any breaking changes if you are using the `StarknetChainId` imported from the `starknet_py.net.models`,
 but if you are importing it from the Cairo-lang package, please switch to the one from StarkNet.py.
 
 |
+
 .. raw:: html
 
-   <hr>
+  <hr>
+
 |
 
 **********************
@@ -93,7 +97,7 @@ but if you are importing it from the Cairo-lang package, please switch to the on
 
 Cairo-lang 0.10.3 dropped support for the `Deploy` transaction. To be compatible we had to remove some deprecated features.
 
-Breaking Changes
+0.11.0 Breaking Changes
 -----------------------
 
 Removed APIs:
@@ -112,9 +116,11 @@ Invoke Transaction
 Old `InvokeFunction` transaction is now aliased as `Invoke`. We suggest to start using the new `Invoke`.
 
 |
+
 .. raw:: html
 
    <hr>
+
 |
 
 **********************
@@ -124,7 +130,7 @@ Old `InvokeFunction` transaction is now aliased as `Invoke`. We suggest to start
 Starknet.py 0.9.0 brings support for `RPC 0.2.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.2.0>`_,
 updates :meth:`Contract.from_address` method to work with the newest proxies and removes some deprecated features.
 
-Breaking Changes
+0.9.0 Breaking Changes
 ----------------------
 
 - Removed deprecated `Account.sign_transaction`. Use new `Account.sign_invoke_transaction`.
@@ -139,9 +145,11 @@ Contract.from_address
 Check out the Guide with the new section :ref:`Resolving proxies` to see how to easily use proxies with the Starknet.py.
 
 |
+
 .. raw:: html
 
-   <hr>
+  <hr>
+
 |
 
 **********************
@@ -160,7 +168,7 @@ using new flow:
 
 or support deploying through syscall or `Universal Deployer Contract <https://community.starknet.io/t/universal-deployer-contract-proposal/1864>`_.
 
-Breaking Changes
+0.8.0 Breaking Changes
 ----------------------
 
 - `entry_point_selector` has been removed from `v1` transactions. `InvokeTransaction`'s field has been changed to `Optional[int]`
@@ -168,16 +176,18 @@ Breaking Changes
 - `Client.estimate_fee` ABC now also accepts `DeployAccount` transaction as `tx` parameter. Custom clients should be updated to reflect this change.
 
 
-Deprecations
+0.8.0 Deprecations
 ------------------
 
 - `Contract.deploy` has been deprecated in favor of new `DeployAccount` flow
 - `Client.deploy` has been deprecated
 
 |
+
 .. raw:: html
 
-   <hr>
+  <hr>
+
 |
 
 **********************
@@ -200,7 +210,7 @@ removed in the future.
     However, an upgrade is required to use the new features.
 
 
-Breaking Changes
+0.5.0 Breaking Changes
 -----------------------
 
 New Cairo syntax
@@ -301,10 +311,13 @@ Deploy transactions will not be supported in the future versions of StarkNet, so
 Contracts should be deployed through cairo syscall.
 
 |
+
 .. raw:: html
 
-   <hr>
+  <hr>
+
 |
+
 **********************
 0.4.0 Migration guide
 **********************
