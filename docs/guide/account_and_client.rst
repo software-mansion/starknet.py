@@ -1,6 +1,6 @@
-========
-Base API
-========
+==================
+Account and Client
+==================
 
 Account details
 ---------------
