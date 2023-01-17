@@ -7,7 +7,7 @@ def add_code_examples(original_class: Any) -> Any:
     for method_name, method in original_class.__dict__.items():
         file_name = "test_" + _camel_to_snake(original_class.__name__)
         docstring = f"""
-        .. literalinclude:: ../starknet_py/tests/e2e/docs/code_examples/{file_name}.py
+        .. codesnippet:: ../starknet_py/tests/e2e/docs/code_examples/{file_name}.py
             :language: python
             :start-after: docs: {method_name.strip("_")}_start
             :end-before: docs: {method_name.strip("_")}_end
