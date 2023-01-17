@@ -27,7 +27,12 @@ Breaking changes
 - DeployAccount.
 
 3. Transaction's `tx_type` field is renamed to `type`.
-4. The `types.py` is removed (outdated file containing only imports).
+4. The `types.py` is removed (outdated file containing only imports):
+
+- import `decode_shortstring` and `encode_shortstring` from `starknet_py.cairo.felt`
+- import `Invoke`, `InvokeFunction` and `Transaction` from `starknet_py.net.models.transaction`
+- import `parse_address` from `starknet_py.net.models.address`
+- import `net_address_from_net` from `starknet_py.net.networks`
 
 |
 |
