@@ -95,16 +95,22 @@ This is how we can interact with it:
 Resolving proxies
 -----------------
 
+.. note::
+    If you know the abi of the contract, **always prefer** creating Contract directly from constructor.
+
+    :meth:`Contract.from_address <starknet_py.contract.Contract.from_address>` must perform some calls to StarkNet to get an abi of the contract.
+
 Resolving proxies is a powerful feature of Starknet.py. If your contract is a proxy to some implementation, you can use
 high-level :meth:`Contract.from_address <starknet_py.contract.Contract.from_address>` method to get a contract instance.
 
 :meth:`Contract.from_address <starknet_py.contract.Contract.from_address>` works with contracts which are not proxies, so it is the most universal method of getting
 a contract not knowing the abi.
 
-.. note::
-    If you know the abi of the contract, **always prefer** creating Contract directly from constructor.
-
-    :meth:`Contract.from_address <starknet_py.contract.Contract.from_address>` must perform some calls to StarkNet to get an abi of the contract.
+.. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_resolving_proxies.py
+    :language: python
+    :dedent: 4
+    :start-after: docs-1: start
+    :end-before: docs-1: end
 
 
 ProxyChecks
@@ -144,6 +150,9 @@ Here is the code in practice:
 .. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_resolving_proxies.py
     :language: python
     :dedent: 4
+    :start-after: docs-2: start
+    :end-before: docs-2: end
+
 
 
 Account details
