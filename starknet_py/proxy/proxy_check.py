@@ -11,6 +11,7 @@ from starknet_py.net.client_models import Call
 from starknet_py.net.models import Address
 
 
+# docs-proxy-check: start
 class ProxyCheck(ABC):
     @abstractmethod
     async def implementation_address(
@@ -29,6 +30,7 @@ class ProxyCheck(ABC):
         :return: Implementation class hash of contract being proxied by proxy contract at `address`
             given as an argument or None if implementation does not exist.
         """
+        # docs-proxy-check: end
 
 
 class ArgentProxyCheck(ProxyCheck):

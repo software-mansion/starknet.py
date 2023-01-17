@@ -142,7 +142,7 @@ updates :meth:`Contract.from_address` method to work with the newest proxies and
 Contract.from_address
 ---------------------
 
-Check out the Guide with the new section :ref:`Resolving proxies` to see how to easily use proxies with the Starknet.py.
+Check out the Guide with the new section :ref:`Resolving proxy contracts` to see how to easily use proxies with the Starknet.py.
 
 |
 

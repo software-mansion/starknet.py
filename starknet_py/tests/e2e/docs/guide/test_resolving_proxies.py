@@ -22,18 +22,18 @@ async def test_resolving_proxies(
     deploy_proxy_to_contract_oz_argent,
 ):
     # pylint: disable=import-outside-toplevel
-    # docs: start
+    # docs-1: start
     from starknet_py.contract import Contract
 
-    # docs: end
+    # docs-1: end
     address = map_contract.address
-    # docs: start
+    # docs-1: start
     # Getting the direct contract from address
     contract = await Contract.from_address(address=address, client=gateway_client)
 
-    # docs: end
+    # docs-1: end
     address = deploy_proxy_to_contract_oz_argent.deployed_contract.address
-    # docs: start
+    # docs-1: start
     # To use contract behind a proxy as a regular contract, set proxy_config to True
     # It will check if your proxy is OpenZeppelin or ArgentX proxy
     contract = await Contract.from_address(
@@ -41,7 +41,8 @@ async def test_resolving_proxies(
     )
 
     # After that contract can be used as usual
-
+    # docs-1: end
+    # docs-2: start
     # To resolve proxy contract other than OpenZeppelin or ArgentX, a custom ProxyCheck is needed
     # The ProxyCheck below resolves proxy contracts which have implementation
     # stored in implementation() function as address
@@ -72,12 +73,12 @@ async def test_resolving_proxies(
         proxy_checks=[CustomProxyCheck(), ArgentProxyCheck(), OpenZeppelinProxyCheck()]
     )
 
-    # docs: end
+    # docs-2: end
     address = deploy_proxy_to_contract_exposed.deployed_contract.address
-    # docs: start
+    # docs-2: start
     contract = await Contract.from_address(
         address=address, client=gateway_client, proxy_config=proxy_config
     )
-    # docs: end
+    # docs-2: end
 
     assert contract.functions.keys() == {"put", "get"}
