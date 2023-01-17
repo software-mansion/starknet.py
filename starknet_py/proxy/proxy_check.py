@@ -30,9 +30,7 @@ class ProxyCheck(ABC):
         :return: Implementation class hash of contract being proxied by proxy contract at `address`
             given as an argument or None if implementation does not exist.
         """
-
-
-# docs-proxy-check: end
+        # docs-proxy-check: end
 
 
 class ArgentProxyCheck(ProxyCheck):
