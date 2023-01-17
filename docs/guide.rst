@@ -104,13 +104,13 @@ a contract not knowing the abi.
 .. note::
     If you know the abi of the contract, **always prefer** creating Contract directly from constructor.
 
-    :meth:`Contract.from_address <starknet_py.contract.Contract.from_address>` must perform some calls to get an abi of the contract.
+    :meth:`Contract.from_address <starknet_py.contract.Contract.from_address>` must perform some calls to StarkNet to get an abi of the contract.
 
 
 ProxyChecks
 ###########
 
-Since the Proxy contracts on StarkNet can have different implementations (especially, since everyone can write their own), there is no single way of checking if some contract is a Proxy contract.
+Since the Proxy contracts on StarkNet can have different implementations, as every user can define their custom implementation, there is no single way of checking if some contract is a Proxy contract.
 
 There are two main ways of proxying a contract on StarkNet:
  - forward the calls using ``library_call`` and ``class_hash`` of proxied contract
@@ -119,13 +119,13 @@ There are two main ways of proxying a contract on StarkNet:
 :meth:`Contract.from_address <starknet_py.contract.Contract.from_address>` uses ``ProxyChecks`` to fetch the ``implementation`` (address or class hash) of the proxied contract.
 
 **ProxyChecks** check whether the contract is a Proxy contract.
-They do that by trying to get the ``address`` or ``class_hash`` of the implementation.
+It does that by trying to get the ``address`` or ``class_hash`` of the implementation.
 
 By default, ``proxy_config`` uses a configuration with two **ProxyChecks**:
  - ArgentProxyCheck - resolves `Argent Proxy <https://github.com/argentlabs/argent-contracts-starknet/blob/b7c4af7462a461386d29551400b985832ba942de/contracts/upgrade/Proxy.cairo>`_.
  - OpenZeppelinProxyCheck - resolves `OpenZeppelin Proxy <https://github.com/OpenZeppelin/cairo-contracts/blob/d12abf335f5c778fd19d6f99e91c099b40865deb/src/openzeppelin/upgrades/presets/Proxy.cairo>`_.
 
-It's possible to define own ProxyCheck subclass and later pass it to :meth:`Contract.from_address <starknet_py.contract.Contract.from_address>`, so it knows how to resolve the Proxy.
+It's possible to define own ProxyCheck implementation and later pass it to :meth:`Contract.from_address <starknet_py.contract.Contract.from_address>`, so it knows how to resolve the Proxy.
 
 The **ProxyCheck** base class implements the following interface:
 
