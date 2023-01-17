@@ -36,7 +36,7 @@ class Uint256Serializer(CairoDataSerializer[Union[int, Uint256Dict], int]):
     def deserialize_with_context(self, context: DeserializationContext) -> int:
         [low, high] = context.reader.read(2)
 
-        # Checking if resulting value is in [0, 2^256) range is not enough. Uint256 should be made of two uint128.
+        # Checking if resulting value is in [0, 2**256) range is not enough. Uint256 should be made of two uint128.
         with context.push_entity("low"):
             self._ensure_valid_uint128(low, context)
         with context.push_entity("high"):
@@ -72,5 +72,5 @@ class Uint256Serializer(CairoDataSerializer[Union[int, Uint256Dict], int]):
     @staticmethod
     def _ensure_valid_uint128(value: int, context: Context):
         context.ensure_valid_value(
-            0 <= value < U128_UPPER_BOUND, "expected value in range [0;2^128)"
+            0 <= value < U128_UPPER_BOUND, "expected value in range [0;2**128)"
         )

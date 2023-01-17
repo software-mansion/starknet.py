@@ -44,7 +44,7 @@ def test_valid_values(value, serialized_value):
 def test_deserialize_invalid_values():
     # We need to escape braces
     low_error_message = re.escape(
-        "Error at path 'low': expected value in range [0;2^128)"
+        "Error at path 'low': expected value in range [0;2**128)"
     )
     with pytest.raises(InvalidValueException, match=low_error_message):
         serializer.deserialize([MAX_U128 + 1, 0])
@@ -54,7 +54,7 @@ def test_deserialize_invalid_values():
         serializer.deserialize([-1, 0])
 
     high_error_message = re.escape(
-        "Error at path 'high': expected value in range [0;2^128)"
+        "Error at path 'high': expected value in range [0;2**128)"
     )
     with pytest.raises(InvalidValueException, match=high_error_message):
         serializer.deserialize([0, MAX_U128 + 1])
@@ -63,7 +63,7 @@ def test_deserialize_invalid_values():
 
 
 def test_serialize_invalid_int_value():
-    error_message = re.escape("Error: Uint256 is expected to be in range [0;2^256)")
+    error_message = re.escape("Error: Uint256 is expected to be in range [0;2**256)")
     with pytest.raises(InvalidValueException, match=error_message):
         serializer.serialize(2**256)
     with pytest.raises(InvalidValueException, match=error_message):
@@ -72,7 +72,7 @@ def test_serialize_invalid_int_value():
 
 def test_serialize_invalid_dict_values():
     low_error_message = re.escape(
-        "Error at path 'low': expected value in range [0;2^128)"
+        "Error at path 'low': expected value in range [0;2**128)"
     )
     with pytest.raises(InvalidValueException, match=low_error_message):
         serializer.serialize({"low": -1, "high": 12324})
@@ -80,7 +80,7 @@ def test_serialize_invalid_dict_values():
         serializer.serialize({"low": MAX_U128 + 1, "high": 4543535})
 
     high_error_message = re.escape(
-        "Error at path 'high': expected value in range [0;2^128)"
+        "Error at path 'high': expected value in range [0;2**128)"
     )
     with pytest.raises(InvalidValueException, match=high_error_message):
         serializer.serialize({"low": 652432, "high": -1})
