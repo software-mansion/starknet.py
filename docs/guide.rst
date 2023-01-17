@@ -145,7 +145,7 @@ It has two methods:
  - `implementation_hash` - returns the `class_hash` of the proxied contract (implement this if your Proxy contract uses the `class_hash` of another contract as `implementation`)
 
 
-Here is the code in practice:
+Here is the complete example:
 
 .. codesnippet:: ../starknet_py/tests/e2e/docs/guide/test_resolving_proxies.py
     :language: python
