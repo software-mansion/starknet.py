@@ -10,16 +10,16 @@ from starknet_py.utils.contructor_args_translator import translate_constructor_a
 async def test_default_deploy_with_class_hash(account, map_class_hash):
     deployer = Deployer()
 
-    deploy_call, address = deployer.create_deployment_call(class_hash=map_class_hash)
+    contract_deployment = deployer.create_deployment_call(class_hash=map_class_hash)
 
     deploy_invoke_tx = await account.sign_invoke_transaction(
-        deploy_call, max_fee=MAX_FEE
+        contract_deployment.call, max_fee=MAX_FEE
     )
     resp = await account.client.send_transaction(deploy_invoke_tx)
     await account.client.wait_for_tx(resp.transaction_hash)
 
-    assert isinstance(address, int)
-    assert address != 0
+    assert isinstance(contract_deployment.address, int)
+    assert contract_deployment.address != 0
 
 
 @pytest.mark.asyncio

@@ -15,7 +15,9 @@ from starknet_py.utils.contructor_args_translator import translate_constructor_a
 from starknet_py.utils.crypto.facade import pedersen_hash
 from starknet_py.utils.sync import add_sync_methods
 
-ContractDeployment = NamedTuple("ContractDeployment", [("udc", Call), ("address", int)])
+ContractDeployment = NamedTuple(
+    "ContractDeployment", [("call", Call), ("address", int)]
+)
 
 
 @add_sync_methods
@@ -103,7 +105,7 @@ class Deployer:
 
         address = self._compute_address(salt, class_hash, raw_calldata or [])
 
-        return ContractDeployment(udc=call, address=address)
+        return ContractDeployment(call=call, address=address)
 
     def _compute_address(
         self, salt: int, class_hash: int, constructor_calldata: List[int]
