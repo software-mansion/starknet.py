@@ -78,7 +78,7 @@ class Client(ABC):
 
         :param block_hash: Block's hash or literals `"pending"` or `"latest"`
         :param block_number: Block's number or literals `"pending"` or `"latest"`
-        :return: BlockStateUpdate oject representing changes in the requested block
+        :return: BlockStateUpdate object representing changes in the requested block
         """
 
     @abstractmethod
@@ -249,7 +249,7 @@ class Client(ABC):
         """
         Get the contract class hash for the contract deployed at the given address
 
-        :param contract_address: Address of the contraact whose class hash is to be returned
+        :param contract_address: Address of the contract whose class hash is to be returned
         :param block_hash: Block's hash or literals `"pending"` or `"latest"`
         :param block_number: Block's number or literals `"pending"` or `"latest"`
         :return: Class hash

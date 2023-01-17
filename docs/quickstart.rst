@@ -85,7 +85,7 @@ Using Contract
 
 .. note::
 
-    To check if invoke succeed use wait_for_acceptance on InvokeResult and get its status.
+    To check if invoke succeeds use wait_for_acceptance on InvokeResult and get its status.
 
 Although asynchronous API is recommended, you can also use Contract's synchronous API:
 
