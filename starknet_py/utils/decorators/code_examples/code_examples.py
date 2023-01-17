@@ -1,4 +1,6 @@
-from starknet_py.utils.sync.sync import T
+from typing import TypeVar
+
+T = TypeVar("T")
 
 
 def add_code_examples(original_class: T) -> T:

@@ -33,7 +33,7 @@ from starknet_py.proxy.contract_abi_resolver import (
 from starknet_py.utils.contructor_args_translator import translate_constructor_args
 from starknet_py.utils.crypto.facade import Call, pedersen_hash
 from starknet_py.utils.data_transformer import FunctionCallSerializer
-from starknet_py.utils.sync import add_sync_methods
+from starknet_py.utils.decorators import add_sync_methods
 
 ABI = list
 ABIEntry = dict

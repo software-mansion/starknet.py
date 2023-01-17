@@ -46,12 +46,10 @@ from starknet_py.net.schemas.gateway import (
     TypesOfTransactionsSchema,
 )
 from starknet_py.transaction_exceptions import TransactionNotReceivedError
-from starknet_py.utils.code_examples import add_code_examples
-from starknet_py.utils.sync import add_sync_methods
+from starknet_py.utils.decorators import add_sync_methods
 
 
 @add_sync_methods
-@add_code_examples
 class GatewayClient(Client):
     def __init__(
         self,

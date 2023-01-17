@@ -45,8 +45,8 @@ from starknet_py.utils.crypto.facade import Call
 from starknet_py.utils.data_transformer.execute_transformer import (
     execute_transformer_by_version,
 )
+from starknet_py.utils.decorators import add_sync_methods
 from starknet_py.utils.iterable import ensure_iterable
-from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.typed_data import TypedData as TypedDataDataclass
 
 
