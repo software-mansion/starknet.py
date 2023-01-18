@@ -59,7 +59,7 @@ class AbiParser:
         """
         Parse abi provided to constructor and return it as a dataclass. Ensures that there are no cycles in the abi.
 
-        :raises: AbiParsingError: if anything goes wrong.
+        :raises: AbiParsingError: on any parsing error.
         :return: Abi dataclass.
         """
         structures = self._parse_structures()
