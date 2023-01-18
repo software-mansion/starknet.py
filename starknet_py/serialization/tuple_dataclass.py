@@ -7,7 +7,8 @@ from typing import Dict, Optional, Tuple
 @dataclass(frozen=True, eq=False)
 class TupleDataclass:
     """
-    Dataclass that behaves like a tuple at the same time.
+    Dataclass that behaves like a tuple at the same time. Used when data has defined order and names.
+    For instance in case of named tuples or function responses.
     """
 
     # getattr is called when attribute is not found in object. For instance when using object.unknown_attribute.
@@ -26,9 +27,15 @@ class TupleDataclass:
         return (getattr(self, field.name) for field in fields(self))
 
     def as_tuple(self) -> Tuple:
+        """
+        Creates a regular tuple from TupleDataclass.
+        """
         return tuple(self)
 
     def as_dict(self) -> Dict:
+        """
+        Creates a regular dict from TupleDataclass.
+        """
         return {field.name: getattr(self, field.name) for field in fields(self)}
 
     # Added for backward compatibility with previous implementation based on NamedTuple

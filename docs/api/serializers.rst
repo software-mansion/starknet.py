@@ -2,10 +2,16 @@
 Serializers
 ###########
 
+.. py:module:: starknet_py.serialization
+
+Data types
+----------
+.. autoclass:: TupleDataclass
+    :exclude-members: __init__, __new__
+    :members: as_tuple, as_dict
+
 Factory functions
 -----------------
-
-.. py:module:: starknet_py.serialization
 
 .. autofunction:: serializer_for_function
 .. autofunction:: serializer_for_event
