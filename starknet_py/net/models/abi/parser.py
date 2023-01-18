@@ -29,12 +29,21 @@ class AbiParsingError(ValueError):
 
 
 class AbiParser:
+    """
+    Utility class for parsing abi into a dataclass.
+    """
+
     # Entries from ABI grouped by entry type
     _grouped: DefaultDict[str, List[Dict]]
     # lazy init property
     _type_parser: Optional[TypeParser] = None
 
     def __init__(self, abi_list: List[Dict]):
+        """
+        Abi parser constructor. Ensures that abi satisfies the abi schema.
+
+        :param abi_list: Contract's ABI as a list of dictionaries.
+        """
         abi = [
             ContractAbiEntrySchema().load(entry, unknown=EXCLUDE) for entry in abi_list
         ]
@@ -45,6 +54,12 @@ class AbiParser:
         self._grouped = grouped
 
     def parse(self) -> Abi:
+        """
+        Parse abi provided to constructor and return it as a dataclass. Ensures that there are no cycles in the abi.
+
+        :raises: AbiParsingError: if anything goes wrong.
+        :return: Abi dataclass.
+        """
         structures = self._parse_structures()
         functions_dict = cast(
             Dict[str, FunctionDict],
