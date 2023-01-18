@@ -92,3 +92,8 @@ Although asynchronous API is recommended, you can also use Contract's synchronou
 .. codesnippet:: ../starknet_py/tests/e2e/docs/quickstart/test_synchronous_api.py
     :language: python
     :dedent: 4
+
+.. note::
+
+    Contract automatically serializes values to Cairo calldata. This includes adding array lengths automatically. See
+    more info in :ref:`Serialization`.

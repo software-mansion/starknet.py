@@ -25,7 +25,9 @@ from starknet_py.net.models.abi.shape import (
 
 
 class AbiParsingError(ValueError):
-    pass
+    """
+    Error raised when something wrong goes during abi parsing.
+    """
 
 
 class AbiParser:

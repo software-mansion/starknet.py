@@ -79,7 +79,8 @@ Conversion functions and references:
 Creating serializers from abi
 -----------------------------
 For most use cases using high level :obj:`Contract <starknet_py.contract.Contract>` is enough - it handles serialization
-and deserialization for you. If you need more flexibility you can use lower level serialization API.
+and deserialization for you. If you need more flexibility you can use lower level serialization API, see :ref:`Serializers`
+for more details.
 
 :obj:`AbiParser <starknet_py.net.models.abi.parser.AbiParser>` transforms ABI into
 :obj:`Abi dataclass <starknet_py.net.models.abi.model.Abi>` that can be used for creating serializers. This way you can

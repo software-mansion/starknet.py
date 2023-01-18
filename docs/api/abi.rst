@@ -3,8 +3,17 @@ Abi
 
 Module containing representation of contract abi and parser for creating it from parsed json.
 
+Parsing abi
+-----------
+
 .. autoclass:: starknet_py.net.models.abi.parser.AbiParser
     :members: parse
+
+.. autoclass:: starknet_py.net.models.abi.parser.AbiParsingError
+    :exclude-members: __init__, __new__
+
+Model
+-----------
 
 .. autoclass:: starknet_py.net.models.abi.model.Abi
     :exclude-members: __init__, __new__

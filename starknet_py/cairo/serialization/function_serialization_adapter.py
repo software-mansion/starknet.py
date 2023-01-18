@@ -14,7 +14,7 @@ from starknet_py.utils.tuple_dataclass import TupleDataclass
 @dataclass
 class FunctionSerializationAdapter:
     """
-    Class serializing *args and **kwargs by adapting them to function inputs.
+    Class serializing ``*args`` and ``**kwargs`` by adapting them to function inputs.
     """
 
     inputs_serializer: PayloadSerializer
