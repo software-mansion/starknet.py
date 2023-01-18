@@ -80,7 +80,7 @@ async def test_using_existing_contracts(account, erc20_contract):
 
     (balance,) = await contract.functions["balanceOf"].call(recipient)
 
-    # You can also use key access, call returns NamedTuple
+    # You can also use key access, call returns TupleDataclass which behaves similar to NamedTuple
     result = await contract.functions["balanceOf"].call(recipient)
     balance = result.balance
     # docs: end

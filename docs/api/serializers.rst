@@ -4,7 +4,7 @@ Serializers
 
 .. py:module:: starknet_py.serialization
 
-Data types
+Containers
 ----------
 .. autoclass:: TupleDataclass
     :exclude-members: __init__, __new__

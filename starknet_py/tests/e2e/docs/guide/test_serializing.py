@@ -1,4 +1,4 @@
-# pylint: disable=import-outside-toplevel
+# pylint: disable=import-outside-toplevel, unused-variable
 import json
 
 from starknet_py.tests.e2e.fixtures.misc import read_contract
@@ -7,13 +7,30 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
 def test_abi_parsing():
     raw_abi_string = read_contract("erc20_abi.json")
     # docs: start
-    from starknet_py.abi.parser import AbiParser
+    from starknet_py.abi import AbiParser
 
-    erc20_raw_abi = json.loads(raw_abi_string)
-    abi = AbiParser(erc20_raw_abi).parse()
+    # noinspection PyUnresolvedReferences,PyUnusedLocal
+    contract = """
+    @event
+    func Transfer(from_: felt, to: felt, value: Uint256) {
+    }
+    
+    @external
+    func transferFrom{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        sender: felt, recipient: felt, amount: felt
+    ) -> (success: felt) {
+        alloc_locals;
+        local success: felt = 1;
+        return (success,);
+    }
+    """
+
+    erc20_abi = json.loads(raw_abi_string)
+    abi = AbiParser(erc20_abi).parse()
 
     from starknet_py.serialization import serializer_for_function
 
+    # You can create serializer for function inputs/outputs by passing Abi.Function object to serializer_for_function
     function_serializer = serializer_for_function(abi.functions["transferFrom"])
 
     # You can call function serializer like you would a normal function
@@ -33,6 +50,7 @@ def test_abi_parsing():
 
     from starknet_py.serialization import serializer_for_event
 
+    # You can create serializer for events by passing Abi.Event object to serializer_for_event
     event_serializer = serializer_for_event(abi.events["Transfer"])
     assert [1, 2, 3, 4] == event_serializer.serialize(
         {"from_": 1, "to": 2, "value": 3 + 4 * 2**128}

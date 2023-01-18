@@ -28,7 +28,7 @@ Starknet.py transforms python values to Cairo values and the other way around.
      - ``(1, 2, (9, 8))``, ``[1, 2, (9, 8)]``, ``(v for v in [1, 2, (9, 8)])``
      - Can nest other types apart from pointers
    * - named tuple
-     - dict or NamedTuple or DataclassTuple
+     - dict or NamedTuple or :obj:`TupleDataclass <starknet_py.serialization.TupleDataclass>`
      - ``{"a": 1, "b": 2, "c" : (3, 4)}``, ``NamedTuple("name", [("a", int), ("b", int), ("c", tuple)])(1, 2, (3, 4))``
      -
    * - struct
@@ -57,7 +57,7 @@ Starknet.py transforms python values to Cairo values and the other way around.
    * - tuple
      - tuple
    * - named tuple
-     - DataclassTuple
+     - :obj:`TupleDataclass <starknet_py.serialization.TupleDataclass>`
    * - struct
      - dict with keys matching struct
    * - pointer/array
