@@ -11,10 +11,8 @@ from starkware.starknet.core.os.class_hash import compute_class_hash
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 
-from starknet_py.cairo.serialization.factory import serializer_for_function
-from starknet_py.cairo.serialization.function_serialization_adapter import (
-    FunctionSerializationAdapter,
-)
+from starknet_py.abi.model import Abi
+from starknet_py.abi.parser import AbiParser
 from starknet_py.common import create_compiled_contract
 from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
@@ -29,18 +27,19 @@ from starknet_py.net.models import (
     compute_address,
     parse_address,
 )
-from starknet_py.net.models.abi.model import Abi
-from starknet_py.net.models.abi.parser import AbiParser
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.proxy.contract_abi_resolver import (
     ContractAbiResolver,
     ProxyConfig,
     prepare_proxy_config,
 )
+from starknet_py.serialization import TupleDataclass, serializer_for_function
+from starknet_py.serialization.function_serialization_adapter import (
+    FunctionSerializationAdapter,
+)
 from starknet_py.utils.contructor_args_translator import translate_constructor_args
 from starknet_py.utils.crypto.facade import pedersen_hash
 from starknet_py.utils.sync import add_sync_methods
-from starknet_py.utils.tuple_dataclass import TupleDataclass
 
 ABI = list
 ABIEntry = dict

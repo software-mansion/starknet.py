@@ -5,7 +5,7 @@ Serializers
 Factory functions
 -----------------
 
-.. py:module:: starknet_py.cairo.serialization
+.. py:module:: starknet_py.serialization
 
 .. autofunction:: serializer_for_function
 .. autofunction:: serializer_for_event

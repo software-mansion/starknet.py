@@ -1,7 +1,7 @@
 from typing import List, Optional, Union
 
-from starknet_py.cairo.serialization.factory import serializer_for_function
-from starknet_py.net.models.abi.parser import AbiParser
+from starknet_py.abi.parser import AbiParser
+from starknet_py.serialization import serializer_for_function
 
 
 def translate_constructor_args(
