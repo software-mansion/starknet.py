@@ -1,6 +1,6 @@
-#####
 Guide
-#####
+=====
+
 .. toctree::
 
     guide/account_and_client

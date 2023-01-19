@@ -1,6 +1,5 @@
-##################################
 StarkNet <> Ethereum communication
-##################################
+==================================
 
 .. warning::
     StarkNet <> Ethereum Messaging module is deprecated. If you are using it,
