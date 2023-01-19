@@ -1,6 +1,5 @@
-###########
 Serializers
-###########
+===========
 
 .. py:module:: starknet_py.serialization
 
