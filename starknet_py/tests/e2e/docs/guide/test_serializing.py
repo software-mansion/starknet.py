@@ -6,6 +6,7 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 def test_abi_parsing():
     raw_abi_string = read_contract("erc20_abi.json")
+    # pylint: disable=pointless-string-statement)
     # docs: start
     from starknet_py.abi import AbiParser
 
@@ -13,7 +14,7 @@ def test_abi_parsing():
     @event
     func Transfer(from_: felt, to: felt, value: Uint256) {
     }
-    
+
     @external
     func transferFrom{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         sender: felt, recipient: felt, amount: felt
