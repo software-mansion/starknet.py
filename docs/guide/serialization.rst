@@ -5,7 +5,7 @@ Serialization
 Data serialization
 -------------------
 
-Starknet.py transforms python values to Cairo values and the other way around.
+Starknet.py **serializes** python values to Cairo values and **deserializes** Cairo values to python values.
 
 .. warning::
     Serializing short strings to felts has been deprecated. Please use `starknet_py.cairo.felt.encode_shortstring` to
