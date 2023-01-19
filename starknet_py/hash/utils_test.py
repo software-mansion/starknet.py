@@ -31,5 +31,5 @@ def test_compute_hash_on_elements(data, calculated_hash):
          ),
     ],
 )
-def test_pedersen_hash(x, y, hash_):
-    assert pedersen_hash(x, y) == hash_
+def test_pedersen_hash(first, second, hash_):
+    assert pedersen_hash(first, second) == hash_

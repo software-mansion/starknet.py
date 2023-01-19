@@ -39,7 +39,9 @@ def compute_hash_on_elements(data: Sequence) -> int:
     return functools.reduce(pedersen_hash, [*data, len(data)], 0)
 
 
-def message_signature(msg_hash: int, priv_key: int, seed: Optional[int] = 32) -> ECSignature:
+def message_signature(
+    msg_hash: int, priv_key: int, seed: Optional[int] = 32
+) -> ECSignature:
     """
     Signs the message with private key.
     """
