@@ -27,3 +27,9 @@ Here is step by step example:
 .. codesnippet:: ../starknet_py/tests/e2e/docs/account_creation/test_deploy_prefunded_account.py
     :language: python
     :dedent: 4
+
+.. hint::
+
+    If you are experiencing transaction failures with ``FEE_TRANSFER_FAILURE``
+    make sure that the address you are trying to deploy is prefunded with enough
+    tokens, and verify that ``max_fee`` argument is set to a high enough value.
