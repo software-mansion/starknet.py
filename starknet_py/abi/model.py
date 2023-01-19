@@ -31,7 +31,9 @@ class Abi:
         name: str
         data: OrderedDict[str, CairoType]
 
-    defined_structures: Dict[str, StructType]  #: Abi of structures defined by the class.
+    defined_structures: Dict[
+        str, StructType
+    ]  #: Abi of structures defined by the class.
     functions: Dict[str, Function]  #: Functions defined by the class.
     constructor: Optional[
         Function
