@@ -19,6 +19,9 @@ def _starknet_keccak(data: bytes) -> int:
 
 
 def pedersen_hash(left: int, right: int) -> int:
+    """
+    One of two hash functions (along with _starknet_keccak) used throughout StarkNet.
+    """
     if use_cpp_variant():
         return cpp_hash(left, right)
     return default_hash(left, right)
@@ -36,5 +39,8 @@ def compute_hash_on_elements(data: Sequence) -> int:
     return functools.reduce(pedersen_hash, [*data, len(data)], 0)
 
 
-def message_signature(msg_hash, priv_key, seed: Optional[int] = 32) -> ECSignature:
+def message_signature(msg_hash: int, priv_key: int, seed: Optional[int] = 32) -> ECSignature:
+    """
+    Signs the message with private key.
+    """
     return sign(msg_hash, priv_key, seed)
