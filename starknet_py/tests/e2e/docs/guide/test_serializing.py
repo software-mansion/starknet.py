@@ -9,8 +9,7 @@ def test_abi_parsing():
     # docs: start
     from starknet_py.abi import AbiParser
 
-    # noinspection PyUnresolvedReferences,PyUnusedLocal
-    contract = """
+    """
     @event
     func Transfer(from_: felt, to: felt, value: Uint256) {
     }
