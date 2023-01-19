@@ -1,4 +1,4 @@
-# pylint: disable=import-outside-toplevel, unused-variable
+# pylint: disable=import-outside-toplevel, pointless-string-statement
 import json
 
 from starknet_py.tests.e2e.fixtures.misc import read_contract
@@ -6,7 +6,6 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 def test_abi_parsing():
     raw_abi_string = read_contract("erc20_abi.json")
-    # pylint: disable=pointless-string-statement)
     # docs: start
     from starknet_py.abi import AbiParser
 
