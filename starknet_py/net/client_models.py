@@ -11,7 +11,7 @@ from starkware.starknet.services.api.gateway.transaction import InvokeFunction a
 from starkware.starknet.services.api.gateway.transaction import Transaction as T
 from typing_extensions import Literal
 
-from starknet_py.net.models.abi.shape import AbiDictList
+from starknet_py.abi.shape import AbiDictList
 from starknet_py.utils.docs import as_our_module
 
 Invoke = InvokeFunction = as_our_module(IF)

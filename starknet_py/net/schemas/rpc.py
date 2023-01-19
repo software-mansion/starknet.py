@@ -1,6 +1,7 @@
 from marshmallow import EXCLUDE, Schema, fields, post_load, pre_load
 from marshmallow_oneofschema import OneOfSchema
 
+from starknet_py.abi.schemas import ContractAbiEntrySchema
 from starknet_py.net.client_models import (
     BlockStateUpdate,
     DeclaredContract,
@@ -24,7 +25,6 @@ from starknet_py.net.client_models import (
     StorageDiff,
     TransactionReceipt,
 )
-from starknet_py.net.models.abi.schemas import ContractAbiEntrySchema
 from starknet_py.net.schemas.common import (
     BlockStatusField,
     Felt,

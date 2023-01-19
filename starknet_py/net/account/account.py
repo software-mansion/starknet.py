@@ -5,18 +5,6 @@ from typing import Dict, Iterable, List, Optional, Tuple, TypeVar, Union
 
 from starkware.starknet.public.abi import get_selector_from_name
 
-from starknet_py.cairo.serialization.data_serializers.array_serializer import (
-    ArraySerializer,
-)
-from starknet_py.cairo.serialization.data_serializers.felt_serializer import (
-    FeltSerializer,
-)
-from starknet_py.cairo.serialization.data_serializers.payload_serializer import (
-    PayloadSerializer,
-)
-from starknet_py.cairo.serialization.data_serializers.struct_serializer import (
-    StructSerializer,
-)
 from starknet_py.common import create_compiled_contract
 from starknet_py.net import KeyPair
 from starknet_py.net.account.account_deployment_result import AccountDeploymentResult
@@ -50,6 +38,14 @@ from starknet_py.net.networks import (
 )
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
+from starknet_py.serialization.data_serializers.array_serializer import ArraySerializer
+from starknet_py.serialization.data_serializers.felt_serializer import FeltSerializer
+from starknet_py.serialization.data_serializers.payload_serializer import (
+    PayloadSerializer,
+)
+from starknet_py.serialization.data_serializers.struct_serializer import (
+    StructSerializer,
+)
 from starknet_py.utils.iterable import ensure_iterable
 from starknet_py.utils.typed_data import TypedData as TypedDataDataclass
 
