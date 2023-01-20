@@ -88,7 +88,11 @@ class Declare(AccountTransaction):
         name = Declare._contract_attribute_name(data)
 
         program = data[name]["program"]
-        data[name]["program"] = Declare._compress_program(program)
+
+        compressed_program = json.dumps(program)
+        compressed_program = gzip.compress(data=compressed_program.encode("ascii"))
+        compressed_program = base64.b64encode(compressed_program)
+        data[name]["program"] = compressed_program.decode("ascii")
 
         return data
 
@@ -125,14 +129,6 @@ class Declare(AccountTransaction):
         return (
             "contract_definition" if "contract_definition" in data else "contract_class"
         )
-
-    @staticmethod
-    def _compress_program(program: Dict[str, Any]):
-        compressed_program = json.dumps(program)
-        compressed_program = gzip.compress(data=compressed_program.encode("ascii"))
-        compressed_program = base64.b64encode(compressed_program)
-
-        return compressed_program.decode("ascii")
 
 
 @dataclass(frozen=True)
