@@ -3,13 +3,14 @@ from __future__ import annotations
 import random
 from typing import List, NamedTuple, Optional, Union, cast
 
-from starknet_py.cairo.selector import get_selector_from_name
 from starknet_py.common import int_from_hex
 from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS, FIELD_PRIME
+from starknet_py.hash.address import compute_address
+from starknet_py.hash.selector import get_selector_from_name
+from starknet_py.hash.utils import pedersen_hash
 from starknet_py.net.client_models import Call, Hash
-from starknet_py.net.models import AddressRepresentation, compute_address, parse_address
+from starknet_py.net.models import AddressRepresentation, parse_address
 from starknet_py.utils.contructor_args_translator import translate_constructor_args
-from starknet_py.utils.crypto.facade import pedersen_hash
 from starknet_py.utils.data_transformer.universal_deployer_serializer import (
     deploy_contract_abi,
     universal_deployer_serializer,

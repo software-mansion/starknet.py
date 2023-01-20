@@ -4,7 +4,7 @@ from typing import cast
 
 import pytest
 
-from starknet_py.class_hash import compute_class_hash
+from starknet_py.hash.contract_class import compute_class_hash
 from starknet_py.net.client_models import DeclaredContract
 from starknet_py.net.schemas.gateway import DeclaredContractSchema
 from starknet_py.tests.e2e.fixtures.misc import read_contract

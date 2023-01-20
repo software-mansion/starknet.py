@@ -1,6 +1,6 @@
 import pytest
 
-from starknet_py.cairo.storage import get_storage_var_address
+from starknet_py.hash.storage import get_storage_var_address
 
 # fmt: off
 
