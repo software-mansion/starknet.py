@@ -17,7 +17,7 @@ Breaking changes
 ----------------
 
 1. `InvokeFunction` is replaced by the `Invoke` dataclass (behaviour is the same, just the name is changed).
-2. client_models.py does not contain:
+2. Removed from client_models.py
 
    - Invoke,
    - InvokeFunction,
