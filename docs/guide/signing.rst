@@ -1,6 +1,5 @@
-#######
 Signing
-#######
+=======
 
 Using different signing methods
 -------------------------------
