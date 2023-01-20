@@ -128,11 +128,11 @@ class Declare(AccountTransaction):
 
     @staticmethod
     def _compress_program(program: Dict[str, Any]):
-        program = json.dumps(program)
-        program = gzip.compress(data=program.encode("ascii"))
-        program = base64.b64encode(program)
+        compressed_program = json.dumps(program)
+        compressed_program = gzip.compress(data=compressed_program.encode("ascii"))
+        compressed_program = base64.b64encode(compressed_program)
 
-        return program.decode("ascii")
+        return compressed_program.decode("ascii")
 
 
 @dataclass(frozen=True)
