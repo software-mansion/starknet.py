@@ -7,11 +7,13 @@ def add_code_examples(original_class: Any) -> Any:
     for method_name, method in original_class.__dict__.items():
         file_name = "test_" + _camel_to_snake(original_class.__name__)
         docstring = f"""
-        .. codesnippet:: ../starknet_py/tests/e2e/docs/code_examples/{file_name}.py
-            :language: python
-            :start-after: docs: {method_name.strip("_")}_start
-            :end-before: docs: {method_name.strip("_")}_end
-            :dedent: 4
+        .. hint::
+        
+            .. codesnippet:: ../starknet_py/tests/e2e/docs/code_examples/{file_name}.py
+                :language: python
+                :start-after: docs: {method_name.strip("_")}_start
+                :end-before: docs: {method_name.strip("_")}_end
+                :dedent: 4
         """
 
         # if method does not have __doc__ take it from the base method
