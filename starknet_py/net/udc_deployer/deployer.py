@@ -90,7 +90,7 @@ class Deployer:
         salt = cast(int, salt or ContractAddressSalt.get_random_value())
         class_hash = int_from_hex(class_hash)
 
-        calldata = deployer_serializer.serialize(
+        calldata = _deployer_serializer.serialize(
             classHash=class_hash,
             salt=salt,
             unique=int(self._unique),
@@ -124,7 +124,7 @@ class Deployer:
         )
 
 
-deployer_abi = AbiParser(
+_deployer_abi = AbiParser(
     [
         {
             "data": [
@@ -155,4 +155,6 @@ deployer_abi = AbiParser(
     ]
 ).parse()
 
-deployer_serializer = serializer_for_function(deployer_abi.functions["deployContract"])
+_deployer_serializer = serializer_for_function(
+    _deployer_abi.functions["deployContract"]
+)
