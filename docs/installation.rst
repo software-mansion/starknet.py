@@ -25,7 +25,7 @@ Instructions assume `Homebrew <https://brew.sh/>`_ being installed.
         brew install cmake
 
     It is required to build `crypto-cpp-py <https://github.com/software-mansion-labs/crypto-cpp-py>`_
-    dependency in case it haven't been updated tu support newest MacOS versions.
+    dependency in case it hasn't been updated to support newest MacOS versions.
 
 Intel processor
 ^^^^^^^^^^^^^^^
