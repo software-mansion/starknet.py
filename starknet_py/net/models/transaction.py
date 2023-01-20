@@ -1,3 +1,6 @@
+import base64
+import gzip
+import json
 import warnings
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
@@ -7,10 +10,6 @@ import marshmallow
 import marshmallow_dataclass
 from marshmallow import fields
 from starkware.starknet.services.api.contract_class import ContractClass
-from starkware.starknet.services.api.gateway.transaction_utils import (
-    compress_program_post_dump,
-    decompress_program,
-)
 
 from starknet_py.cairo.selector import get_selector_from_name
 from starknet_py.net.client_models import TransactionType
@@ -80,17 +79,33 @@ class Declare(AccountTransaction):
 
     @marshmallow.post_dump
     def compress_program_post_dump(
-        self, data: Dict[str, Any], many: bool, **kwargs
+        self, data: Dict[str, Any], **kwargs
     ) -> Dict[str, Any]:
-        # pylint: disable=no-self-use, unused-argument
-        return compress_program_post_dump(data=data, many=many)
+        # Allowing **kwargs is needed here because marshmallow is passing additional parameters here
+        # along with data, which we don't handle.
+        # pylint: disable=unused-argument
+
+        name = Declare._contract_attribute_name(data)
+
+        program = data[name]["program"]
+        data[name]["program"] = Declare._compress_program(program)
+
+        return data
 
     @marshmallow.pre_load
-    def decompress_program(
-        self, data: Dict[str, Any], many: bool, **kwargs
-    ) -> Dict[str, Any]:
-        # pylint: disable=no-self-use, unused-argument
-        return decompress_program(data=data, many=many)
+    def decompress_program(self, data: Dict[str, Any], **kwargs) -> Dict[str, Any]:
+        # pylint: disable=unused-argument
+
+        name = Declare._contract_attribute_name(data)
+
+        compressed_program: str = data[name]["program"]
+
+        program = base64.b64decode(compressed_program.encode("ascii"))
+        program = gzip.decompress(data=program)
+        program = json.loads(program.decode("ascii"))
+        data[name]["program"] = program
+
+        return data
 
     def calculate_hash(self, chain_id: StarknetChainId) -> int:
         """
@@ -104,6 +119,20 @@ class Declare(AccountTransaction):
             version=self.version,
             nonce=self.nonce,
         )
+
+    @staticmethod
+    def _contract_attribute_name(data: Dict[str, Any]):
+        return (
+            "contract_definition" if "contract_definition" in data else "contract_class"
+        )
+
+    @staticmethod
+    def _compress_program(program: Dict[str, Any]):
+        program = json.dumps(program)
+        program = gzip.compress(data=program.encode("ascii"))
+        program = base64.b64encode(program)
+
+        return program.decode("ascii")
 
 
 @dataclass(frozen=True)
