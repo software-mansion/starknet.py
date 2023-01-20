@@ -83,7 +83,7 @@ class Declare(AccountTransaction):
     ) -> Dict[str, Any]:
         # Allowing **kwargs is needed here because marshmallow is passing additional parameters here
         # along with data, which we don't handle.
-        # pylint: disable=unused-argument
+        # pylint: disable=unused-argument, no-self-use
 
         name = Declare._contract_attribute_name(data)
 
@@ -94,7 +94,7 @@ class Declare(AccountTransaction):
 
     @marshmallow.pre_load
     def decompress_program(self, data: Dict[str, Any], **kwargs) -> Dict[str, Any]:
-        # pylint: disable=unused-argument
+        # pylint: disable=unused-argument, no-self-use
 
         name = Declare._contract_attribute_name(data)
 
