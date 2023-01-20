@@ -105,11 +105,12 @@ def test_code_offset():
 
 
 def test_missing_type():
-    with pytest.raises(UnknownCairoTypeError) as err_info:
+    with pytest.raises(
+        UnknownCairoTypeError, match="Type 'Uint256' is not defined"
+    ) as err_info:
         TypeParser({}).parse_inline_type("Uint256")
 
     assert err_info.value.type_name == "Uint256"
-    assert str(err_info.value) == "Type 'Uint256' is not defined"
 
 
 def test_names_not_matching():

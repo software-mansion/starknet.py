@@ -168,7 +168,7 @@ class AbiParser:
     def _parse_members(
         self, params: List[TypedMemberDict], entity_name: str
     ) -> OrderedDict[str, CairoType]:
-        # Without cast it complains that 'Type "TypedMemberDict" cannot be assigned to type "T@_group_by_name"'
+        # Without cast, it complains that 'Type "TypedMemberDict" cannot be assigned to type "T@_group_by_name"'
         members = AbiParser._group_by_entry_name(cast(List[Dict], params), entity_name)
         return OrderedDict(
             (name, self.type_parser.parse_inline_type(param["type"]))
