@@ -6,7 +6,7 @@ from starkware.starknet.services.api.contract_class import ContractClass
 
 from starknet_py.common import int_from_bytes
 from starknet_py.constants import DEFAULT_ENTRY_POINT_SELECTOR
-from starknet_py.utils.crypto.facade import compute_hash_on_elements
+from starknet_py.hash.utils import compute_hash_on_elements
 
 
 class TransactionHashPrefix(Enum):

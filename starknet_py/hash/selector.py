@@ -1,9 +1,9 @@
-from starknet_py.cairo.utils import _starknet_keccak
 from starknet_py.constants import (
     DEFAULT_ENTRY_POINT_NAME,
     DEFAULT_ENTRY_POINT_SELECTOR,
     DEFAULT_L1_ENTRY_POINT_NAME,
 )
+from starknet_py.hash.utils import _starknet_keccak
 
 
 def get_selector_from_name(func_name: str) -> int:

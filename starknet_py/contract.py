@@ -12,21 +12,18 @@ from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 
 from starknet_py.abi.model import Abi
 from starknet_py.abi.parser import AbiParser
-from starknet_py.cairo.selector import get_selector_from_name
 from starknet_py.common import create_compiled_contract
 from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
+from starknet_py.hash.address import compute_address
+from starknet_py.hash.selector import get_selector_from_name
+from starknet_py.hash.utils import pedersen_hash
 from starknet_py.net import AccountClient
 from starknet_py.net.account._account_proxy import AccountProxy
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import Call, Hash, Tag
-from starknet_py.net.models import (
-    AddressRepresentation,
-    Invoke,
-    compute_address,
-    parse_address,
-)
+from starknet_py.net.models import AddressRepresentation, Invoke, parse_address
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.proxy.contract_abi_resolver import (
     ContractAbiResolver,
@@ -38,7 +35,6 @@ from starknet_py.serialization.function_serialization_adapter import (
     FunctionSerializationAdapter,
 )
 from starknet_py.utils.contructor_args_translator import translate_constructor_args
-from starknet_py.utils.crypto.facade import pedersen_hash
 from starknet_py.utils.sync import add_sync_methods
 
 ABI = list

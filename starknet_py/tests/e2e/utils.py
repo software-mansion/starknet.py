@@ -3,10 +3,11 @@ from typing import Optional, Tuple, cast
 
 from starknet_py.constants import EC_ORDER
 from starknet_py.contract import Contract
+from starknet_py.hash.address import compute_address
 from starknet_py.net import AccountClient, KeyPair
 from starknet_py.net.client import Client
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models import StarknetChainId, compute_address
+from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.net.networks import Network
 

@@ -14,5 +14,3 @@ Module containing base models and functions to operate on them.
     :members:
 
 .. autofunction:: compute_invoke_hash
-.. autofunction:: compute_address
-

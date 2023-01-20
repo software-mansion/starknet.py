@@ -6,6 +6,7 @@ from typing import Dict, Iterable, List, Optional, Tuple, Union
 from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.common import create_compiled_contract
+from starknet_py.hash.address import compute_address
 from starknet_py.net import KeyPair
 from starknet_py.net.account.account_deployment_result import AccountDeploymentResult
 from starknet_py.net.account.base_account import BaseAccount
@@ -23,7 +24,6 @@ from starknet_py.net.models import (
     AddressRepresentation,
     StarknetChainId,
     chain_from_network,
-    compute_address,
     parse_address,
 )
 from starknet_py.net.models.transaction import (

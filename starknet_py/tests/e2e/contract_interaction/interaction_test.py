@@ -3,9 +3,9 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
-from starknet_py.cairo.selector import get_selector_from_name
 from starknet_py.common import create_compiled_contract
 from starknet_py.contract import Contract
+from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import Call, SentTransactionResponse
 from starknet_py.net.gateway_client import GatewayClient

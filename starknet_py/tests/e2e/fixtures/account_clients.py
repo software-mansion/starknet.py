@@ -9,6 +9,7 @@ import pytest_asyncio
 
 from starknet_py.constants import DEFAULT_DECLARE_SENDER_ADDRESS
 from starknet_py.contract import Contract
+from starknet_py.hash.address import compute_address
 from starknet_py.net import AccountClient, KeyPair
 from starknet_py.net.account._account_proxy import AccountProxy
 from starknet_py.net.account.account import Account
@@ -17,11 +18,7 @@ from starknet_py.net.client import Client
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.http_client import GatewayHttpClient
-from starknet_py.net.models import (
-    AddressRepresentation,
-    StarknetChainId,
-    compute_address,
-)
+from starknet_py.net.models import AddressRepresentation, StarknetChainId
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import (
     DEVNET_PRE_DEPLOYED_ACCOUNT_ADDRESS,

@@ -5,12 +5,15 @@ from typing import Dict, List, Union, cast
 from starkware.crypto.signature.signature import private_to_stark_key
 
 from starknet_py.constants import DEFAULT_ENTRY_POINT_SELECTOR
-from starknet_py.net.models import (
-    AddressRepresentation,
-    StarknetChainId,
-    compute_address,
-    parse_address,
+from starknet_py.hash.address import compute_address
+from starknet_py.hash.transaction import (
+    TransactionHashPrefix,
+    compute_declare_transaction_hash,
+    compute_deploy_account_transaction_hash,
+    compute_transaction_hash,
 )
+from starknet_py.hash.utils import message_signature
+from starknet_py.net.models import AddressRepresentation, StarknetChainId, parse_address
 from starknet_py.net.models.transaction import (
     AccountTransaction,
     Declare,
@@ -18,13 +21,6 @@ from starknet_py.net.models.transaction import (
     Invoke,
 )
 from starknet_py.net.signer.base_signer import BaseSigner
-from starknet_py.utils.crypto.facade import message_signature
-from starknet_py.utils.crypto.transaction_hash import (
-    TransactionHashPrefix,
-    compute_declare_transaction_hash,
-    compute_deploy_account_transaction_hash,
-    compute_transaction_hash,
-)
 from starknet_py.utils.typed_data import TypedData
 
 
