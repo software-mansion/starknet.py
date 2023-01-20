@@ -18,7 +18,7 @@ MacOS
 Instructions assume `Homebrew <https://brew.sh/>`_ being installed.
 
 .. hint:: If experiencing issues installing StarkNet.py related to ``fastecdsa`` on recent versions of MacOS
-    consider installing ``cmake``.
+    consider installing ``cmake`` with version ``>=3.22.4``.
 
     .. code-block:: bash
 
