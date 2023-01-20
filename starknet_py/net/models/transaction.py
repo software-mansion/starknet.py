@@ -85,29 +85,24 @@ class Declare(AccountTransaction):
         # along with data, which we don't handle.
         # pylint: disable=unused-argument, no-self-use
 
-        name = Declare._contract_attribute_name(data)
-
-        program = data[name]["program"]
+        program = data["contract_class"]["program"]
 
         compressed_program = json.dumps(program)
         compressed_program = gzip.compress(data=compressed_program.encode("ascii"))
         compressed_program = base64.b64encode(compressed_program)
-        data[name]["program"] = compressed_program.decode("ascii")
+        data["contract_class"]["program"] = compressed_program.decode("ascii")
 
         return data
 
     @marshmallow.pre_load
     def decompress_program(self, data: Dict[str, Any], **kwargs) -> Dict[str, Any]:
         # pylint: disable=unused-argument, no-self-use
-
-        name = Declare._contract_attribute_name(data)
-
-        compressed_program: str = data[name]["program"]
+        compressed_program: str = data["contract_class"]["program"]
 
         program = base64.b64decode(compressed_program.encode("ascii"))
         program = gzip.decompress(data=program)
         program = json.loads(program.decode("ascii"))
-        data[name]["program"] = program
+        data["contract_class"]["program"] = program
 
         return data
 
@@ -122,12 +117,6 @@ class Declare(AccountTransaction):
             max_fee=self.max_fee,
             version=self.version,
             nonce=self.nonce,
-        )
-
-    @staticmethod
-    def _contract_attribute_name(data: Dict[str, Any]):
-        return (
-            "contract_definition" if "contract_definition" in data else "contract_class"
         )
 
 
