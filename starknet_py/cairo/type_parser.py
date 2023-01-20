@@ -39,7 +39,7 @@ class TypeParser:
         """
         TypeParser constructor.
 
-        :param defined_types: dictionary containing all defined types. For now they can only be structures.
+        :param defined_types: dictionary containing all defined types. For now, they can only be structures.
         """
         self.defined_types = defined_types
         for name, struct in defined_types.items():
