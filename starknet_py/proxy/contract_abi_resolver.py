@@ -5,7 +5,7 @@ from typing import List, Tuple, TypedDict
 from starknet_py.constants import RPC_CLASS_HASH_NOT_FOUND_ERROR
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError, ContractNotFoundError
-from starknet_py.net.client_models import Abi, DeclaredContract
+from starknet_py.net.client_models import Abi, ContractClass
 from starknet_py.net.models import Address
 from starknet_py.proxy.proxy_check import (
     ArgentProxyCheck,
@@ -126,7 +126,7 @@ class ContractAbiResolver:
 
         raise ProxyResolutionError()
 
-    async def _get_class_by_address(self, address: Address) -> DeclaredContract:
+    async def _get_class_by_address(self, address: Address) -> ContractClass:
         try:
             contract_class_hash = await self.client.get_class_hash_at(
                 contract_address=address

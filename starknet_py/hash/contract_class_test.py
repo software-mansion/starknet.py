@@ -5,8 +5,8 @@ from typing import cast
 import pytest
 
 from starknet_py.hash.contract_class import compute_class_hash
-from starknet_py.net.client_models import DeclaredContract
-from starknet_py.net.schemas.gateway import DeclaredContractSchema
+from starknet_py.net.client_models import ContractClass
+from starknet_py.net.schemas.gateway import ContractClassSchema
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
@@ -21,7 +21,7 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
 )
 def test_compute_class_hash(contract_source, hash_):
     compiled_contract = read_contract(contract_source)
-    contract_class = cast(DeclaredContract, DeclaredContractSchema().loads(compiled_contract))
+    contract_class = cast(ContractClass, ContractClassSchema().loads(compiled_contract))
     class_hash = compute_class_hash(contract_class)
     assert class_hash == hash_
 
@@ -31,7 +31,7 @@ def test_compute_class_hash(contract_source, hash_):
 )
 def test_old_compiler_version(contract_source):
     compiled_contract = read_contract(contract_source)
-    contract_class = cast(DeclaredContract, DeclaredContractSchema().loads(compiled_contract))
+    contract_class = cast(ContractClass, ContractClassSchema().loads(compiled_contract))
 
     with pytest.raises(ValueError, match=r"compiler before version 0\.10\.0"):
         compute_class_hash(contract_class)

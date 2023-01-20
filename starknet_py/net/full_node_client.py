@@ -9,7 +9,7 @@ from starknet_py.net.client_models import (
     BlockStateUpdate,
     BlockTransactionTraces,
     Call,
-    DeclaredContract,
+    ContractClass,
     DeclareTransactionResponse,
     DeployAccountTransactionResponse,
     EstimatedFee,
@@ -33,7 +33,7 @@ from starknet_py.net.models.transaction import (
 from starknet_py.net.networks import Network
 from starknet_py.net.schemas.rpc import (
     BlockStateUpdateSchema,
-    DeclaredContractSchema,
+    ContractClassSchema,
     DeclareTransactionResponseSchema,
     DeployAccountTransactionResponseSchema,
     EstimatedFeeSchema,
@@ -261,7 +261,7 @@ class FullNodeClient(Client):
         class_hash: Hash,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> DeclaredContract:
+    ) -> ContractClass:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -270,9 +270,7 @@ class FullNodeClient(Client):
             method_name="getClass",
             params={"class_hash": hash_to_felt(class_hash), **block_identifier},
         )
-        return cast(
-            DeclaredContract, DeclaredContractSchema().load(res, unknown=EXCLUDE)
-        )
+        return cast(ContractClass, ContractClassSchema().load(res, unknown=EXCLUDE))
 
     # Only RPC methods
 
@@ -329,7 +327,7 @@ class FullNodeClient(Client):
         contract_address: Hash,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> DeclaredContract:
+    ) -> ContractClass:
         """
         Get the contract class definition in the given block at the given address
 
@@ -350,9 +348,7 @@ class FullNodeClient(Client):
             },
         )
 
-        return cast(
-            DeclaredContract, DeclaredContractSchema().load(res, unknown=EXCLUDE)
-        )
+        return cast(ContractClass, ContractClassSchema().load(res, unknown=EXCLUDE))
 
     async def get_pending_transactions(self) -> List[Transaction]:
         """

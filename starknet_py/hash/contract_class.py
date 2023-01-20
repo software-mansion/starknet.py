@@ -4,10 +4,10 @@ from typing import List
 from starknet_py.cairo.felt import encode_shortstring
 from starknet_py.constants import API_VERSION
 from starknet_py.hash.utils import _starknet_keccak, compute_hash_on_elements
-from starknet_py.net.client_models import DeclaredContract, EntryPoint
+from starknet_py.net.client_models import ContractClass, EntryPoint
 
 
-def compute_class_hash(contract_class: DeclaredContract) -> int:
+def compute_class_hash(contract_class: ContractClass) -> int:
     """
     Calculate class hash of a declared contract.
     """
@@ -57,7 +57,7 @@ def _entry_points_array(entry_points: List[EntryPoint]) -> List[int]:
     return entry_points_array
 
 
-def _compute_hinted_class_hash(contract_class: DeclaredContract) -> int:
+def _compute_hinted_class_hash(contract_class: ContractClass) -> int:
     program = contract_class.program
     program["debug_info"] = None
 
