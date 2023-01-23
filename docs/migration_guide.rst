@@ -9,7 +9,7 @@ Migration guide
 
 Some classes/functions from the Cairo lang are rewritten and are the part of our library:
 
-- transactions' dataclasses
+- :ref:`transactions' dataclasses <Transaction's dataclasses>`
 - `get_selector_from_name` and `get_storage_var_address` functions
 
 Deprecation
@@ -35,7 +35,7 @@ Breaking changes
 4. The `types.py` is removed (outdated file containing only imports):
 
    - import `decode_shortstring` and `encode_shortstring` from `starknet_py.cairo.felt`,
-   - import `Invoke`, `InvokeFunction` and `Transaction` from `starknet_py.net.models.transaction`,
+   - import `Invoke` and `Transaction` from `starknet_py.net.models.transaction`,
    - import `parse_address` from `starknet_py.net.models.address`,
    - import `net_address_from_net` from `starknet_py.net.networks`.
 
