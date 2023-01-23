@@ -1,6 +1,5 @@
-########################
 Using existing contracts
-########################
+========================
 
 Although it is possible to use :obj:`Client <starknet_py.net.gateway_client.GatewayClient>` to interact with contracts, it requires translating python values into Cairo
 values. Contract offers that and some other utilities.

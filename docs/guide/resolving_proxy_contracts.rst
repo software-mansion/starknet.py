@@ -1,6 +1,5 @@
-#########################
 Resolving proxy contracts
-#########################
+=========================
 
 .. note::
     If you know the abi of the contract, **always prefer** creating Contract directly from constructor.
