@@ -17,7 +17,7 @@ Breaking changes
 ----------------
 
 1. `InvokeFunction` is replaced by the `Invoke` dataclass (behaviour is the same, just the name is changed).
-2. Removed from client_models.py
+2. Removed from client_models.py:
 
    - Invoke,
    - InvokeFunction,
@@ -34,6 +34,17 @@ Breaking changes
    - import `Invoke`, `InvokeFunction` and `Transaction` from `starknet_py.net.models.transaction`,
    - import `parse_address` from `starknet_py.net.models.address`,
    - import `net_address_from_net` from `starknet_py.net.networks`.
+
+Transaction's dataclasses
+-------------------------
+
+All transaction's dataclasses can be imported from the `starknet_py.net.models.transaction` module.
+The main differences between them and those from the Cairo-lang:
+
+    - `tx_type` field is renamed to `type`,
+    - fields are not validated while creating.
+
+All of them can be used as usual.
 
 |
 |
