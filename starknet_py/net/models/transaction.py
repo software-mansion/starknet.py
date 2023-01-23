@@ -48,7 +48,7 @@ class Transaction(ABC):
 
 
 @dataclass(frozen=True)
-class AccountTransaction(Transaction):
+class AccountTransaction(Transaction, ABC):
     """
     Represents a transaction in the StarkNet network that is originated from an action of an
     account.
