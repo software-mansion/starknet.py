@@ -61,7 +61,7 @@ class AccountTransaction(Transaction, ABC):
     nonce: int = field(metadata={"marshmallow_field": Felt()})
 
 
-# Used in the Account instead of Union[Invoke, Declare, DeployAccount]
+# Used instead of Union[Invoke, Declare, DeployAccount]
 TypeAccountTransaction = TypeVar("TypeAccountTransaction", bound=AccountTransaction)
 
 
