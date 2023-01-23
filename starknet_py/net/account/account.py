@@ -1,8 +1,7 @@
 import dataclasses
 import re
-from typing import Dict, Iterable, List, Optional, Tuple, Union
 from collections import OrderedDict
-from typing import Dict, Iterable, List, Optional, Tuple, TypeVar, Union
+from typing import Dict, Iterable, List, Optional, Tuple, Union
 
 from starkware.starknet.public.abi import get_selector_from_name
 

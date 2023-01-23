@@ -10,9 +10,9 @@ from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
 from starkware.starknet.core.os.class_hash import compute_class_hash
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 
-from starknet_py.cairo.selector import get_selector_from_name
 from starknet_py.abi.model import Abi
 from starknet_py.abi.parser import AbiParser
+from starknet_py.cairo.selector import get_selector_from_name
 from starknet_py.common import create_compiled_contract
 from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
@@ -38,7 +38,6 @@ from starknet_py.serialization.function_serialization_adapter import (
     FunctionSerializationAdapter,
 )
 from starknet_py.utils.contructor_args_translator import translate_constructor_args
-from starknet_py.utils.data_transformer import FunctionCallSerializer
 from starknet_py.utils.crypto.facade import pedersen_hash
 from starknet_py.utils.sync import add_sync_methods
 

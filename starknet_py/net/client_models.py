@@ -4,6 +4,7 @@ from enum import Enum
 from typing import Any, Dict, Iterable, List, Optional, Union
 
 from typing_extensions import Literal
+
 from starknet_py.abi.shape import AbiDictList
 
 Hash = Union[int, str]
