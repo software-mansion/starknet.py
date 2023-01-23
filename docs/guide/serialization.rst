@@ -85,6 +85,22 @@ for more details.
 :obj:`Abi dataclass <starknet_py.net.models.abi.model.Abi>` that can be used for creating serializers. This way you can
 easily deserialize events or serialize function's inputs.
 
+Serializing function inputs and outputs
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_serializing.py
     :language: python
     :dedent: 4
+    :start-after: docs-serializer: start
+    :end-before: docs-serializer: end
+
+Serializing events
+^^^^^^^^^^^^^^^^^^
+
+Events emitted by contracts can also be serialized provided the correct ABI
+
+.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_serializing.py
+    :language: python
+    :dedent: 4
+    :start-after: docs-event: start
+    :end-before: docs-event: end
