@@ -4,6 +4,22 @@ import json
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
+def test_short_strings():
+    # docs-shortstring: start
+    from starknet_py.cairo.felt import decode_shortstring, encode_shortstring
+
+    # Convert a string literal to its felt value
+    encoded = encode_shortstring("myshortstring")
+    assert encoded == 0x6D7973686F7274737472696E67
+
+    # Decode a felt into a string
+    # Note that decoded value always has 31 characters in length.
+    # Extra `\x00` characters can be stripped to get only the encoded value.
+    decoded = decode_shortstring(encoded)
+    assert decoded == "myshortstring"
+    # docs-shortstring: end
+
+
 def test_abi_parsing():
     raw_abi_string = read_contract("erc20_abi.json")
     # docs-serializer: start

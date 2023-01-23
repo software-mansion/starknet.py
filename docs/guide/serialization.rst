@@ -76,6 +76,12 @@ Conversion functions and references:
 - :obj:`encode_shortstring <starknet_py.cairo.felt.encode_shortstring>`
 - :obj:`decode_shortstring <starknet_py.cairo.felt.decode_shortstring>`
 
+.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_serializing.py
+    :language: python
+    :dedent: 4
+    :start-after: docs-shortstring: start
+    :end-before: docs-shortstring: end
+
 Creating serializers from abi
 -----------------------------
 For most use cases using high level :obj:`Contract <starknet_py.contract.Contract>` is enough - it handles serialization
