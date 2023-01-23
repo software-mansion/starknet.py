@@ -9,7 +9,7 @@ def add_code_examples(original_class: Any) -> Any:
         docstring = f"""
         .. hint::
         
-            .. codesnippet:: ../starknet_py/tests/e2e/docs/code_examples/{file_name}.py
+            .. codesnippet:: ../../starknet_py/tests/e2e/docs/code_examples/{file_name}.py
                 :language: python
                 :start-after: docs: {method_name.strip("_")}_start
                 :end-before: docs: {method_name.strip("_")}_end
