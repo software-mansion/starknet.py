@@ -56,7 +56,6 @@ All of them can be used as usual.
 
   <hr>
 
-
 |
 
 **********************
