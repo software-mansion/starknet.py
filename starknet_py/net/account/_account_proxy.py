@@ -1,6 +1,7 @@
 __all__ = []
 
-from typing import List, Optional
+import dataclasses
+from typing import List, Optional, Union
 
 from starknet_py.net import AccountClient
 from starknet_py.net.account.base_account import BaseAccount
@@ -8,11 +9,11 @@ from starknet_py.net.client import Client
 from starknet_py.net.client_models import (
     Calls,
     Declare,
+    DeployAccount,
     Invoke,
     SentTransactionResponse,
 )
 from starknet_py.net.models import AddressRepresentation
-from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.net.models.typed_data import TypedData
 
 
@@ -40,6 +41,16 @@ class AccountProxy(BaseAccount):
         self, token_address: Optional[AddressRepresentation] = None
     ) -> int:
         return await self._account_client.get_balance(token_address=token_address)
+
+    async def sign_for_fee_estimate(
+        self, transaction: Union[Invoke, Declare, DeployAccount]
+    ) -> Union[Invoke, Declare, DeployAccount]:
+        version = self.supported_transaction_version + 2**128
+        signature = self._account_client.signer.sign_transaction(transaction)
+        transaction = dataclasses.replace(
+            transaction, version=version, signature=signature
+        )
+        return transaction
 
     async def sign_invoke_transaction(
         self,
