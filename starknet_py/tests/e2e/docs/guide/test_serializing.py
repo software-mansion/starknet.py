@@ -15,7 +15,7 @@ def test_short_strings():
     # Decode a felt into a string
     # Note that decoded value always has 31 characters in length.
     # Extra `\x00` characters can be stripped to get only the encoded value.
-    decoded = decode_shortstring(encoded)
+    decoded = decode_shortstring(encoded).lstrip("\x00")
     assert decoded == "myshortstring"
     # docs-shortstring: end
 
