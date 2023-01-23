@@ -45,8 +45,8 @@ Transaction's dataclasses
 All transaction's dataclasses can be imported from the `starknet_py.net.models.transaction` module.
 The main differences between them and those from the Cairo-lang:
 
-    - `tx_type` field is renamed to `type`,
-    - fields are not validated while creating.
+- `tx_type` field is renamed to `type`,
+- fields are not validated while creating.
 
 All of them can be used as usual.
 
