@@ -3,6 +3,7 @@ import warnings
 from enum import Enum
 from typing import AsyncGenerator, List, Tuple, TypedDict
 
+from starknet_py.abi.shape import AbiDictList
 from starknet_py.constants import (
     RPC_CLASS_HASH_NOT_FOUND_ERROR,
     RPC_CONTRACT_NOT_FOUND_ERROR,
@@ -10,7 +11,7 @@ from starknet_py.constants import (
 )
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError, ContractNotFoundError
-from starknet_py.net.client_models import Abi, DeclaredContract
+from starknet_py.net.client_models import DeclaredContract
 from starknet_py.net.models import Address
 from starknet_py.proxy.proxy_check import (
     ArgentProxyCheck,
@@ -73,7 +74,7 @@ class ContractAbiResolver:
         self.client = client
         self.proxy_config = proxy_config
 
-    async def resolve(self) -> Abi:
+    async def resolve(self) -> AbiDictList:
         """
         Returns abi of either direct contract or contract proxied by direct contract depending on proxy_config.
         :raises ContractNotFoundError: when contract could not be found at address
@@ -84,7 +85,7 @@ class ContractAbiResolver:
             return await self.get_abi_for_address()
         return await self.resolve_abi()
 
-    async def get_abi_for_address(self) -> Abi:
+    async def get_abi_for_address(self) -> AbiDictList:
         """
         Returns abi of a contract directly from address.
         :raises ContractNotFoundError: when contract could not be found at address
@@ -95,7 +96,7 @@ class ContractAbiResolver:
             raise AbiNotFoundError()
         return contract_class.abi
 
-    async def resolve_abi(self) -> Abi:
+    async def resolve_abi(self) -> AbiDictList:
         """
         Returns abi of a contract that is being proxied by contract at address.
         :raises ContractNotFoundError: when contract could not be found at address
