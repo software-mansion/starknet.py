@@ -1,3 +1,4 @@
+import re
 from typing import NamedTuple
 
 import pytest
@@ -325,7 +326,7 @@ def test_invalid_uint256(invalid_value: int):
             "type": "struct",
         }
     ]
-    with pytest.raises(InvalidValueException, match="in range \\[0;2\\^256\\)"):
+    with pytest.raises(InvalidValueException, match=re.escape("in range [0;2**256)")):
         transformer_for_function(inputs=abi, structs=structs).from_python(invalid_value)
 
 

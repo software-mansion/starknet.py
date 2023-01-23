@@ -4,6 +4,7 @@ from enum import Enum
 from typing import Any, Dict, Iterable, List, Optional, Union
 
 from typing_extensions import Literal
+from starknet_py.abi.shape import AbiDictList
 
 Hash = Union[int, str]
 Tag = Literal["pending", "latest"]
@@ -17,69 +18,6 @@ class Call:
 
 
 Calls = Union[Call, Iterable[Call]]
-
-
-@dataclass
-class StructMember:
-    """
-    Dataclass representing struct member
-    """
-
-    name: str
-    type: str
-    offset: int
-
-
-@dataclass
-class TypedParameter:
-    """
-    Dataclass representing typed parameter
-    """
-
-    name: str
-    type: str
-
-
-@dataclass
-class FunctionAbiEntry:
-    """
-    Dataclass representing function abi entry
-    """
-
-    name: str
-    type: str
-    inputs: List[TypedParameter]
-    outputs: List[TypedParameter]
-    stateMutability: Optional[str] = None  # pylint: disable=invalid-name
-
-
-@dataclass
-class EventAbiEntry:
-    """
-    Dataclass representing event abi entry
-    """
-
-    name: str
-    type: str
-    keys: List[TypedParameter]
-    data: List[TypedParameter]
-
-
-@dataclass
-class StructAbiEntry:
-    """
-    Dataclass representing struct abi entry
-    """
-
-    name: str
-    type: str
-    size: List[TypedParameter]
-    members: List[StructMember]
-
-
-ContractAbiEntry = Union[FunctionAbiEntry, EventAbiEntry, StructAbiEntry]
-
-Abi = List[Dict[str, Any]]
 
 
 @dataclass
@@ -393,7 +331,7 @@ class DeclaredContract:
 
     program: dict
     entry_points_by_type: EntryPointsByType
-    abi: Optional[Abi] = None
+    abi: Optional[AbiDictList] = None
 
 
 @dataclass

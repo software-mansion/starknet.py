@@ -1,3 +1,6 @@
+import warnings
+from typing import List
+
 from starkware.cairo.lang.compiler.ast.cairo_types import (
     CairoType,
     TypeFelt,
@@ -7,14 +10,24 @@ from starkware.cairo.lang.compiler.identifier_definition import StructDefinition
 
 from starknet_py.constants import FIELD_PRIME
 
+CairoData = List[int]
+
 
 def is_felt_pointer(cairo_type: CairoType) -> bool:
+    warnings.warn(
+        "Function is_felt_pointer is deprecated. Use starknet_py.cairo.type_parser module instead.",
+        category=DeprecationWarning,
+    )
     return isinstance(cairo_type, TypePointer) and isinstance(
         cairo_type.pointee, TypeFelt
     )
 
 
 def is_uint256(definition: StructDefinition) -> bool:
+    warnings.warn(
+        "Function is_uint256 is deprecated. Use starknet_py.cairo.type_parser module instead.",
+        category=DeprecationWarning,
+    )
     (struct_name, *_) = definition.full_name.path
 
     return (
@@ -33,15 +46,21 @@ MIN_UINT256 = 0
 
 def uint256_range_check(value: int):
     if not MIN_UINT256 <= value <= MAX_UINT256:
-        raise ValueError(f"Uint256 is expected to be in range [0;2^256), got: {value}.")
+        raise ValueError(
+            f"Uint256 is expected to be in range [0;2**256), got: {value}."
+        )
 
 
 MIN_FELT = -FIELD_PRIME // 2
 MAX_FELT = FIELD_PRIME // 2
 
 
+def is_in_felt_range(value: int) -> bool:
+    return 0 <= value < FIELD_PRIME
+
+
 def cairo_vm_range_check(value: int):
-    if not 0 <= value < FIELD_PRIME:
+    if not is_in_felt_range(value):
         raise ValueError(
             f"Felt is expected to be in range [0; {FIELD_PRIME}), got: {value}."
         )
