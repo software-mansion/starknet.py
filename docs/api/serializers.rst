@@ -42,7 +42,7 @@ Exceptions
 Deprecated old API
 ------------------
 
-.. warning::
+.. attention::
     ``data_transformer`` module has been deprecated. Use serialization module described above.
 
 .. autoclass:: starknet_py.utils.data_transformer.data_transformer.CairoSerializer
