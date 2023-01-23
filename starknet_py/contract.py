@@ -38,8 +38,7 @@ from starknet_py.serialization.function_serialization_adapter import (
     FunctionSerializationAdapter,
 )
 from starknet_py.utils.contructor_args_translator import translate_constructor_args
-from starknet_py.utils.crypto.facade import Call, pedersen_hash
-from starknet_py.utils.data_transformer import FunctionCallSerializer
+from starknet_py.utils.crypto.facade import pedersen_hash
 from starknet_py.utils.decorators import add_sync_methods
 
 ABI = list

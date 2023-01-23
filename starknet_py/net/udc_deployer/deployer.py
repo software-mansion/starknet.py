@@ -13,10 +13,6 @@ from starknet_py.net.models import AddressRepresentation, compute_address, parse
 from starknet_py.serialization import serializer_for_function
 from starknet_py.utils.contructor_args_translator import translate_constructor_args
 from starknet_py.utils.crypto.facade import pedersen_hash
-from starknet_py.utils.data_transformer.universal_deployer_serializer import (
-    deploy_contract_abi,
-    universal_deployer_serializer,
-)
 from starknet_py.utils.decorators import add_code_examples, add_sync_methods
 
 ContractDeployment = NamedTuple(
