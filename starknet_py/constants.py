@@ -15,7 +15,6 @@ DEFAULT_ENTRY_POINT_NAME = "__default__"
 DEFAULT_L1_ENTRY_POINT_NAME = "__l1_default__"
 DEFAULT_ENTRY_POINT_SELECTOR = 0
 DEFAULT_DECLARE_SENDER_ADDRESS = 1
-MASK_250 = 2**250 - 1
 
 # MAX_STORAGE_ITEM_SIZE and ADDR_BOUND must be consistent with the corresponding constant in
 # starkware/starknet/common/storage.cairo.

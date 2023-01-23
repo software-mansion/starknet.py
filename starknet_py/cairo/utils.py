@@ -1,7 +1,8 @@
 from eth_utils.crypto import keccak
 
 from starknet_py.common import int_from_bytes
-from starknet_py.constants import MASK_250
+
+MASK_250 = 2**250 - 1
 
 
 def _starknet_keccak(data: bytes) -> int:
