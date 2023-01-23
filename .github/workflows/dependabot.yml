@@ -9,6 +9,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+      with:
+        persist-credentials: false
+        fetch-depth: 0
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
@@ -20,7 +23,7 @@ jobs:
     - name: Export package list to requirements.txt
       run: poetry export -f requirements.txt --output requirements.txt --without-hashes --extras docs
     - name: Commit & Push changes
-      uses: actions-js/push@v1.3
+      uses: actions-js/push@156f2b10c3aa000c44dbe75ea7018f32ae999772 # v1.4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         message: '[dependabot][actions] Update requirements.txt'

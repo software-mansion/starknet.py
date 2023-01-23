@@ -391,6 +391,12 @@ class AccountClient(Client):
                 "Signing declare transactions is only supported with transaction version 1."
             )
 
+        warnings.warn(
+            "Argument compilation_source is deprecated and will be removed in the future. "
+            "Consider using already compiled contracts.",
+            category=DeprecationWarning,
+        )
+
         compiled_contract = create_compiled_contract(
             compilation_source, compiled_contract, cairo_path
         )

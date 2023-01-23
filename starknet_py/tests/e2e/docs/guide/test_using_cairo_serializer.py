@@ -5,7 +5,9 @@ from starknet_py.compile.compiler import Compiler
 
 
 @pytest.mark.asyncio
-async def test_using_cairo_serializer(account):
+async def test_using_cairo_serializer(
+    account, simple_storage_with_event_compiled_contract
+):
     # pylint: disable=unused-variable, import-outside-toplevel, too-many-locals
     # docs: start
     from starknet_py.contract import Contract
@@ -35,7 +37,7 @@ async def test_using_cairo_serializer(account):
         }
     """
     # docs: end
-    compiled_contract = Compiler(contract_source=contract).compile_contract()
+    compiled_contract = simple_storage_with_event_compiled_contract
     # docs: start
 
     # Declares and deploys the contract
