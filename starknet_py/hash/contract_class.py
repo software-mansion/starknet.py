@@ -1,4 +1,5 @@
 import json
+import re
 from typing import List
 
 from starknet_py.cairo.felt import encode_shortstring
@@ -97,12 +98,7 @@ def _fix_cairo_types(identifiers: dict) -> dict:
 
 
 def _add_backward_compatibility_space(cairo_type: str) -> str:
-    result = ""
-    for char in cairo_type:
-        if char == ":" and result[-1] != " ":
-            result += " "
-        result += char
-    return result
+    return re.sub(r"(?<! ):", " :", cairo_type)
 
 
 def _delete_attributes(program) -> dict:
