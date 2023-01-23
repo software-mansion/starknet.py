@@ -15,6 +15,7 @@ from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     BlockStateUpdate,
     BlockTransactionTraces,
+    Call,
     Calls,
     Declare,
     DeclaredContract,
@@ -41,7 +42,6 @@ from starknet_py.net.models.typed_data import TypedData
 from starknet_py.net.networks import MAINNET, TESTNET, TESTNET2, Network
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
-from starknet_py.utils.crypto.facade import Call
 from starknet_py.utils.data_transformer.execute_transformer import (
     execute_transformer_by_version,
 )
