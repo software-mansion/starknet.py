@@ -38,7 +38,7 @@ from starknet_py.tests.e2e.fixtures.constants import (
 )
 from starknet_py.tests.e2e.utils import (
     AccountToBeDeployedDetails,
-    _get_random_private_key,
+    _get_random_private_key_unsafe,
     get_deploy_account_details,
     get_deploy_account_transaction,
 )
@@ -66,7 +66,7 @@ async def devnet_account_details(
     """
     Deploys an AccountClient and adds fee tokens to its balance.
     """
-    private_key = _get_random_private_key()
+    private_key = _get_random_private_key_unsafe()
     key_pair = KeyPair.from_private_key(private_key)
 
     deployer = Deployer()
@@ -151,7 +151,7 @@ async def new_devnet_account_details(
     """
     Deploys a new AccountClient and adds fee tokens to its balance (only on devnet).
     """
-    private_key = _get_random_private_key()
+    private_key = _get_random_private_key_unsafe()
     key_pair = KeyPair.from_private_key(private_key)
     salt = 1
 

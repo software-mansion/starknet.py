@@ -23,7 +23,7 @@ async def get_deploy_account_details(
     :param class_hash: Class hash of account to be deployed
     :param fee_contract: Contract for prefunding deployments
     """
-    priv_key = _get_random_private_key()
+    priv_key = _get_random_private_key_unsafe()
     key_pair = KeyPair.from_private_key(priv_key)
     salt = 1
 
@@ -77,7 +77,7 @@ async def get_deploy_account_transaction(
     )
 
 
-def _get_random_private_key() -> int:
+def _get_random_private_key_unsafe() -> int:
     """
     Returns a private key in the range [1, EC_ORDER).
     This is not a safe way of generating private keys and should be used only in tests.
