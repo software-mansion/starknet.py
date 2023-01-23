@@ -79,7 +79,7 @@ class CodeSnippet(SphinxDirective):
             "start-after", self.default_start_marker
         )
         self.options["end-before"] = self.options.get(
-            "end-after", self.default_end_marker
+            "end-before", self.default_end_marker
         )
 
     def _set_locals(self) -> None:
