@@ -24,7 +24,7 @@ marshmallow-oneofschema = "^3.0.1"
 typing-extensions = "^4.3.0"
 cairo-lang = "==0.10.3"
 furo = "^2022.12.7"
-marshmallow-dataclass = "<8.5.0"
+marshmallow-dataclass = "<8.6.0"
 
 [tool.poetry.extras]
 docs = ["sphinx", "enum-tools"]
