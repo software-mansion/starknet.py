@@ -10,17 +10,17 @@ Migration guide
 Some classes/functions from the Cairo lang are rewritten and are the part of our library:
 
 - :ref:`transactions' dataclasses <Transaction's dataclasses>`
-- `get_selector_from_name` and `get_storage_var_address` functions
+- ``get_selector_from_name`` and ``get_storage_var_address`` functions
 
 Deprecation
 -----------
 
-`compute_invoke_hash` is deprecated in favour of `compute_transaction_hash`.
+- ``compute_invoke_hash`` is deprecated in favour of ``compute_transaction_hash``.
 
 Breaking changes
 ----------------
 
-1. `InvokeFunction` is replaced by the `Invoke` dataclass (behaviour is the same, just the name is changed).
+1. ``InvokeFunction`` is replaced by the ``Invoke`` dataclass (behaviour is the same, just the name is changed).
 2. Removed from client_models.py:
 
    - Invoke,
@@ -31,21 +31,21 @@ Breaking changes
    - Declare,
    - DeployAccount.
 
-3. Transaction's `tx_type` field is renamed to `type`.
-4. The `types.py` is removed (outdated file containing only imports):
+3. Transaction's ``tx_type`` field is renamed to ``type``.
+4. The ``types.py`` is removed (outdated file containing only imports):
 
-   - import `decode_shortstring` and `encode_shortstring` from `starknet_py.cairo.felt`,
-   - import `Invoke` and `Transaction` from `starknet_py.net.models.transaction`,
-   - import `parse_address` from `starknet_py.net.models.address`,
-   - import `net_address_from_net` from `starknet_py.net.networks`.
+   - import ``decode_shortstring`` and ``encode_shortstring`` from ``starknet_py.cairo.felt``,
+   - import ``Invoke`` and ``Transaction`` from ``starknet_py.net.models.transaction``,
+   - import ``parse_address`` from ``starknet_py.net.models.address``,
+   - import ``net_address_from_net`` from ``starknet_py.net.networks``.
 
 Transaction's dataclasses
 -------------------------
 
-All transaction's dataclasses can be imported from the `starknet_py.net.models.transaction` module.
+All transaction's dataclasses can be imported from the ``starknet_py.net.models.transaction`` module.
 The main differences between them and those from the Cairo-lang:
 
-- `tx_type` field is renamed to `type`,
+- ``tx_type`` field is renamed to ``type``,
 - fields are not validated while creating.
 
 All of them can be used as usual.
