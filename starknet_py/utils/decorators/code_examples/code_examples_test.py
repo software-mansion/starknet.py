@@ -41,8 +41,8 @@ class Cat(Animal):
 
 
 def test_codesnippet_added():
-    assert len(Cat.get_legs.__doc__) > len(Animal.get_legs.__doc__)
-    assert len(Cat.get_species.__doc__) > len(Animal.get_species.__doc__)
+    assert len(Cat.get_legs.__doc__) > len(Animal.get_legs.__doc__)  # pyright: ignore
+    assert len(Cat.get_species.__doc__) > len(Animal.get_species.__doc__)  # pyright: ignore
 
     assert Cat.__init__.__doc__.find("codesnippet")
     assert Cat.get_legs.__doc__.find("codesnippet")
