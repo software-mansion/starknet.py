@@ -197,7 +197,18 @@ class AccountClient(Client):
         return await self.client.get_class_by_hash(class_hash=class_hash)
 
     async def _get_nonce(self) -> int:
-        return await self.get_contract_nonce(self.address, block_hash="latest")
+        if self.supported_tx_version == 1:
+            return await self.get_contract_nonce(self.address, block_hash="latest")
+
+        [nonce] = await self.call_contract(
+            Call(
+                to_addr=self.address,
+                selector=get_selector_from_name("get_nonce"),
+                calldata=[],
+            ),
+            block_hash="pending",
+        )
+        return nonce
 
     def _get_default_token_address(self) -> str:
         if self.net not in [TESTNET, TESTNET2, MAINNET]:

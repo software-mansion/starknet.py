@@ -64,12 +64,10 @@ def _compute_hinted_class_hash(contract_class: ContractClass) -> int:
     if "attributes" in program:
         program = _delete_attributes(program)
 
-    # Compilers in version < 0.10.0 did not have "compiler_version" field
+    # If compiler_version is not present, this was compiled with a compiler before version 0.10.0.
+    # Use "(a : felt)" syntax instead of "(a: felt)" so that the class hash will be the same.
     if "compiler_version" not in program:
-        raise ValueError(
-            "Argument contract_class was compiled with a compiler before version 0.10.0. "
-            "Calculating it's class_hash is not supported."
-        )
+        program["identifiers"] = _fix_cairo_types(program["identifiers"])
 
     # ContractClass stores keys of `hints` field as integers, resulting in different sorting order
     program["hints"] = {int(key): val for key, val in program["hints"].items()}
@@ -77,6 +75,34 @@ def _compute_hinted_class_hash(contract_class: ContractClass) -> int:
     class_ = dict(abi=contract_class.abi, program=program)
     serialized_contract_class = json.dumps(obj=class_, sort_keys=True)
     return _starknet_keccak(data=serialized_contract_class.encode())
+
+
+def _fix_cairo_types(identifiers: dict) -> dict:
+    """
+    Recursively goes through identifiers looking for "cairo_type" fields.
+    Pads values with a space before the colon between variable and type.
+    Example:
+        (retdata_size: felt, retdata: felt*) => (retdata_size : felt, retdata : felt*)
+    """
+    for name, value in identifiers.items():
+        if not isinstance(value, dict):
+            continue
+
+        if "cairo_type" in value:
+            value["cairo_type"] = _add_backward_compatibility_space(value["cairo_type"])
+
+        identifiers[name] = _fix_cairo_types(value)
+
+    return identifiers
+
+
+def _add_backward_compatibility_space(cairo_type: str) -> str:
+    result = ""
+    for char in cairo_type:
+        if char == ":" and result[-1] != " ":
+            result += " "
+        result += char
+    return result
 
 
 def _delete_attributes(program) -> dict:
