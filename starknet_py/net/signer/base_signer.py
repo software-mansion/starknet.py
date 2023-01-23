@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Dict, List, Union
 
-from starknet_py.net.models.transaction import Transaction
+from starknet_py.net.models.transaction import AccountTransaction
 from starknet_py.utils.typed_data import TypedData
 
 
@@ -20,7 +20,7 @@ class BaseSigner(ABC):
         """
 
     @abstractmethod
-    def sign_transaction(self, transaction: Transaction) -> List[int]:
+    def sign_transaction(self, transaction: AccountTransaction) -> List[int]:
         """
         Sign execute transaction and return a signature
 
@@ -44,6 +44,4 @@ class BaseSigner(ABC):
                 Use :py:class:`starknet_py.utils.TypedData` instead
         :param account_address: account address
         :return: the signature of the JSON object
-
-
         """
