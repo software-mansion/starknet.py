@@ -104,7 +104,7 @@ Serializing function inputs and outputs
 Serializing events
 ^^^^^^^^^^^^^^^^^^
 
-Events emitted by contracts can also be serialized provided the correct ABI
+Events emitted by contracts can also be serialized, having provided the correct ABI
 
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_serializing.py
     :language: python
