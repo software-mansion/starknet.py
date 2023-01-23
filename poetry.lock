@@ -57,7 +57,7 @@ limiter = ["cachecontrol[filecache] (>=0.12.6)", "lockfile (>=0.12.2)"]
 
 [[package]]
 name = "asgiref"
-version = "3.5.2"
+version = "3.6.0"
 description = "ASGI specs, helper code, and adapters"
 category = "main"
 optional = false
@@ -1826,7 +1826,7 @@ test = ["pytest"]
 
 [[package]]
 name = "starknet-devnet"
-version = "0.4.3"
+version = "0.4.4"
 description = "A local testnet for Starknet"
 category = "dev"
 optional = false
@@ -2060,7 +2060,7 @@ eth-tester = []
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8, <3.10"
-content-hash = "e27a7809dfd48543fbd4d58352e240ccaff76064304ee5795120c72fd76c7dfe"
+content-hash = "c08be6141bda9fedffe69e1a21cbc4cff6381f27b06215a4ceede9c7341a8d65"
 
 [metadata.files]
 aiohttp = [
@@ -2165,8 +2165,8 @@ apeye = [
     {file = "apeye-1.2.0.tar.gz", hash = "sha256:0bb0f5b037730f149d3ab3697bc30ccccd60407cf16218d8ffa8f78462239e1e"},
 ]
 asgiref = [
-    {file = "asgiref-3.5.2-py3-none-any.whl", hash = "sha256:1d2880b792ae8757289136f1db2b7b99100ce959b2aa57fd69dab783d05afac4"},
-    {file = "asgiref-3.5.2.tar.gz", hash = "sha256:4a29362a6acebe09bf1d6640db38c1dc3d9217c68e6f9f6204d72667fc19a424"},
+    {file = "asgiref-3.6.0-py3-none-any.whl", hash = "sha256:71e68008da809b957b7ee4b43dbccff33d1b23519fb8344e33f049897077afac"},
+    {file = "asgiref-3.6.0.tar.gz", hash = "sha256:9567dfe7bd8d3c8c892227827c41cce860b368104c3431da67a0c5a65a949506"},
 ]
 astroid = [
     {file = "astroid-2.11.7-py3-none-any.whl", hash = "sha256:86b0a340a512c65abf4368b80252754cda17c02cdbbd3f587dddf98112233e7b"},
@@ -3370,8 +3370,8 @@ sphinxcontrib-serializinghtml = [
     {file = "sphinxcontrib_serializinghtml-1.1.5-py2.py3-none-any.whl", hash = "sha256:352a9a00ae864471d3a7ead8d7d79f5fc0b57e8b3f95e9867eb9eb28999b92fd"},
 ]
 starknet-devnet = [
-    {file = "starknet_devnet-0.4.3-py3-none-any.whl", hash = "sha256:d297f4313dca25141ad95b8a4c13d66b5a59ef63519924a637f23cbe1b7919db"},
-    {file = "starknet_devnet-0.4.3.tar.gz", hash = "sha256:0ddfb30fe3130ef68cd593f2097c6ff013ac0a65a0fc4c6310bb424bead0aa93"},
+    {file = "starknet_devnet-0.4.4-py3-none-any.whl", hash = "sha256:28e2c47aabbc744a4b63d4d14b0074d8cff5f5a7914a4a551c953e03b3ecc3a3"},
+    {file = "starknet_devnet-0.4.4.tar.gz", hash = "sha256:fa4497883d2e4795a21687605a3acc8dd4a74f34904df02c94cc6a25e74d5e86"},
 ]
 sympy = [
     {file = "sympy-1.11.1-py3-none-any.whl", hash = "sha256:938f984ee2b1e8eae8a07b884c8b7a1146010040fccddc6539c54f401c8f6fcf"},

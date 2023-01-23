@@ -1,5 +1,9 @@
+Migration guide
+===============
+
+*********************
 0.X.X Migration guide
-=====================
+*********************
 
 0.X.X makes the first step to remove the Cairo lang dependency!
 
@@ -47,10 +51,17 @@ The main differences between them and those from the Cairo-lang:
 All of them can be used as usual.
 
 |
+
+.. raw:: html
+
+  <hr>
+
+
 |
 
+**********************
 0.13.0 Migration guide
-=======================
+**********************
 
 This version deprecates the :class:`AccountClient <starknet_py.net.account.AccountClient>`, which is a major change to the StarkNet.py.
 It is replaced with new :class:`BaseAccount <starknet_py.net.account.base_account.BaseAccount>` ABC and its
@@ -110,10 +121,16 @@ Changes in the Account interface
 4. All error messages have been standardized with capitalization at the beginning and a full stop at the end.
 
 |
+
+.. raw:: html
+
+  <hr>
+
 |
 
+**********************
 0.12.0 Migration guide
-======================
+**********************
 
 StarkNet.py 0.12.0 brings support for the Cairo-lang 0.10.3 and the new TESTNET2 chainId.
 
@@ -124,10 +141,16 @@ There should not be any breaking changes if you are using the `StarknetChainId` 
 but if you are importing it from the Cairo-lang package, please switch to the one from StarkNet.py.
 
 |
+
+.. raw:: html
+
+  <hr>
+
 |
 
+**********************
 0.11.0 Migration guide
-======================
+**********************
 
 Cairo-lang 0.10.3 dropped support for the `Deploy` transaction. To be compatible we had to remove some deprecated features.
 
@@ -150,10 +173,16 @@ Invoke Transaction
 Old `InvokeFunction` transaction is now aliased as `Invoke`. We suggest to start using the new `Invoke`.
 
 |
+
+.. raw:: html
+
+   <hr>
+
 |
 
+**********************
 0.9.0 Migration guide
-=====================
+**********************
 
 Starknet.py 0.9.0 brings support for `RPC 0.2.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.2.0>`_,
 updates :meth:`Contract.from_address` method to work with the newest proxies and removes some deprecated features.
@@ -170,13 +199,19 @@ updates :meth:`Contract.from_address` method to work with the newest proxies and
 Contract.from_address
 ---------------------
 
-Check out the Guide with the new section :ref:`Resolving proxies` to see how to easily use proxies with the Starknet.py.
+Check out the Guide with the new section :ref:`Resolving proxy contracts` to see how to easily use proxies with the Starknet.py.
 
 |
+
+.. raw:: html
+
+  <hr>
+
 |
 
+**********************
 0.8.0 Migration guide
-=====================
+**********************
 
 Cairo-lang 0.10.1 brings support for `DEPLOY_ACCOUNT` transactions that will completely
 replace currently used `DEPLOY` transactions sometime in the future.
@@ -205,10 +240,16 @@ or support deploying through syscall or `Universal Deployer Contract <https://co
 - `Client.deploy` has been deprecated
 
 |
+
+.. raw:: html
+
+  <hr>
+
 |
 
+**********************
 0.5.0 Migration guide
-=====================
+**********************
 
 ``cairo-lang`` 0.10.0 brings a lot of new exciting changes, like:
 
@@ -327,10 +368,16 @@ Deploy transactions will not be supported in the future versions of StarkNet, so
 Contracts should be deployed through cairo syscall.
 
 |
+
+.. raw:: html
+
+  <hr>
+
 |
 
+**********************
 0.4.0 Migration guide
-=====================
+**********************
 
 0.4.0 of starknet.py brings multiple changes including breaking changes to API.
 To ensure smooth migration to this version please familiarize yourself with this

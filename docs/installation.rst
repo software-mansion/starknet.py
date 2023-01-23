@@ -17,6 +17,16 @@ MacOS
 
 Instructions assume `Homebrew <https://brew.sh/>`_ being installed.
 
+.. hint:: If you are experiencing issues installing StarkNet.py related to ``fastecdsa`` on recent versions of MacOS
+    consider installing ``cmake`` with version ``>=3.22.4``.
+
+    .. code-block:: bash
+
+        brew install cmake
+
+    It is required to build `crypto-cpp-py <https://github.com/software-mansion-labs/crypto-cpp-py>`_
+    dependency in case it hasn't been updated to support newest MacOS versions.
+
 Intel processor
 ^^^^^^^^^^^^^^^
 

@@ -1,3 +1,6 @@
+import base64
+import gzip
+import json
 import warnings
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
@@ -7,10 +10,6 @@ import marshmallow
 import marshmallow_dataclass
 from marshmallow import fields
 from starkware.starknet.services.api.contract_class import ContractClass
-from starkware.starknet.services.api.gateway.transaction_utils import (
-    compress_program_post_dump,
-    decompress_program,
-)
 
 from starknet_py.cairo.selector import get_selector_from_name
 from starknet_py.net.client_models import TransactionType
@@ -80,17 +79,32 @@ class Declare(AccountTransaction):
 
     @marshmallow.post_dump
     def compress_program_post_dump(
-        self, data: Dict[str, Any], many: bool, **kwargs
+        self, data: Dict[str, Any], **kwargs
     ) -> Dict[str, Any]:
-        # pylint: disable=no-self-use, unused-argument
-        return compress_program_post_dump(data=data, many=many)
+        # Allowing **kwargs is needed here because marshmallow is passing additional parameters here
+        # along with data, which we don't handle.
+        # pylint: disable=unused-argument, no-self-use
+
+        program = data["contract_class"]["program"]
+
+        compressed_program = json.dumps(program)
+        compressed_program = gzip.compress(data=compressed_program.encode("ascii"))
+        compressed_program = base64.b64encode(compressed_program)
+        data["contract_class"]["program"] = compressed_program.decode("ascii")
+
+        return data
 
     @marshmallow.pre_load
-    def decompress_program(
-        self, data: Dict[str, Any], many: bool, **kwargs
-    ) -> Dict[str, Any]:
-        # pylint: disable=no-self-use, unused-argument
-        return decompress_program(data=data, many=many)
+    def decompress_program(self, data: Dict[str, Any], **kwargs) -> Dict[str, Any]:
+        # pylint: disable=unused-argument, no-self-use
+        compressed_program: str = data["contract_class"]["program"]
+
+        program = base64.b64decode(compressed_program.encode("ascii"))
+        program = gzip.decompress(data=program)
+        program = json.loads(program.decode("ascii"))
+        data["contract_class"]["program"] = program
+
+        return data
 
     def calculate_hash(self, chain_id: StarknetChainId) -> int:
         """
