@@ -33,19 +33,22 @@ def add_code_examples(original_class: Any):
     file_name, file_content = _extract_file_properties(original_class.__name__)
 
     for method_name, method in original_class.__dict__.items():
+        if not callable(method):
+            continue
+
         stripped_method_name = method_name.strip("_")
-        if f"""test_{stripped_method_name}(""" in file_content:
+        if _code_example_exists(stripped_method_name, file_content):
             hint = create_hint(file_name, stripped_method_name)
 
             # if method does not have __doc__ take it from the base method
-            if (
-                callable(method)
-                and method.__doc__ is None
-                and method_name in base_class.__dict__
-            ):
+            if method.__doc__ is None and method_name in base_class.__dict__:
                 method.__doc__ = getattr(base_class, method_name).__doc__ + hint
-            elif callable(method):
+            else:
                 method.__doc__ = (method.__doc__ or "") + hint
+
+
+def _code_example_exists(method_name: str, file_content: str):
+    return f"""test_{method_name}(""" in file_content
 
 
 def create_hint(file_name: str, method_name: str) -> str:
