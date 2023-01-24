@@ -39,7 +39,7 @@ from starknet_py.serialization.function_serialization_adapter import (
 )
 from starknet_py.utils.contructor_args_translator import translate_constructor_args
 from starknet_py.utils.crypto.facade import pedersen_hash
-from starknet_py.utils.decorators import add_sync_methods
+from starknet_py.utils.sync import add_sync_methods
 
 ABI = list
 ABIEntry = dict

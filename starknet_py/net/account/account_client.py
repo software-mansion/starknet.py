@@ -45,8 +45,8 @@ from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 from starknet_py.utils.data_transformer.execute_transformer import (
     execute_transformer_by_version,
 )
-from starknet_py.utils.decorators import add_sync_methods
 from starknet_py.utils.iterable import ensure_iterable
+from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.typed_data import TypedData as TypedDataDataclass
 
 

@@ -27,7 +27,7 @@ from starknet_py.transaction_exceptions import (
     TransactionNotReceivedError,
     TransactionRejectedError,
 )
-from starknet_py.utils.decorators import add_sync_methods
+from starknet_py.utils.sync import add_sync_methods
 
 
 @add_sync_methods
