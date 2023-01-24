@@ -16,7 +16,7 @@ class AutoclassWithExamples(AutodocDirective):
         add_code_examples(original_class)
 
         # look up target Documenter
-        self.name = self.name.replace("-with-examples", '')  # remove `-with-examples`
+        self.name = self.name.replace("-with-examples", "")  # remove `-with-examples`
 
         return AutodocDirective.run(self)
 
