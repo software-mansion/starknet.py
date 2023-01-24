@@ -42,9 +42,11 @@ class AccountProxy(BaseAccount):
         *,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
+        for_fee_estimation: bool = False,
     ) -> Invoke:
+        version = self._get_transaction_version(for_fee_estimation)
         return await self._account_client.sign_invoke_transaction(
-            calls=calls, max_fee=max_fee, auto_estimate=auto_estimate
+            calls=calls, max_fee=max_fee, auto_estimate=auto_estimate, version=version
         )
 
     async def sign_declare_transaction(
@@ -53,11 +55,13 @@ class AccountProxy(BaseAccount):
         *,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
+        for_fee_estimation: bool = False,
     ) -> Declare:
         return await self._account_client.sign_declare_transaction(
             compiled_contract=compiled_contract,
             max_fee=max_fee,
             auto_estimate=auto_estimate,
+            for_fee_estimation=for_fee_estimation,
         )
 
     async def sign_deploy_account_transaction(
@@ -68,6 +72,7 @@ class AccountProxy(BaseAccount):
         *,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
+        for_fee_estimation: bool = False,
     ) -> DeployAccount:
         return await self._account_client.sign_deploy_account_transaction(
             class_hash=class_hash,
@@ -95,3 +100,11 @@ class AccountProxy(BaseAccount):
         return await self._account_client.verify_message(
             typed_data=typed_data, signature=signature
         )
+
+    def _get_transaction_version(self, for_fee_estimation: bool) -> Optional[int]:
+        version = (
+            self.supported_transaction_version + 2**128
+            if for_fee_estimation
+            else None
+        )
+        return version

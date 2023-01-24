@@ -371,6 +371,8 @@ class AccountClient(Client):
         cairo_path: Optional[List[str]] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
+        *,
+        for_fee_estimation: bool = False,
     ) -> Declare:
         """
         Create and sign declare transaction.
@@ -383,6 +385,8 @@ class AccountClient(Client):
         :param cairo_path: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts
         :param max_fee: Max amount of Wei to be paid when executing transaction
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
+        :param for_fee_estimation: Use transaction calculated like ``version + 2**128`` so the signed transaction
+                                    suitable for fee estimation.
         :return: Signed Declare transaction
         """
         # pylint: disable=too-many-arguments
@@ -391,10 +395,17 @@ class AccountClient(Client):
                 "Signing declare transactions is only supported with transaction version 1."
             )
 
-        warnings.warn(
-            "Argument compilation_source is deprecated and will be removed in the future. "
-            "Consider using already compiled contracts.",
-            category=DeprecationWarning,
+        if compilation_source is not None:
+            warnings.warn(
+                "Argument compilation_source is deprecated and will be removed in the future. "
+                "Consider using already compiled contracts.",
+                category=DeprecationWarning,
+            )
+
+        version = (
+            self.supported_tx_version + 2**128
+            if for_fee_estimation
+            else self.supported_tx_version
         )
 
         compiled_contract = create_compiled_contract(
@@ -406,7 +417,7 @@ class AccountClient(Client):
             max_fee=0,
             signature=[],
             nonce=await self._get_nonce(),
-            version=self.supported_tx_version,
+            version=version,
         )
 
         max_fee = await self._get_max_fee(
@@ -425,6 +436,7 @@ class AccountClient(Client):
         constructor_calldata: Optional[List[int]] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
+        for_fee_estimation: bool = False,
     ) -> DeployAccount:
         """
         Create and sign deploy account transaction
@@ -436,6 +448,8 @@ class AccountClient(Client):
         :param max_fee: Max fee to be paid for deploying account transaction. Enough tokens must be prefunded before
             sending the transaction for it to succeed.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
+        :param for_fee_estimation: Use transaction calculated like ``version + 2**128`` so the signed transaction
+                                    suitable for fee estimation.
         :return: Signed DeployAccount transaction
         """
         if self.supported_tx_version != 1:
@@ -445,11 +459,17 @@ class AccountClient(Client):
 
         constructor_calldata = constructor_calldata or []
 
+        version = (
+            self.supported_tx_version + 2**128
+            if for_fee_estimation
+            else self.supported_tx_version
+        )
+
         deploy_account_tx = DeployAccount(
             class_hash=class_hash,
             contract_address_salt=contract_address_salt,
             constructor_calldata=constructor_calldata,
-            version=self.supported_tx_version,
+            version=version,
             max_fee=0,
             signature=[],
             nonce=0,

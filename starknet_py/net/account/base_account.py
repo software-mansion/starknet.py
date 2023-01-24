@@ -63,6 +63,7 @@ class BaseAccount(ABC):
         *,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
+        for_fee_estimation: bool = False,
     ) -> Invoke:
         """
         Takes calls and creates signed Invoke.
@@ -70,6 +71,8 @@ class BaseAccount(ABC):
         :param calls: Single call or list of calls.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :param for_fee_estimation: Sign transaction for a purpose of fee estimation.
+            Uses transaction version calculated by ``version + 2 ** 128``
         :return: Invoke created from the calls.
         """
 
@@ -80,6 +83,7 @@ class BaseAccount(ABC):
         *,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
+        for_fee_estimation: bool = False,
     ) -> Declare:
         """
         Create and sign declare transaction.
@@ -88,6 +92,8 @@ class BaseAccount(ABC):
             Useful for reading compiled contract from a file.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :param for_fee_estimation: Sign transaction for a purpose of fee estimation.
+            Uses transaction version calculated by ``version + 2 ** 128``
         :return: Signed Declare transaction.
         """
 
@@ -100,6 +106,7 @@ class BaseAccount(ABC):
         *,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
+        for_fee_estimation: bool = False,
     ) -> DeployAccount:
         """
         Create and sign deploy account transaction.
@@ -111,6 +118,8 @@ class BaseAccount(ABC):
         :param max_fee: Max fee to be paid for deploying account transaction. Enough tokens must be prefunded before
             sending the transaction for it to succeed.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :param for_fee_estimation: Sign transaction for a purpose of fee estimation.
+            Uses transaction version calculated by ``version + 2 ** 128``
         :return: Signed DeployAccount transaction.
         """
 

@@ -128,6 +128,7 @@ class Account(BaseAccount):
         calls: Calls,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
+        version: Optional[int] = None,
     ) -> Invoke:
         """
         Takes calls and creates Invoke from them.
@@ -143,12 +144,13 @@ class Account(BaseAccount):
         wrapped_calldata = _execute_payload_serializer.serialize(
             {"call_array": call_descriptions, "calldata": calldata}
         )
+        version = version or self.supported_transaction_version
 
         transaction = Invoke(
             calldata=wrapped_calldata,
             signature=[],
             max_fee=0,
-            version=self.supported_transaction_version,
+            version=version,
             nonce=nonce,
             contract_address=self.address,
         )
@@ -192,6 +194,7 @@ class Account(BaseAccount):
         :param block_number: a block number.
         :return: Estimated fee.
         """
+        tx = dataclasses.replace(tx, version=tx.version + 2**128)
         signature = self.signer.sign_transaction(tx)
         tx = _add_signature_to_transaction(tx, signature)
 
@@ -200,6 +203,12 @@ class Account(BaseAccount):
             block_hash=block_hash,
             block_number=block_number,
         )
+
+    def _get_transaction_version(self, for_fee_estimation: bool) -> int:
+        if for_fee_estimation is True:
+            return self.supported_transaction_version + 2**128
+
+        return self.supported_transaction_version
 
     async def get_nonce(self) -> int:
         """
@@ -235,8 +244,12 @@ class Account(BaseAccount):
         *,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
+        for_fee_estimation: bool = False,
     ) -> Invoke:
-        execute_tx = await self._prepare_invoke(calls, max_fee, auto_estimate)
+        version = self._get_transaction_version(for_fee_estimation)
+        execute_tx = await self._prepare_invoke(
+            calls=calls, max_fee=max_fee, auto_estimate=auto_estimate, version=version
+        )
         signature = self.signer.sign_transaction(execute_tx)
         return _add_signature_to_transaction(execute_tx, signature)
 
@@ -246,17 +259,20 @@ class Account(BaseAccount):
         *,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
+        for_fee_estimation: bool = False,
     ) -> Declare:
         compiled_contract = create_compiled_contract(
             compiled_contract=compiled_contract
         )
+        version = self._get_transaction_version(for_fee_estimation)
+
         declare_tx = Declare(
             contract_class=compiled_contract,
             sender_address=self.address,
             max_fee=0,
             signature=[],
             nonce=await self.get_nonce(),
-            version=self.supported_transaction_version,
+            version=version,
         )
 
         max_fee = await self._get_max_fee(
@@ -274,14 +290,16 @@ class Account(BaseAccount):
         *,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
+        for_fee_estimation: bool = False,
     ) -> DeployAccount:
         constructor_calldata = constructor_calldata or []
+        version = self._get_transaction_version(for_fee_estimation)
 
         deploy_account_tx = DeployAccount(
             class_hash=class_hash,
             contract_address_salt=contract_address_salt,
             constructor_calldata=constructor_calldata,
-            version=self.supported_transaction_version,
+            version=version,
             max_fee=0,
             signature=[],
             nonce=0,
