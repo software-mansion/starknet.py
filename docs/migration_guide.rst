@@ -2,6 +2,30 @@ Migration guide
 ===============
 
 **********************
+0.14.0 Migration guide
+**********************
+
+This version deprecates several modules and fixes underlying issues with several others.
+
+Breaking changes
+----------------
+
+1. Renamed :meth:`~starknet_py.net.udc_deployer.deployer.ContractDeployment` first parameter from ``udc`` to ``call``.
+
+Deprecations
+------------
+
+1. ``compiler`` module. It will be removed in the future. We recommend transitioning
+    to building contracts through StarkNet CLI or external tools and using only compiled contracts with StarkNet.py
+2. ``utils.data_transformer`` module. It has been replaced with ``serializer`` module.
+
+Serializers module
+------------------
+
+New :ref:`serializers` module has been added in place of old ``data_transformer``. See :ref:`Serialization` guide for more details.
+
+
+**********************
 0.13.0 Migration guide
 **********************
 
