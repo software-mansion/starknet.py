@@ -5,7 +5,7 @@ from marshmallow_oneofschema import OneOfSchema
 
 from starknet_py.net.client_models import (
     BlockStateUpdate,
-    DeclaredContract,
+    ContractClass,
     DeclareTransaction,
     DeclareTransactionResponse,
     DeployAccountTransaction,
@@ -386,7 +386,7 @@ class EntryPointsByTypeSchema(Schema):
         return EntryPointsByType(**data)
 
 
-class DeclaredContractSchema(Schema):
+class ContractClassSchema(Schema):
     program = fields.String(data_key="program", required=True)
     entry_points_by_type = fields.Nested(
         EntryPointsByTypeSchema(), data_key="entry_points_by_type", required=True
@@ -394,10 +394,10 @@ class DeclaredContractSchema(Schema):
     abi = fields.List(fields.Nested(ContractAbiEntrySchema()), data_key="abi")
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> DeclaredContract:
+    def make_dataclass(self, data, **kwargs) -> ContractClass:
         # Gateway uses Abi defined vaguely as a list of dicts, hence need for casting in order to be compliant
         data["abi"] = [asdict(abi_entry) for abi_entry in data["abi"]]
-        return DeclaredContract(**data)
+        return ContractClass(**data)
 
 
 class SentTransactionSchema(Schema):

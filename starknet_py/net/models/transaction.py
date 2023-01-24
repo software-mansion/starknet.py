@@ -6,7 +6,6 @@ from typing import Any, Dict, List, Optional, Sequence, TypeVar, Union
 import marshmallow
 import marshmallow_dataclass
 from marshmallow import fields
-from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.services.api.gateway.transaction_utils import (
     compress_program_post_dump,
     decompress_program,
@@ -20,9 +19,10 @@ from starknet_py.hash.transaction import (
     compute_deploy_account_transaction_hash,
     compute_transaction_hash,
 )
-from starknet_py.net.client_models import TransactionType
+from starknet_py.net.client_models import ContractClass, TransactionType
 from starknet_py.net.models.chains import StarknetChainId
 from starknet_py.net.schemas.common import Felt, NoneFelt
+from starknet_py.net.schemas.gateway import ContractClassSchema
 
 
 @dataclass(frozen=True)
@@ -73,7 +73,9 @@ class Declare(AccountTransaction):
     class.
     """
 
-    contract_class: ContractClass
+    contract_class: ContractClass = field(
+        metadata={"marshmallow_field": fields.Nested(ContractClassSchema())}
+    )
     # The address of the account contract sending the declaration transaction.
     sender_address: int = field(metadata={"marshmallow_field": Felt()})
     type: TransactionType = TransactionType.DECLARE

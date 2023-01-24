@@ -16,7 +16,7 @@ from starknet_py.net.client_models import (
     BlockTransactionTraces,
     Call,
     Calls,
-    DeclaredContract,
+    ContractClass,
     DeclareTransactionResponse,
     DeployAccountTransactionResponse,
     EstimatedFee,
@@ -193,7 +193,7 @@ class AccountClient(Client):
             block_number=block_number,
         )
 
-    async def get_class_by_hash(self, class_hash: Hash) -> DeclaredContract:
+    async def get_class_by_hash(self, class_hash: Hash) -> ContractClass:
         return await self.client.get_class_by_hash(class_hash=class_hash)
 
     async def _get_nonce(self) -> int:
@@ -391,11 +391,11 @@ class AccountClient(Client):
                 "Signing declare transactions is only supported with transaction version 1."
             )
 
-        compiled_contract = create_compiled_contract(
+        contract_class = create_compiled_contract(
             compilation_source, compiled_contract, cairo_path
         )
         declare_tx = Declare(
-            contract_class=compiled_contract,
+            contract_class=contract_class,
             sender_address=self.address,
             max_fee=0,
             signature=[],

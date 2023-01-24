@@ -7,8 +7,8 @@ from starknet_py.net.client_models import (
     BlockSingleTransactionTrace,
     BlockStateUpdate,
     BlockTransactionTraces,
+    ContractClass,
     ContractCode,
-    DeclaredContract,
     DeclareTransaction,
     DeclareTransactionResponse,
     DeployAccountTransaction,
@@ -358,7 +358,7 @@ class EntryPointsByTypeSchema(Schema):
         return EntryPointsByType(**data)
 
 
-class DeclaredContractSchema(Schema):
+class ContractClassSchema(Schema):
     program = fields.Dict(
         keys=fields.String(),
         values=fields.Raw(allow_none=True),
@@ -371,8 +371,8 @@ class DeclaredContractSchema(Schema):
     abi = fields.List(fields.Dict(), data_key="abi")
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> DeclaredContract:
-        return DeclaredContract(**data)
+    def make_dataclass(self, data, **kwargs) -> ContractClass:
+        return ContractClass(**data)
 
 
 class TransactionStatusSchema(Schema):
