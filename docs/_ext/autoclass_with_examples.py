@@ -44,32 +44,18 @@ def add_code_examples(original_class: Any):
 
         stripped_method_name = method_name.strip("_")
         if _code_example_exists(stripped_method_name, file_content):
-            hint = create_hint(file_name, stripped_method_name)
-
-            # if method does not have __doc__ take it from the base method
-            if method.__doc__ is None and method_name in base_class.__dict__:
-                method.__doc__ = getattr(base_class, method_name).__doc__ + hint
-            else:
-                method.__doc__ = (method.__doc__ or "") + hint
+            hint = _create_hint(file_name, stripped_method_name)
+            _append_hint(method_name, method, base_class, hint)
 
 
-def _code_example_exists(method_name: str, file_content: str):
-    return f"""test_{method_name}(""" in file_content
-
-
-def create_hint(file_name: str, method_name: str) -> str:
+def _append_hint(method_name: str, method, base_class: Any, hint: str):
     """
-    Constructs a hint with code example.
+    If method does not have the __doc__, takes it from the base method.
     """
-    return f"""
-        .. hint::
-
-            .. codesnippet:: ../../starknet_py/tests/e2e/docs/code_examples/{file_name}
-                :language: python
-                :start-after: docs-start: {method_name}
-                :end-before: docs-end: {method_name}
-                :dedent: 4
-        """
+    if method.__doc__ is None and method_name in base_class.__dict__:
+        method.__doc__ = getattr(base_class, method_name).__doc__ + hint
+    else:
+        method.__doc__ = (method.__doc__ or "") + hint
 
 
 def _extract_file_properties(class_name: str) -> Tuple[str, str]:
@@ -91,6 +77,25 @@ def _camel_to_snake(text: str) -> str:
     Transforms camelCase to the snake_case.
     """
     return re.sub(r"(?<!^)(?=[A-Z])", "_", text).lower()
+
+
+def _code_example_exists(method_name: str, file_content: str):
+    return f"""test_{method_name}(""" in file_content
+
+
+def _create_hint(file_name: str, method_name: str) -> str:
+    """
+    Constructs a hint with code example.
+    """
+    return f"""
+        .. hint::
+
+            .. codesnippet:: ../../starknet_py/tests/e2e/docs/code_examples/{file_name}
+                :language: python
+                :start-after: docs-start: {method_name}
+                :end-before: docs-end: {method_name}
+                :dedent: 4
+        """
 
 
 def setup(app) -> Dict[str, Any]:
