@@ -3,7 +3,7 @@ from typing import Sequence
 
 from starknet_py.common import int_from_bytes
 from starknet_py.constants import DEFAULT_ENTRY_POINT_SELECTOR
-from starknet_py.hash.contract_class import compute_class_hash
+from starknet_py.hash.class_hash import compute_class_hash
 from starknet_py.hash.utils import compute_hash_on_elements
 from starknet_py.net.client_models import ContractClass
 

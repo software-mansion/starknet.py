@@ -15,7 +15,7 @@ from starknet_py.common import create_compiled_contract
 from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
 from starknet_py.hash.address import compute_address
-from starknet_py.hash.contract_class import compute_class_hash
+from starknet_py.hash.class_hash import compute_class_hash
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net import AccountClient
 from starknet_py.net.account._account_proxy import AccountProxy
