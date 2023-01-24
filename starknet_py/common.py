@@ -1,8 +1,9 @@
 import warnings
-from typing import List, Literal, Optional, Union
+from typing import List, Literal, Optional, Union, cast
 
-from starknet_py.net.client_models import ContractClass
 from starknet_py.compile.compiler import Compiler, StarknetCompilationSource
+from starknet_py.net.client_models import ContractClass
+from starknet_py.net.schemas.gateway import ContractClassSchema
 
 
 def create_compiled_contract(
@@ -33,11 +34,11 @@ def create_contract_class(
     compiled_contract: str,
 ) -> ContractClass:
     """
-    Creates ContractDefinition either from already compiled contract.
+    Creates ContractClass from already compiled contract.
 
     :return: a ContractClass.
     """
-    return ContractClass.loads(compiled_contract)
+    return cast(ContractClass, ContractClassSchema().loads(compiled_contract))
 
 
 def int_from_hex(number: Union[str, int]) -> int:

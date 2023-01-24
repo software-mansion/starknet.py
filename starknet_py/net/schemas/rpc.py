@@ -315,8 +315,8 @@ class ContractClassSchema(Schema):
     abi = fields.List(fields.Nested(ContractAbiEntrySchema()), data_key="abi")
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> ContractClasss:
-        return ContractClasss(**data)
+    def make_dataclass(self, data, **kwargs) -> ContractClass:
+        return ContractClass(**data)
 
 
 class SentTransactionSchema(Schema):

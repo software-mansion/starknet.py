@@ -7,8 +7,9 @@ from starkware.cairo.lang.vm.crypto import pedersen_hash as default_hash
 from starkware.crypto.signature.signature import sign
 
 from starknet_py.common import int_from_bytes
-from starknet_py.constants import MASK_250
 from starknet_py.utils.crypto.facade import use_cpp_variant
+
+MASK_250 = 2**250 - 1
 
 
 def _starknet_keccak(data: bytes) -> int:

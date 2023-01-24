@@ -15,9 +15,6 @@ from starkware.starknet.compiler.compile import (
 )
 from starkware.starknet.compiler.starknet_pass_manager import starknet_pass_manager
 
-from starknet_py.net.client_models import ContractClass
-from starknet_py.net.schemas.gateway import ContractClassSchema
-
 CairoSourceCode = str
 CairoFilename = str
 StarknetCompilationSource = Union[CairoSourceCode, List[CairoFilename]]
@@ -62,17 +59,6 @@ class Compiler:
             is_account_contract=self.is_account_contract,
             search_paths=self.search_paths,
         )
-
-
-def create_contract_class(
-    compiled_contract: str,
-) -> ContractClass:
-    """
-    Creates ContractDefinition either from already compiled contract
-
-    :return: a ContractDefinition
-    """
-    return typing.cast(ContractClass, ContractClassSchema().loads(compiled_contract))
 
 
 def load_cairo_source_code(filename: CairoFilename) -> str:

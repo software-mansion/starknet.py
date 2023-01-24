@@ -2,8 +2,7 @@ import re
 import typing
 from typing import cast
 
-from starkware.starknet.services.api.contract_class import ContractClass
-
+from starknet_py.common import create_contract_class
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import (
     Declare,
@@ -31,7 +30,7 @@ def test_invoke_hash():
 
 
 def test_declare_compress_program(balance_contract):
-    contract_class = ContractClass.loads(balance_contract)
+    contract_class = create_contract_class(balance_contract)
     declare_transaction = Declare(
         contract_class=contract_class,
         sender_address=0x1234,
