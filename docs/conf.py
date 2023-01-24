@@ -80,6 +80,6 @@ html_theme_options = {
 }
 
 
-print(os.environ.get('READTHEDOCS_VERSION'))
-if os.environ.get('READTHEDOCS_VERSION') == "development":
+print(os.environ.get("READTHEDOCS_VERSION"))
+if os.environ.get("READTHEDOCS_VERSION") == "development":
     tags.add("hello_tag")
