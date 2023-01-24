@@ -10,7 +10,7 @@ from starknet_py.net.client_models import ContractClass, EntryPoint
 
 def compute_class_hash(contract_class: ContractClass) -> int:
     """
-    Calculate class hash of a declared contract.
+    Calculate class hash of a ContractClass.
     """
     api_version = API_VERSION
 
