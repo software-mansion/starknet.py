@@ -52,9 +52,9 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 # Set tag for `only` directive
 print(f"Branch name: {os.environ.get('READTHEDOCS_VERSION')}")
 if os.environ.get("READTHEDOCS_VERSION") == "697":
-    rst_prolog = """.. warning::
+    rst_prolog = """.. attention::
 
-        This page was created from `development<https://github.com/software-mansion/starknet.py>`_ branch.
+        This page was created from `development <https://github.com/software-mansion/starknet.py>`_ branch.
     """
 
 
