@@ -49,6 +49,15 @@ templates_path = ["_templates"]
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
+# Set tag for `only` directive
+print(f"Branch name: {os.environ.get('READTHEDOCS_VERSION')}")
+if os.environ.get("READTHEDOCS_VERSION") == "697":
+    rst_prolog = """".. warning::
+
+        This page was created from `development<https://github.com/software-mansion/starknet.py>`_ branch.
+    """
+
+
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -78,8 +87,3 @@ html_theme_options = {
     "light_logo": "logo.png",
     "dark_logo": "logo-contour-white.png",
 }
-
-
-print(os.environ.get("READTHEDOCS_VERSION"))
-if os.environ.get("READTHEDOCS_VERSION") == "development":
-    tags.add("hello_tag")
