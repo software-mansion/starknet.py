@@ -22,7 +22,7 @@ sys.path.append(os.path.abspath("./_ext"))
 # -- Project information -----------------------------------------------------
 
 project = "Starknet.py"
-copyright = "2022, Software Mansion"
+copyright = "2023, Software Mansion"
 author = "Software Mansion"
 
 
@@ -78,3 +78,8 @@ html_theme_options = {
     "light_logo": "logo.png",
     "dark_logo": "logo-contour-white.png",
 }
+
+
+print(os.environ.get('READTHEDOCS_VERSION'))
+if os.environ.get('READTHEDOCS_VERSION') == "development":
+    tags.add("hello_tag")

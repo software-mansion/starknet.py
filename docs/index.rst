@@ -1,6 +1,9 @@
 .. figure:: _static/starknetpy.png
    :class: starknetpy-logo
 
+.. only:: hello_tag
+
+    HELLO WORLD!
 
 .. rst-class:: description-cls
 
