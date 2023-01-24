@@ -26,7 +26,7 @@ class AutoclassWithExamples(AutodocDirective):
 
 def add_code_examples(original_class: Any):
     """
-    Adds code example for the given class.
+    Adds code examples for the given class.
     """
     base_class = original_class.__base__
 
