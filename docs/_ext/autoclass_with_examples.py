@@ -10,7 +10,13 @@ from starknet_py.constants import ROOT_PATH
 
 class AutoclassWithExamples(AutodocDirective):
     """
-    Directive class extending AutodocDirective and adding code examples.
+    Custom extension of the AutodocDirective class, which is used to
+    add code examples to the method docstrings in the documentation.
+
+    This class runs before the AutodocDirective class and pulls code snippets
+    from the starknet_py/tests/e2e/docs/code_examples directory to include in the documentation.
+    This allows developers to easily see and understand how the methods
+    being documented are intended to be used in a practical context.
     """
 
     def run(self) -> List[Node]:
