@@ -12,6 +12,7 @@ class AutoclassWithExamples(AutodocDirective):
     """
     Directive class extending AutodocDirective and adding code examples.
     """
+
     def run(self) -> List[Node]:
         original_class = getattr(
             sys.modules[self.env.ref_context.get("py:module")], self.arguments[0]
