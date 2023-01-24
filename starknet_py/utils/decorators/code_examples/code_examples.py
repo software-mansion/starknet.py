@@ -29,14 +29,14 @@ def add_code_examples(original_class: Any) -> Any:
 
 def create_hint(file_name: str, method_name: str) -> str:
     return f"""
-            .. hint::
-            
-                .. codesnippet:: ../../starknet_py/tests/e2e/docs/code_examples/{file_name}
-                    :language: python
-                    :start-after: docs: {method_name}_start
-                    :end-before: docs: {method_name}_end
-                    :dedent: 4
-            """
+        .. hint::
+        
+            .. codesnippet:: ../../starknet_py/tests/e2e/docs/code_examples/{file_name}
+                :language: python
+                :start-after: docs: {method_name}_start
+                :end-before: docs: {method_name}_end
+                :dedent: 4
+        """
 
 
 def _extract_file_properties(class_name: str) -> Tuple[str, str]:
