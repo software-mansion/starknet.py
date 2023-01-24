@@ -1,8 +1,7 @@
 import warnings
 from typing import List, Literal, Optional, Union
 
-from starkware.starknet.services.api.contract_class import ContractClass
-
+from starknet_py.net.client_models import ContractClass
 from starknet_py.compile.compiler import Compiler, StarknetCompilationSource
 
 

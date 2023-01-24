@@ -325,7 +325,7 @@ class EntryPointsByType:
 
 
 @dataclass
-class DeclaredContract:
+class ContractClass:
     """
     Dataclass representing contract declared to starknet
     """

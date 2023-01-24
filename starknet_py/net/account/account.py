@@ -247,11 +247,9 @@ class Account(BaseAccount):
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> Declare:
-        compiled_contract = create_compiled_contract(
-            compiled_contract=compiled_contract
-        )
+        contract_class = create_compiled_contract(compiled_contract=compiled_contract)
         declare_tx = Declare(
-            contract_class=compiled_contract,
+            contract_class=contract_class,
             sender_address=self.address,
             max_fee=0,
             signature=[],
