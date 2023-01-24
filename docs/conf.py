@@ -58,7 +58,6 @@ if os.environ.get("READTHEDOCS_VERSION") == "697":
     """
 
 
-
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
