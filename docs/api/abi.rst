@@ -21,6 +21,9 @@ Model
     :exclude-members: __init__, __new__
     :members: defined_structures, functions, constructor, l1_handler, events
 
-.. autoclass:: starknet_py.abi.Abi.Function
+.. py:module:: starknet_py.abi.Abi
+    :noindex:
 
-.. autoclass:: starknet_py.abi.Abi.Event
+.. autoclass:: Function
+
+.. autoclass:: Event
