@@ -39,6 +39,7 @@ extensions = [
     "sphinx_rtd_theme",
     "enum_tools.autoenum",
     "codesnippet",
+    "autoclass_with_examples",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
