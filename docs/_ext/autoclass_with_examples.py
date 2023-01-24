@@ -20,6 +20,9 @@ class AutoclassWithExamples(AutodocDirective):
     """
 
     def run(self) -> List[Node]:
+        # Gets the class by its path and name
+        # Path is stored in the self.env.ref_context
+        # Name of the class is passed as an argument
         original_class = getattr(
             sys.modules[self.env.ref_context.get("py:module")], self.arguments[0]
         )
@@ -48,16 +51,6 @@ def add_code_examples(original_class: Any):
             _append_hint(method_name, method, base_class, hint)
 
 
-def _append_hint(method_name: str, method, base_class: Any, hint: str):
-    """
-    If method does not have the __doc__, takes it from the base method.
-    """
-    if method.__doc__ is None and method_name in base_class.__dict__:
-        method.__doc__ = getattr(base_class, method_name).__doc__ + hint
-    else:
-        method.__doc__ = (method.__doc__ or "") + hint
-
-
 def _extract_file_properties(class_name: str) -> Tuple[str, str]:
     """
     Extracts file content for given class name.
@@ -80,7 +73,7 @@ def _camel_to_snake(text: str) -> str:
 
 
 def _code_example_exists(method_name: str, file_content: str):
-    return f"""test_{method_name}(""" in file_content
+    return f"test_{method_name}(" in file_content
 
 
 def _create_hint(file_name: str, method_name: str) -> str:
@@ -96,6 +89,16 @@ def _create_hint(file_name: str, method_name: str) -> str:
                 :end-before: docs-end: {method_name}
                 :dedent: 4
         """
+
+
+def _append_hint(method_name: str, method, base_class: Any, hint: str):
+    """
+    If method does not have the __doc__, takes it from the base method.
+    """
+    if method.__doc__ is None and method_name in base_class.__dict__:
+        method.__doc__ = getattr(base_class, method_name).__doc__ + hint
+    else:
+        method.__doc__ = (method.__doc__ or "") + hint
 
 
 def setup(app) -> Dict[str, Any]:
