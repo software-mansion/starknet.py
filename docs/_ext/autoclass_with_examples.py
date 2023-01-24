@@ -34,7 +34,7 @@ def add_code_examples(original_class: Any):
 
     for method_name, method in original_class.__dict__.items():
         stripped_method_name = method_name.strip("_")
-        if f"""docs: {stripped_method_name}_start""" in file_content:
+        if f"""test_{stripped_method_name}(""" in file_content:
             hint = create_hint(file_name, stripped_method_name)
 
             # if method does not have __doc__ take it from the base method
@@ -57,8 +57,8 @@ def create_hint(file_name: str, method_name: str) -> str:
 
             .. codesnippet:: ../../starknet_py/tests/e2e/docs/code_examples/{file_name}
                 :language: python
-                :start-after: docs: {method_name}_start
-                :end-before: docs: {method_name}_end
+                :start-after: docs-start: {method_name}
+                :end-before: docs-end: {method_name}
                 :dedent: 4
         """
 
