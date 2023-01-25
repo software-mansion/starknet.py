@@ -81,7 +81,8 @@ def _create_hint(file_name: str, method_name: str) -> str:
     Constructs a hint with code example.
     """
     return f"""
-        .. hint::
+        .. admonition:: Example
+            :class: hint
 
             .. codesnippet:: ../../starknet_py/tests/e2e/docs/code_examples/{file_name}
                 :language: python
