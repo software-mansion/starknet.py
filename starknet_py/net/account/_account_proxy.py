@@ -46,10 +46,11 @@ class AccountProxy(BaseAccount):
         self, transaction: Union[Invoke, Declare, DeployAccount]
     ) -> Union[Invoke, Declare, DeployAccount]:
         version = self.supported_transaction_version + 2**128
+        transaction = dataclasses.replace(transaction, version=version)
+
         signature = self._account_client.signer.sign_transaction(transaction)
-        transaction = dataclasses.replace(
-            transaction, version=version, signature=signature
-        )
+        transaction = dataclasses.replace(transaction, signature=signature)
+
         return transaction
 
     async def sign_invoke_transaction(
