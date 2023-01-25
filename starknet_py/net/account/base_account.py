@@ -66,8 +66,9 @@ class BaseAccount(ABC):
         self, transaction: Union[Invoke, Declare, DeployAccount]
     ) -> Union[Invoke, Declare, DeployAccount]:
         """
-        Sign a transaction for a purpose of fee_estimation.
-        Uses transaction version calculated like ``transaction.version + 2 ** 128``.
+        Sign a transaction for a purpose of only fee_estimation.
+        Should use a transaction version that is not executable on StarkNet,
+        calculated like ``transaction.version + 2 ** 128``.
 
         :param transaction: Transaction to be signed.
         :return: A signed Transaction that can only be used for fee estimation and cannot be executed.
