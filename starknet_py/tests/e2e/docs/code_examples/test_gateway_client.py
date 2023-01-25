@@ -1,16 +1,14 @@
-# pylint: disable=unused-variable
+# pylint: disable=unused-variable, redefined-builtin
 import pytest
 from starkware.starknet.public.abi import (
     get_selector_from_name,
     get_storage_var_address,
 )
-from starkware.starknet.services.api.contract_class import ContractClass
 
 from starknet_py.net.client_models import Call
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models.transaction import Declare
 from starknet_py.net.networks import TESTNET
-from starknet_py.tests.e2e.fixtures.misc import read_contract
+from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 
 
 def test_init():
@@ -89,16 +87,13 @@ async def test_estimate_fee(gateway_account, deploy_account_transaction):
 
 
 @pytest.mark.asyncio
-async def test_estimate_fee_bulk(gateway_account, deploy_account_transaction):
+async def test_estimate_fee_bulk(
+    gateway_account, deploy_account_transaction, map_compiled_contract
+):
     gateway_client = gateway_account.client
     transaction1 = deploy_account_transaction
-    transaction2 = Declare(
-        contract_class=ContractClass.loads(read_contract("map_compiled.json")),
-        sender_address=0x1,
-        max_fee=0,
-        signature=[0x0, 0x0],
-        nonce=0,
-        version=0,
+    transaction2 = await gateway_account.sign_declare_transaction(
+        compiled_contract=map_compiled_contract, max_fee=MAX_FEE
     )
     # docs-start: estimate_fee_bulk
     # The transactions can be of type  List[Invoke | Declare | DeployAccount]
@@ -130,3 +125,83 @@ async def test_send_transaction(gateway_client, deploy_account_transaction):
         transaction=transaction
     )
     # docs-end: send_transaction
+
+
+@pytest.mark.asyncio
+async def test_deploy_account(gateway_client, deploy_account_transaction):
+    # docs-start: deploy_account
+    deploy_account_response = await gateway_client.deploy_account(
+        transaction=deploy_account_transaction
+    )
+    # docs-end: deploy_account
+
+
+@pytest.mark.asyncio
+async def test_declare(gateway_client, gateway_account, map_compiled_contract):
+    declare_transaction = await gateway_account.sign_declare_transaction(
+        compiled_contract=map_compiled_contract, max_fee=MAX_FEE
+    )
+    # docs-start: declare
+    declare_response = await gateway_client.declare(transaction=declare_transaction)
+    # docs-end: declare
+
+
+@pytest.mark.asyncio
+async def test_get_class_hash_at(gateway_client, contract_address):
+    # docs-start: get_class_hash_at
+    address = 0x1 or 1 or "0x1"
+    # docs-end: get_class_hash_at
+    address = contract_address
+    # docs-start: get_class_hash_at
+    class_hash = await gateway_client.get_class_hash_at(
+        contract_address=address, block_hash="latest"
+    )
+    # docs-end: get_class_hash_at
+
+
+@pytest.mark.asyncio
+async def test_get_class_by_hash(gateway_client, class_hash):
+    # docs-start: get_class_by_hash
+    hash = 0x1 or 1 or "0x1"
+    # docs-end: get_class_by_hash
+    hash = class_hash
+    # docs-start: get_class_by_hash
+    contract_class = await gateway_client.get_class_by_hash(class_hash=hash)
+    # docs-end: get_class_by_hash
+
+
+@pytest.mark.asyncio
+async def test_get_transaction_status(gateway_client, invoke_transaction_hash):
+    # docs-start: get_transaction_status
+    transaction_hash = 0x1 or 1 or "0x1"
+    # docs-end: get_transaction_status
+    transaction_hash = invoke_transaction_hash
+    # docs-start: get_transaction_status
+    status_response = await gateway_client.get_transaction_status(
+        tx_hash=transaction_hash
+    )
+    # docs-end: get_transaction_status
+
+
+@pytest.mark.asyncio
+async def test_get_code(gateway_client, contract_address):
+    # docs-start: get_code
+    address = 0x1 or 1 or "0x1"
+    # docs-end: get_code
+    address = contract_address
+    # docs-start: get_code
+    code = await gateway_client.get_code(contract_address=address, block_hash="latest")
+    # docs-end: get_code
+
+
+@pytest.mark.asyncio
+async def test_get_contract_nonce(gateway_client, contract_address):
+    # docs-start: get_contract_nonce
+    address = 0x1 or 1 or "0x1"
+    # docs-end: get_contract_nonce
+    address = contract_address
+    # docs-start: get_contract_nonce
+    code = await gateway_client.get_contract_nonce(
+        contract_address=address, block_hash="latest"
+    )
+    # docs-end: get_contract_nonce
