@@ -228,10 +228,9 @@ class Account(BaseAccount):
         self, transaction: Union[Invoke, Declare, DeployAccount]
     ) -> Union[Invoke, Declare, DeployAccount]:
         version = self.supported_transaction_version + 2**128
-
         transaction = dataclasses.replace(transaction, version=version)
-        signature = self.signer.sign_transaction(transaction)
 
+        signature = self.signer.sign_transaction(transaction)
         return _add_signature_to_transaction(tx=transaction, signature=signature)
 
     async def sign_invoke_transaction(
