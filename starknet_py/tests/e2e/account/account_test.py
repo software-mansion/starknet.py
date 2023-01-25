@@ -6,6 +6,7 @@ from starkware.starknet.public.abi import get_selector_from_name
 from starknet_py.contract import Contract
 from starknet_py.net.account.account import Account
 from starknet_py.net.account.base_account import BaseAccount
+from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     Call,
     DeployAccountTransaction,
@@ -328,3 +329,22 @@ async def test_deploy_account_uses_custom_calldata(
     tx = await client.get_transaction(deploy_result.hash)
     assert isinstance(tx, DeployAccountTransaction)
     assert tx.constructor_calldata == calldata
+
+
+@pytest.mark.asyncio
+async def test_sign_tx_for_fee_estimation(account, map_contract):
+    call = map_contract.functions["put"].prepare(key=40, value=50)
+    transaction = await account.sign_invoke_transaction(calls=call, max_fee=MAX_FEE)
+
+    signed_transaction = await account.sign_for_fee_estimate(transaction)
+
+    estimation = await account.client.estimate_fee(signed_transaction)
+    assert estimation.overall_fee > 0
+
+    # Verify that the transaction signed for fee estimation cannot be sent
+    with pytest.raises(ClientError):
+        await account.client.send_transaction(signed_transaction)
+
+    # Verify that original transaction can be sent
+    result = await account.client.send_transaction(transaction)
+    await account.client.wait_for_tx(result.transaction_hash)
