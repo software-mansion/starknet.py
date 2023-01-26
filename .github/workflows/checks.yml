@@ -1,5 +1,3 @@
-name: Static analysis and tests
-
 on:
   push:
     branches:
@@ -10,7 +8,7 @@ on:
 jobs:
   setup:
     name: Download deps, install poetry
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: [ "3.8", "3.9" ]
@@ -36,7 +34,7 @@ jobs:
 
   lint:
     name: Check lock, formatting, linting and types
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     needs: setup
     strategy:
       matrix:
@@ -73,7 +71,7 @@ jobs:
 
   unit-and-e2e-tests:
     name: Unit and e2e tests
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     needs: setup
     strategy:
       matrix:
@@ -103,7 +101,7 @@ jobs:
 
   docs-tests:
     name: Docs tests
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     needs: setup
     strategy:
       matrix:
