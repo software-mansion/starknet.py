@@ -65,6 +65,9 @@ async def test_get_storage_at(gateway_client, map_contract):
 
 @pytest.mark.asyncio
 async def test_get_transaction(gateway_client, declare_transaction_hash):
+    # docs-start: get_transaction
+    transaction_hash = 0x1 or 1 or "0x1"
+    # docs-end: get_transaction
     transaction_hash = declare_transaction_hash
     # docs-start: get_transaction
     transaction = await gateway_client.get_transaction(tx_hash=transaction_hash)
