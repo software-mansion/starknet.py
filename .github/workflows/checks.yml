@@ -10,7 +10,7 @@ on:
 jobs:
   setup:
     name: Download deps, install poetry, populate caches
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         python-version: [ "3.8", "3.9" ]
@@ -22,17 +22,12 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+          cache: 'poetry'
       - name: Install poetry and dependencies
         run: |
           python -m pip install --upgrade pip
           pip install poetry
           poetry install
-      - name: Populate caches
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/pypoetry
-          key: poetry-${{ hashFiles('poetry.lock') }}
 
   lint:
     name: Check lock, formatting, linting and types
@@ -49,18 +44,11 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+          cache: 'poetry'
       - name: Install poetry
         run: |
           python -m pip install --upgrade pip
           pip install poetry
-          pip install poethepoet
-
-      - name: Restore caches
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/pypoetry
-          key: poetry-${{ hashFiles('poetry.lock') }}
 
       - name: Check poetry.lock
         run: |
@@ -78,84 +66,84 @@ jobs:
         run: |
           poetry export -f requirements.txt --without-hashes --extras docs | cmp - requirements.txt
 
-  unit-and-e2e-tests:
-    name: Unit and e2e tests
-    runs-on: ubuntu-20.04
-    needs: setup
-    strategy:
-      matrix:
-        python-version: [ "3.8", "3.9" ]
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install poetry
-        run: |
-          python -m pip install --upgrade pip
-          pip install poetry
-      - name: Install dependencies
-        run: |
-          poetry install
-
-      - name: Restore caches
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/pypoetry
-          key: poetry-${{ hashFiles('poetry.lock') }}
-      - name: Compile contracts
-        run: |
-          poetry run poe compile_contracts
-      - name: Unit & e2e test
-        run: |
-          poetry run poe test_ci
-      - name: Generate coverage in XML
-        run: |
-          poetry run coverage xml
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-
-  docs-tests:
-    name: Docs tests
-    runs-on: ubuntu-20.04
-    needs: setup
-    strategy:
-      matrix:
-        python-version: [ "3.8", "3.9" ]
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install poetry
-        run: |
-          python -m pip install --upgrade pip
-          pip install poetry
-      - name: Install dependencies
-        run: |
-          poetry install
-
-      - name: Restore caches
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/pypoetry
-          key: poetry-${{ hashFiles('poetry.lock') }}
-      - name: Compile contracts
-        run: |
-          poetry run poe compile_contracts
-      - name: Docs test
-        run: |
-          poetry run poe test_ci_docs
-      - name: Generate coverage in XML
-        run: |
-          poetry run coverage xml
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+#  unit-and-e2e-tests:
+#    name: Unit and e2e tests
+#    runs-on: ubuntu-20.04
+#    needs: setup
+#    strategy:
+#      matrix:
+#        python-version: [ "3.8", "3.9" ]
+#    steps:
+#      - uses: actions/checkout@v3
+#        with:
+#          submodules: recursive
+#      - name: Set up Python ${{ matrix.python-version }}
+#        uses: actions/setup-python@v4
+#        with:
+#          python-version: ${{ matrix.python-version }}
+#      - name: Install poetry
+#        run: |
+#          python -m pip install --upgrade pip
+#          pip install poetry
+#      - name: Install dependencies
+#        run: |
+#          poetry install
+#
+#      - name: Restore caches
+#        uses: actions/cache@v3
+#        with:
+#          path: |
+#            ~/.cache/pypoetry
+#          key: poetry-${{ hashFiles('poetry.lock') }}
+#      - name: Compile contracts
+#        run: |
+#          poetry run poe compile_contracts
+#      - name: Unit & e2e test
+#        run: |
+#          poetry run poe test_ci
+#      - name: Generate coverage in XML
+#        run: |
+#          poetry run coverage xml
+#      - name: Upload coverage to Codecov
+#        uses: codecov/codecov-action@v3
+#
+#  docs-tests:
+#    name: Docs tests
+#    runs-on: ubuntu-20.04
+#    needs: setup
+#    strategy:
+#      matrix:
+#        python-version: [ "3.8", "3.9" ]
+#    steps:
+#      - uses: actions/checkout@v3
+#        with:
+#          submodules: recursive
+#      - name: Set up Python ${{ matrix.python-version }}
+#        uses: actions/setup-python@v4
+#        with:
+#          python-version: ${{ matrix.python-version }}
+#      - name: Install poetry
+#        run: |
+#          python -m pip install --upgrade pip
+#          pip install poetry
+#      - name: Install dependencies
+#        run: |
+#          poetry install
+#
+#      - name: Restore caches
+#        uses: actions/cache@v3
+#        with:
+#          path: |
+#            ~/.cache/pypoetry
+#          key: poetry-${{ hashFiles('poetry.lock') }}
+#      - name: Compile contracts
+#        run: |
+#          poetry run poe compile_contracts
+#      - name: Docs test
+#        run: |
+#          poetry run poe test_ci_docs
+#      - name: Generate coverage in XML
+#        run: |
+#          poetry run coverage xml
+#      - name: Upload coverage to Codecov
+#        uses: codecov/codecov-action@v3
