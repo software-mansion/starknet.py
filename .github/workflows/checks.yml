@@ -28,9 +28,6 @@ jobs:
       - name: Install dependencies
         run: |
           poetry install
-      - name: Compile contracts
-        run: |
-          poetry run poe compile_contracts
 
   lint:
     name: Check lock, formatting, linting and types
@@ -90,6 +87,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
 
+      - name: Compile contracts
+        run: |
+          poetry run poe compile_contracts
       - name: Unit & e2e test
         run: |
           poetry run poe test_ci
@@ -120,6 +120,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
 
+      - name: Compile contracts
+        run: |
+          poetry run poe compile_contracts
       - name: Docs test
         run: |
           poetry run poe test_ci_docs
