@@ -81,7 +81,6 @@ async def test_estimate_fee(gateway_account, deploy_account_transaction):
     gateway_client = gateway_account.client
     transaction = deploy_account_transaction
     # docs-start: estimate_fee
-    # The transaction can be of type  Invoke | Declare | DeployAccount
     estimated_fee = await gateway_client.estimate_fee(tx=transaction)
     # docs-end: estimate_fee
 
@@ -96,7 +95,6 @@ async def test_estimate_fee_bulk(
         compiled_contract=map_compiled_contract, max_fee=MAX_FEE
     )
     # docs-start: estimate_fee_bulk
-    # The transactions can be of type  List[Invoke | Declare | DeployAccount]
     list_of_estimated_fees = await gateway_client.estimate_fee_bulk(
         transactions=[transaction1, transaction2]
     )
