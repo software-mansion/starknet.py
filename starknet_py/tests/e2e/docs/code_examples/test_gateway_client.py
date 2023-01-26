@@ -28,7 +28,7 @@ def test_init():
 async def test_get_block(gateway_client):
     # docs-start: get_block
     block = await gateway_client.get_block(block_number="latest")
-    block = await gateway_client.get_block(block_number=1234)
+    block = await gateway_client.get_block(block_number=0)
     # or
     block = await gateway_client.get_block(block_hash="0x0")
     # docs-end: get_block
@@ -38,7 +38,7 @@ async def test_get_block(gateway_client):
 async def test_get_block_traces(gateway_client):
     # docs-start: get_block_traces
     block_traces = await gateway_client.get_block_traces(block_number="latest")
-    block = await gateway_client.get_block_traces(block_number=1234)
+    block = await gateway_client.get_block_traces(block_number=0)
     # or
     block_traces = await gateway_client.get_block_traces(block_hash="0x0")
     # docs-end: get_block_traces_end
@@ -48,7 +48,7 @@ async def test_get_block_traces(gateway_client):
 async def test_get_state_update(gateway_client):
     # docs-start: get_state_update_start
     state_update = await gateway_client.get_state_update(block_number="latest")
-    block = await gateway_client.get_state_update(block_number=1234)
+    block = await gateway_client.get_state_update(block_number=0)
     # or
     state_update = await gateway_client.get_state_update(block_hash="0x0")
     # docs-end: get_state_update
