@@ -4,6 +4,8 @@ import pytest
 from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.contract import Contract
+from starknet_py.net import AccountClient
+from starknet_py.net.account._account_proxy import AccountProxy
 from starknet_py.net.account.account import Account
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client_errors import ClientError
@@ -332,7 +334,7 @@ async def test_deploy_account_uses_custom_calldata(
 
 
 @pytest.mark.asyncio
-async def test_sign_tx_for_fee_estimation(account, map_contract):
+async def test_sign_invoke_tx_for_fee_estimation(account, map_contract):
     call = map_contract.functions["put"].prepare(key=40, value=50)
     transaction = await account.sign_invoke_transaction(calls=call, max_fee=MAX_FEE)
 
@@ -347,4 +349,70 @@ async def test_sign_tx_for_fee_estimation(account, map_contract):
 
     # Verify that original transaction can be sent
     result = await account.client.send_transaction(transaction)
+    await account.client.wait_for_tx(result.transaction_hash)
+
+
+@pytest.mark.asyncio
+async def test_sign_declare_tx_for_fee_estimation(account, map_compiled_contract):
+    transaction = await account.sign_declare_transaction(
+        compiled_contract=map_compiled_contract, max_fee=MAX_FEE
+    )
+
+    signed_transaction = await account.sign_for_fee_estimate(transaction)
+
+    estimation = await account.client.estimate_fee(signed_transaction)
+    assert estimation.overall_fee > 0
+
+    # Verify that the transaction signed for fee estimation cannot be sent
+    with pytest.raises(ClientError):
+        await account.client.declare(signed_transaction)
+
+    # Verify that original transaction can be sent
+    result = await account.client.declare(transaction)
+    await account.client.wait_for_tx(result.transaction_hash)
+
+
+@pytest.mark.parametrize("account_type", ("base", "proxy"))
+@pytest.mark.asyncio
+async def test_sign_deploy_account_tx_for_fee_estimation(
+    client, deploy_account_details_factory, account_type
+):
+    address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
+
+    if account_type == "base":
+        account = Account(
+            address=address,
+            client=client,
+            key_pair=key_pair,
+            chain=StarknetChainId.TESTNET,
+        )
+    else:
+        account = AccountProxy(
+            AccountClient(
+                address=address,
+                client=client,
+                key_pair=key_pair,
+                chain=StarknetChainId.TESTNET,
+                supported_tx_version=1,
+            )
+        )
+
+    transaction = await account.sign_deploy_account_transaction(
+        class_hash=class_hash,
+        contract_address_salt=salt,
+        constructor_calldata=[key_pair.public_key],
+        max_fee=MAX_FEE,
+    )
+
+    signed_transaction = await account.sign_for_fee_estimate(transaction)
+
+    estimation = await account.client.estimate_fee(transaction)
+    assert estimation.overall_fee > 0
+
+    # Verify that the transaction signed for fee estimation cannot be sent
+    with pytest.raises(ClientError):
+        await account.client.deploy_account(signed_transaction)
+
+    # Verify that original transaction can be sent
+    result = await account.client.deploy_account(transaction)
     await account.client.wait_for_tx(result.transaction_hash)
