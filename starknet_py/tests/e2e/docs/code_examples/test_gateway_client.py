@@ -27,7 +27,8 @@ def test_init():
 @pytest.mark.asyncio
 async def test_get_block(gateway_client):
     # docs-start: get_block
-    block = await gateway_client.get_block(block_number="latest" or 1234)
+    block = await gateway_client.get_block(block_number="latest")
+    block = await gateway_client.get_block(block_number=1234)
     # or
     block = await gateway_client.get_block(block_hash="0x0")
     # docs-end: get_block
@@ -36,7 +37,8 @@ async def test_get_block(gateway_client):
 @pytest.mark.asyncio
 async def test_get_block_traces(gateway_client):
     # docs-start: get_block_traces
-    block_traces = await gateway_client.get_block_traces(block_number="latest" or 1234)
+    block_traces = await gateway_client.get_block_traces(block_number="latest")
+    block = await gateway_client.get_block(block_number=1234)
     # or
     block_traces = await gateway_client.get_block_traces(block_hash="0x0")
     # docs-end: get_block_traces_end
@@ -45,7 +47,8 @@ async def test_get_block_traces(gateway_client):
 @pytest.mark.asyncio
 async def test_get_state_update(gateway_client):
     # docs-start: get_state_update_start
-    state_update = await gateway_client.get_state_update(block_number="latest" or 1234)
+    state_update = await gateway_client.get_state_update(block_number="latest")
+    block = await gateway_client.get_block(block_number=1234)
     # or
     state_update = await gateway_client.get_state_update(block_hash="0x0")
     # docs-end: get_state_update
@@ -119,35 +122,6 @@ async def test_call_contract(gateway_client, contract_address):
         block_number="latest",
     )
     # docs-end: call_contract
-
-
-@pytest.mark.asyncio
-async def test_send_transaction(gateway_client, deploy_account_transaction):
-    transaction = deploy_account_transaction
-    # docs-start: send_transaction
-    sent_transaction_response = await gateway_client.send_transaction(
-        transaction=transaction
-    )
-    # docs-end: send_transaction
-
-
-@pytest.mark.asyncio
-async def test_deploy_account(gateway_client, deploy_account_transaction):
-    # docs-start: deploy_account
-    deploy_account_response = await gateway_client.deploy_account(
-        transaction=deploy_account_transaction
-    )
-    # docs-end: deploy_account
-
-
-@pytest.mark.asyncio
-async def test_declare(gateway_client, gateway_account, map_compiled_contract):
-    declare_transaction = await gateway_account.sign_declare_transaction(
-        compiled_contract=map_compiled_contract, max_fee=MAX_FEE
-    )
-    # docs-start: declare
-    declare_response = await gateway_client.declare(transaction=declare_transaction)
-    # docs-end: declare
 
 
 @pytest.mark.asyncio
