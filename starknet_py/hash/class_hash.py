@@ -63,7 +63,7 @@ def _compute_hinted_class_hash(contract_class: ContractClass) -> int:
     program["debug_info"] = None
 
     if "attributes" in program:
-        program = _delete_attributes(program)
+        program = _delete_backward_compatibility_fields(program)
 
     # If compiler_version is not present, this was compiled with a compiler before version 0.10.0.
     # Use "(a : felt)" syntax instead of "(a: felt)" so that the class hash will be the same.
@@ -98,7 +98,7 @@ def _add_backward_compatibility_space(cairo_type: str) -> str:
     return re.sub(r"(?<! ):", " :", cairo_type)
 
 
-def _delete_attributes(program) -> dict:
+def _delete_backward_compatibility_fields(program) -> dict:
     if len(program["attributes"]) == 0:
         # Remove attributes field from raw dictionary, for hash backward compatibility of
         # contracts deployed prior to adding this feature.
