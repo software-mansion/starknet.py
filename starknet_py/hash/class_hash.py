@@ -70,7 +70,7 @@ def _compute_hinted_class_hash(contract_class: ContractClass) -> int:
     if "compiler_version" not in program:
         program["identifiers"] = _fix_cairo_types(program["identifiers"])
 
-    class_ = dict(abi=contract_class.abi, program=program)
+    class_ = {"abi": contract_class.abi, "program": program}
     serialized_contract_class = json.dumps(obj=class_)
     return _starknet_keccak(data=serialized_contract_class.encode())
 

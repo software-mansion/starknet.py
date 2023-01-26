@@ -70,7 +70,7 @@ def create_contract_class(
     """
     Creates ContractClass from already compiled contract.
 
-    :return: a ContractClass.
+    :return: a ContractClass instance.
     """
     return typing.cast(ContractClass, ContractClassSchema().loads(compiled_contract))
 
