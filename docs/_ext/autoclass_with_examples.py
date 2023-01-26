@@ -65,8 +65,7 @@ def _extract_file_properties(class_name: str) -> Tuple[str, str]:
     file_name = "test_" + _camel_to_snake(class_name) + ".py"
     file_path = ROOT_PATH / "tests/e2e/docs/code_examples" / file_name
 
-    with open(file_path, "r", encoding="utf-8") as file:
-        return file_name, file.read()
+    return file_name, file_path.read_text("utf-8")
 
 
 def _camel_to_snake(text: str) -> str:
