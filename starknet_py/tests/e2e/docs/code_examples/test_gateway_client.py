@@ -16,7 +16,10 @@ def test_init():
     gateway_client = GatewayClient(net=TESTNET)
     # or (for custom urls)
     gateway_client = GatewayClient(
-        net={"feeder_gateway_url": "some_feeder_url", "gateway_url": "some_gateway_url"}
+        net={
+            "feeder_gateway_url": "https://alpha4.starknet.io/feeder_gateway",
+            "gateway_url": "https://alpha4.starknet.io/gateway",
+        }
     )
     # docs-end: init
 
