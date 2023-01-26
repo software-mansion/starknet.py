@@ -4,16 +4,28 @@ import json
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
+def test_short_strings():
+    # docs-shortstring: start
+    from starknet_py.cairo.felt import decode_shortstring, encode_shortstring
+
+    # Convert a string literal to its felt value
+    encoded = encode_shortstring("myshortstring")
+    assert encoded == 0x6D7973686F7274737472696E67
+
+    # Decode a felt into a string
+    # Note that decoded value always has 31 characters in length.
+    # Extra `\x00` characters can be stripped to get only the encoded value.
+    decoded = decode_shortstring(encoded).lstrip("\x00")
+    assert decoded == "myshortstring"
+    # docs-shortstring: end
+
+
 def test_abi_parsing():
     raw_abi_string = read_contract("erc20_abi.json")
-    # docs: start
+    # docs-serializer: start
     from starknet_py.abi import AbiParser
 
     """
-    @event
-    func Transfer(from_: felt, to: felt, value: Uint256) {
-    }
-
     @external
     func transferFrom{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         sender: felt, recipient: felt, amount: felt
@@ -46,8 +58,16 @@ def test_abi_parsing():
     assert {"success": 1} == result.as_dict()
     (success,) = result
     assert 1 == success
+    # docs-serializer: end
 
+    # docs-event: start
     from starknet_py.serialization import serializer_for_event
+
+    """
+    @event
+    func Transfer(from_: felt, to: felt, value: Uint256) {
+    }
+    """
 
     # You can create serializer for events by passing Abi.Event object to serializer_for_event
     event_serializer = serializer_for_event(abi.events["Transfer"])
@@ -59,4 +79,4 @@ def test_abi_parsing():
         "to": 2,
         "value": 3 + 4 * 2**128,
     } == event_serializer.deserialize([1, 2, 3, 4]).as_dict()
-    # docs: end
+    # docs-event: end

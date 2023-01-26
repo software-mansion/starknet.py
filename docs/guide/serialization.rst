@@ -6,7 +6,7 @@ Data serialization
 
 Starknet.py **serializes** python values to Cairo values and **deserializes** Cairo values to python values.
 
-.. warning::
+.. attention::
     Serializing short strings to felts has been deprecated. Please use `starknet_py.cairo.felt.encode_shortstring` to
     create numeric value from string _before_ passing value to serializer.
 
@@ -67,13 +67,20 @@ Starknet.py **serializes** python values to Cairo values and **deserializes** Ca
 Working with shortstrings
 -------------------------
 
-To make working with short strings easier we provide some utility functions to translate the felt value received from the contract, into a short string value. A function which translates a string into a felt is also available, but the transformation is done automatically when calling the contract with shortstring in place of felt - they are interchangeable.
-You can read more about how cairo treats shortstrings in `the documentation <https://www.cairo-lang.org/docs/how_cairo_works/consts.html#short-string-literals>`_.
+To make working with short strings easier we provide some utility functions to translate between them and felt values.
+You can read more about how cairo treats shortstrings in
+`the documentation <https://www.cairo-lang.org/docs/how_cairo_works/consts.html#short-string-literals>`_.
 
 Conversion functions and references:
 
 - :obj:`encode_shortstring <starknet_py.cairo.felt.encode_shortstring>`
 - :obj:`decode_shortstring <starknet_py.cairo.felt.decode_shortstring>`
+
+.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_serializing.py
+    :language: python
+    :dedent: 4
+    :start-after: docs-shortstring: start
+    :end-before: docs-shortstring: end
 
 Creating serializers from abi
 -----------------------------
@@ -85,6 +92,22 @@ for more details.
 :obj:`Abi dataclass <starknet_py.net.models.abi.model.Abi>` that can be used for creating serializers. This way you can
 easily deserialize events or serialize function's inputs.
 
+Serializing function inputs and outputs
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_serializing.py
     :language: python
     :dedent: 4
+    :start-after: docs-serializer: start
+    :end-before: docs-serializer: end
+
+Serializing events
+^^^^^^^^^^^^^^^^^^
+
+Events emitted by contracts can also be serialized, having provided the correct ABI
+
+.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_serializing.py
+    :language: python
+    :dedent: 4
+    :start-after: docs-event: start
+    :end-before: docs-event: end

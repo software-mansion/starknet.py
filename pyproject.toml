@@ -50,7 +50,8 @@ isort = "^5.11.4"
 
 [tool.poe.tasks]
 test.shell = "pytest -n auto -v --cov=starknet_py starknet_py"
-test_ci.shell = "coverage run -m pytest starknet_py"
+test_ci.shell = "coverage run -m pytest starknet_py --ignore=starknet_py/tests/e2e/docs"
+test_ci_docs.shell = "coverage run -m pytest starknet_py/tests/e2e/docs"
 test_unit.shell = "pytest -n auto -v starknet_py --ignore=starknet_py/tests/e2e"
 test_e2e.shell = "pytest -n auto -v starknet_py/tests/e2e --ignore=starknet_py/tests/e2e/docs"
 test_docs.shell = "pytest -n auto -v starknet_py/tests/e2e/docs"
