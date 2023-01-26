@@ -181,7 +181,7 @@ async def test_get_contract_nonce(gateway_client, contract_address):
     # docs-end: get_contract_nonce
     address = contract_address
     # docs-start: get_contract_nonce
-    code = await gateway_client.get_contract_nonce(
+    nonce = await gateway_client.get_contract_nonce(
         contract_address=address, block_number="latest"
     )
     # docs-end: get_contract_nonce
