@@ -3,24 +3,26 @@ Data types
 
 Module containing representations of Cairo types. Mostly used to generate proper serializers.
 
-.. autoclass:: starknet_py.cairo.data_types.CairoType
+.. py:module:: starknet_py.cairo.data_types
+
+.. autoclass:: CairoType
     :exclude-members: __init__, __new__
 
-.. autoclass:: starknet_py.cairo.data_types.FeltType
+.. autoclass:: FeltType
     :exclude-members: __init__, __new__
 
-.. autoclass:: starknet_py.cairo.data_types.TupleType
-    :exclude-members: __init__, __new__
-    :members: types
-
-.. autoclass:: starknet_py.cairo.data_types.NamedTupleType
+.. autoclass:: TupleType
     :exclude-members: __init__, __new__
     :members: types
 
-.. autoclass:: starknet_py.cairo.data_types.ArrayType
+.. autoclass:: NamedTupleType
+    :exclude-members: __init__, __new__
+    :members: types
+
+.. autoclass:: ArrayType
     :exclude-members: __init__, __new__
     :members: inner_type
 
-.. autoclass:: starknet_py.cairo.data_types.StructType
+.. autoclass:: StructType
     :exclude-members: __init__, __new__
     :members: types

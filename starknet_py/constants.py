@@ -1,3 +1,5 @@
+from pathlib import Path
+
 # Address came from starkware-libs/starknet-addresses repository: https://github.com/starkware-libs/starknet-addresses
 FEE_CONTRACT_ADDRESS = (
     "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7"
@@ -10,3 +12,5 @@ DEFAULT_DEPLOYER_ADDRESS = (
 RPC_CONTRACT_NOT_FOUND_ERROR = 20
 RPC_INVALID_MESSAGE_SELECTOR_ERROR = 21
 RPC_CLASS_HASH_NOT_FOUND_ERROR = 28
+
+ROOT_PATH = Path(__file__).parent
