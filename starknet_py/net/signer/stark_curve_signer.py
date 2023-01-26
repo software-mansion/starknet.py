@@ -70,13 +70,13 @@ class StarkCurveSigner(BaseSigner):
             version=transaction.version,
             contract_address=self.address,
             entry_point_selector=0
-            if transaction.version not in (0, 2**128)
+            if not _is_old_transaction_version(transaction.version)
             else transaction.entry_point_selector,
             calldata=transaction.calldata,
             max_fee=transaction.max_fee,
             chain_id=self.chain_id.value,
             additional_data=[transaction.nonce]
-            if transaction.version not in (0, 2**128)
+            if not _is_old_transaction_version(transaction.version)
             else [],
         )
         # pylint: disable=invalid-name
@@ -136,3 +136,7 @@ class StarkCurveSigner(BaseSigner):
         # pylint: disable=invalid-name
         r, s = message_signature(msg_hash=msg_hash, priv_key=self.private_key)
         return [r, s]
+
+
+def _is_old_transaction_version(version: int):
+    return version in (0, 2**128)
