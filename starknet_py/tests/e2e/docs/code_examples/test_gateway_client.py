@@ -27,27 +27,27 @@ def test_init():
 @pytest.mark.asyncio
 async def test_get_block(gateway_client):
     # docs-start: get_block
-    block = await gateway_client.get_block(block_hash="latest")
+    block = await gateway_client.get_block(block_number="latest" or 1234)
     # or
-    block = await gateway_client.get_block(block_number=0)
+    block = await gateway_client.get_block(block_hash="0x0")
     # docs-end: get_block
 
 
 @pytest.mark.asyncio
 async def test_get_block_traces(gateway_client):
     # docs-start: get_block_traces
-    block_traces = await gateway_client.get_block_traces(block_hash="latest")
+    block_traces = await gateway_client.get_block_traces(block_number="latest" or 1234)
     # or
-    block_traces = await gateway_client.get_block_traces(block_number=0)
+    block_traces = await gateway_client.get_block_traces(block_hash="0x0")
     # docs-end: get_block_traces_end
 
 
 @pytest.mark.asyncio
 async def test_get_state_update(gateway_client):
     # docs-start: get_state_update_start
-    state_update = await gateway_client.get_state_update(block_hash="latest")
+    state_update = await gateway_client.get_state_update(block_number="latest" or 1234)
     # or
-    state_update = await gateway_client.get_state_update(block_number=0)
+    state_update = await gateway_client.get_state_update(block_hash="0x0")
     # docs-end: get_state_update
 
 
@@ -58,7 +58,7 @@ async def test_get_storage_at(gateway_client, map_contract):
     state_update = await gateway_client.get_storage_at(
         contract_address=address,
         key=get_storage_var_address("storage_var name"),
-        block_hash="latest",
+        block_number="latest",
     )
     # docs-end: get_storage_at
 
@@ -113,7 +113,7 @@ async def test_call_contract(gateway_client, contract_address):
             selector=get_selector_from_name("increase_balance"),
             calldata=[123],
         ),
-        block_hash="latest",
+        block_number="latest",
     )
     # docs-end: call_contract
 
@@ -155,7 +155,7 @@ async def test_get_class_hash_at(gateway_client, contract_address):
     address = contract_address
     # docs-start: get_class_hash_at
     class_hash = await gateway_client.get_class_hash_at(
-        contract_address=address, block_hash="latest"
+        contract_address=address, block_number="latest"
     )
     # docs-end: get_class_hash_at
 
@@ -191,7 +191,9 @@ async def test_get_code(gateway_client, contract_address):
     # docs-end: get_code
     address = contract_address
     # docs-start: get_code
-    code = await gateway_client.get_code(contract_address=address, block_hash="latest")
+    code = await gateway_client.get_code(
+        contract_address=address, block_number="latest"
+    )
     # docs-end: get_code
 
 
@@ -203,6 +205,6 @@ async def test_get_contract_nonce(gateway_client, contract_address):
     address = contract_address
     # docs-start: get_contract_nonce
     code = await gateway_client.get_contract_nonce(
-        contract_address=address, block_hash="latest"
+        contract_address=address, block_number="latest"
     )
     # docs-end: get_contract_nonce
