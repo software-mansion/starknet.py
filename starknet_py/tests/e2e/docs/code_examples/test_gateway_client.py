@@ -1,4 +1,4 @@
-# pylint: disable=unused-variable, redefined-builtin
+# pylint: disable=unused-variable
 import pytest
 from starkware.starknet.public.abi import (
     get_selector_from_name,
@@ -38,17 +38,17 @@ async def test_get_block(gateway_client):
 async def test_get_block_traces(gateway_client):
     # docs-start: get_block_traces
     block_traces = await gateway_client.get_block_traces(block_number="latest")
-    block = await gateway_client.get_block_traces(block_number=0)
+    block_traces = await gateway_client.get_block_traces(block_number=0)
     # or
     block_traces = await gateway_client.get_block_traces(block_hash="0x0")
-    # docs-end: get_block_traces_end
+    # docs-end: get_block_traces
 
 
 @pytest.mark.asyncio
 async def test_get_state_update(gateway_client):
-    # docs-start: get_state_update_start
+    # docs-start: get_state_update
     state_update = await gateway_client.get_state_update(block_number="latest")
-    block = await gateway_client.get_state_update(block_number=0)
+    state_update = await gateway_client.get_state_update(block_number=0)
     # or
     state_update = await gateway_client.get_state_update(block_hash="0x0")
     # docs-end: get_state_update
@@ -140,11 +140,11 @@ async def test_get_class_hash_at(gateway_client, contract_address):
 @pytest.mark.asyncio
 async def test_get_class_by_hash(gateway_client, class_hash):
     # docs-start: get_class_by_hash
-    hash = 0x1 or 1 or "0x1"
+    hash_ = 0x1 or 1 or "0x1"
     # docs-end: get_class_by_hash
-    hash = class_hash
+    hash_ = class_hash
     # docs-start: get_class_by_hash
-    contract_class = await gateway_client.get_class_by_hash(class_hash=hash)
+    contract_class = await gateway_client.get_class_by_hash(class_hash=hash_)
     # docs-end: get_class_by_hash
 
 
