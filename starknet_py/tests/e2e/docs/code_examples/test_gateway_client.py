@@ -58,7 +58,7 @@ async def test_get_state_update(gateway_client):
 async def test_get_storage_at(gateway_client, map_contract):
     address = map_contract.address
     # docs-start: get_storage_at
-    state_update = await gateway_client.get_storage_at(
+    storage_value = await gateway_client.get_storage_at(
         contract_address=address,
         key=get_storage_var_address("storage_var name"),
         block_number="latest",
@@ -81,7 +81,9 @@ async def test_get_transaction(gateway_client, declare_transaction_hash):
 async def test_get_transaction_receipt(gateway_client, declare_transaction_hash):
     transaction_hash = declare_transaction_hash
     # docs-start: get_transaction_receipt
-    transaction = await gateway_client.get_transaction_receipt(tx_hash=transaction_hash)
+    transaction_receipt = await gateway_client.get_transaction_receipt(
+        tx_hash=transaction_hash
+    )
     # docs-end: get_transaction_receipt
 
 
@@ -113,7 +115,7 @@ async def test_estimate_fee_bulk(
 @pytest.mark.asyncio
 async def test_call_contract(gateway_client, contract_address):
     # docs-start: call_contract
-    transaction = await gateway_client.call_contract(
+    resp = await gateway_client.call_contract(
         call=Call(
             to_addr=contract_address,
             selector=get_selector_from_name("increase_balance"),
