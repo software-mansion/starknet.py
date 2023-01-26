@@ -1,3 +1,4 @@
+import re
 from typing import Any, Dict, List, Tuple
 
 from docutils import nodes
@@ -60,11 +61,9 @@ class CodeSnippet(SphinxDirective):
     def _get_code_snippet(self, lines: List[str]) -> Tuple[List[str], List[str]]:
         """Returns the first code snippet from lines and the rest of lines after that"""
         try:
-            code_snippet_to_end = self.reader.end_filter(lines, self.location)
+            code_snippet_to_end = self._end_filter(lines)
             lines = lines[len(code_snippet_to_end) :]
-            code_snippet_start_to_end = self.reader.start_filter(
-                code_snippet_to_end, self.location
-            )
+            code_snippet_start_to_end = self._start_filter(code_snippet_to_end)
             code_snippet = self.reader.dedent_filter(
                 code_snippet_start_to_end, self.location
             )
@@ -73,6 +72,31 @@ class CodeSnippet(SphinxDirective):
                 return [], []
             raise err
         return code_snippet, lines
+
+    def _end_filter(self, lines: List[str]) -> List[str]:
+        end = self.options["end-before"]
+        pattern = rf"(?<!\S){end}(?!\S)"
+
+        for lineno, line in enumerate(lines[1:], start=1):
+            if re.search(pattern, line):
+                return lines[:lineno]
+
+        raise ValueError(f"end-before pattern not found: {end}")
+
+    def _start_filter(self, lines: List[str]) -> List[str]:
+        start = self.options["start-after"]
+        pattern = rf"(?<!\S){start}(?!\S)"
+
+        for lineno, line in enumerate(lines):
+            if re.search(pattern, line):
+                self._fix_lineno_start(lineno)
+                return lines[lineno + 1 :]
+
+        raise ValueError(f"start-after pattern not found: {start}")
+
+    def _fix_lineno_start(self, lineno):
+        if "lineno-match" in self.options:
+            self.lineno_start += lineno + 1
 
     def _set_options(self) -> None:
         self.options["start-after"] = self.options.get(
