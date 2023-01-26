@@ -17,6 +17,10 @@ class AutoclassWithExamples(AutodocDirective):
     from the starknet_py/tests/e2e/docs/code_examples directory to include in the documentation.
     This allows developers to easily see and understand how the methods
     being documented are intended to be used in a practical context.
+
+    .. note::
+
+        The docstrings will not be inherited if the hierarchy is `deeper` than one step.
     """
 
     def run(self) -> List[Node]:
