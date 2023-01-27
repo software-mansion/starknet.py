@@ -280,7 +280,7 @@ class FullNodeClient(Client):
         block_number: Optional[Union[int, Tag]] = None,
     ) -> Transaction:
         """
-        Get the details of transaction in block identified block_hash and transaction index
+        Get the details of transaction in block identified by block_hash and transaction index.
 
         :param index: Index of the transaction
         :param block_hash: Hash of the block
