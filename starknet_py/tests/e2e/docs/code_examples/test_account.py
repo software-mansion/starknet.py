@@ -56,7 +56,7 @@ async def test_execute(gateway_account, contract_address):
         calldata=[123],
     )
     # docs-start: execute
-    resp = await account.execute(calls=[call1, call2], max_fee=int(1e15))
+    resp = await account.execute(calls=[call1, call2], auto_estimate=True)
     # docs-end: execute
 
 
