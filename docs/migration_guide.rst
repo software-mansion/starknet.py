@@ -26,8 +26,8 @@ Serializers module
 New :ref:`serializers` module has been added in place of old ``data_transformer``. See :ref:`Serialization` guide for more details.
 
 
-Automatic fee estimation
-------------------------
+auto_estimate
+-------------
 
 The way **automatic fee estimation is calculated** has changed from
 
