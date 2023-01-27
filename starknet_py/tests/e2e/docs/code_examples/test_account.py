@@ -68,7 +68,7 @@ async def test_get_balance(gateway_account):
     account = gateway_account
     # docs-start: get_balance
     eth_balance = await account.get_balance()
-    # or
+    # or with custom token contract address
     token_address = 0x1 or 1 or "0x1"
     # docs-end: get_balance
     token_address = FEE_CONTRACT_ADDRESS
