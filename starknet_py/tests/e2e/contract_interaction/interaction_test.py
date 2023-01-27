@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
-from starknet_py.common import create_compiled_contract
+from starknet_py.common import _create_compiled_contract
 from starknet_py.contract import Contract
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.client_errors import ClientError
@@ -218,8 +218,7 @@ async def test_general_simplified_deployment_flow(account, map_compiled_contract
 
 @pytest.mark.asyncio
 async def test_deploy_contract_flow(account, map_compiled_contract, map_class_hash):
-    abi = create_compiled_contract(compiled_contract=map_compiled_contract).abi
-    assert abi is not None
+    abi = _create_compiled_contract(compiled_contract=map_compiled_contract).abi
 
     deploy_result = await Contract.deploy_contract(
         class_hash=map_class_hash, account=account, abi=abi, max_fee=MAX_FEE

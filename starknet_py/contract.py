@@ -11,7 +11,7 @@ from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 
 from starknet_py.abi.model import Abi
 from starknet_py.abi.parser import AbiParser
-from starknet_py.common import create_compiled_contract
+from starknet_py.common import _create_compiled_contract, create_compiled_contract
 from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
 from starknet_py.hash.address import compute_address
@@ -179,8 +179,7 @@ class DeclareResult(SentTransaction):
         :return: DeployResult instance.
         """
         # pylint: disable=too-many-arguments
-        abi = create_compiled_contract(compiled_contract=self.compiled_contract).abi
-        assert abi is not None
+        abi = _create_compiled_contract(compiled_contract=self.compiled_contract).abi
 
         deployer = Deployer(
             deployer_address=deployer_address,

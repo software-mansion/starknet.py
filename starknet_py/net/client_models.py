@@ -332,7 +332,16 @@ class ContractClass:
 
     program: dict
     entry_points_by_type: EntryPointsByType
-    abi: Optional[AbiDictList] = None
+    abi: Optional[AbiDictList]
+
+
+@dataclass
+class CompiledContract(ContractClass):
+    """
+    Dataclass representing contract compiled through starknet-compile.
+    """
+
+    abi: AbiDictList
 
 
 @dataclass
