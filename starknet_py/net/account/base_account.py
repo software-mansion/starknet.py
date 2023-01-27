@@ -66,7 +66,7 @@ class BaseAccount(ABC):
         self, transaction: Union[Invoke, Declare, DeployAccount]
     ) -> Union[Invoke, Declare, DeployAccount]:
         """
-        Sign a transaction for a purpose of only fee_estimation.
+        Sign a transaction for a purpose of only fee estimation.
         Should use a transaction version that is not executable on StarkNet,
         calculated like ``transaction.version + 2 ** 128``.
 
