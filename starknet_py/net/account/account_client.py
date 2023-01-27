@@ -8,7 +8,7 @@ from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.common import create_compiled_contract
 from starknet_py.compile.compiler import StarknetCompilationSource
-from starknet_py.constants import FEE_CONTRACT_ADDRESS
+from starknet_py.constants import ESTIMATED_FEE_MULTIPLIER, FEE_CONTRACT_ADDRESS
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError
@@ -326,7 +326,7 @@ class AccountClient(Client):
 
         if auto_estimate:
             estimate_fee = await self.estimate_fee(transaction)
-            max_fee = int(estimate_fee.overall_fee * 1.1)
+            max_fee = int(estimate_fee.overall_fee * ESTIMATED_FEE_MULTIPLIER)
 
         if max_fee is None:
             raise ValueError(

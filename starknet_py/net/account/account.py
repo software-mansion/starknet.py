@@ -6,6 +6,7 @@ from typing import Dict, Iterable, List, Optional, Tuple, TypeVar, Union
 from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.common import create_compiled_contract
+from starknet_py.constants import ESTIMATED_FEE_MULTIPLIER
 from starknet_py.net import KeyPair
 from starknet_py.net.account.account_deployment_result import AccountDeploymentResult
 from starknet_py.net.account.base_account import BaseAccount
@@ -110,7 +111,7 @@ class Account(BaseAccount):
 
         if auto_estimate:
             estimate_fee = await self._estimate_fee(transaction)
-            max_fee = int(estimate_fee.overall_fee * 1.1)
+            max_fee = int(estimate_fee.overall_fee * ESTIMATED_FEE_MULTIPLIER)
 
         if max_fee is None:
             raise ValueError(

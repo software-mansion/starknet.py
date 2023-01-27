@@ -61,7 +61,7 @@ Automatic fee estimation
 
 For testing purposes it is possible to enable automatic fee estimation when making
 a transaction. Starknet.py will then use ``estimate_fee()`` internally and use value
-returned by it multiplied by ``1.1`` as a ``max_fee``.
+returned by it multiplied by ``1.5`` as a ``max_fee``.
 
 .. warning::
 
