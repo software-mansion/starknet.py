@@ -17,6 +17,10 @@ class AutoclassWithExamples(AutodocDirective):
     from the starknet_py/tests/e2e/docs/code_examples directory to include in the documentation.
     This allows developers to easily see and understand how the methods
     being documented are intended to be used in a practical context.
+
+    .. note::
+
+        The docstrings will not be inherited if the hierarchy is `deeper` than one step.
     """
 
     def run(self) -> List[Node]:
@@ -63,8 +67,7 @@ def _extract_file_properties(class_name: str) -> Tuple[str, str]:
     file_name = "test_" + _camel_to_snake(class_name) + ".py"
     file_path = ROOT_PATH / "tests/e2e/docs/code_examples" / file_name
 
-    with open(file_path, "r", encoding="utf-8") as file:
-        return file_name, file.read()
+    return file_name, file_path.read_text("utf-8")
 
 
 def _camel_to_snake(text: str) -> str:
