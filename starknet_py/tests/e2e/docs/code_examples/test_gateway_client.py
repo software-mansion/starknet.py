@@ -14,7 +14,7 @@ from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 def test_init():
     # docs-start: init
     gateway_client = GatewayClient(net=TESTNET)
-    # or (for custom urls)
+    # or when using custom urls
     gateway_client = GatewayClient(
         net={
             "feeder_gateway_url": "https://alpha4.starknet.io/feeder_gateway",
