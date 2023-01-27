@@ -2,8 +2,8 @@ import warnings
 from typing import List, Literal, Optional, Union, cast
 
 from starknet_py.compile.compiler import Compiler, StarknetCompilationSource
-from starknet_py.net.client_models import CompiledContract, ContractClass
-from starknet_py.net.schemas.gateway import CompiledContractSchema, ContractClassSchema
+from starknet_py.net.client_models import ContractClass
+from starknet_py.net.schemas.gateway import ContractClassSchema
 
 
 def create_compiled_contract(
@@ -28,15 +28,6 @@ def create_compiled_contract(
         ).compile_contract()
     definition = create_contract_class(compiled_contract)
     return definition
-
-
-def _create_compiled_contract(compiled_contract: str) -> CompiledContract:
-    """
-    Creates CompiledContract from already compiled contract.
-
-    :return: a CompiledContract instance.
-    """
-    return cast(CompiledContract, CompiledContractSchema().loads(compiled_contract))
 
 
 def create_contract_class(

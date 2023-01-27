@@ -4,13 +4,14 @@ from typing import List, Union
 import pytest
 import pytest_asyncio
 
-from starknet_py.common import _create_compiled_contract, create_compiled_contract
+from starknet_py.common import create_compiled_contract
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient
 from starknet_py.net.account._account_proxy import AccountProxy
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
+from starknet_py.net.client_models import CompiledContract
 from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_DIR, MAX_FEE
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
@@ -108,7 +109,7 @@ async def deploy_map_contract(
     """
     Deploys map contract and returns its instance.
     """
-    abi = _create_compiled_contract(compiled_contract=map_compiled_contract).abi
+    abi = CompiledContract.from_contract(map_compiled_contract).abi
     return await deploy_contract(
         AccountProxy(gateway_account_client), map_class_hash, abi
     )
@@ -123,7 +124,7 @@ async def new_deploy_map_contract(
     """
     Deploys new map contract and returns its instance.
     """
-    abi = _create_compiled_contract(compiled_contract=map_compiled_contract).abi
+    abi = CompiledContract.from_contract(map_compiled_contract).abi
     return await deploy_contract(new_gateway_account_client, map_class_hash, abi)
 
 
@@ -136,7 +137,7 @@ async def base_account_deploy_map_contract(
     """
     Deploys new map contract and returns its instance.
     """
-    abi = _create_compiled_contract(compiled_contract=map_compiled_contract).abi
+    abi = CompiledContract.from_contract(map_compiled_contract).abi
     return await deploy_contract(gateway_account, map_class_hash, abi)
 
 
@@ -149,7 +150,7 @@ async def deploy_erc20_contract(
     """
     Deploys erc20 contract and returns its instance.
     """
-    abi = _create_compiled_contract(compiled_contract=erc20_compiled_contract).abi
+    abi = CompiledContract.from_contract(erc20_compiled_contract).abi
     return await deploy_contract(gateway_account, erc20_class_hash, abi)
 
 

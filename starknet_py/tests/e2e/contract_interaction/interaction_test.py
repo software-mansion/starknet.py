@@ -3,11 +3,14 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
-from starknet_py.common import _create_compiled_contract
 from starknet_py.contract import Contract
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.client_errors import ClientError
-from starknet_py.net.client_models import Call, SentTransactionResponse
+from starknet_py.net.client_models import (
+    Call,
+    CompiledContract,
+    SentTransactionResponse,
+)
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.transaction_exceptions import (
     TransactionNotReceivedError,
@@ -218,7 +221,7 @@ async def test_general_simplified_deployment_flow(account, map_compiled_contract
 
 @pytest.mark.asyncio
 async def test_deploy_contract_flow(account, map_compiled_contract, map_class_hash):
-    abi = _create_compiled_contract(compiled_contract=map_compiled_contract).abi
+    abi = CompiledContract.from_contract(map_compiled_contract).abi
 
     deploy_result = await Contract.deploy_contract(
         class_hash=map_class_hash, account=account, abi=abi, max_fee=MAX_FEE
