@@ -14,7 +14,7 @@ from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 def test_init():
     # docs-start: init
     gateway_client = GatewayClient(net=TESTNET)
-    # or (for custom urls)
+    # or when using custom urls
     gateway_client = GatewayClient(
         net={
             "feeder_gateway_url": "https://alpha4.starknet.io/feeder_gateway",
@@ -60,7 +60,7 @@ async def test_get_storage_at(gateway_client, map_contract):
     # docs-start: get_storage_at
     storage_value = await gateway_client.get_storage_at(
         contract_address=address,
-        key=get_storage_var_address("storage_var name"),
+        key=get_storage_var_address("name_of_storage_var"),
         block_number="latest",
     )
     # docs-end: get_storage_at
