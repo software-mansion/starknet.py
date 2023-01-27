@@ -38,7 +38,7 @@ to
 ``transaction estimated fee * 1.5``
 
 when using ``auto_estimate`` parameter in API functions (for example :meth:`~starknet_py.net.account.account.Account.execute`, :meth:`~starknet_py.net.account.account.Account.sign_invoke_transaction` or :meth:`~starknet_py.contract.PreparedFunctionCall.invoke`).
-
+It was caused by many transactions failing due to low ``max_fee``.
 
 |
 
