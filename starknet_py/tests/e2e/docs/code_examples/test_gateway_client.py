@@ -60,7 +60,7 @@ async def test_get_storage_at(gateway_client, map_contract):
     # docs-start: get_storage_at
     state_update = await gateway_client.get_storage_at(
         contract_address=address,
-        key=get_storage_var_address("storage_var name"),
+        key=get_storage_var_address("name_of_storage_var"),
         block_number="latest",
     )
     # docs-end: get_storage_at
