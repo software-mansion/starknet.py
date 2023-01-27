@@ -9,6 +9,7 @@ Interface
 
 .. autoclass:: BaseAccount
     :members:
+    :member-order: bysource
 
 ----------------------
 Default implementation
