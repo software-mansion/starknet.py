@@ -81,7 +81,7 @@ async def test_estimate_fee(full_node_account, deploy_account_transaction):
 @pytest.mark.asyncio
 async def test_call_contract(full_node_client, contract_address):
     # docs-start: call_contract
-    resp = await full_node_client.call_contract(
+    response = await full_node_client.call_contract(
         call=Call(
             to_addr=contract_address,
             selector=get_selector_from_name("increase_balance"),

@@ -115,7 +115,7 @@ async def test_estimate_fee_bulk(
 @pytest.mark.asyncio
 async def test_call_contract(gateway_client, contract_address):
     # docs-start: call_contract
-    resp = await gateway_client.call_contract(
+    response = await gateway_client.call_contract(
         call=Call(
             to_addr=contract_address,
             selector=get_selector_from_name("increase_balance"),
