@@ -1,5 +1,5 @@
 import re
-import sys
+from importlib import import_module
 from typing import Any, Dict, List, Tuple
 
 from docutils.nodes import Node
@@ -24,12 +24,14 @@ class AutoclassWithExamples(AutodocDirective):
     """
 
     def run(self) -> List[Node]:
-        # Gets the class by its path and name
+        # Gets the module by its path.
         # Path is stored in the self.env.ref_context
+        module_name = self.env.ref_context.get("py:module")
+        module = import_module(module_name)
+
+        # Gets class from imported module
         # Name of the class is passed as an argument
-        original_class = getattr(
-            sys.modules[self.env.ref_context.get("py:module")], self.arguments[0]
-        )
+        original_class = getattr(module, self.arguments[0])
         add_code_examples(original_class)
 
         self.name = self.name.replace("-with-examples", "")  # remove `-with-examples`
