@@ -1,18 +1,18 @@
 Account
 =======
 
-*********
+---------
 Interface
-*********
+---------
 
 .. py:module:: starknet_py.net.account.base_account
 
 .. autoclass:: BaseAccount
     :members:
 
-**********************
+----------------------
 Default implementation
-**********************
+----------------------
 
 .. py:module:: starknet_py.net.account.account
 
@@ -20,9 +20,9 @@ Default implementation
     :members:
     :member-order: bysource
 
-******************
+------------------
 Account deployment
-******************
+------------------
 
 Result of the Account deployment.
 
