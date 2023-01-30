@@ -30,7 +30,3 @@ func get_balance{
     let (res) = balance.read();
     return (res=res);
 }
-
-@storage_var
-func my_storage() -> (res: felt) {
-}
