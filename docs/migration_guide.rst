@@ -40,6 +40,10 @@ to
 when using ``auto_estimate`` parameter in API functions (for example :meth:`~starknet_py.net.account.account.Account.execute`, :meth:`~starknet_py.net.account.account.Account.sign_invoke_transaction` or :meth:`~starknet_py.contract.PreparedFunctionCall.invoke`).
 It was caused by many transactions failing due to low ``max_fee``.
 
+.. note::
+    It is now possible to set the value by which the estimated fee is multiplied,
+    by changing ``ESTIMATED_FEE_MULTIPLIER`` in :class:`~starknet_py.net.account.account.Account`.
+
 |
 
 .. raw:: html
