@@ -3,7 +3,7 @@ Contract
 
 .. py:module:: starknet_py.contract
 
-.. autoclass:: Contract
+.. autoclass-with-examples:: Contract
     :members:
     :undoc-members:
     :member-order: groupwise
