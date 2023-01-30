@@ -9,7 +9,8 @@ Interface
 
 .. autoclass:: BaseAccount
     :members:
-    :member-order: bysource
+    :undoc-members:
+    :member-order: groupwise
 
 ----------------------
 Default implementation
@@ -19,7 +20,8 @@ Default implementation
 
 .. autoclass-with-examples:: Account
     :members:
-    :member-order: bysource
+    :undoc-members:
+    :member-order: groupwise
 
 ------------------
 Account deployment
