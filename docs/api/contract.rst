@@ -8,7 +8,7 @@ Contract
     :undoc-members:
     :member-order: groupwise
 
-.. autoclass:: ContractFunction
+.. autoclass-with-examples:: ContractFunction
     :exclude-members: __init__, __new__
     :members:
     :undoc-members:

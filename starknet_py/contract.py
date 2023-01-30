@@ -282,7 +282,7 @@ class PreparedFunctionCall(Call):
         Calls a method.
 
         :param block_hash: Optional block hash.
-        :return: CallResult or List[int] if return_raw is used.
+        :return: TupleDataclass representing call result.
         """
         result = await self.call_raw(block_hash=block_hash)
         return self._payload_transformer.deserialize(result)
