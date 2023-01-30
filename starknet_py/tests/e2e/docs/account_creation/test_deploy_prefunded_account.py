@@ -43,26 +43,21 @@ async def test_deploy_prefunded_account(
     await res.wait_for_acceptance()
     # docs: start
 
-    # Create an Account instance
-    account = Account(
+    # Use `Account.deploy_account` static method to deploy an account
+    account_deployment_result = await Account.deploy_account(
         address=address,
-        client=GatewayClient(net=network),
-        key_pair=key_pair,
-        chain=StarknetChainId.TESTNET,
-    )
-
-    # Create and sign DeployAccount transaction
-    deploy_account_tx = await account.sign_deploy_account_transaction(
         class_hash=class_hash,
-        contract_address_salt=salt,
+        salt=salt,
+        key_pair=key_pair,
+        client=GatewayClient(net=network),
+        chain=StarknetChainId.TESTNET,
         constructor_calldata=[key_pair.public_key],
         max_fee=int(1e15),
     )
+    # Wait for deployment transaction to be accepted
+    await account_deployment_result.wait_for_acceptance()
 
-    resp = await account.client.deploy_account(transaction=deploy_account_tx)
-    await account.client.wait_for_tx(resp.transaction_hash)
-
-    # Since this moment account can be used to sign other transactions
+    # Since this moment account can be used as usual
+    account = account_deployment_result.account
     # docs: end
-
-    assert address == resp.address
+    assert account.address == address
