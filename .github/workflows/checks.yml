@@ -92,8 +92,10 @@ jobs:
         id: cache-contracts
         uses: actions/cache@v3
         with:
-          path: starknet_py/tests/e2e/mock/contracts
-          key: ${{ runner.os }}-contracts
+          path: starknet_py/tests/e2e/mock/contracts_compiled
+          key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts') }}
+          restore-keys: |
+            ${{ runner.os }}-contracts-
       - name: Compile contracts
         if: steps.cache-contracts.outputs.cache-hit != 'true'
         run: |
@@ -131,8 +133,10 @@ jobs:
         id: cache-contracts
         uses: actions/cache@v3
         with:
-          path: starknet_py/tests/e2e/mock/contracts
-          key: ${{ runner.os }}-contracts
+          path: starknet_py/tests/e2e/mock/contracts_compiled
+          key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts') }}
+          restore-keys: |
+            ${{ runner.os }}-contracts-
       - name: Compile contracts
         if: steps.cache-contracts.outputs.cache-hit != 'true'
         run: |
