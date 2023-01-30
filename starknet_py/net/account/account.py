@@ -47,9 +47,11 @@ from starknet_py.serialization.data_serializers.struct_serializer import (
     StructSerializer,
 )
 from starknet_py.utils.iterable import ensure_iterable
+from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.typed_data import TypedData as TypedDataDataclass
 
 
+@add_sync_methods
 class Account(BaseAccount):
     """
     Default Account implementation.
