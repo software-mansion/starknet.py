@@ -88,7 +88,14 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
+      - name: Cache contracts
+        id: cache-contracts
+        uses: actions/cache@v3
+        with:
+          path: starknet_py/tests/e2e/mock/contracts_compiled
+          key: ${{ runner.os }}-contracts
       - name: Compile contracts
+        if: steps.cache-contracts.outputs.cache-hit != 'true'
         run: |
           poetry run poe compile_contracts
       - name: Unit & e2e test
