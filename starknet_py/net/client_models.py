@@ -353,7 +353,7 @@ class CompiledContract(ContractClass):
 
         :return: a CompiledContract instance.
         """
-        return cast(CompiledContract, CompiledContractSchema().loads(contract))
+        return cast(cls, CompiledContractSchema().loads(contract))
 
 
 @dataclass
