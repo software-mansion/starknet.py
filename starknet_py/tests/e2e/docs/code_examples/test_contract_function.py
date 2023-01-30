@@ -7,9 +7,7 @@ from starknet_py.contract import Contract, ContractFunction
 def test_prepare(base_account_deploy_map_contract: Contract):
     map_contract = base_account_deploy_map_contract
     # docs-start: prepare
-    prepared_function_call = map_contract.functions["put"].prepare(
-        key=10, value=20
-    )
+    prepared_function_call = map_contract.functions["put"].prepare(key=10, value=20)
     # docs-end: prepare
 
 
