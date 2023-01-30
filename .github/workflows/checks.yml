@@ -92,7 +92,7 @@ jobs:
         id: cache-contracts
         uses: actions/cache@v3
         with:
-          path: starknet_py/tests/e2e/mock/contracts_compiled
+          path: starknet_py/tests/e2e/mock/contracts
           key: ${{ runner.os }}-contracts
       - name: Compile contracts
         if: steps.cache-contracts.outputs.cache-hit != 'true'
@@ -131,7 +131,7 @@ jobs:
         id: cache-contracts
         uses: actions/cache@v3
         with:
-          path: starknet_py/tests/e2e/mock/contracts_compiled
+          path: starknet_py/tests/e2e/mock/contracts
           key: ${{ runner.os }}-contracts
       - name: Compile contracts
         if: steps.cache-contracts.outputs.cache-hit != 'true'
