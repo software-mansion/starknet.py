@@ -1,5 +1,7 @@
 import pytest
 
+from starknet_py.constants import FEE_CONTRACT_ADDRESS
+
 # docs-abi: start
 abi = [
     {
@@ -86,3 +88,26 @@ async def test_using_existing_contracts(account, erc20_contract):
     # docs: end
 
     assert balance == 200
+
+    # docs-raw-call: start
+    from starkware.starknet.public.abi import get_selector_from_name
+
+    from starknet_py.net.client_models import Call
+
+    eth_token_address = (
+        0x049D36570D4E46F48E99674BD3FCC84644DDD6B96F7C741B1562B82F9E004DC7
+    )
+    # docs-raw-call: end
+    eth_token_address = int(FEE_CONTRACT_ADDRESS, 0)
+    # docs-raw-call: start
+
+    # Create a call to function "balanceOf" at address `eth_token_address`
+    call = Call(
+        to_addr=eth_token_address,
+        selector=get_selector_from_name("balanceOf"),
+        calldata=[account.address],
+    )
+    account_balance = await account.client.call_contract(call)
+    # docs-raw-call: end
+
+    assert account_balance != [0, 0]

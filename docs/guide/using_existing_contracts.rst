@@ -1,6 +1,9 @@
 Using existing contracts
 ========================
 
+Existing contracts
+------------------
+
 Although it is possible to use :obj:`Client <starknet_py.net.gateway_client.GatewayClient>` to interact with contracts, it requires translating python values into Cairo
 values. Contract offers that and some other utilities.
 
@@ -17,6 +20,19 @@ This is how we can interact with it:
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_using_existing_contracts.py
     :language: python
     :dedent: 4
+
+
+Raw contract calls
+------------------
+
+If you do not have ABI statically, but you know the interface of the contract on StarkNet, you can make a raw call:
+
+.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_using_existing_contracts.py
+    :language: python
+    :dedent: 4
+    :start-after: docs-raw-call: start
+    :end-before: docs-raw-call: end
+
 
 Fees
 ----
