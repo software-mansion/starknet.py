@@ -1,9 +1,9 @@
 Account
 =======
 
----------
-Interface
----------
+---------------------
+BaseAccount interface
+---------------------
 
 .. py:module:: starknet_py.net.account.base_account
 
@@ -12,9 +12,9 @@ Interface
     :undoc-members:
     :member-order: groupwise
 
-----------------------
-Default implementation
-----------------------
+----------------------------------
+BaseAccount default implementation
+----------------------------------
 
 .. py:module:: starknet_py.net.account.account
 
