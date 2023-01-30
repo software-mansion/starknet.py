@@ -54,8 +54,7 @@ class Account(BaseAccount):
     """
     Default Account implementation.
 
-    Attributes:
-        ESTIMATED_FEE_MULTIPLIER - Amount by which each estimated fee is multiplied when using `auto_estimate`.
+    :ivar ESTIMATED_FEE_MULTIPLIER: Amount by which each estimated fee is multiplied when using `auto_estimate`.
     """
 
     ESTIMATED_FEE_MULTIPLIER: float = 1.5

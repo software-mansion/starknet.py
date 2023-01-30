@@ -71,3 +71,8 @@ returned by it multiplied by ``1.5`` as a ``max_fee``.
 .. code-block:: python
 
     await contract.functions["put"].invoke(k, v, auto_estimate=True)
+
+
+.. note::
+    It is possible to set the value by which the estimated fee is multiplied,
+    by changing ``ESTIMATED_FEE_MULTIPLIER`` in :class:`~starknet_py.net.account.account.Account`.
