@@ -38,12 +38,11 @@ This is the recommended way of using the SDK.
 from starknet_py.contract import Contract
 from starknet_py.net.gateway_client import GatewayClient
 
-key = 1234
 contract = await Contract.from_address(
-    address="0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b",
+    address="0x06689f1bf69af5b8e94e5ab9778c885b37c593d1156234eb423967621f596e73",
     client=GatewayClient("testnet"),
 )
-(value,) = await contract.functions["get_value"].call(key)
+(value,) = await contract.functions["get_balance"].call()
 ```
 
 ### Synchronous API
@@ -54,12 +53,11 @@ You can access synchronous world with `_sync` postfix.
 from starknet_py.contract import Contract
 from starknet_py.net.gateway_client import GatewayClient
 
-key = 1234
 contract = Contract.from_address_sync(
-    address="0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b",
+    address="0x06689f1bf69af5b8e94e5ab9778c885b37c593d1156234eb423967621f596e73",
     client=GatewayClient("testnet"),
 )
-(value,) = contract.functions["get_value"].call_sync(key)
+(value,) = contract.functions["get_balance"].call_sync()
 ```
 
 For more examples click [here](https://starknetpy.rtfd.io/en/latest/quickstart.html).
