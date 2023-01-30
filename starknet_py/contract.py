@@ -448,7 +448,7 @@ FunctionsRepository = Dict[str, ContractFunction]
 @add_sync_methods
 class Contract:
     """
-    Cairo contract's model
+    Cairo contract's model.
     """
 
     def __init__(
