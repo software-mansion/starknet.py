@@ -36,7 +36,7 @@ class Client(ABC):
     @abstractmethod
     def net(self) -> Network:
         """
-        Network of the client
+        Network of the client.
         """
 
     @abstractmethod
