@@ -5,4 +5,4 @@ GatewayClient
 
 .. autoclass-with-examples:: GatewayClient
     :members:
-    :member-order: bysource
+    :member-order: groupwise

@@ -13,7 +13,6 @@ from starknet_py.net.models import AddressRepresentation, compute_address, parse
 from starknet_py.serialization import serializer_for_function
 from starknet_py.utils.contructor_args_translator import translate_constructor_args
 from starknet_py.utils.crypto.facade import pedersen_hash
-from starknet_py.utils.sync import add_sync_methods
 
 
 class ContractDeployment(NamedTuple):
@@ -33,7 +32,6 @@ class ContractDeployment(NamedTuple):
     """
 
 
-@add_sync_methods
 class Deployer:
     """
     Deployer used to deploy contracts through Universal Deployer Contract (UDC)
