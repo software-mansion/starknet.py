@@ -5,7 +5,6 @@ Contract
 
 .. autoclass:: Contract
     :members:
-    :undoc-members:
     :member-order: groupwise
 
 .. autoclass:: ContractFunction
