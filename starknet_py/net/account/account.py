@@ -55,6 +55,9 @@ class Account(BaseAccount):
     Default Account implementation.
     """
 
+    ESTIMATED_FEE_MULTIPLIER: float = 1.5
+    """Amount by which each estimated fee is multiplied when using `auto_estimate`."""
+
     def __init__(
         self,
         *,
@@ -110,7 +113,7 @@ class Account(BaseAccount):
 
         if auto_estimate:
             estimate_fee = await self._estimate_fee(transaction)
-            max_fee = int(estimate_fee.overall_fee * 1.1)
+            max_fee = int(estimate_fee.overall_fee * Account.ESTIMATED_FEE_MULTIPLIER)
 
         if max_fee is None:
             raise ValueError(

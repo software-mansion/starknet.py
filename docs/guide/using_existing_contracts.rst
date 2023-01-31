@@ -77,7 +77,7 @@ Automatic fee estimation
 
 For testing purposes it is possible to enable automatic fee estimation when making
 a transaction. Starknet.py will then use ``estimate_fee()`` internally and use value
-returned by it multiplied by ``1.1`` as a ``max_fee``.
+returned by it multiplied by ``1.5`` as a ``max_fee``.
 
 .. warning::
 
@@ -87,3 +87,8 @@ returned by it multiplied by ``1.1`` as a ``max_fee``.
 .. code-block:: python
 
     await contract.functions["put"].invoke(k, v, auto_estimate=True)
+
+
+.. note::
+    It is possible to configure the value by which the estimated fee is multiplied,
+    by changing ``ESTIMATED_FEE_MULTIPLIER`` in :class:`~starknet_py.net.account.account.Account`.
