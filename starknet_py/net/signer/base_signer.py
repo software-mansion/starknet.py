@@ -7,14 +7,14 @@ from starknet_py.utils.typed_data import TypedData
 
 class BaseSigner(ABC):
     """
-    Base class for transaction signer. Implement methods from this ABC to use a custom signer in AccountClient
+    Base class for transaction signer. Implement methods from this ABC to use a custom signer in Account.
     """
 
     @property
     @abstractmethod
     def public_key(self) -> int:
         """
-        Public key of the signer
+        Public key of the signer.
 
         :return: public key
         """
@@ -44,6 +44,4 @@ class BaseSigner(ABC):
                 Use :py:class:`starknet_py.utils.TypedData` instead
         :param account_address: account address
         :return: the signature of the JSON object
-
-
         """

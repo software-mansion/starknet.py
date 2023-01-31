@@ -9,7 +9,6 @@ BaseSigner interface
 
 .. autoclass:: BaseSigner
     :members:
-    :undoc-members:
     :member-order: groupwise
 
 ---------------------------------
@@ -22,7 +21,6 @@ By default, StarkNet.py uses ``StarkCurveSigner`` which works with OpenZeppelin'
 
 .. autoclass:: StarkCurveSigner
     :members:
-    :undoc-members:
     :member-order: groupwise
 
 -------
