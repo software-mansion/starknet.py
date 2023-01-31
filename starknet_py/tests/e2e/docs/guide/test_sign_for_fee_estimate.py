@@ -22,7 +22,7 @@ async def test_signing_fee_estimate(gateway_account, map_contract):
 
     # Use a new fee in original transaction
     transaction = await account.sign_invoke_transaction(
-        calls=call, max_fee=estimate.overall_fee * 2
+        calls=call, max_fee=estimate.overall_fee
     )
 
     # Send a transaction
