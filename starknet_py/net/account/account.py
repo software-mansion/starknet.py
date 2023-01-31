@@ -53,11 +53,10 @@ from starknet_py.utils.typed_data import TypedData as TypedDataDataclass
 class Account(BaseAccount):
     """
     Default Account implementation.
-
-    :ivar ESTIMATED_FEE_MULTIPLIER: Amount by which each estimated fee is multiplied when using `auto_estimate`.
     """
 
     ESTIMATED_FEE_MULTIPLIER: float = 1.5
+    """Amount by which each estimated fee is multiplied when using `auto_estimate`."""
 
     def __init__(
         self,
