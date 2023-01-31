@@ -6,7 +6,7 @@ async def test_signing_fee_estimate(gateway_account, map_contract):
     account = gateway_account
     # docs: start
     # Create a transaction
-    call = map_contract.functions["put"].prepare(key=10, value=20, max_fee=1000)
+    call = map_contract.functions["put"].prepare(key=10, value=20)
     transaction = await account.sign_invoke_transaction(calls=call, max_fee=0)
 
     # Re-sign a transaction for fee estimation
