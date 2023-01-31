@@ -37,6 +37,8 @@ be executed without the user consent.
     Conventionally signed transactions can still be used to estimate fee. They however don't offer
     the extra security of signing specifically for the purpose of fee estimation.
 
+    When manually estimating fee for transactions, always prefer estimation specific signing.
+
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_sign_for_fee_estimate.py
     :language: python
     :dedent: 4
