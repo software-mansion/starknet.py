@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from starknet_py.common import int_from_bytes
+
 # Address came from starkware-libs/starknet-addresses repository: https://github.com/starkware-libs/starknet-addresses
 FEE_CONTRACT_ADDRESS = (
     "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7"
