@@ -27,7 +27,7 @@ You can also **verify a message**, which is done by a call to ``is_valid_signatu
 Signing for fee estimation
 --------------------------
 
-:ref:`Account` allows signing transactions only for the purpose of fee estimation.
+:ref:`Account` allows signing transactions for the purpose of fee estimation.
 Transactions signed for fee estimation use a transaction version that prevents the execution
 on StarkNet network. If a transaction like this was to be intercepted in transport, it could not
 be executed without the user consent.
