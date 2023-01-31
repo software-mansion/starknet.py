@@ -98,11 +98,12 @@ async def test_raw_call(account):
 
     from starknet_py.net.client_models import Call
 
-    eth_token_address = (
-        0x049D36570D4E46F48E99674BD3FCC84644DDD6B96F7C741B1562B82F9E004DC7
-    )
     # docs-raw-call: end
-    eth_token_address = int(FEE_CONTRACT_ADDRESS, 0)
+    # fmt: off
+    # docs-raw-call: start
+    eth_token_address = 0x049D36570D4E46F48E99674BD3FCC84644DDD6B96F7C741B1562B82F9E004DC7
+    # docs-raw-call: end
+    # fmt: on
     # docs-raw-call: start
 
     # Create a call to function "balanceOf" at address `eth_token_address`
