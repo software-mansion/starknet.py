@@ -5,5 +5,4 @@ FullNodeClient
 
 .. autoclass-with-examples:: FullNodeClient
     :members:
-    :undoc-members:
     :member-order: groupwise

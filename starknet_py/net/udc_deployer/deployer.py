@@ -14,9 +14,22 @@ from starknet_py.serialization import serializer_for_function
 from starknet_py.utils.contructor_args_translator import translate_constructor_args
 from starknet_py.utils.crypto.facade import pedersen_hash
 
-ContractDeployment = NamedTuple(
-    "ContractDeployment", [("call", Call), ("address", int)]
-)
+
+class ContractDeployment(NamedTuple):
+    """
+    NamedTuple containing call that can be executed to deploy a contract and
+    an address of the contract that will be deployed.
+    """
+
+    call: Call
+    """
+    A call that can be executed to deploy a contract on StarkNet.
+    """
+
+    address: int
+    """
+    An address of the contract after deployment.
+    """
 
 
 class Deployer:
