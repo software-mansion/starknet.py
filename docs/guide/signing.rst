@@ -22,3 +22,14 @@ You can also **verify a message**, which is done by a call to ``is_valid_signatu
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_sign_offchain_message.py
     :language: python
     :dedent: 4
+
+
+Signing for fee estimation
+--------------------------
+
+:ref:`Account` allows signing transactions only for the purpose of fee estimation.
+These transactions use a version that cannot be executed on StarkNet.
+
+.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_sign_for_fee_estimate.py
+    :language: python
+    :dedent: 4
