@@ -1,7 +1,5 @@
 import pytest
 
-from starknet_py.constants import FEE_CONTRACT_ADDRESS
-
 # docs-abi: start
 abi = [
     {
@@ -112,7 +110,10 @@ async def test_raw_call(account):
         selector=get_selector_from_name("balanceOf"),
         calldata=[account.address],
     )
+    # Pass the created call to Client.call_contract
     account_balance = await account.client.call_contract(call)
+
+    # Note that a Contract instance cannot be used here, since it needs ABI to generate the functions
     # docs-raw-call: end
 
     assert account_balance != [0, 0]
