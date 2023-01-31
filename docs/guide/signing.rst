@@ -32,7 +32,7 @@ Transactions signed for fee estimation use a transaction version that prevents t
 on StarkNet network. If a transaction like this was to be intercepted in transport, it could not
 be executed without the user consent.
 
-.. note::
+.. attention::
 
     Conventionally signed transactions can still be used to estimate fee. They however don't offer
     the extra security of signing specifically for the purpose of fee estimation.
