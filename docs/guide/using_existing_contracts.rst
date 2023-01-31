@@ -74,5 +74,5 @@ returned by it multiplied by ``1.5`` as a ``max_fee``.
 
 
 .. note::
-    It is possible to set the value by which the estimated fee is multiplied,
+    It is possible to configure the value by which the estimated fee is multiplied,
     by changing ``ESTIMATED_FEE_MULTIPLIER`` in :class:`~starknet_py.net.account.account.Account`.
