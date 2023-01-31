@@ -72,7 +72,7 @@ async def test_deploy_prefunded_account(
     # Wait for deployment transaction to be accepted
     await account_deployment_result.wait_for_acceptance()
 
-    # Since this moment account can be used as usual
+    # From now on, account can be used as usual
     account = account_deployment_result.account
     # docs: end
     assert account.address == address
