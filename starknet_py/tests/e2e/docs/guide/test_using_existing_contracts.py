@@ -92,6 +92,7 @@ async def test_using_existing_contracts(account, erc20_contract):
 
 @pytest.mark.asyncio
 async def test_raw_call(account):
+    # pylint: disable=import-outside-toplevel
     # docs-raw-call: start
     from starkware.starknet.public.abi import get_selector_from_name
 
