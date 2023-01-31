@@ -48,9 +48,11 @@ from starknet_py.serialization.data_serializers.struct_serializer import (
     StructSerializer,
 )
 from starknet_py.utils.iterable import ensure_iterable
+from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.typed_data import TypedData as TypedDataDataclass
 
 
+@add_sync_methods
 class Account(BaseAccount):
     """
     Default Account implementation.
@@ -68,6 +70,15 @@ class Account(BaseAccount):
         key_pair: Optional[KeyPair] = None,
         chain: Optional[StarknetChainId] = None,
     ):
+        """
+        :param address: Address of the account contract.
+        :param client: Instance of Client which will be used to add transactions.
+        :param signer: Custom signer to be used by Account.
+                       If none is provided, default
+                       :py:class:`starknet_py.net.signer.stark_curve_signer.StarkCurveSigner` is used.
+        :param key_pair: Key pair that will be used to create a default `Signer`.
+        :param chain: ChainId of the chain used to create the default signer.
+        """
         if chain is None and signer is None:
             raise ValueError("One of chain or signer must be provided.")
 

@@ -5,4 +5,4 @@ FullNodeClient
 
 .. autoclass-with-examples:: FullNodeClient
     :members:
-    :member-order: bysource
+    :member-order: groupwise

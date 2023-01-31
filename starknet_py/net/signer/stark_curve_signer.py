@@ -43,12 +43,18 @@ class StarkCurveSigner(BaseSigner):
         key_pair: KeyPair,
         chain_id: StarknetChainId,
     ):
+        """
+        :param account_address: Address of the account contract.
+        :param key_pair: Key pair of the account contract.
+        :param chain_id: ChainId of the chain.
+        """
         self.address = parse_address(account_address)
         self.key_pair = key_pair
         self.chain_id = chain_id
 
     @property
     def private_key(self) -> int:
+        """Private key of the signer."""
         return self.key_pair.private_key
 
     @property

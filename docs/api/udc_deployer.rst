@@ -5,3 +5,7 @@ Deployer
 
 .. autoclass-with-examples:: Deployer
     :members:
+
+.. autoclass:: ContractDeployment
+    :exclude-members: __init__, __new__
+    :members:
