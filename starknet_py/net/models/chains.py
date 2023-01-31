@@ -12,7 +12,7 @@ class StarknetChainId(Enum):
 
 
 def chain_from_network(
-    net: Network, chain: Optional[StarknetChainId]
+    net: Network, chain: Optional[StarknetChainId] = None
 ) -> StarknetChainId:
     mapping = {
         MAINNET: StarknetChainId.MAINNET,
