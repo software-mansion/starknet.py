@@ -16,7 +16,7 @@ async def test_signing_fee_estimate(gateway_account, map_contract):
     assert estimate_transaction.version == 1 + 2**128
     assert estimate_transaction.signature != transaction.signature
 
-    # Get a fee estimate
+    # Get a fee estimation
     estimate = await account.client.estimate_fee(transaction)
     assert estimate.overall_fee > 0
 
