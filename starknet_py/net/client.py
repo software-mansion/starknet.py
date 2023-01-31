@@ -78,7 +78,7 @@ class Client(ABC):
 
         :param block_hash: Block's hash or literals `"pending"` or `"latest"`
         :param block_number: Block's number or literals `"pending"` or `"latest"`
-        :return: BlockStateUpdate oject representing changes in the requested block
+        :return: BlockStateUpdate object representing changes in the requested block
         """
 
     @abstractmethod
@@ -181,14 +181,12 @@ class Client(ABC):
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
         """
-        Estimate how much Wei it will cost to run provided Invoke
+        Estimate how much Wei it will cost to run provided transaction.
 
         :param tx: Transaction to estimate
-        :param block_hash: Get code at specific block hash or
-                           at the block indicated by the literals `"pending"` or `"latest"`
-        :param block_number: Get code at given block number or at
-                             the block indicated by the literals `"pending"` or `"latest"`
-        :return: Estimated amount of Wei executing specified transaction will cost
+        :param block_hash: Block's hash or literals `"pending"` or `"latest"`.
+        :param block_number: Block's number or literals `"pending"` or `"latest"`.
+        :return: Estimated amount of Wei executing specified transaction will cost.
         """
 
     @abstractmethod
@@ -249,7 +247,7 @@ class Client(ABC):
         """
         Get the contract class hash for the contract deployed at the given address
 
-        :param contract_address: Address of the contraact whose class hash is to be returned
+        :param contract_address: Address of the contract whose class hash is to be returned
         :param block_hash: Block's hash or literals `"pending"` or `"latest"`
         :param block_number: Block's number or literals `"pending"` or `"latest"`
         :return: Class hash

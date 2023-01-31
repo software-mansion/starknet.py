@@ -1,5 +1,60 @@
+Migration guide
+===============
+
+**********************
+0.14.0 Migration guide
+**********************
+
+This version deprecates several modules and fixes underlying issues with several others.
+
+Breaking changes
+----------------
+
+1. Renamed first parameter of :class:`~starknet_py.net.udc_deployer.deployer.ContractDeployment` from ``udc`` to ``call``, that is returned from :meth:`~starknet_py.net.udc_deployer.deployer.Deployer.create_deployment_call`.
+
+
+Deprecations
+------------
+
+1. :ref:`compiler` module. It will be removed in the future. We recommend transitioning to building contracts through StarkNet CLI or external tools and using only compiled contracts with StarkNet.py.
+2. ``utils.data_transformer`` module. It has been replaced with :ref:`serializers` module.
+
+
+Serializers module
+------------------
+
+New :ref:`serializers` module has been added in place of old ``data_transformer``. See :ref:`Serialization` guide for more details.
+
+
+auto_estimate
+-------------
+
+The way **automatic fee estimation is calculated** has changed from
+
+``transaction estimated fee * 1.1``
+
+to
+
+``transaction estimated fee * 1.5``
+
+when using ``auto_estimate`` parameter in API functions (for example :meth:`~starknet_py.net.account.account.Account.execute`, :meth:`~starknet_py.net.account.account.Account.sign_invoke_transaction` or :meth:`~starknet_py.contract.PreparedFunctionCall.invoke`).
+It was caused by many transactions failing due to low ``max_fee``.
+
+.. note::
+    It is now possible to set the value by which the estimated fee is multiplied,
+    by changing ``ESTIMATED_FEE_MULTIPLIER`` in :class:`~starknet_py.net.account.account.Account`.
+
+|
+
+.. raw:: html
+
+  <hr>
+
+|
+
+**********************
 0.13.0 Migration guide
-=======================
+**********************
 
 This version deprecates the :class:`AccountClient <starknet_py.net.account.AccountClient>`, which is a major change to the StarkNet.py.
 It is replaced with new :class:`BaseAccount <starknet_py.net.account.base_account.BaseAccount>` ABC and its
@@ -41,8 +96,8 @@ Changes in the Account interface
 4. Some parameters like ``max_fee`` or ``auto_estimate`` are now keyword only arguments. They have to be explicitly named like ``account.sign_invoke_transaction(Call(...), max_fee=1000)``. Writing ``account.sign_invoke_transaction(Call(...), 1000)`` will not work.
 
 
-Deprecations
-------------
+0.13.0 Deprecations
+-------------------
 
 1. Passing a dict to ``BaseSigner.sign_message`` as parameter has been deprecated in favor of :class:`TypedData <starknet_py.utils.typed_data.TypedData>` dataclass.
 2. Argument ``client`` of ``Contract`.__init__` and ``Contract.from_address`` has been deprecated and replaced with ``provider``.
@@ -50,8 +105,8 @@ Deprecations
 4. ``PreparedFunctionCall.arguments`` has been deprecated to simplify the upcoming ``serialization`` module.
 
 
-Breaking changes
-----------------
+0.13.0 Breaking changes
+-----------------------
 
 1. ``version`` parameter has been removed from the most ``Contract`` methods. ``Contract`` will now use version that the ``Account`` or ``AccountClient`` is using.
 2. ``DeclareResult`` now only accepts :class:`BaseAccount <starknet_py.net.account.base_account.BaseAccount>`.
@@ -59,10 +114,16 @@ Breaking changes
 4. All error messages have been standardized with capitalization at the beginning and a full stop at the end.
 
 |
+
+.. raw:: html
+
+  <hr>
+
 |
 
+**********************
 0.12.0 Migration guide
-======================
+**********************
 
 StarkNet.py 0.12.0 brings support for the Cairo-lang 0.10.3 and the new TESTNET2 chainId.
 
@@ -73,10 +134,16 @@ There should not be any breaking changes if you are using the `StarknetChainId` 
 but if you are importing it from the Cairo-lang package, please switch to the one from StarkNet.py.
 
 |
+
+.. raw:: html
+
+  <hr>
+
 |
 
+**********************
 0.11.0 Migration guide
-======================
+**********************
 
 Cairo-lang 0.10.3 dropped support for the `Deploy` transaction. To be compatible we had to remove some deprecated features.
 
@@ -99,10 +166,16 @@ Invoke Transaction
 Old `InvokeFunction` transaction is now aliased as `Invoke`. We suggest to start using the new `Invoke`.
 
 |
+
+.. raw:: html
+
+   <hr>
+
 |
 
+**********************
 0.9.0 Migration guide
-=====================
+**********************
 
 Starknet.py 0.9.0 brings support for `RPC 0.2.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.2.0>`_,
 updates :meth:`Contract.from_address` method to work with the newest proxies and removes some deprecated features.
@@ -119,13 +192,19 @@ updates :meth:`Contract.from_address` method to work with the newest proxies and
 Contract.from_address
 ---------------------
 
-Check out the Guide with the new section :ref:`Resolving proxies` to see how to easily use proxies with the Starknet.py.
+Check out the Guide with the new section :ref:`Resolving proxy contracts` to see how to easily use proxies with the Starknet.py.
 
 |
+
+.. raw:: html
+
+  <hr>
+
 |
 
+**********************
 0.8.0 Migration guide
-=====================
+**********************
 
 Cairo-lang 0.10.1 brings support for `DEPLOY_ACCOUNT` transactions that will completely
 replace currently used `DEPLOY` transactions sometime in the future.
@@ -154,10 +233,16 @@ or support deploying through syscall or `Universal Deployer Contract <https://co
 - `Client.deploy` has been deprecated
 
 |
+
+.. raw:: html
+
+  <hr>
+
 |
 
+**********************
 0.5.0 Migration guide
-=====================
+**********************
 
 ``cairo-lang`` 0.10.0 brings a lot of new exciting changes, like:
 
@@ -276,10 +361,16 @@ Deploy transactions will not be supported in the future versions of StarkNet, so
 Contracts should be deployed through cairo syscall.
 
 |
+
+.. raw:: html
+
+  <hr>
+
 |
 
+**********************
 0.4.0 Migration guide
-=====================
+**********************
 
 0.4.0 of starknet.py brings multiple changes including breaking changes to API.
 To ensure smooth migration to this version please familiarize yourself with this

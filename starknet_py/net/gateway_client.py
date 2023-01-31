@@ -62,7 +62,7 @@ class GatewayClient(Client):
         :param net: Target network for the client. Can be a string with URL, one of ``"mainnet"``, ``"testnet"``
                     or dict with ``"feeder_gateway_url"`` and ``"gateway_url"`` fields
         :param session: Aiohttp session to be used for request. If not provided, client will create a session for
-                        every request. When using a custom session, user is resposible for closing it manually.
+                        every request. When using a custom session, user is responsible for closing it manually.
         """
         if isinstance(net, str):
             host = net_address_from_net(net)
@@ -210,6 +210,15 @@ class GatewayClient(Client):
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> List[EstimatedFee]:
+        """
+        Estimate how much Wei it will cost to run provided transactions.
+
+        :param transactions: List of transactions to estimate.
+        :param block_hash: Block's hash or literals `"pending"` or `"latest"`.
+        :param block_number: Block's number or literals `"pending"` or `"latest"`.
+        :return: List of estimated amount of Wei executing specified transaction will cost.
+        """
+
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )

@@ -22,7 +22,7 @@ sys.path.append(os.path.abspath("./_ext"))
 # -- Project information -----------------------------------------------------
 
 project = "Starknet.py"
-copyright = "2022, Software Mansion"
+copyright = "2023, Software Mansion"
 author = "Software Mansion"
 
 
@@ -39,6 +39,7 @@ extensions = [
     "sphinx_rtd_theme",
     "enum_tools.autoenum",
     "codesnippet",
+    "autoclass_with_examples",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -48,6 +49,13 @@ templates_path = ["_templates"]
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+
+# Add note about documentation from development branch
+if os.environ.get("READTHEDOCS_VERSION") == "development":
+    rst_prolog = """.. attention::
+
+        This page was created from `development <https://github.com/software-mansion/starknet.py>`_ branch.
+    """
 
 
 # -- Options for HTML output -------------------------------------------------

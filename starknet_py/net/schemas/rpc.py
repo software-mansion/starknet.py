@@ -1,8 +1,7 @@
-from dataclasses import asdict
-
 from marshmallow import EXCLUDE, Schema, fields, post_load, pre_load
 from marshmallow_oneofschema import OneOfSchema
 
+from starknet_py.abi.schemas import ContractAbiEntrySchema
 from starknet_py.net.client_models import (
     BlockStateUpdate,
     DeclaredContract,
@@ -16,8 +15,6 @@ from starknet_py.net.client_models import (
     EntryPointsByType,
     EstimatedFee,
     Event,
-    EventAbiEntry,
-    FunctionAbiEntry,
     InvokeTransaction,
     L1HandlerTransaction,
     L1toL2Message,
@@ -26,10 +23,7 @@ from starknet_py.net.client_models import (
     StarknetBlock,
     StateDiff,
     StorageDiff,
-    StructAbiEntry,
-    StructMember,
     TransactionReceipt,
-    TypedParameter,
 )
 from starknet_py.net.schemas.common import (
     BlockStatusField,
@@ -288,79 +282,6 @@ class BlockStateUpdateSchema(Schema):
         )
 
 
-class StructMemberSchema(Schema):
-    name = fields.String(data_key="name", required=True)
-    type = fields.String(data_key="type", required=True)
-    offset = fields.Integer(data_key="offset", required=True)
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> StructMember:
-        return StructMember(**data)
-
-
-class TypedParameterSchema(Schema):
-    name = fields.String(data_key="name", required=True)
-    type = fields.String(data_key="type", required=True)
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> TypedParameter:
-        return TypedParameter(**data)
-
-
-class FunctionAbiEntrySchema(Schema):
-    type = fields.String(data_key="type", required=True)
-    name = fields.String(data_key="name", required=True)
-    inputs = fields.List(
-        fields.Nested(TypedParameterSchema()), data_key="inputs", required=True
-    )
-    outputs = fields.List(
-        fields.Nested(TypedParameterSchema()), data_key="outputs", required=True
-    )
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> FunctionAbiEntry:
-        return FunctionAbiEntry(**data)
-
-
-class EventAbiEntrySchema(Schema):
-    type = fields.String(data_key="type", required=True)
-    name = fields.String(data_key="name", required=True)
-    keys = fields.List(
-        fields.Nested(TypedParameterSchema()), data_key="keys", required=True
-    )
-    data = fields.List(
-        fields.Nested(TypedParameterSchema()), data_key="data", required=True
-    )
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> EventAbiEntry:
-        return EventAbiEntry(**data)
-
-
-class StructAbiEntrySchema(Schema):
-    type = fields.String(data_key="type", required=True)
-    name = fields.String(data_key="name", required=True)
-    size = fields.Integer(data_key="size", required=True)
-    members = fields.List(
-        fields.Nested(StructMemberSchema()), data_key="members", required=True
-    )
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> StructAbiEntry:
-        return StructAbiEntry(**data)
-
-
-class ContractAbiEntrySchema(OneOfSchema):
-    type_field_remove = False
-    type_schemas = {
-        "function": FunctionAbiEntrySchema,
-        "l1_handler": FunctionAbiEntrySchema,
-        "constructor": FunctionAbiEntrySchema,
-        "event": EventAbiEntrySchema,
-        "struct": StructAbiEntrySchema,
-    }
-
-
 class EntryPointSchema(Schema):
     offset = Felt(data_key="offset", required=True)
     selector = Felt(data_key="selector", required=True)
@@ -395,8 +316,6 @@ class DeclaredContractSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> DeclaredContract:
-        # Gateway uses Abi defined vaguely as a list of dicts, hence need for casting in order to be compliant
-        data["abi"] = [asdict(abi_entry) for abi_entry in data["abi"]]
         return DeclaredContract(**data)
 
 

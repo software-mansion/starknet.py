@@ -3,13 +3,16 @@ from __future__ import annotations
 import dataclasses
 import warnings
 from dataclasses import dataclass
-from typing import Dict, List, NamedTuple, Optional, Tuple, TypeVar, Union
+from functools import cached_property
+from typing import Dict, List, Optional, Tuple, TypeVar, Union
 
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
 from starkware.starknet.core.os.class_hash import compute_class_hash
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 
+from starknet_py.abi.model import Abi
+from starknet_py.abi.parser import AbiParser
 from starknet_py.common import create_compiled_contract
 from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
@@ -17,7 +20,7 @@ from starknet_py.net import AccountClient
 from starknet_py.net.account._account_proxy import AccountProxy
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
-from starknet_py.net.client_models import Hash, Tag
+from starknet_py.net.client_models import Call, Hash, Tag
 from starknet_py.net.models import (
     AddressRepresentation,
     Invoke,
@@ -30,9 +33,12 @@ from starknet_py.proxy.contract_abi_resolver import (
     ProxyConfig,
     prepare_proxy_config,
 )
+from starknet_py.serialization import TupleDataclass, serializer_for_function
+from starknet_py.serialization.function_serialization_adapter import (
+    FunctionSerializationAdapter,
+)
 from starknet_py.utils.contructor_args_translator import translate_constructor_args
-from starknet_py.utils.crypto.facade import Call, pedersen_hash
-from starknet_py.utils.data_transformer import FunctionCallSerializer
+from starknet_py.utils.crypto.facade import pedersen_hash
 from starknet_py.utils.sync import add_sync_methods
 
 ABI = list
@@ -44,14 +50,27 @@ TSentTransaction = TypeVar("TSentTransaction", bound="SentTransaction")
 class ContractData:
     address: int
     abi: ABI
-    identifier_manager: IdentifierManager
+
+    @cached_property
+    def identifier_manager(self) -> IdentifierManager:
+        warnings.warn(
+            "Using identifier_manager from ContractData has been deprecated. Consider using parsed_abi instead."
+        )
+        return identifier_manager_from_abi(self.abi)
+
+    @cached_property
+    def parsed_abi(self) -> Abi:
+        """
+        Abi parsed into proper dataclass.
+        :return: Abi
+        """
+        return AbiParser(self.abi).parse()
 
     @staticmethod
-    def from_abi(address: int, abi: ABI) -> "ContractData":
+    def from_abi(address: int, abi: ABI) -> ContractData:
         return ContractData(
             address=address,
             abi=abi,
-            identifier_manager=identifier_manager_from_abi(abi),
         )
 
 
@@ -201,7 +220,7 @@ class DeployResult(SentTransaction):
     """
 
     # We ensure this is not None in __post_init__
-    deployed_contract: "Contract" = None  # pyright: ignore
+    deployed_contract: Contract = None  # pyright: ignore
     """A Contract instance representing the deployed contract."""
 
     def __post_init__(self):
@@ -215,11 +234,10 @@ class PreparedFunctionCall(Call):
     def __init__(
         self,
         calldata: List[int],
-        arguments: Dict[str, List[int]],
         selector: int,
         client: Client,
         account: Optional[BaseAccount],
-        payload_transformer: FunctionCallSerializer,
+        payload_transformer: FunctionSerializationAdapter,
         contract_data: ContractData,
         max_fee: Optional[int],
         version: int,
@@ -228,7 +246,6 @@ class PreparedFunctionCall(Call):
         super().__init__(
             to_addr=contract_data.address, selector=selector, calldata=calldata
         )
-        self._arguments = arguments
         self._client = client
         self._internal_account = account
         self._payload_transformer = payload_transformer
@@ -245,14 +262,6 @@ class PreparedFunctionCall(Call):
             "Contract was created without Account or with Client that is not an account."
         )
 
-    @property
-    def arguments(self) -> Dict[str, List[int]]:
-        warnings.warn(
-            "PreparedFunctionCall.arguments is deprecated and will be deleted in the future.",
-            category=DeprecationWarning,
-        )
-        return self._arguments
-
     async def call_raw(
         self,
         block_hash: Optional[str] = None,
@@ -268,7 +277,7 @@ class PreparedFunctionCall(Call):
     async def call(
         self,
         block_hash: Optional[str] = None,
-    ) -> NamedTuple:
+    ) -> TupleDataclass:
         """
         Calls a method.
 
@@ -276,7 +285,7 @@ class PreparedFunctionCall(Call):
         :return: CallResult or List[int] if return_raw is used.
         """
         result = await self.call_raw(block_hash=block_hash)
-        return self._payload_transformer.to_python(result)
+        return self._payload_transformer.deserialize(result)
 
     async def invoke(
         self,
@@ -347,8 +356,8 @@ class ContractFunction:
         self.contract_data = contract_data
         self.client = client
         self.account = account
-        self._payload_transformer = FunctionCallSerializer(
-            abi=self.abi, identifier_manager=self.contract_data.identifier_manager
+        self._payload_transformer = serializer_for_function(
+            contract_data.parsed_abi.functions[name]
         )
 
     def prepare(
@@ -378,10 +387,9 @@ class ContractFunction:
                 category=DeprecationWarning,
             )
 
-        calldata, arguments = self._payload_transformer.from_python(*args, **kwargs)
+        calldata = self._payload_transformer.serialize(*args, **kwargs)
         return PreparedFunctionCall(
             calldata=calldata,
-            arguments=arguments,
             contract_data=self.contract_data,
             client=self.client,
             account=self.account,
@@ -396,7 +404,7 @@ class ContractFunction:
         *args,
         block_hash: Optional[str] = None,
         **kwargs,
-    ) -> NamedTuple:
+    ) -> TupleDataclass:
         """
         Call contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.
         The result is translated from Cairo data to python values.
@@ -477,6 +485,7 @@ class Contract:
 
     @property
     def address(self) -> int:
+        """Address of the contract."""
         return self.data.address
 
     @staticmethod
@@ -486,7 +495,7 @@ class Contract:
         proxy_config: Union[bool, ProxyConfig] = False,
         *,
         client: Optional[Client] = None,
-    ) -> "Contract":
+    ) -> Contract:
         """
         Fetches ABI for given contract and creates a new Contract instance with it. If you know ABI statically you
         should create Contract's instances directly instead of using this function to avoid unnecessary API calls.
@@ -629,6 +638,12 @@ class Contract:
         :return: contract's address
         """
         # pylint: disable=too-many-arguments
+        warnings.warn(
+            "Argument compilation_source is deprecated and will be removed in the future. "
+            "Consider using already compiled contracts.",
+            category=DeprecationWarning,
+        )
+
         compiled = create_compiled_contract(
             compilation_source, compiled_contract, search_paths
         )
@@ -656,6 +671,12 @@ class Contract:
         :raises: `ValueError` if neither compilation_source nor compiled_contract is provided.
         :return:
         """
+        warnings.warn(
+            "Argument compilation_source is deprecated and will be removed in the future. "
+            "Consider using already compiled contracts.",
+            category=DeprecationWarning,
+        )
+
         compiled_contract = create_compiled_contract(
             compilation_source, compiled_contract, search_paths
         )
