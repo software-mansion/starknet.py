@@ -86,3 +86,34 @@ async def test_using_existing_contracts(account, erc20_contract):
     # docs: end
 
     assert balance == 200
+
+
+@pytest.mark.asyncio
+async def test_raw_call(account):
+    # pylint: disable=import-outside-toplevel
+    # docs-raw-call: start
+    from starkware.starknet.public.abi import get_selector_from_name
+
+    from starknet_py.net.client_models import Call
+
+    # docs-raw-call: end
+    # fmt: off
+    # docs-raw-call: start
+    eth_token_address = 0x049D36570D4E46F48E99674BD3FCC84644DDD6B96F7C741B1562B82F9E004DC7
+    # docs-raw-call: end
+    # fmt: on
+    # docs-raw-call: start
+
+    # Create a call to function "balanceOf" at address `eth_token_address`
+    call = Call(
+        to_addr=eth_token_address,
+        selector=get_selector_from_name("balanceOf"),
+        calldata=[account.address],
+    )
+    # Pass the created call to Client.call_contract
+    account_balance = await account.client.call_contract(call)
+
+    # Note that a Contract instance cannot be used here, since it needs ABI to generate the functions
+    # docs-raw-call: end
+
+    assert account_balance != [0, 0]

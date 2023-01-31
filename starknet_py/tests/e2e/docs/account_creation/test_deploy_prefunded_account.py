@@ -3,12 +3,17 @@ from starkware.crypto.signature.signature import get_random_private_key
 from starkware.starknet.definitions.fields import ContractAddressSalt
 
 from starknet_py.contract import Contract
+from starknet_py.net.client import Client
+from starknet_py.net.models import chain_from_network
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 
 
 @pytest.mark.asyncio
 async def test_deploy_prefunded_account(
-    account_with_validate_deploy_class_hash: int, network: str, fee_contract: Contract
+    account_with_validate_deploy_class_hash: int,
+    network: str,
+    fee_contract: Contract,
+    gateway_client: Client,
 ):
     # pylint: disable=import-outside-toplevel, too-many-locals
     # docs: start
@@ -16,6 +21,7 @@ async def test_deploy_prefunded_account(
     from starknet_py.net.account.account import Account
     from starknet_py.net.gateway_client import GatewayClient
     from starknet_py.net.models import StarknetChainId, compute_address
+    from starknet_py.net.networks import TESTNET
 
     # First, make sure to generate private key and salt
     # docs: end
@@ -43,26 +49,30 @@ async def test_deploy_prefunded_account(
     await res.wait_for_acceptance()
     # docs: start
 
-    # Create an Account instance
-    account = Account(
-        address=address,
-        client=GatewayClient(net=network),
-        key_pair=key_pair,
-        chain=StarknetChainId.TESTNET,
-    )
+    # Define the client to be used to interact with StarkNet
+    client = GatewayClient(net=TESTNET)
+    chain = StarknetChainId.TESTNET
+    # docs: end
 
-    # Create and sign DeployAccount transaction
-    deploy_account_tx = await account.sign_deploy_account_transaction(
+    client = gateway_client
+    chain = chain_from_network(net=network, chain=StarknetChainId.TESTNET)
+    # docs: start
+
+    # Use `Account.deploy_account` static method to deploy an account
+    account_deployment_result = await Account.deploy_account(
+        address=address,
         class_hash=class_hash,
-        contract_address_salt=salt,
+        salt=salt,
+        key_pair=key_pair,
+        client=client,
+        chain=chain,
         constructor_calldata=[key_pair.public_key],
         max_fee=int(1e15),
     )
+    # Wait for deployment transaction to be accepted
+    await account_deployment_result.wait_for_acceptance()
 
-    resp = await account.client.deploy_account(transaction=deploy_account_tx)
-    await account.client.wait_for_tx(resp.transaction_hash)
-
-    # Since this moment account can be used to sign other transactions
+    # From now on, account can be used as usual
+    account = account_deployment_result.account
     # docs: end
-
-    assert address == resp.address
+    assert account.address == address
