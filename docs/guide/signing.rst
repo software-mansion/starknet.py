@@ -22,3 +22,23 @@ You can also **verify a message**, which is done by a call to ``is_valid_signatu
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_sign_offchain_message.py
     :language: python
     :dedent: 4
+
+
+Signing for fee estimation
+--------------------------
+
+:ref:`Account` allows signing transactions for the purpose of fee estimation.
+Transactions signed for fee estimation use a transaction version that makes them non-executable on StarkNet.
+If a transaction like this was to be intercepted in transport, it could not
+be executed without the user consent.
+
+.. attention::
+
+    Conventionally signed transactions can still be used to estimate fee. They however don't offer
+    the extra security of signing specifically for the purpose of fee estimation.
+
+    When manually estimating fee for transactions, always prefer estimation specific signing.
+
+.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_sign_for_fee_estimate.py
+    :language: python
+    :dedent: 4
