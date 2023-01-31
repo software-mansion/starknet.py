@@ -210,6 +210,15 @@ class GatewayClient(Client):
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> List[EstimatedFee]:
+        """
+        Estimate how much Wei it will cost to run provided transactions.
+
+        :param transactions: List of transactions to estimate.
+        :param block_hash: Block's hash or literals `"pending"` or `"latest"`.
+        :param block_number: Block's number or literals `"pending"` or `"latest"`.
+        :return: List of estimated amount of Wei executing specified transaction will cost.
+        """
+
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )

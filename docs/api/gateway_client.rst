@@ -5,5 +5,4 @@ GatewayClient
 
 .. autoclass-with-examples:: GatewayClient
     :members:
-    :undoc-members:
     :member-order: groupwise
