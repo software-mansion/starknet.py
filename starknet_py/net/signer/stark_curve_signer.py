@@ -13,6 +13,7 @@ from starkware.starknet.core.os.transaction_hash.transaction_hash import (
     calculate_transaction_hash_common,
 )
 
+from starknet_py.constants import QUERY_VERSION_BASE
 from starknet_py.net.models import (
     AddressRepresentation,
     StarknetChainId,
@@ -139,4 +140,4 @@ class StarkCurveSigner(BaseSigner):
 
 
 def _is_old_transaction_version(version: int):
-    return version in (0, 2**128)
+    return version in (0, QUERY_VERSION_BASE)

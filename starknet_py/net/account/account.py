@@ -6,6 +6,7 @@ from typing import Dict, Iterable, List, Optional, Tuple, TypeVar, Union
 from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.common import create_compiled_contract
+from starknet_py.constants import QUERY_VERSION_BASE
 from starknet_py.net import KeyPair
 from starknet_py.net.account.account_deployment_result import AccountDeploymentResult
 from starknet_py.net.account.base_account import BaseAccount
@@ -230,7 +231,7 @@ class Account(BaseAccount):
     async def sign_for_fee_estimate(
         self, transaction: Union[Invoke, Declare, DeployAccount]
     ) -> Union[Invoke, Declare, DeployAccount]:
-        version = self.supported_transaction_version + 2**128
+        version = self.supported_transaction_version + QUERY_VERSION_BASE
         transaction = dataclasses.replace(transaction, version=version)
 
         signature = self.signer.sign_transaction(transaction)
