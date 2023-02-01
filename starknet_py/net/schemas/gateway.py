@@ -36,11 +36,10 @@ from starknet_py.net.schemas.common import (
     Felt,
     NonPrefixedHex,
     StatusField,
+    StorageEntrySchema,
 )
 
-# pylint: disable=unused-argument
-# pylint: disable=no-self-use
-from starknet_py.net.schemas.rpc import StorageEntrySchema
+# pylint: disable=unused-argument, no-self-use
 
 
 class EventSchema(Schema):

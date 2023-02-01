@@ -24,7 +24,6 @@ from starknet_py.net.client_models import (
     StarknetBlock,
     StateDiff,
     StorageDiffItem,
-    StorageEntry,
     TransactionReceipt,
 )
 from starknet_py.net.schemas.common import (
@@ -32,10 +31,10 @@ from starknet_py.net.schemas.common import (
     Felt,
     NonPrefixedHex,
     StatusField,
+    StorageEntrySchema,
 )
 
-# pylint: disable=unused-argument
-# pylint: disable=no-self-use
+# pylint: disable=unused-argument, no-self-use
 
 
 class FunctionCallSchema(Schema):
@@ -205,15 +204,6 @@ class StarknetBlockSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> StarknetBlock:
         return StarknetBlock(**data)
-
-
-class StorageEntrySchema(Schema):
-    key = Felt(data_key="key", required=True)
-    value = Felt(data_key="value", required=True)
-
-    @post_load
-    def make_dataclass(self, data, **kwargs):
-        return StorageEntry(**data)
 
 
 class StorageDiffSchema(Schema):
