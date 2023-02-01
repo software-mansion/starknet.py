@@ -3,6 +3,7 @@ name: Auto Author Assign
 
 on:
   pull_request:
+    types: [ opened, reopened ]
 
 permissions:
   pull-requests: write
