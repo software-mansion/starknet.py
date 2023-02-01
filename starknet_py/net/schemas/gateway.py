@@ -27,7 +27,7 @@ from starknet_py.net.client_models import (
     L2toL1Message,
     SentTransactionResponse,
     StateDiff,
-    StorageDiff,
+    StorageDiffItem,
     TransactionReceipt,
     TransactionStatusResponse,
 )
@@ -320,12 +320,12 @@ class BlockStateUpdateSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs):
         storage_diffs: Dict = data["state_diff"].storage_diffs
-        fixed_storage_diffs: List[StorageDiff] = []
+        fixed_storage_diffs: List[StorageDiffItem] = []
         for address in storage_diffs.keys():
             entries = []
             for entry in storage_diffs[address]:
                 entries.append(StorageEntrySchema().load(entry))
-            fixed_storage_diffs.append(StorageDiff(address, entries))
+            fixed_storage_diffs.append(StorageDiffItem(address, entries))
 
         nonces: Dict = data["state_diff"].nonces
         fixed_nonces: List[ContractsNonce] = []

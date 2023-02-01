@@ -23,7 +23,7 @@ from starknet_py.net.client_models import (
     SentTransactionResponse,
     StarknetBlock,
     StateDiff,
-    StorageDiff,
+    StorageDiffItem,
     StorageEntry,
     TransactionReceipt,
 )
@@ -225,8 +225,8 @@ class StorageDiffSchema(Schema):
     )
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> StorageDiff:
-        return StorageDiff(**data)
+    def make_dataclass(self, data, **kwargs) -> StorageDiffItem:
+        return StorageDiffItem(**data)
 
 
 class ContractDiffSchema(Schema):

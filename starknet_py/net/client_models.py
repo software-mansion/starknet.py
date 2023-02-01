@@ -273,7 +273,7 @@ class StorageEntry:
 
 
 @dataclass
-class StorageDiff:
+class StorageDiffItem:
     address: int
     storage_entries: List[StorageEntry]
 
@@ -301,7 +301,7 @@ class ContractsNonce:
 class StateDiff:
     deployed_contracts: List[DeployedContract]
     declared_contract_hashes: List[int]
-    storage_diffs: List[StorageDiff]
+    storage_diffs: List[StorageDiffItem]
     nonces: List[ContractsNonce]
 
 
