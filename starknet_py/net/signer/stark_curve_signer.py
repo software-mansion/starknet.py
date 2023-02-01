@@ -4,8 +4,7 @@ from typing import Dict, List, Union, cast
 
 from starkware.crypto.signature.signature import private_to_stark_key
 
-from starknet_py.constants import DEFAULT_ENTRY_POINT_SELECTOR
-from starknet_py.constants import QUERY_VERSION_BASE
+from starknet_py.constants import DEFAULT_ENTRY_POINT_SELECTOR, QUERY_VERSION_BASE
 from starknet_py.net.models import (
     AddressRepresentation,
     StarknetChainId,

@@ -244,8 +244,8 @@ class Account(BaseAccount):
         return (high << 128) + low
 
     async def sign_for_fee_estimate(
-        self, transaction: Union[Invoke, Declare, DeployAccount]
-    ) -> Union[Invoke, Declare, DeployAccount]:
+        self, transaction: TypeAccountTransaction
+    ) -> TypeAccountTransaction:
         version = self.supported_transaction_version + QUERY_VERSION_BASE
         transaction = dataclasses.replace(transaction, version=version)
 

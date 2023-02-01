@@ -1,3 +1,4 @@
+from typing import cast
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -18,6 +19,7 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId, compute_address
+from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.transaction_exceptions import TransactionRejectedError
 
@@ -413,7 +415,7 @@ async def test_sign_deploy_account_tx_for_fee_estimation(
         max_fee=MAX_FEE,
     )
 
-    estimate_fee_transaction = await account.sign_for_fee_estimate(transaction)
+    estimate_fee_transaction = cast(DeployAccount, await account.sign_for_fee_estimate(transaction))
 
     estimation = await account.client.estimate_fee(transaction)
     assert estimation.overall_fee > 0
