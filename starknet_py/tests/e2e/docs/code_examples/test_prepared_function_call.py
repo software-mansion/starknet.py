@@ -31,6 +31,7 @@ async def test_invoke(base_account_deploy_map_contract: Contract):
     # docs-end: invoke
     prepared_function_call.max_fee = None
     # docs-start: invoke
+    # max_fee can be estimated automatically
     invoke_result = await prepared_function_call.invoke(auto_estimate=True)
     # or if max_fee was specified in prepared_function_call
     # docs-end: invoke
