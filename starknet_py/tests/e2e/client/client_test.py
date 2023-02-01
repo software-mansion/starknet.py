@@ -396,9 +396,7 @@ async def test_state_update_declared_contract_hashes(
     block_with_declare_number,
     class_hash,
 ):
-    state_update = await client.get_state_update(
-        block_number=block_with_declare_number
-    )
+    state_update = await client.get_state_update(block_number=block_with_declare_number)
 
     assert class_hash in state_update.state_diff.declared_contract_hashes
 
