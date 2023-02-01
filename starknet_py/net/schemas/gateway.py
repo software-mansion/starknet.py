@@ -319,7 +319,14 @@ class BlockStateUpdateSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs):
-        storage_diffs: Dict = data["state_diff"].storage_diffs
+        fixed_storage_diffs = self._fix_storage_diffs(data["state_diff"].storage_diffs)
+        fixed_nonces = self._fix_nonces(data["state_diff"].nonces)
+
+        data["state_diff"].storage_diffs = fixed_storage_diffs
+        data["state_diff"].nonces = fixed_nonces
+        return BlockStateUpdate(**data)
+
+    def _fix_storage_diffs(self, storage_diffs: Dict) -> List[StorageDiffItem]:
         fixed_storage_diffs: List[StorageDiffItem] = []
         for address in storage_diffs.keys():
             entries = []
@@ -327,16 +334,10 @@ class BlockStateUpdateSchema(Schema):
                 entries.append(StorageEntrySchema().load(entry))
             fixed_storage_diffs.append(StorageDiffItem(address, entries))
 
-        nonces: Dict = data["state_diff"].nonces
-        fixed_nonces: List[ContractsNonce] = []
-        for address, nonce in nonces.items():
-            fixed_nonces.append(ContractsNonce(address, nonce))
+        return fixed_storage_diffs
 
-        data["state_diff"].storage_diffs = fixed_storage_diffs
-        data["state_diff"].nonces = fixed_nonces
-        return BlockStateUpdate(
-            **data,
-        )
+    def _fix_nonces(self, nonces: Dict) -> List[ContractsNonce]:
+        return [ContractsNonce(address, nonce) for address, nonce in nonces.items()]
 
 
 class EntryPointSchema(Schema):
