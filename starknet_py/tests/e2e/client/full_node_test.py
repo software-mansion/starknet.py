@@ -104,7 +104,7 @@ async def test_state_update_full_node_client(
         block_number=block_with_declare_number
     )
 
-    assert class_hash in state_update.declared_contracts
+    assert class_hash in state_update.state_diff.declared_contract_hashes
 
 
 @pytest.mark.run_on_devnet
