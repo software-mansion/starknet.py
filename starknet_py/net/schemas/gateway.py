@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Any, List, Dict
 
 from marshmallow import EXCLUDE, Schema, fields, post_load
 from marshmallow_oneofschema import OneOfSchema
@@ -300,7 +300,7 @@ class StateDiffSchema(Schema):
     )
     storage_diffs = fields.Dict(
         keys=fields.String(),
-        values=fields.Raw(),
+        values=fields.List(fields.Nested(StorageEntrySchema())),
         data_key="storage_diffs",
         required=True,
     )
@@ -319,25 +319,17 @@ class BlockStateUpdateSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs):
-        fixed_storage_diffs = self._fix_storage_diffs(data["state_diff"].storage_diffs)
-        fixed_nonces = self._fix_nonces(data["state_diff"].nonces)
+        def fix_field(field: Dict, inner_class: Any) -> List[Any]:
+            return [inner_class(key, value) for key, value in field.items()]
+
+        fixed_storage_diffs = fix_field(
+            data["state_diff"].storage_diffs, StorageDiffItem
+        )
+        fixed_nonces = fix_field(data["state_diff"].nonces, ContractsNonce)
 
         data["state_diff"].storage_diffs = fixed_storage_diffs
         data["state_diff"].nonces = fixed_nonces
         return BlockStateUpdate(**data)
-
-    def _fix_storage_diffs(self, storage_diffs: Dict) -> List[StorageDiffItem]:
-        fixed_storage_diffs: List[StorageDiffItem] = []
-        for address in storage_diffs.keys():
-            entries = []
-            for entry in storage_diffs[address]:
-                entries.append(StorageEntrySchema().load(entry))
-            fixed_storage_diffs.append(StorageDiffItem(address, entries))
-
-        return fixed_storage_diffs
-
-    def _fix_nonces(self, nonces: Dict) -> List[ContractsNonce]:
-        return [ContractsNonce(address, nonce) for address, nonce in nonces.items()]
 
 
 class EntryPointSchema(Schema):
