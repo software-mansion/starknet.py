@@ -64,14 +64,14 @@ All of them can be used as usual.
 
 This version deprecates several modules and fixes underlying issues with several others.
 
-Breaking changes
-----------------
+0.14.0 Breaking changes
+-----------------------
 
 1. Renamed first parameter of :class:`~starknet_py.net.udc_deployer.deployer.ContractDeployment` from ``udc`` to ``call``, that is returned from :meth:`~starknet_py.net.udc_deployer.deployer.Deployer.create_deployment_call`.
 
 
-Deprecations
-------------
+0.14.0 Deprecations
+-------------------
 
 1. :ref:`compiler` module. It will be removed in the future. We recommend transitioning to building contracts through StarkNet CLI or external tools and using only compiled contracts with StarkNet.py.
 2. ``utils.data_transformer`` module. It has been replaced with :ref:`serializers` module.
