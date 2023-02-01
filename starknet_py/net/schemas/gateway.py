@@ -317,7 +317,10 @@ class StateDiffSchema(Schema):
         required=True,
     )
     storage_diffs = fields.Dict(
-        keys=fields.String(), values=fields.Raw(), data_key="storage_diffs", required=True
+        keys=fields.String(),
+        values=fields.Raw(),
+        data_key="storage_diffs",
+        required=True,
     )
     nonces = fields.Dict(
         keys=Felt(), values=fields.Raw(), data_key="nonces", required=True
