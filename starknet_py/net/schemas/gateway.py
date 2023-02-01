@@ -8,6 +8,7 @@ from starknet_py.net.client_models import (
     BlockStateUpdate,
     BlockTransactionTraces,
     ContractCode,
+    ContractsNonce,
     DeclaredContract,
     DeclareTransaction,
     DeclareTransactionResponse,
@@ -28,7 +29,7 @@ from starknet_py.net.client_models import (
     StateDiff,
     StorageDiff,
     TransactionReceipt,
-    TransactionStatusResponse, UpdatedNonce,
+    TransactionStatusResponse,
 )
 from starknet_py.net.schemas.common import (
     BlockStatusField,
@@ -303,9 +304,7 @@ class StateDiffSchema(Schema):
         data_key="storage_diffs",
         required=True,
     )
-    nonces = fields.Dict(
-        keys=Felt(), values=Felt(), data_key="nonces", required=True
-    )
+    nonces = fields.Dict(keys=Felt(), values=Felt(), data_key="nonces", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> StateDiff:
@@ -329,9 +328,9 @@ class BlockStateUpdateSchema(Schema):
             fixed_storage_diffs.append(StorageDiff(address, entries))
 
         nonces: Dict = data["state_diff"].nonces
-        fixed_nonces: List[UpdatedNonce] = []
+        fixed_nonces: List[ContractsNonce] = []
         for address, nonce in nonces.items():
-            fixed_nonces.append(UpdatedNonce(address, nonce))
+            fixed_nonces.append(ContractsNonce(address, nonce))
 
         data["state_diff"].storage_diffs = fixed_storage_diffs
         data["state_diff"].nonces = fixed_nonces

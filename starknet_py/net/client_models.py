@@ -292,7 +292,7 @@ class DeployedContract:
 
 
 @dataclass
-class UpdatedNonce:
+class ContractsNonce:
     contract_address: int
     nonce: int
 
@@ -302,7 +302,7 @@ class StateDiff:
     deployed_contracts: List[DeployedContract]
     declared_contract_hashes: List[int]
     storage_diffs: List[StorageDiff]
-    nonces: List[UpdatedNonce]
+    nonces: List[ContractsNonce]
 
 
 @dataclass

@@ -24,7 +24,7 @@ from starknet_py.net.client_models import (
     StateDiff,
     StorageDiff,
     StorageEntry,
-    TransactionReceipt,
+    TransactionReceipt, ContractsNonce,
 )
 from starknet_py.net.schemas.common import (
     BlockStatusField,
@@ -246,9 +246,13 @@ class DeployedContractSchema(Schema):
         return DeployedContract(**data)
 
 
-class UpdatedNonceSchema(Schema):
+class ContractsNonceSchema(Schema):
     contract_address = Felt(data_key="contract_address", required=True)
     nonce = Felt(data_key="nonce", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return ContractsNonce(**data)
 
 
 class StateDiffSchema(Schema):
@@ -268,7 +272,7 @@ class StateDiffSchema(Schema):
         required=True,
     )
     nonces = fields.List(
-        fields.Nested(UpdatedNonceSchema()), data_key="nonces", required=True
+        fields.Nested(ContractsNonceSchema()), data_key="nonces", required=True
     )
 
     @post_load
