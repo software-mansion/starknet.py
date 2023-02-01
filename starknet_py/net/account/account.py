@@ -6,6 +6,7 @@ from typing import Dict, Iterable, List, Optional, Tuple, Union
 from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.common import create_compiled_contract
+from starknet_py.constants import QUERY_VERSION_BASE
 from starknet_py.net import KeyPair
 from starknet_py.net.account.account_deployment_result import AccountDeploymentResult
 from starknet_py.net.account.base_account import BaseAccount
@@ -51,9 +52,11 @@ from starknet_py.serialization.data_serializers.struct_serializer import (
     StructSerializer,
 )
 from starknet_py.utils.iterable import ensure_iterable
+from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.typed_data import TypedData as TypedDataDataclass
 
 
+@add_sync_methods
 class Account(BaseAccount):
     """
     Default Account implementation.
@@ -71,6 +74,15 @@ class Account(BaseAccount):
         key_pair: Optional[KeyPair] = None,
         chain: Optional[StarknetChainId] = None,
     ):
+        """
+        :param address: Address of the account contract.
+        :param client: Instance of Client which will be used to add transactions.
+        :param signer: Custom signer to be used by Account.
+                       If none is provided, default
+                       :py:class:`starknet_py.net.signer.stark_curve_signer.StarkCurveSigner` is used.
+        :param key_pair: Key pair that will be used to create a default `Signer`.
+        :param chain: ChainId of the chain used to create the default signer.
+        """
         if chain is None and signer is None:
             raise ValueError("One of chain or signer must be provided.")
 
@@ -195,8 +207,7 @@ class Account(BaseAccount):
         :param block_number: a block number.
         :return: Estimated fee.
         """
-        signature = self.signer.sign_transaction(tx)
-        tx = _add_signature_to_transaction(tx, signature)
+        tx = await self.sign_for_fee_estimate(tx)
 
         return await self._client.estimate_fee(
             tx=tx,
@@ -231,6 +242,15 @@ class Account(BaseAccount):
         )
 
         return (high << 128) + low
+
+    async def sign_for_fee_estimate(
+        self, transaction: Union[Invoke, Declare, DeployAccount]
+    ) -> Union[Invoke, Declare, DeployAccount]:
+        version = self.supported_transaction_version + QUERY_VERSION_BASE
+        transaction = dataclasses.replace(transaction, version=version)
+
+        signature = self.signer.sign_transaction(transaction)
+        return _add_signature_to_transaction(tx=transaction, signature=signature)
 
     async def sign_invoke_transaction(
         self,

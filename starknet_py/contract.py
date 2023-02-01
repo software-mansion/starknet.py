@@ -485,6 +485,7 @@ class Contract:
 
     @property
     def address(self) -> int:
+        """Address of the contract."""
         return self.data.address
 
     @staticmethod

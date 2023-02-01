@@ -186,14 +186,12 @@ class Client(ABC):
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
         """
-        Estimate how much Wei it will cost to run provided Invoke
+        Estimate how much Wei it will cost to run provided transaction.
 
         :param tx: Transaction to estimate
-        :param block_hash: Get code at specific block hash or
-                           at the block indicated by the literals `"pending"` or `"latest"`
-        :param block_number: Get code at given block number or at
-                             the block indicated by the literals `"pending"` or `"latest"`
-        :return: Estimated amount of Wei executing specified transaction will cost
+        :param block_hash: Block's hash or literals `"pending"` or `"latest"`.
+        :param block_number: Block's number or literals `"pending"` or `"latest"`.
+        :return: Estimated amount of Wei executing specified transaction will cost.
         """
 
     @abstractmethod

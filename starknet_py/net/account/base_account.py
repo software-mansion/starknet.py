@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import Calls, SentTransactionResponse
@@ -54,6 +54,19 @@ class BaseAccount(ABC):
         :param token_address: Address of the ERC20 contract.
             If not specified it will be payment token address.
         :return: Token balance.
+        """
+
+    @abstractmethod
+    async def sign_for_fee_estimate(
+        self, transaction: Union[Invoke, Declare, DeployAccount]
+    ) -> Union[Invoke, Declare, DeployAccount]:
+        """
+        Sign a transaction for a purpose of only fee estimation.
+        Should use a transaction version that is not executable on StarkNet,
+        calculated like ``transaction.version + 2 ** 128``.
+
+        :param transaction: Transaction to be signed.
+        :return: A signed Transaction that can only be used for fee estimation and cannot be executed.
         """
 
     @abstractmethod

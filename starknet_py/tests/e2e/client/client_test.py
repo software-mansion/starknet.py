@@ -19,7 +19,9 @@ from starknet_py.net.client_models import (
     TransactionStatus,
 )
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models.transaction import Declare, Invoke
+from starknet_py.net.models.transaction import Invoke
+from starknet_py.net.models.transaction import Declare
+from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 from starknet_py.transaction_exceptions import (
@@ -383,3 +385,50 @@ async def test_get_l1_handler_transaction(client):
         assert isinstance(transaction, L1HandlerTransaction)
         assert transaction.nonce is not None
         assert transaction.nonce == 0x34C20
+
+
+@pytest.mark.run_on_devnet
+@pytest.mark.asyncio
+async def test_state_update_declared_contract_hashes(
+    client,
+    block_with_declare_number,
+    class_hash,
+):
+    state_update = await client.get_state_update(block_number=block_with_declare_number)
+
+    assert class_hash in state_update.state_diff.declared_contract_hashes
+
+
+@pytest.mark.run_on_devnet
+@pytest.mark.asyncio
+async def test_state_update_storage_diffs(
+    client,
+    map_contract,
+):
+    resp = await map_contract.functions["put"].invoke(key=10, value=20, max_fee=MAX_FEE)
+    await resp.wait_for_acceptance()
+
+    state_update = await client.get_state_update()
+
+    assert len(state_update.state_diff.storage_diffs) != 0
+
+
+@pytest.mark.run_on_devnet
+@pytest.mark.asyncio
+async def test_state_update_deployed_contracts(
+    class_hash,
+    account,
+):
+    # setup
+    deployer = Deployer()
+    contract_deployment = deployer.create_deployment_call(class_hash=class_hash)
+    deploy_invoke_tx = await account.sign_invoke_transaction(
+        contract_deployment.call, max_fee=MAX_FEE
+    )
+    resp = await account.client.send_transaction(deploy_invoke_tx)
+    await account.client.wait_for_tx(resp.transaction_hash)
+
+    # test
+    state_update = await account.client.get_state_update()
+
+    assert len(state_update.state_diff.deployed_contracts) != 0

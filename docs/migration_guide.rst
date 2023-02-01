@@ -59,6 +59,57 @@ All of them can be used as usual.
 |
 
 **********************
+0.14.0 Migration guide
+**********************
+
+This version deprecates several modules and fixes underlying issues with several others.
+
+Breaking changes
+----------------
+
+1. Renamed first parameter of :class:`~starknet_py.net.udc_deployer.deployer.ContractDeployment` from ``udc`` to ``call``, that is returned from :meth:`~starknet_py.net.udc_deployer.deployer.Deployer.create_deployment_call`.
+
+
+Deprecations
+------------
+
+1. :ref:`compiler` module. It will be removed in the future. We recommend transitioning to building contracts through StarkNet CLI or external tools and using only compiled contracts with StarkNet.py.
+2. ``utils.data_transformer`` module. It has been replaced with :ref:`serializers` module.
+
+
+Serializers module
+------------------
+
+New :ref:`serializers` module has been added in place of old ``data_transformer``. See :ref:`Serialization` guide for more details.
+
+
+auto_estimate
+-------------
+
+The way **automatic fee estimation is calculated** has changed from
+
+``transaction estimated fee * 1.1``
+
+to
+
+``transaction estimated fee * 1.5``
+
+when using ``auto_estimate`` parameter in API functions (for example :meth:`~starknet_py.net.account.account.Account.execute`, :meth:`~starknet_py.net.account.account.Account.sign_invoke_transaction` or :meth:`~starknet_py.contract.PreparedFunctionCall.invoke`).
+It was caused by many transactions failing due to low ``max_fee``.
+
+.. note::
+    It is now possible to set the value by which the estimated fee is multiplied,
+    by changing ``ESTIMATED_FEE_MULTIPLIER`` in :class:`~starknet_py.net.account.account.Account`.
+
+|
+
+.. raw:: html
+
+  <hr>
+
+|
+
+**********************
 0.13.0 Migration guide
 **********************
 

@@ -5,6 +5,7 @@ from typing import Dict, List, Union, cast
 from starkware.crypto.signature.signature import private_to_stark_key
 
 from starknet_py.constants import DEFAULT_ENTRY_POINT_SELECTOR
+from starknet_py.constants import QUERY_VERSION_BASE
 from starknet_py.net.models import (
     AddressRepresentation,
     StarknetChainId,
@@ -45,12 +46,18 @@ class StarkCurveSigner(BaseSigner):
         key_pair: KeyPair,
         chain_id: StarknetChainId,
     ):
+        """
+        :param account_address: Address of the account contract.
+        :param key_pair: Key pair of the account contract.
+        :param chain_id: ChainId of the chain.
+        """
         self.address = parse_address(account_address)
         self.key_pair = key_pair
         self.chain_id = chain_id
 
     @property
     def private_key(self) -> int:
+        """Private key of the signer."""
         return self.key_pair.private_key
 
     @property
@@ -73,13 +80,13 @@ class StarkCurveSigner(BaseSigner):
             version=transaction.version,
             contract_address=self.address,
             entry_point_selector=DEFAULT_ENTRY_POINT_SELECTOR
-            if transaction.version == 1
+            if not _is_old_transaction_version(transaction.version)
             else cast(int, transaction.entry_point_selector),
             calldata=transaction.calldata,
             max_fee=transaction.max_fee,
             chain_id=self.chain_id.value,
             additional_data=[cast(int, transaction.nonce)]
-            if transaction.version == 1
+            if not _is_old_transaction_version(transaction.version)
             else [],
         )
         # pylint: disable=invalid-name
@@ -139,3 +146,7 @@ class StarkCurveSigner(BaseSigner):
         # pylint: disable=invalid-name
         r, s = message_signature(msg_hash=msg_hash, priv_key=self.private_key)
         return [r, s]
+
+
+def _is_old_transaction_version(version: int):
+    return version in (0, QUERY_VERSION_BASE)

@@ -42,7 +42,7 @@ def pytest_collection_modifyitems(config, items):
             item.add_marker(pytest.mark.skip())
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="package")
 def network(pytestconfig, run_devnet: str) -> str:
     """
     Returns network address depending on the --net parameter.
@@ -78,7 +78,7 @@ def typed_data(request) -> TypedData:
     return typed_data
 
 
-@pytest_asyncio.fixture(scope="module")
+@pytest_asyncio.fixture(scope="package")
 async def cairo_serializer(
     new_gateway_account_client: AccountClient,
 ) -> CairoSerializer:
