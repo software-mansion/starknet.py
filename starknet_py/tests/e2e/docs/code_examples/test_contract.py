@@ -54,10 +54,10 @@ async def test_from_address(gateway_account, contract_address):
 @pytest.mark.asyncio
 async def test_declare(gateway_account, custom_proxy):
     account = gateway_account
-    compiled_with_cli = custom_proxy
+    compiled_contract = custom_proxy
     # docs-start: declare
     declare_result = await Contract.declare(
-        account=account, compiled_contract=compiled_with_cli, max_fee=int(1e15)
+        account=account, compiled_contract=compiled_contract, max_fee=int(1e15)
     )
     # docs-end: declare
 
@@ -98,9 +98,9 @@ async def test_deploy_contract(gateway_account, class_hash):
 
 
 def test_compute_address(custom_proxy):
-    compiled_with_cli = custom_proxy
+    compiled_contract = custom_proxy
     # docs-start: compute_address
     address = Contract.compute_address(
-        salt=1, compiled_contract=compiled_with_cli, constructor_args=[1, 2, [2]]
+        salt=1, compiled_contract=compiled_contract, constructor_args=[1, 2, [2]]
     )
     # docs-end: compute_address
