@@ -103,7 +103,9 @@ class FullNodeClient(Client):
             method_name="getStateUpdate",
             params=block_identifier,
         )
-        return BlockStateUpdateSchema().load(res, unknown=EXCLUDE)
+        return cast(
+            BlockStateUpdate, BlockStateUpdateSchema().load(res, unknown=EXCLUDE)
+        )
 
     async def get_storage_at(
         self,
