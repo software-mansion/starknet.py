@@ -1,9 +1,11 @@
 # pylint: disable=unused-variable
 import pytest
 
+from starknet_py.contract import Contract
+
 
 @pytest.mark.asyncio
-async def test_call_raw(base_account_deploy_map_contract):
+async def test_call_raw(base_account_deploy_map_contract: Contract):
     map_contract = base_account_deploy_map_contract
     prepared_function_call = map_contract.functions["get"].prepare(key=10)
     # docs-start: call_raw
@@ -12,16 +14,16 @@ async def test_call_raw(base_account_deploy_map_contract):
 
 
 @pytest.mark.asyncio
-async def test_call(base_account_deploy_map_contract):
+async def test_call(base_account_deploy_map_contract: Contract):
     map_contract = base_account_deploy_map_contract
     prepared_function_call = map_contract.functions["get"].prepare(key=10)
     # docs-start: call
-    response = await prepared_function_call.call_raw(block_hash="latest")
+    response = await prepared_function_call.call(block_hash="latest")
     # docs-end: call
 
 
 @pytest.mark.asyncio
-async def test_invoke(base_account_deploy_map_contract):
+async def test_invoke(base_account_deploy_map_contract: Contract):
     map_contract = base_account_deploy_map_contract
     prepared_function_call = map_contract.functions["put"].prepare(key=10, value=20)
     # docs-start: invoke
