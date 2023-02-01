@@ -79,7 +79,7 @@ async def test_deploy_contract(gateway_account, class_hash):
         ],
         max_fee=int(1e15),
     )
-    # or when there is a constructor
+    # or when contract has a constructor with arguments
     deploy_result = await Contract.deploy_contract(
         account=account,
         class_hash=class_hash,
