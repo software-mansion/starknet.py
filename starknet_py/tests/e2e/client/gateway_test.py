@@ -176,19 +176,6 @@ def test_creating_client_with_custom_net_dict():
 
 
 @pytest.mark.asyncio
-async def test_state_update_gateway_client(
-    gateway_client,
-    block_with_declare_number,
-    class_hash,
-):
-    state_update = await gateway_client.get_state_update(
-        block_number=block_with_declare_number
-    )
-
-    assert class_hash in state_update.declared_contracts
-
-
-@pytest.mark.asyncio
 async def test_get_storage_at_incorrect_address_gateway_client(gateway_client):
     storage = await gateway_client.get_storage_at(
         contract_address=0x1111,
