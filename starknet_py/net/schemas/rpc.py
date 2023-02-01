@@ -4,6 +4,7 @@ from marshmallow_oneofschema import OneOfSchema
 from starknet_py.abi.schemas import ContractAbiEntrySchema
 from starknet_py.net.client_models import (
     BlockStateUpdate,
+    ContractsNonce,
     DeclaredContract,
     DeclareTransaction,
     DeclareTransactionResponse,
@@ -24,7 +25,7 @@ from starknet_py.net.client_models import (
     StateDiff,
     StorageDiff,
     StorageEntry,
-    TransactionReceipt, ContractsNonce,
+    TransactionReceipt,
 )
 from starknet_py.net.schemas.common import (
     BlockStatusField,
