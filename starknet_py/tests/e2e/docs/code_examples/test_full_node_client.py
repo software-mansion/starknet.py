@@ -29,7 +29,7 @@ async def test_get_block(full_node_client):
 @pytest.mark.asyncio
 async def test_get_state_update(full_node_client):
     # docs-start: get_state_update
-    # state_update = await full_node_client.get_state_update(block_number="latest")
+    state_update = await full_node_client.get_state_update(block_number="latest")
     state_update = await full_node_client.get_state_update(block_number=0)
     # or
     state_update = await full_node_client.get_state_update(block_hash="0x0")
