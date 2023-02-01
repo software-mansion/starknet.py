@@ -13,4 +13,4 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.repository == 'software-mansion/starknet.py' }}  # do not run on forks
     steps:
-      - uses: toshimaru/auto-author-assign/push@2daaeb2988aef24bf37e636fe733f365c046aba0  # v1.6.2
+      - uses: toshimaru/auto-author-assign@2daaeb2988aef24bf37e636fe733f365c046aba0  # v1.6.2
