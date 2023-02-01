@@ -1,4 +1,4 @@
-from typing import cast
+from typing import Dict, List
 
 from marshmallow import EXCLUDE, Schema, fields, post_load
 from marshmallow_oneofschema import OneOfSchema
@@ -25,7 +25,9 @@ from starknet_py.net.client_models import (
     L1toL2Message,
     L2toL1Message,
     SentTransactionResponse,
+    StateDiff,
     StorageDiff,
+    StorageEntry,
     TransactionReceipt,
     TransactionStatusResponse,
 )
@@ -294,42 +296,60 @@ class DeployedContractSchema(Schema):
         return DeployedContract(**data)
 
 
+class StorageEntrySchema(Schema):
+    key = Felt(data_key="key", required=True)
+    value = Felt(data_key="value", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return StorageEntry(**data)
+
+
+class StateDiffSchema(Schema):
+    deployed_contracts = fields.List(
+        fields.Nested(DeployedContractSchema()),
+        data_key="deployed_contracts",
+        required=True,
+    )
+    declared_contract_hashes = fields.List(
+        Felt(),
+        data_key="declared_contracts",
+        required=True,
+    )
+    storage_diffs = fields.Dict(
+        keys=fields.String(), values=fields.Raw(), data_key="storage_diffs", required=True
+    )
+    nonces = fields.Dict(
+        keys=Felt(), values=fields.Raw(), data_key="nonces", required=True
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> StateDiff:
+        return StateDiff(**data)
+
+
 class BlockStateUpdateSchema(Schema):
     block_hash = Felt(data_key="block_hash", required=True)
     new_root = NonPrefixedHex(data_key="new_root", required=True)
     old_root = NonPrefixedHex(data_key="old_root", required=True)
-    state_diff = fields.Dict(
-        keys=fields.String(), values=fields.Raw(), data_key="state_diff", required=True
-    )
+    state_diff = fields.Nested(StateDiffSchema(), data_key="state_diff", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs):
-        deployed_contracts = data["state_diff"]["deployed_contracts"]
-        deployed_contracts = [
-            cast(DeployedContract, DeployedContractSchema().load(contract))
-            for contract in deployed_contracts
-        ]
+        storage_diffs: Dict = data["state_diff"].storage_diffs
+        proper_storage_diffs: List[StorageDiff] = []
+        for address in storage_diffs.keys():
+            entries = []
+            for entry in storage_diffs[address]:
+                entries.append(StorageEntrySchema().load(entry))
+            proper_storage_diffs.append(
+                StorageDiff(Felt().deserialize(address), entries)
+            )
 
-        storage_diffs = []
-        for address, diffs in data["state_diff"]["storage_diffs"].items():
-            for diff in diffs:
-                storage_diff = StorageDiffSchema().load(
-                    {"address": address, "key": diff["key"], "value": diff["value"]}
-                )
-                storage_diffs.append(storage_diff)
-
-        declared_contracts = data["state_diff"]["declared_contracts"]
-        declared_contracts = [
-            int(declared_contract, 16) for declared_contract in declared_contracts
-        ]
-
-        del data["state_diff"]
+        data["state_diff"].storage_diffs = proper_storage_diffs
 
         return BlockStateUpdate(
             **data,
-            storage_diffs=storage_diffs,
-            deployed_contracts=deployed_contracts,
-            declared_contracts=declared_contracts,
         )
 
 

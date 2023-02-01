@@ -266,6 +266,7 @@ class BlockTransactionTraces:
     traces: List[BlockSingleTransactionTrace]
 
 
+@dataclass
 class StorageEntry:
     key: int
     value: int
