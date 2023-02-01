@@ -23,6 +23,7 @@ from starknet_py.net.client_models import (
     StarknetBlock,
     StateDiff,
     StorageDiff,
+    StorageEntry,
     TransactionReceipt,
 )
 from starknet_py.net.schemas.common import (
@@ -209,6 +210,10 @@ class StorageEntrySchema(Schema):
     key = Felt(data_key="key", required=True)
     value = Felt(data_key="value", required=True)
 
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return StorageEntry(**data)
+
 
 class StorageDiffSchema(Schema):
     address = Felt(data_key="address", required=True)
@@ -279,7 +284,6 @@ class BlockStateUpdateSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> BlockStateUpdate:
-
         return BlockStateUpdate(
             **data,
         )

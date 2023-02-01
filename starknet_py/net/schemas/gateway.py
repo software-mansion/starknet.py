@@ -27,7 +27,6 @@ from starknet_py.net.client_models import (
     SentTransactionResponse,
     StateDiff,
     StorageDiff,
-    StorageEntry,
     TransactionReceipt,
     TransactionStatusResponse,
 )
@@ -40,6 +39,7 @@ from starknet_py.net.schemas.common import (
 
 # pylint: disable=unused-argument
 # pylint: disable=no-self-use
+from starknet_py.net.schemas.rpc import StorageEntrySchema
 
 
 class EventSchema(Schema):
@@ -277,16 +277,6 @@ class DeployAccountTransactionResponseSchema(SentTransactionSchema):
         return DeployAccountTransactionResponse(**data)
 
 
-class StorageDiffSchema(Schema):
-    address = Felt(data_key="address", required=True)
-    key = Felt(data_key="key", required=True)
-    value = Felt(data_key="value", required=True)
-
-    @post_load
-    def make_dataclass(self, data, **kwargs):
-        return StorageDiff(**data)
-
-
 class DeployedContractSchema(Schema):
     address = Felt(data_key="address", required=True)
     class_hash = NonPrefixedHex(data_key="class_hash", required=True)
@@ -294,15 +284,6 @@ class DeployedContractSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs):
         return DeployedContract(**data)
-
-
-class StorageEntrySchema(Schema):
-    key = Felt(data_key="key", required=True)
-    value = Felt(data_key="value", required=True)
-
-    @post_load
-    def make_dataclass(self, data, **kwargs):
-        return StorageEntry(**data)
 
 
 class StateDiffSchema(Schema):
@@ -345,12 +326,9 @@ class BlockStateUpdateSchema(Schema):
             entries = []
             for entry in storage_diffs[address]:
                 entries.append(StorageEntrySchema().load(entry))
-            proper_storage_diffs.append(
-                StorageDiff(Felt().deserialize(address), entries)
-            )
+            proper_storage_diffs.append(StorageDiff(address, entries))
 
         data["state_diff"].storage_diffs = proper_storage_diffs
-
         return BlockStateUpdate(
             **data,
         )
