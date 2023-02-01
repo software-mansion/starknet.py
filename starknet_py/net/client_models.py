@@ -267,10 +267,15 @@ class BlockTransactionTraces:
 
 
 @dataclass
-class StorageDiff:
-    address: int
+class StorageEntry:
     key: int
     value: int
+
+
+@dataclass
+class StorageDiffItem:
+    address: int
+    storage_entries: List[StorageEntry]
 
 
 @dataclass
@@ -287,6 +292,20 @@ class DeployedContract:
 
 
 @dataclass
+class ContractsNonce:
+    contract_address: int
+    nonce: int
+
+
+@dataclass
+class StateDiff:
+    deployed_contracts: List[DeployedContract]
+    declared_contract_hashes: List[int]
+    storage_diffs: List[StorageDiffItem]
+    nonces: List[ContractsNonce]
+
+
+@dataclass
 class BlockStateUpdate:
     """
     Dataclass representing a change in state of a block
@@ -295,16 +314,7 @@ class BlockStateUpdate:
     block_hash: int
     new_root: int
     old_root: int
-    storage_diffs: List[StorageDiff]
-    deployed_contracts: List[DeployedContract]
-    declared_contracts: List[int]
-
-
-@dataclass
-class StateDiff:
-    deployed_contracts: List[DeployedContract]
-    storage_diffs: List[StorageDiff]
-    declared_contract_hashes: List[int]
+    state_diff: StateDiff
 
 
 @dataclass
