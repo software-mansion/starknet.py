@@ -1,3 +1,4 @@
+import json
 from typing import List, Optional, Union, cast
 
 import aiohttp
@@ -103,6 +104,7 @@ class FullNodeClient(Client):
             method_name="getStateUpdate",
             params=block_identifier,
         )
+        print(json.dumps(res))
         return cast(
             BlockStateUpdate, BlockStateUpdateSchema().load(res, unknown=EXCLUDE)
         )
