@@ -282,7 +282,7 @@ class PreparedFunctionCall(Call):
         Calls a method.
 
         :param block_hash: Optional block hash.
-        :return: CallResult or List[int] if return_raw is used.
+        :return: TupleDataclass representing call result.
         """
         result = await self.call_raw(block_hash=block_hash)
         return self._payload_transformer.deserialize(result)
@@ -669,7 +669,7 @@ class Contract:
         :param compiled_contract: string containing compiled contract. Useful for reading compiled contract from a file.
         :param search_paths: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts.
         :raises: `ValueError` if neither compilation_source nor compiled_contract is provided.
-        :return:
+        :return: class_hash of the contract.
         """
         warnings.warn(
             "Argument compilation_source is deprecated and will be removed in the future. "
