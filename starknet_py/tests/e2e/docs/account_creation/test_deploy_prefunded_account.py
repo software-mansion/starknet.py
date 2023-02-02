@@ -10,7 +10,6 @@ from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 @pytest.mark.asyncio
 async def test_deploy_prefunded_account(
     account_with_validate_deploy_class_hash: int,
-    network: str,
     fee_contract: Contract,
     gateway_client: Client,
 ):
