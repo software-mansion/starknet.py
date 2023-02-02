@@ -4,8 +4,8 @@ from marshmallow_oneofschema import OneOfSchema
 from starknet_py.abi.schemas import ContractAbiEntrySchema
 from starknet_py.net.client_models import (
     BlockStateUpdate,
+    ContractClass,
     ContractsNonce,
-    DeclaredContract,
     DeclareTransaction,
     DeclareTransactionResponse,
     DeployAccountTransaction,
@@ -309,7 +309,7 @@ class EntryPointsByTypeSchema(Schema):
         return EntryPointsByType(**data)
 
 
-class DeclaredContractSchema(Schema):
+class ContractClassSchema(Schema):
     program = fields.String(data_key="program", required=True)
     entry_points_by_type = fields.Nested(
         EntryPointsByTypeSchema(), data_key="entry_points_by_type", required=True
@@ -317,8 +317,8 @@ class DeclaredContractSchema(Schema):
     abi = fields.List(fields.Nested(ContractAbiEntrySchema()), data_key="abi")
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> DeclaredContract:
-        return DeclaredContract(**data)
+    def make_dataclass(self, data, **kwargs) -> ContractClass:
+        return ContractClass(**data)
 
 
 class SentTransactionSchema(Schema):

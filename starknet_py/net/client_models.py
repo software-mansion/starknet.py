@@ -335,7 +335,7 @@ class EntryPointsByType:
 
 
 @dataclass
-class DeclaredContract:
+class ContractClass:
     """
     Dataclass representing contract declared to starknet
     """
@@ -343,6 +343,15 @@ class DeclaredContract:
     program: dict
     entry_points_by_type: EntryPointsByType
     abi: Optional[AbiDictList] = None
+
+
+@dataclass
+class CompiledContract(ContractClass):
+    """
+    Dataclass representing ContractClass with required abi.
+    """
+
+    abi: AbiDictList = field(default_factory=list)
 
 
 @dataclass

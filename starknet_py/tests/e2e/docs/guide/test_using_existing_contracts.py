@@ -92,7 +92,7 @@ async def test_using_existing_contracts(account, erc20_contract):
 async def test_raw_call(account):
     # pylint: disable=import-outside-toplevel
     # docs-raw-call: start
-    from starknet_py.cairo.selector import get_selector_from_name
+    from starknet_py.hash.selector import get_selector_from_name
     from starknet_py.net.client_models import Call
 
     # docs-raw-call: end

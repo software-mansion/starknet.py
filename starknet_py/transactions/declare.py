@@ -40,11 +40,11 @@ def make_declare_tx(
         category=DeprecationWarning,
     )
 
-    compiled_contract = create_compiled_contract(
+    contract_class = create_compiled_contract(
         compilation_source, compiled_contract, cairo_path
     )
     return Declare(
-        contract_class=compiled_contract,
+        contract_class=contract_class,
         sender_address=DEFAULT_DECLARE_SENDER_ADDRESS,
         max_fee=0,
         signature=[],

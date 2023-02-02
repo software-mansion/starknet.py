@@ -4,10 +4,10 @@ import warnings
 from dataclasses import replace
 from typing import Dict, Iterable, List, Optional, Tuple, Union
 
-from starknet_py.cairo.selector import get_selector_from_name
 from starknet_py.common import create_compiled_contract
 from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
+from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError
@@ -16,7 +16,7 @@ from starknet_py.net.client_models import (
     BlockTransactionTraces,
     Call,
     Calls,
-    DeclaredContract,
+    ContractClass,
     DeclareTransactionResponse,
     DeployAccountTransactionResponse,
     EstimatedFee,
@@ -193,7 +193,7 @@ class AccountClient(Client):
             block_number=block_number,
         )
 
-    async def get_class_by_hash(self, class_hash: Hash) -> DeclaredContract:
+    async def get_class_by_hash(self, class_hash: Hash) -> ContractClass:
         return await self.client.get_class_by_hash(class_hash=class_hash)
 
     async def _get_nonce(self) -> int:
@@ -397,11 +397,11 @@ class AccountClient(Client):
             category=DeprecationWarning,
         )
 
-        compiled_contract = create_compiled_contract(
+        contract_class = create_compiled_contract(
             compilation_source, compiled_contract, cairo_path
         )
         declare_tx = Declare(
-            contract_class=compiled_contract,
+            contract_class=contract_class,
             sender_address=self.address,
             max_fee=0,
             signature=[],

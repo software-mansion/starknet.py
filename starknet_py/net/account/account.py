@@ -7,6 +7,7 @@ from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.common import create_compiled_contract
 from starknet_py.constants import QUERY_VERSION_BASE
+from starknet_py.hash.address import compute_address
 from starknet_py.net import KeyPair
 from starknet_py.net.account.account_deployment_result import AccountDeploymentResult
 from starknet_py.net.account.base_account import BaseAccount
@@ -24,7 +25,6 @@ from starknet_py.net.models import (
     AddressRepresentation,
     StarknetChainId,
     chain_from_network,
-    compute_address,
     parse_address,
 )
 from starknet_py.net.models.transaction import (
@@ -270,11 +270,9 @@ class Account(BaseAccount):
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> Declare:
-        compiled_contract = create_compiled_contract(
-            compiled_contract=compiled_contract
-        )
+        contract_class = create_compiled_contract(compiled_contract=compiled_contract)
         declare_tx = Declare(
-            contract_class=compiled_contract,
+            contract_class=contract_class,
             sender_address=self.address,
             max_fee=0,
             signature=[],

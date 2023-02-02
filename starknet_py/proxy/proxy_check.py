@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 
-from starknet_py.cairo.selector import get_selector_from_name
-from starknet_py.cairo.storage import get_storage_var_address
+from starknet_py.hash.selector import get_selector_from_name
+from starknet_py.hash.storage import get_storage_var_address
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import Call
 from starknet_py.net.models import Address

@@ -4,7 +4,7 @@ from typing import List, Union
 import pytest
 import pytest_asyncio
 
-from starknet_py.common import create_compiled_contract, create_contract_class
+from starknet_py.common import create_compiled_contract
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.contract import Contract
 from starknet_py.net import AccountClient
@@ -108,7 +108,7 @@ async def deploy_map_contract(
     """
     Deploys map contract and returns its instance.
     """
-    abi = create_contract_class(compiled_contract=map_compiled_contract).abi
+    abi = create_compiled_contract(compiled_contract=map_compiled_contract).abi
     return await deploy_contract(
         AccountProxy(gateway_account_client), map_class_hash, abi
     )
@@ -123,7 +123,7 @@ async def new_deploy_map_contract(
     """
     Deploys new map contract and returns its instance.
     """
-    abi = create_contract_class(compiled_contract=map_compiled_contract).abi
+    abi = create_compiled_contract(compiled_contract=map_compiled_contract).abi
     return await deploy_contract(new_gateway_account_client, map_class_hash, abi)
 
 
@@ -136,7 +136,7 @@ async def base_account_deploy_map_contract(
     """
     Deploys new map contract and returns its instance.
     """
-    abi = create_contract_class(compiled_contract=map_compiled_contract).abi
+    abi = create_compiled_contract(compiled_contract=map_compiled_contract).abi
     return await deploy_contract(gateway_account, map_class_hash, abi)
 
 
@@ -149,7 +149,7 @@ async def deploy_erc20_contract(
     """
     Deploys erc20 contract and returns its instance.
     """
-    abi = create_contract_class(compiled_contract=erc20_compiled_contract).abi
+    abi = create_compiled_contract(compiled_contract=erc20_compiled_contract).abi
     return await deploy_contract(gateway_account, erc20_class_hash, abi)
 
 
@@ -273,6 +273,7 @@ def constructor_with_arguments_abi() -> List:
     compiled_contract = create_compiled_contract(
         compilation_source=constructor_with_arguments_source
     )
+    assert compiled_contract.abi is not None
     return compiled_contract.abi
 
 
