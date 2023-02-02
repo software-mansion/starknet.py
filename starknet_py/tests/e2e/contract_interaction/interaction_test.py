@@ -1,13 +1,12 @@
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 
 import pytest
-from starkware.starkware_utils.error_handling import StarkErrorCode
 
 from starknet_py.common import create_compiled_contract
 from starknet_py.contract import Contract
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.client_errors import ClientError
-from starknet_py.net.client_models import Call, SentTransactionResponse
+from starknet_py.net.client_models import Call, TransactionReceipt, TransactionStatus
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.transaction_exceptions import (
     TransactionNotReceivedError,
@@ -157,20 +156,17 @@ async def test_wait_for_tx_throws_on_transaction_rejected(client, map_contract):
 
 
 @pytest.mark.asyncio
-async def test_transaction_not_received_error(map_contract):
-    with patch(
-        "starknet_py.net.gateway_client.GatewayClient.send_transaction",
-        AsyncMock(),
-    ) as mocked_send_transaction:
-        mocked_send_transaction.return_value = SentTransactionResponse(
-            code=StarkErrorCode.TRANSACTION_CANCELLED.value, transaction_hash=0x123
-        )
+@patch("starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt")
+async def test_transaction_not_received_error(mocked_get_receipt, map_contract):
+    mocked_get_receipt.return_value = TransactionReceipt(
+        hash=1, status=TransactionStatus.NOT_RECEIVED
+    )
 
-        with pytest.raises(
-            TransactionNotReceivedError, match="Transaction was not received"
-        ):
-            result = await map_contract.functions["put"].invoke(10, 20, max_fee=MAX_FEE)
-            await result.wait_for_acceptance()
+    result = await map_contract.functions["put"].invoke(10, 20, max_fee=MAX_FEE)
+    with pytest.raises(
+        TransactionNotReceivedError, match="Transaction was not received"
+    ):
+        await result.wait_for_acceptance()
 
 
 @pytest.mark.asyncio

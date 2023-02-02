@@ -1,4 +1,4 @@
-from typing import cast
+from typing import Any, Dict, List
 
 from marshmallow import EXCLUDE, Schema, fields, post_load
 from marshmallow_oneofschema import OneOfSchema
@@ -10,6 +10,7 @@ from starknet_py.net.client_models import (
     CompiledContract,
     ContractClass,
     ContractCode,
+    ContractsNonce,
     DeclareTransaction,
     DeclareTransactionResponse,
     DeployAccountTransaction,
@@ -26,7 +27,8 @@ from starknet_py.net.client_models import (
     L1toL2Message,
     L2toL1Message,
     SentTransactionResponse,
-    StorageDiff,
+    StateDiff,
+    StorageDiffItem,
     TransactionReceipt,
     TransactionStatusResponse,
 )
@@ -35,10 +37,10 @@ from starknet_py.net.schemas.common import (
     Felt,
     NonPrefixedHex,
     StatusField,
+    StorageEntrySchema,
 )
 
-# pylint: disable=unused-argument
-# pylint: disable=no-self-use
+# pylint: disable=unused-argument, no-self-use
 
 
 class EventSchema(Schema):
@@ -276,16 +278,6 @@ class DeployAccountTransactionResponseSchema(SentTransactionSchema):
         return DeployAccountTransactionResponse(**data)
 
 
-class StorageDiffSchema(Schema):
-    address = Felt(data_key="address", required=True)
-    key = Felt(data_key="key", required=True)
-    value = Felt(data_key="value", required=True)
-
-    @post_load
-    def make_dataclass(self, data, **kwargs):
-        return StorageDiff(**data)
-
-
 class DeployedContractSchema(Schema):
     address = Felt(data_key="address", required=True)
     class_hash = NonPrefixedHex(data_key="class_hash", required=True)
@@ -295,43 +287,49 @@ class DeployedContractSchema(Schema):
         return DeployedContract(**data)
 
 
+class StateDiffSchema(Schema):
+    deployed_contracts = fields.List(
+        fields.Nested(DeployedContractSchema()),
+        data_key="deployed_contracts",
+        required=True,
+    )
+    declared_contract_hashes = fields.List(
+        Felt(),
+        data_key="declared_contracts",
+        required=True,
+    )
+    storage_diffs = fields.Dict(
+        keys=fields.String(),
+        values=fields.List(fields.Nested(StorageEntrySchema())),
+        data_key="storage_diffs",
+        required=True,
+    )
+    nonces = fields.Dict(keys=Felt(), values=Felt(), data_key="nonces", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> StateDiff:
+        return StateDiff(**data)
+
+
 class BlockStateUpdateSchema(Schema):
     block_hash = Felt(data_key="block_hash", required=True)
     new_root = NonPrefixedHex(data_key="new_root", required=True)
     old_root = NonPrefixedHex(data_key="old_root", required=True)
-    state_diff = fields.Dict(
-        keys=fields.String(), values=fields.Raw(), data_key="state_diff", required=True
-    )
+    state_diff = fields.Nested(StateDiffSchema(), data_key="state_diff", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs):
-        deployed_contracts = data["state_diff"]["deployed_contracts"]
-        deployed_contracts = [
-            cast(DeployedContract, DeployedContractSchema().load(contract))
-            for contract in deployed_contracts
-        ]
+        def fix_field(field: Dict, inner_class: Any) -> List[Any]:
+            return [inner_class(key, value) for key, value in field.items()]
 
-        storage_diffs = []
-        for address, diffs in data["state_diff"]["storage_diffs"].items():
-            for diff in diffs:
-                storage_diff = StorageDiffSchema().load(
-                    {"address": address, "key": diff["key"], "value": diff["value"]}
-                )
-                storage_diffs.append(storage_diff)
-
-        declared_contracts = data["state_diff"]["declared_contracts"]
-        declared_contracts = [
-            int(declared_contract, 16) for declared_contract in declared_contracts
-        ]
-
-        del data["state_diff"]
-
-        return BlockStateUpdate(
-            **data,
-            storage_diffs=storage_diffs,
-            deployed_contracts=deployed_contracts,
-            declared_contracts=declared_contracts,
+        fixed_storage_diffs = fix_field(
+            data["state_diff"].storage_diffs, StorageDiffItem
         )
+        fixed_nonces = fix_field(data["state_diff"].nonces, ContractsNonce)
+
+        data["state_diff"].storage_diffs = fixed_storage_diffs
+        data["state_diff"].nonces = fixed_nonces
+        return BlockStateUpdate(**data)
 
 
 class EntryPointSchema(Schema):

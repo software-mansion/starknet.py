@@ -22,5 +22,11 @@ Model
     :members: defined_structures, functions, constructor, l1_handler, events
 
 .. autoclass:: starknet_py.abi.Abi.Function
+    :members:
+    :undoc-members:
+    :member-order: groupwise
 
 .. autoclass:: starknet_py.abi.Abi.Event
+    :members:
+    :undoc-members:
+    :member-order: groupwise

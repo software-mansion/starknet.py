@@ -1,11 +1,15 @@
-# pylint: disable=line-too-long
-# fmt: off
+from pathlib import Path
 
 from starknet_py.common import int_from_bytes
 
 # Address came from starkware-libs/starknet-addresses repository: https://github.com/starkware-libs/starknet-addresses
-FEE_CONTRACT_ADDRESS = "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7"
-DEFAULT_DEPLOYER_ADDRESS = "0x041a78e741e5aF2fEc34B695679bC6891742439f7AFB8484Ecd7766661aD02BF"
+FEE_CONTRACT_ADDRESS = (
+    "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7"
+)
+
+DEFAULT_DEPLOYER_ADDRESS = (
+    "0x041a78e741e5aF2fEc34B695679bC6891742439f7AFB8484Ecd7766661aD02BF"
+)
 
 API_VERSION = 0
 
@@ -29,3 +33,7 @@ EC_ORDER = 0x800000000000010FFFFFFFFFFFFFFFFB781126DCAE7B2321E66A241ADC64D2F
 # From cairo-lang
 CONTRACT_ADDRESS_PREFIX = int_from_bytes(b"STARKNET_CONTRACT_ADDRESS")
 L2_ADDRESS_UPPER_BOUND = 2**251 - 256
+
+QUERY_VERSION_BASE = 2**128
+
+ROOT_PATH = Path(__file__).parent

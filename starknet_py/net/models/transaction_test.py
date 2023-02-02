@@ -2,13 +2,17 @@ import re
 import typing
 from typing import cast
 
-from starknet_py.common import create_contract_class
+from starkware.starknet.services.api.contract_class import ContractClass
+
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import (
     Declare,
     DeclareSchema,
+    DeployAccount,
+    Invoke,
     compute_invoke_hash,
 )
+from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
 def test_invoke_hash():
@@ -52,3 +56,63 @@ def test_declare_compress_program(balance_contract):
 
     deserialized = cast(Declare, schema.load(serialized))
     assert deserialized.contract_class == contract_class
+
+
+compiled_contract = read_contract("erc20_compiled.json")
+
+
+@pytest.mark.parametrize(
+    "transaction, calculated_hash",
+    [
+        (
+            Invoke(
+                contract_address=0x1,
+                calldata=[1, 2, 3],
+                max_fee=10000,
+                signature=[],
+                nonce=23,
+                version=1,
+            ),
+            3484767022419258107070028252604380065385354331198975073942248877262069264133,
+        ),
+        (
+            Invoke(
+                contract_address=0x1,
+                calldata=[1, 2, 3],
+                max_fee=10000,
+                signature=[],
+                nonce=None,
+                entry_point_selector=12,
+                version=0,
+            ),
+            2323586677785524217960587787433982444226467233024602470830956392262639577963,
+        ),
+        (
+            DeployAccount(
+                class_hash=0x1,
+                contract_address_salt=0x2,
+                constructor_calldata=[1, 2, 3, 4],
+                max_fee=10000,
+                signature=[],
+                nonce=23,
+                version=1,
+            ),
+            1258460340144554539989794559757396219553018532617589681714052999991876798273,
+        ),
+        (
+            Declare(
+                contract_class=create_contract_class(compiled_contract),
+                sender_address=123,
+                max_fee=10000,
+                signature=[],
+                nonce=23,
+                version=1,
+            ),
+            3215768554137303326547465210112807134648092046901055861655987636987830595496,
+        ),
+    ],
+)
+def test_calculate_transaction_hash(transaction, calculated_hash):
+    assert (
+        transaction.calculate_hash(chain_id=StarknetChainId.TESTNET) == calculated_hash
+    )

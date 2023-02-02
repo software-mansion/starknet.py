@@ -95,20 +95,6 @@ async def test_pending_transactions(full_node_client):
 
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
-async def test_state_update_full_node_client(
-    full_node_client,
-    block_with_declare_number,
-    class_hash,
-):
-    state_update = await full_node_client.get_state_update(
-        block_number=block_with_declare_number
-    )
-
-    assert class_hash in state_update.declared_contracts
-
-
-@pytest.mark.run_on_devnet
-@pytest.mark.asyncio
 async def test_get_storage_at_incorrect_address_full_node_client(full_node_client):
     with pytest.raises(ClientError, match="Contract not found"):
         await full_node_client.get_storage_at(

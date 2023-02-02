@@ -5,8 +5,12 @@ from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.contract import Contract
 from starknet_py.hash.address import compute_address
+from starknet_py.net import AccountClient, KeyPair
+from starknet_py.net.account._account_proxy import AccountProxy
 from starknet_py.net.account.account import Account
 from starknet_py.net.account.base_account import BaseAccount
+from starknet_py.net.client import Client
+from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     Call,
     DeployAccountTransaction,
@@ -329,3 +333,96 @@ async def test_deploy_account_uses_custom_calldata(
     tx = await client.get_transaction(deploy_result.hash)
     assert isinstance(tx, DeployAccountTransaction)
     assert tx.constructor_calldata == calldata
+
+
+@pytest.mark.asyncio
+async def test_sign_invoke_tx_for_fee_estimation(account, map_contract):
+    call = map_contract.functions["put"].prepare(key=40, value=50)
+    transaction = await account.sign_invoke_transaction(calls=call, max_fee=MAX_FEE)
+
+    estimate_fee_transaction = await account.sign_for_fee_estimate(transaction)
+
+    estimation = await account.client.estimate_fee(estimate_fee_transaction)
+    assert estimation.overall_fee > 0
+
+    # Verify that the transaction signed for fee estimation cannot be sent
+    with pytest.raises(ClientError):
+        await account.client.send_transaction(estimate_fee_transaction)
+
+    # Verify that original transaction can be sent
+    result = await account.client.send_transaction(transaction)
+    await account.client.wait_for_tx(result.transaction_hash)
+
+
+@pytest.mark.asyncio
+async def test_sign_declare_tx_for_fee_estimation(account, map_compiled_contract):
+    transaction = await account.sign_declare_transaction(
+        compiled_contract=map_compiled_contract, max_fee=MAX_FEE
+    )
+
+    estimate_fee_transaction = await account.sign_for_fee_estimate(transaction)
+
+    estimation = await account.client.estimate_fee(estimate_fee_transaction)
+    assert estimation.overall_fee > 0
+
+    # Verify that the transaction signed for fee estimation cannot be sent
+    with pytest.raises(ClientError):
+        await account.client.declare(estimate_fee_transaction)
+
+    # Verify that original transaction can be sent
+    result = await account.client.declare(transaction)
+    await account.client.wait_for_tx(result.transaction_hash)
+
+
+def _account_by_type(
+    *, address: int, client: Client, key_pair: KeyPair, account_type: str
+) -> BaseAccount:
+    if account_type == "proxy":
+        return AccountProxy(
+            AccountClient(
+                address=address,
+                client=client,
+                key_pair=key_pair,
+                chain=StarknetChainId.TESTNET,
+                supported_tx_version=1,
+            )
+        )
+
+    return Account(
+        address=address,
+        client=client,
+        key_pair=key_pair,
+        chain=StarknetChainId.TESTNET,
+    )
+
+
+@pytest.mark.parametrize("account_type", ("base", "proxy"))
+@pytest.mark.asyncio
+async def test_sign_deploy_account_tx_for_fee_estimation(
+    client, deploy_account_details_factory, account_type
+):
+    address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
+
+    account = _account_by_type(
+        account_type=account_type, address=address, client=client, key_pair=key_pair
+    )
+
+    transaction = await account.sign_deploy_account_transaction(
+        class_hash=class_hash,
+        contract_address_salt=salt,
+        constructor_calldata=[key_pair.public_key],
+        max_fee=MAX_FEE,
+    )
+
+    estimate_fee_transaction = await account.sign_for_fee_estimate(transaction)
+
+    estimation = await account.client.estimate_fee(transaction)
+    assert estimation.overall_fee > 0
+
+    # Verify that the transaction signed for fee estimation cannot be sent
+    with pytest.raises(ClientError):
+        await account.client.deploy_account(estimate_fee_transaction)
+
+    # Verify that original transaction can be sent
+    result = await account.client.deploy_account(transaction)
+    await account.client.wait_for_tx(result.transaction_hash)

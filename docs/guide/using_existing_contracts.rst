@@ -1,6 +1,9 @@
 Using existing contracts
 ========================
 
+Existing contracts
+------------------
+
 Although it is possible to use :obj:`Client <starknet_py.net.gateway_client.GatewayClient>` to interact with contracts, it requires translating python values into Cairo
 values. Contract offers that and some other utilities.
 
@@ -17,6 +20,19 @@ This is how we can interact with it:
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_using_existing_contracts.py
     :language: python
     :dedent: 4
+
+
+Raw contract calls
+------------------
+
+If you do not have ABI statically, but you know the interface of the contract on StarkNet, you can make a raw call:
+
+.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_using_existing_contracts.py
+    :language: python
+    :dedent: 4
+    :start-after: docs-raw-call: start
+    :end-before: docs-raw-call: end
+
 
 Fees
 ----
@@ -61,7 +77,7 @@ Automatic fee estimation
 
 For testing purposes it is possible to enable automatic fee estimation when making
 a transaction. Starknet.py will then use ``estimate_fee()`` internally and use value
-returned by it multiplied by ``1.1`` as a ``max_fee``.
+returned by it multiplied by ``1.5`` as a ``max_fee``.
 
 .. warning::
 
@@ -71,3 +87,8 @@ returned by it multiplied by ``1.1`` as a ``max_fee``.
 .. code-block:: python
 
     await contract.functions["put"].invoke(k, v, auto_estimate=True)
+
+
+.. note::
+    It is possible to configure the value by which the estimated fee is multiplied,
+    by changing ``ESTIMATED_FEE_MULTIPLIER`` in :class:`~starknet_py.net.account.account.Account`.

@@ -281,10 +281,11 @@ class FullNodeClient(Client):
         block_number: Optional[Union[int, Tag]] = None,
     ) -> Transaction:
         """
-        Get the details of transaction in block indentified block_hash and transaction index
+        Get the details of transaction in block identified by block_hash and transaction index.
 
-        :param block_hash: Hash of the block
         :param index: Index of the transaction
+        :param block_hash: Hash of the block
+        :param block_number: Block's number or literals `"pending"` or `"latest"`
         :return: Transaction object
         """
         block_identifier = get_block_identifier(
@@ -334,7 +335,7 @@ class FullNodeClient(Client):
         :param contract_address: The address of the contract whose class definition will be returned
         :param block_hash: Block's hash or literals `"pending"` or `"latest"`
         :param block_number: Block's number or literals `"pending"` or `"latest"`
-        :return: Contract declared to Starknet
+        :return: Contract declared to StarkNet
         """
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
@@ -365,7 +366,7 @@ class FullNodeClient(Client):
 
     async def get_contract_nonce(
         self,
-        contract_address: int,
+        contract_address: Hash,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> int:

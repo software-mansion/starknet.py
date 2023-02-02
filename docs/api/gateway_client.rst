@@ -3,6 +3,6 @@ GatewayClient
 
 .. py:module:: starknet_py.net.gateway_client
 
-.. autoclass:: GatewayClient
+.. autoclass-with-examples:: GatewayClient
     :members:
-    :member-order: bysource
+    :member-order: groupwise

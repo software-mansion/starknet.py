@@ -161,7 +161,7 @@ def fixture_class_hash(network: str, contract_address: int) -> int:
     )
 
 
-@pytest_asyncio.fixture(name="prepare_network", scope="module")
+@pytest_asyncio.fixture(name="prepare_network", scope="package")
 async def fixture_prepare_network(
     network: str,
     new_gateway_account_client: AccountClient,
