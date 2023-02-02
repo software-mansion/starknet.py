@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+import warnings
 from enum import Enum
 from typing import Optional
 
@@ -10,10 +13,33 @@ class StarknetChainId(Enum):
     TESTNET = int_from_bytes(b"SN_GOERLI")
     TESTNET2 = int_from_bytes(b"SN_GOERLI2")
 
+    @classmethod
+    def from_network(cls, net: Network) -> StarknetChainId:
+        """
+        Create a chain from given network.
+        :raises ValueError: when Network is unknown.
+        :param net: Network of the chain.
+        :return: StarknetChainId instance.
+        """
+        net_to_chain = {
+            MAINNET: StarknetChainId.MAINNET,
+            TESTNET: StarknetChainId.TESTNET,
+            TESTNET2: StarknetChainId.TESTNET2,
+        }
+
+        if not isinstance(net, str) or net not in net_to_chain:
+            raise ValueError("Unknown Network.")
+
+        return net_to_chain[net]
+
 
 def chain_from_network(
     net: Network, chain: Optional[StarknetChainId] = None
 ) -> StarknetChainId:
+    warnings.warn(
+        "Function chain_from_network is deprecated. Use StarknetChainId.from_network instead.",
+        category=DeprecationWarning,
+    )
     mapping = {
         MAINNET: StarknetChainId.MAINNET,
         TESTNET: StarknetChainId.TESTNET,

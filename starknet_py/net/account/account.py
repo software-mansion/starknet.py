@@ -25,7 +25,6 @@ from starknet_py.net.client_models import (
 from starknet_py.net.models import (
     AddressRepresentation,
     StarknetChainId,
-    chain_from_network,
     compute_address,
     parse_address,
 )
@@ -71,6 +70,9 @@ class Account(BaseAccount):
         chain: Optional[StarknetChainId] = None,
     ):
         """
+        Creates an Account instance.
+        If only `signer` is given, it will be used in Account.
+        If only `key_pair` is given, `client.net` will be used to create `chain`.
         :param address: Address of the account contract.
         :param client: Instance of Client which will be used to add transactions.
         :param signer: Custom signer to be used by Account.
@@ -79,26 +81,31 @@ class Account(BaseAccount):
         :param key_pair: Key pair that will be used to create a default `Signer`.
         :param chain: ChainId of the chain used to create the default signer.
         """
-        if chain is None and signer is None:
-            raise ValueError("One of chain or signer must be provided.")
-
         self._address = parse_address(address)
         self._client = client
 
-        if signer is not None and key_pair is not None:
-            raise ValueError("Arguments signer and key_pair are mutually exclusive.")
-
-        if signer is None:
-            if key_pair is None:
+        if signer is not None:
+            if chain is not None:
+                raise ValueError("Arguments signer and chain are mutually exclusive.")
+            if key_pair is not None:
                 raise ValueError(
-                    "Either a signer or a key_pair must be provided in Account constructor."
+                    "Arguments signer and key_pair are mutually exclusive."
                 )
 
-            chain = chain_from_network(net=client.net, chain=chain)
-            signer = StarkCurveSigner(
-                account_address=self.address, key_pair=key_pair, chain_id=chain
+            self.signer = signer
+            return
+
+        if key_pair is None:
+            raise ValueError(
+                "Either a signer or a key_pair must be provided in Account constructor."
             )
-        self.signer: BaseSigner = signer
+
+        if chain is None:
+            chain = StarknetChainId.from_network(net=client.net)
+
+        self.signer = StarkCurveSigner(
+            account_address=self.address, key_pair=key_pair, chain_id=chain
+        )
 
     @property
     def address(self) -> int:
@@ -342,7 +349,7 @@ class Account(BaseAccount):
         salt: int,
         key_pair: KeyPair,
         client: Client,
-        chain: StarknetChainId,
+        chain: Optional[StarknetChainId] = None,
         constructor_calldata: Optional[List[int]] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,

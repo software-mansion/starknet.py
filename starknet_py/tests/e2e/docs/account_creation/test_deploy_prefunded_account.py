@@ -4,7 +4,6 @@ from starkware.starknet.definitions.fields import ContractAddressSalt
 
 from starknet_py.contract import Contract
 from starknet_py.net.client import Client
-from starknet_py.net.models import chain_from_network
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 
 
@@ -55,7 +54,7 @@ async def test_deploy_prefunded_account(
     # docs: end
 
     client = gateway_client
-    chain = chain_from_network(net=network, chain=StarknetChainId.TESTNET)
+    chain = StarknetChainId.from_network(net=network)
     # docs: start
 
     # Use `Account.deploy_account` static method to deploy an account

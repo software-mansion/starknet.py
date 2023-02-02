@@ -62,13 +62,14 @@ def test_create_account_from_signer():
     assert account.signer == signer
 
 
-def test_create_account_raises_on_no_chain_and_signer():
-    with pytest.raises(ValueError, match="One of chain or signer must be provided"):
-        Account(
-            address=0x1,
-            client=GatewayClient(net=TESTNET),
-            key_pair=KeyPair.from_private_key(0x111),
-        )
+def test_create_account_from_key_pair():
+    account = Account(
+        address=0x1,
+        client=GatewayClient(net=TESTNET),
+        key_pair=KeyPair.from_private_key(0x111),
+    )
+    assert isinstance(account.signer, StarkCurveSigner)
+    assert account.signer.chain_id == StarknetChainId.TESTNET
 
 
 def test_create_account_raises_on_no_keypair_and_signer():
@@ -90,8 +91,24 @@ def test_create_account_raises_on_both_keypair_and_signer():
         Account(
             address=0x1,
             client=GatewayClient(net=TESTNET),
-            chain=StarknetChainId.TESTNET,
             key_pair=KeyPair.from_private_key(0x111),
+            signer=StarkCurveSigner(
+                account_address=0x1,
+                key_pair=KeyPair.from_private_key(0x11),
+                chain_id=StarknetChainId.TESTNET,
+            ),
+        )
+
+
+def test_create_account_raises_on_both_signer_and_chain():
+    with pytest.raises(
+        ValueError,
+        match="Arguments signer and chain are mutually exclusive.",
+    ):
+        Account(
+            address=0x1,
+            client=GatewayClient(net=TESTNET),
+            chain=StarknetChainId.TESTNET,
             signer=StarkCurveSigner(
                 account_address=0x1,
                 key_pair=KeyPair.from_private_key(0x11),
