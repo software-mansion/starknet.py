@@ -1,5 +1,6 @@
 import dataclasses
 import re
+import warnings
 from collections import OrderedDict
 from typing import Dict, Iterable, List, Optional, Tuple, TypeVar, Union
 
@@ -86,6 +87,8 @@ class Account(BaseAccount):
         self._client = client
 
         if signer is not None:
+            if chain is not None:
+                warnings.warn("Arguments signer and chain are mutually exclusive.")
             if key_pair is not None:
                 raise ValueError(
                     "Arguments signer and key_pair are mutually exclusive."

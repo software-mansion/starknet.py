@@ -100,9 +100,9 @@ def test_create_account_raises_on_both_keypair_and_signer():
         )
 
 
-def test_create_account_raises_on_both_signer_and_chain():
-    with pytest.raises(
-        ValueError,
+def test_create_account_warns_on_both_signer_and_chain():
+    with pytest.warns(
+        expected_warning=UserWarning,
         match="Arguments signer and chain are mutually exclusive.",
     ):
         Account(
