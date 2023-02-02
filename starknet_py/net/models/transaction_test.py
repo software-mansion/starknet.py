@@ -2,8 +2,9 @@ import re
 import typing
 from typing import cast
 
-from starkware.starknet.services.api.contract_class import ContractClass
+import pytest
 
+from starknet_py.common import create_contract_class
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import (
     Declare,
