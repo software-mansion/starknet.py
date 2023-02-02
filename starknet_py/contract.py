@@ -21,7 +21,7 @@ from starknet_py.net import AccountClient
 from starknet_py.net.account._account_proxy import AccountProxy
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
-from starknet_py.net.client_models import Call, CompiledContract, Hash, Tag
+from starknet_py.net.client_models import Call, Hash, Tag
 from starknet_py.net.models import AddressRepresentation, Invoke, parse_address
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.proxy.contract_abi_resolver import (
@@ -179,7 +179,7 @@ class DeclareResult(SentTransaction):
         :return: DeployResult instance.
         """
         # pylint: disable=too-many-arguments
-        abi = CompiledContract.from_contract(self.compiled_contract).abi
+        abi = create_compiled_contract(self.compiled_contract).abi
 
         deployer = Deployer(
             deployer_address=deployer_address,

@@ -3,12 +3,11 @@ from __future__ import annotations
 from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, Iterable, List, Optional, Union, cast
+from typing import Any, Dict, Iterable, List, Optional, Union
 
 from typing_extensions import Literal
 
 from starknet_py.abi.shape import AbiDictList
-from starknet_py.net.schemas.gateway import CompiledContractSchema
 
 Hash = Union[int, str]
 Tag = Literal["pending", "latest"]
@@ -341,19 +340,10 @@ class ContractClass:
 @dataclass
 class CompiledContract(ContractClass):
     """
-    Dataclass representing contract compiled through starknet-compile.
+    Dataclass representing ContractClass with required abi.
     """
 
     abi: AbiDictList
-
-    @classmethod
-    def from_contract(cls, contract: str) -> CompiledContract:
-        """
-        Creates CompiledContract from already compiled contract.
-
-        :return: a CompiledContract instance.
-        """
-        return cast(cls, CompiledContractSchema().loads(contract))
 
 
 @dataclass
