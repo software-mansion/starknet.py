@@ -48,8 +48,11 @@ def add_code_examples(original_class: Any):
     file_name, file_content = _extract_file_properties(original_class.__name__)
 
     for method_name, method in original_class.__dict__.items():
-        if not callable(method):
+        if not callable(method) and not isinstance(method, staticmethod):
             continue
+
+        if isinstance(method, staticmethod):
+            method = method.__func__
 
         stripped_method_name = method_name.strip("_")
         if _code_example_exists(stripped_method_name, file_content):
