@@ -86,8 +86,6 @@ class Account(BaseAccount):
         self._client = client
 
         if signer is not None:
-            if chain is not None:
-                raise ValueError("Arguments signer and chain are mutually exclusive.")
             if key_pair is not None:
                 raise ValueError(
                     "Arguments signer and key_pair are mutually exclusive."

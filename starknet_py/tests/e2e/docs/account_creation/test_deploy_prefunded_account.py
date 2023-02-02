@@ -54,7 +54,6 @@ async def test_deploy_prefunded_account(
     # docs: end
 
     client = gateway_client
-    chain = StarknetChainId.from_network(net=network)
     # docs: start
 
     # Use `Account.deploy_account` static method to deploy an account
