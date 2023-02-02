@@ -179,7 +179,7 @@ class DeclareResult(SentTransaction):
         :return: DeployResult instance.
         """
         # pylint: disable=too-many-arguments
-        abi = create_compiled_contract(self.compiled_contract).abi
+        abi = create_compiled_contract(compiled_contract=self.compiled_contract).abi
 
         deployer = Deployer(
             deployer_address=deployer_address,

@@ -108,7 +108,7 @@ async def deploy_map_contract(
     """
     Deploys map contract and returns its instance.
     """
-    abi = create_compiled_contract(map_compiled_contract).abi
+    abi = create_compiled_contract(compiled_contract=map_compiled_contract).abi
     return await deploy_contract(
         AccountProxy(gateway_account_client), map_class_hash, abi
     )
@@ -123,7 +123,7 @@ async def new_deploy_map_contract(
     """
     Deploys new map contract and returns its instance.
     """
-    abi = create_compiled_contract(map_compiled_contract).abi
+    abi = create_compiled_contract(compiled_contract=map_compiled_contract).abi
     return await deploy_contract(new_gateway_account_client, map_class_hash, abi)
 
 
@@ -136,7 +136,7 @@ async def base_account_deploy_map_contract(
     """
     Deploys new map contract and returns its instance.
     """
-    abi = create_compiled_contract(map_compiled_contract).abi
+    abi = create_compiled_contract(compiled_contract=map_compiled_contract).abi
     return await deploy_contract(gateway_account, map_class_hash, abi)
 
 
@@ -149,7 +149,7 @@ async def deploy_erc20_contract(
     """
     Deploys erc20 contract and returns its instance.
     """
-    abi = create_compiled_contract(erc20_compiled_contract).abi
+    abi = create_compiled_contract(compiled_contract=erc20_compiled_contract).abi
     return await deploy_contract(gateway_account, erc20_class_hash, abi)
 
 
