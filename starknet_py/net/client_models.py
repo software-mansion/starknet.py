@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum
@@ -333,6 +335,15 @@ class ContractClass:
     program: dict
     entry_points_by_type: EntryPointsByType
     abi: Optional[AbiDictList] = None
+
+
+@dataclass
+class CompiledContract(ContractClass):
+    """
+    Dataclass representing ContractClass with required abi.
+    """
+
+    abi: AbiDictList = field(default_factory=list)
 
 
 @dataclass

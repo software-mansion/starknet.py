@@ -180,7 +180,6 @@ class DeclareResult(SentTransaction):
         """
         # pylint: disable=too-many-arguments
         abi = create_compiled_contract(compiled_contract=self.compiled_contract).abi
-        assert abi is not None
 
         deployer = Deployer(
             deployer_address=deployer_address,

@@ -219,7 +219,6 @@ async def test_general_simplified_deployment_flow(account, map_compiled_contract
 @pytest.mark.asyncio
 async def test_deploy_contract_flow(account, map_compiled_contract, map_class_hash):
     abi = create_compiled_contract(compiled_contract=map_compiled_contract).abi
-    assert abi is not None
 
     deploy_result = await Contract.deploy_contract(
         class_hash=map_class_hash, account=account, abi=abi, max_fee=MAX_FEE

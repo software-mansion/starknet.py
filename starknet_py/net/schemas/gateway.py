@@ -7,6 +7,7 @@ from starknet_py.net.client_models import (
     BlockSingleTransactionTrace,
     BlockStateUpdate,
     BlockTransactionTraces,
+    CompiledContract,
     ContractClass,
     ContractCode,
     DeclareTransaction,
@@ -373,6 +374,14 @@ class ContractClassSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> ContractClass:
         return ContractClass(**data)
+
+
+class CompiledContractSchema(ContractClassSchema):
+    abi = fields.List(fields.Dict(), data_key="abi", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> CompiledContract:
+        return CompiledContract(**data)
 
 
 class TransactionStatusSchema(Schema):
