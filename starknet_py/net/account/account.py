@@ -73,6 +73,7 @@ class Account(BaseAccount):
         Creates an Account instance.
         If only `signer` is given, it will be used in Account.
         If only `key_pair` is given, `client.net` will be used to create `chain`.
+
         :param address: Address of the account contract.
         :param client: Instance of Client which will be used to add transactions.
         :param signer: Custom signer to be used by Account.
