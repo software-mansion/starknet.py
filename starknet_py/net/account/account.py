@@ -91,6 +91,18 @@ class Account(BaseAccount):
 
         self.signer = signer or self._create_signer(key_pair, chain)
 
+    @staticmethod
+    def _assert_no_key_pair_chain(
+        key_pair: Optional[KeyPair], chain: Optional[StarknetChainId]
+    ):
+        if chain is not None:
+            warnings.warn(
+                "Arguments signer and chain are mutually exclusive. "
+                "This is going to be an Error in the future version."
+            )
+        if key_pair is not None:
+            raise ValueError("Arguments signer and key_pair are mutually exclusive.")
+
     def _create_signer(
         self, key_pair: Optional[KeyPair], chain: Optional[StarknetChainId]
     ) -> StarkCurveSigner:
@@ -105,18 +117,6 @@ class Account(BaseAccount):
         return StarkCurveSigner(
             account_address=self.address, key_pair=key_pair, chain_id=chain
         )
-
-    @staticmethod
-    def _assert_no_key_pair_chain(
-        key_pair: Optional[KeyPair], chain: Optional[StarknetChainId]
-    ):
-        if chain is not None:
-            warnings.warn(
-                "Arguments signer and chain are mutually exclusive. "
-                "This is going to be an Error in the future version."
-            )
-        if key_pair is not None:
-            raise ValueError("Arguments signer and key_pair are mutually exclusive.")
 
     @property
     def address(self) -> int:
