@@ -9,7 +9,7 @@ from starknet_py.net.networks import CustomGatewayUrls
     ["custom_url", CustomGatewayUrls(feeder_gateway_url="abc", gateway_url="def")],
 )
 def test_unknown_network(net):
-    with pytest.raises(ValueError, match="Unknown Network."):
+    with pytest.raises(ValueError, match="unknown Network"):
         StarknetChainId.from_network(net=net)
 
 
