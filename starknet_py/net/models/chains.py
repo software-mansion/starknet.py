@@ -22,13 +22,15 @@ class StarknetChainId(Enum):
         :return: StarknetChainId instance.
         """
         net_to_chain = {
-            MAINNET: StarknetChainId.MAINNET,
-            TESTNET: StarknetChainId.TESTNET,
-            TESTNET2: StarknetChainId.TESTNET2,
+            MAINNET: cls.MAINNET,
+            TESTNET: cls.TESTNET,
+            TESTNET2: cls.TESTNET2,
         }
 
         if not isinstance(net, str) or net not in net_to_chain:
-            raise ValueError("Unknown Network.")
+            raise ValueError(
+                f"Cannot create StarknetChainId from unknown Network '{net}'."
+            )
 
         return net_to_chain[net]
 

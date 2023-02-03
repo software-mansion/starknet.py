@@ -18,15 +18,14 @@ from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 def test_init():
     # docs-start: init
     # create Account from `signer`
-    signer = StarkCurveSigner(
-        account_address=0x123,
-        key_pair=KeyPair(12, 34),
-        chain_id=StarknetChainId.TESTNET,
-    )
     account = Account(
         address=0x123,
         client=GatewayClient(net=TESTNET),
-        signer=signer,
+        signer=StarkCurveSigner(
+            account_address=0x123,
+            key_pair=KeyPair(12, 34),
+            chain_id=StarknetChainId.TESTNET,
+        ),
     )
     # or create it from `key_pair`
     account = Account(
@@ -34,7 +33,7 @@ def test_init():
         client=GatewayClient(net=TESTNET),
         key_pair=KeyPair(12, 34),
     )
-    # or create it from `key_pair` and `chain`
+    # or, if the network is custom, create it from `key_pair` and `chain`
     account = Account(
         address=0x123,
         client=FullNodeClient(node_url="your.node.url", net="testnet"),

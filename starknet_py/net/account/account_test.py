@@ -72,6 +72,15 @@ def test_create_account_from_key_pair():
     assert account.signer.chain_id == StarknetChainId.TESTNET
 
 
+def test_create_account_raises_on_unknown_net():
+    with pytest.raises(ValueError, match="unknown Network"):
+        _ = Account(
+            address=0x1,
+            client=GatewayClient(net="custom_network"),
+            key_pair=KeyPair.from_private_key(0x111),
+        )
+
+
 def test_create_account_raises_on_no_keypair_and_signer():
     with pytest.raises(
         ValueError,

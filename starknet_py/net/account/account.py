@@ -73,7 +73,7 @@ class Account(BaseAccount):
         """
         Creates an Account instance.
         If only `signer` is given, it will be used in Account.
-        If only `key_pair` is given, `client.net` will be used to create `chain`.
+        If only `key_pair` is given, StarkCurveSigner will be created from `client.net`.
 
         :param address: Address of the account contract.
         :param client: Instance of Client which will be used to add transactions.
@@ -87,27 +87,36 @@ class Account(BaseAccount):
         self._client = client
 
         if signer is not None:
-            if chain is not None:
-                warnings.warn("Arguments signer and chain are mutually exclusive.")
-            if key_pair is not None:
-                raise ValueError(
-                    "Arguments signer and key_pair are mutually exclusive."
-                )
+            self._assert_no_key_pair_chain(key_pair, chain)
 
-            self.signer = signer
-            return
+        self.signer = signer or self._create_signer(key_pair, chain)
 
+    def _create_signer(
+        self, key_pair: Optional[KeyPair], chain: Optional[StarknetChainId]
+    ) -> StarkCurveSigner:
         if key_pair is None:
             raise ValueError(
                 "Either a signer or a key_pair must be provided in Account constructor."
             )
 
         if chain is None:
-            chain = StarknetChainId.from_network(net=client.net)
+            chain = StarknetChainId.from_network(net=self._client.net)
 
-        self.signer = StarkCurveSigner(
+        return StarkCurveSigner(
             account_address=self.address, key_pair=key_pair, chain_id=chain
         )
+
+    @staticmethod
+    def _assert_no_key_pair_chain(
+        key_pair: Optional[KeyPair], chain: Optional[StarknetChainId]
+    ):
+        if chain is not None:
+            warnings.warn(
+                "Arguments signer and chain are mutually exclusive. "
+                "This is going to be an Error in the future version."
+            )
+        if key_pair is not None:
+            raise ValueError("Arguments signer and key_pair are mutually exclusive.")
 
     @property
     def address(self) -> int:
