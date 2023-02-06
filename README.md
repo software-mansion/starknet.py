@@ -21,6 +21,7 @@
 - [Quickstart](https://starknetpy.rtfd.io/en/latest/quickstart.html)
 - [Guide](https://starknetpy.rtfd.io/en/latest/guide.html)
 - [API](https://starknetpy.rtfd.io/en/latest/api.html)
+- [Migration guide](https://starknetpy.readthedocs.io/en/latest/migration_guide.html)
 
 ## ⚙️ Installation
 
