@@ -40,7 +40,9 @@ async def test_custom_nonce(gateway_client):
             self.nonce_counter = 0
 
         async def get_nonce(self) -> int:
-            # Increment the counter and return the nonce
+            # Increment the counter and return the nonce.
+            # This is just an example custom nonce logic and is not meant
+            # to be a recommended solution.
             nonce = self.nonce_counter
             self.nonce_counter += 1
             return nonce
