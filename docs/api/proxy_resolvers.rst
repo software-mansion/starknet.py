@@ -1,7 +1,8 @@
-Resolving Proxies
-=================
+Proxy Resolvers
+===============
 
 .. py:module:: starknet_py.proxy.proxy_check
+
 
 ProxyCheck
 ----------
@@ -11,6 +12,7 @@ ProxyCheck
 
 
 .. py:module:: starknet_py.proxy.contract_abi_resolver
+
 
 ProxyConfig
 -----------
@@ -24,6 +26,7 @@ ContractAbiResolver
 
 .. autoclass:: ContractAbiResolver
     :members:
+
 
 Errors
 ------
