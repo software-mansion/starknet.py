@@ -14,7 +14,6 @@ Here is an example:
     :dedent: 4
 
 
-
 FullNodeClient usage
 --------------------
 
@@ -37,5 +36,19 @@ Handling client errors
 You can use :class:`starknet_py.net.client_errors.ClientError` to catch errors from invalid requests:
 
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_handling_client_errors.py
+    :language: python
+    :dedent: 4
+
+
+Custom nonce logic
+------------------
+
+By default, :ref:`Account` calls StarkNet for nonce every time a new transaction is signed or executed.
+This is okay for most users, but in case your applications needs to pre-sign multiple transactions
+for execution, deals with high amount of transactions or just needs to support different nonce
+logic, it is possible to so with :ref:`Account`. Simply overwrite the
+:meth:`~starknet_py.net.account.account.Account.get_nonce` method with your own logic.
+
+.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_custom_nonce.py
     :language: python
     :dedent: 4
