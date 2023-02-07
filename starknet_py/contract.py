@@ -383,7 +383,7 @@ class ContractFunction:
         if version == 0:
             warnings.warn(
                 "Transaction with version 0 is deprecated and will be removed in the future. "
-                "Use AccountClient supporting the transaction version 1",
+                "Use Account supporting the transaction version 1",
                 category=DeprecationWarning,
             )
 
@@ -470,7 +470,7 @@ class Contract:
         :param client:
             Client used to perform transactions.
 
-            .. deprecated:: 0.13.0
+             .. deprecated:: 0.13.0
                 Argument client has been deprecated. Use provider instead.
         """
         client, account = _unpack_provider(provider, client)
@@ -518,9 +518,9 @@ class Contract:
 
             If a valid :class:`starknet_py.contract_abi_resolver.ProxyConfig` is provided, will use its values instead.
         :param client:
-            Client
+            Client used to fetch contract.
 
-            .. deprecated:: 0.13.0
+             .. deprecated:: 0.13.0
                 Argument client has been deprecated. Use provider instead.
 
         :return: an initialized Contract instance.
@@ -638,7 +638,7 @@ class Contract:
         :param compilation_source:
             String containing source code or a list of source files paths.
 
-            .. deprecated:: 0.14.0
+             .. deprecated:: 0.14.0
                 Argument compilation_source is deprecated and will be removed in the future.
                 Consider using already compiled contracts.
         :param compiled_contract: String containing compiled contract. Useful for reading compiled contract from a file.
@@ -682,7 +682,7 @@ class Contract:
         :param compiled_contract:
             String containing compiled contract. Useful for reading compiled contract from a file.
 
-            .. deprecated:: 0.14.0
+             .. deprecated:: 0.14.0
                 Argument compilation_source is deprecated and will be removed in the future.
                 Consider using already compiled contracts.
         :param search_paths: A ``list`` of paths used by starknet_compile to resolve dependencies within contracts.
