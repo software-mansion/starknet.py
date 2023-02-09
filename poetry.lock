@@ -3129,14 +3129,14 @@ test = ["pytest"]
 
 [[package]]
 name = "starknet-devnet"
-version = "0.4.4"
+version = "0.4.5"
 description = "A local testnet for Starknet"
 category = "dev"
 optional = false
 python-versions = ">=3.8,<3.10"
 files = [
-    {file = "starknet_devnet-0.4.4-py3-none-any.whl", hash = "sha256:28e2c47aabbc744a4b63d4d14b0074d8cff5f5a7914a4a551c953e03b3ecc3a3"},
-    {file = "starknet_devnet-0.4.4.tar.gz", hash = "sha256:fa4497883d2e4795a21687605a3acc8dd4a74f34904df02c94cc6a25e74d5e86"},
+    {file = "starknet_devnet-0.4.5-py3-none-any.whl", hash = "sha256:9f25dcd7e151e97740b05c33f83b3a50c6007bbca6219c373c7d290900bd48f2"},
+    {file = "starknet_devnet-0.4.5.tar.gz", hash = "sha256:a35b46dc29bb67c2efd023f74a5d9db0f25a24ba9a32d70da8b795aa9e8e7277"},
 ]
 
 [package.dependencies]
@@ -3146,7 +3146,9 @@ crypto-cpp-py = ">=1.0.4,<1.1.0"
 Flask = {version = ">=2.0.3,<2.1.0", extras = ["async"]}
 flask-cors = ">=3.0.10,<3.1.0"
 gunicorn = ">=20.1.0,<20.2.0"
+jsonschema = ">=4.17.0,<4.18.0"
 marshmallow = ">=3.17.0,<3.18.0"
+marshmallow-dataclass = ">=8.4,<8.5"
 typing-extensions = ">=4.3.0,<4.4.0"
 Werkzeug = ">=2.0.3,<2.1.0"
 
