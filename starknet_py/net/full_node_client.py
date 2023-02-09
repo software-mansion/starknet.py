@@ -486,7 +486,7 @@ def _create_broadcasted_txn_common_properties(transaction: AccountTransaction) -
 def _to_storage_key(key: int) -> str:
     hashed_key = hex(key).lstrip("0x")
 
-    if hashed_key[0] not in ("1", "2", "3", "4", "5", "6", "7"):
+    if hashed_key[0] not in ("0", "1", "2", "3", "4", "5", "6", "7"):
         hashed_key = "0" + hashed_key
 
     if not 0 < len(hashed_key) <= 63:
