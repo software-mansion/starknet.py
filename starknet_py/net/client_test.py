@@ -29,7 +29,13 @@ def test_handle_rpc_error_server_error():
 
 @pytest.mark.parametrize(
     "key,expected",
-    [(0x0, "0x00"), (0x12345, "0x012345"), (0x10001, "0x010001"), (0xFFAA, "0x00ffaa")],
+    [
+        (0x0, "0x00"),
+        (0x12345, "0x012345"),
+        (0x10001, "0x010001"),
+        (0xFFAA, "0x00ffaa"),
+        (0xDE, "0x00de"),
+    ],
 )
 def test_get_rpc_storage_key(key, expected):
     assert _to_storage_key(key) == expected
