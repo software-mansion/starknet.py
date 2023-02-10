@@ -1,3 +1,4 @@
+import re
 from typing import List, Optional, Union, cast
 
 import aiohttp
@@ -496,10 +497,8 @@ def _to_storage_key(key: int) -> str:
     if hashed_key[0] not in ("0", "1", "2", "3", "4", "5", "6", "7"):
         hashed_key = "0" + hashed_key
 
-    if not 0 < len(hashed_key) <= 63:
-        raise ValueError(
-            f"Value {key} is too big and cannot be represented as RPC storage key."
-        )
+    if not re.match(r"^0x0[0-7]{1}[a-fA-F0-9]{0,62}$", hashed_key):
+        raise ValueError(f"Value {key} cannot be represented as RPC storage key.")
 
     return "0x0" + hashed_key
 
