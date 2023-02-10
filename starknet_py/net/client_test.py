@@ -1,4 +1,5 @@
 import pytest
+from starkware.starknet.public.abi import ADDR_BOUND
 
 from starknet_py.net.client_models import Transaction
 from starknet_py.net.full_node_client import _to_storage_key
@@ -35,6 +36,10 @@ def test_handle_rpc_error_server_error():
         (0x10001, "0x010001"),
         (0xFFAA, "0x00ffaa"),
         (0xDE, "0x00de"),
+        (
+            ADDR_BOUND - 1,
+            "0x07fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffeff",
+        ),
     ],
 )
 def test_get_rpc_storage_key(key, expected):
