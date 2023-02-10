@@ -484,6 +484,13 @@ def _create_broadcasted_txn_common_properties(transaction: AccountTransaction) -
 
 
 def _to_storage_key(key: int) -> str:
+    """
+    Convert a value to RPC storage key matching a ``^0x0[0-7]{1}[a-fA-F0-9]{0,62}$`` pattern.
+
+    :param key: The key to convert.
+    :return: RPC storage key representation of the key.
+    """
+
     hashed_key = hex(key).lstrip("0x")
 
     if hashed_key[0] not in ("0", "1", "2", "3", "4", "5", "6", "7"):
@@ -498,6 +505,12 @@ def _to_storage_key(key: int) -> str:
 
 
 def _to_rpc_felt(value: Hash):
+    """
+    Convert the value to RPC felt matching a ``^0x0[a-fA-F0-9]{1,63}$`` pattern.\
+
+    :param value: The value to convert.
+    :return: RPC felt representation of the value.
+    """
     if isinstance(value, str):
         value = int(value, 16)
 
