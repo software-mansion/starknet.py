@@ -490,7 +490,9 @@ def _to_storage_key(key: int) -> str:
         hashed_key = "0" + hashed_key
 
     if not 0 < len(hashed_key) <= 63:
-        raise ValueError(f"Value {key} cannot be represented as RPC storage key.")
+        raise ValueError(
+            f"Value {key} is too big and cannot be represented as RPC storage key."
+        )
 
     return "0x0" + hashed_key
 
