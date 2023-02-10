@@ -134,7 +134,7 @@ class StarkCurveSigner(BaseSigner):
             )
 
         typed_data_dataclass = (
-            # Typechecker expects typed_data to be a TypedDict but typing of sign_message changed due to depreaction
+            # Typechecker expects typed_data to be a TypedDict but typing of sign_message changed due to deprecation
             TypedData.from_dict(data=typed_data)  # pyright: ignore
             if isinstance(typed_data, dict)
             else typed_data

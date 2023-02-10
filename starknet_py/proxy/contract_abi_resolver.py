@@ -22,12 +22,12 @@ from starknet_py.proxy.proxy_check import (
 
 class ProxyConfig(TypedDict, total=False):
     """
-    Proxy resolving configuration
+    Proxy resolving configuration.
     """
 
     proxy_checks: List[ProxyCheck]
     """
-    List of classes implementing :class:`starknet_py.proxy.proxy_check.ProxyCheck` ABC,
+    List of classes implementing :class:`~starknet_py.proxy.proxy_check.ProxyCheck` ABC,
     that will be used for checking if contract at the address is a proxy contract.
     """
 
@@ -77,6 +77,7 @@ class ContractAbiResolver:
     async def resolve(self) -> AbiDictList:
         """
         Returns abi of either direct contract or contract proxied by direct contract depending on proxy_config.
+
         :raises ContractNotFoundError: when contract could not be found at address
         :raises ProxyResolutionError: when given ProxyChecks were not sufficient to resolve proxy
         :raises AbiNotFoundError: when abi is not present in contract class at address
@@ -88,6 +89,7 @@ class ContractAbiResolver:
     async def get_abi_for_address(self) -> AbiDictList:
         """
         Returns abi of a contract directly from address.
+
         :raises ContractNotFoundError: when contract could not be found at address
         :raises AbiNotFoundError: when abi is not present in contract class at address
         """
@@ -99,6 +101,7 @@ class ContractAbiResolver:
     async def resolve_abi(self) -> AbiDictList:
         """
         Returns abi of a contract that is being proxied by contract at address.
+
         :raises ContractNotFoundError: when contract could not be found at address
         :raises ProxyResolutionError: when given ProxyChecks were not sufficient to resolve proxy
         :raises AbiNotFoundError: when abi is not present in proxied contract class at address

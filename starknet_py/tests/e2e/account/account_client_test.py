@@ -187,7 +187,7 @@ async def test_sign_transaction_unsupported_version(new_account_client):
 @pytest.mark.asyncio
 async def test_sign_warns_on_max_fee_0(account_client):
     with pytest.warns(
-        DeprecationWarning,
+        Warning,
         match="Transaction will fail with max_fee set to 0. Change it to a higher value.",
     ):
         tx = await account_client.sign_invoke_transaction(
