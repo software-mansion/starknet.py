@@ -497,10 +497,12 @@ def _to_storage_key(key: int) -> str:
     if hashed_key[0] not in ("0", "1", "2", "3", "4", "5", "6", "7"):
         hashed_key = "0" + hashed_key
 
+    hashed_key = "0x0" + hashed_key
+
     if not re.match(r"^0x0[0-7]{1}[a-fA-F0-9]{0,62}$", hashed_key):
         raise ValueError(f"Value {key} cannot be represented as RPC storage key.")
 
-    return "0x0" + hashed_key
+    return hashed_key
 
 
 def _to_rpc_felt(value: Hash) -> str:
