@@ -492,7 +492,7 @@ def _to_storage_key(key: int) -> str:
     :return: RPC storage key representation of the key.
     """
 
-    hashed_key = hex(key).lstrip("0x")
+    hashed_key = hex(key)[2:]
 
     if hashed_key[0] not in ("0", "1", "2", "3", "4", "5", "6", "7"):
         hashed_key = "0" + hashed_key
