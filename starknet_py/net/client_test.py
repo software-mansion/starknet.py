@@ -28,7 +28,7 @@ def test_handle_rpc_error_server_error():
 
 
 @pytest.mark.parametrize(
-    "key,expected",
+    "key, expected",
     [
         (0x0, "0x00"),
         (0x12345, "0x012345"),
