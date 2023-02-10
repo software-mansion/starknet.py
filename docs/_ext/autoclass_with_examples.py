@@ -17,10 +17,6 @@ class AutoclassWithExamples(AutodocDirective):
     from the starknet_py/tests/e2e/docs/code_examples directory to include in the documentation.
     This allows developers to easily see and understand how the methods
     being documented are intended to be used in a practical context.
-
-    .. note::
-
-        The docstrings will not be inherited if the hierarchy is `deeper` than one step.
     """
 
     def run(self) -> List[Node]:
@@ -100,14 +96,18 @@ def _create_hint(file_name: str, method_name: str) -> str:
         """
 
 
-def _append_hint(method_name: str, method, base_class: Any, hint: str):
+def _append_hint(method_name: str, method, parent_class: Any, hint: str):
     """
-    If method does not have the __doc__, takes it from the base method.
+    If method does not have the __doc__, takes it from the ancestor method.
     """
-    if method.__doc__ is None and method_name in base_class.__dict__:
-        method.__doc__ = getattr(base_class, method_name).__doc__ + hint
-    else:
-        method.__doc__ = (method.__doc__ or "") + hint
+    parent_method = method
+    while parent_method and parent_method.__doc__ is None:
+        parent_method = getattr(parent_class, method_name, None)
+        parent_class = parent_class.__base__
+
+    if parent_method is None:
+        method.__doc__ = hint
+    method.__doc__ = (parent_method.__doc__ or "") + hint
 
 
 def setup(app) -> Dict[str, Any]:
