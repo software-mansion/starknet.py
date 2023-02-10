@@ -503,7 +503,7 @@ def _to_storage_key(key: int) -> str:
     return "0x0" + hashed_key
 
 
-def _to_rpc_felt(value: Hash):
+def _to_rpc_felt(value: Hash) -> str:
     """
     Convert the value to RPC felt matching a ``^0x0[a-fA-F0-9]{1,63}$`` pattern.\
 
