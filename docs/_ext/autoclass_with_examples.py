@@ -39,8 +39,6 @@ def add_code_examples(original_class: Any):
     """
     Adds code examples for the given class.
     """
-    base_class = original_class.__base__
-
     file_name, file_content = _extract_file_properties(original_class.__name__)
 
     for method_name, method in original_class.__dict__.items():
@@ -53,7 +51,7 @@ def add_code_examples(original_class: Any):
         stripped_method_name = method_name.strip("_")
         if _code_example_exists(stripped_method_name, file_content):
             hint = _create_hint(file_name, stripped_method_name)
-            _append_hint(method_name, method, base_class, hint)
+            _append_hint(method, original_class, hint)
 
 
 def _extract_file_properties(class_name: str) -> Tuple[str, str]:
@@ -96,14 +94,14 @@ def _create_hint(file_name: str, method_name: str) -> str:
         """
 
 
-def _append_hint(method_name: str, method, parent_class: Any, hint: str):
+def _append_hint(method: Any, class_: Any, hint: str) -> None:
     """
     If method does not have the __doc__, takes it from the ancestor method.
     """
     parent_method = method
-    while parent_method and parent_method.__doc__ is None:
-        parent_method = getattr(parent_class, method_name, None)
-        parent_class = parent_class.__base__
+    while parent_method is not None and parent_method.__doc__ is None:
+        class_ = class_.__base__
+        parent_method = getattr(class_, method.__name__, None)
 
     if parent_method is None:
         method.__doc__ = hint

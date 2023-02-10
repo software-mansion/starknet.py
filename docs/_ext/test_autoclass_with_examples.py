@@ -22,7 +22,7 @@ def test_docstring_inheritance():
         def meth(self):
             pass
 
-    _append_hint("meth", C.meth, C.__base__, " hint")
-    _append_hint("meth", E.meth, E.__base__, " hint")
+    _append_hint(C.meth, C, " hint")
+    _append_hint(E.meth, E, " hint")
     assert C.meth.__doc__ == "Docstring A hint"
     assert E.meth.__doc__ == "Docstring A hint"
