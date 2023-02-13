@@ -2376,14 +2376,14 @@ diagrams = ["jinja2", "railroad-diagrams"]
 
 [[package]]
 name = "pyright"
-version = "1.1.291"
+version = "1.1.292"
 description = "Command line wrapper for pyright"
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pyright-1.1.291-py3-none-any.whl", hash = "sha256:2dbd133ee400e81ff319d0701bc47545a7ab1cd7dcfcf46c7de37d9b0fbbb76f"},
-    {file = "pyright-1.1.291.tar.gz", hash = "sha256:3946f43f1a99f8e438eee1738ad0649d8bd7ac36dded25849245993ab02671bd"},
+    {file = "pyright-1.1.292-py3-none-any.whl", hash = "sha256:23d1f14b15afe38bb7a7117b9861ad0546aff078da312d294e60a727445c23ff"},
+    {file = "pyright-1.1.292.tar.gz", hash = "sha256:035ea1af6fabfdcc80c0afb545f677bd377114157d69779cce2a642ff894e51c"},
 ]
 
 [package.dependencies]
@@ -2551,6 +2551,22 @@ pytest = ">=5.0"
 
 [package.extras]
 dev = ["pre-commit", "pytest-asyncio", "tox"]
+
+[[package]]
+name = "pytest-rerunfailures"
+version = "11.1"
+description = "pytest plugin to re-run tests to eliminate flaky failures"
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "pytest-rerunfailures-11.1.tar.gz", hash = "sha256:bc6ad13614c976b04558c3a7bcc393a7e09686fb86b6ae73f827b78326c09f75"},
+    {file = "pytest_rerunfailures-11.1-py3-none-any.whl", hash = "sha256:9acd6cb19e3ba2f9191ecaaa15428348c2dead2e99a56f7e63479c0a3aabfeb8"},
+]
+
+[package.dependencies]
+packaging = ">=17.1"
+pytest = ">=5.3"
 
 [[package]]
 name = "pytest-xdist"
@@ -3125,14 +3141,14 @@ test = ["pytest"]
 
 [[package]]
 name = "starknet-devnet"
-version = "0.4.4"
+version = "0.4.5"
 description = "A local testnet for Starknet"
 category = "dev"
 optional = false
 python-versions = ">=3.8,<3.10"
 files = [
-    {file = "starknet_devnet-0.4.4-py3-none-any.whl", hash = "sha256:28e2c47aabbc744a4b63d4d14b0074d8cff5f5a7914a4a551c953e03b3ecc3a3"},
-    {file = "starknet_devnet-0.4.4.tar.gz", hash = "sha256:fa4497883d2e4795a21687605a3acc8dd4a74f34904df02c94cc6a25e74d5e86"},
+    {file = "starknet_devnet-0.4.5-py3-none-any.whl", hash = "sha256:9f25dcd7e151e97740b05c33f83b3a50c6007bbca6219c373c7d290900bd48f2"},
+    {file = "starknet_devnet-0.4.5.tar.gz", hash = "sha256:a35b46dc29bb67c2efd023f74a5d9db0f25a24ba9a32d70da8b795aa9e8e7277"},
 ]
 
 [package.dependencies]
@@ -3142,7 +3158,9 @@ crypto-cpp-py = ">=1.0.4,<1.1.0"
 Flask = {version = ">=2.0.3,<2.1.0", extras = ["async"]}
 flask-cors = ">=3.0.10,<3.1.0"
 gunicorn = ">=20.1.0,<20.2.0"
+jsonschema = ">=4.17.0,<4.18.0"
 marshmallow = ">=3.17.0,<3.18.0"
+marshmallow-dataclass = ">=8.4,<8.5"
 typing-extensions = ">=4.3.0,<4.4.0"
 Werkzeug = ">=2.0.3,<2.1.0"
 
@@ -3620,4 +3638,4 @@ eth-tester = []
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8, <3.10"
-content-hash = "c08be6141bda9fedffe69e1a21cbc4cff6381f27b06215a4ceede9c7341a8d65"
+content-hash = "0f58a4d66a9c6864175231b77deb235927257a822181b5bbe743bdc53b6ebd38"

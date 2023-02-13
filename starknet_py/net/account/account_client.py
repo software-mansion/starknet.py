@@ -252,15 +252,15 @@ class AccountClient(Client):
         """
         Takes calls and creates Invoke from them
 
+         .. deprecated:: 0.5.0
+            This method has been deprecated. Use :meth:`AccountClient.sign_invoke_transaction` to create an already
+            signed invoke transactions from calls.
+
         :param calls: Single call or list of calls
         :param max_fee: Max amount of Wei to be paid when executing transaction
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs
         :param version: Transaction version is supported_tx_version as a default
         :return: Invoke created from the calls (without the signature)
-
-        .. deprecated:: 0.5.0
-            This method has been deprecated. Use :meth:`AccountClient.sign_invoke_transaction` to create an already
-            signed invoke transactions from calls.
         """
         warnings.warn(
             "prepare_invoke_function has been deprecated. "
@@ -467,7 +467,6 @@ class AccountClient(Client):
         if transaction.max_fee == 0:
             warnings.warn(
                 "Transaction will fail with max_fee set to 0. Change it to a higher value.",
-                DeprecationWarning,
             )
 
         return await self.client.send_transaction(transaction=transaction)

@@ -277,7 +277,7 @@ class PreparedFunctionCall(Call):
         Calls a method.
 
         :param block_hash: Optional block hash.
-        :return: CallResult or List[int] if return_raw is used.
+        :return: TupleDataclass representing call result.
         """
         result = await self.call_raw(block_hash=block_hash)
         return self._payload_transformer.deserialize(result)
@@ -378,7 +378,7 @@ class ContractFunction:
         if version == 0:
             warnings.warn(
                 "Transaction with version 0 is deprecated and will be removed in the future. "
-                "Use AccountClient supporting the transaction version 1",
+                "Use Account supporting the transaction version 1",
                 category=DeprecationWarning,
             )
 
@@ -462,7 +462,11 @@ class Contract:
         :param address: contract's address.
         :param abi: contract's abi.
         :param provider: BaseAccount or Client used to perform transactions.
-        :param client: client used to perform transactions.
+        :param client:
+            Client used to perform transactions.
+
+             .. deprecated:: 0.13.0
+                Argument client has been deprecated. Use provider instead.
         """
         client, account = _unpack_provider(provider, client)
 
@@ -508,7 +512,11 @@ class Contract:
             If set to ``False``, :meth:`Contract.from_address` will not resolve proxies.
 
             If a valid :class:`starknet_py.contract_abi_resolver.ProxyConfig` is provided, will use its values instead.
-        :param client: Client.
+        :param client:
+            Client used to fetch contract.
+
+             .. deprecated:: 0.13.0
+                Argument client has been deprecated. Use provider instead.
 
         :return: an initialized Contract instance.
         """
@@ -622,15 +630,20 @@ class Contract:
         Either `compilation_source` or `compiled_contract` is required.
 
         :param salt: int
-        :param compilation_source: string containing source code or a list of source files paths
-        :param compiled_contract: string containing compiled contract. Useful for reading compiled contract from a file.
-        :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
-        :param search_paths: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts.
-        :param deployer_address: address of the deployer (if not provided default 0 is used)
+        :param compilation_source:
+            String containing source code or a list of source files paths.
+
+             .. deprecated:: 0.14.0
+                Argument compilation_source is deprecated and will be removed in the future.
+                Consider using already compiled contracts.
+        :param compiled_contract: String containing compiled contract. Useful for reading compiled contract from a file.
+        :param constructor_args: A ``list`` or ``dict`` of arguments for the constructor.
+        :param search_paths: A ``list`` of paths used by starknet_compile to resolve dependencies within contracts.
+        :param deployer_address: Address of the deployer (if not provided default 0 is used).
 
         :raises: `ValueError` if neither compilation_source nor compiled_contract is provided.
 
-        :return: contract's address
+        :return: Contract's address.
         """
         # pylint: disable=too-many-arguments
         warnings.warn(
@@ -661,11 +674,16 @@ class Contract:
         Computes hash for given contract.
         Either `compilation_source` or `compiled_contract` is required.
 
-        :param compilation_source: string containing source code or a list of source files paths
-        :param compiled_contract: string containing compiled contract. Useful for reading compiled contract from a file.
-        :param search_paths: a ``list`` of paths used by starknet_compile to resolve dependencies within contracts.
+        :param compilation_source: String containing source code or a list of source files paths.
+        :param compiled_contract:
+            String containing compiled contract. Useful for reading compiled contract from a file.
+
+             .. deprecated:: 0.14.0
+                Argument compilation_source is deprecated and will be removed in the future.
+                Consider using already compiled contracts.
+        :param search_paths: A ``list`` of paths used by starknet_compile to resolve dependencies within contracts.
         :raises: `ValueError` if neither compilation_source nor compiled_contract is provided.
-        :return:
+        :return: Class_hash of the contract.
         """
         warnings.warn(
             "Argument compilation_source is deprecated and will be removed in the future. "
