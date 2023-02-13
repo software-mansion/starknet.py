@@ -7,6 +7,3 @@ from starknet_py.net.models import Invoke, InvokeFunction, Transaction
 
 # noinspection PyUnresolvedReferences
 from starknet_py.net.models.address import parse_address
-
-# noinspection PyUnresolvedReferences
-from starknet_py.net.networks import net_address_from_net

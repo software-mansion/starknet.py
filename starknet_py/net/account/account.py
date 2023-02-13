@@ -399,7 +399,7 @@ class Account(BaseAccount):
             auto_estimate=auto_estimate,
         )
 
-        if client.net.address in (TESTNET, TESTNET2, MAINNET):
+        if client.net in (TESTNET, TESTNET2, MAINNET):
             balance = await account.get_balance()
             if balance < deploy_account_tx.max_fee:
                 raise ValueError(

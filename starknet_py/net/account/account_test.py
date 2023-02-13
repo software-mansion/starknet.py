@@ -13,8 +13,8 @@ from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("net", (TESTNET, TESTNET2, MAINNET))
-async def test_get_balance_default_token_address(net):
-    client = GatewayClient(net=Network(net))
+async def test_get_balance_default_token_address(net: Network):
+    client = GatewayClient(net=net)
     acc_client = Account(
         client=client,
         address="0x123",
@@ -41,7 +41,7 @@ def test_create_account():
     key_pair = KeyPair.from_private_key(0x111)
     account = Account(
         address=0x1,
-        client=GatewayClient(net=Network(TESTNET)),
+        client=GatewayClient(net=TESTNET),
         key_pair=key_pair,
         chain=StarknetChainId.TESTNET,
     )
@@ -58,7 +58,7 @@ def test_create_account_from_signer():
     )
     account = Account(
         address=0x1,
-        client=GatewayClient(net=Network(TESTNET)),
+        client=GatewayClient(net=TESTNET),
         signer=signer,
     )
 
@@ -70,7 +70,7 @@ def test_create_account_raises_on_no_chain_and_signer():
     with pytest.raises(ValueError, match="One of chain or signer must be provided"):
         Account(
             address=0x1,
-            client=GatewayClient(net=Network(TESTNET)),
+            client=GatewayClient(net=TESTNET),
             key_pair=KeyPair.from_private_key(0x111),
         )
 
@@ -82,7 +82,7 @@ def test_create_account_raises_on_no_keypair_and_signer():
     ):
         Account(
             address=0x1,
-            client=GatewayClient(net=Network(TESTNET)),
+            client=GatewayClient(net=TESTNET),
             chain=StarknetChainId.TESTNET,
         )
 
@@ -93,7 +93,7 @@ def test_create_account_raises_on_both_keypair_and_signer():
     ):
         Account(
             address=0x1,
-            client=GatewayClient(net=Network(TESTNET)),
+            client=GatewayClient(net=TESTNET),
             chain=StarknetChainId.TESTNET,
             key_pair=KeyPair.from_private_key(0x111),
             signer=StarkCurveSigner(

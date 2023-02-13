@@ -208,7 +208,7 @@ class AccountClient(Client):
         return nonce
 
     def _get_default_token_address(self) -> str:
-        if self.net.address not in [TESTNET, TESTNET2, MAINNET]:
+        if self.net not in [TESTNET, TESTNET2, MAINNET]:
             raise ValueError(
                 "Argument token_address must be specified when using a custom net address."
             )

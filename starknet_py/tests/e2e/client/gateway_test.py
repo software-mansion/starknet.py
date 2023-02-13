@@ -19,7 +19,13 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
-from starknet_py.net.networks import MAINNET, TESTNET, CustomGatewayUrls, Network
+from starknet_py.net.networks import (
+    MAINNET,
+    TESTNET,
+    TESTNET2,
+    CustomGatewayUrls,
+    Network,
+)
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
@@ -141,14 +147,15 @@ async def test_get_transaction_status(invoke_transaction_hash, gateway_client):
 @pytest.mark.parametrize(
     "net, net_address",
     (
-        (TESTNET, "https://alpha4.starknet.io"),
         (MAINNET, "https://alpha-mainnet.starknet.io"),
+        (TESTNET, "https://alpha4.starknet.io"),
+        (TESTNET2, "https://alpha4-2.starknet.io"),
     ),
 )
 def test_creating_client_from_predefined_network(net, net_address):
-    gateway_client = GatewayClient(net=Network(net, chain_id=StarknetChainId.TESTNET))
+    gateway_client = GatewayClient(net=net)
 
-    assert gateway_client.net.address == net
+    assert gateway_client.net == net
     assert gateway_client._feeder_gateway_client.url == f"{net_address}/feeder_gateway"
     assert gateway_client._gateway_client.url == f"{net_address}/gateway"
 
@@ -225,7 +232,7 @@ async def test_get_l1_handler_transaction_without_nonce(gateway_client):
 # Check if the `Deploy` transaction is fetched correctly
 @pytest.mark.asyncio
 async def test_get_deploy_tx():
-    client = GatewayClient(net=Network(TESTNET))
+    client = GatewayClient(net=TESTNET)
     deploy_tx = await client.get_transaction(
         tx_hash="0x068d6145cb99622cc930f9b26034c6f5127c348e8c21a5e232e36540a48622bb"
     )

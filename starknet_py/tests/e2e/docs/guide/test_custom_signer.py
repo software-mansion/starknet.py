@@ -2,8 +2,6 @@ from typing import List
 
 import pytest
 
-from starknet_py.net.networks import Network
-
 
 @pytest.mark.asyncio
 async def test_custom_signer():
@@ -14,6 +12,7 @@ async def test_custom_signer():
     from starknet_py.net.gateway_client import GatewayClient
     from starknet_py.net.models import StarknetChainId, Transaction
     from starknet_py.net.models.typed_data import TypedData
+    from starknet_py.net.networks import TESTNET
     from starknet_py.net.signer import BaseSigner
 
     # Create a custom signer class implementing BaseSigner interface
@@ -32,7 +31,7 @@ async def test_custom_signer():
 
     # Create an Account instance with the signer you've implemented
     custom_signer = CustomSigner()
-    client = GatewayClient(Network("testnet"))
+    client = GatewayClient(TESTNET)
     account = Account(
         client=client,
         address=0x1111,

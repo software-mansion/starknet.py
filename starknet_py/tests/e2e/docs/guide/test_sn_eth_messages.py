@@ -3,8 +3,6 @@ from unittest.mock import MagicMock, Mock
 
 import pytest
 
-from starknet_py.net.networks import Network
-
 
 @pytest.mark.asyncio
 async def test_sn_eth_messages(gateway_client):
@@ -32,7 +30,7 @@ async def test_sn_eth_messages(gateway_client):
         )  # Provide 32 bytes as an input here, instead of message's content
     )
 
-    client = GatewayClient(Network(TESTNET))
+    client = GatewayClient(TESTNET)
 
     # docs: end
 

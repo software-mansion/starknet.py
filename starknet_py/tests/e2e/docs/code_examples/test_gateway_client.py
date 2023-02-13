@@ -14,7 +14,7 @@ from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 
 def test_init():
     # docs-start: init
-    gateway_client = GatewayClient(net=Network(TESTNET))
+    gateway_client = GatewayClient(net=TESTNET)
     # or when using custom urls
     gateway_client = GatewayClient(
         net=Network(
