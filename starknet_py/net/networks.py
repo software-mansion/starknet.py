@@ -1,6 +1,8 @@
-from typing import Literal, TypedDict, Union
+from dataclasses import dataclass
+from typing import Literal, Optional, TypedDict, Union
 
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
+from starknet_py.net.models import StarknetChainId
 
 MAINNET = "mainnet"
 TESTNET = "testnet"
@@ -14,7 +16,18 @@ class CustomGatewayUrls(TypedDict):
     gateway_url: str
 
 
-Network = Union[PredefinedNetwork, str, CustomGatewayUrls]
+@dataclass
+class Network:
+    address: Union[str, PredefinedNetwork, CustomGatewayUrls]
+    chain_id: StarknetChainId
+
+    def __init__(
+        self,
+        address: Union[str, PredefinedNetwork, CustomGatewayUrls],
+        chain_id: Optional[StarknetChainId] = None,
+    ):
+        self.chain_id = chain_from_network(address, chain_id)
+        self.address = address
 
 
 def net_address_from_net(net: str) -> str:
@@ -26,9 +39,28 @@ def net_address_from_net(net: str) -> str:
 
 
 def default_token_address_for_network(net: Network) -> str:
-    if net not in [TESTNET, TESTNET2, MAINNET]:
+    if net.address not in [TESTNET, TESTNET2, MAINNET]:
         raise ValueError(
             "Argument token_address must be specified when using a custom net address"
         )
 
     return FEE_CONTRACT_ADDRESS
+
+
+def chain_from_network(
+    net: Union[str, PredefinedNetwork, CustomGatewayUrls],
+    chain: Optional[StarknetChainId] = None,
+) -> StarknetChainId:
+    mapping = {
+        MAINNET: StarknetChainId.MAINNET,
+        TESTNET: StarknetChainId.TESTNET,
+        TESTNET2: StarknetChainId.TESTNET2,
+    }
+
+    if isinstance(net, str) and net in mapping:
+        return mapping[net]
+
+    if not chain:
+        raise ValueError("Chain is required when not using predefined networks.")
+
+    return chain
