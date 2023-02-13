@@ -351,6 +351,9 @@ class CompiledContract(ContractClass):
     Dataclass representing ContractClass with required abi.
     """
 
+    # abi is a required key in CompiledContractSchema,
+    # default_factory is used, since abi in ContractClass is Optional
+    # and otherwise, non-keyword arguments would follow keyword arguments
     abi: AbiDictList = field(default_factory=list)
 
 
