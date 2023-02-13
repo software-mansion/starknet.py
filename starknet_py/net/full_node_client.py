@@ -54,7 +54,7 @@ class FullNodeClient(Client):
         """
         Client for interacting with starknet json-rpc interface.
 
-        :param net: StarkNet network identifier
+        :param net: Target network for the client containing node address and chain_id of the network.
         :param session: Aiohttp session to be used for request. If not provided, client will create a session for
                         every request. When using a custom session, user is responsible for closing it manually.
         """

@@ -58,8 +58,9 @@ class GatewayClient(Client):
         """
         Client for interacting with StarkNet gateway.
 
-        :param net: Target network for the client. Can be a string with URL, one of ``"mainnet"``, ``"testnet"``
-                    or dict with ``"feeder_gateway_url"`` and ``"gateway_url"`` fields
+        :param net: Target network for the client. Network dataclass, where address is URL
+                    or dict with ``"feeder_gateway_url"`` and ``"gateway_url"`` fields. MAINNET, TESTNET and TESTNET2
+                    predefined networks can be used too.
         :param session: Aiohttp session to be used for request. If not provided, client will create a session for
                         every request. When using a custom session, user is responsible for closing it manually.
         """

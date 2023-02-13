@@ -12,6 +12,10 @@ class CustomGatewayUrls(TypedDict):
 
 @dataclass(frozen=True)
 class Network:
+    """
+    Dataclass describing the network.
+    """
+
     address: Union[str, CustomGatewayUrls]
     chain_id: StarknetChainId
 
