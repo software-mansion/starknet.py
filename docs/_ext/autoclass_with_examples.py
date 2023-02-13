@@ -103,9 +103,9 @@ def _append_hint(method: Any, class_: Any, hint: str) -> None:
         class_ = class_.__base__
         parent_method = getattr(class_, method.__name__, None)
 
-    if parent_method is None:
-        method.__doc__ = hint
-    method.__doc__ = (parent_method.__doc__ or "") + hint
+    if parent_method is not None:
+        hint = (parent_method.__doc__ or "") + hint
+    method.__doc__ = hint
 
 
 def setup(app) -> Dict[str, Any]:
