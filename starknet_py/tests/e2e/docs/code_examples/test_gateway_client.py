@@ -7,19 +7,23 @@ from starkware.starknet.public.abi import (
 
 from starknet_py.net.client_models import Call
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.networks import TESTNET
+from starknet_py.net.models import StarknetChainId
+from starknet_py.net.networks import TESTNET, Network
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 
 
 def test_init():
     # docs-start: init
-    gateway_client = GatewayClient(net=TESTNET)
+    gateway_client = GatewayClient(net=Network(TESTNET))
     # or when using custom urls
     gateway_client = GatewayClient(
-        net={
-            "feeder_gateway_url": "https://alpha4.starknet.io/feeder_gateway",
-            "gateway_url": "https://alpha4.starknet.io/gateway",
-        }
+        net=Network(
+            address={
+                "feeder_gateway_url": "https://alpha4.starknet.io/feeder_gateway",
+                "gateway_url": "https://alpha4.starknet.io/gateway",
+            },
+            chain_id=StarknetChainId.TESTNET,
+        )
     )
     # docs-end: init
 

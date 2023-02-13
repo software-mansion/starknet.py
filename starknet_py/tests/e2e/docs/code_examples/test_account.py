@@ -19,7 +19,7 @@ def test_init():
     # docs-start: init
     account = Account(
         address=0x123,
-        client=GatewayClient(net=TESTNET),
+        client=GatewayClient(net=Network(TESTNET)),
         signer=StarkCurveSigner(
             account_address=0x123,
             key_pair=KeyPair(12, 34),

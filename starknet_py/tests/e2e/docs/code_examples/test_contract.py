@@ -6,7 +6,7 @@ from starknet_py.net import KeyPair
 from starknet_py.net.account.account import Account
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
-from starknet_py.net.networks import TESTNET
+from starknet_py.net.networks import TESTNET, Network
 
 
 def test_init():
@@ -23,7 +23,7 @@ def test_init():
         ],
         provider=Account(
             address=0x321,
-            client=GatewayClient(TESTNET),
+            client=GatewayClient(Network(TESTNET)),
             key_pair=KeyPair(12, 34),
             chain=StarknetChainId.TESTNET,
         ),

@@ -1,5 +1,7 @@
 import pytest
 
+from starknet_py.net.networks import Network
+
 
 @pytest.mark.asyncio
 async def test_sign_offchain_message(account):
@@ -52,7 +54,7 @@ async def test_sign_offchain_message(account):
     # docs: start
 
     # Create an Account instance
-    client = GatewayClient("testnet")
+    client = GatewayClient(Network("testnet"))
     account = Account(
         client=client,
         address="0x1111",
