@@ -25,7 +25,6 @@ from starknet_py.net.client_models import (
 from starknet_py.net.models import (
     AddressRepresentation,
     StarknetChainId,
-    chain_from_network,
     compute_address,
     parse_address,
 )
@@ -94,9 +93,10 @@ class Account(BaseAccount):
                     "Either a signer or a key_pair must be provided in Account constructor."
                 )
 
-            chain = chain_from_network(net=client.net, chain=chain)
             signer = StarkCurveSigner(
-                account_address=self.address, key_pair=key_pair, chain_id=chain
+                account_address=self.address,
+                key_pair=key_pair,
+                chain_id=chain or client.net.chain_id,
             )
         self.signer: BaseSigner = signer
 
@@ -399,7 +399,7 @@ class Account(BaseAccount):
             auto_estimate=auto_estimate,
         )
 
-        if client.net in (TESTNET, TESTNET2, MAINNET):
+        if client.net.address in (TESTNET, TESTNET2, MAINNET):
             balance = await account.get_balance()
             if balance < deploy_account_tx.max_fee:
                 raise ValueError(

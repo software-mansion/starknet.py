@@ -30,12 +30,7 @@ from starknet_py.net.client_models import (
     TransactionReceipt,
     TransactionStatus,
 )
-from starknet_py.net.models import (
-    Invoke,
-    InvokeFunction,
-    StarknetChainId,
-    chain_from_network,
-)
+from starknet_py.net.models import Invoke, InvokeFunction, StarknetChainId
 from starknet_py.net.models.address import AddressRepresentation, parse_address
 from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.net.models.typed_data import TypedData
@@ -95,9 +90,10 @@ class AccountClient(Client):
                     "Either a signer or a key_pair must be provided in AccountClient constructor."
                 )
 
-            chain = chain_from_network(net=client.net, chain=chain)
             signer = StarkCurveSigner(
-                account_address=self.address, key_pair=key_pair, chain_id=chain
+                account_address=self.address,
+                key_pair=key_pair,
+                chain_id=chain or client.net.chain_id,
             )
         self.signer = signer
         self.supported_tx_version = supported_tx_version
@@ -212,7 +208,7 @@ class AccountClient(Client):
         return nonce
 
     def _get_default_token_address(self) -> str:
-        if self.net not in [TESTNET, TESTNET2, MAINNET]:
+        if self.net.address not in [TESTNET, TESTNET2, MAINNET]:
             raise ValueError(
                 "Argument token_address must be specified when using a custom net address."
             )
