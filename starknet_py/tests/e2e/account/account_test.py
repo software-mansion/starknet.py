@@ -18,6 +18,7 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId, compute_address
+from starknet_py.net.networks import Network
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.transaction_exceptions import TransactionRejectedError
 
@@ -274,7 +275,7 @@ async def test_deploy_account_raises_on_no_enough_funds(deploy_account_details_f
                 class_hash=class_hash,
                 salt=salt,
                 key_pair=key_pair,
-                client=GatewayClient(net="testnet"),
+                client=GatewayClient(net=Network("testnet")),
                 chain=StarknetChainId.TESTNET,
                 max_fee=MAX_FEE,
             )
@@ -299,7 +300,7 @@ async def test_deploy_account_passes_on_enough_funds(deploy_account_details_fact
             class_hash=class_hash,
             salt=salt,
             key_pair=key_pair,
-            client=GatewayClient(net="testnet"),
+            client=GatewayClient(net=Network("testnet")),
             chain=StarknetChainId.TESTNET,
             max_fee=MAX_FEE,
         )

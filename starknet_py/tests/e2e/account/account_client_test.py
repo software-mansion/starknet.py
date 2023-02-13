@@ -9,7 +9,7 @@ from starknet_py.net import AccountClient, KeyPair
 from starknet_py.net.client_models import Call
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId, parse_address
-from starknet_py.net.networks import MAINNET, TESTNET, TESTNET2
+from starknet_py.net.networks import MAINNET, TESTNET, TESTNET2, Network
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.transaction_exceptions import TransactionRejectedError
 
@@ -34,7 +34,7 @@ async def test_balance_when_token_specified(account_client, erc20_contract):
 @pytest.mark.asyncio
 @pytest.mark.parametrize("net", (TESTNET, TESTNET2, MAINNET))
 async def test_get_balance_default_token_address(net):
-    client = GatewayClient(net=net)
+    client = GatewayClient(net=Network(net))
     acc_client = AccountClient(
         client=client,
         address="0x123",

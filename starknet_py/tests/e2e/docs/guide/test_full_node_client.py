@@ -1,6 +1,7 @@
 import pytest
 
-from starknet_py.net.networks import TESTNET
+from starknet_py.net.models import StarknetChainId
+from starknet_py.net.networks import Network
 
 
 @pytest.mark.asyncio
@@ -12,7 +13,9 @@ async def test_full_node_client(full_node_client, map_contract):
     from starknet_py.net.full_node_client import FullNodeClient
 
     node_url = "https://your.node.url"
-    full_node_client = FullNodeClient(node_url=node_url, net=TESTNET)
+    full_node_client = FullNodeClient(
+        net=Network(address=node_url, chain_id=StarknetChainId.TESTNET)
+    )
     # docs: end
 
     await map_contract.functions["put"].prepare(key=10, value=10).invoke(

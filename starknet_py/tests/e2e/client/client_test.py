@@ -22,7 +22,9 @@ from starknet_py.net.client_models import (
     TransactionStatus,
 )
 from starknet_py.net.gateway_client import GatewayClient
+from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import Declare
+from starknet_py.net.networks import Network
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.tests.e2e.fixtures.misc import read_contract
@@ -328,8 +330,12 @@ async def test_custom_session(map_contract, network):
         ).wait_for_acceptance()
     ).hash
 
-    gateway_client1 = GatewayClient(net=network, session=session)
-    gateway_client2 = GatewayClient(net=network, session=session)
+    gateway_client1 = GatewayClient(
+        net=Network(network, StarknetChainId.TESTNET), session=session
+    )
+    gateway_client2 = GatewayClient(
+        net=Network(network, StarknetChainId.TESTNET), session=session
+    )
 
     assert gateway_client1._feeder_gateway_client.session is not None
     assert gateway_client1._feeder_gateway_client.session == session

@@ -26,6 +26,7 @@ from starknet_py.net.models import (
     StarknetChainId,
     compute_address,
 )
+from starknet_py.net.networks import Network
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import (
     DEVNET_PRE_DEPLOYED_ACCOUNT_ADDRESS,
@@ -83,7 +84,7 @@ async def devnet_account_details(
     resp = await account.client.send_transaction(invoke_tx)
     await account.client.wait_for_tx(resp.transaction_hash)
 
-    http_client = GatewayHttpClient(account.client.net)
+    http_client = GatewayHttpClient(account.client.net.address)
     await http_client.post(
         method_name="mint",
         payload={
@@ -165,7 +166,7 @@ async def new_devnet_account_details(
         deployer_address=0,
     )
 
-    http_client = GatewayHttpClient(account.client.net)
+    http_client = GatewayHttpClient(account.client.net.address)
     await http_client.post(
         method_name="mint",
         payload={
@@ -420,7 +421,9 @@ def pre_deployed_account_with_validate_deploy(
 
     return Account(
         address=address,
-        client=GatewayClient(net=network),
+        client=GatewayClient(
+            net=Network(address=network, chain_id=StarknetChainId.TESTNET)
+        ),
         key_pair=KeyPair.from_private_key(int(private_key, 16)),
         chain=StarknetChainId.TESTNET,
     )

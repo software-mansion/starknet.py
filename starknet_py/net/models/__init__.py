@@ -5,7 +5,7 @@ from .address import (
     compute_address,
     parse_address,
 )
-from .chains import StarknetChainId, chain_from_network
+from .chains import StarknetChainId
 from .transaction import (
     Invoke,
     InvokeFunction,

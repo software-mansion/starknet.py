@@ -18,7 +18,8 @@ from starknet_py.net.client_models import (
     TransactionStatusResponse,
 )
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.networks import MAINNET, TESTNET, CustomGatewayUrls
+from starknet_py.net.models import StarknetChainId
+from starknet_py.net.networks import MAINNET, TESTNET, CustomGatewayUrls, Network
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
@@ -145,34 +146,38 @@ async def test_get_transaction_status(invoke_transaction_hash, gateway_client):
     ),
 )
 def test_creating_client_from_predefined_network(net, net_address):
-    gateway_client = GatewayClient(net=net)
+    gateway_client = GatewayClient(net=Network(net, chain_id=StarknetChainId.TESTNET))
 
-    assert gateway_client.net == net
+    assert gateway_client.net.address == net
     assert gateway_client._feeder_gateway_client.url == f"{net_address}/feeder_gateway"
     assert gateway_client._gateway_client.url == f"{net_address}/gateway"
 
 
 def test_creating_client_with_custom_net():
     custom_net = "custom.net"
-    gateway_client = GatewayClient(net=custom_net)
+    gateway_client = GatewayClient(
+        net=Network(custom_net, chain_id=StarknetChainId.TESTNET)
+    )
 
-    assert gateway_client.net == custom_net
+    assert gateway_client.net.address == custom_net
     assert gateway_client._feeder_gateway_client.url == f"{custom_net}/feeder_gateway"
     assert gateway_client._gateway_client.url == f"{custom_net}/gateway"
 
 
 def test_creating_client_with_custom_net_dict():
     custom_net = "custom.net"
-    net = CustomGatewayUrls(
+    address = CustomGatewayUrls(
         feeder_gateway_url=f"{custom_net}/feeder_gateway",
         gateway_url=f"{custom_net}/gateway",
     )
 
-    gateway_client = GatewayClient(net=net)
+    gateway_client = GatewayClient(
+        net=Network(address, chain_id=StarknetChainId.TESTNET)
+    )
 
-    assert gateway_client.net == net
-    assert gateway_client._feeder_gateway_client.url == net["feeder_gateway_url"]
-    assert gateway_client._gateway_client.url == net["gateway_url"]
+    assert gateway_client.net.address == address
+    assert gateway_client._feeder_gateway_client.url == address["feeder_gateway_url"]
+    assert gateway_client._gateway_client.url == address["gateway_url"]
 
 
 @pytest.mark.asyncio
@@ -220,7 +225,7 @@ async def test_get_l1_handler_transaction_without_nonce(gateway_client):
 # Check if the `Deploy` transaction is fetched correctly
 @pytest.mark.asyncio
 async def test_get_deploy_tx():
-    client = GatewayClient(net=TESTNET)
+    client = GatewayClient(net=Network(TESTNET))
     deploy_tx = await client.get_transaction(
         tx_hash="0x068d6145cb99622cc930f9b26034c6f5127c348e8c21a5e232e36540a48622bb"
     )

@@ -11,7 +11,7 @@ from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.typed_data import TypedData
-from starknet_py.net.networks import TESTNET
+from starknet_py.net.networks import TESTNET, Network
 from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 
 
@@ -29,7 +29,9 @@ def test_init():
     # or
     account = Account(
         address=0x123,
-        client=FullNodeClient(node_url="your.node.url", net="testnet"),
+        client=FullNodeClient(
+            net=Network(address="your.node.url", chain_id=StarknetChainId.TESTNET)
+        ),
         key_pair=KeyPair(12, 34),
         chain=StarknetChainId.TESTNET,
     )

@@ -6,6 +6,8 @@ import pytest
 from starknet_py.net.client import Client
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
+from starknet_py.net.models import StarknetChainId
+from starknet_py.net.networks import Network
 
 
 @pytest.fixture(name="gateway_client", scope="package")
@@ -13,7 +15,7 @@ def create_gateway_client(network: str) -> GatewayClient:
     """
     Creates and returns GatewayClient.
     """
-    return GatewayClient(net=network)
+    return GatewayClient(net=Network(address=network, chain_id=StarknetChainId.TESTNET))
 
 
 @pytest.fixture(name="full_node_client", scope="package")
@@ -21,7 +23,9 @@ def create_full_node_client(network: str) -> FullNodeClient:
     """
     Creates and returns FullNodeClient.
     """
-    return FullNodeClient(node_url=network + "/rpc", net=network)
+    return FullNodeClient(
+        net=Network(address=network + "/rpc", chain_id=StarknetChainId.TESTNET)
+    )
 
 
 def net_to_clients() -> List[str]:

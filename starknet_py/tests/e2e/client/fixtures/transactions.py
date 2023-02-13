@@ -4,7 +4,9 @@ import pytest
 import pytest_asyncio
 
 from starknet_py.contract import Contract
+from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import DeployAccount
+from starknet_py.net.networks import Network
 from starknet_py.tests.e2e.client.fixtures.prepare_net_for_gateway_test import (
     PreparedNetworkData,
 )
@@ -29,7 +31,7 @@ async def deploy_account_transaction(
         key_pair=key_pair,
         class_hash=class_hash,
         salt=salt,
-        network=network,
+        network=Network(address=network, chain_id=StarknetChainId.TESTNET),
     )
 
 
