@@ -48,20 +48,17 @@ from starknet_py.utils.sync import add_sync_methods
 class FullNodeClient(Client):
     def __init__(
         self,
-        node_url: str,
         net: Network,
         session: Optional[aiohttp.ClientSession] = None,
     ):
         """
         Client for interacting with starknet json-rpc interface.
 
-        :param node_url: Url of the node providing rpc interface
         :param net: StarkNet network identifier
         :param session: Aiohttp session to be used for request. If not provided, client will create a session for
                         every request. When using a custom session, user is responsible for closing it manually.
         """
-        self.url = node_url
-        self._client = RpcHttpClient(url=node_url, session=session)
+        self._client = RpcHttpClient(url=net.address, session=session)
         self._net = net
 
     @property

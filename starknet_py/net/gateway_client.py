@@ -64,13 +64,13 @@ class GatewayClient(Client):
         :param session: Aiohttp session to be used for request. If not provided, client will create a session for
                         every request. When using a custom session, user is responsible for closing it manually.
         """
-        if isinstance(net, str):
-            host = net_address_from_net(net)
+        if isinstance(net.address, str):
+            host = net_address_from_net(net.address)
             feeder_gateway_url = f"{host}/feeder_gateway"
             gateway_url = f"{host}/gateway"
         else:
-            feeder_gateway_url = net["feeder_gateway_url"]
-            gateway_url = net["gateway_url"]
+            feeder_gateway_url = net.address["feeder_gateway_url"]
+            gateway_url = net.address["gateway_url"]
 
         self._net = net
 
