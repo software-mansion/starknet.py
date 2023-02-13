@@ -1,5 +1,4 @@
-import typing
-from typing import List, Optional, Union
+from typing import List, Optional, Union, cast
 
 import aiohttp
 from marshmallow import EXCLUDE
@@ -30,7 +29,7 @@ from starknet_py.net.client_models import (
 from starknet_py.net.client_utils import hash_to_felt, is_block_identifier
 from starknet_py.net.http_client import GatewayHttpClient
 from starknet_py.net.models.transaction import DeployAccount
-from starknet_py.net.networks import Network, net_address_from_net
+from starknet_py.net.networks import Network
 from starknet_py.net.schemas.gateway import (
     BlockStateUpdateSchema,
     BlockTransactionTracesSchema,
@@ -57,7 +56,7 @@ class GatewayClient(Client):
         session: Optional[aiohttp.ClientSession] = None,
     ):
         """
-        Client for interacting with starknet gateway.
+        Client for interacting with StarkNet gateway.
 
         :param net: Target network for the client. Can be a string with URL, one of ``"mainnet"``, ``"testnet"``
                     or dict with ``"feeder_gateway_url"`` and ``"gateway_url"`` fields
@@ -65,9 +64,8 @@ class GatewayClient(Client):
                         every request. When using a custom session, user is responsible for closing it manually.
         """
         if isinstance(net.address, str):
-            host = net_address_from_net(net.address)
-            feeder_gateway_url = f"{host}/feeder_gateway"
-            gateway_url = f"{host}/gateway"
+            feeder_gateway_url = f"{net.address}/feeder_gateway"
+            gateway_url = f"{net.address}/gateway"
         else:
             feeder_gateway_url = net.address["feeder_gateway_url"]
             gateway_url = net.address["gateway_url"]
@@ -162,7 +160,7 @@ class GatewayClient(Client):
                 **block_identifier,
             },
         )
-        res = typing.cast(str, res)
+        res = cast(str, res)
         return int(res, 16)
 
     async def get_transaction(
@@ -296,7 +294,7 @@ class GatewayClient(Client):
                 **block_identifier,
             },
         )
-        res = typing.cast(str, res)
+        res = cast(str, res)
         return int(res, 16)
 
     async def get_class_by_hash(self, class_hash: Hash) -> DeclaredContract:
@@ -393,7 +391,7 @@ class GatewayClient(Client):
         nonce = await self._feeder_gateway_client.call(
             method_name="get_nonce", params=params
         )
-        nonce = typing.cast(str, nonce)
+        nonce = cast(str, nonce)
         return int(nonce, 16)
 
 
