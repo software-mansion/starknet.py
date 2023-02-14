@@ -2,7 +2,7 @@
 pytest_plugins = [
     "starknet_py.tests.e2e.fixtures.event_loop",
     "starknet_py.tests.e2e.fixtures.clients",
-    "starknet_py.tests.e2e.fixtures.account_clients",
+    "starknet_py.tests.e2e.fixtures.accounts",
     "starknet_py.tests.e2e.fixtures.contracts",
     "starknet_py.tests.e2e.fixtures.misc",
     "starknet_py.tests.e2e.fixtures.devnet",

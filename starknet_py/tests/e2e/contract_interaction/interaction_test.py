@@ -8,12 +8,11 @@ from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import Call, TransactionReceipt, TransactionStatus
 from starknet_py.net.gateway_client import GatewayClient
+from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.transaction_exceptions import (
     TransactionNotReceivedError,
     TransactionRejectedError,
 )
-
-MAX_FEE = int(1e20)
 
 
 @pytest.mark.asyncio

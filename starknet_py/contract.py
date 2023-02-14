@@ -17,8 +17,6 @@ from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
 from starknet_py.hash.address import compute_address
 from starknet_py.hash.class_hash import compute_class_hash
 from starknet_py.hash.selector import get_selector_from_name
-from starknet_py.net import AccountClient
-from starknet_py.net.account._account_proxy import AccountProxy
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import Call, Hash, Tag
@@ -533,7 +531,7 @@ class Contract:
 
     @staticmethod
     async def declare(
-        account: Union[AccountClient, BaseAccount],
+        account: BaseAccount,
         compiled_contract: str,
         *,
         max_fee: Optional[int] = None,
@@ -548,7 +546,6 @@ class Contract:
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :return: DeclareResult instance.
         """
-        account = _account_or_proxy(account)
 
         declare_tx = await account.sign_declare_transaction(
             compiled_contract=compiled_contract,
@@ -567,7 +564,7 @@ class Contract:
 
     @staticmethod
     async def deploy_contract(
-        account: Union[AccountClient, BaseAccount],
+        account: BaseAccount,
         class_hash: Hash,
         abi: List,
         constructor_args: Optional[Union[List, Dict]] = None,
@@ -591,8 +588,6 @@ class Contract:
         :return: DeployResult instance.
         """
         # pylint: disable=too-many-arguments
-        account = _account_or_proxy(account)
-
         deployer = Deployer(
             deployer_address=deployer_address, account_address=account.address
         )
@@ -750,18 +745,9 @@ def _unpack_provider(
     provider = provider or client
 
     if isinstance(provider, Client):
-        if isinstance(provider, AccountClient):
-            return provider.client, AccountProxy(provider)
-
         return provider, None
 
     if isinstance(provider, BaseAccount):
         return provider.client, provider
 
     raise ValueError("Argument provider is not of accepted type.")
-
-
-def _account_or_proxy(account: Union[BaseAccount, AccountClient]) -> BaseAccount:
-    if isinstance(account, AccountClient):
-        return AccountProxy(account)
-    return account

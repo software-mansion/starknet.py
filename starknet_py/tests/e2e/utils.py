@@ -4,15 +4,16 @@ from typing import Optional, Tuple, cast
 from starknet_py.constants import EC_ORDER
 from starknet_py.contract import Contract
 from starknet_py.hash.address import compute_address
-from starknet_py.net import AccountClient, KeyPair
+from starknet_py.net import KeyPair
+from starknet_py.net.account.account import Account
 from starknet_py.net.client import Client
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.net.networks import Network
+from starknet_py.tests.e2e.contract_interaction.interaction_test import MAX_FEE
 
 AccountToBeDeployedDetails = Tuple[int, KeyPair, int, int]
-MAX_FEE = int(1e20)
 
 
 async def get_deploy_account_details(
@@ -58,7 +59,7 @@ async def get_deploy_account_transaction(
     if network is None and client is None:
         raise ValueError("One of network or client must be provided.")
 
-    account = AccountClient(
+    account = Account(
         address=address,
         client=client
         or GatewayClient(
@@ -68,7 +69,6 @@ async def get_deploy_account_transaction(
         ),
         key_pair=key_pair,
         chain=StarknetChainId.TESTNET,
-        supported_tx_version=1,
     )
     return await account.sign_deploy_account_transaction(
         class_hash=class_hash,
