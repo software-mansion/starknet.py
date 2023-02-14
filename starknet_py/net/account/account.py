@@ -3,11 +3,10 @@ import re
 from collections import OrderedDict
 from typing import Dict, Iterable, List, Optional, Tuple, Union
 
-from starkware.starknet.public.abi import get_selector_from_name
-
 from starknet_py.common import create_compiled_contract
 from starknet_py.constants import QUERY_VERSION_BASE
 from starknet_py.hash.address import compute_address
+from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.account_deployment_result import AccountDeploymentResult
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client

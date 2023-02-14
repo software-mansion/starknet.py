@@ -2,9 +2,9 @@
 from unittest.mock import patch
 
 import pytest
-from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
+from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.account import Account
 from starknet_py.net.client_models import Call
 from starknet_py.net.full_node_client import FullNodeClient
