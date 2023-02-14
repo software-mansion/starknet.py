@@ -108,12 +108,12 @@ async def address_and_private_key(
 
 @pytest.fixture(scope="package")
 def gateway_account(
-    new_address_and_private_key: Tuple[str, str], gateway_client: GatewayClient
+    address_and_private_key: Tuple[str, str], gateway_client: GatewayClient
 ) -> BaseAccount:
     """
     Returns a new Account created with GatewayClient.
     """
-    address, private_key = new_address_and_private_key
+    address, private_key = address_and_private_key
 
     return Account(
         address=address,
@@ -125,12 +125,12 @@ def gateway_account(
 
 @pytest.fixture(scope="package")
 def full_node_account(
-    new_address_and_private_key: Tuple[str, str], full_node_client: FullNodeClient
+    address_and_private_key: Tuple[str, str], full_node_client: FullNodeClient
 ) -> BaseAccount:
     """
     Returns a new Account created with FullNodeClient.
     """
-    address, private_key = new_address_and_private_key
+    address, private_key = address_and_private_key
 
     return Account(
         address=address,
