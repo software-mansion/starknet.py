@@ -32,12 +32,12 @@ from starknet_py.tests.e2e.utils import (
 )
 
 
-async def new_devnet_account_details(
+async def devnet_account_details(
     account: BaseAccount,
     class_hash: int,
 ) -> Tuple[str, str]:
     """
-    Deploys a new AccountClient and adds fee tokens to its balance (only on devnet).
+    Deploys an Account and adds fee tokens to its balance (only on devnet).
     """
     private_key = _get_random_private_key_unsafe()
     key_pair = KeyPair.from_private_key(private_key)
@@ -80,13 +80,13 @@ async def new_devnet_account_details(
 
 
 @pytest_asyncio.fixture(scope="package")
-async def new_address_and_private_key(
+async def address_and_private_key(
     pytestconfig,
     pre_deployed_account_with_validate_deploy: BaseAccount,
     account_with_validate_deploy_class_hash: int,
 ) -> Tuple[str, str]:
     """
-    Returns address and private key of a new account, depending on the network.
+    Returns address and private key of an account, depending on the network.
     """
     net = pytestconfig.getoption("--net")
 
@@ -99,7 +99,7 @@ async def new_address_and_private_key(
     }
 
     if net == "devnet":
-        return await new_devnet_account_details(
+        return await devnet_account_details(
             pre_deployed_account_with_validate_deploy,
             account_with_validate_deploy_class_hash,
         )
@@ -195,7 +195,7 @@ def pre_deployed_account_with_validate_deploy(
     pytestconfig, network: str
 ) -> BaseAccount:
     """
-    Returns an AccountClient pre-deployed on specified network. Used to deploy other accounts.
+    Returns an Account pre-deployed on specified network. Used to deploy other accounts.
     """
     address_and_priv_key = {
         "devnet": (
