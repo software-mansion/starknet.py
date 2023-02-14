@@ -1,6 +1,6 @@
 import pytest
 
-from starknet_py.net import AccountClient
+from starknet_py.net.account.account_client import AccountClient
 
 
 def test_account_client_raises_on_no_chain_and_signer(gateway_client):

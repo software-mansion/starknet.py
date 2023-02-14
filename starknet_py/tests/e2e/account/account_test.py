@@ -5,9 +5,9 @@ from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.contract import Contract
 from starknet_py.hash.address import compute_address
-from starknet_py.net import AccountClient, KeyPair
 from starknet_py.net.account._account_proxy import AccountProxy
 from starknet_py.net.account.account import Account
+from starknet_py.net.account.account_client import AccountClient
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError
@@ -19,6 +19,7 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
+from starknet_py.net.signer.stark_curve_signer import KeyPair
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.transaction_exceptions import TransactionRejectedError
 

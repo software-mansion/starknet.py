@@ -8,7 +8,6 @@ from starkware.starknet.public.abi import get_selector_from_name
 from starknet_py.common import create_compiled_contract
 from starknet_py.constants import QUERY_VERSION_BASE
 from starknet_py.hash.address import compute_address
-from starknet_py.net import KeyPair
 from starknet_py.net.account.account_deployment_result import AccountDeploymentResult
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
@@ -42,7 +41,7 @@ from starknet_py.net.networks import (
     default_token_address_for_network,
 )
 from starknet_py.net.signer import BaseSigner
-from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
+from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 from starknet_py.serialization.data_serializers.array_serializer import ArraySerializer
 from starknet_py.serialization.data_serializers.felt_serializer import FeltSerializer
 from starknet_py.serialization.data_serializers.payload_serializer import (

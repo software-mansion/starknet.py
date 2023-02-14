@@ -17,11 +17,11 @@ async def test_deploy_prefunded_account(
     # pylint: disable=import-outside-toplevel, too-many-locals
     # docs: start
     from starknet_py.hash.address import compute_address
-    from starknet_py.net import KeyPair
     from starknet_py.net.account.account import Account
     from starknet_py.net.gateway_client import GatewayClient
     from starknet_py.net.models import StarknetChainId
     from starknet_py.net.networks import TESTNET
+    from starknet_py.net.signer.stark_curve_signer import KeyPair
 
     # First, make sure to generate private key and salt
     # docs: end

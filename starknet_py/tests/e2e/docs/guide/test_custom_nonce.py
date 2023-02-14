@@ -13,11 +13,11 @@ async def test_custom_nonce(gateway_client):
     private_key = 0x1
 
     # docs: start
-    from starknet_py.net import KeyPair
     from starknet_py.net.account.account import Account
     from starknet_py.net.client import Client
     from starknet_py.net.models import AddressRepresentation, StarknetChainId
     from starknet_py.net.signer import BaseSigner
+    from starknet_py.net.signer.stark_curve_signer import KeyPair
 
     class MyAccount(Account):
         def __init__(

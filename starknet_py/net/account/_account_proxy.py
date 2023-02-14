@@ -4,7 +4,7 @@ import dataclasses
 from typing import List, Optional
 
 from starknet_py.constants import QUERY_VERSION_BASE
-from starknet_py.net import AccountClient
+from starknet_py.net.account.account_client import AccountClient
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import Calls, SentTransactionResponse
