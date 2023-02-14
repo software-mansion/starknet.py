@@ -18,11 +18,8 @@ from starknet_py.net.http_client import GatewayHttpClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.tests.e2e.fixtures.constants import (
     DEVNET_PRE_DEPLOYED_ACCOUNT_ADDRESS,
-    DEVNET_PRE_DEPLOYED_ACCOUNT_PRIVATE_KEY,
-    INTEGRATION_NEW_ACCOUNT_ADDRESS,
-    INTEGRATION_NEW_ACCOUNT_PRIVATE_KEY,
-    TESTNET_NEW_ACCOUNT_ADDRESS,
-    TESTNET_NEW_ACCOUNT_PRIVATE_KEY,
+    DEVNET_PRE_DEPLOYED_ACCOUNT_PRIVATE_KEY, TESTNET_ACCOUNT_ADDRESS, TESTNET_ACCOUNT_PRIVATE_KEY,
+    INTEGRATION_ACCOUNT_ADDRESS, INTEGRATION_ACCOUNT_PRIVATE_KEY,
 )
 from starknet_py.tests.e2e.utils import (
     AccountToBeDeployedDetails,
@@ -91,10 +88,10 @@ async def address_and_private_key(
     net = pytestconfig.getoption("--net")
 
     account_details = {
-        "testnet": (TESTNET_NEW_ACCOUNT_ADDRESS, TESTNET_NEW_ACCOUNT_PRIVATE_KEY),
+        "testnet": (TESTNET_ACCOUNT_ADDRESS, TESTNET_ACCOUNT_PRIVATE_KEY),
         "integration": (
-            INTEGRATION_NEW_ACCOUNT_ADDRESS,
-            INTEGRATION_NEW_ACCOUNT_PRIVATE_KEY,
+            INTEGRATION_ACCOUNT_ADDRESS,
+            INTEGRATION_ACCOUNT_PRIVATE_KEY,
         ),
     }
 
@@ -202,10 +199,10 @@ def pre_deployed_account_with_validate_deploy(
             DEVNET_PRE_DEPLOYED_ACCOUNT_ADDRESS,
             DEVNET_PRE_DEPLOYED_ACCOUNT_PRIVATE_KEY,
         ),
-        "testnet": (TESTNET_NEW_ACCOUNT_ADDRESS, TESTNET_NEW_ACCOUNT_PRIVATE_KEY),
+        "testnet": (TESTNET_ACCOUNT_ADDRESS, TESTNET_ACCOUNT_PRIVATE_KEY),
         "integration": (
-            INTEGRATION_NEW_ACCOUNT_ADDRESS,
-            INTEGRATION_NEW_ACCOUNT_PRIVATE_KEY,
+            INTEGRATION_ACCOUNT_ADDRESS,
+            INTEGRATION_ACCOUNT_PRIVATE_KEY,
         ),
     }
 
