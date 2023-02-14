@@ -251,9 +251,7 @@ class PreparedFunctionCall(Call):
         if self._internal_account is not None:
             return self._internal_account
 
-        raise ValueError(
-            "Contract was created without Account."
-        )
+        raise ValueError("Contract was created without Account.")
 
     async def call_raw(
         self,
