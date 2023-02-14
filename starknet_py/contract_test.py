@@ -147,15 +147,11 @@ def test_contract_raises_on_no_provider_and_client():
         Contract(address=1234, abi=[])
 
 
-def test_contract_raises_on_both_provider_and_client(
-    gateway_account, gateway_client
-):
+def test_contract_raises_on_both_provider_and_client(gateway_account, gateway_client):
     with pytest.raises(
         ValueError, match="Arguments provider and client are mutually exclusive."
     ):
-        Contract(
-            address=1234, abi=[], provider=gateway_account, client=gateway_client
-        )
+        Contract(address=1234, abi=[], provider=gateway_account, client=gateway_client)
 
 
 def test_contract_raises_on_incorrect_provider_type():

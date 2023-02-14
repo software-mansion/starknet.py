@@ -193,9 +193,7 @@ async def test_sign_deploy_account_transaction(gateway_account):
 
 
 @pytest.mark.asyncio
-async def test_deploy_account(
-    client, deploy_account_details_factory, map_contract
-):
+async def test_deploy_account(client, deploy_account_details_factory, map_contract):
     address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
 
     deploy_result = await Account.deploy_account(

@@ -32,10 +32,7 @@ from starknet_py.transactions.declare import make_declare_tx
 
 @pytest.mark.asyncio
 async def test_get_declare_transaction(
-    client,
-    declare_transaction_hash,
-    class_hash,
-    gateway_account
+    client, declare_transaction_hash, class_hash, gateway_account
 ):
     transaction = await client.get_transaction(declare_transaction_hash)
 
