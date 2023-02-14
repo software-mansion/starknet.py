@@ -36,12 +36,6 @@ You can see all Full Node Client's methods :ref:`FullNodeClient`.
 Creating Account
 ----------------------
 
-.. warning::
-
-    ``AccountClient`` has been deprecated in favor of the new ``Account``.
-    New ``Account`` doesn't implement a ``Client`` interface in favor of composition.
-    We recommend migrating to new Account as ``AccountClient`` will be removed in the future.
-
 :obj:`Account <starknet_py.net.account.account.Account>` is the default implementation of :obj:`BaseAccount <starknet_py.net.account.base_account.BaseAccount>` interface.
 It supports an account contract which proxies the calls to other contracts on StarkNet.
 
@@ -55,16 +49,6 @@ There are some examples how to do it:
 .. codesnippet:: ../starknet_py/tests/e2e/docs/quickstart/test_creating_account.py
     :language: python
     :dedent: 4
-
-.. note::
-
-    Since 0.5.0 :obj:`AccountClient <starknet_py.net.account.account_client.AccountClient>` has `supported_tx_version` parameter.
-    It is responsible for keeping an information about transaction version supported by the account. The `AccountClient`'s constructor
-    takes `supported_tx_version` as an argument (it is set to 0 by default).
-
-.. note::
-
-    We encourage you to upgrade your accounts to ones supporting latest transaction version.
 
 Using Account
 -------------------
