@@ -41,7 +41,7 @@ body:
     attributes:
       label: Python version
       description: What version of Python are you using?  
-      Note that the currently supported Python versions are 3.8 and 3.9.
+                   Note that the currently supported Python versions are 3.8 and 3.9.
     validations:
       required: true
 
