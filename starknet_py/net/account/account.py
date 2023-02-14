@@ -399,7 +399,6 @@ class Account(BaseAccount):
             StarknetChainId.MAINNET,
         ):
             balance = await account.get_balance()
-            print(balance, deploy_account_tx.max_fee)
             if balance < deploy_account_tx.max_fee:
                 raise ValueError(
                     "Not enough tokens at the specified address to cover deployment costs."
