@@ -1,10 +1,10 @@
 from unittest.mock import AsyncMock, patch
 
 import pytest
-from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.contract import Contract
 from starknet_py.hash.address import compute_address
+from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net import AccountClient, KeyPair
 from starknet_py.net.account._account_proxy import AccountProxy
 from starknet_py.net.account.account import Account

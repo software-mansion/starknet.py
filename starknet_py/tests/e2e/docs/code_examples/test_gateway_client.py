@@ -1,10 +1,8 @@
 # pylint: disable=unused-variable
 import pytest
-from starkware.starknet.public.abi import (
-    get_selector_from_name,
-    get_storage_var_address,
-)
 
+from starknet_py.hash.selector import get_selector_from_name
+from starknet_py.hash.storage import get_storage_var_address
 from starknet_py.net.client_models import Call
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.networks import TESTNET
