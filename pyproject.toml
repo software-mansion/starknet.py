@@ -54,7 +54,7 @@ test.shell = "pytest -n auto -v --reruns 10 --only-rerun aiohttp.client_exceptio
 test_ci.shell = "coverage run -m pytest -v --reruns 2 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py --ignore=starknet_py/tests/e2e/docs"
 test_ci_docs.shell = "coverage run -m pytest -v --reruns 2 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py/tests/e2e/docs"
 test_unit.shell = "pytest -n auto -v --reruns 10 --only-rerun aiohttp.client_exceptions.ClientConnectorError --cov=starknet_py starknet_py --ignore=starknet_py/tests/e2e"
-test_e2e.shell = "pytest -n auto -v --reruns 10 --only-rerun aiohttp.client_exceptions.ClientConnectorError --cov=starknet_py starknet_py/tests/e2e --ignore=starknet_py/tests/e2e/docs"
+test_e2e.shell = "pytest -n auto -v --reruns 20 --only-rerun aiohttp.client_exceptions.ClientConnectorError --cov=starknet_py starknet_py/tests/e2e --ignore=starknet_py/tests/e2e/docs"
 test_docs.shell = "pytest -n auto -v --reruns 10 --only-rerun aiohttp.client_exceptions.ClientConnectorError --cov=starknet_py starknet_py/tests/e2e/docs"
 test_report.shell = "coverage report"
 test_html.shell = "coverage html && open ./htmlcov/index.html"
