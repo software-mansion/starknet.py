@@ -252,7 +252,7 @@ class PreparedFunctionCall(Call):
             return self._internal_account
 
         raise ValueError(
-            "Contract was created without Account or with Client that is not an account."
+            "Contract was created without Account."
         )
 
     async def call_raw(
@@ -373,13 +373,6 @@ class ContractFunction:
             else 0
         )
 
-        if version == 0:
-            warnings.warn(
-                "Transaction with version 0 is deprecated and will be removed in the future. "
-                "Use Account supporting the transaction version 1",
-                category=DeprecationWarning,
-            )
-
         calldata = self._payload_transformer.serialize(*args, **kwargs)
         return PreparedFunctionCall(
             calldata=calldata,
@@ -455,7 +448,7 @@ class Contract:
         """
         Should be used instead of ``from_address`` when ABI is known statically.
 
-        Arguments account and client are mutually exclusive and cannot be provided at the same time.
+        Arguments provider and client are mutually exclusive and cannot be provided at the same time.
 
         :param address: contract's address.
         :param abi: contract's abi.
@@ -540,7 +533,7 @@ class Contract:
         """
         Declares a contract.
 
-        :param account: An AccountClient used to sign and send declare transaction.
+        :param account: BaseAccount used to sign and send declare transaction.
         :param compiled_contract: String containing compiled contract.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
@@ -576,7 +569,7 @@ class Contract:
         """
         Deploys a contract through Universal Deployer Contract
 
-        :param account: An AccountClient used to sign and send deploy transaction.
+        :param account: BaseAccount used to sign and send deploy transaction.
         :param class_hash: The class_hash of the contract to be deployed.
         :param abi: An abi of the contract to be deployed.
         :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
@@ -726,7 +719,6 @@ def _unpack_provider(
     """
     Get the client and optional account to be used by Contract.
 
-    If provided with AccountClient, returns underlying Client and _AccountProxy.
     If provided with Client, returns this Client and None.
     If provided with Account, returns underlying Client and the account.
     """
