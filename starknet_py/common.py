@@ -17,13 +17,13 @@ def create_compiled_contract(
     :param compilation_source:
         source of the contract to be compiled.
 
-         .. deprecated:: 0.13.0
+         .. deprecated:: 0.15.0
             Argument compilation_source has been deprecated. Use compiled_contract instead.
     :param compiled_contract: compiled contract string.
     :param search_paths:
         paths used to resolve compilation dependencies.
 
-         .. deprecated:: 0.13.0
+         .. deprecated:: 0.15.0
             Argument search_paths has been deprecated. Use compiled_contract instead.
     :return: CompiledContract instance.
     """
