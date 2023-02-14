@@ -23,6 +23,7 @@ from starknet_py.net.client_models import (
     TransactionType,
 )
 from starknet_py.net.http_client import RpcHttpClient
+from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import (
     AccountTransaction,
     Declare,
@@ -52,7 +53,7 @@ class FullNodeClient(Client):
     def __init__(
         self,
         node_url: str,
-        net: Network,
+        chain_id: Optional[StarknetChainId] = None,
         session: Optional[aiohttp.ClientSession] = None,
     ):
         """
@@ -65,11 +66,16 @@ class FullNodeClient(Client):
         """
         self.url = node_url
         self._client = RpcHttpClient(url=node_url, session=session)
-        self._net = net
+        self._net = node_url
+        self._chain_id = chain_id
 
     @property
     def net(self) -> Network:
         return self._net
+
+    @property
+    def chain_id(self) -> Optional[StarknetChainId]:
+        return self._chain_id
 
     async def get_block(
         self,

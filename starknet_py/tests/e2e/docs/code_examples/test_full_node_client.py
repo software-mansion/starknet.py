@@ -7,12 +7,16 @@ from starkware.starknet.public.abi import (
 
 from starknet_py.net.client_models import Call
 from starknet_py.net.full_node_client import FullNodeClient
-from starknet_py.net.networks import TESTNET
+from starknet_py.net.models import StarknetChainId
 
 
 def test_init():
     # docs-start: init
-    full_node_client = FullNodeClient(node_url="https://your.node.url", net=TESTNET)
+    full_node_client = FullNodeClient(node_url="https://your.node.url")
+    # or
+    full_node_client = FullNodeClient(
+        node_url="https://your.node.url", chain_id=StarknetChainId.TESTNET
+    )
     # docs-end: init
 
 

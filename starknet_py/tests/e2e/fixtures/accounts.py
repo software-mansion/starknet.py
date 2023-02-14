@@ -55,7 +55,7 @@ async def devnet_account_details(
         method_name="mint",
         payload={
             "address": hex(address),
-            "amount": int(1e30),
+            "amount": int(1e40),
         },
     )
 

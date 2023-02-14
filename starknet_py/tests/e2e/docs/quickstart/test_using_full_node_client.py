@@ -1,7 +1,6 @@
 import pytest
 
 from starknet_py.net.client_models import StarknetBlock, Transaction
-from starknet_py.net.networks import TESTNET
 
 
 @pytest.mark.run_on_devnet
@@ -12,9 +11,12 @@ async def test_using_full_node_client(full_node_client, map_contract):
 
     # docs: start
     from starknet_py.net.full_node_client import FullNodeClient
+    from starknet_py.net.models import StarknetChainId
 
     node_url = "https://your.node.url"
-    full_node_client = FullNodeClient(node_url=node_url, net=TESTNET)
+    full_node_client = FullNodeClient(
+        node_url=node_url, chain_id=StarknetChainId.TESTNET
+    )
     # docs: end
 
     await map_contract.functions["put"].prepare(key=10, value=10).invoke(

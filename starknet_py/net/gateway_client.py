@@ -25,6 +25,7 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.client_utils import hash_to_felt, is_block_identifier
 from starknet_py.net.http_client import GatewayHttpClient
+from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import (
     AccountTransaction,
     Declare,
@@ -34,7 +35,13 @@ from starknet_py.net.models.transaction import (
     Invoke,
     InvokeSchema,
 )
-from starknet_py.net.networks import Network, net_address_from_net
+from starknet_py.net.networks import (
+    MAINNET,
+    TESTNET,
+    TESTNET2,
+    Network,
+    net_address_from_net,
+)
 from starknet_py.net.schemas.gateway import (
     BlockStateUpdateSchema,
     BlockTransactionTracesSchema,
@@ -58,6 +65,7 @@ class GatewayClient(Client):
     def __init__(
         self,
         net: Network,
+        chain_id: Optional[StarknetChainId] = None,
         session: Optional[aiohttp.ClientSession] = None,
     ):
         """
@@ -77,6 +85,7 @@ class GatewayClient(Client):
             gateway_url = net["gateway_url"]
 
         self._net = net
+        self._set_chain_id(net, chain_id)
 
         self._feeder_gateway_client = GatewayHttpClient(
             url=feeder_gateway_url, session=session
@@ -86,6 +95,10 @@ class GatewayClient(Client):
     @property
     def net(self) -> Network:
         return self._net
+
+    @property
+    def chain_id(self) -> Optional[StarknetChainId]:
+        return self._chain_id
 
     async def get_block(
         self,
@@ -399,6 +412,18 @@ class GatewayClient(Client):
         )
         nonce = cast(str, nonce)
         return int(nonce, 16)
+
+    def _set_chain_id(self, net: Network, chain_id: Optional[StarknetChainId]):
+        mapping = {
+            MAINNET: StarknetChainId.MAINNET,
+            TESTNET: StarknetChainId.TESTNET,
+            TESTNET2: StarknetChainId.TESTNET2,
+        }
+
+        if isinstance(net, str) and net in mapping:
+            self._chain_id = mapping[net]
+        else:
+            self._chain_id = chain_id
 
 
 def get_block_identifier(

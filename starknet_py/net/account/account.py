@@ -6,7 +6,7 @@ from typing import Dict, Iterable, List, Optional, Tuple, Union
 from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.common import create_compiled_contract
-from starknet_py.constants import QUERY_VERSION_BASE
+from starknet_py.constants import FEE_CONTRACT_ADDRESS, QUERY_VERSION_BASE
 from starknet_py.hash.address import compute_address
 from starknet_py.net import KeyPair
 from starknet_py.net.account.account_deployment_result import AccountDeploymentResult
@@ -35,12 +35,6 @@ from starknet_py.net.models.transaction import (
     TypeAccountTransaction,
 )
 from starknet_py.net.models.typed_data import TypedData
-from starknet_py.net.networks import (
-    MAINNET,
-    TESTNET,
-    TESTNET2,
-    default_token_address_for_network,
-)
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 from starknet_py.serialization.data_serializers.array_serializer import ArraySerializer
@@ -228,9 +222,7 @@ class Account(BaseAccount):
     async def get_balance(
         self, token_address: Optional[AddressRepresentation] = None
     ) -> int:
-        token_address = token_address or default_token_address_for_network(
-            self._client.net
-        )
+        token_address = token_address or _default_token_address(self.client)
 
         low, high = await self._client.call_contract(
             Call(
@@ -401,8 +393,13 @@ class Account(BaseAccount):
             auto_estimate=auto_estimate,
         )
 
-        if client.net in (TESTNET, TESTNET2, MAINNET):
+        if client.chain_id in (
+            StarknetChainId.TESTNET,
+            StarknetChainId.TESTNET2,
+            StarknetChainId.MAINNET,
+        ):
             balance = await account.get_balance()
+            print(balance, deploy_account_tx.max_fee)
             if balance < deploy_account_tx.max_fee:
                 raise ValueError(
                     "Not enough tokens at the specified address to cover deployment costs."
@@ -464,3 +461,16 @@ _execute_payload_serializer = PayloadSerializer(
         calldata=ArraySerializer(_felt_serializer),
     )
 )
+
+
+def _default_token_address(client: Client) -> str:
+    if client.chain_id in (
+        StarknetChainId.TESTNET,
+        StarknetChainId.TESTNET2,
+        StarknetChainId.MAINNET,
+    ):
+        return FEE_CONTRACT_ADDRESS
+
+    raise ValueError(
+        "Argument token_address must be specified when using custom network."
+    )

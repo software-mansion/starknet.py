@@ -20,6 +20,7 @@ from starknet_py.net.client_models import (
     TransactionReceipt,
     TransactionStatus,
 )
+from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import (
     AccountTransaction,
     Declare,
@@ -41,7 +42,14 @@ class Client(ABC):
     @abstractmethod
     def net(self) -> Network:
         """
-        Network of the client
+        Network of the client.
+        """
+
+    @property
+    @abstractmethod
+    def chain_id(self) -> Optional[StarknetChainId]:
+        """
+        Chain id of the client.
         """
 
     @abstractmethod
