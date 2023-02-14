@@ -18,8 +18,11 @@ from starknet_py.net.http_client import GatewayHttpClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.tests.e2e.fixtures.constants import (
     DEVNET_PRE_DEPLOYED_ACCOUNT_ADDRESS,
-    DEVNET_PRE_DEPLOYED_ACCOUNT_PRIVATE_KEY, TESTNET_ACCOUNT_ADDRESS, TESTNET_ACCOUNT_PRIVATE_KEY,
-    INTEGRATION_ACCOUNT_ADDRESS, INTEGRATION_ACCOUNT_PRIVATE_KEY,
+    DEVNET_PRE_DEPLOYED_ACCOUNT_PRIVATE_KEY,
+    INTEGRATION_ACCOUNT_ADDRESS,
+    INTEGRATION_ACCOUNT_PRIVATE_KEY,
+    TESTNET_ACCOUNT_ADDRESS,
+    TESTNET_ACCOUNT_PRIVATE_KEY,
 )
 from starknet_py.tests.e2e.utils import (
     AccountToBeDeployedDetails,
