@@ -4,12 +4,13 @@ from typing import Optional, Tuple, cast
 from starknet_py.constants import EC_ORDER
 from starknet_py.contract import Contract
 from starknet_py.hash.address import compute_address
-from starknet_py.net import AccountClient, KeyPair
+from starknet_py.net.account.account_client import AccountClient
 from starknet_py.net.client import Client
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.net.networks import Network
+from starknet_py.net.signer.stark_curve_signer import KeyPair
 
 AccountToBeDeployedDetails = Tuple[int, KeyPair, int, int]
 MAX_FEE = int(1e20)

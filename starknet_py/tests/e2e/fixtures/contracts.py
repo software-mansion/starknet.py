@@ -7,8 +7,8 @@ import pytest_asyncio
 from starknet_py.common import create_compiled_contract
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.contract import Contract
-from starknet_py.net import AccountClient
 from starknet_py.net.account._account_proxy import AccountProxy
+from starknet_py.net.account.account_client import AccountClient
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
 from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_DIR, MAX_FEE
