@@ -11,7 +11,7 @@ from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.net.networks import Network
-from starknet_py.tests.e2e.contract_interaction.interaction_test import MAX_FEE
+from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 
 AccountToBeDeployedDetails = Tuple[int, KeyPair, int, int]
 
