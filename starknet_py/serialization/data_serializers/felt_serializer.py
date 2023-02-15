@@ -2,9 +2,8 @@ import warnings
 from dataclasses import dataclass
 from typing import Generator
 
-from starkware.crypto.signature.signature import FIELD_PRIME
-
 from starknet_py.cairo.felt import encode_shortstring, is_in_felt_range
+from starknet_py.constants import FIELD_PRIME
 from starknet_py.serialization._context import (
     Context,
     DeserializationContext,

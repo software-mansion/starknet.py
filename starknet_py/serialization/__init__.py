@@ -1,6 +1,5 @@
 # PayloadSerializer and FunctionSerializationAdapter would mostly be used by users
-from .data_serializers.cairo_data_serializer import CairoDataSerializer
-from .data_serializers.payload_serializer import PayloadSerializer
+from .data_serializers import CairoDataSerializer, PayloadSerializer
 from .errors import (
     CairoSerializerException,
     InvalidTypeException,

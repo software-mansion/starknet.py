@@ -16,7 +16,7 @@ documentation = "https://starknetpy.rtfd.io/"
 [tool.poetry.dependencies]
 python = ">=3.8, <3.10"
 asgiref = "^3.4.1"
-sphinx = { version = ">=4.3.1,<6.0.0", optional = true }
+sphinx = { version = ">=4.3.1,<7.0.0", optional = true }
 enum-tools = { extras = ["sphinx"], version = "0.9.0.post1", optional = true }
 crypto-cpp-py = "^1.0.4"
 marshmallow = "^3.15.0"
@@ -66,6 +66,7 @@ format_check.shell = "isort --check . && black --check ."
 format_diff.shell = "isort --diff . && black --diff ."
 typecheck = "pyright starknet_py"
 compile_contracts = "bash starknet_py/tests/e2e/mock/compile_contracts.sh"
+circular_imports_check.shell = "poetry run pytest circular.py"
 requirements_check.shell = "poetry export -f requirements.txt --without-hashes --extras docs | cmp - requirements.txt"
 ci = ["lint", "format_check", "typecheck", "requirements_check", "test_ci"]
 

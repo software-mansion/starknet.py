@@ -11,6 +11,22 @@ def create_compiled_contract(
     compiled_contract: Optional[str] = None,
     search_paths: Optional[List[str]] = None,
 ) -> CompiledContract:
+    """
+    Creates CompiledContract instance.
+
+    :param compilation_source:
+        source of the contract to be compiled.
+
+         .. deprecated:: 0.15.0
+            Argument compilation_source has been deprecated. Use compiled_contract instead.
+    :param compiled_contract: compiled contract string.
+    :param search_paths:
+        paths used to resolve compilation dependencies.
+
+         .. deprecated:: 0.15.0
+            Argument search_paths has been deprecated. Use compiled_contract instead.
+    :return: CompiledContract instance.
+    """
     warnings.warn(
         "Argument compilation_source is deprecated and will be removed in the future. "
         "Consider using already compiled contracts instead.",
@@ -34,6 +50,10 @@ def create_contract_class(
 ) -> ContractClass:
     """
     Creates ContractClass from already compiled contract.
+
+     .. deprecated:: 0.15.0
+        Function create_contract_class is deprecated and will be removed in the future.
+        Use :meth:`create_compiled_contract` instead.
 
     :return: a ContractClass.
     """
