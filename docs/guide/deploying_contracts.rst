@@ -23,7 +23,7 @@ Here's an example how to use it.
 Simple declare and deploy
 -------------------------
 
-The simplest way of declaring and deploying contracts on the StarkNet is to use the :ref:`Contract` class.
+The simplest way of declaring and deploying contracts on the Starknet is to use the :ref:`Contract` class.
 Under the hood, this flow sends :meth:`Declare` transaction and then sends :meth:`InvokeFunction`
 through Universal Deployment Contract (UDC) to deploy a contract.
 
