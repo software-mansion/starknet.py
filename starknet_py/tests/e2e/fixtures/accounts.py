@@ -35,6 +35,7 @@ from starknet_py.tests.e2e.utils import (
 async def devnet_account_details(
     account: BaseAccount,
     class_hash: int,
+    network: str,
 ) -> Tuple[str, str]:
     """
     Deploys an Account and adds fee tokens to its balance (only on devnet).
@@ -50,7 +51,7 @@ async def devnet_account_details(
         deployer_address=0,
     )
 
-    http_client = GatewayHttpClient(account.client.net)
+    http_client = GatewayHttpClient(network)
     await http_client.post(
         method_name="mint",
         payload={
@@ -64,7 +65,7 @@ async def devnet_account_details(
         key_pair=key_pair,
         salt=salt,
         class_hash=class_hash,
-        network=account.client.net,
+        network=network,
     )
 
     account = Account(
@@ -84,6 +85,7 @@ async def address_and_private_key(
     pytestconfig,
     pre_deployed_account_with_validate_deploy: BaseAccount,
     account_with_validate_deploy_class_hash: int,
+    network: str,
 ) -> Tuple[str, str]:
     """
     Returns address and private key of an account, depending on the network.
@@ -102,6 +104,7 @@ async def address_and_private_key(
         return await devnet_account_details(
             pre_deployed_account_with_validate_deploy,
             account_with_validate_deploy_class_hash,
+            network,
         )
     return account_details[net]
 

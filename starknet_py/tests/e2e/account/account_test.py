@@ -1,3 +1,4 @@
+from typing import cast
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -16,6 +17,7 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
+from starknet_py.net.signer.stark_curve_signer import KeyPair
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.transaction_exceptions import TransactionRejectedError
 
@@ -23,11 +25,17 @@ from starknet_py.transaction_exceptions import TransactionRejectedError
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_balance_throws_when_token_not_specified(account):
+    modified_account = Account(
+        address=account.address,
+        client=GatewayClient(net="custom.net"),
+        key_pair=KeyPair(1, 2),
+        chain=cast(StarknetChainId, 1),
+    )
     with pytest.raises(
         ValueError,
-        match="Argument token_address must be specified when using a custom net address",
+        match="Argument token_address must be specified when using a custom net.",
     ):
-        await account.get_balance()
+        await modified_account.get_balance()
 
 
 @pytest.mark.asyncio
@@ -303,7 +311,7 @@ async def test_deploy_account_passes_on_enough_funds(deploy_account_details_fact
 
 @pytest.mark.asyncio
 async def test_deploy_account_uses_custom_calldata(
-    client, deploy_account_details_factory
+    client, deploy_account_details_factory, fee_contract
 ):
     _, key_pair, salt, class_hash = await deploy_account_details_factory.get()
     calldata = [1, 2, 3, 4]
@@ -313,6 +321,11 @@ async def test_deploy_account_uses_custom_calldata(
         constructor_calldata=calldata,
         deployer_address=0,
     )
+
+    res = await fee_contract.functions["transfer"].invoke(
+        recipient=address, amount=int(1e25), max_fee=MAX_FEE
+    )
+    await res.wait_for_acceptance()
 
     deploy_result = await Account.deploy_account(
         address=address,

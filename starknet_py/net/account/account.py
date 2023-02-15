@@ -1,7 +1,7 @@
 import dataclasses
 import re
 from collections import OrderedDict
-from typing import Dict, Iterable, List, Optional, Tuple, Union
+from typing import Dict, Iterable, List, Optional, Tuple, Union, cast
 
 from starknet_py.common import create_compiled_contract
 from starknet_py.constants import QUERY_VERSION_BASE
@@ -19,12 +19,8 @@ from starknet_py.net.client_models import (
     SentTransactionResponse,
     Tag,
 )
-from starknet_py.net.models import (
-    AddressRepresentation,
-    StarknetChainId,
-    chain_from_network,
-    parse_address,
-)
+from starknet_py.net.models import AddressRepresentation, StarknetChainId, parse_address
+from starknet_py.net.models.chains import default_token_address_for_chain
 from starknet_py.net.models.transaction import (
     AccountTransaction,
     Declare,
@@ -33,12 +29,6 @@ from starknet_py.net.models.transaction import (
     TypeAccountTransaction,
 )
 from starknet_py.net.models.typed_data import TypedData
-from starknet_py.net.networks import (
-    MAINNET,
-    TESTNET,
-    TESTNET2,
-    default_token_address_for_network,
-)
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 from starknet_py.serialization.data_serializers.array_serializer import ArraySerializer
@@ -96,11 +86,15 @@ class Account(BaseAccount):
                     "Either a signer or a key_pair must be provided in Account constructor."
                 )
 
-            chain = chain_from_network(net=client.net, chain=chain)
             signer = StarkCurveSigner(
-                account_address=self.address, key_pair=key_pair, chain_id=chain
+                account_address=self.address,
+                key_pair=key_pair,
+                chain_id=cast(
+                    StarknetChainId, chain
+                ),  # cast is required, because pyright doesn't know chain is not None here
             )
         self.signer: BaseSigner = signer
+        self._chain_id = chain
 
     @property
     def address(self) -> int:
@@ -226,9 +220,7 @@ class Account(BaseAccount):
     async def get_balance(
         self, token_address: Optional[AddressRepresentation] = None
     ) -> int:
-        token_address = token_address or default_token_address_for_network(
-            self._client.net
-        )
+        token_address = token_address or default_token_address_for_chain(self._chain_id)
 
         low, high = await self._client.call_contract(
             Call(
@@ -399,7 +391,11 @@ class Account(BaseAccount):
             auto_estimate=auto_estimate,
         )
 
-        if client.net in (TESTNET, TESTNET2, MAINNET):
+        if chain in (
+            StarknetChainId.TESTNET,
+            StarknetChainId.TESTNET2,
+            StarknetChainId.MAINNET,
+        ):
             balance = await account.get_balance()
             if balance < deploy_account_tx.max_fee:
                 raise ValueError(
