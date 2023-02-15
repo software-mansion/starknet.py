@@ -41,7 +41,10 @@ class Client(ABC):
     @abstractmethod
     def net(self) -> Network:
         """
-        Network of the client
+        Network of the client.
+
+         .. deprecated:: 0.15.0
+            Parameter net of the Client interface is deprecated.
         """
 
     @abstractmethod

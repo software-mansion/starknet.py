@@ -1,3 +1,4 @@
+import warnings
 from typing import Dict, List, Optional, Union, cast
 
 import aiohttp
@@ -85,6 +86,7 @@ class GatewayClient(Client):
 
     @property
     def net(self) -> Network:
+        warnings.warn("Parameter net is deprecated.", category=DeprecationWarning)
         return self._net
 
     async def get_block(
