@@ -51,7 +51,9 @@ class BaseAccount(ABC):
 
     @abstractmethod
     async def get_balance(
-        self, token_address: Optional[AddressRepresentation] = None, chain_id: Optional[StarknetChainId] = None
+        self,
+        token_address: Optional[AddressRepresentation] = None,
+        chain_id: Optional[StarknetChainId] = None,
     ) -> int:
         """
         Checks account's balance of specified token.
