@@ -1,7 +1,7 @@
 <div align="center">
     <img src="https://raw.githubusercontent.com/software-mansion/starknet.py/master/graphic.png" alt="starknet.py"/>
 </div>
-<h2 align="center">StarkNet SDK for Python</h2>
+<h2 align="center">Starknet SDK for Python</h2>
 
 <div align="center">
 
