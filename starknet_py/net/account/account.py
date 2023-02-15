@@ -218,9 +218,9 @@ class Account(BaseAccount):
         )
 
     async def get_balance(
-        self, token_address: Optional[AddressRepresentation] = None
+        self, token_address: Optional[AddressRepresentation] = None, chain_id: Optional[StarknetChainId] = None,
     ) -> int:
-        token_address = token_address or default_token_address_for_chain(self._chain_id)
+        token_address = token_address or default_token_address_for_chain(chain_id or self._chain_id)
 
         low, high = await self._client.call_contract(
             Call(
