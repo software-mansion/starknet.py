@@ -8,12 +8,11 @@ from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import Call, TransactionReceipt, TransactionStatus
 from starknet_py.net.gateway_client import GatewayClient
+from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.transaction_exceptions import (
     TransactionNotReceivedError,
     TransactionRejectedError,
 )
-
-MAX_FEE = int(1e20)
 
 
 @pytest.mark.asyncio
@@ -175,7 +174,7 @@ async def test_error_when_invoking_without_account(gateway_client, map_contract)
 
     with pytest.raises(
         ValueError,
-        match="Contract was created without Account or with Client that is not an account.",
+        match="Contract was created without Account.",
     ):
         await contract.functions["put"].prepare(key=10, value=10).invoke(
             max_fee=MAX_FEE
@@ -190,7 +189,7 @@ async def test_error_when_estimating_fee_while_not_using_account(
 
     with pytest.raises(
         ValueError,
-        match="Contract was created without Account or with Client that is not an account.",
+        match="Contract was created without Account.",
     ):
         await contract.functions["put"].prepare(key=10, value=10).estimate_fee()
 

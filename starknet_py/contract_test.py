@@ -1,7 +1,6 @@
 import pytest
 
 from starknet_py.contract import Contract, DeclareResult, DeployResult
-from starknet_py.net.account._account_proxy import AccountProxy
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_DIR
 
@@ -123,16 +122,16 @@ def test_no_valid_source():
 
 
 @pytest.mark.parametrize("param", ["_account", "class_hash", "compiled_contract"])
-def test_declare_result_post_init(param, new_gateway_account_client):
+def test_declare_result_post_init(param, gateway_account):
     kwargs = {
-        "_account": new_gateway_account_client,
+        "_account": gateway_account,
         "class_hash": 0,
         "compiled_contract": "",
     }
     del kwargs[param]
 
     with pytest.raises(ValueError, match=f"Argument {param} can't be None."):
-        _ = DeclareResult(hash=0, _client=new_gateway_account_client.client, **kwargs)
+        _ = DeclareResult(hash=0, _client=gateway_account.client, **kwargs)
 
 
 def test_deploy_result_post_init(gateway_client):
@@ -148,15 +147,11 @@ def test_contract_raises_on_no_provider_and_client():
         Contract(address=1234, abi=[])
 
 
-def test_contract_raises_on_both_provider_and_client(
-    gateway_account_client, gateway_client
-):
+def test_contract_raises_on_both_provider_and_client(gateway_account, gateway_client):
     with pytest.raises(
         ValueError, match="Arguments provider and client are mutually exclusive."
     ):
-        Contract(
-            address=1234, abi=[], provider=gateway_account_client, client=gateway_client
-        )
+        Contract(address=1234, abi=[], provider=gateway_account, client=gateway_client)
 
 
 def test_contract_raises_on_incorrect_provider_type():
@@ -169,16 +164,6 @@ def test_contract_create_with_base_account(gateway_account):
     assert isinstance(contract.account, BaseAccount)
     assert contract.account == gateway_account
     assert contract.client == gateway_account.client
-
-
-def test_contract_create_with_account_client(gateway_account_client):
-    contract = Contract(address=0x1, abi=[], provider=gateway_account_client)
-    assert isinstance(contract.account, AccountProxy)
-    assert contract.client == gateway_account_client.client
-
-    contract = Contract(address=0x1, abi=[], client=gateway_account_client)
-    assert isinstance(contract.account, AccountProxy)
-    assert contract.client == gateway_account_client.client
 
 
 def test_contract_create_with_client(gateway_client):

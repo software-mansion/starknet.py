@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from starknet_py.contract import Contract
-from starknet_py.net import AccountClient
+from starknet_py.net.account.account import Account
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.tests.e2e.utils import (
     AccountToBeDeployedDetails,
@@ -24,19 +24,19 @@ class PreparedNetworkData:
 
 
 async def prepare_net_for_tests(
-    account_client: AccountClient,
+    account: Account,
     compiled_contract: str,
     deploy_account_details: AccountToBeDeployedDetails,
 ) -> PreparedNetworkData:
     # pylint: disable=too-many-locals
     declare_result = await Contract.declare(
-        account=account_client, compiled_contract=compiled_contract, max_fee=MAX_FEE
+        account=account, compiled_contract=compiled_contract, max_fee=MAX_FEE
     )
     await declare_result.wait_for_acceptance()
     deploy_result = await declare_result.deploy(max_fee=MAX_FEE)
     await deploy_result.wait_for_acceptance()
 
-    declare_receipt = await account_client.get_transaction_receipt(declare_result.hash)
+    declare_receipt = await account.client.get_transaction_receipt(declare_result.hash)
     block_with_declare_number = declare_receipt.block_number
     block_with_declare_hash = declare_receipt.block_hash
 
@@ -48,7 +48,7 @@ async def prepare_net_for_tests(
     await invoke_res.wait_for_acceptance()
 
     block_with_invoke_number = (
-        await account_client.get_transaction_receipt(invoke_res.hash)
+        await account.client.get_transaction_receipt(invoke_res.hash)
     ).block_number
 
     address, key_pair, salt, class_hash = deploy_account_details
@@ -57,12 +57,12 @@ async def prepare_net_for_tests(
         key_pair=key_pair,
         salt=salt,
         class_hash=class_hash,
-        client=account_client,
+        client=account.client,
     )
-    deploy_account_result = await account_client.deploy_account(deploy_account_tx)
-    await account_client.wait_for_tx(deploy_account_result.transaction_hash)
+    deploy_account_result = await account.client.deploy_account(deploy_account_tx)
+    await account.client.wait_for_tx(deploy_account_result.transaction_hash)
 
-    declare_account_receipt = await account_client.get_transaction_receipt(
+    declare_account_receipt = await account.client.get_transaction_receipt(
         deploy_account_result.transaction_hash
     )
     block_with_deploy_account_number = declare_account_receipt.block_number

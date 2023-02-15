@@ -17,8 +17,6 @@ from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
 from starknet_py.hash.address import compute_address
 from starknet_py.hash.class_hash import compute_class_hash
 from starknet_py.hash.selector import get_selector_from_name
-from starknet_py.net import AccountClient
-from starknet_py.net.account._account_proxy import AccountProxy
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import Call, Hash, Tag
@@ -253,9 +251,7 @@ class PreparedFunctionCall(Call):
         if self._internal_account is not None:
             return self._internal_account
 
-        raise ValueError(
-            "Contract was created without Account or with Client that is not an account."
-        )
+        raise ValueError("Contract was created without Account.")
 
     async def call_raw(
         self,
@@ -375,13 +371,6 @@ class ContractFunction:
             else 0
         )
 
-        if version == 0:
-            warnings.warn(
-                "Transaction with version 0 is deprecated and will be removed in the future. "
-                "Use Account supporting the transaction version 1",
-                category=DeprecationWarning,
-            )
-
         calldata = self._payload_transformer.serialize(*args, **kwargs)
         return PreparedFunctionCall(
             calldata=calldata,
@@ -457,7 +446,7 @@ class Contract:
         """
         Should be used instead of ``from_address`` when ABI is known statically.
 
-        Arguments account and client are mutually exclusive and cannot be provided at the same time.
+        Arguments provider and client are mutually exclusive and cannot be provided at the same time.
 
         :param address: contract's address.
         :param abi: contract's abi.
@@ -533,7 +522,7 @@ class Contract:
 
     @staticmethod
     async def declare(
-        account: Union[AccountClient, BaseAccount],
+        account: BaseAccount,
         compiled_contract: str,
         *,
         max_fee: Optional[int] = None,
@@ -542,13 +531,12 @@ class Contract:
         """
         Declares a contract.
 
-        :param account: An AccountClient used to sign and send declare transaction.
+        :param account: BaseAccount used to sign and send declare transaction.
         :param compiled_contract: String containing compiled contract.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :return: DeclareResult instance.
         """
-        account = _account_or_proxy(account)
 
         declare_tx = await account.sign_declare_transaction(
             compiled_contract=compiled_contract,
@@ -567,7 +555,7 @@ class Contract:
 
     @staticmethod
     async def deploy_contract(
-        account: Union[AccountClient, BaseAccount],
+        account: BaseAccount,
         class_hash: Hash,
         abi: List,
         constructor_args: Optional[Union[List, Dict]] = None,
@@ -579,7 +567,7 @@ class Contract:
         """
         Deploys a contract through Universal Deployer Contract
 
-        :param account: An AccountClient used to sign and send deploy transaction.
+        :param account: BaseAccount used to sign and send deploy transaction.
         :param class_hash: The class_hash of the contract to be deployed.
         :param abi: An abi of the contract to be deployed.
         :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
@@ -591,8 +579,6 @@ class Contract:
         :return: DeployResult instance.
         """
         # pylint: disable=too-many-arguments
-        account = _account_or_proxy(account)
-
         deployer = Deployer(
             deployer_address=deployer_address, account_address=account.address
         )
@@ -731,7 +717,6 @@ def _unpack_provider(
     """
     Get the client and optional account to be used by Contract.
 
-    If provided with AccountClient, returns underlying Client and _AccountProxy.
     If provided with Client, returns this Client and None.
     If provided with Account, returns underlying Client and the account.
     """
@@ -750,18 +735,9 @@ def _unpack_provider(
     provider = provider or client
 
     if isinstance(provider, Client):
-        if isinstance(provider, AccountClient):
-            return provider.client, AccountProxy(provider)
-
         return provider, None
 
     if isinstance(provider, BaseAccount):
         return provider.client, provider
 
     raise ValueError("Argument provider is not of accepted type.")
-
-
-def _account_or_proxy(account: Union[BaseAccount, AccountClient]) -> BaseAccount:
-    if isinstance(account, AccountClient):
-        return AccountProxy(account)
-    return account

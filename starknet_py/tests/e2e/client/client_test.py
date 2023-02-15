@@ -32,17 +32,14 @@ from starknet_py.transactions.declare import make_declare_tx
 
 @pytest.mark.asyncio
 async def test_get_declare_transaction(
-    client,
-    declare_transaction_hash,
-    class_hash,
-    sender_address,
+    client, declare_transaction_hash, class_hash, gateway_account
 ):
     transaction = await client.get_transaction(declare_transaction_hash)
 
     assert isinstance(transaction, DeclareTransaction)
     assert transaction.class_hash == class_hash
     assert transaction.hash == declare_transaction_hash
-    assert transaction.sender_address == sender_address[transaction.version]
+    assert transaction.sender_address == gateway_account.address
 
 
 @pytest.mark.asyncio
@@ -187,9 +184,9 @@ async def test_call_contract(client, contract_address):
 
 
 @pytest.mark.asyncio
-async def test_add_transaction(map_contract, client, account_client):
+async def test_add_transaction(map_contract, client, account):
     prepared_function_call = map_contract.functions["put"].prepare(key=73, value=12)
-    signed_invoke = await account_client.sign_invoke_transaction(
+    signed_invoke = await account.sign_invoke_transaction(
         calls=prepared_function_call, max_fee=MAX_FEE
     )
 
