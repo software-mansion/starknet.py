@@ -67,7 +67,7 @@ class BaseAccount(ABC):
     ) -> Union[Invoke, Declare, DeployAccount]:
         """
         Sign a transaction for a purpose of only fee estimation.
-        Should use a transaction version that is not executable on StarkNet,
+        Should use a transaction version that is not executable on Starknet,
         calculated like ``transaction.version + 2 ** 128``.
 
         :param transaction: Transaction to be signed.
@@ -152,7 +152,7 @@ class BaseAccount(ABC):
     @abstractmethod
     def sign_message(self, typed_data: TypedData) -> List[int]:
         """
-        Sign an TypedData TypedDict for off-chain usage with the starknet private key and return the signature.
+        Sign an TypedData TypedDict for off-chain usage with the Starknet private key and return the signature.
         This adds a message prefix, so it can't be interchanged with transactions.
 
         :param typed_data: TypedData TypedDict to be signed.
@@ -162,7 +162,7 @@ class BaseAccount(ABC):
     @abstractmethod
     async def verify_message(self, typed_data: TypedData, signature: List[int]) -> bool:
         """
-        Verify a signature of a TypedData dict on StarkNet.
+        Verify a signature of a TypedData dict on Starknet.
 
         :param typed_data: TypedData TypedDict to be verified.
         :param signature: signature of the TypedData TypedDict.

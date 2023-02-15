@@ -12,7 +12,7 @@ async def test_signing_fee_estimate(gateway_account, map_contract):
     # Re-sign a transaction for fee estimation
     estimate_transaction = await account.sign_for_fee_estimate(transaction)
 
-    # Transaction uses a version that cannot be executed on StarkNet
+    # Transaction uses a version that cannot be executed on Starknet
     assert estimate_transaction.version == 1 + 2**128
     assert estimate_transaction.signature != transaction.signature
 
