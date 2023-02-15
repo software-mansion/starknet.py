@@ -37,7 +37,7 @@ async def test_sn_eth_messages(gateway_client):
     client = gateway_client
 
     # docs: start
-    # 3. From l2 (StarkNet) transaction receipt (provided by starknet.py, like shown below)
+    # 3. From l2 (Starknet) transaction receipt (provided by starknet.py, like shown below)
     tx_receipt = await client.get_transaction_receipt("0x123123123")
     # docs: end
 

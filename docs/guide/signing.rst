@@ -28,7 +28,7 @@ Signing for fee estimation
 --------------------------
 
 :ref:`Account` allows signing transactions for the purpose of fee estimation.
-Transactions signed for fee estimation use a transaction version that makes them non-executable on StarkNet.
+Transactions signed for fee estimation use a transaction version that makes them non-executable on Starknet.
 If a transaction like this was to be intercepted in transport, it could not
 be executed without the user consent.
 

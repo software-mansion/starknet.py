@@ -73,7 +73,7 @@ async def test_get_deploy_account_transaction(client, deploy_account_transaction
 @pytest.mark.asyncio
 async def test_get_transaction_raises_on_not_received(client):
     with pytest.raises(
-        TransactionNotReceivedError, match="Transaction was not received on starknet."
+        TransactionNotReceivedError, match="Transaction was not received on Starknet."
     ):
         await client.get_transaction(tx_hash=0x1)
 
@@ -255,7 +255,7 @@ async def test_wait_for_tx_pending(gateway_client):
         (
             TransactionStatus.REJECTED,
             TransactionRejectedError,
-            "Unknown starknet error",
+            "Unknown Starknet error",
         ),
         (
             TransactionStatus.NOT_RECEIVED,

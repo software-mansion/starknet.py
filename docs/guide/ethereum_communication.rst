@@ -1,20 +1,20 @@
-StarkNet <> Ethereum communication
+Starknet <> Ethereum communication
 ==================================
 
 .. warning::
-    StarkNet <> Ethereum Messaging module is deprecated. If you are using it,
-    please contact us on our StarkNet discord channel: starknet-py.
+    Starknet <> Ethereum Messaging module is deprecated. If you are using it,
+    please contact us on our Starknet discord channel: starknet-py.
 
-To retrieve the StarkNet -> Ethereum or Ethereum -> StarkNet message count, you need to provide some data that you used to create that message.
+To retrieve the Starknet -> Ethereum or Ethereum -> Starknet message count, you need to provide some data that you used to create that message.
 Then after creating the message's representation, you can query its current count.
 
-You can find out more about StarkNet <> Ethereum messaging here: https://starknet.io/documentation/l1-l2-messaging/
+You can find out more about Starknet <> Ethereum messaging here: https://starknet.io/documentation/l1-l2-messaging/
 
 Full API description :ref:`here<Messaging>`.
 
 
 
-Ethereum -> StarkNet messages
+Ethereum -> Starknet messages
 #############################
 
 The message's count is an `int`, representing the number of unconsumed messages on L2 with that exact content.
@@ -26,7 +26,7 @@ Since the `nonce`'s value will always be unique for each message, this value is 
     :dedent: 4
 
 
-StarkNet -> Ethereum messages
+Starknet -> Ethereum messages
 #############################
 
 As in previous section, you can provide L1 message content, and then fetch the queued message count.

@@ -2,7 +2,7 @@ Account creation
 ================
 
 
-An account is needed to start interacting with StarkNet.
+An account is needed to start interacting with Starknet.
 If you don't have one there are a few ways of creating one programmatically:
 
  - using DeployAccount transaction
@@ -20,7 +20,7 @@ Deploying an account with DeployAccount transaction requires the following:
  - computing an address based on the account's secrets
  - prefunding an address with the fee tokens (e.g. using the token bridge)
  - creating and signing a DeployAccount transaction with generated secrets
- - sending the transaction to StarkNet
+ - sending the transaction to Starknet
 
 Here is step by step example:
 

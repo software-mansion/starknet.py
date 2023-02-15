@@ -348,7 +348,7 @@ class Account(BaseAccount):
         auto_estimate: bool = False,
     ) -> AccountDeploymentResult:
         """
-        Deploys an account contract with provided class_hash on StarkNet and returns
+        Deploys an account contract with provided class_hash on Starknet and returns
         an AccountDeploymentResult that allows waiting for transaction acceptance.
 
         Provided address must be first prefunded with enough tokens, otherwise the method will fail.
@@ -361,7 +361,7 @@ class Account(BaseAccount):
         :param salt: salt used to calculate the address.
         :param key_pair: KeyPair used to calculate address and sign deploy account transaction.
         :param client: a Client instance used for deployment.
-        :param chain: id of the StarkNet chain used.
+        :param chain: id of the Starknet chain used.
         :param constructor_calldata: optional calldata to account contract constructor. If ``None`` is passed,
             ``[key_pair.public_key]`` will be used as calldata.
         :param max_fee: max fee to be paid for deployment, must be less or equal to the amount of tokens prefunded.

@@ -53,10 +53,10 @@ class FullNodeClient(Client):
         session: Optional[aiohttp.ClientSession] = None,
     ):
         """
-        Client for interacting with starknet json-rpc interface.
+        Client for interacting with Starknet json-rpc interface.
 
         :param node_url: Url of the node providing rpc interface
-        :param net: StarkNet network identifier
+        :param net: Starknet network identifier
         :param session: Aiohttp session to be used for request. If not provided, client will create a session for
                         every request. When using a custom session, user is responsible for closing it manually.
         """
@@ -334,7 +334,7 @@ class FullNodeClient(Client):
         :param contract_address: The address of the contract whose class definition will be returned
         :param block_hash: Block's hash or literals `"pending"` or `"latest"`
         :param block_number: Block's number or literals `"pending"` or `"latest"`
-        :return: Contract declared to StarkNet
+        :return: Contract declared to Starknet
         """
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number

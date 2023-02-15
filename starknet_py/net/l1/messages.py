@@ -102,7 +102,7 @@ class MessageToEth:
     ) -> List["MessageToEth"]:
         """
 
-        :param tx_hash: A starknet transaction hash
+        :param tx_hash: A Starknet transaction hash
         :param client: Instance of starknet.py's Client class
         :return: A list of messages to Ethereum in this transaction
         """
@@ -117,7 +117,7 @@ class MessageToEth:
     ) -> int:
         """
 
-        :param chain_id: A `StarknetChainId` (which contains StarkNet core contract deployed)
+        :param chain_id: A `StarknetChainId` (which contains Starknet core contract deployed)
         :param web3: Web3 instance from web3.py
         :param block_number: Optional. `EthBlockIdentifier` which is a hex address, integer,
                              or one of "latest", "earliest", "pending"
@@ -221,7 +221,7 @@ class MessageToStarknet:
 
         :param tx_hash: Transaction hash including some L1 to L2 messages
         :param web3: Web3 instance from web3.py
-        :return: A list of messages to StarkNet in this transaction
+        :return: A list of messages to Starknet in this transaction
         """
         receipt = web3.eth.get_transaction_receipt(tx_hash)
         return cls.from_tx_receipt(receipt, web3)
@@ -234,7 +234,7 @@ class MessageToStarknet:
     ) -> int:
         """
 
-        :param chain_id: A `StarknetChainId` (which contains StarkNet core contract deployed)
+        :param chain_id: A `StarknetChainId` (which contains Starknet core contract deployed)
         :param web3: Web3 instance from web3.py
         :param block_number: Optional. `EthBlockIdentifier` which is a hex address, integer,
                              or one of "latest", "earliest", "pending"

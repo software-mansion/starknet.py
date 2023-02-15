@@ -21,7 +21,7 @@ def make_declare_tx(
     Either `compilation_source` or `compiled_contract` is required.
 
      .. deprecated:: 0.5.0
-        Unsigned declare transactions will not be supported in the future versions of StarkNet.
+        Unsigned declare transactions will not be supported in the future versions of Starknet.
         Use :meth:`~starknet_py.net.account.account.Account.sign_declare_transaction` instead.
 
     :param compilation_source: string containing source code or a list of source files paths
@@ -32,7 +32,7 @@ def make_declare_tx(
     :return: A "Declare" transaction object
     """
     warnings.warn(
-        "Unsigned declare transactions will not be supported in the future versions of StarkNet. Please use "
+        "Unsigned declare transactions will not be supported in the future versions of Starknet. Please use "
         "Account.sign_declare_transaction instead,",
         category=DeprecationWarning,
     )

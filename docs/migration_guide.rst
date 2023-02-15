@@ -16,7 +16,7 @@ Breaking changes
 Deprecations
 ------------
 
-1. :ref:`compiler` module. It will be removed in the future. We recommend transitioning to building contracts through StarkNet CLI or external tools and using only compiled contracts with StarkNet.py.
+1. :ref:`compiler` module. It will be removed in the future. We recommend transitioning to building contracts through Starknet CLI or external tools and using only compiled contracts with starknet.py.
 2. ``utils.data_transformer`` module. It has been replaced with :ref:`serializers` module.
 
 
@@ -56,7 +56,7 @@ It was caused by many transactions failing due to low ``max_fee``.
 0.13.0 Migration guide
 **********************
 
-This version deprecates the :class:`AccountClient <starknet_py.net.account.AccountClient>`, which is a major change to the StarkNet.py.
+This version deprecates the :class:`AccountClient <starknet_py.net.account.AccountClient>`, which is a major change to the starknet.py.
 It is replaced with new :class:`BaseAccount <starknet_py.net.account.base_account.BaseAccount>` ABC and its
 default implementation :class:`Account <starknet_py.net.account.account.Account>`.
 
@@ -101,7 +101,7 @@ Changes in the Account interface
 
 1. Passing a dict to ``BaseSigner.sign_message`` as parameter has been deprecated in favor of :class:`TypedData <starknet_py.utils.typed_data.TypedData>` dataclass.
 2. Argument ``client`` of ``Contract`.__init__` and ``Contract.from_address`` has been deprecated and replaced with ``provider``.
-3. StarkNet <> Ethereum Messaging module has been deprecated.
+3. Starknet <> Ethereum Messaging module has been deprecated.
 4. ``PreparedFunctionCall.arguments`` has been deprecated to simplify the upcoming ``serialization`` module.
 
 
@@ -125,13 +125,13 @@ Changes in the Account interface
 0.12.0 Migration guide
 **********************
 
-StarkNet.py 0.12.0 brings support for the Cairo-lang 0.10.3 and the new TESTNET2 chainId.
+starknet.py 0.12.0 brings support for the Cairo-lang 0.10.3 and the new TESTNET2 chainId.
 
 0.12.0 Breaking Changes
 -----------------------
 
 There should not be any breaking changes if you are using the `StarknetChainId` imported from the `starknet_py.net.models`,
-but if you are importing it from the Cairo-lang package, please switch to the one from StarkNet.py.
+but if you are importing it from the Cairo-lang package, please switch to the one from starknet.py.
 
 |
 
@@ -177,7 +177,7 @@ Old `InvokeFunction` transaction is now aliased as `Invoke`. We suggest to start
 0.9.0 Migration guide
 **********************
 
-Starknet.py 0.9.0 brings support for `RPC 0.2.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.2.0>`_,
+starknet.py 0.9.0 brings support for `RPC 0.2.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.2.0>`_,
 updates :meth:`Contract.from_address` method to work with the newest proxies and removes some deprecated features.
 
 0.9.0 Breaking Changes
@@ -192,7 +192,7 @@ updates :meth:`Contract.from_address` method to work with the newest proxies and
 Contract.from_address
 ---------------------
 
-Check out the Guide with the new section :ref:`Resolving proxy contracts` to see how to easily use proxies with the Starknet.py.
+Check out the Guide with the new section :ref:`Resolving proxy contracts` to see how to easily use proxies with the starknet.py.
 
 |
 
@@ -212,7 +212,7 @@ replace currently used `DEPLOY` transactions sometime in the future.
 You should already modify your applications to use new deployment flow to either support deployments
 using new flow:
 
-1. Declare a contract on starknet using `Declare` transaction
+1. Declare a contract on Starknet using `Declare` transaction
 2. Pre-fund the address of new account with enough tokens to cover transaction costs
 3. Send a `DeployAccount` transaction with the pre-funded address
 
@@ -256,7 +256,7 @@ removed in the future.
 
 .. note::
 
-    There is no need to upgrade ``starknet.py`` to the newest version because the old one is still compatible with StarkNet.
+    There is no need to upgrade ``starknet.py`` to the newest version because the old one is still compatible with Starknet.
     However, an upgrade is required to use the new features.
 
 
@@ -278,7 +278,7 @@ As a result, the **old syntax is no longer supported**.
     programs that are already compiled you don't need to worry.
 
 
-For the already existent programs to be compatible with the new StarkNet version,
+For the already existent programs to be compatible with the new Starknet version,
 they would have to be migrated using ``cairo-migrate`` command from CLI. It is a part of `cairo-lang` package.
 
 To migrate old syntax to the old one in place run:
@@ -350,14 +350,14 @@ The following :ref:`AccountClient`'s methods has been deprecated:
 Unsigned declare transaction
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``make_declare_tx`` is deprecated, because in the future versions of StarkNet unsigned declare transactions will not be
+``make_declare_tx`` is deprecated, because in the future versions of Starknet unsigned declare transactions will not be
 supported. :meth:`~starknet_py.net.account.account_client.AccountClient.sign_declare_transaction` should be used to create
 and sign declare transaction.
 
 Deploy transaction
 ^^^^^^^^^^^^^^^^^^
 
-Deploy transactions will not be supported in the future versions of StarkNet, so ``make_deploy_tx`` is deprecated.
+Deploy transactions will not be supported in the future versions of Starknet, so ``make_deploy_tx`` is deprecated.
 Contracts should be deployed through cairo syscall.
 
 |
@@ -379,21 +379,21 @@ migration guide.
 Overlook of the changes
 -----------------------
 
-0.4.0 brings support for the `starknet rpc interface <https://github.com/starkware-libs/starknet-specs/blob/606c21e06be92ea1543fd0134b7f98df622c2fbf/api/starknet_api_openrpc.json>`_.
+0.4.0 brings support for the `Starknet rpc interface <https://github.com/starkware-libs/starknet-specs/blob/606c21e06be92ea1543fd0134b7f98df622c2fbf/api/starknet_api_openrpc.json>`_.
 
 This required us to introduce some big changes to the clients. API methods has
 remained mostly the same, but their parameters changed. Also, we've introduced custom dataclasses
 for every endpoint, that are simplified from these from ``cairo-lang`` library.
 
-This provides uniform interface for both starknet gateway (only supported way of interacting with
-starknet in previous StarkNet.py versions), as well as JSON-RPC.
+This provides uniform interface for both Starknet gateway (only supported way of interacting with
+Starknet in previous starknet.py versions), as well as JSON-RPC.
 
 Clients
 -------
 
 Client has been separated into two specialized modules.
 
-* Use :ref:`GatewayClient` to interact with StarkNet like you did in previous starknet.py versions
+* Use :ref:`GatewayClient` to interact with Starknet like you did in previous starknet.py versions
 * Use :ref:`FullNodeClient` to interact with JSON-RPC
 
 .. note::
@@ -459,7 +459,7 @@ Facade.py
 ---------
 
 `sign_calldata` method has been removed entirely. See guide on how how you can
-now prepare and send transactions to StarkNet.
+now prepare and send transactions to Starknet.
 
 Contract changes
 ----------------

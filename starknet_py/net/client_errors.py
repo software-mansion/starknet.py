@@ -6,7 +6,7 @@ from starknet_py.net.models import AddressRepresentation
 
 class ClientError(Exception):
     """
-    Base class for all errors raised while attempting to communicate with StarkNet through Client.
+    Base class for all errors raised while attempting to communicate with Starknet through Client.
     """
 
     def __init__(self, message: str, code: Optional[str] = None):
