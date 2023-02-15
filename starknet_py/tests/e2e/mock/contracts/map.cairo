@@ -1,4 +1,4 @@
-// Declare this file as a StarkNet contract and set the required
+// Declare this file as a Starknet contract and set the required
 // builtins.
 %lang starknet
 %builtins pedersen range_check
