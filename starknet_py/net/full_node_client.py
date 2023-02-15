@@ -72,7 +72,7 @@ class FullNodeClient(Client):
         self._net = net
 
     @property
-    def net(self) -> Network:
+    def net(self) -> Optional[Network]:
         warnings.warn("Parameter net is deprecated.", category=DeprecationWarning)
         return self._net
 
