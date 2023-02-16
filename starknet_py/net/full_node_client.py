@@ -435,23 +435,6 @@ def _create_broadcasted_declare_properties(transaction: Declare) -> dict:
 
 
 def _create_broadcasted_invoke_properties(transaction: Invoke) -> dict:
-    if transaction.version == 0:
-        return _create_invoke_v0_properties(transaction)
-    return _create_invoke_v1_properties(transaction)
-
-
-def _create_invoke_v0_properties(transaction: Invoke) -> dict:
-    invoke_properties = {
-        "contract_address": _to_rpc_felt(transaction.contract_address),
-        "entry_point_selector": _to_rpc_felt(
-            cast(int, transaction.entry_point_selector)
-        ),
-        "calldata": [_to_rpc_felt(data) for data in transaction.calldata],
-    }
-    return invoke_properties
-
-
-def _create_invoke_v1_properties(transaction: Invoke) -> dict:
     invoke_properties = {
         "sender_address": _to_rpc_felt(transaction.contract_address),
         "calldata": [_to_rpc_felt(data) for data in transaction.calldata],
@@ -478,9 +461,7 @@ def _create_broadcasted_txn_common_properties(transaction: AccountTransaction) -
         "max_fee": _to_rpc_felt(transaction.max_fee),
         "version": _to_rpc_felt(transaction.version),
         "signature": [_to_rpc_felt(sig) for sig in transaction.signature],
-        "nonce": _to_rpc_felt(transaction.nonce)
-        if transaction.nonce is not None
-        else "0x00",
+        "nonce": _to_rpc_felt(transaction.nonce),
     }
     return broadcasted_txn_common_properties
 
