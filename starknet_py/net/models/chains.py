@@ -31,7 +31,7 @@ def chain_from_network(
 
 
 def default_token_address_for_chain(chain_id: Optional[StarknetChainId] = None) -> str:
-    if chain_id is None or chain_id not in [
+    if chain_id not in [
         StarknetChainId.TESTNET,
         StarknetChainId.TESTNET2,
         StarknetChainId.MAINNET,
