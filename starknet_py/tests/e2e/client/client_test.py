@@ -5,7 +5,6 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from aiohttp import ClientSession
 
-from starknet_py.common import create_compiled_contract
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.storage import get_storage_var_address
 from starknet_py.net.client_models import (
@@ -18,7 +17,6 @@ from starknet_py.net.client_models import (
     TransactionStatus,
 )
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models.transaction import Declare, Invoke
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.tests.e2e.fixtures.misc import read_contract
@@ -126,23 +124,14 @@ async def test_get_transaction_receipt(
 
 @pytest.mark.asyncio
 async def test_estimate_fee_invoke(account, contract_address):
-    invoke_tx = Invoke(
-        contract_address=account.address,
-        calldata=[
-            1,
-            contract_address,
-            get_selector_from_name("increase_balance"),
-            0,
-            1,
-            1,
-            1024,
-        ],
+    invoke_tx = await account.sign_invoke_transaction(
+        calls=Call(
+            to_addr=contract_address,
+            selector=get_selector_from_name("increase_balance"),
+            calldata=[123],
+        ),
         max_fee=MAX_FEE,
-        version=1,
-        signature=[],
-        nonce=await account.get_nonce(),
     )
-
     invoke_tx = await account.sign_for_fee_estimate(invoke_tx)
     estimate_fee = await account.client.estimate_fee(tx=invoke_tx)
 
@@ -152,17 +141,9 @@ async def test_estimate_fee_invoke(account, contract_address):
 
 @pytest.mark.asyncio
 async def test_estimate_fee_declare(account):
-    declare_tx = Declare(
-        contract_class=create_compiled_contract(
-            compiled_contract=read_contract("map_compiled.json")
-        ),
-        sender_address=account.address,
-        max_fee=MAX_FEE,
-        signature=[],
-        nonce=await account.get_nonce(),
-        version=1,
+    declare_tx = await account.sign_declare_transaction(
+        compiled_contract=read_contract("map_compiled.json"), max_fee=MAX_FEE
     )
-
     declare_tx = await account.sign_for_fee_estimate(declare_tx)
     estimate_fee = await account.client.estimate_fee(tx=declare_tx)
 

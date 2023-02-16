@@ -135,7 +135,6 @@ class DeployAccount(AccountTransaction):
     constructor_calldata: List[int] = field(
         metadata={"marshmallow_field": fields.List(fields.String())}
     )
-    version: int = field(metadata={"marshmallow_field": Felt()})
 
     type: TransactionType = TransactionType.DEPLOY_ACCOUNT
 
@@ -172,12 +171,11 @@ class Invoke(AccountTransaction):
     calldata: List[int] = field(
         metadata={"marshmallow_field": fields.List(fields.String())}
     )
-    nonce: int = field(metadata={"marshmallow_field": Felt()})
 
     type: TransactionType = TransactionType.INVOKE
 
     @marshmallow.post_dump
-    def _change_transaction_type(
+    def _set_invoke_function_type(
         self, data: Dict[str, Any], many: bool, **kwargs
     ) -> Dict[str, Any]:
         # pylint: disable=no-self-use, unused-argument
@@ -188,8 +186,6 @@ class Invoke(AccountTransaction):
         """
         Calculates the transaction hash in the StarkNet network.
         """
-        additional_data = [self.nonce]
-
         return compute_transaction_hash(
             tx_hash_prefix=TransactionHashPrefix.INVOKE,
             version=self.version,
@@ -198,7 +194,7 @@ class Invoke(AccountTransaction):
             calldata=self.calldata,
             max_fee=self.max_fee,
             chain_id=chain_id.value,
-            additional_data=additional_data,
+            additional_data=[self.nonce],
         )
 
 

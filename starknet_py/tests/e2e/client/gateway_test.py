@@ -1,19 +1,19 @@
+import dataclasses
 from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from starknet_py.common import create_compiled_contract
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.storage import get_storage_var_address
 from starknet_py.net.client_errors import ContractNotFoundError
 from starknet_py.net.client_models import (
+    Call,
     DeployTransaction,
     L1HandlerTransaction,
     TransactionStatus,
     TransactionStatusResponse,
 )
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models.transaction import Declare, Invoke
 from starknet_py.net.networks import MAINNET, TESTNET, CustomGatewayUrls
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.tests.e2e.fixtures.misc import read_contract
@@ -45,35 +45,20 @@ async def test_get_class_hash_at(contract_address, gateway_client, class_hash):
 async def test_estimate_fee_bulk(
     contract_address, gateway_client, deploy_account_transaction, account
 ):
-    nonce = await account.get_nonce()
-    invoke_tx = Invoke(
-        contract_address=account.address,
-        calldata=[
-            1,
-            contract_address,
-            get_selector_from_name("increase_balance"),
-            0,
-            1,
-            1,
-            1024,
-        ],
+    invoke_tx = await account.sign_invoke_transaction(
+        calls=Call(
+            to_addr=contract_address,
+            selector=get_selector_from_name("increase_balance"),
+            calldata=[123],
+        ),
         max_fee=MAX_FEE,
-        version=1,
-        signature=[],
-        nonce=nonce,
     )
     invoke_tx = await account.sign_for_fee_estimate(invoke_tx)
 
-    declare_tx = Declare(
-        contract_class=create_compiled_contract(
-            compiled_contract=read_contract("map_compiled.json")
-        ),
-        sender_address=account.address,
-        max_fee=MAX_FEE,
-        signature=[],
-        nonce=nonce + 1,
-        version=1,
+    declare_tx = await account.sign_declare_transaction(
+        compiled_contract=read_contract("map_compiled.json"), max_fee=MAX_FEE
     )
+    declare_tx = dataclasses.replace(declare_tx, nonce=invoke_tx.nonce + 1)
     declare_tx = await account.sign_for_fee_estimate(declare_tx)
 
     transactions = [invoke_tx, declare_tx, deploy_account_transaction]
