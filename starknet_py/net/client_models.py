@@ -177,7 +177,7 @@ class TransactionReceipt:
 @dataclass
 class SentTransactionResponse:
     """
-    Dataclass representing a result of sending a transaction to starknet
+    Dataclass representing a result of sending a transaction to Starknet.
     """
 
     transaction_hash: int
@@ -187,7 +187,7 @@ class SentTransactionResponse:
 @dataclass
 class DeclareTransactionResponse(SentTransactionResponse):
     """
-    Dataclass representing a result of declaring a contract on starknet
+    Dataclass representing a result of declaring a contract on Starknet.
     """
 
     class_hash: int = 0
@@ -196,7 +196,7 @@ class DeclareTransactionResponse(SentTransactionResponse):
 @dataclass
 class DeployAccountTransactionResponse(SentTransactionResponse):
     """
-    Dataclass representing a result of deploying an account contract to starknet
+    Dataclass representing a result of deploying an account contract to Starknet
     """
 
     address: int = 0
@@ -217,7 +217,7 @@ class BlockStatus(Enum):
 @dataclass
 class StarknetBlock:
     """
-    Dataclass representing a block on starknet
+    Dataclass representing a block on Starknet.
     """
 
     # pylint: disable=too-many-instance-attributes
@@ -234,7 +234,7 @@ class StarknetBlock:
 @dataclass
 class GatewayBlock(StarknetBlock):
     """
-    Dataclass representing a block from the starknet gateway
+    Dataclass representing a block from the Starknet gateway.
     """
 
     gas_price: int
@@ -306,7 +306,7 @@ class BlockStateUpdate:
 @dataclass
 class ContractCode:
     """
-    Dataclass representing contract deployed to starknet
+    Dataclass representing contract deployed to Starknet.
     """
 
     bytecode: List[int]
@@ -337,7 +337,7 @@ class EntryPointsByType:
 @dataclass
 class ContractClass:
     """
-    Dataclass representing contract declared to starknet
+    Dataclass representing contract declared to Starknet
     """
 
     program: dict

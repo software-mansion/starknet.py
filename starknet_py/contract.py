@@ -432,7 +432,7 @@ class ContractFunction:
     def get_selector(function_name: str):
         """
         :param function_name: Contract function's name.
-        :return: A StarkNet integer selector for this function inside the contract.
+        :return: A Starknet integer selector for this function inside the contract.
         """
         return get_selector_from_name(function_name)
 

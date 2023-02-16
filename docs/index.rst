@@ -4,7 +4,7 @@
 
 .. rst-class:: description-cls
 
-StarkNet SDK for Python
+Starknet SDK for Python
 
 
 .. rst-class:: get-started-cls

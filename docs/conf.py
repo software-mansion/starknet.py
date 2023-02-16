@@ -21,7 +21,7 @@ sys.path.append(os.path.abspath("./_ext"))
 
 # -- Project information -----------------------------------------------------
 
-project = "Starknet.py"
+project = "starknet.py"
 copyright = "2023, Software Mansion"
 author = "Software Mansion"
 
@@ -78,8 +78,8 @@ autodoc_default_options = {"exclude-members": "__new__"}
 pygments_dark_style = "dracula"
 
 html_favicon = "_static/favicon.png"
-html_title = "StarkNet.py Documentation"
-html_short_title = "StarkNet.py"
+html_title = "starknet.py Documentation"
+html_short_title = "starknet.py"
 html_permalinks_icon = "#"
 
 html_theme_options = {

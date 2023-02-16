@@ -15,7 +15,7 @@ BaseSigner interface
 BaseSigner default implementation
 ---------------------------------
 
-By default, StarkNet.py uses ``StarkCurveSigner`` which works with OpenZeppelin's account contract.
+By default, starknet.py uses ``StarkCurveSigner`` which works with OpenZeppelin's account contract.
 
 .. py:module:: starknet_py.net.signer.stark_curve_signer
 

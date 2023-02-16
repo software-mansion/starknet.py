@@ -541,7 +541,7 @@ class AccountClient(Client):
 
     def sign_message(self, typed_data: TypedData) -> List[int]:
         """
-        Sign an TypedData TypedDict for off-chain usage with the starknet private key and return the signature
+        Sign an TypedData TypedDict for off-chain usage with the Starknet private key and return the signature
         This adds a message prefix, so it can't be interchanged with transactions
 
         :param typed_data: TypedData TypedDict to be signed

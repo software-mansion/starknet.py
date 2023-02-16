@@ -23,7 +23,7 @@ class ContractDeployment(NamedTuple):
 
     call: Call
     """
-    A call that can be executed to deploy a contract on StarkNet.
+    A call that can be executed to deploy a contract on Starknet.
     """
 
     address: int

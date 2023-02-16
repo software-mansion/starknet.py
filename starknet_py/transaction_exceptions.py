@@ -3,7 +3,7 @@ from typing import Optional
 
 class TransactionFailedError(Exception):
     """
-    Base exception for transaction failure
+    Base exception for transaction failure.
     """
 
     def __init__(
@@ -11,33 +11,33 @@ class TransactionFailedError(Exception):
         message: Optional[str] = None,
     ):
         if message is None:
-            message = "Unknown starknet error."
+            message = "Unknown Starknet error."
         self.message = message
         super().__init__(self.message)
 
     def __str__(self):
-        return f"Transaction failed with following starknet error: {self.message}."
+        return f"Transaction failed with following Starknet error: {self.message}."
 
 
 class TransactionRejectedError(TransactionFailedError):
     """
-    Exception for transactions rejected by starknet
+    Exception for transactions rejected by Starknet.
     """
 
     def __str__(self):
         return (
-            "Transaction was rejected with following starknet error: "
+            "Transaction was rejected with following Starknet error: "
             f"{self.message}."
         )
 
 
 class TransactionNotReceivedError(TransactionFailedError):
     """
-    Exception for transactions not received on starknet
+    Exception for transactions not received on Starknet.
     """
 
     def __init__(self):
         super().__init__(message="Transaction not received.")
 
     def __str__(self):
-        return "Transaction was not received on starknet."
+        return "Transaction was not received on Starknet."
