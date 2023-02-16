@@ -1,6 +1,5 @@
 # pylint: disable=too-many-arguments
 import asyncio
-import dataclasses
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -125,38 +124,47 @@ async def test_get_transaction_receipt(
     assert receipt.block_number == block_with_invoke_number
 
 
-@pytest.mark.parametrize(
-    "transaction",
-    [
-        Invoke(
-            contract_address=0x1,
-            entry_point_selector=get_selector_from_name("increase_balance"),
-            calldata=[123],
-            max_fee=0,
-            version=0,
-            signature=[0x0, 0x0],
-            nonce=None,
-        ),
-        Declare(
-            contract_class=create_compiled_contract(
-                compiled_contract=read_contract("map_compiled.json")
-            ),
-            sender_address=0x1,
-            max_fee=0,
-            signature=[0x0, 0x0],
-            nonce=0,
-            version=0,
-        ),
-    ],
-)
 @pytest.mark.asyncio
-async def test_estimate_fee(transaction, contract_address, client):
-    if isinstance(transaction, Invoke):
-        transaction = dataclasses.replace(
-            transaction, contract_address=contract_address
-        )
+async def test_estimate_fee_invoke(account, contract_address):
+    invoke_tx = Invoke(
+        contract_address=account.address,
+        calldata=[
+            1,
+            contract_address,
+            get_selector_from_name("increase_balance"),
+            0,
+            1,
+            1,
+            1024,
+        ],
+        max_fee=MAX_FEE,
+        version=1,
+        signature=[],
+        nonce=await account.get_nonce(),
+    )
 
-    estimate_fee = await client.estimate_fee(tx=transaction, block_number="latest")
+    invoke_tx = await account.sign_for_fee_estimate(invoke_tx)
+    estimate_fee = await account.client.estimate_fee(tx=invoke_tx)
+
+    assert isinstance(estimate_fee.overall_fee, int)
+    assert estimate_fee.overall_fee > 0
+
+
+@pytest.mark.asyncio
+async def test_estimate_fee_declare(account):
+    declare_tx = Declare(
+        contract_class=create_compiled_contract(
+            compiled_contract=read_contract("map_compiled.json")
+        ),
+        sender_address=account.address,
+        max_fee=MAX_FEE,
+        signature=[],
+        nonce=await account.get_nonce(),
+        version=1,
+    )
+
+    declare_tx = await account.sign_for_fee_estimate(declare_tx)
+    estimate_fee = await account.client.estimate_fee(tx=declare_tx)
 
     assert isinstance(estimate_fee.overall_fee, int)
     assert estimate_fee.overall_fee > 0
