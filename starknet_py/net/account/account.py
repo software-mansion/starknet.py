@@ -222,9 +222,9 @@ class Account(BaseAccount):
         token_address: Optional[AddressRepresentation] = None,
         chain_id: Optional[StarknetChainId] = None,
     ) -> int:
-        token_address = token_address or default_token_address_for_chain(
-            chain_id or self._chain_id
-        )
+        if token_address is None:
+            chain_id = chain_id or self._chain_id
+            token_address = default_token_address_for_chain(chain_id)
 
         low, high = await self._client.call_contract(
             Call(
