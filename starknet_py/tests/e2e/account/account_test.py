@@ -33,7 +33,7 @@ async def test_get_balance_throws_when_token_not_specified(account):
     )
     with pytest.raises(
         ValueError,
-        match="Argument token_address must be specified when using a custom net.",
+        match="Argument token_address must be specified when using a custom network.",
     ):
         await modified_account.get_balance()
 

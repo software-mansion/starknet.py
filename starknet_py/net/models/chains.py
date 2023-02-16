@@ -37,7 +37,7 @@ def default_token_address_for_chain(chain_id: Optional[StarknetChainId] = None) 
         StarknetChainId.MAINNET,
     ]:
         raise ValueError(
-            "Argument token_address must be specified when using a custom net."
+            "Argument token_address must be specified when using a custom network."
         )
 
     return FEE_CONTRACT_ADDRESS
