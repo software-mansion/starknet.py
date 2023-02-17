@@ -14,9 +14,7 @@ from starknet_py.net.client_models import (
     TransactionStatusResponse,
 )
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models.transaction import Declare, Invoke
 from starknet_py.net.networks import MAINNET, TESTNET, TESTNET2, CustomGatewayUrls
-from starknet_py.net.networks import MAINNET, TESTNET, CustomGatewayUrls
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
