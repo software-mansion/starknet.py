@@ -410,7 +410,9 @@ class Account(BaseAccount):
             hash=result.transaction_hash, account=account, _client=account.client
         )
 
-    def _default_token_address_for_chain(self, chain_id: Optional[StarknetChainId] = None) -> str:
+    def _default_token_address_for_chain(
+        self, chain_id: Optional[StarknetChainId] = None
+    ) -> str:
         if (chain_id or self._chain_id) not in [
             StarknetChainId.TESTNET,
             StarknetChainId.TESTNET2,
