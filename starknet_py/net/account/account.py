@@ -85,9 +85,7 @@ class Account(BaseAccount):
                 raise ValueError("One of chain or signer must be provided.")
 
             signer = StarkCurveSigner(
-                account_address=self.address,
-                key_pair=key_pair,
-                chain_id=chain
+                account_address=self.address, key_pair=key_pair, chain_id=chain
             )
         self.signer: BaseSigner = signer
         self._chain_id = chain
