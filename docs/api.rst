@@ -16,5 +16,4 @@ API
    api/cairo
    api/serializers
    api/messages
-   api/transactions
    api/proxy_resolvers
