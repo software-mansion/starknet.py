@@ -120,7 +120,7 @@ Rules to follow when writing a code:
 Release checklist
 -------------------
 
-Perform these actions before releasing a new StarkNet.py version
+Perform these actions before releasing a new starknet.py version
 
 1. Bump package version in ``pyproject.toml``
 2. Re-lock using ``poetry lock --no-update``

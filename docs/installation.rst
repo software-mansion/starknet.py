@@ -1,7 +1,7 @@
 Installation
 ============
 
-To use StarkNet.py, ``ecdsa, fastecdsa, sympy`` dependencies are required. Depending on the operating system,
+To use starknet.py, ``ecdsa, fastecdsa, sympy`` dependencies are required. Depending on the operating system,
 different installation steps must be performed.
 
 Linux
@@ -17,7 +17,7 @@ MacOS
 
 Instructions assume `Homebrew <https://brew.sh/>`_ being installed.
 
-.. hint:: If you are experiencing issues installing StarkNet.py related to ``fastecdsa`` on recent versions of MacOS
+.. hint:: If you are experiencing issues installing starknet.py related to ``fastecdsa`` on recent versions of MacOS
     consider installing ``cmake`` with version ``>=3.22.4``.
 
     .. code-block:: bash

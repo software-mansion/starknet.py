@@ -61,7 +61,7 @@ class GatewayClient(Client):
         session: Optional[aiohttp.ClientSession] = None,
     ):
         """
-        Client for interacting with starknet gateway.
+        Client for interacting with Starknet gateway.
 
         :param net: Target network for the client. Can be a string with URL, one of ``"mainnet"``, ``"testnet"``
                     or dict with ``"feeder_gateway_url"`` and ``"gateway_url"`` fields
@@ -345,7 +345,7 @@ class GatewayClient(Client):
 
     async def get_contract_addresses(self) -> dict:
         """
-        Fetches the addresses of the StarkNet system contracts
+        Fetches the addresses of the Starknet system contracts
 
         :return: A dictionary indexed with contract name and a value of contract's address
         """

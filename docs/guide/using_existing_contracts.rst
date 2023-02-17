@@ -25,7 +25,7 @@ This is how we can interact with it:
 Raw contract calls
 ------------------
 
-If you do not have ABI statically, but you know the interface of the contract on StarkNet, you can make a raw call:
+If you do not have ABI statically, but you know the interface of the contract on Starknet, you can make a raw call:
 
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_using_existing_contracts.py
     :language: python
@@ -37,7 +37,7 @@ If you do not have ABI statically, but you know the interface of the contract on
 Fees
 ----
 
-Starknet.py requires you to specify amount of Wei you
+starknet.py requires you to specify amount of Wei you
 are willing to pay either when making ``.invoke()`` transactions or when preparing
 function calls with ``.prepare()``.
 
@@ -58,7 +58,7 @@ When max_fee is specified when preparing a call, you can invoke it without
     If ``max_fee`` is not specified at any step it will default to ``None``,
     and will raise an exception when invoking a transaction.
 
-Please note you will need to have enough Wei in your starknet account otherwise
+Please note you will need to have enough Wei in your Starknet account otherwise
 transaction will be rejected.
 
 Fee estimation
@@ -76,7 +76,7 @@ Automatic fee estimation
 ------------------------
 
 For testing purposes it is possible to enable automatic fee estimation when making
-a transaction. Starknet.py will then use ``estimate_fee()`` internally and use value
+a transaction. starknet.py will then use ``estimate_fee()`` internally and use value
 returned by it multiplied by ``1.5`` as a ``max_fee``.
 
 .. warning::
