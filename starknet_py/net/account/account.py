@@ -4,7 +4,7 @@ from collections import OrderedDict
 from typing import Dict, Iterable, List, Optional, Tuple, Union
 
 from starknet_py.common import create_compiled_contract
-from starknet_py.constants import QUERY_VERSION_BASE
+from starknet_py.constants import FEE_CONTRACT_ADDRESS, QUERY_VERSION_BASE
 from starknet_py.hash.address import compute_address
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.account_deployment_result import AccountDeploymentResult
@@ -19,12 +19,7 @@ from starknet_py.net.client_models import (
     SentTransactionResponse,
     Tag,
 )
-from starknet_py.net.models import (
-    AddressRepresentation,
-    StarknetChainId,
-    chain_from_network,
-    parse_address,
-)
+from starknet_py.net.models import AddressRepresentation, StarknetChainId, parse_address
 from starknet_py.net.models.transaction import (
     AccountTransaction,
     Declare,
@@ -33,12 +28,6 @@ from starknet_py.net.models.transaction import (
     TypeAccountTransaction,
 )
 from starknet_py.net.models.typed_data import TypedData
-from starknet_py.net.networks import (
-    MAINNET,
-    TESTNET,
-    TESTNET2,
-    default_token_address_for_network,
-)
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 from starknet_py.serialization.data_serializers.array_serializer import ArraySerializer
@@ -81,9 +70,6 @@ class Account(BaseAccount):
         :param key_pair: Key pair that will be used to create a default `Signer`.
         :param chain: ChainId of the chain used to create the default signer.
         """
-        if chain is None and signer is None:
-            raise ValueError("One of chain or signer must be provided.")
-
         self._address = parse_address(address)
         self._client = client
 
@@ -95,12 +81,14 @@ class Account(BaseAccount):
                 raise ValueError(
                     "Either a signer or a key_pair must be provided in Account constructor."
                 )
+            if chain is None:
+                raise ValueError("One of chain or signer must be provided.")
 
-            chain = chain_from_network(net=client.net, chain=chain)
             signer = StarkCurveSigner(
                 account_address=self.address, key_pair=key_pair, chain_id=chain
             )
         self.signer: BaseSigner = signer
+        self._chain_id = chain
 
     @property
     def address(self) -> int:
@@ -224,11 +212,12 @@ class Account(BaseAccount):
         )
 
     async def get_balance(
-        self, token_address: Optional[AddressRepresentation] = None
+        self,
+        token_address: Optional[AddressRepresentation] = None,
+        chain_id: Optional[StarknetChainId] = None,
     ) -> int:
-        token_address = token_address or default_token_address_for_network(
-            self._client.net
-        )
+        if token_address is None:
+            token_address = self._default_token_address_for_chain(chain_id)
 
         low, high = await self._client.call_contract(
             Call(
@@ -399,7 +388,11 @@ class Account(BaseAccount):
             auto_estimate=auto_estimate,
         )
 
-        if client.net in (TESTNET, TESTNET2, MAINNET):
+        if chain in (
+            StarknetChainId.TESTNET,
+            StarknetChainId.TESTNET2,
+            StarknetChainId.MAINNET,
+        ):
             balance = await account.get_balance()
             if balance < deploy_account_tx.max_fee:
                 raise ValueError(
@@ -411,6 +404,20 @@ class Account(BaseAccount):
         return AccountDeploymentResult(
             hash=result.transaction_hash, account=account, _client=account.client
         )
+
+    def _default_token_address_for_chain(
+        self, chain_id: Optional[StarknetChainId] = None
+    ) -> str:
+        if (chain_id or self._chain_id) not in [
+            StarknetChainId.TESTNET,
+            StarknetChainId.TESTNET2,
+            StarknetChainId.MAINNET,
+        ]:
+            raise ValueError(
+                "Argument token_address must be specified when using a custom network."
+            )
+
+        return FEE_CONTRACT_ADDRESS
 
 
 def _add_signature_to_transaction(

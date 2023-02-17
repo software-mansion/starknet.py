@@ -14,7 +14,7 @@ from starknet_py.net.client_models import (
     TransactionStatusResponse,
 )
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.networks import MAINNET, TESTNET, CustomGatewayUrls
+from starknet_py.net.networks import MAINNET, TESTNET, TESTNET2, CustomGatewayUrls
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
@@ -123,13 +123,13 @@ async def test_get_transaction_status(invoke_transaction_hash, gateway_client):
     "net, net_address",
     (
         (TESTNET, "https://alpha4.starknet.io"),
+        (TESTNET2, "https://alpha4-2.starknet.io"),
         (MAINNET, "https://alpha-mainnet.starknet.io"),
     ),
 )
 def test_creating_client_from_predefined_network(net, net_address):
     gateway_client = GatewayClient(net=net)
 
-    assert gateway_client.net == net
     assert gateway_client._feeder_gateway_client.url == f"{net_address}/feeder_gateway"
     assert gateway_client._gateway_client.url == f"{net_address}/gateway"
 
@@ -138,7 +138,6 @@ def test_creating_client_with_custom_net():
     custom_net = "custom.net"
     gateway_client = GatewayClient(net=custom_net)
 
-    assert gateway_client.net == custom_net
     assert gateway_client._feeder_gateway_client.url == f"{custom_net}/feeder_gateway"
     assert gateway_client._gateway_client.url == f"{custom_net}/gateway"
 
@@ -152,7 +151,6 @@ def test_creating_client_with_custom_net_dict():
 
     gateway_client = GatewayClient(net=net)
 
-    assert gateway_client.net == net
     assert gateway_client._feeder_gateway_client.url == net["feeder_gateway_url"]
     assert gateway_client._gateway_client.url == net["gateway_url"]
 

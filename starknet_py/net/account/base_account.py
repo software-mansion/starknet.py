@@ -3,7 +3,7 @@ from typing import List, Optional
 
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import Calls, SentTransactionResponse
-from starknet_py.net.models import AddressRepresentation
+from starknet_py.net.models import AddressRepresentation, StarknetChainId
 from starknet_py.net.models.transaction import (
     Declare,
     DeployAccount,
@@ -51,13 +51,17 @@ class BaseAccount(ABC):
 
     @abstractmethod
     async def get_balance(
-        self, token_address: Optional[AddressRepresentation] = None
+        self,
+        token_address: Optional[AddressRepresentation] = None,
+        chain_id: Optional[StarknetChainId] = None,
     ) -> int:
         """
         Checks account's balance of specified token.
 
         :param token_address: Address of the ERC20 contract.
-            If not specified it will be payment token address.
+        :param chain_id: Identifier of the Starknet chain used.
+            If token_address is not specified it will be used to determine network's payment token address.
+            If token_address is provided, chain_id will be omitted.
         :return: Token balance.
         """
 

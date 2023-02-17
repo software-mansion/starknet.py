@@ -1,4 +1,5 @@
 import re
+import warnings
 from typing import Dict, List, Optional, Union, cast
 
 import aiohttp
@@ -52,7 +53,7 @@ class FullNodeClient(Client):
     def __init__(
         self,
         node_url: str,
-        net: Network,
+        net: Optional[Network] = None,
         session: Optional[aiohttp.ClientSession] = None,
     ):
         """
@@ -65,10 +66,17 @@ class FullNodeClient(Client):
         """
         self.url = node_url
         self._client = RpcHttpClient(url=node_url, session=session)
+
+        if net is not None:
+            warnings.warn("Parameter net is deprecated.", category=DeprecationWarning)
         self._net = net
 
     @property
-    def net(self) -> Network:
+    def net(self) -> Optional[Network]:
+        warnings.warn(
+            "Property net is deprecated in the FullNodeClient.",
+            category=DeprecationWarning,
+        )
         return self._net
 
     async def get_block(
