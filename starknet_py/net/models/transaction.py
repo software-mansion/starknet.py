@@ -21,7 +21,7 @@ from starknet_py.hash.transaction import (
 )
 from starknet_py.net.client_models import ContractClass, TransactionType
 from starknet_py.net.models.chains import StarknetChainId
-from starknet_py.net.schemas.common import Felt
+from starknet_py.net.schemas.common import Felt, TransactionTypeField
 from starknet_py.net.schemas.gateway import ContractClassSchema
 
 
@@ -78,7 +78,10 @@ class Declare(AccountTransaction):
     )
     # The address of the account contract sending the declaration transaction.
     sender_address: int = field(metadata={"marshmallow_field": Felt()})
-    type: TransactionType = TransactionType.DECLARE
+    type: TransactionType = field(
+        metadata={"marshmallow_field": TransactionTypeField()},
+        default=TransactionType.DECLARE,
+    )
 
     @marshmallow.post_dump
     def compress_program_post_dump(
@@ -136,7 +139,10 @@ class DeployAccount(AccountTransaction):
         metadata={"marshmallow_field": fields.List(fields.String())}
     )
 
-    type: TransactionType = TransactionType.DEPLOY_ACCOUNT
+    type: TransactionType = field(
+        metadata={"marshmallow_field": TransactionTypeField()},
+        default=TransactionType.DEPLOY_ACCOUNT,
+    )
 
     def calculate_hash(self, chain_id: StarknetChainId) -> int:
         """
@@ -172,7 +178,10 @@ class Invoke(AccountTransaction):
         metadata={"marshmallow_field": fields.List(fields.String())}
     )
 
-    type: TransactionType = TransactionType.INVOKE
+    type: TransactionType = field(
+        metadata={"marshmallow_field": TransactionTypeField()},
+        default=TransactionType.INVOKE,
+    )
 
     @marshmallow.post_dump
     def _set_invoke_function_type(

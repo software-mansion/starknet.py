@@ -5,12 +5,14 @@ from typing import cast
 import pytest
 
 from starknet_py.common import create_contract_class
+from starknet_py.net.client_models import TransactionType
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import (
     Declare,
     DeclareSchema,
     DeployAccount,
     Invoke,
+    InvokeSchema,
     compute_invoke_hash,
 )
 from starknet_py.tests.e2e.fixtures.misc import read_contract
@@ -105,3 +107,22 @@ def test_calculate_transaction_hash(transaction, calculated_hash):
     assert (
         transaction.calculate_hash(chain_id=StarknetChainId.TESTNET) == calculated_hash
     )
+
+
+def test_serialize_deserialize_invoke():
+    data = {
+        "contract_address": "0x1",
+        "calldata": ["0x1", "0x2", "0x3"],
+        "max_fee": "0x1",
+        "signature": [],
+        "nonce": "0x1",
+        "version": "0x1",
+        "type": "INVOKE_FUNCTION",
+    }
+    invoke = InvokeSchema().load(data)
+    serialized_invoke = InvokeSchema().dump(invoke)
+
+    assert isinstance(invoke, Invoke)
+    assert invoke.type == TransactionType.INVOKE
+    assert isinstance(serialized_invoke, dict)
+    assert serialized_invoke["type"] == "INVOKE_FUNCTION"
