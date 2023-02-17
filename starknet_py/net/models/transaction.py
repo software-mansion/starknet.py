@@ -183,14 +183,6 @@ class Invoke(AccountTransaction):
         default=TransactionType.INVOKE,
     )
 
-    @marshmallow.post_dump
-    def _set_invoke_function_type(
-        self, data: Dict[str, Any], many: bool, **kwargs
-    ) -> Dict[str, Any]:
-        # pylint: disable=no-self-use, unused-argument
-        data["type"] = "INVOKE_FUNCTION"
-        return data
-
     def calculate_hash(self, chain_id: StarknetChainId) -> int:
         """
         Calculates the transaction hash in the StarkNet network.

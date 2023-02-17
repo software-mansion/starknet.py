@@ -95,6 +95,8 @@ class BlockStatusField(fields.Field):
 
 class TransactionTypeField(fields.Field):
     def _serialize(self, value: Any, attr: str, obj: Any, **kwargs):
+        if value.name == "INVOKE":
+            return "INVOKE_FUNCTION"
         return value.name if value is not None else ""
 
     def _deserialize(
