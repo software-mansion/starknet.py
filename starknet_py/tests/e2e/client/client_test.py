@@ -24,7 +24,6 @@ from starknet_py.transaction_exceptions import (
     TransactionNotReceivedError,
     TransactionRejectedError,
 )
-from starknet_py.transactions.declare import make_declare_tx
 
 
 @pytest.mark.asyncio
@@ -284,8 +283,10 @@ async def test_wait_for_tx_cancelled(gateway_client):
 
 
 @pytest.mark.asyncio
-async def test_declare_contract(client, map_compiled_contract):
-    declare_tx = make_declare_tx(compiled_contract=map_compiled_contract)
+async def test_declare_contract(client, map_compiled_contract, account):
+    declare_tx = await account.sign_declare_transaction(
+        compiled_contract=map_compiled_contract, max_fee=MAX_FEE
+    )
 
     result = await client.declare(declare_tx)
     await client.wait_for_tx(result.transaction_hash)
@@ -293,7 +294,7 @@ async def test_declare_contract(client, map_compiled_contract):
 
     assert transaction_receipt.status != TransactionStatus.NOT_RECEIVED
     assert transaction_receipt.hash
-    assert transaction_receipt.actual_fee == 0
+    assert 0 < transaction_receipt.actual_fee <= MAX_FEE
 
 
 @pytest.mark.asyncio
