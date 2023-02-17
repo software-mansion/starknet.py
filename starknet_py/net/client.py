@@ -44,7 +44,7 @@ class Client(ABC):
         Network of the client.
 
          .. deprecated:: 0.15.0
-            Parameter net of the Client interface is deprecated.
+            Property net of the Client interface is deprecated.
         """
 
     @abstractmethod

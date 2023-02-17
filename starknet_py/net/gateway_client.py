@@ -86,7 +86,7 @@ class GatewayClient(Client):
 
     @property
     def net(self) -> Network:
-        warnings.warn("Parameter net is deprecated.", category=DeprecationWarning)
+        warnings.warn("Property net is deprecated in the GatewayClient.", category=DeprecationWarning)
         return self._net
 
     async def get_block(
