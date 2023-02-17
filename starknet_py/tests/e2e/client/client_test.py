@@ -1,12 +1,10 @@
 # pylint: disable=too-many-arguments
 import asyncio
-import dataclasses
 from unittest.mock import AsyncMock, patch
 
 import pytest
 from aiohttp import ClientSession
 
-from starknet_py.common import create_compiled_contract
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.storage import get_storage_var_address
 from starknet_py.net.client_models import (
@@ -19,7 +17,6 @@ from starknet_py.net.client_models import (
     TransactionStatus,
 )
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models.transaction import Declare, Invoke
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.tests.e2e.fixtures.misc import read_contract
@@ -67,7 +64,7 @@ async def test_get_deploy_account_transaction(client, deploy_account_transaction
 @pytest.mark.asyncio
 async def test_get_transaction_raises_on_not_received(client):
     with pytest.raises(
-        TransactionNotReceivedError, match="Transaction was not received on starknet."
+        TransactionNotReceivedError, match="Transaction was not received on Starknet."
     ):
         await client.get_transaction(tx_hash=0x1)
 
@@ -125,38 +122,30 @@ async def test_get_transaction_receipt(
     assert receipt.block_number == block_with_invoke_number
 
 
-@pytest.mark.parametrize(
-    "transaction",
-    [
-        Invoke(
-            contract_address=0x1,
-            entry_point_selector=get_selector_from_name("increase_balance"),
-            calldata=[123],
-            max_fee=0,
-            version=0,
-            signature=[0x0, 0x0],
-            nonce=None,
-        ),
-        Declare(
-            contract_class=create_compiled_contract(
-                compiled_contract=read_contract("map_compiled.json")
-            ),
-            sender_address=0x1,
-            max_fee=0,
-            signature=[0x0, 0x0],
-            nonce=0,
-            version=0,
-        ),
-    ],
-)
 @pytest.mark.asyncio
-async def test_estimate_fee(transaction, contract_address, client):
-    if isinstance(transaction, Invoke):
-        transaction = dataclasses.replace(
-            transaction, contract_address=contract_address
-        )
+async def test_estimate_fee_invoke(account, contract_address):
+    invoke_tx = await account.sign_invoke_transaction(
+        calls=Call(
+            to_addr=contract_address,
+            selector=get_selector_from_name("increase_balance"),
+            calldata=[123],
+        ),
+        max_fee=MAX_FEE,
+    )
+    invoke_tx = await account.sign_for_fee_estimate(invoke_tx)
+    estimate_fee = await account.client.estimate_fee(tx=invoke_tx)
 
-    estimate_fee = await client.estimate_fee(tx=transaction, block_number="latest")
+    assert isinstance(estimate_fee.overall_fee, int)
+    assert estimate_fee.overall_fee > 0
+
+
+@pytest.mark.asyncio
+async def test_estimate_fee_declare(account):
+    declare_tx = await account.sign_declare_transaction(
+        compiled_contract=read_contract("map_compiled.json"), max_fee=MAX_FEE
+    )
+    declare_tx = await account.sign_for_fee_estimate(declare_tx)
+    estimate_fee = await account.client.estimate_fee(tx=declare_tx)
 
     assert isinstance(estimate_fee.overall_fee, int)
     assert estimate_fee.overall_fee > 0
@@ -249,7 +238,7 @@ async def test_wait_for_tx_pending(gateway_client):
         (
             TransactionStatus.REJECTED,
             TransactionRejectedError,
-            "Unknown starknet error",
+            "Unknown Starknet error",
         ),
         (
             TransactionStatus.NOT_RECEIVED,

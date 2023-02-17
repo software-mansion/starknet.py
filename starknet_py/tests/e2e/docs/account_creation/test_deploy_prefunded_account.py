@@ -35,7 +35,7 @@ async def test_deploy_prefunded_account(
     # Compute an address
     address = compute_address(
         salt=salt,
-        class_hash=class_hash,  # class_hash of the Account declared on the StarkNet
+        class_hash=class_hash,  # class_hash of the Account declared on the Starknet
         constructor_calldata=[key_pair.public_key],
         deployer_address=0,
     )
@@ -49,7 +49,7 @@ async def test_deploy_prefunded_account(
     await res.wait_for_acceptance()
     # docs: start
 
-    # Define the client to be used to interact with StarkNet
+    # Define the client to be used to interact with Starknet
     client = GatewayClient(net=TESTNET)
     chain = StarknetChainId.TESTNET
     # docs: end

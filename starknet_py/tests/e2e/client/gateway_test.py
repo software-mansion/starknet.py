@@ -3,11 +3,11 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from starknet_py.common import create_compiled_contract
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.storage import get_storage_var_address
 from starknet_py.net.client_errors import ContractNotFoundError
 from starknet_py.net.client_models import (
+    Call,
     DeployTransaction,
     L1HandlerTransaction,
     TransactionStatus,
@@ -16,6 +16,8 @@ from starknet_py.net.client_models import (
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models.transaction import Declare, Invoke
 from starknet_py.net.networks import MAINNET, TESTNET, TESTNET2, CustomGatewayUrls
+from starknet_py.net.networks import MAINNET, TESTNET, CustomGatewayUrls
+from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
@@ -41,42 +43,27 @@ async def test_get_class_hash_at(contract_address, gateway_client, class_hash):
     assert class_hash_resp == class_hash
 
 
-@pytest.mark.parametrize(
-    "transactions",
-    [
-        [
-            Invoke(
-                contract_address=0x1,
-                entry_point_selector=get_selector_from_name("increase_balance"),
-                calldata=[123],
-                max_fee=0,
-                version=0,
-                signature=[0x0, 0x0],
-                nonce=None,
-            ),
-            Declare(
-                contract_class=create_compiled_contract(
-                    compiled_contract=read_contract("map_compiled.json")
-                ),
-                sender_address=0x1,
-                max_fee=0,
-                signature=[0x0, 0x0],
-                nonce=0,
-                version=0,
-            ),
-        ]
-    ],
-)
 @pytest.mark.asyncio
 async def test_estimate_fee_bulk(
-    transactions, contract_address, gateway_client, deploy_account_transaction
+    contract_address, gateway_client, deploy_account_transaction, account
 ):
-    for idx, _ in enumerate(transactions):
-        if isinstance(transactions[idx], Invoke):
-            transactions[idx] = dataclasses.replace(
-                transactions[idx], contract_address=contract_address
-            )
-    transactions.append(deploy_account_transaction)
+    invoke_tx = await account.sign_invoke_transaction(
+        calls=Call(
+            to_addr=contract_address,
+            selector=get_selector_from_name("increase_balance"),
+            calldata=[123],
+        ),
+        max_fee=MAX_FEE,
+    )
+    invoke_tx = await account.sign_for_fee_estimate(invoke_tx)
+
+    declare_tx = await account.sign_declare_transaction(
+        compiled_contract=read_contract("map_compiled.json"), max_fee=MAX_FEE
+    )
+    declare_tx = dataclasses.replace(declare_tx, nonce=invoke_tx.nonce + 1)
+    declare_tx = await account.sign_for_fee_estimate(declare_tx)
+
+    transactions = [invoke_tx, declare_tx, deploy_account_transaction]
 
     estimated_fees = await gateway_client.estimate_fee_bulk(
         transactions=transactions, block_number="latest"

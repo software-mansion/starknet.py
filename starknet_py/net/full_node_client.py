@@ -57,10 +57,10 @@ class FullNodeClient(Client):
         session: Optional[aiohttp.ClientSession] = None,
     ):
         """
-        Client for interacting with starknet json-rpc interface.
+        Client for interacting with Starknet json-rpc interface.
 
         :param node_url: Url of the node providing rpc interface
-        :param net: StarkNet network identifier
+        :param net: Starknet network identifier
         :param session: Aiohttp session to be used for request. If not provided, client will create a session for
                         every request. When using a custom session, user is responsible for closing it manually.
         """
@@ -340,7 +340,7 @@ class FullNodeClient(Client):
         :param contract_address: The address of the contract whose class definition will be returned
         :param block_hash: Block's hash or literals `"pending"` or `"latest"`
         :param block_number: Block's number or literals `"pending"` or `"latest"`
-        :return: Contract declared to StarkNet
+        :return: Contract declared to Starknet
         """
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
@@ -440,23 +440,6 @@ def _create_broadcasted_declare_properties(transaction: Declare) -> dict:
 
 
 def _create_broadcasted_invoke_properties(transaction: Invoke) -> dict:
-    if transaction.version == 0:
-        return _create_invoke_v0_properties(transaction)
-    return _create_invoke_v1_properties(transaction)
-
-
-def _create_invoke_v0_properties(transaction: Invoke) -> dict:
-    invoke_properties = {
-        "contract_address": _to_rpc_felt(transaction.contract_address),
-        "entry_point_selector": _to_rpc_felt(
-            cast(int, transaction.entry_point_selector)
-        ),
-        "calldata": [_to_rpc_felt(data) for data in transaction.calldata],
-    }
-    return invoke_properties
-
-
-def _create_invoke_v1_properties(transaction: Invoke) -> dict:
     invoke_properties = {
         "sender_address": _to_rpc_felt(transaction.contract_address),
         "calldata": [_to_rpc_felt(data) for data in transaction.calldata],
@@ -483,9 +466,7 @@ def _create_broadcasted_txn_common_properties(transaction: AccountTransaction) -
         "max_fee": _to_rpc_felt(transaction.max_fee),
         "version": _to_rpc_felt(transaction.version),
         "signature": [_to_rpc_felt(sig) for sig in transaction.signature],
-        "nonce": _to_rpc_felt(transaction.nonce)
-        if transaction.nonce is not None
-        else "0x00",
+        "nonce": _to_rpc_felt(transaction.nonce),
     }
     return broadcasted_txn_common_properties
 

@@ -4,7 +4,7 @@ Quickstart
 Using GatewayClient
 -------------------
 A client (i.e. :obj:`GatewayClient <starknet_py.net.gateway_client.GatewayClient>`, :obj:`FullNodeClient <starknet_py.net.full_node_client.FullNodeClient>`) is a facade for interacting with Starknet.
-Gateway client will make requests directly to starknet sequencer through `gateway` or `feeder_gateway` endpoints.
+Gateway client will make requests directly to Starknet sequencer through `gateway` or `feeder_gateway` endpoints.
 It can be used to either query the blockchain state or add new transactions.
 It requires information about used network:
 
@@ -12,7 +12,7 @@ It requires information about used network:
     :language: python
     :dedent: 4
 
-The default interface is asynchronous. Although it is the recommended way of using Starknet.py, you can also use a
+The default interface is asynchronous. Although it is the recommended way of using starknet.py, you can also use a
 synchronous version. It might be helpful to play with Starknet directly in python interpreter.
 
 .. codesnippet:: ../starknet_py/tests/e2e/docs/quickstart/test_synchronous_gateway_client.py
@@ -23,7 +23,7 @@ You can see all Gateway Client's methods :ref:`GatewayClient`.
 
 Using FullNodeClient
 --------------------
-FullNodeClient is a client which interacts with a StarkNet full node like `pathfinder <https://github.com/eqlabs/pathfinder>`_.
+FullNodeClient is a client which interacts with a Starknet full node like `pathfinder <https://github.com/eqlabs/pathfinder>`_.
 Like the GatewayClient, it supports read and write operations. Also as with GatewayClient,
 there is both synchronous and asynchronous API available.
 
@@ -37,7 +37,7 @@ Creating Account
 ----------------------
 
 :obj:`Account <starknet_py.net.account.account.Account>` is the default implementation of :obj:`BaseAccount <starknet_py.net.account.base_account.BaseAccount>` interface.
-It supports an account contract which proxies the calls to other contracts on StarkNet.
+It supports an account contract which proxies the calls to other contracts on Starknet.
 
 Account can be created in two ways:
 
