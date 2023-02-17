@@ -526,7 +526,7 @@ Sending transactions is currently only supported in ``GatewayClient``. We've als
 of creating transactions through clients:
 
 ``Client.deploy`` and ``Client.declare`` no longer accept contract source as their input.
-Instead they require a prepared transactions. These can be created using :ref:`Transactions` module
+Instead they require a prepared transactions. These can be created using ``Transactions`` module
 
 .. code-block:: python
 
