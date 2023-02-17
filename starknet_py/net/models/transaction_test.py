@@ -77,18 +77,6 @@ compiled_contract = read_contract("erc20_compiled.json")
             3484767022419258107070028252604380065385354331198975073942248877262069264133,
         ),
         (
-            Invoke(
-                contract_address=0x1,
-                calldata=[1, 2, 3],
-                max_fee=10000,
-                signature=[],
-                nonce=None,
-                entry_point_selector=12,
-                version=0,
-            ),
-            2323586677785524217960587787433982444226467233024602470830956392262639577963,
-        ),
-        (
             DeployAccount(
                 class_hash=0x1,
                 contract_address_salt=0x2,

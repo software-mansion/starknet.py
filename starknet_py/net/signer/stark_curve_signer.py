@@ -4,7 +4,7 @@ from typing import Dict, List, Union, cast
 
 from starkware.crypto.signature.signature import private_to_stark_key
 
-from starknet_py.constants import DEFAULT_ENTRY_POINT_SELECTOR, QUERY_VERSION_BASE
+from starknet_py.constants import DEFAULT_ENTRY_POINT_SELECTOR
 from starknet_py.hash.address import compute_address
 from starknet_py.hash.transaction import (
     TransactionHashPrefix,
@@ -74,15 +74,11 @@ class StarkCurveSigner(BaseSigner):
             tx_hash_prefix=TransactionHashPrefix.INVOKE,
             version=transaction.version,
             contract_address=self.address,
-            entry_point_selector=DEFAULT_ENTRY_POINT_SELECTOR
-            if not _is_old_transaction_version(transaction.version)
-            else cast(int, transaction.entry_point_selector),
+            entry_point_selector=DEFAULT_ENTRY_POINT_SELECTOR,
             calldata=transaction.calldata,
             max_fee=transaction.max_fee,
             chain_id=self.chain_id.value,
-            additional_data=[cast(int, transaction.nonce)]
-            if not _is_old_transaction_version(transaction.version)
-            else [],
+            additional_data=[transaction.nonce],
         )
         # pylint: disable=invalid-name
         r, s = message_signature(msg_hash=tx_hash, priv_key=self.private_key)
@@ -141,7 +137,3 @@ class StarkCurveSigner(BaseSigner):
         # pylint: disable=invalid-name
         r, s = message_signature(msg_hash=msg_hash, priv_key=self.private_key)
         return [r, s]
-
-
-def _is_old_transaction_version(version: int):
-    return version in (0, QUERY_VERSION_BASE)
