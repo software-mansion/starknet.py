@@ -61,6 +61,7 @@ class BaseAccount(ABC):
         :param token_address: Address of the ERC20 contract.
         :param chain_id: Identifier of the Starknet chain used.
             If token_address is not specified it will be used to determine network's payment token address.
+            If token_address is provided, chain_id will be omitted.
         :return: Token balance.
         """
 
