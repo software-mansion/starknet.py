@@ -639,7 +639,7 @@ def test_allow_underscores_in_abi():
         ({}, "Result()"),
     ],
 )
-def test_result_warpper_as_str(result_dict, expected):
+def test_result_wrapper_as_str(result_dict, expected):
     assert str(construct_result_object(result_dict)) == expected
 
 

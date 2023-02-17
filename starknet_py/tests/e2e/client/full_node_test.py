@@ -5,6 +5,7 @@ import pytest
 from starkware.starknet.public.abi import get_storage_var_address
 
 from starknet_py.net.client_errors import ClientError
+from starknet_py.net.client_models import DeclareTransaction
 
 
 @pytest.mark.run_on_devnet
@@ -16,6 +17,7 @@ async def test_node_get_declare_transaction_by_block_number_and_index(
         block_number=block_with_declare_number, index=0
     )
 
+    assert isinstance(tx, DeclareTransaction)
     assert tx.hash == declare_transaction_hash
     assert tx.class_hash == class_hash
     assert tx.version == 1

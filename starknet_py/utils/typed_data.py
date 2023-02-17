@@ -54,7 +54,7 @@ class TypedData:
         value = cast(Union[int, str], value)
         return int(get_hex(value), 16)
 
-    def _encode_data(self, type_name: str, data: dict) -> List[str]:
+    def _encode_data(self, type_name: str, data: dict) -> List[int]:
         values = []
         for param in self.types[type_name]:
             encoded_value = self._encode_value(param.type, data[param.name])
