@@ -4,7 +4,7 @@ from collections import OrderedDict
 from typing import Dict, Iterable, List, Optional, Tuple, Union, cast
 
 from starknet_py.common import create_compiled_contract
-from starknet_py.constants import QUERY_VERSION_BASE
+from starknet_py.constants import FEE_CONTRACT_ADDRESS, QUERY_VERSION_BASE
 from starknet_py.hash.address import compute_address
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.account_deployment_result import AccountDeploymentResult
@@ -20,7 +20,6 @@ from starknet_py.net.client_models import (
     Tag,
 )
 from starknet_py.net.models import AddressRepresentation, StarknetChainId, parse_address
-from starknet_py.net.models.chains import default_token_address_for_chain
 from starknet_py.net.models.transaction import (
     AccountTransaction,
     Declare,
@@ -223,8 +222,7 @@ class Account(BaseAccount):
         chain_id: Optional[StarknetChainId] = None,
     ) -> int:
         if token_address is None:
-            chain_id = chain_id or self._chain_id
-            token_address = default_token_address_for_chain(chain_id)
+            token_address = self._default_token_address_for_chain(chain_id)
 
         low, high = await self._client.call_contract(
             Call(
@@ -411,6 +409,18 @@ class Account(BaseAccount):
         return AccountDeploymentResult(
             hash=result.transaction_hash, account=account, _client=account.client
         )
+
+    def _default_token_address_for_chain(self, chain_id: Optional[StarknetChainId] = None) -> str:
+        if (chain_id or self._chain_id) not in [
+            StarknetChainId.TESTNET,
+            StarknetChainId.TESTNET2,
+            StarknetChainId.MAINNET,
+        ]:
+            raise ValueError(
+                "Argument token_address must be specified when using a custom network."
+            )
+
+        return FEE_CONTRACT_ADDRESS
 
 
 def _add_signature_to_transaction(
