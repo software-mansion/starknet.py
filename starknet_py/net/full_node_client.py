@@ -455,9 +455,7 @@ def _create_broadcasted_deploy_account_properties(transaction: DeployAccount) ->
 
 def _create_broadcasted_txn_common_properties(transaction: AccountTransaction) -> dict:
     broadcasted_txn_common_properties = {
-        "type": "INVOKE"
-        if transaction.type == TransactionType.INVOKE
-        else transaction.type.name,
+        "type": transaction.type.name,
         "max_fee": _to_rpc_felt(transaction.max_fee),
         "version": _to_rpc_felt(transaction.version),
         "signature": [_to_rpc_felt(sig) for sig in transaction.signature],
