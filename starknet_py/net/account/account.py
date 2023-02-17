@@ -1,7 +1,7 @@
 import dataclasses
 import re
 from collections import OrderedDict
-from typing import Dict, Iterable, List, Optional, Tuple, Union, cast
+from typing import Dict, Iterable, List, Optional, Tuple, Union
 
 from starknet_py.common import create_compiled_contract
 from starknet_py.constants import FEE_CONTRACT_ADDRESS, QUERY_VERSION_BASE
@@ -70,9 +70,6 @@ class Account(BaseAccount):
         :param key_pair: Key pair that will be used to create a default `Signer`.
         :param chain: ChainId of the chain used to create the default signer.
         """
-        if chain is None and signer is None:
-            raise ValueError("One of chain or signer must be provided.")
-
         self._address = parse_address(address)
         self._client = client
 
@@ -84,13 +81,13 @@ class Account(BaseAccount):
                 raise ValueError(
                     "Either a signer or a key_pair must be provided in Account constructor."
                 )
+            if chain is None:
+                raise ValueError("One of chain or signer must be provided.")
 
             signer = StarkCurveSigner(
                 account_address=self.address,
                 key_pair=key_pair,
-                chain_id=cast(
-                    StarknetChainId, chain
-                ),  # cast is required, because pyright doesn't know chain is not None here
+                chain_id=chain
             )
         self.signer: BaseSigner = signer
         self._chain_id = chain
