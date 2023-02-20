@@ -14,7 +14,6 @@ from starknet_py.net.client_models import (
     DeclareTransaction,
     DeployAccountTransaction,
     GatewayBlock,
-    Invoke,
     InvokeTransaction,
     L1HandlerTransaction,
     TransactionReceipt,
