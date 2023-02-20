@@ -13,6 +13,8 @@ from starknet_py.net.client_models import (
     Call,
     DeclareTransaction,
     DeployAccountTransaction,
+    GatewayBlock,
+    Invoke,
     InvokeTransaction,
     L1HandlerTransaction,
     TransactionReceipt,
@@ -87,7 +89,7 @@ async def test_get_block_by_hash(
     assert block.block_hash == block_with_declare_hash
     assert len(block.transactions) != 0
 
-    if isinstance(client, GatewayClient):
+    if isinstance(block, GatewayBlock):
         assert block.gas_price > 0
 
 
@@ -103,7 +105,7 @@ async def test_get_block_by_number(
     assert block.block_hash == block_with_declare_hash
     assert len(block.transactions) != 0
 
-    if isinstance(client, GatewayClient):
+    if isinstance(block, GatewayBlock):
         assert block.gas_price > 0
 
 
