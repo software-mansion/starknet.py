@@ -7,7 +7,7 @@ import pytest
 import pytest_asyncio
 
 from starknet_py.contract import Contract
-from starknet_py.net import AccountClient
+from starknet_py.net.account.account_client import AccountClient
 from starknet_py.net.models.typed_data import TypedData
 from starknet_py.tests.e2e.fixtures.constants import (
     CONTRACTS_COMPILED_DIR,

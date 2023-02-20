@@ -32,7 +32,7 @@ jobs:
           poetry install
 
   lint:
-    name: Check lock, formatting, linting and types
+    name: Check lock, formatting, linting and typing
     runs-on: ubuntu-latest
     needs: setup
     strategy:
@@ -100,6 +100,9 @@ jobs:
         if: steps.cache-contracts.outputs.cache-hit != 'true'
         run: |
           poetry run poe compile_contracts
+      - name: Check circular imports
+        run: |
+          poetry run poe circular_imports_check
       - name: Unit & e2e test
         run: |
           poetry run poe test_ci

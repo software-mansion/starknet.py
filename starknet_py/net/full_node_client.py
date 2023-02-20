@@ -1,5 +1,5 @@
 import re
-from typing import List, Optional, Union, cast
+from typing import Dict, List, Optional, Union, cast
 
 import aiohttp
 from marshmallow import EXCLUDE
@@ -7,30 +7,33 @@ from marshmallow import EXCLUDE
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
-    AccountTransaction,
     BlockStateUpdate,
     BlockTransactionTraces,
     Call,
-    Declare,
-    DeclaredContract,
+    ContractClass,
     DeclareTransactionResponse,
-    DeployAccount,
     DeployAccountTransactionResponse,
     EstimatedFee,
     Hash,
-    Invoke,
     SentTransactionResponse,
     StarknetBlock,
     Tag,
     Transaction,
     TransactionReceipt,
+    TransactionType,
 )
 from starknet_py.net.http_client import RpcHttpClient
-from starknet_py.net.models import TransactionType
+from starknet_py.net.models.transaction import (
+    AccountTransaction,
+    Declare,
+    DeclareSchema,
+    DeployAccount,
+    Invoke,
+)
 from starknet_py.net.networks import Network
 from starknet_py.net.schemas.rpc import (
     BlockStateUpdateSchema,
-    DeclaredContractSchema,
+    ContractClassSchema,
     DeclareTransactionResponseSchema,
     DeployAccountTransactionResponseSchema,
     EstimatedFeeSchema,
@@ -153,7 +156,7 @@ class FullNodeClient(Client):
 
     async def estimate_fee(
         self,
-        tx: Union[Invoke, Declare, DeployAccount],
+        tx: AccountTransaction,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
@@ -258,7 +261,7 @@ class FullNodeClient(Client):
         class_hash: Hash,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> DeclaredContract:
+    ) -> ContractClass:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -267,9 +270,7 @@ class FullNodeClient(Client):
             method_name="getClass",
             params={"class_hash": _to_rpc_felt(class_hash), **block_identifier},
         )
-        return cast(
-            DeclaredContract, DeclaredContractSchema().load(res, unknown=EXCLUDE)
-        )
+        return cast(ContractClass, ContractClassSchema().load(res, unknown=EXCLUDE))
 
     # Only RPC methods
 
@@ -327,7 +328,7 @@ class FullNodeClient(Client):
         contract_address: Hash,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> DeclaredContract:
+    ) -> ContractClass:
         """
         Get the contract class definition in the given block at the given address
 
@@ -348,9 +349,7 @@ class FullNodeClient(Client):
             },
         )
 
-        return cast(
-            DeclaredContract, DeclaredContractSchema().load(res, unknown=EXCLUDE)
-        )
+        return cast(ContractClass, ContractClassSchema().load(res, unknown=EXCLUDE))
 
     async def get_pending_transactions(self) -> List[Transaction]:
         """
@@ -406,15 +405,15 @@ def get_block_identifier(
     return {"block_id": "pending"}
 
 
-def _create_broadcasted_txn(transaction: Union[Invoke, Declare, DeployAccount]) -> dict:
+def _create_broadcasted_txn(transaction: AccountTransaction) -> dict:
     txn_map = {
         TransactionType.DECLARE: _create_broadcasted_declare_properties,
-        TransactionType.INVOKE_FUNCTION: _create_broadcasted_invoke_properties,
+        TransactionType.INVOKE: _create_broadcasted_invoke_properties,
         TransactionType.DEPLOY_ACCOUNT: _create_broadcasted_deploy_account_properties,
     }
 
     common_properties = _create_broadcasted_txn_common_properties(transaction)
-    transaction_specific_properties = txn_map[transaction.tx_type](transaction)
+    transaction_specific_properties = txn_map[transaction.type](transaction)
 
     return {
         **common_properties,
@@ -423,7 +422,7 @@ def _create_broadcasted_txn(transaction: Union[Invoke, Declare, DeployAccount]) 
 
 
 def _create_broadcasted_declare_properties(transaction: Declare) -> dict:
-    contract_class = transaction.dump()["contract_class"]
+    contract_class = cast(Dict, DeclareSchema().dump(obj=transaction))["contract_class"]
     declare_properties = {
         "contract_class": {
             "program": contract_class["program"],
@@ -444,7 +443,9 @@ def _create_broadcasted_invoke_properties(transaction: Invoke) -> dict:
 def _create_invoke_v0_properties(transaction: Invoke) -> dict:
     invoke_properties = {
         "contract_address": _to_rpc_felt(transaction.contract_address),
-        "entry_point_selector": _to_rpc_felt(transaction.entry_point_selector),
+        "entry_point_selector": _to_rpc_felt(
+            cast(int, transaction.entry_point_selector)
+        ),
         "calldata": [_to_rpc_felt(data) for data in transaction.calldata],
     }
     return invoke_properties
@@ -472,8 +473,8 @@ def _create_broadcasted_deploy_account_properties(transaction: DeployAccount) ->
 def _create_broadcasted_txn_common_properties(transaction: AccountTransaction) -> dict:
     broadcasted_txn_common_properties = {
         "type": "INVOKE"
-        if transaction.tx_type == TransactionType.INVOKE_FUNCTION
-        else transaction.tx_type.name,
+        if transaction.type == TransactionType.INVOKE
+        else transaction.type.name,
         "max_fee": _to_rpc_felt(transaction.max_fee),
         "version": _to_rpc_felt(transaction.version),
         "signature": [_to_rpc_felt(sig) for sig in transaction.signature],

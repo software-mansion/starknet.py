@@ -1,18 +1,18 @@
 from __future__ import annotations
 
+import random
 from typing import List, NamedTuple, Optional, Union, cast
-
-from starkware.starknet.definitions.fields import ContractAddressSalt
-from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.abi.parser import AbiParser
 from starknet_py.common import int_from_hex
-from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
+from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS, FIELD_PRIME
+from starknet_py.hash.address import compute_address
+from starknet_py.hash.selector import get_selector_from_name
+from starknet_py.hash.utils import pedersen_hash
 from starknet_py.net.client_models import Call, Hash
-from starknet_py.net.models import AddressRepresentation, compute_address, parse_address
+from starknet_py.net.models import AddressRepresentation, parse_address
 from starknet_py.serialization import serializer_for_function
 from starknet_py.utils.contructor_args_translator import translate_constructor_args
-from starknet_py.utils.crypto.facade import pedersen_hash
 
 
 class ContractDeployment(NamedTuple):
@@ -98,7 +98,7 @@ class Deployer:
         :param raw_calldata: Plain Cairo constructor args of the contract to be deployed
         :return: NamedTuple with call and address of the contract to be deployed
         """
-        salt = cast(int, salt or ContractAddressSalt.get_random_value())
+        salt = cast(int, salt or _get_random_salt())
         class_hash = int_from_hex(class_hash)
 
         calldata = _deployer_serializer.serialize(
@@ -133,6 +133,10 @@ class Deployer:
             salt=salt,
             deployer_address=deployer_address,
         )
+
+
+def _get_random_salt() -> int:
+    return random.Random().randrange(0, FIELD_PRIME)
 
 
 _deployer_abi = AbiParser(

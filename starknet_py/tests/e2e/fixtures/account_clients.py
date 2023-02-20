@@ -6,26 +6,20 @@ from typing import Dict, List, Tuple
 
 import pytest
 import pytest_asyncio
-from starkware.crypto.signature.signature import get_random_private_key
-from starkware.starknet.definitions.fields import ContractAddressSalt
-from starkware.starknet.services.api.gateway.transaction import (
-    DEFAULT_DECLARE_SENDER_ADDRESS,
-)
 
+from starknet_py.constants import DEFAULT_DECLARE_SENDER_ADDRESS
 from starknet_py.contract import Contract
-from starknet_py.net import AccountClient, KeyPair
+from starknet_py.hash.address import compute_address
 from starknet_py.net.account._account_proxy import AccountProxy
 from starknet_py.net.account.account import Account
+from starknet_py.net.account.account_client import AccountClient
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.http_client import GatewayHttpClient
-from starknet_py.net.models import (
-    AddressRepresentation,
-    StarknetChainId,
-    compute_address,
-)
+from starknet_py.net.models import AddressRepresentation, StarknetChainId
+from starknet_py.net.signer.stark_curve_signer import KeyPair
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import (
     DEVNET_PRE_DEPLOYED_ACCOUNT_ADDRESS,
@@ -42,6 +36,7 @@ from starknet_py.tests.e2e.fixtures.constants import (
 )
 from starknet_py.tests.e2e.utils import (
     AccountToBeDeployedDetails,
+    _get_random_private_key_unsafe,
     get_deploy_account_details,
     get_deploy_account_transaction,
 )
@@ -69,7 +64,7 @@ async def devnet_account_details(
     """
     Deploys an AccountClient and adds fee tokens to its balance.
     """
-    private_key = get_random_private_key()
+    private_key = _get_random_private_key_unsafe()
     key_pair = KeyPair.from_private_key(private_key)
 
     deployer = Deployer()
@@ -154,9 +149,9 @@ async def new_devnet_account_details(
     """
     Deploys a new AccountClient and adds fee tokens to its balance (only on devnet).
     """
-    private_key = get_random_private_key()
+    private_key = _get_random_private_key_unsafe()
     key_pair = KeyPair.from_private_key(private_key)
-    salt = ContractAddressSalt.get_random_value()
+    salt = 1
 
     address = compute_address(
         class_hash=class_hash,

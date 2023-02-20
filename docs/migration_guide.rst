@@ -2,19 +2,125 @@ Migration guide
 ===============
 
 **********************
+0.15.0 Migration guide
+**********************
+
+0.15.0 makes the first step to remove the cairo-lang package as StarkNet.py dependency!
+
+Some classes/functions from cairo-lang package are rewritten and are a part of starknet.py:
+
+- :ref:`transaction dataclasses <Transaction dataclasses>`
+- ``get_selector_from_name`` and ``get_storage_var_address`` functions
+- ``DeclaredContract`` is now :ref:`ContractClass <ContractClass>`
+- ``compute_class_hash`` function
+
+Deprecation
+-----------
+
+- ``compute_invoke_hash`` is deprecated in favour of ``compute_transaction_hash``
+- ``starknet_py.common.create_contract_class`` is deprecated in favour of ``starknet_py.common.create_compiled_contract``
+
+Breaking changes
+----------------
+
+1. ``InvokeFunction`` is replaced by the ``Invoke`` dataclass (behaviour is the same, just the name is changed).
+
+2. Removed from client_models.py:
+
+   - Invoke,
+   - InvokeFunction,
+   - StarknetTransaction,
+   - AccountTransaction,
+   - ContractClass,
+   - Declare,
+   - DeployAccount.
+
+3. Transaction's ``tx_type`` field is renamed to ``type``.
+
+4. The ``types.py`` is removed (outdated file containing only imports):
+
+   - import ``decode_shortstring`` and ``encode_shortstring`` from ``starknet_py.cairo.felt``,
+   - import ``Invoke`` and ``Transaction`` from ``starknet_py.net.models.transaction``,
+   - import ``parse_address`` from ``starknet_py.net.models.address``,
+   - import ``net_address_from_net`` from ``starknet_py.net.networks``.
+
+5. Changes in the location of some of the functions:
+    .. list-table::
+       :widths: 25 25 50
+       :header-rows: 1
+
+       * - Function
+         - Old Path
+         - New Path
+       * - compute_address
+         - starknet_py.net.models.address
+         - starknet_py.hash.address
+       * - compute_transaction_hash, compute_deploy_account_transaction_hash, compute_declare_transaction_hash
+         - starknet_py.utils.crypto.transaction_hash
+         - starknet_py.hash.transaction
+       * - compute_hash_on_elements
+         - starknet_py.utils.crypto.facade
+         - starknet_py.hash.utils
+       * - message_signature
+         - starknet_py.utils.crypto.facade
+         - starknet_py.hash.utils
+       * - pedersen_hash
+         - starknet_py.utils.crypto.facade
+         - starknet_py.hash.utils
+       * -
+         -
+         -
+       * - compute_class_hash
+         - starkware.starknet.core.os.class_hash
+         - starknet_py.hash.class_hash
+       * - get_selector_from_name
+         - starkware.starknet.public.abi
+         - starknet_py.hash.selector
+       * - get_storage_var_address
+         - starkware.starknet.public.abi
+         - starknet_py.hash.storage
+
+
+Transaction dataclasses
+-----------------------
+
+All transaction's dataclasses can be imported from the ``starknet_py.net.models.transaction`` module.
+The main differences between them and those from the Cairo-lang:
+
+- ``tx_type`` field is renamed to ``type``,
+- fields are not validated while creating.
+
+All of them can be used as usual.
+
+
+ContractClass
+-------------
+
+``DeclaredContract`` has been renamed to ``ContractClass``.
+There also exists ``CompiledContract`` dataclass, which specifies **abi** attribute to be required.
+
+|
+
+.. raw:: html
+
+  <hr>
+
+|
+
+**********************
 0.14.0 Migration guide
 **********************
 
 This version deprecates several modules and fixes underlying issues with several others.
 
-Breaking changes
-----------------
+0.14.0 Breaking changes
+-----------------------
 
 1. Renamed first parameter of :class:`~starknet_py.net.udc_deployer.deployer.ContractDeployment` from ``udc`` to ``call``, that is returned from :meth:`~starknet_py.net.udc_deployer.deployer.Deployer.create_deployment_call`.
 
 
-Deprecations
-------------
+0.14.0 Deprecations
+-------------------
 
 1. :ref:`compiler` module. It will be removed in the future. We recommend transitioning to building contracts through Starknet CLI or external tools and using only compiled contracts with starknet.py.
 2. ``utils.data_transformer`` module. It has been replaced with :ref:`serializers` module.
