@@ -2,12 +2,12 @@ Migration guide
 ===============
 
 *********************
-0.X.X Migration guide
+0.15.0 Migration guide
 *********************
 
-0.X.X makes the first step to remove the cairo-lang package as StarkNet.py dependency!
+0.15.0 makes the first step to remove the cairo-lang package as StarkNet.py dependency!
 
-Some classes/functions from the Cairo lang are rewritten and are the part of our library:
+Some classes/functions from cairo-lang package are rewritten and are a part of starknet.py:
 
 - :ref:`transaction dataclasses <Transaction dataclasses>`
 - ``get_selector_from_name`` and ``get_storage_var_address`` functions

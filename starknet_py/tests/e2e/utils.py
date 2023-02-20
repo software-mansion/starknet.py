@@ -11,6 +11,7 @@ from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.net.networks import Network
 from starknet_py.net.signer.stark_curve_signer import KeyPair
+from starknet_py.net.udc_deployer.deployer import _get_random_salt
 
 AccountToBeDeployedDetails = Tuple[int, KeyPair, int, int]
 MAX_FEE = int(1e20)
@@ -27,7 +28,7 @@ async def get_deploy_account_details(
     """
     priv_key = _get_random_private_key_unsafe()
     key_pair = KeyPair.from_private_key(priv_key)
-    salt = 1
+    salt = _get_random_salt()
 
     address = compute_address(
         salt=salt,
