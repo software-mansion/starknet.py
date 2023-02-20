@@ -15,4 +15,5 @@ def test_make_declare_tx():
     declare = make_declare_tx(compilation_source=SOURCE)
 
     assert isinstance(declare, Declare)
+    assert declare.contract_class.abi is not None
     assert [fn for fn in declare.contract_class.abi if fn["name"] == "get_1"]

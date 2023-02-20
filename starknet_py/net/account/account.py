@@ -1,13 +1,12 @@
 import dataclasses
 import re
 from collections import OrderedDict
-from typing import Dict, Iterable, List, Optional, Tuple, TypeVar, Union
-
-from starkware.starknet.public.abi import get_selector_from_name
+from typing import Dict, Iterable, List, Optional, Tuple, Union
 
 from starknet_py.common import create_compiled_contract
 from starknet_py.constants import QUERY_VERSION_BASE
-from starknet_py.net import KeyPair
+from starknet_py.hash.address import compute_address
+from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.account_deployment_result import AccountDeploymentResult
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
@@ -15,10 +14,8 @@ from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     Call,
     Calls,
-    Declare,
     EstimatedFee,
     Hash,
-    Invoke,
     SentTransactionResponse,
     Tag,
 )
@@ -26,10 +23,15 @@ from starknet_py.net.models import (
     AddressRepresentation,
     StarknetChainId,
     chain_from_network,
-    compute_address,
     parse_address,
 )
-from starknet_py.net.models.transaction import DeployAccount
+from starknet_py.net.models.transaction import (
+    AccountTransaction,
+    Declare,
+    DeployAccount,
+    Invoke,
+    TypeAccountTransaction,
+)
 from starknet_py.net.models.typed_data import TypedData
 from starknet_py.net.networks import (
     MAINNET,
@@ -38,7 +40,7 @@ from starknet_py.net.networks import (
     default_token_address_for_network,
 )
 from starknet_py.net.signer import BaseSigner
-from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
+from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 from starknet_py.serialization.data_serializers.array_serializer import ArraySerializer
 from starknet_py.serialization.data_serializers.felt_serializer import FeltSerializer
 from starknet_py.serialization.data_serializers.payload_serializer import (
@@ -114,7 +116,7 @@ class Account(BaseAccount):
 
     async def _get_max_fee(
         self,
-        transaction: Union[Invoke, Declare, DeployAccount],
+        transaction: AccountTransaction,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> int:
@@ -134,7 +136,7 @@ class Account(BaseAccount):
 
         return max_fee
 
-    async def _prepare_invoke_function(
+    async def _prepare_invoke(
         self,
         calls: Calls,
         max_fee: Optional[int] = None,
@@ -193,7 +195,7 @@ class Account(BaseAccount):
 
     async def _estimate_fee(
         self,
-        tx: Union[Invoke, Declare, DeployAccount],
+        tx: AccountTransaction,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
@@ -240,8 +242,8 @@ class Account(BaseAccount):
         return (high << 128) + low
 
     async def sign_for_fee_estimate(
-        self, transaction: Union[Invoke, Declare, DeployAccount]
-    ) -> Union[Invoke, Declare, DeployAccount]:
+        self, transaction: TypeAccountTransaction
+    ) -> TypeAccountTransaction:
         version = self.supported_transaction_version + QUERY_VERSION_BASE
         transaction = dataclasses.replace(transaction, version=version)
 
@@ -255,7 +257,7 @@ class Account(BaseAccount):
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> Invoke:
-        execute_tx = await self._prepare_invoke_function(calls, max_fee, auto_estimate)
+        execute_tx = await self._prepare_invoke(calls, max_fee, auto_estimate)
         signature = self.signer.sign_transaction(execute_tx)
         return _add_signature_to_transaction(execute_tx, signature)
 
@@ -266,11 +268,9 @@ class Account(BaseAccount):
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> Declare:
-        compiled_contract = create_compiled_contract(
-            compiled_contract=compiled_contract
-        )
+        contract_class = create_compiled_contract(compiled_contract=compiled_contract)
         declare_tx = Declare(
-            contract_class=compiled_contract,
+            contract_class=contract_class,
             sender_address=self.address,
             max_fee=0,
             signature=[],
@@ -413,18 +413,15 @@ class Account(BaseAccount):
         )
 
 
-SignableTransaction = TypeVar("SignableTransaction", Invoke, Declare, DeployAccount)
-
-
 def _add_signature_to_transaction(
-    tx: SignableTransaction, signature: List[int]
-) -> SignableTransaction:
+    tx: TypeAccountTransaction, signature: List[int]
+) -> TypeAccountTransaction:
     return dataclasses.replace(tx, signature=signature)
 
 
 def _add_max_fee_to_transaction(
-    tx: SignableTransaction, max_fee: int
-) -> SignableTransaction:
+    tx: TypeAccountTransaction, max_fee: int
+) -> TypeAccountTransaction:
     return dataclasses.replace(tx, max_fee=max_fee)
 
 

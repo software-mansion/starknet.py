@@ -1,6 +1,6 @@
 import pytest
-from starkware.starknet.public.abi import ADDR_BOUND
 
+from starknet_py.constants import ADDR_BOUND
 from starknet_py.net.client_models import Transaction
 from starknet_py.net.full_node_client import _to_storage_key
 from starknet_py.net.http_client import RpcHttpClient, ServerError

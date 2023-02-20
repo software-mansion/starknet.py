@@ -1,6 +1,6 @@
 import pytest
-from starkware.crypto.signature.signature import FIELD_PRIME
 
+from starknet_py.constants import FIELD_PRIME
 from starknet_py.serialization.data_serializers.array_serializer import ArraySerializer
 from starknet_py.serialization.data_serializers.felt_serializer import FeltSerializer
 

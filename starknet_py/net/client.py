@@ -8,7 +8,7 @@ from starknet_py.net.client_models import (
     BlockStateUpdate,
     BlockTransactionTraces,
     Call,
-    DeclaredContract,
+    ContractClass,
     DeclareTransactionResponse,
     DeployAccountTransactionResponse,
     EstimatedFee,
@@ -20,7 +20,12 @@ from starknet_py.net.client_models import (
     TransactionReceipt,
     TransactionStatus,
 )
-from starknet_py.net.models.transaction import Declare, DeployAccount, Invoke
+from starknet_py.net.models.transaction import (
+    AccountTransaction,
+    Declare,
+    DeployAccount,
+    Invoke,
+)
 from starknet_py.net.networks import Network
 from starknet_py.transaction_exceptions import (
     TransactionFailedError,
@@ -176,7 +181,7 @@ class Client(ABC):
     @abstractmethod
     async def estimate_fee(
         self,
-        tx: Union[Invoke, Declare, DeployAccount],
+        tx: AccountTransaction,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
@@ -254,7 +259,7 @@ class Client(ABC):
         """
 
     @abstractmethod
-    async def get_class_by_hash(self, class_hash: Hash) -> DeclaredContract:
+    async def get_class_by_hash(self, class_hash: Hash) -> ContractClass:
         """
         Get the contract class for given class hash
 

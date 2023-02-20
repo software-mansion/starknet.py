@@ -1,15 +1,15 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional, Union
+from typing import List, Optional
 
 from starknet_py.net.client import Client
-from starknet_py.net.client_models import (
-    Calls,
+from starknet_py.net.client_models import Calls, SentTransactionResponse
+from starknet_py.net.models import AddressRepresentation
+from starknet_py.net.models.transaction import (
     Declare,
     DeployAccount,
     Invoke,
-    SentTransactionResponse,
+    TypeAccountTransaction,
 )
-from starknet_py.net.models import AddressRepresentation
 from starknet_py.net.models.typed_data import TypedData
 
 
@@ -63,8 +63,8 @@ class BaseAccount(ABC):
 
     @abstractmethod
     async def sign_for_fee_estimate(
-        self, transaction: Union[Invoke, Declare, DeployAccount]
-    ) -> Union[Invoke, Declare, DeployAccount]:
+        self, transaction: TypeAccountTransaction
+    ) -> TypeAccountTransaction:
         """
         Sign a transaction for a purpose of only fee estimation.
         Should use a transaction version that is not executable on Starknet,
@@ -83,12 +83,12 @@ class BaseAccount(ABC):
         auto_estimate: bool = False,
     ) -> Invoke:
         """
-        Takes calls and creates signed InvokeFunction.
+        Takes calls and creates signed Invoke.
 
         :param calls: Single call or list of calls.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
-        :return: InvokeFunction created from the calls.
+        :return: Invoke created from the calls.
         """
 
     @abstractmethod

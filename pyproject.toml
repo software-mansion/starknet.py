@@ -23,6 +23,7 @@ marshmallow = "^3.15.0"
 marshmallow-oneofschema = "^3.0.1"
 typing-extensions = "^4.3.0"
 cairo-lang = "==0.10.3"
+eth-utils = "^2.1.0"
 furo = "^2022.12.7"
 marshmallow-dataclass = "<8.5.0"
 
@@ -65,6 +66,7 @@ format_check.shell = "isort --check . && black --check ."
 format_diff.shell = "isort --diff . && black --diff ."
 typecheck = "pyright starknet_py"
 compile_contracts = "bash starknet_py/tests/e2e/mock/compile_contracts.sh"
+circular_imports_check.shell = "poetry run pytest circular.py"
 requirements_check.shell = "poetry export -f requirements.txt --without-hashes --extras docs | cmp - requirements.txt"
 ci = ["lint", "format_check", "typecheck", "requirements_check", "test_ci"]
 
