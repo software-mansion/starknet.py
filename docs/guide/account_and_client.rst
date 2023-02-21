@@ -9,8 +9,6 @@ To execute transactions on Starknet, use :meth:`~starknet_py.net.account.account
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_executing_transactions.py
     :language: python
     :dedent: 4
-    :start-after: docs-execute: start
-    :end-before: docs-execute: end
 
 
 Multicall
