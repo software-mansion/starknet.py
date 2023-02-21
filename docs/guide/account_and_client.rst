@@ -13,14 +13,6 @@ To execute transactions on Starknet, use :meth:`~starknet_py.net.account.account
     :end-before: docs-execute: end
 
 
-Alternatively, you can use :meth:`~starknet_py.contract.ContractFunction.invoke` method from :ref:`Contract` interface.
-
-.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_executing_transactions.py
-    :language: python
-    :dedent: 4
-    :start-after: docs-contract-interface: start
-    :end-before: docs-contract-interface: end
-
 Multicall
 ---------
 

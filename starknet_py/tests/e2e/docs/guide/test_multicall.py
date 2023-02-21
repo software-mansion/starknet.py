@@ -10,23 +10,6 @@ async def test_multicall(account, deployed_balance_contract):
     from starknet_py.hash.selector import get_selector_from_name
     from starknet_py.net.client_models import Call
 
-    calls = [
-        balance_contract.functions["increase_balance"].prepare(amount=10),
-        balance_contract.functions["increase_balance"].prepare(amount=30),
-        balance_contract.functions["increase_balance"].prepare(amount=50),
-    ]
-
-    # docs: end
-    resp = await account.execute(calls=calls, max_fee=int(1e16))
-    await account.client.wait_for_tx(resp.transaction_hash)
-
-    (final_balance,) = await balance_contract.functions["get_balance"].call()
-    assert final_balance == initial_balance + 90
-
-    initial_balance = final_balance
-    # docs: start
-    # or
-
     increase_balance_by_20_call = Call(
         to_addr=balance_contract.address,
         selector=get_selector_from_name("increase_balance"),
