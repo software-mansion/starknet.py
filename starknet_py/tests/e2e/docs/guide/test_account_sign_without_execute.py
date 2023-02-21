@@ -1,7 +1,6 @@
 import pytest
 
-from starknet_py.net.models import Invoke
-from starknet_py.net.models.transaction import Declare, DeployAccount
+from starknet_py.net.models.transaction import Declare, DeployAccount, Invoke
 
 
 @pytest.mark.asyncio
