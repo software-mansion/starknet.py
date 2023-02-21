@@ -142,18 +142,6 @@ def test_deploy_result_post_init(gateway_client):
         )
 
 
-def test_contract_raises_on_no_provider_and_client():
-    with pytest.raises(ValueError, match="One of provider or client must be provided."):
-        Contract(address=1234, abi=[])
-
-
-def test_contract_raises_on_both_provider_and_client(gateway_account, gateway_client):
-    with pytest.raises(
-        ValueError, match="Arguments provider and client are mutually exclusive."
-    ):
-        Contract(address=1234, abi=[], provider=gateway_account, client=gateway_client)
-
-
 def test_contract_raises_on_incorrect_provider_type():
     with pytest.raises(ValueError, match="Argument provider is not of accepted type."):
         Contract(address=0x1, abi=[], provider=1)  # pyright: ignore
@@ -168,9 +156,5 @@ def test_contract_create_with_base_account(gateway_account):
 
 def test_contract_create_with_client(gateway_client):
     contract = Contract(address=0x1, abi=[], provider=gateway_client)
-    assert contract.account is None
-    assert contract.client == gateway_client
-
-    contract = Contract(address=0x1, abi=[], client=gateway_client)
     assert contract.account is None
     assert contract.client == gateway_client

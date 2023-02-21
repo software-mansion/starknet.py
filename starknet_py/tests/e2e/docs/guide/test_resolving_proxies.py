@@ -16,7 +16,7 @@ from starknet_py.proxy.proxy_check import (
 
 @pytest.mark.asyncio
 async def test_resolving_proxies(
-    gateway_client,
+    account,
     map_contract,
     deploy_proxy_to_contract_exposed,
     deploy_proxy_to_contract_oz_argent,
@@ -29,7 +29,7 @@ async def test_resolving_proxies(
     address = map_contract.address
     # docs-1: start
     # Getting the direct contract from address
-    contract = await Contract.from_address(address=address, client=gateway_client)
+    contract = await Contract.from_address(address=address, provider=account)
 
     # docs-1: end
     address = deploy_proxy_to_contract_oz_argent.deployed_contract.address
@@ -37,7 +37,7 @@ async def test_resolving_proxies(
     # To use contract behind a proxy as a regular contract, set proxy_config to True
     # It will check if your proxy is OpenZeppelin or ArgentX proxy
     contract = await Contract.from_address(
-        address=address, client=gateway_client, proxy_config=True
+        address=address, provider=account, proxy_config=True
     )
 
     # After that contract can be used as usual
@@ -77,7 +77,7 @@ async def test_resolving_proxies(
     address = deploy_proxy_to_contract_exposed.deployed_contract.address
     # docs-2: start
     contract = await Contract.from_address(
-        address=address, client=gateway_client, proxy_config=proxy_config
+        address=address, provider=account, proxy_config=proxy_config
     )
     # docs-2: end
 
