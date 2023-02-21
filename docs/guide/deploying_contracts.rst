@@ -34,7 +34,7 @@ through Universal Deployment Contract (UDC) to deploy a contract.
 Simple deploy
 -------------
 
-If you already know the class hash of a contract you want to deploy (and the class hash is present on-chain, i.e. has been previously declared) just use the :meth:`Contract.deploy_contract`.
+If you already know the class hash of an already declared contract you want to deploy just use the :meth:`Contract.deploy_contract`.
 It will deploy the contract using funds from your account. Deployment is handled by UDC.
 
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_simple_deploy.py
