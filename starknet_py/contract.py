@@ -439,9 +439,7 @@ class Contract:
         self,
         address: AddressRepresentation,
         abi: list,
-        provider: Union[BaseAccount, Client] = None,  # pyright: ignore
-        *,
-        client: Optional[Client] = None,
+        provider: Union[BaseAccount, Client],
     ):
         """
         Should be used instead of ``from_address`` when ABI is known statically.
@@ -451,13 +449,8 @@ class Contract:
         :param address: contract's address.
         :param abi: contract's abi.
         :param provider: BaseAccount or Client used to perform transactions.
-        :param client:
-            Client used to perform transactions.
-
-             .. deprecated:: 0.13.0
-                Argument client has been deprecated. Use provider instead.
         """
-        client, account = _unpack_provider(provider, client)
+        client, account = _unpack_provider(provider)
 
         self.account: Optional[BaseAccount] = account
         self.client: Client = client
@@ -481,8 +474,6 @@ class Contract:
         address: AddressRepresentation,
         provider: Union[BaseAccount, Client] = None,  # pyright: ignore
         proxy_config: Union[bool, ProxyConfig] = False,
-        *,
-        client: Optional[Client] = None,
     ) -> Contract:
         """
         Fetches ABI for given contract and creates a new Contract instance with it. If you know ABI statically you
@@ -501,15 +492,10 @@ class Contract:
             If set to ``False``, :meth:`Contract.from_address` will not resolve proxies.
 
             If a valid :class:`starknet_py.contract_abi_resolver.ProxyConfig` is provided, will use its values instead.
-        :param client:
-            Client used to fetch contract.
-
-             .. deprecated:: 0.13.0
-                Argument client has been deprecated. Use provider instead.
 
         :return: an initialized Contract instance.
         """
-        client, account = _unpack_provider(provider, client)
+        client, account = _unpack_provider(provider)
 
         address = parse_address(address)
         proxy_config = Contract._create_proxy_config(proxy_config)
@@ -712,28 +698,14 @@ class Contract:
 
 
 def _unpack_provider(
-    provider: Union[BaseAccount, Client], client: Optional[Client] = None
+    provider: Union[BaseAccount, Client]
 ) -> Tuple[Client, Optional[BaseAccount]]:
     """
     Get the client and optional account to be used by Contract.
 
     If provided with Client, returns this Client and None.
-    If provided with Account, returns underlying Client and the account.
+    If provided with BaseAccount, returns underlying Client and the account.
     """
-    if client is not None:
-        warnings.warn(
-            "Argument client has been deprecated. Use provider instead.",
-            category=DeprecationWarning,
-        )
-
-    if provider is not None and client is not None:
-        raise ValueError("Arguments provider and client are mutually exclusive.")
-
-    if provider is None and client is None:
-        raise ValueError("One of provider or client must be provided.")
-
-    provider = provider or client
-
     if isinstance(provider, Client):
         return provider, None
 
