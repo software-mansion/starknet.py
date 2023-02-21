@@ -5,11 +5,11 @@ from starknet_py.net.models.transaction import Declare, DeployAccount
 
 
 @pytest.mark.asyncio
-async def test_account_sign_without_execute(account):
+async def test_account_sign_without_execute(account, map_compiled_contract):
     # pylint: disable=import-outside-toplevel
     address = selector = class_hash = salt = 0x1
     calldata = []
-    compiled_contract = ""
+    compiled_contract = map_compiled_contract
     max_fee = 100000
 
     # docs: start
