@@ -97,7 +97,7 @@ class TransactionTypeField(fields.Field):
     def _serialize(self, value: Any, attr: str, obj: Any, **kwargs):
         if value == TransactionType.INVOKE:
             return "INVOKE_FUNCTION"
-        return value.name if value is not None else ""
+        return value.name
 
     def _deserialize(
         self,
