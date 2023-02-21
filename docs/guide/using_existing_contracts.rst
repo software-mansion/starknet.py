@@ -92,3 +92,22 @@ returned by it multiplied by ``1.5`` as a ``max_fee``.
 .. note::
     It is possible to configure the value by which the estimated fee is multiplied,
     by changing ``ESTIMATED_FEE_MULTIPLIER`` in :class:`~starknet_py.net.account.account.Account`.
+
+Account and Client interoperability
+-----------------------------------
+
+Though designed as standalone interface, ``Contract`` methods has been designed to be
+compatible with ``Account`` and and ``Client``.
+
+``PreparedFunctionCall`` returned by ``Contract.prepare()`` can be used in Account methods to create Invoke transactions.
+
+
+.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_contract_account_compatibility.py
+    :language: python
+    :dedent: 4
+
+It can also be used in ``Client.call_contract()``
+
+.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_contract_client_compatibility.py
+    :language: python
+    :dedent: 4
