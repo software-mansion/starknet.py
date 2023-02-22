@@ -18,5 +18,6 @@ async def test_executing_transactions(account, map_contract):
     await account.client.wait_for_tx(resp.transaction_hash)
     # docs: end
 
-    (value,) = await map_contract.functions["get"].call(key=20)
+    call = Call(to_addr=address, selector=get_selector_from_name("get"), calldata=[20])
+    (value,) = await account.client.call_contract(call)
     assert value == 20
