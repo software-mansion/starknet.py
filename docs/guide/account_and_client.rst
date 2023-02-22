@@ -1,15 +1,12 @@
 Account and Client
 ==================
 
-Account details
----------------
+Executing transactions
+----------------------
 
-:ref:`Account` provides a simple way of executing transactions. To send one with few calls
-just prepare calls through contract interface and send it with Account.execute method.
+To execute transactions on Starknet, use :meth:`~starknet_py.net.account.account.Account.execute` method from :ref:`Account` interface.
 
-Here is an example:
-
-.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_account_details.py
+.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_executing_transactions.py
     :language: python
     :dedent: 4
 
@@ -22,6 +19,22 @@ Account also provides a way of creating signed transaction without sending them.
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_account_sign_without_execute.py
     :language: python
     :dedent: 4
+
+Multicall
+---------
+
+There is a possibility to execute an Invoke transaction containing multiple calls.
+Simply pass a list of calls to :meth:`~starknet_py.net.account.account.Account.execute` method.
+Note that the nonce will be bumped only by 1.
+
+.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_multicall.py
+    :language: python
+    :dedent: 4
+
+.. note::
+    If you want to create a **read-only** multicall that does not change on-chain state, check out `this cairo contract made by Argent <https://github.com/argentlabs/argent-contracts-starknet/blob/d2e4365ff1005e03c5575b5a0db48060096cf391/contracts/lib/Multicall.cairo>`_, that implements an endpoint allowing for such behaviour.
+
+
 
 FullNodeClient usage
 --------------------

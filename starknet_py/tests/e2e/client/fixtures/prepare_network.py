@@ -140,7 +140,7 @@ def fixture_contract_address(prepare_network: Tuple[str, PreparedNetworkData]) -
     return prepared_data.contract_address
 
 
-@pytest.fixture(name="balance_contract")
+@pytest.fixture(name="balance_contract", scope="package")
 def fixture_balance_contract() -> str:
     """
     Returns compiled code of the balance.cairo contract
