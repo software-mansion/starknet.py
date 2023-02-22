@@ -5,6 +5,7 @@ from starknet_py.net.models import Invoke
 
 @pytest.mark.asyncio
 async def test_create_invoke_from_contract(map_contract, account):
+    # pylint: disable=import-outside-toplevel
     contract = map_contract
     max_fee = int(1e20)
 

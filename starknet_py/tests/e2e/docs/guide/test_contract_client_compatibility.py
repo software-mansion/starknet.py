@@ -3,8 +3,8 @@ import pytest
 
 @pytest.mark.asyncio
 async def test_create_call_from_contract(map_contract, account):
+    # pylint: disable=import-outside-toplevel
     contract = map_contract
-    max_fee = int(1e20)
 
     client = account.client
     res = await map_contract.functions["put"].invoke(
