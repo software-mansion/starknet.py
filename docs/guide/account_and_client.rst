@@ -13,6 +13,15 @@ Here is an example:
     :language: python
     :dedent: 4
 
+Creating transactions without executing them
+--------------------------------------------
+
+Alongside the simpler :meth:`~starknet_py.net.account.account.Account.execute`,
+Account also provides a way of creating signed transaction without sending them.
+
+.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_account_sign_without_execute.py
+    :language: python
+    :dedent: 4
 
 FullNodeClient usage
 --------------------
