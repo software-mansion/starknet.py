@@ -3,8 +3,14 @@ import pytest
 
 @pytest.mark.asyncio
 async def test_executing_transactions(account, map_contract):
+    address = map_contract.address
     # docs: start
-    call = map_contract.functions["put"].prepare(key=20, value=20)
+    from starknet_py.hash.selector import get_selector_from_name
+    from starknet_py.net.client_models import Call
+
+    call = Call(
+        to_addr=address, selector=get_selector_from_name("put"), calldata=[20, 20]
+    )
 
     resp = await account.execute(calls=call, max_fee=int(1e16))
 
