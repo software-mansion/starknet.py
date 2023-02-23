@@ -129,7 +129,7 @@ def starknet_compile(
         main_scope=MAIN_SCOPE,
         add_debug_info=False,
         file_contents_for_debug_info=file_contents_for_debug_info,
-        filter_identifiers=False,
+        filter_identifiers=True,
         is_account_contract=is_account_contract,
     )
 
