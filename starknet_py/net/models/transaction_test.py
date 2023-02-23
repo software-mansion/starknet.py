@@ -4,7 +4,7 @@ from typing import cast
 
 import pytest
 
-from starknet_py.common import create_contract_class
+from starknet_py.common import create_compiled_contract, create_contract_class
 from starknet_py.net.client_models import TransactionType
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import (
@@ -92,14 +92,16 @@ compiled_contract = read_contract("erc20_compiled.json")
         ),
         (
             Declare(
-                contract_class=create_contract_class(compiled_contract),
+                contract_class=create_compiled_contract(
+                    compiled_contract=compiled_contract
+                ),
                 sender_address=123,
                 max_fee=10000,
                 signature=[],
                 nonce=23,
                 version=1,
             ),
-            3215768554137303326547465210112807134648092046901055861655987636987830595496,
+            1691558101504686217378182149804732367606605343820187119932616442583251634573,
         ),
     ],
 )
