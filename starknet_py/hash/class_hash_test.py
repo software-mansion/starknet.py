@@ -1,10 +1,12 @@
 # pylint: disable=line-too-long
 # fmt: off
 import pytest
-from starkware.starknet.core.os.class_hash import (
-    compute_class_hash as sw_compute_class_hash,
+from starkware.starknet.core.os.contract_class.deprecated_class_hash import (
+    compute_deprecated_class_hash as sw_compute_class_hash,
 )
-from starkware.starknet.services.api.contract_class import ContractClass
+from starkware.starknet.services.api.contract_class.contract_class import (
+    DeprecatedCompiledClass,
+)
 
 from starknet_py.common import create_contract_class
 from starknet_py.hash.class_hash import compute_class_hash
@@ -25,5 +27,5 @@ def test_compute_class_hash(contract_source, hash_):
     compiled_contract = read_contract(contract_source)
     contract_class = create_contract_class(compiled_contract)
     class_hash = compute_class_hash(contract_class)
-    sw_class_hash = sw_compute_class_hash(ContractClass.loads(compiled_contract))
+    sw_class_hash = sw_compute_class_hash(DeprecatedCompiledClass.loads(compiled_contract))
     assert class_hash == hash_ == sw_class_hash
