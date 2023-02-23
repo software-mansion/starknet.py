@@ -27,6 +27,7 @@ class FunctionBaseSchema(Schema):
     outputs = fields.List(
         fields.Nested(TypedParameterSchema()), data_key="outputs", required=True
     )
+    state_mutability = fields.String(data_key="stateMutability", required=False)
 
 
 class FunctionAbiEntrySchema(FunctionBaseSchema):
