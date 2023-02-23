@@ -1,4 +1,10 @@
 import pytest
+from starkware.starknet.core.os.transaction_hash.transaction_hash import (
+    calculate_deprecated_declare_transaction_hash,
+)
+from starkware.starknet.services.api.contract_class.contract_class import (
+    DeprecatedCompiledClass,
+)
 
 from starknet_py.common import create_compiled_contract
 from starknet_py.hash.transaction import (
@@ -45,23 +51,20 @@ def test_compute_deploy_account_transaction_hash(data, calculated_hash):
 
 
 @pytest.mark.parametrize(
-    "contract_class, data, calculated_hash",
+    "contract_json, data",
     (
-        (
-            create_compiled_contract(
-                compiled_contract=read_contract("map_compiled.json")
-            ),
-            [3, 4, 5, 0, 7],
-            3541774834156044173802833283101285248062762410120835876882604474241326048804,
-        ),
-        (
-            create_compiled_contract(
-                compiled_contract=read_contract("balance_compiled.json")
-            ),
-            [23, 24, 25, 26, 27],
-            281026346736086813081534934628468903582853878088256162569718459969487373872,
-        ),
+        ("map_compiled.json", [3, 4, 5, 1, 7]),
+        ("balance_compiled.json", [23, 24, 25, 26, 27]),
     ),
 )
-def test_compute_declare_transaction_hash(contract_class, data, calculated_hash):
-    assert compute_declare_transaction_hash(contract_class, *data) == calculated_hash
+def test_compute_declare_transaction_hash(contract_json, data):
+    contract = read_contract(contract_json)
+    compiled_contract = create_compiled_contract(compiled_contract=contract)
+
+    declare_hash = compute_declare_transaction_hash(compiled_contract, *data)
+
+    sw_declare_hash = calculate_deprecated_declare_transaction_hash(
+        DeprecatedCompiledClass.loads(contract), *data
+    )
+
+    assert declare_hash == sw_declare_hash
