@@ -81,6 +81,27 @@ async def deploy_contract(account: BaseAccount, class_hash: int, abi: List) -> C
 
 
 @pytest_asyncio.fixture(scope="package")
+async def deployed_balance_contract(
+    gateway_account: BaseAccount,
+    balance_contract: str,
+) -> Contract:
+    """
+    Declares, deploys a new balance contract and returns its instance.
+    """
+    declare_result = await Contract.declare(
+        account=gateway_account,
+        compiled_contract=balance_contract,
+        max_fee=int(1e16),
+    )
+    await declare_result.wait_for_acceptance()
+
+    deploy_result = await declare_result.deploy(max_fee=int(1e16))
+    await deploy_result.wait_for_acceptance()
+
+    return deploy_result.deployed_contract
+
+
+@pytest_asyncio.fixture(scope="package")
 async def map_contract(
     gateway_account: BaseAccount,
     map_compiled_contract: str,

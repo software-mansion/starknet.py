@@ -66,7 +66,7 @@ async def test_get_transaction_raises_on_not_received(client):
     with pytest.raises(
         TransactionNotReceivedError, match="Transaction was not received on Starknet."
     ):
-        await client.get_transaction(tx_hash=0x1)
+        await client.get_transaction(tx_hash=0x9999)
 
 
 @pytest.mark.asyncio

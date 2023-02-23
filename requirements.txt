@@ -17,7 +17,6 @@ cairo-lang @ https://github.com/starkware-libs/cairo-lang/releases/download/v0.1
 certifi==2022.9.24 ; python_version >= "3.8" and python_version < "3.10"
 charset-normalizer==2.1.1 ; python_version >= "3.8" and python_version < "3.10"
 colorama==0.4.6 ; python_version >= "3.8" and python_version < "3.10" and sys_platform == "win32"
-crypto-cpp-py==1.0.4 ; python_version >= "3.8" and python_version < "3.10"
 cssutils==2.6.0 ; python_version >= "3.8" and python_version < "3.10"
 cytoolz==0.12.0 ; python_version >= "3.8" and python_version < "3.10" and implementation_name == "cpython"
 dict2css==0.3.0 ; python_version >= "3.8" and python_version < "3.10"
