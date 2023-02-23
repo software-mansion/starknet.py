@@ -15,5 +15,4 @@ API
    api/data_types
    api/cairo
    api/serializers
-   api/messages
    api/proxy_resolvers
