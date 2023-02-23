@@ -413,6 +413,7 @@ Web3 = "*"
 [package.source]
 type = "url"
 url = "https://github.com/starkware-libs/cairo-lang/releases/download/v0.11.0-pre/cairo-lang-0.11.0a0.zip"
+
 [[package]]
 name = "certifi"
 version = "2022.9.24"
@@ -3281,4 +3282,4 @@ eth-tester = []
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8, <3.10"
-content-hash = "6079138d9b5f93a864d07377a35022d6844a39cd9baecc015a48007f21509969"
+content-hash = "91efd8ffd139b5108142d690bbb3786af22bf6f775713e32629fcd88dcd648ae"
