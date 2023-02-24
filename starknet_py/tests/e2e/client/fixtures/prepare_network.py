@@ -138,7 +138,7 @@ def fixture_contract_address(prepare_network: Tuple[str, PreparedNetworkData]) -
     return prepared_data.contract_address
 
 
-@pytest.fixture(name="balance_contract", scope="package")
+@pytest.fixture(name="balance_contract", scope="module")
 def fixture_balance_contract() -> str:
     """
     Returns compiled code of the balance.cairo contract
@@ -159,7 +159,7 @@ def fixture_class_hash(network: str, contract_address: int) -> int:
     )
 
 
-@pytest_asyncio.fixture(name="prepare_network", scope="package")
+@pytest_asyncio.fixture(name="prepare_network", scope="module")
 async def fixture_prepare_network(
     network: str,
     gateway_account: Account,

@@ -36,7 +36,7 @@ def start_devnet():
     return devnet_port, proc
 
 
-@pytest.fixture(scope="package")
+@pytest.fixture(scope="module")
 def run_devnet() -> Generator[str, None, None]:
     """
     Runs devnet instance once per module and returns it's address.

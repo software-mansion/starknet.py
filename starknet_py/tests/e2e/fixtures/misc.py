@@ -42,14 +42,14 @@ def pytest_collection_modifyitems(config, items):
             item.add_marker(pytest.mark.skip())
 
 
-@pytest.fixture(scope="package")
-def network(pytestconfig, run_devnet: str) -> str:
+@pytest.fixture(scope="module")
+def network(pytestconfig) -> str:
     """
     Returns network address depending on the --net parameter.
     """
     net = pytestconfig.getoption("--net")
     net_address = {
-        "devnet": run_devnet,
+        # "devnet": run_devnet,  TODO: uncomment, when devnet is a dependency
         "testnet": "testnet",
         "integration": "https://external.integration.starknet.io",
     }
@@ -78,7 +78,7 @@ def typed_data(request) -> TypedData:
     return typed_data
 
 
-@pytest_asyncio.fixture(scope="package")
+@pytest_asyncio.fixture(scope="module")
 async def cairo_serializer(
     gateway_account: Account,
 ) -> CairoSerializer:
