@@ -83,7 +83,7 @@ async def devnet_account_details(
     return hex(address), hex(key_pair.private_key)
 
 
-@pytest_asyncio.fixture(scope="package")
+@pytest_asyncio.fixture(scope="module")
 async def address_and_private_key(
     pytestconfig,
     pre_deployed_account_with_validate_deploy: BaseAccount,
@@ -113,7 +113,7 @@ async def address_and_private_key(
     return account_details[net]
 
 
-@pytest.fixture(scope="package")
+@pytest.fixture(scope="module")
 def gateway_account(
     address_and_private_key: Tuple[str, str], gateway_client: GatewayClient
 ) -> BaseAccount:
@@ -130,7 +130,7 @@ def gateway_account(
     )
 
 
-@pytest.fixture(scope="package")
+@pytest.fixture(scope="module")
 def full_node_account(
     address_and_private_key: Tuple[str, str], full_node_client: FullNodeClient
 ) -> BaseAccount:
@@ -157,7 +157,7 @@ def net_to_base_accounts() -> List[str]:
 
 
 @pytest.fixture(
-    scope="package",
+    scope="module",
     params=net_to_base_accounts(),
 )
 def account(request) -> BaseAccount:
@@ -179,7 +179,7 @@ class AccountToBeDeployedDetailsFactory:
         )
 
 
-@pytest_asyncio.fixture(scope="package")
+@pytest_asyncio.fixture(scope="module")
 async def deploy_account_details_factory(
     account_with_validate_deploy_class_hash: int,
     fee_contract: Contract,
@@ -197,7 +197,7 @@ async def deploy_account_details_factory(
     )
 
 
-@pytest.fixture(scope="package")
+@pytest.fixture(scope="module")
 def pre_deployed_account_with_validate_deploy(
     pytestconfig, network: str
 ) -> BaseAccount:
