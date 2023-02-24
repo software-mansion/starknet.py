@@ -15,6 +15,8 @@ from starknet_py.net.client_models import (
     DeclareTransactionResponse,
     DeployAccountTransactionResponse,
     EstimatedFee,
+    Event,
+    Events,
     Hash,
     SentTransactionResponse,
     StarknetBlock,
@@ -38,6 +40,7 @@ from starknet_py.net.schemas.rpc import (
     DeclareTransactionResponseSchema,
     DeployAccountTransactionResponseSchema,
     EstimatedFeeSchema,
+    EventsSchema,
     PendingTransactionsSchema,
     SentTransactionSchema,
     StarknetBlockSchema,
@@ -100,6 +103,43 @@ class FullNodeClient(Client):
         block_number: Optional[Union[int, Tag]] = None,
     ) -> BlockTransactionTraces:
         raise NotImplementedError()
+
+    async def get_events(
+        self,
+        from_block_number: Optional[Union[int, Tag]] = None,
+        from_block_hash: Optional[Union[Hash, Tag]] = None,
+        to_block_number: Optional[Union[int, Tag]] = None,
+        to_block_hash: Optional[Union[Hash, Tag]] = None,
+        contract_address: Hash = None,
+        keys: Optional[List[Hash]] = None,
+    ) -> Events:
+        params = {
+            "chunk_size": 1024,
+        }
+        params.update(get_from_block_identifier(from_block_hash, from_block_number))
+        params.update(get_to_block_identifier(to_block_hash, to_block_number))
+
+        if contract_address:
+            params.update({"address": _to_rpc_felt(contract_address)})
+        if keys:
+            params.update({"keys": list(map(_to_rpc_felt, keys))})
+
+        res = await self._client.call(
+            method_name="getEvents",
+            params=[params],
+        )
+        ret = cast(Events, EventsSchema().load(res, unknown=EXCLUDE))
+        con_token = res.get("continuation_token")
+        while con_token:
+            params.update({"continuation_token": con_token})
+            res = await self._client.call(
+                method_name="getEvents",
+                params=[params],
+            )
+            new_events = cast(Events, EventsSchema().load(res, unknown=EXCLUDE))
+            ret.events.extend(new_events.events)
+            con_token = res.get("continuation_token")
+        return ret
 
     async def get_state_update(
         self,
@@ -394,6 +434,7 @@ class FullNodeClient(Client):
 def get_block_identifier(
     block_hash: Optional[Union[Hash, Tag]] = None,
     block_number: Optional[Union[int, Tag]] = None,
+    block_param_key: Optional[str] = "block_id",
 ) -> dict:
     if block_hash is not None and block_number is not None:
         raise ValueError(
@@ -401,15 +442,29 @@ def get_block_identifier(
         )
 
     if block_hash in ("latest", "pending") or block_number in ("latest", "pending"):
-        return {"block_id": block_hash or block_number}
+        return {block_param_key: block_hash or block_number}
 
     if block_hash is not None:
-        return {"block_id": {"block_hash": _to_rpc_felt(block_hash)}}
+        return {block_param_key: {"block_hash": _to_rpc_felt(block_hash)}}
 
     if block_number is not None:
-        return {"block_id": {"block_number": block_number}}
+        return {block_param_key: {"block_number": block_number}}
 
-    return {"block_id": "pending"}
+    return {block_param_key: "pending"}
+
+
+def get_to_block_identifier(
+    block_hash: Optional[Union[Hash, Tag]] = None,
+    block_number: Optional[Union[int, Tag]] = None,
+) -> dict:
+    return get_block_identifier(block_hash, block_number, "to_block")
+
+
+def get_from_block_identifier(
+    block_hash: Optional[Union[Hash, Tag]] = None,
+    block_number: Optional[Union[int, Tag]] = None,
+) -> dict:
+    return get_block_identifier(block_hash, block_number, "from_block")
 
 
 def _create_broadcasted_txn(transaction: AccountTransaction) -> dict:

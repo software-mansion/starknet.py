@@ -42,6 +42,15 @@ class Event:
 
 
 @dataclass
+class Events:
+    """
+    Dataclass representing event emitted by getEvents
+    """
+
+    events: List[Event]
+
+
+@dataclass
 class L1toL2Message:
     """
     Dataclass representing a L1->L2 message
