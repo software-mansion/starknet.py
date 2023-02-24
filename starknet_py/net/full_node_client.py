@@ -108,8 +108,8 @@ class FullNodeClient(Client):
         params = {
             "chunk_size": 1024,
         }
-        params.update(get_from_block_identifier(from_block_hash, from_block_number))
-        params.update(get_to_block_identifier(to_block_hash, to_block_number))
+        params.update(get_block_identifier(from_block_hash, from_block_number, "from_block"))
+        params.update(get_block_identifier(to_block_hash, to_block_number, "to_block"))
 
         if contract_address:
             params.update({"address": _to_rpc_felt(contract_address)})
@@ -444,20 +444,6 @@ def get_block_identifier(
         return {block_param_key: {"block_number": block_number}}
 
     return {block_param_key: "pending"}
-
-
-def get_to_block_identifier(
-    block_hash: Optional[Union[Hash, Tag]] = None,
-    block_number: Optional[Union[int, Tag]] = None,
-) -> dict:
-    return get_block_identifier(block_hash, block_number, "to_block")
-
-
-def get_from_block_identifier(
-    block_hash: Optional[Union[Hash, Tag]] = None,
-    block_number: Optional[Union[int, Tag]] = None,
-) -> dict:
-    return get_block_identifier(block_hash, block_number, "from_block")
 
 
 def _create_broadcasted_txn(transaction: AccountTransaction) -> dict:
