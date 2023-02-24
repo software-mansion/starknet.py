@@ -15,7 +15,6 @@ from starknet_py.net.client_models import (
     DeclareTransactionResponse,
     DeployAccountTransactionResponse,
     EstimatedFee,
-    Event,
     Events,
     Hash,
     SentTransactionResponse,
@@ -116,7 +115,9 @@ class FullNodeClient(Client):
         params = {
             "chunk_size": 1024,
         }
-        params.update(get_block_identifier(from_block_hash, from_block_number, "from_block"))
+        params.update(
+            get_block_identifier(from_block_hash, from_block_number, "from_block")
+        )
         params.update(get_block_identifier(to_block_hash, to_block_number, "to_block"))
 
         if contract_address:
