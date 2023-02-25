@@ -101,14 +101,13 @@ class FullNodeClient(Client):
         from_block_hash: Optional[Union[Hash, Tag]] = None,
         to_block_number: Optional[Union[int, Tag]] = None,
         to_block_hash: Optional[Union[Hash, Tag]] = None,
-        contract_address: Hash = None,
+        contract_address: Optional[Hash] = None,
         keys: Optional[List[Hash]] = None,
     ) -> Events:
-        # pylint: disable=too-many-arguments
         params = {
             "chunk_size": 1024,
             "from_block": get_block_identifier(from_block_hash, from_block_number),
-            "to_block": get_block_identifier(to_block_hash, to_block_number),
+            "to_block": get_block_identifier(to_block_hash, to_block_number)
         }
 
         if contract_address:
@@ -118,7 +117,7 @@ class FullNodeClient(Client):
 
         res = await self._client.call(
             method_name="getEvents",
-            params=[params],
+            params={"filter": params},
         )
         ret = cast(Events, EventsSchema().load(res, unknown=EXCLUDE))
         con_token = res.get("continuation_token")
@@ -126,7 +125,7 @@ class FullNodeClient(Client):
             params["continuation_token"] = con_token
             res = await self._client.call(
                 method_name="getEvents",
-                params=[params],
+                params={"filter": params},
             )
             new_events = cast(Events, EventsSchema().load(res, unknown=EXCLUDE))
             ret.events.extend(new_events.events)
@@ -308,10 +307,7 @@ class FullNodeClient(Client):
 
         res = await self._client.call(
             method_name="getClass",
-            params={
-                "class_hash": _to_rpc_felt(class_hash),
-                "block_id": block_identifier,
-            },
+            params={"class_hash": _to_rpc_felt(class_hash), "block_id": block_identifier},
         )
         return cast(ContractClass, ContractClassSchema().load(res, unknown=EXCLUDE))
 
@@ -361,8 +357,7 @@ class FullNodeClient(Client):
         )
 
         res = await self._client.call(
-            method_name="getBlockTransactionCount",
-            params={"block_id": block_identifier},
+            method_name="getBlockTransactionCount", params={"block_id": block_identifier}
         )
         res = cast(int, res)
         return res
@@ -431,7 +426,7 @@ class FullNodeClient(Client):
 def get_block_identifier(
     block_hash: Optional[Union[Hash, Tag]] = None,
     block_number: Optional[Union[int, Tag]] = None,
-) -> Union[dict, str]:
+) -> Union[dict,  str]:
     if block_hash is not None and block_number is not None:
         raise ValueError(
             "Arguments block_hash and block_number are mutually exclusive."
@@ -441,10 +436,12 @@ def get_block_identifier(
         return block_hash or block_number
 
     if block_hash is not None:
-        return {"block_hash": _to_rpc_felt(block_hash)}
+        ret = {"block_hash": _to_rpc_felt(block_hash)}
+        return ret
 
     if block_number is not None:
-        return {"block_number": block_number}
+        ret = {"block_number": block_number}
+        return ret
 
     return "pending"
 
