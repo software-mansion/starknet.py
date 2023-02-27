@@ -62,4 +62,4 @@ async def test_invoke_and_call(map_contract):
     await invocation.wait_for_acceptance(wait_for_accept=True)
     (response,) = await map_contract.functions["get"].call(2)
 
-    assert response == 2
+    assert response == 13
