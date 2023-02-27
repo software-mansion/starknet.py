@@ -121,7 +121,7 @@ class FullNodeClient(Client):
 
         if contract_address is not None:
             params["address"] = _to_rpc_felt(contract_address)
-        if keys:
+        if keys is not None:
             params["keys"] = list(map(_to_rpc_felt, keys))
 
         res = await self._client.call(
