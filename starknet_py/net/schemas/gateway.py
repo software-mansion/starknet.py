@@ -115,6 +115,7 @@ class DeclareTransactionSchema(TransactionSchema):
     class_hash = Felt(data_key="class_hash", required=True)
     sender_address = Felt(data_key="sender_address", required=True)
     nonce = Felt(data_key="nonce", load_default=None)
+    compiled_class_hash = Felt(data_key="compiled_class_hash", load_default=None)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> DeclareTransaction:

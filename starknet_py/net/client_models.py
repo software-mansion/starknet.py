@@ -108,6 +108,7 @@ class DeclareTransaction(Transaction):
     class_hash: int
     sender_address: int
     nonce: Optional[int] = None
+    compiled_class_hash: Optional[int] = None
 
 
 @dataclass
