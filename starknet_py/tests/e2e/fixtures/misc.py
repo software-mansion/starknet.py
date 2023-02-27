@@ -49,7 +49,7 @@ def network(pytestconfig) -> str:
     """
     net = pytestconfig.getoption("--net")
     net_address = {
-        # "devnet": run_devnet,  TODO: uncomment, when devnet is a dependency
+        "devnet": None,
         "testnet": "testnet",
         "integration": "https://external.integration.starknet.io",
     }
