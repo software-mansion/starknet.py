@@ -111,7 +111,7 @@ class FullNodeClient(Client):
             "to_block": get_block_identifier(to_block_hash, to_block_number),
         }
 
-        if contract_address:
+        if contract_address is not None:
             params["address"] = _to_rpc_felt(contract_address)
         if keys:
             params["keys"] = list(map(_to_rpc_felt, keys))
