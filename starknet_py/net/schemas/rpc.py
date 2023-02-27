@@ -33,6 +33,7 @@ from starknet_py.net.schemas.common import (
     StatusField,
     StorageEntrySchema,
 )
+from starknet_py.net.schemas.utils import replace_sender_address_with_contract_address
 
 # pylint: disable=unused-argument, no-self-use
 
@@ -123,11 +124,7 @@ class InvokeTransactionSchema(TransactionSchema):
 
     @post_load
     def make_transaction(self, data, **kwargs) -> InvokeTransaction:
-        data["contract_address"] = data.get("contract_address") or data.get(
-            "sender_address"
-        )
-        del data["sender_address"]
-
+        replace_sender_address_with_contract_address(data)
         return InvokeTransaction(**data)
 
 
