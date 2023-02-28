@@ -12,6 +12,7 @@ from starknet_py.net.client_models import (
     ContractClass,
     ContractCode,
     ContractsNonce,
+    DeclaredContractHash,
     DeclareTransaction,
     DeclareTransactionResponse,
     DeployAccountTransaction,
@@ -303,14 +304,28 @@ class DeployedContractSchema(Schema):
         return DeployedContract(**data)
 
 
+class DeclaredContractHashSchema(Schema):
+    class_hash = Felt(data_key="class_hash", required=True)
+    compiled_class_hash = Felt(data_key="compiled_class_hash", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> DeclaredContractHash:
+        return DeclaredContractHash(**data)
+
+
 class StateDiffSchema(Schema):
     deployed_contracts = fields.List(
         fields.Nested(DeployedContractSchema()),
         data_key="deployed_contracts",
         required=True,
     )
-    declared_contract_hashes = fields.List(
+    deprecated_declared_contract_hashes = fields.List(
         Felt(),
+        data_key="declared_contracts",
+        required=True,
+    )
+    declared_contract_hashes = fields.List(
+        fields.Nested(DeclaredContractHashSchema()),
         data_key="declared_contracts",
         required=True,
     )
