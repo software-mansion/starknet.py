@@ -448,12 +448,10 @@ def get_block_identifier(
         return block_hash or block_number
 
     if block_hash is not None:
-        ret = {"block_hash": _to_rpc_felt(block_hash)}
-        return ret
+        return {"block_hash": _to_rpc_felt(block_hash)}
 
     if block_number is not None:
-        ret = {"block_number": block_number}
-        return ret
+        return {"block_number": block_number}
 
     return "pending"
 
