@@ -379,7 +379,7 @@ class NewContractClass:
     """
 
     contract_class_version: str  # Should this be added? Purpose of it is unclear to me.
-    program: dict
+    sierra_program: dict
     entry_points_by_type: NewEntryPointsByType
     abi: Optional[AbiDictList] = None  # TODO: verify AbiDictList actually works here
 
