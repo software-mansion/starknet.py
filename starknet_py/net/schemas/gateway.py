@@ -425,7 +425,7 @@ class NewContractClassSchema(Schema):
         required=True,
     )
     entry_points_by_type = fields.Nested(
-        EntryPointsByTypeSchema(), data_key="entry_points_by_type", required=True
+        NewEntryPointsByTypeSchema(), data_key="entry_points_by_type", required=True
     )
     abi = fields.Dict(keys=fields.String(), values=fields.Raw(), data_key="abi")
 
