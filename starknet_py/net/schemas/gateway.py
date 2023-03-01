@@ -28,6 +28,7 @@ from starknet_py.net.client_models import (
     L1HandlerTransaction,
     L1toL2Message,
     L2toL1Message,
+    ReplacedClass,
     NewContractClass,
     NewEntryPoint,
     NewEntryPointsByType,
@@ -313,6 +314,15 @@ class DeclaredContractHashSchema(Schema):
         return DeclaredContractHash(**data)
 
 
+class ReplacedClassSchema(Schema):
+    contract_address = Felt(data_key="address", required=True)
+    class_hash = Felt(data_key="class_hash", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> ReplacedClass:
+        return ReplacedClass(**data)
+
+
 class StateDiffSchema(Schema):
     deployed_contracts = fields.List(
         fields.Nested(DeployedContractSchema()),
@@ -336,6 +346,9 @@ class StateDiffSchema(Schema):
         required=True,
     )
     nonces = fields.Dict(keys=Felt(), values=Felt(), data_key="nonces", required=True)
+    replaced_classes = fields.List(
+        fields.Nested(ReplacedClassSchema()), data_key="replaced_classes", required=True
+    )
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> StateDiff:
