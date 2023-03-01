@@ -321,12 +321,12 @@ class StateDiffSchema(Schema):
     )
     deprecated_declared_contract_hashes = fields.List(
         Felt(),
-        data_key="declared_contracts",
+        data_key="old_declared_contracts",
         required=True,
     )
     declared_contract_hashes = fields.List(
         fields.Nested(DeclaredContractHashSchema()),
-        data_key="declared_contracts",
+        data_key="declared_classes",
         required=True,
     )
     storage_diffs = fields.Dict(
