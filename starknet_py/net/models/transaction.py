@@ -1,5 +1,6 @@
 """
-Dataclasses representing Transactions for internal use.
+Dataclasses representing Transactions for library use, most often
+when sending a transaction to Starknet.
 They should be compliant with the latest Starknet version.
 """
 
