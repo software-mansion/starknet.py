@@ -26,6 +26,9 @@ from starknet_py.net.client_models import (
     L1HandlerTransaction,
     L1toL2Message,
     L2toL1Message,
+    NewContractClass,
+    NewEntryPoint,
+    NewEntryPointsByType,
     SentTransactionResponse,
     StateDiff,
     StorageDiffItem,
@@ -384,6 +387,65 @@ class ContractClassSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> ContractClass:
         return ContractClass(**data)
+
+
+class NewEntryPointSchema(Schema):
+    function_idx = fields.Integer(data_key="function_idx", required=True)
+    selector = Felt(data_key="selector", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> NewEntryPoint:
+        return NewEntryPoint(**data)
+
+
+class NewEntryPointsByTypeSchema(Schema):
+    constructor = fields.List(
+        fields.Nested(NewEntryPointSchema()), data_key="CONSTRUCTOR", required=True
+    )
+    external = fields.List(
+        fields.Nested(NewEntryPointSchema()), data_key="EXTERNAL", required=True
+    )
+    l1_handler = fields.List(
+        fields.Nested(NewEntryPointSchema()), data_key="L1_HANDLER", required=True
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> NewEntryPointsByType:
+        return NewEntryPointsByType(**data)
+
+
+class NewContractClassSchema(Schema):
+    contract_class_version = fields.String(
+        data_key="contract_class_version", required=True
+    )
+    program = fields.Dict(
+        keys=fields.String(),
+        values=fields.Raw(allow_none=True),
+        data_key="sierra_program",
+        required=True,
+    )
+    entry_points_by_type = fields.Nested(
+        EntryPointsByTypeSchema(), data_key="entry_points_by_type", required=True
+    )
+    abi = fields.String(data_key="abi")
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> NewContractClass:
+        return NewContractClass(**data)
+
+
+class TypesOfContractClassSchema(OneOfSchema):
+    type_schemas = {
+        "program": ContractClassSchema(),
+        "sierra_program": NewContractClassSchema(),
+    }
+
+    def get_data_type(self, data):
+        if "sierra_program" in data:
+            return "sierra_program"
+        if "program" in data:
+            return "program"
+        return None
 
 
 class CompiledContractSchema(ContractClassSchema):
