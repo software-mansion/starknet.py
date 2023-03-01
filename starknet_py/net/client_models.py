@@ -1,3 +1,8 @@
+"""
+Dataclasses representing responses from Starknet.
+They need to stay backwards compatible for old transactions/blocks to be fetchable.
+"""
+
 from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum

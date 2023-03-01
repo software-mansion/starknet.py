@@ -1,3 +1,9 @@
+"""
+Dataclasses representing Transactions for library use, most often
+when sending a transaction to Starknet.
+They should be compliant with the latest Starknet version.
+"""
+
 import base64
 import gzip
 import json
