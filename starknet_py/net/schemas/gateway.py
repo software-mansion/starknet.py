@@ -448,9 +448,8 @@ class TypesOfContractClassSchema(OneOfSchema):
     def get_data_type(self, data):
         if "sierra_program" in data:
             return "sierra_program"
-        if "program" in data:
-            return "program"
-        return None
+
+        return "program"
 
 
 class CompiledContractSchema(ContractClassSchema):
