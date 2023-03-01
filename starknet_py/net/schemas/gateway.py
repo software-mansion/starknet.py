@@ -1,6 +1,7 @@
+import json
 from typing import Any, Dict, List
 
-from marshmallow import EXCLUDE, Schema, fields, post_load
+from marshmallow import EXCLUDE, Schema, fields, post_load, pre_load
 from marshmallow_oneofschema import OneOfSchema
 
 from starknet_py.net.client_models import (
@@ -426,7 +427,12 @@ class NewContractClassSchema(Schema):
     entry_points_by_type = fields.Nested(
         NewEntryPointsByTypeSchema(), data_key="entry_points_by_type", required=True
     )
-    abi = fields.Dict(keys=fields.String(), values=fields.Raw(), data_key="abi")
+    abi = fields.List(fields.Dict(), data_key="abi")
+
+    @pre_load
+    def load_abi(self, data, **kwargs):
+        data["abi"] = json.loads(data["abi"])
+        return data
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> NewContractClass:
