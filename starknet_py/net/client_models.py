@@ -352,6 +352,41 @@ class ContractClass:
 
 
 @dataclass
+class NewEntryPoint:
+    """
+    Dataclass representing contract entry point
+    """
+
+    function_idx: int
+    selector: int
+
+
+@dataclass
+class NewEntryPointsByType:
+    """
+    Dataclass representing contract class entrypoints by entry point type
+    """
+
+    constructor: List[NewEntryPoint]
+    external: List[NewEntryPoint]
+    l1_handler: List[NewEntryPoint]
+
+
+@dataclass
+class NewContractClass:
+    """
+    Dataclass representing Cairo1 contract declared to Starknet
+    """
+
+    contract_class_version: str  # Should this be added? Purpose of it is unclear to me.
+    program: dict
+    entry_points_by_type: NewEntryPointsByType
+    abi: Optional[dict] = None
+    # TODO: Better typing for this will be needed once we start Cario1 properly.
+    #  Not sure if the ABI structure is final already. It is typed as `str` in cairo-lang.
+
+
+@dataclass
 class CompiledContract(ContractClass):
     """
     Dataclass representing ContractClass with required abi.
