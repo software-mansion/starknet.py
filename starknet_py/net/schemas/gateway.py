@@ -427,7 +427,7 @@ class NewContractClassSchema(Schema):
     entry_points_by_type = fields.Nested(
         EntryPointsByTypeSchema(), data_key="entry_points_by_type", required=True
     )
-    abi = fields.String(data_key="abi")
+    abi = fields.Dict(keys=fields.String(), values=fields.Raw(), data_key="abi")
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> NewContractClass:

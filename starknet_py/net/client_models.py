@@ -381,9 +381,7 @@ class NewContractClass:
     contract_class_version: str  # Should this be added? Purpose of it is unclear to me.
     program: dict
     entry_points_by_type: NewEntryPointsByType
-    abi: Optional[dict] = None
-    # TODO: Better typing for this will be needed once we start Cario1 properly.
-    #  Not sure if the ABI structure is final already. It is typed as `str` in cairo-lang.
+    abi: Optional[AbiDictList] = None  # TODO: verify AbiDictList actually works here
 
 
 @dataclass
