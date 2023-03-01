@@ -418,9 +418,8 @@ class NewContractClassSchema(Schema):
     contract_class_version = fields.String(
         data_key="contract_class_version", required=True
     )
-    sierra_program = fields.Dict(
-        keys=fields.String(),
-        values=fields.Raw(allow_none=True),
+    sierra_program = fields.List(
+        fields.String(),
         data_key="sierra_program",
         required=True,
     )
