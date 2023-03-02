@@ -13,6 +13,7 @@ from starknet_py.net.client_models import (
     DeployAccountTransactionResponse,
     EstimatedFee,
     Hash,
+    NewContractClass,
     SentTransactionResponse,
     StarknetBlock,
     Tag,
@@ -262,7 +263,9 @@ class Client(ABC):
         """
 
     @abstractmethod
-    async def get_class_by_hash(self, class_hash: Hash) -> ContractClass:
+    async def get_class_by_hash(
+        self, class_hash: Hash
+    ) -> Union[ContractClass, NewContractClass]:
         """
         Get the contract class for given class hash
 

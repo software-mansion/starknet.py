@@ -10,6 +10,8 @@ from starknet_py.net.client_models import (
     Call,
     DeployTransaction,
     L1HandlerTransaction,
+    NewContractClass,
+    NewEntryPointsByType,
     TransactionStatus,
     TransactionStatusResponse,
 )
@@ -17,6 +19,23 @@ from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.networks import MAINNET, TESTNET, TESTNET2, CustomGatewayUrls
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.tests.e2e.fixtures.misc import read_contract
+
+
+@pytest.mark.asyncio
+async def test_get_class_by_hash_sierra_program():
+    client = GatewayClient(
+        net="https://external.integration.starknet.io"
+    )  # TODO: Replace this with fixture
+    contract_class = await client.get_class_by_hash(
+        class_hash=0x04E70B19333AE94BD958625F7B61CE9EEC631653597E68645E13780061B2136C
+    )
+
+    assert isinstance(contract_class, NewContractClass)
+    assert contract_class.contract_class_version == "0.1.0"
+    assert isinstance(contract_class.sierra_program, list)
+    assert isinstance(contract_class.entry_points_by_type, NewEntryPointsByType)
+    assert isinstance(contract_class.abi, list)
+    assert isinstance(contract_class.abi[0], dict)
 
 
 @pytest.mark.asyncio

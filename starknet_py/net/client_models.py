@@ -352,6 +352,39 @@ class ContractClass:
 
 
 @dataclass
+class NewEntryPoint:
+    """
+    Dataclass representing contract entry point
+    """
+
+    function_idx: int
+    selector: int
+
+
+@dataclass
+class NewEntryPointsByType:
+    """
+    Dataclass representing contract class entrypoints by entry point type
+    """
+
+    constructor: List[NewEntryPoint]
+    external: List[NewEntryPoint]
+    l1_handler: List[NewEntryPoint]
+
+
+@dataclass
+class NewContractClass:
+    """
+    Dataclass representing Cairo1 contract declared to Starknet
+    """
+
+    contract_class_version: str
+    sierra_program: List[str]
+    entry_points_by_type: NewEntryPointsByType
+    abi: Optional[AbiDictList] = None  # TODO: verify AbiDictList actually works here
+
+
+@dataclass
 class CompiledContract(ContractClass):
     """
     Dataclass representing ContractClass with required abi.

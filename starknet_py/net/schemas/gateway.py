@@ -1,6 +1,7 @@
+import json
 from typing import Any, Dict, List
 
-from marshmallow import EXCLUDE, Schema, fields, post_load
+from marshmallow import EXCLUDE, Schema, fields, post_load, pre_load
 from marshmallow_oneofschema import OneOfSchema
 
 from starknet_py.net.client_models import (
@@ -26,6 +27,9 @@ from starknet_py.net.client_models import (
     L1HandlerTransaction,
     L1toL2Message,
     L2toL1Message,
+    NewContractClass,
+    NewEntryPoint,
+    NewEntryPointsByType,
     SentTransactionResponse,
     StateDiff,
     StorageDiffItem,
@@ -384,6 +388,70 @@ class ContractClassSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> ContractClass:
         return ContractClass(**data)
+
+
+class NewEntryPointSchema(Schema):
+    function_idx = fields.Integer(data_key="function_idx", required=True)
+    selector = Felt(data_key="selector", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> NewEntryPoint:
+        return NewEntryPoint(**data)
+
+
+class NewEntryPointsByTypeSchema(Schema):
+    constructor = fields.List(
+        fields.Nested(NewEntryPointSchema()), data_key="CONSTRUCTOR", required=True
+    )
+    external = fields.List(
+        fields.Nested(NewEntryPointSchema()), data_key="EXTERNAL", required=True
+    )
+    l1_handler = fields.List(
+        fields.Nested(NewEntryPointSchema()), data_key="L1_HANDLER", required=True
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> NewEntryPointsByType:
+        return NewEntryPointsByType(**data)
+
+
+class NewContractClassSchema(Schema):
+    contract_class_version = fields.String(
+        data_key="contract_class_version", required=True
+    )
+    sierra_program = fields.List(
+        fields.String(),
+        data_key="sierra_program",
+        required=True,
+    )
+    entry_points_by_type = fields.Nested(
+        NewEntryPointsByTypeSchema(), data_key="entry_points_by_type", required=True
+    )
+    abi = fields.List(fields.Dict(), data_key="abi")
+
+    @pre_load
+    def load_abi(self, data, **kwargs):
+        if "abi" in data:
+            data["abi"] = json.loads(data["abi"])
+
+        return data
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> NewContractClass:
+        return NewContractClass(**data)
+
+
+class TypesOfContractClassSchema(OneOfSchema):
+    type_schemas = {
+        "program": ContractClassSchema(),
+        "sierra_program": NewContractClassSchema(),
+    }
+
+    def get_data_type(self, data):
+        if "sierra_program" in data:
+            return "sierra_program"
+
+        return "program"
 
 
 class CompiledContractSchema(ContractClassSchema):

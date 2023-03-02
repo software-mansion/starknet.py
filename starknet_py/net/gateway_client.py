@@ -17,6 +17,7 @@ from starknet_py.net.client_models import (
     EstimatedFee,
     GatewayBlock,
     Hash,
+    NewContractClass,
     SentTransactionResponse,
     Tag,
     Transaction,
@@ -39,7 +40,6 @@ from starknet_py.net.networks import Network, net_address_from_net
 from starknet_py.net.schemas.gateway import (
     BlockStateUpdateSchema,
     BlockTransactionTracesSchema,
-    ContractClassSchema,
     ContractCodeSchema,
     DeclareTransactionResponseSchema,
     DeployAccountTransactionResponseSchema,
@@ -48,6 +48,7 @@ from starknet_py.net.schemas.gateway import (
     StarknetBlockSchema,
     TransactionReceiptSchema,
     TransactionStatusSchema,
+    TypesOfContractClassSchema,
     TypesOfTransactionsSchema,
 )
 from starknet_py.transaction_exceptions import TransactionNotReceivedError
@@ -308,12 +309,16 @@ class GatewayClient(Client):
         res = cast(str, res)
         return int(res, 16)
 
-    async def get_class_by_hash(self, class_hash: Hash) -> ContractClass:
+    async def get_class_by_hash(
+        self, class_hash: Hash
+    ) -> Union[ContractClass, NewContractClass]:
         res = await self._feeder_gateway_client.call(
             method_name="get_class_by_hash",
             params={"classHash": hash_to_felt(class_hash)},
         )
-        return ContractClassSchema().load(res, unknown=EXCLUDE)  # pyright: ignore
+        return TypesOfContractClassSchema().load(
+            res, unknown=EXCLUDE
+        )  # pyright: ignore
 
     # Only gateway methods
 
