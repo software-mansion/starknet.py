@@ -201,12 +201,15 @@ class GatewayClient(Client):
         tx: AccountTransaction,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
+        *,
+        skip_validate: bool = False,
     ) -> EstimatedFee:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
+        method_name = "estimate_fee" + ("?skipValidate=true" if skip_validate else "")
         res = await self._feeder_gateway_client.post(
-            method_name="estimate_fee",
+            method_name=method_name,
             payload=_get_payload(tx),
             params=block_identifier,
         )
