@@ -167,7 +167,12 @@ class FullNodeClient(Client):
         tx: AccountTransaction,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
+        *,
+        skip_validate: bool = False,
     ) -> EstimatedFee:
+        if skip_validate:
+            raise ValueError("Argument skip_validate is not available for FullNodeClient.")
+
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
