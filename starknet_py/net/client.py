@@ -187,6 +187,8 @@ class Client(ABC):
         tx: AccountTransaction,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
+        *,
+        skip_validate: bool = False,
     ) -> EstimatedFee:
         """
         Estimate how much Wei it will cost to run provided transaction.
@@ -194,6 +196,7 @@ class Client(ABC):
         :param tx: Transaction to estimate
         :param block_hash: Block's hash or literals `"pending"` or `"latest"`.
         :param block_number: Block's number or literals `"pending"` or `"latest"`.
+        :param skip_validate: If set to true, then __validate__ execution will be skipped.
         :return: Estimated amount of Wei executing specified transaction will cost.
         """
 
