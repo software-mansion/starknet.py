@@ -22,7 +22,6 @@ from starknet_py.net.client import Client
 from starknet_py.net.client_models import Call, Hash, Tag
 from starknet_py.net.models import AddressRepresentation, Invoke, parse_address
 from starknet_py.net.udc_deployer.deployer import Deployer
-from starknet_py.net.utils import prepare_invoke
 from starknet_py.proxy.contract_abi_resolver import (
     ContractAbiResolver,
     ProxyConfig,
@@ -315,8 +314,6 @@ class PreparedFunctionCall(Call):
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-        *,
-        skip_validate: bool = False,
     ):
         """
         Estimate fee for prepared function call.
@@ -326,16 +323,10 @@ class PreparedFunctionCall(Call):
             (or "latest" / "pending" for the latest / pending block), default is "pending".
         :return: Estimated amount of Wei executing specified transaction will cost.
         """
-        nonce = await self._account.get_nonce()
-        tx = await prepare_invoke(
-            calls=self, contract_address=self._account.address, nonce=nonce
-        )
+        tx = await self._account.sign_invoke_transaction(calls=self, max_fee=0)
 
         return await self._client.estimate_fee(
-            tx=tx,
-            block_hash=block_hash,
-            block_number=block_number,
-            skip_validate=skip_validate,
+            tx=tx, block_hash=block_hash, block_number=block_number
         )
 
 

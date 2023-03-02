@@ -3,11 +3,9 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.storage import get_storage_var_address
 from starknet_py.net.client_errors import ClientError
-from starknet_py.net.client_models import Call, DeclareTransaction
-from starknet_py.net.utils import prepare_invoke
+from starknet_py.net.client_models import DeclareTransaction
 
 
 @pytest.mark.run_on_devnet
@@ -106,20 +104,3 @@ async def test_get_storage_at_incorrect_address_full_node_client(full_node_clien
             key=get_storage_var_address("balance"),
             block_hash="latest",
         )
-
-
-@pytest.mark.asyncio
-async def test_estimate_fee_skip_validate(account, map_contract):
-    call = Call(
-        to_addr=map_contract,
-        selector=get_selector_from_name("put"),
-        calldata=[10, 20],
-    )
-
-    nonce = await account.get_nonce()
-    invoke = await prepare_invoke(call, contract_address=account.address, nonce=nonce)
-
-    with pytest.raises(
-        ValueError, match="Argument skip_validate is not available for FullNodeClient."
-    ):
-        _ = await account.client.estimate_fee(invoke)

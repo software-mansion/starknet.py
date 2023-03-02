@@ -5,6 +5,7 @@ import pytest
 
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.storage import get_storage_var_address
+from starknet_py.net.account.account import Account
 from starknet_py.net.client_errors import ClientError, ContractNotFoundError
 from starknet_py.net.client_models import (
     Call,
@@ -15,7 +16,6 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.networks import MAINNET, TESTNET, TESTNET2, CustomGatewayUrls
-from starknet_py.net.utils import prepare_invoke
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
@@ -43,20 +43,20 @@ async def test_get_class_hash_at(contract_address, gateway_client, class_hash):
 
 
 @pytest.mark.asyncio
-async def test_estimate_fee_skip_validate(account, map_contract):
+async def test_estimate_fee_skip_validate(gateway_account, map_contract):
     call = Call(
         to_addr=map_contract,
         selector=get_selector_from_name("put"),
         calldata=[10, 20],
     )
 
-    nonce = await account.get_nonce()
-    invoke = await prepare_invoke(call, contract_address=account.address, nonce=nonce)
+    assert isinstance(gateway_account, Account)
+    invoke = await gateway_account.prepare_invoke(call)
 
     with pytest.raises(ClientError):
-        _ = await account.client.estimate_fee(invoke)
+        _ = await gateway_account.client.estimate_fee(invoke)
 
-    estimation = await account.client.estimate_fee(invoke, skip_validate=True)
+    estimation = await gateway_account.client.estimate_fee(invoke, skip_validate=True)
 
     assert isinstance(estimation.overall_fee, int)
     assert estimation.overall_fee > 0
