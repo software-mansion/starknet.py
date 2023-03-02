@@ -99,7 +99,6 @@ async def address_and_private_key(
             INTEGRATION_ACCOUNT_PRIVATE_KEY,
         ),
     }
-
     if net == "devnet":
         return await devnet_account_details(
             pre_deployed_account_with_validate_deploy,

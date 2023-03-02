@@ -14,7 +14,7 @@ repository = "https://github.com/software-mansion/starknet.py"
 documentation = "https://starknetpy.rtfd.io/"
 
 [tool.poetry.dependencies]
-python = ">=3.8, <3.10"
+python = ">=3.9, <3.10"
 asgiref = "^3.4.1"
 sphinx = { version = ">=4.3.1,<7.0.0", optional = true }
 enum-tools = { extras = ["sphinx"], version = "0.9.0.post1", optional = true }
@@ -46,14 +46,16 @@ pyright = "^1.1.294"
 pytest-cov = "^4.0.0"
 isort = "^5.11.4"
 pytest-rerunfailures = "^11.1"
+starknet-devnet = {git = "https://github.com/Shard-Labs/starknet-devnet.git", rev = "adapt-0.11.0"}
 
 [tool.poe.tasks]
 test.shell = "pytest -n auto -v --reruns 10 --only-rerun aiohttp.client_exceptions.ClientConnectorError --cov=starknet_py starknet_py"
-test_ci.shell = "coverage run -m pytest -v --reruns 2 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py --ignore=starknet_py/tests/e2e/docs"
+test_ci.shell = "coverage run -m pytest -v --reruns 2 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/core"
 test_ci_docs.shell = "coverage run -m pytest -v --reruns 2 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py/tests/e2e/docs"
 test_unit.shell = "pytest -n auto -v starknet_py --ignore=starknet_py/tests/e2e"
 test_e2e.shell = "pytest -n auto -v starknet_py/tests/e2e --ignore=starknet_py/tests/e2e/docs"
 test_docs.shell = "pytest -n auto -v starknet_py/tests/e2e/docs"
+test_core.shell = "pytest -v starknet_py/tests/e2e/core"
 test_report.shell = "coverage report"
 test_html.shell = "coverage html && open ./htmlcov/index.html"
 docs_create = { shell = "make -C docs html" }

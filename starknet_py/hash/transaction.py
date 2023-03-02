@@ -125,20 +125,13 @@ def compute_declare_transaction_hash(
     """
     class_hash = compute_class_hash(contract_class=contract_class)
 
-    if version == 0:
-        calldata = []
-        additional_data = [class_hash]
-    else:
-        calldata = [class_hash]
-        additional_data = [nonce]
-
     return compute_transaction_hash(
         tx_hash_prefix=TransactionHashPrefix.DECLARE,
         version=version,
         contract_address=sender_address,
         entry_point_selector=DEFAULT_ENTRY_POINT_SELECTOR,
-        calldata=calldata,
+        calldata=[class_hash],
         max_fee=max_fee,
         chain_id=chain_id,
-        additional_data=additional_data,
+        additional_data=[nonce],
     )

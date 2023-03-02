@@ -457,6 +457,18 @@ files = [
 colorama = {version = "*", markers = "platform_system == \"Windows\""}
 
 [[package]]
+name = "cloudpickle"
+version = "2.1.0"
+description = "Extended pickling support for Python objects"
+category = "dev"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "cloudpickle-2.1.0-py3-none-any.whl", hash = "sha256:b5c434f75c34624eedad3a14f2be5ac3b5384774d5b0e3caf905c21479e6c4b1"},
+    {file = "cloudpickle-2.1.0.tar.gz", hash = "sha256:bb233e876a58491d9590a676f93c7a5473a08f747d5ab9df7f9ce564b3e7938e"},
+]
+
+[[package]]
 name = "colorama"
 version = "0.4.6"
 description = "Cross-platform colored terminal text."
@@ -760,7 +772,6 @@ files = [
 ]
 
 [package.dependencies]
-importlib-metadata = {version = ">=3.6.0", markers = "python_version < \"3.9\""}
 natsort = ">=7.0.1"
 typing-extensions = ">=3.7.4.1"
 
@@ -1012,19 +1023,62 @@ testing = ["pre-commit"]
 
 [[package]]
 name = "fastecdsa"
-version = "2.2.3"
+version = "2.3.0"
 description = "Fast elliptic curve digital signatures"
 category = "main"
 optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "fastecdsa-2.3.0-cp310-cp310-macosx_12_0_arm64.whl", hash = "sha256:0147804e6bf4915e83064f17a4bcc518d986dab87cba3609409e9f56b8d56772"},
+    {file = "fastecdsa-2.3.0-cp310-cp310-win_amd64.whl", hash = "sha256:c72f8f13160798b431c8a772e4e4bce39adf6faeea80fbf75f88010d0b304aa1"},
+    {file = "fastecdsa-2.3.0-cp311-cp311-macosx_12_0_arm64.whl", hash = "sha256:b943a1ad3e1e306f0df422b198f544d029a70f19581e5b56a36ddfbe6302a33d"},
+    {file = "fastecdsa-2.3.0-cp37-cp37m-macosx_12_0_arm64.whl", hash = "sha256:82985e09b299ba400f1a21f2872dcc8e659bc127286f026d01b3540853298f9c"},
+    {file = "fastecdsa-2.3.0-cp37-cp37m-win_amd64.whl", hash = "sha256:8011db68e65b747b11ffa9575dc5bc6ad6d02aa971054e952e261694f705845a"},
+    {file = "fastecdsa-2.3.0-cp38-cp38-macosx_12_0_arm64.whl", hash = "sha256:fd61e461389a4fc1e965a1bbd5efb77588a0ebae2328aecdf011a5e9d439ce66"},
+    {file = "fastecdsa-2.3.0-cp38-cp38-win_amd64.whl", hash = "sha256:b0a4637e99cc22b5107d32ae001c2e36a5821c7a50ac001b806d64c157bf62c0"},
+    {file = "fastecdsa-2.3.0-cp39-cp39-macosx_12_0_arm64.whl", hash = "sha256:7b91663b36137454299d7487a7a1b4a345120bd098ab5f7d7b0a02b50d6c9706"},
+    {file = "fastecdsa-2.3.0-cp39-cp39-win_amd64.whl", hash = "sha256:e45be9bcd063362576f93b344e032c743572c2a9ca7426eea3e4035ba21b1654"},
+    {file = "fastecdsa-2.3.0.tar.gz", hash = "sha256:6c59aba650862a59f601ff7f66cd6712f4798ae68907c953d58417a5887103de"},
+]
+
+[[package]]
+name = "flask"
+version = "2.0.3"
+description = "A simple framework for building complex web applications."
+category = "dev"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "Flask-2.0.3-py3-none-any.whl", hash = "sha256:59da8a3170004800a2837844bfa84d49b022550616070f7cb1a659682b2e7c9f"},
+    {file = "Flask-2.0.3.tar.gz", hash = "sha256:e1120c228ca2f553b470df4a5fa927ab66258467526069981b3eb0a91902687d"},
+]
+
+[package.dependencies]
+asgiref = {version = ">=3.2", optional = true, markers = "extra == \"async\""}
+click = ">=7.1.2"
+itsdangerous = ">=2.0"
+Jinja2 = ">=3.0"
+Werkzeug = ">=2.0"
+
+[package.extras]
+async = ["asgiref (>=3.2)"]
+dotenv = ["python-dotenv"]
+
+[[package]]
+name = "flask-cors"
+version = "3.0.10"
+description = "A Flask extension adding a decorator for CORS support"
+category = "dev"
+optional = false
 python-versions = "*"
 files = [
-    {file = "fastecdsa-2.2.3-cp310-cp310-macosx_11_0_x86_64.whl", hash = "sha256:c1f27c5b37aee4bafa8ee304f6da3382ba90200a6998764b3cedba506ef03ff5"},
-    {file = "fastecdsa-2.2.3-cp36-cp36m-macosx_11_0_x86_64.whl", hash = "sha256:05676e917fea8d56f15a7f00c81560d9a6be83767435dca17cc2a62741276656"},
-    {file = "fastecdsa-2.2.3-cp37-cp37m-macosx_11_0_x86_64.whl", hash = "sha256:0cb1ecbd63a7898a616e1fe5bd5fe164b7a3db764a98886c6eafc226efc19477"},
-    {file = "fastecdsa-2.2.3-cp38-cp38-macosx_11_0_x86_64.whl", hash = "sha256:943aac1b35633a0ffea1bfe1509ec0fa35095a8021a85d3a5c323fe90e2a6038"},
-    {file = "fastecdsa-2.2.3-cp39-cp39-macosx_11_0_x86_64.whl", hash = "sha256:376af4d45ae82a2e9c25f0a0d9b50c7d63ba881e273ab69db184a0493c688619"},
-    {file = "fastecdsa-2.2.3.tar.gz", hash = "sha256:269bdb0f618b38f8f6aec9d23d23db518046c3cee01a954fa6aa7322a1a7db8f"},
+    {file = "Flask-Cors-3.0.10.tar.gz", hash = "sha256:b60839393f3b84a0f3746f6cdca56c1ad7426aa738b70d6c61375857823181de"},
+    {file = "Flask_Cors-3.0.10-py2.py3-none-any.whl", hash = "sha256:74efc975af1194fc7891ff5cd85b0f7478be4f7f59fe158102e91abb72bb4438"},
 ]
+
+[package.dependencies]
+Flask = ">=0.9"
+Six = "*"
 
 [[package]]
 name = "frozendict"
@@ -1140,6 +1194,27 @@ sphinx = ">=5.0,<7.0"
 sphinx-basic-ng = "*"
 
 [[package]]
+name = "gunicorn"
+version = "20.1.0"
+description = "WSGI HTTP Server for UNIX"
+category = "dev"
+optional = false
+python-versions = ">=3.5"
+files = [
+    {file = "gunicorn-20.1.0-py3-none-any.whl", hash = "sha256:9dcc4547dbb1cb284accfb15ab5667a0e5d1881cc443e0677b4882a4067a807e"},
+    {file = "gunicorn-20.1.0.tar.gz", hash = "sha256:e0a968b5ba15f8a328fdfd7ab1fcb5af4470c28aaf7e55df02a99bc13138e6e8"},
+]
+
+[package.dependencies]
+setuptools = ">=3.0"
+
+[package.extras]
+eventlet = ["eventlet (>=0.24.1)"]
+gevent = ["gevent (>=1.4.0)"]
+setproctitle = ["setproctitle"]
+tornado = ["tornado (>=0.2)"]
+
+[[package]]
 name = "hexbytes"
 version = "0.3.0"
 description = "hexbytes: Python `bytes` subclass that decodes hex, with a readable console output"
@@ -1224,25 +1299,6 @@ perf = ["ipython"]
 testing = ["flake8 (<5)", "flufl.flake8", "importlib-resources (>=1.3)", "packaging", "pyfakefs", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=1.3)", "pytest-flake8", "pytest-mypy (>=0.9.1)", "pytest-perf (>=0.9.2)"]
 
 [[package]]
-name = "importlib-resources"
-version = "5.10.0"
-description = "Read resources from Python packages"
-category = "main"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "importlib_resources-5.10.0-py3-none-any.whl", hash = "sha256:ee17ec648f85480d523596ce49eae8ead87d5631ae1551f913c0100b5edd3437"},
-    {file = "importlib_resources-5.10.0.tar.gz", hash = "sha256:c01b1b94210d9849f286b86bb51bcea7cd56dde0600d8db721d7b81330711668"},
-]
-
-[package.dependencies]
-zipp = {version = ">=3.1.0", markers = "python_version < \"3.10\""}
-
-[package.extras]
-docs = ["furo", "jaraco.packaging (>=9)", "jaraco.tidelift (>=1.4)", "rst.linker (>=1.9)", "sphinx (>=3.5)"]
-testing = ["flake8 (<5)", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=1.3)", "pytest-flake8", "pytest-mypy (>=0.9.1)"]
-
-[[package]]
 name = "iniconfig"
 version = "1.1.1"
 description = "iniconfig: brain-dead simple config-ini parsing"
@@ -1289,6 +1345,18 @@ plugins = ["setuptools"]
 requirements-deprecated-finder = ["pip-api", "pipreqs"]
 
 [[package]]
+name = "itsdangerous"
+version = "2.1.2"
+description = "Safely pass data to untrusted environments and back."
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "itsdangerous-2.1.2-py3-none-any.whl", hash = "sha256:2c2349112351b88699d8d4b6b075022c0808887cb7ad10069318a8b0bc88db44"},
+    {file = "itsdangerous-2.1.2.tar.gz", hash = "sha256:5dbbc68b317e5e42f327f9021763545dc3fc3bfe22e6deb96aaf1fc38874156a"},
+]
+
+[[package]]
 name = "Jinja2"
 version = "3.0.3"
 description = "A very fast and expressive template engine."
@@ -1320,8 +1388,6 @@ files = [
 
 [package.dependencies]
 attrs = ">=17.4.0"
-importlib-resources = {version = ">=1.4.0", markers = "python_version < \"3.9\""}
-pkgutil-resolve-name = {version = ">=1.3.10", markers = "python_version < \"3.9\""}
 pyrsistent = ">=0.14.0,<0.17.0 || >0.17.0,<0.17.1 || >0.17.1,<0.17.2 || >0.17.2"
 
 [package.extras]
@@ -1917,18 +1983,6 @@ graphviz = ["graphviz (>=0.20.1)"]
 test = ["covdefaults (>=2.2)", "diff-cover (>=7.0.1)", "pip (>=22.3)", "pytest (>=7.2)", "pytest-cov (>=4)", "pytest-mock (>=3.10)", "virtualenv (>=20.16.6,<21)"]
 
 [[package]]
-name = "pkgutil_resolve_name"
-version = "1.3.10"
-description = "Resolve a name to an object."
-category = "main"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "pkgutil_resolve_name-1.3.10-py3-none-any.whl", hash = "sha256:ca27cc078d25c5ad71a9de0a7a330146c4e014c2462d9af19c6b828280649c5e"},
-    {file = "pkgutil_resolve_name-1.3.10.tar.gz", hash = "sha256:357d6c9e6a755653cfd78893817c0853af365dd51ec97f3d358a819373bbd174"},
-]
-
-[[package]]
 name = "platformdirs"
 version = "2.5.4"
 description = "A small Python package for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
@@ -2049,6 +2103,7 @@ files = [
     {file = "pycryptodome-3.15.0-cp27-cp27m-manylinux2010_i686.whl", hash = "sha256:7c9ed8aa31c146bef65d89a1b655f5f4eab5e1120f55fc297713c89c9e56ff0b"},
     {file = "pycryptodome-3.15.0-cp27-cp27m-manylinux2010_x86_64.whl", hash = "sha256:5099c9ca345b2f252f0c28e96904643153bae9258647585e5e6f649bb7a1844a"},
     {file = "pycryptodome-3.15.0-cp27-cp27m-manylinux2014_aarch64.whl", hash = "sha256:2ec709b0a58b539a4f9d33fb8508264c3678d7edb33a68b8906ba914f71e8c13"},
+    {file = "pycryptodome-3.15.0-cp27-cp27m-musllinux_1_1_aarch64.whl", hash = "sha256:2ae53125de5b0d2c95194d957db9bb2681da8c24d0fb0fe3b056de2bcaf5d837"},
     {file = "pycryptodome-3.15.0-cp27-cp27m-win32.whl", hash = "sha256:fd2184aae6ee2a944aaa49113e6f5787cdc5e4db1eb8edb1aea914bd75f33a0c"},
     {file = "pycryptodome-3.15.0-cp27-cp27m-win_amd64.whl", hash = "sha256:7e3a8f6ee405b3bd1c4da371b93c31f7027944b2bcce0697022801db93120d83"},
     {file = "pycryptodome-3.15.0-cp27-cp27mu-manylinux1_i686.whl", hash = "sha256:b9c5b1a1977491533dfd31e01550ee36ae0249d78aae7f632590db833a5012b8"},
@@ -2056,12 +2111,14 @@ files = [
     {file = "pycryptodome-3.15.0-cp27-cp27mu-manylinux2010_i686.whl", hash = "sha256:2aa55aae81f935a08d5a3c2042eb81741a43e044bd8a81ea7239448ad751f763"},
     {file = "pycryptodome-3.15.0-cp27-cp27mu-manylinux2010_x86_64.whl", hash = "sha256:c3640deff4197fa064295aaac10ab49a0d55ef3d6a54ae1499c40d646655c89f"},
     {file = "pycryptodome-3.15.0-cp27-cp27mu-manylinux2014_aarch64.whl", hash = "sha256:045d75527241d17e6ef13636d845a12e54660aa82e823b3b3341bcf5af03fa79"},
+    {file = "pycryptodome-3.15.0-cp27-cp27mu-musllinux_1_1_aarch64.whl", hash = "sha256:eb6fce570869e70cc8ebe68eaa1c26bed56d40ad0f93431ee61d400525433c54"},
     {file = "pycryptodome-3.15.0-cp35-abi3-macosx_10_9_x86_64.whl", hash = "sha256:9ee40e2168f1348ae476676a2e938ca80a2f57b14a249d8fe0d3cdf803e5a676"},
     {file = "pycryptodome-3.15.0-cp35-abi3-manylinux1_i686.whl", hash = "sha256:4c3ccad74eeb7b001f3538643c4225eac398c77d617ebb3e57571a897943c667"},
     {file = "pycryptodome-3.15.0-cp35-abi3-manylinux1_x86_64.whl", hash = "sha256:1b22bcd9ec55e9c74927f6b1f69843cb256fb5a465088ce62837f793d9ffea88"},
     {file = "pycryptodome-3.15.0-cp35-abi3-manylinux2010_i686.whl", hash = "sha256:57f565acd2f0cf6fb3e1ba553d0cb1f33405ec1f9c5ded9b9a0a5320f2c0bd3d"},
     {file = "pycryptodome-3.15.0-cp35-abi3-manylinux2010_x86_64.whl", hash = "sha256:4b52cb18b0ad46087caeb37a15e08040f3b4c2d444d58371b6f5d786d95534c2"},
     {file = "pycryptodome-3.15.0-cp35-abi3-manylinux2014_aarch64.whl", hash = "sha256:092a26e78b73f2530b8bd6b3898e7453ab2f36e42fd85097d705d6aba2ec3e5e"},
+    {file = "pycryptodome-3.15.0-cp35-abi3-musllinux_1_1_aarch64.whl", hash = "sha256:50ca7e587b8e541eb6c192acf92449d95377d1f88908c0a32ac5ac2703ebe28b"},
     {file = "pycryptodome-3.15.0-cp35-abi3-win32.whl", hash = "sha256:e244ab85c422260de91cda6379e8e986405b4f13dc97d2876497178707f87fc1"},
     {file = "pycryptodome-3.15.0-cp35-abi3-win_amd64.whl", hash = "sha256:c77126899c4b9c9827ddf50565e93955cb3996813c18900c16b2ea0474e130e9"},
     {file = "pycryptodome-3.15.0-pp27-pypy_73-macosx_10_9_x86_64.whl", hash = "sha256:9eaadc058106344a566dc51d3d3a758ab07f8edde013712bc8d22032a86b264f"},
@@ -2366,6 +2423,13 @@ files = [
     {file = "PyYAML-6.0-cp310-cp310-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:f84fbc98b019fef2ee9a1cb3ce93e3187a6df0b2538a651bfb890254ba9f90b5"},
     {file = "PyYAML-6.0-cp310-cp310-win32.whl", hash = "sha256:2cd5df3de48857ed0544b34e2d40e9fac445930039f3cfe4bcc592a1f836d513"},
     {file = "PyYAML-6.0-cp310-cp310-win_amd64.whl", hash = "sha256:daf496c58a8c52083df09b80c860005194014c3698698d1a57cbcfa182142a3a"},
+    {file = "PyYAML-6.0-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:d4b0ba9512519522b118090257be113b9468d804b19d63c71dbcf4a48fa32358"},
+    {file = "PyYAML-6.0-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:81957921f441d50af23654aa6c5e5eaf9b06aba7f0a19c18a538dc7ef291c5a1"},
+    {file = "PyYAML-6.0-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:afa17f5bc4d1b10afd4466fd3a44dc0e245382deca5b3c353d8b757f9e3ecb8d"},
+    {file = "PyYAML-6.0-cp311-cp311-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:dbad0e9d368bb989f4515da330b88a057617d16b6a8245084f1b05400f24609f"},
+    {file = "PyYAML-6.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:432557aa2c09802be39460360ddffd48156e30721f5e8d917f01d31694216782"},
+    {file = "PyYAML-6.0-cp311-cp311-win32.whl", hash = "sha256:bfaef573a63ba8923503d27530362590ff4f576c626d86a9fed95822a8255fd7"},
+    {file = "PyYAML-6.0-cp311-cp311-win_amd64.whl", hash = "sha256:01b45c0191e6d66c470b6cf1b9531a771a83c1c4208272ead47a3ae4f2f603bf"},
     {file = "PyYAML-6.0-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:897b80890765f037df3403d22bab41627ca8811ae55e9a722fd0392850ec4d86"},
     {file = "PyYAML-6.0-cp36-cp36m-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:50602afada6d6cbfad699b0c7bb50d5ccffa7e46a3d738092afddc1f9758427f"},
     {file = "PyYAML-6.0-cp36-cp36m-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:48c346915c114f5fdb3ead70312bd042a953a8ce5c7106d5bfb1a5254e47da92"},
@@ -2473,6 +2537,9 @@ files = [
     {file = "ruamel.yaml.clib-0.2.7-cp310-cp310-win_amd64.whl", hash = "sha256:d000f258cf42fec2b1bbf2863c61d7b8918d31ffee905da62dede869254d3b8a"},
     {file = "ruamel.yaml.clib-0.2.7-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:045e0626baf1c52e5527bd5db361bc83180faaba2ff586e763d3d5982a876a9e"},
     {file = "ruamel.yaml.clib-0.2.7-cp311-cp311-macosx_12_6_arm64.whl", hash = "sha256:721bc4ba4525f53f6a611ec0967bdcee61b31df5a56801281027a3a6d1c2daf5"},
+    {file = "ruamel.yaml.clib-0.2.7-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.manylinux_2_24_x86_64.whl", hash = "sha256:41d0f1fa4c6830176eef5b276af04c89320ea616655d01327d5ce65e50575c94"},
+    {file = "ruamel.yaml.clib-0.2.7-cp311-cp311-win32.whl", hash = "sha256:f6d3d39611ac2e4f62c3128a9eed45f19a6608670c5a2f4f07f24e8de3441d38"},
+    {file = "ruamel.yaml.clib-0.2.7-cp311-cp311-win_amd64.whl", hash = "sha256:da538167284de58a52109a9b89b8f6a53ff8437dd6dc26d33b57bf6699153122"},
     {file = "ruamel.yaml.clib-0.2.7-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:4b3a93bb9bc662fc1f99c5c3ea8e623d8b23ad22f861eb6fce9377ac07ad6072"},
     {file = "ruamel.yaml.clib-0.2.7-cp36-cp36m-macosx_12_0_arm64.whl", hash = "sha256:a234a20ae07e8469da311e182e70ef6b199d0fbeb6c6cc2901204dd87fb867e8"},
     {file = "ruamel.yaml.clib-0.2.7-cp36-cp36m-manylinux2014_aarch64.whl", hash = "sha256:15910ef4f3e537eea7fe45f8a5d19997479940d9196f357152a09031c5be59f3"},
@@ -2845,6 +2912,35 @@ lint = ["docutils-stubs", "flake8", "mypy"]
 test = ["pytest"]
 
 [[package]]
+name = "starknet-devnet"
+version = "0.4.6"
+description = "A local testnet for Starknet"
+category = "dev"
+optional = false
+python-versions = ">=3.9,<3.10"
+files = []
+develop = false
+
+[package.dependencies]
+cairo-lang = "0.11.0a0"
+cloudpickle = "~2.1.0"
+crypto-cpp-py = "~1.2.0"
+Flask = {version = "~2.0.3", extras = ["async"]}
+flask-cors = "~3.0.10"
+gunicorn = "~20.1.0"
+jsonschema = "~4.17.0"
+marshmallow = "~3.17.0"
+marshmallow-dataclass = "~8.4"
+typing-extensions = "~4.3.0"
+Werkzeug = "~2.0.3"
+
+[package.source]
+type = "git"
+url = "https://github.com/Shard-Labs/starknet-devnet.git"
+reference = "adapt-0.11.0"
+resolved_reference = "343d40f1a2d062fc2ef077d19503c52b6132e55d"
+
+[[package]]
 name = "sympy"
 version = "1.11.1"
 description = "Computer algebra system (CAS) in Python"
@@ -3108,6 +3204,21 @@ files = [
 ]
 
 [[package]]
+name = "werkzeug"
+version = "2.0.3"
+description = "The comprehensive WSGI web application library."
+category = "dev"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "Werkzeug-2.0.3-py3-none-any.whl", hash = "sha256:1421ebfc7648a39a5c58c601b154165d05cf47a3cd0ccb70857cbdacf6c8f2b8"},
+    {file = "Werkzeug-2.0.3.tar.gz", hash = "sha256:b863f8ff057c522164b6067c9e28b041161b4be5ba4d0daceeaa50a163822d3c"},
+]
+
+[package.extras]
+watchdog = ["watchdog"]
+
+[[package]]
 name = "wrapt"
 version = "1.14.1"
 description = "Module for decorators, wrappers and monkey patching."
@@ -3276,5 +3387,5 @@ eth-tester = []
 
 [metadata]
 lock-version = "2.0"
-python-versions = ">=3.8, <3.10"
-content-hash = "335919c3b54cc50efe5f07df7da780bfee345887b4fcd101b54c5cacc9f130e0"
+python-versions = ">=3.9, <3.10"
+content-hash = "fdb2722280d8dc7d9c5ceb773dc7c12b9b9e5cda1127e4c2f4668dc80512fe09"
