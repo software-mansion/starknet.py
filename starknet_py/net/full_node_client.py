@@ -171,7 +171,9 @@ class FullNodeClient(Client):
         skip_validate: bool = False,
     ) -> EstimatedFee:
         if skip_validate:
-            raise ValueError("Argument skip_validate is not available for FullNodeClient.")
+            raise ValueError(
+                "Argument skip_validate is not available for FullNodeClient."
+            )
 
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
