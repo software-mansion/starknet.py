@@ -24,9 +24,6 @@ from starknet_py.tests.e2e.fixtures.constants import (
     TESTNET_ACCOUNT_ADDRESS,
     TESTNET_ACCOUNT_PRIVATE_KEY,
 )
-from starknet_py.tests.e2e.fixtures.contracts import (
-    account_with_validate_deploy_class_hash,
-)
 from starknet_py.tests.e2e.utils import (
     AccountToBeDeployedDetails,
     _get_random_private_key_unsafe,
@@ -87,6 +84,7 @@ async def devnet_account_details(
 async def address_and_private_key(
     pytestconfig,
     pre_deployed_account_with_validate_deploy: BaseAccount,
+    account_with_validate_deploy_class_hash: int,
     network: str,
 ) -> Tuple[str, str]:
     """
@@ -102,12 +100,9 @@ async def address_and_private_key(
         ),
     }
     if net == "devnet":
-        account = await account_with_validate_deploy_class_hash(
-            pre_deployed_account_with_validate_deploy
-        )
         return await devnet_account_details(
             pre_deployed_account_with_validate_deploy,
-            account,
+            account_with_validate_deploy_class_hash,
             network,
         )
     return account_details[net]

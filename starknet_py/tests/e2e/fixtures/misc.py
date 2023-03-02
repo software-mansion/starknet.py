@@ -43,13 +43,13 @@ def pytest_collection_modifyitems(config, items):
 
 
 @pytest.fixture(scope="module")
-def network(pytestconfig) -> str:
+def network(pytestconfig, run_devnet: str) -> str:
     """
     Returns network address depending on the --net parameter.
     """
     net = pytestconfig.getoption("--net")
     net_address = {
-        "devnet": None,
+        "devnet": run_devnet,
         "testnet": "testnet",
         "integration": "https://external.integration.starknet.io",
     }
