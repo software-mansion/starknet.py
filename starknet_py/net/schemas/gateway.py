@@ -431,7 +431,9 @@ class NewContractClassSchema(Schema):
 
     @pre_load
     def load_abi(self, data, **kwargs):
-        data["abi"] = json.loads(data["abi"])
+        if "abi" in data:
+            data["abi"] = json.loads(data["abi"])
+
         return data
 
     @post_load
