@@ -2,6 +2,27 @@ Migration guide
 ===============
 
 **********************
+0.16.0 Migration guide
+**********************
+
+Deprecation
+-----------
+
+1. Deprecated Client's :meth:`~starknet_py.net.client.Client.net` property.
+
+Breaking changes
+----------------
+
+1. Removed deprecated ``AccountClient``
+2. Removed support for making transactions with version 0.
+
+   - Removed ``Deploy`` transaction.
+   - Removed deprecated ``make_declare_tx``.
+
+3. Removed deprecated ``client`` argument from Contract's :meth:`~starknet_py.contract.Contract.__init__` and :meth:`~starknet_py.contract.Contract.from_address`.
+4. Removed deprecated ``net.l1`` L1<>L2 messaging module.
+
+**********************
 0.15.0 Migration guide
 **********************
 
@@ -14,14 +35,14 @@ Some classes/functions from cairo-lang package are rewritten and are a part of s
 - ``DeclaredContract`` is now :ref:`ContractClass <ContractClass>`
 - ``compute_class_hash`` function
 
-Deprecation
------------
+0.15.0 Deprecation
+------------------
 
 - ``compute_invoke_hash`` is deprecated in favour of ``compute_transaction_hash``
 - ``starknet_py.common.create_contract_class`` is deprecated in favour of ``starknet_py.common.create_compiled_contract``
 
-Breaking changes
-----------------
+0.15.0 Breaking changes
+-----------------------
 
 1. ``InvokeFunction`` is replaced by the ``Invoke`` dataclass (behaviour is the same, just the name is changed).
 
