@@ -24,6 +24,7 @@ from starknet_py.net.client_models import (
 from starknet_py.net.models.transaction import (
     AccountTransaction,
     Declare,
+    DeclareV2,
     DeployAccount,
     Invoke,
 )
@@ -238,7 +239,9 @@ class Client(ABC):
         """
 
     @abstractmethod
-    async def declare(self, transaction: Declare) -> DeclareTransactionResponse:
+    async def declare(
+        self, transaction: Union[Declare, DeclareV2]
+    ) -> DeclareTransactionResponse:
         """
         Send a declare transaction
 
