@@ -100,6 +100,36 @@ jobs:
         if: steps.cache-contracts.outputs.cache-hit != 'true'
         run: |
           poetry run poe compile_contracts
+      - name: Install rust
+        run: |
+          curl https://sh.rustup.rs -sSf | sh -s -- -y
+      - name: Clone Cairo1 compiler repository
+        uses: actions/checkout@v3
+        with:
+          repository: starkware-libs/cairo
+          persist-credentials: false
+          ref: v1.0.0-alpha.4
+          path: cairo
+      - name: Cache rust dependencies
+        # Taken from https://github.com/actions/cache/blob/main/examples.md#rust---cargo
+        id: cache-rust
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Build compiler
+        if: steps.cache-rust.outputs.cache-hit != 'true'
+        working-directory: ./cairo
+        run: |
+          cargo build
+      - name: Create manifest file
+        run: |
+          readlink -f cairo/Cargo.toml >> starknet_py/tests/e2e/manifest-path
       - name: Check circular imports
         run: |
           poetry run poe circular_imports_check
