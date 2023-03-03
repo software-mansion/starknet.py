@@ -2,34 +2,11 @@ Migration guide
 ===============
 
 **********************
-0.16.0 Migration guide
-**********************
-
-Deprecation
------------
-
-1. Deprecated Client :meth:`~starknet_py.net.client.Client.net` property.
-
-Breaking changes
-----------------
-
-1. Removed deprecated ``AccountClient``
-2. Removed support for making transactions with version 0.
-
-   - Removed ``Deploy`` transaction.
-   - Removed deprecated ``make_declare_tx``.
-
-3. Removed deprecated ``client`` argument from Contract :meth:`~starknet_py.contract.Contract.__init__` and :meth:`~starknet_py.contract.Contract.from_address`.
-4. Removed deprecated ``net.l1`` L1<>L2 messaging module.
-5. Added `chain_id` argument to BaseAccount interface and implementation :meth:`~starknet_py.net.account.base_account.BaseAccount.get_balance` method.
-6. Changed Client :meth:`~starknet_py.net.client.Client.get_class_by_hash` return type to ``Union[ContractClass, NewContractClass]``.
-
-
-**********************
 0.15.0 Migration guide
 **********************
 
 0.15.0 makes the first step to remove the cairo-lang package as StarkNet.py dependency!
+It also adds initial support for Starknet 0.11.0 and related changes.
 
 Some classes/functions from cairo-lang package are rewritten and are a part of starknet.py:
 
@@ -38,14 +15,15 @@ Some classes/functions from cairo-lang package are rewritten and are a part of s
 - ``DeclaredContract`` is now :ref:`ContractClass <ContractClass>`
 - ``compute_class_hash`` function
 
-0.15.0 Deprecation
-------------------
+Deprecations
+------------
 
 - ``compute_invoke_hash`` is deprecated in favour of ``compute_transaction_hash``
 - ``starknet_py.common.create_contract_class`` is deprecated in favour of ``starknet_py.common.create_compiled_contract``
+- Client :meth:`~starknet_py.net.client.Client.net` property.
 
-0.15.0 Breaking changes
------------------------
+Breaking changes
+----------------
 
 1. ``InvokeFunction`` is replaced by the ``Invoke`` dataclass (behaviour is the same, just the name is changed).
 
@@ -103,6 +81,17 @@ Some classes/functions from cairo-lang package are rewritten and are a part of s
        * - get_storage_var_address
          - starkware.starknet.public.abi
          - starknet_py.hash.storage
+
+6. Removed deprecated ``AccountClient``
+7. Removed support for making transactions with version 0.
+
+   - Removed ``Deploy`` transaction.
+   - Removed deprecated ``make_declare_tx``.
+
+8. Removed deprecated ``client`` argument from Contract :meth:`~starknet_py.contract.Contract.__init__` and :meth:`~starknet_py.contract.Contract.from_address`.
+9. Removed deprecated ``net.l1`` L1<>L2 messaging module.
+10. Added `chain_id` argument to BaseAccount interface and implementation :meth:`~starknet_py.net.account.base_account.BaseAccount.get_balance` method.
+11. Changed Client :meth:`~starknet_py.net.client.Client.get_class_by_hash` return type to ``Union[ContractClass, NewContractClass]``.
 
 
 Transaction dataclasses
