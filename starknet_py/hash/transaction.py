@@ -1,7 +1,6 @@
-import dataclasses
 import json
 from enum import Enum
-from typing import Sequence
+from typing import Dict, List, Sequence
 
 # Using cairo-lang methods is a temporary solution until we integrate poseidon hash into the library
 from starkware.starknet.core.os.contract_class.class_hash import (
@@ -10,12 +9,21 @@ from starkware.starknet.core.os.contract_class.class_hash import (
 from starkware.starknet.services.api.contract_class.contract_class import (
     ContractClass as CairoLangContractClass,
 )
+from starkware.starknet.services.api.contract_class.contract_class import (
+    ContractEntryPoint,
+    EntryPointType,
+)
 
 from starknet_py.common import int_from_bytes
 from starknet_py.constants import DEFAULT_ENTRY_POINT_SELECTOR
 from starknet_py.hash.class_hash import compute_class_hash
 from starknet_py.hash.utils import compute_hash_on_elements
-from starknet_py.net.client_models import ContractClass, NewContractClass
+from starknet_py.net.client_models import (
+    ContractClass,
+    NewContractClass,
+    NewEntryPoint,
+    NewEntryPointsByType,
+)
 
 
 class TransactionHashPrefix(Enum):
@@ -192,6 +200,31 @@ def _convert_contract_class_to_cairo_lang_format(
     return CairoLangContractClass(
         contract_class_version=contract_class.contract_class_version,
         sierra_program=[int(i, 16) for i in contract_class.sierra_program],
-        entry_points_by_type=dataclasses.asdict(contract_class.entry_points_by_type),
+        entry_points_by_type=_convert_entry_points(contract_class.entry_points_by_type),
         abi=json.dumps(contract_class.abi).replace('"', '\\"'),
     )
+
+
+def _convert_entry_points(
+    entry_points: NewEntryPointsByType,
+) -> Dict[EntryPointType, List[ContractEntryPoint]]:
+    return {
+        EntryPointType.EXTERNAL: _convert_entry_points_for_type(entry_points.external),
+        EntryPointType.L1_HANDLER: _convert_entry_points_for_type(
+            entry_points.l1_handler
+        ),
+        EntryPointType.CONSTRUCTOR: _convert_entry_points_for_type(
+            entry_points.constructor
+        ),
+    }
+
+
+def _convert_entry_points_for_type(
+    entry_points: List[NewEntryPoint],
+) -> List[ContractEntryPoint]:
+    return [
+        ContractEntryPoint(
+            selector=entry_point.selector, function_idx=entry_point.function_idx
+        )
+        for entry_point in entry_points
+    ]
