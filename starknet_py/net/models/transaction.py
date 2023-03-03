@@ -235,6 +235,7 @@ class Invoke(AccountTransaction):
 
 InvokeSchema = marshmallow_dataclass.class_schema(Invoke)
 DeclareSchema = marshmallow_dataclass.class_schema(Declare)
+DeclareV2Schema = marshmallow_dataclass.class_schema(DeclareV2)
 DeployAccountSchema = marshmallow_dataclass.class_schema(DeployAccount)
 
 
