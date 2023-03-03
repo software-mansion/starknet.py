@@ -22,13 +22,18 @@ from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.transaction import (
     TransactionHashPrefix,
     compute_declare_transaction_hash,
+    compute_declare_v2_transaction_hash,
     compute_deploy_account_transaction_hash,
     compute_transaction_hash,
 )
-from starknet_py.net.client_models import ContractClass, TransactionType
+from starknet_py.net.client_models import (
+    ContractClass,
+    NewContractClass,
+    TransactionType,
+)
 from starknet_py.net.models.chains import StarknetChainId
 from starknet_py.net.schemas.common import Felt, TransactionTypeField
-from starknet_py.net.schemas.gateway import ContractClassSchema
+from starknet_py.net.schemas.gateway import ContractClassSchema, NewContractClassSchema
 
 
 @dataclass(frozen=True)
@@ -70,6 +75,46 @@ class AccountTransaction(Transaction, ABC):
 
 # Used instead of Union[Invoke, Declare, DeployAccount]
 TypeAccountTransaction = TypeVar("TypeAccountTransaction", bound=AccountTransaction)
+
+
+@dataclass(frozen=True)
+# TODO consider a better name
+class DeclareV2(AccountTransaction):
+    """
+    Represents a transaction in the StarkNet network that is a declaration of a StarkNet contract
+    class.
+    """
+
+    contract_class: NewContractClass = field(
+        metadata={"marshmallow_field": fields.Nested(NewContractClassSchema())}
+    )
+    compiled_class_hash: int = field(metadata={"marshmallow_field": Felt()})
+    sender_address: int = field(metadata={"marshmallow_field": Felt()})
+    type: TransactionType = field(
+        metadata={"marshmallow_field": TransactionTypeField()},
+        default=TransactionType.DECLARE,
+    )
+
+    @marshmallow.post_dump
+    def post_dump(self, data: Dict[str, Any], **kwargs) -> Dict[str, Any]:
+        # pylint: disable=unused-argument, no-self-use
+        return compress_program(data, program_name="sierra_program")
+
+    @marshmallow.pre_load
+    def pre_load(self, data: Dict[str, Any], **kwargs) -> Dict[str, Any]:
+        # pylint: disable=unused-argument, no-self-use
+        return decompress_program(data, program_name="sierra_program")
+
+    def calculate_hash(self, chain_id: StarknetChainId) -> int:
+        return compute_declare_v2_transaction_hash(
+            contract_class=self.contract_class,
+            compiled_class_hash=self.compiled_class_hash,
+            chain_id=chain_id.value,
+            sender_address=self.sender_address,
+            max_fee=self.max_fee,
+            version=self.version,
+            nonce=self.nonce,
+        )
 
 
 @dataclass(frozen=True)
