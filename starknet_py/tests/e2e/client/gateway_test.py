@@ -13,6 +13,7 @@ from starknet_py.net.client_models import (
     L1HandlerTransaction,
     NewContractClass,
     NewEntryPointsByType,
+    ReplacedClass,
     TransactionStatus,
     TransactionStatusResponse,
 )
@@ -54,6 +55,16 @@ async def test_get_new_state_update():
             compiled_class_hash=0x711C0C3E56863E29D3158804AAC47F424241EDA64DB33E2CC2999D60EE5105,
         )
         in state_update.state_diff.declared_contract_hashes
+    )
+
+    state_update = await client.get_state_update(block_number=283885)
+
+    assert (
+        ReplacedClass(
+            contract_address=0x7EFED3A74230089168DC7BAB1EFCE543976F621478A93D6EE23E09829E308F0,
+            class_hash=0x4631B6B3FA31E140524B7D21BA784CEA223E618BFFE60B5BBDCA44A8B45BE04,
+        )
+        in state_update.state_diff.replaced_classes
     )
 
 
