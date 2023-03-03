@@ -45,7 +45,7 @@ from starknet_py.net.schemas.common import (
     StorageEntrySchema,
 )
 from starknet_py.net.schemas.utils import (
-    replace_invoke_sender_address_with_contract_address,
+    replace_invoke_contract_address_with_sender_address,
 )
 
 # pylint: disable=unused-argument, no-self-use
@@ -97,7 +97,7 @@ class InvokeTransactionSchema(TransactionSchema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> InvokeTransaction:
-        replace_invoke_sender_address_with_contract_address(data)
+        replace_invoke_contract_address_with_sender_address(data)
         return InvokeTransaction(**data)
 
 
