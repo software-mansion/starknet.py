@@ -190,8 +190,8 @@ def _convert_contract_class_to_cairo_lang_format(
 ) -> CairoLangContractClass:
     # noinspection PyArgumentList
     return CairoLangContractClass(
-        conctract_class_version=contract_class.contract_class_version,
-        sierra_progrma=[int(i, 16) for i in contract_class.sierra_program],
+        contract_class_version=contract_class.contract_class_version,
+        sierra_program=[int(i, 16) for i in contract_class.sierra_program],
         entry_points_by_type=dataclasses.asdict(contract_class.entry_points_by_type),
         abi=json.dumps(contract_class.abi).replace('"', '\\"'),
     )
