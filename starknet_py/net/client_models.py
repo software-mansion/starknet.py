@@ -400,6 +400,15 @@ class SierraContractClass:
 
 
 @dataclass
+class NewCompiledContract(NewContractClass):
+    """
+    Dataclass representing NewContractClass with required abi.
+    """
+
+    abi: AbiDictList = field(default_factory=list)
+
+
+@dataclass
 class CompiledContract(ContractClass):
     """
     Dataclass representing ContractClass with required abi.

@@ -27,6 +27,7 @@ from starknet_py.net.client_models import (
     L1HandlerTransaction,
     L1toL2Message,
     L2toL1Message,
+    NewCompiledContract,
     ReplacedClass,
     SentTransactionResponse,
     SierraContractClass,
@@ -465,6 +466,14 @@ class SierraContractClassSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> SierraContractClass:
         return SierraContractClass(**data)
+
+
+class NewCompiledContractSchema(SierraContractClassSchema):
+    abi = fields.List(fields.Dict(), data_key="abi", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> NewCompiledContract:
+        return NewCompiledContract(**data)
 
 
 class TypesOfContractClassSchema(OneOfSchema):
