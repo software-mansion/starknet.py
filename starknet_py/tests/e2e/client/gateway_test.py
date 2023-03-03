@@ -24,6 +24,7 @@ from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
+# Temporary test to be replaced after devnet supports new starknet
 @pytest.mark.asyncio
 async def test_get_class_by_hash_sierra_program():
     client = GatewayClient(
@@ -41,6 +42,7 @@ async def test_get_class_by_hash_sierra_program():
     assert isinstance(contract_class.abi[0], dict)
 
 
+# Temporary test to be replaced after devnet supports new starknet
 @pytest.mark.asyncio
 async def test_get_declare_v2_transaction():
     client = GatewayClient(
@@ -67,6 +69,7 @@ async def test_get_declare_v2_transaction():
     )
 
 
+# Temporary test to be replaced after devnet supports new starknet
 @pytest.mark.asyncio
 async def test_get_block_with_declare_v2():
     client = GatewayClient(
