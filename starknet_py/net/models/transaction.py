@@ -90,33 +90,16 @@ class Declare(AccountTransaction):
     )
 
     @marshmallow.post_dump
-    def compress_program_post_dump(
-        self, data: Dict[str, Any], **kwargs
-    ) -> Dict[str, Any]:
+    def post_dump(self, data: Dict[str, Any], **kwargs) -> Dict[str, Any]:
         # Allowing **kwargs is needed here because marshmallow is passing additional parameters here
         # along with data, which we don't handle.
         # pylint: disable=unused-argument, no-self-use
-
-        program = data["contract_class"]["program"]
-
-        compressed_program = json.dumps(program)
-        compressed_program = gzip.compress(data=compressed_program.encode("ascii"))
-        compressed_program = base64.b64encode(compressed_program)
-        data["contract_class"]["program"] = compressed_program.decode("ascii")
-
-        return data
+        return compress_program(data)
 
     @marshmallow.pre_load
-    def decompress_program(self, data: Dict[str, Any], **kwargs) -> Dict[str, Any]:
+    def pre_load(self, data: Dict[str, Any], **kwargs) -> Dict[str, Any]:
         # pylint: disable=unused-argument, no-self-use
-        compressed_program: str = data["contract_class"]["program"]
-
-        program = base64.b64decode(compressed_program.encode("ascii"))
-        program = gzip.decompress(data=program)
-        program = json.loads(program.decode("ascii"))
-        data["contract_class"]["program"] = program
-
-        return data
+        return decompress_program(data)
 
     def calculate_hash(self, chain_id: StarknetChainId) -> int:
         """
@@ -249,3 +232,21 @@ def compute_invoke_hash(
         max_fee=max_fee,
         version=version,
     )
+
+
+def compress_program(data: dict, program_name: str = "program") -> dict:
+    program = data["contract_class"][program_name]
+    compressed_program = json.dumps(program)
+    compressed_program = gzip.compress(data=compressed_program.encode("ascii"))
+    compressed_program = base64.b64encode(compressed_program)
+    data["contract_class"][program_name] = compressed_program.decode("ascii")
+    return data
+
+
+def decompress_program(data: dict, program_name: str = "program") -> dict:
+    compressed_program: str = data["contract_class"][program_name]
+    program = base64.b64decode(compressed_program.encode("ascii"))
+    program = gzip.decompress(data=program)
+    program = json.loads(program.decode("ascii"))
+    data["contract_class"][program_name] = program
+    return data
