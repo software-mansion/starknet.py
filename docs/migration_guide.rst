@@ -8,7 +8,7 @@ Migration guide
 Deprecation
 -----------
 
-1. Deprecated Client's :meth:`~starknet_py.net.client.Client.net` property.
+1. Deprecated Client :meth:`~starknet_py.net.client.Client.net` property.
 
 Breaking changes
 ----------------
@@ -19,7 +19,7 @@ Breaking changes
    - Removed ``Deploy`` transaction.
    - Removed deprecated ``make_declare_tx``.
 
-3. Removed deprecated ``client`` argument from Contract's :meth:`~starknet_py.contract.Contract.__init__` and :meth:`~starknet_py.contract.Contract.from_address`.
+3. Removed deprecated ``client`` argument from Contract :meth:`~starknet_py.contract.Contract.__init__` and :meth:`~starknet_py.contract.Contract.from_address`.
 4. Removed deprecated ``net.l1`` L1<>L2 messaging module.
 5. Added `chain_id` argument to BaseAccount interface and implementation :meth:`~starknet_py.net.account.base_account.BaseAccount.get_balance` method.
 6. Changed Client :meth:`~starknet_py.net.client.Client.get_class_by_hash` return type to ``Union[ContractClass, NewContractClass]``.
