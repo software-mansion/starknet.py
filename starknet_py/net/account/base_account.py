@@ -1,11 +1,12 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import Calls, SentTransactionResponse
 from starknet_py.net.models import AddressRepresentation, StarknetChainId
 from starknet_py.net.models.transaction import (
     Declare,
+    DeclareV2,
     DeployAccount,
     Invoke,
     TypeAccountTransaction,
@@ -100,14 +101,16 @@ class BaseAccount(ABC):
         self,
         compiled_contract: str,
         *,
+        compiled_class_hash: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-    ) -> Declare:
+    ) -> Union[Declare, DeclareV2]:
         """
         Create and sign declare transaction.
 
         :param compiled_contract: string containing compiled contract bytecode.
             Useful for reading compiled contract from a file.
+        :param compiled_class_hash: a class hash of the compiled contract used in the declare transaction.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :return: Signed Declare transaction.

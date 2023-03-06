@@ -3,7 +3,7 @@ import re
 from collections import OrderedDict
 from typing import Dict, Iterable, List, Optional, Tuple, Union
 
-from starknet_py.common import create_compiled_contract
+from starknet_py.common import create_compiled_contract, create_new_compiled_contract
 from starknet_py.constants import FEE_CONTRACT_ADDRESS, QUERY_VERSION_BASE
 from starknet_py.hash.address import compute_address
 from starknet_py.hash.selector import get_selector_from_name
@@ -23,6 +23,7 @@ from starknet_py.net.models import AddressRepresentation, StarknetChainId, parse
 from starknet_py.net.models.transaction import (
     AccountTransaction,
     Declare,
+    DeclareV2,
     DeployAccount,
     Invoke,
     TypeAccountTransaction,
@@ -254,18 +255,35 @@ class Account(BaseAccount):
         self,
         compiled_contract: str,
         *,
+        compiled_class_hash: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-    ) -> Declare:
-        contract_class = create_compiled_contract(compiled_contract=compiled_contract)
-        declare_tx = Declare(
-            contract_class=contract_class,
-            sender_address=self.address,
-            max_fee=0,
-            signature=[],
-            nonce=await self.get_nonce(),
-            version=self.supported_transaction_version,
-        )
+    ) -> Union[Declare, DeclareV2]:
+        if compiled_class_hash is not None:
+            contract_class = create_new_compiled_contract(
+                compiled_contract=compiled_contract
+            )
+            declare_tx = DeclareV2(
+                contract_class=contract_class,
+                compiled_class_hash=compiled_class_hash,
+                sender_address=self.address,
+                max_fee=0,
+                signature=[],
+                nonce=await self.get_nonce(),
+                version=2,
+            )
+        else:
+            contract_class = create_compiled_contract(
+                compiled_contract=compiled_contract
+            )
+            declare_tx = Declare(
+                contract_class=contract_class,
+                sender_address=self.address,
+                max_fee=0,
+                signature=[],
+                nonce=await self.get_nonce(),
+                version=self.supported_transaction_version,
+            )
 
         max_fee = await self._get_max_fee(
             transaction=declare_tx, max_fee=max_fee, auto_estimate=auto_estimate
