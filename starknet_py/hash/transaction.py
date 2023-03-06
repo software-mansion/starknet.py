@@ -1,4 +1,3 @@
-import json
 from enum import Enum
 from typing import Dict, List, Sequence
 
@@ -201,7 +200,7 @@ def _convert_contract_class_to_cairo_lang_format(
         contract_class_version=contract_class.contract_class_version,
         sierra_program=[int(i, 16) for i in contract_class.sierra_program],
         entry_points_by_type=_convert_entry_points(contract_class.entry_points_by_type),
-        abi=json.dumps(contract_class.abi).replace('"', '\\"'),
+        abi=contract_class.abi,
     )
 
 
