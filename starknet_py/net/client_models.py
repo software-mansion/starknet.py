@@ -405,7 +405,7 @@ class NewCompiledContract(NewContractClass):
     Dataclass representing NewContractClass with required abi.
     """
 
-    abi: AbiDictList = field(default_factory=list)
+    abi: str = field(default_factory=str)
 
 
 @dataclass

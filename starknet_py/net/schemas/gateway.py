@@ -1,3 +1,4 @@
+import json
 from typing import Any, Dict, List
 
 from marshmallow import EXCLUDE, Schema, fields, post_load
@@ -473,6 +474,9 @@ class NewCompiledContractSchema(SierraContractClassSchema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> NewCompiledContract:
+        # Schema must accept ABI as List[dict] to be compatible with the output of Cairo1 compiler.
+        data["abi"] = json.dumps(data["abi"])
+
         return NewCompiledContract(**data)
 
 
