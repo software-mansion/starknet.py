@@ -395,7 +395,7 @@ class NewContractClass:
     contract_class_version: str
     sierra_program: List[str]
     entry_points_by_type: NewEntryPointsByType
-    abi: str
+    abi: Optional[str] = None
 
 
 @dataclass
