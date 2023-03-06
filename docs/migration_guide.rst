@@ -5,8 +5,8 @@ Migration guide
 0.15.0 Migration guide
 **********************
 
-0.15.0 makes the first step to remove the cairo-lang package as StarkNet.py dependency!
-It also adds initial support for Starknet 0.11.0 and related changes.
+0.15.0 adds initial support for Starknet 0.11.0 and related changes.
+It also makes the first step to remove the cairo-lang package as StarkNet.py dependency!
 
 Some classes/functions from cairo-lang package are rewritten and are a part of starknet.py:
 
