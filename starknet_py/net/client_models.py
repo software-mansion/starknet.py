@@ -395,7 +395,7 @@ class NewContractClass:
     contract_class_version: str
     sierra_program: List[str]
     entry_points_by_type: NewEntryPointsByType
-    abi: Optional[AbiDictList] = None  # TODO: verify AbiDictList actually works here
+    abi: str
 
 
 @dataclass
