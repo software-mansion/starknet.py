@@ -27,6 +27,8 @@ async def test_declare_v2_tx(account, sierra_minimal_compiled_contract_and_class
         compiled_class_hash=compiled_class_hash,
         max_fee=MAX_FEE,
     )
+    assert declare_tx.version == 2
+
     result = await account.client.declare(declare_tx)
 
     await account.client.wait_for_tx(
