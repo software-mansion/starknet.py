@@ -96,7 +96,7 @@ class ContractAbiResolver:
         contract_class = await _get_class_at(address=self.address, client=self.client)
         if isinstance(contract_class, NewContractClass):
             # TODO: Consider better handling
-            raise ProxyResolutionError(
+            raise UnsupportedAbiError(
                 "Proxy resolver does not currently support new Cairo ABIs."
             )
         if contract_class.abi is None:
@@ -125,7 +125,7 @@ class ContractAbiResolver:
 
                 if isinstance(contract_class, NewContractClass):
                     # TODO: Consider better handling
-                    raise ProxyResolutionError(
+                    raise UnsupportedAbiError(
                         "Proxy resolver does not currently support new Cairo ABIs."
                     )
                 if contract_class.abi is None:
@@ -177,6 +177,16 @@ class AbiNotFoundError(Exception):
     """
     Error while resolving contract abi.
     """
+
+
+class UnsupportedAbiError(Exception):
+    """
+    Incompatible Abi error.
+    """
+
+    def __init__(self, message):
+        self.message = message
+        super().__init__(message)
 
 
 class ProxyResolutionError(Exception):
