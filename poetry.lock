@@ -2938,7 +2938,7 @@ Werkzeug = "~2.0.3"
 type = "git"
 url = "https://github.com/Shard-Labs/starknet-devnet.git"
 reference = "adapt-0.11.0"
-resolved_reference = "343d40f1a2d062fc2ef077d19503c52b6132e55d"
+resolved_reference = "f2be619e172064f1574fef83e8120254d8198d17"
 
 [[package]]
 name = "sympy"
