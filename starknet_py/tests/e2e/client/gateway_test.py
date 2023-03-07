@@ -8,10 +8,12 @@ from starknet_py.hash.storage import get_storage_var_address
 from starknet_py.net.client_errors import ContractNotFoundError
 from starknet_py.net.client_models import (
     Call,
+    DeclaredContractHash,
     DeployTransaction,
     L1HandlerTransaction,
     NewContractClass,
     NewEntryPointsByType,
+    ReplacedClass,
     TransactionStatus,
     TransactionStatusResponse,
 )
@@ -36,6 +38,34 @@ async def test_get_class_by_hash_sierra_program():
     assert isinstance(contract_class.entry_points_by_type, NewEntryPointsByType)
     assert isinstance(contract_class.abi, list)
     assert isinstance(contract_class.abi[0], dict)
+
+
+@pytest.mark.asyncio
+async def test_get_new_state_update():
+    client = GatewayClient(
+        net="https://external.integration.starknet.io"
+    )  # TODO: Replace this with fixture
+
+    state_update = await client.get_state_update(block_number=283364)
+
+    assert state_update.state_diff.replaced_classes == []
+    assert (
+        DeclaredContractHash(
+            class_hash=0x4E70B19333AE94BD958625F7B61CE9EEC631653597E68645E13780061B2136C,
+            compiled_class_hash=0x711C0C3E56863E29D3158804AAC47F424241EDA64DB33E2CC2999D60EE5105,
+        )
+        in state_update.state_diff.declared_contract_hashes
+    )
+
+    state_update = await client.get_state_update(block_number=283885)
+
+    assert (
+        ReplacedClass(
+            contract_address=0x7EFED3A74230089168DC7BAB1EFCE543976F621478A93D6EE23E09829E308F0,
+            class_hash=0x4631B6B3FA31E140524B7D21BA784CEA223E618BFFE60B5BBDCA44A8B45BE04,
+        )
+        in state_update.state_diff.replaced_classes
+    )
 
 
 @pytest.mark.asyncio

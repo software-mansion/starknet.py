@@ -290,11 +290,25 @@ class ContractsNonce:
 
 
 @dataclass
+class DeclaredContractHash:
+    class_hash: int
+    compiled_class_hash: int
+
+
+@dataclass
+class ReplacedClass:
+    contract_address: int
+    class_hash: int
+
+
+@dataclass
 class StateDiff:
     deployed_contracts: List[DeployedContract]
-    declared_contract_hashes: List[int]
+    deprecated_declared_contract_hashes: List[int]
+    declared_contract_hashes: List[DeclaredContractHash]
     storage_diffs: List[StorageDiffItem]
     nonces: List[ContractsNonce]
+    replaced_classes: List[ReplacedClass]
 
 
 @dataclass
