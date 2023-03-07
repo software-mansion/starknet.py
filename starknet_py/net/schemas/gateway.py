@@ -44,6 +44,9 @@ from starknet_py.net.schemas.common import (
     StatusField,
     StorageEntrySchema,
 )
+from starknet_py.net.schemas.utils import (
+    _replace_invoke_contract_address_with_sender_address,
+)
 
 # pylint: disable=unused-argument, no-self-use
 
@@ -86,13 +89,15 @@ class TransactionSchema(Schema):
 
 
 class InvokeTransactionSchema(TransactionSchema):
-    contract_address = Felt(data_key="contract_address", required=True)
+    contract_address = Felt(data_key="contract_address", load_default=None)
+    sender_address = Felt(data_key="sender_address", load_default=None)
     calldata = fields.List(Felt(), data_key="calldata", required=True)
     entry_point_selector = Felt(data_key="entry_point_selector", load_default=None)
     nonce = Felt(data_key="nonce", load_default=None)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> InvokeTransaction:
+        _replace_invoke_contract_address_with_sender_address(data)
         return InvokeTransaction(**data)
 
 
@@ -112,6 +117,7 @@ class DeclareTransactionSchema(TransactionSchema):
     class_hash = Felt(data_key="class_hash", required=True)
     sender_address = Felt(data_key="sender_address", required=True)
     nonce = Felt(data_key="nonce", load_default=None)
+    compiled_class_hash = Felt(data_key="compiled_class_hash", load_default=None)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> DeclareTransaction:

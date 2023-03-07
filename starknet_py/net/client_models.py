@@ -92,7 +92,7 @@ class InvokeTransaction(Transaction):
     Dataclass representing invoke transaction
     """
 
-    contract_address: int
+    sender_address: int
     calldata: List[int]
     # This field is always None for transactions with version = 1
     entry_point_selector: Optional[int] = None
@@ -108,6 +108,7 @@ class DeclareTransaction(Transaction):
     class_hash: int
     sender_address: int
     nonce: Optional[int] = None
+    compiled_class_hash: Optional[int] = None
 
 
 @dataclass
