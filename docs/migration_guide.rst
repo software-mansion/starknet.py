@@ -15,6 +15,14 @@ Some classes/functions from cairo-lang package are rewritten and are a part of s
 - ``DeclaredContract`` is now :ref:`ContractClass <ContractClass>`
 - ``compute_class_hash`` function
 
+
+Python version
+--------------
+
+Unfortunately, as a result of adaptation to support `cairo-lang` newest package, **support for Python 3.8.X has been dropped**.
+The only supported Python version is 3.9.
+
+
 Deprecations
 ------------
 
