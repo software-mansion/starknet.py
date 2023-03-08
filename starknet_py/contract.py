@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from functools import cached_property
 from typing import Dict, List, Optional, Tuple, TypeVar, Union
 
+from marshmallow import ValidationError
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 
@@ -25,6 +26,7 @@ from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.proxy.contract_abi_resolver import (
     ContractAbiResolver,
     ProxyConfig,
+    UnsupportedAbiError,
     prepare_proxy_config,
 )
 from starknet_py.serialization import TupleDataclass, serializer_for_function
@@ -455,7 +457,16 @@ class Contract:
         self.account: Optional[BaseAccount] = account
         self.client: Client = client
         self.data = ContractData.from_abi(parse_address(address), abi)
-        self._functions = self._make_functions(self.data, self.client, self.account)
+
+        try:
+            self._functions = self._make_functions(self.data, self.client, self.account)
+        except ValidationError:
+            warnings.warn(
+                "Make sure valid ABI is used to create a Contract instance: "
+                "Cairo1 contract ABIs are currently unsupported."
+            )
+            # Re-raise the exception
+            raise
 
     @property
     def functions(self) -> FunctionsRepository:
@@ -500,9 +511,14 @@ class Contract:
         address = parse_address(address)
         proxy_config = Contract._create_proxy_config(proxy_config)
 
-        abi = await ContractAbiResolver(
-            address=address, client=client, proxy_config=proxy_config
-        ).resolve()
+        try:
+            abi = await ContractAbiResolver(
+                address=address, client=client, proxy_config=proxy_config
+            ).resolve()
+        except UnsupportedAbiError:
+            raise ValueError(
+                "Provided address of Cairo1 contract which is currently not supported in Contract."
+            )
 
         return Contract(address=address, abi=abi, provider=account or client)
 
