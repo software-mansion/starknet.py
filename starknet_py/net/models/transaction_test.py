@@ -67,7 +67,7 @@ def test_declare_compress_program(balance_contract):
 
 
 compiled_contract = read_contract("erc20_compiled.json")
-new_compiled_contract = read_contract("precompiled/hello_starknet_compiled.json")
+new_compiled_contract = read_contract("precompiled/minimal_contract_compiled.json")
 
 
 @pytest.mark.parametrize(
@@ -121,7 +121,7 @@ new_compiled_contract = read_contract("precompiled/hello_starknet_compiled.json"
                 signature=[0x1, 0x2],
                 version=2,
             ),
-            88310833614671781001635391408220089034532366759635809827057930536492581034,
+            2395135969684207470555850957098856411155251162707242012878526700784806426781,
         ),
     ],
 )
