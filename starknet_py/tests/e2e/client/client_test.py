@@ -167,7 +167,7 @@ async def test_call_contract(client, contract_address):
         calldata=[],
     )
 
-    result = await client.call_contract(call, block_hash="latest")
+    result = await client.call_contract(call, block_number="latest")
 
     assert result == [1234]
 

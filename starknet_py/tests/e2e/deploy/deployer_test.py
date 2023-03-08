@@ -82,7 +82,7 @@ async def test_constructor_arguments_contract_deploy(
         provider=account,
     )
 
-    result = await contract.functions["get"].call(block_hash="latest")
+    result = await contract.functions["get"].call(block_number="latest")
 
     assert result == (
         10,
