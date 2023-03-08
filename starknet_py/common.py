@@ -60,7 +60,7 @@ def create_new_compiled_contract(compiled_contract: str) -> NewCompiledContract:
     Creates NewCompiledContract instance.
 
     :param compiled_contract: compiled contract string.
-    :return: CompiledContract instance.
+    :return: NewCompiledContract instance.
     """
     return cast(
         NewCompiledContract,
