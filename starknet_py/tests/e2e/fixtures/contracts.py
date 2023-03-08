@@ -32,7 +32,7 @@ def map_compiled_contract() -> str:
 @pytest.fixture(scope="package")
 def sierra_minimal_compiled_contract_and_class_hash() -> Tuple[str, int]:
     """
-    Returns minimal contract compiled to sierra
+    Returns minimal contract compiled to sierra and its class hash.
     """
     return (
         read_contract("precompiled/minimal_contract_compiled.json"),

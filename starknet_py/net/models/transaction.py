@@ -80,7 +80,7 @@ TypeAccountTransaction = TypeVar("TypeAccountTransaction", bound=AccountTransact
 @dataclass(frozen=True)
 class DeclareV2(AccountTransaction):
     """
-    Represents a transaction in the StarkNet network that is a declaration of a StarkNet contract
+    Represents a transaction in the Starknet network that is a declaration of a Starknet contract
     class.
     """
 
