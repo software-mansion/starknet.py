@@ -367,6 +367,18 @@ class ContractClass:
 
 
 @dataclass
+class CompiledContract(ContractClass):
+    """
+    Dataclass representing ContractClass with required abi.
+    """
+
+    # abi is a required key in CompiledContractSchema,
+    # default_factory is used, since abi in ContractClass is Optional
+    # and otherwise, non-keyword arguments would follow keyword arguments
+    abi: AbiDictList = field(default_factory=list)
+
+
+@dataclass
 class NewEntryPoint:
     """
     Dataclass representing contract entry point
@@ -400,15 +412,35 @@ class NewContractClass:
 
 
 @dataclass
-class CompiledContract(ContractClass):
+class CompiledClassEntryPoint:
     """
-    Dataclass representing ContractClass with required abi.
+    Dataclass representing CompiledClass entrypoint.
     """
 
-    # abi is a required key in CompiledContractSchema,
-    # default_factory is used, since abi in ContractClass is Optional
-    # and otherwise, non-keyword arguments would follow keyword arguments
-    abi: AbiDictList = field(default_factory=list)
+    selector: int
+    offset: int
+    builtins: Optional[List[str]]
+
+
+@dataclass
+class CompiledClassEntryPointsByType:
+    """
+    Dataclass representing CompiledClass entrypoints by entry point type.
+    """
+
+    constructor: List[CompiledClassEntryPoint]
+    external: List[CompiledClassEntryPoint]
+    l1_handler: List[CompiledClassEntryPoint]
+
+
+@dataclass
+class CompiledClass:
+    """
+    Dataclass representing class compiled to Cairo assembly.
+    """
+
+    program: dict
+    entry_points_by_type: CompiledClassEntryPointsByType
 
 
 @dataclass

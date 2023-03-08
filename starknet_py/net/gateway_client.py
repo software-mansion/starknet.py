@@ -3,6 +3,7 @@ from typing import Dict, List, Optional, Union, cast
 
 import aiohttp
 from marshmallow import EXCLUDE
+from starkware.starknet.services.api.contract_class.contract_class import CompiledClass
 
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ContractNotFoundError
@@ -40,6 +41,7 @@ from starknet_py.net.networks import Network, net_address_from_net
 from starknet_py.net.schemas.gateway import (
     BlockStateUpdateSchema,
     BlockTransactionTracesSchema,
+    CompiledClassSchema,
     ContractCodeSchema,
     DeclareTransactionResponseSchema,
     DeployAccountTransactionResponseSchema,
@@ -321,6 +323,19 @@ class GatewayClient(Client):
         )  # pyright: ignore
 
     # Only gateway methods
+
+    async def get_compiled_class_by_class_hash(self, class_hash: Hash) -> CompiledClass:
+        """
+        Fetches CompiledClass of a contract with given class hash.
+
+        :param class_hash: Class hash of the contract.
+        :return: CompiledClass of the contract.
+        """
+        res = await self._feeder_gateway_client.call(
+            params={"classHash": hash_to_felt(class_hash)},
+            method_name="get_compiled_class_by_class_hash",
+        )
+        return CompiledClassSchema().load(res)
 
     async def _add_transaction(
         self,

@@ -8,6 +8,8 @@ from starknet_py.hash.storage import get_storage_var_address
 from starknet_py.net.client_errors import ContractNotFoundError
 from starknet_py.net.client_models import (
     Call,
+    CompiledClass,
+    CompiledClassEntryPointsByType,
     DeclaredContractHash,
     DeclareTransaction,
     DeployTransaction,
@@ -121,6 +123,23 @@ async def test_get_new_state_update():
             class_hash=0x4631B6B3FA31E140524B7D21BA784CEA223E618BFFE60B5BBDCA44A8B45BE04,
         )
         in state_update.state_diff.replaced_classes
+    )
+
+
+@pytest.mark.asyncio
+async def test_get_compiled_class_by_class_hash():
+    client = GatewayClient(
+        net="https://external.integration.starknet.io"
+    )  # TODO: Replace this with fixture
+
+    compiled_class = await client.get_compiled_class_by_class_hash(
+        class_hash=0x4E70B19333AE94BD958625F7B61CE9EEC631653597E68645E13780061B2136C
+    )
+
+    assert isinstance(compiled_class, CompiledClass)
+    assert isinstance(compiled_class.program, dict)
+    assert isinstance(
+        compiled_class.entry_points_by_type, CompiledClassEntryPointsByType
     )
 
 
