@@ -92,7 +92,7 @@ class InvokeTransaction(Transaction):
     Dataclass representing invoke transaction
     """
 
-    contract_address: int
+    sender_address: int
     calldata: List[int]
     # This field is always None for transactions with version = 1
     entry_point_selector: Optional[int] = None
@@ -108,6 +108,7 @@ class DeclareTransaction(Transaction):
     class_hash: int
     sender_address: int
     nonce: Optional[int] = None
+    compiled_class_hash: Optional[int] = None
 
 
 @dataclass
@@ -290,11 +291,25 @@ class ContractsNonce:
 
 
 @dataclass
+class DeclaredContractHash:
+    class_hash: int
+    compiled_class_hash: int
+
+
+@dataclass
+class ReplacedClass:
+    contract_address: int
+    class_hash: int
+
+
+@dataclass
 class StateDiff:
     deployed_contracts: List[DeployedContract]
-    declared_contract_hashes: List[int]
+    deprecated_declared_contract_hashes: List[int]
+    declared_contract_hashes: List[DeclaredContractHash]
     storage_diffs: List[StorageDiffItem]
     nonces: List[ContractsNonce]
+    replaced_classes: List[ReplacedClass]
 
 
 @dataclass
@@ -381,7 +396,7 @@ class NewContractClass:
     contract_class_version: str
     sierra_program: List[str]
     entry_points_by_type: NewEntryPointsByType
-    abi: Optional[AbiDictList] = None  # TODO: verify AbiDictList actually works here
+    abi: Optional[str] = None
 
 
 @dataclass

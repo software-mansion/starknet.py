@@ -94,6 +94,11 @@ class ContractAbiResolver:
         :raises AbiNotFoundError: when abi is not present in contract class at address
         """
         contract_class = await _get_class_at(address=self.address, client=self.client)
+        if isinstance(contract_class, NewContractClass):
+            # TODO: Consider better handling
+            raise ProxyResolutionError(
+                "Proxy resolver does not currently support new Cairo ABIs."
+            )
         if contract_class.abi is None:
             raise AbiNotFoundError()
         return contract_class.abi
@@ -118,6 +123,11 @@ class ContractAbiResolver:
                         address=implementation, client=self.client
                     )
 
+                if isinstance(contract_class, NewContractClass):
+                    # TODO: Consider better handling
+                    raise ProxyResolutionError(
+                        "Proxy resolver does not currently support new Cairo ABIs."
+                    )
                 if contract_class.abi is None:
                     # Some contract_class has been found, but it does not have abi
                     raise AbiNotFoundError()
@@ -174,8 +184,10 @@ class ProxyResolutionError(Exception):
     Error while resolving proxy using ProxyChecks.
     """
 
-    def __init__(self):
-        self.message = "Couldn't resolve proxy using given ProxyChecks."
+    def __init__(
+        self, message: str = "Couldn't resolve proxy using given ProxyChecks."
+    ):
+        self.message = message
         super().__init__(self.message)
 
 

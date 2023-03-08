@@ -8,10 +8,13 @@ from starknet_py.hash.storage import get_storage_var_address
 from starknet_py.net.client_errors import ContractNotFoundError
 from starknet_py.net.client_models import (
     Call,
+    DeclaredContractHash,
+    DeclareTransaction,
     DeployTransaction,
     L1HandlerTransaction,
     NewContractClass,
     NewEntryPointsByType,
+    ReplacedClass,
     TransactionStatus,
     TransactionStatusResponse,
 )
@@ -21,6 +24,7 @@ from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
+# Temporary test to be replaced after devnet supports new starknet
 @pytest.mark.asyncio
 async def test_get_class_by_hash_sierra_program():
     client = GatewayClient(
@@ -36,6 +40,88 @@ async def test_get_class_by_hash_sierra_program():
     assert isinstance(contract_class.entry_points_by_type, NewEntryPointsByType)
     assert isinstance(contract_class.abi, list)
     assert isinstance(contract_class.abi[0], dict)
+
+
+# Temporary test to be replaced after devnet supports new starknet
+@pytest.mark.asyncio
+async def test_get_declare_v2_transaction():
+    client = GatewayClient(
+        net="https://external.integration.starknet.io"
+    )  # TODO: Replace this with fixture
+
+    transaction = await client.get_transaction(
+        tx_hash=0x722B666CE83EC69C18190AAE6149F79E6AD4B9C051B171CC6C309C9E0C28129
+    )
+
+    assert isinstance(transaction, DeclareTransaction)
+    assert transaction == DeclareTransaction(
+        class_hash=0x4E70B19333AE94BD958625F7B61CE9EEC631653597E68645E13780061B2136C,
+        compiled_class_hash=0x711C0C3E56863E29D3158804AAC47F424241EDA64DB33E2CC2999D60EE5105,
+        sender_address=0x2FD67A7BCCA0D984408143255C41563B14E6C8A0846B5C9E092E7D56CF1A862,
+        hash=0x722B666CE83EC69C18190AAE6149F79E6AD4B9C051B171CC6C309C9E0C28129,
+        max_fee=0x38D7EA4C68000,
+        signature=[
+            0x6F3070288FB33359289F5995190C1074DE5FF00D181B1A7D6BE87346D9957FE,
+            0x4AB2D251D18A75F8E1AD03ABA2A77BD3D978ABF571DC262C592FB07920DC50D,
+        ],
+        nonce=1,
+        version=2,
+    )
+
+
+# Temporary test to be replaced after devnet supports new starknet
+@pytest.mark.asyncio
+async def test_get_block_with_declare_v2():
+    client = GatewayClient(
+        net="https://external.integration.starknet.io"
+    )  # TODO: Replace this with fixture
+
+    block = await client.get_block(block_number=283364)
+
+    assert (
+        DeclareTransaction(
+            class_hash=0x4E70B19333AE94BD958625F7B61CE9EEC631653597E68645E13780061B2136C,
+            compiled_class_hash=0x711C0C3E56863E29D3158804AAC47F424241EDA64DB33E2CC2999D60EE5105,
+            sender_address=0x2FD67A7BCCA0D984408143255C41563B14E6C8A0846B5C9E092E7D56CF1A862,
+            hash=0x722B666CE83EC69C18190AAE6149F79E6AD4B9C051B171CC6C309C9E0C28129,
+            max_fee=0x38D7EA4C68000,
+            signature=[
+                0x6F3070288FB33359289F5995190C1074DE5FF00D181B1A7D6BE87346D9957FE,
+                0x4AB2D251D18A75F8E1AD03ABA2A77BD3D978ABF571DC262C592FB07920DC50D,
+            ],
+            nonce=1,
+            version=2,
+        )
+        in block.transactions
+    )
+
+
+@pytest.mark.asyncio
+async def test_get_new_state_update():
+    client = GatewayClient(
+        net="https://external.integration.starknet.io"
+    )  # TODO: Replace this with fixture
+
+    state_update = await client.get_state_update(block_number=283364)
+
+    assert state_update.state_diff.replaced_classes == []
+    assert (
+        DeclaredContractHash(
+            class_hash=0x4E70B19333AE94BD958625F7B61CE9EEC631653597E68645E13780061B2136C,
+            compiled_class_hash=0x711C0C3E56863E29D3158804AAC47F424241EDA64DB33E2CC2999D60EE5105,
+        )
+        in state_update.state_diff.declared_contract_hashes
+    )
+
+    state_update = await client.get_state_update(block_number=283885)
+
+    assert (
+        ReplacedClass(
+            contract_address=0x7EFED3A74230089168DC7BAB1EFCE543976F621478A93D6EE23E09829E308F0,
+            class_hash=0x4631B6B3FA31E140524B7D21BA784CEA223E618BFFE60B5BBDCA44A8B45BE04,
+        )
+        in state_update.state_diff.replaced_classes
+    )
 
 
 @pytest.mark.asyncio
