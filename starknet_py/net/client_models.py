@@ -412,9 +412,9 @@ class NewContractClass:
 
 
 @dataclass
-class CompiledClassEntryPoint:
+class CasmClassEntryPoint:
     """
-    Dataclass representing CompiledClass entrypoint.
+    Dataclass representing CasmClass entrypoint.
     """
 
     selector: int
@@ -423,24 +423,24 @@ class CompiledClassEntryPoint:
 
 
 @dataclass
-class CompiledClassEntryPointsByType:
+class CasmClassEntryPointsByType:
     """
-    Dataclass representing CompiledClass entrypoints by entry point type.
+    Dataclass representing CasmClass entrypoints by entry point type.
     """
 
-    constructor: List[CompiledClassEntryPoint]
-    external: List[CompiledClassEntryPoint]
-    l1_handler: List[CompiledClassEntryPoint]
+    constructor: List[CasmClassEntryPoint]
+    external: List[CasmClassEntryPoint]
+    l1_handler: List[CasmClassEntryPoint]
 
 
 @dataclass
-class CompiledClass:
+class CasmClass:
     """
     Dataclass representing class compiled to Cairo assembly.
     """
 
     program: dict
-    entry_points_by_type: CompiledClassEntryPointsByType
+    entry_points_by_type: CasmClassEntryPointsByType
 
 
 @dataclass
