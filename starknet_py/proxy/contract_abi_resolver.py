@@ -97,7 +97,7 @@ class ContractAbiResolver:
         if isinstance(contract_class, NewContractClass):
             # TODO: Consider better handling
             raise UnsupportedAbiError(
-                "Proxy resolver does not currently support new Cairo ABIs."
+                "Proxy resolver does not currently support Cairo1 ABIs."
             )
         if contract_class.abi is None:
             raise AbiNotFoundError()
@@ -126,7 +126,7 @@ class ContractAbiResolver:
                 if isinstance(contract_class, NewContractClass):
                     # TODO: Consider better handling
                     raise UnsupportedAbiError(
-                        "Proxy resolver does not currently support new Cairo ABIs."
+                        "Proxy resolver does not currently support Cairo1 ABIs."
                     )
                 if contract_class.abi is None:
                     # Some contract_class has been found, but it does not have abi

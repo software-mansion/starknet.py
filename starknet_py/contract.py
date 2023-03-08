@@ -517,7 +517,7 @@ class Contract:
             ).resolve()
         except UnsupportedAbiError:
             raise ValueError(
-                "Provide address of new Cairo contract which is currently not supported in Contract."
+                "Provided address of Cairo1 contract which is currently not supported in Contract."
             )
 
         return Contract(address=address, abi=abi, provider=account or client)
