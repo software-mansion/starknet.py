@@ -2,11 +2,9 @@ import socket
 import subprocess
 import time
 from contextlib import closing
-from typing import Generator
+from typing import Generator, List
 
 import pytest
-
-from starknet_py.tests.e2e.manifest import CAIRO_COMPILER_MANIFEST
 
 
 def get_available_port() -> int:
@@ -14,6 +12,16 @@ def get_available_port() -> int:
         sock.bind(("", 0))
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         return sock.getsockname()[1]
+
+
+def get_compiler_manifest() -> List[int]:
+    try:
+        # pylint: disable=import-outside-toplevel
+        from starknet_py.tests.e2e.manifest import CAIRO_COMPILER_MANIFEST
+
+        return ["--cairo-compiler-manifest", CAIRO_COMPILER_MANIFEST]
+    except ImportError:
+        return []
 
 
 def start_devnet():
@@ -31,8 +39,7 @@ def start_devnet():
         str(1),
         "--seed",  # generates same accounts each time
         str(1),
-        "--cairo-compiler-manifest",  # Set up cairo 1 compiler
-        CAIRO_COMPILER_MANIFEST,  # Create manifest.py file in the e2e/ directory from the template
+        *get_compiler_manifest(),
     ]
     # pylint: disable=consider-using-with
     proc = subprocess.Popen(command)
