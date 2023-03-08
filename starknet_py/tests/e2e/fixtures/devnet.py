@@ -6,6 +6,8 @@ from typing import Generator
 
 import pytest
 
+from starknet_py.tests.e2e.manifest import CAIRO_COMPILER_MANIFEST
+
 
 def get_available_port() -> int:
     with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
@@ -29,6 +31,8 @@ def start_devnet():
         str(1),
         "--seed",  # generates same accounts each time
         str(1),
+        "--cairo-compiler-manifest",  # Set up cairo 1 compiler
+        CAIRO_COMPILER_MANIFEST,  # Create manifest.py file in the e2e/ directory from the template
     ]
     # pylint: disable=consider-using-with
     proc = subprocess.Popen(command)
