@@ -121,7 +121,6 @@ new_compiled_contract = read_contract("precompiled/hello_starknet_compiled.json"
                 signature=[0x1, 0x2],
                 version=2,
             ),
-            # FIXME: This may not be correct compared to starknet calculations
             88310833614671781001635391408220089034532366759635809827057930536492581034,
         ),
     ],
