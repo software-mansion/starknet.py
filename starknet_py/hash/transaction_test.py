@@ -1,3 +1,5 @@
+from typing import Tuple
+
 import pytest
 from starkware.starknet.core.os.transaction_hash.transaction_hash import (
     calculate_declare_transaction_hash as sw_calculate_declare_transaction_hash,
@@ -77,7 +79,7 @@ def test_compute_declare_transaction_hash(contract_json, data):
 
 
 def test_compute_declare_v2_transaction_hash(
-    sierra_minimal_compiled_contract_and_class_hash,
+    sierra_minimal_compiled_contract_and_class_hash: Tuple[str, int],
 ):
     contract, compiled_class_hash = sierra_minimal_compiled_contract_and_class_hash
     compiled_contract = create_new_compiled_contract(contract)
