@@ -97,15 +97,3 @@ def test_create_account_raises_on_both_keypair_and_signer():
                 chain_id=StarknetChainId.TESTNET,
             ),
         )
-
-
-@pytest.mark.asyncio
-async def test_declare_contract_raises_on_sierra_contract_without_compiled_class_hash(
-    sierra_minimal_compiled_contract_and_class_hash, account
-):
-    compiled_contract, _ = sierra_minimal_compiled_contract_and_class_hash
-    with pytest.raises(
-        ValueError,
-        match="Argument compiled_class_hash is required when using sierra compiled_contract.",
-    ):
-        await account.sign_declare_transaction(compiled_contract=compiled_contract)

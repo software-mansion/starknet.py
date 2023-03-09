@@ -2,6 +2,7 @@ from typing import cast
 from unittest.mock import AsyncMock, patch
 
 import pytest
+from marshmallow import ValidationError
 
 from starknet_py.contract import Contract
 from starknet_py.hash.address import compute_address
@@ -181,6 +182,28 @@ async def test_sign_declare_transaction(gateway_account, map_compiled_contract):
     assert isinstance(signed_tx.signature, list)
     assert len(signed_tx.signature) > 0
     assert signed_tx.max_fee == MAX_FEE
+
+
+@pytest.mark.asyncio
+async def test_declare_contract_raises_on_sierra_contract_without_compiled_class_hash(
+    sierra_minimal_compiled_contract_and_class_hash, account
+):
+    compiled_contract, _ = sierra_minimal_compiled_contract_and_class_hash
+    with pytest.raises(
+        ValueError,
+        match="Argument compiled_class_hash is required when using sierra compiled_contract.",
+    ):
+        await account.sign_declare_transaction(compiled_contract=compiled_contract)
+
+
+@pytest.mark.asyncio
+async def test_declare_contract_raises_on_old_contract_with_compiled_class_hash(
+    map_compiled_contract, account
+):
+    with pytest.raises(ValidationError):
+        await account.sign_declare_transaction(
+            compiled_contract=map_compiled_contract, compiled_class_hash=0x1234
+        )
 
 
 @pytest.mark.asyncio
