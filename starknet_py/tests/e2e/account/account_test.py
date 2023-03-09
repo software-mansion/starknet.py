@@ -175,6 +175,17 @@ async def test_sign_invoke_transaction(gateway_account, calls):
 
 
 @pytest.mark.asyncio
+async def test_sign_invoke_transaction_auto_estimate(gateway_account):
+    signed_tx = await gateway_account.sign_invoke_transaction(
+        Call(1, 2, [3]), auto_estimate=True
+    )
+
+    assert isinstance(signed_tx.signature, list)
+    assert len(signed_tx.signature) > 0
+    assert signed_tx.max_fee > 0
+
+
+@pytest.mark.asyncio
 async def test_sign_declare_transaction(gateway_account, map_compiled_contract):
     signed_tx = await gateway_account.sign_declare_transaction(
         map_compiled_contract, max_fee=MAX_FEE
@@ -185,6 +196,21 @@ async def test_sign_declare_transaction(gateway_account, map_compiled_contract):
     assert isinstance(signed_tx.signature, list)
     assert len(signed_tx.signature) > 0
     assert signed_tx.max_fee == MAX_FEE
+
+
+@pytest.mark.asyncio
+async def test_sign_declare_transaction_auto_estimate(
+    gateway_account, map_compiled_contract
+):
+    signed_tx = await gateway_account.sign_declare_transaction(
+        map_compiled_contract, auto_estimate=True
+    )
+
+    assert isinstance(signed_tx, Declare)
+    assert signed_tx.version == 1
+    assert isinstance(signed_tx.signature, list)
+    assert len(signed_tx.signature) > 0
+    assert signed_tx.max_fee > 0
 
 
 @pytest.mark.asyncio
@@ -207,6 +233,28 @@ async def test_sign_declare_v2_transaction(
     assert isinstance(signed_tx.signature, list)
     assert len(signed_tx.signature) > 0
     assert signed_tx.max_fee == MAX_FEE
+
+
+@pytest.mark.asyncio
+async def test_sign_declare_v2_transaction_auto_estimate(
+    gateway_account, sierra_minimal_compiled_contract_and_class_hash
+):
+    (
+        compiled_contract,
+        compiled_class_hash,
+    ) = sierra_minimal_compiled_contract_and_class_hash
+
+    signed_tx = await gateway_account.sign_declare_transaction(
+        compiled_contract=compiled_contract,
+        compiled_class_hash=compiled_class_hash,
+        auto_estimate=True,
+    )
+
+    assert isinstance(signed_tx, DeclareV2)
+    assert signed_tx.version == 2
+    assert isinstance(signed_tx.signature, list)
+    assert len(signed_tx.signature) > 0
+    assert signed_tx.max_fee > 0
 
 
 @pytest.mark.asyncio
@@ -243,6 +291,23 @@ async def test_sign_deploy_account_transaction(gateway_account):
     assert isinstance(signed_tx.signature, list)
     assert len(signed_tx.signature) > 0
     assert signed_tx.max_fee == MAX_FEE
+    assert signed_tx.class_hash == class_hash
+    assert signed_tx.contract_address_salt == salt
+    assert signed_tx.constructor_calldata == calldata
+
+
+@pytest.mark.asyncio
+async def test_sign_deploy_account_transaction_auto_estimate(gateway_account):
+    class_hash = 0x1234
+    salt = 0x123
+    calldata = [1, 2, 3]
+    signed_tx = await gateway_account.sign_deploy_account_transaction(
+        class_hash, salt, calldata, auto_estimate=True
+    )
+
+    assert isinstance(signed_tx.signature, list)
+    assert len(signed_tx.signature) > 0
+    assert signed_tx.max_fee > 0
     assert signed_tx.class_hash == class_hash
     assert signed_tx.contract_address_salt == salt
     assert signed_tx.constructor_calldata == calldata
