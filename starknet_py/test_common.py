@@ -1,5 +1,5 @@
 from starknet_py.common import create_new_compiled_contract
-from starknet_py.net.client_models import NewCompiledContract
+from starknet_py.net.client_models import SierraCompiledContract
 
 
 def test_create_new_compiled_contract(sierra_minimal_compiled_contract_and_class_hash):
@@ -7,5 +7,5 @@ def test_create_new_compiled_contract(sierra_minimal_compiled_contract_and_class
 
     contract = create_new_compiled_contract(compiled_contract)
 
-    assert isinstance(contract, NewCompiledContract)
+    assert isinstance(contract, SierraCompiledContract)
     assert contract.abi is not None

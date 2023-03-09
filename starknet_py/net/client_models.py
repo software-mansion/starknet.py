@@ -400,9 +400,9 @@ class SierraContractClass:
 
 
 @dataclass
-class NewCompiledContract(NewContractClass):
+class SierraCompiledContract(SierraContractClass):
     """
-    Dataclass representing NewContractClass with required abi.
+    Dataclass representing SierraContractClass with required abi.
     """
 
     abi: str = field(default_factory=str)

@@ -28,12 +28,15 @@ from starknet_py.hash.transaction import (
 )
 from starknet_py.net.client_models import (
     ContractClass,
-    NewContractClass,
+    SierraContractClass,
     TransactionType,
 )
 from starknet_py.net.models.chains import StarknetChainId
 from starknet_py.net.schemas.common import Felt, TransactionTypeField
-from starknet_py.net.schemas.gateway import ContractClassSchema, NewContractClassSchema
+from starknet_py.net.schemas.gateway import (
+    ContractClassSchema,
+    SierraContractClassSchema,
+)
 
 
 @dataclass(frozen=True)
@@ -84,8 +87,8 @@ class DeclareV2(AccountTransaction):
     class.
     """
 
-    contract_class: NewContractClass = field(
-        metadata={"marshmallow_field": fields.Nested(NewContractClassSchema())}
+    contract_class: SierraContractClass = field(
+        metadata={"marshmallow_field": fields.Nested(SierraContractClassSchema())}
     )
     compiled_class_hash: int = field(metadata={"marshmallow_field": Felt()})
     sender_address: int = field(metadata={"marshmallow_field": Felt()})

@@ -28,9 +28,9 @@ from starknet_py.net.client_models import (
     L1HandlerTransaction,
     L1toL2Message,
     L2toL1Message,
-    NewCompiledContract,
     ReplacedClass,
     SentTransactionResponse,
+    SierraCompiledContract,
     SierraContractClass,
     SierraEntryPoint,
     SierraEntryPointsByType,
@@ -469,15 +469,15 @@ class SierraContractClassSchema(Schema):
         return SierraContractClass(**data)
 
 
-class NewCompiledContractSchema(SierraContractClassSchema):
+class SierraCompiledContractSchema(SierraContractClassSchema):
     abi = fields.List(fields.Dict(), data_key="abi", required=True)
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> NewCompiledContract:
+    def make_dataclass(self, data, **kwargs) -> SierraCompiledContract:
         # Schema must accept ABI as List[dict] to be compatible with the output of Cairo1 compiler.
         data["abi"] = json.dumps(data["abi"])
 
-        return NewCompiledContract(**data)
+        return SierraCompiledContract(**data)
 
 
 class TypesOfContractClassSchema(OneOfSchema):

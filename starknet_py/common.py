@@ -7,12 +7,12 @@ from starknet_py.compile.compiler import Compiler, StarknetCompilationSource
 from starknet_py.net.client_models import (
     CompiledContract,
     ContractClass,
-    NewCompiledContract,
+    SierraCompiledContract,
 )
 from starknet_py.net.schemas.gateway import (
     CompiledContractSchema,
     ContractClassSchema,
-    NewCompiledContractSchema,
+    SierraCompiledContractSchema,
 )
 
 
@@ -55,16 +55,16 @@ def create_compiled_contract(
     return cast(CompiledContract, CompiledContractSchema().loads(compiled_contract))
 
 
-def create_new_compiled_contract(compiled_contract: str) -> NewCompiledContract:
+def create_new_compiled_contract(compiled_contract: str) -> SierraCompiledContract:
     """
-    Creates NewCompiledContract instance.
+    Creates SierraCompiledContract instance.
 
     :param compiled_contract: compiled contract string.
-    :return: NewCompiledContract instance.
+    :return: SierraCompiledContract instance.
     """
     return cast(
-        NewCompiledContract,
-        NewCompiledContractSchema().loads(compiled_contract, unknown=EXCLUDE),
+        SierraCompiledContract,
+        SierraCompiledContractSchema().loads(compiled_contract, unknown=EXCLUDE),
     )
 
 

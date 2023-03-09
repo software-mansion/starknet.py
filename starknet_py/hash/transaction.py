@@ -19,9 +19,9 @@ from starknet_py.hash.class_hash import compute_class_hash
 from starknet_py.hash.utils import compute_hash_on_elements
 from starknet_py.net.client_models import (
     ContractClass,
-    NewContractClass,
-    NewEntryPoint,
-    NewEntryPointsByType,
+    SierraContractClass,
+    SierraEntryPoint,
+    SierraEntryPointsByType,
 )
 
 
@@ -156,7 +156,7 @@ def compute_declare_transaction_hash(
 
 def compute_declare_v2_transaction_hash(
     *,
-    contract_class: NewContractClass,
+    contract_class: SierraContractClass,
     compiled_class_hash: int,
     chain_id: int,
     sender_address: int,
@@ -167,7 +167,7 @@ def compute_declare_v2_transaction_hash(
     """
     Computes class hash of declare transaction version 2.
 
-    :param contract_class: NewContractClass of the contract.
+    :param contract_class: SierraContractClass of the contract.
     :param compiled_class_hash: compiled class hash of the program.
     :param chain_id: The network's chain ID.
     :param sender_address: Address which sends the transaction.
@@ -193,7 +193,7 @@ def compute_declare_v2_transaction_hash(
 
 
 def _convert_contract_class_to_cairo_lang_format(
-    contract_class: NewContractClass,
+    contract_class: SierraContractClass,
 ) -> CairoLangContractClass:
     # noinspection PyArgumentList
     return CairoLangContractClass(
@@ -205,7 +205,7 @@ def _convert_contract_class_to_cairo_lang_format(
 
 
 def _convert_entry_points(
-    entry_points: NewEntryPointsByType,
+    entry_points: SierraEntryPointsByType,
 ) -> Dict[EntryPointType, List[ContractEntryPoint]]:
     return {
         EntryPointType.EXTERNAL: _convert_entry_points_for_type(entry_points.external),
@@ -219,7 +219,7 @@ def _convert_entry_points(
 
 
 def _convert_entry_points_for_type(
-    entry_points: List[NewEntryPoint],
+    entry_points: List[SierraEntryPoint],
 ) -> List[ContractEntryPoint]:
     return [
         ContractEntryPoint(
