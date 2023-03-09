@@ -17,8 +17,8 @@ from starknet_py.net.client_models import (
     EstimatedFee,
     GatewayBlock,
     Hash,
-    NewContractClass,
     SentTransactionResponse,
+    SierraContractClass,
     Tag,
     Transaction,
     TransactionReceipt,
@@ -311,7 +311,7 @@ class GatewayClient(Client):
 
     async def get_class_by_hash(
         self, class_hash: Hash
-    ) -> Union[ContractClass, NewContractClass]:
+    ) -> Union[ContractClass, SierraContractClass]:
         res = await self._feeder_gateway_client.call(
             method_name="get_class_by_hash",
             params={"classHash": hash_to_felt(class_hash)},
