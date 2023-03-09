@@ -18,6 +18,7 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
+from starknet_py.net.models.transaction import Declare, DeclareV2
 from starknet_py.net.signer.stark_curve_signer import KeyPair
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.transaction_exceptions import TransactionRejectedError
@@ -179,6 +180,30 @@ async def test_sign_declare_transaction(gateway_account, map_compiled_contract):
         map_compiled_contract, max_fee=MAX_FEE
     )
 
+    assert isinstance(signed_tx, Declare)
+    assert signed_tx.version == 1
+    assert isinstance(signed_tx.signature, list)
+    assert len(signed_tx.signature) > 0
+    assert signed_tx.max_fee == MAX_FEE
+
+
+@pytest.mark.asyncio
+async def test_sign_declare_v2_transaction(
+    gateway_account, sierra_minimal_compiled_contract_and_class_hash
+):
+    (
+        compiled_contract,
+        compiled_class_hash,
+    ) = sierra_minimal_compiled_contract_and_class_hash
+
+    signed_tx = await gateway_account.sign_declare_transaction(
+        compiled_contract=compiled_contract,
+        compiled_class_hash=compiled_class_hash,
+        max_fee=MAX_FEE,
+    )
+
+    assert isinstance(signed_tx, DeclareV2)
+    assert signed_tx.version == 2
     assert isinstance(signed_tx.signature, list)
     assert len(signed_tx.signature) > 0
     assert signed_tx.max_fee == MAX_FEE
