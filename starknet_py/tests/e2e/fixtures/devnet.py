@@ -1,7 +1,9 @@
+import os
 import socket
 import subprocess
 import time
 from contextlib import closing
+from pathlib import Path
 from typing import Generator, List
 
 import pytest
@@ -14,13 +16,13 @@ def get_available_port() -> int:
         return sock.getsockname()[1]
 
 
-def get_compiler_manifest() -> List[int]:
+def get_compiler_manifest() -> List[str]:
     try:
-        # pylint: disable=import-outside-toplevel
-        from starknet_py.tests.e2e.manifest import CAIRO_COMPILER_MANIFEST
+        manifest_file_path = Path(os.path.dirname(__file__)) / "../manifest-path"
+        manifest = manifest_file_path.read_text("utf-8").splitlines()[0]
 
-        return ["--cairo-compiler-manifest", CAIRO_COMPILER_MANIFEST]
-    except ImportError:
+        return ["--cairo-compiler-manifest", manifest]
+    except IndexError:
         return []
 
 
