@@ -261,17 +261,8 @@ class Account(BaseAccount):
         auto_estimate: bool = False,
     ) -> Union[Declare, DeclareV2]:
         if compiled_class_hash is not None:
-            contract_class = create_new_compiled_contract(
-                compiled_contract=compiled_contract
-            )
-            declare_tx = DeclareV2(
-                contract_class=contract_class,
-                compiled_class_hash=compiled_class_hash,
-                sender_address=self.address,
-                max_fee=0,
-                signature=[],
-                nonce=await self.get_nonce(),
-                version=2,
+            declare_tx = await self._make_declare_v2_transaction(
+                compiled_contract, compiled_class_hash
             )
         else:
             if _is_sierra_contract(json.loads(compiled_contract)):
@@ -279,17 +270,7 @@ class Account(BaseAccount):
                     "Argument compiled_class_hash is required when using sierra compiled_contract."
                 )
 
-            contract_class = create_compiled_contract(
-                compiled_contract=compiled_contract
-            )
-            declare_tx = Declare(
-                contract_class=contract_class,
-                sender_address=self.address,
-                max_fee=0,
-                signature=[],
-                nonce=await self.get_nonce(),
-                version=self.supported_transaction_version,
-            )
+            declare_tx = await self._make_declare_transaction(compiled_contract)
 
         max_fee = await self._get_max_fee(
             transaction=declare_tx, max_fee=max_fee, auto_estimate=auto_estimate
@@ -297,6 +278,35 @@ class Account(BaseAccount):
         declare_tx = _add_max_fee_to_transaction(declare_tx, max_fee)
         signature = self.signer.sign_transaction(declare_tx)
         return _add_signature_to_transaction(declare_tx, signature)
+
+    async def _make_declare_transaction(self, compiled_contract: str) -> Declare:
+        contract_class = create_compiled_contract(compiled_contract=compiled_contract)
+        declare_tx = Declare(
+            contract_class=contract_class,
+            sender_address=self.address,
+            max_fee=0,
+            signature=[],
+            nonce=await self.get_nonce(),
+            version=self.supported_transaction_version,
+        )
+        return declare_tx
+
+    async def _make_declare_v2_transaction(
+        self, compiled_contract: str, compiled_class_hash: int
+    ) -> DeclareV2:
+        contract_class = create_new_compiled_contract(
+            compiled_contract=compiled_contract
+        )
+        declare_tx = DeclareV2(
+            contract_class=contract_class,
+            compiled_class_hash=compiled_class_hash,
+            sender_address=self.address,
+            max_fee=0,
+            signature=[],
+            nonce=await self.get_nonce(),
+            version=2,
+        )
+        return declare_tx
 
     async def sign_deploy_account_transaction(
         self,
