@@ -179,7 +179,7 @@ class Invoke(AccountTransaction):
     function.
     """
 
-    contract_address: int = field(metadata={"marshmallow_field": Felt()})
+    sender_address: int = field(metadata={"marshmallow_field": Felt()})
     calldata: List[int] = field(
         metadata={"marshmallow_field": fields.List(fields.String())}
     )
@@ -196,7 +196,7 @@ class Invoke(AccountTransaction):
         return compute_transaction_hash(
             tx_hash_prefix=TransactionHashPrefix.INVOKE,
             version=self.version,
-            contract_address=self.contract_address,
+            contract_address=self.sender_address,
             entry_point_selector=DEFAULT_ENTRY_POINT_SELECTOR,
             calldata=self.calldata,
             max_fee=self.max_fee,
@@ -211,7 +211,7 @@ DeployAccountSchema = marshmallow_dataclass.class_schema(DeployAccount)
 
 
 def compute_invoke_hash(
-    contract_address: int,
+    sender_address: int,
     entry_point_selector: Union[int, str],
     calldata: Sequence[int],
     chain_id: StarknetChainId,
@@ -222,7 +222,7 @@ def compute_invoke_hash(
     """
     Computes invocation hash.
 
-    :param contract_address: int
+    :param sender_address: int
     :param entry_point_selector: Union[int, str]
     :param calldata: Sequence[int]
     :param chain_id: StarknetChainId
@@ -241,7 +241,7 @@ def compute_invoke_hash(
 
     return compute_transaction_hash(
         tx_hash_prefix=TransactionHashPrefix.INVOKE,
-        contract_address=contract_address,
+        contract_address=sender_address,
         entry_point_selector=entry_point_selector,
         calldata=calldata,
         chain_id=chain_id.value,

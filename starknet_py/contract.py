@@ -523,10 +523,10 @@ class Contract:
             abi = await ContractAbiResolver(
                 address=address, client=client, proxy_config=proxy_config
             ).resolve()
-        except UnsupportedAbiError:
+        except UnsupportedAbiError as err:
             raise ValueError(
                 "Provided address of Cairo1 contract which is currently not supported in Contract."
-            )
+            ) from err
 
         return Contract(address=address, abi=abi, provider=account or client)
 
