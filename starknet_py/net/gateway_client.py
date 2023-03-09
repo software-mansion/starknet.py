@@ -326,10 +326,10 @@ class GatewayClient(Client):
 
     async def get_compiled_class_by_class_hash(self, class_hash: Hash) -> CasmClass:
         """
-        Fetches CompiledClass of a contract with given class hash.
+        Fetches CasmClass of a contract with given class hash.
 
         :param class_hash: Class hash of the contract.
-        :return: CompiledClass of the contract.
+        :return: CasmClass of the contract.
         """
         res = await self._feeder_gateway_client.call(
             params={"classHash": hash_to_felt(class_hash)},
