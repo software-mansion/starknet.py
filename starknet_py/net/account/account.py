@@ -233,7 +233,7 @@ class Account(BaseAccount):
     async def sign_for_fee_estimate(
         self, transaction: TypeAccountTransaction
     ) -> TypeAccountTransaction:
-        version = self.supported_transaction_version + QUERY_VERSION_BASE
+        version = transaction.version + QUERY_VERSION_BASE
         transaction = dataclasses.replace(transaction, version=version)
 
         signature = self.signer.sign_transaction(transaction)
