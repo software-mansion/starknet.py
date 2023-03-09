@@ -367,6 +367,18 @@ class ContractClass:
 
 
 @dataclass
+class CompiledContract(ContractClass):
+    """
+    Dataclass representing ContractClass with required abi.
+    """
+
+    # abi is a required key in CompiledContractSchema,
+    # default_factory is used, since abi in ContractClass is Optional
+    # and otherwise, non-keyword arguments would follow keyword arguments
+    abi: AbiDictList = field(default_factory=list)
+
+
+@dataclass
 class NewEntryPoint:
     """
     Dataclass representing contract entry point
@@ -400,15 +412,35 @@ class NewContractClass:
 
 
 @dataclass
-class CompiledContract(ContractClass):
+class CasmClassEntryPoint:
     """
-    Dataclass representing ContractClass with required abi.
+    Dataclass representing CasmClass entrypoint.
     """
 
-    # abi is a required key in CompiledContractSchema,
-    # default_factory is used, since abi in ContractClass is Optional
-    # and otherwise, non-keyword arguments would follow keyword arguments
-    abi: AbiDictList = field(default_factory=list)
+    selector: int
+    offset: int
+    builtins: Optional[List[str]]
+
+
+@dataclass
+class CasmClassEntryPointsByType:
+    """
+    Dataclass representing CasmClass entrypoints by entry point type.
+    """
+
+    constructor: List[CasmClassEntryPoint]
+    external: List[CasmClassEntryPoint]
+    l1_handler: List[CasmClassEntryPoint]
+
+
+@dataclass
+class CasmClass:
+    """
+    Dataclass representing class compiled to Cairo assembly.
+    """
+
+    program: dict
+    entry_points_by_type: CasmClassEntryPointsByType
 
 
 @dataclass

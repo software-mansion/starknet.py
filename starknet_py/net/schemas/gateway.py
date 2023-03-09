@@ -7,6 +7,9 @@ from starknet_py.net.client_models import (
     BlockSingleTransactionTrace,
     BlockStateUpdate,
     BlockTransactionTraces,
+    CasmClass,
+    CasmClassEntryPoint,
+    CasmClassEntryPointsByType,
     CompiledContract,
     ContractClass,
     ContractCode,
@@ -486,6 +489,56 @@ class CompiledContractSchema(ContractClassSchema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> CompiledContract:
         return CompiledContract(**data)
+
+
+class CasmClassEntryPointSchema(Schema):
+    selector = Felt(data_key="selector", required=True)
+    offset = Felt(data_key="offset", required=True)
+    builtins = fields.List(fields.String(), data_key="builtins")
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> CasmClassEntryPoint:
+        return CasmClassEntryPoint(**data)
+
+
+class CasmClassEntryPointsByTypeSchema(Schema):
+    constructor = fields.List(
+        fields.Nested(CasmClassEntryPointSchema()),
+        data_key="CONSTRUCTOR",
+        required=True,
+    )
+    external = fields.List(
+        fields.Nested(CasmClassEntryPointSchema()),
+        data_key="EXTERNAL",
+        required=True,
+    )
+    l1_handler = fields.List(
+        fields.Nested(CasmClassEntryPointSchema()),
+        data_key="L1_HANDLER",
+        required=True,
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> CasmClassEntryPointsByType:
+        return CasmClassEntryPointsByType(**data)
+
+
+class CasmClassSchema(Schema):
+    program = fields.Dict(
+        keys=fields.String(),
+        values=fields.Raw(),
+        data_key="program",
+        required=True,
+    )
+    entry_points_by_type = fields.Nested(
+        CasmClassEntryPointsByTypeSchema(),
+        data_key="entry_points_by_type",
+        required=True,
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> CasmClass:
+        return CasmClass(**data)
 
 
 class TransactionStatusSchema(Schema):
