@@ -11,11 +11,10 @@ def compute_sierra_class_hash(sierra_contract_class: NewContractClass) -> int:
     """
     Calculate class hash of a NewContractClass.
     """
-    sierra_version = int_from_bytes(
-        ("CONTRACT_CLASS_V" + sierra_contract_class.contract_class_version).encode(
-            "ascii"
-        )
+    _sierra_version_full_name = (
+        "CONTRACT_CLASS_V" + sierra_contract_class.contract_class_version
     )
+    sierra_version = int_from_bytes(_sierra_version_full_name.encode("ascii"))
 
     _entry_points = sierra_contract_class.entry_points_by_type
 
