@@ -99,7 +99,7 @@ Breaking changes
 8. Removed ``client`` argument from Contract :meth:`~starknet_py.contract.Contract.__init__` and :meth:`~starknet_py.contract.Contract.from_address`. Use ``provider`` argument instead.
 9. Removed ``net.l1`` L1<>L2 messaging module.
 10. Added `chain_id` argument to BaseAccount interface and implementation :meth:`~starknet_py.net.account.base_account.BaseAccount.get_balance` method.
-11. Changed Client :meth:`~starknet_py.net.client.Client.get_class_by_hash` return type to ``Union[ContractClass, NewContractClass]``.
+11. Changed Client :meth:`~starknet_py.net.client.Client.get_class_by_hash` return type to ``Union[ContractClass, SierraContractClass]``.
 12. Replaced ``contract_address`` with ``sender_address`` in ``InvokeTransaction``.
 
 

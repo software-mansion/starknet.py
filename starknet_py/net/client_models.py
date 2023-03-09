@@ -367,7 +367,7 @@ class ContractClass:
 
 
 @dataclass
-class NewEntryPoint:
+class SierraEntryPoint:
     """
     Dataclass representing contract entry point
     """
@@ -377,25 +377,25 @@ class NewEntryPoint:
 
 
 @dataclass
-class NewEntryPointsByType:
+class SierraEntryPointsByType:
     """
     Dataclass representing contract class entrypoints by entry point type
     """
 
-    constructor: List[NewEntryPoint]
-    external: List[NewEntryPoint]
-    l1_handler: List[NewEntryPoint]
+    constructor: List[SierraEntryPoint]
+    external: List[SierraEntryPoint]
+    l1_handler: List[SierraEntryPoint]
 
 
 @dataclass
-class NewContractClass:
+class SierraContractClass:
     """
     Dataclass representing Cairo1 contract declared to Starknet
     """
 
     contract_class_version: str
     sierra_program: List[str]
-    entry_points_by_type: NewEntryPointsByType
+    entry_points_by_type: SierraEntryPointsByType
     abi: Optional[str] = None
 
 

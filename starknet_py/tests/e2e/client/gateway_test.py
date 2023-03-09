@@ -12,9 +12,9 @@ from starknet_py.net.client_models import (
     DeclareTransaction,
     DeployTransaction,
     L1HandlerTransaction,
-    NewContractClass,
-    NewEntryPointsByType,
     ReplacedClass,
+    SierraContractClass,
+    SierraEntryPointsByType,
     TransactionStatus,
     TransactionStatusResponse,
 )
@@ -34,10 +34,10 @@ async def test_get_class_by_hash_sierra_program():
         class_hash=0x04E70B19333AE94BD958625F7B61CE9EEC631653597E68645E13780061B2136C
     )
 
-    assert isinstance(contract_class, NewContractClass)
+    assert isinstance(contract_class, SierraContractClass)
     assert contract_class.contract_class_version == "0.1.0"
     assert isinstance(contract_class.sierra_program, list)
-    assert isinstance(contract_class.entry_points_by_type, NewEntryPointsByType)
+    assert isinstance(contract_class.entry_points_by_type, SierraEntryPointsByType)
     assert isinstance(contract_class.abi, list)
     assert isinstance(contract_class.abi[0], dict)
 
