@@ -8,7 +8,7 @@ from starknet_py.contract import Contract
 async def test_call_raw(map_contract: Contract):
     prepared_function_call = map_contract.functions["get"].prepare(key=10)
     # docs-start: call_raw
-    raw_response = await prepared_function_call.call_raw(block_hash="latest")
+    raw_response = await prepared_function_call.call_raw(block_number="latest")
     # or
     raw_response = await prepared_function_call.call_raw()
     # docs-end: call_raw
@@ -18,7 +18,7 @@ async def test_call_raw(map_contract: Contract):
 async def test_call(map_contract: Contract):
     prepared_function_call = map_contract.functions["get"].prepare(key=10)
     # docs-start: call
-    response = await prepared_function_call.call(block_hash="latest")
+    response = await prepared_function_call.call(block_number="latest")
     # or
     response = await prepared_function_call.call()
     # docs-end: call

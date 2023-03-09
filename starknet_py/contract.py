@@ -258,26 +258,32 @@ class PreparedFunctionCall(Call):
     async def call_raw(
         self,
         block_hash: Optional[str] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> List[int]:
         """
         Calls a method without translating the result into python values.
 
         :param block_hash: Optional block hash.
+        :param block_number: Optional block number.
         :return: list of ints.
         """
-        return await self._client.call_contract(call=self, block_hash=block_hash)
+        return await self._client.call_contract(
+            call=self, block_hash=block_hash, block_number=block_number
+        )
 
     async def call(
         self,
         block_hash: Optional[str] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> TupleDataclass:
         """
         Calls a method.
 
         :param block_hash: Optional block hash.
+        :param block_number: Optional block number.
         :return: TupleDataclass representing call result.
         """
-        result = await self.call_raw(block_hash=block_hash)
+        result = await self.call_raw(block_hash=block_hash, block_number=block_number)
         return self._payload_transformer.deserialize(result)
 
     async def invoke(
@@ -389,6 +395,7 @@ class ContractFunction:
         self,
         *args,
         block_hash: Optional[str] = None,
+        block_number: Optional[Union[int, Tag]] = None,
         **kwargs,
     ) -> TupleDataclass:
         """
@@ -397,9 +404,10 @@ class ContractFunction:
         Equivalent of ``.prepare(*args, **kwargs).call()``.
 
         :param block_hash: Block hash to perform the call to the contract at specific point of time.
+        :param block_number: Block number to perform the call to the contract at specific point of time.
         """
         return await self.prepare(max_fee=0, *args, **kwargs).call(
-            block_hash=block_hash
+            block_hash=block_hash, block_number=block_number
         )
 
     async def invoke(
