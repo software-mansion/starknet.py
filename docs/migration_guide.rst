@@ -100,7 +100,11 @@ Breaking changes
 9. Removed ``net.l1`` L1<>L2 messaging module.
 10. Added `chain_id` argument to BaseAccount interface and implementation :meth:`~starknet_py.net.account.base_account.BaseAccount.get_balance` method.
 11. Changed Client :meth:`~starknet_py.net.client.Client.get_class_by_hash` return type to ``Union[ContractClass, NewContractClass]``.
-12. Replaced ``contract_address`` with ``sender_address`` in ``InvokeTransaction``.
+12. Replaced ``contract_address`` with ``sender_address`` in:
+
+    - :class:`starknet_py.net.client_models.InvokeTransaction`
+    - :class:`starknet_py.net.models.transaction.Invoke`
+    - :func:`starknet_py.net.models.transaction.compute_invoke_hash`
 
 
 Transaction dataclasses
