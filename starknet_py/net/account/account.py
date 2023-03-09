@@ -1,7 +1,8 @@
 import dataclasses
+import json
 import re
 from collections import OrderedDict
-from typing import Dict, Iterable, List, Optional, Tuple, Union
+from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
 from starknet_py.common import create_compiled_contract, create_new_compiled_contract
 from starknet_py.constants import FEE_CONTRACT_ADDRESS, QUERY_VERSION_BASE
@@ -273,6 +274,11 @@ class Account(BaseAccount):
                 version=2,
             )
         else:
+            if _is_sierra_contract(json.loads(compiled_contract)):
+                raise ValueError(
+                    "Argument compiled_class_hash is required when using sierra compiled_contract."
+                )
+
             contract_class = create_compiled_contract(
                 compiled_contract=compiled_contract
             )
@@ -436,6 +442,10 @@ class Account(BaseAccount):
             )
 
         return FEE_CONTRACT_ADDRESS
+
+
+def _is_sierra_contract(data: Dict[str, Any]) -> bool:
+    return "sierra_program" in data
 
 
 def _add_signature_to_transaction(
