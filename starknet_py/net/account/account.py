@@ -151,7 +151,7 @@ class Account(BaseAccount):
             max_fee=0,
             version=self.supported_transaction_version,
             nonce=nonce,
-            contract_address=self.address,
+            sender_address=self.address,
         )
 
         max_fee = await self._get_max_fee(transaction, max_fee, auto_estimate)
