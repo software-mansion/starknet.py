@@ -26,7 +26,9 @@ def test_compute_sierra_class_hash(sierra_contract_class_source):
     sierra_contract_class_dict["abi"] = json.dumps(sierra_contract_class_dict["abi"])
     del sierra_contract_class_dict["sierra_program_debug_info"]
 
-    sierra_contract_class = cast(NewContractClass, NewContractClassSchema().load(sierra_contract_class_dict))
+    sierra_contract_class = cast(
+        NewContractClass, NewContractClassSchema().load(sierra_contract_class_dict)
+    )
     class_hash = compute_sierra_class_hash(sierra_contract_class)
 
     sw_contract_class = ContractClass.load(sierra_contract_class_dict)
