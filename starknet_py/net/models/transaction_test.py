@@ -26,7 +26,7 @@ def test_invoke_hash():
         assert (
             compute_invoke_hash(
                 entry_point_selector=selector,
-                contract_address=0x03606DB92E563E41F4A590BC01C243E8178E9BA8C980F8E464579F862DA3537C,
+                sender_address=0x03606DB92E563E41F4A590BC01C243E8178E9BA8C980F8E464579F862DA3537C,
                 calldata=[1234],
                 chain_id=StarknetChainId.TESTNET,
                 version=0,
@@ -69,7 +69,7 @@ compiled_contract = read_contract("erc20_compiled.json")
     [
         (
             Invoke(
-                contract_address=0x1,
+                sender_address=0x1,
                 calldata=[1, 2, 3],
                 max_fee=10000,
                 signature=[],
