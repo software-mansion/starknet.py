@@ -3,7 +3,7 @@ from typing import Dict, List, Sequence
 
 # Using cairo-lang methods is a temporary solution until we integrate poseidon hash into the library
 from starkware.starknet.core.os.contract_class.class_hash import (
-    compute_class_hash as compute_new_class_hash,
+    compute_class_hash as sw_compute_sierra_class_hash,
 )
 from starkware.starknet.services.api.contract_class.contract_class import (
     ContractClass as CairoLangContractClass,
@@ -176,7 +176,7 @@ def compute_declare_v2_transaction_hash(
     :param nonce: Nonce of the transaction.
     :return: Hash of the transaction.
     """
-    class_hash = compute_new_class_hash(
+    class_hash = sw_compute_sierra_class_hash(
         contract_class=_convert_contract_class_to_cairo_lang_format(contract_class)
     )
 

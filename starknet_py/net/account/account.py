@@ -4,7 +4,7 @@ import re
 from collections import OrderedDict
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
-from starknet_py.common import create_compiled_contract, create_new_compiled_contract
+from starknet_py.common import create_compiled_contract, create_sierra_compiled_contract
 from starknet_py.constants import FEE_CONTRACT_ADDRESS, QUERY_VERSION_BASE
 from starknet_py.hash.address import compute_address
 from starknet_py.hash.selector import get_selector_from_name
@@ -294,7 +294,7 @@ class Account(BaseAccount):
     async def _make_declare_v2_transaction(
         self, compiled_contract: str, compiled_class_hash: int
     ) -> DeclareV2:
-        contract_class = create_new_compiled_contract(
+        contract_class = create_sierra_compiled_contract(
             compiled_contract=compiled_contract
         )
         declare_tx = DeclareV2(

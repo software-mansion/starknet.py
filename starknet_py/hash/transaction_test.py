@@ -11,7 +11,7 @@ from starkware.starknet.services.api.contract_class.contract_class import (
     DeprecatedCompiledClass,
 )
 
-from starknet_py.common import create_compiled_contract, create_new_compiled_contract
+from starknet_py.common import create_compiled_contract, create_sierra_compiled_contract
 from starknet_py.hash.transaction import (
     TransactionHashPrefix,
     _convert_contract_class_to_cairo_lang_format,
@@ -82,7 +82,7 @@ def test_compute_declare_v2_transaction_hash(
     sierra_minimal_compiled_contract_and_class_hash: Tuple[str, int],
 ):
     contract, compiled_class_hash = sierra_minimal_compiled_contract_and_class_hash
-    compiled_contract = create_new_compiled_contract(contract)
+    compiled_contract = create_sierra_compiled_contract(contract)
 
     declare_hash = compute_declare_v2_transaction_hash(
         contract_class=compiled_contract,

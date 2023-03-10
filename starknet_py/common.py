@@ -55,7 +55,7 @@ def create_compiled_contract(
     return cast(CompiledContract, CompiledContractSchema().loads(compiled_contract))
 
 
-def create_new_compiled_contract(compiled_contract: str) -> SierraCompiledContract:
+def create_sierra_compiled_contract(compiled_contract: str) -> SierraCompiledContract:
     """
     Creates SierraCompiledContract instance.
 

@@ -83,8 +83,8 @@ TypeAccountTransaction = TypeVar("TypeAccountTransaction", bound=AccountTransact
 @dataclass(frozen=True)
 class DeclareV2(AccountTransaction):
     """
-    Represents a transaction in the Starknet network that is a declaration of a Starknet contract
-    class.
+    Represents a transaction in the Starknet network that is a version 2 declaration of a Starknet contract
+    class. Supports only sierra compiled contracts.
     """
 
     contract_class: SierraContractClass = field(
