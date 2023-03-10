@@ -22,7 +22,7 @@ def get_compiler_manifest() -> List[str]:
         manifest = manifest_file_path.read_text("utf-8").splitlines()[0]
 
         return ["--cairo-compiler-manifest", manifest]
-    except IndexError:
+    except (IndexError, FileNotFoundError):
         return []
 
 
