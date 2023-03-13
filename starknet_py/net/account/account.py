@@ -1,9 +1,10 @@
 import dataclasses
+import json
 import re
 from collections import OrderedDict
-from typing import Dict, Iterable, List, Optional, Tuple, Union
+from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
-from starknet_py.common import create_compiled_contract
+from starknet_py.common import create_compiled_contract, create_sierra_compiled_contract
 from starknet_py.constants import FEE_CONTRACT_ADDRESS, QUERY_VERSION_BASE
 from starknet_py.hash.address import compute_address
 from starknet_py.hash.selector import get_selector_from_name
@@ -23,6 +24,7 @@ from starknet_py.net.models import AddressRepresentation, StarknetChainId, parse
 from starknet_py.net.models.transaction import (
     AccountTransaction,
     Declare,
+    DeclareV2,
     DeployAccount,
     Invoke,
     TypeAccountTransaction,
@@ -254,9 +256,30 @@ class Account(BaseAccount):
         self,
         compiled_contract: str,
         *,
+        compiled_class_hash: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-    ) -> Declare:
+    ) -> Union[Declare, DeclareV2]:
+        if compiled_class_hash is not None:
+            declare_tx = await self._make_declare_v2_transaction(
+                compiled_contract, compiled_class_hash
+            )
+        else:
+            if _is_sierra_contract(json.loads(compiled_contract)):
+                raise ValueError(
+                    "Argument compiled_class_hash is required when using sierra compiled_contract."
+                )
+
+            declare_tx = await self._make_declare_transaction(compiled_contract)
+
+        max_fee = await self._get_max_fee(
+            transaction=declare_tx, max_fee=max_fee, auto_estimate=auto_estimate
+        )
+        declare_tx = _add_max_fee_to_transaction(declare_tx, max_fee)
+        signature = self.signer.sign_transaction(declare_tx)
+        return _add_signature_to_transaction(declare_tx, signature)
+
+    async def _make_declare_transaction(self, compiled_contract: str) -> Declare:
         contract_class = create_compiled_contract(compiled_contract=compiled_contract)
         declare_tx = Declare(
             contract_class=contract_class,
@@ -266,13 +289,24 @@ class Account(BaseAccount):
             nonce=await self.get_nonce(),
             version=self.supported_transaction_version,
         )
+        return declare_tx
 
-        max_fee = await self._get_max_fee(
-            transaction=declare_tx, max_fee=max_fee, auto_estimate=auto_estimate
+    async def _make_declare_v2_transaction(
+        self, compiled_contract: str, compiled_class_hash: int
+    ) -> DeclareV2:
+        contract_class = create_sierra_compiled_contract(
+            compiled_contract=compiled_contract
         )
-        declare_tx = _add_max_fee_to_transaction(declare_tx, max_fee)
-        signature = self.signer.sign_transaction(declare_tx)
-        return _add_signature_to_transaction(declare_tx, signature)
+        declare_tx = DeclareV2(
+            contract_class=contract_class,
+            compiled_class_hash=compiled_class_hash,
+            sender_address=self.address,
+            max_fee=0,
+            signature=[],
+            nonce=await self.get_nonce(),
+            version=2,
+        )
+        return declare_tx
 
     async def sign_deploy_account_transaction(
         self,
@@ -418,6 +452,10 @@ class Account(BaseAccount):
             )
 
         return FEE_CONTRACT_ADDRESS
+
+
+def _is_sierra_contract(data: Dict[str, Any]) -> bool:
+    return "sierra_program" in data
 
 
 def _add_signature_to_transaction(

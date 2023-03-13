@@ -4,12 +4,17 @@ from typing import cast
 
 import pytest
 
-from starknet_py.common import create_compiled_contract, create_contract_class
+from starknet_py.common import (
+    create_compiled_contract,
+    create_contract_class,
+    create_sierra_compiled_contract,
+)
 from starknet_py.net.client_models import TransactionType
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import (
     Declare,
     DeclareSchema,
+    DeclareV2,
     DeployAccount,
     Invoke,
     InvokeSchema,
@@ -62,6 +67,7 @@ def test_declare_compress_program(balance_contract):
 
 
 compiled_contract = read_contract("erc20_compiled.json")
+sierra_compiled_contract = read_contract("precompiled/minimal_contract_compiled.json")
 
 
 @pytest.mark.parametrize(
@@ -102,6 +108,20 @@ compiled_contract = read_contract("erc20_compiled.json")
                 version=1,
             ),
             1691558101504686217378182149804732367606605343820187119932616442583251634573,
+        ),
+        (
+            DeclareV2(
+                contract_class=create_sierra_compiled_contract(
+                    compiled_contract=sierra_compiled_contract
+                ),
+                compiled_class_hash=0x1,
+                max_fee=1000,
+                nonce=20,
+                sender_address=0x1234,
+                signature=[0x1, 0x2],
+                version=2,
+            ),
+            2395135969684207470555850957098856411155251162707242012878526700784806426781,
         ),
     ],
 )

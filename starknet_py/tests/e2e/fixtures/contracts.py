@@ -1,5 +1,5 @@
 # pylint: disable=redefined-outer-name
-from typing import List
+from typing import List, Tuple
 
 import pytest
 import pytest_asyncio
@@ -27,6 +27,17 @@ def map_compiled_contract() -> str:
     Returns compiled map contract.
     """
     return read_contract("map_compiled.json")
+
+
+@pytest.fixture(scope="package")
+def sierra_minimal_compiled_contract_and_class_hash() -> Tuple[str, int]:
+    """
+    Returns minimal contract compiled to sierra and its class hash.
+    """
+    return (
+        read_contract("precompiled/minimal_contract_compiled.json"),
+        0x3FD6D06A297540CA6F317B2260C3ABD6B616C961D820DEA2800EBC34E6336A4,
+    )
 
 
 @pytest.fixture(scope="package")

@@ -1,3 +1,4 @@
+import json
 from typing import Any, Dict, List
 
 from marshmallow import EXCLUDE, Schema, fields, post_load
@@ -29,6 +30,7 @@ from starknet_py.net.client_models import (
     L2toL1Message,
     ReplacedClass,
     SentTransactionResponse,
+    SierraCompiledContract,
     SierraContractClass,
     SierraEntryPoint,
     SierraEntryPointsByType,
@@ -465,6 +467,17 @@ class SierraContractClassSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> SierraContractClass:
         return SierraContractClass(**data)
+
+
+class SierraCompiledContractSchema(SierraContractClassSchema):
+    abi = fields.List(fields.Dict(), data_key="abi", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> SierraCompiledContract:
+        # Schema must accept ABI as List[dict] to be compatible with the output of Cairo1 compiler.
+        data["abi"] = json.dumps(data["abi"])
+
+        return SierraCompiledContract(**data)
 
 
 class TypesOfContractClassSchema(OneOfSchema):
