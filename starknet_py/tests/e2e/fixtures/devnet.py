@@ -18,7 +18,7 @@ def get_available_port() -> int:
 
 def get_compiler_manifest() -> List[str]:
     """
-    Load manifest-path file and return it as --cairo-compiler-manifest flag to starknet-devnet
+    Load manifest-path file and return it as --cairo-compiler-manifest flag to starknet-devnet.
 
     To configure manifest locally, install Cairo 1 compiler https://github.com/starkware-libs/cairo
     and create manifest-path containing a path to top-level Cargo.toml file in cairo 1 compiler directory
