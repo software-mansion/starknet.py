@@ -98,23 +98,33 @@ class BaseAccount(ABC):
 
     @abstractmethod
     async def sign_declare_transaction(
-        self,
-        compiled_contract: str,
-        *,
-        compiled_class_hash: Optional[int] = None,
-        max_fee: Optional[int] = None,
-        auto_estimate: bool = False,
+            self,
+            compiled_contract: str,
+            *,
+            max_fee: Optional[int] = None,
+            auto_estimate: bool = False,
     ) -> Union[Declare, DeclareV2]:
         """
         Create and sign declare transaction.
 
         :param compiled_contract: string containing a compiled Starknet contract. Supports both new (compiled to sierra)
             and old cairo contracts.
-        :param compiled_class_hash: a class hash of the sierra compiled contract used in the declare transaction.
-            Must be passed only when using new cairo contracts. Computed from casm compiled contract.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :return: Signed Declare transaction.
+        """
+
+    @abstractmethod
+    async def sign_declare_v2_transaction(
+            self,
+            compiled_contract: str,
+            *,
+            compiled_class_hash,
+            max_fee: Optional[int] = None,
+            auto_estimate: bool = False,
+    ) -> Union[Declare, DeclareV2]:
+        """
+
         """
 
     @abstractmethod

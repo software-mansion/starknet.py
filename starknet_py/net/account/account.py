@@ -253,25 +253,37 @@ class Account(BaseAccount):
         return _add_signature_to_transaction(execute_tx, signature)
 
     async def sign_declare_transaction(
-        self,
-        compiled_contract: str,
-        *,
-        compiled_class_hash: Optional[int] = None,
-        max_fee: Optional[int] = None,
-        auto_estimate: bool = False,
+            self,
+            compiled_contract: str,
+            *,
+            max_fee: Optional[int] = None,
+            auto_estimate: bool = False,
     ) -> Union[Declare, DeclareV2]:
-        if compiled_class_hash is not None:
-            declare_tx = await self._make_declare_v2_transaction(
-                compiled_contract, compiled_class_hash
+        if _is_sierra_contract(json.loads(compiled_contract)):
+            raise ValueError(
+                "Argument compiled_class_hash is required when using sierra compiled_contract."
             )
-        else:
-            if _is_sierra_contract(json.loads(compiled_contract)):
-                raise ValueError(
-                    "Argument compiled_class_hash is required when using sierra compiled_contract."
-                )
 
-            declare_tx = await self._make_declare_transaction(compiled_contract)
+        declare_tx = await self._make_declare_transaction(compiled_contract)
 
+        max_fee = await self._get_max_fee(
+            transaction=declare_tx, max_fee=max_fee, auto_estimate=auto_estimate
+        )
+        declare_tx = _add_max_fee_to_transaction(declare_tx, max_fee)
+        signature = self.signer.sign_transaction(declare_tx)
+        return _add_signature_to_transaction(declare_tx, signature)
+
+    async def sign_declare_v2_transaction(
+            self,
+            compiled_contract: str,
+            *,
+            compiled_class_hash,
+            max_fee: Optional[int] = None,
+            auto_estimate: bool = False,
+    ) -> Union[Declare, DeclareV2]:
+        declare_tx = await self._make_declare_v2_transaction(
+            compiled_contract, compiled_class_hash
+        )
         max_fee = await self._get_max_fee(
             transaction=declare_tx, max_fee=max_fee, auto_estimate=auto_estimate
         )
