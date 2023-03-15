@@ -41,7 +41,7 @@ sphinx-rtd-theme = "^1.0.0"
 pylint = "2.16.4"
 setuptools = "^67.5.1"
 pytest-mock = "^3.6.1"
-pytest-xdist = "^2.5.0"
+pytest-xdist = "^3.2.1"
 web3 = { extras = ["tester"], version = "6.0.0b4" }
 pyright = "^1.1.298"
 pytest-cov = "^4.0.0"
