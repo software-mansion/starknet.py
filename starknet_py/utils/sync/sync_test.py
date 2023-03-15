@@ -17,6 +17,7 @@ class Function:
 
     @staticmethod
     async def failure():
+        # pylint: disable=broad-exception-raised
         raise Exception("Error")
 
     def get_name(self):
