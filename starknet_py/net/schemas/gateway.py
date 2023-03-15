@@ -218,7 +218,19 @@ class BlockSingleTransactionTraceSchema(Schema):
         keys=fields.String(),
         values=fields.Raw(),
         data_key="function_invocation",
-        required=True,
+        load_default=None,
+    )
+    validate_invocation = fields.Dict(
+        keys=fields.String(),
+        values=fields.Raw(),
+        data_key="validate_invocation",
+        load_default=None,
+    )
+    fee_transfer_invocation = fields.Dict(
+        keys=fields.String(),
+        values=fields.Raw(),
+        data_key="fee_transfer_invocation",
+        load_default=None,
     )
     signature = fields.List(Felt(), data_key="signature", load_default=[])
     transaction_hash = Felt(data_key="transaction_hash", required=True)

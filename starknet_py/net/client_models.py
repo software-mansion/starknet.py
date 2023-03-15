@@ -256,9 +256,11 @@ class GatewayBlock(StarknetBlock):
 
 @dataclass
 class BlockSingleTransactionTrace:
-    function_invocation: dict
     signature: List[int]
     transaction_hash: int
+    function_invocation: Optional[dict] = None
+    validate_invocation: Optional[dict] = None
+    fee_transfer_invocation: Optional[dict] = None
 
 
 @dataclass
