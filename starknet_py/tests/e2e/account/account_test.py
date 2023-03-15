@@ -222,7 +222,7 @@ async def test_sign_declare_v2_transaction(
         compiled_class_hash,
     ) = sierra_minimal_compiled_contract_and_class_hash
 
-    signed_tx = await gateway_account.sign_declare_transaction(
+    signed_tx = await gateway_account.sign_declare_v2_transaction(
         compiled_contract=compiled_contract,
         compiled_class_hash=compiled_class_hash,
         max_fee=MAX_FEE,
@@ -244,7 +244,7 @@ async def test_sign_declare_v2_transaction_auto_estimate(
         compiled_class_hash,
     ) = sierra_minimal_compiled_contract_and_class_hash
 
-    signed_tx = await gateway_account.sign_declare_transaction(
+    signed_tx = await gateway_account.sign_declare_v2_transaction(
         compiled_contract=compiled_contract,
         compiled_class_hash=compiled_class_hash,
         auto_estimate=True,
@@ -264,19 +264,9 @@ async def test_declare_contract_raises_on_sierra_contract_without_compiled_class
     compiled_contract, _ = sierra_minimal_compiled_contract_and_class_hash
     with pytest.raises(
         ValueError,
-        match="Argument compiled_class_hash is required when using sierra compiled_contract.",
+        match="Signing sierra contracts requires using `sign_declare_v2_transaction` function."
     ):
         await account.sign_declare_transaction(compiled_contract=compiled_contract)
-
-
-@pytest.mark.asyncio
-async def test_declare_contract_raises_on_old_contract_with_compiled_class_hash(
-    map_compiled_contract, account
-):
-    with pytest.raises(ValidationError):
-        await account.sign_declare_transaction(
-            compiled_contract=map_compiled_contract, compiled_class_hash=0x1234
-        )
 
 
 @pytest.mark.asyncio

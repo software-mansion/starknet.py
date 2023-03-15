@@ -103,7 +103,7 @@ class BaseAccount(ABC):
             *,
             max_fee: Optional[int] = None,
             auto_estimate: bool = False,
-    ) -> Union[Declare, DeclareV2]:
+    ) -> Declare:
         """
         Create and sign declare transaction.
 
@@ -122,7 +122,7 @@ class BaseAccount(ABC):
             compiled_class_hash,
             max_fee: Optional[int] = None,
             auto_estimate: bool = False,
-    ) -> Union[Declare, DeclareV2]:
+    ) -> DeclareV2:
         """
 
         """

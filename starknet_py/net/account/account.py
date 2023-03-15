@@ -258,10 +258,10 @@ class Account(BaseAccount):
             *,
             max_fee: Optional[int] = None,
             auto_estimate: bool = False,
-    ) -> Union[Declare, DeclareV2]:
+    ) -> Declare:
         if _is_sierra_contract(json.loads(compiled_contract)):
             raise ValueError(
-                "Argument compiled_class_hash is required when using sierra compiled_contract."
+                "Signing sierra contracts requires using `sign_declare_v2_transaction` function."
             )
 
         declare_tx = await self._make_declare_transaction(compiled_contract)
@@ -280,7 +280,7 @@ class Account(BaseAccount):
             compiled_class_hash,
             max_fee: Optional[int] = None,
             auto_estimate: bool = False,
-    ) -> Union[Declare, DeclareV2]:
+    ) -> DeclareV2:
         declare_tx = await self._make_declare_v2_transaction(
             compiled_contract, compiled_class_hash
         )
