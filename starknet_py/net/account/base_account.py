@@ -91,11 +91,11 @@ class BaseAccount(ABC):
 
     @abstractmethod
     async def sign_declare_transaction(
-            self,
-            compiled_contract: str,
-            *,
-            max_fee: Optional[int] = None,
-            auto_estimate: bool = False,
+        self,
+        compiled_contract: str,
+        *,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
     ) -> Declare:
         """
         Create and sign declare transaction.
@@ -109,12 +109,12 @@ class BaseAccount(ABC):
 
     @abstractmethod
     async def sign_declare_v2_transaction(
-            self,
-            compiled_contract: str,
-            *,
-            compiled_class_hash,
-            max_fee: Optional[int] = None,
-            auto_estimate: bool = False,
+        self,
+        compiled_contract: str,
+        *,
+        compiled_class_hash,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
     ) -> DeclareV2:
         """
         Create and sign declare transaction using sierra contract

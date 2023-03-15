@@ -249,11 +249,11 @@ class Account(BaseAccount):
         return _add_signature_to_transaction(execute_tx, signature)
 
     async def sign_declare_transaction(
-            self,
-            compiled_contract: str,
-            *,
-            max_fee: Optional[int] = None,
-            auto_estimate: bool = False,
+        self,
+        compiled_contract: str,
+        *,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
     ) -> Declare:
         if _is_sierra_contract(json.loads(compiled_contract)):
             raise ValueError(
@@ -270,12 +270,12 @@ class Account(BaseAccount):
         return _add_signature_to_transaction(declare_tx, signature)
 
     async def sign_declare_v2_transaction(
-            self,
-            compiled_contract: str,
-            *,
-            compiled_class_hash,
-            max_fee: Optional[int] = None,
-            auto_estimate: bool = False,
+        self,
+        compiled_contract: str,
+        *,
+        compiled_class_hash,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
     ) -> DeclareV2:
         declare_tx = await self._make_declare_v2_transaction(
             compiled_contract, compiled_class_hash
