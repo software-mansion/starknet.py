@@ -429,6 +429,7 @@ Web3 = "*"
 [package.source]
 type = "url"
 url = "https://github.com/starkware-libs/cairo-lang/releases/download/v0.11.0-pre/cairo-lang-0.11.0a0.zip"
+
 [[package]]
 name = "certifi"
 version = "2022.12.7"
@@ -3396,9 +3397,8 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 
 [extras]
 docs = ["sphinx", "enum-tools"]
-eth-tester = []
 
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9, <3.10"
-content-hash = "65ecc016dabb9a3f0ec9c6abddc41c62b18c1fdf06bd23a9ba741211b0b1905c"
+content-hash = "4dbf1fa4dae3caa70c4b72a3bd0818d5887ea8e87299b59c1c4f594aaa8b9512"
