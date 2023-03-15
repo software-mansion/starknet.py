@@ -2,7 +2,6 @@ from typing import cast
 from unittest.mock import AsyncMock, patch
 
 import pytest
-from marshmallow import ValidationError
 
 from starknet_py.contract import Contract
 from starknet_py.hash.address import compute_address

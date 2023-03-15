@@ -235,7 +235,6 @@ class PreparedFunctionCall(Call):
         payload_transformer: FunctionSerializationAdapter,
         contract_data: ContractData,
         max_fee: Optional[int],
-        version: int,
     ):
         # pylint: disable=too-many-arguments
         super().__init__(
@@ -246,7 +245,6 @@ class PreparedFunctionCall(Call):
         self._payload_transformer = payload_transformer
         self._contract_data = contract_data
         self.max_fee = max_fee
-        self.version = version
 
     @property
     def _account(self) -> BaseAccount:
@@ -373,11 +371,6 @@ class ContractFunction:
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :return: PreparedFunctionCall.
         """
-        version = (
-            self.account.supported_transaction_version
-            if self.account is not None
-            else 0
-        )
 
         calldata = self._payload_transformer.serialize(*args, **kwargs)
         return PreparedFunctionCall(
@@ -388,7 +381,6 @@ class ContractFunction:
             payload_transformer=self._payload_transformer,
             selector=self.get_selector(self.name),
             max_fee=max_fee,
-            version=version,
         )
 
     async def call(

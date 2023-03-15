@@ -100,10 +100,6 @@ class Account(BaseAccount):
     def client(self) -> Client:
         return self._client
 
-    @property
-    def supported_transaction_version(self) -> int:
-        return 1
-
     async def _get_max_fee(
         self,
         transaction: AccountTransaction,
@@ -151,7 +147,7 @@ class Account(BaseAccount):
             calldata=wrapped_calldata,
             signature=[],
             max_fee=0,
-            version=self.supported_transaction_version,
+            version=1,
             nonce=nonce,
             sender_address=self.address,
         )
@@ -299,7 +295,7 @@ class Account(BaseAccount):
             max_fee=0,
             signature=[],
             nonce=await self.get_nonce(),
-            version=self.supported_transaction_version,
+            version=1,
         )
         return declare_tx
 
@@ -335,7 +331,7 @@ class Account(BaseAccount):
             class_hash=class_hash,
             contract_address_salt=contract_address_salt,
             constructor_calldata=constructor_calldata,
-            version=self.supported_transaction_version,
+            version=1,
             max_fee=0,
             signature=[],
             nonce=0,

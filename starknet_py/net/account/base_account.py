@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional, Union
+from typing import List, Optional
 
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import Calls, SentTransactionResponse
@@ -33,13 +33,6 @@ class BaseAccount(ABC):
     def client(self) -> Client:
         """
         Get the Client used by the Account.
-        """
-
-    @property
-    @abstractmethod
-    def supported_transaction_version(self) -> int:
-        """
-        Get transaction version supported by the account.
         """
 
     @abstractmethod
@@ -124,7 +117,15 @@ class BaseAccount(ABC):
             auto_estimate: bool = False,
     ) -> DeclareV2:
         """
+        Create and sign declare transaction using sierra contract
 
+        :param compiled_contract: string containing a compiled Starknet contract. Supports both new (compiled to sierra)
+            and old cairo contracts.
+        :param compiled_class_hash: a class hash of the sierra compiled contract used in the declare transaction.
+            Computed from casm compiled contract.
+        :param max_fee: Max amount of Wei to be paid when executing transaction.
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :return: Signed Declare transaction.
         """
 
     @abstractmethod
