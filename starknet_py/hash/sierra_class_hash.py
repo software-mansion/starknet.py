@@ -2,7 +2,7 @@ from typing import List
 
 from starkware.cairo.common.poseidon_hash import poseidon_hash_many
 
-from starknet_py.common import int_from_bytes
+from starknet_py.cairo.felt import encode_shortstring
 from starknet_py.hash.utils import _starknet_keccak
 from starknet_py.net.client_models import NewContractClass, NewEntryPoint
 
@@ -14,7 +14,7 @@ def compute_sierra_class_hash(sierra_contract_class: NewContractClass) -> int:
     _sierra_version_full_name = (
         "CONTRACT_CLASS_V" + sierra_contract_class.contract_class_version
     )
-    sierra_version = int_from_bytes(_sierra_version_full_name.encode("ascii"))
+    sierra_version = encode_shortstring(_sierra_version_full_name)
 
     _entry_points = sierra_contract_class.entry_points_by_type
 
