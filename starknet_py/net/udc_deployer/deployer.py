@@ -127,7 +127,7 @@ class Deployer:
         :param raw_calldata: Plain Cairo constructor args of the contract to be deployed
         :return: NamedTuple with call and address of the contract to be deployed
         """
-        return self.create_deployment_call_raw(
+        return self.create_contract_deployment_raw(
             class_hash, salt=salt, raw_calldata=raw_calldata
         )
 
