@@ -99,6 +99,18 @@ sierra_compiled_contract = read_contract("precompiled/minimal_contract_compiled.
             3484767022419258107070028252604380065385354331198975073942248877262069264133,
         ),
         (
+            DeployAccount(
+                class_hash=0x1,
+                contract_address_salt=0x2,
+                constructor_calldata=[1, 2, 3, 4],
+                max_fee=10000,
+                signature=[],
+                nonce=23,
+                version=1,
+            ),
+            1258460340144554539989794559757396219553018532617589681714052999991876798273,
+        ),
+        (
             Declare(
                 contract_class=create_compiled_contract(
                     compiled_contract=compiled_contract
@@ -110,18 +122,6 @@ sierra_compiled_contract = read_contract("precompiled/minimal_contract_compiled.
                 version=1,
             ),
             1691558101504686217378182149804732367606605343820187119932616442583251634573,
-        ),
-        (
-            DeployAccount(
-                class_hash=0x1,
-                contract_address_salt=0x2,
-                constructor_calldata=[1, 2, 3, 4],
-                max_fee=10000,
-                signature=[],
-                nonce=23,
-                version=1,
-            ),
-            1258460340144554539989794559757396219553018532617589681714052999991876798273,
         ),
     ],
 )
