@@ -28,9 +28,9 @@ def compute_casm_class_hash(casm_contract_class: CasmClass) -> int:
         _entry_points_array(_entry_points.constructor)
     )
 
-    _input_to_hash = dict(program=casm_contract_class.program)
+    _program_dict = dict(program=casm_contract_class.program)
     hinted_casm_class_hash = _starknet_keccak(
-        data=json.dumps(_input_to_hash, sort_keys=True).encode()
+        data=json.dumps(_program_dict, sort_keys=True).encode()
     )
 
     _bytecode = [int(val, 0) for val in casm_contract_class.program["data"]]
