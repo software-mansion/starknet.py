@@ -4,12 +4,8 @@ from typing import cast
 
 import pytest
 
-from starknet_py.common import (
-    create_compiled_contract,
-    create_contract_class,
-    create_sierra_compiled_contract,
-)
-from starknet_py.net.client_models import TransactionType
+from starknet_py.common import create_contract_class, create_sierra_compiled_contract
+from starknet_py.net.client_models import CompiledContract, TransactionType
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import (
     Declare,
@@ -20,6 +16,7 @@ from starknet_py.net.models.transaction import (
     InvokeSchema,
     compute_invoke_hash,
 )
+from starknet_py.net.schemas.gateway import CompiledContractSchema
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
@@ -112,8 +109,8 @@ sierra_compiled_contract = read_contract("precompiled/minimal_contract_compiled.
         ),
         (
             Declare(
-                contract_class=create_compiled_contract(
-                    compiled_contract=compiled_contract
+                contract_class=cast(
+                    CompiledContract, CompiledContractSchema().loads(compiled_contract)
                 ),
                 sender_address=123,
                 max_fee=10000,
