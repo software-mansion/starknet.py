@@ -121,7 +121,7 @@ sierra_compiled_contract = read_contract("precompiled/minimal_contract_compiled.
                 signature=[0x1, 0x2],
                 version=2,
             ),
-            2395135969684207470555850957098856411155251162707242012878526700784806426781,
+            840206438747703857052162720334747255105123242159511630547841359480407220025,
         ),
     ],
 )
@@ -133,7 +133,7 @@ def test_calculate_transaction_hash(transaction, calculated_hash):
 
 def test_serialize_deserialize_invoke():
     data = {
-        "contract_address": "0x1",
+        "sender_address": "0x1",
         "calldata": ["0x1", "0x2", "0x3"],
         "max_fee": "0x1",
         "signature": [],

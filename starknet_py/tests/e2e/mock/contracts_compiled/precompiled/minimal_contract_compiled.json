@@ -14,7 +14,7 @@
     "0x1",
     "0x1",
     "0x2",
-    "0x66656c74",
+    "0x66656c74323532",
     "0x0",
     "0x4172726179",
     "0x1",
@@ -27,7 +27,7 @@
     "0x537472756374",
     "0x2",
     "0x0",
-    "0x30cbfb410ceb3229e20be7aaacfdab2916e00d0ff54744dad788ed13b275d5b",
+    "0x1baeba72e79e9db2587cf44fedb2f3700b2075a5e8e39a562584862c4b71f62",
     "0x1",
     "0x6",
     "0x753332",
@@ -55,7 +55,7 @@
     "0x456e756d",
     "0x3",
     "0x0",
-    "0x24c74514c8f9cc211448c76abe36dcf925a53eb00188b0a6a311ddd20055b35",
+    "0x13c91f3cba438dd54eb596a082e165d9ede6281c321682acd3c28e15602ffb",
     "0x1",
     "0xc",
     "0x1",
@@ -179,7 +179,7 @@
     "0x1",
     "0x1",
     "0xd",
-    "0x66656c745f636f6e7374",
+    "0x66656c743235325f636f6e7374",
     "0x1",
     "0x2",
     "0x4f7574206f6620676173",
@@ -201,7 +201,7 @@
     "0x1",
     "0x3",
     "0x2",
-    "0x66656c745f636f6e7374",
+    "0x66656c743235325f636f6e7374",
     "0x1",
     "0x2",
     "0x496e70757420746f6f206c6f6e6720666f7220617267756d656e7473",
@@ -925,9 +925,252 @@
     "0x55"
   ],
   "sierra_program_debug_info": {
-    "type_names": [],
-    "libfunc_names": [],
-    "user_func_names": []
+    "type_names": [
+      [
+        0,
+        "RangeCheck"
+      ],
+      [
+        1,
+        "Uninitialized<RangeCheck>"
+      ],
+      [
+        2,
+        "GasBuiltin"
+      ],
+      [
+        3,
+        "Uninitialized<GasBuiltin>"
+      ],
+      [
+        4,
+        "felt252"
+      ],
+      [
+        5,
+        "Array<felt252>"
+      ],
+      [
+        6,
+        "Snapshot<Array<felt252>>"
+      ],
+      [
+        7,
+        "core::array::Span::<core::felt252>"
+      ],
+      [
+        8,
+        "u32"
+      ],
+      [
+        9,
+        "Unit"
+      ],
+      [
+        10,
+        "core::bool"
+      ],
+      [
+        11,
+        "BuiltinCosts"
+      ],
+      [
+        12,
+        "Tuple<Array<felt252>>"
+      ],
+      [
+        13,
+        "core::PanicResult::<(core::array::Array::<core::felt252>,)>"
+      ],
+      [
+        14,
+        "System"
+      ]
+    ],
+    "libfunc_names": [
+      [
+        0,
+        "alloc_local<RangeCheck>"
+      ],
+      [
+        1,
+        "alloc_local<GasBuiltin>"
+      ],
+      [
+        2,
+        "finalize_locals"
+      ],
+      [
+        3,
+        "revoke_ap_tracking"
+      ],
+      [
+        4,
+        "get_gas"
+      ],
+      [
+        5,
+        "branch_align"
+      ],
+      [
+        6,
+        "struct_deconstruct<core::array::Span::<core::felt252>>"
+      ],
+      [
+        7,
+        "array_len<felt252>"
+      ],
+      [
+        8,
+        "u32_const<0>"
+      ],
+      [
+        9,
+        "store_temp<u32>"
+      ],
+      [
+        10,
+        "store_temp<RangeCheck>"
+      ],
+      [
+        11,
+        "store_local<GasBuiltin>"
+      ],
+      [
+        12,
+        "store_local<RangeCheck>"
+      ],
+      [
+        13,
+        "u32_eq"
+      ],
+      [
+        14,
+        "struct_construct<Unit>"
+      ],
+      [
+        15,
+        "enum_init<core::bool, 0>"
+      ],
+      [
+        16,
+        "store_temp<core::bool>"
+      ],
+      [
+        17,
+        "jump"
+      ],
+      [
+        18,
+        "enum_init<core::bool, 1>"
+      ],
+      [
+        19,
+        "bool_not_impl"
+      ],
+      [
+        20,
+        "enum_match<core::bool>"
+      ],
+      [
+        21,
+        "drop<Unit>"
+      ],
+      [
+        22,
+        "get_builtin_costs"
+      ],
+      [
+        23,
+        "store_temp<BuiltinCosts>"
+      ],
+      [
+        24,
+        "get_gas_all"
+      ],
+      [
+        25,
+        "function_call<user@minimal_contract::minimal_contract::MinimalContract::empty>"
+      ],
+      [
+        26,
+        "array_new<felt252>"
+      ],
+      [
+        27,
+        "struct_construct<Tuple<Array<felt252>>>"
+      ],
+      [
+        28,
+        "enum_init<core::PanicResult::<(core::array::Array::<core::felt252>,)>, 0>"
+      ],
+      [
+        29,
+        "store_temp<GasBuiltin>"
+      ],
+      [
+        30,
+        "store_temp<System>"
+      ],
+      [
+        31,
+        "store_temp<core::PanicResult::<(core::array::Array::<core::felt252>,)>>"
+      ],
+      [
+        32,
+        "felt252_const<375233589013918064796019>"
+      ],
+      [
+        33,
+        "store_temp<felt252>"
+      ],
+      [
+        34,
+        "array_append<felt252>"
+      ],
+      [
+        35,
+        "enum_init<core::PanicResult::<(core::array::Array::<core::felt252>,)>, 1>"
+      ],
+      [
+        36,
+        "function_call<user@core::starknet::use_system_implicit>"
+      ],
+      [
+        37,
+        "felt252_const<7733229381460288120802334208475838166080759535023995805565484692595>"
+      ],
+      [
+        38,
+        "drop<core::array::Span::<core::felt252>>"
+      ],
+      [
+        39,
+        "drop<Uninitialized<RangeCheck>>"
+      ],
+      [
+        40,
+        "drop<Uninitialized<GasBuiltin>>"
+      ],
+      [
+        41,
+        "store_temp<Unit>"
+      ]
+    ],
+    "user_func_names": [
+      [
+        0,
+        "minimal_contract::minimal_contract::MinimalContract::__external::empty"
+      ],
+      [
+        1,
+        "minimal_contract::minimal_contract::MinimalContract::empty"
+      ],
+      [
+        2,
+        "core::starknet::use_system_implicit"
+      ]
+    ]
   },
   "contract_class_version": "0.1.0",
   "entry_points_by_type": {
