@@ -12,11 +12,11 @@ def test_init():
     # docs-end: init
 
 
-def test_create_contract_deployment_raw():
+def test_create_deployment_call_raw():
     deployer = Deployer()
 
-    # docs-start: create_contract_deployment_raw
-    contract_deployment = deployer.create_contract_deployment_raw(
+    # docs-start: create_deployment_call_raw
+    contract_deployment = deployer.create_deployment_call_raw(
         class_hash=0x123, salt=1, raw_calldata=[3, 1, 2, 3]
     )
-    # docs-end: create_contract_deployment_raw
+    # docs-end: create_deployment_call_raw

@@ -55,6 +55,31 @@ class Deployer:
         self.account_address = account_address
         self._unique = account_address is not None
 
+    def create_deployment_call(
+        self,
+        class_hash: Hash,
+        *,
+        salt: Optional[int] = None,
+        abi: Optional[List] = None,
+        calldata: Optional[Union[List, dict]] = None,
+    ) -> ContractDeployment:
+        """
+        Creates deployment call to the UDC contract
+
+         .. deprecated:: 0.15.0
+            Function create_deployment_call is deprecated and will be removed in the future.
+            Use :meth:`create_contract_deployment` instead.
+
+        :param class_hash: The class_hash of the contract to be deployed
+        :param salt: The salt for a contract to be deployed. Random value is selected if it is not provided
+        :param abi: ABI of the contract to be deployed
+        :param calldata: Constructor args of the contract to be deployed
+        :return: NamedTuple with call and address of the contract to be deployed
+        """
+        return self.create_contract_deployment(
+            class_hash, salt=salt, abi=abi, calldata=calldata
+        )
+
     def create_contract_deployment(
         self,
         class_hash: Hash,
@@ -81,6 +106,29 @@ class Deployer:
 
         return self.create_contract_deployment_raw(
             class_hash=class_hash, salt=salt, raw_calldata=raw_calldata
+        )
+
+    def create_deployment_call_raw(
+        self,
+        class_hash: Hash,
+        *,
+        salt: Optional[int] = None,
+        raw_calldata: Optional[List[int]] = None,
+    ) -> ContractDeployment:
+        """
+        Creates deployment call to the UDC contract with plain Cairo calldata
+
+         .. deprecated:: 0.15.0
+            Function create_deployment_call_raw is deprecated and will be removed in the future.
+            Use :meth:`create_contract_deployment_raw` instead.
+
+        :param class_hash: The class_hash of the contract to be deployed
+        :param salt: The salt for a contract to be deployed. Random value is selected if it is not provided
+        :param raw_calldata: Plain Cairo constructor args of the contract to be deployed
+        :return: NamedTuple with call and address of the contract to be deployed
+        """
+        return self.create_deployment_call_raw(
+            class_hash, salt=salt, raw_calldata=raw_calldata
         )
 
     def create_contract_deployment_raw(
