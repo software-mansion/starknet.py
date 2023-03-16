@@ -2,8 +2,6 @@ import re
 import typing
 from typing import cast
 
-import pytest
-
 from starknet_py.common import create_contract_class, create_sierra_compiled_contract
 from starknet_py.net.client_models import CompiledContract, TransactionType
 from starknet_py.net.models import StarknetChainId
@@ -17,7 +15,6 @@ from starknet_py.net.models.transaction import (
     compute_invoke_hash,
 )
 from starknet_py.net.schemas.gateway import CompiledContractSchema
-from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
 def test_invoke_hash():
@@ -63,62 +60,37 @@ def test_declare_compress_program(balance_contract):
     assert deserialized.contract_class == contract_class
 
 
-compiled_contract = read_contract("erc20_compiled.json")
-sierra_compiled_contract = read_contract("precompiled/minimal_contract_compiled.json")
-
-
-@pytest.mark.parametrize(
-    "transaction, calculated_hash",
-    [
-        (
-            DeclareV2(
-                contract_class=create_sierra_compiled_contract(
-                    compiled_contract=sierra_compiled_contract
-                ),
-                compiled_class_hash=0x1,
-                max_fee=1000,
-                nonce=20,
-                sender_address=0x1234,
-                signature=[0x1, 0x2],
-                version=2,
-            ),
-            840206438747703857052162720334747255105123242159511630547841359480407220025,
-        ),
-        (
-            Invoke(
-                sender_address=0x1,
-                calldata=[1, 2, 3],
-                max_fee=10000,
-                signature=[],
-                nonce=23,
-                version=1,
-            ),
-            3484767022419258107070028252604380065385354331198975073942248877262069264133,
-        ),
-        (
-            DeployAccount(
-                class_hash=0x1,
-                contract_address_salt=0x2,
-                constructor_calldata=[1, 2, 3, 4],
-                max_fee=10000,
-                signature=[],
-                nonce=23,
-                version=1,
-            ),
-            1258460340144554539989794559757396219553018532617589681714052999991876798273,
-        ),
-    ],
-)
-def test_calculate_transaction_hash(transaction, calculated_hash):
-    assert (
-        transaction.calculate_hash(chain_id=StarknetChainId.TESTNET) == calculated_hash
+def test_calculate_hash_deploy_account():
+    deploy_account = DeployAccount(
+        class_hash=0x1,
+        contract_address_salt=0x2,
+        constructor_calldata=[1, 2, 3, 4],
+        max_fee=10000,
+        signature=[],
+        nonce=23,
+        version=1,
     )
+    hash_ = 1258460340144554539989794559757396219553018532617589681714052999991876798273
+    assert deploy_account.calculate_hash(chain_id=StarknetChainId.TESTNET) == hash_
 
 
-def test_calculate_hash_declare():
+def test_calculate_hash_invoke():
+    invoke = Invoke(
+        sender_address=0x1,
+        calldata=[1, 2, 3],
+        max_fee=10000,
+        signature=[],
+        nonce=23,
+        version=1,
+    )
+    hash_ = 3484767022419258107070028252604380065385354331198975073942248877262069264133
+    assert invoke.calculate_hash(chain_id=StarknetChainId.TESTNET) == hash_
+
+
+def test_calculate_hash_declare(erc20_compiled_contract):
     declare = Declare(
         contract_class=cast(
-            CompiledContract, CompiledContractSchema().loads(compiled_contract)
+            CompiledContract, CompiledContractSchema().loads(erc20_compiled_contract)
         ),
         sender_address=123,
         max_fee=10000,
@@ -128,6 +100,22 @@ def test_calculate_hash_declare():
     )
     hash_ = 1691558101504686217378182149804732367606605343820187119932616442583251634573
     assert declare.calculate_hash(chain_id=StarknetChainId.TESTNET) == hash_
+
+
+def test_calculate_hash_declare_v2(sierra_minimal_compiled_contract_and_class_hash):
+    declare_v2 = DeclareV2(
+        contract_class=create_sierra_compiled_contract(
+            compiled_contract=sierra_minimal_compiled_contract_and_class_hash[0]
+        ),
+        compiled_class_hash=0x1,
+        max_fee=1000,
+        nonce=20,
+        sender_address=0x1234,
+        signature=[0x1, 0x2],
+        version=2,
+    )
+    hash_ = 840206438747703857052162720334747255105123242159511630547841359480407220025
+    assert declare_v2.calculate_hash(chain_id=StarknetChainId.TESTNET) == hash_
 
 
 def test_serialize_deserialize_invoke():
