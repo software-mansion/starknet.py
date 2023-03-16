@@ -4,6 +4,9 @@ on:
     branches:
       - "dependabot/pip/**"
 
+permissions:
+  pull-requests: write
+
 jobs:
   generate:
     runs-on: ubuntu-latest
