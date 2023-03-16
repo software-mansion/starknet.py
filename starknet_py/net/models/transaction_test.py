@@ -107,25 +107,27 @@ sierra_compiled_contract = read_contract("precompiled/minimal_contract_compiled.
             ),
             1258460340144554539989794559757396219553018532617589681714052999991876798273,
         ),
-        (
-            Declare(
-                contract_class=cast(
-                    CompiledContract, CompiledContractSchema().loads(compiled_contract)
-                ),
-                sender_address=123,
-                max_fee=10000,
-                signature=[],
-                nonce=23,
-                version=1,
-            ),
-            1691558101504686217378182149804732367606605343820187119932616442583251634573,
-        ),
     ],
 )
 def test_calculate_transaction_hash(transaction, calculated_hash):
     assert (
         transaction.calculate_hash(chain_id=StarknetChainId.TESTNET) == calculated_hash
     )
+
+
+def test_calculate_hash_declare():
+    declare = Declare(
+        contract_class=cast(
+            CompiledContract, CompiledContractSchema().loads(compiled_contract)
+        ),
+        sender_address=123,
+        max_fee=10000,
+        signature=[],
+        nonce=23,
+        version=1,
+    )
+    hash_ = 1691558101504686217378182149804732367606605343820187119932616442583251634573
+    assert declare.calculate_hash(chain_id=StarknetChainId.TESTNET) == hash_
 
 
 def test_serialize_deserialize_invoke():
