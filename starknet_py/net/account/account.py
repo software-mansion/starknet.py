@@ -272,8 +272,8 @@ class Account(BaseAccount):
     async def sign_declare_v2_transaction(
         self,
         compiled_contract: str,
+        compiled_class_hash: int,
         *,
-        compiled_class_hash,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> DeclareV2:

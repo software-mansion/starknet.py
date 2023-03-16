@@ -222,7 +222,7 @@ async def test_sign_declare_v2_transaction(
     ) = sierra_minimal_compiled_contract_and_class_hash
 
     signed_tx = await gateway_account.sign_declare_v2_transaction(
-        compiled_contract=compiled_contract,
+        compiled_contract,
         compiled_class_hash=compiled_class_hash,
         max_fee=MAX_FEE,
     )
@@ -244,7 +244,7 @@ async def test_sign_declare_v2_transaction_auto_estimate(
     ) = sierra_minimal_compiled_contract_and_class_hash
 
     signed_tx = await gateway_account.sign_declare_v2_transaction(
-        compiled_contract=compiled_contract,
+        compiled_contract,
         compiled_class_hash=compiled_class_hash,
         auto_estimate=True,
     )
