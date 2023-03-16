@@ -74,6 +74,20 @@ sierra_compiled_contract = read_contract("precompiled/minimal_contract_compiled.
     "transaction, calculated_hash",
     [
         (
+            DeclareV2(
+                contract_class=create_sierra_compiled_contract(
+                    compiled_contract=sierra_compiled_contract
+                ),
+                compiled_class_hash=0x1,
+                max_fee=1000,
+                nonce=20,
+                sender_address=0x1234,
+                signature=[0x1, 0x2],
+                version=2,
+            ),
+            840206438747703857052162720334747255105123242159511630547841359480407220025,
+        ),
+        (
             Invoke(
                 sender_address=0x1,
                 calldata=[1, 2, 3],
@@ -83,18 +97,6 @@ sierra_compiled_contract = read_contract("precompiled/minimal_contract_compiled.
                 version=1,
             ),
             3484767022419258107070028252604380065385354331198975073942248877262069264133,
-        ),
-        (
-            DeployAccount(
-                class_hash=0x1,
-                contract_address_salt=0x2,
-                constructor_calldata=[1, 2, 3, 4],
-                max_fee=10000,
-                signature=[],
-                nonce=23,
-                version=1,
-            ),
-            1258460340144554539989794559757396219553018532617589681714052999991876798273,
         ),
         (
             Declare(
@@ -110,18 +112,16 @@ sierra_compiled_contract = read_contract("precompiled/minimal_contract_compiled.
             1691558101504686217378182149804732367606605343820187119932616442583251634573,
         ),
         (
-            DeclareV2(
-                contract_class=create_sierra_compiled_contract(
-                    compiled_contract=sierra_compiled_contract
-                ),
-                compiled_class_hash=0x1,
-                max_fee=1000,
-                nonce=20,
-                sender_address=0x1234,
-                signature=[0x1, 0x2],
-                version=2,
+            DeployAccount(
+                class_hash=0x1,
+                contract_address_salt=0x2,
+                constructor_calldata=[1, 2, 3, 4],
+                max_fee=10000,
+                signature=[],
+                nonce=23,
+                version=1,
             ),
-            840206438747703857052162720334747255105123242159511630547841359480407220025,
+            1258460340144554539989794559757396219553018532617589681714052999991876798273,
         ),
     ],
 )
