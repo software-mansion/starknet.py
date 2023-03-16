@@ -15,6 +15,7 @@ from starknet_py.net.models.transaction import (
     compute_invoke_hash,
 )
 from starknet_py.net.schemas.gateway import CompiledContractSchema
+from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
 def test_invoke_hash():
@@ -87,10 +88,11 @@ def test_calculate_hash_invoke():
     assert invoke.calculate_hash(chain_id=StarknetChainId.TESTNET) == hash_
 
 
-def test_calculate_hash_declare(erc20_compiled_contract):
+def test_calculate_hash_declare():
+    compiled_contract = read_contract("erc20_compiled.json")
     declare = Declare(
         contract_class=cast(
-            CompiledContract, CompiledContractSchema().loads(erc20_compiled_contract)
+            CompiledContract, CompiledContractSchema().loads(compiled_contract)
         ),
         sender_address=123,
         max_fee=10000,
