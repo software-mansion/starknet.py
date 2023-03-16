@@ -106,7 +106,7 @@ Breaking changes
     - :class:`starknet_py.net.models.transaction.Invoke`
     - :func:`starknet_py.net.models.transaction.compute_invoke_hash`
 13. Replaced ``BlockStateUpdate.state_diff.declared_contract_hashes`` is now a list of ``DeclaredContractHash`` representing new Cairo classes. Old declared contract classes are still available at ``BlockStateUpdate.state_diff.deprecated_declared_contract_hashes``.
-
+14. Removed ``version`` property from ``PreparedFunctionCall`` class.
 
 Transaction dataclasses
 -----------------------
