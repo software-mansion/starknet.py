@@ -14,7 +14,9 @@ async def test_deploying_in_multicall(account, map_class_hash, map_compiled_cont
     deployer = Deployer()
 
     # Create deployment call. We will be deploying the `map` contract
-    deploy_call, address = deployer.create_deployment_call(class_hash=map_class_hash)
+    deploy_call, address = deployer.create_contract_deployment(
+        class_hash=map_class_hash
+    )
     # docs: end
 
     map_abi = create_compiled_contract(compiled_contract=map_compiled_contract).abi

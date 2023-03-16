@@ -421,7 +421,7 @@ async def test_state_update_deployed_contracts(
 ):
     # setup
     deployer = Deployer()
-    contract_deployment = deployer.create_deployment_call(class_hash=class_hash)
+    contract_deployment = deployer.create_contract_deployment(class_hash=class_hash)
     deploy_invoke_tx = await account.sign_invoke_transaction(
         contract_deployment.call, max_fee=MAX_FEE
     )

@@ -68,7 +68,7 @@ async def devnet_account_details(
     key_pair = KeyPair.from_private_key(private_key)
 
     deployer = Deployer()
-    deploy_call, address = deployer.create_deployment_call_raw(
+    deploy_call, address = deployer.create_contract_deployment_raw(
         class_hash=class_hash, raw_calldata=[key_pair.public_key]
     )
 

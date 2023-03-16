@@ -55,7 +55,7 @@ class Deployer:
         self.account_address = account_address
         self._unique = account_address is not None
 
-    def create_deployment_call(
+    def create_contract_deployment(
         self,
         class_hash: Hash,
         *,
@@ -64,13 +64,13 @@ class Deployer:
         calldata: Optional[Union[List, dict]] = None,
     ) -> ContractDeployment:
         """
-        Creates deployment call to the UDC contract
+        Creates ContractDeployment with a call to the UDC contract.
 
-        :param class_hash: The class_hash of the contract to be deployed
-        :param salt: The salt for a contract to be deployed. Random value is selected if it is not provided
-        :param abi: ABI of the contract to be deployed
-        :param calldata: Constructor args of the contract to be deployed
-        :return: NamedTuple with call and address of the contract to be deployed
+        :param class_hash: The class_hash of the contract to be deployed.
+        :param salt: The salt for a contract to be deployed. Random value is selected if it is not provided.
+        :param abi: ABI of the contract to be deployed.
+        :param calldata: Constructor args of the contract to be deployed.
+        :return: NamedTuple with call and address of the contract to be deployed.
         """
         if not abi and calldata:
             raise ValueError("Argument calldata was provided without an ABI.")
@@ -79,11 +79,11 @@ class Deployer:
             abi=abi or [], constructor_args=calldata
         )
 
-        return self.create_deployment_call_raw(
+        return self.create_contract_deployment_raw(
             class_hash=class_hash, salt=salt, raw_calldata=raw_calldata
         )
 
-    def create_deployment_call_raw(
+    def create_contract_deployment_raw(
         self,
         class_hash: Hash,
         *,
@@ -91,12 +91,12 @@ class Deployer:
         raw_calldata: Optional[List[int]] = None,
     ) -> ContractDeployment:
         """
-        Creates deployment call to the UDC contract with plain Cairo calldata
+        Creates ContractDeployment with a call to the UDC contract with plain Cairo calldata.
 
-        :param class_hash: The class_hash of the contract to be deployed
-        :param salt: The salt for a contract to be deployed. Random value is selected if it is not provided
-        :param raw_calldata: Plain Cairo constructor args of the contract to be deployed
-        :return: NamedTuple with call and address of the contract to be deployed
+        :param class_hash: The class_hash of the contract to be deployed.
+        :param salt: The salt for a contract to be deployed. Random value is selected if it is not provided.
+        :param raw_calldata: Plain Cairo constructor args of the contract to be deployed.
+        :return: NamedTuple with call and address of the contract to be deployed.
         """
         salt = cast(int, salt or _get_random_salt())
         class_hash = int_from_hex(class_hash)
