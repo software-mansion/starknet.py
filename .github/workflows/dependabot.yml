@@ -4,9 +4,7 @@ on:
     branches:
       - "dependabot/pip/**"
 
-permissions:
-  pull-requests: write
-  contents: write
+permissions: write-all
 
 jobs:
   generate:
