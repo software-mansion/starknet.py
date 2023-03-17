@@ -20,6 +20,8 @@ Deprecation
 - ``compute_invoke_hash`` is deprecated in favour of ``compute_transaction_hash``
 - ``starknet_py.common.create_contract_class`` is deprecated in favour of ``starknet_py.common.create_compiled_contract``
 
+- Removed deprecated ``max_steps`` in :class:`~starknet_py.proxy.contract_abi_resolver.ProxyConfig`.
+
 Breaking changes
 ----------------
 
