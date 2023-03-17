@@ -25,6 +25,7 @@ typing-extensions = "^4.3.0"
 cairo-lang = { url = "https://github.com/starkware-libs/cairo-lang/releases/download/v0.11.0-pre/cairo-lang-0.11.0a0.zip" }
 furo = "^2022.12.7"
 marshmallow-dataclass = "<8.5.0"
+eth-utils = "^2.1.0"
 
 [tool.poetry.extras]
 docs = ["sphinx", "enum-tools"]

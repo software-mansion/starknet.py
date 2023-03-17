@@ -497,6 +497,7 @@ Web3 = "*"
 [package.source]
 type = "url"
 url = "https://github.com/starkware-libs/cairo-lang/releases/download/v0.11.0-pre/cairo-lang-0.11.0a0.zip"
+
 [[package]]
 name = "certifi"
 version = "2022.12.7"
@@ -3658,4 +3659,4 @@ docs = ["sphinx", "enum-tools"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9, <3.10"
-content-hash = "4dbf1fa4dae3caa70c4b72a3bd0818d5887ea8e87299b59c1c4f594aaa8b9512"
+content-hash = "22f5bc9020823be20bc6d815a8d415b5751b2e056993745d700a31d7dfe0a6f1"
