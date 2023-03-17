@@ -116,7 +116,7 @@ class BaseAccount(ABC):
         auto_estimate: bool = False,
     ) -> DeclareV2:
         """
-        Create and sign declare transaction using sierra contract
+        Create and sign declare transaction using sierra contract.
 
         :param compiled_contract: string containing a compiled Starknet contract.
             Supports new contracts (compiled to sierra).

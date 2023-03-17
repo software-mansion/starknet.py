@@ -257,7 +257,7 @@ class Account(BaseAccount):
     ) -> Declare:
         if _is_sierra_contract(json.loads(compiled_contract)):
             raise ValueError(
-                "Signing sierra contracts requires using `sign_declare_v2_transaction` function."
+                "Signing sierra contracts requires using `sign_declare_v2_transaction` method."
             )
 
         declare_tx = await self._make_declare_transaction(compiled_contract)
