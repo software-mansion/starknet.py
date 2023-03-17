@@ -34,11 +34,6 @@ class ProxyConfig(TypedDict, total=False):
 
 
 def prepare_proxy_config(proxy_config: ProxyConfig) -> ProxyConfig:
-    if "max_steps" in proxy_config:
-        warnings.warn(
-            "ProxyConfig.max_steps is deprecated. Contract.from_address always makes at most 1 step.",
-            category=DeprecationWarning,
-        )
     if "proxy_checks" in proxy_config:
         return proxy_config
 
