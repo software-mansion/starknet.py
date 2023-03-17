@@ -506,8 +506,9 @@ class Contract:
         :param provider: BaseAccount or Client.
         :param proxy_config: Proxy resolving config
             If set to ``True``, will use default proxy checks
-            :class:`starknet_py.proxy.proxy_check.OpenZeppelinProxyCheck`
-            and :class:`starknet_py.proxy.proxy_check.ArgentProxyCheck`.
+            :class:`starknet_py.proxy.proxy_check.OpenZeppelinProxyCheck`,
+            :class:`starknet_py.proxy.proxy_check.ArgentProxyCheck`,
+            and :class:`starknet_py.proxy.proxy_check.EthProxyCheck`.
 
             If set to ``False``, :meth:`Contract.from_address` will not resolve proxies.
 
