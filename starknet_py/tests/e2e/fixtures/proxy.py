@@ -29,22 +29,25 @@ def custom_proxy() -> str:
     return read_contract("oz_proxy_custom_compiled.json")
 
 
-@pytest.fixture(scope="session")
-def old_proxy() -> str:
+@pytest.fixture(
+    scope="session",
+    params=[
+        "oz_proxy_address_0.8.1_compiled.json",
+        "eth_proxy_compiled.json",
+    ],
+)
+def old_proxy(request) -> str:
     """
-    Returns compiled (using starknet-compile 0.8.1) source code of OpenZeppelin's proxy using address and delegate_call.
+    Returns compiled (using starknet-compile 0.8.1) source code of proxy using address and delegate_call.
     """
-    return read_contract(
-        "oz_proxy_address_0.8.1_compiled.json", directory=CONTRACTS_PRECOMPILED_DIR
-    )
+    return read_contract(request.param, directory=CONTRACTS_PRECOMPILED_DIR)
 
 
 @pytest_asyncio.fixture(
-    name="proxy_oz_argent_eth",
+    name="proxy_oz_argent",
     params=[
         ("oz_proxy_compiled.json", "map_compiled.json"),
         ("argent_proxy_compiled.json", "map_compiled.json"),
-        ("oz_proxy_implementation_func_compiled.json", "map_compiled.json"),
     ],
 )
 async def deploy_proxy_to_contract_oz_argent_eth(
@@ -63,22 +66,6 @@ async def deploy_proxy_to_contract_oz_argent_eth(
     name="proxy_custom", params=[("oz_proxy_custom_compiled.json", "map_compiled.json")]
 )
 async def deploy_proxy_to_contract_custom(
-    request, new_gateway_account_client: AccountClient
-) -> DeployResult:
-    """
-    Declares a contract and deploys a custom proxy pointing to that contract.
-    """
-    compiled_proxy_name, compiled_contract_name = request.param
-    return await deploy_proxy_to_contract(
-        compiled_proxy_name, compiled_contract_name, new_gateway_account_client
-    )
-
-
-@pytest_asyncio.fixture(
-    name="proxy_implementation_func",
-    params=[("oz_proxy_implementation_func_compiled.json", "map_compiled.json")],
-)
-async def deploy_proxy_to_contract_implementation_func(
     request, new_gateway_account_client: AccountClient
 ) -> DeployResult:
     """

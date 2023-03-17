@@ -34,13 +34,13 @@ async def test_contract_from_address_no_proxy(account_client, map_contract):
 
 
 @pytest.mark.asyncio
-async def test_contract_from_address_with_proxy(account_client, proxy_oz_argent_eth):
+async def test_contract_from_address_with_proxy(account_client, proxy_oz_argent):
     proxy_contract = await Contract.from_address(
-        address=proxy_oz_argent_eth.deployed_contract.address,
+        address=proxy_oz_argent.deployed_contract.address,
         client=account_client,
     )
     proxied_contract = await Contract.from_address(
-        address=proxy_oz_argent_eth.deployed_contract.address,
+        address=proxy_oz_argent.deployed_contract.address,
         client=account_client,
         proxy_config=True,
     )

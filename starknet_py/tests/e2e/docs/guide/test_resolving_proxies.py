@@ -7,7 +7,11 @@ from starknet_py.net.client import Client
 from starknet_py.net.client_models import Call
 from starknet_py.net.models import Address
 from starknet_py.proxy.contract_abi_resolver import ProxyConfig
-from starknet_py.proxy.proxy_check import ArgentProxyCheck, StarknetEthProxyCheck, ProxyCheck
+from starknet_py.proxy.proxy_check import (
+    ArgentProxyCheck,
+    ProxyCheck,
+    StarknetEthProxyCheck,
+)
 
 
 @pytest.mark.asyncio
@@ -15,7 +19,7 @@ async def test_resolving_proxies(
     gateway_client,
     map_contract,
     proxy_impl_func,
-    proxy_oz_argent_eth,
+    proxy_oz_argent,
 ):
     # pylint: disable=import-outside-toplevel
     # docs-1: start
@@ -28,7 +32,7 @@ async def test_resolving_proxies(
     contract = await Contract.from_address(address=address, client=gateway_client)
 
     # docs-1: end
-    address = proxy_oz_argent_eth.deployed_contract.address
+    address = proxy_oz_argent.deployed_contract.address
     # docs-1: start
     # To use contract behind a proxy as a regular contract, set proxy_config to True
     # It will check if your proxy is OpenZeppelin proxy / ArgentX proxy / proxy of Starknet Eth contract
