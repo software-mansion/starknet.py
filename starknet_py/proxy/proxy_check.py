@@ -88,7 +88,7 @@ class StarknetEthProxyCheck(ProxyCheck):
     async def implementation_hash(
         self, address: Address, client: Client
     ) -> Optional[int]:
-        return await self.implementation(address, client)
+        return None
 
     @staticmethod
     async def implementation(address: Address, client: Client) -> Optional[int]:
