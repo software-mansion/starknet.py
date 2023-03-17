@@ -34,9 +34,7 @@ async def test_contract_from_address_no_proxy(account_client, map_contract):
 
 
 @pytest.mark.asyncio
-async def test_contract_from_address_with_proxy(
-    account_client, proxy_oz_argent_eth
-):
+async def test_contract_from_address_with_proxy(account_client, proxy_oz_argent_eth):
     proxy_contract = await Contract.from_address(
         address=proxy_oz_argent_eth.deployed_contract.address,
         client=account_client,
@@ -62,9 +60,7 @@ async def test_contract_from_invalid_address(account_client):
 
 
 @pytest.mark.asyncio
-async def test_contract_from_address_invalid_proxy_checks(
-    account_client, proxy_custom
-):
+async def test_contract_from_address_invalid_proxy_checks(account_client, proxy_custom):
     message = "Couldn't resolve proxy using given ProxyChecks"
 
     with pytest.raises(ProxyResolutionError, match=message):
@@ -76,9 +72,7 @@ async def test_contract_from_address_invalid_proxy_checks(
 
 
 @pytest.mark.asyncio
-async def test_contract_from_address_custom_proxy_check(
-    account_client, proxy_custom
-):
+async def test_contract_from_address_custom_proxy_check(account_client, proxy_custom):
     class CustomProxyCheck(ProxyCheck):
         async def implementation_address(
             self, address: Address, client: Client

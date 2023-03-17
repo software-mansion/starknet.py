@@ -1,5 +1,4 @@
 import re
-import warnings
 from enum import Enum
 from typing import AsyncGenerator, List, Tuple, TypedDict
 
@@ -15,9 +14,9 @@ from starknet_py.net.client_models import ContractClass
 from starknet_py.net.models import Address
 from starknet_py.proxy.proxy_check import (
     ArgentProxyCheck,
+    EthProxyCheck,
     OpenZeppelinProxyCheck,
     ProxyCheck,
-    EthProxyCheck,
 )
 
 

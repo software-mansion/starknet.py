@@ -45,7 +45,7 @@ def old_proxy() -> str:
         ("oz_proxy_compiled.json", "map_compiled.json"),
         ("argent_proxy_compiled.json", "map_compiled.json"),
         ("oz_proxy_implementation_func_compiled.json", "map_compiled.json"),
-    ]
+    ],
 )
 async def deploy_proxy_to_contract_oz_argent_eth(
     request, new_gateway_account_client: AccountClient
@@ -60,8 +60,7 @@ async def deploy_proxy_to_contract_oz_argent_eth(
 
 
 @pytest_asyncio.fixture(
-    name="proxy_custom",
-    params=[("oz_proxy_custom_compiled.json", "map_compiled.json")]
+    name="proxy_custom", params=[("oz_proxy_custom_compiled.json", "map_compiled.json")]
 )
 async def deploy_proxy_to_contract_custom(
     request, new_gateway_account_client: AccountClient
@@ -77,7 +76,7 @@ async def deploy_proxy_to_contract_custom(
 
 @pytest_asyncio.fixture(
     name="proxy_implementation_func",
-    params=[("oz_proxy_implementation_func_compiled.json", "map_compiled.json")]
+    params=[("oz_proxy_implementation_func_compiled.json", "map_compiled.json")],
 )
 async def deploy_proxy_to_contract_implementation_func(
     request, new_gateway_account_client: AccountClient
@@ -93,7 +92,7 @@ async def deploy_proxy_to_contract_implementation_func(
 
 @pytest_asyncio.fixture(
     name="proxy_impl_func",
-    params=[("oz_proxy_impl_func_compiled.json", "map_compiled.json")]
+    params=[("oz_proxy_impl_func_compiled.json", "map_compiled.json")],
 )
 async def deploy_proxy_to_contract_impl_func(
     request, new_gateway_account_client: AccountClient

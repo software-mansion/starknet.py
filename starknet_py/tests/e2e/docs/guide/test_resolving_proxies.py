@@ -7,11 +7,7 @@ from starknet_py.net.client import Client
 from starknet_py.net.client_models import Call
 from starknet_py.net.models import Address
 from starknet_py.proxy.contract_abi_resolver import ProxyConfig
-from starknet_py.proxy.proxy_check import (
-    ArgentProxyCheck,
-    EthProxyCheck,
-    ProxyCheck,
-)
+from starknet_py.proxy.proxy_check import ArgentProxyCheck, EthProxyCheck, ProxyCheck
 
 
 @pytest.mark.asyncio
