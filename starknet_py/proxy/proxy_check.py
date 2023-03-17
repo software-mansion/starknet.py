@@ -77,3 +77,25 @@ class OpenZeppelinProxyCheck(ProxyCheck):
             block_hash="latest",
         )
         return result or None
+
+
+class EthProxyCheck(ProxyCheck):
+    async def implementation_address(
+        self, address: Address, client: Client
+    ) -> Optional[int]:
+        return await self.implementation(address, client)
+
+    async def implementation_hash(
+        self, address: Address, client: Client
+    ) -> Optional[int]:
+        return await self.implementation(address, client)
+
+    @staticmethod
+    async def implementation(address: Address, client: Client) -> Optional[int]:
+        call = Call(
+            to_addr=address,
+            selector=get_selector_from_name("implementation"),
+            calldata=[],
+        )
+        (implementation,) = await client.call_contract(call=call)
+        return implementation
