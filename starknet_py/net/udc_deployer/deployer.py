@@ -34,7 +34,7 @@ class ContractDeployment(NamedTuple):
 
 class Deployer:
     """
-    Deployer used to deploy contracts through Universal Deployer Contract (UDC)
+    Deployer used to deploy contracts through Universal Deployer Contract (UDC).
     """
 
     def __init__(
