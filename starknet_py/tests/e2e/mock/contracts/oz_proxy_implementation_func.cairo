@@ -24,7 +24,7 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import library_call, library_call_l1_handler
-from openzeppelin.upgrades.library import Proxy
+from openzeppelin.upgrades.library_custom import Proxy
 
 // @dev Cairo doesn't support native decoding like Solidity yet,
 //      that's why we pass three arguments for calldata instead of one
