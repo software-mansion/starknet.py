@@ -40,16 +40,18 @@ def old_proxy() -> str:
 
 
 @pytest_asyncio.fixture(
+    name="proxy_oz_argent_eth",
     params=[
         ("oz_proxy_compiled.json", "map_compiled.json"),
         ("argent_proxy_compiled.json", "map_compiled.json"),
+        ("oz_proxy_implementation_func_compiled.json", "map_compiled.json"),
     ]
 )
-async def deploy_proxy_to_contract_oz_argent(
+async def deploy_proxy_to_contract_oz_argent_eth(
     request, new_gateway_account_client: AccountClient
 ) -> DeployResult:
     """
-    Declares a contract and deploys a proxy (OZ, Argent) pointing to that contract.
+    Declares a contract and deploys a proxy (OZ, Argent, Eth) pointing to that contract.
     """
     compiled_proxy_name, compiled_contract_name = request.param
     return await deploy_proxy_to_contract(
@@ -57,7 +59,10 @@ async def deploy_proxy_to_contract_oz_argent(
     )
 
 
-@pytest_asyncio.fixture(params=[("oz_proxy_custom_compiled.json", "map_compiled.json")])
+@pytest_asyncio.fixture(
+    name="proxy_custom",
+    params=[("oz_proxy_custom_compiled.json", "map_compiled.json")]
+)
 async def deploy_proxy_to_contract_custom(
     request, new_gateway_account_client: AccountClient
 ) -> DeployResult:
@@ -71,9 +76,26 @@ async def deploy_proxy_to_contract_custom(
 
 
 @pytest_asyncio.fixture(
-    params=[("oz_proxy_exposed_compiled.json", "map_compiled.json")]
+    name="proxy_implementation_func",
+    params=[("oz_proxy_implementation_func_compiled.json", "map_compiled.json")]
 )
-async def deploy_proxy_to_contract_exposed(
+async def deploy_proxy_to_contract_implementation_func(
+    request, new_gateway_account_client: AccountClient
+) -> DeployResult:
+    """
+    Declares a contract and deploys a custom proxy pointing to that contract.
+    """
+    compiled_proxy_name, compiled_contract_name = request.param
+    return await deploy_proxy_to_contract(
+        compiled_proxy_name, compiled_contract_name, new_gateway_account_client
+    )
+
+
+@pytest_asyncio.fixture(
+    name="proxy_impl_func",
+    params=[("oz_proxy_impl_func_compiled.json", "map_compiled.json")]
+)
+async def deploy_proxy_to_contract_impl_func(
     request, new_gateway_account_client: AccountClient
 ) -> DeployResult:
     """

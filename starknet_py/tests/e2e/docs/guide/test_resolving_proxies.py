@@ -9,7 +9,7 @@ from starknet_py.net.models import Address
 from starknet_py.proxy.contract_abi_resolver import ProxyConfig
 from starknet_py.proxy.proxy_check import (
     ArgentProxyCheck,
-    OpenZeppelinProxyCheck,
+    EthProxyCheck,
     ProxyCheck,
 )
 
@@ -18,8 +18,8 @@ from starknet_py.proxy.proxy_check import (
 async def test_resolving_proxies(
     gateway_client,
     map_contract,
-    deploy_proxy_to_contract_exposed,
-    deploy_proxy_to_contract_oz_argent,
+    proxy_impl_func,
+    proxy_oz_argent_eth,
 ):
     # pylint: disable=import-outside-toplevel
     # docs-1: start
@@ -32,10 +32,10 @@ async def test_resolving_proxies(
     contract = await Contract.from_address(address=address, client=gateway_client)
 
     # docs-1: end
-    address = deploy_proxy_to_contract_oz_argent.deployed_contract.address
+    address = proxy_oz_argent_eth.deployed_contract.address
     # docs-1: start
     # To use contract behind a proxy as a regular contract, set proxy_config to True
-    # It will check if your proxy is OpenZeppelin or ArgentX proxy
+    # It will check if your proxy is OpenZeppelin proxy / ArgentX proxy / proxy of Starknet Eth contract
     contract = await Contract.from_address(
         address=address, client=gateway_client, proxy_config=True
     )
@@ -43,15 +43,15 @@ async def test_resolving_proxies(
     # After that contract can be used as usual
     # docs-1: end
     # docs-2: start
-    # To resolve proxy contract other than OpenZeppelin or ArgentX, a custom ProxyCheck is needed
+    # To resolve proxy contract other than OpenZeppelin / ArgentX / Starknet Eth proxy, a custom ProxyCheck is needed
     # The ProxyCheck below resolves proxy contracts which have implementation
-    # stored in implementation() function as address
+    # stored in impl() function as class hash
     class CustomProxyCheck(ProxyCheck):
         async def implementation_address(
             self, address: Address, client: Client
         ) -> Optional[int]:
             # Note that None is returned, since our custom Proxy uses
-            # the address of another contract as implementation and not the class hash
+            # the class hash of another contract as implementation and not the address
             return None
 
         async def implementation_hash(
@@ -59,7 +59,7 @@ async def test_resolving_proxies(
         ) -> Optional[int]:
             call = Call(
                 to_addr=address,
-                selector=get_selector_from_name("implementation"),
+                selector=get_selector_from_name("impl"),
                 calldata=[],
             )
             (implementation,) = await client.call_contract(call=call)
@@ -70,11 +70,11 @@ async def test_resolving_proxies(
 
     # More ProxyCheck instances can be passed to proxy_checks for it to be flexible
     proxy_config = ProxyConfig(
-        proxy_checks=[CustomProxyCheck(), ArgentProxyCheck(), OpenZeppelinProxyCheck()]
+        proxy_checks=[CustomProxyCheck(), ArgentProxyCheck(), EthProxyCheck()]
     )
 
     # docs-2: end
-    address = deploy_proxy_to_contract_exposed.deployed_contract.address
+    address = proxy_impl_func.deployed_contract.address
     # docs-2: start
     contract = await Contract.from_address(
         address=address, client=gateway_client, proxy_config=proxy_config
