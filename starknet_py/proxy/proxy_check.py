@@ -79,7 +79,7 @@ class OpenZeppelinProxyCheck(ProxyCheck):
         return result or None
 
 
-class EthProxyCheck(ProxyCheck):
+class StarknetEthProxyCheck(ProxyCheck):
     async def implementation_address(
         self, address: Address, client: Client
     ) -> Optional[int]:

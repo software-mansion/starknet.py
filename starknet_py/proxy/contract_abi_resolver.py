@@ -14,7 +14,7 @@ from starknet_py.net.client_models import ContractClass
 from starknet_py.net.models import Address
 from starknet_py.proxy.proxy_check import (
     ArgentProxyCheck,
-    EthProxyCheck,
+    StarknetEthProxyCheck,
     OpenZeppelinProxyCheck,
     ProxyCheck,
 )
@@ -36,7 +36,7 @@ def prepare_proxy_config(proxy_config: ProxyConfig) -> ProxyConfig:
     if "proxy_checks" in proxy_config:
         return proxy_config
 
-    proxy_checks = [OpenZeppelinProxyCheck(), ArgentProxyCheck(), EthProxyCheck()]
+    proxy_checks = [OpenZeppelinProxyCheck(), ArgentProxyCheck(), StarknetEthProxyCheck()]
     return {"proxy_checks": proxy_checks}
 
 

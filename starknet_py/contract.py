@@ -508,7 +508,7 @@ class Contract:
             If set to ``True``, will use default proxy checks
             :class:`starknet_py.proxy.proxy_check.OpenZeppelinProxyCheck`,
             :class:`starknet_py.proxy.proxy_check.ArgentProxyCheck`,
-            and :class:`starknet_py.proxy.proxy_check.EthProxyCheck`.
+            and :class:`starknet_py.proxy.proxy_check.StarknetEthProxyCheck`.
 
             If set to ``False``, :meth:`Contract.from_address` will not resolve proxies.
 
