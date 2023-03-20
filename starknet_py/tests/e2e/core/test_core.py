@@ -33,7 +33,6 @@ async def test_declare_account(
 async def test_deploy_account(
     core_deploy_account_response: AccountDeploymentResult,
 ):
-
     await core_deploy_account_response.wait_for_acceptance()
 
     assert core_deploy_account_response.account.address != 0
@@ -45,15 +44,35 @@ async def test_declare_v1(core_declare_map_response: DeclareTransactionResponse)
 
 
 @pytest.mark.asyncio
+async def test_declare_v2(
+    core_pre_deployed_account, sierra_minimal_compiled_contract_and_class_hash
+):
+    (
+        compiled_contract,
+        compiled_class_hash,
+    ) = sierra_minimal_compiled_contract_and_class_hash
+
+    declare_tx = await core_pre_deployed_account.sign_declare_transaction(
+        compiled_contract=compiled_contract,
+        compiled_class_hash=compiled_class_hash,
+        max_fee=MAX_FEE,
+    )
+    resp = await core_pre_deployed_account.client.declare(declare_tx)
+    await core_pre_deployed_account.client.wait_for_tx(resp.transaction_hash)
+
+    assert resp.class_hash != 0
+
+
+@pytest.mark.asyncio
 async def test_deployer(core_map_contract: Contract):
     assert core_map_contract.address != 0
 
 
 @pytest.mark.asyncio
 async def test_contract(core_map_contract: Contract):
-    prepared_tx: PreparedFunctionCall = await core_map_contract.functions[
-        "put"
-    ].prepare(key=10, value=20)
+    prepared_tx: PreparedFunctionCall = core_map_contract.functions["put"].prepare(
+        key=10, value=20
+    )
 
     estimated_fee = await prepared_tx.estimate_fee()
 
@@ -72,7 +91,7 @@ async def test_multicall(
     core_map_contract: Contract, core_pre_deployed_account: Account
 ):
     calls = [
-        await core_map_contract.functions["put"].prepare(key=i, value=i * 10)
+        core_map_contract.functions["put"].prepare(key=i, value=i * 10)
         for i in range(5)
     ]
 

@@ -36,10 +36,10 @@ def core_pre_deployed_account(core_gateway_client) -> Account:
 async def declare_contract(
     file_name: str, account: Account
 ) -> DeclareTransactionResponse:
-    compiled_account = read_contract(file_name)
+    compiled_contract = read_contract(file_name)
 
     declare_tx = await account.sign_declare_transaction(
-        compiled_account, max_fee=MAX_FEE
+        compiled_contract, max_fee=MAX_FEE
     )
     resp = await account.client.declare(declare_tx)
 
