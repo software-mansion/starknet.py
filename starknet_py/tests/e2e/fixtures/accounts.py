@@ -164,7 +164,6 @@ def account(request) -> BaseAccount:
 
 @dataclass
 class AccountToBeDeployedDetailsFactory:
-
     class_hash: int
     fee_contract: Contract
 
