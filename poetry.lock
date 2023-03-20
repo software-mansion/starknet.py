@@ -3378,4 +3378,4 @@ eth-tester = []
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9, <3.10"
-content-hash = "9af812e4be685cdb7d5111d5fa12f6cec09b6ba9419f335a2bfea6a82929d0de"
+content-hash = "67d039f27e7ab2a035e29cffa646e5fe5eccc417a950aaa4b43d10bdbbe3f8f0"
