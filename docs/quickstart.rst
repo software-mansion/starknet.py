@@ -3,8 +3,8 @@ Quickstart
 
 Using GatewayClient
 -------------------
-A client (i.e. :obj:`GatewayClient <starknet_py.net.gateway_client.GatewayClient>`, :obj:`FullNodeClient <starknet_py.net.full_node_client.FullNodeClient>`) is a facade for interacting with Starknet.
-Gateway client will make requests directly to Starknet sequencer through `gateway` or `feeder_gateway` endpoints.
+A :ref:`Client` is a facade for interacting with Starknet.
+:ref:`GatewayClient` will make requests directly to Starknet sequencer through `gateway` or `feeder_gateway` endpoints.
 It can be used to either query the blockchain state or add new transactions.
 It requires information about used network:
 
@@ -23,7 +23,8 @@ You can see all Gateway Client's methods :ref:`GatewayClient`.
 
 Using FullNodeClient
 --------------------
-FullNodeClient is a client which interacts with a Starknet full node like `pathfinder <https://github.com/eqlabs/pathfinder>`_.
+:ref:`FullNodeClient` is a client which interacts
+with a Starknet full node like `pathfinder <https://github.com/eqlabs/pathfinder>`_.
 Like the GatewayClient, it supports read and write operations. Also as with GatewayClient,
 there is both synchronous and asynchronous API available.
 

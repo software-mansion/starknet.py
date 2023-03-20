@@ -4,6 +4,8 @@ on:
     branches:
       - "dependabot/pip/**"
 
+permissions: write-all
+
 jobs:
   generate:
     runs-on: ubuntu-latest
@@ -20,6 +22,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install poetry
+        poetry config installer.modern-installation false
     - name: Export package list to requirements.txt
       run: poetry export -f requirements.txt --output requirements.txt --without-hashes --extras docs
     - name: Commit & Push changes

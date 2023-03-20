@@ -22,8 +22,8 @@ async def test_declare_v2_tx(account, sierra_minimal_compiled_contract_and_class
         compiled_class_hash,
     ) = sierra_minimal_compiled_contract_and_class_hash
 
-    declare_tx = await account.sign_declare_transaction(
-        compiled_contract=compiled_contract,
+    declare_tx = await account.sign_declare_v2_transaction(
+        compiled_contract,
         compiled_class_hash=compiled_class_hash,
         max_fee=MAX_FEE,
     )
