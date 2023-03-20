@@ -1,6 +1,7 @@
 import dataclasses
 import json
 import re
+import warnings
 from collections import OrderedDict
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
@@ -102,6 +103,10 @@ class Account(BaseAccount):
 
     @property
     def supported_transaction_version(self) -> int:
+        warnings.warn(
+            "Property supported_transaction_version is deprecated and will be removed in the future.",
+            category=DeprecationWarning,
+        )
         return 1
 
     async def _get_max_fee(
@@ -151,7 +156,7 @@ class Account(BaseAccount):
             calldata=wrapped_calldata,
             signature=[],
             max_fee=0,
-            version=self.supported_transaction_version,
+            version=1,
             nonce=nonce,
             sender_address=self.address,
         )
@@ -256,22 +261,34 @@ class Account(BaseAccount):
         self,
         compiled_contract: str,
         *,
-        compiled_class_hash: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-    ) -> Union[Declare, DeclareV2]:
-        if compiled_class_hash is not None:
-            declare_tx = await self._make_declare_v2_transaction(
-                compiled_contract, compiled_class_hash
+    ) -> Declare:
+        if _is_sierra_contract(json.loads(compiled_contract)):
+            raise ValueError(
+                "Signing sierra contracts requires using `sign_declare_v2_transaction` method."
             )
-        else:
-            if _is_sierra_contract(json.loads(compiled_contract)):
-                raise ValueError(
-                    "Argument compiled_class_hash is required when using sierra compiled_contract."
-                )
 
-            declare_tx = await self._make_declare_transaction(compiled_contract)
+        declare_tx = await self._make_declare_transaction(compiled_contract)
 
+        max_fee = await self._get_max_fee(
+            transaction=declare_tx, max_fee=max_fee, auto_estimate=auto_estimate
+        )
+        declare_tx = _add_max_fee_to_transaction(declare_tx, max_fee)
+        signature = self.signer.sign_transaction(declare_tx)
+        return _add_signature_to_transaction(declare_tx, signature)
+
+    async def sign_declare_v2_transaction(
+        self,
+        compiled_contract: str,
+        compiled_class_hash: int,
+        *,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+    ) -> DeclareV2:
+        declare_tx = await self._make_declare_v2_transaction(
+            compiled_contract, compiled_class_hash
+        )
         max_fee = await self._get_max_fee(
             transaction=declare_tx, max_fee=max_fee, auto_estimate=auto_estimate
         )
@@ -287,7 +304,7 @@ class Account(BaseAccount):
             max_fee=0,
             signature=[],
             nonce=await self.get_nonce(),
-            version=self.supported_transaction_version,
+            version=1,
         )
         return declare_tx
 
@@ -323,7 +340,7 @@ class Account(BaseAccount):
             class_hash=class_hash,
             contract_address_salt=contract_address_salt,
             constructor_calldata=constructor_calldata,
-            version=self.supported_transaction_version,
+            version=1,
             max_fee=0,
             signature=[],
             nonce=0,
