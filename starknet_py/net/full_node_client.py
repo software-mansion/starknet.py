@@ -219,7 +219,6 @@ class FullNodeClient(Client):
     async def deploy_account(
         self, transaction: DeployAccount
     ) -> DeployAccountTransactionResponse:
-
         params = _create_broadcasted_txn(transaction=transaction)
 
         res = await self._client.call(
