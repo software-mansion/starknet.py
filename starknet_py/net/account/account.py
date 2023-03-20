@@ -1,6 +1,7 @@
 import dataclasses
 import json
 import re
+import warnings
 from collections import OrderedDict
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
@@ -99,6 +100,14 @@ class Account(BaseAccount):
     @property
     def client(self) -> Client:
         return self._client
+
+    @property
+    def supported_transaction_version(self) -> int:
+        warnings.warn(
+            "Property supported_transaction_version is deprecated and will be removed in the future.",
+            category=DeprecationWarning,
+        )
+        return 1
 
     async def _get_max_fee(
         self,

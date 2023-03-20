@@ -35,6 +35,16 @@ class BaseAccount(ABC):
         Get the Client used by the Account.
         """
 
+    @property
+    @abstractmethod
+    def supported_transaction_version(self) -> int:
+        """
+        Get transaction version supported by the account.
+
+            .. deprecated :: 0.15.0
+                Property supported_transaction_version is deprecated and will be removed in the future.
+        """
+
     @abstractmethod
     async def get_nonce(self) -> int:
         """
