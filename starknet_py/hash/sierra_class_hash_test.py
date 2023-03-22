@@ -10,8 +10,8 @@ from starkware.starknet.services.api.contract_class.contract_class import (
 )
 
 from starknet_py.hash.sierra_class_hash import compute_sierra_class_hash
-from starknet_py.net.client_models import NewContractClass
-from starknet_py.net.schemas.gateway import NewContractClassSchema
+from starknet_py.net.client_models import SierraContractClass
+from starknet_py.net.schemas.gateway import SierraContractClassSchema
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
@@ -31,7 +31,8 @@ def test_compute_sierra_class_hash(sierra_contract_class_source):
     del sierra_contract_class_dict["sierra_program_debug_info"]
 
     sierra_contract_class = cast(
-        NewContractClass, NewContractClassSchema().load(sierra_contract_class_dict)
+        SierraContractClass,
+        SierraContractClassSchema().load(sierra_contract_class_dict),
     )
     class_hash = compute_sierra_class_hash(sierra_contract_class)
 

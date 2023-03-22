@@ -506,7 +506,7 @@ class CompiledContractSchema(ContractClassSchema):
 
 class CasmClassEntryPointSchema(Schema):
     selector = Felt(data_key="selector", required=True)
-    offset = Felt(data_key="offset", required=True)
+    offset = fields.Integer(data_key="offset", required=True)
     builtins = fields.List(fields.String(), data_key="builtins")
 
     @post_load
@@ -537,12 +537,11 @@ class CasmClassEntryPointsByTypeSchema(Schema):
 
 
 class CasmClassSchema(Schema):
-    program = fields.Dict(
-        keys=fields.String(),
-        values=fields.Raw(),
-        data_key="program",
-        required=True,
-    )
+    prime = Felt(data_key="prime", required=True)
+    bytecode = fields.List(Felt(), data_key="bytecode", required=True)
+    hints = fields.List(fields.Raw(), data_key="hints", required=True)
+    pythonic_hints = fields.List(fields.Raw(), data_key="pythonic_hints", required=True)
+    compiler_version = fields.String(data_key="compiler_version", required=True)
     entry_points_by_type = fields.Nested(
         CasmClassEntryPointsByTypeSchema(),
         data_key="entry_points_by_type",
