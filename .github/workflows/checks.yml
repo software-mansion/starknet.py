@@ -22,6 +22,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install poetry
+          poetry config installer.modern-installation false
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
@@ -47,6 +48,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install poetry
+          poetry config installer.modern-installation false
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
@@ -83,6 +85,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install poetry
+          poetry config installer.modern-installation false
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
@@ -93,9 +96,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: starknet_py/tests/e2e/mock/contracts_compiled
-          key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts') }}
-          restore-keys: |
-            ${{ runner.os }}-contracts-
+          key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts', 'poetry.lock') }}
       - name: Compile contracts
         if: steps.cache-contracts.outputs.cache-hit != 'true'
         run: |
@@ -127,6 +128,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install poetry
+          poetry config installer.modern-installation false
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:

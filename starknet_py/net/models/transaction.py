@@ -22,13 +22,21 @@ from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.transaction import (
     TransactionHashPrefix,
     compute_declare_transaction_hash,
+    compute_declare_v2_transaction_hash,
     compute_deploy_account_transaction_hash,
     compute_transaction_hash,
 )
-from starknet_py.net.client_models import ContractClass, TransactionType
+from starknet_py.net.client_models import (
+    ContractClass,
+    SierraContractClass,
+    TransactionType,
+)
 from starknet_py.net.models.chains import StarknetChainId
 from starknet_py.net.schemas.common import Felt, TransactionTypeField
-from starknet_py.net.schemas.gateway import ContractClassSchema
+from starknet_py.net.schemas.gateway import (
+    ContractClassSchema,
+    SierraContractClassSchema,
+)
 
 
 @dataclass(frozen=True)
@@ -73,6 +81,45 @@ TypeAccountTransaction = TypeVar("TypeAccountTransaction", bound=AccountTransact
 
 
 @dataclass(frozen=True)
+class DeclareV2(AccountTransaction):
+    """
+    Represents a transaction in the Starknet network that is a version 2 declaration of a Starknet contract
+    class. Supports only sierra compiled contracts.
+    """
+
+    contract_class: SierraContractClass = field(
+        metadata={"marshmallow_field": fields.Nested(SierraContractClassSchema())}
+    )
+    compiled_class_hash: int = field(metadata={"marshmallow_field": Felt()})
+    sender_address: int = field(metadata={"marshmallow_field": Felt()})
+    type: TransactionType = field(
+        metadata={"marshmallow_field": TransactionTypeField()},
+        default=TransactionType.DECLARE,
+    )
+
+    @marshmallow.post_dump
+    def post_dump(self, data: Dict[str, Any], **kwargs) -> Dict[str, Any]:
+        # pylint: disable=unused-argument, no-self-use
+        return compress_program(data, program_name="sierra_program")
+
+    @marshmallow.pre_load
+    def pre_load(self, data: Dict[str, Any], **kwargs) -> Dict[str, Any]:
+        # pylint: disable=unused-argument, no-self-use
+        return decompress_program(data, program_name="sierra_program")
+
+    def calculate_hash(self, chain_id: StarknetChainId) -> int:
+        return compute_declare_v2_transaction_hash(
+            contract_class=self.contract_class,
+            compiled_class_hash=self.compiled_class_hash,
+            chain_id=chain_id.value,
+            sender_address=self.sender_address,
+            max_fee=self.max_fee,
+            version=self.version,
+            nonce=self.nonce,
+        )
+
+
+@dataclass(frozen=True)
 class Declare(AccountTransaction):
     """
     Represents a transaction in the StarkNet network that is a declaration of a StarkNet contract
@@ -90,33 +137,16 @@ class Declare(AccountTransaction):
     )
 
     @marshmallow.post_dump
-    def compress_program_post_dump(
-        self, data: Dict[str, Any], **kwargs
-    ) -> Dict[str, Any]:
+    def post_dump(self, data: Dict[str, Any], **kwargs) -> Dict[str, Any]:
         # Allowing **kwargs is needed here because marshmallow is passing additional parameters here
         # along with data, which we don't handle.
         # pylint: disable=unused-argument, no-self-use
-
-        program = data["contract_class"]["program"]
-
-        compressed_program = json.dumps(program)
-        compressed_program = gzip.compress(data=compressed_program.encode("ascii"))
-        compressed_program = base64.b64encode(compressed_program)
-        data["contract_class"]["program"] = compressed_program.decode("ascii")
-
-        return data
+        return compress_program(data)
 
     @marshmallow.pre_load
-    def decompress_program(self, data: Dict[str, Any], **kwargs) -> Dict[str, Any]:
+    def pre_load(self, data: Dict[str, Any], **kwargs) -> Dict[str, Any]:
         # pylint: disable=unused-argument, no-self-use
-        compressed_program: str = data["contract_class"]["program"]
-
-        program = base64.b64decode(compressed_program.encode("ascii"))
-        program = gzip.decompress(data=program)
-        program = json.loads(program.decode("ascii"))
-        data["contract_class"]["program"] = program
-
-        return data
+        return decompress_program(data)
 
     def calculate_hash(self, chain_id: StarknetChainId) -> int:
         """
@@ -179,7 +209,7 @@ class Invoke(AccountTransaction):
     function.
     """
 
-    contract_address: int = field(metadata={"marshmallow_field": Felt()})
+    sender_address: int = field(metadata={"marshmallow_field": Felt()})
     calldata: List[int] = field(
         metadata={"marshmallow_field": fields.List(fields.String())}
     )
@@ -196,7 +226,7 @@ class Invoke(AccountTransaction):
         return compute_transaction_hash(
             tx_hash_prefix=TransactionHashPrefix.INVOKE,
             version=self.version,
-            contract_address=self.contract_address,
+            contract_address=self.sender_address,
             entry_point_selector=DEFAULT_ENTRY_POINT_SELECTOR,
             calldata=self.calldata,
             max_fee=self.max_fee,
@@ -207,11 +237,12 @@ class Invoke(AccountTransaction):
 
 InvokeSchema = marshmallow_dataclass.class_schema(Invoke)
 DeclareSchema = marshmallow_dataclass.class_schema(Declare)
+DeclareV2Schema = marshmallow_dataclass.class_schema(DeclareV2)
 DeployAccountSchema = marshmallow_dataclass.class_schema(DeployAccount)
 
 
 def compute_invoke_hash(
-    contract_address: int,
+    sender_address: int,
     entry_point_selector: Union[int, str],
     calldata: Sequence[int],
     chain_id: StarknetChainId,
@@ -222,7 +253,7 @@ def compute_invoke_hash(
     """
     Computes invocation hash.
 
-    :param contract_address: int
+    :param sender_address: int
     :param entry_point_selector: Union[int, str]
     :param calldata: Sequence[int]
     :param chain_id: StarknetChainId
@@ -241,7 +272,7 @@ def compute_invoke_hash(
 
     return compute_transaction_hash(
         tx_hash_prefix=TransactionHashPrefix.INVOKE,
-        contract_address=contract_address,
+        contract_address=sender_address,
         entry_point_selector=entry_point_selector,
         calldata=calldata,
         chain_id=chain_id.value,
@@ -249,3 +280,21 @@ def compute_invoke_hash(
         max_fee=max_fee,
         version=version,
     )
+
+
+def compress_program(data: dict, program_name: str = "program") -> dict:
+    program = data["contract_class"][program_name]
+    compressed_program = json.dumps(program)
+    compressed_program = gzip.compress(data=compressed_program.encode("ascii"))
+    compressed_program = base64.b64encode(compressed_program)
+    data["contract_class"][program_name] = compressed_program.decode("ascii")
+    return data
+
+
+def decompress_program(data: dict, program_name: str = "program") -> dict:
+    compressed_program: str = data["contract_class"][program_name]
+    program = base64.b64decode(compressed_program.encode("ascii"))
+    program = gzip.decompress(data=program)
+    program = json.loads(program.decode("ascii"))
+    data["contract_class"][program_name] = program
+    return data

@@ -15,7 +15,7 @@ async def test_call(map_contract: Contract):
     # docs-start: call
     call_result = map_contract.functions["get"].call(key=10)
     # or when call has to be done at specific block
-    call_result = map_contract.functions["get"].call(key=10, block_hash="latest")
+    call_result = map_contract.functions["get"].call(key=10, block_number="latest")
     # docs-end: call
 
 

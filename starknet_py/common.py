@@ -1,9 +1,19 @@
 import warnings
 from typing import List, Literal, Optional, Union, cast
 
+from marshmallow import EXCLUDE
+
 from starknet_py.compile.compiler import Compiler, StarknetCompilationSource
-from starknet_py.net.client_models import CompiledContract, ContractClass
-from starknet_py.net.schemas.gateway import CompiledContractSchema, ContractClassSchema
+from starknet_py.net.client_models import (
+    CompiledContract,
+    ContractClass,
+    SierraCompiledContract,
+)
+from starknet_py.net.schemas.gateway import (
+    CompiledContractSchema,
+    ContractClassSchema,
+    SierraCompiledContractSchema,
+)
 
 
 def create_compiled_contract(
@@ -43,6 +53,19 @@ def create_compiled_contract(
             contract_source=compilation_source, cairo_path=search_paths
         ).compile_contract()
     return cast(CompiledContract, CompiledContractSchema().loads(compiled_contract))
+
+
+def create_sierra_compiled_contract(compiled_contract: str) -> SierraCompiledContract:
+    """
+    Creates SierraCompiledContract instance.
+
+    :param compiled_contract: compiled contract string.
+    :return: SierraCompiledContract instance.
+    """
+    return cast(
+        SierraCompiledContract,
+        SierraCompiledContractSchema().loads(compiled_contract, unknown=EXCLUDE),
+    )
 
 
 def create_contract_class(

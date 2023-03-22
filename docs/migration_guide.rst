@@ -29,6 +29,8 @@ Deprecations
 - ``compute_invoke_hash`` is deprecated in favour of ``compute_transaction_hash``
 - ``starknet_py.common.create_contract_class`` is deprecated in favour of ``starknet_py.common.create_compiled_contract``
 - Client :meth:`~starknet_py.net.client.Client.net` property.
+- Removed ``supported_transaction_version`` property from ``BaseAccount`` abstract class.
+
 
 Breaking changes
 ----------------
@@ -99,8 +101,14 @@ Breaking changes
 8. Removed ``client`` argument from Contract :meth:`~starknet_py.contract.Contract.__init__` and :meth:`~starknet_py.contract.Contract.from_address`. Use ``provider`` argument instead.
 9. Removed ``net.l1`` L1<>L2 messaging module.
 10. Added `chain_id` argument to BaseAccount interface and implementation :meth:`~starknet_py.net.account.base_account.BaseAccount.get_balance` method.
-11. Changed Client :meth:`~starknet_py.net.client.Client.get_class_by_hash` return type to ``Union[ContractClass, NewContractClass]``.
-12. Replaced ``contract_address`` with ``sender_address`` in ``InvokeTransaction``.
+11. Changed Client :meth:`~starknet_py.net.client.Client.get_class_by_hash` return type to ``Union[ContractClass, SierraContractClass]``.
+12. Replaced ``contract_address`` with ``sender_address`` in:
+
+    - :class:`starknet_py.net.client_models.InvokeTransaction`
+    - :class:`starknet_py.net.models.transaction.Invoke`
+    - :func:`starknet_py.net.models.transaction.compute_invoke_hash`
+13. Replaced ``BlockStateUpdate.state_diff.declared_contract_hashes`` is now a list of ``DeclaredContractHash`` representing new Cairo classes. Old declared contract classes are still available at ``BlockStateUpdate.state_diff.deprecated_declared_contract_hashes``.
+14. Removed ``version`` property from ``PreparedFunctionCall`` class.
 
 
 Transaction dataclasses

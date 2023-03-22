@@ -4,12 +4,17 @@ from typing import cast
 
 import pytest
 
-from starknet_py.common import create_compiled_contract, create_contract_class
+from starknet_py.common import (
+    create_compiled_contract,
+    create_contract_class,
+    create_sierra_compiled_contract,
+)
 from starknet_py.net.client_models import TransactionType
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import (
     Declare,
     DeclareSchema,
+    DeclareV2,
     DeployAccount,
     Invoke,
     InvokeSchema,
@@ -26,7 +31,7 @@ def test_invoke_hash():
         assert (
             compute_invoke_hash(
                 entry_point_selector=selector,
-                contract_address=0x03606DB92E563E41F4A590BC01C243E8178E9BA8C980F8E464579F862DA3537C,
+                sender_address=0x03606DB92E563E41F4A590BC01C243E8178E9BA8C980F8E464579F862DA3537C,
                 calldata=[1234],
                 chain_id=StarknetChainId.TESTNET,
                 version=0,
@@ -62,6 +67,7 @@ def test_declare_compress_program(balance_contract):
 
 
 compiled_contract = read_contract("erc20_compiled.json")
+sierra_compiled_contract = read_contract("precompiled/minimal_contract_compiled.json")
 
 
 @pytest.mark.parametrize(
@@ -69,7 +75,7 @@ compiled_contract = read_contract("erc20_compiled.json")
     [
         (
             Invoke(
-                contract_address=0x1,
+                sender_address=0x1,
                 calldata=[1, 2, 3],
                 max_fee=10000,
                 signature=[],
@@ -101,7 +107,21 @@ compiled_contract = read_contract("erc20_compiled.json")
                 nonce=23,
                 version=1,
             ),
-            1691558101504686217378182149804732367606605343820187119932616442583251634573,
+            3563424202165698473612666852609882887259878803446576675488066830771823869423,
+        ),
+        (
+            DeclareV2(
+                contract_class=create_sierra_compiled_contract(
+                    compiled_contract=sierra_compiled_contract
+                ),
+                compiled_class_hash=0x1,
+                max_fee=1000,
+                nonce=20,
+                sender_address=0x1234,
+                signature=[0x1, 0x2],
+                version=2,
+            ),
+            669407379128146207315662195646033049577214993241551268214610074015474911988,
         ),
     ],
 )
@@ -113,7 +133,7 @@ def test_calculate_transaction_hash(transaction, calculated_hash):
 
 def test_serialize_deserialize_invoke():
     data = {
-        "contract_address": "0x1",
+        "sender_address": "0x1",
         "calldata": ["0x1", "0x2", "0x3"],
         "max_fee": "0x1",
         "signature": [],
