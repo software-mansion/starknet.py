@@ -174,9 +174,10 @@ async def test_sign_invoke_transaction(gateway_account, calls):
 
 
 @pytest.mark.asyncio
-async def test_sign_invoke_transaction_auto_estimate(gateway_account):
+async def test_sign_invoke_transaction_auto_estimate(gateway_account, map_contract):
     signed_tx = await gateway_account.sign_invoke_transaction(
-        Call(1, 2, [3]), auto_estimate=True
+        Call(map_contract.address, get_selector_from_name("put"), [3, 4]),
+        auto_estimate=True,
     )
 
     assert isinstance(signed_tx.signature, list)
@@ -286,10 +287,12 @@ async def test_sign_deploy_account_transaction(gateway_account):
 
 
 @pytest.mark.asyncio
-async def test_sign_deploy_account_transaction_auto_estimate(gateway_account):
-    class_hash = 0x1234
-    salt = 0x123
-    calldata = [1, 2, 3]
+async def test_sign_deploy_account_transaction_auto_estimate(
+    gateway_account, account_with_validate_deploy_class_hash
+):
+    class_hash = account_with_validate_deploy_class_hash
+    salt = 0x1234
+    calldata = [gateway_account.signer.public_key]
     signed_tx = await gateway_account.sign_deploy_account_transaction(
         class_hash, salt, calldata, auto_estimate=True
     )
