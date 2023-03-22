@@ -107,7 +107,7 @@ sierra_compiled_contract = read_contract("precompiled/minimal_contract_compiled.
                 nonce=23,
                 version=1,
             ),
-            3563424202165698473612666852609882887259878803446576675488066830771823869423,
+            1776701039358694529566359362817648865558278416991419471593609530610231748730,
         ),
         (
             DeclareV2(
