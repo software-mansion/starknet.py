@@ -4,12 +4,12 @@ from starkware.cairo.common.poseidon_hash import poseidon_hash_many
 
 from starknet_py.cairo.felt import encode_shortstring
 from starknet_py.hash.utils import _starknet_keccak
-from starknet_py.net.client_models import NewContractClass, NewEntryPoint
+from starknet_py.net.client_models import SierraContractClass, SierraEntryPoint
 
 
-def compute_sierra_class_hash(sierra_contract_class: NewContractClass) -> int:
+def compute_sierra_class_hash(sierra_contract_class: SierraContractClass) -> int:
     """
-    Calculate class hash of a NewContractClass.
+    Calculate class hash of a SierraContractClass.
     """
     _sierra_version_full_name = (
         "CONTRACT_CLASS_V" + sierra_contract_class.contract_class_version
@@ -46,7 +46,7 @@ def compute_sierra_class_hash(sierra_contract_class: NewContractClass) -> int:
     )
 
 
-def _entry_points_array(entry_points: List[NewEntryPoint]) -> List[int]:
+def _entry_points_array(entry_points: List[SierraEntryPoint]) -> List[int]:
     entry_points_array = []
     for entry_point in entry_points:
         entry_points_array.extend([entry_point.selector, entry_point.function_idx])

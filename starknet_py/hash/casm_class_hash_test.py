@@ -4,7 +4,9 @@ import pytest
 from starkware.starknet.core.os.contract_class.compiled_class_hash import (
     compute_compiled_class_hash as sw_compute_compiled_class_hash,
 )
-from starkware.starknet.services.api.contract_class.contract_class import CompiledClass as SwCompiledClass
+from starkware.starknet.services.api.contract_class.contract_class import (
+    CompiledClass as SwCompiledClass,
+)
 
 from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.net.client_models import CasmClass
