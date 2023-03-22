@@ -1,10 +1,8 @@
-import json
 from typing import List
 
 from starkware.cairo.common.poseidon_hash import poseidon_hash_many
 
 from starknet_py.cairo.felt import encode_shortstring
-from starknet_py.hash.utils import _starknet_keccak
 from starknet_py.net.client_models import CasmClass, CasmClassEntryPoint
 
 CASM_CLASS_VERSION = "COMPILED_CLASS_V1"
@@ -28,13 +26,7 @@ def compute_casm_class_hash(casm_contract_class: CasmClass) -> int:
         _entry_points_array(_entry_points.constructor)
     )
 
-    _program_dict = dict(program=casm_contract_class.program)
-    hinted_casm_class_hash = _starknet_keccak(
-        data=json.dumps(_program_dict, sort_keys=True).encode()
-    )
-
-    _bytecode = [int(val, 0) for val in casm_contract_class.program["data"]]
-    bytecode_hash = poseidon_hash_many(_bytecode)
+    bytecode_hash = poseidon_hash_many(casm_contract_class.bytecode)
 
     return poseidon_hash_many(
         [
@@ -42,7 +34,6 @@ def compute_casm_class_hash(casm_contract_class: CasmClass) -> int:
             external_entry_points_hash,
             l1_handler_entry_points_hash,
             constructor_entry_points_hash,
-            hinted_casm_class_hash,
             bytecode_hash,
         ]
     )
