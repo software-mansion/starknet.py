@@ -27,7 +27,7 @@ class Felt(fields.Field):
         data: Union[Mapping[str, Any], None],
         **kwargs,
     ):
-        # TODO: fix this
+        # TODO: Temporary fix. EntryPointSchema takes int and Felt
         if isinstance(value, int):
             return value
 
