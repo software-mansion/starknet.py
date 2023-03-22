@@ -215,6 +215,44 @@
       ]
     ]
   ],
+  "pythonic_hints": [
+    [
+      2,
+      [
+        "memory[ap + 0] = 0 <= memory[fp + -6]"
+      ]
+    ],
+    [
+      39,
+      [
+        "memory[ap + 0] = 0 <= memory[fp + 1]"
+      ]
+    ],
+    [
+      53,
+      [
+        "memory[ap + 0] = segments.add()"
+      ]
+    ],
+    [
+      64,
+      [
+        "memory[ap + 0] = segments.add()"
+      ]
+    ],
+    [
+      82,
+      [
+        "memory[ap + 0] = segments.add()"
+      ]
+    ],
+    [
+      96,
+      [
+        "memory[ap + 0] = segments.add()"
+      ]
+    ]
+  ],
   "entry_points_by_type": {
     "EXTERNAL": [
       {
