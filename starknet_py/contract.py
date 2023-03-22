@@ -38,7 +38,7 @@ from starknet_py.utils.sync import add_sync_methods
 
 ABI = list
 ABIEntry = dict
-TSentTransaction = TypeVar("TSentTransaction", bound="SentTransaction")
+TypeSentTransaction = TypeVar("TypeSentTransaction", bound="SentTransaction")
 
 
 @dataclass(frozen=True)
@@ -87,10 +87,10 @@ class SentTransaction:
     """Number of the block in which transaction was included."""
 
     async def wait_for_acceptance(
-        self: TSentTransaction,
+        self: TypeSentTransaction,
         wait_for_accept: Optional[bool] = False,
         check_interval=5,
-    ) -> TSentTransaction:
+    ) -> TypeSentTransaction:
         """
         Waits for transaction to be accepted on chain. By default, returns when status is ``PENDING`` -
         use ``wait_for_accept`` to wait till ``ACCEPTED`` status.
@@ -235,7 +235,6 @@ class PreparedFunctionCall(Call):
         payload_transformer: FunctionSerializationAdapter,
         contract_data: ContractData,
         max_fee: Optional[int],
-        version: int,
     ):
         # pylint: disable=too-many-arguments
         super().__init__(
@@ -246,7 +245,6 @@ class PreparedFunctionCall(Call):
         self._payload_transformer = payload_transformer
         self._contract_data = contract_data
         self.max_fee = max_fee
-        self.version = version
 
     @property
     def _account(self) -> BaseAccount:
@@ -258,26 +256,32 @@ class PreparedFunctionCall(Call):
     async def call_raw(
         self,
         block_hash: Optional[str] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> List[int]:
         """
         Calls a method without translating the result into python values.
 
         :param block_hash: Optional block hash.
+        :param block_number: Optional block number.
         :return: list of ints.
         """
-        return await self._client.call_contract(call=self, block_hash=block_hash)
+        return await self._client.call_contract(
+            call=self, block_hash=block_hash, block_number=block_number
+        )
 
     async def call(
         self,
         block_hash: Optional[str] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> TupleDataclass:
         """
         Calls a method.
 
         :param block_hash: Optional block hash.
+        :param block_number: Optional block number.
         :return: TupleDataclass representing call result.
         """
-        result = await self.call_raw(block_hash=block_hash)
+        result = await self.call_raw(block_hash=block_hash, block_number=block_number)
         return self._payload_transformer.deserialize(result)
 
     async def invoke(
@@ -367,11 +371,6 @@ class ContractFunction:
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :return: PreparedFunctionCall.
         """
-        version = (
-            self.account.supported_transaction_version
-            if self.account is not None
-            else 0
-        )
 
         calldata = self._payload_transformer.serialize(*args, **kwargs)
         return PreparedFunctionCall(
@@ -382,13 +381,13 @@ class ContractFunction:
             payload_transformer=self._payload_transformer,
             selector=self.get_selector(self.name),
             max_fee=max_fee,
-            version=version,
         )
 
     async def call(
         self,
         *args,
         block_hash: Optional[str] = None,
+        block_number: Optional[Union[int, Tag]] = None,
         **kwargs,
     ) -> TupleDataclass:
         """
@@ -397,9 +396,10 @@ class ContractFunction:
         Equivalent of ``.prepare(*args, **kwargs).call()``.
 
         :param block_hash: Block hash to perform the call to the contract at specific point of time.
+        :param block_number: Block number to perform the call to the contract at specific point of time.
         """
         return await self.prepare(max_fee=0, *args, **kwargs).call(
-            block_hash=block_hash
+            block_hash=block_hash, block_number=block_number
         )
 
     async def invoke(

@@ -1,4 +1,9 @@
+from typing import Tuple
+
 import pytest
+from starkware.starknet.core.os.transaction_hash.transaction_hash import (
+    calculate_declare_transaction_hash as sw_calculate_declare_transaction_hash,
+)
 from starkware.starknet.core.os.transaction_hash.transaction_hash import (
     calculate_deprecated_declare_transaction_hash,
 )
@@ -6,13 +11,16 @@ from starkware.starknet.services.api.contract_class.contract_class import (
     DeprecatedCompiledClass,
 )
 
-from starknet_py.common import create_compiled_contract
+from starknet_py.common import create_compiled_contract, create_sierra_compiled_contract
 from starknet_py.hash.transaction import (
     TransactionHashPrefix,
+    _convert_contract_class_to_cairo_lang_format,
     compute_declare_transaction_hash,
+    compute_declare_v2_transaction_hash,
     compute_deploy_account_transaction_hash,
     compute_transaction_hash,
 )
+from starknet_py.net.models import StarknetChainId
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
@@ -65,6 +73,34 @@ def test_compute_declare_transaction_hash(contract_json, data):
 
     sw_declare_hash = calculate_deprecated_declare_transaction_hash(
         DeprecatedCompiledClass.loads(contract), *data
+    )
+
+    assert declare_hash == sw_declare_hash
+
+
+def test_compute_declare_v2_transaction_hash(
+    sierra_minimal_compiled_contract_and_class_hash: Tuple[str, int],
+):
+    contract, compiled_class_hash = sierra_minimal_compiled_contract_and_class_hash
+    compiled_contract = create_sierra_compiled_contract(contract)
+
+    declare_hash = compute_declare_v2_transaction_hash(
+        contract_class=compiled_contract,
+        compiled_class_hash=compiled_class_hash,
+        chain_id=StarknetChainId.TESTNET.value,
+        sender_address=0x1,
+        max_fee=2000,
+        version=2,
+        nonce=23,
+    )
+    sw_declare_hash = sw_calculate_declare_transaction_hash(
+        contract_class=_convert_contract_class_to_cairo_lang_format(compiled_contract),
+        compiled_class_hash=compiled_class_hash,
+        chain_id=StarknetChainId.TESTNET.value,
+        sender_address=0x1,
+        max_fee=2000,
+        version=2,
+        nonce=23,
     )
 
     assert declare_hash == sw_declare_hash

@@ -167,7 +167,7 @@ async def test_call_contract(client, contract_address):
         calldata=[],
     )
 
-    result = await client.call_contract(call, block_hash="latest")
+    result = await client.call_contract(call, block_number="latest")
 
     assert result == [1234]
 
@@ -284,11 +284,12 @@ async def test_wait_for_tx_cancelled(gateway_client):
 
 
 @pytest.mark.asyncio
-async def test_declare_contract(client, map_compiled_contract, account):
+async def test_declare_contract(map_compiled_contract, account):
     declare_tx = await account.sign_declare_transaction(
         compiled_contract=map_compiled_contract, max_fee=MAX_FEE
     )
 
+    client = account.client
     result = await client.declare(declare_tx)
     await client.wait_for_tx(result.transaction_hash)
     transaction_receipt = await client.get_transaction_receipt(result.transaction_hash)
@@ -383,7 +384,7 @@ async def test_state_update_declared_contract_hashes(
 ):
     state_update = await client.get_state_update(block_number=block_with_declare_number)
 
-    assert class_hash in state_update.state_diff.declared_contract_hashes
+    assert class_hash in state_update.state_diff.deprecated_declared_contract_hashes
 
 
 @pytest.mark.run_on_devnet

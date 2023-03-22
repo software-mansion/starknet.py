@@ -1,3 +1,4 @@
+import json
 from typing import Any, Dict, List
 
 from marshmallow import EXCLUDE, Schema, fields, post_load
@@ -30,11 +31,12 @@ from starknet_py.net.client_models import (
     L1HandlerTransaction,
     L1toL2Message,
     L2toL1Message,
-    NewContractClass,
-    NewEntryPoint,
-    NewEntryPointsByType,
     ReplacedClass,
     SentTransactionResponse,
+    SierraCompiledContract,
+    SierraContractClass,
+    SierraEntryPoint,
+    SierraEntryPointsByType,
     StateDiff,
     StorageDiffItem,
     TransactionReceipt,
@@ -426,32 +428,32 @@ class ContractClassSchema(Schema):
         return ContractClass(**data)
 
 
-class NewEntryPointSchema(Schema):
+class SierraEntryPointSchema(Schema):
     function_idx = fields.Integer(data_key="function_idx", required=True)
     selector = Felt(data_key="selector", required=True)
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> NewEntryPoint:
-        return NewEntryPoint(**data)
+    def make_dataclass(self, data, **kwargs) -> SierraEntryPoint:
+        return SierraEntryPoint(**data)
 
 
-class NewEntryPointsByTypeSchema(Schema):
+class SierraEntryPointsByTypeSchema(Schema):
     constructor = fields.List(
-        fields.Nested(NewEntryPointSchema()), data_key="CONSTRUCTOR", required=True
+        fields.Nested(SierraEntryPointSchema()), data_key="CONSTRUCTOR", required=True
     )
     external = fields.List(
-        fields.Nested(NewEntryPointSchema()), data_key="EXTERNAL", required=True
+        fields.Nested(SierraEntryPointSchema()), data_key="EXTERNAL", required=True
     )
     l1_handler = fields.List(
-        fields.Nested(NewEntryPointSchema()), data_key="L1_HANDLER", required=True
+        fields.Nested(SierraEntryPointSchema()), data_key="L1_HANDLER", required=True
     )
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> NewEntryPointsByType:
-        return NewEntryPointsByType(**data)
+    def make_dataclass(self, data, **kwargs) -> SierraEntryPointsByType:
+        return SierraEntryPointsByType(**data)
 
 
-class NewContractClassSchema(Schema):
+class SierraContractClassSchema(Schema):
     contract_class_version = fields.String(
         data_key="contract_class_version", required=True
     )
@@ -461,19 +463,30 @@ class NewContractClassSchema(Schema):
         required=True,
     )
     entry_points_by_type = fields.Nested(
-        NewEntryPointsByTypeSchema(), data_key="entry_points_by_type", required=True
+        SierraEntryPointsByTypeSchema(), data_key="entry_points_by_type", required=True
     )
     abi = fields.String(data_key="abi")
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> NewContractClass:
-        return NewContractClass(**data)
+    def make_dataclass(self, data, **kwargs) -> SierraContractClass:
+        return SierraContractClass(**data)
+
+
+class SierraCompiledContractSchema(SierraContractClassSchema):
+    abi = fields.List(fields.Dict(), data_key="abi", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> SierraCompiledContract:
+        # Schema must accept ABI as List[dict] to be compatible with the output of Cairo1 compiler.
+        data["abi"] = json.dumps(data["abi"])
+
+        return SierraCompiledContract(**data)
 
 
 class TypesOfContractClassSchema(OneOfSchema):
     type_schemas = {
         "program": ContractClassSchema(),
-        "sierra_program": NewContractClassSchema(),
+        "sierra_program": SierraContractClassSchema(),
     }
 
     def get_data_type(self, data):

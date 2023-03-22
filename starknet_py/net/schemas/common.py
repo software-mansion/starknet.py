@@ -27,6 +27,10 @@ class Felt(fields.Field):
         data: Union[Mapping[str, Any], None],
         **kwargs,
     ):
+        # TODO: Temporary fix. EntryPointSchema takes int and Felt
+        if isinstance(value, int):
+            return value
+
         if not isinstance(value, str) or not value.startswith("0x"):
             raise ValidationError(f"Invalid value provided for felt: {value}.")
 

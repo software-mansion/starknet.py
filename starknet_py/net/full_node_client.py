@@ -219,7 +219,6 @@ class FullNodeClient(Client):
     async def deploy_account(
         self, transaction: DeployAccount
     ) -> DeployAccountTransactionResponse:
-
         params = _create_broadcasted_txn(transaction=transaction)
 
         res = await self._client.call(
@@ -444,7 +443,7 @@ def _create_broadcasted_declare_properties(transaction: Declare) -> dict:
 
 def _create_broadcasted_invoke_properties(transaction: Invoke) -> dict:
     invoke_properties = {
-        "sender_address": _to_rpc_felt(transaction.contract_address),
+        "sender_address": _to_rpc_felt(transaction.sender_address),
         "calldata": [_to_rpc_felt(data) for data in transaction.calldata],
     }
     return invoke_properties

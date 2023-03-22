@@ -1,11 +1,28 @@
 from enum import Enum
-from typing import Sequence
+from typing import Dict, List, Sequence
+
+# Using cairo-lang methods is a temporary solution until we integrate poseidon hash into the library
+from starkware.starknet.core.os.contract_class.class_hash import (
+    compute_class_hash as sw_compute_sierra_class_hash,
+)
+from starkware.starknet.services.api.contract_class.contract_class import (
+    ContractClass as CairoLangContractClass,
+)
+from starkware.starknet.services.api.contract_class.contract_class import (
+    ContractEntryPoint,
+    EntryPointType,
+)
 
 from starknet_py.common import int_from_bytes
 from starknet_py.constants import DEFAULT_ENTRY_POINT_SELECTOR
 from starknet_py.hash.class_hash import compute_class_hash
 from starknet_py.hash.utils import compute_hash_on_elements
-from starknet_py.net.client_models import ContractClass
+from starknet_py.net.client_models import (
+    ContractClass,
+    SierraContractClass,
+    SierraEntryPoint,
+    SierraEntryPointsByType,
+)
 
 
 class TransactionHashPrefix(Enum):
@@ -135,3 +152,78 @@ def compute_declare_transaction_hash(
         chain_id=chain_id,
         additional_data=[nonce],
     )
+
+
+def compute_declare_v2_transaction_hash(
+    *,
+    contract_class: SierraContractClass,
+    compiled_class_hash: int,
+    chain_id: int,
+    sender_address: int,
+    max_fee: int,
+    version: int,
+    nonce: int,
+) -> int:
+    """
+    Computes class hash of declare transaction version 2.
+
+    :param contract_class: SierraContractClass of the contract.
+    :param compiled_class_hash: compiled class hash of the program.
+    :param chain_id: The network's chain ID.
+    :param sender_address: Address which sends the transaction.
+    :param max_fee: The transaction's maximum fee.
+    :param version: The transaction's version.
+    :param nonce: Nonce of the transaction.
+    :return: Hash of the transaction.
+    """
+    class_hash = sw_compute_sierra_class_hash(
+        contract_class=_convert_contract_class_to_cairo_lang_format(contract_class)
+    )
+
+    return compute_transaction_hash(
+        tx_hash_prefix=TransactionHashPrefix.DECLARE,
+        version=version,
+        contract_address=sender_address,
+        entry_point_selector=DEFAULT_ENTRY_POINT_SELECTOR,
+        calldata=[class_hash],
+        max_fee=max_fee,
+        chain_id=chain_id,
+        additional_data=[nonce, compiled_class_hash],
+    )
+
+
+def _convert_contract_class_to_cairo_lang_format(
+    contract_class: SierraContractClass,
+) -> CairoLangContractClass:
+    # noinspection PyArgumentList
+    return CairoLangContractClass(
+        contract_class_version=contract_class.contract_class_version,
+        sierra_program=[int(i, 16) for i in contract_class.sierra_program],
+        entry_points_by_type=_convert_entry_points(contract_class.entry_points_by_type),
+        abi=contract_class.abi,
+    )
+
+
+def _convert_entry_points(
+    entry_points: SierraEntryPointsByType,
+) -> Dict[EntryPointType, List[ContractEntryPoint]]:
+    return {
+        EntryPointType.EXTERNAL: _convert_entry_points_for_type(entry_points.external),
+        EntryPointType.L1_HANDLER: _convert_entry_points_for_type(
+            entry_points.l1_handler
+        ),
+        EntryPointType.CONSTRUCTOR: _convert_entry_points_for_type(
+            entry_points.constructor
+        ),
+    }
+
+
+def _convert_entry_points_for_type(
+    entry_points: List[SierraEntryPoint],
+) -> List[ContractEntryPoint]:
+    return [
+        ContractEntryPoint(
+            selector=entry_point.selector, function_idx=entry_point.function_idx
+        )
+        for entry_point in entry_points
+    ]

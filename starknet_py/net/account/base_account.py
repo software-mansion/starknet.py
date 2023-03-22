@@ -6,6 +6,7 @@ from starknet_py.net.client_models import Calls, SentTransactionResponse
 from starknet_py.net.models import AddressRepresentation, StarknetChainId
 from starknet_py.net.models.transaction import (
     Declare,
+    DeclareV2,
     DeployAccount,
     Invoke,
     TypeAccountTransaction,
@@ -39,6 +40,9 @@ class BaseAccount(ABC):
     def supported_transaction_version(self) -> int:
         """
         Get transaction version supported by the account.
+
+            .. deprecated :: 0.15.0
+                Property supported_transaction_version is deprecated and will be removed in the future.
         """
 
     @abstractmethod
@@ -106,11 +110,31 @@ class BaseAccount(ABC):
         """
         Create and sign declare transaction.
 
-        :param compiled_contract: string containing compiled contract bytecode.
-            Useful for reading compiled contract from a file.
+        :param compiled_contract: string containing a compiled Starknet contract. Supports old contracts.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :return: Signed Declare transaction.
+        """
+
+    @abstractmethod
+    async def sign_declare_v2_transaction(
+        self,
+        compiled_contract: str,
+        compiled_class_hash: int,
+        *,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+    ) -> DeclareV2:
+        """
+        Create and sign declare transaction using sierra contract.
+
+        :param compiled_contract: string containing a compiled Starknet contract.
+            Supports new contracts (compiled to sierra).
+        :param compiled_class_hash: a class hash of the sierra compiled contract used in the declare transaction.
+            Computed from casm compiled contract.
+        :param max_fee: Max amount of Wei to be paid when executing transaction.
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :return: Signed DeclareV2 transaction.
         """
 
     @abstractmethod

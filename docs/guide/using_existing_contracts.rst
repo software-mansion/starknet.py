@@ -4,7 +4,7 @@ Using existing contracts
 Existing contracts
 ------------------
 
-Although it is possible to use :obj:`Client <starknet_py.net.gateway_client.GatewayClient>` to interact with contracts, it requires translating python values into Cairo
+Although it is possible to use :ref:`Client` to interact with contracts, it requires translating python values into Cairo
 values. Contract offers that and some other utilities.
 
 Let's say we have a contract with this interface:
@@ -65,7 +65,7 @@ Fee estimation
 --------------
 
 You can estimate required amount of fee that will need to be paid for transaction
-using :meth:`Contract.PreparedFunctionCall.estimate_fee`
+using :meth:`PreparedFunctionCall.estimate_fee() <starknet_py.contract.PreparedFunctionCall.estimate_fee>`
 
 .. code-block:: python
 
@@ -99,7 +99,7 @@ Account and Client interoperability
 .. currentmodule:: starknet_py.contract
 
 :ref:`Contract` methods have been designed to be
-compatible with :ref:`Account` and :obj:`Client <starknet_py.net.gateway_client.GatewayClient>`.
+compatible with :ref:`Account` and :ref:`Client`.
 
 :ref:`PreparedFunctionCall` returned by :meth:`ContractFunction.prepare` can be used in Account methods to create Invoke transactions.
 
@@ -107,7 +107,7 @@ compatible with :ref:`Account` and :obj:`Client <starknet_py.net.gateway_client.
     :language: python
     :dedent: 4
 
-It can also be used in :obj:`Client.call_contract() <starknet_py.net.gateway_client.GatewayClient.call_contract>`
+It can also be used in :meth:`Client.call_contract() <starknet_py.net.client.Client.call_contract>`
 
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_contract_client_compatibility.py
     :language: python

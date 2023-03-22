@@ -18,13 +18,12 @@ from starknet_py.net.client_models import (
     EstimatedFee,
     GatewayBlock,
     Hash,
-    NewContractClass,
     SentTransactionResponse,
+    SierraContractClass,
     Tag,
     Transaction,
     TransactionReceipt,
     TransactionStatusResponse,
-    TransactionType,
 )
 from starknet_py.net.client_utils import hash_to_felt, is_block_identifier
 from starknet_py.net.http_client import GatewayHttpClient
@@ -32,6 +31,8 @@ from starknet_py.net.models.transaction import (
     AccountTransaction,
     Declare,
     DeclareSchema,
+    DeclareV2,
+    DeclareV2Schema,
     DeployAccount,
     DeployAccountSchema,
     Invoke,
@@ -284,7 +285,7 @@ class GatewayClient(Client):
 
     async def declare(
         self,
-        transaction: Declare,
+        transaction: Union[Declare, DeclareV2],
         token: Optional[str] = None,
     ) -> DeclareTransactionResponse:
         res = await self._add_transaction(transaction, token)
@@ -313,7 +314,7 @@ class GatewayClient(Client):
 
     async def get_class_by_hash(
         self, class_hash: Hash
-    ) -> Union[ContractClass, NewContractClass]:
+    ) -> Union[ContractClass, SierraContractClass]:
         res = await self._feeder_gateway_client.call(
             method_name="get_class_by_hash",
             params={"classHash": hash_to_felt(class_hash)},
@@ -449,13 +450,19 @@ def get_block_identifier(
 def _get_payload(
     txs: Union[AccountTransaction, List[AccountTransaction]]
 ) -> Union[List, Dict]:
-    type_to_schema = {
-        TransactionType.DECLARE: DeclareSchema(),
-        TransactionType.DEPLOY_ACCOUNT: DeployAccountSchema(),
-        TransactionType.INVOKE: InvokeSchema(),
-    }
-
     if isinstance(txs, AccountTransaction):
-        return type_to_schema[txs.type].dump(obj=txs)
+        return _tx_to_schema(txs).dump(obj=txs)
 
-    return [type_to_schema[tx.type].dump(obj=tx) for tx in txs]
+    return [_tx_to_schema(tx).dump(obj=tx) for tx in txs]
+
+
+def _tx_to_schema(tx: AccountTransaction):
+    if isinstance(tx, Declare):
+        return DeclareSchema()
+    if isinstance(tx, DeclareV2):
+        return DeclareV2Schema()
+    if isinstance(tx, DeployAccount):
+        return DeployAccountSchema()
+    if isinstance(tx, Invoke):
+        return InvokeSchema()
+    raise ValueError("Invalid tx type.")
