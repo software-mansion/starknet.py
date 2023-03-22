@@ -111,7 +111,7 @@ async def address_and_private_key(
 @pytest.fixture(scope="package")
 def gateway_account(
     address_and_private_key: Tuple[str, str], gateway_client: GatewayClient
-) -> BaseAccount:
+) -> Account:
     """
     Returns a new Account created with GatewayClient.
     """
