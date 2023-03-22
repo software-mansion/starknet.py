@@ -448,7 +448,11 @@ class CasmClass:
     Dataclass representing class compiled to Cairo assembly.
     """
 
-    program: dict
+    prime: int
+    bytecode: List[int]
+    hints: List[Any]
+    pythonic_hints: List[Any]
+    compiler_version: str
     entry_points_by_type: CasmClassEntryPointsByType
 
 
