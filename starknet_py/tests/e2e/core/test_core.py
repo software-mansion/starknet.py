@@ -78,7 +78,7 @@ async def test_contract(core_map_contract: Contract):
 
     assert estimated_fee.overall_fee > 0
 
-    resp = await prepared_tx.invoke(max_fee=estimated_fee.overall_fee * 1.5)
+    resp = await prepared_tx.invoke(max_fee=int(estimated_fee.overall_fee * 1.5))
     await resp.wait_for_acceptance()
 
     (value,) = await core_map_contract.functions["get"].call(key=10)
