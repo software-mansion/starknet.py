@@ -22,8 +22,8 @@ crypto-cpp-py = "^1.2.0"
 marshmallow = "^3.15.0"
 marshmallow-oneofschema = "^3.0.1"
 typing-extensions = "^4.3.0"
-cairo-lang = { url = "https://github.com/starkware-libs/cairo-lang/releases/download/v0.11.0-pre3/cairo-lang-0.11.0a2.zip" }
-eth-utils = "^2.1.0"
+cairo-lang = "^0.11.0"
+eth-utils = "<2.0.0"
 furo = "^2022.12.7"
 marshmallow-dataclass = "<8.5.0"
 
@@ -50,7 +50,7 @@ starknet-devnet = {git = "https://github.com/Shard-Labs/starknet-devnet.git", re
 
 [tool.poe.tasks]
 test.shell = "pytest -n auto -v --reruns 10 --only-rerun aiohttp.client_exceptions.ClientConnectorError --cov=starknet_py starknet_py"
-test_ci.shell = "coverage run -m pytest -v --reruns 2 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/core"
+test_ci.shell = "coverage run -m pytest -vvv --reruns 2 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/core --net=testnet"
 test_ci_docs.shell = "coverage run -m pytest -v --reruns 2 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py/tests/e2e/docs"
 test_unit.shell = "pytest -n auto -v starknet_py --ignore=starknet_py/tests/e2e"
 test_e2e.shell = "pytest -n auto -v starknet_py/tests/e2e --ignore=starknet_py/tests/e2e/docs"
