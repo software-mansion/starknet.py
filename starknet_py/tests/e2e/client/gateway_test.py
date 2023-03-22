@@ -127,16 +127,18 @@ async def test_get_new_state_update():
 
 @pytest.mark.asyncio
 async def test_get_compiled_class_by_class_hash():
-    client = GatewayClient(
-        net="https://external.integration.starknet.io"
-    )  # TODO: Replace this with fixture
+    client = GatewayClient(net=TESTNET)  # TODO: Replace this with fixture
 
     compiled_class = await client.get_compiled_class_by_class_hash(
-        class_hash=0x4E70B19333AE94BD958625F7B61CE9EEC631653597E68645E13780061B2136C
+        class_hash=0x38914973FCAB1F5DDC803CB31304EA9A7849E97023805DA6FFB9F4DDFBCDF8B
     )
 
     assert isinstance(compiled_class, CasmClass)
-    assert isinstance(compiled_class.program, dict)
+    assert isinstance(compiled_class.prime, int)
+    assert isinstance(compiled_class.bytecode, list)
+    assert isinstance(compiled_class.hints, list)
+    assert isinstance(compiled_class.pythonic_hints, list)
+    assert isinstance(compiled_class.compiler_version, str)
     assert isinstance(compiled_class.entry_points_by_type, CasmClassEntryPointsByType)
 
 

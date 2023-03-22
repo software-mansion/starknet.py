@@ -146,7 +146,10 @@ async def test_create_deployment_call_raw(
         abi=constructor_with_arguments_abi or [], constructor_args=calldata
     )
 
-    (deploy_call, contract_address,) = deployer.create_deployment_call_raw(
+    (
+        deploy_call,
+        contract_address,
+    ) = deployer.create_deployment_call_raw(
         class_hash=constructor_with_arguments_class_hash,
         raw_calldata=raw_calldata,
     )
