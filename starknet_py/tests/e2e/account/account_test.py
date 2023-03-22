@@ -263,7 +263,7 @@ async def test_declare_contract_raises_on_sierra_contract_without_compiled_class
     compiled_contract, _ = sierra_minimal_compiled_contract_and_class_hash
     with pytest.raises(
         ValueError,
-        match="Signing sierra contracts requires using `sign_declare_v2_transaction` function.",
+        match="Signing sierra contracts requires using `sign_declare_v2_transaction` method.",
     ):
         await account.sign_declare_transaction(compiled_contract=compiled_contract)
 
