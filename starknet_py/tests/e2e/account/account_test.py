@@ -174,9 +174,9 @@ async def test_sign_invoke_transaction(gateway_account, calls):
 
 
 @pytest.mark.asyncio
-async def test_sign_invoke_transaction_auto_estimate(gateway_account):
+async def test_sign_invoke_transaction_auto_estimate(gateway_account, map_contract):
     signed_tx = await gateway_account.sign_invoke_transaction(
-        Call(1, 2, [3]), auto_estimate=True
+        Call(map_contract.address, get_selector_from_name("put"), [3, 4]), auto_estimate=True
     )
 
     assert isinstance(signed_tx.signature, list)
