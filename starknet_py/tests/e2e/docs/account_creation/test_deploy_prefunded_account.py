@@ -44,7 +44,7 @@ async def test_deploy_prefunded_account(
     # Make sure the tx has been accepted on L2 before proceeding
     # docs: end
     res = await fee_contract.functions["transfer"].invoke(
-        recipient=address, amount=int(1e15), max_fee=MAX_FEE
+        recipient=address, amount=int(1e16), max_fee=MAX_FEE
     )
     await res.wait_for_acceptance()
     # docs: start
