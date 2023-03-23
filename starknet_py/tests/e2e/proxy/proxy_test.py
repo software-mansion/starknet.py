@@ -34,15 +34,13 @@ async def test_contract_from_address_no_proxy(account_client, map_contract):
 
 
 @pytest.mark.asyncio
-async def test_contract_from_address_with_proxy(
-    account_client, deploy_proxy_to_contract_oz_argent
-):
+async def test_contract_from_address_with_proxy(account_client, proxy_oz_argent):
     proxy_contract = await Contract.from_address(
-        address=deploy_proxy_to_contract_oz_argent.deployed_contract.address,
+        address=proxy_oz_argent.deployed_contract.address,
         client=account_client,
     )
     proxied_contract = await Contract.from_address(
-        address=deploy_proxy_to_contract_oz_argent.deployed_contract.address,
+        address=proxy_oz_argent.deployed_contract.address,
         client=account_client,
         proxy_config=True,
     )
@@ -62,23 +60,19 @@ async def test_contract_from_invalid_address(account_client):
 
 
 @pytest.mark.asyncio
-async def test_contract_from_address_invalid_proxy_checks(
-    account_client, deploy_proxy_to_contract_custom
-):
+async def test_contract_from_address_invalid_proxy_checks(account_client, proxy_custom):
     message = "Couldn't resolve proxy using given ProxyChecks"
 
     with pytest.raises(ProxyResolutionError, match=message):
         await Contract.from_address(
-            address=deploy_proxy_to_contract_custom.deployed_contract.address,
+            address=proxy_custom.deployed_contract.address,
             client=account_client,
             proxy_config=True,
         )
 
 
 @pytest.mark.asyncio
-async def test_contract_from_address_custom_proxy_check(
-    account_client, deploy_proxy_to_contract_custom
-):
+async def test_contract_from_address_custom_proxy_check(account_client, proxy_custom):
     class CustomProxyCheck(ProxyCheck):
         async def implementation_address(
             self, address: Address, client: Client
@@ -95,13 +89,13 @@ async def test_contract_from_address_custom_proxy_check(
             )
 
     contract = await Contract.from_address(
-        address=deploy_proxy_to_contract_custom.deployed_contract.address,
+        address=proxy_custom.deployed_contract.address,
         client=account_client,
         proxy_config={"proxy_checks": [CustomProxyCheck()]},
     )
 
     assert contract.functions.keys() == {"put", "get"}
-    assert contract.address == deploy_proxy_to_contract_custom.deployed_contract.address
+    assert contract.address == proxy_custom.deployed_contract.address
     assert await is_map_working_properly(map_contract=contract, key=69, val=13)
 
 

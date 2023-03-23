@@ -1,5 +1,4 @@
 import re
-import warnings
 from enum import Enum
 from typing import AsyncGenerator, List, Tuple, TypedDict
 
@@ -17,6 +16,7 @@ from starknet_py.proxy.proxy_check import (
     ArgentProxyCheck,
     OpenZeppelinProxyCheck,
     ProxyCheck,
+    StarknetEthProxyCheck,
 )
 
 
@@ -33,15 +33,14 @@ class ProxyConfig(TypedDict, total=False):
 
 
 def prepare_proxy_config(proxy_config: ProxyConfig) -> ProxyConfig:
-    if "max_steps" in proxy_config:
-        warnings.warn(
-            "ProxyConfig.max_steps is deprecated. Contract.from_address always makes at most 1 step.",
-            category=DeprecationWarning,
-        )
     if "proxy_checks" in proxy_config:
         return proxy_config
 
-    proxy_checks = [OpenZeppelinProxyCheck(), ArgentProxyCheck()]
+    proxy_checks = [
+        OpenZeppelinProxyCheck(),
+        ArgentProxyCheck(),
+        StarknetEthProxyCheck(),
+    ]
     return {"proxy_checks": proxy_checks}
 
 
