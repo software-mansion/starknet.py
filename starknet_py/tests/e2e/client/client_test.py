@@ -378,10 +378,12 @@ async def test_get_l1_handler_transaction(client):
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_state_update_declared_contract_hashes(
-    client,
+    gateway_client,
     block_with_declare_number,
     class_hash,
 ):
+    # TODO: use client instead of gateway_client when RPC 0.3.0 is supported
+    client = gateway_client
     state_update = await client.get_state_update(block_number=block_with_declare_number)
 
     assert class_hash in state_update.state_diff.deprecated_declared_contract_hashes
@@ -390,9 +392,11 @@ async def test_state_update_declared_contract_hashes(
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_state_update_storage_diffs(
-    client,
+    gateway_client,
     map_contract,
 ):
+    # TODO: use client instead of gateway_client when RPC 0.3.0 is supported
+    client = gateway_client
     resp = await map_contract.functions["put"].invoke(key=10, value=20, max_fee=MAX_FEE)
     await resp.wait_for_acceptance()
 
@@ -405,8 +409,10 @@ async def test_state_update_storage_diffs(
 @pytest.mark.asyncio
 async def test_state_update_deployed_contracts(
     class_hash,
-    account,
+    gateway_account,
 ):
+    # TODO: use account instead of gateway_account when RPC 0.3.0 is supported
+    account = gateway_account
     # setup
     deployer = Deployer()
     contract_deployment = deployer.create_deployment_call(class_hash=class_hash)
