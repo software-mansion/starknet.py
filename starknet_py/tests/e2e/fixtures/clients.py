@@ -8,7 +8,7 @@ from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
 
 
-@pytest.fixture(name="gateway_client", scope="module")
+@pytest.fixture(name="gateway_client", scope="package")
 def create_gateway_client(network: str) -> GatewayClient:
     """
     Creates and returns GatewayClient.
@@ -16,12 +16,12 @@ def create_gateway_client(network: str) -> GatewayClient:
     return GatewayClient(net=network)
 
 
-@pytest.fixture(name="full_node_client", scope="module")
+@pytest.fixture(name="full_node_client", scope="package")
 def create_full_node_client(network: str) -> FullNodeClient:
     """
     Creates and returns FullNodeClient.
     """
-    return FullNodeClient(node_url=network + "/rpc", net=network)
+    return FullNodeClient(node_url=network + "/rpc")
 
 
 def net_to_clients() -> List[str]:
@@ -37,7 +37,7 @@ def net_to_clients() -> List[str]:
 
 
 @pytest.fixture(
-    scope="module",
+    scope="package",
     params=net_to_clients(),
 )
 def client(request) -> Client:

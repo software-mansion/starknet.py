@@ -1,14 +1,13 @@
+from typing import cast
 from unittest.mock import AsyncMock, patch
 
 import pytest
-from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.contract import Contract
-from starknet_py.net import AccountClient, KeyPair
-from starknet_py.net.account._account_proxy import AccountProxy
+from starknet_py.hash.address import compute_address
+from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.account import Account
 from starknet_py.net.account.base_account import BaseAccount
-from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     Call,
@@ -17,7 +16,9 @@ from starknet_py.net.client_models import (
     TransactionStatus,
 )
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models import StarknetChainId, compute_address
+from starknet_py.net.models import StarknetChainId
+from starknet_py.net.models.transaction import Declare, DeclareV2
+from starknet_py.net.signer.stark_curve_signer import KeyPair
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.transaction_exceptions import TransactionRejectedError
 
@@ -25,11 +26,17 @@ from starknet_py.transaction_exceptions import TransactionRejectedError
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_balance_throws_when_token_not_specified(account):
+    modified_account = Account(
+        address=account.address,
+        client=GatewayClient(net="custom.net"),
+        key_pair=KeyPair(1, 2),
+        chain=cast(StarknetChainId, 1),
+    )
     with pytest.raises(
         ValueError,
-        match="Argument token_address must be specified when using a custom net address",
+        match="Argument token_address must be specified when using a custom network.",
     ):
-        await account.get_balance()
+        await modified_account.get_balance()
 
 
 @pytest.mark.asyncio
@@ -136,9 +143,9 @@ async def test_get_class_hash_at(map_contract, account):
 
 
 @pytest.mark.asyncio()
-async def test_get_nonce(gateway_account, base_account_deploy_map_contract):
+async def test_get_nonce(gateway_account, map_contract):
     nonce = await gateway_account.get_nonce()
-    address = base_account_deploy_map_contract.address
+    address = map_contract.address
 
     tx = await gateway_account.execute(
         Call(
@@ -167,14 +174,99 @@ async def test_sign_invoke_transaction(gateway_account, calls):
 
 
 @pytest.mark.asyncio
+async def test_sign_invoke_transaction_auto_estimate(gateway_account, map_contract):
+    signed_tx = await gateway_account.sign_invoke_transaction(
+        Call(map_contract.address, get_selector_from_name("put"), [3, 4]),
+        auto_estimate=True,
+    )
+
+    assert isinstance(signed_tx.signature, list)
+    assert len(signed_tx.signature) > 0
+    assert signed_tx.max_fee > 0
+
+
+@pytest.mark.asyncio
 async def test_sign_declare_transaction(gateway_account, map_compiled_contract):
     signed_tx = await gateway_account.sign_declare_transaction(
         map_compiled_contract, max_fee=MAX_FEE
     )
 
+    assert isinstance(signed_tx, Declare)
+    assert signed_tx.version == 1
     assert isinstance(signed_tx.signature, list)
     assert len(signed_tx.signature) > 0
     assert signed_tx.max_fee == MAX_FEE
+
+
+@pytest.mark.asyncio
+async def test_sign_declare_transaction_auto_estimate(
+    gateway_account, map_compiled_contract
+):
+    signed_tx = await gateway_account.sign_declare_transaction(
+        map_compiled_contract, auto_estimate=True
+    )
+
+    assert isinstance(signed_tx, Declare)
+    assert signed_tx.version == 1
+    assert isinstance(signed_tx.signature, list)
+    assert len(signed_tx.signature) > 0
+    assert signed_tx.max_fee > 0
+
+
+@pytest.mark.asyncio
+async def test_sign_declare_v2_transaction(
+    gateway_account, sierra_minimal_compiled_contract_and_class_hash
+):
+    (
+        compiled_contract,
+        compiled_class_hash,
+    ) = sierra_minimal_compiled_contract_and_class_hash
+
+    signed_tx = await gateway_account.sign_declare_v2_transaction(
+        compiled_contract,
+        compiled_class_hash=compiled_class_hash,
+        max_fee=MAX_FEE,
+    )
+
+    assert isinstance(signed_tx, DeclareV2)
+    assert signed_tx.version == 2
+    assert isinstance(signed_tx.signature, list)
+    assert len(signed_tx.signature) > 0
+    assert signed_tx.max_fee == MAX_FEE
+
+
+@pytest.mark.asyncio
+async def test_sign_declare_v2_transaction_auto_estimate(
+    gateway_account, sierra_minimal_compiled_contract_and_class_hash
+):
+    (
+        compiled_contract,
+        compiled_class_hash,
+    ) = sierra_minimal_compiled_contract_and_class_hash
+
+    signed_tx = await gateway_account.sign_declare_v2_transaction(
+        compiled_contract,
+        compiled_class_hash=compiled_class_hash,
+        auto_estimate=True,
+    )
+
+    assert isinstance(signed_tx, DeclareV2)
+    assert signed_tx.version == 2
+    assert isinstance(signed_tx.signature, list)
+    assert len(signed_tx.signature) > 0
+    assert signed_tx.max_fee > 0
+
+
+@pytest.mark.asyncio
+async def test_declare_contract_raises_on_sierra_contract_without_compiled_class_hash(
+    sierra_minimal_compiled_contract_and_class_hash, account
+):
+    compiled_contract, _ = sierra_minimal_compiled_contract_and_class_hash
+    with pytest.raises(
+        ValueError,
+        match="Signing sierra contracts requires using `sign_declare_v2_transaction` method.",
+    ):
+        await account.sign_declare_transaction(compiled_contract=compiled_contract)
 
 
 @pytest.mark.asyncio
@@ -195,9 +287,26 @@ async def test_sign_deploy_account_transaction(gateway_account):
 
 
 @pytest.mark.asyncio
-async def test_deploy_account(
-    client, deploy_account_details_factory, base_account_deploy_map_contract
+async def test_sign_deploy_account_transaction_auto_estimate(
+    gateway_account, account_with_validate_deploy_class_hash
 ):
+    class_hash = account_with_validate_deploy_class_hash
+    salt = 0x1234
+    calldata = [gateway_account.signer.public_key]
+    signed_tx = await gateway_account.sign_deploy_account_transaction(
+        class_hash, salt, calldata, auto_estimate=True
+    )
+
+    assert isinstance(signed_tx.signature, list)
+    assert len(signed_tx.signature) > 0
+    assert signed_tx.max_fee > 0
+    assert signed_tx.class_hash == class_hash
+    assert signed_tx.contract_address_salt == salt
+    assert signed_tx.constructor_calldata == calldata
+
+
+@pytest.mark.asyncio
+async def test_deploy_account(client, deploy_account_details_factory, map_contract):
     address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
 
     deploy_result = await Account.deploy_account(
@@ -207,7 +316,7 @@ async def test_deploy_account(
         key_pair=key_pair,
         client=client,
         chain=StarknetChainId.TESTNET,
-        max_fee=MAX_FEE,
+        max_fee=int(1e16),
     )
     await deploy_result.wait_for_acceptance()
 
@@ -219,7 +328,7 @@ async def test_deploy_account(
     # Test making a tx
     res = await account.execute(
         calls=Call(
-            to_addr=base_account_deploy_map_contract.address,
+            to_addr=map_contract.address,
             selector=get_selector_from_name("put"),
             calldata=[30, 40],
         ),
@@ -307,7 +416,7 @@ async def test_deploy_account_passes_on_enough_funds(deploy_account_details_fact
 
 @pytest.mark.asyncio
 async def test_deploy_account_uses_custom_calldata(
-    client, deploy_account_details_factory
+    client, deploy_account_details_factory, fee_contract
 ):
     _, key_pair, salt, class_hash = await deploy_account_details_factory.get()
     calldata = [1, 2, 3, 4]
@@ -318,6 +427,11 @@ async def test_deploy_account_uses_custom_calldata(
         deployer_address=0,
     )
 
+    res = await fee_contract.functions["transfer"].invoke(
+        recipient=address, amount=int(1e16), max_fee=MAX_FEE
+    )
+    await res.wait_for_acceptance()
+
     deploy_result = await Account.deploy_account(
         address=address,
         class_hash=class_hash,
@@ -326,7 +440,7 @@ async def test_deploy_account_uses_custom_calldata(
         client=client,
         chain=StarknetChainId.TESTNET,
         constructor_calldata=calldata,
-        max_fee=MAX_FEE,
+        max_fee=int(1e16),
     )
 
     tx = await client.get_transaction(deploy_result.hash)
@@ -373,37 +487,17 @@ async def test_sign_declare_tx_for_fee_estimation(account, map_compiled_contract
     await account.client.wait_for_tx(result.transaction_hash)
 
 
-def _account_by_type(
-    *, address: int, client: Client, key_pair: KeyPair, account_type: str
-) -> BaseAccount:
-    if account_type == "proxy":
-        return AccountProxy(
-            AccountClient(
-                address=address,
-                client=client,
-                key_pair=key_pair,
-                chain=StarknetChainId.TESTNET,
-                supported_tx_version=1,
-            )
-        )
+@pytest.mark.asyncio
+async def test_sign_deploy_account_tx_for_fee_estimation(
+    client, deploy_account_details_factory
+):
+    address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
 
-    return Account(
+    account = Account(
         address=address,
         client=client,
         key_pair=key_pair,
         chain=StarknetChainId.TESTNET,
-    )
-
-
-@pytest.mark.parametrize("account_type", ("base", "proxy"))
-@pytest.mark.asyncio
-async def test_sign_deploy_account_tx_for_fee_estimation(
-    client, deploy_account_details_factory, account_type
-):
-    address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
-
-    account = _account_by_type(
-        account_type=account_type, address=address, client=client, key_pair=key_pair
     )
 
     transaction = await account.sign_deploy_account_transaction(

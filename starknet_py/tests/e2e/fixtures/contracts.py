@@ -1,36 +1,19 @@
 # pylint: disable=redefined-outer-name
-from typing import List, Union
+from typing import List, Tuple
 
 import pytest
 import pytest_asyncio
 
-from starknet_py.common import create_compiled_contract, create_contract_class
+from starknet_py.common import create_compiled_contract
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.contract import Contract
-from starknet_py.net import AccountClient
-from starknet_py.net.account._account_proxy import AccountProxy
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
 from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_DIR, MAX_FEE
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
-@pytest.fixture(
-    scope="module",
-    params=[
-        "deploy_map_contract",
-        "new_deploy_map_contract",
-        "base_account_deploy_map_contract",
-    ],
-)
-def map_contract(request) -> Contract:
-    """
-    Returns account contracts using old and new account versions.
-    """
-    return request.getfixturevalue(request.param)
-
-
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="package")
 def map_source_code() -> str:
     """
     Returns source code of the map contract.
@@ -38,7 +21,7 @@ def map_source_code() -> str:
     return read_contract("map.cairo", directory=CONTRACTS_DIR)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="package")
 def map_compiled_contract() -> str:
     """
     Returns compiled map contract.
@@ -46,7 +29,18 @@ def map_compiled_contract() -> str:
     return read_contract("map_compiled.json")
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="package")
+def sierra_minimal_compiled_contract_and_class_hash() -> Tuple[str, int]:
+    """
+    Returns minimal contract compiled to sierra and its class hash.
+    """
+    return (
+        read_contract("precompiled/minimal_contract_compiled.json"),
+        0x56B935FA8AF97EC603A96A3E1870CA193DA4CF08B8DA3F12E023E67A82B5A7E,
+    )
+
+
+@pytest.fixture(scope="package")
 def simple_storage_with_event_compiled_contract() -> str:
     """
     Returns compiled simple storage contract that emits an event.
@@ -54,7 +48,7 @@ def simple_storage_with_event_compiled_contract() -> str:
     return read_contract("simple_storage_with_event_compiled.json")
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="package")
 def erc20_compiled_contract() -> str:
     """
     Returns compiled erc20 contract.
@@ -62,7 +56,7 @@ def erc20_compiled_contract() -> str:
     return read_contract("erc20_compiled.json")
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="package")
 def base_compiled_contract() -> str:
     """
     Returns compiled base contract.
@@ -70,7 +64,7 @@ def base_compiled_contract() -> str:
     return read_contract("base_compiled.json")
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="package")
 def constructor_with_arguments_compiled_contract() -> str:
     """
     Returns compiled constructor_with_arguments contract.
@@ -78,7 +72,7 @@ def constructor_with_arguments_compiled_contract() -> str:
     return read_contract("constructor_with_arguments_compiled.json")
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="package")
 def constructor_without_arguments_compiled_contract() -> str:
     """
     Returns compiled constructor_without_arguments contract.
@@ -86,9 +80,7 @@ def constructor_without_arguments_compiled_contract() -> str:
     return read_contract("constructor_without_arguments_compiled.json")
 
 
-async def deploy_contract(
-    account: Union[BaseAccount, AccountClient], class_hash: int, abi: List
-) -> Contract:
+async def deploy_contract(account: BaseAccount, class_hash: int, abi: List) -> Contract:
     """
     Deploys a contract and returns its instance.
     """
@@ -99,48 +91,41 @@ async def deploy_contract(
     return deployment_result.deployed_contract
 
 
-@pytest_asyncio.fixture(scope="module")
-async def deploy_map_contract(
-    gateway_account_client: AccountClient,
+@pytest_asyncio.fixture(scope="package")
+async def deployed_balance_contract(
+    gateway_account: BaseAccount,
+    balance_contract: str,
+) -> Contract:
+    """
+    Declares, deploys a new balance contract and returns its instance.
+    """
+    declare_result = await Contract.declare(
+        account=gateway_account,
+        compiled_contract=balance_contract,
+        max_fee=int(1e16),
+    )
+    await declare_result.wait_for_acceptance()
+
+    deploy_result = await declare_result.deploy(max_fee=int(1e16))
+    await deploy_result.wait_for_acceptance()
+
+    return deploy_result.deployed_contract
+
+
+@pytest_asyncio.fixture(scope="package")
+async def map_contract(
+    gateway_account: BaseAccount,
     map_compiled_contract: str,
     map_class_hash: int,
 ) -> Contract:
     """
     Deploys map contract and returns its instance.
     """
-    abi = create_contract_class(compiled_contract=map_compiled_contract).abi
-    return await deploy_contract(
-        AccountProxy(gateway_account_client), map_class_hash, abi
-    )
-
-
-@pytest_asyncio.fixture(scope="module")
-async def new_deploy_map_contract(
-    new_gateway_account_client: AccountClient,
-    map_compiled_contract: str,
-    map_class_hash: int,
-) -> Contract:
-    """
-    Deploys new map contract and returns its instance.
-    """
-    abi = create_contract_class(compiled_contract=map_compiled_contract).abi
-    return await deploy_contract(new_gateway_account_client, map_class_hash, abi)
-
-
-@pytest_asyncio.fixture(scope="module")
-async def base_account_deploy_map_contract(
-    gateway_account: BaseAccount,
-    map_compiled_contract: str,
-    map_class_hash: int,
-) -> Contract:
-    """
-    Deploys new map contract and returns its instance.
-    """
-    abi = create_contract_class(compiled_contract=map_compiled_contract).abi
+    abi = create_compiled_contract(compiled_contract=map_compiled_contract).abi
     return await deploy_contract(gateway_account, map_class_hash, abi)
 
 
-@pytest_asyncio.fixture(name="erc20_contract", scope="module")
+@pytest_asyncio.fixture(name="erc20_contract", scope="package")
 async def deploy_erc20_contract(
     gateway_account: BaseAccount,
     erc20_compiled_contract: str,
@@ -149,11 +134,11 @@ async def deploy_erc20_contract(
     """
     Deploys erc20 contract and returns its instance.
     """
-    abi = create_contract_class(compiled_contract=erc20_compiled_contract).abi
+    abi = create_compiled_contract(compiled_contract=erc20_compiled_contract).abi
     return await deploy_contract(gateway_account, erc20_class_hash, abi)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="package")
 def fee_contract(gateway_account: BaseAccount) -> Contract:
     """
     Returns an instance of the fee contract. It is used to transfer tokens.
@@ -209,7 +194,7 @@ async def declare_account(account: BaseAccount, compiled_account_contract: str) 
     return resp.class_hash
 
 
-@pytest_asyncio.fixture(scope="module")
+@pytest_asyncio.fixture(scope="package")
 async def account_with_validate_deploy_class_hash(
     pre_deployed_account_with_validate_deploy: BaseAccount,
 ) -> int:
@@ -219,7 +204,7 @@ async def account_with_validate_deploy_class_hash(
     )
 
 
-@pytest_asyncio.fixture(scope="module")
+@pytest_asyncio.fixture(scope="package")
 async def account_without_validate_deploy_class_hash(
     pre_deployed_account_with_validate_deploy: BaseAccount,
 ) -> int:
@@ -228,7 +213,7 @@ async def account_without_validate_deploy_class_hash(
     )
 
 
-@pytest_asyncio.fixture(scope="module")
+@pytest_asyncio.fixture(scope="package")
 async def map_class_hash(
     gateway_account: BaseAccount, map_compiled_contract: str
 ) -> int:
@@ -244,7 +229,7 @@ async def map_class_hash(
     return res.class_hash
 
 
-@pytest_asyncio.fixture(scope="module")
+@pytest_asyncio.fixture(scope="package")
 async def erc20_class_hash(
     gateway_account: BaseAccount, erc20_compiled_contract: str
 ) -> int:
@@ -265,7 +250,7 @@ constructor_with_arguments_source = (
 ).read_text("utf-8")
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="package")
 def constructor_with_arguments_abi() -> List:
     """
     Returns an abi of the constructor_with_arguments.cairo.
@@ -273,10 +258,11 @@ def constructor_with_arguments_abi() -> List:
     compiled_contract = create_compiled_contract(
         compilation_source=constructor_with_arguments_source
     )
+    assert compiled_contract.abi is not None
     return compiled_contract.abi
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="package")
 def constructor_with_arguments_compiled() -> str:
     """
     Returns a compiled constructor_with_arguments.cairo.
@@ -284,7 +270,7 @@ def constructor_with_arguments_compiled() -> str:
     return read_contract("constructor_with_arguments_compiled.json")
 
 
-@pytest_asyncio.fixture(scope="module")
+@pytest_asyncio.fixture(scope="package")
 async def constructor_with_arguments_class_hash(
     gateway_account: BaseAccount, constructor_with_arguments_compiled
 ) -> int:

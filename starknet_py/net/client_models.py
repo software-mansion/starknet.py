@@ -1,25 +1,16 @@
+"""
+Dataclasses representing responses from Starknet.
+They need to stay backwards compatible for old transactions/blocks to be fetchable.
+"""
+
 from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Dict, Iterable, List, Optional, Union
 
-from starkware.starknet.services.api.gateway.transaction import AccountTransaction as AT
-from starkware.starknet.services.api.gateway.transaction import ContractClass as CD
-from starkware.starknet.services.api.gateway.transaction import Declare as DCL
-from starkware.starknet.services.api.gateway.transaction import DeployAccount as DAC
-from starkware.starknet.services.api.gateway.transaction import InvokeFunction as IF
-from starkware.starknet.services.api.gateway.transaction import Transaction as T
 from typing_extensions import Literal
 
 from starknet_py.abi.shape import AbiDictList
-from starknet_py.utils.docs import as_our_module
-
-Invoke = InvokeFunction = as_our_module(IF)
-StarknetTransaction = as_our_module(T)
-AccountTransaction = as_our_module(AT)
-ContractClass = as_our_module(CD)
-Declare = as_our_module(DCL)
-DeployAccount = as_our_module(DAC)
 
 Hash = Union[int, str]
 Tag = Literal["pending", "latest"]
@@ -74,7 +65,6 @@ class TransactionType(Enum):
     """
 
     INVOKE = "INVOKE"
-    DEPLOY = "DEPLOY"
     DECLARE = "DECLARE"
     DEPLOY_ACCOUNT = "DEPLOY_ACCOUNT"
     L1_HANDLER = "L1_HANDLER"
@@ -102,7 +92,7 @@ class InvokeTransaction(Transaction):
     Dataclass representing invoke transaction
     """
 
-    contract_address: int
+    sender_address: int
     calldata: List[int]
     # This field is always None for transactions with version = 1
     entry_point_selector: Optional[int] = None
@@ -118,6 +108,7 @@ class DeclareTransaction(Transaction):
     class_hash: int
     sender_address: int
     nonce: Optional[int] = None
+    compiled_class_hash: Optional[int] = None
 
 
 @dataclass
@@ -191,7 +182,7 @@ class TransactionReceipt:
 @dataclass
 class SentTransactionResponse:
     """
-    Dataclass representing a result of sending a transaction to starknet
+    Dataclass representing a result of sending a transaction to Starknet.
     """
 
     transaction_hash: int
@@ -201,7 +192,7 @@ class SentTransactionResponse:
 @dataclass
 class DeclareTransactionResponse(SentTransactionResponse):
     """
-    Dataclass representing a result of declaring a contract on starknet
+    Dataclass representing a result of declaring a contract on Starknet.
     """
 
     class_hash: int = 0
@@ -210,7 +201,7 @@ class DeclareTransactionResponse(SentTransactionResponse):
 @dataclass
 class DeployAccountTransactionResponse(SentTransactionResponse):
     """
-    Dataclass representing a result of deploying an account contract to starknet
+    Dataclass representing a result of deploying an account contract to Starknet
     """
 
     address: int = 0
@@ -231,7 +222,7 @@ class BlockStatus(Enum):
 @dataclass
 class StarknetBlock:
     """
-    Dataclass representing a block on starknet
+    Dataclass representing a block on Starknet.
     """
 
     # pylint: disable=too-many-instance-attributes
@@ -248,7 +239,7 @@ class StarknetBlock:
 @dataclass
 class GatewayBlock(StarknetBlock):
     """
-    Dataclass representing a block from the starknet gateway
+    Dataclass representing a block from the Starknet gateway.
     """
 
     gas_price: int
@@ -256,9 +247,11 @@ class GatewayBlock(StarknetBlock):
 
 @dataclass
 class BlockSingleTransactionTrace:
-    function_invocation: dict
     signature: List[int]
     transaction_hash: int
+    function_invocation: Optional[dict] = None
+    validate_invocation: Optional[dict] = None
+    fee_transfer_invocation: Optional[dict] = None
 
 
 @dataclass
@@ -267,10 +260,15 @@ class BlockTransactionTraces:
 
 
 @dataclass
-class StorageDiff:
-    address: int
+class StorageEntry:
     key: int
     value: int
+
+
+@dataclass
+class StorageDiffItem:
+    address: int
+    storage_entries: List[StorageEntry]
 
 
 @dataclass
@@ -287,6 +285,34 @@ class DeployedContract:
 
 
 @dataclass
+class ContractsNonce:
+    contract_address: int
+    nonce: int
+
+
+@dataclass
+class DeclaredContractHash:
+    class_hash: int
+    compiled_class_hash: int
+
+
+@dataclass
+class ReplacedClass:
+    contract_address: int
+    class_hash: int
+
+
+@dataclass
+class StateDiff:
+    deployed_contracts: List[DeployedContract]
+    declared_contract_hashes: List[DeclaredContractHash]
+    storage_diffs: List[StorageDiffItem]
+    nonces: List[ContractsNonce]
+    deprecated_declared_contract_hashes: List[int] = field(default_factory=list)
+    replaced_classes: List[ReplacedClass] = field(default_factory=list)
+
+
+@dataclass
 class BlockStateUpdate:
     """
     Dataclass representing a change in state of a block
@@ -295,22 +321,13 @@ class BlockStateUpdate:
     block_hash: int
     new_root: int
     old_root: int
-    storage_diffs: List[StorageDiff]
-    deployed_contracts: List[DeployedContract]
-    declared_contracts: List[int]
-
-
-@dataclass
-class StateDiff:
-    deployed_contracts: List[DeployedContract]
-    storage_diffs: List[StorageDiff]
-    declared_contract_hashes: List[int]
+    state_diff: StateDiff
 
 
 @dataclass
 class ContractCode:
     """
-    Dataclass representing contract deployed to starknet
+    Dataclass representing contract deployed to Starknet.
     """
 
     bytecode: List[int]
@@ -339,14 +356,104 @@ class EntryPointsByType:
 
 
 @dataclass
-class DeclaredContract:
+class ContractClass:
     """
-    Dataclass representing contract declared to starknet
+    Dataclass representing contract declared to Starknet
     """
 
     program: dict
     entry_points_by_type: EntryPointsByType
     abi: Optional[AbiDictList] = None
+
+
+@dataclass
+class CompiledContract(ContractClass):
+    """
+    Dataclass representing ContractClass with required abi.
+    """
+
+    # abi is a required key in CompiledContractSchema,
+    # default_factory is used, since abi in ContractClass is Optional
+    # and otherwise, non-keyword arguments would follow keyword arguments
+    abi: AbiDictList = field(default_factory=list)
+
+
+@dataclass
+class SierraEntryPoint:
+    """
+    Dataclass representing contract entry point
+    """
+
+    function_idx: int
+    selector: int
+
+
+@dataclass
+class SierraEntryPointsByType:
+    """
+    Dataclass representing contract class entrypoints by entry point type
+    """
+
+    constructor: List[SierraEntryPoint]
+    external: List[SierraEntryPoint]
+    l1_handler: List[SierraEntryPoint]
+
+
+@dataclass
+class SierraContractClass:
+    """
+    Dataclass representing Cairo1 contract declared to Starknet
+    """
+
+    contract_class_version: str
+    sierra_program: List[str]
+    entry_points_by_type: SierraEntryPointsByType
+    abi: Optional[str] = None
+
+
+@dataclass
+class SierraCompiledContract(SierraContractClass):
+    """
+    Dataclass representing SierraContractClass with required abi.
+    """
+
+    abi: str = field(default_factory=str)
+
+
+@dataclass
+class CasmClassEntryPoint:
+    """
+    Dataclass representing CasmClass entrypoint.
+    """
+
+    selector: int
+    offset: int
+    builtins: Optional[List[str]]
+
+
+@dataclass
+class CasmClassEntryPointsByType:
+    """
+    Dataclass representing CasmClass entrypoints by entry point type.
+    """
+
+    constructor: List[CasmClassEntryPoint]
+    external: List[CasmClassEntryPoint]
+    l1_handler: List[CasmClassEntryPoint]
+
+
+@dataclass
+class CasmClass:
+    """
+    Dataclass representing class compiled to Cairo assembly.
+    """
+
+    prime: int
+    bytecode: List[int]
+    hints: List[Any]
+    pythonic_hints: List[Any]
+    compiler_version: str
+    entry_points_by_type: CasmClassEntryPointsByType
 
 
 @dataclass

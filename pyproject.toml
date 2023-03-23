@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "starknet-py"
-version = "0.14.0-alpha"
-description = "A python SDK for StarkNet"
+version = "0.15.0"
+description = "A python SDK for Starknet"
 authors = ["Tomasz Rejowski <tomasz.rejowski@swmansion.com>", "Jakub Ptak <jakub.ptak@swmansion.com>"]
 include = ["starknet_py", "starknet_py/utils/crypto/libcrypto_c_exports.*"]
 exclude = ["starknet_py/tests/*", "starknet_py/**/*_test.py", "starknet_py/utils/compiler/mock-contracts/**"]
@@ -14,15 +14,16 @@ repository = "https://github.com/software-mansion/starknet.py"
 documentation = "https://starknetpy.rtfd.io/"
 
 [tool.poetry.dependencies]
-python = ">=3.8, <3.10"
+python = ">=3.9, <3.10"
 asgiref = "^3.4.1"
-sphinx = { version = ">=4.3.1,<6.0.0", optional = true }
+sphinx = { version = ">=4.3.1,<7.0.0", optional = true }
 enum-tools = { extras = ["sphinx"], version = "0.9.0.post1", optional = true }
-crypto-cpp-py = "^1.0.4"
+crypto-cpp-py = "^1.2.0"
 marshmallow = "^3.15.0"
 marshmallow-oneofschema = "^3.0.1"
 typing-extensions = "^4.3.0"
-cairo-lang = "==0.10.3"
+cairo-lang = "^0.11.0"
+eth-utils = "<2.0.0"
 furo = "^2022.12.7"
 marshmallow-dataclass = "<8.5.0"
 
@@ -31,29 +32,30 @@ docs = ["sphinx", "enum-tools"]
 eth-tester = ["tester"]
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^6.2.5"
-black = "^22.3.0"
+pytest = "^7.2.2"
+black = "^23.1.0"
 poethepoet = "^0.11.0"
-coverage = "^6.3.0"
-pytest-asyncio = "^0.19.0"
+coverage = "^7.2.1"
+pytest-asyncio = "^0.20.3"
 sphinx-rtd-theme = "^1.0.0"
-pylint = "2.13.5"
-setuptools = "^65.3.0"
+pylint = "2.16.4"
+setuptools = "^67.5.1"
 pytest-mock = "^3.6.1"
-pytest-xdist = "^2.5.0"
-web3 = { extras = ["tester"], version = "6.0.0b4" }
-pyright = "^1.1.270"
+pytest-xdist = "^3.2.1"
+pyright = "^1.1.298"
 pytest-cov = "^4.0.0"
-starknet-devnet = "^0.4.4"
 isort = "^5.11.4"
+pytest-rerunfailures = "^11.1"
+starknet-devnet = {git = "https://github.com/Shard-Labs/starknet-devnet.git", rev = "adapt-0.11.0"}
 
 [tool.poe.tasks]
-test.shell = "pytest -n auto -v --cov=starknet_py starknet_py"
-test_ci.shell = "coverage run -m pytest starknet_py --ignore=starknet_py/tests/e2e/docs"
-test_ci_docs.shell = "coverage run -m pytest starknet_py/tests/e2e/docs"
+test.shell = "pytest -n auto -v --reruns 10 --only-rerun aiohttp.client_exceptions.ClientConnectorError --cov=starknet_py starknet_py"
+test_ci.shell = "coverage run -m pytest -v --reruns 2 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/core"
+test_ci_docs.shell = "coverage run -m pytest -v --reruns 2 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py/tests/e2e/docs"
 test_unit.shell = "pytest -n auto -v starknet_py --ignore=starknet_py/tests/e2e"
 test_e2e.shell = "pytest -n auto -v starknet_py/tests/e2e --ignore=starknet_py/tests/e2e/docs"
 test_docs.shell = "pytest -n auto -v starknet_py/tests/e2e/docs"
+test_core.shell = "pytest -v starknet_py/tests/e2e/core --net=integration"
 test_report.shell = "coverage report"
 test_html.shell = "coverage html && open ./htmlcov/index.html"
 docs_create = { shell = "make -C docs html" }
@@ -64,6 +66,7 @@ format_check.shell = "isort --check . && black --check ."
 format_diff.shell = "isort --diff . && black --diff ."
 typecheck = "pyright starknet_py"
 compile_contracts = "bash starknet_py/tests/e2e/mock/compile_contracts.sh"
+circular_imports_check.shell = "poetry run pytest circular.py"
 requirements_check.shell = "poetry export -f requirements.txt --without-hashes --extras docs | cmp - requirements.txt"
 ci = ["lint", "format_check", "typecheck", "requirements_check", "test_ci"]
 

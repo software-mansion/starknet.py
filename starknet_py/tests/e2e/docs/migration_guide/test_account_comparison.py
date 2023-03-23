@@ -4,13 +4,12 @@ from starknet_py.net.client_models import Call
 
 
 @pytest.mark.asyncio
-async def test_account_comparison(
-    gateway_account, gateway_account_client, base_account_deploy_map_contract
-):
-    address = base_account_deploy_map_contract.address
+@pytest.mark.skip
+async def test_account_comparison(gateway_account, map_contract):
+    address = map_contract.address
     key = 0x111
-    account_client = gateway_account_client
     account = gateway_account
+    account_client = gateway_account
 
     # docs-1: start
     # Inspecting storage

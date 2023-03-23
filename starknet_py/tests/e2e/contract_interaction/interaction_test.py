@@ -1,20 +1,18 @@
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 
 import pytest
-from starkware.starknet.public.abi import get_selector_from_name
-from starkware.starkware_utils.error_handling import StarkErrorCode
 
 from starknet_py.common import create_compiled_contract
 from starknet_py.contract import Contract
+from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.client_errors import ClientError
-from starknet_py.net.client_models import Call, SentTransactionResponse
+from starknet_py.net.client_models import Call, TransactionReceipt, TransactionStatus
 from starknet_py.net.gateway_client import GatewayClient
+from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.transaction_exceptions import (
     TransactionNotReceivedError,
     TransactionRejectedError,
 )
-
-MAX_FEE = int(1e20)
 
 
 @pytest.mark.asyncio
@@ -108,7 +106,6 @@ async def test_prepare_without_max_fee(map_contract):
 @pytest.mark.asyncio
 @pytest.mark.parametrize("key, value", ((2, 13), (412312, 32134), (12345, 3567)))
 async def test_invoke_and_call(key, value, map_contract):
-
     invocation = await map_contract.functions["put"].invoke(key, value, max_fee=MAX_FEE)
     await invocation.wait_for_acceptance(wait_for_accept=True)
     (response,) = await map_contract.functions["get"].call(key)
@@ -157,20 +154,17 @@ async def test_wait_for_tx_throws_on_transaction_rejected(client, map_contract):
 
 
 @pytest.mark.asyncio
-async def test_transaction_not_received_error(map_contract):
-    with patch(
-        "starknet_py.net.gateway_client.GatewayClient.send_transaction",
-        AsyncMock(),
-    ) as mocked_send_transaction:
-        mocked_send_transaction.return_value = SentTransactionResponse(
-            code=StarkErrorCode.TRANSACTION_CANCELLED.value, transaction_hash=0x123
-        )
+@patch("starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt")
+async def test_transaction_not_received_error(mocked_get_receipt, map_contract):
+    mocked_get_receipt.return_value = TransactionReceipt(
+        hash=1, status=TransactionStatus.NOT_RECEIVED
+    )
 
-        with pytest.raises(
-            TransactionNotReceivedError, match="Transaction was not received"
-        ):
-            result = await map_contract.functions["put"].invoke(10, 20, max_fee=MAX_FEE)
-            await result.wait_for_acceptance()
+    result = await map_contract.functions["put"].invoke(10, 20, max_fee=MAX_FEE)
+    with pytest.raises(
+        TransactionNotReceivedError, match="Transaction was not received"
+    ):
+        await result.wait_for_acceptance()
 
 
 @pytest.mark.asyncio
@@ -179,7 +173,7 @@ async def test_error_when_invoking_without_account(gateway_client, map_contract)
 
     with pytest.raises(
         ValueError,
-        match="Contract was created without Account or with Client that is not an account.",
+        match="Contract instance was created without providing an Account.",
     ):
         await contract.functions["put"].prepare(key=10, value=10).invoke(
             max_fee=MAX_FEE
@@ -194,7 +188,7 @@ async def test_error_when_estimating_fee_while_not_using_account(
 
     with pytest.raises(
         ValueError,
-        match="Contract was created without Account or with Client that is not an account.",
+        match="Contract instance was created without providing an Account.",
     ):
         await contract.functions["put"].prepare(key=10, value=10).estimate_fee()
 
@@ -229,10 +223,3 @@ async def test_deploy_contract_flow(account, map_compiled_contract, map_class_ha
 
     assert isinstance(contract.address, int)
     assert len(contract.functions) != 0
-
-
-def test_contract_raises_on_both_client_and_account(gateway_client, gateway_account):
-    with pytest.raises(
-        ValueError, match="Arguments provider and client are mutually exclusive"
-    ):
-        Contract(address=1234, abi=[], client=gateway_client, provider=gateway_account)

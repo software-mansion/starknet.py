@@ -1,7 +1,7 @@
 import pytest
-from starkware.crypto.signature.signature import FIELD_PRIME
 
 from starknet_py.cairo.felt import cairo_vm_range_check
+from starknet_py.constants import FIELD_PRIME
 
 
 @pytest.mark.parametrize("value", [-1, FIELD_PRIME, FIELD_PRIME + 1, -FIELD_PRIME])

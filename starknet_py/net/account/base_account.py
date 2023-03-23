@@ -1,15 +1,16 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional, Union
+from typing import List, Optional
 
 from starknet_py.net.client import Client
-from starknet_py.net.client_models import (
-    Calls,
+from starknet_py.net.client_models import Calls, SentTransactionResponse
+from starknet_py.net.models import AddressRepresentation, StarknetChainId
+from starknet_py.net.models.transaction import (
     Declare,
+    DeclareV2,
     DeployAccount,
     Invoke,
-    SentTransactionResponse,
+    TypeAccountTransaction,
 )
-from starknet_py.net.models import AddressRepresentation
 from starknet_py.net.models.typed_data import TypedData
 
 
@@ -39,6 +40,9 @@ class BaseAccount(ABC):
     def supported_transaction_version(self) -> int:
         """
         Get transaction version supported by the account.
+
+            .. deprecated :: 0.15.0
+                Property supported_transaction_version is deprecated and will be removed in the future.
         """
 
     @abstractmethod
@@ -51,23 +55,27 @@ class BaseAccount(ABC):
 
     @abstractmethod
     async def get_balance(
-        self, token_address: Optional[AddressRepresentation] = None
+        self,
+        token_address: Optional[AddressRepresentation] = None,
+        chain_id: Optional[StarknetChainId] = None,
     ) -> int:
         """
         Checks account's balance of specified token.
 
         :param token_address: Address of the ERC20 contract.
-            If not specified it will be payment token address.
+        :param chain_id: Identifier of the Starknet chain used.
+            If token_address is not specified it will be used to determine network's payment token address.
+            If token_address is provided, chain_id will be ignored.
         :return: Token balance.
         """
 
     @abstractmethod
     async def sign_for_fee_estimate(
-        self, transaction: Union[Invoke, Declare, DeployAccount]
-    ) -> Union[Invoke, Declare, DeployAccount]:
+        self, transaction: TypeAccountTransaction
+    ) -> TypeAccountTransaction:
         """
         Sign a transaction for a purpose of only fee estimation.
-        Should use a transaction version that is not executable on StarkNet,
+        Should use a transaction version that is not executable on Starknet,
         calculated like ``transaction.version + 2 ** 128``.
 
         :param transaction: Transaction to be signed.
@@ -83,12 +91,12 @@ class BaseAccount(ABC):
         auto_estimate: bool = False,
     ) -> Invoke:
         """
-        Takes calls and creates signed InvokeFunction.
+        Takes calls and creates signed Invoke.
 
         :param calls: Single call or list of calls.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
-        :return: InvokeFunction created from the calls.
+        :return: Invoke created from the calls.
         """
 
     @abstractmethod
@@ -102,11 +110,31 @@ class BaseAccount(ABC):
         """
         Create and sign declare transaction.
 
-        :param compiled_contract: string containing compiled contract bytecode.
-            Useful for reading compiled contract from a file.
+        :param compiled_contract: string containing a compiled Starknet contract. Supports old contracts.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :return: Signed Declare transaction.
+        """
+
+    @abstractmethod
+    async def sign_declare_v2_transaction(
+        self,
+        compiled_contract: str,
+        compiled_class_hash: int,
+        *,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+    ) -> DeclareV2:
+        """
+        Create and sign declare transaction using sierra contract.
+
+        :param compiled_contract: string containing a compiled Starknet contract.
+            Supports new contracts (compiled to sierra).
+        :param compiled_class_hash: a class hash of the sierra compiled contract used in the declare transaction.
+            Computed from casm compiled contract.
+        :param max_fee: Max amount of Wei to be paid when executing transaction.
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :return: Signed DeclareV2 transaction.
         """
 
     @abstractmethod
@@ -152,7 +180,7 @@ class BaseAccount(ABC):
     @abstractmethod
     def sign_message(self, typed_data: TypedData) -> List[int]:
         """
-        Sign an TypedData TypedDict for off-chain usage with the starknet private key and return the signature.
+        Sign an TypedData TypedDict for off-chain usage with the Starknet private key and return the signature.
         This adds a message prefix, so it can't be interchanged with transactions.
 
         :param typed_data: TypedData TypedDict to be signed.
@@ -162,7 +190,7 @@ class BaseAccount(ABC):
     @abstractmethod
     async def verify_message(self, typed_data: TypedData, signature: List[int]) -> bool:
         """
-        Verify a signature of a TypedData dict on StarkNet.
+        Verify a signature of a TypedData dict on Starknet.
 
         :param typed_data: TypedData TypedDict to be verified.
         :param signature: signature of the TypedData TypedDict.

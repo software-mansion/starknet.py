@@ -10,7 +10,7 @@ Development dependencies
 - `poetry <https://python-poetry.org/>`_ - dependency manager.
 - `pyenv <https://github.com/pyenv/pyenv>`_ - recommended for installing and switching python versions locally.
 
-Make sure running ``poetry run python --version`` returns ``Python 3.8.x``.
+Make sure running ``poetry run python --version`` returns ``Python 3.9.x``.
 
 Setup
 -----
@@ -120,7 +120,7 @@ Rules to follow when writing a code:
 Release checklist
 -------------------
 
-Perform these actions before releasing a new StarkNet.py version
+Perform these actions before releasing a new starknet.py version
 
 1. Bump package version in ``pyproject.toml``
 2. Re-lock using ``poetry lock --no-update``

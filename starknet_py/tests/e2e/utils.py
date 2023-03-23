@@ -1,21 +1,20 @@
+import random
 from typing import Optional, Tuple, cast
 
-from starkware.crypto.signature.signature import get_random_private_key
-from starkware.starknet.core.os.contract_address.contract_address import (
-    calculate_contract_address_from_hash,
-)
-from starkware.starknet.definitions.fields import ContractAddressSalt
-
+from starknet_py.constants import EC_ORDER
 from starknet_py.contract import Contract
-from starknet_py.net import AccountClient, KeyPair
+from starknet_py.hash.address import compute_address
+from starknet_py.net.account.account import Account
 from starknet_py.net.client import Client
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.net.networks import Network
+from starknet_py.net.signer.stark_curve_signer import KeyPair
+from starknet_py.net.udc_deployer.deployer import _get_random_salt
+from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 
 AccountToBeDeployedDetails = Tuple[int, KeyPair, int, int]
-MAX_FEE = int(1e20)
 
 
 async def get_deploy_account_details(
@@ -27,11 +26,11 @@ async def get_deploy_account_details(
     :param class_hash: Class hash of account to be deployed
     :param fee_contract: Contract for prefunding deployments
     """
-    priv_key = get_random_private_key()
+    priv_key = _get_random_private_key_unsafe()
     key_pair = KeyPair.from_private_key(priv_key)
-    salt = ContractAddressSalt.get_random_value()
+    salt = _get_random_salt()
 
-    address = calculate_contract_address_from_hash(
+    address = compute_address(
         salt=salt,
         class_hash=class_hash,
         constructor_calldata=[key_pair.public_key],
@@ -39,7 +38,7 @@ async def get_deploy_account_details(
     )
 
     res = await fee_contract.functions["transfer"].invoke(
-        recipient=address, amount=int(1e15), max_fee=MAX_FEE
+        recipient=address, amount=int(1e17), max_fee=MAX_FEE
     )
     await res.wait_for_acceptance()
 
@@ -61,7 +60,7 @@ async def get_deploy_account_transaction(
     if network is None and client is None:
         raise ValueError("One of network or client must be provided.")
 
-    account = AccountClient(
+    account = Account(
         address=address,
         client=client
         or GatewayClient(
@@ -71,7 +70,6 @@ async def get_deploy_account_transaction(
         ),
         key_pair=key_pair,
         chain=StarknetChainId.TESTNET,
-        supported_tx_version=1,
     )
     return await account.sign_deploy_account_transaction(
         class_hash=class_hash,
@@ -79,3 +77,11 @@ async def get_deploy_account_transaction(
         constructor_calldata=[key_pair.public_key],
         max_fee=MAX_FEE,
     )
+
+
+def _get_random_private_key_unsafe() -> int:
+    """
+    Returns a private key in the range [1, EC_ORDER).
+    This is not a safe way of generating private keys and should be used only in tests.
+    """
+    return random.randint(1, EC_ORDER - 1)

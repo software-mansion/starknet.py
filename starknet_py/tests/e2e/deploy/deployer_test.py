@@ -2,7 +2,7 @@ import pytest
 
 from starknet_py.contract import Contract
 from starknet_py.net.udc_deployer.deployer import Deployer
-from starknet_py.tests.e2e.utils import MAX_FEE
+from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.utils.contructor_args_translator import translate_constructor_args
 
 
@@ -64,7 +64,7 @@ async def test_constructor_arguments_contract_deploy(
 ):
     deployer = Deployer(account_address=account.address)
 
-    (deploy_call, contract_address,) = deployer.create_deployment_call(
+    deploy_call, contract_address = deployer.create_deployment_call(
         class_hash=constructor_with_arguments_class_hash,
         abi=constructor_with_arguments_abi,
         calldata=calldata,
@@ -82,7 +82,7 @@ async def test_constructor_arguments_contract_deploy(
         provider=account,
     )
 
-    result = await contract.functions["get"].call(block_hash="latest")
+    result = await contract.functions["get"].call(block_number="latest")
 
     assert result == (
         10,
@@ -146,7 +146,10 @@ async def test_create_deployment_call_raw(
         abi=constructor_with_arguments_abi or [], constructor_args=calldata
     )
 
-    (deploy_call, contract_address,) = deployer.create_deployment_call_raw(
+    (
+        deploy_call,
+        contract_address,
+    ) = deployer.create_deployment_call_raw(
         class_hash=constructor_with_arguments_class_hash,
         raw_calldata=raw_calldata,
     )

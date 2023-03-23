@@ -1,50 +1,43 @@
 # pylint: disable=too-many-arguments
 import asyncio
-import dataclasses
 from unittest.mock import AsyncMock, patch
 
 import pytest
 from aiohttp import ClientSession
-from starkware.starknet.public.abi import (
-    get_selector_from_name,
-    get_storage_var_address,
-)
 
-from starknet_py.common import create_compiled_contract
+from starknet_py.hash.selector import get_selector_from_name
+from starknet_py.hash.storage import get_storage_var_address
 from starknet_py.net.client_models import (
     Call,
     DeclareTransaction,
     DeployAccountTransaction,
-    Invoke,
+    GatewayBlock,
     InvokeTransaction,
     L1HandlerTransaction,
     TransactionReceipt,
     TransactionStatus,
 )
+from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models.transaction import Declare
+from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 from starknet_py.transaction_exceptions import (
     TransactionNotReceivedError,
     TransactionRejectedError,
 )
-from starknet_py.transactions.declare import make_declare_tx
 
 
 @pytest.mark.asyncio
 async def test_get_declare_transaction(
-    client,
-    declare_transaction_hash,
-    class_hash,
-    sender_address,
+    client, declare_transaction_hash, class_hash, gateway_account
 ):
     transaction = await client.get_transaction(declare_transaction_hash)
 
     assert isinstance(transaction, DeclareTransaction)
     assert transaction.class_hash == class_hash
     assert transaction.hash == declare_transaction_hash
-    assert transaction.sender_address == sender_address[transaction.version]
+    assert transaction.sender_address == gateway_account.address
 
 
 @pytest.mark.asyncio
@@ -72,9 +65,9 @@ async def test_get_deploy_account_transaction(client, deploy_account_transaction
 @pytest.mark.asyncio
 async def test_get_transaction_raises_on_not_received(client):
     with pytest.raises(
-        TransactionNotReceivedError, match="Transaction was not received on starknet."
+        TransactionNotReceivedError, match="Transaction was not received on Starknet."
     ):
-        await client.get_transaction(tx_hash=0x1)
+        await client.get_transaction(tx_hash=0x9999)
 
 
 @pytest.mark.asyncio
@@ -89,7 +82,7 @@ async def test_get_block_by_hash(
     assert block.block_hash == block_with_declare_hash
     assert len(block.transactions) != 0
 
-    if isinstance(client, GatewayClient):
+    if isinstance(block, GatewayBlock):
         assert block.gas_price > 0
 
 
@@ -105,7 +98,7 @@ async def test_get_block_by_number(
     assert block.block_hash == block_with_declare_hash
     assert len(block.transactions) != 0
 
-    if isinstance(client, GatewayClient):
+    if isinstance(block, GatewayBlock):
         assert block.gas_price > 0
 
 
@@ -130,38 +123,30 @@ async def test_get_transaction_receipt(
     assert receipt.block_number == block_with_invoke_number
 
 
-@pytest.mark.parametrize(
-    "transaction",
-    [
-        Invoke(
-            contract_address=0x1,
-            entry_point_selector=get_selector_from_name("increase_balance"),
-            calldata=[123],
-            max_fee=0,
-            version=0,
-            signature=[0x0, 0x0],
-            nonce=None,
-        ),
-        Declare(
-            contract_class=create_compiled_contract(
-                compiled_contract=read_contract("map_compiled.json")
-            ),
-            sender_address=0x1,
-            max_fee=0,
-            signature=[0x0, 0x0],
-            nonce=0,
-            version=0,
-        ),
-    ],
-)
 @pytest.mark.asyncio
-async def test_estimate_fee(transaction, contract_address, client):
-    if isinstance(transaction, Invoke):
-        transaction = dataclasses.replace(
-            transaction, contract_address=contract_address
-        )
+async def test_estimate_fee_invoke(account, contract_address):
+    invoke_tx = await account.sign_invoke_transaction(
+        calls=Call(
+            to_addr=contract_address,
+            selector=get_selector_from_name("increase_balance"),
+            calldata=[123],
+        ),
+        max_fee=MAX_FEE,
+    )
+    invoke_tx = await account.sign_for_fee_estimate(invoke_tx)
+    estimate_fee = await account.client.estimate_fee(tx=invoke_tx)
 
-    estimate_fee = await client.estimate_fee(tx=transaction, block_number="latest")
+    assert isinstance(estimate_fee.overall_fee, int)
+    assert estimate_fee.overall_fee > 0
+
+
+@pytest.mark.asyncio
+async def test_estimate_fee_declare(account):
+    declare_tx = await account.sign_declare_transaction(
+        compiled_contract=read_contract("map_compiled.json"), max_fee=MAX_FEE
+    )
+    declare_tx = await account.sign_for_fee_estimate(declare_tx)
+    estimate_fee = await account.client.estimate_fee(tx=declare_tx)
 
     assert isinstance(estimate_fee.overall_fee, int)
     assert estimate_fee.overall_fee > 0
@@ -183,15 +168,15 @@ async def test_call_contract(client, contract_address):
         calldata=[],
     )
 
-    result = await client.call_contract(call, block_hash="latest")
+    result = await client.call_contract(call, block_number="latest")
 
     assert result == [1234]
 
 
 @pytest.mark.asyncio
-async def test_add_transaction(map_contract, client, account_client):
+async def test_add_transaction(map_contract, client, account):
     prepared_function_call = map_contract.functions["put"].prepare(key=73, value=12)
-    signed_invoke = await account_client.sign_invoke_transaction(
+    signed_invoke = await account.sign_invoke_transaction(
         calls=prepared_function_call, max_fee=MAX_FEE
     )
 
@@ -254,7 +239,7 @@ async def test_wait_for_tx_pending(gateway_client):
         (
             TransactionStatus.REJECTED,
             TransactionRejectedError,
-            "Unknown starknet error",
+            "Unknown Starknet error",
         ),
         (
             TransactionStatus.NOT_RECEIVED,
@@ -300,16 +285,19 @@ async def test_wait_for_tx_cancelled(gateway_client):
 
 
 @pytest.mark.asyncio
-async def test_declare_contract(client, map_compiled_contract):
-    declare_tx = make_declare_tx(compiled_contract=map_compiled_contract)
+async def test_declare_contract(map_compiled_contract, account):
+    declare_tx = await account.sign_declare_transaction(
+        compiled_contract=map_compiled_contract, max_fee=MAX_FEE
+    )
 
+    client = account.client
     result = await client.declare(declare_tx)
     await client.wait_for_tx(result.transaction_hash)
     transaction_receipt = await client.get_transaction_receipt(result.transaction_hash)
 
     assert transaction_receipt.status != TransactionStatus.NOT_RECEIVED
     assert transaction_receipt.hash
-    assert transaction_receipt.actual_fee == 0
+    assert 0 < transaction_receipt.actual_fee <= MAX_FEE
 
 
 @pytest.mark.asyncio
@@ -386,3 +374,53 @@ async def test_get_l1_handler_transaction(client):
         assert isinstance(transaction, L1HandlerTransaction)
         assert transaction.nonce is not None
         assert transaction.nonce == 0x34C20
+
+
+@pytest.mark.run_on_devnet
+@pytest.mark.asyncio
+async def test_state_update_declared_contract_hashes(
+    client,
+    block_with_declare_number,
+    class_hash,
+):
+    state_update = await client.get_state_update(block_number=block_with_declare_number)
+
+    if isinstance(client, FullNodeClient):
+        assert class_hash in state_update.state_diff.declared_contract_hashes
+    else:
+        assert class_hash in state_update.state_diff.deprecated_declared_contract_hashes
+
+
+@pytest.mark.run_on_devnet
+@pytest.mark.asyncio
+async def test_state_update_storage_diffs(
+    client,
+    map_contract,
+):
+    resp = await map_contract.functions["put"].invoke(key=10, value=20, max_fee=MAX_FEE)
+    await resp.wait_for_acceptance()
+
+    state_update = await client.get_state_update()
+
+    assert len(state_update.state_diff.storage_diffs) != 0
+
+
+@pytest.mark.run_on_devnet
+@pytest.mark.asyncio
+async def test_state_update_deployed_contracts(
+    class_hash,
+    account,
+):
+    # setup
+    deployer = Deployer()
+    contract_deployment = deployer.create_deployment_call(class_hash=class_hash)
+    deploy_invoke_tx = await account.sign_invoke_transaction(
+        contract_deployment.call, max_fee=MAX_FEE
+    )
+    resp = await account.client.send_transaction(deploy_invoke_tx)
+    await account.client.wait_for_tx(resp.transaction_hash)
+
+    # test
+    state_update = await account.client.get_state_update()
+
+    assert len(state_update.state_diff.deployed_contracts) != 0

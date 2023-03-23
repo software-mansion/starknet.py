@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Dict, List, Union
 
-from starknet_py.net.models.transaction import Transaction
+from starknet_py.net.models.transaction import AccountTransaction
 from starknet_py.utils.typed_data import TypedData
 
 
@@ -20,7 +20,7 @@ class BaseSigner(ABC):
         """
 
     @abstractmethod
-    def sign_transaction(self, transaction: Transaction) -> List[int]:
+    def sign_transaction(self, transaction: AccountTransaction) -> List[int]:
         """
         Sign execute transaction and return a signature
 
@@ -33,7 +33,7 @@ class BaseSigner(ABC):
         self, typed_data: Union[Dict, TypedData], account_address: int
     ) -> List[int]:
         """
-        Sign an TypedData TypedDict for off-chain usage with the starknet private key and return the signature
+        Sign an TypedData TypedDict for off-chain usage with the Starknet private key and return the signature
         This adds a message prefix, so it can't be interchanged with transactions
 
         :param typed_data:

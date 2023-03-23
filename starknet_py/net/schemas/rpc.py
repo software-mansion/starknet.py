@@ -1,10 +1,11 @@
-from marshmallow import EXCLUDE, Schema, fields, post_load, pre_load
+from marshmallow import EXCLUDE, Schema, fields, post_load
 from marshmallow_oneofschema import OneOfSchema
 
 from starknet_py.abi.schemas import ContractAbiEntrySchema
 from starknet_py.net.client_models import (
     BlockStateUpdate,
-    DeclaredContract,
+    ContractClass,
+    ContractsNonce,
     DeclareTransaction,
     DeclareTransactionResponse,
     DeployAccountTransaction,
@@ -22,7 +23,7 @@ from starknet_py.net.client_models import (
     SentTransactionResponse,
     StarknetBlock,
     StateDiff,
-    StorageDiff,
+    StorageDiffItem,
     TransactionReceipt,
 )
 from starknet_py.net.schemas.common import (
@@ -30,10 +31,13 @@ from starknet_py.net.schemas.common import (
     Felt,
     NonPrefixedHex,
     StatusField,
+    StorageEntrySchema,
+)
+from starknet_py.net.schemas.utils import (
+    _replace_invoke_contract_address_with_sender_address,
 )
 
-# pylint: disable=unused-argument
-# pylint: disable=no-self-use
+# pylint: disable=unused-argument, no-self-use
 
 
 class FunctionCallSchema(Schema):
@@ -122,11 +126,7 @@ class InvokeTransactionSchema(TransactionSchema):
 
     @post_load
     def make_transaction(self, data, **kwargs) -> InvokeTransaction:
-        data["contract_address"] = data.get("contract_address") or data.get(
-            "sender_address"
-        )
-        del data["sender_address"]
-
+        _replace_invoke_contract_address_with_sender_address(data)
         return InvokeTransaction(**data)
 
 
@@ -207,12 +207,15 @@ class StarknetBlockSchema(Schema):
 
 class StorageDiffSchema(Schema):
     address = Felt(data_key="address", required=True)
-    key = Felt(data_key="key", required=True)
-    value = Felt(data_key="value", required=True)
+    storage_entries = fields.List(
+        fields.Nested(StorageEntrySchema()),
+        data_key="storage_entries",
+        required=True,
+    )
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> StorageDiff:
-        return StorageDiff(**data)
+    def make_dataclass(self, data, **kwargs) -> StorageDiffItem:
+        return StorageDiffItem(**data)
 
 
 class ContractDiffSchema(Schema):
@@ -233,6 +236,15 @@ class DeployedContractSchema(Schema):
         return DeployedContract(**data)
 
 
+class ContractsNonceSchema(Schema):
+    contract_address = Felt(data_key="contract_address", required=True)
+    nonce = Felt(data_key="nonce", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return ContractsNonce(**data)
+
+
 class StateDiffSchema(Schema):
     deployed_contracts = fields.List(
         fields.Nested(DeployedContractSchema()),
@@ -249,6 +261,9 @@ class StateDiffSchema(Schema):
         data_key="storage_diffs",
         required=True,
     )
+    nonces = fields.List(
+        fields.Nested(ContractsNonceSchema()), data_key="nonces", required=True
+    )
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> StateDiff:
@@ -261,24 +276,10 @@ class BlockStateUpdateSchema(Schema):
     old_root = Felt(data_key="old_root", required=True)
     state_diff = fields.Nested(StateDiffSchema(), data_key="state_diff", required=True)
 
-    @pre_load
-    def preprocess(self, data, **kwargs):
-        # Remove this when support for nonces is added
-        del data["state_diff"]["nonces"]
-        return data
-
     @post_load
     def make_dataclass(self, data, **kwargs) -> BlockStateUpdate:
-        declared_contracts = data["state_diff"].declared_contract_hashes
-        deployed_contracts = data["state_diff"].deployed_contracts
-        storage_diffs = data["state_diff"].storage_diffs
-        del data["state_diff"]
-
         return BlockStateUpdate(
             **data,
-            declared_contracts=declared_contracts,
-            deployed_contracts=deployed_contracts,
-            storage_diffs=storage_diffs,
         )
 
 
@@ -307,7 +308,7 @@ class EntryPointsByTypeSchema(Schema):
         return EntryPointsByType(**data)
 
 
-class DeclaredContractSchema(Schema):
+class ContractClassSchema(Schema):
     program = fields.String(data_key="program", required=True)
     entry_points_by_type = fields.Nested(
         EntryPointsByTypeSchema(), data_key="entry_points_by_type", required=True
@@ -315,8 +316,8 @@ class DeclaredContractSchema(Schema):
     abi = fields.List(fields.Nested(ContractAbiEntrySchema()), data_key="abi")
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> DeclaredContract:
-        return DeclaredContract(**data)
+    def make_dataclass(self, data, **kwargs) -> ContractClass:
+        return ContractClass(**data)
 
 
 class SentTransactionSchema(Schema):

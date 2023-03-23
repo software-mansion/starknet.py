@@ -1,18 +1,18 @@
 from __future__ import annotations
 
+import random
 from typing import List, NamedTuple, Optional, Union, cast
-
-from starkware.starknet.definitions.fields import ContractAddressSalt
-from starkware.starknet.public.abi import get_selector_from_name
 
 from starknet_py.abi.parser import AbiParser
 from starknet_py.common import int_from_hex
-from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
+from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS, FIELD_PRIME
+from starknet_py.hash.address import compute_address
+from starknet_py.hash.selector import get_selector_from_name
+from starknet_py.hash.utils import pedersen_hash
 from starknet_py.net.client_models import Call, Hash
-from starknet_py.net.models import AddressRepresentation, compute_address, parse_address
+from starknet_py.net.models import AddressRepresentation, parse_address
 from starknet_py.serialization import serializer_for_function
 from starknet_py.utils.contructor_args_translator import translate_constructor_args
-from starknet_py.utils.crypto.facade import pedersen_hash
 
 
 class ContractDeployment(NamedTuple):
@@ -23,7 +23,7 @@ class ContractDeployment(NamedTuple):
 
     call: Call
     """
-    A call that can be executed to deploy a contract on StarkNet.
+    A call that can be executed to deploy a contract on Starknet.
     """
 
     address: int
@@ -66,11 +66,36 @@ class Deployer:
         """
         Creates deployment call to the UDC contract
 
+         .. deprecated:: 0.15.0
+            Function create_deployment_call is deprecated and will be removed in the future.
+            Use :meth:`create_contract_deployment` instead.
+
         :param class_hash: The class_hash of the contract to be deployed
         :param salt: The salt for a contract to be deployed. Random value is selected if it is not provided
         :param abi: ABI of the contract to be deployed
         :param calldata: Constructor args of the contract to be deployed
         :return: NamedTuple with call and address of the contract to be deployed
+        """
+        return self.create_contract_deployment(
+            class_hash, salt=salt, abi=abi, calldata=calldata
+        )
+
+    def create_contract_deployment(
+        self,
+        class_hash: Hash,
+        *,
+        salt: Optional[int] = None,
+        abi: Optional[List] = None,
+        calldata: Optional[Union[List, dict]] = None,
+    ) -> ContractDeployment:
+        """
+        Creates ContractDeployment with a call to the UDC contract.
+
+        :param class_hash: The class_hash of the contract to be deployed.
+        :param salt: The salt for a contract to be deployed. Random value is selected if it is not provided.
+        :param abi: ABI of the contract to be deployed.
+        :param calldata: Constructor args of the contract to be deployed.
+        :return: NamedTuple with call and address of the contract to be deployed.
         """
         if not abi and calldata:
             raise ValueError("Argument calldata was provided without an ABI.")
@@ -79,7 +104,7 @@ class Deployer:
             abi=abi or [], constructor_args=calldata
         )
 
-        return self.create_deployment_call_raw(
+        return self.create_contract_deployment_raw(
             class_hash=class_hash, salt=salt, raw_calldata=raw_calldata
         )
 
@@ -93,12 +118,35 @@ class Deployer:
         """
         Creates deployment call to the UDC contract with plain Cairo calldata
 
+         .. deprecated:: 0.15.0
+            Function create_deployment_call_raw is deprecated and will be removed in the future.
+            Use :meth:`create_contract_deployment_raw` instead.
+
         :param class_hash: The class_hash of the contract to be deployed
         :param salt: The salt for a contract to be deployed. Random value is selected if it is not provided
         :param raw_calldata: Plain Cairo constructor args of the contract to be deployed
         :return: NamedTuple with call and address of the contract to be deployed
         """
-        salt = cast(int, salt or ContractAddressSalt.get_random_value())
+        return self.create_contract_deployment_raw(
+            class_hash, salt=salt, raw_calldata=raw_calldata
+        )
+
+    def create_contract_deployment_raw(
+        self,
+        class_hash: Hash,
+        *,
+        salt: Optional[int] = None,
+        raw_calldata: Optional[List[int]] = None,
+    ) -> ContractDeployment:
+        """
+        Creates ContractDeployment with a call to the UDC contract with plain Cairo calldata.
+
+        :param class_hash: The class_hash of the contract to be deployed.
+        :param salt: The salt for a contract to be deployed. Random value is selected if it is not provided.
+        :param raw_calldata: Plain Cairo constructor args of the contract to be deployed.
+        :return: NamedTuple with call and address of the contract to be deployed.
+        """
+        salt = cast(int, salt or _get_random_salt())
         class_hash = int_from_hex(class_hash)
 
         calldata = _deployer_serializer.serialize(
@@ -133,6 +181,10 @@ class Deployer:
             salt=salt,
             deployer_address=deployer_address,
         )
+
+
+def _get_random_salt() -> int:
+    return random.Random().randrange(0, FIELD_PRIME)
 
 
 _deployer_abi = AbiParser(

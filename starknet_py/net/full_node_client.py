@@ -1,4 +1,6 @@
-from typing import List, Optional, Union, cast
+import re
+import warnings
+from typing import Dict, List, Optional, Union, cast
 
 import aiohttp
 from marshmallow import EXCLUDE
@@ -6,31 +8,33 @@ from marshmallow import EXCLUDE
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
-    AccountTransaction,
     BlockStateUpdate,
     BlockTransactionTraces,
     Call,
-    Declare,
-    DeclaredContract,
+    ContractClass,
     DeclareTransactionResponse,
-    DeployAccount,
     DeployAccountTransactionResponse,
     EstimatedFee,
     Hash,
-    Invoke,
     SentTransactionResponse,
     StarknetBlock,
     Tag,
     Transaction,
     TransactionReceipt,
+    TransactionType,
 )
-from starknet_py.net.client_utils import hash_to_felt
 from starknet_py.net.http_client import RpcHttpClient
-from starknet_py.net.models import TransactionType
+from starknet_py.net.models.transaction import (
+    AccountTransaction,
+    Declare,
+    DeclareSchema,
+    DeployAccount,
+    Invoke,
+)
 from starknet_py.net.networks import Network
 from starknet_py.net.schemas.rpc import (
     BlockStateUpdateSchema,
-    DeclaredContractSchema,
+    ContractClassSchema,
     DeclareTransactionResponseSchema,
     DeployAccountTransactionResponseSchema,
     EstimatedFeeSchema,
@@ -49,23 +53,30 @@ class FullNodeClient(Client):
     def __init__(
         self,
         node_url: str,
-        net: Network,
+        net: Optional[Network] = None,
         session: Optional[aiohttp.ClientSession] = None,
     ):
         """
-        Client for interacting with starknet json-rpc interface.
+        Client for interacting with Starknet json-rpc interface.
 
         :param node_url: Url of the node providing rpc interface
-        :param net: StarkNet network identifier
+        :param net: Starknet network identifier
         :param session: Aiohttp session to be used for request. If not provided, client will create a session for
                         every request. When using a custom session, user is responsible for closing it manually.
         """
         self.url = node_url
         self._client = RpcHttpClient(url=node_url, session=session)
+
+        if net is not None:
+            warnings.warn("Parameter net is deprecated.", category=DeprecationWarning)
         self._net = net
 
     @property
-    def net(self) -> Network:
+    def net(self) -> Optional[Network]:
+        warnings.warn(
+            "Property net is deprecated in the FullNodeClient.",
+            category=DeprecationWarning,
+        )
         return self._net
 
     async def get_block(
@@ -121,8 +132,8 @@ class FullNodeClient(Client):
         res = await self._client.call(
             method_name="getStorageAt",
             params={
-                "contract_address": hash_to_felt(contract_address),
-                "key": hash_to_felt(key),
+                "contract_address": _to_rpc_felt(contract_address),
+                "key": _to_storage_key(key),
                 **block_identifier,
             },
         )
@@ -136,7 +147,7 @@ class FullNodeClient(Client):
         try:
             res = await self._client.call(
                 method_name="getTransactionByHash",
-                params={"transaction_hash": hash_to_felt(tx_hash)},
+                params={"transaction_hash": _to_rpc_felt(tx_hash)},
             )
         except ClientError as ex:
             raise TransactionNotReceivedError() from ex
@@ -145,7 +156,7 @@ class FullNodeClient(Client):
     async def get_transaction_receipt(self, tx_hash: Hash) -> TransactionReceipt:
         res = await self._client.call(
             method_name="getTransactionReceipt",
-            params={"transaction_hash": hash_to_felt(tx_hash)},
+            params={"transaction_hash": _to_rpc_felt(tx_hash)},
         )
         return cast(
             TransactionReceipt, TransactionReceiptSchema().load(res, unknown=EXCLUDE)
@@ -153,7 +164,7 @@ class FullNodeClient(Client):
 
     async def estimate_fee(
         self,
-        tx: Union[Invoke, Declare, DeployAccount],
+        tx: AccountTransaction,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
@@ -184,9 +195,9 @@ class FullNodeClient(Client):
             method_name="call",
             params={
                 "request": {
-                    "contract_address": hash_to_felt(call.to_addr),
-                    "entry_point_selector": hash_to_felt(call.selector),
-                    "calldata": [hash_to_felt(i1) for i1 in call.calldata],
+                    "contract_address": _to_rpc_felt(call.to_addr),
+                    "entry_point_selector": _to_rpc_felt(call.selector),
+                    "calldata": [_to_rpc_felt(i1) for i1 in call.calldata],
                 },
                 **block_identifier,
             },
@@ -208,7 +219,6 @@ class FullNodeClient(Client):
     async def deploy_account(
         self, transaction: DeployAccount
     ) -> DeployAccountTransactionResponse:
-
         params = _create_broadcasted_txn(transaction=transaction)
 
         res = await self._client.call(
@@ -246,7 +256,7 @@ class FullNodeClient(Client):
         res = await self._client.call(
             method_name="getClassHashAt",
             params={
-                "contract_address": hash_to_felt(contract_address),
+                "contract_address": _to_rpc_felt(contract_address),
                 **block_identifier,
             },
         )
@@ -258,18 +268,16 @@ class FullNodeClient(Client):
         class_hash: Hash,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> DeclaredContract:
+    ) -> ContractClass:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
 
         res = await self._client.call(
             method_name="getClass",
-            params={"class_hash": hash_to_felt(class_hash), **block_identifier},
+            params={"class_hash": _to_rpc_felt(class_hash), **block_identifier},
         )
-        return cast(
-            DeclaredContract, DeclaredContractSchema().load(res, unknown=EXCLUDE)
-        )
+        return cast(ContractClass, ContractClassSchema().load(res, unknown=EXCLUDE))
 
     # Only RPC methods
 
@@ -327,14 +335,14 @@ class FullNodeClient(Client):
         contract_address: Hash,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> DeclaredContract:
+    ) -> ContractClass:
         """
         Get the contract class definition in the given block at the given address
 
         :param contract_address: The address of the contract whose class definition will be returned
         :param block_hash: Block's hash or literals `"pending"` or `"latest"`
         :param block_number: Block's number or literals `"pending"` or `"latest"`
-        :return: Contract declared to StarkNet
+        :return: Contract declared to Starknet
         """
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
@@ -344,13 +352,11 @@ class FullNodeClient(Client):
             method_name="getClassAt",
             params={
                 **block_identifier,
-                "contract_address": hash_to_felt(contract_address),
+                "contract_address": _to_rpc_felt(contract_address),
             },
         )
 
-        return cast(
-            DeclaredContract, DeclaredContractSchema().load(res, unknown=EXCLUDE)
-        )
+        return cast(ContractClass, ContractClassSchema().load(res, unknown=EXCLUDE))
 
     async def get_pending_transactions(self) -> List[Transaction]:
         """
@@ -377,7 +383,7 @@ class FullNodeClient(Client):
         res = await self._client.call(
             method_name="getNonce",
             params={
-                "contract_address": hash_to_felt(contract_address),
+                "contract_address": _to_rpc_felt(contract_address),
                 **block_identifier,
             },
         )
@@ -398,7 +404,7 @@ def get_block_identifier(
         return {"block_id": block_hash or block_number}
 
     if block_hash is not None:
-        return {"block_id": {"block_hash": hash_to_felt(block_hash)}}
+        return {"block_id": {"block_hash": _to_rpc_felt(block_hash)}}
 
     if block_number is not None:
         return {"block_id": {"block_number": block_number}}
@@ -406,15 +412,15 @@ def get_block_identifier(
     return {"block_id": "pending"}
 
 
-def _create_broadcasted_txn(transaction: Union[Invoke, Declare, DeployAccount]) -> dict:
+def _create_broadcasted_txn(transaction: AccountTransaction) -> dict:
     txn_map = {
         TransactionType.DECLARE: _create_broadcasted_declare_properties,
-        TransactionType.INVOKE_FUNCTION: _create_broadcasted_invoke_properties,
+        TransactionType.INVOKE: _create_broadcasted_invoke_properties,
         TransactionType.DEPLOY_ACCOUNT: _create_broadcasted_deploy_account_properties,
     }
 
     common_properties = _create_broadcasted_txn_common_properties(transaction)
-    transaction_specific_properties = txn_map[transaction.tx_type](transaction)
+    transaction_specific_properties = txn_map[transaction.type](transaction)
 
     return {
         **common_properties,
@@ -423,62 +429,79 @@ def _create_broadcasted_txn(transaction: Union[Invoke, Declare, DeployAccount]) 
 
 
 def _create_broadcasted_declare_properties(transaction: Declare) -> dict:
-    contract_class = transaction.dump()["contract_class"]
+    contract_class = cast(Dict, DeclareSchema().dump(obj=transaction))["contract_class"]
     declare_properties = {
         "contract_class": {
             "program": contract_class["program"],
             "entry_points_by_type": contract_class["entry_points_by_type"],
             "abi": contract_class["abi"],
         },
-        "sender_address": hash_to_felt(transaction.sender_address),
+        "sender_address": _to_rpc_felt(transaction.sender_address),
     }
     return declare_properties
 
 
 def _create_broadcasted_invoke_properties(transaction: Invoke) -> dict:
-    if transaction.version == 0:
-        return _create_invoke_v0_properties(transaction)
-    return _create_invoke_v1_properties(transaction)
-
-
-def _create_invoke_v0_properties(transaction: Invoke) -> dict:
     invoke_properties = {
-        "contract_address": hash_to_felt(transaction.contract_address),
-        "entry_point_selector": hash_to_felt(transaction.entry_point_selector),
-        "calldata": [hash_to_felt(data) for data in transaction.calldata],
-    }
-    return invoke_properties
-
-
-def _create_invoke_v1_properties(transaction: Invoke) -> dict:
-    invoke_properties = {
-        "sender_address": hash_to_felt(transaction.contract_address),
-        "calldata": [hash_to_felt(data) for data in transaction.calldata],
+        "sender_address": _to_rpc_felt(transaction.sender_address),
+        "calldata": [_to_rpc_felt(data) for data in transaction.calldata],
     }
     return invoke_properties
 
 
 def _create_broadcasted_deploy_account_properties(transaction: DeployAccount) -> dict:
     deploy_account_txn_properties = {
-        "contract_address_salt": hash_to_felt(transaction.contract_address_salt),
+        "contract_address_salt": _to_rpc_felt(transaction.contract_address_salt),
         "constructor_calldata": [
-            hash_to_felt(data) for data in transaction.constructor_calldata
+            _to_rpc_felt(data) for data in transaction.constructor_calldata
         ],
-        "class_hash": hash_to_felt(transaction.class_hash),
+        "class_hash": _to_rpc_felt(transaction.class_hash),
     }
     return deploy_account_txn_properties
 
 
 def _create_broadcasted_txn_common_properties(transaction: AccountTransaction) -> dict:
     broadcasted_txn_common_properties = {
-        "type": "INVOKE"
-        if transaction.tx_type == TransactionType.INVOKE_FUNCTION
-        else transaction.tx_type.name,
-        "max_fee": hash_to_felt(transaction.max_fee),
-        "version": hash_to_felt(transaction.version),
-        "signature": [hash_to_felt(sig) for sig in transaction.signature],
-        "nonce": hash_to_felt(transaction.nonce)
-        if transaction.nonce is not None
-        else None,
+        "type": transaction.type.name,
+        "max_fee": _to_rpc_felt(transaction.max_fee),
+        "version": _to_rpc_felt(transaction.version),
+        "signature": [_to_rpc_felt(sig) for sig in transaction.signature],
+        "nonce": _to_rpc_felt(transaction.nonce),
     }
     return broadcasted_txn_common_properties
+
+
+def _to_storage_key(key: int) -> str:
+    """
+    Convert a value to RPC storage key matching a ``^0x0[0-7]{1}[a-fA-F0-9]{0,62}$`` pattern.
+
+    :param key: The key to convert.
+    :return: RPC storage key representation of the key.
+    """
+
+    hashed_key = hex(key)[2:]
+
+    if hashed_key[0] not in ("0", "1", "2", "3", "4", "5", "6", "7"):
+        hashed_key = "0" + hashed_key
+
+    hashed_key = "0x0" + hashed_key
+
+    if not re.match(r"^0x0[0-7]{1}[a-fA-F0-9]{0,62}$", hashed_key):
+        raise ValueError(f"Value {key} cannot be represented as RPC storage key.")
+
+    return hashed_key
+
+
+def _to_rpc_felt(value: Hash) -> str:
+    """
+    Convert the value to RPC felt matching a ``^0x0[a-fA-F0-9]{1,63}$`` pattern.\
+
+    :param value: The value to convert.
+    :return: RPC felt representation of the value.
+    """
+    if isinstance(value, str):
+        value = int(value, 16)
+
+    if value == 0:
+        return "0x00"
+    return "0x0" + hex(value).lstrip("0x")

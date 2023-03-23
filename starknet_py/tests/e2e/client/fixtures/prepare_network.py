@@ -6,16 +6,14 @@ from typing import AsyncGenerator, Dict, Tuple
 
 import pytest
 import pytest_asyncio
-from starkware.starknet.public.abi import get_selector_from_name
 
-from starknet_py.net import AccountClient
+from starknet_py.hash.selector import get_selector_from_name
+from starknet_py.net.account.account import Account
 from starknet_py.tests.e2e.client.fixtures.prepare_net_for_gateway_test import (
     PreparedNetworkData,
     prepare_net_for_tests,
 )
-from starknet_py.tests.e2e.fixtures.account_clients import (
-    AccountToBeDeployedDetailsFactory,
-)
+from starknet_py.tests.e2e.fixtures.accounts import AccountToBeDeployedDetailsFactory
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 from starknet_py.tests.e2e.utils import AccountToBeDeployedDetails
 
@@ -23,13 +21,13 @@ directory = os.path.dirname(__file__)
 
 
 async def prepare_network(
-    new_gateway_account_client: AccountClient,
+    gateway_account: Account,
     deploy_account_details: AccountToBeDeployedDetails,
 ) -> PreparedNetworkData:
     contract_compiled = read_contract("balance_compiled.json")
 
     prepared_data = await prepare_net_for_tests(
-        new_gateway_account_client,
+        gateway_account,
         compiled_contract=contract_compiled,
         deploy_account_details=deploy_account_details,
     )
@@ -140,7 +138,7 @@ def fixture_contract_address(prepare_network: Tuple[str, PreparedNetworkData]) -
     return prepared_data.contract_address
 
 
-@pytest.fixture(name="balance_contract")
+@pytest.fixture(name="balance_contract", scope="package")
 def fixture_balance_contract() -> str:
     """
     Returns compiled code of the balance.cairo contract
@@ -161,10 +159,10 @@ def fixture_class_hash(network: str, contract_address: int) -> int:
     )
 
 
-@pytest_asyncio.fixture(name="prepare_network", scope="module")
+@pytest_asyncio.fixture(name="prepare_network", scope="package")
 async def fixture_prepare_network(
     network: str,
-    new_gateway_account_client: AccountClient,
+    gateway_account: Account,
     deploy_account_details_factory: AccountToBeDeployedDetailsFactory,
 ) -> AsyncGenerator[Tuple[str, PreparedNetworkData], None]:
     """
@@ -172,5 +170,5 @@ async def fixture_prepare_network(
     """
     net = network
     details = await deploy_account_details_factory.get()
-    prepared_data = await prepare_network(new_gateway_account_client, details)
+    prepared_data = await prepare_network(gateway_account, details)
     yield net, prepared_data

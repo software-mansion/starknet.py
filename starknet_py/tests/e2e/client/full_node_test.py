@@ -2,9 +2,10 @@ import asyncio
 from unittest.mock import MagicMock, patch
 
 import pytest
-from starkware.starknet.public.abi import get_storage_var_address
 
+from starknet_py.hash.storage import get_storage_var_address
 from starknet_py.net.client_errors import ClientError
+from starknet_py.net.client_models import DeclareTransaction
 
 
 @pytest.mark.run_on_devnet
@@ -16,6 +17,7 @@ async def test_node_get_declare_transaction_by_block_number_and_index(
         block_number=block_with_declare_number, index=0
     )
 
+    assert isinstance(tx, DeclareTransaction)
     assert tx.hash == declare_transaction_hash
     assert tx.class_hash == class_hash
     assert tx.version == 1
@@ -91,20 +93,6 @@ async def test_pending_transactions(full_node_client):
         assert pending_transactions[0].hash == 0x1
         assert pending_transactions[0].signature == []
         assert pending_transactions[0].max_fee == 0
-
-
-@pytest.mark.run_on_devnet
-@pytest.mark.asyncio
-async def test_state_update_full_node_client(
-    full_node_client,
-    block_with_declare_number,
-    class_hash,
-):
-    state_update = await full_node_client.get_state_update(
-        block_number=block_with_declare_number
-    )
-
-    assert class_hash in state_update.declared_contracts
 
 
 @pytest.mark.run_on_devnet
