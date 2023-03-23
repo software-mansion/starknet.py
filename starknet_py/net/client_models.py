@@ -305,11 +305,11 @@ class ReplacedClass:
 @dataclass
 class StateDiff:
     deployed_contracts: List[DeployedContract]
-    deprecated_declared_contract_hashes: List[int]
     declared_contract_hashes: List[DeclaredContractHash]
     storage_diffs: List[StorageDiffItem]
     nonces: List[ContractsNonce]
-    replaced_classes: List[ReplacedClass]
+    deprecated_declared_contract_hashes: List[int] = field(default_factory=list)
+    replaced_classes: List[ReplacedClass] = field(default_factory=list)
 
 
 @dataclass
