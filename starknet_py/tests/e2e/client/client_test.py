@@ -17,6 +17,7 @@ from starknet_py.net.client_models import (
     TransactionReceipt,
     TransactionStatus,
 )
+from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
@@ -384,7 +385,10 @@ async def test_state_update_declared_contract_hashes(
 ):
     state_update = await client.get_state_update(block_number=block_with_declare_number)
 
-    assert class_hash in state_update.state_diff.deprecated_declared_contract_hashes
+    if isinstance(client, FullNodeClient):
+        assert class_hash in state_update.state_diff.declared_contract_hashes
+    else:
+        assert class_hash in state_update.state_diff.deprecated_declared_contract_hashes
 
 
 @pytest.mark.run_on_devnet
