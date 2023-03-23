@@ -20,8 +20,6 @@ Deprecation
 - ``compute_invoke_hash`` is deprecated in favour of ``compute_transaction_hash``
 - ``starknet_py.common.create_contract_class`` is deprecated in favour of ``starknet_py.common.create_compiled_contract``
 
-- Removed deprecated ``max_steps`` in :class:`~starknet_py.proxy.contract_abi_resolver.ProxyConfig`.
-
 Breaking changes
 ----------------
 
@@ -81,6 +79,8 @@ Breaking changes
        * - get_storage_var_address
          - starkware.starknet.public.abi
          - starknet_py.hash.storage
+
+6. Removed deprecated ``max_steps`` in :class:`~starknet_py.proxy.contract_abi_resolver.ProxyConfig`.
 
 
 Transaction dataclasses
