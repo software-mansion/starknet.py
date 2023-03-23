@@ -440,7 +440,7 @@ async def test_deploy_account_uses_custom_calldata(
         client=client,
         chain=StarknetChainId.TESTNET,
         constructor_calldata=calldata,
-        max_fee=MAX_FEE,
+        max_fee=int(1e16),
     )
 
     tx = await client.get_transaction(deploy_result.hash)
