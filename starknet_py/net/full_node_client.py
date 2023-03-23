@@ -1,4 +1,5 @@
 import re
+import warnings
 from typing import Dict, List, Optional, Union, cast
 
 import aiohttp
@@ -52,7 +53,7 @@ class FullNodeClient(Client):
     def __init__(
         self,
         node_url: str,
-        net: Network,
+        net: Optional[Network] = None,
         session: Optional[aiohttp.ClientSession] = None,
     ):
         """
@@ -65,10 +66,17 @@ class FullNodeClient(Client):
         """
         self.url = node_url
         self._client = RpcHttpClient(url=node_url, session=session)
+
+        if net is not None:
+            warnings.warn("Parameter net is deprecated.", category=DeprecationWarning)
         self._net = net
 
     @property
-    def net(self) -> Network:
+    def net(self) -> Optional[Network]:
+        warnings.warn(
+            "Property net is deprecated in the FullNodeClient.",
+            category=DeprecationWarning,
+        )
         return self._net
 
     async def get_block(
@@ -434,25 +442,8 @@ def _create_broadcasted_declare_properties(transaction: Declare) -> dict:
 
 
 def _create_broadcasted_invoke_properties(transaction: Invoke) -> dict:
-    if transaction.version == 0:
-        return _create_invoke_v0_properties(transaction)
-    return _create_invoke_v1_properties(transaction)
-
-
-def _create_invoke_v0_properties(transaction: Invoke) -> dict:
     invoke_properties = {
-        "contract_address": _to_rpc_felt(transaction.contract_address),
-        "entry_point_selector": _to_rpc_felt(
-            cast(int, transaction.entry_point_selector)
-        ),
-        "calldata": [_to_rpc_felt(data) for data in transaction.calldata],
-    }
-    return invoke_properties
-
-
-def _create_invoke_v1_properties(transaction: Invoke) -> dict:
-    invoke_properties = {
-        "sender_address": _to_rpc_felt(transaction.contract_address),
+        "sender_address": _to_rpc_felt(transaction.sender_address),
         "calldata": [_to_rpc_felt(data) for data in transaction.calldata],
     }
     return invoke_properties
@@ -471,15 +462,11 @@ def _create_broadcasted_deploy_account_properties(transaction: DeployAccount) ->
 
 def _create_broadcasted_txn_common_properties(transaction: AccountTransaction) -> dict:
     broadcasted_txn_common_properties = {
-        "type": "INVOKE"
-        if transaction.type == TransactionType.INVOKE
-        else transaction.type.name,
+        "type": transaction.type.name,
         "max_fee": _to_rpc_felt(transaction.max_fee),
         "version": _to_rpc_felt(transaction.version),
         "signature": [_to_rpc_felt(sig) for sig in transaction.signature],
-        "nonce": _to_rpc_felt(transaction.nonce)
-        if transaction.nonce is not None
-        else "0x00",
+        "nonce": _to_rpc_felt(transaction.nonce),
     }
     return broadcasted_txn_common_properties
 

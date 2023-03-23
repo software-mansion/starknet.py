@@ -22,10 +22,10 @@ async def is_map_working_properly(map_contract: Contract, key: int, val: int) ->
 
 
 @pytest.mark.asyncio
-async def test_contract_from_address_no_proxy(account_client, map_contract):
+async def test_contract_from_address_no_proxy(account, map_contract):
     contract = await Contract.from_address(
         address=map_contract.address,
-        client=account_client,
+        provider=account,
     )
 
     assert contract.functions.keys() == {"put", "get"}
@@ -34,14 +34,14 @@ async def test_contract_from_address_no_proxy(account_client, map_contract):
 
 
 @pytest.mark.asyncio
-async def test_contract_from_address_with_proxy(account_client, proxy_oz_argent):
+async def test_contract_from_address_with_proxy(account, proxy_oz_argent):
     proxy_contract = await Contract.from_address(
         address=proxy_oz_argent.deployed_contract.address,
-        client=account_client,
+        provider=account,
     )
     proxied_contract = await Contract.from_address(
         address=proxy_oz_argent.deployed_contract.address,
-        client=account_client,
+        provider=account,
         proxy_config=True,
     )
 
@@ -51,28 +51,28 @@ async def test_contract_from_address_with_proxy(account_client, proxy_oz_argent)
 
 
 @pytest.mark.asyncio
-async def test_contract_from_invalid_address(account_client):
+async def test_contract_from_invalid_address(account):
     with pytest.raises(ContractNotFoundError):
         await Contract.from_address(
             address=123,
-            client=account_client,
+            provider=account,
         )
 
 
 @pytest.mark.asyncio
-async def test_contract_from_address_invalid_proxy_checks(account_client, proxy_custom):
+async def test_contract_from_address_invalid_proxy_checks(account, proxy_custom):
     message = "Couldn't resolve proxy using given ProxyChecks"
 
     with pytest.raises(ProxyResolutionError, match=message):
         await Contract.from_address(
             address=proxy_custom.deployed_contract.address,
-            client=account_client,
+            provider=account,
             proxy_config=True,
         )
 
 
 @pytest.mark.asyncio
-async def test_contract_from_address_custom_proxy_check(account_client, proxy_custom):
+async def test_contract_from_address_custom_proxy_check(account, proxy_custom):
     class CustomProxyCheck(ProxyCheck):
         async def implementation_address(
             self, address: Address, client: Client
@@ -90,7 +90,7 @@ async def test_contract_from_address_custom_proxy_check(account_client, proxy_cu
 
     contract = await Contract.from_address(
         address=proxy_custom.deployed_contract.address,
-        client=account_client,
+        provider=account,
         proxy_config={"proxy_checks": [CustomProxyCheck()]},
     )
 
@@ -101,11 +101,10 @@ async def test_contract_from_address_custom_proxy_check(account_client, proxy_cu
 
 @pytest.mark.asyncio
 async def test_contract_from_address_with_old_address_proxy(
-    new_account_client, old_proxy, map_contract
+    account, old_proxy, map_contract
 ):
-    account_client = new_account_client
     declare_result = await Contract.declare(
-        account=account_client, compiled_contract=old_proxy, max_fee=MAX_FEE
+        account=account, compiled_contract=old_proxy, max_fee=MAX_FEE
     )
     await declare_result.wait_for_acceptance()
     deploy_result = await declare_result.deploy(
@@ -116,11 +115,11 @@ async def test_contract_from_address_with_old_address_proxy(
 
     proxy_contract = await Contract.from_address(
         address=deploy_result.deployed_contract.address,
-        client=account_client,
+        provider=account,
     )
     proxied_contract = await Contract.from_address(
         address=deploy_result.deployed_contract.address,
-        client=account_client,
+        provider=account,
         proxy_config=True,
     )
 

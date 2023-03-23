@@ -1,5 +1,5 @@
 # pylint: disable=redefined-outer-name
-from typing import List, Union
+from typing import List, Tuple
 
 import pytest
 import pytest_asyncio
@@ -7,27 +7,10 @@ import pytest_asyncio
 from starknet_py.common import create_compiled_contract
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.contract import Contract
-from starknet_py.net.account._account_proxy import AccountProxy
-from starknet_py.net.account.account_client import AccountClient
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
 from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_DIR, MAX_FEE
 from starknet_py.tests.e2e.fixtures.misc import read_contract
-
-
-@pytest.fixture(
-    scope="package",
-    params=[
-        "deploy_map_contract",
-        "new_deploy_map_contract",
-        "base_account_deploy_map_contract",
-    ],
-)
-def map_contract(request) -> Contract:
-    """
-    Returns account contracts using old and new account versions.
-    """
-    return request.getfixturevalue(request.param)
 
 
 @pytest.fixture(scope="package")
@@ -44,6 +27,17 @@ def map_compiled_contract() -> str:
     Returns compiled map contract.
     """
     return read_contract("map_compiled.json")
+
+
+@pytest.fixture(scope="package")
+def sierra_minimal_compiled_contract_and_class_hash() -> Tuple[str, int]:
+    """
+    Returns minimal contract compiled to sierra and its class hash.
+    """
+    return (
+        read_contract("precompiled/minimal_contract_compiled.json"),
+        0x56B935FA8AF97EC603A96A3E1870CA193DA4CF08B8DA3F12E023E67A82B5A7E,
+    )
 
 
 @pytest.fixture(scope="package")
@@ -86,9 +80,7 @@ def constructor_without_arguments_compiled_contract() -> str:
     return read_contract("constructor_without_arguments_compiled.json")
 
 
-async def deploy_contract(
-    account: Union[BaseAccount, AccountClient], class_hash: int, abi: List
-) -> Contract:
+async def deploy_contract(account: BaseAccount, class_hash: int, abi: List) -> Contract:
     """
     Deploys a contract and returns its instance.
     """
@@ -100,43 +92,15 @@ async def deploy_contract(
 
 
 @pytest_asyncio.fixture(scope="package")
-async def deploy_map_contract(
-    gateway_account_client: AccountClient,
-    map_compiled_contract: str,
-    map_class_hash: int,
-) -> Contract:
-    """
-    Deploys map contract and returns its instance.
-    """
-    abi = create_compiled_contract(compiled_contract=map_compiled_contract).abi
-    return await deploy_contract(
-        AccountProxy(gateway_account_client), map_class_hash, abi
-    )
-
-
-@pytest_asyncio.fixture(scope="package")
-async def new_deploy_map_contract(
-    new_gateway_account_client: AccountClient,
-    map_compiled_contract: str,
-    map_class_hash: int,
-) -> Contract:
-    """
-    Deploys new map contract and returns its instance.
-    """
-    abi = create_compiled_contract(compiled_contract=map_compiled_contract).abi
-    return await deploy_contract(new_gateway_account_client, map_class_hash, abi)
-
-
-@pytest_asyncio.fixture(scope="package")
 async def deployed_balance_contract(
-    new_gateway_account_client: AccountClient,
+    gateway_account: BaseAccount,
     balance_contract: str,
 ) -> Contract:
     """
     Declares, deploys a new balance contract and returns its instance.
     """
     declare_result = await Contract.declare(
-        account=new_gateway_account_client,
+        account=gateway_account,
         compiled_contract=balance_contract,
         max_fee=int(1e16),
     )
@@ -149,13 +113,13 @@ async def deployed_balance_contract(
 
 
 @pytest_asyncio.fixture(scope="package")
-async def base_account_deploy_map_contract(
+async def map_contract(
     gateway_account: BaseAccount,
     map_compiled_contract: str,
     map_class_hash: int,
 ) -> Contract:
     """
-    Deploys new map contract and returns its instance.
+    Deploys map contract and returns its instance.
     """
     abi = create_compiled_contract(compiled_contract=map_compiled_contract).abi
     return await deploy_contract(gateway_account, map_class_hash, abi)

@@ -1,3 +1,4 @@
+import warnings
 from typing import Dict, List, Optional, Union, cast
 
 import aiohttp
@@ -9,6 +10,7 @@ from starknet_py.net.client_models import (
     BlockStateUpdate,
     BlockTransactionTraces,
     Call,
+    CasmClass,
     ContractClass,
     ContractCode,
     DeclareTransactionResponse,
@@ -17,11 +19,11 @@ from starknet_py.net.client_models import (
     GatewayBlock,
     Hash,
     SentTransactionResponse,
+    SierraContractClass,
     Tag,
     Transaction,
     TransactionReceipt,
     TransactionStatusResponse,
-    TransactionType,
 )
 from starknet_py.net.client_utils import hash_to_felt, is_block_identifier
 from starknet_py.net.http_client import GatewayHttpClient
@@ -29,6 +31,8 @@ from starknet_py.net.models.transaction import (
     AccountTransaction,
     Declare,
     DeclareSchema,
+    DeclareV2,
+    DeclareV2Schema,
     DeployAccount,
     DeployAccountSchema,
     Invoke,
@@ -38,7 +42,7 @@ from starknet_py.net.networks import Network, net_address_from_net
 from starknet_py.net.schemas.gateway import (
     BlockStateUpdateSchema,
     BlockTransactionTracesSchema,
-    ContractClassSchema,
+    CasmClassSchema,
     ContractCodeSchema,
     DeclareTransactionResponseSchema,
     DeployAccountTransactionResponseSchema,
@@ -47,6 +51,7 @@ from starknet_py.net.schemas.gateway import (
     StarknetBlockSchema,
     TransactionReceiptSchema,
     TransactionStatusSchema,
+    TypesOfContractClassSchema,
     TypesOfTransactionsSchema,
 )
 from starknet_py.transaction_exceptions import TransactionNotReceivedError
@@ -85,6 +90,10 @@ class GatewayClient(Client):
 
     @property
     def net(self) -> Network:
+        warnings.warn(
+            "Property net is deprecated in the GatewayClient.",
+            category=DeprecationWarning,
+        )
         return self._net
 
     async def get_block(
@@ -276,7 +285,7 @@ class GatewayClient(Client):
 
     async def declare(
         self,
-        transaction: Declare,
+        transaction: Union[Declare, DeclareV2],
         token: Optional[str] = None,
     ) -> DeclareTransactionResponse:
         res = await self._add_transaction(transaction, token)
@@ -303,14 +312,31 @@ class GatewayClient(Client):
         res = cast(str, res)
         return int(res, 16)
 
-    async def get_class_by_hash(self, class_hash: Hash) -> ContractClass:
+    async def get_class_by_hash(
+        self, class_hash: Hash
+    ) -> Union[ContractClass, SierraContractClass]:
         res = await self._feeder_gateway_client.call(
             method_name="get_class_by_hash",
             params={"classHash": hash_to_felt(class_hash)},
         )
-        return ContractClassSchema().load(res, unknown=EXCLUDE)  # pyright: ignore
+        return TypesOfContractClassSchema().load(
+            res, unknown=EXCLUDE
+        )  # pyright: ignore
 
     # Only gateway methods
+
+    async def get_compiled_class_by_class_hash(self, class_hash: Hash) -> CasmClass:
+        """
+        Fetches CasmClass of a contract with given class hash.
+
+        :param class_hash: Class hash of the contract.
+        :return: CasmClass of the contract.
+        """
+        res = await self._feeder_gateway_client.call(
+            params={"classHash": hash_to_felt(class_hash)},
+            method_name="get_compiled_class_by_class_hash",
+        )
+        return cast(CasmClass, CasmClassSchema().load(res))
 
     async def _add_transaction(
         self,
@@ -424,13 +450,19 @@ def get_block_identifier(
 def _get_payload(
     txs: Union[AccountTransaction, List[AccountTransaction]]
 ) -> Union[List, Dict]:
-    type_to_schema = {
-        TransactionType.DECLARE: DeclareSchema(),
-        TransactionType.DEPLOY_ACCOUNT: DeployAccountSchema(),
-        TransactionType.INVOKE: InvokeSchema(),
-    }
-
     if isinstance(txs, AccountTransaction):
-        return type_to_schema[txs.type].dump(obj=txs)
+        return _tx_to_schema(txs).dump(obj=txs)
 
-    return [type_to_schema[tx.type].dump(obj=tx) for tx in txs]
+    return [_tx_to_schema(tx).dump(obj=tx) for tx in txs]
+
+
+def _tx_to_schema(tx: AccountTransaction):
+    if isinstance(tx, Declare):
+        return DeclareSchema()
+    if isinstance(tx, DeclareV2):
+        return DeclareV2Schema()
+    if isinstance(tx, DeployAccount):
+        return DeployAccountSchema()
+    if isinstance(tx, Invoke):
+        return InvokeSchema()
+    raise ValueError("Invalid tx type.")

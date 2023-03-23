@@ -14,6 +14,7 @@ from starknet_py.net.client_models import (
     EstimatedFee,
     Hash,
     SentTransactionResponse,
+    SierraContractClass,
     StarknetBlock,
     Tag,
     Transaction,
@@ -23,6 +24,7 @@ from starknet_py.net.client_models import (
 from starknet_py.net.models.transaction import (
     AccountTransaction,
     Declare,
+    DeclareV2,
     DeployAccount,
     Invoke,
 )
@@ -41,7 +43,10 @@ class Client(ABC):
     @abstractmethod
     def net(self) -> Network:
         """
-        Network of the client
+        Network of the client.
+
+         .. deprecated:: 0.15.0
+            Property net of the Client interface is deprecated.
         """
 
     @abstractmethod
@@ -234,7 +239,9 @@ class Client(ABC):
         """
 
     @abstractmethod
-    async def declare(self, transaction: Declare) -> DeclareTransactionResponse:
+    async def declare(
+        self, transaction: Union[Declare, DeclareV2]
+    ) -> DeclareTransactionResponse:
         """
         Send a declare transaction
 
@@ -259,7 +266,9 @@ class Client(ABC):
         """
 
     @abstractmethod
-    async def get_class_by_hash(self, class_hash: Hash) -> ContractClass:
+    async def get_class_by_hash(
+        self, class_hash: Hash
+    ) -> Union[ContractClass, SierraContractClass]:
         """
         Get the contract class for given class hash
 

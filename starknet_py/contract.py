@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from functools import cached_property
 from typing import Dict, List, Optional, Tuple, TypeVar, Union
 
+from marshmallow import ValidationError
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 
@@ -17,8 +18,6 @@ from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
 from starknet_py.hash.address import compute_address
 from starknet_py.hash.class_hash import compute_class_hash
 from starknet_py.hash.selector import get_selector_from_name
-from starknet_py.net.account._account_proxy import AccountProxy
-from starknet_py.net.account.account_client import AccountClient
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import Call, Hash, Tag
@@ -27,6 +26,7 @@ from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.proxy.contract_abi_resolver import (
     ContractAbiResolver,
     ProxyConfig,
+    UnsupportedAbiError,
     prepare_proxy_config,
 )
 from starknet_py.serialization import TupleDataclass, serializer_for_function
@@ -235,7 +235,6 @@ class PreparedFunctionCall(Call):
         payload_transformer: FunctionSerializationAdapter,
         contract_data: ContractData,
         max_fee: Optional[int],
-        version: int,
     ):
         # pylint: disable=too-many-arguments
         super().__init__(
@@ -246,40 +245,43 @@ class PreparedFunctionCall(Call):
         self._payload_transformer = payload_transformer
         self._contract_data = contract_data
         self.max_fee = max_fee
-        self.version = version
 
     @property
     def _account(self) -> BaseAccount:
         if self._internal_account is not None:
             return self._internal_account
 
-        raise ValueError(
-            "Contract was created without Account or with Client that is not an account."
-        )
+        raise ValueError("Contract instance was created without providing an Account.")
 
     async def call_raw(
         self,
         block_hash: Optional[str] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> List[int]:
         """
         Calls a method without translating the result into python values.
 
         :param block_hash: Optional block hash.
+        :param block_number: Optional block number.
         :return: list of ints.
         """
-        return await self._client.call_contract(call=self, block_hash=block_hash)
+        return await self._client.call_contract(
+            call=self, block_hash=block_hash, block_number=block_number
+        )
 
     async def call(
         self,
         block_hash: Optional[str] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> TupleDataclass:
         """
         Calls a method.
 
         :param block_hash: Optional block hash.
+        :param block_number: Optional block number.
         :return: TupleDataclass representing call result.
         """
-        result = await self.call_raw(block_hash=block_hash)
+        result = await self.call_raw(block_hash=block_hash, block_number=block_number)
         return self._payload_transformer.deserialize(result)
 
     async def invoke(
@@ -369,18 +371,6 @@ class ContractFunction:
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :return: PreparedFunctionCall.
         """
-        version = (
-            self.account.supported_transaction_version
-            if self.account is not None
-            else 0
-        )
-
-        if version == 0:
-            warnings.warn(
-                "Transaction with version 0 is deprecated and will be removed in the future. "
-                "Use Account supporting the transaction version 1",
-                category=DeprecationWarning,
-            )
 
         calldata = self._payload_transformer.serialize(*args, **kwargs)
         return PreparedFunctionCall(
@@ -391,13 +381,13 @@ class ContractFunction:
             payload_transformer=self._payload_transformer,
             selector=self.get_selector(self.name),
             max_fee=max_fee,
-            version=version,
         )
 
     async def call(
         self,
         *args,
         block_hash: Optional[str] = None,
+        block_number: Optional[Union[int, Tag]] = None,
         **kwargs,
     ) -> TupleDataclass:
         """
@@ -406,9 +396,10 @@ class ContractFunction:
         Equivalent of ``.prepare(*args, **kwargs).call()``.
 
         :param block_hash: Block hash to perform the call to the contract at specific point of time.
+        :param block_number: Block number to perform the call to the contract at specific point of time.
         """
         return await self.prepare(max_fee=0, *args, **kwargs).call(
-            block_hash=block_hash
+            block_hash=block_hash, block_number=block_number
         )
 
     async def invoke(
@@ -450,30 +441,32 @@ class Contract:
         self,
         address: AddressRepresentation,
         abi: list,
-        provider: Union[BaseAccount, Client] = None,  # pyright: ignore
-        *,
-        client: Optional[Client] = None,
+        provider: Union[BaseAccount, Client],
     ):
         """
         Should be used instead of ``from_address`` when ABI is known statically.
 
-        Arguments account and client are mutually exclusive and cannot be provided at the same time.
+        Arguments provider and client are mutually exclusive and cannot be provided at the same time.
 
         :param address: contract's address.
         :param abi: contract's abi.
         :param provider: BaseAccount or Client used to perform transactions.
-        :param client:
-            Client used to perform transactions.
-
-             .. deprecated:: 0.13.0
-                Argument client has been deprecated. Use provider instead.
         """
-        client, account = _unpack_provider(provider, client)
+        client, account = _unpack_provider(provider)
 
         self.account: Optional[BaseAccount] = account
         self.client: Client = client
         self.data = ContractData.from_abi(parse_address(address), abi)
-        self._functions = self._make_functions(self.data, self.client, self.account)
+
+        try:
+            self._functions = self._make_functions(self.data, self.client, self.account)
+        except ValidationError:
+            warnings.warn(
+                "Make sure valid ABI is used to create a Contract instance: "
+                "Cairo1 contract ABIs are currently unsupported."
+            )
+            # Re-raise the exception
+            raise
 
     @property
     def functions(self) -> FunctionsRepository:
@@ -492,8 +485,6 @@ class Contract:
         address: AddressRepresentation,
         provider: Union[BaseAccount, Client] = None,  # pyright: ignore
         proxy_config: Union[bool, ProxyConfig] = False,
-        *,
-        client: Optional[Client] = None,
     ) -> Contract:
         """
         Fetches ABI for given contract and creates a new Contract instance with it. If you know ABI statically you
@@ -513,28 +504,28 @@ class Contract:
             If set to ``False``, :meth:`Contract.from_address` will not resolve proxies.
 
             If a valid :class:`starknet_py.contract_abi_resolver.ProxyConfig` is provided, will use its values instead.
-        :param client:
-            Client used to fetch contract.
-
-             .. deprecated:: 0.13.0
-                Argument client has been deprecated. Use provider instead.
 
         :return: an initialized Contract instance.
         """
-        client, account = _unpack_provider(provider, client)
+        client, account = _unpack_provider(provider)
 
         address = parse_address(address)
         proxy_config = Contract._create_proxy_config(proxy_config)
 
-        abi = await ContractAbiResolver(
-            address=address, client=client, proxy_config=proxy_config
-        ).resolve()
+        try:
+            abi = await ContractAbiResolver(
+                address=address, client=client, proxy_config=proxy_config
+            ).resolve()
+        except UnsupportedAbiError as err:
+            raise ValueError(
+                "Provided address of Cairo1 contract which is currently not supported in Contract."
+            ) from err
 
         return Contract(address=address, abi=abi, provider=account or client)
 
     @staticmethod
     async def declare(
-        account: Union[AccountClient, BaseAccount],
+        account: BaseAccount,
         compiled_contract: str,
         *,
         max_fee: Optional[int] = None,
@@ -543,13 +534,12 @@ class Contract:
         """
         Declares a contract.
 
-        :param account: An AccountClient used to sign and send declare transaction.
+        :param account: BaseAccount used to sign and send declare transaction.
         :param compiled_contract: String containing compiled contract.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :return: DeclareResult instance.
         """
-        account = _account_or_proxy(account)
 
         declare_tx = await account.sign_declare_transaction(
             compiled_contract=compiled_contract,
@@ -568,7 +558,7 @@ class Contract:
 
     @staticmethod
     async def deploy_contract(
-        account: Union[AccountClient, BaseAccount],
+        account: BaseAccount,
         class_hash: Hash,
         abi: List,
         constructor_args: Optional[Union[List, Dict]] = None,
@@ -580,7 +570,7 @@ class Contract:
         """
         Deploys a contract through Universal Deployer Contract
 
-        :param account: An AccountClient used to sign and send deploy transaction.
+        :param account: BaseAccount used to sign and send deploy transaction.
         :param class_hash: The class_hash of the contract to be deployed.
         :param abi: An abi of the contract to be deployed.
         :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
@@ -592,8 +582,6 @@ class Contract:
         :return: DeployResult instance.
         """
         # pylint: disable=too-many-arguments
-        account = _account_or_proxy(account)
-
         deployer = Deployer(
             deployer_address=deployer_address, account_address=account.address
         )
@@ -727,42 +715,18 @@ class Contract:
 
 
 def _unpack_provider(
-    provider: Union[BaseAccount, Client], client: Optional[Client] = None
+    provider: Union[BaseAccount, Client]
 ) -> Tuple[Client, Optional[BaseAccount]]:
     """
     Get the client and optional account to be used by Contract.
 
-    If provided with AccountClient, returns underlying Client and _AccountProxy.
     If provided with Client, returns this Client and None.
-    If provided with Account, returns underlying Client and the account.
+    If provided with BaseAccount, returns underlying Client and the account.
     """
-    if client is not None:
-        warnings.warn(
-            "Argument client has been deprecated. Use provider instead.",
-            category=DeprecationWarning,
-        )
-
-    if provider is not None and client is not None:
-        raise ValueError("Arguments provider and client are mutually exclusive.")
-
-    if provider is None and client is None:
-        raise ValueError("One of provider or client must be provided.")
-
-    provider = provider or client
-
     if isinstance(provider, Client):
-        if isinstance(provider, AccountClient):
-            return provider.client, AccountProxy(provider)
-
         return provider, None
 
     if isinstance(provider, BaseAccount):
         return provider.client, provider
 
     raise ValueError("Argument provider is not of accepted type.")
-
-
-def _account_or_proxy(account: Union[BaseAccount, AccountClient]) -> BaseAccount:
-    if isinstance(account, AccountClient):
-        return AccountProxy(account)
-    return account

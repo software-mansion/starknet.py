@@ -2,7 +2,7 @@ import pytest
 
 from starknet_py.contract import Contract
 from starknet_py.net.udc_deployer.deployer import Deployer
-from starknet_py.tests.e2e.utils import MAX_FEE
+from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.utils.contructor_args_translator import translate_constructor_args
 
 
@@ -82,7 +82,7 @@ async def test_constructor_arguments_contract_deploy(
         provider=account,
     )
 
-    result = await contract.functions["get"].call(block_hash="latest")
+    result = await contract.functions["get"].call(block_number="latest")
 
     assert result == (
         10,

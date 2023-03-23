@@ -4,11 +4,12 @@ from typing import Dict, List, Union, cast
 
 from starkware.crypto.signature.signature import private_to_stark_key
 
-from starknet_py.constants import DEFAULT_ENTRY_POINT_SELECTOR, QUERY_VERSION_BASE
+from starknet_py.constants import DEFAULT_ENTRY_POINT_SELECTOR
 from starknet_py.hash.address import compute_address
 from starknet_py.hash.transaction import (
     TransactionHashPrefix,
     compute_declare_transaction_hash,
+    compute_declare_v2_transaction_hash,
     compute_deploy_account_transaction_hash,
     compute_transaction_hash,
 )
@@ -17,6 +18,7 @@ from starknet_py.net.models import AddressRepresentation, StarknetChainId, parse
 from starknet_py.net.models.transaction import (
     AccountTransaction,
     Declare,
+    DeclareV2,
     DeployAccount,
     Invoke,
 )
@@ -65,6 +67,8 @@ class StarkCurveSigner(BaseSigner):
     ) -> List[int]:
         if isinstance(transaction, Declare):
             return self._sign_declare_transaction(transaction)
+        if isinstance(transaction, DeclareV2):
+            return self._sign_declare_v2_transaction(transaction)
         if isinstance(transaction, DeployAccount):
             return self._sign_deploy_account_transaction(transaction)
         return self._sign_transaction(cast(Invoke, transaction))
@@ -74,15 +78,11 @@ class StarkCurveSigner(BaseSigner):
             tx_hash_prefix=TransactionHashPrefix.INVOKE,
             version=transaction.version,
             contract_address=self.address,
-            entry_point_selector=DEFAULT_ENTRY_POINT_SELECTOR
-            if not _is_old_transaction_version(transaction.version)
-            else cast(int, transaction.entry_point_selector),
+            entry_point_selector=DEFAULT_ENTRY_POINT_SELECTOR,
             calldata=transaction.calldata,
             max_fee=transaction.max_fee,
             chain_id=self.chain_id.value,
-            additional_data=[cast(int, transaction.nonce)]
-            if not _is_old_transaction_version(transaction.version)
-            else [],
+            additional_data=[transaction.nonce],
         )
         # pylint: disable=invalid-name
         r, s = message_signature(msg_hash=tx_hash, priv_key=self.private_key)
@@ -91,6 +91,20 @@ class StarkCurveSigner(BaseSigner):
     def _sign_declare_transaction(self, transaction: Declare) -> List[int]:
         tx_hash = compute_declare_transaction_hash(
             contract_class=transaction.contract_class,
+            chain_id=self.chain_id.value,
+            sender_address=self.address,
+            max_fee=transaction.max_fee,
+            version=transaction.version,
+            nonce=transaction.nonce,
+        )
+        # pylint: disable=invalid-name
+        r, s = message_signature(msg_hash=tx_hash, priv_key=self.private_key)
+        return [r, s]
+
+    def _sign_declare_v2_transaction(self, transaction: DeclareV2) -> List[int]:
+        tx_hash = compute_declare_v2_transaction_hash(
+            contract_class=transaction.contract_class,
+            compiled_class_hash=transaction.compiled_class_hash,
             chain_id=self.chain_id.value,
             sender_address=self.address,
             max_fee=transaction.max_fee,
@@ -141,7 +155,3 @@ class StarkCurveSigner(BaseSigner):
         # pylint: disable=invalid-name
         r, s = message_signature(msg_hash=msg_hash, priv_key=self.private_key)
         return [r, s]
-
-
-def _is_old_transaction_version(version: int):
-    return version in (0, QUERY_VERSION_BASE)

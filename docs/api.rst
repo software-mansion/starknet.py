@@ -6,7 +6,6 @@ API
    api/gateway_client
    api/full_node_client
    api/account
-   api/account_client
    api/client_errors
    api/contract
    api/udc_deployer
@@ -17,6 +16,4 @@ API
    api/data_types
    api/cairo
    api/serializers
-   api/messages
-   api/transactions
    api/proxy_resolvers
