@@ -46,7 +46,7 @@ pyright = "^1.1.298"
 pytest-cov = "^4.0.0"
 isort = "^5.11.4"
 pytest-rerunfailures = "^11.1"
-starknet-devnet = {git = "https://github.com/Shard-Labs/starknet-devnet.git", rev = "adapt-0.11.0"}
+starknet-devnet = {git = "https://github.com/Shard-Labs/starknet-devnet.git", rev = "8f4e681e109fd33fc9fd710b4aa79102783e17f1"}
 
 [tool.poe.tasks]
 test.shell = "pytest -n auto -v --reruns 10 --only-rerun aiohttp.client_exceptions.ClientConnectorError --cov=starknet_py starknet_py"
