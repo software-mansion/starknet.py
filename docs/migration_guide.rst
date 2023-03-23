@@ -29,7 +29,7 @@ Deprecations
 - ``compute_invoke_hash`` is deprecated in favour of ``compute_transaction_hash``
 - ``starknet_py.common.create_contract_class`` is deprecated in favour of ``starknet_py.common.create_compiled_contract``
 - Client :meth:`~starknet_py.net.client.Client.net` property.
-- Removed ``supported_transaction_version`` property from ``BaseAccount`` abstract class.
+- :meth:`~starknet_py.net.udc_deployer.deployer.Deployer.create_deployment_call` is deprecated in favour of :meth:`~starknet_py.net.udc_deployer.deployer.Deployer.create_contract_deployment`
 
 
 Breaking changes
@@ -109,6 +109,8 @@ Breaking changes
     - :func:`starknet_py.net.models.transaction.compute_invoke_hash`
 13. Replaced ``BlockStateUpdate.state_diff.declared_contract_hashes`` is now a list of ``DeclaredContractHash`` representing new Cairo classes. Old declared contract classes are still available at ``BlockStateUpdate.state_diff.deprecated_declared_contract_hashes``.
 14. Removed ``version`` property from ``PreparedFunctionCall`` class.
+15. Removed deprecated ``max_steps`` in :class:`~starknet_py.proxy.contract_abi_resolver.ProxyConfig`.
+16. Removed ``supported_transaction_version`` property from ``BaseAccount`` abstract class.
 
 
 Transaction dataclasses

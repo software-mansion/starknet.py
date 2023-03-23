@@ -185,7 +185,7 @@ class DeclareResult(SentTransaction):
             deployer_address=deployer_address,
             account_address=self._account.address if unique else None,
         )
-        deploy_call, address = deployer.create_deployment_call(
+        deploy_call, address = deployer.create_contract_deployment(
             class_hash=self.class_hash, salt=salt, abi=abi, calldata=constructor_args
         )
         res = await self._account.execute(
@@ -497,8 +497,9 @@ class Contract:
         :param provider: BaseAccount or Client.
         :param proxy_config: Proxy resolving config
             If set to ``True``, will use default proxy checks
-            :class:`starknet_py.proxy.proxy_check.OpenZeppelinProxyCheck`
-            and :class:`starknet_py.proxy.proxy_check.ArgentProxyCheck`.
+            :class:`starknet_py.proxy.proxy_check.OpenZeppelinProxyCheck`,
+            :class:`starknet_py.proxy.proxy_check.ArgentProxyCheck`,
+            and :class:`starknet_py.proxy.proxy_check.StarknetEthProxyCheck`.
 
             If set to ``False``, :meth:`Contract.from_address` will not resolve proxies.
 
@@ -584,7 +585,7 @@ class Contract:
         deployer = Deployer(
             deployer_address=deployer_address, account_address=account.address
         )
-        deploy_call, address = deployer.create_deployment_call(
+        deploy_call, address = deployer.create_contract_deployment(
             class_hash=class_hash, abi=abi, calldata=constructor_args
         )
         res = await account.execute(
