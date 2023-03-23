@@ -1,65 +1,103 @@
+from typing import cast
+
 import pytest
 
+from starknet_py.contract import Contract, PreparedFunctionCall
 from starknet_py.net.account.account import Account
-from starknet_py.net.models import StarknetChainId
-from starknet_py.net.udc_deployer.deployer import Deployer
+from starknet_py.net.account.account_deployment_result import AccountDeploymentResult
+from starknet_py.net.client_models import DeclareTransaction, DeclareTransactionResponse
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 
 
 @pytest.mark.asyncio
-async def test_declare(account, map_compiled_contract):
-    declare_tx = await account.sign_declare_transaction(
-        compiled_contract=map_compiled_contract, max_fee=MAX_FEE
+async def test_declare_account(
+    core_pre_deployed_account,
+    core_declare_account_response: DeclareTransactionResponse,
+):
+    await core_pre_deployed_account.client.wait_for_tx(
+        core_declare_account_response.transaction_hash
     )
-    result = await account.client.declare(declare_tx)
 
-    await account.client.wait_for_tx(
-        tx_hash=result.transaction_hash, wait_for_accept=True
+    declare_tx = cast(
+        DeclareTransaction,
+        await core_pre_deployed_account.client.get_transaction(
+            core_declare_account_response.transaction_hash
+        ),
     )
+
+    assert core_declare_account_response.class_hash != 0
+    assert core_declare_account_response.class_hash == declare_tx.class_hash
 
 
 @pytest.mark.asyncio
-async def test_default_deploy_with_class_hash(account, map_class_hash):
-    deployer = Deployer()
+async def test_deploy_account(
+    core_deploy_account_response: AccountDeploymentResult,
+):
+    await core_deploy_account_response.wait_for_acceptance()
 
-    contract_deployment = deployer.create_deployment_call(class_hash=map_class_hash)
-
-    deploy_invoke_tx = await account.sign_invoke_transaction(
-        contract_deployment.call, max_fee=MAX_FEE
-    )
-    resp = await account.client.send_transaction(deploy_invoke_tx)
-    await account.client.wait_for_tx(resp.transaction_hash)
-
-    assert isinstance(contract_deployment.address, int)
-    assert contract_deployment.address != 0
+    assert core_deploy_account_response.account.address != 0
 
 
 @pytest.mark.asyncio
-async def test_deploy_account(client, deploy_account_details_factory):
-    address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
+async def test_declare_v1(core_declare_map_response: DeclareTransactionResponse):
+    assert core_declare_map_response.class_hash != 0
 
-    account = Account(
-        address=address,
-        client=client,
-        key_pair=key_pair,
-        chain=StarknetChainId.TESTNET,
-    )
 
-    deploy_account_tx = await account.sign_deploy_account_transaction(
-        class_hash=class_hash,
-        contract_address_salt=salt,
-        constructor_calldata=[key_pair.public_key],
+@pytest.mark.asyncio
+async def test_declare_v2(
+    core_pre_deployed_account, sierra_minimal_compiled_contract_and_class_hash
+):
+    (
+        compiled_contract,
+        compiled_class_hash,
+    ) = sierra_minimal_compiled_contract_and_class_hash
+
+    declare_tx = await core_pre_deployed_account.sign_declare_v2_transaction(
+        compiled_contract=compiled_contract,
+        compiled_class_hash=compiled_class_hash,
         max_fee=MAX_FEE,
     )
-    resp = await account.client.deploy_account(transaction=deploy_account_tx)
+    resp = await core_pre_deployed_account.client.declare(declare_tx)
+    await core_pre_deployed_account.client.wait_for_tx(resp.transaction_hash)
 
-    assert resp.address == address
+    assert resp.class_hash != 0
 
 
 @pytest.mark.asyncio
-async def test_invoke_and_call(map_contract):
-    invocation = await map_contract.functions["put"].invoke(2, 13, max_fee=MAX_FEE)
-    await invocation.wait_for_acceptance(wait_for_accept=True)
-    (response,) = await map_contract.functions["get"].call(2)
+async def test_deployer(core_map_contract: Contract):
+    assert core_map_contract.address != 0
 
-    assert response == 13
+
+@pytest.mark.asyncio
+async def test_contract(core_map_contract: Contract):
+    prepared_tx: PreparedFunctionCall = core_map_contract.functions["put"].prepare(
+        key=10, value=20
+    )
+
+    estimated_fee = await prepared_tx.estimate_fee()
+
+    assert estimated_fee.overall_fee > 0
+
+    resp = await prepared_tx.invoke(max_fee=int(estimated_fee.overall_fee * 1.5))
+    await resp.wait_for_acceptance()
+
+    (value,) = await core_map_contract.functions["get"].call(key=10)
+
+    assert value == 20
+
+
+@pytest.mark.asyncio
+async def test_multicall(
+    core_map_contract: Contract, core_pre_deployed_account: Account
+):
+    calls = [
+        core_map_contract.functions["put"].prepare(key=i, value=i * 10)
+        for i in range(5)
+    ]
+
+    resp = await core_pre_deployed_account.execute(calls, max_fee=MAX_FEE)
+    await core_pre_deployed_account.client.wait_for_tx(resp.transaction_hash)
+
+    for i in range(5):
+        (value,) = await core_map_contract.functions["get"].call(key=i)
+        assert value == i * 10

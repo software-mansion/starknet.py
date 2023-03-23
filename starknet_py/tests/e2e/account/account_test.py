@@ -316,7 +316,7 @@ async def test_deploy_account(client, deploy_account_details_factory, map_contra
         key_pair=key_pair,
         client=client,
         chain=StarknetChainId.TESTNET,
-        max_fee=MAX_FEE,
+        max_fee=int(1e16),
     )
     await deploy_result.wait_for_acceptance()
 
@@ -440,7 +440,7 @@ async def test_deploy_account_uses_custom_calldata(
         client=client,
         chain=StarknetChainId.TESTNET,
         constructor_calldata=calldata,
-        max_fee=MAX_FEE,
+        max_fee=int(1e16),
     )
 
     tx = await client.get_transaction(deploy_result.hash)

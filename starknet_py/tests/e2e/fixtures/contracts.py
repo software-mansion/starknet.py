@@ -36,7 +36,7 @@ def sierra_minimal_compiled_contract_and_class_hash() -> Tuple[str, int]:
     """
     return (
         read_contract("precompiled/minimal_contract_compiled.json"),
-        0x73F17E5E8C771A97CB07BF6024753D514ED9A1B5DE4EC151E06D0926B015694,
+        0x56B935FA8AF97EC603A96A3E1870CA193DA4CF08B8DA3F12E023E67A82B5A7E,
     )
 
 
