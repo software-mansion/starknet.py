@@ -52,7 +52,7 @@ async def test_declare_v2(
         compiled_class_hash,
     ) = sierra_minimal_compiled_contract_and_class_hash
 
-    declare_tx = await core_pre_deployed_account.sign_declare_transaction(
+    declare_tx = await core_pre_deployed_account.sign_declare_v2_transaction(
         compiled_contract=compiled_contract,
         compiled_class_hash=compiled_class_hash,
         max_fee=MAX_FEE,
@@ -99,4 +99,5 @@ async def test_multicall(
     await core_pre_deployed_account.client.wait_for_tx(resp.transaction_hash)
 
     for i in range(5):
-        assert await core_map_contract.functions["get"].call(key=i) == i * 10
+        (value,) = await core_map_contract.functions["get"].call(key=i)
+        assert value == i * 10

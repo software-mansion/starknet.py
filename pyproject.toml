@@ -55,7 +55,7 @@ test_ci_docs.shell = "coverage run -m pytest -v --reruns 2 --only-rerun aiohttp.
 test_unit.shell = "pytest -n auto -v starknet_py --ignore=starknet_py/tests/e2e"
 test_e2e.shell = "pytest -n auto -v starknet_py/tests/e2e --ignore=starknet_py/tests/e2e/docs"
 test_docs.shell = "pytest -n auto -v starknet_py/tests/e2e/docs"
-test_core.shell = "pytest -v starknet_py/tests/e2e/core"
+test_core.shell = "pytest -v starknet_py/tests/e2e/core --net=integration"
 test_report.shell = "coverage report"
 test_html.shell = "coverage html && open ./htmlcov/index.html"
 docs_create = { shell = "make -C docs html" }

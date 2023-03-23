@@ -13,22 +13,45 @@ from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.signer.stark_curve_signer import KeyPair
 from starknet_py.net.udc_deployer.deployer import Deployer
-from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
+from starknet_py.tests.e2e.fixtures.constants import (
+    INTEGRATION_ACCOUNT_ADDRESS,
+    INTEGRATION_ACCOUNT_PRIVATE_KEY,
+    MAX_FEE,
+)
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 from starknet_py.tests.e2e.utils import _get_random_private_key_unsafe
 
 
 @pytest.fixture(scope="package")
-def core_gateway_client() -> GatewayClient:
-    return GatewayClient(net="https://external.integration.starknet.io")
+def core_gateway_client(pytestconfig) -> GatewayClient:
+    net = pytestconfig.getoption("--net")
+
+    return (
+        GatewayClient(net="testnet")
+        if net == "testnet"
+        else GatewayClient(net="https://external.integration.starknet.io")
+    )
 
 
 @pytest.fixture(scope="package")
-def core_pre_deployed_account(core_gateway_client) -> Account:
+def core_pre_deployed_account(pytestconfig, core_gateway_client) -> Account:
+    net = pytestconfig.getoption("--net")
+
+    account_detals = {
+        "testnet": (
+            "0x6D3432AD39755B1B49ECBD896B928FADAA5DE6703CEE0BE4111124C9A327821",
+            "0x53262B95AE54005C9BE3ECC743008BAB81C0D7DED641FFDC27F253E7E6D2872",
+        ),
+        "integration": (
+            INTEGRATION_ACCOUNT_ADDRESS,
+            INTEGRATION_ACCOUNT_PRIVATE_KEY,
+        ),
+    }
+
     return Account(
-        address=0x4D402AD11563556F5E3AF2695B640C772B516B4C4634294C1562460979BC1B1,
+        address=account_detals[net][0],
         client=core_gateway_client,
-        key_pair=KeyPair.from_private_key(9999),
+        key_pair=KeyPair.from_private_key(int(account_detals[net][1], 16)),
         chain=StarknetChainId.TESTNET,
     )
 
@@ -83,7 +106,7 @@ async def core_deploy_account_response(
     )
 
     invoke_resp = await core_fee_contract.functions["transfer"].invoke(
-        recipient=address, amount=int(1e15), max_fee=MAX_FEE
+        recipient=address, amount=int(1e16), max_fee=MAX_FEE
     )
     await invoke_resp.wait_for_acceptance()
 
@@ -94,7 +117,7 @@ async def core_deploy_account_response(
         key_pair=key_pair,
         client=core_gateway_client,
         chain=StarknetChainId.TESTNET,
-        max_fee=int(1e15),
+        max_fee=int(1e16),
     )
 
     return deploy_result

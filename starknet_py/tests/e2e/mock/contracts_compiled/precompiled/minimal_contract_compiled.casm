@@ -256,7 +256,7 @@
   "entry_points_by_type": {
     "EXTERNAL": [
       {
-        "selector": "0x1fc3f77ebc090777f567969ad9823cf6334ab888acb385ca72668ec5adbde80",
+        "selector": "0x165b94b76c4081c8ca302624a15267e1ad6eeabd2fd75eda62dd09f1c43fb56",
         "offset": 0,
         "builtins": [
           "range_check"
