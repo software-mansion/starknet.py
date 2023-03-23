@@ -33,7 +33,7 @@ Calls = Union[Call, Iterable[Call]]
 @dataclass
 class Event:
     """
-    Dataclass representing an event emitted by transaction
+    Dataclass representing an event emitted by transaction.
     """
 
     from_address: int
@@ -44,7 +44,7 @@ class Event:
 @dataclass
 class Events:
     """
-    Dataclass representing event emitted by getEvents
+    Dataclass representing events returned by FullNodeClient.get_events method.
     """
 
     events: List[Event]
@@ -54,7 +54,7 @@ class Events:
 @dataclass
 class L1toL2Message:
     """
-    Dataclass representing a L1->L2 message
+    Dataclass representing a L1->L2 message.
     """
 
     payload: List[int]
@@ -65,7 +65,7 @@ class L1toL2Message:
 @dataclass
 class L2toL1Message:
     """
-    Dataclass representing a L2->L1 message
+    Dataclass representing a L2->L1 message.
     """
 
     payload: List[int]
@@ -75,7 +75,7 @@ class L2toL1Message:
 
 class TransactionType(Enum):
     """
-    Enum representing transaction types
+    Enum representing transaction types.
     """
 
     INVOKE = "INVOKE"
@@ -87,7 +87,7 @@ class TransactionType(Enum):
 @dataclass
 class Transaction(ABC):
     """
-    Dataclass representing common attributes of all transactions
+    Dataclass representing common attributes of all transactions.
     """
 
     hash: int
@@ -103,7 +103,7 @@ class Transaction(ABC):
 @dataclass
 class InvokeTransaction(Transaction):
     """
-    Dataclass representing invoke transaction
+    Dataclass representing invoke transaction.
     """
 
     sender_address: int
@@ -116,7 +116,7 @@ class InvokeTransaction(Transaction):
 @dataclass
 class DeclareTransaction(Transaction):
     """
-    Dataclass representing declare transaction
+    Dataclass representing declare transaction.
     """
 
     class_hash: int
@@ -128,7 +128,7 @@ class DeclareTransaction(Transaction):
 @dataclass
 class DeployTransaction(Transaction):
     """
-    Dataclass representing deploy transaction
+    Dataclass representing deploy transaction.
     """
 
     contract_address: Optional[int]
@@ -139,7 +139,7 @@ class DeployTransaction(Transaction):
 @dataclass
 class DeployAccountTransaction(Transaction):
     """
-    Dataclass representing deploy account transaction
+    Dataclass representing deploy account transaction.
     """
 
     contract_address_salt: int
@@ -151,7 +151,7 @@ class DeployAccountTransaction(Transaction):
 @dataclass
 class L1HandlerTransaction(Transaction):
     """
-    Dataclass representing l1 handler transaction
+    Dataclass representing l1 handler transaction.
     """
 
     contract_address: int
@@ -162,7 +162,7 @@ class L1HandlerTransaction(Transaction):
 
 class TransactionStatus(Enum):
     """
-    Enum representing transaction statuses
+    Enum representing transaction statuses.
     """
 
     NOT_RECEIVED = "NOT_RECEIVED"
@@ -176,7 +176,7 @@ class TransactionStatus(Enum):
 @dataclass
 class TransactionReceipt:
     """
-    Dataclass representing details of sent transaction
+    Dataclass representing details of sent transaction.
     """
 
     # pylint: disable=too-many-instance-attributes
@@ -215,7 +215,7 @@ class DeclareTransactionResponse(SentTransactionResponse):
 @dataclass
 class DeployAccountTransactionResponse(SentTransactionResponse):
     """
-    Dataclass representing a result of deploying an account contract to Starknet
+    Dataclass representing a result of deploying an account contract to Starknet.
     """
 
     address: int = 0
@@ -223,7 +223,7 @@ class DeployAccountTransactionResponse(SentTransactionResponse):
 
 class BlockStatus(Enum):
     """
-    Enum representing block status
+    Enum representing block status.
     """
 
     PENDING = "PENDING"
@@ -369,7 +369,7 @@ class StateDiff:
 @dataclass
 class BlockStateUpdate:
     """
-    Dataclass representing a change in state of a block
+    Dataclass representing a change in state of a block.
     """
 
     block_hash: int
@@ -391,7 +391,7 @@ class ContractCode:
 @dataclass
 class EntryPoint:
     """
-    Dataclass representing contract entry point
+    Dataclass representing contract entry point.
     """
 
     offset: int
@@ -401,7 +401,7 @@ class EntryPoint:
 @dataclass
 class EntryPointsByType:
     """
-    Dataclass representing contract class entrypoints by entry point type
+    Dataclass representing contract class entrypoints by entry point type.
     """
 
     constructor: List[EntryPoint]
@@ -412,7 +412,7 @@ class EntryPointsByType:
 @dataclass
 class ContractClass:
     """
-    Dataclass representing contract declared to Starknet
+    Dataclass representing contract declared to Starknet.
     """
 
     program: dict
