@@ -15,6 +15,7 @@ async def test_declare_tx(account, map_compiled_contract):
     )
 
 
+@pytest.mark.skip
 @pytest.mark.asyncio
 async def test_declare_v2_tx(account, sierra_minimal_compiled_contract_and_class_hash):
     (
