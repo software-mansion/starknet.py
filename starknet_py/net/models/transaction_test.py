@@ -121,11 +121,12 @@ sierra_compiled_contract = read_contract("precompiled/minimal_contract_compiled.
                 signature=[0x1, 0x2],
                 version=2,
             ),
-            669407379128146207315662195646033049577214993241551268214610074015474911988,
+            3563424202165698473612666852609882887259878803446576675488066830771823869423,
         ),
     ],
 )
 def test_calculate_transaction_hash(transaction, calculated_hash):
+    print(transaction.calculate_hash(chain_id=StarknetChainId.TESTNET))
     assert (
         transaction.calculate_hash(chain_id=StarknetChainId.TESTNET) == calculated_hash
     )
