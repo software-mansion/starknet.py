@@ -3013,7 +3013,7 @@ Werkzeug = "~2.0.3"
 [package.source]
 type = "git"
 url = "https://github.com/Shard-Labs/starknet-devnet.git"
-reference = "adapt-0.11.0"
+reference = "8f4e681e109fd33fc9fd710b4aa79102783e17f1"
 resolved_reference = "8f4e681e109fd33fc9fd710b4aa79102783e17f1"
 
 [[package]]
@@ -3429,4 +3429,4 @@ eth-tester = []
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9, <3.10"
-content-hash = "b7833543c1858de90f207a26da11a90f10a6841e629dce0bd23109448df032a0"
+content-hash = "a53dfa63542d88f4c684319a4f83e3553cef12f225247cca404621fc90c39e3c"
