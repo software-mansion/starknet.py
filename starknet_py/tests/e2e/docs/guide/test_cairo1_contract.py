@@ -50,6 +50,7 @@ async def test_cairo1_contract(
 
     assert sierra_class_hash != 0
 
+    # START OF DEPLOY SECTION
     raw_calldata = []
     salt = _get_random_salt()
     # docs-deploy: start
