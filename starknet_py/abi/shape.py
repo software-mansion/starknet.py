@@ -1,5 +1,6 @@
 from typing import List, Literal, TypedDict, Union
 
+ENUM_ENTRY = "enum"
 STRUCT_ENTRY = "struct"
 FUNCTION_ENTRY = "function"
 CONSTRUCTOR_ENTRY = "constructor"
@@ -7,48 +8,42 @@ L1_HANDLER_ENTRY = "l1_handler"
 EVENT_ENTRY = "event"
 
 
-class TypedMemberDict(TypedDict):
-    name: str
+class TypeDict(TypedDict):
     type: str
 
 
-class StructMemberDict(TypedMemberDict):
-    offset: int
+class TypedMemberDict(TypeDict):
+    name: str
 
 
 class StructDict(TypedDict):
     type: Literal["struct"]
     name: str
-    size: int
-    members: List[StructMemberDict]
+    members: List[TypedMemberDict]
 
 
 class FunctionBaseDict(TypedDict):
     name: str
     inputs: List[TypedMemberDict]
-    outputs: List[TypedMemberDict]
+    outputs: List[TypeDict]
+    state_mutability: Literal["external", "view"]
 
 
 class FunctionDict(FunctionBaseDict):
     type: Literal["function"]
 
 
-class ConstructorDict(FunctionBaseDict):
-    type: Literal["constructor"]
-
-
-class L1HandlerDict(FunctionBaseDict):
-    type: Literal["l1_handler"]
-
-
 class EventDict(TypedDict):
     name: str
     type: Literal["event"]
-    data: List[TypedMemberDict]
-    keys: List[TypedMemberDict]
+    inputs: List[TypedMemberDict]
 
 
-AbiDictEntry = Union[
-    StructDict, FunctionDict, ConstructorDict, L1HandlerDict, EventDict
-]
+class EnumDict(TypedDict):
+    type: Literal["enum"]
+    name: str
+    variants: List[TypedMemberDict]
+
+
+AbiDictEntry = Union[StructDict, FunctionDict, EventDict, EnumDict]
 AbiDictList = List[AbiDictEntry]

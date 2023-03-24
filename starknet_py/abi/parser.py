@@ -11,16 +11,17 @@ from starknet_py.abi.model import Abi
 from starknet_py.abi.schemas import ContractAbiEntrySchema
 from starknet_py.abi.shape import (
     CONSTRUCTOR_ENTRY,
+    ENUM_ENTRY,
     EVENT_ENTRY,
     FUNCTION_ENTRY,
     L1_HANDLER_ENTRY,
     STRUCT_ENTRY,
+    EnumDict,
     EventDict,
     FunctionDict,
-    StructMemberDict,
     TypedMemberDict,
 )
-from starknet_py.cairo.data_types import CairoType, StructType
+from starknet_py.cairo.data_types import CairoType, StructType, Enum
 from starknet_py.cairo.type_parser import TypeParser
 
 
@@ -63,6 +64,10 @@ class AbiParser:
         :return: Abi dataclass.
         """
         structures = self._parse_structures()
+        enums_dict = cast(
+            Dict[str, EnumDict],
+            AbiParser._group_by_entry_name(self._grouped[ENUM_ENTRY], "defined enums"),
+        )
         functions_dict = cast(
             Dict[str, FunctionDict],
             AbiParser._group_by_entry_name(
@@ -75,21 +80,12 @@ class AbiParser:
                 self._grouped[EVENT_ENTRY], "defined events"
             ),
         )
-        constructors = cast(List[FunctionDict], self._grouped[CONSTRUCTOR_ENTRY])
-        l1_handlers = cast(List[FunctionDict], self._grouped[L1_HANDLER_ENTRY])
-
-        if len(l1_handlers) > 1:
-            raise AbiParsingError("L1 handler in ABI must be defined at most once.")
-
-        if len(constructors) > 1:
-            raise AbiParsingError("Constructor in ABI must be defined at most once.")
 
         return Abi(
             defined_structures=structures,
-            constructor=(
-                self._parse_function(constructors[0]) if constructors else None
-            ),
-            l1_handler=(self._parse_function(l1_handlers[0]) if l1_handlers else None),
+            defined_enums={
+                name: self._parse_enum(entry) for name, entry in enums_dict.items()
+            },
             functions={
                 name: self._parse_function(entry)
                 for name, entry in functions_dict.items()
@@ -112,7 +108,7 @@ class AbiParser:
         )
 
         # Contains sorted members of the struct
-        struct_members: Dict[str, List[StructMemberDict]] = {}
+        struct_members: Dict[str, List[TypedMemberDict]] = {}
         structs: Dict[str, StructType] = {}
 
         # Example problem (with a simplified json structure):
@@ -124,9 +120,7 @@ class AbiParser:
         # topological sorting with an additional "unresolved type", so this flow is much easier.
         for name, struct in structs_dict.items():
             structs[name] = StructType(name, OrderedDict())
-            struct_members[name] = sorted(
-                struct["members"], key=lambda member: member["offset"]
-            )
+            struct_members[name] = struct["members"]
 
         # Now parse the types of members and save them.
         self._type_parser = TypeParser(structs)
@@ -156,24 +150,24 @@ class AbiParser:
         return Abi.Function(
             name=function["name"],
             inputs=self._parse_members(function["inputs"], function["name"]),
-            outputs=self._parse_members(function["outputs"], function["name"]),
+            outputs=function["outputs"],
         )
 
     def _parse_event(self, event: EventDict) -> Abi.Event:
         return Abi.Event(
             name=event["name"],
-            data=self._parse_members(event["data"], event["name"]),
+            inputs=self._parse_members(event["inputs"], event["name"]),
         )
+
+    def _parse_enum(self, enum: EnumDict) -> Enum:
+        return Enum(enum['name'], self._parse_members(enum['variants'], enum['name']))
 
     def _parse_members(
         self, params: List[TypedMemberDict], entity_name: str
     ) -> OrderedDict[str, CairoType]:
         # Without cast, it complains that 'Type "TypedMemberDict" cannot be assigned to type "T@_group_by_name"'
         members = AbiParser._group_by_entry_name(cast(List[Dict], params), entity_name)
-        return OrderedDict(
-            (name, self.type_parser.parse_inline_type(param["type"]))
-            for name, param in members.items()
-        )
+        return OrderedDict((name, param["type"]) for name, param in members.items())
 
     @staticmethod
     def _group_by_entry_name(

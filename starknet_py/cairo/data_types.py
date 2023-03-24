@@ -55,3 +55,9 @@ class StructType(CairoType):
     name: str  #: Structure name
     # We need ordered dict, because it is important in serialization
     types: OrderedDict[str, CairoType]  #: types of every structure member.
+
+
+@dataclass
+class Enum(CairoType):
+    name: str
+    variants: OrderedDict[str, CairoType]

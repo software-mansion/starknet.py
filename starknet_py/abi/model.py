@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, Optional, OrderedDict
+from typing import Dict, List, OrderedDict
 
-from starknet_py.cairo.data_types import CairoType, StructType
+from starknet_py.cairo.data_types import CairoType, Enum, StructType
 
 
 @dataclass
@@ -20,7 +20,7 @@ class Abi:
 
         name: str
         inputs: OrderedDict[str, CairoType]
-        outputs: OrderedDict[str, CairoType]
+        outputs: List[CairoType]
 
     @dataclass
     class Event:
@@ -29,16 +29,11 @@ class Abi:
         """
 
         name: str
-        data: OrderedDict[str, CairoType]
+        inputs: OrderedDict[str, CairoType]
 
     defined_structures: Dict[
         str, StructType
     ]  #: Abi of structures defined by the class.
+    defined_enums: Dict[str, Enum]  #: Abi of enums defined by the class.
     functions: Dict[str, Function]  #: Functions defined by the class.
-    constructor: Optional[
-        Function
-    ]  #: Contract's constructor. It is None if class doesn't define one.
-    l1_handler: Optional[
-        Function
-    ]  #: Handler of L1 messages. It is None if class doesn't define one.
     events: Dict[str, Event]  #: Events defined by the class
