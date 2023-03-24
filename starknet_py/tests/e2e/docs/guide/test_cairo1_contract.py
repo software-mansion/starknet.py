@@ -70,7 +70,7 @@ async def test_cairo1_contract(
     resp = await account.client.send_transaction(deploy_invoke_transaction)
     await account.client.wait_for_tx(resp.transaction_hash)
 
-    # The contract has been deployed at contract_deployment.address
+    # The contract has been deployed and can be found at contract_deployment.address
     # docs-deploy: end
 
     assert isinstance(contract_deployment.address, int)
