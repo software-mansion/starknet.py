@@ -13,7 +13,7 @@ async def test_cairo1_contract(
 ):
     # pylint: disable=import-outside-toplevel, too-many-locals
     (
-        contract_compiled,
+        compiled_contract,
         compiled_class_hash,
     ) = sierra_minimal_compiled_contract_and_class_hash
 
@@ -36,7 +36,8 @@ async def test_cairo1_contract(
 
     # Create Declare v2 transaction
     declare_v2_transaction = await account.sign_declare_v2_transaction(
-        compiled_contract=contract_compiled,
+        # compiled_contract is the output of the starknet-compile (.json file)
+        compiled_contract=compiled_contract,
         compiled_class_hash=casm_class_hash,
         max_fee=MAX_FEE,
     )
