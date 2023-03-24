@@ -70,6 +70,9 @@ circular_imports_check.shell = "poetry run pytest circular.py"
 requirements_check.shell = "poetry export -f requirements.txt --without-hashes --extras docs | cmp - requirements.txt"
 ci = ["lint", "format_check", "typecheck", "requirements_check", "test_ci"]
 
+[tool.poetry.build]
+generate-setup-file = true
+
 [tool.coverage.run]
 source = ["starknet_py"]
 
