@@ -22,7 +22,8 @@ Here's an example how to use it.
 Declaring Cairo1 contracts
 --------------------------
 
-Starknet 0.11 introduced the ability to declare contracts written in Cairo1!
+| Starknet 0.11 introduced the ability to declare contracts written in Cairo1!
+
 To declare a new contract, Declare v2 transaction has to be sent.
 You can see the structure of the new Declare transaction `here <https://docs.starknet.io/documentation/starknet_versions/upcoming_versions/#declare_v2>`_.
 
@@ -43,7 +44,7 @@ Simply pluck the ``json`` result of ``starknet-compile`` into ``starknet-sierra-
 
 Here's an example how to declare a Cairo1 contract.
 
-.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/TODO.py
+.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_declare_v2.py
     :language: python
     :dedent: 4
 
