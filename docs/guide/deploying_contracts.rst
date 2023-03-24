@@ -67,3 +67,59 @@ Isn't it brilliant? Check out the code!
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_deploying_in_multicall.py
     :language: python
     :dedent: 4
+
+
+Cairo1 contracts
+----------------
+
+Declaring Cairo1 contracts
+##########################
+
+| Starknet 0.11 introduced the ability to declare contracts written in Cairo1!
+
+To declare a new contract, Declare v2 transaction has to be sent.
+You can see the structure of the new Declare transaction `here <https://docs.starknet.io/documentation/starknet_versions/upcoming_versions/#declare_v2>`_.
+
+The main differences in the structure of the transaction from its previous version are:
+ - ``contract_class`` field is a ``SierraContractClass``
+ - ``compiled_class_hash`` is the hash obtained from ``CasmClass`` using ``starknet_py.hash.compute_casm_class_hash``
+
+The ``SierraContractClass`` in its ``json`` format can be obtained through the compiler in `Cairo1 repo <https://github.com/starkware-libs/cairo>`_.
+The command used to get the class is ``starknet-compile``.
+
+To get ``compiled_class_hash``, ``CasmClass`` will be needed. It can be obtained in a similar way to ``SierraContractClass``.
+Simply pluck the ``json`` result of ``starknet-compile`` into ``starknet-sierra-compile`` from the Cairo1 repository.
+
+.. note::
+
+    The compilation to Cairo Assembly should use the ``--add-pythonic-hints`` flag.
+
+
+Here's an example how to declare a Cairo1 contract.
+
+.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_cairo1_contract.py
+    :language: python
+    :dedent: 4
+
+.. note::
+
+    This is currently the only supported method of declaring a Cairo1 contract to Starknet.
+    The support for declaring through :ref:`Contract` interface is planned for a future release.
+
+
+Deploying Cairo1 contracts
+##########################
+
+After declaring a Cairo1 contract, it can be deployed using UDC.
+
+.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_cairo1_contract.py
+    :language: python
+    :dedent: 4
+    :start-after: docs-deploy: start
+    :end-before: docs-deploy: end
+
+.. note::
+
+    Currently only :meth:`~starknet_py.net.udc_deployer.deployer.Deployer.create_contract_deployment_raw` is supported.
+    :meth:`~starknet_py.net.udc_deployer.deployer.Deployer.create_contract_deployment` will not work.
+
