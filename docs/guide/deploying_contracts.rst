@@ -23,7 +23,7 @@ Declaring Cairo1 contracts
 --------------------------
 
 Starknet 0.11 introduced the ability to declare contracts written in Cairo1!
-To declare a new contract, Declare version 2 transaction has to be sent.
+To declare a new contract, Declare v2 transaction has to be sent.
 You can see the structure of the new Declare transaction `here <https://docs.starknet.io/documentation/starknet_versions/upcoming_versions/#declare_v2>`_.
 
 The main differences in the structure of the transaction from its previous version are:
