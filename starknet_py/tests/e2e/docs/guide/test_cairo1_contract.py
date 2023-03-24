@@ -23,7 +23,7 @@ async def test_cairo1_contract(
     from starknet_py.hash.casm_class_hash import compute_casm_class_hash
     from starknet_py.net.schemas.gateway import CasmClassSchema
 
-    # contract_compiled is the output of the starknet-sierra-compile (.casm file)
+    # contract_compiled_casm is the output of the starknet-sierra-compile (.casm file)
     casm_class = CasmClassSchema().loads(contract_compiled_casm)
 
     # Compute Casm class hash
