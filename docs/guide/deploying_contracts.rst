@@ -44,7 +44,7 @@ Simply pluck the ``json`` result of ``starknet-compile`` into ``starknet-sierra-
 
 Here's an example how to declare a Cairo1 contract.
 
-.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_declare_v2.py
+.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_cairo1_contract.py
     :language: python
     :dedent: 4
 
@@ -53,6 +53,17 @@ Here's an example how to declare a Cairo1 contract.
     This is currently the only supported method of declaring a Cairo1 contract to Starknet.
     The support for declaring through :ref:`Contract` interface is planned for a future release.
 
+
+Deploying Cairo1 contracts
+--------------------------
+
+After declaring a Cairo1 contract, it can be deployed using UDC.
+
+.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_cairo1_contract.py
+    :language: python
+    :dedent: 4
+    :start-after: docs-deploy: start
+    :end-before: docs-deploy: end
 
 
 Simple declare and deploy
