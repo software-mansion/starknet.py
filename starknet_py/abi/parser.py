@@ -150,7 +150,7 @@ class AbiParser:
         return Abi.Function(
             name=function["name"],
             inputs=self._parse_members(function["inputs"], function["name"]),
-            outputs=function["outputs"],
+            outputs=list(self.type_parser.parse_inline_type(param["type"]) for param in function['outputs']),
         )
 
     def _parse_event(self, event: EventDict) -> Abi.Event:
@@ -167,7 +167,7 @@ class AbiParser:
     ) -> OrderedDict[str, CairoType]:
         # Without cast, it complains that 'Type "TypedMemberDict" cannot be assigned to type "T@_group_by_name"'
         members = AbiParser._group_by_entry_name(cast(List[Dict], params), entity_name)
-        return OrderedDict((name, param["type"]) for name, param in members.items())
+        return OrderedDict((name, self.type_parser.parse_inline_type(param["type"])) for name, param in members.items())
 
     @staticmethod
     def _group_by_entry_name(

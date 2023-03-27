@@ -6,6 +6,7 @@ from typing import Dict
 import starkware.cairo.lang.compiler.ast.cairo_types as cairo_lang_types
 from starkware.cairo.lang.compiler.parser import parse_type
 
+from starknet_py.abi.parser_transformer import parse
 from starknet_py.cairo.data_types import (
     ArrayType,
     CairoType,
@@ -56,8 +57,11 @@ class TypeParser:
 
         :param type_string: type to parse.
         """
-        parsed = parse_type(type_string)
-        return self._transform_cairo_lang_type(parsed)
+        parsed = parse(None, type_string, "start", CairoType)
+
+        if isinstance(parsed, str):
+            return self._get_struct(parsed)
+        return parsed
 
     def _transform_cairo_lang_type(
         self, cairo_type: cairo_lang_types.CairoType
@@ -110,6 +114,7 @@ class TypeParser:
         )  # pragma: no cover
 
     def _get_struct(self, name: str):
-        if name not in self.defined_types:
-            raise UnknownCairoTypeError(name)
-        return self.defined_types[name]
+        for struct_name in self.defined_types.keys():
+            if name in struct_name:
+                return self.defined_types[struct_name]
+        raise UnknownCairoTypeError(name)

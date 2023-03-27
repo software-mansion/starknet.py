@@ -26,6 +26,7 @@ cairo-lang = "^0.11.0"
 eth-utils = "<2.0.0"
 furo = "^2022.12.7"
 marshmallow-dataclass = "<8.5.0"
+lark = "^1.1.5"
 
 [tool.poetry.extras]
 docs = ["sphinx", "enum-tools"]
