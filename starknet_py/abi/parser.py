@@ -21,7 +21,7 @@ from starknet_py.abi.shape import (
     FunctionDict,
     TypedMemberDict,
 )
-from starknet_py.cairo.data_types import CairoType, StructType, Enum
+from starknet_py.cairo.data_types import CairoType, StructType, EnumType
 from starknet_py.cairo.type_parser import TypeParser
 
 
@@ -158,9 +158,6 @@ class AbiParser:
             name=event["name"],
             inputs=self._parse_members(event["inputs"], event["name"]),
         )
-
-    def _parse_enum(self, enum: EnumDict) -> Enum:
-        return Enum(enum['name'], self._parse_members(enum['variants'], enum['name']))
 
     def _parse_members(
         self, params: List[TypedMemberDict], entity_name: str

@@ -43,7 +43,6 @@ class ParserTransformer(Transformer):
                     name += "::"
             except Exception:
                 continue
-        # name = ExprIdentifier(name=".".join(x.value for x in value), location=self.meta2loc(meta))
         return name[:-2]
 
 
@@ -57,9 +56,6 @@ def parse(
     Parses the given string and returns an AST tree based on the classes in ast/*.py.
     code_type is the ebnf rule to start from (e.g., 'expr' or 'cairo_file').
     """
-    input_file = InputFile(filename=filename, content=code)
-    parser_transformer = ParserTransformer(input_file)
-
     grammar_parser = lark.Lark(
         grammar=open(os.path.join(os.path.dirname(__file__), "abi.ebnf"), "r").read(),
         start="start",

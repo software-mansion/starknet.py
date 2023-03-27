@@ -58,6 +58,6 @@ class StructType(CairoType):
 
 
 @dataclass
-class Enum(CairoType):
+class EnumType(CairoType):
     name: str
     variants: OrderedDict[str, CairoType]
