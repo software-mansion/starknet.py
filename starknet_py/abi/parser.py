@@ -10,18 +10,15 @@ from marshmallow import EXCLUDE
 from starknet_py.abi.model import Abi
 from starknet_py.abi.schemas import ContractAbiEntrySchema
 from starknet_py.abi.shape import (
-    CONSTRUCTOR_ENTRY,
     ENUM_ENTRY,
     EVENT_ENTRY,
     FUNCTION_ENTRY,
-    L1_HANDLER_ENTRY,
     STRUCT_ENTRY,
-    EnumDict,
     EventDict,
     FunctionDict,
     TypedMemberDict,
 )
-from starknet_py.cairo.data_types import CairoType, StructType, EnumType
+from starknet_py.cairo.data_types import CairoType, StructType
 from starknet_py.cairo.type_parser import TypeParser
 
 
@@ -64,10 +61,6 @@ class AbiParser:
         :return: Abi dataclass.
         """
         structures = self._parse_structures()
-        enums_dict = cast(
-            Dict[str, EnumDict],
-            AbiParser._group_by_entry_name(self._grouped[ENUM_ENTRY], "defined enums"),
-        )
         functions_dict = cast(
             Dict[str, FunctionDict],
             AbiParser._group_by_entry_name(
@@ -83,9 +76,6 @@ class AbiParser:
 
         return Abi(
             defined_structures=structures,
-            defined_enums={
-                name: self._parse_enum(entry) for name, entry in enums_dict.items()
-            },
             functions={
                 name: self._parse_function(entry)
                 for name, entry in functions_dict.items()
@@ -106,6 +96,9 @@ class AbiParser:
         structs_dict = AbiParser._group_by_entry_name(
             self._grouped[STRUCT_ENTRY], "defined structures"
         )
+        structs_dict.update(AbiParser._group_by_entry_name(
+            self._grouped[ENUM_ENTRY], "defined structures"
+        ))
 
         # Contains sorted members of the struct
         struct_members: Dict[str, List[TypedMemberDict]] = {}
@@ -120,7 +113,10 @@ class AbiParser:
         # topological sorting with an additional "unresolved type", so this flow is much easier.
         for name, struct in structs_dict.items():
             structs[name] = StructType(name, OrderedDict())
-            struct_members[name] = struct["members"]
+            if "members" in struct.keys():
+                struct_members[name] = struct["members"]
+            else:
+                struct_members[name] = struct["variants"]
 
         # Now parse the types of members and save them.
         self._type_parser = TypeParser(structs)

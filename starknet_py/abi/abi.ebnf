@@ -2,7 +2,6 @@ IDENTIFIER: /[a-zA-Z_][a-zA-Z_0-9]*/
 
 start: type
      | struct
-     | enum
 
 type: "core" "::" core_value
 
