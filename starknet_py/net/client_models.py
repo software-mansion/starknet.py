@@ -48,6 +48,7 @@ class Events:
     """
 
     events: List[Event]
+    continuation_token: Optional[str] = None
 
 
 @dataclass

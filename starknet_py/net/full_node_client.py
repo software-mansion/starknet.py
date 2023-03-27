@@ -1,6 +1,6 @@
 import re
 import warnings
-from typing import Dict, List, Optional, Union, cast
+from typing import Dict, List, Optional, Tuple, Union, cast
 
 import aiohttp
 from marshmallow import EXCLUDE
@@ -92,7 +92,7 @@ class FullNodeClient(Client):
 
         res = await self._client.call(
             method_name="getBlockWithTxs",
-            params={"block_id": block_identifier},
+            params=block_identifier,
         )
         return cast(StarknetBlock, StarknetBlockSchema().load(res, unknown=EXCLUDE))
 
@@ -109,18 +109,20 @@ class FullNodeClient(Client):
         from_block_hash: Optional[Union[Hash, Tag]] = None,
         to_block_number: Optional[Union[int, Tag]] = None,
         to_block_hash: Optional[Union[Hash, Tag]] = None,
-        contract_address: Optional[Hash] = None,
+        address: Optional[Hash] = None,
         keys: Optional[List[Hash]] = None,
-    ) -> Events:
+        continuation: bool = False,
+        chunk_size: int = 1,
+    ) -> Tuple[Events, Optional[str]]:
         # pylint: disable=too-many-arguments
         params = {
-            "chunk_size": 1024,
+            "chunk_size": chunk_size if chunk_size >= 1 else 1,
             "from_block": get_block_identifier(from_block_hash, from_block_number),
             "to_block": get_block_identifier(to_block_hash, to_block_number),
         }
 
-        if contract_address is not None:
-            params["address"] = _to_rpc_felt(contract_address)
+        if address is not None:
+            params["address"] = _to_rpc_felt(address)
         if keys is not None:
             params["keys"] = list(map(_to_rpc_felt, keys))
 
@@ -128,18 +130,19 @@ class FullNodeClient(Client):
             method_name="getEvents",
             params={"filter": params},
         )
-        ret = cast(Events, EventsSchema().load(res, unknown=EXCLUDE))
-        con_token = res.get("continuation_token")
-        while con_token:
-            params["continuation_token"] = con_token
-            res = await self._client.call(
-                method_name="getEvents",
-                params={"filter": params},
-            )
-            new_events = cast(Events, EventsSchema().load(res, unknown=EXCLUDE))
-            ret.events.extend(new_events.events)
-            con_token = res.get("continuation_token")
-        return ret
+        events = cast(Events, EventsSchema().load(res, unknown=EXCLUDE))
+        continuation_token = res.get("continuation_token")
+        if continuation:
+            while continuation_token:
+                params["continuation_token"] = continuation_token
+                res = await self._client.call(
+                    method_name="getEvents",
+                    params={"filter": params},
+                )
+                new_events = cast(Events, EventsSchema().load(res, unknown=EXCLUDE))
+                events.events.extend(new_events.events)
+                continuation_token = res.get("continuation_token")
+        return events, continuation_token
 
     async def get_state_update(
         self,
@@ -152,7 +155,7 @@ class FullNodeClient(Client):
 
         res = await self._client.call(
             method_name="getStateUpdate",
-            params={"block_id": block_identifier},
+            params=block_identifier,
         )
         return cast(
             BlockStateUpdate, BlockStateUpdateSchema().load(res, unknown=EXCLUDE)
@@ -174,7 +177,7 @@ class FullNodeClient(Client):
             params={
                 "contract_address": _to_rpc_felt(contract_address),
                 "key": _to_storage_key(key),
-                "block_id": block_identifier,
+                **block_identifier,
             },
         )
         res = cast(str, res)
@@ -216,7 +219,7 @@ class FullNodeClient(Client):
             method_name="estimateFee",
             params={
                 "request": _create_broadcasted_txn(transaction=tx),
-                "block_id": block_identifier,
+                **block_identifier,
             },
         )
 
@@ -239,7 +242,7 @@ class FullNodeClient(Client):
                     "entry_point_selector": _to_rpc_felt(call.selector),
                     "calldata": [_to_rpc_felt(i1) for i1 in call.calldata],
                 },
-                "block_id": block_identifier,
+                **block_identifier,
             },
         )
         return [int(i, 16) for i in res]
@@ -297,7 +300,7 @@ class FullNodeClient(Client):
             method_name="getClassHashAt",
             params={
                 "contract_address": _to_rpc_felt(contract_address),
-                "block_id": block_identifier,
+                **block_identifier,
             },
         )
         res = cast(str, res)
@@ -317,7 +320,7 @@ class FullNodeClient(Client):
             method_name="getClass",
             params={
                 "class_hash": _to_rpc_felt(class_hash),
-                "block_id": block_identifier,
+                **block_identifier,
             },
         )
         return cast(ContractClass, ContractClassSchema().load(res, unknown=EXCLUDE))
@@ -345,7 +348,7 @@ class FullNodeClient(Client):
         res = await self._client.call(
             method_name="getTransactionByBlockIdAndIndex",
             params={
-                "block_id": block_identifier,
+                **block_identifier,
                 "index": index,
             },
         )
@@ -369,7 +372,7 @@ class FullNodeClient(Client):
 
         res = await self._client.call(
             method_name="getBlockTransactionCount",
-            params={"block_id": block_identifier},
+            params=block_identifier,
         )
         res = cast(int, res)
         return res
@@ -395,7 +398,7 @@ class FullNodeClient(Client):
         res = await self._client.call(
             method_name="getClassAt",
             params={
-                "block_id": block_identifier,
+                **block_identifier,
                 "contract_address": _to_rpc_felt(contract_address),
             },
         )
@@ -428,7 +431,7 @@ class FullNodeClient(Client):
             method_name="getNonce",
             params={
                 "contract_address": _to_rpc_felt(contract_address),
-                "block_id": block_identifier,
+                **block_identifier,
             },
         )
         res = cast(str, res)
@@ -438,22 +441,22 @@ class FullNodeClient(Client):
 def get_block_identifier(
     block_hash: Optional[Union[Hash, Tag]] = None,
     block_number: Optional[Union[int, Tag]] = None,
-) -> Union[Dict, Tag, int, Hash, None]:
+) -> dict:
     if block_hash is not None and block_number is not None:
         raise ValueError(
             "Arguments block_hash and block_number are mutually exclusive."
         )
 
     if block_hash in ("latest", "pending") or block_number in ("latest", "pending"):
-        return block_hash or block_number
+        return {"block_id": block_hash or block_number}
 
     if block_hash is not None:
-        return {"block_hash": _to_rpc_felt(block_hash)}
+        return {"block_id": {"block_hash": _to_rpc_felt(block_hash)}}
 
     if block_number is not None:
-        return {"block_number": block_number}
+        return {"block_id": {"block_number": block_number}}
 
-    return "pending"
+    return {"block_id": "pending"}
 
 
 def _create_broadcasted_txn(transaction: AccountTransaction) -> dict:
