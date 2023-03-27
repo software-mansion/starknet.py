@@ -42,7 +42,7 @@ class Event:
 
 
 @dataclass
-class Events:
+class EventsResponse:
     """
     Dataclass representing events returned by FullNodeClient.get_events method.
     """

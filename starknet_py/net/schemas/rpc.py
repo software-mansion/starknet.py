@@ -16,7 +16,7 @@ from starknet_py.net.client_models import (
     EntryPointsByType,
     EstimatedFee,
     Event,
-    Events,
+    EventsResponse,
     InvokeTransaction,
     L1HandlerTransaction,
     L1toL2Message,
@@ -65,10 +65,11 @@ class EventsSchema(Schema):
         data_key="events",
         required=True,
     )
+    continuation_token = fields.String(data_key="continuation_token", load_default=None)
 
     @post_load
     def make_dataclass(self, data, **kwargs):
-        return Events(**data)
+        return EventsResponse(**data)
 
 
 class L1toL2MessageSchema(Schema):

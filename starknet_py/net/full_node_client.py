@@ -15,7 +15,7 @@ from starknet_py.net.client_models import (
     DeclareTransactionResponse,
     DeployAccountTransactionResponse,
     EstimatedFee,
-    Events,
+    EventsResponse,
     Hash,
     SentTransactionResponse,
     StarknetBlock,
@@ -111,10 +111,28 @@ class FullNodeClient(Client):
         to_block_hash: Optional[Union[Hash, Tag]] = None,
         address: Optional[Hash] = None,
         keys: Optional[List[Hash]] = None,
-        continuation: bool = False,
+        follow_continuation_token: bool = False,
         chunk_size: int = 1,
-    ) -> Tuple[Events, Optional[str]]:
+    ) -> EventsResponse:
         # pylint: disable=too-many-arguments
+        """.
+        :param from_block_number: Number of the block from which events searched for start
+                                or literals `"pending"` or `"latest"`.
+        :param from_block_hash: Number of the block from which events searched for start
+                                or literals `"pending"` or `"latest"`.
+        :param to_block_number: Number of the block from which events searched for end
+                                or literals `"pending"` or `"latest"`.
+        :param to_block_hash: Hash of the block from which events searched for start
+                                or literals `"pending"` or `"latest"`.
+        :param address: The address related to events that are searched for.
+        :param keys: The values used to filter the events.
+        :param follow_continuation_token: Flag deciding whether all events should be collected during one function call,
+                                defaults to False.
+                            Set this to True if you want to collect all events during one function call.
+        :param chunk_size: Size of chunk of events returned by one ``get_events`` call, defaults to 1 (minimum).
+
+        :returns: EventsResponse dataclass containing events and optional continuation token.
+        """
         params = {
             "chunk_size": chunk_size if chunk_size >= 1 else 1,
             "from_block": get_block_identifier(from_block_hash, from_block_number),
@@ -126,23 +144,26 @@ class FullNodeClient(Client):
         if keys is not None:
             params["keys"] = list(map(_to_rpc_felt, keys))
 
+        events_response = await self.get_events_chunk(params)
+        continuation_token = events_response.continuation_token
+        if follow_continuation_token:
+            while continuation_token:
+                params["continuation_token"] = continuation_token
+                new_events = await self.get_events_chunk(params)
+                events_response.events.extend(new_events.events)
+                continuation_token = events_response.continuation_token
+        return events_response
+
+    async def get_events_chunk(
+        self,
+        params: dict,
+    ) -> EventsResponse:
         res = await self._client.call(
             method_name="getEvents",
             params={"filter": params},
         )
-        events = cast(Events, EventsSchema().load(res, unknown=EXCLUDE))
-        continuation_token = res.get("continuation_token")
-        if continuation:
-            while continuation_token:
-                params["continuation_token"] = continuation_token
-                res = await self._client.call(
-                    method_name="getEvents",
-                    params={"filter": params},
-                )
-                new_events = cast(Events, EventsSchema().load(res, unknown=EXCLUDE))
-                events.events.extend(new_events.events)
-                continuation_token = res.get("continuation_token")
-        return events, continuation_token
+        events_response = cast(EventsResponse, EventsSchema().load(res, unknown=EXCLUDE))
+        return events_response
 
     async def get_state_update(
         self,
