@@ -109,12 +109,13 @@ class FullNodeClient(Client):
         from_block_hash: Optional[Union[Hash, Tag]] = None,
         to_block_number: Optional[Union[int, Tag]] = None,
         to_block_hash: Optional[Union[Hash, Tag]] = None,
-        address: Optional[Hash] = None,
+        address: Hash = None,
         keys: Optional[List[Hash]] = None,
         follow_continuation_token: bool = False,
         chunk_size: int = 1,
     ) -> EventsResponse:
         # pylint: disable=too-many-arguments
+        # TODO FINISH DOCSTRING
         """.
         :param from_block_number: Number of the block from which events searched for start
                                 or literals `"pending"` or `"latest"`.
@@ -127,31 +128,29 @@ class FullNodeClient(Client):
         :param address: The address related to events that are searched for.
         :param keys: The values used to filter the events.
         :param follow_continuation_token: Flag deciding whether all events should be collected during one function call,
-                                defaults to False.
-                            Set this to True if you want to collect all events during one function call.
+                                defaults to False. /
+                            (Set this to True if you want to collect all events during one function call.)
         :param chunk_size: Size of chunk of events returned by one ``get_events`` call, defaults to 1 (minimum).
 
         :returns: EventsResponse dataclass containing events and optional continuation token.
         """
         params = {
             "chunk_size": chunk_size if chunk_size >= 1 else 1,
-            "from_block": get_block_identifier(from_block_hash, from_block_number),
-            "to_block": get_block_identifier(to_block_hash, to_block_number),
+            "from_block": get_block_identifier_for_get_events(from_block_hash, from_block_number),
+            "to_block": get_block_identifier_for_get_events(to_block_hash, to_block_number),
         }
 
         if address is not None:
             params["address"] = _to_rpc_felt(address)
         if keys is not None:
             params["keys"] = list(map(_to_rpc_felt, keys))
+        while True:
+            events_response = await self.get_events_chunk(params)
+            continuation_token = events_response.continuation_token
+            if not follow_continuation_token or continuation_token == '0':
+                break
+            params["continuation_token"] = continuation_token
 
-        events_response = await self.get_events_chunk(params)
-        continuation_token = events_response.continuation_token
-        if follow_continuation_token:
-            while continuation_token:
-                params["continuation_token"] = continuation_token
-                new_events = await self.get_events_chunk(params)
-                events_response.events.extend(new_events.events)
-                continuation_token = events_response.continuation_token
         return events_response
 
     async def get_events_chunk(
@@ -162,7 +161,9 @@ class FullNodeClient(Client):
             method_name="getEvents",
             params={"filter": params},
         )
-        events_response = cast(EventsResponse, EventsSchema().load(res, unknown=EXCLUDE))
+        events_response = cast(
+            EventsResponse, EventsSchema().load(res, unknown=EXCLUDE)
+        )
         return events_response
 
     async def get_state_update(
@@ -478,6 +479,29 @@ def get_block_identifier(
         return {"block_id": {"block_number": block_number}}
 
     return {"block_id": "pending"}
+
+
+def get_block_identifier_for_get_events(
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+) -> Union[dict, Hash, Tag]:
+    if block_hash is not None and block_number is not None:
+        raise ValueError(
+            "Arguments block_hash and block_number are mutually exclusive."
+        )
+
+    if block_hash in ("latest", "pending"):
+        return block_hash
+    if block_number in ("latest", "pending"):
+        return block_number
+
+    if block_hash is not None:
+        return {"block_hash": _to_rpc_felt(block_hash)}
+
+    if block_number is not None:
+        return {"block_number": block_number}
+
+    return "pending"
 
 
 def _create_broadcasted_txn(transaction: AccountTransaction) -> dict:
