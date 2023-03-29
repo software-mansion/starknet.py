@@ -3,7 +3,7 @@ from __future__ import annotations
 from abc import ABC
 from collections import OrderedDict
 from dataclasses import dataclass
-from typing import List
+from typing import List, Optional
 
 
 class CairoType(ABC):
@@ -61,3 +61,8 @@ class StructType(CairoType):
 class EnumType(CairoType):
     name: str
     variants: OrderedDict[str, CairoType]
+
+
+@dataclass
+class Option(CairoType):
+    value: Optional[CairoType] = None

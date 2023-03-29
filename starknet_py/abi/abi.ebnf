@@ -7,6 +7,8 @@ type: "core" "::" core_value
 
 core_value: "felt" "252" -> type_felt
           | "integer" "::" "u" INT -> type_uint
+          | "option" "::" "Option" "::" "<" core_value ">" -> type_option
+          | "()" -> type_unit
 
 struct: (IDENTIFIER "::")+ "<" type ">"
 

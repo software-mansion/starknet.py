@@ -1,15 +1,9 @@
 import os
-from collections.abc import Sequence
-from typing import Optional
 
 import lark
-from lark import Transformer, v_args, UnexpectedToken, LarkError
-from lark.exceptions import VisitError
-from starkware.cairo.lang.compiler.ast.expr import ExprIdentifier
-from starkware.cairo.lang.compiler.error_handling import InputFile, LocationError
-from starkware.cairo.lang.compiler.parser import wrap_lark_error
+from lark import Transformer, v_args
 
-from starknet_py.cairo.data_types import FeltType
+from starknet_py.cairo.data_types import FeltType, Option
 
 
 class ParserTransformer(Transformer):
@@ -34,30 +28,35 @@ class ParserTransformer(Transformer):
     def type_uint(self, value):
         return FeltType()
 
+    def type_unit(self, value):
+        return None
+
+    def type_option(self, value):
+        return Option()
+
     def struct(self, value):
         name = ""
         for token in value:
-            try:
-                if isinstance(token, str):
-                    name += token
-                    name += "::"
-            except Exception:
-                continue
+            if isinstance(token, str):
+                name += token
+                name += "::"
         return name[:-2]
 
 
 def parse(
-    filename: Optional[str],
     code: str,
-    code_type: str,
-    expected_type,
 ):
     """
     Parses the given string and returns an AST tree based on the classes in ast/*.py.
     code_type is the ebnf rule to start from (e.g., 'expr' or 'cairo_file').
     """
+    with open(
+        os.path.join(os.path.dirname(__file__), "abi.ebnf"), "r", encoding="utf-8"
+    ) as grammar_file:
+        grammar = grammar_file.read()
+
     grammar_parser = lark.Lark(
-        grammar=open(os.path.join(os.path.dirname(__file__), "abi.ebnf"), "r").read(),
+        grammar=grammar,
         start="start",
         parser="lalr",
     )

@@ -4,7 +4,6 @@ from collections import OrderedDict
 from typing import Dict
 
 import starkware.cairo.lang.compiler.ast.cairo_types as cairo_lang_types
-from starkware.cairo.lang.compiler.parser import parse_type
 
 from starknet_py.abi.parser_transformer import parse
 from starknet_py.cairo.data_types import (
@@ -57,7 +56,7 @@ class TypeParser:
 
         :param type_string: type to parse.
         """
-        parsed = parse(None, type_string, "start", CairoType)
+        parsed = parse(type_string)
 
         if isinstance(parsed, str):
             return self._get_struct(parsed)
