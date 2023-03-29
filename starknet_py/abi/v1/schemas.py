@@ -1,8 +1,9 @@
 from marshmallow import Schema, fields
 from marshmallow_oneofschema import OneOfSchema
 
-from starknet_py.abi.shape import (
+from starknet_py.abi.v1.shape import (
     CONSTRUCTOR_ENTRY,
+    ENUM_ENTRY,
     EVENT_ENTRY,
     FUNCTION_ENTRY,
     L1_HANDLER_ENTRY,
@@ -10,13 +11,12 @@ from starknet_py.abi.shape import (
 )
 
 
-class TypedParameterSchema(Schema):
-    name = fields.String(data_key="name", required=True)
+class TypeSchema(Schema):
     type = fields.String(data_key="type", required=True)
 
 
-class StructMemberSchema(TypedParameterSchema):
-    offset = fields.Integer(data_key="offset", required=True)
+class TypedParameterSchema(TypeSchema):
+    name = fields.String(data_key="name", required=True)
 
 
 class FunctionBaseSchema(Schema):
@@ -25,8 +25,9 @@ class FunctionBaseSchema(Schema):
         fields.Nested(TypedParameterSchema()), data_key="inputs", required=True
     )
     outputs = fields.List(
-        fields.Nested(TypedParameterSchema()), data_key="outputs", required=True
+        fields.Nested(TypeSchema()), data_key="outputs", required=True
     )
+    state_mutability = fields.String(data_key="state_mutability", default=None)
 
 
 class FunctionAbiEntrySchema(FunctionBaseSchema):
@@ -44,20 +45,24 @@ class L1HandlerAbiEntrySchema(FunctionBaseSchema):
 class EventAbiEntrySchema(Schema):
     type = fields.Constant(EVENT_ENTRY, data_key="type", required=True)
     name = fields.String(data_key="name", required=True)
-    keys = fields.List(
-        fields.Nested(TypedParameterSchema()), data_key="keys", required=True
-    )
-    data = fields.List(
-        fields.Nested(TypedParameterSchema()), data_key="data", required=True
+    inputs = fields.List(
+        fields.Nested(TypedParameterSchema()), data_key="inputs", required=True
     )
 
 
 class StructAbiEntrySchema(Schema):
     type = fields.Constant(STRUCT_ENTRY, data_key="type", required=True)
     name = fields.String(data_key="name", required=True)
-    size = fields.Integer(data_key="size", required=True)
     members = fields.List(
-        fields.Nested(StructMemberSchema()), data_key="members", required=True
+        fields.Nested(TypedParameterSchema()), data_key="members", required=True
+    )
+
+
+class EnumAbiEntrySchema(Schema):
+    type = fields.Constant(ENUM_ENTRY, data_key="type", required=True)
+    name = fields.String(data_key="name", required=True)
+    variants = fields.List(
+        fields.Nested(TypedParameterSchema(), data_key="variants", required=True)
     )
 
 
@@ -69,4 +74,5 @@ class ContractAbiEntrySchema(OneOfSchema):
         CONSTRUCTOR_ENTRY: ConstructorAbiEntrySchema,
         EVENT_ENTRY: EventAbiEntrySchema,
         STRUCT_ENTRY: StructAbiEntrySchema,
+        ENUM_ENTRY: EnumAbiEntrySchema,
     }

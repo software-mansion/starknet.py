@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, Optional, OrderedDict
+from typing import Dict, List, Optional, OrderedDict
 
 from starknet_py.cairo.data_types import CairoType, StructType
 
@@ -20,7 +20,7 @@ class Abi:
 
         name: str
         inputs: OrderedDict[str, CairoType]
-        outputs: OrderedDict[str, CairoType]
+        outputs: List[CairoType]
 
     @dataclass
     class Event:
@@ -29,7 +29,7 @@ class Abi:
         """
 
         name: str
-        data: OrderedDict[str, CairoType]
+        inputs: OrderedDict[str, CairoType]
 
     defined_structures: Dict[
         str, StructType

@@ -7,21 +7,21 @@ from typing import DefaultDict, Dict, List, Optional, cast
 
 from marshmallow import EXCLUDE
 
-from starknet_py.abi.model import Abi
-from starknet_py.abi.schemas import ContractAbiEntrySchema
-from starknet_py.abi.shape import (
+from starknet_py.abi.v1.model import Abi
+from starknet_py.abi.v1.schemas import ContractAbiEntrySchema
+from starknet_py.abi.v1.shape import (
     CONSTRUCTOR_ENTRY,
+    ENUM_ENTRY,
     EVENT_ENTRY,
     FUNCTION_ENTRY,
     L1_HANDLER_ENTRY,
     STRUCT_ENTRY,
     EventDict,
     FunctionDict,
-    StructMemberDict,
     TypedMemberDict,
 )
 from starknet_py.cairo.data_types import CairoType, StructType
-from starknet_py.cairo.type_parser import TypeParser
+from starknet_py.cairo.v1.type_parser import TypeParser
 
 
 class AbiParsingError(ValueError):
@@ -78,12 +78,6 @@ class AbiParser:
         constructors = cast(List[FunctionDict], self._grouped[CONSTRUCTOR_ENTRY])
         l1_handlers = cast(List[FunctionDict], self._grouped[L1_HANDLER_ENTRY])
 
-        if len(l1_handlers) > 1:
-            raise AbiParsingError("L1 handler in ABI must be defined at most once.")
-
-        if len(constructors) > 1:
-            raise AbiParsingError("Constructor in ABI must be defined at most once.")
-
         return Abi(
             defined_structures=structures,
             constructor=(
@@ -110,9 +104,14 @@ class AbiParser:
         structs_dict = AbiParser._group_by_entry_name(
             self._grouped[STRUCT_ENTRY], "defined structures"
         )
+        structs_dict.update(
+            AbiParser._group_by_entry_name(
+                self._grouped[ENUM_ENTRY], "defined structures"
+            )
+        )
 
         # Contains sorted members of the struct
-        struct_members: Dict[str, List[StructMemberDict]] = {}
+        struct_members: Dict[str, List[TypedMemberDict]] = {}
         structs: Dict[str, StructType] = {}
 
         # Example problem (with a simplified json structure):
@@ -124,9 +123,10 @@ class AbiParser:
         # topological sorting with an additional "unresolved type", so this flow is much easier.
         for name, struct in structs_dict.items():
             structs[name] = StructType(name, OrderedDict())
-            struct_members[name] = sorted(
-                struct["members"], key=lambda member: member["offset"]
-            )
+            if "members" in struct.keys():
+                struct_members[name] = struct["members"]
+            else:
+                struct_members[name] = struct["variants"]
 
         # Now parse the types of members and save them.
         self._type_parser = TypeParser(structs)
@@ -156,13 +156,16 @@ class AbiParser:
         return Abi.Function(
             name=function["name"],
             inputs=self._parse_members(function["inputs"], function["name"]),
-            outputs=self._parse_members(function["outputs"], function["name"]),
+            outputs=list(
+                self.type_parser.parse_inline_type(param["type"])
+                for param in function["outputs"]
+            ),
         )
 
     def _parse_event(self, event: EventDict) -> Abi.Event:
         return Abi.Event(
             name=event["name"],
-            data=self._parse_members(event["data"], event["name"]),
+            inputs=self._parse_members(event["inputs"], event["name"]),
         )
 
     def _parse_members(
