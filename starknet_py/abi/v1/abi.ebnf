@@ -4,12 +4,15 @@ start: type
      | struct
 
 type: "core" "::" core_value
+    | type_unit
 
-core_value: "felt" "252"                                    -> type_felt
-          | "integer" "::" "u" INT                          -> type_uint
-          | "option" "::" "Option" "::" "<" core_value ">"  -> type_option
-          | "()"                                            -> type_unit
-          | "array" "::" "Array" "::" "<" core_value ">"    -> type_array
+core_value: "felt" "252"                                        -> type_felt
+          | "integer" "::" "u" INT                              -> type_uint
+          | "option" "::" "Option" "::" "<" (type | struct) ">" -> type_option
+          | "array" "::" "Array" "::" "<" (type | struct) ">"   -> type_array
+          | "starknet" "::" "contract_address" "::" IDENTIFIER  -> type_contract_address
+
+type_unit: "()"
 
 struct: (IDENTIFIER "::")+ "<" type ">"
 

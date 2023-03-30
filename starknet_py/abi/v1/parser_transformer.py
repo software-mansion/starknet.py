@@ -35,7 +35,7 @@ class ParserTransformer(Transformer):
         return Option()
 
     def type_array(self, value):
-        return ArrayType()
+        return ArrayType(value[0])
 
     def struct(self, value):
         name = ""
