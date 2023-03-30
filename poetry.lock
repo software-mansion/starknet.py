@@ -483,13 +483,13 @@ files = [
 
 [[package]]
 name = "cairo-lang"
-version = "0.11.0"
+version = "0.11.0.1"
 description = "Compiler and runner for the Cairo language"
 category = "main"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "cairo-lang-0.11.0.zip", hash = "sha256:c3b27d0b72dd9d0c4ea863ea2bf88a566de7791268474c65ca53f3d5724dca87"},
+    {file = "cairo-lang-0.11.0.1.zip", hash = "sha256:980be66de30b26ab26f9e4e616e32fbcf53530891a2a0a9d4544f17863cfbfa7"},
 ]
 
 [package.dependencies]
@@ -2988,33 +2988,29 @@ test = ["pytest"]
 
 [[package]]
 name = "starknet-devnet"
-version = "0.4.6"
+version = "0.5.0a0"
 description = "A local testnet for Starknet"
 category = "dev"
 optional = false
 python-versions = ">=3.9,<3.10"
-files = []
-develop = false
+files = [
+    {file = "starknet_devnet-0.5.0a0-py3-none-any.whl", hash = "sha256:1c20d52dd8d2d3da16854481ffb255bb5eef04a9d66d9136dca2492aa8a746e6"},
+    {file = "starknet_devnet-0.5.0a0.tar.gz", hash = "sha256:1cee022dedbf2688ece0756db9b5394ef6e31e2d99dde35457808411f03d6792"},
+]
 
 [package.dependencies]
-cairo-lang = "0.11.0"
-cloudpickle = "~2.1.0"
-crypto-cpp-py = "~1.2.0"
-Flask = {version = "~2.0.3", extras = ["async"]}
-flask-cors = "~3.0.10"
-gunicorn = "~20.1.0"
-jsonschema = "~4.17.0"
-marshmallow = "~3.17.0"
-marshmallow-dataclass = "~8.4"
-typing-extensions = "~4.3.0"
-web3 = "~5.31.4"
-Werkzeug = "~2.0.3"
-
-[package.source]
-type = "git"
-url = "https://github.com/Shard-Labs/starknet-devnet.git"
-reference = "adapt-0.11.0"
-resolved_reference = "737640cd70d0dc29476ebd7386b76fdf03ad240e"
+cairo-lang = "0.11.0.1"
+cloudpickle = ">=2.1.0,<2.2.0"
+crypto-cpp-py = ">=1.2.0,<1.3.0"
+Flask = {version = ">=2.0.3,<2.1.0", extras = ["async"]}
+flask-cors = ">=3.0.10,<3.1.0"
+gunicorn = ">=20.1.0,<20.2.0"
+jsonschema = ">=4.17.0,<4.18.0"
+marshmallow = ">=3.17.0,<3.18.0"
+marshmallow-dataclass = ">=8.4,<8.5"
+typing-extensions = ">=4.3.0,<4.4.0"
+web3 = ">=5.31.4,<5.32.0"
+Werkzeug = ">=2.0.3,<2.1.0"
 
 [[package]]
 name = "sympy"
@@ -3429,4 +3425,4 @@ eth-tester = []
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9, <3.10"
-content-hash = "302b6d927dc2aa5fd956930291254c4c348d2b41d8a2da41fa556a5c1e4a6665"
+content-hash = "3237e7adc55469ae82c8b384e0cc86fb6b097424478923e62da12be0366e3396"

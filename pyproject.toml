@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "starknet-py"
-version = "0.15.0"
+version = "0.15.1"
 description = "A python SDK for Starknet"
 authors = ["Tomasz Rejowski <tomasz.rejowski@swmansion.com>", "Jakub Ptak <jakub.ptak@swmansion.com>"]
 include = ["starknet_py", "starknet_py/utils/crypto/libcrypto_c_exports.*"]
@@ -47,7 +47,7 @@ pyright = "^1.1.298"
 pytest-cov = "^4.0.0"
 isort = "^5.11.4"
 pytest-rerunfailures = "^11.1"
-starknet-devnet = {git = "https://github.com/Shard-Labs/starknet-devnet.git", rev = "adapt-0.11.0"}
+starknet-devnet = "0.5.0a0"
 
 [tool.poe.tasks]
 test.shell = "pytest -n auto -v --reruns 10 --only-rerun aiohttp.client_exceptions.ClientConnectorError --cov=starknet_py starknet_py"
@@ -70,6 +70,9 @@ compile_contracts = "bash starknet_py/tests/e2e/mock/compile_contracts.sh"
 circular_imports_check.shell = "poetry run pytest circular.py"
 requirements_check.shell = "poetry export -f requirements.txt --without-hashes --extras docs | cmp - requirements.txt"
 ci = ["lint", "format_check", "typecheck", "requirements_check", "test_ci"]
+
+[tool.poetry.build]
+generate-setup-file = true
 
 [tool.coverage.run]
 source = ["starknet_py"]

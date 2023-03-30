@@ -1,7 +1,7 @@
 import json
 from typing import Any, Dict, List
 
-from marshmallow import EXCLUDE, Schema, fields, post_load
+from marshmallow import EXCLUDE, Schema, ValidationError, fields, post_load
 from marshmallow_oneofschema import OneOfSchema
 
 from starknet_py.net.client_models import (
@@ -472,14 +472,20 @@ class SierraContractClassSchema(Schema):
         return SierraContractClass(**data)
 
 
+class AbiField(fields.Field):
+    def _deserialize(self, value, attr, data, **kwargs):
+        if isinstance(value, str):
+            return value
+        if isinstance(value, list) and all(isinstance(item, dict) for item in value):
+            return json.dumps(value)
+        raise ValidationError("Field should be str or list[dict].")
+
+
 class SierraCompiledContractSchema(SierraContractClassSchema):
-    abi = fields.List(fields.Dict(), data_key="abi", required=True)
+    abi = AbiField(data_key="abi", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> SierraCompiledContract:
-        # Schema must accept ABI as List[dict] to be compatible with the output of Cairo1 compiler.
-        data["abi"] = json.dumps(data["abi"])
-
         return SierraCompiledContract(**data)
 
 
