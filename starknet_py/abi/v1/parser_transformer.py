@@ -3,7 +3,7 @@ import os
 import lark
 from lark import Transformer, v_args
 
-from starknet_py.cairo.data_types import FeltType, Option, ArrayType
+from starknet_py.cairo.data_types import ArrayType, FeltType, Option
 
 
 class ParserTransformer(Transformer):
@@ -11,8 +11,9 @@ class ParserTransformer(Transformer):
     Transforms the lark tree into an AST based on the classes defined in ast/*.py.
     """
 
+    # pylint: disable=no-self-use
+
     def __default__(self, data: str, children, meta):
-        print(data, children, meta)
         raise TypeError(f"Unable to parse tree node of type {data}")
 
     @v_args(inline=True)
@@ -22,28 +23,23 @@ class ParserTransformer(Transformer):
     def type(self, value):
         return value[0]
 
-    def type_felt(self, value):
+    def type_felt(self, _value):
         return FeltType()
 
-    def type_uint(self, value):
+    def type_uint(self, _value):
         return FeltType()
 
-    def type_unit(self, value):
+    def type_unit(self, _value):
         return None
 
-    def type_option(self, value):
+    def type_option(self, _value):
         return Option()
 
     def type_array(self, value):
         return ArrayType(value[0])
 
-    def struct(self, value):
-        name = ""
-        for token in value:
-            if isinstance(token, str):
-                name += token
-                name += "::"
-        return name[:-2]
+    def struct(self, tokens):
+        return "::".join(token for token in tokens if isinstance(token, str))
 
 
 def parse(

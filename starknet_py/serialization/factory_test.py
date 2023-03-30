@@ -48,6 +48,8 @@ abi = Abi(
     functions={
         "get_user_fn": get_user_fn,
     },
+    constructor=None,
+    l1_handler=None,
 )
 pool_id_serializer = StructSerializer(OrderedDict(value=Uint256Serializer()))
 user_serializer = StructSerializer(
