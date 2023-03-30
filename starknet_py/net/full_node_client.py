@@ -5,6 +5,7 @@ from typing import Dict, List, Optional, Tuple, Union, cast
 import aiohttp
 from marshmallow import EXCLUDE
 
+from starknet_py.hash.utils import _starknet_keccak
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
@@ -105,51 +106,57 @@ class FullNodeClient(Client):
 
     async def get_events(
         self,
+        address: Hash,
+        keys: List[Hash],
         from_block_number: Optional[Union[int, Tag]] = None,
         from_block_hash: Optional[Union[Hash, Tag]] = None,
         to_block_number: Optional[Union[int, Tag]] = None,
         to_block_hash: Optional[Union[Hash, Tag]] = None,
-        address: Hash = None,
-        keys: Optional[List[Hash]] = None,
         follow_continuation_token: bool = False,
         chunk_size: int = 1,
     ) -> EventsResponse:
         # pylint: disable=too-many-arguments
-        # TODO FINISH DOCSTRING
         """.
-        :param from_block_number: Number of the block from which events searched for start
+        :param from_block_number: Number of the block from which events searched for **start**
                                 or literals `"pending"` or `"latest"`.
-        :param from_block_hash: Number of the block from which events searched for start
+                                Mutually exclusive with ``from_block_hash`` parameter.
+        :param from_block_hash: Hash of the block from which events searched for **start**
                                 or literals `"pending"` or `"latest"`.
-        :param to_block_number: Number of the block from which events searched for end
+                                Mutually exclusive with ``from_block_number`` parameter.
+        :param to_block_number: Number of the block from which events searched for **end**
                                 or literals `"pending"` or `"latest"`.
-        :param to_block_hash: Hash of the block from which events searched for start
+                                Mutually exclusive with ``to_block_hash`` parameter.
+        :param to_block_hash: Hash of the block from which events searched for **end**
                                 or literals `"pending"` or `"latest"`.
-        :param address: The address related to events that are searched for.
-        :param keys: The values used to filter the events.
+                                Mutually exclusive with ``to_block_number`` parameter.
+        :param address: The address of the contract that emitted the event.
+        :param keys: List of names of events that are searched for.
         :param follow_continuation_token: Flag deciding whether all events should be collected during one function call,
-                                defaults to False. /
-                            (Set this to True if you want to collect all events during one function call.)
+                                defaults to False.
         :param chunk_size: Size of chunk of events returned by one ``get_events`` call, defaults to 1 (minimum).
 
-        :returns: EventsResponse dataclass containing events and optional continuation token.
+        :returns: ``EventsResponse`` dataclass containing events and optional continuation token.
         """
-        params = {
-            "chunk_size": chunk_size if chunk_size >= 1 else 1,
-            "from_block": get_block_identifier_for_get_events(from_block_hash, from_block_number),
-            "to_block": get_block_identifier_for_get_events(to_block_hash, to_block_number),
-        }
+        params = {"chunk_size": chunk_size if chunk_size >= 1 else 1,
+                  "from_block": get_block_identifier_for_get_events(from_block_hash, from_block_number),
+                  "to_block": get_block_identifier_for_get_events(to_block_hash, to_block_number),
+                  "address": _to_rpc_felt(address)}
 
-        if address is not None:
-            params["address"] = _to_rpc_felt(address)
-        if keys is not None:
-            params["keys"] = list(map(_to_rpc_felt, keys))
+        keys = [_starknet_keccak(bytes(i, "utf-8")) for i in keys]
+        params["keys"] = list(map(_to_rpc_felt, keys))
+        previous_continuation_token = None
         while True:
             events_response = await self.get_events_chunk(params)
             continuation_token = events_response.continuation_token
-            if not follow_continuation_token or continuation_token == '0':
+            # TODO fix the condition after devnet change, should be `or not continuation_token`.
+            # As of now, devnet returns previous continuation token when there are no events.
+            # However, the json "result" part should only contain `"events": []` and nothing else.
+            # Right now we must check whether the last returned continuation token is the same as the previous one.
+            # If so, the loop should break.
+            if not follow_continuation_token or continuation_token == previous_continuation_token:
                 break
             params["continuation_token"] = continuation_token
+            previous_continuation_token = continuation_token
 
         return events_response
 
@@ -490,10 +497,8 @@ def get_block_identifier_for_get_events(
             "Arguments block_hash and block_number are mutually exclusive."
         )
 
-    if block_hash in ("latest", "pending"):
-        return block_hash
-    if block_number in ("latest", "pending"):
-        return block_number
+    if block_hash in ("latest", "pending") or block_number in ("latest", "pending"):
+        return block_hash or block_number
 
     if block_hash is not None:
         return {"block_hash": _to_rpc_felt(block_hash)}
