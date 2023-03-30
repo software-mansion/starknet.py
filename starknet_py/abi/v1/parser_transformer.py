@@ -3,12 +3,12 @@ import os
 import lark
 from lark import Transformer, v_args
 
-from starknet_py.cairo.data_types import ArrayType, FeltType, Option
+from starknet_py.cairo.data_types import ArrayType, FeltType, Option, CairoType
 
 
 class ParserTransformer(Transformer):
     """
-    Transforms the lark tree into an AST based on the classes defined in ast/*.py.
+    Transforms the lark tree into a CairoTypes.
     """
 
     # pylint: disable=no-self-use
@@ -44,10 +44,9 @@ class ParserTransformer(Transformer):
 
 def parse(
     code: str,
-):
+) -> CairoType:
     """
-    Parses the given string and returns an AST tree based on the classes in ast/*.py.
-    code_type is the ebnf rule to start from (e.g., 'expr' or 'cairo_file').
+    Parse the given string and return a CairoType.
     """
     with open(
         os.path.join(os.path.dirname(__file__), "abi.ebnf"), "r", encoding="utf-8"
@@ -59,7 +58,6 @@ def parse(
         start="start",
         parser="lalr",
     )
-
     parsed = grammar_parser.parse(code)
 
     transformed = ParserTransformer().transform(parsed)
