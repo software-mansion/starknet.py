@@ -9,7 +9,7 @@ from starknet_py.cairo.data_types import CairoType, StructType
 @dataclass
 class Abi:
     """
-    Dataclass representing class abi. Contains parsed functions, events and structures.
+    Dataclass representing class abi. Contains parsed functions, enums, events and structures.
     """
 
     @dataclass
@@ -33,7 +33,7 @@ class Abi:
 
     defined_structures: Dict[
         str, StructType
-    ]  #: Abi of structures defined by the class.
+    ]  #: Abi of structures and enums defined by the class.
     functions: Dict[str, Function]  #: Functions defined by the class.
     constructor: Optional[
         Function
