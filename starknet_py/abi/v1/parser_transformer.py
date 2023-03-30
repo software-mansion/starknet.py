@@ -3,7 +3,7 @@ import os
 import lark
 from lark import Transformer, v_args
 
-from starknet_py.cairo.data_types import FeltType, Option
+from starknet_py.cairo.data_types import FeltType, Option, ArrayType
 
 
 class ParserTransformer(Transformer):
@@ -33,6 +33,9 @@ class ParserTransformer(Transformer):
 
     def type_option(self, value):
         return Option()
+
+    def type_array(self, value):
+        return ArrayType()
 
     def struct(self, value):
         name = ""
