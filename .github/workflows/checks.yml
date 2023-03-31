@@ -116,7 +116,14 @@ jobs:
           persist-credentials: false
           ref: v1.0.0-alpha.6
           path: cairo
+
+
+      - name: Cache rust dependencies
+        uses: Swatinem/rust-cache@v2
+
+
       - name: Build compiler
+        if: steps.cache-rust.outputs.cache-hit != 'true'
         working-directory: ./cairo
         run: |
           cargo build
@@ -179,7 +186,14 @@ jobs:
           persist-credentials: false
           ref: v1.0.0-alpha.6
           path: cairo
+
+
+      - name: Cache rust dependencies
+        uses: Swatinem/rust-cache@v2
+
+
       - name: Build compiler
+        if: steps.cache-rust.outputs.cache-hit != 'true'
         working-directory: ./cairo
         run: |
           cargo build
