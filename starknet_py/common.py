@@ -7,12 +7,12 @@ from starknet_py.compile.compiler import Compiler, StarknetCompilationSource
 from starknet_py.net.client_models import (
     CompiledContract,
     ContractClass,
-    SierraCompiledContract,
+    SierraCompiledContract, CasmClass,
 )
 from starknet_py.net.schemas.gateway import (
     CompiledContractSchema,
     ContractClassSchema,
-    SierraCompiledContractSchema,
+    SierraCompiledContractSchema, CasmClassSchema,
 )
 
 
@@ -86,6 +86,16 @@ def create_contract_class(
         category=DeprecationWarning,
     )
     return cast(ContractClass, ContractClassSchema().loads(compiled_contract))
+
+
+def create_casm_class(compiled_contract: str) -> CasmClass:
+    """
+    Creates CasmClass instance.
+
+    :param compiled_contract: contract compiled using starknet-sierra-compile.
+    :return: CasmClass instance.
+    """
+    return cast(CasmClass, CasmClassSchema().loads(compiled_contract))
 
 
 def int_from_hex(number: Union[str, int]) -> int:
