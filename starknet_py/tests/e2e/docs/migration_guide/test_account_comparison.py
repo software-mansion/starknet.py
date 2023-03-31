@@ -4,7 +4,7 @@ from starknet_py.net.client_models import Call
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip
+@pytest.mark.skip  # this test is a part of migration guide
 async def test_account_comparison(gateway_account, map_contract):
     address = map_contract.address
     key = 0x111
