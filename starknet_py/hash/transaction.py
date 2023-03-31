@@ -10,6 +10,10 @@ from starknet_py.net.client_models import ContractClass, SierraContractClass
 
 
 class TransactionHashPrefix(Enum):
+    """
+    Enum representing possible transaction prefixes.
+    """
+
     DECLARE = int_from_bytes(b"declare")
     DEPLOY = int_from_bytes(b"deploy")
     DEPLOY_ACCOUNT = int_from_bytes(b"deploy_account")
@@ -32,6 +36,7 @@ def compute_transaction_hash(
     Calculates the transaction hash in the StarkNet network - a unique identifier of the
     transaction.
     The transaction hash is a hash chain of the following information:
+
         1. A prefix that depends on the transaction type.
         2. The transaction's version.
         3. Contract address.
@@ -39,6 +44,7 @@ def compute_transaction_hash(
         5. A hash chain of the calldata.
         6. The transaction's maximum fee.
         7. The network's chain ID.
+
     Each hash chain computation begins with 0 as initialization and ends with its length appended.
     The length is appended in order to avoid collisions of the following kind:
     H([x,y,z]) = h(h(x,y),z) = H([w, z]) where w = h(x,y).

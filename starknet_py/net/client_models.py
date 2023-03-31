@@ -18,6 +18,10 @@ Tag = Literal["pending", "latest"]
 
 @dataclass
 class Call:
+    """
+    Dataclass representing a call to Starknet contract.
+    """
+
     to_addr: int
     selector: int
     calldata: List[int]
@@ -247,6 +251,10 @@ class GatewayBlock(StarknetBlock):
 
 @dataclass
 class BlockSingleTransactionTrace:
+    """
+    Dataclass representing a trace of transaction execution.
+    """
+
     signature: List[int]
     transaction_hash: int
     function_invocation: Optional[dict] = None
@@ -256,23 +264,39 @@ class BlockSingleTransactionTrace:
 
 @dataclass
 class BlockTransactionTraces:
+    """
+    Dataclass representing traces of all transactions in block.
+    """
+
     traces: List[BlockSingleTransactionTrace]
 
 
 @dataclass
 class StorageEntry:
+    """
+    Dataclass representing single change in the storage.
+    """
+
     key: int
     value: int
 
 
 @dataclass
 class StorageDiffItem:
+    """
+    Dataclass representing all storage changes for the contract.
+    """
+
     address: int
     storage_entries: List[StorageEntry]
 
 
 @dataclass
 class EstimatedFee:
+    """
+    Dataclass representing estimated fee.
+    """
+
     overall_fee: int
     gas_price: int
     gas_usage: int
@@ -280,30 +304,50 @@ class EstimatedFee:
 
 @dataclass
 class DeployedContract:
+    """
+    Dataclass representing basic data of the deployed contract.
+    """
+
     address: int
     class_hash: int
 
 
 @dataclass
 class ContractsNonce:
+    """
+    Dataclass representing nonce of the contract.
+    """
+
     contract_address: int
     nonce: int
 
 
 @dataclass
 class DeclaredContractHash:
+    """
+    Dataclass containing hashes of the declared contract.
+    """
+
     class_hash: int
     compiled_class_hash: int
 
 
 @dataclass
 class ReplacedClass:
+    """
+    Dataclass representing new class_hash of the contract.
+    """
+
     contract_address: int
     class_hash: int
 
 
 @dataclass
 class StateDiff:
+    """
+    Dataclass representing state changes in the block.
+    """
+
     deployed_contracts: List[DeployedContract]
     declared_contract_hashes: List[DeclaredContractHash]
     storage_diffs: List[StorageDiffItem]
@@ -458,5 +502,9 @@ class CasmClass:
 
 @dataclass
 class TransactionStatusResponse:
+    """
+    Dataclass representing transaction status.
+    """
+
     block_hash: Optional[int]
     transaction_status: TransactionStatus
