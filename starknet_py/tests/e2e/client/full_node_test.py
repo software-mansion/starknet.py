@@ -142,7 +142,6 @@ async def test_get_events_with_single_event_no_continuation_token(
         follow_continuation_token=False,
         chunk_size=3,
     )
-    print(f"1. single event no cont {events_response}")
     assert len(events_response.events) == 3
     assert events_response.continuation_token is not None
 
@@ -167,7 +166,6 @@ async def test_get_events_with_single_event_with_continuation_token(
         follow_continuation_token=True,
         chunk_size=1,
     )
-    print(f"single event cont {events_response}")
     assert len(events_response.events) == 2
     # TODO
     # assert events_response.continuation_token is None
@@ -190,7 +188,6 @@ async def test_get_events_with_single_event_nonexistent_event_name(
         follow_continuation_token=False,
         chunk_size=3,
     )
-    print(f"3. single event nonexistent name {events_response}")
     assert len(events_response.events) == 0
     # TODO
     # assert events_response.continuation_token is None
@@ -225,7 +222,6 @@ async def test_get_events_with_two_events(
         keys=[EVENT_TWO_NAME],
         follow_continuation_token=True,
     )
-    print(f"4. two events {event_one_events_response}\n{event_two_events_response}")
     assert len(event_one_events_response.events) == 1
     # TODO
     # assert events_response.continuation_token is None
