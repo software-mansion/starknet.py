@@ -325,7 +325,7 @@ class ContractsNonce:
 @dataclass
 class DeclaredContractHash:
     """
-    Dataclass representing basic data of the declared contract.
+    Dataclass containing hashes of the declared contract.
     """
 
     class_hash: int
