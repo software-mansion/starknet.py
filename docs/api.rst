@@ -6,6 +6,7 @@ API
    api/gateway_client
    api/full_node_client
    api/account
+   api/client_models
    api/client_errors
    api/contract
    api/udc_deployer
