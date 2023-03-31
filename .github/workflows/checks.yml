@@ -119,12 +119,19 @@ jobs:
 
 
       - name: Cache rust dependencies
-        id: rust-cache
-        uses: Swatinem/rust-cache@v2
+        id: cache-rust
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
 
       - name: Build compiler
-        if: steps.rust-cache.outputs.cache-hit != 'true'
         working-directory: ./cairo
         run: |
           cargo build
@@ -190,12 +197,19 @@ jobs:
 
 
       - name: Cache rust dependencies
-        id: rust-cache
-        uses: Swatinem/rust-cache@v2
+        id: cache-rust
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
 
       - name: Build compiler
-        if: steps.rust-cache.outputs.cache-hit != 'true'
         working-directory: ./cairo
         run: |
           cargo build
