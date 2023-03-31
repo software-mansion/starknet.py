@@ -1,5 +1,3 @@
-from typing import cast
-
 import pytest
 from starkware.starknet.core.os.contract_class.compiled_class_hash import (
     compute_compiled_class_hash as sw_compute_compiled_class_hash,

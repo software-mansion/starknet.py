@@ -5,14 +5,16 @@ from marshmallow import EXCLUDE
 
 from starknet_py.compile.compiler import Compiler, StarknetCompilationSource
 from starknet_py.net.client_models import (
+    CasmClass,
     CompiledContract,
     ContractClass,
-    SierraCompiledContract, CasmClass,
+    SierraCompiledContract,
 )
 from starknet_py.net.schemas.gateway import (
+    CasmClassSchema,
     CompiledContractSchema,
     ContractClassSchema,
-    SierraCompiledContractSchema, CasmClassSchema,
+    SierraCompiledContractSchema,
 )
 
 
