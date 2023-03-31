@@ -119,11 +119,12 @@ jobs:
 
 
       - name: Cache rust dependencies
+        id: rust-cache
         uses: Swatinem/rust-cache@v2
 
 
       - name: Build compiler
-        if: steps.cache-rust.outputs.cache-hit != 'true'
+        if: steps.rust-cache.outputs.cache-hit != 'true'
         working-directory: ./cairo
         run: |
           cargo build
@@ -189,11 +190,12 @@ jobs:
 
 
       - name: Cache rust dependencies
+        id: rust-cache
         uses: Swatinem/rust-cache@v2
 
 
       - name: Build compiler
-        if: steps.cache-rust.outputs.cache-hit != 'true'
+        if: steps.rust-cache.outputs.cache-hit != 'true'
         working-directory: ./cairo
         run: |
           cargo build
