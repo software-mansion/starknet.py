@@ -116,20 +116,7 @@ jobs:
           persist-credentials: false
           ref: v1.0.0-alpha.6
           path: cairo
-      - name: Cache rust dependencies
-        # Taken from https://github.com/actions/cache/blob/main/examples.md#rust---cargo
-        id: cache-rust
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
       - name: Build compiler
-        if: steps.cache-rust.outputs.cache-hit != 'true'
         working-directory: ./cairo
         run: |
           cargo build
@@ -192,20 +179,7 @@ jobs:
           persist-credentials: false
           ref: v1.0.0-alpha.6
           path: cairo
-      - name: Cache rust dependencies
-        # Taken from https://github.com/actions/cache/blob/main/examples.md#rust---cargo
-        id: cache-rust
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
       - name: Build compiler
-        if: steps.cache-rust.outputs.cache-hit != 'true'
         working-directory: ./cairo
         run: |
           cargo build
