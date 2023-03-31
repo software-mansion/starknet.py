@@ -286,6 +286,7 @@ class StorageDiffItem:
     """
     Dataclass representing all storage changes for the contract.
     """
+
     address: int
     storage_entries: List[StorageEntry]
 
@@ -306,6 +307,7 @@ class DeployedContract:
     """
     Dataclass representing basic data of the deployed contract.
     """
+
     address: int
     class_hash: int
 
@@ -315,6 +317,7 @@ class ContractsNonce:
     """
     Dataclass representing nonce of the contract.
     """
+
     contract_address: int
     nonce: int
 
@@ -324,6 +327,7 @@ class DeclaredContractHash:
     """
     Dataclass representing basic data of the declared contract.
     """
+
     class_hash: int
     compiled_class_hash: int
 
@@ -333,6 +337,7 @@ class ReplacedClass:
     """
     Dataclass representing new class_hash of the contract.
     """
+
     contract_address: int
     class_hash: int
 
@@ -342,6 +347,7 @@ class StateDiff:
     """
     Dataclass representing state changes in the block.
     """
+
     deployed_contracts: List[DeployedContract]
     declared_contract_hashes: List[DeclaredContractHash]
     storage_diffs: List[StorageDiffItem]
@@ -499,5 +505,6 @@ class TransactionStatusResponse:
     """
     Dataclass representing transaction status.
     """
+
     block_hash: Optional[int]
     transaction_status: TransactionStatus

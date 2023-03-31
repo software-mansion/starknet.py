@@ -10,6 +10,7 @@ API
    api/client_errors
    api/contract
    api/udc_deployer
+   api/hash
    api/compiler
    api/signer
    api/models
