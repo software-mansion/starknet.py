@@ -50,6 +50,10 @@ class EventsResponse:
     events: List[Event]
     continuation_token: Optional[str] = None
 
+    def update(self, events_response):
+        self.events.extend(events_response.events)
+        self.continuation_token = events_response.continuation_token
+
 
 @dataclass
 class L1toL2Message:

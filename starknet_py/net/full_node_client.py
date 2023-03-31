@@ -1,6 +1,6 @@
 import re
 import warnings
-from typing import Dict, List, Optional, Tuple, Union, cast
+from typing import Dict, List, Optional, Union, cast
 
 import aiohttp
 from marshmallow import EXCLUDE
@@ -53,6 +53,8 @@ from starknet_py.utils.sync import add_sync_methods
 
 @add_sync_methods
 class FullNodeClient(Client):
+    # ?????
+    # pylint: disable=too-many-public-methods
     def __init__(
         self,
         node_url: str,
@@ -137,30 +139,57 @@ class FullNodeClient(Client):
 
         :returns: ``EventsResponse`` dataclass containing events and optional continuation token.
         """
-        params = {"chunk_size": chunk_size if chunk_size >= 1 else 1,
-                  "from_block": get_block_identifier_for_get_events(from_block_hash, from_block_number),
-                  "to_block": get_block_identifier_for_get_events(to_block_hash, to_block_number),
-                  "address": _to_rpc_felt(address)}
 
-        keys = [_starknet_keccak(bytes(i, "utf-8")) for i in keys]
+        def map_keys_to_bytes(keys: List[Hash]):
+            mapped_keys = []
+            for i in keys:
+                if isinstance(i, str):
+                    mapped_keys.append(bytes(i, "utf-8"))
+                else:
+                    mapped_keys.append(bytes(i))
+            return mapped_keys
+
+        if chunk_size <= 0:
+            raise ValueError("Argument chunk_size must be grater than 0.")
+        params = {
+            "chunk_size": chunk_size,
+            "from_block": _get_block_identifier_for_get_events(
+                from_block_hash, from_block_number
+            ),
+            "to_block": _get_block_identifier_for_get_events(
+                to_block_hash, to_block_number
+            ),
+            "address": _to_rpc_felt(address),
+        }
+
+        # According to specification, `keys` are names of events that are emitted encoded using keccak.
+        keys = [_starknet_keccak(i) for i in map_keys_to_bytes(keys)]
         params["keys"] = list(map(_to_rpc_felt, keys))
         previous_continuation_token = None
+
+        events_response = EventsResponse([])
         while True:
-            events_response = await self.get_events_chunk(params)
+            new_events_response = await self._get_events_chunk(params)
+            events_response.update(new_events_response)
             continuation_token = events_response.continuation_token
-            # TODO fix the condition after devnet change, should be `or not continuation_token`.
-            # As of now, devnet returns previous continuation token when there are no events.
-            # However, the json "result" part should only contain `"events": []` and nothing else.
-            # Right now we must check whether the last returned continuation token is the same as the previous one.
-            # If so, the loop should break.
-            if not follow_continuation_token or continuation_token == previous_continuation_token:
+            # TODO //fix the condition after devnet change, should be `or not continuation_token`.
+            # TODO //As of now, devnet returns previous continuation token when there are no events.
+            # TODO //However, the json "result" part should only contain `"events": []` and nothing else.
+            # TODO //Right now we must check if the last returned continuation token is the same as the previous one.
+            # TODO //If so, the loop should break.
+
+            # TODO //Also FIX TESTS after that.
+            if (
+                not follow_continuation_token
+                or continuation_token == previous_continuation_token
+            ):
                 break
             params["continuation_token"] = continuation_token
             previous_continuation_token = continuation_token
 
         return events_response
 
-    async def get_events_chunk(
+    async def _get_events_chunk(
         self,
         params: dict,
     ) -> EventsResponse:
@@ -488,16 +517,19 @@ def get_block_identifier(
     return {"block_id": "pending"}
 
 
-def get_block_identifier_for_get_events(
-        block_hash: Optional[Union[Hash, Tag]] = None,
-        block_number: Optional[Union[int, Tag]] = None,
-) -> Union[dict, Hash, Tag]:
+def _get_block_identifier_for_get_events(
+    block_hash: Optional[Union[Hash, Tag]] = None,
+    block_number: Optional[Union[int, Tag]] = None,
+) -> Union[dict, Hash, Tag, None]:
     if block_hash is not None and block_number is not None:
         raise ValueError(
             "Arguments block_hash and block_number are mutually exclusive."
         )
 
-    if block_hash in ("latest", "pending") or block_number in ("latest", "pending"):
+    if block_hash in ("latest", "pending") or block_number in (
+        "latest",
+        "pending",
+    ):
         return block_hash or block_number
 
     if block_hash is not None:
