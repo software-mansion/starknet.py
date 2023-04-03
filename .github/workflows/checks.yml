@@ -131,9 +131,16 @@ jobs:
         working-directory: ./cairo
         run: |
           cargo build
+      - name: Build starknet-compile
+        working-directory: ./cairo
+        run: |
+          cargo run --bin starknet-compile -- --version
+          cargo run --bin starknet-sierra-compile -- --version
       - name: Create manifest file
         run: |
           readlink -f cairo/Cargo.toml >> starknet_py/tests/e2e/manifest-path
+          
+      
           
 
       - name: Unit & e2e test
@@ -205,6 +212,11 @@ jobs:
         working-directory: ./cairo
         run: |
           cargo build
+      - name: Build starknet-compile
+        working-directory: ./cairo
+        run: |
+          cargo run --bin starknet-compile -- --version
+          cargo run --bin starknet-sierra-compile -- --version
       - name: Create manifest file
         run: |
           readlink -f cairo/Cargo.toml >> starknet_py/tests/e2e/manifest-path
