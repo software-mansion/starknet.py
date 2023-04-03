@@ -120,11 +120,10 @@ jobs:
 
       - name: Cache rust dependencies
         id: cache-rust
-        working-directory: ./cairo
         uses: actions/cache@v3
         with:
           path: |
-            ./target
+            .cairo/target
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
 
@@ -196,11 +195,10 @@ jobs:
 
       - name: Cache rust dependencies
         id: cache-rust
-        working-directory: ./cairo
         uses: actions/cache@v3
         with:
           path: |
-            ./target
+            .cairo/target
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
 
