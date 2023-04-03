@@ -120,9 +120,13 @@ jobs:
         id: cache-rust
         uses: actions/cache@v3
         with:
-          path: cairo
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
 
       - name: Build compiler
         if: steps.cache-rust.outputs.cache-hit != 'true'
@@ -196,7 +200,12 @@ jobs:
         id: cache-rust
         uses: actions/cache@v3
         with:
-          path: cairo
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Build compiler
