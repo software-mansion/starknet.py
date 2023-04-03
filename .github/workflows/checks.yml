@@ -128,7 +128,7 @@ jobs:
 
 
       - name: Build compiler
-        if: cache-rust.cache-hir != true
+        if: cache-rust.cache-hit != true
         working-directory: ./cairo
         run: |
           cargo build
@@ -203,7 +203,7 @@ jobs:
 
 
       - name: Build compiler
-        if: cache-rust.cache-hir != true
+        if: cache-rust.cache-hit != true
         working-directory: ./cairo
         run: |
           cargo build
