@@ -104,6 +104,7 @@ jobs:
       - name: Check circular imports
         run: |
           poetry run poe circular_imports_check
+          
 
       - name: Install rust
         run: |
@@ -116,6 +117,20 @@ jobs:
           ref: v1.0.0-alpha.6
           path: cairo
 
+
+      - name: Cache rust dependencies
+        id: cache-rust
+        uses: actions/cache@v3
+        with:
+          path: cairo
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+
+      - name: Build compiler
+        if: steps.cache-rust.outputs.cache-hit != 'true'
+        working-directory: ./cairo
+        run: |
+          cargo build
       - name: Build starknet-compile
         working-directory: ./cairo
         run: |
@@ -124,6 +139,9 @@ jobs:
       - name: Create manifest file
         run: |
           readlink -f cairo/Cargo.toml >> starknet_py/tests/e2e/manifest-path
+          
+      
+          
 
       - name: Unit & e2e test
         run: |
@@ -167,6 +185,7 @@ jobs:
         if: steps.cache-contracts.outputs.cache-hit != 'true'
         run: |
           poetry run poe compile_contracts
+          
 
       - name: Install rust
         run: |
@@ -179,6 +198,20 @@ jobs:
           ref: v1.0.0-alpha.6
           path: cairo
 
+
+      - name: Cache rust dependencies
+        id: cache-rust
+        uses: actions/cache@v3
+        with:
+          path: cairo
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+
+      - name: Build compiler
+        if: steps.cache-rust.outputs.cache-hit != 'true'
+        working-directory: ./cairo
+        run: |
+          cargo build
       - name: Build starknet-compile
         working-directory: ./cairo
         run: |
@@ -187,6 +220,7 @@ jobs:
       - name: Create manifest file
         run: |
           readlink -f cairo/Cargo.toml >> starknet_py/tests/e2e/manifest-path
+          
 
       - name: Docs test
         run: |
