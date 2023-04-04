@@ -2,6 +2,7 @@ IDENTIFIER: /[a-zA-Z_][a-zA-Z_0-9]*/
 
 start: type
      | struct
+     | tuple
 
 type: "core" "::" core_value
     | type_unit
@@ -15,6 +16,8 @@ core_value: "felt252"                                        -> type_felt
 type_unit: "()"
 
 struct: (IDENTIFIER | "::")+ ("<" type ">")*
+
+tuple: "(" (start | ",")+ ")"
 
 
 %import common.INT

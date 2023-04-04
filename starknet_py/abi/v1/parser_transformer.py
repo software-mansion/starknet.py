@@ -8,6 +8,7 @@ from starknet_py.cairo.data_types import (
     CairoType,
     FeltType,
     Option,
+    TupleType,
     UintType,
 )
 
@@ -49,6 +50,9 @@ class ParserTransformer(Transformer):
 
     def type_address(self, _value):
         return FeltType()
+
+    def tuple(self, types):
+        return TupleType(types)
 
 
 def parse(
