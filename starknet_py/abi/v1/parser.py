@@ -10,11 +10,9 @@ from marshmallow import EXCLUDE
 from starknet_py.abi.v1.model import Abi
 from starknet_py.abi.v1.schemas import ContractAbiEntrySchema
 from starknet_py.abi.v1.shape import (
-    CONSTRUCTOR_ENTRY,
     ENUM_ENTRY,
     EVENT_ENTRY,
     FUNCTION_ENTRY,
-    L1_HANDLER_ENTRY,
     STRUCT_ENTRY,
     EventDict,
     FunctionDict,
@@ -75,15 +73,9 @@ class AbiParser:
                 self._grouped[EVENT_ENTRY], "defined events"
             ),
         )
-        constructors = cast(List[FunctionDict], self._grouped[CONSTRUCTOR_ENTRY])
-        l1_handlers = cast(List[FunctionDict], self._grouped[L1_HANDLER_ENTRY])
 
         return Abi(
             defined_structures=structures,
-            constructor=(
-                self._parse_function(constructors[0]) if constructors else None
-            ),
-            l1_handler=(self._parse_function(l1_handlers[0]) if l1_handlers else None),
             functions={
                 name: self._parse_function(entry)
                 for name, entry in functions_dict.items()

@@ -2,11 +2,9 @@ from marshmallow import Schema, fields
 from marshmallow_oneofschema import OneOfSchema
 
 from starknet_py.abi.v1.shape import (
-    CONSTRUCTOR_ENTRY,
     ENUM_ENTRY,
     EVENT_ENTRY,
     FUNCTION_ENTRY,
-    L1_HANDLER_ENTRY,
     STRUCT_ENTRY,
 )
 
@@ -32,14 +30,6 @@ class FunctionBaseSchema(Schema):
 
 class FunctionAbiEntrySchema(FunctionBaseSchema):
     type = fields.Constant(FUNCTION_ENTRY, data_key="type", required=True)
-
-
-class ConstructorAbiEntrySchema(FunctionBaseSchema):
-    type = fields.Constant(CONSTRUCTOR_ENTRY, data_key="type", required=True)
-
-
-class L1HandlerAbiEntrySchema(FunctionBaseSchema):
-    type = fields.Constant(L1_HANDLER_ENTRY, data_key="type", required=True)
 
 
 class EventAbiEntrySchema(Schema):
@@ -70,8 +60,6 @@ class ContractAbiEntrySchema(OneOfSchema):
     type_field_remove = False
     type_schemas = {
         FUNCTION_ENTRY: FunctionAbiEntrySchema,
-        L1_HANDLER_ENTRY: L1HandlerAbiEntrySchema,
-        CONSTRUCTOR_ENTRY: ConstructorAbiEntrySchema,
         EVENT_ENTRY: EventAbiEntrySchema,
         STRUCT_ENTRY: StructAbiEntrySchema,
         ENUM_ENTRY: EnumAbiEntrySchema,

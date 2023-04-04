@@ -3,8 +3,6 @@ from typing import List, Literal, Optional, TypedDict, Union
 ENUM_ENTRY = "enum"
 STRUCT_ENTRY = "struct"
 FUNCTION_ENTRY = "function"
-CONSTRUCTOR_ENTRY = "constructor"
-L1_HANDLER_ENTRY = "l1_handler"
 EVENT_ENTRY = "event"
 
 
@@ -33,14 +31,6 @@ class FunctionDict(FunctionBaseDict):
     type: Literal["function"]
 
 
-class ConstructorDict(FunctionBaseDict):
-    type: Literal["constructor"]
-
-
-class L1HandlerDict(FunctionBaseDict):
-    type: Literal["l1_handler"]
-
-
 class EventDict(TypedDict):
     name: str
     type: Literal["event"]
@@ -53,7 +43,5 @@ class EnumDict(TypedDict):
     variants: List[TypedMemberDict]
 
 
-AbiDictEntry = Union[
-    StructDict, FunctionDict, ConstructorDict, L1HandlerDict, EventDict, EnumDict
-]
+AbiDictEntry = Union[StructDict, FunctionDict, EventDict, EnumDict]
 AbiDictList = List[AbiDictEntry]
