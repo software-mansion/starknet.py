@@ -41,6 +41,9 @@ class ParserTransformer(Transformer):
     def struct(self, tokens):
         return "::".join(token for token in tokens if isinstance(token, str))
 
+    def type_address(self, _value):
+        return FeltType()
+
 
 def parse(
     code: str,

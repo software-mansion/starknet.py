@@ -10,10 +10,11 @@ core_value: "felt252"                                        -> type_felt
           | "integer" "::" "u" INT                              -> type_uint
           | "option" "::" "Option" "::" "<" (type | struct) ">" -> type_option
           | "array" "::" "Array" "::" "<" (type | struct) ">"   -> type_array
+          | "starknet" "::" "contract_address" "::" "ContractAddress" -> type_address
 
 type_unit: "()"
 
-struct: (IDENTIFIER "::")+ "<" type ">"
+struct: (IDENTIFIER | "::")+ ("<" type ">")*
 
 
 %import common.INT
