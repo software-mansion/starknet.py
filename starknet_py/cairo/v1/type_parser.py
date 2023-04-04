@@ -1,19 +1,9 @@
 from __future__ import annotations
 
-from collections import OrderedDict
 from typing import Dict
 
-import starkware.cairo.lang.compiler.ast.cairo_types as cairo_lang_types
-
 from starknet_py.abi.v1.parser_transformer import parse
-from starknet_py.cairo.data_types import (
-    ArrayType,
-    CairoType,
-    FeltType,
-    NamedTupleType,
-    StructType,
-    TupleType,
-)
+from starknet_py.cairo.data_types import CairoType, StructType
 
 
 class UnknownCairoTypeError(ValueError):
@@ -61,56 +51,6 @@ class TypeParser:
         if isinstance(parsed, str):
             return self._get_struct(parsed)
         return parsed
-
-    def _transform_cairo_lang_type(
-        self, cairo_type: cairo_lang_types.CairoType
-    ) -> CairoType:
-        """
-        For now, we use parse function from cairo-lang pacakge. It will be replaced in the future, but we need to hide
-        it from the users.
-        This function takes types returned by cairo-lang package and maps them to our type classes.
-
-        :param cairo_type: type returned from parse_type function.
-        :return: CairoType defined by our package.
-        """
-        if isinstance(cairo_type, cairo_lang_types.TypeFelt):
-            return FeltType()
-
-        if isinstance(cairo_type, cairo_lang_types.TypePointer):
-            return ArrayType(self._transform_cairo_lang_type(cairo_type.pointee))
-
-        if isinstance(cairo_type, cairo_lang_types.TypeIdentifier):
-            return self._get_struct(str(cairo_type.name))
-
-        if isinstance(cairo_type, cairo_lang_types.TypeTuple):
-            # Cairo returns is_named when there are no members
-            if cairo_type.is_named and len(cairo_type.members) != 0:
-                return NamedTupleType(
-                    OrderedDict(
-                        (member.name, self._transform_cairo_lang_type(member.typ))
-                        for member in cairo_type.members
-                    )
-                )
-
-            return TupleType(
-                [
-                    self._transform_cairo_lang_type(member.typ)
-                    for member in cairo_type.members
-                ]
-            )
-
-        # Contracts don't support codeoffset as input/output type, user can only use it if it was defined in types
-        if isinstance(cairo_type, cairo_lang_types.TypeCodeoffset):
-            return self._get_struct("codeoffset")
-
-        # Other options are: TypeFunction, TypeStruct
-        # Neither of them are possible. In particular TypeStruct is not possible because we parse structs without
-        # info about other structs, so they will be just TypeIdentifier (structure that was not parsed).
-
-        # This is an error of our logic, so we throw a RuntimeError.
-        raise RuntimeError(
-            f"Received unknown type '{cairo_type}' from parser."
-        )  # pragma: no cover
 
     def _get_struct(self, name: str):
         for struct_name in self.defined_types.keys():
