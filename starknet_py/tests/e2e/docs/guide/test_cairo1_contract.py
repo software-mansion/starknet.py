@@ -6,12 +6,13 @@ from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
-@pytest.mark.skip
 @pytest.mark.asyncio
 async def test_cairo1_contract(
-    account, sierra_minimal_compiled_contract_and_class_hash, gateway_client
+    gateway_account, sierra_minimal_compiled_contract_and_class_hash, gateway_client
 ):
     # pylint: disable=import-outside-toplevel, too-many-locals
+    # TODO: use account when RPC 0.3.0 is supported
+    account = gateway_account
     (
         compiled_contract,
         compiled_class_hash,
@@ -20,11 +21,11 @@ async def test_cairo1_contract(
     contract_compiled_casm = read_contract("precompiled/minimal_contract_compiled.casm")
 
     # docs: start
+    from starknet_py.common import create_casm_class
     from starknet_py.hash.casm_class_hash import compute_casm_class_hash
-    from starknet_py.net.schemas.gateway import CasmClassSchema
 
     # contract_compiled_casm is the output of the starknet-sierra-compile (.casm file)
-    casm_class = CasmClassSchema().loads(contract_compiled_casm)
+    casm_class = create_casm_class(contract_compiled_casm)
 
     # Compute Casm class hash
     casm_class_hash = compute_casm_class_hash(casm_class)
