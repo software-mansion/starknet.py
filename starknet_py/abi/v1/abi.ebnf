@@ -6,7 +6,7 @@ start: type
 type: "core" "::" core_value
     | type_unit
 
-core_value: "felt" "252"                                        -> type_felt
+core_value: "felt252"                                        -> type_felt
           | "integer" "::" "u" INT                              -> type_uint
           | "option" "::" "Option" "::" "<" (type | struct) ">" -> type_option
           | "array" "::" "Array" "::" "<" (type | struct) ">"   -> type_array

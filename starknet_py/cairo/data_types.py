@@ -62,6 +62,7 @@ class EnumType(CairoType):
     """
     Type representation of Cairo enums.
     """
+
     name: str
     variants: OrderedDict[str, CairoType]
 
@@ -71,4 +72,5 @@ class Option(CairoType):
     """
     Type representation of Cairo Option.
     """
+
     value: Optional[CairoType] = None
