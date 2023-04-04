@@ -2988,14 +2988,14 @@ test = ["pytest"]
 
 [[package]]
 name = "starknet-devnet"
-version = "0.5.0a0"
+version = "0.5.0a1"
 description = "A local testnet for Starknet"
 category = "dev"
 optional = false
 python-versions = ">=3.9,<3.10"
 files = [
-    {file = "starknet_devnet-0.5.0a0-py3-none-any.whl", hash = "sha256:1c20d52dd8d2d3da16854481ffb255bb5eef04a9d66d9136dca2492aa8a746e6"},
-    {file = "starknet_devnet-0.5.0a0.tar.gz", hash = "sha256:1cee022dedbf2688ece0756db9b5394ef6e31e2d99dde35457808411f03d6792"},
+    {file = "starknet_devnet-0.5.0a1-py3-none-any.whl", hash = "sha256:647fea26262f8d15f9289b8485005eabefafd10e84b025d374407cc4921295ad"},
+    {file = "starknet_devnet-0.5.0a1.tar.gz", hash = "sha256:81399c0e51f137c1b58eeaa3509c4f6f22ab15631f8c0123cc67af428119af77"},
 ]
 
 [package.dependencies]
