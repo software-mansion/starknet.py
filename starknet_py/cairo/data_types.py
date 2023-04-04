@@ -77,7 +77,7 @@ class Option(CairoType):
 
 
 @dataclass
-class Uint(CairoType):
+class UintType(CairoType):
     """
     Type representation of Cairo unsigned integers.
     """

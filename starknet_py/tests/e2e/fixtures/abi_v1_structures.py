@@ -2,7 +2,7 @@
 from collections import OrderedDict
 
 from starknet_py.abi.v1.model import Abi
-from starknet_py.cairo.data_types import FeltType, StructType
+from starknet_py.cairo.data_types import FeltType, StructType, UintType
 
 my_struct_dict = {
     "type": "struct",
@@ -14,7 +14,7 @@ my_struct_dict = {
 }
 my_struct = StructType(
     name="test::MyStruct::<core::integer::u256>",
-    types=OrderedDict(a=FeltType(), b=FeltType()),
+    types=OrderedDict(a=UintType(256), b=FeltType()),
 )
 
 my_enum_dict = {
@@ -27,7 +27,7 @@ my_enum_dict = {
 }
 my_enum = StructType(
     name="test::MyEnum::<core::integer::u128>",
-    types=OrderedDict(a=FeltType(), b=my_struct),
+    types=OrderedDict(a=UintType(256), b=my_struct),
 )
 
 foo_event_dict = {
@@ -38,7 +38,7 @@ foo_event_dict = {
         {"name": "b", "type": "core::integer::u128"},
     ],
 }
-foo_event = Abi.Event(name="foo_event", inputs=OrderedDict(a=FeltType(), b=FeltType()))
+foo_event = Abi.Event(name="foo_event", inputs=OrderedDict(a=FeltType(), b=UintType(128)))
 
 foo_external_dict = {
     "type": "function",
@@ -52,7 +52,7 @@ foo_external_dict = {
 }
 foo_external = Abi.Function(
     name="foo_external",
-    inputs=OrderedDict(a=FeltType(), b=FeltType()),
+    inputs=OrderedDict(a=FeltType(), b=UintType(128)),
     outputs=[my_struct],
 )
 
@@ -67,5 +67,5 @@ foo_view_dict = {
     "state_mutability": "view",
 }
 foo_view = Abi.Function(
-    name="foo_view", inputs=OrderedDict(a=FeltType(), b=FeltType()), outputs=[my_enum]
+    name="foo_view", inputs=OrderedDict(a=FeltType(), b=UintType(128)), outputs=[my_enum]
 )

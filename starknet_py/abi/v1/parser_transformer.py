@@ -3,7 +3,7 @@ import os
 import lark
 from lark import Transformer, v_args
 
-from starknet_py.cairo.data_types import ArrayType, CairoType, FeltType, Option, Uint
+from starknet_py.cairo.data_types import ArrayType, CairoType, FeltType, Option, UintType
 
 
 class ParserTransformer(Transformer):
@@ -27,7 +27,7 @@ class ParserTransformer(Transformer):
         return FeltType()
 
     def type_uint(self, value):
-        return Uint(int(value[0]))
+        return UintType(int(value[0]))
 
     def type_unit(self, _value):
         return None
