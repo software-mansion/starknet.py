@@ -73,7 +73,7 @@ class Option(CairoType):
     Type representation of Cairo options.
     """
 
-    value: Optional[CairoType] = None
+    type: Optional[CairoType] = None
 
 
 @dataclass

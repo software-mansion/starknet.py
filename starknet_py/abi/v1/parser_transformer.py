@@ -33,7 +33,7 @@ class ParserTransformer(Transformer):
         return None
 
     def type_option(self, _value):
-        return Option()
+        return Option(_value[0])
 
     def type_array(self, value):
         return ArrayType(value[0])
