@@ -10,7 +10,7 @@ Development dependencies
 - `poetry <https://python-poetry.org/>`_ - dependency manager.
 - `pyenv <https://github.com/pyenv/pyenv>`_ - recommended for installing and switching python versions locally.
 
-Make sure running ``poetry run python --version`` returns ``Python 3.8.x``.
+Make sure running ``poetry run python --version`` returns ``Python 3.9.x``.
 
 Setup
 -----

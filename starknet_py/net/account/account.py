@@ -1,10 +1,12 @@
 import dataclasses
+import json
 import re
+import warnings
 from collections import OrderedDict
-from typing import Dict, Iterable, List, Optional, Tuple, Union
+from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
-from starknet_py.common import create_compiled_contract
-from starknet_py.constants import QUERY_VERSION_BASE
+from starknet_py.common import create_compiled_contract, create_sierra_compiled_contract
+from starknet_py.constants import FEE_CONTRACT_ADDRESS, QUERY_VERSION_BASE
 from starknet_py.hash.address import compute_address
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.account_deployment_result import AccountDeploymentResult
@@ -19,26 +21,16 @@ from starknet_py.net.client_models import (
     SentTransactionResponse,
     Tag,
 )
-from starknet_py.net.models import (
-    AddressRepresentation,
-    StarknetChainId,
-    chain_from_network,
-    parse_address,
-)
+from starknet_py.net.models import AddressRepresentation, StarknetChainId, parse_address
 from starknet_py.net.models.transaction import (
     AccountTransaction,
     Declare,
+    DeclareV2,
     DeployAccount,
     Invoke,
     TypeAccountTransaction,
 )
 from starknet_py.net.models.typed_data import TypedData
-from starknet_py.net.networks import (
-    MAINNET,
-    TESTNET,
-    TESTNET2,
-    default_token_address_for_network,
-)
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 from starknet_py.serialization.data_serializers.array_serializer import ArraySerializer
@@ -81,9 +73,6 @@ class Account(BaseAccount):
         :param key_pair: Key pair that will be used to create a default `Signer`.
         :param chain: ChainId of the chain used to create the default signer.
         """
-        if chain is None and signer is None:
-            raise ValueError("One of chain or signer must be provided.")
-
         self._address = parse_address(address)
         self._client = client
 
@@ -95,12 +84,14 @@ class Account(BaseAccount):
                 raise ValueError(
                     "Either a signer or a key_pair must be provided in Account constructor."
                 )
+            if chain is None:
+                raise ValueError("One of chain or signer must be provided.")
 
-            chain = chain_from_network(net=client.net, chain=chain)
             signer = StarkCurveSigner(
                 account_address=self.address, key_pair=key_pair, chain_id=chain
             )
         self.signer: BaseSigner = signer
+        self._chain_id = chain
 
     @property
     def address(self) -> int:
@@ -112,6 +103,10 @@ class Account(BaseAccount):
 
     @property
     def supported_transaction_version(self) -> int:
+        warnings.warn(
+            "Property supported_transaction_version is deprecated and will be removed in the future.",
+            category=DeprecationWarning,
+        )
         return 1
 
     async def _get_max_fee(
@@ -161,9 +156,9 @@ class Account(BaseAccount):
             calldata=wrapped_calldata,
             signature=[],
             max_fee=0,
-            version=self.supported_transaction_version,
+            version=1,
             nonce=nonce,
-            contract_address=self.address,
+            sender_address=self.address,
         )
 
         max_fee = await self._get_max_fee(transaction, max_fee, auto_estimate)
@@ -224,11 +219,12 @@ class Account(BaseAccount):
         )
 
     async def get_balance(
-        self, token_address: Optional[AddressRepresentation] = None
+        self,
+        token_address: Optional[AddressRepresentation] = None,
+        chain_id: Optional[StarknetChainId] = None,
     ) -> int:
-        token_address = token_address or default_token_address_for_network(
-            self._client.net
-        )
+        if token_address is None:
+            token_address = self._default_token_address_for_chain(chain_id)
 
         low, high = await self._client.call_contract(
             Call(
@@ -244,7 +240,7 @@ class Account(BaseAccount):
     async def sign_for_fee_estimate(
         self, transaction: TypeAccountTransaction
     ) -> TypeAccountTransaction:
-        version = self.supported_transaction_version + QUERY_VERSION_BASE
+        version = transaction.version + QUERY_VERSION_BASE
         transaction = dataclasses.replace(transaction, version=version)
 
         signature = self.signer.sign_transaction(transaction)
@@ -268,15 +264,12 @@ class Account(BaseAccount):
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> Declare:
-        contract_class = create_compiled_contract(compiled_contract=compiled_contract)
-        declare_tx = Declare(
-            contract_class=contract_class,
-            sender_address=self.address,
-            max_fee=0,
-            signature=[],
-            nonce=await self.get_nonce(),
-            version=self.supported_transaction_version,
-        )
+        if _is_sierra_contract(json.loads(compiled_contract)):
+            raise ValueError(
+                "Signing sierra contracts requires using `sign_declare_v2_transaction` method."
+            )
+
+        declare_tx = await self._make_declare_transaction(compiled_contract)
 
         max_fee = await self._get_max_fee(
             transaction=declare_tx, max_fee=max_fee, auto_estimate=auto_estimate
@@ -284,6 +277,53 @@ class Account(BaseAccount):
         declare_tx = _add_max_fee_to_transaction(declare_tx, max_fee)
         signature = self.signer.sign_transaction(declare_tx)
         return _add_signature_to_transaction(declare_tx, signature)
+
+    async def sign_declare_v2_transaction(
+        self,
+        compiled_contract: str,
+        compiled_class_hash: int,
+        *,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+    ) -> DeclareV2:
+        declare_tx = await self._make_declare_v2_transaction(
+            compiled_contract, compiled_class_hash
+        )
+        max_fee = await self._get_max_fee(
+            transaction=declare_tx, max_fee=max_fee, auto_estimate=auto_estimate
+        )
+        declare_tx = _add_max_fee_to_transaction(declare_tx, max_fee)
+        signature = self.signer.sign_transaction(declare_tx)
+        return _add_signature_to_transaction(declare_tx, signature)
+
+    async def _make_declare_transaction(self, compiled_contract: str) -> Declare:
+        contract_class = create_compiled_contract(compiled_contract=compiled_contract)
+        declare_tx = Declare(
+            contract_class=contract_class,
+            sender_address=self.address,
+            max_fee=0,
+            signature=[],
+            nonce=await self.get_nonce(),
+            version=1,
+        )
+        return declare_tx
+
+    async def _make_declare_v2_transaction(
+        self, compiled_contract: str, compiled_class_hash: int
+    ) -> DeclareV2:
+        contract_class = create_sierra_compiled_contract(
+            compiled_contract=compiled_contract
+        )
+        declare_tx = DeclareV2(
+            contract_class=contract_class,
+            compiled_class_hash=compiled_class_hash,
+            sender_address=self.address,
+            max_fee=0,
+            signature=[],
+            nonce=await self.get_nonce(),
+            version=2,
+        )
+        return declare_tx
 
     async def sign_deploy_account_transaction(
         self,
@@ -300,7 +340,7 @@ class Account(BaseAccount):
             class_hash=class_hash,
             contract_address_salt=contract_address_salt,
             constructor_calldata=constructor_calldata,
-            version=self.supported_transaction_version,
+            version=1,
             max_fee=0,
             signature=[],
             nonce=0,
@@ -399,7 +439,11 @@ class Account(BaseAccount):
             auto_estimate=auto_estimate,
         )
 
-        if client.net in (TESTNET, TESTNET2, MAINNET):
+        if chain in (
+            StarknetChainId.TESTNET,
+            StarknetChainId.TESTNET2,
+            StarknetChainId.MAINNET,
+        ):
             balance = await account.get_balance()
             if balance < deploy_account_tx.max_fee:
                 raise ValueError(
@@ -411,6 +455,24 @@ class Account(BaseAccount):
         return AccountDeploymentResult(
             hash=result.transaction_hash, account=account, _client=account.client
         )
+
+    def _default_token_address_for_chain(
+        self, chain_id: Optional[StarknetChainId] = None
+    ) -> str:
+        if (chain_id or self._chain_id) not in [
+            StarknetChainId.TESTNET,
+            StarknetChainId.TESTNET2,
+            StarknetChainId.MAINNET,
+        ]:
+            raise ValueError(
+                "Argument token_address must be specified when using a custom network."
+            )
+
+        return FEE_CONTRACT_ADDRESS
+
+
+def _is_sierra_contract(data: Dict[str, Any]) -> bool:
+    return "sierra_program" in data
 
 
 def _add_signature_to_transaction(

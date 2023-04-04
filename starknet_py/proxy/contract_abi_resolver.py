@@ -1,7 +1,6 @@
 import re
-import warnings
 from enum import Enum
-from typing import AsyncGenerator, List, Tuple, TypedDict
+from typing import AsyncGenerator, List, Tuple, TypedDict, Union
 
 from starknet_py.abi.shape import AbiDictList
 from starknet_py.constants import (
@@ -11,12 +10,13 @@ from starknet_py.constants import (
 )
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError, ContractNotFoundError
-from starknet_py.net.client_models import ContractClass
+from starknet_py.net.client_models import ContractClass, SierraContractClass
 from starknet_py.net.models import Address
 from starknet_py.proxy.proxy_check import (
     ArgentProxyCheck,
     OpenZeppelinProxyCheck,
     ProxyCheck,
+    StarknetEthProxyCheck,
 )
 
 
@@ -33,15 +33,14 @@ class ProxyConfig(TypedDict, total=False):
 
 
 def prepare_proxy_config(proxy_config: ProxyConfig) -> ProxyConfig:
-    if "max_steps" in proxy_config:
-        warnings.warn(
-            "ProxyConfig.max_steps is deprecated. Contract.from_address always makes at most 1 step.",
-            category=DeprecationWarning,
-        )
     if "proxy_checks" in proxy_config:
         return proxy_config
 
-    proxy_checks = [OpenZeppelinProxyCheck(), ArgentProxyCheck()]
+    proxy_checks = [
+        OpenZeppelinProxyCheck(),
+        ArgentProxyCheck(),
+        StarknetEthProxyCheck(),
+    ]
     return {"proxy_checks": proxy_checks}
 
 
@@ -94,6 +93,11 @@ class ContractAbiResolver:
         :raises AbiNotFoundError: when abi is not present in contract class at address
         """
         contract_class = await _get_class_at(address=self.address, client=self.client)
+        if isinstance(contract_class, SierraContractClass):
+            # TODO: Consider better handling
+            raise UnsupportedAbiError(
+                "Proxy resolver does not currently support Cairo1 ABIs."
+            )
         if contract_class.abi is None:
             raise AbiNotFoundError()
         return contract_class.abi
@@ -118,6 +122,11 @@ class ContractAbiResolver:
                         address=implementation, client=self.client
                     )
 
+                if isinstance(contract_class, SierraContractClass):
+                    # TODO: Consider better handling
+                    raise UnsupportedAbiError(
+                        "Proxy resolver does not currently support Cairo1 ABIs."
+                    )
                 if contract_class.abi is None:
                     # Some contract_class has been found, but it does not have abi
                     raise AbiNotFoundError()
@@ -169,17 +178,31 @@ class AbiNotFoundError(Exception):
     """
 
 
+class UnsupportedAbiError(Exception):
+    """
+    Incompatible Abi error.
+    """
+
+    def __init__(self, message):
+        self.message = message
+        super().__init__(message)
+
+
 class ProxyResolutionError(Exception):
     """
     Error while resolving proxy using ProxyChecks.
     """
 
-    def __init__(self):
-        self.message = "Couldn't resolve proxy using given ProxyChecks."
+    def __init__(
+        self, message: str = "Couldn't resolve proxy using given ProxyChecks."
+    ):
+        self.message = message
         super().__init__(self.message)
 
 
-async def _get_class_at(address: Address, client: Client) -> ContractClass:
+async def _get_class_at(
+    address: Address, client: Client
+) -> Union[ContractClass, SierraContractClass]:
     try:
         contract_class_hash = await client.get_class_hash_at(contract_address=address)
         contract_class = await client.get_class_by_hash(class_hash=contract_class_hash)

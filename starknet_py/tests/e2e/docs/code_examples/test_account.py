@@ -29,7 +29,7 @@ def test_init():
     # or
     account = Account(
         address=0x123,
-        client=FullNodeClient(node_url="your.node.url", net="testnet"),
+        client=FullNodeClient(node_url="your.node.url"),
         key_pair=KeyPair(12, 34),
         chain=StarknetChainId.TESTNET,
     )

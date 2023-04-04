@@ -13,7 +13,7 @@ compiled_contract = read_contract("erc20_compiled.json")
     "transaction",
     [
         Invoke(
-            contract_address=0x1,
+            sender_address=0x1,
             calldata=[1, 2, 3],
             max_fee=10000,
             signature=[],

@@ -27,6 +27,10 @@ class Felt(fields.Field):
         data: Union[Mapping[str, Any], None],
         **kwargs,
     ):
+        # TODO: Temporary fix. EntryPointSchema takes int and Felt
+        if isinstance(value, int):
+            return value
+
         if not isinstance(value, str) or not value.startswith("0x"):
             raise ValidationError(f"Invalid value provided for felt: {value}.")
 
@@ -34,17 +38,6 @@ class Felt(fields.Field):
             return int(value, 16)
         except ValueError as error:
             raise ValidationError("Invalid felt.") from error
-
-
-class NoneFelt(Felt):
-    """
-    Class used to serialize v0 Invoke transaction. Could be removed when StarkNet 0.11.0 arrives.
-    """
-
-    def _serialize(self, value: Any, attr: str, obj: Any, **kwargs):
-        if value is None:
-            return None
-        return hex(value)
 
 
 class NonPrefixedHex(fields.Field):
@@ -106,7 +99,9 @@ class BlockStatusField(fields.Field):
 
 class TransactionTypeField(fields.Field):
     def _serialize(self, value: Any, attr: str, obj: Any, **kwargs):
-        return value.name if value is not None else ""
+        if value == TransactionType.INVOKE:
+            return "INVOKE_FUNCTION"
+        return value.name
 
     def _deserialize(
         self,
@@ -116,6 +111,9 @@ class TransactionTypeField(fields.Field):
         **kwargs,
     ) -> TransactionType:
         values = [v.value for v in TransactionType]
+
+        if value == "INVOKE_FUNCTION":
+            value = "INVOKE"
 
         if value not in values:
             raise ValidationError(

@@ -4,13 +4,20 @@ from typing import cast
 
 import pytest
 
-from starknet_py.common import create_contract_class
+from starknet_py.common import (
+    create_compiled_contract,
+    create_contract_class,
+    create_sierra_compiled_contract,
+)
+from starknet_py.net.client_models import TransactionType
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import (
     Declare,
     DeclareSchema,
+    DeclareV2,
     DeployAccount,
     Invoke,
+    InvokeSchema,
     compute_invoke_hash,
 )
 from starknet_py.tests.e2e.fixtures.misc import read_contract
@@ -24,7 +31,7 @@ def test_invoke_hash():
         assert (
             compute_invoke_hash(
                 entry_point_selector=selector,
-                contract_address=0x03606DB92E563E41F4A590BC01C243E8178E9BA8C980F8E464579F862DA3537C,
+                sender_address=0x03606DB92E563E41F4A590BC01C243E8178E9BA8C980F8E464579F862DA3537C,
                 calldata=[1234],
                 chain_id=StarknetChainId.TESTNET,
                 version=0,
@@ -60,6 +67,7 @@ def test_declare_compress_program(balance_contract):
 
 
 compiled_contract = read_contract("erc20_compiled.json")
+sierra_compiled_contract = read_contract("precompiled/minimal_contract_compiled.json")
 
 
 @pytest.mark.parametrize(
@@ -67,7 +75,7 @@ compiled_contract = read_contract("erc20_compiled.json")
     [
         (
             Invoke(
-                contract_address=0x1,
+                sender_address=0x1,
                 calldata=[1, 2, 3],
                 max_fee=10000,
                 signature=[],
@@ -75,18 +83,6 @@ compiled_contract = read_contract("erc20_compiled.json")
                 version=1,
             ),
             3484767022419258107070028252604380065385354331198975073942248877262069264133,
-        ),
-        (
-            Invoke(
-                contract_address=0x1,
-                calldata=[1, 2, 3],
-                max_fee=10000,
-                signature=[],
-                nonce=None,
-                entry_point_selector=12,
-                version=0,
-            ),
-            2323586677785524217960587787433982444226467233024602470830956392262639577963,
         ),
         (
             DeployAccount(
@@ -102,14 +98,30 @@ compiled_contract = read_contract("erc20_compiled.json")
         ),
         (
             Declare(
-                contract_class=create_contract_class(compiled_contract),
+                contract_class=create_compiled_contract(
+                    compiled_contract=compiled_contract
+                ),
                 sender_address=123,
                 max_fee=10000,
                 signature=[],
                 nonce=23,
                 version=1,
             ),
-            3215768554137303326547465210112807134648092046901055861655987636987830595496,
+            1982828244129856379059233231530778257766878379971394245598825266532206245993,
+        ),
+        (
+            DeclareV2(
+                contract_class=create_sierra_compiled_contract(
+                    compiled_contract=sierra_compiled_contract
+                ),
+                compiled_class_hash=0x1,
+                max_fee=1000,
+                nonce=20,
+                sender_address=0x1234,
+                signature=[0x1, 0x2],
+                version=2,
+            ),
+            1060028572003053454264880444429114465277231377909922229124671748389152379023,
         ),
     ],
 )
@@ -117,3 +129,22 @@ def test_calculate_transaction_hash(transaction, calculated_hash):
     assert (
         transaction.calculate_hash(chain_id=StarknetChainId.TESTNET) == calculated_hash
     )
+
+
+def test_serialize_deserialize_invoke():
+    data = {
+        "sender_address": "0x1",
+        "calldata": ["0x1", "0x2", "0x3"],
+        "max_fee": "0x1",
+        "signature": [],
+        "nonce": "0x1",
+        "version": "0x1",
+        "type": "INVOKE_FUNCTION",
+    }
+    invoke = InvokeSchema().load(data)
+    serialized_invoke = InvokeSchema().dump(invoke)
+
+    assert isinstance(invoke, Invoke)
+    assert invoke.type == TransactionType.INVOKE
+    assert isinstance(serialized_invoke, dict)
+    assert serialized_invoke["type"] == "INVOKE_FUNCTION"

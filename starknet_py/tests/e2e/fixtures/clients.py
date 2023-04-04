@@ -21,7 +21,7 @@ def create_full_node_client(network: str) -> FullNodeClient:
     """
     Creates and returns FullNodeClient.
     """
-    return FullNodeClient(node_url=network + "/rpc", net=network)
+    return FullNodeClient(node_url=network + "/rpc")
 
 
 def net_to_clients() -> List[str]:

@@ -16,13 +16,25 @@ async def test_declare_tx(account, map_compiled_contract):
 
 
 @pytest.mark.asyncio
-async def test_sign_declare_tx_fails_with_old_account(
-    gateway_account_client, map_compiled_contract
+async def test_declare_v2_tx(
+    gateway_account, sierra_minimal_compiled_contract_and_class_hash
 ):
-    with pytest.raises(
-        ValueError,
-        match="Signing declare transactions is only supported with transaction version 1",
-    ):
-        await gateway_account_client.sign_declare_transaction(
-            compiled_contract=map_compiled_contract
-        )
+    # TODO: use account when RPC 0.3.0 is supported
+    account = gateway_account
+    (
+        compiled_contract,
+        compiled_class_hash,
+    ) = sierra_minimal_compiled_contract_and_class_hash
+
+    declare_tx = await account.sign_declare_v2_transaction(
+        compiled_contract,
+        compiled_class_hash=compiled_class_hash,
+        max_fee=MAX_FEE,
+    )
+    assert declare_tx.version == 2
+
+    result = await account.client.declare(declare_tx)
+
+    await account.client.wait_for_tx(
+        tx_hash=result.transaction_hash, wait_for_accept=True
+    )

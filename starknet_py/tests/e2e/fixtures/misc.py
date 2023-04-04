@@ -7,7 +7,7 @@ import pytest
 import pytest_asyncio
 
 from starknet_py.contract import Contract
-from starknet_py.net.account.account_client import AccountClient
+from starknet_py.net.account.account import Account
 from starknet_py.net.models.typed_data import TypedData
 from starknet_py.tests.e2e.fixtures.constants import (
     CONTRACTS_COMPILED_DIR,
@@ -80,12 +80,12 @@ def typed_data(request) -> TypedData:
 
 @pytest_asyncio.fixture(scope="package")
 async def cairo_serializer(
-    new_gateway_account_client: AccountClient,
+    gateway_account: Account,
 ) -> CairoSerializer:
     """
     Returns CairoSerializer for "simple_storage_with_event.cairo".
     """
-    account = new_gateway_account_client
+    account = gateway_account
     compiled_contract = read_contract("simple_storage_with_event_compiled.json")
 
     declare_result = await Contract.declare(

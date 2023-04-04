@@ -1,3 +1,8 @@
+"""
+Dataclasses representing responses from Starknet.
+They need to stay backwards compatible for old transactions/blocks to be fetchable.
+"""
+
 from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum
@@ -13,6 +18,10 @@ Tag = Literal["pending", "latest"]
 
 @dataclass
 class Call:
+    """
+    Dataclass representing a call to Starknet contract.
+    """
+
     to_addr: int
     selector: int
     calldata: List[int]
@@ -60,7 +69,6 @@ class TransactionType(Enum):
     """
 
     INVOKE = "INVOKE"
-    DEPLOY = "DEPLOY"
     DECLARE = "DECLARE"
     DEPLOY_ACCOUNT = "DEPLOY_ACCOUNT"
     L1_HANDLER = "L1_HANDLER"
@@ -88,7 +96,7 @@ class InvokeTransaction(Transaction):
     Dataclass representing invoke transaction
     """
 
-    contract_address: int
+    sender_address: int
     calldata: List[int]
     # This field is always None for transactions with version = 1
     entry_point_selector: Optional[int] = None
@@ -104,6 +112,7 @@ class DeclareTransaction(Transaction):
     class_hash: int
     sender_address: int
     nonce: Optional[int] = None
+    compiled_class_hash: Optional[int] = None
 
 
 @dataclass
@@ -242,6 +251,10 @@ class GatewayBlock(StarknetBlock):
 
 @dataclass
 class BlockSingleTransactionTrace:
+    """
+    Dataclass representing a trace of transaction execution.
+    """
+
     signature: List[int]
     transaction_hash: int
     function_invocation: Optional[dict] = None
@@ -251,23 +264,39 @@ class BlockSingleTransactionTrace:
 
 @dataclass
 class BlockTransactionTraces:
+    """
+    Dataclass representing traces of all transactions in block.
+    """
+
     traces: List[BlockSingleTransactionTrace]
 
 
 @dataclass
 class StorageEntry:
+    """
+    Dataclass representing single change in the storage.
+    """
+
     key: int
     value: int
 
 
 @dataclass
 class StorageDiffItem:
+    """
+    Dataclass representing all storage changes for the contract.
+    """
+
     address: int
     storage_entries: List[StorageEntry]
 
 
 @dataclass
 class EstimatedFee:
+    """
+    Dataclass representing estimated fee.
+    """
+
     overall_fee: int
     gas_price: int
     gas_usage: int
@@ -275,22 +304,56 @@ class EstimatedFee:
 
 @dataclass
 class DeployedContract:
+    """
+    Dataclass representing basic data of the deployed contract.
+    """
+
     address: int
     class_hash: int
 
 
 @dataclass
 class ContractsNonce:
+    """
+    Dataclass representing nonce of the contract.
+    """
+
     contract_address: int
     nonce: int
 
 
 @dataclass
+class DeclaredContractHash:
+    """
+    Dataclass containing hashes of the declared contract.
+    """
+
+    class_hash: int
+    compiled_class_hash: int
+
+
+@dataclass
+class ReplacedClass:
+    """
+    Dataclass representing new class_hash of the contract.
+    """
+
+    contract_address: int
+    class_hash: int
+
+
+@dataclass
 class StateDiff:
+    """
+    Dataclass representing state changes in the block.
+    """
+
     deployed_contracts: List[DeployedContract]
-    declared_contract_hashes: List[int]
+    declared_contract_hashes: List[DeclaredContractHash]
     storage_diffs: List[StorageDiffItem]
     nonces: List[ContractsNonce]
+    deprecated_declared_contract_hashes: List[int] = field(default_factory=list)
+    replaced_classes: List[ReplacedClass] = field(default_factory=list)
 
 
 @dataclass
@@ -360,6 +423,88 @@ class CompiledContract(ContractClass):
 
 
 @dataclass
+class SierraEntryPoint:
+    """
+    Dataclass representing contract entry point
+    """
+
+    function_idx: int
+    selector: int
+
+
+@dataclass
+class SierraEntryPointsByType:
+    """
+    Dataclass representing contract class entrypoints by entry point type
+    """
+
+    constructor: List[SierraEntryPoint]
+    external: List[SierraEntryPoint]
+    l1_handler: List[SierraEntryPoint]
+
+
+@dataclass
+class SierraContractClass:
+    """
+    Dataclass representing Cairo1 contract declared to Starknet
+    """
+
+    contract_class_version: str
+    sierra_program: List[str]
+    entry_points_by_type: SierraEntryPointsByType
+    abi: Optional[str] = None
+
+
+@dataclass
+class SierraCompiledContract(SierraContractClass):
+    """
+    Dataclass representing SierraContractClass with required abi.
+    """
+
+    abi: str = field(default_factory=str)
+
+
+@dataclass
+class CasmClassEntryPoint:
+    """
+    Dataclass representing CasmClass entrypoint.
+    """
+
+    selector: int
+    offset: int
+    builtins: Optional[List[str]]
+
+
+@dataclass
+class CasmClassEntryPointsByType:
+    """
+    Dataclass representing CasmClass entrypoints by entry point type.
+    """
+
+    constructor: List[CasmClassEntryPoint]
+    external: List[CasmClassEntryPoint]
+    l1_handler: List[CasmClassEntryPoint]
+
+
+@dataclass
+class CasmClass:
+    """
+    Dataclass representing class compiled to Cairo assembly.
+    """
+
+    prime: int
+    bytecode: List[int]
+    hints: List[Any]
+    pythonic_hints: List[Any]
+    compiler_version: str
+    entry_points_by_type: CasmClassEntryPointsByType
+
+
+@dataclass
 class TransactionStatusResponse:
+    """
+    Dataclass representing transaction status.
+    """
+
     block_hash: Optional[int]
     transaction_status: TransactionStatus

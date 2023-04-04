@@ -1,16 +1,21 @@
+import json
 from typing import Any, Dict, List
 
-from marshmallow import EXCLUDE, Schema, fields, post_load
+from marshmallow import EXCLUDE, Schema, ValidationError, fields, post_load
 from marshmallow_oneofschema import OneOfSchema
 
 from starknet_py.net.client_models import (
     BlockSingleTransactionTrace,
     BlockStateUpdate,
     BlockTransactionTraces,
+    CasmClass,
+    CasmClassEntryPoint,
+    CasmClassEntryPointsByType,
     CompiledContract,
     ContractClass,
     ContractCode,
     ContractsNonce,
+    DeclaredContractHash,
     DeclareTransaction,
     DeclareTransactionResponse,
     DeployAccountTransaction,
@@ -26,7 +31,12 @@ from starknet_py.net.client_models import (
     L1HandlerTransaction,
     L1toL2Message,
     L2toL1Message,
+    ReplacedClass,
     SentTransactionResponse,
+    SierraCompiledContract,
+    SierraContractClass,
+    SierraEntryPoint,
+    SierraEntryPointsByType,
     StateDiff,
     StorageDiffItem,
     TransactionReceipt,
@@ -38,6 +48,9 @@ from starknet_py.net.schemas.common import (
     NonPrefixedHex,
     StatusField,
     StorageEntrySchema,
+)
+from starknet_py.net.schemas.utils import (
+    _replace_invoke_contract_address_with_sender_address,
 )
 
 # pylint: disable=unused-argument, no-self-use
@@ -81,13 +94,15 @@ class TransactionSchema(Schema):
 
 
 class InvokeTransactionSchema(TransactionSchema):
-    contract_address = Felt(data_key="contract_address", required=True)
+    contract_address = Felt(data_key="contract_address", load_default=None)
+    sender_address = Felt(data_key="sender_address", load_default=None)
     calldata = fields.List(Felt(), data_key="calldata", required=True)
     entry_point_selector = Felt(data_key="entry_point_selector", load_default=None)
     nonce = Felt(data_key="nonce", load_default=None)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> InvokeTransaction:
+        _replace_invoke_contract_address_with_sender_address(data)
         return InvokeTransaction(**data)
 
 
@@ -107,6 +122,7 @@ class DeclareTransactionSchema(TransactionSchema):
     class_hash = Felt(data_key="class_hash", required=True)
     sender_address = Felt(data_key="sender_address", required=True)
     nonce = Felt(data_key="nonce", load_default=None)
+    compiled_class_hash = Felt(data_key="compiled_class_hash", load_default=None)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> DeclareTransaction:
@@ -299,15 +315,38 @@ class DeployedContractSchema(Schema):
         return DeployedContract(**data)
 
 
+class DeclaredContractHashSchema(Schema):
+    class_hash = Felt(data_key="class_hash", required=True)
+    compiled_class_hash = Felt(data_key="compiled_class_hash", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> DeclaredContractHash:
+        return DeclaredContractHash(**data)
+
+
+class ReplacedClassSchema(Schema):
+    contract_address = Felt(data_key="address", required=True)
+    class_hash = Felt(data_key="class_hash", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> ReplacedClass:
+        return ReplacedClass(**data)
+
+
 class StateDiffSchema(Schema):
     deployed_contracts = fields.List(
         fields.Nested(DeployedContractSchema()),
         data_key="deployed_contracts",
         required=True,
     )
-    declared_contract_hashes = fields.List(
+    deprecated_declared_contract_hashes = fields.List(
         Felt(),
-        data_key="declared_contracts",
+        data_key="old_declared_contracts",
+        required=True,
+    )
+    declared_contract_hashes = fields.List(
+        fields.Nested(DeclaredContractHashSchema()),
+        data_key="declared_classes",
         required=True,
     )
     storage_diffs = fields.Dict(
@@ -317,6 +356,9 @@ class StateDiffSchema(Schema):
         required=True,
     )
     nonces = fields.Dict(keys=Felt(), values=Felt(), data_key="nonces", required=True)
+    replaced_classes = fields.List(
+        fields.Nested(ReplacedClassSchema()), data_key="replaced_classes", required=True
+    )
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> StateDiff:
@@ -386,12 +428,135 @@ class ContractClassSchema(Schema):
         return ContractClass(**data)
 
 
+class SierraEntryPointSchema(Schema):
+    function_idx = fields.Integer(data_key="function_idx", required=True)
+    selector = Felt(data_key="selector", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> SierraEntryPoint:
+        return SierraEntryPoint(**data)
+
+
+class SierraEntryPointsByTypeSchema(Schema):
+    constructor = fields.List(
+        fields.Nested(SierraEntryPointSchema()), data_key="CONSTRUCTOR", required=True
+    )
+    external = fields.List(
+        fields.Nested(SierraEntryPointSchema()), data_key="EXTERNAL", required=True
+    )
+    l1_handler = fields.List(
+        fields.Nested(SierraEntryPointSchema()), data_key="L1_HANDLER", required=True
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> SierraEntryPointsByType:
+        return SierraEntryPointsByType(**data)
+
+
+class SierraContractClassSchema(Schema):
+    contract_class_version = fields.String(
+        data_key="contract_class_version", required=True
+    )
+    sierra_program = fields.List(
+        fields.String(),
+        data_key="sierra_program",
+        required=True,
+    )
+    entry_points_by_type = fields.Nested(
+        SierraEntryPointsByTypeSchema(), data_key="entry_points_by_type", required=True
+    )
+    abi = fields.String(data_key="abi")
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> SierraContractClass:
+        return SierraContractClass(**data)
+
+
+class AbiField(fields.Field):
+    def _deserialize(self, value, attr, data, **kwargs):
+        if isinstance(value, str):
+            return value
+        if isinstance(value, list) and all(isinstance(item, dict) for item in value):
+            return json.dumps(value)
+        raise ValidationError("Field should be str or list[dict].")
+
+
+class SierraCompiledContractSchema(SierraContractClassSchema):
+    abi = AbiField(data_key="abi", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> SierraCompiledContract:
+        return SierraCompiledContract(**data)
+
+
+class TypesOfContractClassSchema(OneOfSchema):
+    type_schemas = {
+        "program": ContractClassSchema(),
+        "sierra_program": SierraContractClassSchema(),
+    }
+
+    def get_data_type(self, data):
+        if "sierra_program" in data:
+            return "sierra_program"
+
+        return "program"
+
+
 class CompiledContractSchema(ContractClassSchema):
     abi = fields.List(fields.Dict(), data_key="abi", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> CompiledContract:
         return CompiledContract(**data)
+
+
+class CasmClassEntryPointSchema(Schema):
+    selector = Felt(data_key="selector", required=True)
+    offset = fields.Integer(data_key="offset", required=True)
+    builtins = fields.List(fields.String(), data_key="builtins")
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> CasmClassEntryPoint:
+        return CasmClassEntryPoint(**data)
+
+
+class CasmClassEntryPointsByTypeSchema(Schema):
+    constructor = fields.List(
+        fields.Nested(CasmClassEntryPointSchema()),
+        data_key="CONSTRUCTOR",
+        required=True,
+    )
+    external = fields.List(
+        fields.Nested(CasmClassEntryPointSchema()),
+        data_key="EXTERNAL",
+        required=True,
+    )
+    l1_handler = fields.List(
+        fields.Nested(CasmClassEntryPointSchema()),
+        data_key="L1_HANDLER",
+        required=True,
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> CasmClassEntryPointsByType:
+        return CasmClassEntryPointsByType(**data)
+
+
+class CasmClassSchema(Schema):
+    prime = Felt(data_key="prime", required=True)
+    bytecode = fields.List(Felt(), data_key="bytecode", required=True)
+    hints = fields.List(fields.Raw(), data_key="hints", required=True)
+    pythonic_hints = fields.List(fields.Raw(), data_key="pythonic_hints", required=True)
+    compiler_version = fields.String(data_key="compiler_version", required=True)
+    entry_points_by_type = fields.Nested(
+        CasmClassEntryPointsByTypeSchema(),
+        data_key="entry_points_by_type",
+        required=True,
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> CasmClass:
+        return CasmClass(**data)
 
 
 class TransactionStatusSchema(Schema):
