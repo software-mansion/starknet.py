@@ -59,10 +59,16 @@ class StructType(CairoType):
 
 @dataclass
 class EnumType(CairoType):
+    """
+    Type representation of Cairo enums.
+    """
     name: str
     variants: OrderedDict[str, CairoType]
 
 
 @dataclass
 class Option(CairoType):
+    """
+    Type representation of Cairo Option.
+    """
     value: Optional[CairoType] = None
