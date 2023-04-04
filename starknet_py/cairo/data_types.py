@@ -70,7 +70,21 @@ class EnumType(CairoType):
 @dataclass
 class Option(CairoType):
     """
-    Type representation of Cairo Option.
+    Type representation of Cairo options.
     """
 
     value: Optional[CairoType] = None
+
+
+@dataclass
+class Uint(CairoType):
+    """
+    Type representation of Cairo unsigned integers.
+    """
+
+    bits: int
+
+    def check_range(self, value: int):
+        """
+        Utility method checking if the `value` is in range.
+        """
