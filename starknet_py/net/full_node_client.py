@@ -1,6 +1,6 @@
 import re
 import warnings
-from typing import Dict, List, Optional, Union, cast
+from typing import Dict, List, Optional, Union, cast, Tuple
 
 import aiohttp
 from marshmallow import EXCLUDE
@@ -53,7 +53,6 @@ from starknet_py.utils.sync import add_sync_methods
 
 @add_sync_methods
 class FullNodeClient(Client):
-    # ?????
     # pylint: disable=too-many-public-methods
     def __init__(
         self,
@@ -108,8 +107,9 @@ class FullNodeClient(Client):
 
     async def get_events(
         self,
+        *,
         address: Hash,
-        keys: List[Hash],
+        keys: List[str],
         from_block_number: Optional[Union[int, Tag]] = None,
         from_block_hash: Optional[Union[Hash, Tag]] = None,
         to_block_number: Optional[Union[int, Tag]] = None,
@@ -133,6 +133,7 @@ class FullNodeClient(Client):
                                 Mutually exclusive with ``to_block_number`` parameter.
         :param address: The address of the contract that emitted the event.
         :param keys: List of names of events that are searched for.
+                    Must be in a form of RPC accepted felt after being hashed by `keccak` hash.
         :param follow_continuation_token: Flag deciding whether all events should be collected during one function call,
                                 defaults to False.
         :param chunk_size: Size of chunk of events returned by one ``get_events`` call, defaults to 1 (minimum).
@@ -140,38 +141,26 @@ class FullNodeClient(Client):
         :returns: ``EventsResponse`` dataclass containing events and optional continuation token.
         """
 
-        def map_keys_to_bytes(keys: List[Hash]):
-            mapped_keys = []
-            for i in keys:
-                if isinstance(i, str):
-                    mapped_keys.append(bytes(i, "utf-8"))
-                else:
-                    mapped_keys.append(bytes(i))
-            return mapped_keys
-
         if chunk_size <= 0:
             raise ValueError("Argument chunk_size must be grater than 0.")
         params = {
             "chunk_size": chunk_size,
-            "from_block": _get_block_identifier_for_get_events(
-                from_block_hash, from_block_number
+            "from_block": get_block_identifier(
+                from_block_hash, from_block_number, called_by_get_events=True
             ),
-            "to_block": _get_block_identifier_for_get_events(
-                to_block_hash, to_block_number
+            "to_block": get_block_identifier(
+                to_block_hash, to_block_number, called_by_get_events=True
             ),
             "address": _to_rpc_felt(address),
+            "keys": keys,
         }
 
-        # According to specification, `keys` are names of events that are emitted encoded using keccak.
-        keys = [_starknet_keccak(i) for i in map_keys_to_bytes(keys)]
-        params["keys"] = list(map(_to_rpc_felt, keys))
         previous_continuation_token = None
 
-        events_response = EventsResponse([])
+        events_list = []
         while True:
-            new_events_response = await self._get_events_chunk(params)
-            events_response.update(new_events_response)
-            continuation_token = events_response.continuation_token
+            events, continuation_token = await self._get_events_chunk(params)
+            events_list.extend(events)
             # TODO //fix the condition after devnet change, should be `or not continuation_token`.
             # TODO //As of now, devnet returns previous continuation token when there are no events.
             # TODO //However, the json "result" part should only contain `"events": []` and nothing else.
@@ -186,13 +175,14 @@ class FullNodeClient(Client):
                 break
             params["continuation_token"] = continuation_token
             previous_continuation_token = continuation_token
+        events_response = cast(EventsResponse, EventsSchema().load({"events": events_list, "continuation_token": continuation_token}))
 
         return events_response
 
     async def _get_events_chunk(
         self,
         params: dict,
-    ) -> EventsResponse:
+    ) -> Tuple[list, str]:
         res = await self._client.call(
             method_name="getEvents",
             params={"filter": params},
@@ -200,7 +190,7 @@ class FullNodeClient(Client):
         events_response = cast(
             EventsResponse, EventsSchema().load(res, unknown=EXCLUDE)
         )
-        return events_response
+        return res["events"], res["continuation_token"]
 
     async def get_state_update(
         self,
@@ -499,22 +489,24 @@ class FullNodeClient(Client):
 def get_block_identifier(
     block_hash: Optional[Union[Hash, Tag]] = None,
     block_number: Optional[Union[int, Tag]] = None,
-) -> dict:
+    *,
+    called_by_get_events: bool = False,
+) -> Union[dict, Hash, Tag, None]:
     if block_hash is not None and block_number is not None:
         raise ValueError(
             "Arguments block_hash and block_number are mutually exclusive."
         )
 
     if block_hash in ("latest", "pending") or block_number in ("latest", "pending"):
-        return {"block_id": block_hash or block_number}
+        return block_hash or block_number if called_by_get_events else {"block_id": block_hash or block_number}
 
     if block_hash is not None:
-        return {"block_id": {"block_hash": _to_rpc_felt(block_hash)}}
+        return {"block_hash": _to_rpc_felt(block_hash)} if called_by_get_events else {"block_id": {"block_hash": _to_rpc_felt(block_hash)}}
 
     if block_number is not None:
-        return {"block_id": {"block_number": block_number}}
+        return {"block_number": block_number} if called_by_get_events else {"block_id": {"block_number": block_number}}
 
-    return {"block_id": "pending"}
+    return "pending" if called_by_get_events else {"block_id": "pending"}
 
 
 def _get_block_identifier_for_get_events(
