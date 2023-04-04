@@ -38,7 +38,9 @@ foo_event_dict = {
         {"name": "b", "type": "core::integer::u128"},
     ],
 }
-foo_event = Abi.Event(name="foo_event", inputs=OrderedDict(a=FeltType(), b=UintType(128)))
+foo_event = Abi.Event(
+    name="foo_event", inputs=OrderedDict(a=FeltType(), b=UintType(128))
+)
 
 foo_external_dict = {
     "type": "function",
@@ -67,5 +69,7 @@ foo_view_dict = {
     "state_mutability": "view",
 }
 foo_view = Abi.Function(
-    name="foo_view", inputs=OrderedDict(a=FeltType(), b=UintType(128)), outputs=[my_enum]
+    name="foo_view",
+    inputs=OrderedDict(a=FeltType(), b=UintType(128)),
+    outputs=[my_enum],
 )
