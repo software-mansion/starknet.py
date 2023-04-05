@@ -5,7 +5,6 @@ from typing import Dict, List, Optional, Tuple, Union, cast
 import aiohttp
 from marshmallow import EXCLUDE
 
-from starknet_py.hash.utils import _starknet_keccak
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
@@ -148,9 +147,7 @@ class FullNodeClient(Client):
             "from_block": get_small_block_identifier(
                 from_block_hash, from_block_number
             ),
-            "to_block": get_small_block_identifier(
-                to_block_hash, to_block_number
-            ),
+            "to_block": get_small_block_identifier(to_block_hash, to_block_number),
             "address": _to_rpc_felt(address),
             "keys": keys,
         }
@@ -191,9 +188,6 @@ class FullNodeClient(Client):
         res = await self._client.call(
             method_name="getEvents",
             params={"filter": params},
-        )
-        events_response = cast(
-            EventsResponse, EventsSchema().load(res, unknown=EXCLUDE)
         )
         return res["events"], res["continuation_token"]
 

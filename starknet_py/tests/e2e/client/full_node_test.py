@@ -8,6 +8,7 @@ from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.storage import get_storage_var_address
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import DeclareTransaction
+from starknet_py.net.full_node_client import _to_rpc_felt
 
 
 @pytest.mark.run_on_devnet
@@ -113,8 +114,6 @@ async def test_get_storage_at_incorrect_address_full_node_client(full_node_clien
 
 
 def _parse_event_name(event: str) -> str:
-    from starknet_py.net.full_node_client import _to_rpc_felt
-
     return _to_rpc_felt(get_selector_from_name(event))
     # return get_selector_from_name(event)
 
