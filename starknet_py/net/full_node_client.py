@@ -1,6 +1,6 @@
 import re
 import warnings
-from typing import Dict, List, Optional, Union, cast, Tuple
+from typing import Dict, List, Optional, Tuple, Union, cast
 
 import aiohttp
 from marshmallow import EXCLUDE
@@ -119,16 +119,16 @@ class FullNodeClient(Client):
     ) -> EventsResponse:
         # pylint: disable=too-many-arguments
         """.
-        :param from_block_number: Number of the block from which events searched for **start**
+        :param from_block_number: Number of the block from which events searched for **starts**
                                 or literals `"pending"` or `"latest"`.
                                 Mutually exclusive with ``from_block_hash`` parameter.
-        :param from_block_hash: Hash of the block from which events searched for **start**
+        :param from_block_hash: Hash of the block from which events searched for **starts**
                                 or literals `"pending"` or `"latest"`.
                                 Mutually exclusive with ``from_block_number`` parameter.
-        :param to_block_number: Number of the block from which events searched for **end**
+        :param to_block_number: Number of the block from which events searched for **ends**
                                 or literals `"pending"` or `"latest"`.
                                 Mutually exclusive with ``to_block_hash`` parameter.
-        :param to_block_hash: Hash of the block from which events searched for **end**
+        :param to_block_hash: Hash of the block from which events searched for **ends**
                                 or literals `"pending"` or `"latest"`.
                                 Mutually exclusive with ``to_block_number`` parameter.
         :param address: The address of the contract that emitted the event.
@@ -145,11 +145,11 @@ class FullNodeClient(Client):
             raise ValueError("Argument chunk_size must be grater than 0.")
         params = {
             "chunk_size": chunk_size,
-            "from_block": get_block_identifier(
-                from_block_hash, from_block_number, called_by_get_events=True
+            "from_block": get_small_block_identifier(
+                from_block_hash, from_block_number
             ),
-            "to_block": get_block_identifier(
-                to_block_hash, to_block_number, called_by_get_events=True
+            "to_block": get_small_block_identifier(
+                to_block_hash, to_block_number
             ),
             "address": _to_rpc_felt(address),
             "keys": keys,
@@ -175,7 +175,12 @@ class FullNodeClient(Client):
                 break
             params["continuation_token"] = continuation_token
             previous_continuation_token = continuation_token
-        events_response = cast(EventsResponse, EventsSchema().load({"events": events_list, "continuation_token": continuation_token}))
+        events_response = cast(
+            EventsResponse,
+            EventsSchema().load(
+                {"events": events_list, "continuation_token": continuation_token}
+            ),
+        )
 
         return events_response
 
@@ -489,27 +494,11 @@ class FullNodeClient(Client):
 def get_block_identifier(
     block_hash: Optional[Union[Hash, Tag]] = None,
     block_number: Optional[Union[int, Tag]] = None,
-    *,
-    called_by_get_events: bool = False,
-) -> Union[dict, Hash, Tag, None]:
-    if block_hash is not None and block_number is not None:
-        raise ValueError(
-            "Arguments block_hash and block_number are mutually exclusive."
-        )
-
-    if block_hash in ("latest", "pending") or block_number in ("latest", "pending"):
-        return block_hash or block_number if called_by_get_events else {"block_id": block_hash or block_number}
-
-    if block_hash is not None:
-        return {"block_hash": _to_rpc_felt(block_hash)} if called_by_get_events else {"block_id": {"block_hash": _to_rpc_felt(block_hash)}}
-
-    if block_number is not None:
-        return {"block_number": block_number} if called_by_get_events else {"block_id": {"block_number": block_number}}
-
-    return "pending" if called_by_get_events else {"block_id": "pending"}
+) -> dict:
+    return {"block_id": get_small_block_identifier(block_hash, block_number)}
 
 
-def _get_block_identifier_for_get_events(
+def get_small_block_identifier(
     block_hash: Optional[Union[Hash, Tag]] = None,
     block_number: Optional[Union[int, Tag]] = None,
 ) -> Union[dict, Hash, Tag, None]:
