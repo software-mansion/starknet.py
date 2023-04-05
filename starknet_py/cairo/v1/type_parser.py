@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Dict
 
 from starknet_py.abi.v1.parser_transformer import parse
-from starknet_py.cairo.data_types import CairoType, StructType
+from starknet_py.cairo.data_types import CairoType, StructType, TypeIdentifier
 
 
 class UnknownCairoTypeError(ValueError):
@@ -48,12 +48,12 @@ class TypeParser:
         """
         parsed = parse(type_string)
 
-        if isinstance(parsed, str):
+        if isinstance(parsed, TypeIdentifier):
             return self._get_struct(parsed)
         return parsed
 
-    def _get_struct(self, name: str):
+    def _get_struct(self, identifier: TypeIdentifier):
         for struct_name in self.defined_types.keys():
-            if name in struct_name:
+            if identifier.name in struct_name:
                 return self.defined_types[struct_name]
-        raise UnknownCairoTypeError(name)
+        raise UnknownCairoTypeError(identifier.name)

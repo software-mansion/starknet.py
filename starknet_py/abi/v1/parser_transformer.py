@@ -9,6 +9,7 @@ from starknet_py.cairo.data_types import (
     FeltType,
     Option,
     TupleType,
+    TypeIdentifier,
     UintType,
 )
 
@@ -46,7 +47,8 @@ class ParserTransformer(Transformer):
         return ArrayType(value[0])
 
     def struct(self, tokens):
-        return "::".join(token for token in tokens if isinstance(token, str))
+        name = "::".join(token for token in tokens if isinstance(token, str))
+        return TypeIdentifier(name)
 
     def type_address(self, _value):
         return FeltType()

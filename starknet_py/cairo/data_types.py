@@ -88,3 +88,12 @@ class UintType(CairoType):
         """
         Utility method checking if the `value` is in range.
         """
+
+
+@dataclass
+class TypeIdentifier(CairoType):
+    """
+    Type representation of Cairo identifiers.
+    """
+
+    name: str
