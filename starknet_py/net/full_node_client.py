@@ -118,8 +118,6 @@ class FullNodeClient(Client):
     ) -> EventsResponse:
         # pylint: disable=too-many-arguments
         """
-        Method description
-
         :param address: The address of the contract that emitted the event.
         :param keys: List of names of events that are searched for.
                 Must be in a form of RPC accepted felt after being hashed by `keccak` hash.
