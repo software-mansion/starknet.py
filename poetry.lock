@@ -3451,9 +3451,8 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 
 [extras]
 docs = ["enum-tools", "sphinx"]
-eth-tester = []
 
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9, <3.10"
-content-hash = "13918afd6b941d7edace344a354a55d9930a6935ed814b552993c8cfc3c45c02"
+content-hash = "75ce074d3613a2758ff9dc8973fd43d7e5589dcb69aa7a352ee40c422c1975c8"
