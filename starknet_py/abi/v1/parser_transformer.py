@@ -15,7 +15,7 @@ from starknet_py.cairo.data_types import (
 
 class ParserTransformer(Transformer):
     """
-    Transforms the lark tree into a CairoTypes.
+    Transforms the lark tree into CairoTypes.
     """
 
     # pylint: disable=no-self-use
