@@ -2125,19 +2125,22 @@ testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
 name = "poethepoet"
-version = "0.11.0"
+version = "0.19.0"
 description = "A task runner that works well with poetry."
 category = "dev"
 optional = false
-python-versions = ">=3.6.2,<4.0.0"
+python-versions = ">=3.7"
 files = [
-    {file = "poethepoet-0.11.0-py3-none-any.whl", hash = "sha256:4aac200f52e0faa309a655c064f2a522d9d18b64f717de9805151421166ba4d8"},
-    {file = "poethepoet-0.11.0.tar.gz", hash = "sha256:a0618e198600db801588bae627982682f8bd5304a49a75c6dbc430feade5a8a9"},
+    {file = "poethepoet-0.19.0-py3-none-any.whl", hash = "sha256:87038be589077e4b407050a9da644d9cd9e4076ccfc8abc7f855cf6870d5c6c2"},
+    {file = "poethepoet-0.19.0.tar.gz", hash = "sha256:897eb85ec15876d79befc7d19d4c80ce7c8b214d1bb0dcfec640abd81616bfed"},
 ]
 
 [package.dependencies]
 pastel = ">=0.2.1,<0.3.0"
-tomli = ">=1.2.2,<2.0.0"
+tomli = ">=1.2.2"
+
+[package.extras]
+poetry-plugin = ["poetry (>=1.0,<2.0)"]
 
 [[package]]
 name = "prometheus-client"
@@ -3425,4 +3428,4 @@ eth-tester = []
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9, <3.10"
-content-hash = "d06fd7318a50c80da769c56fcf629f1098ce8c2330fe109dd96fc74f875fa68a"
+content-hash = "c2d3da03fb4ae3e8959e3a48e85810687bc060f7291767944046431f0bb62f56"
