@@ -1,31 +1,19 @@
 from enum import Enum
-from typing import Dict, List, Sequence
-
-# Using cairo-lang methods is a temporary solution until we integrate poseidon hash into the library
-from starkware.starknet.core.os.contract_class.class_hash import (
-    compute_class_hash as sw_compute_sierra_class_hash,
-)
-from starkware.starknet.services.api.contract_class.contract_class import (
-    ContractClass as CairoLangContractClass,
-)
-from starkware.starknet.services.api.contract_class.contract_class import (
-    ContractEntryPoint,
-    EntryPointType,
-)
+from typing import Sequence
 
 from starknet_py.common import int_from_bytes
 from starknet_py.constants import DEFAULT_ENTRY_POINT_SELECTOR
 from starknet_py.hash.class_hash import compute_class_hash
+from starknet_py.hash.sierra_class_hash import compute_sierra_class_hash
 from starknet_py.hash.utils import compute_hash_on_elements
-from starknet_py.net.client_models import (
-    ContractClass,
-    SierraContractClass,
-    SierraEntryPoint,
-    SierraEntryPointsByType,
-)
+from starknet_py.net.client_models import ContractClass, SierraContractClass
 
 
 class TransactionHashPrefix(Enum):
+    """
+    Enum representing possible transaction prefixes.
+    """
+
     DECLARE = int_from_bytes(b"declare")
     DEPLOY = int_from_bytes(b"deploy")
     DEPLOY_ACCOUNT = int_from_bytes(b"deploy_account")
@@ -48,6 +36,7 @@ def compute_transaction_hash(
     Calculates the transaction hash in the StarkNet network - a unique identifier of the
     transaction.
     The transaction hash is a hash chain of the following information:
+
         1. A prefix that depends on the transaction type.
         2. The transaction's version.
         3. Contract address.
@@ -55,6 +44,7 @@ def compute_transaction_hash(
         5. A hash chain of the calldata.
         6. The transaction's maximum fee.
         7. The network's chain ID.
+
     Each hash chain computation begins with 0 as initialization and ends with its length appended.
     The length is appended in order to avoid collisions of the following kind:
     H([x,y,z]) = h(h(x,y),z) = H([w, z]) where w = h(x,y).
@@ -176,9 +166,7 @@ def compute_declare_v2_transaction_hash(
     :param nonce: Nonce of the transaction.
     :return: Hash of the transaction.
     """
-    class_hash = sw_compute_sierra_class_hash(
-        contract_class=_convert_contract_class_to_cairo_lang_format(contract_class)
-    )
+    class_hash = compute_sierra_class_hash(contract_class)
 
     return compute_transaction_hash(
         tx_hash_prefix=TransactionHashPrefix.DECLARE,
@@ -190,40 +178,3 @@ def compute_declare_v2_transaction_hash(
         chain_id=chain_id,
         additional_data=[nonce, compiled_class_hash],
     )
-
-
-def _convert_contract_class_to_cairo_lang_format(
-    contract_class: SierraContractClass,
-) -> CairoLangContractClass:
-    # noinspection PyArgumentList
-    return CairoLangContractClass(
-        contract_class_version=contract_class.contract_class_version,
-        sierra_program=[int(i, 16) for i in contract_class.sierra_program],
-        entry_points_by_type=_convert_entry_points(contract_class.entry_points_by_type),
-        abi=contract_class.abi,
-    )
-
-
-def _convert_entry_points(
-    entry_points: SierraEntryPointsByType,
-) -> Dict[EntryPointType, List[ContractEntryPoint]]:
-    return {
-        EntryPointType.EXTERNAL: _convert_entry_points_for_type(entry_points.external),
-        EntryPointType.L1_HANDLER: _convert_entry_points_for_type(
-            entry_points.l1_handler
-        ),
-        EntryPointType.CONSTRUCTOR: _convert_entry_points_for_type(
-            entry_points.constructor
-        ),
-    }
-
-
-def _convert_entry_points_for_type(
-    entry_points: List[SierraEntryPoint],
-) -> List[ContractEntryPoint]:
-    return [
-        ContractEntryPoint(
-            selector=entry_point.selector, function_idx=entry_point.function_idx
-        )
-        for entry_point in entry_points
-    ]

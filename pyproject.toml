@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "starknet-py"
-version = "0.15.1"
+version = "0.15.2"
 description = "A python SDK for Starknet"
 authors = ["Tomasz Rejowski <tomasz.rejowski@swmansion.com>", "Jakub Ptak <jakub.ptak@swmansion.com>"]
 include = ["starknet_py", "starknet_py/utils/crypto/libcrypto_c_exports.*"]
@@ -22,23 +22,22 @@ crypto-cpp-py = "^1.2.0"
 marshmallow = "^3.15.0"
 marshmallow-oneofschema = "^3.0.1"
 typing-extensions = "^4.3.0"
-cairo-lang = "^0.11.0"
-eth-utils = "<2.0.0"
+cairo-lang = "^0.11.0.2"
+eth-utils = "^2.1.0"
 furo = "^2022.12.7"
 marshmallow-dataclass = "<8.5.0"
 
 [tool.poetry.extras]
 docs = ["sphinx", "enum-tools"]
-eth-tester = ["tester"]
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.2.2"
 black = "^23.1.0"
-poethepoet = "^0.11.0"
+poethepoet = "^0.19.0"
 coverage = "^7.2.1"
 pytest-asyncio = "^0.20.3"
 sphinx-rtd-theme = "^1.0.0"
-pylint = "2.16.4"
+pylint = "2.17.2"
 setuptools = "^67.5.1"
 pytest-mock = "^3.6.1"
 pytest-xdist = "^3.2.1"
@@ -46,7 +45,7 @@ pyright = "^1.1.298"
 pytest-cov = "^4.0.0"
 isort = "^5.11.4"
 pytest-rerunfailures = "^11.1"
-starknet-devnet = {git = "https://github.com/Shard-Labs/starknet-devnet.git", rev = "adapt-0.11.0"}
+starknet-devnet = "0.5.0a2"
 
 [tool.poe.tasks]
 test.shell = "pytest -n auto -v --reruns 10 --only-rerun aiohttp.client_exceptions.ClientConnectorError --cov=starknet_py starknet_py"
