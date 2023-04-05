@@ -10,19 +10,19 @@ class TypeDict(TypedDict):
     type: str
 
 
-class TypedMemberDict(TypeDict):
+class TypedParameterDict(TypeDict):
     name: str
 
 
 class StructDict(TypedDict):
     type: Literal["struct"]
     name: str
-    members: List[TypedMemberDict]
+    members: List[TypedParameterDict]
 
 
 class FunctionBaseDict(TypedDict):
     name: str
-    inputs: List[TypedMemberDict]
+    inputs: List[TypedParameterDict]
     outputs: List[TypeDict]
     state_mutability: Optional[Literal["external", "view"]]
 
@@ -34,13 +34,13 @@ class FunctionDict(FunctionBaseDict):
 class EventDict(TypedDict):
     name: str
     type: Literal["event"]
-    inputs: List[TypedMemberDict]
+    inputs: List[TypedParameterDict]
 
 
 class EnumDict(TypedDict):
     type: Literal["enum"]
     name: str
-    variants: List[TypedMemberDict]
+    variants: List[TypedParameterDict]
 
 
 AbiDictEntry = Union[StructDict, FunctionDict, EventDict, EnumDict]

@@ -16,7 +16,7 @@ from starknet_py.abi.v1.shape import (
     STRUCT_ENTRY,
     EventDict,
     FunctionDict,
-    TypedMemberDict,
+    TypedParameterDict,
 )
 from starknet_py.cairo.data_types import CairoType, StructType
 from starknet_py.cairo.v1.type_parser import TypeParser
@@ -103,7 +103,7 @@ class AbiParser:
         )
 
         # Contains sorted members of the struct
-        struct_members: Dict[str, List[TypedMemberDict]] = {}
+        struct_members: Dict[str, List[TypedParameterDict]] = {}
         structs: Dict[str, StructType] = {}
 
         # Example problem (with a simplified json structure):
@@ -124,7 +124,7 @@ class AbiParser:
         self._type_parser = TypeParser(structs)
         for name, struct in structs.items():
             members = self._parse_members(
-                cast(List[TypedMemberDict], struct_members[name]),
+                cast(List[TypedParameterDict], struct_members[name]),
                 f"members of structure '{name}'",
             )
             struct.types.update(members)
@@ -161,9 +161,9 @@ class AbiParser:
         )
 
     def _parse_members(
-        self, params: List[TypedMemberDict], entity_name: str
+        self, params: List[TypedParameterDict], entity_name: str
     ) -> OrderedDict[str, CairoType]:
-        # Without cast, it complains that 'Type "TypedMemberDict" cannot be assigned to type "T@_group_by_name"'
+        # Without cast, it complains that 'Type "TypedParameterDict" cannot be assigned to type "T@_group_by_name"'
         members = AbiParser._group_by_entry_name(cast(List[Dict], params), entity_name)
         return OrderedDict(
             (name, self.type_parser.parse_inline_type(param["type"]))
