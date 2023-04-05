@@ -119,22 +119,22 @@ class FullNodeClient(Client):
         # pylint: disable=too-many-arguments
         """.
         :param from_block_number: Number of the block from which events searched for **starts**
-                                or literals `"pending"` or `"latest"`.
-                                Mutually exclusive with ``from_block_hash`` parameter.
+                or literals `"pending"` or `"latest"`.
+                Mutually exclusive with ``from_block_hash`` parameter.
         :param from_block_hash: Hash of the block from which events searched for **starts**
-                                or literals `"pending"` or `"latest"`.
-                                Mutually exclusive with ``from_block_number`` parameter.
+                or literals `"pending"` or `"latest"`.
+                Mutually exclusive with ``from_block_number`` parameter.
         :param to_block_number: Number of the block from which events searched for **ends**
-                                or literals `"pending"` or `"latest"`.
-                                Mutually exclusive with ``to_block_hash`` parameter.
+                or literals `"pending"` or `"latest"`.
+                Mutually exclusive with ``to_block_hash`` parameter.
         :param to_block_hash: Hash of the block from which events searched for **ends**
-                                or literals `"pending"` or `"latest"`.
-                                Mutually exclusive with ``to_block_number`` parameter.
+                or literals `"pending"` or `"latest"`.
+                Mutually exclusive with ``to_block_number`` parameter.
         :param address: The address of the contract that emitted the event.
         :param keys: List of names of events that are searched for.
-                    Must be in a form of RPC accepted felt after being hashed by `keccak` hash.
+                Must be in a form of RPC accepted felt after being hashed by `keccak` hash.
         :param follow_continuation_token: Flag deciding whether all events should be collected during one function call,
-                                defaults to False.
+                defaults to False.
         :param chunk_size: Size of chunk of events returned by one ``get_events`` call, defaults to 1 (minimum).
 
         :returns: ``EventsResponse`` dataclass containing events and optional continuation token.
