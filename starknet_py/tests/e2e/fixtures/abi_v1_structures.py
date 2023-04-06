@@ -2,7 +2,7 @@
 from collections import OrderedDict
 
 from starknet_py.abi.v1.model import Abi
-from starknet_py.cairo.data_types import FeltType, StructType, UintType, EnumType
+from starknet_py.cairo.data_types import EnumType, FeltType, StructType, UintType
 
 my_struct_dict = {
     "type": "struct",
