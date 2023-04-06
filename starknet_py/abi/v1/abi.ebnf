@@ -1,7 +1,7 @@
 IDENTIFIER: /[a-zA-Z_][a-zA-Z_0-9]*/
 
 start: type
-     | struct
+     | type_identifier
      | tuple
 
 type: "core" "::" core_value
@@ -9,13 +9,13 @@ type: "core" "::" core_value
 
 core_value: "felt252"                                                   -> type_felt
           | "integer" "::" "u" INT                                      -> type_uint
-          | "option" "::" "Option" "::" "<" (type | struct) ">"         -> type_option
-          | "array" "::" "Array" "::" "<" (type | struct) ">"           -> type_array
+          | "option" "::" "Option" "::" "<" (type | type_identifier) ">"    -> type_option
+          | "array" "::" "Array" "::" "<" (type | type_identifier) ">"      -> type_array
           | "starknet" "::" "contract_address" "::" "ContractAddress"   -> type_address
 
 type_unit: "()"
 
-struct: (IDENTIFIER | "::")+ ("<" (type | ",")+ ">")?
+type_identifier: (IDENTIFIER | "::")+ ("<" (type | ",")+ ">")?
 
 tuple: "(" (start | ",")+ ")"
 
