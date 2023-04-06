@@ -8,7 +8,7 @@ from starknet_py.cairo.data_types import (
     ArrayType,
     CairoType,
     FeltType,
-    Option,
+    OptionType,
     TupleType,
     TypeIdentifier,
     UintType,
@@ -60,12 +60,12 @@ class ParserTransformer(Transformer):
         """
         return None
 
-    def type_option(self, value: List[Optional[CairoType]]) -> Option:
+    def type_option(self, value: List[Optional[CairoType]]) -> OptionType:
         """
         Option includes an information about which type it eventually represents.
         `Optional` is added in case of the unit type.
         """
-        return Option(value[0])
+        return OptionType(value[0])
 
     def type_array(self, value: List[CairoType]) -> ArrayType:
         """

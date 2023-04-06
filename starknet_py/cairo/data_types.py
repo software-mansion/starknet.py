@@ -68,7 +68,7 @@ class EnumType(CairoType):
 
 
 @dataclass
-class Option(CairoType):
+class OptionType(CairoType):
     """
     Type representation of Cairo options.
     """
