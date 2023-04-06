@@ -3455,4 +3455,4 @@ docs = ["enum-tools", "sphinx"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9, <3.10"
-content-hash = "75ce074d3613a2758ff9dc8973fd43d7e5589dcb69aa7a352ee40c422c1975c8"
+content-hash = "7d02d1c9bece99507a0900b56e14e68ec81092284f9f17afb70431627fd54bef"
