@@ -15,7 +15,7 @@ core_value: "felt252"                                                   -> type_
 
 type_unit: "()"
 
-struct: (IDENTIFIER | "::")+ ("<" type ">")*
+struct: (IDENTIFIER | "::")+ ("<" (type | ",")+ ">")?
 
 tuple: "(" (start | ",")+ ")"
 
