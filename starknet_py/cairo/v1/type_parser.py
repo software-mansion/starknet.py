@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from typing import Dict
+from typing import Dict, Union
 
 from starknet_py.abi.v1.parser_transformer import parse
-from starknet_py.cairo.data_types import CairoType, StructType, TypeIdentifier
+from starknet_py.cairo.data_types import CairoType, EnumType, StructType, TypeIdentifier
 
 
 class UnknownCairoTypeError(ValueError):
@@ -23,9 +23,9 @@ class TypeParser:
     Low level utility class for parsing Cairo types that can be used in external methods.
     """
 
-    defined_types: Dict[str, StructType]
+    defined_types: Dict[str, Union[StructType, EnumType]]
 
-    def __init__(self, defined_types: Dict[str, StructType]):
+    def __init__(self, defined_types: Dict[str, Union[StructType, EnumType]]):
         """
         TypeParser constructor.
 

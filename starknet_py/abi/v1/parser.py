@@ -3,7 +3,7 @@ from __future__ import annotations
 import dataclasses
 import json
 from collections import OrderedDict, defaultdict
-from typing import DefaultDict, Dict, List, Optional, cast
+from typing import DefaultDict, Dict, List, Optional, Tuple, Union, cast
 
 from marshmallow import EXCLUDE
 
@@ -18,7 +18,7 @@ from starknet_py.abi.v1.shape import (
     FunctionDict,
     TypedParameterDict,
 )
-from starknet_py.cairo.data_types import CairoType, StructType
+from starknet_py.cairo.data_types import CairoType, EnumType, StructType
 from starknet_py.cairo.v1.type_parser import TypeParser
 
 
@@ -60,7 +60,7 @@ class AbiParser:
         :raises: AbiParsingError: on any parsing error.
         :return: Abi dataclass.
         """
-        structures = self._parse_structures()
+        structures, enums = self._parse_structures_and_enums()
         functions_dict = cast(
             Dict[str, FunctionDict],
             AbiParser._group_by_entry_name(
@@ -76,6 +76,7 @@ class AbiParser:
 
         return Abi(
             defined_structures=structures,
+            defined_enums=enums,
             functions={
                 name: self._parse_function(entry)
                 for name, entry in functions_dict.items()
@@ -92,19 +93,23 @@ class AbiParser:
 
         raise RuntimeError("Tried to get type_parser before it was set.")
 
-    def _parse_structures(self) -> Dict[str, StructType]:
+    def _parse_structures_and_enums(
+        self,
+    ) -> Tuple[Dict[str, StructType], Dict[str, EnumType]]:
         structs_dict = AbiParser._group_by_entry_name(
             self._grouped[STRUCT_ENTRY], "defined structures"
         )
-        structs_dict.update(
-            AbiParser._group_by_entry_name(
-                self._grouped[ENUM_ENTRY], "defined structures"
-            )
+        enums_dict = AbiParser._group_by_entry_name(
+            self._grouped[ENUM_ENTRY], "defined enums"
         )
 
         # Contains sorted members of the struct
         struct_members: Dict[str, List[TypedParameterDict]] = {}
         structs: Dict[str, StructType] = {}
+
+        # Contains sorted members of the enum
+        enum_members: Dict[str, List[TypedParameterDict]] = {}
+        enums: Dict[str, EnumType] = {}
 
         # Example problem (with a simplified json structure):
         # [{name: User, fields: {id: Uint256}}, {name: "Uint256", ...}]
@@ -115,28 +120,38 @@ class AbiParser:
         # topological sorting with an additional "unresolved type", so this flow is much easier.
         for name, struct in structs_dict.items():
             structs[name] = StructType(name, OrderedDict())
-            if "members" in struct.keys():
-                struct_members[name] = struct["members"]
-            else:
-                struct_members[name] = struct["variants"]
+            struct_members[name] = struct["members"]
+
+        for name, enum in enums_dict.items():
+            enums[name] = EnumType(name, OrderedDict())
+            enum_members[name] = enum["variants"]
 
         # Now parse the types of members and save them.
-        self._type_parser = TypeParser(structs)
+        defined_structs_enums: Dict[str, Union[StructType, EnumType]] = dict(structs)
+        defined_structs_enums.update(enums)
+
+        self._type_parser = TypeParser(defined_structs_enums)
         for name, struct in structs.items():
             members = self._parse_members(
                 cast(List[TypedParameterDict], struct_members[name]),
                 f"members of structure '{name}'",
             )
             struct.types.update(members)
+        for name, enum in enums.items():
+            members = self._parse_members(
+                cast(List[TypedParameterDict], enum_members[name]),
+                f"members of structure '{name}'",
+            )
+            enum.variants.update(members)
 
         # All types have their members assigned now
 
-        self._check_for_cycles(structs)
+        self._check_for_cycles(defined_structs_enums)
 
-        return structs
+        return structs, enums
 
     @staticmethod
-    def _check_for_cycles(structs: Dict[str, StructType]):
+    def _check_for_cycles(structs: Dict[str, Union[StructType, EnumType]]):
         # We want to avoid creating our own cycle checker as it would make it more complex. json module has a built-in
         # checker for cycles.
         try:

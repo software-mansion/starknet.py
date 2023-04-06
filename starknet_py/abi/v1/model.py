@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, List, OrderedDict
 
-from starknet_py.cairo.data_types import CairoType, StructType
+from starknet_py.cairo.data_types import CairoType, EnumType, StructType
 
 
 @dataclass
@@ -33,6 +33,7 @@ class Abi:
 
     defined_structures: Dict[
         str, StructType
-    ]  #: Abi of structures and enums defined by the class.
+    ]  #: Abi of structures defined by the class.
+    defined_enums: Dict[str, EnumType]  #: Abi of enums defined by the class.
     functions: Dict[str, Function]  #: Functions defined by the class.
     events: Dict[str, Event]  #: Events defined by the class
