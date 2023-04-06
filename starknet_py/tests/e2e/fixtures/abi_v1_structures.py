@@ -2,7 +2,7 @@
 from collections import OrderedDict
 
 from starknet_py.abi.v1.model import Abi
-from starknet_py.cairo.data_types import FeltType, StructType, UintType
+from starknet_py.cairo.data_types import FeltType, StructType, UintType, EnumType
 
 my_struct_dict = {
     "type": "struct",
@@ -25,9 +25,9 @@ my_enum_dict = {
         {"name": "b", "type": "test::MyStruct::<core::integer::u128>"},
     ],
 }
-my_enum = StructType(
+my_enum = EnumType(
     name="test::MyEnum::<core::integer::u128>",
-    types=OrderedDict(a=UintType(256), b=my_struct),
+    variants=OrderedDict(a=UintType(256), b=my_struct),
 )
 
 foo_event_dict = {

@@ -15,6 +15,8 @@ def test_parsing_types_abi():
 
     assert abi.defined_structures == {
         "test::MyStruct::<core::integer::u256>": fixtures.my_struct,
+    }
+    assert abi.defined_enums == {
         "test::MyEnum::<core::integer::u128>": fixtures.my_enum,
     }
     assert abi.events == {
