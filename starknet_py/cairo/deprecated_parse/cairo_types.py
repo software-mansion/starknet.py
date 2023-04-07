@@ -1,9 +1,9 @@
 import dataclasses
-from abc import abstractmethod, ABC
+from abc import ABC, abstractmethod
 from contextlib import contextmanager
 from contextvars import ContextVar
 from enum import Enum, auto
-from typing import List, Optional, Sequence, Iterator
+from typing import Iterator, List, Optional, Sequence
 
 add_backward_compatibility_space_ctx_var: ContextVar[int] = ContextVar(
     "add_backward_compatibility_space", default=False
@@ -58,7 +58,6 @@ class TypeFelt(CairoType):
 
 @dataclasses.dataclass
 class TypeCodeoffset(CairoType):
-
     def get_children(self) -> Sequence[Optional[AstNode]]:
         return []
 
