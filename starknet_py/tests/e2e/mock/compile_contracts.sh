@@ -8,7 +8,7 @@ CONTRACTS_COMPILED_DIRECTORY="$MOCK_DIRECTORY"/contracts_compiled
 find $CONTRACTS_COMPILED_DIRECTORY -maxdepth 1 -type f -delete
 
 # compile Cairo test contracts
-echo "Compiling Cairo contracts with $(poetry run starknet-compile --version)"
+echo "Compiling Cairo contracts with $(poetry run starknet-compile-deprecated --version)"
 
 number_of_contracts=0
 for contract in "$CONTRACTS_DIRECTORY"/*.cairo; do
@@ -24,8 +24,8 @@ for contract in "$CONTRACTS_DIRECTORY"/*.cairo; do
     fi
 
     echo "Compiling $contract..."
-    # run starknet-compile
-    poetry run starknet-compile $account_contract_flag --cairo_path $CONTRACTS_DIRECTORY:$MOCK_DIRECTORY --output $output --abi $abi $contract
+    # run starknet-compile-deprecated
+    poetry run starknet-compile-deprecated $account_contract_flag --cairo_path $CONTRACTS_DIRECTORY:$MOCK_DIRECTORY --output $output --abi $abi $contract
     number_of_contracts=$((number_of_contracts+1))
 done
 
