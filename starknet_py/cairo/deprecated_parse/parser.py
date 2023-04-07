@@ -2,13 +2,13 @@ import os
 
 import lark
 
+from starknet_py.cairo.deprecated_parse.cairo_types import CairoType
 from starknet_py.cairo.deprecated_parse.parser_transformer import ParserTransformer
 
 
-def parse(code: str):
+def parse(code: str) -> CairoType:
     """
-    Parses the given string and returns an AST tree based on the classes in ast/*.py.
-    code_type is the ebnf rule to start from (e.g., 'expr' or 'cairo_file').
+    Parses the given string and returns a CairoType.
     """
     with open(
         os.path.join(os.path.dirname(__file__), "cairo.ebnf"), "r", encoding="utf-8"
@@ -17,9 +17,7 @@ def parse(code: str):
 
     grammar_parser = lark.Lark(
         grammar=grammar,
-        start=[
-            "type",
-        ],
+        start=["type"],
         parser="lalr",
     )
 
