@@ -16,6 +16,10 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
     [
         "minimal_contract_compiled.casm",
         "hello_starknet_compiled.casm",
+        "token_bridge_compiled.casm",
+        "erc20_compiled.casm",
+        "account_compiled.casm",
+        "test_contract_compiled.casm",
     ],
 )
 def test_compute_casm_class_hash(casm_contract_class_source):
