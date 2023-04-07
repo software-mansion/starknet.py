@@ -3,9 +3,7 @@ from __future__ import annotations
 from collections import OrderedDict
 from typing import Dict
 
-import starkware.cairo.lang.compiler.ast.cairo_types as cairo_lang_types
-from starkware.cairo.lang.compiler.parser import parse_type
-
+import starknet_py.cairo.deprecated_parse.cairo_types as cairo_lang_types
 from starknet_py.cairo.data_types import (
     ArrayType,
     CairoType,
@@ -14,6 +12,7 @@ from starknet_py.cairo.data_types import (
     StructType,
     TupleType,
 )
+from starknet_py.cairo.deprecated_parse.parser import parse
 
 
 class UnknownCairoTypeError(ValueError):
@@ -56,7 +55,7 @@ class TypeParser:
 
         :param type_string: type to parse.
         """
-        parsed = parse_type(type_string)
+        parsed = parse(type_string)
         return self._transform_cairo_lang_type(parsed)
 
     def _transform_cairo_lang_type(
