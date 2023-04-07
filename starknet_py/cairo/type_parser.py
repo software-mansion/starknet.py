@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import OrderedDict
-from typing import Dict
+from typing import Dict, cast
 
 import starknet_py.cairo.deprecated_parse.cairo_types as cairo_lang_types
 from starknet_py.cairo.data_types import (
@@ -81,11 +81,15 @@ class TypeParser:
         if isinstance(cairo_type, cairo_lang_types.TypeTuple):
             # Cairo returns is_named when there are no members
             if cairo_type.is_named and len(cairo_type.members) != 0:
+                assert all(member.name is not None for member in cairo_type.members)
+
                 return NamedTupleType(
                     OrderedDict(
-                        (member.name, self._transform_cairo_lang_type(member.typ))
+                        (
+                            cast(str, member.name),  # without that pyright is complaining
+                            self._transform_cairo_lang_type(member.typ),
+                        )
                         for member in cairo_type.members
-                        if member.name is not None  # just for typechecker
                     )
                 )
 
