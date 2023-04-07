@@ -54,6 +54,6 @@ class TypeParser:
 
     def _get_struct(self, identifier: TypeIdentifier):
         for struct_name in self.defined_types.keys():
-            if identifier.name in struct_name:
+            if identifier.name == struct_name.split("<")[0]:
                 return self.defined_types[struct_name]
         raise UnknownCairoTypeError(identifier.name)
