@@ -140,7 +140,7 @@ class AbiParser:
         for name, enum in enums.items():
             members = self._parse_members(
                 cast(List[TypedParameterDict], enum_members[name]),
-                f"members of structure '{name}'",
+                f"members of enum '{name}'",
             )
             enum.variants.update(members)
 
