@@ -14,8 +14,6 @@ from starknet_py.cairo.deprecated_parse.cairo_types import (
     TypeTuple,
 )
 
-DEFAULT_SHORT_STRING_MAX_LENGTH = 31
-
 
 @dataclasses.dataclass
 class ParserContext:
@@ -23,22 +21,14 @@ class ParserContext:
     Represents information that affects the parsing process.
     """
 
-    short_string_max_length: int = DEFAULT_SHORT_STRING_MAX_LENGTH
-    parent_location = None
-
     # If True, treat type identifiers as resolved.
     resolved_types: bool = False
 
 
 class ParserError(Exception):
-    def __init__(self, message):
-        """
-        Constructs an exception with (an optional) location information.
-        """
-        self.message = message
-
-    def __str__(self):
-        return self.message
+    """
+    Base exception for parsing process.
+    """
 
 
 @dataclasses.dataclass
@@ -53,7 +43,7 @@ class CommaSeparated:
 
 class ParserTransformer(Transformer):
     """
-    Transforms the lark tree into an AST based on the classes defined in ast/*.py.
+    Transforms the lark tree into an AST based on the classes defined in cairo_types.py.
     """
 
     # pylint: disable=unused-argument, no-self-use
