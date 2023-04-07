@@ -125,9 +125,9 @@ class FullNodeClient(Client):
             or literals `"pending"` or `"latest"`. Mutually exclusive with ``from_block_hash`` parameter.
         :param from_block_hash: Hash of the block from which events searched for **starts**
             or literals `"pending"` or `"latest"`. Mutually exclusive with ``from_block_number`` parameter.
-        :param to_block_number: Number of the block from which events searched for **ends**
+        :param to_block_number: Number of the block to which events searched for **end**
             or literals `"pending"` or `"latest"`. Mutually exclusive with ``to_block_hash`` parameter.
-        :param to_block_hash: Hash of the block from which events searched for **ends**
+        :param to_block_hash: Hash of the block to which events searched for **end**
             or literals `"pending"` or `"latest"`. Mutually exclusive with ``to_block_number`` parameter.
         :param follow_continuation_token: Flag deciding whether all events should be collected during one function call,
                 defaults to False.
