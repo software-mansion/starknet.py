@@ -75,10 +75,10 @@ class ParserTransformer(Transformer):
 
     def type_identifier(self, tokens: List[Token]) -> TypeIdentifier:
         """
-        Structs and enums are defined as follows: (IDENTIFIER | "::")+ ("<" type ">")*
-        where IDENTIFIER is some string.
+        Structs and enums are defined as follows: (IDENTIFIER | "::")+ [some not important info]
+        where IDENTIFIER is a string.
 
-        Tokens would contain strings and type (if it is present).
+        Tokens would contain strings and types (if it is present).
         We are interested only in the strings because a structure (or enum) name can be built from them.
         """
         name = "::".join(token for token in tokens if isinstance(token, str))
