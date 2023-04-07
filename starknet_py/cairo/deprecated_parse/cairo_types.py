@@ -1,13 +1,6 @@
 import dataclasses
 from abc import ABC, abstractmethod
-from contextlib import contextmanager
-from contextvars import ContextVar
-from enum import Enum, auto
 from typing import Iterator, List, Optional, Sequence
-
-add_backward_compatibility_space_ctx_var: ContextVar[int] = ContextVar(
-    "add_backward_compatibility_space", default=False
-)
 
 
 class AstNode(ABC):
@@ -25,21 +18,6 @@ class AstNode(ABC):
         yield self
         for child in filter(None, self.get_children()):
             yield from child.get_subtree()
-
-
-@contextmanager
-def add_backward_compatibility_space(value: bool):
-    """
-    Adds space before the colon when formatting named tuple types.
-    This should be used for backward compatibility in the contract hash computation in versions
-    before 0.10.0.
-    For example, use "(a : felt)" instead of "(a: felt)".
-    """
-    token = add_backward_compatibility_space_ctx_var.set(value)
-    try:
-        yield
-    finally:
-        add_backward_compatibility_space_ctx_var.reset(token)
 
 
 class CairoType(AstNode):
@@ -158,17 +136,6 @@ class TypeTuple(CairoType):
     @property
     def is_named(self) -> bool:
         return all(member.name is not None for member in self.members)
-
-
-class CastType(Enum):
-    # When the compiler creates a cast expression for references.
-    FORCED = 0
-    # When an explicit cast occurs using 'cast(*, *)'.
-    EXPLICIT = auto()
-    # When unpacking occurs (e.g., 'let (x: T) = foo();').
-    UNPACKING = auto()
-    # When a variable is initialized (e.g., 'tempvar x: T = 5;').
-    ASSIGN = auto()
 
 
 @dataclasses.dataclass

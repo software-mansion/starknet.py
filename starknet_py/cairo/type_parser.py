@@ -85,6 +85,7 @@ class TypeParser:
                     OrderedDict(
                         (member.name, self._transform_cairo_lang_type(member.typ))
                         for member in cairo_type.members
+                        if member.name is not None  # just for typechecker
                     )
                 )
 
