@@ -2087,6 +2087,40 @@ tomli = ">=1.2.2"
 poetry-plugin = ["poetry (>=1.0,<2.0)"]
 
 [[package]]
+name = "poseidon-py"
+version = "0.1.1"
+description = "Python implementation of Poseidon hash"
+category = "main"
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "poseidon_py-0.1.1-cp310-cp310-macosx_11_0_universal2.whl", hash = "sha256:dc20f06b6b435c666026554812e6cc57e97dac7ec09f97c5b48a108a7ebdb867"},
+    {file = "poseidon_py-0.1.1-cp310-cp310-macosx_12_0_universal2.whl", hash = "sha256:6df282c4ab206cf0395b50eb3c146c2634b68eebd7271a657500c5c3ffe4db8f"},
+    {file = "poseidon_py-0.1.1-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:a20255bb26bc21ba1a2d49bb849f898139cf1d07d5868239c07ade3c3693374e"},
+    {file = "poseidon_py-0.1.1-cp310-cp310-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:6a988873fef9582c8e528b08e0e3a7a144c3b03fb0bd202039b980d67d93e9af"},
+    {file = "poseidon_py-0.1.1-cp310-cp310-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:159aafcb5eda9535e3fda6fc10fee521813b8d3e9f1399ad16911dfb541b5738"},
+    {file = "poseidon_py-0.1.1-cp310-cp310-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:cc4c35b527eeb5873587812481d3f99f72dbe5645da73877bf35899d960d9af5"},
+    {file = "poseidon_py-0.1.1-cp310-cp310-musllinux_1_1_aarch64.whl", hash = "sha256:bf9a104cacb6ed6996d96061cd47c7f3183b47a327e025b718bc2d04c20f4df5"},
+    {file = "poseidon_py-0.1.1-cp310-cp310-musllinux_1_1_ppc64le.whl", hash = "sha256:0ef7b2fc7870f1373be05f71555899113d8b6b392aa0e8e3f2c198e010294cd9"},
+    {file = "poseidon_py-0.1.1-cp310-cp310-musllinux_1_1_s390x.whl", hash = "sha256:de79939923a32a5f4b43a6c8af4d30b78f838d8c8c87fe9da180f7861b864420"},
+    {file = "poseidon_py-0.1.1-cp310-cp310-musllinux_1_1_x86_64.whl", hash = "sha256:d86b1817ba94d2d18afd58e1ce8233c21a413850314b344c40b739c3c0c05f6a"},
+    {file = "poseidon_py-0.1.1-cp39-cp39-macosx_11_0_universal2.whl", hash = "sha256:67ce10c4d3cc9c65fc0c09e0cafa883c201438842c2ec8f1c3edd62a64637098"},
+    {file = "poseidon_py-0.1.1-cp39-cp39-macosx_12_0_universal2.whl", hash = "sha256:bfd570b8fc7e59782ca85f61e0400216794f953dec7f27afb11bf11e02c5c1fb"},
+    {file = "poseidon_py-0.1.1-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:5609f43afb57830702d4232bfde8b0bbc080c005db8778af4bec9aaa82bbb8ac"},
+    {file = "poseidon_py-0.1.1-cp39-cp39-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:5aac2644b521e262bb194567e59ee8022b02f5d8c3fd30640cd05967d826b4ad"},
+    {file = "poseidon_py-0.1.1-cp39-cp39-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:101eab3b7a337b9ee6032a40b3129490f527556e583253706f9b57291b8ae52b"},
+    {file = "poseidon_py-0.1.1-cp39-cp39-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:d63dde4d297cf49bf924db73225626bc4d5e482d3c385c8c4d205dc72dcdb7cb"},
+    {file = "poseidon_py-0.1.1-cp39-cp39-musllinux_1_1_aarch64.whl", hash = "sha256:127cb33ac562ce059a7dc41c0bf7aa30a8dbed50eb969c2a8d615feb77d5f505"},
+    {file = "poseidon_py-0.1.1-cp39-cp39-musllinux_1_1_ppc64le.whl", hash = "sha256:bd321cb1c462497c545b153805f9d0b20b97194f2aed612068d6f739501dda4d"},
+    {file = "poseidon_py-0.1.1-cp39-cp39-musllinux_1_1_s390x.whl", hash = "sha256:919d26c2d1b24a0b720ad54f72ce02c86aa947fd6604dd19a45176a7caf80821"},
+    {file = "poseidon_py-0.1.1-cp39-cp39-musllinux_1_1_x86_64.whl", hash = "sha256:198239dd2d2616b5eeb6902b98e3fb92500984cfc2ed87f507e16711724e21e1"},
+    {file = "poseidon_py-0.1.1.tar.gz", hash = "sha256:7a9a98a9d797fdd3cf8ac11bd3478335e79d7c0c63b1e86a95fd7b965a217f6e"},
+]
+
+[package.extras]
+build = ["make"]
+
+[[package]]
 name = "prometheus-client"
 version = "0.15.0"
 description = "Python client for the Prometheus monitoring system."
@@ -3455,4 +3489,4 @@ docs = ["enum-tools", "sphinx"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9, <3.10"
-content-hash = "75ce074d3613a2758ff9dc8973fd43d7e5589dcb69aa7a352ee40c422c1975c8"
+content-hash = "3fb9fb206aafca44652ecfcf2a87dafa197cb66fc505d3fa4bc9f31680f6b447"
