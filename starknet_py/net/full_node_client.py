@@ -119,8 +119,9 @@ class FullNodeClient(Client):
         # pylint: disable=too-many-arguments
         """
         :param address: The address of the contract that emitted the event.
+            Must be in a form of RPC accepted felt.
         :param keys: List of names of events that are searched for.
-                Must be in a form of RPC accepted felt after being hashed by `keccak` hash.
+            Must be in a form of RPC accepted felt after being hashed by `keccak` hash.
         :param from_block_number: Number of the block from which events searched for **starts**
             or literals `"pending"` or `"latest"`. Mutually exclusive with ``from_block_hash`` parameter.
         :param from_block_hash: Hash of the block from which events searched for **starts**
@@ -144,30 +145,17 @@ class FullNodeClient(Client):
                 from_block_hash, from_block_number
             ),
             "to_block": get_small_block_identifier(to_block_hash, to_block_number),
-            "address": _to_rpc_felt(address),
+            "address": address,
             "keys": keys,
         }
-
-        previous_continuation_token = None
 
         events_list = []
         while True:
             events, continuation_token = await self._get_events_chunk(params)
             events_list.extend(events)
-            # TODO //fix the condition after devnet change, should be `or not continuation_token`.
-            # TODO //As of now, devnet returns previous continuation token when there are no events.
-            # TODO //However, the json "result" part should only contain `"events": []` and nothing else.
-            # TODO //Right now we must check if the last returned continuation token is the same as the previous one.
-            # TODO //If so, the loop should break.
-
-            # TODO //Also FIX TESTS after that.
-            if (
-                not follow_continuation_token
-                or continuation_token == previous_continuation_token
-            ):
+            if not follow_continuation_token or continuation_token is None:
                 break
             params["continuation_token"] = continuation_token
-            previous_continuation_token = continuation_token
         events_response = cast(
             EventsResponse,
             EventsSchema().load(
@@ -180,12 +168,14 @@ class FullNodeClient(Client):
     async def _get_events_chunk(
         self,
         params: dict,
-    ) -> Tuple[list, str]:
+    ) -> Tuple[list, Optional[str]]:
         res = await self._client.call(
             method_name="getEvents",
             params={"filter": params},
         )
-        return res["events"], res["continuation_token"]
+        if "continuation_token" in res:
+            return res["events"], res["continuation_token"]
+        return res["events"], None
 
     async def get_state_update(
         self,
