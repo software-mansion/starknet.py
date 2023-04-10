@@ -24,7 +24,7 @@ marshmallow-oneofschema = "^3.0.1"
 typing-extensions = "^4.3.0"
 cairo-lang = "^0.11.0.2"
 eth-utils = "^2.1.0"
-furo = "^2022.12.7"
+furo = "^2023.3.27"
 marshmallow-dataclass = "<8.5.0"
 
 [tool.poetry.extras]
