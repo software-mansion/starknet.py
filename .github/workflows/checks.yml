@@ -102,9 +102,6 @@ jobs:
         if: steps.cache-contracts.outputs.cache-hit != 'true'
         run: |
           poetry run poe compile_contracts
-      - name: Check circular imports
-        run: |
-          poetry run poe circular_imports_check
 
       - name: Install rust
         run: |
@@ -153,6 +150,10 @@ jobs:
         if: steps.cache-contracts-v1.outputs.cache-hit != 'true'
         run: |
           poetry run poe compile_contracts_v1
+
+      - name: Check circular imports
+        run: |
+          poetry run poe circular_imports_check
 
       - name: Unit & e2e test
         run: |
