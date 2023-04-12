@@ -32,10 +32,10 @@ class TypeParser:
         :param defined_types: dictionary containing all defined types. For now, they can only be structures.
         """
         self.defined_types = defined_types
-        for name, struct in defined_types.items():
-            if name != struct.name:
+        for name, defined_type in defined_types.items():
+            if name != defined_type.name:
                 raise ValueError(
-                    f"Keys must match name of type, '{name}' != '{struct.name}'."
+                    f"Keys must match name of type, '{name}' != '{defined_type.name}'."
                 )
 
     def parse_inline_type(self, type_string: str) -> CairoType:
