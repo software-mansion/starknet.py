@@ -33,7 +33,7 @@ Unfortunately, as a result of adaptation to support `cairo-lang` newest package,
 The only supported Python version is 3.9.
 
 
-Deprecations
+0.15.0 Deprecations
 ------------
 
 - ``compute_invoke_hash`` is deprecated in favour of ``compute_transaction_hash``
