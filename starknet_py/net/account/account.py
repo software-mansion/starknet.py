@@ -1,6 +1,5 @@
 import dataclasses
 import json
-import re
 import warnings
 from collections import OrderedDict
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
@@ -9,10 +8,10 @@ from starknet_py.common import create_compiled_contract, create_sierra_compiled_
 from starknet_py.constants import FEE_CONTRACT_ADDRESS, QUERY_VERSION_BASE
 from starknet_py.hash.address import compute_address
 from starknet_py.hash.selector import get_selector_from_name
+from starknet_py.hash.utils import verify_message_signature
 from starknet_py.net.account.account_deployment_result import AccountDeploymentResult
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
-from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     Call,
     Calls,
@@ -164,29 +163,6 @@ class Account(BaseAccount):
         max_fee = await self._get_max_fee(transaction, max_fee, auto_estimate)
 
         return _add_max_fee_to_transaction(transaction, max_fee)
-
-    async def _verify_message_hash(self, msg_hash: int, signature: List[int]) -> bool:
-        """
-        Verify a signature of a given hash.
-
-        :param msg_hash: hash to be verified.
-        :param signature: signature of the hash.
-        :return: true if the signature is valid, false otherwise.
-        """
-        calldata = [msg_hash, len(signature), *signature]
-
-        call = Call(
-            to_addr=self.address,
-            selector=get_selector_from_name("is_valid_signature"),
-            calldata=calldata,
-        )
-        try:
-            await self._client.call_contract(call=call, block_hash="pending")
-            return True
-        except ClientError as ex:
-            if re.search(r"Signature\s.+,\sis\sinvalid", ex.message):
-                return False
-            raise ex
 
     async def _estimate_fee(
         self,
@@ -369,10 +345,10 @@ class Account(BaseAccount):
         typed_data_dataclass = TypedDataDataclass.from_dict(typed_data)
         return self.signer.sign_message(typed_data_dataclass, self.address)
 
-    async def verify_message(self, typed_data: TypedData, signature: List[int]) -> bool:
+    def verify_message(self, typed_data: TypedData, signature: List[int]) -> bool:
         typed_data_dataclass = TypedDataDataclass.from_dict(typed_data)
         message_hash = typed_data_dataclass.message_hash(account_address=self.address)
-        return await self._verify_message_hash(message_hash, signature)
+        return verify_message_signature(message_hash, signature, self.signer.public_key)
 
     @staticmethod
     async def deploy_account(

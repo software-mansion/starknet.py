@@ -1,15 +1,17 @@
 import functools
-from typing import Optional, Sequence
+from typing import List, Optional, Sequence
 
 from crypto_cpp_py.cpp_bindings import (
     ECSignature,
     cpp_get_public_key,
     cpp_hash,
     cpp_sign,
+    cpp_verify,
 )
 from eth_utils.crypto import keccak
 
 from starknet_py.common import int_from_bytes
+from starknet_py.constants import EC_ORDER
 
 MASK_250 = 2**250 - 1
 
@@ -47,6 +49,18 @@ def message_signature(
     Signs the message with private key.
     """
     return cpp_sign(msg_hash, priv_key, seed)
+
+
+def verify_message_signature(
+    msg_hash: int, signature: List[int], public_key: int
+) -> bool:
+    """
+    Verifies ECDSA signature of a given message hash with a given public key.
+    Returns true if public_key signs the message.
+    """
+    sig_r, sig_s = signature
+    sig_w = pow(sig_s, -1, EC_ORDER)
+    return cpp_verify(msg_hash=msg_hash, r=sig_r, w=sig_w, stark_key=public_key)
 
 
 def private_to_stark_key(priv_key: int) -> int:
