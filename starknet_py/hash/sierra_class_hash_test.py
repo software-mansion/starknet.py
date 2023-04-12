@@ -12,6 +12,7 @@ from starkware.starknet.services.api.contract_class.contract_class import (
 from starknet_py.hash.sierra_class_hash import compute_sierra_class_hash
 from starknet_py.net.client_models import SierraContractClass
 from starknet_py.net.schemas.gateway import SierraContractClassSchema
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V1_DIR
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
@@ -23,9 +24,7 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
     ],
 )
 def test_compute_sierra_class_hash(sierra_contract_class_source):
-    sierra_contract_class_str = read_contract(
-        "precompiled/" + sierra_contract_class_source
-    )
+    sierra_contract_class_str = read_contract(sierra_contract_class_source, directory=CONTRACTS_COMPILED_V1_DIR)
     sierra_contract_class_dict = json.loads(sierra_contract_class_str)
     sierra_contract_class_dict["abi"] = json.dumps(sierra_contract_class_dict["abi"])
     del sierra_contract_class_dict["sierra_program_debug_info"]
