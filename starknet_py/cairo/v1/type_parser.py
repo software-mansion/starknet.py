@@ -41,7 +41,7 @@ class TypeParser:
     def parse_inline_type(self, type_string: str) -> CairoType:
         """
         Inline type is one that can be used inline, for instance as return type. For instance
-        (a: Uint256, b: felt*, c: (felt, felt)). Structure can only be referenced in inline type, can't be defined
+        (core::felt252, (), (core::felt252,)). Structure can only be referenced in inline type, can't be defined
         this way.
 
         :param type_string: type to parse.
