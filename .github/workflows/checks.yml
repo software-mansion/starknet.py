@@ -102,16 +102,6 @@ jobs:
         if: steps.cache-contracts.outputs.cache-hit != 'true'
         run: |
           poetry run poe compile_contracts
-      - name: Cache Cairo1 contracts
-        id: cache-contracts-v1
-        uses: actions/cache@v3
-        with:
-          path: starknet_py/tests/e2e/mock/contracts_compiled_v1
-          key: ${{ runner.os }}-contracts-v1-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v1', 'poetry.lock') }}
-      - name: Compile Cairo1 contracts
-        if: steps.cache-contracts-v1.outputs.cache-hit != 'true'
-        run: |
-          poetry run poe compile_contracts_v1
       - name: Check circular imports
         run: |
           poetry run poe circular_imports_check
@@ -153,6 +143,17 @@ jobs:
         run: |
           readlink -f cairo/Cargo.toml >> starknet_py/tests/e2e/manifest-path
 
+      - name: Cache Cairo1 contracts
+        id: cache-contracts-v1
+        uses: actions/cache@v3
+        with:
+          path: starknet_py/tests/e2e/mock/contracts_compiled_v1
+          key: ${{ runner.os }}-contracts-v1-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v1', 'poetry.lock') }}
+      - name: Compile Cairo1 contracts
+        if: steps.cache-contracts-v1.outputs.cache-hit != 'true'
+        run: |
+          poetry run poe compile_contracts_v1
+
       - name: Unit & e2e test
         run: |
           poetry run poe test_ci
@@ -193,16 +194,6 @@ jobs:
         if: steps.cache-contracts.outputs.cache-hit != 'true'
         run: |
           poetry run poe compile_contracts
-      - name: Cache Cairo1 contracts
-        id: cache-contracts-v1
-        uses: actions/cache@v3
-        with:
-          path: starknet_py/tests/e2e/mock/contracts_compiled_v1
-          key: ${{ runner.os }}-contracts-v1-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v1', 'poetry.lock') }}
-      - name: Compile Cairo1 contracts
-        if: steps.cache-contracts-v1.outputs.cache-hit != 'true'
-        run: |
-          poetry run poe compile_contracts_v1
 
       - name: Install rust
         run: |
@@ -240,6 +231,17 @@ jobs:
       - name: Create manifest file
         run: |
           readlink -f cairo/Cargo.toml >> starknet_py/tests/e2e/manifest-path
+
+      - name: Cache Cairo1 contracts
+        id: cache-contracts-v1
+        uses: actions/cache@v3
+        with:
+          path: starknet_py/tests/e2e/mock/contracts_compiled_v1
+          key: ${{ runner.os }}-contracts-v1-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v1', 'poetry.lock') }}
+      - name: Compile Cairo1 contracts
+        if: steps.cache-contracts-v1.outputs.cache-hit != 'true'
+        run: |
+          poetry run poe compile_contracts_v1
 
       - name: Docs test
         run: |
