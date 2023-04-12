@@ -2,6 +2,16 @@ Migration guide
 ===============
 
 **********************
+0.16.0 Migration guide
+**********************
+
+Deprecations
+------------
+
+- Python implementation of pedersen hash in :meth:`~starknet_py.hash.utils.pedersen_hash` function is deprecated in favour of `crypto-cpp-py` library implementation.
+
+
+**********************
 0.15.0 Migration guide
 **********************
 

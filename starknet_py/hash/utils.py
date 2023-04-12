@@ -1,11 +1,14 @@
 import functools
+import warnings
 from typing import Optional, Sequence
 
 from crypto_cpp_py.cpp_bindings import ECSignature, cpp_hash
 from eth_utils.crypto import keccak
+from starkware.cairo.lang.vm.crypto import pedersen_hash as default_hash
 from starkware.crypto.signature.signature import sign
 
 from starknet_py.common import int_from_bytes
+from starknet_py.utils.crypto.facade import use_cpp_variant
 
 MASK_250 = 2**250 - 1
 
@@ -21,7 +24,15 @@ def pedersen_hash(left: int, right: int) -> int:
     """
     One of two hash functions (along with _starknet_keccak) used throughout StarkNet.
     """
-    return cpp_hash(left, right)
+    if use_cpp_variant():
+        return cpp_hash(left, right)
+    warnings.warn(
+        "Python implementation of `pedersen_hash` will be deprecated in the future. "
+        "Consider using `crypto-cpp-py` implementation by disabling the DISABLE_CRYPTO_C_EXTENSION environmental "
+        "variable.",
+        category=DeprecationWarning,
+    )
+    return default_hash(left, right)
 
 
 def compute_hash_on_elements(data: Sequence) -> int:
