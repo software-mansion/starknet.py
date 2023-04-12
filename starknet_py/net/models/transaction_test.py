@@ -68,7 +68,9 @@ def test_declare_compress_program(balance_contract):
 
 
 compiled_contract = read_contract("erc20_compiled.json")
-sierra_compiled_contract = read_contract("minimal_contract_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR)
+sierra_compiled_contract = read_contract(
+    "minimal_contract_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
+)
 
 
 @pytest.mark.parametrize(

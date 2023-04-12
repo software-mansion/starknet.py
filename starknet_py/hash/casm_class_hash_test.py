@@ -19,11 +19,13 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
         "hello_starknet_compiled.casm",
         "account_compiled.casm",
         "erc20_compiled.casm",
-        "test_contract_compiled.casm"
+        "test_contract_compiled.casm",
     ],
 )
 def test_compute_casm_class_hash(casm_contract_class_source):
-    casm_contract_class_str = read_contract(casm_contract_class_source, directory=CONTRACTS_COMPILED_V1_DIR)
+    casm_contract_class_str = read_contract(
+        casm_contract_class_source, directory=CONTRACTS_COMPILED_V1_DIR
+    )
 
     sw_compiled_class = SwCompiledClass.loads(casm_contract_class_str)
     sw_compiled_class_hash = sw_compute_compiled_class_hash(sw_compiled_class)

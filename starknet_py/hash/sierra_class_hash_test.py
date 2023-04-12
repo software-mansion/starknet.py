@@ -24,7 +24,9 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
     ],
 )
 def test_compute_sierra_class_hash(sierra_contract_class_source):
-    sierra_contract_class_str = read_contract(sierra_contract_class_source, directory=CONTRACTS_COMPILED_V1_DIR)
+    sierra_contract_class_str = read_contract(
+        sierra_contract_class_source, directory=CONTRACTS_COMPILED_V1_DIR
+    )
     sierra_contract_class_dict = json.loads(sierra_contract_class_str)
     sierra_contract_class_dict["abi"] = json.dumps(sierra_contract_class_dict["abi"])
     del sierra_contract_class_dict["sierra_program_debug_info"]

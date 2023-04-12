@@ -4,13 +4,17 @@ from typing import List, Tuple
 import pytest
 import pytest_asyncio
 
-from starknet_py.common import create_compiled_contract, create_casm_class
+from starknet_py.common import create_casm_class, create_compiled_contract
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.contract import Contract
 from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_DIR, MAX_FEE, CONTRACTS_V1_DIR, CONTRACTS_COMPILED_V1_DIR
+from starknet_py.tests.e2e.fixtures.constants import (
+    CONTRACTS_COMPILED_V1_DIR,
+    CONTRACTS_DIR,
+    MAX_FEE,
+)
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
@@ -35,8 +39,12 @@ def sierra_minimal_compiled_contract_and_class_hash() -> Tuple[str, int]:
     """
     Returns minimal contract compiled to sierra and its class hash.
     """
-    compiled_contract = read_contract("minimal_contract_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR)
-    compiled_contract_casm = read_contract("minimal_contract_compiled.casm", directory=CONTRACTS_COMPILED_V1_DIR)
+    compiled_contract = read_contract(
+        "minimal_contract_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
+    )
+    compiled_contract_casm = read_contract(
+        "minimal_contract_compiled.casm", directory=CONTRACTS_COMPILED_V1_DIR
+    )
     return (
         compiled_contract,
         compute_casm_class_hash(create_casm_class(compiled_contract_casm)),
