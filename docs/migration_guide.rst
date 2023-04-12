@@ -34,7 +34,7 @@ The only supported Python version is 3.9.
 
 
 0.15.0 Deprecations
-------------
+-------------------
 
 - ``compute_invoke_hash`` is deprecated in favour of ``compute_transaction_hash``
 - ``starknet_py.common.create_contract_class`` is deprecated in favour of ``starknet_py.common.create_compiled_contract``
