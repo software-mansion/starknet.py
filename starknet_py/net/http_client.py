@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Any, Dict, List, Optional, Union
 
-from aiohttp import ClientResponse, ClientSession
+from aiohttp import ClientResponse, ClientSession, ClientTimeout
 
 from starknet_py.net.client_errors import ClientError
 
@@ -33,7 +33,7 @@ class HttpClient(ABC):
         if self.session:
             return await self._make_request(session=self.session, **kwargs)
 
-        async with ClientSession() as session:
+        async with ClientSession(timeout=ClientTimeout(total=100000000000)) as session:
             return await self._make_request(session=session, **kwargs)
 
     async def _make_request(

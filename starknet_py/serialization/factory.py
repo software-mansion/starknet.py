@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import OrderedDict
-from typing import Dict
+from typing import Dict, List
 
 from starknet_py.abi.model import Abi
 from starknet_py.cairo.data_types import (
@@ -11,6 +11,7 @@ from starknet_py.cairo.data_types import (
     NamedTupleType,
     StructType,
     TupleType,
+    UintType,
 )
 from starknet_py.serialization.data_serializers.array_serializer import ArraySerializer
 from starknet_py.serialization.data_serializers.cairo_data_serializer import (
@@ -19,6 +20,9 @@ from starknet_py.serialization.data_serializers.cairo_data_serializer import (
 from starknet_py.serialization.data_serializers.felt_serializer import FeltSerializer
 from starknet_py.serialization.data_serializers.named_tuple_serializer import (
     NamedTupleSerializer,
+)
+from starknet_py.serialization.data_serializers.output_serializer import (
+    OutputSerializer,
 )
 from starknet_py.serialization.data_serializers.payload_serializer import (
     PayloadSerializer,
@@ -30,6 +34,7 @@ from starknet_py.serialization.data_serializers.tuple_serializer import TupleSer
 from starknet_py.serialization.data_serializers.uint256_serializer import (
     Uint256Serializer,
 )
+from starknet_py.serialization.data_serializers.uint_serializer import UintSerializer
 from starknet_py.serialization.errors import InvalidTypeException
 from starknet_py.serialization.function_serialization_adapter import (
     FunctionSerializationAdapter,
@@ -76,6 +81,9 @@ def serializer_for_type(cairo_type: CairoType) -> CairoDataSerializer:
             )
         )
 
+    if isinstance(cairo_type, UintType):
+        return UintSerializer(bits=cairo_type.bits)
+
     raise InvalidTypeException(f"Received unknown Cairo type '{cairo_type}'.")
 
 
@@ -93,6 +101,12 @@ def serializer_for_payload(payload: Dict[str, CairoType]) -> PayloadSerializer:
             (name, serializer_for_type(cairo_type))
             for name, cairo_type in payload.items()
         )
+    )
+
+
+def serializer_for_outputs(payload: List[CairoType]) -> OutputSerializer:
+    return OutputSerializer(
+        serializers=[serializer_for_type(cairo_type) for cairo_type in payload]
     )
 
 
@@ -116,4 +130,17 @@ def serializer_for_function(abi_function: Abi.Function) -> FunctionSerialization
     return FunctionSerializationAdapter(
         inputs_serializer=serializer_for_payload(abi_function.inputs),
         outputs_deserializer=serializer_for_payload(abi_function.outputs),
+    )
+
+
+def serializer_for_function_v1(abi_function: Abi.Function) -> FunctionSerializationAdapter:
+    """
+    Create FunctionSerializationAdapter for serializing function inputs and deserializing function outputs.
+
+    :param abi_function: parsed function's abi.
+    :return: FunctionSerializationAdapter.
+    """
+    return FunctionSerializationAdapter(
+        inputs_serializer=serializer_for_payload(abi_function.inputs),
+        outputs_deserializer=serializer_for_outputs(abi_function.outputs),
     )

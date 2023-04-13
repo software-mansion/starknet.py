@@ -4,6 +4,9 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Set, Tuple
 
 from starknet_py.cairo.felt import CairoData
+from starknet_py.serialization.data_serializers.output_serializer import (
+    OutputSerializer,
+)
 from starknet_py.serialization.data_serializers.payload_serializer import (
     PayloadSerializer,
 )
