@@ -129,6 +129,7 @@ async def test_get_events_without_following_continuation_token(
         await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke(
             i, i, auto_estimate=True
         )
+
     chunk_size = 3
     events_response = await full_node_client.get_events(
         from_block_number=0,
@@ -138,6 +139,7 @@ async def test_get_events_without_following_continuation_token(
         follow_continuation_token=False,
         chunk_size=chunk_size,
     )
+
     assert len(events_response.events) == chunk_size
     assert events_response.continuation_token is not None
 
@@ -153,6 +155,7 @@ async def test_get_events_follow_continuation_token(
         await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke(
             i, i + 1, auto_estimate=True
         )
+
     events_response = await full_node_client.get_events(
         from_block_number=0,
         to_block_hash="latest",
@@ -161,6 +164,7 @@ async def test_get_events_follow_continuation_token(
         follow_continuation_token=True,
         chunk_size=1,
     )
+
     assert len(events_response.events) == total_invokes
     assert events_response.continuation_token is None
 
@@ -174,6 +178,7 @@ async def test_get_events_nonexistent_event_name(
     await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke(
         1, 1, auto_estimate=True
     )
+
     events_response = await full_node_client.get_events(
         from_block_number=0,
         to_block_hash="latest",
@@ -182,6 +187,7 @@ async def test_get_events_nonexistent_event_name(
         follow_continuation_token=False,
         chunk_size=3,
     )
+
     assert len(events_response.events) == 0
     assert events_response.continuation_token is None
 
@@ -202,6 +208,7 @@ async def test_get_events_with_two_events(
         await simple_storage_with_event_contract.functions[FUNCTION_TWO_NAME].invoke(
             i, i + 1, auto_estimate=True
         )
+
     event_one_events_response = await full_node_client.get_events(
         from_block_number=0,
         to_block_hash="latest",
@@ -223,6 +230,7 @@ async def test_get_events_with_two_events(
         keys=[EVENT_ONE_PARSED_NAME, EVENT_TWO_PARSED_NAME],
         follow_continuation_token=True,
     )
+
     assert len(event_one_events_response.events) == invokes_of_one
     assert event_one_events_response.continuation_token is None
 
@@ -243,6 +251,7 @@ async def test_get_events_start_from_continuation_token(
         await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke(
             i, i + 1, auto_estimate=True
         )
+
     chunk_size = 2
     continuation_token = "1"
     events_response = await full_node_client.get_events(
@@ -254,6 +263,7 @@ async def test_get_events_start_from_continuation_token(
         chunk_size=chunk_size,
     )
     expected_continuation_token = str(int(continuation_token) + 1)
+
     assert len(events_response.events) == chunk_size
     assert events_response.continuation_token == expected_continuation_token
 
