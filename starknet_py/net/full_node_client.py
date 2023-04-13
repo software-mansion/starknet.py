@@ -114,6 +114,7 @@ class FullNodeClient(Client):
         to_block_number: Optional[Union[int, Tag]] = None,
         to_block_hash: Optional[Union[Hash, Tag]] = None,
         follow_continuation_token: bool = False,
+        continuation_token: Optional[str] = None,
         chunk_size: int = 1,
     ) -> EventsResponse:
         # pylint: disable=too-many-arguments
@@ -131,24 +132,27 @@ class FullNodeClient(Client):
         :param to_block_hash: Hash of the block to which events searched for **end**
             or literals `"pending"` or `"latest"`. Mutually exclusive with ``to_block_number`` parameter.
         :param follow_continuation_token: Flag deciding whether all events should be collected during one function call,
-                defaults to False.
+            defaults to False.
+        :param continuation_token: Continuation token from which the returned events start.
         :param chunk_size: Size of chunk of events returned by one ``get_events`` call, defaults to 1 (minimum).
 
         :return: ``EventsResponse`` dataclass containing events and optional continuation token.
         """
 
         if chunk_size <= 0:
-            raise ValueError("Argument chunk_size must be grater than 0.")
+            raise ValueError("Argument chunk_size must be greater than 0.")
         params = {
             "chunk_size": chunk_size,
             "from_block": get_small_block_identifier(
                 from_block_hash, from_block_number
             ),
             "to_block": get_small_block_identifier(to_block_hash, to_block_number),
-            "address": address,
+            "address": _to_rpc_felt(address),
             "keys": keys,
         }
 
+        if continuation_token is not None:
+            params["continuation_token"] = continuation_token
         events_list = []
         while True:
             events, continuation_token = await self._get_events_chunk(params)
@@ -487,10 +491,7 @@ def get_small_block_identifier(
             "Arguments block_hash and block_number are mutually exclusive."
         )
 
-    if block_hash in ("latest", "pending") or block_number in (
-        "latest",
-        "pending",
-    ):
+    if block_hash in ("latest", "pending") or block_number in ("latest", "pending"):
         return block_hash or block_number
 
     if block_hash is not None:

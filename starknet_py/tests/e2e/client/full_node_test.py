@@ -15,10 +15,6 @@ def _parse_event_name(event: str) -> str:
     return _to_rpc_felt(get_selector_from_name(event))
 
 
-def _parse_account(account: int) -> str:
-    return _to_rpc_felt(account)
-
-
 FUNCTION_ONE_NAME = "put"
 EVENT_ONE_PARSED_NAME = _parse_event_name("put_called")
 FUNCTION_TWO_NAME = "another_put"
@@ -125,7 +121,7 @@ async def test_get_storage_at_incorrect_address_full_node_client(full_node_clien
 
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
-async def test_get_events_with_single_event_no_continuation_token(
+async def test_get_events_without_following_continuation_token(
     full_node_client,
     simple_storage_with_event_contract: Contract,
 ):
@@ -137,7 +133,7 @@ async def test_get_events_with_single_event_no_continuation_token(
     events_response = await full_node_client.get_events(
         from_block_number=0,
         to_block_hash="latest",
-        address=_parse_account(simple_storage_with_event_contract.address),
+        address=simple_storage_with_event_contract.address,
         keys=[EVENT_ONE_PARSED_NAME],
         follow_continuation_token=False,
         chunk_size=chunk_size,
@@ -148,7 +144,7 @@ async def test_get_events_with_single_event_no_continuation_token(
 
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
-async def test_get_events_with_single_event_follow_continuation_token(
+async def test_get_events_follow_continuation_token(
     full_node_client,
     simple_storage_with_event_contract: Contract,
 ):
@@ -160,7 +156,7 @@ async def test_get_events_with_single_event_follow_continuation_token(
     events_response = await full_node_client.get_events(
         from_block_number=0,
         to_block_hash="latest",
-        address=_parse_account(simple_storage_with_event_contract.address),
+        address=simple_storage_with_event_contract.address,
         keys=[EVENT_ONE_PARSED_NAME],
         follow_continuation_token=True,
         chunk_size=1,
@@ -171,7 +167,7 @@ async def test_get_events_with_single_event_follow_continuation_token(
 
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
-async def test_get_events_with_single_event_nonexistent_event_name(
+async def test_get_events_nonexistent_event_name(
     full_node_client,
     simple_storage_with_event_contract: Contract,
 ):
@@ -181,7 +177,7 @@ async def test_get_events_with_single_event_nonexistent_event_name(
     events_response = await full_node_client.get_events(
         from_block_number=0,
         to_block_hash="latest",
-        address=_parse_account(simple_storage_with_event_contract.address),
+        address=simple_storage_with_event_contract.address,
         keys=[_parse_event_name("nonexistent_event")],
         follow_continuation_token=False,
         chunk_size=3,
@@ -209,21 +205,21 @@ async def test_get_events_with_two_events(
     event_one_events_response = await full_node_client.get_events(
         from_block_number=0,
         to_block_hash="latest",
-        address=_parse_account(simple_storage_with_event_contract.address),
+        address=simple_storage_with_event_contract.address,
         keys=[EVENT_ONE_PARSED_NAME],
         follow_continuation_token=True,
     )
     event_two_events_response = await full_node_client.get_events(
         from_block_number=0,
         to_block_hash="latest",
-        address=_parse_account(simple_storage_with_event_contract.address),
+        address=simple_storage_with_event_contract.address,
         keys=[EVENT_TWO_PARSED_NAME],
         follow_continuation_token=True,
     )
     event_one_two_events_response = await full_node_client.get_events(
         from_block_number=0,
         to_block_hash="latest",
-        address=_parse_account(simple_storage_with_event_contract.address),
+        address=simple_storage_with_event_contract.address,
         keys=[EVENT_ONE_PARSED_NAME, EVENT_TWO_PARSED_NAME],
         follow_continuation_token=True,
     )
@@ -239,6 +235,31 @@ async def test_get_events_with_two_events(
 
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
+async def test_get_events_start_from_continuation_token(
+    full_node_client,
+    simple_storage_with_event_contract: Contract,
+):
+    for i in range(5):
+        await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke(
+            i, i + 1, auto_estimate=True
+        )
+    chunk_size = 2
+    continuation_token = "1"
+    events_response = await full_node_client.get_events(
+        from_block_number=0,
+        to_block_hash="latest",
+        address=simple_storage_with_event_contract.address,
+        keys=[EVENT_ONE_PARSED_NAME],
+        continuation_token=continuation_token,
+        chunk_size=chunk_size,
+    )
+    expected_continuation_token = str(int(continuation_token) + 1)
+    assert len(events_response.events) == chunk_size
+    assert events_response.continuation_token == expected_continuation_token
+
+
+@pytest.mark.run_on_devnet
+@pytest.mark.asyncio
 async def test_get_events_nonexistent_starting_block(
     full_node_client,
     simple_storage_with_event_contract: Contract,
@@ -247,7 +268,7 @@ async def test_get_events_nonexistent_starting_block(
         await full_node_client.get_events(
             from_block_number=10000,
             to_block_hash="latest",
-            address=_parse_account(simple_storage_with_event_contract.address),
+            address=simple_storage_with_event_contract.address,
             keys=[EVENT_ONE_PARSED_NAME],
             follow_continuation_token=False,
             chunk_size=1,
