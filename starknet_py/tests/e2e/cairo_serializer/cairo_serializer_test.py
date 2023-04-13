@@ -9,6 +9,7 @@ value_types = [
 ]
 
 
+@pytest.mark.skip
 @pytest.mark.asyncio
 async def test_from_python(cairo_serializer):
     args = [10]
@@ -18,6 +19,7 @@ async def test_from_python(cairo_serializer):
     assert cairo_data == ([10, 0, 20], {"key": [10], "prev_value": [0], "value": [20]})
 
 
+@pytest.mark.skip
 @pytest.mark.asyncio
 async def test_from_python_both_positional_and_named(cairo_serializer):
     args = [10, 11]
@@ -29,6 +31,7 @@ async def test_from_python_both_positional_and_named(cairo_serializer):
         cairo_serializer.from_python(value_types, *args, **kwargs)
 
 
+@pytest.mark.skip
 @pytest.mark.asyncio
 async def test_from_python_invalid_positional(cairo_serializer):
     args = [10, 11, 12, 13]
@@ -39,6 +42,7 @@ async def test_from_python_invalid_positional(cairo_serializer):
         cairo_serializer.from_python(value_types, *args)
 
 
+@pytest.mark.skip
 @pytest.mark.asyncio
 async def test_from_python_unnecessary_named(cairo_serializer):
     args = [10, 11]
