@@ -37,7 +37,7 @@ def map_compiled_contract() -> str:
 @pytest.fixture(scope="package")
 def sierra_minimal_compiled_contract_and_class_hash() -> Tuple[str, int]:
     """
-    Returns minimal contract compiled to sierra and its class hash.
+    Returns minimal contract compiled to sierra and its compiled class hash.
     """
     compiled_contract = read_contract(
         "minimal_contract_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
