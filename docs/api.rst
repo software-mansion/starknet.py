@@ -11,7 +11,6 @@ API
    api/contract
    api/udc_deployer
    api/hash
-   api/compiler
    api/signer
    api/models
    api/abi
