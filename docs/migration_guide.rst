@@ -10,6 +10,13 @@ Breaking changes
 
 - :meth:`~starknet_py.hash.utils.pedersen_hash` function implementation has been changed, now uses only `crypto-cpp-py` library implementation.
 
+|
+
+.. raw:: html
+
+  <hr>
+
+|
 
 **********************
 0.15.0 Migration guide
