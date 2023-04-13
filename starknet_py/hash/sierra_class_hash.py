@@ -1,6 +1,6 @@
 from typing import List
 
-from starkware.cairo.common.poseidon_hash import poseidon_hash_many
+from poseidon_py.poseidon_hash import poseidon_hash_many
 
 from starknet_py.cairo.felt import encode_shortstring
 from starknet_py.hash.utils import _starknet_keccak
