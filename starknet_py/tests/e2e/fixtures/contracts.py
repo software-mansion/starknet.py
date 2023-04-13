@@ -257,7 +257,7 @@ def constructor_with_arguments_abi() -> List:
     Returns an abi of the constructor_with_arguments.cairo.
     """
     compiled_contract = create_compiled_contract(
-        compilation_source=constructor_with_arguments_source
+        compiled_contract=read_contract("constructor_with_arguments_compiled.json")
     )
     assert compiled_contract.abi is not None
     return compiled_contract.abi
