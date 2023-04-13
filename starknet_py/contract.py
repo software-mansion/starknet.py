@@ -7,8 +7,6 @@ from functools import cached_property
 from typing import Dict, List, Optional, Tuple, TypeVar, Union
 
 from marshmallow import ValidationError
-from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
-from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 
 from starknet_py.abi.model import Abi
 from starknet_py.abi.parser import AbiParser
@@ -45,13 +43,6 @@ TypeSentTransaction = TypeVar("TypeSentTransaction", bound="SentTransaction")
 class ContractData:
     address: int
     abi: ABI
-
-    @cached_property
-    def identifier_manager(self) -> IdentifierManager:
-        warnings.warn(
-            "Using identifier_manager from ContractData has been deprecated. Consider using parsed_abi instead."
-        )
-        return identifier_manager_from_abi(self.abi)
 
     @cached_property
     def parsed_abi(self) -> Abi:
