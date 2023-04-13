@@ -10,6 +10,8 @@ Breaking changes
 
 - :meth:`~starknet_py.hash.utils.pedersen_hash` function implementation has been changed, now uses only `crypto-cpp-py` library implementation.
 
+- Deprecated ``ContractData.identifier_manager`` has been removed. Use ``ContractData.parsed_abi`` instead.
+
 |
 
 .. raw:: html
