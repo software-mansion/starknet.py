@@ -78,28 +78,6 @@ def typed_data(request) -> TypedData:
     return typed_data
 
 
-@pytest_asyncio.fixture(scope="package")
-async def cairo_serializer(
-    gateway_account: Account,
-) -> CairoSerializer:
-    """
-    Returns CairoSerializer for "simple_storage_with_event.cairo".
-    """
-    account = gateway_account
-    compiled_contract = read_contract("simple_storage_with_event_compiled.json")
-
-    declare_result = await Contract.declare(
-        account=account, compiled_contract=compiled_contract, max_fee=MAX_FEE
-    )
-    await declare_result.wait_for_acceptance()
-    deploy_result = await declare_result.deploy(max_fee=MAX_FEE)
-    await deploy_result.wait_for_acceptance()
-
-    contract = deploy_result.deployed_contract
-
-    return CairoSerializer(identifier_manager=contract.data.identifier_manager)
-
-
 def read_contract(file_name: str, *, directory: Path = CONTRACTS_COMPILED_DIR) -> str:
     """
     Return contents of file_name from directory.
