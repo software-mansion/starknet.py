@@ -20,6 +20,7 @@ from starknet_py.net.models.transaction import (
     InvokeSchema,
     compute_invoke_hash,
 )
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V1_DIR
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
@@ -67,7 +68,9 @@ def test_declare_compress_program(balance_contract):
 
 
 compiled_contract = read_contract("erc20_compiled.json")
-sierra_compiled_contract = read_contract("precompiled/minimal_contract_compiled.json")
+sierra_compiled_contract = read_contract(
+    "minimal_contract_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
+)
 
 
 @pytest.mark.parametrize(
@@ -121,7 +124,7 @@ sierra_compiled_contract = read_contract("precompiled/minimal_contract_compiled.
                 signature=[0x1, 0x2],
                 version=2,
             ),
-            1060028572003053454264880444429114465277231377909922229124671748389152379023,
+            669407379128146207315662195646033049577214993241551268214610074015474911988,
         ),
     ],
 )

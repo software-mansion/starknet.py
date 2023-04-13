@@ -4,12 +4,16 @@ from typing import List, Tuple
 import pytest
 import pytest_asyncio
 
-from starknet_py.common import create_compiled_contract
+from starknet_py.common import create_casm_class, create_compiled_contract
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.contract import Contract
+from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.net.account.base_account import BaseAccount
-from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_DIR, MAX_FEE
+from starknet_py.tests.e2e.fixtures.constants import (
+    CONTRACTS_COMPILED_V1_DIR,
+    CONTRACTS_DIR,
+    MAX_FEE,
+)
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
@@ -32,11 +36,17 @@ def map_compiled_contract() -> str:
 @pytest.fixture(scope="package")
 def sierra_minimal_compiled_contract_and_class_hash() -> Tuple[str, int]:
     """
-    Returns minimal contract compiled to sierra and its class hash.
+    Returns minimal contract compiled to sierra and its compiled class hash.
     """
+    compiled_contract = read_contract(
+        "minimal_contract_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
+    )
+    compiled_contract_casm = read_contract(
+        "minimal_contract_compiled.casm", directory=CONTRACTS_COMPILED_V1_DIR
+    )
     return (
-        read_contract("precompiled/minimal_contract_compiled.json"),
-        0x56B935FA8AF97EC603A96A3E1870CA193DA4CF08B8DA3F12E023E67A82B5A7E,
+        compiled_contract,
+        compute_casm_class_hash(create_casm_class(compiled_contract_casm)),
     )
 
 
@@ -201,15 +211,6 @@ async def account_with_validate_deploy_class_hash(
     compiled_contract = read_contract("account_with_validate_deploy_compiled.json")
     return await declare_account(
         pre_deployed_account_with_validate_deploy, compiled_contract
-    )
-
-
-@pytest_asyncio.fixture(scope="package")
-async def account_without_validate_deploy_class_hash(
-    pre_deployed_account_with_validate_deploy: BaseAccount,
-) -> int:
-    return await declare_account(
-        pre_deployed_account_with_validate_deploy, COMPILED_ACCOUNT_CONTRACT
     )
 
 
