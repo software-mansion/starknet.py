@@ -5,10 +5,10 @@ Migration guide
 0.16.0 Migration guide
 **********************
 
-Deprecations
-------------
+Breaking changes
+----------------
 
-- Python implementation of pedersen hash in :meth:`~starknet_py.hash.utils.pedersen_hash` function is removed in favour of `crypto-cpp-py` library implementation.
+- :meth:`~starknet_py.hash.utils.pedersen_hash` function implementation has been changed, now uses only `crypto-cpp-py` library implementation.
 
 
 **********************
@@ -42,8 +42,8 @@ The only supported Python version is 3.9.
 - :meth:`~starknet_py.net.udc_deployer.deployer.Deployer.create_deployment_call` is deprecated in favour of :meth:`~starknet_py.net.udc_deployer.deployer.Deployer.create_contract_deployment`
 
 
-Breaking changes
-----------------
+0.15.0 Breaking changes
+-----------------------
 
 1. ``InvokeFunction`` is replaced by the ``Invoke`` dataclass (behaviour is the same, just the name is changed).
 
