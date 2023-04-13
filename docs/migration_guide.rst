@@ -10,6 +10,8 @@ Breaking changes
 
 - :meth:`~starknet_py.hash.utils.pedersen_hash` function implementation has been changed, now uses only `crypto-cpp-py` library implementation.
 
+- Removed deprecated ``typed_data`` parameter as dict in ``BaseSigner.sign_message``. Use TypedData dataclass from ``starknet_py.utils.typed_data``.
+
 |
 
 .. raw:: html
