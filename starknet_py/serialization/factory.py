@@ -133,7 +133,9 @@ def serializer_for_function(abi_function: Abi.Function) -> FunctionSerialization
     )
 
 
-def serializer_for_function_v1(abi_function: Abi.Function) -> FunctionSerializationAdapter:
+def serializer_for_function_v1(
+    abi_function: Abi.Function,
+) -> FunctionSerializationAdapter:
     """
     Create FunctionSerializationAdapter for serializing function inputs and deserializing function outputs.
 

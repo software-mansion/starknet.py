@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from starknet_py.cairo.felt import encode_shortstring, decode_shortstring
+from starknet_py.cairo.felt import decode_shortstring, encode_shortstring
 from starknet_py.common import create_casm_class
 from starknet_py.contract import Contract
 from starknet_py.hash.casm_class_hash import compute_casm_class_hash
@@ -66,9 +66,12 @@ async def test1():
     erc20_address = contract_deployment.address
 
     erc20 = Contract(
-        address=erc20_address, abi=json.loads(erc20_compiled_sierra)["abi"], provider=account, cairo_version=1
+        address=erc20_address,
+        abi=json.loads(erc20_compiled_sierra)["abi"],
+        provider=account,
+        cairo_version=1,
     )
 
-    print(decode_shortstring(await erc20.functions['get_name'].call()))
+    print(decode_shortstring(await erc20.functions["get_name"].call()))
 
     print("abc")

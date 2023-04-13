@@ -361,7 +361,9 @@ class ContractFunction:
         self.client = client
         self.account = account
         if cairo_version == 1:
-            self._payload_transformer = serializer_for_function_v1(contract_data.parsed_abi.functions[name])
+            self._payload_transformer = serializer_for_function_v1(
+                contract_data.parsed_abi.functions[name]
+            )
         else:
             self._payload_transformer = serializer_for_function(
                 contract_data.parsed_abi.functions[name]
@@ -470,7 +472,9 @@ class Contract:
         self.data = ContractData.from_abi(parse_address(address), abi, cairo_version)
 
         try:
-            self._functions = self._make_functions(self.data, self.client, self.account, cairo_version)
+            self._functions = self._make_functions(
+                self.data, self.client, self.account, cairo_version
+            )
         except ValidationError:
             warnings.warn(
                 "Make sure valid ABI is used to create a Contract instance: "
@@ -698,7 +702,11 @@ class Contract:
 
     @classmethod
     def _make_functions(
-        cls, contract_data: ContractData, client: Client, account: Optional[BaseAccount], cairo_version: int = 0,
+        cls,
+        contract_data: ContractData,
+        client: Client,
+        account: Optional[BaseAccount],
+        cairo_version: int = 0,
     ) -> FunctionsRepository:
         repository = {}
 
