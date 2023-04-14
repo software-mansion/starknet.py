@@ -1,7 +1,7 @@
 import warnings
 from typing import List, Literal, Optional, Union, cast
 
-from marshmallow import EXCLUDE
+from marshmallow import EXCLUDE, ValidationError
 
 from starknet_py.compile.compiler import Compiler, StarknetCompilationSource
 from starknet_py.net.client_models import (
@@ -97,7 +97,15 @@ def create_casm_class(compiled_contract: str) -> CasmClass:
     :param compiled_contract: contract compiled using starknet-sierra-compile.
     :return: CasmClass instance.
     """
-    return cast(CasmClass, CasmClassSchema().loads(compiled_contract))
+    try:
+        return cast(CasmClass, CasmClassSchema().loads(compiled_contract))
+    except ValidationError as err:
+        if err.messages == {"pythonic_hints": ["Missing data for required field."]}:
+            raise ValueError(
+                "Field pythonic_hints is missing from compiled_contract. "
+                "Make sure to use starknet-sierra-compile with --add-pythonic-hints flag."
+            ) from err
+        raise err
 
 
 def int_from_hex(number: Union[str, int]) -> int:
