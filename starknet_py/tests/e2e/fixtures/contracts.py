@@ -67,14 +67,6 @@ def erc20_compiled_contract() -> str:
 
 
 @pytest.fixture(scope="package")
-def base_compiled_contract() -> str:
-    """
-    Returns compiled base contract.
-    """
-    return read_contract("base_compiled.json")
-
-
-@pytest.fixture(scope="package")
 def constructor_with_arguments_compiled_contract() -> str:
     """
     Returns compiled constructor_with_arguments contract.
