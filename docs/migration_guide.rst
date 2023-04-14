@@ -14,8 +14,8 @@ Breaking changes
 .. admonition:: Potentially breaking changes
     :class: attention
 
-    Internal code of :meth:`starknet_py.abi.AbiParser.parse` has changed. It should not affect users but keep it in mind that Contract
-    can have difficulties resolving ABI.
+    Internal code of :meth:`starknet_py.abi.AbiParser.parse` has changed.
+    It should not affect users but keep in mind that the Contract can have difficulties resolving ABI.
     If so please report.
 
 |
