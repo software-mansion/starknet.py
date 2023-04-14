@@ -8,7 +8,18 @@ Migration guide
 Breaking changes
 ----------------
 
-- :meth:`~starknet_py.hash.utils.pedersen_hash` function implementation has been changed, now uses only `crypto-cpp-py` library implementation.
+.. currentmodule:: starknet_py.net.account.base_account
+
+1. :meth:`.BaseAccount.verify_message` is no longer ``async``.
+
+2. ``starknet_py.utils.crypto`` module has been removed.
+
+3. Some functions' implementation has been changed to use ``crypto-cpp-py`` package:
+
+   - ``pedersen_hash``
+   - ``private_to_stark_key``
+   - ``message_signature``
+   - ``verify_message_signature``
 
 |
 
