@@ -141,25 +141,21 @@ class FullNodeClient(Client):
 
         if chunk_size <= 0:
             raise ValueError("Argument chunk_size must be greater than 0.")
-        params = {
-            "chunk_size": chunk_size,
-            "from_block": get_small_block_identifier(
-                from_block_hash, from_block_number
-            ),
-            "to_block": get_small_block_identifier(to_block_hash, to_block_number),
-            "address": _to_rpc_felt(address),
-            "keys": keys,
-        }
 
-        if continuation_token is not None:
-            params["continuation_token"] = continuation_token
+        from_block = _get_raw_block_identifier(from_block_hash, from_block_number)
+        to_block = _get_raw_block_identifier(to_block_hash, to_block_number)
+        address = _to_rpc_felt(address)
+        keys = [_to_rpc_felt(i) for i in keys]
+
         events_list = []
         while True:
-            events, continuation_token = await self._get_events_chunk(params)
+            events, continuation_token = await self._get_events_chunk(
+                from_block, to_block, address, keys, chunk_size, continuation_token
+            )
             events_list.extend(events)
             if not follow_continuation_token or continuation_token is None:
                 break
-            params["continuation_token"] = continuation_token
+
         events_response = cast(
             EventsResponse,
             EventsSchema().load(
@@ -171,12 +167,29 @@ class FullNodeClient(Client):
 
     async def _get_events_chunk(
         self,
-        params: dict,
+        from_block: Union[dict, Hash, Tag, None],
+        to_block: Union[dict, Hash, Tag, None],
+        address: Hash,
+        keys: List[str],
+        chunk_size: int,
+        continuation_token: Optional[str] = None,
     ) -> Tuple[list, Optional[str]]:
+        # pylint: disable=too-many-arguments
+        params = {
+            "chunk_size": chunk_size,
+            "from_block": from_block,
+            "to_block": to_block,
+            "address": address,
+            "keys": keys,
+        }
+        if continuation_token is not None:
+            params["continuation_token"] = continuation_token
+
         res = await self._client.call(
             method_name="getEvents",
             params={"filter": params},
         )
+
         if "continuation_token" in res:
             return res["events"], res["continuation_token"]
         return res["events"], None
@@ -479,10 +492,10 @@ def get_block_identifier(
     block_hash: Optional[Union[Hash, Tag]] = None,
     block_number: Optional[Union[int, Tag]] = None,
 ) -> dict:
-    return {"block_id": get_small_block_identifier(block_hash, block_number)}
+    return {"block_id": _get_raw_block_identifier(block_hash, block_number)}
 
 
-def get_small_block_identifier(
+def _get_raw_block_identifier(
     block_hash: Optional[Union[Hash, Tag]] = None,
     block_number: Optional[Union[int, Tag]] = None,
 ) -> Union[dict, Hash, Tag, None]:
