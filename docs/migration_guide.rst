@@ -10,6 +10,14 @@ Breaking changes
 
 - :meth:`~starknet_py.hash.utils.pedersen_hash` function implementation has been changed, now uses only `crypto-cpp-py` library implementation.
 
+
+.. admonition:: Potentially breaking changes
+    :class: attention
+
+    Internal code of :meth:`starknet_py.abi.AbiParser.parse` has changed. It should not affect users but keep it in mind that Contract
+    can have difficulties resolving ABI.
+    If so please report.
+
 |
 
 .. raw:: html
