@@ -149,7 +149,12 @@ class FullNodeClient(Client):
         events_list = []
         while True:
             events, continuation_token = await self._get_events_chunk(
-                from_block, to_block, address, keys, chunk_size, continuation_token
+                from_block=from_block,
+                to_block=to_block,
+                address=address,
+                keys=keys,
+                chunk_size=chunk_size,
+                continuation_token=continuation_token,
             )
             events_list.extend(events)
             if not follow_continuation_token or continuation_token is None:
