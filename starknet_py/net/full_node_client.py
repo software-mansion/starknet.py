@@ -120,7 +120,6 @@ class FullNodeClient(Client):
         # pylint: disable=too-many-arguments
         """
         :param address: The address of the contract that emitted the event.
-            Must be in a form of RPC accepted felt.
         :param keys: List of names of events that are searched for.
             Must be in a form of RPC accepted felt after being hashed by `keccak` hash.
         :param from_block_number: Number of the block from which events searched for **starts**
