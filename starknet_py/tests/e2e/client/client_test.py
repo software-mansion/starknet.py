@@ -202,6 +202,7 @@ async def test_get_class_by_hash(client, class_hash):
     assert contract_class.entry_points_by_type is not None
     assert contract_class.abi is not None
 
+
 # TODO HERE
 @pytest.mark.asyncio
 async def test_wait_for_tx_accepted(gateway_client):

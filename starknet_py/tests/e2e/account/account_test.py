@@ -200,9 +200,7 @@ async def test_sign_declare_transaction(account, map_compiled_contract):
 
 
 @pytest.mark.asyncio
-async def test_sign_declare_transaction_auto_estimate(
-    account, map_compiled_contract
-):
+async def test_sign_declare_transaction_auto_estimate(account, map_compiled_contract):
     signed_tx = await account.sign_declare_transaction(
         map_compiled_contract, auto_estimate=True
     )
