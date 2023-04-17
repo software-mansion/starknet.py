@@ -1,3 +1,0 @@
-struct MockStruct {
-    x: felt,
-}

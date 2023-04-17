@@ -38,12 +38,3 @@ Exceptions
     :exclude-members: __init__, __new__
 .. autoclass:: InvalidValueException
     :exclude-members: __init__, __new__
-
-Deprecated old API
-------------------
-
-.. attention::
-    ``data_transformer`` module has been deprecated. Use serialization module described above.
-
-.. autoclass:: starknet_py.utils.data_transformer.data_transformer.CairoSerializer
-    :members:
