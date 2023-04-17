@@ -11,6 +11,8 @@ Breaking changes
 1. :meth:`~starknet_py.hash.utils.pedersen_hash` function implementation has been changed, now uses only `crypto-cpp-py` library implementation.
 2. Deprecated ``utils.data_transformer`` module has been removed. Use :ref:`Serializers` module instead.
 3. ``is_felt_pointer`` and ``is_uint256`` functions has been removed. Use :meth:`starknet_py.cairo.type_parser.TypeParser` class instead.
+4. Deprecated ``Compiler`` module has been removed. Use external compilation tool (e.g. Starknet CLI).
+5. ``compilation_source`` and ``search_paths`` arguments has been removed from several methods. Use ``compiled_contract`` parameter instead.
 
 .. admonition:: Potentially breaking changes
     :class: attention
