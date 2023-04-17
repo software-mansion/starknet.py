@@ -2,6 +2,31 @@ Migration guide
 ===============
 
 **********************
+0.16.0 Migration guide
+**********************
+
+Breaking changes
+----------------
+
+- :meth:`~starknet_py.hash.utils.pedersen_hash` function implementation has been changed, now uses only `crypto-cpp-py` library implementation.
+
+
+.. admonition:: Potentially breaking changes
+    :class: attention
+
+    Internal code of :meth:`starknet_py.abi.AbiParser.parse` has changed.
+    It should not affect users but keep in mind that the Contract can have difficulties resolving ABI.
+    If so please report.
+
+|
+
+.. raw:: html
+
+  <hr>
+
+|
+
+**********************
 0.15.0 Migration guide
 **********************
 
@@ -23,8 +48,8 @@ Unfortunately, as a result of adaptation to support `cairo-lang` newest package,
 The only supported Python version is 3.9.
 
 
-Deprecations
-------------
+0.15.0 Deprecations
+-------------------
 
 - ``compute_invoke_hash`` is deprecated in favour of ``compute_transaction_hash``
 - ``starknet_py.common.create_contract_class`` is deprecated in favour of ``starknet_py.common.create_compiled_contract``
@@ -32,8 +57,8 @@ Deprecations
 - :meth:`~starknet_py.net.udc_deployer.deployer.Deployer.create_deployment_call` is deprecated in favour of :meth:`~starknet_py.net.udc_deployer.deployer.Deployer.create_contract_deployment`
 
 
-Breaking changes
-----------------
+0.15.0 Breaking changes
+-----------------------
 
 1. ``InvokeFunction`` is replaced by the ``Invoke`` dataclass (behaviour is the same, just the name is changed).
 

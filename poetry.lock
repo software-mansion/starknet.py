@@ -2087,6 +2087,37 @@ tomli = ">=1.2.2"
 poetry-plugin = ["poetry (>=1.0,<2.0)"]
 
 [[package]]
+name = "poseidon-py"
+version = "0.1.2"
+description = "Python implementation of Poseidon hash"
+category = "main"
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "poseidon_py-0.1.2-cp310-cp310-macosx_11_0_universal2.whl", hash = "sha256:66503ecc3a2298390116a9e89ba5b20d37b361bee7a1d4138c13e486062f8e63"},
+    {file = "poseidon_py-0.1.2-cp310-cp310-macosx_12_0_universal2.whl", hash = "sha256:458c8b1da424737e43b34dcd853b0986feb28904071faa2dee5f59b68be30747"},
+    {file = "poseidon_py-0.1.2-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:6b31101f0760afeddc384e2822424714ee75bc47fdd6d70bfc4e0108e98f3396"},
+    {file = "poseidon_py-0.1.2-cp310-cp310-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:2f33ecdbe3a022ed789725a8241e50ae7465191c23e69a78d108c97b92d8beda"},
+    {file = "poseidon_py-0.1.2-cp310-cp310-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:7c01df4696925a6aa57d909fbe5e53bcbb1e52a8374d51bfade07d4052d72ac9"},
+    {file = "poseidon_py-0.1.2-cp310-cp310-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:fc52deb56611915fe37c138f86e4d7558d936261e8088e0d818ffc2a48251d4d"},
+    {file = "poseidon_py-0.1.2-cp310-cp310-musllinux_1_1_aarch64.whl", hash = "sha256:db39de70897043c58d4ed74b3008993c9a1e441696abeca786b4f1c1017118bd"},
+    {file = "poseidon_py-0.1.2-cp310-cp310-musllinux_1_1_ppc64le.whl", hash = "sha256:e960307d3e65856ab3874881cead0a136de312a360b0607cf075118d3a4323e3"},
+    {file = "poseidon_py-0.1.2-cp310-cp310-musllinux_1_1_s390x.whl", hash = "sha256:eeb650704a82c53c41bcec528e592937bd1c3910505c37a8fa446967192c7bf9"},
+    {file = "poseidon_py-0.1.2-cp310-cp310-musllinux_1_1_x86_64.whl", hash = "sha256:f4f12151af85b92962e14c6c5320a70f290825372026d357c28e5c36dd2eaf67"},
+    {file = "poseidon_py-0.1.2-cp39-cp39-macosx_11_0_universal2.whl", hash = "sha256:3b47c2c20bfbf59545c29f45ec73256a99d0b093903906057c50a35672f74e95"},
+    {file = "poseidon_py-0.1.2-cp39-cp39-macosx_12_0_universal2.whl", hash = "sha256:cdffc119bb1ecfd0ca1b2cf4fac61d76f4852601fa69dff077b563f18a189256"},
+    {file = "poseidon_py-0.1.2-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:788ac2aa03cbc41df7e60232ec99e079bc1e43207d96158d9a6ec42e393318e1"},
+    {file = "poseidon_py-0.1.2-cp39-cp39-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:86444c5ff3e68749e57e81dbf2fc2c4c59473da048152c80d2023b3c517063dd"},
+    {file = "poseidon_py-0.1.2-cp39-cp39-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:878c8c1787c46a1d72d7e365470ba5a47a092faac8adae11f15356d7cfa735ec"},
+    {file = "poseidon_py-0.1.2-cp39-cp39-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:963d83b81113e75ac8ad65429318925a550464ee64d289d11287ef7e7bbdaebf"},
+    {file = "poseidon_py-0.1.2-cp39-cp39-musllinux_1_1_aarch64.whl", hash = "sha256:a4bc639d1ea83970dfc9d2b87ddb9a563a246df5bc405132bb0f90dffd6f46d4"},
+    {file = "poseidon_py-0.1.2-cp39-cp39-musllinux_1_1_ppc64le.whl", hash = "sha256:b80869d9dd99e5a124fed11a2b14dd6ff5961cda1b05a91a0fc9add02340c803"},
+    {file = "poseidon_py-0.1.2-cp39-cp39-musllinux_1_1_s390x.whl", hash = "sha256:0419de77a1882e48afc543b9ca9fc95f0b810d4ead50e4b5038c864b4c50f8fa"},
+    {file = "poseidon_py-0.1.2-cp39-cp39-musllinux_1_1_x86_64.whl", hash = "sha256:e051c28bb5dea0d8050ef2702b9932f49c9c4a9a65a314c3744b3a2a6dd62b22"},
+    {file = "poseidon_py-0.1.2.tar.gz", hash = "sha256:50d9a3c71414bc7b8fabbed6058e1d9bbf9da171fa6a4c7136acd81457291228"},
+]
+
+[[package]]
 name = "prometheus-client"
 version = "0.15.0"
 description = "Python client for the Prometheus monitoring system."
