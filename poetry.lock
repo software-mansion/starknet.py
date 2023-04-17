@@ -3024,14 +3024,14 @@ test = ["pytest"]
 
 [[package]]
 name = "starknet-devnet"
-version = "0.5.0a2"
+version = "0.5.0"
 description = "A local testnet for Starknet"
 category = "dev"
 optional = false
 python-versions = ">=3.9,<3.10"
 files = [
-    {file = "starknet_devnet-0.5.0a2-py3-none-any.whl", hash = "sha256:b2efaff5209d6858d4b3d756e10b2095a420265a48834f28a1b7869c3a1ba5b9"},
-    {file = "starknet_devnet-0.5.0a2.tar.gz", hash = "sha256:12de459239d35ce171f9020e339f2214baed6f6e73cf2dd9d8742a999473dd6b"},
+    {file = "starknet_devnet-0.5.0-py3-none-any.whl", hash = "sha256:927c28286b6b56bd492d16782df6888f9322901c51c5947c2ad7ea102971df80"},
+    {file = "starknet_devnet-0.5.0.tar.gz", hash = "sha256:c12693c60b6eb5b4a6c1aa30afae2a1a65fe77342b0d78af410c91baa0974f8c"},
 ]
 
 [package.dependencies]
@@ -3486,4 +3486,4 @@ docs = ["enum-tools", "furo", "sphinx"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9, <3.10"
-content-hash = "ff42017c79dbd562e305b970b1f0aabfdf431f9e5f18b7f14a11cfc8852cd451"
+content-hash = "616720ac81554b72f815ed4357d7c7d8f09a198afebee23b171224be0d76874a"
