@@ -67,14 +67,6 @@ def erc20_compiled_contract() -> str:
 
 
 @pytest.fixture(scope="package")
-def base_compiled_contract() -> str:
-    """
-    Returns compiled base contract.
-    """
-    return read_contract("base_compiled.json")
-
-
-@pytest.fixture(scope="package")
 def constructor_with_arguments_compiled_contract() -> str:
     """
     Returns compiled constructor_with_arguments contract.
@@ -290,7 +282,7 @@ def constructor_with_arguments_abi() -> List:
     Returns an abi of the constructor_with_arguments.cairo.
     """
     compiled_contract = create_compiled_contract(
-        compilation_source=constructor_with_arguments_source
+        compiled_contract=read_contract("constructor_with_arguments_compiled.json")
     )
     assert compiled_contract.abi is not None
     return compiled_contract.abi

@@ -8,7 +8,18 @@ Migration guide
 Breaking changes
 ----------------
 
-- :meth:`~starknet_py.hash.utils.pedersen_hash` function implementation has been changed, now uses only `crypto-cpp-py` library implementation.
+1. :meth:`~starknet_py.hash.utils.pedersen_hash` function implementation has been changed, now uses only `crypto-cpp-py` library implementation.
+2. Deprecated ``utils.data_transformer`` module has been removed. Use :ref:`Serializers` module instead.
+3. ``is_felt_pointer`` and ``is_uint256`` functions has been removed. Use :meth:`starknet_py.cairo.type_parser.TypeParser` class instead.
+4. Deprecated ``Compiler`` module has been removed. Use external compilation tool (e.g. Starknet CLI).
+5. ``compilation_source`` and ``search_paths`` arguments has been removed from several methods. Use ``compiled_contract`` parameter instead.
+
+.. admonition:: Potentially breaking changes
+    :class: attention
+
+    Internal code of :meth:`starknet_py.abi.AbiParser.parse` has changed.
+    It should not affect users but keep in mind that the Contract can have difficulties resolving ABI.
+    If so please report.
 
 |
 
@@ -171,7 +182,7 @@ This version deprecates several modules and fixes underlying issues with several
 0.14.0 Deprecations
 -------------------
 
-1. :ref:`compiler` module. It will be removed in the future. We recommend transitioning to building contracts through Starknet CLI or external tools and using only compiled contracts with starknet.py.
+1. `compiler` module. It will be removed in the future. We recommend transitioning to building contracts through Starknet CLI or external tools and using only compiled contracts with starknet.py.
 2. ``utils.data_transformer`` module. It has been replaced with :ref:`serializers` module.
 
 
