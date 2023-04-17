@@ -8,9 +8,9 @@ Migration guide
 Breaking changes
 ----------------
 
-- :meth:`~starknet_py.hash.utils.pedersen_hash` function implementation has been changed, now uses only `crypto-cpp-py` library implementation.
-- Deprecated ``DataTransformer`` module has been removed. Use :ref:`Serializers` module instead.
-- ``is_felt_pointer`` and ``is_uint256`` functions has been removed. Use :meth:`starknet_py.cairo.type_parser.TypeParser` class instead.
+1. :meth:`~starknet_py.hash.utils.pedersen_hash` function implementation has been changed, now uses only `crypto-cpp-py` library implementation.
+2. Deprecated ``utils.data_transformer`` module has been removed. Use :ref:`Serializers` module instead.
+3. ``is_felt_pointer`` and ``is_uint256`` functions has been removed. Use :meth:`starknet_py.cairo.type_parser.TypeParser` class instead.
 
 .. admonition:: Potentially breaking changes
     :class: attention
