@@ -2,7 +2,6 @@ import pytest
 
 from starknet_py.contract import Contract, DeclareResult, DeployResult
 from starknet_py.net.account.base_account import BaseAccount
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_DIR
 
 # fmt: off
 
@@ -10,8 +9,6 @@ EXPECTED_HASH = 0x1eb32767d5442db587803cccb08a6c26e96592a86a8bc35ce1ec11d67ee1be
 EXPECTED_HASH_WITH_IMPORTS = 0x6e09f5ac501db94c496929bfe514f50d75c2616500f237365bf6f41dc4518f9
 EXPECTED_ADDRESS = 0x40a6dfb8efe86af39fb0c83ef8b6915ebfc541d8bc4a6db0ae103354183e5cb
 EXPECTED_ADDRESS_WITH_IMPORTS = 0x55bfdaaf736c3f3039f70dfe146970ca827f2b81e3a4e8d69ae0bda634d0e59
-
-search_path = CONTRACTS_DIR
 
 # fmt: on
 
