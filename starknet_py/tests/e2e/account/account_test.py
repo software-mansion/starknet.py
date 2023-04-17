@@ -95,6 +95,7 @@ async def test_sending_multicall(account, map_contract, key, val):
     assert value == val
 
 
+# TODO implement get_block_traces in FullNodeClient
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_block_traces(gateway_account):
@@ -143,19 +144,19 @@ async def test_get_class_hash_at(map_contract, account):
 
 
 @pytest.mark.asyncio()
-async def test_get_nonce(gateway_account, map_contract):
-    nonce = await gateway_account.get_nonce()
+async def test_get_nonce(account, map_contract):
+    nonce = await account.get_nonce()
     address = map_contract.address
 
-    tx = await gateway_account.execute(
+    tx = await account.execute(
         Call(
             to_addr=address, selector=get_selector_from_name("put"), calldata=[10, 20]
         ),
         max_fee=MAX_FEE,
     )
-    await gateway_account.client.wait_for_tx(tx.transaction_hash)
+    await account.client.wait_for_tx(tx.transaction_hash)
 
-    new_nonce = await gateway_account.get_nonce()
+    new_nonce = await account.get_nonce()
 
     assert isinstance(nonce, int) and isinstance(new_nonce, int)
     assert new_nonce > nonce
@@ -165,8 +166,8 @@ async def test_get_nonce(gateway_account, map_contract):
 @pytest.mark.parametrize(
     "calls", [[Call(10, 20, [30])], [Call(10, 20, [30]), Call(40, 50, [60])]]
 )
-async def test_sign_invoke_transaction(gateway_account, calls):
-    signed_tx = await gateway_account.sign_invoke_transaction(calls, max_fee=MAX_FEE)
+async def test_sign_invoke_transaction(account, calls):
+    signed_tx = await account.sign_invoke_transaction(calls, max_fee=MAX_FEE)
 
     assert isinstance(signed_tx.signature, list)
     assert len(signed_tx.signature) > 0
@@ -174,8 +175,8 @@ async def test_sign_invoke_transaction(gateway_account, calls):
 
 
 @pytest.mark.asyncio
-async def test_sign_invoke_transaction_auto_estimate(gateway_account, map_contract):
-    signed_tx = await gateway_account.sign_invoke_transaction(
+async def test_sign_invoke_transaction_auto_estimate(account, map_contract):
+    signed_tx = await account.sign_invoke_transaction(
         Call(map_contract.address, get_selector_from_name("put"), [3, 4]),
         auto_estimate=True,
     )
@@ -186,8 +187,8 @@ async def test_sign_invoke_transaction_auto_estimate(gateway_account, map_contra
 
 
 @pytest.mark.asyncio
-async def test_sign_declare_transaction(gateway_account, map_compiled_contract):
-    signed_tx = await gateway_account.sign_declare_transaction(
+async def test_sign_declare_transaction(account, map_compiled_contract):
+    signed_tx = await account.sign_declare_transaction(
         map_compiled_contract, max_fee=MAX_FEE
     )
 
@@ -200,9 +201,9 @@ async def test_sign_declare_transaction(gateway_account, map_compiled_contract):
 
 @pytest.mark.asyncio
 async def test_sign_declare_transaction_auto_estimate(
-    gateway_account, map_compiled_contract
+    account, map_compiled_contract
 ):
-    signed_tx = await gateway_account.sign_declare_transaction(
+    signed_tx = await account.sign_declare_transaction(
         map_compiled_contract, auto_estimate=True
     )
 

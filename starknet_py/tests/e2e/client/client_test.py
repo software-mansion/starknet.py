@@ -202,7 +202,7 @@ async def test_get_class_by_hash(client, class_hash):
     assert contract_class.entry_points_by_type is not None
     assert contract_class.abi is not None
 
-
+# TODO HERE
 @pytest.mark.asyncio
 async def test_wait_for_tx_accepted(gateway_client):
     with patch(
@@ -266,6 +266,7 @@ async def test_wait_for_tx_rejected(status, exception, exc_message, gateway_clie
 
 @pytest.mark.asyncio
 async def test_wait_for_tx_cancelled(gateway_client):
+    print(gateway_client.__class__)
     with patch(
         "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt",
         AsyncMock(),

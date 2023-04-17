@@ -9,7 +9,7 @@ from starknet_py.net.models import StarknetChainId, parse_address
 from starknet_py.net.networks import MAINNET, TESTNET, TESTNET2
 from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 
-
+# TODO check
 @pytest.mark.asyncio
 @pytest.mark.parametrize("net", (TESTNET, TESTNET2, MAINNET))
 async def test_get_balance_default_token_address(net):
