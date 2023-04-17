@@ -3,9 +3,22 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from starknet_py.contract import Contract
+from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.storage import get_storage_var_address
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import DeclareTransaction
+from starknet_py.net.full_node_client import _to_rpc_felt
+
+
+def _parse_event_name(event: str) -> str:
+    return _to_rpc_felt(get_selector_from_name(event))
+
+
+FUNCTION_ONE_NAME = "put"
+EVENT_ONE_PARSED_NAME = _parse_event_name("put_called")
+FUNCTION_TWO_NAME = "another_put"
+EVENT_TWO_PARSED_NAME = _parse_event_name("another_put_called")
 
 
 @pytest.mark.run_on_devnet
@@ -103,4 +116,170 @@ async def test_get_storage_at_incorrect_address_full_node_client(full_node_clien
             contract_address=0x1111,
             key=get_storage_var_address("balance"),
             block_hash="latest",
+        )
+
+
+@pytest.mark.run_on_devnet
+@pytest.mark.asyncio
+async def test_get_events_without_following_continuation_token(
+    full_node_client,
+    simple_storage_with_event_contract: Contract,
+):
+    for i in range(4):
+        await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke(
+            i, i, auto_estimate=True
+        )
+
+    chunk_size = 3
+    events_response = await full_node_client.get_events(
+        from_block_number=0,
+        to_block_hash="latest",
+        address=simple_storage_with_event_contract.address,
+        keys=[EVENT_ONE_PARSED_NAME],
+        follow_continuation_token=False,
+        chunk_size=chunk_size,
+    )
+
+    assert len(events_response.events) == chunk_size
+    assert events_response.continuation_token is not None
+
+
+@pytest.mark.run_on_devnet
+@pytest.mark.asyncio
+async def test_get_events_follow_continuation_token(
+    full_node_client,
+    simple_storage_with_event_contract: Contract,
+):
+    total_invokes = 2
+    for i in range(total_invokes):
+        await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke(
+            i, i + 1, auto_estimate=True
+        )
+
+    events_response = await full_node_client.get_events(
+        from_block_number=0,
+        to_block_hash="latest",
+        address=simple_storage_with_event_contract.address,
+        keys=[EVENT_ONE_PARSED_NAME],
+        follow_continuation_token=True,
+        chunk_size=1,
+    )
+
+    assert len(events_response.events) == total_invokes
+    assert events_response.continuation_token is None
+
+
+@pytest.mark.run_on_devnet
+@pytest.mark.asyncio
+async def test_get_events_nonexistent_event_name(
+    full_node_client,
+    simple_storage_with_event_contract: Contract,
+):
+    await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke(
+        1, 1, auto_estimate=True
+    )
+
+    events_response = await full_node_client.get_events(
+        from_block_number=0,
+        to_block_hash="latest",
+        address=simple_storage_with_event_contract.address,
+        keys=[_parse_event_name("nonexistent_event")],
+        follow_continuation_token=False,
+        chunk_size=3,
+    )
+
+    assert len(events_response.events) == 0
+    assert events_response.continuation_token is None
+
+
+@pytest.mark.run_on_devnet
+@pytest.mark.asyncio
+async def test_get_events_with_two_events(
+    full_node_client,
+    simple_storage_with_event_contract: Contract,
+):
+    invokes_of_one = 1
+    invokes_of_two = 2
+    invokes_of_all = invokes_of_one + invokes_of_two
+    await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke(
+        1, 2, auto_estimate=True
+    )
+    for i in range(invokes_of_two):
+        await simple_storage_with_event_contract.functions[FUNCTION_TWO_NAME].invoke(
+            i, i + 1, auto_estimate=True
+        )
+
+    event_one_events_response = await full_node_client.get_events(
+        from_block_number=0,
+        to_block_hash="latest",
+        address=simple_storage_with_event_contract.address,
+        keys=[EVENT_ONE_PARSED_NAME],
+        follow_continuation_token=True,
+    )
+    event_two_events_response = await full_node_client.get_events(
+        from_block_number=0,
+        to_block_hash="latest",
+        address=simple_storage_with_event_contract.address,
+        keys=[EVENT_TWO_PARSED_NAME],
+        follow_continuation_token=True,
+    )
+    event_one_two_events_response = await full_node_client.get_events(
+        from_block_number=0,
+        to_block_hash="latest",
+        address=simple_storage_with_event_contract.address,
+        keys=[EVENT_ONE_PARSED_NAME, EVENT_TWO_PARSED_NAME],
+        follow_continuation_token=True,
+    )
+
+    assert len(event_one_events_response.events) == invokes_of_one
+    assert event_one_events_response.continuation_token is None
+
+    assert len(event_two_events_response.events) == invokes_of_two
+    assert event_two_events_response.continuation_token is None
+
+    assert len(event_one_two_events_response.events) == invokes_of_all
+    assert event_one_two_events_response.continuation_token is None
+
+
+@pytest.mark.run_on_devnet
+@pytest.mark.asyncio
+async def test_get_events_start_from_continuation_token(
+    full_node_client,
+    simple_storage_with_event_contract: Contract,
+):
+    for i in range(5):
+        await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke(
+            i, i + 1, auto_estimate=True
+        )
+
+    chunk_size = 2
+    continuation_token = "1"
+    events_response = await full_node_client.get_events(
+        from_block_number=0,
+        to_block_hash="latest",
+        address=simple_storage_with_event_contract.address,
+        keys=[EVENT_ONE_PARSED_NAME],
+        continuation_token=continuation_token,
+        chunk_size=chunk_size,
+    )
+    expected_continuation_token = str(int(continuation_token) + 1)
+
+    assert len(events_response.events) == chunk_size
+    assert events_response.continuation_token == expected_continuation_token
+
+
+@pytest.mark.run_on_devnet
+@pytest.mark.asyncio
+async def test_get_events_nonexistent_starting_block(
+    full_node_client,
+    simple_storage_with_event_contract: Contract,
+):
+    with pytest.raises(ClientError, match="Block not found"):
+        await full_node_client.get_events(
+            from_block_number=10000,
+            to_block_hash="latest",
+            address=simple_storage_with_event_contract.address,
+            keys=[EVENT_ONE_PARSED_NAME],
+            follow_continuation_token=False,
+            chunk_size=1,
         )
