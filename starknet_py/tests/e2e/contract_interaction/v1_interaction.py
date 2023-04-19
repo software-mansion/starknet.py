@@ -80,7 +80,9 @@ async def test1(network):
 
     account_balance = await erc20.functions["balance_of"].call(account=account.address)
 
-    resp = await erc20.functions["transfer_from"].invoke(sender=account.address, recipient=0x11, amount=10, max_fee=MAX_FEE)
+    resp = await erc20.functions["transfer_from"].invoke(
+        sender=account.address, recipient=0x11, amount=10, max_fee=MAX_FEE
+    )
     await resp.wait_for_acceptance()
 
     fake_balance = await erc20.functions["balance_of"].call(account=0x11)
