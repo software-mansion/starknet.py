@@ -1,43 +1,8 @@
-import warnings
 from typing import List
-
-from starkware.cairo.lang.compiler.ast.cairo_types import (
-    CairoType,
-    TypeFelt,
-    TypePointer,
-)
-from starkware.cairo.lang.compiler.identifier_definition import StructDefinition
 
 from starknet_py.constants import FIELD_PRIME
 
 CairoData = List[int]
-
-
-def is_felt_pointer(cairo_type: CairoType) -> bool:
-    warnings.warn(
-        "Function is_felt_pointer is deprecated. Use starknet_py.cairo.type_parser module instead.",
-        category=DeprecationWarning,
-    )
-    return isinstance(cairo_type, TypePointer) and isinstance(
-        cairo_type.pointee, TypeFelt
-    )
-
-
-def is_uint256(definition: StructDefinition) -> bool:
-    warnings.warn(
-        "Function is_uint256 is deprecated. Use starknet_py.cairo.type_parser module instead.",
-        category=DeprecationWarning,
-    )
-    (struct_name, *_) = definition.full_name.path
-
-    return (
-        struct_name == "Uint256"
-        and len(definition.members.items()) == 2
-        and definition.members.get("low")
-        and definition.members.get("high")
-        and isinstance(definition.members["low"].cairo_type, TypeFelt)
-        and isinstance(definition.members["high"].cairo_type, TypeFelt)
-    )
 
 
 MAX_UINT256 = (1 << 256) - 1
