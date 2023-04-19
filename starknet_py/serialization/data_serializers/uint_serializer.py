@@ -22,6 +22,13 @@ class UintSerializer(CairoDataSerializer[Union[int, Uint256Dict], int]):
     bits: int
 
     def deserialize_with_context(self, context: DeserializationContext) -> int:
+        if self.bits < 256:
+            (uint,) = context.reader.read(1)
+            with context.push_entity("uint"):
+                self._ensure_valid_uint128(uint, context)
+
+            return uint
+
         [low, high] = context.reader.read(2)
 
         # Checking if resulting value is in [0, 2**256) range is not enough. Uint256 should be made of two uint128.
@@ -37,15 +44,16 @@ class UintSerializer(CairoDataSerializer[Union[int, Uint256Dict], int]):
     ) -> Generator[int, None, None]:
         context.ensure_valid_type(value, isinstance(value, (int, dict)), "int or dict")
         if isinstance(value, int):
-            yield from self._serialize_from_int(value)
+            yield from self._serialize_from_int(value, self.bits)
         else:
             yield from self._serialize_from_dict(context, value)
 
     @staticmethod
-    def _serialize_from_int(value: int) -> Generator[int, None, None]:
+    def _serialize_from_int(value: int, bits: int) -> Generator[int, None, None]:
         uint256_range_check(value)
-        result = (value % 2**128, value // 2**128)
-        yield from result
+
+        result = value
+        yield result
 
     def _serialize_from_dict(
         self, context: SerializationContext, value: Uint256Dict

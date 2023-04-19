@@ -16,10 +16,10 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
 @pytest.mark.asyncio
-async def test1():
+async def test1(network):
     account = Account(
         address=0x7D2F37B75A5E779F7DA01C22ACEE1B66C39E8BA470EE5448F05E1462AFCEDB4,
-        client=GatewayClient(net="http://127.0.0.1:5051"),
+        client=GatewayClient(net=network),
         key_pair=KeyPair.from_private_key(0xCD613E30D8F16ADF91B7584A2265B1F5),
         chain=StarknetChainId.TESTNET,
     )
@@ -51,7 +51,7 @@ async def test1():
             encode_shortstring("erc20_basic"),
             encode_shortstring("ERC20B"),
             10,
-            0,
+            1000000000,
             1000,
             account.address,
         ],
@@ -72,6 +72,17 @@ async def test1():
         cairo_version=1,
     )
 
-    print(decode_shortstring(await erc20.functions["get_name"].call()))
+    decoded = decode_shortstring((await erc20.functions["get_name"].call())[0])
+
+    decimals = await erc20.functions["get_decimals"].call()
+
+    supply = await erc20.functions["get_total_supply"].call()
+
+    account_balance = await erc20.functions["balance_of"].call(account=account.address)
+
+    resp = await erc20.functions["transfer_from"].invoke(sender=account.address, recipient=0x11, amount=10, max_fee=MAX_FEE)
+    await resp.wait_for_acceptance()
+
+    fake_balance = await erc20.functions["balance_of"].call(account=0x11)
 
     print("abc")

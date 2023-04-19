@@ -47,6 +47,8 @@ def start_devnet():
         str(1),
         "--seed",  # generates same accounts each time
         str(1),
+        "--timeout",
+        "1000",
         *get_compiler_manifest(),
     ]
     # pylint: disable=consider-using-with
