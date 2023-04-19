@@ -9,6 +9,7 @@ Breaking changes
 ----------------
 
 .. currentmodule:: starknet_py.net.account.base_account
+
 1. :meth:`BaseAccount.verify_message` is no longer ``async``.
 2. Some functions' implementation has been changed to use ``crypto-cpp-py`` package:
 
