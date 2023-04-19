@@ -116,19 +116,17 @@ async def test_rejection_reason_in_transaction_receipt(account, map_contract):
         assert "Actual fee exceeded max fee." in transaction_receipt.rejection_reason
 
 
-@pytest.mark.asyncio
-async def test_sign_and_verify_offchain_message_fail(account, typed_data):
+def test_sign_and_verify_offchain_message_fail(account, typed_data):
     signature = account.sign_message(typed_data)
     signature = [signature[0] + 1, signature[1]]
-    result = await account.verify_message(typed_data, signature)
+    result = account.verify_message(typed_data, signature)
 
     assert result is False
 
 
-@pytest.mark.asyncio
-async def test_sign_and_verify_offchain_message(account, typed_data):
+def test_sign_and_verify_offchain_message(account, typed_data):
     signature = account.sign_message(typed_data)
-    result = await account.verify_message(typed_data, signature)
+    result = account.verify_message(typed_data, signature)
 
     assert result is True
 
