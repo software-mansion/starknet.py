@@ -11,12 +11,15 @@ Breaking changes
 .. currentmodule:: starknet_py.net.account.base_account
 
 1. :meth:`BaseAccount.verify_message` is no longer ``async``.
+
+.. currentmodule:: starknet_py.hash.utils
+
 2. Some functions' implementation has been changed to use ``crypto-cpp-py`` package:
 
-   - ``pedersen_hash``
-   - ``private_to_stark_key``
-   - ``message_signature``
-   - ``verify_message_signature``
+   - :func:`pedersen_hash`
+   - :func:`private_to_stark_key`
+   - :func:`message_signature`
+   - :func:`verify_message_signature`
 
 3. Deprecated ``utils.data_transformer`` module has been removed. Use :ref:`Serializers` module instead.
 
