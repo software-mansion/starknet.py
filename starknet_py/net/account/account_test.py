@@ -4,7 +4,6 @@ import pytest
 
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.net.account.account import Account
-from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId, parse_address
 from starknet_py.net.networks import MAINNET, TESTNET, TESTNET2

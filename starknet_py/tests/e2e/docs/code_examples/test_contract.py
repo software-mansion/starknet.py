@@ -4,7 +4,6 @@ import pytest
 from starknet_py.contract import Contract
 from starknet_py.net.account.account import Account
 from starknet_py.net.full_node_client import FullNodeClient
-from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.networks import TESTNET
 from starknet_py.net.signer.stark_curve_signer import KeyPair

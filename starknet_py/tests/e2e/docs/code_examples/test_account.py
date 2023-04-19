@@ -38,7 +38,6 @@ def test_init():
 
 @pytest.mark.asyncio
 async def test_execute(account, contract_address):
-    account = account
     # docs-start: execute
     resp = await account.execute(
         Call(
