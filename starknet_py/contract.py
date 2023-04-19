@@ -51,6 +51,7 @@ class ContractData:
     def parsed_abi(self) -> Abi:
         """
         Abi parsed into proper dataclass.
+
         :return: Abi
         """
         return AbiParser(self.abi).parse()
@@ -59,6 +60,7 @@ class ContractData:
     def from_abi(address: int, abi: ABI) -> ContractData:
         """
         Create ContractData from ABI.
+
         :param address: Address of the deployed contract.
         :param abi: Abi of the contract.
         :return: ContractData instance.
