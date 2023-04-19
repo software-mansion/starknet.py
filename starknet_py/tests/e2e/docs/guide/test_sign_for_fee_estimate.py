@@ -2,8 +2,8 @@ import pytest
 
 
 @pytest.mark.asyncio
-async def test_signing_fee_estimate(gateway_account, map_contract):
-    account = gateway_account
+async def test_signing_fee_estimate(account, map_contract):
+    # account = gateway_account
     # docs: start
     # Create a transaction
     call = map_contract.functions["put"].prepare(key=10, value=20)

@@ -25,10 +25,10 @@ from starknet_py.transaction_exceptions import TransactionRejectedError
 
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
-async def test_get_balance_throws_when_token_not_specified(account):
+async def test_get_balance_throws_when_token_not_specified(account, client):
     modified_account = Account(
         address=account.address,
-        client=GatewayClient(net="custom.net"),
+        client=client,
         key_pair=KeyPair(1, 2),
         chain=cast(StarknetChainId, 1),
     )
@@ -95,7 +95,6 @@ async def test_sending_multicall(account, map_contract, key, val):
     assert value == val
 
 
-# TODO implement get_block_traces in FullNodeClient
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_block_traces(gateway_account):
@@ -212,16 +211,17 @@ async def test_sign_declare_transaction_auto_estimate(account, map_compiled_cont
     assert signed_tx.max_fee > 0
 
 
+# TODO full node not working
 @pytest.mark.asyncio
 async def test_sign_declare_v2_transaction(
-    gateway_account, sierra_minimal_compiled_contract_and_class_hash
+    account, sierra_minimal_compiled_contract_and_class_hash
 ):
     (
         compiled_contract,
         compiled_class_hash,
     ) = sierra_minimal_compiled_contract_and_class_hash
 
-    signed_tx = await gateway_account.sign_declare_v2_transaction(
+    signed_tx = await account.sign_declare_v2_transaction(
         compiled_contract,
         compiled_class_hash=compiled_class_hash,
         max_fee=MAX_FEE,
@@ -234,16 +234,17 @@ async def test_sign_declare_v2_transaction(
     assert signed_tx.max_fee == MAX_FEE
 
 
+# TODO same error here
 @pytest.mark.asyncio
 async def test_sign_declare_v2_transaction_auto_estimate(
-    gateway_account, sierra_minimal_compiled_contract_and_class_hash
+    account, sierra_minimal_compiled_contract_and_class_hash
 ):
     (
         compiled_contract,
         compiled_class_hash,
     ) = sierra_minimal_compiled_contract_and_class_hash
 
-    signed_tx = await gateway_account.sign_declare_v2_transaction(
+    signed_tx = await account.sign_declare_v2_transaction(
         compiled_contract,
         compiled_class_hash=compiled_class_hash,
         auto_estimate=True,
@@ -269,11 +270,11 @@ async def test_declare_contract_raises_on_sierra_contract_without_compiled_class
 
 
 @pytest.mark.asyncio
-async def test_sign_deploy_account_transaction(gateway_account):
+async def test_sign_deploy_account_transaction(account):
     class_hash = 0x1234
     salt = 0x123
     calldata = [1, 2, 3]
-    signed_tx = await gateway_account.sign_deploy_account_transaction(
+    signed_tx = await account.sign_deploy_account_transaction(
         class_hash, salt, calldata, max_fee=MAX_FEE
     )
 
@@ -287,12 +288,12 @@ async def test_sign_deploy_account_transaction(gateway_account):
 
 @pytest.mark.asyncio
 async def test_sign_deploy_account_transaction_auto_estimate(
-    gateway_account, account_with_validate_deploy_class_hash
+    account, account_with_validate_deploy_class_hash
 ):
     class_hash = account_with_validate_deploy_class_hash
     salt = 0x1234
-    calldata = [gateway_account.signer.public_key]
-    signed_tx = await gateway_account.sign_deploy_account_transaction(
+    calldata = [account.signer.public_key]
+    signed_tx = await account.sign_deploy_account_transaction(
         class_hash, salt, calldata, auto_estimate=True
     )
 
@@ -363,13 +364,16 @@ async def test_deploy_account_raises_on_incorrect_address(
             max_fee=MAX_FEE,
         )
 
-
+# TODO
 @pytest.mark.asyncio
-async def test_deploy_account_raises_on_no_enough_funds(deploy_account_details_factory):
+@pytest.mark.parametrize(
+    "call_contract", ["starknet_py.net.gateway_client.GatewayClient.call_contract", "starknet_py.net.full_node_client.FullNodeClient.call_contract"]
+)
+async def test_deploy_account_raises_on_no_enough_funds(deploy_account_details_factory, call_contract, client):
     address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
 
     with patch(
-        "starknet_py.net.gateway_client.GatewayClient.call_contract", AsyncMock()
+        call_contract, AsyncMock()
     ) as mocked_balance:
         mocked_balance.return_value = (0, 0)
 
@@ -382,20 +386,28 @@ async def test_deploy_account_raises_on_no_enough_funds(deploy_account_details_f
                 class_hash=class_hash,
                 salt=salt,
                 key_pair=key_pair,
-                client=GatewayClient(net="testnet"),
+                client=client,
                 chain=StarknetChainId.TESTNET,
                 max_fee=MAX_FEE,
             )
 
 
+# parametrize applies here as well
 @pytest.mark.asyncio
-async def test_deploy_account_passes_on_enough_funds(deploy_account_details_factory):
+@pytest.mark.parametrize(
+    "call_contract, deploy_account",
+    [("starknet_py.net.gateway_client.GatewayClient.call_contract",
+     "starknet_py.net.gateway_client.GatewayClient.deploy_account"),
+     ("starknet_py.net.full_node_client.FullNodeClient.call_contract",
+     "starknet_py.net.full_node_client.FullNodeClient.deploy_account")]
+)
+async def test_deploy_account_passes_on_enough_funds(deploy_account_details_factory, call_contract, deploy_account, client):
     address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
 
     with patch(
-        "starknet_py.net.gateway_client.GatewayClient.call_contract", AsyncMock()
+        call_contract, AsyncMock()
     ) as mocked_balance, patch(
-        "starknet_py.net.gateway_client.GatewayClient.deploy_account", AsyncMock()
+        deploy_account, AsyncMock()
     ) as mocked_deploy:
         mocked_balance.return_value = (0, 100)
         mocked_deploy.return_value = DeployAccountTransactionResponse(
@@ -407,7 +419,7 @@ async def test_deploy_account_passes_on_enough_funds(deploy_account_details_fact
             class_hash=class_hash,
             salt=salt,
             key_pair=key_pair,
-            client=GatewayClient(net="testnet"),
+            client=client,
             chain=StarknetChainId.TESTNET,
             max_fee=MAX_FEE,
         )

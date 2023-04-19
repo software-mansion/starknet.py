@@ -37,8 +37,8 @@ def test_init():
 
 
 @pytest.mark.asyncio
-async def test_execute(gateway_account, contract_address):
-    account = gateway_account
+async def test_execute(account, contract_address):
+    account = account
     # docs-start: execute
     resp = await account.execute(
         Call(
@@ -64,8 +64,7 @@ async def test_execute(gateway_account, contract_address):
 @patch(
     "starknet_py.net.account.account.Account.get_balance",
 )
-async def test_get_balance(gateway_account):
-    account = gateway_account
+async def test_get_balance(account):
     # docs-start: get_balance
     eth_balance = await account.get_balance()
     # or with custom token contract address
@@ -77,8 +76,7 @@ async def test_get_balance(gateway_account):
     # docs-end: get_balance
 
 
-def test_sign_message(gateway_account):
-    account = gateway_account
+def test_sign_message(account):
     # docs-start: sign_message
     signature = account.sign_message(
         typed_data=TypedData(
@@ -100,8 +98,7 @@ def test_sign_message(gateway_account):
     # docs-end: sign_message
 
 
-def test_verify_message(gateway_account):
-    account = gateway_account
+def test_verify_message(account):
     # docs-start: verify_message
     is_correct = account.verify_message(
         typed_data=TypedData(

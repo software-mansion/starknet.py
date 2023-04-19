@@ -3,6 +3,7 @@ import pytest
 
 from starknet_py.contract import Contract
 from starknet_py.net.account.account import Account
+from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.networks import TESTNET
@@ -23,7 +24,7 @@ def test_init():
         ],
         provider=Account(
             address=0x321,
-            client=GatewayClient(TESTNET),
+            client=FullNodeClient(TESTNET),
             key_pair=KeyPair(12, 34),
             chain=StarknetChainId.TESTNET,
         ),
@@ -32,8 +33,7 @@ def test_init():
 
 
 @pytest.mark.asyncio
-async def test_from_address(gateway_account, contract_address):
-    account = gateway_account
+async def test_from_address(account, contract_address):
     # docs-start: from_address
     address = 1 or 0x1 or "0x1"
     # docs-end: from_address
@@ -52,8 +52,7 @@ async def test_from_address(gateway_account, contract_address):
 
 
 @pytest.mark.asyncio
-async def test_declare(gateway_account, custom_proxy):
-    account = gateway_account
+async def test_declare(account, custom_proxy):
     compiled_contract = custom_proxy
     # docs-start: declare
     declare_result = await Contract.declare(
@@ -63,8 +62,7 @@ async def test_declare(gateway_account, custom_proxy):
 
 
 @pytest.mark.asyncio
-async def test_deploy_contract(gateway_account, class_hash):
-    account = gateway_account
+async def test_deploy_contract(account, class_hash):
     # docs-start: deploy_contract
     deploy_result = await Contract.deploy_contract(
         account=account,
