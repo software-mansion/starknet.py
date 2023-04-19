@@ -23,6 +23,8 @@ Breaking changes
 
 - Deprecated ``ContractData.identifier_manager`` has been removed. Use ``ContractData.parsed_abi`` instead.
 
+- Removed deprecated ``typed_data`` parameter as dict in ``BaseSigner.sign_message``. Use TypedData dataclass from ``starknet_py.utils.typed_data``.
+
 |
 
 .. raw:: html
