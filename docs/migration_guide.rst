@@ -22,7 +22,9 @@ Breaking changes
 4. Deprecated ``is_felt_pointer`` and ``is_uint256`` functions have been removed. Use :meth:`starknet_py.cairo.type_parser.TypeParser` class instead.
 5. Deprecated ``Compiler`` module has been removed. Use an external compilation tool (e.g. Starknet CLI) instead.
 6. Deprecated ``compilation_source`` and ``search_paths`` arguments has been removed from several methods. Use ``compiled_contract`` parameter instead.
-7. ``starknet_py.utils.crypto`` module has been removed.
+7. Deprecated ``ContractData.identifier_manager`` has been removed. Use ``ContractData.parsed_abi`` instead.
+8. Removed deprecated ``typed_data`` parameter as dict in ``BaseSigner.sign_message``. Use TypedData dataclass from ``starknet_py.utils.typed_data``.
+9. ``starknet_py.utils.crypto`` module has been removed.
 
 .. admonition:: Potentially breaking changes
     :class: attention
@@ -30,10 +32,6 @@ Breaking changes
     Internal code of :meth:`starknet_py.abi.AbiParser.parse` has changed.
     It should not affect users but keep in mind that the Contract can have difficulties resolving ABI.
     If so please report.
-
-- Deprecated ``ContractData.identifier_manager`` has been removed. Use ``ContractData.parsed_abi`` instead.
-
-- Removed deprecated ``typed_data`` parameter as dict in ``BaseSigner.sign_message``. Use TypedData dataclass from ``starknet_py.utils.typed_data``.
 
 |
 
