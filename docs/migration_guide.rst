@@ -21,6 +21,8 @@ Breaking changes
     It should not affect users but keep in mind that the Contract can have difficulties resolving ABI.
     If so please report.
 
+- Deprecated ``ContractData.identifier_manager`` has been removed. Use ``ContractData.parsed_abi`` instead.
+
 |
 
 .. raw:: html
