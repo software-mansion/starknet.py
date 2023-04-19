@@ -67,10 +67,10 @@ jobs:
       - name: Typechecking
         run: |
           poetry run poe typecheck
-      - name: Check if requirements.txt and docs-requirements.txt are up-to-date
+      - name: Check if requirements.txt and optional-requirements.txt are up-to-date
         run: |
           poetry export -f requirements.txt --without-hashes | cmp - requirements.txt
-          poetry export -f requirements.txt --without-hashes --extras docs | cmp - docs-requirements.txt
+          poetry export -f requirements.txt --without-hashes --extras docs | cmp - optional-requirements.txt
 
   unit-and-e2e-tests:
     name: Unit and e2e tests

@@ -4,6 +4,6 @@ poetry run poe format
 poetry run poe lint
 poetry run poe typecheck
 poetry export -f requirements.txt --output requirements.txt --without-hashes
-poetry export -f requirements.txt --output docs-requirements.txt --without-hashes --extras docs
+poetry export -f requirements.txt --output optional-requirements.txt --without-hashes --extras docs
 git add requirements.txt
-git add docs-requirements.txt
+git add optional-requirements.txt
