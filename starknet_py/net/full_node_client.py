@@ -1,6 +1,6 @@
 import re
 import warnings
-from typing import Dict, List, Optional, Union, cast
+from typing import Dict, List, Optional, Tuple, Union, cast
 
 import aiohttp
 from marshmallow import EXCLUDE
@@ -15,6 +15,7 @@ from starknet_py.net.client_models import (
     DeclareTransactionResponse,
     DeployAccountTransactionResponse,
     EstimatedFee,
+    EventsResponse,
     Hash,
     SentTransactionResponse,
     StarknetBlock,
@@ -38,6 +39,7 @@ from starknet_py.net.schemas.rpc import (
     DeclareTransactionResponseSchema,
     DeployAccountTransactionResponseSchema,
     EstimatedFeeSchema,
+    EventsSchema,
     PendingTransactionsSchema,
     SentTransactionSchema,
     StarknetBlockSchema,
@@ -50,6 +52,7 @@ from starknet_py.utils.sync import add_sync_methods
 
 @add_sync_methods
 class FullNodeClient(Client):
+    # pylint: disable=too-many-public-methods
     def __init__(
         self,
         node_url: str,
@@ -100,6 +103,100 @@ class FullNodeClient(Client):
         block_number: Optional[Union[int, Tag]] = None,
     ) -> BlockTransactionTraces:
         raise NotImplementedError()
+
+    async def get_events(
+        self,
+        address: Hash,
+        keys: List[str],
+        *,
+        from_block_number: Optional[Union[int, Tag]] = None,
+        from_block_hash: Optional[Union[Hash, Tag]] = None,
+        to_block_number: Optional[Union[int, Tag]] = None,
+        to_block_hash: Optional[Union[Hash, Tag]] = None,
+        follow_continuation_token: bool = False,
+        continuation_token: Optional[str] = None,
+        chunk_size: int = 1,
+    ) -> EventsResponse:
+        # pylint: disable=too-many-arguments
+        """
+        :param address: The address of the contract that emitted the event.
+        :param keys: List of names of events that are searched for.
+            Must be in a form of RPC accepted felt after being hashed by `keccak` hash.
+        :param from_block_number: Number of the block from which events searched for **starts**
+            or literals `"pending"` or `"latest"`. Mutually exclusive with ``from_block_hash`` parameter.
+        :param from_block_hash: Hash of the block from which events searched for **starts**
+            or literals `"pending"` or `"latest"`. Mutually exclusive with ``from_block_number`` parameter.
+        :param to_block_number: Number of the block to which events searched for **end**
+            or literals `"pending"` or `"latest"`. Mutually exclusive with ``to_block_hash`` parameter.
+        :param to_block_hash: Hash of the block to which events searched for **end**
+            or literals `"pending"` or `"latest"`. Mutually exclusive with ``to_block_number`` parameter.
+        :param follow_continuation_token: Flag deciding whether all events should be collected during one function call,
+            defaults to False.
+        :param continuation_token: Continuation token from which the returned events start.
+        :param chunk_size: Size of chunk of events returned by one ``get_events`` call, defaults to 1 (minimum).
+
+        :return: ``EventsResponse`` dataclass containing events and optional continuation token.
+        """
+
+        if chunk_size <= 0:
+            raise ValueError("Argument chunk_size must be greater than 0.")
+
+        from_block = _get_raw_block_identifier(from_block_hash, from_block_number)
+        to_block = _get_raw_block_identifier(to_block_hash, to_block_number)
+        address = _to_rpc_felt(address)
+        keys = [_to_rpc_felt(i) for i in keys]
+
+        events_list = []
+        while True:
+            events, continuation_token = await self._get_events_chunk(
+                from_block=from_block,
+                to_block=to_block,
+                address=address,
+                keys=keys,
+                chunk_size=chunk_size,
+                continuation_token=continuation_token,
+            )
+            events_list.extend(events)
+            if not follow_continuation_token or continuation_token is None:
+                break
+
+        events_response = cast(
+            EventsResponse,
+            EventsSchema().load(
+                {"events": events_list, "continuation_token": continuation_token}
+            ),
+        )
+
+        return events_response
+
+    async def _get_events_chunk(
+        self,
+        from_block: Union[dict, Hash, Tag, None],
+        to_block: Union[dict, Hash, Tag, None],
+        address: Hash,
+        keys: List[str],
+        chunk_size: int,
+        continuation_token: Optional[str] = None,
+    ) -> Tuple[list, Optional[str]]:
+        # pylint: disable=too-many-arguments
+        params = {
+            "chunk_size": chunk_size,
+            "from_block": from_block,
+            "to_block": to_block,
+            "address": address,
+            "keys": keys,
+        }
+        if continuation_token is not None:
+            params["continuation_token"] = continuation_token
+
+        res = await self._client.call(
+            method_name="getEvents",
+            params={"filter": params},
+        )
+
+        if "continuation_token" in res:
+            return res["events"], res["continuation_token"]
+        return res["events"], None
 
     async def get_state_update(
         self,
@@ -275,7 +372,10 @@ class FullNodeClient(Client):
 
         res = await self._client.call(
             method_name="getClass",
-            params={"class_hash": _to_rpc_felt(class_hash), **block_identifier},
+            params={
+                "class_hash": _to_rpc_felt(class_hash),
+                **block_identifier,
+            },
         )
         return cast(ContractClass, ContractClassSchema().load(res, unknown=EXCLUDE))
 
@@ -325,7 +425,8 @@ class FullNodeClient(Client):
         )
 
         res = await self._client.call(
-            method_name="getBlockTransactionCount", params=block_identifier
+            method_name="getBlockTransactionCount",
+            params=block_identifier,
         )
         res = cast(int, res)
         return res
@@ -395,21 +496,28 @@ def get_block_identifier(
     block_hash: Optional[Union[Hash, Tag]] = None,
     block_number: Optional[Union[int, Tag]] = None,
 ) -> dict:
+    return {"block_id": _get_raw_block_identifier(block_hash, block_number)}
+
+
+def _get_raw_block_identifier(
+    block_hash: Optional[Union[Hash, Tag]] = None,
+    block_number: Optional[Union[int, Tag]] = None,
+) -> Union[dict, Hash, Tag, None]:
     if block_hash is not None and block_number is not None:
         raise ValueError(
             "Arguments block_hash and block_number are mutually exclusive."
         )
 
     if block_hash in ("latest", "pending") or block_number in ("latest", "pending"):
-        return {"block_id": block_hash or block_number}
+        return block_hash or block_number
 
     if block_hash is not None:
-        return {"block_id": {"block_hash": _to_rpc_felt(block_hash)}}
+        return {"block_hash": _to_rpc_felt(block_hash)}
 
     if block_number is not None:
-        return {"block_id": {"block_number": block_number}}
+        return {"block_number": block_number}
 
-    return {"block_id": "pending"}
+    return "pending"
 
 
 def _create_broadcasted_txn(transaction: AccountTransaction) -> dict:

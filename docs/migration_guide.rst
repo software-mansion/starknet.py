@@ -9,17 +9,26 @@ Breaking changes
 ----------------
 
 .. currentmodule:: starknet_py.net.account.base_account
-
-1. :meth:`.BaseAccount.verify_message` is no longer ``async``.
-
-2. ``starknet_py.utils.crypto`` module has been removed.
-
-3. Some functions' implementation has been changed to use ``crypto-cpp-py`` package:
+1. :meth:`BaseAccount.verify_message` is no longer ``async``.
+2. Some functions' implementation has been changed to use ``crypto-cpp-py`` package:
 
    - ``pedersen_hash``
    - ``private_to_stark_key``
    - ``message_signature``
    - ``verify_message_signature``
+
+3. Deprecated ``utils.data_transformer`` module has been removed. Use :ref:`Serializers` module instead.
+4. Deprecated ``is_felt_pointer`` and ``is_uint256`` functions have been removed. Use :meth:`starknet_py.cairo.type_parser.TypeParser` class instead.
+5. Deprecated ``Compiler`` module has been removed. Use an external compilation tool (e.g. Starknet CLI) instead.
+6. Deprecated ``compilation_source`` and ``search_paths`` arguments has been removed from several methods. Use ``compiled_contract`` parameter instead.
+7. ``starknet_py.utils.crypto`` module has been removed.
+
+.. admonition:: Potentially breaking changes
+    :class: attention
+
+    Internal code of :meth:`starknet_py.abi.AbiParser.parse` has changed.
+    It should not affect users but keep in mind that the Contract can have difficulties resolving ABI.
+    If so please report.
 
 |
 
@@ -182,7 +191,7 @@ This version deprecates several modules and fixes underlying issues with several
 0.14.0 Deprecations
 -------------------
 
-1. :ref:`compiler` module. It will be removed in the future. We recommend transitioning to building contracts through Starknet CLI or external tools and using only compiled contracts with starknet.py.
+1. `compiler` module. It will be removed in the future. We recommend transitioning to building contracts through Starknet CLI or external tools and using only compiled contracts with starknet.py.
 2. ``utils.data_transformer`` module. It has been replaced with :ref:`serializers` module.
 
 
