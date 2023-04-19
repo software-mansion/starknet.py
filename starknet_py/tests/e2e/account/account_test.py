@@ -364,17 +364,21 @@ async def test_deploy_account_raises_on_incorrect_address(
             max_fee=MAX_FEE,
         )
 
-# TODO
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "call_contract", ["starknet_py.net.gateway_client.GatewayClient.call_contract", "starknet_py.net.full_node_client.FullNodeClient.call_contract"]
+    "call_contract",
+    [
+        "starknet_py.net.gateway_client.GatewayClient.call_contract",
+        "starknet_py.net.full_node_client.FullNodeClient.call_contract",
+    ],
 )
-async def test_deploy_account_raises_on_no_enough_funds(deploy_account_details_factory, call_contract, client):
+async def test_deploy_account_raises_on_no_enough_funds(
+    deploy_account_details_factory, call_contract, client
+):
     address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
 
-    with patch(
-        call_contract, AsyncMock()
-    ) as mocked_balance:
+    with patch(call_contract, AsyncMock()) as mocked_balance:
         mocked_balance.return_value = (0, 0)
 
         with pytest.raises(
@@ -396,17 +400,23 @@ async def test_deploy_account_raises_on_no_enough_funds(deploy_account_details_f
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "call_contract, deploy_account",
-    [("starknet_py.net.gateway_client.GatewayClient.call_contract",
-     "starknet_py.net.gateway_client.GatewayClient.deploy_account"),
-     ("starknet_py.net.full_node_client.FullNodeClient.call_contract",
-     "starknet_py.net.full_node_client.FullNodeClient.deploy_account")]
+    [
+        (
+            "starknet_py.net.gateway_client.GatewayClient.call_contract",
+            "starknet_py.net.gateway_client.GatewayClient.deploy_account",
+        ),
+        (
+            "starknet_py.net.full_node_client.FullNodeClient.call_contract",
+            "starknet_py.net.full_node_client.FullNodeClient.deploy_account",
+        ),
+    ],
 )
-async def test_deploy_account_passes_on_enough_funds(deploy_account_details_factory, call_contract, deploy_account, client):
+async def test_deploy_account_passes_on_enough_funds(
+    deploy_account_details_factory, call_contract, deploy_account, client
+):
     address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
 
-    with patch(
-        call_contract, AsyncMock()
-    ) as mocked_balance, patch(
+    with patch(call_contract, AsyncMock()) as mocked_balance, patch(
         deploy_account, AsyncMock()
     ) as mocked_deploy:
         mocked_balance.return_value = (0, 100)

@@ -27,7 +27,6 @@ from starknet_py.transaction_exceptions import (
     TransactionRejectedError,
 )
 
-# TODO ?
 
 @pytest.mark.asyncio
 async def test_get_declare_transaction(
@@ -206,7 +205,17 @@ async def test_get_class_by_hash(client, class_hash):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "client, get_tx_receipt", [("full_node_client", "starknet_py.net.full_node_client.FullNodeClient.get_transaction_receipt"), ("gateway_client", "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt")]
+    "client, get_tx_receipt",
+    [
+        (
+            "full_node_client",
+            "starknet_py.net.full_node_client.FullNodeClient.get_transaction_receipt",
+        ),
+        (
+            "gateway_client",
+            "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt",
+        ),
+    ],
 )
 async def test_wait_for_tx_accepted(client, get_tx_receipt, request):
     with patch(
@@ -225,9 +234,16 @@ async def test_wait_for_tx_accepted(client, get_tx_receipt, request):
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "client, get_tx_receipt",
-    [("full_node_client", "starknet_py.net.full_node_client.FullNodeClient.get_transaction_receipt"),
-     ("gateway_client", "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt")]
-
+    [
+        (
+            "full_node_client",
+            "starknet_py.net.full_node_client.FullNodeClient.get_transaction_receipt",
+        ),
+        (
+            "gateway_client",
+            "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt",
+        ),
+    ],
 )
 async def test_wait_for_tx_pending(client, get_tx_receipt, request):
     with patch(
@@ -279,9 +295,16 @@ async def test_wait_for_tx_rejected(status, exception, exc_message, gateway_clie
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "client, get_tx_receipt",
-    [("full_node_client", "starknet_py.net.full_node_client.FullNodeClient.get_transaction_receipt"),
-     ("gateway_client", "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt")]
-
+    [
+        (
+            "full_node_client",
+            "starknet_py.net.full_node_client.FullNodeClient.get_transaction_receipt",
+        ),
+        (
+            "gateway_client",
+            "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt",
+        ),
+    ],
 )
 async def test_wait_for_tx_cancelled(client, get_tx_receipt, request):
     with patch(
