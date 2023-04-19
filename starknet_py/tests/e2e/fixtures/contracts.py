@@ -67,14 +67,6 @@ def erc20_compiled_contract() -> str:
 
 
 @pytest.fixture(scope="package")
-def base_compiled_contract() -> str:
-    """
-    Returns compiled base contract.
-    """
-    return read_contract("base_compiled.json")
-
-
-@pytest.fixture(scope="package")
 def constructor_with_arguments_compiled_contract() -> str:
     """
     Returns compiled constructor_with_arguments contract.
@@ -133,6 +125,23 @@ async def map_contract(
     """
     abi = create_compiled_contract(compiled_contract=map_compiled_contract).abi
     return await deploy_contract(gateway_account, map_class_hash, abi)
+
+
+@pytest_asyncio.fixture(scope="function")
+async def simple_storage_with_event_contract(
+    gateway_account: BaseAccount,
+    simple_storage_with_event_compiled_contract: str,
+    simple_storage_with_event_class_hash: int,
+) -> Contract:
+    """
+    Deploys storage contract with an events and returns its instance.
+    """
+    abi = create_compiled_contract(
+        compiled_contract=simple_storage_with_event_compiled_contract
+    ).abi
+    return await deploy_contract(
+        gateway_account, simple_storage_with_event_class_hash, abi
+    )
 
 
 @pytest_asyncio.fixture(name="erc20_contract", scope="package")
@@ -231,6 +240,22 @@ async def map_class_hash(
 
 
 @pytest_asyncio.fixture(scope="package")
+async def simple_storage_with_event_class_hash(
+    gateway_account: BaseAccount, simple_storage_with_event_compiled_contract: str
+):
+    """
+    Returns class_hash of the simple_storage_with_event.cairo
+    """
+    declare = await gateway_account.sign_declare_transaction(
+        compiled_contract=simple_storage_with_event_compiled_contract,
+        max_fee=int(1e16),
+    )
+    res = await gateway_account.client.declare(declare)
+    await gateway_account.client.wait_for_tx(res.transaction_hash)
+    return res.class_hash
+
+
+@pytest_asyncio.fixture(scope="package")
 async def erc20_class_hash(
     gateway_account: BaseAccount, erc20_compiled_contract: str
 ) -> int:
@@ -257,7 +282,7 @@ def constructor_with_arguments_abi() -> List:
     Returns an abi of the constructor_with_arguments.cairo.
     """
     compiled_contract = create_compiled_contract(
-        compilation_source=constructor_with_arguments_source
+        compiled_contract=read_contract("constructor_with_arguments_compiled.json")
     )
     assert compiled_contract.abi is not None
     return compiled_contract.abi
