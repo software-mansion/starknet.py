@@ -174,7 +174,7 @@ async def test_create_deployment_call_raw_supports_seed_0(
 ):
     sample_calldata = {
         # the transactions have to be different for each account
-        "single_value": 20 + isinstance(account.client, FullNodeClient),
+        "single_value": 20 if isinstance(account.client, FullNodeClient) else 30,
         "tuple": (1, (2, 3)),
         "arr": [1, 2, 3],
         "dict": {"value": 12, "nested_struct": {"value": 99}},
