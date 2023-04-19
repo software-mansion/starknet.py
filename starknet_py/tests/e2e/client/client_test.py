@@ -260,7 +260,6 @@ async def test_wait_for_tx_pending(client, get_tx_receipt, request):
         assert tx_status == TransactionStatus.PENDING
 
 
-# TODO
 @pytest.mark.parametrize(
     "status, exception, exc_message",
     (
@@ -276,18 +275,33 @@ async def test_wait_for_tx_pending(client, get_tx_receipt, request):
         ),
     ),
 )
+@pytest.mark.parametrize(
+    "client, get_tx_receipt",
+    [
+        (
+            "gateway_client",
+            "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt",
+        ),
+        (
+            "full_node_client",
+            "starknet_py.net.full_node_client.FullNodeClient.get_transaction_receipt",
+        ),
+    ],
+)
 @pytest.mark.asyncio
-async def test_wait_for_tx_rejected(status, exception, exc_message, gateway_client):
+async def test_wait_for_tx_rejected(
+    status, exception, exc_message, client, get_tx_receipt, request
+):
     with patch(
-        "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt",
+        get_tx_receipt,
         AsyncMock(),
     ) as mocked_receipt:
         mocked_receipt.return_value = TransactionReceipt(
             hash=0x1, status=status, block_number=1, rejection_reason=exc_message
         )
-
+        client = request.getfixturevalue(client)
         with pytest.raises(exception) as err:
-            await gateway_client.wait_for_tx(tx_hash=0x1)
+            await client.wait_for_tx(tx_hash=0x1)
 
         assert exc_message in err.value.message
 
