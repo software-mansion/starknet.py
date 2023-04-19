@@ -40,6 +40,10 @@ TypeSentTransaction = TypeVar("TypeSentTransaction", bound="SentTransaction")
 
 @dataclass(frozen=True)
 class ContractData:
+    """
+    Basic data of a deployed contract.
+    """
+
     address: int
     abi: ABI
 
@@ -53,6 +57,12 @@ class ContractData:
 
     @staticmethod
     def from_abi(address: int, abi: ABI) -> ContractData:
+        """
+        Create ContractData from ABI.
+        :param address: Address of the deployed contract.
+        :param abi: Abi of the contract.
+        :return: ContractData instance.
+        """
         return ContractData(
             address=address,
             abi=abi,
