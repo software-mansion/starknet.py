@@ -16,6 +16,15 @@ ContractFunction
     :members:
     :member-order: groupwise
 
+------------
+ContractData
+------------
+
+.. autoclass:: ContractData
+    :exclude-members: __init__, __new__
+    :members:
+    :member-order: groupwise
+
 --------------------
 PreparedFunctionCall
 --------------------
