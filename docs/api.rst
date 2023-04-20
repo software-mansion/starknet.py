@@ -18,3 +18,4 @@ API
    api/cairo
    api/serializers
    api/proxy_resolvers
+   api/typed_data
