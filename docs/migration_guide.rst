@@ -5,6 +5,14 @@ Migration guide
 0.16.0 Migration guide
 **********************
 
+Bugfixes
+--------
+
+.. currentmodule:: starknet_py.net.udc_deployer.deployer
+
+1. Fixed a bug where :meth:`Deployer.create_contract_deployment_raw` would use a random salt, when ``salt = 0`` was passed.
+
+
 Breaking changes
 ----------------
 
