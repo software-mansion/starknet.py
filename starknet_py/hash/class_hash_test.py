@@ -1,6 +1,7 @@
 # pylint: disable=line-too-long
 # fmt: off
 import pytest
+
 from starknet_py.common import create_contract_class
 from starknet_py.hash.class_hash import compute_class_hash
 from starknet_py.tests.e2e.fixtures.misc import read_contract
