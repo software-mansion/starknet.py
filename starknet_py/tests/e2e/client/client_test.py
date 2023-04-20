@@ -355,9 +355,8 @@ async def test_declare_contract(map_compiled_contract, account):
     assert 0 < transaction_receipt.actual_fee <= MAX_FEE
 
 
-# TODO
 @pytest.mark.asyncio
-async def test_custom_session(map_contract, network):
+async def test_custom_session_gateway_client(map_contract, network):
     # We must access protected `feeder_gateway_client` to test session
     # pylint: disable=protected-access
 
@@ -392,6 +391,44 @@ async def test_custom_session(map_contract, network):
 
     assert gateway_client1._feeder_gateway_client.session.closed is True
     assert gateway_client2._feeder_gateway_client.session.closed is True
+
+
+@pytest.mark.asyncio
+async def test_custom_session_full_node_client(map_contract, network):
+    # We must access protected `_client` to test session
+    # pylint: disable=protected-access
+
+    session = ClientSession()
+
+    tx_hash = (
+        await (
+            await map_contract.functions["put"].invoke(
+                key=10, value=20, max_fee=MAX_FEE
+            )
+        ).wait_for_acceptance()
+    ).hash
+
+    full_node_client1 = FullNodeClient(node_url=network + '/rpc', net=network, session=session)
+    full_node_client2 = FullNodeClient(node_url=network + '/rpc', net=network, session=session)
+
+    assert full_node_client1._client.session is not None
+    assert full_node_client1._client.session == session
+    assert full_node_client1._client.session.closed is False
+    assert full_node_client2._client.session is not None
+    assert full_node_client2._client.session == session
+    assert full_node_client2._client.session.closed is False
+
+    gateway1_response = await full_node_client1.get_transaction_receipt(tx_hash=tx_hash)
+    gateway2_response = await full_node_client2.get_transaction_receipt(tx_hash=tx_hash)
+    assert gateway1_response == gateway2_response
+
+    assert full_node_client1._client.session.closed is False
+    assert full_node_client2._client.session.closed is False
+
+    await session.close()
+
+    assert full_node_client1._client.session.closed is True
+    assert full_node_client2._client.session.closed is True
 
 
 # TODO

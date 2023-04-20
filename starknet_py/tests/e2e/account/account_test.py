@@ -95,6 +95,7 @@ async def test_sending_multicall(account, map_contract, key, val):
     assert value == val
 
 
+# FullNode is not tested because we don't implement trace api (devnet does not either)
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_block_traces(gateway_account):
@@ -211,7 +212,6 @@ async def test_sign_declare_transaction_auto_estimate(account, map_compiled_cont
     assert signed_tx.max_fee > 0
 
 
-# TODO full node not working
 @pytest.mark.asyncio
 async def test_sign_declare_v2_transaction(
     account, sierra_minimal_compiled_contract_and_class_hash
@@ -237,14 +237,14 @@ async def test_sign_declare_v2_transaction(
 # TODO same error here
 @pytest.mark.asyncio
 async def test_sign_declare_v2_transaction_auto_estimate(
-    account, sierra_minimal_compiled_contract_and_class_hash
+    full_node_account, sierra_minimal_compiled_contract_and_class_hash
 ):
     (
         compiled_contract,
         compiled_class_hash,
     ) = sierra_minimal_compiled_contract_and_class_hash
 
-    signed_tx = await account.sign_declare_v2_transaction(
+    signed_tx = await full_node_account.sign_declare_v2_transaction(
         compiled_contract,
         compiled_class_hash=compiled_class_hash,
         auto_estimate=True,
@@ -396,7 +396,6 @@ async def test_deploy_account_raises_on_no_enough_funds(
             )
 
 
-# parametrize applies here as well
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "call_contract, deploy_account",
