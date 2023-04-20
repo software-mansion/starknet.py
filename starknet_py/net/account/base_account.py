@@ -188,7 +188,7 @@ class BaseAccount(ABC):
         """
 
     @abstractmethod
-    async def verify_message(self, typed_data: TypedData, signature: List[int]) -> bool:
+    def verify_message(self, typed_data: TypedData, signature: List[int]) -> bool:
         """
         Verify a signature of a TypedData dict on Starknet.
 

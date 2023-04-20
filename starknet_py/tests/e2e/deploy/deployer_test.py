@@ -1,6 +1,8 @@
 import pytest
 
 from starknet_py.contract import Contract
+from starknet_py.hash.address import compute_address
+from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.utils.contructor_args_translator import translate_constructor_args
@@ -144,7 +146,7 @@ async def test_create_deployment_call_raw(
     deployer = Deployer(account_address=account.address)
 
     raw_calldata = translate_constructor_args(
-        abi=constructor_with_arguments_abi or [], constructor_args=calldata
+        abi=constructor_with_arguments_abi, constructor_args=calldata
     )
 
     (
@@ -163,3 +165,49 @@ async def test_create_deployment_call_raw(
 
     assert isinstance(contract_address, int)
     assert contract_address != 0
+
+
+@pytest.mark.asyncio
+async def test_create_deployment_call_raw_supports_seed_0(
+    account,
+    constructor_with_arguments_abi,
+    constructor_with_arguments_class_hash,
+):
+    sample_calldata = {
+        # the transactions have to be different for each account
+        "single_value": 20 if isinstance(account.client, FullNodeClient) else 30,
+        "tuple": (1, (2, 3)),
+        "arr": [1, 2, 3],
+        "dict": {"value": 12, "nested_struct": {"value": 99}},
+    }
+    deployer = Deployer()
+
+    raw_calldata = translate_constructor_args(
+        abi=constructor_with_arguments_abi, constructor_args=sample_calldata
+    )
+
+    expected_address = compute_address(
+        class_hash=constructor_with_arguments_class_hash,
+        constructor_calldata=raw_calldata,
+        salt=0,
+    )
+
+    (
+        deploy_call,
+        contract_address,
+    ) = deployer.create_deployment_call_raw(
+        class_hash=constructor_with_arguments_class_hash,
+        raw_calldata=raw_calldata,
+        salt=0,
+    )
+
+    deploy_invoke_transaction = await account.sign_invoke_transaction(
+        deploy_call, max_fee=MAX_FEE
+    )
+    resp = await account.client.send_transaction(deploy_invoke_transaction)
+    await account.client.wait_for_tx(resp.transaction_hash)
+
+    assert isinstance(contract_address, int)
+    assert (
+        contract_address == expected_address
+    ), f"Expected address {expected_address}, got {contract_address}."
