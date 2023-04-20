@@ -56,3 +56,27 @@ Storage
 .. automodule:: starknet_py.hash.storage
     :members:
     :member-order: bysource
+
+-------------
+Pedersen hash
+-------------
+
+.. autofunction:: starknet_py.hash.utils.pedersen_hash
+
+--------------------
+Private to stark key
+--------------------
+
+.. autofunction:: starknet_py.hash.utils.private_to_stark_key
+
+-----------------
+Message signature
+-----------------
+
+.. autofunction:: starknet_py.hash.utils.message_signature
+
+------------------------
+Verify message signature
+------------------------
+
+.. autofunction:: starknet_py.hash.utils.verify_message_signature
