@@ -76,16 +76,16 @@ def test_compute_declare_transaction_hash(contract_json, data, expected_declare_
     assert declare_hash == expected_declare_hash
 
 
+# fmt: off
 @pytest.mark.parametrize(
     "sierra_contract_class_source, expected_declare_v2_hash",
-    # fmt: off
     [
         ("account_compiled", 0x23ADCD880276B0F56ADD013F22B2DE47F128A42496F6244BC7A276C93B62215),
         ("erc20_compiled", 0x16D944106C3FF0A7999D267C17C8227483A5EA750CCFA6E2956AE64FB1E1666),
         ("minimal_contract_compiled", 0x5B85A51C7A7190B7AFD755B03AE32AE30D597BC943DBA4453F1E53AE3F65D87),
     ],
-    # fmt: on
 )
+# fmt: on
 def test_compute_declare_v2_transaction_hash(
     sierra_contract_class_source, expected_declare_v2_hash
 ):
