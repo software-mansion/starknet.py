@@ -15,14 +15,16 @@ from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 @pytest.mark.parametrize("net", (TESTNET, TESTNET2, MAINNET))
 @pytest.mark.parametrize(
     "call_contract",
-    ["starknet_py.net.gateway_client.GatewayClient.call_contract",
-     "starknet_py.net.full_node_client.FullNodeClient.call_contract"]
+    [
+        "starknet_py.net.gateway_client.GatewayClient.call_contract",
+        "starknet_py.net.full_node_client.FullNodeClient.call_contract",
+    ],
 )
 async def test_get_balance_default_token_address(net, call_contract):
     if "gateway" in call_contract:
         client = GatewayClient(net=net)
     else:
-        client = FullNodeClient(node_url=net + '/rpc')
+        client = FullNodeClient(node_url=net + "/rpc")
     acc_client = Account(
         client=client,
         address="0x123",
