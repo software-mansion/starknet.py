@@ -70,9 +70,7 @@ async def test_sign_offchain_message(account):
     signature = account.sign_message(typed_data=typed_data)
 
     # Verify the message
-    verify_result = await account.verify_message(
-        typed_data=typed_data, signature=signature
-    )
+    verify_result = account.verify_message(typed_data=typed_data, signature=signature)
 
     # Or if just a message hash is needed
     data = TypedData.from_dict(typed_data)

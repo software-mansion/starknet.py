@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Dict, List, Union
+from typing import List
 
 from starknet_py.net.models.transaction import AccountTransaction
 from starknet_py.utils.typed_data import TypedData
@@ -29,19 +29,12 @@ class BaseSigner(ABC):
         """
 
     @abstractmethod
-    def sign_message(
-        self, typed_data: Union[Dict, TypedData], account_address: int
-    ) -> List[int]:
+    def sign_message(self, typed_data: TypedData, account_address: int) -> List[int]:
         """
-        Sign an TypedData TypedDict for off-chain usage with the Starknet private key and return the signature
-        This adds a message prefix, so it can't be interchanged with transactions
+        Sign TypedData object for off-chain usage with the Starknet private key and return the signature.
+        This adds a message prefix, so it can't be interchanged with transactions.
 
-        :param typed_data:
-            TypedData TypedDict to be signed
-
-             .. deprecated:: 0.13.0
-                TypedData as dict has been deprecated as possible argument.
-                Use :py:class:`starknet_py.utils.TypedData` instead
-        :param account_address: account address
-        :return: the signature of the JSON object
+        :param typed_data: TypedData to be signed.
+        :param account_address: account address.
+        :return: the signature of the JSON object.
         """

@@ -47,7 +47,7 @@ pyright = "^1.1.298"
 pytest-cov = "^4.0.0"
 isort = "^5.11.4"
 pytest-rerunfailures = "^11.1"
-starknet-devnet = "0.5.0a2"
+starknet-devnet = "0.5.0"
 
 [tool.poe.tasks]
 test.shell = "pytest -n auto -v --reruns 10 --only-rerun aiohttp.client_exceptions.ClientConnectorError --cov=starknet_py starknet_py"
