@@ -234,17 +234,18 @@ async def test_sign_declare_v2_transaction(
     assert signed_tx.max_fee == MAX_FEE
 
 
-# TODO same error here
+# TODO full_node_account doesn't work here because declare_v2 isn't supported, change was introduced in RPC v0.3.0
+# and devnet hasn't been updated yet
 @pytest.mark.asyncio
 async def test_sign_declare_v2_transaction_auto_estimate(
-    full_node_account, sierra_minimal_compiled_contract_and_class_hash
+    gateway_account, sierra_minimal_compiled_contract_and_class_hash
 ):
     (
         compiled_contract,
         compiled_class_hash,
     ) = sierra_minimal_compiled_contract_and_class_hash
 
-    signed_tx = await full_node_account.sign_declare_v2_transaction(
+    signed_tx = await gateway_account.sign_declare_v2_transaction(
         compiled_contract,
         compiled_class_hash=compiled_class_hash,
         auto_estimate=True,

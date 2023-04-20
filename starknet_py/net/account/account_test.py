@@ -4,17 +4,25 @@ import pytest
 
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.net.account.account import Account
+from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId, parse_address
 from starknet_py.net.networks import MAINNET, TESTNET, TESTNET2
 from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 
 
-# TODO
 @pytest.mark.asyncio
 @pytest.mark.parametrize("net", (TESTNET, TESTNET2, MAINNET))
-async def test_get_balance_default_token_address(net):
-    client = GatewayClient(net=net)
+@pytest.mark.parametrize(
+    "call_contract",
+    ["starknet_py.net.gateway_client.GatewayClient.call_contract",
+     "starknet_py.net.full_node_client.FullNodeClient.call_contract"]
+)
+async def test_get_balance_default_token_address(net, call_contract):
+    if "gateway" in call_contract:
+        client = GatewayClient(net=net)
+    else:
+        client = FullNodeClient(node_url=net + '/rpc')
     acc_client = Account(
         client=client,
         address="0x123",
@@ -23,7 +31,7 @@ async def test_get_balance_default_token_address(net):
     )
 
     with patch(
-        "starknet_py.net.gateway_client.GatewayClient.call_contract",
+        call_contract,
         AsyncMock(),
     ) as mocked_call_contract:
         mocked_call_contract.return_value = [0, 0]

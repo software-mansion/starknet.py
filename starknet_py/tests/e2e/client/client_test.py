@@ -408,8 +408,12 @@ async def test_custom_session_full_node_client(map_contract, network):
         ).wait_for_acceptance()
     ).hash
 
-    full_node_client1 = FullNodeClient(node_url=network + '/rpc', net=network, session=session)
-    full_node_client2 = FullNodeClient(node_url=network + '/rpc', net=network, session=session)
+    full_node_client1 = FullNodeClient(
+        node_url=network + "/rpc", net=network, session=session
+    )
+    full_node_client2 = FullNodeClient(
+        node_url=network + "/rpc", net=network, session=session
+    )
 
     assert full_node_client1._client.session is not None
     assert full_node_client1._client.session == session
