@@ -33,6 +33,12 @@ class TypedData:
 
     @staticmethod
     def from_dict(data: TypedDataDict) -> "TypedData":
+        """
+        Create TypedData dataclass from dictionary.
+
+        :param data: TypedData dictionary.
+        :return: TypedData dataclass instance.
+        """
         return cast(TypedData, TypedDataSchema().load(data))
 
     def _is_struct(self, type_name: str) -> bool:
@@ -92,14 +98,33 @@ class TypedData:
         return "".join([make_dependency_str(x) for x in types])
 
     def type_hash(self, type_name: str) -> int:
+        """
+        Calculate the hash of a type name.
+
+        :param type_name: Name of the type.
+        :return: Hash of the type name.
+        """
         return get_selector_from_name(self._encode_type(type_name))
 
     def struct_hash(self, type_name: str, data: dict) -> int:
+        """
+        Calculate the hash of a struct.
+
+        :param type_name: Name of the type.
+        :param data: Data defining the struct.
+        :return: Hash of the struct.
+        """
         return compute_hash_on_elements(
             [self.type_hash(type_name), *self._encode_data(type_name, data)]
         )
 
     def message_hash(self, account_address: int) -> int:
+        """
+        Calculate the hash of the message.
+
+        :param account_address: Address of an account.
+        :return: Hash of the message.
+        """
         message = [
             encode_shortstring("StarkNet Message"),
             self.struct_hash("StarkNetDomain", cast(dict, self.domain)),
