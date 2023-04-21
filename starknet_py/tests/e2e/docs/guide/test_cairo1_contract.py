@@ -39,7 +39,7 @@ async def test_cairo1_contract(
 
     # Create Declare v2 transaction
     declare_v2_transaction = await account.sign_declare_v2_transaction(
-        # contract_compiled is a string containing the content of the starknet-compile (.json file)
+        # compiled_contract is a string containing the content of the starknet-compile (.json file)
         compiled_contract=compiled_contract,
         compiled_class_hash=casm_class_hash,
         max_fee=MAX_FEE,
