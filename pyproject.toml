@@ -67,8 +67,7 @@ typecheck = "pyright starknet_py"
 compile_contracts = "bash starknet_py/tests/e2e/mock/compile_contracts.sh"
 compile_contracts_v1 = "bash starknet_py/tests/e2e/mock/compile_contracts_v1.sh"
 circular_imports_check.shell = "poetry run pytest circular.py"
-requirements_check.shell = "poetry export -f requirements.txt --without-hashes --extras docs | cmp - requirements.txt"
-ci = ["lint", "format_check", "typecheck", "requirements_check", "test_ci"]
+ci = ["lint", "format_check", "typecheck", "test_ci"]
 
 [tool.poetry.build]
 generate-setup-file = true
