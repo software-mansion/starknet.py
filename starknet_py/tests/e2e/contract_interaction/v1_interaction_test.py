@@ -14,17 +14,17 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
 @pytest.mark.asyncio
 async def test_general_v1_interaction(gateway_account):
     # declare
-    erc20_compiled_sierra = read_contract(
+    erc20_sierra = read_contract(
         "erc20_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
     )
-    erc20_compiled_casm = read_contract(
+    erc20_casm = read_contract(
         "erc20_compiled.casm", directory=CONTRACTS_COMPILED_V1_DIR
     )
 
-    casm_class_hash = compute_casm_class_hash(create_casm_class(erc20_compiled_casm))
+    casm_class_hash = compute_casm_class_hash(create_casm_class(erc20_casm))
 
     declare_tx = await gateway_account.sign_declare_v2_transaction(
-        erc20_compiled_sierra, casm_class_hash, max_fee=MAX_FEE
+        erc20_sierra, casm_class_hash, max_fee=MAX_FEE
     )
     resp = await gateway_account.client.declare(transaction=declare_tx)
     await gateway_account.client.wait_for_tx(resp.transaction_hash)
@@ -32,7 +32,7 @@ async def test_general_v1_interaction(gateway_account):
     deployer = Deployer()
     contract_deployment = deployer.create_contract_deployment(
         resp.class_hash,
-        abi=json.loads(erc20_compiled_sierra)["abi"],
+        abi=json.loads(erc20_sierra)["abi"],
         cairo_version=1,
         calldata={
             "name_": encode_shortstring("erc20_basic"),
@@ -51,7 +51,7 @@ async def test_general_v1_interaction(gateway_account):
 
     erc20 = Contract(
         address=contract_deployment.address,
-        abi=json.loads(erc20_compiled_sierra)["abi"],
+        abi=json.loads(erc20_sierra)["abi"],
         provider=gateway_account,
         cairo_version=1,
     )
@@ -78,3 +78,49 @@ async def test_general_v1_interaction(gateway_account):
     assert supply == 12345
     assert account_balance == 12345
     assert after_transfer_balance == 12345 - 10
+
+
+@pytest.mark.asyncio
+async def test_serializing_struct(gateway_account):
+    # declare
+    bridge_sierra = read_contract(
+        "token_bridge_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
+    )
+    bridge_casm = read_contract(
+        "token_bridge_compiled.casm", directory=CONTRACTS_COMPILED_V1_DIR
+    )
+
+    casm_class_hash = compute_casm_class_hash(create_casm_class(bridge_casm))
+
+    declare_tx = await gateway_account.sign_declare_v2_transaction(
+        bridge_sierra, casm_class_hash, max_fee=MAX_FEE
+    )
+    resp = await gateway_account.client.declare(transaction=declare_tx)
+    await gateway_account.client.wait_for_tx(resp.transaction_hash)
+
+    deployer = Deployer()
+    contract_deployment = deployer.create_contract_deployment(
+        resp.class_hash,
+        abi=json.loads(bridge_sierra)["abi"],
+        cairo_version=1,
+        calldata={"governor_address": gateway_account.address},
+    )
+
+    deploy_invoke_transaction = await gateway_account.sign_invoke_transaction(
+        calls=contract_deployment.call, max_fee=MAX_FEE
+    )
+    resp = await gateway_account.client.send_transaction(deploy_invoke_transaction)
+    await gateway_account.client.wait_for_tx(resp.transaction_hash)
+
+    bridge = Contract(
+        address=contract_deployment.address,
+        abi=json.loads(bridge_sierra)["abi"],
+        provider=gateway_account,
+        cairo_version=1,
+    )
+
+    await (
+        await bridge.functions["set_l1_bridge"].invoke(
+            l1_bridge_address={"address": 0x11}, max_fee=MAX_FEE
+        )
+    ).wait_for_acceptance()
