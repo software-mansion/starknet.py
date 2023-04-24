@@ -1,5 +1,6 @@
 # pylint: disable=redefined-outer-name
-from typing import List, Tuple
+import json
+from typing import Any, Dict, List, Tuple
 
 import pytest
 import pytest_asyncio
@@ -9,6 +10,7 @@ from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.contract import Contract
 from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.net.account.base_account import BaseAccount
+from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import (
     CONTRACTS_COMPILED_V1_DIR,
     CONTRACTS_DIR,
@@ -91,6 +93,54 @@ async def deploy_contract(account: BaseAccount, class_hash: int, abi: List) -> C
     )
     deployment_result = await deployment_result.wait_for_acceptance()
     return deployment_result.deployed_contract
+
+
+async def deploy_v1_contract(
+    account: BaseAccount, contract_file_name: str, calldata: Dict[str, Any]
+) -> Contract:
+    """
+    Declares and deploys Cairo1.0 contract.
+
+    :param account: An account which will be used to invoke the Contract.
+    :param contract_file_name: Name of the file with code (e.g. `erc20` if filename is `erc20.cairo`).
+    :param calldata: Dict with constructor arguments (can be empty).
+    :returns: Instance of the deployed contract.
+    """
+    contract_sierra = read_contract(
+        contract_file_name + "_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
+    )
+    contrat_casm = read_contract(
+        contract_file_name + "_compiled.casm", directory=CONTRACTS_COMPILED_V1_DIR
+    )
+
+    casm_class_hash = compute_casm_class_hash(create_casm_class(contrat_casm))
+
+    declare_tx = await account.sign_declare_v2_transaction(
+        contract_sierra, casm_class_hash, max_fee=MAX_FEE
+    )
+    resp = await account.client.declare(transaction=declare_tx)
+    await account.client.wait_for_tx(resp.transaction_hash)
+
+    deployer = Deployer()
+    contract_deployment = deployer.create_contract_deployment(
+        resp.class_hash,
+        abi=json.loads(contract_sierra)["abi"],
+        cairo_version=1,
+        calldata=calldata,
+    )
+
+    deploy_invoke_transaction = await account.sign_invoke_transaction(
+        calls=contract_deployment.call, max_fee=MAX_FEE
+    )
+    resp = await account.client.send_transaction(deploy_invoke_transaction)
+    await account.client.wait_for_tx(resp.transaction_hash)
+
+    return Contract(
+        address=contract_deployment.address,
+        abi=json.loads(contract_sierra)["abi"],
+        provider=account,
+        cairo_version=1,
+    )
 
 
 @pytest_asyncio.fixture(scope="package")
