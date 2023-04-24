@@ -4,12 +4,13 @@ import dataclasses
 import warnings
 from dataclasses import dataclass
 from functools import cached_property
-from typing import Dict, List, Optional, Tuple, TypeVar, Union
+from typing import Dict, List, Optional, Tuple, TypeVar, Union, cast
 
 from marshmallow import ValidationError
 
 from starknet_py.abi.model import Abi
 from starknet_py.abi.parser import AbiParser
+from starknet_py.abi.v1.model import Abi as AbiV1
 from starknet_py.abi.v1.parser import AbiParser as AbiV1Parser
 from starknet_py.common import create_compiled_contract
 from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
@@ -47,7 +48,7 @@ class ContractData:
     cairo_version: int
 
     @cached_property
-    def parsed_abi(self) -> Abi:
+    def parsed_abi(self) -> Union[Abi, AbiV1]:
         """
         Abi parsed into proper dataclass.
         :return: Abi
@@ -352,11 +353,11 @@ class ContractFunction:
         self.account = account
         if cairo_version == 1:
             self._payload_transformer = serializer_for_function_v1(
-                contract_data.parsed_abi.functions[name]
+                cast(AbiV1, contract_data.parsed_abi).functions[name]
             )
         else:
             self._payload_transformer = serializer_for_function(
-                contract_data.parsed_abi.functions[name]
+                cast(Abi, contract_data.parsed_abi).functions[name]
             )
 
     def prepare(

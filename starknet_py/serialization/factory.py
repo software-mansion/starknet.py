@@ -4,6 +4,7 @@ from collections import OrderedDict
 from typing import Dict, List
 
 from starknet_py.abi.model import Abi
+from starknet_py.abi.v1.model import Abi as AbiV1
 from starknet_py.cairo.data_types import (
     ArrayType,
     CairoType,
@@ -38,6 +39,7 @@ from starknet_py.serialization.data_serializers.uint_serializer import UintSeria
 from starknet_py.serialization.errors import InvalidTypeException
 from starknet_py.serialization.function_serialization_adapter import (
     FunctionSerializationAdapter,
+    FunctionSerializationAdapterV1,
 )
 
 _uint256_type = StructType("Uint256", OrderedDict(low=FeltType(), high=FeltType()))
@@ -50,6 +52,7 @@ def serializer_for_type(cairo_type: CairoType) -> CairoDataSerializer:
     :param cairo_type: CairoType.
     :return: CairoDataSerializer.
     """
+    # pylint: disable=too-many-return-statements
     if isinstance(cairo_type, FeltType):
         return FeltSerializer()
 
@@ -134,7 +137,7 @@ def serializer_for_function(abi_function: Abi.Function) -> FunctionSerialization
 
 
 def serializer_for_function_v1(
-    abi_function: Abi.Function,
+    abi_function: AbiV1.Function,
 ) -> FunctionSerializationAdapter:
     """
     Create FunctionSerializationAdapter for serializing function inputs and deserializing function outputs.
@@ -142,7 +145,7 @@ def serializer_for_function_v1(
     :param abi_function: parsed function's abi.
     :return: FunctionSerializationAdapter.
     """
-    return FunctionSerializationAdapter(
+    return FunctionSerializationAdapterV1(
         inputs_serializer=serializer_for_payload(abi_function.inputs),
         outputs_deserializer=serializer_for_outputs(abi_function.outputs),
     )

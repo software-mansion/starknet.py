@@ -50,10 +50,13 @@ class UintSerializer(CairoDataSerializer[Union[int, Uint256Dict], int]):
 
     @staticmethod
     def _serialize_from_int(value: int, bits: int) -> Generator[int, None, None]:
-        uint256_range_check(value)
+        if bits < 256:
+            yield value
+        else:
+            uint256_range_check(value)
 
-        result = (value % 2 ** 128, value // 2 ** 128)
-        yield from result
+            result = (value % 2**128, value // 2**128)
+            yield from result
 
     def _serialize_from_dict(
         self, context: SerializationContext, value: Uint256Dict

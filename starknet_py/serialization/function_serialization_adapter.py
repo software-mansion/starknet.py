@@ -93,3 +93,16 @@ class FunctionSerializationAdapter:
             raise InvalidTypeException(
                 f"Missing arguments: '{', '.join(missing_arguments)}'."
             )
+
+
+@dataclass
+class FunctionSerializationAdapterV1(FunctionSerializationAdapter):
+    outputs_deserializer: OutputSerializer
+
+    def deserialize(self, data: List[int]) -> Tuple:
+        """
+        Deserializes data into TupleDataclass containing python representations.
+
+        :return: cairo data.
+        """
+        return self.outputs_deserializer.deserialize(data)

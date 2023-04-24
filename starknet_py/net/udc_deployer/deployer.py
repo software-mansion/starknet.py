@@ -86,6 +86,7 @@ class Deployer:
         *,
         salt: Optional[int] = None,
         abi: Optional[List] = None,
+        cairo_version: int = 0,
         calldata: Optional[Union[List, dict]] = None,
     ) -> ContractDeployment:
         """
@@ -94,6 +95,8 @@ class Deployer:
         :param class_hash: The class_hash of the contract to be deployed.
         :param salt: The salt for a contract to be deployed. Random value is selected if it is not provided.
         :param abi: ABI of the contract to be deployed.
+        :param cairo_version: Version of the Cairo [0 or 1] in which contract to be deployed is written.
+            Used when abi is provided.
         :param calldata: Constructor args of the contract to be deployed.
         :return: NamedTuple with call and address of the contract to be deployed.
         """
@@ -101,7 +104,7 @@ class Deployer:
             raise ValueError("Argument calldata was provided without an ABI.")
 
         raw_calldata = translate_constructor_args(
-            abi=abi or [], constructor_args=calldata
+            abi=abi or [], constructor_args=calldata, cairo_version=cairo_version
         )
 
         return self.create_contract_deployment_raw(
