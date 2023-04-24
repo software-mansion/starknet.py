@@ -21,10 +21,11 @@ from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
     ],
 )
 async def test_get_balance_default_token_address(net, call_contract):
-    if "gateway" in call_contract:
-        client = GatewayClient(net=net)
-    else:
-        client = FullNodeClient(node_url=net + "/rpc")
+    client = (
+        GatewayClient(net=net)
+        if "gateway" in call_contract
+        else FullNodeClient(node_url=net + "/rpc")
+    )
     acc_client = Account(
         client=client,
         address="0x123",

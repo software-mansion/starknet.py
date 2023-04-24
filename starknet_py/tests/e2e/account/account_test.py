@@ -15,6 +15,7 @@ from starknet_py.net.client_models import (
     DeployAccountTransactionResponse,
     TransactionStatus,
 )
+from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import Declare, DeclareV2
@@ -25,7 +26,13 @@ from starknet_py.transaction_exceptions import TransactionRejectedError
 
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
-async def test_get_balance_throws_when_token_not_specified(account, client):
+@pytest.mark.parametrize("client_class", [GatewayClient, FullNodeClient])
+async def test_get_balance_throws_when_token_not_specified(account, client_class):
+    client = (
+        GatewayClient(net="custom.net")
+        if client_class is GatewayClient
+        else FullNodeClient(node_url="custom.net/rpc")
+    )
     modified_account = Account(
         address=account.address,
         client=client,
@@ -397,28 +404,28 @@ async def test_deploy_account_raises_on_no_enough_funds(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "call_contract, deploy_account, client",
+    "client_method_path, client",
     [
         (
-            "starknet_py.net.gateway_client.GatewayClient.call_contract",
-            "starknet_py.net.gateway_client.GatewayClient.deploy_account",
+            "starknet_py.net.gateway_client.GatewayClient",
             "gateway_client",
         ),
         (
-            "starknet_py.net.full_node_client.FullNodeClient.call_contract",
-            "starknet_py.net.full_node_client.FullNodeClient.deploy_account",
+            "starknet_py.net.full_node_client.FullNodeClient",
             "full_node_client",
         ),
     ],
 )
 async def test_deploy_account_passes_on_enough_funds(
-    deploy_account_details_factory, call_contract, deploy_account, client, request
+    deploy_account_details_factory, client_method_path, client, request
 ):
     address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
     client = request.getfixturevalue(client)
 
-    with patch(call_contract, AsyncMock()) as mocked_balance, patch(
-        deploy_account, AsyncMock()
+    with patch(
+        client_method_path + ".call_contract", AsyncMock()
+    ) as mocked_balance, patch(
+        client_method_path + ".deploy_account", AsyncMock()
     ) as mocked_deploy:
         mocked_balance.return_value = (0, 100)
         mocked_deploy.return_value = DeployAccountTransactionResponse(

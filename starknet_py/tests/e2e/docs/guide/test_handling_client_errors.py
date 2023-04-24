@@ -10,8 +10,6 @@ async def test_handling_client_errors(account):
 
     try:
         contract_address = "1"  # Doesn't exist
-        # docs: end
-        # docs: start
         await Contract.from_address(address=contract_address, provider=account)
     except ClientError as error:
         print(error.code, error.message)
