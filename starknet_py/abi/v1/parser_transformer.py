@@ -81,7 +81,7 @@ class ParserTransformer(Transformer):
         Tokens would contain strings and types (if it is present).
         We are interested only in the strings because a structure (or enum) name can be built from them.
         """
-        name = "::".join(token for token in tokens if isinstance(token, str)) + "::"
+        name = "::".join(token for token in tokens if isinstance(token, str))
         return TypeIdentifier(name)
 
     def type_address(self, _value: List[Any]) -> FeltType:
