@@ -3451,4 +3451,4 @@ docs = ["enum-tools", "furo", "sphinx"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9, <3.10"
-content-hash = "5e0d74ccc0022509e61646dfdde0ddae4b8eba8884faaa91226633574a6d978a"
+content-hash = "9ccaaa5034288a4ec358481231c281c1b264eaee0fb60bfb8d47ba0fe3f6d8d8"
