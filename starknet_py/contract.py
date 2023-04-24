@@ -351,14 +351,15 @@ class ContractFunction:
         self.contract_data = contract_data
         self.client = client
         self.account = account
-        if cairo_version == 1:
-            self._payload_transformer = serializer_for_function_v1(
+        self._payload_transformer = (
+            serializer_for_function_v1(
                 cast(AbiV1, contract_data.parsed_abi).functions[name]
             )
-        else:
-            self._payload_transformer = serializer_for_function(
+            if cairo_version == 1
+            else serializer_for_function(
                 cast(Abi, contract_data.parsed_abi).functions[name]
             )
+        )
 
     def prepare(
         self,
