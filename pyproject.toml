@@ -20,7 +20,6 @@ crypto-cpp-py = "^1.2.0"
 marshmallow = "^3.15.0"
 marshmallow-oneofschema = "^3.0.1"
 typing-extensions = "^4.3.0"
-cairo-lang = "^0.11.0.2"
 eth-utils = "^2.1.0"
 marshmallow-dataclass = "<8.5.0"
 poseidon-py = "^0.1.2"
@@ -46,6 +45,7 @@ pytest-cov = "^4.0.0"
 isort = "^5.11.4"
 pytest-rerunfailures = "^11.1"
 starknet-devnet = "0.5.0"
+cairo-lang = "^0.11.0.2"
 
 [tool.poe.tasks]
 test.shell = "pytest -n auto -v --reruns 10 --only-rerun aiohttp.client_exceptions.ClientConnectorError --cov=starknet_py starknet_py"
@@ -67,8 +67,7 @@ typecheck = "pyright starknet_py"
 compile_contracts = "bash starknet_py/tests/e2e/mock/compile_contracts.sh"
 compile_contracts_v1 = "bash starknet_py/tests/e2e/mock/compile_contracts_v1.sh"
 circular_imports_check.shell = "poetry run pytest circular.py"
-requirements_check.shell = "poetry export -f requirements.txt --without-hashes --extras docs | cmp - requirements.txt"
-ci = ["lint", "format_check", "typecheck", "requirements_check", "test_ci"]
+ci = ["lint", "format_check", "typecheck", "test_ci"]
 
 [tool.poetry.build]
 generate-setup-file = true

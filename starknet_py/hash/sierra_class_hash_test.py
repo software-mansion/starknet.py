@@ -1,11 +1,7 @@
-import json
-from typing import cast
-
 import pytest
 
+from starknet_py.common import create_sierra_compiled_contract
 from starknet_py.hash.sierra_class_hash import compute_sierra_class_hash
-from starknet_py.net.client_models import SierraContractClass
-from starknet_py.net.schemas.gateway import SierraContractClassSchema
 from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V1_DIR
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
@@ -27,14 +23,7 @@ def test_compute_sierra_class_hash(sierra_contract_class_source, expected_class_
     sierra_contract_class_str = read_contract(
         sierra_contract_class_source, directory=CONTRACTS_COMPILED_V1_DIR
     )
-    sierra_contract_class_dict = json.loads(sierra_contract_class_str)
-    sierra_contract_class_dict["abi"] = json.dumps(sierra_contract_class_dict["abi"])
-    del sierra_contract_class_dict["sierra_program_debug_info"]
-
-    sierra_contract_class = cast(
-        SierraContractClass,
-        SierraContractClassSchema().load(sierra_contract_class_dict),
-    )
+    sierra_contract_class = create_sierra_compiled_contract(sierra_contract_class_str)
     class_hash = compute_sierra_class_hash(sierra_contract_class)
 
     assert class_hash == expected_class_hash
