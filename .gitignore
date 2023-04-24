@@ -147,9 +147,11 @@ cython_debug/
 
 # Compiled contracts
 /starknet_py/tests/e2e/mock/contracts_compiled/*
+/starknet_py/tests/e2e/mock/contracts_compiled_v1/*
 
 # Allow precompiled contracts
 !/starknet_py/tests/e2e/mock/contracts_compiled/precompiled/
+!/starknet_py/tests/e2e/mock/contracts_compiled_v1/precompiled/
 
 # Cairo1 compiler manifest
 /starknet_py/tests/e2e/manifest-path
