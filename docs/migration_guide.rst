@@ -5,25 +5,45 @@ Migration guide
 0.16.0 Migration guide
 **********************
 
+Bugfixes
+--------
+
+.. currentmodule:: starknet_py.net.udc_deployer.deployer
+
+1. Fixed a bug where :meth:`Deployer.create_contract_deployment_raw` would use a random salt, when ``salt = 0`` was passed.
+
+
 Breaking changes
 ----------------
 
 .. currentmodule:: starknet_py.net.account.base_account
 
 1. :meth:`BaseAccount.verify_message` is no longer ``async``.
+
+.. currentmodule:: starknet_py.hash.utils
+
 2. Some functions' implementation has been changed to use ``crypto-cpp-py`` package:
 
-   - ``pedersen_hash``
-   - ``private_to_stark_key``
-   - ``message_signature``
-   - ``verify_message_signature``
+   - :func:`pedersen_hash`
+   - :func:`private_to_stark_key`
+   - :func:`message_signature`
+   - :func:`verify_message_signature`
 
 3. Deprecated ``utils.data_transformer`` module has been removed. Use :ref:`Serializers` module instead.
-4. Deprecated ``is_felt_pointer`` and ``is_uint256`` functions have been removed. Use :meth:`starknet_py.cairo.type_parser.TypeParser` class instead.
+
+4. Deprecated ``is_felt_pointer`` and ``is_uint256`` functions have been removed. Use :ref:`TypeParser` class instead.
 5. Deprecated ``Compiler`` module has been removed. Use an external compilation tool (e.g. Starknet CLI) instead.
 6. Deprecated ``compilation_source`` and ``search_paths`` arguments has been removed from several methods. Use ``compiled_contract`` parameter instead.
-7. Deprecated ``ContractData.identifier_manager`` has been removed. Use ``ContractData.parsed_abi`` instead.
-8. Removed deprecated ``typed_data`` parameter as dict in ``BaseSigner.sign_message``. Use TypedData dataclass from ``starknet_py.utils.typed_data``.
+
+.. currentmodule:: starknet_py.contract
+
+7. Deprecated ``ContractData.identifier_manager`` has been removed. Use :meth:`ContractData.parsed_abi` instead.
+
+
+.. currentmodule:: starknet_py.net.signer
+
+
+8. Removed deprecated ``typed_data`` parameter as dict in :meth:`BaseSigner.sign_message`. Use :ref:`TypedData` dataclass from ``starknet_py.utils.typed_data``.
 9. ``starknet_py.utils.crypto`` module has been removed.
 
 .. admonition:: Potentially breaking changes

@@ -36,7 +36,6 @@ needs_extensions = {"enum_tools.autoenum": "0.9.0"}
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosectionlabel",
-    "sphinx_rtd_theme",
     "enum_tools.autoenum",
     "codesnippet",
     "autoclass_with_examples",

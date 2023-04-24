@@ -43,6 +43,10 @@ TypeSentTransaction = TypeVar("TypeSentTransaction", bound="SentTransaction")
 
 @dataclass(frozen=True)
 class ContractData:
+    """
+    Basic data of a deployed contract.
+    """
+
     address: int
     abi: ABI
     cairo_version: int
@@ -51,6 +55,7 @@ class ContractData:
     def parsed_abi(self) -> Union[Abi, AbiV1]:
         """
         Abi parsed into proper dataclass.
+
         :return: Abi
         """
         if self.cairo_version == 1:
@@ -59,6 +64,13 @@ class ContractData:
 
     @staticmethod
     def from_abi(address: int, abi: ABI, cairo_version: int = 0) -> ContractData:
+        """
+        Create ContractData from ABI.
+
+        :param address: Address of the deployed contract.
+        :param abi: Abi of the contract.
+        :return: ContractData instance.
+        """
         return ContractData(
             address=address,
             abi=abi,
