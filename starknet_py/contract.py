@@ -69,6 +69,7 @@ class ContractData:
 
         :param address: Address of the deployed contract.
         :param abi: Abi of the contract.
+        :param cairo_version: Version of the Cairo in which contract is written.
         :return: ContractData instance.
         """
         return ContractData(
