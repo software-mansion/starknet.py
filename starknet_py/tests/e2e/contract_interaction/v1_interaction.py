@@ -16,13 +16,7 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
 @pytest.mark.asyncio
-async def test1(network):
-    account = Account(
-        address=0x7D2F37B75A5E779F7DA01C22ACEE1B66C39E8BA470EE5448F05E1462AFCEDB4,
-        client=GatewayClient(net=network),
-        key_pair=KeyPair.from_private_key(0xCD613E30D8F16ADF91B7584A2265B1F5),
-        chain=StarknetChainId.TESTNET,
-    )
+async def test1(network, gateway_account):
     # declare
     erc20_compiled_sierra = read_contract(
         "erc20_compiled.json", directory=CONTRACTS_COMPILED_DIR / "precompiled"
@@ -34,12 +28,12 @@ async def test1(network):
     casm_class = create_casm_class(erc20_compiled_casm)
     casm_class_hash = compute_casm_class_hash(casm_class)
 
-    declare_tx = await account.sign_declare_v2_transaction(
+    declare_tx = await gateway_account.sign_declare_v2_transaction(
         erc20_compiled_sierra, casm_class_hash, max_fee=MAX_FEE
     )
 
-    resp = await account.client.declare(transaction=declare_tx)
-    await account.client.wait_for_tx(resp.transaction_hash)
+    resp = await gateway_account.client.declare(transaction=declare_tx)
+    await gateway_account.client.wait_for_tx(resp.transaction_hash)
 
     class_hash = resp.class_hash
 
@@ -51,24 +45,24 @@ async def test1(network):
             encode_shortstring("erc20_basic"),
             encode_shortstring("ERC20B"),
             10,
-            1000000000,
-            1000,
-            account.address,
+            12345,
+            1,
+            gateway_account.address,
         ],
     )
 
-    deploy_invoke_transaction = await account.sign_invoke_transaction(
+    deploy_invoke_transaction = await gateway_account.sign_invoke_transaction(
         calls=contract_deployment.call, max_fee=MAX_FEE
     )
-    resp = await account.client.send_transaction(deploy_invoke_transaction)
-    await account.client.wait_for_tx(resp.transaction_hash)
+    resp = await gateway_account.client.send_transaction(deploy_invoke_transaction)
+    await gateway_account.client.wait_for_tx(resp.transaction_hash)
 
     erc20_address = contract_deployment.address
 
     erc20 = Contract(
         address=erc20_address,
         abi=json.loads(erc20_compiled_sierra)["abi"],
-        provider=account,
+        provider=gateway_account,
         cairo_version=1,
     )
 
@@ -78,10 +72,10 @@ async def test1(network):
 
     supply = await erc20.functions["get_total_supply"].call()
 
-    account_balance = await erc20.functions["balance_of"].call(account=account.address)
+    account_balance = await erc20.functions["balance_of"].call(account=gateway_account.address)
 
-    resp = await erc20.functions["transfer_from"].invoke(
-        sender=account.address, recipient=0x11, amount=10, max_fee=MAX_FEE
+    resp = await erc20.functions["transfer"].invoke(
+        recipient=0x11, amount=10, max_fee=MAX_FEE
     )
     await resp.wait_for_acceptance()
 
