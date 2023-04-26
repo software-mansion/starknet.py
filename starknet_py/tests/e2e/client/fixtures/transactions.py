@@ -72,7 +72,9 @@ async def declare_v2_hello_starknet(gateway_account: Account) -> DeclareV2:
     )
     compiled_class_hash = compute_casm_class_hash(
         create_casm_class(
-            read_contract("hello_starknet_compiled.casm", directory=CONTRACTS_COMPILED_V1_DIR)
+            read_contract(
+                "hello_starknet_compiled.casm", directory=CONTRACTS_COMPILED_V1_DIR
+            )
         )
     )
     return await gateway_account.sign_declare_v2_transaction(
