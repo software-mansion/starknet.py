@@ -1,5 +1,5 @@
 # pylint: disable=redefined-outer-name
-from typing import Tuple
+from typing import Tuple, cast
 
 import pytest
 import pytest_asyncio
@@ -68,11 +68,11 @@ async def declare_v2_hello_starknet(gateway_account: Account) -> DeclareV2:
     Returns DeclareV2 transaction.
     """
     hello_starknet_compiled = read_contract(
-        CONTRACTS_COMPILED_V1_DIR / "hello_starknet_compiled.json"
+        "hello_starknet_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
     )
     compiled_class_hash = compute_casm_class_hash(
         create_casm_class(
-            read_contract(CONTRACTS_COMPILED_V1_DIR / "hello_starknet_compiled.casm")
+            read_contract("hello_starknet_compiled.casm", directory=CONTRACTS_COMPILED_V1_DIR)
         )
     )
     return await gateway_account.sign_declare_v2_transaction(
@@ -129,4 +129,4 @@ async def replaced_class(account: Account, map_class_hash: int) -> Tuple[int, in
     )
     await resp.wait_for_acceptance()
 
-    return resp.block_number, contract.address, map_class_hash
+    return cast(int, resp.block_number), contract.address, map_class_hash
