@@ -13,10 +13,7 @@ from starknet_py.net.models.transaction import DeclareV2, DeployAccount
 from starknet_py.tests.e2e.client.fixtures.prepare_net_for_gateway_test import (
     PreparedNetworkData,
 )
-from starknet_py.tests.e2e.fixtures.constants import (
-    CONTRACTS_COMPILED_V1_DIR,
-    MAX_FEE,
-)
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V1_DIR, MAX_FEE
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 from starknet_py.tests.e2e.utils import (
     get_deploy_account_details,
