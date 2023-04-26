@@ -29,9 +29,9 @@ from starknet_py.transaction_exceptions import TransactionRejectedError
 @pytest.mark.parametrize("client_class", [GatewayClient, FullNodeClient])
 async def test_get_balance_throws_when_token_not_specified(account, client_class):
     client = (
-        GatewayClient(net="custom.net")
+        client_class(net="custom.net")
         if client_class is GatewayClient
-        else FullNodeClient(node_url="custom.net/rpc")
+        else client_class(node_url="custom.net/rpc")
     )
     modified_account = Account(
         address=account.address,
@@ -239,8 +239,8 @@ async def test_sign_declare_v2_transaction(
     assert signed_tx.max_fee == MAX_FEE
 
 
-# TODO full_node_account doesn't work here because declare_v2 isn't supported, change was introduced in RPC v0.3.0
-# and devnet hasn't been updated yet
+# TODO (#984) full_node_account doesn't work here because declare_v2 isn't supported,
+#  change was introduced in RPC v0.3.0 and devnet hasn't been updated yet
 @pytest.mark.asyncio
 async def test_sign_declare_v2_transaction_auto_estimate(
     gateway_account, sierra_minimal_compiled_contract_and_class_hash

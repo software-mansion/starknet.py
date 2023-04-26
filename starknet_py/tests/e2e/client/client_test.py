@@ -356,7 +356,7 @@ async def test_declare_contract(map_compiled_contract, account):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("client_class", [GatewayClient, FullNodeClient])
+@pytest.mark.parametrize("client_class", ["GatewayClient", "FullNodeClient"])
 async def test_custom_session_gateway_client(map_contract, network, client_class):
     # We must access protected `feeder_gateway_client` or `_client` to test session
     # pylint: disable=protected-access
@@ -373,12 +373,12 @@ async def test_custom_session_gateway_client(map_contract, network, client_class
 
     client1 = (
         GatewayClient(net=network, session=session)
-        if isinstance(client_class, GatewayClient)
+        if client_class == "GatewayClient"
         else FullNodeClient(node_url=network + "/rpc", net=network, session=session)
     )
     client2 = (
         GatewayClient(net=network, session=session)
-        if isinstance(client_class, GatewayClient)
+        if client_class == "GatewayClient"
         else FullNodeClient(node_url=network + "/rpc", net=network, session=session)
     )
     internal_client1 = (
