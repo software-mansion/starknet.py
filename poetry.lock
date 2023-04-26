@@ -1485,7 +1485,7 @@ format-nongpl = ["fqdn", "idna", "isoduration", "jsonpointer (>1.13)", "rfc3339-
 name = "lark"
 version = "1.1.5"
 description = "a modern parsing library"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 files = [
@@ -3456,4 +3456,4 @@ docs = ["enum-tools", "furo", "sphinx"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9, <3.10"
-content-hash = "6fcbe35543382c8ef4064997388d6ab5425408db4a8c1f9e856ef439f7850f4b"
+content-hash = "530c9c06bd4d422e8e5a51bac45d534c1f00fcaee7533cab79fb5972e7ab0f28"
