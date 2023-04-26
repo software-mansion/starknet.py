@@ -382,14 +382,14 @@ async def test_custom_session_gateway_client(map_contract, network, client_class
         else client_class(node_url=network + "/rpc", net=network, session=session)
     )
     internal_client1 = (
-        client1._client
-        if isinstance(client1, FullNodeClient)
-        else client1._feeder_gateway_client
+        client1._feeder_gateway_client
+        if isinstance(client1, GatewayClient)
+        else client1._client
     )
     internal_client2 = (
-        client2._client
-        if isinstance(client2, FullNodeClient)
-        else client2._feeder_gateway_client
+        client2._feeder_gateway_client
+        if isinstance(client2, GatewayClient)
+        else client2._client
     )
 
     assert internal_client1.session is not None
