@@ -1,4 +1,5 @@
 import dataclasses
+from typing import Tuple
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -21,20 +22,21 @@ from starknet_py.net.client_models import (
     TransactionStatusResponse,
 )
 from starknet_py.net.gateway_client import GatewayClient
+from starknet_py.net.models.transaction import DeclareV2
 from starknet_py.net.networks import MAINNET, TESTNET, TESTNET2, CustomGatewayUrls
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
-# Temporary test to be replaced after devnet supports new starknet
 @pytest.mark.asyncio
-async def test_get_class_by_hash_sierra_program():
-    client = GatewayClient(
-        net="https://external.integration.starknet.io"
-    )  # TODO: Replace this with fixture
-    contract_class = await client.get_class_by_hash(
-        class_hash=0x04E70B19333AE94BD958625F7B61CE9EEC631653597E68645E13780061B2136C
-    )
+async def test_get_class_by_hash_sierra_program(
+    gateway_client, hello_starknet_class_hash_tx_hash: Tuple[int, int]
+):
+    # TODO: Replace with `client` when RPC 0.3.0 is supported
+    client = gateway_client
+    (class_hash, _) = hello_starknet_class_hash_tx_hash
+
+    contract_class = await client.get_class_by_hash(class_hash=class_hash)
 
     assert isinstance(contract_class, SierraContractClass)
     assert contract_class.contract_class_version == "0.1.0"
@@ -43,94 +45,103 @@ async def test_get_class_by_hash_sierra_program():
     assert isinstance(contract_class.abi, str)
 
 
-# Temporary test to be replaced after devnet supports new starknet
 @pytest.mark.asyncio
-async def test_get_declare_v2_transaction():
-    client = GatewayClient(
-        net="https://external.integration.starknet.io"
-    )  # TODO: Replace this with fixture
+async def test_get_declare_v2_transaction(
+    gateway_client,
+    hello_starknet_class_hash_tx_hash: Tuple[int, int],
+    declare_v2_hello_starknet: DeclareV2,
+):
+    # TODO: Replace with `client` when RPC 0.3.0 is supported
+    client = gateway_client
+    (class_hash, tx_hash) = hello_starknet_class_hash_tx_hash
 
-    transaction = await client.get_transaction(
-        tx_hash=0x722B666CE83EC69C18190AAE6149F79E6AD4B9C051B171CC6C309C9E0C28129
-    )
+    transaction = await client.get_transaction(tx_hash=tx_hash)
 
     assert isinstance(transaction, DeclareTransaction)
     assert transaction == DeclareTransaction(
-        class_hash=0x4E70B19333AE94BD958625F7B61CE9EEC631653597E68645E13780061B2136C,
-        compiled_class_hash=0x711C0C3E56863E29D3158804AAC47F424241EDA64DB33E2CC2999D60EE5105,
-        sender_address=0x2FD67A7BCCA0D984408143255C41563B14E6C8A0846B5C9E092E7D56CF1A862,
-        hash=0x722B666CE83EC69C18190AAE6149F79E6AD4B9C051B171CC6C309C9E0C28129,
-        max_fee=0x38D7EA4C68000,
-        signature=[
-            0x6F3070288FB33359289F5995190C1074DE5FF00D181B1A7D6BE87346D9957FE,
-            0x4AB2D251D18A75F8E1AD03ABA2A77BD3D978ABF571DC262C592FB07920DC50D,
-        ],
-        nonce=1,
-        version=2,
+        class_hash=class_hash,
+        compiled_class_hash=declare_v2_hello_starknet.compiled_class_hash,
+        sender_address=declare_v2_hello_starknet.sender_address,
+        hash=tx_hash,
+        max_fee=declare_v2_hello_starknet.max_fee,
+        signature=declare_v2_hello_starknet.signature,
+        nonce=declare_v2_hello_starknet.nonce,
+        version=declare_v2_hello_starknet.version,
     )
 
 
-# Temporary test to be replaced after devnet supports new starknet
 @pytest.mark.asyncio
-async def test_get_block_with_declare_v2():
-    client = GatewayClient(
-        net="https://external.integration.starknet.io"
-    )  # TODO: Replace this with fixture
+async def test_get_block_with_declare_v2(
+    gateway_client,
+    hello_starknet_class_hash_tx_hash: Tuple[int, int],
+    declare_v2_hello_starknet: DeclareV2,
+    block_with_declare_v2_number: int,
+):
+    # TODO: Replace with `client` when RPC 0.3.0 is supported
+    client = gateway_client
+    (class_hash, tx_hash) = hello_starknet_class_hash_tx_hash
 
-    block = await client.get_block(block_number=283364)
+    block = await client.get_block(block_number=block_with_declare_v2_number)
 
     assert (
         DeclareTransaction(
-            class_hash=0x4E70B19333AE94BD958625F7B61CE9EEC631653597E68645E13780061B2136C,
-            compiled_class_hash=0x711C0C3E56863E29D3158804AAC47F424241EDA64DB33E2CC2999D60EE5105,
-            sender_address=0x2FD67A7BCCA0D984408143255C41563B14E6C8A0846B5C9E092E7D56CF1A862,
-            hash=0x722B666CE83EC69C18190AAE6149F79E6AD4B9C051B171CC6C309C9E0C28129,
-            max_fee=0x38D7EA4C68000,
-            signature=[
-                0x6F3070288FB33359289F5995190C1074DE5FF00D181B1A7D6BE87346D9957FE,
-                0x4AB2D251D18A75F8E1AD03ABA2A77BD3D978ABF571DC262C592FB07920DC50D,
-            ],
-            nonce=1,
-            version=2,
+            class_hash=class_hash,
+            compiled_class_hash=declare_v2_hello_starknet.compiled_class_hash,
+            sender_address=declare_v2_hello_starknet.sender_address,
+            hash=tx_hash,
+            max_fee=declare_v2_hello_starknet.max_fee,
+            signature=declare_v2_hello_starknet.signature,
+            nonce=declare_v2_hello_starknet.nonce,
+            version=declare_v2_hello_starknet.version,
         )
         in block.transactions
     )
 
 
 @pytest.mark.asyncio
-async def test_get_new_state_update():
-    client = GatewayClient(
-        net="https://external.integration.starknet.io"
-    )  # TODO: Replace this with fixture
+async def test_get_new_state_update(
+    gateway_client,
+    hello_starknet_class_hash_tx_hash: Tuple[int, int],
+    declare_v2_hello_starknet: DeclareV2,
+    block_with_declare_v2_number: int,
+    replaced_class: Tuple[int, int, int],
+):
+    # TODO: Replace with `client` when RPC 0.3.0 is supported
+    client = gateway_client
+    (class_hash, _) = hello_starknet_class_hash_tx_hash
 
-    state_update = await client.get_state_update(block_number=283364)
+    state_update = await client.get_state_update(
+        block_number=block_with_declare_v2_number
+    )
 
     assert state_update.state_diff.replaced_classes == []
     assert (
         DeclaredContractHash(
-            class_hash=0x4E70B19333AE94BD958625F7B61CE9EEC631653597E68645E13780061B2136C,
-            compiled_class_hash=0x711C0C3E56863E29D3158804AAC47F424241EDA64DB33E2CC2999D60EE5105,
+            class_hash=class_hash,
+            compiled_class_hash=declare_v2_hello_starknet.compiled_class_hash,
         )
         in state_update.state_diff.declared_contract_hashes
     )
 
-    state_update = await client.get_state_update(block_number=283885)
+    (block_number, contract_address, class_hash) = replaced_class
+    state_update = await client.get_state_update(block_number=block_number)
 
     assert (
-        ReplacedClass(
-            contract_address=0x7EFED3A74230089168DC7BAB1EFCE543976F621478A93D6EE23E09829E308F0,
-            class_hash=0x4631B6B3FA31E140524B7D21BA784CEA223E618BFFE60B5BBDCA44A8B45BE04,
-        )
+        ReplacedClass(contract_address=contract_address, class_hash=class_hash)
         in state_update.state_diff.replaced_classes
     )
 
 
 @pytest.mark.asyncio
-async def test_get_compiled_class_by_class_hash():
-    client = GatewayClient(net=TESTNET)  # TODO: Replace this with fixture
+async def test_get_compiled_class_by_class_hash(
+    gateway_client, hello_starknet_class_hash_tx_hash: Tuple[int, int]
+):
+    # TODO: Replace with `client` when RPC 0.3.0 is supported
+    client = gateway_client
+    (class_hash, _) = hello_starknet_class_hash_tx_hash
 
     compiled_class = await client.get_compiled_class_by_class_hash(
-        class_hash=0x38914973FCAB1F5DDC803CB31304EA9A7849E97023805DA6FFB9F4DDFBCDF8B
+        class_hash=class_hash
     )
 
     assert isinstance(compiled_class, CasmClass)
