@@ -16,7 +16,7 @@ COMPILER_VERSION=`cargo run --bin starknet-compile --manifest-path $MANIFEST_PAT
 printf "Compiling Cairo1 contracts with $COMPILER_VERSION\n\n"
 
 number_of_contracts=0
-for contract in "$CONTRACTS_DIRECTORY"/*.cairo; do
+for contract in "$CONTRACTS_DIRECTORY"/hello_starknet.cairo; do
     basename=$(basename "$contract")
 
     contract_json=$CONTRACTS_COMPILED_DIRECTORY/"${basename%.*}_compiled.json"

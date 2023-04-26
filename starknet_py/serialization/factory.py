@@ -12,7 +12,7 @@ from starknet_py.cairo.data_types import (
     NamedTupleType,
     StructType,
     TupleType,
-    UintType,
+    UintType, OptionType,
 )
 from starknet_py.serialization.data_serializers.array_serializer import ArraySerializer
 from starknet_py.serialization.data_serializers.cairo_data_serializer import (
@@ -86,6 +86,9 @@ def serializer_for_type(cairo_type: CairoType) -> CairoDataSerializer:
 
     if isinstance(cairo_type, UintType):
         return UintSerializer(bits=cairo_type.bits)
+
+    if isinstance(cairo_type, OptionType):
+        return OptionSerializer()
 
     raise InvalidTypeException(f"Received unknown Cairo type '{cairo_type}'.")
 
