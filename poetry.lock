@@ -1483,14 +1483,14 @@ format-nongpl = ["fqdn", "idna", "isoduration", "jsonpointer (>1.13)", "rfc3339-
 
 [[package]]
 name = "lark"
-version = "1.1.4"
+version = "1.1.5"
 description = "a modern parsing library"
 category = "dev"
 optional = false
 python-versions = "*"
 files = [
-    {file = "lark-1.1.4-py3-none-any.whl", hash = "sha256:a42f9f18bdc9d5571a371ae658548e81e78d1642c2145cc3b663e0bf2e9e7eae"},
-    {file = "lark-1.1.4.tar.gz", hash = "sha256:eee86062b149600ef62de0d8dfd38cf85ffc737e16911e7d8c18880f8c5b1333"},
+    {file = "lark-1.1.5-py3-none-any.whl", hash = "sha256:8476f9903e93fbde4f6c327f74d79e9b4bd0ed9294c5dfa3164ab8c581b5de2a"},
+    {file = "lark-1.1.5.tar.gz", hash = "sha256:4b534eae1f9af5b4ea000bea95776350befe1981658eea3820a01c37e504bb4d"},
 ]
 
 [package.extras]
@@ -3456,4 +3456,4 @@ docs = ["enum-tools", "furo", "sphinx"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9, <3.10"
-content-hash = "6692989b189c2785cad8609d5e0e489910c6976f0a3193f22fdbfc2f6f3f3917"
+content-hash = "6fcbe35543382c8ef4064997388d6ab5425408db4a8c1f9e856ef439f7850f4b"
