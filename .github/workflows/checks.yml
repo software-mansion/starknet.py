@@ -108,7 +108,7 @@ jobs:
         with:
           repository: starkware-libs/cairo
           persist-credentials: false
-          ref: v1.0.0-alpha.7
+          ref: 901a9a1
           path: cairo
 
       - name: Cache rust dependencies
@@ -201,7 +201,7 @@ jobs:
         with:
           repository: starkware-libs/cairo
           persist-credentials: false
-          ref: v1.0.0-alpha.7
+          ref: 901a9a1
           path: cairo
 
       - name: Cache rust dependencies
