@@ -1,6 +1,6 @@
 # pylint: disable=redefined-outer-name
 import json
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import pytest
 import pytest_asyncio
@@ -96,7 +96,9 @@ async def deploy_contract(account: BaseAccount, class_hash: int, abi: List) -> C
 
 
 async def deploy_v1_contract(
-    account: BaseAccount, contract_file_name: str, calldata: Dict[str, Any]
+    account: BaseAccount,
+    contract_file_name: str,
+    calldata: Optional[Dict[str, Any]] = None,
 ) -> Contract:
     """
     Declares and deploys Cairo1.0 contract.

@@ -2,46 +2,32 @@ use serde::Serde;
 use array::SpanTrait;
 
 
+#[derive(Copy, Drop, Serde)]
+struct OptionStruct {
+    first_field: felt252,
+    second_field: Option::<u256>,
+    third_field: Option::<u8>,
+    fourth_field: felt252
+}
+
 #[contract]
 mod HelloStarknet {
     use super::OptionStruct;
-    struct Storage {
-        balance: felt252,
-    }
 
-    // Increases the balance by the given amount.
-    #[external]
-    fn increase_balance(amount: felt252) {
-        balance::write(balance::read() + amount);
-    }
-
-    // Returns the current balance.
     #[view]
-    fn get_balance() -> OptionStruct {
-        balance::read()
-    }
-}
-
-
-struct OptionStruct {
-    first_field: felt252,
-    second_field: Option<u256>,
-    third_field: u8
-}
-
-impl OptionStructSerde of Serde<OptionStruct> {
-    fn serialize(ref output: Array<felt252>, input: OptionStruct) {
-        let OptionStruct{first_field, second_field, third_field} = input;
-        Serde::serialize(ref output, first_field);
-        Serde::serialize(ref output, second_field);
-        Serde::serialize(ref output, third_field);
+    fn receive_and_send_option_struct(option_struct: OptionStruct) -> OptionStruct {
+        option_struct
     }
 
-    fn deserialize(ref serialized: Span<felt252>) -> Option<OptionStruct> {
-        let first_field = Serde::<felt252>::deserialize(ref serialized)?;
-        let second_field = Serde::<Option<u256>>::deserialize(ref serialized)?;
-        let third_field = Serde::<u8>::deserialize(ref serialized)?;
+    #[view]
+    fn get_option_struct() -> OptionStruct {
+        let option_struct = OptionStruct {
+            first_field: 1,
+            second_field: Option::Some(u256{low: 2, high: 0}),
+            third_field: Option::None(()),
+            fourth_field: 4
+        };
 
-        Option::Some(OptionStruct { first_field, second_field, third_field })
+        option_struct
     }
 }

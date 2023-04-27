@@ -56,3 +56,32 @@ async def test_serializing_struct(gateway_account):
             l1_bridge_address={"address": 0x11}, max_fee=MAX_FEE
         )
     ).wait_for_acceptance()
+
+
+@pytest.mark.asyncio
+async def test_serializing_option(gateway_account):
+    test_option = await deploy_v1_contract(
+        account=gateway_account, contract_file_name="test_option"
+    )
+
+    (received_option, ) = await test_option.functions["get_option_struct"].call()
+
+    assert dict(received_option) == {
+        "first_field": 1,
+        "second_field": 2,
+        "third_field": None,
+        "fourth_field": 4,
+    }
+
+    option_struct = {
+        "first_field": 1,
+        "second_field": 2**128 + 1,
+        "third_field": None,
+        "fourth_field": 4,
+    }
+
+    (received_option, ) = await test_option.functions[
+        "receive_and_send_option_struct"
+    ].call(option_struct=option_struct)
+
+    assert dict(received_option) == option_struct
