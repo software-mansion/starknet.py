@@ -216,16 +216,18 @@ async def test_get_class_by_hash(client, class_hash):
     "client, get_tx_receipt",
     [
         (
-            "full_node_client",
-            "starknet_py.net.full_node_client.FullNodeClient.get_transaction_receipt",
-        ),
-        (
             "gateway_client",
-            "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt",
+            "tx_receipt_gateway_path",
         ),
+(
+            "full_node_client",
+            "tx_receipt_full_node_path",
+        )
     ],
 )
 async def test_wait_for_tx_accepted(client, get_tx_receipt, request):
+    get_tx_receipt = request.getfixturevalue(get_tx_receipt)
+
     with patch(
         get_tx_receipt,
         AsyncMock(),
@@ -243,17 +245,20 @@ async def test_wait_for_tx_accepted(client, get_tx_receipt, request):
 @pytest.mark.parametrize(
     "client, get_tx_receipt",
     [
+(
+            "gateway_client",
+            "tx_receipt_gateway_path",
+        ),
         (
             "full_node_client",
-            "starknet_py.net.full_node_client.FullNodeClient.get_transaction_receipt",
+            "tx_receipt_full_node_path",
         ),
-        (
-            "gateway_client",
-            "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt",
-        ),
+
     ],
 )
 async def test_wait_for_tx_pending(client, get_tx_receipt, request):
+    get_tx_receipt = request.getfixturevalue(get_tx_receipt)
+
     with patch(
         get_tx_receipt,
         AsyncMock(),
@@ -288,11 +293,11 @@ async def test_wait_for_tx_pending(client, get_tx_receipt, request):
     [
         (
             "gateway_client",
-            "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt",
+            "tx_receipt_gateway_path",
         ),
         (
             "full_node_client",
-            "starknet_py.net.full_node_client.FullNodeClient.get_transaction_receipt",
+            "tx_receipt_full_node_path",
         ),
     ],
 )
@@ -300,6 +305,8 @@ async def test_wait_for_tx_pending(client, get_tx_receipt, request):
 async def test_wait_for_tx_rejected(
     status, exception, exc_message, client, get_tx_receipt, request
 ):
+    get_tx_receipt = request.getfixturevalue(get_tx_receipt)
+
     with patch(
         get_tx_receipt,
         AsyncMock(),
@@ -319,16 +326,18 @@ async def test_wait_for_tx_rejected(
     "client, get_tx_receipt",
     [
         (
-            "full_node_client",
-            "starknet_py.net.full_node_client.FullNodeClient.get_transaction_receipt",
+            "gateway_client",
+            "tx_receipt_gateway_path",
         ),
         (
-            "gateway_client",
-            "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt",
+            "full_node_client",
+            "tx_receipt_full_node_path",
         ),
     ],
 )
 async def test_wait_for_tx_cancelled(client, get_tx_receipt, request):
+    get_tx_receipt = request.getfixturevalue(get_tx_receipt)
+
     with patch(
         get_tx_receipt,
         AsyncMock(),

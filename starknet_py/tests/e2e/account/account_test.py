@@ -26,13 +26,8 @@ from starknet_py.transaction_exceptions import TransactionRejectedError
 
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
-@pytest.mark.parametrize("client_class", [GatewayClient, FullNodeClient])
-async def test_get_balance_throws_when_token_not_specified(account, client_class):
-    client = (
-        client_class(net="custom.net")
-        if client_class is GatewayClient
-        else client_class(node_url="custom.net/rpc")
-    )
+@pytest.mark.parametrize("client", [GatewayClient(net="custom.net"), FullNodeClient(node_url="custom.net/rpc")])
+async def test_get_balance_throws_when_token_not_specified(account, client):
     modified_account = Account(
         address=account.address,
         client=client,
@@ -102,7 +97,7 @@ async def test_sending_multicall(account, map_contract, key, val):
     assert value == val
 
 
-# FullNode is not tested because we don't implement trace api (devnet does not either)
+# TODO (#981) FullNode is not tested because we don't implement trace api (devnet does not either)
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_block_traces(gateway_account):
