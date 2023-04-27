@@ -2089,33 +2089,61 @@ poetry-plugin = ["poetry (>=1.0,<2.0)"]
 
 [[package]]
 name = "poseidon-py"
-version = "0.1.2"
+version = "0.1.3"
 description = "Python implementation of Poseidon hash"
 category = "main"
 optional = false
-python-versions = ">=3.9"
+python-versions = ">=3.8"
 files = [
-    {file = "poseidon_py-0.1.2-cp310-cp310-macosx_11_0_universal2.whl", hash = "sha256:66503ecc3a2298390116a9e89ba5b20d37b361bee7a1d4138c13e486062f8e63"},
-    {file = "poseidon_py-0.1.2-cp310-cp310-macosx_12_0_universal2.whl", hash = "sha256:458c8b1da424737e43b34dcd853b0986feb28904071faa2dee5f59b68be30747"},
-    {file = "poseidon_py-0.1.2-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:6b31101f0760afeddc384e2822424714ee75bc47fdd6d70bfc4e0108e98f3396"},
-    {file = "poseidon_py-0.1.2-cp310-cp310-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:2f33ecdbe3a022ed789725a8241e50ae7465191c23e69a78d108c97b92d8beda"},
-    {file = "poseidon_py-0.1.2-cp310-cp310-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:7c01df4696925a6aa57d909fbe5e53bcbb1e52a8374d51bfade07d4052d72ac9"},
-    {file = "poseidon_py-0.1.2-cp310-cp310-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:fc52deb56611915fe37c138f86e4d7558d936261e8088e0d818ffc2a48251d4d"},
-    {file = "poseidon_py-0.1.2-cp310-cp310-musllinux_1_1_aarch64.whl", hash = "sha256:db39de70897043c58d4ed74b3008993c9a1e441696abeca786b4f1c1017118bd"},
-    {file = "poseidon_py-0.1.2-cp310-cp310-musllinux_1_1_ppc64le.whl", hash = "sha256:e960307d3e65856ab3874881cead0a136de312a360b0607cf075118d3a4323e3"},
-    {file = "poseidon_py-0.1.2-cp310-cp310-musllinux_1_1_s390x.whl", hash = "sha256:eeb650704a82c53c41bcec528e592937bd1c3910505c37a8fa446967192c7bf9"},
-    {file = "poseidon_py-0.1.2-cp310-cp310-musllinux_1_1_x86_64.whl", hash = "sha256:f4f12151af85b92962e14c6c5320a70f290825372026d357c28e5c36dd2eaf67"},
-    {file = "poseidon_py-0.1.2-cp39-cp39-macosx_11_0_universal2.whl", hash = "sha256:3b47c2c20bfbf59545c29f45ec73256a99d0b093903906057c50a35672f74e95"},
-    {file = "poseidon_py-0.1.2-cp39-cp39-macosx_12_0_universal2.whl", hash = "sha256:cdffc119bb1ecfd0ca1b2cf4fac61d76f4852601fa69dff077b563f18a189256"},
-    {file = "poseidon_py-0.1.2-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:788ac2aa03cbc41df7e60232ec99e079bc1e43207d96158d9a6ec42e393318e1"},
-    {file = "poseidon_py-0.1.2-cp39-cp39-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:86444c5ff3e68749e57e81dbf2fc2c4c59473da048152c80d2023b3c517063dd"},
-    {file = "poseidon_py-0.1.2-cp39-cp39-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:878c8c1787c46a1d72d7e365470ba5a47a092faac8adae11f15356d7cfa735ec"},
-    {file = "poseidon_py-0.1.2-cp39-cp39-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:963d83b81113e75ac8ad65429318925a550464ee64d289d11287ef7e7bbdaebf"},
-    {file = "poseidon_py-0.1.2-cp39-cp39-musllinux_1_1_aarch64.whl", hash = "sha256:a4bc639d1ea83970dfc9d2b87ddb9a563a246df5bc405132bb0f90dffd6f46d4"},
-    {file = "poseidon_py-0.1.2-cp39-cp39-musllinux_1_1_ppc64le.whl", hash = "sha256:b80869d9dd99e5a124fed11a2b14dd6ff5961cda1b05a91a0fc9add02340c803"},
-    {file = "poseidon_py-0.1.2-cp39-cp39-musllinux_1_1_s390x.whl", hash = "sha256:0419de77a1882e48afc543b9ca9fc95f0b810d4ead50e4b5038c864b4c50f8fa"},
-    {file = "poseidon_py-0.1.2-cp39-cp39-musllinux_1_1_x86_64.whl", hash = "sha256:e051c28bb5dea0d8050ef2702b9932f49c9c4a9a65a314c3744b3a2a6dd62b22"},
-    {file = "poseidon_py-0.1.2.tar.gz", hash = "sha256:50d9a3c71414bc7b8fabbed6058e1d9bbf9da171fa6a4c7136acd81457291228"},
+    {file = "poseidon_py-0.1.3-cp310-cp310-macosx_11_0_universal2.whl", hash = "sha256:7d94630760112012cf5d8f4eac5aa6ac6df5f1b8693fd35fe0cf387d8abf0b0b"},
+    {file = "poseidon_py-0.1.3-cp310-cp310-macosx_12_0_universal2.whl", hash = "sha256:122be0b1ba57f55fd3c9568691fbeeb455e436400d46c91b7cdab1ba6bc3fef6"},
+    {file = "poseidon_py-0.1.3-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:9a81963e658784382c13f2160cd70e8455547740fb198264f351412c33a669b8"},
+    {file = "poseidon_py-0.1.3-cp310-cp310-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:48f7fc559ec059c68761550c62b6908cba0bfe732bbaeb537cf1a2282923aa5b"},
+    {file = "poseidon_py-0.1.3-cp310-cp310-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:e9261b3bb0918664818b2a89700394d2c467565200bf5b9d06f6f186657495c7"},
+    {file = "poseidon_py-0.1.3-cp310-cp310-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:62646ee54acc00e5f57b56f92db398ce17e9d45bbccb39c62e7de9f909c31b03"},
+    {file = "poseidon_py-0.1.3-cp310-cp310-musllinux_1_1_aarch64.whl", hash = "sha256:1f22ebe330b42f8d781c52b5b7dc6fae27857e2cac6dda3f6d7c9f3febb1cc9b"},
+    {file = "poseidon_py-0.1.3-cp310-cp310-musllinux_1_1_ppc64le.whl", hash = "sha256:07b181cecb9a1e96836ab1dee95e927719186444055977853c3d2b73a6f1ea75"},
+    {file = "poseidon_py-0.1.3-cp310-cp310-musllinux_1_1_s390x.whl", hash = "sha256:28f7b952d86470bdb24fc4e8577a4b18d78bf902a950fff0f7e6e81a52f184b7"},
+    {file = "poseidon_py-0.1.3-cp310-cp310-musllinux_1_1_x86_64.whl", hash = "sha256:823999e10d02c15daeb75f2005323db296b72c5f89f09e48f637b7321813633d"},
+    {file = "poseidon_py-0.1.3-cp310-cp310-win32.whl", hash = "sha256:3a01664c1abbfbdee43d3d5a5a349a9736b22ffc0633816567cd2d3a9562d5c0"},
+    {file = "poseidon_py-0.1.3-cp310-cp310-win_amd64.whl", hash = "sha256:5d136fdba6932626f27760462e6071bc9fa7191d82a02c18d31c839236924b2d"},
+    {file = "poseidon_py-0.1.3-cp311-cp311-macosx_11_0_universal2.whl", hash = "sha256:fe2d67b9f71652bdbd677f7f4244b90d8ad3e0f3dfc3b1a8a14ae764b77c7e54"},
+    {file = "poseidon_py-0.1.3-cp311-cp311-macosx_12_0_universal2.whl", hash = "sha256:76a590a26a469524e07101f8f7095d1341ecd7b44097840bf51aa2e4864437e8"},
+    {file = "poseidon_py-0.1.3-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:b7a9cb9874107398e9d56ddee77a35936c292a894cb4117af36d9c1e745a3a77"},
+    {file = "poseidon_py-0.1.3-cp311-cp311-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:d3893c4f89211ccb378ddae4732ce4faa57a5a5ff604c7de30f0b9bd725dc239"},
+    {file = "poseidon_py-0.1.3-cp311-cp311-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:30e79b32441708051c40f9077e6c11224286b65f42cfde01e4395bdbedea6e96"},
+    {file = "poseidon_py-0.1.3-cp311-cp311-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:4460357881857c8c10c47e9563a038b0e3696ccc69006c54946a59d31ac3e9fa"},
+    {file = "poseidon_py-0.1.3-cp311-cp311-musllinux_1_1_aarch64.whl", hash = "sha256:201128a35e9ad6e2b7f8cbd964e65f816f6449f687356f6064136ac14e97dbc0"},
+    {file = "poseidon_py-0.1.3-cp311-cp311-musllinux_1_1_ppc64le.whl", hash = "sha256:8cd3082a3a79ddbedeb02696b2bcb12422a93f680bfafc5e4680ac1189178740"},
+    {file = "poseidon_py-0.1.3-cp311-cp311-musllinux_1_1_s390x.whl", hash = "sha256:6254630f1a8c816b121938191445e26f153cb254d273198f2aa72482970b731e"},
+    {file = "poseidon_py-0.1.3-cp311-cp311-musllinux_1_1_x86_64.whl", hash = "sha256:0f1e8e8457ee83d85875f3df5c286f1734e47afac55843edad32fa6435d49ab9"},
+    {file = "poseidon_py-0.1.3-cp311-cp311-win32.whl", hash = "sha256:559cf54eab8154fb612bb5a96b749efd55232425f8d9cc3547b4c7dc41cd5e1d"},
+    {file = "poseidon_py-0.1.3-cp311-cp311-win_amd64.whl", hash = "sha256:1ee4e2b58ccdab1c5a57330daf3c3af3d3bd4f8fbb5dc8683634661c99bd520e"},
+    {file = "poseidon_py-0.1.3-cp38-cp38-macosx_11_0_universal2.whl", hash = "sha256:1efc471c29495fab20b0e9a8ffc58fc5c98f87e9793e93b62fdfda1b53302deb"},
+    {file = "poseidon_py-0.1.3-cp38-cp38-macosx_12_0_universal2.whl", hash = "sha256:f27272d77b768ca9fa62cc481a17bdbd4dfdf7f4af8bcf1e53910f7e9c5497fd"},
+    {file = "poseidon_py-0.1.3-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:6e106607e8e7d52b35669e253555b564d0d5eab85bb148826591fd43c871b41a"},
+    {file = "poseidon_py-0.1.3-cp38-cp38-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:849d51f6ccc8a848f2e3c0b322c4ab67bcc2d68ad82f9d112334511c4160c440"},
+    {file = "poseidon_py-0.1.3-cp38-cp38-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:85aa3bc7795a55b7ea3d7adabe0cf2ef5416eb81457f354fe8a83e285276c697"},
+    {file = "poseidon_py-0.1.3-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:9c04cf8a082ccce9f26484d51d4bb18441041b544ca429413bc0d931c3173adb"},
+    {file = "poseidon_py-0.1.3-cp38-cp38-musllinux_1_1_aarch64.whl", hash = "sha256:f32841ce6e27dc2ca39384c4cd1514ffeae478e58620a6649858c490899238a7"},
+    {file = "poseidon_py-0.1.3-cp38-cp38-musllinux_1_1_ppc64le.whl", hash = "sha256:040aa6d41997fecf5135112c1dd8a5640a5929bf5a786737b50a95feb5a8e40c"},
+    {file = "poseidon_py-0.1.3-cp38-cp38-musllinux_1_1_s390x.whl", hash = "sha256:3fe4675d25c671a497c7c47cd4f5a22f301b84866b59fe1b4a0768fb10ae4d2b"},
+    {file = "poseidon_py-0.1.3-cp38-cp38-musllinux_1_1_x86_64.whl", hash = "sha256:06587d4ee8a6e854b57cc5cddbd03ebfbe62fa761d160d32aa1dafc5de3f785d"},
+    {file = "poseidon_py-0.1.3-cp38-cp38-win32.whl", hash = "sha256:bdd3428638e1bccc358dc559ebadd816dcafdaaefcb3ced9b9bb8c07053d203f"},
+    {file = "poseidon_py-0.1.3-cp38-cp38-win_amd64.whl", hash = "sha256:277ccda8612fa057100506bb4cbadddb10915f7d643dc44a77b16b90050df7bd"},
+    {file = "poseidon_py-0.1.3-cp39-cp39-macosx_11_0_universal2.whl", hash = "sha256:f289a906fc54e75587ea4754ae7280652b1b1da51b40f82b3fb2e72a5bd8928e"},
+    {file = "poseidon_py-0.1.3-cp39-cp39-macosx_12_0_universal2.whl", hash = "sha256:9a0dfb1934e54a02247c872b8bce926e3c6bf998b46cff6b3536d0f32ab0517b"},
+    {file = "poseidon_py-0.1.3-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:4972047c37ebd86ea96fd13fc762104cb9b3494b5e43bf9bcd3e656d37f2b158"},
+    {file = "poseidon_py-0.1.3-cp39-cp39-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:33471aac5654f36962091dbfca6188862a98ab04efe613b029247260265e4fe6"},
+    {file = "poseidon_py-0.1.3-cp39-cp39-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:ee48a829baf3c2c188f121a122a450b45664636931f15fce919ec31b89eca098"},
+    {file = "poseidon_py-0.1.3-cp39-cp39-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:5cc1a103eb9f89c6747926daa27d1b9807451f36212806938dcf73cab2131147"},
+    {file = "poseidon_py-0.1.3-cp39-cp39-musllinux_1_1_aarch64.whl", hash = "sha256:53c688f041e7b83dc2bc348bfa9cdd1a7d628c3b07dcc99525065c5493d9eecf"},
+    {file = "poseidon_py-0.1.3-cp39-cp39-musllinux_1_1_ppc64le.whl", hash = "sha256:041bbcbec7afc149f773f09bdb5f6708690dae96c6ee7a167a7b53e9ca0c09d3"},
+    {file = "poseidon_py-0.1.3-cp39-cp39-musllinux_1_1_s390x.whl", hash = "sha256:60cc8b717e8184906b9cedb4bdef205ecbeda7ffcc482aae936fed2cadc98537"},
+    {file = "poseidon_py-0.1.3-cp39-cp39-musllinux_1_1_x86_64.whl", hash = "sha256:a99a25ec5b7c25f0603de6d06450b3ebb26f1d02b205bf875d029f52d4cd691f"},
+    {file = "poseidon_py-0.1.3-cp39-cp39-win32.whl", hash = "sha256:471b1466c9a4351bf92e7d36781f46d355854e0e7a5d11ee45cde0f07de2ab80"},
+    {file = "poseidon_py-0.1.3-cp39-cp39-win_amd64.whl", hash = "sha256:ce5a947360fd6045a9f10461bdea95cec3920a6663bebac0c53e87aee6dc31e7"},
+    {file = "poseidon_py-0.1.3.tar.gz", hash = "sha256:37f191fcad7c25deb70480b65a6d8807a0c30b1f828fe598f13780cfa31285c3"},
 ]
 
 [[package]]
@@ -3453,4 +3481,4 @@ docs = ["enum-tools", "furo", "sphinx"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9, <3.10"
-content-hash = "ee89ba21d0afb7ecbe7b7d4d0eaae142a91a3ee009cd4269cd57a543f43c8f50"
+content-hash = "5aa78e611591c9b87e72758096affec615d8175c46afee21e83e550f06f1e86f"
