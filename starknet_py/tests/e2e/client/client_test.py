@@ -219,10 +219,10 @@ async def test_get_class_by_hash(client, class_hash):
             "gateway_client",
             "tx_receipt_gateway_path",
         ),
-(
+        (
             "full_node_client",
             "tx_receipt_full_node_path",
-        )
+        ),
     ],
 )
 async def test_wait_for_tx_accepted(client, get_tx_receipt, request):
@@ -245,7 +245,7 @@ async def test_wait_for_tx_accepted(client, get_tx_receipt, request):
 @pytest.mark.parametrize(
     "client, get_tx_receipt",
     [
-(
+        (
             "gateway_client",
             "tx_receipt_gateway_path",
         ),
@@ -253,7 +253,6 @@ async def test_wait_for_tx_accepted(client, get_tx_receipt, request):
             "full_node_client",
             "tx_receipt_full_node_path",
         ),
-
     ],
 )
 async def test_wait_for_tx_pending(client, get_tx_receipt, request):

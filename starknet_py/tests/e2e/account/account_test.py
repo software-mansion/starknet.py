@@ -26,7 +26,10 @@ from starknet_py.transaction_exceptions import TransactionRejectedError
 
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
-@pytest.mark.parametrize("client", [GatewayClient(net="custom.net"), FullNodeClient(node_url="custom.net/rpc")])
+@pytest.mark.parametrize(
+    "client",
+    [GatewayClient(net="custom.net"), FullNodeClient(node_url="custom.net/rpc")],
+)
 async def test_get_balance_throws_when_token_not_specified(account, client):
     modified_account = Account(
         address=account.address,
