@@ -64,7 +64,7 @@ async def test_serializing_option(gateway_account):
         account=gateway_account, contract_file_name="test_option"
     )
 
-    (received_option, ) = await test_option.functions["get_option_struct"].call()
+    (received_option,) = await test_option.functions["get_option_struct"].call()
 
     assert dict(received_option) == {
         "first_field": 1,
@@ -80,7 +80,7 @@ async def test_serializing_option(gateway_account):
         "fourth_field": 4,
     }
 
-    (received_option, ) = await test_option.functions[
+    (received_option,) = await test_option.functions[
         "receive_and_send_option_struct"
     ].call(option_struct=option_struct)
 
