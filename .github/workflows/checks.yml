@@ -32,11 +32,11 @@ jobs:
       - name: Install dependencies
         run: |
           poetry install
-      - name: Install cairo-lang and starknet-devnet
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v4
         with:
           python-version: "3.9"
           cache: 'pip'
+      - name: Install cairo-lang and starknet-devnet
         run: |
           pip install cairo-lang starknet-devnet
 
