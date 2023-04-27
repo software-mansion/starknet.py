@@ -15,7 +15,6 @@ jobs:
     strategy:
       matrix:
         python-version: [ "3.8", "3.9", "3.10" ]
-        special-python-version: [ "3.9" ]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -36,7 +35,7 @@ jobs:
       - name: Install cairo-lang and starknet-devnet
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.special-python-version }}
+          python-version: "3.9"
           cache: 'pip'
         run: |
           pip install cairo-lang starknet-devnet
