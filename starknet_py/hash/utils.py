@@ -1,6 +1,7 @@
 import functools
 from typing import List, Optional, Sequence
 
+from Crypto.Hash import keccak
 from crypto_cpp_py.cpp_bindings import (
     ECSignature,
     cpp_get_public_key,
@@ -8,7 +9,6 @@ from crypto_cpp_py.cpp_bindings import (
     cpp_sign,
     cpp_verify,
 )
-from eth_utils.crypto import keccak
 
 from starknet_py.common import int_from_bytes
 from starknet_py.constants import EC_ORDER
@@ -20,12 +20,14 @@ def _starknet_keccak(data: bytes) -> int:
     """
     A variant of eth-keccak that computes a value that fits in a StarkNet field element.
     """
-    return int_from_bytes(keccak(data)) & MASK_250
+    k = keccak.new(digest_bits=256)
+    k.update(data)
+    return int_from_bytes(k.digest()) & MASK_250
 
 
 def pedersen_hash(left: int, right: int) -> int:
     """
-    One of two hash functions (along with _starknet_keccak) used throughout StarkNet.
+    One of two hash functions (along with _starknet_keccak) used throughout Starknet.
     """
     return cpp_hash(left, right)
 
