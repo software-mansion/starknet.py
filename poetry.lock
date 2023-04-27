@@ -860,6 +860,7 @@ files = [
 ]
 
 [package.dependencies]
+importlib-metadata = {version = ">=3.6.0", markers = "python_version < \"3.9\""}
 natsort = ">=7.0.1"
 typing-extensions = ">=3.7.4.1"
 
@@ -3455,5 +3456,5 @@ docs = ["enum-tools", "furo", "sphinx"]
 
 [metadata]
 lock-version = "2.0"
-python-versions = ">=3.9, <3.10"
-content-hash = "d84bc082be8acbce0a8a958cb4186260204044a00515211a825f7ce304f1ba32"
+python-versions = ">=3.8, <3.11"
+content-hash = "4bb1c10515d34f64436dc139a7cbc3be247da3b74124d2c66621204797f27732"
