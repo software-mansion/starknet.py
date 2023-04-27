@@ -290,7 +290,7 @@ lxml = ["lxml"]
 name = "bitarray"
 version = "2.7.3"
 description = "efficient arrays of booleans -- C extension"
-category = "main"
+category = "dev"
 optional = false
 python-versions = "*"
 files = [
@@ -458,7 +458,7 @@ redis = ["redis (>=2.10.5)"]
 name = "cachetools"
 version = "5.3.0"
 description = "Extensible memoizing collections and decorators"
-category = "main"
+category = "dev"
 optional = false
 python-versions = "~=3.7"
 files = [
@@ -470,7 +470,7 @@ files = [
 name = "cairo-lang"
 version = "0.11.0.2"
 description = "Compiler and runner for the Cairo language"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.6"
 files = [
@@ -635,54 +635,55 @@ toml = ["tomli"]
 
 [[package]]
 name = "crypto-cpp-py"
-version = "1.2.0"
+version = "1.3.0"
 description = "This is a packaged crypto-cpp program"
 category = "main"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "crypto_cpp_py-1.2.0-cp310-cp310-macosx_11_0_universal2.whl", hash = "sha256:a2b50c988d5a470788996b65715f218b29b60fa65ff9b4c6a2d6a32806cd52f8"},
-    {file = "crypto_cpp_py-1.2.0-cp310-cp310-macosx_12_0_universal2.whl", hash = "sha256:a3cbf8b0b3d41aeb1b27f68cd0fba0d984b78fa02cb9616110f7e9c3690e81db"},
-    {file = "crypto_cpp_py-1.2.0-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:5430c26bd9db6d44a1d4a77fc1812d4d442c8f3587fd47f6c98584209b63a49a"},
-    {file = "crypto_cpp_py-1.2.0-cp310-cp310-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:7aa34beab521e0d8ff3f78ace25481d8e25b60ed173fcab151402da198dea63f"},
-    {file = "crypto_cpp_py-1.2.0-cp310-cp310-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:02c310f44aeabd7e2d6983d6a190fb5796b77d8f016f3fbe21c4fe5969329f2b"},
-    {file = "crypto_cpp_py-1.2.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:a2d86979ab8d4a4a93bea26d625473309855f970818875bf76f1f4832c947a70"},
-    {file = "crypto_cpp_py-1.2.0-cp310-cp310-musllinux_1_1_aarch64.whl", hash = "sha256:27f04b647410389a621e7d551ca69ffc11dc81efd411b2d403f65ab59ff11ca1"},
-    {file = "crypto_cpp_py-1.2.0-cp310-cp310-musllinux_1_1_ppc64le.whl", hash = "sha256:f72acfefc1789403cc962d2d21d9dae6e5369480628f2a905f4096ced22434eb"},
-    {file = "crypto_cpp_py-1.2.0-cp310-cp310-musllinux_1_1_s390x.whl", hash = "sha256:d279ca732357fbfe5814c2aa51acab32ba4123b1b212a164eaa62a9b5cf6b724"},
-    {file = "crypto_cpp_py-1.2.0-cp310-cp310-musllinux_1_1_x86_64.whl", hash = "sha256:6c0dafac5511b1138c9b3e8cb534d94275ae4c6bc2f7b45f06511feeb8d8b62b"},
-    {file = "crypto_cpp_py-1.2.0-cp310-cp310-win32.whl", hash = "sha256:7dd870741f82fc040bc592be3b87bac369e14d2aab032844e1b53555f51394bb"},
-    {file = "crypto_cpp_py-1.2.0-cp310-cp310-win_amd64.whl", hash = "sha256:c982652a415b744529be0892892e27d41c9659fd641a46909afdd4e92152117a"},
-    {file = "crypto_cpp_py-1.2.0-cp310-cp310-win_arm64.whl", hash = "sha256:4db6f669881036df11725bf5100aedb39b0f1ae0c8171703559e4a57e825acbc"},
-    {file = "crypto_cpp_py-1.2.0-cp38-cp38-macosx_11_0_universal2.whl", hash = "sha256:a78ea2b5af57a6b02a3022839ec91192e996a90de9f4946f406a689aecbcc72a"},
-    {file = "crypto_cpp_py-1.2.0-cp38-cp38-macosx_12_0_universal2.whl", hash = "sha256:6387df89c5f6758775e67321011e0836de4b8c06bbf01c3adc6fc5ff71e3899c"},
-    {file = "crypto_cpp_py-1.2.0-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:488869cd785afb36ccb29bd4c9d2ad44b4bc14ebb0d71ac966dd1602df92707d"},
-    {file = "crypto_cpp_py-1.2.0-cp38-cp38-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:183eb312fa11158821e9fd8f822ab38bd28b19b0ef0e8bab5ec7b9778bb2886c"},
-    {file = "crypto_cpp_py-1.2.0-cp38-cp38-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:bdb714fdb4b3a01c2f3c75ec4599953f8c6942db5a1c9b95c12f72e1f8289867"},
-    {file = "crypto_cpp_py-1.2.0-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:00d6d602f42c064ef97740a773f956ed71ee6296e2a575ce549c3430138311d0"},
-    {file = "crypto_cpp_py-1.2.0-cp38-cp38-musllinux_1_1_aarch64.whl", hash = "sha256:5ede71ec73e6f9f85bc11de3137167a5ee6b72cd605a0ac3dfa0f1d269cccb90"},
-    {file = "crypto_cpp_py-1.2.0-cp38-cp38-musllinux_1_1_ppc64le.whl", hash = "sha256:e285fb87ff3916d2099e6b9091d1105200edcc6782cc9108d43f969c4122d603"},
-    {file = "crypto_cpp_py-1.2.0-cp38-cp38-musllinux_1_1_s390x.whl", hash = "sha256:fec0e7cf5dc1ce232e94fa435ea26db7268cf8444c2dfae2cd286b73afe1e556"},
-    {file = "crypto_cpp_py-1.2.0-cp38-cp38-musllinux_1_1_x86_64.whl", hash = "sha256:21119e5a32d9371719b95d7ed3ae34968eaea683dcac3ceb5a11d29b40d4864f"},
-    {file = "crypto_cpp_py-1.2.0-cp38-cp38-win32.whl", hash = "sha256:11021d1f1a7b707547ce0593376714d69b0794d72435e11e7415d1f251c5c2b2"},
-    {file = "crypto_cpp_py-1.2.0-cp38-cp38-win_amd64.whl", hash = "sha256:a74c456f0b7e838b09f9cd4c36a02d034c379c414323248b92d44250ad1e38d8"},
-    {file = "crypto_cpp_py-1.2.0-cp39-cp39-macosx_11_0_universal2.whl", hash = "sha256:87a1d15149a174b5b8f2aa8d2526008ded2f3685ca724713bf04f4ff57ad1ed5"},
-    {file = "crypto_cpp_py-1.2.0-cp39-cp39-macosx_12_0_universal2.whl", hash = "sha256:84ff5700060b512256f7a60dea8d580a9b7814b76c89db7ca447a799b473f2ac"},
-    {file = "crypto_cpp_py-1.2.0-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:45f3e5d0ef90836182c44189f85ebd7c98c37475f676d82ff6a151699689033a"},
-    {file = "crypto_cpp_py-1.2.0-cp39-cp39-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:075f98f6134b22c33d4253b76b2b7265e3775c80e88454263ac9b2b87162c423"},
-    {file = "crypto_cpp_py-1.2.0-cp39-cp39-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:31ce5fdff678d8fd6e9bddd7edc301a3f55978aeab289208bd0775d0de78f7f7"},
-    {file = "crypto_cpp_py-1.2.0-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:c47b66791ad06ae658a6d6cd5bd1ebcd410aed8485d1bdfc4140f29148639905"},
-    {file = "crypto_cpp_py-1.2.0-cp39-cp39-musllinux_1_1_aarch64.whl", hash = "sha256:a8535466754d76116e78b858e6ec027305710738cfc71a342bbd08dbf1da4ba1"},
-    {file = "crypto_cpp_py-1.2.0-cp39-cp39-musllinux_1_1_ppc64le.whl", hash = "sha256:5d9ecf33149bd387a43c76e2ef3deef590be15c2201fb9317cfcb200d07b4432"},
-    {file = "crypto_cpp_py-1.2.0-cp39-cp39-musllinux_1_1_s390x.whl", hash = "sha256:c06e2037d11e44cece69c1a4fdde80614d4ff70ea05fa042cecafcd345c32967"},
-    {file = "crypto_cpp_py-1.2.0-cp39-cp39-musllinux_1_1_x86_64.whl", hash = "sha256:6853d88562034c5ac4406f875e41dc4cf65f8a605524c31f45f331a2f378eb95"},
-    {file = "crypto_cpp_py-1.2.0-cp39-cp39-win32.whl", hash = "sha256:151a9c162410a01a84c7fab035c99564cddf9ffa3e55afc626a14a9214bd6683"},
-    {file = "crypto_cpp_py-1.2.0-cp39-cp39-win_amd64.whl", hash = "sha256:7db649c3f7634c0a3e78b6832066594a6f41bca6aaff3a0bc24998274877cda7"},
-    {file = "crypto_cpp_py-1.2.0.tar.gz", hash = "sha256:ab64b333968725881f00ab01ee4462501008d83134c204e35834e13949b03bbb"},
+    {file = "crypto_cpp_py-1.3.0-cp310-cp310-macosx_11_0_universal2.whl", hash = "sha256:65248fc9220752442585804f3a3ec216e3bd8aeb4f44f743ff40398746587a61"},
+    {file = "crypto_cpp_py-1.3.0-cp310-cp310-macosx_12_0_universal2.whl", hash = "sha256:1b92c1a264e45873c3ccfd5a17621bf7e3233750dd249cb3b197f8d48adacaf6"},
+    {file = "crypto_cpp_py-1.3.0-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:dd7741a7ece39166dcaedb8475821848c97bc5dd614075cb385297248d8683f7"},
+    {file = "crypto_cpp_py-1.3.0-cp310-cp310-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:9adc33dbf79efea044e89609b9ead97c76361b3f191bbc591e65e63aac913866"},
+    {file = "crypto_cpp_py-1.3.0-cp310-cp310-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:f1652a4377dc9c041e8c835001b463dbe7a691d4f37dd9ed4670259d8427f3e6"},
+    {file = "crypto_cpp_py-1.3.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:64f9a13a6beb869ffa600ec772c161afb7f846c045ca40de4fff6e39dfe46165"},
+    {file = "crypto_cpp_py-1.3.0-cp310-cp310-musllinux_1_1_aarch64.whl", hash = "sha256:763593998205998cc8bbfe0843f18226054cc4198925b3d5d009fa770daf547e"},
+    {file = "crypto_cpp_py-1.3.0-cp310-cp310-musllinux_1_1_ppc64le.whl", hash = "sha256:db0c2db75cec95e581c15a258c9fd6d0320e8fd51bc7fa8c231bbf5155d854c5"},
+    {file = "crypto_cpp_py-1.3.0-cp310-cp310-musllinux_1_1_s390x.whl", hash = "sha256:d1b21a692fafd9a69634ec36bf639c8aabfd236ae04d38029c48ca82f844bf80"},
+    {file = "crypto_cpp_py-1.3.0-cp310-cp310-musllinux_1_1_x86_64.whl", hash = "sha256:9c31f0d3310d4d7d1d1351401bb97281f002ee5bcaef600bf8213ff250e93356"},
+    {file = "crypto_cpp_py-1.3.0-cp310-cp310-win32.whl", hash = "sha256:be6edbe043e07ae5b4be780a93b827528c58922f8f7edbc32be955dbb9cb98fd"},
+    {file = "crypto_cpp_py-1.3.0-cp310-cp310-win_amd64.whl", hash = "sha256:6734e6c497d15a69efcc38ef8041042b1bc028c526b49ed897be6aedb625c692"},
+    {file = "crypto_cpp_py-1.3.0-cp310-cp310-win_arm64.whl", hash = "sha256:35e2b2bb8ec94e20bd3d61d2266bea9ff1e3df6475720ffe421f73692b6b26f1"},
+    {file = "crypto_cpp_py-1.3.0-cp38-cp38-macosx_11_0_universal2.whl", hash = "sha256:6e96309a36a10a5634a0a04003fd8119aa694c0d672609af9ca3819dad199ae2"},
+    {file = "crypto_cpp_py-1.3.0-cp38-cp38-macosx_12_0_universal2.whl", hash = "sha256:2d88862627d4627a6263bc9f50e3195008a5ff6d931ed6ad8db3f2b30c3c0ca6"},
+    {file = "crypto_cpp_py-1.3.0-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:b9a8d53a9781eee0c58e0c17b906e7024a614f30683403eb17e9ebc6d2f0e1d6"},
+    {file = "crypto_cpp_py-1.3.0-cp38-cp38-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:1c558b11ccf9c8c06d280bc41f1053885bff847b2262675ea41267cd0e70e25b"},
+    {file = "crypto_cpp_py-1.3.0-cp38-cp38-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:a17b15fb3354ca315d3434ea9f46f7dbe97de89de3b85c5ebacb87baaedeb8b9"},
+    {file = "crypto_cpp_py-1.3.0-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:58fa8ca7e5692816640d85cedb5ba2e16ce60a3e2c7e03f436f07448f25661df"},
+    {file = "crypto_cpp_py-1.3.0-cp38-cp38-musllinux_1_1_aarch64.whl", hash = "sha256:2b058f3a5b4f039aab8bf1d8fcda732487a8453d3e1ee109c6e7a3df2725f39a"},
+    {file = "crypto_cpp_py-1.3.0-cp38-cp38-musllinux_1_1_ppc64le.whl", hash = "sha256:c8f0a602f7d034695498751e529f4b7ead0cb3ae102c69c6026502e6938b03d6"},
+    {file = "crypto_cpp_py-1.3.0-cp38-cp38-musllinux_1_1_s390x.whl", hash = "sha256:a7200b2352fe1b6aeeecd3ab9594a7332da8542f39d528faa4eda92cd7949bf0"},
+    {file = "crypto_cpp_py-1.3.0-cp38-cp38-musllinux_1_1_x86_64.whl", hash = "sha256:54ea3b39025436c5447e5f52b5172027027fcb8254e31dbb1bc36133c41940fa"},
+    {file = "crypto_cpp_py-1.3.0-cp38-cp38-win32.whl", hash = "sha256:eaceebe2fc3934a5c44eaa0b2bd15df7361a21e2ee6e950aa07b6ee9a16f5d20"},
+    {file = "crypto_cpp_py-1.3.0-cp38-cp38-win_amd64.whl", hash = "sha256:3b660b8af012c8cbcfe86270bc631ff7590eb2e5a9df214e94e44a2613fcf11e"},
+    {file = "crypto_cpp_py-1.3.0-cp39-cp39-macosx_11_0_universal2.whl", hash = "sha256:f32754c5e7d8c01b9733ac63a64ea0e6a4653960025bd9ef29fa4ada7b2d03f9"},
+    {file = "crypto_cpp_py-1.3.0-cp39-cp39-macosx_12_0_universal2.whl", hash = "sha256:50c50184a68bdea582be9c611b9415753dce0b9a2da57e00703880d551c14a4b"},
+    {file = "crypto_cpp_py-1.3.0-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:d768899548590fba32289291a949940137b9d4c3f1b5f0dd4f1d6c58d4994745"},
+    {file = "crypto_cpp_py-1.3.0-cp39-cp39-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:39ae96b6263cdc86c13c189b34ee4234e289185ebd5724f8d0573d0be151473c"},
+    {file = "crypto_cpp_py-1.3.0-cp39-cp39-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:c1b1e12fa38e2c3a63931129b1688291c4986003500e1e7be6ff043d28617b9e"},
+    {file = "crypto_cpp_py-1.3.0-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:459e3d80b2de5e1c3c6b3be14ed443df7a42363c17642d80db50ec4f32aa71a4"},
+    {file = "crypto_cpp_py-1.3.0-cp39-cp39-musllinux_1_1_aarch64.whl", hash = "sha256:3bf03b71d8864c05649e4258577a7d73fd75e92297a7a4739f2f36dfe2ef3a23"},
+    {file = "crypto_cpp_py-1.3.0-cp39-cp39-musllinux_1_1_ppc64le.whl", hash = "sha256:5eba8b85ab152f835d335278edd86bedf3b150f512fadbf78da0c7256760bc6c"},
+    {file = "crypto_cpp_py-1.3.0-cp39-cp39-musllinux_1_1_s390x.whl", hash = "sha256:41966a64f3fb8e4d9f5fd9c41a359c2b169d2e17a63e3b009391e0f059863e88"},
+    {file = "crypto_cpp_py-1.3.0-cp39-cp39-musllinux_1_1_x86_64.whl", hash = "sha256:4c493574644b76ca02db9bc0daee8270b6fde2e80200fdbbe18353c9dd190e3e"},
+    {file = "crypto_cpp_py-1.3.0-cp39-cp39-win32.whl", hash = "sha256:b5c95bbecd0f3444d3c4f15dfa33633f7b194d8f838e9c43a306d38bfe37130c"},
+    {file = "crypto_cpp_py-1.3.0-cp39-cp39-win_amd64.whl", hash = "sha256:6a9e0620473c0eac8a4f3d246fcaaf5d332ed6a12990b6424010e6bd872cc4fb"},
+    {file = "crypto_cpp_py-1.3.0.tar.gz", hash = "sha256:61cf006194b1854b5d968413d0c141a9166f390fb04266fb49bc61d94fb7850b"},
 ]
 
 [package.dependencies]
-cairo-lang = "*"
+ecdsa = "0.18.0"
+sympy = "1.11.1"
 
 [package.extras]
 build = ["cmake (>=3.22.4)"]
@@ -911,7 +912,7 @@ sphinx = ["sphinx (>=3.2.0)", "sphinx-toolbox (>=2.16.0)"]
 name = "eth-abi"
 version = "4.0.0"
 description = "eth_abi: Python utilities for working with Ethereum ABI definitions, especially encoding and decoding"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7, <4"
 files = [
@@ -935,7 +936,7 @@ tools = ["hypothesis (>=4.18.2,<5.0.0)"]
 name = "eth-account"
 version = "0.8.0"
 description = "eth-account: Sign Ethereum transactions and messages with local private keys"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.6, <4"
 files = [
@@ -986,7 +987,7 @@ test = ["pytest (>=6.2.5,<7)", "pytest-xdist (>=2.4.0,<3)", "tox (>=3.14.6,<4)"]
 name = "eth-keyfile"
 version = "0.6.1"
 description = "A library for handling the encrypted keyfiles used to store ethereum private keys."
-category = "main"
+category = "dev"
 optional = false
 python-versions = "*"
 files = [
@@ -1009,7 +1010,7 @@ test = ["pytest (>=6.2.5,<7)"]
 name = "eth-keys"
 version = "0.4.0"
 description = "Common API for Ethereum key operations."
-category = "main"
+category = "dev"
 optional = false
 python-versions = "*"
 files = [
@@ -1032,7 +1033,7 @@ test = ["asn1tools (>=0.146.2,<0.147)", "eth-hash[pycryptodome]", "eth-hash[pysh
 name = "eth-rlp"
 version = "0.3.0"
 description = "eth-rlp: RLP definitions for common Ethereum objects in Python"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7, <4"
 files = [
@@ -1097,7 +1098,7 @@ test = ["hypothesis (>=4.43.0,<5.0.0)", "pytest (>=6.2.5,<7)", "pytest-xdist", "
 name = "exceptiongroup"
 version = "1.1.1"
 description = "Backport of PEP 654 (exception groups)"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -1127,7 +1128,7 @@ testing = ["pre-commit"]
 name = "fastecdsa"
 version = "2.3.0"
 description = "Fast elliptic curve digital signatures"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -1186,7 +1187,7 @@ Six = "*"
 name = "frozendict"
 version = "1.2"
 description = "An immutable dictionary"
-category = "main"
+category = "dev"
 optional = false
 python-versions = "*"
 files = [
@@ -1320,7 +1321,7 @@ tornado = ["tornado (>=0.2)"]
 name = "hexbytes"
 version = "0.3.0"
 description = "hexbytes: Python `bytes` subclass that decodes hex, with a readable console output"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7, <4"
 files = [
@@ -1404,7 +1405,7 @@ testing = ["flake8 (<5)", "flufl.flake8", "importlib-resources (>=1.3)", "packag
 name = "iniconfig"
 version = "1.1.1"
 description = "iniconfig: brain-dead simple config-ini parsing"
-category = "main"
+category = "dev"
 optional = false
 python-versions = "*"
 files = [
@@ -1464,7 +1465,7 @@ i18n = ["Babel (>=2.7)"]
 name = "jsonschema"
 version = "4.17.3"
 description = "An implementation of JSON Schema validation for Python"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -1542,7 +1543,7 @@ files = [
 name = "lru-dict"
 version = "1.1.8"
 description = "An Dict like LRU container."
-category = "main"
+category = "dev"
 optional = false
 python-versions = "*"
 files = [
@@ -1698,7 +1699,7 @@ union = ["typeguard"]
 name = "marshmallow-enum"
 version = "1.5.1"
 description = "Enum field for Marshmallow"
-category = "main"
+category = "dev"
 optional = false
 python-versions = "*"
 files = [
@@ -1935,7 +1936,7 @@ setuptools = "*"
 name = "numpy"
 version = "1.23.5"
 description = "NumPy is the fundamental package for array computing with Python."
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.8"
 files = [
@@ -1985,7 +1986,7 @@ files = [
 name = "parsimonious"
 version = "0.9.0"
 description = "(Soon to be) the fastest pure-Python PEG parser I could muster"
-category = "main"
+category = "dev"
 optional = false
 python-versions = "*"
 files = [
@@ -2023,7 +2024,7 @@ files = [
 name = "pipdeptree"
 version = "2.3.3"
 description = "Command line utility to show dependency tree of packages."
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -2055,7 +2056,7 @@ test = ["appdirs (==1.4.4)", "pytest (>=7.2)", "pytest-cov (>=4)", "pytest-mock 
 name = "pluggy"
 version = "1.0.0"
 description = "plugin and hook calling mechanisms for python"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.6"
 files = [
@@ -2121,7 +2122,7 @@ files = [
 name = "prometheus-client"
 version = "0.15.0"
 description = "Python client for the Prometheus monitoring system."
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.6"
 files = [
@@ -2136,7 +2137,7 @@ twisted = ["twisted"]
 name = "protobuf"
 version = "4.22.1"
 description = ""
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -2159,7 +2160,7 @@ files = [
 name = "pycryptodome"
 version = "3.15.0"
 description = "Cryptographic library for Python"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 files = [
@@ -2242,14 +2243,14 @@ testutils = ["gitpython (>3)"]
 
 [[package]]
 name = "pyright"
-version = "1.1.303"
+version = "1.1.304"
 description = "Command line wrapper for pyright"
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pyright-1.1.303-py3-none-any.whl", hash = "sha256:8fe3d122d7e965e2df2cef64e1ceb98cff8200f458e7892d92a4c21ee85689c7"},
-    {file = "pyright-1.1.303.tar.gz", hash = "sha256:7daa516424555681e8974b21a95c108c5def791bf5381522b1410026d4da62c1"},
+    {file = "pyright-1.1.304-py3-none-any.whl", hash = "sha256:70021bbae07fc28ed16e435f5efa65cd71e06a1888d9ca998798c283d4b3d010"},
+    {file = "pyright-1.1.304.tar.gz", hash = "sha256:87adec38081904c939e3657ab23d5fc40b7ccc22709be0af1859fc785ae4ea61"},
 ]
 
 [package.dependencies]
@@ -2263,7 +2264,7 @@ dev = ["twine (>=3.4.1)"]
 name = "pyrsistent"
 version = "0.19.3"
 description = "Persistent/Functional/Immutable data structures"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -2300,7 +2301,7 @@ files = [
 name = "pytest"
 version = "7.2.2"
 description = "pytest: simple powerful testing with Python"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -2324,7 +2325,7 @@ testing = ["argcomplete", "hypothesis (>=3.56)", "mock", "nose", "pygments (>=2.
 name = "pytest-asyncio"
 version = "0.20.3"
 description = "Pytest support for asyncio"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -2429,7 +2430,7 @@ files = [
 name = "pywin32"
 version = "305"
 description = "Python for Window Extensions"
-category = "main"
+category = "dev"
 optional = false
 python-versions = "*"
 files = [
@@ -2453,7 +2454,7 @@ files = [
 name = "PyYAML"
 version = "6.0"
 description = "YAML parser and emitter for Python"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.6"
 files = [
@@ -2503,7 +2504,7 @@ files = [
 name = "regex"
 version = "2023.3.23"
 description = "Alternative regular expression module, to replace re."
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.8"
 files = [
@@ -2595,7 +2596,7 @@ use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 name = "rlp"
 version = "3.0.0"
 description = "A package for Recursive Length Prefix encoding and decoding"
-category = "main"
+category = "dev"
 optional = false
 python-versions = "*"
 files = [
@@ -2680,14 +2681,14 @@ files = [
 
 [[package]]
 name = "setuptools"
-version = "67.6.1"
+version = "67.7.2"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "setuptools-67.6.1-py3-none-any.whl", hash = "sha256:e728ca814a823bf7bf60162daf9db95b93d532948c4c0bea762ce62f60189078"},
-    {file = "setuptools-67.6.1.tar.gz", hash = "sha256:257de92a9d50a60b8e22abfcbb771571fde0dbf3ec234463212027a4eeecbe9a"},
+    {file = "setuptools-67.7.2-py3-none-any.whl", hash = "sha256:23aaf86b85ca52ceb801d32703f12d77517b2556af839621c641fca11287952b"},
+    {file = "setuptools-67.7.2.tar.gz", hash = "sha256:f104fa03692a2602fa0fec6c6a9e63b6c8a968de13e17c026957dd1f53d80990"},
 ]
 
 [package.extras]
@@ -2733,21 +2734,21 @@ files = [
 
 [[package]]
 name = "sphinx"
-version = "6.1.3"
+version = "6.2.0"
 description = "Python documentation generator"
 category = "main"
 optional = true
 python-versions = ">=3.8"
 files = [
-    {file = "Sphinx-6.1.3.tar.gz", hash = "sha256:0dac3b698538ffef41716cf97ba26c1c7788dba73ce6f150c1ff5b4720786dd2"},
-    {file = "sphinx-6.1.3-py3-none-any.whl", hash = "sha256:807d1cb3d6be87eb78a381c3e70ebd8d346b9a25f3753e9947e866b2786865fc"},
+    {file = "Sphinx-6.2.0.tar.gz", hash = "sha256:9ef22c2941bc3d0ff080d25a797f7521fc317e857395c712ddde97a19d5bb440"},
+    {file = "sphinx-6.2.0-py3-none-any.whl", hash = "sha256:ff1c2a1167bef9cdcd8ec71339e85fe10f26d4e9ef9382ef10b2687c876c936b"},
 ]
 
 [package.dependencies]
 alabaster = ">=0.7,<0.8"
 babel = ">=2.9"
 colorama = {version = ">=0.4.5", markers = "sys_platform == \"win32\""}
-docutils = ">=0.18,<0.20"
+docutils = ">=0.18.1,<0.20"
 imagesize = ">=1.3"
 importlib-metadata = {version = ">=4.8", markers = "python_version < \"3.10\""}
 Jinja2 = ">=3.0"
@@ -2765,7 +2766,7 @@ sphinxcontrib-serializinghtml = ">=1.1.5"
 [package.extras]
 docs = ["sphinxcontrib-websupport"]
 lint = ["docutils-stubs", "flake8 (>=3.5.0)", "flake8-simplify", "isort", "mypy (>=0.990)", "ruff", "sphinx-lint", "types-requests"]
-test = ["cython", "html5lib", "pytest (>=4.6)"]
+test = ["cython", "filelock", "html5lib", "pytest (>=4.6)"]
 
 [[package]]
 name = "sphinx-autodoc-typehints"
@@ -2994,24 +2995,28 @@ description = "A local testnet for Starknet"
 category = "dev"
 optional = false
 python-versions = ">=3.9,<3.10"
-files = [
-    {file = "starknet_devnet-0.5.0-py3-none-any.whl", hash = "sha256:927c28286b6b56bd492d16782df6888f9322901c51c5947c2ad7ea102971df80"},
-    {file = "starknet_devnet-0.5.0.tar.gz", hash = "sha256:c12693c60b6eb5b4a6c1aa30afae2a1a65fe77342b0d78af410c91baa0974f8c"},
-]
+files = []
+develop = false
 
 [package.dependencies]
 cairo-lang = "0.11.0.2"
-cloudpickle = ">=2.1.0,<2.2.0"
-crypto-cpp-py = ">=1.2.0,<1.3.0"
-Flask = {version = ">=2.0.3,<2.1.0", extras = ["async"]}
-flask-cors = ">=3.0.10,<3.1.0"
-gunicorn = ">=20.1.0,<20.2.0"
-jsonschema = ">=4.17.0,<4.18.0"
-marshmallow = ">=3.17.0,<3.18.0"
-marshmallow-dataclass = ">=8.4,<8.5"
-typing-extensions = ">=4.3.0,<4.4.0"
-web3 = ">=6.0.0,<6.1.0"
-Werkzeug = ">=2.0.3,<2.1.0"
+cloudpickle = "~2.1.0"
+crypto-cpp-py = "~1.3.0"
+Flask = {version = "~2.0.3", extras = ["async"]}
+flask-cors = "~3.0.10"
+gunicorn = "~20.1.0"
+jsonschema = "~4.17.0"
+marshmallow = "~3.17.0"
+marshmallow-dataclass = "~8.4"
+typing-extensions = "~4.3.0"
+web3 = "~6.0.0"
+Werkzeug = "~2.0.3"
+
+[package.source]
+type = "git"
+url = "https://github.com/0xSpaceShard/starknet-devnet.git"
+reference = "543940a"
+resolved_reference = "543940a9e81e48eeeb8269beb290d41d6e03ea18"
 
 [[package]]
 name = "sympy"
@@ -3047,7 +3052,7 @@ widechars = ["wcwidth"]
 name = "tomli"
 version = "1.2.3"
 description = "A lil' TOML parser"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.6"
 files = [
@@ -3083,7 +3088,7 @@ files = [
 name = "typeguard"
 version = "2.13.3"
 description = "Run-time type checker for Python"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.5.3"
 files = [
@@ -3144,7 +3149,7 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 name = "web3"
 version = "6.0.0"
 description = "web3.py"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7.2"
 files = [
@@ -3191,7 +3196,7 @@ files = [
 name = "websockets"
 version = "11.0"
 description = "An implementation of the WebSocket Protocol (RFC 6455 & 7692)"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -3451,4 +3456,4 @@ docs = ["enum-tools", "furo", "sphinx"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9, <3.10"
-content-hash = "9ccaaa5034288a4ec358481231c281c1b264eaee0fb60bfb8d47ba0fe3f6d8d8"
+content-hash = "d84bc082be8acbce0a8a958cb4186260204044a00515211a825f7ce304f1ba32"
