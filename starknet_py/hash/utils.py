@@ -27,7 +27,7 @@ def _starknet_keccak(data: bytes) -> int:
 
 def pedersen_hash(left: int, right: int) -> int:
     """
-    One of two hash functions (along with _starknet_keccak) used throughout Starknet.
+    One of two hash functions (along with _starknet_keccak) used throughout StarkNet.
     """
     return cpp_hash(left, right)
 
