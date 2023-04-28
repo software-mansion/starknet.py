@@ -82,7 +82,8 @@ jobs:
 
       - name: Install python 3.9 requirements
         run: |
-          poetry install --only py39-dev
+          poetry export -f requirements.txt --without-hashes --output requirements.txt
+          pip install -r requirements.txt
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
@@ -210,7 +211,8 @@ jobs:
 
       - name: Install python 3.9 requirements
         run: |
-          poetry install --only py39-dev
+          poetry export -f requirements.txt --without-hashes --output requirements.txt
+          pip install -r requirements.txt
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
