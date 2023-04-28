@@ -1,7 +1,4 @@
 # pylint: disable=redefined-outer-name
-import os
-import subprocess
-from pathlib import Path
 from typing import AsyncGenerator, Dict, Tuple
 
 import pytest
@@ -17,8 +14,6 @@ from starknet_py.tests.e2e.fixtures.accounts import AccountToBeDeployedDetailsFa
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 from starknet_py.tests.e2e.utils import AccountToBeDeployedDetails
 
-directory = os.path.dirname(__file__)
-
 
 async def prepare_network(
     gateway_account: Account,
@@ -33,17 +28,6 @@ async def prepare_network(
     )
 
     return prepared_data
-
-
-def get_class_hash(net: str, contract_address: str) -> str:
-    script_path = Path(directory, "get_class_hash.sh")
-    res = subprocess.run(
-        [script_path, net, contract_address],
-        check=False,
-        capture_output=True,
-        text=True,
-    )
-    return res.stdout
 
 
 @pytest.fixture(name="block_with_invoke_number")
@@ -147,16 +131,12 @@ def fixture_balance_contract() -> str:
 
 
 @pytest.fixture(name="class_hash")
-def fixture_class_hash(network: str, contract_address: int) -> int:
+def fixture_class_hash(prepare_network: Tuple[str, PreparedNetworkData]) -> int:
     """
     Returns class hash of the deployed contract
     """
-    return int(
-        get_class_hash(net=network, contract_address=hex(contract_address))
-        .strip()
-        .replace('"', ""),
-        16,
-    )
+    _, prepared_data = prepare_network
+    return prepared_data.class_hash
 
 
 @pytest_asyncio.fixture(name="prepare_network", scope="package")

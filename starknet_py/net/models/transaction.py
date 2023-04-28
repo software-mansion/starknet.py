@@ -42,7 +42,7 @@ from starknet_py.net.schemas.gateway import (
 @dataclass(frozen=True)
 class Transaction(ABC):
     """
-    StarkNet transaction base class.
+    Starknet transaction base class.
     """
 
     version: int = field(metadata={"marshmallow_field": Felt()})
@@ -57,7 +57,7 @@ class Transaction(ABC):
     @abstractmethod
     def calculate_hash(self, chain_id: StarknetChainId) -> int:
         """
-        Calculates the transaction hash in the StarkNet network - a unique identifier of the
+        Calculates the transaction hash in the Starknet network - a unique identifier of the
         transaction. See :ref:`compute_transaction_hash` docstring for more details.
         """
 
@@ -65,7 +65,7 @@ class Transaction(ABC):
 @dataclass(frozen=True)
 class AccountTransaction(Transaction, ABC):
     """
-    Represents a transaction in the StarkNet network that is originated from an action of an
+    Represents a transaction in the Starknet network that is originated from an action of an
     account.
     """
 
@@ -122,7 +122,7 @@ class DeclareV2(AccountTransaction):
 @dataclass(frozen=True)
 class Declare(AccountTransaction):
     """
-    Represents a transaction in the StarkNet network that is a declaration of a StarkNet contract
+    Represents a transaction in the Starknet network that is a declaration of a Starknet contract
     class.
     """
 
@@ -150,7 +150,7 @@ class Declare(AccountTransaction):
 
     def calculate_hash(self, chain_id: StarknetChainId) -> int:
         """
-        Calculates the transaction hash in the StarkNet network.
+        Calculates the transaction hash in the Starknet network.
         """
         return compute_declare_transaction_hash(
             contract_class=self.contract_class,
@@ -165,7 +165,7 @@ class Declare(AccountTransaction):
 @dataclass(frozen=True)
 class DeployAccount(AccountTransaction):
     """
-    Represents a transaction in the StarkNet network that is a deployment of a StarkNet account
+    Represents a transaction in the Starknet network that is a deployment of a Starknet account
     contract.
     """
 
@@ -182,7 +182,7 @@ class DeployAccount(AccountTransaction):
 
     def calculate_hash(self, chain_id: StarknetChainId) -> int:
         """
-        Calculates the transaction hash in the StarkNet network.
+        Calculates the transaction hash in the Starknet network.
         """
         contract_address = compute_address(
             salt=self.contract_address_salt,
@@ -205,7 +205,7 @@ class DeployAccount(AccountTransaction):
 @dataclass(frozen=True)
 class Invoke(AccountTransaction):
     """
-    Represents a transaction in the StarkNet network that is an invocation of a Cairo contract
+    Represents a transaction in the Starknet network that is an invocation of a Cairo contract
     function.
     """
 
@@ -221,7 +221,7 @@ class Invoke(AccountTransaction):
 
     def calculate_hash(self, chain_id: StarknetChainId) -> int:
         """
-        Calculates the transaction hash in the StarkNet network.
+        Calculates the transaction hash in the Starknet network.
         """
         return compute_transaction_hash(
             tx_hash_prefix=TransactionHashPrefix.INVOKE,

@@ -34,23 +34,23 @@ def test_compute_address(constructor_with_arguments_compiled):
 
 
 @pytest.mark.parametrize("param", ["_account", "class_hash", "compiled_contract"])
-def test_declare_result_post_init(param, gateway_account):
+def test_declare_result_post_init(param, account):
     kwargs = {
-        "_account": gateway_account,
+        "_account": account,
         "class_hash": 0,
         "compiled_contract": "",
     }
     del kwargs[param]
 
     with pytest.raises(ValueError, match=f"Argument {param} can't be None."):
-        _ = DeclareResult(hash=0, _client=gateway_account.client, **kwargs)
+        _ = DeclareResult(hash=0, _client=account.client, **kwargs)
 
 
-def test_deploy_result_post_init(gateway_client):
+def test_deploy_result_post_init(client):
     with pytest.raises(ValueError, match="Argument deployed_contract can't be None."):
         _ = DeployResult(
             hash=0,
-            _client=gateway_client,
+            _client=client,
         )
 
 
@@ -59,14 +59,14 @@ def test_contract_raises_on_incorrect_provider_type():
         Contract(address=0x1, abi=[], provider=1)  # pyright: ignore
 
 
-def test_contract_create_with_base_account(gateway_account):
-    contract = Contract(address=0x1, abi=[], provider=gateway_account)
+def test_contract_create_with_base_account(account):
+    contract = Contract(address=0x1, abi=[], provider=account)
     assert isinstance(contract.account, BaseAccount)
-    assert contract.account == gateway_account
-    assert contract.client == gateway_account.client
+    assert contract.account == account
+    assert contract.client == account.client
 
 
-def test_contract_create_with_client(gateway_client):
-    contract = Contract(address=0x1, abi=[], provider=gateway_client)
+def test_contract_create_with_client(client):
+    contract = Contract(address=0x1, abi=[], provider=client)
     assert contract.account is None
-    assert contract.client == gateway_client
+    assert contract.client == client
