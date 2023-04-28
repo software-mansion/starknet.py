@@ -73,12 +73,12 @@ def typed_data(request) -> TypedData:
     return typed_data
 
 
-@pytest.fixture(name="tx_receipt_full_node_path")
+@pytest.fixture(name="tx_receipt_full_node_path", scope="package")
 def get_tx_receipt_full_node_client():
     return "starknet_py.net.full_node_client.FullNodeClient.get_transaction_receipt"
 
 
-@pytest.fixture(name="tx_receipt_gateway_path")
+@pytest.fixture(name="tx_receipt_gateway_path", scope="package")
 def get_tx_receipt_gateway_client():
     return "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt"
 

@@ -104,7 +104,7 @@ async def test_address_computation(salt, pass_account_address, account, map_clas
     )
     if isinstance(salt, int) and isinstance(account.client, FullNodeClient):
         # transactions have to be different for each account
-        salt = salt + 1
+        salt += 1
 
     deploy_call, computed_address = deployer.create_deployment_call(
         class_hash=map_class_hash,
