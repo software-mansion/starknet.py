@@ -10,7 +10,7 @@ When opening an issue:
 > 3. Provide as much detail as possible about the issue, including steps to reproduce the issue if applicable.
 
 ## Submitting Pull Requests
-We welcome contributions to the ***StarkNet.py*** repository.  
+We welcome contributions to the ***starknet.py*** repository.  
   
 If you want to contribute a feature or fix a bug, please follow these steps:
 
