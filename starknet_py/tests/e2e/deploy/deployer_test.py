@@ -98,26 +98,26 @@ async def test_constructor_arguments_contract_deploy(
 @pytest.mark.parametrize(
     "salt, pass_account_address", [(1, True), (2, False), (None, True), (None, False)]
 )
-async def test_address_computation(
-    salt, pass_account_address, gateway_account, map_class_hash
-):
+async def test_address_computation(salt, pass_account_address, account, map_class_hash):
     deployer = Deployer(
-        account_address=gateway_account.address if pass_account_address else None
+        account_address=account.address if pass_account_address else None
     )
+    if isinstance(salt, int) and isinstance(account.client, FullNodeClient):
+        # transactions have to be different for each account
+        salt += 1
 
     deploy_call, computed_address = deployer.create_deployment_call(
-        class_hash=map_class_hash, salt=salt
+        class_hash=map_class_hash,
+        salt=salt,
     )
 
-    deploy_invoke_tx = await gateway_account.sign_invoke_transaction(
+    deploy_invoke_tx = await account.sign_invoke_transaction(
         deploy_call, max_fee=MAX_FEE
     )
-    resp = await gateway_account.client.send_transaction(deploy_invoke_tx)
-    await gateway_account.client.wait_for_tx(resp.transaction_hash)
+    resp = await account.client.send_transaction(deploy_invoke_tx)
+    await account.client.wait_for_tx(resp.transaction_hash)
 
-    tx_receipt = await gateway_account.client.get_transaction_receipt(
-        resp.transaction_hash
-    )
+    tx_receipt = await account.client.get_transaction_receipt(resp.transaction_hash)
     address_from_event = tx_receipt.events[0].data[0]
 
     assert computed_address == address_from_event

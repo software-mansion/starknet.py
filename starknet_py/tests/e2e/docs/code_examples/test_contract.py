@@ -32,8 +32,7 @@ def test_init():
 
 
 @pytest.mark.asyncio
-async def test_from_address(gateway_account, contract_address):
-    account = gateway_account
+async def test_from_address(account, contract_address):
     # docs-start: from_address
     address = 1 or 0x1 or "0x1"
     # docs-end: from_address
@@ -52,8 +51,7 @@ async def test_from_address(gateway_account, contract_address):
 
 
 @pytest.mark.asyncio
-async def test_declare(gateway_account, custom_proxy):
-    account = gateway_account
+async def test_declare(account, custom_proxy):
     compiled_contract = custom_proxy
     # docs-start: declare
     declare_result = await Contract.declare(
@@ -63,8 +61,7 @@ async def test_declare(gateway_account, custom_proxy):
 
 
 @pytest.mark.asyncio
-async def test_deploy_contract(gateway_account, class_hash):
-    account = gateway_account
+async def test_deploy_contract(account, class_hash):
     # docs-start: deploy_contract
     deploy_result = await Contract.deploy_contract(
         account=account,
