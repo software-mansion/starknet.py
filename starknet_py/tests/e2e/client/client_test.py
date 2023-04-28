@@ -1,5 +1,6 @@
 # pylint: disable=too-many-arguments
 import asyncio
+from typing import Tuple
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -9,16 +10,23 @@ from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.storage import get_storage_var_address
 from starknet_py.net.client_models import (
     Call,
+    CasmClass,
+    CasmClassEntryPointsByType,
+    DeclaredContractHash,
     DeclareTransaction,
     DeployAccountTransaction,
     GatewayBlock,
     InvokeTransaction,
     L1HandlerTransaction,
+    ReplacedClass,
+    SierraContractClass,
+    SierraEntryPointsByType,
     TransactionReceipt,
     TransactionStatus,
 )
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
+from starknet_py.net.models.transaction import DeclareV2
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.tests.e2e.fixtures.misc import read_contract
@@ -30,14 +38,14 @@ from starknet_py.transaction_exceptions import (
 
 @pytest.mark.asyncio
 async def test_get_declare_transaction(
-    client, declare_transaction_hash, class_hash, gateway_account
+    client, declare_transaction_hash, class_hash, account
 ):
     transaction = await client.get_transaction(declare_transaction_hash)
 
     assert isinstance(transaction, DeclareTransaction)
     assert transaction.class_hash == class_hash
     assert transaction.hash == declare_transaction_hash
-    assert transaction.sender_address == gateway_account.address
+    assert transaction.sender_address == account.address
 
 
 @pytest.mark.asyncio
@@ -204,31 +212,62 @@ async def test_get_class_by_hash(client, class_hash):
 
 
 @pytest.mark.asyncio
-async def test_wait_for_tx_accepted(gateway_client):
+@pytest.mark.parametrize(
+    "client, get_tx_receipt",
+    [
+        (
+            "gateway_client",
+            "tx_receipt_gateway_path",
+        ),
+        (
+            "full_node_client",
+            "tx_receipt_full_node_path",
+        ),
+    ],
+)
+async def test_wait_for_tx_accepted(client, get_tx_receipt, request):
+    get_tx_receipt = request.getfixturevalue(get_tx_receipt)
+
     with patch(
-        "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt",
+        get_tx_receipt,
         AsyncMock(),
     ) as mocked_receipt:
         mocked_receipt.return_value = TransactionReceipt(
             hash=0x1, status=TransactionStatus.ACCEPTED_ON_L2, block_number=1
         )
-
-        block_number, tx_status = await gateway_client.wait_for_tx(tx_hash=0x1)
+        client = request.getfixturevalue(client)
+        block_number, tx_status = await client.wait_for_tx(tx_hash=0x1)
         assert block_number == 1
         assert tx_status == TransactionStatus.ACCEPTED_ON_L2
 
 
 @pytest.mark.asyncio
-async def test_wait_for_tx_pending(gateway_client):
+@pytest.mark.parametrize(
+    "client, get_tx_receipt",
+    [
+        (
+            "gateway_client",
+            "tx_receipt_gateway_path",
+        ),
+        (
+            "full_node_client",
+            "tx_receipt_full_node_path",
+        ),
+    ],
+)
+async def test_wait_for_tx_pending(client, get_tx_receipt, request):
+    get_tx_receipt = request.getfixturevalue(get_tx_receipt)
+
     with patch(
-        "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt",
+        get_tx_receipt,
         AsyncMock(),
     ) as mocked_receipt:
         mocked_receipt.return_value = TransactionReceipt(
             hash=0x1, status=TransactionStatus.PENDING, block_number=1
         )
+        client = request.getfixturevalue(client)
 
-        block_number, tx_status = await gateway_client.wait_for_tx(tx_hash=0x1)
+        block_number, tx_status = await client.wait_for_tx(tx_hash=0x1)
         assert block_number == 1
         assert tx_status == TransactionStatus.PENDING
 
@@ -248,34 +287,66 @@ async def test_wait_for_tx_pending(gateway_client):
         ),
     ),
 )
+@pytest.mark.parametrize(
+    "client, get_tx_receipt",
+    [
+        (
+            "gateway_client",
+            "tx_receipt_gateway_path",
+        ),
+        (
+            "full_node_client",
+            "tx_receipt_full_node_path",
+        ),
+    ],
+)
 @pytest.mark.asyncio
-async def test_wait_for_tx_rejected(status, exception, exc_message, gateway_client):
+async def test_wait_for_tx_rejected(
+    status, exception, exc_message, client, get_tx_receipt, request
+):
+    get_tx_receipt = request.getfixturevalue(get_tx_receipt)
+
     with patch(
-        "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt",
+        get_tx_receipt,
         AsyncMock(),
     ) as mocked_receipt:
         mocked_receipt.return_value = TransactionReceipt(
             hash=0x1, status=status, block_number=1, rejection_reason=exc_message
         )
-
+        client = request.getfixturevalue(client)
         with pytest.raises(exception) as err:
-            await gateway_client.wait_for_tx(tx_hash=0x1)
+            await client.wait_for_tx(tx_hash=0x1)
 
         assert exc_message in err.value.message
 
 
 @pytest.mark.asyncio
-async def test_wait_for_tx_cancelled(gateway_client):
+@pytest.mark.parametrize(
+    "client, get_tx_receipt",
+    [
+        (
+            "gateway_client",
+            "tx_receipt_gateway_path",
+        ),
+        (
+            "full_node_client",
+            "tx_receipt_full_node_path",
+        ),
+    ],
+)
+async def test_wait_for_tx_cancelled(client, get_tx_receipt, request):
+    get_tx_receipt = request.getfixturevalue(get_tx_receipt)
+
     with patch(
-        "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt",
+        get_tx_receipt,
         AsyncMock(),
     ) as mocked_receipt:
         mocked_receipt.return_value = TransactionReceipt(
             hash=0x1, status=TransactionStatus.PENDING, block_number=1
         )
-
+        client = request.getfixturevalue(client)
         task = asyncio.create_task(
-            gateway_client.wait_for_tx(tx_hash=0x1, wait_for_accept=True)
+            client.wait_for_tx(tx_hash=0x1, wait_for_accept=True)
         )
         await asyncio.sleep(1)
         task.cancel()
@@ -301,8 +372,9 @@ async def test_declare_contract(map_compiled_contract, account):
 
 
 @pytest.mark.asyncio
-async def test_custom_session(map_contract, network):
-    # We must access protected `feeder_gateway_client` to test session
+@pytest.mark.parametrize("client_class", [GatewayClient, FullNodeClient])
+async def test_custom_session_gateway_client(map_contract, network, client_class):
+    # We must access protected `feeder_gateway_client` or `_client` to test session
     # pylint: disable=protected-access
 
     session = ClientSession()
@@ -315,27 +387,45 @@ async def test_custom_session(map_contract, network):
         ).wait_for_acceptance()
     ).hash
 
-    gateway_client1 = GatewayClient(net=network, session=session)
-    gateway_client2 = GatewayClient(net=network, session=session)
+    client1 = (
+        client_class(net=network, session=session)
+        if client_class is GatewayClient
+        else client_class(node_url=network + "/rpc", net=network, session=session)
+    )
+    client2 = (
+        client_class(net=network, session=session)
+        if client_class is GatewayClient
+        else client_class(node_url=network + "/rpc", net=network, session=session)
+    )
+    internal_client1 = (
+        client1._feeder_gateway_client
+        if isinstance(client1, GatewayClient)
+        else client1._client
+    )
+    internal_client2 = (
+        client2._feeder_gateway_client
+        if isinstance(client2, GatewayClient)
+        else client2._client
+    )
 
-    assert gateway_client1._feeder_gateway_client.session is not None
-    assert gateway_client1._feeder_gateway_client.session == session
-    assert gateway_client1._feeder_gateway_client.session.closed is False
-    assert gateway_client2._feeder_gateway_client.session is not None
-    assert gateway_client2._feeder_gateway_client.session == session
-    assert gateway_client2._feeder_gateway_client.session.closed is False
+    assert internal_client1.session is not None
+    assert internal_client1.session == session
+    assert internal_client1.session.closed is False
+    assert internal_client2.session is not None
+    assert internal_client2.session == session
+    assert internal_client2.session.closed is False
 
-    gateway1_response = await gateway_client1.get_transaction_receipt(tx_hash=tx_hash)
-    gateway2_response = await gateway_client2.get_transaction_receipt(tx_hash=tx_hash)
-    assert gateway1_response == gateway2_response
+    response1 = await client1.get_transaction_receipt(tx_hash=tx_hash)
+    response2 = await client2.get_transaction_receipt(tx_hash=tx_hash)
+    assert response1 == response2
 
-    assert gateway_client1._feeder_gateway_client.session.closed is False
-    assert gateway_client2._feeder_gateway_client.session.closed is False
+    assert internal_client1.session.closed is False
+    assert internal_client2.session.closed is False
 
     await session.close()
 
-    assert gateway_client1._feeder_gateway_client.session.closed is True
-    assert gateway_client2._feeder_gateway_client.session.closed is True
+    assert internal_client1.session.closed is True
+    assert internal_client2.session.closed is True
 
 
 @pytest.mark.asyncio
@@ -424,3 +514,128 @@ async def test_state_update_deployed_contracts(
     state_update = await account.client.get_state_update()
 
     assert len(state_update.state_diff.deployed_contracts) != 0
+
+
+@pytest.mark.asyncio
+async def test_get_class_by_hash_sierra_program(
+    gateway_client, hello_starknet_class_hash_tx_hash: Tuple[int, int]
+):
+    # TODO: Replace with `client` when RPC 0.3.0 is supported
+    client = gateway_client
+    (class_hash, _) = hello_starknet_class_hash_tx_hash
+
+    contract_class = await client.get_class_by_hash(class_hash=class_hash)
+
+    assert isinstance(contract_class, SierraContractClass)
+    assert contract_class.contract_class_version == "0.1.0"
+    assert isinstance(contract_class.sierra_program, list)
+    assert isinstance(contract_class.entry_points_by_type, SierraEntryPointsByType)
+    assert isinstance(contract_class.abi, str)
+
+
+@pytest.mark.asyncio
+async def test_get_declare_v2_transaction(
+    gateway_client,
+    hello_starknet_class_hash_tx_hash: Tuple[int, int],
+    declare_v2_hello_starknet: DeclareV2,
+):
+    # TODO: Replace with `client` when RPC 0.3.0 is supported
+    client = gateway_client
+    (class_hash, tx_hash) = hello_starknet_class_hash_tx_hash
+
+    transaction = await client.get_transaction(tx_hash=tx_hash)
+
+    assert isinstance(transaction, DeclareTransaction)
+    assert transaction == DeclareTransaction(
+        class_hash=class_hash,
+        compiled_class_hash=declare_v2_hello_starknet.compiled_class_hash,
+        sender_address=declare_v2_hello_starknet.sender_address,
+        hash=tx_hash,
+        max_fee=declare_v2_hello_starknet.max_fee,
+        signature=declare_v2_hello_starknet.signature,
+        nonce=declare_v2_hello_starknet.nonce,
+        version=declare_v2_hello_starknet.version,
+    )
+
+
+@pytest.mark.asyncio
+async def test_get_block_with_declare_v2(
+    gateway_client,
+    hello_starknet_class_hash_tx_hash: Tuple[int, int],
+    declare_v2_hello_starknet: DeclareV2,
+    block_with_declare_v2_number: int,
+):
+    # TODO: Replace with `client` when RPC 0.3.0 is supported
+    client = gateway_client
+    (class_hash, tx_hash) = hello_starknet_class_hash_tx_hash
+
+    block = await client.get_block(block_number=block_with_declare_v2_number)
+
+    assert (
+        DeclareTransaction(
+            class_hash=class_hash,
+            compiled_class_hash=declare_v2_hello_starknet.compiled_class_hash,
+            sender_address=declare_v2_hello_starknet.sender_address,
+            hash=tx_hash,
+            max_fee=declare_v2_hello_starknet.max_fee,
+            signature=declare_v2_hello_starknet.signature,
+            nonce=declare_v2_hello_starknet.nonce,
+            version=declare_v2_hello_starknet.version,
+        )
+        in block.transactions
+    )
+
+
+@pytest.mark.asyncio
+async def test_get_new_state_update(
+    gateway_client,
+    hello_starknet_class_hash_tx_hash: Tuple[int, int],
+    declare_v2_hello_starknet: DeclareV2,
+    block_with_declare_v2_number: int,
+    replaced_class: Tuple[int, int, int],
+):
+    # TODO: Replace with `client` when RPC 0.3.0 is supported
+    client = gateway_client
+    (class_hash, _) = hello_starknet_class_hash_tx_hash
+
+    state_update = await client.get_state_update(
+        block_number=block_with_declare_v2_number
+    )
+
+    assert state_update.state_diff.replaced_classes == []
+    assert (
+        DeclaredContractHash(
+            class_hash=class_hash,
+            compiled_class_hash=declare_v2_hello_starknet.compiled_class_hash,
+        )
+        in state_update.state_diff.declared_contract_hashes
+    )
+
+    (block_number, contract_address, class_hash) = replaced_class
+    state_update = await client.get_state_update(block_number=block_number)
+
+    assert (
+        ReplacedClass(contract_address=contract_address, class_hash=class_hash)
+        in state_update.state_diff.replaced_classes
+    )
+
+
+@pytest.mark.asyncio
+async def test_get_compiled_class_by_class_hash(
+    gateway_client, hello_starknet_class_hash_tx_hash: Tuple[int, int]
+):
+    # TODO: Replace with `client` when RPC 0.3.0 is supported
+    client = gateway_client
+    (class_hash, _) = hello_starknet_class_hash_tx_hash
+
+    compiled_class = await client.get_compiled_class_by_class_hash(
+        class_hash=class_hash
+    )
+
+    assert isinstance(compiled_class, CasmClass)
+    assert isinstance(compiled_class.prime, int)
+    assert isinstance(compiled_class.bytecode, list)
+    assert isinstance(compiled_class.hints, list)
+    assert isinstance(compiled_class.pythonic_hints, list)
+    assert isinstance(compiled_class.compiler_version, str)
+    assert isinstance(compiled_class.entry_points_by_type, CasmClassEntryPointsByType)

@@ -11,7 +11,6 @@ API
    api/contract
    api/udc_deployer
    api/hash
-   api/compiler
    api/signer
    api/models
    api/abi
@@ -19,3 +18,4 @@ API
    api/cairo
    api/serializers
    api/proxy_resolvers
+   api/typed_data

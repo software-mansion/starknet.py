@@ -26,13 +26,6 @@ Setup
     # Make sure everything was installed properly
     poe test
 
-Crypto-cpp
-----------
-By default, the library uses `crypto_cpp_py <https://github.com/software-mansion-labs/crypto-cpp-py/>`_. To use python implementation instead, ``DISABLE_CRYPTO_C_EXTENSION`` environment variable can be set to ``false``
-
-.. code-block:: sh
-
-    export DISABLE_CRYPTO_C_EXTENSION="false"
 
 Git hooks
 ---------

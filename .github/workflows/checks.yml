@@ -9,112 +9,118 @@ on:
   workflow_dispatch:
 
 jobs:
-  setup:
-    name: Download deps, install poetry
+
+  # ---------------------------------------------------------- #
+  # ...................LINT-FORMAT-TYPECHECK.................. #
+  # ---------------------------------------------------------- #
+
+  lint-format-typecheck:
+    name: Lint - Format - Typecheck
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [ "3.9" ]
     steps:
+
       - uses: actions/checkout@v3
-        with:
-          submodules: recursive
+
       - name: Install poetry
         run: |
           python -m pip install --upgrade pip
           pip install poetry
           poetry config installer.modern-installation false
-      - name: Set up Python ${{ matrix.python-version }}
+
+      - name: Set up Python 3.9
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.9"
           cache: 'poetry'
+
       - name: Install dependencies
         run: |
           poetry install
 
-  lint:
-    name: Check lock, formatting, linting and typing
-    runs-on: ubuntu-latest
-    needs: setup
-    strategy:
-      matrix:
-        python-version: [ "3.9" ]
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
-      # poetry needs to be reinstalled because only commands starting with `poetry` are cached
-      - name: Install poetry
-        run: |
-          python -m pip install --upgrade pip
-          pip install poetry
-          poetry config installer.modern-installation false
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: 'poetry'
       - name: Check poetry.lock
         run: |
           poetry lock --check
-      - name: Check formatting with black
-        run: |
-          poetry run poe format_check
-      - name: Analysing the code with pylint
+
+      - name: Lint
         run: |
           poetry run poe lint
-      - name: Typechecking
+
+      - name: Format
+        run: |
+          poetry run poe format_check
+
+      - name: Typecheck
         run: |
           poetry run poe typecheck
-      - name: Check if requirements.txt is up-to-date
-        run: |
-          poetry export -f requirements.txt --without-hashes --extras docs | cmp - requirements.txt
 
-  unit-and-e2e-tests:
-    name: Unit and e2e tests
+  # ---------------------------------------------------------- #
+  # ..........................TESTS........................... #
+  # ---------------------------------------------------------- #
+
+  run-tests:
+    name: Tests
     runs-on: ubuntu-latest
-    needs: setup
     strategy:
       matrix:
-        python-version: [ "3.9" ]
+        python-version: [ "3.8", "3.9", "3.10", "3.11" ]
     steps:
+
+      # ====================== SETUP ====================== #
+
       - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
         with:
-          submodules: recursive
+          python-version: "3.9"
+          cache: 'pip'
+
       - name: Install poetry
         run: |
           python -m pip install --upgrade pip
           pip install poetry
           poetry config installer.modern-installation false
+
+      - name: Install python 3.9 requirements
+        run: |
+          poetry export -f requirements.txt --only=py39-dev --without-hashes --output requirements.txt
+          pip install -r requirements.txt
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
+
+      - name: Install dependencies
+        run: |
+          poetry install
+
+      # ====================== CONTRACTS v0 ====================== #
+
       - name: Cache contracts
         id: cache-contracts
         uses: actions/cache@v3
         with:
           path: starknet_py/tests/e2e/mock/contracts_compiled
           key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts', 'poetry.lock') }}
+
       - name: Compile contracts
         if: steps.cache-contracts.outputs.cache-hit != 'true'
         run: |
           poetry run poe compile_contracts
-      - name: Check circular imports
-        run: |
-          poetry run poe circular_imports_check
+
+      # ====================== CAIRO SETUP ====================== #
 
       - name: Install rust
         run: |
           curl https://sh.rustup.rs -sSf | sh -s -- -y
+
       - name: Clone Cairo1 compiler repository
         uses: actions/checkout@v3
         with:
           repository: starkware-libs/cairo
           persist-credentials: false
-          ref: v1.0.0-alpha.6
+          ref: v1.0.0-alpha.7
           path: cairo
 
       - name: Cache rust dependencies
@@ -134,67 +140,116 @@ jobs:
         working-directory: ./cairo
         run: |
           cargo build
+
       - name: Build starknet-compile
         working-directory: ./cairo
         run: |
           cargo run --bin starknet-compile -- --version
           cargo run --bin starknet-sierra-compile -- --version
+
       - name: Create manifest file
         run: |
           readlink -f cairo/Cargo.toml >> starknet_py/tests/e2e/manifest-path
 
-      - name: Unit & e2e test
+      # ====================== CONTRACTS v1 ====================== #
+
+      - name: Cache Cairo1 contracts
+        id: cache-contracts-v1
+        uses: actions/cache@v3
+        with:
+          path: starknet_py/tests/e2e/mock/contracts_compiled_v1
+          key: ${{ runner.os }}-contracts-v1-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v1', 'poetry.lock') }}
+
+      - name: Compile Cairo1 contracts
+        if: steps.cache-contracts-v1.outputs.cache-hit != 'true'
+        run: |
+          poetry run poe compile_contracts_v1
+
+      # ========================= TESTS ========================= #
+
+      - name: Check circular imports
+        run: |
+          poetry run poe circular_imports_check
+
+      - name: Run tests
         run: |
           poetry run poe test_ci
+
       - name: Generate coverage in XML
         run: |
           poetry run coverage xml
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
 
-  docs-tests:
-    name: Docs tests
+  # ---------------------------------------------------------- #
+  # ........................DOCS-TESTS........................ #
+  # ---------------------------------------------------------- #
+
+  run-tests-docs:
+    name: Docs Tests
     runs-on: ubuntu-latest
-    needs: setup
     strategy:
       matrix:
-        python-version: [ "3.9" ]
+        python-version: [ "3.8", "3.9", "3.10", "3.11" ]
     steps:
+
+      # ====================== SETUP ====================== #
+
       - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
         with:
-          submodules: recursive
+          python-version: "3.9"
+          cache: 'pip'
+
       - name: Install poetry
         run: |
           python -m pip install --upgrade pip
           pip install poetry
           poetry config installer.modern-installation false
+
+      - name: Install python 3.9 requirements
+        run: |
+          poetry export -f requirements.txt --only=py39-dev --without-hashes --output requirements.txt
+          pip install -r requirements.txt
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
+
+      - name: Install dependencies
+        run: |
+          poetry install
+
+      # ====================== CONTRACTS v0 ====================== #
+
       - name: Cache contracts
         id: cache-contracts
         uses: actions/cache@v3
         with:
           path: starknet_py/tests/e2e/mock/contracts_compiled
-          key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts') }}
-          restore-keys: |
-            ${{ runner.os }}-contracts-
+          key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts', 'poetry.lock') }}
+
       - name: Compile contracts
         if: steps.cache-contracts.outputs.cache-hit != 'true'
         run: |
           poetry run poe compile_contracts
 
+      # ====================== CAIRO SETUP ====================== #
+
       - name: Install rust
         run: |
           curl https://sh.rustup.rs -sSf | sh -s -- -y
+
       - name: Clone Cairo1 compiler repository
         uses: actions/checkout@v3
         with:
           repository: starkware-libs/cairo
           persist-credentials: false
-          ref: v1.0.0-alpha.6
+          ref: v1.0.0-alpha.7
           path: cairo
 
       - name: Cache rust dependencies
@@ -214,20 +269,40 @@ jobs:
         working-directory: ./cairo
         run: |
           cargo build
+
       - name: Build starknet-compile
         working-directory: ./cairo
         run: |
           cargo run --bin starknet-compile -- --version
           cargo run --bin starknet-sierra-compile -- --version
+
       - name: Create manifest file
         run: |
           readlink -f cairo/Cargo.toml >> starknet_py/tests/e2e/manifest-path
 
-      - name: Docs test
+      # ====================== CONTRACTS v1 ====================== #
+
+      - name: Cache Cairo1 contracts
+        id: cache-contracts-v1
+        uses: actions/cache@v3
+        with:
+          path: starknet_py/tests/e2e/mock/contracts_compiled_v1
+          key: ${{ runner.os }}-contracts-v1-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v1', 'poetry.lock') }}
+
+      - name: Compile Cairo1 contracts
+        if: steps.cache-contracts-v1.outputs.cache-hit != 'true'
+        run: |
+          poetry run poe compile_contracts_v1
+
+      # ========================= TESTS ========================= #
+
+      - name: Run docs tests
         run: |
           poetry run poe test_ci_docs
+
       - name: Generate coverage in XML
         run: |
           poetry run coverage xml
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3

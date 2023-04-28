@@ -15,6 +15,7 @@ from starknet_py.net.client_models import (
     DeployAccountTransactionResponse,
     TransactionStatus,
 )
+from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import Declare, DeclareV2
@@ -25,10 +26,14 @@ from starknet_py.transaction_exceptions import TransactionRejectedError
 
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
-async def test_get_balance_throws_when_token_not_specified(account):
+@pytest.mark.parametrize(
+    "client",
+    [GatewayClient(net="custom.net"), FullNodeClient(node_url="custom.net/rpc")],
+)
+async def test_get_balance_throws_when_token_not_specified(account, client):
     modified_account = Account(
         address=account.address,
-        client=GatewayClient(net="custom.net"),
+        client=client,
         key_pair=KeyPair(1, 2),
         chain=cast(StarknetChainId, 1),
     )
@@ -95,6 +100,7 @@ async def test_sending_multicall(account, map_contract, key, val):
     assert value == val
 
 
+# TODO (#981) FullNode is not tested because we don't implement trace api (devnet does not either)
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_block_traces(gateway_account):
@@ -116,19 +122,17 @@ async def test_rejection_reason_in_transaction_receipt(account, map_contract):
         assert "Actual fee exceeded max fee." in transaction_receipt.rejection_reason
 
 
-@pytest.mark.asyncio
-async def test_sign_and_verify_offchain_message_fail(account, typed_data):
+def test_sign_and_verify_offchain_message_fail(account, typed_data):
     signature = account.sign_message(typed_data)
     signature = [signature[0] + 1, signature[1]]
-    result = await account.verify_message(typed_data, signature)
+    result = account.verify_message(typed_data, signature)
 
     assert result is False
 
 
-@pytest.mark.asyncio
-async def test_sign_and_verify_offchain_message(account, typed_data):
+def test_sign_and_verify_offchain_message(account, typed_data):
     signature = account.sign_message(typed_data)
-    result = await account.verify_message(typed_data, signature)
+    result = account.verify_message(typed_data, signature)
 
     assert result is True
 
@@ -143,19 +147,19 @@ async def test_get_class_hash_at(map_contract, account):
 
 
 @pytest.mark.asyncio()
-async def test_get_nonce(gateway_account, map_contract):
-    nonce = await gateway_account.get_nonce()
+async def test_get_nonce(account, map_contract):
+    nonce = await account.get_nonce()
     address = map_contract.address
 
-    tx = await gateway_account.execute(
+    tx = await account.execute(
         Call(
             to_addr=address, selector=get_selector_from_name("put"), calldata=[10, 20]
         ),
         max_fee=MAX_FEE,
     )
-    await gateway_account.client.wait_for_tx(tx.transaction_hash)
+    await account.client.wait_for_tx(tx.transaction_hash)
 
-    new_nonce = await gateway_account.get_nonce()
+    new_nonce = await account.get_nonce()
 
     assert isinstance(nonce, int) and isinstance(new_nonce, int)
     assert new_nonce > nonce
@@ -165,8 +169,8 @@ async def test_get_nonce(gateway_account, map_contract):
 @pytest.mark.parametrize(
     "calls", [[Call(10, 20, [30])], [Call(10, 20, [30]), Call(40, 50, [60])]]
 )
-async def test_sign_invoke_transaction(gateway_account, calls):
-    signed_tx = await gateway_account.sign_invoke_transaction(calls, max_fee=MAX_FEE)
+async def test_sign_invoke_transaction(account, calls):
+    signed_tx = await account.sign_invoke_transaction(calls, max_fee=MAX_FEE)
 
     assert isinstance(signed_tx.signature, list)
     assert len(signed_tx.signature) > 0
@@ -174,8 +178,8 @@ async def test_sign_invoke_transaction(gateway_account, calls):
 
 
 @pytest.mark.asyncio
-async def test_sign_invoke_transaction_auto_estimate(gateway_account, map_contract):
-    signed_tx = await gateway_account.sign_invoke_transaction(
+async def test_sign_invoke_transaction_auto_estimate(account, map_contract):
+    signed_tx = await account.sign_invoke_transaction(
         Call(map_contract.address, get_selector_from_name("put"), [3, 4]),
         auto_estimate=True,
     )
@@ -186,8 +190,8 @@ async def test_sign_invoke_transaction_auto_estimate(gateway_account, map_contra
 
 
 @pytest.mark.asyncio
-async def test_sign_declare_transaction(gateway_account, map_compiled_contract):
-    signed_tx = await gateway_account.sign_declare_transaction(
+async def test_sign_declare_transaction(account, map_compiled_contract):
+    signed_tx = await account.sign_declare_transaction(
         map_compiled_contract, max_fee=MAX_FEE
     )
 
@@ -199,10 +203,8 @@ async def test_sign_declare_transaction(gateway_account, map_compiled_contract):
 
 
 @pytest.mark.asyncio
-async def test_sign_declare_transaction_auto_estimate(
-    gateway_account, map_compiled_contract
-):
-    signed_tx = await gateway_account.sign_declare_transaction(
+async def test_sign_declare_transaction_auto_estimate(account, map_compiled_contract):
+    signed_tx = await account.sign_declare_transaction(
         map_compiled_contract, auto_estimate=True
     )
 
@@ -215,14 +217,14 @@ async def test_sign_declare_transaction_auto_estimate(
 
 @pytest.mark.asyncio
 async def test_sign_declare_v2_transaction(
-    gateway_account, sierra_minimal_compiled_contract_and_class_hash
+    account, sierra_minimal_compiled_contract_and_class_hash
 ):
     (
         compiled_contract,
         compiled_class_hash,
     ) = sierra_minimal_compiled_contract_and_class_hash
 
-    signed_tx = await gateway_account.sign_declare_v2_transaction(
+    signed_tx = await account.sign_declare_v2_transaction(
         compiled_contract,
         compiled_class_hash=compiled_class_hash,
         max_fee=MAX_FEE,
@@ -235,6 +237,8 @@ async def test_sign_declare_v2_transaction(
     assert signed_tx.max_fee == MAX_FEE
 
 
+# TODO (#984) full_node_account doesn't work here because declare_v2 isn't supported,
+#  change was introduced in RPC v0.3.0 and devnet hasn't been updated yet
 @pytest.mark.asyncio
 async def test_sign_declare_v2_transaction_auto_estimate(
     gateway_account, sierra_minimal_compiled_contract_and_class_hash
@@ -270,11 +274,11 @@ async def test_declare_contract_raises_on_sierra_contract_without_compiled_class
 
 
 @pytest.mark.asyncio
-async def test_sign_deploy_account_transaction(gateway_account):
+async def test_sign_deploy_account_transaction(account):
     class_hash = 0x1234
     salt = 0x123
     calldata = [1, 2, 3]
-    signed_tx = await gateway_account.sign_deploy_account_transaction(
+    signed_tx = await account.sign_deploy_account_transaction(
         class_hash, salt, calldata, max_fee=MAX_FEE
     )
 
@@ -288,12 +292,12 @@ async def test_sign_deploy_account_transaction(gateway_account):
 
 @pytest.mark.asyncio
 async def test_sign_deploy_account_transaction_auto_estimate(
-    gateway_account, account_with_validate_deploy_class_hash
+    account, account_with_validate_deploy_class_hash
 ):
     class_hash = account_with_validate_deploy_class_hash
     salt = 0x1234
-    calldata = [gateway_account.signer.public_key]
-    signed_tx = await gateway_account.sign_deploy_account_transaction(
+    calldata = [account.signer.public_key]
+    signed_tx = await account.sign_deploy_account_transaction(
         class_hash, salt, calldata, auto_estimate=True
     )
 
@@ -366,12 +370,19 @@ async def test_deploy_account_raises_on_incorrect_address(
 
 
 @pytest.mark.asyncio
-async def test_deploy_account_raises_on_no_enough_funds(deploy_account_details_factory):
+@pytest.mark.parametrize(
+    "call_contract",
+    [
+        "starknet_py.net.gateway_client.GatewayClient.call_contract",
+        "starknet_py.net.full_node_client.FullNodeClient.call_contract",
+    ],
+)
+async def test_deploy_account_raises_on_no_enough_funds(
+    deploy_account_details_factory, call_contract, client
+):
     address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
 
-    with patch(
-        "starknet_py.net.gateway_client.GatewayClient.call_contract", AsyncMock()
-    ) as mocked_balance:
+    with patch(call_contract, AsyncMock()) as mocked_balance:
         mocked_balance.return_value = (0, 0)
 
         with pytest.raises(
@@ -383,20 +394,36 @@ async def test_deploy_account_raises_on_no_enough_funds(deploy_account_details_f
                 class_hash=class_hash,
                 salt=salt,
                 key_pair=key_pair,
-                client=GatewayClient(net="testnet"),
+                client=client,
                 chain=StarknetChainId.TESTNET,
                 max_fee=MAX_FEE,
             )
 
 
 @pytest.mark.asyncio
-async def test_deploy_account_passes_on_enough_funds(deploy_account_details_factory):
+@pytest.mark.parametrize(
+    "client_method_path, client",
+    [
+        (
+            "starknet_py.net.gateway_client.GatewayClient",
+            "gateway_client",
+        ),
+        (
+            "starknet_py.net.full_node_client.FullNodeClient",
+            "full_node_client",
+        ),
+    ],
+)
+async def test_deploy_account_passes_on_enough_funds(
+    deploy_account_details_factory, client_method_path, client, request
+):
     address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
+    client = request.getfixturevalue(client)
 
     with patch(
-        "starknet_py.net.gateway_client.GatewayClient.call_contract", AsyncMock()
+        client_method_path + ".call_contract", AsyncMock()
     ) as mocked_balance, patch(
-        "starknet_py.net.gateway_client.GatewayClient.deploy_account", AsyncMock()
+        client_method_path + ".deploy_account", AsyncMock()
     ) as mocked_deploy:
         mocked_balance.return_value = (0, 100)
         mocked_deploy.return_value = DeployAccountTransactionResponse(
@@ -408,7 +435,7 @@ async def test_deploy_account_passes_on_enough_funds(deploy_account_details_fact
             class_hash=class_hash,
             salt=salt,
             key_pair=key_pair,
-            client=GatewayClient(net="testnet"),
+            client=client,
             chain=StarknetChainId.TESTNET,
             max_fee=MAX_FEE,
         )

@@ -12,7 +12,7 @@ def compute_address(
     deployer_address: int = 0,
 ) -> int:
     """
-    Computes the contract address in the StarkNet network - a unique identifier of the contract.
+    Computes the contract address in the Starknet network - a unique identifier of the contract.
 
     :param class_hash: class hash of the contract
     :param constructor_calldata: calldata for the contract constructor

@@ -2,11 +2,78 @@ Migration guide
 ===============
 
 **********************
+0.16.0 Migration guide
+**********************
+
+    Version 0.16.0 of **starknet.py** comes with *support for Python 3.8, 3.9, 3.10 and 3.11* !
+
+The ``cairo-lang`` package has been removed as a dependency.
+
+Also, dependencies are now optimized to include only necessary packages.
+
+
+Bugfixes
+--------
+
+.. currentmodule:: starknet_py.net.udc_deployer.deployer
+
+1. Fixed a bug where :meth:`Deployer.create_contract_deployment_raw` would use a random salt, when ``salt = 0`` was passed.
+
+
+Breaking changes
+----------------
+
+.. currentmodule:: starknet_py.net.account.base_account
+
+1. :meth:`BaseAccount.verify_message` is no longer ``async``.
+
+.. currentmodule:: starknet_py.hash.utils
+
+2. Some functions' implementation has been changed to use ``crypto-cpp-py`` package:
+
+   - :func:`pedersen_hash`
+   - :func:`private_to_stark_key`
+   - :func:`message_signature`
+   - :func:`verify_message_signature`
+
+3. Deprecated ``utils.data_transformer`` module has been removed. Use :ref:`Serializers` module instead.
+
+4. Deprecated ``is_felt_pointer`` and ``is_uint256`` functions have been removed. Use :ref:`TypeParser` class instead.
+5. Deprecated ``Compiler`` module has been removed. Use an external compilation tool (e.g. Starknet CLI) instead.
+6. Deprecated ``compilation_source`` and ``search_paths`` arguments has been removed from several methods. Use ``compiled_contract`` parameter instead.
+
+.. currentmodule:: starknet_py.contract
+
+7. Deprecated ``ContractData.identifier_manager`` has been removed. Use :meth:`ContractData.parsed_abi` instead.
+
+
+.. currentmodule:: starknet_py.net.signer
+
+
+8. Removed deprecated ``typed_data`` parameter as dict in :meth:`BaseSigner.sign_message`. Use :ref:`TypedData` dataclass from ``starknet_py.utils.typed_data``.
+9. ``starknet_py.utils.crypto`` module has been removed.
+
+.. admonition:: Potentially breaking changes
+    :class: attention
+
+    Internal code of :meth:`starknet_py.abi.AbiParser.parse` has changed.
+    It should not affect users but keep in mind that the Contract can have difficulties resolving ABI.
+    If so please report.
+
+|
+
+.. raw:: html
+
+  <hr>
+
+|
+
+**********************
 0.15.0 Migration guide
 **********************
 
 0.15.0 adds initial support for Starknet 0.11.0 and related changes.
-It also makes the first step to remove the cairo-lang package as StarkNet.py dependency!
+It also makes the first step to remove the cairo-lang package as starknet.py dependency!
 
 Some classes/functions from cairo-lang package are rewritten and are a part of starknet.py:
 
@@ -23,8 +90,8 @@ Unfortunately, as a result of adaptation to support `cairo-lang` newest package,
 The only supported Python version is 3.9.
 
 
-Deprecations
-------------
+0.15.0 Deprecations
+-------------------
 
 - ``compute_invoke_hash`` is deprecated in favour of ``compute_transaction_hash``
 - ``starknet_py.common.create_contract_class`` is deprecated in favour of ``starknet_py.common.create_compiled_contract``
@@ -32,8 +99,8 @@ Deprecations
 - :meth:`~starknet_py.net.udc_deployer.deployer.Deployer.create_deployment_call` is deprecated in favour of :meth:`~starknet_py.net.udc_deployer.deployer.Deployer.create_contract_deployment`
 
 
-Breaking changes
-----------------
+0.15.0 Breaking changes
+-----------------------
 
 1. ``InvokeFunction`` is replaced by the ``Invoke`` dataclass (behaviour is the same, just the name is changed).
 
@@ -154,7 +221,7 @@ This version deprecates several modules and fixes underlying issues with several
 0.14.0 Deprecations
 -------------------
 
-1. :ref:`compiler` module. It will be removed in the future. We recommend transitioning to building contracts through Starknet CLI or external tools and using only compiled contracts with starknet.py.
+1. `compiler` module. It will be removed in the future. We recommend transitioning to building contracts through Starknet CLI or external tools and using only compiled contracts with starknet.py.
 2. ``utils.data_transformer`` module. It has been replaced with :ref:`serializers` module.
 
 

@@ -2,7 +2,7 @@ import pytest
 
 from starknet_py.net.client_models import CasmClass
 from starknet_py.net.udc_deployer.deployer import _get_random_salt
-from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V1_DIR, MAX_FEE
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
@@ -18,13 +18,15 @@ async def test_cairo1_contract(
         compiled_class_hash,
     ) = sierra_minimal_compiled_contract_and_class_hash
 
-    contract_compiled_casm = read_contract("precompiled/minimal_contract_compiled.casm")
+    contract_compiled_casm = read_contract(
+        "minimal_contract_compiled.casm", directory=CONTRACTS_COMPILED_V1_DIR
+    )
 
     # docs: start
     from starknet_py.common import create_casm_class
     from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 
-    # contract_compiled_casm is the output of the starknet-sierra-compile (.casm file)
+    # contract_compiled_casm is a string containing the content of the starknet-sierra-compile (.casm file)
     casm_class = create_casm_class(contract_compiled_casm)
 
     # Compute Casm class hash
@@ -37,7 +39,7 @@ async def test_cairo1_contract(
 
     # Create Declare v2 transaction
     declare_v2_transaction = await account.sign_declare_v2_transaction(
-        # compiled_contract is the output of the starknet-compile (.json file)
+        # compiled_contract is a string containing the content of the starknet-compile (.json file)
         compiled_contract=compiled_contract,
         compiled_class_hash=casm_class_hash,
         max_fee=MAX_FEE,

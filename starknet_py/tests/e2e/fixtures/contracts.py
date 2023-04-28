@@ -4,12 +4,16 @@ from typing import List, Tuple
 import pytest
 import pytest_asyncio
 
-from starknet_py.common import create_compiled_contract
+from starknet_py.common import create_casm_class, create_compiled_contract
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.contract import Contract
+from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.net.account.base_account import BaseAccount
-from starknet_py.net.account.compiled_account_contract import COMPILED_ACCOUNT_CONTRACT
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_DIR, MAX_FEE
+from starknet_py.tests.e2e.fixtures.constants import (
+    CONTRACTS_COMPILED_V1_DIR,
+    CONTRACTS_DIR,
+    MAX_FEE,
+)
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
@@ -32,11 +36,17 @@ def map_compiled_contract() -> str:
 @pytest.fixture(scope="package")
 def sierra_minimal_compiled_contract_and_class_hash() -> Tuple[str, int]:
     """
-    Returns minimal contract compiled to sierra and its class hash.
+    Returns minimal contract compiled to sierra and its compiled class hash.
     """
+    compiled_contract = read_contract(
+        "minimal_contract_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
+    )
+    compiled_contract_casm = read_contract(
+        "minimal_contract_compiled.casm", directory=CONTRACTS_COMPILED_V1_DIR
+    )
     return (
-        read_contract("precompiled/minimal_contract_compiled.json"),
-        0x56B935FA8AF97EC603A96A3E1870CA193DA4CF08B8DA3F12E023E67A82B5A7E,
+        compiled_contract,
+        compute_casm_class_hash(create_casm_class(compiled_contract_casm)),
     )
 
 
@@ -54,14 +64,6 @@ def erc20_compiled_contract() -> str:
     Returns compiled erc20 contract.
     """
     return read_contract("erc20_compiled.json")
-
-
-@pytest.fixture(scope="package")
-def base_compiled_contract() -> str:
-    """
-    Returns compiled base contract.
-    """
-    return read_contract("base_compiled.json")
 
 
 @pytest.fixture(scope="package")
@@ -123,6 +125,23 @@ async def map_contract(
     """
     abi = create_compiled_contract(compiled_contract=map_compiled_contract).abi
     return await deploy_contract(gateway_account, map_class_hash, abi)
+
+
+@pytest_asyncio.fixture(scope="function")
+async def simple_storage_with_event_contract(
+    gateway_account: BaseAccount,
+    simple_storage_with_event_compiled_contract: str,
+    simple_storage_with_event_class_hash: int,
+) -> Contract:
+    """
+    Deploys storage contract with an events and returns its instance.
+    """
+    abi = create_compiled_contract(
+        compiled_contract=simple_storage_with_event_compiled_contract
+    ).abi
+    return await deploy_contract(
+        gateway_account, simple_storage_with_event_class_hash, abi
+    )
 
 
 @pytest_asyncio.fixture(name="erc20_contract", scope="package")
@@ -205,15 +224,6 @@ async def account_with_validate_deploy_class_hash(
 
 
 @pytest_asyncio.fixture(scope="package")
-async def account_without_validate_deploy_class_hash(
-    pre_deployed_account_with_validate_deploy: BaseAccount,
-) -> int:
-    return await declare_account(
-        pre_deployed_account_with_validate_deploy, COMPILED_ACCOUNT_CONTRACT
-    )
-
-
-@pytest_asyncio.fixture(scope="package")
 async def map_class_hash(
     gateway_account: BaseAccount, map_compiled_contract: str
 ) -> int:
@@ -222,6 +232,22 @@ async def map_class_hash(
     """
     declare = await gateway_account.sign_declare_transaction(
         compiled_contract=map_compiled_contract,
+        max_fee=int(1e16),
+    )
+    res = await gateway_account.client.declare(declare)
+    await gateway_account.client.wait_for_tx(res.transaction_hash)
+    return res.class_hash
+
+
+@pytest_asyncio.fixture(scope="package")
+async def simple_storage_with_event_class_hash(
+    gateway_account: BaseAccount, simple_storage_with_event_compiled_contract: str
+):
+    """
+    Returns class_hash of the simple_storage_with_event.cairo
+    """
+    declare = await gateway_account.sign_declare_transaction(
+        compiled_contract=simple_storage_with_event_compiled_contract,
         max_fee=int(1e16),
     )
     res = await gateway_account.client.declare(declare)
@@ -256,7 +282,7 @@ def constructor_with_arguments_abi() -> List:
     Returns an abi of the constructor_with_arguments.cairo.
     """
     compiled_contract = create_compiled_contract(
-        compilation_source=constructor_with_arguments_source
+        compiled_contract=read_contract("constructor_with_arguments_compiled.json")
     )
     assert compiled_contract.abi is not None
     return compiled_contract.abi

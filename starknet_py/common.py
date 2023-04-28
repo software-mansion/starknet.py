@@ -1,9 +1,8 @@
 import warnings
-from typing import List, Literal, Optional, Union, cast
+from typing import Literal, Union, cast
 
-from marshmallow import EXCLUDE
+from marshmallow import EXCLUDE, ValidationError
 
-from starknet_py.compile.compiler import Compiler, StarknetCompilationSource
 from starknet_py.net.client_models import (
     CasmClass,
     CompiledContract,
@@ -19,41 +18,15 @@ from starknet_py.net.schemas.gateway import (
 
 
 def create_compiled_contract(
-    compilation_source: Optional[StarknetCompilationSource] = None,
-    compiled_contract: Optional[str] = None,
-    search_paths: Optional[List[str]] = None,
+    compiled_contract: str,
 ) -> CompiledContract:
     """
     Creates CompiledContract instance.
 
-    :param compilation_source:
-        source of the contract to be compiled.
-
-         .. deprecated:: 0.15.0
-            Argument compilation_source has been deprecated. Use compiled_contract instead.
     :param compiled_contract: compiled contract string.
-    :param search_paths:
-        paths used to resolve compilation dependencies.
-
-         .. deprecated:: 0.15.0
-            Argument search_paths has been deprecated. Use compiled_contract instead.
     :return: CompiledContract instance.
     """
-    warnings.warn(
-        "Argument compilation_source is deprecated and will be removed in the future. "
-        "Consider using already compiled contracts instead.",
-        category=DeprecationWarning,
-    )
 
-    if not compiled_contract:
-        if not compilation_source:
-            raise ValueError(
-                "One of compiled_contract or compilation_source is required."
-            )
-
-        compiled_contract = Compiler(
-            contract_source=compilation_source, cairo_path=search_paths
-        ).compile_contract()
     return cast(CompiledContract, CompiledContractSchema().loads(compiled_contract))
 
 
@@ -97,7 +70,15 @@ def create_casm_class(compiled_contract: str) -> CasmClass:
     :param compiled_contract: contract compiled using starknet-sierra-compile.
     :return: CasmClass instance.
     """
-    return cast(CasmClass, CasmClassSchema().loads(compiled_contract))
+    try:
+        return cast(CasmClass, CasmClassSchema().loads(compiled_contract))
+    except ValidationError as err:
+        if err.messages == {"pythonic_hints": ["Missing data for required field."]}:
+            raise ValueError(
+                "Field pythonic_hints is missing from compiled_contract. "
+                "Make sure to use starknet-sierra-compile with --add-pythonic-hints flag."
+            ) from err
+        raise err
 
 
 def int_from_hex(number: Union[str, int]) -> int:

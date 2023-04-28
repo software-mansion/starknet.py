@@ -146,7 +146,7 @@ class Deployer:
         :param raw_calldata: Plain Cairo constructor args of the contract to be deployed.
         :return: NamedTuple with call and address of the contract to be deployed.
         """
-        salt = cast(int, salt or _get_random_salt())
+        salt = cast(int, _get_random_salt() if salt is None else salt)
         class_hash = int_from_hex(class_hash)
 
         calldata = _deployer_serializer.serialize(

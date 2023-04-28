@@ -7,13 +7,10 @@ from functools import cached_property
 from typing import Dict, List, Optional, Tuple, TypeVar, Union
 
 from marshmallow import ValidationError
-from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
-from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 
 from starknet_py.abi.model import Abi
 from starknet_py.abi.parser import AbiParser
 from starknet_py.common import create_compiled_contract
-from starknet_py.compile.compiler import StarknetCompilationSource
 from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
 from starknet_py.hash.address import compute_address
 from starknet_py.hash.class_hash import compute_class_hash
@@ -43,26 +40,31 @@ TypeSentTransaction = TypeVar("TypeSentTransaction", bound="SentTransaction")
 
 @dataclass(frozen=True)
 class ContractData:
+    """
+    Basic data of a deployed contract.
+    """
+
     address: int
     abi: ABI
-
-    @cached_property
-    def identifier_manager(self) -> IdentifierManager:
-        warnings.warn(
-            "Using identifier_manager from ContractData has been deprecated. Consider using parsed_abi instead."
-        )
-        return identifier_manager_from_abi(self.abi)
 
     @cached_property
     def parsed_abi(self) -> Abi:
         """
         Abi parsed into proper dataclass.
+
         :return: Abi
         """
         return AbiParser(self.abi).parse()
 
     @staticmethod
     def from_abi(address: int, abi: ABI) -> ContractData:
+        """
+        Create ContractData from ABI.
+
+        :param address: Address of the deployed contract.
+        :param abi: Abi of the contract.
+        :return: ContractData instance.
+        """
         return ContractData(
             address=address,
             abi=abi,
@@ -608,42 +610,22 @@ class Contract:
     @staticmethod
     def compute_address(
         salt: int,
-        compilation_source: Optional[StarknetCompilationSource] = None,
-        compiled_contract: Optional[str] = None,
+        compiled_contract: str,
         constructor_args: Optional[Union[List, Dict]] = None,
-        search_paths: Optional[List[str]] = None,
         deployer_address: int = 0,
     ) -> int:
         """
         Computes address for given contract.
-        Either `compilation_source` or `compiled_contract` is required.
 
         :param salt: int
-        :param compilation_source:
-            String containing source code or a list of source files paths.
-
-             .. deprecated:: 0.14.0
-                Argument compilation_source is deprecated and will be removed in the future.
-                Consider using already compiled contracts.
-        :param compiled_contract: String containing compiled contract. Useful for reading compiled contract from a file.
+        :param compiled_contract: String containing compiled contract.
         :param constructor_args: A ``list`` or ``dict`` of arguments for the constructor.
-        :param search_paths: A ``list`` of paths used by starknet_compile to resolve dependencies within contracts.
         :param deployer_address: Address of the deployer (if not provided default 0 is used).
-
-        :raises: `ValueError` if neither compilation_source nor compiled_contract is provided.
 
         :return: Contract's address.
         """
-        # pylint: disable=too-many-arguments
-        warnings.warn(
-            "Argument compilation_source is deprecated and will be removed in the future. "
-            "Consider using already compiled contracts.",
-            category=DeprecationWarning,
-        )
 
-        compiled = create_compiled_contract(
-            compilation_source, compiled_contract, search_paths
-        )
+        compiled = create_compiled_contract(compiled_contract)
         assert compiled.abi is not None
         translated_args = translate_constructor_args(compiled.abi, constructor_args)
         return compute_address(
@@ -654,35 +636,15 @@ class Contract:
         )
 
     @staticmethod
-    def compute_contract_hash(
-        compilation_source: Optional[StarknetCompilationSource] = None,
-        compiled_contract: Optional[str] = None,
-        search_paths: Optional[List[str]] = None,
-    ) -> int:
+    def compute_contract_hash(compiled_contract: str) -> int:
         """
         Computes hash for given contract.
-        Either `compilation_source` or `compiled_contract` is required.
 
-        :param compilation_source: String containing source code or a list of source files paths.
-        :param compiled_contract:
-            String containing compiled contract. Useful for reading compiled contract from a file.
-
-             .. deprecated:: 0.14.0
-                Argument compilation_source is deprecated and will be removed in the future.
-                Consider using already compiled contracts.
-        :param search_paths: A ``list`` of paths used by starknet_compile to resolve dependencies within contracts.
-        :raises: `ValueError` if neither compilation_source nor compiled_contract is provided.
+        :param compiled_contract: String containing compiled contract.
         :return: Class_hash of the contract.
         """
-        warnings.warn(
-            "Argument compilation_source is deprecated and will be removed in the future. "
-            "Consider using already compiled contracts.",
-            category=DeprecationWarning,
-        )
 
-        contract_class = create_compiled_contract(
-            compilation_source, compiled_contract, search_paths
-        )
+        contract_class = create_compiled_contract(compiled_contract)
         return compute_class_hash(contract_class)
 
     @classmethod
