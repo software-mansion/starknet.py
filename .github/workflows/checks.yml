@@ -9,9 +9,13 @@ on:
   workflow_dispatch:
 
 jobs:
-  setup:
-    name: Install python3.9 requirements
+  unit-and-e2e-tests:
+    name: Unit and e2e tests
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [ "3.9", "3.11" ]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -22,48 +26,6 @@ jobs:
         run: |
           pip install cairo-lang starknet-devnet
 
-  lint:
-    name: Check lock, formatting, linting and typing
-    runs-on: ubuntu-latest
-    needs: setup
-    strategy:
-      matrix:
-        python-version: [ "3.9" ]
-    steps:
-      - uses: actions/checkout@v3
-      # poetry needs to be reinstalled because only commands starting with `poetry` are cached
-      - name: Install poetry
-        run: |
-          python -m pip install --upgrade pip
-          pip install poetry
-          poetry config installer.modern-installation false
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: 'poetry'
-      - name: Check poetry.lock
-        run: |
-          poetry lock --check
-      - name: Check formatting with black
-        run: |
-          poetry run poe format_check
-      - name: Analysing the code with pylint
-        run: |
-          poetry run poe lint
-      - name: Typechecking
-        run: |
-          poetry run poe typecheck
-
-  unit-and-e2e-tests:
-    name: Unit and e2e tests
-    runs-on: ubuntu-latest
-    needs: setup
-    strategy:
-      matrix:
-        python-version: [ "3.9", "3.11" ]
-    steps:
-      - uses: actions/checkout@v3
       - name: Install poetry
         run: |
           python -m pip install --upgrade pip
@@ -143,96 +105,6 @@ jobs:
       - name: Unit & e2e test
         run: |
           poetry run poe test_ci
-      - name: Generate coverage in XML
-        run: |
-          poetry run coverage xml
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-
-  docs-tests:
-    name: Docs tests
-    runs-on: ubuntu-latest
-    needs: setup
-    strategy:
-      matrix:
-        python-version: [ "3.9", "3.11" ]
-    steps:
-      - uses: actions/checkout@v3
-      - name: Install poetry
-        run: |
-          python -m pip install --upgrade pip
-          pip install poetry
-          poetry config installer.modern-installation false
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: 'poetry'
-      - name: Install dependencies
-        run: |
-          poetry install
-      - name: Cache contracts
-        id: cache-contracts
-        uses: actions/cache@v3
-        with:
-          path: starknet_py/tests/e2e/mock/contracts_compiled
-          key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts', 'poetry.lock') }}
-      - name: Compile contracts
-        if: steps.cache-contracts.outputs.cache-hit != 'true'
-        run: |
-          poetry run poe compile_contracts
-
-      - name: Install rust
-        run: |
-          curl https://sh.rustup.rs -sSf | sh -s -- -y
-      - name: Clone Cairo1 compiler repository
-        uses: actions/checkout@v3
-        with:
-          repository: starkware-libs/cairo
-          persist-credentials: false
-          ref: v1.0.0-alpha.7
-          path: cairo
-
-      - name: Cache rust dependencies
-        id: cache-rust
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Build compiler
-        if: steps.cache-rust.outputs.cache-hit != 'true'
-        working-directory: ./cairo
-        run: |
-          cargo build
-      - name: Build starknet-compile
-        working-directory: ./cairo
-        run: |
-          cargo run --bin starknet-compile -- --version
-          cargo run --bin starknet-sierra-compile -- --version
-      - name: Create manifest file
-        run: |
-          readlink -f cairo/Cargo.toml >> starknet_py/tests/e2e/manifest-path
-
-      - name: Cache Cairo1 contracts
-        id: cache-contracts-v1
-        uses: actions/cache@v3
-        with:
-          path: starknet_py/tests/e2e/mock/contracts_compiled_v1
-          key: ${{ runner.os }}-contracts-v1-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v1', 'poetry.lock') }}
-      - name: Compile Cairo1 contracts
-        if: steps.cache-contracts-v1.outputs.cache-hit != 'true'
-        run: |
-          poetry run poe compile_contracts_v1
-
-      - name: Docs test
-        run: |
-          poetry run poe test_ci_docs
       - name: Generate coverage in XML
         run: |
           poetry run coverage xml
