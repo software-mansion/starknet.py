@@ -12,6 +12,7 @@ from starknet_py.cairo.data_types import (
     TupleType,
     TypeIdentifier,
     UintType,
+    UnitType,
 )
 
 
@@ -54,13 +55,13 @@ class ParserTransformer(Transformer):
         """
         return UintType(int(value[0]))
 
-    def type_unit(self, _value: List[Any]) -> None:
+    def type_unit(self, _value: List[Any]) -> UnitType:
         """
-        () type.
+        `()` type.
         """
-        return None
+        return UnitType()
 
-    def type_option(self, value: List[Optional[CairoType]]) -> OptionType:
+    def type_option(self, value: List[CairoType]) -> OptionType:
         """
         Option includes an information about which type it eventually represents.
         `Optional` is added in case of the unit type.

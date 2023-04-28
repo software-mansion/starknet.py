@@ -85,3 +85,7 @@ async def test_serializing_option(gateway_account):
     ].call(option_struct=option_struct)
 
     assert dict(received_option) == option_struct
+
+    (received_option,) = await test_option.functions["get_empty_option"].call()
+
+    assert received_option is None

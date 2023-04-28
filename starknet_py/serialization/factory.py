@@ -14,6 +14,7 @@ from starknet_py.cairo.data_types import (
     StructType,
     TupleType,
     UintType,
+    UnitType,
 )
 from starknet_py.serialization.data_serializers.array_serializer import ArraySerializer
 from starknet_py.serialization.data_serializers.cairo_data_serializer import (
@@ -40,6 +41,7 @@ from starknet_py.serialization.data_serializers.uint256_serializer import (
     Uint256Serializer,
 )
 from starknet_py.serialization.data_serializers.uint_serializer import UintSerializer
+from starknet_py.serialization.data_serializers.unit_serializer import UnitSerializer
 from starknet_py.serialization.errors import InvalidTypeException
 from starknet_py.serialization.function_serialization_adapter import (
     FunctionSerializationAdapter,
@@ -92,8 +94,10 @@ def serializer_for_type(cairo_type: CairoType) -> CairoDataSerializer:
         return UintSerializer(bits=cairo_type.bits)
 
     if isinstance(cairo_type, OptionType):
-        # TODO: what if cairo_type.type is None? (unit type)
         return OptionSerializer(serializer_for_type(cairo_type.type))
+
+    if isinstance(cairo_type, UnitType):
+        return UnitSerializer()
 
     raise InvalidTypeException(f"Received unknown Cairo type '{cairo_type}'.")
 

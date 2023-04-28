@@ -30,4 +30,9 @@ mod HelloStarknet {
 
         option_struct
     }
+
+    #[view]
+    fn get_empty_option() -> Option::<()> {
+        Option::Some(())
+    }
 }
