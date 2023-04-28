@@ -18,7 +18,7 @@ MASK_250 = 2**250 - 1
 
 def _starknet_keccak(data: bytes) -> int:
     """
-    A variant of eth-keccak that computes a value that fits in a StarkNet field element.
+    A variant of eth-keccak that computes a value that fits in a Starknet field element.
     """
     k = keccak.new(digest_bits=256)
     k.update(data)
@@ -27,7 +27,7 @@ def _starknet_keccak(data: bytes) -> int:
 
 def pedersen_hash(left: int, right: int) -> int:
     """
-    One of two hash functions (along with _starknet_keccak) used throughout StarkNet.
+    One of two hash functions (along with _starknet_keccak) used throughout Starknet.
     """
     return cpp_hash(left, right)
 
