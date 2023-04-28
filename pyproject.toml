@@ -46,6 +46,9 @@ pyright = "^1.1.298"
 pytest-cov = "^4.0.0"
 isort = "^5.11.4"
 pytest-rerunfailures = "^11.1"
+
+
+[tool.poetry.group.py39-dev.dependencies]
 cairo-lang = { version = "^0.11.0.2", python= ">=3.9, <3.10" }
 starknet-devnet = { version = "^0.5.1", python= ">=3.9, <3.10" }
 

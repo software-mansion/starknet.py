@@ -74,15 +74,15 @@ jobs:
           python-version: "3.9"
           cache: 'pip'
 
-      - name: Install python 3.9 requirements
-        run: |
-          pip install cairo-lang starknet-devnet
-
       - name: Install poetry
         run: |
           python -m pip install --upgrade pip
           pip install poetry
           poetry config installer.modern-installation false
+
+      - name: Install python 3.9 requirements
+        run: |
+          poetry install --only py39-dev
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
@@ -202,15 +202,15 @@ jobs:
           python-version: "3.9"
           cache: 'pip'
 
-      - name: Install python 3.9 requirements
-        run: |
-          pip install cairo-lang starknet-devnet
-
       - name: Install poetry
         run: |
           python -m pip install --upgrade pip
           pip install poetry
           poetry config installer.modern-installation false
+
+      - name: Install python 3.9 requirements
+        run: |
+          poetry install --only py39-dev
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
