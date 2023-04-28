@@ -33,6 +33,10 @@ jobs:
           python-version: "3.9"
           cache: 'poetry'
 
+      - name: Install dependencies
+        run: |
+          poetry install
+
       - name: Check poetry.lock
         run: |
           poetry lock --check
