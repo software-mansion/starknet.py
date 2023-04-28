@@ -33,7 +33,7 @@ def compute_transaction_hash(
     additional_data: Sequence[int],
 ) -> int:
     """
-    Calculates the transaction hash in the StarkNet network - a unique identifier of the
+    Calculates the transaction hash in the Starknet network - a unique identifier of the
     transaction.
     The transaction hash is a hash chain of the following information:
 
