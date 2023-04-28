@@ -16,15 +16,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.9"
-          cache: 'pip'
-
-      - name: Install cairo-lang and starknet-devnet
+      - name: Install poetry
         run: |
-          pip install cairo-lang starknet-devnet
+          python -m pip install --upgrade pip
+          pip install poetry
+          poetry config installer.modern-installation false
+
 
 
   run-tests:
@@ -37,26 +34,35 @@ jobs:
         python-version: [ "3.8", "3.9", "3.11" ]
 
     steps:
+
       - uses: actions/checkout@v3
-      - name: Install poetry
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+          cache: 'pip'
+
+      - name: Install cairo-lang and starknet-devnet
         run: |
-          python -m pip install --upgrade pip
-          pip install poetry
-          poetry config installer.modern-installation false
+          pip install cairo-lang starknet-devnet
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
+
       - name: Install dependencies
         run: |
           poetry install
+
       - name: Cache contracts
         id: cache-contracts
         uses: actions/cache@v3
         with:
           path: starknet_py/tests/e2e/mock/contracts_compiled
           key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts', 'poetry.lock') }}
+
       - name: Compile contracts
         if: steps.cache-contracts.outputs.cache-hit != 'true'
         run: |
