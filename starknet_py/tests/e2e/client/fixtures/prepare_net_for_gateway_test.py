@@ -12,6 +12,7 @@ from starknet_py.tests.e2e.utils import (
 @dataclass
 class PreparedNetworkData:
     # pylint: disable=too-many-instance-attributes
+    class_hash: int
     contract_address: int
     invoke_transaction_hash: int
     block_with_invoke_number: int
@@ -75,6 +76,7 @@ async def prepare_net_for_tests(
     assert block_with_deploy_account_hash is not None
 
     return PreparedNetworkData(
+        class_hash=declare_result.class_hash,
         contract_address=contract.address,
         invoke_transaction_hash=invoke_res.hash,
         block_with_invoke_number=block_with_invoke_number,
