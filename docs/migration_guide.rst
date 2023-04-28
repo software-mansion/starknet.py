@@ -5,6 +5,13 @@ Migration guide
 0.16.0 Migration guide
 **********************
 
+    Version 0.16.0 of **starknet.py** comes with *support for Python 3.8, 3.9, 3.10 and 3.11* !
+
+The ``cairo-lang`` package has been removed as a dependency.
+
+Also, dependencies are now optimized to include only necessary packages.
+
+
 Bugfixes
 --------
 
