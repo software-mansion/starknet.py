@@ -23,7 +23,7 @@ jobs:
           pip install poetry
           poetry config installer.modern-installation false
 
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v4
         with:
           python-version: "3.9"
           cache: 'pip'
