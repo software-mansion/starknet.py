@@ -16,47 +16,40 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Install poetry
-        run: |
-          python -m pip install --upgrade pip
-          pip install poetry
-          poetry config installer.modern-installation false
-          
-          
 
-      - name: Install rust
-        run: |
-          curl https://sh.rustup.rs -sSf | sh -s -- -y
-      - name: Clone Cairo1 compiler repository
-        uses: actions/checkout@v3
-        with:
-          repository: starkware-libs/cairo
-          persist-credentials: false
-          ref: v1.0.0-alpha.7
-          path: cairo
-
-      - name: Cache rust dependencies
-        id: cache-rust
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Build compiler
-        if: steps.cache-rust.outputs.cache-hit != 'true'
-        working-directory: ./cairo
-        run: |
-          cargo build
-      - name: Build starknet-compile
-        working-directory: ./cairo
-        run: |
-          cargo run --bin starknet-compile -- --version
-          cargo run --bin starknet-sierra-compile -- --version
+#      - name: Install rust
+#        run: |
+#          curl https://sh.rustup.rs -sSf | sh -s -- -y
+#      - name: Clone Cairo1 compiler repository
+#        uses: actions/checkout@v3
+#        with:
+#          repository: starkware-libs/cairo
+#          persist-credentials: false
+#          ref: v1.0.0-alpha.7
+#          path: cairo
+#
+#      - name: Cache rust dependencies
+#        id: cache-rust
+#        uses: actions/cache@v3
+#        with:
+#          path: |
+#            ~/.cargo/bin/
+#            ~/.cargo/registry/index/
+#            ~/.cargo/registry/cache/
+#            ~/.cargo/git/db/
+#            target/
+#          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+#
+#      - name: Build compiler
+#        if: steps.cache-rust.outputs.cache-hit != 'true'
+#        working-directory: ./cairo
+#        run: |
+#          cargo build
+#      - name: Build starknet-compile
+#        working-directory: ./cairo
+#        run: |
+#          cargo run --bin starknet-compile -- --version
+#          cargo run --bin starknet-sierra-compile -- --version
 
 
   run-tests:
@@ -81,11 +74,18 @@ jobs:
         run: |
           pip install cairo-lang starknet-devnet
 
+
+      - name: Install poetry
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry
+          poetry config installer.modern-installation false
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-#          cache: 'poetry'
+          cache: 'poetry'
 
       - name: Install dependencies
         run: |
