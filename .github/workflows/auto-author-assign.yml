@@ -11,6 +11,6 @@ permissions:
 jobs:
   assign-author:
     runs-on: ubuntu-latest
-    if: ${{ github.repository == 'software-mansion/starknet.py' }}  # do not run on forks
+    if: "! github.event.pull_request.head.repo.fork "  # do not run on forks
     steps:
       - uses: toshimaru/auto-author-assign@2daaeb2988aef24bf37e636fe733f365c046aba0  # v1.6.2
