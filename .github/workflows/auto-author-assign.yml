@@ -11,5 +11,6 @@ permissions:
 jobs:
   assign-author:
     runs-on: ubuntu-latest
+    if: "! github.event.pull_request.head.repo.fork "
     steps:
       - uses: toshimaru/auto-author-assign@2daaeb2988aef24bf37e636fe733f365c046aba0  # v1.6.2
