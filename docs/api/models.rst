@@ -15,12 +15,16 @@ Module containing base models and functions to operate on them.
 
 
 .. autoclass:: DeployAccount
+    :exclude-members: __init__, __new__
 
 .. autoclass:: Declare
+    :exclude-members: __init__, __new__
 
 .. autoclass:: DeclareV2
+    :exclude-members: __init__, __new__
 
 .. autoclass:: Invoke
+    :exclude-members: __init__, __new__
 
 .. autoenum:: StarknetChainId
     :members:

@@ -253,7 +253,7 @@ def compute_invoke_hash(
     """
     Computes invocation hash.
 
-        .. deprecated:: 0.16.0-alpha
+        .. deprecated:: 0.15.0
             To compute hash of an invoke transaction use
             :py:meth:`~starknet_py.hash.transaction.compute_transaction_hash`.
 
