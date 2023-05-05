@@ -8,6 +8,7 @@ API
    api/account
    api/client_models
    api/client_errors
+   api/transaction_errors
    api/contract
    api/udc_deployer
    api/hash

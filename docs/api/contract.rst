@@ -60,3 +60,13 @@ DeclareResult
     :exclude-members: __init__, __new__
     :members:
     :member-order: groupwise
+
+-----
+utils
+-----
+
+.. autofunction:: starknet_py.common.create_compiled_contract
+.. autofunction:: starknet_py.common.create_sierra_compiled_contract
+.. autofunction:: starknet_py.common.create_contract_class
+.. autofunction:: starknet_py.common.create_casm_class
+

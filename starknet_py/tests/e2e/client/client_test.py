@@ -30,7 +30,7 @@ from starknet_py.net.models.transaction import DeclareV2
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.tests.e2e.fixtures.misc import read_contract
-from starknet_py.transaction_exceptions import (
+from starknet_py.transaction_errors import (
     TransactionNotReceivedError,
     TransactionRejectedError,
 )
