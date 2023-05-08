@@ -1,3 +1,4 @@
+import re
 from collections import OrderedDict
 
 import pytest
@@ -40,6 +41,12 @@ serializer = OutputSerializer(
         ((1, None), [1, 0, 1]),
     ],
 )
-def test_output_serializer(value, serialized_value):
+def test_output_serializer_deserialize(value, serialized_value):
     deserialized = serializer.deserialize(serialized_value)
     assert deserialized == value
+
+
+def test_output_serializer_serialize():
+    error_message = re.escape("Output serializer can't be used to transform python data into calldata.")
+    with pytest.raises(ValueError, match=error_message):
+        serializer.serialize([1, None])
