@@ -62,9 +62,3 @@ def decode_shortstring(value: int) -> str:
     """
     cairo_vm_range_check(value)
     return "".join([chr(i) for i in value.to_bytes(31, byteorder="big")])
-
-
-if __name__ == "__main__":
-    print(
-        decode_shortstring(0x496E70757420746F6F206C6F6E6720666F7220617267756D656E7473)
-    )
