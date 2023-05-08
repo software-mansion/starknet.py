@@ -19,7 +19,9 @@ async def test_general_v1_interaction(gateway_account):
         },
     )
 
-    decoded_name = decode_shortstring((await erc20.functions["get_name"].call())[0])
+    decoded_name = decode_shortstring(
+        (await erc20.functions["get_name"].call())[0]
+    ).lstrip("\x00")
     (decimals,) = await erc20.functions["get_decimals"].call()
     (supply,) = await erc20.functions["get_total_supply"].call()
     (account_balance,) = await erc20.functions["balance_of"].call(
@@ -36,7 +38,7 @@ async def test_general_v1_interaction(gateway_account):
         account=gateway_account.address
     )
 
-    assert "erc20_basic" in decoded_name
+    assert decoded_name == "erc20_basic"
     assert decimals == 10
     assert supply == 12345
     assert account_balance == 12345

@@ -24,4 +24,6 @@ class OutputSerializer(CairoDataSerializer[List, Tuple]):
     def serialize_with_context(
         self, context: SerializationContext, value: Dict
     ) -> Generator[int, None, None]:
-        raise ValueError("Output serializer can't be used to transform python data into calldata.")
+        raise ValueError(
+            "Output serializer can't be used to transform python data into calldata."
+        )
