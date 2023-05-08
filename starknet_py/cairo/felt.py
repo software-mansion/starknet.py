@@ -6,13 +6,21 @@ CairoData = List[int]
 
 
 MAX_UINT256 = (1 << 256) - 1
-MIN_UINT256 = 0
+MAX_UINT128 = (1 << 128) - 1
+MIN_UINT256 = MIN_UINT128 = 0
 
 
 def uint256_range_check(value: int):
     if not MIN_UINT256 <= value <= MAX_UINT256:
         raise ValueError(
             f"Uint256 is expected to be in range [0;2**256), got: {value}."
+        )
+
+
+def uint128_range_check(value: int):
+    if not MIN_UINT128 <= value <= MAX_UINT128:
+        raise ValueError(
+            f"Uint128 is expected to be in range [0;2**128), got: {value}."
         )
 
 

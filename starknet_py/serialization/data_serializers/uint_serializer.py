@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Generator, TypedDict, Union
 
-from starknet_py.cairo.felt import uint256_range_check
+from starknet_py.cairo.felt import uint256_range_check, uint128_range_check
 from starknet_py.serialization import CairoDataSerializer
 from starknet_py.serialization._context import (
     Context,
@@ -24,7 +24,7 @@ class UintSerializer(CairoDataSerializer[Union[int, Uint256Dict], int]):
     def deserialize_with_context(self, context: DeserializationContext) -> int:
         if self.bits < 256:
             (uint,) = context.reader.read(1)
-            with context.push_entity("uint"):
+            with context.push_entity("uint" + str(self.bits)):
                 self._ensure_valid_uint128(uint, context)
 
             return uint
@@ -51,6 +51,8 @@ class UintSerializer(CairoDataSerializer[Union[int, Uint256Dict], int]):
     @staticmethod
     def _serialize_from_int(value: int, bits: int) -> Generator[int, None, None]:
         if bits < 256:
+            uint128_range_check(value)
+
             yield value
         else:
             uint256_range_check(value)
