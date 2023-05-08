@@ -1,15 +1,13 @@
 from dataclasses import dataclass
 from typing import Generator, TypedDict, Union
 
-from starknet_py.cairo.felt import uint128_range_check, uint256_range_check
+from starknet_py.cairo.felt import uint256_range_check
 from starknet_py.serialization import CairoDataSerializer
 from starknet_py.serialization._context import (
     Context,
     DeserializationContext,
     SerializationContext,
 )
-
-U128_UPPER_BOUND = 2**128
 
 
 class Uint256Dict(TypedDict):
@@ -25,7 +23,7 @@ class UintSerializer(CairoDataSerializer[Union[int, Uint256Dict], int]):
         if self.bits < 256:
             (uint,) = context.reader.read(1)
             with context.push_entity("uint" + str(self.bits)):
-                self._ensure_valid_uint128(uint, context)
+                self._ensure_valid_uint(uint, context, self.bits)
 
             return uint
 
@@ -33,9 +31,9 @@ class UintSerializer(CairoDataSerializer[Union[int, Uint256Dict], int]):
 
         # Checking if resulting value is in [0, 2**256) range is not enough. Uint256 should be made of two uint128.
         with context.push_entity("low"):
-            self._ensure_valid_uint128(low, context)
+            self._ensure_valid_uint(low, context, bits=128)
         with context.push_entity("high"):
-            self._ensure_valid_uint128(high, context)
+            self._ensure_valid_uint(high, context, bits=128)
 
         return (high << 128) + low
 
@@ -44,14 +42,16 @@ class UintSerializer(CairoDataSerializer[Union[int, Uint256Dict], int]):
     ) -> Generator[int, None, None]:
         context.ensure_valid_type(value, isinstance(value, (int, dict)), "int or dict")
         if isinstance(value, int):
-            yield from self._serialize_from_int(value, self.bits)
+            yield from self._serialize_from_int(value, context, self.bits)
         else:
             yield from self._serialize_from_dict(context, value)
 
     @staticmethod
-    def _serialize_from_int(value: int, bits: int) -> Generator[int, None, None]:
+    def _serialize_from_int(
+        value: int, context: SerializationContext, bits: int
+    ) -> Generator[int, None, None]:
         if bits < 256:
-            uint128_range_check(value)
+            UintSerializer._ensure_valid_uint(value, context, bits)
 
             yield value
         else:
@@ -64,14 +64,17 @@ class UintSerializer(CairoDataSerializer[Union[int, Uint256Dict], int]):
         self, context: SerializationContext, value: Uint256Dict
     ) -> Generator[int, None, None]:
         with context.push_entity("low"):
-            self._ensure_valid_uint128(value["low"], context)
+            self._ensure_valid_uint(value["low"], context, bits=128)
             yield value["low"]
         with context.push_entity("high"):
-            self._ensure_valid_uint128(value["high"], context)
+            self._ensure_valid_uint(value["high"], context, bits=128)
             yield value["high"]
 
     @staticmethod
-    def _ensure_valid_uint128(value: int, context: Context):
+    def _ensure_valid_uint(value: int, context: Context, bits: int):
+        """
+        Ensures that value is a valid uint on `bits` bits.
+        """
         context.ensure_valid_value(
-            0 <= value < U128_UPPER_BOUND, "expected value in range [0;2**128)"
+            0 <= value < 2**bits, "expected value in range [0;2**" + str(bits) + ")"
         )

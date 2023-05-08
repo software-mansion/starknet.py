@@ -47,6 +47,8 @@ def test_output_serializer_deserialize(value, serialized_value):
 
 
 def test_output_serializer_serialize():
-    error_message = re.escape("Output serializer can't be used to transform python data into calldata.")
+    error_message = re.escape(
+        "Output serializer can't be used to transform python data into calldata."
+    )
     with pytest.raises(ValueError, match=error_message):
         serializer.serialize([1, None])

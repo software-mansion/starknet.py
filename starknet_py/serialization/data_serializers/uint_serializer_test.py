@@ -84,7 +84,7 @@ def test_serialize_invalid_256_int_value():
 
 
 def test_serialize_invalid_128_int_value():
-    error_message = re.escape("Error: Uint128 is expected to be in range [0;2**128)")
+    error_message = re.escape("Error: expected value in range [0;2**128)")
     with pytest.raises(InvalidValueException, match=error_message):
         u128_serializer.serialize(2**128)
     with pytest.raises(InvalidValueException, match=error_message):
