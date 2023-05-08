@@ -109,9 +109,7 @@ def test_serialize_invalid_dict_values():
         u256_serializer.serialize({"low": 0, "high": MAX_U128 + 1})
 
 
-@pytest.mark.parametrize(
-    "serializer", (u128_serializer, u256_serializer)
-)
+@pytest.mark.parametrize("serializer", (u128_serializer, u256_serializer))
 def test_invalid_type(serializer):
     error_message = re.escape(
         "Error: expected int or dict, received 'wololoo' of type '<class 'str'>'."
