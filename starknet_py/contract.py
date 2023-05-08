@@ -478,7 +478,10 @@ class Contract:
 
         try:
             self._functions = self._make_functions(
-                self.data, self.client, self.account, cairo_version
+                contract_data=self.data,
+                client=self.client,
+                account=self.account,
+                cairo_version=cairo_version,
             )
         except ValidationError:
             warnings.warn(
