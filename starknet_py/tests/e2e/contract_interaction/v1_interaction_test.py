@@ -7,16 +7,17 @@ from starknet_py.tests.e2e.fixtures.contracts import deploy_v1_contract
 
 @pytest.mark.asyncio
 async def test_general_v1_interaction(gateway_account):
+    calldata = {
+        "name_": encode_shortstring("erc20_basic"),
+        "symbol_": encode_shortstring("ERC20B"),
+        "decimals_": 10,
+        "initial_supply": 12345,
+        "recipient": gateway_account.address,
+    }
     erc20 = await deploy_v1_contract(
         account=gateway_account,
         contract_file_name="erc20",
-        calldata={
-            "name_": encode_shortstring("erc20_basic"),
-            "symbol_": encode_shortstring("ERC20B"),
-            "decimals_": 10,
-            "initial_supply": 12345,
-            "recipient": gateway_account.address,
-        },
+        calldata=calldata,
     )
 
     (name,) = await erc20.functions["get_name"].call()
@@ -27,9 +28,10 @@ async def test_general_v1_interaction(gateway_account):
         account=gateway_account.address
     )
 
+    transfer_amount = 10
     await (
         await erc20.functions["transfer"].invoke(
-            recipient=0x11, amount=10, max_fee=MAX_FEE
+            recipient=0x11, amount=transfer_amount, max_fee=MAX_FEE
         )
     ).wait_for_acceptance()
 
@@ -38,10 +40,10 @@ async def test_general_v1_interaction(gateway_account):
     )
 
     assert decoded_name == "erc20_basic"
-    assert decimals == 10
-    assert supply == 12345
-    assert account_balance == 12345
-    assert after_transfer_balance == 12345 - 10
+    assert decimals == calldata["decimals_"]
+    assert supply == calldata["initial_supply"]
+    assert account_balance == calldata["initial_supply"]
+    assert after_transfer_balance == calldata["initial_supply"] - transfer_amount
 
 
 @pytest.mark.asyncio
