@@ -120,6 +120,13 @@ def serializer_for_payload(payload: Dict[str, CairoType]) -> PayloadSerializer:
 
 
 def serializer_for_outputs(payload: List[CairoType]) -> OutputSerializer:
+    """
+    Create OutputSerializer for types in list. Please note that the order of fields in the list is
+    very important. Make sure the types are provided in the right order.
+
+    :param payload: list with cairo types.
+    :return: OutputSerializer that can be used to deserialize function outputs.
+    """
     return OutputSerializer(
         serializers=[serializer_for_type(cairo_type) for cairo_type in payload]
     )

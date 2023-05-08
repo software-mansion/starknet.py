@@ -17,6 +17,23 @@ class Uint256Dict(TypedDict):
 
 @dataclass
 class UintSerializer(CairoDataSerializer[Union[int, Uint256Dict], int]):
+    """
+    Serializer of uint. In Cairo there are few uints (u8, ..., u128 and u256).
+    u256 is represented by structure {low: u128, high: u128}.
+    Can serialize an int and dict.
+    Deserializes data to an int.
+
+    Examples:
+        if bits < 256:
+            0 => [0]
+            1 => [1]
+            2**128-1 = [2**128-1]
+        else:
+            0 => [0,0]
+            1 => [1,0]
+            2**128 => [0,1]
+            3 + 2**128 => [3,1]
+    """
     bits: int
 
     def deserialize_with_context(self, context: DeserializationContext) -> int:

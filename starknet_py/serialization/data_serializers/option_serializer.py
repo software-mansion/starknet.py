@@ -10,6 +10,15 @@ from starknet_py.serialization._context import (
 
 @dataclass
 class OptionSerializer(CairoDataSerializer[Optional[Any], Optional[Any]]):
+    """
+    Serializer for Option type.
+    Can serialize None and common CairoTypes.
+    Deserializes data to None or CairoType.
+
+    Example:
+        None => [1]
+        {"option1": 123, "option2": None} = [0, 123, 1]
+    """
     serializer: CairoDataSerializer
 
     def deserialize_with_context(

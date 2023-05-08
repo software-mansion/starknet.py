@@ -11,6 +11,14 @@ from starknet_py.serialization.data_serializers.uint256_serializer import Uint25
 
 @dataclass
 class UnitSerializer(CairoDataSerializer[None, None]):
+    """
+    Serializer for unit type.
+    Can't serialize anything.
+    Deserializes data to None.
+
+    Example:
+        [] => None
+    """
     def deserialize_with_context(self, context: DeserializationContext) -> None:
         return None
 
