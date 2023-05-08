@@ -58,7 +58,7 @@ class Transaction(ABC):
     def calculate_hash(self, chain_id: StarknetChainId) -> int:
         """
         Calculates the transaction hash in the Starknet network - a unique identifier of the
-        transaction. See :ref:`compute_transaction_hash` docstring for more details.
+        transaction. See :py:meth:`~starknet_py.hash.transaction.compute_transaction_hash` docstring for more details.
         """
 
 
@@ -252,6 +252,10 @@ def compute_invoke_hash(
     # pylint: disable=too-many-arguments
     """
     Computes invocation hash.
+
+        .. deprecated:: 0.15.0
+            To compute hash of an invoke transaction use
+            :py:meth:`~starknet_py.hash.transaction.compute_transaction_hash`.
 
     :param sender_address: int
     :param entry_point_selector: Union[int, str]

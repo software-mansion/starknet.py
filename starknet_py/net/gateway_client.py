@@ -54,7 +54,7 @@ from starknet_py.net.schemas.gateway import (
     TypesOfContractClassSchema,
     TypesOfTransactionsSchema,
 )
-from starknet_py.transaction_exceptions import TransactionNotReceivedError
+from starknet_py.transaction_errors import TransactionNotReceivedError
 from starknet_py.utils.sync import add_sync_methods
 
 

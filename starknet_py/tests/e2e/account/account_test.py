@@ -21,7 +21,7 @@ from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import Declare, DeclareV2
 from starknet_py.net.signer.stark_curve_signer import KeyPair
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
-from starknet_py.transaction_exceptions import TransactionRejectedError
+from starknet_py.transaction_errors import TransactionRejectedError
 
 
 @pytest.mark.run_on_devnet
