@@ -15,8 +15,8 @@ class OutputSerializer(CairoDataSerializer[List, Tuple]):
     def deserialize_with_context(self, context: DeserializationContext) -> Tuple:
         result = []
 
-        for serializer in self.serializers:
-            with context.push_entity("output"):
+        for index, serializer in enumerate(self.serializers):
+            with context.push_entity("output[" + str(index) + "]"):
                 result.append(serializer.deserialize_with_context(context))
 
         return tuple(result)
