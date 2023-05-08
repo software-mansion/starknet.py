@@ -5,7 +5,9 @@ from pylint import checkers, interfaces
 
 
 def register(linter: "PyLinter") -> None:
-    """This required method auto registers the checker during initialization.
+    """
+    This required method auto registers the checker during initialization.
+
     :param linter: The linter to register the checker to.
     """
     linter.register_checker(TodoTokenChecker(linter))
@@ -14,12 +16,12 @@ def register(linter: "PyLinter") -> None:
 class TodoTokenChecker(checkers.BaseChecker):
     __implements__ = interfaces.ITokenChecker
 
-    name = "todo-error"
+    name = "todo-issue-error"
     priority = -1
     msgs = {
         "E2137": (
             'Uses a "TODO" comment without specifying issue number.',
-            "todo-error",
+            name,
             "TODO comments should be in a format: `# TODO (#issueno)...`",
         ),
     }
@@ -31,4 +33,4 @@ class TodoTokenChecker(checkers.BaseChecker):
                 if "TODO" in quotes_stripped and not re.match(
                     "#\s*TODO\s*\(#\d+\).*", quotes_stripped
                 ):
-                    self.add_message("todo-error", line=token.start[0])
+                    self.add_message(self.name, line=token.start[0])
