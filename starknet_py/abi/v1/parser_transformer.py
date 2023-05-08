@@ -1,4 +1,5 @@
 import os
+from collections import OrderedDict
 from typing import Any, List, Optional
 
 import lark
@@ -9,6 +10,7 @@ from starknet_py.cairo.data_types import (
     CairoType,
     FeltType,
     OptionType,
+    StructType,
     TupleType,
     TypeIdentifier,
     UintType,
@@ -96,6 +98,12 @@ class ParserTransformer(Transformer):
         Tuple contains values defined in the `types` argument.
         """
         return TupleType(types)
+
+    def type_eth_address(self, _value: List[Any]) -> StructType:
+        return StructType(
+            name="core::starknet::eth_address::EthAddress",
+            types=OrderedDict(address=FeltType()),
+        )
 
 
 def parse(
