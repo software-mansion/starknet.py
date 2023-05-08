@@ -29,7 +29,7 @@ from starknet_py.net.models.transaction import (
     Invoke,
 )
 from starknet_py.net.networks import Network
-from starknet_py.transaction_exceptions import (
+from starknet_py.transaction_errors import (
     TransactionFailedError,
     TransactionNotReceivedError,
     TransactionRejectedError,
