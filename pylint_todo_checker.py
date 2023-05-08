@@ -31,6 +31,6 @@ class TodoTokenChecker(checkers.BaseChecker):
             if token.type == tokenize.COMMENT:
                 quotes_stripped = token.string.strip('"').strip("'")
                 if "TODO" in quotes_stripped and not re.match(
-                    "#\s*TODO\s*\(#\d+\).*", quotes_stripped
+                    "#\s*TODO:?\s*\(#\d+\).*", quotes_stripped
                 ):
                     self.add_message(self.name, line=token.start[0])
