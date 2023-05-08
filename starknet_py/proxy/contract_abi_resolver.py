@@ -94,7 +94,7 @@ class ContractAbiResolver:
         """
         contract_class = await _get_class_at(address=self.address, client=self.client)
         if isinstance(contract_class, SierraContractClass):
-            # TODO: Consider better handling
+            # TODO: (#1012) Consider better handling
             raise UnsupportedAbiError(
                 "Proxy resolver does not currently support Cairo1 ABIs."
             )
@@ -123,7 +123,7 @@ class ContractAbiResolver:
                     )
 
                 if isinstance(contract_class, SierraContractClass):
-                    # TODO: Consider better handling
+                    # TODO: (#1012) Consider better handling
                     raise UnsupportedAbiError(
                         "Proxy resolver does not currently support Cairo1 ABIs."
                     )

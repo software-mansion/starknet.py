@@ -11,7 +11,7 @@ async def test_cairo1_contract(
     gateway_account, sierra_minimal_compiled_contract_and_class_hash, gateway_client
 ):
     # pylint: disable=import-outside-toplevel, too-many-locals
-    # TODO: use account when RPC 0.3.0 is supported
+    # TODO: (#985) use account when RPC 0.3.0 is supported
     account = gateway_account
     (
         compiled_contract,
