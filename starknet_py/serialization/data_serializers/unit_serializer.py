@@ -19,6 +19,7 @@ class UnitSerializer(CairoDataSerializer[None, None]):
     Example:
         [] => None
     """
+
     def deserialize_with_context(self, context: DeserializationContext) -> None:
         return None
 

@@ -18,6 +18,7 @@ class OutputSerializer(CairoDataSerializer[List, Tuple]):
     Example:
         [1, 1, 1] => (340282366920938463463374607431768211457)
     """
+
     serializers: List[CairoDataSerializer] = field(init=True)
 
     def deserialize_with_context(self, context: DeserializationContext) -> Tuple:

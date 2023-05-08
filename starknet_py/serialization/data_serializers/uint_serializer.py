@@ -34,6 +34,7 @@ class UintSerializer(CairoDataSerializer[Union[int, Uint256Dict], int]):
             2**128 => [0,1]
             3 + 2**128 => [3,1]
     """
+
     bits: int
 
     def deserialize_with_context(self, context: DeserializationContext) -> int:
