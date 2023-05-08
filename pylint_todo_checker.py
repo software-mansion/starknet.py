@@ -20,9 +20,9 @@ class TodoTokenChecker(checkers.BaseChecker):
     priority = -1
     msgs = {
         "E2137": (
-            'Uses a "TODO" comment without specifying issue number.',
+            "Wrong TODO format, should be: '# TODO: (#issueno)...', colon optional.",
             name,
-            "TODO comments should be in a format: '# TODO: (#issueno)...' (colon is optional)",
+            "TODO comments should be in a format: '# TODO: (#issueno)...' (colon is optional).",
         ),
     }
 
