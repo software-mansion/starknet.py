@@ -109,6 +109,7 @@ Rules to follow when writing a code:
 7. Error messages should start with a capital letter.
 8. Use `Argument x is...` instead of `X is...` when error message starts with argument (property) name.
 9. All sentences (in docstrings/errors) should be ended with a period.
+10. When adding a TODO comment, it must have a corresponding issue to it. The format for the comment is: ``# TODO: (#issue no.) ...`` (colon is optional).
 
 Release checklist
 -------------------
