@@ -45,7 +45,7 @@ class EnumSerializer(CairoDataSerializer[Dict, TupleDataclass]):
     ) -> Generator[int, None, None]:
         items = list(value.items())
         if len(items) != 1:
-            raise ValueError("Can't serialize more than one variant.")
+            raise ValueError("Can serialize only one enum variant, got: " + str(len(items)))
 
         variant_name, variant_value = items[0]
 

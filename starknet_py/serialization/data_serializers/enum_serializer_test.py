@@ -43,5 +43,8 @@ def test_output_serializer_deserialize(value, serialized_value):
 
 
 def test_output_serializer_serialize():
-    with pytest.raises(ValueError, match="Can't serialize more than one variant."):
+    with pytest.raises(ValueError, match="Can serialize only one enum variant, got: 2"):
         serializer.serialize({"a": 100, "b": 200})
+
+    with pytest.raises(ValueError, match="Can serialize only one enum variant, got: 0"):
+        serializer.serialize({})
