@@ -190,7 +190,10 @@ class GatewayClient(Client):
         if res["status"] in ("UNKNOWN", "NOT_RECEIVED"):
             raise TransactionNotReceivedError()
 
-        return TypesOfTransactionsSchema().load(res["transaction"], unknown=EXCLUDE)
+        return cast(
+            Transaction,
+            TypesOfTransactionsSchema().load(res["transaction"], unknown=EXCLUDE),
+        )
 
     async def get_transaction_receipt(self, tx_hash: Hash) -> TransactionReceipt:
         res = await self._feeder_gateway_client.call(
