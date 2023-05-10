@@ -1,7 +1,3 @@
-import re
-
-import pytest
-
 from starknet_py.serialization.data_serializers.unit_serializer import UnitSerializer
 
 serializer = UnitSerializer()
@@ -13,8 +9,8 @@ def test_deserialize_unit():
     assert deserialized is None
 
 
-def test_throws_when_serialize_unit():
-    error_message = re.escape("Unit can't be serialized.")
+def test_serialize_unit():
+    # pylint: disable=use-implicit-booleaness-not-comparison
+    serialized = serializer.serialize(None)
 
-    with pytest.raises(ValueError, match=error_message):
-        serializer.serialize(None)
+    assert serialized == []
