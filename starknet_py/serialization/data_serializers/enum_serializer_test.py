@@ -27,22 +27,25 @@ serializer = EnumSerializer(
 
 
 @pytest.mark.parametrize(
-    "value, serialized_value",
+    "value, correct_serialized_value",
     [
         ({"a": 100}, [0, 100, 0]),
         ({"b": 200}, [1, 200]),
         ({"c": {"my_option": 300, "my_uint": 300}}, [2, 0, 300, 300, 0]),
     ],
 )
-def test_output_serializer_deserialize(value, serialized_value):
-    deserialized = serializer.deserialize(serialized_value)
-    variant_name, variant_value = list(value.items())[0]
+def test_output_serializer(value, correct_serialized_value):
+    deserialized = serializer.deserialize(correct_serialized_value)
 
-    assert deserialized.variant == variant_name
-    assert deserialized.value == variant_value
+    deserialized_and_serialized = serializer.serialize(deserialized)
+    serialized_value = serializer.serialize(value)
+
+    assert deserialized_and_serialized == correct_serialized_value
+    assert serialized_value == correct_serialized_value
+    assert serialized_value == deserialized_and_serialized
 
 
-def test_output_serializer_serialize():
+def test_serializer_throws_on_wrong_parameters():
     with pytest.raises(ValueError, match="Can serialize only one enum variant, got: 2"):
         serializer.serialize({"a": 100, "b": 200})
 
