@@ -105,8 +105,22 @@ async def test_serializing_enum(gateway_account):
     assert received_enum.variant == "a"
     assert received_enum.value == 100
 
+    (received_enum,) = await test_enum.functions["get_enum_without_value"].call()
+
+    assert received_enum.variant == "c"
+    assert received_enum.value is None
+
     variant_name = "b"
     value = 200
+    (received_enum,) = await test_enum.functions["receive_and_send_enum"].call(
+        my_enum={variant_name: value}
+    )
+
+    assert received_enum.variant == variant_name
+    assert received_enum.value == value
+
+    variant_name = "c"
+    value = None
     (received_enum,) = await test_enum.functions["receive_and_send_enum"].call(
         my_enum={variant_name: value}
     )

@@ -25,5 +25,5 @@ class UnitSerializer(CairoDataSerializer[None, None]):
 
     def serialize_with_context(
         self, context: SerializationContext, value: Union[int, Uint256Dict]
-    ) -> Generator[int, None, None]:  # pyright: ignore
-        raise ValueError("Unit can't be serialized.")
+    ) -> Generator[None, None, None]:  # pyright: ignore
+        yield None
