@@ -51,9 +51,8 @@ class AbiParser:
         ]
         grouped = defaultdict(list)
         for entry in abi:
-            assert entry is not None
-            type_ = getattr(entry, "type")
-            grouped[type_].append(entry)
+            assert isinstance(entry, dict)
+            grouped[entry["type"]].append(entry)
 
         self._grouped = grouped
 
