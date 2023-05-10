@@ -3,8 +3,6 @@ from __future__ import annotations
 from collections import OrderedDict
 from typing import Dict, List
 
-from indexed import IndexedOrderedDict
-
 from starknet_py.abi.model import Abi
 from starknet_py.abi.v1.model import Abi as AbiV1
 from starknet_py.cairo.data_types import (
@@ -105,7 +103,7 @@ def serializer_for_type(cairo_type: CairoType) -> CairoDataSerializer:
 
     if isinstance(cairo_type, EnumType):
         return EnumSerializer(
-            IndexedOrderedDict(
+            OrderedDict(
                 (name, serializer_for_type(variant_type))
                 for name, variant_type in cairo_type.variants.items()
             )

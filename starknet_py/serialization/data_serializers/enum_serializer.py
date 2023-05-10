@@ -1,7 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, Generator, Union
-
-from indexed import IndexedOrderedDict
+from typing import Dict, Generator, OrderedDict, Tuple, Union
 
 from starknet_py.serialization._context import (
     DeserializationContext,
@@ -26,13 +24,13 @@ class EnumSerializer(CairoDataSerializer[Union[Dict, TupleDataclass], TupleDatac
         TupleDataclass(name='a', value=100) => [0, 100]
     """
 
-    serializers: IndexedOrderedDict[str, CairoDataSerializer]
+    serializers: OrderedDict[str, CairoDataSerializer]
 
     def deserialize_with_context(
         self, context: DeserializationContext
     ) -> TupleDataclass:
         [variant_index] = context.reader.read(1)
-        variant_name, serializer = self.serializers.items()[variant_index]
+        variant_name, serializer = self._get_variant(variant_index)
 
         with context.push_entity("enum.variant: " + variant_name):
             result_dict = {
@@ -56,7 +54,13 @@ class EnumSerializer(CairoDataSerializer[Union[Dict, TupleDataclass], TupleDatac
         else:
             variant_name, variant_value = value
 
-        yield self.serializers.keys().index(variant_name)
+        yield self._get_variant_index(variant_name)
         yield from self.serializers[variant_name].serialize_with_context(
             context, variant_value
         )
+
+    def _get_variant(self, variant_index: int) -> Tuple[str, CairoDataSerializer]:
+        return list(self.serializers.items())[variant_index]
+
+    def _get_variant_index(self, variant_name: str) -> int:
+        return list(self.serializers.keys()).index(variant_name)

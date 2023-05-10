@@ -1,7 +1,6 @@
 from collections import OrderedDict
 
 import pytest
-from indexed import IndexedOrderedDict
 
 from starknet_py.serialization.data_serializers.enum_serializer import EnumSerializer
 from starknet_py.serialization.data_serializers.option_serializer import (
@@ -13,7 +12,7 @@ from starknet_py.serialization.data_serializers.struct_serializer import (
 from starknet_py.serialization.data_serializers.uint_serializer import UintSerializer
 
 serializer = EnumSerializer(
-    serializers=IndexedOrderedDict(
+    serializers=OrderedDict(
         a=UintSerializer(256),
         b=UintSerializer(128),
         c=StructSerializer(
