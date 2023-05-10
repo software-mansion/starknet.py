@@ -520,7 +520,7 @@ async def test_state_update_deployed_contracts(
 async def test_get_class_by_hash_sierra_program(
     gateway_client, hello_starknet_class_hash_tx_hash: Tuple[int, int]
 ):
-    # TODO: Replace with `client` when RPC 0.3.0 is supported
+    # TODO (#985): Replace with `client` when RPC 0.3.0 is supported
     client = gateway_client
     (class_hash, _) = hello_starknet_class_hash_tx_hash
 
@@ -539,7 +539,7 @@ async def test_get_declare_v2_transaction(
     hello_starknet_class_hash_tx_hash: Tuple[int, int],
     declare_v2_hello_starknet: DeclareV2,
 ):
-    # TODO: Replace with `client` when RPC 0.3.0 is supported
+    # TODO (#985): Replace with `client` when RPC 0.3.0 is supported
     client = gateway_client
     (class_hash, tx_hash) = hello_starknet_class_hash_tx_hash
 
@@ -565,7 +565,7 @@ async def test_get_block_with_declare_v2(
     declare_v2_hello_starknet: DeclareV2,
     block_with_declare_v2_number: int,
 ):
-    # TODO: Replace with `client` when RPC 0.3.0 is supported
+    # TODO (#985): Replace with `client` when RPC 0.3.0 is supported
     client = gateway_client
     (class_hash, tx_hash) = hello_starknet_class_hash_tx_hash
 
@@ -594,7 +594,7 @@ async def test_get_new_state_update(
     block_with_declare_v2_number: int,
     replaced_class: Tuple[int, int, int],
 ):
-    # TODO: Replace with `client` when RPC 0.3.0 is supported
+    # TODO (#985): Replace with `client` when RPC 0.3.0 is supported
     client = gateway_client
     (class_hash, _) = hello_starknet_class_hash_tx_hash
 
@@ -624,7 +624,7 @@ async def test_get_new_state_update(
 async def test_get_compiled_class_by_class_hash(
     gateway_client, hello_starknet_class_hash_tx_hash: Tuple[int, int]
 ):
-    # TODO: Replace with `client` when RPC 0.3.0 is supported
+    # TODO (#985): Replace with `client` when RPC 0.3.0 is supported
     client = gateway_client
     (class_hash, _) = hello_starknet_class_hash_tx_hash
 

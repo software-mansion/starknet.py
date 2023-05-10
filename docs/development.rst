@@ -109,6 +109,7 @@ Rules to follow when writing a code:
 7. Error messages should start with a capital letter.
 8. Use `Argument x is...` instead of `X is...` when error message starts with argument (property) name.
 9. All sentences (in docstrings/errors) should be ended with a period.
+10. When adding a TODO comment, it must have a corresponding issue to it. The format for the comment is: ``# TODO (#issue no.): ...``.
 
 Release checklist
 -------------------
@@ -117,7 +118,7 @@ Perform these actions before releasing a new starknet.py version
 
 1. Bump package version in ``pyproject.toml``
 2. Re-lock using ``poetry lock --no-update``
-3. Make a PR to development with name of format ``vMINOR.MAJOR.PATCHES-alpha`` and merge it making sure that the merge commit message is the same as PR name
+3. Make a PR to development with name of format ``vMAJOR.MINOR.PATCHES-alpha`` and merge it making sure that the merge commit message is the same as PR name
 4. Merge development into master without squashing
 
 .. code-block:: bash

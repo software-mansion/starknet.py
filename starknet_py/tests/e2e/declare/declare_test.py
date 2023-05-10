@@ -19,7 +19,7 @@ async def test_declare_tx(account, map_compiled_contract):
 async def test_declare_v2_tx(
     gateway_account, sierra_minimal_compiled_contract_and_class_hash
 ):
-    # TODO: use account when RPC 0.3.0 is supported
+    # TODO (#985): use account when RPC 0.3.0 is supported
     account = gateway_account
     (
         compiled_contract,
