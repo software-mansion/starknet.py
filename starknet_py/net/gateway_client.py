@@ -54,7 +54,7 @@ from starknet_py.net.schemas.gateway import (
     TypesOfContractClassSchema,
     TypesOfTransactionsSchema,
 )
-from starknet_py.transaction_exceptions import TransactionNotReceivedError
+from starknet_py.transaction_errors import TransactionNotReceivedError
 from starknet_py.utils.sync import add_sync_methods
 
 
@@ -190,7 +190,10 @@ class GatewayClient(Client):
         if res["status"] in ("UNKNOWN", "NOT_RECEIVED"):
             raise TransactionNotReceivedError()
 
-        return TypesOfTransactionsSchema().load(res["transaction"], unknown=EXCLUDE)
+        return cast(
+            Transaction,
+            TypesOfTransactionsSchema().load(res["transaction"], unknown=EXCLUDE),
+        )
 
     async def get_transaction_receipt(self, tx_hash: Hash) -> TransactionReceipt:
         res = await self._feeder_gateway_client.call(

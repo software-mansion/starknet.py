@@ -9,7 +9,7 @@ from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import Call, TransactionReceipt, TransactionStatus
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
-from starknet_py.transaction_exceptions import (
+from starknet_py.transaction_errors import (
     TransactionNotReceivedError,
     TransactionRejectedError,
 )

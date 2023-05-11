@@ -34,6 +34,10 @@ Note that the nonce will be bumped only by 1.
 .. note::
     If you want to create a **read-only** multicall that does not change on-chain state, check out `this cairo contract made by Argent <https://github.com/argentlabs/argent-contracts-starknet/blob/d2e4365ff1005e03c5575b5a0db48060096cf391/contracts/lib/Multicall.cairo>`_, that implements an endpoint allowing for such behaviour.
 
+.. warning::
+
+    Do not pass arbitrarily large number of calls in one batch. Starknet rejects the transaction when it happens, like `here <https://testnet-2.starkscan.co/tx/0x20440925a18ba8911f2fe2bbbcb64511ca5f3d7bffaa036ea3eda0f9cef26f6#overview>`_.
+
 
 
 FullNodeClient usage
