@@ -27,7 +27,7 @@ class UintSerializer(CairoDataSerializer[Union[int, Uint256Dict], int]):
         if bits < 256:
             0 => [0]
             1 => [1]
-            2**128-1 = [2**128-1]
+            2**128-1 => [2**128-1]
         else:
             0 => [0,0]
             1 => [1,0]
