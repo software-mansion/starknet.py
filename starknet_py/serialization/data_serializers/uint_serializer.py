@@ -75,7 +75,7 @@ class UintSerializer(CairoDataSerializer[Union[int, Uint256Dict], int]):
         else:
             uint256_range_check(value)
 
-            result = (value % 2**128, value // 2**128)
+            result = (value % 2**128, value >> 128)
             yield from result
 
     def _serialize_from_dict(

@@ -43,25 +43,23 @@ def test_valid_values(value, serializer, serialized_value):
         )
 
 
-def test_deserialize_invalid_256_values():
+@pytest.mark.parametrize(
+    "value, uint256_part",
+    [
+        ([MAX_U128 + 1, 0], "low"),
+        ([MAX_U128 + 1, MAX_U128 + 1], "low"),
+        ([-1, 0], "low"),
+        ([0, MAX_U128 + 1], "high"),
+        ([0, -1], "high"),
+    ],
+)
+def test_deserialize_invalid_256_values(value, uint256_part):
     # We need to escape braces
-    low_error_message = re.escape(
-        "Error at path 'low': expected value in range [0;2**128)"
+    error_message = re.escape(
+        "Error at path '" + uint256_part + "': expected value in range [0;2**128)"
     )
-    with pytest.raises(InvalidValueException, match=low_error_message):
-        u256_serializer.deserialize([MAX_U128 + 1, 0])
-    with pytest.raises(InvalidValueException, match=low_error_message):
-        u256_serializer.deserialize([MAX_U128 + 1, MAX_U128 + 1])
-    with pytest.raises(InvalidValueException, match=low_error_message):
-        u256_serializer.deserialize([-1, 0])
-
-    high_error_message = re.escape(
-        "Error at path 'high': expected value in range [0;2**128)"
-    )
-    with pytest.raises(InvalidValueException, match=high_error_message):
-        u256_serializer.deserialize([0, MAX_U128 + 1])
-    with pytest.raises(InvalidValueException, match=high_error_message):
-        u256_serializer.deserialize([0, -1])
+    with pytest.raises(InvalidValueException, match=error_message):
+        u256_serializer.deserialize(value)
 
 
 def test_deserialize_invalid_128_values():
