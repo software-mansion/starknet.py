@@ -8,6 +8,7 @@ from starknet_py.abi.v1.model import Abi as AbiV1
 from starknet_py.cairo.data_types import (
     ArrayType,
     CairoType,
+    EnumType,
     FeltType,
     NamedTupleType,
     OptionType,
@@ -20,6 +21,7 @@ from starknet_py.serialization.data_serializers.array_serializer import ArraySer
 from starknet_py.serialization.data_serializers.cairo_data_serializer import (
     CairoDataSerializer,
 )
+from starknet_py.serialization.data_serializers.enum_serializer import EnumSerializer
 from starknet_py.serialization.data_serializers.felt_serializer import FeltSerializer
 from starknet_py.serialization.data_serializers.named_tuple_serializer import (
     NamedTupleSerializer,
@@ -98,6 +100,14 @@ def serializer_for_type(cairo_type: CairoType) -> CairoDataSerializer:
 
     if isinstance(cairo_type, UnitType):
         return UnitSerializer()
+
+    if isinstance(cairo_type, EnumType):
+        return EnumSerializer(
+            OrderedDict(
+                (name, serializer_for_type(variant_type))
+                for name, variant_type in cairo_type.variants.items()
+            )
+        )
 
     raise InvalidTypeException(f"Received unknown Cairo type '{cairo_type}'.")
 

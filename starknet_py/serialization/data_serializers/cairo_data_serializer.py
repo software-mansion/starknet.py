@@ -39,7 +39,9 @@ class CairoDataSerializer(ABC, Generic[SerializationType, DeserializationType]):
         :return: calldata.
         """
         with SerializationContext.create() as context:
-            return list(self.serialize_with_context(context, data))
+            serialized_data = list(self.serialize_with_context(context, data))
+
+            return self.remove_units_from_serialized_data(serialized_data)
 
     @abstractmethod
     def deserialize_with_context(
@@ -63,3 +65,7 @@ class CairoDataSerializer(ABC, Generic[SerializationType, DeserializationType]):
         :param value: python value to serialize.
         :return: defined SerializationType.
         """
+
+    @staticmethod
+    def remove_units_from_serialized_data(serialized_data: List) -> List:
+        return [x for x in serialized_data if x is not None]
