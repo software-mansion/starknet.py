@@ -26,7 +26,7 @@ class OptionSerializer(CairoDataSerializer[Optional[Any], Optional[Any]]):
         self, context: DeserializationContext
     ) -> Optional[Any]:
         (is_none,) = context.reader.read(1)
-        if is_none:
+        if is_none == 1:
             return None
 
         return self.serializer.deserialize_with_context(context)
