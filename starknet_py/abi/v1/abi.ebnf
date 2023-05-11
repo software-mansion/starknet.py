@@ -12,6 +12,7 @@ core_value: "felt252"                                                   -> type_
           | "option" "::" "Option" "::" "<" (type | type_identifier) ">"    -> type_option
           | "array" "::" "Array" "::" "<" (type | type_identifier) ">"      -> type_array
           | "starknet" "::" "contract_address" "::" "ContractAddress"   -> type_address
+          | "starknet" "::" "eth_address" "::" "EthAddress"             -> type_eth_address
 
 type_unit: "()"
 

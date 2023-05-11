@@ -1,4 +1,5 @@
 import os
+from collections import OrderedDict
 from typing import Any, List, Optional
 
 import lark
@@ -9,9 +10,11 @@ from starknet_py.cairo.data_types import (
     CairoType,
     FeltType,
     OptionType,
+    StructType,
     TupleType,
     TypeIdentifier,
     UintType,
+    UnitType,
 )
 
 
@@ -54,13 +57,13 @@ class ParserTransformer(Transformer):
         """
         return UintType(int(value[0]))
 
-    def type_unit(self, _value: List[Any]) -> None:
+    def type_unit(self, _value: List[Any]) -> UnitType:
         """
-        () type.
+        `()` type.
         """
-        return None
+        return UnitType()
 
-    def type_option(self, value: List[Optional[CairoType]]) -> OptionType:
+    def type_option(self, value: List[CairoType]) -> OptionType:
         """
         Option includes an information about which type it eventually represents.
         `Optional` is added in case of the unit type.
@@ -95,6 +98,12 @@ class ParserTransformer(Transformer):
         Tuple contains values defined in the `types` argument.
         """
         return TupleType(types)
+
+    def type_eth_address(self, _value: List[Any]) -> StructType:
+        return StructType(
+            name="core::starknet::eth_address::EthAddress",
+            types=OrderedDict(address=FeltType()),
+        )
 
 
 def parse(
