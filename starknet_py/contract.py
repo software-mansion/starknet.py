@@ -4,12 +4,14 @@ import dataclasses
 import warnings
 from dataclasses import dataclass
 from functools import cached_property
-from typing import Dict, List, Optional, Tuple, TypeVar, Union
+from typing import Dict, List, Optional, Tuple, TypeVar, Union, cast
 
 from marshmallow import ValidationError
 
 from starknet_py.abi.model import Abi
 from starknet_py.abi.parser import AbiParser
+from starknet_py.abi.v1.model import Abi as AbiV1
+from starknet_py.abi.v1.parser import AbiParser as AbiV1Parser
 from starknet_py.common import create_compiled_contract
 from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
 from starknet_py.hash.address import compute_address
@@ -27,6 +29,7 @@ from starknet_py.proxy.contract_abi_resolver import (
     prepare_proxy_config,
 )
 from starknet_py.serialization import TupleDataclass, serializer_for_function
+from starknet_py.serialization.factory import serializer_for_function_v1
 from starknet_py.serialization.function_serialization_adapter import (
     FunctionSerializationAdapter,
 )
@@ -46,28 +49,33 @@ class ContractData:
 
     address: int
     abi: ABI
+    cairo_version: int
 
     @cached_property
-    def parsed_abi(self) -> Abi:
+    def parsed_abi(self) -> Union[Abi, AbiV1]:
         """
         Abi parsed into proper dataclass.
 
         :return: Abi
         """
+        if self.cairo_version == 1:
+            return AbiV1Parser(self.abi).parse()
         return AbiParser(self.abi).parse()
 
     @staticmethod
-    def from_abi(address: int, abi: ABI) -> ContractData:
+    def from_abi(address: int, abi: ABI, cairo_version: int = 0) -> ContractData:
         """
         Create ContractData from ABI.
 
         :param address: Address of the deployed contract.
         :param abi: Abi of the contract.
+        :param cairo_version: Version of the Cairo in which contract is written.
         :return: ContractData instance.
         """
         return ContractData(
             address=address,
             abi=abi,
+            cairo_version=cairo_version,
         )
 
 
@@ -347,6 +355,7 @@ class ContractFunction:
         contract_data: ContractData,
         client: Client,
         account: Optional[BaseAccount],
+        cairo_version: int = 0,
     ):
         # pylint: disable=too-many-arguments
         self.name = name
@@ -355,8 +364,14 @@ class ContractFunction:
         self.contract_data = contract_data
         self.client = client
         self.account = account
-        self._payload_transformer = serializer_for_function(
-            contract_data.parsed_abi.functions[name]
+        self._payload_transformer = (
+            serializer_for_function_v1(
+                cast(AbiV1, contract_data.parsed_abi).functions[name]
+            )
+            if cairo_version == 1
+            else serializer_for_function(
+                cast(Abi, contract_data.parsed_abi).functions[name]
+            )
         )
 
     def prepare(
@@ -444,6 +459,7 @@ class Contract:
         address: AddressRepresentation,
         abi: list,
         provider: Union[BaseAccount, Client],
+        cairo_version: int = 0,
     ):
         """
         Should be used instead of ``from_address`` when ABI is known statically.
@@ -458,10 +474,15 @@ class Contract:
 
         self.account: Optional[BaseAccount] = account
         self.client: Client = client
-        self.data = ContractData.from_abi(parse_address(address), abi)
+        self.data = ContractData.from_abi(parse_address(address), abi, cairo_version)
 
         try:
-            self._functions = self._make_functions(self.data, self.client, self.account)
+            self._functions = self._make_functions(
+                contract_data=self.data,
+                client=self.client,
+                account=self.account,
+                cairo_version=cairo_version,
+            )
         except ValidationError:
             warnings.warn(
                 "Make sure valid ABI is used to create a Contract instance: "
@@ -649,7 +670,11 @@ class Contract:
 
     @classmethod
     def _make_functions(
-        cls, contract_data: ContractData, client: Client, account: Optional[BaseAccount]
+        cls,
+        contract_data: ContractData,
+        client: Client,
+        account: Optional[BaseAccount],
+        cairo_version: int = 0,
     ) -> FunctionsRepository:
         repository = {}
 
@@ -664,6 +689,7 @@ class Contract:
                 contract_data=contract_data,
                 client=client,
                 account=account,
+                cairo_version=cairo_version,
             )
 
         return repository

@@ -1,24 +1,36 @@
 from __future__ import annotations
 
 from collections import OrderedDict
-from typing import Dict
+from typing import Dict, List
 
 from starknet_py.abi.model import Abi
+from starknet_py.abi.v1.model import Abi as AbiV1
 from starknet_py.cairo.data_types import (
     ArrayType,
     CairoType,
+    EnumType,
     FeltType,
     NamedTupleType,
+    OptionType,
     StructType,
     TupleType,
+    UintType,
+    UnitType,
 )
 from starknet_py.serialization.data_serializers.array_serializer import ArraySerializer
 from starknet_py.serialization.data_serializers.cairo_data_serializer import (
     CairoDataSerializer,
 )
+from starknet_py.serialization.data_serializers.enum_serializer import EnumSerializer
 from starknet_py.serialization.data_serializers.felt_serializer import FeltSerializer
 from starknet_py.serialization.data_serializers.named_tuple_serializer import (
     NamedTupleSerializer,
+)
+from starknet_py.serialization.data_serializers.option_serializer import (
+    OptionSerializer,
+)
+from starknet_py.serialization.data_serializers.output_serializer import (
+    OutputSerializer,
 )
 from starknet_py.serialization.data_serializers.payload_serializer import (
     PayloadSerializer,
@@ -30,9 +42,12 @@ from starknet_py.serialization.data_serializers.tuple_serializer import TupleSer
 from starknet_py.serialization.data_serializers.uint256_serializer import (
     Uint256Serializer,
 )
+from starknet_py.serialization.data_serializers.uint_serializer import UintSerializer
+from starknet_py.serialization.data_serializers.unit_serializer import UnitSerializer
 from starknet_py.serialization.errors import InvalidTypeException
 from starknet_py.serialization.function_serialization_adapter import (
     FunctionSerializationAdapter,
+    FunctionSerializationAdapterV1,
 )
 
 _uint256_type = StructType("Uint256", OrderedDict(low=FeltType(), high=FeltType()))
@@ -45,6 +60,7 @@ def serializer_for_type(cairo_type: CairoType) -> CairoDataSerializer:
     :param cairo_type: CairoType.
     :return: CairoDataSerializer.
     """
+    # pylint: disable=too-many-return-statements
     if isinstance(cairo_type, FeltType):
         return FeltSerializer()
 
@@ -76,6 +92,23 @@ def serializer_for_type(cairo_type: CairoType) -> CairoDataSerializer:
             )
         )
 
+    if isinstance(cairo_type, UintType):
+        return UintSerializer(bits=cairo_type.bits)
+
+    if isinstance(cairo_type, OptionType):
+        return OptionSerializer(serializer_for_type(cairo_type.type))
+
+    if isinstance(cairo_type, UnitType):
+        return UnitSerializer()
+
+    if isinstance(cairo_type, EnumType):
+        return EnumSerializer(
+            OrderedDict(
+                (name, serializer_for_type(variant_type))
+                for name, variant_type in cairo_type.variants.items()
+            )
+        )
+
     raise InvalidTypeException(f"Received unknown Cairo type '{cairo_type}'.")
 
 
@@ -93,6 +126,19 @@ def serializer_for_payload(payload: Dict[str, CairoType]) -> PayloadSerializer:
             (name, serializer_for_type(cairo_type))
             for name, cairo_type in payload.items()
         )
+    )
+
+
+def serializer_for_outputs(payload: List[CairoType]) -> OutputSerializer:
+    """
+    Create OutputSerializer for types in list. Please note that the order of fields in the list is
+    very important. Make sure the types are provided in the right order.
+
+    :param payload: list with cairo types.
+    :return: OutputSerializer that can be used to deserialize function outputs.
+    """
+    return OutputSerializer(
+        serializers=[serializer_for_type(cairo_type) for cairo_type in payload]
     )
 
 
@@ -116,4 +162,19 @@ def serializer_for_function(abi_function: Abi.Function) -> FunctionSerialization
     return FunctionSerializationAdapter(
         inputs_serializer=serializer_for_payload(abi_function.inputs),
         outputs_deserializer=serializer_for_payload(abi_function.outputs),
+    )
+
+
+def serializer_for_function_v1(
+    abi_function: AbiV1.Function,
+) -> FunctionSerializationAdapter:
+    """
+    Create FunctionSerializationAdapter for serializing function inputs and deserializing function outputs.
+
+    :param abi_function: parsed function's abi.
+    :return: FunctionSerializationAdapter.
+    """
+    return FunctionSerializationAdapterV1(
+        inputs_serializer=serializer_for_payload(abi_function.inputs),
+        outputs_deserializer=serializer_for_outputs(abi_function.outputs),
     )

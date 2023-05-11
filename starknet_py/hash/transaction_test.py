@@ -80,9 +80,9 @@ def test_compute_declare_transaction_hash(contract_json, data, expected_declare_
 @pytest.mark.parametrize(
     "sierra_contract_class_source, expected_declare_v2_hash",
     [
-        ("account_compiled", 0x284e1e43afcb2d40611baeee559d943eb2323eeb1c8b770bbff309820577fcd),
-        ("erc20_compiled", 0x525e368a8d9e13c47ee8b44da0b7ca676e737a62e6ea08f53b04904c47bad1d),
-        ("minimal_contract_compiled", 0x2742c3672208cd7a1c08d4be68fc5ab74a227fc97f0dc3873033d4e41550080),
+        ("account_compiled", 0x4494bd5d4543c65a0b6db46c7fdefffa3e3c61742d7a15fd6dcdd3fd7b34811),
+        ("erc20_compiled", 0x6c99886aa014b4257c55f816845fea334c550287db31be8a0cdd91c67e42575),
+        ("minimal_contract_compiled", 0x2f4ad86acad9b0223f95437a1cb88193a293be5a46289159457ef01b51aed24),
     ],
 )
 # fmt: on

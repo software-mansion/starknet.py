@@ -3,7 +3,7 @@ from __future__ import annotations
 from abc import ABC
 from collections import OrderedDict
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List
 
 
 class CairoType(ABC):
@@ -73,7 +73,7 @@ class OptionType(CairoType):
     Type representation of Cairo options.
     """
 
-    type: Optional[CairoType] = None
+    type: CairoType
 
 
 @dataclass
@@ -97,3 +97,10 @@ class TypeIdentifier(CairoType):
     """
 
     name: str
+
+
+@dataclass
+class UnitType(CairoType):
+    """
+    Type representation of Cairo unit `()`.
+    """

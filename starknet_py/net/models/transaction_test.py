@@ -124,7 +124,7 @@ sierra_compiled_contract = read_contract(
                 signature=[0x1, 0x2],
                 version=2,
             ),
-            0x250A0814F34D568E29B27149C627B9C1C383E20B69303B2CA1DA57189C6E70F,
+            0x5810645A3C0CB0DAC8537A989B0A0383E03738DB4FBDEE82D5D4553324F2216,
         ),
     ],
 )

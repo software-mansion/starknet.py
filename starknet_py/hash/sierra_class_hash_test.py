@@ -10,12 +10,12 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
     "sierra_contract_class_source, expected_class_hash",
     # fmt: off
     [
-        ("account_compiled.json", 0x391b07aef5b45f1aaa22664d4dbc57e13ddef949fb14153e8a4ad25c09c8843),
-        ("erc20_compiled.json", 0x7800885df80457bebd6f4a2791875e6d4b0cc26363c68d918917d5bc1803632),
-        ("hello_starknet_compiled.json", 0x19fe4ae699bbe7328498a64c8ee596cfe1559a6fd64a54a6b9361af8376e932),
-        ("minimal_contract_compiled.json", 0xa4991f661ab0137cd6f56bb69bd3480abe7e9e1d876b24ca1db28ba2ab07b6),
-        ("test_contract_compiled.json", 0x1f87410d728736bcccea129f75c674ac1d3ff4e7a82aed56b8c12a559994556),
-        ("token_bridge_compiled.json", 0x74970f8609b9603d1b9094f33fdfbf1ceb5c959fc4397a6e8118c97e6529e4a),
+        ("account_compiled.json", 0x2667df3ad273b0854eaa617ed48a7de7842520c46594d6f6739d67e81bf924f),
+        ("erc20_compiled.json", 0x56733688e86f849a47311df4eeed8a8b4470cf932d73c27346091d5117c1369),
+        ("hello_starknet_compiled.json", 0x3431184635c20edcdf0a60063e02ce285a809943ab194eaa7c0c2e4f7732f1c),
+        ("minimal_contract_compiled.json", 0x25c69990757baf3bef190cd427b81c157e11b886ec2471a8fc22ad7a01ce50c),
+        ("test_contract_compiled.json", 0x7a6b84c9d65c83bb26129c7e60216f31d947e9e980ee7ed59b806f95c2abbd2),
+        ("token_bridge_compiled.json", 0x55b214df5c3529173c8f23e0813ea2cb54835d4b3a8a193db27b78e26469634),
     ],
     # fmt: on
 )
