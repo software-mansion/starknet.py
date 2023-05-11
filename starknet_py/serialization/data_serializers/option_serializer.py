@@ -17,7 +17,7 @@ class OptionSerializer(CairoDataSerializer[Optional[Any], Optional[Any]]):
 
     Example:
         None => [1]
-        {"option1": 123, "option2": None} = [0, 123, 1]
+        {"option1": 123, "option2": None} => [0, 123, 1]
     """
 
     serializer: CairoDataSerializer
