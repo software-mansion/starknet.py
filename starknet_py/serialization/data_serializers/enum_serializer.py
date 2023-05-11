@@ -21,7 +21,7 @@ class EnumSerializer(CairoDataSerializer[Union[Dict, TupleDataclass], TupleDatac
     Example:
         {"a": 1} => [0, 1]
         {"b": 100} => [1, 100]
-        TupleDataclass(name='a', value=100) => [0, 100]
+        TupleDataclass(variant='a', value=100) => [0, 100]
     """
 
     serializers: OrderedDict[str, CairoDataSerializer]

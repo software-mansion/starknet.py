@@ -68,4 +68,4 @@ class CairoDataSerializer(ABC, Generic[SerializationType, DeserializationType]):
 
     @staticmethod
     def remove_units_from_serialized_data(serialized_data: List) -> List:
-        return list(filter(lambda x: x is not None, serialized_data))
+        return [x for x in serialized_data if x is not None]
