@@ -5,7 +5,7 @@ Migration guide
 0.16.0 Migration guide
 **********************
 
-    Version 0.16.0 of **starknet.py** comes with *support for Python 3.8, 3.9, 3.10 and 3.11* !
+    Version 0.16.0 of **starknet.py** comes with support for Python 3.8, 3.9, 3.10 and 3.11!
 
 The ``cairo-lang`` package has been removed as a dependency.
 
@@ -52,13 +52,14 @@ Breaking changes
 
 8. Removed deprecated ``typed_data`` parameter as dict in :meth:`BaseSigner.sign_message`. Use :ref:`TypedData` dataclass from ``starknet_py.utils.typed_data``.
 9. ``starknet_py.utils.crypto`` module has been removed.
+10. Changed name of ``starknet_py.transaction_excepions`` to ``starknet_py.transaction_errors`` to match other files.
 
 .. admonition:: Potentially breaking changes
     :class: attention
 
     Internal code of :meth:`starknet_py.abi.AbiParser.parse` has changed.
     It should not affect users but keep in mind that the Contract can have difficulties resolving ABI.
-    If so please report.
+    If so, please report.
 
 |
 

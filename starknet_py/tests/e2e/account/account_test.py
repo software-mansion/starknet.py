@@ -21,7 +21,7 @@ from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import Declare, DeclareV2
 from starknet_py.net.signer.stark_curve_signer import KeyPair
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
-from starknet_py.transaction_exceptions import TransactionRejectedError
+from starknet_py.transaction_errors import TransactionRejectedError
 
 
 @pytest.mark.run_on_devnet
@@ -100,7 +100,7 @@ async def test_sending_multicall(account, map_contract, key, val):
     assert value == val
 
 
-# TODO (#981) FullNode is not tested because we don't implement trace api (devnet does not either)
+# TODO (#981): FullNode is not tested because we don't implement trace api (devnet does not either)
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_block_traces(gateway_account):
@@ -237,7 +237,7 @@ async def test_sign_declare_v2_transaction(
     assert signed_tx.max_fee == MAX_FEE
 
 
-# TODO (#984) full_node_account doesn't work here because declare_v2 isn't supported,
+# TODO (#984): full_node_account doesn't work here because declare_v2 isn't supported,
 #  change was introduced in RPC v0.3.0 and devnet hasn't been updated yet
 @pytest.mark.asyncio
 async def test_sign_declare_v2_transaction_auto_estimate(
