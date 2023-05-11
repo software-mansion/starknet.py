@@ -19,6 +19,11 @@ class EnumSerializer(CairoDataSerializer[Union[Dict, TupleDataclass], TupleDatac
     Deserializes data to a TupleDataclass.
 
     Example:
+        enum MyEnum {
+          a: u128,
+          b: u128
+        }
+
         {"a": 1} => [0, 1]
         {"b": 100} => [1, 100]
         TupleDataclass(variant='a', value=100) => [0, 100]
