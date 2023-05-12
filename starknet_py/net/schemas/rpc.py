@@ -6,6 +6,7 @@ from starknet_py.net.client_models import (
     BlockStateUpdate,
     ContractClass,
     ContractsNonce,
+    DeclaredContractHash,
     DeclareTransaction,
     DeclareTransactionResponse,
     DeployAccountTransaction,
@@ -21,6 +22,7 @@ from starknet_py.net.client_models import (
     L1HandlerTransaction,
     L1toL2Message,
     L2toL1Message,
+    PendingBlockStateUpdate,
     SentTransactionResponse,
     StarknetBlock,
     StateDiff,
@@ -241,6 +243,15 @@ class ContractDiffSchema(Schema):
         return DeployedContract(**data)
 
 
+class DeclaredContractHashSchema(Schema):
+    class_hash = Felt(data_key="class_hash", required=True)
+    compiled_class_hash = Felt(data_key="compiled_class_hash", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> DeclaredContractHash:
+        return DeclaredContractHash(**data)
+
+
 class DeployedContractSchema(Schema):
     address = Felt(data_key="address", required=True)
     class_hash = NonPrefixedHex(data_key="class_hash", required=True)
@@ -260,6 +271,21 @@ class ContractsNonceSchema(Schema):
 
 
 class StateDiffSchema(Schema):
+    storage_diffs = fields.List(
+        fields.Nested(StorageDiffSchema()),
+        data_key="storage_diffs",
+        required=True,
+    )
+    deprecated_declared_classes = fields.List(
+        Felt(),
+        data_key="deprecated_declared_classes",
+        required=True,
+    )
+    declared_classes = fields.List(
+        fields.Nested(DeclaredContractHashSchema()),
+        data_key="declared_classes",
+        required=True,
+    )
     deployed_contracts = fields.List(
         fields.Nested(DeployedContractSchema()),
         data_key="deployed_contracts",
@@ -268,11 +294,6 @@ class StateDiffSchema(Schema):
     declared_contract_hashes = fields.List(
         Felt(),
         data_key="declared_contract_hashes",
-        required=True,
-    )
-    storage_diffs = fields.List(
-        fields.Nested(StorageDiffSchema()),
-        data_key="storage_diffs",
         required=True,
     )
     nonces = fields.List(
@@ -293,6 +314,17 @@ class BlockStateUpdateSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> BlockStateUpdate:
         return BlockStateUpdate(
+            **data,
+        )
+
+
+class PendingBlockStateUpdateSchema(Schema):
+    old_root = Felt(data_key="old_root", required=True)
+    state_diff = fields.Nested(StateDiffSchema(), data_key="state_diff", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> PendingBlockStateUpdate:
+        return PendingBlockStateUpdate(
             **data,
         )
 

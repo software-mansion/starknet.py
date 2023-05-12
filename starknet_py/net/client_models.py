@@ -379,6 +379,16 @@ class BlockStateUpdate:
 
 
 @dataclass
+class PendingBlockStateUpdate:
+    """
+    Dataclass representing a pending change in state of a block.
+    """
+
+    old_root: int
+    state_diff: StateDiff
+
+
+@dataclass
 class ContractCode:
     """
     Dataclass representing contract deployed to Starknet.

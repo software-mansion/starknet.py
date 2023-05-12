@@ -17,6 +17,7 @@ from starknet_py.net.client_models import (
     EstimatedFee,
     EventsResponse,
     Hash,
+    PendingBlockStateUpdate,
     SentTransactionResponse,
     StarknetBlock,
     Tag,
@@ -40,6 +41,7 @@ from starknet_py.net.schemas.rpc import (
     DeployAccountTransactionResponseSchema,
     EstimatedFeeSchema,
     EventsSchema,
+    PendingBlockStateUpdateSchema,
     PendingTransactionsSchema,
     SentTransactionSchema,
     StarknetBlockSchema,
@@ -202,7 +204,7 @@ class FullNodeClient(Client):
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> BlockStateUpdate:
+    ) -> Union[BlockStateUpdate, PendingBlockStateUpdate]:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -211,8 +213,14 @@ class FullNodeClient(Client):
             method_name="getStateUpdate",
             params=block_identifier,
         )
+
+        if "new_root" in res:
+            return cast(
+                BlockStateUpdate, BlockStateUpdateSchema().load(res, unknown=EXCLUDE)
+            )
         return cast(
-            BlockStateUpdate, BlockStateUpdateSchema().load(res, unknown=EXCLUDE)
+            PendingBlockStateUpdate,
+            PendingBlockStateUpdateSchema().load(res, unknown=EXCLUDE),
         )
 
     async def get_storage_at(
