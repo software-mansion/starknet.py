@@ -551,11 +551,11 @@ async def test_state_update_deployed_contracts(
 
 @pytest.mark.asyncio
 async def test_get_class_by_hash_sierra_program(
-    client, hello_starknet_class_hash_tx_hash: Tuple[int, int]
+    client, v1_hello_starknet_class_hash: int
 ):
-    (class_hash, _) = hello_starknet_class_hash_tx_hash
-
-    contract_class = await client.get_class_by_hash(class_hash=class_hash)
+    contract_class = await client.get_class_by_hash(
+        class_hash=v1_hello_starknet_class_hash
+    )
 
     assert isinstance(contract_class, SierraContractClass)
     assert contract_class.contract_class_version == "0.1.0"
@@ -567,10 +567,10 @@ async def test_get_class_by_hash_sierra_program(
 @pytest.mark.asyncio
 async def test_get_declare_v2_transaction(
     client,
-    hello_starknet_class_hash_tx_hash: Tuple[int, int],
+    v1_hello_starknet_class_hash_tx_hash: Tuple[int, int],
     declare_v2_hello_starknet: DeclareV2,
 ):
-    (class_hash, tx_hash) = hello_starknet_class_hash_tx_hash
+    (class_hash, tx_hash) = v1_hello_starknet_class_hash_tx_hash
 
     transaction = await client.get_transaction(tx_hash=tx_hash)
 
@@ -592,11 +592,11 @@ async def test_get_declare_v2_transaction(
 @pytest.mark.asyncio
 async def test_get_block_with_declare_v2(
     client,
-    hello_starknet_class_hash_tx_hash: Tuple[int, int],
+    v1_hello_starknet_class_hash_tx_hash: Tuple[int, int],
     declare_v2_hello_starknet: DeclareV2,
     block_with_declare_v2_number: int,
 ):
-    (class_hash, tx_hash) = hello_starknet_class_hash_tx_hash
+    (class_hash, tx_hash) = v1_hello_starknet_class_hash_tx_hash
 
     block = await client.get_block(block_number=block_with_declare_v2_number)
 
@@ -620,20 +620,18 @@ async def test_get_block_with_declare_v2(
 @pytest.mark.asyncio
 async def test_get_new_state_update(
     client,
-    hello_starknet_class_hash_tx_hash: Tuple[int, int],
+    v1_hello_starknet_class_hash: int,
     declare_v2_hello_starknet: DeclareV2,
     block_with_declare_v2_number: int,
     replaced_class: Tuple[int, int, int],
 ):
-    (class_hash, _) = hello_starknet_class_hash_tx_hash
-
     state_update = await client.get_state_update(
         block_number=block_with_declare_v2_number
     )
     assert state_update.state_diff.replaced_classes == []
     assert (
         DeclaredContractHash(
-            class_hash=class_hash,
+            class_hash=v1_hello_starknet_class_hash,
             compiled_class_hash=declare_v2_hello_starknet.compiled_class_hash,
         )
         in state_update.state_diff.declared_contract_hashes

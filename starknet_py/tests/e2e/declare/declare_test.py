@@ -55,3 +55,10 @@ async def test_declare_v2_tx_gateway_client(
     await gateway_account.client.wait_for_tx(
         tx_hash=declare_result.transaction_hash, wait_for_accept=True
     )
+
+
+@pytest.mark.asyncio
+async def test_declare_v2_tx(v1_minimal_contract_class_hash: int):
+    # TODO (#985): use account when RPC 0.3.0 is supported
+    assert isinstance(v1_minimal_contract_class_hash, int)
+    assert v1_minimal_contract_class_hash != 0
