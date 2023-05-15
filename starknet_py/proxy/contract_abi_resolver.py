@@ -1,6 +1,7 @@
+import json
 import re
 from enum import Enum
-from typing import AsyncGenerator, List, Tuple, TypedDict, Union
+from typing import AsyncGenerator, List, Tuple, TypedDict, Union, cast
 
 from starknet_py.abi.shape import AbiDictList
 from starknet_py.constants import (
@@ -93,14 +94,15 @@ class ContractAbiResolver:
         :raises AbiNotFoundError: when abi is not present in contract class at address
         """
         contract_class = await _get_class_at(address=self.address, client=self.client)
-        if isinstance(contract_class, SierraContractClass):
-            # TODO (#1012): Consider better handling
-            raise UnsupportedAbiError(
-                "Proxy resolver does not currently support Cairo1 ABIs."
-            )
+
         if contract_class.abi is None:
             raise AbiNotFoundError()
-        return contract_class.abi
+
+        if isinstance(contract_class, SierraContractClass):
+            assert isinstance(contract_class.abi, str)
+            return json.loads(contract_class.abi)
+
+        return cast(AbiDictList, contract_class.abi)
 
     async def resolve_abi(self) -> AbiDictList:
         """
@@ -122,15 +124,15 @@ class ContractAbiResolver:
                         address=implementation, client=self.client
                     )
 
-                if isinstance(contract_class, SierraContractClass):
-                    # TODO (#1012): Consider better handling
-                    raise UnsupportedAbiError(
-                        "Proxy resolver does not currently support Cairo1 ABIs."
-                    )
                 if contract_class.abi is None:
                     # Some contract_class has been found, but it does not have abi
                     raise AbiNotFoundError()
-                return contract_class.abi
+
+                if isinstance(contract_class, SierraContractClass):
+                    assert isinstance(contract_class.abi, str)
+                    return json.loads(contract_class.abi)
+
+                return cast(AbiDictList, contract_class.abi)
             except ClientError as err:
                 if not (
                     "is not declared" in err.message
@@ -176,16 +178,6 @@ class AbiNotFoundError(Exception):
     """
     Error while resolving contract abi.
     """
-
-
-class UnsupportedAbiError(Exception):
-    """
-    Incompatible Abi error.
-    """
-
-    def __init__(self, message):
-        self.message = message
-        super().__init__(message)
 
 
 class ProxyResolutionError(Exception):

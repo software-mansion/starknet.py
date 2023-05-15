@@ -30,7 +30,6 @@ from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.proxy.contract_abi_resolver import (
     ContractAbiResolver,
     ProxyConfig,
-    UnsupportedAbiError,
     prepare_proxy_config,
 )
 from starknet_py.serialization import TupleDataclass, serializer_for_function
@@ -557,14 +556,9 @@ class Contract:
         address = parse_address(address)
         proxy_config = Contract._create_proxy_config(proxy_config)
 
-        try:
-            abi = await ContractAbiResolver(
-                address=address, client=client, proxy_config=proxy_config
-            ).resolve()
-        except UnsupportedAbiError as err:
-            raise ValueError(
-                "Provided address of Cairo1 contract which is currently not supported in Contract."
-            ) from err
+        abi = await ContractAbiResolver(
+            address=address, client=client, proxy_config=proxy_config
+        ).resolve()
 
         return Contract(address=address, abi=abi, provider=account or client)
 
