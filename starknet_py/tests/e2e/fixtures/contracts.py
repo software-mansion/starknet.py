@@ -1,5 +1,4 @@
 # pylint: disable=redefined-outer-name
-import json
 from typing import Any, Dict, List, Optional, Tuple
 
 import pytest
@@ -10,7 +9,6 @@ from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.contract import Contract
 from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.net.account.base_account import BaseAccount
-from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import (
     CONTRACTS_COMPILED_V1_DIR,
     CONTRACTS_DIR,
@@ -115,34 +113,17 @@ async def deploy_v1_contract(
         contract_file_name + "_compiled.casm", directory=CONTRACTS_COMPILED_V1_DIR
     )
 
-    casm_class_hash = compute_casm_class_hash(create_casm_class(contrat_casm))
-
-    declare_tx = await account.sign_declare_v2_transaction(
-        contract_sierra, casm_class_hash, max_fee=MAX_FEE
+    declare_result = await Contract.declare(
+        account, contract_sierra, compiled_contract_casm=contrat_casm, max_fee=MAX_FEE
     )
-    resp = await account.client.declare(transaction=declare_tx)
-    await account.client.wait_for_tx(resp.transaction_hash)
+    await declare_result.wait_for_acceptance()
 
-    deployer = Deployer()
-    contract_deployment = deployer.create_contract_deployment(
-        resp.class_hash,
-        abi=json.loads(contract_sierra)["abi"],
-        cairo_version=1,
-        calldata=calldata,
+    deploy_result = await declare_result.deploy(
+        constructor_args=calldata, max_fee=MAX_FEE
     )
+    await deploy_result.wait_for_acceptance()
 
-    deploy_invoke_transaction = await account.sign_invoke_transaction(
-        calls=contract_deployment.call, max_fee=MAX_FEE
-    )
-    resp = await account.client.send_transaction(deploy_invoke_transaction)
-    await account.client.wait_for_tx(resp.transaction_hash)
-
-    return Contract(
-        address=contract_deployment.address,
-        abi=json.loads(contract_sierra)["abi"],
-        provider=account,
-        cairo_version=1,
-    )
+    return deploy_result.deployed_contract
 
 
 @pytest_asyncio.fixture(scope="package")

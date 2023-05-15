@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import dataclasses
-import warnings
+import json
 from dataclasses import dataclass
 from functools import cached_property
 from typing import Dict, List, Optional, Tuple, TypeVar, Union, cast
@@ -12,9 +12,14 @@ from starknet_py.abi.model import Abi
 from starknet_py.abi.parser import AbiParser
 from starknet_py.abi.v1.model import Abi as AbiV1
 from starknet_py.abi.v1.parser import AbiParser as AbiV1Parser
-from starknet_py.common import create_compiled_contract
+from starknet_py.common import (
+    create_casm_class,
+    create_compiled_contract,
+    create_sierra_compiled_contract,
+)
 from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
 from starknet_py.hash.address import compute_address
+from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.hash.class_hash import compute_class_hash
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.base_account import BaseAccount
@@ -148,6 +153,7 @@ class DeclareResult(SentTransaction):
     """
 
     _account: BaseAccount = None  # pyright: ignore
+    _cairo_version: int = 0
 
     class_hash: int = None  # pyright: ignore
     """Class hash of the declared contract."""
@@ -188,15 +194,31 @@ class DeclareResult(SentTransaction):
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :return: DeployResult instance.
         """
-        # pylint: disable=too-many-arguments
-        abi = create_compiled_contract(compiled_contract=self.compiled_contract).abi
+        # pylint: disable=too-many-arguments, too-many-locals
+        if self._cairo_version == 0:
+            abi = create_compiled_contract(compiled_contract=self.compiled_contract).abi
+        else:
+            try:
+                sierra_compiled_contract = create_sierra_compiled_contract(
+                    compiled_contract=self.compiled_contract
+                )
+                abi = json.loads(sierra_compiled_contract.abi)
+            except Exception as exc:
+                raise ValueError(
+                    "Contract's ABI can't be converted to format List[Dict]. "
+                    "Make sure provided compiled_contract is correct."
+                ) from exc
 
         deployer = Deployer(
             deployer_address=deployer_address,
             account_address=self._account.address if unique else None,
         )
         deploy_call, address = deployer.create_contract_deployment(
-            class_hash=self.class_hash, salt=salt, abi=abi, calldata=constructor_args
+            class_hash=self.class_hash,
+            salt=salt,
+            abi=abi,
+            calldata=constructor_args,
+            cairo_version=self._cairo_version,
         )
         res = await self._account.execute(
             calls=deploy_call, max_fee=max_fee, auto_estimate=auto_estimate
@@ -206,6 +228,7 @@ class DeclareResult(SentTransaction):
             provider=self._account,
             address=address,
             abi=abi,
+            cairo_version=self._cairo_version,
         )
 
         deploy_result = DeployResult(
@@ -459,6 +482,7 @@ class Contract:
         address: AddressRepresentation,
         abi: list,
         provider: Union[BaseAccount, Client],
+        *,
         cairo_version: int = 0,
     ):
         """
@@ -469,6 +493,7 @@ class Contract:
         :param address: contract's address.
         :param abi: contract's abi.
         :param provider: BaseAccount or Client used to perform transactions.
+        :param cairo_version: Version of the Cairo in which contract is written.
         """
         client, account = _unpack_provider(provider)
 
@@ -483,13 +508,10 @@ class Contract:
                 account=self.account,
                 cairo_version=cairo_version,
             )
-        except ValidationError:
-            warnings.warn(
-                "Make sure valid ABI is used to create a Contract instance: "
-                "Cairo1 contract ABIs are currently unsupported."
-            )
-            # Re-raise the exception
-            raise
+        except ValidationError as exc:
+            raise ValueError(
+                "Make sure valid ABI is used to create a Contract instance"
+            ) from exc
 
     @property
     def functions(self) -> FunctionsRepository:
@@ -551,6 +573,7 @@ class Contract:
         account: BaseAccount,
         compiled_contract: str,
         *,
+        compiled_contract_casm: Optional[str] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> DeclareResult:
@@ -559,16 +582,37 @@ class Contract:
 
         :param account: BaseAccount used to sign and send declare transaction.
         :param compiled_contract: String containing compiled contract.
+        :param compiled_contract_casm: String containing the content of the starknet-sierra-compile (.casm file).
+            Used when declaring Cairo1 contracts.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :return: DeclareResult instance.
         """
 
-        declare_tx = await account.sign_declare_transaction(
-            compiled_contract=compiled_contract,
-            max_fee=max_fee,
-            auto_estimate=auto_estimate,
-        )
+        if "sierra_program" in compiled_contract:
+            if compiled_contract_casm is None:
+                raise ValueError(
+                    "Cairo 1.0 contract was provided without compiled_contract_casm argument."
+                )
+
+            cairo_version = 1
+            casm_class_hash = compute_casm_class_hash(
+                create_casm_class(compiled_contract_casm)
+            )
+
+            declare_tx = await account.sign_declare_v2_transaction(
+                compiled_contract=compiled_contract,
+                compiled_class_hash=casm_class_hash,
+                max_fee=max_fee,
+                auto_estimate=auto_estimate,
+            )
+        else:
+            cairo_version = 0
+            declare_tx = await account.sign_declare_transaction(
+                compiled_contract=compiled_contract,
+                max_fee=max_fee,
+                auto_estimate=auto_estimate,
+            )
         res = await account.client.declare(transaction=declare_tx)
 
         return DeclareResult(
@@ -577,6 +621,7 @@ class Contract:
             class_hash=res.class_hash,
             _account=account,
             compiled_contract=compiled_contract,
+            _cairo_version=cairo_version,
         )
 
     @staticmethod
@@ -587,6 +632,7 @@ class Contract:
         constructor_args: Optional[Union[List, Dict]] = None,
         *,
         deployer_address: AddressRepresentation = DEFAULT_DEPLOYER_ADDRESS,
+        cairo_version: int = 0,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> "DeployResult":
@@ -600,6 +646,7 @@ class Contract:
         :param deployer_address: Address of the UDC. Is set to the address of
             the default UDC (same address on mainnet/testnet/devnet) by default.
             Must be set when using custom network other than ones listed above.
+        :param cairo_version: Version of the Cairo in which contract is written.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :return: DeployResult instance.
@@ -609,16 +656,17 @@ class Contract:
             deployer_address=deployer_address, account_address=account.address
         )
         deploy_call, address = deployer.create_contract_deployment(
-            class_hash=class_hash, abi=abi, calldata=constructor_args
+            class_hash=class_hash,
+            abi=abi,
+            calldata=constructor_args,
+            cairo_version=cairo_version,
         )
         res = await account.execute(
             calls=deploy_call, max_fee=max_fee, auto_estimate=auto_estimate
         )
 
         deployed_contract = Contract(
-            provider=account,
-            address=address,
-            abi=abi,
+            provider=account, address=address, abi=abi, cairo_version=cairo_version
         )
         deploy_result = DeployResult(
             hash=res.transaction_hash,
