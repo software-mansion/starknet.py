@@ -58,7 +58,8 @@ test.shell = "pytest -n auto -v --reruns 10 --only-rerun aiohttp.client_exceptio
 test_ci.shell = """
     coverage run -m pytest -v --reruns 5 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/core --ignore=starknet_py/tests/e2e/contract \
     && coverage run -m pytest -v --reruns 5 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py/tests/e2e/contract/contract_interaction \
-    && coverage run -m pytest -v --reruns 5 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py/tests/e2e/contract/contract_functionalities
+    && coverage run -m pytest -v --reruns 5 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py/tests/e2e/contract/contract_functionalities \
+    && coverage combine
 """
 
 test_ci_docs.shell = "coverage run -m pytest -v --reruns 5 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py/tests/e2e/docs"
