@@ -556,11 +556,16 @@ class Contract:
         address = parse_address(address)
         proxy_config = Contract._create_proxy_config(proxy_config)
 
-        abi = await ContractAbiResolver(
+        abi, cairo_version = await ContractAbiResolver(
             address=address, client=client, proxy_config=proxy_config
         ).resolve()
 
-        return Contract(address=address, abi=abi, provider=account or client)
+        return Contract(
+            address=address,
+            abi=abi,
+            provider=account or client,
+            cairo_version=cairo_version,
+        )
 
     @staticmethod
     async def declare(

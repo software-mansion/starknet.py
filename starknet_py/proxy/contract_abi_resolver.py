@@ -74,9 +74,10 @@ class ContractAbiResolver:
         self.client = client
         self.proxy_config = proxy_config
 
-    async def resolve(self) -> AbiDictList:
+    async def resolve(self) -> Tuple[AbiDictList, int]:
         """
-        Returns abi of either direct contract or contract proxied by direct contract depending on proxy_config.
+        Returns abi and cairo version of either direct contract
+        or contract proxied by direct contract depending on proxy_config.
 
         :raises ContractNotFoundError: when contract could not be found at address
         :raises ProxyResolutionError: when given ProxyChecks were not sufficient to resolve proxy
@@ -86,9 +87,9 @@ class ContractAbiResolver:
             return await self.get_abi_for_address()
         return await self.resolve_abi()
 
-    async def get_abi_for_address(self) -> AbiDictList:
+    async def get_abi_for_address(self) -> Tuple[AbiDictList, int]:
         """
-        Returns abi of a contract directly from address.
+        Returns abi and cairo version of a contract directly from address.
 
         :raises ContractNotFoundError: when contract could not be found at address
         :raises AbiNotFoundError: when abi is not present in contract class at address
@@ -100,13 +101,13 @@ class ContractAbiResolver:
 
         if isinstance(contract_class, SierraContractClass):
             assert isinstance(contract_class.abi, str)
-            return json.loads(contract_class.abi)
+            return json.loads(contract_class.abi), 1
 
-        return cast(AbiDictList, contract_class.abi)
+        return cast(AbiDictList, contract_class.abi), 0
 
-    async def resolve_abi(self) -> AbiDictList:
+    async def resolve_abi(self) -> Tuple[AbiDictList, int]:
         """
-        Returns abi of a contract that is being proxied by contract at address.
+        Returns abi and cairo version of a contract that is being proxied by contract at address.
 
         :raises ContractNotFoundError: when contract could not be found at address
         :raises ProxyResolutionError: when given ProxyChecks were not sufficient to resolve proxy
@@ -130,9 +131,9 @@ class ContractAbiResolver:
 
                 if isinstance(contract_class, SierraContractClass):
                     assert isinstance(contract_class.abi, str)
-                    return json.loads(contract_class.abi)
+                    return json.loads(contract_class.abi), 1
 
-                return cast(AbiDictList, contract_class.abi)
+                return cast(AbiDictList, contract_class.abi), 0
             except ClientError as err:
                 if not (
                     "is not declared" in err.message
