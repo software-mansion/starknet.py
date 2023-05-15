@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import dataclasses
 import json
-import warnings
 from dataclasses import dataclass
 from functools import cached_property
 from typing import Dict, List, Optional, Tuple, TypeVar, Union, cast
@@ -509,10 +508,10 @@ class Contract:
                 account=self.account,
                 cairo_version=cairo_version,
             )
-        except ValidationError:
-            warnings.warn("Make sure valid ABI is used to create a Contract instance")
-            # Re-raise the exception
-            raise
+        except ValidationError as exc:
+            raise ValueError(
+                "Make sure valid ABI is used to create a Contract instance"
+            ) from exc
 
     @property
     def functions(self) -> FunctionsRepository:
