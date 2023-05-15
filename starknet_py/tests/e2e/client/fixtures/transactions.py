@@ -21,7 +21,7 @@ from starknet_py.tests.e2e.utils import (
 )
 
 
-@pytest_asyncio.fixture(scope="package")
+@pytest_asyncio.fixture(scope="module")
 async def deploy_account_transaction(
     account_with_validate_deploy_class_hash: int, fee_contract: Contract, network: str
 ) -> DeployAccount:
@@ -40,7 +40,7 @@ async def deploy_account_transaction(
     )
 
 
-@pytest.fixture(scope="package")
+@pytest.fixture(scope="module")
 def deploy_account_transaction_hash(
     prepare_network: Tuple[str, PreparedNetworkData]
 ) -> int:
@@ -62,7 +62,7 @@ def block_with_deploy_account_number(
     return prepared_data.block_with_deploy_account_number
 
 
-@pytest_asyncio.fixture(scope="package")
+@pytest_asyncio.fixture(scope="module")
 async def declare_v2_hello_starknet(gateway_account: Account) -> DeclareV2:
     """
     Returns DeclareV2 transaction.
@@ -84,7 +84,7 @@ async def declare_v2_hello_starknet(gateway_account: Account) -> DeclareV2:
     )
 
 
-@pytest_asyncio.fixture(scope="package")
+@pytest_asyncio.fixture(scope="module")
 async def hello_starknet_class_hash_tx_hash(
     gateway_client: Client, declare_v2_hello_starknet: DeclareV2
 ) -> Tuple[int, int]:
@@ -99,7 +99,7 @@ async def hello_starknet_class_hash_tx_hash(
     return result.class_hash, result.transaction_hash
 
 
-@pytest_asyncio.fixture(scope="package")
+@pytest_asyncio.fixture(scope="module")
 async def block_with_declare_v2_number(
     hello_starknet_class_hash_tx_hash: Tuple[int, int], full_node_client
 ) -> int:
@@ -111,7 +111,7 @@ async def block_with_declare_v2_number(
     return declare_v2_receipt.block_number
 
 
-@pytest_asyncio.fixture(scope="package")
+@pytest_asyncio.fixture(scope="module")
 async def replaced_class(account: Account, map_class_hash: int) -> Tuple[int, int, int]:
     """
     Returns block_number, contract_address and class_hash of transaction replacing implementation.
