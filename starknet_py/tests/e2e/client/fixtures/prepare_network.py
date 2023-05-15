@@ -139,7 +139,7 @@ def fixture_class_hash(prepare_network: Tuple[str, PreparedNetworkData]) -> int:
     return prepared_data.class_hash
 
 
-@pytest_asyncio.fixture(name="prepare_network", scope="module")
+@pytest_asyncio.fixture(name="prepare_network", scope="package")
 async def fixture_prepare_network(
     network: str,
     gateway_account: Account,

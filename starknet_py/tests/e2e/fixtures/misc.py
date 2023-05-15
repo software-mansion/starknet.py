@@ -37,7 +37,7 @@ def pytest_collection_modifyitems(config, items):
             item.add_marker(pytest.mark.skip())
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="package")
 def network(pytestconfig, run_devnet: str) -> str:
     """
     Returns network address depending on the --net parameter.
