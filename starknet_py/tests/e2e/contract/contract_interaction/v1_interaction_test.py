@@ -6,7 +6,7 @@ from starknet_py.tests.e2e.fixtures.contracts import deploy_v1_contract
 
 
 @pytest.mark.asyncio
-async def test_general_v1_interaction(gateway_account):
+async def test_general_v1_interaction(gateway_account, v1_erc20_class_hash: int):
     calldata = {
         "name_": encode_shortstring("erc20_basic"),
         "symbol_": encode_shortstring("ERC20B"),
@@ -17,6 +17,7 @@ async def test_general_v1_interaction(gateway_account):
     erc20 = await deploy_v1_contract(
         account=gateway_account,
         contract_file_name="erc20",
+        class_hash=v1_erc20_class_hash,
         calldata=calldata,
     )
 
@@ -47,10 +48,11 @@ async def test_general_v1_interaction(gateway_account):
 
 
 @pytest.mark.asyncio
-async def test_serializing_struct(gateway_account):
+async def test_serializing_struct(gateway_account, v1_token_bridge_class_hash: int):
     bridge = await deploy_v1_contract(
         account=gateway_account,
         contract_file_name="token_bridge",
+        class_hash=v1_token_bridge_class_hash,
         calldata={"governor_address": gateway_account.address},
     )
 
@@ -62,9 +64,11 @@ async def test_serializing_struct(gateway_account):
 
 
 @pytest.mark.asyncio
-async def test_serializing_option(gateway_account):
+async def test_serializing_option(gateway_account, v1_test_option_class_hash: int):
     test_option = await deploy_v1_contract(
-        account=gateway_account, contract_file_name="test_option"
+        account=gateway_account,
+        contract_file_name="test_option",
+        class_hash=v1_test_option_class_hash,
     )
 
     (received_option,) = await test_option.functions["get_option_struct"].call()
@@ -95,9 +99,11 @@ async def test_serializing_option(gateway_account):
 
 
 @pytest.mark.asyncio
-async def test_serializing_enum(gateway_account):
+async def test_serializing_enum(gateway_account, v1_test_enum_class_hash: int):
     test_enum = await deploy_v1_contract(
-        account=gateway_account, contract_file_name="test_enum"
+        account=gateway_account,
+        contract_file_name="test_enum",
+        class_hash=v1_test_enum_class_hash,
     )
 
     (received_enum,) = await test_enum.functions["get_enum"].call()
