@@ -17,7 +17,7 @@ from starknet_py.net.client_models import (
     EntryPointsByType,
     EstimatedFee,
     Event,
-    EventsResponse,
+    EventsChunk,
     InvokeTransaction,
     L1HandlerTransaction,
     L1toL2Message,
@@ -52,6 +52,10 @@ class FunctionCallSchema(Schema):
 
 
 class EventSchema(Schema):
+    block_hash = Felt(data_key="block_hash", required=True)
+    block_number = fields.Integer(data_key="block_number", required=True)
+    transaction_hash = Felt(data_key="transaction_hash", required=True)
+
     from_address = Felt(data_key="from_address", required=True)
     keys = fields.List(Felt(), data_key="keys", required=True)
     data = fields.List(Felt(), data_key="data", required=True)
@@ -61,9 +65,9 @@ class EventSchema(Schema):
         return Event(**data)
 
 
-class EventsSchema(Schema):
+class EventsChunkSchema(Schema):
     events = fields.List(
-        fields.Nested(EventSchema(unknown=EXCLUDE)),
+        fields.Nested(EventSchema()),
         data_key="events",
         required=True,
     )
@@ -71,7 +75,7 @@ class EventsSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs):
-        return EventsResponse(**data)
+        return EventsChunk(**data)
 
 
 class L1toL2MessageSchema(Schema):
@@ -329,6 +333,15 @@ class PendingBlockStateUpdateSchema(Schema):
         )
 
 
+class SierraEntryPointSchema(Schema):
+    selector = Felt(data_key="selector", required=True)
+    function_idx = fields.Integer(data_key="function_idx", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> EntryPoint:
+        return EntryPoint(**data)
+
+
 class EntryPointSchema(Schema):
     offset = Felt(data_key="offset", required=True)
     selector = Felt(data_key="selector", required=True)
@@ -336,6 +349,22 @@ class EntryPointSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> EntryPoint:
         return EntryPoint(**data)
+
+
+class SierraEntryPointsByTypeSchema(Schema):
+    constructor = fields.List(
+        fields.Nested(SierraEntryPointSchema()), data_key="CONSTRUCTOR", required=True
+    )
+    external = fields.List(
+        fields.Nested(SierraEntryPointSchema()), data_key="EXTERNAL", required=True
+    )
+    l1_handler = fields.List(
+        fields.Nested(SierraEntryPointSchema()), data_key="L1_HANDLER", required=True
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> EntryPointsByType:
+        return EntryPointsByType(**data)
 
 
 class EntryPointsByTypeSchema(Schema):
@@ -352,6 +381,23 @@ class EntryPointsByTypeSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> EntryPointsByType:
         return EntryPointsByType(**data)
+
+
+class SierraContractClassSchema(Schema):
+    sierra_program = fields.List(Felt(), data_key="program", required=True)
+    contract_class_version = fields.String(
+        data_key="contract_class_version", required=True
+    )
+    entry_points_by_type = fields.Nested(
+        SierraEntryPointsByTypeSchema(), data_key="entry_points_by_type", required=True
+    )
+    abi = fields.List(
+        fields.Nested(ContractAbiEntrySchema(unknown=EXCLUDE)), data_key="abi"
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> ContractClass:
+        return ContractClass(**data)
 
 
 class ContractClassSchema(Schema):

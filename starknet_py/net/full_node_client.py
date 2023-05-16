@@ -15,10 +15,11 @@ from starknet_py.net.client_models import (
     DeclareTransactionResponse,
     DeployAccountTransactionResponse,
     EstimatedFee,
-    EventsResponse,
+    EventsChunk,
     Hash,
     PendingBlockStateUpdate,
     SentTransactionResponse,
+    SierraContractClass,
     StarknetBlock,
     Tag,
     Transaction,
@@ -40,10 +41,11 @@ from starknet_py.net.schemas.rpc import (
     DeclareTransactionResponseSchema,
     DeployAccountTransactionResponseSchema,
     EstimatedFeeSchema,
-    EventsSchema,
+    EventsChunkSchema,
     PendingBlockStateUpdateSchema,
     PendingTransactionsSchema,
     SentTransactionSchema,
+    SierraContractClassSchema,
     StarknetBlockSchema,
     TransactionReceiptSchema,
     TypesOfTransactionsSchema,
@@ -106,10 +108,11 @@ class FullNodeClient(Client):
     ) -> BlockTransactionTraces:
         raise NotImplementedError()
 
+    # TODO (#809): change this function to match the new specification
     async def get_events(
         self,
         address: Hash,
-        keys: List[str],
+        keys: List[List[str]],
         *,
         from_block_number: Optional[Union[int, Tag]] = None,
         from_block_hash: Optional[Union[Hash, Tag]] = None,
@@ -118,12 +121,13 @@ class FullNodeClient(Client):
         follow_continuation_token: bool = False,
         continuation_token: Optional[str] = None,
         chunk_size: int = 1,
-    ) -> EventsResponse:
+    ) -> EventsChunk:
         # pylint: disable=too-many-arguments
         """
         :param address: The address of the contract that emitted the event.
-        :param keys: List of names of events that are searched for.
-            Must be in a form of RPC accepted felt after being hashed by `keccak` hash.
+        :param keys: List consisting lists of keys by which the events are filtered. They match the keys *by position*,
+            e.g. given an event with 3 keys, [[1,2],[],[3]] which should return events that have either 1 or 2 in
+            the first key, any value for their second key and 3 for their third key.
         :param from_block_number: Number of the block from which events searched for **starts**
             or literals `"pending"` or `"latest"`. Mutually exclusive with ``from_block_hash`` parameter.
         :param from_block_hash: Hash of the block from which events searched for **starts**
@@ -146,7 +150,6 @@ class FullNodeClient(Client):
         from_block = _get_raw_block_identifier(from_block_hash, from_block_number)
         to_block = _get_raw_block_identifier(to_block_hash, to_block_number)
         address = _to_rpc_felt(address)
-        keys = [_to_rpc_felt(i) for i in keys]
 
         events_list = []
         while True:
@@ -163,8 +166,8 @@ class FullNodeClient(Client):
                 break
 
         events_response = cast(
-            EventsResponse,
-            EventsSchema().load(
+            EventsChunk,
+            EventsChunkSchema().load(
                 {"events": events_list, "continuation_token": continuation_token}
             ),
         )
@@ -176,7 +179,7 @@ class FullNodeClient(Client):
         from_block: Union[dict, Hash, Tag, None],
         to_block: Union[dict, Hash, Tag, None],
         address: Hash,
-        keys: List[str],
+        keys: List[List[str]],
         chunk_size: int,
         continuation_token: Optional[str] = None,
     ) -> Tuple[list, Optional[str]]:
@@ -267,12 +270,14 @@ class FullNodeClient(Client):
             TransactionReceipt, TransactionReceiptSchema().load(res, unknown=EXCLUDE)
         )
 
+    # TODO (#809): add tests and fix the problem with `tx` parameter, it has to be a list in RPC, in gateway
+    #  it is a single AccountTransaction
     async def estimate_fee(
         self,
-        tx: AccountTransaction,
+        tx: List[AccountTransaction],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> EstimatedFee:
+    ) -> List[EstimatedFee]:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -280,12 +285,15 @@ class FullNodeClient(Client):
         res = await self._client.call(
             method_name="estimateFee",
             params={
-                "request": _create_broadcasted_txn(transaction=tx),
+                "request": [_create_broadcasted_txn(transaction=t) for t in tx],
                 **block_identifier,
             },
         )
 
-        return cast(EstimatedFee, EstimatedFeeSchema().load(res, unknown=EXCLUDE))
+        return [
+            cast(EstimatedFee, EstimatedFeeSchema().load(i, unknown=EXCLUDE))
+            for i in res
+        ]
 
     async def call_contract(
         self,
@@ -368,12 +376,13 @@ class FullNodeClient(Client):
         res = cast(str, res)
         return int(res, 16)
 
+    # TODO (#809): add tests
     async def get_class_by_hash(
         self,
         class_hash: Hash,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> ContractClass:
+    ) -> Union[SierraContractClass, ContractClass]:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -385,6 +394,12 @@ class FullNodeClient(Client):
                 **block_identifier,
             },
         )
+
+        if "sierra_program" in res:
+            return cast(
+                SierraContractClass,
+                SierraContractClassSchema().load(res, unknown=EXCLUDE),
+            )
         return cast(ContractClass, ContractClassSchema().load(res, unknown=EXCLUDE))
 
     # Only RPC methods
@@ -439,12 +454,13 @@ class FullNodeClient(Client):
         res = cast(int, res)
         return res
 
+    # TODO (#809): add tests
     async def get_class_at(
         self,
         contract_address: Hash,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> ContractClass:
+    ) -> Union[SierraContractClass, ContractClass]:
         """
         Get the contract class definition in the given block at the given address
 
@@ -465,6 +481,11 @@ class FullNodeClient(Client):
             },
         )
 
+        if "sierra_program" in res:
+            return cast(
+                SierraContractClass,
+                SierraContractClassSchema().load(res, unknown=EXCLUDE),
+            )
         return cast(ContractClass, ContractClassSchema().load(res, unknown=EXCLUDE))
 
     async def get_pending_transactions(self) -> List[Transaction]:
@@ -619,5 +640,5 @@ def _to_rpc_felt(value: Hash) -> str:
         value = int(value, 16)
 
     if value == 0:
-        return "0x00"
-    return "0x0" + hex(value).lstrip("0x")
+        return "0x0"
+    return "0x" + hex(value).lstrip("0x")
