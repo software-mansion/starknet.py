@@ -99,11 +99,9 @@ class ContractAbiResolver:
         if contract_class.abi is None:
             raise AbiNotFoundError()
 
-        if isinstance(contract_class, SierraContractClass):
-            assert isinstance(contract_class.abi, str)
-            return json.loads(contract_class.abi), 1
-
-        return cast(AbiDictList, contract_class.abi), 0
+        return self._get_abi_from_contract_class(
+            contract_class
+        ), self._get_cairo_version(contract_class)
 
     async def resolve_abi(self) -> Tuple[AbiDictList, int]:
         """
@@ -129,11 +127,9 @@ class ContractAbiResolver:
                     # Some contract_class has been found, but it does not have abi
                     raise AbiNotFoundError()
 
-                if isinstance(contract_class, SierraContractClass):
-                    assert isinstance(contract_class.abi, str)
-                    return json.loads(contract_class.abi), 1
-
-                return cast(AbiDictList, contract_class.abi), 0
+                return self._get_abi_from_contract_class(
+                    contract_class
+                ), self._get_cairo_version(contract_class)
             except ClientError as err:
                 if not (
                     "is not declared" in err.message
@@ -143,6 +139,22 @@ class ContractAbiResolver:
                     raise err
 
         raise ProxyResolutionError()
+
+    @staticmethod
+    def _get_cairo_version(
+        contract_class: Union[ContractClass, SierraContractClass]
+    ) -> int:
+        return 1 if isinstance(contract_class, SierraContractClass) else 0
+
+    @staticmethod
+    def _get_abi_from_contract_class(
+        contract_class: Union[ContractClass, SierraContractClass]
+    ) -> AbiDictList:
+        return (
+            cast(AbiDictList, contract_class.abi)
+            if isinstance(contract_class, ContractClass)
+            else json.loads(cast(str, contract_class.abi))
+        )
 
     async def _get_implementation_from_proxy(
         self,
