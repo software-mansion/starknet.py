@@ -1,6 +1,7 @@
 import pytest
 
 from starknet_py.cairo.felt import decode_shortstring, encode_shortstring
+from starknet_py.contract import Contract
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.tests.e2e.fixtures.contracts import deploy_v1_contract
 
@@ -133,3 +134,29 @@ async def test_serializing_enum(gateway_account, v1_test_enum_class_hash: int):
 
     assert received_enum.variant == variant_name
     assert received_enum.value == value
+
+
+@pytest.mark.asyncio
+async def test_from_address_on_v1_contract(gateway_account, v1_erc20_class_hash: int):
+    calldata = {
+        "name_": encode_shortstring("erc20_basic"),
+        "symbol_": encode_shortstring("ERC20B"),
+        "decimals_": 10,
+        "initial_supply": 12345,
+        "recipient": gateway_account.address,
+    }
+    erc20 = await deploy_v1_contract(
+        account=gateway_account,
+        contract_file_name="erc20",
+        class_hash=v1_erc20_class_hash,
+        calldata=calldata,
+    )
+
+    erc20_from_address = await Contract.from_address(
+        erc20.address, provider=gateway_account
+    )
+
+    assert erc20_from_address.address == erc20.address
+    assert erc20_from_address.account == erc20.account
+    assert erc20_from_address.functions.keys() == erc20.functions.keys()
+    assert erc20_from_address.data == erc20.data
