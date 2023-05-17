@@ -1,5 +1,5 @@
 #[contract]
-mod MinimalContract {
+mod TestContractDeclare {
     #[external]
     fn empty() {}
 }
