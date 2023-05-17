@@ -1,5 +1,5 @@
 #[contract]
 mod TestContractDeclare {
-    #[external]
-    fn empty() {}
+    #[view]
+    fn empty2() {}
 }
