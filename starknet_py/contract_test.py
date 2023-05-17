@@ -70,3 +70,21 @@ def test_contract_create_with_client(client):
     contract = Contract(address=0x1, abi=[], provider=client)
     assert contract.account is None
     assert contract.client == client
+
+
+def test_throws_on_wrong_abi(account):
+    with pytest.raises(
+        ValueError, match="Make sure valid ABI is used to create a Contract instance"
+    ):
+        Contract(
+            address=0x1,
+            abi=[
+                {
+                    "type": "function",
+                    "name": "empty",
+                    "inputs": "",
+                }
+            ],
+            provider=account,
+            cairo_version=1,
+        )
