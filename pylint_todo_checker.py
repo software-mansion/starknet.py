@@ -20,9 +20,9 @@ class TodoTokenChecker(checkers.BaseChecker):
     priority = -1
     msgs = {
         "E2137": (
-            "Wrong TODO format, should be: '# TODO: (#issueno)...', colon optional.",
+            "Invalid TODO format, should be: '# TODO (#issue number): ...'.",
             name,
-            "TODO comments should be in a format: '# TODO: (#issueno)...' (colon is optional).",
+            "TODO comments should be in a format: '# TODO (#issue number): ...'.",
         ),
     }
 
@@ -31,6 +31,6 @@ class TodoTokenChecker(checkers.BaseChecker):
             if token.type == tokenize.COMMENT:
                 quotes_stripped = token.string.strip('"').strip("'")
                 if "TODO" in quotes_stripped and not re.match(
-                    "#\s*TODO:?\s*\(#\d+\).*", quotes_stripped
+                    "#\s*TODO\s*\(#\d+\):.*", quotes_stripped
                 ):
                     self.add_message(self.name, line=token.start[0])
