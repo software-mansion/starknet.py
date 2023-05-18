@@ -108,7 +108,7 @@ class FullNodeClient(Client):
     ) -> BlockTransactionTraces:
         raise NotImplementedError()
 
-    # TODO (#809): change this function to match the new specification
+    # TODO (#809): add tests with multiple emitted keys
     async def get_events(
         self,
         address: Hash,

@@ -135,7 +135,7 @@ async def test_get_events_without_following_continuation_token(
         from_block_number=0,
         to_block_hash="latest",
         address=simple_storage_with_event_contract.address,
-        keys=[EVENT_ONE_PARSED_NAME],
+        keys=[[EVENT_ONE_PARSED_NAME]],
         follow_continuation_token=False,
         chunk_size=chunk_size,
     )
@@ -160,7 +160,7 @@ async def test_get_events_follow_continuation_token(
         from_block_number=0,
         to_block_hash="latest",
         address=simple_storage_with_event_contract.address,
-        keys=[EVENT_ONE_PARSED_NAME],
+        keys=[[EVENT_ONE_PARSED_NAME]],
         follow_continuation_token=True,
         chunk_size=1,
     )
@@ -183,7 +183,7 @@ async def test_get_events_nonexistent_event_name(
         from_block_number=0,
         to_block_hash="latest",
         address=simple_storage_with_event_contract.address,
-        keys=[_parse_event_name("nonexistent_event")],
+        keys=[[_parse_event_name("nonexistent_event")]],
         follow_continuation_token=False,
         chunk_size=3,
     )
@@ -213,21 +213,21 @@ async def test_get_events_with_two_events(
         from_block_number=0,
         to_block_hash="latest",
         address=simple_storage_with_event_contract.address,
-        keys=[EVENT_ONE_PARSED_NAME],
+        keys=[[EVENT_ONE_PARSED_NAME]],
         follow_continuation_token=True,
     )
     event_two_events_response = await full_node_client.get_events(
         from_block_number=0,
         to_block_hash="latest",
         address=simple_storage_with_event_contract.address,
-        keys=[EVENT_TWO_PARSED_NAME],
+        keys=[[EVENT_TWO_PARSED_NAME]],
         follow_continuation_token=True,
     )
     event_one_two_events_response = await full_node_client.get_events(
         from_block_number=0,
         to_block_hash="latest",
         address=simple_storage_with_event_contract.address,
-        keys=[EVENT_ONE_PARSED_NAME, EVENT_TWO_PARSED_NAME],
+        keys=[[EVENT_ONE_PARSED_NAME, EVENT_TWO_PARSED_NAME]],
         follow_continuation_token=True,
     )
 
@@ -258,7 +258,7 @@ async def test_get_events_start_from_continuation_token(
         from_block_number=0,
         to_block_hash="latest",
         address=simple_storage_with_event_contract.address,
-        keys=[EVENT_ONE_PARSED_NAME],
+        keys=[[EVENT_ONE_PARSED_NAME]],
         continuation_token=continuation_token,
         chunk_size=chunk_size,
     )
@@ -279,7 +279,7 @@ async def test_get_events_nonexistent_starting_block(
             from_block_number=10000,
             to_block_hash="latest",
             address=simple_storage_with_event_contract.address,
-            keys=[EVENT_ONE_PARSED_NAME],
+            keys=[[EVENT_ONE_PARSED_NAME]],
             follow_continuation_token=False,
             chunk_size=1,
         )
