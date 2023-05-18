@@ -7,6 +7,7 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 @pytest.mark.asyncio
 async def test_contract_declare(gateway_account):
+    # TODO (#1023): replace with account after RPC 0.3.0
     compiled_contract = read_contract(
         "test_contract_declare_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
     )
@@ -28,7 +29,7 @@ async def test_contract_declare(gateway_account):
 
 
 @pytest.mark.asyncio
-async def test_throws_when_cairo1_without_compiled_contract_casm(gateway_account):
+async def test_throws_when_cairo1_without_compiled_contract_casm(account):
     compiled_contract = read_contract(
         "erc20_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
     )
@@ -38,5 +39,5 @@ async def test_throws_when_cairo1_without_compiled_contract_casm(gateway_account
         match="Cairo 1.0 contract was provided without compiled_contract_casm argument.",
     ):
         await Contract.declare(
-            gateway_account, compiled_contract=compiled_contract, max_fee=MAX_FEE
+            account, compiled_contract=compiled_contract, max_fee=MAX_FEE
         )
