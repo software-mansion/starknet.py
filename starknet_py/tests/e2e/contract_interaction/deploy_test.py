@@ -12,7 +12,7 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 @pytest.mark.asyncio
 async def test_declare_deploy(
-    gateway_account,
+    account,
     v1_minimal_contract_class_hash: int,
 ):
     compiled_contract = read_contract(
@@ -20,8 +20,8 @@ async def test_declare_deploy(
     )
 
     declare_result = DeclareResult(
-        _account=gateway_account,
-        _client=gateway_account.client,
+        _account=account,
+        _client=account.client,
         _cairo_version=1,
         class_hash=v1_minimal_contract_class_hash,
         compiled_contract=compiled_contract,
@@ -37,16 +37,14 @@ async def test_declare_deploy(
 
 
 @pytest.mark.asyncio
-async def test_throws_on_wrong_abi(
-    gateway_account, v1_minimal_contract_class_hash: int
-):
+async def test_throws_on_wrong_abi(account, v1_minimal_contract_class_hash: int):
     compiled_contract = read_contract(
         "minimal_contract_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
     )
 
     declare_result = DeclareResult(
-        _account=gateway_account,
-        _client=gateway_account.client,
+        _account=account,
+        _client=account.client,
         _cairo_version=1,
         class_hash=v1_minimal_contract_class_hash,
         compiled_contract=compiled_contract,
@@ -69,7 +67,7 @@ async def test_throws_on_wrong_abi(
 
 
 @pytest.mark.asyncio
-async def test_deploy_contract_flow(gateway_account, v1_hello_starknet_class_hash: int):
+async def test_deploy_contract_flow(account, v1_hello_starknet_class_hash: int):
     compiled_contract = read_contract(
         "hello_starknet_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
     )
@@ -77,7 +75,7 @@ async def test_deploy_contract_flow(gateway_account, v1_hello_starknet_class_has
 
     deploy_result = await Contract.deploy_contract(
         class_hash=v1_hello_starknet_class_hash,
-        account=gateway_account,
+        account=account,
         abi=json.loads(abi),
         max_fee=MAX_FEE,
         cairo_version=1,

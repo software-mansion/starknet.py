@@ -7,16 +7,16 @@ from starknet_py.tests.e2e.fixtures.contracts import deploy_v1_contract
 
 
 @pytest.mark.asyncio
-async def test_general_v1_interaction(gateway_account, v1_erc20_class_hash: int):
+async def test_general_v1_interaction(account, v1_erc20_class_hash: int):
     calldata = {
         "name_": encode_shortstring("erc20_basic"),
         "symbol_": encode_shortstring("ERC20B"),
         "decimals_": 10,
         "initial_supply": 12345,
-        "recipient": gateway_account.address,
+        "recipient": account.address,
     }
     erc20 = await deploy_v1_contract(
-        account=gateway_account,
+        account=account,
         contract_file_name="erc20",
         class_hash=v1_erc20_class_hash,
         calldata=calldata,
@@ -27,7 +27,7 @@ async def test_general_v1_interaction(gateway_account, v1_erc20_class_hash: int)
     (decimals,) = await erc20.functions["get_decimals"].call()
     (supply,) = await erc20.functions["get_total_supply"].call()
     (account_balance,) = await erc20.functions["balance_of"].call(
-        account=gateway_account.address
+        account=account.address
     )
 
     transfer_amount = 10
@@ -38,7 +38,7 @@ async def test_general_v1_interaction(gateway_account, v1_erc20_class_hash: int)
     ).wait_for_acceptance()
 
     (after_transfer_balance,) = await erc20.functions["balance_of"].call(
-        account=gateway_account.address
+        account=account.address
     )
 
     assert decoded_name == "erc20_basic"
@@ -49,12 +49,12 @@ async def test_general_v1_interaction(gateway_account, v1_erc20_class_hash: int)
 
 
 @pytest.mark.asyncio
-async def test_serializing_struct(gateway_account, v1_token_bridge_class_hash: int):
+async def test_serializing_struct(account, v1_token_bridge_class_hash: int):
     bridge = await deploy_v1_contract(
-        account=gateway_account,
+        account=account,
         contract_file_name="token_bridge",
         class_hash=v1_token_bridge_class_hash,
-        calldata={"governor_address": gateway_account.address},
+        calldata={"governor_address": account.address},
     )
 
     await (
@@ -65,9 +65,9 @@ async def test_serializing_struct(gateway_account, v1_token_bridge_class_hash: i
 
 
 @pytest.mark.asyncio
-async def test_serializing_option(gateway_account, v1_test_option_class_hash: int):
+async def test_serializing_option(account, v1_test_option_class_hash: int):
     test_option = await deploy_v1_contract(
-        account=gateway_account,
+        account=account,
         contract_file_name="test_option",
         class_hash=v1_test_option_class_hash,
     )
@@ -100,9 +100,9 @@ async def test_serializing_option(gateway_account, v1_test_option_class_hash: in
 
 
 @pytest.mark.asyncio
-async def test_serializing_enum(gateway_account, v1_test_enum_class_hash: int):
+async def test_serializing_enum(account, v1_test_enum_class_hash: int):
     test_enum = await deploy_v1_contract(
-        account=gateway_account,
+        account=account,
         contract_file_name="test_enum",
         class_hash=v1_test_enum_class_hash,
     )
@@ -138,6 +138,7 @@ async def test_serializing_enum(gateway_account, v1_test_enum_class_hash: int):
 
 @pytest.mark.asyncio
 async def test_from_address_on_v1_contract(gateway_account, v1_erc20_class_hash: int):
+    # TODO (#1023): replace with account after RPC 0.3.0
     calldata = {
         "name_": encode_shortstring("erc20_basic"),
         "symbol_": encode_shortstring("ERC20B"),

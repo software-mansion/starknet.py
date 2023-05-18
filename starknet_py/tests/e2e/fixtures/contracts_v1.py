@@ -15,6 +15,7 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
 async def declare_v1_contract(
     gateway_account: BaseAccount, compiled_contract: str, compiled_contract_casm: str
 ) -> Tuple[int, int]:
+    # TODO (#1023): replace with account after RPC 0.3.0
     casm_class_hash = compute_casm_class_hash(create_casm_class(compiled_contract_casm))
 
     declare_tx = await gateway_account.sign_declare_v2_transaction(
@@ -27,7 +28,8 @@ async def declare_v1_contract(
 
 
 @pytest_asyncio.fixture(scope="package")
-async def v1_gateway_account_class_hash(gateway_account: BaseAccount) -> int:
+async def v1_account_class_hash(gateway_account: BaseAccount) -> int:
+    # TODO (#1023): replace with account after RPC 0.3.0
     class_hash, _ = await declare_v1_contract(
         gateway_account,
         read_contract(
@@ -42,6 +44,7 @@ async def v1_gateway_account_class_hash(gateway_account: BaseAccount) -> int:
 
 @pytest_asyncio.fixture(scope="package")
 async def v1_erc20_class_hash(gateway_account: BaseAccount) -> int:
+    # TODO (#1023): replace with account after RPC 0.3.0
     class_hash, _ = await declare_v1_contract(
         gateway_account,
         read_contract("erc20_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR),
@@ -52,6 +55,7 @@ async def v1_erc20_class_hash(gateway_account: BaseAccount) -> int:
 
 @pytest_asyncio.fixture(scope="package")
 async def declare_v2_hello_starknet(gateway_account: BaseAccount) -> DeclareV2:
+    # TODO (#1023): replace with account after RPC 0.3.0
     compiled_contract = read_contract(
         "hello_starknet_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
     )
@@ -70,6 +74,7 @@ async def declare_v2_hello_starknet(gateway_account: BaseAccount) -> DeclareV2:
 async def v1_hello_starknet_class_hash_tx_hash(
     gateway_account: BaseAccount, declare_v2_hello_starknet: DeclareV2
 ) -> Tuple[int, int]:
+    # TODO (#1023): replace with account after RPC 0.3.0
     resp = await gateway_account.client.declare(declare_v2_hello_starknet)
     await gateway_account.client.wait_for_tx(resp.transaction_hash)
 
@@ -94,6 +99,7 @@ def v1_hello_starknet_tx_hash(
 
 @pytest_asyncio.fixture(scope="package")
 async def v1_minimal_contract_class_hash(gateway_account: BaseAccount) -> int:
+    # TODO (#1023): replace with account after RPC 0.3.0
     class_hash, _ = await declare_v1_contract(
         gateway_account,
         read_contract(
@@ -108,6 +114,7 @@ async def v1_minimal_contract_class_hash(gateway_account: BaseAccount) -> int:
 
 @pytest_asyncio.fixture(scope="package")
 async def v1_test_contract_class_hash(gateway_account: BaseAccount) -> int:
+    # TODO (#1023): replace with account after RPC 0.3.0
     class_hash, _ = await declare_v1_contract(
         gateway_account,
         read_contract(
@@ -122,6 +129,7 @@ async def v1_test_contract_class_hash(gateway_account: BaseAccount) -> int:
 
 @pytest_asyncio.fixture(scope="package")
 async def v1_test_enum_class_hash(gateway_account: BaseAccount) -> int:
+    # TODO (#1023): replace with account after RPC 0.3.0
     class_hash, _ = await declare_v1_contract(
         gateway_account,
         read_contract("test_enum_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR),
@@ -132,6 +140,7 @@ async def v1_test_enum_class_hash(gateway_account: BaseAccount) -> int:
 
 @pytest_asyncio.fixture(scope="package")
 async def v1_test_option_class_hash(gateway_account: BaseAccount) -> int:
+    # TODO (#1023): replace with account after RPC 0.3.0
     class_hash, _ = await declare_v1_contract(
         gateway_account,
         read_contract("test_option_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR),
@@ -142,6 +151,7 @@ async def v1_test_option_class_hash(gateway_account: BaseAccount) -> int:
 
 @pytest_asyncio.fixture(scope="package")
 async def v1_token_bridge_class_hash(gateway_account: BaseAccount) -> int:
+    # TODO (#1023): replace with account after RPC 0.3.0
     class_hash, _ = await declare_v1_contract(
         gateway_account,
         read_contract(

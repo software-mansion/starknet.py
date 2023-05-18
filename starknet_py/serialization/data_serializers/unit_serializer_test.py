@@ -1,3 +1,5 @@
+import pytest
+
 from starknet_py.serialization.data_serializers.unit_serializer import UnitSerializer
 
 serializer = UnitSerializer()
@@ -14,3 +16,8 @@ def test_serialize_unit():
     serialized = serializer.serialize(None)
 
     assert serialized == []
+
+
+def test_throws_on_not_none():
+    with pytest.raises(ValueError, match="Can only serialize `None`."):
+        serializer.serialize("abc")  # type: ignore
