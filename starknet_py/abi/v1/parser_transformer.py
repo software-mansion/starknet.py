@@ -26,7 +26,7 @@ class ParserTransformer(Transformer):
     # pylint: disable=no-self-use
 
     def __default__(self, data: str, children, meta):
-        raise TypeError(f"Unable to parse tree node of type {data}")
+        raise TypeError(f"Unable to parse tree node of type {data}.")
 
     @v_args(inline=True)
     def start(self, value) -> Optional[CairoType]:
