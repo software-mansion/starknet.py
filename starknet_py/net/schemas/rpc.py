@@ -52,10 +52,6 @@ class FunctionCallSchema(Schema):
 
 
 class EventSchema(Schema):
-    block_hash = Felt(data_key="block_hash", required=True)
-    block_number = fields.Integer(data_key="block_number", required=True)
-    transaction_hash = Felt(data_key="transaction_hash", required=True)
-
     from_address = Felt(data_key="from_address", required=True)
     keys = fields.List(Felt(), data_key="keys", required=True)
     data = fields.List(Felt(), data_key="data", required=True)
@@ -67,7 +63,7 @@ class EventSchema(Schema):
 
 class EventsChunkSchema(Schema):
     events = fields.List(
-        fields.Nested(EventSchema()),
+        fields.Nested(EventSchema(unknown=EXCLUDE)),
         data_key="events",
         required=True,
     )

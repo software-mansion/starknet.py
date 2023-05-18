@@ -631,7 +631,7 @@ def _to_storage_key(key: int) -> str:
 
 def _to_rpc_felt(value: Hash) -> str:
     """
-    Convert the value to RPC felt matching a ``^0x0[a-fA-F0-9]{1,63}$`` pattern.\
+    Convert the value to RPC felt matching a ``^0x0[0-7]{1}[a-fA-F0-9]{0,62}$`` pattern.\
 
     :param value: The value to convert.
     :return: RPC felt representation of the value.
