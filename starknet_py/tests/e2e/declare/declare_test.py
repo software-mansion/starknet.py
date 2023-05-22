@@ -16,16 +16,15 @@ async def test_declare_tx(account, map_compiled_contract):
 
 
 @pytest.mark.asyncio
-async def test_declare_v2_tx(
-    gateway_account, sierra_minimal_compiled_contract_and_class_hash
-):
+async def test_declare_v2_tx(account, sierra_minimal_compiled_contract_and_class_hash):
     # TODO (#985): use account when RPC 0.3.0 is supported
-    account = gateway_account
+    # account = gateway_account
     (
         compiled_contract,
         compiled_class_hash,
     ) = sierra_minimal_compiled_contract_and_class_hash
 
+    print(compiled_contract)
     declare_tx = await account.sign_declare_v2_transaction(
         compiled_contract,
         compiled_class_hash=compiled_class_hash,

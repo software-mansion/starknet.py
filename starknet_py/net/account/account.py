@@ -290,6 +290,8 @@ class Account(BaseAccount):
         contract_class = create_sierra_compiled_contract(
             compiled_contract=compiled_contract
         )
+        print("_make_dcelare_v2")
+        print(contract_class.sierra_program)
         declare_tx = DeclareV2(
             contract_class=contract_class,
             compiled_class_hash=compiled_class_hash,

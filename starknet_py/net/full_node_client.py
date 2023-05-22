@@ -31,6 +31,8 @@ from starknet_py.net.models.transaction import (
     AccountTransaction,
     Declare,
     DeclareSchema,
+    DeclareV2,
+    DeclareV2Schema,
     DeployAccount,
     Invoke,
 )
@@ -344,7 +346,9 @@ class FullNodeClient(Client):
             DeployAccountTransactionResponseSchema().load(res, unknown=EXCLUDE),
         )
 
-    async def declare(self, transaction: Declare) -> DeclareTransactionResponse:
+    async def declare(
+        self, transaction: Union[Declare, DeclareV2]
+    ) -> DeclareTransactionResponse:
         params = _create_broadcasted_txn(transaction=transaction)
 
         res = await self._client.call(
@@ -565,16 +569,36 @@ def _create_broadcasted_txn(transaction: AccountTransaction) -> dict:
     }
 
 
-def _create_broadcasted_declare_properties(transaction: Declare) -> dict:
-    contract_class = cast(Dict, DeclareSchema().dump(obj=transaction))["contract_class"]
+def _create_broadcasted_declare_properties(
+    transaction: Union[Declare, DeclareV2]
+) -> dict:
+    contract_class = (
+        cast(Dict, DeclareSchema().dump(obj=transaction))["contract_class"]
+        if isinstance(transaction, Declare)
+        else cast(Dict, DeclareV2Schema().dump(obj=transaction))["contract_class"]
+    )
+    return _create_declare_properties(contract_class, transaction)
+
+
+def _create_declare_properties(
+    contract_class: dict, transaction: Union[Declare, DeclareV2]
+) -> dict:
     declare_properties = {
         "contract_class": {
-            "program": contract_class["program"],
             "entry_points_by_type": contract_class["entry_points_by_type"],
             "abi": contract_class["abi"],
+            "contract_class_version": contract_class["contract_class_version"],
         },
         "sender_address": _to_rpc_felt(transaction.sender_address),
     }
+    if isinstance(transaction, DeclareV2):
+        declare_properties["contract_class"]["sierra_program"] = [
+            contract_class["sierra_program"]
+        ]
+        declare_properties["compiled_class_hash"] = transaction.compiled_class_hash
+    else:
+        declare_properties["contract_class"]["program"] = contract_class["program"]
+
     return declare_properties
 
 

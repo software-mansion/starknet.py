@@ -37,6 +37,7 @@ from starknet_py.net.models.transaction import (
     DeployAccountSchema,
     Invoke,
     InvokeSchema,
+    compress_program,
 )
 from starknet_py.net.networks import Network, net_address_from_net
 from starknet_py.net.schemas.gateway import (
@@ -346,9 +347,15 @@ class GatewayClient(Client):
         tx: AccountTransaction,
         token: Optional[str] = None,
     ) -> dict:
+        payload = _get_payload(tx)
+        if isinstance(tx, DeclareV2):
+            payload = compress_program(
+                payload, program_name="sierra_program"
+            )  # pyright: ignore
+
         res = await self._gateway_client.post(
             method_name="add_transaction",
-            payload=_get_payload(tx),
+            payload=payload,
             params={"token": token} if token is not None else {},
         )
         return res
