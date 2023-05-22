@@ -602,7 +602,7 @@ def _to_storage_key(key: int) -> str:
 
 def _to_rpc_felt(value: Hash) -> str:
     """
-    Convert the value to RPC felt matching a ``^0x0[a-fA-F0-9]{1,63}$`` pattern.\
+    Convert the value to RPC felt matching a ``^0x(0|[a-fA-F1-9]{1}[a-fA-F0-9]{0,62})$`` pattern.
 
     :param value: The value to convert.
     :return: RPC felt representation of the value.
@@ -610,6 +610,6 @@ def _to_rpc_felt(value: Hash) -> str:
     if isinstance(value, str):
         value = int(value, 16)
 
-    if value == 0:
-        return "0x00"
-    return "0x0" + hex(value).lstrip("0x")
+    rpc_felt = hex(value)
+    assert re.match(r"^0x(0|[a-fA-F1-9]{1}[a-fA-F0-9]{0,62})$", rpc_felt)
+    return rpc_felt
