@@ -471,13 +471,13 @@ files = [
 
 [[package]]
 name = "cairo-lang"
-version = "0.11.0.2"
+version = "0.11.1.1"
 description = "Compiler and runner for the Cairo language"
 category = "dev"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "cairo-lang-0.11.0.2.zip", hash = "sha256:552d661c7dd556ba2d37aeb0efd9d3124167582ca622f4ccf38f6099ed534a63"},
+    {file = "cairo-lang-0.11.1.1.zip", hash = "sha256:f61228867d3f4af41ff960e0750199250d7a1c63cac52edca8b1b61a6d391823"},
 ]
 
 [package.dependencies]
@@ -3037,34 +3037,30 @@ test = ["pytest"]
 
 [[package]]
 name = "starknet-devnet"
-version = "0.5.1"
+version = "0.5.2"
 description = "A local testnet for Starknet"
 category = "dev"
 optional = false
 python-versions = ">=3.9,<3.10"
-files = []
-develop = false
+files = [
+    {file = "starknet_devnet-0.5.2-py3-none-any.whl", hash = "sha256:244cab5add2d3dd89d92b816c4325f21da58c31ce34041f5aaea6fa9ac571acb"},
+    {file = "starknet_devnet-0.5.2.tar.gz", hash = "sha256:644fc88a3caeae422e1ca318d214e7910a7b5a5c26c81232cee9c5982bf4b4df"},
+]
 
 [package.dependencies]
-cairo-lang = "0.11.0.2"
-cloudpickle = "~2.1.0"
-crypto-cpp-py = "~1.4.0"
-Flask = {version = "~2.0.3", extras = ["async"]}
-flask-cors = "~3.0.10"
-gunicorn = "~20.1.0"
-jsonschema = "~4.17.0"
-marshmallow = "~3.17.0"
-marshmallow-dataclass = "~8.4"
-poseidon-py = "~0.1.3"
-typing-extensions = "~4.3.0"
-web3 = "~6.0.0"
-Werkzeug = "~2.0.3"
-
-[package.source]
-type = "git"
-url = "https://github.com/0xSpaceShard/starknet-devnet.git"
-reference = "b4d926ddc2cf530efa9b7b75944841b2f13a3998"
-resolved_reference = "b4d926ddc2cf530efa9b7b75944841b2f13a3998"
+cairo-lang = "0.11.1.1"
+cloudpickle = ">=2.1.0,<2.2.0"
+crypto-cpp-py = ">=1.4.0,<1.5.0"
+Flask = {version = ">=2.0.3,<2.1.0", extras = ["async"]}
+flask-cors = ">=3.0.10,<3.1.0"
+gunicorn = ">=20.1.0,<20.2.0"
+jsonschema = ">=4.17.0,<4.18.0"
+marshmallow = ">=3.17.0,<3.18.0"
+marshmallow-dataclass = ">=8.4,<8.5"
+poseidon-py = ">=0.1.3,<0.2.0"
+typing-extensions = ">=4.3.0,<4.4.0"
+web3 = ">=6.0.0,<6.1.0"
+Werkzeug = ">=2.0.3,<2.1.0"
 
 [[package]]
 name = "sympy"
@@ -3504,4 +3500,4 @@ docs = ["enum-tools", "furo", "sphinx"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8, <3.12"
-content-hash = "8f4e310c4340873355a5bc59466da5ce497ad3dee6108297860a8e3dc3631f65"
+content-hash = "cdbcc870940d62c598838b69331fc38ac5db17f9c86d39248d675d4e24f39339"
