@@ -20,6 +20,7 @@ from starknet_py.net.client_models import (
     SentTransactionResponse,
     Tag,
 )
+from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import AddressRepresentation, StarknetChainId, parse_address
 from starknet_py.net.models.transaction import (
     AccountTransaction,
@@ -118,6 +119,7 @@ class Account(BaseAccount):
             raise ValueError(
                 "Arguments max_fee and auto_estimate are mutually exclusive."
             )
+        # TODO (#801): check if this method is ok with sending only one transaction, !a list of transactions in fullnode
 
         if auto_estimate:
             estimate_fee = await self._estimate_fee(transaction)
@@ -159,6 +161,7 @@ class Account(BaseAccount):
             nonce=nonce,
             sender_address=self.address,
         )
+        # TODO (#801): check if this method is ok with sending only one transaction, !a list of transactions in fullnode
 
         max_fee = await self._get_max_fee(transaction, max_fee, auto_estimate)
 
@@ -177,9 +180,12 @@ class Account(BaseAccount):
         :return: Estimated fee.
         """
         tx = await self.sign_for_fee_estimate(tx)
+        # TODO (#801): check if this method is ok with sending only one transaction, !a list of transactions in fullnode
 
         return await self._client.estimate_fee(
-            tx=tx,
+            tx=tx
+            if isinstance(self.client, GatewayClient)
+            else [tx],  # pyright: ignore
             block_hash=block_hash,
             block_number=block_number,
         )
@@ -229,6 +235,7 @@ class Account(BaseAccount):
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> Invoke:
+        # TODO (#801): check if this method is ok with sending only one transaction, !a list of transactions in fullnode
         execute_tx = await self._prepare_invoke(calls, max_fee, auto_estimate)
         signature = self.signer.sign_transaction(execute_tx)
         return _add_signature_to_transaction(execute_tx, signature)
@@ -290,8 +297,6 @@ class Account(BaseAccount):
         contract_class = create_sierra_compiled_contract(
             compiled_contract=compiled_contract
         )
-        print("_make_dcelare_v2")
-        print(contract_class.sierra_program)
         declare_tx = DeclareV2(
             contract_class=contract_class,
             compiled_class_hash=compiled_class_hash,

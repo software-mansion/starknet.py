@@ -313,6 +313,18 @@ class EstimatedFee:
 
 
 @dataclass
+class EstimatedFees:
+    """
+    Dataclass representing a sequence of estimated fees represented by `estimate_fee` method in FullNodeClient.
+    """
+
+    estimated_fees: List[EstimatedFee]
+    overall_fee: int
+    gas_price: int
+    gas_usage: int
+
+
+@dataclass
 class DeployedContract:
     """
     Dataclass representing basic data of the deployed contract.
@@ -358,9 +370,19 @@ class StateDiff:
     Dataclass representing state changes in the block.
     """
 
+    storage_diffs: List[StorageDiffItem]  #
+    deprecated_declared_classes: List[int]  #
+    declared_classes: List[DeclaredContractHash]
+    deployed_contracts: List[DeployedContract]
+    replaced_classes: List[ReplacedClass]  #
+    nonces: List[ContractsNonce]  #
+
+
+@dataclass
+class GatewayStateDiff:
+    storage_diffs: List[StorageDiffItem]
     deployed_contracts: List[DeployedContract]
     declared_contract_hashes: List[DeclaredContractHash]
-    storage_diffs: List[StorageDiffItem]
     nonces: List[ContractsNonce]
     deprecated_declared_contract_hashes: List[int] = field(default_factory=list)
     replaced_classes: List[ReplacedClass] = field(default_factory=list)

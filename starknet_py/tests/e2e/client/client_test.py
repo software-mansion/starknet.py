@@ -142,7 +142,9 @@ async def test_estimate_fee_invoke(account, contract_address):
         max_fee=MAX_FEE,
     )
     invoke_tx = await account.sign_for_fee_estimate(invoke_tx)
-    estimate_fee = await account.client.estimate_fee(tx=invoke_tx)
+    estimate_fee = await account.client.estimate_fee(
+        tx=invoke_tx if isinstance(account.client, GatewayClient) else [invoke_tx]
+    )
 
     assert isinstance(estimate_fee.overall_fee, int)
     assert estimate_fee.overall_fee > 0
@@ -154,7 +156,9 @@ async def test_estimate_fee_declare(account):
         compiled_contract=read_contract("map_compiled.json"), max_fee=MAX_FEE
     )
     declare_tx = await account.sign_for_fee_estimate(declare_tx)
-    estimate_fee = await account.client.estimate_fee(tx=declare_tx)
+    estimate_fee = await account.client.estimate_fee(
+        tx=declare_tx if isinstance(account.client, GatewayClient) else [declare_tx]
+    )
 
     assert isinstance(estimate_fee.overall_fee, int)
     assert estimate_fee.overall_fee > 0
@@ -162,7 +166,11 @@ async def test_estimate_fee_declare(account):
 
 @pytest.mark.asyncio
 async def test_estimate_fee_deploy_account(client, deploy_account_transaction):
-    estimate_fee = await client.estimate_fee(tx=deploy_account_transaction)
+    estimate_fee = await client.estimate_fee(
+        tx=deploy_account_transaction
+        if isinstance(client, GatewayClient)
+        else [deploy_account_transaction]
+    )
 
     assert isinstance(estimate_fee.overall_fee, int)
     assert estimate_fee.overall_fee > 0
@@ -476,7 +484,7 @@ async def test_state_update_declared_contract_hashes(
     state_update = await client.get_state_update(block_number=block_with_declare_number)
 
     if isinstance(client, FullNodeClient):
-        assert class_hash in state_update.state_diff.declared_contract_hashes
+        assert class_hash in state_update.state_diff.deprecated_declared_classes
     else:
         assert class_hash in state_update.state_diff.deprecated_declared_contract_hashes
 
@@ -518,10 +526,8 @@ async def test_state_update_deployed_contracts(
 
 @pytest.mark.asyncio
 async def test_get_class_by_hash_sierra_program(
-    gateway_client, hello_starknet_class_hash_tx_hash: Tuple[int, int]
+    client, hello_starknet_class_hash_tx_hash: Tuple[int, int]
 ):
-    # TODO (#985): Replace with `client` when RPC 0.3.0 is supported
-    client = gateway_client
     (class_hash, _) = hello_starknet_class_hash_tx_hash
 
     contract_class = await client.get_class_by_hash(class_hash=class_hash)
@@ -535,12 +541,11 @@ async def test_get_class_by_hash_sierra_program(
 
 @pytest.mark.asyncio
 async def test_get_declare_v2_transaction(
-    gateway_client,
+    client,
     hello_starknet_class_hash_tx_hash: Tuple[int, int],
     declare_v2_hello_starknet: DeclareV2,
 ):
-    # TODO (#985): Replace with `client` when RPC 0.3.0 is supported
-    client = gateway_client
+    # TODO (#newissue): something's wrong, gateway returns compiled_class_hash, full_node does not
     (class_hash, tx_hash) = hello_starknet_class_hash_tx_hash
 
     transaction = await client.get_transaction(tx_hash=tx_hash)
@@ -560,13 +565,14 @@ async def test_get_declare_v2_transaction(
 
 @pytest.mark.asyncio
 async def test_get_block_with_declare_v2(
-    gateway_client,
+    full_node_client,
     hello_starknet_class_hash_tx_hash: Tuple[int, int],
     declare_v2_hello_starknet: DeclareV2,
     block_with_declare_v2_number: int,
 ):
-    # TODO (#985): Replace with `client` when RPC 0.3.0 is supported
-    client = gateway_client
+    # TODO (#newissue): something's wrong, gateway returns compiled_class_hash, full_node does not
+    client = full_node_client
+    # client = gateway_client
     (class_hash, tx_hash) = hello_starknet_class_hash_tx_hash
 
     block = await client.get_block(block_number=block_with_declare_v2_number)
@@ -586,16 +592,15 @@ async def test_get_block_with_declare_v2(
     )
 
 
+# TODO (#801): works when run as a single test in pycharm, doesn't when run by `poe test_ci`
 @pytest.mark.asyncio
 async def test_get_new_state_update(
-    gateway_client,
+    client,
     hello_starknet_class_hash_tx_hash: Tuple[int, int],
     declare_v2_hello_starknet: DeclareV2,
     block_with_declare_v2_number: int,
     replaced_class: Tuple[int, int, int],
 ):
-    # TODO (#985): Replace with `client` when RPC 0.3.0 is supported
-    client = gateway_client
     (class_hash, _) = hello_starknet_class_hash_tx_hash
 
     state_update = await client.get_state_update(
@@ -608,7 +613,10 @@ async def test_get_new_state_update(
             class_hash=class_hash,
             compiled_class_hash=declare_v2_hello_starknet.compiled_class_hash,
         )
+        # TODO (#801): jesus christ change that
         in state_update.state_diff.declared_contract_hashes
+        if isinstance(client, GatewayClient)
+        else state_update.state_diff.declared_classes
     )
 
     (block_number, contract_address, class_hash) = replaced_class
@@ -624,7 +632,7 @@ async def test_get_new_state_update(
 async def test_get_compiled_class_by_class_hash(
     gateway_client, hello_starknet_class_hash_tx_hash: Tuple[int, int]
 ):
-    # TODO (#985): Replace with `client` when RPC 0.3.0 is supported
+    # TODO (#newissue): there's no function like `get_compiled_class_by_class_hash` in FullNodeClient
     client = gateway_client
     (class_hash, _) = hello_starknet_class_hash_tx_hash
 

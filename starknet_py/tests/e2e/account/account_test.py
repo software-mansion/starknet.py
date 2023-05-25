@@ -75,7 +75,9 @@ async def test_estimate_fee_for_declare_transaction(account, map_compiled_contra
         compiled_contract=map_compiled_contract, max_fee=MAX_FEE
     )
 
-    estimated_fee = await account.client.estimate_fee(tx=declare_tx)
+    estimated_fee = await account.client.estimate_fee(
+        tx=declare_tx if isinstance(account.client, GatewayClient) else [declare_tx]
+    )
 
     assert isinstance(estimated_fee.overall_fee, int)
     assert estimated_fee.overall_fee > 0
@@ -237,18 +239,17 @@ async def test_sign_declare_v2_transaction(
     assert signed_tx.max_fee == MAX_FEE
 
 
-# TODO (#984): full_node_account doesn't work here because declare_v2 isn't supported,
-#  change was introduced in RPC v0.3.0 and devnet hasn't been updated yet
+# TODO (#809): update devnet to a proper version instead of my fork
 @pytest.mark.asyncio
 async def test_sign_declare_v2_transaction_auto_estimate(
-    gateway_account, sierra_minimal_compiled_contract_and_class_hash
+    account, sierra_minimal_compiled_contract_and_class_hash
 ):
     (
         compiled_contract,
         compiled_class_hash,
     ) = sierra_minimal_compiled_contract_and_class_hash
 
-    signed_tx = await gateway_account.sign_declare_v2_transaction(
+    signed_tx = await account.sign_declare_v2_transaction(
         compiled_contract,
         compiled_class_hash=compiled_class_hash,
         auto_estimate=True,
@@ -482,7 +483,11 @@ async def test_sign_invoke_tx_for_fee_estimation(account, map_contract):
 
     estimate_fee_transaction = await account.sign_for_fee_estimate(transaction)
 
-    estimation = await account.client.estimate_fee(estimate_fee_transaction)
+    estimation = await account.client.estimate_fee(
+        estimate_fee_transaction
+        if isinstance(account.client, GatewayClient)
+        else [estimate_fee_transaction]
+    )
     assert estimation.overall_fee > 0
 
     # Verify that the transaction signed for fee estimation cannot be sent
@@ -502,7 +507,11 @@ async def test_sign_declare_tx_for_fee_estimation(account, map_compiled_contract
 
     estimate_fee_transaction = await account.sign_for_fee_estimate(transaction)
 
-    estimation = await account.client.estimate_fee(estimate_fee_transaction)
+    estimation = await account.client.estimate_fee(
+        estimate_fee_transaction
+        if isinstance(account.client, GatewayClient)
+        else [estimate_fee_transaction]
+    )
     assert estimation.overall_fee > 0
 
     # Verify that the transaction signed for fee estimation cannot be sent
@@ -536,7 +545,11 @@ async def test_sign_deploy_account_tx_for_fee_estimation(
 
     estimate_fee_transaction = await account.sign_for_fee_estimate(transaction)
 
-    estimation = await account.client.estimate_fee(transaction)
+    estimation = await account.client.estimate_fee(
+        estimate_fee_transaction  # pyright: ignore
+        if isinstance(account.client, GatewayClient)
+        else [estimate_fee_transaction]
+    )
     assert estimation.overall_fee > 0
 
     # Verify that the transaction signed for fee estimation cannot be sent

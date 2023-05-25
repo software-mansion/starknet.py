@@ -18,6 +18,7 @@ from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import Call, Hash, Tag
+from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import AddressRepresentation, Invoke, parse_address
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.proxy.contract_abi_resolver import (
@@ -334,7 +335,11 @@ class PreparedFunctionCall(Call):
         tx = await self._account.sign_invoke_transaction(calls=self, max_fee=0)
 
         return await self._client.estimate_fee(
-            tx=tx, block_hash=block_hash, block_number=block_number
+            tx=tx
+            if isinstance(self._account.client, GatewayClient)
+            else [tx],  # pyright: ignore
+            block_hash=block_hash,
+            block_number=block_number,
         )
 
 

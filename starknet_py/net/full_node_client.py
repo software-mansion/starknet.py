@@ -14,7 +14,7 @@ from starknet_py.net.client_models import (
     ContractClass,
     DeclareTransactionResponse,
     DeployAccountTransactionResponse,
-    EstimatedFee,
+    EstimatedFees,
     EventsChunk,
     Hash,
     PendingBlockStateUpdate,
@@ -42,7 +42,7 @@ from starknet_py.net.schemas.rpc import (
     ContractClassSchema,
     DeclareTransactionResponseSchema,
     DeployAccountTransactionResponseSchema,
-    EstimatedFeeSchema,
+    EstimatedFeesSchema,
     EventsChunkSchema,
     PendingBlockStateUpdateSchema,
     PendingTransactionsSchema,
@@ -279,7 +279,7 @@ class FullNodeClient(Client):
         tx: List[AccountTransaction],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> List[EstimatedFee]:
+    ) -> EstimatedFees:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -291,11 +291,22 @@ class FullNodeClient(Client):
                 **block_identifier,
             },
         )
-
-        return [
-            cast(EstimatedFee, EstimatedFeeSchema().load(i, unknown=EXCLUDE))
-            for i in res
-        ]
+        all_tx_estimated_fee, all_tx_gas_usage, all_tx_gas_price = 0, 0, 0
+        for fee in res:
+            all_tx_estimated_fee += int(fee["overall_fee"], 0)
+            all_tx_gas_usage += int(fee["gas_consumed"], 0)
+            all_tx_gas_price += int(fee["gas_price"], 0)
+        return cast(
+            EstimatedFees,
+            EstimatedFeesSchema().load(
+                {
+                    "estimated_fees": res,
+                    "overall_fee": all_tx_estimated_fee,
+                    "gas_price": all_tx_gas_price,
+                    "gas_usage": all_tx_gas_usage,
+                }
+            ),
+        )
 
     async def call_contract(
         self,
@@ -577,25 +588,23 @@ def _create_broadcasted_declare_properties(
         if isinstance(transaction, Declare)
         else cast(Dict, DeclareV2Schema().dump(obj=transaction))["contract_class"]
     )
-    return _create_declare_properties(contract_class, transaction)
-
-
-def _create_declare_properties(
-    contract_class: dict, transaction: Union[Declare, DeclareV2]
-) -> dict:
     declare_properties = {
         "contract_class": {
             "entry_points_by_type": contract_class["entry_points_by_type"],
             "abi": contract_class["abi"],
-            "contract_class_version": contract_class["contract_class_version"],
         },
         "sender_address": _to_rpc_felt(transaction.sender_address),
     }
     if isinstance(transaction, DeclareV2):
-        declare_properties["contract_class"]["sierra_program"] = [
-            contract_class["sierra_program"]
+        declare_properties["contract_class"]["sierra_program"] = contract_class[
+            "sierra_program"
         ]
-        declare_properties["compiled_class_hash"] = transaction.compiled_class_hash
+        declare_properties["contract_class"]["contract_class_version"] = contract_class[
+            "contract_class_version"
+        ]
+        declare_properties["compiled_class_hash"] = _to_rpc_felt(
+            transaction.compiled_class_hash
+        )
     else:
         declare_properties["contract_class"]["program"] = contract_class["program"]
 

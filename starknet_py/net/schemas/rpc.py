@@ -16,6 +16,7 @@ from starknet_py.net.client_models import (
     EntryPoint,
     EntryPointsByType,
     EstimatedFee,
+    EstimatedFees,
     Event,
     EventsChunk,
     InvokeTransaction,
@@ -23,7 +24,11 @@ from starknet_py.net.client_models import (
     L1toL2Message,
     L2toL1Message,
     PendingBlockStateUpdate,
+    ReplacedClass,
     SentTransactionResponse,
+    SierraContractClass,
+    SierraEntryPoint,
+    SierraEntryPointsByType,
     StarknetBlock,
     StateDiff,
     StorageDiffItem,
@@ -124,6 +129,19 @@ class EstimatedFeeSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs):
         return EstimatedFee(**data)
+
+
+class EstimatedFeesSchema(Schema):
+    estimated_fees = fields.List(
+        fields.Nested(EstimatedFeeSchema()), data_key="estimated_fees", required=True
+    )
+    overall_fee = fields.Integer()
+    gas_price = fields.Integer()
+    gas_usage = fields.Integer()
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return EstimatedFees(**data)
 
 
 class TransactionSchema(Schema):
@@ -270,6 +288,15 @@ class ContractsNonceSchema(Schema):
         return ContractsNonce(**data)
 
 
+class ReplacedClassSchema(Schema):
+    contract_address = Felt(data_key="contract_address", required=True)
+    class_hash = Felt(data_key="class_hash", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> ReplacedClass:
+        return ReplacedClass(**data)
+
+
 class StateDiffSchema(Schema):
     storage_diffs = fields.List(
         fields.Nested(StorageDiffSchema()),
@@ -291,9 +318,9 @@ class StateDiffSchema(Schema):
         data_key="deployed_contracts",
         required=True,
     )
-    declared_contract_hashes = fields.List(
-        Felt(),
-        data_key="declared_contract_hashes",
+    replaced_classes = fields.List(
+        fields.Nested(ReplacedClassSchema()),
+        data_key="replaced_classes",
         required=True,
     )
     nonces = fields.List(
@@ -334,8 +361,8 @@ class SierraEntryPointSchema(Schema):
     function_idx = fields.Integer(data_key="function_idx", required=True)
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> EntryPoint:
-        return EntryPoint(**data)
+    def make_dataclass(self, data, **kwargs) -> SierraEntryPoint:
+        return SierraEntryPoint(**data)
 
 
 class EntryPointSchema(Schema):
@@ -359,8 +386,8 @@ class SierraEntryPointsByTypeSchema(Schema):
     )
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> EntryPointsByType:
-        return EntryPointsByType(**data)
+    def make_dataclass(self, data, **kwargs) -> SierraEntryPointsByType:
+        return SierraEntryPointsByType(**data)
 
 
 class EntryPointsByTypeSchema(Schema):
@@ -380,20 +407,18 @@ class EntryPointsByTypeSchema(Schema):
 
 
 class SierraContractClassSchema(Schema):
-    sierra_program = fields.List(Felt(), data_key="program", required=True)
+    sierra_program = fields.List(Felt(), data_key="sierra_program", required=True)
     contract_class_version = fields.String(
         data_key="contract_class_version", required=True
     )
     entry_points_by_type = fields.Nested(
         SierraEntryPointsByTypeSchema(), data_key="entry_points_by_type", required=True
     )
-    abi = fields.List(
-        fields.Nested(ContractAbiEntrySchema(unknown=EXCLUDE)), data_key="abi"
-    )
+    abi = fields.String(data_key="abi", required=False)
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> ContractClass:
-        return ContractClass(**data)
+    def make_dataclass(self, data, **kwargs) -> SierraContractClass:
+        return SierraContractClass(**data)
 
 
 class ContractClassSchema(Schema):

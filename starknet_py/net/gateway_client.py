@@ -348,10 +348,6 @@ class GatewayClient(Client):
         token: Optional[str] = None,
     ) -> dict:
         payload = _get_payload(tx)
-        if isinstance(tx, DeclareV2):
-            payload = compress_program(
-                payload, program_name="sierra_program"
-            )  # pyright: ignore
 
         res = await self._gateway_client.post(
             method_name="add_transaction",
@@ -461,8 +457,14 @@ def _get_payload(
     txs: Union[AccountTransaction, List[AccountTransaction]]
 ) -> Union[List, Dict]:
     if isinstance(txs, AccountTransaction):
-        return _tx_to_schema(txs).dump(obj=txs)
+        payload = _tx_to_schema(txs).dump(obj=txs)
+        if isinstance(txs, DeclareV2):
+            payload = compress_program(
+                payload, program_name="sierra_program"  # pyright: ignore
+            )
+        return payload
 
+    # TODO (#801): add compressing the payload here (as in line 461) somehow, too
     return [_tx_to_schema(tx).dump(obj=tx) for tx in txs]
 
 
