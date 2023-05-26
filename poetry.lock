@@ -1296,7 +1296,7 @@ files = [
 
 [[package]]
 name = "furo"
-version = "2022.12.7"
+version = "2023.5.20"
 description = "A clean customisable Sphinx documentation theme."
 category = "main"
 optional = true
@@ -3503,4 +3503,4 @@ docs = ["sphinx", "enum-tools", "furo"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8, <3.12"
-content-hash = "a36465ee6100d3636b0a09b442fb085aff319f5810d163e5711a89a7fd911b26"
+content-hash = "e6d92dc36d7b906322b0615a2350bcd041063d66d13b1a5c31c4955c564dfaf2"
