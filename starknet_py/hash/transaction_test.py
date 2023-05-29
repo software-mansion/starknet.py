@@ -58,12 +58,12 @@ def test_compute_deploy_account_transaction_hash(data, calculated_hash):
         (
             "map_compiled.json",
             [3, 4, 5, 1, 7],
-            0x6178AE10CF37D36CA25B63342BD8A96ACE651BA690A10160F4826B9965D9133,
+            0x39AEBD894945068E798D1D75A8B993964D09794E88A3A053A09A93F8233F0FE,
         ),
         (
             "balance_compiled.json",
             [23, 24, 25, 26, 27],
-            0x4F4666A11FE9479F0126B7FDC50BD37FA7AF65BE1B54D5151F985D1F96BF2E0,
+            0x2A19559091B30D8198C2304B968993749287BD94BF8A91E65A96AC1596C2BF7,
         ),
     ),
 )
@@ -80,9 +80,9 @@ def test_compute_declare_transaction_hash(contract_json, data, expected_declare_
 @pytest.mark.parametrize(
     "sierra_contract_class_source, expected_declare_v2_hash",
     [
-        ("account_compiled", 0x23ADCD880276B0F56ADD013F22B2DE47F128A42496F6244BC7A276C93B62215),
-        ("erc20_compiled", 0x16D944106C3FF0A7999D267C17C8227483A5EA750CCFA6E2956AE64FB1E1666),
-        ("minimal_contract_compiled", 0x5B85A51C7A7190B7AFD755B03AE32AE30D597BC943DBA4453F1E53AE3F65D87),
+        ("account_compiled", 0x4494bd5d4543c65a0b6db46c7fdefffa3e3c61742d7a15fd6dcdd3fd7b34811),
+        ("erc20_compiled", 0x6c99886aa014b4257c55f816845fea334c550287db31be8a0cdd91c67e42575),
+        ("minimal_contract_compiled", 0x2f4ad86acad9b0223f95437a1cb88193a293be5a46289159457ef01b51aed24),
     ],
 )
 # fmt: on
