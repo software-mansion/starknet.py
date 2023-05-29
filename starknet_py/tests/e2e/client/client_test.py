@@ -565,14 +565,12 @@ async def test_get_declare_v2_transaction(
 
 @pytest.mark.asyncio
 async def test_get_block_with_declare_v2(
-    full_node_client,
+    client,
     hello_starknet_class_hash_tx_hash: Tuple[int, int],
     declare_v2_hello_starknet: DeclareV2,
     block_with_declare_v2_number: int,
 ):
     # TODO (#newissue): something's wrong, gateway returns compiled_class_hash, full_node does not
-    client = full_node_client
-    # client = gateway_client
     (class_hash, tx_hash) = hello_starknet_class_hash_tx_hash
 
     block = await client.get_block(block_number=block_with_declare_v2_number)

@@ -3061,9 +3061,9 @@ Werkzeug = "~2.0.3"
 
 [package.source]
 type = "git"
-url = "https://github.com/tomek0123456789/starknet-devnet"
-reference = "fix/declare-estimate-fee-fix"
-resolved_reference = "5e97abd05c01e0fe0cd6b2f2734c079d68ece6fd"
+url = "https://github.com/0xSpaceShard/starknet-devnet"
+reference = "97f01e5"
+resolved_reference = "97f01e55e41374f24644ba9352db35f53090bd43"
 
 [[package]]
 name = "sympy"
@@ -3503,4 +3503,4 @@ docs = ["sphinx", "enum-tools", "furo"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8, <3.12"
-content-hash = "e6d92dc36d7b906322b0615a2350bcd041063d66d13b1a5c31c4955c564dfaf2"
+content-hash = "67be2007ded4c27b1ebd0cc314e783c3ee748d5670f48be8427880ee77dc9896"
