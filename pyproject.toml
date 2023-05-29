@@ -25,7 +25,7 @@ lark = "^1.1.5"
 aiohttp = "^3.8.4"
 sphinx = { version = ">=4.3.1,<7.0.0", optional = true }
 enum-tools = { extras = ["sphinx"], version = "0.9.0.post1", optional = true }
-furo = { version = "^2023.5.20", optional = true }
+furo = { version = "^2022.12.7", optional = true }
 pycryptodome = "^3.17"
 crypto-cpp-py = "^1.4.0"
 
@@ -49,8 +49,8 @@ pytest-rerunfailures = "^11.1"
 
 
 [tool.poetry.group.py39-dev.dependencies]
-cairo-lang = { version = "^0.11.0.2", python= ">=3.9, <3.10" }
-starknet-devnet = {git = "https://github.com/tomek0123456789/starknet-devnet", rev = "fix/declare-estimate-fee-fix", python = ">=3.9,<3.10"}
+cairo-lang = { version = "^0.11.1.1", python= ">=3.9, <3.10" }
+starknet-devnet = { version = "^0.5.2", python= ">=3.9, <3.10" }
 
 [tool.poe.tasks]
 test.shell = "pytest -n auto -v --reruns 10 --only-rerun aiohttp.client_exceptions.ClientConnectorError --cov=starknet_py starknet_py"
