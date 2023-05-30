@@ -1,5 +1,6 @@
 # pylint: disable=too-many-arguments
 import asyncio
+from pprint import pprint
 from typing import Tuple
 from unittest.mock import AsyncMock, patch
 
@@ -589,6 +590,7 @@ async def test_get_block_with_declare_v2(
 
 
 # TODO (#801): works when run as a single test in pycharm, doesn't when run by `poe test_ci`
+# albo ten test jest zjebany, albo ja jestem, skoro pending block_id zwraca jakiś blok
 @pytest.mark.asyncio
 async def test_get_new_state_update(
     client,
@@ -597,12 +599,13 @@ async def test_get_new_state_update(
     block_with_declare_v2_number: int,
     replaced_class: Tuple[int, int, int],
 ):
+    # client = full_node_client
     (class_hash, _) = hello_starknet_class_hash_tx_hash
 
     state_update = await client.get_state_update(
         block_number=block_with_declare_v2_number
     )
-
+    pprint(state_update)
     assert state_update.state_diff.replaced_classes == []
     assert (
         DeclaredContractHash(
@@ -617,6 +620,7 @@ async def test_get_new_state_update(
 
     (block_number, contract_address, class_hash) = replaced_class
     state_update = await client.get_state_update(block_number=block_number)
+    pprint(state_update)
 
     assert (
         ReplacedClass(contract_address=contract_address, class_hash=class_hash)
