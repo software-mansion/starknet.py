@@ -168,6 +168,7 @@ jobs:
       # ========================= TESTS ========================= #
 
       - name: Check circular imports
+        if: matrix.python-version == "3.9"
         run: |
           poetry run poe circular_imports_check
 
