@@ -5,7 +5,6 @@ on:
     branches:
       - master
       - development
-  pull_request:
   workflow_dispatch:
 
 jobs:
@@ -265,7 +264,8 @@ jobs:
       - name: Setup WSL
         uses: Vampire/setup-wsl@v2
 
-      - shell: wsl-bash {0}
+      - name: Setup WSL devnet
+        shell: wsl-bash {0}
         run: |
           sudo apt-get -y update
           sudo apt install -y wget software-properties-common
