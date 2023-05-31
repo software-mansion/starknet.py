@@ -1,28 +1,12 @@
 import os
-import re
 import socket
 import subprocess
 import time
 from contextlib import closing
 from pathlib import Path
-from typing import Generator, List, Optional
+from typing import Generator, List
 
 import pytest
-
-from starknet_py.constants import ROOT_PATH
-
-
-def extract_devnet_version() -> Optional[str]:
-    """
-    Returns either the version of starknet-devnet from pyproject.toml or None.
-    """
-    pattern = (
-        r"""starknet-devnet\s*=\s*{[^}]*?\bversion\s*=\s*["']\D*(\d+(?:\.\d+)+)["']"""
-    )
-
-    with open(ROOT_PATH / "../pyproject.toml", encoding="utf-8") as pyproject_toml:
-        match = re.search(pattern, str(pyproject_toml))
-        return None if match is None else match[0]
 
 
 def get_available_port() -> int:
@@ -50,10 +34,9 @@ def get_compiler_manifest() -> List[str]:
 
 def start_devnet():
     devnet_port = get_available_port()
-    devnet_version = extract_devnet_version() or "latest"
 
     if os.name == "nt":
-        start_devnet_command = start_devnet_command_windows(devnet_port, devnet_version)
+        start_devnet_command = start_devnet_command_windows(devnet_port)
     else:
         start_devnet_command = start_devnet_command_unix(devnet_port)
 
@@ -80,7 +63,7 @@ def start_devnet_command_unix(devnet_port: int) -> List[str]:
     ]
 
 
-def start_devnet_command_windows(devnet_port: int, devnet_version: str) -> List[str]:
+def start_devnet_command_windows(devnet_port: int) -> List[str]:
     return [
         "wsl",
         "python3",
