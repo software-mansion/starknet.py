@@ -1,6 +1,6 @@
 # pylint: disable=too-many-arguments
 import asyncio
-from pprint import pprint
+import dataclasses
 from typing import Tuple
 from unittest.mock import AsyncMock, patch
 
@@ -11,11 +11,11 @@ from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.storage import get_storage_var_address
 from starknet_py.net.client_models import (
     Call,
-    CasmClass,
-    CasmClassEntryPointsByType,
     DeclaredContractHash,
     DeclareTransaction,
     DeployAccountTransaction,
+    EstimatedFee,
+    EstimatedFees,
     GatewayBlock,
     InvokeTransaction,
     L1HandlerTransaction,
@@ -175,6 +175,39 @@ async def test_estimate_fee_deploy_account(client, deploy_account_transaction):
 
     assert isinstance(estimate_fee.overall_fee, int)
     assert estimate_fee.overall_fee > 0
+
+
+# TODO ask if EStimatedFees class is even valid, if not, then many tests are to be refactored
+@pytest.mark.asyncio
+async def test_estimate_fee_for_multiple_transactions(
+    full_node_client, deploy_account_transaction, contract_address, account
+):
+    invoke_tx = await account.sign_invoke_transaction(
+        calls=Call(
+            to_addr=contract_address,
+            selector=get_selector_from_name("increase_balance"),
+            calldata=[123],
+        ),
+        max_fee=MAX_FEE,
+    )
+    invoke_tx = await account.sign_for_fee_estimate(invoke_tx)
+
+    declare_tx = await account.sign_declare_transaction(
+        compiled_contract=read_contract("map_compiled.json"), max_fee=MAX_FEE
+    )
+    declare_tx = dataclasses.replace(declare_tx, nonce=invoke_tx.nonce + 1)
+    declare_tx = await account.sign_for_fee_estimate(declare_tx)
+
+    transactions = [invoke_tx, declare_tx, deploy_account_transaction]
+
+    estimated_fees = await full_node_client.estimate_fee(
+        tx=transactions, block_number="latest"
+    )
+
+    assert isinstance(estimated_fees, EstimatedFees)
+    assert estimated_fees.overall_fee > 0
+    for estimation in estimated_fees.estimated_fees:
+        assert isinstance(estimation, EstimatedFee)
 
 
 @pytest.mark.asyncio
@@ -589,8 +622,6 @@ async def test_get_block_with_declare_v2(
     )
 
 
-# TODO (#801): works when run as a single test in pycharm, doesn't when run by `poe test_ci`
-# albo ten test jest zjebany, albo ja jestem, skoro pending block_id zwraca jakiś blok
 @pytest.mark.asyncio
 async def test_get_new_state_update(
     client,
@@ -599,7 +630,6 @@ async def test_get_new_state_update(
     block_with_declare_v2_number: int,
     replaced_class: Tuple[int, int, int],
 ):
-    # client = full_node_client
     (class_hash, _) = hello_starknet_class_hash_tx_hash
 
     state_update = await client.get_state_update(
@@ -612,7 +642,6 @@ async def test_get_new_state_update(
             class_hash=class_hash,
             compiled_class_hash=declare_v2_hello_starknet.compiled_class_hash,
         )
-        # TODO (#801): jesus christ change that
         in state_update.state_diff.declared_contract_hashes
         if isinstance(client, GatewayClient)
         else state_update.state_diff.declared_classes
@@ -626,24 +655,3 @@ async def test_get_new_state_update(
         ReplacedClass(contract_address=contract_address, class_hash=class_hash)
         in state_update.state_diff.replaced_classes
     )
-
-
-@pytest.mark.asyncio
-async def test_get_compiled_class_by_class_hash(
-    gateway_client, hello_starknet_class_hash_tx_hash: Tuple[int, int]
-):
-    # TODO (#newissue): there's no function like `get_compiled_class_by_class_hash` in FullNodeClient
-    client = gateway_client
-    (class_hash, _) = hello_starknet_class_hash_tx_hash
-
-    compiled_class = await client.get_compiled_class_by_class_hash(
-        class_hash=class_hash
-    )
-
-    assert isinstance(compiled_class, CasmClass)
-    assert isinstance(compiled_class.prime, int)
-    assert isinstance(compiled_class.bytecode, list)
-    assert isinstance(compiled_class.hints, list)
-    assert isinstance(compiled_class.pythonic_hints, list)
-    assert isinstance(compiled_class.compiler_version, str)
-    assert isinstance(compiled_class.entry_points_by_type, CasmClassEntryPointsByType)

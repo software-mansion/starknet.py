@@ -1,4 +1,5 @@
 import dataclasses
+from typing import Tuple
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -8,6 +9,8 @@ from starknet_py.hash.storage import get_storage_var_address
 from starknet_py.net.client_errors import ContractNotFoundError
 from starknet_py.net.client_models import (
     Call,
+    CasmClass,
+    CasmClassEntryPointsByType,
     DeployTransaction,
     L1HandlerTransaction,
     TransactionStatus,
@@ -72,6 +75,25 @@ async def test_estimate_fee_bulk(
     for estimated_fee in estimated_fees:
         assert isinstance(estimated_fee.overall_fee, int)
         assert estimated_fee.overall_fee > 0
+
+
+@pytest.mark.asyncio
+async def test_get_compiled_class_by_class_hash(
+    gateway_client, hello_starknet_class_hash_tx_hash: Tuple[int, int]
+):
+    (class_hash, _) = hello_starknet_class_hash_tx_hash
+
+    compiled_class = await gateway_client.get_compiled_class_by_class_hash(
+        class_hash=class_hash
+    )
+
+    assert isinstance(compiled_class, CasmClass)
+    assert isinstance(compiled_class.prime, int)
+    assert isinstance(compiled_class.bytecode, list)
+    assert isinstance(compiled_class.hints, list)
+    assert isinstance(compiled_class.pythonic_hints, list)
+    assert isinstance(compiled_class.compiler_version, str)
+    assert isinstance(compiled_class.entry_points_by_type, CasmClassEntryPointsByType)
 
 
 @pytest.mark.asyncio

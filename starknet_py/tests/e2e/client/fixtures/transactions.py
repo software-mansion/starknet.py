@@ -111,7 +111,7 @@ async def block_with_declare_v2_number(
     return declare_v2_receipt.block_number
 
 
-@pytest_asyncio.fixture(scope="package")
+@pytest_asyncio.fixture(scope="function")
 async def replaced_class(account: Account, map_class_hash: int) -> Tuple[int, int, int]:
     """
     Returns block_number, contract_address and class_hash of transaction replacing implementation.
