@@ -57,11 +57,12 @@ async def test_estimated_fee_greater_than_zero(erc20_contract, account):
         address=erc20_contract.address, abi=erc20_contract.data.abi, provider=account
     )
 
-    estimated_fee = (
+    estimated_fee_list = (
         await erc20_contract.functions["balanceOf"]
         .prepare("1234", max_fee=0)
         .estimate_fee(block_hash="latest")
     )
+    estimated_fee = estimated_fee_list[0]
 
     assert estimated_fee.overall_fee > 0
     assert (
@@ -75,9 +76,8 @@ async def test_estimate_fee_for_declare_transaction(account, map_compiled_contra
         compiled_contract=map_compiled_contract, max_fee=MAX_FEE
     )
 
-    estimated_fee = await account.client.estimate_fee(
-        tx=declare_tx if isinstance(account.client, GatewayClient) else [declare_tx]
-    )
+    estimated_fee_list = await account.client.estimate_fee(tx=[declare_tx])
+    estimated_fee = estimated_fee_list[0]
 
     assert isinstance(estimated_fee.overall_fee, int)
     assert estimated_fee.overall_fee > 0
@@ -239,7 +239,6 @@ async def test_sign_declare_v2_transaction(
     assert signed_tx.max_fee == MAX_FEE
 
 
-# TODO (#809): update devnet to a proper version instead of my fork
 @pytest.mark.asyncio
 async def test_sign_declare_v2_transaction_auto_estimate(
     account, sierra_minimal_compiled_contract_and_class_hash
@@ -483,11 +482,8 @@ async def test_sign_invoke_tx_for_fee_estimation(account, map_contract):
 
     estimate_fee_transaction = await account.sign_for_fee_estimate(transaction)
 
-    estimation = await account.client.estimate_fee(
-        estimate_fee_transaction
-        if isinstance(account.client, GatewayClient)
-        else [estimate_fee_transaction]
-    )
+    estimation_list = await account.client.estimate_fee([estimate_fee_transaction])
+    estimation = estimation_list[0]
     assert estimation.overall_fee > 0
 
     # Verify that the transaction signed for fee estimation cannot be sent
@@ -507,11 +503,8 @@ async def test_sign_declare_tx_for_fee_estimation(account, map_compiled_contract
 
     estimate_fee_transaction = await account.sign_for_fee_estimate(transaction)
 
-    estimation = await account.client.estimate_fee(
-        estimate_fee_transaction
-        if isinstance(account.client, GatewayClient)
-        else [estimate_fee_transaction]
-    )
+    estimation_list = await account.client.estimate_fee([estimate_fee_transaction])
+    estimation = estimation_list[0]
     assert estimation.overall_fee > 0
 
     # Verify that the transaction signed for fee estimation cannot be sent
@@ -545,11 +538,8 @@ async def test_sign_deploy_account_tx_for_fee_estimation(
 
     estimate_fee_transaction = await account.sign_for_fee_estimate(transaction)
 
-    estimation = await account.client.estimate_fee(
-        estimate_fee_transaction  # pyright: ignore
-        if isinstance(account.client, GatewayClient)
-        else [estimate_fee_transaction]
-    )
+    estimation_list = await account.client.estimate_fee([estimate_fee_transaction])
+    estimation = estimation_list[0]
     assert estimation.overall_fee > 0
 
     # Verify that the transaction signed for fee estimation cannot be sent

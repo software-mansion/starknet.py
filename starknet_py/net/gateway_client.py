@@ -206,10 +206,15 @@ class GatewayClient(Client):
 
     async def estimate_fee(
         self,
-        tx: AccountTransaction,
+        tx: Union[AccountTransaction, List[AccountTransaction]],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> EstimatedFee:
+    ) -> Union[EstimatedFee, List[EstimatedFee]]:
+        if isinstance(tx, List):
+            return await self.estimate_fee_bulk(
+                transactions=tx, block_hash=block_hash, block_number=block_number
+            )
+
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -464,8 +469,14 @@ def _get_payload(
             )
         return payload
 
-    # TODO (#801): add compressing the payload here (as in line 461) somehow, too
-    return [_tx_to_schema(tx).dump(obj=tx) for tx in txs]
+    payload_list = []
+    for tx in txs:
+        dumped_tx = _tx_to_schema(tx).dump(obj=tx)
+        if isinstance(tx, DeclareV2):
+            dumped_tx = compress_program(dumped_tx, program_name="sierra_program")
+        payload_list.append(dumped_tx)
+
+    return payload_list
 
 
 def _tx_to_schema(tx: AccountTransaction):

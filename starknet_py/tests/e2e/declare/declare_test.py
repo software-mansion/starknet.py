@@ -16,22 +16,33 @@ async def test_declare_tx(account, map_compiled_contract):
 
 
 @pytest.mark.asyncio
-async def test_declare_v2_tx(account, sierra_minimal_compiled_contract_and_class_hash):
+@pytest.mark.parametrize(
+    "acc, contract_and_class_hash",
+    [
+        ("gateway_account", "sierra_minimal_compiled_contract_and_class_hash"),
+        (
+            "full_node_account",
+            "another_sierra_minimal_compiled_contract_and_class_hash",
+        ),
+    ],
+)
+# why u not work ples work
+async def test_declare_v2_tx(acc, contract_and_class_hash, request):
     # TODO (#985): use account when RPC 0.3.0 is supported - i think now problem is redeclaring
+    acc = request.getfixturevalue(acc)
+    contract_and_class_hash = request.getfixturevalue(contract_and_class_hash)
     (
         compiled_contract,
         compiled_class_hash,
-    ) = sierra_minimal_compiled_contract_and_class_hash
+    ) = contract_and_class_hash
 
-    declare_tx = await account.sign_declare_v2_transaction(
+    declare_tx = await acc.sign_declare_v2_transaction(
         compiled_contract,
         compiled_class_hash=compiled_class_hash,
         max_fee=MAX_FEE,
     )
     assert declare_tx.version == 2
 
-    result = await account.client.declare(declare_tx)
+    result = await acc.client.declare(declare_tx)
 
-    await account.client.wait_for_tx(
-        tx_hash=result.transaction_hash, wait_for_accept=True
-    )
+    await acc.client.wait_for_tx(tx_hash=result.transaction_hash, wait_for_accept=True)

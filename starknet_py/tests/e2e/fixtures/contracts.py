@@ -51,6 +51,23 @@ def sierra_minimal_compiled_contract_and_class_hash() -> Tuple[str, int]:
 
 
 @pytest.fixture(scope="package")
+def another_sierra_minimal_compiled_contract_and_class_hash() -> Tuple[str, int]:
+    """
+    Returns minimal contract compiled to sierra and its compiled class hash.
+    """
+    compiled_contract = read_contract(
+        "another_minimal_contract_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
+    )
+    compiled_contract_casm = read_contract(
+        "another_minimal_contract_compiled.casm", directory=CONTRACTS_COMPILED_V1_DIR
+    )
+    return (
+        compiled_contract,
+        compute_casm_class_hash(create_casm_class(compiled_contract_casm)),
+    )
+
+
+@pytest.fixture(scope="package")
 def simple_storage_with_event_compiled_contract() -> str:
     """
     Returns compiled simple storage contract that emits an event.

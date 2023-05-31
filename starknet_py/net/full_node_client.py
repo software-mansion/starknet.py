@@ -14,7 +14,7 @@ from starknet_py.net.client_models import (
     ContractClass,
     DeclareTransactionResponse,
     DeployAccountTransactionResponse,
-    EstimatedFees,
+    EstimatedFee,
     EventsChunk,
     Hash,
     PendingBlockStateUpdate,
@@ -42,7 +42,7 @@ from starknet_py.net.schemas.rpc import (
     ContractClassSchema,
     DeclareTransactionResponseSchema,
     DeployAccountTransactionResponseSchema,
-    EstimatedFeesSchema,
+    EstimatedFeeSchema,
     EventsChunkSchema,
     PendingBlockStateUpdateSchema,
     PendingTransactionsSchema,
@@ -279,7 +279,7 @@ class FullNodeClient(Client):
         tx: List[AccountTransaction],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> EstimatedFees:
+    ) -> List[EstimatedFee]:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -291,22 +291,10 @@ class FullNodeClient(Client):
                 **block_identifier,
             },
         )
-        all_tx_estimated_fee, all_tx_gas_usage, all_tx_gas_price = 0, 0, 0
-        for fee in res:
-            all_tx_estimated_fee += int(fee["overall_fee"], 0)
-            all_tx_gas_usage += int(fee["gas_consumed"], 0)
-            all_tx_gas_price += int(fee["gas_price"], 0)
-        return cast(
-            EstimatedFees,
-            EstimatedFeesSchema().load(
-                {
-                    "estimated_fees": res,
-                    "overall_fee": all_tx_estimated_fee,
-                    "gas_price": all_tx_gas_price,
-                    "gas_usage": all_tx_gas_usage,
-                }
-            ),
-        )
+        # todo start here
+        return EstimatedFeeSchema().load(
+            res, unknown=EXCLUDE, many=True
+        )  # pyright: ignore
 
     async def call_contract(
         self,

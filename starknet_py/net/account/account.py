@@ -20,7 +20,6 @@ from starknet_py.net.client_models import (
     SentTransactionResponse,
     Tag,
 )
-from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import AddressRepresentation, StarknetChainId, parse_address
 from starknet_py.net.models.transaction import (
     AccountTransaction,
@@ -122,8 +121,8 @@ class Account(BaseAccount):
         # TODO (#801): check if this method is ok with sending only one transaction, !a list of transactions in fullnode
 
         if auto_estimate:
-            estimate_fee = await self._estimate_fee(transaction)
-            max_fee = int(estimate_fee.overall_fee * Account.ESTIMATED_FEE_MULTIPLIER)
+            estimated_fee = (await self._estimate_fee(transaction))[0]
+            max_fee = int(estimated_fee.overall_fee * Account.ESTIMATED_FEE_MULTIPLIER)
 
         if max_fee is None:
             raise ValueError(
@@ -172,7 +171,7 @@ class Account(BaseAccount):
         tx: AccountTransaction,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> EstimatedFee:
+    ) -> List[EstimatedFee]:
         """
         :param tx: Transaction which fee we want to calculate.
         :param block_hash: a block hash.
@@ -183,9 +182,7 @@ class Account(BaseAccount):
         # TODO (#801): check if this method is ok with sending only one transaction, !a list of transactions in fullnode
 
         return await self._client.estimate_fee(
-            tx=tx
-            if isinstance(self.client, GatewayClient)
-            else [tx],  # pyright: ignore
+            tx=[tx],
             block_hash=block_hash,
             block_number=block_number,
         )

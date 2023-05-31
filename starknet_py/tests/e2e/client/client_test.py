@@ -14,8 +14,6 @@ from starknet_py.net.client_models import (
     DeclaredContractHash,
     DeclareTransaction,
     DeployAccountTransaction,
-    EstimatedFee,
-    EstimatedFees,
     GatewayBlock,
     InvokeTransaction,
     L1HandlerTransaction,
@@ -143,9 +141,8 @@ async def test_estimate_fee_invoke(account, contract_address):
         max_fee=MAX_FEE,
     )
     invoke_tx = await account.sign_for_fee_estimate(invoke_tx)
-    estimate_fee = await account.client.estimate_fee(
-        tx=invoke_tx if isinstance(account.client, GatewayClient) else [invoke_tx]
-    )
+    estimate_fee_list = await account.client.estimate_fee(tx=[invoke_tx])
+    estimate_fee = estimate_fee_list[0]
 
     assert isinstance(estimate_fee.overall_fee, int)
     assert estimate_fee.overall_fee > 0
@@ -157,9 +154,8 @@ async def test_estimate_fee_declare(account):
         compiled_contract=read_contract("map_compiled.json"), max_fee=MAX_FEE
     )
     declare_tx = await account.sign_for_fee_estimate(declare_tx)
-    estimate_fee = await account.client.estimate_fee(
-        tx=declare_tx if isinstance(account.client, GatewayClient) else [declare_tx]
-    )
+    estimate_fee_list = await account.client.estimate_fee(tx=[declare_tx])
+    estimate_fee = estimate_fee_list[0]
 
     assert isinstance(estimate_fee.overall_fee, int)
     assert estimate_fee.overall_fee > 0
@@ -167,17 +163,13 @@ async def test_estimate_fee_declare(account):
 
 @pytest.mark.asyncio
 async def test_estimate_fee_deploy_account(client, deploy_account_transaction):
-    estimate_fee = await client.estimate_fee(
-        tx=deploy_account_transaction
-        if isinstance(client, GatewayClient)
-        else [deploy_account_transaction]
-    )
+    estimate_fee_list = await client.estimate_fee([deploy_account_transaction])
+    estimate_fee = estimate_fee_list[0]
 
     assert isinstance(estimate_fee.overall_fee, int)
     assert estimate_fee.overall_fee > 0
 
 
-# TODO ask if EStimatedFees class is even valid, if not, then many tests are to be refactored
 @pytest.mark.asyncio
 async def test_estimate_fee_for_multiple_transactions(
     full_node_client, deploy_account_transaction, contract_address, account
@@ -204,10 +196,11 @@ async def test_estimate_fee_for_multiple_transactions(
         tx=transactions, block_number="latest"
     )
 
-    assert isinstance(estimated_fees, EstimatedFees)
-    assert estimated_fees.overall_fee > 0
-    for estimation in estimated_fees.estimated_fees:
-        assert isinstance(estimation, EstimatedFee)
+    assert isinstance(estimated_fees, list)
+
+    for estimated_fee in estimated_fees:
+        assert isinstance(estimated_fee.overall_fee, int)
+        assert estimated_fee.overall_fee > 0
 
 
 @pytest.mark.asyncio
@@ -586,7 +579,9 @@ async def test_get_declare_v2_transaction(
     assert isinstance(transaction, DeclareTransaction)
     assert transaction == DeclareTransaction(
         class_hash=class_hash,
-        compiled_class_hash=declare_v2_hello_starknet.compiled_class_hash if isinstance(client, GatewayClient) else None,
+        compiled_class_hash=declare_v2_hello_starknet.compiled_class_hash
+        if isinstance(client, GatewayClient)
+        else None,
         sender_address=declare_v2_hello_starknet.sender_address,
         hash=tx_hash,
         max_fee=declare_v2_hello_starknet.max_fee,
@@ -610,7 +605,9 @@ async def test_get_block_with_declare_v2(
     assert (
         DeclareTransaction(
             class_hash=class_hash,
-            compiled_class_hash=declare_v2_hello_starknet.compiled_class_hash if isinstance(client, GatewayClient) else None,
+            compiled_class_hash=declare_v2_hello_starknet.compiled_class_hash
+            if isinstance(client, GatewayClient)
+            else None,
             sender_address=declare_v2_hello_starknet.sender_address,
             hash=tx_hash,
             max_fee=declare_v2_hello_starknet.max_fee,
@@ -635,7 +632,6 @@ async def test_get_new_state_update(
     state_update = await client.get_state_update(
         block_number=block_with_declare_v2_number
     )
-    pprint(state_update)
     assert state_update.state_diff.replaced_classes == []
     assert (
         DeclaredContractHash(
@@ -649,7 +645,6 @@ async def test_get_new_state_update(
 
     (block_number, contract_address, class_hash) = replaced_class
     state_update = await client.get_state_update(block_number=block_number)
-    pprint(state_update)
 
     assert (
         ReplacedClass(contract_address=contract_address, class_hash=class_hash)
