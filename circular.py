@@ -12,6 +12,9 @@ def _import_from_path(module_name, file_path):
 
 def test_circular_imports():
     for path, _, files in os.walk("starknet_py"):
+        if path == "starknet_py/tests":
+            # tests contain imports from cairo-lang which is installed only on python3.9
+            continue
         py_files = [f for f in files if f.endswith(".py")]
         for file_ in py_files:
             file_path = os.path.join(path, file_)
