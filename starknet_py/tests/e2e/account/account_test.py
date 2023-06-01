@@ -13,6 +13,7 @@ from starknet_py.net.client_models import (
     Call,
     DeployAccountTransaction,
     DeployAccountTransactionResponse,
+    EstimatedFee,
     TransactionStatus,
 )
 from starknet_py.net.full_node_client import FullNodeClient
@@ -57,12 +58,11 @@ async def test_estimated_fee_greater_than_zero(erc20_contract, account):
         address=erc20_contract.address, abi=erc20_contract.data.abi, provider=account
     )
 
-    estimated_fee_list = (
+    estimated_fee = (
         await erc20_contract.functions["balanceOf"]
         .prepare("1234", max_fee=0)
         .estimate_fee(block_hash="latest")
     )
-    estimated_fee = estimated_fee_list[0]
 
     assert estimated_fee.overall_fee > 0
     assert (
@@ -538,8 +538,8 @@ async def test_sign_deploy_account_tx_for_fee_estimation(
 
     estimate_fee_transaction = await account.sign_for_fee_estimate(transaction)
 
-    estimation_list = await account.client.estimate_fee([estimate_fee_transaction])
-    estimation = estimation_list[0]
+    estimation = await account.client.estimate_fee(transaction)
+    assert isinstance(estimation, EstimatedFee)
     assert estimation.overall_fee > 0
 
     # Verify that the transaction signed for fee estimation cannot be sent

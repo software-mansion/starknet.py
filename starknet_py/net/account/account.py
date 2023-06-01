@@ -121,7 +121,7 @@ class Account(BaseAccount):
         # TODO (#801): check if this method is ok with sending only one transaction, !a list of transactions in fullnode
 
         if auto_estimate:
-            estimated_fee = (await self._estimate_fee(transaction))[0]
+            estimated_fee = await self._estimate_fee(transaction)
             max_fee = int(estimated_fee.overall_fee * Account.ESTIMATED_FEE_MULTIPLIER)
 
         if max_fee is None:
@@ -171,7 +171,7 @@ class Account(BaseAccount):
         tx: AccountTransaction,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> List[EstimatedFee]:
+    ) -> EstimatedFee:
         """
         :param tx: Transaction which fee we want to calculate.
         :param block_hash: a block hash.
@@ -181,11 +181,14 @@ class Account(BaseAccount):
         tx = await self.sign_for_fee_estimate(tx)
         # TODO (#801): check if this method is ok with sending only one transaction, !a list of transactions in fullnode
 
-        return await self._client.estimate_fee(
-            tx=[tx],
+        estimated_fee = await self._client.estimate_fee(
+            tx=tx,
             block_hash=block_hash,
             block_number=block_number,
         )
+        assert isinstance(estimated_fee, EstimatedFee)
+
+        return estimated_fee
 
     async def get_nonce(self) -> int:
         """

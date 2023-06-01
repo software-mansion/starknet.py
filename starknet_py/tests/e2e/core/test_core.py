@@ -5,7 +5,11 @@ import pytest
 from starknet_py.contract import Contract, PreparedFunctionCall
 from starknet_py.net.account.account import Account
 from starknet_py.net.account.account_deployment_result import AccountDeploymentResult
-from starknet_py.net.client_models import DeclareTransaction, DeclareTransactionResponse
+from starknet_py.net.client_models import (
+    DeclareTransaction,
+    DeclareTransactionResponse,
+    EstimatedFee,
+)
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 
 
@@ -76,6 +80,7 @@ async def test_contract(core_map_contract: Contract):
 
     estimated_fee = await prepared_tx.estimate_fee()
 
+    assert isinstance(estimated_fee, EstimatedFee)
     assert estimated_fee.overall_fee > 0
 
     resp = await prepared_tx.invoke(max_fee=int(estimated_fee.overall_fee * 1.5))
