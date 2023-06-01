@@ -49,8 +49,8 @@ pytest-rerunfailures = "^11.1"
 
 
 [tool.poetry.group.py39-dev.dependencies]
-cairo-lang = { version = "^0.11.1.1", python= ">=3.9, <3.10" }
-starknet-devnet = { version = "^0.5.2", python= ">=3.9, <3.10" }
+cairo-lang = { version = "^0.11.2", python= ">=3.9, <3.10" }
+starknet-devnet = { git = "https://github.com/0xSpaceShard/starknet-devnet.git", rev = "744e9b3bd5fb9e856287158d87673e090df69d73", python= ">=3.9, <3.10" }
 
 [tool.poe.tasks]
 test.shell = "pytest -n auto -v --reruns 10 --only-rerun aiohttp.client_exceptions.ClientConnectorError --cov=starknet_py starknet_py"
