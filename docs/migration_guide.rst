@@ -2,6 +2,34 @@ Migration guide
 ===============
 
 **********************
+0.17.0 Migration guide
+**********************
+
+    Version 0.17.0 of **starknet.py** comes with support for **Windows**!
+
+Breaking changes
+----------------
+
+.. currentmodule:: starknet_py.net
+
+1. ``FullNodeClient.get_events`` `keys` parameter type is now `List[List[str]]` instead of `List[str]`.
+
+
+Minor changes
+-------------
+
+1. Both ``FullNodeClient.estimate_fee`` and ``GatewayClient.estimate_fee`` can take a single transaction or a list of transactions to estimate.
+
+
+|
+
+.. raw:: html
+
+  <hr>
+
+|
+
+**********************
 0.16.0 Migration guide
 **********************
 
@@ -12,16 +40,16 @@ The ``cairo-lang`` package has been removed as a dependency.
 Also, dependencies are now optimized to include only necessary packages.
 
 
-Bugfixes
---------
+0.16.0 Bugfixes
+---------------
 
 .. currentmodule:: starknet_py.net.udc_deployer.deployer
 
 1. Fixed a bug where :meth:`Deployer.create_contract_deployment_raw` would use a random salt, when ``salt = 0`` was passed.
 
 
-Breaking changes
-----------------
+0.16.0 Breaking changes
+-----------------------
 
 .. currentmodule:: starknet_py.net.account.base_account
 
@@ -46,9 +74,7 @@ Breaking changes
 
 7. Deprecated ``ContractData.identifier_manager`` has been removed. Use :meth:`ContractData.parsed_abi` instead.
 
-
 .. currentmodule:: starknet_py.net.signer
-
 
 8. Removed deprecated ``typed_data`` parameter as dict in :meth:`BaseSigner.sign_message`. Use :ref:`TypedData` dataclass from ``starknet_py.utils.typed_data``.
 9. ``starknet_py.utils.crypto`` module has been removed.
