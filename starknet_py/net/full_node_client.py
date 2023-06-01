@@ -386,7 +386,6 @@ class FullNodeClient(Client):
         res = cast(str, res)
         return int(res, 16)
 
-    # TODO (#809): add tests
     async def get_class_by_hash(
         self,
         class_hash: Hash,
