@@ -131,6 +131,7 @@ async def test_get_transaction_receipt(
     assert receipt.block_number == block_with_invoke_number
 
 
+@pytest.mark.xfail(reason="RPC v0.3.0")
 @pytest.mark.asyncio
 async def test_estimate_fee_invoke(account, contract_address):
     invoke_tx = await account.sign_invoke_transaction(
@@ -148,6 +149,7 @@ async def test_estimate_fee_invoke(account, contract_address):
     assert estimate_fee.overall_fee > 0
 
 
+@pytest.mark.xfail(reason="RPC v0.3.0")
 @pytest.mark.asyncio
 async def test_estimate_fee_declare(account):
     declare_tx = await account.sign_declare_transaction(
@@ -160,6 +162,7 @@ async def test_estimate_fee_declare(account):
     assert estimate_fee.overall_fee > 0
 
 
+@pytest.mark.xfail(reason="RPC v0.3.0")
 @pytest.mark.asyncio
 async def test_estimate_fee_deploy_account(client, deploy_account_transaction):
     estimate_fee = await client.estimate_fee(tx=deploy_account_transaction)
@@ -466,6 +469,7 @@ async def test_get_l1_handler_transaction(client):
         assert transaction.nonce == 0x34C20
 
 
+@pytest.mark.xfail(reason="RPC v0.3.0")
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_state_update_declared_contract_hashes(
@@ -481,6 +485,7 @@ async def test_state_update_declared_contract_hashes(
         assert class_hash in state_update.state_diff.deprecated_declared_contract_hashes
 
 
+@pytest.mark.xfail(reason="RPC v0.3.0")
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_state_update_storage_diffs(
@@ -495,6 +500,7 @@ async def test_state_update_storage_diffs(
     assert len(state_update.state_diff.storage_diffs) != 0
 
 
+@pytest.mark.xfail(reason="RPC v0.3.0")
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_state_update_deployed_contracts(

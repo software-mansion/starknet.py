@@ -35,7 +35,19 @@ def get_compiler_manifest() -> List[str]:
 def start_devnet():
     devnet_port = get_available_port()
 
-    command = [
+    if os.name == "nt":
+        start_devnet_command = start_devnet_command_windows(devnet_port)
+    else:
+        start_devnet_command = start_devnet_command_unix(devnet_port)
+
+    # pylint: disable=consider-using-with
+    proc = subprocess.Popen(start_devnet_command)
+    time.sleep(10)
+    return devnet_port, proc
+
+
+def start_devnet_command_unix(devnet_port: int) -> List[str]:
+    return [
         "poetry",
         "run",
         "starknet-devnet",
@@ -49,10 +61,21 @@ def start_devnet():
         str(1),
         *get_compiler_manifest(),
     ]
-    # pylint: disable=consider-using-with
-    proc = subprocess.Popen(command)
-    time.sleep(10)
-    return devnet_port, proc
+
+
+def start_devnet_command_windows(devnet_port: int) -> List[str]:
+    return [
+        "wsl",
+        "python3",
+        "-m",
+        "starknet_devnet.server",
+        "--port",
+        f"{devnet_port}",
+        "--accounts",
+        str(1),
+        "--seed",
+        str(1),
+    ]
 
 
 @pytest.fixture(scope="package")

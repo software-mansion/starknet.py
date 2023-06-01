@@ -51,6 +51,7 @@ async def test_balance_when_token_specified(account, erc20_contract):
     assert balance == 200
 
 
+@pytest.mark.xfail(reason="RPC v0.3.0")
 @pytest.mark.asyncio
 async def test_estimated_fee_greater_than_zero(erc20_contract, account):
     erc20_contract = Contract(
@@ -69,6 +70,7 @@ async def test_estimated_fee_greater_than_zero(erc20_contract, account):
     )
 
 
+@pytest.mark.xfail(reason="RPC v0.3.0")
 @pytest.mark.asyncio
 async def test_estimate_fee_for_declare_transaction(account, map_compiled_contract):
     declare_tx = await account.sign_declare_transaction(
@@ -177,6 +179,7 @@ async def test_sign_invoke_transaction(account, calls):
     assert signed_tx.max_fee == MAX_FEE
 
 
+@pytest.mark.xfail(reason="RPC v0.3.0")
 @pytest.mark.asyncio
 async def test_sign_invoke_transaction_auto_estimate(account, map_contract):
     signed_tx = await account.sign_invoke_transaction(
@@ -202,6 +205,7 @@ async def test_sign_declare_transaction(account, map_compiled_contract):
     assert signed_tx.max_fee == MAX_FEE
 
 
+@pytest.mark.xfail(reason="RPC v0.3.0")
 @pytest.mark.asyncio
 async def test_sign_declare_transaction_auto_estimate(account, map_compiled_contract):
     signed_tx = await account.sign_declare_transaction(
@@ -290,6 +294,7 @@ async def test_sign_deploy_account_transaction(account):
     assert signed_tx.constructor_calldata == calldata
 
 
+@pytest.mark.xfail(reason="RPC v0.3.0")
 @pytest.mark.asyncio
 async def test_sign_deploy_account_transaction_auto_estimate(
     account, account_with_validate_deploy_class_hash
@@ -475,6 +480,7 @@ async def test_deploy_account_uses_custom_calldata(
     assert tx.constructor_calldata == calldata
 
 
+@pytest.mark.xfail(reason="RPC v0.3.0")
 @pytest.mark.asyncio
 async def test_sign_invoke_tx_for_fee_estimation(account, map_contract):
     call = map_contract.functions["put"].prepare(key=40, value=50)
@@ -494,6 +500,7 @@ async def test_sign_invoke_tx_for_fee_estimation(account, map_contract):
     await account.client.wait_for_tx(result.transaction_hash)
 
 
+@pytest.mark.xfail(reason="RPC v0.3.0")
 @pytest.mark.asyncio
 async def test_sign_declare_tx_for_fee_estimation(account, map_compiled_contract):
     transaction = await account.sign_declare_transaction(
@@ -514,6 +521,7 @@ async def test_sign_declare_tx_for_fee_estimation(account, map_compiled_contract
     await account.client.wait_for_tx(result.transaction_hash)
 
 
+@pytest.mark.xfail(reason="RPC v0.3.0")
 @pytest.mark.asyncio
 async def test_sign_deploy_account_tx_for_fee_estimation(
     client, deploy_account_details_factory
