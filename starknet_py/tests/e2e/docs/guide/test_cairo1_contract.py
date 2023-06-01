@@ -9,17 +9,27 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 @pytest.mark.asyncio
 async def test_cairo1_contract(
-    account, sierra_minimal_compiled_contract_and_class_hash, another_sierra_minimal_compiled_contract_and_class_hash, gateway_client
+    account,
+    sierra_minimal_compiled_contract_and_class_hash,
+    another_sierra_minimal_compiled_contract_and_class_hash,
+    gateway_client,
 ):
     # pylint: disable=import-outside-toplevel, too-many-locals
     # TODO (#985): use account when RPC 0.3.0 is supported
     (
         compiled_contract,
         compiled_class_hash,
-    ) = sierra_minimal_compiled_contract_and_class_hash if isinstance(account.client, GatewayClient) else another_sierra_minimal_compiled_contract_and_class_hash
+    ) = (
+        sierra_minimal_compiled_contract_and_class_hash
+        if isinstance(account.client, GatewayClient)
+        else another_sierra_minimal_compiled_contract_and_class_hash
+    )
 
     contract_compiled_casm = read_contract(
-        "minimal_contract_compiled.casm" if isinstance(account.client, GatewayClient) else "another_minimal_contract_compiled.casm", directory=CONTRACTS_COMPILED_V1_DIR
+        "minimal_contract_compiled.casm"
+        if isinstance(account.client, GatewayClient)
+        else "another_minimal_contract_compiled.casm",
+        directory=CONTRACTS_COMPILED_V1_DIR,
     )
 
     # docs: start

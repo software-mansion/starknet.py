@@ -358,12 +358,12 @@ class StateDiff:
     Dataclass representing state changes in the block.
     """
 
-    storage_diffs: List[StorageDiffItem]  #
-    deprecated_declared_classes: List[int]  #
+    storage_diffs: List[StorageDiffItem]
+    deprecated_declared_classes: List[int]
     declared_classes: List[DeclaredContractHash]
     deployed_contracts: List[DeployedContract]
-    replaced_classes: List[ReplacedClass]  #
-    nonces: List[ContractsNonce]  #
+    replaced_classes: List[ReplacedClass]
+    nonces: List[ContractsNonce]
 
 
 @dataclass

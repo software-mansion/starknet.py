@@ -210,7 +210,7 @@ class GatewayClient(Client):
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> Union[EstimatedFee, List[EstimatedFee]]:
-        if isinstance(tx, List):
+        if isinstance(tx, list):
             return await self.estimate_fee_bulk(
                 transactions=tx, block_hash=block_hash, block_number=block_number
             )

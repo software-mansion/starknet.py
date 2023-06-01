@@ -337,9 +337,7 @@ class PendingBlockStateUpdateSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> PendingBlockStateUpdate:
-        return PendingBlockStateUpdate(
-            **data,
-        )
+        return PendingBlockStateUpdate(**data)
 
 
 class SierraEntryPointSchema(Schema):

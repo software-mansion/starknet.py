@@ -142,8 +142,7 @@ async def test_estimate_fee_invoke(account, contract_address):
         max_fee=MAX_FEE,
     )
     invoke_tx = await account.sign_for_fee_estimate(invoke_tx)
-    estimate_fee_list = await account.client.estimate_fee(tx=[invoke_tx])
-    estimate_fee = estimate_fee_list[0]
+    estimate_fee = await account.client.estimate_fee(tx=invoke_tx)
 
     assert isinstance(estimate_fee.overall_fee, int)
     assert estimate_fee.overall_fee > 0
@@ -155,8 +154,7 @@ async def test_estimate_fee_declare(account):
         compiled_contract=read_contract("map_compiled.json"), max_fee=MAX_FEE
     )
     declare_tx = await account.sign_for_fee_estimate(declare_tx)
-    estimate_fee_list = await account.client.estimate_fee(tx=[declare_tx])
-    estimate_fee = estimate_fee_list[0]
+    estimate_fee = await account.client.estimate_fee(tx=declare_tx)
 
     assert isinstance(estimate_fee.overall_fee, int)
     assert estimate_fee.overall_fee > 0
@@ -164,8 +162,7 @@ async def test_estimate_fee_declare(account):
 
 @pytest.mark.asyncio
 async def test_estimate_fee_deploy_account(client, deploy_account_transaction):
-    estimate_fee_list = await client.estimate_fee([deploy_account_transaction])
-    estimate_fee = estimate_fee_list[0]
+    estimate_fee = await client.estimate_fee(tx=deploy_account_transaction)
 
     assert isinstance(estimate_fee.overall_fee, int)
     assert estimate_fee.overall_fee > 0
@@ -173,7 +170,7 @@ async def test_estimate_fee_deploy_account(client, deploy_account_transaction):
 
 @pytest.mark.asyncio
 async def test_estimate_fee_for_multiple_transactions(
-    full_node_client, deploy_account_transaction, contract_address, account
+    client, deploy_account_transaction, contract_address, account
 ):
     invoke_tx = await account.sign_invoke_transaction(
         calls=Call(
@@ -193,9 +190,7 @@ async def test_estimate_fee_for_multiple_transactions(
 
     transactions = [invoke_tx, declare_tx, deploy_account_transaction]
 
-    estimated_fees = await full_node_client.estimate_fee(
-        tx=transactions, block_number="latest"
-    )
+    estimated_fees = await client.estimate_fee(tx=transactions, block_number="latest")
 
     assert isinstance(estimated_fees, list)
 

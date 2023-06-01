@@ -76,8 +76,7 @@ async def test_estimate_fee_for_declare_transaction(account, map_compiled_contra
         compiled_contract=map_compiled_contract, max_fee=MAX_FEE
     )
 
-    estimated_fee_list = await account.client.estimate_fee(tx=[declare_tx])
-    estimated_fee = estimated_fee_list[0]
+    estimated_fee = await account.client.estimate_fee(tx=declare_tx)
 
     assert isinstance(estimated_fee.overall_fee, int)
     assert estimated_fee.overall_fee > 0
@@ -482,8 +481,7 @@ async def test_sign_invoke_tx_for_fee_estimation(account, map_contract):
 
     estimate_fee_transaction = await account.sign_for_fee_estimate(transaction)
 
-    estimation_list = await account.client.estimate_fee([estimate_fee_transaction])
-    estimation = estimation_list[0]
+    estimation = await account.client.estimate_fee(estimate_fee_transaction)
     assert estimation.overall_fee > 0
 
     # Verify that the transaction signed for fee estimation cannot be sent
@@ -503,8 +501,7 @@ async def test_sign_declare_tx_for_fee_estimation(account, map_compiled_contract
 
     estimate_fee_transaction = await account.sign_for_fee_estimate(transaction)
 
-    estimation_list = await account.client.estimate_fee([estimate_fee_transaction])
-    estimation = estimation_list[0]
+    estimation = await account.client.estimate_fee(estimate_fee_transaction)
     assert estimation.overall_fee > 0
 
     # Verify that the transaction signed for fee estimation cannot be sent
