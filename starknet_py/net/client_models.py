@@ -313,18 +313,6 @@ class EstimatedFee:
 
 
 @dataclass
-class EstimatedFees:
-    """
-    Dataclass representing a sequence of estimated fees represented by `estimate_fee` method in FullNodeClient.
-    """
-
-    estimated_fees: List[EstimatedFee]
-    overall_fee: int
-    gas_price: int
-    gas_usage: int
-
-
-@dataclass
 class DeployedContract:
     """
     Dataclass representing basic data of the deployed contract.

@@ -16,7 +16,6 @@ from starknet_py.net.client_models import (
     EntryPoint,
     EntryPointsByType,
     EstimatedFee,
-    EstimatedFees,
     Event,
     EventsChunk,
     InvokeTransaction,
@@ -129,19 +128,6 @@ class EstimatedFeeSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs):
         return EstimatedFee(**data)
-
-
-class EstimatedFeesSchema(Schema):
-    estimated_fees = fields.List(
-        fields.Nested(EstimatedFeeSchema()), data_key="estimated_fees", required=True
-    )
-    overall_fee = fields.Integer()
-    gas_price = fields.Integer()
-    gas_usage = fields.Integer()
-
-    @post_load
-    def make_dataclass(self, data, **kwargs):
-        return EstimatedFees(**data)
 
 
 class TransactionSchema(Schema):
