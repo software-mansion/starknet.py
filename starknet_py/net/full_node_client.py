@@ -276,13 +276,16 @@ class FullNodeClient(Client):
     #  it is a single AccountTransaction
     async def estimate_fee(
         self,
-        tx: List[AccountTransaction],
+        tx: Union[AccountTransaction, List[AccountTransaction]],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> List[EstimatedFee]:
+    ) -> Union[EstimatedFee, List[EstimatedFee]]:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
+
+        if single_transaction := isinstance(tx, AccountTransaction):
+            tx = [tx]
 
         res = await self._client.call(
             method_name="estimateFee",
@@ -291,10 +294,16 @@ class FullNodeClient(Client):
                 **block_identifier,
             },
         )
-        # todo start here
-        return EstimatedFeeSchema().load(
-            res, unknown=EXCLUDE, many=True
-        )  # pyright: ignore
+
+        if single_transaction:
+            res = res[0]
+
+        return cast(
+            EstimatedFee,
+            EstimatedFeeSchema().load(
+                res, unknown=EXCLUDE, many=(not single_transaction)
+            ),
+        )
 
     async def call_contract(
         self,

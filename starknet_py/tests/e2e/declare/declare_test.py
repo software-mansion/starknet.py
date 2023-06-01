@@ -16,33 +16,42 @@ async def test_declare_tx(account, map_compiled_contract):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "acc, contract_and_class_hash",
-    [
-        ("gateway_account", "sierra_minimal_compiled_contract_and_class_hash"),
-        (
-            "full_node_account",
-            "another_sierra_minimal_compiled_contract_and_class_hash",
-        ),
-    ],
-)
-# why u not work ples work
-async def test_declare_v2_tx(acc, contract_and_class_hash, request):
-    # TODO (#985): use account when RPC 0.3.0 is supported - i think now problem is redeclaring
-    acc = request.getfixturevalue(acc)
-    contract_and_class_hash = request.getfixturevalue(contract_and_class_hash)
+async def test_declare_v2_tx_full_node_client(
+    full_node_account, sierra_minimal_compiled_contract_and_class_hash
+):
     (
         compiled_contract,
         compiled_class_hash,
-    ) = contract_and_class_hash
+    ) = sierra_minimal_compiled_contract_and_class_hash
 
-    declare_tx = await acc.sign_declare_v2_transaction(
-        compiled_contract,
+    declare_tx = await full_node_account.sign_declare_v2_transaction(
+        compiled_contract=compiled_contract,
         compiled_class_hash=compiled_class_hash,
         max_fee=MAX_FEE,
     )
     assert declare_tx.version == 2
+    declare_result = await full_node_account.client.declare(declare_tx)
+    await full_node_account.client.wait_for_tx(
+        tx_hash=declare_result.transaction_hash, wait_for_accept=True
+    )
 
-    result = await acc.client.declare(declare_tx)
 
-    await acc.client.wait_for_tx(tx_hash=result.transaction_hash, wait_for_accept=True)
+@pytest.mark.asyncio
+async def test_declare_v2_tx_gateway_client(
+    gateway_account, another_sierra_minimal_compiled_contract_and_class_hash
+):
+    (
+        compiled_contract,
+        compiled_class_hash,
+    ) = another_sierra_minimal_compiled_contract_and_class_hash
+
+    declare_tx = await gateway_account.sign_declare_v2_transaction(
+        compiled_contract=compiled_contract,
+        compiled_class_hash=compiled_class_hash,
+        max_fee=MAX_FEE,
+    )
+    assert declare_tx.version == 2
+    declare_result = await gateway_account.client.declare(declare_tx)
+    await gateway_account.client.wait_for_tx(
+        tx_hash=declare_result.transaction_hash, wait_for_accept=True
+    )

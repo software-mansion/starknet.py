@@ -352,11 +352,9 @@ class GatewayClient(Client):
         tx: AccountTransaction,
         token: Optional[str] = None,
     ) -> dict:
-        payload = _get_payload(tx)
-
         res = await self._gateway_client.post(
             method_name="add_transaction",
-            payload=payload,
+            payload=_get_payload(tx),
             params={"token": token} if token is not None else {},
         )
         return res
@@ -461,22 +459,18 @@ def get_block_identifier(
 def _get_payload(
     txs: Union[AccountTransaction, List[AccountTransaction]]
 ) -> Union[List, Dict]:
-    if isinstance(txs, AccountTransaction):
-        payload = _tx_to_schema(txs).dump(obj=txs)
-        if isinstance(txs, DeclareV2):
-            payload = compress_program(
-                payload, program_name="sierra_program"  # pyright: ignore
-            )
-        return payload
+    if single_transaction := isinstance(txs, AccountTransaction):
+        txs = [txs]
 
     payload_list = []
     for tx in txs:
-        dumped_tx = _tx_to_schema(tx).dump(obj=tx)
+        payload = _tx_to_schema(tx).dump(obj=tx)
+        assert isinstance(payload, dict)
         if isinstance(tx, DeclareV2):
-            dumped_tx = compress_program(dumped_tx, program_name="sierra_program")
-        payload_list.append(dumped_tx)
+            payload = compress_program(data=payload, program_name="sierra_program")
+        payload_list.append(payload)
 
-    return payload_list
+    return payload_list if not single_transaction else payload_list[0]
 
 
 def _tx_to_schema(tx: AccountTransaction):
