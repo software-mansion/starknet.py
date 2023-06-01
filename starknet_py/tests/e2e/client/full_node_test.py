@@ -7,7 +7,7 @@ from starknet_py.contract import Contract
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.storage import get_storage_var_address
 from starknet_py.net.client_errors import ClientError
-from starknet_py.net.client_models import DeclareTransaction
+from starknet_py.net.client_models import ContractClass, DeclareTransaction
 from starknet_py.net.full_node_client import _to_rpc_felt
 
 
@@ -43,6 +43,7 @@ async def test_get_class_at(full_node_client, contract_address):
         contract_address=contract_address, block_hash="latest"
     )
 
+    assert isinstance(declared_contract, ContractClass)
     assert declared_contract.program != {}
     assert declared_contract.entry_points_by_type is not None
     assert declared_contract.abi is not None
