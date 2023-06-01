@@ -272,8 +272,6 @@ class FullNodeClient(Client):
             TransactionReceipt, TransactionReceiptSchema().load(res, unknown=EXCLUDE)
         )
 
-    # TODO (#809): add tests and fix the problem with `tx` parameter, it has to be a list in RPC, in gateway
-    #  it is a single AccountTransaction
     async def estimate_fee(
         self,
         tx: Union[AccountTransaction, List[AccountTransaction]],

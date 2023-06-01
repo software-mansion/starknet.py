@@ -118,7 +118,6 @@ class Account(BaseAccount):
             raise ValueError(
                 "Arguments max_fee and auto_estimate are mutually exclusive."
             )
-        # TODO (#801): check if this method is ok with sending only one transaction, !a list of transactions in fullnode
 
         if auto_estimate:
             estimated_fee = await self._estimate_fee(transaction)
@@ -160,7 +159,6 @@ class Account(BaseAccount):
             nonce=nonce,
             sender_address=self.address,
         )
-        # TODO (#801): check if this method is ok with sending only one transaction, !a list of transactions in fullnode
 
         max_fee = await self._get_max_fee(transaction, max_fee, auto_estimate)
 
@@ -179,7 +177,6 @@ class Account(BaseAccount):
         :return: Estimated fee.
         """
         tx = await self.sign_for_fee_estimate(tx)
-        # TODO (#801): check if this method is ok with sending only one transaction, !a list of transactions in fullnode
 
         estimated_fee = await self._client.estimate_fee(
             tx=tx,
@@ -235,7 +232,6 @@ class Account(BaseAccount):
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> Invoke:
-        # TODO (#801): check if this method is ok with sending only one transaction, !a list of transactions in fullnode
         execute_tx = await self._prepare_invoke(calls, max_fee, auto_estimate)
         signature = self.signer.sign_transaction(execute_tx)
         return _add_signature_to_transaction(execute_tx, signature)
