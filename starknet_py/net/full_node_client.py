@@ -585,7 +585,7 @@ def _create_broadcasted_declare_properties(
         "contract_class": {
             "entry_points_by_type": contract_class["entry_points_by_type"],
             "abi": contract_class["abi"],
-            "program": contract_class["program"]
+            "program": contract_class["program"],
         },
         "sender_address": _to_rpc_felt(transaction.sender_address),
     }
@@ -594,16 +594,18 @@ def _create_broadcasted_declare_properties(
 
 
 def _create_broadcasted_declare_v2_properties(transaction: DeclareV2) -> dict:
-    contract_class = cast(Dict, DeclareV2Schema().dump(obj=transaction))["contract_class"]
+    contract_class = cast(Dict, DeclareV2Schema().dump(obj=transaction))[
+        "contract_class"
+    ]
     declare_v2_properties = {
         "contract_class": {
             "entry_points_by_type": contract_class["entry_points_by_type"],
             "abi": contract_class["abi"],
             "sierra_program": contract_class["sierra_program"],
-            "contract_class_version": contract_class["contract_class_version"]
+            "contract_class_version": contract_class["contract_class_version"],
         },
         "sender_address": _to_rpc_felt(transaction.sender_address),
-        "compiled_class_hash": _to_rpc_felt(transaction.compiled_class_hash)
+        "compiled_class_hash": _to_rpc_felt(transaction.compiled_class_hash),
     }
 
     return declare_v2_properties
