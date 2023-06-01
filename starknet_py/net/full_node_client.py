@@ -577,32 +577,36 @@ def _create_broadcasted_txn(transaction: AccountTransaction) -> dict:
 def _create_broadcasted_declare_properties(
     transaction: Union[Declare, DeclareV2]
 ) -> dict:
-    contract_class = (
-        cast(Dict, DeclareSchema().dump(obj=transaction))["contract_class"]
-        if isinstance(transaction, Declare)
-        else cast(Dict, DeclareV2Schema().dump(obj=transaction))["contract_class"]
-    )
+    if isinstance(transaction, DeclareV2):
+        return _create_broadcasted_declare_v2_properties(transaction)
+
+    contract_class = cast(Dict, DeclareSchema().dump(obj=transaction))["contract_class"]
     declare_properties = {
         "contract_class": {
             "entry_points_by_type": contract_class["entry_points_by_type"],
             "abi": contract_class["abi"],
+            "program": contract_class["program"]
         },
         "sender_address": _to_rpc_felt(transaction.sender_address),
     }
-    if isinstance(transaction, DeclareV2):
-        declare_properties["contract_class"]["sierra_program"] = contract_class[
-            "sierra_program"
-        ]
-        declare_properties["contract_class"]["contract_class_version"] = contract_class[
-            "contract_class_version"
-        ]
-        declare_properties["compiled_class_hash"] = _to_rpc_felt(
-            transaction.compiled_class_hash
-        )
-    else:
-        declare_properties["contract_class"]["program"] = contract_class["program"]
 
     return declare_properties
+
+
+def _create_broadcasted_declare_v2_properties(transaction: DeclareV2) -> dict:
+    contract_class = cast(Dict, DeclareV2Schema().dump(obj=transaction))["contract_class"]
+    declare_v2_properties = {
+        "contract_class": {
+            "entry_points_by_type": contract_class["entry_points_by_type"],
+            "abi": contract_class["abi"],
+            "sierra_program": contract_class["sierra_program"],
+            "contract_class_version": contract_class["contract_class_version"]
+        },
+        "sender_address": _to_rpc_felt(transaction.sender_address),
+        "compiled_class_hash": _to_rpc_felt(transaction.compiled_class_hash)
+    }
+
+    return declare_v2_properties
 
 
 def _create_broadcasted_invoke_properties(transaction: Invoke) -> dict:
