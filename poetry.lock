@@ -474,13 +474,13 @@ files = [
 
 [[package]]
 name = "cairo-lang"
-version = "0.11.1.1"
+version = "0.11.2"
 description = "Compiler and runner for the Cairo language"
 category = "dev"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "cairo-lang-0.11.1.1.zip", hash = "sha256:f61228867d3f4af41ff960e0750199250d7a1c63cac52edca8b1b61a6d391823"},
+    {file = "cairo-lang-0.11.2.zip", hash = "sha256:ca38376090caf45a3363c51ce4de767aea0fd38bdecbd9887dbe4a7c58ce229c"},
 ]
 
 [package.dependencies]
@@ -3048,7 +3048,7 @@ files = []
 develop = false
 
 [package.dependencies]
-cairo-lang = "0.11.1.1"
+cairo-lang = "0.11.2"
 cloudpickle = "~2.1.0"
 crypto-cpp-py = "~1.4.0"
 Flask = {version = "~2.0.3", extras = ["async"]}
@@ -3065,8 +3065,8 @@ Werkzeug = "~2.0.3"
 [package.source]
 type = "git"
 url = "https://github.com/0xSpaceShard/starknet-devnet.git"
-reference = "a4d1c2b9d4d54a1486fc3cb290f0a01d419f000b"
-resolved_reference = "a4d1c2b9d4d54a1486fc3cb290f0a01d419f000b"
+reference = "744e9b3bd5fb9e856287158d87673e090df69d73"
+resolved_reference = "744e9b3bd5fb9e856287158d87673e090df69d73"
 
 [[package]]
 name = "sympy"
@@ -3506,4 +3506,4 @@ docs = ["enum-tools", "furo", "sphinx"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8, <3.12"
-content-hash = "87e5d22570bc79f79cc8216a1bc9e2e3c8f24a84949994ebcdcf03c621937ad1"
+content-hash = "5761bfcc8b95b4d6845a94efbc6a3298bfb0c78b1dee2bdcd1d25a70ae140f5c"
