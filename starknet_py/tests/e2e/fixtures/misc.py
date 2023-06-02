@@ -1,7 +1,6 @@
 # pylint: disable=redefined-outer-name
 
 import json
-import sys
 from pathlib import Path
 
 import pytest
@@ -89,7 +88,3 @@ def read_contract(file_name: str, *, directory: Path = CONTRACTS_COMPILED_DIR) -
     Return contents of file_name from directory.
     """
     return (directory / file_name).read_text("utf-8")
-
-
-def get_python_version():
-    return sys.version_info[:3]
