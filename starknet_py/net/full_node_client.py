@@ -463,7 +463,6 @@ class FullNodeClient(Client):
         res = cast(int, res)
         return res
 
-    # TODO (#809): add tests
     async def get_class_at(
         self,
         contract_address: Hash,

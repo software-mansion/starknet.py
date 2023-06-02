@@ -85,7 +85,6 @@ async def declare_v2_hello_starknet(gateway_account: Account) -> DeclareV2:
     )
 
 
-# todo add deploying the transaction to test get_class_at (test_get_class_at, full_node_test.py:41)
 @pytest_asyncio.fixture(scope="package")
 async def hello_starknet_class_hash_tx_hash(
     gateway_client: Client, declare_v2_hello_starknet: DeclareV2
