@@ -105,11 +105,9 @@ async def hello_starknet_class_hash_tx_hash(
 async def hello_starknet_deploy_transaction_address(
     gateway_account: Account, hello_starknet_class_hash_tx_hash: Tuple[int, int]
 ) -> int:
-    class_hash, tx_hash = hello_starknet_class_hash_tx_hash
+    class_hash, _ = hello_starknet_class_hash_tx_hash
     deployer = Deployer()
-    contract_deployment = deployer.create_contract_deployment_raw(
-        class_hash=class_hash
-    )
+    contract_deployment = deployer.create_contract_deployment_raw(class_hash=class_hash)
     deploy_invoke_transaction = await gateway_account.sign_invoke_transaction(
         calls=contract_deployment.call, max_fee=MAX_FEE
     )
