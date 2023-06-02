@@ -134,6 +134,7 @@ class Account(BaseAccount):
         self,
         calls: Calls,
         max_fee: Optional[int] = None,
+        nonce: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> Invoke:
         """
@@ -144,7 +145,8 @@ class Account(BaseAccount):
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :return: Invoke created from the calls (without the signature).
         """
-        nonce = await self.get_nonce()
+        if not nonce:
+            nonce = await self.get_nonce()
 
         call_descriptions, calldata = _merge_calls(ensure_iterable(calls))
         wrapped_calldata = _execute_payload_serializer.serialize(
@@ -159,8 +161,9 @@ class Account(BaseAccount):
             nonce=nonce,
             sender_address=self.address,
         )
-
-        max_fee = await self._get_max_fee(transaction, max_fee, auto_estimate)
+        if not max_fee:
+            
+            max_fee = await self._get_max_fee(transaction, max_fee, auto_estimate)
 
         return _add_max_fee_to_transaction(transaction, max_fee)
 
@@ -227,9 +230,10 @@ class Account(BaseAccount):
         calls: Calls,
         *,
         max_fee: Optional[int] = None,
+        nonce: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> Invoke:
-        execute_tx = await self._prepare_invoke(calls, max_fee, auto_estimate)
+        execute_tx = await self._prepare_invoke(calls, max_fee, nonce,auto_estimate)
         signature = self.signer.sign_transaction(execute_tx)
         return _add_signature_to_transaction(execute_tx, signature)
 
@@ -334,10 +338,11 @@ class Account(BaseAccount):
         calls: Calls,
         *,
         max_fee: Optional[int] = None,
+        nonce:Optional[int] = None,
         auto_estimate: bool = False,
     ) -> SentTransactionResponse:
         execute_transaction = await self.sign_invoke_transaction(
-            calls, max_fee=max_fee, auto_estimate=auto_estimate
+            calls, max_fee=max_fee, nonce=nonce, auto_estimate=auto_estimate
         )
         return await self._client.send_transaction(execute_transaction)
 
