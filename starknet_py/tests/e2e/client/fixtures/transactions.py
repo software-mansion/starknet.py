@@ -10,6 +10,7 @@ from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.net.account.account import Account
 from starknet_py.net.client import Client
 from starknet_py.net.models.transaction import DeclareV2, DeployAccount
+from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.client.fixtures.prepare_net_for_gateway_test import (
     PreparedNetworkData,
 )
@@ -84,6 +85,7 @@ async def declare_v2_hello_starknet(gateway_account: Account) -> DeclareV2:
     )
 
 
+# todo add deploying the transaction to test get_class_at (test_get_class_at, full_node_test.py:41)
 @pytest_asyncio.fixture(scope="package")
 async def hello_starknet_class_hash_tx_hash(
     gateway_client: Client, declare_v2_hello_starknet: DeclareV2
@@ -97,6 +99,23 @@ async def hello_starknet_class_hash_tx_hash(
     )
 
     return result.class_hash, result.transaction_hash
+
+
+@pytest_asyncio.fixture(scope="package")
+async def hello_starknet_deploy_transaction_address(
+    gateway_account: Account, hello_starknet_class_hash_tx_hash: Tuple[int, int]
+) -> int:
+    class_hash, tx_hash = hello_starknet_class_hash_tx_hash
+    deployer = Deployer()
+    contract_deployment = deployer.create_contract_deployment_raw(
+        class_hash=class_hash
+    )
+    deploy_invoke_transaction = await gateway_account.sign_invoke_transaction(
+        calls=contract_deployment.call, max_fee=MAX_FEE
+    )
+    resp = await gateway_account.client.send_transaction(deploy_invoke_transaction)
+    await gateway_account.client.wait_for_tx(resp.transaction_hash)
+    return contract_deployment.address
 
 
 @pytest_asyncio.fixture(scope="package")
