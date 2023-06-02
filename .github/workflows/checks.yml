@@ -35,7 +35,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install --without py39-dev
+          poetry install
 
       - name: Check poetry.lock
         run: |
