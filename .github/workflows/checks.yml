@@ -35,7 +35,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install
+          poetry install --without py39-dev
 
       - name: Check poetry.lock
         run: |
@@ -54,15 +54,15 @@ jobs:
           poetry run poe typecheck
 
   # ---------------------------------------------------------- #
-  # ..........................TESTS........................... #
+  # .......................SETUP-TESTS........................ #
   # ---------------------------------------------------------- #
 
-  run-tests:
-    name: Tests
+  setup-tests:
+    name: Setup Tests
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ "3.8", "3.9", "3.10", "3.11" ]
+        python-version: [ "3.9" ]
     steps:
 
       # ====================== SETUP ====================== #
@@ -93,7 +93,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install
+          poetry install --without py39-dev
 
       # ====================== CONTRACTS v0 ====================== #
 
@@ -120,7 +120,7 @@ jobs:
         with:
           repository: starkware-libs/cairo
           persist-credentials: false
-          ref: v1.0.0-alpha.7
+          ref: v1.1.0
           path: cairo
 
       - name: Cache rust dependencies
@@ -165,7 +165,62 @@ jobs:
         run: |
           poetry run poe compile_contracts_v1
 
-      # ========================= TESTS ========================= #
+      - name: Upload contracts
+        uses: actions/upload-artifact@v3
+        with:
+          name: contract-artifacts
+          path: starknet_py/tests/e2e/mock/
+
+  # ---------------------------------------------------------- #
+  # ........................RUN-TESTS......................... #
+  # ---------------------------------------------------------- #
+
+  run-tests:
+    name: Tests
+    needs: setup-tests
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [ "3.8", "3.9", "3.10", "3.11" ]
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download contracts
+        uses: actions/download-artifact@v3
+        with:
+          name: contract-artifacts
+          path: starknet_py/tests/e2e/mock/
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+          cache: 'pip'
+
+      # ====================== SETUP PYTHON ====================== #
+
+      - name: Install poetry
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry
+          poetry config installer.modern-installation false
+
+      - name: Install python 3.9 requirements
+        run: |
+          poetry export -f requirements.txt --only=py39-dev --without-hashes --output requirements.txt
+          pip install -r requirements.txt
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'poetry'
+
+      - name: Install dependencies
+        run: |
+          poetry install --without py39-dev
+
+      # ====================== RUN TESTS ====================== #
 
       - name: Check circular imports
         run: |
@@ -183,25 +238,49 @@ jobs:
         uses: codecov/codecov-action@v3
 
   # ---------------------------------------------------------- #
-  # ........................DOCS-TESTS........................ #
+  # ....................RUN-TESTS-WINDOWS..................... #
   # ---------------------------------------------------------- #
 
-  run-tests-docs:
-    name: Docs Tests
-    runs-on: ubuntu-latest
+  run-tests-windows:
+    # if: ${{ github.event_name != 'pull_request' }}
+    name: Tests Windows
+    needs: setup-tests
+    runs-on: windows-latest
     strategy:
+      fail-fast: false
       matrix:
         python-version: [ "3.8", "3.9", "3.10", "3.11" ]
     steps:
-
-      # ====================== SETUP ====================== #
-
       - uses: actions/checkout@v3
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: contract-artifacts
+          path: starknet_py/tests/e2e/mock/
 
       - uses: actions/setup-python@v4
         with:
           python-version: "3.9"
           cache: 'pip'
+
+      # ====================== SETUP WSL ====================== #
+
+      - name: Setup WSL
+        uses: Vampire/setup-wsl@v2
+
+      - name: Setup WSL devnet
+        shell: wsl-bash {0}
+        run: |
+          sudo apt-get -y update
+          sudo apt install -y wget software-properties-common
+          sudo add-apt-repository ppa:deadsnakes/ppa
+          sudo apt install -y python3.9
+          apt-get install -y python3-pip
+          sudo apt install -y libgmp3-dev
+          sudo apt-get install -y git
+          pip3 install git+https://github.com/0xSpaceShard/starknet-devnet.git@744e9b3bd5fb9e856287158d87673e090df69d73
+
+      # ====================== SETUP PYTHON ====================== #
 
       - name: Install poetry
         run: |
@@ -222,81 +301,156 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install
+          poetry install --without py39-dev
 
-      # ====================== CONTRACTS v0 ====================== #
+      # ====================== RUN TESTS ====================== #
 
-      - name: Cache contracts
-        id: cache-contracts
-        uses: actions/cache@v3
+      - name: Check circular imports
+        run: |
+          poetry run poe circular_imports_check
+
+      - name: Run tests
+        run: |
+          poetry run poe test_ci
+
+      - name: Generate coverage in XML
+        run: |
+          poetry run coverage xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+
+  # ---------------------------------------------------------- #
+  # .....................RUN-DOCS-TESTS....................... #
+  # ---------------------------------------------------------- #
+
+  run-docs-tests:
+    name: Docs Tests
+    needs: setup-tests
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [ "3.8", "3.9", "3.10", "3.11" ]
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download contracts
+        uses: actions/download-artifact@v3
         with:
-          path: starknet_py/tests/e2e/mock/contracts_compiled
-          key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts', 'poetry.lock') }}
+          name: contract-artifacts
+          path: starknet_py/tests/e2e/mock/
 
-      - name: Compile contracts
-        if: steps.cache-contracts.outputs.cache-hit != 'true'
-        run: |
-          poetry run poe compile_contracts
-
-      # ====================== CAIRO SETUP ====================== #
-
-      - name: Install rust
-        run: |
-          curl https://sh.rustup.rs -sSf | sh -s -- -y
-
-      - name: Clone Cairo1 compiler repository
-        uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
-          repository: starkware-libs/cairo
-          persist-credentials: false
-          ref: v1.0.0-alpha.7
-          path: cairo
+          python-version: "3.9"
+          cache: 'pip'
 
-      - name: Cache rust dependencies
-        id: cache-rust
-        uses: actions/cache@v3
+      # ====================== SETUP PYTHON ====================== #
+
+      - name: Install poetry
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry
+          poetry config installer.modern-installation false
+
+      - name: Install python 3.9 requirements
+        run: |
+          poetry export -f requirements.txt --only=py39-dev --without-hashes --output requirements.txt
+          pip install -r requirements.txt
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
         with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          python-version: ${{ matrix.python-version }}
+          cache: 'poetry'
 
-      - name: Build compiler
-        if: steps.cache-rust.outputs.cache-hit != 'true'
-        working-directory: ./cairo
+      - name: Install dependencies
         run: |
-          cargo build
+          poetry install --without py39-dev
 
-      - name: Build starknet-compile
-        working-directory: ./cairo
+      # ====================== RUN TESTS ====================== #
+
+      - name: Run tests
         run: |
-          cargo run --bin starknet-compile -- --version
-          cargo run --bin starknet-sierra-compile -- --version
+          poetry run poe test_ci_docs
 
-      - name: Create manifest file
+      - name: Generate coverage in XML
         run: |
-          readlink -f cairo/Cargo.toml >> starknet_py/tests/e2e/manifest-path
+          poetry run coverage xml
 
-      # ====================== CONTRACTS v1 ====================== #
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
 
-      - name: Cache Cairo1 contracts
-        id: cache-contracts-v1
-        uses: actions/cache@v3
+  # ---------------------------------------------------------- #
+  # .................RUN-DOCS-TESTS-WINDOWS................... #
+  # ---------------------------------------------------------- #
+
+  run-docs-tests-windows:
+    # if: ${{ github.event_name != 'pull_request' }}
+    name: Docs Tests Windows
+    needs: setup-tests
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [ "3.8", "3.9", "3.10", "3.11" ]
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/download-artifact@v3
         with:
-          path: starknet_py/tests/e2e/mock/contracts_compiled_v1
-          key: ${{ runner.os }}-contracts-v1-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v1', 'poetry.lock') }}
+          name: contract-artifacts
+          path: starknet_py/tests/e2e/mock/
 
-      - name: Compile Cairo1 contracts
-        if: steps.cache-contracts-v1.outputs.cache-hit != 'true'
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+          cache: 'pip'
+
+      # ====================== SETUP WSL ====================== #
+
+      - name: Setup WSL
+        uses: Vampire/setup-wsl@v2
+
+      - name: Setup WSL devnet
+        shell: wsl-bash {0}
         run: |
-          poetry run poe compile_contracts_v1
+          sudo apt-get -y update
+          sudo apt install -y wget software-properties-common
+          sudo add-apt-repository ppa:deadsnakes/ppa
+          sudo apt install -y python3.9
+          apt-get install -y python3-pip
+          sudo apt install -y libgmp3-dev
+          sudo apt-get install -y git
+          pip3 install git+https://github.com/0xSpaceShard/starknet-devnet.git@744e9b3bd5fb9e856287158d87673e090df69d73
 
-      # ========================= TESTS ========================= #
+      # ====================== SETUP PYTHON ====================== #
 
-      - name: Run docs tests
+      - name: Install poetry
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry
+          poetry config installer.modern-installation false
+
+      - name: Install python 3.9 requirements
+        run: |
+          poetry export -f requirements.txt --only=py39-dev --without-hashes --output requirements.txt
+          pip install -r requirements.txt
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'poetry'
+
+      - name: Install dependencies
+        run: |
+          poetry install --without py39-dev
+
+      # ====================== RUN TESTS ====================== #
+
+      - name: Run tests
         run: |
           poetry run poe test_ci_docs
 

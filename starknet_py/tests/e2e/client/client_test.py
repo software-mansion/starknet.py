@@ -1,5 +1,6 @@
 # pylint: disable=too-many-arguments
 import asyncio
+import dataclasses
 from typing import Tuple
 from unittest.mock import AsyncMock, patch
 
@@ -10,8 +11,7 @@ from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.storage import get_storage_var_address
 from starknet_py.net.client_models import (
     Call,
-    CasmClass,
-    CasmClassEntryPointsByType,
+    ContractClass,
     DeclaredContractHash,
     DeclareTransaction,
     DeployAccountTransaction,
@@ -169,6 +169,37 @@ async def test_estimate_fee_deploy_account(client, deploy_account_transaction):
 
 
 @pytest.mark.asyncio
+async def test_estimate_fee_for_multiple_transactions(
+    client, deploy_account_transaction, contract_address, account
+):
+    invoke_tx = await account.sign_invoke_transaction(
+        calls=Call(
+            to_addr=contract_address,
+            selector=get_selector_from_name("increase_balance"),
+            calldata=[123],
+        ),
+        max_fee=MAX_FEE,
+    )
+    invoke_tx = await account.sign_for_fee_estimate(invoke_tx)
+
+    declare_tx = await account.sign_declare_transaction(
+        compiled_contract=read_contract("map_compiled.json"), max_fee=MAX_FEE
+    )
+    declare_tx = dataclasses.replace(declare_tx, nonce=invoke_tx.nonce + 1)
+    declare_tx = await account.sign_for_fee_estimate(declare_tx)
+
+    transactions = [invoke_tx, declare_tx, deploy_account_transaction]
+
+    estimated_fees = await client.estimate_fee(tx=transactions, block_number="latest")
+
+    assert isinstance(estimated_fees, list)
+
+    for estimated_fee in estimated_fees:
+        assert isinstance(estimated_fee.overall_fee, int)
+        assert estimated_fee.overall_fee > 0
+
+
+@pytest.mark.asyncio
 async def test_call_contract(client, contract_address):
     call = Call(
         to_addr=contract_address,
@@ -206,6 +237,8 @@ async def test_get_class_hash_at(client, contract_address, class_hash):
 @pytest.mark.asyncio
 async def test_get_class_by_hash(client, class_hash):
     contract_class = await client.get_class_by_hash(class_hash=class_hash)
+
+    assert isinstance(contract_class, ContractClass)
     assert contract_class.program != ""
     assert contract_class.entry_points_by_type is not None
     assert contract_class.abi is not None
@@ -476,7 +509,7 @@ async def test_state_update_declared_contract_hashes(
     state_update = await client.get_state_update(block_number=block_with_declare_number)
 
     if isinstance(client, FullNodeClient):
-        assert class_hash in state_update.state_diff.declared_contract_hashes
+        assert class_hash in state_update.state_diff.deprecated_declared_classes
     else:
         assert class_hash in state_update.state_diff.deprecated_declared_contract_hashes
 
@@ -518,10 +551,8 @@ async def test_state_update_deployed_contracts(
 
 @pytest.mark.asyncio
 async def test_get_class_by_hash_sierra_program(
-    gateway_client, hello_starknet_class_hash_tx_hash: Tuple[int, int]
+    client, hello_starknet_class_hash_tx_hash: Tuple[int, int]
 ):
-    # TODO (#985): Replace with `client` when RPC 0.3.0 is supported
-    client = gateway_client
     (class_hash, _) = hello_starknet_class_hash_tx_hash
 
     contract_class = await client.get_class_by_hash(class_hash=class_hash)
@@ -535,12 +566,10 @@ async def test_get_class_by_hash_sierra_program(
 
 @pytest.mark.asyncio
 async def test_get_declare_v2_transaction(
-    gateway_client,
+    client,
     hello_starknet_class_hash_tx_hash: Tuple[int, int],
     declare_v2_hello_starknet: DeclareV2,
 ):
-    # TODO (#985): Replace with `client` when RPC 0.3.0 is supported
-    client = gateway_client
     (class_hash, tx_hash) = hello_starknet_class_hash_tx_hash
 
     transaction = await client.get_transaction(tx_hash=tx_hash)
@@ -548,7 +577,9 @@ async def test_get_declare_v2_transaction(
     assert isinstance(transaction, DeclareTransaction)
     assert transaction == DeclareTransaction(
         class_hash=class_hash,
-        compiled_class_hash=declare_v2_hello_starknet.compiled_class_hash,
+        compiled_class_hash=declare_v2_hello_starknet.compiled_class_hash
+        if isinstance(client, GatewayClient)
+        else None,
         sender_address=declare_v2_hello_starknet.sender_address,
         hash=tx_hash,
         max_fee=declare_v2_hello_starknet.max_fee,
@@ -560,13 +591,11 @@ async def test_get_declare_v2_transaction(
 
 @pytest.mark.asyncio
 async def test_get_block_with_declare_v2(
-    gateway_client,
+    client,
     hello_starknet_class_hash_tx_hash: Tuple[int, int],
     declare_v2_hello_starknet: DeclareV2,
     block_with_declare_v2_number: int,
 ):
-    # TODO (#985): Replace with `client` when RPC 0.3.0 is supported
-    client = gateway_client
     (class_hash, tx_hash) = hello_starknet_class_hash_tx_hash
 
     block = await client.get_block(block_number=block_with_declare_v2_number)
@@ -574,7 +603,9 @@ async def test_get_block_with_declare_v2(
     assert (
         DeclareTransaction(
             class_hash=class_hash,
-            compiled_class_hash=declare_v2_hello_starknet.compiled_class_hash,
+            compiled_class_hash=declare_v2_hello_starknet.compiled_class_hash
+            if isinstance(client, GatewayClient)
+            else None,
             sender_address=declare_v2_hello_starknet.sender_address,
             hash=tx_hash,
             max_fee=declare_v2_hello_starknet.max_fee,
@@ -588,20 +619,17 @@ async def test_get_block_with_declare_v2(
 
 @pytest.mark.asyncio
 async def test_get_new_state_update(
-    gateway_client,
+    client,
     hello_starknet_class_hash_tx_hash: Tuple[int, int],
     declare_v2_hello_starknet: DeclareV2,
     block_with_declare_v2_number: int,
     replaced_class: Tuple[int, int, int],
 ):
-    # TODO (#985): Replace with `client` when RPC 0.3.0 is supported
-    client = gateway_client
     (class_hash, _) = hello_starknet_class_hash_tx_hash
 
     state_update = await client.get_state_update(
         block_number=block_with_declare_v2_number
     )
-
     assert state_update.state_diff.replaced_classes == []
     assert (
         DeclaredContractHash(
@@ -609,6 +637,8 @@ async def test_get_new_state_update(
             compiled_class_hash=declare_v2_hello_starknet.compiled_class_hash,
         )
         in state_update.state_diff.declared_contract_hashes
+        if isinstance(client, GatewayClient)
+        else state_update.state_diff.declared_classes
     )
 
     (block_number, contract_address, class_hash) = replaced_class
@@ -618,24 +648,3 @@ async def test_get_new_state_update(
         ReplacedClass(contract_address=contract_address, class_hash=class_hash)
         in state_update.state_diff.replaced_classes
     )
-
-
-@pytest.mark.asyncio
-async def test_get_compiled_class_by_class_hash(
-    gateway_client, hello_starknet_class_hash_tx_hash: Tuple[int, int]
-):
-    # TODO (#985): Replace with `client` when RPC 0.3.0 is supported
-    client = gateway_client
-    (class_hash, _) = hello_starknet_class_hash_tx_hash
-
-    compiled_class = await client.get_compiled_class_by_class_hash(
-        class_hash=class_hash
-    )
-
-    assert isinstance(compiled_class, CasmClass)
-    assert isinstance(compiled_class.prime, int)
-    assert isinstance(compiled_class.bytecode, list)
-    assert isinstance(compiled_class.hints, list)
-    assert isinstance(compiled_class.pythonic_hints, list)
-    assert isinstance(compiled_class.compiler_version, str)
-    assert isinstance(compiled_class.entry_points_by_type, CasmClassEntryPointsByType)

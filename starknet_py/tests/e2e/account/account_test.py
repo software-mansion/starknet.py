@@ -13,6 +13,7 @@ from starknet_py.net.client_models import (
     Call,
     DeployAccountTransaction,
     DeployAccountTransactionResponse,
+    EstimatedFee,
     TransactionStatus,
 )
 from starknet_py.net.full_node_client import FullNodeClient
@@ -237,18 +238,16 @@ async def test_sign_declare_v2_transaction(
     assert signed_tx.max_fee == MAX_FEE
 
 
-# TODO (#984): full_node_account doesn't work here because declare_v2 isn't supported,
-#  change was introduced in RPC v0.3.0 and devnet hasn't been updated yet
 @pytest.mark.asyncio
 async def test_sign_declare_v2_transaction_auto_estimate(
-    gateway_account, sierra_minimal_compiled_contract_and_class_hash
+    account, sierra_minimal_compiled_contract_and_class_hash
 ):
     (
         compiled_contract,
         compiled_class_hash,
     ) = sierra_minimal_compiled_contract_and_class_hash
 
-    signed_tx = await gateway_account.sign_declare_v2_transaction(
+    signed_tx = await account.sign_declare_v2_transaction(
         compiled_contract,
         compiled_class_hash=compiled_class_hash,
         auto_estimate=True,
@@ -537,6 +536,7 @@ async def test_sign_deploy_account_tx_for_fee_estimation(
     estimate_fee_transaction = await account.sign_for_fee_estimate(transaction)
 
     estimation = await account.client.estimate_fee(transaction)
+    assert isinstance(estimation, EstimatedFee)
     assert estimation.overall_fee > 0
 
     # Verify that the transaction signed for fee estimation cannot be sent
