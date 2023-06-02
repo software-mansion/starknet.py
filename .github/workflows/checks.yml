@@ -268,11 +268,18 @@ jobs:
       - name: Setup WSL
         uses: Vampire/setup-wsl@v2
 
-      - name: Setup WSL git
-        shell: wsl-bash {0}
+
+      - shell: wsl-bash {0}
+        run: |
+          sudo apt-get -y update
+
+      - shell: wsl-bash {0}
         run: |
           sudo dpkg --configure -a
-          sudo apt install -y git-all
+
+      - shell: wsl-bash {0}
+        run: |
+          sudo apt-get install -y git-all
 
       - name: Setup WSL devnet
         shell: wsl-bash {0}
