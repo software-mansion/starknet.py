@@ -450,7 +450,7 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run poe docs_test_ci
+          poetry run poe test_ci_docs
 
       - name: Generate coverage in XML
         run: |
