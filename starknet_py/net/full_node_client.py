@@ -583,11 +583,12 @@ def _create_broadcasted_declare_properties(
     declare_properties = {
         "contract_class": {
             "entry_points_by_type": contract_class["entry_points_by_type"],
-            "abi": contract_class["abi"],
             "program": contract_class["program"],
         },
         "sender_address": _to_rpc_felt(transaction.sender_address),
     }
+    if contract_class["abi"] is not None:
+        declare_properties["contract_class"]["abi"] = contract_class["abi"]
 
     return declare_properties
 
@@ -599,13 +600,14 @@ def _create_broadcasted_declare_v2_properties(transaction: DeclareV2) -> dict:
     declare_v2_properties = {
         "contract_class": {
             "entry_points_by_type": contract_class["entry_points_by_type"],
-            "abi": contract_class["abi"],
             "sierra_program": contract_class["sierra_program"],
             "contract_class_version": contract_class["contract_class_version"],
         },
         "sender_address": _to_rpc_felt(transaction.sender_address),
         "compiled_class_hash": _to_rpc_felt(transaction.compiled_class_hash),
     }
+    if contract_class["abi"] is not None:
+        declare_v2_properties["contract_class"]["abi"] = contract_class["abi"]
 
     return declare_v2_properties
 

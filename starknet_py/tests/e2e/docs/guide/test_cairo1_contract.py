@@ -15,7 +15,6 @@ async def test_cairo1_contract(
     gateway_client,
 ):
     # pylint: disable=import-outside-toplevel, too-many-locals
-    # TODO (#985): use account when RPC 0.3.0 is supported
     (
         compiled_contract,
         compiled_class_hash,

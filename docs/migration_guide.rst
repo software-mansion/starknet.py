@@ -2,10 +2,12 @@ Migration guide
 ===============
 
 **********************
-0.17.0 Migration guide
+0.16.1 Migration guide
 **********************
 
-    Version 0.17.0 of **starknet.py** comes with support for **Windows**!
+    Version 0.16.1 of **starknet.py** brings the long-awaited **Windows** support!
+
+Additionally, this release brings support for `RPC v0.3.0rc1 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.3.0-rc1>`_!
 
 Breaking changes
 ----------------
@@ -13,12 +15,17 @@ Breaking changes
 .. currentmodule:: starknet_py.net
 
 1. ``FullNodeClient.get_events`` `keys` parameter type is now `List[List[str]]` instead of `List[str]`.
+2. ``FullNodeClient.get_state_update`` return type has been changed from `StateUpdate` to `Union[BlockStateUpdate, PendingBlockStateUpdate]`
+
+.. currentmodule:: starknet_py.net.schemas
+
+3. ``StateDiff`` dataclass properties have been changed (more details in RPC specification linked above).
 
 
 Minor changes
 -------------
 
-1. Both ``FullNodeClient.estimate_fee`` and ``GatewayClient.estimate_fee`` can take a single transaction or a list of transactions to estimate.
+1. ``Client.estimate_fee`` can take a single transaction or a list of transactions to estimate.
 
 
 |
