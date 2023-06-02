@@ -120,8 +120,8 @@ class Account(BaseAccount):
             )
 
         if auto_estimate:
-            estimate_fee = await self._estimate_fee(transaction)
-            max_fee = int(estimate_fee.overall_fee * Account.ESTIMATED_FEE_MULTIPLIER)
+            estimated_fee = await self._estimate_fee(transaction)
+            max_fee = int(estimated_fee.overall_fee * Account.ESTIMATED_FEE_MULTIPLIER)
 
         if max_fee is None:
             raise ValueError(
@@ -178,11 +178,14 @@ class Account(BaseAccount):
         """
         tx = await self.sign_for_fee_estimate(tx)
 
-        return await self._client.estimate_fee(
+        estimated_fee = await self._client.estimate_fee(
             tx=tx,
             block_hash=block_hash,
             block_number=block_number,
         )
+        assert isinstance(estimated_fee, EstimatedFee)
+
+        return estimated_fee
 
     async def get_nonce(self) -> int:
         """

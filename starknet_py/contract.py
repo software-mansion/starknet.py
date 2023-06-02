@@ -17,7 +17,7 @@ from starknet_py.hash.class_hash import compute_class_hash
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
-from starknet_py.net.client_models import Call, Hash, Tag
+from starknet_py.net.client_models import Call, EstimatedFee, Hash, Tag
 from starknet_py.net.models import AddressRepresentation, Invoke, parse_address
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.proxy.contract_abi_resolver import (
@@ -322,7 +322,7 @@ class PreparedFunctionCall(Call):
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ):
+    ) -> EstimatedFee:
         """
         Estimate fee for prepared function call.
 
@@ -333,9 +333,14 @@ class PreparedFunctionCall(Call):
         """
         tx = await self._account.sign_invoke_transaction(calls=self, max_fee=0)
 
-        return await self._client.estimate_fee(
-            tx=tx, block_hash=block_hash, block_number=block_number
+        estimated_fee = await self._client.estimate_fee(
+            tx=tx,
+            block_hash=block_hash,
+            block_number=block_number,
         )
+        assert isinstance(estimated_fee, EstimatedFee)
+
+        return estimated_fee
 
 
 @add_sync_methods

@@ -4,7 +4,6 @@ mod ERC20 {
     use starknet::get_caller_address;
     use starknet::contract_address_const;
     use starknet::ContractAddress;
-    use starknet::ContractAddressZeroable;
 
     struct Storage {
         name: felt252,
@@ -110,8 +109,8 @@ mod ERC20 {
     fn spend_allowance(owner: ContractAddress, spender: ContractAddress, amount: u256) {
         let current_allowance = allowances::read((owner, spender));
         let ONES_MASK = 0xffffffffffffffffffffffffffffffff_u128;
-        let is_unlimited_allowance =
-            current_allowance.low == ONES_MASK & current_allowance.high == ONES_MASK;
+        let is_unlimited_allowance = current_allowance.low == ONES_MASK
+            & current_allowance.high == ONES_MASK;
         if !is_unlimited_allowance {
             approve_helper(owner, spender, current_allowance - amount);
         }

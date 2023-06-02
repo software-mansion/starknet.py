@@ -58,7 +58,7 @@ class Transaction(ABC):
     def calculate_hash(self, chain_id: StarknetChainId) -> int:
         """
         Calculates the transaction hash in the Starknet network - a unique identifier of the
-        transaction. See :ref:`compute_transaction_hash` docstring for more details.
+        transaction. See :py:meth:`~starknet_py.hash.transaction.compute_transaction_hash` docstring for more details.
         """
 
 
@@ -96,16 +96,6 @@ class DeclareV2(AccountTransaction):
         metadata={"marshmallow_field": TransactionTypeField()},
         default=TransactionType.DECLARE,
     )
-
-    @marshmallow.post_dump
-    def post_dump(self, data: Dict[str, Any], **kwargs) -> Dict[str, Any]:
-        # pylint: disable=unused-argument, no-self-use
-        return compress_program(data, program_name="sierra_program")
-
-    @marshmallow.pre_load
-    def pre_load(self, data: Dict[str, Any], **kwargs) -> Dict[str, Any]:
-        # pylint: disable=unused-argument, no-self-use
-        return decompress_program(data, program_name="sierra_program")
 
     def calculate_hash(self, chain_id: StarknetChainId) -> int:
         return compute_declare_v2_transaction_hash(
@@ -252,6 +242,10 @@ def compute_invoke_hash(
     # pylint: disable=too-many-arguments
     """
     Computes invocation hash.
+
+        .. deprecated:: 0.15.0
+            To compute hash of an invoke transaction use
+            :py:meth:`~starknet_py.hash.transaction.compute_transaction_hash`.
 
     :param sender_address: int
     :param entry_point_selector: Union[int, str]

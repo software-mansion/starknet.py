@@ -2,26 +2,61 @@ Migration guide
 ===============
 
 **********************
+0.16.1 Migration guide
+**********************
+
+    Version 0.16.1 of **starknet.py** brings the long-awaited **Windows** support!
+
+Additionally, this release brings support for `RPC v0.3.0rc1 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.3.0-rc1>`_!
+
+Breaking changes
+----------------
+
+.. currentmodule:: starknet_py.net
+
+1. ``FullNodeClient.get_events`` `keys` parameter type is now `List[List[str]]` instead of `List[str]`.
+2. ``FullNodeClient.get_state_update`` return type has been changed from `StateUpdate` to `Union[BlockStateUpdate, PendingBlockStateUpdate]`
+
+.. currentmodule:: starknet_py.net.schemas
+
+3. ``StateDiff`` dataclass properties have been changed (more details in RPC specification linked above).
+
+
+Minor changes
+-------------
+
+1. ``Client.estimate_fee`` can take a single transaction or a list of transactions to estimate.
+
+
+|
+
+.. raw:: html
+
+  <hr>
+
+|
+
+**********************
 0.16.0 Migration guide
 **********************
 
-    Version 0.16.0 of **starknet.py** comes with *support for Python 3.8, 3.9, 3.10 and 3.11* !
+    Version 0.16.0 of **starknet.py** comes with support for Python 3.8, 3.9, 3.10 and 3.11!
 
 The ``cairo-lang`` package has been removed as a dependency.
 
 Also, dependencies are now optimized to include only necessary packages.
 
 
-Bugfixes
---------
+0.16.0 Bugfixes
+---------------
 
 .. currentmodule:: starknet_py.net.udc_deployer.deployer
 
 1. Fixed a bug where :meth:`Deployer.create_contract_deployment_raw` would use a random salt, when ``salt = 0`` was passed.
 
 
-Breaking changes
-----------------
+0.16.0 Breaking changes
+-----------------------
 
 .. currentmodule:: starknet_py.net.account.base_account
 
@@ -46,19 +81,18 @@ Breaking changes
 
 7. Deprecated ``ContractData.identifier_manager`` has been removed. Use :meth:`ContractData.parsed_abi` instead.
 
-
 .. currentmodule:: starknet_py.net.signer
-
 
 8. Removed deprecated ``typed_data`` parameter as dict in :meth:`BaseSigner.sign_message`. Use :ref:`TypedData` dataclass from ``starknet_py.utils.typed_data``.
 9. ``starknet_py.utils.crypto`` module has been removed.
+10. Changed name of ``starknet_py.transaction_excepions`` to ``starknet_py.transaction_errors`` to match other files.
 
 .. admonition:: Potentially breaking changes
     :class: attention
 
     Internal code of :meth:`starknet_py.abi.AbiParser.parse` has changed.
     It should not affect users but keep in mind that the Contract can have difficulties resolving ABI.
-    If so please report.
+    If so, please report.
 
 |
 

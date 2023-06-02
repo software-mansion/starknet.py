@@ -29,7 +29,7 @@ from starknet_py.net.models.transaction import (
     Invoke,
 )
 from starknet_py.net.networks import Network
-from starknet_py.transaction_exceptions import (
+from starknet_py.transaction_errors import (
     TransactionFailedError,
     TransactionNotReceivedError,
     TransactionRejectedError,
@@ -186,10 +186,10 @@ class Client(ABC):
     @abstractmethod
     async def estimate_fee(
         self,
-        tx: AccountTransaction,
+        tx: Union[AccountTransaction, List[AccountTransaction]],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> EstimatedFee:
+    ) -> Union[EstimatedFee, List[EstimatedFee]]:
         """
         Estimate how much Wei it will cost to run provided transaction.
 

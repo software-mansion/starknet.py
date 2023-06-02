@@ -42,7 +42,7 @@ class Event:
 
 
 @dataclass
-class EventsResponse:
+class EventsChunk:
     """
     Dataclass representing events returned by FullNodeClient.get_events method.
     """
@@ -358,9 +358,19 @@ class StateDiff:
     Dataclass representing state changes in the block.
     """
 
+    storage_diffs: List[StorageDiffItem]
+    deprecated_declared_classes: List[int]
+    declared_classes: List[DeclaredContractHash]
+    deployed_contracts: List[DeployedContract]
+    replaced_classes: List[ReplacedClass]
+    nonces: List[ContractsNonce]
+
+
+@dataclass
+class GatewayStateDiff:
+    storage_diffs: List[StorageDiffItem]
     deployed_contracts: List[DeployedContract]
     declared_contract_hashes: List[DeclaredContractHash]
-    storage_diffs: List[StorageDiffItem]
     nonces: List[ContractsNonce]
     deprecated_declared_contract_hashes: List[int] = field(default_factory=list)
     replaced_classes: List[ReplacedClass] = field(default_factory=list)
@@ -374,6 +384,16 @@ class BlockStateUpdate:
 
     block_hash: int
     new_root: int
+    old_root: int
+    state_diff: StateDiff
+
+
+@dataclass
+class PendingBlockStateUpdate:
+    """
+    Dataclass representing a pending change in state of a block.
+    """
+
     old_root: int
     state_diff: StateDiff
 

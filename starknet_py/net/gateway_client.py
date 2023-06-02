@@ -37,6 +37,7 @@ from starknet_py.net.models.transaction import (
     DeployAccountSchema,
     Invoke,
     InvokeSchema,
+    compress_program,
 )
 from starknet_py.net.networks import Network, net_address_from_net
 from starknet_py.net.schemas.gateway import (
@@ -54,7 +55,7 @@ from starknet_py.net.schemas.gateway import (
     TypesOfContractClassSchema,
     TypesOfTransactionsSchema,
 )
-from starknet_py.transaction_exceptions import TransactionNotReceivedError
+from starknet_py.transaction_errors import TransactionNotReceivedError
 from starknet_py.utils.sync import add_sync_methods
 
 
@@ -190,7 +191,10 @@ class GatewayClient(Client):
         if res["status"] in ("UNKNOWN", "NOT_RECEIVED"):
             raise TransactionNotReceivedError()
 
-        return TypesOfTransactionsSchema().load(res["transaction"], unknown=EXCLUDE)
+        return cast(
+            Transaction,
+            TypesOfTransactionsSchema().load(res["transaction"], unknown=EXCLUDE),
+        )
 
     async def get_transaction_receipt(self, tx_hash: Hash) -> TransactionReceipt:
         res = await self._feeder_gateway_client.call(
@@ -202,10 +206,15 @@ class GatewayClient(Client):
 
     async def estimate_fee(
         self,
-        tx: AccountTransaction,
+        tx: Union[AccountTransaction, List[AccountTransaction]],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> EstimatedFee:
+    ) -> Union[EstimatedFee, List[EstimatedFee]]:
+        if isinstance(tx, list):
+            return await self.estimate_fee_bulk(
+                transactions=tx, block_hash=block_hash, block_number=block_number
+            )
+
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -450,10 +459,18 @@ def get_block_identifier(
 def _get_payload(
     txs: Union[AccountTransaction, List[AccountTransaction]]
 ) -> Union[List, Dict]:
-    if isinstance(txs, AccountTransaction):
-        return _tx_to_schema(txs).dump(obj=txs)
+    if single_transaction := isinstance(txs, AccountTransaction):
+        txs = [txs]
 
-    return [_tx_to_schema(tx).dump(obj=tx) for tx in txs]
+    payload_list = []
+    for tx in txs:
+        payload = _tx_to_schema(tx).dump(obj=tx)
+        assert isinstance(payload, dict)
+        if isinstance(tx, DeclareV2):
+            payload = compress_program(data=payload, program_name="sierra_program")
+        payload_list.append(payload)
+
+    return payload_list if not single_transaction else payload_list[0]
 
 
 def _tx_to_schema(tx: AccountTransaction):
