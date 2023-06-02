@@ -134,7 +134,6 @@ async def test_get_storage_at_incorrect_address_full_node_client(full_node_clien
         )
 
 
-@pytest.mark.xfail(reason="RPC v0.3.0")
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_events_without_following_continuation_token(
@@ -160,7 +159,6 @@ async def test_get_events_without_following_continuation_token(
     assert events_response.continuation_token is not None
 
 
-@pytest.mark.xfail(reason="RPC v0.3.0")
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_events_follow_continuation_token(
@@ -186,7 +184,6 @@ async def test_get_events_follow_continuation_token(
     assert events_response.continuation_token is None
 
 
-@pytest.mark.xfail(reason="RPC v0.3.0")
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_events_nonexistent_event_name(
@@ -210,7 +207,6 @@ async def test_get_events_nonexistent_event_name(
     assert events_response.continuation_token is None
 
 
-@pytest.mark.xfail(reason="RPC v0.3.0")
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_events_with_two_events(
@@ -260,7 +256,6 @@ async def test_get_events_with_two_events(
     assert event_one_two_events_response.continuation_token is None
 
 
-@pytest.mark.xfail(reason="RPC v0.3.0")
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_events_start_from_continuation_token(
@@ -288,7 +283,6 @@ async def test_get_events_start_from_continuation_token(
     assert events_response.continuation_token == expected_continuation_token
 
 
-@pytest.mark.xfail(reason="RPC v0.3.0")
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_events_nonexistent_starting_block(
