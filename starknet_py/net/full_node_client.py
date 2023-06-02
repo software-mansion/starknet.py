@@ -15,9 +15,11 @@ from starknet_py.net.client_models import (
     DeclareTransactionResponse,
     DeployAccountTransactionResponse,
     EstimatedFee,
-    EventsResponse,
+    EventsChunk,
     Hash,
+    PendingBlockStateUpdate,
     SentTransactionResponse,
+    SierraContractClass,
     StarknetBlock,
     Tag,
     Transaction,
@@ -29,6 +31,8 @@ from starknet_py.net.models.transaction import (
     AccountTransaction,
     Declare,
     DeclareSchema,
+    DeclareV2,
+    DeclareV2Schema,
     DeployAccount,
     Invoke,
 )
@@ -39,9 +43,11 @@ from starknet_py.net.schemas.rpc import (
     DeclareTransactionResponseSchema,
     DeployAccountTransactionResponseSchema,
     EstimatedFeeSchema,
-    EventsSchema,
+    EventsChunkSchema,
+    PendingBlockStateUpdateSchema,
     PendingTransactionsSchema,
     SentTransactionSchema,
+    SierraContractClassSchema,
     StarknetBlockSchema,
     TransactionReceiptSchema,
     TypesOfTransactionsSchema,
@@ -104,10 +110,11 @@ class FullNodeClient(Client):
     ) -> BlockTransactionTraces:
         raise NotImplementedError()
 
+    # TODO (#809): add tests with multiple emitted keys
     async def get_events(
         self,
         address: Hash,
-        keys: List[str],
+        keys: List[List[str]],
         *,
         from_block_number: Optional[Union[int, Tag]] = None,
         from_block_hash: Optional[Union[Hash, Tag]] = None,
@@ -116,12 +123,13 @@ class FullNodeClient(Client):
         follow_continuation_token: bool = False,
         continuation_token: Optional[str] = None,
         chunk_size: int = 1,
-    ) -> EventsResponse:
+    ) -> EventsChunk:
         # pylint: disable=too-many-arguments
         """
         :param address: The address of the contract that emitted the event.
-        :param keys: List of names of events that are searched for.
-            Must be in a form of RPC accepted felt after being hashed by `keccak` hash.
+        :param keys: List consisting lists of keys by which the events are filtered. They match the keys *by position*,
+            e.g. given an event with 3 keys, [[1,2],[],[3]] which should return events that have either 1 or 2 in
+            the first key, any value for their second key and 3 for their third key.
         :param from_block_number: Number of the block from which events searched for **starts**
             or literals `"pending"` or `"latest"`. Mutually exclusive with ``from_block_hash`` parameter.
         :param from_block_hash: Hash of the block from which events searched for **starts**
@@ -144,7 +152,6 @@ class FullNodeClient(Client):
         from_block = _get_raw_block_identifier(from_block_hash, from_block_number)
         to_block = _get_raw_block_identifier(to_block_hash, to_block_number)
         address = _to_rpc_felt(address)
-        keys = [_to_rpc_felt(i) for i in keys]
 
         events_list = []
         while True:
@@ -161,8 +168,8 @@ class FullNodeClient(Client):
                 break
 
         events_response = cast(
-            EventsResponse,
-            EventsSchema().load(
+            EventsChunk,
+            EventsChunkSchema().load(
                 {"events": events_list, "continuation_token": continuation_token}
             ),
         )
@@ -174,7 +181,7 @@ class FullNodeClient(Client):
         from_block: Union[dict, Hash, Tag, None],
         to_block: Union[dict, Hash, Tag, None],
         address: Hash,
-        keys: List[str],
+        keys: List[List[str]],
         chunk_size: int,
         continuation_token: Optional[str] = None,
     ) -> Tuple[list, Optional[str]]:
@@ -202,7 +209,7 @@ class FullNodeClient(Client):
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> BlockStateUpdate:
+    ) -> Union[BlockStateUpdate, PendingBlockStateUpdate]:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -211,8 +218,14 @@ class FullNodeClient(Client):
             method_name="getStateUpdate",
             params=block_identifier,
         )
+
+        if "new_root" in res:
+            return cast(
+                BlockStateUpdate, BlockStateUpdateSchema().load(res, unknown=EXCLUDE)
+            )
         return cast(
-            BlockStateUpdate, BlockStateUpdateSchema().load(res, unknown=EXCLUDE)
+            PendingBlockStateUpdate,
+            PendingBlockStateUpdateSchema().load(res, unknown=EXCLUDE),
         )
 
     async def get_storage_at(
@@ -261,23 +274,34 @@ class FullNodeClient(Client):
 
     async def estimate_fee(
         self,
-        tx: AccountTransaction,
+        tx: Union[AccountTransaction, List[AccountTransaction]],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> EstimatedFee:
+    ) -> Union[EstimatedFee, List[EstimatedFee]]:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
 
+        if single_transaction := isinstance(tx, AccountTransaction):
+            tx = [tx]
+
         res = await self._client.call(
             method_name="estimateFee",
             params={
-                "request": _create_broadcasted_txn(transaction=tx),
+                "request": [_create_broadcasted_txn(transaction=t) for t in tx],
                 **block_identifier,
             },
         )
 
-        return cast(EstimatedFee, EstimatedFeeSchema().load(res, unknown=EXCLUDE))
+        if single_transaction:
+            res = res[0]
+
+        return cast(
+            EstimatedFee,
+            EstimatedFeeSchema().load(
+                res, unknown=EXCLUDE, many=(not single_transaction)
+            ),
+        )
 
     async def call_contract(
         self,
@@ -328,7 +352,9 @@ class FullNodeClient(Client):
             DeployAccountTransactionResponseSchema().load(res, unknown=EXCLUDE),
         )
 
-    async def declare(self, transaction: Declare) -> DeclareTransactionResponse:
+    async def declare(
+        self, transaction: Union[Declare, DeclareV2]
+    ) -> DeclareTransactionResponse:
         params = _create_broadcasted_txn(transaction=transaction)
 
         res = await self._client.call(
@@ -365,7 +391,7 @@ class FullNodeClient(Client):
         class_hash: Hash,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> ContractClass:
+    ) -> Union[SierraContractClass, ContractClass]:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -377,6 +403,12 @@ class FullNodeClient(Client):
                 **block_identifier,
             },
         )
+
+        if "sierra_program" in res:
+            return cast(
+                SierraContractClass,
+                SierraContractClassSchema().load(res, unknown=EXCLUDE),
+            )
         return cast(ContractClass, ContractClassSchema().load(res, unknown=EXCLUDE))
 
     # Only RPC methods
@@ -436,7 +468,7 @@ class FullNodeClient(Client):
         contract_address: Hash,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> ContractClass:
+    ) -> Union[SierraContractClass, ContractClass]:
         """
         Get the contract class definition in the given block at the given address
 
@@ -457,6 +489,11 @@ class FullNodeClient(Client):
             },
         )
 
+        if "sierra_program" in res:
+            return cast(
+                SierraContractClass,
+                SierraContractClassSchema().load(res, unknown=EXCLUDE),
+            )
         return cast(ContractClass, ContractClassSchema().load(res, unknown=EXCLUDE))
 
     async def get_pending_transactions(self) -> List[Transaction]:
@@ -536,17 +573,43 @@ def _create_broadcasted_txn(transaction: AccountTransaction) -> dict:
     }
 
 
-def _create_broadcasted_declare_properties(transaction: Declare) -> dict:
+def _create_broadcasted_declare_properties(
+    transaction: Union[Declare, DeclareV2]
+) -> dict:
+    if isinstance(transaction, DeclareV2):
+        return _create_broadcasted_declare_v2_properties(transaction)
+
     contract_class = cast(Dict, DeclareSchema().dump(obj=transaction))["contract_class"]
     declare_properties = {
         "contract_class": {
-            "program": contract_class["program"],
             "entry_points_by_type": contract_class["entry_points_by_type"],
-            "abi": contract_class["abi"],
+            "program": contract_class["program"],
         },
         "sender_address": _to_rpc_felt(transaction.sender_address),
     }
+    if contract_class["abi"] is not None:
+        declare_properties["contract_class"]["abi"] = contract_class["abi"]
+
     return declare_properties
+
+
+def _create_broadcasted_declare_v2_properties(transaction: DeclareV2) -> dict:
+    contract_class = cast(Dict, DeclareV2Schema().dump(obj=transaction))[
+        "contract_class"
+    ]
+    declare_v2_properties = {
+        "contract_class": {
+            "entry_points_by_type": contract_class["entry_points_by_type"],
+            "sierra_program": contract_class["sierra_program"],
+            "contract_class_version": contract_class["contract_class_version"],
+        },
+        "sender_address": _to_rpc_felt(transaction.sender_address),
+        "compiled_class_hash": _to_rpc_felt(transaction.compiled_class_hash),
+    }
+    if contract_class["abi"] is not None:
+        declare_v2_properties["contract_class"]["abi"] = contract_class["abi"]
+
+    return declare_v2_properties
 
 
 def _create_broadcasted_invoke_properties(transaction: Invoke) -> dict:

@@ -27,6 +27,7 @@ from starknet_py.net.client_models import (
     EstimatedFee,
     Event,
     GatewayBlock,
+    GatewayStateDiff,
     InvokeTransaction,
     L1HandlerTransaction,
     L1toL2Message,
@@ -37,7 +38,6 @@ from starknet_py.net.client_models import (
     SierraContractClass,
     SierraEntryPoint,
     SierraEntryPointsByType,
-    StateDiff,
     StorageDiffItem,
     TransactionReceipt,
     TransactionStatusResponse,
@@ -361,8 +361,8 @@ class StateDiffSchema(Schema):
     )
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> StateDiff:
-        return StateDiff(**data)
+    def make_dataclass(self, data, **kwargs) -> GatewayStateDiff:
+        return GatewayStateDiff(**data)
 
 
 class BlockStateUpdateSchema(Schema):

@@ -1,6 +1,7 @@
 import pytest
 
 from starknet_py.net.client_models import CasmClass
+from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.udc_deployer.deployer import _get_random_salt
 from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V1_DIR, MAX_FEE
 from starknet_py.tests.e2e.fixtures.misc import read_contract
@@ -8,18 +9,26 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 @pytest.mark.asyncio
 async def test_cairo1_contract(
-    gateway_account, sierra_minimal_compiled_contract_and_class_hash, gateway_client
+    account,
+    sierra_minimal_compiled_contract_and_class_hash,
+    another_sierra_minimal_compiled_contract_and_class_hash,
+    gateway_client,
 ):
     # pylint: disable=import-outside-toplevel, too-many-locals
-    # TODO (#985): use account when RPC 0.3.0 is supported
-    account = gateway_account
     (
         compiled_contract,
         compiled_class_hash,
-    ) = sierra_minimal_compiled_contract_and_class_hash
+    ) = (
+        sierra_minimal_compiled_contract_and_class_hash
+        if isinstance(account.client, GatewayClient)
+        else another_sierra_minimal_compiled_contract_and_class_hash
+    )
 
     contract_compiled_casm = read_contract(
-        "minimal_contract_compiled.casm", directory=CONTRACTS_COMPILED_V1_DIR
+        "minimal_contract_compiled.casm"
+        if isinstance(account.client, GatewayClient)
+        else "another_minimal_contract_compiled.casm",
+        directory=CONTRACTS_COMPILED_V1_DIR,
     )
 
     # docs: start

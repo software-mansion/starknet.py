@@ -97,16 +97,6 @@ class DeclareV2(AccountTransaction):
         default=TransactionType.DECLARE,
     )
 
-    @marshmallow.post_dump
-    def post_dump(self, data: Dict[str, Any], **kwargs) -> Dict[str, Any]:
-        # pylint: disable=unused-argument, no-self-use
-        return compress_program(data, program_name="sierra_program")
-
-    @marshmallow.pre_load
-    def pre_load(self, data: Dict[str, Any], **kwargs) -> Dict[str, Any]:
-        # pylint: disable=unused-argument, no-self-use
-        return decompress_program(data, program_name="sierra_program")
-
     def calculate_hash(self, chain_id: StarknetChainId) -> int:
         return compute_declare_v2_transaction_hash(
             contract_class=self.contract_class,

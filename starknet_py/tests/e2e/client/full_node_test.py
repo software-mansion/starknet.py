@@ -7,7 +7,11 @@ from starknet_py.contract import Contract
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.storage import get_storage_var_address
 from starknet_py.net.client_errors import ClientError
-from starknet_py.net.client_models import DeclareTransaction
+from starknet_py.net.client_models import (
+    ContractClass,
+    DeclareTransaction,
+    SierraContractClass,
+)
 from starknet_py.net.full_node_client import _to_rpc_felt
 
 
@@ -38,12 +42,23 @@ async def test_node_get_declare_transaction_by_block_number_and_index(
 
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
-async def test_get_class_at(full_node_client, contract_address):
+async def test_get_class_at(
+    full_node_client, contract_address, hello_starknet_deploy_transaction_address
+):
     declared_contract = await full_node_client.get_class_at(
         contract_address=contract_address, block_hash="latest"
     )
 
+    assert isinstance(declared_contract, ContractClass)
     assert declared_contract.program != {}
+    assert declared_contract.entry_points_by_type is not None
+    assert declared_contract.abi is not None
+
+    declared_contract = await full_node_client.get_class_at(
+        contract_address=hello_starknet_deploy_transaction_address, block_hash="latest"
+    )
+    assert isinstance(declared_contract, SierraContractClass)
+    assert declared_contract.sierra_program != {}
     assert declared_contract.entry_points_by_type is not None
     assert declared_contract.abi is not None
 
@@ -136,7 +151,7 @@ async def test_get_events_without_following_continuation_token(
         from_block_number=0,
         to_block_hash="latest",
         address=simple_storage_with_event_contract.address,
-        keys=[EVENT_ONE_PARSED_NAME],
+        keys=[[EVENT_ONE_PARSED_NAME]],
         follow_continuation_token=False,
         chunk_size=chunk_size,
     )
@@ -162,7 +177,7 @@ async def test_get_events_follow_continuation_token(
         from_block_number=0,
         to_block_hash="latest",
         address=simple_storage_with_event_contract.address,
-        keys=[EVENT_ONE_PARSED_NAME],
+        keys=[[EVENT_ONE_PARSED_NAME]],
         follow_continuation_token=True,
         chunk_size=1,
     )
@@ -186,7 +201,7 @@ async def test_get_events_nonexistent_event_name(
         from_block_number=0,
         to_block_hash="latest",
         address=simple_storage_with_event_contract.address,
-        keys=[_parse_event_name("nonexistent_event")],
+        keys=[[_parse_event_name("nonexistent_event")]],
         follow_continuation_token=False,
         chunk_size=3,
     )
@@ -217,21 +232,21 @@ async def test_get_events_with_two_events(
         from_block_number=0,
         to_block_hash="latest",
         address=simple_storage_with_event_contract.address,
-        keys=[EVENT_ONE_PARSED_NAME],
+        keys=[[EVENT_ONE_PARSED_NAME]],
         follow_continuation_token=True,
     )
     event_two_events_response = await full_node_client.get_events(
         from_block_number=0,
         to_block_hash="latest",
         address=simple_storage_with_event_contract.address,
-        keys=[EVENT_TWO_PARSED_NAME],
+        keys=[[EVENT_TWO_PARSED_NAME]],
         follow_continuation_token=True,
     )
     event_one_two_events_response = await full_node_client.get_events(
         from_block_number=0,
         to_block_hash="latest",
         address=simple_storage_with_event_contract.address,
-        keys=[EVENT_ONE_PARSED_NAME, EVENT_TWO_PARSED_NAME],
+        keys=[[EVENT_ONE_PARSED_NAME, EVENT_TWO_PARSED_NAME]],
         follow_continuation_token=True,
     )
 
@@ -263,7 +278,7 @@ async def test_get_events_start_from_continuation_token(
         from_block_number=0,
         to_block_hash="latest",
         address=simple_storage_with_event_contract.address,
-        keys=[EVENT_ONE_PARSED_NAME],
+        keys=[[EVENT_ONE_PARSED_NAME]],
         continuation_token=continuation_token,
         chunk_size=chunk_size,
     )
@@ -285,7 +300,7 @@ async def test_get_events_nonexistent_starting_block(
             from_block_number=10000,
             to_block_hash="latest",
             address=simple_storage_with_event_contract.address,
-            keys=[EVENT_ONE_PARSED_NAME],
+            keys=[[EVENT_ONE_PARSED_NAME]],
             follow_continuation_token=False,
             chunk_size=1,
         )
