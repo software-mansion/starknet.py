@@ -35,7 +35,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install
+          poetry install --without py39-dev
 
       - name: Check poetry.lock
         run: |
@@ -62,7 +62,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ "3.11" ]
+        python-version: [ "3.9" ]
     steps:
 
       # ====================== SETUP ====================== #
@@ -93,7 +93,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install
+          poetry install --without py39-dev
 
       # ====================== CONTRACTS v0 ====================== #
 
@@ -180,6 +180,7 @@ jobs:
     needs: setup-tests
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         python-version: [ "3.8", "3.9", "3.10", "3.11" ]
     steps:
@@ -217,7 +218,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install
+          poetry install --without py39-dev
 
       # ====================== RUN TESTS ====================== #
 
@@ -246,6 +247,7 @@ jobs:
     needs: setup-tests
     runs-on: windows-latest
     strategy:
+      fail-fast: false
       matrix:
         python-version: [ "3.8", "3.9", "3.10", "3.11" ]
     steps:
@@ -298,7 +300,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install
+          poetry install --without py39-dev
 
       # ====================== RUN TESTS ====================== #
 
@@ -326,6 +328,7 @@ jobs:
     needs: setup-tests
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         python-version: [ "3.8", "3.9", "3.10", "3.11" ]
     steps:
@@ -363,7 +366,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install
+          poetry install --without py39-dev
 
       # ====================== RUN TESTS ====================== #
 
@@ -388,6 +391,7 @@ jobs:
     needs: setup-tests
     runs-on: windows-latest
     strategy:
+      fail-fast: false
       matrix:
         python-version: [ "3.8", "3.9", "3.10", "3.11" ]
     steps:
@@ -440,7 +444,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install
+          poetry install --without py39-dev
 
       # ====================== RUN TESTS ====================== #
 
