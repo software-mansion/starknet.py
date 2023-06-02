@@ -62,7 +62,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ "3.11" ]
+        python-version: [ "3.9" ]
     steps:
 
       # ====================== SETUP ====================== #
@@ -93,7 +93,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install
+          poetry install --without py39-dev
 
       # ====================== CONTRACTS v0 ====================== #
 
