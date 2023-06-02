@@ -268,6 +268,12 @@ jobs:
       - name: Setup WSL
         uses: Vampire/setup-wsl@v2
 
+      - name: Setup WSL git
+        shell: wsl-bash {0}
+        run: |
+          sudo dpkg --configure -a
+          sudo apt install -y git-all
+
       - name: Setup WSL devnet
         shell: wsl-bash {0}
         run: |
@@ -277,7 +283,6 @@ jobs:
           sudo apt install -y python3.9
           apt-get install -y python3-pip
           sudo apt install -y libgmp3-dev
-          sudo apt install -y git-all
           pip3 install git+https://github.com/0xSpaceShard/starknet-devnet.git@744e9b3bd5fb9e856287158d87673e090df69d73
 
       # ====================== SETUP PYTHON ====================== #
@@ -413,6 +418,12 @@ jobs:
       - name: Setup WSL
         uses: Vampire/setup-wsl@v2
 
+      - name: Setup WSL git
+        shell: wsl-bash {0}
+        run: |
+          sudo dpkg --configure -a
+          sudo apt install -y git-all
+
       - name: Setup WSL devnet
         shell: wsl-bash {0}
         run: |
@@ -422,7 +433,6 @@ jobs:
           sudo apt install -y python3.9
           apt-get install -y python3-pip
           sudo apt install -y libgmp3-dev
-          sudo apt install -y git-all
           pip3 install git+https://github.com/0xSpaceShard/starknet-devnet.git@744e9b3bd5fb9e856287158d87673e090df69d73
 
       # ====================== SETUP PYTHON ====================== #
