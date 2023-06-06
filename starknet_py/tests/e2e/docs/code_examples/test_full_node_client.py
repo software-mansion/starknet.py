@@ -71,7 +71,10 @@ async def test_estimate_fee(full_node_account, deploy_account_transaction):
     full_node_client = full_node_account.client
     transaction = deploy_account_transaction
     # docs-start: estimate_fee
+    # a single transaction
     estimated_fee = await full_node_client.estimate_fee(tx=transaction)
+    # or a list of transactions
+    estimated_fee = await full_node_client.estimate_fee(tx=[transaction])
     # docs-end: estimate_fee
 
 

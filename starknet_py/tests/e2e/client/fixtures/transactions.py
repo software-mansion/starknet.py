@@ -10,6 +10,7 @@ from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.net.account.account import Account
 from starknet_py.net.client import Client
 from starknet_py.net.models.transaction import DeclareV2, DeployAccount
+from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.client.fixtures.prepare_net_for_gateway_test import (
     PreparedNetworkData,
 )
@@ -100,6 +101,21 @@ async def hello_starknet_class_hash_tx_hash(
 
 
 @pytest_asyncio.fixture(scope="package")
+async def hello_starknet_deploy_transaction_address(
+    gateway_account: Account, hello_starknet_class_hash_tx_hash: Tuple[int, int]
+) -> int:
+    class_hash, _ = hello_starknet_class_hash_tx_hash
+    deployer = Deployer()
+    contract_deployment = deployer.create_contract_deployment_raw(class_hash=class_hash)
+    deploy_invoke_transaction = await gateway_account.sign_invoke_transaction(
+        calls=contract_deployment.call, max_fee=MAX_FEE
+    )
+    resp = await gateway_account.client.send_transaction(deploy_invoke_transaction)
+    await gateway_account.client.wait_for_tx(resp.transaction_hash)
+    return contract_deployment.address
+
+
+@pytest_asyncio.fixture(scope="package")
 async def block_with_declare_v2_number(
     hello_starknet_class_hash_tx_hash: Tuple[int, int], full_node_client
 ) -> int:
@@ -111,7 +127,7 @@ async def block_with_declare_v2_number(
     return declare_v2_receipt.block_number
 
 
-@pytest_asyncio.fixture(scope="package")
+@pytest_asyncio.fixture(scope="function")
 async def replaced_class(account: Account, map_class_hash: int) -> Tuple[int, int, int]:
     """
     Returns block_number, contract_address and class_hash of transaction replacing implementation.

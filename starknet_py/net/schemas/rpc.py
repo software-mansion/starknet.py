@@ -6,6 +6,7 @@ from starknet_py.net.client_models import (
     BlockStateUpdate,
     ContractClass,
     ContractsNonce,
+    DeclaredContractHash,
     DeclareTransaction,
     DeclareTransactionResponse,
     DeployAccountTransaction,
@@ -16,12 +17,17 @@ from starknet_py.net.client_models import (
     EntryPointsByType,
     EstimatedFee,
     Event,
-    EventsResponse,
+    EventsChunk,
     InvokeTransaction,
     L1HandlerTransaction,
     L1toL2Message,
     L2toL1Message,
+    PendingBlockStateUpdate,
+    ReplacedClass,
     SentTransactionResponse,
+    SierraContractClass,
+    SierraEntryPoint,
+    SierraEntryPointsByType,
     StarknetBlock,
     StateDiff,
     StorageDiffItem,
@@ -59,7 +65,7 @@ class EventSchema(Schema):
         return Event(**data)
 
 
-class EventsSchema(Schema):
+class EventsChunkSchema(Schema):
     events = fields.List(
         fields.Nested(EventSchema(unknown=EXCLUDE)),
         data_key="events",
@@ -69,7 +75,7 @@ class EventsSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs):
-        return EventsResponse(**data)
+        return EventsChunk(**data)
 
 
 class L1toL2MessageSchema(Schema):
@@ -241,6 +247,15 @@ class ContractDiffSchema(Schema):
         return DeployedContract(**data)
 
 
+class DeclaredContractHashSchema(Schema):
+    class_hash = Felt(data_key="class_hash", required=True)
+    compiled_class_hash = Felt(data_key="compiled_class_hash", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> DeclaredContractHash:
+        return DeclaredContractHash(**data)
+
+
 class DeployedContractSchema(Schema):
     address = Felt(data_key="address", required=True)
     class_hash = NonPrefixedHex(data_key="class_hash", required=True)
@@ -259,20 +274,39 @@ class ContractsNonceSchema(Schema):
         return ContractsNonce(**data)
 
 
+class ReplacedClassSchema(Schema):
+    contract_address = Felt(data_key="contract_address", required=True)
+    class_hash = Felt(data_key="class_hash", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> ReplacedClass:
+        return ReplacedClass(**data)
+
+
 class StateDiffSchema(Schema):
+    storage_diffs = fields.List(
+        fields.Nested(StorageDiffSchema()),
+        data_key="storage_diffs",
+        required=True,
+    )
+    deprecated_declared_classes = fields.List(
+        Felt(),
+        data_key="deprecated_declared_classes",
+        required=True,
+    )
+    declared_classes = fields.List(
+        fields.Nested(DeclaredContractHashSchema()),
+        data_key="declared_classes",
+        required=True,
+    )
     deployed_contracts = fields.List(
         fields.Nested(DeployedContractSchema()),
         data_key="deployed_contracts",
         required=True,
     )
-    declared_contract_hashes = fields.List(
-        Felt(),
-        data_key="declared_contract_hashes",
-        required=True,
-    )
-    storage_diffs = fields.List(
-        fields.Nested(StorageDiffSchema()),
-        data_key="storage_diffs",
+    replaced_classes = fields.List(
+        fields.Nested(ReplacedClassSchema()),
+        data_key="replaced_classes",
         required=True,
     )
     nonces = fields.List(
@@ -297,6 +331,24 @@ class BlockStateUpdateSchema(Schema):
         )
 
 
+class PendingBlockStateUpdateSchema(Schema):
+    old_root = Felt(data_key="old_root", required=True)
+    state_diff = fields.Nested(StateDiffSchema(), data_key="state_diff", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> PendingBlockStateUpdate:
+        return PendingBlockStateUpdate(**data)
+
+
+class SierraEntryPointSchema(Schema):
+    selector = Felt(data_key="selector", required=True)
+    function_idx = fields.Integer(data_key="function_idx", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> SierraEntryPoint:
+        return SierraEntryPoint(**data)
+
+
 class EntryPointSchema(Schema):
     offset = Felt(data_key="offset", required=True)
     selector = Felt(data_key="selector", required=True)
@@ -304,6 +356,22 @@ class EntryPointSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> EntryPoint:
         return EntryPoint(**data)
+
+
+class SierraEntryPointsByTypeSchema(Schema):
+    constructor = fields.List(
+        fields.Nested(SierraEntryPointSchema()), data_key="CONSTRUCTOR", required=True
+    )
+    external = fields.List(
+        fields.Nested(SierraEntryPointSchema()), data_key="EXTERNAL", required=True
+    )
+    l1_handler = fields.List(
+        fields.Nested(SierraEntryPointSchema()), data_key="L1_HANDLER", required=True
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> SierraEntryPointsByType:
+        return SierraEntryPointsByType(**data)
 
 
 class EntryPointsByTypeSchema(Schema):
@@ -320,6 +388,21 @@ class EntryPointsByTypeSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> EntryPointsByType:
         return EntryPointsByType(**data)
+
+
+class SierraContractClassSchema(Schema):
+    sierra_program = fields.List(Felt(), data_key="sierra_program", required=True)
+    contract_class_version = fields.String(
+        data_key="contract_class_version", required=True
+    )
+    entry_points_by_type = fields.Nested(
+        SierraEntryPointsByTypeSchema(), data_key="entry_points_by_type", required=True
+    )
+    abi = fields.String(data_key="abi", required=False)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> SierraContractClass:
+        return SierraContractClass(**data)
 
 
 class ContractClassSchema(Schema):

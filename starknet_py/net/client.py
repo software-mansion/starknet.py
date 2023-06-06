@@ -186,10 +186,10 @@ class Client(ABC):
     @abstractmethod
     async def estimate_fee(
         self,
-        tx: AccountTransaction,
+        tx: Union[AccountTransaction, List[AccountTransaction]],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> EstimatedFee:
+    ) -> Union[EstimatedFee, List[EstimatedFee]]:
         """
         Estimate how much Wei it will cost to run provided transaction.
 
