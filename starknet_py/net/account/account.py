@@ -389,6 +389,7 @@ class Account(BaseAccount):
         client: Client,
         chain: StarknetChainId,
         constructor_calldata: Optional[List[int]] = None,
+        nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> AccountDeploymentResult:
@@ -409,6 +410,7 @@ class Account(BaseAccount):
         :param chain: id of the Starknet chain used.
         :param constructor_calldata: optional calldata to account contract constructor. If ``None`` is passed,
             ``[key_pair.public_key]`` will be used as calldata.
+        :param nonce: Nonce of the transaction.
         :param max_fee: max fee to be paid for deployment, must be less or equal to the amount of tokens prefunded.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         """
@@ -440,6 +442,7 @@ class Account(BaseAccount):
             class_hash=class_hash,
             contract_address_salt=salt,
             constructor_calldata=calldata,
+            nonce=nonce,
             max_fee=max_fee,
             auto_estimate=auto_estimate,
         )
