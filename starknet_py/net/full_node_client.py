@@ -114,8 +114,8 @@ class FullNodeClient(Client):
     async def get_events(
         self,
         address: Hash,
-        keys: List[List[str]],
         *,
+        keys: Optional[List[List[str]]] = None,
         from_block_number: Optional[Union[int, Tag]] = None,
         from_block_hash: Optional[Union[Hash, Tag]] = None,
         to_block_number: Optional[Union[int, Tag]] = None,
