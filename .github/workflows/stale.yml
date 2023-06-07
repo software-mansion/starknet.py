@@ -14,11 +14,11 @@ jobs:
         with:
           exempt-all-pr-assignees: true
           exempt-pr-labels: 'pinned'
-          stale-issue-message: 'This issue is stale because it has been open 30 days with no activity. Remove stale label or comment or this will be closed in 5 days.'
+          stale-issue-message: 'This issue is stale because it has not received any activity in the last 30 days. Remove stale label or add a comment, otherwise it will be closed in 5 days.'
           close-issue-message: 'This issue was closed because it has been stale for 5 days with no activity.'
           days-before-issue-stale: 30
           days-before-issue-close: 5
-          stale-pr-message: 'This PR is stale because it has been open 30 days with no activity. Remove stale label or comment or this will be closed in 5 days.'
-          close-pr-message: 'This PR was closed because it has been stalled for 5 days with no activity.'
+          stale-pr-message: 'This PR is stale because it has not received any activity in the last 30 days. Remove stale label or add a comment, otherwise it will be closed in 5 days.'
+          close-pr-message: 'This PR was closed because it has been stale for 5 days with no activity.'
           days-before-pr-stale: 30
           days-before-pr-close: 5
