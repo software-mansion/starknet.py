@@ -133,6 +133,8 @@ class Account(BaseAccount):
     async def _prepare_invoke(
         self,
         calls: Calls,
+        *,
+        nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> Invoke:
@@ -144,7 +146,8 @@ class Account(BaseAccount):
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :return: Invoke created from the calls (without the signature).
         """
-        nonce = await self.get_nonce()
+        if nonce is None:
+            nonce = await self.get_nonce()
 
         call_descriptions, calldata = _merge_calls(ensure_iterable(calls))
         wrapped_calldata = _execute_payload_serializer.serialize(
@@ -229,10 +232,13 @@ class Account(BaseAccount):
         self,
         calls: Calls,
         *,
+        nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> Invoke:
-        execute_tx = await self._prepare_invoke(calls, max_fee, auto_estimate)
+        execute_tx = await self._prepare_invoke(
+            calls, nonce=nonce, max_fee=max_fee, auto_estimate=auto_estimate
+        )
         signature = self.signer.sign_transaction(execute_tx)
         return _add_signature_to_transaction(execute_tx, signature)
 
@@ -240,6 +246,7 @@ class Account(BaseAccount):
         self,
         compiled_contract: str,
         *,
+        nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> Declare:
@@ -248,7 +255,9 @@ class Account(BaseAccount):
                 "Signing sierra contracts requires using `sign_declare_v2_transaction` method."
             )
 
-        declare_tx = await self._make_declare_transaction(compiled_contract)
+        declare_tx = await self._make_declare_transaction(
+            compiled_contract, nonce=nonce
+        )
 
         max_fee = await self._get_max_fee(
             transaction=declare_tx, max_fee=max_fee, auto_estimate=auto_estimate
@@ -262,11 +271,12 @@ class Account(BaseAccount):
         compiled_contract: str,
         compiled_class_hash: int,
         *,
+        nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> DeclareV2:
         declare_tx = await self._make_declare_v2_transaction(
-            compiled_contract, compiled_class_hash
+            compiled_contract, compiled_class_hash, nonce=nonce
         )
         max_fee = await self._get_max_fee(
             transaction=declare_tx, max_fee=max_fee, auto_estimate=auto_estimate
@@ -275,31 +285,45 @@ class Account(BaseAccount):
         signature = self.signer.sign_transaction(declare_tx)
         return _add_signature_to_transaction(declare_tx, signature)
 
-    async def _make_declare_transaction(self, compiled_contract: str) -> Declare:
+    async def _make_declare_transaction(
+        self, compiled_contract: str, *, nonce: Optional[int] = None
+    ) -> Declare:
         contract_class = create_compiled_contract(compiled_contract=compiled_contract)
+
+        if nonce is None:
+            nonce = await self.get_nonce()
+
         declare_tx = Declare(
             contract_class=contract_class,
             sender_address=self.address,
             max_fee=0,
             signature=[],
-            nonce=await self.get_nonce(),
+            nonce=nonce,
             version=1,
         )
         return declare_tx
 
     async def _make_declare_v2_transaction(
-        self, compiled_contract: str, compiled_class_hash: int
+        self,
+        compiled_contract: str,
+        compiled_class_hash: int,
+        *,
+        nonce: Optional[int] = None,
     ) -> DeclareV2:
         contract_class = create_sierra_compiled_contract(
             compiled_contract=compiled_contract
         )
+
+        if nonce is None:
+            nonce = await self.get_nonce()
+
         declare_tx = DeclareV2(
             contract_class=contract_class,
             compiled_class_hash=compiled_class_hash,
             sender_address=self.address,
             max_fee=0,
             signature=[],
-            nonce=await self.get_nonce(),
+            nonce=nonce,
             version=2,
         )
         return declare_tx
@@ -310,6 +334,7 @@ class Account(BaseAccount):
         contract_address_salt: int,
         constructor_calldata: Optional[List[int]] = None,
         *,
+        nonce: int = 0,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> DeployAccount:
@@ -322,7 +347,7 @@ class Account(BaseAccount):
             version=1,
             max_fee=0,
             signature=[],
-            nonce=0,
+            nonce=nonce,
         )
 
         max_fee = await self._get_max_fee(
@@ -336,11 +361,12 @@ class Account(BaseAccount):
         self,
         calls: Calls,
         *,
+        nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> SentTransactionResponse:
         execute_transaction = await self.sign_invoke_transaction(
-            calls, max_fee=max_fee, auto_estimate=auto_estimate
+            calls, nonce=nonce, max_fee=max_fee, auto_estimate=auto_estimate
         )
         return await self._client.send_transaction(execute_transaction)
 
@@ -363,9 +389,11 @@ class Account(BaseAccount):
         client: Client,
         chain: StarknetChainId,
         constructor_calldata: Optional[List[int]] = None,
+        nonce: int = 0,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> AccountDeploymentResult:
+        # pylint: disable=too-many-locals
         """
         Deploys an account contract with provided class_hash on Starknet and returns
         an AccountDeploymentResult that allows waiting for transaction acceptance.
@@ -383,6 +411,7 @@ class Account(BaseAccount):
         :param chain: id of the Starknet chain used.
         :param constructor_calldata: optional calldata to account contract constructor. If ``None`` is passed,
             ``[key_pair.public_key]`` will be used as calldata.
+        :param nonce: Nonce of the transaction.
         :param max_fee: max fee to be paid for deployment, must be less or equal to the amount of tokens prefunded.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         """
@@ -414,6 +443,7 @@ class Account(BaseAccount):
             class_hash=class_hash,
             contract_address_salt=salt,
             constructor_calldata=calldata,
+            nonce=nonce,
             max_fee=max_fee,
             auto_estimate=auto_estimate,
         )
