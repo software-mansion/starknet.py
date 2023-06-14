@@ -23,6 +23,7 @@ from starknet_py.net.client_models import (
     SierraEntryPointsByType,
     TransactionReceipt,
     TransactionStatus,
+    TransactionType
 )
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
@@ -266,7 +267,10 @@ async def test_wait_for_tx_accepted(client, get_tx_receipt, request):
         AsyncMock(),
     ) as mocked_receipt:
         mocked_receipt.return_value = TransactionReceipt(
-            hash=0x1, status=TransactionStatus.ACCEPTED_ON_L2, block_number=1
+            hash=0x1,
+            status=TransactionStatus.ACCEPTED_ON_L2,
+            block_number=1,
+            type=TransactionType.INVOKE,
         )
         client = request.getfixturevalue(client)
         block_number, tx_status = await client.wait_for_tx(tx_hash=0x1)
@@ -296,7 +300,10 @@ async def test_wait_for_tx_pending(client, get_tx_receipt, request):
         AsyncMock(),
     ) as mocked_receipt:
         mocked_receipt.return_value = TransactionReceipt(
-            hash=0x1, status=TransactionStatus.PENDING, block_number=1
+            hash=0x1,
+            status=TransactionStatus.PENDING,
+            block_number=1,
+            type=TransactionType.INVOKE,
         )
         client = request.getfixturevalue(client)
 
@@ -344,7 +351,11 @@ async def test_wait_for_tx_rejected(
         AsyncMock(),
     ) as mocked_receipt:
         mocked_receipt.return_value = TransactionReceipt(
-            hash=0x1, status=status, block_number=1, rejection_reason=exc_message
+            hash=0x1,
+            status=status,
+            block_number=1,
+            rejection_reason=exc_message,
+            type=TransactionType.INVOKE,
         )
         client = request.getfixturevalue(client)
         with pytest.raises(exception) as err:
@@ -375,7 +386,10 @@ async def test_wait_for_tx_cancelled(client, get_tx_receipt, request):
         AsyncMock(),
     ) as mocked_receipt:
         mocked_receipt.return_value = TransactionReceipt(
-            hash=0x1, status=TransactionStatus.PENDING, block_number=1
+            hash=0x1,
+            status=TransactionStatus.PENDING,
+            block_number=1,
+            type=TransactionType.INVOKE,
         )
         client = request.getfixturevalue(client)
         task = asyncio.create_task(

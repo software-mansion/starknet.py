@@ -33,10 +33,7 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.models.chains import StarknetChainId
 from starknet_py.net.schemas.common import Felt, TransactionTypeField
-from starknet_py.net.schemas.gateway import (
-    ContractClassSchema,
-    SierraContractClassSchema,
-)
+from starknet_py.net.schemas.gateway import ContractClassSchema, SierraContractClassSchema
 
 
 @dataclass(frozen=True)
