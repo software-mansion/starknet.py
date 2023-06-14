@@ -7,5 +7,4 @@ from .transaction import (
     DeployAccount,
     Invoke,
     Transaction,
-    compute_invoke_hash,
 )
