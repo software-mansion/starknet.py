@@ -389,7 +389,7 @@ class Account(BaseAccount):
         client: Client,
         chain: StarknetChainId,
         constructor_calldata: Optional[List[int]] = None,
-        nonce: Optional[int] = None,
+        nonce: int = 0,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> AccountDeploymentResult:
