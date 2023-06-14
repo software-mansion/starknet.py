@@ -15,7 +15,7 @@ class TypedMemberDict(TypedDict):
 
 
 class StructMemberDict(TypedMemberDict):
-    offset: NotRequired[int]  # should be optional? :2601 in rpc spec
+    offset: NotRequired[int]
 
 
 class StructDict(TypedDict):
@@ -29,7 +29,7 @@ class FunctionBaseDict(TypedDict):
     name: str
     inputs: List[TypedMemberDict]
     outputs: List[TypedMemberDict]
-    stateMutability: NotRequired[Literal["view"]]  # :2693 in rpc spec
+    stateMutability: NotRequired[Literal["view"]]
 
 
 class FunctionDict(FunctionBaseDict):
