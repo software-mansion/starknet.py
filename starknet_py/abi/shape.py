@@ -1,4 +1,6 @@
-from typing import List, Literal, TypedDict, Union
+from typing import List, Literal, Union
+
+from typing_extensions import TypedDict, NotRequired
 
 STRUCT_ENTRY = "struct"
 FUNCTION_ENTRY = "function"
@@ -13,7 +15,7 @@ class TypedMemberDict(TypedDict):
 
 
 class StructMemberDict(TypedMemberDict):
-    offset: int
+    offset: NotRequired[int]  # should be optional? :2601 in rpc spec
 
 
 class StructDict(TypedDict):
@@ -27,6 +29,7 @@ class FunctionBaseDict(TypedDict):
     name: str
     inputs: List[TypedMemberDict]
     outputs: List[TypedMemberDict]
+    stateMutability: NotRequired[Literal["view"]]  # :2693 in rpc spec
 
 
 class FunctionDict(FunctionBaseDict):
