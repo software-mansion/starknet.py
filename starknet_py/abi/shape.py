@@ -1,6 +1,6 @@
 from typing import List, Literal, Union
 
-from typing_extensions import TypedDict, NotRequired
+from typing_extensions import NotRequired, TypedDict
 
 STRUCT_ENTRY = "struct"
 FUNCTION_ENTRY = "function"

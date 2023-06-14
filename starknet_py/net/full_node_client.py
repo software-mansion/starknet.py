@@ -181,7 +181,7 @@ class FullNodeClient(Client):
         from_block: Union[dict, Hash, Tag, None],
         to_block: Union[dict, Hash, Tag, None],
         address: Hash,
-        keys: List[List[str]],
+        keys: Union[List[List[str]], None],
         chunk_size: int,
         continuation_token: Optional[str] = None,
     ) -> Tuple[list, Optional[str]]:

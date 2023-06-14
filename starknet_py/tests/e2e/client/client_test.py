@@ -23,7 +23,7 @@ from starknet_py.net.client_models import (
     SierraEntryPointsByType,
     TransactionReceipt,
     TransactionStatus,
-    TransactionType
+    TransactionType,
 )
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
