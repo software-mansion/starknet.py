@@ -3044,25 +3044,29 @@ description = "A local testnet for Starknet"
 category = "dev"
 optional = false
 python-versions = ">=3.9,<3.10"
-files = [
-    {file = "starknet_devnet-0.5.3-py3-none-any.whl", hash = "sha256:c7517a996c0e83a10e325b81070f6bfbf09d934b88b46681a30e8fcc911ed974"},
-    {file = "starknet_devnet-0.5.3.tar.gz", hash = "sha256:25ca6fb40e5545daffe04b103c0694b9366ce72d3d8300e7a948ab99f4b80a24"},
-]
+files = []
+develop = false
 
 [package.dependencies]
 cairo-lang = "0.11.2"
-cloudpickle = ">=2.1.0,<2.2.0"
-crypto-cpp-py = ">=1.4.0,<1.5.0"
-Flask = {version = ">=2.0.3,<2.1.0", extras = ["async"]}
-flask-cors = ">=3.0.10,<3.1.0"
-gunicorn = ">=20.1.0,<20.2.0"
-jsonschema = ">=4.17.0,<4.18.0"
-marshmallow = ">=3.17.0,<3.18.0"
-marshmallow-dataclass = ">=8.4,<8.5"
-poseidon-py = ">=0.1.3,<0.2.0"
-typing-extensions = ">=4.3.0,<4.4.0"
-web3 = ">=6.0.0,<6.1.0"
-Werkzeug = ">=2.0.3,<2.1.0"
+cloudpickle = "~2.1.0"
+crypto-cpp-py = "~1.4.0"
+Flask = {version = "~2.0.3", extras = ["async"]}
+flask-cors = "~3.0.10"
+gunicorn = "~20.1.0"
+jsonschema = "~4.17.0"
+marshmallow = "~3.17.0"
+marshmallow-dataclass = "~8.4"
+poseidon-py = "~0.1.3"
+typing-extensions = "~4.3.0"
+web3 = "~6.0.0"
+Werkzeug = "~2.0.3"
+
+[package.source]
+type = "git"
+url = "https://github.com/0xSpaceShard/starknet-devnet"
+reference = "64ad7c0"
+resolved_reference = "64ad7c01f8a4d7bbed85912ace83e697a27427a9"
 
 [[package]]
 name = "sympy"
@@ -3502,4 +3506,4 @@ docs = ["sphinx", "enum-tools", "furo"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8, <3.12"
-content-hash = "d1af264d0da6a095d1e88bf7267b5218896a8e76daff9077b3daefb7c0dfcc80"
+content-hash = "3afe32bcf3dc4baf36a3969e5705166aeae62a1fde89b03f8528e7fbfbb85e1b"
