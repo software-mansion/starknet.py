@@ -204,6 +204,9 @@ class Account(BaseAccount):
         self,
         token_address: Optional[AddressRepresentation] = None,
         chain_id: Optional[StarknetChainId] = None,
+        *,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> int:
         if token_address is None:
             token_address = self._default_token_address_for_chain(chain_id)
@@ -214,7 +217,8 @@ class Account(BaseAccount):
                 selector=get_selector_from_name("balanceOf"),
                 calldata=[self.address],
             ),
-            block_hash="pending",
+            block_hash=block_hash,
+            block_number=block_number,
         )
 
         return (high << 128) + low
