@@ -126,7 +126,7 @@ class AbiParser:
         for name, struct in structs_dict.items():
             structs[name] = StructType(name, OrderedDict())
             struct_members[name] = sorted(
-                struct["members"], key=lambda member: member["offset"]
+                struct["members"], key=lambda member: member.get("offset", 0)
             )
 
         # Now parse the types of members and save them.
