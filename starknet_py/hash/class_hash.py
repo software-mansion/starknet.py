@@ -1,3 +1,4 @@
+import copy
 import json
 import re
 from typing import List
@@ -31,7 +32,7 @@ def compute_class_hash(contract_class: ContractClass) -> int:
     ]
     builtins_hash = compute_hash_on_elements(_encoded_builtins)
 
-    hinted_class_hash = _compute_hinted_class_hash(contract_class)
+    hinted_class_hash = _compute_hinted_class_hash(copy.deepcopy(contract_class))
 
     program_data_hash = compute_hash_on_elements(
         [int(data_, 0) for data_ in contract_class.program["data"]]
