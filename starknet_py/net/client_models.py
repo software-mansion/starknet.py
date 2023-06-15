@@ -204,7 +204,7 @@ class TransactionReceipt:
 
     hash: int
     status: TransactionStatus
-    type: TransactionType  # :2243
+    type: TransactionType
     block_number: Optional[int] = None
     block_hash: Optional[int] = None
     actual_fee: int = 0
