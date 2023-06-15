@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import dataclasses
-import warnings
 import json
 from dataclasses import dataclass
 from functools import cached_property

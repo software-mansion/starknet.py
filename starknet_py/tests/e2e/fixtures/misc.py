@@ -19,6 +19,12 @@ def pytest_addoption(parser):
         default="devnet",
         help="Network to run tests on: possible 'testnet', 'devnet', 'all'",
     )
+    parser.addoption(
+        "--client",
+        action="store",
+        default="",
+        help="Client to run tests with: possible 'gateway', 'full_node'",
+    )
 
 
 def pytest_collection_modifyitems(config, items):

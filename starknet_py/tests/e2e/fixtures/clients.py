@@ -28,6 +28,11 @@ def net_to_clients() -> List[str]:
     """
     Return client fixture names based on network in sys.argv.
     """
+    if "--client=gateway" in sys.argv:
+        return ["gateway_client"]
+    if "--client=full_node" in sys.argv:
+        return ["full_node_client"]
+
     clients = ["gateway_client"]
     nets = ["--net=integration", "--net=testnet", "testnet", "integration"]
 

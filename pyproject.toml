@@ -56,6 +56,8 @@ starknet-devnet = { git = "https://github.com/0xSpaceShard/starknet-devnet.git",
 test.shell = "pytest -n auto -v --reruns 10 --only-rerun aiohttp.client_exceptions.ClientConnectorError --cov=starknet_py starknet_py"
 
 test_ci.shell = "coverage run -m pytest -v --reruns 5 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/core"
+test_ci_gateway.shell = "coverage run -m pytest --client=gateway -v --reruns 5 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/core"
+test_ci_full_node.shell = "coverage run -m pytest --client=full_node -v --reruns 5 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/core"
 
 test_ci_docs.shell = "coverage run -m pytest -v --reruns 5 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py/tests/e2e/docs"
 test_unit.shell = "pytest -n auto -v starknet_py --ignore=starknet_py/tests/e2e"

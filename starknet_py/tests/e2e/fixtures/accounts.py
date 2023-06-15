@@ -143,6 +143,11 @@ def full_node_account(
 
 
 def net_to_base_accounts() -> List[str]:
+    if "--client=gateway" in sys.argv:
+        return ["gateway_account"]
+    if "--client=full_node" in sys.argv:
+        return ["full_node_account"]
+
     accounts = ["gateway_account"]
     nets = ["--net=integration", "--net=testnet", "testnet", "integration"]
 

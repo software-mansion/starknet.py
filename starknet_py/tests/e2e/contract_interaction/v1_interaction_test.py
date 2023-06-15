@@ -137,25 +137,22 @@ async def test_serializing_enum(account, v1_test_enum_class_hash: int):
 
 
 @pytest.mark.asyncio
-async def test_from_address_on_v1_contract(gateway_account, v1_erc20_class_hash: int):
-    # TODO (#1023): replace with account after RPC 0.3.0
+async def test_from_address_on_v1_contract(account, v1_erc20_class_hash: int):
     calldata = {
         "name_": encode_shortstring("erc20_basic"),
         "symbol_": encode_shortstring("ERC20B"),
         "decimals_": 10,
         "initial_supply": 12345,
-        "recipient": gateway_account.address,
+        "recipient": account.address,
     }
     erc20 = await deploy_v1_contract(
-        account=gateway_account,
+        account=account,
         contract_file_name="erc20",
         class_hash=v1_erc20_class_hash,
         calldata=calldata,
     )
 
-    erc20_from_address = await Contract.from_address(
-        erc20.address, provider=gateway_account
-    )
+    erc20_from_address = await Contract.from_address(erc20.address, provider=account)
 
     assert erc20_from_address.address == erc20.address
     assert erc20_from_address.account == erc20.account
