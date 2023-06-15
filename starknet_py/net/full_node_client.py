@@ -114,8 +114,8 @@ class FullNodeClient(Client):
     async def get_events(
         self,
         address: Hash,
-        *,
         keys: Optional[List[List[str]]] = None,
+        *,
         from_block_number: Optional[Union[int, Tag]] = None,
         from_block_hash: Optional[Union[Hash, Tag]] = None,
         to_block_number: Optional[Union[int, Tag]] = None,
@@ -149,6 +149,8 @@ class FullNodeClient(Client):
         if chunk_size <= 0:
             raise ValueError("Argument chunk_size must be greater than 0.")
 
+        if keys is None:
+            keys = []
         from_block = _get_raw_block_identifier(from_block_hash, from_block_number)
         to_block = _get_raw_block_identifier(to_block_hash, to_block_number)
         address = _to_rpc_felt(address)
@@ -181,7 +183,7 @@ class FullNodeClient(Client):
         from_block: Union[dict, Hash, Tag, None],
         to_block: Union[dict, Hash, Tag, None],
         address: Hash,
-        keys: Union[List[List[str]], None],
+        keys: List[List[str]],
         chunk_size: int,
         continuation_token: Optional[str] = None,
     ) -> Tuple[list, Optional[str]]:
