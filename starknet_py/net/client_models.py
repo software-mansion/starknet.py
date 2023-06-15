@@ -205,6 +205,7 @@ class TransactionReceipt:
     hash: int
     status: TransactionStatus
     type: TransactionType
+    contract_address: Optional[int] = None
     block_number: Optional[int] = None
     block_hash: Optional[int] = None
     actual_fee: int = 0
