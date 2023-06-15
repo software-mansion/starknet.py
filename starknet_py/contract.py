@@ -164,6 +164,7 @@ class DeclareResult(SentTransaction):
         salt: Optional[int] = None,
         unique: bool = True,
         constructor_args: Optional[Union[List, Dict]] = None,
+        nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> "DeployResult":
@@ -176,6 +177,7 @@ class DeclareResult(SentTransaction):
         :param salt: Optional salt. Random value is selected if it is not provided.
         :param unique: Determines if the contract should be salted with the account address.
         :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
+        :param nonce: Nonce of the transaction with call to deployer.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :return: DeployResult instance.
@@ -191,7 +193,7 @@ class DeclareResult(SentTransaction):
             class_hash=self.class_hash, salt=salt, abi=abi, calldata=constructor_args
         )
         res = await self._account.execute(
-            calls=deploy_call, max_fee=max_fee, auto_estimate=auto_estimate
+            calls=deploy_call, nonce=nonce, max_fee=max_fee, auto_estimate=auto_estimate
         )
 
         deployed_contract = Contract(
@@ -290,12 +292,15 @@ class PreparedFunctionCall(Call):
         self,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
+        *,
+        nonce: Optional[int] = None,
     ) -> InvokeResult:
         """
         Invokes a method.
 
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :param nonce: Nonce of the transaction.
         :return: InvokeResult.
         """
         if max_fee is not None:
@@ -303,6 +308,7 @@ class PreparedFunctionCall(Call):
 
         transaction = await self._account.sign_invoke_transaction(
             calls=self,
+            nonce=nonce,
             max_fee=self.max_fee,
             auto_estimate=auto_estimate,
         )
@@ -322,6 +328,8 @@ class PreparedFunctionCall(Call):
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
+        *,
+        nonce: Optional[int] = None,
     ) -> EstimatedFee:
         """
         Estimate fee for prepared function call.
@@ -329,9 +337,12 @@ class PreparedFunctionCall(Call):
         :param block_hash: Estimate fee at specific block hash.
         :param block_number: Estimate fee at given block number
             (or "latest" / "pending" for the latest / pending block), default is "pending".
+        :param nonce: Nonce of the transaction.
         :return: Estimated amount of Wei executing specified transaction will cost.
         """
-        tx = await self._account.sign_invoke_transaction(calls=self, max_fee=0)
+        tx = await self._account.sign_invoke_transaction(
+            calls=self, nonce=nonce, max_fee=0
+        )
 
         estimated_fee = await self._client.estimate_fee(
             tx=tx,
@@ -414,6 +425,7 @@ class ContractFunction:
         *args,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
+        nonce: Optional[int] = None,
         **kwargs,
     ) -> InvokeResult:
         """
@@ -422,9 +434,12 @@ class ContractFunction:
 
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :param nonce: Nonce of the transaction.
         """
         prepared_call = self.prepare(*args, **kwargs)
-        return await prepared_call.invoke(max_fee=max_fee, auto_estimate=auto_estimate)
+        return await prepared_call.invoke(
+            max_fee=max_fee, nonce=nonce, auto_estimate=auto_estimate
+        )
 
     @staticmethod
     def get_selector(function_name: str):
@@ -535,6 +550,7 @@ class Contract:
         account: BaseAccount,
         compiled_contract: str,
         *,
+        nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> DeclareResult:
@@ -543,6 +559,7 @@ class Contract:
 
         :param account: BaseAccount used to sign and send declare transaction.
         :param compiled_contract: String containing compiled contract.
+        :param nonce: Nonce of the transaction.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :return: DeclareResult instance.
@@ -550,6 +567,7 @@ class Contract:
 
         declare_tx = await account.sign_declare_transaction(
             compiled_contract=compiled_contract,
+            nonce=nonce,
             max_fee=max_fee,
             auto_estimate=auto_estimate,
         )
@@ -571,6 +589,7 @@ class Contract:
         constructor_args: Optional[Union[List, Dict]] = None,
         *,
         deployer_address: AddressRepresentation = DEFAULT_DEPLOYER_ADDRESS,
+        nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> "DeployResult":
@@ -581,6 +600,7 @@ class Contract:
         :param class_hash: The class_hash of the contract to be deployed.
         :param abi: An abi of the contract to be deployed.
         :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
+        :param nonce: Nonce of the transaction.
         :param deployer_address: Address of the UDC. Is set to the address of
             the default UDC (same address on mainnet/testnet/devnet) by default.
             Must be set when using custom network other than ones listed above.
@@ -596,7 +616,7 @@ class Contract:
             class_hash=class_hash, abi=abi, calldata=constructor_args
         )
         res = await account.execute(
-            calls=deploy_call, max_fee=max_fee, auto_estimate=auto_estimate
+            calls=deploy_call, nonce=nonce, max_fee=max_fee, auto_estimate=auto_estimate
         )
 
         deployed_contract = Contract(
