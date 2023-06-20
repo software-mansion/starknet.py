@@ -46,10 +46,17 @@ class BaseAccount(ABC):
         """
 
     @abstractmethod
-    async def get_nonce(self) -> int:
+    async def get_nonce(
+        self,
+        *,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> int:
         """
         Get the current nonce of the account.
 
+        :param block_hash: Block's hash or literals `"pending"` or `"latest"`
+        :param block_number: Block's number or literals `"pending"` or `"latest"`
         :return: nonce of the account.
         """
 

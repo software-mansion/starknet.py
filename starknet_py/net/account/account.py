@@ -190,14 +190,21 @@ class Account(BaseAccount):
 
         return estimated_fee
 
-    async def get_nonce(self) -> int:
+    async def get_nonce(
+        self,
+        *,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> int:
         """
         Get the current nonce of the account.
 
+        :param block_hash: Block's hash or literals `"pending"` or `"latest"`
+        :param block_number: Block's number or literals `"pending"` or `"latest"`
         :return: nonce.
         """
         return await self._client.get_contract_nonce(
-            self.address, block_number="pending"
+            self.address, block_hash=block_hash, block_number=block_number
         )
 
     async def get_balance(
