@@ -87,6 +87,7 @@ class BaseAccount(ABC):
         self,
         calls: Calls,
         *,
+        nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> Invoke:
@@ -94,6 +95,7 @@ class BaseAccount(ABC):
         Takes calls and creates signed Invoke.
 
         :param calls: Single call or list of calls.
+        :param nonce: Nonce of the transaction.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :return: Invoke created from the calls.
@@ -104,6 +106,7 @@ class BaseAccount(ABC):
         self,
         compiled_contract: str,
         *,
+        nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> Declare:
@@ -111,6 +114,7 @@ class BaseAccount(ABC):
         Create and sign declare transaction.
 
         :param compiled_contract: string containing a compiled Starknet contract. Supports old contracts.
+        :param nonce: Nonce of the transaction.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :return: Signed Declare transaction.
@@ -122,6 +126,7 @@ class BaseAccount(ABC):
         compiled_contract: str,
         compiled_class_hash: int,
         *,
+        nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> DeclareV2:
@@ -132,6 +137,7 @@ class BaseAccount(ABC):
             Supports new contracts (compiled to sierra).
         :param compiled_class_hash: a class hash of the sierra compiled contract used in the declare transaction.
             Computed from casm compiled contract.
+        :param nonce: Nonce of the transaction.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :return: Signed DeclareV2 transaction.
@@ -144,6 +150,7 @@ class BaseAccount(ABC):
         contract_address_salt: int,
         constructor_calldata: Optional[List[int]] = None,
         *,
+        nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> DeployAccount:
@@ -154,6 +161,7 @@ class BaseAccount(ABC):
         :param contract_address_salt: A salt used to calculate deployed contract address.
         :param constructor_calldata: Calldata to be ed to contract constructor
             and used to calculate deployed contract address.
+        :param nonce: Nonce of the transaction.
         :param max_fee: Max fee to be paid for deploying account transaction. Enough tokens must be prefunded before
             sending the transaction for it to succeed.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
@@ -165,6 +173,7 @@ class BaseAccount(ABC):
         self,
         calls: Calls,
         *,
+        nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> SentTransactionResponse:
@@ -172,6 +181,7 @@ class BaseAccount(ABC):
         Takes calls and executes transaction.
 
         :param calls: Single call or list of calls.
+        :param nonce: Nonce of the transaction.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :return: SentTransactionResponse.
