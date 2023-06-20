@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from starknet_py.net.client import Client
-from starknet_py.net.client_models import Calls, SentTransactionResponse
+from starknet_py.net.client_models import Calls, Hash, SentTransactionResponse, Tag
 from starknet_py.net.models import AddressRepresentation, StarknetChainId
 from starknet_py.net.models.transaction import (
     Declare,
@@ -46,10 +46,17 @@ class BaseAccount(ABC):
         """
 
     @abstractmethod
-    async def get_nonce(self) -> int:
+    async def get_nonce(
+        self,
+        *,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> int:
         """
         Get the current nonce of the account.
 
+        :param block_hash: Block's hash or literals `"pending"` or `"latest"`
+        :param block_number: Block's number or literals `"pending"` or `"latest"`
         :return: nonce of the account.
         """
 
@@ -58,6 +65,9 @@ class BaseAccount(ABC):
         self,
         token_address: Optional[AddressRepresentation] = None,
         chain_id: Optional[StarknetChainId] = None,
+        *,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> int:
         """
         Checks account's balance of specified token.
@@ -66,6 +76,8 @@ class BaseAccount(ABC):
         :param chain_id: Identifier of the Starknet chain used.
             If token_address is not specified it will be used to determine network's payment token address.
             If token_address is provided, chain_id will be ignored.
+        :param block_hash: Block's hash or literals `"pending"` or `"latest"`
+        :param block_number: Block's number or literals `"pending"` or `"latest"`
         :return: Token balance.
         """
 
