@@ -285,6 +285,28 @@ async def test_get_events_start_from_continuation_token(
 
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
+async def test_get_events_no_keys(
+    full_node_client,
+    simple_storage_with_event_contract: Contract,
+):
+    total_events = 5
+    for i in range(total_events):
+        await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke(
+            i, i + 1, auto_estimate=True
+        )
+
+    events_response = await full_node_client.get_events(
+        from_block_number=0,
+        to_block_hash="latest",
+        address=simple_storage_with_event_contract.address,
+        chunk_size=total_events,
+    )
+
+    assert len(events_response.events) == total_events
+
+
+@pytest.mark.run_on_devnet
+@pytest.mark.asyncio
 async def test_get_events_nonexistent_starting_block(
     full_node_client,
     simple_storage_with_event_contract: Contract,
