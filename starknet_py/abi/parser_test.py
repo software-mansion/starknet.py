@@ -49,7 +49,7 @@ def test_parsing_types_abi_missing_offset():
     assert abi.defined_structures == {
         "Uint256": fixtures.uint256_struct,
         "PoolId": fixtures.pool_id_struct,
-        "User": fixtures.user_struct
+        "User": fixtures.user_struct,
     }
 
 
