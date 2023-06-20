@@ -65,6 +65,9 @@ class BaseAccount(ABC):
         self,
         token_address: Optional[AddressRepresentation] = None,
         chain_id: Optional[StarknetChainId] = None,
+        *,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> int:
         """
         Checks account's balance of specified token.
@@ -73,6 +76,8 @@ class BaseAccount(ABC):
         :param chain_id: Identifier of the Starknet chain used.
             If token_address is not specified it will be used to determine network's payment token address.
             If token_address is provided, chain_id will be ignored.
+        :param block_hash: Block's hash or literals `"pending"` or `"latest"`
+        :param block_number: Block's number or literals `"pending"` or `"latest"`
         :return: Token balance.
         """
 
