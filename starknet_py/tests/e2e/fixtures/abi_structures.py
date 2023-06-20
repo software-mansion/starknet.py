@@ -200,3 +200,14 @@ balance_struct_abi = Abi(
         )
     },
 )
+user_dict_missing_offset = {
+    "type": "struct",
+    "name": "User",
+    "size": 4,
+    "members": [
+        {"name": "id", "type": "Uint256"},
+        {"name": "name_len", "type": "felt"},
+        {"name": "name", "type": "felt*"},
+        {"name": "pool_id", "type": "PoolId"},
+    ],
+}

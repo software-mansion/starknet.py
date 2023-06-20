@@ -125,9 +125,16 @@ class AbiParser:
         # topological sorting with an additional "unresolved type", so this flow is much easier.
         for name, struct in structs_dict.items():
             structs[name] = StructType(name, OrderedDict())
+            without_offset = [member for member in struct["members"] if member.get("offset") is None]
+            print(without_offset)
+            with_offset = [member for member in struct["members"] if member not in without_offset]
+            print(with_offset)
             struct_members[name] = sorted(
-                struct["members"], key=lambda member: member.get("offset", 0)
+                with_offset, key=lambda member: member["offset"]
             )
+            for member in without_offset:
+                member["offset"] = len(struct_members[name])
+                struct_members[name].append(member)
 
         # Now parse the types of members and save them.
         self._type_parser = TypeParser(structs)

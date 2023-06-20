@@ -37,6 +37,22 @@ def test_parsing_types_abi():
     }
 
 
+def test_parsing_types_abi_missing_offset():
+    abi = AbiParser(
+        [
+            fixtures.user_dict_missing_offset,
+            fixtures.uint256_dict,
+            fixtures.pool_id_dict,
+        ]
+    ).parse()
+
+    assert abi.defined_structures == {
+        "Uint256": fixtures.uint256_struct,
+        "PoolId": fixtures.pool_id_struct,
+        "User": fixtures.user_struct
+    }
+
+
 def test_self_cycle():
     self_referencing_struct = {
         "type": "struct",
