@@ -175,26 +175,6 @@ class TransactionStatus(Enum):
 
 
 @dataclass
-class GatewayTransactionReceipt:
-    """
-    Dataclass representing details of sent transaction.
-    """
-
-    # pylint: disable=too-many-instance-attributes
-
-    hash: int
-    status: TransactionStatus
-    block_number: Optional[int] = None
-    block_hash: Optional[int] = None
-    actual_fee: int = 0
-    rejection_reason: Optional[str] = None
-
-    events: List[Event] = field(default_factory=list)
-    l2_to_l1_messages: List[L2toL1Message] = field(default_factory=list)
-    l1_to_l2_consumed_message: Optional[L1toL2Message] = None
-
-
-@dataclass
 class TransactionReceipt:
     """
     Dataclass representing details of sent transaction.
@@ -204,7 +184,7 @@ class TransactionReceipt:
 
     hash: int
     status: TransactionStatus
-    type: TransactionType
+    type: Optional[TransactionType] = None
     contract_address: Optional[int] = None
     block_number: Optional[int] = None
     block_hash: Optional[int] = None

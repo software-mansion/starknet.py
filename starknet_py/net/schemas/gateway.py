@@ -28,7 +28,6 @@ from starknet_py.net.client_models import (
     Event,
     GatewayBlock,
     GatewayStateDiff,
-    GatewayTransactionReceipt,
     InvokeTransaction,
     L1HandlerTransaction,
     L1toL2Message,
@@ -40,7 +39,7 @@ from starknet_py.net.client_models import (
     SierraEntryPoint,
     SierraEntryPointsByType,
     StorageDiffItem,
-    TransactionStatusResponse,
+    TransactionStatusResponse, TransactionReceipt,
 )
 from starknet_py.net.schemas.common import (
     BlockStatusField,
@@ -190,14 +189,14 @@ class TransactionReceiptSchema(Schema):
     )
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> GatewayTransactionReceipt:
+    def make_dataclass(self, data, **kwargs) -> TransactionReceipt:
         if data.get("rejection_reason", None) is not None:
             rejection_reason = data["rejection_reason"]["error_message"]
             del data["rejection_reason"]
 
-            return GatewayTransactionReceipt(**data, rejection_reason=rejection_reason)
+            return TransactionReceipt(**data, rejection_reason=rejection_reason)
 
-        return GatewayTransactionReceipt(**data)
+        return TransactionReceipt(**data)
 
 
 class ContractCodeSchema(Schema):

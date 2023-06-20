@@ -105,7 +105,7 @@ class TransactionReceiptSchema(Schema):
     block_number = fields.Integer(data_key="block_number", load_default=None)
     block_hash = Felt(data_key="block_hash", load_default=None)
     actual_fee = Felt(data_key="actual_fee", required=True)
-    type = TransactionTypeField(data_key="type", required=True)
+    type = TransactionTypeField(data_key="type", load_default=None)
     contract_address = Felt(data_key="contract_address", load_default=None)
     rejection_reason = fields.String(data_key="status_data", load_default=None)
     events = fields.List(
