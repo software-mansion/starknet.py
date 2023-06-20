@@ -1,5 +1,3 @@
-import os
-
 import lark
 
 from starknet_py.cairo.deprecated_parse.cairo_types import CairoType
