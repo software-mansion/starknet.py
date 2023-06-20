@@ -5,15 +5,36 @@ import lark
 from starknet_py.cairo.deprecated_parse.cairo_types import CairoType
 from starknet_py.cairo.deprecated_parse.parser_transformer import ParserTransformer
 
+CAIRO_EBNF = """
+    %import common.WS_INLINE
+    %ignore WS_INLINE
+
+    IDENTIFIER: /[a-zA-Z_][a-zA-Z_0-9]*/
+    _DBL_STAR: "**"
+    COMMA: ","
+
+    ?type: non_identifier_type
+        | identifier             -> type_struct
+
+    comma_separated{item}: item? (COMMA item)* COMMA?
+
+    named_type: identifier (":" type)? | non_identifier_type
+    non_identifier_type: "felt"                                         -> type_felt
+                    | "codeoffset"                                   -> type_codeoffset
+                    | type "*"                                       -> type_pointer
+                    | type _DBL_STAR                                 -> type_pointer2
+                    | "(" comma_separated{named_type} ")" -> type_tuple
+
+    identifier: IDENTIFIER ("." IDENTIFIER)*
+"""
+
 
 def parse(code: str) -> CairoType:
     """
     Parses the given string and returns a CairoType.
     """
-    with open(
-        os.path.join(os.path.dirname(__file__), "cairo.ebnf"), "r", encoding="utf-8"
-    ) as grammar_file:
-        grammar = grammar_file.read()
+
+    grammar = CAIRO_EBNF
 
     grammar_parser = lark.Lark(
         grammar=grammar,
