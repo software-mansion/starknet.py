@@ -130,6 +130,8 @@ async def test_get_transaction_receipt(
 
     assert receipt.hash == invoke_transaction_hash
     assert receipt.block_number == block_with_invoke_number
+    if isinstance(client, FullNodeClient):
+        assert receipt.type == TransactionType.INVOKE
 
 
 @pytest.mark.asyncio
@@ -225,6 +227,8 @@ async def test_add_transaction(map_contract, client, account):
     transaction_receipt = await client.get_transaction_receipt(result.transaction_hash)
 
     assert transaction_receipt.status != TransactionStatus.NOT_RECEIVED
+    if isinstance(client, FullNodeClient):
+        assert transaction_receipt.type == TransactionType.INVOKE
 
 
 @pytest.mark.asyncio
@@ -416,6 +420,8 @@ async def test_declare_contract(map_compiled_contract, account):
     assert transaction_receipt.status != TransactionStatus.NOT_RECEIVED
     assert transaction_receipt.hash
     assert 0 < transaction_receipt.actual_fee <= MAX_FEE
+    if isinstance(client, FullNodeClient):
+        assert transaction_receipt.type == TransactionType.DECLARE
 
 
 @pytest.mark.asyncio
