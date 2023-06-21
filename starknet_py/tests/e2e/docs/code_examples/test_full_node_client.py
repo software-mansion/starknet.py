@@ -170,7 +170,7 @@ async def test_get_events(full_node_client, contract_address):
     events_response = await full_node_client.get_events(
         address=address,
         keys=[[1, 2], [], [3]],
-        from_block_number=456,
+        from_block_number=0,
         to_block_number="latest",
         follow_continuation_token=True,
         chunk_size=47,
