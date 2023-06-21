@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Sequence
+from typing import Optional, Sequence
 
 from starknet_py.common import int_from_bytes
 from starknet_py.constants import DEFAULT_ENTRY_POINT_SELECTOR
@@ -30,7 +30,7 @@ def compute_transaction_hash(
     calldata: Sequence[int],
     max_fee: int,
     chain_id: int,
-    additional_data: Sequence[int],
+    additional_data: Optional[Sequence[int]] = None,
 ) -> int:
     """
     Calculates the transaction hash in the Starknet network - a unique identifier of the
@@ -59,6 +59,8 @@ def compute_transaction_hash(
     :param additional_data: Additional data, required for some transactions (e.g. DeployAccount, Declare).
     :return: Hash of the transaction.
     """
+    if additional_data is None:
+        additional_data = []
     calldata_hash = compute_hash_on_elements(data=calldata)
     data_to_hash = [
         tx_hash_prefix.value,
@@ -73,6 +75,38 @@ def compute_transaction_hash(
 
     return compute_hash_on_elements(
         data=data_to_hash,
+    )
+
+
+def compute_invoke_transaction_hash(
+    *,
+    version: int,
+    sender_address: int,
+    calldata: Sequence[int],
+    max_fee: int,
+    chain_id: int,
+    nonce: int,
+) -> int:
+    """
+    Computes hash of the Invoke transaction.
+
+    :param version: The transaction's version.
+    :param sender_address: Sender address.
+    :param calldata: Calldata of the function.
+    :param max_fee: The transaction's maximum fee.
+    :param chain_id: The network's chain ID.
+    :param nonce: Nonce of the transaction.
+    :return: Hash of the transaction.
+    """
+    return compute_transaction_hash(
+        tx_hash_prefix=TransactionHashPrefix.INVOKE,
+        version=version,
+        contract_address=sender_address,
+        entry_point_selector=DEFAULT_ENTRY_POINT_SELECTOR,
+        calldata=calldata,
+        max_fee=max_fee,
+        chain_id=chain_id,
+        additional_data=[nonce],
     )
 
 
@@ -146,7 +180,8 @@ def compute_declare_transaction_hash(
 
 def compute_declare_v2_transaction_hash(
     *,
-    contract_class: SierraContractClass,
+    contract_class: Optional[SierraContractClass] = None,
+    class_hash: Optional[int] = None,
     compiled_class_hash: int,
     chain_id: int,
     sender_address: int,
@@ -158,6 +193,7 @@ def compute_declare_v2_transaction_hash(
     Computes class hash of declare transaction version 2.
 
     :param contract_class: SierraContractClass of the contract.
+    :param class_hash: Class hash of the contract.
     :param compiled_class_hash: compiled class hash of the program.
     :param chain_id: The network's chain ID.
     :param sender_address: Address which sends the transaction.
@@ -166,7 +202,14 @@ def compute_declare_v2_transaction_hash(
     :param nonce: Nonce of the transaction.
     :return: Hash of the transaction.
     """
-    class_hash = compute_sierra_class_hash(contract_class)
+    if contract_class is None and class_hash is None:
+        raise ValueError("Either contract_class or class_hash is required.")
+    if contract_class is not None and class_hash is not None:
+        raise ValueError("Both contract_class and class_hash passed.")
+
+    if class_hash is None:
+        assert contract_class is not None
+        class_hash = compute_sierra_class_hash(contract_class)
 
     return compute_transaction_hash(
         tx_hash_prefix=TransactionHashPrefix.DECLARE,
