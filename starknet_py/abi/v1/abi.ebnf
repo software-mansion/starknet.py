@@ -8,6 +8,7 @@ type: "core" "::" core_value
     | type_unit
 
 core_value: "felt252"                                                   -> type_felt
+          | "bool"                                                      -> type_bool
           | "integer" "::" "u" INT                                      -> type_uint
           | "option" "::" "Option" "::" "<" (type | type_identifier) ">"    -> type_option
           | "array" "::" "Array" "::" "<" (type | type_identifier) ">"      -> type_array

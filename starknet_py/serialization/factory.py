@@ -7,6 +7,7 @@ from starknet_py.abi.model import Abi
 from starknet_py.abi.v1.model import Abi as AbiV1
 from starknet_py.cairo.data_types import (
     ArrayType,
+    BoolType,
     CairoType,
     EnumType,
     FeltType,
@@ -17,6 +18,7 @@ from starknet_py.cairo.data_types import (
     UintType,
     UnitType,
 )
+from starknet_py.serialization.data_serializers import BoolSerializer
 from starknet_py.serialization.data_serializers.array_serializer import ArraySerializer
 from starknet_py.serialization.data_serializers.cairo_data_serializer import (
     CairoDataSerializer,
@@ -63,6 +65,9 @@ def serializer_for_type(cairo_type: CairoType) -> CairoDataSerializer:
     # pylint: disable=too-many-return-statements
     if isinstance(cairo_type, FeltType):
         return FeltSerializer()
+
+    if isinstance(cairo_type, BoolType):
+        return BoolSerializer()
 
     if isinstance(cairo_type, StructType):
         # Special case: Uint256 is represented as struct

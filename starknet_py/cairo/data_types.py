@@ -20,6 +20,13 @@ class FeltType(CairoType):
 
 
 @dataclass
+class BoolType(CairoType):
+    """
+    Type representation of Cairo boolean.
+    """
+
+
+@dataclass
 class TupleType(CairoType):
     """
     Type representation of Cairo tuples without named fields.

@@ -7,6 +7,7 @@ from lark import Token, Transformer, v_args
 
 from starknet_py.cairo.data_types import (
     ArrayType,
+    BoolType,
     CairoType,
     FeltType,
     OptionType,
@@ -51,9 +52,15 @@ class ParserTransformer(Transformer):
         """
         return FeltType()
 
+    def type_bool(self, _value: List[Any]) -> BoolType:
+        """
+        Bool does not contain any additional arguments, so `_value` is just an empty list.
+        """
+        return BoolType()
+
     def type_uint(self, value: List[Token]) -> UintType:
         """
-        Uint type contains information about it's size. It is present in the value[0].
+        Uint type contains information about its size. It is present in the value[0].
         """
         return UintType(int(value[0]))
 
