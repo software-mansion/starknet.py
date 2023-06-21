@@ -113,8 +113,8 @@ class FullNodeClient(Client):
     # TODO (#809): add tests with multiple emitted keys
     async def get_events(
         self,
-        address: Hash,
-        keys: Optional[List[List[str]]] = None,
+        address: Optional[Hash] = None,
+        keys: Optional[List[List[Hash]]] = None,
         *,
         from_block_number: Optional[Union[int, Tag]] = None,
         from_block_hash: Optional[Union[Hash, Tag]] = None,
@@ -132,12 +132,16 @@ class FullNodeClient(Client):
             the first key, any value for their second key and 3 for their third key.
         :param from_block_number: Number of the block from which events searched for **starts**
             or literals `"pending"` or `"latest"`. Mutually exclusive with ``from_block_hash`` parameter.
+            If not provided, query starts from block 0.
         :param from_block_hash: Hash of the block from which events searched for **starts**
             or literals `"pending"` or `"latest"`. Mutually exclusive with ``from_block_number`` parameter.
+            If not provided, query starts from block 0.
         :param to_block_number: Number of the block to which events searched for **end**
             or literals `"pending"` or `"latest"`. Mutually exclusive with ``to_block_hash`` parameter.
+            If not provided, query ends at block `"pending"`.
         :param to_block_hash: Hash of the block to which events searched for **end**
             or literals `"pending"` or `"latest"`. Mutually exclusive with ``to_block_number`` parameter.
+            If not provided, query ends at block `"pending"`.
         :param follow_continuation_token: Flag deciding whether all events should be collected during one function call,
             defaults to False.
         :param continuation_token: Continuation token from which the returned events start.
@@ -151,9 +155,14 @@ class FullNodeClient(Client):
 
         if keys is None:
             keys = []
+        if address is not None:
+            address = _to_rpc_felt(address)
+        if from_block_number is None and from_block_hash is None:
+            from_block_number = 0
+
         from_block = _get_raw_block_identifier(from_block_hash, from_block_number)
         to_block = _get_raw_block_identifier(to_block_hash, to_block_number)
-        address = _to_rpc_felt(address)
+        keys = [[_to_rpc_felt(key) for key in inner_list] for inner_list in keys]
 
         events_list = []
         while True:
@@ -182,9 +191,9 @@ class FullNodeClient(Client):
         self,
         from_block: Union[dict, Hash, Tag, None],
         to_block: Union[dict, Hash, Tag, None],
-        address: Hash,
-        keys: List[List[str]],
+        keys: List[List[Hash]],
         chunk_size: int,
+        address: Optional[Hash] = None,
         continuation_token: Optional[str] = None,
     ) -> Tuple[list, Optional[str]]:
         # pylint: disable=too-many-arguments
@@ -192,11 +201,12 @@ class FullNodeClient(Client):
             "chunk_size": chunk_size,
             "from_block": from_block,
             "to_block": to_block,
-            "address": address,
             "keys": keys,
         }
         if continuation_token is not None:
             params["continuation_token"] = continuation_token
+        if address is not None:
+            params["address"] = address
 
         res = await self._client.call(
             method_name="getEvents",

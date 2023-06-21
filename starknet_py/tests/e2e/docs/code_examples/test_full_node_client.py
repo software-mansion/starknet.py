@@ -158,3 +158,21 @@ async def test_get_contract_nonce(full_node_client, contract_address):
         contract_address=address, block_number="latest"
     )
     # docs-end: get_contract_nonce
+
+
+@pytest.mark.asyncio
+async def test_get_events(full_node_client, contract_address):
+    # docs-start: get_events
+    address = 0x1 or 1 or "0x1"
+    # docs-end: get_events
+    address = contract_address
+    # docs-start: get_events
+    events_response = await full_node_client.get_events(
+        address=address,
+        keys=[[1, 2], [], [3]],
+        from_block_number=456,
+        to_block_number="latest",
+        follow_continuation_token=True,
+        chunk_size=47,
+    )
+    # docs-end: get_events

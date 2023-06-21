@@ -242,7 +242,7 @@ async def test_get_events_with_two_events(
         from_block_number=0,
         to_block_hash="latest",
         address=simple_storage_with_event_contract.address,
-        keys=[[EVENT_ONE_PARSED_NAME, EVENT_TWO_PARSED_NAME]],
+        keys=[[int(EVENT_ONE_PARSED_NAME, 0), int(EVENT_TWO_PARSED_NAME, 0)]],
         follow_continuation_token=True,
     )
 
@@ -285,24 +285,21 @@ async def test_get_events_start_from_continuation_token(
 
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
-async def test_get_events_no_keys(
+async def test_get_events_no_params(
     full_node_client,
     simple_storage_with_event_contract: Contract,
 ):
-    total_events = 5
-    for i in range(total_events):
+    default_chunk_size = 1
+    for i in range(3):
         await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke(
             i, i + 1, auto_estimate=True
         )
+        await simple_storage_with_event_contract.functions[FUNCTION_TWO_NAME].invoke(
+            i, i + 1, auto_estimate=True
+        )
+    events_response = await full_node_client.get_events()
 
-    events_response = await full_node_client.get_events(
-        from_block_number=0,
-        to_block_hash="latest",
-        address=simple_storage_with_event_contract.address,
-        chunk_size=total_events,
-    )
-
-    assert len(events_response.events) == total_events
+    assert len(events_response.events) == default_chunk_size
 
 
 @pytest.mark.run_on_devnet
