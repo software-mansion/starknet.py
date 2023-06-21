@@ -77,7 +77,7 @@ user_partial_missing_offset_struct = StructType(
         pool_id=pool_id_struct,
         name_len=FeltType(),
         name=ArrayType(FeltType()),
-    )
+    ),
 )
 
 user_added_dict = {

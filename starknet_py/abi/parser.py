@@ -135,7 +135,11 @@ class AbiParser:
                 with_offset, key=lambda member: member["offset"]  # pyright: ignore
             )
             for member in without_offset:
-                member["offset"] = struct_members[name][-1].get("offset", 0) + 1 if struct_members[name] else 0
+                member["offset"] = (
+                    struct_members[name][-1].get("offset", 0) + 1
+                    if struct_members[name]
+                    else 0
+                )
                 struct_members[name].append(member)
 
         # Now parse the types of members and save them.
