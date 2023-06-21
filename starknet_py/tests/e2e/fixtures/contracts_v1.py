@@ -12,7 +12,7 @@ from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V1_DIR, 
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
-async def declare_v1_contract(
+async def declare_cairo1_contract(
     account: BaseAccount, compiled_contract: str, compiled_contract_casm: str
 ) -> Tuple[int, int]:
     casm_class_hash = compute_casm_class_hash(create_casm_class(compiled_contract_casm))
@@ -31,11 +31,21 @@ async def declare_v1_contract(
 
 
 @pytest_asyncio.fixture(scope="package")
-async def v1_erc20_class_hash(account: BaseAccount) -> int:
-    class_hash, _ = await declare_v1_contract(
+async def cairo1_erc20_class_hash(account: BaseAccount) -> int:
+    class_hash, _ = await declare_cairo1_contract(
         account,
         read_contract("erc20_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR),
         read_contract("erc20_compiled.casm", directory=CONTRACTS_COMPILED_V1_DIR),
+    )
+    return class_hash
+
+
+@pytest_asyncio.fixture(scope="package")
+async def cairo1_account_class_hash(account: BaseAccount) -> int:
+    class_hash, _ = await declare_cairo1_contract(
+        account,
+        read_contract("account_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR),
+        read_contract("account_compiled.casm", directory=CONTRACTS_COMPILED_V1_DIR),
     )
     return class_hash
 
@@ -57,7 +67,7 @@ async def declare_v2_hello_starknet(account: BaseAccount) -> DeclareV2:
 
 
 @pytest_asyncio.fixture(scope="package")
-async def v1_hello_starknet_class_hash_tx_hash(
+async def cairo1_hello_starknet_class_hash_tx_hash(
     account: BaseAccount, declare_v2_hello_starknet: DeclareV2
 ) -> Tuple[int, int]:
     resp = await account.client.declare(declare_v2_hello_starknet)
@@ -67,24 +77,24 @@ async def v1_hello_starknet_class_hash_tx_hash(
 
 
 @pytest.fixture(scope="package")
-def v1_hello_starknet_class_hash(
-    v1_hello_starknet_class_hash_tx_hash: Tuple[int, int]
+def cairo1_hello_starknet_class_hash(
+    cairo1_hello_starknet_class_hash_tx_hash: Tuple[int, int]
 ) -> int:
-    class_hash, _ = v1_hello_starknet_class_hash_tx_hash
+    class_hash, _ = cairo1_hello_starknet_class_hash_tx_hash
     return class_hash
 
 
 @pytest.fixture(scope="package")
-def v1_hello_starknet_tx_hash(
-    v1_hello_starknet_class_hash_tx_hash: Tuple[int, int]
+def cairo1_hello_starknet_tx_hash(
+    cairo1_hello_starknet_class_hash_tx_hash: Tuple[int, int]
 ) -> int:
-    _, tx_hash = v1_hello_starknet_class_hash_tx_hash
+    _, tx_hash = cairo1_hello_starknet_class_hash_tx_hash
     return tx_hash
 
 
 @pytest_asyncio.fixture(scope="package")
-async def v1_minimal_contract_class_hash(account: BaseAccount) -> int:
-    class_hash, _ = await declare_v1_contract(
+async def cairo1_minimal_contract_class_hash(account: BaseAccount) -> int:
+    class_hash, _ = await declare_cairo1_contract(
         account,
         read_contract(
             "minimal_contract_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
@@ -97,8 +107,8 @@ async def v1_minimal_contract_class_hash(account: BaseAccount) -> int:
 
 
 @pytest_asyncio.fixture(scope="package")
-async def v1_test_contract_class_hash(account: BaseAccount) -> int:
-    class_hash, _ = await declare_v1_contract(
+async def cairo1_test_contract_class_hash(account: BaseAccount) -> int:
+    class_hash, _ = await declare_cairo1_contract(
         account,
         read_contract(
             "test_contract_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
@@ -111,8 +121,8 @@ async def v1_test_contract_class_hash(account: BaseAccount) -> int:
 
 
 @pytest_asyncio.fixture(scope="package")
-async def v1_test_enum_class_hash(account: BaseAccount) -> int:
-    class_hash, _ = await declare_v1_contract(
+async def cairo1_test_enum_class_hash(account: BaseAccount) -> int:
+    class_hash, _ = await declare_cairo1_contract(
         account,
         read_contract("test_enum_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR),
         read_contract("test_enum_compiled.casm", directory=CONTRACTS_COMPILED_V1_DIR),
@@ -121,8 +131,8 @@ async def v1_test_enum_class_hash(account: BaseAccount) -> int:
 
 
 @pytest_asyncio.fixture(scope="package")
-async def v1_test_option_class_hash(account: BaseAccount) -> int:
-    class_hash, _ = await declare_v1_contract(
+async def cairo1_test_option_class_hash(account: BaseAccount) -> int:
+    class_hash, _ = await declare_cairo1_contract(
         account,
         read_contract("test_option_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR),
         read_contract("test_option_compiled.casm", directory=CONTRACTS_COMPILED_V1_DIR),
@@ -131,8 +141,8 @@ async def v1_test_option_class_hash(account: BaseAccount) -> int:
 
 
 @pytest_asyncio.fixture(scope="package")
-async def v1_token_bridge_class_hash(account: BaseAccount) -> int:
-    class_hash, _ = await declare_v1_contract(
+async def cairo1_token_bridge_class_hash(account: BaseAccount) -> int:
+    class_hash, _ = await declare_cairo1_contract(
         account,
         read_contract(
             "token_bridge_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR

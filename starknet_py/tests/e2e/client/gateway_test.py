@@ -40,10 +40,10 @@ async def test_get_class_hash_at(contract_address, gateway_client, class_hash):
 
 @pytest.mark.asyncio
 async def test_get_compiled_class_by_class_hash(
-    gateway_client, v1_hello_starknet_class_hash
+    gateway_client, cairo1_hello_starknet_class_hash
 ):
     compiled_class = await gateway_client.get_compiled_class_by_class_hash(
-        class_hash=v1_hello_starknet_class_hash
+        class_hash=cairo1_hello_starknet_class_hash
     )
 
     assert isinstance(compiled_class, CasmClass)

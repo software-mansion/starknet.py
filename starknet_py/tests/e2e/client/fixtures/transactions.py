@@ -62,11 +62,11 @@ def block_with_deploy_account_number(
 
 @pytest_asyncio.fixture(scope="package")
 async def hello_starknet_deploy_transaction_address(
-    account: Account, v1_hello_starknet_class_hash
+    account: Account, cairo1_hello_starknet_class_hash
 ) -> int:
     deployer = Deployer()
     contract_deployment = deployer.create_contract_deployment_raw(
-        class_hash=v1_hello_starknet_class_hash
+        class_hash=cairo1_hello_starknet_class_hash
     )
     deploy_invoke_transaction = await account.sign_invoke_transaction(
         calls=contract_deployment.call, max_fee=MAX_FEE
@@ -77,11 +77,15 @@ async def hello_starknet_deploy_transaction_address(
 
 
 @pytest_asyncio.fixture(scope="package")
-async def block_with_declare_v2_number(v1_hello_starknet_tx_hash: int, client) -> int:
+async def block_with_declare_v2_number(
+    cairo1_hello_starknet_tx_hash: int, client
+) -> int:
     """
     Returns number of the block with DeclareV2 transaction
     """
-    declare_v2_receipt = await client.get_transaction_receipt(v1_hello_starknet_tx_hash)
+    declare_v2_receipt = await client.get_transaction_receipt(
+        cairo1_hello_starknet_tx_hash
+    )
     return declare_v2_receipt.block_number
 
 

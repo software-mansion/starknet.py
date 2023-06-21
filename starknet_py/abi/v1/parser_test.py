@@ -32,6 +32,32 @@ def test_parsing_types_abi():
     }
 
 
+def test_parsing_types_abi2():
+    abi = AbiParser(
+        [
+            fixtures.foo_external_dict,
+            fixtures.foo_event_dict,
+            fixtures.foo_view_dict,
+            fixtures.my_enum_dict,
+            fixtures.my_struct_dict,
+        ]
+    ).parse()
+
+    assert abi.defined_structures == {
+        "test::MyStruct::<core::integer::u256>": fixtures.my_struct,
+    }
+    assert abi.defined_enums == {
+        "test::MyEnum::<core::integer::u128>": fixtures.my_enum,
+    }
+    assert abi.events == {
+        "foo_event": fixtures.foo_event,
+    }
+    assert abi.functions == {
+        "foo_external": fixtures.foo_external,
+        "foo_view": fixtures.foo_view,
+    }
+
+
 def test_self_cycle():
     self_referencing_struct = {
         "type": "struct",

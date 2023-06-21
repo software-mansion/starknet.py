@@ -16,6 +16,6 @@ async def test_declare_tx(account, map_compiled_contract):
 
 
 @pytest.mark.asyncio
-async def test_declare_v2_tx(v1_minimal_contract_class_hash: int):
-    assert isinstance(v1_minimal_contract_class_hash, int)
-    assert v1_minimal_contract_class_hash != 0
+async def test_declare_v2_tx(cairo1_minimal_contract_class_hash: int):
+    assert isinstance(cairo1_minimal_contract_class_hash, int)
+    assert cairo1_minimal_contract_class_hash != 0

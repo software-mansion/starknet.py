@@ -593,6 +593,7 @@ class Contract:
         compiled_contract: str,
         *,
         compiled_contract_casm: Optional[str] = None,
+        casm_class_hash: Optional[int] = None,
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
@@ -604,22 +605,25 @@ class Contract:
         :param compiled_contract: String containing compiled contract.
         :param compiled_contract_casm: String containing the content of the starknet-sierra-compile (.casm file).
             Used when declaring Cairo1 contracts.
+        :param casm_class_hash: Hash of the compiled_contract_casm.
         :param nonce: Nonce of the transaction.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :return: DeclareResult instance.
         """
 
-        if "sierra_program" in compiled_contract:
-            if compiled_contract_casm is None:
+        if Contract._get_cairo_version(compiled_contract) == 1:
+            if casm_class_hash is None and compiled_contract_casm is None:
                 raise ValueError(
-                    "Cairo 1.0 contract was provided without compiled_contract_casm argument."
+                    "Cairo 1.0 contract was provided without casm_class_hash or compiled_contract_casm argument."
                 )
 
             cairo_version = 1
-            casm_class_hash = compute_casm_class_hash(
-                create_casm_class(compiled_contract_casm)
-            )
+            if casm_class_hash is None:
+                assert compiled_contract_casm is not None
+                casm_class_hash = compute_casm_class_hash(
+                    create_casm_class(compiled_contract_casm)
+                )
 
             declare_tx = await account.sign_declare_v2_transaction(
                 compiled_contract=compiled_contract,
@@ -646,6 +650,10 @@ class Contract:
             compiled_contract=compiled_contract,
             _cairo_version=cairo_version,
         )
+
+    @staticmethod
+    def _get_cairo_version(compiled_contract: str) -> int:
+        return 1 if "sierra_program" in compiled_contract else 0
 
     @staticmethod
     async def deploy_contract(

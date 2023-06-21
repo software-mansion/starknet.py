@@ -123,9 +123,9 @@ async def deploy_v1_contract(
     calldata: Optional[Dict[str, Any]] = None,
 ) -> Contract:
     """
-    Declares and deploys Cairo1.0 contract.
+    Deploys Cairo1.0 contract.
 
-    :param account: An account which will be used to invoke the Contract.
+    :param account: An account which will be used to deploy the Contract.
     :param contract_file_name: Name of the file with code (e.g. `erc20` if filename is `erc20.cairo`).
     :param class_hash: class_hash of the contract to be deployed.
     :param calldata: Dict with constructor arguments (can be empty).

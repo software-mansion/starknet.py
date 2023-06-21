@@ -29,14 +29,16 @@ async def test_contract_declare(gateway_account):
 
 
 @pytest.mark.asyncio
-async def test_throws_when_cairo1_without_compiled_contract_casm(account):
+async def test_throws_when_cairo1_without_compiled_contract_casm_and_casm_class_hash(
+    account,
+):
     compiled_contract = read_contract(
         "erc20_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
     )
 
     with pytest.raises(
         ValueError,
-        match="Cairo 1.0 contract was provided without compiled_contract_casm argument.",
+        match="Cairo 1.0 contract was provided without casm_class_hash or compiled_contract_casm argument.",
     ):
         await Contract.declare(
             account, compiled_contract=compiled_contract, max_fee=MAX_FEE

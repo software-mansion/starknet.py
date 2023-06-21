@@ -12,7 +12,7 @@ from starknet_py.serialization._context import (
 class UnitSerializer(CairoDataSerializer[None, None]):
     """
     Serializer for unit type.
-    Can't serialize anything.
+    Can only serialize None.
     Deserializes data to None.
 
     Example:

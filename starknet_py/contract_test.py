@@ -76,7 +76,7 @@ def test_throws_on_wrong_abi(account):
                 {
                     "type": "function",
                     "name": "empty",
-                    "inputs": "",
+                    "inputs": "",  # inputs should be a list
                 }
             ],
             provider=account,
