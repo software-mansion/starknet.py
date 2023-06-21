@@ -1,5 +1,7 @@
 # pylint: disable=line-too-long
 # fmt: off
+import copy
+
 import pytest
 
 from starknet_py.common import create_contract_class
@@ -21,6 +23,8 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
 def test_compute_class_hash(contract_source, expected_class_hash):
     compiled_contract = read_contract(contract_source)
     contract_class = create_contract_class(compiled_contract)
+    initial_contract_class = copy.deepcopy(contract_class)
     class_hash = compute_class_hash(contract_class)
 
     assert class_hash == expected_class_hash
+    assert contract_class == initial_contract_class
