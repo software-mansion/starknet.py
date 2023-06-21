@@ -38,6 +38,17 @@ user_dict = {
         {"name": "pool_id", "offset": 3, "type": "PoolId"},
     ],
 }
+user_missing_offset_dict = {
+    "type": "struct",
+    "name": "User",
+    "size": 4,
+    "members": [
+        {"name": "id", "type": "Uint256"},
+        {"name": "name_len", "type": "felt"},
+        {"name": "name", "type": "felt*"},
+        {"name": "pool_id", "type": "PoolId"},
+    ],
+}
 user_struct = StructType(
     "User",
     OrderedDict(
@@ -46,6 +57,27 @@ user_struct = StructType(
         name=ArrayType(FeltType()),
         pool_id=pool_id_struct,
     ),
+)
+
+user_partial_missing_offset_dict = {
+    "type": "struct",
+    "name": "User",
+    "size": 4,
+    "members": [
+        {"name": "id", "offset": 0, "type": "Uint256"},
+        {"name": "name_len", "type": "felt"},
+        {"name": "name", "type": "felt*"},
+        {"name": "pool_id", "offset": 1, "type": "PoolId"},
+    ],
+}
+user_partial_missing_offset_struct = StructType(
+    "User",
+    OrderedDict(
+        id=uint256_struct,
+        pool_id=pool_id_struct,
+        name_len=FeltType(),
+        name=ArrayType(FeltType()),
+    )
 )
 
 user_added_dict = {
@@ -200,14 +232,3 @@ balance_struct_abi = Abi(
         )
     },
 )
-user_dict_missing_offset = {
-    "type": "struct",
-    "name": "User",
-    "size": 4,
-    "members": [
-        {"name": "id", "type": "Uint256"},
-        {"name": "name_len", "type": "felt"},
-        {"name": "name", "type": "felt*"},
-        {"name": "pool_id", "type": "PoolId"},
-    ],
-}
