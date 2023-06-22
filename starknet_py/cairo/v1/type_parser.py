@@ -3,7 +3,13 @@ from __future__ import annotations
 from typing import Dict, Union
 
 from starknet_py.abi.v1.parser_transformer import parse
-from starknet_py.cairo.data_types import CairoType, EnumType, StructType, TypeIdentifier
+from starknet_py.cairo.data_types import (
+    ArrayType,
+    CairoType,
+    EnumType,
+    StructType,
+    TypeIdentifier,
+)
 
 
 class UnknownCairoTypeError(ValueError):
@@ -50,6 +56,14 @@ class TypeParser:
 
         if isinstance(parsed, TypeIdentifier):
             return self._get_struct(parsed)
+
+        # TODO (#000): add recursive support for iterables with structures (tuples?)
+        if isinstance(parsed, ArrayType):
+            inner_type_string = type_string[
+                type_string.find("<") + 1 : type_string.rfind(">")
+            ]
+            parsed.inner_type = self.parse_inline_type(inner_type_string)
+
         return parsed
 
     def _get_struct(self, identifier: TypeIdentifier):

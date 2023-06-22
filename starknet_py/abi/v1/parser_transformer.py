@@ -1,9 +1,8 @@
 import os
-from collections import OrderedDict
 from typing import Any, List, Optional
 
 import lark
-from lark import Token, Transformer, v_args
+from lark import Token, Transformer
 
 from starknet_py.cairo.data_types import (
     ArrayType,
@@ -11,7 +10,6 @@ from starknet_py.cairo.data_types import (
     CairoType,
     FeltType,
     OptionType,
-    StructType,
     TupleType,
     TypeIdentifier,
     UintType,
@@ -29,17 +27,8 @@ class ParserTransformer(Transformer):
     def __default__(self, data: str, children, meta):
         raise TypeError(f"Unable to parse tree node of type {data}.")
 
-    @v_args(inline=True)
-    def start(self, value) -> Optional[CairoType]:
-        """
-        Method all the entries starts from.
-        """
-        return value
-
     def type(self, value: List[Optional[CairoType]]) -> Optional[CairoType]:
         """
-        Types starting with "core" or unit type "()".
-
         Tokens are read bottom-up, so here all of them are parsed and should be just returned.
         `Optional` is added in case of the unit type.
         """
@@ -83,6 +72,12 @@ class ParserTransformer(Transformer):
         """
         return ArrayType(value[0])
 
+    def type_span(self, value: List[CairoType]) -> ArrayType:
+        """
+        Span contains values of type under `value[0]`.
+        """
+        return ArrayType(value[0])
+
     def type_identifier(self, tokens: List[Token]) -> TypeIdentifier:
         """
         Structs and enums are defined as follows: (IDENTIFIER | "::")+ [some not important info]
@@ -94,9 +89,21 @@ class ParserTransformer(Transformer):
         name = "::".join(token for token in tokens if isinstance(token, str))
         return TypeIdentifier(name)
 
-    def type_address(self, _value: List[Any]) -> FeltType:
+    def type_contract_address(self, _value: List[Any]) -> FeltType:
         """
         ContractAddress is represented by the felt252.
+        """
+        return FeltType()
+
+    def type_class_hash(self, _value: List[Any]) -> FeltType:
+        """
+        ClassHash is represented by the felt252.
+        """
+        return FeltType()
+
+    def type_storage_address(self, _value: List[Any]) -> FeltType:
+        """
+        StorageAddress is represented by the felt252.
         """
         return FeltType()
 
@@ -105,12 +112,6 @@ class ParserTransformer(Transformer):
         Tuple contains values defined in the `types` argument.
         """
         return TupleType(types)
-
-    def type_eth_address(self, _value: List[Any]) -> StructType:
-        return StructType(
-            name="core::starknet::eth_address::EthAddress",
-            types=OrderedDict(address=FeltType()),
-        )
 
 
 def parse(
@@ -126,8 +127,8 @@ def parse(
 
     grammar_parser = lark.Lark(
         grammar=grammar,
-        start="start",
-        parser="lalr",
+        start="type",
+        parser="earley",
     )
     parsed = grammar_parser.parse(code)
 

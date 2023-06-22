@@ -60,7 +60,7 @@ wrapped_felt_type = StructType("WrappedFelt", OrderedDict(value=FeltType()))
     "type_string, expected",
     [
         ("Uint256", uint256_type),
-        ("core::array::Array::<Uint256>", ArrayType(TypeIdentifier("Uint256"))),
+        ("core::array::Array::<Uint256>", ArrayType(uint256_type)),
         (
             "(Uint256, WrappedFelt)",
             TupleType([TypeIdentifier("Uint256"), TypeIdentifier("WrappedFelt")]),

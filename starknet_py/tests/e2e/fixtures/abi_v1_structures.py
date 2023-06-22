@@ -10,6 +10,14 @@ from starknet_py.cairo.data_types import (
     UintType,
 )
 
+core_structures = {
+    "core::starknet::eth_address::EthAddress": StructType(
+        name="core::starknet::eth_address::EthAddress",
+        types=OrderedDict([("address", FeltType())]),
+    )
+}
+
+
 pool_id_dict = {
     "type": "struct",
     "name": "PoolId",

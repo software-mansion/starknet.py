@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import dataclasses
 import json
+import os
 from collections import OrderedDict, defaultdict
+from pathlib import Path
 from typing import DefaultDict, Dict, List, Optional, Tuple, Union, cast
 
 from marshmallow import EXCLUDE
@@ -44,6 +46,11 @@ class AbiParser:
 
         :param abi_list: Contract's ABI as a list of dictionaries.
         """
+        # prepend abi with core structures
+        core_structures = (
+            Path(os.path.dirname(__file__)) / "core_structures.json"
+        ).read_text("utf-8")
+        abi_list = json.loads(core_structures)["abi"] + abi_list
         abi = [
             ContractAbiEntrySchema().load(entry, unknown=EXCLUDE) for entry in abi_list
         ]

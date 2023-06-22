@@ -1,25 +1,33 @@
 IDENTIFIER: /[a-zA-Z_][a-zA-Z_0-9]*/
 
-start: type
-     | type_identifier
-     | tuple
+type: type_unit
+    | type_bool
+    | type_felt
+    | type_uint
+    | type_contract_address
+    | type_class_hash
+    | type_storage_address
+    | type_option
+    | type_array
+    | type_span
+    | tuple
+    | type_identifier
 
-type: "core" "::" core_value
-    | type_unit
-
-core_value: "felt252"                                                   -> type_felt
-          | "bool"                                                      -> type_bool
-          | "integer" "::" "u" INT                                      -> type_uint
-          | "option" "::" "Option" "::" "<" (type | type_identifier) ">"    -> type_option
-          | "array" "::" "Array" "::" "<" (type | type_identifier) ">"      -> type_array
-          | "starknet" "::" "contract_address" "::" "ContractAddress"   -> type_address
-          | "starknet" "::" "eth_address" "::" "EthAddress"             -> type_eth_address
 
 type_unit: "()"
+type_felt: "core::felt252"
+type_bool: "core::bool"
+type_uint: "core::integer::u" INT
+type_contract_address: "core::starknet::contract_address::ContractAddress"
+type_class_hash: "core::starknet::class_hash::ClassHash"
+type_storage_address: "core::starknet::storage_access::StorageAddress"
+type_option: "core::option::Option::<" (type | type_identifier) ">"
+type_array: "core::array::Array::<" (type | type_identifier) ">"
+type_span: "core::array::Span::<" (type | type_identifier) ">"
+
+tuple: "(" type? ("," type?)* ")"
 
 type_identifier: (IDENTIFIER | "::")+ ("<" (type | ",")+ ">")?
-
-tuple: "(" (start | ",")+ ")"
 
 
 %import common.INT
