@@ -13,7 +13,7 @@ Moreover, this release brings support for `RPC v0.3.0 <https://github.com/starkw
 Breaking changes
 ----------------
 
-1. Function ``compute_invoke_hash`` in :ref:`starknet_py.net.models.transaction` has been removed in favor of :func:`starknet_py.hash.transaction.compute_invoke_transaction_hash`.
+1. Function ``compute_invoke_hash`` in :mod:`starknet_py.net.models.transaction` has been removed in favor of :func:`starknet_py.hash.transaction.compute_invoke_transaction_hash`.
 
 
 Minor changes
@@ -64,7 +64,7 @@ Additionally, this release brings support for `RPC v0.3.0rc1 <https://github.com
 
 .. currentmodule:: starknet_py.net.client_models
 
-3. :ref:`StateDiff` dataclass properties have been changed (more details in RPC specification linked above).
+3. :class:`StateDiff` dataclass properties have been changed (more details in RPC specification linked above).
 
 
 0.16.1 Minor changes
