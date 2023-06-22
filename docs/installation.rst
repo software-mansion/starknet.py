@@ -55,6 +55,6 @@ You might encounter problems related to missing files in PATH (particularly when
     - install `MinGW <https://www.mingw-w64.org/>`_,
     - manually add required files (probably ``libgcc_s_seh-1.dll``, ``libstdc++-6.dll`` and ``libwinpthread-1.dll``) to your PATH.
 
-If you encounter any other problems related to installation, you can ask for help in starknet-py channel on Starknet Discord server.
+If you encounter any other problems related to installation, you can ask for help in ``#🐍 | starknet-py`` channel on `Starknet Discord server <https://starknet.io/discord>`_.
 
 2. Use virtual machine with Linux, `Windows Subsystem for Linux 2 <https://learn.microsoft.com/en-us/windows/wsl/>`_ (WSL2) or other solution.
