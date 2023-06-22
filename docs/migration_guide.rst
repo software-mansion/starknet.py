@@ -35,7 +35,7 @@ RPC related changes:
 
 .. currentmodule:: starknet_py.net.client_models
 
-5. :class:`L2ToL1Message` dataclass now has an additional field: ``from_address``.
+5. :class:`L2toL1Message` dataclass now has an additional field: ``from_address``.
 6. :class:`TransactionReceipt` dataclass now has two additional, optional fields: ``type``  and ``contract_address``.
 
 .. currentmodule:: starknet_py.net.full_node_client
