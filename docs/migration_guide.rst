@@ -1,6 +1,51 @@
 Migration guide
 ===============
 
+****************************
+0.17.0-alpha Migration guide
+****************************
+
+    Version 0.17.0-alpha of **starknet.py** brings Cairo1 to Contract interface!
+
+Moreover, this release brings support for `RPC v0.3.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.3.0>`_!
+
+
+Breaking changes
+----------------
+
+1. Function ``compute_invoke_hash`` in :ref:`starknet_py.net.models.transaction.py` has been removed in favor of :func:`starknet_py.hash.transaction.compute_invoke_transaction_hash`.
+
+
+Minor changes
+-------------
+
+.. currentmodule:: starknet_py
+
+1. :meth:`DeclareResult.deploy`, :meth:`PreparedFunctionCall.invoke`, :meth:`PreparedFunctionCall.estimate_fee`, :meth:`ContractFunction.invoke`, :meth:`Contract.declare` and :meth:`Contract.deploy_contract` can now accept custom ``nonce`` parameter.
+
+.. currentmodule:: starknet_py.net.account
+
+2. :meth:`Account.sign_invoke_transaction`, :meth:`Account.sign_declare_transaction`, :meth:`Account.sign_declare_v2_transaction`, :meth:`Account.sign_deploy_account_transaction` and :meth:`Account.execute` can now accept custom ``nonce`` parameter.
+3. :meth:`Account.get_nonce` can now be parametrized with ``block_number`` or ``block_hash``.
+3. :meth:`Account.get_balance` can now be parametrized with ``block_number`` or ``block_hash``.
+
+
+Bugfixes
+--------
+
+.. currentmodule:: starknet_py.hash.class_hash
+
+1. Fixed a bug when :func:`compute_class_hash` mutated the ``contract_class`` argument passed to a function.
+
+
+|
+
+.. raw:: html
+
+  <hr>
+
+|
+
 **********************
 0.16.1 Migration guide
 **********************
@@ -9,23 +54,25 @@ Migration guide
 
 Additionally, this release brings support for `RPC v0.3.0rc1 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.3.0-rc1>`_!
 
-Breaking changes
-----------------
+0.16.1 Breaking changes
+-----------------------
 
-.. currentmodule:: starknet_py.net
+.. currentmodule:: starknet_py.net.client
 
-1. ``FullNodeClient.get_events`` `keys` parameter type is now `List[List[str]]` instead of `List[str]`.
-2. ``FullNodeClient.get_state_update`` return type has been changed from `StateUpdate` to `Union[BlockStateUpdate, PendingBlockStateUpdate]`
+1. :meth:`FullNodeClient.get_events` ``keys`` parameter type is now ``List[List[str]]`` instead of ``List[str]``.
+2. :meth:`FullNodeClient.get_state_update` return type has been changed from ``StateUpdate`` to ``Union[BlockStateUpdate, PendingBlockStateUpdate]``
 
-.. currentmodule:: starknet_py.net.schemas
+.. currentmodule:: starknet_py.net.schemas.rpc
 
-3. ``StateDiff`` dataclass properties have been changed (more details in RPC specification linked above).
+3. :ref:`StateDiff` dataclass properties have been changed (more details in RPC specification linked above).
 
 
-Minor changes
--------------
+0.16.1 Minor changes
+--------------------
 
-1. ``Client.estimate_fee`` can take a single transaction or a list of transactions to estimate.
+.. currentmodule:: starknet_py.net.client
+
+1. :meth:`Client.estimate_fee` can take a single transaction or a list of transactions to estimate.
 
 
 |
@@ -59,11 +106,9 @@ Also, dependencies are now optimized to include only necessary packages.
 -----------------------
 
 .. currentmodule:: starknet_py.net.account.base_account
-
 1. :meth:`BaseAccount.verify_message` is no longer ``async``.
 
 .. currentmodule:: starknet_py.hash.utils
-
 2. Some functions' implementation has been changed to use ``crypto-cpp-py`` package:
 
    - :func:`pedersen_hash`
