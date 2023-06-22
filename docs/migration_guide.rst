@@ -19,11 +19,10 @@ Breaking changes
 Minor changes
 -------------
 
-.. currentmodule:: starknet_py
+.. currentmodule:: starknet_py.contract
 
 1. :meth:`DeclareResult.deploy`, :meth:`PreparedFunctionCall.invoke`, :meth:`PreparedFunctionCall.estimate_fee`, :meth:`ContractFunction.invoke`, :meth:`Contract.declare` and :meth:`Contract.deploy_contract` can now accept custom ``nonce`` parameter.
-
-.. currentmodule:: starknet_py.net.account
+.. currentmodule:: starknet_py.net.account.account
 
 2. :meth:`Account.sign_invoke_transaction`, :meth:`Account.sign_declare_transaction`, :meth:`Account.sign_declare_v2_transaction`, :meth:`Account.sign_deploy_account_transaction` and :meth:`Account.execute` can now accept custom ``nonce`` parameter.
 3. :meth:`Account.get_nonce` can now be parametrized with ``block_number`` or ``block_hash``.
