@@ -7,6 +7,10 @@ Migration guide
 
     Version 0.17.0-alpha of **starknet.py** brings Cairo1 to Contract interface!
 
+.. currentmodule:: starknet_py.contract
+
+Now you can pass additional parameter ``contract_version`` to :class:`Contract` methods and use Cairo1 contracts!
+
 Moreover, this release brings support for `RPC v0.3.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.3.0>`_!
 
 
@@ -19,8 +23,6 @@ Breaking changes
 Minor changes
 -------------
 
-.. currentmodule:: starknet_py.contract
-
 1. :meth:`DeclareResult.deploy`, :meth:`PreparedFunctionCall.invoke`, :meth:`PreparedFunctionCall.estimate_fee`, :meth:`ContractFunction.invoke`, :meth:`Contract.declare` and :meth:`Contract.deploy_contract` can now accept custom ``nonce`` parameter.
 
 .. currentmodule:: starknet_py.net.account.account
@@ -28,6 +30,18 @@ Minor changes
 2. :meth:`Account.sign_invoke_transaction`, :meth:`Account.sign_declare_transaction`, :meth:`Account.sign_declare_v2_transaction`, :meth:`Account.sign_deploy_account_transaction` and :meth:`Account.execute` can now accept custom ``nonce`` parameter.
 3. :meth:`Account.get_nonce` can now be parametrized with ``block_number`` or ``block_hash``.
 4. :meth:`Account.get_balance` can now be parametrized with ``block_number`` or ``block_hash``.
+
+RPC related changes:
+
+.. currentmodule:: starknet_py.net.client_models
+
+5. :class:`L2ToL1Message` dataclass now has an additional field: ``from_address``.
+6. :class:`TransactionReceipt` dataclass now has two additional, optional fields: ``type``  and ``contract_address``.
+
+.. currentmodule:: starknet_py.net.full_node_client
+
+7. :meth:`FullNodeClient.get_events` ``keys`` and ``address`` parameters type are now optional.
+8. :meth:`FullNodeClient.get_events` ``keys`` parameter can now also accept integers as felts.
 
 
 Bugfixes
@@ -57,7 +71,7 @@ Additionally, this release brings support for `RPC v0.3.0rc1 <https://github.com
 0.16.1 Breaking changes
 -----------------------
 
-.. currentmodule:: starknet_py.net.client
+.. currentmodule:: starknet_py.net.full_node_client
 
 1. :meth:`FullNodeClient.get_events` ``keys`` parameter type is now ``List[List[str]]`` instead of ``List[str]``.
 2. :meth:`FullNodeClient.get_state_update` return type has been changed from ``StateUpdate`` to ``Union[BlockStateUpdate, PendingBlockStateUpdate]``
