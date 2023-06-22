@@ -269,7 +269,9 @@ async def test_wait_for_tx_accepted(client, get_tx_receipt, request):
             hash=0x1, status=TransactionStatus.ACCEPTED_ON_L2, block_number=1
         )
         client = request.getfixturevalue(client)
-        block_number, tx_status = await client.wait_for_tx(tx_hash=0x1, wait_for_accept=True)
+        block_number, tx_status = await client.wait_for_tx(
+            tx_hash=0x1, wait_for_accept=True
+        )
         assert block_number == 1
         assert tx_status == TransactionStatus.ACCEPTED_ON_L2
 
