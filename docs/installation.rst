@@ -50,8 +50,8 @@ You can install starknet.py on Windows in two ways:
 
 1. Install it just like you would on Linux.
 
-You might encounter problems related to missing files in PATH (particularly when loading ``libcrypto_c_exports``).
-Make sure that you have `MinGW <https://www.mingw-w64.org/>`_ installed and up-to-date.
+You might encounter problems related to ``libcrypto_c_exports``. Make sure that you have `MinGW <https://www.mingw-w64.org/>`_ installed and up-to-date.
+
 If you encounter any other problems related to installation, you can create an `issue at out GitHub <https://github.com/software-mansion/starknet.py/issues/new?assignees=&labels=bug&projects=&template=bug_report.yaml&title=%5BBUG%5D+%3Ctitle%3E>`_
 or ask for help in ``#🐍 | starknet-py`` channel on `Starknet Discord server <https://starknet.io/discord>`_.
 
