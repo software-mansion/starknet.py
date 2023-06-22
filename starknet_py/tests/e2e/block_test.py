@@ -11,7 +11,7 @@ async def declare_contract(account: BaseAccount, compiled_contract: str):
         compiled_contract=compiled_contract,
         max_fee=MAX_FEE,
     )
-    await declare_result.wait_for_acceptance()
+    await declare_result.wait_for_acceptance(wait_for_accept=True)
 
 
 @pytest.mark.asyncio

@@ -146,6 +146,9 @@ class Client(ABC):
         :param check_interval: Defines interval between checks
         :return: Tuple containing block number and transaction status
         """
+        if hasattr(self, "url") and not wait_for_accept:
+            # todo change that looool and the other todo
+            raise ValueError("xDDDDDDDDDD")
         if check_interval <= 0:
             raise ValueError("Argument check_interval has to be greater than 0.")
 

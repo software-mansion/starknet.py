@@ -11,7 +11,7 @@ async def test_wait_for_tx_negative_check_interval(client):
     with pytest.raises(
         ValueError, match="Argument check_interval has to be greater than 0."
     ):
-        await client.wait_for_tx(tx_hash=0, check_interval=-1)
+        await client.wait_for_tx(tx_hash=0, check_interval=-1, wait_for_accept=True)
 
 
 def test_cannot_instantiate_abstract_transaction_class():

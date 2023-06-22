@@ -95,7 +95,7 @@ async def test_sending_multicall(account, map_contract, key, val):
     ]
 
     res = await account.execute(calls=calls, max_fee=int(1e20))
-    await account.client.wait_for_tx(res.transaction_hash)
+    await account.client.wait_for_tx(res.transaction_hash, wait_for_accept=True)
 
     (value,) = await map_contract.functions["get"].call(key=key)
 
@@ -116,7 +116,7 @@ async def test_rejection_reason_in_transaction_receipt(account, map_contract):
     res = await map_contract.functions["put"].invoke(key=10, value=20, max_fee=1)
 
     with pytest.raises(TransactionRejectedError):
-        await account.client.wait_for_tx(res.hash)
+        await account.client.wait_for_tx(res.hash, wait_for_accept=True)
 
     transaction_receipt = await account.client.get_transaction_receipt(res.hash)
 
@@ -160,7 +160,7 @@ async def test_get_nonce(account, map_contract):
         ),
         max_fee=MAX_FEE,
     )
-    await account.client.wait_for_tx(tx.transaction_hash)
+    await account.client.wait_for_tx(tx.transaction_hash, wait_for_accept=True)
 
     new_nonce = await account.get_nonce()
     new_nonce_latest_block = await account.get_nonce(block_number="latest")
@@ -329,7 +329,7 @@ async def test_deploy_account(client, deploy_account_details_factory, map_contra
         chain=StarknetChainId.TESTNET,
         max_fee=int(1e16),
     )
-    await deploy_result.wait_for_acceptance()
+    await deploy_result.wait_for_acceptance(wait_for_accept=True)
 
     account = deploy_result.account
 
@@ -498,7 +498,7 @@ async def test_sign_invoke_tx_for_fee_estimation(account, map_contract):
 
     # Verify that original transaction can be sent
     result = await account.client.send_transaction(transaction)
-    await account.client.wait_for_tx(result.transaction_hash)
+    await account.client.wait_for_tx(result.transaction_hash, wait_for_accept=True)
 
 
 @pytest.mark.asyncio
@@ -518,7 +518,7 @@ async def test_sign_declare_tx_for_fee_estimation(account, map_compiled_contract
 
     # Verify that original transaction can be sent
     result = await account.client.declare(transaction)
-    await account.client.wait_for_tx(result.transaction_hash)
+    await account.client.wait_for_tx(result.transaction_hash, wait_for_accept=True)
 
 
 @pytest.mark.asyncio
@@ -553,7 +553,7 @@ async def test_sign_deploy_account_tx_for_fee_estimation(
 
     # Verify that original transaction can be sent
     result = await account.client.deploy_account(transaction)
-    await account.client.wait_for_tx(result.transaction_hash)
+    await account.client.wait_for_tx(result.transaction_hash, wait_for_accept=True)
 
 
 @pytest.mark.asyncio
@@ -579,8 +579,8 @@ async def test_sign_transaction_custom_nonce(
     deploy_res = await account.client.send_transaction(deploy_tx)
     invoke_res = await account.client.send_transaction(invoke_tx)
 
-    await account.client.wait_for_tx(deploy_res.transaction_hash)
-    await account.client.wait_for_tx(invoke_res.transaction_hash)
+    await account.client.wait_for_tx(deploy_res.transaction_hash, wait_for_accept=True)
+    await account.client.wait_for_tx(invoke_res.transaction_hash, wait_for_accept=True)
 
     result = await account.client.call_contract(
         Call(deployment.address, get_selector_from_name("get_balance"), [])

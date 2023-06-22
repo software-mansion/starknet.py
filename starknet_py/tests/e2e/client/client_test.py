@@ -220,7 +220,7 @@ async def test_add_transaction(map_contract, client, account):
     )
 
     result = await client.send_transaction(signed_invoke)
-    await client.wait_for_tx(result.transaction_hash)
+    await client.wait_for_tx(result.transaction_hash, wait_for_accept=True)
     transaction_receipt = await client.get_transaction_receipt(result.transaction_hash)
 
     assert transaction_receipt.status != TransactionStatus.NOT_RECEIVED
@@ -269,7 +269,7 @@ async def test_wait_for_tx_accepted(client, get_tx_receipt, request):
             hash=0x1, status=TransactionStatus.ACCEPTED_ON_L2, block_number=1
         )
         client = request.getfixturevalue(client)
-        block_number, tx_status = await client.wait_for_tx(tx_hash=0x1)
+        block_number, tx_status = await client.wait_for_tx(tx_hash=0x1, wait_for_accept=True)
         assert block_number == 1
         assert tx_status == TransactionStatus.ACCEPTED_ON_L2
 
@@ -348,7 +348,7 @@ async def test_wait_for_tx_rejected(
         )
         client = request.getfixturevalue(client)
         with pytest.raises(exception) as err:
-            await client.wait_for_tx(tx_hash=0x1)
+            await client.wait_for_tx(tx_hash=0x1, wait_for_accept=True)
 
         assert exc_message in err.value.message
 
@@ -396,7 +396,7 @@ async def test_declare_contract(map_compiled_contract, account):
 
     client = account.client
     result = await client.declare(declare_tx)
-    await client.wait_for_tx(result.transaction_hash)
+    await client.wait_for_tx(result.transaction_hash, wait_for_accept=True)
     transaction_receipt = await client.get_transaction_receipt(result.transaction_hash)
 
     assert transaction_receipt.status != TransactionStatus.NOT_RECEIVED
@@ -541,7 +541,7 @@ async def test_state_update_deployed_contracts(
         contract_deployment.call, max_fee=MAX_FEE
     )
     resp = await account.client.send_transaction(deploy_invoke_tx)
-    await account.client.wait_for_tx(resp.transaction_hash)
+    await account.client.wait_for_tx(resp.transaction_hash, wait_for_accept=True)
 
     # test
     state_update = await account.client.get_state_update()

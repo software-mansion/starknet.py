@@ -16,7 +16,7 @@ async def is_map_working_properly(map_contract: Contract, key: int, val: int) ->
     """Put (key, val) into map_contract's storage and check if value under the key is val"""
     await (
         await map_contract.functions["put"].invoke(key, val, max_fee=int(1e16))
-    ).wait_for_acceptance()
+    ).wait_for_acceptance(wait_for_accept=True)
     (result,) = await map_contract.functions["get"].call(key=key)
     return result == val
 

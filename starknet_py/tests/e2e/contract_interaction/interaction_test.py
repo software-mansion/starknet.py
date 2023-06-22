@@ -135,7 +135,19 @@ async def test_wait_for_tx(client, map_contract):
     transaction = await map_contract.functions["put"].invoke(
         key=10, value=20, max_fee=MAX_FEE
     )
-    await client.wait_for_tx(transaction.hash)
+    await client.wait_for_tx(transaction.hash, wait_for_accept=True)
+
+
+@pytest.mark.asyncio
+async def test_wait_for_tx_wait_for_accept_full_node_throws(full_node_client, map_contract):
+    transaction = await map_contract.functions["put"].invoke(
+        key=10, value=20, max_fee=MAX_FEE
+    )
+    with pytest.raises(ValueError) as err:
+        await full_node_client.wait_for_tx(transaction.hash)
+
+    # todo change this and error type above
+    assert err.value.message
 
 
 @pytest.mark.asyncio
@@ -147,7 +159,7 @@ async def test_wait_for_tx_throws_on_transaction_rejected(client, map_contract):
     transaction = await invoke.invoke()
 
     with pytest.raises(TransactionRejectedError) as err:
-        await client.wait_for_tx(transaction.hash)
+        await client.wait_for_tx(transaction.hash, wait_for_accept=True)
 
     if isinstance(client, GatewayClient):
         assert "Entry point 0x123 not found in contract" in err.value.message
@@ -202,7 +214,7 @@ async def test_general_simplified_deployment_flow(account, map_compiled_contract
     )
     await declare_result.wait_for_acceptance()
     deployment = await declare_result.deploy(max_fee=MAX_FEE)
-    await deployment.wait_for_acceptance()
+    await deployment.wait_for_acceptance(wait_for_accept=True)
 
     contract = deployment.deployed_contract
 
@@ -217,7 +229,7 @@ async def test_deploy_contract_flow(account, map_compiled_contract, map_class_ha
     deploy_result = await Contract.deploy_contract(
         class_hash=map_class_hash, account=account, abi=abi, max_fee=MAX_FEE
     )
-    await deploy_result.wait_for_acceptance()
+    await deploy_result.wait_for_acceptance(wait_for_accept=True)
 
     contract = deploy_result.deployed_contract
 
