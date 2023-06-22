@@ -13,7 +13,7 @@ Moreover, this release brings support for `RPC v0.3.0 <https://github.com/starkw
 Breaking changes
 ----------------
 
-1. Function ``compute_invoke_hash`` in :ref:`starknet_py.net.models.transaction.py` has been removed in favor of :func:`starknet_py.hash.transaction.compute_invoke_transaction_hash`.
+1. Function ``compute_invoke_hash`` in :ref:`starknet_py.net.models.transaction` has been removed in favor of :func:`starknet_py.hash.transaction.compute_invoke_transaction_hash`.
 
 
 Minor changes
@@ -27,7 +27,7 @@ Minor changes
 
 2. :meth:`Account.sign_invoke_transaction`, :meth:`Account.sign_declare_transaction`, :meth:`Account.sign_declare_v2_transaction`, :meth:`Account.sign_deploy_account_transaction` and :meth:`Account.execute` can now accept custom ``nonce`` parameter.
 3. :meth:`Account.get_nonce` can now be parametrized with ``block_number`` or ``block_hash``.
-3. :meth:`Account.get_balance` can now be parametrized with ``block_number`` or ``block_hash``.
+4. :meth:`Account.get_balance` can now be parametrized with ``block_number`` or ``block_hash``.
 
 
 Bugfixes
@@ -62,7 +62,7 @@ Additionally, this release brings support for `RPC v0.3.0rc1 <https://github.com
 1. :meth:`FullNodeClient.get_events` ``keys`` parameter type is now ``List[List[str]]`` instead of ``List[str]``.
 2. :meth:`FullNodeClient.get_state_update` return type has been changed from ``StateUpdate`` to ``Union[BlockStateUpdate, PendingBlockStateUpdate]``
 
-.. currentmodule:: starknet_py.net.schemas.rpc
+.. currentmodule:: starknet_py.net.client_models
 
 3. :ref:`StateDiff` dataclass properties have been changed (more details in RPC specification linked above).
 
@@ -106,9 +106,11 @@ Also, dependencies are now optimized to include only necessary packages.
 -----------------------
 
 .. currentmodule:: starknet_py.net.account.base_account
+
 1. :meth:`BaseAccount.verify_message` is no longer ``async``.
 
 .. currentmodule:: starknet_py.hash.utils
+
 2. Some functions' implementation has been changed to use ``crypto-cpp-py`` package:
 
    - :func:`pedersen_hash`
