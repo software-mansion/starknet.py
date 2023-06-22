@@ -5,7 +5,7 @@ Migration guide
 0.17.0-alpha Migration guide
 ****************************
 
-    Version 0.17.0-alpha of **starknet.py** brings Cairo1 to Contract interface!
+    Version 0.17.0-alpha of **starknet.py** brings **Cairo1 to Contract** interface!
 
 .. currentmodule:: starknet_py.contract
 
