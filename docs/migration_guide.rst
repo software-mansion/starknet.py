@@ -5,19 +5,28 @@ Migration guide
 0.17.0-alpha Migration guide
 ****************************
 
-    Version 0.17.0-alpha of **starknet.py** brings **Cairo1 to Contract** interface!
+.. currentmodule:: starknet_py.net.full_node_client
+
+:class:`FullNodeClient` RPC specification has been updated from `v0.3.0-rc1 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.3.0-rc1>`_ to `v0.3.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.3.0>`_.
 
 .. currentmodule:: starknet_py.contract
 
-Now you can pass additional parameter ``contract_version`` to :class:`Contract` methods and use Cairo1 contracts!
 
-Moreover, this release brings support for `RPC v0.3.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.3.0>`_!
+:class:`Contract` now *initially* supports contracts written in **Cairo1**.
+
+To create an instance of such contract, a keyword parameter ``cairo_version=1`` in the Contract constructor is required.
+
+
+.. note::
+    Please note that while using the interface with `Cairo1` contracts, it is possible for problems to occur due to some of the types being not yet implemented in the parser.
+
+    In such case, please open an issue at our `GitHub <https://github.com/software-mansion/starknet.py/issues/new?assignees=&labels=bug&projects=&template=bug_report.yaml&title=%5BBUG%5D+%3Ctitle%3E>`_ or contract us on `Starknet Discord server <https://starknet.io/discord>`_ in ``#🐍 | starknet-py`` channel.
 
 
 Breaking changes
 ----------------
 
-1. Function ``compute_invoke_hash`` in :mod:`starknet_py.net.models.transaction` has been removed in favor of :func:`starknet_py.hash.transaction.compute_invoke_transaction_hash`.
+1. Deprecated function ``compute_invoke_hash`` in :mod:`starknet_py.net.models.transaction` has been removed in favor of :func:`starknet_py.hash.transaction.compute_invoke_transaction_hash`.
 
 
 Minor changes
