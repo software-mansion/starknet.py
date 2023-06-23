@@ -7,24 +7,20 @@ They should be compliant with the latest Starknet version.
 import base64
 import gzip
 import json
-import warnings
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Sequence, TypeVar, Union
+from typing import Any, Dict, List, TypeVar
 
 import marshmallow
 import marshmallow_dataclass
 from marshmallow import fields
 
-from starknet_py.constants import DEFAULT_ENTRY_POINT_SELECTOR
 from starknet_py.hash.address import compute_address
-from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.transaction import (
-    TransactionHashPrefix,
     compute_declare_transaction_hash,
     compute_declare_v2_transaction_hash,
     compute_deploy_account_transaction_hash,
-    compute_transaction_hash,
+    compute_invoke_transaction_hash,
 )
 from starknet_py.net.client_models import (
     ContractClass,
@@ -213,15 +209,13 @@ class Invoke(AccountTransaction):
         """
         Calculates the transaction hash in the Starknet network.
         """
-        return compute_transaction_hash(
-            tx_hash_prefix=TransactionHashPrefix.INVOKE,
+        return compute_invoke_transaction_hash(
             version=self.version,
-            contract_address=self.sender_address,
-            entry_point_selector=DEFAULT_ENTRY_POINT_SELECTOR,
+            sender_address=self.sender_address,
             calldata=self.calldata,
             max_fee=self.max_fee,
             chain_id=chain_id.value,
-            additional_data=[self.nonce],
+            nonce=self.nonce,
         )
 
 
@@ -229,51 +223,6 @@ InvokeSchema = marshmallow_dataclass.class_schema(Invoke)
 DeclareSchema = marshmallow_dataclass.class_schema(Declare)
 DeclareV2Schema = marshmallow_dataclass.class_schema(DeclareV2)
 DeployAccountSchema = marshmallow_dataclass.class_schema(DeployAccount)
-
-
-def compute_invoke_hash(
-    sender_address: int,
-    entry_point_selector: Union[int, str],
-    calldata: Sequence[int],
-    chain_id: StarknetChainId,
-    max_fee: int,
-    version: int,
-) -> int:
-    # pylint: disable=too-many-arguments
-    """
-    Computes invocation hash.
-
-        .. deprecated:: 0.15.0
-            To compute hash of an invoke transaction use
-            :py:meth:`~starknet_py.hash.transaction.compute_transaction_hash`.
-
-    :param sender_address: int
-    :param entry_point_selector: Union[int, str]
-    :param calldata: Sequence[int]
-    :param chain_id: StarknetChainId
-    :param max_fee: Max fee
-    :param version: Contract version
-    :return: calculated hash
-    """
-    warnings.warn(
-        "Function compute_invoke_hash is deprecated."
-        "To compute hash of an invoke transaction use compute_transaction_hash.",
-        category=DeprecationWarning,
-    )
-
-    if isinstance(entry_point_selector, str):
-        entry_point_selector = get_selector_from_name(entry_point_selector)
-
-    return compute_transaction_hash(
-        tx_hash_prefix=TransactionHashPrefix.INVOKE,
-        contract_address=sender_address,
-        entry_point_selector=entry_point_selector,
-        calldata=calldata,
-        chain_id=chain_id.value,
-        additional_data=[],
-        max_fee=max_fee,
-        version=version,
-    )
 
 
 def compress_program(data: dict, program_name: str = "program") -> dict:

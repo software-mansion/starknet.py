@@ -190,20 +190,30 @@ class Account(BaseAccount):
 
         return estimated_fee
 
-    async def get_nonce(self) -> int:
+    async def get_nonce(
+        self,
+        *,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> int:
         """
         Get the current nonce of the account.
 
+        :param block_hash: Block's hash or literals `"pending"` or `"latest"`
+        :param block_number: Block's number or literals `"pending"` or `"latest"`
         :return: nonce.
         """
         return await self._client.get_contract_nonce(
-            self.address, block_number="pending"
+            self.address, block_hash=block_hash, block_number=block_number
         )
 
     async def get_balance(
         self,
         token_address: Optional[AddressRepresentation] = None,
         chain_id: Optional[StarknetChainId] = None,
+        *,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
     ) -> int:
         if token_address is None:
             token_address = self._default_token_address_for_chain(chain_id)
@@ -214,7 +224,8 @@ class Account(BaseAccount):
                 selector=get_selector_from_name("balanceOf"),
                 calldata=[self.address],
             ),
-            block_hash="pending",
+            block_hash=block_hash,
+            block_number=block_number,
         )
 
         return (high << 128) + low
