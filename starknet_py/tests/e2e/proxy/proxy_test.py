@@ -16,7 +16,7 @@ async def is_map_working_properly(map_contract: Contract, key: int, val: int) ->
     """Put (key, val) into map_contract's storage and check if value under the key is val"""
     await (
         await map_contract.functions["put"].invoke(key, val, max_fee=int(1e16))
-    ).wait_for_acceptance(wait_for_accept=True)
+    ).wait_for_acceptance()
     (result,) = await map_contract.functions["get"].call(key=key)
     return result == val
 
@@ -106,12 +106,12 @@ async def test_contract_from_address_with_old_address_proxy(
     declare_result = await Contract.declare(
         account=account, compiled_contract=old_proxy, max_fee=MAX_FEE
     )
-    await declare_result.wait_for_acceptance(wait_for_accept=True)
+    await declare_result.wait_for_acceptance()
     deploy_result = await declare_result.deploy(
         constructor_args={"implementation_address": map_contract.address},
         max_fee=MAX_FEE,
     )
-    await deploy_result.wait_for_acceptance(wait_for_accept=True)
+    await deploy_result.wait_for_acceptance()
 
     proxy_contract = await Contract.from_address(
         address=deploy_result.deployed_contract.address,

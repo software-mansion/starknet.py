@@ -18,7 +18,7 @@ async def test_default_deploy_with_class_hash(account, map_class_hash):
         contract_deployment.call, max_fee=MAX_FEE
     )
     resp = await account.client.send_transaction(deploy_invoke_tx)
-    await account.client.wait_for_tx(resp.transaction_hash, wait_for_accept=True)
+    await account.client.wait_for_tx(resp.transaction_hash)
 
     assert isinstance(contract_deployment.address, int)
     assert contract_deployment.address != 0
@@ -76,7 +76,7 @@ async def test_constructor_arguments_contract_deploy(
         deploy_call, max_fee=MAX_FEE
     )
     resp = await account.client.send_transaction(deploy_invoke_transaction)
-    await account.client.wait_for_tx(resp.transaction_hash, wait_for_accept=True)
+    await account.client.wait_for_tx(resp.transaction_hash)
 
     contract = Contract(
         address=contract_address,
@@ -115,7 +115,7 @@ async def test_address_computation(salt, pass_account_address, account, map_clas
         deploy_call, max_fee=MAX_FEE
     )
     resp = await account.client.send_transaction(deploy_invoke_tx)
-    await account.client.wait_for_tx(resp.transaction_hash, wait_for_accept=True)
+    await account.client.wait_for_tx(resp.transaction_hash)
 
     tx_receipt = await account.client.get_transaction_receipt(resp.transaction_hash)
     address_from_event = tx_receipt.events[0].data[0]
@@ -160,7 +160,7 @@ async def test_create_deployment_call_raw(
         deploy_call, max_fee=MAX_FEE
     )
     resp = await account.client.send_transaction(deploy_invoke_transaction)
-    await account.client.wait_for_tx(resp.transaction_hash, wait_for_accept=True)
+    await account.client.wait_for_tx(resp.transaction_hash)
 
     assert isinstance(contract_address, int)
     assert contract_address != 0
@@ -204,7 +204,7 @@ async def test_create_deployment_call_raw_supports_seed_0(
         deploy_call, max_fee=MAX_FEE
     )
     resp = await account.client.send_transaction(deploy_invoke_transaction)
-    await account.client.wait_for_tx(resp.transaction_hash, wait_for_accept=True)
+    await account.client.wait_for_tx(resp.transaction_hash)
 
     assert isinstance(contract_address, int)
     assert (

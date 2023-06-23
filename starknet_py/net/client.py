@@ -184,8 +184,10 @@ class Client(ABC):
                 await asyncio.sleep(check_interval)
         except asyncio.CancelledError as exc:
             raise TransactionNotReceivedError from exc
-        except ClientError:
-            raise ClientError("Nodes can't access pending transactions, try using parameter 'wait_for_accept=True'.")
+        except ClientError as exc:
+            raise ClientError(
+                "Nodes can't access pending transactions, try using parameter 'wait_for_accept=True'."
+            ) from exc
 
     @abstractmethod
     async def estimate_fee(
