@@ -23,6 +23,7 @@ from starknet_py.net.client_models import (
     SierraEntryPointsByType,
     TransactionReceipt,
     TransactionStatus,
+    TransactionType,
 )
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
@@ -129,6 +130,8 @@ async def test_get_transaction_receipt(
 
     assert receipt.hash == invoke_transaction_hash
     assert receipt.block_number == block_with_invoke_number
+    if isinstance(client, FullNodeClient):
+        assert receipt.type == TransactionType.INVOKE
 
 
 @pytest.mark.asyncio
@@ -224,6 +227,8 @@ async def test_add_transaction(map_contract, client, account):
     transaction_receipt = await client.get_transaction_receipt(result.transaction_hash)
 
     assert transaction_receipt.status != TransactionStatus.NOT_RECEIVED
+    if isinstance(client, FullNodeClient):
+        assert transaction_receipt.type == TransactionType.INVOKE
 
 
 @pytest.mark.asyncio
@@ -266,7 +271,10 @@ async def test_wait_for_tx_accepted(client, get_tx_receipt, request):
         AsyncMock(),
     ) as mocked_receipt:
         mocked_receipt.return_value = TransactionReceipt(
-            hash=0x1, status=TransactionStatus.ACCEPTED_ON_L2, block_number=1
+            hash=0x1,
+            status=TransactionStatus.ACCEPTED_ON_L2,
+            block_number=1,
+            type=TransactionType.INVOKE,
         )
         client = request.getfixturevalue(client)
         block_number, tx_status = await client.wait_for_tx(tx_hash=0x1)
@@ -296,7 +304,10 @@ async def test_wait_for_tx_pending(client, get_tx_receipt, request):
         AsyncMock(),
     ) as mocked_receipt:
         mocked_receipt.return_value = TransactionReceipt(
-            hash=0x1, status=TransactionStatus.PENDING, block_number=1
+            hash=0x1,
+            status=TransactionStatus.PENDING,
+            block_number=1,
+            type=TransactionType.INVOKE,
         )
         client = request.getfixturevalue(client)
 
@@ -344,7 +355,11 @@ async def test_wait_for_tx_rejected(
         AsyncMock(),
     ) as mocked_receipt:
         mocked_receipt.return_value = TransactionReceipt(
-            hash=0x1, status=status, block_number=1, rejection_reason=exc_message
+            hash=0x1,
+            status=status,
+            block_number=1,
+            rejection_reason=exc_message,
+            type=TransactionType.INVOKE,
         )
         client = request.getfixturevalue(client)
         with pytest.raises(exception) as err:
@@ -375,7 +390,10 @@ async def test_wait_for_tx_cancelled(client, get_tx_receipt, request):
         AsyncMock(),
     ) as mocked_receipt:
         mocked_receipt.return_value = TransactionReceipt(
-            hash=0x1, status=TransactionStatus.PENDING, block_number=1
+            hash=0x1,
+            status=TransactionStatus.PENDING,
+            block_number=1,
+            type=TransactionType.INVOKE,
         )
         client = request.getfixturevalue(client)
         task = asyncio.create_task(
@@ -402,6 +420,8 @@ async def test_declare_contract(map_compiled_contract, account):
     assert transaction_receipt.status != TransactionStatus.NOT_RECEIVED
     assert transaction_receipt.hash
     assert 0 < transaction_receipt.actual_fee <= MAX_FEE
+    if isinstance(client, FullNodeClient):
+        assert transaction_receipt.type == TransactionType.DECLARE
 
 
 @pytest.mark.asyncio
@@ -577,9 +597,7 @@ async def test_get_declare_v2_transaction(
     assert isinstance(transaction, DeclareTransaction)
     assert transaction == DeclareTransaction(
         class_hash=class_hash,
-        compiled_class_hash=declare_v2_hello_starknet.compiled_class_hash
-        if isinstance(client, GatewayClient)
-        else None,
+        compiled_class_hash=declare_v2_hello_starknet.compiled_class_hash,
         sender_address=declare_v2_hello_starknet.sender_address,
         hash=tx_hash,
         max_fee=declare_v2_hello_starknet.max_fee,
@@ -603,9 +621,7 @@ async def test_get_block_with_declare_v2(
     assert (
         DeclareTransaction(
             class_hash=class_hash,
-            compiled_class_hash=declare_v2_hello_starknet.compiled_class_hash
-            if isinstance(client, GatewayClient)
-            else None,
+            compiled_class_hash=declare_v2_hello_starknet.compiled_class_hash,
             sender_address=declare_v2_hello_starknet.sender_address,
             hash=tx_hash,
             max_fee=declare_v2_hello_starknet.max_fee,

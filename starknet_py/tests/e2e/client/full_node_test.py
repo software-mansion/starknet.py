@@ -6,13 +6,16 @@ import pytest
 from starknet_py.contract import Contract
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.storage import get_storage_var_address
+from starknet_py.net.account.account import Account
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     ContractClass,
     DeclareTransaction,
     SierraContractClass,
+    TransactionType,
 )
 from starknet_py.net.full_node_client import _to_rpc_felt
+from starknet_py.net.models import StarknetChainId
 
 
 def _parse_event_name(event: str) -> str:
@@ -121,6 +124,27 @@ async def test_pending_transactions(full_node_client):
         assert pending_transactions[0].hash == 0x1
         assert pending_transactions[0].signature == []
         assert pending_transactions[0].max_fee == 0
+
+
+@pytest.mark.asyncio
+async def test_get_transaction_receipt_deploy_account(
+    full_node_client, deploy_account_details_factory
+):
+    address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
+    deploy_result = await Account.deploy_account(
+        address=address,
+        class_hash=class_hash,
+        salt=salt,
+        key_pair=key_pair,
+        client=full_node_client,
+        chain=StarknetChainId.TESTNET,
+        max_fee=int(1e16),
+    )
+    await deploy_result.wait_for_acceptance()
+
+    receipt = await full_node_client.get_transaction_receipt(tx_hash=deploy_result.hash)
+    assert receipt.type == TransactionType.DEPLOY_ACCOUNT
+    assert receipt.contract_address == deploy_result.account.address
 
 
 @pytest.mark.run_on_devnet
@@ -242,7 +266,7 @@ async def test_get_events_with_two_events(
         from_block_number=0,
         to_block_hash="latest",
         address=simple_storage_with_event_contract.address,
-        keys=[[EVENT_ONE_PARSED_NAME, EVENT_TWO_PARSED_NAME]],
+        keys=[[int(EVENT_ONE_PARSED_NAME, 0), int(EVENT_TWO_PARSED_NAME, 0)]],
         follow_continuation_token=True,
     )
 
@@ -281,6 +305,25 @@ async def test_get_events_start_from_continuation_token(
 
     assert len(events_response.events) == chunk_size
     assert events_response.continuation_token == expected_continuation_token
+
+
+@pytest.mark.run_on_devnet
+@pytest.mark.asyncio
+async def test_get_events_no_params(
+    full_node_client,
+    simple_storage_with_event_contract: Contract,
+):
+    default_chunk_size = 1
+    for i in range(3):
+        await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke(
+            i, i + 1, auto_estimate=True
+        )
+        await simple_storage_with_event_contract.functions[FUNCTION_TWO_NAME].invoke(
+            i, i + 1, auto_estimate=True
+        )
+    events_response = await full_node_client.get_events()
+
+    assert len(events_response.events) == default_chunk_size
 
 
 @pytest.mark.run_on_devnet

@@ -16,7 +16,7 @@ class TypedParameterSchema(Schema):
 
 
 class StructMemberSchema(TypedParameterSchema):
-    offset = fields.Integer(data_key="offset", required=True)
+    offset = fields.Integer(data_key="offset", required=False)
 
 
 class FunctionBaseSchema(Schema):
