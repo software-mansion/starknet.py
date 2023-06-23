@@ -1,4 +1,3 @@
-import os
 from typing import Any, List, Optional
 
 import lark
@@ -15,6 +14,44 @@ from starknet_py.cairo.data_types import (
     UintType,
     UnitType,
 )
+
+ABI_EBNF = """
+    IDENTIFIER: /[a-zA-Z_][a-zA-Z_0-9]*/
+    
+    type: type_unit
+        | type_bool
+        | type_felt
+        | type_uint
+        | type_contract_address
+        | type_class_hash
+        | type_storage_address
+        | type_option
+        | type_array
+        | type_span
+        | tuple
+        | type_identifier
+    
+    
+    type_unit: "()"
+    type_felt: "core::felt252"
+    type_bool: "core::bool"
+    type_uint: "core::integer::u" INT
+    type_contract_address: "core::starknet::contract_address::ContractAddress"
+    type_class_hash: "core::starknet::class_hash::ClassHash"
+    type_storage_address: "core::starknet::storage_access::StorageAddress"
+    type_option: "core::option::Option::<" (type | type_identifier) ">"
+    type_array: "core::array::Array::<" (type | type_identifier) ">"
+    type_span: "core::array::Span::<" (type | type_identifier) ">"
+    
+    tuple: "(" type? ("," type?)* ")"
+    
+    type_identifier: (IDENTIFIER | "::")+ ("<" (type | ",")+ ">")?
+    
+    
+    %import common.INT
+    %import common.WS
+    %ignore WS
+"""
 
 
 class ParserTransformer(Transformer):
@@ -120,13 +157,8 @@ def parse(
     """
     Parse the given string and return a CairoType.
     """
-    with open(
-        os.path.join(os.path.dirname(__file__), "abi.ebnf"), "r", encoding="utf-8"
-    ) as grammar_file:
-        grammar = grammar_file.read()
-
     grammar_parser = lark.Lark(
-        grammar=grammar,
+        grammar=ABI_EBNF,
         start="type",
         parser="earley",
     )
