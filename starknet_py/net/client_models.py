@@ -68,6 +68,7 @@ class L2toL1Message:
     Dataclass representing a L2->L1 message.
     """
 
+    from_address: int
     payload: List[int]
     l1_address: int
     l2_address: Optional[int] = None
@@ -183,6 +184,8 @@ class TransactionReceipt:
 
     hash: int
     status: TransactionStatus
+    type: Optional[TransactionType] = None
+    contract_address: Optional[int] = None
     block_number: Optional[int] = None
     block_hash: Optional[int] = None
     actual_fee: int = 0
