@@ -106,12 +106,12 @@ async def test_contract_from_address_with_old_address_proxy(
     declare_result = await Contract.declare(
         account=account, compiled_contract=old_proxy, max_fee=MAX_FEE
     )
-    await declare_result.wait_for_acceptance()
+    await declare_result.wait_for_acceptance(wait_for_accept=True)
     deploy_result = await declare_result.deploy(
         constructor_args={"implementation_address": map_contract.address},
         max_fee=MAX_FEE,
     )
-    await deploy_result.wait_for_acceptance()
+    await deploy_result.wait_for_acceptance(wait_for_accept=True)
 
     proxy_contract = await Contract.from_address(
         address=deploy_result.deployed_contract.address,

@@ -139,20 +139,6 @@ async def test_wait_for_tx(client, map_contract):
 
 
 @pytest.mark.asyncio
-async def test_wait_for_tx_wait_for_accept_full_node_throws(
-    full_node_client, map_contract
-):
-    transaction = await map_contract.functions["put"].invoke(
-        key=10, value=20, max_fee=MAX_FEE
-    )
-    with pytest.raises(ValueError) as err:
-        await full_node_client.wait_for_tx(transaction.hash)
-
-    # todo change this and error type above
-    assert True
-
-
-@pytest.mark.asyncio
 async def test_wait_for_tx_throws_on_transaction_rejected(client, map_contract):
     invoke = map_contract.functions["put"].prepare(key=0x1, value=0x1, max_fee=MAX_FEE)
 
@@ -214,7 +200,7 @@ async def test_general_simplified_deployment_flow(account, map_compiled_contract
         compiled_contract=map_compiled_contract,
         max_fee=MAX_FEE,
     )
-    await declare_result.wait_for_acceptance()
+    await declare_result.wait_for_acceptance(wait_for_accept=True)
     deployment = await declare_result.deploy(max_fee=MAX_FEE)
     await deployment.wait_for_acceptance(wait_for_accept=True)
 

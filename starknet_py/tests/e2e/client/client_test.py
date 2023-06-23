@@ -9,6 +9,7 @@ from aiohttp import ClientSession
 
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.storage import get_storage_var_address
+from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     Call,
     ContractClass,
@@ -302,9 +303,13 @@ async def test_wait_for_tx_pending(client, get_tx_receipt, request):
         )
         client = request.getfixturevalue(client)
 
-        block_number, tx_status = await client.wait_for_tx(tx_hash=0x1)
-        assert block_number == 1
-        assert tx_status == TransactionStatus.PENDING
+        if isinstance(client, FullNodeClient):
+            with pytest.raises(ClientError):
+                _ = await client.wait_for_tx(tx_hash=0x1)
+        else:
+            block_number, tx_status = await client.wait_for_tx(tx_hash=0x1)
+            assert block_number == 1
+            assert tx_status == TransactionStatus.PENDING
 
 
 @pytest.mark.parametrize(
