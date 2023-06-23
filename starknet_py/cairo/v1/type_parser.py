@@ -22,7 +22,10 @@ class UnknownCairoTypeError(ValueError):
     type_name: str
 
     def __init__(self, type_name: str):
-        super().__init__(f"Type '{type_name}' is not defined")
+        super().__init__(
+            f"""Type '{type_name}' is not defined. 
+            Please report this issue at https://github.com/software-mansion/starknet.py/issues"""
+        )
         self.type_name = type_name
 
 
@@ -63,12 +66,7 @@ class TypeParser:
             ) from err
 
         if isinstance(parsed, TypeIdentifier):
-            try:
-                return self._get_struct(parsed)
-            except UnknownCairoTypeError as err:
-                raise ValueError(
-                    "Please report this issue at https://github.com/software-mansion/starknet.py/issues"
-                ) from err
+            return self._get_struct(parsed)
 
         # TODO (#000): add recursive support for iterables with structures (tuples?)
         if isinstance(parsed, ArrayType):

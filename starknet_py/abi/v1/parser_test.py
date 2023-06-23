@@ -169,6 +169,6 @@ def test_duplicated_type_members():
 )
 def test_missing_type_used(missing_name, input_dict):
     with pytest.raises(
-        UnknownCairoTypeError, match=f"Type '{missing_name}' is not defined"
+        UnknownCairoTypeError, match=f"Type '{missing_name}' is not defined.*"
     ):
         AbiParser([input_dict]).parse()
