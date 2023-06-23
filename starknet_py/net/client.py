@@ -185,9 +185,11 @@ class Client(ABC):
         except asyncio.CancelledError as exc:
             raise TransactionNotReceivedError from exc
         except ClientError as exc:
-            raise ClientError(
-                "Nodes can't access pending transactions, try using parameter 'wait_for_accept=True'."
-            ) from exc
+            if "Transaction hash not found" in exc.message:
+                raise ClientError(
+                    "Nodes can't access pending transactions, try using parameter 'wait_for_accept=True'."
+                ) from exc
+            raise exc
 
     @abstractmethod
     async def estimate_fee(

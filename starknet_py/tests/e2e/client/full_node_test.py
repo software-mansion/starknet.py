@@ -158,6 +158,15 @@ async def test_get_storage_at_incorrect_address_full_node_client(full_node_clien
         )
 
 
+@pytest.mark.asyncio
+async def test_wait_for_tx_invalid_tx_hash(full_node_client):
+    with pytest.raises(
+        ClientError,
+        match="Nodes can't access pending transactions, try using parameter 'wait_for_accept=True'.",
+    ):
+        _ = await full_node_client.wait_for_tx(tx_hash=0x123456789)
+
+
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_events_without_following_continuation_token(
