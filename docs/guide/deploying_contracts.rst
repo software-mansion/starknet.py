@@ -101,11 +101,6 @@ Here's an example how to declare a Cairo1 contract.
     :language: python
     :dedent: 4
 
-.. note::
-
-    This is currently the only supported method of declaring a Cairo1 contract to Starknet.
-    The support for declaring through :ref:`Contract` interface is planned for a future release.
-
 
 Deploying Cairo1 contracts
 ##########################
@@ -117,9 +112,4 @@ After declaring a Cairo1 contract, it can be deployed using UDC.
     :dedent: 4
     :start-after: docs-deploy: start
     :end-before: docs-deploy: end
-
-.. note::
-
-    Currently only :meth:`~starknet_py.net.udc_deployer.deployer.Deployer.create_contract_deployment_raw` is supported.
-    :meth:`~starknet_py.net.udc_deployer.deployer.Deployer.create_contract_deployment` will not work.
 

@@ -1,3 +1,5 @@
+import json
+
 import pytest
 
 from starknet_py.net.client_models import CasmClass
@@ -64,8 +66,9 @@ async def test_cairo1_contract(
     assert sierra_class_hash != 0
 
     # START OF DEPLOY SECTION
-    raw_calldata = []
+    raw_calldata = calldata = []
     salt = _get_random_salt()
+    abi = json.loads(compiled_contract)["abi"]
     # docs-deploy: start
     from starknet_py.net.udc_deployer.deployer import Deployer
 
@@ -73,6 +76,15 @@ async def test_cairo1_contract(
     deployer = Deployer()
 
     # Create a ContractDeployment, optionally passing salt and raw_calldata
+    contract_deployment = deployer.create_contract_deployment(
+        class_hash=sierra_class_hash,
+        abi=abi,
+        cairo_version=1,
+        calldata=calldata,
+        salt=salt,
+    )
+
+    # Or create it using raw calldata, without passing abi
     contract_deployment = deployer.create_contract_deployment_raw(
         class_hash=sierra_class_hash, raw_calldata=raw_calldata, salt=salt
     )
