@@ -148,10 +148,6 @@ class Client(ABC):
         :param check_interval: Defines interval between checks.
         :return: Tuple containing block number and transaction status.
         """
-        if hasattr(self, "url") and not wait_for_accept:
-            raise ClientError(
-                'FullNodeClient does not support "wait_for_accept = False".'
-            )
         if check_interval <= 0:
             raise ValueError("Argument check_interval has to be greater than 0.")
 
@@ -188,6 +184,8 @@ class Client(ABC):
                 await asyncio.sleep(check_interval)
         except asyncio.CancelledError as exc:
             raise TransactionNotReceivedError from exc
+        except ClientError:
+            raise ClientError("Nodes can't access pending transactions, try using parameter 'wait_for_accept=True'.")
 
     @abstractmethod
     async def estimate_fee(
