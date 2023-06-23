@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Dict, Union
 
+from lark import UnexpectedToken
+
 from starknet_py.abi.v1.parser_transformer import parse
 from starknet_py.cairo.data_types import (
     ArrayType,
@@ -52,10 +54,21 @@ class TypeParser:
 
         :param type_string: type to parse.
         """
-        parsed = parse(type_string)
+        try:
+            parsed = parse(type_string)
+        except UnexpectedToken as err:
+            raise ValueError(
+                """Unimplemented type occurred in ABI. 
+                Please report this issue at https://github.com/software-mansion/starknet.py/issues"""
+            ) from err
 
         if isinstance(parsed, TypeIdentifier):
-            return self._get_struct(parsed)
+            try:
+                return self._get_struct(parsed)
+            except UnknownCairoTypeError as err:
+                raise ValueError(
+                    "Please report this issue at https://github.com/software-mansion/starknet.py/issues"
+                ) from err
 
         # TODO (#000): add recursive support for iterables with structures (tuples?)
         if isinstance(parsed, ArrayType):
