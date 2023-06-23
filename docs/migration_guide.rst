@@ -207,7 +207,7 @@ The only supported Python version is 3.9.
 
     - :class:`starknet_py.net.client_models.InvokeTransaction`
     - :class:`starknet_py.net.models.transaction.Invoke`
-    - :func:`starknet_py.net.models.transaction.compute_invoke_hash`
+    - ``compute_invoke_hash``
 13. Replaced ``BlockStateUpdate.state_diff.declared_contract_hashes`` is now a list of ``DeclaredContractHash`` representing new Cairo classes. Old declared contract classes are still available at ``BlockStateUpdate.state_diff.deprecated_declared_contract_hashes``.
 14. Removed ``version`` property from ``PreparedFunctionCall`` class.
 15. Removed deprecated ``max_steps`` in :class:`~starknet_py.proxy.contract_abi_resolver.ProxyConfig`.

@@ -152,6 +152,7 @@ async def test_get_class_hash_at(map_contract, account):
 async def test_get_nonce(account, map_contract):
     nonce = await account.get_nonce()
     address = map_contract.address
+    block = await account.client.get_block()
 
     tx = await account.execute(
         Call(
@@ -162,9 +163,15 @@ async def test_get_nonce(account, map_contract):
     await account.client.wait_for_tx(tx.transaction_hash)
 
     new_nonce = await account.get_nonce()
+    new_nonce_latest_block = await account.get_nonce(block_number="latest")
+
+    old_nonce = await account.get_nonce(block_number=block.block_number)
 
     assert isinstance(nonce, int) and isinstance(new_nonce, int)
-    assert new_nonce > nonce
+    assert new_nonce == nonce + 1
+
+    assert old_nonce == nonce
+    assert new_nonce_latest_block == new_nonce
 
 
 @pytest.mark.asyncio
