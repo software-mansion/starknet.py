@@ -39,6 +39,7 @@ from starknet_py.net.schemas.common import (
     NonPrefixedHex,
     StatusField,
     StorageEntrySchema,
+    TransactionTypeField,
 )
 from starknet_py.net.schemas.utils import (
     _replace_invoke_contract_address_with_sender_address,
@@ -104,6 +105,8 @@ class TransactionReceiptSchema(Schema):
     block_number = fields.Integer(data_key="block_number", load_default=None)
     block_hash = Felt(data_key="block_hash", load_default=None)
     actual_fee = Felt(data_key="actual_fee", required=True)
+    type = TransactionTypeField(data_key="type", load_default=None)
+    contract_address = Felt(data_key="contract_address", load_default=None)
     rejection_reason = fields.String(data_key="status_data", load_default=None)
     events = fields.List(
         fields.Nested(EventSchema()), data_key="events", load_default=[]
@@ -154,6 +157,7 @@ class DeclareTransactionSchema(TransactionSchema):
     class_hash = Felt(data_key="class_hash", required=True)
     sender_address = Felt(data_key="sender_address", required=True)
     nonce = Felt(data_key="nonce", load_default=None)
+    compiled_class_hash = Felt(data_key="compiled_class_hash", load_default=None)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> DeclareTransaction:

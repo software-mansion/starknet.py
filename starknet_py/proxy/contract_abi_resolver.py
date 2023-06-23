@@ -5,8 +5,8 @@ from typing import AsyncGenerator, List, Tuple, TypedDict, Union
 from starknet_py.abi.shape import AbiDictList
 from starknet_py.constants import (
     RPC_CLASS_HASH_NOT_FOUND_ERROR,
+    RPC_CONTRACT_ERROR,
     RPC_CONTRACT_NOT_FOUND_ERROR,
-    RPC_INVALID_MESSAGE_SELECTOR_ERROR,
 )
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError, ContractNotFoundError
@@ -164,9 +164,9 @@ class ContractAbiResolver:
                     re.search(err_msg, err.message, re.IGNORECASE)
                     or err.code
                     in [
-                        RPC_INVALID_MESSAGE_SELECTOR_ERROR,
                         RPC_CLASS_HASH_NOT_FOUND_ERROR,
                         RPC_CONTRACT_NOT_FOUND_ERROR,
+                        RPC_CONTRACT_ERROR,
                     ]
                 ):
                     raise err

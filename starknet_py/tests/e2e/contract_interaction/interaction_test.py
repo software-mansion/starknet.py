@@ -6,7 +6,12 @@ from starknet_py.common import create_compiled_contract
 from starknet_py.contract import Contract
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.client_errors import ClientError
-from starknet_py.net.client_models import Call, TransactionReceipt, TransactionStatus
+from starknet_py.net.client_models import (
+    Call,
+    TransactionReceipt,
+    TransactionStatus,
+    TransactionType,
+)
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.transaction_errors import (
@@ -157,7 +162,7 @@ async def test_wait_for_tx_throws_on_transaction_rejected(client, map_contract):
 @patch("starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt")
 async def test_transaction_not_received_error(mocked_get_receipt, map_contract):
     mocked_get_receipt.return_value = TransactionReceipt(
-        hash=1, status=TransactionStatus.NOT_RECEIVED
+        hash=1, status=TransactionStatus.NOT_RECEIVED, type=TransactionType.INVOKE
     )
 
     result = await map_contract.functions["put"].invoke(10, 20, max_fee=MAX_FEE)
