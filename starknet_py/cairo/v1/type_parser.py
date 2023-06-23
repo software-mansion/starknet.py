@@ -68,7 +68,7 @@ class TypeParser:
         if isinstance(parsed, TypeIdentifier):
             return self._get_struct(parsed)
 
-        # TODO (#000): add recursive support for iterables with structures (tuples?)
+        # TODO (#1079): add recursive support for iterables with structures (tuples?)
         if isinstance(parsed, ArrayType):
             inner_type_string = type_string[
                 type_string.find("<") + 1 : type_string.rfind(">")
