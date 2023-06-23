@@ -149,7 +149,9 @@ class Client(ABC):
         :return: Tuple containing block number and transaction status.
         """
         if hasattr(self, "url") and not wait_for_accept:
-            raise ClientError('FullNodeClient does not support "wait_for_accept = False".')
+            raise ClientError(
+                'FullNodeClient does not support "wait_for_accept = False".'
+            )
         if check_interval <= 0:
             raise ValueError("Argument check_interval has to be greater than 0.")
 
