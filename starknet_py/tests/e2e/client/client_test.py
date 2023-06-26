@@ -9,6 +9,7 @@ from aiohttp import ClientSession
 
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.storage import get_storage_var_address
+from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     Call,
     ContractClass,
@@ -404,6 +405,34 @@ async def test_wait_for_tx_cancelled(client, get_tx_receipt, request):
 
         with pytest.raises(TransactionNotReceivedError):
             await task
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "client, get_tx_receipt",
+    [
+        (
+            "gateway_client",
+            "tx_receipt_gateway_path",
+        ),
+        (
+            "full_node_client",
+            "tx_receipt_full_node_path",
+        ),
+    ],
+)
+async def test_wait_for_tx_unknown_error(client, get_tx_receipt, request):
+    get_tx_receipt = request.getfixturevalue(get_tx_receipt)
+
+    with patch(
+        get_tx_receipt,
+        AsyncMock(),
+    ) as mocked_receipt:
+        mocked_receipt.side_effect = ClientError(message="Unknown error")
+        client = request.getfixturevalue(client)
+
+        with pytest.raises(ClientError, match="Unknown error"):
+            await client.wait_for_tx(tx_hash="0x2137")
 
 
 @pytest.mark.asyncio
