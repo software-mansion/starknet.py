@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from typing import Dict, Union
 
-from lark import UnexpectedToken
-
 from starknet_py.abi.v1.parser_transformer import parse
 from starknet_py.cairo.data_types import (
     ArrayType,
@@ -23,8 +21,8 @@ class UnknownCairoTypeError(ValueError):
 
     def __init__(self, type_name: str):
         super().__init__(
-            f"""Type '{type_name}' is not defined. 
-            Please report this issue at https://github.com/software-mansion/starknet.py/issues"""
+            # pylint: disable=line-too-long
+            f"Type '{type_name}' is not defined. Please report this issue at https://github.com/software-mansion/starknet.py/issues"
         )
         self.type_name = type_name
 
@@ -57,13 +55,7 @@ class TypeParser:
 
         :param type_string: type to parse.
         """
-        try:
-            parsed = parse(type_string)
-        except UnexpectedToken as err:
-            raise ValueError(
-                """Unimplemented type occurred in ABI. 
-                Please report this issue at https://github.com/software-mansion/starknet.py/issues"""
-            ) from err
+        parsed = parse(type_string)
 
         if isinstance(parsed, TypeIdentifier):
             return self._get_struct(parsed)
