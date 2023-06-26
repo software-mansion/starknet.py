@@ -84,17 +84,8 @@ async def test_cairo1_contract(
         salt=salt,
     )
 
-    # Or create it using raw calldata, without passing abi
-    contract_deployment = deployer.create_contract_deployment_raw(
-        class_hash=sierra_class_hash, raw_calldata=raw_calldata, salt=salt
-    )
-
-    # Using the call, create an Invoke transaction to the UDC
-    deploy_invoke_transaction = await account.sign_invoke_transaction(
-        calls=contract_deployment.call, max_fee=MAX_FEE
-    )
-    resp = await account.client.send_transaction(deploy_invoke_transaction)
-    await account.client.wait_for_tx(resp.transaction_hash)
+    res = await account.execute(calls=contract_deployment.call, max_fee=MAX_FEE)
+    await account.client.wait_for_tx(res.transaction_hash)
 
     # The contract has been deployed and can be found at contract_deployment.address
     # docs-deploy: end
