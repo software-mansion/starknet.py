@@ -66,7 +66,7 @@ async def test_cairo1_contract(
     assert sierra_class_hash != 0
 
     # START OF DEPLOY SECTION
-    raw_calldata = calldata = []
+    calldata = []
     salt = _get_random_salt()
     abi = json.loads(compiled_contract)["abi"]
     # docs-deploy: start
@@ -75,7 +75,7 @@ async def test_cairo1_contract(
     # Use Universal Deployer Contract (UDC) to deploy the Cairo1 contract
     deployer = Deployer()
 
-    # Create a ContractDeployment, optionally passing salt and raw_calldata
+    # Create a ContractDeployment, optionally passing salt and calldata
     contract_deployment = deployer.create_contract_deployment(
         class_hash=sierra_class_hash,
         abi=abi,
