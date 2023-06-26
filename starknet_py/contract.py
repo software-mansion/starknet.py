@@ -1,18 +1,25 @@
 from __future__ import annotations
 
 import dataclasses
-import warnings
+import json
 from dataclasses import dataclass
 from functools import cached_property
-from typing import Dict, List, Optional, Tuple, TypeVar, Union
+from typing import Dict, List, Optional, Tuple, TypeVar, Union, cast
 
 from marshmallow import ValidationError
 
 from starknet_py.abi.model import Abi
 from starknet_py.abi.parser import AbiParser
-from starknet_py.common import create_compiled_contract
+from starknet_py.abi.v1.model import Abi as AbiV1
+from starknet_py.abi.v1.parser import AbiParser as AbiV1Parser
+from starknet_py.common import (
+    create_casm_class,
+    create_compiled_contract,
+    create_sierra_compiled_contract,
+)
 from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
 from starknet_py.hash.address import compute_address
+from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.hash.class_hash import compute_class_hash
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.base_account import BaseAccount
@@ -23,10 +30,10 @@ from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.proxy.contract_abi_resolver import (
     ContractAbiResolver,
     ProxyConfig,
-    UnsupportedAbiError,
     prepare_proxy_config,
 )
 from starknet_py.serialization import TupleDataclass, serializer_for_function
+from starknet_py.serialization.factory import serializer_for_function_v1
 from starknet_py.serialization.function_serialization_adapter import (
     FunctionSerializationAdapter,
 )
@@ -46,28 +53,33 @@ class ContractData:
 
     address: int
     abi: ABI
+    cairo_version: int
 
     @cached_property
-    def parsed_abi(self) -> Abi:
+    def parsed_abi(self) -> Union[Abi, AbiV1]:
         """
         Abi parsed into proper dataclass.
 
         :return: Abi
         """
+        if self.cairo_version == 1:
+            return AbiV1Parser(self.abi).parse()
         return AbiParser(self.abi).parse()
 
     @staticmethod
-    def from_abi(address: int, abi: ABI) -> ContractData:
+    def from_abi(address: int, abi: ABI, cairo_version: int = 0) -> ContractData:
         """
         Create ContractData from ABI.
 
         :param address: Address of the deployed contract.
         :param abi: Abi of the contract.
+        :param cairo_version: Version of the Cairo in which contract is written.
         :return: ContractData instance.
         """
         return ContractData(
             address=address,
             abi=abi,
+            cairo_version=cairo_version,
         )
 
 
@@ -140,6 +152,7 @@ class DeclareResult(SentTransaction):
     """
 
     _account: BaseAccount = None  # pyright: ignore
+    _cairo_version: int = 0
 
     class_hash: int = None  # pyright: ignore
     """Class hash of the declared contract."""
@@ -182,15 +195,31 @@ class DeclareResult(SentTransaction):
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :return: DeployResult instance.
         """
-        # pylint: disable=too-many-arguments
-        abi = create_compiled_contract(compiled_contract=self.compiled_contract).abi
+        # pylint: disable=too-many-arguments, too-many-locals
+        if self._cairo_version == 0:
+            abi = create_compiled_contract(compiled_contract=self.compiled_contract).abi
+        else:
+            try:
+                sierra_compiled_contract = create_sierra_compiled_contract(
+                    compiled_contract=self.compiled_contract
+                )
+                abi = json.loads(sierra_compiled_contract.abi)
+            except Exception as exc:
+                raise ValueError(
+                    "Contract's ABI can't be converted to format List[Dict]. "
+                    "Make sure provided compiled_contract is correct."
+                ) from exc
 
         deployer = Deployer(
             deployer_address=deployer_address,
             account_address=self._account.address if unique else None,
         )
         deploy_call, address = deployer.create_contract_deployment(
-            class_hash=self.class_hash, salt=salt, abi=abi, calldata=constructor_args
+            class_hash=self.class_hash,
+            salt=salt,
+            abi=abi,
+            calldata=constructor_args,
+            cairo_version=self._cairo_version,
         )
         res = await self._account.execute(
             calls=deploy_call, nonce=nonce, max_fee=max_fee, auto_estimate=auto_estimate
@@ -200,6 +229,7 @@ class DeclareResult(SentTransaction):
             provider=self._account,
             address=address,
             abi=abi,
+            cairo_version=self._cairo_version,
         )
 
         deploy_result = DeployResult(
@@ -363,6 +393,7 @@ class ContractFunction:
         contract_data: ContractData,
         client: Client,
         account: Optional[BaseAccount],
+        cairo_version: int = 0,
     ):
         # pylint: disable=too-many-arguments
         self.name = name
@@ -371,8 +402,14 @@ class ContractFunction:
         self.contract_data = contract_data
         self.client = client
         self.account = account
-        self._payload_transformer = serializer_for_function(
-            contract_data.parsed_abi.functions[name]
+        self._payload_transformer = (
+            serializer_for_function_v1(
+                cast(AbiV1, contract_data.parsed_abi).functions[name]
+            )
+            if cairo_version == 1
+            else serializer_for_function(
+                cast(Abi, contract_data.parsed_abi).functions[name]
+            )
         )
 
     def prepare(
@@ -464,6 +501,8 @@ class Contract:
         address: AddressRepresentation,
         abi: list,
         provider: Union[BaseAccount, Client],
+        *,
+        cairo_version: int = 0,
     ):
         """
         Should be used instead of ``from_address`` when ABI is known statically.
@@ -473,22 +512,25 @@ class Contract:
         :param address: contract's address.
         :param abi: contract's abi.
         :param provider: BaseAccount or Client used to perform transactions.
+        :param cairo_version: Version of the Cairo in which contract is written.
         """
         client, account = _unpack_provider(provider)
 
         self.account: Optional[BaseAccount] = account
         self.client: Client = client
-        self.data = ContractData.from_abi(parse_address(address), abi)
+        self.data = ContractData.from_abi(parse_address(address), abi, cairo_version)
 
         try:
-            self._functions = self._make_functions(self.data, self.client, self.account)
-        except ValidationError:
-            warnings.warn(
-                "Make sure valid ABI is used to create a Contract instance: "
-                "Cairo1 contract ABIs are currently unsupported."
+            self._functions = self._make_functions(
+                contract_data=self.data,
+                client=self.client,
+                account=self.account,
+                cairo_version=cairo_version,
             )
-            # Re-raise the exception
-            raise
+        except ValidationError as exc:
+            raise ValueError(
+                "Make sure valid ABI is used to create a Contract instance"
+            ) from exc
 
     @property
     def functions(self) -> FunctionsRepository:
@@ -534,22 +576,24 @@ class Contract:
         address = parse_address(address)
         proxy_config = Contract._create_proxy_config(proxy_config)
 
-        try:
-            abi = await ContractAbiResolver(
-                address=address, client=client, proxy_config=proxy_config
-            ).resolve()
-        except UnsupportedAbiError as err:
-            raise ValueError(
-                "Provided address of Cairo1 contract which is currently not supported in Contract."
-            ) from err
+        abi, cairo_version = await ContractAbiResolver(
+            address=address, client=client, proxy_config=proxy_config
+        ).resolve()
 
-        return Contract(address=address, abi=abi, provider=account or client)
+        return Contract(
+            address=address,
+            abi=abi,
+            provider=account or client,
+            cairo_version=cairo_version,
+        )
 
     @staticmethod
     async def declare(
         account: BaseAccount,
         compiled_contract: str,
         *,
+        compiled_contract_casm: Optional[str] = None,
+        casm_class_hash: Optional[int] = None,
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
@@ -559,18 +603,43 @@ class Contract:
 
         :param account: BaseAccount used to sign and send declare transaction.
         :param compiled_contract: String containing compiled contract.
+        :param compiled_contract_casm: String containing the content of the starknet-sierra-compile (.casm file).
+            Used when declaring Cairo1 contracts.
+        :param casm_class_hash: Hash of the compiled_contract_casm.
         :param nonce: Nonce of the transaction.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :return: DeclareResult instance.
         """
 
-        declare_tx = await account.sign_declare_transaction(
-            compiled_contract=compiled_contract,
-            nonce=nonce,
-            max_fee=max_fee,
-            auto_estimate=auto_estimate,
-        )
+        if Contract._get_cairo_version(compiled_contract) == 1:
+            if casm_class_hash is None and compiled_contract_casm is None:
+                raise ValueError(
+                    "Cairo 1.0 contract was provided without casm_class_hash or compiled_contract_casm argument."
+                )
+
+            cairo_version = 1
+            if casm_class_hash is None:
+                assert compiled_contract_casm is not None
+                casm_class_hash = compute_casm_class_hash(
+                    create_casm_class(compiled_contract_casm)
+                )
+
+            declare_tx = await account.sign_declare_v2_transaction(
+                compiled_contract=compiled_contract,
+                compiled_class_hash=casm_class_hash,
+                nonce=nonce,
+                max_fee=max_fee,
+                auto_estimate=auto_estimate,
+            )
+        else:
+            cairo_version = 0
+            declare_tx = await account.sign_declare_transaction(
+                compiled_contract=compiled_contract,
+                nonce=nonce,
+                max_fee=max_fee,
+                auto_estimate=auto_estimate,
+            )
         res = await account.client.declare(transaction=declare_tx)
 
         return DeclareResult(
@@ -579,7 +648,12 @@ class Contract:
             class_hash=res.class_hash,
             _account=account,
             compiled_contract=compiled_contract,
+            _cairo_version=cairo_version,
         )
+
+    @staticmethod
+    def _get_cairo_version(compiled_contract: str) -> int:
+        return 1 if "sierra_program" in compiled_contract else 0
 
     @staticmethod
     async def deploy_contract(
@@ -589,6 +663,7 @@ class Contract:
         constructor_args: Optional[Union[List, Dict]] = None,
         *,
         deployer_address: AddressRepresentation = DEFAULT_DEPLOYER_ADDRESS,
+        cairo_version: int = 0,
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
@@ -600,10 +675,11 @@ class Contract:
         :param class_hash: The class_hash of the contract to be deployed.
         :param abi: An abi of the contract to be deployed.
         :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
-        :param nonce: Nonce of the transaction.
         :param deployer_address: Address of the UDC. Is set to the address of
             the default UDC (same address on mainnet/testnet/devnet) by default.
             Must be set when using custom network other than ones listed above.
+        :param cairo_version: Version of the Cairo in which contract is written.
+        :param nonce: Nonce of the transaction.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :return: DeployResult instance.
@@ -613,16 +689,17 @@ class Contract:
             deployer_address=deployer_address, account_address=account.address
         )
         deploy_call, address = deployer.create_contract_deployment(
-            class_hash=class_hash, abi=abi, calldata=constructor_args
+            class_hash=class_hash,
+            abi=abi,
+            calldata=constructor_args,
+            cairo_version=cairo_version,
         )
         res = await account.execute(
             calls=deploy_call, nonce=nonce, max_fee=max_fee, auto_estimate=auto_estimate
         )
 
         deployed_contract = Contract(
-            provider=account,
-            address=address,
-            abi=abi,
+            provider=account, address=address, abi=abi, cairo_version=cairo_version
         )
         deploy_result = DeployResult(
             hash=res.transaction_hash,
@@ -674,7 +751,11 @@ class Contract:
 
     @classmethod
     def _make_functions(
-        cls, contract_data: ContractData, client: Client, account: Optional[BaseAccount]
+        cls,
+        contract_data: ContractData,
+        client: Client,
+        account: Optional[BaseAccount],
+        cairo_version: int = 0,
     ) -> FunctionsRepository:
         repository = {}
 
@@ -689,6 +770,7 @@ class Contract:
                 contract_data=contract_data,
                 client=client,
                 account=account,
+                cairo_version=cairo_version,
             )
 
         return repository

@@ -4,6 +4,9 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Set, Tuple
 
 from starknet_py.cairo.felt import CairoData
+from starknet_py.serialization.data_serializers.output_serializer import (
+    OutputSerializer,
+)
 from starknet_py.serialization.data_serializers.payload_serializer import (
     PayloadSerializer,
 )
@@ -90,3 +93,16 @@ class FunctionSerializationAdapter:
             raise InvalidTypeException(
                 f"Missing arguments: '{', '.join(missing_arguments)}'."
             )
+
+
+@dataclass
+class FunctionSerializationAdapterV1(FunctionSerializationAdapter):
+    outputs_deserializer: OutputSerializer
+
+    def deserialize(self, data: List[int]) -> Tuple:
+        """
+        Deserializes data into TupleDataclass containing python representations.
+
+        :return: cairo data.
+        """
+        return self.outputs_deserializer.deserialize(data)

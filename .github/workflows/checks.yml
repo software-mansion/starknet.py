@@ -228,7 +228,8 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run poe test_ci
+          poetry run poe test_ci_gateway
+          poetry run poe test_ci_full_node
 
       - name: Generate coverage in XML
         run: |
@@ -278,7 +279,7 @@ jobs:
           apt-get install -y python3-pip
           sudo apt install -y libgmp3-dev
           sudo apt-get install -y git
-          pip3 install git+https://github.com/0xSpaceShard/starknet-devnet.git@744e9b3bd5fb9e856287158d87673e090df69d73
+          pip3 install git+https://github.com/0xSpaceShard/starknet-devnet.git@v0.5.4
 
       # ====================== SETUP PYTHON ====================== #
 
@@ -311,7 +312,8 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run poe test_ci
+          poetry run poe test_ci_gateway
+          poetry run poe test_ci_full_node
 
       - name: Generate coverage in XML
         run: |
@@ -373,7 +375,8 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run poe test_ci_docs
+          poetry run poe test_ci_docs_gateway
+          poetry run poe test_ci_docs_full_node
 
       - name: Generate coverage in XML
         run: |
@@ -423,7 +426,7 @@ jobs:
           apt-get install -y python3-pip
           sudo apt install -y libgmp3-dev
           sudo apt-get install -y git
-          pip3 install git+https://github.com/0xSpaceShard/starknet-devnet.git@744e9b3bd5fb9e856287158d87673e090df69d73
+          pip3 install git+https://github.com/0xSpaceShard/starknet-devnet.git@v0.5.4
 
       # ====================== SETUP PYTHON ====================== #
 
@@ -452,7 +455,8 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run poe test_ci_docs
+          poetry run poe test_ci_docs_gateway
+          poetry run poe test_ci_docs_full_node
 
       - name: Generate coverage in XML
         run: |

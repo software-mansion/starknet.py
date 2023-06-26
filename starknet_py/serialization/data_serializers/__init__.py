@@ -1,4 +1,5 @@
 from .array_serializer import ArraySerializer
+from .bool_serializer import BoolSerializer
 from .cairo_data_serializer import CairoDataSerializer
 from .felt_serializer import FeltSerializer
 from .named_tuple_serializer import NamedTupleSerializer
