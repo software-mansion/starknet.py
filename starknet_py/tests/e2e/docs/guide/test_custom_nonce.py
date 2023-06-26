@@ -1,8 +1,8 @@
-from typing import Optional
+from typing import Optional, Union
 
 import pytest
 
-from starknet_py.net.client_models import Call
+from starknet_py.net.client_models import Call, Hash, Tag
 
 
 @pytest.mark.asyncio
@@ -39,7 +39,12 @@ async def test_custom_nonce(gateway_client):
             # Create a simple counter that will store a nonce
             self.nonce_counter = 0
 
-        async def get_nonce(self) -> int:
+        async def get_nonce(
+            self,
+            *,
+            block_hash: Optional[Union[Hash, Tag]] = None,
+            block_number: Optional[Union[int, Tag]] = None,
+        ) -> int:
             # Increment the counter and return the nonce.
             # This is just an example custom nonce logic and is not meant
             # to be a recommended solution.

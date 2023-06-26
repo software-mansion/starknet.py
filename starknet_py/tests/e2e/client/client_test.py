@@ -9,6 +9,7 @@ from aiohttp import ClientSession
 
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.storage import get_storage_var_address
+from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     Call,
     ContractClass,
@@ -23,6 +24,7 @@ from starknet_py.net.client_models import (
     SierraEntryPointsByType,
     TransactionReceipt,
     TransactionStatus,
+    TransactionType,
 )
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
@@ -129,6 +131,8 @@ async def test_get_transaction_receipt(
 
     assert receipt.hash == invoke_transaction_hash
     assert receipt.block_number == block_with_invoke_number
+    if isinstance(client, FullNodeClient):
+        assert receipt.type == TransactionType.INVOKE
 
 
 @pytest.mark.asyncio
@@ -224,6 +228,8 @@ async def test_add_transaction(map_contract, client, account):
     transaction_receipt = await client.get_transaction_receipt(result.transaction_hash)
 
     assert transaction_receipt.status != TransactionStatus.NOT_RECEIVED
+    if isinstance(client, FullNodeClient):
+        assert transaction_receipt.type == TransactionType.INVOKE
 
 
 @pytest.mark.asyncio
@@ -266,7 +272,10 @@ async def test_wait_for_tx_accepted(client, get_tx_receipt, request):
         AsyncMock(),
     ) as mocked_receipt:
         mocked_receipt.return_value = TransactionReceipt(
-            hash=0x1, status=TransactionStatus.ACCEPTED_ON_L2, block_number=1
+            hash=0x1,
+            status=TransactionStatus.ACCEPTED_ON_L2,
+            block_number=1,
+            type=TransactionType.INVOKE,
         )
         client = request.getfixturevalue(client)
         block_number, tx_status = await client.wait_for_tx(tx_hash=0x1)
@@ -296,7 +305,10 @@ async def test_wait_for_tx_pending(client, get_tx_receipt, request):
         AsyncMock(),
     ) as mocked_receipt:
         mocked_receipt.return_value = TransactionReceipt(
-            hash=0x1, status=TransactionStatus.PENDING, block_number=1
+            hash=0x1,
+            status=TransactionStatus.PENDING,
+            block_number=1,
+            type=TransactionType.INVOKE,
         )
         client = request.getfixturevalue(client)
 
@@ -344,7 +356,11 @@ async def test_wait_for_tx_rejected(
         AsyncMock(),
     ) as mocked_receipt:
         mocked_receipt.return_value = TransactionReceipt(
-            hash=0x1, status=status, block_number=1, rejection_reason=exc_message
+            hash=0x1,
+            status=status,
+            block_number=1,
+            rejection_reason=exc_message,
+            type=TransactionType.INVOKE,
         )
         client = request.getfixturevalue(client)
         with pytest.raises(exception) as err:
@@ -375,7 +391,10 @@ async def test_wait_for_tx_cancelled(client, get_tx_receipt, request):
         AsyncMock(),
     ) as mocked_receipt:
         mocked_receipt.return_value = TransactionReceipt(
-            hash=0x1, status=TransactionStatus.PENDING, block_number=1
+            hash=0x1,
+            status=TransactionStatus.PENDING,
+            block_number=1,
+            type=TransactionType.INVOKE,
         )
         client = request.getfixturevalue(client)
         task = asyncio.create_task(
@@ -386,6 +405,34 @@ async def test_wait_for_tx_cancelled(client, get_tx_receipt, request):
 
         with pytest.raises(TransactionNotReceivedError):
             await task
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "client, get_tx_receipt",
+    [
+        (
+            "gateway_client",
+            "tx_receipt_gateway_path",
+        ),
+        (
+            "full_node_client",
+            "tx_receipt_full_node_path",
+        ),
+    ],
+)
+async def test_wait_for_tx_unknown_error(client, get_tx_receipt, request):
+    get_tx_receipt = request.getfixturevalue(get_tx_receipt)
+
+    with patch(
+        get_tx_receipt,
+        AsyncMock(),
+    ) as mocked_receipt:
+        mocked_receipt.side_effect = ClientError(message="Unknown error")
+        client = request.getfixturevalue(client)
+
+        with pytest.raises(ClientError, match="Unknown error"):
+            await client.wait_for_tx(tx_hash="0x2137")
 
 
 @pytest.mark.asyncio
@@ -402,6 +449,8 @@ async def test_declare_contract(map_compiled_contract, account):
     assert transaction_receipt.status != TransactionStatus.NOT_RECEIVED
     assert transaction_receipt.hash
     assert 0 < transaction_receipt.actual_fee <= MAX_FEE
+    if isinstance(client, FullNodeClient):
+        assert transaction_receipt.type == TransactionType.DECLARE
 
 
 @pytest.mark.asyncio
@@ -551,11 +600,11 @@ async def test_state_update_deployed_contracts(
 
 @pytest.mark.asyncio
 async def test_get_class_by_hash_sierra_program(
-    client, hello_starknet_class_hash_tx_hash: Tuple[int, int]
+    client, cairo1_hello_starknet_class_hash: int
 ):
-    (class_hash, _) = hello_starknet_class_hash_tx_hash
-
-    contract_class = await client.get_class_by_hash(class_hash=class_hash)
+    contract_class = await client.get_class_by_hash(
+        class_hash=cairo1_hello_starknet_class_hash
+    )
 
     assert isinstance(contract_class, SierraContractClass)
     assert contract_class.contract_class_version == "0.1.0"
@@ -567,19 +616,17 @@ async def test_get_class_by_hash_sierra_program(
 @pytest.mark.asyncio
 async def test_get_declare_v2_transaction(
     client,
-    hello_starknet_class_hash_tx_hash: Tuple[int, int],
+    cairo1_hello_starknet_class_hash_tx_hash: Tuple[int, int],
     declare_v2_hello_starknet: DeclareV2,
 ):
-    (class_hash, tx_hash) = hello_starknet_class_hash_tx_hash
+    (class_hash, tx_hash) = cairo1_hello_starknet_class_hash_tx_hash
 
     transaction = await client.get_transaction(tx_hash=tx_hash)
 
     assert isinstance(transaction, DeclareTransaction)
     assert transaction == DeclareTransaction(
         class_hash=class_hash,
-        compiled_class_hash=declare_v2_hello_starknet.compiled_class_hash
-        if isinstance(client, GatewayClient)
-        else None,
+        compiled_class_hash=declare_v2_hello_starknet.compiled_class_hash,
         sender_address=declare_v2_hello_starknet.sender_address,
         hash=tx_hash,
         max_fee=declare_v2_hello_starknet.max_fee,
@@ -592,20 +639,18 @@ async def test_get_declare_v2_transaction(
 @pytest.mark.asyncio
 async def test_get_block_with_declare_v2(
     client,
-    hello_starknet_class_hash_tx_hash: Tuple[int, int],
+    cairo1_hello_starknet_class_hash_tx_hash: Tuple[int, int],
     declare_v2_hello_starknet: DeclareV2,
     block_with_declare_v2_number: int,
 ):
-    (class_hash, tx_hash) = hello_starknet_class_hash_tx_hash
+    (class_hash, tx_hash) = cairo1_hello_starknet_class_hash_tx_hash
 
     block = await client.get_block(block_number=block_with_declare_v2_number)
 
     assert (
         DeclareTransaction(
             class_hash=class_hash,
-            compiled_class_hash=declare_v2_hello_starknet.compiled_class_hash
-            if isinstance(client, GatewayClient)
-            else None,
+            compiled_class_hash=declare_v2_hello_starknet.compiled_class_hash,
             sender_address=declare_v2_hello_starknet.sender_address,
             hash=tx_hash,
             max_fee=declare_v2_hello_starknet.max_fee,
@@ -620,20 +665,18 @@ async def test_get_block_with_declare_v2(
 @pytest.mark.asyncio
 async def test_get_new_state_update(
     client,
-    hello_starknet_class_hash_tx_hash: Tuple[int, int],
+    cairo1_hello_starknet_class_hash: int,
     declare_v2_hello_starknet: DeclareV2,
     block_with_declare_v2_number: int,
     replaced_class: Tuple[int, int, int],
 ):
-    (class_hash, _) = hello_starknet_class_hash_tx_hash
-
     state_update = await client.get_state_update(
         block_number=block_with_declare_v2_number
     )
     assert state_update.state_diff.replaced_classes == []
     assert (
         DeclaredContractHash(
-            class_hash=class_hash,
+            class_hash=cairo1_hello_starknet_class_hash,
             compiled_class_hash=declare_v2_hello_starknet.compiled_class_hash,
         )
         in state_update.state_diff.declared_contract_hashes

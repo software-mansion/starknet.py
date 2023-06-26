@@ -4,9 +4,7 @@ from starknet_py.common import create_compiled_contract
 
 
 @pytest.mark.asyncio
-async def test_simple_declare_and_deploy(
-    account, map_class_hash, map_compiled_contract
-):
+async def test_simple_deploy(account, map_class_hash, map_compiled_contract):
     # pylint: disable=import-outside-toplevel
     # docs: start
     from starknet_py.contract import Contract

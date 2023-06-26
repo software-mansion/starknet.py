@@ -20,6 +20,13 @@ class FeltType(CairoType):
 
 
 @dataclass
+class BoolType(CairoType):
+    """
+    Type representation of Cairo boolean.
+    """
+
+
+@dataclass
 class TupleType(CairoType):
     """
     Type representation of Cairo tuples without named fields.
@@ -55,3 +62,52 @@ class StructType(CairoType):
     name: str  #: Structure name
     # We need ordered dict, because it is important in serialization
     types: OrderedDict[str, CairoType]  #: types of every structure member.
+
+
+@dataclass
+class EnumType(CairoType):
+    """
+    Type representation of Cairo enums.
+    """
+
+    name: str
+    variants: OrderedDict[str, CairoType]
+
+
+@dataclass
+class OptionType(CairoType):
+    """
+    Type representation of Cairo options.
+    """
+
+    type: CairoType
+
+
+@dataclass
+class UintType(CairoType):
+    """
+    Type representation of Cairo unsigned integers.
+    """
+
+    bits: int
+
+    def check_range(self, value: int):
+        """
+        Utility method checking if the `value` is in range.
+        """
+
+
+@dataclass
+class TypeIdentifier(CairoType):
+    """
+    Type representation of Cairo identifiers.
+    """
+
+    name: str
+
+
+@dataclass
+class UnitType(CairoType):
+    """
+    Type representation of Cairo unit `()`.
+    """

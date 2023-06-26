@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "starknet-py"
-version = "0.16.1"
+version = "0.17.0-alpha"
 description = "A python SDK for Starknet"
 authors = ["Tomasz Rejowski <tomasz.rejowski@swmansion.com>", "Jakub Ptak <jakub.ptak@swmansion.com>"]
 include = ["starknet_py", "starknet_py/utils/crypto/libcrypto_c_exports.*"]
@@ -50,12 +50,19 @@ pytest-rerunfailures = "^11.1"
 
 [tool.poetry.group.py39-dev.dependencies]
 cairo-lang = { version = "^0.11.2", python= ">=3.9, <3.10" }
-starknet-devnet = { git = "https://github.com/0xSpaceShard/starknet-devnet.git", rev = "744e9b3bd5fb9e856287158d87673e090df69d73", python= ">=3.9, <3.10" }
+starknet-devnet = {version = "0.5.4", python = ">=3.9,<3.10"}
 
 [tool.poe.tasks]
 test.shell = "pytest -n auto -v --reruns 10 --only-rerun aiohttp.client_exceptions.ClientConnectorError --cov=starknet_py starknet_py"
+
 test_ci.shell = "coverage run -m pytest -v --reruns 5 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/core"
+test_ci_gateway.shell = "coverage run -m pytest --client=gateway -v --reruns 5 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/core"
+test_ci_full_node.shell = "coverage run -m pytest --client=full_node -v --reruns 5 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/core"
+
 test_ci_docs.shell = "coverage run -m pytest -v --reruns 5 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py/tests/e2e/docs"
+test_ci_docs_gateway.shell = "coverage run -m pytest --client=gateway -v --reruns 5 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py/tests/e2e/docs"
+test_ci_docs_full_node.shell = "coverage run -m pytest --client=full_node -v --reruns 5 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py/tests/e2e/docs"
+
 test_unit.shell = "pytest -n auto -v starknet_py --ignore=starknet_py/tests/e2e"
 test_e2e.shell = "pytest -n auto -v starknet_py/tests/e2e --ignore=starknet_py/tests/e2e/docs"
 test_docs.shell = "pytest -n auto -v starknet_py/tests/e2e/docs"
