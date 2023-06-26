@@ -113,3 +113,22 @@ After declaring a Cairo1 contract, it can be deployed using UDC.
     :start-after: docs-deploy: start
     :end-before: docs-deploy: end
 
+
+Simple declare and deploy Cairo1 contract example
+#################################################
+
+.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_simple_declare_and_deploy_cairo1.py
+    :language: python
+    :dedent: 4
+    :start-after: docs: start
+    :end-before: docs: end
+
+
+Simple deploy Cairo1 contract example
+#####################################
+
+.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_simple_deploy_cairo1.py
+    :language: python
+    :dedent: 4
+    :start-after: docs: start
+    :end-before: docs: end

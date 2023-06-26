@@ -41,16 +41,6 @@ async def cairo1_erc20_class_hash(account: BaseAccount) -> int:
 
 
 @pytest_asyncio.fixture(scope="package")
-async def cairo1_account_class_hash(account: BaseAccount) -> int:
-    class_hash, _ = await declare_cairo1_contract(
-        account,
-        read_contract("account_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR),
-        read_contract("account_compiled.casm", directory=CONTRACTS_COMPILED_V1_DIR),
-    )
-    return class_hash
-
-
-@pytest_asyncio.fixture(scope="package")
 async def declare_v2_hello_starknet(account: BaseAccount) -> DeclareV2:
     compiled_contract = read_contract(
         "hello_starknet_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
