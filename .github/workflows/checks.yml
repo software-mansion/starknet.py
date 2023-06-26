@@ -375,7 +375,8 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run poe test_ci_docs
+          poetry run poe test_ci_docs_gateway
+          poetry run poe test_ci_docs_full_node
 
       - name: Generate coverage in XML
         run: |
@@ -454,7 +455,8 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run poe test_ci_docs
+          poetry run poe test_ci_docs_gateway
+          poetry run poe test_ci_docs_full_node
 
       - name: Generate coverage in XML
         run: |
