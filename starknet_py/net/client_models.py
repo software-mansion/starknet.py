@@ -237,7 +237,7 @@ class BlockStatus(Enum):
 
 
 @dataclass
-class BlockHeader:
+class StarknetBlockCommon:
     """
     Dataclass representing a block header.
     """
@@ -247,36 +247,38 @@ class BlockHeader:
     block_number: int
     root: int
     timestamp: int
-    sequencer_address: int
 
 
 @dataclass
-class StarknetBlock(BlockHeader):
+class StarknetBlock(StarknetBlockCommon):
     """
     Dataclass representing a block on Starknet.
     """
 
-    # pylint: disable=too-many-instance-attributes
-
+    sequencer_address: int
     status: BlockStatus
     transactions: List[Transaction]
 
 
 @dataclass
-class GatewayBlock(StarknetBlock):
+class GatewayBlock(StarknetBlockCommon):
     """
     Dataclass representing a block from the Starknet gateway.
     """
 
     gas_price: int
+    status: BlockStatus
+    transactions: List[Transaction]
+    sequencer_address: Optional[int] = None
 
 
 @dataclass
-class StarknetBlockWithTxHashes(BlockHeader):
+class StarknetBlockWithTxHashes(StarknetBlockCommon):
     """
     Dataclass representing a block on Starknet containing transaction hashes.
     """
 
+    sequencer_address: int
     status: BlockStatus
     transactions: List[int]
 
