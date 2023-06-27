@@ -217,6 +217,7 @@ class StarknetBlockSchema(Schema):
     block_hash = Felt(data_key="block_hash", required=True)
     parent_block_hash = Felt(data_key="parent_block_hash", required=True)
     block_number = fields.Integer(data_key="block_number", required=True)
+    sequencer_address = Felt(data_key="sequencer_address", required=True)
     status = BlockStatusField(data_key="status", required=True)
     root = NonPrefixedHex(data_key="state_root", required=True)
     transactions = fields.List(

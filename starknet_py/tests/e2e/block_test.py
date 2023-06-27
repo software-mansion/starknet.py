@@ -28,3 +28,21 @@ async def test_latest_block(account, map_compiled_contract):
 
     blk = await account.client.get_block(block_number="latest")
     assert blk.block_hash
+
+
+@pytest.mark.asyncio
+async def test_pending_block_with_tx_hashes(full_node_account, map_compiled_contract):
+    await declare_contract(full_node_account, map_compiled_contract)
+
+    blk = await full_node_account.client.get_block_with_tx_hashes(
+        block_number="pending"
+    )
+    assert blk.block_hash
+
+
+@pytest.mark.asyncio
+async def test_latest_block_with_tx_hashes(full_node_account, map_compiled_contract):
+    await declare_contract(full_node_account, map_compiled_contract)
+
+    blk = await full_node_account.client.get_block_with_tx_hashes(block_number="latest")
+    assert blk.block_hash
