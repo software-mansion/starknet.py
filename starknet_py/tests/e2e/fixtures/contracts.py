@@ -186,6 +186,19 @@ async def map_contract(
     return await deploy_contract(gateway_account, map_class_hash, abi)
 
 
+@pytest_asyncio.fixture(scope="package")
+async def map_contract_declare(
+    full_node_account: BaseAccount,
+    map_compiled_contract: str,
+):
+    declare_result = await Contract.declare(
+        account=full_node_account,
+        compiled_contract=map_compiled_contract,
+        max_fee=MAX_FEE,
+    )
+    await declare_result.wait_for_acceptance()
+
+
 @pytest_asyncio.fixture(scope="function")
 async def simple_storage_with_event_contract(
     gateway_account: BaseAccount,

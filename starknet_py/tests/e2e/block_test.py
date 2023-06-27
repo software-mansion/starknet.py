@@ -30,19 +30,18 @@ async def test_latest_block(account, map_compiled_contract):
     assert blk.block_hash
 
 
+@pytest.mark.parametrize("block_number", ("pending", "latest"))
+@pytest.mark.usefixtures("map_contract_declare")
 @pytest.mark.asyncio
-async def test_pending_block_with_tx_hashes(full_node_account, map_compiled_contract):
-    await declare_contract(full_node_account, map_compiled_contract)
-
+async def test_block_with_tx_hashes(full_node_account, block_number):
     blk = await full_node_account.client.get_block_with_tx_hashes(
-        block_number="pending"
+        block_number=block_number
     )
-    assert blk.block_hash
 
-
-@pytest.mark.asyncio
-async def test_latest_block_with_tx_hashes(full_node_account, map_compiled_contract):
-    await declare_contract(full_node_account, map_compiled_contract)
-
-    blk = await full_node_account.client.get_block_with_tx_hashes(block_number="latest")
-    assert blk.block_hash
+    assert isinstance(blk.transactions, list)
+    assert blk.block_hash is not None
+    assert blk.parent_block_hash is not None
+    assert blk.block_number is not None
+    assert blk.root is not None
+    assert blk.timestamp is not None
+    assert blk.sequencer_address is not None
