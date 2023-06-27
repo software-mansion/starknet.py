@@ -238,6 +238,10 @@ class BlockStatus(Enum):
 
 @dataclass
 class BlockHeader:
+    """
+    Dataclass representing a block header.
+    """
+
     block_hash: int
     parent_block_hash: int
     block_number: int
@@ -269,6 +273,10 @@ class GatewayBlock(StarknetBlock):
 
 @dataclass
 class StarknetBlockWithTxHashes(BlockHeader):
+    """
+    Dataclass representing a block on Starknet containing transaction hashes.
+    """
+
     status: BlockStatus
     transactions: List[int]
 
