@@ -1,29 +1,9 @@
 Migration guide
 ===============
 
-****************************
+**********************
 0.17.0 Migration guide
-****************************
-
-Breaking changes
-----------------
-
-.. currentmodule:: starknet_py.net.udc_deployer.deployer
-
-1. Removed ``Deployer.create_deployment_call`` and ``Deployer.create_deployment_call_raw`` in favor of :meth:`Deployer.create_contract_deployment` and :meth:`Deployer.create_contract_deployment_raw`.
-
-
-|
-
-.. raw:: html
-
-  <hr>
-
-|
-
-****************************
-0.17.0-alpha Migration guide
-****************************
+**********************
 
 .. currentmodule:: starknet_py.net.full_node_client
 
@@ -43,14 +23,20 @@ To create an instance of such contract, a keyword parameter ``cairo_version=1`` 
     In such case, please open an issue at our `GitHub <https://github.com/software-mansion/starknet.py/issues/new?assignees=&labels=bug&projects=&template=bug_report.yaml&title=%5BBUG%5D+%3Ctitle%3E>`_ or contract us on `Starknet Discord server <https://starknet.io/discord>`_ in ``#🐍 | starknet-py`` channel.
 
 
-0.17.0-alpha Breaking changes
------------------------------
+Breaking changes
+----------------
 
 1. Deprecated function ``compute_invoke_hash`` in :mod:`starknet_py.net.models.transaction` has been removed in favor of :func:`starknet_py.hash.transaction.compute_invoke_transaction_hash`.
 
+.. currentmodule:: starknet_py.net.udc_deployer.deployer
 
-0.17.0-alpha Minor changes
---------------------------
+2. Removed ``Deployer.create_deployment_call`` and ``Deployer.create_deployment_call_raw`` in favor of :meth:`Deployer.create_contract_deployment` and :meth:`Deployer.create_contract_deployment_raw`.
+
+
+Minor changes
+-------------
+
+.. currentmodule:: starknet_py.contract
 
 1. :meth:`DeclareResult.deploy`, :meth:`PreparedFunctionCall.invoke`, :meth:`PreparedFunctionCall.estimate_fee`, :meth:`ContractFunction.invoke`, :meth:`Contract.declare` and :meth:`Contract.deploy_contract` can now accept custom ``nonce`` parameter.
 
@@ -73,8 +59,8 @@ RPC related changes:
 8. :meth:`FullNodeClient.get_events` ``keys`` parameter can now also accept integers as felts.
 
 
-0.17.0-alpha Bugfixes
----------------------
+Bugfixes
+--------
 
 .. currentmodule:: starknet_py.hash.class_hash
 
