@@ -359,9 +359,8 @@ async def test_get_block_number(full_node_client):
     block_number = await full_node_client.get_block_number()
     assert block_number == 0
 
-    await create_empty_block(
-        full_node_client._client
-    )  # pylint: disable=protected-access
+    # pylint: disable=protected-access
+    await create_empty_block(full_node_client._client)
 
     block_number = await full_node_client.get_block_number()
     assert block_number == 1
@@ -375,9 +374,8 @@ async def test_get_block_hash_and_number(full_node_client):
     assert block_hash_and_number.block_number == 0
     assert block_hash_and_number.block_hash == 0
 
-    await create_empty_block(
-        full_node_client._client
-    )  # pylint: disable=protected-access
+    # pylint: disable=protected-access
+    await create_empty_block(full_node_client._client)
 
     block_hash_and_number = await full_node_client.get_block_hash_and_number()
 
