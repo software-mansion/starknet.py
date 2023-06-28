@@ -1,9 +1,9 @@
 Migration guide
 ===============
 
-****************************
-0.17.0-alpha Migration guide
-****************************
+**********************
+0.17.0 Migration guide
+**********************
 
 .. currentmodule:: starknet_py.net.full_node_client
 
@@ -28,9 +28,15 @@ Breaking changes
 
 1. Deprecated function ``compute_invoke_hash`` in :mod:`starknet_py.net.models.transaction` has been removed in favor of :func:`starknet_py.hash.transaction.compute_invoke_transaction_hash`.
 
+.. currentmodule:: starknet_py.net.udc_deployer.deployer
+
+2. Removed deprecated ``Deployer.create_deployment_call`` and ``Deployer.create_deployment_call_raw`` in favor of :meth:`Deployer.create_contract_deployment` and :meth:`Deployer.create_contract_deployment_raw`.
+
 
 Minor changes
 -------------
+
+.. currentmodule:: starknet_py.contract
 
 1. :meth:`DeclareResult.deploy`, :meth:`PreparedFunctionCall.invoke`, :meth:`PreparedFunctionCall.estimate_fee`, :meth:`ContractFunction.invoke`, :meth:`Contract.declare` and :meth:`Contract.deploy_contract` can now accept custom ``nonce`` parameter.
 
