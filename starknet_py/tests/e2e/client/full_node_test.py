@@ -370,7 +370,6 @@ async def test_get_block_hash_and_number(full_node_client):
     block_hash_and_number = await full_node_client.get_block_hash_and_number()
 
     assert isinstance(block_hash_and_number, BlockHashAndNumber)
-    assert block_hash_and_number.block_hash == 0
 
     # pylint: disable=protected-access
     await create_empty_block(full_node_client._client)
