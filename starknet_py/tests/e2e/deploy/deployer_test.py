@@ -12,7 +12,7 @@ from starknet_py.utils.contructor_args_translator import translate_constructor_a
 async def test_default_deploy_with_class_hash(account, map_class_hash):
     deployer = Deployer()
 
-    contract_deployment = deployer.create_deployment_call(class_hash=map_class_hash)
+    contract_deployment = deployer.create_contract_deployment(class_hash=map_class_hash)
 
     deploy_invoke_tx = await account.sign_invoke_transaction(
         contract_deployment.call, max_fee=MAX_FEE
@@ -29,7 +29,9 @@ async def test_throws_when_calldata_provided_without_abi(map_class_hash):
     deployer = Deployer()
 
     with pytest.raises(ValueError, match="calldata was provided without an ABI."):
-        deployer.create_deployment_call(class_hash=map_class_hash, calldata=[12, 34])
+        deployer.create_contract_deployment(
+            class_hash=map_class_hash, calldata=[12, 34]
+        )
 
 
 @pytest.mark.asyncio
@@ -40,7 +42,7 @@ async def test_throws_when_calldata_not_provided(constructor_with_arguments_abi)
         ValueError,
         match="Provided contract has a constructor and no arguments were provided.",
     ):
-        deployer.create_deployment_call(
+        deployer.create_contract_deployment(
             class_hash=1234, abi=constructor_with_arguments_abi
         )
 
@@ -66,7 +68,7 @@ async def test_constructor_arguments_contract_deploy(
 ):
     deployer = Deployer(account_address=account.address)
 
-    deploy_call, contract_address = deployer.create_deployment_call(
+    deploy_call, contract_address = deployer.create_contract_deployment(
         class_hash=constructor_with_arguments_class_hash,
         abi=constructor_with_arguments_abi,
         calldata=calldata,
@@ -106,7 +108,7 @@ async def test_address_computation(salt, pass_account_address, account, map_clas
         # transactions have to be different for each account
         salt += 1
 
-    deploy_call, computed_address = deployer.create_deployment_call(
+    deploy_call, computed_address = deployer.create_contract_deployment(
         class_hash=map_class_hash,
         salt=salt,
     )
@@ -151,7 +153,7 @@ async def test_create_deployment_call_raw(
     (
         deploy_call,
         contract_address,
-    ) = deployer.create_deployment_call_raw(
+    ) = deployer.create_contract_deployment_raw(
         class_hash=constructor_with_arguments_class_hash,
         raw_calldata=raw_calldata,
     )
@@ -194,7 +196,7 @@ async def test_create_deployment_call_raw_supports_seed_0(
     (
         deploy_call,
         contract_address,
-    ) = deployer.create_deployment_call_raw(
+    ) = deployer.create_contract_deployment_raw(
         class_hash=constructor_with_arguments_class_hash,
         raw_calldata=raw_calldata,
         salt=0,
