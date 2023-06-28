@@ -32,7 +32,7 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
                 0x64,
                 [],
                 0x0,
-                StarknetChainId.TESTNET.value,
+                StarknetChainId.TESTNET,
             ],
             0x7D260744DE9D8C55E7675A34512D1951A7B262C79E685D26599EDD2948DE959,
         ),
