@@ -11,6 +11,13 @@ Migration guide
 
 .. currentmodule:: starknet_py.contract
 
+Also, four methods were added to its interface:
+
+- :meth:`FullNodeClient.get_block_number`
+- :meth:`FullNodeClient.get_block_hash_and_number`
+- :meth:`FullNodeClient.get_chain_id`
+- :meth:`FullNodeClient.get_syncing_status`
+
 
 :class:`Contract` now *initially* supports contracts written in **Cairo1**.
 
