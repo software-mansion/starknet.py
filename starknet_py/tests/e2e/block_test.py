@@ -45,3 +45,18 @@ async def test_block_with_tx_hashes(full_node_account, block_number):
     assert blk.root is not None
     assert blk.timestamp is not None
     assert blk.sequencer_address is not None
+
+
+@pytest.mark.parametrize("block_number", ("pending", "latest"))
+@pytest.mark.usefixtures("map_contract_declare")
+@pytest.mark.asyncio
+async def test_get_block_with_txs(full_node_account, block_number):
+    blk = await full_node_account.client.get_block_with_txs(block_number=block_number)
+
+    assert isinstance(blk.transactions, list)
+    assert blk.block_hash is not None
+    assert blk.parent_block_hash is not None
+    assert blk.block_number is not None
+    assert blk.root is not None
+    assert blk.timestamp is not None
+    assert blk.sequencer_address is not None
