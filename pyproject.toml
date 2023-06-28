@@ -55,11 +55,11 @@ starknet-devnet = {version = "0.5.4", python = ">=3.9,<3.10"}
 [tool.poe.tasks]
 test.shell = "pytest -n auto -v --reruns 10 --only-rerun aiohttp.client_exceptions.ClientConnectorError --cov=starknet_py starknet_py"
 
-test_ci.shell = "coverage run -m pytest -v --reruns 5 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/core"
+test_ci = ["test_ci_gateway", "test_ci_full_node"]
 test_ci_gateway.shell = "coverage run -m pytest --client=gateway -v --reruns 5 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/core"
 test_ci_full_node.shell = "coverage run -m pytest --client=full_node -v --reruns 5 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/core"
 
-test_ci_docs.shell = "coverage run -m pytest -v --reruns 5 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py/tests/e2e/docs"
+test_ci_docs = ["test_ci_docs_gateway", "test_ci_docs_full_node"]
 test_ci_docs_gateway.shell = "coverage run -m pytest --client=gateway -v --reruns 5 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py/tests/e2e/docs"
 test_ci_docs_full_node.shell = "coverage run -m pytest --client=full_node -v --reruns 5 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py/tests/e2e/docs"
 
