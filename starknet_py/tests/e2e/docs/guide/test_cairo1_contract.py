@@ -12,11 +12,11 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
 async def test_cairo1_contract(
     full_node_account,
     sierra_minimal_compiled_contract_and_class_hash,
-    another_sierra_minimal_compiled_contract_and_class_hash,
     full_node_client,
 ):
+    # pylint: disable=too-many-locals
+    # pylint: disable=import-outside-toplevel
     account = full_node_account
-    # pylint: disable=import-outside-toplevel, too-many-locals
     (
         compiled_contract,
         compiled_class_hash,

@@ -4,7 +4,7 @@ from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 
 
 @pytest.mark.asyncio
-async def test_creating_account(network):
+async def test_creating_account():
     # pylint: disable=import-outside-toplevel, unused-variable
     # docs: start
     from starknet_py.net.account.account import Account
@@ -13,7 +13,6 @@ async def test_creating_account(network):
     from starknet_py.net.signer.stark_curve_signer import KeyPair
 
     # Creates an instance of account which is already deployed
-
     # Account using transaction version=1 (has __validate__ function)
     client = FullNodeClient(node_url="your.node.url")
     account = Account(
