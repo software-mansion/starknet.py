@@ -171,7 +171,7 @@ async def core_map_contract(
     core_declare_map_response: DeclareTransactionResponse,
 ):
     deployer = Deployer()
-    call, address = deployer.create_deployment_call(
+    call, address = deployer.create_contract_deployment(
         core_declare_map_response.class_hash
     )
 
