@@ -9,6 +9,7 @@ from starknet_py.hash.storage import get_storage_var_address
 from starknet_py.net.account.account import Account
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
+    BlockHashAndNumber,
     ContractClass,
     DeclareTransaction,
     SierraContractClass,
@@ -16,6 +17,7 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.full_node_client import _to_rpc_felt
 from starknet_py.net.models import StarknetChainId
+from starknet_py.tests.e2e.utils import create_empty_block
 
 
 def _parse_event_name(event: str) -> str:
@@ -350,3 +352,48 @@ async def test_get_events_nonexistent_starting_block(
             follow_continuation_token=False,
             chunk_size=1,
         )
+
+
+@pytest.mark.asyncio
+async def test_get_block_number(full_node_client):
+    block_number = await full_node_client.get_block_number()
+    assert block_number == 0
+
+    await create_empty_block(
+        full_node_client._client
+    )  # pylint: disable=protected-access
+
+    block_number = await full_node_client.get_block_number()
+    assert block_number == 1
+
+
+@pytest.mark.asyncio
+async def test_get_block_hash_and_number(full_node_client):
+    block_hash_and_number = await full_node_client.get_block_hash_and_number()
+
+    assert isinstance(block_hash_and_number, BlockHashAndNumber)
+    assert block_hash_and_number.block_number == 0
+    assert block_hash_and_number.block_hash == 0
+
+    await create_empty_block(
+        full_node_client._client
+    )  # pylint: disable=protected-access
+
+    block_hash_and_number = await full_node_client.get_block_hash_and_number()
+
+    assert block_hash_and_number.block_number == 1
+    assert block_hash_and_number.block_hash > 0
+
+
+@pytest.mark.asyncio
+async def test_get_chain_id(full_node_client):
+    chain_id = await full_node_client.get_chain_id()
+
+    assert chain_id == hex(StarknetChainId.TESTNET.value)
+
+
+@pytest.mark.asyncio
+async def test_get_syncing_status(full_node_client):
+    sync_status = await full_node_client.get_syncing_status()
+
+    assert sync_status is False
