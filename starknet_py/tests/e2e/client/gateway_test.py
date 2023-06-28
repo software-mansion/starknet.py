@@ -100,7 +100,7 @@ async def test_get_transaction_status(invoke_transaction_hash, gateway_client):
 
 
 def test_gateway_client_warn_deprecation():
-    with pytest.warns(DeprecationWarning):
+    with pytest.warns(PendingDeprecationWarning):
         _ = GatewayClient(net="mainnet")
 
 
