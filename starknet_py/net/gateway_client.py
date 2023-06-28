@@ -74,6 +74,11 @@ class GatewayClient(Client):
         :param session: Aiohttp session to be used for request. If not provided, client will create a session for
                         every request. When using a custom session, user is responsible for closing it manually.
         """
+        warnings.warn(
+            "GatewayClient is deprecated and will not be supported in the future. Please use FullNodeClient instead.",
+            DeprecationWarning,
+        )
+
         if isinstance(net, str):
             host = net_address_from_net(net)
             feeder_gateway_url = f"{host}/feeder_gateway"
