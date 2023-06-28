@@ -5,11 +5,18 @@ Using FullNodeClient
 --------------------
 A :ref:`Client` is a facade for interacting with Starknet.
 :ref:`FullNodeClient` is a client which interacts
-with a Starknet full node like `pathfinder <https://github.com/eqlabs/pathfinder>`_.
-Like the GatewayClient, it supports read and write operations. Also as with GatewayClient,
-there is both synchronous and asynchronous API available.
+with a Starknet full nodes like `Pathfinder <https://github.com/eqlabs/pathfinder>`_,
+`Papyrus <https://github.com/starkware-libs/papyrus>`_ or `Juno <https://github.com/NethermindEth/juno>`_.
+It supports read and write operations, like querying the blockchain state or adding new transactions.
 
 .. codesnippet:: ../starknet_py/tests/e2e/docs/quickstart/test_using_full_node_client.py
+    :language: python
+    :dedent: 4
+
+The default interface is asynchronous. Although it is the recommended way of using starknet.py, you can also use a
+synchronous version. It might be helpful to play with Starknet directly in python interpreter.
+
+.. codesnippet:: ../starknet_py/tests/e2e/docs/quickstart/test_synchronous_full_node_client.py
     :language: python
     :dedent: 4
 
@@ -20,7 +27,8 @@ Using GatewayClient
 
 .. warning::
 
-    ``GatewayClient`` is deprecated and will not be supported in the future. Please use :ref:`FullNodeClient`.
+    Gateway / Feeder Gateway API will become deprecated in the future. As a result, GatewayClient won't work and will
+    eventually be removed. Consider migrating to :ref:`FullNodeClient`.
 
 :ref:`GatewayClient` will make requests directly to Starknet sequencer through `gateway` or `feeder_gateway` endpoints.
 It can be used to either query the blockchain state or add new transactions.
@@ -30,8 +38,7 @@ It requires information about used network:
     :language: python
     :dedent: 4
 
-The default interface is asynchronous. Although it is the recommended way of using starknet.py, you can also use a
-synchronous version. It might be helpful to play with Starknet directly in python interpreter.
+It also has async/sync interface:
 
 .. codesnippet:: ../starknet_py/tests/e2e/docs/quickstart/test_synchronous_gateway_client.py
     :language: python

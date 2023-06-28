@@ -67,8 +67,10 @@ class GatewayClient(Client):
         session: Optional[aiohttp.ClientSession] = None,
     ):
         """
-        .. deprecated:: 0.15.0
-            GatewayClient is deprecated and will not be supported in the future.
+        .. deprecated:: 0.17.0
+            Gateway / Feeder Gateway API will become deprecated in the future. As a result, GatewayClient won't work
+            and will eventually be removed. Consider migrating to FullNodeClient.
+
 
         Client for interacting with Starknet gateway.
 
@@ -78,8 +80,9 @@ class GatewayClient(Client):
                         every request. When using a custom session, user is responsible for closing it manually.
         """
         warnings.warn(
-            "GatewayClient is deprecated and will not be supported in the future. Please use FullNodeClient instead.",
-            DeprecationWarning,
+            "Gateway / Feeder Gateway API will become deprecated in the future. As a result, GatewayClient won't work "
+            "and will eventually be removed. Consider migrating to FullNodeClient.",
+            PendingDeprecationWarning,
         )
 
         if isinstance(net, str):
