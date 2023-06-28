@@ -33,6 +33,7 @@ Breaking changes
 2. Removed ``Deployer.create_deployment_call`` and ``Deployer.create_deployment_call_raw`` in favor of :meth:`Deployer.create_contract_deployment` and :meth:`Deployer.create_contract_deployment_raw`.
 3. Removed ``BaseAccount.supported_transaction_version`` property.
 
+
 Minor changes
 -------------
 
