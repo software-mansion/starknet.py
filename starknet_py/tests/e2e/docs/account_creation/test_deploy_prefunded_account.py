@@ -12,13 +12,13 @@ async def test_deploy_prefunded_account(
     account_with_validate_deploy_class_hash: int,
     network: str,
     fee_contract: Contract,
-    gateway_client: Client,
+    full_node_client: Client,
 ):
     # pylint: disable=import-outside-toplevel, too-many-locals
     # docs: start
     from starknet_py.hash.address import compute_address
     from starknet_py.net.account.account import Account
-    from starknet_py.net.gateway_client import GatewayClient
+    from starknet_py.net.full_node_client import FullNodeClient
     from starknet_py.net.models import StarknetChainId
     from starknet_py.net.networks import TESTNET
     from starknet_py.net.signer.stark_curve_signer import KeyPair
@@ -50,11 +50,11 @@ async def test_deploy_prefunded_account(
     # docs: start
 
     # Define the client to be used to interact with Starknet
-    client = GatewayClient(net=TESTNET)
+    client = FullNodeClient(node_url="your.node.url")
     chain = StarknetChainId.TESTNET
     # docs: end
 
-    client = gateway_client
+    client = full_node_client
     chain = chain_from_network(net=network, chain=StarknetChainId.TESTNET)
     # docs: start
 
