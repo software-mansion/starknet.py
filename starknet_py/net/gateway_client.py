@@ -67,6 +67,9 @@ class GatewayClient(Client):
         session: Optional[aiohttp.ClientSession] = None,
     ):
         """
+        .. deprecated:: 0.15.0
+            GatewayClient is deprecated and will not be supported in the future.
+
         Client for interacting with Starknet gateway.
 
         :param net: Target network for the client. Can be a string with URL, one of ``"mainnet"``, ``"testnet"``
