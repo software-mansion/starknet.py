@@ -29,6 +29,7 @@ from starknet_py.net.client_models import (
     SierraEntryPoint,
     SierraEntryPointsByType,
     StarknetBlock,
+    StarknetBlockWithTxHashes,
     StateDiff,
     StorageDiffItem,
     TransactionReceipt,
@@ -215,6 +216,7 @@ class StarknetBlockSchema(Schema):
     block_hash = Felt(data_key="block_hash", required=True)
     parent_block_hash = Felt(data_key="parent_hash", required=True)
     block_number = fields.Integer(data_key="block_number", required=True)
+    sequencer_address = Felt(data_key="sequencer_address", required=True)
     status = BlockStatusField(data_key="status", required=True)
     root = NonPrefixedHex(data_key="new_root", required=True)
     transactions = fields.List(
@@ -227,6 +229,21 @@ class StarknetBlockSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> StarknetBlock:
         return StarknetBlock(**data)
+
+
+class StarknetBlockWithTxHashesSchema(Schema):
+    block_hash = Felt(data_key="block_hash", required=True)
+    parent_block_hash = Felt(data_key="parent_hash", required=True)
+    block_number = fields.Integer(data_key="block_number", required=True)
+    sequencer_address = Felt(data_key="sequencer_address", required=True)
+    status = BlockStatusField(data_key="status", required=True)
+    root = NonPrefixedHex(data_key="new_root", required=True)
+    transactions = fields.List(Felt(), data_key="transactions", required=True)
+    timestamp = fields.Integer(data_key="timestamp", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> StarknetBlockWithTxHashes:
+        return StarknetBlockWithTxHashes(**data)
 
 
 class StorageDiffSchema(Schema):
