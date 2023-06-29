@@ -44,7 +44,7 @@ FullNodeClient usage
 --------------------
 
 Use a :ref:`FullNodeClient` to interact with services providing `Starknet RPC interface <https://github.com/starkware-libs/starknet-specs/blob/606c21e06be92ea1543fd0134b7f98df622c2fbf/api/starknet_api_openrpc.json>`_
-like ``Pathfinder <https://github.com/eqlabs/pathfinder>`_,
+like `Pathfinder <https://github.com/eqlabs/pathfinder>`_,
 `Papyrus <https://github.com/starkware-libs/papyrus>`_, `Juno <https://github.com/NethermindEth/juno>`_
 or `starknet-devnet <https://github.com/0xSpaceShard/starknet-devnet>`_.
 Using own full node allows for querying Starknet with better performance.
