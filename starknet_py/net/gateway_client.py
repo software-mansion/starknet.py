@@ -67,6 +67,11 @@ class GatewayClient(Client):
         session: Optional[aiohttp.ClientSession] = None,
     ):
         """
+        .. deprecated:: 0.17.0
+            Gateway / Feeder Gateway API will become deprecated in the future. As a result, GatewayClient won't work
+            and will eventually be removed. Consider migrating to FullNodeClient.
+
+
         Client for interacting with Starknet gateway.
 
         :param net: Target network for the client. Can be a string with URL, one of ``"mainnet"``, ``"testnet"``
@@ -74,6 +79,12 @@ class GatewayClient(Client):
         :param session: Aiohttp session to be used for request. If not provided, client will create a session for
                         every request. When using a custom session, user is responsible for closing it manually.
         """
+        warnings.warn(
+            "Gateway / Feeder Gateway API will become deprecated in the future. As a result, GatewayClient won't work "
+            "and will eventually be removed. Consider migrating to FullNodeClient.",
+            PendingDeprecationWarning,
+        )
+
         if isinstance(net, str):
             host = net_address_from_net(net)
             feeder_gateway_url = f"{host}/feeder_gateway"
