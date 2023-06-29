@@ -1,5 +1,4 @@
-import asyncio
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
@@ -13,6 +12,7 @@ from starknet_py.net.client_models import (
     ContractClass,
     DeclareTransaction,
     SierraContractClass,
+    SyncStatus,
     TransactionType,
 )
 from starknet_py.net.full_node_client import _to_rpc_felt
@@ -102,30 +102,26 @@ async def test_method_raises_on_both_block_hash_and_number(full_node_client):
 @pytest.mark.asyncio
 async def test_pending_transactions(full_node_client):
     with patch(
-        "starknet_py.net.http_client.RpcHttpClient.call", MagicMock()
+        "starknet_py.net.http_client.RpcHttpClient.call", AsyncMock()
     ) as mocked_http_call:
-        result = asyncio.Future()
-        result.set_result(
-            [
-                {
-                    "transaction_hash": "0x01",
-                    "class_hash": "0x05",
-                    "version": "0x0",
-                    "type": "DEPLOY",
-                    "contract_address": "0x02",
-                    "contract_address_salt": "0x0",
-                    "constructor_calldata": [],
-                }
-            ]
-        )
-        mocked_http_call.return_value = result
+        mocked_http_call.return_value = [
+            {
+                "transaction_hash": "0x01",
+                "class_hash": "0x05",
+                "version": "0x0",
+                "type": "DEPLOY",
+                "contract_address": "0x02",
+                "contract_address_salt": "0x0",
+                "constructor_calldata": [],
+            }
+        ]
 
         pending_transactions = await full_node_client.get_pending_transactions()
 
-        assert len(pending_transactions) == 1
-        assert pending_transactions[0].hash == 0x1
-        assert pending_transactions[0].signature == []
-        assert pending_transactions[0].max_fee == 0
+    assert len(pending_transactions) == 1
+    assert pending_transactions[0].hash == 0x1
+    assert pending_transactions[0].signature == []
+    assert pending_transactions[0].max_fee == 0
 
 
 @pytest.mark.asyncio
@@ -390,7 +386,26 @@ async def test_get_chain_id(full_node_client):
 
 
 @pytest.mark.asyncio
-async def test_get_syncing_status(full_node_client):
+async def test_get_syncing_status_false(full_node_client):
     sync_status = await full_node_client.get_syncing_status()
 
     assert sync_status is False
+
+
+@pytest.mark.asyncio
+async def test_get_syncing_status(full_node_client):
+    with patch(
+        "starknet_py.net.http_client.RpcHttpClient.call", AsyncMock()
+    ) as mocked_status:
+        mocked_status.return_value = {
+            "starting_block_num": "0xc8023",
+            "current_block_num": "0xc9773",
+            "highest_block_num": "0xc9773",
+            "starting_block_hash": "0x60be3a55621597c15a53a1f83e977ca5e52e775ab2ebf572d2ebd6a8168fc88",
+            "current_block_hash": "0x79abcb48e71524ad2e123624b0ee3d5f69f99759a23441f6f363794d0687a66",
+            "highest_block_hash": "0x79abcb48e71524ad2e123624b0ee3d5f69f99759a23441f6f363794d0687a66",
+        }
+
+        sync_status = await full_node_client.get_syncing_status()
+
+    assert isinstance(sync_status, SyncStatus)
