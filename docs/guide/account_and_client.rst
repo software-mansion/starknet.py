@@ -43,14 +43,14 @@ Note that the nonce will be bumped only by 1.
 FullNodeClient usage
 --------------------
 
-Use a :ref:`FullNodeClient` to interact with services providing `Starknet rpc interface <https://github.com/starkware-libs/starknet-specs/blob/606c21e06be92ea1543fd0134b7f98df622c2fbf/api/starknet_api_openrpc.json>`_
-like `Pathfinder Full Node <https://github.com/eqlabs/pathfinder>`_ or starknet-devnet. starknet.py provides uniform interface for
-both gateway and full node client - usage is exactly the same as gateway client minus some optional
-parameters.
-
+Use a :ref:`FullNodeClient` to interact with services providing `Starknet RPC interface <https://github.com/starkware-libs/starknet-specs/blob/606c21e06be92ea1543fd0134b7f98df622c2fbf/api/starknet_api_openrpc.json>`_
+like ``Pathfinder <https://github.com/eqlabs/pathfinder>`_,
+`Papyrus <https://github.com/starkware-libs/papyrus>`_, `Juno <https://github.com/NethermindEth/juno>`_
+or `starknet-devnet <https://github.com/0xSpaceShard/starknet-devnet>`_.
 Using own full node allows for querying Starknet with better performance.
-Since gateway will be deprecated at some point in the future, having ``FullNodeClient`` with interface uniform with that of ``GatewayClient``
-will allow for simple migration for starknet.py users.
+
+Since GatewayClient is deprecated and will be removed at some point in the future, having ``FullNodeClient``
+with interface uniform with that of ``GatewayClient`` will allow for simple migration for starknet_py users.
 
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_full_node_client.py
     :language: python
