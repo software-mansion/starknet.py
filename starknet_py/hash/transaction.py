@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import IntEnum
 from typing import Optional, Sequence
 
 from starknet_py.common import int_from_bytes
@@ -9,7 +9,7 @@ from starknet_py.hash.utils import compute_hash_on_elements
 from starknet_py.net.client_models import ContractClass, SierraContractClass
 
 
-class TransactionHashPrefix(Enum):
+class TransactionHashPrefix(IntEnum):
     """
     Enum representing possible transaction prefixes.
     """
@@ -63,7 +63,7 @@ def compute_transaction_hash(
         additional_data = []
     calldata_hash = compute_hash_on_elements(data=calldata)
     data_to_hash = [
-        tx_hash_prefix.value,
+        tx_hash_prefix,
         version,
         contract_address,
         entry_point_selector,
