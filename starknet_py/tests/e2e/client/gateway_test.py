@@ -99,6 +99,11 @@ async def test_get_transaction_status(invoke_transaction_hash, gateway_client):
     assert isinstance(tx_status_resp.block_hash, int)
 
 
+def test_gateway_client_warn_deprecation():
+    with pytest.warns(PendingDeprecationWarning):
+        _ = GatewayClient(net="mainnet")
+
+
 # pylint: disable=protected-access
 @pytest.mark.parametrize(
     "net, net_address",
