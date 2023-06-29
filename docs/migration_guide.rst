@@ -58,6 +58,9 @@ RPC related changes:
 7. :meth:`FullNodeClient.get_events` ``keys`` and ``address`` parameters type are now optional.
 8. :meth:`FullNodeClient.get_events` ``keys`` parameter can now also accept integers as felts.
 
+.. currentmodule:: starknet_py.net.models
+
+9. :class:`StarknetChainId` changed from ``Enum`` to ``IntEnum``.
 
 Bugfixes
 --------
