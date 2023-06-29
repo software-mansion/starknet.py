@@ -35,13 +35,14 @@ async def test_latest_block(account, map_compiled_contract):
 async def test_block_with_tx_hashes(
     full_node_account,
     block_number,
-    map_contract_declare,  # pylint: disable=unused-argument
+    map_contract_declare_hash,
 ):
     blk = await full_node_account.client.get_block_with_tx_hashes(
         block_number=block_number
     )
 
     assert isinstance(blk.transactions, list)
+    assert map_contract_declare_hash in blk.transactions
     assert blk.block_hash is not None
     assert blk.parent_block_hash is not None
     assert blk.block_number is not None
@@ -55,11 +56,12 @@ async def test_block_with_tx_hashes(
 async def test_get_block_with_txs(
     full_node_account,
     block_number,
-    map_contract_declare,  # pylint: disable=unused-argument
+    map_contract_declare_hash,
 ):
     blk = await full_node_account.client.get_block_with_txs(block_number=block_number)
 
     assert isinstance(blk.transactions, list)
+    assert blk.transactions[0].hash == map_contract_declare_hash
     assert blk.block_hash is not None
     assert blk.parent_block_hash is not None
     assert blk.block_number is not None

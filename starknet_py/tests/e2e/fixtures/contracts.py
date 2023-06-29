@@ -187,7 +187,7 @@ async def map_contract(
 
 
 @pytest_asyncio.fixture(scope="package")
-async def map_contract_declare(
+async def map_contract_declare_hash(
     full_node_account: BaseAccount,
     map_compiled_contract: str,
 ):
@@ -197,6 +197,7 @@ async def map_contract_declare(
         max_fee=MAX_FEE,
     )
     await declare_result.wait_for_acceptance()
+    return declare_result.hash
 
 
 @pytest_asyncio.fixture(scope="function")
