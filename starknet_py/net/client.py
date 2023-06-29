@@ -163,11 +163,7 @@ class Client(ABC):
                 ):
                     assert result.block_number is not None
                     return result.block_number, status
-                if status == TransactionStatus.PENDING:
-                    if not wait_for_accept:
-                        if result.block_number is not None:
-                            return result.block_number, status
-                elif status == TransactionStatus.REJECTED:
+                if status == TransactionStatus.REJECTED:
                     raise TransactionRejectedError(
                         message=result.rejection_reason,
                     )

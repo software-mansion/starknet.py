@@ -283,40 +283,6 @@ async def test_wait_for_tx_accepted(client, get_tx_receipt, request):
         assert tx_status == TransactionStatus.ACCEPTED_ON_L2
 
 
-@pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "client, get_tx_receipt",
-    [
-        (
-            "gateway_client",
-            "tx_receipt_gateway_path",
-        ),
-        (
-            "full_node_client",
-            "tx_receipt_full_node_path",
-        ),
-    ],
-)
-async def test_wait_for_tx_pending(client, get_tx_receipt, request):
-    get_tx_receipt = request.getfixturevalue(get_tx_receipt)
-
-    with patch(
-        get_tx_receipt,
-        AsyncMock(),
-    ) as mocked_receipt:
-        mocked_receipt.return_value = TransactionReceipt(
-            hash=0x1,
-            status=TransactionStatus.PENDING,
-            block_number=1,
-            type=TransactionType.INVOKE,
-        )
-        client = request.getfixturevalue(client)
-
-        block_number, tx_status = await client.wait_for_tx(tx_hash=0x1)
-        assert block_number == 1
-        assert tx_status == TransactionStatus.PENDING
-
-
 @pytest.mark.parametrize(
     "status, exception, exc_message",
     (
@@ -392,7 +358,7 @@ async def test_wait_for_tx_cancelled(client, get_tx_receipt, request):
     ) as mocked_receipt:
         mocked_receipt.return_value = TransactionReceipt(
             hash=0x1,
-            status=TransactionStatus.PENDING,
+            status=TransactionStatus.NOT_RECEIVED,
             block_number=1,
             type=TransactionType.INVOKE,
         )
