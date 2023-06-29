@@ -97,7 +97,7 @@ class DeclareV2(AccountTransaction):
         return compute_declare_v2_transaction_hash(
             contract_class=self.contract_class,
             compiled_class_hash=self.compiled_class_hash,
-            chain_id=chain_id.value,
+            chain_id=chain_id,
             sender_address=self.sender_address,
             max_fee=self.max_fee,
             version=self.version,
@@ -140,7 +140,7 @@ class Declare(AccountTransaction):
         """
         return compute_declare_transaction_hash(
             contract_class=self.contract_class,
-            chain_id=chain_id.value,
+            chain_id=chain_id,
             sender_address=self.sender_address,
             max_fee=self.max_fee,
             version=self.version,
@@ -184,7 +184,7 @@ class DeployAccount(AccountTransaction):
             max_fee=self.max_fee,
             nonce=self.nonce,
             salt=self.contract_address_salt,
-            chain_id=chain_id.value,
+            chain_id=chain_id,
         )
 
 
@@ -214,7 +214,7 @@ class Invoke(AccountTransaction):
             sender_address=self.sender_address,
             calldata=self.calldata,
             max_fee=self.max_fee,
-            chain_id=chain_id.value,
+            chain_id=chain_id,
             nonce=self.nonce,
         )
 

@@ -226,6 +226,7 @@ class StarknetBlockSchema(Schema):
     )
     timestamp = fields.Integer(data_key="timestamp", required=True)
     gas_price = Felt(data_key="gas_price")
+    sequencer_address = Felt(data_key="sequencer_address")
 
     @post_load
     def make_dataclass(self, data, **kwargs):
