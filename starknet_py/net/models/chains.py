@@ -1,11 +1,11 @@
-from enum import Enum
+from enum import IntEnum
 from typing import Optional
 
 from starknet_py.common import int_from_bytes
 from starknet_py.net.networks import MAINNET, TESTNET, TESTNET2, Network
 
 
-class StarknetChainId(Enum):
+class StarknetChainId(IntEnum):
     """
     An enumeration representing Starknet chain IDs.
     """
