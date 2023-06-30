@@ -9,7 +9,7 @@ async def test_custom_signer():
 
     # docs: start
     from starknet_py.net.account.account import Account
-    from starknet_py.net.gateway_client import GatewayClient
+    from starknet_py.net.full_node_client import FullNodeClient
     from starknet_py.net.models import StarknetChainId, Transaction
     from starknet_py.net.signer import BaseSigner
     from starknet_py.utils.typed_data import TypedData
@@ -30,7 +30,7 @@ async def test_custom_signer():
 
     # Create an Account instance with the signer you've implemented
     custom_signer = CustomSigner()
-    client = GatewayClient("testnet")
+    client = FullNodeClient(node_url="your.node.url")
     account = Account(
         client=client,
         address=0x1111,
