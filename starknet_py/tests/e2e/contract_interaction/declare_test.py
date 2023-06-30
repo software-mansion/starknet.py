@@ -8,10 +8,10 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
 @pytest.mark.asyncio
 async def test_contract_declare(account):
     compiled_contract = read_contract(
-        "test_contract_declare_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
+        "test_contract_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
     )
     compiled_contract_casm = read_contract(
-        "test_contract_declare_compiled.casm", directory=CONTRACTS_COMPILED_V1_DIR
+        "test_contract_compiled.casm", directory=CONTRACTS_COMPILED_V1_DIR
     )
 
     declare_result = await Contract.declare(

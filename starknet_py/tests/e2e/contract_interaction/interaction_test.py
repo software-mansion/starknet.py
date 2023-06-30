@@ -132,7 +132,7 @@ async def test_call_uninitialized_contract(gateway_client):
             block_hash="latest",
         )
 
-    assert "500" in str(err.value)
+    assert "400" in str(err.value)
 
 
 @pytest.mark.asyncio

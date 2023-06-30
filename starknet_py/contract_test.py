@@ -7,7 +7,7 @@ from starknet_py.net.account.base_account import BaseAccount
 def test_compute_hash(balance_contract):
     assert (
         Contract.compute_contract_hash(balance_contract)
-        == 0xD267E6A11EED91056994AA6A89B20CA2FA989385E88429B57A9FDCE84C58E6
+        == 0x48FFAEC133112E9976DBFB19D013698EC2CB28EBDF228DE854CCE33AB88EE0E
     )
 
 

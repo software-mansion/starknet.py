@@ -97,20 +97,6 @@ async def cairo1_minimal_contract_class_hash(account: BaseAccount) -> int:
 
 
 @pytest_asyncio.fixture(scope="package")
-async def cairo1_test_contract_class_hash(account: BaseAccount) -> int:
-    class_hash, _ = await declare_cairo1_contract(
-        account,
-        read_contract(
-            "test_contract_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
-        ),
-        read_contract(
-            "test_contract_compiled.casm", directory=CONTRACTS_COMPILED_V1_DIR
-        ),
-    )
-    return class_hash
-
-
-@pytest_asyncio.fixture(scope="package")
 async def cairo1_test_enum_class_hash(account: BaseAccount) -> int:
     class_hash, _ = await declare_cairo1_contract(
         account,
