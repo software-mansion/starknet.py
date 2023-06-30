@@ -19,19 +19,19 @@ def test_init():
     # docs-start: init
     account = Account(
         address=0x123,
+        client=FullNodeClient(node_url="your.node.url"),
+        key_pair=KeyPair(12, 34),
+        chain=StarknetChainId.TESTNET,
+    )
+    # or (not recommended, soon GatewayClient will be removed)
+    account = Account(
+        address=0x123,
         client=GatewayClient(net=TESTNET),
         signer=StarkCurveSigner(
             account_address=0x123,
             key_pair=KeyPair(12, 34),
             chain_id=StarknetChainId.TESTNET,
         ),
-    )
-    # or
-    account = Account(
-        address=0x123,
-        client=FullNodeClient(node_url="your.node.url"),
-        key_pair=KeyPair(12, 34),
-        chain=StarknetChainId.TESTNET,
     )
     # docs-end: init
 

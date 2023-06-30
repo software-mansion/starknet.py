@@ -24,12 +24,12 @@ def test_init():
         ],
         provider=Account(
             address=0x321,
-            client=GatewayClient(TESTNET),
+            client=FullNodeClient(node_url="your.node.url"),
             key_pair=KeyPair(12, 34),
             chain=StarknetChainId.TESTNET,
         ),
     )
-    # or
+    # or (not recommended, soon GatewayClient will be removed)
     contract = Contract(
         address=0x123,
         abi=[
@@ -42,7 +42,7 @@ def test_init():
         ],
         provider=Account(
             address=0x321,
-            client=FullNodeClient(TESTNET),
+            client=GatewayClient(TESTNET),
             key_pair=KeyPair(12, 34),
             chain=StarknetChainId.TESTNET,
         ),

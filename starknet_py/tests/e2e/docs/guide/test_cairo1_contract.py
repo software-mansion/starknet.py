@@ -3,7 +3,6 @@ import json
 import pytest
 
 from starknet_py.net.client_models import CasmClass
-from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.udc_deployer.deployer import _get_random_salt
 from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V1_DIR, MAX_FEE
 from starknet_py.tests.e2e.fixtures.misc import read_contract
@@ -13,23 +12,17 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
 async def test_cairo1_contract(
     account,
     sierra_minimal_compiled_contract_and_class_hash,
-    another_sierra_minimal_compiled_contract_and_class_hash,
     gateway_client,
 ):
-    # pylint: disable=import-outside-toplevel, too-many-locals
+    # pylint: disable=too-many-locals
+    # pylint: disable=import-outside-toplevel
     (
         compiled_contract,
         compiled_class_hash,
-    ) = (
-        sierra_minimal_compiled_contract_and_class_hash
-        if isinstance(account.client, GatewayClient)
-        else another_sierra_minimal_compiled_contract_and_class_hash
-    )
+    ) = sierra_minimal_compiled_contract_and_class_hash
 
     contract_compiled_casm = read_contract(
-        "minimal_contract_compiled.casm"
-        if isinstance(account.client, GatewayClient)
-        else "another_minimal_contract_compiled.casm",
+        "minimal_contract_compiled.casm",
         directory=CONTRACTS_COMPILED_V1_DIR,
     )
 
@@ -94,6 +87,6 @@ async def test_cairo1_contract(
     assert contract_deployment.address != 0
 
     compiled_class = await gateway_client.get_compiled_class_by_class_hash(
-        sierra_class_hash
+        class_hash=sierra_class_hash
     )
     assert isinstance(compiled_class, CasmClass)
