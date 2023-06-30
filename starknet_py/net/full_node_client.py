@@ -23,6 +23,7 @@ from starknet_py.net.client_models import (
     SierraContractClass,
     StarknetBlock,
     SyncStatus,
+    StarknetBlockWithTxHashes,
     Tag,
     Transaction,
     TransactionReceipt,
@@ -53,6 +54,7 @@ from starknet_py.net.schemas.rpc import (
     SierraContractClassSchema,
     StarknetBlockSchema,
     SyncStatusSchema,
+    StarknetBlockWithTxHashesSchema,
     TransactionReceiptSchema,
     TypesOfTransactionsSchema,
 )
@@ -106,6 +108,31 @@ class FullNodeClient(Client):
             params=block_identifier,
         )
         return cast(StarknetBlock, StarknetBlockSchema().load(res, unknown=EXCLUDE))
+
+    async def get_block_with_txs(
+        self,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> StarknetBlock:
+        return await self.get_block(block_hash=block_hash, block_number=block_number)
+
+    async def get_block_with_tx_hashes(
+        self,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> StarknetBlockWithTxHashes:
+        block_identifier = get_block_identifier(
+            block_hash=block_hash, block_number=block_number
+        )
+
+        res = await self._client.call(
+            method_name="getBlockWithTxHashes",
+            params=block_identifier,
+        )
+        return cast(
+            StarknetBlockWithTxHashes,
+            StarknetBlockWithTxHashesSchema().load(res, unknown=EXCLUDE),
+        )
 
     async def get_block_traces(
         self,

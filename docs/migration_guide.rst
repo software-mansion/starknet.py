@@ -29,6 +29,11 @@ To create an instance of such contract, a keyword parameter ``cairo_version=1`` 
 
     In such case, please open an issue at our `GitHub <https://github.com/software-mansion/starknet.py/issues/new?assignees=&labels=bug&projects=&template=bug_report.yaml&title=%5BBUG%5D+%3Ctitle%3E>`_ or contract us on `Starknet Discord server <https://starknet.io/discord>`_ in ``#🐍 | starknet-py`` channel.
 
+.. currentmodule:: starknet_py.net.gateway_client
+
+:class:`GatewayClient` and Gateway / Feeder Gateway API will become deprecated in the future.
+    As a result, :class:`GatewayClient` won't work and will eventually be removed. Consider migrating to :ref:`FullNodeClient`.
+
 
 Breaking changes
 ----------------
@@ -65,6 +70,9 @@ RPC related changes:
 7. :meth:`FullNodeClient.get_events` ``keys`` and ``address`` parameters type are now optional.
 8. :meth:`FullNodeClient.get_events` ``keys`` parameter can now also accept integers as felts.
 
+.. currentmodule:: starknet_py.net.models
+
+9. :class:`StarknetChainId` changed from ``Enum`` to ``IntEnum``.
 
 Bugfixes
 --------
