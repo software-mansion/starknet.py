@@ -8,6 +8,7 @@ from marshmallow import EXCLUDE
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
+    BlockHashAndNumber,
     BlockStateUpdate,
     BlockTransactionTraces,
     Call,
@@ -22,6 +23,7 @@ from starknet_py.net.client_models import (
     SierraContractClass,
     StarknetBlock,
     StarknetBlockWithTxHashes,
+    SyncStatus,
     Tag,
     Transaction,
     TransactionReceipt,
@@ -39,6 +41,7 @@ from starknet_py.net.models.transaction import (
 )
 from starknet_py.net.networks import Network
 from starknet_py.net.schemas.rpc import (
+    BlockHashAndNumberSchema,
     BlockStateUpdateSchema,
     ContractClassSchema,
     DeclareTransactionResponseSchema,
@@ -51,6 +54,7 @@ from starknet_py.net.schemas.rpc import (
     SierraContractClassSchema,
     StarknetBlockSchema,
     StarknetBlockWithTxHashesSchema,
+    SyncStatusSchema,
     TransactionReceiptSchema,
     TypesOfTransactionsSchema,
 )
@@ -341,6 +345,26 @@ class FullNodeClient(Client):
                 res, unknown=EXCLUDE, many=(not single_transaction)
             ),
         )
+
+    async def get_block_number(self) -> int:
+        """Get the most recent accepted block number"""
+        return await self._client.call(method_name="blockNumber", params={})
+
+    async def get_block_hash_and_number(self) -> BlockHashAndNumber:
+        """Get the most recent accepted block hash and number"""
+        res = await self._client.call(method_name="blockHashAndNumber", params={})
+        return cast(BlockHashAndNumber, BlockHashAndNumberSchema().load(res))
+
+    async def get_chain_id(self) -> int:
+        """Return the currently configured Starknet chain id"""
+        return await self._client.call(method_name="chainId", params={})
+
+    async def get_syncing_status(self) -> Union[bool, SyncStatus]:
+        """Returns an object about the sync status, or false if the node is not syncing"""
+        sync_status = await self._client.call(method_name="syncing", params={})
+        if isinstance(sync_status, bool):
+            return sync_status
+        return cast(SyncStatus, SyncStatusSchema().load(sync_status))
 
     async def call_contract(
         self,

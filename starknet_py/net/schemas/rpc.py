@@ -3,6 +3,7 @@ from marshmallow_oneofschema import OneOfSchema
 
 from starknet_py.abi.schemas import ContractAbiEntrySchema
 from starknet_py.net.client_models import (
+    BlockHashAndNumber,
     BlockStateUpdate,
     ContractClass,
     ContractsNonce,
@@ -32,6 +33,7 @@ from starknet_py.net.client_models import (
     StarknetBlockWithTxHashes,
     StateDiff,
     StorageDiffItem,
+    SyncStatus,
     TransactionReceipt,
 )
 from starknet_py.net.schemas.common import (
@@ -229,6 +231,28 @@ class StarknetBlockSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> StarknetBlock:
         return StarknetBlock(**data)
+
+
+class BlockHashAndNumberSchema(Schema):
+    block_hash = Felt(data_key="block_hash", required=True)
+    block_number = fields.Integer(data_key="block_number", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> BlockHashAndNumber:
+        return BlockHashAndNumber(**data)
+
+
+class SyncStatusSchema(Schema):
+    starting_block_hash = Felt(data_key="starting_block_hash", required=True)
+    starting_block_num = Felt(data_key="starting_block_num", required=True)
+    current_block_hash = Felt(data_key="current_block_hash", required=True)
+    current_block_num = Felt(data_key="current_block_num", required=True)
+    highest_block_hash = Felt(data_key="highest_block_hash", required=True)
+    highest_block_num = Felt(data_key="highest_block_num", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> SyncStatus:
+        return SyncStatus(**data)
 
 
 class StarknetBlockWithTxHashesSchema(Schema):

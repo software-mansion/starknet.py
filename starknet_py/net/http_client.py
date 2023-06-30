@@ -85,7 +85,7 @@ class GatewayHttpClient(HttpClient):
 
 
 class RpcHttpClient(HttpClient):
-    async def call(self, method_name: str, params: dict) -> dict:
+    async def call(self, method_name: str, params: dict):
         payload = {
             "jsonrpc": "2.0",
             "method": f"starknet_{method_name}",

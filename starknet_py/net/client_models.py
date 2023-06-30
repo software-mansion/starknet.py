@@ -284,6 +284,22 @@ class StarknetBlockWithTxHashes(StarknetBlockCommon):
 
 
 @dataclass
+class BlockHashAndNumber:
+    block_hash: int
+    block_number: int
+
+
+@dataclass
+class SyncStatus:
+    starting_block_hash: int
+    starting_block_num: int
+    current_block_hash: int
+    current_block_num: int
+    highest_block_hash: int
+    highest_block_num: int
+
+
+@dataclass
 class BlockSingleTransactionTrace:
     """
     Dataclass representing a trace of transaction execution.
