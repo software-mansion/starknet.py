@@ -253,8 +253,8 @@ class SyncStatusSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> SyncStatus:
         return SyncStatus(**data)
-      
-      
+
+
 class StarknetBlockWithTxHashesSchema(Schema):
     block_hash = Felt(data_key="block_hash", required=True)
     parent_block_hash = Felt(data_key="parent_hash", required=True)
