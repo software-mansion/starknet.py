@@ -50,7 +50,7 @@ or `starknet-devnet <https://github.com/0xSpaceShard/starknet-devnet>`_.
 Using own full node allows for querying Starknet with better performance.
 
 Since GatewayClient is deprecated and will be removed at some point in the future, having ``FullNodeClient``
-with interface uniform with that of ``GatewayClient`` will allow for simple migration for starknet_py users.
+with interface uniform with that of ``GatewayClient`` will allow for simple migration for starknet.py users.
 
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_full_node_client.py
     :language: python
