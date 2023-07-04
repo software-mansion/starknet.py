@@ -14,19 +14,19 @@ mod TestEnum {
     #[storage]
     struct Storage {}
 
-    #[external]
+    #[external(v0)]
     fn receive_and_send_enum(self: @ContractState, my_enum: MyEnum) -> MyEnum {
         my_enum
     }
 
-    #[external]
+    #[external(v0)]
     fn get_enum(self: @ContractState) -> MyEnum {
         let my_enum = MyEnum::a(u256{low: 100, high: 0});
 
         my_enum
     }
 
-    #[external]
+    #[external(v0)]
     fn get_enum_without_value(self: @ContractState) -> MyEnum {
         let my_enum = MyEnum::c(());
 

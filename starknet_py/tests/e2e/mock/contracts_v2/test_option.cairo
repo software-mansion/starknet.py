@@ -8,12 +8,12 @@ mod HelloStarknet {
     #[storage]
     struct Storage {}
 
-    #[external]
+    #[external(v0)]
     fn receive_and_send_option_struct(self: @ContractState, option_struct: OptionStruct) -> OptionStruct {
         option_struct
     }
 
-    #[external]
+    #[external(v0)]
     fn get_option_struct(self: @ContractState) -> OptionStruct {
         let option_struct = OptionStruct {
             first_field: 1,
@@ -25,7 +25,7 @@ mod HelloStarknet {
         option_struct
     }
 
-    #[external]
+    #[external(v0)]
     fn get_empty_option(self: @ContractState) -> Option::<()> {
         Option::Some(())
     }
