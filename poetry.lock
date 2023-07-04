@@ -474,13 +474,13 @@ files = [
 
 [[package]]
 name = "cairo-lang"
-version = "0.12.0a0"
+version = "0.12.0"
 description = "Compiler and runner for the Cairo language"
 category = "dev"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "cairo-lang-0.12.0a0.zip", hash = "sha256:4dac7f0a0a7f4c013ad5e7e6fb01cfc67e53a0ba9f98b4b6c93c254851600c41"},
+    {file = "cairo-lang-0.12.0.zip", hash = "sha256:9a02a079116e8595387beff46e82779fe43152269752063f6969742ee27ef105"},
 ]
 
 [package.dependencies]
@@ -3047,18 +3047,18 @@ test = ["pytest"]
 
 [[package]]
 name = "starknet-devnet"
-version = "0.5.5a0"
+version = "0.5.5"
 description = "A local testnet for Starknet"
 category = "dev"
 optional = false
 python-versions = ">=3.9,<3.10"
 files = [
-    {file = "starknet_devnet-0.5.5a0-py3-none-any.whl", hash = "sha256:2abb100aaf0a887cd843eaaebafa0fdea7dac01d05c12956611abeb5b59c242b"},
-    {file = "starknet_devnet-0.5.5a0.tar.gz", hash = "sha256:c10031fb573fc266571b3864d330d71afc679e24c03b7a3120455df687b9ebff"},
+    {file = "starknet_devnet-0.5.5-py3-none-any.whl", hash = "sha256:1c7710c887fe4c36f620297f9ac1c39b1ebaa8809e7b982089d09de274e67a2f"},
+    {file = "starknet_devnet-0.5.5.tar.gz", hash = "sha256:ccaae99ce84921f680dc6cabb6632d492860d202d154c08ff62414aab7678f97"},
 ]
 
 [package.dependencies]
-cairo-lang = "0.12.0a0"
+cairo-lang = "0.12.0"
 cloudpickle = ">=2.1.0,<2.2.0"
 crypto-cpp-py = ">=1.4.0,<1.5.0"
 Flask = {version = ">=2.0.3,<2.1.0", extras = ["async"]}
@@ -3510,4 +3510,4 @@ docs = ["enum-tools", "furo", "sphinx"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8, <3.12"
-content-hash = "928aaa39e24724dd29692ff7e63b238ce86fc06a81d5d39cb879d5f98580e9ea"
+content-hash = "473c9f688b689df3c67b451dc34c1b55b2981f54545ee1c1fae9a2debb9fc8c2"
