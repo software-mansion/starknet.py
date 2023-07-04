@@ -11,12 +11,12 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 @pytest.mark.parametrize(
     "contract_source, expected_class_hash", [
-        ("balance_compiled.json", 0x48ffaec133112e9976dbfb19d013698ec2cb28ebdf228de854cce33ab88ee0e),
-        ("map_compiled.json", 0x262ff2219291b8f04462791d46d8c0e74b1f3ea1c23906e64a7adcc3a24e243),
-        ("erc20_compiled.json", 0x5e04060ca7b540caf66caaed610288d26716bf838b55d6653147edfb2004bab),
-        ("oz_proxy_compiled.json", 0x6d4b67a038d80d1f2cb986fb21d25e5adfc4948fab5c8535944e1e4200bc862),
-        ("argent_proxy_compiled.json", 0x535e1fc9f47e6dce91aa03cd15db1fff03a6b9907c0a5788a6f2c8d3919327c),
-        ("universal_deployer_compiled.json", 0x6f38fb91ddbf325a0625533576bb6f6eafd9341868a9ec3faa4b01ce6c4f4dc),
+        ("balance_compiled.json", 0xf6c57433d98d26b9add810effadd20fac9c9e716efc882e509cd016d3a1c71),
+        ("map_compiled.json", 0x4472f76ad0241ef47087cb55e6a414a7d66619a2b77e80bc9e8e79939fd6337),
+        ("erc20_compiled.json", 0x1d3507676871860a57ff982bb323b7208430441d42b7792a67793f14618086b),
+        ("oz_proxy_compiled.json", 0x746e3066bc46bd8019c37a37690107278ebec55020fb1b81e4f98c05fc15af9),
+        ("argent_proxy_compiled.json", 0x401d1875f49ad9f2e833f74841db03cebf8eeaa767ed31736049a3eeef7fa7f),
+        ("universal_deployer_compiled.json", 0x1cd10148443965964701fd22dc252b92027ac429e61e792f9cef6771db52444),
         ("precompiled/oz_proxy_address_0.8.1_compiled.json", 0x413C36C287CB410D42F9E531563F68AC60A2913B5053608D640FB9B643ACFE6),
     ]
 )
