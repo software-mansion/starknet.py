@@ -120,7 +120,7 @@ jobs:
         with:
           repository: starkware-libs/cairo
           persist-credentials: false
-          ref: v2.0.0-rc5
+          ref: v2.0.0
           path: cairo
 
       - name: Cache rust dependencies
