@@ -6,7 +6,7 @@ import pytest
 
 from starknet_py.common import create_sierra_compiled_contract
 from starknet_py.contract import Contract, DeclareResult
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V1_DIR, MAX_FEE
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V2_DIR, MAX_FEE
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
@@ -16,7 +16,7 @@ async def test_declare_deploy(
     cairo1_minimal_contract_class_hash: int,
 ):
     compiled_contract = read_contract(
-        "minimal_contract_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
+        "minimal_contract_compiled.json", directory=CONTRACTS_COMPILED_V2_DIR
     )
 
     declare_result = DeclareResult(
@@ -39,7 +39,7 @@ async def test_declare_deploy(
 @pytest.mark.asyncio
 async def test_throws_on_wrong_abi(account, cairo1_minimal_contract_class_hash: int):
     compiled_contract = read_contract(
-        "minimal_contract_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
+        "minimal_contract_compiled.json", directory=CONTRACTS_COMPILED_V2_DIR
     )
 
     declare_result = DeclareResult(
@@ -69,7 +69,7 @@ async def test_throws_on_wrong_abi(account, cairo1_minimal_contract_class_hash: 
 @pytest.mark.asyncio
 async def test_deploy_contract_flow(account, cairo1_hello_starknet_class_hash: int):
     compiled_contract = read_contract(
-        "hello_starknet_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
+        "hello_starknet_compiled.json", directory=CONTRACTS_COMPILED_V2_DIR
     )
     abi = create_sierra_compiled_contract(compiled_contract=compiled_contract).abi
 

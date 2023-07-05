@@ -16,7 +16,7 @@ from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import (
-    CONTRACTS_COMPILED_V1_DIR,
+    CONTRACTS_COMPILED_V2_DIR,
     CONTRACTS_DIR,
     MAX_FEE,
 )
@@ -45,10 +45,10 @@ def sierra_minimal_compiled_contract_and_class_hash() -> Tuple[str, int]:
     Returns minimal contract compiled to sierra and its compiled class hash.
     """
     compiled_contract = read_contract(
-        "minimal_contract_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
+        "minimal_contract_compiled.json", directory=CONTRACTS_COMPILED_V2_DIR
     )
     compiled_contract_casm = read_contract(
-        "minimal_contract_compiled.casm", directory=CONTRACTS_COMPILED_V1_DIR
+        "minimal_contract_compiled.casm", directory=CONTRACTS_COMPILED_V2_DIR
     )
     return (
         compiled_contract,
@@ -115,7 +115,7 @@ async def deploy_v1_contract(
     :returns: Instance of the deployed contract.
     """
     contract_sierra = read_contract(
-        contract_file_name + "_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
+        contract_file_name + "_compiled.json", directory=CONTRACTS_COMPILED_V2_DIR
     )
     sierra_compiled_contract = create_sierra_compiled_contract(
         compiled_contract=contract_sierra

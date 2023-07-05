@@ -10,7 +10,7 @@ from starknet_py.net.models.transaction import (
     Invoke,
     InvokeSchema,
 )
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V1_DIR
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V2_DIR
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
@@ -41,7 +41,7 @@ def test_declare_compress_program(balance_contract):
 
 compiled_contract = read_contract("erc20_compiled.json")
 sierra_compiled_contract = read_contract(
-    "minimal_contract_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
+    "minimal_contract_compiled.json", directory=CONTRACTS_COMPILED_V2_DIR
 )
 
 

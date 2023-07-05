@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V1_DIR
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V2_DIR
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
@@ -17,7 +17,7 @@ async def test_simple_deploy_cairo1(account, cairo1_erc20_class_hash):
     # docs: end
 
     compiled_contract = read_contract(
-        "erc20_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
+        "erc20_compiled.json", directory=CONTRACTS_COMPILED_V2_DIR
     )
     class_hash = cairo1_erc20_class_hash
 
