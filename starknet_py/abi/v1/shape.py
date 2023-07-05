@@ -1,9 +1,18 @@
+from __future__ import annotations
+
 from typing import List, Literal, Optional, TypedDict, Union
 
-ENUM_ENTRY = "enum"
 STRUCT_ENTRY = "struct"
-FUNCTION_ENTRY = "function"
 EVENT_ENTRY = "event"
+FUNCTION_ENTRY = "function"
+ENUM_ENTRY = "enum"
+CONSTRUCTOR_ENTRY = "constructor"
+L1_HANDLER_ENTRY = "l1_handler"
+IMPL_ENTRY = "impl"
+INTERFACE_ENTRY = "interface"
+
+DATA_KIND = "data"
+NESTED_KIND = "nested"
 
 
 class TypeDict(TypedDict):
@@ -31,10 +40,37 @@ class FunctionDict(FunctionBaseDict):
     type: Literal["function"]
 
 
-class EventDict(TypedDict):
+class ConstructorDict(TypedDict):
+    type: Literal["constructor"]
     name: str
-    type: Literal["event"]
     inputs: List[TypedParameterDict]
+
+
+class L1HandlerDict(FunctionBaseDict):
+    type: Literal["l1_handler"]
+
+
+class EventDict(TypedDict):
+    type: Literal["event"]
+    name: str
+
+
+class EventStructMemberDict(TypedParameterDict):
+    kind: Literal["data"]
+
+
+class EventStructDict(EventDict):
+    kind: Literal["struct"]
+    members: List[EventStructMemberDict]
+
+
+class EventEnumVariantDict(TypedParameterDict):
+    kind: Literal["nested"]
+
+
+class EventEnumDict(EventDict):
+    kind: Literal["enum"]
+    variants: List[EventEnumVariantDict]
 
 
 class EnumDict(TypedDict):
@@ -43,5 +79,26 @@ class EnumDict(TypedDict):
     variants: List[TypedParameterDict]
 
 
-AbiDictEntry = Union[StructDict, FunctionDict, EventDict, EnumDict]
+class ImplDict(TypedDict):
+    type: Literal["impl"]
+    name: str
+    interface_name: str
+
+
+class InterfaceDict(TypedDict):
+    type: Literal["interface"]
+    name: str
+    items: AbiDictList
+
+
+AbiDictEntry = Union[
+    StructDict,
+    FunctionDict,
+    EventDict,
+    EnumDict,
+    ConstructorDict,
+    L1HandlerDict,
+    ImplDict,
+    InterfaceDict,
+]
 AbiDictList = List[AbiDictEntry]
