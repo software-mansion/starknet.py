@@ -115,7 +115,7 @@ class InterfaceAbiEntrySchema(Schema):
     items = fields.List(
         fields.Nested(
             FunctionAbiEntrySchema(), data_key="items", required=True
-        )  # TODO: f"{__name__}.ContractAbiEntrySchema"
+        )  # TODO (#0): f"{__name__}.ContractAbiEntrySchema"
     )
 
 

@@ -4,7 +4,7 @@ import dataclasses
 import json
 from dataclasses import dataclass
 from functools import cached_property
-from typing import Dict, List, Optional, Tuple, TypeVar, Union, cast
+from typing import Dict, List, Optional, Tuple, TypeVar, Union
 
 from marshmallow import ValidationError
 
@@ -419,23 +419,27 @@ class ContractFunction:
         self.account = account
 
         if abi["type"] == L1_HANDLER_ENTRY:
+            assert not isinstance(contract_data.parsed_abi, AbiV1)
             function = contract_data.parsed_abi.l1_handler
         elif interface_name is None:
             function = contract_data.parsed_abi.functions.get(name)
         else:
+            assert isinstance(contract_data.parsed_abi, AbiV2)
             interface = contract_data.parsed_abi.interfaces[
                 interface_name
-            ]  # TODO: duplicate functions in different interfaces
-            # TODO: pass interface instead of interface name
+            ]  # TODO (#0): duplicate functions in different interfaces
+            # TODO (#0): pass interface instead of interface name
             function = interface.items[name]
 
         assert function is not None
 
-        self._payload_transformer = (
-            serializer_for_function_v1(function)
-            if cairo_version == 1
-            else serializer_for_function(function)
-        )
+        if cairo_version == 1:
+            assert not isinstance(function, Abi.Function) and function is not None
+            self._payload_transformer = serializer_for_function_v1(function)
+
+        else:
+            assert isinstance(function, Abi.Function) and function is not None
+            self._payload_transformer = serializer_for_function(function)
 
     def prepare(
         self,
@@ -804,7 +808,7 @@ class Contract:
             if (
                 abi_entry["type"] == INTERFACE_ENTRY
                 and abi_entry["name"] in implemented_interfaces
-            ):  # TODO: save information about impl <-> interface
+            ):  # TODO (#0): save information about impl <-> interface
                 for item in abi_entry["items"]:
                     name = item["name"]
                     repository[name] = ContractFunction(

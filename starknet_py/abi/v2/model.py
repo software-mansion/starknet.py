@@ -62,7 +62,7 @@ class Abi:
         name: str
         items: OrderedDict[
             str, Abi.Function
-        ]  # TODO: I suppose only functions can be defined in the interface?
+        ]  # TODO (#0): I suppose only functions can be defined in the interface?
 
     @dataclass
     class Impl:
@@ -80,7 +80,7 @@ class Abi:
     functions: Dict[str, Function]  #: Functions defined by the class.
     events: Dict[str, Union[EventStruct, EventEnum]]  #: Events defined by the class
     constructor: Optional[
-        Function
+        Constructor
     ]  #: Contract's constructor. It is None if class doesn't define one.
     l1_handler: Optional[
         Function

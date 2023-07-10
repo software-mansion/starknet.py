@@ -37,6 +37,7 @@ async def declare_deploy_hello2(account) -> Tuple[DeclareResult, DeployResult]:
 
 
 @pytest_asyncio.fixture(scope="package", name="contract")
+# pylint: disable=redefined-outer-name
 async def hello2_contract(declare_deploy_hello2) -> Contract:
     _, deploy_result = declare_deploy_hello2
     return deploy_result.deployed_contract
@@ -145,7 +146,8 @@ async def test_cairo2_(contract):
     assert storage1 == user1["address"]
     assert storage2 == user1["is_claimed"]
 
-    # TODO: Complex mapping - https://docs.starknet.io/documentation/architecture_and_concepts/Contracts/contract-storage/
+    # TODO (#0): Complex mapping
+    #  https://docs.starknet.io/documentation/architecture_and_concepts/Contracts/contract-storage/
 
 
 @pytest.mark.asyncio

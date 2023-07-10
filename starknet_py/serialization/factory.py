@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import OrderedDict
-from typing import Dict, List
+from typing import Dict, List, Union
 
 from starknet_py.abi.model import Abi
 from starknet_py.abi.v1.model import Abi as AbiV1
@@ -172,7 +172,7 @@ def serializer_for_function(abi_function: Abi.Function) -> FunctionSerialization
 
 
 def serializer_for_function_v1(
-    abi_function: AbiV1.Function,
+    abi_function: Union[AbiV1.Function, AbiV2.Function],
 ) -> FunctionSerializationAdapter:
     """
     Create FunctionSerializationAdapter for serializing function inputs and deserializing function outputs.

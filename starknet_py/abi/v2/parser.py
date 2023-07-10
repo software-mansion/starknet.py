@@ -5,7 +5,7 @@ import json
 import os
 from collections import OrderedDict, defaultdict
 from pathlib import Path
-from typing import DefaultDict, Dict, List, Optional, Tuple, Union, cast
+from typing import DefaultDict, Dict, List, Optional, Tuple, TypeVar, Union, cast
 
 from marshmallow import EXCLUDE
 
@@ -22,6 +22,8 @@ from starknet_py.abi.v2.shape import (
     STRUCT_ENTRY,
     ConstructorDict,
     EventDict,
+    EventEnumVariantDict,
+    EventStructMemberDict,
     FunctionDict,
     ImplDict,
     InterfaceDict,
@@ -89,6 +91,7 @@ class AbiParser:
         events: Dict[str, Abi.Event] = {}
         for name, event in events_dict.items():
             events[name] = self._parse_event(event)
+            assert self._type_parser is not None
             self._type_parser.add_defined_type(events[name])
 
         functions_dict = cast(
@@ -120,9 +123,15 @@ class AbiParser:
             defined_structures=structures,
             defined_enums=enums,
             constructor=(
-                self._parse_constructor(constructors[0]) if constructors else None
+                self._parse_constructor(cast(ConstructorDict, constructors[0]))
+                if constructors
+                else None
             ),
-            l1_handler=(self._parse_function(l1_handlers[0]) if l1_handlers else None),
+            l1_handler=(
+                self._parse_function(cast(FunctionDict, l1_handlers[0]))
+                if l1_handlers
+                else None
+            ),
             functions={
                 name: self._parse_function(entry)
                 for name, entry in functions_dict.items()
@@ -237,8 +246,12 @@ class AbiParser:
             variants=self._parse_members(event["variants"], event["name"]),
         )
 
+    TypedParam = TypeVar(
+        "TypedParam", TypedParameterDict, EventStructMemberDict, EventEnumVariantDict
+    )
+
     def _parse_members(
-        self, params: List[TypedParameterDict], entity_name: str
+        self, params: List[TypedParam], entity_name: str
     ) -> OrderedDict[str, CairoType]:
         # Without cast, it complains that 'Type "TypedParameterDict" cannot be assigned to type "T@_group_by_name"'
         members = AbiParser._group_by_entry_name(cast(List[Dict], params), entity_name)

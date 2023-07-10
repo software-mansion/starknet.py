@@ -135,7 +135,7 @@ class Client(ABC):
     async def wait_for_tx(
         self,
         tx_hash: Hash,
-        wait_for_accept: Optional[bool] = False,
+        wait_for_accept: Optional[bool] = False,  # pylint: disable=unused-argument
         check_interval=5,
     ) -> Tuple[int, TransactionStatus]:
         # pylint: disable=too-many-branches
@@ -167,7 +167,7 @@ class Client(ABC):
                     raise TransactionRejectedError(
                         message=result.rejection_reason,
                     )
-                elif status == TransactionStatus.NOT_RECEIVED:
+                if status == TransactionStatus.NOT_RECEIVED:
                     if not first_run:
                         raise TransactionNotReceivedError()
                 elif status != TransactionStatus.RECEIVED:
