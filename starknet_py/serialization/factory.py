@@ -5,6 +5,7 @@ from typing import Dict, List
 
 from starknet_py.abi.model import Abi
 from starknet_py.abi.v1.model import Abi as AbiV1
+from starknet_py.abi.v2.model import Abi as AbiV2
 from starknet_py.cairo.data_types import (
     ArrayType,
     BoolType,
@@ -182,4 +183,13 @@ def serializer_for_function_v1(
     return FunctionSerializationAdapterV1(
         inputs_serializer=serializer_for_payload(abi_function.inputs),
         outputs_deserializer=serializer_for_outputs(abi_function.outputs),
+    )
+
+
+def serializer_for_constructor_v2(
+    abi_function: AbiV2.Constructor,
+) -> FunctionSerializationAdapter:
+    return FunctionSerializationAdapterV1(
+        inputs_serializer=serializer_for_payload(abi_function.inputs),
+        outputs_deserializer=serializer_for_outputs([]),
     )

@@ -12,6 +12,14 @@ from starknet_py.abi.model import Abi
 from starknet_py.abi.parser import AbiParser
 from starknet_py.abi.v1.model import Abi as AbiV1
 from starknet_py.abi.v1.parser import AbiParser as AbiV1Parser
+from starknet_py.abi.v2.model import Abi as AbiV2
+from starknet_py.abi.v2.parser import AbiParser as AbiV2Parser
+from starknet_py.abi.v2.shape import (
+    FUNCTION_ENTRY,
+    IMPL_ENTRY,
+    INTERFACE_ENTRY,
+    L1_HANDLER_ENTRY,
+)
 from starknet_py.common import (
     create_casm_class,
     create_compiled_contract,
@@ -37,7 +45,10 @@ from starknet_py.serialization.factory import serializer_for_function_v1
 from starknet_py.serialization.function_serialization_adapter import (
     FunctionSerializationAdapter,
 )
-from starknet_py.utils.contructor_args_translator import translate_constructor_args
+from starknet_py.utils.contructor_args_translator import (
+    _is_abi_v2,
+    translate_constructor_args,
+)
 from starknet_py.utils.sync import add_sync_methods
 
 ABI = list
@@ -56,13 +67,15 @@ class ContractData:
     cairo_version: int
 
     @cached_property
-    def parsed_abi(self) -> Union[Abi, AbiV1]:
+    def parsed_abi(self) -> Union[Abi, AbiV1, AbiV2]:
         """
         Abi parsed into proper dataclass.
 
         :return: Abi
         """
         if self.cairo_version == 1:
+            if _is_abi_v2(self.abi):
+                return AbiV2Parser(self.abi).parse()
             return AbiV1Parser(self.abi).parse()
         return AbiParser(self.abi).parse()
 
@@ -394,6 +407,8 @@ class ContractFunction:
         client: Client,
         account: Optional[BaseAccount],
         cairo_version: int = 0,
+        *,
+        interface_name: Optional[str] = None,
     ):
         # pylint: disable=too-many-arguments
         self.name = name
@@ -402,14 +417,24 @@ class ContractFunction:
         self.contract_data = contract_data
         self.client = client
         self.account = account
+
+        if abi["type"] == L1_HANDLER_ENTRY:
+            function = contract_data.parsed_abi.l1_handler
+        elif interface_name is None:
+            function = contract_data.parsed_abi.functions.get(name)
+        else:
+            interface = contract_data.parsed_abi.interfaces[
+                interface_name
+            ]  # TODO: duplicate functions in different interfaces
+            # TODO: pass interface instead of interface name
+            function = interface.items[name]
+
+        assert function is not None
+
         self._payload_transformer = (
-            serializer_for_function_v1(
-                cast(AbiV1, contract_data.parsed_abi).functions[name]
-            )
+            serializer_for_function_v1(function)
             if cairo_version == 1
-            else serializer_for_function(
-                cast(Abi, contract_data.parsed_abi).functions[name]
-            )
+            else serializer_for_function(function)
         )
 
     def prepare(
@@ -758,20 +783,39 @@ class Contract:
         cairo_version: int = 0,
     ) -> FunctionsRepository:
         repository = {}
+        implemented_interfaces = [
+            entry["interface_name"]
+            for entry in contract_data.abi
+            if entry["type"] == IMPL_ENTRY
+        ]
 
         for abi_entry in contract_data.abi:
-            if abi_entry["type"] != "function":
-                continue
+            if abi_entry["type"] in [FUNCTION_ENTRY, L1_HANDLER_ENTRY]:
+                name = abi_entry["name"]
+                repository[name] = ContractFunction(
+                    name=name,
+                    abi=abi_entry,
+                    contract_data=contract_data,
+                    client=client,
+                    account=account,
+                    cairo_version=cairo_version,
+                )
 
-            name = abi_entry["name"]
-            repository[name] = ContractFunction(
-                name=name,
-                abi=abi_entry,
-                contract_data=contract_data,
-                client=client,
-                account=account,
-                cairo_version=cairo_version,
-            )
+            if (
+                abi_entry["type"] == INTERFACE_ENTRY
+                and abi_entry["name"] in implemented_interfaces
+            ):  # TODO: save information about impl <-> interface
+                for item in abi_entry["items"]:
+                    name = item["name"]
+                    repository[name] = ContractFunction(
+                        name=name,
+                        abi=item,
+                        contract_data=contract_data,
+                        client=client,
+                        account=account,
+                        cairo_version=cairo_version,
+                        interface_name=abi_entry["name"],
+                    )
 
         return repository
 
