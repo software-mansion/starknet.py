@@ -137,7 +137,7 @@ class Client(ABC):
         self,
         tx_hash: Hash,
         wait_for_accept: Optional[bool] = None,  # pylint: disable=unused-argument
-        check_interval: float =5,
+        check_interval: float = 5,
         retries: int = 200,
     ) -> Tuple[int, TransactionStatus]:
         # pylint: disable=too-many-branches
@@ -147,8 +147,8 @@ class Client(ABC):
         :param tx_hash: Transaction's hash.
         :param wait_for_accept:
             .. deprecated:: 0.17.0
-                Parameter `wait_for_accept` and `PENDING` status have been deprecated - if a transaction is accepted,
-                it goes straight into ACCEPTED_ON_L2 status.
+                Parameter `wait_for_accept` has been deprecated - since Starknet 0.12.0, transactions in a PENDING
+                block have status ACCEPTED_ON_L2.
         :param check_interval: Defines interval between checks.
         :param retries: Defines how many times the transaction is checked until an error is thrown.
         :return: Tuple containing block number and transaction status.
@@ -159,8 +159,8 @@ class Client(ABC):
             raise ValueError("Argument retries has to be greater than 0.")
         if wait_for_accept is not None:
             warnings.warn(
-                "Parameter `wait_for_accept` and `PENDING` status have been deprecated - if a transaction is accepted, "
-                "it goes straight into ACCEPTED_ON_L2 status."
+                "Parameter `wait_for_accept` has been deprecated - since Starknet 0.12.0, transactions in a PENDING"
+                " block have status ACCEPTED_ON_L2."
             )
 
         while True:
