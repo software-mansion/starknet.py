@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import asyncio
+import warnings
 from abc import ABC, abstractmethod
 from typing import List, Optional, Tuple, Union
 
-from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     BlockStateUpdate,
     BlockTransactionTraces,
@@ -135,7 +135,7 @@ class Client(ABC):
     async def wait_for_tx(
         self,
         tx_hash: Hash,
-        wait_for_accept: Optional[bool] = False,  # pylint: disable=unused-argument
+        wait_for_accept: Optional[bool] = None,  # pylint: disable=unused-argument
         check_interval=5,
     ) -> Tuple[int, TransactionStatus]:
         # pylint: disable=too-many-branches
@@ -143,13 +143,20 @@ class Client(ABC):
         Awaits for transaction to get accepted or at least pending by polling its status.
 
         :param tx_hash: Transaction's hash.
-        :param wait_for_accept: If true waits for at least ACCEPTED_ON_L2 status, otherwise waits for at least PENDING.
-            Defaults to false
+        :param wait_for_accept:
+            .. deprecated:: 0.17.0
+                Parameter `wait_for_accept` and `PENDING` status have been deprecated - if a transaction is accepted,
+                it goes straight into ACCEPTED_ON_L2 status.
         :param check_interval: Defines interval between checks.
         :return: Tuple containing block number and transaction status.
         """
         if check_interval <= 0:
             raise ValueError("Argument check_interval has to be greater than 0.")
+        if wait_for_accept is not None:
+            warnings.warn(
+                "Parameter `wait_for_accept` and `PENDING` status have been deprecated - if a transaction is accepted, "
+                "it goes straight into ACCEPTED_ON_L2 status."
+            )
 
         first_run = True
         try:
@@ -180,12 +187,6 @@ class Client(ABC):
                 await asyncio.sleep(check_interval)
         except asyncio.CancelledError as exc:
             raise TransactionNotReceivedError from exc
-        except ClientError as exc:
-            if "Transaction hash not found" in exc.message:
-                raise ClientError(
-                    "Nodes can't access pending transactions, try using parameter 'wait_for_accept=True'."
-                ) from exc
-            raise exc
 
     @abstractmethod
     async def estimate_fee(

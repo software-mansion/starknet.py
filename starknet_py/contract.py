@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import dataclasses
 import json
+import warnings
 from dataclasses import dataclass
 from functools import cached_property
 from typing import Dict, List, Optional, Tuple, TypeVar, Union
@@ -115,17 +116,21 @@ class SentTransaction:
 
     async def wait_for_acceptance(
         self: TypeSentTransaction,
-        wait_for_accept: Optional[bool] = False,
+        wait_for_accept: Optional[bool] = None,
         check_interval=5,
     ) -> TypeSentTransaction:
         """
-        Waits for transaction to be accepted on chain. By default, returns when status is ``PENDING`` -
-        use ``wait_for_accept`` to wait till ``ACCEPTED`` status.
+        Waits for transaction to be accepted on chain till ``ACCEPTED`` status.
         Returns a new SentTransaction instance, **does not mutate original instance**.
         """
+        if wait_for_accept is not None:
+            warnings.warn(
+                "Parameter `wait_for_accept` and `PENDING` status have been deprecated - if a transaction is accepted, "
+                "it goes straight into ACCEPTED_ON_L2 status."
+            )
+
         block_number, status = await self._client.wait_for_tx(
             self.hash,
-            wait_for_accept=wait_for_accept,
             check_interval=check_interval,
         )
         return dataclasses.replace(
