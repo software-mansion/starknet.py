@@ -118,7 +118,7 @@ class SentTransaction:
         self: TypeSentTransaction,
         wait_for_accept: Optional[bool] = None,
         check_interval: int = 5,
-        retries: int = 200
+        retries: int = 200,
     ) -> TypeSentTransaction:
         """
         Waits for transaction to be accepted on chain till ``ACCEPTED`` status.

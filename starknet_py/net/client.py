@@ -137,7 +137,7 @@ class Client(ABC):
         tx_hash: Hash,
         wait_for_accept: Optional[bool] = None,  # pylint: disable=unused-argument
         check_interval: int = 5,
-        retries: int = 200
+        retries: int = 200,
     ) -> Tuple[int, TransactionStatus]:
         # pylint: disable=too-many-branches
         """
