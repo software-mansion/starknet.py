@@ -109,7 +109,7 @@ jobs:
         run: |
           poetry run poe compile_contracts
 
-      # ====================== CAIRO SETUP ====================== #
+      # ====================== CAIRO v1 SETUP ====================== #
 
       - name: Install rust
         run: |
@@ -120,7 +120,7 @@ jobs:
         with:
           repository: starkware-libs/cairo
           persist-credentials: false
-          ref: v2.0.0
+          ref: v1.1.0
           path: cairo
 
       - name: Cache rust dependencies
@@ -164,6 +164,60 @@ jobs:
         if: steps.cache-contracts-v1.outputs.cache-hit != 'true'
         run: |
           poetry run poe compile_contracts_v1
+
+      - name: Upload contracts
+        uses: actions/upload-artifact@v3
+        with:
+          name: contract-artifacts
+          path: starknet_py/tests/e2e/mock/
+
+      # ====================== CAIRO v2 SETUP ====================== #
+
+      - name: Clone Cairo1 compiler repository
+        uses: actions/checkout@v3
+        with:
+          repository: starkware-libs/cairo
+          persist-credentials: false
+          ref: v2.0.0
+          path: cairo
+
+      - name: Cache rust dependencies
+        id: cache-rust
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Build compiler
+        if: steps.cache-rust.outputs.cache-hit != 'true'
+        working-directory: ./cairo
+        run: |
+          cargo build
+
+      - name: Build starknet-compile
+        working-directory: ./cairo
+        run: |
+          cargo run --bin starknet-compile -- --version
+          cargo run --bin starknet-sierra-compile -- --version
+
+      # ====================== CONTRACTS v2 ====================== #
+
+      - name: Cache Cairo2 contracts
+        id: cache-contracts-v2
+        uses: actions/cache@v3
+        with:
+          path: starknet_py/tests/e2e/mock/contracts_compiled_v2
+          key: ${{ runner.os }}-contracts-v2-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v2', 'poetry.lock') }}
+
+      - name: Compile Cairo2 contracts
+        if: steps.cache-contracts-v2.outputs.cache-hit != 'true'
+        run: |
+          poetry run poe compile_contracts_v2
 
       - name: Upload contracts
         uses: actions/upload-artifact@v3
