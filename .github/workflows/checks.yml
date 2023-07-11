@@ -123,7 +123,20 @@ jobs:
           ref: v1.1.0
           path: cairo
 
+      - name: Cache rust dependencies
+        id: cache-rust
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-v1-${{ hashFiles('**/Cargo.lock') }}
+
       - name: Build compiler
+        if: steps.cache-rust.outputs.cache-hit != 'true'
         working-directory: ./cairo
         run: |
           cargo build
@@ -163,7 +176,7 @@ jobs:
           path: cairo
 
       - name: Cache rust dependencies
-        id: cache-rust
+        id: cache-rust-v2
         uses: actions/cache@v3
         with:
           path: |
@@ -172,10 +185,10 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-v2-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Build compiler
-        if: steps.cache-rust.outputs.cache-hit != 'true'
+        if: steps.cache-rust-v2.outputs.cache-hit != 'true'
         working-directory: ./cairo
         run: |
           cargo build
