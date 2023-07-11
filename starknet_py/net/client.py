@@ -136,7 +136,8 @@ class Client(ABC):
         self,
         tx_hash: Hash,
         wait_for_accept: Optional[bool] = None,  # pylint: disable=unused-argument
-        check_interval=5,
+        check_interval: int = 5,
+        retries: int = 200
     ) -> Tuple[int, TransactionStatus]:
         # pylint: disable=too-many-branches
         """
@@ -148,6 +149,7 @@ class Client(ABC):
                 Parameter `wait_for_accept` and `PENDING` status have been deprecated - if a transaction is accepted,
                 it goes straight into ACCEPTED_ON_L2 status.
         :param check_interval: Defines interval between checks.
+        :param retries: Defines how many times the transaction is checked until an error is thrown
         :return: Tuple containing block number and transaction status.
         """
         if check_interval <= 0:
@@ -158,7 +160,6 @@ class Client(ABC):
                 "it goes straight into ACCEPTED_ON_L2 status."
             )
 
-        first_run = True
         try:
             while True:
                 result = await self.get_transaction_receipt(tx_hash=tx_hash)
@@ -174,16 +175,15 @@ class Client(ABC):
                     raise TransactionRejectedError(
                         message=result.rejection_reason,
                     )
-                if status == TransactionStatus.NOT_RECEIVED:
-                    if not first_run:
-                        raise TransactionNotReceivedError()
+                if status == TransactionStatus.NOT_RECEIVED and retries == 0:
+                    raise TransactionNotReceivedError()
                 elif status != TransactionStatus.RECEIVED:
                     # This will never get executed with current possible transactions statuses
                     raise TransactionFailedError(
                         message=result.rejection_reason,
                     )
 
-                first_run = False
+                retries -= 1
                 await asyncio.sleep(check_interval)
         except asyncio.CancelledError as exc:
             raise TransactionNotReceivedError from exc

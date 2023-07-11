@@ -117,7 +117,8 @@ class SentTransaction:
     async def wait_for_acceptance(
         self: TypeSentTransaction,
         wait_for_accept: Optional[bool] = None,
-        check_interval=5,
+        check_interval: int = 5,
+        retries: int = 200
     ) -> TypeSentTransaction:
         """
         Waits for transaction to be accepted on chain till ``ACCEPTED`` status.
@@ -132,6 +133,7 @@ class SentTransaction:
         block_number, status = await self._client.wait_for_tx(
             self.hash,
             check_interval=check_interval,
+            retries=retries,
         )
         return dataclasses.replace(
             self,
