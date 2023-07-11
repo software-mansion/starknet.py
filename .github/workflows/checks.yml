@@ -109,6 +109,12 @@ jobs:
         run: |
           poetry run poe compile_contracts
 
+      - name: Upload contracts
+        uses: actions/upload-artifact@v3
+        with:
+          name: contract-artifacts
+          path: starknet_py/tests/e2e/mock/
+
       # ====================== CAIRO SETUP ====================== #
 
       - name: Install rust
@@ -165,6 +171,12 @@ jobs:
         python-version: [ "3.8", "3.9", "3.10", "3.11" ]
     steps:
       - uses: actions/checkout@v3
+
+      - name: Download contracts
+        uses: actions/download-artifact@v3
+        with:
+          name: contract-artifacts
+          path: starknet_py/tests/e2e/mock/
 
       - uses: actions/setup-python@v4
         with:
@@ -229,6 +241,12 @@ jobs:
         python-version: [ "3.8", "3.9", "3.10", "3.11" ]
     steps:
       - uses: actions/checkout@v3
+
+      - name: Download contracts
+        uses: actions/download-artifact@v3
+        with:
+          name: contract-artifacts
+          path: starknet_py/tests/e2e/mock/
 
       - uses: actions/setup-python@v4
         with:
@@ -310,6 +328,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Download contracts
+        uses: actions/download-artifact@v3
+        with:
+          name: contract-artifacts
+          path: starknet_py/tests/e2e/mock/
+
       - uses: actions/setup-python@v4
         with:
           python-version: "3.9"
@@ -369,6 +393,12 @@ jobs:
         python-version: [ "3.8", "3.9", "3.10", "3.11" ]
     steps:
       - uses: actions/checkout@v3
+
+      - name: Download contracts
+        uses: actions/download-artifact@v3
+        with:
+          name: contract-artifacts
+          path: starknet_py/tests/e2e/mock/
 
       - uses: actions/setup-python@v4
         with:
