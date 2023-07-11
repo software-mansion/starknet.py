@@ -62,7 +62,7 @@ class Abi:
         name: str
         items: OrderedDict[
             str, Abi.Function
-        ]  # TODO (#0): I suppose only functions can be defined in the interface?
+        ]  # Only functions can be defined in the interface
 
     @dataclass
     class Impl:

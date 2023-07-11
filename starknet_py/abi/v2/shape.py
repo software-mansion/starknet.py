@@ -91,7 +91,7 @@ class ImplDict(TypedDict):
 class InterfaceDict(TypedDict):
     type: Literal["interface"]
     name: str
-    items: List[FunctionDict]  # TODO (#0): AbiDictList ?
+    items: List[FunctionDict]  # for now only functions can be defined here
 
 
 AbiDictEntry = Union[

@@ -2,9 +2,7 @@ from __future__ import annotations
 
 import dataclasses
 import json
-import os
 from collections import OrderedDict, defaultdict
-from pathlib import Path
 from typing import DefaultDict, Dict, List, Optional, Tuple, TypeVar, Union, cast
 
 from marshmallow import EXCLUDE
@@ -55,7 +53,6 @@ class AbiParser:
 
         :param abi_list: Contract's ABI as a list of dictionaries.
         """
-        # abi_list = self._prepend_abi_with_core_structures(abi_list)
         abi = [
             ContractAbiEntrySchema().load(entry, unknown=EXCLUDE) for entry in abi_list
         ]
@@ -65,13 +62,6 @@ class AbiParser:
             grouped[entry["type"]].append(entry)
 
         self._grouped = grouped
-
-    @staticmethod
-    def _prepend_abi_with_core_structures(abi_list: List[Dict]) -> List[Dict]:
-        core_structures = (
-            Path(os.path.dirname(__file__)) / "core_structures.json"
-        ).read_text("utf-8")
-        return json.loads(core_structures)["abi"] + abi_list
 
     def parse(self) -> Abi:
         """

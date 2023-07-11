@@ -425,10 +425,7 @@ class ContractFunction:
             function = contract_data.parsed_abi.functions.get(name)
         else:
             assert isinstance(contract_data.parsed_abi, AbiV2)
-            interface = contract_data.parsed_abi.interfaces[
-                interface_name
-            ]  # TODO (#0): duplicate functions in different interfaces
-            # TODO (#0): pass interface instead of interface name
+            interface = contract_data.parsed_abi.interfaces[interface_name]
             function = interface.items[name]
 
         assert function is not None
@@ -808,7 +805,7 @@ class Contract:
             if (
                 abi_entry["type"] == INTERFACE_ENTRY
                 and abi_entry["name"] in implemented_interfaces
-            ):  # TODO (#0): save information about impl <-> interface
+            ):
                 for item in abi_entry["items"]:
                     name = item["name"]
                     repository[name] = ContractFunction(

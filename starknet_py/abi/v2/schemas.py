@@ -111,11 +111,10 @@ class InterfaceAbiEntrySchema(Schema):
     type = fields.Constant(INTERFACE_ENTRY, data_key="type", required=True)
     name = fields.String(data_key="name", required=True)
 
-    # string passed to avoid forward reference
     items = fields.List(
         fields.Nested(
             FunctionAbiEntrySchema(), data_key="items", required=True
-        )  # TODO (#0): f"{__name__}.ContractAbiEntrySchema"
+        )  # for now only functions can be defined here
     )
 
 
