@@ -175,8 +175,9 @@ class Client(ABC):
                     raise TransactionRejectedError(
                         message=result.rejection_reason,
                     )
-                if status == TransactionStatus.NOT_RECEIVED and retries == 0:
-                    raise TransactionNotReceivedError()
+                if status == TransactionStatus.NOT_RECEIVED:
+                    if retries == 0:
+                        raise TransactionNotReceivedError()
                 elif status != TransactionStatus.RECEIVED:
                     # This will never get executed with current possible transactions statuses
                     raise TransactionFailedError(
