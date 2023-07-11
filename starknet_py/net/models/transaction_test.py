@@ -39,12 +39,6 @@ def test_declare_compress_program(balance_contract):
     assert deserialized.contract_class == contract_class
 
 
-compiled_contract = read_contract("erc20_compiled.json")
-sierra_compiled_contract = read_contract(
-    "minimal_contract_compiled.json", directory=CONTRACTS_COMPILED_V2_DIR
-)
-
-
 def test_serialize_deserialize_invoke():
     data = {
         "sender_address": "0x1",
