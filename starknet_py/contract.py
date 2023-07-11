@@ -126,8 +126,8 @@ class SentTransaction:
         """
         if wait_for_accept is not None:
             warnings.warn(
-                "Parameter `wait_for_accept` and `PENDING` status have been deprecated - if a transaction is accepted, "
-                "it goes straight into ACCEPTED_ON_L2 status."
+                "Parameter `wait_for_accept` has been deprecated - since Starknet 0.12.0, transactions in a PENDING"
+                " block have status ACCEPTED_ON_L2."
             )
 
         block_number, status = await self._client.wait_for_tx(
