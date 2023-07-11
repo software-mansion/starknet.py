@@ -1,6 +1,5 @@
 import pytest
 
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V2_DIR
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
@@ -11,12 +10,8 @@ async def test_simple_declare_and_deploy(account):
     from starknet_py.contract import Contract
 
     # docs: end
-    compiled_contract = read_contract(
-        "account_compiled.json", directory=CONTRACTS_COMPILED_V2_DIR
-    )
-    compiled_contract_casm = read_contract(
-        "account_compiled.casm", directory=CONTRACTS_COMPILED_V2_DIR
-    )
+    compiled_contract = read_contract("account_compiled.json")
+    compiled_contract_casm = read_contract("account_compiled.casm")
     constructor_args = {"public_key_": 0x123}
 
     # docs: start

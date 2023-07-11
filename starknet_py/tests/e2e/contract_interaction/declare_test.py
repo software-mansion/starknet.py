@@ -1,18 +1,14 @@
 import pytest
 
 from starknet_py.contract import Contract
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V2_DIR, MAX_FEE
+from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
 @pytest.mark.asyncio
 async def test_contract_declare(account):
-    compiled_contract = read_contract(
-        "test_contract_compiled.json", directory=CONTRACTS_COMPILED_V2_DIR
-    )
-    compiled_contract_casm = read_contract(
-        "test_contract_compiled.casm", directory=CONTRACTS_COMPILED_V2_DIR
-    )
+    compiled_contract = read_contract("test_contract_compiled.json")
+    compiled_contract_casm = read_contract("test_contract_compiled.casm")
 
     declare_result = await Contract.declare(
         account,
@@ -31,9 +27,7 @@ async def test_contract_declare(account):
 async def test_throws_when_cairo1_without_compiled_contract_casm_and_casm_class_hash(
     account,
 ):
-    compiled_contract = read_contract(
-        "erc20_compiled.json", directory=CONTRACTS_COMPILED_V2_DIR
-    )
+    compiled_contract = read_contract("erc20_compiled.json")
 
     with pytest.raises(
         ValueError,

@@ -30,7 +30,7 @@ from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models.transaction import DeclareV2
 from starknet_py.net.udc_deployer.deployer import Deployer
-from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_DIR, MAX_FEE
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 from starknet_py.transaction_errors import (
     TransactionNotReceivedError,
@@ -155,7 +155,10 @@ async def test_estimate_fee_invoke(account, contract_address):
 @pytest.mark.asyncio
 async def test_estimate_fee_declare(account):
     declare_tx = await account.sign_declare_transaction(
-        compiled_contract=read_contract("map_compiled.json"), max_fee=MAX_FEE
+        compiled_contract=read_contract(
+            "map_compiled.json", directory=CONTRACTS_COMPILED_DIR
+        ),
+        max_fee=MAX_FEE,
     )
     declare_tx = await account.sign_for_fee_estimate(declare_tx)
     estimate_fee = await account.client.estimate_fee(tx=declare_tx)
@@ -187,7 +190,10 @@ async def test_estimate_fee_for_multiple_transactions(
     invoke_tx = await account.sign_for_fee_estimate(invoke_tx)
 
     declare_tx = await account.sign_declare_transaction(
-        compiled_contract=read_contract("map_compiled.json"), max_fee=MAX_FEE
+        compiled_contract=read_contract(
+            "map_compiled.json", directory=CONTRACTS_COMPILED_DIR
+        ),
+        max_fee=MAX_FEE,
     )
     declare_tx = dataclasses.replace(declare_tx, nonce=invoke_tx.nonce + 1)
     declare_tx = await account.sign_for_fee_estimate(declare_tx)
