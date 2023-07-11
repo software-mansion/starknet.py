@@ -154,6 +154,8 @@ class Client(ABC):
         """
         if check_interval <= 0:
             raise ValueError("Argument check_interval has to be greater than 0.")
+        if retries <= 0:
+            raise ValueError("Argument retries has to be greater than 0.")
         if wait_for_accept is not None:
             warnings.warn(
                 "Parameter `wait_for_accept` and `PENDING` status have been deprecated - if a transaction is accepted, "
