@@ -77,9 +77,9 @@ RPC related changes:
 
 Deprecations
 ------------
-.. currentmodule:: starknet_py
+.. currentmodule:: starknet_py.net.client
 
-1. `wait_for_accept` parameter in :meth:`net.client.Client.wait_for_tx` and :meth:`contract.SentTransaction.wait_for_acceptance` have been deprecated.
+1. `wait_for_accept` parameter in :meth:`Client.wait_for_tx` and :meth:`SentTransaction.wait_for_acceptance` have been deprecated.
 
 
 Bugfixes

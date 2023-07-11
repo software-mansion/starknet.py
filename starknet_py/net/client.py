@@ -149,7 +149,7 @@ class Client(ABC):
                 Parameter `wait_for_accept` and `PENDING` status have been deprecated - if a transaction is accepted,
                 it goes straight into ACCEPTED_ON_L2 status.
         :param check_interval: Defines interval between checks.
-        :param retries: Defines how many times the transaction is checked until an error is thrown
+        :param retries: Defines how many times the transaction is checked until an error is thrown.
         :return: Tuple containing block number and transaction status.
         """
         if check_interval <= 0:
