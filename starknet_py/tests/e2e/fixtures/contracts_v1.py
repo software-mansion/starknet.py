@@ -25,7 +25,7 @@ async def declare_cairo1_contract(
     assert declare_tx.version == 2
 
     resp = await account.client.declare(declare_tx)
-    await account.client.wait_for_tx(resp.transaction_hash, wait_for_accept=True)
+    await account.client.wait_for_tx(resp.transaction_hash)
 
     return resp.class_hash, resp.transaction_hash
 
