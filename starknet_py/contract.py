@@ -117,7 +117,7 @@ class SentTransaction:
     async def wait_for_acceptance(
         self: TypeSentTransaction,
         wait_for_accept: Optional[bool] = None,
-        check_interval: int = 5,
+        check_interval: float = 5,
         retries: int = 200,
     ) -> TypeSentTransaction:
         """

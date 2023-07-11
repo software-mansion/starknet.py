@@ -5,6 +5,7 @@ import warnings
 from abc import ABC, abstractmethod
 from typing import List, Optional, Tuple, Union
 
+from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     BlockStateUpdate,
     BlockTransactionTraces,
@@ -136,7 +137,7 @@ class Client(ABC):
         self,
         tx_hash: Hash,
         wait_for_accept: Optional[bool] = None,  # pylint: disable=unused-argument
-        check_interval: int = 5,
+        check_interval: float =5,
         retries: int = 200,
     ) -> Tuple[int, TransactionStatus]:
         # pylint: disable=too-many-branches
@@ -162,8 +163,8 @@ class Client(ABC):
                 "it goes straight into ACCEPTED_ON_L2 status."
             )
 
-        try:
-            while True:
+        while True:
+            try:
                 result = await self.get_transaction_receipt(tx_hash=tx_hash)
                 status = result.status
 
@@ -188,8 +189,13 @@ class Client(ABC):
 
                 retries -= 1
                 await asyncio.sleep(check_interval)
-        except asyncio.CancelledError as exc:
-            raise TransactionNotReceivedError from exc
+            except asyncio.CancelledError as exc:
+                raise TransactionNotReceivedError from exc
+            except ClientError as exc:
+                if "Transaction hash not found" in exc.message:
+                    retries -= 1
+                else:
+                    raise exc
 
     @abstractmethod
     async def estimate_fee(
