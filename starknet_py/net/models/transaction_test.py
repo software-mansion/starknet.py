@@ -10,8 +10,6 @@ from starknet_py.net.models.transaction import (
     Invoke,
     InvokeSchema,
 )
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V2_DIR
-from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
 def test_declare_compress_program(balance_contract):

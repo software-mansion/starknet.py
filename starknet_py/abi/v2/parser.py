@@ -29,7 +29,7 @@ from starknet_py.abi.v2.shape import (
     InterfaceDict,
     TypedParameterDict,
 )
-from starknet_py.cairo.data_types import CairoType, EnumType, StructType
+from starknet_py.cairo.data_types import CairoType, EnumType, EventType, StructType
 from starknet_py.cairo.v2.type_parser import TypeParser
 
 
@@ -88,7 +88,7 @@ class AbiParser:
             ),
         )
 
-        events: Dict[str, Abi.Event] = {}
+        events: Dict[str, EventType] = {}
         for name, event in events_dict.items():
             events[name] = self._parse_event(event)
             assert self._type_parser is not None
@@ -235,15 +235,14 @@ class AbiParser:
             inputs=self._parse_members(constructor["inputs"], constructor["name"]),
         )
 
-    def _parse_event(self, event: EventDict) -> Abi.Event:
-        if event["kind"] == STRUCT_ENTRY:
-            return Abi.EventStruct(
-                name=event["name"],
-                members=self._parse_members(event["members"], event["name"]),
-            )
-        return Abi.EventEnum(
+    def _parse_event(self, event: EventDict) -> EventType:
+        members_ = event.get("members", event.get("variants"))
+        assert isinstance(members_, list)
+        return EventType(
             name=event["name"],
-            variants=self._parse_members(event["variants"], event["name"]),
+            types=self._parse_members(
+                cast(List[TypedParameterDict], members_), event["name"]
+            ),
         )
 
     TypedParam = TypeVar(

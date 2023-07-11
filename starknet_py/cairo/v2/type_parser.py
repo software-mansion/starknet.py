@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from typing import Dict, Union
 
-from starknet_py.abi.v2.model import Abi
 from starknet_py.abi.v2.parser_transformer import parse
 from starknet_py.cairo.data_types import (
     ArrayType,
     CairoType,
     EnumType,
+    EventType,
     OptionType,
     StructType,
     TypeIdentifier,
@@ -34,10 +34,10 @@ class TypeParser:
     Low level utility class for parsing Cairo types that can be used in external methods.
     """
 
-    defined_types: Dict[str, Union[StructType, EnumType, Abi.Event]]
+    defined_types: Dict[str, Union[StructType, EnumType, EventType]]
 
     def __init__(
-        self, defined_types: Dict[str, Union[StructType, EnumType, Abi.Event]]
+        self, defined_types: Dict[str, Union[StructType, EnumType, EventType]]
     ):
         """
         TypeParser constructor.
@@ -52,12 +52,12 @@ class TypeParser:
                 )
 
     def update_defined_types(
-        self, defined_types: Dict[str, Union[StructType, EnumType, Abi.Event]]
+        self, defined_types: Dict[str, Union[StructType, EnumType, EventType]]
     ) -> None:
         self.defined_types.update(defined_types)
 
     def add_defined_type(
-        self, defined_type: Union[StructType, EnumType, Abi.Event]
+        self, defined_type: Union[StructType, EnumType, EventType]
     ) -> None:
         self.defined_types.update({defined_type.name: defined_type})
 

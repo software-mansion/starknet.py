@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, List, Optional, OrderedDict, Union
 
-from starknet_py.cairo.data_types import CairoType, EnumType, StructType
+from starknet_py.cairo.data_types import CairoType, EnumType, EventType, StructType
 
 
 @dataclass
@@ -78,7 +78,7 @@ class Abi:
     ]  #: Abi of structures defined by the class.
     defined_enums: Dict[str, EnumType]  #: Abi of enums defined by the class.
     functions: Dict[str, Function]  #: Functions defined by the class.
-    events: Dict[str, Union[EventStruct, EventEnum]]  #: Events defined by the class
+    events: Dict[str, EventType]  #: Events defined by the class
     constructor: Optional[
         Constructor
     ]  #: Contract's constructor. It is None if class doesn't define one.
