@@ -109,63 +109,11 @@ jobs:
         run: |
           poetry run poe compile_contracts
 
-      # ====================== CAIRO v1 SETUP ====================== #
+      # ====================== CAIRO SETUP ====================== #
 
       - name: Install rust
         run: |
           curl https://sh.rustup.rs -sSf | sh -s -- -y
-
-#      - name: Clone Cairo1 compiler repository
-#        uses: actions/checkout@v3
-#        with:
-#          repository: starkware-libs/cairo
-#          persist-credentials: false
-#          ref: v1.1.0
-#          path: cairo
-#
-#      - name: Cache rust dependencies
-#        id: cache-rust
-#        uses: actions/cache@v3
-#        with:
-#          path: |
-#            ~/.cargo/bin/
-#            ~/.cargo/registry/index/
-#            ~/.cargo/registry/cache/
-#            ~/.cargo/git/db/
-#            target/
-#          key: ${{ runner.os }}-cargo-v1-${{ hashFiles('**/Cargo.lock') }}
-#
-#      - name: Build compiler
-#        if: steps.cache-rust.outputs.cache-hit != 'true'
-#        working-directory: ./cairo
-#        run: |
-#          cargo build
-#
-#      - name: Build starknet-compile
-#        working-directory: ./cairo
-#        run: |
-#          cargo run --bin starknet-compile -- --version
-#          cargo run --bin starknet-sierra-compile -- --version
-#
-#      - name: Create manifest file
-#        run: |
-#          readlink -f cairo/Cargo.toml >> starknet_py/tests/e2e/manifest-path
-#
-#      # ====================== CONTRACTS v1 ====================== #
-#
-#      - name: Cache Cairo1 contracts
-#        id: cache-contracts-v1
-#        uses: actions/cache@v3
-#        with:
-#          path: starknet_py/tests/e2e/mock/contracts_compiled_v1
-#          key: ${{ runner.os }}-contracts-v1-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v1', 'poetry.lock') }}
-#
-#      - name: Compile Cairo1 contracts
-#        if: steps.cache-contracts-v1.outputs.cache-hit != 'true'
-#        run: |
-#          poetry run poe compile_contracts_v1
-
-      # ====================== CAIRO v2 SETUP ====================== #
 
       - name: Clone Cairo1 compiler repository
         uses: actions/checkout@v3
@@ -176,7 +124,7 @@ jobs:
           path: cairo
 
       - name: Cache rust dependencies
-        id: cache-rust-v2
+        id: cache-rust
         uses: actions/cache@v3
         with:
           path: |
@@ -185,10 +133,10 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-cargo-v2-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Build compiler
-        if: steps.cache-rust-v2.outputs.cache-hit != 'true'
+        if: steps.cache-rust.outputs.cache-hit != 'true'
         working-directory: ./cairo
         run: |
           cargo build
@@ -202,26 +150,6 @@ jobs:
       - name: Create manifest file
         run: |
           readlink -f cairo/Cargo.toml >> starknet_py/tests/e2e/manifest-path
-
-      # ====================== CONTRACTS v2 ====================== #
-
-      - name: Cache Cairo2 contracts
-        id: cache-contracts-v2
-        uses: actions/cache@v3
-        with:
-          path: starknet_py/tests/e2e/mock/contracts_compiled_v2
-          key: ${{ runner.os }}-contracts-v2-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v2', 'poetry.lock') }}
-
-      - name: Compile Cairo2 contracts
-        if: steps.cache-contracts-v2.outputs.cache-hit != 'true'
-        run: |
-          poetry run poe compile_contracts_v2
-
-      - name: Upload contracts
-        uses: actions/upload-artifact@v3
-        with:
-          name: contract-artifacts
-          path: starknet_py/tests/e2e/mock/
 
   # ---------------------------------------------------------- #
   # ........................RUN-TESTS......................... #
@@ -237,12 +165,6 @@ jobs:
         python-version: [ "3.8", "3.9", "3.10", "3.11" ]
     steps:
       - uses: actions/checkout@v3
-
-      - name: Download contracts
-        uses: actions/download-artifact@v3
-        with:
-          name: contract-artifacts
-          path: starknet_py/tests/e2e/mock/
 
       - uses: actions/setup-python@v4
         with:
@@ -307,11 +229,6 @@ jobs:
         python-version: [ "3.8", "3.9", "3.10", "3.11" ]
     steps:
       - uses: actions/checkout@v3
-
-      - uses: actions/download-artifact@v3
-        with:
-          name: contract-artifacts
-          path: starknet_py/tests/e2e/mock/
 
       - uses: actions/setup-python@v4
         with:
@@ -393,12 +310,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Download contracts
-        uses: actions/download-artifact@v3
-        with:
-          name: contract-artifacts
-          path: starknet_py/tests/e2e/mock/
-
       - uses: actions/setup-python@v4
         with:
           python-version: "3.9"
@@ -458,11 +369,6 @@ jobs:
         python-version: [ "3.8", "3.9", "3.10", "3.11" ]
     steps:
       - uses: actions/checkout@v3
-
-      - uses: actions/download-artifact@v3
-        with:
-          name: contract-artifacts
-          path: starknet_py/tests/e2e/mock/
 
       - uses: actions/setup-python@v4
         with:
