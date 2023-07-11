@@ -74,6 +74,14 @@ RPC related changes:
 
 9. :class:`StarknetChainId` changed from ``Enum`` to ``IntEnum``.
 
+
+Deprecations
+------------
+.. currentmodule:: starknet_py
+
+1. `wait_for_accept` parameter in :meth:`net.client.Client.wait_for_tx` and :meth:`contract.Contract.wait_for_acceptance` have been deprecated.
+
+
 Bugfixes
 --------
 
