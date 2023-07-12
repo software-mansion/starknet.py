@@ -167,6 +167,8 @@ class Client(ABC):
             try:
                 result = await self.get_transaction_receipt(tx_hash=tx_hash)
                 status = result.status
+                if status is None:
+                    raise ClientError(f"Unknown status in transaction {tx_hash}.")
 
                 if status in (
                     TransactionStatus.ACCEPTED_ON_L1,
@@ -192,10 +194,14 @@ class Client(ABC):
             except asyncio.CancelledError as exc:
                 raise TransactionNotReceivedError from exc
             except ClientError as exc:
-                if "Transaction hash not found" in exc.message:
-                    retries -= 1
-                else:
+                if (
+                    "Transaction hash not found" not in exc.message
+                    and "Unknown status" not in exc.message
+                ):
                     raise exc
+                retries -= 1
+                if retries == 0:
+                    raise TransactionNotReceivedError from exc
 
     @abstractmethod
     async def estimate_fee(
