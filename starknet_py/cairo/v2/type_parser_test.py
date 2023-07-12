@@ -9,7 +9,6 @@ from starknet_py.cairo.data_types import (
     FeltType,
     StructType,
     TupleType,
-    TypeIdentifier,
     UnitType,
 )
 from starknet_py.cairo.v2.type_parser import TypeParser, UnknownCairoTypeError
@@ -63,20 +62,20 @@ wrapped_felt_type = StructType("WrappedFelt", OrderedDict(value=FeltType()))
         ("core::array::Array::<Uint256>", ArrayType(uint256_type)),
         (
             "(Uint256, WrappedFelt)",
-            TupleType([TypeIdentifier("Uint256"), TypeIdentifier("WrappedFelt")]),
+            TupleType([uint256_type, wrapped_felt_type]),
         ),
         (
             "(Uint256, (WrappedFelt, (core::array::Array::<core::felt252>, core::array::Array::<WrappedFelt>)))",
             TupleType(
                 [
-                    TypeIdentifier("Uint256"),
+                    uint256_type,
                     TupleType(
                         [
-                            TypeIdentifier("WrappedFelt"),
+                            wrapped_felt_type,
                             TupleType(
                                 [
                                     ArrayType(FeltType()),
-                                    ArrayType(TypeIdentifier("WrappedFelt")),
+                                    ArrayType(wrapped_felt_type),
                                 ]
                             ),
                         ]

@@ -8,6 +8,7 @@ from starknet_py.cairo.data_types import (
     EnumType,
     EventType,
     StructType,
+    TypeIdentifier,
 )
 
 
@@ -67,4 +68,7 @@ class TypeParser:
         :param type_string: type to parse.
         """
         parsed = parse(type_string, self.defined_types)
+        if isinstance(parsed, TypeIdentifier):
+            if parsed.name not in self.defined_types:
+                raise UnknownCairoTypeError(type_string)
         return parsed
