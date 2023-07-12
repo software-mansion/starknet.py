@@ -69,6 +69,9 @@ class TypeParser:
         """
         parsed = parse(type_string, self.defined_types)
         if isinstance(parsed, TypeIdentifier):
-            if parsed.name not in self.defined_types:
-                raise UnknownCairoTypeError(type_string)
+            for defined_name in self.defined_types.keys():
+                if parsed.name == defined_name.split("<")[0].strip(":"):
+                    return self.defined_types[defined_name]
+            raise UnknownCairoTypeError(parsed.name)
+
         return parsed
