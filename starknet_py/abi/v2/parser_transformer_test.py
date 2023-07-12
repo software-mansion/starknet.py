@@ -6,4 +6,6 @@ from starknet_py.abi.v2.parser_transformer import ParserTransformer
 
 def test_default_parser_transformer():
     with pytest.raises(TypeError, match="Unable to parse tree node of type wrong."):
-        ParserTransformer().transform(Tree(data=Token("RULE", "wrong"), children=[]))
+        ParserTransformer(type_identifiers={}).transform(
+            Tree(data=Token("RULE", "wrong"), children=[])
+        )

@@ -4,11 +4,9 @@ from typing import Dict, Union
 
 from starknet_py.abi.v2.parser_transformer import parse
 from starknet_py.cairo.data_types import (
-    ArrayType,
     CairoType,
     EnumType,
     EventType,
-    OptionType,
     StructType,
     TypeIdentifier,
 )
@@ -69,26 +67,7 @@ class TypeParser:
 
         :param type_string: type to parse.
         """
-        parsed = parse(type_string)
-
-        if isinstance(parsed, TypeIdentifier):
-            return self._get_struct(parsed)
-
-        # TODO (#1079): add recursive support for iterables with structures (tuples?) #?
-        if isinstance(parsed, ArrayType):
-            inner_type_string = type_string[
-                type_string.find("<") + 1 : type_string.rfind(">")
-            ]
-            parsed.inner_type = self.parse_inline_type(
-                inner_type_string
-            )  # this if shouldn't be necessary ?
-
-        if isinstance(parsed, OptionType):
-            inner_type_string = type_string[
-                type_string.find("<") + 1 : type_string.rfind(">")
-            ]
-            parsed.type = self.parse_inline_type(inner_type_string)
-
+        parsed = parse(type_string, self.defined_types)
         return parsed
 
     def _get_struct(self, identifier: TypeIdentifier):

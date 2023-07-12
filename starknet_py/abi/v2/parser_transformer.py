@@ -61,6 +61,12 @@ class ParserTransformer(Transformer):
     Transforms the lark tree into CairoTypes.
     """
 
+    def __init__(self, type_identifiers: Optional[dict] = None) -> None:
+        if type_identifiers is None:
+            type_identifiers = {}
+        self.type_identifiers = type_identifiers
+        super(Transformer, self).__init__()
+
     # pylint: disable=no-self-use
 
     def __default__(self, data: str, children, meta):
@@ -129,6 +135,8 @@ class ParserTransformer(Transformer):
         We are interested only in the strings because a structure (or enum) name can be built from them.
         """
         name = "::".join(token for token in tokens if isinstance(token, str))
+        if name in self.type_identifiers:
+            return self.type_identifiers[name]
         return TypeIdentifier(name)
 
     def type_contract_address(self, _value: List[Any]) -> FeltType:
@@ -158,6 +166,7 @@ class ParserTransformer(Transformer):
 
 def parse(
     code: str,
+    type_identifiers,
 ) -> CairoType:
     """
     Parse the given string and return a CairoType.
@@ -169,6 +178,7 @@ def parse(
     )
     parsed_lark_tree = grammar_parser.parse(code)
 
-    cairo_type = ParserTransformer().transform(parsed_lark_tree)
+    parser_transformer = ParserTransformer(type_identifiers)
+    cairo_type = parser_transformer.transform(parsed_lark_tree)
 
     return cairo_type
