@@ -85,6 +85,8 @@ compile_contracts_v1 = "bash starknet_py/tests/e2e/mock/compile_contracts_v1.sh"
 compile_contracts_v2 = "bash starknet_py/tests/e2e/mock/compile_contracts_v2.sh"
 circular_imports_check.shell = "poetry run pytest circular.py"
 ci = ["lint", "format_check", "typecheck", "test_ci"]
+precommit.sequence = ["format", "lint", "typecheck"]
+precommit.ignore_fail = true
 
 [tool.poetry.build]
 generate-setup-file = true

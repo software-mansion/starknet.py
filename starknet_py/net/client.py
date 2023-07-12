@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import warnings
 from abc import ABC, abstractmethod
 from typing import List, Optional, Tuple, Union
 
@@ -135,27 +136,39 @@ class Client(ABC):
     async def wait_for_tx(
         self,
         tx_hash: Hash,
-        wait_for_accept: Optional[bool] = False,  # pylint: disable=unused-argument
-        check_interval=5,
+        wait_for_accept: Optional[bool] = None,  # pylint: disable=unused-argument
+        check_interval: float = 5,
+        retries: int = 200,
     ) -> Tuple[int, TransactionStatus]:
         # pylint: disable=too-many-branches
         """
         Awaits for transaction to get accepted or at least pending by polling its status.
 
         :param tx_hash: Transaction's hash.
-        :param wait_for_accept: If true waits for at least ACCEPTED_ON_L2 status, otherwise waits for at least PENDING.
-            Defaults to false
+        :param wait_for_accept:
+            .. deprecated:: 0.17.0
+                Parameter `wait_for_accept` has been deprecated - since Starknet 0.12.0, transactions in a PENDING
+                block have status ACCEPTED_ON_L2.
         :param check_interval: Defines interval between checks.
+        :param retries: Defines how many times the transaction is checked until an error is thrown.
         :return: Tuple containing block number and transaction status.
         """
         if check_interval <= 0:
             raise ValueError("Argument check_interval has to be greater than 0.")
+        if retries <= 0:
+            raise ValueError("Argument retries has to be greater than 0.")
+        if wait_for_accept is not None:
+            warnings.warn(
+                "Parameter `wait_for_accept` has been deprecated - since Starknet 0.12.0, transactions in a PENDING"
+                " block have status ACCEPTED_ON_L2."
+            )
 
-        first_run = True
-        try:
-            while True:
+        while True:
+            try:
                 result = await self.get_transaction_receipt(tx_hash=tx_hash)
                 status = result.status
+                if status is None:
+                    raise ClientError(f"Unknown status in transaction {tx_hash}.")
 
                 if status in (
                     TransactionStatus.ACCEPTED_ON_L1,
@@ -168,7 +181,7 @@ class Client(ABC):
                         message=result.rejection_reason,
                     )
                 if status == TransactionStatus.NOT_RECEIVED:
-                    if not first_run:
+                    if retries == 0:
                         raise TransactionNotReceivedError()
                 elif status != TransactionStatus.RECEIVED:
                     # This will never get executed with current possible transactions statuses
@@ -176,16 +189,19 @@ class Client(ABC):
                         message=result.rejection_reason,
                     )
 
-                first_run = False
+                retries -= 1
                 await asyncio.sleep(check_interval)
-        except asyncio.CancelledError as exc:
-            raise TransactionNotReceivedError from exc
-        except ClientError as exc:
-            if "Transaction hash not found" in exc.message:
-                raise ClientError(
-                    "Nodes can't access pending transactions, try using parameter 'wait_for_accept=True'."
-                ) from exc
-            raise exc
+            except asyncio.CancelledError as exc:
+                raise TransactionNotReceivedError from exc
+            except ClientError as exc:
+                if (
+                    "Transaction hash not found" not in exc.message
+                    and "Unknown status" not in exc.message
+                ):
+                    raise exc
+                retries -= 1
+                if retries == 0:
+                    raise TransactionNotReceivedError from exc
 
     @abstractmethod
     async def estimate_fee(

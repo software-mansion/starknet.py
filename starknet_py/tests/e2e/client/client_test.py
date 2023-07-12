@@ -369,9 +369,7 @@ async def test_wait_for_tx_cancelled(client, get_tx_receipt, request):
             type=TransactionType.INVOKE,
         )
         client = request.getfixturevalue(client)
-        task = asyncio.create_task(
-            client.wait_for_tx(tx_hash=0x1, wait_for_accept=True)
-        )
+        task = asyncio.create_task(client.wait_for_tx(tx_hash=0x1))
         await asyncio.sleep(1)
         task.cancel()
 

@@ -10,9 +10,7 @@ async def test_declare_tx(account, map_compiled_contract):
     )
     result = await account.client.declare(declare_tx)
 
-    await account.client.wait_for_tx(
-        tx_hash=result.transaction_hash, wait_for_accept=True
-    )
+    await account.client.wait_for_tx(tx_hash=result.transaction_hash)
 
 
 @pytest.mark.asyncio

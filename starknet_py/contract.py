@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import dataclasses
 import json
+import warnings
 from dataclasses import dataclass
 from functools import cached_property
 from typing import Dict, List, Optional, Tuple, TypeVar, Union
@@ -115,18 +116,24 @@ class SentTransaction:
 
     async def wait_for_acceptance(
         self: TypeSentTransaction,
-        wait_for_accept: Optional[bool] = False,
-        check_interval=5,
+        wait_for_accept: Optional[bool] = None,
+        check_interval: float = 5,
+        retries: int = 200,
     ) -> TypeSentTransaction:
         """
-        Waits for transaction to be accepted on chain. By default, returns when status is ``PENDING`` -
-        use ``wait_for_accept`` to wait till ``ACCEPTED`` status.
+        Waits for transaction to be accepted on chain till ``ACCEPTED`` status.
         Returns a new SentTransaction instance, **does not mutate original instance**.
         """
+        if wait_for_accept is not None:
+            warnings.warn(
+                "Parameter `wait_for_accept` has been deprecated - since Starknet 0.12.0, transactions in a PENDING"
+                " block have status ACCEPTED_ON_L2."
+            )
+
         block_number, status = await self._client.wait_for_tx(
             self.hash,
-            wait_for_accept=wait_for_accept,
             check_interval=check_interval,
+            retries=retries,
         )
         return dataclasses.replace(
             self,
