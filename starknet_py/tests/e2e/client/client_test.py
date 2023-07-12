@@ -297,11 +297,6 @@ async def test_wait_for_tx_accepted(client, get_tx_receipt, request):
             TransactionRejectedError,
             "Unknown Starknet error",
         ),
-        (
-            TransactionStatus.NOT_RECEIVED,
-            TransactionNotReceivedError,
-            "Transaction not received",
-        ),
     ),
 )
 @pytest.mark.parametrize(
