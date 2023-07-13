@@ -30,7 +30,7 @@ from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models.transaction import DeclareV2
 from starknet_py.net.udc_deployer.deployer import Deployer
-from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_DIR, MAX_FEE
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 from starknet_py.transaction_errors import (
     TransactionNotReceivedError,
@@ -155,7 +155,10 @@ async def test_estimate_fee_invoke(account, contract_address):
 @pytest.mark.asyncio
 async def test_estimate_fee_declare(account):
     declare_tx = await account.sign_declare_transaction(
-        compiled_contract=read_contract("map_compiled.json"), max_fee=MAX_FEE
+        compiled_contract=read_contract(
+            "map_compiled.json", directory=CONTRACTS_COMPILED_DIR
+        ),
+        max_fee=MAX_FEE,
     )
     declare_tx = await account.sign_for_fee_estimate(declare_tx)
     estimate_fee = await account.client.estimate_fee(tx=declare_tx)
@@ -187,7 +190,10 @@ async def test_estimate_fee_for_multiple_transactions(
     invoke_tx = await account.sign_for_fee_estimate(invoke_tx)
 
     declare_tx = await account.sign_declare_transaction(
-        compiled_contract=read_contract("map_compiled.json"), max_fee=MAX_FEE
+        compiled_contract=read_contract(
+            "map_compiled.json", directory=CONTRACTS_COMPILED_DIR
+        ),
+        max_fee=MAX_FEE,
     )
     declare_tx = dataclasses.replace(declare_tx, nonce=invoke_tx.nonce + 1)
     declare_tx = await account.sign_for_fee_estimate(declare_tx)
@@ -283,40 +289,6 @@ async def test_wait_for_tx_accepted(client, get_tx_receipt, request):
         assert tx_status == TransactionStatus.ACCEPTED_ON_L2
 
 
-@pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "client, get_tx_receipt",
-    [
-        (
-            "gateway_client",
-            "tx_receipt_gateway_path",
-        ),
-        (
-            "full_node_client",
-            "tx_receipt_full_node_path",
-        ),
-    ],
-)
-async def test_wait_for_tx_pending(client, get_tx_receipt, request):
-    get_tx_receipt = request.getfixturevalue(get_tx_receipt)
-
-    with patch(
-        get_tx_receipt,
-        AsyncMock(),
-    ) as mocked_receipt:
-        mocked_receipt.return_value = TransactionReceipt(
-            hash=0x1,
-            status=TransactionStatus.PENDING,
-            block_number=1,
-            type=TransactionType.INVOKE,
-        )
-        client = request.getfixturevalue(client)
-
-        block_number, tx_status = await client.wait_for_tx(tx_hash=0x1)
-        assert block_number == 1
-        assert tx_status == TransactionStatus.PENDING
-
-
 @pytest.mark.parametrize(
     "status, exception, exc_message",
     (
@@ -324,11 +296,6 @@ async def test_wait_for_tx_pending(client, get_tx_receipt, request):
             TransactionStatus.REJECTED,
             TransactionRejectedError,
             "Unknown Starknet error",
-        ),
-        (
-            TransactionStatus.NOT_RECEIVED,
-            TransactionNotReceivedError,
-            "Transaction not received",
         ),
     ),
 )
@@ -392,14 +359,12 @@ async def test_wait_for_tx_cancelled(client, get_tx_receipt, request):
     ) as mocked_receipt:
         mocked_receipt.return_value = TransactionReceipt(
             hash=0x1,
-            status=TransactionStatus.PENDING,
+            status=TransactionStatus.NOT_RECEIVED,
             block_number=1,
             type=TransactionType.INVOKE,
         )
         client = request.getfixturevalue(client)
-        task = asyncio.create_task(
-            client.wait_for_tx(tx_hash=0x1, wait_for_accept=True)
-        )
+        task = asyncio.create_task(client.wait_for_tx(tx_hash=0x1))
         await asyncio.sleep(1)
         task.cancel()
 

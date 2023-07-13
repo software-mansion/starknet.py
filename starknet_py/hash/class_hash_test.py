@@ -6,22 +6,23 @@ import pytest
 
 from starknet_py.common import create_contract_class
 from starknet_py.hash.class_hash import compute_class_hash
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_DIR
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
 @pytest.mark.parametrize(
     "contract_source, expected_class_hash", [
-        ("balance_compiled.json", 0xD267E6A11EED91056994AA6A89B20CA2FA989385E88429B57A9FDCE84C58E6),
-        ("map_compiled.json", 0x33DD7CD3C861824BB7E30669BCE71D80595FDF0D06AAE2B1760451B9EC34AD2),
-        ("erc20_compiled.json", 0x3C255A783732B0D710FC3CE03EE89278B7851136EE4BCAE44F7085E4262B216),
-        ("oz_proxy_compiled.json", 0x3B5E875B6ED7BBD0C5008EA8EA9845C44E30B0A203A4FB6460AA2535D37F390),
-        ("argent_proxy_compiled.json", 0x7A3B9A62DB488B69A8E7942EC50B369816E5107AF64E5063065A451BF0DFA25),
-        ("universal_deployer_compiled.json", 0x4569FFD48C2A3D455437C16DC843801FB896B1AF845BC8BC7BA83EBC4358B7F),
+        ("balance_compiled.json", 0xf6c57433d98d26b9add810effadd20fac9c9e716efc882e509cd016d3a1c71),
+        ("map_compiled.json", 0x4472f76ad0241ef47087cb55e6a414a7d66619a2b77e80bc9e8e79939fd6337),
+        ("erc20_compiled.json", 0x1d3507676871860a57ff982bb323b7208430441d42b7792a67793f14618086b),
+        ("oz_proxy_compiled.json", 0x746e3066bc46bd8019c37a37690107278ebec55020fb1b81e4f98c05fc15af9),
+        ("argent_proxy_compiled.json", 0x401d1875f49ad9f2e833f74841db03cebf8eeaa767ed31736049a3eeef7fa7f),
+        ("universal_deployer_compiled.json", 0x1cd10148443965964701fd22dc252b92027ac429e61e792f9cef6771db52444),
         ("precompiled/oz_proxy_address_0.8.1_compiled.json", 0x413C36C287CB410D42F9E531563F68AC60A2913B5053608D640FB9B643ACFE6),
     ]
 )
 def test_compute_class_hash(contract_source, expected_class_hash):
-    compiled_contract = read_contract(contract_source)
+    compiled_contract = read_contract(contract_source, directory=CONTRACTS_COMPILED_DIR)
     contract_class = create_contract_class(compiled_contract)
     initial_contract_class = copy.deepcopy(contract_class)
     class_hash = compute_class_hash(contract_class)

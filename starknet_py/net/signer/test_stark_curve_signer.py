@@ -4,9 +4,12 @@ from starknet_py.common import create_compiled_contract
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import Declare, DeployAccount, Invoke
 from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_DIR
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
-compiled_contract = read_contract("erc20_compiled.json")
+compiled_contract = read_contract(
+    "erc20_compiled.json", directory=CONTRACTS_COMPILED_DIR
+)
 
 
 @pytest.mark.parametrize(

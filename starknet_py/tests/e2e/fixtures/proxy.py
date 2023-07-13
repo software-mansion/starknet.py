@@ -6,7 +6,11 @@ import pytest_asyncio
 from starknet_py.contract import Contract, DeployResult
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.account import Account
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_PRECOMPILED_DIR, MAX_FEE
+from starknet_py.tests.e2e.fixtures.constants import (
+    CONTRACTS_COMPILED_DIR,
+    CONTRACTS_PRECOMPILED_DIR,
+    MAX_FEE,
+)
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
@@ -18,7 +22,7 @@ def compiled_proxy(request) -> str:
     """
     Returns source code of compiled proxy contract.
     """
-    return read_contract(request.param)
+    return read_contract(request.param, directory=CONTRACTS_COMPILED_DIR)
 
 
 @pytest.fixture(scope="session")
@@ -26,7 +30,9 @@ def custom_proxy() -> str:
     """
     Returns compiled source code of a custom proxy.
     """
-    return read_contract("oz_proxy_custom_compiled.json")
+    return read_contract(
+        "oz_proxy_custom_compiled.json", directory=CONTRACTS_COMPILED_DIR
+    )
 
 
 @pytest.fixture(
@@ -101,8 +107,12 @@ async def deploy_proxy_to_contract(
     """
     Declares a contract and deploys a proxy pointing to that contract.
     """
-    compiled_proxy = read_contract(compiled_proxy_name)
-    compiled_contract = read_contract(compiled_contract_name)
+    compiled_proxy = read_contract(
+        compiled_proxy_name, directory=CONTRACTS_COMPILED_DIR
+    )
+    compiled_contract = read_contract(
+        compiled_contract_name, directory=CONTRACTS_COMPILED_DIR
+    )
 
     declare_tx = await gateway_account.sign_declare_transaction(
         compiled_contract=compiled_contract, max_fee=MAX_FEE

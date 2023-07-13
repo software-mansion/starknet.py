@@ -3,24 +3,24 @@ import pytest
 
 from starknet_py.common import create_casm_class
 from starknet_py.hash.casm_class_hash import compute_casm_class_hash
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V1_DIR
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V2_DIR
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
 @pytest.mark.parametrize(
     "casm_contract_class_source, expected_casm_class_hash",
     [
-        ("account_compiled.casm", 0x2645C161601C2D406225B32954497ADA29BF14A19363BCD6071DF9F25EA0620),
-        ("erc20_compiled.casm", 0x18F95714044FD5408D3BF812BCD249DDEC098AB3CD201B7916170CFBFA59E05),
-        ("hello_starknet_compiled.casm", 0x2C895E2F0AED646E6DEC493287B9EAF4CADCE8983AD3D60164E15A7B1C35F54),
-        ("minimal_contract_compiled.casm", 0x46F2882281342DEA7694207216F95D925BA08EF4BE0CFF5E81E9057F49EF3C2),
-        ("test_contract_compiled.casm", 0x636E18EAA5730715FDF7A618C00CA03F6F18F324E22482FA97406F8A2336E0F),
-        ("token_bridge_compiled.casm", 0x4AFFA0C3F2CD95C4DE6B94EE483912562C1F7C253D719BF1A6925C5F737BE5A),
+        ("account_compiled.casm", 0x67f510792214d377fd1339f145d58620c8534d123c6a33784d1047a273fdc9b),
+        ("erc20_compiled.casm", 0x68f383ca6e44752d0c45daf0115bfff471c8b1d3a8cec64a025d12beb3b3880),
+        ("hello_starknet_compiled.casm", 0xdf4d3042eec107abe704619f13d92bbe01a58029311b7a1886b23dcbb4ea87),
+        ("minimal_contract_compiled.casm", 0x46f2882281342dea7694207216f95d925ba08ef4be0cff5e81e9057f49ef3c2),
+        ("test_contract_compiled.casm", 0x31945b2fcf27c7090d51e29ebdc5d9bf64f09860cf6c91e73cf7af54d444e5f),
+        ("token_bridge_compiled.casm", 0x6febc54bb2b1f4f05e5fb70ce6bb13beefea4c423d77fb8435f97ef761ca4e2),
     ],
 )
 def test_compute_casm_class_hash(casm_contract_class_source, expected_casm_class_hash):
     casm_contract_class_str = read_contract(
-        casm_contract_class_source, directory=CONTRACTS_COMPILED_V1_DIR
+        casm_contract_class_source, directory=CONTRACTS_COMPILED_V2_DIR
     )
 
     casm_class = create_casm_class(casm_contract_class_str)

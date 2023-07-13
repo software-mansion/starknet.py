@@ -11,6 +11,7 @@ from starknet_py.serialization.factory import (
     serializer_for_function,
 )
 from starknet_py.serialization.tuple_dataclass import TupleDataclass
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_DIR
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 dog = {"name": encode_shortstring("Cooper"), "species": encode_shortstring("dog")}
@@ -97,7 +98,9 @@ person_donald_serialized = [
     *dog_serialized,
 ]
 
-abi = json.loads(read_contract("complex_abi_abi.json"))
+abi = json.loads(
+    read_contract("complex_abi_abi.json", directory=CONTRACTS_COMPILED_DIR)
+)
 parsed_abi = AbiParser(abi).parse()
 
 

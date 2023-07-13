@@ -5,21 +5,10 @@ Migration guide
 0.17.0 Migration guide
 **********************
 
-.. currentmodule:: starknet_py.net.full_node_client
-
-:class:`FullNodeClient` RPC specification has been updated from `v0.3.0-rc1 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.3.0-rc1>`_ to `v0.3.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.3.0>`_.
-
-.. currentmodule:: starknet_py.contract
-
-Also, four methods were added to its interface:
-
-- :meth:`FullNodeClient.get_block_number`
-- :meth:`FullNodeClient.get_block_hash_and_number`
-- :meth:`FullNodeClient.get_chain_id`
-- :meth:`FullNodeClient.get_syncing_status`
+With Starknet 0.12.0, the ``PENDING`` transaction status has been removed.
 
 
-:class:`Contract` now *initially* supports contracts written in **Cairo1**.
+:class:`Contract` now supports contracts written in **Cairo1** in both old and new syntax.
 
 To create an instance of such contract, a keyword parameter ``cairo_version=1`` in the Contract constructor is required.
 
@@ -35,6 +24,20 @@ To create an instance of such contract, a keyword parameter ``cairo_version=1`` 
     As a result, :class:`GatewayClient` won't work and will eventually be removed. Consider migrating to :ref:`FullNodeClient`.
 
 
+.. currentmodule:: starknet_py.net.full_node_client
+
+:class:`FullNodeClient` RPC specification has been updated from `v0.3.0-rc1 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.3.0-rc1>`_ to `v0.3.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.3.0>`_.
+
+.. currentmodule:: starknet_py.contract
+
+Also, four methods were added to its interface:
+
+- :meth:`FullNodeClient.get_block_number`
+- :meth:`FullNodeClient.get_block_hash_and_number`
+- :meth:`FullNodeClient.get_chain_id`
+- :meth:`FullNodeClient.get_syncing_status`
+
+
 Breaking changes
 ----------------
 
@@ -43,6 +46,8 @@ Breaking changes
 .. currentmodule:: starknet_py.net.udc_deployer.deployer
 
 2. Removed deprecated ``Deployer.create_deployment_call`` and ``Deployer.create_deployment_call_raw`` in favor of :meth:`Deployer.create_contract_deployment` and :meth:`Deployer.create_contract_deployment_raw`.
+
+3. Removed ``PENDING`` transaction status.
 
 
 Minor changes
@@ -73,6 +78,18 @@ RPC related changes:
 .. currentmodule:: starknet_py.net.models
 
 9. :class:`StarknetChainId` changed from ``Enum`` to ``IntEnum``.
+
+.. currentmodule:: starknet_py.net.client
+
+10. :meth:`Client.wait_for_tx` has a new parameter ``retries`` describing the amount of retries before a time out when querying for a transaction.
+
+
+Deprecations
+------------
+.. currentmodule:: starknet_py.net.client
+
+1. `wait_for_accept` parameter in :meth:`Client.wait_for_tx` and :meth:`SentTransaction.wait_for_acceptance` has been deprecated.
+
 
 Bugfixes
 --------
