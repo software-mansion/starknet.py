@@ -202,6 +202,7 @@ class Client(ABC):
                 retries -= 1
                 if retries == 0:
                     raise TransactionNotReceivedError from exc
+                await asyncio.sleep(check_interval)
 
     @abstractmethod
     async def estimate_fee(
