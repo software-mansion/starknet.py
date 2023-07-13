@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "starknet-py"
-version = "0.17.0-alpha"
+version = "0.17.0"
 description = "A python SDK for Starknet"
 authors = ["Tomasz Rejowski <tomasz.rejowski@swmansion.com>", "Jakub Ptak <jakub.ptak@swmansion.com>"]
 include = ["starknet_py", "starknet_py/utils/crypto/libcrypto_c_exports.*"]
@@ -49,19 +49,23 @@ pytest-rerunfailures = "^11.1"
 
 
 [tool.poetry.group.py39-dev.dependencies]
-cairo-lang = { version = "^0.11.2", python= ">=3.9, <3.10" }
-starknet-devnet = {version = "0.5.4", python = ">=3.9,<3.10"}
+cairo-lang = { version = "0.12.0", python= ">=3.9, <3.10" }
+starknet-devnet = { version = "0.5.5", python= ">=3.9, <3.10" }
 
 [tool.poe.tasks]
 test.shell = "pytest -n auto -v --reruns 10 --only-rerun aiohttp.client_exceptions.ClientConnectorError --cov=starknet_py starknet_py"
 
-test_ci.shell = "coverage run -m pytest -v --reruns 5 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/core"
-test_ci_gateway.shell = "coverage run -m pytest --client=gateway -v --reruns 5 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/core"
-test_ci_full_node.shell = "coverage run -m pytest --client=full_node -v --reruns 5 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/core"
+test_ci = ["test_ci_gateway_v1", "test_ci_full_node_v1", "test_ci_gateway_v2", "test_ci_full_node_v2"]
+test_ci_gateway_v1.shell = "coverage run -m pytest --client=gateway --contract_dir=v1 -v --reruns 5 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/core"
+test_ci_full_node_v1.shell = "coverage run -m pytest --client=full_node --contract_dir=v1 -v --reruns 5 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/core"
+test_ci_gateway_v2.shell = "coverage run -m pytest --client=gateway --contract_dir=v2 -v --reruns 5 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/core"
+test_ci_full_node_v2.shell = "coverage run -m pytest --client=full_node --contract_dir=v2 -v --reruns 5 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/core"
 
-test_ci_docs.shell = "coverage run -m pytest -v --reruns 5 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py/tests/e2e/docs"
-test_ci_docs_gateway.shell = "coverage run -m pytest --client=gateway -v --reruns 5 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py/tests/e2e/docs"
-test_ci_docs_full_node.shell = "coverage run -m pytest --client=full_node -v --reruns 5 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py/tests/e2e/docs"
+test_ci_docs = ["test_ci_docs_gateway_v1", "test_ci_docs_full_node_v1", "test_ci_docs_gateway_v2", "test_ci_docs_full_node_v2"]
+test_ci_docs_gateway_v1.shell = "coverage run -m pytest --client=gateway --contract_dir=v1 -v --reruns 5 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py/tests/e2e/docs"
+test_ci_docs_full_node_v1.shell = "coverage run -m pytest --client=full_node --contract_dir=v1 -v --reruns 5 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py/tests/e2e/docs"
+test_ci_docs_gateway_v2.shell = "coverage run -m pytest --client=gateway --contract_dir=v2 -v --reruns 5 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py/tests/e2e/docs"
+test_ci_docs_full_node_v2.shell = "coverage run -m pytest --client=full_node --contract_dir=v2 -v --reruns 5 --only-rerun aiohttp.client_exceptions.ClientConnectorError starknet_py/tests/e2e/docs"
 
 test_unit.shell = "pytest -n auto -v starknet_py --ignore=starknet_py/tests/e2e"
 test_e2e.shell = "pytest -n auto -v starknet_py/tests/e2e --ignore=starknet_py/tests/e2e/docs"
@@ -78,8 +82,11 @@ format_diff.shell = "isort --diff . && black --diff ."
 typecheck = "pyright starknet_py"
 compile_contracts = "bash starknet_py/tests/e2e/mock/compile_contracts.sh"
 compile_contracts_v1 = "bash starknet_py/tests/e2e/mock/compile_contracts_v1.sh"
+compile_contracts_v2 = "bash starknet_py/tests/e2e/mock/compile_contracts_v2.sh"
 circular_imports_check.shell = "poetry run pytest circular.py"
 ci = ["lint", "format_check", "typecheck", "test_ci"]
+precommit.sequence = ["format", "lint", "typecheck"]
+precommit.ignore_fail = true
 
 [tool.poetry.build]
 generate-setup-file = true

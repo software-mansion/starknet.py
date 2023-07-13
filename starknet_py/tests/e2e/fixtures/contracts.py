@@ -16,7 +16,7 @@ from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import (
-    CONTRACTS_COMPILED_V1_DIR,
+    CONTRACTS_COMPILED_DIR,
     CONTRACTS_DIR,
     MAX_FEE,
 )
@@ -36,7 +36,7 @@ def map_compiled_contract() -> str:
     """
     Returns compiled map contract.
     """
-    return read_contract("map_compiled.json")
+    return read_contract("map_compiled.json", directory=CONTRACTS_COMPILED_DIR)
 
 
 @pytest.fixture(scope="package")
@@ -44,29 +44,8 @@ def sierra_minimal_compiled_contract_and_class_hash() -> Tuple[str, int]:
     """
     Returns minimal contract compiled to sierra and its compiled class hash.
     """
-    compiled_contract = read_contract(
-        "minimal_contract_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
-    )
-    compiled_contract_casm = read_contract(
-        "minimal_contract_compiled.casm", directory=CONTRACTS_COMPILED_V1_DIR
-    )
-    return (
-        compiled_contract,
-        compute_casm_class_hash(create_casm_class(compiled_contract_casm)),
-    )
-
-
-@pytest.fixture(scope="package")
-def another_sierra_minimal_compiled_contract_and_class_hash() -> Tuple[str, int]:
-    """
-    Returns minimal contract compiled to sierra and its compiled class hash.
-    """
-    compiled_contract = read_contract(
-        "another_minimal_contract_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
-    )
-    compiled_contract_casm = read_contract(
-        "another_minimal_contract_compiled.casm", directory=CONTRACTS_COMPILED_V1_DIR
-    )
+    compiled_contract = read_contract("minimal_contract_compiled.json")
+    compiled_contract_casm = read_contract("minimal_contract_compiled.casm")
     return (
         compiled_contract,
         compute_casm_class_hash(create_casm_class(compiled_contract_casm)),
@@ -78,7 +57,9 @@ def simple_storage_with_event_compiled_contract() -> str:
     """
     Returns compiled simple storage contract that emits an event.
     """
-    return read_contract("simple_storage_with_event_compiled.json")
+    return read_contract(
+        "simple_storage_with_event_compiled.json", directory=CONTRACTS_COMPILED_DIR
+    )
 
 
 @pytest.fixture(scope="package")
@@ -86,7 +67,7 @@ def erc20_compiled_contract() -> str:
     """
     Returns compiled erc20 contract.
     """
-    return read_contract("erc20_compiled.json")
+    return read_contract("erc20_compiled.json", directory=CONTRACTS_COMPILED_DIR)
 
 
 @pytest.fixture(scope="package")
@@ -94,7 +75,9 @@ def constructor_with_arguments_compiled_contract() -> str:
     """
     Returns compiled constructor_with_arguments contract.
     """
-    return read_contract("constructor_with_arguments_compiled.json")
+    return read_contract(
+        "constructor_with_arguments_compiled.json", directory=CONTRACTS_COMPILED_DIR
+    )
 
 
 @pytest.fixture(scope="package")
@@ -102,7 +85,9 @@ def constructor_without_arguments_compiled_contract() -> str:
     """
     Returns compiled constructor_without_arguments contract.
     """
-    return read_contract("constructor_without_arguments_compiled.json")
+    return read_contract(
+        "constructor_without_arguments_compiled.json", directory=CONTRACTS_COMPILED_DIR
+    )
 
 
 async def deploy_contract(account: BaseAccount, class_hash: int, abi: List) -> Contract:
@@ -131,9 +116,7 @@ async def deploy_v1_contract(
     :param calldata: Dict with constructor arguments (can be empty).
     :returns: Instance of the deployed contract.
     """
-    contract_sierra = read_contract(
-        contract_file_name + "_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
-    )
+    contract_sierra = read_contract(contract_file_name + "_compiled.json")
     sierra_compiled_contract = create_sierra_compiled_contract(
         compiled_contract=contract_sierra
     )
@@ -184,6 +167,20 @@ async def map_contract(
     """
     abi = create_compiled_contract(compiled_contract=map_compiled_contract).abi
     return await deploy_contract(gateway_account, map_class_hash, abi)
+
+
+@pytest_asyncio.fixture(scope="package")
+async def map_contract_declare_hash(
+    full_node_account: BaseAccount,
+    map_compiled_contract: str,
+):
+    declare_result = await Contract.declare(
+        account=full_node_account,
+        compiled_contract=map_compiled_contract,
+        max_fee=MAX_FEE,
+    )
+    await declare_result.wait_for_acceptance()
+    return declare_result.hash
 
 
 @pytest_asyncio.fixture(scope="function")
@@ -254,7 +251,7 @@ def fixture_balance_contract() -> str:
     """
     Returns compiled code of the balance.cairo contract.
     """
-    return read_contract("balance_compiled.json")
+    return read_contract("balance_compiled.json", directory=CONTRACTS_COMPILED_DIR)
 
 
 async def declare_account(account: BaseAccount, compiled_account_contract: str) -> int:
@@ -276,7 +273,9 @@ async def declare_account(account: BaseAccount, compiled_account_contract: str) 
 async def account_with_validate_deploy_class_hash(
     pre_deployed_account_with_validate_deploy: BaseAccount,
 ) -> int:
-    compiled_contract = read_contract("account_with_validate_deploy_compiled.json")
+    compiled_contract = read_contract(
+        "account_with_validate_deploy_compiled.json", directory=CONTRACTS_COMPILED_DIR
+    )
     return await declare_account(
         pre_deployed_account_with_validate_deploy, compiled_contract
     )
@@ -341,7 +340,9 @@ def constructor_with_arguments_abi() -> List:
     Returns an abi of the constructor_with_arguments.cairo.
     """
     compiled_contract = create_compiled_contract(
-        compiled_contract=read_contract("constructor_with_arguments_compiled.json")
+        compiled_contract=read_contract(
+            "constructor_with_arguments_compiled.json", directory=CONTRACTS_COMPILED_DIR
+        )
     )
     assert compiled_contract.abi is not None
     return compiled_contract.abi
@@ -352,7 +353,9 @@ def constructor_with_arguments_compiled() -> str:
     """
     Returns a compiled constructor_with_arguments.cairo.
     """
-    return read_contract("constructor_with_arguments_compiled.json")
+    return read_contract(
+        "constructor_with_arguments_compiled.json", directory=CONTRACTS_COMPILED_DIR
+    )
 
 
 @pytest_asyncio.fixture(scope="package")

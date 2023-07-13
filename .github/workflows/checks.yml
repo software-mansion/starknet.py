@@ -109,6 +109,12 @@ jobs:
         run: |
           poetry run poe compile_contracts
 
+      - name: Upload contracts
+        uses: actions/upload-artifact@v3
+        with:
+          name: contract-artifacts
+          path: starknet_py/tests/e2e/mock/
+
       # ====================== CAIRO SETUP ====================== #
 
       - name: Install rust
@@ -120,7 +126,7 @@ jobs:
         with:
           repository: starkware-libs/cairo
           persist-credentials: false
-          ref: v1.1.0
+          ref: v2.0.0
           path: cairo
 
       - name: Cache rust dependencies
@@ -150,26 +156,6 @@ jobs:
       - name: Create manifest file
         run: |
           readlink -f cairo/Cargo.toml >> starknet_py/tests/e2e/manifest-path
-
-      # ====================== CONTRACTS v1 ====================== #
-
-      - name: Cache Cairo1 contracts
-        id: cache-contracts-v1
-        uses: actions/cache@v3
-        with:
-          path: starknet_py/tests/e2e/mock/contracts_compiled_v1
-          key: ${{ runner.os }}-contracts-v1-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v1', 'poetry.lock') }}
-
-      - name: Compile Cairo1 contracts
-        if: steps.cache-contracts-v1.outputs.cache-hit != 'true'
-        run: |
-          poetry run poe compile_contracts_v1
-
-      - name: Upload contracts
-        uses: actions/upload-artifact@v3
-        with:
-          name: contract-artifacts
-          path: starknet_py/tests/e2e/mock/
 
   # ---------------------------------------------------------- #
   # ........................RUN-TESTS......................... #
@@ -228,8 +214,10 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run poe test_ci_gateway
-          poetry run poe test_ci_full_node
+          poetry run poe test_ci_full_node_v2
+          poetry run poe test_ci_full_node_v1
+          poetry run poe test_ci_gateway_v2
+          poetry run poe test_ci_gateway_v1
 
       - name: Generate coverage in XML
         run: |
@@ -254,7 +242,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: actions/download-artifact@v3
+      - name: Download contracts
+        uses: actions/download-artifact@v3
         with:
           name: contract-artifacts
           path: starknet_py/tests/e2e/mock/
@@ -279,7 +268,7 @@ jobs:
           apt-get install -y python3-pip
           sudo apt install -y libgmp3-dev
           sudo apt-get install -y git
-          pip3 install git+https://github.com/0xSpaceShard/starknet-devnet.git@v0.5.4
+          pip3 install git+https://github.com/0xSpaceShard/starknet-devnet.git@v0.5.5
 
       # ====================== SETUP PYTHON ====================== #
 
@@ -312,8 +301,10 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run poe test_ci_gateway
-          poetry run poe test_ci_full_node
+          poetry run poe test_ci_full_node_v2
+          poetry run poe test_ci_full_node_v1
+          poetry run poe test_ci_gateway_v2
+          poetry run poe test_ci_gateway_v1
 
       - name: Generate coverage in XML
         run: |
@@ -375,8 +366,10 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run poe test_ci_docs_gateway
-          poetry run poe test_ci_docs_full_node
+          poetry run poe test_ci_docs_full_node_v2
+          poetry run poe test_ci_docs_full_node_v1
+          poetry run poe test_ci_docs_gateway_v2
+          poetry run poe test_ci_docs_gateway_v1
 
       - name: Generate coverage in XML
         run: |
@@ -401,7 +394,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: actions/download-artifact@v3
+      - name: Download contracts
+        uses: actions/download-artifact@v3
         with:
           name: contract-artifacts
           path: starknet_py/tests/e2e/mock/
@@ -426,7 +420,7 @@ jobs:
           apt-get install -y python3-pip
           sudo apt install -y libgmp3-dev
           sudo apt-get install -y git
-          pip3 install git+https://github.com/0xSpaceShard/starknet-devnet.git@v0.5.4
+          pip3 install git+https://github.com/0xSpaceShard/starknet-devnet.git@v0.5.5
 
       # ====================== SETUP PYTHON ====================== #
 
@@ -455,8 +449,10 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run poe test_ci_docs_gateway
-          poetry run poe test_ci_docs_full_node
+          poetry run poe test_ci_docs_full_node_v2
+          poetry run poe test_ci_docs_full_node_v1
+          poetry run poe test_ci_docs_gateway_v2
+          poetry run poe test_ci_docs_gateway_v1
 
       - name: Generate coverage in XML
         run: |

@@ -1,6 +1,7 @@
 # pylint: disable=import-outside-toplevel, pointless-string-statement
 import json
 
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_DIR
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
@@ -21,7 +22,7 @@ def test_short_strings():
 
 
 def test_abi_parsing():
-    raw_abi_string = read_contract("erc20_abi.json")
+    raw_abi_string = read_contract("erc20_abi.json", directory=CONTRACTS_COMPILED_DIR)
     # docs-serializer: start
     from starknet_py.abi import AbiParser
 

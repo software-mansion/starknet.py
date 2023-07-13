@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 from collections import OrderedDict
-from typing import Dict, List
+from typing import Dict, List, Union
 
 from starknet_py.abi.model import Abi
 from starknet_py.abi.v1.model import Abi as AbiV1
+from starknet_py.abi.v2.model import Abi as AbiV2
 from starknet_py.cairo.data_types import (
     ArrayType,
     BoolType,
@@ -171,7 +172,7 @@ def serializer_for_function(abi_function: Abi.Function) -> FunctionSerialization
 
 
 def serializer_for_function_v1(
-    abi_function: AbiV1.Function,
+    abi_function: Union[AbiV1.Function, AbiV2.Function],
 ) -> FunctionSerializationAdapter:
     """
     Create FunctionSerializationAdapter for serializing function inputs and deserializing function outputs.
@@ -182,4 +183,19 @@ def serializer_for_function_v1(
     return FunctionSerializationAdapterV1(
         inputs_serializer=serializer_for_payload(abi_function.inputs),
         outputs_deserializer=serializer_for_outputs(abi_function.outputs),
+    )
+
+
+def serializer_for_constructor_v2(
+    abi_function: AbiV2.Constructor,
+) -> FunctionSerializationAdapter:
+    """
+    Create FunctionSerializationAdapter for serializing constructor inputs.
+
+    :param abi_function: parsed constructor's abi.
+    :return: FunctionSerializationAdapter.
+    """
+    return FunctionSerializationAdapterV1(
+        inputs_serializer=serializer_for_payload(abi_function.inputs),
+        outputs_deserializer=serializer_for_outputs([]),
     )

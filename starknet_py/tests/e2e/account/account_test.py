@@ -345,9 +345,7 @@ async def test_deploy_account(client, deploy_account_details_factory, map_contra
         ),
         max_fee=MAX_FEE,
     )
-    _, status = await account.client.wait_for_tx(
-        res.transaction_hash, wait_for_accept=True
-    )
+    _, status = await account.client.wait_for_tx(res.transaction_hash)
 
     assert status in (
         TransactionStatus.ACCEPTED_ON_L1,

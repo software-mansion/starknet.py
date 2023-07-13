@@ -10,6 +10,7 @@ from starknet_py.hash.transaction import (
     compute_transaction_hash,
 )
 from starknet_py.net.models import StarknetChainId
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_DIR
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
@@ -32,7 +33,7 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
                 0x64,
                 [],
                 0x0,
-                StarknetChainId.TESTNET.value,
+                StarknetChainId.TESTNET,
             ],
             0x7D260744DE9D8C55E7675A34512D1951A7B262C79E685D26599EDD2948DE959,
         ),
@@ -72,7 +73,7 @@ def test_compute_deploy_account_transaction_hash(data, expected_hash):
     ],
 )
 def test_compute_declare_transaction_hash(contract_json, data):
-    contract = read_contract(contract_json)
+    contract = read_contract(contract_json, directory=CONTRACTS_COMPILED_DIR)
     compiled_contract = create_compiled_contract(compiled_contract=contract)
 
     declare_hash = compute_declare_transaction_hash(compiled_contract, *data)

@@ -168,7 +168,6 @@ class TransactionStatus(Enum):
 
     NOT_RECEIVED = "NOT_RECEIVED"
     RECEIVED = "RECEIVED"
-    PENDING = "PENDING"
     ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
     ACCEPTED_ON_L1 = "ACCEPTED_ON_L1"
     REJECTED = "REJECTED"
@@ -237,29 +236,66 @@ class BlockStatus(Enum):
 
 
 @dataclass
-class StarknetBlock:
+class StarknetBlockCommon:
     """
-    Dataclass representing a block on Starknet.
+    Dataclass representing a block header.
     """
-
-    # pylint: disable=too-many-instance-attributes
 
     block_hash: int
     parent_block_hash: int
     block_number: int
-    status: BlockStatus
     root: int
-    transactions: List[Transaction]
     timestamp: int
 
 
 @dataclass
-class GatewayBlock(StarknetBlock):
+class StarknetBlock(StarknetBlockCommon):
+    """
+    Dataclass representing a block on Starknet.
+    """
+
+    sequencer_address: int
+    status: BlockStatus
+    transactions: List[Transaction]
+
+
+@dataclass
+class GatewayBlock(StarknetBlockCommon):
     """
     Dataclass representing a block from the Starknet gateway.
     """
 
     gas_price: int
+    status: BlockStatus
+    transactions: List[Transaction]
+    sequencer_address: Optional[int] = None
+
+
+@dataclass
+class StarknetBlockWithTxHashes(StarknetBlockCommon):
+    """
+    Dataclass representing a block on Starknet containing transaction hashes.
+    """
+
+    sequencer_address: int
+    status: BlockStatus
+    transactions: List[int]
+
+
+@dataclass
+class BlockHashAndNumber:
+    block_hash: int
+    block_number: int
+
+
+@dataclass
+class SyncStatus:
+    starting_block_hash: int
+    starting_block_num: int
+    current_block_hash: int
+    current_block_num: int
+    highest_block_hash: int
+    highest_block_num: int
 
 
 @dataclass

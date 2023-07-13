@@ -1,13 +1,17 @@
 # pylint: disable=redefined-outer-name
 
 import json
+import sys
 from pathlib import Path
+from typing import Optional
 
 import pytest
 
 from starknet_py.net.models.typed_data import TypedData
 from starknet_py.tests.e2e.fixtures.constants import (
     CONTRACTS_COMPILED_DIR,
+    CONTRACTS_COMPILED_V1_DIR,
+    CONTRACTS_COMPILED_V2_DIR,
     TYPED_DATA_DIR,
 )
 
@@ -24,6 +28,12 @@ def pytest_addoption(parser):
         action="store",
         default="",
         help="Client to run tests with: possible 'gateway', 'full_node'",
+    )
+    parser.addoption(
+        "--contract_dir",
+        action="store",
+        default="",
+        help="Contract directory: possible 'v1', 'v2'",
     )
 
 
@@ -89,8 +99,15 @@ def get_tx_receipt_gateway_client():
     return "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt"
 
 
-def read_contract(file_name: str, *, directory: Path = CONTRACTS_COMPILED_DIR) -> str:
+def read_contract(file_name: str, *, directory: Optional[Path] = None) -> str:
     """
     Return contents of file_name from directory.
     """
+    if directory is None:
+        directory = CONTRACTS_COMPILED_DIR
+        if "--contract_dir=v1" in sys.argv:
+            directory = CONTRACTS_COMPILED_V1_DIR
+        if "--contract_dir=v2" in sys.argv:
+            directory = CONTRACTS_COMPILED_V2_DIR
+
     return (directory / file_name).read_text("utf-8")

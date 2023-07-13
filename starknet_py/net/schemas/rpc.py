@@ -3,6 +3,7 @@ from marshmallow_oneofschema import OneOfSchema
 
 from starknet_py.abi.schemas import ContractAbiEntrySchema
 from starknet_py.net.client_models import (
+    BlockHashAndNumber,
     BlockStateUpdate,
     ContractClass,
     ContractsNonce,
@@ -29,8 +30,10 @@ from starknet_py.net.client_models import (
     SierraEntryPoint,
     SierraEntryPointsByType,
     StarknetBlock,
+    StarknetBlockWithTxHashes,
     StateDiff,
     StorageDiffItem,
+    SyncStatus,
     TransactionReceipt,
 )
 from starknet_py.net.schemas.common import (
@@ -101,7 +104,7 @@ class L2toL1MessageSchema(Schema):
 
 class TransactionReceiptSchema(Schema):
     hash = Felt(data_key="transaction_hash", required=True)
-    status = StatusField(data_key="status", required=True)
+    status = StatusField(data_key="status", load_default=None)
     block_number = fields.Integer(data_key="block_number", load_default=None)
     block_hash = Felt(data_key="block_hash", load_default=None)
     actual_fee = Felt(data_key="actual_fee", required=True)
@@ -215,6 +218,7 @@ class StarknetBlockSchema(Schema):
     block_hash = Felt(data_key="block_hash", required=True)
     parent_block_hash = Felt(data_key="parent_hash", required=True)
     block_number = fields.Integer(data_key="block_number", required=True)
+    sequencer_address = Felt(data_key="sequencer_address", required=True)
     status = BlockStatusField(data_key="status", required=True)
     root = NonPrefixedHex(data_key="new_root", required=True)
     transactions = fields.List(
@@ -227,6 +231,43 @@ class StarknetBlockSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> StarknetBlock:
         return StarknetBlock(**data)
+
+
+class BlockHashAndNumberSchema(Schema):
+    block_hash = Felt(data_key="block_hash", required=True)
+    block_number = fields.Integer(data_key="block_number", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> BlockHashAndNumber:
+        return BlockHashAndNumber(**data)
+
+
+class SyncStatusSchema(Schema):
+    starting_block_hash = Felt(data_key="starting_block_hash", required=True)
+    starting_block_num = Felt(data_key="starting_block_num", required=True)
+    current_block_hash = Felt(data_key="current_block_hash", required=True)
+    current_block_num = Felt(data_key="current_block_num", required=True)
+    highest_block_hash = Felt(data_key="highest_block_hash", required=True)
+    highest_block_num = Felt(data_key="highest_block_num", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> SyncStatus:
+        return SyncStatus(**data)
+
+
+class StarknetBlockWithTxHashesSchema(Schema):
+    block_hash = Felt(data_key="block_hash", required=True)
+    parent_block_hash = Felt(data_key="parent_hash", required=True)
+    block_number = fields.Integer(data_key="block_number", required=True)
+    sequencer_address = Felt(data_key="sequencer_address", required=True)
+    status = BlockStatusField(data_key="status", required=True)
+    root = NonPrefixedHex(data_key="new_root", required=True)
+    transactions = fields.List(Felt(), data_key="transactions", required=True)
+    timestamp = fields.Integer(data_key="timestamp", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> StarknetBlockWithTxHashes:
+        return StarknetBlockWithTxHashes(**data)
 
 
 class StorageDiffSchema(Schema):
