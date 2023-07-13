@@ -105,7 +105,7 @@ async def test_cairo2_contract_address(contract):
 
 
 @pytest.mark.asyncio
-async def test_cairo2_(contract):
+async def test_cairo2_interaction3(contract):
     invoke_res = await contract.functions["increase_balance"].invoke(
         100, auto_estimate=True
     )
@@ -145,9 +145,6 @@ async def test_cairo2_(contract):
     storage2 = await contract.client.get_storage_at(contract.address, key + 1)
     assert storage1 == user1["address"]
     assert storage2 == user1["is_claimed"]
-
-    # TODO (#0): Complex mapping
-    #  https://docs.starknet.io/documentation/architecture_and_concepts/Contracts/contract-storage/
 
 
 @pytest.mark.asyncio

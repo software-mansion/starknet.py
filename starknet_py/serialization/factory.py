@@ -189,6 +189,12 @@ def serializer_for_function_v1(
 def serializer_for_constructor_v2(
     abi_function: AbiV2.Constructor,
 ) -> FunctionSerializationAdapter:
+    """
+    Create FunctionSerializationAdapter for serializing constructor inputs.
+
+    :param abi_function: parsed constructor's abi.
+    :return: FunctionSerializationAdapter.
+    """
     return FunctionSerializationAdapterV1(
         inputs_serializer=serializer_for_payload(abi_function.inputs),
         outputs_deserializer=serializer_for_outputs([]),
