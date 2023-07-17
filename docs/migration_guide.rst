@@ -2,6 +2,40 @@ Migration guide
 ===============
 
 **********************
+0.18.0 Migration guide
+**********************
+
+TODO (#1098): link needed
+Additionally, this release brings support for `RPC v0.4.xxx <>`!
+
+
+1. :class:`TransactionReceipt` dataclass properties have been changed (more details in RPC specification linked above).
+
+0.18.0 Deprecations
+-------------------
+
+.. currentmodule:: starknet_py.net.client_models
+
+1. ``status`` field in :class:`TransactionReceipt` returned by :meth:`FullNodeClient.get_transaction_receipt` has been deprecated.
+
+
+0.18.0 Minor changes
+--------------------
+
+.. currentmodule:: starknet_py.net.full_node_client
+
+1. :meth:`FullNodeClient.get_transaction_receipt` now returns two additional fields: ``acceptance_status`` and ``finality_status``.
+
+
+|
+
+.. raw:: html
+
+  <hr>
+
+|
+
+**********************
 0.17.0 Migration guide
 **********************
 
@@ -38,8 +72,8 @@ Also, four methods were added to its interface:
 - :meth:`FullNodeClient.get_syncing_status`
 
 
-Breaking changes
-----------------
+0.17.0 Breaking changes
+-----------------------
 
 1. Deprecated function ``compute_invoke_hash`` in :mod:`starknet_py.net.models.transaction` has been removed in favor of :func:`starknet_py.hash.transaction.compute_invoke_transaction_hash`.
 
@@ -50,8 +84,8 @@ Breaking changes
 3. Removed ``PENDING`` transaction status.
 
 
-Minor changes
--------------
+0.17.0 Minor changes
+--------------------
 
 .. currentmodule:: starknet_py.contract
 
@@ -84,15 +118,15 @@ RPC related changes:
 10. :meth:`Client.wait_for_tx` has a new parameter ``retries`` describing the amount of retries before a time out when querying for a transaction.
 
 
-Deprecations
-------------
+0.17.0 Deprecations
+-------------------
 .. currentmodule:: starknet_py.net.client
 
 1. `wait_for_accept` parameter in :meth:`Client.wait_for_tx` and :meth:`SentTransaction.wait_for_acceptance` has been deprecated.
 
 
-Bugfixes
---------
+0.17.0 Bugfixes
+---------------
 
 .. currentmodule:: starknet_py.hash.class_hash
 
