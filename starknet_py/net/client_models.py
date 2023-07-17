@@ -283,6 +283,18 @@ class StarknetBlockWithTxHashes(StarknetBlockCommon):
 
 
 @dataclass
+class PendingStarknetBlockWithTxHashes:
+    """
+    Dataclass representing a block on Starknet containing transaction hashes.
+    """
+
+    parent_block_hash: int
+    sequencer_address: int
+    timestamp: int
+    transactions: List[int]
+
+
+@dataclass
 class BlockHashAndNumber:
     block_hash: int
     block_number: int

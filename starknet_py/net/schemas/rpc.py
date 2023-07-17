@@ -24,6 +24,7 @@ from starknet_py.net.client_models import (
     L1toL2Message,
     L2toL1Message,
     PendingBlockStateUpdate,
+    PendingStarknetBlockWithTxHashes,
     ReplacedClass,
     SentTransactionResponse,
     SierraContractClass,
@@ -268,6 +269,17 @@ class StarknetBlockWithTxHashesSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> StarknetBlockWithTxHashes:
         return StarknetBlockWithTxHashes(**data)
+
+
+class PendingStarknetBlockWithTxHashesSchema(Schema):
+    parent_block_hash = Felt(data_key="parent_hash", required=True)
+    sequencer_address = Felt(data_key="sequencer_address", required=True)
+    transactions = fields.List(Felt(), data_key="transactions", required=True)
+    timestamp = fields.Integer(data_key="timestamp", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> PendingStarknetBlockWithTxHashes:
+        return PendingStarknetBlockWithTxHashes(**data)
 
 
 class StorageDiffSchema(Schema):
