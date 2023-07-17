@@ -18,6 +18,7 @@ from starknet_py.net.client_models import (
     EstimatedFee,
     EventsChunk,
     Hash,
+    L1toL2Message,
     PendingBlockStateUpdate,
     SentTransactionResponse,
     SierraContractClass,
@@ -345,6 +346,25 @@ class FullNodeClient(Client):
                 res, unknown=EXCLUDE, many=(not single_transaction)
             ),
         )
+
+    async def estimate_message_fee(
+        self,
+        message: L1toL2Message,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> EstimatedFee:
+        block_identifier = get_block_identifier(
+            block_hash=block_hash, block_number=block_number
+        )
+
+        res = await self._client.call(
+            method_name="estimateMessageFee",
+            params={
+                "message": message,
+                **block_identifier,
+            },
+        )
+        return cast(EstimatedFee, EstimatedFeeSchema().load(res, unknown=EXCLUDE))
 
     async def get_block_number(self) -> int:
         """Get the most recent accepted block number"""

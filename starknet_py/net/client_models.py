@@ -173,6 +173,24 @@ class TransactionStatus(Enum):
     REJECTED = "REJECTED"
 
 
+class TransactionExecutionStatus(Enum):
+    """
+    Enum representing transaction execution statuses.
+    """
+
+    SUCCEEDED = "SUCCEEDED"
+    REVERTED = "REVERTED"
+
+
+class TransactionFinalityStatus(Enum):
+    """
+    Enum representing transaction finality statuses.
+    """
+
+    ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
+    ACCEPTED_ON_L1 = "ACCEPTED_ON_L1"
+
+
 @dataclass
 class TransactionReceipt:
     """
@@ -269,6 +287,9 @@ class GatewayBlock(StarknetBlockCommon):
     status: BlockStatus
     transactions: List[Transaction]
     sequencer_address: Optional[int] = None
+
+
+# TODO (#1119): starknet.js/src/types/provider/response.ts:34 - `starknet_version?: string` nullable
 
 
 @dataclass
