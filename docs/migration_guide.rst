@@ -413,19 +413,19 @@ Unlike ``AccountClient``, an ``Account`` is not a :class:`Client <starknet_py.ne
 However, ``Account`` now exposes a ``.client`` property, which means using an ``Account`` is
 just as simple as ``AccountClient`` was. For example:
 
-.. literalinclude:: ../starknet_py/tests/e2e/docs/migration_guide/test_account_comparison.py
+.. literalinclude:: ../starknet_py/tests/docs/migration_guide/test_account_comparison.py
     :language: python
     :dedent: 4
     :start-after: docs-1: start
     :end-before: docs-1: end
 
-.. literalinclude:: ../starknet_py/tests/e2e/docs/migration_guide/test_account_comparison.py
+.. literalinclude:: ../starknet_py/tests/docs/migration_guide/test_account_comparison.py
     :language: python
     :dedent: 4
     :start-after: docs-2: start
     :end-before: docs-2: end
 
-.. literalinclude:: ../starknet_py/tests/e2e/docs/migration_guide/test_account_comparison.py
+.. literalinclude:: ../starknet_py/tests/docs/migration_guide/test_account_comparison.py
     :language: python
     :dedent: 4
     :start-after: docs-3: start

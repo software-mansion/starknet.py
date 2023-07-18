@@ -9,7 +9,7 @@ values. Contract offers that and some other utilities.
 
 Let's say we have a contract with this interface:
 
-.. literalinclude:: ../../starknet_py/tests/e2e/docs/guide/test_using_existing_contracts.py
+.. literalinclude:: ../../starknet_py/tests/docs/guide/test_using_existing_contracts.py
     :language: python
     :start-after: docs-abi: start
     :end-before: docs-abi: end
@@ -17,7 +17,7 @@ Let's say we have a contract with this interface:
 
 This is how we can interact with it:
 
-.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_using_existing_contracts.py
+.. codesnippet:: ../../starknet_py/tests/docs/guide/test_using_existing_contracts.py
     :language: python
     :dedent: 4
 
@@ -27,7 +27,7 @@ Raw contract calls
 
 If you do not have ABI statically, but you know the interface of the contract on Starknet, you can make a raw call:
 
-.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_using_existing_contracts.py
+.. codesnippet:: ../../starknet_py/tests/docs/guide/test_using_existing_contracts.py
     :language: python
     :dedent: 4
     :start-after: docs-raw-call: start
@@ -103,12 +103,12 @@ compatible with :ref:`Account` and :ref:`Client`.
 
 :ref:`PreparedFunctionCall` returned by :meth:`ContractFunction.prepare` can be used in Account methods to create Invoke transactions.
 
-.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_contract_account_compatibility.py
+.. codesnippet:: ../../starknet_py/tests/docs/guide/test_contract_account_compatibility.py
     :language: python
     :dedent: 4
 
 It can also be used in :meth:`Client.call_contract() <starknet_py.net.client.Client.call_contract>`
 
-.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_contract_client_compatibility.py
+.. codesnippet:: ../../starknet_py/tests/docs/guide/test_contract_client_compatibility.py
     :language: python
     :dedent: 4

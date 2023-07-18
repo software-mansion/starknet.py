@@ -76,7 +76,7 @@ Conversion functions and references:
 - :obj:`encode_shortstring <starknet_py.cairo.felt.encode_shortstring>`
 - :obj:`decode_shortstring <starknet_py.cairo.felt.decode_shortstring>`
 
-.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_serializing.py
+.. codesnippet:: ../../starknet_py/tests/docs/guide/test_serializing.py
     :language: python
     :dedent: 4
     :start-after: docs-shortstring: start
@@ -95,7 +95,7 @@ easily deserialize events or serialize function's inputs.
 Serializing function inputs and outputs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_serializing.py
+.. codesnippet:: ../../starknet_py/tests/docs/guide/test_serializing.py
     :language: python
     :dedent: 4
     :start-after: docs-serializer: start
@@ -106,7 +106,7 @@ Serializing events
 
 Events emitted by contracts can also be serialized, having provided the correct ABI
 
-.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_serializing.py
+.. codesnippet:: ../../starknet_py/tests/docs/guide/test_serializing.py
     :language: python
     :dedent: 4
     :start-after: docs-event: start

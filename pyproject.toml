@@ -78,8 +78,8 @@ test_docs_gateway_v2 = "coverage run -m pytest -v starknet_py/tests/docs --clien
 
 
 test_unit.shell = "pytest -n auto -v starknet_py --ignore=starknet_py/tests/e2e"
-test_e2e.shell = "pytest -n auto -v starknet_py/tests/e2e --ignore=starknet_py/tests/e2e/docs"
-test_docs.shell = "pytest -n auto -v starknet_py/tests/e2e/docs"
+test_e2e.shell = "pytest -n auto -v starknet_py/tests/e2e"
+test_docs.shell = "pytest -n auto -v starknet_py/tests/docs"
 test_core.shell = "pytest -v starknet_py/tests/e2e/core --net=integration"
 test_report.shell = "coverage report"
 test_html.shell = "coverage html && open ./htmlcov/index.html"
@@ -141,6 +141,6 @@ markers = [
 include = ["starknet_py/"]
 exclude = [
     "**/__pycache__",
-    "starknet_py/tests/e2e/docs",
+    "starknet_py/tests/docs",
 ]
 stubPath = ""  # fix "not a valid directory" error
