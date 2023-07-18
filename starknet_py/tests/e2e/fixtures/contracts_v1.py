@@ -34,16 +34,16 @@ async def declare_cairo1_contract(
 async def cairo1_erc20_class_hash(account: BaseAccount) -> int:
     class_hash, _ = await declare_cairo1_contract(
         account,
-        read_contract("erc20_compiled.json"),
-        read_contract("erc20_compiled.casm"),
+        read_contract("erc20_compiled.json", v1_v2=True),
+        read_contract("erc20_compiled.casm", v1_v2=True),
     )
     return class_hash
 
 
 @pytest_asyncio.fixture(scope="package")
 async def declare_v2_hello_starknet(account: BaseAccount) -> DeclareV2:
-    compiled_contract = read_contract("hello_starknet_compiled.json")
-    compiled_contract_casm = read_contract("hello_starknet_compiled.casm")
+    compiled_contract = read_contract("hello_starknet_compiled.json", v1_v2=True)
+    compiled_contract_casm = read_contract("hello_starknet_compiled.casm", v1_v2=True)
     casm_class_hash = compute_casm_class_hash(create_casm_class(compiled_contract_casm))
 
     declare_tx = await account.sign_declare_v2_transaction(
@@ -82,8 +82,8 @@ def cairo1_hello_starknet_tx_hash(
 async def cairo1_minimal_contract_class_hash(account: BaseAccount) -> int:
     class_hash, _ = await declare_cairo1_contract(
         account,
-        read_contract("minimal_contract_compiled.json"),
-        read_contract("minimal_contract_compiled.casm"),
+        read_contract("minimal_contract_compiled.json", v1_v2=True),
+        read_contract("minimal_contract_compiled.casm", v1_v2=True),
     )
     return class_hash
 
@@ -92,8 +92,8 @@ async def cairo1_minimal_contract_class_hash(account: BaseAccount) -> int:
 async def cairo1_test_enum_class_hash(account: BaseAccount) -> int:
     class_hash, _ = await declare_cairo1_contract(
         account,
-        read_contract("test_enum_compiled.json"),
-        read_contract("test_enum_compiled.casm"),
+        read_contract("test_enum_compiled.json", v1_v2=True),
+        read_contract("test_enum_compiled.casm", v1_v2=True),
     )
     return class_hash
 
@@ -102,8 +102,8 @@ async def cairo1_test_enum_class_hash(account: BaseAccount) -> int:
 async def cairo1_test_option_class_hash(account: BaseAccount) -> int:
     class_hash, _ = await declare_cairo1_contract(
         account,
-        read_contract("test_option_compiled.json"),
-        read_contract("test_option_compiled.casm"),
+        read_contract("test_option_compiled.json", v1_v2=True),
+        read_contract("test_option_compiled.casm", v1_v2=True),
     )
     return class_hash
 
@@ -112,7 +112,7 @@ async def cairo1_test_option_class_hash(account: BaseAccount) -> int:
 async def cairo1_token_bridge_class_hash(account: BaseAccount) -> int:
     class_hash, _ = await declare_cairo1_contract(
         account,
-        read_contract("token_bridge_compiled.json"),
-        read_contract("token_bridge_compiled.casm"),
+        read_contract("token_bridge_compiled.json", v1_v2=True),
+        read_contract("token_bridge_compiled.casm", v1_v2=True),
     )
     return class_hash

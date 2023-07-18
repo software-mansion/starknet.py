@@ -9,7 +9,6 @@ from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId, parse_address
 from starknet_py.net.networks import MAINNET, TESTNET, TESTNET2
 from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
-from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 
 
 @pytest.mark.asyncio
@@ -47,21 +46,6 @@ async def test_get_balance_default_token_address(net, call_contract):
     (call,) = call[0]
 
     assert call.to_addr == parse_address(FEE_CONTRACT_ADDRESS)
-
-
-@pytest.mark.asyncio
-async def test_account_get_balance(account, map_contract):
-    balance = await account.get_balance()
-    block = await account.client.get_block()
-
-    await map_contract.functions["put"].invoke(key=10, value=10, max_fee=MAX_FEE)
-
-    new_balance = await account.get_balance()
-    old_balance = await account.get_balance(block_number=block.block_number)
-
-    assert balance > 0
-    assert new_balance < balance
-    assert old_balance == balance
 
 
 def test_create_account():

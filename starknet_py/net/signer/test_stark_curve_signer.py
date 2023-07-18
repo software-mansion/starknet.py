@@ -7,10 +7,6 @@ from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_DIR
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
-compiled_contract = read_contract(
-    "erc20_compiled.json", directory=CONTRACTS_COMPILED_DIR
-)
-
 
 @pytest.mark.parametrize(
     "transaction",
@@ -32,19 +28,38 @@ compiled_contract = read_contract(
             nonce=23,
             version=1,
         ),
-        Declare(
-            contract_class=create_compiled_contract(
-                compiled_contract=compiled_contract
-            ),
-            sender_address=123,
-            max_fee=10000,
-            signature=[],
-            nonce=23,
-            version=1,
-        ),
     ],
 )
 def test_sign_transaction(transaction):
+    signer = StarkCurveSigner(
+        account_address=0x1,
+        key_pair=KeyPair.from_private_key(0x1),
+        chain_id=StarknetChainId.TESTNET,
+    )
+
+    signature = signer.sign_transaction(transaction)
+
+    assert isinstance(signature, list)
+    assert len(signature) > 0
+    assert all(isinstance(i, int) for i in signature)
+    assert all(i != 0 for i in signature)
+
+
+# separate test due to contract_class using functions
+def test_sign_transaction_declare():
+    transaction = Declare(
+        contract_class=create_compiled_contract(
+            compiled_contract=read_contract(
+                "erc20_compiled.json", directory=CONTRACTS_COMPILED_DIR
+            )
+        ),
+        sender_address=123,
+        max_fee=10000,
+        signature=[],
+        nonce=23,
+        version=1,
+    )
+
     signer = StarkCurveSigner(
         account_address=0x1,
         key_pair=KeyPair.from_private_key(0x1),
