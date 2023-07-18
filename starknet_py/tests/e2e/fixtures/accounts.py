@@ -224,3 +224,13 @@ def pre_deployed_account_with_validate_deploy(
         key_pair=KeyPair.from_private_key(int(private_key, 16)),
         chain=StarknetChainId.TESTNET,
     )
+
+
+@pytest.fixture()
+def mock_account(client):
+    return Account(
+        address=0x123,
+        client=client,
+        key_pair=KeyPair(0x1, 0x2),
+        chain=StarknetChainId.TESTNET,
+    )

@@ -4,6 +4,8 @@ The purpose of this file is to test serialization for complex abi.
 import json
 from typing import NamedTuple
 
+import pytest
+
 from starknet_py.abi.parser import AbiParser
 from starknet_py.cairo.felt import encode_shortstring
 from starknet_py.serialization.factory import (
@@ -98,13 +100,16 @@ person_donald_serialized = [
     *dog_serialized,
 ]
 
-abi = json.loads(
-    read_contract("complex_abi_abi.json", directory=CONTRACTS_COMPILED_DIR)
-)
-parsed_abi = AbiParser(abi).parse()
+
+@pytest.fixture(name="parsed_abi")
+def fixture_parsed_abi():
+    abi = json.loads(
+        read_contract("complex_abi_abi.json", directory=CONTRACTS_COMPILED_DIR)
+    )
+    return AbiParser(abi).parse()
 
 
-def test_fn_serialization():
+def test_fn_serialization(parsed_abi):
     expected_serialized = [
         2,
         *person_donald_serialized,
@@ -121,7 +126,7 @@ def test_fn_serialization():
     )
 
 
-def test_event_serialization():
+def test_event_serialization(parsed_abi):
     expected_serialized = [
         *person_gyro_serialized,
         *company_serialized,

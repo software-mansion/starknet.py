@@ -24,7 +24,7 @@ Deploying an account with DeployAccount transaction requires the following:
 
 Here is step by step example:
 
-.. codesnippet:: ../starknet_py/tests/e2e/docs/account_creation/test_deploy_prefunded_account.py
+.. codesnippet:: ../starknet_py/tests/docs/account_creation/test_deploy_prefunded_account.py
     :language: python
     :dedent: 4
 
