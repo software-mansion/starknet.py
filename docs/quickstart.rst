@@ -9,14 +9,14 @@ with a Starknet full nodes like `Pathfinder <https://github.com/eqlabs/pathfinde
 `Papyrus <https://github.com/starkware-libs/papyrus>`_ or `Juno <https://github.com/NethermindEth/juno>`_.
 It supports read and write operations, like querying the blockchain state or adding new transactions.
 
-.. codesnippet:: ../starknet_py/tests/e2e/docs/quickstart/test_using_full_node_client.py
+.. codesnippet:: ../starknet_py/tests/docs/quickstart/test_using_full_node_client.py
     :language: python
     :dedent: 4
 
 The default interface is asynchronous. Although it is the recommended way of using starknet.py, you can also use a
 synchronous version. It might be helpful to play with Starknet directly in python interpreter.
 
-.. codesnippet:: ../starknet_py/tests/e2e/docs/quickstart/test_synchronous_full_node_client.py
+.. codesnippet:: ../starknet_py/tests/docs/quickstart/test_synchronous_full_node_client.py
     :language: python
     :dedent: 4
 
@@ -34,13 +34,13 @@ Using GatewayClient
 It can be used to either query the blockchain state or add new transactions.
 It requires information about used network:
 
-.. codesnippet:: ../starknet_py/tests/e2e/docs/quickstart/test_using_gateway_client.py
+.. codesnippet:: ../starknet_py/tests/docs/quickstart/test_using_gateway_client.py
     :language: python
     :dedent: 4
 
 It also has async/sync interface:
 
-.. codesnippet:: ../starknet_py/tests/e2e/docs/quickstart/test_synchronous_gateway_client.py
+.. codesnippet:: ../starknet_py/tests/docs/quickstart/test_synchronous_gateway_client.py
     :language: python
     :dedent: 4
 
@@ -60,7 +60,7 @@ Account can be created in two ways:
 
 There are some examples how to do it:
 
-.. codesnippet:: ../starknet_py/tests/e2e/docs/quickstart/test_creating_account.py
+.. codesnippet:: ../starknet_py/tests/docs/quickstart/test_creating_account.py
     :language: python
     :dedent: 4
 
@@ -69,7 +69,7 @@ Using Account
 
 Example usage:
 
-.. codesnippet:: ../starknet_py/tests/e2e/docs/quickstart/test_using_account.py
+.. codesnippet:: ../starknet_py/tests/docs/quickstart/test_using_account.py
     :language: python
     :dedent: 4
 
@@ -77,7 +77,7 @@ Using Contract
 --------------
 :obj:`Contract <starknet_py.contract.Contract>` makes interacting with contracts deployed on Starknet much easier:
 
-.. codesnippet:: ../starknet_py/tests/e2e/docs/quickstart/test_using_contract.py
+.. codesnippet:: ../starknet_py/tests/docs/quickstart/test_using_contract.py
     :language: python
     :dedent: 4
 
@@ -87,7 +87,7 @@ Using Contract
 
 Although asynchronous API is recommended, you can also use Contract's synchronous API:
 
-.. codesnippet:: ../starknet_py/tests/e2e/docs/quickstart/test_synchronous_api.py
+.. codesnippet:: ../starknet_py/tests/docs/quickstart/test_synchronous_api.py
     :language: python
     :dedent: 4
 

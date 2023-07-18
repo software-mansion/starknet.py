@@ -7,8 +7,8 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 @pytest.mark.asyncio
 async def test_contract_declare(account):
-    compiled_contract = read_contract("test_contract_compiled.json")
-    compiled_contract_casm = read_contract("test_contract_compiled.casm")
+    compiled_contract = read_contract("test_contract_compiled.json", v1_v2=True)
+    compiled_contract_casm = read_contract("test_contract_compiled.casm", v1_v2=True)
 
     declare_result = await Contract.declare(
         account,
@@ -27,7 +27,7 @@ async def test_contract_declare(account):
 async def test_throws_when_cairo1_without_compiled_contract_casm_and_casm_class_hash(
     account,
 ):
-    compiled_contract = read_contract("erc20_compiled.json")
+    compiled_contract = read_contract("erc20_compiled.json", v1_v2=True)
 
     with pytest.raises(
         ValueError,

@@ -10,8 +10,8 @@ async def test_simple_declare_and_deploy(account):
     from starknet_py.contract import Contract
 
     # docs: end
-    compiled_contract = read_contract("account_compiled.json")
-    compiled_contract_casm = read_contract("account_compiled.casm")
+    compiled_contract = read_contract("account_compiled.json", v1_v2=True)
+    compiled_contract_casm = read_contract("account_compiled.casm", v1_v2=True)
     constructor_args = {"public_key_": 0x123}
 
     # docs: start

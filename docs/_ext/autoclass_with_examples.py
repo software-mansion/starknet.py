@@ -14,7 +14,7 @@ class AutoclassWithExamples(AutodocDirective):
     add code examples to the method docstrings in the documentation.
 
     This class runs before the AutodocDirective class and pulls code snippets
-    from the starknet_py/tests/e2e/docs/code_examples directory to include in the documentation.
+    from the starknet_py/tests/docs/code_examples directory to include in the documentation.
     This allows developers to easily see and understand how the methods
     being documented are intended to be used in a practical context.
     """
@@ -62,7 +62,7 @@ def _extract_file_properties(class_name: str) -> Tuple[str, str]:
     :returns: A tuple containing the name of the file as a string, and its content as a string.
     """
     file_name = "test_" + _camel_to_snake(class_name) + ".py"
-    file_path = ROOT_PATH / "tests/e2e/docs/code_examples" / file_name
+    file_path = ROOT_PATH / "tests/docs/code_examples" / file_name
 
     return file_name, file_path.read_text("utf-8")
 
@@ -86,7 +86,7 @@ def _create_hint(file_name: str, method_name: str) -> str:
         .. admonition:: Example
             :class: hint
 
-            .. codesnippet:: ../../starknet_py/tests/e2e/docs/code_examples/{file_name}
+            .. codesnippet:: ../../starknet_py/tests/docs/code_examples/{file_name}
                 :language: python
                 :start-after: docs-start: {method_name}
                 :end-before: docs-end: {method_name}

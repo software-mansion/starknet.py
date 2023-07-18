@@ -10,7 +10,7 @@ Since Cairo 0.10.0 Declare transactions can be signed and in the future, declari
 
 Here's an example how to use it.
 
-.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_declaring_contracts.py
+.. codesnippet:: ../../starknet_py/tests/docs/guide/test_declaring_contracts.py
     :language: python
     :dedent: 4
 
@@ -27,7 +27,7 @@ The simplest way of declaring and deploying contracts on the Starknet is to use 
 Under the hood, this flow sends :meth:`Declare` transaction and then sends :meth:`InvokeFunction`
 through Universal Deployment Contract (UDC) to deploy a contract.
 
-.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_simple_declare_and_deploy.py
+.. codesnippet:: ../../starknet_py/tests/docs/guide/test_simple_declare_and_deploy.py
     :language: python
     :dedent: 4
 
@@ -37,7 +37,7 @@ Simple deploy
 If you already know the class hash of an already declared contract you want to deploy just use the :meth:`Contract.deploy_contract`.
 It will deploy the contract using funds from your account. Deployment is handled by UDC.
 
-.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_simple_deploy.py
+.. codesnippet:: ../../starknet_py/tests/docs/guide/test_simple_deploy.py
     :language: python
     :dedent: 4
 
@@ -53,7 +53,7 @@ There is a class responsible for the deployment (:ref:`Deployer<Deployer>`).
 
 Short code example of how to use it:
 
-.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_deploying_with_udc.py
+.. codesnippet:: ../../starknet_py/tests/docs/guide/test_deploying_with_udc.py
     :language: python
     :dedent: 4
 
@@ -64,7 +64,7 @@ Deploying and using deployed contract in the same transaction
 and call its methods in the same multicall, ensuring atomicity of all operations combined.
 Isn't it brilliant? Check out the code!
 
-.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_deploying_in_multicall.py
+.. codesnippet:: ../../starknet_py/tests/docs/guide/test_deploying_in_multicall.py
     :language: python
     :dedent: 4
 
@@ -97,7 +97,7 @@ Simply pluck the ``json`` result of ``starknet-compile`` into ``starknet-sierra-
 
 Here's an example how to declare a Cairo1 contract.
 
-.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_cairo1_contract.py
+.. codesnippet:: ../../starknet_py/tests/docs/guide/test_cairo1_contract.py
     :language: python
     :dedent: 4
 
@@ -107,7 +107,7 @@ Deploying Cairo1 contracts
 
 After declaring a Cairo1 contract, it can be deployed using UDC.
 
-.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_cairo1_contract.py
+.. codesnippet:: ../../starknet_py/tests/docs/guide/test_cairo1_contract.py
     :language: python
     :dedent: 4
     :start-after: docs-deploy: start
@@ -117,7 +117,7 @@ After declaring a Cairo1 contract, it can be deployed using UDC.
 Simple declare and deploy Cairo1 contract example
 #################################################
 
-.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_simple_declare_and_deploy_cairo1.py
+.. codesnippet:: ../../starknet_py/tests/docs/guide/test_simple_declare_and_deploy_cairo1.py
     :language: python
     :dedent: 4
     :start-after: docs: start
@@ -127,7 +127,7 @@ Simple declare and deploy Cairo1 contract example
 Simple deploy Cairo1 contract example
 #####################################
 
-.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_simple_deploy_cairo1.py
+.. codesnippet:: ../../starknet_py/tests/docs/guide/test_simple_deploy_cairo1.py
     :language: python
     :dedent: 4
     :start-after: docs: start
