@@ -424,7 +424,7 @@ class BlockStateUpdate:
     block_hash: int
     new_root: int
     old_root: int
-    state_diff: StateDiff
+    state_diff: Union[StateDiff, GatewayStateDiff]
 
 
 @dataclass
