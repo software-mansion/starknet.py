@@ -175,6 +175,7 @@ class DeclareTransactionSchema(TransactionSchema):
 
 class DeployTransactionSchema(TransactionSchema):
     contract_address = Felt(data_key="contract_address", load_default=None)
+    contract_address_salt = Felt(data_key="contract_address_salt", required=True)
     constructor_calldata = fields.List(
         Felt(), data_key="constructor_calldata", required=True
     )

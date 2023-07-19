@@ -133,6 +133,7 @@ class DeployTransaction(Transaction):
     """
 
     contract_address: Optional[int]
+    contract_address_salt: int
     constructor_calldata: List[int]
     class_hash: int
 
