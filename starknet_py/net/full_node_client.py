@@ -18,7 +18,6 @@ from starknet_py.net.client_models import (
     EstimatedFee,
     EventsChunk,
     Hash,
-    L1toL2Message,
     PendingBlockStateUpdate,
     SentTransactionResponse,
     SierraContractClass,
@@ -356,12 +355,22 @@ class FullNodeClient(Client):
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
+        """
+        :param from_address: The address of the L1 contract sending the message.
+        :param to_address: The target L2 address the message is sent to.
+        :param selector: The selector of the l1_handler in invoke in the target contract.
+        :param payload: Payload of the message.
+        :param block_hash: Hash of the requested block or literals `"pending"` or `"latest"`.
+            Mutually exclusive with ``block_number`` parameter. If not provided, queries block `"pending"`.
+        :param block_number: Number (height) of the requested block or literals `"pending"` or `"latest"`.
+            Mutually exclusive with ``block_hash`` parameter. If not provided, queries block `"pending"`.
+        """
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
         message_body = {
-            "from_address": _to_rpc_felt(from_address),
-            "to_address": to_address, # TODO its not an rpc felt, but ETH_ADDRESS, should it be converted via _to_rpc_felt?
+            "from_address": from_address,
+            "to_address": _to_rpc_felt(to_address),
             "entry_point_selector": _to_rpc_felt(selector),
             "payload": [_to_rpc_felt(x) for x in payload]
         }
