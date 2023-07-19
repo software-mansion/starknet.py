@@ -201,7 +201,9 @@ class TransactionReceipt:
     # pylint: disable=too-many-instance-attributes
 
     hash: int
-    status: TransactionStatus
+    status: Optional[TransactionStatus]
+    execution_status: Optional[TransactionExecutionStatus]
+    finality_status: Optional[TransactionFinalityStatus]
     type: Optional[TransactionType] = None
     contract_address: Optional[int] = None
     block_number: Optional[int] = None
