@@ -349,18 +349,27 @@ class FullNodeClient(Client):
 
     async def estimate_message_fee(
         self,
-        message: L1toL2Message,
+        from_address: Hash,
+        to_address: Hash,
+        selector: Hash,
+        payload: List[Hash],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
+        message_body = {
+            "from_address": _to_rpc_felt(from_address),
+            "to_address": to_address, # TODO its not an rpc felt, but ETH_ADDRESS, should it be converted via _to_rpc_felt?
+            "entry_point_selector": _to_rpc_felt(selector),
+            "payload": [_to_rpc_felt(x) for x in payload]
+        }
 
         res = await self._client.call(
             method_name="estimateMessageFee",
             params={
-                "message": message,
+                "message": message_body,
                 **block_identifier,
             },
         )
