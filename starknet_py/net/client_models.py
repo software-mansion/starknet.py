@@ -202,8 +202,8 @@ class TransactionReceipt:
 
     hash: int
     status: Optional[TransactionStatus]
-    execution_status: Optional[TransactionExecutionStatus]
-    finality_status: Optional[TransactionFinalityStatus]
+    execution_status: Optional[TransactionExecutionStatus] = None
+    finality_status: Optional[TransactionFinalityStatus] = None
     type: Optional[TransactionType] = None
     contract_address: Optional[int] = None
     block_number: Optional[int] = None
