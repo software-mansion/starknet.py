@@ -70,6 +70,8 @@ class L1toL2MessageSchema(Schema):
     l1_address = Felt(data_key="from_address", required=True)
     l2_address = Felt(data_key="to_address", required=True)
     payload = fields.List(Felt(), data_key="payload", required=True)
+    nonce = fields.String(data_key="nonce", required=True)
+    selector = fields.String(data_key="selector", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> L1toL2Message:

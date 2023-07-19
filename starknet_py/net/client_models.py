@@ -58,6 +58,8 @@ class L1toL2Message:
     """
 
     payload: List[int]
+    nonce: str
+    selector: str
     l1_address: int
     l2_address: Optional[int] = None
 
