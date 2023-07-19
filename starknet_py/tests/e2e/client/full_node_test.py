@@ -400,3 +400,9 @@ async def test_get_syncing_status(full_node_client):
         sync_status = await full_node_client.get_syncing_status()
 
     assert isinstance(sync_status, SyncStatus)
+
+
+@pytest.mark.asyncio
+async def test_estimate_message_fee(full_node_client):
+    # TODO (#1098): add tests
+    pass
