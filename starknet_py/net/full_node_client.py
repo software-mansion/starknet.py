@@ -355,6 +355,7 @@ class FullNodeClient(Client):
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
+        # pylint: disable=too-many-arguments
         """
         :param from_address: The address of the L1 contract sending the message.
         :param to_address: The target L2 address the message is sent to.
@@ -372,7 +373,7 @@ class FullNodeClient(Client):
             "from_address": from_address,
             "to_address": _to_rpc_felt(to_address),
             "entry_point_selector": _to_rpc_felt(selector),
-            "payload": [_to_rpc_felt(x) for x in payload]
+            "payload": [_to_rpc_felt(x) for x in payload],
         }
 
         res = await self._client.call(

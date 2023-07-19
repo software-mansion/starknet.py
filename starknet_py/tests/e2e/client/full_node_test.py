@@ -404,5 +404,6 @@ async def test_get_syncing_status(full_node_client):
 
 @pytest.mark.asyncio
 async def test_estimate_message_fee(full_node_client):
+    # pylint: disable=unused-argument
     # TODO (#1098): add tests
     pass
