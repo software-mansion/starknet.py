@@ -52,6 +52,7 @@ from starknet_py.net.schemas.utils import (
 # pylint: disable=unused-argument, no-self-use
 
 
+# TODO what is this for, it isn't even used anywhere
 class FunctionCallSchema(Schema):
     contract_address = fields.Integer(data_key="contract_address", required=True)
     entry_point_selector = fields.Integer(
@@ -170,6 +171,7 @@ class DeclareTransactionSchema(TransactionSchema):
 
 class DeployTransactionSchema(TransactionSchema):
     contract_address = Felt(data_key="contract_address", load_default=None)
+    contract_address_salt = Felt(data_key="contract_address_salt", required=True)
     constructor_calldata = fields.List(
         Felt(), data_key="constructor_calldata", required=True
     )

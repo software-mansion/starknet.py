@@ -134,9 +134,10 @@ class DeployTransaction(Transaction):
     Dataclass representing deploy transaction.
     """
 
-    contract_address: Optional[int]
+    contract_address_salt: int
     constructor_calldata: List[int]
     class_hash: int
+    contract_address: Optional[int] = None
 
 
 @dataclass
@@ -204,7 +205,7 @@ class SentTransactionResponse:
     """
 
     transaction_hash: int
-    code: Optional[str] = None
+    code: Optional[str] = None   # TODO remove? it even isn't in the schema wtf
 
 
 @dataclass
