@@ -96,7 +96,7 @@ class ExecutionStatusField(fields.Field):
 
         return TransactionExecutionStatus(value)
 
-
+# TODO move those from here to rpc.py? those are not common
 class FinalityStatusField(fields.Field):
     def _serialize(self, value: Any, attr: str, obj: Any, **kwargs):
         return value.name if value is not None else ""
