@@ -6,7 +6,7 @@ Executing transactions
 
 To execute transactions on Starknet, use :meth:`~starknet_py.net.account.account.Account.execute` method from :ref:`Account` interface.
 
-.. codesnippet:: ../../starknet_py/tests/docs/guide/test_executing_transactions.py
+.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_executing_transactions.py
     :language: python
     :dedent: 4
 
@@ -16,7 +16,7 @@ Creating transactions without executing them
 Alongside the simpler :meth:`~starknet_py.net.account.account.Account.execute`,
 Account also provides a way of creating signed transaction without sending them.
 
-.. codesnippet:: ../../starknet_py/tests/docs/guide/test_account_sign_without_execute.py
+.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_account_sign_without_execute.py
     :language: python
     :dedent: 4
 
@@ -27,7 +27,7 @@ There is a possibility to execute an Invoke transaction containing multiple call
 Simply pass a list of calls to :meth:`~starknet_py.net.account.account.Account.execute` method.
 Note that the nonce will be bumped only by 1.
 
-.. codesnippet:: ../../starknet_py/tests/docs/guide/test_multicall.py
+.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_multicall.py
     :language: python
     :dedent: 4
 
@@ -52,7 +52,7 @@ Using own full node allows for querying Starknet with better performance.
 Since GatewayClient is deprecated and will be removed at some point in the future, having ``FullNodeClient``
 with interface uniform with that of ``GatewayClient`` will allow for simple migration for starknet.py users.
 
-.. codesnippet:: ../../starknet_py/tests/docs/guide/test_full_node_client.py
+.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_full_node_client.py
     :language: python
     :dedent: 4
 
@@ -61,7 +61,7 @@ Handling client errors
 -----------------------
 You can use :class:`starknet_py.net.client_errors.ClientError` to catch errors from invalid requests:
 
-.. codesnippet:: ../../starknet_py/tests/docs/guide/test_handling_client_errors.py
+.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_handling_client_errors.py
     :language: python
     :dedent: 4
 
@@ -75,6 +75,6 @@ for execution, deals with high amount of transactions or just needs to support d
 logic, it is possible to so with :ref:`Account`. Simply overwrite the
 :meth:`~starknet_py.net.account.account.Account.get_nonce` method with your own logic.
 
-.. codesnippet:: ../../starknet_py/tests/docs/guide/test_custom_nonce.py
+.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_custom_nonce.py
     :language: python
     :dedent: 4

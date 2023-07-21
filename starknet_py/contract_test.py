@@ -1,6 +1,6 @@
 import pytest
 
-from starknet_py.contract import Contract, DeployResult
+from starknet_py.contract import Contract, DeclareResult, DeployResult
 from starknet_py.net.account.base_account import BaseAccount
 
 
@@ -27,6 +27,19 @@ def test_compute_address(constructor_with_arguments_compiled):
     )
 
 
+@pytest.mark.parametrize("param", ["_account", "class_hash", "compiled_contract"])
+def test_declare_result_post_init(param, account):
+    kwargs = {
+        "_account": account,
+        "class_hash": 0,
+        "compiled_contract": "",
+    }
+    del kwargs[param]
+
+    with pytest.raises(ValueError, match=f"Argument {param} can't be None."):
+        _ = DeclareResult(hash=0, _client=account.client, **kwargs)
+
+
 def test_deploy_result_post_init(client):
     with pytest.raises(ValueError, match="Argument deployed_contract can't be None."):
         _ = DeployResult(
@@ -40,11 +53,11 @@ def test_contract_raises_on_incorrect_provider_type():
         Contract(address=0x1, abi=[], provider=1)  # pyright: ignore
 
 
-def test_contract_create_with_base_account(mock_account):
-    contract = Contract(address=0x1, abi=[], provider=mock_account)
+def test_contract_create_with_base_account(account):
+    contract = Contract(address=0x1, abi=[], provider=account)
     assert isinstance(contract.account, BaseAccount)
-    assert contract.account == mock_account
-    assert contract.client == mock_account.client
+    assert contract.account == account
+    assert contract.client == account.client
 
 
 def test_contract_create_with_client(client):
@@ -53,7 +66,7 @@ def test_contract_create_with_client(client):
     assert contract.client == client
 
 
-def test_throws_on_wrong_abi(mock_account):
+def test_throws_on_wrong_abi(account):
     with pytest.raises(
         ValueError, match="Make sure valid ABI is used to create a Contract instance"
     ):
@@ -66,6 +79,6 @@ def test_throws_on_wrong_abi(mock_account):
                     "inputs": "",  # inputs should be a list
                 }
             ],
-            provider=mock_account,
+            provider=account,
             cairo_version=1,
         )
