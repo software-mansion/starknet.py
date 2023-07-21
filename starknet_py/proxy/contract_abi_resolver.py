@@ -8,6 +8,7 @@ from starknet_py.constants import (
     RPC_CLASS_HASH_NOT_FOUND_ERROR,
     RPC_CONTRACT_ERROR,
     RPC_CONTRACT_NOT_FOUND_ERROR,
+    RPC_INVALID_MESSAGE_SELECTOR_ERROR,
 )
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError, ContractNotFoundError
@@ -182,6 +183,7 @@ class ContractAbiResolver:
                         RPC_CLASS_HASH_NOT_FOUND_ERROR,
                         RPC_CONTRACT_NOT_FOUND_ERROR,
                         RPC_CONTRACT_ERROR,
+                        RPC_INVALID_MESSAGE_SELECTOR_ERROR,  # removed in RPC v0.3.0, backwards compatibility for nodes
                     ]
                 ):
                     raise err
