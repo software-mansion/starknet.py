@@ -3,7 +3,7 @@ import pytest
 from starknet_py.cairo.felt import decode_shortstring, encode_shortstring
 from starknet_py.contract import Contract
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
-from starknet_py.tests.e2e.fixtures.contracts_v1 import deploy_v1_contract
+from starknet_py.tests.e2e.fixtures.contracts import deploy_v1_contract
 
 
 @pytest.mark.asyncio

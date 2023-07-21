@@ -582,18 +582,3 @@ async def test_sign_transaction_custom_nonce(account, cairo1_hello_starknet_clas
 
     assert invoke_tx.nonce == deploy_tx.nonce + 1
     assert result == [new_balance]
-
-
-@pytest.mark.asyncio
-async def test_account_get_balance(account, map_contract):
-    balance = await account.get_balance()
-    block = await account.client.get_block()
-
-    await map_contract.functions["put"].invoke(key=10, value=10, max_fee=MAX_FEE)
-
-    new_balance = await account.get_balance()
-    old_balance = await account.get_balance(block_number=block.block_number)
-
-    assert balance > 0
-    assert new_balance < balance
-    assert old_balance == balance

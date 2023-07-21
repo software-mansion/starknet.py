@@ -33,7 +33,7 @@ def pytest_addoption(parser):
         "--contract_dir",
         action="store",
         default="",
-        help="Contract directory: possible 'v0', 'v1', 'v2'",
+        help="Contract directory: possible 'v1', 'v2'",
     )
 
 
@@ -99,29 +99,15 @@ def get_tx_receipt_gateway_client():
     return "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt"
 
 
-def read_contract(
-    file_name: str, *, directory: Optional[Path] = None, v1_v2: bool = False
-) -> str:
+def read_contract(file_name: str, *, directory: Optional[Path] = None) -> str:
     """
     Return contents of file_name from directory.
     """
-    if directory == CONTRACTS_COMPILED_DIR and "--contract_dir=v0" not in sys.argv:
-        pytest.skip("Skipping directory v0")
-    if directory == CONTRACTS_COMPILED_V1_DIR and "--contract_dir=v1" not in sys.argv:
-        pytest.skip("Skipping directory v1")
-    if directory == CONTRACTS_COMPILED_V2_DIR and "--contract_dir=v2" not in sys.argv:
-        pytest.skip("Skipping directory v2")
-
     if directory is None:
-        if not v1_v2 and "--contract_dir=v0" in sys.argv:
-            directory = CONTRACTS_COMPILED_DIR
-        elif "--contract_dir=v1" in sys.argv:
+        directory = CONTRACTS_COMPILED_DIR
+        if "--contract_dir=v1" in sys.argv:
             directory = CONTRACTS_COMPILED_V1_DIR
-        elif "--contract_dir=v2" in sys.argv:
+        if "--contract_dir=v2" in sys.argv:
             directory = CONTRACTS_COMPILED_V2_DIR
-        else:
-            pytest.skip(
-                "No matching contract directory. Make sure to pass correct --contract_dir argument."
-            )
 
     return (directory / file_name).read_text("utf-8")

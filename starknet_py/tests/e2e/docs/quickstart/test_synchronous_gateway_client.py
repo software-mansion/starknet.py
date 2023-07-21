@@ -1,4 +1,3 @@
-# type: ignore
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.networks import TESTNET
 
