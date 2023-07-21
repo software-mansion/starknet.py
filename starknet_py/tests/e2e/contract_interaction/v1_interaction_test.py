@@ -23,7 +23,7 @@ async def test_general_v1_interaction(account, cairo1_erc20_class_hash: int):
     )
 
     (name,) = await erc20.functions["get_name"].call()
-    decoded_name = decode_shortstring(name).lstrip("\x00")
+    decoded_name = decode_shortstring(name)
     (decimals,) = await erc20.functions["get_decimals"].call()
     (supply,) = await erc20.functions["get_total_supply"].call()
     (account_balance,) = await erc20.functions["balance_of"].call(
