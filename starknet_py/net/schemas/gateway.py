@@ -8,6 +8,7 @@ from starknet_py.net.client_models import (
     BlockSingleTransactionTrace,
     BlockStateUpdate,
     BlockTransactionTraces,
+    BuiltinInstanceCounter,
     CasmClass,
     CasmClassEntryPoint,
     CasmClassEntryPointsByType,
@@ -26,7 +27,9 @@ from starknet_py.net.client_models import (
     EntryPointsByType,
     EstimatedFee,
     Event,
+    ExecutionResources,
     GatewayBlock,
+    GatewayBlockTransactionReceipt,
     GatewayStateDiff,
     InvokeTransaction,
     L1HandlerTransaction,
@@ -67,6 +70,8 @@ class EventSchema(Schema):
 
 
 class L1toL2MessageSchema(Schema):
+    nonce = Felt(data_key="nonce", required=True)
+    selector = Felt(data_key="selector", required=True)
     l1_address = Felt(data_key="from_address", required=True)
     l2_address = Felt(data_key="to_address", required=True)
     payload = fields.List(Felt(), data_key="payload", required=True)
@@ -167,6 +172,36 @@ class TypesOfTransactionsSchema(OneOfSchema):
     }
 
 
+class BuiltinInstanceCounterSchema(Schema):
+    pedersen_builtin = fields.Integer(data_key="pedersen_builtin", load_default=None)
+    range_check_builtin = fields.Integer(
+        data_key="range_check_builtin", load_default=None
+    )
+    bitwise_builtin = fields.Integer(data_key="bitwise_builtin", load_default=None)
+    output_builtin = fields.Integer(data_key="output_builtin", load_default=None)
+    ecdsa_builtin = fields.Integer(data_key="ecdsa_builtin", load_default=None)
+    ec_op_builtin = fields.Integer(data_key="ec_op_builtin", load_default=None)
+    poseidon_builtin = fields.Integer(data_key="poseidon_builtin", load_default=None)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return BuiltinInstanceCounter(**data)
+
+
+class ExecutionResourcesSchema(Schema):
+    n_steps = fields.Integer(data_key="n_steps", required=True)
+    n_memory_holes = fields.Integer(data_key="n_memory_holes", required=True)
+    builtin_instance_counter = fields.Nested(
+        BuiltinInstanceCounterSchema(),
+        data_key="builtin_instance_counter",
+        required=True,
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return ExecutionResources(**data)
+
+
 class TransactionReceiptSchema(Schema):
     hash = Felt(data_key="transaction_hash", required=True)
     status = StatusField(data_key="status", required=True)
@@ -190,6 +225,10 @@ class TransactionReceiptSchema(Schema):
         fields.Nested(L2toL1MessageSchema()),
         data_key="l2_to_l1_messages",
         load_default=[],
+    )
+    transaction_index = fields.Integer(data_key="transaction_index", required=True)
+    execution_resources = fields.Nested(
+        ExecutionResourcesSchema(), data_key="execution_resources", load_default=None
     )
 
     @post_load
@@ -216,6 +255,28 @@ class ContractCodeSchema(Schema):
         return ContractCode(**data)
 
 
+class GatewayBlockTransactionReceiptSchema(Schema):
+    transaction_index = fields.Integer(data_key="transaction_index", required=True)
+    transaction_hash = Felt(data_key="transaction_hash", required=True)
+    l2_to_l1_messages = fields.List(
+        fields.Nested(L2toL1MessageSchema()),
+        data_key="l2_to_l1_messages",
+        required=True,
+    )
+    l1_to_l2_consumed_message = fields.Nested(
+        L1toL2MessageSchema(), data_key="l1_to_l2_consumed_message", load_default=None
+    )
+    events = fields.List(fields.Nested(EventSchema()), data_key="events", required=True)
+    execution_resources = fields.Nested(
+        ExecutionResourcesSchema(), data_key="execution_resources", load_default=None
+    )
+    actual_fee = Felt(data_key="actual_fee", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return GatewayBlockTransactionReceipt(**data)
+
+
 class StarknetBlockSchema(Schema):
     block_hash = Felt(data_key="block_hash", required=True)
     parent_block_hash = Felt(data_key="parent_block_hash", required=True)
@@ -228,8 +289,14 @@ class StarknetBlockSchema(Schema):
         required=True,
     )
     timestamp = fields.Integer(data_key="timestamp", required=True)
-    gas_price = Felt(data_key="gas_price")
-    sequencer_address = Felt(data_key="sequencer_address")
+    gas_price = Felt(data_key="gas_price", load_default=None)
+    sequencer_address = Felt(data_key="sequencer_address", load_default=None)
+    starknet_version = fields.String(data_key="starknet_version", load_default=None)
+    transaction_receipts = fields.List(
+        fields.Nested(GatewayBlockTransactionReceiptSchema()),
+        data_key="transaction_receipts",
+        required=True,
+    )
 
     @post_load
     def make_dataclass(self, data, **kwargs):
@@ -253,6 +320,12 @@ class BlockSingleTransactionTraceSchema(Schema):
         keys=fields.String(),
         values=fields.Raw(),
         data_key="fee_transfer_invocation",
+        load_default=None,
+    )
+    constructor_invocation = fields.Dict(
+        keys=fields.String(),
+        values=fields.Raw(),
+        data_key="constructor_invocation",
         load_default=None,
     )
     signature = fields.List(Felt(), data_key="signature", load_default=[])
@@ -393,6 +466,7 @@ class BlockStateUpdateSchema(Schema):
 class EntryPointSchema(Schema):
     offset = Felt(data_key="offset", required=True)
     selector = Felt(data_key="selector", required=True)
+    # TODO (#1119): starknet.js has here a nullable `builtins`
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> EntryPoint:

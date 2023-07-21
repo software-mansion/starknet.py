@@ -61,7 +61,7 @@ class L1toL2Message:
     nonce: str
     selector: str
     l1_address: int
-    l2_address: Optional[int] = None
+    l2_address: int
 
 
 @dataclass
@@ -177,6 +177,24 @@ class TransactionStatus(Enum):
 
 
 @dataclass
+class BuiltinInstanceCounter:
+    pedersen_builtin: Optional[int] = None
+    range_check_builtin: Optional[int] = None
+    bitwise_builtin: Optional[int] = None
+    output_builtin: Optional[int] = None
+    ecdsa_builtin: Optional[int] = None
+    ec_op_builtin: Optional[int] = None
+    poseidon_builtin: Optional[int] = None
+
+
+@dataclass
+class ExecutionResources:
+    n_steps: int
+    n_memory_holes: int
+    builtin_instance_counter: BuiltinInstanceCounter
+
+
+@dataclass
 class TransactionReceipt:
     """
     Dataclass representing details of sent transaction.
@@ -195,7 +213,11 @@ class TransactionReceipt:
 
     events: List[Event] = field(default_factory=list)
     l2_to_l1_messages: List[L2toL1Message] = field(default_factory=list)
+
+    # gateway only
     l1_to_l2_consumed_message: Optional[L1toL2Message] = None
+    execution_resources: Optional[ExecutionResources] = None
+    transaction_index: Optional[int] = None
 
 
 @dataclass
@@ -205,7 +227,7 @@ class SentTransactionResponse:
     """
 
     transaction_hash: int
-    code: Optional[str] = None   # TODO remove? it even isn't in the schema wtf
+    code: Optional[str] = None  # TODO (#1119): remove? it even isn't in the schema wtf
 
 
 @dataclass
@@ -263,6 +285,17 @@ class StarknetBlock(StarknetBlockCommon):
 
 
 @dataclass
+class GatewayBlockTransactionReceipt:
+    transaction_index: int
+    transaction_hash: int
+    l2_to_l1_messages: List[L2toL1Message]
+    events: List[Event]
+    actual_fee: int
+    execution_resources: Optional[ExecutionResources] = None
+    l1_to_l2_consumed_message: Optional[L1toL2Message] = None
+
+
+@dataclass
 class GatewayBlock(StarknetBlockCommon):
     """
     Dataclass representing a block from the Starknet gateway.
@@ -271,7 +304,9 @@ class GatewayBlock(StarknetBlockCommon):
     gas_price: int
     status: BlockStatus
     transactions: List[Transaction]
+    transaction_receipts: List[TransactionReceipt]
     sequencer_address: Optional[int] = None
+    starknet_version: Optional[str] = None
 
 
 @dataclass
@@ -324,6 +359,7 @@ class BlockSingleTransactionTrace:
     function_invocation: Optional[dict] = None
     validate_invocation: Optional[dict] = None
     fee_transfer_invocation: Optional[dict] = None
+    constructor_invocation: Optional[dict] = None
 
 
 @dataclass
