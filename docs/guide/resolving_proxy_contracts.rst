@@ -12,7 +12,7 @@ high-level :meth:`Contract.from_address <starknet_py.contract.Contract.from_addr
 :meth:`Contract.from_address <starknet_py.contract.Contract.from_address>` works with contracts which are not proxies, so it is the most universal method of getting
 a contract not knowing the abi.
 
-.. codesnippet:: ../../starknet_py/tests/docs/guide/test_resolving_proxies.py
+.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_resolving_proxies.py
     :language: python
     :dedent: 4
     :start-after: docs-1: start
@@ -53,7 +53,7 @@ It has two methods:
 
 Here is the complete example:
 
-.. codesnippet:: ../../starknet_py/tests/docs/guide/test_resolving_proxies.py
+.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_resolving_proxies.py
     :language: python
     :dedent: 4
     :start-after: docs-2: start
