@@ -55,10 +55,10 @@ def encode_shortstring(text: str) -> int:
 
 def decode_shortstring(value: int) -> str:
     """
-    A function which decodes a felt value to short string (31 characters)
+    A function which decodes a felt value to short string (at most 31 characters)
 
     :param value: A felt value
     :return: Decoded string which is corresponds to that felt
     """
     cairo_vm_range_check(value)
-    return "".join([chr(i) for i in value.to_bytes(31, byteorder="big")])
+    return "".join([chr(i) for i in value.to_bytes(31, byteorder="big")]).lstrip("\x00")
