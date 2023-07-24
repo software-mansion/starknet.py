@@ -131,7 +131,7 @@ class DeployTransaction(Transaction):
     Dataclass representing deploy transaction.
     """
 
-    contract_address: Optional[int]
+    contract_address: Optional[int]  # Gateway-only field, hence Optional
     contract_address_salt: int
     constructor_calldata: List[int]
     class_hash: int

@@ -144,7 +144,7 @@ class EstimatedFeeSchema(Schema):
 
 
 class TransactionSchema(Schema):
-    hash = Felt(data_key="transaction_hash", required=True)
+    hash = Felt(data_key="transaction_hash", load_default=0)  # TODO not sure (either 0 or optional with None)
     signature = fields.List(Felt(), data_key="signature", load_default=[])
     max_fee = Felt(data_key="max_fee", load_default=0)
     version = Felt(data_key="version", required=True)
