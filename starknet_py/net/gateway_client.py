@@ -457,7 +457,9 @@ class GatewayClient(Client):
                 "contractAddress": hash_to_felt(contract_address),
             },
         )
-        return TypesOfContractClassSchema().load(res, unknown=EXCLUDE)  # pyright: ignore
+        return TypesOfContractClassSchema().load(
+            res, unknown=EXCLUDE
+        )  # pyright: ignore
 
 
 def get_block_identifier(
