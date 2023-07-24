@@ -191,7 +191,7 @@ class BuiltinInstanceCounter:
 class ExecutionResources:
     n_steps: int
     n_memory_holes: int
-    builtin_instance_counter: BuiltinInstanceCounter
+    builtin_instance_counter: dict
 
 
 @dataclass
@@ -216,7 +216,7 @@ class TransactionReceipt:
 
     # gateway only
     l1_to_l2_consumed_message: Optional[L1toL2Message] = None
-    execution_resources: Optional[ExecutionResources] = None
+    execution_resources: Optional[dict] = None
     transaction_index: Optional[int] = None
 
 
