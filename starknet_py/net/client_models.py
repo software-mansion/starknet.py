@@ -58,8 +58,8 @@ class L1toL2Message:
     """
 
     payload: List[int]
-    nonce: str
-    selector: str
+    nonce: int
+    selector: int
     l1_address: int
     l2_address: int
 
@@ -173,6 +173,27 @@ class TransactionStatus(Enum):
     ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
     ACCEPTED_ON_L1 = "ACCEPTED_ON_L1"
     REJECTED = "REJECTED"
+    REVERTED = "REVERTED"
+
+
+class TransactionExecutionStatus(Enum):
+    """
+    Enum representing transaction execution statuses.
+    """
+
+    REJECTED = "REJECTED"
+    REVERTED = "REVERTED"
+    SUCCEEDED = "SUCCEEDED"
+
+
+class TransactionFinalityStatus(Enum):
+    """
+    Enum representing transaction finality statuses.
+    """
+
+    RECEIVED = "RECEIVED"
+    ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
+    ACCEPTED_ON_L1 = "ACCEPTED_ON_L1"
 
 
 @dataclass
@@ -183,23 +204,28 @@ class TransactionReceipt:
 
     # pylint: disable=too-many-instance-attributes
 
-    hash: int
-    status: TransactionStatus
-    type: Optional[TransactionType] = None
-    contract_address: Optional[int] = None
-    block_number: Optional[int] = None
-    block_hash: Optional[int] = None
-    actual_fee: int = 0
-    rejection_reason: Optional[str] = None
-
+    transaction_hash: int
     events: List[Event] = field(default_factory=list)
     l2_to_l1_messages: List[L2toL1Message] = field(default_factory=list)
 
+    execution_status: Optional[TransactionExecutionStatus] = None
+    finality_status: Optional[TransactionFinalityStatus] = None
+    status: Optional[TransactionStatus] = None
+
+    type: Optional[TransactionType] = None
+    contract_address: Optional[int] = None
+
+    block_number: Optional[int] = None
+    block_hash: Optional[int] = None
+    actual_fee: int = 0
+
+    rejection_reason: Optional[str] = None
+    revert_error: Optional[str] = None
+
     # gateway only
     l1_to_l2_consumed_message: Optional[L1toL2Message] = None
-    execution_resources: Optional[dict] = None
+    execution_resources: Optional[dict] = field(default_factory=dict)
     transaction_index: Optional[int] = None
-
 
 @dataclass
 class SentTransactionResponse:

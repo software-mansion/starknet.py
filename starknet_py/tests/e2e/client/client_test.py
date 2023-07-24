@@ -130,7 +130,7 @@ async def test_get_transaction_receipt(
 ):
     receipt = await client.get_transaction_receipt(tx_hash=invoke_transaction_hash)
 
-    assert receipt.hash == invoke_transaction_hash
+    assert receipt.transaction_hash == invoke_transaction_hash
     assert receipt.block_number == block_with_invoke_number
     if isinstance(client, FullNodeClient):
         assert receipt.type == TransactionType.INVOKE
@@ -279,7 +279,7 @@ async def test_wait_for_tx_accepted(client, get_tx_receipt, request):
         AsyncMock(),
     ) as mocked_receipt:
         mocked_receipt.return_value = TransactionReceipt(
-            hash=0x1,
+            transaction_hash=0x1,
             status=TransactionStatus.ACCEPTED_ON_L2,
             block_number=1,
             type=TransactionType.INVOKE,
@@ -324,7 +324,7 @@ async def test_wait_for_tx_rejected(
         AsyncMock(),
     ) as mocked_receipt:
         mocked_receipt.return_value = TransactionReceipt(
-            hash=0x1,
+            transaction_hash=0x1,
             status=status,
             block_number=1,
             rejection_reason=exc_message,
@@ -359,7 +359,7 @@ async def test_wait_for_tx_cancelled(client, get_tx_receipt, request):
         AsyncMock(),
     ) as mocked_receipt:
         mocked_receipt.return_value = TransactionReceipt(
-            hash=0x1,
+            transaction_hash=0x1,
             status=TransactionStatus.NOT_RECEIVED,
             block_number=1,
             type=TransactionType.INVOKE,
@@ -413,7 +413,7 @@ async def test_declare_contract(map_compiled_contract, account):
     transaction_receipt = await client.get_transaction_receipt(result.transaction_hash)
 
     assert transaction_receipt.status != TransactionStatus.NOT_RECEIVED
-    assert transaction_receipt.hash
+    assert transaction_receipt.transaction_hash
     assert 0 < transaction_receipt.actual_fee <= MAX_FEE
     if isinstance(client, FullNodeClient):
         assert transaction_receipt.type == TransactionType.DECLARE

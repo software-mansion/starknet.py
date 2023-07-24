@@ -20,6 +20,7 @@ from starknet_py.net.client_models import (
     StarknetBlock,
     Tag,
     Transaction,
+    TransactionFinalityStatus,
     TransactionReceipt,
     TransactionStatus,
 )
@@ -167,12 +168,16 @@ class Client(ABC):
             try:
                 result = await self.get_transaction_receipt(tx_hash=tx_hash)
                 status = result.status
+                finality_status = result.finality_status
                 if status is None:
                     raise ClientError(f"Unknown status in transaction {tx_hash}.")
 
                 if status in (
                     TransactionStatus.ACCEPTED_ON_L1,
                     TransactionStatus.ACCEPTED_ON_L2,
+                ) or finality_status in (
+                    TransactionFinalityStatus.ACCEPTED_ON_L1,
+                    TransactionFinalityStatus.ACCEPTED_ON_L2,
                 ):
                     assert result.block_number is not None
                     return result.block_number, status

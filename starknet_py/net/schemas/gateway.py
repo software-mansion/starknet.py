@@ -45,7 +45,9 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.schemas.common import (
     BlockStatusField,
+    ExecutionStatusField,
     Felt,
+    FinalityStatusField,
     NonPrefixedHex,
     StatusField,
     StorageEntrySchema,
@@ -169,11 +171,18 @@ class TypesOfTransactionsSchema(OneOfSchema):
 
 
 class TransactionReceiptSchema(Schema):
-    hash = Felt(data_key="transaction_hash", required=True)
-    status = StatusField(data_key="status", required=True)
+    transaction_hash = Felt(data_key="transaction_hash", required=True)
+
+    status = StatusField(data_key="status")
+    execution_status = ExecutionStatusField(
+        data_key="execution_status", load_default=None
+    )
+    finality_status = FinalityStatusField(data_key="finality_status", load_default=None)
+
     block_number = fields.Integer(data_key="block_number", load_default=None)
     block_hash = Felt(data_key="block_hash", load_default=None)
     actual_fee = Felt(data_key="actual_fee", allow_none=True)
+    revert_error = fields.String(data_key="revert_error", load_default=None)
     rejection_reason = fields.Dict(
         keys=fields.String(),
         values=fields.Raw(),
@@ -193,7 +202,7 @@ class TransactionReceiptSchema(Schema):
         load_default=[],
     )
     transaction_index = fields.Integer(data_key="transaction_index", load_default=None)
-    execution_resources = fields.Dict(data_key="execution_resources", load_default=None)
+    execution_resources = fields.Dict(data_key="execution_resources")
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> TransactionReceipt:
