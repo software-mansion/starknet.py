@@ -120,10 +120,9 @@ class DeclareTransaction(Transaction):
     Dataclass representing declare transaction.
     """
 
-    class_hash: int
+    class_hash: int  # Responses to getBlock and getTransaction include the class hash
     sender_address: int
     nonce: Optional[int] = None
-    compiled_class_hash: Optional[int] = None
 
 
 @dataclass
