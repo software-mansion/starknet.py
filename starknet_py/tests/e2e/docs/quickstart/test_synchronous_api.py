@@ -1,5 +1,4 @@
 # pylint: disable=import-outside-toplevel, no-member, duplicate-code
-# type: ignore
 
 
 def test_synchronous_api(account, map_contract):

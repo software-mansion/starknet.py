@@ -3,7 +3,7 @@ import pytest
 from starknet_py.cairo.felt import decode_shortstring, encode_shortstring
 from starknet_py.contract import Contract
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
-from starknet_py.tests.e2e.fixtures.contracts_v1 import deploy_v1_contract
+from starknet_py.tests.e2e.fixtures.contracts import deploy_v1_contract
 
 
 @pytest.mark.asyncio
@@ -23,7 +23,7 @@ async def test_general_v1_interaction(account, cairo1_erc20_class_hash: int):
     )
 
     (name,) = await erc20.functions["get_name"].call()
-    decoded_name = decode_shortstring(name).lstrip("\x00")
+    decoded_name = decode_shortstring(name)
     (decimals,) = await erc20.functions["get_decimals"].call()
     (supply,) = await erc20.functions["get_total_supply"].call()
     (account_balance,) = await erc20.functions["balance_of"].call(
