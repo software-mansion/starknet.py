@@ -123,7 +123,7 @@ class TransactionReceiptSchema(Schema):
     )
     l1_to_l2_consumed_message = fields.Nested(
         L1toL2MessageSchema(), data_key="l1_origin_message", load_default=None
-    )  # TODO (#1119): remove this field (it exists in gateway tho)
+    )
     l2_to_l1_messages = fields.List(
         fields.Nested(L2toL1MessageSchema()), data_key="messages_sent", load_default=[]
     )
