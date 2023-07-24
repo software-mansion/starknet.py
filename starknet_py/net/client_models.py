@@ -209,7 +209,7 @@ class SentTransactionResponse:
     """
 
     transaction_hash: int
-    code: Optional[str] = None  # TODO (#1119): remove? it even isn't in the schema wtf
+    code: Optional[str] = None
 
 
 @dataclass
