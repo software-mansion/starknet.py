@@ -257,6 +257,16 @@ class BlockStatus(Enum):
 
 
 @dataclass
+class TransactionInBlock:
+    """
+    Dataclass representing transaction in a block.
+    """
+
+    transaction: Transaction
+    transaction_hash: int
+
+
+@dataclass
 class StarknetBlockCommon:
     """
     Dataclass representing a block header.
@@ -277,7 +287,7 @@ class StarknetBlock(StarknetBlockCommon):
 
     sequencer_address: int
     status: BlockStatus
-    transactions: List[Transaction]
+    transactions: List[TransactionInBlock]
 
 
 @dataclass

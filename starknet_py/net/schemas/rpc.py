@@ -34,6 +34,7 @@ from starknet_py.net.client_models import (
     StateDiff,
     StorageDiffItem,
     SyncStatus,
+    TransactionInBlock,
     TransactionReceipt,
 )
 from starknet_py.net.schemas.common import (
@@ -221,6 +222,19 @@ class TypesOfTransactionsSchema(OneOfSchema):
     }
 
 
+class TransactionInBlockSchema(Schema):
+    transaction = fields.Nested(
+        TypesOfTransactionsSchema(unknown=EXCLUDE),
+        data_key="transaction",
+        required=True,
+    )
+    transaction_hash = Felt(data_key="transaction_hash", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return TransactionInBlock(**data)
+
+
 class StarknetBlockSchema(Schema):
     block_hash = Felt(data_key="block_hash", required=True)
     parent_block_hash = Felt(data_key="parent_hash", required=True)
@@ -229,7 +243,7 @@ class StarknetBlockSchema(Schema):
     status = BlockStatusField(data_key="status", required=True)
     root = NonPrefixedHex(data_key="new_root", required=True)
     transactions = fields.List(
-        fields.Nested(TypesOfTransactionsSchema(unknown=EXCLUDE)),
+        fields.Nested(TransactionInBlockSchema()),
         data_key="transactions",
         required=True,
     )
