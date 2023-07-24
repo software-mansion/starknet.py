@@ -111,6 +111,7 @@ class Declare(AccountTransaction):
     Represents a transaction in the Starknet network that is a declaration of a Starknet contract
     class.
     """
+
     # The class to be declared, included for all methods involving execution (estimateFee, simulateTransactions)
     contract_class: ContractClass = field(
         metadata={"marshmallow_field": fields.Nested(ContractClassSchema())}

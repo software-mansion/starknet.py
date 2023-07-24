@@ -200,7 +200,9 @@ class TransactionReceipt:
     # pylint: disable=too-many-instance-attributes
 
     hash: int
-    status: Optional[TransactionStatus]  # replaced by execution and finality status in RPC v0.4.0-rc1
+    status: Optional[
+        TransactionStatus
+    ]  # replaced by execution and finality status in RPC v0.4.0-rc1
     execution_status: Optional[TransactionExecutionStatus] = None
     finality_status: Optional[TransactionFinalityStatus] = None
     type: Optional[TransactionType] = None
