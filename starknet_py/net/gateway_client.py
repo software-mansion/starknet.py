@@ -447,21 +447,17 @@ class GatewayClient(Client):
         nonce = cast(str, nonce)
         return int(nonce, 16)
 
-    # TODO (#1119): add tests to that
     async def get_full_contract(
         self,
         contract_address: Hash,
-    ):
+    ) -> Union[ContractClass, SierraContractClass]:
         res = await self._feeder_gateway_client.call(
             method_name="get_full_contract",
             params={
-                "contractAddress": contract_address,
+                "contractAddress": hash_to_felt(contract_address),
             },
         )
-        return TypesOfContractClassSchema().load(res, unknown=EXCLUDE)
-
-
-#    TODO (#1119): found also simulate_transaction and estimate_message_fee - what about those?
+        return TypesOfContractClassSchema().load(res, unknown=EXCLUDE)  # pyright: ignore
 
 
 def get_block_identifier(
