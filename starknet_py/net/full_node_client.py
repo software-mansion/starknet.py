@@ -350,7 +350,7 @@ class FullNodeClient(Client):
         self,
         from_address: Hash,
         to_address: Hash,
-        selector: Hash,
+        entry_point_selector: Hash,
         payload: List[Hash],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
@@ -359,7 +359,7 @@ class FullNodeClient(Client):
         """
         :param from_address: The address of the L1 contract sending the message.
         :param to_address: The target L2 address the message is sent to.
-        :param selector: The selector of the l1_handler in invoke in the target contract.
+        :param entry_point_selector: The selector of the l1_handler in invoke in the target contract.
         :param payload: Payload of the message.
         :param block_hash: Hash of the requested block or literals `"pending"` or `"latest"`.
             Mutually exclusive with ``block_number`` parameter. If not provided, queries block `"pending"`.
@@ -372,7 +372,7 @@ class FullNodeClient(Client):
         message_body = {
             "from_address": from_address,
             "to_address": _to_rpc_felt(to_address),
-            "entry_point_selector": _to_rpc_felt(selector),
+            "entry_point_selector": _to_rpc_felt(entry_point_selector),
             "payload": [_to_rpc_felt(x) for x in payload],
         }
 
