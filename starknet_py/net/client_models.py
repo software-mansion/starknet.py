@@ -273,7 +273,7 @@ class GatewayBlockTransactionReceipt:
     l2_to_l1_messages: List[L2toL1Message]
     events: List[Event]
     actual_fee: int
-    execution_resources: Optional[ExecutionResources] = None
+    execution_resources: Optional[dict] = None
     l1_to_l2_consumed_message: Optional[L1toL2Message] = None
 
 
