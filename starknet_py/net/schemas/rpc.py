@@ -52,15 +52,6 @@ from starknet_py.net.schemas.utils import (
 # pylint: disable=unused-argument, no-self-use
 
 
-# TODO (#1119): what is this for, it isn't even used anywhere
-class FunctionCallSchema(Schema):
-    contract_address = fields.Integer(data_key="contract_address", required=True)
-    entry_point_selector = fields.Integer(
-        data_key="entry_point_selector", required=True
-    )
-    calldata = fields.List(fields.Integer(), data_key="calldata", required=True)
-
-
 class EventSchema(Schema):
     from_address = Felt(data_key="from_address", required=True)
     keys = fields.List(Felt(), data_key="keys", required=True)
