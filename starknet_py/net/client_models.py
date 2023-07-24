@@ -177,24 +177,6 @@ class TransactionStatus(Enum):
 
 
 @dataclass
-class BuiltinInstanceCounter:
-    pedersen_builtin: Optional[int] = None
-    range_check_builtin: Optional[int] = None
-    bitwise_builtin: Optional[int] = None
-    output_builtin: Optional[int] = None
-    ecdsa_builtin: Optional[int] = None
-    ec_op_builtin: Optional[int] = None
-    poseidon_builtin: Optional[int] = None
-
-
-@dataclass
-class ExecutionResources:
-    n_steps: int
-    n_memory_holes: int
-    builtin_instance_counter: dict
-
-
-@dataclass
 class TransactionReceipt:
     """
     Dataclass representing details of sent transaction.
