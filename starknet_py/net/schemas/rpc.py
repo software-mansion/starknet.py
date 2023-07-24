@@ -107,6 +107,7 @@ class L2toL1MessageSchema(Schema):
 
 class TransactionReceiptSchema(Schema):
     hash = Felt(data_key="transaction_hash", required=True)
+    # replaced by execution and finality status in RPC v0.4.0-rc1
     status = StatusField(data_key="status", load_default=None)
     execution_status = ExecutionStatusField(
         data_key="execution_status", load_default=None
