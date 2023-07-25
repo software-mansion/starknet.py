@@ -243,6 +243,18 @@ class BlockStatus(Enum):
 
 
 @dataclass
+class PendingStarknetBlock:
+    """
+    Dataclass representing pending block on Starknet.
+    """
+
+    timestamp: int
+    sequencer_address: int
+    parent_hash: int
+    transactions: List[Transaction]
+
+
+@dataclass
 class StarknetBlockCommon:
     """
     Dataclass representing a block header.

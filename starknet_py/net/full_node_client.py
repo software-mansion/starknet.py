@@ -19,6 +19,7 @@ from starknet_py.net.client_models import (
     EventsChunk,
     Hash,
     PendingBlockStateUpdate,
+    PendingStarknetBlock,
     PendingStarknetBlockWithTxHashes,
     SentTransactionResponse,
     SierraContractClass,
@@ -50,6 +51,7 @@ from starknet_py.net.schemas.rpc import (
     EstimatedFeeSchema,
     EventsChunkSchema,
     PendingBlockStateUpdateSchema,
+    PendingStarknetBlockSchema,
     PendingStarknetBlockWithTxHashesSchema,
     PendingTransactionsSchema,
     SentTransactionSchema,
@@ -100,7 +102,7 @@ class FullNodeClient(Client):
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> StarknetBlock:
+    ) -> Union[StarknetBlock, PendingStarknetBlock]:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -109,13 +111,18 @@ class FullNodeClient(Client):
             method_name="getBlockWithTxs",
             params=block_identifier,
         )
-        return cast(StarknetBlock, StarknetBlockSchema().load(res, unknown=EXCLUDE))
+        if "new_root" in res:
+            return cast(StarknetBlock, StarknetBlockSchema().load(res, unknown=EXCLUDE))
+        return cast(
+            PendingStarknetBlock,
+            PendingStarknetBlockSchema().load(res, unknown=EXCLUDE),
+        )
 
     async def get_block_with_txs(
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> StarknetBlock:
+    ) -> Union[StarknetBlock, PendingStarknetBlock]:
         return await self.get_block(block_hash=block_hash, block_number=block_number)
 
     async def get_block_with_tx_hashes(

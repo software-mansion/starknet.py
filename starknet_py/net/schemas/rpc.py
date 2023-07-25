@@ -23,6 +23,7 @@ from starknet_py.net.client_models import (
     L1HandlerTransaction,
     L2toL1Message,
     PendingBlockStateUpdate,
+    PendingStarknetBlock,
     PendingStarknetBlockWithTxHashes,
     ReplacedClass,
     SentTransactionResponse,
@@ -192,6 +193,21 @@ class TypesOfTransactionsSchema(OneOfSchema):
         "DEPLOY_ACCOUNT": DeployAccountTransactionSchema,
         "L1_HANDLER": L1HandlerTransactionSchema,
     }
+
+
+class PendingStarknetBlockSchema(Schema):
+    parent_hash = Felt(data_key="parent_hash", required=True)
+    sequencer_address = Felt(data_key="sequencer_address", required=True)
+    transactions = fields.List(
+        fields.Nested(TypesOfTransactionsSchema(unknown=EXCLUDE)),
+        data_key="transactions",
+        required=True,
+    )
+    timestamp = fields.Integer(data_key="timestamp", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return PendingStarknetBlock(**data)
 
 
 class StarknetBlockSchema(Schema):
