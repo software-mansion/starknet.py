@@ -91,7 +91,7 @@ class Transaction(ABC):
     Dataclass representing common attributes of all transactions.
     """
 
-    hash: int
+    hash: Optional[int]
     signature: List[int]
     max_fee: int
     version: int
