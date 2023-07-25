@@ -21,7 +21,6 @@ from starknet_py.net.client_models import (
     EventsChunk,
     InvokeTransaction,
     L1HandlerTransaction,
-    L1toL2Message,
     L2toL1Message,
     PendingBlockStateUpdate,
     PendingStarknetBlockWithTxHashes,
