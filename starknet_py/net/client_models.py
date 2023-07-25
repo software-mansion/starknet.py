@@ -288,7 +288,7 @@ class StarknetBlock(StarknetBlockCommon):
 
     sequencer_address: int
     status: BlockStatus
-    transactions: List[TransactionInBlock]
+    transactions: List[Union[TransactionInBlock, Transaction]]
 
 
 @dataclass

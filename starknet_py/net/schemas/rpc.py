@@ -238,6 +238,19 @@ class TransactionInBlockSchema(Schema):
         return TransactionInBlock(**data)
 
 
+class BlockTransactionSchema(OneOfSchema):
+    # schema for backwards compatibility with RPC v0.3.0, in newer versions transaction hashes are also returned
+    type_schemas = {
+        "TransactionInBlock": TransactionInBlockSchema(),
+        "Transaction": TransactionSchema(),
+    }
+
+    def get_data_type(self, data):
+        if "transaction_hash" in data:
+            return "TransactionInBlock"
+        return "Transaction"
+
+
 class StarknetBlockSchema(Schema):
     block_hash = Felt(data_key="block_hash", required=True)
     parent_block_hash = Felt(data_key="parent_hash", required=True)
@@ -246,7 +259,7 @@ class StarknetBlockSchema(Schema):
     status = BlockStatusField(data_key="status", required=True)
     root = NonPrefixedHex(data_key="new_root", required=True)
     transactions = fields.List(
-        fields.Nested(TransactionInBlockSchema()),
+        fields.Nested(BlockTransactionSchema()),
         data_key="transactions",
         required=True,
     )
