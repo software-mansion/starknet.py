@@ -75,18 +75,6 @@ class EventsChunkSchema(Schema):
         return EventsChunk(**data)
 
 
-class L1toL2MessageSchema(Schema):
-    nonce = Felt(data_key="nonce", required=True)
-    selector = Felt(data_key="selector", required=True)
-    l1_address = Felt(data_key="from_address", required=True)
-    l2_address = Felt(load_default=None)
-    payload = fields.List(Felt(), data_key="payload", required=True)
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> L1toL2Message:
-        return L1toL2Message(**data)
-
-
 class L2toL1MessageSchema(Schema):
     l2_address = Felt(load_default=None)
     l1_address = Felt(data_key="to_address", required=True)
