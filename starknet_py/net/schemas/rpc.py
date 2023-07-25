@@ -242,13 +242,15 @@ class BlockTransactionSchema(OneOfSchema):
     # schema for backwards compatibility with RPC v0.3.0, in newer versions transaction hashes are also returned
     type_schemas = {
         "TransactionInBlock": TransactionInBlockSchema(),
-        "Transaction": TransactionSchema(),
+        "Transaction": TypesOfTransactionsSchema(),
     }
 
     def get_data_type(self, data):
-        if "transaction_hash" in data:
-            return "TransactionInBlock"
-        return "Transaction"
+        if "type" in data:
+            # it means that the object retrieved is a plain transaction (as in RPC v0.3.0)
+            # it could be any property from Transaction except for `transaction_hash` (it is also in the nested version)
+            return "Transaction"
+        return "TransactionInBlock"
 
 
 class StarknetBlockSchema(Schema):
