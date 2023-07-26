@@ -320,10 +320,10 @@ class PendingStarknetBlockWithTxHashes:
     Dataclass representing a block on Starknet containing transaction hashes.
     """
 
-    parent_block_hash: int
-    sequencer_address: int
-    timestamp: int
     transactions: List[int]
+    parent_block_hash: Optional[int] = None
+    sequencer_address: Optional[int] = None
+    timestamp: Optional[int] = None
 
 
 @dataclass
