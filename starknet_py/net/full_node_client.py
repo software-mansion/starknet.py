@@ -111,8 +111,7 @@ class FullNodeClient(Client):
             method_name="getBlockWithTxs",
             params=block_identifier,
         )
-        # TODO (#1119): add tests to that
-        if block_identifier == {"blockNumber": "pending"}:
+        if block_identifier == {"block_id": "pending"}:
             return cast(
                 PendingStarknetBlock,
                 PendingStarknetBlockSchema().load(res, unknown=EXCLUDE),
@@ -140,7 +139,7 @@ class FullNodeClient(Client):
             params=block_identifier,
         )
 
-        if block_identifier == {"blockNumber": "pending"}:
+        if block_identifier == {"block_id": "pending"}:
             return cast(
                 PendingStarknetBlockWithTxHashes,
                 PendingStarknetBlockWithTxHashesSchema().load(res, unknown=EXCLUDE),
@@ -278,7 +277,7 @@ class FullNodeClient(Client):
             params=block_identifier,
         )
 
-        if block_identifier == {"blockNumber": "pending"}:
+        if block_identifier == {"block_id": "pending"}:
             return cast(
                 PendingBlockStateUpdate,
                 PendingBlockStateUpdateSchema().load(res, unknown=EXCLUDE),

@@ -19,6 +19,7 @@ from starknet_py.net.client_models import (
     GatewayBlock,
     InvokeTransaction,
     L1HandlerTransaction,
+    PendingBlockStateUpdate,
     ReplacedClass,
     SierraContractClass,
     SierraEntryPointsByType,
@@ -540,6 +541,8 @@ async def test_state_update_storage_diffs(
     state_update = await client.get_state_update()
 
     assert len(state_update.state_diff.storage_diffs) != 0
+    if isinstance(client, FullNodeClient):
+        assert isinstance(state_update, PendingBlockStateUpdate)
 
 
 @pytest.mark.run_on_devnet
@@ -561,6 +564,8 @@ async def test_state_update_deployed_contracts(
     state_update = await account.client.get_state_update()
 
     assert len(state_update.state_diff.deployed_contracts) != 0
+    if isinstance(account.client, FullNodeClient):
+        assert isinstance(state_update, PendingBlockStateUpdate)
 
 
 @pytest.mark.asyncio
