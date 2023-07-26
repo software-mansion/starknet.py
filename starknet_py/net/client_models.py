@@ -70,7 +70,6 @@ class L2toL1Message:
     Dataclass representing a L2->L1 message.
     """
 
-    from_address: int
     payload: List[int]
     l1_address: int
     l2_address: Optional[int] = None
@@ -298,7 +297,7 @@ class GatewayBlock(StarknetBlockCommon):
     gas_price: int
     status: BlockStatus
     transactions: List[Transaction]
-    transaction_receipts: List[TransactionReceipt]
+    transaction_receipts: List[GatewayBlockTransactionReceipt]
     sequencer_address: Optional[int] = None
     starknet_version: Optional[str] = None
 
