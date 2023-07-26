@@ -24,7 +24,10 @@ async def test_get_block(full_node_client):
 
 
 @pytest.mark.asyncio
-async def test_get_state_update(full_node_client):
+async def test_get_state_update(full_node_client, declare_transaction_hash):
+    # parameter `declare_transaction_hash` is needed because devnet blockchain is empty without it
+    # and methods return invalid data
+
     # docs-start: get_state_update
     state_update = await full_node_client.get_state_update(block_number="latest")
     state_update = await full_node_client.get_state_update(block_number=0)
