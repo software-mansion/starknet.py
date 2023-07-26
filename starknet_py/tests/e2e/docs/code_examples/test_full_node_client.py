@@ -24,7 +24,9 @@ async def test_get_block(full_node_client):
 
 
 @pytest.mark.asyncio
-async def test_get_state_update(full_node_client, declare_transaction_hash):  # pylint: disable=unused-argument
+async def test_get_state_update(
+    full_node_client, declare_transaction_hash
+):  # pylint: disable=unused-argument
     # parameter `declare_transaction_hash` is needed because devnet blockchain is empty without it
     # and methods return invalid data
 
