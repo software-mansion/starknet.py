@@ -111,12 +111,13 @@ class FullNodeClient(Client):
             method_name="getBlockWithTxs",
             params=block_identifier,
         )
-        if "new_root" in res:
-            return cast(StarknetBlock, StarknetBlockSchema().load(res, unknown=EXCLUDE))
-        return cast(
-            PendingStarknetBlock,
-            PendingStarknetBlockSchema().load(res, unknown=EXCLUDE),
-        )
+        # TODO (#1119): add tests to that
+        if block_identifier == {"blockNumber": "pending"}:
+            return cast(
+                PendingStarknetBlock,
+                PendingStarknetBlockSchema().load(res, unknown=EXCLUDE),
+            )
+        return cast(StarknetBlock, StarknetBlockSchema().load(res, unknown=EXCLUDE))
 
     async def get_block_with_txs(
         self,
@@ -139,14 +140,14 @@ class FullNodeClient(Client):
             params=block_identifier,
         )
 
-        if "status" in res:
+        if block_identifier == {"blockNumber": "pending"}:
             return cast(
-                StarknetBlockWithTxHashes,
-                StarknetBlockWithTxHashesSchema().load(res, unknown=EXCLUDE),
+                PendingStarknetBlockWithTxHashes,
+                PendingStarknetBlockWithTxHashesSchema().load(res, unknown=EXCLUDE),
             )
         return cast(
-            PendingStarknetBlockWithTxHashes,
-            PendingStarknetBlockWithTxHashesSchema().load(res, unknown=EXCLUDE),
+            StarknetBlockWithTxHashes,
+            StarknetBlockWithTxHashesSchema().load(res, unknown=EXCLUDE),
         )
 
     async def get_block_traces(
@@ -277,13 +278,13 @@ class FullNodeClient(Client):
             params=block_identifier,
         )
 
-        if "new_root" in res:
+        if block_identifier == {"blockNumber": "pending"}:
             return cast(
-                BlockStateUpdate, BlockStateUpdateSchema().load(res, unknown=EXCLUDE)
+                PendingBlockStateUpdate,
+                PendingBlockStateUpdateSchema().load(res, unknown=EXCLUDE),
             )
         return cast(
-            PendingBlockStateUpdate,
-            PendingBlockStateUpdateSchema().load(res, unknown=EXCLUDE),
+            BlockStateUpdate, BlockStateUpdateSchema().load(res, unknown=EXCLUDE)
         )
 
     async def get_storage_at(
