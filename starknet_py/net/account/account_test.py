@@ -52,7 +52,7 @@ async def test_get_balance_default_token_address(net, call_contract):
 @pytest.mark.asyncio
 async def test_account_get_balance(account, map_contract):
     balance = await account.get_balance()
-    block = await account.client.get_block()
+    block = await account.client.get_block(block_number="latest")
 
     await map_contract.functions["put"].invoke(key=10, value=10, max_fee=MAX_FEE)
 
