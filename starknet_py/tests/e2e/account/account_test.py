@@ -152,7 +152,7 @@ async def test_get_class_hash_at(map_contract, account):
 async def test_get_nonce(account, map_contract):
     nonce = await account.get_nonce()
     address = map_contract.address
-    block = await account.client.get_block()
+    block = await account.client.get_block(block_number="latest")
 
     tx = await account.execute(
         Call(

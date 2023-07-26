@@ -58,8 +58,10 @@ class L1toL2Message:
     """
 
     payload: List[int]
+    nonce: str
+    selector: str
     l1_address: int
-    l2_address: Optional[int] = None
+    l2_address: int
 
 
 @dataclass
@@ -68,10 +70,9 @@ class L2toL1Message:
     Dataclass representing a L2->L1 message.
     """
 
-    from_address: int
     payload: List[int]
     l1_address: int
-    l2_address: Optional[int] = None
+    l2_address: int
 
 
 class TransactionType(Enum):
@@ -132,9 +133,10 @@ class DeployTransaction(Transaction):
     Dataclass representing deploy transaction.
     """
 
-    contract_address: Optional[int]
+    contract_address_salt: int
     constructor_calldata: List[int]
     class_hash: int
+    contract_address: Optional[int] = None
 
 
 @dataclass
@@ -192,7 +194,11 @@ class TransactionReceipt:
 
     events: List[Event] = field(default_factory=list)
     l2_to_l1_messages: List[L2toL1Message] = field(default_factory=list)
+
+    # gateway only
     l1_to_l2_consumed_message: Optional[L1toL2Message] = None
+    execution_resources: Optional[dict] = None
+    transaction_index: Optional[int] = None
 
 
 @dataclass
@@ -236,6 +242,18 @@ class BlockStatus(Enum):
 
 
 @dataclass
+class PendingStarknetBlock:
+    """
+    Dataclass representing pending block on Starknet.
+    """
+
+    transactions: List[Transaction]
+    timestamp: Optional[int] = None
+    sequencer_address: Optional[int] = None
+    parent_hash: Optional[int] = None
+
+
+@dataclass
 class StarknetBlockCommon:
     """
     Dataclass representing a block header.
@@ -260,6 +278,17 @@ class StarknetBlock(StarknetBlockCommon):
 
 
 @dataclass
+class GatewayBlockTransactionReceipt:
+    transaction_index: int
+    transaction_hash: int
+    l2_to_l1_messages: List[L2toL1Message]
+    events: List[Event]
+    actual_fee: int
+    execution_resources: Optional[dict] = None
+    l1_to_l2_consumed_message: Optional[L1toL2Message] = None
+
+
+@dataclass
 class GatewayBlock(StarknetBlockCommon):
     """
     Dataclass representing a block from the Starknet gateway.
@@ -268,7 +297,9 @@ class GatewayBlock(StarknetBlockCommon):
     gas_price: int
     status: BlockStatus
     transactions: List[Transaction]
+    transaction_receipts: List[GatewayBlockTransactionReceipt]
     sequencer_address: Optional[int] = None
+    starknet_version: Optional[str] = None
 
 
 @dataclass
@@ -280,6 +311,18 @@ class StarknetBlockWithTxHashes(StarknetBlockCommon):
     sequencer_address: int
     status: BlockStatus
     transactions: List[int]
+
+
+@dataclass
+class PendingStarknetBlockWithTxHashes:
+    """
+    Dataclass representing a block on Starknet containing transaction hashes.
+    """
+
+    transactions: List[int]
+    parent_block_hash: Optional[int] = None
+    sequencer_address: Optional[int] = None
+    timestamp: Optional[int] = None
 
 
 @dataclass
@@ -309,6 +352,7 @@ class BlockSingleTransactionTrace:
     function_invocation: Optional[dict] = None
     validate_invocation: Optional[dict] = None
     fee_transfer_invocation: Optional[dict] = None
+    constructor_invocation: Optional[dict] = None
 
 
 @dataclass
