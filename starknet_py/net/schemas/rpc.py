@@ -408,9 +408,7 @@ class BlockStateUpdateSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> BlockStateUpdate:
-        return BlockStateUpdate(
-            **data,
-        )
+        return BlockStateUpdate(**data)
 
 
 class PendingBlockStateUpdateSchema(Schema):
