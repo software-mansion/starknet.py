@@ -32,9 +32,13 @@ async def test_get_state_update(
 
     # docs-start: get_state_update
     state_update = await full_node_client.get_state_update(block_number="latest")
-    state_update = await full_node_client.get_state_update(block_number=0)
+    state_update = await full_node_client.get_state_update(block_number=1)
     # or
-    state_update = await full_node_client.get_state_update(block_hash="0x0")
+    block_hash = "0x0"
+    # docs-end: get_state_update
+    block_hash = state_update.block_hash
+    # docs-start: get_state_update
+    state_update = await full_node_client.get_state_update(block_hash=block_hash)
     # docs-end: get_state_update
 
 
