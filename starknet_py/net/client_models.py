@@ -72,7 +72,7 @@ class L2toL1Message:
 
     payload: List[int]
     l1_address: int
-    l2_address: Optional[int] = None
+    l2_address: int
 
 
 class TransactionType(Enum):
