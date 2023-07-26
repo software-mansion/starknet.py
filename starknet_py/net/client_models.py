@@ -247,10 +247,10 @@ class PendingStarknetBlock:
     Dataclass representing pending block on Starknet.
     """
 
-    timestamp: int
-    sequencer_address: int
-    parent_hash: int
     transactions: List[Transaction]
+    timestamp: Optional[int] = None
+    sequencer_address: Optional[int] = None
+    parent_hash: Optional[int] = None
 
 
 @dataclass

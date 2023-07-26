@@ -196,14 +196,14 @@ class TypesOfTransactionsSchema(OneOfSchema):
 
 
 class PendingStarknetBlockSchema(Schema):
-    parent_hash = Felt(data_key="parent_hash", required=True)
-    sequencer_address = Felt(data_key="sequencer_address", required=True)
+    parent_hash = Felt(data_key="parent_hash", load_default=None)
+    sequencer_address = Felt(data_key="sequencer_address", load_default=None)
     transactions = fields.List(
         fields.Nested(TypesOfTransactionsSchema(unknown=EXCLUDE)),
         data_key="transactions",
         required=True,
     )
-    timestamp = fields.Integer(data_key="timestamp", required=True)
+    timestamp = fields.Integer(data_key="timestamp", load_default=None)
 
     @post_load
     def make_dataclass(self, data, **kwargs):
