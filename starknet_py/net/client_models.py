@@ -174,6 +174,7 @@ class TransactionStatus(Enum):
     ACCEPTED_ON_L1 = "ACCEPTED_ON_L1"
     REJECTED = "REJECTED"
     REVERTED = "REVERTED"
+    SUCCEEDED = "SUCCEEDED"
 
 
 class TransactionExecutionStatus(Enum):
@@ -191,6 +192,7 @@ class TransactionFinalityStatus(Enum):
     Enum representing transaction finality statuses.
     """
 
+    NOT_RECEIVED = "NOT_RECEIVED"
     RECEIVED = "RECEIVED"
     ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
     ACCEPTED_ON_L1 = "ACCEPTED_ON_L1"
@@ -226,6 +228,7 @@ class TransactionReceipt:
     l1_to_l2_consumed_message: Optional[L1toL2Message] = None
     execution_resources: Optional[dict] = field(default_factory=dict)
     transaction_index: Optional[int] = None
+
 
 @dataclass
 class SentTransactionResponse:
@@ -305,25 +308,38 @@ class StarknetBlock(StarknetBlockCommon):
 
 @dataclass
 class GatewayBlockTransactionReceipt:
+    # pylint: disable=too-many-instance-attributes
     transaction_index: int
     transaction_hash: int
     l2_to_l1_messages: List[L2toL1Message]
     events: List[Event]
     actual_fee: int
+    execution_status: Optional[TransactionExecutionStatus] = None
+    finality_status: Optional[TransactionFinalityStatus] = None
     execution_resources: Optional[dict] = None
     l1_to_l2_consumed_message: Optional[L1toL2Message] = None
+    revert_error: Optional[str] = None
 
 
 @dataclass
-class GatewayBlock(StarknetBlockCommon):
+class GatewayBlock:
     """
     Dataclass representing a block from the Starknet gateway.
     """
 
+    # pylint: disable=too-many-instance-attributes
     gas_price: int
     status: BlockStatus
     transactions: List[Transaction]
     transaction_receipts: List[GatewayBlockTransactionReceipt]
+
+    timestamp: int
+    parent_block_hash: int
+
+    root: Optional[int] = None
+    block_number: Optional[int] = None
+    block_hash: Optional[int] = None
+
     sequencer_address: Optional[int] = None
     starknet_version: Optional[str] = None
 
@@ -647,3 +663,5 @@ class TransactionStatusResponse:
 
     block_hash: Optional[int]
     transaction_status: TransactionStatus
+    finality_status: Optional[TransactionFinalityStatus] = None
+    execution_status: Optional[TransactionExecutionStatus] = None

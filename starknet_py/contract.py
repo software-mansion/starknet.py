@@ -130,15 +130,15 @@ class SentTransaction:
                 " block have status ACCEPTED_ON_L2."
             )
 
-        block_number, status = await self._client.wait_for_tx(
+        tx_receipt = await self._client.wait_for_tx(
             self.hash,
             check_interval=check_interval,
             retries=retries,
         )
         return dataclasses.replace(
             self,
-            status=status,
-            block_number=block_number,
+            status=tx_receipt.finality_status,
+            block_number=tx_receipt.block_number,
         )
 
 
