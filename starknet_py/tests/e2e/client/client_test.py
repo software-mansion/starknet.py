@@ -591,6 +591,7 @@ async def test_get_declare_v2_transaction(
     assert isinstance(transaction, DeclareTransaction)
     assert transaction == DeclareTransaction(
         class_hash=class_hash,
+        compiled_class_hash=declare_v2_hello_starknet.compiled_class_hash,
         sender_address=declare_v2_hello_starknet.sender_address,
         hash=tx_hash,
         max_fee=declare_v2_hello_starknet.max_fee,
@@ -614,6 +615,7 @@ async def test_get_block_with_declare_v2(
     assert (
         DeclareTransaction(
             class_hash=class_hash,
+            compiled_class_hash=declare_v2_hello_starknet.compiled_class_hash,
             sender_address=declare_v2_hello_starknet.sender_address,
             hash=tx_hash,
             max_fee=declare_v2_hello_starknet.max_fee,
