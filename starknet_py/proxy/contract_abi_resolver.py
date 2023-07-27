@@ -22,7 +22,7 @@ from starknet_py.proxy.proxy_check import (
 )
 
 
-class ProxyConfig(TypedDict):
+class ProxyConfig(TypedDict, total=False):
     """
     Proxy resolving configuration.
     """
@@ -139,7 +139,7 @@ class ContractAbiResolver:
                 ):
                     raise err
 
-        raise ProxyResolutionError(self.proxy_config["proxy_checks"])
+        raise ProxyResolutionError(self.proxy_config.get("proxy_checks", []))
 
     @staticmethod
     def _get_cairo_version(
