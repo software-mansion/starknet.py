@@ -209,7 +209,8 @@ class ProxyResolutionError(Exception):
         proxy_check_names = tuple(
             proxy_check.__class__.__name__ for proxy_check in proxy_checks
         )
-        self.message = f"""Couldn't resolve proxy using given ProxyChecks {proxy_check_names}.
+        proxy_checks_str = " " + str(proxy_check_names) if proxy_check_names else ""
+        self.message = f"""Couldn't resolve proxy using given ProxyChecks{proxy_checks_str}.
         See {self.DOCS} for a guide on writing own ProxyChecks."""
         super().__init__(self.message)
 
