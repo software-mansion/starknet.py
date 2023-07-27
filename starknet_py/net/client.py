@@ -174,9 +174,6 @@ class Client(ABC):
                 finality_status = tx_receipt.finality_status or deprecated_status[0]
                 execution_status = tx_receipt.execution_status or deprecated_status[1]
 
-                if finality_status is None:
-                    raise ClientError(f"Unknown status in transaction {tx_hash}.")
-
                 if execution_status == TransactionExecutionStatus.REJECTED:
                     raise TransactionRejectedError(message=tx_receipt.rejection_reason)
 
@@ -201,10 +198,7 @@ class Client(ABC):
             except asyncio.CancelledError as exc:
                 raise TransactionNotReceivedError from exc
             except ClientError as exc:
-                if (
-                    "Transaction hash not found" not in exc.message
-                    and "Unknown status" not in exc.message
-                ):
+                if "Transaction hash not found" not in exc.message:
                     raise exc
                 retries -= 1
                 if retries == 0:

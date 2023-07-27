@@ -285,9 +285,8 @@ async def test_wait_for_tx_accepted(client, get_tx_receipt, request):
             type=TransactionType.INVOKE,
         )
         client = request.getfixturevalue(client)
-        block_number, tx_status = await client.wait_for_tx(tx_hash=0x1)
-        assert block_number == 1
-        assert tx_status == TransactionStatus.ACCEPTED_ON_L2
+        tx_receipt = await client.wait_for_tx(tx_hash=0x1)
+        assert tx_receipt.status == TransactionStatus.ACCEPTED_ON_L2
 
 
 @pytest.mark.parametrize(

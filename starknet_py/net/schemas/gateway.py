@@ -258,10 +258,6 @@ class StarknetBlockSchema(Schema):
     parent_block_hash = Felt(data_key="parent_block_hash", required=True)
     block_number = fields.Integer(data_key="block_number")
     status = BlockStatusField(data_key="status", required=True)
-    execution_status = ExecutionStatusField(
-        data_key="execution_status", load_default=None
-    )
-    finality_status = FinalityStatusField(data_key="finality_status", load_default=None)
     root = NonPrefixedHex(data_key="state_root")
     transactions = fields.List(
         fields.Nested(TypesOfTransactionsSchema(unknown=EXCLUDE)),
