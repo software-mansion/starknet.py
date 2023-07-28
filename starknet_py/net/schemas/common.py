@@ -112,7 +112,7 @@ class FinalityStatusField(fields.Field):
 
         if value not in values:
             raise ValidationError(
-                f"Invalid value provided for TransactionExecutionStatus: {value}."
+                f"Invalid value provided for TransactionFinalityStatus: {value}."
             )
 
         return TransactionFinalityStatus(value)

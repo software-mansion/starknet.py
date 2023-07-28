@@ -154,7 +154,7 @@ class Client(ABC):
                 block have status ACCEPTED_ON_L2.
         :param check_interval: Defines interval between checks.
         :param retries: Defines how many times the transaction is checked until an error is thrown.
-        :return: Tuple containing block number and transaction status.
+        :return: Transaction receipt.
         """
         if check_interval <= 0:
             raise ValueError("Argument check_interval has to be greater than 0.")
