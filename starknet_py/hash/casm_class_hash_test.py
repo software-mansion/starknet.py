@@ -10,12 +10,12 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
 @pytest.mark.parametrize(
     "casm_contract_class_source, expected_casm_class_hash",
     [
-        ("account_compiled.casm", 0x67f510792214d377fd1339f145d58620c8534d123c6a33784d1047a273fdc9b),
-        ("erc20_compiled.casm", 0x68f383ca6e44752d0c45daf0115bfff471c8b1d3a8cec64a025d12beb3b3880),
-        ("hello_starknet_compiled.casm", 0xdf4d3042eec107abe704619f13d92bbe01a58029311b7a1886b23dcbb4ea87),
-        ("minimal_contract_compiled.casm", 0x46f2882281342dea7694207216f95d925ba08ef4be0cff5e81e9057f49ef3c2),
-        ("test_contract_compiled.casm", 0x31945b2fcf27c7090d51e29ebdc5d9bf64f09860cf6c91e73cf7af54d444e5f),
-        ("token_bridge_compiled.casm", 0x6febc54bb2b1f4f05e5fb70ce6bb13beefea4c423d77fb8435f97ef761ca4e2),
+        ("account_compiled.casm", 0x1cf09a2ab1c531bfd02cb26a3fa9ed02986fd3bb86e6b8874072fba4e55f504),
+        ("erc20_compiled.casm", 0x6d53db94c64d3562370253db94529b99f6837cb2f3b7062e11c657be89c1dae),
+        ("hello_starknet_compiled.casm", 0x785fa5f2bacf0bfe3bc413be5820a61e1ea63f2ec27ef00331ee9f46ad07603),
+        ("minimal_contract_compiled.casm", 0x186f6c4ca3af40dbcbf3f08f828ab0ee072938aaaedccc74ef3b9840cbd9fb3),
+        ("test_contract_compiled.casm", 0x379b75c0922c68e73f6451b69e8e50b7f0745e6fa3f67ffc0b9608238eeaf45),
+        ("token_bridge_compiled.casm", 0x1d60f20e5dd449af4e6b0d63821cfa95f3469faa942caf78eba2172e2ec3468),
     ],
 )
 def test_compute_casm_class_hash(casm_contract_class_source, expected_casm_class_hash):
