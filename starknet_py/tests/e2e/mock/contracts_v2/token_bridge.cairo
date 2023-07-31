@@ -10,7 +10,7 @@ trait IMintableToken<T> {
 }
 
 #[starknet::contract]
-mod TokenBridge {
+mod token_bridge {
     use array::ArrayTrait;
     use integer::{Felt252IntoU256, U128IntoFelt252};
     use option::OptionTrait;
@@ -132,12 +132,9 @@ mod TokenBridge {
             }.permissioned_burn(account: caller_address, :amount);
 
             // Send the message.
-            let mut message_payload: Array<felt252> = Default::default();
-            message_payload.append(WITHDRAW_MESSAGE);
-            message_payload.append(l1_recipient.into());
-            message_payload.append(amount.low.into());
-            message_payload.append(amount.high.into());
-
+            let mut message_payload: Array<felt252> = array![
+                WITHDRAW_MESSAGE, l1_recipient.into(), amount.low.into(), amount.high.into()
+            ];
             send_message_to_l1_syscall(
                 to_address: self.read_initialized_l1_bridge(), payload: message_payload.span()
             );

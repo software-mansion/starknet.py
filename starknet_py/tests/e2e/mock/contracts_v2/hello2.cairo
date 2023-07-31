@@ -7,7 +7,7 @@ use serde::Serde;
 // bet part
 use starknet::ContractAddress;
 use starknet::get_caller_address;
-use starknet::StorageAccess;
+use starknet::Store;
 use starknet::storage_access;
 use starknet::StorageBaseAddress;
 use starknet::SyscallResult;
@@ -27,13 +27,13 @@ struct Foo {
 }
 
 // Complex Structs
-#[derive(Copy, Drop, Serde, storage_access::StorageAccess)]
+#[derive(Copy, Drop, Serde, starknet::Store)]
 struct UserData {
     address: ContractAddress,
     is_claimed: bool,
 }
 
-#[derive(Copy, Drop, Serde, storage_access::StorageAccess)]
+#[derive(Copy, Drop, Serde, starknet::Store)]
 struct Bet {
     name: felt252,
     description: felt252,
@@ -138,7 +138,7 @@ mod HelloStarknet {
     // bet part
     use starknet::ContractAddress;
     use starknet::get_caller_address;
-    use starknet::StorageAccess;
+    use starknet::Store;
     use starknet::storage_access;
     use starknet::StorageBaseAddress;
     use starknet::SyscallResult;

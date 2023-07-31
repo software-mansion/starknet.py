@@ -61,9 +61,9 @@ async def test_contract_from_invalid_address(account):
 
 @pytest.mark.asyncio
 async def test_contract_from_address_invalid_proxy_checks(account, proxy_custom):
-    message = "Couldn't resolve proxy using given ProxyChecks"
+    message_regex = r"Couldn't resolve proxy using given ProxyChecks .*"
 
-    with pytest.raises(ProxyResolutionError, match=message):
+    with pytest.raises(ProxyResolutionError, match=message_regex):
         await Contract.from_address(
             address=proxy_custom.deployed_contract.address,
             provider=account,

@@ -20,6 +20,8 @@ from starknet_py.net.client_models import (
     StarknetBlock,
     Tag,
     Transaction,
+    TransactionExecutionStatus,
+    TransactionFinalityStatus,
     TransactionReceipt,
     TransactionStatus,
 )
@@ -32,9 +34,9 @@ from starknet_py.net.models.transaction import (
 )
 from starknet_py.net.networks import Network
 from starknet_py.transaction_errors import (
-    TransactionFailedError,
     TransactionNotReceivedError,
     TransactionRejectedError,
+    TransactionRevertedError,
 )
 from starknet_py.utils.sync import add_sync_methods
 
@@ -133,13 +135,14 @@ class Client(ABC):
         :return: Transaction receipt object on Starknet
         """
 
+    # https://community.starknet.io/t/efficient-utilization-of-sequencer-capacity-in-starknet-v0-12-1/95607
     async def wait_for_tx(
         self,
         tx_hash: Hash,
         wait_for_accept: Optional[bool] = None,  # pylint: disable=unused-argument
         check_interval: float = 2,
         retries: int = 500,
-    ) -> Tuple[int, TransactionStatus]:
+    ) -> TransactionReceipt:
         # pylint: disable=too-many-branches
         """
         Awaits for transaction to get accepted or at least pending by polling its status.
@@ -151,7 +154,7 @@ class Client(ABC):
                 block have status ACCEPTED_ON_L2.
         :param check_interval: Defines interval between checks.
         :param retries: Defines how many times the transaction is checked until an error is thrown.
-        :return: Tuple containing block number and transaction status.
+        :return: Transaction receipt.
         """
         if check_interval <= 0:
             raise ValueError("Argument check_interval has to be greater than 0.")
@@ -165,43 +168,42 @@ class Client(ABC):
 
         while True:
             try:
-                result = await self.get_transaction_receipt(tx_hash=tx_hash)
-                status = result.status
-                if status is None:
-                    raise ClientError(f"Unknown status in transaction {tx_hash}.")
+                tx_receipt = await self.get_transaction_receipt(tx_hash=tx_hash)
 
-                if status in (
-                    TransactionStatus.ACCEPTED_ON_L1,
-                    TransactionStatus.ACCEPTED_ON_L2,
+                deprecated_status = _status_to_finality_execution(tx_receipt.status)
+                finality_status = tx_receipt.finality_status or deprecated_status[0]
+                execution_status = tx_receipt.execution_status or deprecated_status[1]
+
+                if execution_status == TransactionExecutionStatus.REJECTED:
+                    raise TransactionRejectedError(message=tx_receipt.rejection_reason)
+
+                if execution_status == TransactionExecutionStatus.REVERTED:
+                    raise TransactionRevertedError(message=tx_receipt.revert_error)
+
+                if execution_status == TransactionExecutionStatus.SUCCEEDED:
+                    return tx_receipt
+
+                if finality_status in (
+                    TransactionFinalityStatus.ACCEPTED_ON_L2,
+                    TransactionFinalityStatus.ACCEPTED_ON_L1,
                 ):
-                    assert result.block_number is not None
-                    return result.block_number, status
-                if status == TransactionStatus.REJECTED:
-                    raise TransactionRejectedError(
-                        message=result.rejection_reason,
-                    )
-                if status == TransactionStatus.NOT_RECEIVED:
-                    if retries == 0:
-                        raise TransactionNotReceivedError()
-                elif status != TransactionStatus.RECEIVED:
-                    # This will never get executed with current possible transactions statuses
-                    raise TransactionFailedError(
-                        message=result.rejection_reason,
-                    )
+                    return tx_receipt
 
                 retries -= 1
+                if retries == 0:
+                    raise TransactionNotReceivedError()
+
                 await asyncio.sleep(check_interval)
+
             except asyncio.CancelledError as exc:
                 raise TransactionNotReceivedError from exc
             except ClientError as exc:
-                if (
-                    "Transaction hash not found" not in exc.message
-                    and "Unknown status" not in exc.message
-                ):
+                if "Transaction hash not found" not in exc.message:
                     raise exc
                 retries -= 1
                 if retries == 0:
                     raise TransactionNotReceivedError from exc
+
                 await asyncio.sleep(check_interval)
 
     @abstractmethod
@@ -312,3 +314,14 @@ class Client(ABC):
         :param block_number: Block's number or literals `"pending"` or `"latest"`
         :return: The last nonce used for the given contract
         """
+
+
+def _status_to_finality_execution(
+    status: Optional[TransactionStatus],
+) -> Tuple[Optional[TransactionFinalityStatus], Optional[TransactionExecutionStatus]]:
+    if status is None:
+        return None, None
+    finality_statuses = [finality.value for finality in TransactionFinalityStatus]
+    if status.value in finality_statuses:
+        return TransactionFinalityStatus(status.value), None
+    return None, TransactionExecutionStatus(status.value)

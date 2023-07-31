@@ -316,6 +316,7 @@ async def test_sign_deploy_account_transaction_auto_estimate(
     assert signed_tx.constructor_calldata == calldata
 
 
+@pytest.mark.skip("No 0.12.1 devnet")
 @pytest.mark.asyncio
 async def test_deploy_account(client, deploy_account_details_factory, map_contract):
     address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
@@ -345,9 +346,9 @@ async def test_deploy_account(client, deploy_account_details_factory, map_contra
         ),
         max_fee=MAX_FEE,
     )
-    _, status = await account.client.wait_for_tx(res.transaction_hash)
+    tx_receipt = await account.client.wait_for_tx(res.transaction_hash)
 
-    assert status in (
+    assert tx_receipt.finality_status in (
         TransactionStatus.ACCEPTED_ON_L1,
         TransactionStatus.ACCEPTED_ON_L2,
     )
