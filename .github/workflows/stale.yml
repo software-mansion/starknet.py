@@ -13,6 +13,7 @@ jobs:
       - uses: actions/stale@v8
         with:
           exempt-all-pr-assignees: true
+          exempt-issue-labels: 'pinned'
           exempt-pr-labels: 'pinned'
           stale-issue-message: 'This issue is stale because it has not received any activity in the last 30 days. Remove stale label or add a comment, otherwise it will be closed in 5 days.'
           close-issue-message: 'This issue was closed because it has been stale for 5 days with no activity.'
