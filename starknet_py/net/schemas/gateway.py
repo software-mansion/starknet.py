@@ -45,7 +45,9 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.schemas.common import (
     BlockStatusField,
+    ExecutionStatusField,
     Felt,
+    FinalityStatusField,
     NonPrefixedHex,
     StatusField,
     StorageEntrySchema,
@@ -169,11 +171,18 @@ class TypesOfTransactionsSchema(OneOfSchema):
 
 
 class TransactionReceiptSchema(Schema):
-    hash = Felt(data_key="transaction_hash", required=True)
-    status = StatusField(data_key="status", required=True)
+    transaction_hash = Felt(data_key="transaction_hash", required=True)
+
+    status = StatusField(data_key="status", load_default=None)
+    execution_status = ExecutionStatusField(
+        data_key="execution_status", load_default=None
+    )
+    finality_status = FinalityStatusField(data_key="finality_status", load_default=None)
+
     block_number = fields.Integer(data_key="block_number", load_default=None)
     block_hash = Felt(data_key="block_hash", load_default=None)
     actual_fee = Felt(data_key="actual_fee", allow_none=True)
+    revert_error = fields.String(data_key="revert_error", load_default=None)
     rejection_reason = fields.Dict(
         keys=fields.String(),
         values=fields.Raw(),
@@ -193,7 +202,7 @@ class TransactionReceiptSchema(Schema):
         load_default=[],
     )
     transaction_index = fields.Integer(data_key="transaction_index", load_default=None)
-    execution_resources = fields.Dict(data_key="execution_resources", load_default=None)
+    execution_resources = fields.Dict(data_key="execution_resources")
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> TransactionReceipt:
@@ -222,6 +231,10 @@ class ContractCodeSchema(Schema):
 class GatewayBlockTransactionReceiptSchema(Schema):
     transaction_index = fields.Integer(data_key="transaction_index", required=True)
     transaction_hash = Felt(data_key="transaction_hash", required=True)
+    execution_status = ExecutionStatusField(
+        data_key="execution_status", load_default=None
+    )
+    finality_status = FinalityStatusField(data_key="finality_status", load_default=None)
     l2_to_l1_messages = fields.List(
         fields.Nested(L2toL1MessageSchema()),
         data_key="l2_to_l1_messages",
@@ -233,6 +246,7 @@ class GatewayBlockTransactionReceiptSchema(Schema):
     events = fields.List(fields.Nested(EventSchema()), data_key="events", required=True)
     execution_resources = fields.Dict(data_key="execution_resources", load_default=None)
     actual_fee = Felt(data_key="actual_fee", required=True)
+    revert_error = fields.String(data_key="revert_error", load_default=None)
 
     @post_load
     def make_dataclass(self, data, **kwargs):
@@ -240,11 +254,11 @@ class GatewayBlockTransactionReceiptSchema(Schema):
 
 
 class StarknetBlockSchema(Schema):
-    block_hash = Felt(data_key="block_hash", required=True)
+    block_hash = Felt(data_key="block_hash")
     parent_block_hash = Felt(data_key="parent_block_hash", required=True)
-    block_number = fields.Integer(data_key="block_number", required=True)
+    block_number = fields.Integer(data_key="block_number")
     status = BlockStatusField(data_key="status", required=True)
-    root = NonPrefixedHex(data_key="state_root", required=True)
+    root = NonPrefixedHex(data_key="state_root")
     transactions = fields.List(
         fields.Nested(TypesOfTransactionsSchema(unknown=EXCLUDE)),
         data_key="transactions",
@@ -600,6 +614,10 @@ class CasmClassSchema(Schema):
 
 class TransactionStatusSchema(Schema):
     transaction_status = StatusField(data_key="tx_status", required=True)
+    finality_status = FinalityStatusField(data_key="finality_status", load_default=None)
+    execution_status = ExecutionStatusField(
+        data_key="execution_status", load_default=None
+    )
     block_hash = Felt(data_key="block_hash", allow_none=True)
 
     @post_load
