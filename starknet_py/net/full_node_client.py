@@ -4,6 +4,7 @@ from typing import Dict, List, Optional, Tuple, Union, cast
 
 import aiohttp
 from marshmallow import EXCLUDE
+from web3 import Web3
 
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError
@@ -348,7 +349,7 @@ class FullNodeClient(Client):
 
     async def estimate_message_fee(
         self,
-        from_address: Hash,
+        from_address: str,
         to_address: Hash,
         entry_point_selector: Hash,
         payload: List[Hash],
@@ -357,8 +358,8 @@ class FullNodeClient(Client):
     ) -> EstimatedFee:
         # pylint: disable=too-many-arguments
         """
-        :param from_address: The address of the L1 contract sending the message.
-        :param to_address: The target L2 address the message is sent to.
+        :param from_address: The address of the L1 (Ethereum) contract sending the message.
+        :param to_address: The target L2 (Starknet) address the message is sent to.
         :param entry_point_selector: The selector of the l1_handler in invoke in the target contract.
         :param payload: Payload of the message.
         :param block_hash: Hash of the requested block or literals `"pending"` or `"latest"`.
@@ -369,6 +370,9 @@ class FullNodeClient(Client):
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
+        assert Web3.is_address(
+            from_address
+        ), f"Argument 'from_address': {from_address} is not a valid Ethereum address."
         message_body = {
             "from_address": from_address,
             "to_address": _to_rpc_felt(to_address),
