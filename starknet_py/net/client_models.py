@@ -304,9 +304,6 @@ class GatewayBlock(StarknetBlockCommon):
     sequencer_address: Optional[int] = None
 
 
-# TODO (#1119): starknet.js/src/types/provider/response.ts:34 - `starknet_version?: string` nullable
-
-
 @dataclass
 class StarknetBlockWithTxHashes(StarknetBlockCommon):
     """
