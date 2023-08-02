@@ -19,6 +19,7 @@ from starknet_py.net.client_models import (
     GatewayBlock,
     InvokeTransaction,
     L1HandlerTransaction,
+    PendingBlockStateUpdate,
     ReplacedClass,
     SierraContractClass,
     SierraEntryPointsByType,
@@ -129,7 +130,7 @@ async def test_get_transaction_receipt(
 ):
     receipt = await client.get_transaction_receipt(tx_hash=invoke_transaction_hash)
 
-    assert receipt.hash == invoke_transaction_hash
+    assert receipt.transaction_hash == invoke_transaction_hash
     assert receipt.block_number == block_with_invoke_number
     if isinstance(client, FullNodeClient):
         assert receipt.type == TransactionType.INVOKE
@@ -278,15 +279,14 @@ async def test_wait_for_tx_accepted(client, get_tx_receipt, request):
         AsyncMock(),
     ) as mocked_receipt:
         mocked_receipt.return_value = TransactionReceipt(
-            hash=0x1,
+            transaction_hash=0x1,
             status=TransactionStatus.ACCEPTED_ON_L2,
             block_number=1,
             type=TransactionType.INVOKE,
         )
         client = request.getfixturevalue(client)
-        block_number, tx_status = await client.wait_for_tx(tx_hash=0x1)
-        assert block_number == 1
-        assert tx_status == TransactionStatus.ACCEPTED_ON_L2
+        tx_receipt = await client.wait_for_tx(tx_hash=0x1)
+        assert tx_receipt.status == TransactionStatus.ACCEPTED_ON_L2
 
 
 @pytest.mark.parametrize(
@@ -323,7 +323,7 @@ async def test_wait_for_tx_rejected(
         AsyncMock(),
     ) as mocked_receipt:
         mocked_receipt.return_value = TransactionReceipt(
-            hash=0x1,
+            transaction_hash=0x1,
             status=status,
             block_number=1,
             rejection_reason=exc_message,
@@ -358,7 +358,7 @@ async def test_wait_for_tx_cancelled(client, get_tx_receipt, request):
         AsyncMock(),
     ) as mocked_receipt:
         mocked_receipt.return_value = TransactionReceipt(
-            hash=0x1,
+            transaction_hash=0x1,
             status=TransactionStatus.NOT_RECEIVED,
             block_number=1,
             type=TransactionType.INVOKE,
@@ -412,7 +412,7 @@ async def test_declare_contract(map_compiled_contract, account):
     transaction_receipt = await client.get_transaction_receipt(result.transaction_hash)
 
     assert transaction_receipt.status != TransactionStatus.NOT_RECEIVED
-    assert transaction_receipt.hash
+    assert transaction_receipt.transaction_hash
     assert 0 < transaction_receipt.actual_fee <= MAX_FEE
     if isinstance(client, FullNodeClient):
         assert transaction_receipt.type == TransactionType.DECLARE
@@ -540,6 +540,8 @@ async def test_state_update_storage_diffs(
     state_update = await client.get_state_update()
 
     assert len(state_update.state_diff.storage_diffs) != 0
+    if isinstance(client, FullNodeClient):
+        assert isinstance(state_update, PendingBlockStateUpdate)
 
 
 @pytest.mark.run_on_devnet
@@ -561,6 +563,8 @@ async def test_state_update_deployed_contracts(
     state_update = await account.client.get_state_update()
 
     assert len(state_update.state_diff.deployed_contracts) != 0
+    if isinstance(account.client, FullNodeClient):
+        assert isinstance(state_update, PendingBlockStateUpdate)
 
 
 @pytest.mark.asyncio

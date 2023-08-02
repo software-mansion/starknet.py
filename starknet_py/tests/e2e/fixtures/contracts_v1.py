@@ -9,6 +9,7 @@ from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.models import DeclareV2
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
+from starknet_py.tests.e2e.fixtures.contracts import deploy_v1_contract
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
@@ -116,3 +117,14 @@ async def cairo1_token_bridge_class_hash(account: BaseAccount) -> int:
         read_contract("token_bridge_compiled.casm"),
     )
     return class_hash
+
+
+@pytest_asyncio.fixture(scope="package")
+async def cairo1_hello_starknet_deploy(
+    gateway_account: BaseAccount, cairo1_hello_starknet_class_hash
+):
+    return await deploy_v1_contract(
+        account=gateway_account,
+        contract_file_name="hello_starknet",
+        class_hash=cairo1_hello_starknet_class_hash,
+    )

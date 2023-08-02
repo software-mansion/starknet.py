@@ -21,9 +21,10 @@ from starknet_py.net.client_models import (
     EventsChunk,
     InvokeTransaction,
     L1HandlerTransaction,
-    L1toL2Message,
     L2toL1Message,
     PendingBlockStateUpdate,
+    PendingStarknetBlock,
+    PendingStarknetBlockWithTxHashes,
     ReplacedClass,
     SentTransactionResponse,
     SierraContractClass,
@@ -54,14 +55,6 @@ from starknet_py.net.schemas.utils import (
 # pylint: disable=unused-argument, no-self-use
 
 
-class FunctionCallSchema(Schema):
-    contract_address = fields.Integer(data_key="contract_address", required=True)
-    entry_point_selector = fields.Integer(
-        data_key="entry_point_selector", required=True
-    )
-    calldata = fields.List(fields.Integer(), data_key="calldata", required=True)
-
-
 class EventSchema(Schema):
     from_address = Felt(data_key="from_address", required=True)
     keys = fields.List(Felt(), data_key="keys", required=True)
@@ -85,18 +78,8 @@ class EventsChunkSchema(Schema):
         return EventsChunk(**data)
 
 
-class L1toL2MessageSchema(Schema):
-    l1_address = Felt(data_key="from_address", required=True)
-    l2_address = Felt(load_default=None)
-    payload = fields.List(Felt(), data_key="payload", required=True)
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> L1toL2Message:
-        return L1toL2Message(**data)
-
-
 class L2toL1MessageSchema(Schema):
-    l2_address = Felt(load_default=None)
+    l2_address = Felt(data_key="from_address", required=True)
     l1_address = Felt(data_key="to_address", required=True)
     payload = fields.List(Felt(), data_key="payload", required=True)
 
@@ -106,7 +89,7 @@ class L2toL1MessageSchema(Schema):
 
 
 class TransactionReceiptSchema(Schema):
-    hash = Felt(data_key="transaction_hash", required=True)
+    transaction_hash = Felt(data_key="transaction_hash", required=True)
     # replaced by execution and finality status in RPC v0.4.0-rc1
     status = StatusField(data_key="status", load_default=None)
     execution_status = ExecutionStatusField(
@@ -121,9 +104,6 @@ class TransactionReceiptSchema(Schema):
     rejection_reason = fields.String(data_key="revert_reason", load_default=None)
     events = fields.List(
         fields.Nested(EventSchema()), data_key="events", load_default=[]
-    )
-    l1_to_l2_consumed_message = fields.Nested(
-        L1toL2MessageSchema(), data_key="l1_origin_message", load_default=None
     )
     l2_to_l1_messages = fields.List(
         fields.Nested(L2toL1MessageSchema()), data_key="messages_sent", load_default=[]
@@ -223,6 +203,21 @@ class TypesOfTransactionsSchema(OneOfSchema):
     }
 
 
+class PendingStarknetBlockSchema(Schema):
+    parent_hash = Felt(data_key="parent_hash", load_default=None)
+    sequencer_address = Felt(data_key="sequencer_address", load_default=None)
+    transactions = fields.List(
+        fields.Nested(TypesOfTransactionsSchema(unknown=EXCLUDE)),
+        data_key="transactions",
+        required=True,
+    )
+    timestamp = fields.Integer(data_key="timestamp", load_default=None)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return PendingStarknetBlock(**data)
+
+
 class TransactionInBlockSchema(Schema):
     transaction = fields.Nested(
         TypesOfTransactionsSchema(unknown=EXCLUDE),
@@ -305,6 +300,17 @@ class StarknetBlockWithTxHashesSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> StarknetBlockWithTxHashes:
         return StarknetBlockWithTxHashes(**data)
+
+
+class PendingStarknetBlockWithTxHashesSchema(Schema):
+    parent_block_hash = Felt(data_key="parent_hash", load_default=None)
+    sequencer_address = Felt(data_key="sequencer_address", load_default=None)
+    transactions = fields.List(Felt(), data_key="transactions", required=True)
+    timestamp = fields.Integer(data_key="timestamp", load_default=None)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> PendingStarknetBlockWithTxHashes:
+        return PendingStarknetBlockWithTxHashes(**data)
 
 
 class StorageDiffSchema(Schema):

@@ -61,6 +61,7 @@ from starknet_py.utils.sync import add_sync_methods
 
 @add_sync_methods
 class GatewayClient(Client):
+    # pylint: disable=too-many-public-methods
     def __init__(
         self,
         net: Network,
@@ -428,7 +429,7 @@ class GatewayClient(Client):
 
     async def get_contract_nonce(
         self,
-        contract_address: int,
+        contract_address: Hash,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> int:
@@ -445,6 +446,20 @@ class GatewayClient(Client):
         )
         nonce = cast(str, nonce)
         return int(nonce, 16)
+
+    async def get_full_contract(
+        self,
+        contract_address: Hash,
+    ) -> Union[ContractClass, SierraContractClass]:
+        res = await self._feeder_gateway_client.call(
+            method_name="get_full_contract",
+            params={
+                "contractAddress": hash_to_felt(contract_address),
+            },
+        )
+        return TypesOfContractClassSchema().load(
+            res, unknown=EXCLUDE
+        )  # pyright: ignore
 
 
 def get_block_identifier(
