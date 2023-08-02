@@ -35,7 +35,6 @@ from starknet_py.net.client_models import (
     StateDiff,
     StorageDiffItem,
     SyncStatus,
-    TransactionInBlock,
     TransactionReceipt,
 )
 from starknet_py.net.schemas.common import (
@@ -218,34 +217,6 @@ class PendingStarknetBlockSchema(Schema):
         return PendingStarknetBlock(**data)
 
 
-class TransactionInBlockSchema(Schema):
-    transaction = fields.Nested(
-        TypesOfTransactionsSchema(unknown=EXCLUDE),
-        data_key="transaction",
-        required=True,
-    )
-    transaction_hash = Felt(data_key="transaction_hash", required=True)
-
-    @post_load
-    def make_dataclass(self, data, **kwargs):
-        return TransactionInBlock(**data)
-
-
-class BlockTransactionSchema(OneOfSchema):
-    # schema for backwards compatibility with RPC v0.3.0, in newer versions transaction hashes are also returned
-    type_schemas = {
-        "TransactionInBlock": TransactionInBlockSchema(),
-        "Transaction": TypesOfTransactionsSchema(),
-    }
-
-    def get_data_type(self, data):
-        if "type" in data:
-            # it means that the object retrieved is a plain transaction (as in RPC v0.3.0)
-            # it could be any property from Transaction except for `transaction_hash` (it is also in the nested version)
-            return "Transaction"
-        return "TransactionInBlock"
-
-
 class StarknetBlockSchema(Schema):
     block_hash = Felt(data_key="block_hash", required=True)
     parent_block_hash = Felt(data_key="parent_hash", required=True)
@@ -254,7 +225,7 @@ class StarknetBlockSchema(Schema):
     status = BlockStatusField(data_key="status", required=True)
     root = NonPrefixedHex(data_key="new_root", required=True)
     transactions = fields.List(
-        fields.Nested(BlockTransactionSchema()),
+        fields.Nested(TypesOfTransactionsSchema()),
         data_key="transactions",
         required=True,
     )

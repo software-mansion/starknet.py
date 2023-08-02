@@ -93,6 +93,8 @@ class Transaction(ABC):
     Dataclass representing common attributes of all transactions.
     """
 
+    # Technically, RPC specification moved 'transaction_hash' out of the TXN object, but since it is always returned
+    # together with the rest of the data, it remains here (but is still Optional just in case as spec says)
     hash: Optional[int]
     signature: List[int]
     max_fee: int
@@ -283,17 +285,6 @@ class PendingStarknetBlock:
     parent_hash: Optional[int] = None
 
 
-
-@dataclass
-class TransactionInBlock:
-    """
-    Dataclass representing transaction in a block.
-    """
-
-    transaction: Transaction
-    transaction_hash: int
-
-
 @dataclass
 class StarknetBlockCommon:
     """
@@ -315,7 +306,7 @@ class StarknetBlock(StarknetBlockCommon):
 
     sequencer_address: int
     status: BlockStatus
-    transactions: List[Union[TransactionInBlock, Transaction]]
+    transactions: List[Transaction]
 
 
 @dataclass
