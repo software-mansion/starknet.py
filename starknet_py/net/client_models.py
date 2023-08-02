@@ -215,7 +215,9 @@ class TransactionReceipt:
 
     execution_status: Optional[TransactionExecutionStatus] = None
     finality_status: Optional[TransactionFinalityStatus] = None
-    status: Optional[TransactionStatus] = None  # replaced by execution and finality status in RPC v0.4.0-rc1
+    status: Optional[
+        TransactionStatus
+    ] = None  # replaced by execution and finality status in RPC v0.4.0-rc1
 
     type: Optional[TransactionType] = None
     contract_address: Optional[int] = None

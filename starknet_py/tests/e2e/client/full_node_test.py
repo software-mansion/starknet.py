@@ -11,12 +11,11 @@ from starknet_py.net.client_models import (
     BlockHashAndNumber,
     ContractClass,
     DeclareTransaction,
-    EstimatedFee,
     SierraContractClass,
     SyncStatus,
     TransactionType,
 )
-from starknet_py.net.full_node_client import FullNodeClient, _to_rpc_felt
+from starknet_py.net.full_node_client import _to_rpc_felt
 from starknet_py.net.models import StarknetChainId
 from starknet_py.tests.e2e.utils import create_empty_block
 
