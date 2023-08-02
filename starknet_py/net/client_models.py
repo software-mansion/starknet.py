@@ -82,6 +82,7 @@ class TransactionType(Enum):
     INVOKE = "INVOKE"
     DECLARE = "DECLARE"
     DEPLOY_ACCOUNT = "DEPLOY_ACCOUNT"
+    DEPLOY = "DEPLOY"
     L1_HANDLER = "L1_HANDLER"
 
 
