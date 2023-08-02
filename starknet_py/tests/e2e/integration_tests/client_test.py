@@ -17,17 +17,17 @@ gateway_client = GatewayClient(net=INTEGRATION_GATEWAY_URL)
     (
         full_node_client,
         gateway_client,
-    )
+    ),
 )
 @pytest.mark.parametrize(
     "transaction_hash",
     (
         "0x06d11fa74255c1f86aace54cbf382ab8c89e2b90fb0801f751834ca52bf2a2a2",  # invoke
-        "0x7c671df75d664b191a8fd227996eb0de7557bcde81f3d618c58cf808d7efbc4",   # declare
-        "0x510fa73cdb49ae81742441c494c396883a2eee91209fe387ce1dec5fa04ecb",    # deploy
-        "0x6e882ef88d8767046e64a1b450a29f18b086121b38658d3431605d27251fa1d",   # deploy_account
-        "0x60bd50c38082211e6aedb21838fe7402a67216d559d9a4848e6c5e9670c90e",    # l1_handler
-    )
+        "0x7c671df75d664b191a8fd227996eb0de7557bcde81f3d618c58cf808d7efbc4",  # declare
+        "0x510fa73cdb49ae81742441c494c396883a2eee91209fe387ce1dec5fa04ecb",  # deploy
+        "0x6e882ef88d8767046e64a1b450a29f18b086121b38658d3431605d27251fa1d",  # deploy_account
+        "0x60bd50c38082211e6aedb21838fe7402a67216d559d9a4848e6c5e9670c90e",  # l1_handler
+    ),
 )
 @pytest.mark.asyncio
 async def test_get_transaction_receipt(client, transaction_hash):
@@ -41,6 +41,7 @@ async def test_get_transaction_receipt(client, transaction_hash):
 # ------------------------------------ FULL_NODE_CLIENT TESTS ------------------------------------
 
 # TODO move tests below to full_node_test.py once devnet releases rust version supporting RPC v0.4.0
+
 
 @pytest.mark.asyncio
 async def test_estimate_message_fee():
