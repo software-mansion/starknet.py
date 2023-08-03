@@ -88,15 +88,28 @@ async def test_estimate_message_fee_invalid_eth_address():
         )
 
 
+@pytest.mark.parametrize(
+    "from_address, to_address",
+    (
+        (
+            "0xbe1259ff905cadbbaa62514388b71bdefb8aacc1",
+            "0x2137",
+        ),  # valid `from_address`, invalid `to_address`
+        (
+            "0xDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
+            "0x073314940630fd6dcda0d772d4c972c4e0a9946bef9dabf4ef84eda8ef542b82",
+        ),  # invalid `from_address` (passes through assert), valid `to_address`
+    ),
+)
 @pytest.mark.asyncio
-async def test_estimate_message_fee_throws():
+async def test_estimate_message_fee_throws(from_address, to_address):
     client = full_node_client
 
     with pytest.raises(ClientError):
         _ = await client.estimate_message_fee(
             block_number=123123,
-            from_address="0xbe1259ff905cadbbaa62514388b71bdefb8aacc1",
-            to_address="0x2137",
+            from_address=from_address,
+            to_address=to_address,
             entry_point_selector="0x3248",
             payload=[
                 "0x4359",

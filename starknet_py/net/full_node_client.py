@@ -5,6 +5,7 @@ from typing import Dict, List, Optional, Tuple, Union, cast
 import aiohttp
 from marshmallow import EXCLUDE
 
+from starknet_py.constants import RPC_CONTRACT_ERROR
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
@@ -63,7 +64,6 @@ from starknet_py.net.schemas.rpc import (
     TypesOfTransactionsSchema,
 )
 from starknet_py.transaction_errors import TransactionNotReceivedError
-from starknet_py.utils.crypto.web3 import is_valid_eth_address
 from starknet_py.utils.sync import add_sync_methods
 
 
@@ -386,7 +386,7 @@ class FullNodeClient(Client):
             block_hash=block_hash, block_number=block_number
         )
 
-        assert is_valid_eth_address(
+        assert _is_valid_eth_address(
             from_address
         ), f"Argument 'from_address': {from_address} is not a valid Ethereum address."
 
@@ -407,10 +407,12 @@ class FullNodeClient(Client):
             )
             return cast(EstimatedFee, EstimatedFeeSchema().load(res, unknown=EXCLUDE))
         except ClientError as err:
-            raise ClientError(
-                err.message
-                + f" Note that your ETH address ({from_address}) might be invalid"
-            ) from err
+            if err.code == RPC_CONTRACT_ERROR:
+                raise ClientError(
+                    err.message
+                    + f" Note that your ETH address ('from_address': {from_address}) might be invalid"
+                ) from err
+            raise err
 
     async def get_block_number(self) -> int:
         """Get the most recent accepted block number"""
@@ -805,3 +807,10 @@ def _to_rpc_felt(value: Hash) -> str:
     rpc_felt = hex(value)
     assert re.match(r"^0x(0|[a-fA-F1-9]{1}[a-fA-F0-9]{0,62})$", rpc_felt)
     return rpc_felt
+
+
+def _is_valid_eth_address(address: str) -> bool:
+    """
+    A function checking if an address matches Ethereum address regex. Note that it doesn't validate any checksums etc.
+    """
+    return bool(re.match("^0x[a-fA-F0-9]{40}$", address))
