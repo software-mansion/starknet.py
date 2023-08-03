@@ -126,7 +126,7 @@ class DeclareTransaction(Transaction):
 
     class_hash: int  # Responses to getBlock and getTransaction include the class hash
     sender_address: int
-    compiled_class_hash: int
+    compiled_class_hash: Optional[int] = None  # only in DeclareV2, hence Optional
     nonce: Optional[int] = None
 
 
