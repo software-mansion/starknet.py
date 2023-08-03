@@ -4,7 +4,6 @@ from typing import Dict, List, Optional, Tuple, Union, cast
 
 import aiohttp
 from marshmallow import EXCLUDE
-from web3 import Web3
 
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError
@@ -64,6 +63,7 @@ from starknet_py.net.schemas.rpc import (
     TypesOfTransactionsSchema,
 )
 from starknet_py.transaction_errors import TransactionNotReceivedError
+from starknet_py.utils.crypto.web3 import is_valid_eth_address
 from starknet_py.utils.sync import add_sync_methods
 
 
@@ -385,9 +385,11 @@ class FullNodeClient(Client):
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
-        assert Web3.is_address(
+
+        assert is_valid_eth_address(
             from_address
         ), f"Argument 'from_address': {from_address} is not a valid Ethereum address."
+
         message_body = {
             "from_address": from_address,
             "to_address": _to_rpc_felt(to_address),
@@ -395,14 +397,20 @@ class FullNodeClient(Client):
             "payload": [_to_rpc_felt(x) for x in payload],
         }
 
-        res = await self._client.call(
-            method_name="estimateMessageFee",
-            params={
-                "message": message_body,
-                **block_identifier,
-            },
-        )
-        return cast(EstimatedFee, EstimatedFeeSchema().load(res, unknown=EXCLUDE))
+        try:
+            res = await self._client.call(
+                method_name="estimateMessageFee",
+                params={
+                    "message": message_body,
+                    **block_identifier,
+                },
+            )
+            return cast(EstimatedFee, EstimatedFeeSchema().load(res, unknown=EXCLUDE))
+        except ClientError as err:
+            raise ClientError(
+                err.message
+                + f" Note that your ETH address ({from_address}) might be invalid"
+            ) from err
 
     async def get_block_number(self) -> int:
         """Get the most recent accepted block number"""
