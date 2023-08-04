@@ -1,24 +1,15 @@
 import pytest
 
 from starknet_py.net.client_errors import ClientError
-from starknet_py.net.client_models import EstimatedFee, TransactionReceipt
-from starknet_py.net.full_node_client import FullNodeClient
+from starknet_py.net.client_models import (
+    EstimatedFee,
+    TransactionExecutionStatus,
+    TransactionFinalityStatus,
+    TransactionReceipt,
+)
 from starknet_py.net.gateway_client import GatewayClient
 
-INTEGRATION_NODE_URL = "http://188.34.188.184:9545/rpc/v0.4"
-INTEGRATION_GATEWAY_URL = "https://external.integration.starknet.io"
 
-full_node_client = FullNodeClient(node_url=INTEGRATION_NODE_URL)
-gateway_client = GatewayClient(net=INTEGRATION_GATEWAY_URL)
-
-
-@pytest.mark.parametrize(
-    "client",
-    (
-        full_node_client,
-        gateway_client,
-    ),
-)
 @pytest.mark.parametrize(
     "transaction_hash",
     (
@@ -30,8 +21,8 @@ gateway_client = GatewayClient(net=INTEGRATION_GATEWAY_URL)
     ),
 )
 @pytest.mark.asyncio
-async def test_get_transaction_receipt(client, transaction_hash):
-    receipt = await client.get_transaction_receipt(tx_hash=transaction_hash)
+async def test_get_transaction_receipt(client_integration, transaction_hash):
+    receipt = await client_integration.get_transaction_receipt(tx_hash=transaction_hash)
 
     assert isinstance(receipt, TransactionReceipt)
     assert receipt.execution_status is not None
@@ -44,8 +35,8 @@ async def test_get_transaction_receipt(client, transaction_hash):
 
 
 @pytest.mark.asyncio
-async def test_estimate_message_fee():
-    client = full_node_client
+async def test_estimate_message_fee(full_node_client_integration):
+    client = full_node_client_integration
 
     # info about this message from
     # https://integration.starkscan.co/message/0x140185c79e5a04c7c3fae513001f358beb66653dcee75be38f05bd30adba85dd
@@ -65,8 +56,10 @@ async def test_estimate_message_fee():
 
 
 @pytest.mark.asyncio
-async def test_estimate_message_fee_invalid_eth_address():
-    client = full_node_client
+async def test_estimate_message_fee_invalid_eth_address_assertion_error(
+    full_node_client_integration,
+):
+    client = full_node_client_integration
     invalid_eth_address = "0xD"
 
     # info about this message from
@@ -102,8 +95,10 @@ async def test_estimate_message_fee_invalid_eth_address():
     ),
 )
 @pytest.mark.asyncio
-async def test_estimate_message_fee_throws(from_address, to_address):
-    client = full_node_client
+async def test_estimate_message_fee_throws(
+    full_node_client_integration, from_address, to_address
+):
+    client = full_node_client_integration
 
     with pytest.raises(ClientError):
         _ = await client.estimate_message_fee(
@@ -115,3 +110,77 @@ async def test_estimate_message_fee_throws(from_address, to_address):
                 "0x4359",
             ],
         )
+
+
+@pytest.mark.asyncio
+async def test_get_tx_receipt_reverted(client_integration):
+    client = client_integration
+    reverted_tx_hash = (
+        "0x4a3c389816f8544d05db964957eb41a9e3f8c660e8487695cb75438ef983181"
+    )
+
+    res = await client.get_transaction_receipt(tx_hash=reverted_tx_hash)
+
+    assert res.execution_status == TransactionExecutionStatus.REVERTED
+    assert res.finality_status == TransactionFinalityStatus.ACCEPTED_ON_L1
+    if isinstance(client, GatewayClient):
+        assert "Input too long for arguments" in res.revert_error
+    else:
+        assert "Input too long for arguments" in res.rejection_reason
+
+
+@pytest.mark.asyncio
+async def test_get_transaction_by_block_id_and_index(full_node_client_integration):
+    client = full_node_client_integration
+    block_and_index = [
+        (
+            307145,
+            0,
+        ),  # declare, https://integration.voyager.online/tx/0x6d8c9f8806bda9a3279bcc69e8461ed21b4f3ce9e087ae02d5368d0c9d63c57
+        (
+            248061,
+            0,
+        ),  # deploy, https://integration.voyager.online/tx/0x510fa73cdb49ae81742441c494c396883a2eee91209fe387ce1dec5fa04ecb
+        (
+            307054,
+            1,
+        ),  # deploy_account, https://integration.voyager.online/tx/0x593c073960140ab7af7951fadb6a129572cc504ef0b9107992c5c1efe5a0fb5
+        (
+            307163,
+            0,
+        ),  # invoke, https://integration.voyager.online/tx/0x6225b92ce88603645e42fc4b664034f788ec9f01a5aadd9855646dd721898e5
+        (
+            307061,
+            3,
+        ),  # l1_handler, https://integration.voyager.online/tx/0x66e2db10edbed4b262e01ee0f89ff77907f9ca1b4fe11603d691f16370248f7
+    ]
+
+    for block_number, index in block_and_index:
+        tx = await client.get_transaction_by_block_id(
+            block_number=block_number, index=index
+        )
+
+        assert tx.hash is not None
+
+        receipt = await client.get_transaction_receipt(tx_hash=tx.hash)
+
+        assert receipt.finality_status is not None
+        assert receipt.execution_status is not None
+
+
+@pytest.mark.asyncio
+async def test_get_pending_transactions(full_node_client_integration):
+    client = full_node_client_integration
+    res = await client.get_pending_transactions()
+
+    for tx in res:
+        assert tx.hash is not None
+
+
+@pytest.mark.asyncio
+async def test_get_block(full_node_client_integration):
+    client = full_node_client_integration
+    res = await client.get_block(block_number="latest")
+
+    for tx in res.transactions:
+        assert tx.hash is not None
