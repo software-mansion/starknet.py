@@ -486,13 +486,13 @@ files = [
 
 [[package]]
 name = "cairo-lang"
-version = "0.12.1a0"
+version = "0.12.0"
 description = "Compiler and runner for the Cairo language"
 category = "dev"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "cairo-lang-0.12.1a0.zip", hash = "sha256:9667eba175b0d0a0700581001d52b2192b41e0f3a21ced9203681b3082d7a85b"},
+    {file = "cairo-lang-0.12.0.zip", hash = "sha256:9a02a079116e8595387beff46e82779fe43152269752063f6969742ee27ef105"},
 ]
 
 [package.dependencies]
@@ -3169,29 +3169,25 @@ description = "A local testnet for Starknet"
 category = "dev"
 optional = false
 python-versions = ">=3.9,<3.10"
-files = []
-develop = false
+files = [
+    {file = "starknet_devnet-0.5.5-py3-none-any.whl", hash = "sha256:1c7710c887fe4c36f620297f9ac1c39b1ebaa8809e7b982089d09de274e67a2f"},
+    {file = "starknet_devnet-0.5.5.tar.gz", hash = "sha256:ccaae99ce84921f680dc6cabb6632d492860d202d154c08ff62414aab7678f97"},
+]
 
 [package.dependencies]
-cairo-lang = "0.12.1a0"
-cloudpickle = "~2.1.0"
-crypto-cpp-py = "~1.4.0"
-Flask = {version = "~2.0.3", extras = ["async"]}
-flask-cors = "~3.0.10"
-gunicorn = "~20.1.0"
-jsonschema = "~4.17.0"
-marshmallow = "~3.17.0"
-marshmallow-dataclass = "~8.4"
-poseidon-py = "~0.1.3"
-typing-extensions = "~4.3.0"
-web3 = "~6.0.0"
-Werkzeug = "~2.0.3"
-
-[package.source]
-type = "git"
-url = "https://github.com/0xSpaceShard/starknet-devnet.git"
-reference = "11ff917"
-resolved_reference = "11ff917d1234daa9ddc26ef85590e548a7782070"
+cairo-lang = "0.12.0"
+cloudpickle = ">=2.1.0,<2.2.0"
+crypto-cpp-py = ">=1.4.0,<1.5.0"
+Flask = {version = ">=2.0.3,<2.1.0", extras = ["async"]}
+flask-cors = ">=3.0.10,<3.1.0"
+gunicorn = ">=20.1.0,<20.2.0"
+jsonschema = ">=4.17.0,<4.18.0"
+marshmallow = ">=3.17.0,<3.18.0"
+marshmallow-dataclass = ">=8.4,<8.5"
+poseidon-py = ">=0.1.3,<0.2.0"
+typing-extensions = ">=4.3.0,<4.4.0"
+web3 = ">=6.0.0,<6.1.0"
+Werkzeug = ">=2.0.3,<2.1.0"
 
 [[package]]
 name = "sympy"
@@ -3631,4 +3627,4 @@ docs = ["sphinx", "enum-tools", "furo"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8, <3.12"
-content-hash = "4850e87dcec9428eb1563b54d0635bb553e22866be49280ffaec114552cc7ab4"
+content-hash = "90d107ad71a1ff5299d8d7b8a81e9ec0231199733a1a31e7318dff958d677ba9"
