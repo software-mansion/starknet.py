@@ -121,6 +121,8 @@ async def test_rejection_reason_in_transaction_receipt(account, map_contract):
     transaction_receipt = await account.client.get_transaction_receipt(res.hash)
 
     if isinstance(account.client, GatewayClient):
+        assert "Actual fee exceeded max fee." in transaction_receipt.revert_error
+    else:
         assert "Actual fee exceeded max fee." in transaction_receipt.rejection_reason
 
 
