@@ -53,6 +53,9 @@ async def test_estimate_message_fee(full_node_client_integration):
     )
 
     assert isinstance(estimated_message, EstimatedFee)
+    assert estimated_message.overall_fee > 0
+    assert estimated_message.gas_price > 0
+    assert estimated_message.gas_usage > 0
 
 
 @pytest.mark.asyncio
