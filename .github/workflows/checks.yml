@@ -218,6 +218,70 @@ jobs:
           poetry run poe test_ci_full_node_v1
           poetry run poe test_ci_gateway_v2
           poetry run poe test_ci_gateway_v1
+
+      - name: Generate coverage in XML
+        run: |
+          poetry run coverage xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+
+  # ---------------------------------------------------------- #
+  # ..................RUN-TESTS-INTEGRATION................... #
+  # ---------------------------------------------------------- #
+
+  run-tests-integration:
+    name: Tests on integration
+    needs: setup-tests
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      python-version: "3.9"
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download contracts
+        uses: actions/download-artifact@v3
+        with:
+          name: contract-artifacts
+          path: starknet_py/tests/e2e/mock/
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+          cache: 'pip'
+
+      # ====================== SETUP PYTHON ====================== #
+
+      - name: Install poetry
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry
+          poetry config installer.modern-installation false
+
+      - name: Install python 3.9 requirements
+        run: |
+          poetry export -f requirements.txt --only=py39-dev --without-hashes --output requirements.txt
+          pip install -r requirements.txt
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'poetry'
+
+      - name: Install dependencies
+        run: |
+          poetry install --without py39-dev
+
+      # ====================== RUN TESTS ====================== #
+
+      - name: Check circular imports
+        run: |
+          poetry run poe circular_imports_check
+
+      - name: Run tests
+        run: |
           poetry run poe test_ci_integration_full_node
           poetry run poe test_ci_integration_gateway
 
