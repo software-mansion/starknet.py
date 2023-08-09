@@ -315,7 +315,7 @@ async def test_get_tx_receipt_reverted(client_integration):
     if isinstance(client, GatewayClient):
         assert "Input too long for arguments" in res.revert_error
     else:
-        assert "Input too long for arguments" in res.rejection_reason
+        assert "Input too long for arguments" in res.revert_reason
 
 
 @pytest.mark.asyncio
