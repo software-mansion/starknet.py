@@ -226,7 +226,7 @@ class StarknetBlockSchema(Schema):
     status = BlockStatusField(data_key="status", required=True)
     root = NonPrefixedHex(data_key="new_root", required=True)
     transactions = fields.List(
-        fields.Nested(TypesOfTransactionsSchema()),
+        fields.Nested(TypesOfTransactionsSchema(unknown=EXCLUDE)),
         data_key="transactions",
         required=True,
     )
