@@ -1,3 +1,4 @@
+import re
 from typing import Any, Mapping, Optional, Union
 
 from marshmallow import Schema, ValidationError, fields, post_load
@@ -12,6 +13,12 @@ from starknet_py.net.client_models import (
 )
 
 # pylint: disable=unused-argument
+
+
+def _pascal_to_screaming_upper(checked_string: str) -> str:
+    if bool(re.fullmatch(r"[A-Z0-9]+(?:_[A-Z0-9]+)*", checked_string)):
+        return checked_string
+    return re.sub(r"(?<!^)(?=[A-Z])", "_", checked_string).upper()
 
 
 class Felt(fields.Field):
@@ -68,6 +75,9 @@ class StatusField(fields.Field):
     ) -> TransactionStatus:
         values = [v.value for v in TransactionStatus]
 
+        # TODO (#1143): change case insensitivity in a proper release
+        assert isinstance(value, str)
+        value = _pascal_to_screaming_upper(value)
         if value not in values:
             raise ValidationError(
                 f"Invalid value provided for TransactionStatus: {value}."
@@ -89,6 +99,9 @@ class ExecutionStatusField(fields.Field):
     ) -> TransactionExecutionStatus:
         values = [v.value for v in TransactionExecutionStatus]
 
+        # TODO (#1143): change case insensitivity in a proper release
+        assert isinstance(value, str)
+        value = _pascal_to_screaming_upper(value)
         if value not in values:
             raise ValidationError(
                 f"Invalid value provided for TransactionExecutionStatus: {value}."
@@ -110,6 +123,9 @@ class FinalityStatusField(fields.Field):
     ) -> TransactionFinalityStatus:
         values = [v.value for v in TransactionFinalityStatus]
 
+        # TODO (#1143): change case insensitivity in a proper release
+        assert isinstance(value, str)
+        value = _pascal_to_screaming_upper(value)
         if value not in values:
             raise ValidationError(
                 f"Invalid value provided for TransactionFinalityStatus: {value}."
