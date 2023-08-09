@@ -56,7 +56,7 @@ async def test_wait_for_tx_reverted_full_node(full_node_account_integration):
         selector=get_selector_from_name("empty"),
         calldata=[0x1, 0x2, 0x3, 0x4, 0x5],
     )
-    sign_invoke = await account.sign_invoke_transaction(calls=call, max_fee=int(1e14))
+    sign_invoke = await account.sign_invoke_transaction(calls=call, max_fee=int(1e16))
     invoke = await account.client.send_transaction(sign_invoke)
 
     with pytest.raises(TransactionRevertedError, match="Input too long for arguments"):
@@ -72,7 +72,7 @@ async def test_wait_for_tx_reverted_gateway(gateway_account_integration):
         selector=get_selector_from_name("empty"),
         calldata=[0x1, 0x2, 0x3, 0x4, 0x5],
     )
-    sign_invoke = await account.sign_invoke_transaction(calls=call, max_fee=int(1e14))
+    sign_invoke = await account.sign_invoke_transaction(calls=call, max_fee=int(1e16))
     invoke = await account.client.send_transaction(sign_invoke)
 
     with pytest.raises(TransactionRevertedError, match="Input too long for arguments"):
@@ -125,7 +125,7 @@ async def test_wait_for_tx_full_node_accepted(full_node_account_integration):
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
-    sign_invoke = await account.sign_invoke_transaction(calls=call, max_fee=int(1e14))
+    sign_invoke = await account.sign_invoke_transaction(calls=call, max_fee=int(1e16))
     invoke = await account.client.send_transaction(sign_invoke)
 
     result = await account.client.wait_for_tx(tx_hash=invoke.transaction_hash)
@@ -141,7 +141,7 @@ async def test_wait_for_tx_gateway_accepted(gateway_account_integration):
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
-    sign_invoke = await account.sign_invoke_transaction(calls=call, max_fee=int(1e14))
+    sign_invoke = await account.sign_invoke_transaction(calls=call, max_fee=int(1e16))
     invoke = await account.client.send_transaction(sign_invoke)
 
     result = await account.client.wait_for_tx(tx_hash=invoke.transaction_hash)
