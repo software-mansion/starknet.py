@@ -100,7 +100,8 @@ class TransactionReceiptSchema(Schema):
     actual_fee = Felt(data_key="actual_fee", required=True)
     type = TransactionTypeField(data_key="type", load_default=None)
     contract_address = Felt(data_key="contract_address", load_default=None)
-    rejection_reason = fields.String(data_key="revert_reason", load_default=None)
+    rejection_reason = fields.String(data_key="status_data", load_default=None)
+    revert_reason = fields.String(data_key="revert_reason", load_default=None)
     events = fields.List(
         fields.Nested(EventSchema()), data_key="events", load_default=[]
     )

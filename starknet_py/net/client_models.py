@@ -227,7 +227,8 @@ class TransactionReceipt:
     actual_fee: int = 0
 
     rejection_reason: Optional[str] = None
-    revert_error: Optional[str] = None
+    revert_reason: Optional[str] = None  # full_node-only field
+    revert_error: Optional[str] = None  # gateway-only field
 
     # gateway only
     l1_to_l2_consumed_message: Optional[L1toL2Message] = None
