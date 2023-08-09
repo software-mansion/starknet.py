@@ -5,8 +5,7 @@ Migration guide
 0.18.0 Migration guide
 **********************
 
-TODO (#1098): link needed
-Additionally, this release brings support for `RPC v0.4.xxx <>`!
+This version of starknet.py brings support Starknet 0.12.1 and `RPC v0.4.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.4.0>`!
 
 
 1. :class:`TransactionReceipt` dataclass properties have been changed (more details in RPC specification linked above).
@@ -25,6 +24,11 @@ Additionally, this release brings support for `RPC v0.4.xxx <>`!
 .. currentmodule:: starknet_py.net.full_node_client
 
 1. :meth:`FullNodeClient.get_transaction_receipt` now returns two additional fields: ``acceptance_status`` and ``finality_status``.
+
+.. currentmodule:: starknet_py.net.client_models
+
+2. Added two fields to :class:`TransactionReceipt` - ``revert_error`` (Gateway) and ``revert_reason`` (FullNode).
+3. ``hash`` property in :class:`Transaction` is now optional.
 
 
 |
