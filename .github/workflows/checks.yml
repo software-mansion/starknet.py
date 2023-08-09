@@ -218,7 +218,6 @@ jobs:
           poetry run poe test_ci_full_node_v1
           poetry run poe test_ci_gateway_v2
           poetry run poe test_ci_gateway_v1
-        # order of tests below is important, explanation in /integration_tests/client_test.py above 'test_wait_for_tx_reverted_full_node'
           poetry run poe test_ci_integration_full_node
           poetry run poe test_ci_integration_gateway
 
