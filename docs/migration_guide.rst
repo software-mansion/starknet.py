@@ -29,6 +29,7 @@ This version of starknet.py brings support Starknet 0.12.1 and `RPC v0.4.0 <http
 
 2. Added two fields to :class:`TransactionReceipt` - ``revert_error`` (Gateway) and ``revert_reason`` (FullNode).
 3. ``hash`` property in :class:`Transaction` is now optional.
+4. Added missing field ``contract_address_salt`` to :class:`DeployTransaction`.
 
 
 |
