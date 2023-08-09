@@ -1,3 +1,6 @@
+import sys
+from typing import List
+
 import pytest
 
 from starknet_py.net.account.account import Account
@@ -30,28 +33,23 @@ def full_node_client_integration() -> FullNodeClient:
     return FullNodeClient(node_url=INTEGRATION_NODE_URL)
 
 
+def net_to_integration_clients() -> List[str]:
+    if "--client=gateway" in sys.argv:
+        return ["gateway_client_integration"]
+    if "--client=full_node" in sys.argv:
+        return ["full_node_client_integration"]
+    return ["gateway_client_integration", "full_node_client_integration"]
+
+
 @pytest.fixture(
     scope="package",
-    params=["gateway_client_integration", "full_node_client_integration"],
+    params=net_to_integration_clients(),
 )
 def client_integration(request) -> Client:
     """
     A fixture returning integration network clients one by one (GatewayClient, then FullNodeClient).
     """
     return request.getfixturevalue(request.param)
-
-
-@pytest.fixture(scope="package")
-def full_node_account_integration(full_node_client_integration) -> Account:
-    """
-    A fixture returning an Account with FullNodeClient.
-    """
-    return Account(
-        address=INTEGRATION_ACCOUNT_ADDRESS,
-        client=full_node_client_integration,
-        key_pair=KeyPair.from_private_key(int(INTEGRATION_ACCOUNT_PRIVATE_KEY, 0)),
-        chain=StarknetChainId.TESTNET,
-    )
 
 
 @pytest.fixture(scope="package")
@@ -67,9 +65,30 @@ def gateway_account_integration(gateway_client_integration) -> Account:
     )
 
 
+@pytest.fixture(scope="package")
+def full_node_account_integration(full_node_client_integration) -> Account:
+    """
+    A fixture returning an Account with FullNodeClient.
+    """
+    return Account(
+        address=INTEGRATION_ACCOUNT_ADDRESS,
+        client=full_node_client_integration,
+        key_pair=KeyPair.from_private_key(int(INTEGRATION_ACCOUNT_PRIVATE_KEY, 0)),
+        chain=StarknetChainId.TESTNET,
+    )
+
+
+def net_to_integration_accounts() -> List[str]:
+    if "--client=gateway" in sys.argv:
+        return ["gateway_account_integration"]
+    if "--client=full_node" in sys.argv:
+        return ["full_node_account_integration"]
+    return ["gateway_account_integration", "full_node_account_integration"]
+
+
 @pytest.fixture(
     scope="package",
-    params=["gateway_account_integration", "full_node_account_integration"],
+    params=net_to_integration_accounts(),
 )
 def account_integration(request) -> Account:
     """

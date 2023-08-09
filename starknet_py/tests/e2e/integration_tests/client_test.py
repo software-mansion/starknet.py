@@ -47,6 +47,11 @@ async def test_get_transaction_receipt(client_integration, transaction_hash):
 # do not. If, somehow, gateway test gets executed before the full_node one, the transaction will still be in the PENDING
 # block and the next one with the same hash will be rejected (you could artificially add more items to 'calldata' array,
 # but you would need to change the nonce and tests depending on each other is a bad idea).
+# Same thing could happen when you run tests locally and then push to run them on CI.
+@pytest.mark.skipif(
+    condition="--client=gateway" in sys.argv,
+    reason="Separate FullNode tests from Gateway ones.",
+)
 @pytest.mark.asyncio
 async def test_wait_for_tx_reverted_full_node(full_node_account_integration):
     account = full_node_account_integration
@@ -63,6 +68,10 @@ async def test_wait_for_tx_reverted_full_node(full_node_account_integration):
         await account.client.wait_for_tx(tx_hash=invoke.transaction_hash)
 
 
+@pytest.mark.skipif(
+    condition="--client=full_node" in sys.argv,
+    reason="Separate FullNode tests from Gateway ones.",
+)
 @pytest.mark.asyncio
 async def test_wait_for_tx_reverted_gateway(gateway_account_integration):
     account = gateway_account_integration
@@ -81,6 +90,10 @@ async def test_wait_for_tx_reverted_gateway(gateway_account_integration):
 
 # No same test for full_node, because nodes don't know about rejected transactions
 # https://community.starknet.io/t/efficient-utilization-of-sequencer-capacity-in-starknet-v0-12-1/95607#api-changes-3
+@pytest.mark.skipif(
+    condition="--client=full_node" in sys.argv,
+    reason="Separate FullNode tests from Gateway ones.",
+)
 @pytest.mark.asyncio
 async def test_wait_for_tx_rejected_gateway(gateway_account_integration):
     account = gateway_account_integration
@@ -116,7 +129,11 @@ async def test_wait_for_tx_rejected_gateway(gateway_account_integration):
     assert invoke2_receipt.execution_status == TransactionExecutionStatus.REJECTED
 
 
-# Same here as in comment lines 37-41
+# Same here as in comment above 'test_wait_for_tx_reverted_full_node'
+@pytest.mark.skipif(
+    condition="--client=gateway" in sys.argv,
+    reason="Separate FullNode tests from Gateway ones.",
+)
 @pytest.mark.asyncio
 async def test_wait_for_tx_full_node_accepted(full_node_account_integration):
     account = full_node_account_integration
@@ -133,6 +150,10 @@ async def test_wait_for_tx_full_node_accepted(full_node_account_integration):
     assert result.execution_status == TransactionExecutionStatus.SUCCEEDED
 
 
+@pytest.mark.skipif(
+    condition="--client=full_node" in sys.argv,
+    reason="Separate FullNode tests from Gateway ones.",
+)
 @pytest.mark.asyncio
 async def test_wait_for_tx_gateway_accepted(gateway_account_integration):
     account = gateway_account_integration
@@ -220,6 +241,10 @@ async def test_transaction_not_received_invalid_signature(account_integration):
 # TODO move tests below to full_node_test.py once devnet releases rust version supporting RPC v0.4.0
 
 
+@pytest.mark.skipif(
+    condition="--client=gateway" in sys.argv,
+    reason="Separate FullNode tests from Gateway ones.",
+)
 @pytest.mark.asyncio
 async def test_estimate_message_fee(full_node_client_integration):
     client = full_node_client_integration
@@ -244,6 +269,10 @@ async def test_estimate_message_fee(full_node_client_integration):
     assert estimated_message.gas_usage > 0
 
 
+@pytest.mark.skipif(
+    condition="--client=gateway" in sys.argv,
+    reason="Separate FullNode tests from Gateway ones.",
+)
 @pytest.mark.asyncio
 async def test_estimate_message_fee_invalid_eth_address_assertion_error(
     full_node_client_integration,
@@ -270,6 +299,10 @@ async def test_estimate_message_fee_invalid_eth_address_assertion_error(
         )
 
 
+@pytest.mark.skipif(
+    condition="--client=gateway" in sys.argv,
+    reason="Separate FullNode tests from Gateway ones.",
+)
 @pytest.mark.parametrize(
     "from_address, to_address",
     (
@@ -318,10 +351,13 @@ async def test_get_tx_receipt_reverted(client_integration):
         assert "Input too long for arguments" in res.revert_reason
 
 
-@pytest.mark.asyncio
-async def test_get_transaction_by_block_id_and_index(full_node_client_integration):
-    client = full_node_client_integration
-    block_and_index = [
+@pytest.mark.skipif(
+    condition="--client=gateway" in sys.argv,
+    reason="Separate FullNode tests from Gateway ones.",
+)
+@pytest.mark.parametrize(
+    "block_number, transaction_index",
+    [
         # declare: https://integration.voyager.online/tx/0x6d8c9f8806bda9a3279bcc69e8461ed21b4f3ce9e087ae02d5368d0c9d63c57
         (307145, 0),
         # deploy: https://integration.voyager.online/tx/0x510fa73cdb49ae81742441c494c396883a2eee91209fe387ce1dec5fa04ecb
@@ -332,21 +368,30 @@ async def test_get_transaction_by_block_id_and_index(full_node_client_integratio
         (307163, 0),
         # l1_handler: https://integration.voyager.online/tx/0x66e2db10edbed4b262e01ee0f89ff77907f9ca1b4fe11603d691f16370248f7
         (307061, 3),
-    ]
+    ],
+)
+@pytest.mark.asyncio
+async def test_get_transaction_by_block_id_and_index(
+    full_node_client_integration, block_number, transaction_index
+):
+    client = full_node_client_integration
 
-    for block_number, index in block_and_index:
-        tx = await client.get_transaction_by_block_id(
-            block_number=block_number, index=index
-        )
+    tx = await client.get_transaction_by_block_id(
+        block_number=block_number, index=transaction_index
+    )
 
-        assert tx.hash is not None
+    assert tx.hash is not None
 
-        receipt = await client.get_transaction_receipt(tx_hash=tx.hash)
+    receipt = await client.get_transaction_receipt(tx_hash=tx.hash)
 
-        assert receipt.finality_status is not None
-        assert receipt.execution_status is not None
+    assert receipt.finality_status is not None
+    assert receipt.execution_status is not None
 
 
+@pytest.mark.skipif(
+    condition="--client=gateway" in sys.argv,
+    reason="Separate FullNode tests from Gateway ones.",
+)
 @pytest.mark.asyncio
 async def test_get_pending_transactions(full_node_client_integration):
     client = full_node_client_integration
@@ -356,6 +401,10 @@ async def test_get_pending_transactions(full_node_client_integration):
         assert tx.hash is not None
 
 
+@pytest.mark.skipif(
+    condition="--client=gateway" in sys.argv,
+    reason="Separate FullNode tests from Gateway ones.",
+)
 @pytest.mark.asyncio
 async def test_get_block(full_node_client_integration):
     client = full_node_client_integration
