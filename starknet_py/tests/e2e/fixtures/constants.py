@@ -22,8 +22,12 @@ INTEGRATION_NODE_URL = "http://188.34.188.184:9545/rpc/v0.4"
 
 INTEGRATION_GATEWAY_URL = "https://external.integration.starknet.io"
 
-PREDEPLOYED_MAP_CONTRACT_ADDRESS = (
+PREDEPLOYED_EMPTY_CONTRACT_ADDRESS = (
     "0x0751cb46C364E912b6CB9221A857D8f90B1F6995A0e902997df774631432970E"
+)
+
+PREDEPLOYED_MAP_CONTRACT_ADDRESS = (
+    "0x05cd21d6b3952a869fda11fa9a5bd2657bd68080d3da255655ded47a81c8bd53"
 )
 
 # -----------------------------------------------------------------------------

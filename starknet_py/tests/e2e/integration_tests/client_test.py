@@ -1,13 +1,26 @@
+import dataclasses
+import sys
+
 import pytest
 
+from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
+    Call,
     EstimatedFee,
     TransactionExecutionStatus,
     TransactionFinalityStatus,
     TransactionReceipt,
 )
 from starknet_py.net.gateway_client import GatewayClient
+from starknet_py.tests.e2e.fixtures.constants import (
+    PREDEPLOYED_EMPTY_CONTRACT_ADDRESS,
+    PREDEPLOYED_MAP_CONTRACT_ADDRESS,
+)
+from starknet_py.transaction_errors import (
+    TransactionRejectedError,
+    TransactionRevertedError,
+)
 
 
 @pytest.mark.parametrize(
@@ -27,6 +40,179 @@ async def test_get_transaction_receipt(client_integration, transaction_hash):
     assert isinstance(receipt, TransactionReceipt)
     assert receipt.execution_status is not None
     assert receipt.finality_status is not None
+
+
+# There is a chance that the full node test fails with a reason: "Transaction with the same hash already exists
+# in the mempool" (or something like that). This is because gateway has instant access to pending nodes, but nodes
+# do not. If, somehow, gateway test gets executed before the full_node one, the transaction will still be in the PENDING
+# block and the next one with the same hash will be rejected (you could artificially add more items to 'calldata' array,
+# but you would need to change the nonce and tests depending on each other is a bad idea).
+@pytest.mark.asyncio
+async def test_wait_for_tx_reverted_full_node(full_node_account_integration):
+    account = full_node_account_integration
+    # Calldata too long for the function (it has no parameters) to trigger REVERTED status
+    call = Call(
+        to_addr=int(PREDEPLOYED_EMPTY_CONTRACT_ADDRESS, 0),
+        selector=get_selector_from_name("empty"),
+        calldata=[0x1, 0x2, 0x3, 0x4, 0x5],
+    )
+    sign_invoke = await account.sign_invoke_transaction(calls=call, max_fee=int(1e14))
+    invoke = await account.client.send_transaction(sign_invoke)
+
+    with pytest.raises(TransactionRevertedError, match="Input too long for arguments"):
+        await account.client.wait_for_tx(tx_hash=invoke.transaction_hash)
+
+
+@pytest.mark.asyncio
+async def test_wait_for_tx_reverted_gateway(gateway_account_integration):
+    account = gateway_account_integration
+    # Calldata too long for the function (it has no parameters) to trigger REVERTED status
+    call = Call(
+        to_addr=int(PREDEPLOYED_EMPTY_CONTRACT_ADDRESS, 0),
+        selector=get_selector_from_name("empty"),
+        calldata=[0x1, 0x2, 0x3, 0x4, 0x5],
+    )
+    sign_invoke = await account.sign_invoke_transaction(calls=call, max_fee=int(1e14))
+    invoke = await account.client.send_transaction(sign_invoke)
+
+    with pytest.raises(TransactionRevertedError, match="Input too long for arguments"):
+        await account.client.wait_for_tx(tx_hash=invoke.transaction_hash)
+
+
+# No same test for full_node, because nodes don't know about rejected transactions
+# https://community.starknet.io/t/efficient-utilization-of-sequencer-capacity-in-starknet-v0-12-1/95607#api-changes-3
+@pytest.mark.asyncio
+async def test_wait_for_tx_rejected_gateway(gateway_account_integration):
+    account = gateway_account_integration
+    call = Call(
+        to_addr=int(PREDEPLOYED_MAP_CONTRACT_ADDRESS, 0),
+        selector=get_selector_from_name("put"),
+        calldata=[0x102, 0x125],
+    )
+    call2 = Call(
+        to_addr=int(
+            "0x05cd21d6b3952a869fda11fa9a5bd2657bd68080d3da255655ded47a81c8bd53", 0
+        ),
+        selector=get_selector_from_name("put"),
+        calldata=[0x103, 0x126],
+    )
+    sign_invoke = await account.sign_invoke_transaction(calls=call, max_fee=int(1e16))
+    sign_invoke2 = await account.sign_invoke_transaction(calls=call2, max_fee=int(1e16))
+    # same nonces to trigger REJECTED error
+    assert sign_invoke2.nonce == sign_invoke.nonce
+
+    # this one should pass
+    invoke = await account.client.send_transaction(sign_invoke)
+    # this should be rejected
+    invoke2 = await account.client.send_transaction(sign_invoke2)
+
+    with pytest.raises(TransactionRejectedError):
+        _ = await account.client.wait_for_tx(tx_hash=invoke2.transaction_hash)
+
+    invoke2_receipt = await account.client.get_transaction_receipt(
+        tx_hash=invoke2.transaction_hash
+    )
+
+    assert invoke2_receipt.execution_status == TransactionExecutionStatus.REJECTED
+
+
+# Same here as in comment lines 37-41
+@pytest.mark.asyncio
+async def test_wait_for_tx_full_node_accepted(full_node_account_integration):
+    account = full_node_account_integration
+    call = Call(
+        to_addr=int(PREDEPLOYED_EMPTY_CONTRACT_ADDRESS, 0),
+        selector=get_selector_from_name("empty"),
+        calldata=[],
+    )
+    sign_invoke = await account.sign_invoke_transaction(calls=call, max_fee=int(1e14))
+    invoke = await account.client.send_transaction(sign_invoke)
+
+    result = await account.client.wait_for_tx(tx_hash=invoke.transaction_hash)
+
+    assert result.execution_status == TransactionExecutionStatus.SUCCEEDED
+
+
+@pytest.mark.asyncio
+async def test_wait_for_tx_gateway_accepted(gateway_account_integration):
+    account = gateway_account_integration
+    call = Call(
+        to_addr=int(PREDEPLOYED_EMPTY_CONTRACT_ADDRESS, 0),
+        selector=get_selector_from_name("empty"),
+        calldata=[],
+    )
+    sign_invoke = await account.sign_invoke_transaction(calls=call, max_fee=int(1e14))
+    invoke = await account.client.send_transaction(sign_invoke)
+
+    result = await account.client.wait_for_tx(tx_hash=invoke.transaction_hash)
+
+    assert result.execution_status == TransactionExecutionStatus.SUCCEEDED
+
+
+@pytest.mark.asyncio
+async def test_transaction_not_received_max_fee_too_small(account_integration):
+    account = account_integration
+    call = Call(
+        to_addr=int(PREDEPLOYED_EMPTY_CONTRACT_ADDRESS, 0),
+        selector=get_selector_from_name("empty"),
+        calldata=[],
+    )
+    ARBITRARILY_SMALL_NONCE = 1
+    sign_invoke = await account.sign_invoke_transaction(
+        calls=call, max_fee=ARBITRARILY_SMALL_NONCE
+    )
+
+    with pytest.raises(ClientError):
+        _ = await account.client.send_transaction(sign_invoke)
+
+
+@pytest.mark.asyncio
+async def test_transaction_not_received_max_fee_too_big(account_integration):
+    account = account_integration
+    call = Call(
+        to_addr=int(PREDEPLOYED_EMPTY_CONTRACT_ADDRESS, 0),
+        selector=get_selector_from_name("empty"),
+        calldata=[],
+    )
+    calls = [call for _ in range(1, 10000)]
+    ARBITRARILY_BIG_FEE_WE_WILL_NEVER_HAVE_SO_MUCH_ETH = sys.maxsize
+    sign_invoke = await account.sign_invoke_transaction(
+        calls=call, max_fee=ARBITRARILY_BIG_FEE_WE_WILL_NEVER_HAVE_SO_MUCH_ETH
+    )
+
+    with pytest.raises(ClientError):
+        _ = await account.client.send_transaction(sign_invoke)
+
+
+@pytest.mark.asyncio
+async def test_transaction_not_received_invalid_nonce(account_integration):
+    account = account_integration
+    call = Call(
+        to_addr=int(PREDEPLOYED_EMPTY_CONTRACT_ADDRESS, 0),
+        selector=get_selector_from_name("empty"),
+        calldata=[],
+    )
+    sign_invoke = await account.sign_invoke_transaction(
+        calls=call, max_fee=int(1e16), nonce=0
+    )
+
+    with pytest.raises(ClientError):
+        _ = await account.client.send_transaction(sign_invoke)
+
+
+@pytest.mark.asyncio
+async def test_transaction_not_received_invalid_signature(account_integration):
+    account = account_integration
+    call = Call(
+        to_addr=int(PREDEPLOYED_EMPTY_CONTRACT_ADDRESS, 0),
+        selector=get_selector_from_name("empty"),
+        calldata=[],
+    )
+    sign_invoke = await account.sign_invoke_transaction(calls=call, max_fee=int(1e16))
+    sign_invoke = dataclasses.replace(sign_invoke, signature=[0x21, 0x37])
+
+    with pytest.raises(ClientError):
+        _ = await account.client.send_transaction(sign_invoke)
 
 
 # ------------------------------------ FULL_NODE_CLIENT TESTS ------------------------------------
@@ -136,26 +322,16 @@ async def test_get_tx_receipt_reverted(client_integration):
 async def test_get_transaction_by_block_id_and_index(full_node_client_integration):
     client = full_node_client_integration
     block_and_index = [
-        (
-            307145,
-            0,
-        ),  # declare, https://integration.voyager.online/tx/0x6d8c9f8806bda9a3279bcc69e8461ed21b4f3ce9e087ae02d5368d0c9d63c57
-        (
-            248061,
-            0,
-        ),  # deploy, https://integration.voyager.online/tx/0x510fa73cdb49ae81742441c494c396883a2eee91209fe387ce1dec5fa04ecb
-        (
-            307054,
-            1,
-        ),  # deploy_account, https://integration.voyager.online/tx/0x593c073960140ab7af7951fadb6a129572cc504ef0b9107992c5c1efe5a0fb5
-        (
-            307163,
-            0,
-        ),  # invoke, https://integration.voyager.online/tx/0x6225b92ce88603645e42fc4b664034f788ec9f01a5aadd9855646dd721898e5
-        (
-            307061,
-            3,
-        ),  # l1_handler, https://integration.voyager.online/tx/0x66e2db10edbed4b262e01ee0f89ff77907f9ca1b4fe11603d691f16370248f7
+        # declare: https://integration.voyager.online/tx/0x6d8c9f8806bda9a3279bcc69e8461ed21b4f3ce9e087ae02d5368d0c9d63c57
+        (307145, 0),
+        # deploy: https://integration.voyager.online/tx/0x510fa73cdb49ae81742441c494c396883a2eee91209fe387ce1dec5fa04ecb
+        (248061, 0),
+        # deploy_account: https://integration.voyager.online/tx/0x593c073960140ab7af7951fadb6a129572cc504ef0b9107992c5c1efe5a0fb5
+        (307054, 1),
+        # invoke: https://integration.voyager.online/tx/0x6225b92ce88603645e42fc4b664034f788ec9f01a5aadd9855646dd721898e5
+        (307163, 0),
+        # l1_handler: https://integration.voyager.online/tx/0x66e2db10edbed4b262e01ee0f89ff77907f9ca1b4fe11603d691f16370248f7
+        (307061, 3),
     ]
 
     for block_number, index in block_and_index:
