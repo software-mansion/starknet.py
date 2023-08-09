@@ -236,7 +236,6 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      python-version: "3.9"
     steps:
       - uses: actions/checkout@v3
 
@@ -264,10 +263,10 @@ jobs:
           poetry export -f requirements.txt --only=py39-dev --without-hashes --output requirements.txt
           pip install -r requirements.txt
 
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python 3.9
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.9"
           cache: 'poetry'
 
       - name: Install dependencies
