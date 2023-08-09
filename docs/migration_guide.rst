@@ -31,6 +31,25 @@ This version of starknet.py brings support Starknet 0.12.1 and `RPC v0.4.0 <http
 3. ``hash`` property in :class:`Transaction` is now optional.
 4. Added missing field ``contract_address_salt`` to :class:`DeployTransaction`.
 
+.. currentmodule:: starknet_py.net.client
+
+5. Lowered ``check_interval`` parameter default value in :meth:``Client.wait_for_tx`` from 5 seconds to 2.
+
+.. currentmodule:: starknet_py.net.client_models
+
+6. Added fields to dataclasses that previously were missing (e.g. ``contract_address_salt`` in :class:`DeployTransaction`).
+
+.. currentmodule:; starknet_py.cairo.felt
+
+7. :func:`decode_shortstring` now is returned without ``\x00`` in front of the decoded string.
+
+
+0.18.0 Bugfixes
+---------------
+
+1. Fixed invalid type in :class:`BlockStateUpdate` from ``StateDiff`` to ``Union[StateDiff, GatewayStateDiff]``
+2. Fixed ``Contract not found`` error in ``AbiResolver``
+
 
 |
 
