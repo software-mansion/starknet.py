@@ -148,6 +148,7 @@ async def test_wait_for_tx_full_node_accepted(full_node_account_integration):
     result = await account.client.wait_for_tx(tx_hash=invoke.transaction_hash)
 
     assert result.execution_status == TransactionExecutionStatus.SUCCEEDED
+    assert result.finality_status == TransactionFinalityStatus.ACCEPTED_ON_L2
 
 
 @pytest.mark.skipif(
@@ -168,6 +169,7 @@ async def test_wait_for_tx_gateway_accepted(gateway_account_integration):
     result = await account.client.wait_for_tx(tx_hash=invoke.transaction_hash)
 
     assert result.execution_status == TransactionExecutionStatus.SUCCEEDED
+    assert result.finality_status == TransactionFinalityStatus.ACCEPTED_ON_L2
 
 
 @pytest.mark.asyncio
@@ -183,7 +185,7 @@ async def test_transaction_not_received_max_fee_too_small(account_integration):
         calls=call, max_fee=ARBITRARILY_SMALL_NONCE
     )
 
-    with pytest.raises(ClientError):
+    with pytest.raises(ClientError, match=r".*Max fee.*"):
         _ = await account.client.send_transaction(sign_invoke)
 
 
@@ -195,13 +197,12 @@ async def test_transaction_not_received_max_fee_too_big(account_integration):
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
-    calls = [call for _ in range(1, 10000)]
     ARBITRARILY_BIG_FEE_WE_WILL_NEVER_HAVE_SO_MUCH_ETH = sys.maxsize
     sign_invoke = await account.sign_invoke_transaction(
         calls=call, max_fee=ARBITRARILY_BIG_FEE_WE_WILL_NEVER_HAVE_SO_MUCH_ETH
     )
 
-    with pytest.raises(ClientError):
+    with pytest.raises(ClientError, match=r".*max_fee.*"):
         _ = await account.client.send_transaction(sign_invoke)
 
 
@@ -217,7 +218,7 @@ async def test_transaction_not_received_invalid_nonce(account_integration):
         calls=call, max_fee=int(1e16), nonce=0
     )
 
-    with pytest.raises(ClientError):
+    with pytest.raises(ClientError, match=r".*nonce.*"):
         _ = await account.client.send_transaction(sign_invoke)
 
 
@@ -232,13 +233,14 @@ async def test_transaction_not_received_invalid_signature(account_integration):
     sign_invoke = await account.sign_invoke_transaction(calls=call, max_fee=int(1e16))
     sign_invoke = dataclasses.replace(sign_invoke, signature=[0x21, 0x37])
 
-    with pytest.raises(ClientError):
+    # first one for gateway, second for pathfinder node
+    with pytest.raises(ClientError, match=r"(.*Signature.*)|(.*An unexpected error.*)"):
         _ = await account.client.send_transaction(sign_invoke)
 
 
 # ------------------------------------ FULL_NODE_CLIENT TESTS ------------------------------------
 
-# TODO move tests below to full_node_test.py once devnet releases rust version supporting RPC v0.4.0
+# TODO (#1142): move tests below to full_node_test.py once devnet releases rust version supporting RPC v0.4.0
 
 
 @pytest.mark.skipif(
