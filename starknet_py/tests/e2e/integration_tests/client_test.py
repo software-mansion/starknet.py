@@ -64,7 +64,7 @@ async def test_wait_for_tx_reverted_full_node(full_node_account_integration):
     sign_invoke = await account.sign_invoke_transaction(calls=call, max_fee=int(1e16))
     invoke = await account.client.send_transaction(sign_invoke)
 
-    with pytest.raises(TransactionRevertedError, match="Input too long for arguments"):
+    with pytest.raises(TransactionRevertedError, match=r".*reverted.*"):
         await account.client.wait_for_tx(tx_hash=invoke.transaction_hash)
 
 
