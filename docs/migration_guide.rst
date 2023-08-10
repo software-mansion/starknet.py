@@ -5,7 +5,7 @@ Migration guide
 0.18.0 Migration guide
 **********************
 
-This version of starknet.py brings support Starknet 0.12.1 and `RPC v0.4.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.4.0>`!
+This version of starknet.py brings support Starknet 0.12.1 and `RPC v0.4.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.4.0>`_!
 
 
 1. :class:`TransactionReceipt` dataclass properties have been changed (more details in RPC specification linked above).
