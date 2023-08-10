@@ -1,3 +1,4 @@
+import re
 from typing import Any, Mapping, Optional, Union
 
 from marshmallow import Schema, ValidationError, fields, post_load
@@ -5,11 +6,19 @@ from marshmallow import Schema, ValidationError, fields, post_load
 from starknet_py.net.client_models import (
     BlockStatus,
     StorageEntry,
+    TransactionExecutionStatus,
+    TransactionFinalityStatus,
     TransactionStatus,
     TransactionType,
 )
 
 # pylint: disable=unused-argument
+
+
+def _pascal_to_screaming_upper(checked_string: str) -> str:
+    if bool(re.fullmatch(r"[A-Z0-9]+(?:_[A-Z0-9]+)*", checked_string)):
+        return checked_string
+    return re.sub(r"(?<!^)(?=[A-Z])", "_", checked_string).upper()
 
 
 class Felt(fields.Field):
@@ -66,12 +75,63 @@ class StatusField(fields.Field):
     ) -> TransactionStatus:
         values = [v.value for v in TransactionStatus]
 
+        # TODO (#1143): change case insensitivity in a proper release
+        assert isinstance(value, str)
+        value = _pascal_to_screaming_upper(value)
         if value not in values:
             raise ValidationError(
                 f"Invalid value provided for TransactionStatus: {value}."
             )
 
         return TransactionStatus(value)
+
+
+class ExecutionStatusField(fields.Field):
+    def _serialize(self, value: Any, attr: str, obj: Any, **kwargs):
+        return value.name if value is not None else ""
+
+    def _deserialize(
+        self,
+        value: Any,
+        attr: Optional[str],
+        data: Optional[Mapping[str, Any]],
+        **kwargs,
+    ) -> TransactionExecutionStatus:
+        values = [v.value for v in TransactionExecutionStatus]
+
+        # TODO (#1143): change case insensitivity in a proper release
+        assert isinstance(value, str)
+        value = _pascal_to_screaming_upper(value)
+        if value not in values:
+            raise ValidationError(
+                f"Invalid value provided for TransactionExecutionStatus: {value}."
+            )
+
+        return TransactionExecutionStatus(value)
+
+
+class FinalityStatusField(fields.Field):
+    def _serialize(self, value: Any, attr: str, obj: Any, **kwargs):
+        return value.name if value is not None else ""
+
+    def _deserialize(
+        self,
+        value: Any,
+        attr: Optional[str],
+        data: Optional[Mapping[str, Any]],
+        **kwargs,
+    ) -> TransactionFinalityStatus:
+        values = [v.value for v in TransactionFinalityStatus]
+
+        # TODO (#1143): change case insensitivity in a proper release
+        assert isinstance(value, str)
+        value = _pascal_to_screaming_upper(value)
+        if value not in values:
+            raise ValidationError(
+                f"Invalid value provided for TransactionFinalityStatus: {value}."
+            )
+
+        return TransactionFinalityStatus(value)
 
 
 class BlockStatusField(fields.Field):

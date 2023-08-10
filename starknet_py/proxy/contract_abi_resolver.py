@@ -8,6 +8,7 @@ from starknet_py.constants import (
     RPC_CLASS_HASH_NOT_FOUND_ERROR,
     RPC_CONTRACT_ERROR,
     RPC_CONTRACT_NOT_FOUND_ERROR,
+    RPC_INVALID_MESSAGE_SELECTOR_ERROR,
 )
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError, ContractNotFoundError
@@ -138,7 +139,7 @@ class ContractAbiResolver:
                 ):
                     raise err
 
-        raise ProxyResolutionError()
+        raise ProxyResolutionError(self.proxy_config.get("proxy_checks", []))
 
     @staticmethod
     def _get_cairo_version(
@@ -182,6 +183,7 @@ class ContractAbiResolver:
                         RPC_CLASS_HASH_NOT_FOUND_ERROR,
                         RPC_CONTRACT_NOT_FOUND_ERROR,
                         RPC_CONTRACT_ERROR,
+                        RPC_INVALID_MESSAGE_SELECTOR_ERROR,  # removed in RPC v0.3.0, backwards compatibility for nodes
                     ]
                 ):
                     raise err
@@ -198,10 +200,18 @@ class ProxyResolutionError(Exception):
     Error while resolving proxy using ProxyChecks.
     """
 
+    DOCS = "https://starknetpy.readthedocs.io/en/latest/guide/resolving_proxy_contracts.html#proxychecks"
+
     def __init__(
-        self, message: str = "Couldn't resolve proxy using given ProxyChecks."
+        self,
+        proxy_checks: List[ProxyCheck],
     ):
-        self.message = message
+        proxy_check_names = tuple(
+            proxy_check.__class__.__name__ for proxy_check in proxy_checks
+        )
+        proxy_checks_str = " " + str(proxy_check_names) if proxy_check_names else ""
+        self.message = f"""Couldn't resolve proxy using given ProxyChecks{proxy_checks_str}.
+        See {self.DOCS} for a guide on writing own ProxyChecks."""
         super().__init__(self.message)
 
 
@@ -215,6 +225,7 @@ async def _get_class_at(
         if (
             "is not deployed" in err.message
             or err.code == RPC_CLASS_HASH_NOT_FOUND_ERROR
+            or err.code == RPC_CONTRACT_NOT_FOUND_ERROR
         ):
             raise ContractNotFoundError(address=address) from err
         raise err

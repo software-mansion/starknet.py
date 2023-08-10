@@ -164,7 +164,7 @@ async def test_cairo2_echo(contract):
 @pytest.mark.asyncio
 async def test_cairo2_echo_struct(contract):
     (result,) = await contract.functions["echo_struct"].call({"val": "simple"})
-    assert decode_shortstring(result["val"]).lstrip("\x00") == "simple"
+    assert decode_shortstring(result["val"]) == "simple"
 
 
 @pytest.mark.asyncio

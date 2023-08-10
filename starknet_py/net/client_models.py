@@ -58,8 +58,10 @@ class L1toL2Message:
     """
 
     payload: List[int]
+    nonce: int
+    selector: int
     l1_address: int
-    l2_address: Optional[int] = None
+    l2_address: int
 
 
 @dataclass
@@ -68,10 +70,9 @@ class L2toL1Message:
     Dataclass representing a L2->L1 message.
     """
 
-    from_address: int
     payload: List[int]
     l1_address: int
-    l2_address: Optional[int] = None
+    l2_address: int
 
 
 class TransactionType(Enum):
@@ -82,6 +83,7 @@ class TransactionType(Enum):
     INVOKE = "INVOKE"
     DECLARE = "DECLARE"
     DEPLOY_ACCOUNT = "DEPLOY_ACCOUNT"
+    DEPLOY = "DEPLOY"
     L1_HANDLER = "L1_HANDLER"
 
 
@@ -91,7 +93,9 @@ class Transaction(ABC):
     Dataclass representing common attributes of all transactions.
     """
 
-    hash: int
+    # Technically, RPC specification moved 'transaction_hash' out of the TXN object, but since it is always returned
+    # together with the rest of the data, it remains here (but is still Optional just in case as spec says)
+    hash: Optional[int]
     signature: List[int]
     max_fee: int
     version: int
@@ -120,10 +124,10 @@ class DeclareTransaction(Transaction):
     Dataclass representing declare transaction.
     """
 
-    class_hash: int
+    class_hash: int  # Responses to getBlock and getTransaction include the class hash
     sender_address: int
+    compiled_class_hash: Optional[int] = None  # only in DeclareV2, hence Optional
     nonce: Optional[int] = None
-    compiled_class_hash: Optional[int] = None
 
 
 @dataclass
@@ -132,7 +136,8 @@ class DeployTransaction(Transaction):
     Dataclass representing deploy transaction.
     """
 
-    contract_address: Optional[int]
+    contract_address: Optional[int]  # Gateway-only field, hence Optional
+    contract_address_salt: int
     constructor_calldata: List[int]
     class_hash: int
 
@@ -171,6 +176,29 @@ class TransactionStatus(Enum):
     ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
     ACCEPTED_ON_L1 = "ACCEPTED_ON_L1"
     REJECTED = "REJECTED"
+    REVERTED = "REVERTED"
+    SUCCEEDED = "SUCCEEDED"
+
+
+class TransactionExecutionStatus(Enum):
+    """
+    Enum representing transaction execution statuses.
+    """
+
+    REJECTED = "REJECTED"
+    REVERTED = "REVERTED"
+    SUCCEEDED = "SUCCEEDED"
+
+
+class TransactionFinalityStatus(Enum):
+    """
+    Enum representing transaction finality statuses.
+    """
+
+    NOT_RECEIVED = "NOT_RECEIVED"
+    RECEIVED = "RECEIVED"
+    ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
+    ACCEPTED_ON_L1 = "ACCEPTED_ON_L1"
 
 
 @dataclass
@@ -181,18 +209,31 @@ class TransactionReceipt:
 
     # pylint: disable=too-many-instance-attributes
 
-    hash: int
-    status: TransactionStatus
+    transaction_hash: int
+    events: List[Event] = field(default_factory=list)
+    l2_to_l1_messages: List[L2toL1Message] = field(default_factory=list)
+
+    execution_status: Optional[TransactionExecutionStatus] = None
+    finality_status: Optional[TransactionFinalityStatus] = None
+    status: Optional[
+        TransactionStatus
+    ] = None  # replaced by execution and finality status in RPC v0.4.0-rc1
+
     type: Optional[TransactionType] = None
     contract_address: Optional[int] = None
+
     block_number: Optional[int] = None
     block_hash: Optional[int] = None
     actual_fee: int = 0
-    rejection_reason: Optional[str] = None
 
-    events: List[Event] = field(default_factory=list)
-    l2_to_l1_messages: List[L2toL1Message] = field(default_factory=list)
+    rejection_reason: Optional[str] = None
+    revert_reason: Optional[str] = None  # full_node-only field
+    revert_error: Optional[str] = None  # gateway-only field
+
+    # gateway only
     l1_to_l2_consumed_message: Optional[L1toL2Message] = None
+    execution_resources: Optional[dict] = field(default_factory=dict)
+    transaction_index: Optional[int] = None
 
 
 @dataclass
@@ -236,6 +277,18 @@ class BlockStatus(Enum):
 
 
 @dataclass
+class PendingStarknetBlock:
+    """
+    Dataclass representing pending block on Starknet.
+    """
+
+    transactions: List[Transaction]
+    timestamp: Optional[int] = None
+    sequencer_address: Optional[int] = None
+    parent_hash: Optional[int] = None
+
+
+@dataclass
 class StarknetBlockCommon:
     """
     Dataclass representing a block header.
@@ -260,15 +313,41 @@ class StarknetBlock(StarknetBlockCommon):
 
 
 @dataclass
-class GatewayBlock(StarknetBlockCommon):
+class GatewayBlockTransactionReceipt:
+    # pylint: disable=too-many-instance-attributes
+    transaction_index: int
+    transaction_hash: int
+    l2_to_l1_messages: List[L2toL1Message]
+    events: List[Event]
+    actual_fee: int
+    execution_status: Optional[TransactionExecutionStatus] = None
+    finality_status: Optional[TransactionFinalityStatus] = None
+    execution_resources: Optional[dict] = None
+    l1_to_l2_consumed_message: Optional[L1toL2Message] = None
+    revert_error: Optional[str] = None
+
+
+@dataclass
+class GatewayBlock:
     """
     Dataclass representing a block from the Starknet gateway.
     """
 
+    # pylint: disable=too-many-instance-attributes
     gas_price: int
     status: BlockStatus
     transactions: List[Transaction]
+    transaction_receipts: List[GatewayBlockTransactionReceipt]
+
+    timestamp: int
+    parent_block_hash: int
+
+    root: Optional[int] = None
+    block_number: Optional[int] = None
+    block_hash: Optional[int] = None
+
     sequencer_address: Optional[int] = None
+    starknet_version: Optional[str] = None
 
 
 @dataclass
@@ -280,6 +359,18 @@ class StarknetBlockWithTxHashes(StarknetBlockCommon):
     sequencer_address: int
     status: BlockStatus
     transactions: List[int]
+
+
+@dataclass
+class PendingStarknetBlockWithTxHashes:
+    """
+    Dataclass representing a block on Starknet containing transaction hashes.
+    """
+
+    transactions: List[int]
+    parent_block_hash: Optional[int] = None
+    sequencer_address: Optional[int] = None
+    timestamp: Optional[int] = None
 
 
 @dataclass
@@ -309,6 +400,7 @@ class BlockSingleTransactionTrace:
     function_invocation: Optional[dict] = None
     validate_invocation: Optional[dict] = None
     fee_transfer_invocation: Optional[dict] = None
+    constructor_invocation: Optional[dict] = None
 
 
 @dataclass
@@ -424,7 +516,7 @@ class BlockStateUpdate:
     block_hash: int
     new_root: int
     old_root: int
-    state_diff: StateDiff
+    state_diff: Union[StateDiff, GatewayStateDiff]
 
 
 @dataclass
@@ -577,3 +669,5 @@ class TransactionStatusResponse:
 
     block_hash: Optional[int]
     transaction_status: TransactionStatus
+    finality_status: Optional[TransactionFinalityStatus] = None
+    execution_status: Optional[TransactionExecutionStatus] = None

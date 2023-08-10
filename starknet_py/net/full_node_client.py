@@ -5,6 +5,7 @@ from typing import Dict, List, Optional, Tuple, Union, cast
 import aiohttp
 from marshmallow import EXCLUDE
 
+from starknet_py.constants import RPC_CONTRACT_ERROR
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
@@ -19,6 +20,8 @@ from starknet_py.net.client_models import (
     EventsChunk,
     Hash,
     PendingBlockStateUpdate,
+    PendingStarknetBlock,
+    PendingStarknetBlockWithTxHashes,
     SentTransactionResponse,
     SierraContractClass,
     StarknetBlock,
@@ -49,6 +52,8 @@ from starknet_py.net.schemas.rpc import (
     EstimatedFeeSchema,
     EventsChunkSchema,
     PendingBlockStateUpdateSchema,
+    PendingStarknetBlockSchema,
+    PendingStarknetBlockWithTxHashesSchema,
     PendingTransactionsSchema,
     SentTransactionSchema,
     SierraContractClassSchema,
@@ -98,7 +103,7 @@ class FullNodeClient(Client):
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> StarknetBlock:
+    ) -> Union[StarknetBlock, PendingStarknetBlock]:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -107,20 +112,25 @@ class FullNodeClient(Client):
             method_name="getBlockWithTxs",
             params=block_identifier,
         )
+        if block_identifier == {"block_id": "pending"}:
+            return cast(
+                PendingStarknetBlock,
+                PendingStarknetBlockSchema().load(res, unknown=EXCLUDE),
+            )
         return cast(StarknetBlock, StarknetBlockSchema().load(res, unknown=EXCLUDE))
 
     async def get_block_with_txs(
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> StarknetBlock:
+    ) -> Union[StarknetBlock, PendingStarknetBlock]:
         return await self.get_block(block_hash=block_hash, block_number=block_number)
 
     async def get_block_with_tx_hashes(
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> StarknetBlockWithTxHashes:
+    ) -> Union[StarknetBlockWithTxHashes, PendingStarknetBlockWithTxHashes]:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -129,6 +139,12 @@ class FullNodeClient(Client):
             method_name="getBlockWithTxHashes",
             params=block_identifier,
         )
+
+        if block_identifier == {"block_id": "pending"}:
+            return cast(
+                PendingStarknetBlockWithTxHashes,
+                PendingStarknetBlockWithTxHashesSchema().load(res, unknown=EXCLUDE),
+            )
         return cast(
             StarknetBlockWithTxHashes,
             StarknetBlockWithTxHashesSchema().load(res, unknown=EXCLUDE),
@@ -262,13 +278,13 @@ class FullNodeClient(Client):
             params=block_identifier,
         )
 
-        if "new_root" in res:
+        if block_identifier == {"block_id": "pending"}:
             return cast(
-                BlockStateUpdate, BlockStateUpdateSchema().load(res, unknown=EXCLUDE)
+                PendingBlockStateUpdate,
+                PendingBlockStateUpdateSchema().load(res, unknown=EXCLUDE),
             )
         return cast(
-            PendingBlockStateUpdate,
-            PendingBlockStateUpdateSchema().load(res, unknown=EXCLUDE),
+            BlockStateUpdate, BlockStateUpdateSchema().load(res, unknown=EXCLUDE)
         )
 
     async def get_storage_at(
@@ -345,6 +361,58 @@ class FullNodeClient(Client):
                 res, unknown=EXCLUDE, many=(not single_transaction)
             ),
         )
+
+    async def estimate_message_fee(
+        self,
+        from_address: str,
+        to_address: Hash,
+        entry_point_selector: Hash,
+        payload: List[Hash],
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> EstimatedFee:
+        # pylint: disable=too-many-arguments
+        """
+        :param from_address: The address of the L1 (Ethereum) contract sending the message.
+        :param to_address: The target L2 (Starknet) address the message is sent to.
+        :param entry_point_selector: The selector of the l1_handler in invoke in the target contract.
+        :param payload: Payload of the message.
+        :param block_hash: Hash of the requested block or literals `"pending"` or `"latest"`.
+            Mutually exclusive with ``block_number`` parameter. If not provided, queries block `"pending"`.
+        :param block_number: Number (height) of the requested block or literals `"pending"` or `"latest"`.
+            Mutually exclusive with ``block_hash`` parameter. If not provided, queries block `"pending"`.
+        """
+        block_identifier = get_block_identifier(
+            block_hash=block_hash, block_number=block_number
+        )
+
+        assert _is_valid_eth_address(
+            from_address
+        ), f"Argument 'from_address': {from_address} is not a valid Ethereum address."
+
+        message_body = {
+            "from_address": from_address,
+            "to_address": _to_rpc_felt(to_address),
+            "entry_point_selector": _to_rpc_felt(entry_point_selector),
+            "payload": [_to_rpc_felt(x) for x in payload],
+        }
+
+        try:
+            res = await self._client.call(
+                method_name="estimateMessageFee",
+                params={
+                    "message": message_body,
+                    **block_identifier,
+                },
+            )
+            return cast(EstimatedFee, EstimatedFeeSchema().load(res, unknown=EXCLUDE))
+        except ClientError as err:
+            if err.code == RPC_CONTRACT_ERROR:
+                raise ClientError(
+                    err.message
+                    + f" Note that your ETH address ('from_address': {from_address}) might be invalid"
+                ) from err
+            raise err
 
     async def get_block_number(self) -> int:
         """Get the most recent accepted block number"""
@@ -739,3 +807,10 @@ def _to_rpc_felt(value: Hash) -> str:
     rpc_felt = hex(value)
     assert re.match(r"^0x(0|[a-fA-F1-9]{1}[a-fA-F0-9]{0,62})$", rpc_felt)
     return rpc_felt
+
+
+def _is_valid_eth_address(address: str) -> bool:
+    """
+    A function checking if an address matches Ethereum address regex. Note that it doesn't validate any checksums etc.
+    """
+    return bool(re.fullmatch("^0x[a-fA-F0-9]{40}$", address))

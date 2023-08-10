@@ -7,8 +7,10 @@ from starknet_py.net.client_errors import ContractNotFoundError
 from starknet_py.net.client_models import (
     CasmClass,
     CasmClassEntryPointsByType,
+    ContractClass,
     DeployTransaction,
     L1HandlerTransaction,
+    SierraContractClass,
     TransactionStatus,
     TransactionStatusResponse,
 )
@@ -197,6 +199,7 @@ async def test_get_deploy_tx():
         max_fee=0,
         version=0,
         contract_address=3201539328574232511583948975549924874632298555514040085947217389204344560301,
+        contract_address_salt=1755481054165712359795659576392952180676068046985196641715115837975005192835,
         constructor_calldata=[
             2977964825119970114006147768568360818918965859196023865674869683232138769290,
             1295919550572838631247819983596733806859788957403169325509326258146877103642,
@@ -205,3 +208,19 @@ async def test_get_deploy_tx():
         ],
         class_hash=1390726910323976264396851446996494490757233897803493337751952271375342730526,
     )
+
+
+@pytest.mark.asyncio
+async def test_get_full_contract(gateway_client, map_contract):
+    res = await gateway_client.get_full_contract(contract_address=map_contract.address)
+
+    assert isinstance(res, ContractClass)
+
+
+@pytest.mark.asyncio
+async def test_get_full_contract_v1(gateway_client, cairo1_hello_starknet_deploy):
+    res = await gateway_client.get_full_contract(
+        contract_address=cairo1_hello_starknet_deploy.address
+    )
+
+    assert isinstance(res, SierraContractClass)

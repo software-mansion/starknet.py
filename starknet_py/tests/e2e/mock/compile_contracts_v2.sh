@@ -28,7 +28,7 @@ for contract in "$CONTRACTS_DIRECTORY"/*.cairo; do
     echo "Compiling $contract..."
 
     echo "Using starknet-compile..."
-    cargo run --bin starknet-compile --manifest-path $MANIFEST_PATH -- $contract $contract_json &> "$tmp"
+    cargo run --bin starknet-compile --manifest-path $MANIFEST_PATH -- $contract --single-file $contract_json &> "$tmp"
 
     # print stderr only if error occurred
     if (( $? )) ; then

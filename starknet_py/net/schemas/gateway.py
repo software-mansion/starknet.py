@@ -27,6 +27,7 @@ from starknet_py.net.client_models import (
     EstimatedFee,
     Event,
     GatewayBlock,
+    GatewayBlockTransactionReceipt,
     GatewayStateDiff,
     InvokeTransaction,
     L1HandlerTransaction,
@@ -44,7 +45,9 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.schemas.common import (
     BlockStatusField,
+    ExecutionStatusField,
     Felt,
+    FinalityStatusField,
     NonPrefixedHex,
     StatusField,
     StorageEntrySchema,
@@ -67,6 +70,8 @@ class EventSchema(Schema):
 
 
 class L1toL2MessageSchema(Schema):
+    nonce = Felt(data_key="nonce", required=True)
+    selector = Felt(data_key="selector", required=True)
     l1_address = Felt(data_key="from_address", required=True)
     l2_address = Felt(data_key="to_address", required=True)
     payload = fields.List(Felt(), data_key="payload", required=True)
@@ -108,6 +113,7 @@ class InvokeTransactionSchema(TransactionSchema):
 
 class DeployTransactionSchema(TransactionSchema):
     contract_address = Felt(data_key="contract_address", required=True)
+    contract_address_salt = Felt(data_key="contract_address_salt", required=True)
     constructor_calldata = fields.List(
         Felt(), data_key="constructor_calldata", required=True
     )
@@ -165,11 +171,18 @@ class TypesOfTransactionsSchema(OneOfSchema):
 
 
 class TransactionReceiptSchema(Schema):
-    hash = Felt(data_key="transaction_hash", required=True)
-    status = StatusField(data_key="status", required=True)
+    transaction_hash = Felt(data_key="transaction_hash", required=True)
+
+    status = StatusField(data_key="status", load_default=None)
+    execution_status = ExecutionStatusField(
+        data_key="execution_status", load_default=None
+    )
+    finality_status = FinalityStatusField(data_key="finality_status", load_default=None)
+
     block_number = fields.Integer(data_key="block_number", load_default=None)
     block_hash = Felt(data_key="block_hash", load_default=None)
     actual_fee = Felt(data_key="actual_fee", allow_none=True)
+    revert_error = fields.String(data_key="revert_error", load_default=None)
     rejection_reason = fields.Dict(
         keys=fields.String(),
         values=fields.Raw(),
@@ -188,6 +201,8 @@ class TransactionReceiptSchema(Schema):
         data_key="l2_to_l1_messages",
         load_default=[],
     )
+    transaction_index = fields.Integer(data_key="transaction_index", load_default=None)
+    execution_resources = fields.Dict(data_key="execution_resources")
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> TransactionReceipt:
@@ -213,20 +228,51 @@ class ContractCodeSchema(Schema):
         return ContractCode(**data)
 
 
+class GatewayBlockTransactionReceiptSchema(Schema):
+    transaction_index = fields.Integer(data_key="transaction_index", required=True)
+    transaction_hash = Felt(data_key="transaction_hash", required=True)
+    execution_status = ExecutionStatusField(
+        data_key="execution_status", load_default=None
+    )
+    finality_status = FinalityStatusField(data_key="finality_status", load_default=None)
+    l2_to_l1_messages = fields.List(
+        fields.Nested(L2toL1MessageSchema()),
+        data_key="l2_to_l1_messages",
+        required=True,
+    )
+    l1_to_l2_consumed_message = fields.Nested(
+        L1toL2MessageSchema(), data_key="l1_to_l2_consumed_message", load_default=None
+    )
+    events = fields.List(fields.Nested(EventSchema()), data_key="events", required=True)
+    execution_resources = fields.Dict(data_key="execution_resources", load_default=None)
+    actual_fee = Felt(data_key="actual_fee", required=True)
+    revert_error = fields.String(data_key="revert_error", load_default=None)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return GatewayBlockTransactionReceipt(**data)
+
+
 class StarknetBlockSchema(Schema):
-    block_hash = Felt(data_key="block_hash", required=True)
+    block_hash = Felt(data_key="block_hash")
     parent_block_hash = Felt(data_key="parent_block_hash", required=True)
-    block_number = fields.Integer(data_key="block_number", required=True)
+    block_number = fields.Integer(data_key="block_number")
     status = BlockStatusField(data_key="status", required=True)
-    root = NonPrefixedHex(data_key="state_root", required=True)
+    root = NonPrefixedHex(data_key="state_root")
     transactions = fields.List(
         fields.Nested(TypesOfTransactionsSchema(unknown=EXCLUDE)),
         data_key="transactions",
         required=True,
     )
     timestamp = fields.Integer(data_key="timestamp", required=True)
-    gas_price = Felt(data_key="gas_price")
-    sequencer_address = Felt(data_key="sequencer_address")
+    gas_price = Felt(data_key="gas_price", load_default=None)
+    sequencer_address = Felt(data_key="sequencer_address", load_default=None)
+    starknet_version = fields.String(data_key="starknet_version", load_default=None)
+    transaction_receipts = fields.List(
+        fields.Nested(GatewayBlockTransactionReceiptSchema()),
+        data_key="transaction_receipts",
+        required=True,
+    )
 
     @post_load
     def make_dataclass(self, data, **kwargs):
@@ -250,6 +296,12 @@ class BlockSingleTransactionTraceSchema(Schema):
         keys=fields.String(),
         values=fields.Raw(),
         data_key="fee_transfer_invocation",
+        load_default=None,
+    )
+    constructor_invocation = fields.Dict(
+        keys=fields.String(),
+        values=fields.Raw(),
+        data_key="constructor_invocation",
         load_default=None,
     )
     signature = fields.List(Felt(), data_key="signature", load_default=[])
@@ -562,7 +614,11 @@ class CasmClassSchema(Schema):
 
 class TransactionStatusSchema(Schema):
     transaction_status = StatusField(data_key="tx_status", required=True)
-    block_hash = Felt(data_key="block_hash", allow_none=True)
+    finality_status = FinalityStatusField(data_key="finality_status", load_default=None)
+    execution_status = ExecutionStatusField(
+        data_key="execution_status", load_default=None
+    )
+    block_hash = Felt(data_key="block_hash", load_default=None)
 
     @post_load
     def make_result(self, data, **kwargs) -> TransactionStatusResponse:
