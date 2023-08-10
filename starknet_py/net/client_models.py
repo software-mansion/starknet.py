@@ -83,6 +83,7 @@ class TransactionType(Enum):
     INVOKE = "INVOKE"
     DECLARE = "DECLARE"
     DEPLOY_ACCOUNT = "DEPLOY_ACCOUNT"
+    DEPLOY = "DEPLOY"
     L1_HANDLER = "L1_HANDLER"
 
 
@@ -92,7 +93,9 @@ class Transaction(ABC):
     Dataclass representing common attributes of all transactions.
     """
 
-    hash: int
+    # Technically, RPC specification moved 'transaction_hash' out of the TXN object, but since it is always returned
+    # together with the rest of the data, it remains here (but is still Optional just in case as spec says)
+    hash: Optional[int]
     signature: List[int]
     max_fee: int
     version: int
@@ -121,10 +124,10 @@ class DeclareTransaction(Transaction):
     Dataclass representing declare transaction.
     """
 
-    class_hash: int
+    class_hash: int  # Responses to getBlock and getTransaction include the class hash
     sender_address: int
+    compiled_class_hash: Optional[int] = None  # only in DeclareV2, hence Optional
     nonce: Optional[int] = None
-    compiled_class_hash: Optional[int] = None
 
 
 @dataclass
@@ -133,10 +136,10 @@ class DeployTransaction(Transaction):
     Dataclass representing deploy transaction.
     """
 
+    contract_address: Optional[int]  # Gateway-only field, hence Optional
     contract_address_salt: int
     constructor_calldata: List[int]
     class_hash: int
-    contract_address: Optional[int] = None
 
 
 @dataclass
@@ -212,7 +215,9 @@ class TransactionReceipt:
 
     execution_status: Optional[TransactionExecutionStatus] = None
     finality_status: Optional[TransactionFinalityStatus] = None
-    status: Optional[TransactionStatus] = None
+    status: Optional[
+        TransactionStatus
+    ] = None  # replaced by execution and finality status in RPC v0.4.0-rc1
 
     type: Optional[TransactionType] = None
     contract_address: Optional[int] = None
@@ -222,7 +227,8 @@ class TransactionReceipt:
     actual_fee: int = 0
 
     rejection_reason: Optional[str] = None
-    revert_error: Optional[str] = None
+    revert_reason: Optional[str] = None  # full_node-only field
+    revert_error: Optional[str] = None  # gateway-only field
 
     # gateway only
     l1_to_l2_consumed_message: Optional[L1toL2Message] = None

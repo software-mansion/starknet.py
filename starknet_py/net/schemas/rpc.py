@@ -39,7 +39,9 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.schemas.common import (
     BlockStatusField,
+    ExecutionStatusField,
     Felt,
+    FinalityStatusField,
     NonPrefixedHex,
     StatusField,
     StorageEntrySchema,
@@ -87,13 +89,19 @@ class L2toL1MessageSchema(Schema):
 
 class TransactionReceiptSchema(Schema):
     transaction_hash = Felt(data_key="transaction_hash", required=True)
+    # replaced by execution and finality status in RPC v0.4.0-rc1
     status = StatusField(data_key="status", load_default=None)
+    execution_status = ExecutionStatusField(
+        data_key="execution_status", load_default=None
+    )
+    finality_status = FinalityStatusField(data_key="finality_status", load_default=None)
     block_number = fields.Integer(data_key="block_number", load_default=None)
     block_hash = Felt(data_key="block_hash", load_default=None)
     actual_fee = Felt(data_key="actual_fee", required=True)
     type = TransactionTypeField(data_key="type", load_default=None)
     contract_address = Felt(data_key="contract_address", load_default=None)
     rejection_reason = fields.String(data_key="status_data", load_default=None)
+    revert_reason = fields.String(data_key="revert_reason", load_default=None)
     events = fields.List(
         fields.Nested(EventSchema()), data_key="events", load_default=[]
     )
@@ -117,7 +125,7 @@ class EstimatedFeeSchema(Schema):
 
 
 class TransactionSchema(Schema):
-    hash = Felt(data_key="transaction_hash", required=True)
+    hash = Felt(data_key="transaction_hash", load_default=None)
     signature = fields.List(Felt(), data_key="signature", load_default=[])
     max_fee = Felt(data_key="max_fee", load_default=0)
     version = Felt(data_key="version", required=True)
@@ -378,9 +386,7 @@ class BlockStateUpdateSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> BlockStateUpdate:
-        return BlockStateUpdate(
-            **data,
-        )
+        return BlockStateUpdate(**data)
 
 
 class PendingBlockStateUpdateSchema(Schema):

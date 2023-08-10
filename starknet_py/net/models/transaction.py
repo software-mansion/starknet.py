@@ -112,6 +112,7 @@ class Declare(AccountTransaction):
     class.
     """
 
+    # The class to be declared, included for all methods involving execution (estimateFee, simulateTransactions)
     contract_class: ContractClass = field(
         metadata={"marshmallow_field": fields.Nested(ContractClassSchema())}
     )

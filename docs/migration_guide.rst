@@ -2,6 +2,64 @@ Migration guide
 ===============
 
 **********************
+0.18.0 Migration guide
+**********************
+
+This version of starknet.py brings support Starknet 0.12.1 and `RPC v0.4.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.4.0>`!
+
+
+1. :class:`TransactionReceipt` dataclass properties have been changed (more details in RPC specification linked above).
+
+0.18.0 Deprecations
+-------------------
+
+.. currentmodule:: starknet_py.net.client_models
+
+1. ``status`` field in :class:`TransactionReceipt` returned by :meth:`FullNodeClient.get_transaction_receipt` has been deprecated.
+
+
+0.18.0 Minor changes
+--------------------
+
+.. currentmodule:: starknet_py.net.full_node_client
+
+1. :meth:`FullNodeClient.get_transaction_receipt` now returns two additional fields: ``acceptance_status`` and ``finality_status``.
+
+.. currentmodule:: starknet_py.net.client_models
+
+2. Added two fields to :class:`TransactionReceipt` - ``revert_error`` (Gateway) and ``revert_reason`` (FullNode).
+3. ``hash`` property in :class:`Transaction` is now optional.
+4. Added missing field ``contract_address_salt`` to :class:`DeployTransaction`.
+
+.. currentmodule:: starknet_py.net.client
+
+5. Lowered ``check_interval`` parameter default value in :meth:``Client.wait_for_tx`` from 5 seconds to 2.
+
+.. currentmodule:: starknet_py.net.client_models
+
+6. Added fields to dataclasses that previously were missing (e.g. ``contract_address_salt`` in :class:`DeployTransaction`).
+
+.. currentmodule:; starknet_py.cairo.felt
+
+7. :func:`decode_shortstring` now is returned without ``\x00`` in front of the decoded string.
+
+
+0.18.0 Bugfixes
+---------------
+
+1. Fixed invalid type in :class:`BlockStateUpdate` from ``StateDiff`` to ``Union[StateDiff, GatewayStateDiff]``
+2. Fixed ``Contract not found`` error in ``AbiResolver``
+
+
+|
+
+.. raw:: html
+
+  <hr>
+
+|
+
+**********************
 0.17.0 Migration guide
 **********************
 
@@ -38,8 +96,8 @@ Also, four methods were added to its interface:
 - :meth:`FullNodeClient.get_syncing_status`
 
 
-Breaking changes
-----------------
+0.17.0 Breaking changes
+-----------------------
 
 1. Deprecated function ``compute_invoke_hash`` in :mod:`starknet_py.net.models.transaction` has been removed in favor of :func:`starknet_py.hash.transaction.compute_invoke_transaction_hash`.
 
@@ -50,8 +108,8 @@ Breaking changes
 3. Removed ``PENDING`` transaction status.
 
 
-Minor changes
--------------
+0.17.0 Minor changes
+--------------------
 
 .. currentmodule:: starknet_py.contract
 
@@ -84,15 +142,15 @@ RPC related changes:
 10. :meth:`Client.wait_for_tx` has a new parameter ``retries`` describing the amount of retries before a time out when querying for a transaction.
 
 
-Deprecations
-------------
+0.17.0 Deprecations
+-------------------
 .. currentmodule:: starknet_py.net.client
 
 1. `wait_for_accept` parameter in :meth:`Client.wait_for_tx` and :meth:`SentTransaction.wait_for_acceptance` has been deprecated.
 
 
-Bugfixes
---------
+0.17.0 Bugfixes
+---------------
 
 .. currentmodule:: starknet_py.hash.class_hash
 

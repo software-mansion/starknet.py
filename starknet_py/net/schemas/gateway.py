@@ -618,7 +618,7 @@ class TransactionStatusSchema(Schema):
     execution_status = ExecutionStatusField(
         data_key="execution_status", load_default=None
     )
-    block_hash = Felt(data_key="block_hash", allow_none=True)
+    block_hash = Felt(data_key="block_hash", load_default=None)
 
     @post_load
     def make_result(self, data, **kwargs) -> TransactionStatusResponse:
