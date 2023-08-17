@@ -658,5 +658,5 @@ async def test_get_new_state_update(
 
     assert (
         ReplacedClass(contract_address=contract_address, class_hash=class_hash)
-        in state_update.state_diff.replaced_classes
+        in state_update.state_diff.replaced_classes  # pyright: ignore
     )

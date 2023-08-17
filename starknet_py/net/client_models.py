@@ -530,6 +530,16 @@ class PendingBlockStateUpdate:
 
 
 @dataclass
+class StateUpdateWithBlock:
+    """
+    Dataclass representing a change in state of a block with the block.
+    """
+
+    block: GatewayBlock
+    state_update: BlockStateUpdate
+
+
+@dataclass
 class ContractCode:
     """
     Dataclass representing contract deployed to Starknet.

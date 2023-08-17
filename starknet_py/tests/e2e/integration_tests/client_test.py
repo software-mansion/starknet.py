@@ -9,6 +9,7 @@ from starknet_py.net.client_models import (
     Call,
     EstimatedFee,
     SignatureOnStateDiff,
+    StateUpdateWithBlock,
     TransactionExecutionStatus,
     TransactionFinalityStatus,
     TransactionReceipt,
@@ -440,3 +441,20 @@ async def test_get_signature(gateway_client_integration):
     assert signature.block_number is not None
     assert len(signature.signature) == 2
     assert signature.signature_input is not None
+
+
+@pytest.mark.skipif(
+    condition="--client=full_node" in sys.argv,
+    reason="Separate FullNode tests from Gateway ones.",
+)
+@pytest.mark.asyncio
+async def test_get_state_update_with_block(gateway_client_integration):
+    res = await gateway_client_integration.get_state_update(
+        block_number=100000, include_block=True
+    )
+    block = await gateway_client_integration.get_block(block_number=100000)
+
+    assert isinstance(res, StateUpdateWithBlock)
+
+    assert res.block == block
+    assert res.state_update is not None

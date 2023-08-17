@@ -41,6 +41,7 @@ from starknet_py.net.client_models import (
     SierraEntryPointsByType,
     SignatureInput,
     SignatureOnStateDiff,
+    StateUpdateWithBlock,
     StorageDiffItem,
     TransactionReceipt,
     TransactionStatusResponse,
@@ -439,6 +440,17 @@ class BlockStateUpdateSchema(Schema):
         data["state_diff"].storage_diffs = fixed_storage_diffs
         data["state_diff"].nonces = fixed_nonces
         return BlockStateUpdate(**data)
+
+
+class StateUpdateWithBlockSchema(Schema):
+    block = fields.Nested(StarknetBlockSchema(), data_key="block", required=True)
+    state_update = fields.Nested(
+        BlockStateUpdateSchema(), data_key="state_update", required=True
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> StateUpdateWithBlock:
+        return StateUpdateWithBlock(**data)
 
 
 class EntryPointSchema(Schema):
