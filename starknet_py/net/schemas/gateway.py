@@ -39,6 +39,8 @@ from starknet_py.net.client_models import (
     SierraContractClass,
     SierraEntryPoint,
     SierraEntryPointsByType,
+    SignatureInput,
+    SignatureOnStateDiff,
     StorageDiffItem,
     TransactionReceipt,
     TransactionStatusResponse,
@@ -623,3 +625,24 @@ class TransactionStatusSchema(Schema):
     @post_load
     def make_result(self, data, **kwargs) -> TransactionStatusResponse:
         return TransactionStatusResponse(**data)
+
+
+class SignatureInputSchema(Schema):
+    block_hash = Felt(data_key="block_hash", required=True)
+    state_diff_commitment = Felt(data_key="state_diff_commitment", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> SignatureInput:
+        return SignatureInput(**data)
+
+
+class SignatureOnStateDiffSchema(Schema):
+    block_number = Felt(data_key="block_number", required=True)
+    signature = fields.List(Felt(), data_key="signature", required=True)
+    signature_input = fields.Nested(
+        SignatureInputSchema(), data_key="signature_input", required=True
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> SignatureOnStateDiff:
+        return SignatureOnStateDiff(**data)

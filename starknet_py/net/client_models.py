@@ -671,3 +671,24 @@ class TransactionStatusResponse:
     transaction_status: TransactionStatus
     finality_status: Optional[TransactionFinalityStatus] = None
     execution_status: Optional[TransactionExecutionStatus] = None
+
+
+@dataclass
+class SignatureInput:
+    """
+    Dataclass representing a signature input.
+    """
+
+    block_hash: int
+    state_diff_commitment: int
+
+
+@dataclass
+class SignatureOnStateDiff:
+    """
+    Dataclass representing signature on state diff commitment and block hash.
+    """
+
+    block_number: int
+    signature: List[int]
+    signature_input: SignatureInput

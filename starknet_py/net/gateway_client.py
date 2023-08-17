@@ -20,6 +20,7 @@ from starknet_py.net.client_models import (
     Hash,
     SentTransactionResponse,
     SierraContractClass,
+    SignatureOnStateDiff,
     Tag,
     Transaction,
     TransactionReceipt,
@@ -49,6 +50,7 @@ from starknet_py.net.schemas.gateway import (
     DeployAccountTransactionResponseSchema,
     EstimatedFeeSchema,
     SentTransactionSchema,
+    SignatureOnStateDiffSchema,
     StarknetBlockSchema,
     TransactionReceiptSchema,
     TransactionStatusSchema,
@@ -460,6 +462,28 @@ class GatewayClient(Client):
         return TypesOfContractClassSchema().load(
             res, unknown=EXCLUDE
         )  # pyright: ignore
+
+    async def get_signature(
+        self,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> SignatureOnStateDiff:
+        block_identifier = get_block_identifier(
+            block_hash=block_hash, block_number=block_number
+        )
+        res = await self._feeder_gateway_client.call(
+            method_name="get_signature",
+            params={**block_identifier},
+        )
+        return SignatureOnStateDiffSchema().load(
+            res, unknown=EXCLUDE
+        )  # pyright: ignore
+
+    async def get_public_key(self) -> str:
+        public_key = await self._feeder_gateway_client.call(
+            method_name="get_public_key"
+        )
+        return str(public_key)
 
 
 def get_block_identifier(

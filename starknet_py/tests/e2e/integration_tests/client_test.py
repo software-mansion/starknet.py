@@ -8,6 +8,7 @@ from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     Call,
     EstimatedFee,
+    SignatureOnStateDiff,
     TransactionExecutionStatus,
     TransactionFinalityStatus,
     TransactionReceipt,
@@ -414,3 +415,28 @@ async def test_get_block(full_node_client_integration):
 
     for tx in res.transactions:
         assert tx.hash is not None
+
+
+@pytest.mark.skipif(
+    condition="--client=full_node" in sys.argv,
+    reason="Separate FullNode tests from Gateway ones.",
+)
+@pytest.mark.asyncio
+async def test_get_public_key(gateway_client_integration):
+    public_key = await gateway_client_integration.get_public_key()
+
+    assert isinstance(public_key, str)
+
+
+@pytest.mark.skipif(
+    condition="--client=full_node" in sys.argv,
+    reason="Separate FullNode tests from Gateway ones.",
+)
+@pytest.mark.asyncio
+async def test_get_signature(gateway_client_integration):
+    signature = await gateway_client_integration.get_signature(block_number="latest")
+
+    assert isinstance(signature, SignatureOnStateDiff)
+    assert signature.block_number is not None
+    assert len(signature.signature) == 2
+    assert signature.signature_input is not None
