@@ -1,6 +1,4 @@
 # pylint: disable=unused-variable
-import sys
-
 import pytest
 
 from starknet_py.hash.selector import get_selector_from_name
