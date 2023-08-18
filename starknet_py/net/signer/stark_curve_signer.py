@@ -32,8 +32,13 @@ class KeyPair:
     def __init__(self, private_key: Hash, public_key: Hash):
         if isinstance(private_key, str):
             self.private_key = int(private_key, 0)
+        else:
+            self.private_key = private_key
+
         if isinstance(public_key, str):
             self.public_key = int(public_key, 0)
+        else:
+            self.public_key = public_key
 
     @staticmethod
     def from_private_key(key: Hash) -> "KeyPair":
