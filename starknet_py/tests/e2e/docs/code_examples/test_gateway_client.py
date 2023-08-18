@@ -1,4 +1,6 @@
 # pylint: disable=unused-variable
+import sys
+
 import pytest
 
 from starknet_py.hash.selector import get_selector_from_name
@@ -22,6 +24,11 @@ def test_init():
     # docs-end: init
 
 
+# TODO (#1154): remove line below
+@pytest.mark.xfail(
+    "--client=gateway" in sys.argv,
+    reason="0.12.2 returns Felts in state_root, devnet returns NonPrefixedHex",
+)
 @pytest.mark.asyncio
 async def test_get_block(gateway_client):
     # docs-start: get_block
@@ -42,6 +49,11 @@ async def test_get_block_traces(gateway_client):
     # docs-end: get_block_traces
 
 
+# TODO (#1154): remove line below
+@pytest.mark.xfail(
+    "--client=gateway" in sys.argv,
+    reason="0.12.2 returns Felts in state_root, devnet returns NonPrefixedHex",
+)
 @pytest.mark.asyncio
 async def test_get_state_update(gateway_client):
     # docs-start: get_state_update

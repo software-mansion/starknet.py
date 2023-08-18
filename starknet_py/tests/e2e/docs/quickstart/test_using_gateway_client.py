@@ -1,6 +1,13 @@
+import sys
+
 import pytest
 
 
+# TODO (#1155): remove line below
+@pytest.mark.xfail(
+    "--client=gateway" in sys.argv,
+    reason="0.12.2 returns Felts in state_root, Testnet still returns NonPrefixedHex",
+)
 @pytest.mark.asyncio
 async def test_using_gateway_client():
     # pylint: disable=import-outside-toplevel, unused-variable
