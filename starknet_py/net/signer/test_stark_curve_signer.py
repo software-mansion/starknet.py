@@ -60,9 +60,26 @@ def test_sign_transaction(transaction):
 
 
 def test_keypair():
-    _ = KeyPair(private_key="0x123", public_key="0x456")
-    _ = KeyPair(private_key="0x123", public_key=0x456)
-    _ = KeyPair(private_key=0x123, public_key="0x456")
-    _ = KeyPair(private_key=0x123, public_key=0x456)
-    _ = KeyPair.from_private_key("0x123")
-    _ = KeyPair.from_private_key(0x123)
+    key_pair = KeyPair(private_key="0x123", public_key="0x456")
+    assert isinstance(key_pair.public_key, int)
+    assert isinstance(key_pair.private_key, int)
+
+    key_pair = KeyPair(private_key="0x123", public_key=0x456)
+    assert isinstance(key_pair.public_key, int)
+    assert isinstance(key_pair.private_key, int)
+
+    key_pair = KeyPair(private_key=0x123, public_key="0x456")
+    assert isinstance(key_pair.public_key, int)
+    assert isinstance(key_pair.private_key, int)
+
+    key_pair = KeyPair(private_key=0x123, public_key=0x456)
+    assert isinstance(key_pair.public_key, int)
+    assert isinstance(key_pair.private_key, int)
+
+    key_pair = KeyPair.from_private_key("0x123")
+    assert isinstance(key_pair.public_key, int)
+    assert isinstance(key_pair.private_key, int)
+
+    key_pair = KeyPair.from_private_key(0x123)
+    assert isinstance(key_pair.public_key, int)
+    assert isinstance(key_pair.private_key, int)
