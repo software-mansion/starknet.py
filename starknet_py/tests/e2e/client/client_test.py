@@ -662,6 +662,11 @@ async def test_get_block_with_declare_v2(
     )
 
 
+# TODO (#1154): remove line below
+@pytest.mark.xfail(
+    "--client=gateway" in sys.argv,
+    reason="0.12.2 returns Felts in state_root, devnet returns NonPrefixedHex",
+)
 @pytest.mark.asyncio
 async def test_get_new_state_update(
     client,
