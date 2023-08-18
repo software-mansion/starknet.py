@@ -8,7 +8,6 @@ from starknet_py.net.networks import TESTNET
 
 # TODO (#1155): remove line below
 @pytest.mark.xfail(
-    "--client=gateway" in sys.argv,
     reason="0.12.2 returns Felts in state_root, testnet still returns NonPrefixedHex",
 )
 def test_synchronous_gateway_client():
