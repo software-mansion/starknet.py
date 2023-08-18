@@ -2,10 +2,33 @@ Migration guide
 ===============
 
 **********************
+0.18.1 Migration guide
+**********************
+
+Newest version of starknet.py brings support to `Starknet 0.12.2 <https://community.starknet.io/t/introducing-p2p-authentication-and-mismatch-resolution-in-v0-12-2/97993>`_!
+
+0.18.1 Minor changes
+--------------------
+
+.. currentmodule:: starknet_py.net.client
+
+1. Added two new methods to :class:`GatewayClient` - :meth:`GatewayClient.get_public_key` and :meth:`GatewayClient.get_signature`.
+2. :meth:`GatewayClient.get_state_update` now accepts additional parameter - `include_block`.
+
+
+|
+
+.. raw:: html
+
+  <hr>
+
+|
+
+**********************
 0.18.0 Migration guide
 **********************
 
-This version of starknet.py brings support Starknet 0.12.1 and `RPC v0.4.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.4.0>`!
+This version of starknet.py brings support Starknet 0.12.1 and `RPC v0.4.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.4.0>`_!
 
 
 1. :class:`TransactionReceipt` dataclass properties have been changed (more details in RPC specification linked above).
