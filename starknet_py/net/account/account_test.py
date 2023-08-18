@@ -1,3 +1,4 @@
+import sys
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -49,6 +50,11 @@ async def test_get_balance_default_token_address(net, call_contract):
     assert call.to_addr == parse_address(FEE_CONTRACT_ADDRESS)
 
 
+# TODO (#1154): remove line below
+@pytest.mark.xfail(
+    "--client=gateway" in sys.argv,
+    reason="0.12.2 returns Felts in state_root, devnet returns NonPrefixedHex",
+)
 @pytest.mark.asyncio
 async def test_account_get_balance(account, map_contract):
     balance = await account.get_balance()
