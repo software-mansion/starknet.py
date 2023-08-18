@@ -25,7 +25,7 @@ async def test_creating_account():
     # There is another way of creating key_pair
     key_pair = KeyPair.from_private_key(key=123)
     # or
-    key_pair = KeyPair.from_private_key(key="123")
+    key_pair = KeyPair.from_private_key(key="0x123")
 
     # Instead of providing key_pair it is possible to specify a signer
     signer = StarkCurveSigner("0x1234", key_pair, StarknetChainId.TESTNET)

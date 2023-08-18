@@ -57,29 +57,3 @@ def test_sign_transaction(transaction):
     assert len(signature) > 0
     assert all(isinstance(i, int) for i in signature)
     assert all(i != 0 for i in signature)
-
-
-def test_keypair():
-    key_pair = KeyPair(private_key="0x123", public_key="0x456")
-    assert isinstance(key_pair.public_key, int)
-    assert isinstance(key_pair.private_key, int)
-
-    key_pair = KeyPair(private_key="0x123", public_key=0x456)
-    assert isinstance(key_pair.public_key, int)
-    assert isinstance(key_pair.private_key, int)
-
-    key_pair = KeyPair(private_key=0x123, public_key="0x456")
-    assert isinstance(key_pair.public_key, int)
-    assert isinstance(key_pair.private_key, int)
-
-    key_pair = KeyPair(private_key=0x123, public_key=0x456)
-    assert isinstance(key_pair.public_key, int)
-    assert isinstance(key_pair.private_key, int)
-
-    key_pair = KeyPair.from_private_key("0x123")
-    assert isinstance(key_pair.public_key, int)
-    assert isinstance(key_pair.private_key, int)
-
-    key_pair = KeyPair.from_private_key(0x123)
-    assert isinstance(key_pair.public_key, int)
-    assert isinstance(key_pair.private_key, int)
