@@ -3,7 +3,7 @@ import json
 import warnings
 from collections import OrderedDict
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
-
+from starknet_py.net.account.seed_phrase_helper.crypto import HDPrivateKey, HDKey
 from starknet_py.common import create_compiled_contract, create_sierra_compiled_contract
 from starknet_py.constants import FEE_CONTRACT_ADDRESS, QUERY_VERSION_BASE
 from starknet_py.hash.address import compute_address
@@ -43,7 +43,7 @@ from starknet_py.serialization.data_serializers.struct_serializer import (
 from starknet_py.utils.iterable import ensure_iterable
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.typed_data import TypedData as TypedDataDataclass
-
+from starknet_py.net.account.utils import arrayify, concat, get_payload_hash, hash_key_with_index, grid_key, EIP2645Hashing
 
 @add_sync_methods
 class Account(BaseAccount):
@@ -544,3 +544,132 @@ _execute_payload_serializer = PayloadSerializer(
         calldata=ArraySerializer(_felt_serializer),
     )
 )
+
+
+
+class ArgentAccount():
+    """Argent X Account creation helper"""
+    
+    ARGENT_CLASS_HASH = 0x025ec026985a3bf9d0cc1fe17326b245dfdc3ff89b8fde106542a3ea56c5a918
+    ARGENT_IMPLEMENTATION = 0x33434ad846cdd5f23eb73ff09fe6fddd568284a0fb7d1be20ee482f044dabe2
+    ARGENT_SELECTOR = 0x79dc0da7c54b95f10aa182ad0a46400db63156920adb65eca2654c0945a463
+
+    @staticmethod
+    def from_mnemonic(mnemonic: str, client: Client, chain: StarknetChainId) -> Account:
+        """Returns Account, generated from given mnemonic
+        Args:
+            mnemonic (str): 12 word mnemonic phrase 
+            clinet (Client)
+            chain (StarknetChainId) 
+        Returns:
+            account (Account)
+        """
+
+        master_key = HDPrivateKey.master_key_from_mnemonic(mnemonic)
+    
+        root_keys = HDKey.from_path(master_key,"m/44'/60'/0'")
+        acct_priv_key = root_keys[-1]
+
+        keys = HDKey.from_path(acct_priv_key,'0/0')
+        eth_key = keys[-1]._key.to_hex()
+
+        master_key = HDPrivateKey.master_key_from_seed(eth_key)
+
+        root_keys = HDKey.from_path(master_key,"m/44'/9004'/0'/0/0")
+
+        private_key = grid_key(root_keys[-1]._key.to_hex())
+        
+        return ArgentAccount.from_key(private_key, client, chain)
+
+    @staticmethod
+    def from_key(key, client, chain) -> Account:
+        """Returns Account, generated from given private_key
+        Args:
+            key (int / hex): private key of account
+            clinet (Client)
+            chain (StarknetChainId) 
+        Returns:
+            account (Account)
+        """
+        try:
+            private_key = int(key)
+        except:
+            private_key = int(key, 16)
+
+        class_hash = ArgentAccount.ARGENT_CLASS_HASH
+        key_pair = KeyPair.from_private_key(private_key)
+        salt = key_pair.public_key
+        account_initialize_call_data = [key_pair.public_key, 0]
+        call_data = [
+            ArgentAccount.ARGENT_IMPLEMENTATION,
+            ArgentAccount.ARGENT_SELECTOR,
+            len(account_initialize_call_data),
+            *account_initialize_call_data
+        ]
+        address = compute_address(
+        salt=salt,
+        class_hash=class_hash,  
+        constructor_calldata=call_data,
+        deployer_address=0,
+        )
+        return Account(address=address, client=client, key_pair=key_pair, chain=chain)
+    
+class BraavosAccount():
+    """Braavos Account creation helper"""
+    
+    BRAAVOS_CLASS_HASH = 0x03131fa018d520a037686ce3efddeab8f28895662f019ca3ca18a626650f7d1e
+    BRAAVOS_IMPLEMENTATION = 0x5aa23d5bb71ddaa783da7ea79d405315bafa7cf0387a74f4593578c3e9e6570
+    BRAAVOS_SELECTOR = 0x2dd76e7ad84dbed81c314ffe5e7a7cacfb8f4836f01af4e913f275f89a3de1a
+
+
+    @staticmethod
+    def from_mnemonic(mnemonic: str, client: Client, chain: StarknetChainId) -> Account:
+        """Returns Account, generated from given mnemonic
+        Args:
+            mnemonic (str): 12 word mnemonic phrase 
+            clinet (Client)
+            chain (StarknetChainId) 
+        Returns:
+            account (Account)
+        """
+
+        master_key = HDPrivateKey.master_key_from_mnemonic(mnemonic)
+
+        root_keys = HDKey.from_path(master_key,"m/44'/9004'/0'/0/0")
+
+        private_key = EIP2645Hashing(root_keys[-1]._key.to_hex())
+        
+        return BraavosAccount.from_key(private_key, client, chain)
+
+    @staticmethod
+    def from_key(key, client, chain) -> Account:
+        """Returns Account, generated from given private_key
+        Args:
+            key (int / hex): private key of account
+            clinet (Client)
+            chain (StarknetChainId) 
+        Returns:
+            account (Account)
+        """
+        try:
+            private_key = int(key)
+        except:
+            private_key = int(key, 16)
+
+        class_hash = 0x03131fa018d520a037686ce3efddeab8f28895662f019ca3ca18a626650f7d1e
+        key_pair = KeyPair.from_private_key(private_key)
+        salt = key_pair.public_key
+        account_initialize_call_data = [key_pair.public_key, 0]
+        call_data = [
+            0x5aa23d5bb71ddaa783da7ea79d405315bafa7cf0387a74f4593578c3e9e6570,
+            0x2dd76e7ad84dbed81c314ffe5e7a7cacfb8f4836f01af4e913f275f89a3de1a,
+            len(account_initialize_call_data),
+            *account_initialize_call_data
+        ]
+        address = compute_address(
+        salt=salt,
+        class_hash=class_hash,  
+        constructor_calldata=call_data,
+        deployer_address=0,
+        )
+        return Account(address=address, client=client, key_pair=key_pair, chain=chain)
