@@ -517,6 +517,10 @@ PyYAML = "*"
 sympy = "*"
 typeguard = "<3.0.0"
 web3 = "*"
+rlp = "*"
+eth_utils = "*"
+base58 = "*"
+mnemonic = "*"
 
 [[package]]
 name = "certifi"
