@@ -517,10 +517,6 @@ PyYAML = "*"
 sympy = "*"
 typeguard = "<3.0.0"
 web3 = "*"
-rlp = "*"
-eth_utils = "*"
-base58 = "*"
-mnemonic = "*"
 
 [[package]]
 name = "certifi"
@@ -3632,3 +3628,50 @@ docs = ["sphinx", "enum-tools", "furo"]
 lock-version = "2.0"
 python-versions = ">=3.8, <3.12"
 content-hash = "90d107ad71a1ff5299d8d7b8a81e9ec0231199733a1a31e7318dff958d677ba9"
+
+[[package]]
+name = "base58"
+version = "2.1.1"
+description = "Base58 and Base58Check implementation."
+optional = false
+python-versions = ">=3.5"
+files = [
+    {file = "base58-2.1.1-py3-none-any.whl", hash = "sha256:11a36f4d3ce51dfc1043f3218591ac4eb1ceb172919cebe05b52a5bcc8d245c2"},
+    {file = "base58-2.1.1.tar.gz", hash = "sha256:c5d0cb3f5b6e81e8e35da5754388ddcc6d0d14b6c6a132cb93d69ed580a7278c"},
+]
+
+[package.extras]
+tests = ["PyHamcrest (>=2.0.2)", "mypy", "pytest (>=4.6)", "pytest-benchmark", "pytest-cov", "pytest-flake8"]
+
+[[package]]
+name = "mnemonic"
+version = "0.20"
+description = "Implementation of Bitcoin BIP-0039"
+optional = false
+python-versions = ">=3.5"
+files = [
+    {file = "mnemonic-0.20-py3-none-any.whl", hash = "sha256:acd2168872d0379e7a10873bb3e12bf6c91b35de758135c4fbd1015ef18fafc5"},
+    {file = "mnemonic-0.20.tar.gz", hash = "sha256:7c6fb5639d779388027a77944680aee4870f0fcd09b1e42a5525ee2ce4c625f6"},
+]
+[[package]]
+name = "rlp"
+version = "3.0.0"
+description = "A package for Recursive Length Prefix encoding and decoding"
+optional = false
+python-versions = "*"
+files = [
+    {file = "rlp-3.0.0-py2.py3-none-any.whl", hash = "sha256:d2a963225b3f26795c5b52310e0871df9824af56823d739511583ef459895a7d"},
+    {file = "rlp-3.0.0.tar.gz", hash = "sha256:63b0465d2948cd9f01de449d7adfb92d207c1aef3982f20310f8009be4a507e8"},
+]
+
+[package.dependencies]
+eth-utils = ">=2.0.0,<3"
+
+[package.extras]
+dev = ["Sphinx (>=1.6.5,<2)", "bumpversion (>=0.5.3,<1)", "flake8 (==3.4.1)", "hypothesis (==5.19.0)", "ipython", "pytest (>=6.2.5,<7)", "pytest-watch (>=4.1.0,<5)", "pytest-xdist", "setuptools (>=36.2.0)", "sphinx-rtd-theme (>=0.1.9)", "tox (>=2.9.1,<3)", "twine", "wheel"]
+doc = ["Sphinx (>=1.6.5,<2)", "sphinx-rtd-theme (>=0.1.9)"]
+lint = ["flake8 (==3.4.1)"]
+rust-backend = ["rusty-rlp (>=0.2.1,<0.3)"]
+test = ["hypothesis (==5.19.0)", "pytest (>=6.2.5,<7)", "tox (>=2.9.1,<3)"]
+
+
