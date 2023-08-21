@@ -497,7 +497,7 @@ class GatewayClient(Client):
         public_key = await self._feeder_gateway_client.call(
             method_name="get_public_key"
         )
-        return str(public_key)
+        return cast(str, public_key)
 
 
 def get_block_identifier(
