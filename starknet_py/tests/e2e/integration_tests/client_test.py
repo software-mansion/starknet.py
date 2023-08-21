@@ -424,7 +424,9 @@ async def test_get_block(full_node_client_integration):
 )
 @pytest.mark.asyncio
 async def test_get_public_key(gateway_client_integration):
-    current_public_key = "0x52934be54ce926b1e715f15dc2542849a97ecfdf829cd0b7384c64eeeb2264e"
+    current_public_key = (
+        "0x52934be54ce926b1e715f15dc2542849a97ecfdf829cd0b7384c64eeeb2264e"
+    )
     public_key = await gateway_client_integration.get_public_key()
 
     assert isinstance(public_key, str)
@@ -438,7 +440,9 @@ async def test_get_public_key(gateway_client_integration):
 @pytest.mark.asyncio
 async def test_get_signature(gateway_client_integration):
     block_number = 100000
-    signature = await gateway_client_integration.get_signature(block_number=block_number)
+    signature = await gateway_client_integration.get_signature(
+        block_number=block_number
+    )
     block = await gateway_client_integration.get_block(block_number=block_number)
 
     assert isinstance(signature, SignatureOnStateDiff)
