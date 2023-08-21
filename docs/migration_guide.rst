@@ -39,10 +39,13 @@ This version of starknet.py brings support Starknet 0.12.1 and `RPC v0.4.0 <http
 
 6. Added fields to dataclasses that previously were missing (e.g. ``contract_address_salt`` in :class:`DeployTransaction`).
 
-.. currentmodule:; starknet_py.cairo.felt
+.. currentmodule:: starknet_py.cairo.felt
 
 7. :func:`decode_shortstring` now is returned without ``\x00`` in front of the decoded string.
 
+.. currentmodule:: starknet_py.net.signer.stark_curve_signer
+
+8. :class:`KeyPair` and :meth:`KeyPair.from_private_key` now can accept keys in string representation.
 
 0.18.0 Bugfixes
 ---------------

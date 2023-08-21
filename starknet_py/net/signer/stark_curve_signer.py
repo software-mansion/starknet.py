@@ -11,6 +11,7 @@ from starknet_py.hash.transaction import (
     compute_transaction_hash,
 )
 from starknet_py.hash.utils import message_signature, private_to_stark_key
+from starknet_py.net.client_models import Hash
 from starknet_py.net.models import AddressRepresentation, StarknetChainId, parse_address
 from starknet_py.net.models.transaction import (
     AccountTransaction,
@@ -28,8 +29,21 @@ class KeyPair:
     private_key: int
     public_key: int
 
+    def __init__(self, private_key: Hash, public_key: Hash):
+        if isinstance(private_key, str):
+            self.private_key = int(private_key, 0)
+        else:
+            self.private_key = private_key
+
+        if isinstance(public_key, str):
+            self.public_key = int(public_key, 0)
+        else:
+            self.public_key = public_key
+
     @staticmethod
-    def from_private_key(key: int) -> "KeyPair":
+    def from_private_key(key: Hash) -> "KeyPair":
+        if isinstance(key, str):
+            key = int(key, 0)
         return KeyPair(private_key=key, public_key=private_to_stark_key(key))
 
 
