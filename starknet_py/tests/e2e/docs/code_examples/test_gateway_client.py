@@ -57,6 +57,8 @@ async def test_get_state_update(gateway_client):
     state_update = await gateway_client.get_state_update(block_number=0)
     # or
     state_update = await gateway_client.get_state_update(block_hash="0x0")
+    # You can also return it together with the corresponding block
+    state_update = await gateway_client.get_state_update(block_number=0, include_block=True)
     # docs-end: get_state_update
 
 
