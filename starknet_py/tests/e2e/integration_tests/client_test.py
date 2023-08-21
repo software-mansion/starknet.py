@@ -427,6 +427,7 @@ async def test_get_public_key(gateway_client_integration):
     current_public_key = "0x52934be54ce926b1e715f15dc2542849a97ecfdf829cd0b7384c64eeeb2264e"
     public_key = await gateway_client_integration.get_public_key()
 
+    assert isinstance(public_key, str)
     assert public_key == current_public_key
 
 
