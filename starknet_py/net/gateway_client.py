@@ -147,29 +147,30 @@ class GatewayClient(Client):
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-        include_block: Optional[bool] = None,
+        include_block: bool = False,
     ) -> Union[BlockStateUpdate, StateUpdateWithBlock]:
         """
         Get the information about the result of executing the requested block.
 
         :param block_hash: Block's hash.
         :param block_number: Block's number (default "pending").
-        :param include_block: Flag deciding whether to include the queried block.
+        :param include_block: Flag deciding whether to include the queried block. Defaults to false.
         :return: BlockStateUpdate object representing changes in the requested block.
         """
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
 
-        params = {**block_identifier}
-        if include_block is not None:
-            params["includeBlock"] = str(include_block).lower()
+        params = {
+            "includeBlock": str(include_block).lower(),
+            **block_identifier,
+        }
 
         res = await self._feeder_gateway_client.call(
             method_name="get_state_update", params=params
         )
 
-        if include_block is not None:
+        if res.get("block", None) is not None:
             return StateUpdateWithBlockSchema().load(
                 res, unknown=EXCLUDE
             )  # pyright: ignore
