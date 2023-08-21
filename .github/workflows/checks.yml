@@ -29,7 +29,7 @@ jobs:
           pip install poetry
           python --version
           poetry --version
-          poetry config installer.modern-installation false
+#          poetry config installer.modern-installation false
 
       - name: Set up Python 3.9
         uses: actions/setup-python@v4
