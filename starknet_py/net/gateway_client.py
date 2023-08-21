@@ -170,7 +170,7 @@ class GatewayClient(Client):
             method_name="get_state_update", params=params
         )
 
-        if res.get("block", None) is not None:
+        if include_block:
             return StateUpdateWithBlockSchema().load(
                 res, unknown=EXCLUDE
             )  # pyright: ignore
