@@ -48,6 +48,10 @@ This version of starknet.py brings support Starknet 0.12.1, 0.12.2 and `RPC v0.4
 8. Added two new methods to :class:`GatewayClient` - :meth:`GatewayClient.get_public_key` and :meth:`GatewayClient.get_signature`.
 9. :meth:`GatewayClient.get_state_update` now accepts additional parameter - `include_block`.
 
+.. currentmodule:: starknet_py.net.signer.stark_curve_signer
+
+10. :class:`KeyPair` and :meth:`KeyPair.from_private_key` now can accept keys in string representation.
+
 
 0.18.0 Bugfixes
 ---------------
