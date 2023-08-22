@@ -483,7 +483,9 @@ class GatewayClient(Client):
         block_number: Optional[Union[int, Tag]] = None,
     ) -> SignatureOnStateDiff:
         """
+        Information on what is this signature and how it is calulated here:
         https://community.starknet.io/t/introducing-p2p-authentication-and-mismatch-resolution-in-v0-12-2/97993#signature-on-state-diff-commitment-and-block-hash-3
+
         :param block_hash: Block's hash or literals `"pending"` or `"latest"`.
         :param block_number: Block's number or literals `"pending"` or `"latest"`.
 
