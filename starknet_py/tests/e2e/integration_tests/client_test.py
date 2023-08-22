@@ -405,10 +405,6 @@ async def test_get_pending_transactions(full_node_client_integration):
         assert tx.hash is not None
 
 
-# @pytest.mark.skipif(
-#     condition="--client=gateway" in sys.argv,
-#     reason="Separate FullNode tests from Gateway ones.",
-# )
 @pytest.mark.asyncio
 async def test_get_block(full_node_client_integration):
     client = full_node_client_integration
@@ -418,10 +414,6 @@ async def test_get_block(full_node_client_integration):
         assert tx.hash is not None
 
 
-# @pytest.mark.skipif(
-#     condition="--client=full_node" in sys.argv,
-#     reason="Separate FullNode tests from Gateway ones.",
-# )
 @pytest.mark.asyncio
 async def test_get_public_key(gateway_client_integration):
     current_public_key = (
@@ -433,10 +425,6 @@ async def test_get_public_key(gateway_client_integration):
     assert public_key == current_public_key
 
 
-# @pytest.mark.skipif(
-#     condition="--client=full_node" in sys.argv,
-#     reason="Separate FullNode tests from Gateway ones.",
-# )
 @pytest.mark.asyncio
 async def test_get_signature(gateway_client_integration):
     block_number = 100000
@@ -451,10 +439,6 @@ async def test_get_signature(gateway_client_integration):
     assert signature.signature_input.block_hash == block.block_hash
 
 
-# @pytest.mark.skipif(
-#     condition="--client=full_node" in sys.argv,
-#     reason="Separate FullNode tests from Gateway ones.",
-# )
 @pytest.mark.asyncio
 async def test_get_state_update_with_block(gateway_client_integration):
     res = await gateway_client_integration.get_state_update(
