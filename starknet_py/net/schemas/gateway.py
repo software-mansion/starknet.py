@@ -39,6 +39,9 @@ from starknet_py.net.client_models import (
     SierraContractClass,
     SierraEntryPoint,
     SierraEntryPointsByType,
+    SignatureInput,
+    SignatureOnStateDiff,
+    StateUpdateWithBlock,
     StorageDiffItem,
     TransactionReceipt,
     TransactionStatusResponse,
@@ -258,7 +261,7 @@ class StarknetBlockSchema(Schema):
     parent_block_hash = Felt(data_key="parent_block_hash", required=True)
     block_number = fields.Integer(data_key="block_number")
     status = BlockStatusField(data_key="status", required=True)
-    root = NonPrefixedHex(data_key="state_root")
+    root = Felt(data_key="state_root")
     transactions = fields.List(
         fields.Nested(TypesOfTransactionsSchema(unknown=EXCLUDE)),
         data_key="transactions",
@@ -420,8 +423,8 @@ class StateDiffSchema(Schema):
 
 class BlockStateUpdateSchema(Schema):
     block_hash = Felt(data_key="block_hash", required=True)
-    new_root = NonPrefixedHex(data_key="new_root", required=True)
-    old_root = NonPrefixedHex(data_key="old_root", required=True)
+    new_root = Felt(data_key="new_root", required=True)
+    old_root = Felt(data_key="old_root", required=True)
     state_diff = fields.Nested(StateDiffSchema(), data_key="state_diff", required=True)
 
     @post_load
@@ -437,6 +440,17 @@ class BlockStateUpdateSchema(Schema):
         data["state_diff"].storage_diffs = fixed_storage_diffs
         data["state_diff"].nonces = fixed_nonces
         return BlockStateUpdate(**data)
+
+
+class StateUpdateWithBlockSchema(Schema):
+    block = fields.Nested(StarknetBlockSchema(), data_key="block", required=True)
+    state_update = fields.Nested(
+        BlockStateUpdateSchema(), data_key="state_update", required=True
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> StateUpdateWithBlock:
+        return StateUpdateWithBlock(**data)
 
 
 class EntryPointSchema(Schema):
@@ -623,3 +637,24 @@ class TransactionStatusSchema(Schema):
     @post_load
     def make_result(self, data, **kwargs) -> TransactionStatusResponse:
         return TransactionStatusResponse(**data)
+
+
+class SignatureInputSchema(Schema):
+    block_hash = Felt(data_key="block_hash", required=True)
+    state_diff_commitment = Felt(data_key="state_diff_commitment", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> SignatureInput:
+        return SignatureInput(**data)
+
+
+class SignatureOnStateDiffSchema(Schema):
+    block_number = Felt(data_key="block_number", required=True)
+    signature = fields.List(Felt(), data_key="signature", required=True)
+    signature_input = fields.Nested(
+        SignatureInputSchema(), data_key="signature_input", required=True
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> SignatureOnStateDiff:
+        return SignatureOnStateDiff(**data)

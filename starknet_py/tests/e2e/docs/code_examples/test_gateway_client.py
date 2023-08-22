@@ -22,6 +22,10 @@ def test_init():
     # docs-end: init
 
 
+# TODO (#1154): remove line below
+@pytest.mark.xfail(
+    reason="0.12.2 returns Felts in state_root, devnet returns NonPrefixedHex",
+)
 @pytest.mark.asyncio
 async def test_get_block(gateway_client):
     # docs-start: get_block
@@ -42,6 +46,10 @@ async def test_get_block_traces(gateway_client):
     # docs-end: get_block_traces
 
 
+# TODO (#1154): remove line below
+@pytest.mark.xfail(
+    reason="0.12.2 returns Felts in state_root, devnet returns NonPrefixedHex",
+)
 @pytest.mark.asyncio
 async def test_get_state_update(gateway_client):
     # docs-start: get_state_update
@@ -49,6 +57,10 @@ async def test_get_state_update(gateway_client):
     state_update = await gateway_client.get_state_update(block_number=0)
     # or
     state_update = await gateway_client.get_state_update(block_hash="0x0")
+    # You can also return it together with the corresponding block
+    state_update = await gateway_client.get_state_update(
+        block_number=0, include_block=True
+    )
     # docs-end: get_state_update
 
 

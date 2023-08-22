@@ -20,6 +20,8 @@ from starknet_py.net.client_models import (
     Hash,
     SentTransactionResponse,
     SierraContractClass,
+    SignatureOnStateDiff,
+    StateUpdateWithBlock,
     Tag,
     Transaction,
     TransactionReceipt,
@@ -49,7 +51,9 @@ from starknet_py.net.schemas.gateway import (
     DeployAccountTransactionResponseSchema,
     EstimatedFeeSchema,
     SentTransactionSchema,
+    SignatureOnStateDiffSchema,
     StarknetBlockSchema,
+    StateUpdateWithBlockSchema,
     TransactionReceiptSchema,
     TransactionStatusSchema,
     TypesOfContractClassSchema,
@@ -143,21 +147,33 @@ class GatewayClient(Client):
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> BlockStateUpdate:
+        include_block: bool = False,
+    ) -> Union[BlockStateUpdate, StateUpdateWithBlock]:
         """
-        Get the information about the result of executing the requested block
+        Get the information about the result of executing the requested block.
 
-        :param block_hash: Block's hash
-        :param block_number: Block's number (default "pending")
-        :return: BlockStateUpdate object representing changes in the requested block
+        :param block_hash: Block's hash.
+        :param block_number: Block's number (default "pending").
+        :param include_block: Flag deciding whether to include the queried block. Defaults to false.
+        :return: BlockStateUpdate object representing changes in the requested block.
         """
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
+
+        params = {
+            "includeBlock": str(include_block).lower(),
+            **block_identifier,
+        }
+
         res = await self._feeder_gateway_client.call(
-            method_name="get_state_update",
-            params=block_identifier,
+            method_name="get_state_update", params=params
         )
+
+        if include_block:
+            return StateUpdateWithBlockSchema().load(
+                res, unknown=EXCLUDE
+            )  # pyright: ignore
         return BlockStateUpdateSchema().load(res, unknown=EXCLUDE)  # pyright: ignore
 
     async def get_storage_at(
@@ -460,6 +476,42 @@ class GatewayClient(Client):
         return TypesOfContractClassSchema().load(
             res, unknown=EXCLUDE
         )  # pyright: ignore
+
+    async def get_signature(
+        self,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> SignatureOnStateDiff:
+        """
+        Information on what is this signature and how it is calulated here:
+        https://community.starknet.io/t/introducing-p2p-authentication-and-mismatch-resolution-in-v0-12-2/97993#signature-on-state-diff-commitment-and-block-hash-3
+
+        :param block_hash: Block's hash or literals `"pending"` or `"latest"`.
+        :param block_number: Block's number or literals `"pending"` or `"latest"`.
+
+        :return: Signature on state diff.
+        """
+        block_identifier = get_block_identifier(
+            block_hash=block_hash, block_number=block_number
+        )
+        res = await self._feeder_gateway_client.call(
+            method_name="get_signature",
+            params={**block_identifier},
+        )
+        return SignatureOnStateDiffSchema().load(
+            res, unknown=EXCLUDE
+        )  # pyright: ignore
+
+    async def get_public_key(self) -> str:
+        """
+        Method returning current public key.
+
+        :return: Public key.
+        """
+        public_key = await self._feeder_gateway_client.call(
+            method_name="get_public_key"
+        )
+        return cast(str, public_key)
 
 
 def get_block_identifier(

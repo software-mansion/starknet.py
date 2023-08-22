@@ -64,3 +64,8 @@ def test_key_pair():
 
     assert isinstance(key_pair.public_key, int)
     assert isinstance(key_pair.private_key, int)
+
+    key_pair = KeyPair.from_private_key("0x789")
+
+    assert isinstance(key_pair.public_key, int)
+    assert isinstance(key_pair.private_key, int)
