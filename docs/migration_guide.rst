@@ -33,7 +33,7 @@ This version of starknet.py brings support Starknet 0.12.1, 0.12.2 and `RPC v0.4
 
 .. currentmodule:: starknet_py.net.client
 
-5. Lowered ``check_interval`` parameter default value in :meth:``Client.wait_for_tx`` from 5 seconds to 2.
+5. Lowered ``check_interval`` parameter default value in :meth:`Client.wait_for_tx` from 5 seconds to 2.
 
 .. currentmodule:: starknet_py.net.client_models
 
@@ -43,7 +43,7 @@ This version of starknet.py brings support Starknet 0.12.1, 0.12.2 and `RPC v0.4
 
 7. :func:`decode_shortstring` now is returned without ``\x00`` in front of the decoded string.
 
-.. currentmodule:: starknet_py.net.client
+.. currentmodule:: starknet_py.net.gateway_client
 
 8. Added two new methods to :class:`GatewayClient` - :meth:`GatewayClient.get_public_key` and :meth:`GatewayClient.get_signature`.
 9. :meth:`GatewayClient.get_state_update` now accepts additional parameter - `include_block`.
