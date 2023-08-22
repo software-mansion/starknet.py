@@ -482,6 +482,13 @@ class GatewayClient(Client):
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> SignatureOnStateDiff:
+        """
+        https://community.starknet.io/t/introducing-p2p-authentication-and-mismatch-resolution-in-v0-12-2/97993#signature-on-state-diff-commitment-and-block-hash-3
+        :param block_hash: Block's hash or literals `"pending"` or `"latest"`.
+        :param block_number: Block's number or literals `"pending"` or `"latest"`.
+
+        :return: Signature on state diff.
+        """
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -494,6 +501,11 @@ class GatewayClient(Client):
         )  # pyright: ignore
 
     async def get_public_key(self) -> str:
+        """
+        Method returning current public key.
+
+        :return: Public key.
+        """
         public_key = await self._feeder_gateway_client.call(
             method_name="get_public_key"
         )
