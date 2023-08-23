@@ -8,6 +8,8 @@ from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     Call,
     EstimatedFee,
+    SignatureOnStateDiff,
+    StateUpdateWithBlock,
     TransactionExecutionStatus,
     TransactionFinalityStatus,
     TransactionReceipt,
@@ -403,10 +405,6 @@ async def test_get_pending_transactions(full_node_client_integration):
         assert tx.hash is not None
 
 
-@pytest.mark.skipif(
-    condition="--client=gateway" in sys.argv,
-    reason="Separate FullNode tests from Gateway ones.",
-)
 @pytest.mark.asyncio
 async def test_get_block(full_node_client_integration):
     client = full_node_client_integration
@@ -414,3 +412,41 @@ async def test_get_block(full_node_client_integration):
 
     for tx in res.transactions:
         assert tx.hash is not None
+
+
+@pytest.mark.asyncio
+async def test_get_public_key(gateway_client_integration):
+    current_public_key = (
+        "0x52934be54ce926b1e715f15dc2542849a97ecfdf829cd0b7384c64eeeb2264e"
+    )
+    public_key = await gateway_client_integration.get_public_key()
+
+    assert isinstance(public_key, str)
+    assert public_key == current_public_key
+
+
+@pytest.mark.asyncio
+async def test_get_signature(gateway_client_integration):
+    block_number = 100000
+    signature = await gateway_client_integration.get_signature(
+        block_number=block_number
+    )
+    block = await gateway_client_integration.get_block(block_number=block_number)
+
+    assert isinstance(signature, SignatureOnStateDiff)
+    assert signature.block_number == block_number
+    assert len(signature.signature) == 2
+    assert signature.signature_input.block_hash == block.block_hash
+
+
+@pytest.mark.asyncio
+async def test_get_state_update_with_block(gateway_client_integration):
+    res = await gateway_client_integration.get_state_update(
+        block_number=100000, include_block=True
+    )
+    block = await gateway_client_integration.get_block(block_number=100000)
+
+    assert isinstance(res, StateUpdateWithBlock)
+
+    assert res.block == block
+    assert res.state_update is not None
