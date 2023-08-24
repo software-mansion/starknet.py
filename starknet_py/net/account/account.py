@@ -137,6 +137,7 @@ class Account(BaseAccount):
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
+        cairo_version: int = 0
     ) -> Invoke:
         """
         Takes calls and creates Invoke from them.
@@ -149,49 +150,19 @@ class Account(BaseAccount):
         if nonce is None:
             nonce = await self.get_nonce()
 
-        call_descriptions, calldata = _merge_calls(ensure_iterable(calls))
-        wrapped_calldata = _execute_payload_serializer.serialize(
-            {"call_array": call_descriptions, "calldata": calldata}
-        )
+        if cairo_version == 1:
+            parsed_calls = _parse_calls_v2(ensure_iterable(calls))
+            wrapped_calldata = _execute_payload_serializer_v2.serialize(
+                {"calls": parsed_calls}
+            )
+        else:
+            call_descriptions, calldata = _merge_calls(ensure_iterable(calls))
+            wrapped_calldata = _execute_payload_serializer.serialize(
+                {"call_array": call_descriptions, "calldata": calldata}
+            )
 
         transaction = Invoke(
             calldata=wrapped_calldata,
-            signature=[],
-            max_fee=0,
-            version=1,
-            nonce=nonce,
-            sender_address=self.address,
-        )
-
-        max_fee = await self._get_max_fee(transaction, max_fee, auto_estimate)
-
-        return _add_max_fee_to_transaction(transaction, max_fee)
-
-    async def _prepare_invoke_v2(
-        self,
-        calls: Calls,
-        *,
-        nonce: Optional[int] = None,
-        max_fee: Optional[int] = None,
-        auto_estimate: bool = False,
-    ) -> Invoke:
-        """
-        Takes calls and creates Invoke from them.
-
-        :param calls: Single call or list of calls.
-        :param max_fee: Max amount of Wei to be paid when executing transaction.
-        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
-        :return: Invoke created from the calls (without the signature).
-        """
-        if nonce is None:
-            nonce = await self.get_nonce()
-
-        parsed_calls = _parse_calls_v2(ensure_iterable(calls))
-        parsed_calldata = _execute_payload_serializer_v2.serialize(
-            {"calls": parsed_calls}
-        )
-        transaction = Invoke(
-            calldata=parsed_calldata,
             signature=[],
             max_fee=0,
             version=1,
@@ -282,23 +253,10 @@ class Account(BaseAccount):
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
+        cairo_version: int = 0
     ) -> Invoke:
         execute_tx = await self._prepare_invoke(
-            calls, nonce=nonce, max_fee=max_fee, auto_estimate=auto_estimate
-        )
-        signature = self.signer.sign_transaction(execute_tx)
-        return _add_signature_to_transaction(execute_tx, signature)
-
-    async def sign_invoke_transaction_v2(
-        self,
-        calls: Calls,
-        *,
-        nonce: Optional[int] = None,
-        max_fee: Optional[int] = None,
-        auto_estimate: bool = False,
-    ) -> Invoke:
-        execute_tx = await self._prepare_invoke_v2(
-            calls, nonce=nonce, max_fee=max_fee, auto_estimate=auto_estimate
+            calls, nonce=nonce, max_fee=max_fee, auto_estimate=auto_estimate, cairo_version=cairo_version
         )
         signature = self.signer.sign_transaction(execute_tx)
         return _add_signature_to_transaction(execute_tx, signature)
@@ -425,23 +383,10 @@ class Account(BaseAccount):
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
+        cairo_version: int = 0
     ) -> SentTransactionResponse:
         execute_transaction = await self.sign_invoke_transaction(
-            calls, nonce=nonce, max_fee=max_fee, auto_estimate=auto_estimate
-        )
-        return await self._client.send_transaction(execute_transaction)
-
-    # For contract using cairo 1
-    async def execute_v2(
-        self,
-        calls: Calls,
-        *,
-        nonce: Optional[int] = None,
-        max_fee: Optional[int] = None,
-        auto_estimate: bool = False,
-    ) -> SentTransactionResponse:
-        execute_transaction = await self.sign_invoke_transaction_v2(
-            calls, nonce=nonce, max_fee=max_fee, auto_estimate=auto_estimate
+            calls, nonce=nonce, max_fee=max_fee, auto_estimate=auto_estimate, cairo_version=cairo_version
         )
         return await self._client.send_transaction(execute_transaction)
 
