@@ -186,8 +186,10 @@ class Account(BaseAccount):
         if nonce is None:
             nonce = await self.get_nonce()
 
-        parsed_calldata = parse_v2(ensure_iterable(calls))
-
+        parsed_calls = _parse_calls_v2(ensure_iterable(calls))
+        parsed_calldata = _execute_payload_serializer_v2.serialize(
+            {"calls": parsed_calls}
+        )
         transaction = Invoke(
             calldata=parsed_calldata,
             signature=[],
@@ -590,15 +592,17 @@ def _merge_calls(calls: Iterable[Call]) -> Tuple[List[Dict], List[int]]:
 
     return call_descriptions, entire_calldata
 
-def parse_v2(calls: Iterable[Call]) -> List[int]:
-    entire_calldata = [len(calls)]
+def _parse_calls_v2(calls: Iterable[Call]) -> List[Dict]:
+    calls_parsed = []
     for call in calls:
-        entire_calldata.append(call.to_addr)
-        entire_calldata.append(call.selector)
-        entire_calldata.append(len(call.calldata))
-        entire_calldata += call.calldata
+        _data = {
+            "to": call.to_addr,
+            "selector": call.selector,
+            "calldata": call.calldata,
+        }
+        calls_parsed.append(_data)
 
-    return entire_calldata
+    return calls_parsed
 
 _felt_serializer = FeltSerializer()
 _call_description = StructSerializer(
@@ -609,9 +613,22 @@ _call_description = StructSerializer(
         data_len=_felt_serializer,
     )
 )
+_call_description_v2 = StructSerializer(
+    OrderedDict(
+        to=_felt_serializer,
+        selector=_felt_serializer,
+        calldata=ArraySerializer(_felt_serializer)
+    )
+)
+
 _execute_payload_serializer = PayloadSerializer(
     OrderedDict(
         call_array=ArraySerializer(_call_description),
         calldata=ArraySerializer(_felt_serializer),
+    )
+)
+_execute_payload_serializer_v2 = PayloadSerializer(
+    OrderedDict(
+        calls=ArraySerializer(_call_description_v2),
     )
 )
