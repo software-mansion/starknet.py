@@ -307,6 +307,7 @@ class BlockSingleTransactionTraceSchema(Schema):
         data_key="constructor_invocation",
         load_default=None,
     )
+    revert_error = fields.String(data_key="revert_error", load_default=None)
     signature = fields.List(Felt(), data_key="signature", load_default=[])
     transaction_hash = Felt(data_key="transaction_hash", required=True)
 

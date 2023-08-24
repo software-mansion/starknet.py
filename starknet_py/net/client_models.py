@@ -401,6 +401,7 @@ class BlockSingleTransactionTrace:
     validate_invocation: Optional[dict] = None
     fee_transfer_invocation: Optional[dict] = None
     constructor_invocation: Optional[dict] = None
+    revert_error: Optional[str] = None
 
 
 @dataclass
