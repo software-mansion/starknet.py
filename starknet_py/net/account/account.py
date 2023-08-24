@@ -186,10 +186,10 @@ class Account(BaseAccount):
         if nonce is None:
             nonce = await self.get_nonce()
 
-        parsedCalldata = parseV2(ensure_iterable(calls))
+        parsed_calldata = parse_v2(ensure_iterable(calls))
 
         transaction = Invoke(
-            calldata=parsedCalldata,
+            calldata=parsed_calldata,
             signature=[],
             max_fee=0,
             version=1,
@@ -286,7 +286,7 @@ class Account(BaseAccount):
         )
         signature = self.signer.sign_transaction(execute_tx)
         return _add_signature_to_transaction(execute_tx, signature)
-    
+
     async def sign_invoke_transaction_v2(
         self,
         calls: Calls,
@@ -428,7 +428,7 @@ class Account(BaseAccount):
             calls, nonce=nonce, max_fee=max_fee, auto_estimate=auto_estimate
         )
         return await self._client.send_transaction(execute_transaction)
-    
+
     # For contract using cairo 1
     async def execute_v2(
         self,
@@ -590,7 +590,7 @@ def _merge_calls(calls: Iterable[Call]) -> Tuple[List[Dict], List[int]]:
 
     return call_descriptions, entire_calldata
 
-def parseV2(calls: Iterable[Call]) -> List[int]:
+def parse_v2(calls: Iterable[Call]) -> List[int]:
     entire_calldata = [len(calls)]
     for call in calls:
         entire_calldata.append(call.to_addr)
