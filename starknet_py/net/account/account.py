@@ -137,7 +137,7 @@ class Account(BaseAccount):
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-        cairo_version: int = 0
+        cairo_version: int = 0,
     ) -> Invoke:
         """
         Takes calls and creates Invoke from them.
@@ -253,10 +253,14 @@ class Account(BaseAccount):
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-        cairo_version: int = 0
+        cairo_version: int = 0,
     ) -> Invoke:
         execute_tx = await self._prepare_invoke(
-            calls, nonce=nonce, max_fee=max_fee, auto_estimate=auto_estimate, cairo_version=cairo_version
+            calls,
+            nonce=nonce,
+            max_fee=max_fee,
+            auto_estimate=auto_estimate,
+            cairo_version=cairo_version,
         )
         signature = self.signer.sign_transaction(execute_tx)
         return _add_signature_to_transaction(execute_tx, signature)
@@ -383,10 +387,14 @@ class Account(BaseAccount):
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-        cairo_version: int = 0
+        cairo_version: int = 0,
     ) -> SentTransactionResponse:
         execute_transaction = await self.sign_invoke_transaction(
-            calls, nonce=nonce, max_fee=max_fee, auto_estimate=auto_estimate, cairo_version=cairo_version
+            calls,
+            nonce=nonce,
+            max_fee=max_fee,
+            auto_estimate=auto_estimate,
+            cairo_version=cairo_version,
         )
         return await self._client.send_transaction(execute_transaction)
 
@@ -537,6 +545,7 @@ def _merge_calls(calls: Iterable[Call]) -> Tuple[List[Dict], List[int]]:
 
     return call_descriptions, entire_calldata
 
+
 def _parse_calls_v2(calls: Iterable[Call]) -> List[Dict]:
     calls_parsed = []
     for call in calls:
@@ -548,6 +557,7 @@ def _parse_calls_v2(calls: Iterable[Call]) -> List[Dict]:
         calls_parsed.append(_data)
 
     return calls_parsed
+
 
 _felt_serializer = FeltSerializer()
 _call_description = StructSerializer(
@@ -562,7 +572,7 @@ _call_description_v2 = StructSerializer(
     OrderedDict(
         to=_felt_serializer,
         selector=_felt_serializer,
-        calldata=ArraySerializer(_felt_serializer)
+        calldata=ArraySerializer(_felt_serializer),
     )
 )
 
