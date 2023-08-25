@@ -137,6 +137,7 @@ class Account(BaseAccount):
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
+        cairo_version: int = 0,
     ) -> Invoke:
         """
         Takes calls and creates Invoke from them.
@@ -149,10 +150,16 @@ class Account(BaseAccount):
         if nonce is None:
             nonce = await self.get_nonce()
 
-        call_descriptions, calldata = _merge_calls(ensure_iterable(calls))
-        wrapped_calldata = _execute_payload_serializer.serialize(
-            {"call_array": call_descriptions, "calldata": calldata}
-        )
+        if cairo_version == 1:
+            parsed_calls = _parse_calls_v2(ensure_iterable(calls))
+            wrapped_calldata = _execute_payload_serializer_v2.serialize(
+                {"calls": parsed_calls}
+            )
+        else:
+            call_descriptions, calldata = _merge_calls(ensure_iterable(calls))
+            wrapped_calldata = _execute_payload_serializer.serialize(
+                {"call_array": call_descriptions, "calldata": calldata}
+            )
 
         transaction = Invoke(
             calldata=wrapped_calldata,
@@ -246,9 +253,14 @@ class Account(BaseAccount):
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
+        cairo_version: int = 0,
     ) -> Invoke:
         execute_tx = await self._prepare_invoke(
-            calls, nonce=nonce, max_fee=max_fee, auto_estimate=auto_estimate
+            calls,
+            nonce=nonce,
+            max_fee=max_fee,
+            auto_estimate=auto_estimate,
+            cairo_version=cairo_version,
         )
         signature = self.signer.sign_transaction(execute_tx)
         return _add_signature_to_transaction(execute_tx, signature)
@@ -375,9 +387,14 @@ class Account(BaseAccount):
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
+        cairo_version: int = 0,
     ) -> SentTransactionResponse:
         execute_transaction = await self.sign_invoke_transaction(
-            calls, nonce=nonce, max_fee=max_fee, auto_estimate=auto_estimate
+            calls,
+            nonce=nonce,
+            max_fee=max_fee,
+            auto_estimate=auto_estimate,
+            cairo_version=cairo_version,
         )
         return await self._client.send_transaction(execute_transaction)
 
@@ -529,6 +546,19 @@ def _merge_calls(calls: Iterable[Call]) -> Tuple[List[Dict], List[int]]:
     return call_descriptions, entire_calldata
 
 
+def _parse_calls_v2(calls: Iterable[Call]) -> List[Dict]:
+    calls_parsed = []
+    for call in calls:
+        _data = {
+            "to": call.to_addr,
+            "selector": call.selector,
+            "calldata": call.calldata,
+        }
+        calls_parsed.append(_data)
+
+    return calls_parsed
+
+
 _felt_serializer = FeltSerializer()
 _call_description = StructSerializer(
     OrderedDict(
@@ -538,9 +568,22 @@ _call_description = StructSerializer(
         data_len=_felt_serializer,
     )
 )
+_call_description_v2 = StructSerializer(
+    OrderedDict(
+        to=_felt_serializer,
+        selector=_felt_serializer,
+        calldata=ArraySerializer(_felt_serializer),
+    )
+)
+
 _execute_payload_serializer = PayloadSerializer(
     OrderedDict(
         call_array=ArraySerializer(_call_description),
         calldata=ArraySerializer(_felt_serializer),
+    )
+)
+_execute_payload_serializer_v2 = PayloadSerializer(
+    OrderedDict(
+        calls=ArraySerializer(_call_description_v2),
     )
 )
