@@ -11,7 +11,7 @@ from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     BlockHashAndNumber,
     BlockStateUpdate,
-    BlockTransactionTraces,
+    BlockTransactionTrace,
     Call,
     ContractClass,
     DeclareTransactionResponse,
@@ -24,12 +24,15 @@ from starknet_py.net.client_models import (
     PendingStarknetBlockWithTxHashes,
     SentTransactionResponse,
     SierraContractClass,
+    SimulatedTransaction,
+    SimulationFlag,
     StarknetBlock,
     StarknetBlockWithTxHashes,
     SyncStatus,
     Tag,
     Transaction,
     TransactionReceipt,
+    TransactionTrace,
     TransactionType,
 )
 from starknet_py.net.http_client import RpcHttpClient
@@ -46,6 +49,7 @@ from starknet_py.net.networks import Network
 from starknet_py.net.schemas.rpc import (
     BlockHashAndNumberSchema,
     BlockStateUpdateSchema,
+    BlockTransactionTraceSchema,
     ContractClassSchema,
     DeclareTransactionResponseSchema,
     DeployAccountTransactionResponseSchema,
@@ -57,10 +61,12 @@ from starknet_py.net.schemas.rpc import (
     PendingTransactionsSchema,
     SentTransactionSchema,
     SierraContractClassSchema,
+    SimulatedTransactionSchema,
     StarknetBlockSchema,
     StarknetBlockWithTxHashesSchema,
     SyncStatusSchema,
     TransactionReceiptSchema,
+    TransactionTraceSchema,
     TypesOfTransactionsSchema,
 )
 from starknet_py.transaction_errors import TransactionNotReceivedError
@@ -149,13 +155,6 @@ class FullNodeClient(Client):
             StarknetBlockWithTxHashes,
             StarknetBlockWithTxHashesSchema().load(res, unknown=EXCLUDE),
         )
-
-    async def get_block_traces(
-        self,
-        block_hash: Optional[Union[Hash, Tag]] = None,
-        block_number: Optional[Union[int, Tag]] = None,
-    ) -> BlockTransactionTraces:
-        raise NotImplementedError()
 
     # TODO (#809): add tests with multiple emitted keys
     async def get_events(
@@ -658,6 +657,61 @@ class FullNodeClient(Client):
         )
         res = cast(str, res)
         return int(res, 16)
+
+    # ------------------------------- Trace API -------------------------------
+
+    async def trace_transaction(
+        self,
+        tx_hash: Hash,
+    ) -> TransactionTrace:
+        res = await self._client.call(
+            method_name="traceTransaction",
+            params={
+                "transaction_hash": tx_hash,
+            },
+        )
+        return cast(
+            TransactionTrace, TransactionTraceSchema().load(res, unknown=EXCLUDE)
+        )
+
+    async def simulate_transactions(
+        self,
+        transactions: List[AccountTransaction],
+        simulation_flags: List[SimulationFlag],
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> List[SimulatedTransaction]:
+        block_identifier = get_block_identifier(
+            block_hash=block_hash, block_number=block_number
+        )
+        res = await self._client.call(
+            method_name="simulateTransactions",
+            params={
+                **block_identifier,
+                "simulation_flags": simulation_flags,
+                "transactions": transactions,
+            },
+        )
+        return cast(
+            List[SimulatedTransaction],
+            SimulatedTransactionSchema().load(res, unknown=EXCLUDE, many=True),
+        )
+
+    async def get_block_traces(
+        self,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> List[BlockTransactionTrace]:
+        res = await self._client.call(
+            method_name="simulateTransactions",
+            params={
+                "block_hash": block_hash,
+            },
+        )
+        return cast(
+            List[BlockTransactionTrace],
+            BlockTransactionTraceSchema().load(res, unknown=EXCLUDE, many=True),
+        )
 
 
 def get_block_identifier(

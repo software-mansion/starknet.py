@@ -316,18 +316,6 @@ class BlockSingleTransactionTraceSchema(Schema):
         return BlockSingleTransactionTrace(**data)
 
 
-class BlockTransactionTracesSchema(Schema):
-    traces = fields.List(
-        fields.Nested(BlockSingleTransactionTraceSchema(unknown=EXCLUDE)),
-        data_key="traces",
-        required=True,
-    )
-
-    @post_load
-    def make_dataclass(self, data, **kwargs):
-        return BlockTransactionTraces(**data)
-
-
 class EstimatedFeeSchema(Schema):
     overall_fee = fields.Integer(data_key="overall_fee", required=True)
     gas_price = fields.Integer(data_key="gas_price", required=True)
@@ -659,3 +647,18 @@ class SignatureOnStateDiffSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> SignatureOnStateDiff:
         return SignatureOnStateDiff(**data)
+
+
+# Trace API schemas
+
+
+class BlockTransactionTracesSchema(Schema):
+    traces = fields.List(
+        fields.Nested(BlockSingleTransactionTraceSchema(unknown=EXCLUDE)),
+        data_key="traces",
+        required=True,
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return BlockTransactionTraces(**data)
