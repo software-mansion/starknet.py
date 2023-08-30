@@ -199,7 +199,7 @@ class EntryPointTypeField(fields.Field):
 
         if value not in values:
             raise ValidationError(
-                f"Invalid value provided for TransactionFinalityStatus: {value}."
+                f"Invalid value provided for EntryPointType: {value}."
             )
 
         return EntryPointType(value)
@@ -216,11 +216,11 @@ class CallTypeField(fields.Field):
         data: Optional[Mapping[str, Any]],
         **kwargs,
     ) -> CallType:
-        values = [v.value for v in EntryPointType]
+        values = [v.value for v in CallType]
 
         if value not in values:
             raise ValidationError(
-                f"Invalid value provided for TransactionFinalityStatus: {value}."
+                f"Invalid value provided for CallType: {value}."
             )
 
         return CallType(value)
