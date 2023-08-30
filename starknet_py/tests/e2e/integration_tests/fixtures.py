@@ -14,6 +14,7 @@ from starknet_py.tests.e2e.fixtures.constants import (
     INTEGRATION_ACCOUNT_PRIVATE_KEY,
     INTEGRATION_GATEWAY_URL,
     INTEGRATION_NODE_URL,
+    TESTNET_NODE_URL,
 )
 
 
@@ -96,3 +97,19 @@ def account_integration(request) -> Account:
     FullNodeClient).
     """
     return request.getfixturevalue(request.param)
+
+
+@pytest.fixture(scope="package")
+def gateway_client_testnet() -> GatewayClient:
+    """
+    A fixture returning a GatewayClient with a public integration network URL.
+    """
+    return GatewayClient(net="testnet")
+
+
+@pytest.fixture(scope="package")
+def full_node_client_testnet() -> FullNodeClient:
+    """
+    A fixture returning a FullNodeClient with our integration network node URL.
+    """
+    return FullNodeClient(node_url=TESTNET_NODE_URL)
