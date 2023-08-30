@@ -42,7 +42,7 @@ from starknet_py.net.client_models import (
     StateDiff,
     StorageDiffItem,
     SyncStatus,
-    TransactionReceipt,
+    TransactionReceipt, EventContent,
 )
 from starknet_py.net.schemas.common import (
     BlockStatusField,
@@ -524,6 +524,15 @@ class PendingTransactionsSchema(Schema):
 # ------------------------------- Trace API -------------------------------
 
 
+class EventContentSchema(Schema):
+    keys = fields.List(Felt(), data_key="keys", required=True)
+    data = fields.List(Felt(), data_key="data", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return EventContent(**data)
+
+
 class FunctionInvocationSchema(Schema):
     contract_address = Felt(data_key="contract_address", required=True)
     entry_point_selector = Felt(data_key="entry_point_selector", required=True)
@@ -532,14 +541,14 @@ class FunctionInvocationSchema(Schema):
     class_hash = Felt(data_key="class_hash", required=True)
     entry_point_type = EntryPointTypeField(data_key="entry_point_type", required=True)
     call_type = CallTypeField(data_key="call_type", required=True)
-    result = Felt(data_key="result", required=True)
+    result = fields.List(Felt(), data_key="result", required=True)
     # TODO check how to do a self-reference in schemas
     calls = fields.List(
         fields.Nested(lambda: FunctionInvocationSchema()),
         data_key="calls",
         required=True,
     )
-    events = fields.List(fields.Nested(EventSchema()), data_key="events", required=True)
+    events = fields.List(fields.Nested(EventContentSchema()), data_key="events", required=True)
     messages = fields.List(
         fields.Nested(L2toL1MessageSchema()), data_key="messages", required=True
     )
@@ -564,7 +573,7 @@ class ExecuteInvocationSchema(Schema):
     @post_load
     def make_dataclass_or_string(self, data, **kwargs):
         if data.get("revert_reason", None) is None:
-            return FunctionInvocation(**data)
+            return FunctionInvocation(**data["function_invocation"])
         return data["revert_reason"]
 
 

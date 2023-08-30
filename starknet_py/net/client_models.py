@@ -706,7 +706,16 @@ class SignatureOnStateDiff:
     signature_input: SignatureInput
 
 
-# Trace API classes
+# ------------------------------- Trace API dataclasses -------------------------------
+
+@dataclass
+class EventContent:
+    """
+    Dataclass representing contents of an event.
+    """
+
+    keys: List[int]
+    data: List[int]
 
 
 class SimulationFlag(Enum):
