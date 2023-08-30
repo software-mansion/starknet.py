@@ -664,6 +664,12 @@ class FullNodeClient(Client):
         self,
         tx_hash: Hash,
     ) -> TransactionTrace:
+        """
+        For a given executed transaction, returns the trace of its execution, including internal calls.
+
+        :param tx_hash: Hash of the executed transaction.
+        :return: Trace of the transaction.
+        """
         res = await self._client.call(
             method_name="traceTransaction",
             params={
@@ -681,6 +687,16 @@ class FullNodeClient(Client):
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> List[SimulatedTransaction]:
+        """
+        Simulates a given sequence of transactions on the requested state, and generates the execution traces.
+        If one of the transactions is reverted, raises CONTRACT_ERROR.
+
+        :param transactions: Transactions to be traced.
+        :param simulation_flags: List of flags describing what parts of the transaction should be executed.
+        :param block_hash: Block's hash or literals `"pending"` or `"latest"`
+        :param block_number: Block's number or literals `"pending"` or `"latest"`
+        :return: The execution trace and consumed resources for each transaction.
+        """
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -702,10 +718,19 @@ class FullNodeClient(Client):
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> List[BlockTransactionTrace]:
+        """
+        Retrieve traces for all transactions in the given block.
+
+        :param block_hash: Block's hash or literals `"pending"` or `"latest"`
+        :param block_number: Block's number or literals `"pending"` or `"latest"`
+        :return: List of execution traces of all transactions included in the given block with transaction hashes.
+        """
+
+        block = await self.get_block(block_hash=block_hash, block_number=block_number)
         res = await self._client.call(
-            method_name="simulateTransactions",
+            method_name="traceBlockTransactions",
             params={
-                "block_hash": block_hash,
+                "block_hash": _to_rpc_felt(block.block_hash),
             },
         )
         return cast(
