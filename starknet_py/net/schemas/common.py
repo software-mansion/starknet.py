@@ -219,9 +219,7 @@ class CallTypeField(fields.Field):
         values = [v.value for v in CallType]
 
         if value not in values:
-            raise ValidationError(
-                f"Invalid value provided for CallType: {value}."
-            )
+            raise ValidationError(f"Invalid value provided for CallType: {value}.")
 
         return CallType(value)
 

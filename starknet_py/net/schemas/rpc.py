@@ -542,13 +542,14 @@ class FunctionInvocationSchema(Schema):
     entry_point_type = EntryPointTypeField(data_key="entry_point_type", required=True)
     call_type = CallTypeField(data_key="call_type", required=True)
     result = fields.List(Felt(), data_key="result", required=True)
-    # TODO check how to do a self-reference in schemas
     calls = fields.List(
-        fields.Nested(lambda: FunctionInvocationSchema()),
+        fields.Nested(lambda: FunctionInvocationSchema()),  # pyright: ignore
         data_key="calls",
         required=True,
     )
-    events = fields.List(fields.Nested(EventContentSchema()), data_key="events", required=True)
+    events = fields.List(
+        fields.Nested(EventContentSchema()), data_key="events", required=True
+    )
     messages = fields.List(
         fields.Nested(L2toL1MessageSchema()), data_key="messages", required=True
     )
@@ -559,19 +560,22 @@ class FunctionInvocationSchema(Schema):
 
 
 class ExecuteInvocationSchema(Schema):
-    # TODO add a comment on how this works
     revert_reason = fields.String(data_key="revert_reason", load_default=None)
     function_invocation = fields.Dict(data_key="function_invocation", load_default=None)
 
     @pre_load
     def alter_data(self, data, **kwargs):
+        # This method does data preprocessing before it is loaded into the fields above. If tx is not reverted, data
+        # gets loaded into 'function_invocation' data by adding a dict layer, otherwise gets loaded into "revert_reason"
         assert isinstance(data, dict)
         if data.get("revert_reason", None) is None:
             data = {"function_invocation": data}
         return data
 
     @post_load
-    def make_dataclass_or_string(self, data, **kwargs):
+    def make_dataclass_or_string(
+        self, data, **kwargs
+    ) -> Union[FunctionInvocation, dict]:
         if data.get("revert_reason", None) is None:
             return FunctionInvocation(**data["function_invocation"])
         return data["revert_reason"]
