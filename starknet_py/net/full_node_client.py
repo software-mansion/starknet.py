@@ -726,7 +726,16 @@ class FullNodeClient(Client):
         :return: List of execution traces of all transactions included in the given block with transaction hashes.
         """
 
+        # TODO (#1169): remove this hack after RPC Trace API update from `BLOCK_HASH` to `BLOCK_ID`
+
+        if block_hash == "pending" or block_number == "pending":
+            warnings.warn('Using "latest" block instead of "pending". "pending" blocks do not have a hash.')
+            block_number = None
+            block_hash = "latest"
+
         block = await self.get_block(block_hash=block_hash, block_number=block_number)
+        assert isinstance(block, StarknetBlock)
+
         res = await self._client.call(
             method_name="traceBlockTransactions",
             params={
