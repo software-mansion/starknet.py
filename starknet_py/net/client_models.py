@@ -834,7 +834,7 @@ class SimulatedTransaction:
     """
 
     transaction_trace: TransactionTrace
-    estimated_fee: EstimatedFee
+    fee_estimation: EstimatedFee
 
 
 # TODO consider changing Client interface return type to match both implementations

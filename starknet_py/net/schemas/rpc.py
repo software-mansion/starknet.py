@@ -1,3 +1,5 @@
+from typing import Union
+
 from marshmallow import EXCLUDE, Schema, fields, post_load, pre_load
 from marshmallow_oneofschema import OneOfSchema
 
@@ -21,6 +23,7 @@ from starknet_py.net.client_models import (
     EntryPointsByType,
     EstimatedFee,
     Event,
+    EventContent,
     EventsChunk,
     FunctionInvocation,
     InvokeTransaction,
@@ -42,7 +45,7 @@ from starknet_py.net.client_models import (
     StateDiff,
     StorageDiffItem,
     SyncStatus,
-    TransactionReceipt, EventContent,
+    TransactionReceipt,
 )
 from starknet_py.net.schemas.common import (
     BlockStatusField,
@@ -578,7 +581,7 @@ class ExecuteInvocationSchema(Schema):
     ) -> Union[FunctionInvocation, dict]:
         if data.get("revert_reason", None) is None:
             return FunctionInvocation(**data["function_invocation"])
-        return data["revert_reason"]
+        return {"revert_reason": data["revert_reason"]}
 
 
 class InvokeTransactionTraceSchema(Schema):
@@ -660,8 +663,8 @@ class SimulatedTransactionSchema(Schema):
     transaction_trace = fields.Nested(
         TransactionTraceSchema(), data_key="transaction_trace", required=True
     )
-    estimated_fee = fields.Nested(
-        EstimatedFeeSchema(), data_key="estimated_fee", required=True
+    fee_estimation = fields.Nested(
+        EstimatedFeeSchema(), data_key="fee_estimation", required=True
     )
 
     @post_load
