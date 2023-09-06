@@ -17,7 +17,6 @@ from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import (
     CONTRACTS_COMPILED_DIR,
-    CONTRACTS_COMPILED_V1_DIR,
     CONTRACTS_DIR,
     MAX_FEE,
 )
