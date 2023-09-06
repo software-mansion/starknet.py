@@ -25,7 +25,6 @@ from starknet_py.net.client_models import (
     SentTransactionResponse,
     SierraContractClass,
     SimulatedTransaction,
-    SimulationFlag,
     StarknetBlock,
     StarknetBlockWithTxHashes,
     SyncStatus,
@@ -683,16 +682,20 @@ class FullNodeClient(Client):
     async def simulate_transactions(
         self,
         transactions: List[AccountTransaction],
-        simulation_flags: List[SimulationFlag],
+        skip_validate: bool = False,
+        skip_fee_charge: bool = False,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> List[SimulatedTransaction]:
+        # pylint: disable=too-many-arguments
         """
         Simulates a given sequence of transactions on the requested state, and generates the execution traces.
         If one of the transactions is reverted, raises CONTRACT_ERROR.
 
         :param transactions: Transactions to be traced.
-        :param simulation_flags: List of flags describing what parts of the transaction should be executed.
+        :param skip_validate: Flag checking whether there are enough funds in the account.
+        :param skip_fee_charge: Flag deciding whether fee should be deducted from the balance before the simulation
+            of the next transaction.
         :param block_hash: Block's hash or literals `"pending"` or `"latest"`
         :param block_number: Block's number or literals `"pending"` or `"latest"`
         :return: The execution trace and consumed resources for each transaction.
@@ -700,12 +703,21 @@ class FullNodeClient(Client):
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
+
+        simulation_flags = []
+        if skip_validate:
+            simulation_flags.append("SKIP_VALIDATE")
+        if skip_fee_charge:
+            simulation_flags.append("SKIP_FEE_CHARGE")
+
         res = await self._client.call(
             method_name="simulateTransactions",
             params={
                 **block_identifier,
                 "simulation_flags": simulation_flags,
-                "transactions": transactions,
+                "transactions": [
+                    _create_broadcasted_txn(transaction=t) for t in transactions
+                ],
             },
         )
         return cast(
@@ -729,7 +741,9 @@ class FullNodeClient(Client):
         # TODO (#1169): remove this hack after RPC Trace API update from `BLOCK_HASH` to `BLOCK_ID`
 
         if block_hash == "pending" or block_number == "pending":
-            warnings.warn('Using "latest" block instead of "pending". "pending" blocks do not have a hash.')
+            warnings.warn(
+                'Using "latest" block instead of "pending". "pending" blocks do not have a hash.'
+            )
             block_number = None
             block_hash = "latest"
 

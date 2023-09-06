@@ -772,11 +772,11 @@ class InvokeTransactionTrace:
     Dataclass representing a transaction trace of an INVOKE transaction.
     """
 
-    validate_invocation: FunctionInvocation
+    validate_invocation: Optional[FunctionInvocation]
     execute_invocation: Union[
         FunctionInvocation, dict
     ]  # dict in case "revert_reason" is returned
-    fee_transfer_invocation: FunctionInvocation
+    fee_transfer_invocation: Optional[FunctionInvocation]
 
 
 @dataclass
@@ -785,8 +785,8 @@ class DeclareTransactionTrace:
     Dataclass representing a transaction trace of an DECLARE transaction.
     """
 
-    validate_invocation: FunctionInvocation
-    fee_transfer_invocation: FunctionInvocation
+    validate_invocation: Optional[FunctionInvocation]
+    fee_transfer_invocation: Optional[FunctionInvocation]
 
 
 @dataclass
@@ -795,9 +795,9 @@ class DeployAccountTransactionTrace:
     Dataclass representing a transaction trace of an DEPLOY_ACCOUNT transaction.
     """
 
-    validate_invocation: FunctionInvocation
+    validate_invocation: Optional[FunctionInvocation]
     constructor_invocation: FunctionInvocation
-    fee_transfer_invocation: FunctionInvocation
+    fee_transfer_invocation: Optional[FunctionInvocation]
 
 
 @dataclass
@@ -837,7 +837,7 @@ class SimulatedTransaction:
     fee_estimation: EstimatedFee
 
 
-# TODO consider changing Client interface return type to match both implementations
+# TODO (#981): consider changing Client interface return type to match both implementations
 @dataclass
 class BlockTransactionTrace:
     """

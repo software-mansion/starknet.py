@@ -545,8 +545,11 @@ class FunctionInvocationSchema(Schema):
     entry_point_type = EntryPointTypeField(data_key="entry_point_type", required=True)
     call_type = CallTypeField(data_key="call_type", required=True)
     result = fields.List(Felt(), data_key="result", required=True)
+    # https://marshmallow.readthedocs.io/en/stable/nesting.html#nesting-a-schema-within-itself
     calls = fields.List(
-        fields.Nested(lambda: FunctionInvocationSchema()),  # pyright: ignore
+        fields.Nested(
+            lambda: FunctionInvocationSchema()  # pylint: disable=unnecessary-lambda
+        ),
         data_key="calls",
         required=True,
     )
@@ -586,13 +589,15 @@ class ExecuteInvocationSchema(Schema):
 
 class InvokeTransactionTraceSchema(Schema):
     validate_invocation = fields.Nested(
-        FunctionInvocationSchema(), data_key="validate_invocation", required=True
+        FunctionInvocationSchema(), data_key="validate_invocation", load_default=None
     )
     execute_invocation = fields.Nested(
         ExecuteInvocationSchema(), data_key="execute_invocation", required=True
     )
     fee_transfer_invocation = fields.Nested(
-        FunctionInvocationSchema(), data_key="fee_transfer_invocation", required=True
+        FunctionInvocationSchema(),
+        data_key="fee_transfer_invocation",
+        load_default=None,
     )
 
     @post_load
@@ -602,10 +607,12 @@ class InvokeTransactionTraceSchema(Schema):
 
 class DeclareTransactionTraceSchema(Schema):
     validate_invocation = fields.Nested(
-        FunctionInvocationSchema(), data_key="validate_invocation", required=True
+        FunctionInvocationSchema(), data_key="validate_invocation", load_default=None
     )
     fee_transfer_invocation = fields.Nested(
-        FunctionInvocationSchema(), data_key="fee_transfer_invocation", required=True
+        FunctionInvocationSchema(),
+        data_key="fee_transfer_invocation",
+        load_default=None,
     )
 
     @post_load
@@ -615,13 +622,15 @@ class DeclareTransactionTraceSchema(Schema):
 
 class DeployAccountTransactionTraceSchema(Schema):
     validate_invocation = fields.Nested(
-        FunctionInvocationSchema(), data_key="validate_invocation", required=True
+        FunctionInvocationSchema(), data_key="validate_invocation", load_default=None
     )
     constructor_invocation = fields.Nested(
         FunctionInvocationSchema(), data_key="constructor_invocation", required=True
     )
     fee_transfer_invocation = fields.Nested(
-        FunctionInvocationSchema(), data_key="fee_transfer_invocation", required=True
+        FunctionInvocationSchema(),
+        data_key="fee_transfer_invocation",
+        load_default=None,
     )
 
     @post_load
