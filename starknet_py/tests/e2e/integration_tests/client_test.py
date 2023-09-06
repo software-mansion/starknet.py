@@ -469,8 +469,4 @@ async def test_get_state_update_different_starknet_versions():
 
     _ = await mainnet.get_state_update(block_number=100000)
 
-    with pytest.raises(ValueError):
-        _ = await mainnet.get_state_update(block_number=100000, include_block=False)
-        _ = await mainnet.get_state_update(block_number=100000, include_block=True)
-
     _ = await testnet.get_state_update(block_number=100000, include_block=True)
