@@ -46,11 +46,12 @@ def sierra_minimal_compiled_contract_and_class_hash() -> Tuple[str, int]:
     Returns minimal contract compiled to sierra and its compiled class hash.
     """
     compiled_contract = read_contract(
-        "minimal_contract_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
+        "minimal_contract_compiled.json"
     )
     compiled_contract_casm = read_contract(
-        "minimal_contract_compiled.casm", directory=CONTRACTS_COMPILED_V1_DIR
+        "minimal_contract_compiled.casm"
     )
+
     return (
         compiled_contract,
         compute_casm_class_hash(create_casm_class(compiled_contract_casm)),
