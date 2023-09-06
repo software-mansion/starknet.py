@@ -39,7 +39,7 @@ DEVNET_PRE_DEPLOYED_ACCOUNT_ADDRESS = (
 )
 DEVNET_PRE_DEPLOYED_ACCOUNT_PRIVATE_KEY = "0xcd613e30d8f16adf91b7584a2265b1f5"
 
-MAX_FEE = int(1e20)
+MAX_FEE = int(1e16)
 
 MOCK_DIR = Path(os.path.dirname(__file__)) / "../mock"
 TYPED_DATA_DIR = MOCK_DIR / "typed_data"

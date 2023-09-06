@@ -24,7 +24,6 @@ from starknet_py.net.models.transaction import Declare, DeclareV2
 from starknet_py.net.signer.stark_curve_signer import KeyPair
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
-from starknet_py.transaction_errors import TransactionRejectedError
 
 
 @pytest.mark.run_on_devnet
@@ -113,16 +112,9 @@ async def test_get_block_traces(gateway_account):
 
 
 @pytest.mark.asyncio
-async def test_rejection_reason_in_transaction_receipt(account, map_contract):
-    res = await map_contract.functions["put"].invoke(key=10, value=20, max_fee=1)
-
-    with pytest.raises(TransactionRejectedError):
-        await account.client.wait_for_tx(res.hash)
-
-    transaction_receipt = await account.client.get_transaction_receipt(res.hash)
-
-    if isinstance(account.client, GatewayClient):
-        assert "Actual fee exceeded max fee." in transaction_receipt.rejection_reason
+async def test_rejection_reason_in_transaction_receipt(map_contract):
+    with pytest.raises(ClientError, match=r".*INSUFFICIENT_MAX_FEE.*"):
+        _ = await map_contract.functions["put"].invoke(key=10, value=20, max_fee=1)
 
 
 def test_sign_and_verify_offchain_message_fail(account, typed_data):
@@ -383,15 +375,22 @@ async def test_deploy_account_raises_on_incorrect_address(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "call_contract",
+    "call_contract, corresponding_client",
     [
-        "starknet_py.net.gateway_client.GatewayClient.call_contract",
-        "starknet_py.net.full_node_client.FullNodeClient.call_contract",
+        (
+            "starknet_py.net.gateway_client.GatewayClient.call_contract",
+            "gateway_client",
+        ),
+        (
+            "starknet_py.net.full_node_client.FullNodeClient.call_contract",
+            "full_node_client",
+        ),
     ],
 )
 async def test_deploy_account_raises_on_no_enough_funds(
-    deploy_account_details_factory, call_contract, client
+    deploy_account_details_factory, call_contract, corresponding_client, request
 ):
+    corresponding_client = request.getfixturevalue(corresponding_client)
     address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
 
     with patch(call_contract, AsyncMock()) as mocked_balance:
@@ -406,7 +405,7 @@ async def test_deploy_account_raises_on_no_enough_funds(
                 class_hash=class_hash,
                 salt=salt,
                 key_pair=key_pair,
-                client=client,
+                client=corresponding_client,
                 chain=StarknetChainId.TESTNET,
                 max_fee=MAX_FEE,
             )

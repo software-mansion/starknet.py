@@ -98,7 +98,6 @@ async def test_get_transaction_status(invoke_transaction_hash, gateway_client):
     )
     assert isinstance(tx_status_resp, TransactionStatusResponse)
     assert tx_status_resp.transaction_status == TransactionStatus.ACCEPTED_ON_L2
-    assert isinstance(tx_status_resp.block_hash, int)
 
 
 def test_gateway_client_warn_deprecation():
