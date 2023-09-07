@@ -29,15 +29,16 @@ from starknet_py.tests.e2e.fixtures.constants import (
 )
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
+tx_to_trace: dict[type[Transaction], type[TransactionTrace]] = {
+    InvokeTransaction: InvokeTransactionTrace,
+    DeclareTransaction: DeclareTransactionTrace,
+    DeployAccountTransaction: DeployAccountTransactionTrace,
+    L1HandlerTransaction: L1HandlerTransactionTrace,
+}
+
 
 @pytest.mark.asyncio
 async def test_trace_transaction(full_node_client_testnet):
-    tx_to_trace: dict[type[Transaction], type[TransactionTrace]] = {
-        InvokeTransaction: InvokeTransactionTrace,
-        DeclareTransaction: DeclareTransactionTrace,
-        DeployAccountTransaction: DeployAccountTransactionTrace,
-        L1HandlerTransaction: L1HandlerTransactionTrace,
-    }
     block = await full_node_client_testnet.get_block(block_number=600000)
 
     for tx in block.transactions:
@@ -118,33 +119,50 @@ async def test_simulate_transactions_declare(full_node_account):
     assert simulated_txs[0].fee_estimation.overall_fee > 0
     assert simulated_txs[0].transaction_trace.validate_invocation is not None
 
+
+@pytest.mark.asyncio
+async def test_simulate_transactions_two_txs(
+    full_node_account, deployed_balance_contract
+):
+    assert isinstance(deployed_balance_contract, Contract)
+    call = Call(
+        to_addr=deployed_balance_contract.address,
+        selector=get_selector_from_name("increase_balance"),
+        calldata=[0x10],
+    )
+    invoke_tx = await full_node_account.sign_invoke_transaction(
+        calls=call, auto_estimate=True
+    )
+
     compiled_v2_contract = read_contract(
-        "hello_starknet_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
+        "test_contract_declare_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
     )
     compiled_v2_contract_casm = read_contract(
-        "hello_starknet_compiled.casm", directory=CONTRACTS_COMPILED_V1_DIR
+        "test_contract_declare_compiled.casm", directory=CONTRACTS_COMPILED_V1_DIR
     )
     casm_class = create_casm_class(compiled_v2_contract_casm)
     casm_class_hash = compute_casm_class_hash(casm_class)
 
-    declare_tx = await full_node_account.sign_declare_transaction(
-        compiled_contract, max_fee=int(1e16)
-    )
     declare_v2_tx = await full_node_account.sign_declare_v2_transaction(
         compiled_contract=compiled_v2_contract,
         compiled_class_hash=casm_class_hash,
-        nonce=declare_tx.nonce + 1,
+        nonce=invoke_tx.nonce
+        + 1,  # because raw calls do not increment nonce, it needs to be done manually
         max_fee=int(1e16),
     )
 
     simulated_txs = await full_node_account.client.simulate_transactions(
-        transactions=[declare_tx, declare_v2_tx], block_number="latest"
+        transactions=[invoke_tx, declare_v2_tx], block_number="latest"
     )
 
-    for simulated_tx in simulated_txs:
-        assert isinstance(simulated_tx.transaction_trace, DeclareTransactionTrace)
-        assert simulated_tx.fee_estimation.overall_fee > 0
-        assert simulated_tx.transaction_trace.validate_invocation is not None
+    assert isinstance(simulated_txs[0].transaction_trace, InvokeTransactionTrace)
+    assert simulated_txs[0].fee_estimation.overall_fee > 0
+    assert simulated_txs[0].transaction_trace.validate_invocation is not None
+    assert simulated_txs[0].transaction_trace.execute_invocation is not None
+
+    assert isinstance(simulated_txs[1].transaction_trace, DeclareTransactionTrace)
+    assert simulated_txs[1].fee_estimation.overall_fee > 0
+    assert simulated_txs[1].transaction_trace.validate_invocation is not None
 
 
 @pytest.mark.asyncio
