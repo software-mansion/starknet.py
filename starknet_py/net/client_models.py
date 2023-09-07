@@ -708,6 +708,7 @@ class SignatureOnStateDiff:
 
 # ------------------------------- Trace API dataclasses -------------------------------
 
+
 @dataclass
 class EventContent:
     """

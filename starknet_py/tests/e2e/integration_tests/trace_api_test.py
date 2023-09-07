@@ -107,7 +107,7 @@ async def test_simulate_transactions_declare(full_node_account):
         "map_compiled.json", directory=CONTRACTS_COMPILED_DIR
     )
     declare_tx = await full_node_account.sign_declare_transaction(
-        compiled_contract,  max_fee=int(1e16)
+        compiled_contract, max_fee=int(1e16)
     )
 
     simulated_txs = await full_node_account.client.simulate_transactions(
