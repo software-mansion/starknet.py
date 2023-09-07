@@ -452,6 +452,8 @@ async def test_deploy_account_passes_on_enough_funds(
         )
 
 
+# TODO (#1056): change this test to braavos account
+@pytest.mark.skip(reason="'__validate_execute__' doesn't allow any other calldata than in the constructor")
 @pytest.mark.asyncio
 async def test_deploy_account_uses_custom_calldata(
     client, deploy_account_details_factory, fee_contract
