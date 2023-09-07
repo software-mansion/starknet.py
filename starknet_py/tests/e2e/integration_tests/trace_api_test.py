@@ -29,16 +29,15 @@ from starknet_py.tests.e2e.fixtures.constants import (
 )
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
-tx_to_trace: dict[type[Transaction], type[TransactionTrace]] = {
-    InvokeTransaction: InvokeTransactionTrace,
-    DeclareTransaction: DeclareTransactionTrace,
-    DeployAccountTransaction: DeployAccountTransactionTrace,
-    L1HandlerTransaction: L1HandlerTransactionTrace,
-}
-
 
 @pytest.mark.asyncio
 async def test_trace_transaction(full_node_client_testnet):
+    tx_to_trace: dict[type[Transaction], type[TransactionTrace]] = {
+        InvokeTransaction: InvokeTransactionTrace,
+        DeclareTransaction: DeclareTransactionTrace,
+        DeployAccountTransaction: DeployAccountTransactionTrace,
+        L1HandlerTransaction: L1HandlerTransactionTrace,
+    }
     block = await full_node_client_testnet.get_block(block_number=600000)
 
     for tx in block.transactions:
