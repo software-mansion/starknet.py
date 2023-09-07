@@ -145,8 +145,8 @@ async def test_simulate_transactions_two_txs(
     declare_v2_tx = await full_node_account.sign_declare_v2_transaction(
         compiled_contract=compiled_v2_contract,
         compiled_class_hash=casm_class_hash,
-        nonce=invoke_tx.nonce
-        + 1,  # because raw calls do not increment nonce, it needs to be done manually
+        # because raw calls do not increment nonce, it needs to be done manually
+        nonce=invoke_tx.nonce + 1,
         max_fee=int(1e16),
     )
 
