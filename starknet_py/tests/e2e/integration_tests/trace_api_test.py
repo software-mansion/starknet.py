@@ -93,7 +93,7 @@ async def test_simulate_transactions_invoke(
         calls=[call, call], auto_estimate=True
     )
     simulated_txs = await full_node_account.client.simulate_transactions(
-        transactions=[invoke_tx], skip_fee_charge=True, block_number="latest"
+        transactions=[invoke_tx], block_number="latest"
     )
 
     assert isinstance(simulated_txs[0].transaction_trace, InvokeTransactionTrace)
@@ -107,8 +107,9 @@ async def test_simulate_transactions_declare(full_node_account):
         "map_compiled.json", directory=CONTRACTS_COMPILED_DIR
     )
     declare_tx = await full_node_account.sign_declare_transaction(
-        compiled_contract, auto_estimate=True
+        compiled_contract,  max_fee=int(1e16)
     )
+
     simulated_txs = await full_node_account.client.simulate_transactions(
         transactions=[declare_tx], block_number="latest"
     )
@@ -127,21 +128,22 @@ async def test_simulate_transactions_declare(full_node_account):
     casm_class_hash = compute_casm_class_hash(casm_class)
 
     declare_tx = await full_node_account.sign_declare_transaction(
-        compiled_contract, nonce=2, auto_estimate=True
+        compiled_contract, max_fee=int(1e16)
     )
     declare_v2_tx = await full_node_account.sign_declare_v2_transaction(
         compiled_contract=compiled_v2_contract,
         compiled_class_hash=casm_class_hash,
-        nonce=3,
-        auto_estimate=True,
+        nonce=declare_tx.nonce + 1,
+        max_fee=int(1e16),
     )
+
     simulated_txs = await full_node_account.client.simulate_transactions(
         transactions=[declare_tx, declare_v2_tx], block_number="latest"
     )
 
     for simulated_tx in simulated_txs:
         assert isinstance(simulated_tx.transaction_trace, DeclareTransactionTrace)
-        assert simulated_tx.fee_estimation.overall_fe > 0
+        assert simulated_tx.fee_estimation.overall_fee > 0
         assert simulated_tx.transaction_trace.validate_invocation is not None
 
 
