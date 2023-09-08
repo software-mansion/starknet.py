@@ -26,7 +26,9 @@ class FunctionSerializationAdapter:
     expected_args: Tuple[str] = field(init=False)
 
     def __post_init__(self):
-        self.expected_args = tuple(self.inputs_serializer.serializers.keys())
+        self.expected_args = tuple(
+            self.inputs_serializer.serializers.keys()
+        )  # pyright: ignore
 
     def serialize(self, *args, **kwargs) -> CairoData:
         """

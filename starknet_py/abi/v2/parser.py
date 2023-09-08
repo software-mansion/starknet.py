@@ -180,7 +180,7 @@ class AbiParser:
         defined_structs_enums: Dict[str, Union[StructType, EnumType]] = dict(structs)
         defined_structs_enums.update(enums)
 
-        self._type_parser = TypeParser(defined_structs_enums)
+        self._type_parser = TypeParser(defined_structs_enums)  # pyright: ignore
         for name, struct in structs.items():
             members = self._parse_members(
                 cast(List[TypedParameterDict], struct_members[name]),
