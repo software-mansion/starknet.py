@@ -203,14 +203,20 @@ async def test_trace_transaction(full_node_client_testnet):
     # docs-start: trace_transaction
     transaction_hash = "0x123"
     # docs-end: trace_transaction
-    transaction_hash = "0x31e9adddefb28fab4d2ef9a6907e5805f5f793f5198618119a5347e6fc4af57"
+    transaction_hash = (
+        "0x31e9adddefb28fab4d2ef9a6907e5805f5f793f5198618119a5347e6fc4af57"
+    )
     # docs-start: trace_transaction
-    transaction_trace = await full_node_client_testnet.trace_transaction(tx_hash=transaction_hash)
+    transaction_trace = await full_node_client_testnet.trace_transaction(
+        tx_hash=transaction_hash
+    )
     # docs-end: trace_transaction
 
 
 @pytest.mark.asyncio
-async def test_simulate_transactions(full_node_account, deployed_balance_contract, deploy_account_transaction):
+async def test_simulate_transactions(
+    full_node_account, deployed_balance_contract, deploy_account_transaction
+):
     assert isinstance(deployed_balance_contract, Contract)
     contract_address = deployed_balance_contract.address
     second_transaction = deploy_account_transaction
@@ -218,7 +224,7 @@ async def test_simulate_transactions(full_node_account, deployed_balance_contrac
     call = Call(
         to_addr=contract_address,
         selector=get_selector_from_name("method_name"),
-        calldata=[0xca11da7a],
+        calldata=[0xCA11DA7A],
     )
     first_transaction = await full_node_account.sign_invoke_transaction(
         calls=call, max_fee=int(1e16)
