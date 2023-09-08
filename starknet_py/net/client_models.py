@@ -401,7 +401,7 @@ class BlockSingleTransactionTrace:
     validate_invocation: Optional[dict] = None
     fee_transfer_invocation: Optional[dict] = None
     constructor_invocation: Optional[dict] = None
-    # Gateway-only field, revert_error in RPC spec is returned in
+    # Gateway-only field, information about reversion in RPC spec is returned inside "execute_invocation"
     revert_error: Optional[str] = None
 
 
@@ -819,16 +819,6 @@ TransactionTrace = Union[
 
 
 @dataclass
-class TransactionTraceAndHash:
-    """
-    Dataclass representing a single pair of transaction hash and a corresponding trace.
-    """
-
-    transaction_hash: int
-    trace_root: TransactionTrace
-
-
-@dataclass
 class SimulatedTransaction:
     """
     Dataclass representing a simulated transaction returned by `starknet_simulateTransactions` method.
@@ -838,7 +828,6 @@ class SimulatedTransaction:
     fee_estimation: EstimatedFee
 
 
-# TODO (#981): consider changing Client interface return type to match both implementations
 @dataclass
 class BlockTransactionTrace:
     """

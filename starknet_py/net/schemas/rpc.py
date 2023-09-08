@@ -574,7 +574,7 @@ class ExecuteInvocationSchema(Schema):
         # This method does data preprocessing before it is loaded into the fields above. If tx is not reverted, data
         # gets loaded into 'function_invocation' data by adding a dict layer, otherwise gets loaded into "revert_reason"
         assert isinstance(data, dict)
-        if data.get("revert_reason", None) is None:
+        if "revert_reason" not in data:
             data = {"function_invocation": data}
         return data
 
@@ -582,7 +582,7 @@ class ExecuteInvocationSchema(Schema):
     def make_dataclass_or_string(
         self, data, **kwargs
     ) -> Union[FunctionInvocation, dict]:
-        if data.get("revert_reason", None) is None:
+        if "revert_reason" not in data:
             return FunctionInvocation(**data["function_invocation"])
         return {"revert_reason": data["revert_reason"]}
 
@@ -656,6 +656,7 @@ class TransactionTraceSchema(OneOfSchema):
         "L1_HANDLER": L1HandlerTransactionTraceSchema(),
     }
 
+    # TODO (#1177): change this from sketchy strings to `type` property
     def get_data_type(self, data):
         # All possible types of transaction trace (loaded by sketchy logic),
         # it's possible that more are added later in the future, and it needs to be reformatted

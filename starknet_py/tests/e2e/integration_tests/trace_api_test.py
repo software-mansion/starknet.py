@@ -221,7 +221,7 @@ async def test_simulate_transactions_deploy_account(
 async def test_get_block_traces(full_node_client_testnet):
     # 800002 because I guess sometimes juno doesn't return valid transactions/parses input wrong
     block_number = 800002
-    block_transaction_traces = await full_node_client_testnet.get_block_traces(
+    block_transaction_traces = await full_node_client_testnet.trace_block_transactions(
         block_number=block_number
     )
     block = await full_node_client_testnet.get_block(block_number=block_number)
@@ -233,11 +233,16 @@ async def test_get_block_traces(full_node_client_testnet):
         )
 
 
+# TODO (#1169): remove this test?
 @pytest.mark.asyncio
 async def test_get_block_traces_warning_on_pending(full_node_client_testnet):
     with pytest.warns(
         UserWarning,
         match='Using "latest" block instead of "pending". "pending" blocks do not have a hash.',
     ):
-        _ = await full_node_client_testnet.get_block_traces(block_number="pending")
-        _ = await full_node_client_testnet.get_block_traces(block_hash="pending")
+        _ = await full_node_client_testnet.trace_block_transactions(
+            block_number="pending"
+        )
+        _ = await full_node_client_testnet.trace_block_transactions(
+            block_hash="pending"
+        )

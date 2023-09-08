@@ -693,7 +693,7 @@ class FullNodeClient(Client):
         If one of the transactions is reverted, raises CONTRACT_ERROR.
 
         :param transactions: Transactions to be traced.
-        :param skip_validate: Flag checking whether there are enough funds in the account.
+        :param skip_validate: Flag checking whether the validation part of the transaction should be executed.
         :param skip_fee_charge: Flag deciding whether fee should be deducted from the balance before the simulation
             of the next transaction.
         :param block_hash: Block's hash or literals `"pending"` or `"latest"`
@@ -725,7 +725,7 @@ class FullNodeClient(Client):
             SimulatedTransactionSchema().load(res, unknown=EXCLUDE, many=True),
         )
 
-    async def get_block_traces(
+    async def trace_block_transactions(
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
@@ -742,6 +742,7 @@ class FullNodeClient(Client):
 
         if block_hash == "pending" or block_number == "pending":
             warnings.warn(
+                'Only possible argument in RPC specification is "block_hash". '
                 'Using "latest" block instead of "pending". "pending" blocks do not have a hash.'
             )
             block_number = None

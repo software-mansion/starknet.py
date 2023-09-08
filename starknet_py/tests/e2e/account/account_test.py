@@ -102,11 +102,10 @@ async def test_sending_multicall(account, map_contract, key, val):
     assert value == val
 
 
-# TODO (#981): FullNode is not tested because we don't implement trace api (devnet does not either)
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_block_traces(gateway_account):
-    traces = await gateway_account.client.get_block_traces(block_number=2)
+    traces = await gateway_account.client.trace_block_transactions(block_number=2)
 
     assert traces.traces != []
 
