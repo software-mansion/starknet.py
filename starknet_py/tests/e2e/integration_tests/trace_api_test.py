@@ -1,5 +1,3 @@
-from typing import Type
-
 import pytest
 
 from starknet_py.common import create_casm_class
@@ -8,6 +6,7 @@ from starknet_py.hash.address import compute_address
 from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.account import Account
+from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     Call,
     DeclareTransaction,
@@ -47,7 +46,7 @@ async def test_trace_transaction(full_node_client_testnet):
 
 
 @pytest.mark.asyncio
-async def test_simulate_transactions_flags(
+async def test_simulate_transactions_skip_validate(
     full_node_account, deployed_balance_contract
 ):
     assert isinstance(deployed_balance_contract, Contract)
@@ -65,6 +64,27 @@ async def test_simulate_transactions_flags(
     )
 
     assert simulated_txs[0].transaction_trace.validate_invocation is None
+
+
+@pytest.mark.asyncio
+async def test_simulate_transactions_skip_fee_charge(
+    full_node_account, deployed_balance_contract
+):
+    assert isinstance(deployed_balance_contract, Contract)
+    call = Call(
+        to_addr=deployed_balance_contract.address,
+        selector=get_selector_from_name("increase_balance"),
+        calldata=[0x10],
+    )
+    invoke_tx = await full_node_account.sign_invoke_transaction(
+        calls=call, auto_estimate=True
+    )
+
+    # because of python devnet, the SKIP_FEE_CHARGE flag isn't accepted
+    with pytest.raises(ClientError, match=r".*SKIP_FEE_CHARGE.*"):
+        _ = await full_node_account.client.simulate_transactions(
+            transactions=[invoke_tx], skip_fee_charge=True, block_number="latest"
+        )
 
 
 @pytest.mark.asyncio
