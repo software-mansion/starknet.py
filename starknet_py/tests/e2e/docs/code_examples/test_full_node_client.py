@@ -1,6 +1,7 @@
 # pylint: disable=unused-variable
 import pytest
 
+from starknet_py.contract import Contract
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.storage import get_storage_var_address
 from starknet_py.net.client_models import Call
@@ -185,3 +186,61 @@ async def test_get_events(full_node_client, contract_address):
         chunk_size=47,
     )
     # docs-end: get_events
+
+
+@pytest.mark.asyncio
+async def test_trace_block_transactions(full_node_client_testnet):
+    # docs-start: trace_block_transactions
+    block_number = 800002
+    block_transaction_traces = await full_node_client_testnet.trace_block_transactions(
+        block_number=block_number
+    )
+    # docs-end: trace_block_transactions
+
+
+@pytest.mark.asyncio
+async def test_trace_transaction(full_node_client_testnet):
+    # docs-start: trace_transaction
+    transaction_hash = "0x123"
+    # docs-end: trace_transaction
+    transaction_hash = "0x31e9adddefb28fab4d2ef9a6907e5805f5f793f5198618119a5347e6fc4af57"
+    # docs-start: trace_transaction
+    transaction_trace = await full_node_client_testnet.trace_transaction(tx_hash=transaction_hash)
+    # docs-end: trace_transaction
+
+
+@pytest.mark.asyncio
+async def test_simulate_transactions(full_node_account, deployed_balance_contract, deploy_account_transaction):
+    assert isinstance(deployed_balance_contract, Contract)
+    contract_address = deployed_balance_contract.address
+    second_transaction = deploy_account_transaction
+    # docs-start: simulate_transactions
+    call = Call(
+        to_addr=contract_address,
+        selector=get_selector_from_name("method_name"),
+        calldata=[0xca11da7a],
+    )
+    first_transaction = await full_node_account.sign_invoke_transaction(
+        calls=call, max_fee=int(1e16)
+    )
+    # docs-end: simulate_transactions
+
+    call = Call(
+        to_addr=deployed_balance_contract.address,
+        selector=get_selector_from_name("increase_balance"),
+        calldata=[0x10],
+    )
+    first_transaction = await full_node_account.sign_invoke_transaction(
+        calls=call, auto_estimate=True
+    )
+
+    # docs-start: simulate_transactions
+    # one transaction
+    simulated_txs = await full_node_account.client.simulate_transactions(
+        transactions=[first_transaction], block_number="latest"
+    )
+    # or multiple
+    simulated_txs = await full_node_account.client.simulate_transactions(
+        transactions=[first_transaction, second_transaction], block_number="latest"
+    )
+    # docs-end: simulate_transactions

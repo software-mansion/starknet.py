@@ -2,6 +2,67 @@ Migration guide
 ===============
 
 **********************
+0.18.2 Migration guide
+**********************
+
+Version 0.18.2 of **starknet.py** comes with support of RPC v0.4.0 Trace API!
+
+
+0.18.2 Breaking changes
+-----------------------
+
+.. currentmodule:: starknet_py.net.client
+
+1. :meth:`Client.get_block_traces` has been renamed to :meth:`Client.trace_block_transactions` in order to match RPC specification.
+
+
+0.18.2 Minor changes
+--------------------
+
+1. :meth:`Client.trace_block_transactions` return type has been changed from ``BlockTransactionTraces`` to ``Union[BlockTransactionTraces, List[BlockTransactionTrace]]``.
+
+.. currentmodule:: starknet_py.net.gateway_client
+
+2. Reverted error while using ``include_block`` in :meth:`GatewayClient.get_state_update` parameter on gateway mainnet.
+
+
+|
+
+.. raw:: html
+
+  <hr>
+
+|
+
+**********************
+0.18.1 Migration guide
+**********************
+
+.. currentmodule:: starknet_py.net.gateway_client
+
+This version contains a quick fix to :meth:`GatewayClient.get_state_update` method (mainnet wasn't updated to 0.12.2 then).
+Additionally, accounts in Cairo1 are now supported!
+
+
+0.18.1 Minor changes
+--------------------
+
+1. Parameter ``include_block`` in :meth:`GatewayClient.get_state_update` doesn't work on mainnet gateway (an error is thrown).
+
+.. currentmodule:: starknet_py.net.account.account
+
+2. :meth:`Account.sign_invoke_transaction` now accepts additional parameter ``cairo_version``, which allows specifying which type of calldata encoding should be used.
+
+|
+
+.. raw:: html
+
+  <hr>
+
+|
+
+
+**********************
 0.18.0 Migration guide
 **********************
 
