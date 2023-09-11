@@ -56,6 +56,8 @@ Documentation
 Tests
 -----
 
+Before running tests, set environmental variables ``INTEGRATION_NODE_URL`` and ``TESTNET_NODE_URL`` with integration and testnet network node URLs respectively.
+
 .. code-block:: bash
 
     # Run whole suite

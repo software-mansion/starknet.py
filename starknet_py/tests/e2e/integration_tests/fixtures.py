@@ -31,6 +31,7 @@ def full_node_client_integration() -> FullNodeClient:
     """
     A fixture returning a FullNodeClient with our integration network node URL.
     """
+    assert INTEGRATION_NODE_URL is not None
     return FullNodeClient(node_url=INTEGRATION_NODE_URL)
 
 
@@ -112,4 +113,5 @@ def full_node_client_testnet() -> FullNodeClient:
     """
     A fixture returning a FullNodeClient with our integration network node URL.
     """
+    assert TESTNET_NODE_URL is not None
     return FullNodeClient(node_url=TESTNET_NODE_URL)
