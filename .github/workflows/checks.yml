@@ -239,6 +239,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+    env:
+      INTEGRATION_NODE_URL: ${{ secrets.INTEGRATION_NODE_URL }}
+      TESTNET_NODE_URL: ${{ secrets.TESTNET_NODE_URL }}
     steps:
       - uses: actions/checkout@v3
 
@@ -307,6 +310,9 @@ jobs:
       fail-fast: false
       matrix:
         python-version: [ "3.8", "3.9", "3.10", "3.11" ]
+    env:
+      INTEGRATION_NODE_URL: ${{ secrets.INTEGRATION_NODE_URL }}
+      TESTNET_NODE_URL: ${{ secrets.TESTNET_NODE_URL }}
     steps:
       - uses: actions/checkout@v3
 
@@ -393,6 +399,9 @@ jobs:
       fail-fast: false
       matrix:
         python-version: [ "3.8", "3.9", "3.10", "3.11" ]
+    env:
+      INTEGRATION_NODE_URL: ${{ secrets.INTEGRATION_NODE_URL }}
+      TESTNET_NODE_URL: ${{ secrets.TESTNET_NODE_URL }}
     steps:
       - uses: actions/checkout@v3
 
@@ -459,6 +468,9 @@ jobs:
       fail-fast: false
       matrix:
         python-version: [ "3.8", "3.9", "3.10", "3.11" ]
+    env:
+      INTEGRATION_NODE_URL: ${{ secrets.INTEGRATION_NODE_URL }}
+      TESTNET_NODE_URL: ${{ secrets.TESTNET_NODE_URL }}
     steps:
       - uses: actions/checkout@v3
 
