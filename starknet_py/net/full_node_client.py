@@ -25,6 +25,7 @@ from starknet_py.net.client_models import (
     SentTransactionResponse,
     SierraContractClass,
     SimulatedTransaction,
+    SimulationFlags,
     StarknetBlock,
     StarknetBlockWithTxHashes,
     SyncStatus,
@@ -706,9 +707,9 @@ class FullNodeClient(Client):
 
         simulation_flags = []
         if skip_validate:
-            simulation_flags.append("SKIP_VALIDATE")
+            simulation_flags.append(SimulationFlags.SKIP_VALIDATE)
         if skip_fee_charge:
-            simulation_flags.append("SKIP_FEE_CHARGE")
+            simulation_flags.append(SimulationFlags.SKIP_FEE_CHARGE)
 
         res = await self._client.call(
             method_name="simulateTransactions",
