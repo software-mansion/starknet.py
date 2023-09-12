@@ -110,6 +110,7 @@ def test_gateway_client_warn_deprecation():
     "net, net_address",
     (
         (TESTNET, "https://alpha4.starknet.io"),
+        # TODO (#1178): remove that
         (TESTNET2, "https://alpha4-2.starknet.io"),
         (MAINNET, "https://alpha-mainnet.starknet.io"),
     ),
