@@ -80,6 +80,7 @@ async def test_simulate_transactions_skip_fee_charge(
         calls=call, auto_estimate=True
     )
 
+    # TODO (#1179): change this test
     # because of python devnet, the SKIP_FEE_CHARGE flag isn't accepted
     with pytest.raises(ClientError, match=r".*SKIP_FEE_CHARGE.*"):
         _ = await full_node_account.client.simulate_transactions(
