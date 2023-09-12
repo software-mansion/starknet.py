@@ -16,6 +16,7 @@ Setup
 -----
 
 In order to be able to run tests, you must set some environmental variables:
+
     - ``INTEGRATION_NODE_URL``
     - ``TESTNET_NODE_URL``
     - ``INTEGRATION_ACCOUNT_PRIVATE_KEY``
