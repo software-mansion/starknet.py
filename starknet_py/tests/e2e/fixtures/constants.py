@@ -1,30 +1,45 @@
+# fmt: off
+
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+load_dotenv(dotenv_path=Path(os.path.dirname(__file__)) / "../test-variables.env")
+
 # -------------------------------- TESTNET -------------------------------------
 
-TESTNET_ACCOUNT_PRIVATE_KEY = (
-    "0x61910356c5adf66efb65ec3df5d07a6e5e6e7c8b59f15a13eda7a34c8d1ecc4"
-)
-TESTNET_ACCOUNT_ADDRESS = (
-    "0x59083382aadec25d7616a7f48942d72d469b0ac581f2e935ec26b68f66bd600"
-)
+if (TESTNET_ACCOUNT_ADDRESS := os.getenv("TESTNET_ACCOUNT_ADDRESS")) is not None:  # pyright: ignore
+    TESTNET_ACCOUNT_ADDRESS: str = TESTNET_ACCOUNT_ADDRESS
+else:
+    raise ValueError("TESTNET_ACCOUNT_ADDRESS env variable is not set.")
 
-TESTNET_NODE_URL = os.getenv("TESTNET_NODE_URL")
-if TESTNET_NODE_URL is None:
-    raise ValueError("TESTNET_NODE_URL is not set")
+if (TESTNET_ACCOUNT_PRIVATE_KEY := os.getenv("TESTNET_ACCOUNT_PRIVATE_KEY")) is not None:  # pyright: ignore
+    TESTNET_ACCOUNT_PRIVATE_KEY: str = TESTNET_ACCOUNT_PRIVATE_KEY
+else:
+    raise ValueError("TESTNET_ACCOUNT_PRIVATE_KEY env variable is not set.")
+
+if (TESTNET_NODE_URL := os.getenv("TESTNET_NODE_URL")) is not None:  # pyright: ignore
+    TESTNET_NODE_URL: str = TESTNET_NODE_URL
+else:
+    raise ValueError("TESTNET_NODE_URL env variable is not set.")
 
 # -------------------------------- INTEGRATION ---------------------------------
 
-INTEGRATION_ACCOUNT_PRIVATE_KEY = "0x1234"
+if (INTEGRATION_ACCOUNT_PRIVATE_KEY := os.getenv("INTEGRATION_ACCOUNT_PRIVATE_KEY")) is not None:  # pyright: ignore
+    INTEGRATION_ACCOUNT_PRIVATE_KEY: str = INTEGRATION_ACCOUNT_PRIVATE_KEY
+else:
+    raise ValueError("INTEGRATION_ACCOUNT_PRIVATE_KEY env variable is not set.")
 
-INTEGRATION_ACCOUNT_ADDRESS = (
-    "0x4321647559947e9109acecb329e57594bcc3981a6118bbbfeaa9f698874bcd5"
-)
+if (INTEGRATION_ACCOUNT_ADDRESS := os.getenv("INTEGRATION_ACCOUNT_ADDRESS")) is not None:  # pyright: ignore
+    INTEGRATION_ACCOUNT_ADDRESS: str = INTEGRATION_ACCOUNT_ADDRESS
+else:
+    raise ValueError("INTEGRATION_ACCOUNT_ADDRESS env variable is not set.")
 
-INTEGRATION_NODE_URL = os.getenv("INTEGRATION_NODE_URL")
-if INTEGRATION_NODE_URL is None:
-    raise ValueError("INTEGRATION_NODE_URL is not set")
+if (INTEGRATION_NODE_URL := os.getenv("INTEGRATION_NODE_URL")) is not None:  # pyright: ignore
+    INTEGRATION_NODE_URL: str = INTEGRATION_NODE_URL
+else:
+    raise ValueError("INTEGRATION_NODE_URL env variable is not set.")
 
 INTEGRATION_GATEWAY_URL = "https://external.integration.starknet.io"
 

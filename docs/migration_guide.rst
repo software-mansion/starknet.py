@@ -26,6 +26,20 @@ Version 0.18.2 of **starknet.py** comes with support of RPC v0.4.0 Trace API!
 2. Reverted error while using ``include_block`` in :meth:`GatewayClient.get_state_update` parameter on gateway mainnet.
 
 
+0.18.2 Development-related changes
+----------------------------------
+
+1. In order to be able to run tests, you must set some environmental variables:
+    - ``INTEGRATION_NODE_URL``
+    - ``TESTNET_NODE_URL``
+    - ``INTEGRATION_ACCOUNT_PRIVATE_KEY``
+    - ``INTEGRATION_ACCOUNT_ADDRESS``
+    - ``TESTNET_ACCOUNT_PRIVATE_KEY``
+    - ``TESTNET_ACCOUNT_ADDRESS``
+The best way to do that is to create ``test-variables.env`` file in ``starknet_py/tests/e2e/`` directory, so they can be loaded by the ``python-dotenv`` library.
+You can find an example file ``test-variables.env.template`` in the same directory with the format of how it should look like.
+
+
 |
 
 .. raw:: html

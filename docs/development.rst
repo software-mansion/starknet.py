@@ -15,6 +15,17 @@ Make sure running ``poetry run python --version`` returns ``Python 3.9.x``.
 Setup
 -----
 
+In order to be able to run tests, you must set some environmental variables:
+    - ``INTEGRATION_NODE_URL``
+    - ``TESTNET_NODE_URL``
+    - ``INTEGRATION_ACCOUNT_PRIVATE_KEY``
+    - ``INTEGRATION_ACCOUNT_ADDRESS``
+    - ``TESTNET_ACCOUNT_PRIVATE_KEY``
+    - ``TESTNET_ACCOUNT_ADDRESS``
+
+The best way to do that is to create ``test-variables.env`` file in ``starknet_py/tests/e2e/`` directory, so they can be loaded by the ``python-dotenv`` library.
+You can find an example file ``test-variables.env.template`` in the same directory with the format of how it should look like.
+
 .. code-block:: bash
 
     # Install dependencies
@@ -55,8 +66,6 @@ Documentation
 
 Tests
 -----
-
-Before running tests, set environmental variables ``INTEGRATION_NODE_URL`` and ``TESTNET_NODE_URL`` with integration and testnet network node URLs respectively.
 
 .. code-block:: bash
 
