@@ -21,6 +21,7 @@ def net_address_from_net(net: str) -> str:
     return {
         MAINNET: "https://alpha-mainnet.starknet.io",
         TESTNET: "https://alpha4.starknet.io",
+        # TODO (#1178): remove that
         TESTNET2: "https://alpha4-2.starknet.io",
     }.get(net, net)
 
