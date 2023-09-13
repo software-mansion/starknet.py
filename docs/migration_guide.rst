@@ -5,7 +5,7 @@ Migration guide
 0.18.2 Migration guide
 **********************
 
-Version 0.18.2 of **starknet.py** comes with support of RPC v0.4.0 Trace API!
+Version 0.18.2 of **starknet.py** comes with support of `RPC v0.4.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.4.0>`_ Trace API!
 
 
 0.18.2 Breaking changes
@@ -23,7 +23,7 @@ Version 0.18.2 of **starknet.py** comes with support of RPC v0.4.0 Trace API!
 
 .. currentmodule:: starknet_py.net.gateway_client
 
-2. Reverted error while using ``include_block`` in :meth:`GatewayClient.get_state_update` parameter on gateway mainnet.
+2. ``include_block`` parameter in :meth:`GatewayClient.get_state_update` now works on gateway mainnet.
 
 
 0.18.2 Development-related changes
@@ -57,7 +57,10 @@ You can find an example file ``test-variables.env.template`` in the same directo
 .. currentmodule:: starknet_py.net.gateway_client
 
 This version contains a quick fix to :meth:`GatewayClient.get_state_update` method (mainnet wasn't updated to 0.12.2 then).
-Additionally, accounts in Cairo1 are now supported!
+
+.. currentmodule:: starknet_py.net.account.account
+
+Additionally, accounts in Cairo1 are now supported! You can pass additional argument ``cairo_version`` to :meth:`Account.sign_invoke_transaction` method.
 
 
 0.18.1 Minor changes
