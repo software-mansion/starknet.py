@@ -16,21 +16,25 @@ def _get_env_or_throw(env_name: str) -> str:
     return env
 
 
+def _get_env_lambda(env_name):
+    return lambda: _get_env_or_throw(env_name)
+
+
 # -------------------------------- TESTNET -------------------------------------
 
-TESTNET_ACCOUNT_ADDRESS = _get_env_or_throw("TESTNET_ACCOUNT_ADDRESS")
+TESTNET_ACCOUNT_ADDRESS = _get_env_lambda("TESTNET_ACCOUNT_ADDRESS")
 
-TESTNET_ACCOUNT_PRIVATE_KEY = _get_env_or_throw("TESTNET_ACCOUNT_PRIVATE_KEY")
+TESTNET_ACCOUNT_PRIVATE_KEY = _get_env_lambda("TESTNET_ACCOUNT_PRIVATE_KEY")
 
-TESTNET_NODE_URL = _get_env_or_throw("TESTNET_NODE_URL")
+TESTNET_NODE_URL = _get_env_lambda("TESTNET_NODE_URL")
 
 # -------------------------------- INTEGRATION ---------------------------------
 
-INTEGRATION_ACCOUNT_PRIVATE_KEY = _get_env_or_throw("INTEGRATION_ACCOUNT_PRIVATE_KEY")
+INTEGRATION_ACCOUNT_PRIVATE_KEY = _get_env_lambda("INTEGRATION_ACCOUNT_PRIVATE_KEY")
 
-INTEGRATION_ACCOUNT_ADDRESS = _get_env_or_throw("INTEGRATION_ACCOUNT_ADDRESS")
+INTEGRATION_ACCOUNT_ADDRESS = _get_env_lambda("INTEGRATION_ACCOUNT_ADDRESS")
 
-INTEGRATION_NODE_URL = _get_env_or_throw("INTEGRATION_NODE_URL")
+INTEGRATION_NODE_URL = _get_env_lambda("INTEGRATION_NODE_URL")
 
 INTEGRATION_GATEWAY_URL = "https://external.integration.starknet.io"
 
