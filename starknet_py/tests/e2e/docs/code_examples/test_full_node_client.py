@@ -189,7 +189,9 @@ async def test_get_events(full_node_client, contract_address):
 
 
 # TODO (#1179): fix that
-@pytest.mark.xfail(reason="Passing devnet client without implemented methods - test simply for a code example.")
+@pytest.mark.xfail(
+    reason="Passing devnet client without implemented methods - test simply for a code example."
+)
 @pytest.mark.asyncio
 async def test_trace_block_transactions(full_node_client):
     # docs-start: trace_block_transactions
@@ -201,7 +203,9 @@ async def test_trace_block_transactions(full_node_client):
 
 
 # TODO (#1179): fix that
-@pytest.mark.xfail(reason="Passing devnet client without implemented methods - test simply for a code example.")
+@pytest.mark.xfail(
+    reason="Passing devnet client without implemented methods - test simply for a code example."
+)
 @pytest.mark.asyncio
 async def test_trace_transaction(full_node_client):
     # docs-start: trace_transaction
