@@ -188,18 +188,22 @@ async def test_get_events(full_node_client, contract_address):
     # docs-end: get_events
 
 
+# TODO (#1179): fix that
+@pytest.mark.xfail(reason="Passing devnet client without implemented methods - test simply for a code example.")
 @pytest.mark.asyncio
-async def test_trace_block_transactions(full_node_client_testnet):
+async def test_trace_block_transactions(full_node_client):
     # docs-start: trace_block_transactions
     block_number = 800002
-    block_transaction_traces = await full_node_client_testnet.trace_block_transactions(
+    block_transaction_traces = await full_node_client.trace_block_transactions(
         block_number=block_number
     )
     # docs-end: trace_block_transactions
 
 
+# TODO (#1179): fix that
+@pytest.mark.xfail(reason="Passing devnet client without implemented methods - test simply for a code example.")
 @pytest.mark.asyncio
-async def test_trace_transaction(full_node_client_testnet):
+async def test_trace_transaction(full_node_client):
     # docs-start: trace_transaction
     transaction_hash = "0x123"
     # docs-end: trace_transaction
@@ -207,7 +211,7 @@ async def test_trace_transaction(full_node_client_testnet):
         "0x31e9adddefb28fab4d2ef9a6907e5805f5f793f5198618119a5347e6fc4af57"
     )
     # docs-start: trace_transaction
-    transaction_trace = await full_node_client_testnet.trace_transaction(
+    transaction_trace = await full_node_client.trace_transaction(
         tx_hash=transaction_hash
     )
     # docs-end: trace_transaction
