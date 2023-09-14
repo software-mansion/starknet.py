@@ -374,7 +374,7 @@ async def test_deploy_account_raises_on_incorrect_address(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "call_contract, corresponding_client",
+    "call_contract, client",
     [
         (
             "starknet_py.net.gateway_client.GatewayClient.call_contract",
@@ -387,9 +387,9 @@ async def test_deploy_account_raises_on_incorrect_address(
     ],
 )
 async def test_deploy_account_raises_on_no_enough_funds(
-    deploy_account_details_factory, call_contract, corresponding_client, request
+    deploy_account_details_factory, call_contract, client, request
 ):
-    corresponding_client = request.getfixturevalue(corresponding_client)
+    client = request.getfixturevalue(client)
     address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
 
     with patch(call_contract, AsyncMock()) as mocked_balance:
@@ -404,7 +404,7 @@ async def test_deploy_account_raises_on_no_enough_funds(
                 class_hash=class_hash,
                 salt=salt,
                 key_pair=key_pair,
-                client=corresponding_client,
+                client=client,
                 chain=StarknetChainId.TESTNET,
                 max_fee=MAX_FEE,
             )
