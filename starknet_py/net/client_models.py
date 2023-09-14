@@ -709,11 +709,6 @@ class SignatureOnStateDiff:
 # ------------------------------- Trace API dataclasses -------------------------------
 
 
-class SimulationFlags(str, Enum):
-    SKIP_VALIDATE = "SKIP_VALIDATE"
-    SKIP_FEE_CHARGE = "SKIP_FEE_CHARGE"
-
-
 @dataclass
 class EventContent:
     """
@@ -724,7 +719,7 @@ class EventContent:
     data: List[int]
 
 
-class SimulationFlag(Enum):
+class SimulationFlag(str, Enum):
     """
     Enum class representing possible simulation flags for trace API.
     """
