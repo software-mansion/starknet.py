@@ -20,8 +20,8 @@ An example file - ``manifest-path.template`` is in the same directory.
 
 In order to be able to run tests on testnet and integration networks (``starknet_py/tests/e2e/tests_on_networks/``), you must set some environmental variables:
 
-    - ``INTEGRATION_NODE_URL``
-    - ``TESTNET_NODE_URL``
+    - ``INTEGRATION_RPC_URL``
+    - ``TESTNET_RPC_URL``
     - ``INTEGRATION_ACCOUNT_PRIVATE_KEY``
     - ``INTEGRATION_ACCOUNT_ADDRESS``
     - ``TESTNET_ACCOUNT_PRIVATE_KEY``

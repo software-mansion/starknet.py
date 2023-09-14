@@ -13,8 +13,8 @@ from starknet_py.tests.e2e.fixtures.constants import (
     INTEGRATION_ACCOUNT_ADDRESS,
     INTEGRATION_ACCOUNT_PRIVATE_KEY,
     INTEGRATION_GATEWAY_URL,
-    INTEGRATION_NODE_URL,
-    TESTNET_NODE_URL,
+    INTEGRATION_RPC_URL,
+    TESTNET_RPC_URL,
 )
 
 
@@ -32,7 +32,7 @@ def full_node_client_integration() -> FullNodeClient:
     A fixture returning a FullNodeClient with our integration network node URL.
     """
     # because TESTNET and INTEGRATION fixtures are lambdas
-    return FullNodeClient(node_url=INTEGRATION_NODE_URL())
+    return FullNodeClient(node_url=INTEGRATION_RPC_URL())
 
 
 def net_to_integration_clients() -> List[str]:
@@ -118,4 +118,4 @@ def full_node_client_testnet() -> FullNodeClient:
     A fixture returning a FullNodeClient with our integration network node URL.
     """
     # because TESTNET and INTEGRATION fixtures are lambdas
-    return FullNodeClient(node_url=TESTNET_NODE_URL())
+    return FullNodeClient(node_url=TESTNET_RPC_URL())

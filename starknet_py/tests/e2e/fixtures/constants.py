@@ -26,7 +26,7 @@ TESTNET_ACCOUNT_ADDRESS = _get_env_lambda("TESTNET_ACCOUNT_ADDRESS")
 
 TESTNET_ACCOUNT_PRIVATE_KEY = _get_env_lambda("TESTNET_ACCOUNT_PRIVATE_KEY")
 
-TESTNET_NODE_URL = _get_env_lambda("TESTNET_NODE_URL")
+TESTNET_RPC_URL = _get_env_lambda("TESTNET_RPC_URL")
 
 # -------------------------------- INTEGRATION ---------------------------------
 
@@ -34,7 +34,7 @@ INTEGRATION_ACCOUNT_PRIVATE_KEY = _get_env_lambda("INTEGRATION_ACCOUNT_PRIVATE_K
 
 INTEGRATION_ACCOUNT_ADDRESS = _get_env_lambda("INTEGRATION_ACCOUNT_ADDRESS")
 
-INTEGRATION_NODE_URL = _get_env_lambda("INTEGRATION_NODE_URL")
+INTEGRATION_RPC_URL = _get_env_lambda("INTEGRATION_RPC_URL")
 
 INTEGRATION_GATEWAY_URL = "https://external.integration.starknet.io"
 
