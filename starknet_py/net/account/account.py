@@ -18,7 +18,7 @@ from starknet_py.net.client_models import (
     EstimatedFee,
     Hash,
     SentTransactionResponse,
-    Tag,
+    Tag, SierraContractClass,
 )
 from starknet_py.net.models import AddressRepresentation, StarknetChainId, parse_address
 from starknet_py.net.models.transaction import (
@@ -59,6 +59,7 @@ class Account(BaseAccount):
         *,
         address: AddressRepresentation,
         client: Client,
+        cairo_version: Optional[int] = None,
         signer: Optional[BaseSigner] = None,
         key_pair: Optional[KeyPair] = None,
         chain: Optional[StarknetChainId] = None,
@@ -66,6 +67,7 @@ class Account(BaseAccount):
         """
         :param address: Address of the account contract.
         :param client: Instance of Client which will be used to add transactions.
+        :param cairo_version: Cairo version of the account used.
         :param signer: Custom signer to be used by Account.
                        If none is provided, default
                        :py:class:`starknet_py.net.signer.stark_curve_signer.StarkCurveSigner` is used.
@@ -74,6 +76,7 @@ class Account(BaseAccount):
         """
         self._address = parse_address(address)
         self._client = client
+        self._cairo_version = cairo_version
 
         if signer is not None and key_pair is not None:
             raise ValueError("Arguments signer and key_pair are mutually exclusive.")
@@ -95,6 +98,13 @@ class Account(BaseAccount):
     @property
     def address(self) -> int:
         return self._address
+
+    @property
+    def cairo_version(self) -> int:
+        if self._cairo_version is None:
+            contract_class = await self.client.get_class_at(self.address)
+            self._cairo_version = 1 if isinstance(contract_class, SierraContractClass) else 0
+        return self._cairo_version
 
     @property
     def client(self) -> Client:
@@ -137,7 +147,6 @@ class Account(BaseAccount):
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-        cairo_version: int = 0,
     ) -> Invoke:
         """
         Takes calls and creates Invoke from them.
@@ -150,7 +159,7 @@ class Account(BaseAccount):
         if nonce is None:
             nonce = await self.get_nonce()
 
-        if cairo_version == 1:
+        if self.cairo_version == 1:
             parsed_calls = _parse_calls_v2(ensure_iterable(calls))
             wrapped_calldata = _execute_payload_serializer_v2.serialize(
                 {"calls": parsed_calls}
@@ -253,14 +262,12 @@ class Account(BaseAccount):
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-        cairo_version: int = 0,
     ) -> Invoke:
         execute_tx = await self._prepare_invoke(
             calls,
             nonce=nonce,
             max_fee=max_fee,
             auto_estimate=auto_estimate,
-            cairo_version=cairo_version,
         )
         signature = self.signer.sign_transaction(execute_tx)
         return _add_signature_to_transaction(execute_tx, signature)
@@ -387,14 +394,12 @@ class Account(BaseAccount):
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-        cairo_version: int = 0,
     ) -> SentTransactionResponse:
         execute_transaction = await self.sign_invoke_transaction(
             calls,
             nonce=nonce,
             max_fee=max_fee,
             auto_estimate=auto_estimate,
-            cairo_version=cairo_version,
         )
         return await self._client.send_transaction(execute_transaction)
 

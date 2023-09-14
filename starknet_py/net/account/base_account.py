@@ -30,6 +30,13 @@ class BaseAccount(ABC):
 
     @property
     @abstractmethod
+    def cairo_version(self) -> int:
+        """
+        Get cairo_version of the account
+        """
+
+    @property
+    @abstractmethod
     def client(self) -> Client:
         """
         Get the Client used by the Account.
