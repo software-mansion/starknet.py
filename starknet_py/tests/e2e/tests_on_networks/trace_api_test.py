@@ -44,7 +44,7 @@ async def test_trace_transaction_reverted(full_node_client_testnet):
 @pytest.mark.asyncio
 async def test_get_block_traces(full_node_client_testnet):
     # 800002 because I guess sometimes juno doesn't return valid transactions/parses input wrong
-    block_number = 800002
+    block_number = 800006
     block_transaction_traces = await full_node_client_testnet.trace_block_transactions(
         block_number=block_number
     )
