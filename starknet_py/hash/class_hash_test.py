@@ -6,7 +6,7 @@ import pytest
 
 from starknet_py.common import create_contract_class
 from starknet_py.hash.class_hash import compute_class_hash
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_DIR
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V0_DIR
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
@@ -22,7 +22,7 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
     ]
 )
 def test_compute_class_hash(contract_source, expected_class_hash):
-    compiled_contract = read_contract(contract_source, directory=CONTRACTS_COMPILED_DIR)
+    compiled_contract = read_contract(contract_source, directory=CONTRACTS_COMPILED_V0_DIR)
     contract_class = create_contract_class(compiled_contract)
     initial_contract_class = copy.deepcopy(contract_class)
     class_hash = compute_class_hash(contract_class)

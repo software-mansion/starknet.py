@@ -16,7 +16,7 @@ from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import (
-    CONTRACTS_COMPILED_DIR,
+    CONTRACTS_COMPILED_V0_DIR,
     CONTRACTS_DIR,
     MAX_FEE,
 )
@@ -36,7 +36,7 @@ def map_compiled_contract() -> str:
     """
     Returns compiled map contract.
     """
-    return read_contract("map_compiled.json", directory=CONTRACTS_COMPILED_DIR)
+    return read_contract("map_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR)
 
 
 @pytest.fixture(scope="package")
@@ -59,7 +59,7 @@ def simple_storage_with_event_compiled_contract() -> str:
     Returns compiled simple storage contract that emits an event.
     """
     return read_contract(
-        "simple_storage_with_event_compiled.json", directory=CONTRACTS_COMPILED_DIR
+        "simple_storage_with_event_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR
     )
 
 
@@ -68,7 +68,7 @@ def erc20_compiled_contract() -> str:
     """
     Returns compiled erc20 contract.
     """
-    return read_contract("erc20_compiled.json", directory=CONTRACTS_COMPILED_DIR)
+    return read_contract("erc20_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR)
 
 
 @pytest.fixture(scope="package")
@@ -77,7 +77,7 @@ def constructor_with_arguments_compiled_contract() -> str:
     Returns compiled constructor_with_arguments contract.
     """
     return read_contract(
-        "constructor_with_arguments_compiled.json", directory=CONTRACTS_COMPILED_DIR
+        "constructor_with_arguments_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR
     )
 
 
@@ -87,7 +87,8 @@ def constructor_without_arguments_compiled_contract() -> str:
     Returns compiled constructor_without_arguments contract.
     """
     return read_contract(
-        "constructor_without_arguments_compiled.json", directory=CONTRACTS_COMPILED_DIR
+        "constructor_without_arguments_compiled.json",
+        directory=CONTRACTS_COMPILED_V0_DIR,
     )
 
 
@@ -252,7 +253,7 @@ def fixture_balance_contract() -> str:
     """
     Returns compiled code of the balance.cairo contract.
     """
-    return read_contract("balance_compiled.json", directory=CONTRACTS_COMPILED_DIR)
+    return read_contract("balance_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR)
 
 
 async def declare_account(account: BaseAccount, compiled_account_contract: str) -> int:
@@ -275,7 +276,8 @@ async def account_with_validate_deploy_class_hash(
     pre_deployed_account_with_validate_deploy: BaseAccount,
 ) -> int:
     compiled_contract = read_contract(
-        "account_with_validate_deploy_compiled.json", directory=CONTRACTS_COMPILED_DIR
+        "account_with_validate_deploy_compiled.json",
+        directory=CONTRACTS_COMPILED_V0_DIR,
     )
     return await declare_account(
         pre_deployed_account_with_validate_deploy, compiled_contract
@@ -342,7 +344,8 @@ def constructor_with_arguments_abi() -> List:
     """
     compiled_contract = create_compiled_contract(
         compiled_contract=read_contract(
-            "constructor_with_arguments_compiled.json", directory=CONTRACTS_COMPILED_DIR
+            "constructor_with_arguments_compiled.json",
+            directory=CONTRACTS_COMPILED_V0_DIR,
         )
     )
     assert compiled_contract.abi is not None
@@ -355,7 +358,7 @@ def constructor_with_arguments_compiled() -> str:
     Returns a compiled constructor_with_arguments.cairo.
     """
     return read_contract(
-        "constructor_with_arguments_compiled.json", directory=CONTRACTS_COMPILED_DIR
+        "constructor_with_arguments_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR
     )
 
 

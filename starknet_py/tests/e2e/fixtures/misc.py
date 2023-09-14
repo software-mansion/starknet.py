@@ -9,7 +9,7 @@ import pytest
 
 from starknet_py.net.models.typed_data import TypedData
 from starknet_py.tests.e2e.fixtures.constants import (
-    CONTRACTS_COMPILED_DIR,
+    CONTRACTS_COMPILED_V0_DIR,
     CONTRACTS_COMPILED_V1_DIR,
     CONTRACTS_COMPILED_V2_DIR,
     TYPED_DATA_DIR,
@@ -104,7 +104,7 @@ def read_contract(file_name: str, *, directory: Optional[Path] = None) -> str:
     Return contents of file_name from directory.
     """
     if directory is None:
-        directory = CONTRACTS_COMPILED_DIR
+        directory = CONTRACTS_COMPILED_V0_DIR
         if "--contract_dir=v1" in sys.argv:
             directory = CONTRACTS_COMPILED_V1_DIR
         if "--contract_dir=v2" in sys.argv:

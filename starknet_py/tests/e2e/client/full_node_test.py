@@ -26,7 +26,7 @@ from starknet_py.net.client_models import (
 from starknet_py.net.full_node_client import _to_rpc_felt
 from starknet_py.net.models import StarknetChainId
 from starknet_py.tests.e2e.fixtures.constants import (
-    CONTRACTS_COMPILED_DIR,
+    CONTRACTS_COMPILED_V0_DIR,
     CONTRACTS_COMPILED_V1_DIR,
 )
 from starknet_py.tests.e2e.fixtures.misc import read_contract
@@ -498,7 +498,7 @@ async def test_simulate_transactions_invoke(
 @pytest.mark.asyncio
 async def test_simulate_transactions_declare(full_node_account):
     compiled_contract = read_contract(
-        "map_compiled.json", directory=CONTRACTS_COMPILED_DIR
+        "map_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR
     )
     declare_tx = await full_node_account.sign_declare_transaction(
         compiled_contract, max_fee=int(1e16)
