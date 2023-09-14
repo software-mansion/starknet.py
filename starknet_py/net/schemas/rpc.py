@@ -1,6 +1,4 @@
-from typing import Union
-
-from marshmallow import EXCLUDE, Schema, fields, post_load, pre_load
+from marshmallow import EXCLUDE, Schema, fields, post_load
 from marshmallow_oneofschema import OneOfSchema
 
 from starknet_py.abi.schemas import ContractAbiEntrySchema
@@ -35,6 +33,7 @@ from starknet_py.net.client_models import (
     PendingStarknetBlock,
     PendingStarknetBlockWithTxHashes,
     ReplacedClass,
+    RevertReason,
     SentTransactionResponse,
     SierraContractClass,
     SierraEntryPoint,
@@ -565,26 +564,24 @@ class FunctionInvocationSchema(Schema):
         return FunctionInvocation(**data)
 
 
-class ExecuteInvocationSchema(Schema):
-    revert_reason = fields.String(data_key="revert_reason", load_default=None)
-    function_invocation = fields.Dict(data_key="function_invocation", load_default=None)
-
-    @pre_load
-    def alter_data(self, data, **kwargs):
-        # This method does data preprocessing before it is loaded into the fields above. If tx is not reverted, data
-        # gets loaded into 'function_invocation' data by adding a dict layer, otherwise gets loaded into "revert_reason"
-        assert isinstance(data, dict)
-        if "revert_reason" not in data:
-            data = {"function_invocation": data}
-        return data
+class RevertReasonSchema(Schema):
+    revert_reason = fields.String(data_key="revert_reason", required=True)
 
     @post_load
-    def make_dataclass_or_string(
-        self, data, **kwargs
-    ) -> Union[FunctionInvocation, dict]:
-        if "revert_reason" not in data:
-            return FunctionInvocation(**data["function_invocation"])
-        return {"revert_reason": data["revert_reason"]}
+    def make_dataclass(self, data, **kwargs) -> RevertReason:
+        return RevertReason(**data)
+
+
+class ExecuteInvocationSchema(OneOfSchema):
+    type_schemas = {
+        "REVERT": RevertReasonSchema(),
+        "FUNCTION_INVOCATION": FunctionInvocationSchema(),
+    }
+
+    def get_data_type(self, data):
+        if "revert_reason" in data:
+            return "REVERT"
+        return "FUNCTION_INVOCATION"
 
 
 class InvokeTransactionTraceSchema(Schema):

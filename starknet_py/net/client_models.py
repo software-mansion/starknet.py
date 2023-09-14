@@ -773,15 +773,22 @@ class FunctionInvocation:
 
 
 @dataclass
+class RevertReason:
+    """
+    Dataclass representing revert reason for the transaction.
+    """
+
+    revert_reason: str
+
+
+@dataclass
 class InvokeTransactionTrace:
     """
     Dataclass representing a transaction trace of an INVOKE transaction.
     """
 
     validate_invocation: Optional[FunctionInvocation]
-    execute_invocation: Union[
-        FunctionInvocation, dict
-    ]  # dict in case "revert_reason" is returned
+    execute_invocation: Union[FunctionInvocation, RevertReason]
     fee_transfer_invocation: Optional[FunctionInvocation]
 
 
