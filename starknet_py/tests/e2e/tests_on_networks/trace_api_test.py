@@ -9,7 +9,7 @@ from starknet_py.net.client_models import (
     InvokeTransactionTrace,
     L1HandlerTransaction,
     L1HandlerTransactionTrace,
-    RevertReason,
+    RevertedFunctionInvocation,
     Transaction,
     TransactionTrace,
 )
@@ -38,7 +38,7 @@ async def test_trace_transaction_reverted(full_node_client_testnet):
     tx_hash = "0x604371f9414d26ad9e745301596de1d1219c1045f00c68d3be9bd195eb18632"
     trace = await full_node_client_testnet.trace_transaction(tx_hash=tx_hash)
 
-    assert isinstance(trace.execute_invocation, RevertReason)
+    assert isinstance(trace.execute_invocation, RevertedFunctionInvocation)
 
 
 @pytest.mark.asyncio

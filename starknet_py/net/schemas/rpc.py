@@ -33,7 +33,7 @@ from starknet_py.net.client_models import (
     PendingStarknetBlock,
     PendingStarknetBlockWithTxHashes,
     ReplacedClass,
-    RevertReason,
+    RevertedFunctionInvocation,
     SentTransactionResponse,
     SierraContractClass,
     SierraEntryPoint,
@@ -564,23 +564,23 @@ class FunctionInvocationSchema(Schema):
         return FunctionInvocation(**data)
 
 
-class RevertReasonSchema(Schema):
+class RevertedFunctionInvocationSchema(Schema):
     revert_reason = fields.String(data_key="revert_reason", required=True)
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> RevertReason:
-        return RevertReason(**data)
+    def make_dataclass(self, data, **kwargs) -> RevertedFunctionInvocation:
+        return RevertedFunctionInvocation(**data)
 
 
 class ExecuteInvocationSchema(OneOfSchema):
     type_schemas = {
-        "REVERT": RevertReasonSchema(),
+        "REVERTED": RevertedFunctionInvocationSchema(),
         "FUNCTION_INVOCATION": FunctionInvocationSchema(),
     }
 
     def get_data_type(self, data):
         if "revert_reason" in data:
-            return "REVERT"
+            return "REVERTED"
         return "FUNCTION_INVOCATION"
 
 

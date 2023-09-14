@@ -768,7 +768,7 @@ class FunctionInvocation:
 
 
 @dataclass
-class RevertReason:
+class RevertedFunctionInvocation:
     """
     Dataclass representing revert reason for the transaction.
     """
@@ -783,7 +783,7 @@ class InvokeTransactionTrace:
     """
 
     validate_invocation: Optional[FunctionInvocation]
-    execute_invocation: Union[FunctionInvocation, RevertReason]
+    execute_invocation: Union[FunctionInvocation, RevertedFunctionInvocation]
     fee_transfer_invocation: Optional[FunctionInvocation]
 
 
