@@ -1,3 +1,4 @@
+import dataclasses
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -415,7 +416,7 @@ async def test_get_syncing_status(full_node_client):
     assert isinstance(sync_status, SyncStatus)
 
 
-# ---------------------------- Trace API tests
+# ---------------------------- Trace API tests ----------------------------
 
 
 @pytest.mark.asyncio
@@ -431,12 +432,17 @@ async def test_simulate_transactions_skip_validate(
     invoke_tx = await full_node_account.sign_invoke_transaction(
         calls=call, auto_estimate=True
     )
+    invoke_tx = dataclasses.replace(invoke_tx, signature=[])
 
     simulated_txs = await full_node_account.client.simulate_transactions(
         transactions=[invoke_tx], skip_validate=True, block_number="latest"
     )
-
     assert simulated_txs[0].transaction_trace.validate_invocation is None
+
+    with pytest.raises(ClientError, match=r".*INVALID_SIGNATURE_LENGTH.*"):
+        _ = await full_node_account.client.simulate_transactions(
+            transactions=[invoke_tx], block_number="latest"
+        )
 
 
 @pytest.mark.asyncio
