@@ -15,6 +15,7 @@ from starknet_py.net.client_models import (
     DeployAccountTransaction,
     DeployAccountTransactionResponse,
     EstimatedFee,
+    SierraContractClass,
     TransactionStatus,
 )
 from starknet_py.net.full_node_client import FullNodeClient
@@ -589,3 +590,84 @@ async def test_sign_transaction_custom_nonce(account, cairo1_hello_starknet_clas
 
     assert invoke_tx.nonce == deploy_tx.nonce + 1
     assert result == [new_balance]
+
+
+@pytest.mark.asyncio
+async def test_argent_cairo1_account_deploy(
+    full_node_client,
+    argent_cairo1_account_class_hash,
+    deploy_account_details_factory,
+):
+    address, key_pair, salt, class_hash = await deploy_account_details_factory.get(
+        class_hash=argent_cairo1_account_class_hash, argent_calldata=True
+    )
+
+    deploy_result = await Account.deploy_account(
+        address=address,
+        class_hash=class_hash,
+        salt=salt,
+        key_pair=key_pair,
+        client=full_node_client,
+        cairo_version=1,
+        constructor_calldata=[key_pair.public_key, 0],
+        chain=StarknetChainId.TESTNET,
+        max_fee=int(1e16),
+    )
+    await deploy_result.wait_for_acceptance()
+    account = deploy_result.account
+
+    assert isinstance(account, BaseAccount)
+    assert account.cairo_version == 1
+
+    account_contract_class = await full_node_client.get_class_at(
+        contract_address=account.address, block_number="latest"
+    )
+
+    assert isinstance(account_contract_class, SierraContractClass)
+
+
+@pytest.mark.asyncio
+async def test_argent_cairo1_account_execute(
+    deployed_balance_contract,
+    argent_cairo1_account: BaseAccount,
+):
+    # verify that initial balance is 0
+    get_balance_call = Call(
+        to_addr=deployed_balance_contract.address,
+        selector=get_selector_from_name("get_balance"),
+        calldata=[],
+    )
+    get_balance = await argent_cairo1_account.client.call_contract(
+        call=get_balance_call, block_number="latest"
+    )
+
+    assert get_balance[0] == 0
+
+    value = 20
+    increase_balance_by_20_call = Call(
+        to_addr=deployed_balance_contract.address,
+        selector=get_selector_from_name("increase_balance"),
+        calldata=[value],
+    )
+    execute = await argent_cairo1_account.execute(
+        calls=increase_balance_by_20_call, max_fee=int(1e16)
+    )
+    await argent_cairo1_account.client.wait_for_tx(tx_hash=execute.transaction_hash)
+    receipt = await argent_cairo1_account.client.get_transaction_receipt(
+        tx_hash=execute.transaction_hash
+    )
+
+    # TODO (#1179): devnet 0.3.0 still return STATUS instead of FINALITY_STATUS
+    assert receipt.status == TransactionStatus.ACCEPTED_ON_L2
+
+    # verify that the previous call was executed
+    get_balance_call = Call(
+        to_addr=deployed_balance_contract.address,
+        selector=get_selector_from_name("get_balance"),
+        calldata=[],
+    )
+    get_balance = await argent_cairo1_account.client.call_contract(
+        call=get_balance_call, block_number="latest"
+    )
+
+    assert get_balance[0] == value
