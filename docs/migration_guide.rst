@@ -7,6 +7,11 @@ Migration guide
 
 Version 0.18.2 of **starknet.py** comes with support of `RPC v0.4.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.4.0>`_ Trace API!
 
+0.18.2 Targeted versions
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Starknet - `0.12.2 <https://community.starknet.io/t/introducing-p2p-authentication-and-mismatch-resolution-in-v0-12-2/97993>`_
+- RPC - `0.4.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.4.0>`_
 
 0.18.2 Breaking changes
 -----------------------
