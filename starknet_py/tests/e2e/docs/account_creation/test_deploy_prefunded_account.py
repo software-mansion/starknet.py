@@ -55,6 +55,7 @@ async def test_deploy_prefunded_account(
 
     client = full_node_client
     chain = chain_from_network(net=network, chain=StarknetChainId.TESTNET)
+    cairo_version = 0
     # docs: start
 
     # Use `Account.deploy_account` static method to deploy an account
@@ -65,6 +66,7 @@ async def test_deploy_prefunded_account(
         key_pair=key_pair,
         client=client,
         chain=chain,
+        cairo_version=cairo_version,  # Cairo version of your account
         constructor_calldata=[key_pair.public_key],
         max_fee=int(1e15),
     )
