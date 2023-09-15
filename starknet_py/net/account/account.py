@@ -59,7 +59,7 @@ class Account(BaseAccount):
         *,
         address: AddressRepresentation,
         client: Client,
-        cairo_version: Optional[int] = None,
+        cairo_version: int = 0,
         signer: Optional[BaseSigner] = None,
         key_pair: Optional[KeyPair] = None,
         chain: Optional[StarknetChainId] = None,
@@ -101,9 +101,6 @@ class Account(BaseAccount):
 
     @property
     def cairo_version(self) -> int:
-        if self._cairo_version is None:
-            contract_class = await self.client.get_class_at(self.address)
-            self._cairo_version = 1 if isinstance(contract_class, SierraContractClass) else 0
         return self._cairo_version
 
     @property
