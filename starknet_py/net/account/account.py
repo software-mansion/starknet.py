@@ -18,7 +18,7 @@ from starknet_py.net.client_models import (
     EstimatedFee,
     Hash,
     SentTransactionResponse,
-    Tag, SierraContractClass,
+    Tag,
 )
 from starknet_py.net.models import AddressRepresentation, StarknetChainId, parse_address
 from starknet_py.net.models.transaction import (
@@ -418,6 +418,7 @@ class Account(BaseAccount):
         key_pair: KeyPair,
         client: Client,
         chain: StarknetChainId,
+        cairo_version: int = 0,
         constructor_calldata: Optional[List[int]] = None,
         nonce: int = 0,
         max_fee: Optional[int] = None,
@@ -439,6 +440,7 @@ class Account(BaseAccount):
         :param key_pair: KeyPair used to calculate address and sign deploy account transaction.
         :param client: a Client instance used for deployment.
         :param chain: id of the Starknet chain used.
+        :param cairo_version: Cairo version of the account used.
         :param constructor_calldata: optional calldata to account contract constructor. If ``None`` is passed,
             ``[key_pair.public_key]`` will be used as calldata.
         :param nonce: Nonce of the transaction.
@@ -466,7 +468,11 @@ class Account(BaseAccount):
             )
 
         account = Account(
-            address=address, client=client, key_pair=key_pair, chain=chain
+            address=address,
+            client=client,
+            cairo_version=cairo_version,
+            key_pair=key_pair,
+            chain=chain,
         )
 
         deploy_account_tx = await account.sign_deploy_account_transaction(
