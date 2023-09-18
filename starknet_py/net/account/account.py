@@ -259,7 +259,14 @@ class Account(BaseAccount):
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
+        cairo_version: int = 0,
     ) -> Invoke:
+        if cairo_version is not None:
+            warnings.warn(
+                "Parameter 'cairo_version' has been deprecated. Please use argument 'cairo_version' in "
+                "Account constructor."
+            )
+            self._cairo_version = cairo_version
         execute_tx = await self._prepare_invoke(
             calls,
             nonce=nonce,
@@ -391,7 +398,15 @@ class Account(BaseAccount):
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
+        cairo_version: int = 0,
     ) -> SentTransactionResponse:
+        if cairo_version is not None:
+            warnings.warn(
+                "Parameter 'cairo_version' has been deprecated. Please use argument 'cairo_version' in "
+                "Account constructor."
+            )
+            self._cairo_version = cairo_version
+
         execute_transaction = await self.sign_invoke_transaction(
             calls,
             nonce=nonce,
