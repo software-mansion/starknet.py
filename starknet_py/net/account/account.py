@@ -428,7 +428,7 @@ class Account(BaseAccount):
 
         Provided address must be first prefunded with enough tokens, otherwise the method will fail.
 
-        If using Client for either TESTNET, TESTNET2 or MAINNET, this method will verify if the address balance
+        If using Client for either TESTNET or MAINNET, this method will verify if the address balance
         is high enough to cover deployment costs.
 
         :param address: calculated and prefunded address of the new account.
@@ -478,7 +478,6 @@ class Account(BaseAccount):
 
         if chain in (
             StarknetChainId.TESTNET,
-            StarknetChainId.TESTNET2,
             StarknetChainId.MAINNET,
         ):
             balance = await account.get_balance()
@@ -498,7 +497,6 @@ class Account(BaseAccount):
     ) -> str:
         if (chain_id or self._chain_id) not in [
             StarknetChainId.TESTNET,
-            StarknetChainId.TESTNET2,
             StarknetChainId.MAINNET,
         ]:
             raise ValueError(

@@ -15,7 +15,7 @@ from starknet_py.net.client_models import (
     TransactionStatusResponse,
 )
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.networks import MAINNET, TESTNET, TESTNET2, CustomGatewayUrls
+from starknet_py.net.networks import MAINNET, TESTNET, CustomGatewayUrls
 
 
 @pytest.mark.asyncio
@@ -111,7 +111,6 @@ def test_gateway_client_warn_deprecation():
     "net, net_address",
     (
         (TESTNET, "https://alpha4.starknet.io"),
-        (TESTNET2, "https://alpha4-2.starknet.io"),
         (MAINNET, "https://alpha-mainnet.starknet.io"),
     ),
 )

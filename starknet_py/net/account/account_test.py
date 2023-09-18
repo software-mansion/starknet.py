@@ -8,13 +8,13 @@ from starknet_py.net.account.account import Account
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId, parse_address
-from starknet_py.net.networks import MAINNET, TESTNET, TESTNET2
+from starknet_py.net.networks import MAINNET, TESTNET
 from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("net", (TESTNET, TESTNET2, MAINNET))
+@pytest.mark.parametrize("net", (TESTNET, MAINNET))
 @pytest.mark.parametrize(
     "call_contract",
     [
