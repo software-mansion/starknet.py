@@ -2,6 +2,7 @@ import os
 import socket
 import subprocess
 import time
+import warnings
 from contextlib import closing
 from pathlib import Path
 from typing import Generator, List
@@ -29,6 +30,8 @@ def get_compiler_manifest() -> List[str]:
 
         return ["--cairo-compiler-manifest", manifest]
     except (IndexError, FileNotFoundError):
+        warnings.warn("File 'manifest-path' was not found in directory 'starknet_py/tests/e2e'. More info "
+                      "here: https://starknetpy.readthedocs.io/en/latest/development.html#setup")
         return []
 
 
