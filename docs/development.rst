@@ -16,7 +16,7 @@ Setup
 -----
 
 In order to compile contracts, you need to create ``manifest-path`` file in ``starknet_py/tests/e2e/`` directory and pass the path to Cairo compiler.
-An example file - ``manifest-path.template`` is in the same directory.
+An example file - ``manifest-path.template`` is in the same directory. Additional info can be found in `devnet docs <https://0xspaceshard.github.io/starknet-devnet/docs/guide/cairo1-support>`_.
 
 In order to be able to run tests on testnet and integration networks (``starknet_py/tests/e2e/tests_on_networks/``), you must set some environmental variables:
 
