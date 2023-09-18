@@ -259,7 +259,7 @@ class Account(BaseAccount):
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-        cairo_version: int = 0,
+        cairo_version: Optional[int] = None,
     ) -> Invoke:
         if cairo_version is not None:
             warnings.warn(
@@ -398,7 +398,7 @@ class Account(BaseAccount):
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-        cairo_version: int = 0,
+        cairo_version: Optional[int] = None,
     ) -> SentTransactionResponse:
         if cairo_version is not None:
             warnings.warn(
