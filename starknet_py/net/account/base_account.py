@@ -109,7 +109,7 @@ class BaseAccount(ABC):
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-        cairo_version: Optional[int] = None
+        cairo_version: Optional[int] = None,
     ) -> Invoke:
         """
         Takes calls and creates signed Invoke.
