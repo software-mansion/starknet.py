@@ -259,8 +259,10 @@ class Account(BaseAccount):
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
+        # TODO (#1184): remove that
         cairo_version: Optional[int] = None,
     ) -> Invoke:
+        # TODO (#1184): remove that
         if cairo_version is not None:
             warnings.warn(
                 "Parameter 'cairo_version' has been deprecated. Please use argument 'cairo_version' in "
@@ -398,8 +400,10 @@ class Account(BaseAccount):
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
+        # TODO (#1184): remove that
         cairo_version: Optional[int] = None,
     ) -> SentTransactionResponse:
+        # TODO (#1184): remove that
         if cairo_version is not None:
             warnings.warn(
                 "Parameter 'cairo_version' has been deprecated. Please use argument 'cairo_version' in "
