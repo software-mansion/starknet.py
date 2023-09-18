@@ -11,7 +11,8 @@ def _get_env_or_throw(env_name: str) -> str:
     if env is None:
         raise ValueError(
             f"{env_name} environmental variable is not set. "
-            f"Update it manually or set it in `starknet_py/tests/e2e/test-variables.env` file."
+            f"Update it manually or set it in `starknet_py/tests/e2e/test-variables.env` file. "
+            f"More info here: https://starknetpy.readthedocs.io/en/latest/development.html#setup"
         )
     return env
 
