@@ -673,3 +673,26 @@ async def test_argent_cairo1_account_execute(
     )
 
     assert get_balance[0] == value
+
+
+# TODO (#1184): remove that
+@pytest.mark.asyncio
+async def test_cairo1_account_deprecations(
+    deployed_balance_contract,
+    argent_cairo1_account: BaseAccount,
+):
+    call = Call(
+        to_addr=deployed_balance_contract.address,
+        selector=get_selector_from_name("increase_balance"),
+        calldata=[20],
+    )
+    with pytest.warns(
+        UserWarning,
+        match="Parameter 'cairo_version' has been deprecated. Please use argument 'cairo_version' in Account constructor.",
+    ):
+        _ = await argent_cairo1_account.execute(
+            calls=call, max_fee=int(1e16), cairo_version=1
+        )
+        _ = await argent_cairo1_account.sign_invoke_transaction(
+            calls=call, max_fee=int(1e16), cairo_version=1
+        )
