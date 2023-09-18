@@ -6,6 +6,7 @@ from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 @pytest.mark.asyncio
 async def test_creating_account():
     # pylint: disable=import-outside-toplevel, unused-variable
+    cairo_version = 0
     # docs: start
     from starknet_py.net.account.account import Account
     from starknet_py.net.full_node_client import FullNodeClient
@@ -20,6 +21,7 @@ async def test_creating_account():
         address="0x4321",
         key_pair=KeyPair(private_key=654, public_key=321),
         chain=StarknetChainId.TESTNET,
+        cairo_version=cairo_version
     )
 
     # There is another way of creating key_pair
@@ -30,5 +32,5 @@ async def test_creating_account():
     # Instead of providing key_pair it is possible to specify a signer
     signer = StarkCurveSigner("0x1234", key_pair, StarknetChainId.TESTNET)
 
-    account = Account(client=client, address="0x1234", signer=signer)
+    account = Account(client=client, address="0x1234", signer=signer, cairo_version=cairo_version)
     # docs: end
