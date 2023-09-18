@@ -109,7 +109,7 @@ class BaseAccount(ABC):
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-        # TODO (#1184): remove that
+        # TODO (#1184): remove that and docstring
         cairo_version: Optional[int] = None,
     ) -> Invoke:
         """
@@ -119,7 +119,6 @@ class BaseAccount(ABC):
         :param nonce: Nonce of the transaction.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
-        # TODO (#1184): remove that
         :param cairo_version:
             Cairo version of the account used.
 
@@ -204,7 +203,7 @@ class BaseAccount(ABC):
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-        # TODO (#1184): remove that
+        # TODO (#1184): remove that and docstring
         cairo_version: Optional[int] = None,
     ) -> SentTransactionResponse:
         """
@@ -214,7 +213,6 @@ class BaseAccount(ABC):
         :param nonce: Nonce of the transaction.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
-        # TODO (#1184): remove that
         :param cairo_version:
             Cairo version of the account used.
 
