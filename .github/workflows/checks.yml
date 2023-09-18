@@ -340,7 +340,7 @@ jobs:
           apt-get install -y python3-pip
           sudo apt install -y libgmp3-dev
           sudo apt-get install -y git
-          pip3 install git+https://github.com/0xSpaceShard/starknet-devnet.git@v0.5.5
+          pip3 install git+https://github.com/0xSpaceShard/starknet-devnet.git@v0.6.2
 
       # ====================== SETUP PYTHON ====================== #
 
@@ -492,7 +492,7 @@ jobs:
           apt-get install -y python3-pip
           sudo apt install -y libgmp3-dev
           sudo apt-get install -y git
-          pip3 install git+https://github.com/0xSpaceShard/starknet-devnet.git@v0.5.5
+          pip3 install git+https://github.com/0xSpaceShard/starknet-devnet.git@v0.6.2
 
       # ====================== SETUP PYTHON ====================== #
 
