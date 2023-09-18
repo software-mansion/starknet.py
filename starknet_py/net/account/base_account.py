@@ -119,6 +119,8 @@ class BaseAccount(ABC):
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :param cairo_version:
+            Cairo version of the account used.
+
             .. deprecated:: 0.18.2
                 Parameter `cairo_version` has been deprecated - set it in Account constructor
                 or in Account.deploy_account method.
@@ -209,7 +211,8 @@ class BaseAccount(ABC):
         :param nonce: Nonce of the transaction.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
-        :param cairo_version: Cairo version of the account used.
+        :param cairo_version:
+            Cairo version of the account used.
 
             .. deprecated:: 0.18.2
                 Parameter `cairo_version` has been deprecated - set it in Account constructor
