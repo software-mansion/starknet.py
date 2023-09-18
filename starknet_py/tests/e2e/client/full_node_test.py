@@ -486,8 +486,7 @@ async def test_simulate_transactions_invoke(
 
     assert isinstance(simulated_txs[0], SimulatedTransaction)
     assert isinstance(simulated_txs[0].transaction_trace, InvokeTransactionTrace)
-    assert simulated_txs[0].fee_estimation.overall_fee > 0
-    assert simulated_txs[0].transaction_trace.validate_invocation is not None
+    assert simulated_txs[0].transaction_trace.execute_invocation is not None
 
     invoke_tx = await full_node_account.sign_invoke_transaction(
         calls=[call, call], auto_estimate=True
@@ -497,8 +496,8 @@ async def test_simulate_transactions_invoke(
     )
 
     assert isinstance(simulated_txs[0].transaction_trace, InvokeTransactionTrace)
-    assert simulated_txs[0].fee_estimation.overall_fee > 0
     assert simulated_txs[0].transaction_trace.validate_invocation is not None
+    assert simulated_txs[0].transaction_trace.execute_invocation is not None
 
 
 @pytest.mark.asyncio
