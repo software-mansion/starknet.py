@@ -227,15 +227,22 @@ jobs:
         uses: codecov/codecov-action@v3
 
   # ---------------------------------------------------------- #
-  # ..................RUN-TESTS-INTEGRATION................... #
+  # ..................RUN-TESTS-ON-NETWORKS................... #
   # ---------------------------------------------------------- #
 
-  run-tests-integration:
-    name: Tests on integration
+  run-tests-on-networks:
+    name: Tests on networks (testnet and integration)
     needs: setup-tests
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+    env:
+      INTEGRATION_RPC_URL: ${{ secrets.INTEGRATION_RPC_URL }}
+      TESTNET_RPC_URL: ${{ secrets.TESTNET_RPC_URL }}
+      INTEGRATION_ACCOUNT_PRIVATE_KEY: ${{ secrets.INTEGRATION_ACCOUNT_PRIVATE_KEY }}
+      INTEGRATION_ACCOUNT_ADDRESS: ${{ secrets.INTEGRATION_ACCOUNT_ADDRESS }}
+      TESTNET_ACCOUNT_PRIVATE_KEY: ${{ secrets.TESTNET_ACCOUNT_PRIVATE_KEY }}
+      TESTNET_ACCOUNT_ADDRESS: ${{ secrets.TESTNET_ACCOUNT_ADDRESS }}
     steps:
       - uses: actions/checkout@v3
 
@@ -281,8 +288,8 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run poe test_ci_integration_full_node
-          poetry run poe test_ci_integration_gateway
+          poetry run poe test_ci_on_networks_full_node
+          poetry run poe test_ci_on_networks_gateway
 
       - name: Generate coverage in XML
         run: |

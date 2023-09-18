@@ -14,7 +14,7 @@ from starknet_py.net.models import StarknetChainId
 from starknet_py.net.signer.stark_curve_signer import KeyPair
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import (
-    CONTRACTS_COMPILED_DIR,
+    CONTRACTS_COMPILED_V0_DIR,
     INTEGRATION_ACCOUNT_ADDRESS,
     INTEGRATION_ACCOUNT_PRIVATE_KEY,
     MAX_FEE,
@@ -44,8 +44,9 @@ def core_pre_deployed_account(pytestconfig, core_gateway_client) -> Account:
             "0x53262B95AE54005C9BE3ECC743008BAB81C0D7DED641FFDC27F253E7E6D2872",
         ),
         "integration": (
-            INTEGRATION_ACCOUNT_ADDRESS,
-            INTEGRATION_ACCOUNT_PRIVATE_KEY,
+            # because TESTNET and INTEGRATION constants are lambdas
+            INTEGRATION_ACCOUNT_ADDRESS(),
+            INTEGRATION_ACCOUNT_PRIVATE_KEY(),
         ),
     }
 
@@ -60,7 +61,7 @@ def core_pre_deployed_account(pytestconfig, core_gateway_client) -> Account:
 async def declare_contract(
     file_name: str, account: Account
 ) -> DeclareTransactionResponse:
-    compiled_contract = read_contract(file_name, directory=CONTRACTS_COMPILED_DIR)
+    compiled_contract = read_contract(file_name, directory=CONTRACTS_COMPILED_V0_DIR)
 
     declare_tx = await account.sign_declare_transaction(
         compiled_contract, max_fee=MAX_FEE
@@ -181,7 +182,7 @@ async def core_map_contract(
 
     abi = create_compiled_contract(
         compiled_contract=read_contract(
-            "map_compiled.json", directory=CONTRACTS_COMPILED_DIR
+            "map_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR
         )
     ).abi
 

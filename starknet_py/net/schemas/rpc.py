@@ -5,31 +5,40 @@ from starknet_py.abi.schemas import ContractAbiEntrySchema
 from starknet_py.net.client_models import (
     BlockHashAndNumber,
     BlockStateUpdate,
+    BlockTransactionTrace,
     ContractClass,
     ContractsNonce,
     DeclaredContractHash,
     DeclareTransaction,
     DeclareTransactionResponse,
+    DeclareTransactionTrace,
     DeployAccountTransaction,
     DeployAccountTransactionResponse,
+    DeployAccountTransactionTrace,
     DeployedContract,
     DeployTransaction,
     EntryPoint,
     EntryPointsByType,
     EstimatedFee,
     Event,
+    EventContent,
     EventsChunk,
+    FunctionInvocation,
     InvokeTransaction,
+    InvokeTransactionTrace,
     L1HandlerTransaction,
+    L1HandlerTransactionTrace,
     L2toL1Message,
     PendingBlockStateUpdate,
     PendingStarknetBlock,
     PendingStarknetBlockWithTxHashes,
     ReplacedClass,
+    RevertedFunctionInvocation,
     SentTransactionResponse,
     SierraContractClass,
     SierraEntryPoint,
     SierraEntryPointsByType,
+    SimulatedTransaction,
     StarknetBlock,
     StarknetBlockWithTxHashes,
     StateDiff,
@@ -39,6 +48,8 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.schemas.common import (
     BlockStatusField,
+    CallTypeField,
+    EntryPointTypeField,
     ExecutionStatusField,
     Felt,
     FinalityStatusField,
@@ -481,7 +492,7 @@ class SentTransactionSchema(Schema):
     transaction_hash = Felt(data_key="transaction_hash", required=True)
 
     @post_load
-    def make_dataclass(self, data, **kwargs):
+    def make_dataclass(self, data, **kwargs) -> SentTransactionResponse:
         return SentTransactionResponse(**data)
 
 
@@ -489,7 +500,7 @@ class DeclareTransactionResponseSchema(SentTransactionSchema):
     class_hash = Felt(data_key="class_hash", required=True)
 
     @post_load
-    def make_dataclass(self, data, **kwargs):
+    def make_dataclass(self, data, **kwargs) -> DeclareTransactionResponse:
         return DeclareTransactionResponse(**data)
 
 
@@ -497,7 +508,7 @@ class DeployAccountTransactionResponseSchema(SentTransactionSchema):
     address = Felt(data_key="contract_address", required=True)
 
     @post_load
-    def make_dataclass(self, data, **kwargs):
+    def make_dataclass(self, data, **kwargs) -> DeployAccountTransactionResponse:
         return DeployAccountTransactionResponse(**data)
 
 
@@ -510,3 +521,170 @@ class PendingTransactionsSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs):
         return data["pending_transactions"]
+
+
+# ------------------------------- Trace API -------------------------------
+
+
+class EventContentSchema(Schema):
+    keys = fields.List(Felt(), data_key="keys", required=True)
+    data = fields.List(Felt(), data_key="data", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return EventContent(**data)
+
+
+class FunctionInvocationSchema(Schema):
+    contract_address = Felt(data_key="contract_address", required=True)
+    entry_point_selector = Felt(data_key="entry_point_selector", required=True)
+    calldata = fields.List(Felt(), data_key="calldata", required=True)
+    caller_address = Felt(data_key="caller_address", required=True)
+    class_hash = Felt(data_key="class_hash", required=True)
+    entry_point_type = EntryPointTypeField(data_key="entry_point_type", required=True)
+    call_type = CallTypeField(data_key="call_type", required=True)
+    result = fields.List(Felt(), data_key="result", required=True)
+    # https://marshmallow.readthedocs.io/en/stable/nesting.html#nesting-a-schema-within-itself
+    calls = fields.List(
+        fields.Nested(
+            lambda: FunctionInvocationSchema()  # pylint: disable=unnecessary-lambda
+        ),
+        data_key="calls",
+        required=True,
+    )
+    events = fields.List(
+        fields.Nested(EventContentSchema()), data_key="events", required=True
+    )
+    messages = fields.List(
+        fields.Nested(L2toL1MessageSchema()), data_key="messages", required=True
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> FunctionInvocation:
+        return FunctionInvocation(**data)
+
+
+class RevertedFunctionInvocationSchema(Schema):
+    revert_reason = fields.String(data_key="revert_reason", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> RevertedFunctionInvocation:
+        return RevertedFunctionInvocation(**data)
+
+
+class ExecuteInvocationSchema(OneOfSchema):
+    type_schemas = {
+        "REVERTED": RevertedFunctionInvocationSchema(),
+        "FUNCTION_INVOCATION": FunctionInvocationSchema(),
+    }
+
+    def get_data_type(self, data):
+        if "revert_reason" in data:
+            return "REVERTED"
+        return "FUNCTION_INVOCATION"
+
+
+class InvokeTransactionTraceSchema(Schema):
+    validate_invocation = fields.Nested(
+        FunctionInvocationSchema(), data_key="validate_invocation", load_default=None
+    )
+    execute_invocation = fields.Nested(
+        ExecuteInvocationSchema(), data_key="execute_invocation", required=True
+    )
+    fee_transfer_invocation = fields.Nested(
+        FunctionInvocationSchema(),
+        data_key="fee_transfer_invocation",
+        load_default=None,
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> InvokeTransactionTrace:
+        return InvokeTransactionTrace(**data)
+
+
+class DeclareTransactionTraceSchema(Schema):
+    validate_invocation = fields.Nested(
+        FunctionInvocationSchema(), data_key="validate_invocation", load_default=None
+    )
+    fee_transfer_invocation = fields.Nested(
+        FunctionInvocationSchema(),
+        data_key="fee_transfer_invocation",
+        load_default=None,
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> DeclareTransactionTrace:
+        return DeclareTransactionTrace(**data)
+
+
+class DeployAccountTransactionTraceSchema(Schema):
+    validate_invocation = fields.Nested(
+        FunctionInvocationSchema(), data_key="validate_invocation", load_default=None
+    )
+    constructor_invocation = fields.Nested(
+        FunctionInvocationSchema(), data_key="constructor_invocation", required=True
+    )
+    fee_transfer_invocation = fields.Nested(
+        FunctionInvocationSchema(),
+        data_key="fee_transfer_invocation",
+        load_default=None,
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> DeployAccountTransactionTrace:
+        return DeployAccountTransactionTrace(**data)
+
+
+class L1HandlerTransactionTraceSchema(Schema):
+    function_invocation = fields.Nested(
+        FunctionInvocationSchema(), data_key="function_invocation", required=True
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> L1HandlerTransactionTrace:
+        return L1HandlerTransactionTrace(**data)
+
+
+class TransactionTraceSchema(OneOfSchema):
+    type_schemas = {
+        "INVOKE": InvokeTransactionTraceSchema(),
+        "DECLARE": DeclareTransactionTraceSchema(),
+        "DEPLOY_ACCOUNT": DeployAccountTransactionTraceSchema(),
+        "L1_HANDLER": L1HandlerTransactionTraceSchema(),
+    }
+
+    # TODO (#1177): change this from sketchy strings to `type` property
+    def get_data_type(self, data):
+        # All possible types of transaction trace (loaded by sketchy logic),
+        # it's possible that more are added later in the future, and it needs to be reformatted
+        if "function_invocation" in data:
+            return "L1_HANDLER"
+        if "constructor_invocation" in data:
+            return "DEPLOY_ACCOUNT"
+        if "execute_invocation" in data:
+            return "INVOKE"
+        return "DECLARE"
+
+
+class SimulatedTransactionSchema(Schema):
+    transaction_trace = fields.Nested(
+        TransactionTraceSchema(), data_key="transaction_trace", required=True
+    )
+    fee_estimation = fields.Nested(
+        EstimatedFeeSchema(), data_key="fee_estimation", required=True
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> SimulatedTransaction:
+        return SimulatedTransaction(**data)
+
+
+class BlockTransactionTraceSchema(Schema):
+    transaction_hash = Felt(data_key="transaction_hash", required=True)
+    trace_root = fields.Nested(
+        TransactionTraceSchema(), data_key="trace_root", required=True
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> BlockTransactionTrace:
+        return BlockTransactionTrace(**data)
