@@ -44,7 +44,7 @@ def core_pre_deployed_account(pytestconfig, core_gateway_client) -> Account:
             "0x53262B95AE54005C9BE3ECC743008BAB81C0D7DED641FFDC27F253E7E6D2872",
         ),
         "integration": (
-            # because TESTNET and INTEGRATION fixtures are lambdas
+            # because TESTNET and INTEGRATION constants are lambdas
             INTEGRATION_ACCOUNT_ADDRESS(),
             INTEGRATION_ACCOUNT_PRIVATE_KEY(),
         ),

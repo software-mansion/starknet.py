@@ -31,7 +31,7 @@ def full_node_client_integration() -> FullNodeClient:
     """
     A fixture returning a FullNodeClient with our integration network node URL.
     """
-    # because TESTNET and INTEGRATION fixtures are lambdas
+    # because TESTNET and INTEGRATION constants are lambdas
     return FullNodeClient(node_url=INTEGRATION_RPC_URL())
 
 
@@ -60,10 +60,10 @@ def gateway_account_integration(gateway_client_integration) -> Account:
     A fixture returning an Account with GatewayClient.
     """
     return Account(
-        # because TESTNET and INTEGRATION fixtures are lambdas
+        # because TESTNET and INTEGRATION constants are lambdas
         address=INTEGRATION_ACCOUNT_ADDRESS(),
         client=gateway_client_integration,
-        # because TESTNET and INTEGRATION fixtures are lambdas
+        # because TESTNET and INTEGRATION constants are lambdas
         key_pair=KeyPair.from_private_key(int(INTEGRATION_ACCOUNT_PRIVATE_KEY(), 0)),
         chain=StarknetChainId.TESTNET,
     )
@@ -75,10 +75,10 @@ def full_node_account_integration(full_node_client_integration) -> Account:
     A fixture returning an Account with FullNodeClient.
     """
     return Account(
-        # because TESTNET and INTEGRATION fixtures are lambdas
+        # because TESTNET and INTEGRATION constants are lambdas
         address=INTEGRATION_ACCOUNT_ADDRESS(),
         client=full_node_client_integration,
-        # because TESTNET and INTEGRATION fixtures are lambdas
+        # because TESTNET and INTEGRATION constants are lambdas
         key_pair=KeyPair.from_private_key(int(INTEGRATION_ACCOUNT_PRIVATE_KEY(), 0)),
         chain=StarknetChainId.TESTNET,
     )
@@ -117,5 +117,5 @@ def full_node_client_testnet() -> FullNodeClient:
     """
     A fixture returning a FullNodeClient with our integration network node URL.
     """
-    # because TESTNET and INTEGRATION fixtures are lambdas
+    # because TESTNET and INTEGRATION constants are lambdas
     return FullNodeClient(node_url=TESTNET_RPC_URL())

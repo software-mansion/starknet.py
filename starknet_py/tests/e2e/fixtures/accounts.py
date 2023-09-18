@@ -106,7 +106,7 @@ async def address_and_private_key(
             network,
         )
 
-    # because TESTNET and INTEGRATION fixtures are lambdas
+    # because TESTNET and INTEGRATION constants are lambdas
     exact_account_details = account_details[net]
     return exact_account_details[0](), exact_account_details[1]()
 
@@ -222,7 +222,7 @@ def pre_deployed_account_with_validate_deploy(
     address, private_key = address_and_priv_key[net]
 
     if net != "devnet":
-        # because TESTNET and INTEGRATION fixtures are lambdas
+        # because TESTNET and INTEGRATION constants are lambdas
         address = address()
         private_key = private_key()
 
