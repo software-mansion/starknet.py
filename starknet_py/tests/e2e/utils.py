@@ -43,7 +43,7 @@ async def get_deploy_account_details(
     )
 
     res = await fee_contract.functions["transfer"].invoke(
-        recipient=address, amount=int(1e17), max_fee=MAX_FEE
+        recipient=address, amount=int(1e19), max_fee=MAX_FEE
     )
     await res.wait_for_acceptance()
 
@@ -80,7 +80,7 @@ async def get_deploy_account_transaction(
         class_hash=class_hash,
         contract_address_salt=salt,
         constructor_calldata=[key_pair.public_key],
-        max_fee=MAX_FEE,
+        max_fee=int(1e16),
     )
 
 

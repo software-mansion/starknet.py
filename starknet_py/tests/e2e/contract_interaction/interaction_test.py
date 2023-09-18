@@ -7,7 +7,7 @@ from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import Call
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
-from starknet_py.transaction_errors import TransactionRejectedError
+from starknet_py.transaction_errors import TransactionRevertedError
 
 
 @pytest.mark.asyncio
@@ -15,18 +15,25 @@ async def test_max_fee_is_set_in_sent_invoke(map_contract):
     key = 2
     value = 3
 
-    prepared_call = map_contract.functions["put"].prepare(key, value, max_fee=100)
-    assert prepared_call.max_fee == 100
+    max_fee_for_invoke = 248400000000
+    prepared_call = map_contract.functions["put"].prepare(
+        key, value, max_fee=max_fee_for_invoke
+    )
+    assert prepared_call.max_fee == max_fee_for_invoke
     invocation = await prepared_call.invoke()
-    assert invocation.invoke_transaction.max_fee == 100
+    assert invocation.invoke_transaction.max_fee == max_fee_for_invoke
 
-    invocation = await map_contract.functions["put"].invoke(key, value, max_fee=200)
-    assert invocation.invoke_transaction.max_fee == 200
+    invocation = await map_contract.functions["put"].invoke(
+        key, value, max_fee=max_fee_for_invoke + 100
+    )
+    assert invocation.invoke_transaction.max_fee == max_fee_for_invoke + 100
 
-    prepared_call = map_contract.functions["put"].prepare(key, value, max_fee=300)
-    assert prepared_call.max_fee == 300
-    invocation = await prepared_call.invoke(max_fee=400)
-    assert invocation.invoke_transaction.max_fee == 400
+    prepared_call = map_contract.functions["put"].prepare(
+        key, value, max_fee=max_fee_for_invoke + 200
+    )
+    assert prepared_call.max_fee == max_fee_for_invoke + 200
+    invocation = await prepared_call.invoke(max_fee=max_fee_for_invoke + 300)
+    assert invocation.invoke_transaction.max_fee == max_fee_for_invoke + 300
 
 
 @pytest.mark.asyncio
@@ -82,10 +89,13 @@ async def test_latest_max_fee_takes_precedence(map_contract):
     key = 2
     value = 3
 
-    prepared_function = map_contract.functions["put"].prepare(key, value, max_fee=20)
-    invocation = await prepared_function.invoke(max_fee=50)
+    max_fee = 248400000000
+    prepared_function = map_contract.functions["put"].prepare(
+        key, value, max_fee=max_fee
+    )
+    invocation = await prepared_function.invoke(max_fee=max_fee + 30)
 
-    assert invocation.invoke_transaction.max_fee == 50
+    assert invocation.invoke_transaction.max_fee == max_fee + 30
 
 
 @pytest.mark.asyncio
@@ -134,14 +144,15 @@ async def test_wait_for_tx(client, map_contract):
 
 
 @pytest.mark.asyncio
-async def test_wait_for_tx_throws_on_transaction_rejected(client, map_contract):
+async def test_wait_for_tx_throws_on_transaction_reverted(gateway_client, map_contract):
+    client = gateway_client
     invoke = map_contract.functions["put"].prepare(key=0x1, value=0x1, max_fee=MAX_FEE)
 
     # modify selector so that transaction will get rejected
     invoke.selector = 0x0123
     transaction = await invoke.invoke()
 
-    with pytest.raises(TransactionRejectedError) as err:
+    with pytest.raises(TransactionRevertedError) as err:
         await client.wait_for_tx(transaction.hash)
 
     if isinstance(client, GatewayClient):

@@ -15,6 +15,22 @@ Make sure running ``poetry run python --version`` returns ``Python 3.9.x``.
 Setup
 -----
 
+In order to run Cairo1 devnet tests and compile contracts in Cairo1 via poetry command,
+you need to create ``manifest-path`` file in ``starknet_py/tests/e2e/`` directory and pass the path in it to Cairo compiler.
+An example file - ``manifest-path.template`` is in the same directory. Additional info can be found in `devnet docs <https://0xspaceshard.github.io/starknet-devnet/docs/guide/cairo1-support>`_.
+
+In order to be able to run tests on testnet and integration networks (``starknet_py/tests/e2e/tests_on_networks/``), you must set some environmental variables:
+
+    - ``INTEGRATION_RPC_URL``
+    - ``TESTNET_RPC_URL``
+    - ``INTEGRATION_ACCOUNT_PRIVATE_KEY``
+    - ``INTEGRATION_ACCOUNT_ADDRESS``
+    - ``TESTNET_ACCOUNT_PRIVATE_KEY``
+    - ``TESTNET_ACCOUNT_ADDRESS``
+
+The best way to do that is to create ``test-variables.env`` file in ``starknet_py/tests/e2e/`` directory, so they can be loaded by the ``python-dotenv`` library.
+You can find an example file ``test-variables.env.template`` in the same directory with the format of how it should look like.
+
 .. code-block:: bash
 
     # Install dependencies
@@ -22,6 +38,8 @@ Setup
 
     # Compile contracts
     poe compile_contracts
+    poe compile_contracts_v1
+    poe compile_contracts_v2
 
     # Make sure everything was installed properly
     poe test

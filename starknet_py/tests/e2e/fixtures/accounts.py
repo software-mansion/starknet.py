@@ -105,7 +105,10 @@ async def address_and_private_key(
             account_with_validate_deploy_class_hash,
             network,
         )
-    return account_details[net]
+
+    # because TESTNET and INTEGRATION constants are lambdas
+    exact_account_details = account_details[net]
+    return exact_account_details[0](), exact_account_details[1]()
 
 
 @pytest.fixture(scope="package")
@@ -221,6 +224,11 @@ def pre_deployed_account_with_validate_deploy(
 
     net = pytestconfig.getoption("--net")
     address, private_key = address_and_priv_key[net]
+
+    if net != "devnet":
+        # because TESTNET and INTEGRATION constants are lambdas
+        address = address()
+        private_key = private_key()
 
     return Account(
         address=address,

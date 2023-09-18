@@ -25,7 +25,6 @@ from starknet_py.net.models.transaction import Declare, DeclareV2
 from starknet_py.net.signer.stark_curve_signer import KeyPair
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
-from starknet_py.transaction_errors import TransactionRejectedError
 
 
 @pytest.mark.run_on_devnet
@@ -104,26 +103,18 @@ async def test_sending_multicall(account, map_contract, key, val):
     assert value == val
 
 
-# TODO (#981): FullNode is not tested because we don't implement trace api (devnet does not either)
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_block_traces(gateway_account):
-    traces = await gateway_account.client.get_block_traces(block_number=2)
+    traces = await gateway_account.client.trace_block_transactions(block_number=2)
 
     assert traces.traces != []
 
 
 @pytest.mark.asyncio
-async def test_rejection_reason_in_transaction_receipt(account, map_contract):
-    res = await map_contract.functions["put"].invoke(key=10, value=20, max_fee=1)
-
-    with pytest.raises(TransactionRejectedError):
-        await account.client.wait_for_tx(res.hash)
-
-    transaction_receipt = await account.client.get_transaction_receipt(res.hash)
-
-    if isinstance(account.client, GatewayClient):
-        assert "Actual fee exceeded max fee." in transaction_receipt.rejection_reason
+async def test_rejection_reason_in_transaction_receipt(map_contract):
+    with pytest.raises(ClientError, match=r".*INSUFFICIENT_MAX_FEE.*"):
+        _ = await map_contract.functions["put"].invoke(key=10, value=20, max_fee=1)
 
 
 def test_sign_and_verify_offchain_message_fail(account, typed_data):
@@ -384,15 +375,22 @@ async def test_deploy_account_raises_on_incorrect_address(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "call_contract",
+    "call_contract, client",
     [
-        "starknet_py.net.gateway_client.GatewayClient.call_contract",
-        "starknet_py.net.full_node_client.FullNodeClient.call_contract",
+        (
+            "starknet_py.net.gateway_client.GatewayClient.call_contract",
+            "gateway_client",
+        ),
+        (
+            "starknet_py.net.full_node_client.FullNodeClient.call_contract",
+            "full_node_client",
+        ),
     ],
 )
 async def test_deploy_account_raises_on_no_enough_funds(
-    deploy_account_details_factory, call_contract, client
+    deploy_account_details_factory, call_contract, client, request
 ):
+    client = request.getfixturevalue(client)
     address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
 
     with patch(call_contract, AsyncMock()) as mocked_balance:
@@ -454,6 +452,10 @@ async def test_deploy_account_passes_on_enough_funds(
         )
 
 
+# TODO (#1056): change this test to braavos account
+@pytest.mark.skip(
+    reason="'__validate_execute__' doesn't allow any other calldata than in the constructor"
+)
 @pytest.mark.asyncio
 async def test_deploy_account_uses_custom_calldata(
     client, deploy_account_details_factory, fee_contract

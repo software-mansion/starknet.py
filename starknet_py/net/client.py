@@ -8,6 +8,7 @@ from typing import List, Optional, Tuple, Union
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     BlockStateUpdate,
+    BlockTransactionTrace,
     BlockTransactionTraces,
     Call,
     ContractClass,
@@ -68,11 +69,11 @@ class Client(ABC):
         """
 
     @abstractmethod
-    async def get_block_traces(
+    async def trace_block_transactions(
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> BlockTransactionTraces:
+    ) -> Union[BlockTransactionTraces, List[BlockTransactionTrace]]:
         """
         Receive the traces of all the transactions within specified block
 

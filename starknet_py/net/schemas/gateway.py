@@ -307,24 +307,13 @@ class BlockSingleTransactionTraceSchema(Schema):
         data_key="constructor_invocation",
         load_default=None,
     )
+    revert_error = fields.String(data_key="revert_error", load_default=None)
     signature = fields.List(Felt(), data_key="signature", load_default=[])
     transaction_hash = Felt(data_key="transaction_hash", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs):
         return BlockSingleTransactionTrace(**data)
-
-
-class BlockTransactionTracesSchema(Schema):
-    traces = fields.List(
-        fields.Nested(BlockSingleTransactionTraceSchema(unknown=EXCLUDE)),
-        data_key="traces",
-        required=True,
-    )
-
-    @post_load
-    def make_dataclass(self, data, **kwargs):
-        return BlockTransactionTraces(**data)
 
 
 class EstimatedFeeSchema(Schema):
@@ -658,3 +647,18 @@ class SignatureOnStateDiffSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> SignatureOnStateDiff:
         return SignatureOnStateDiff(**data)
+
+
+# Trace API schemas
+
+
+class BlockTransactionTracesSchema(Schema):
+    traces = fields.List(
+        fields.Nested(BlockSingleTransactionTraceSchema(unknown=EXCLUDE)),
+        data_key="traces",
+        required=True,
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return BlockTransactionTraces(**data)

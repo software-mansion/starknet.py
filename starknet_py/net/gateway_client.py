@@ -127,7 +127,7 @@ class GatewayClient(Client):
         )
         return StarknetBlockSchema().load(res, unknown=EXCLUDE)  # pyright: ignore
 
-    async def get_block_traces(
+    async def trace_block_transactions(
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
