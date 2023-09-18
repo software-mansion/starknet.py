@@ -230,7 +230,7 @@ jobs:
   # ..................RUN-TESTS-ON-NETWORKS................... #
   # ---------------------------------------------------------- #
 
-  run-tests-integration:
+  run-tests-on-networks:
     name: Tests on networks (testnet and integration)
     needs: setup-tests
     runs-on: ubuntu-latest
