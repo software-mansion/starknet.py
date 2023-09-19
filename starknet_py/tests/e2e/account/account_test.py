@@ -687,8 +687,8 @@ async def test_cairo1_account_deprecations(
     )
     with pytest.warns(
         UserWarning,
-        match="Parameter 'cairo_version' has been deprecated."
-        " Please use argument 'cairo_version' in Account constructor.",
+        match="Parameter 'cairo_version' has been deprecated. It is calculated automatically based on your account's "
+        "contract class.",
     ):
         _ = await argent_cairo1_account.execute(
             calls=call, max_fee=int(1e16), cairo_version=1
