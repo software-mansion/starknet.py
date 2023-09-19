@@ -17,6 +17,7 @@ from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import (
     CONTRACTS_COMPILED_V0_DIR,
+    CONTRACTS_COMPILED_V2_DIR,
     CONTRACTS_DIR,
     MAX_FEE,
 )
@@ -271,6 +272,27 @@ async def declare_account(account: BaseAccount, compiled_account_contract: str) 
     return resp.class_hash
 
 
+async def declare_cairo1_account(
+    account: BaseAccount,
+    compiled_account_contract: str,
+    compiled_account_contract_casm: str,
+) -> int:
+    """
+    Declares a specified Cairo1 account.
+    """
+
+    casm_class = create_casm_class(compiled_account_contract_casm)
+    casm_class_hash = compute_casm_class_hash(casm_class)
+    declare_v2_transaction = await account.sign_declare_v2_transaction(
+        compiled_contract=compiled_account_contract,
+        compiled_class_hash=casm_class_hash,
+        max_fee=MAX_FEE,
+    )
+    resp = await account.client.declare(transaction=declare_v2_transaction)
+    await account.client.wait_for_tx(resp.transaction_hash)
+    return resp.class_hash
+
+
 @pytest_asyncio.fixture(scope="package")
 async def account_with_validate_deploy_class_hash(
     pre_deployed_account_with_validate_deploy: BaseAccount,
@@ -281,6 +303,23 @@ async def account_with_validate_deploy_class_hash(
     )
     return await declare_account(
         pre_deployed_account_with_validate_deploy, compiled_contract
+    )
+
+
+@pytest_asyncio.fixture(scope="package")
+async def argent_cairo1_account_class_hash(
+    pre_deployed_account_with_validate_deploy: BaseAccount,
+) -> int:
+    compiled_contract = read_contract(
+        "argent_account.json", directory=CONTRACTS_COMPILED_V2_DIR
+    )
+    compiled_contract_casm = read_contract(
+        "argent_account.casm", directory=CONTRACTS_COMPILED_V2_DIR
+    )
+    return await declare_cairo1_account(
+        account=pre_deployed_account_with_validate_deploy,
+        compiled_account_contract=compiled_contract,
+        compiled_account_contract_casm=compiled_contract_casm,
     )
 
 

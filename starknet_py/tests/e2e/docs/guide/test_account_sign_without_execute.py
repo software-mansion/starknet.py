@@ -20,9 +20,7 @@ async def test_account_sign_without_execute(account, map_compiled_contract):
     call = Call(to_addr=address, selector=selector, calldata=calldata)
     invoke_transaction = await account.sign_invoke_transaction(call, max_fee=max_fee)
     # Or if you're using Cairo1 account with new calldata encoding
-    invoke_transaction = await account.sign_invoke_transaction(
-        call, max_fee=max_fee, cairo_version=1
-    )
+    invoke_transaction = await account.sign_invoke_transaction(call, max_fee=max_fee)
 
     # Create a signed Declare transaction
     declare_transaction = await account.sign_declare_transaction(
