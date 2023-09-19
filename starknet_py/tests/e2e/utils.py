@@ -34,6 +34,8 @@ async def get_deploy_account_details(
 
     calldata = [key_pair.public_key]
     if argent_calldata:
+        # Argent account's calldata to the constructor requires 'owner' and 'guardian', hence the additional 0 for the
+        # 'guardian'.
         calldata.append(0)
     address = compute_address(
         salt=salt,
