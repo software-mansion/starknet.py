@@ -21,6 +21,7 @@ from starknet_py.net.client_models import (
     SierraContractClass,
     Tag,
 )
+from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import AddressRepresentation, StarknetChainId, parse_address
 from starknet_py.net.models.transaction import (
@@ -100,14 +101,15 @@ class Account(BaseAccount):
         return self._address
 
     @property
-    def cairo_version(self) -> int:
+    async def cairo_version(self) -> int:
         if self._cairo_version is None:
             if isinstance(self._client, GatewayClient):
-                contract_class = self._client.get_full_contract_sync(  # pyright: ignore
+                contract_class = await self._client.get_full_contract(
                     contract_address=self._address
                 )
             else:
-                contract_class = self.client.get_class_at_sync(  # pyright: ignore
+                assert isinstance(self._client, FullNodeClient)
+                contract_class = await self._client.get_class_at(
                     contract_address=self._address
                 )
             self._cairo_version = (
@@ -168,7 +170,7 @@ class Account(BaseAccount):
         if nonce is None:
             nonce = await self.get_nonce()
 
-        if self.cairo_version == 1:
+        if await self.cairo_version == 1:
             parsed_calls = _parse_calls_v2(ensure_iterable(calls))
             wrapped_calldata = _execute_payload_serializer_v2.serialize(
                 {"calls": parsed_calls}

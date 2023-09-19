@@ -30,7 +30,7 @@ class BaseAccount(ABC):
 
     @property
     @abstractmethod
-    def cairo_version(self) -> int:
+    async def cairo_version(self) -> int:
         """
         Get Cairo version of the account.
         """

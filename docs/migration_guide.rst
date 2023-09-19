@@ -40,6 +40,10 @@ sets the calldata encoding accordingly.
 
 2. ``include_block`` parameter in :meth:`GatewayClient.get_state_update` now works on gateway mainnet.
 
+.. currentmodule:: starknet_py.net.account.account
+
+3. :class:`BaseAccount` interface and :class:`Account` now have an additional **async** property - ``cairo_version``.
+
 
 0.18.2 Development-related changes
 ----------------------------------

@@ -618,7 +618,7 @@ async def test_argent_cairo1_account_deploy(
     account = deploy_result.account
 
     assert isinstance(account, BaseAccount)
-    assert account.cairo_version == 1
+    assert await account.cairo_version == 1
 
     account_contract_class = await full_node_client.get_class_at(
         contract_address=account.address, block_number="latest"
