@@ -696,3 +696,16 @@ async def test_cairo1_account_deprecations(
         _ = await argent_cairo1_account.sign_invoke_transaction(
             calls=call, max_fee=int(1e16), cairo_version=1
         )
+
+
+@pytest.mark.asyncio
+async def test():
+    client = FullNodeClient(
+        node_url='https://starknet-mainnet.public.blastapi.io'
+    )
+    contract = await Contract.from_address(
+        address="0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+        provider=client,
+        proxy_config=True
+    )
+    print(contract)
