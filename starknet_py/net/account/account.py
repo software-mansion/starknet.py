@@ -103,7 +103,6 @@ class Account(BaseAccount):
     def cairo_version(self) -> int:
         if self._cairo_version is None:
             if isinstance(self._client, GatewayClient):
-                # pyright: ignore
                 contract_class = self._client.get_full_contract_sync(  # pyright: ignore
                     contract_address=self._address
                 )
