@@ -610,7 +610,6 @@ async def test_argent_cairo1_account_deploy(
         salt=salt,
         key_pair=key_pair,
         client=full_node_client,
-        cairo_version=1,
         constructor_calldata=[key_pair.public_key, 0],
         chain=StarknetChainId.TESTNET,
         max_fee=int(1e16),

@@ -123,8 +123,8 @@ class BaseAccount(ABC):
             Cairo version of the account used.
 
             .. deprecated:: 0.18.2
-                Parameter `cairo_version` has been deprecated - set it in Account constructor
-                or in Account.deploy_account method.
+                Parameter `cairo_version` has been deprecated - it is calculated automatically based on
+                your account's contract class.
         :return: Invoke created from the calls.
         """
 
@@ -217,8 +217,8 @@ class BaseAccount(ABC):
             Cairo version of the account used.
 
             .. deprecated:: 0.18.2
-                Parameter `cairo_version` has been deprecated - set it in Account constructor
-                or in Account.deploy_account method.
+                Parameter `cairo_version` has been deprecated - it is calculated automatically based on
+                your account's contract class.
         :return: SentTransactionResponse.
         """
 

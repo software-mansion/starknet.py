@@ -18,8 +18,10 @@ from starknet_py.net.client_models import (
     EstimatedFee,
     Hash,
     SentTransactionResponse,
+    SierraContractClass,
     Tag,
 )
+from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import AddressRepresentation, StarknetChainId, parse_address
 from starknet_py.net.models.transaction import (
     AccountTransaction,
@@ -59,7 +61,6 @@ class Account(BaseAccount):
         *,
         address: AddressRepresentation,
         client: Client,
-        cairo_version: int = 0,
         signer: Optional[BaseSigner] = None,
         key_pair: Optional[KeyPair] = None,
         chain: Optional[StarknetChainId] = None,
@@ -67,7 +68,6 @@ class Account(BaseAccount):
         """
         :param address: Address of the account contract.
         :param client: Instance of Client which will be used to add transactions.
-        :param cairo_version: Cairo version of the account used.
         :param signer: Custom signer to be used by Account.
                        If none is provided, default
                        :py:class:`starknet_py.net.signer.stark_curve_signer.StarkCurveSigner` is used.
@@ -76,7 +76,7 @@ class Account(BaseAccount):
         """
         self._address = parse_address(address)
         self._client = client
-        self._cairo_version = cairo_version
+        self._cairo_version = None
 
         if signer is not None and key_pair is not None:
             raise ValueError("Arguments signer and key_pair are mutually exclusive.")
@@ -101,6 +101,19 @@ class Account(BaseAccount):
 
     @property
     def cairo_version(self) -> int:
+        if self._cairo_version is None:
+            if isinstance(self._client, GatewayClient):
+                # pyright: ignore
+                contract_class = self._client.get_full_contract_sync(  # pyright: ignore
+                    contract_address=self._address
+                )
+            else:
+                contract_class = self.client.get_class_at_sync(  # pyright: ignore
+                    contract_address=self._address
+                )
+            self._cairo_version = (
+                1 if isinstance(contract_class, SierraContractClass) else 0
+            )
         return self._cairo_version
 
     @property
@@ -265,10 +278,11 @@ class Account(BaseAccount):
         # TODO (#1184): remove that
         if cairo_version is not None:
             warnings.warn(
-                "Parameter 'cairo_version' has been deprecated. Please use argument 'cairo_version' in "
-                "Account constructor."
+                "Parameter 'cairo_version' has been deprecated. It is calculated automatically based on your account's "
+                "contract class.",
+                category=DeprecationWarning,
             )
-            self._cairo_version = cairo_version
+
         execute_tx = await self._prepare_invoke(
             calls,
             nonce=nonce,
@@ -406,10 +420,10 @@ class Account(BaseAccount):
         # TODO (#1184): remove that
         if cairo_version is not None:
             warnings.warn(
-                "Parameter 'cairo_version' has been deprecated. Please use argument 'cairo_version' in "
-                "Account constructor."
+                "Parameter 'cairo_version' has been deprecated. It is calculated automatically based on your account's "
+                "contract class.",
+                category=DeprecationWarning,
             )
-            self._cairo_version = cairo_version
 
         execute_transaction = await self.sign_invoke_transaction(
             calls,
@@ -437,7 +451,6 @@ class Account(BaseAccount):
         key_pair: KeyPair,
         client: Client,
         chain: StarknetChainId,
-        cairo_version: int = 0,
         constructor_calldata: Optional[List[int]] = None,
         nonce: int = 0,
         max_fee: Optional[int] = None,
@@ -459,7 +472,6 @@ class Account(BaseAccount):
         :param key_pair: KeyPair used to calculate address and sign deploy account transaction.
         :param client: a Client instance used for deployment.
         :param chain: id of the Starknet chain used.
-        :param cairo_version: Cairo version of the account used.
         :param constructor_calldata: optional calldata to account contract constructor. If ``None`` is passed,
             ``[key_pair.public_key]`` will be used as calldata.
         :param nonce: Nonce of the transaction.
@@ -489,7 +501,6 @@ class Account(BaseAccount):
         account = Account(
             address=address,
             client=client,
-            cairo_version=cairo_version,
             key_pair=key_pair,
             chain=chain,
         )
