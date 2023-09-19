@@ -686,7 +686,7 @@ async def test_cairo1_account_deprecations(
         calldata=[20],
     )
     with pytest.warns(
-        UserWarning,
+        DeprecationWarning,
         match="Parameter 'cairo_version' has been deprecated. It is calculated automatically based on your account's "
         "contract class.",
     ):
