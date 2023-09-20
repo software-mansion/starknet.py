@@ -261,8 +261,7 @@ class StarknetBlockSchema(Schema):
     parent_block_hash = Felt(data_key="parent_block_hash", required=True)
     block_number = fields.Integer(data_key="block_number")
     status = BlockStatusField(data_key="status", required=True)
-    # TODO (#1166): change nonprefixedhex to felt in line below
-    root = NonPrefixedHex(data_key="state_root")
+    root = Felt(data_key="state_root")
     transactions = fields.List(
         fields.Nested(TypesOfTransactionsSchema(unknown=EXCLUDE)),
         data_key="transactions",
@@ -308,24 +307,13 @@ class BlockSingleTransactionTraceSchema(Schema):
         data_key="constructor_invocation",
         load_default=None,
     )
+    revert_error = fields.String(data_key="revert_error", load_default=None)
     signature = fields.List(Felt(), data_key="signature", load_default=[])
     transaction_hash = Felt(data_key="transaction_hash", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs):
         return BlockSingleTransactionTrace(**data)
-
-
-class BlockTransactionTracesSchema(Schema):
-    traces = fields.List(
-        fields.Nested(BlockSingleTransactionTraceSchema(unknown=EXCLUDE)),
-        data_key="traces",
-        required=True,
-    )
-
-    @post_load
-    def make_dataclass(self, data, **kwargs):
-        return BlockTransactionTraces(**data)
 
 
 class EstimatedFeeSchema(Schema):
@@ -424,10 +412,8 @@ class StateDiffSchema(Schema):
 
 class BlockStateUpdateSchema(Schema):
     block_hash = Felt(data_key="block_hash", required=True)
-    # TODO (#1166): change nonprefixedhex to felt in line below
-    new_root = NonPrefixedHex(data_key="new_root", required=True)
-    # TODO (#1166): change nonprefixedhex to felt in line below
-    old_root = NonPrefixedHex(data_key="old_root", required=True)
+    new_root = Felt(data_key="new_root", required=True)
+    old_root = Felt(data_key="old_root", required=True)
     state_diff = fields.Nested(StateDiffSchema(), data_key="state_diff", required=True)
 
     @post_load
@@ -661,3 +647,18 @@ class SignatureOnStateDiffSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> SignatureOnStateDiff:
         return SignatureOnStateDiff(**data)
+
+
+# Trace API schemas
+
+
+class BlockTransactionTracesSchema(Schema):
+    traces = fields.List(
+        fields.Nested(BlockSingleTransactionTraceSchema(unknown=EXCLUDE)),
+        data_key="traces",
+        required=True,
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return BlockTransactionTraces(**data)

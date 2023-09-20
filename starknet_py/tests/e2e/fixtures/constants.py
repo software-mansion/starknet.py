@@ -1,24 +1,41 @@
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+load_dotenv(dotenv_path=Path(os.path.dirname(__file__)) / "../test-variables.env")
+
+
+def _get_env_or_throw(env_name: str) -> str:
+    env = os.getenv(key=env_name)
+    if env is None:
+        raise ValueError(
+            f"{env_name} environmental variable is not set. "
+            f"Update it manually or set it in `starknet_py/tests/e2e/test-variables.env` file. "
+            f"More info here: https://starknetpy.readthedocs.io/en/latest/development.html#setup"
+        )
+    return env
+
+
+def _get_env_lambda(env_name):
+    return lambda: _get_env_or_throw(env_name)
+
+
 # -------------------------------- TESTNET -------------------------------------
 
-TESTNET_ACCOUNT_PRIVATE_KEY = (
-    "0x61910356c5adf66efb65ec3df5d07a6e5e6e7c8b59f15a13eda7a34c8d1ecc4"
-)
-TESTNET_ACCOUNT_ADDRESS = (
-    "0x59083382aadec25d7616a7f48942d72d469b0ac581f2e935ec26b68f66bd600"
-)
+TESTNET_ACCOUNT_ADDRESS = _get_env_lambda("TESTNET_ACCOUNT_ADDRESS")
+
+TESTNET_ACCOUNT_PRIVATE_KEY = _get_env_lambda("TESTNET_ACCOUNT_PRIVATE_KEY")
+
+TESTNET_RPC_URL = _get_env_lambda("TESTNET_RPC_URL")
 
 # -------------------------------- INTEGRATION ---------------------------------
 
-INTEGRATION_ACCOUNT_PRIVATE_KEY = "0x1234"
+INTEGRATION_ACCOUNT_PRIVATE_KEY = _get_env_lambda("INTEGRATION_ACCOUNT_PRIVATE_KEY")
 
-INTEGRATION_ACCOUNT_ADDRESS = (
-    "0x4321647559947e9109acecb329e57594bcc3981a6118bbbfeaa9f698874bcd5"
-)
+INTEGRATION_ACCOUNT_ADDRESS = _get_env_lambda("INTEGRATION_ACCOUNT_ADDRESS")
 
-INTEGRATION_NODE_URL = "http://188.34.188.184:9545/rpc/v0.4"
+INTEGRATION_RPC_URL = _get_env_lambda("INTEGRATION_RPC_URL")
 
 INTEGRATION_GATEWAY_URL = "https://external.integration.starknet.io"
 
@@ -37,14 +54,14 @@ DEVNET_PRE_DEPLOYED_ACCOUNT_ADDRESS = (
 )
 DEVNET_PRE_DEPLOYED_ACCOUNT_PRIVATE_KEY = "0xcd613e30d8f16adf91b7584a2265b1f5"
 
-MAX_FEE = int(1e20)
+MAX_FEE = int(1e16)
 
 MOCK_DIR = Path(os.path.dirname(__file__)) / "../mock"
 TYPED_DATA_DIR = MOCK_DIR / "typed_data"
 CONTRACTS_DIR = MOCK_DIR / "contracts"
 CONTRACTS_V1_DIR = MOCK_DIR / "contracts_v1"
-CONTRACTS_COMPILED_DIR = MOCK_DIR / "contracts_compiled"
+CONTRACTS_COMPILED_V0_DIR = MOCK_DIR / "contracts_compiled"
 CONTRACTS_COMPILED_V1_DIR = MOCK_DIR / "contracts_compiled_v1"
 CONTRACTS_COMPILED_V2_DIR = MOCK_DIR / "contracts_compiled_v2"
-CONTRACTS_PRECOMPILED_DIR = CONTRACTS_COMPILED_DIR / "precompiled"
+CONTRACTS_PRECOMPILED_DIR = CONTRACTS_COMPILED_V0_DIR / "precompiled"
 ACCOUNT_DIR = MOCK_DIR / "account"

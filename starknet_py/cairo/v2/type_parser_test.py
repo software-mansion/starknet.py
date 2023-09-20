@@ -90,7 +90,7 @@ def test_parse_with_defined_types(type_string, expected):
         "Uint256": uint256_type,
         "WrappedFelt": wrapped_felt_type,
     }
-    parsed = TypeParser(types).parse_inline_type(type_string)
+    parsed = TypeParser(types).parse_inline_type(type_string)  # pyright: ignore
     assert parsed == expected
 
 

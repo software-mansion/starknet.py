@@ -127,7 +127,7 @@ class GatewayClient(Client):
         )
         return StarknetBlockSchema().load(res, unknown=EXCLUDE)  # pyright: ignore
 
-    async def get_block_traces(
+    async def trace_block_transactions(
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
@@ -147,8 +147,7 @@ class GatewayClient(Client):
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-        # TODO (#1166): revert to `bool = False`
-        include_block: Optional[bool] = None,
+        include_block: bool = False,
     ) -> Union[BlockStateUpdate, StateUpdateWithBlock]:
         """
         Get the information about the result of executing the requested block.
@@ -158,26 +157,13 @@ class GatewayClient(Client):
         :param include_block: Flag deciding whether to include the queried block. Defaults to false.
         :return: BlockStateUpdate object representing changes in the requested block.
         """
-        # TODO (#1166): remove that
-        if include_block is not None and self._net in [
-            "https://alpha-mainnet.starknet.io",
-            "mainnet",
-        ]:
-            raise ValueError(
-                "Argument 'include_block' does not work on mainnet yet and will be working after v0.12.2 release."
-            )
-
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
-
         params = {
             **block_identifier,
+            "includeBlock": str(include_block).lower(),
         }
-        # TODO (#1166): bring back into params
-        if include_block is not None:
-            params["includeBlock"] = str(include_block).lower()
-
         res = await self._feeder_gateway_client.call(
             method_name="get_state_update", params=params
         )

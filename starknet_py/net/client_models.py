@@ -401,6 +401,8 @@ class BlockSingleTransactionTrace:
     validate_invocation: Optional[dict] = None
     fee_transfer_invocation: Optional[dict] = None
     constructor_invocation: Optional[dict] = None
+    # Gateway-only field, information about reversion in RPC spec is returned inside "execute_invocation"
+    revert_error: Optional[str] = None
 
 
 @dataclass
@@ -702,3 +704,142 @@ class SignatureOnStateDiff:
     block_number: int
     signature: List[int]
     signature_input: SignatureInput
+
+
+# ------------------------------- Trace API dataclasses -------------------------------
+
+
+@dataclass
+class EventContent:
+    """
+    Dataclass representing contents of an event.
+    """
+
+    keys: List[int]
+    data: List[int]
+
+
+class SimulationFlag(str, Enum):
+    """
+    Enum class representing possible simulation flags for trace API.
+    """
+
+    SKIP_VALIDATE = "SKIP_VALIDATE"
+    SKIP_FEE_CHARGE = "SKIP_FEE_CHARGE"
+
+
+class EntryPointType(Enum):
+    """
+    Enum class representing entry point types.
+    """
+
+    EXTERNAL = "EXTERNAL"
+    L1_HANDLER = "L1_HANDLER"
+    CONSTRUCTOR = "CONSTRUCTOR"
+
+
+class CallType(Enum):
+    """
+    Enum class representing call types.
+    """
+
+    LIBRARY_CALL = "LIBRARY_CALL"
+    CALL = "CALL"
+
+
+@dataclass
+class FunctionInvocation:
+    """
+    Dataclass representing an invocation of a function.
+    """
+
+    # pylint: disable=too-many-instance-attributes
+    contract_address: int
+    entry_point_selector: int
+    calldata: List[int]
+    caller_address: int
+    class_hash: int
+    entry_point_type: EntryPointType
+    call_type: CallType
+    result: List[int]
+    calls: List["FunctionInvocation"]
+    events: List[Event]
+    messages: List[L2toL1Message]
+
+
+@dataclass
+class RevertedFunctionInvocation:
+    """
+    Dataclass representing revert reason for the transaction.
+    """
+
+    revert_reason: str
+
+
+@dataclass
+class InvokeTransactionTrace:
+    """
+    Dataclass representing a transaction trace of an INVOKE transaction.
+    """
+
+    validate_invocation: Optional[FunctionInvocation]
+    execute_invocation: Union[FunctionInvocation, RevertedFunctionInvocation]
+    fee_transfer_invocation: Optional[FunctionInvocation]
+
+
+@dataclass
+class DeclareTransactionTrace:
+    """
+    Dataclass representing a transaction trace of an DECLARE transaction.
+    """
+
+    validate_invocation: Optional[FunctionInvocation]
+    fee_transfer_invocation: Optional[FunctionInvocation]
+
+
+@dataclass
+class DeployAccountTransactionTrace:
+    """
+    Dataclass representing a transaction trace of an DEPLOY_ACCOUNT transaction.
+    """
+
+    validate_invocation: Optional[FunctionInvocation]
+    constructor_invocation: FunctionInvocation
+    fee_transfer_invocation: Optional[FunctionInvocation]
+
+
+@dataclass
+class L1HandlerTransactionTrace:
+    """
+    Dataclass representing a transaction trace of an L1_HANDLER transaction.
+    """
+
+    function_invocation: FunctionInvocation
+
+
+TransactionTrace = Union[
+    InvokeTransactionTrace,
+    DeclareTransactionTrace,
+    DeployAccountTransactionTrace,
+    L1HandlerTransactionTrace,
+]
+
+
+@dataclass
+class SimulatedTransaction:
+    """
+    Dataclass representing a simulated transaction returned by `starknet_simulateTransactions` method.
+    """
+
+    transaction_trace: TransactionTrace
+    fee_estimation: EstimatedFee
+
+
+@dataclass
+class BlockTransactionTrace:
+    """
+    Dataclass representing a single transaction trace in a block.
+    """
+
+    transaction_hash: int
+    trace_root: TransactionTrace
