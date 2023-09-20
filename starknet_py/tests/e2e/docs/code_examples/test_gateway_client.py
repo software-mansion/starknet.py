@@ -39,10 +39,10 @@ async def test_get_block(gateway_client):
 @pytest.mark.asyncio
 async def test_get_block_traces(gateway_client):
     # docs-start: get_block_traces
-    block_traces = await gateway_client.get_block_traces(block_number="latest")
-    block_traces = await gateway_client.get_block_traces(block_number=0)
+    block_traces = await gateway_client.trace_block_transactions(block_number="latest")
+    block_traces = await gateway_client.trace_block_transactions(block_number=0)
     # or
-    block_traces = await gateway_client.get_block_traces(block_hash="0x0")
+    block_traces = await gateway_client.trace_block_transactions(block_hash="0x0")
     # docs-end: get_block_traces
 
 

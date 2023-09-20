@@ -1,11 +1,13 @@
 import pytest
 
+from starknet_py.net.account.account import Account
 from starknet_py.net.models.transaction import Declare, DeployAccount, Invoke
 
 
 @pytest.mark.asyncio
 async def test_account_sign_without_execute(account, map_compiled_contract):
     # pylint: disable=import-outside-toplevel
+    assert isinstance(account, Account)
     address = selector = class_hash = salt = 0x1
     calldata = []
     compiled_contract = map_compiled_contract
@@ -16,6 +18,8 @@ async def test_account_sign_without_execute(account, map_compiled_contract):
 
     # Create a signed Invoke transaction
     call = Call(to_addr=address, selector=selector, calldata=calldata)
+    invoke_transaction = await account.sign_invoke_transaction(call, max_fee=max_fee)
+    # Or if you're using Cairo1 account with new calldata encoding
     invoke_transaction = await account.sign_invoke_transaction(call, max_fee=max_fee)
 
     # Create a signed Declare transaction

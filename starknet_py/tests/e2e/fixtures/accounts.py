@@ -2,7 +2,7 @@
 
 import sys
 from dataclasses import dataclass
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 import pytest
 import pytest_asyncio
@@ -105,7 +105,10 @@ async def address_and_private_key(
             account_with_validate_deploy_class_hash,
             network,
         )
-    return account_details[net]
+
+    # because TESTNET and INTEGRATION constants are lambdas
+    exact_account_details = account_details[net]
+    return exact_account_details[0](), exact_account_details[1]()
 
 
 @pytest.fixture(scope="package")
@@ -172,9 +175,13 @@ class AccountToBeDeployedDetailsFactory:
     class_hash: int
     fee_contract: Contract
 
-    async def get(self) -> AccountToBeDeployedDetails:
+    async def get(
+        self, *, class_hash: Optional[int] = None, argent_calldata: bool = False
+    ) -> AccountToBeDeployedDetails:
         return await get_deploy_account_details(
-            class_hash=self.class_hash, fee_contract=self.fee_contract
+            class_hash=class_hash if class_hash is not None else self.class_hash,
+            fee_contract=self.fee_contract,
+            argent_calldata=argent_calldata,
         )
 
 
@@ -218,9 +225,38 @@ def pre_deployed_account_with_validate_deploy(
     net = pytestconfig.getoption("--net")
     address, private_key = address_and_priv_key[net]
 
+    if net != "devnet":
+        # because TESTNET and INTEGRATION constants are lambdas
+        address = address()
+        private_key = private_key()
+
     return Account(
         address=address,
         client=GatewayClient(net=network),
         key_pair=KeyPair.from_private_key(int(private_key, 16)),
         chain=StarknetChainId.TESTNET,
     )
+
+
+@pytest_asyncio.fixture(scope="package")
+async def argent_cairo1_account(
+    argent_cairo1_account_class_hash,
+    deploy_account_details_factory: AccountToBeDeployedDetailsFactory,
+    full_node_client,
+) -> BaseAccount:
+    address, key_pair, salt, class_hash = await deploy_account_details_factory.get(
+        class_hash=argent_cairo1_account_class_hash,
+        argent_calldata=True,
+    )
+    deploy_result = await Account.deploy_account(
+        address=address,
+        class_hash=class_hash,
+        salt=salt,
+        key_pair=key_pair,
+        client=full_node_client,
+        constructor_calldata=[key_pair.public_key, 0],
+        chain=StarknetChainId.TESTNET,
+        max_fee=int(1e16),
+    )
+    await deploy_result.wait_for_acceptance()
+    return deploy_result.account

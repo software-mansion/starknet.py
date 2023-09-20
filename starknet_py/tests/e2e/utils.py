@@ -19,27 +19,33 @@ AccountToBeDeployedDetails = Tuple[int, KeyPair, int, int]
 
 
 async def get_deploy_account_details(
-    *, class_hash: int, fee_contract: Contract
+    *, class_hash: int, fee_contract: Contract, argent_calldata: bool = False
 ) -> AccountToBeDeployedDetails:
     """
     Returns address, key_pair, salt and class_hash of the account with validate deploy.
 
-    :param class_hash: Class hash of account to be deployed
-    :param fee_contract: Contract for prefunding deployments
+    :param class_hash: Class hash of account to be deployed.
+    :param fee_contract: Contract for prefunding deployments.
+    :param argent_calldata: Flag deciding whether calldata should be in Argent-account format.
     """
     priv_key = _get_random_private_key_unsafe()
     key_pair = KeyPair.from_private_key(priv_key)
     salt = _get_random_salt()
 
+    calldata = [key_pair.public_key]
+    if argent_calldata:
+        # Argent account's calldata to the constructor requires 'owner' and 'guardian', hence the additional 0 for the
+        # 'guardian'.
+        calldata.append(0)
     address = compute_address(
         salt=salt,
         class_hash=class_hash,
-        constructor_calldata=[key_pair.public_key],
+        constructor_calldata=calldata,
         deployer_address=0,
     )
 
     res = await fee_contract.functions["transfer"].invoke(
-        recipient=address, amount=int(1e17), max_fee=MAX_FEE
+        recipient=address, amount=int(1e19), max_fee=MAX_FEE
     )
     await res.wait_for_acceptance()
 
@@ -76,7 +82,7 @@ async def get_deploy_account_transaction(
         class_hash=class_hash,
         contract_address_salt=salt,
         constructor_calldata=[key_pair.public_key],
-        max_fee=MAX_FEE,
+        max_fee=int(1e16),
     )
 
 
