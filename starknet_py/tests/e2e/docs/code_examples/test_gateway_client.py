@@ -1,5 +1,4 @@
 # pylint: disable=unused-variable
-import marshmallow.exceptions
 import pytest
 
 from starknet_py.hash.selector import get_selector_from_name
@@ -47,6 +46,7 @@ async def test_get_block_traces(gateway_client):
     # docs-end: get_block_traces
 
 
+@pytest.mark.xfail(reason="Devnet doesn't support `include_block` parameter")
 @pytest.mark.asyncio
 async def test_get_state_update(gateway_client):
     # docs-start: get_state_update
@@ -55,14 +55,10 @@ async def test_get_state_update(gateway_client):
     # or
     state_update = await gateway_client.get_state_update(block_hash="0x0")
     # You can also return it together with the corresponding block
+    state_update = await gateway_client.get_state_update(
+        block_number=0, include_block=True
+    )
     # docs-end: get_state_update
-    with pytest.raises(marshmallow.exceptions.ValidationError):
-        # because devnet doesn't support `include_block` parameter
-        # docs-start: get_state_update
-        state_update = await gateway_client.get_state_update(
-            block_number=0, include_block=True
-        )
-        # docs-end: get_state_update
 
 
 @pytest.mark.asyncio
