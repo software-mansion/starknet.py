@@ -1,7 +1,6 @@
 # pylint: disable=too-many-arguments
 import asyncio
 import dataclasses
-import sys
 from typing import Tuple
 from unittest.mock import AsyncMock, patch
 
@@ -82,11 +81,6 @@ async def test_get_transaction_raises_on_not_received(client):
         await client.get_transaction(tx_hash=0x9999)
 
 
-# TODO (#1154): remove line below
-@pytest.mark.xfail(
-    "--client=gateway" in sys.argv,
-    reason="0.12.2 returns Felts in state_root, devnet returns NonPrefixedHex",
-)
 @pytest.mark.asyncio
 async def test_get_block_by_hash(
     client,
@@ -103,11 +97,6 @@ async def test_get_block_by_hash(
         assert block.gas_price > 0
 
 
-# TODO (#1154): remove line below
-@pytest.mark.xfail(
-    "--client=gateway" in sys.argv,
-    reason="0.12.2 returns Felts in state_root, devnet returns NonPrefixedHex",
-)
 @pytest.mark.asyncio
 async def test_get_block_by_number(
     client,
@@ -524,11 +513,6 @@ async def test_get_l1_handler_transaction(client):
         assert transaction.nonce == 0x34C20
 
 
-# TODO (#1154): remove line below
-@pytest.mark.xfail(
-    "--client=gateway" in sys.argv,
-    reason="0.12.2 returns Felts in state_root, devnet returns NonPrefixedHex",
-)
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_state_update_declared_contract_hashes(
@@ -544,11 +528,6 @@ async def test_state_update_declared_contract_hashes(
         assert class_hash in state_update.state_diff.deprecated_declared_contract_hashes
 
 
-# TODO (#1154): remove line below
-@pytest.mark.xfail(
-    "--client=gateway" in sys.argv,
-    reason="0.12.2 returns Felts in state_root, devnet returns NonPrefixedHex",
-)
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_state_update_storage_diffs(
@@ -565,11 +544,6 @@ async def test_state_update_storage_diffs(
         assert isinstance(state_update, PendingBlockStateUpdate)
 
 
-# TODO (#1154): remove line below
-@pytest.mark.xfail(
-    "--client=gateway" in sys.argv,
-    reason="0.12.2 returns Felts in state_root, devnet returns NonPrefixedHex",
-)
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_state_update_deployed_contracts(
@@ -631,11 +605,6 @@ async def test_get_declare_v2_transaction(
     )
 
 
-# TODO (#1154): remove line below
-@pytest.mark.xfail(
-    "--client=gateway" in sys.argv,
-    reason="0.12.2 returns Felts in state_root, devnet returns NonPrefixedHex",
-)
 @pytest.mark.asyncio
 async def test_get_block_with_declare_v2(
     client,
@@ -662,11 +631,6 @@ async def test_get_block_with_declare_v2(
     )
 
 
-# TODO (#1154): remove line below
-@pytest.mark.xfail(
-    "--client=gateway" in sys.argv,
-    reason="0.12.2 returns Felts in state_root, devnet returns NonPrefixedHex",
-)
 @pytest.mark.asyncio
 async def test_get_new_state_update(
     client,

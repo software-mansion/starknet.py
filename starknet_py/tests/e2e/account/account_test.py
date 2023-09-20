@@ -1,4 +1,3 @@
-import sys
 from typing import cast
 from unittest.mock import AsyncMock, patch
 
@@ -141,11 +140,6 @@ async def test_get_class_hash_at(map_contract, account):
     assert class_hash != 0
 
 
-# TODO (#1154): remove line below
-@pytest.mark.xfail(
-    "--client=gateway" in sys.argv,
-    reason="0.12.2 returns Felts in state_root, devnet returns NonPrefixedHex",
-)
 @pytest.mark.asyncio()
 async def test_get_nonce(account, map_contract):
     nonce = await account.get_nonce()
