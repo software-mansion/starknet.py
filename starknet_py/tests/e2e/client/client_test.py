@@ -1,7 +1,6 @@
 # pylint: disable=too-many-arguments
 import asyncio
 import dataclasses
-import sys
 from typing import Tuple
 from unittest.mock import AsyncMock, patch
 

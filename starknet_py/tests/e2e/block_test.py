@@ -1,5 +1,3 @@
-import sys
-
 import pytest
 
 from starknet_py.contract import Contract

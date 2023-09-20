@@ -1,4 +1,3 @@
-import sys
 from typing import cast
 from unittest.mock import AsyncMock, patch
 
