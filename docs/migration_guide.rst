@@ -31,6 +31,13 @@ sets the calldata encoding accordingly.
 1. ``cairo_version`` parameter in :meth:`Account.sign_invoke_transaction` and :meth:`Account.execute` has been deprecated.
 
 
+0.18.2 Bugfixes
+---------------
+
+.. currentmodule:: starknet_py.contract
+
+1. Fixed a bug when using ``proxy_config=True`` in :meth:`Contract.from_address` method regarding ``Entry point EntryPointSelector(...) not found in contract``.
+
 0.18.2 Minor changes
 --------------------
 
