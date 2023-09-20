@@ -1,4 +1,3 @@
-import sys
 from typing import cast
 from unittest.mock import AsyncMock, patch
 
@@ -15,6 +14,7 @@ from starknet_py.net.client_models import (
     DeployAccountTransaction,
     DeployAccountTransactionResponse,
     EstimatedFee,
+    SierraContractClass,
     TransactionStatus,
 )
 from starknet_py.net.full_node_client import FullNodeClient
@@ -24,7 +24,6 @@ from starknet_py.net.models.transaction import Declare, DeclareV2
 from starknet_py.net.signer.stark_curve_signer import KeyPair
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
-from starknet_py.transaction_errors import TransactionRejectedError
 
 
 @pytest.mark.run_on_devnet
@@ -103,26 +102,18 @@ async def test_sending_multicall(account, map_contract, key, val):
     assert value == val
 
 
-# TODO (#981): FullNode is not tested because we don't implement trace api (devnet does not either)
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_block_traces(gateway_account):
-    traces = await gateway_account.client.get_block_traces(block_number=2)
+    traces = await gateway_account.client.trace_block_transactions(block_number=2)
 
     assert traces.traces != []
 
 
 @pytest.mark.asyncio
-async def test_rejection_reason_in_transaction_receipt(account, map_contract):
-    res = await map_contract.functions["put"].invoke(key=10, value=20, max_fee=1)
-
-    with pytest.raises(TransactionRejectedError):
-        await account.client.wait_for_tx(res.hash)
-
-    transaction_receipt = await account.client.get_transaction_receipt(res.hash)
-
-    if isinstance(account.client, GatewayClient):
-        assert "Actual fee exceeded max fee." in transaction_receipt.rejection_reason
+async def test_rejection_reason_in_transaction_receipt(map_contract):
+    with pytest.raises(ClientError, match=r".*INSUFFICIENT_MAX_FEE.*"):
+        _ = await map_contract.functions["put"].invoke(key=10, value=20, max_fee=1)
 
 
 def test_sign_and_verify_offchain_message_fail(account, typed_data):
@@ -149,11 +140,6 @@ async def test_get_class_hash_at(map_contract, account):
     assert class_hash != 0
 
 
-# TODO (#1154): remove line below
-@pytest.mark.xfail(
-    "--client=gateway" in sys.argv,
-    reason="0.12.2 returns Felts in state_root, devnet returns NonPrefixedHex",
-)
 @pytest.mark.asyncio()
 async def test_get_nonce(account, map_contract):
     nonce = await account.get_nonce()
@@ -383,15 +369,22 @@ async def test_deploy_account_raises_on_incorrect_address(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "call_contract",
+    "call_contract, client",
     [
-        "starknet_py.net.gateway_client.GatewayClient.call_contract",
-        "starknet_py.net.full_node_client.FullNodeClient.call_contract",
+        (
+            "starknet_py.net.gateway_client.GatewayClient.call_contract",
+            "gateway_client",
+        ),
+        (
+            "starknet_py.net.full_node_client.FullNodeClient.call_contract",
+            "full_node_client",
+        ),
     ],
 )
 async def test_deploy_account_raises_on_no_enough_funds(
-    deploy_account_details_factory, call_contract, client
+    deploy_account_details_factory, call_contract, client, request
 ):
+    client = request.getfixturevalue(client)
     address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
 
     with patch(call_contract, AsyncMock()) as mocked_balance:
@@ -453,6 +446,10 @@ async def test_deploy_account_passes_on_enough_funds(
         )
 
 
+# TODO (#1056): change this test to braavos account
+@pytest.mark.skip(
+    reason="'__validate_execute__' doesn't allow any other calldata than in the constructor"
+)
 @pytest.mark.asyncio
 async def test_deploy_account_uses_custom_calldata(
     client, deploy_account_details_factory, fee_contract
@@ -589,3 +586,107 @@ async def test_sign_transaction_custom_nonce(account, cairo1_hello_starknet_clas
 
     assert invoke_tx.nonce == deploy_tx.nonce + 1
     assert result == [new_balance]
+
+
+@pytest.mark.asyncio
+async def test_argent_cairo1_account_deploy(
+    full_node_client,
+    argent_cairo1_account_class_hash,
+    deploy_account_details_factory,
+):
+    address, key_pair, salt, class_hash = await deploy_account_details_factory.get(
+        class_hash=argent_cairo1_account_class_hash, argent_calldata=True
+    )
+
+    deploy_result = await Account.deploy_account(
+        address=address,
+        class_hash=class_hash,
+        salt=salt,
+        key_pair=key_pair,
+        client=full_node_client,
+        constructor_calldata=[key_pair.public_key, 0],
+        chain=StarknetChainId.TESTNET,
+        max_fee=int(1e16),
+    )
+    await deploy_result.wait_for_acceptance()
+    account = deploy_result.account
+
+    assert isinstance(account, BaseAccount)
+    assert await account.cairo_version == 1
+
+    account_contract_class = await full_node_client.get_class_at(
+        contract_address=account.address, block_number="latest"
+    )
+
+    assert isinstance(account_contract_class, SierraContractClass)
+
+
+@pytest.mark.asyncio
+async def test_argent_cairo1_account_execute(
+    deployed_balance_contract,
+    argent_cairo1_account: BaseAccount,
+):
+    # verify that initial balance is 0
+    get_balance_call = Call(
+        to_addr=deployed_balance_contract.address,
+        selector=get_selector_from_name("get_balance"),
+        calldata=[],
+    )
+    get_balance = await argent_cairo1_account.client.call_contract(
+        call=get_balance_call, block_number="latest"
+    )
+
+    assert get_balance[0] == 0
+
+    value = 20
+    increase_balance_by_20_call = Call(
+        to_addr=deployed_balance_contract.address,
+        selector=get_selector_from_name("increase_balance"),
+        calldata=[value],
+    )
+    execute = await argent_cairo1_account.execute(
+        calls=increase_balance_by_20_call, max_fee=int(1e16)
+    )
+    await argent_cairo1_account.client.wait_for_tx(tx_hash=execute.transaction_hash)
+    receipt = await argent_cairo1_account.client.get_transaction_receipt(
+        tx_hash=execute.transaction_hash
+    )
+
+    # TODO (#1179): devnet 0.3.0 still return STATUS instead of FINALITY_STATUS
+    assert receipt.status == TransactionStatus.ACCEPTED_ON_L2
+
+    # verify that the previous call was executed
+    get_balance_call = Call(
+        to_addr=deployed_balance_contract.address,
+        selector=get_selector_from_name("get_balance"),
+        calldata=[],
+    )
+    get_balance = await argent_cairo1_account.client.call_contract(
+        call=get_balance_call, block_number="latest"
+    )
+
+    assert get_balance[0] == value
+
+
+# TODO (#1184): remove that
+@pytest.mark.asyncio
+async def test_cairo1_account_deprecations(
+    deployed_balance_contract,
+    argent_cairo1_account: BaseAccount,
+):
+    call = Call(
+        to_addr=deployed_balance_contract.address,
+        selector=get_selector_from_name("increase_balance"),
+        calldata=[20],
+    )
+    with pytest.warns(
+        DeprecationWarning,
+        match="Parameter 'cairo_version' has been deprecated. It is calculated automatically based on your account's "
+        "contract class.",
+    ):
+        _ = await argent_cairo1_account.execute(
+            calls=call, max_fee=int(1e16), cairo_version=1
+        )
+        _ = await argent_cairo1_account.sign_invoke_transaction(
+            calls=call, max_fee=int(1e16), cairo_version=1
+        )

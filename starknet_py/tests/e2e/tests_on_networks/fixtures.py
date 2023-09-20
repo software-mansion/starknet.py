@@ -13,7 +13,8 @@ from starknet_py.tests.e2e.fixtures.constants import (
     INTEGRATION_ACCOUNT_ADDRESS,
     INTEGRATION_ACCOUNT_PRIVATE_KEY,
     INTEGRATION_GATEWAY_URL,
-    INTEGRATION_NODE_URL,
+    INTEGRATION_RPC_URL,
+    TESTNET_RPC_URL,
 )
 
 
@@ -30,7 +31,8 @@ def full_node_client_integration() -> FullNodeClient:
     """
     A fixture returning a FullNodeClient with our integration network node URL.
     """
-    return FullNodeClient(node_url=INTEGRATION_NODE_URL)
+    # because TESTNET and INTEGRATION constants are lambdas
+    return FullNodeClient(node_url=INTEGRATION_RPC_URL())
 
 
 def net_to_integration_clients() -> List[str]:
@@ -58,9 +60,11 @@ def gateway_account_integration(gateway_client_integration) -> Account:
     A fixture returning an Account with GatewayClient.
     """
     return Account(
-        address=INTEGRATION_ACCOUNT_ADDRESS,
+        # because TESTNET and INTEGRATION constants are lambdas
+        address=INTEGRATION_ACCOUNT_ADDRESS(),
         client=gateway_client_integration,
-        key_pair=KeyPair.from_private_key(int(INTEGRATION_ACCOUNT_PRIVATE_KEY, 0)),
+        # because TESTNET and INTEGRATION constants are lambdas
+        key_pair=KeyPair.from_private_key(int(INTEGRATION_ACCOUNT_PRIVATE_KEY(), 0)),
         chain=StarknetChainId.TESTNET,
     )
 
@@ -71,9 +75,11 @@ def full_node_account_integration(full_node_client_integration) -> Account:
     A fixture returning an Account with FullNodeClient.
     """
     return Account(
-        address=INTEGRATION_ACCOUNT_ADDRESS,
+        # because TESTNET and INTEGRATION constants are lambdas
+        address=INTEGRATION_ACCOUNT_ADDRESS(),
         client=full_node_client_integration,
-        key_pair=KeyPair.from_private_key(int(INTEGRATION_ACCOUNT_PRIVATE_KEY, 0)),
+        # because TESTNET and INTEGRATION constants are lambdas
+        key_pair=KeyPair.from_private_key(int(INTEGRATION_ACCOUNT_PRIVATE_KEY(), 0)),
         chain=StarknetChainId.TESTNET,
     )
 
@@ -96,3 +102,20 @@ def account_integration(request) -> Account:
     FullNodeClient).
     """
     return request.getfixturevalue(request.param)
+
+
+@pytest.fixture(scope="package")
+def gateway_client_testnet() -> GatewayClient:
+    """
+    A fixture returning a GatewayClient with a public integration network URL.
+    """
+    return GatewayClient(net="testnet")
+
+
+@pytest.fixture(scope="package")
+def full_node_client_testnet() -> FullNodeClient:
+    """
+    A fixture returning a FullNodeClient with our integration network node URL.
+    """
+    # because TESTNET and INTEGRATION constants are lambdas
+    return FullNodeClient(node_url=TESTNET_RPC_URL())

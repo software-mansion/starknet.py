@@ -11,7 +11,7 @@ from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     BlockHashAndNumber,
     BlockStateUpdate,
-    BlockTransactionTraces,
+    BlockTransactionTrace,
     Call,
     ContractClass,
     DeclareTransactionResponse,
@@ -24,12 +24,15 @@ from starknet_py.net.client_models import (
     PendingStarknetBlockWithTxHashes,
     SentTransactionResponse,
     SierraContractClass,
+    SimulatedTransaction,
+    SimulationFlag,
     StarknetBlock,
     StarknetBlockWithTxHashes,
     SyncStatus,
     Tag,
     Transaction,
     TransactionReceipt,
+    TransactionTrace,
     TransactionType,
 )
 from starknet_py.net.http_client import RpcHttpClient
@@ -46,6 +49,7 @@ from starknet_py.net.networks import Network
 from starknet_py.net.schemas.rpc import (
     BlockHashAndNumberSchema,
     BlockStateUpdateSchema,
+    BlockTransactionTraceSchema,
     ContractClassSchema,
     DeclareTransactionResponseSchema,
     DeployAccountTransactionResponseSchema,
@@ -57,10 +61,12 @@ from starknet_py.net.schemas.rpc import (
     PendingTransactionsSchema,
     SentTransactionSchema,
     SierraContractClassSchema,
+    SimulatedTransactionSchema,
     StarknetBlockSchema,
     StarknetBlockWithTxHashesSchema,
     SyncStatusSchema,
     TransactionReceiptSchema,
+    TransactionTraceSchema,
     TypesOfTransactionsSchema,
 )
 from starknet_py.transaction_errors import TransactionNotReceivedError
@@ -149,13 +155,6 @@ class FullNodeClient(Client):
             StarknetBlockWithTxHashes,
             StarknetBlockWithTxHashesSchema().load(res, unknown=EXCLUDE),
         )
-
-    async def get_block_traces(
-        self,
-        block_hash: Optional[Union[Hash, Tag]] = None,
-        block_number: Optional[Union[int, Tag]] = None,
-    ) -> BlockTransactionTraces:
-        raise NotImplementedError()
 
     # TODO (#809): add tests with multiple emitted keys
     async def get_events(
@@ -658,6 +657,111 @@ class FullNodeClient(Client):
         )
         res = cast(str, res)
         return int(res, 16)
+
+    # ------------------------------- Trace API -------------------------------
+
+    async def trace_transaction(
+        self,
+        tx_hash: Hash,
+    ) -> TransactionTrace:
+        """
+        For a given executed transaction, returns the trace of its execution, including internal calls.
+
+        :param tx_hash: Hash of the executed transaction.
+        :return: Trace of the transaction.
+        """
+        res = await self._client.call(
+            method_name="traceTransaction",
+            params={
+                "transaction_hash": tx_hash,
+            },
+        )
+        return cast(
+            TransactionTrace, TransactionTraceSchema().load(res, unknown=EXCLUDE)
+        )
+
+    async def simulate_transactions(
+        self,
+        transactions: List[AccountTransaction],
+        skip_validate: bool = False,
+        skip_fee_charge: bool = False,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> List[SimulatedTransaction]:
+        # pylint: disable=too-many-arguments
+        """
+        Simulates a given sequence of transactions on the requested state, and generates the execution traces.
+        If one of the transactions is reverted, raises CONTRACT_ERROR.
+
+        :param transactions: Transactions to be traced.
+        :param skip_validate: Flag checking whether the validation part of the transaction should be executed.
+        :param skip_fee_charge: Flag deciding whether fee should be deducted from the balance before the simulation
+            of the next transaction.
+        :param block_hash: Block's hash or literals `"pending"` or `"latest"`
+        :param block_number: Block's number or literals `"pending"` or `"latest"`
+        :return: The execution trace and consumed resources for each transaction.
+        """
+        block_identifier = get_block_identifier(
+            block_hash=block_hash, block_number=block_number
+        )
+
+        simulation_flags = []
+        if skip_validate:
+            simulation_flags.append(SimulationFlag.SKIP_VALIDATE)
+        if skip_fee_charge:
+            simulation_flags.append(SimulationFlag.SKIP_FEE_CHARGE)
+
+        res = await self._client.call(
+            method_name="simulateTransactions",
+            params={
+                **block_identifier,
+                "simulation_flags": simulation_flags,
+                "transactions": [
+                    _create_broadcasted_txn(transaction=t) for t in transactions
+                ],
+            },
+        )
+        return cast(
+            List[SimulatedTransaction],
+            SimulatedTransactionSchema().load(res, unknown=EXCLUDE, many=True),
+        )
+
+    async def trace_block_transactions(
+        self,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> List[BlockTransactionTrace]:
+        """
+        Retrieve traces for all transactions in the given block.
+
+        :param block_hash: Block's hash or literals `"pending"` or `"latest"`
+        :param block_number: Block's number or literals `"pending"` or `"latest"`
+        :return: List of execution traces of all transactions included in the given block with transaction hashes.
+        """
+
+        # TODO (#1169): remove this hack after RPC Trace API update from `BLOCK_HASH` to `BLOCK_ID`
+
+        if block_hash == "pending" or block_number == "pending":
+            warnings.warn(
+                'Only possible argument in RPC specification is "block_hash". '
+                'Using "latest" block instead of "pending". "pending" blocks do not have a hash.'
+            )
+            block_number = None
+            block_hash = "latest"
+
+        block = await self.get_block(block_hash=block_hash, block_number=block_number)
+        assert isinstance(block, StarknetBlock)
+
+        res = await self._client.call(
+            method_name="traceBlockTransactions",
+            params={
+                "block_hash": _to_rpc_felt(block.block_hash),
+            },
+        )
+        return cast(
+            List[BlockTransactionTrace],
+            BlockTransactionTraceSchema().load(res, unknown=EXCLUDE, many=True),
+        )
 
 
 def get_block_identifier(

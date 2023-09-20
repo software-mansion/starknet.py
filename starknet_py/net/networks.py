@@ -4,7 +4,6 @@ from starknet_py.constants import FEE_CONTRACT_ADDRESS
 
 MAINNET = "mainnet"
 TESTNET = "testnet"
-
 PredefinedNetwork = Literal["mainnet", "testnet"]
 
 

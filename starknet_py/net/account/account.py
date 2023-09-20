@@ -18,8 +18,11 @@ from starknet_py.net.client_models import (
     EstimatedFee,
     Hash,
     SentTransactionResponse,
+    SierraContractClass,
     Tag,
 )
+from starknet_py.net.full_node_client import FullNodeClient
+from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import AddressRepresentation, StarknetChainId, parse_address
 from starknet_py.net.models.transaction import (
     AccountTransaction,
@@ -74,6 +77,7 @@ class Account(BaseAccount):
         """
         self._address = parse_address(address)
         self._client = client
+        self._cairo_version = None
 
         if signer is not None and key_pair is not None:
             raise ValueError("Arguments signer and key_pair are mutually exclusive.")
@@ -95,6 +99,23 @@ class Account(BaseAccount):
     @property
     def address(self) -> int:
         return self._address
+
+    @property
+    async def cairo_version(self) -> int:
+        if self._cairo_version is None:
+            if isinstance(self._client, GatewayClient):
+                contract_class = await self._client.get_full_contract(
+                    contract_address=self._address
+                )
+            else:
+                assert isinstance(self._client, FullNodeClient)
+                contract_class = await self._client.get_class_at(
+                    contract_address=self._address
+                )
+            self._cairo_version = (
+                1 if isinstance(contract_class, SierraContractClass) else 0
+            )
+        return self._cairo_version
 
     @property
     def client(self) -> Client:
@@ -137,7 +158,6 @@ class Account(BaseAccount):
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-        cairo_version: int = 0,
     ) -> Invoke:
         """
         Takes calls and creates Invoke from them.
@@ -150,7 +170,7 @@ class Account(BaseAccount):
         if nonce is None:
             nonce = await self.get_nonce()
 
-        if cairo_version == 1:
+        if await self.cairo_version == 1:
             parsed_calls = _parse_calls_v2(ensure_iterable(calls))
             wrapped_calldata = _execute_payload_serializer_v2.serialize(
                 {"calls": parsed_calls}
@@ -253,14 +273,22 @@ class Account(BaseAccount):
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-        cairo_version: int = 0,
+        # TODO (#1184): remove that
+        cairo_version: Optional[int] = None,
     ) -> Invoke:
+        # TODO (#1184): remove that
+        if cairo_version is not None:
+            warnings.warn(
+                "Parameter 'cairo_version' has been deprecated. It is calculated automatically based on your account's "
+                "contract class.",
+                category=DeprecationWarning,
+            )
+
         execute_tx = await self._prepare_invoke(
             calls,
             nonce=nonce,
             max_fee=max_fee,
             auto_estimate=auto_estimate,
-            cairo_version=cairo_version,
         )
         signature = self.signer.sign_transaction(execute_tx)
         return _add_signature_to_transaction(execute_tx, signature)
@@ -387,14 +415,22 @@ class Account(BaseAccount):
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-        cairo_version: int = 0,
+        # TODO (#1184): remove that
+        cairo_version: Optional[int] = None,
     ) -> SentTransactionResponse:
+        # TODO (#1184): remove that
+        if cairo_version is not None:
+            warnings.warn(
+                "Parameter 'cairo_version' has been deprecated. It is calculated automatically based on your account's "
+                "contract class.",
+                category=DeprecationWarning,
+            )
+
         execute_transaction = await self.sign_invoke_transaction(
             calls,
             nonce=nonce,
             max_fee=max_fee,
             auto_estimate=auto_estimate,
-            cairo_version=cairo_version,
         )
         return await self._client.send_transaction(execute_transaction)
 
@@ -464,7 +500,10 @@ class Account(BaseAccount):
             )
 
         account = Account(
-            address=address, client=client, key_pair=key_pair, chain=chain
+            address=address,
+            client=client,
+            key_pair=key_pair,
+            chain=chain,
         )
 
         deploy_account_tx = await account.sign_deploy_account_transaction(

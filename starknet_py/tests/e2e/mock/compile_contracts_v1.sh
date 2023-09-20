@@ -6,6 +6,11 @@ CONTRACTS_COMPILED_DIRECTORY="$MOCK_DIRECTORY"/contracts_compiled_v1
 
 # get path to Cargo.toml
 MANIFEST_PATH=`cat starknet_py/tests/e2e/manifest-path`
+if [ -z "$MANIFEST_PATH" ]
+then
+      echo "File 'manifest-path' was not found in directory 'starknet_py/tests/e2e'. More info here: https://starknetpy.readthedocs.io/en/latest/development.html#setup"
+      exit 1
+fi
 
 # delete all artifacts except precompiled ones
 mkdir -p $CONTRACTS_COMPILED_DIRECTORY

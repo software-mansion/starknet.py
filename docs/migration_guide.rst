@@ -2,6 +2,112 @@ Migration guide
 ===============
 
 **********************
+0.18.2 Migration guide
+**********************
+
+Version 0.18.2 of **starknet.py** comes with support of `RPC v0.4.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.4.0>`_ Trace API!
+Additionally, you can now `properly` use Cairo1 accounts! ``starknet.py`` automatically checks if your account is in Cairo1 and
+sets the calldata encoding accordingly.
+
+0.18.2 Targeted versions
+------------------------
+
+- Starknet - `0.12.2 <https://community.starknet.io/t/introducing-p2p-authentication-and-mismatch-resolution-in-v0-12-2/97993>`_
+- RPC - `0.4.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.4.0>`_
+
+0.18.2 Breaking changes
+-----------------------
+
+.. currentmodule:: starknet_py.net.client
+
+1. :meth:`Client.get_block_traces` has been renamed to :meth:`Client.trace_block_transactions` in order to match RPC specification.
+
+
+0.18.2 Deprecations
+-------------------
+
+.. currentmodule:: starknet_py.net.account.account
+
+1. ``cairo_version`` parameter in :meth:`Account.sign_invoke_transaction` and :meth:`Account.execute` has been deprecated.
+
+
+0.18.2 Bugfixes
+---------------
+
+.. currentmodule:: starknet_py.contract
+
+1. Fixed a bug when using ``proxy_config=True`` in :meth:`Contract.from_address` method regarding ``Entry point EntryPointSelector(...) not found in contract``.
+
+0.18.2 Minor changes
+--------------------
+
+1. :meth:`Client.trace_block_transactions` return type has been changed from ``BlockTransactionTraces`` to ``Union[BlockTransactionTraces, List[BlockTransactionTrace]]``.
+
+.. currentmodule:: starknet_py.net.gateway_client
+
+2. ``include_block`` parameter in :meth:`GatewayClient.get_state_update` now works on gateway mainnet.
+
+.. currentmodule:: starknet_py.net.account.account
+
+3. :class:`BaseAccount` interface and :class:`Account` now have an additional **async** property - ``cairo_version``.
+
+
+0.18.2 Development-related changes
+----------------------------------
+
+1. In order to be able to run tests, you must set some environmental variables:
+
+    - ``INTEGRATION_RPC_URL``
+    - ``TESTNET_RPC_URL``
+    - ``INTEGRATION_ACCOUNT_PRIVATE_KEY``
+    - ``INTEGRATION_ACCOUNT_ADDRESS``
+    - ``TESTNET_ACCOUNT_PRIVATE_KEY``
+    - ``TESTNET_ACCOUNT_ADDRESS``
+
+The best way to do that is to create ``test-variables.env`` file in ``starknet_py/tests/e2e/`` directory, so they can be loaded by the ``python-dotenv`` library.
+You can find an example file ``test-variables.env.template`` in the same directory with the format of how it should look like.
+
+
+|
+
+.. raw:: html
+
+  <hr>
+
+|
+
+**********************
+0.18.1 Migration guide
+**********************
+
+.. currentmodule:: starknet_py.net.gateway_client
+
+This version contains a quick fix to :meth:`GatewayClient.get_state_update` method (mainnet wasn't updated to 0.12.2 then).
+
+.. currentmodule:: starknet_py.net.account.account
+
+Additionally, accounts in Cairo1 are now supported! You can pass additional argument ``cairo_version`` to :meth:`Account.sign_invoke_transaction` method.
+
+
+0.18.1 Minor changes
+--------------------
+
+1. Parameter ``include_block`` in :meth:`GatewayClient.get_state_update` doesn't work on mainnet gateway (an error is thrown).
+
+.. currentmodule:: starknet_py.net.account.account
+
+2. :meth:`Account.sign_invoke_transaction` now accepts additional parameter ``cairo_version``, which allows specifying which type of calldata encoding should be used.
+
+|
+
+.. raw:: html
+
+  <hr>
+
+|
+
+
+**********************
 0.18.0 Migration guide
 **********************
 

@@ -11,7 +11,7 @@ from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.client.fixtures.prepare_net_for_gateway_test import (
     PreparedNetworkData,
 )
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_DIR, MAX_FEE
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V0_DIR, MAX_FEE
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 from starknet_py.tests.e2e.utils import (
     get_deploy_account_details,
@@ -95,7 +95,7 @@ async def replaced_class(account: Account, map_class_hash: int) -> Tuple[int, in
     Returns block_number, contract_address and class_hash of transaction replacing implementation.
     """
     compiled_contract = read_contract(
-        "replace_class_compiled.json", directory=CONTRACTS_COMPILED_DIR
+        "replace_class_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR
     )
 
     declare_result = await Contract.declare(account, compiled_contract, max_fee=MAX_FEE)

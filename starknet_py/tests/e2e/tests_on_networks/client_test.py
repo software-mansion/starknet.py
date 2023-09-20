@@ -450,23 +450,3 @@ async def test_get_state_update_with_block(gateway_client_integration):
 
     assert res.block == block
     assert res.state_update is not None
-
-
-# TODO (#1166): remove tests below after mainnet release
-@pytest.mark.asyncio
-async def test_get_block_different_starknet_versions():
-    mainnet = GatewayClient(net="mainnet")
-    testnet = GatewayClient(net="testnet")
-
-    _ = await mainnet.get_block(block_number=100000)
-    _ = await testnet.get_block(block_number=100000)
-
-
-@pytest.mark.asyncio
-async def test_get_state_update_different_starknet_versions():
-    mainnet = GatewayClient(net="mainnet")
-    testnet = GatewayClient(net="testnet")
-
-    _ = await mainnet.get_state_update(block_number=100000)
-
-    _ = await testnet.get_state_update(block_number=100000, include_block=True)

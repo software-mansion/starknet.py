@@ -175,7 +175,10 @@ class ContractAbiResolver:
                 if implementation is not None:
                     yield implementation, ImplementationType.ADDRESS
             except ClientError as err:
-                err_msg = r"(Entry point 0x[0-9a-f]+ not found in contract)|(is not declared)|(is not deployed)"
+                err_msg = (
+                    r"(Entry point ((0x[0-9a-f]+)|(EntryPointSelector\(StarkFelt\(\"0x[0-9a-f]+)\"\)\))"
+                    r" not found in contract)|(is not declared)|(is not deployed)"
+                )
                 if not (
                     re.search(err_msg, err.message, re.IGNORECASE)
                     or err.code
