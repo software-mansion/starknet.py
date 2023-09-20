@@ -55,10 +55,10 @@ async def test_get_state_update(gateway_client):
     # or
     state_update = await gateway_client.get_state_update(block_hash="0x0")
     # You can also return it together with the corresponding block
-    # docs: end
+    # docs-end: get_state_update
     with pytest.raises(marshmallow.exceptions.ValidationError):
         # because devnet doesn't support `include_block` parameter
-        # docs: start
+        # docs-start: get_state_update
         state_update = await gateway_client.get_state_update(
             block_number=0, include_block=True
         )
