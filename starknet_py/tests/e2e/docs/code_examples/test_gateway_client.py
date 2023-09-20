@@ -62,7 +62,7 @@ async def test_get_state_update(gateway_client):
         state_update = await gateway_client.get_state_update(
             block_number=0, include_block=True
         )
-    # docs-end: get_state_update
+        # docs-end: get_state_update
 
 
 @pytest.mark.asyncio
