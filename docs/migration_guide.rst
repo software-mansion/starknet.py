@@ -2,6 +2,34 @@ Migration guide
 ===============
 
 **********************
+0.18.3 Migration guide
+**********************
+
+Version 0.18.3 of **starknet.py** comes with support for ...
+
+
+0.18.2 Targeted versions
+------------------------
+
+- Starknet - `0.12.2 <https://community.starknet.io/t/introducing-p2p-authentication-and-mismatch-resolution-in-v0-12-2/97993>`_
+- RPC - `0.4.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.4.0>`_
+
+
+0.18.3 Breaking changes
+-----------------------
+
+1. Support for ``TESTNET2`` network has been removed.
+
+
+|
+
+.. raw:: html
+
+  <hr>
+
+|
+
+**********************
 0.18.2 Migration guide
 **********************
 
