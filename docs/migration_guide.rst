@@ -21,6 +21,18 @@ Version 0.18.3 of **starknet.py** comes with support for ...
 1. Support for ``TESTNET2`` network has been removed.
 
 
+0.18.3 Minor changes
+--------------------
+
+.. currentmodule:: starknet_py.net.gateway_client
+
+1. :meth:`GatewayClient.get_block` now accepts ``header_only`` boolean parameter. Method then returns only ``block_hash`` and ``block_number`` inside ``GatewayBlock``.
+
+.. currentmodule:: starknet_py.net.client_models
+
+2. :class:`GatewayBlock` now has all fields optional.
+
+
 |
 
 .. raw:: html
