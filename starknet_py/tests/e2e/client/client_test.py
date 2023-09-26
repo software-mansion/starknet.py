@@ -94,6 +94,7 @@ async def test_get_block_by_hash(
     assert len(block.transactions) != 0
 
     if isinstance(block, GatewayBlock):
+        assert block.gas_price is not None
         assert block.gas_price > 0
 
 
@@ -110,6 +111,7 @@ async def test_get_block_by_number(
     assert len(block.transactions) != 0
 
     if isinstance(block, GatewayBlock):
+        assert block.gas_price is not None
         assert block.gas_price > 0
 
 

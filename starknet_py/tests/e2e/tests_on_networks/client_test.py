@@ -450,3 +450,16 @@ async def test_get_state_update_with_block(gateway_client_integration):
 
     assert res.block == block
     assert res.state_update is not None
+
+
+@pytest.mark.asyncio
+async def test_get_block_header_only(gateway_client_integration):
+    res = await gateway_client_integration.get_block(
+        block_number=300000, header_only=True
+    )
+
+    assert res.block_number is not None
+    assert res.block_hash is not None
+
+    assert res.transactions is None
+    assert res.transaction_receipts is None

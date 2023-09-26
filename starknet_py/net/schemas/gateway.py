@@ -257,24 +257,24 @@ class GatewayBlockTransactionReceiptSchema(Schema):
 
 
 class StarknetBlockSchema(Schema):
-    block_hash = Felt(data_key="block_hash")
-    parent_block_hash = Felt(data_key="parent_block_hash", required=True)
-    block_number = fields.Integer(data_key="block_number")
-    status = BlockStatusField(data_key="status", required=True)
-    root = Felt(data_key="state_root")
+    block_hash = Felt(data_key="block_hash", load_default=None)
+    parent_block_hash = Felt(data_key="parent_block_hash", load_default=None)
+    block_number = fields.Integer(data_key="block_number", load_default=None)
+    status = BlockStatusField(data_key="status", load_default=None)
+    root = Felt(data_key="state_root", load_default=None)
     transactions = fields.List(
         fields.Nested(TypesOfTransactionsSchema(unknown=EXCLUDE)),
         data_key="transactions",
-        required=True,
+        load_default=None,
     )
-    timestamp = fields.Integer(data_key="timestamp", required=True)
+    timestamp = fields.Integer(data_key="timestamp", load_default=None)
     gas_price = Felt(data_key="gas_price", load_default=None)
     sequencer_address = Felt(data_key="sequencer_address", load_default=None)
     starknet_version = fields.String(data_key="starknet_version", load_default=None)
     transaction_receipts = fields.List(
         fields.Nested(GatewayBlockTransactionReceiptSchema()),
         data_key="transaction_receipts",
-        required=True,
+        load_default=None,
     )
 
     @post_load

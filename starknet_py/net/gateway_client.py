@@ -117,13 +117,27 @@ class GatewayClient(Client):
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
+        header_only: bool = False,
     ) -> GatewayBlock:
+        """
+        Retrieve the block's data by its number or hash
+
+        :param block_hash: Block's hash or literals `"pending"` or `"latest"`
+        :param block_number: Block's number or literals `"pending"` or `"latest"`
+        :param header_only: [Gateway-only param] Flag deciding if header (block number and hash)
+            should only be returned.
+        :return: StarknetBlock object representing retrieved block
+        """
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
+        params = {
+            "headerOnly": str(header_only).lower(),
+            **block_identifier,
+        }
 
         res = await self._feeder_gateway_client.call(
-            method_name="get_block", params=block_identifier
+            method_name="get_block", params=params
         )
         return StarknetBlockSchema().load(res, unknown=EXCLUDE)  # pyright: ignore
 

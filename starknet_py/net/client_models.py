@@ -334,13 +334,13 @@ class GatewayBlock:
     """
 
     # pylint: disable=too-many-instance-attributes
-    gas_price: int
-    status: BlockStatus
-    transactions: List[Transaction]
-    transaction_receipts: List[GatewayBlockTransactionReceipt]
+    gas_price: Optional[int] = None
+    status: Optional[BlockStatus] = None
+    transactions: Optional[List[Transaction]] = None
+    transaction_receipts: Optional[List[GatewayBlockTransactionReceipt]] = None
 
-    timestamp: int
-    parent_block_hash: int
+    timestamp: Optional[int] = None
+    parent_block_hash: Optional[int] = None
 
     root: Optional[int] = None
     block_number: Optional[int] = None
