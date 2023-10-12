@@ -120,7 +120,7 @@ class GatewayClient(Client):
         header_only: bool = False,
     ) -> GatewayBlock:
         """
-        Retrieve the block's data by its number or hash
+        Retrieve the block's data by its number or hash.
 
         :param block_hash: Block's hash or literals `"pending"` or `"latest"`
         :param block_number: Block's number or literals `"pending"` or `"latest"`
