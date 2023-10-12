@@ -9,7 +9,7 @@ from starknet_py.hash.transaction import (
     compute_deploy_account_transaction_hash,
     compute_transaction_hash,
 )
-from starknet_py.hash.utils import message_signature
+from starknet_py.hash.utils import compute_hash_on_elements, message_signature
 from starknet_py.net.models import (
     AccountTransaction,
     AddressRepresentation,
@@ -31,7 +31,7 @@ class BraavosSigner(BaseSigner):
         account_address: AddressRepresentation,
         key_pair: KeyPair,
         chain_id: StarknetChainId,
-        current_account_implementation_class_hash: AddressRepresentation = "0x5aa23d5bb71ddaa783da7ea79d405315bafa7cf0387a74f4593578c3e9e6570",
+        current_account_implementation_class_hash: int = 0x0105C0CF7AADB6605C9538199797920884694B5CE84FC68F92C832B0C9F57AD9,
     ):
         """
         :param account_address: Address of the account contract.
@@ -82,7 +82,7 @@ class BraavosSigner(BaseSigner):
         )
         # pylint: disable=invalid-name
         r, s = message_signature(msg_hash=tx_hash, priv_key=self.private_key)
-        return [r, s, self.actual_impl, *self._hw_signer]
+        return [r, s]
 
     def _sign_declare_transaction(self, transaction: Declare) -> List[int]:
         tx_hash = compute_declare_transaction_hash(
@@ -95,7 +95,7 @@ class BraavosSigner(BaseSigner):
         )
         # pylint: disable=invalid-name
         r, s = message_signature(msg_hash=tx_hash, priv_key=self.private_key)
-        return [r, s, self.actual_impl, *self._hw_signer]
+        return [r, s]
 
     def _sign_declare_v2_transaction(self, transaction: DeclareV2) -> List[int]:
         tx_hash = compute_declare_v2_transaction_hash(
@@ -109,7 +109,7 @@ class BraavosSigner(BaseSigner):
         )
         # pylint: disable=invalid-name
         r, s = message_signature(msg_hash=tx_hash, priv_key=self.private_key)
-        return [r, s, self.actual_impl, *self._hw_signer]
+        return [r, s]
 
     def _sign_deploy_account_transaction(self, transaction: DeployAccount) -> List[int]:
         contract_address = compute_address(
@@ -129,7 +129,12 @@ class BraavosSigner(BaseSigner):
             nonce=transaction.nonce,
         )
         # pylint: disable=invalid-name
-        r, s = message_signature(msg_hash=tx_hash, priv_key=self.private_key)
+        r, s = message_signature(
+            msg_hash=compute_hash_on_elements(
+                [tx_hash, self.actual_impl, *self._hw_signer]
+            ),
+            priv_key=self.private_key,
+        )
         return [r, s, self.actual_impl, *self._hw_signer]
 
     def sign_message(self, typed_data: TypedData, account_address: int) -> List[int]:
