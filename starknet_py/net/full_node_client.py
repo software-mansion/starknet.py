@@ -32,6 +32,7 @@ from starknet_py.net.client_models import (
     Tag,
     Transaction,
     TransactionReceipt,
+    TransactionStatusResponse,
     TransactionTrace,
     TransactionType,
 )
@@ -65,6 +66,7 @@ from starknet_py.net.schemas.rpc import (
     StarknetBlockWithTxHashesSchema,
     SyncStatusSchema,
     TransactionReceiptSchema,
+    TransactionStatusResponseSchema,
     TransactionTraceSchema,
     TypesOfTransactionsSchema,
 )
@@ -643,6 +645,35 @@ class FullNodeClient(Client):
         )
         res = cast(str, res)
         return int(res, 16)
+
+    async def spec_version(self) -> str:
+        """
+        Returns the version of the Starknet JSON-RPC specification being used.
+
+        :return: String with version of the Starknet JSON-RPC specification.
+        """
+        res = await self._client.call(
+            method_name="specVersion",
+            params={},
+        )
+        return res
+
+    async def get_transaction_status(self, tx_hash: Hash) -> TransactionStatusResponse:
+        """
+        Gets the transaction status (possibly reflecting that the transaction is still in the mempool,
+        or dropped from it).
+
+        :param tx_hash: Hash of the executed transaction.
+        :return: Finality and execution status of a transaction.
+        """
+        res = await self._client.call(
+            method_name="getTransactionStatus",
+            params={"transaction_hash": tx_hash},
+        )
+        return cast(
+            TransactionStatusResponse,
+            TransactionStatusResponseSchema().load(res, unknown=EXCLUDE),
+        )
 
     # ------------------------------- Trace API -------------------------------
 

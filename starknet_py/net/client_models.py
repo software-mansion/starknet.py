@@ -674,14 +674,24 @@ class CasmClass:
 
 
 @dataclass
-class TransactionStatusResponse:
+class GatewayTransactionStatusResponse:
     """
-    Dataclass representing transaction status.
+    Dataclass representing transaction status for the GatewayClient.
     """
 
     block_hash: Optional[int]
     transaction_status: TransactionStatus
     finality_status: Optional[TransactionFinalityStatus] = None
+    execution_status: Optional[TransactionExecutionStatus] = None
+
+
+@dataclass
+class TransactionStatusResponse:
+    """
+    Dataclass representing transaction status for the FullNodeClient.
+    """
+
+    finality_status: TransactionStatus
     execution_status: Optional[TransactionExecutionStatus] = None
 
 

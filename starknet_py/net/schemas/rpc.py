@@ -45,6 +45,7 @@ from starknet_py.net.client_models import (
     StorageDiffItem,
     SyncStatus,
     TransactionReceipt,
+    TransactionStatusResponse,
 )
 from starknet_py.net.schemas.common import (
     BlockStatusField,
@@ -133,6 +134,17 @@ class EstimatedFeeSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs):
         return EstimatedFee(**data)
+
+
+class TransactionStatusResponseSchema(Schema):
+    finality_status = StatusField(data_key="finality_status", required=True)
+    execution_status = ExecutionStatusField(
+        data_key="execution_status", load_default=None
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> TransactionStatusResponse:
+        return TransactionStatusResponse(**data)
 
 
 class TransactionSchema(Schema):

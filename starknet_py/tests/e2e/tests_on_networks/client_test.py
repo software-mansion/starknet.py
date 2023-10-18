@@ -13,6 +13,7 @@ from starknet_py.net.client_models import (
     TransactionExecutionStatus,
     TransactionFinalityStatus,
     TransactionReceipt,
+    TransactionStatus,
 )
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.tests.e2e.fixtures.constants import (
@@ -437,3 +438,21 @@ async def test_get_state_update_with_block(gateway_client_integration):
 
     assert res.block == block
     assert res.state_update is not None
+
+
+@pytest.mark.asyncio
+async def test_spec_version(full_node_client_testnet):
+    spec_version = await full_node_client_testnet.spec_version()
+
+    assert spec_version is not None
+    assert isinstance(spec_version, str)
+
+
+@pytest.mark.asyncio
+async def test_get_transaction_status(full_node_client_testnet):
+    res = await full_node_client_testnet.get_transaction_status(
+        tx_hash=0x1FCE504A8F9C837CA84B784836E5AF041221C1BFB40C03AE0BDC0C713D09A21
+    )
+
+    assert res.finality_status == TransactionStatus.ACCEPTED_ON_L1
+    assert res.execution_status == TransactionExecutionStatus.SUCCEEDED
