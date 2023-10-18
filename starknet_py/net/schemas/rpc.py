@@ -21,7 +21,7 @@ from starknet_py.net.client_models import (
     EntryPointsByType,
     EstimatedFee,
     Event,
-    EventContent,
+    OrderedEvent,
     EventsChunk,
     ExecutionResources,
     FunctionInvocation,
@@ -47,7 +47,7 @@ from starknet_py.net.client_models import (
     StorageDiffItem,
     SyncStatus,
     TransactionReceipt,
-    TransactionStatusResponse,
+    TransactionStatusResponse, OrderedMessage,
 )
 from starknet_py.net.schemas.common import (
     BlockStatusField,
@@ -586,13 +586,26 @@ class ExecutionResourcesSchema(Schema):
 # ------------------------------- Trace API -------------------------------
 
 
-class EventContentSchema(Schema):
+class OrderedEventSchema(Schema):
     keys = fields.List(Felt(), data_key="keys", required=True)
     data = fields.List(Felt(), data_key="data", required=True)
+    order = fields.Integer(data_key="order", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs):
-        return EventContent(**data)
+        return OrderedEvent(**data)
+
+
+class OrderedMessageSchema(Schema):
+    l2_address = Felt(data_key="from_address", required=True)
+    l1_address = Felt(data_key="to_address", required=True)
+    payload = fields.List(Felt(), data_key="payload", required=True)
+    order = fields.Integer(data_key="order", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> OrderedMessage:
+        return OrderedMessage(**data)
+
 
 
 class FunctionInvocationSchema(Schema):
@@ -613,7 +626,7 @@ class FunctionInvocationSchema(Schema):
         required=True,
     )
     events = fields.List(
-        fields.Nested(EventContentSchema()), data_key="events", required=True
+        fields.Nested(OrderedEventSchema()), data_key="events", required=True
     )
     messages = fields.List(
         fields.Nested(L2toL1MessageSchema()), data_key="messages", required=True
@@ -656,6 +669,7 @@ class InvokeTransactionTraceSchema(Schema):
         data_key="fee_transfer_invocation",
         load_default=None,
     )
+    state_diff = fields.Nested(StateDiffSchema(), data_key="state_diff", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> InvokeTransactionTrace:
@@ -671,6 +685,7 @@ class DeclareTransactionTraceSchema(Schema):
         data_key="fee_transfer_invocation",
         load_default=None,
     )
+    state_diff = fields.Nested(StateDiffSchema(), data_key="state_diff", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> DeclareTransactionTrace:
@@ -689,6 +704,7 @@ class DeployAccountTransactionTraceSchema(Schema):
         data_key="fee_transfer_invocation",
         load_default=None,
     )
+    state_diff = fields.Nested(StateDiffSchema(), data_key="state_diff", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> DeployAccountTransactionTrace:
@@ -713,17 +729,8 @@ class TransactionTraceSchema(OneOfSchema):
         "L1_HANDLER": L1HandlerTransactionTraceSchema(),
     }
 
-    # TODO (#1177): change this from sketchy strings to `type` property
     def get_data_type(self, data):
-        # All possible types of transaction trace (loaded by sketchy logic),
-        # it's possible that more are added later in the future, and it needs to be reformatted
-        if "function_invocation" in data:
-            return "L1_HANDLER"
-        if "constructor_invocation" in data:
-            return "DEPLOY_ACCOUNT"
-        if "execute_invocation" in data:
-            return "INVOKE"
-        return "DECLARE"
+        return data["type"]
 
 
 class SimulatedTransactionSchema(Schema):

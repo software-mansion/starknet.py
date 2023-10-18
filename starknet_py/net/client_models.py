@@ -71,8 +71,8 @@ class L2toL1Message:
     """
 
     payload: List[int]
-    l1_address: int
-    l2_address: int
+    l1_address: int  # from_address in spec
+    l2_address: int  # to_address in spec
 
 
 @dataclass
@@ -789,13 +789,26 @@ class ExecutionResources:
 
 
 @dataclass
-class EventContent:
+class OrderedEvent:
     """
-    Dataclass representing contents of an event.
+    Dataclass representing an event alongside its order within the transaction.
     """
 
     keys: List[int]
     data: List[int]
+    order: int
+
+
+@dataclass
+class OrderedMessage:
+    """
+    Dataclass representing a message alongside its order within the transaction.
+    """
+
+    payload: List[int]
+    l1_address: int  # from_address in spec
+    l2_address: int  # to_address in spec
+    order: int
 
 
 class SimulationFlag(str, Enum):
@@ -842,8 +855,8 @@ class FunctionInvocation:
     call_type: CallType
     result: List[int]
     calls: List["FunctionInvocation"]
-    events: List[Event]
-    messages: List[L2toL1Message]
+    events: List[OrderedEvent]
+    messages: List[OrderedMessage]
 
 
 @dataclass
@@ -861,9 +874,10 @@ class InvokeTransactionTrace:
     Dataclass representing a transaction trace of an INVOKE transaction.
     """
 
-    validate_invocation: Optional[FunctionInvocation]
+    validate_invocation: FunctionInvocation
     execute_invocation: Union[FunctionInvocation, RevertedFunctionInvocation]
-    fee_transfer_invocation: Optional[FunctionInvocation]
+    fee_transfer_invocation: FunctionInvocation
+    state_diff: StateDiff
 
 
 @dataclass
@@ -872,8 +886,9 @@ class DeclareTransactionTrace:
     Dataclass representing a transaction trace of an DECLARE transaction.
     """
 
-    validate_invocation: Optional[FunctionInvocation]
-    fee_transfer_invocation: Optional[FunctionInvocation]
+    validate_invocation: FunctionInvocation
+    fee_transfer_invocation: FunctionInvocation
+    state_diff: StateDiff
 
 
 @dataclass
@@ -882,9 +897,10 @@ class DeployAccountTransactionTrace:
     Dataclass representing a transaction trace of an DEPLOY_ACCOUNT transaction.
     """
 
-    validate_invocation: Optional[FunctionInvocation]
+    validate_invocation: FunctionInvocation
     constructor_invocation: FunctionInvocation
-    fee_transfer_invocation: Optional[FunctionInvocation]
+    fee_transfer_invocation: FunctionInvocation
+    state_diff: StateDiff
 
 
 @dataclass
