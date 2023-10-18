@@ -55,18 +55,3 @@ async def test_get_block_traces(full_node_client_testnet):
         assert (
             block_transaction_traces[i].transaction_hash == block.transactions[i].hash
         )
-
-
-# TODO (#1169): remove this test?
-@pytest.mark.asyncio
-async def test_get_block_traces_warning_on_pending(full_node_client_testnet):
-    with pytest.warns(
-        UserWarning,
-        match='Using "latest" block instead of "pending". "pending" blocks do not have a hash.',
-    ):
-        _ = await full_node_client_testnet.trace_block_transactions(
-            block_number="pending"
-        )
-        _ = await full_node_client_testnet.trace_block_transactions(
-            block_hash="pending"
-        )
