@@ -21,7 +21,6 @@ from starknet_py.net.client_models import (
     EntryPointsByType,
     EstimatedFee,
     Event,
-    OrderedEvent,
     EventsChunk,
     ExecutionResources,
     FunctionInvocation,
@@ -30,6 +29,8 @@ from starknet_py.net.client_models import (
     L1HandlerTransaction,
     L1HandlerTransactionTrace,
     L2toL1Message,
+    OrderedEvent,
+    OrderedMessage,
     PendingBlockStateUpdate,
     PendingStarknetBlock,
     PendingStarknetBlockWithTxHashes,
@@ -47,7 +48,7 @@ from starknet_py.net.client_models import (
     StorageDiffItem,
     SyncStatus,
     TransactionReceipt,
-    TransactionStatusResponse, OrderedMessage,
+    TransactionStatusResponse,
 )
 from starknet_py.net.schemas.common import (
     BlockStatusField,
@@ -605,7 +606,6 @@ class OrderedMessageSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> OrderedMessage:
         return OrderedMessage(**data)
-
 
 
 class FunctionInvocationSchema(Schema):

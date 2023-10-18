@@ -35,7 +35,7 @@ async def test_trace_transaction(full_node_client_testnet):
 
 @pytest.mark.asyncio
 async def test_trace_transaction_invoke(full_node_client_testnet):
-    invoke_tx_hash = 0xdc6b381884866dd6c4accde75aa1fa7506e6b57612d3d3659f7b919ea07d7c
+    invoke_tx_hash = 0xDC6B381884866DD6C4ACCDE75AA1FA7506E6B57612D3D3659F7B919EA07D7C
     trace = await full_node_client_testnet.trace_transaction(tx_hash=invoke_tx_hash)
 
     assert type(trace) == InvokeTransactionTrace
@@ -44,7 +44,7 @@ async def test_trace_transaction_invoke(full_node_client_testnet):
 
 @pytest.mark.asyncio
 async def test_trace_transaction_declare(full_node_client_testnet):
-    declare_tx_hash = 0x62dd22627065568c6e4bd619c511217456b5a82acbdead7c3b5dfff92209451
+    declare_tx_hash = 0x62DD22627065568C6E4BD619C511217456B5A82ACBDEAD7C3B5DFFF92209451
     trace = await full_node_client_testnet.trace_transaction(tx_hash=declare_tx_hash)
 
     assert type(trace) == DeclareTransactionTrace
@@ -53,8 +53,12 @@ async def test_trace_transaction_declare(full_node_client_testnet):
 
 @pytest.mark.asyncio
 async def test_trace_transaction_deploy_account(full_node_client_testnet):
-    deploy_account_tx_hash = 0x7ad24e5d266ce371ec88c1ae537a92109e8af637c35673b6d459082431af7b
-    trace = await full_node_client_testnet.trace_transaction(tx_hash=deploy_account_tx_hash)
+    deploy_account_tx_hash = (
+        0x7AD24E5D266CE371EC88C1AE537A92109E8AF637C35673B6D459082431AF7B
+    )
+    trace = await full_node_client_testnet.trace_transaction(
+        tx_hash=deploy_account_tx_hash
+    )
 
     assert type(trace) == DeployAccountTransactionTrace
     assert trace.state_diff is not None
@@ -62,7 +66,9 @@ async def test_trace_transaction_deploy_account(full_node_client_testnet):
 
 @pytest.mark.asyncio
 async def test_trace_transaction_l1_handler(full_node_client_testnet):
-    l1_handler_tx_hash = 0x6712d5cf540c1c2e51c03d6238f71cf86607f681669af586cd2eb8a92af68ac
+    l1_handler_tx_hash = (
+        0x6712D5CF540C1C2E51C03D6238F71CF86607F681669AF586CD2EB8A92AF68AC
+    )
     trace = await full_node_client_testnet.trace_transaction(tx_hash=l1_handler_tx_hash)
 
     assert type(trace) == L1HandlerTransactionTrace
