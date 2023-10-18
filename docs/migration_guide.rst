@@ -24,6 +24,19 @@ Version 0.18.3 of **starknet.py** comes with support for RPC 0.5.0!
 
 2. :meth:`FullNodeClient.get_pending_transactions` method has been removed. It is advised to use :meth:`FullNodeClient.get_block` method with ``block_number="pending"`` argument.
 
+.. currentmodule:: starknet_py.net.client_models
+
+3. :class:`PendingStarknetBlock` field ``parent_hash`` is now named ``parent_block_hash``.
+
+
+0.18.3 Minor changes
+--------------------
+
+1. :class:`StarknetBlock`, :class:`StarknetBlockWithTxHashes`, :class:`PendingStarknetBlock` and :class:`PendingStarknetBlockWithTxHashes` now have two additional fields: ``starknet_version`` and ``l1_gas_price``.
+2. :class:`PendingStarknetBlock` and :class:`PendingStarknetBlockWithTxHashes` fields ``timestamp``, ``sequencer_address`` and ``parent_block_hash`` are now required, not optional.
+3. :class:`TransactionReceipt` now has an additional field - ``message_hash`` (for ``L1_HANDLER_TXN_RECEIPT``).
+
+
 |
 
 .. raw:: html

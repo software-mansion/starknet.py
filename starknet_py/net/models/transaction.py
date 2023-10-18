@@ -190,6 +190,25 @@ class DeployAccount(AccountTransaction):
 
 
 @dataclass(frozen=True)
+class DeployAccountV3(AccountTransaction):
+    """
+    Represents a transaction in the Starknet network that is a version 3 deployment of a Starknet account
+    contract.
+    """
+
+    class_hash: int = field(metadata={"marshmallow_field": Felt()})
+    contract_address_salt: int = field(metadata={"marshmallow_field": Felt()})
+    constructor_calldata: List[int] = field(
+        metadata={"marshmallow_field": fields.List(fields.String())}
+    )
+
+    type: TransactionType = field(
+        metadata={"marshmallow_field": TransactionTypeField()},
+        default=TransactionType.DEPLOY_ACCOUNT,
+    )
+
+
+@dataclass(frozen=True)
 class Invoke(AccountTransaction):
     """
     Represents a transaction in the Starknet network that is an invocation of a Cairo contract

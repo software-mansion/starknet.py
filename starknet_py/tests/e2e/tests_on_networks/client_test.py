@@ -450,9 +450,58 @@ async def test_spec_version(full_node_client_testnet):
 
 @pytest.mark.asyncio
 async def test_get_transaction_status(full_node_client_testnet):
-    res = await full_node_client_testnet.get_transaction_status(
+    tx_status = await full_node_client_testnet.get_transaction_status(
         tx_hash=0x1FCE504A8F9C837CA84B784836E5AF041221C1BFB40C03AE0BDC0C713D09A21
     )
 
-    assert res.finality_status == TransactionStatus.ACCEPTED_ON_L1
-    assert res.execution_status == TransactionExecutionStatus.SUCCEEDED
+    assert tx_status.finality_status == TransactionStatus.ACCEPTED_ON_L1
+    assert tx_status.execution_status == TransactionExecutionStatus.SUCCEEDED
+
+
+@pytest.mark.asyncio
+async def test_get_block_new_header_fields(full_node_client_testnet):
+    # testing l1_gas_price and starknet_version fields
+    block = await full_node_client_testnet.get_block_with_txs(block_number=800000)
+
+    assert block.starknet_version is not None
+    assert block.l1_gas_price is not None
+    assert block.l1_gas_price.price_in_wei > 0
+
+    pending_block = await full_node_client_testnet.get_block_with_txs(
+        block_number="pending"
+    )
+
+    assert pending_block.starknet_version is not None
+    assert pending_block.l1_gas_price is not None
+    assert pending_block.l1_gas_price.price_in_wei > 0
+
+
+@pytest.mark.asyncio
+async def test_get_block_with_tx_hashes_new_header_fields(full_node_client_testnet):
+    # testing l1_gas_price and starknet_version fields
+    block = await full_node_client_testnet.get_block_with_tx_hashes(block_number=800000)
+
+    assert block.starknet_version is not None
+    assert block.l1_gas_price is not None
+    assert block.l1_gas_price.price_in_wei > 0
+
+    pending_block = await full_node_client_testnet.get_block_with_tx_hashes(
+        block_number="pending"
+    )
+
+    assert pending_block.starknet_version is not None
+    assert pending_block.l1_gas_price is not None
+    assert pending_block.l1_gas_price.price_in_wei > 0
+
+
+@pytest.mark.asyncio
+async def test_get_tx_receipt_new_fields(full_node_client_testnet):
+    l1_handler_tx_hash = (
+        0xBEFE411182979262478CA8CA73BED724237D03D303CE420D94DE7664A78347
+    )
+    receipt = await full_node_client_testnet.get_transaction_receipt(
+        tx_hash=l1_handler_tx_hash
+    )
+
+    assert receipt.execution_resources is not None
+    assert len(receipt.execution_resources.keys()) in [8, 9]
