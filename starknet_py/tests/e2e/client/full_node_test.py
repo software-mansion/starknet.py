@@ -114,31 +114,6 @@ async def test_method_raises_on_both_block_hash_and_number(full_node_client):
 
 
 @pytest.mark.asyncio
-async def test_pending_transactions(full_node_client):
-    with patch(
-        "starknet_py.net.http_client.RpcHttpClient.call", AsyncMock()
-    ) as mocked_http_call:
-        mocked_http_call.return_value = [
-            {
-                "transaction_hash": "0x01",
-                "class_hash": "0x05",
-                "version": "0x0",
-                "type": "DEPLOY",
-                "contract_address": "0x02",
-                "contract_address_salt": "0x0",
-                "constructor_calldata": [],
-            }
-        ]
-
-        pending_transactions = await full_node_client.get_pending_transactions()
-
-    assert len(pending_transactions) == 1
-    assert pending_transactions[0].hash == 0x1
-    assert pending_transactions[0].signature == []
-    assert pending_transactions[0].max_fee == 0
-
-
-@pytest.mark.asyncio
 async def test_get_transaction_receipt_deploy_account(
     full_node_client, deploy_account_details_factory
 ):

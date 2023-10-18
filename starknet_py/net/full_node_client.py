@@ -58,7 +58,6 @@ from starknet_py.net.schemas.rpc import (
     PendingBlockStateUpdateSchema,
     PendingStarknetBlockSchema,
     PendingStarknetBlockWithTxHashesSchema,
-    PendingTransactionsSchema,
     SentTransactionSchema,
     SierraContractClassSchema,
     SimulatedTransactionSchema,
@@ -625,19 +624,6 @@ class FullNodeClient(Client):
                 SierraContractClassSchema().load(res, unknown=EXCLUDE),
             )
         return cast(ContractClass, ContractClassSchema().load(res, unknown=EXCLUDE))
-
-    async def get_pending_transactions(self) -> List[Transaction]:
-        """
-        Returns the transactions in the transaction pool, recognized by sequencer
-
-        :returns: List of transactions
-        """
-        res = await self._client.call(method_name="pendingTransactions", params={})
-        res = {"pending_transactions": res}
-
-        return cast(
-            List[Transaction], PendingTransactionsSchema().load(res, unknown=EXCLUDE)
-        )
 
     async def get_contract_nonce(
         self,

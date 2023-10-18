@@ -512,17 +512,6 @@ class DeployAccountTransactionResponseSchema(SentTransactionSchema):
         return DeployAccountTransactionResponse(**data)
 
 
-class PendingTransactionsSchema(Schema):
-    pending_transactions = fields.List(
-        fields.Nested(TypesOfTransactionsSchema(unknown=EXCLUDE)),
-        required=True,
-    )
-
-    @post_load
-    def make_dataclass(self, data, **kwargs):
-        return data["pending_transactions"]
-
-
 # ------------------------------- Trace API -------------------------------
 
 

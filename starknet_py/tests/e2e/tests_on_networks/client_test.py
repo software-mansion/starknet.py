@@ -392,19 +392,6 @@ async def test_get_transaction_by_block_id_and_index(
     assert receipt.execution_status is not None
 
 
-@pytest.mark.skipif(
-    condition="--client=gateway" in sys.argv,
-    reason="Separate FullNode tests from Gateway ones.",
-)
-@pytest.mark.asyncio
-async def test_get_pending_transactions(full_node_client_integration):
-    client = full_node_client_integration
-    res = await client.get_pending_transactions()
-
-    for tx in res:
-        assert tx.hash is not None
-
-
 @pytest.mark.asyncio
 async def test_get_block(full_node_client_integration):
     client = full_node_client_integration
