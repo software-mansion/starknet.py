@@ -745,7 +745,10 @@ class TransactionTraceSchema(OneOfSchema):
 class SimulatedTransactionSchema(Schema):
     # `unknown=EXCLUDE` in order to skip `type=...` field we don't want
     transaction_trace = fields.Nested(
-        TransactionTraceSchema(), data_key="transaction_trace", required=True, unknown=EXCLUDE
+        TransactionTraceSchema(),
+        data_key="transaction_trace",
+        required=True,
+        unknown=EXCLUDE,
     )
     fee_estimation = fields.Nested(
         EstimatedFeeSchema(), data_key="fee_estimation", required=True
