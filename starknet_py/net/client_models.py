@@ -255,6 +255,7 @@ class TransactionReceipt:
     actual_fee: int = 0
     # TODO (#1047): change that into ExecutionResources class after gateway removal
     #  (values of course differ for each client)
+    # TODO (#1179): this field should be required
     execution_resources: Optional[dict] = field(default_factory=dict)
 
     message_hash: Optional[int] = None  # L1_HANDLER_TXN_RECEIPT-only
@@ -318,8 +319,10 @@ class PendingStarknetBlock:
     parent_block_hash: int
     timestamp: int
     sequencer_address: int
-    l1_gas_price: ResourcePrice
-    starknet_version: str
+    # TODO (#1179): this field should be required
+    l1_gas_price: Optional[ResourcePrice] = None
+    # TODO (#1179): this field should be required
+    starknet_version: Optional[str] = None
 
 
 @dataclass
@@ -332,8 +335,8 @@ class PendingStarknetBlockWithTxHashes:
     parent_block_hash: int
     timestamp: int
     sequencer_address: int
-    l1_gas_price: ResourcePrice
-    starknet_version: str
+    l1_gas_price: Optional[ResourcePrice] = None
+    starknet_version: Optional[str] = None
 
 
 @dataclass
@@ -351,8 +354,10 @@ class StarknetBlockCommon:
     root: int
     timestamp: int
     sequencer_address: int
-    l1_gas_price: ResourcePrice
-    starknet_version: str
+    # TODO (#1179): this field should be required
+    l1_gas_price: Optional[ResourcePrice]
+    # TODO (#1179): this field should be required
+    starknet_version: Optional[str]
 
 
 @dataclass
