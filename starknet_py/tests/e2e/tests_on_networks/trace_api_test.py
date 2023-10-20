@@ -14,6 +14,7 @@ from starknet_py.net.client_models import (
     Transaction,
     TransactionTrace,
 )
+from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.signer.stark_curve_signer import KeyPair
 from starknet_py.tests.e2e.fixtures.constants import (
@@ -127,6 +128,7 @@ async def test_simulate_transactions_declare_on_network(
         compiled_contract, max_fee=int(1e16)
     )
 
+    assert isinstance(full_node_account.client, FullNodeClient)
     simulated_txs = await full_node_account.client.simulate_transactions(
         transactions=[declare_tx], block_number="latest"
     )
