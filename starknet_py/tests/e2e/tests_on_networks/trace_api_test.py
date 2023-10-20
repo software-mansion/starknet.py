@@ -1,5 +1,6 @@
 import pytest
 
+from starknet_py.net.account.account import Account
 from starknet_py.net.client_models import (
     DeclareTransaction,
     DeclareTransactionTrace,
@@ -13,6 +14,14 @@ from starknet_py.net.client_models import (
     Transaction,
     TransactionTrace,
 )
+from starknet_py.net.models import StarknetChainId
+from starknet_py.net.signer.stark_curve_signer import KeyPair
+from starknet_py.tests.e2e.fixtures.constants import (
+    CONTRACTS_COMPILED_V0_DIR,
+    TESTNET_ACCOUNT_ADDRESS,
+    TESTNET_ACCOUNT_PRIVATE_KEY,
+)
+from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 # TODO (#1179): move those tests to full_node_test.py
 
@@ -96,3 +105,32 @@ async def test_get_block_traces(full_node_client_testnet):
         assert (
             block_transaction_traces[i].transaction_hash == block.transactions[i].hash
         )
+
+
+@pytest.mark.asyncio
+async def test_simulate_transactions_declare_on_network(
+    full_node_account, full_node_client_testnet
+):
+    testnet_account_address = TESTNET_ACCOUNT_ADDRESS()
+    testnet_account_private_key = TESTNET_ACCOUNT_PRIVATE_KEY()
+
+    full_node_account = Account(
+        address=testnet_account_address,
+        client=full_node_client_testnet,
+        key_pair=KeyPair.from_private_key(testnet_account_private_key),
+        chain=StarknetChainId.TESTNET,
+    )
+    compiled_contract = read_contract(
+        "map_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR
+    )
+    declare_tx = await full_node_account.sign_declare_transaction(
+        compiled_contract, max_fee=int(1e16)
+    )
+
+    simulated_txs = await full_node_account.client.simulate_transactions(
+        transactions=[declare_tx], block_number="latest"
+    )
+
+    assert isinstance(simulated_txs[0].transaction_trace, DeclareTransactionTrace)
+    assert simulated_txs[0].fee_estimation.overall_fee > 0
+    assert simulated_txs[0].transaction_trace.validate_invocation is not None
