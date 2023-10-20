@@ -760,8 +760,8 @@ class SimulatedTransactionSchema(Schema):
 
 
 class BlockTransactionTraceSchema(Schema):
-    # `unknown=EXCLUDE` in order to skip `type=...` field we don't want
     transaction_hash = Felt(data_key="transaction_hash", required=True)
+    # `unknown=EXCLUDE` in order to skip `type=...` field we don't want
     trace_root = fields.Nested(
         TransactionTraceSchema(), data_key="trace_root", required=True, unknown=EXCLUDE
     )
