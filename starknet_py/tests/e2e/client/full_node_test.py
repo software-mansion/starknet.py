@@ -394,6 +394,8 @@ async def test_get_syncing_status(full_node_client):
 # ---------------------------- Trace API tests ----------------------------
 
 
+# TODO (#1179): remove @pytest.mark.skip
+@pytest.mark.skip(reason="Old devnet without RPC 0.5.0")
 @pytest.mark.asyncio
 async def test_simulate_transactions_skip_validate(
     full_node_account, deployed_balance_contract
@@ -420,6 +422,8 @@ async def test_simulate_transactions_skip_validate(
         )
 
 
+# TODO (#1179): remove @pytest.mark.skip
+@pytest.mark.skip(reason="Old devnet without RPC 0.5.0")
 @pytest.mark.asyncio
 async def test_simulate_transactions_skip_fee_charge(
     full_node_account, deployed_balance_contract
@@ -442,6 +446,8 @@ async def test_simulate_transactions_skip_fee_charge(
         )
 
 
+# TODO (#1179): remove @pytest.mark.skip
+@pytest.mark.skip(reason="Old devnet without RPC 0.5.0")
 @pytest.mark.asyncio
 async def test_simulate_transactions_invoke(
     full_node_account, deployed_balance_contract
@@ -475,6 +481,8 @@ async def test_simulate_transactions_invoke(
     assert simulated_txs[0].transaction_trace.execute_invocation is not None
 
 
+# TODO (#1179): remove @pytest.mark.skip
+@pytest.mark.skip(reason="Old devnet without RPC 0.5.0")
 @pytest.mark.asyncio
 async def test_simulate_transactions_declare(full_node_account):
     compiled_contract = read_contract(
@@ -493,6 +501,8 @@ async def test_simulate_transactions_declare(full_node_account):
     assert simulated_txs[0].transaction_trace.validate_invocation is not None
 
 
+# TODO (#1179): remove @pytest.mark.skip
+@pytest.mark.skip(reason="Old devnet without RPC 0.5.0")
 @pytest.mark.asyncio
 async def test_simulate_transactions_two_txs(
     full_node_account, deployed_balance_contract
@@ -538,6 +548,8 @@ async def test_simulate_transactions_two_txs(
     assert simulated_txs[1].transaction_trace.validate_invocation is not None
 
 
+# TODO (#1179): remove @pytest.mark.skip
+@pytest.mark.skip(reason="Old devnet without RPC 0.5.0")
 @pytest.mark.asyncio
 async def test_simulate_transactions_deploy_account(
     full_node_client, deploy_account_details_factory
