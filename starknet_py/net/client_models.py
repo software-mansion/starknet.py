@@ -778,7 +778,7 @@ class ExecutionResources:
 
     # pylint: disable=too-many-instance-attributes
 
-    # For now the class and schema related to it is unused, it is waiting here for
+    # For now the class and schema related to it is unused, it is waiting here for refactoring.
     steps: int
     range_check_builtin_applications: int
     pedersen_builtin_applications: int
