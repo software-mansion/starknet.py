@@ -79,7 +79,7 @@ def private_to_stark_key(priv_key: int) -> int:
 
 
 def encode_uint(value: int) -> bytes:
-    return value.to_bytes(32, byteorder='big')
+    return value.to_bytes(32, byteorder="big")
 
 
 def encode_uint_list(data: List[int]) -> bytes:

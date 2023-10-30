@@ -6,6 +6,7 @@ import aiohttp
 from marshmallow import EXCLUDE
 
 from starknet_py.constants import RPC_CONTRACT_ERROR
+from starknet_py.hash.utils import keccak256
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
@@ -73,7 +74,6 @@ from starknet_py.net.schemas.rpc import (
 )
 from starknet_py.transaction_errors import TransactionNotReceivedError
 from starknet_py.utils.sync import add_sync_methods
-from starknet_py.hash.utils import keccak256
 
 
 @add_sync_methods
@@ -327,7 +327,9 @@ class FullNodeClient(Client):
     async def get_l1_message_hash(self, tx_hash: Hash) -> Hash:
         tx = await self.get_transaction(tx_hash)
         if not isinstance(tx, L1HandlerTransaction):
-            raise TypeError(f"Transaction {tx_hash} is not a result of L1->L2 interaction.")
+            raise TypeError(
+                f"Transaction {tx_hash} is not a result of L1->L2 interaction."
+            )
 
         encoded_message = encode_l1_message(tx)
         return keccak256(encoded_message)

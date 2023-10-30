@@ -422,7 +422,10 @@ async def test_get_block(full_node_client_integration):
 async def test_get_l1_message_hash(full_node_client_integration):
     tx_hash = "0x0060bd50c38082211e6aedb21838fe7402a67216d559d9a4848e6c5e9670c90e"
     l1_message_hash = await full_node_client_integration.get_l1_message_hash(tx_hash)
-    assert hex(l1_message_hash) == "0x140185c79e5a04c7c3fae513001f358beb66653dcee75be38f05bd30adba85dd"
+    assert (
+        hex(l1_message_hash)
+        == "0x140185c79e5a04c7c3fae513001f358beb66653dcee75be38f05bd30adba85dd"
+    )
 
 
 @pytest.mark.skipif(
@@ -430,9 +433,13 @@ async def test_get_l1_message_hash(full_node_client_integration):
     reason="Method get_l1_message_hash not implemented for Gateway client.",
 )
 @pytest.mark.asyncio
-async def test_get_l1_message_hash_raises_on_incorrect_transaction_type(full_node_client_integration):
+async def test_get_l1_message_hash_raises_on_incorrect_transaction_type(
+    full_node_client_integration,
+):
     tx_hash = "0x06d11fa74255c1f86aace54cbf382ab8c89e2b90fb0801f751834ca52bf2a2a2"
-    with pytest.raises(TypeError, match=f"Transaction {tx_hash} is not a result of L1->L2 interaction."):
+    with pytest.raises(
+        TypeError, match=f"Transaction {tx_hash} is not a result of L1->L2 interaction."
+    ):
         await full_node_client_integration.get_l1_message_hash(tx_hash)
 
 
