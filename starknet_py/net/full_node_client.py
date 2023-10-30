@@ -19,6 +19,7 @@ from starknet_py.net.client_models import (
     EstimatedFee,
     EventsChunk,
     Hash,
+    L1HandlerTransaction,
     PendingBlockStateUpdate,
     PendingStarknetBlock,
     PendingStarknetBlockWithTxHashes,
@@ -35,6 +36,7 @@ from starknet_py.net.client_models import (
     TransactionTrace,
     TransactionType,
 )
+from starknet_py.net.client_utils import encode_l1_message
 from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.models.transaction import (
     AccountTransaction,
@@ -71,6 +73,7 @@ from starknet_py.net.schemas.rpc import (
 )
 from starknet_py.transaction_errors import TransactionNotReceivedError
 from starknet_py.utils.sync import add_sync_methods
+from starknet_py.hash.utils import keccak256
 
 
 @add_sync_methods
@@ -320,6 +323,14 @@ class FullNodeClient(Client):
         except ClientError as ex:
             raise TransactionNotReceivedError() from ex
         return cast(Transaction, TypesOfTransactionsSchema().load(res, unknown=EXCLUDE))
+
+    async def get_l1_message_hash(self, tx_hash: Hash) -> Hash:
+        tx = await self.get_transaction(tx_hash)
+        if not isinstance(tx, L1HandlerTransaction):
+            raise TypeError(f"Transaction {tx_hash} is not a result of L1->L2 interaction.")
+
+        encoded_message = encode_l1_message(tx)
+        return keccak256(encoded_message)
 
     async def get_transaction_receipt(self, tx_hash: Hash) -> TransactionReceipt:
         res = await self._client.call(
