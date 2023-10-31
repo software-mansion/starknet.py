@@ -71,8 +71,8 @@ class L2toL1Message:
     """
 
     payload: List[int]
-    l1_address: int  # from_address in spec
-    l2_address: int  # to_address in spec
+    l2_address: int  # from_address in spec
+    l1_address: int  # to_address in spec
 
 
 @dataclass
@@ -335,7 +335,9 @@ class PendingStarknetBlockWithTxHashes:
     parent_block_hash: int
     timestamp: int
     sequencer_address: int
+    # TODO (# 1179): this field should be required
     l1_gas_price: Optional[ResourcePrice] = None
+    # TODO (# 1179): this field should be required
     starknet_version: Optional[str] = None
 
 
@@ -811,8 +813,8 @@ class OrderedMessage:
     """
 
     payload: List[int]
-    l1_address: int  # from_address in spec
-    l2_address: int  # to_address in spec
+    l2_address: int  # from_address in spec
+    l1_address: int  # to_address in spec
     order: int
 
 
