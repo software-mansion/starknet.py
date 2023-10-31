@@ -221,6 +221,8 @@ async def test_trace_transaction(full_node_client):
     # docs-end: trace_transaction
 
 
+# TODO (#1179): remove @pytest.mark.skip
+@pytest.mark.skip(reason="Old devnet without RPC 0.5.0")
 @pytest.mark.asyncio
 async def test_simulate_transactions(
     full_node_account, deployed_balance_contract, deploy_account_transaction
