@@ -335,9 +335,9 @@ class PendingStarknetBlockWithTxHashes:
     parent_block_hash: int
     timestamp: int
     sequencer_address: int
-    # TODO (# 1179): this field should be required
+    # TODO (#1179): this field should be required
     l1_gas_price: Optional[ResourcePrice] = None
-    # TODO (# 1179): this field should be required
+    # TODO (#1179): this field should be required
     starknet_version: Optional[str] = None
 
 
