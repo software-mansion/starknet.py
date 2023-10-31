@@ -9,10 +9,10 @@ from starknet_py.net.client_models import (
     CasmClassEntryPointsByType,
     ContractClass,
     DeployTransaction,
+    GatewayTransactionStatusResponse,
     L1HandlerTransaction,
     SierraContractClass,
     TransactionStatus,
-    TransactionStatusResponse,
 )
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.networks import MAINNET, TESTNET, CustomGatewayUrls
@@ -96,7 +96,7 @@ async def test_get_transaction_status(invoke_transaction_hash, gateway_client):
     tx_status_resp = await gateway_client.get_transaction_status(
         invoke_transaction_hash
     )
-    assert isinstance(tx_status_resp, TransactionStatusResponse)
+    assert isinstance(tx_status_resp, GatewayTransactionStatusResponse)
     assert tx_status_resp.transaction_status == TransactionStatus.ACCEPTED_ON_L2
 
 

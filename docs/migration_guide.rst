@@ -5,20 +5,39 @@ Migration guide
 0.18.3 Migration guide
 **********************
 
-Version 0.18.3 of **starknet.py** comes with support for ...
+Version 0.18.3 of **starknet.py** comes with support for RPC 0.5.0!
 
 
 0.18.3 Targeted versions
 ------------------------
 
 - Starknet - `0.12.2 <https://community.starknet.io/t/introducing-p2p-authentication-and-mismatch-resolution-in-v0-12-2/97993>`_
-- RPC - `0.4.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.4.0>`_
+- RPC - `0.5.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.5.0>`_
 
 
 0.18.3 Breaking changes
 -----------------------
 
 1. Support for ``TESTNET2`` network has been removed.
+
+.. currentmodule:: starknet_py.net.client
+
+2. :meth:`FullNodeClient.get_pending_transactions` method has been removed. It is advised to use :meth:`FullNodeClient.get_block` method with ``block_number="pending"`` argument.
+
+.. currentmodule:: starknet_py.net.client_models
+
+3. :class:`PendingStarknetBlock` field ``parent_hash`` is now named ``parent_block_hash``.
+4. :class:`FunctionInvocation` fields ``events`` and ``messages`` have been changed from ``List[Event]`` and ``List[L2toL1Message]`` to ``List[OrderedEvent]`` and ``List[OrderedMessage]`` respectively.
+
+
+0.18.3 Minor changes
+--------------------
+
+1. :class:`StarknetBlock`, :class:`StarknetBlockWithTxHashes`, :class:`PendingStarknetBlock` and :class:`PendingStarknetBlockWithTxHashes` now have two additional fields: ``starknet_version`` and ``l1_gas_price``.
+2. :class:`PendingStarknetBlock` and :class:`PendingStarknetBlockWithTxHashes` fields ``timestamp``, ``sequencer_address`` and ``parent_block_hash`` are now required, not optional.
+3. :class:`TransactionReceipt` now has an additional field - ``message_hash`` (for ``L1_HANDLER_TXN_RECEIPT``).
+4. All optional fields in ``TransactionTrace`` classes are now required.
+5. :class:`InvokeTransactionTrace`, :class:`DeclareTransactionTrace` and :class:`DeployAccountTransactionTrace` classes now have an additional field - ``state_diff``.
 
 
 |
