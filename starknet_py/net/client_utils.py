@@ -22,7 +22,7 @@ def is_block_identifier(value: Union[int, Hash, Tag]) -> bool:
 
 def encode_l1_message(tx: L1HandlerTransaction) -> bytes:
     # TODO (#1047): remove this assert once GatewayClient is deprecated and nonce is always required
-    assert tx.nonce
+    assert tx.nonce is not None
 
     from_address = tx.calldata[0]
     # Pop first element to have in calldata the actual payload
