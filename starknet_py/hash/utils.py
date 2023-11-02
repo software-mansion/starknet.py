@@ -78,8 +78,8 @@ def private_to_stark_key(priv_key: int) -> int:
     return cpp_get_public_key(priv_key)
 
 
-def encode_uint(value: int) -> bytes:
-    return value.to_bytes(32, byteorder="big")
+def encode_uint(value: int, bytes_length: int = 32) -> bytes:
+    return value.to_bytes(bytes_length, byteorder="big")
 
 
 def encode_uint_list(data: List[int]) -> bytes:
