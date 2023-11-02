@@ -21,18 +21,21 @@ from starknet_py.net.client_models import (
     EntryPointsByType,
     EstimatedFee,
     Event,
-    EventContent,
     EventsChunk,
+    ExecutionResources,
     FunctionInvocation,
     InvokeTransaction,
     InvokeTransactionTrace,
     L1HandlerTransaction,
     L1HandlerTransactionTrace,
     L2toL1Message,
+    OrderedEvent,
+    OrderedMessage,
     PendingBlockStateUpdate,
     PendingStarknetBlock,
     PendingStarknetBlockWithTxHashes,
     ReplacedClass,
+    ResourcePrice,
     RevertedFunctionInvocation,
     SentTransactionResponse,
     SierraContractClass,
@@ -45,6 +48,7 @@ from starknet_py.net.client_models import (
     StorageDiffItem,
     SyncStatus,
     TransactionReceipt,
+    TransactionStatusResponse,
 )
 from starknet_py.net.schemas.common import (
     BlockStatusField,
@@ -119,6 +123,9 @@ class TransactionReceiptSchema(Schema):
     l2_to_l1_messages = fields.List(
         fields.Nested(L2toL1MessageSchema()), data_key="messages_sent", load_default=[]
     )
+    message_hash = Felt(data_key="message_hash", load_default=None)
+    # TODO (#1179): this field should be required
+    execution_resources = fields.Dict(data_key="execution_resources", load_default=None)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> TransactionReceipt:
@@ -133,6 +140,26 @@ class EstimatedFeeSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs):
         return EstimatedFee(**data)
+
+
+class TransactionStatusResponseSchema(Schema):
+    finality_status = StatusField(data_key="finality_status", required=True)
+    execution_status = ExecutionStatusField(
+        data_key="execution_status", load_default=None
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> TransactionStatusResponse:
+        return TransactionStatusResponse(**data)
+
+
+class ResourcePriceSchema(Schema):
+    price_in_strk = Felt(data_key="price_in_strk", load_default=None)
+    price_in_wei = Felt(data_key="price_in_wei", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> ResourcePrice:
+        return ResourcePrice(**data)
 
 
 class TransactionSchema(Schema):
@@ -215,14 +242,20 @@ class TypesOfTransactionsSchema(OneOfSchema):
 
 
 class PendingStarknetBlockSchema(Schema):
-    parent_hash = Felt(data_key="parent_hash", load_default=None)
-    sequencer_address = Felt(data_key="sequencer_address", load_default=None)
+    parent_block_hash = Felt(data_key="parent_hash", required=True)
+    sequencer_address = Felt(data_key="sequencer_address", required=True)
     transactions = fields.List(
         fields.Nested(TypesOfTransactionsSchema(unknown=EXCLUDE)),
         data_key="transactions",
         required=True,
     )
-    timestamp = fields.Integer(data_key="timestamp", load_default=None)
+    timestamp = fields.Integer(data_key="timestamp", required=True)
+    # TODO (#1179): this field should be required
+    l1_gas_price = fields.Nested(
+        ResourcePriceSchema(), data_key="l1_gas_price", load_default=None
+    )
+    # TODO (#1179): this field should be required
+    starknet_version = fields.String(data_key="starknet_version", load_default=None)
 
     @post_load
     def make_dataclass(self, data, **kwargs):
@@ -242,10 +275,37 @@ class StarknetBlockSchema(Schema):
         required=True,
     )
     timestamp = fields.Integer(data_key="timestamp", required=True)
+    # TODO (#1179): this field should be required
+    starknet_version = fields.String(data_key="starknet_version", load_default=None)
+    # TODO (#1179): this field should be required
+    l1_gas_price = fields.Nested(
+        ResourcePriceSchema(), data_key="l1_gas_price", load_default=None
+    )
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> StarknetBlock:
         return StarknetBlock(**data)
+
+
+class StarknetBlockWithTxHashesSchema(Schema):
+    block_hash = Felt(data_key="block_hash", required=True)
+    parent_block_hash = Felt(data_key="parent_hash", required=True)
+    block_number = fields.Integer(data_key="block_number", required=True)
+    sequencer_address = Felt(data_key="sequencer_address", required=True)
+    status = BlockStatusField(data_key="status", required=True)
+    root = NonPrefixedHex(data_key="new_root", required=True)
+    transactions = fields.List(Felt(), data_key="transactions", required=True)
+    timestamp = fields.Integer(data_key="timestamp", required=True)
+    # TODO (#1179): this field should be required
+    starknet_version = fields.String(data_key="starknet_version", load_default=None)
+    # TODO (#1179): this field should be required
+    l1_gas_price = fields.Nested(
+        ResourcePriceSchema(), data_key="l1_gas_price", load_default=None
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> StarknetBlockWithTxHashes:
+        return StarknetBlockWithTxHashes(**data)
 
 
 class BlockHashAndNumberSchema(Schema):
@@ -270,26 +330,17 @@ class SyncStatusSchema(Schema):
         return SyncStatus(**data)
 
 
-class StarknetBlockWithTxHashesSchema(Schema):
-    block_hash = Felt(data_key="block_hash", required=True)
+class PendingStarknetBlockWithTxHashesSchema(Schema):
     parent_block_hash = Felt(data_key="parent_hash", required=True)
-    block_number = fields.Integer(data_key="block_number", required=True)
     sequencer_address = Felt(data_key="sequencer_address", required=True)
-    status = BlockStatusField(data_key="status", required=True)
-    root = NonPrefixedHex(data_key="new_root", required=True)
     transactions = fields.List(Felt(), data_key="transactions", required=True)
     timestamp = fields.Integer(data_key="timestamp", required=True)
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> StarknetBlockWithTxHashes:
-        return StarknetBlockWithTxHashes(**data)
-
-
-class PendingStarknetBlockWithTxHashesSchema(Schema):
-    parent_block_hash = Felt(data_key="parent_hash", load_default=None)
-    sequencer_address = Felt(data_key="sequencer_address", load_default=None)
-    transactions = fields.List(Felt(), data_key="transactions", required=True)
-    timestamp = fields.Integer(data_key="timestamp", load_default=None)
+    # TODO (#1179): this field should be required
+    starknet_version = fields.String(data_key="starknet_version", load_default=None)
+    # TODO (#1179): this field should be required
+    l1_gas_price = fields.Nested(
+        ResourcePriceSchema(), data_key="l1_gas_price", load_default=None
+    )
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> PendingStarknetBlockWithTxHashes:
@@ -512,27 +563,58 @@ class DeployAccountTransactionResponseSchema(SentTransactionSchema):
         return DeployAccountTransactionResponse(**data)
 
 
-class PendingTransactionsSchema(Schema):
-    pending_transactions = fields.List(
-        fields.Nested(TypesOfTransactionsSchema(unknown=EXCLUDE)),
-        required=True,
+class ExecutionResourcesSchema(Schema):
+    steps = Felt(data_key="steps", required=True)
+    range_check_builtin_applications = Felt(
+        data_key="range_check_builtin_applications", required=True
     )
+    pedersen_builtin_applications = Felt(
+        data_key="pedersen_builtin_applications", required=True
+    )
+    poseidon_builtin_applications = Felt(
+        data_key="poseidon_builtin_applications", required=True
+    )
+    ec_op_builtin_applications = Felt(
+        data_key="ec_op_builtin_applications", required=True
+    )
+    ecdsa_builtin_applications = Felt(
+        data_key="ecdsa_builtin_applications", required=True
+    )
+    bitwise_builtin_applications = Felt(
+        data_key="bitwise_builtin_applications", required=True
+    )
+    keccak_builtin_applications = Felt(
+        data_key="keccak_builtin_applications", required=True
+    )
+    memory_holes = Felt(data_key="memory_holes", load_default=None)
 
     @post_load
-    def make_dataclass(self, data, **kwargs):
-        return data["pending_transactions"]
+    def make_dataclass(self, data, **kwargs) -> ExecutionResources:
+        return ExecutionResources(**data)
 
 
 # ------------------------------- Trace API -------------------------------
 
 
-class EventContentSchema(Schema):
+class OrderedEventSchema(Schema):
     keys = fields.List(Felt(), data_key="keys", required=True)
     data = fields.List(Felt(), data_key="data", required=True)
+    order = fields.Integer(data_key="order", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs):
-        return EventContent(**data)
+        return OrderedEvent(**data)
+
+
+class OrderedMessageSchema(Schema):
+    l2_address = Felt(data_key="from_address", required=True)
+    l1_address = Felt(data_key="to_address", required=True)
+    payload = fields.List(Felt(), data_key="payload", required=True)
+    order = fields.Integer(data_key="order", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> OrderedMessage:
+        return OrderedMessage(**data)
 
 
 class FunctionInvocationSchema(Schema):
@@ -553,7 +635,7 @@ class FunctionInvocationSchema(Schema):
         required=True,
     )
     events = fields.List(
-        fields.Nested(EventContentSchema()), data_key="events", required=True
+        fields.Nested(OrderedEventSchema()), data_key="events", required=True
     )
     messages = fields.List(
         fields.Nested(L2toL1MessageSchema()), data_key="messages", required=True
@@ -596,6 +678,7 @@ class InvokeTransactionTraceSchema(Schema):
         data_key="fee_transfer_invocation",
         load_default=None,
     )
+    state_diff = fields.Nested(StateDiffSchema(), data_key="state_diff", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> InvokeTransactionTrace:
@@ -611,6 +694,7 @@ class DeclareTransactionTraceSchema(Schema):
         data_key="fee_transfer_invocation",
         load_default=None,
     )
+    state_diff = fields.Nested(StateDiffSchema(), data_key="state_diff", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> DeclareTransactionTrace:
@@ -629,6 +713,7 @@ class DeployAccountTransactionTraceSchema(Schema):
         data_key="fee_transfer_invocation",
         load_default=None,
     )
+    state_diff = fields.Nested(StateDiffSchema(), data_key="state_diff", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> DeployAccountTransactionTrace:
@@ -653,22 +738,17 @@ class TransactionTraceSchema(OneOfSchema):
         "L1_HANDLER": L1HandlerTransactionTraceSchema(),
     }
 
-    # TODO (#1177): change this from sketchy strings to `type` property
     def get_data_type(self, data):
-        # All possible types of transaction trace (loaded by sketchy logic),
-        # it's possible that more are added later in the future, and it needs to be reformatted
-        if "function_invocation" in data:
-            return "L1_HANDLER"
-        if "constructor_invocation" in data:
-            return "DEPLOY_ACCOUNT"
-        if "execute_invocation" in data:
-            return "INVOKE"
-        return "DECLARE"
+        return data["type"]
 
 
 class SimulatedTransactionSchema(Schema):
+    # `unknown=EXCLUDE` in order to skip `type=...` field we don't want
     transaction_trace = fields.Nested(
-        TransactionTraceSchema(), data_key="transaction_trace", required=True
+        TransactionTraceSchema(),
+        data_key="transaction_trace",
+        required=True,
+        unknown=EXCLUDE,
     )
     fee_estimation = fields.Nested(
         EstimatedFeeSchema(), data_key="fee_estimation", required=True
@@ -681,8 +761,9 @@ class SimulatedTransactionSchema(Schema):
 
 class BlockTransactionTraceSchema(Schema):
     transaction_hash = Felt(data_key="transaction_hash", required=True)
+    # `unknown=EXCLUDE` in order to skip `type=...` field we don't want
     trace_root = fields.Nested(
-        TransactionTraceSchema(), data_key="trace_root", required=True
+        TransactionTraceSchema(), data_key="trace_root", required=True, unknown=EXCLUDE
     )
 
     @post_load

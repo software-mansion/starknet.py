@@ -13,6 +13,7 @@ from starknet_py.net.client_models import (
     TransactionExecutionStatus,
     TransactionFinalityStatus,
     TransactionReceipt,
+    TransactionStatus,
 )
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.tests.e2e.fixtures.constants import (
@@ -66,7 +67,7 @@ async def test_wait_for_tx_reverted_full_node(full_node_account_integration):
     sign_invoke = await account.sign_invoke_transaction(calls=call, max_fee=int(1e16))
     invoke = await account.client.send_transaction(sign_invoke)
 
-    with pytest.raises(TransactionRevertedError, match=r".*reverted.*"):
+    with pytest.raises(TransactionRevertedError, match="Input too long for arguments"):
         await account.client.wait_for_tx(tx_hash=invoke.transaction_hash)
 
 
@@ -392,19 +393,6 @@ async def test_get_transaction_by_block_id_and_index(
     assert receipt.execution_status is not None
 
 
-@pytest.mark.skipif(
-    condition="--client=gateway" in sys.argv,
-    reason="Separate FullNode tests from Gateway ones.",
-)
-@pytest.mark.asyncio
-async def test_get_pending_transactions(full_node_client_integration):
-    client = full_node_client_integration
-    res = await client.get_pending_transactions()
-
-    for tx in res:
-        assert tx.hash is not None
-
-
 @pytest.mark.asyncio
 async def test_get_block(full_node_client_integration):
     client = full_node_client_integration
@@ -479,3 +467,70 @@ async def test_get_state_update_with_block(gateway_client_integration):
 
     assert res.block == block
     assert res.state_update is not None
+
+
+@pytest.mark.asyncio
+async def test_spec_version(full_node_client_testnet):
+    spec_version = await full_node_client_testnet.spec_version()
+
+    assert spec_version is not None
+    assert isinstance(spec_version, str)
+
+
+@pytest.mark.asyncio
+async def test_get_transaction_status(full_node_client_testnet):
+    tx_status = await full_node_client_testnet.get_transaction_status(
+        tx_hash=0x1FCE504A8F9C837CA84B784836E5AF041221C1BFB40C03AE0BDC0C713D09A21
+    )
+
+    assert tx_status.finality_status == TransactionStatus.ACCEPTED_ON_L1
+    assert tx_status.execution_status == TransactionExecutionStatus.SUCCEEDED
+
+
+@pytest.mark.asyncio
+async def test_get_block_new_header_fields(full_node_client_testnet):
+    # testing l1_gas_price and starknet_version fields
+    block = await full_node_client_testnet.get_block_with_txs(block_number=800000)
+
+    assert block.starknet_version is not None
+    assert block.l1_gas_price is not None
+    assert block.l1_gas_price.price_in_wei > 0
+
+    pending_block = await full_node_client_testnet.get_block_with_txs(
+        block_number="pending"
+    )
+
+    assert pending_block.starknet_version is not None
+    assert pending_block.l1_gas_price is not None
+    assert pending_block.l1_gas_price.price_in_wei > 0
+
+
+@pytest.mark.asyncio
+async def test_get_block_with_tx_hashes_new_header_fields(full_node_client_testnet):
+    # testing l1_gas_price and starknet_version fields
+    block = await full_node_client_testnet.get_block_with_tx_hashes(block_number=800000)
+
+    assert block.starknet_version is not None
+    assert block.l1_gas_price is not None
+    assert block.l1_gas_price.price_in_wei > 0
+
+    pending_block = await full_node_client_testnet.get_block_with_tx_hashes(
+        block_number="pending"
+    )
+
+    assert pending_block.starknet_version is not None
+    assert pending_block.l1_gas_price is not None
+    assert pending_block.l1_gas_price.price_in_wei > 0
+
+
+@pytest.mark.asyncio
+async def test_get_tx_receipt_new_fields(full_node_client_testnet):
+    l1_handler_tx_hash = (
+        0xBEFE411182979262478CA8CA73BED724237D03D303CE420D94DE7664A78347
+    )
+    receipt = await full_node_client_testnet.get_transaction_receipt(
+        tx_hash=l1_handler_tx_hash
+    )
+
+    assert receipt.execution_resources is not None
+    assert len(receipt.execution_resources.keys()) in [8, 9]
