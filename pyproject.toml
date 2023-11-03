@@ -66,12 +66,10 @@ test = [
 ]
 
 test_ci = ["test_ci_gateway_v1", "test_ci_full_node_v1", "test_ci_gateway_v2", "test_ci_full_node_v2"]
-test_ci_gateway_v1 = "coverage run -m pytesqt --client=gateway --contract_dir=v1 starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/core  --ignore=starknet_py/tests/e2e/tests_on_networks"
-test_ci_full_node_v1 = "coverage run -m pytest --client=full_node --contract_dir=v1 starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/core  --ignore=starknet_py/tests/e2e/tests_on_networks"
-test_ci_gateway_v2 = "coverage run -m pytest --client=gateway --contract_dir=v2 starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/core  --ignore=starknet_py/tests/e2e/tests_on_networks"
-test_ci_full_node_v2 = "coverage run -m pytest --client=full_node --contract_dir=v2 starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/core  --ignore=starknet_py/tests/e2e/tests_on_networks"
-
-test_full_node_check = "coverage run -m pytest --client=gateway --contract_dir=v1 starknet_py/tests/e2e/client/full_node_test.py"
+test_ci_gateway_v1 = "coverage run -a -m pytest --client=gateway --contract_dir=v1 starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/core  --ignore=starknet_py/tests/e2e/tests_on_networks"
+test_ci_full_node_v1 = "coverage run -a -m pytest --client=full_node --contract_dir=v1 starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/core  --ignore=starknet_py/tests/e2e/tests_on_networks"
+test_ci_gateway_v2 = "coverage run -a -m pytest --client=gateway --contract_dir=v2 starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/core  --ignore=starknet_py/tests/e2e/tests_on_networks"
+test_ci_full_node_v2 = "coverage run -a -m pytest --client=full_node --contract_dir=v2 starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/core  --ignore=starknet_py/tests/e2e/tests_on_networks"
 
 # order of tests below is important, explanation in /tests_on_networks/client_test.py above 'test_wait_for_tx_reverted_full_node'
 test_ci_on_networks = ["test_ci_on_networks_full_node", "test_ci_on_networks_gateway"]
