@@ -55,7 +55,7 @@ starknet-devnet = {version = "0.6.2", python = ">=3.9, <3.10"}
 
 [tool.poe.tasks]
 test = [
-    { cmd = "coverage erase"},
+    "clean_coverage",
     "test_ci_gateway_v1 --disable-warnings -qq",
     "test_ci_full_node_v1 --disable-warnings -qq",
     "test_ci_gateway_v2 --disable-warnings -qq",
@@ -84,6 +84,7 @@ test_ci_docs_full_node_v2 = "coverage run -a -m pytest --client=full_node --cont
 
 test_report = "coverage report -m"
 test_html.shell = "coverage html && open ./htmlcov/index.html"
+clean_coverage = "coverage erase"
 docs_create = { shell = "make -C docs html" }
 docs_open = { shell = "open docs/_build/html/index.html" }
 lint = "pylint starknet_py"
