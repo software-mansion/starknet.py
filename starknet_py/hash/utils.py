@@ -25,6 +25,12 @@ def _starknet_keccak(data: bytes) -> int:
     return int_from_bytes(k.digest()) & MASK_250
 
 
+def keccak256(data: bytes) -> int:
+    k = keccak.new(digest_bits=256)
+    k.update(data)
+    return int_from_bytes(k.digest())
+
+
 def pedersen_hash(left: int, right: int) -> int:
     """
     One of two hash functions (along with _starknet_keccak) used throughout Starknet.
@@ -70,3 +76,11 @@ def private_to_stark_key(priv_key: int) -> int:
     Deduces the public key given a private key.
     """
     return cpp_get_public_key(priv_key)
+
+
+def encode_uint(value: int, bytes_length: int = 32) -> bytes:
+    return value.to_bytes(bytes_length, byteorder="big")
+
+
+def encode_uint_list(data: List[int]) -> bytes:
+    return b"".join(encode_uint(x) for x in data)
