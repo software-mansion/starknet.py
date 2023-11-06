@@ -181,6 +181,7 @@ class BaseAccount(ABC):
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> DeployAccount:
+        # pylint: disable=too-many-arguments
         """
         Create and sign deploy account transaction.
 

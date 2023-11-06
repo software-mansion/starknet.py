@@ -13,8 +13,7 @@ def register(linter: "PyLinter") -> None:
     linter.register_checker(TodoTokenChecker(linter))
 
 
-class TodoTokenChecker(checkers.BaseChecker):
-    __implements__ = interfaces.ITokenChecker
+class TodoTokenChecker(checkers.BaseTokenChecker):
 
     name = "todo-issue-error"
     priority = -1

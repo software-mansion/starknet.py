@@ -645,6 +645,7 @@ class Contract:
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :return: DeclareResult instance.
         """
+        # pylint: disable=too-many-arguments
 
         if Contract._get_cairo_version(compiled_contract) == 1:
             if casm_class_hash is None and compiled_contract_casm is None:
