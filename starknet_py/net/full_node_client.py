@@ -24,6 +24,7 @@ from starknet_py.net.client_models import (
     PendingBlockStateUpdate,
     PendingStarknetBlock,
     PendingStarknetBlockWithTxHashes,
+    ResourcePrice,
     SentTransactionResponse,
     SierraContractClass,
     SimulatedTransaction,
@@ -159,6 +160,16 @@ class FullNodeClient(Client):
             StarknetBlockWithTxHashes,
             StarknetBlockWithTxHashesSchema().load(res, unknown=EXCLUDE),
         )
+
+    async def get_gas_price(
+        self,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> Optional[ResourcePrice]:
+        # TODO (#1179): remove optional
+        return (
+            await self.get_block(block_hash=block_hash, block_number=block_number)
+        ).l1_gas_price
 
     # TODO (#809): add tests with multiple emitted keys
     async def get_events(

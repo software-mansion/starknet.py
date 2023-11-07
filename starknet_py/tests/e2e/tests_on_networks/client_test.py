@@ -8,6 +8,7 @@ from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     Call,
     EstimatedFee,
+    ResourcePrice,
     SignatureOnStateDiff,
     StateUpdateWithBlock,
     TransactionExecutionStatus,
@@ -534,3 +535,12 @@ async def test_get_tx_receipt_new_fields(full_node_client_testnet):
 
     assert receipt.execution_resources is not None
     assert len(receipt.execution_resources.keys()) in [8, 9]
+
+
+@pytest.mark.asyncio
+async def test_get_gas_price(full_node_client_testnet):
+    gas_price = await full_node_client_testnet.get_gas_price(block_number="latest")
+    assert isinstance(gas_price, ResourcePrice)
+    assert gas_price.price_in_strk is None
+    assert gas_price.price_in_wei is not None
+    assert gas_price.price_in_wei > 0
