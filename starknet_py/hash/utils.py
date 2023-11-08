@@ -14,6 +14,7 @@ from starknet_py.common import int_from_bytes
 from starknet_py.constants import EC_ORDER
 
 MASK_250 = 2**250 - 1
+HEX_PREFIX = "0x"
 
 
 def _starknet_keccak(data: bytes) -> int:
@@ -84,3 +85,7 @@ def encode_uint(value: int, bytes_length: int = 32) -> bytes:
 
 def encode_uint_list(data: List[int]) -> bytes:
     return b"".join(encode_uint(x) for x in data)
+
+
+def get_bytes_length(value: int) -> int:
+    return (value.bit_length() + 7) // 8
