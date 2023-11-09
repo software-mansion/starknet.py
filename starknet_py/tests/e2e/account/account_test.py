@@ -666,4 +666,3 @@ async def test_argent_cairo1_account_execute(
     )
 
     assert get_balance[0] == value
-

@@ -272,7 +272,7 @@ class Account(BaseAccount):
         *,
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
-        auto_estimate: bool = False
+        auto_estimate: bool = False,
     ) -> Invoke:
         execute_tx = await self._prepare_invoke(
             calls,
@@ -404,7 +404,7 @@ class Account(BaseAccount):
         *,
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
-        auto_estimate: bool = False
+        auto_estimate: bool = False,
     ) -> SentTransactionResponse:
         execute_transaction = await self.sign_invoke_transaction(
             calls,

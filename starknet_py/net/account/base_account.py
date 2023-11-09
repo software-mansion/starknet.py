@@ -108,7 +108,7 @@ class BaseAccount(ABC):
         *,
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
-        auto_estimate: bool = False
+        auto_estimate: bool = False,
     ) -> Invoke:
         """
         Takes calls and creates signed Invoke.
@@ -194,7 +194,7 @@ class BaseAccount(ABC):
         *,
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
-        auto_estimate: bool = False
+        auto_estimate: bool = False,
     ) -> SentTransactionResponse:
         """
         Takes calls and executes transaction.
