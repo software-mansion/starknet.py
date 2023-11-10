@@ -109,8 +109,6 @@ class BaseAccount(ABC):
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-        # TODO (#1184): remove that and docstring
-        cairo_version: Optional[int] = None,
     ) -> Invoke:
         """
         Takes calls and creates signed Invoke.
@@ -119,12 +117,6 @@ class BaseAccount(ABC):
         :param nonce: Nonce of the transaction.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
-        :param cairo_version:
-            Cairo version of the account used.
-
-            .. deprecated:: 0.18.2
-                Parameter `cairo_version` has been deprecated - it is calculated automatically based on
-                your account's contract class.
         :return: Invoke created from the calls.
         """
 
@@ -203,8 +195,6 @@ class BaseAccount(ABC):
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-        # TODO (#1184): remove that and docstring
-        cairo_version: Optional[int] = None,
     ) -> SentTransactionResponse:
         """
         Takes calls and executes transaction.
@@ -213,12 +203,6 @@ class BaseAccount(ABC):
         :param nonce: Nonce of the transaction.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
-        :param cairo_version:
-            Cairo version of the account used.
-
-            .. deprecated:: 0.18.2
-                Parameter `cairo_version` has been deprecated - it is calculated automatically based on
-                your account's contract class.
         :return: SentTransactionResponse.
         """
 

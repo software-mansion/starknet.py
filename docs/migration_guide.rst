@@ -28,7 +28,7 @@ Version 0.18.3 of **starknet.py** comes with support for RPC 0.5.0!
 
 3. :class:`PendingStarknetBlock` field ``parent_hash`` is now named ``parent_block_hash``.
 4. :class:`FunctionInvocation` fields ``events`` and ``messages`` have been changed from ``List[Event]`` and ``List[L2toL1Message]`` to ``List[OrderedEvent]`` and ``List[OrderedMessage]`` respectively.
-
+5. ``cairo_version`` parameter in :meth:`Account.sign_invoke_transaction` and :meth:`Account.execute` has been removed.
 
 0.18.3 Minor changes
 --------------------
