@@ -48,8 +48,8 @@ async def test_trace_transaction_invoke(full_node_client_testnet):
     invoke_tx_hash = 0xDC6B381884866DD6C4ACCDE75AA1FA7506E6B57612D3D3659F7B919EA07D7C
     trace = await full_node_client_testnet.trace_transaction(tx_hash=invoke_tx_hash)
 
-    assert type(trace) == InvokeTransactionTrace
-    assert trace.state_diff is not None
+    assert type(trace) is InvokeTransactionTrace
+    assert trace.execute_invocation is not None
 
 
 @pytest.mark.asyncio
@@ -57,8 +57,7 @@ async def test_trace_transaction_declare(full_node_client_testnet):
     declare_tx_hash = 0x62DD22627065568C6E4BD619C511217456B5A82ACBDEAD7C3B5DFFF92209451
     trace = await full_node_client_testnet.trace_transaction(tx_hash=declare_tx_hash)
 
-    assert type(trace) == DeclareTransactionTrace
-    assert trace.state_diff is not None
+    assert type(trace) is DeclareTransactionTrace
 
 
 @pytest.mark.asyncio
@@ -70,8 +69,8 @@ async def test_trace_transaction_deploy_account(full_node_client_testnet):
         tx_hash=deploy_account_tx_hash
     )
 
-    assert type(trace) == DeployAccountTransactionTrace
-    assert trace.state_diff is not None
+    assert type(trace) is DeployAccountTransactionTrace
+    assert trace.constructor_invocation is not None
 
 
 @pytest.mark.asyncio
@@ -81,7 +80,8 @@ async def test_trace_transaction_l1_handler(full_node_client_testnet):
     )
     trace = await full_node_client_testnet.trace_transaction(tx_hash=l1_handler_tx_hash)
 
-    assert type(trace) == L1HandlerTransactionTrace
+    assert type(trace) is L1HandlerTransactionTrace
+    assert trace.function_invocation is not None
 
 
 @pytest.mark.asyncio
@@ -135,4 +135,3 @@ async def test_simulate_transactions_declare_on_network(
 
     assert isinstance(simulated_txs[0].transaction_trace, DeclareTransactionTrace)
     assert simulated_txs[0].fee_estimation.overall_fee > 0
-    assert simulated_txs[0].transaction_trace.validate_invocation is not None

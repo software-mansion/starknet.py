@@ -667,18 +667,20 @@ class ExecuteInvocationSchema(OneOfSchema):
 
 
 class InvokeTransactionTraceSchema(Schema):
-    validate_invocation = fields.Nested(
-        FunctionInvocationSchema(), data_key="validate_invocation", load_default=None
-    )
     execute_invocation = fields.Nested(
         ExecuteInvocationSchema(), data_key="execute_invocation", required=True
+    )
+    validate_invocation = fields.Nested(
+        FunctionInvocationSchema(), data_key="validate_invocation", load_default=None
     )
     fee_transfer_invocation = fields.Nested(
         FunctionInvocationSchema(),
         data_key="fee_transfer_invocation",
         load_default=None,
     )
-    state_diff = fields.Nested(StateDiffSchema(), data_key="state_diff", required=True)
+    state_diff = fields.Nested(
+        StateDiffSchema(), data_key="state_diff", load_default=None
+    )
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> InvokeTransactionTrace:
@@ -694,7 +696,9 @@ class DeclareTransactionTraceSchema(Schema):
         data_key="fee_transfer_invocation",
         load_default=None,
     )
-    state_diff = fields.Nested(StateDiffSchema(), data_key="state_diff", required=True)
+    state_diff = fields.Nested(
+        StateDiffSchema(), data_key="state_diff", load_default=None
+    )
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> DeclareTransactionTrace:
@@ -702,18 +706,20 @@ class DeclareTransactionTraceSchema(Schema):
 
 
 class DeployAccountTransactionTraceSchema(Schema):
-    validate_invocation = fields.Nested(
-        FunctionInvocationSchema(), data_key="validate_invocation", load_default=None
-    )
     constructor_invocation = fields.Nested(
         FunctionInvocationSchema(), data_key="constructor_invocation", required=True
+    )
+    validate_invocation = fields.Nested(
+        FunctionInvocationSchema(), data_key="validate_invocation", load_default=None
     )
     fee_transfer_invocation = fields.Nested(
         FunctionInvocationSchema(),
         data_key="fee_transfer_invocation",
         load_default=None,
     )
-    state_diff = fields.Nested(StateDiffSchema(), data_key="state_diff", required=True)
+    state_diff = fields.Nested(
+        StateDiffSchema(), data_key="state_diff", load_default=None
+    )
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> DeployAccountTransactionTrace:
@@ -723,6 +729,9 @@ class DeployAccountTransactionTraceSchema(Schema):
 class L1HandlerTransactionTraceSchema(Schema):
     function_invocation = fields.Nested(
         FunctionInvocationSchema(), data_key="function_invocation", required=True
+    )
+    state_diff = fields.Nested(
+        StateDiffSchema(), data_key="state_diff", load_default=None
     )
 
     @post_load
