@@ -12,7 +12,7 @@ Version 0.18.3 of **starknet.py** comes with support for RPC 0.5.0!
 ------------------------
 
 - Starknet - `0.12.2 <https://community.starknet.io/t/introducing-p2p-authentication-and-mismatch-resolution-in-v0-12-2/97993>`_
-- RPC - `0.5.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.5.0>`_
+- RPC - `0.5.1 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.5.1>`_
 
 
 0.18.3 Breaking changes
