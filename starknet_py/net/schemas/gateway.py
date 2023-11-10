@@ -29,6 +29,7 @@ from starknet_py.net.client_models import (
     GatewayBlock,
     GatewayBlockTransactionReceipt,
     GatewayStateDiff,
+    GatewayTransactionStatusResponse,
     InvokeTransaction,
     L1HandlerTransaction,
     L1toL2Message,
@@ -44,7 +45,6 @@ from starknet_py.net.client_models import (
     StateUpdateWithBlock,
     StorageDiffItem,
     TransactionReceipt,
-    TransactionStatusResponse,
 )
 from starknet_py.net.schemas.common import (
     BlockStatusField,
@@ -624,8 +624,8 @@ class TransactionStatusSchema(Schema):
     block_hash = Felt(data_key="block_hash", load_default=None)
 
     @post_load
-    def make_result(self, data, **kwargs) -> TransactionStatusResponse:
-        return TransactionStatusResponse(**data)
+    def make_result(self, data, **kwargs) -> GatewayTransactionStatusResponse:
+        return GatewayTransactionStatusResponse(**data)
 
 
 class SignatureInputSchema(Schema):

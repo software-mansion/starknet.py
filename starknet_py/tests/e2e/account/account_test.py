@@ -1,4 +1,3 @@
-import sys
 from typing import cast
 from unittest.mock import AsyncMock, patch
 
@@ -141,11 +140,6 @@ async def test_get_class_hash_at(map_contract, account):
     assert class_hash != 0
 
 
-# TODO (#1154): remove line below
-@pytest.mark.xfail(
-    "--client=gateway" in sys.argv,
-    reason="0.12.2 returns Felts in state_root, devnet returns NonPrefixedHex",
-)
 @pytest.mark.asyncio()
 async def test_get_nonce(account, map_contract):
     nonce = await account.get_nonce()
@@ -672,27 +666,3 @@ async def test_argent_cairo1_account_execute(
     )
 
     assert get_balance[0] == value
-
-
-# TODO (#1184): remove that
-@pytest.mark.asyncio
-async def test_cairo1_account_deprecations(
-    deployed_balance_contract,
-    argent_cairo1_account: BaseAccount,
-):
-    call = Call(
-        to_addr=deployed_balance_contract.address,
-        selector=get_selector_from_name("increase_balance"),
-        calldata=[20],
-    )
-    with pytest.warns(
-        DeprecationWarning,
-        match="Parameter 'cairo_version' has been deprecated. It is calculated automatically based on your account's "
-        "contract class.",
-    ):
-        _ = await argent_cairo1_account.execute(
-            calls=call, max_fee=int(1e16), cairo_version=1
-        )
-        _ = await argent_cairo1_account.sign_invoke_transaction(
-            calls=call, max_fee=int(1e16), cairo_version=1
-        )

@@ -9,13 +9,13 @@ from starknet_py.net.client_models import (
     CasmClassEntryPointsByType,
     ContractClass,
     DeployTransaction,
+    GatewayTransactionStatusResponse,
     L1HandlerTransaction,
     SierraContractClass,
     TransactionStatus,
-    TransactionStatusResponse,
 )
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.networks import MAINNET, TESTNET, TESTNET2, CustomGatewayUrls
+from starknet_py.net.networks import MAINNET, TESTNET, CustomGatewayUrls
 
 
 @pytest.mark.asyncio
@@ -96,7 +96,7 @@ async def test_get_transaction_status(invoke_transaction_hash, gateway_client):
     tx_status_resp = await gateway_client.get_transaction_status(
         invoke_transaction_hash
     )
-    assert isinstance(tx_status_resp, TransactionStatusResponse)
+    assert isinstance(tx_status_resp, GatewayTransactionStatusResponse)
     assert tx_status_resp.transaction_status == TransactionStatus.ACCEPTED_ON_L2
 
 
@@ -110,8 +110,6 @@ def test_gateway_client_warn_deprecation():
     "net, net_address",
     (
         (TESTNET, "https://alpha4.starknet.io"),
-        # TODO (#1178): remove that
-        (TESTNET2, "https://alpha4-2.starknet.io"),
         (MAINNET, "https://alpha-mainnet.starknet.io"),
     ),
 )

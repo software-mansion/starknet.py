@@ -6,6 +6,7 @@ import aiohttp
 from marshmallow import EXCLUDE
 
 from starknet_py.constants import RPC_CONTRACT_ERROR
+from starknet_py.hash.utils import keccak256
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
@@ -19,6 +20,7 @@ from starknet_py.net.client_models import (
     EstimatedFee,
     EventsChunk,
     Hash,
+    L1HandlerTransaction,
     PendingBlockStateUpdate,
     PendingStarknetBlock,
     PendingStarknetBlockWithTxHashes,
@@ -32,9 +34,11 @@ from starknet_py.net.client_models import (
     Tag,
     Transaction,
     TransactionReceipt,
+    TransactionStatusResponse,
     TransactionTrace,
     TransactionType,
 )
+from starknet_py.net.client_utils import encode_l1_message
 from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.models.transaction import (
     AccountTransaction,
@@ -58,7 +62,6 @@ from starknet_py.net.schemas.rpc import (
     PendingBlockStateUpdateSchema,
     PendingStarknetBlockSchema,
     PendingStarknetBlockWithTxHashesSchema,
-    PendingTransactionsSchema,
     SentTransactionSchema,
     SierraContractClassSchema,
     SimulatedTransactionSchema,
@@ -66,6 +69,7 @@ from starknet_py.net.schemas.rpc import (
     StarknetBlockWithTxHashesSchema,
     SyncStatusSchema,
     TransactionReceiptSchema,
+    TransactionStatusResponseSchema,
     TransactionTraceSchema,
     TypesOfTransactionsSchema,
 )
@@ -320,6 +324,20 @@ class FullNodeClient(Client):
         except ClientError as ex:
             raise TransactionNotReceivedError() from ex
         return cast(Transaction, TypesOfTransactionsSchema().load(res, unknown=EXCLUDE))
+
+    async def get_l1_message_hash(self, tx_hash: Hash) -> Hash:
+        """
+        :param tx_hash: Transaction's hash
+        :return: Message hash
+        """
+        tx = await self.get_transaction(tx_hash)
+        if not isinstance(tx, L1HandlerTransaction):
+            raise TypeError(
+                f"Transaction {tx_hash} is not a result of L1->L2 interaction."
+            )
+
+        encoded_message = encode_l1_message(tx)
+        return keccak256(encoded_message)
 
     async def get_transaction_receipt(self, tx_hash: Hash) -> TransactionReceipt:
         res = await self._client.call(
@@ -626,19 +644,6 @@ class FullNodeClient(Client):
             )
         return cast(ContractClass, ContractClassSchema().load(res, unknown=EXCLUDE))
 
-    async def get_pending_transactions(self) -> List[Transaction]:
-        """
-        Returns the transactions in the transaction pool, recognized by sequencer
-
-        :returns: List of transactions
-        """
-        res = await self._client.call(method_name="pendingTransactions", params={})
-        res = {"pending_transactions": res}
-
-        return cast(
-            List[Transaction], PendingTransactionsSchema().load(res, unknown=EXCLUDE)
-        )
-
     async def get_contract_nonce(
         self,
         contract_address: Hash,
@@ -657,6 +662,35 @@ class FullNodeClient(Client):
         )
         res = cast(str, res)
         return int(res, 16)
+
+    async def spec_version(self) -> str:
+        """
+        Returns the version of the Starknet JSON-RPC specification being used.
+
+        :return: String with version of the Starknet JSON-RPC specification.
+        """
+        res = await self._client.call(
+            method_name="specVersion",
+            params={},
+        )
+        return res
+
+    async def get_transaction_status(self, tx_hash: Hash) -> TransactionStatusResponse:
+        """
+        Gets the transaction status (possibly reflecting that the transaction is still in the mempool,
+        or dropped from it).
+
+        :param tx_hash: Hash of the executed transaction.
+        :return: Finality and execution status of a transaction.
+        """
+        res = await self._client.call(
+            method_name="getTransactionStatus",
+            params={"transaction_hash": tx_hash},
+        )
+        return cast(
+            TransactionStatusResponse,
+            TransactionStatusResponseSchema().load(res, unknown=EXCLUDE),
+        )
 
     # ------------------------------- Trace API -------------------------------
 
@@ -738,24 +772,14 @@ class FullNodeClient(Client):
         :param block_number: Block's number or literals `"pending"` or `"latest"`
         :return: List of execution traces of all transactions included in the given block with transaction hashes.
         """
-
-        # TODO (#1169): remove this hack after RPC Trace API update from `BLOCK_HASH` to `BLOCK_ID`
-
-        if block_hash == "pending" or block_number == "pending":
-            warnings.warn(
-                'Only possible argument in RPC specification is "block_hash". '
-                'Using "latest" block instead of "pending". "pending" blocks do not have a hash.'
-            )
-            block_number = None
-            block_hash = "latest"
-
-        block = await self.get_block(block_hash=block_hash, block_number=block_number)
-        assert isinstance(block, StarknetBlock)
+        block_identifier = get_block_identifier(
+            block_hash=block_hash, block_number=block_number
+        )
 
         res = await self._client.call(
             method_name="traceBlockTransactions",
             params={
-                "block_hash": _to_rpc_felt(block.block_hash),
+                **block_identifier,
             },
         )
         return cast(

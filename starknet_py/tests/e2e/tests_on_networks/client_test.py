@@ -13,16 +13,11 @@ from starknet_py.net.client_models import (
     TransactionExecutionStatus,
     TransactionFinalityStatus,
     TransactionReceipt,
+    TransactionStatus,
 )
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.tests.e2e.fixtures.constants import (
-    PREDEPLOYED_EMPTY_CONTRACT_ADDRESS,
-    PREDEPLOYED_MAP_CONTRACT_ADDRESS,
-)
-from starknet_py.transaction_errors import (
-    TransactionRejectedError,
-    TransactionRevertedError,
-)
+from starknet_py.tests.e2e.fixtures.constants import PREDEPLOYED_EMPTY_CONTRACT_ADDRESS
+from starknet_py.transaction_errors import TransactionRevertedError
 
 
 @pytest.mark.parametrize(
@@ -52,7 +47,7 @@ async def test_get_transaction_receipt(client_integration, transaction_hash):
 # Same thing could happen when you run tests locally and then push to run them on CI.
 @pytest.mark.skipif(
     condition="--client=gateway" in sys.argv,
-    reason="Separate FullNode tests from Gateway ones.",
+    reason="Gateway client has been disabled on integration network.",
 )
 @pytest.mark.asyncio
 async def test_wait_for_tx_reverted_full_node(full_node_account_integration):
@@ -66,75 +61,14 @@ async def test_wait_for_tx_reverted_full_node(full_node_account_integration):
     sign_invoke = await account.sign_invoke_transaction(calls=call, max_fee=int(1e16))
     invoke = await account.client.send_transaction(sign_invoke)
 
-    with pytest.raises(TransactionRevertedError, match=r".*reverted.*"):
-        await account.client.wait_for_tx(tx_hash=invoke.transaction_hash)
-
-
-@pytest.mark.skipif(
-    condition="--client=full_node" in sys.argv,
-    reason="Separate FullNode tests from Gateway ones.",
-)
-@pytest.mark.asyncio
-async def test_wait_for_tx_reverted_gateway(gateway_account_integration):
-    account = gateway_account_integration
-    # Calldata too long for the function (it has no parameters) to trigger REVERTED status
-    call = Call(
-        to_addr=int(PREDEPLOYED_EMPTY_CONTRACT_ADDRESS, 0),
-        selector=get_selector_from_name("empty"),
-        calldata=[0x1, 0x2, 0x3, 0x4, 0x5],
-    )
-    sign_invoke = await account.sign_invoke_transaction(calls=call, max_fee=int(1e16))
-    invoke = await account.client.send_transaction(sign_invoke)
-
     with pytest.raises(TransactionRevertedError, match="Input too long for arguments"):
         await account.client.wait_for_tx(tx_hash=invoke.transaction_hash)
-
-
-# No same test for full_node, because nodes don't know about rejected transactions
-# https://community.starknet.io/t/efficient-utilization-of-sequencer-capacity-in-starknet-v0-12-1/95607#api-changes-3
-@pytest.mark.skipif(
-    condition="--client=full_node" in sys.argv,
-    reason="Separate FullNode tests from Gateway ones.",
-)
-@pytest.mark.asyncio
-async def test_wait_for_tx_rejected_gateway(gateway_account_integration):
-    account = gateway_account_integration
-    call = Call(
-        to_addr=int(PREDEPLOYED_MAP_CONTRACT_ADDRESS, 0),
-        selector=get_selector_from_name("put"),
-        calldata=[0x102, 0x125],
-    )
-    call2 = Call(
-        to_addr=int(
-            "0x05cd21d6b3952a869fda11fa9a5bd2657bd68080d3da255655ded47a81c8bd53", 0
-        ),
-        selector=get_selector_from_name("put"),
-        calldata=[0x103, 0x126],
-    )
-    sign_invoke = await account.sign_invoke_transaction(calls=call, max_fee=int(1e16))
-    sign_invoke2 = await account.sign_invoke_transaction(calls=call2, max_fee=int(1e16))
-    # same nonces to trigger REJECTED error
-    assert sign_invoke2.nonce == sign_invoke.nonce
-
-    # this one should pass
-    invoke = await account.client.send_transaction(sign_invoke)
-    # this should be rejected
-    invoke2 = await account.client.send_transaction(sign_invoke2)
-
-    with pytest.raises(TransactionRejectedError):
-        _ = await account.client.wait_for_tx(tx_hash=invoke2.transaction_hash)
-
-    invoke2_receipt = await account.client.get_transaction_receipt(
-        tx_hash=invoke2.transaction_hash
-    )
-
-    assert invoke2_receipt.execution_status == TransactionExecutionStatus.REJECTED
 
 
 # Same here as in comment above 'test_wait_for_tx_reverted_full_node'
 @pytest.mark.skipif(
     condition="--client=gateway" in sys.argv,
-    reason="Separate FullNode tests from Gateway ones.",
+    reason="Gateway client has been disabled on integration network.",
 )
 @pytest.mark.asyncio
 async def test_wait_for_tx_full_node_accepted(full_node_account_integration):
@@ -154,26 +88,9 @@ async def test_wait_for_tx_full_node_accepted(full_node_account_integration):
 
 
 @pytest.mark.skipif(
-    condition="--client=full_node" in sys.argv,
-    reason="Separate FullNode tests from Gateway ones.",
+    condition="--client=gateway" in sys.argv,
+    reason="Gateway client has been disabled on integration network.",
 )
-@pytest.mark.asyncio
-async def test_wait_for_tx_gateway_accepted(gateway_account_integration):
-    account = gateway_account_integration
-    call = Call(
-        to_addr=int(PREDEPLOYED_EMPTY_CONTRACT_ADDRESS, 0),
-        selector=get_selector_from_name("empty"),
-        calldata=[],
-    )
-    sign_invoke = await account.sign_invoke_transaction(calls=call, max_fee=int(1e16))
-    invoke = await account.client.send_transaction(sign_invoke)
-
-    result = await account.client.wait_for_tx(tx_hash=invoke.transaction_hash)
-
-    assert result.execution_status == TransactionExecutionStatus.SUCCEEDED
-    assert result.finality_status == TransactionFinalityStatus.ACCEPTED_ON_L2
-
-
 @pytest.mark.asyncio
 async def test_transaction_not_received_max_fee_too_small(account_integration):
     account = account_integration
@@ -191,6 +108,10 @@ async def test_transaction_not_received_max_fee_too_small(account_integration):
         _ = await account.client.send_transaction(sign_invoke)
 
 
+@pytest.mark.skipif(
+    condition="--client=gateway" in sys.argv,
+    reason="Gateway client has been disabled on integration network.",
+)
 @pytest.mark.asyncio
 async def test_transaction_not_received_max_fee_too_big(account_integration):
     account = account_integration
@@ -208,6 +129,10 @@ async def test_transaction_not_received_max_fee_too_big(account_integration):
         _ = await account.client.send_transaction(sign_invoke)
 
 
+@pytest.mark.skipif(
+    condition="--client=gateway" in sys.argv,
+    reason="Gateway client has been disabled on integration network.",
+)
 @pytest.mark.asyncio
 async def test_transaction_not_received_invalid_nonce(account_integration):
     account = account_integration
@@ -224,6 +149,10 @@ async def test_transaction_not_received_invalid_nonce(account_integration):
         _ = await account.client.send_transaction(sign_invoke)
 
 
+@pytest.mark.skipif(
+    condition="--client=gateway" in sys.argv,
+    reason="Gateway client has been disabled on integration network.",
+)
 @pytest.mark.asyncio
 async def test_transaction_not_received_invalid_signature(account_integration):
     account = account_integration
@@ -392,19 +321,6 @@ async def test_get_transaction_by_block_id_and_index(
     assert receipt.execution_status is not None
 
 
-@pytest.mark.skipif(
-    condition="--client=gateway" in sys.argv,
-    reason="Separate FullNode tests from Gateway ones.",
-)
-@pytest.mark.asyncio
-async def test_get_pending_transactions(full_node_client_integration):
-    client = full_node_client_integration
-    res = await client.get_pending_transactions()
-
-    for tx in res:
-        assert tx.hash is not None
-
-
 @pytest.mark.asyncio
 async def test_get_block(full_node_client_integration):
     client = full_node_client_integration
@@ -412,6 +328,35 @@ async def test_get_block(full_node_client_integration):
 
     for tx in res.transactions:
         assert tx.hash is not None
+
+
+@pytest.mark.skipif(
+    condition="--client=gateway" in sys.argv,
+    reason="Method get_l1_message_hash not implemented for Gateway client.",
+)
+@pytest.mark.asyncio
+async def test_get_l1_message_hash(full_node_client_integration):
+    tx_hash = "0x0060bd50c38082211e6aedb21838fe7402a67216d559d9a4848e6c5e9670c90e"
+    l1_message_hash = await full_node_client_integration.get_l1_message_hash(tx_hash)
+    assert (
+        hex(l1_message_hash)
+        == "0x140185c79e5a04c7c3fae513001f358beb66653dcee75be38f05bd30adba85dd"
+    )
+
+
+@pytest.mark.skipif(
+    condition="--client=gateway" in sys.argv,
+    reason="Method get_l1_message_hash not implemented for Gateway client.",
+)
+@pytest.mark.asyncio
+async def test_get_l1_message_hash_raises_on_incorrect_transaction_type(
+    full_node_client_integration,
+):
+    tx_hash = "0x06d11fa74255c1f86aace54cbf382ab8c89e2b90fb0801f751834ca52bf2a2a2"
+    with pytest.raises(
+        TypeError, match=f"Transaction {tx_hash} is not a result of L1->L2 interaction."
+    ):
+        await full_node_client_integration.get_l1_message_hash(tx_hash)
 
 
 @pytest.mark.asyncio
@@ -452,21 +397,68 @@ async def test_get_state_update_with_block(gateway_client_integration):
     assert res.state_update is not None
 
 
-# TODO (#1166): remove tests below after mainnet release
 @pytest.mark.asyncio
-async def test_get_block_different_starknet_versions():
-    mainnet = GatewayClient(net="mainnet")
-    testnet = GatewayClient(net="testnet")
+async def test_spec_version(full_node_client_testnet):
+    spec_version = await full_node_client_testnet.spec_version()
 
-    _ = await mainnet.get_block(block_number=100000)
-    _ = await testnet.get_block(block_number=100000)
+    assert spec_version is not None
+    assert isinstance(spec_version, str)
 
 
 @pytest.mark.asyncio
-async def test_get_state_update_different_starknet_versions():
-    mainnet = GatewayClient(net="mainnet")
-    testnet = GatewayClient(net="testnet")
+async def test_get_transaction_status(full_node_client_testnet):
+    tx_status = await full_node_client_testnet.get_transaction_status(
+        tx_hash=0x1FCE504A8F9C837CA84B784836E5AF041221C1BFB40C03AE0BDC0C713D09A21
+    )
 
-    _ = await mainnet.get_state_update(block_number=100000)
+    assert tx_status.finality_status == TransactionStatus.ACCEPTED_ON_L1
+    assert tx_status.execution_status == TransactionExecutionStatus.SUCCEEDED
 
-    _ = await testnet.get_state_update(block_number=100000, include_block=True)
+
+@pytest.mark.asyncio
+async def test_get_block_new_header_fields(full_node_client_testnet):
+    # testing l1_gas_price and starknet_version fields
+    block = await full_node_client_testnet.get_block_with_txs(block_number=800000)
+
+    assert block.starknet_version is not None
+    assert block.l1_gas_price is not None
+    assert block.l1_gas_price.price_in_wei > 0
+
+    pending_block = await full_node_client_testnet.get_block_with_txs(
+        block_number="pending"
+    )
+
+    assert pending_block.starknet_version is not None
+    assert pending_block.l1_gas_price is not None
+    assert pending_block.l1_gas_price.price_in_wei > 0
+
+
+@pytest.mark.asyncio
+async def test_get_block_with_tx_hashes_new_header_fields(full_node_client_testnet):
+    # testing l1_gas_price and starknet_version fields
+    block = await full_node_client_testnet.get_block_with_tx_hashes(block_number=800000)
+
+    assert block.starknet_version is not None
+    assert block.l1_gas_price is not None
+    assert block.l1_gas_price.price_in_wei > 0
+
+    pending_block = await full_node_client_testnet.get_block_with_tx_hashes(
+        block_number="pending"
+    )
+
+    assert pending_block.starknet_version is not None
+    assert pending_block.l1_gas_price is not None
+    assert pending_block.l1_gas_price.price_in_wei > 0
+
+
+@pytest.mark.asyncio
+async def test_get_tx_receipt_new_fields(full_node_client_testnet):
+    l1_handler_tx_hash = (
+        0xBEFE411182979262478CA8CA73BED724237D03D303CE420D94DE7664A78347
+    )
+    receipt = await full_node_client_testnet.get_transaction_receipt(
+        tx_hash=l1_handler_tx_hash
+    )
+
+    assert receipt.execution_resources is not None
+    assert len(receipt.execution_resources.keys()) in [8, 9]

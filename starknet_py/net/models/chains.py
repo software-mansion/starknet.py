@@ -2,7 +2,7 @@ from enum import IntEnum
 from typing import Optional
 
 from starknet_py.common import int_from_bytes
-from starknet_py.net.networks import MAINNET, TESTNET, TESTNET2, Network
+from starknet_py.net.networks import MAINNET, TESTNET, Network
 
 
 class StarknetChainId(IntEnum):
@@ -12,7 +12,6 @@ class StarknetChainId(IntEnum):
 
     MAINNET = int_from_bytes(b"SN_MAIN")
     TESTNET = int_from_bytes(b"SN_GOERLI")
-    TESTNET2 = int_from_bytes(b"SN_GOERLI2")
 
 
 def chain_from_network(
@@ -21,7 +20,6 @@ def chain_from_network(
     mapping = {
         MAINNET: StarknetChainId.MAINNET,
         TESTNET: StarknetChainId.TESTNET,
-        TESTNET2: StarknetChainId.TESTNET2,
     }
 
     if isinstance(net, str) and net in mapping:

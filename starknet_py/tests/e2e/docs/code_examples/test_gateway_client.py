@@ -46,10 +46,7 @@ async def test_get_block_traces(gateway_client):
     # docs-end: get_block_traces
 
 
-# TODO (#1154): remove line below
-@pytest.mark.xfail(
-    reason="0.12.2 returns Felts in state_root, devnet returns NonPrefixedHex",
-)
+@pytest.mark.xfail(reason="Devnet doesn't support `include_block` parameter")
 @pytest.mark.asyncio
 async def test_get_state_update(gateway_client):
     # docs-start: get_state_update
