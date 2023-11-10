@@ -842,6 +842,7 @@ class CallType(Enum):
     Enum class representing call types.
     """
 
+    DELEGATE = "DELEGATE"
     LIBRARY_CALL = "LIBRARY_CALL"
     CALL = "CALL"
 
@@ -881,10 +882,10 @@ class InvokeTransactionTrace:
     Dataclass representing a transaction trace of an INVOKE transaction.
     """
 
-    validate_invocation: FunctionInvocation
     execute_invocation: Union[FunctionInvocation, RevertedFunctionInvocation]
-    fee_transfer_invocation: FunctionInvocation
-    state_diff: StateDiff
+    validate_invocation: Optional[FunctionInvocation] = None
+    fee_transfer_invocation: Optional[FunctionInvocation] = None
+    state_diff: Optional[StateDiff] = None
 
 
 @dataclass
@@ -893,9 +894,9 @@ class DeclareTransactionTrace:
     Dataclass representing a transaction trace of an DECLARE transaction.
     """
 
-    validate_invocation: FunctionInvocation
-    fee_transfer_invocation: FunctionInvocation
-    state_diff: StateDiff
+    validate_invocation: Optional[FunctionInvocation] = None
+    fee_transfer_invocation: Optional[FunctionInvocation] = None
+    state_diff: Optional[StateDiff] = None
 
 
 @dataclass
@@ -904,10 +905,10 @@ class DeployAccountTransactionTrace:
     Dataclass representing a transaction trace of an DEPLOY_ACCOUNT transaction.
     """
 
-    validate_invocation: FunctionInvocation
     constructor_invocation: FunctionInvocation
-    fee_transfer_invocation: FunctionInvocation
-    state_diff: StateDiff
+    validate_invocation: Optional[FunctionInvocation] = None
+    fee_transfer_invocation: Optional[FunctionInvocation] = None
+    state_diff: Optional[StateDiff] = None
 
 
 @dataclass
@@ -917,6 +918,7 @@ class L1HandlerTransactionTrace:
     """
 
     function_invocation: FunctionInvocation
+    state_diff: Optional[StateDiff] = None
 
 
 TransactionTrace = Union[
