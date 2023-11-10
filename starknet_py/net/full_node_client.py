@@ -326,6 +326,10 @@ class FullNodeClient(Client):
         return cast(Transaction, TypesOfTransactionsSchema().load(res, unknown=EXCLUDE))
 
     async def get_l1_message_hash(self, tx_hash: Hash) -> Hash:
+        """
+        :param tx_hash: Transaction's hash
+        :return: Message hash
+        """
         tx = await self.get_transaction(tx_hash)
         if not isinstance(tx, L1HandlerTransaction):
             raise TypeError(

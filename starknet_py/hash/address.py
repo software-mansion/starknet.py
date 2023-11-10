@@ -42,6 +42,15 @@ def compute_address(
 
 
 def get_checksum_address(address: str) -> str:
+    """
+    Outputs formatted checksum address.
+
+    Follows implementation of starknet.js. It is not compatible with EIP55 as it treats hex string as encoded number,
+    instead of encoding it as ASCII string.
+
+    :param address: Address to encode
+    :return: Checksum address
+    """
     if not address.lower().startswith(HEX_PREFIX):
         raise ValueError(f"{address} is not a valid hexadecimal address.")
 
@@ -64,4 +73,7 @@ def get_checksum_address(address: str) -> str:
 
 
 def is_checksum_address(address: str) -> bool:
+    """
+    Checks if provided string is in a checksum address format.
+    """
     return get_checksum_address(address) == address

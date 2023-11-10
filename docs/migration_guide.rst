@@ -36,7 +36,7 @@ Version 0.18.3 of **starknet.py** comes with support for RPC 0.5.0!
 1. :class:`StarknetBlock`, :class:`StarknetBlockWithTxHashes`, :class:`PendingStarknetBlock` and :class:`PendingStarknetBlockWithTxHashes` now have two additional fields: ``starknet_version`` and ``l1_gas_price``.
 2. :class:`PendingStarknetBlock` and :class:`PendingStarknetBlockWithTxHashes` fields ``timestamp``, ``sequencer_address`` and ``parent_block_hash`` are now required, not optional.
 3. :class:`TransactionReceipt` now has an additional field - ``message_hash`` (for ``L1_HANDLER_TXN_RECEIPT``).
-4. All optional fields in ``TransactionTrace`` classes are now required.
+4. Most fields in ``TransactionTrace`` classes are now optional.
 5. :class:`InvokeTransactionTrace`, :class:`DeclareTransactionTrace` and :class:`DeployAccountTransactionTrace` classes now have an additional field - ``state_diff``.
 
 
