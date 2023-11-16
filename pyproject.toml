@@ -58,7 +58,7 @@ test = [
     "clean_coverage",
     "test_ci_v1 --disable-warnings -qq",
     "test_ci_v2 --disable-warnings -qq",
-    #"test_ci_on_networks --disable-warnings -qq",
+    "test_ci_on_networks --disable-warnings -qq",
     "test_ci_docs_v1 --disable-warnings -qq",
     "test_ci_docs_v2 --disable-warnings -qq",
     "test_report --skip-covered"
