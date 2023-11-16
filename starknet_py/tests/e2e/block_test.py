@@ -3,13 +3,11 @@ import pytest
 from starknet_py.contract import Contract
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client_models import (
-    GatewayBlock,
     PendingStarknetBlock,
     PendingStarknetBlockWithTxHashes,
     StarknetBlock,
     StarknetBlockWithTxHashes,
 )
-from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 
 
@@ -28,11 +26,7 @@ async def test_pending_block(account, map_compiled_contract):
 
     blk = await account.client.get_block(block_number="pending")
     assert blk.transactions is not None
-    if isinstance(account.client, GatewayClient):
-        assert blk.block_hash
-        assert isinstance(blk, GatewayBlock)
-    else:
-        assert isinstance(blk, PendingStarknetBlock)
+    assert isinstance(blk, PendingStarknetBlock)
 
 
 @pytest.mark.asyncio
@@ -42,19 +36,14 @@ async def test_latest_block(account, map_compiled_contract):
     blk = await account.client.get_block(block_number="latest")
     assert blk.block_hash
     assert blk.transactions is not None
-    if isinstance(account.client, GatewayClient):
-        assert isinstance(blk, GatewayBlock)
-    else:
-        assert isinstance(blk, StarknetBlock)
+    assert isinstance(blk, StarknetBlock)
 
 
 @pytest.mark.asyncio
 async def test_block_with_tx_hashes_pending(
-    full_node_account,
+    account,
 ):
-    blk = await full_node_account.client.get_block_with_tx_hashes(
-        block_number="pending"
-    )
+    blk = await account.client.get_block_with_tx_hashes(block_number="pending")
 
     assert isinstance(blk, PendingStarknetBlockWithTxHashes)
     assert isinstance(blk.transactions, list)
@@ -62,10 +51,10 @@ async def test_block_with_tx_hashes_pending(
 
 @pytest.mark.asyncio
 async def test_block_with_tx_hashes_latest(
-    full_node_account,
+    account,
     map_contract_declare_hash,
 ):
-    blk = await full_node_account.client.get_block_with_tx_hashes(block_number="latest")
+    blk = await account.client.get_block_with_tx_hashes(block_number="latest")
 
     assert isinstance(blk, StarknetBlockWithTxHashes)
     assert isinstance(blk.transactions, list)
@@ -80,9 +69,9 @@ async def test_block_with_tx_hashes_latest(
 
 @pytest.mark.asyncio
 async def test_get_block_with_txs_pending(
-    full_node_account,
+    account,
 ):
-    blk = await full_node_account.client.get_block_with_txs(block_number="pending")
+    blk = await account.client.get_block_with_txs(block_number="pending")
 
     assert isinstance(blk, PendingStarknetBlock)
     assert isinstance(blk.transactions, list)
@@ -90,10 +79,10 @@ async def test_get_block_with_txs_pending(
 
 @pytest.mark.asyncio
 async def test_get_block_with_txs_latest(
-    full_node_account,
+    account,
     map_contract_declare_hash,
 ):
-    blk = await full_node_account.client.get_block_with_txs(block_number="latest")
+    blk = await account.client.get_block_with_txs(block_number="latest")
 
     assert isinstance(blk, StarknetBlock)
     assert isinstance(blk.transactions, list)

@@ -188,7 +188,7 @@ class L1HandlerTransaction(Transaction):
     contract_address: int
     calldata: List[int]
     entry_point_selector: int
-    nonce: Optional[int] = None
+    nonce: int
 
 
 class TransactionStatus(Enum):

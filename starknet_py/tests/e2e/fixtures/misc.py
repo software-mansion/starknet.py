@@ -24,12 +24,6 @@ def pytest_addoption(parser):
         help="Network to run tests on: possible 'testnet', 'devnet', 'all'",
     )
     parser.addoption(
-        "--client",
-        action="store",
-        default="",
-        help="Client to run tests with: possible 'gateway', 'full_node'",
-    )
-    parser.addoption(
         "--contract_dir",
         action="store",
         default="",
@@ -89,14 +83,9 @@ def typed_data(request) -> TypedData:
     return typed_data
 
 
-@pytest.fixture(name="tx_receipt_full_node_path", scope="package")
+@pytest.fixture(name="get_tx_receipt_path", scope="package")
 def get_tx_receipt_full_node_client():
     return "starknet_py.net.full_node_client.FullNodeClient.get_transaction_receipt"
-
-
-@pytest.fixture(name="tx_receipt_gateway_path", scope="package")
-def get_tx_receipt_gateway_client():
-    return "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt"
 
 
 def read_contract(file_name: str, *, directory: Optional[Path] = None) -> str:

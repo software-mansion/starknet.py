@@ -179,10 +179,7 @@ class Client(ABC):
                     raise TransactionRejectedError(message=tx_receipt.rejection_reason)
 
                 if execution_status == TransactionExecutionStatus.REVERTED:
-                    # TODO (#1047): message should be always revert_reason once GatewayClient is deprecated
-                    raise TransactionRevertedError(
-                        message=(tx_receipt.revert_reason or tx_receipt.revert_error)
-                    )
+                    raise TransactionRevertedError(message=tx_receipt.revert_reason)
 
                 if execution_status == TransactionExecutionStatus.SUCCEEDED:
                     return tx_receipt

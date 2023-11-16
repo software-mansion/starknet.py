@@ -121,10 +121,10 @@ async def cairo1_token_bridge_class_hash(account: BaseAccount) -> int:
 
 @pytest_asyncio.fixture(scope="package")
 async def cairo1_hello_starknet_deploy(
-    gateway_account: BaseAccount, cairo1_hello_starknet_class_hash
+    account: BaseAccount, cairo1_hello_starknet_class_hash
 ):
     return await deploy_v1_contract(
-        account=gateway_account,
+        account=account,
         contract_file_name="hello_starknet",
         class_hash=cairo1_hello_starknet_class_hash,
     )

@@ -10,44 +10,44 @@ from starknet_py.net.full_node_client import FullNodeClient
 
 def test_init():
     # docs-start: init
-    full_node_client = FullNodeClient(node_url="https://your.node.url")
+    client = FullNodeClient(node_url="https://your.node.url")
     # docs-end: init
 
 
 @pytest.mark.asyncio
-async def test_get_block(full_node_client):
+async def test_get_block(client):
     # docs-start: get_block
-    block = await full_node_client.get_block(block_number="latest")
-    block = await full_node_client.get_block(block_number=0)
+    block = await client.get_block(block_number="latest")
+    block = await client.get_block(block_number=0)
     # or
-    block = await full_node_client.get_block(block_hash="0x0")
+    block = await client.get_block(block_hash="0x0")
     # docs-end: get_block
 
 
 @pytest.mark.asyncio
 async def test_get_state_update(
-    full_node_client, declare_transaction_hash
+    client, declare_transaction_hash
 ):  # pylint: disable=unused-argument
     # parameter `declare_transaction_hash` is needed because devnet blockchain is empty without it
     # and methods return invalid data
 
     # docs-start: get_state_update
-    state_update = await full_node_client.get_state_update(block_number="latest")
-    state_update = await full_node_client.get_state_update(block_number=1)
+    state_update = await client.get_state_update(block_number="latest")
+    state_update = await client.get_state_update(block_number=1)
     # or
     block_hash = "0x0"
     # docs-end: get_state_update
     block_hash = state_update.block_hash
     # docs-start: get_state_update
-    state_update = await full_node_client.get_state_update(block_hash=block_hash)
+    state_update = await client.get_state_update(block_hash=block_hash)
     # docs-end: get_state_update
 
 
 @pytest.mark.asyncio
-async def test_get_storage_at(full_node_client, map_contract):
+async def test_get_storage_at(client, map_contract):
     address = map_contract.address
     # docs-start: get_storage_at
-    storage_value = await full_node_client.get_storage_at(
+    storage_value = await client.get_storage_at(
         contract_address=address,
         key=get_storage_var_address("storage_var name"),
         block_number="latest",
@@ -56,42 +56,40 @@ async def test_get_storage_at(full_node_client, map_contract):
 
 
 @pytest.mark.asyncio
-async def test_get_transaction(full_node_client, declare_transaction_hash):
+async def test_get_transaction(client, declare_transaction_hash):
     # docs-start: get_transaction
     transaction_hash = 0x1 or 1 or "0x1"
     # docs-end: get_transaction
     transaction_hash = declare_transaction_hash
     # docs-start: get_transaction
-    transaction = await full_node_client.get_transaction(tx_hash=transaction_hash)
+    transaction = await client.get_transaction(tx_hash=transaction_hash)
     # docs-end: get_transaction
 
 
 @pytest.mark.asyncio
-async def test_get_transaction_receipt(full_node_client, declare_transaction_hash):
+async def test_get_transaction_receipt(client, declare_transaction_hash):
     transaction_hash = declare_transaction_hash
     # docs-start: get_transaction_receipt
-    transaction_receipt = await full_node_client.get_transaction_receipt(
-        tx_hash=transaction_hash
-    )
+    transaction_receipt = await client.get_transaction_receipt(tx_hash=transaction_hash)
     # docs-end: get_transaction_receipt
 
 
 @pytest.mark.asyncio
-async def test_estimate_fee(full_node_account, deploy_account_transaction):
-    full_node_client = full_node_account.client
+async def test_estimate_fee(account, deploy_account_transaction):
+    client = account.client
     transaction = deploy_account_transaction
     # docs-start: estimate_fee
     # a single transaction
-    estimated_fee = await full_node_client.estimate_fee(tx=transaction)
+    estimated_fee = await client.estimate_fee(tx=transaction)
     # or a list of transactions
-    estimated_fee = await full_node_client.estimate_fee(tx=[transaction])
+    estimated_fee = await client.estimate_fee(tx=[transaction])
     # docs-end: estimate_fee
 
 
 @pytest.mark.asyncio
-async def test_call_contract(full_node_client, contract_address):
+async def test_call_contract(client, contract_address):
     # docs-start: call_contract
-    response = await full_node_client.call_contract(
+    response = await client.call_contract(
         call=Call(
             to_addr=contract_address,
             selector=get_selector_from_name("increase_balance"),
@@ -103,81 +101,81 @@ async def test_call_contract(full_node_client, contract_address):
 
 
 @pytest.mark.asyncio
-async def test_get_class_hash_at(full_node_client, contract_address):
+async def test_get_class_hash_at(client, contract_address):
     # docs-start: get_class_hash_at
     address = 0x1 or 1 or "0x1"
     # docs-end: get_class_hash_at
     address = contract_address
     # docs-start: get_class_hash_at
-    class_hash = await full_node_client.get_class_hash_at(
+    class_hash = await client.get_class_hash_at(
         contract_address=address, block_number="latest"
     )
     # docs-end: get_class_hash_at
 
 
 @pytest.mark.asyncio
-async def test_get_class_by_hash(full_node_client, class_hash):
+async def test_get_class_by_hash(client, class_hash):
     # docs-start: get_class_by_hash
     hash_ = 0x1 or 1 or "0x1"
     # docs-end: get_class_by_hash
     hash_ = class_hash
     # docs-start: get_class_by_hash
-    contract_class = await full_node_client.get_class_by_hash(class_hash=hash_)
+    contract_class = await client.get_class_by_hash(class_hash=hash_)
     # docs-end: get_class_by_hash
 
 
 @pytest.mark.asyncio
-async def test_get_transaction_by_block_id(full_node_client):
+async def test_get_transaction_by_block_id(client):
     # docs-start: get_transaction_by_block_id
-    transaction = await full_node_client.get_transaction_by_block_id(
+    transaction = await client.get_transaction_by_block_id(
         index=0, block_number="latest"
     )
     # docs-end: get_transaction_by_block_id
 
 
 @pytest.mark.asyncio
-async def test_get_block_transaction_count(full_node_client):
+async def test_get_block_transaction_count(client):
     # docs-start: get_block_transaction_count
-    num_of_transactions = await full_node_client.get_block_transaction_count(
+    num_of_transactions = await client.get_block_transaction_count(
         block_number="latest"
     )
     # docs-end: get_block_transaction_count
 
 
 @pytest.mark.asyncio
-async def test_get_class_at(full_node_client, contract_address):
+async def test_get_class_at(client, contract_address):
     # docs-start: get_class_at
     address = 0x1 or 1 or "0x1"
     # docs-end: get_class_at
     address = contract_address
     # docs-start: get_class_at
-    contract_class = await full_node_client.get_class_at(
+    contract_class = await client.get_class_at(
         contract_address=address, block_number="latest"
     )
     # docs-end: get_class_at
 
 
 @pytest.mark.asyncio
-async def test_get_contract_nonce(full_node_client, contract_address):
+async def test_get_contract_nonce(client, contract_address):
     # docs-start: get_contract_nonce
     address = 0x1 or 1 or "0x1"
     # docs-end: get_contract_nonce
     address = contract_address
     # docs-start: get_contract_nonce
-    nonce = await full_node_client.get_contract_nonce(
+    nonce = await client.get_contract_nonce(
         contract_address=address, block_number="latest"
     )
     # docs-end: get_contract_nonce
 
 
 @pytest.mark.asyncio
-async def test_get_events(full_node_client, contract_address):
+async def test_get_events(client, contract_address):
     # docs-start: get_events
     address = 0x1 or 1 or "0x1"
     # docs-end: get_events
     address = contract_address
     # docs-start: get_events
-    events_response = await full_node_client.get_events(
+    events_response = await client.get_events(
         address=address,
         keys=[[1, 2], [], [3]],
         from_block_number=0,
@@ -193,10 +191,10 @@ async def test_get_events(full_node_client, contract_address):
     reason="Passing devnet client without implemented methods - test simply for a code example."
 )
 @pytest.mark.asyncio
-async def test_trace_block_transactions(full_node_client):
+async def test_trace_block_transactions(client):
     # docs-start: trace_block_transactions
     block_number = 800002
-    block_transaction_traces = await full_node_client.trace_block_transactions(
+    block_transaction_traces = await client.trace_block_transactions(
         block_number=block_number
     )
     # docs-end: trace_block_transactions
@@ -207,7 +205,7 @@ async def test_trace_block_transactions(full_node_client):
     reason="Passing devnet client without implemented methods - test simply for a code example."
 )
 @pytest.mark.asyncio
-async def test_trace_transaction(full_node_client):
+async def test_trace_transaction(client):
     # docs-start: trace_transaction
     transaction_hash = "0x123"
     # docs-end: trace_transaction
@@ -215,9 +213,7 @@ async def test_trace_transaction(full_node_client):
         "0x31e9adddefb28fab4d2ef9a6907e5805f5f793f5198618119a5347e6fc4af57"
     )
     # docs-start: trace_transaction
-    transaction_trace = await full_node_client.trace_transaction(
-        tx_hash=transaction_hash
-    )
+    transaction_trace = await client.trace_transaction(tx_hash=transaction_hash)
     # docs-end: trace_transaction
 
 

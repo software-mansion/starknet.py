@@ -12,9 +12,10 @@ async def test_deploy_prefunded_account(
     account_with_validate_deploy_class_hash: int,
     network: str,
     fee_contract: Contract,
-    full_node_client: Client,
+    client: Client,
 ):
     # pylint: disable=import-outside-toplevel, too-many-locals
+    full_node_client_fixture = client
     # docs: start
     from starknet_py.hash.address import compute_address
     from starknet_py.net.account.account import Account
@@ -53,7 +54,7 @@ async def test_deploy_prefunded_account(
     chain = StarknetChainId.TESTNET
     # docs: end
 
-    client = full_node_client
+    client = full_node_client_fixture
     chain = chain_from_network(net=network, chain=StarknetChainId.TESTNET)
     # docs: start
 

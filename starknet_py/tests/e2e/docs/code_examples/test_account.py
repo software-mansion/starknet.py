@@ -8,11 +8,9 @@ from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.account import Account
 from starknet_py.net.client_models import Call
 from starknet_py.net.full_node_client import FullNodeClient
-from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.typed_data import TypedData
-from starknet_py.net.networks import TESTNET
-from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
+from starknet_py.net.signer.stark_curve_signer import KeyPair
 
 
 def test_init():
@@ -22,16 +20,6 @@ def test_init():
         client=FullNodeClient(node_url="your.node.url"),
         key_pair=KeyPair(12, 34),
         chain=StarknetChainId.TESTNET,
-    )
-    # or (not recommended, soon GatewayClient will be removed)
-    account = Account(
-        address=0x123,
-        client=GatewayClient(net=TESTNET),
-        signer=StarkCurveSigner(
-            account_address=0x123,
-            key_pair=KeyPair(12, 34),
-            chain_id=StarknetChainId.TESTNET,
-        ),
     )
     # docs-end: init
 

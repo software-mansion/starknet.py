@@ -109,9 +109,7 @@ async def test_get_block_traces(full_node_client_testnet):
 
 
 @pytest.mark.asyncio
-async def test_simulate_transactions_declare_on_network(
-    full_node_account, full_node_client_testnet
-):
+async def test_simulate_transactions_declare_on_network(full_node_client_testnet):
     testnet_account_address = TESTNET_ACCOUNT_ADDRESS()
     testnet_account_private_key = TESTNET_ACCOUNT_PRIVATE_KEY()
 

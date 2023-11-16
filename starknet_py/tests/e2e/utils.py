@@ -1,12 +1,11 @@
 import random
-from typing import Optional, Tuple, cast
+from typing import Optional, Tuple
 
 from starknet_py.constants import EC_ORDER
 from starknet_py.contract import Contract
 from starknet_py.hash.address import compute_address
 from starknet_py.net.account.account import Account
 from starknet_py.net.client import Client
-from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.http_client import HttpClient, HttpMethod
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import DeployAccount
@@ -58,8 +57,8 @@ async def get_deploy_account_transaction(
     key_pair: KeyPair,
     salt: int,
     class_hash: int,
+    client: Client,
     network: Optional[Network] = None,
-    client: Optional[Client] = None,
 ) -> DeployAccount:
     """
     Get a signed DeployAccount transaction from provided details
@@ -69,12 +68,7 @@ async def get_deploy_account_transaction(
 
     account = Account(
         address=address,
-        client=client
-        or GatewayClient(
-            net=cast(
-                Network, network
-            )  # Cast needed because pyright doesn't recognize network as not None at this point
-        ),
+        client=client,
         key_pair=key_pair,
         chain=StarknetChainId.TESTNET,
     )

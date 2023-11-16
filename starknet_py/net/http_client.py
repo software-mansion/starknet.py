@@ -58,32 +58,6 @@ class HttpClient(ABC):
         """
 
 
-class GatewayHttpClient(HttpClient):
-    async def call(self, method_name: str, params: Optional[dict] = None) -> dict:
-        return await self.request(
-            http_method=HttpMethod.GET, address=self.address(method_name), params=params
-        )
-
-    async def post(
-        self,
-        method_name: str,
-        payload: Union[Dict[str, Any], List[Dict[str, Any]]],
-        params: Optional[dict] = None,
-    ) -> dict:
-        return await self.request(
-            http_method=HttpMethod.POST,
-            address=self.address(method_name),
-            payload=payload,
-            params=params,
-        )
-
-    def address(self, method_name):
-        return f"{self.url}/{method_name}"
-
-    async def handle_request_error(self, request: ClientResponse):
-        await basic_error_handle(request)
-
-
 class RpcHttpClient(HttpClient):
     async def call(self, method_name: str, params: dict):
         payload = {
