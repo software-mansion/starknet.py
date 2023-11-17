@@ -36,7 +36,7 @@ Note that the nonce will be bumped only by 1.
 
 .. warning::
 
-    Do not pass arbitrarily large number of calls in one batch. Starknet rejects the transaction when it happens, like `here <https://testnet-2.starkscan.co/tx/0x20440925a18ba8911f2fe2bbbcb64511ca5f3d7bffaa036ea3eda0f9cef26f6#overview>`_.
+    Do not pass arbitrarily large number of calls in one batch. Starknet rejects the transaction when it happens.
 
 
 
@@ -67,9 +67,9 @@ Custom nonce logic
 ------------------
 
 By default, :ref:`Account` calls Starknet for nonce every time a new transaction is signed or executed.
-This is okay for most users, but in case your applications needs to pre-sign multiple transactions
+This is okay for most users, but in case your application needs to pre-sign multiple transactions
 for execution, deals with high amount of transactions or just needs to support different nonce
-logic, it is possible to so with :ref:`Account`. Simply overwrite the
+logic, it is possible to do so with :ref:`Account`. Simply overwrite the
 :meth:`~starknet_py.net.account.account.Account.get_nonce` method with your own logic.
 
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_custom_nonce.py

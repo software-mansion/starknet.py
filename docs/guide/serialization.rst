@@ -8,7 +8,7 @@ starknet.py **serializes** python values to Cairo values and **deserializes** Ca
 
 .. attention::
     Serializing short strings to felts has been deprecated. Please use `starknet_py.cairo.felt.encode_shortstring` to
-    create numeric value from string _before_ passing value to serializer.
+    create numeric value from string **before** passing value to serializer.
 
 .. list-table:: Serialization from python to Cairo
    :widths: 25 25 25 25
@@ -61,7 +61,7 @@ starknet.py **serializes** python values to Cairo values and **deserializes** Ca
      - dict with keys matching struct
    * - pointer/array
      - list
-   * - unt256
+   * - uint256
      - int
 
 Working with shortstrings
