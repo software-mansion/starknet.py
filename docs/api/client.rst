@@ -2,7 +2,7 @@ Client
 ======
 
 Base class for clients interacting with Starknet.
-Implemented by :ref:`GatewayClient` and :ref:`FullNodeClient`.
+Implemented by :ref:`FullNodeClient`.
 
 .. py:module:: starknet_py.net.client
 
