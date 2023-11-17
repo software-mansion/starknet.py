@@ -6,7 +6,7 @@ They need to stay backwards compatible for old transactions/blocks to be fetchab
 from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, Iterable, List, Optional, Union
+from typing import Any, Iterable, List, Optional, Union
 
 from typing_extensions import Literal
 
@@ -49,19 +49,6 @@ class EventsChunk:
 
     events: List[Event]
     continuation_token: Optional[str] = None
-
-
-@dataclass
-class L1toL2Message:
-    """
-    Dataclass representing a L1->L2 message.
-    """
-
-    payload: List[int]
-    nonce: int
-    selector: int
-    l1_address: int
-    l2_address: int
 
 
 @dataclass
@@ -158,7 +145,6 @@ class DeployTransaction(Transaction):
     Dataclass representing deploy transaction.
     """
 
-    contract_address: Optional[int]  # Gateway-only field, hence Optional
     contract_address_salt: int
     constructor_calldata: List[int]
     class_hash: int
@@ -226,6 +212,25 @@ class TransactionFinalityStatus(Enum):
     ACCEPTED_ON_L1 = "ACCEPTED_ON_L1"
 
 
+@dataclass
+class ExecutionResources:
+    """
+    Dataclass representing the resources consumed by the transaction.
+    """
+
+    # pylint: disable=too-many-instance-attributes
+
+    steps: int
+    range_check_builtin_applications: int
+    pedersen_builtin_applications: int
+    poseidon_builtin_applications: int
+    ec_op_builtin_applications: int
+    ecdsa_builtin_applications: int
+    bitwise_builtin_applications: int
+    keccak_builtin_applications: int
+    memory_holes: Optional[int] = None
+
+
 # TODO (#1047): split into PendingTransactionReceipt and TransactionReceipt?
 @dataclass
 class TransactionReceipt:
@@ -239,9 +244,7 @@ class TransactionReceipt:
     events: List[Event] = field(default_factory=list)
     l2_to_l1_messages: List[L2toL1Message] = field(default_factory=list)
 
-    execution_status: Optional[
-        TransactionExecutionStatus
-    ] = None  # gateway/pending receipt field
+    execution_status: Optional[TransactionExecutionStatus] = None
     finality_status: Optional[TransactionFinalityStatus] = None
     status: Optional[
         TransactionStatus
@@ -253,20 +256,13 @@ class TransactionReceipt:
     block_number: Optional[int] = None
     block_hash: Optional[int] = None
     actual_fee: int = 0
-    # TODO (#1047): change that into ExecutionResources class after gateway removal
-    #  (values of course differ for each client)
     # TODO (#1179): this field should be required
-    execution_resources: Optional[dict] = field(default_factory=dict)
+    execution_resources: Optional[ExecutionResources] = None
 
     message_hash: Optional[int] = None  # L1_HANDLER_TXN_RECEIPT-only
 
     rejection_reason: Optional[str] = None
-    revert_reason: Optional[str] = None  # full_node-only field
-    revert_error: Optional[str] = None  # gateway-only field
-
-    # gateway only
-    l1_to_l2_consumed_message: Optional[L1toL2Message] = None
-    transaction_index: Optional[int] = None
+    revert_reason: Optional[str] = None
 
 
 @dataclass
@@ -383,44 +379,6 @@ class StarknetBlockWithTxHashes(StarknetBlockCommon):
 
 
 @dataclass
-class GatewayBlockTransactionReceipt:
-    # pylint: disable=too-many-instance-attributes
-    transaction_index: int
-    transaction_hash: int
-    l2_to_l1_messages: List[L2toL1Message]
-    events: List[Event]
-    actual_fee: int
-    execution_status: Optional[TransactionExecutionStatus] = None
-    finality_status: Optional[TransactionFinalityStatus] = None
-    execution_resources: Optional[dict] = None
-    l1_to_l2_consumed_message: Optional[L1toL2Message] = None
-    revert_error: Optional[str] = None
-
-
-@dataclass
-class GatewayBlock:
-    """
-    Dataclass representing a block from the Starknet gateway.
-    """
-
-    # pylint: disable=too-many-instance-attributes
-    gas_price: int
-    status: BlockStatus
-    transactions: List[Transaction]
-    transaction_receipts: List[GatewayBlockTransactionReceipt]
-
-    timestamp: int
-    parent_block_hash: int
-
-    root: Optional[int] = None
-    block_number: Optional[int] = None
-    block_hash: Optional[int] = None
-
-    sequencer_address: Optional[int] = None
-    starknet_version: Optional[str] = None
-
-
-@dataclass
 class BlockHashAndNumber:
     block_hash: int
     block_number: int
@@ -434,31 +392,6 @@ class SyncStatus:
     current_block_num: int
     highest_block_hash: int
     highest_block_num: int
-
-
-@dataclass
-class BlockSingleTransactionTrace:
-    """
-    Dataclass representing a trace of transaction execution.
-    """
-
-    signature: List[int]
-    transaction_hash: int
-    function_invocation: Optional[dict] = None
-    validate_invocation: Optional[dict] = None
-    fee_transfer_invocation: Optional[dict] = None
-    constructor_invocation: Optional[dict] = None
-    # Gateway-only field, information about reversion in RPC spec is returned inside "execute_invocation"
-    revert_error: Optional[str] = None
-
-
-@dataclass
-class BlockTransactionTraces:
-    """
-    Dataclass representing traces of all transactions in block.
-    """
-
-    traces: List[BlockSingleTransactionTrace]
 
 
 @dataclass
@@ -547,16 +480,6 @@ class StateDiff:
 
 
 @dataclass
-class GatewayStateDiff:
-    storage_diffs: List[StorageDiffItem]
-    deployed_contracts: List[DeployedContract]
-    declared_contract_hashes: List[DeclaredContractHash]
-    nonces: List[ContractsNonce]
-    deprecated_declared_contract_hashes: List[int] = field(default_factory=list)
-    replaced_classes: List[ReplacedClass] = field(default_factory=list)
-
-
-@dataclass
 class BlockStateUpdate:
     """
     Dataclass representing a change in state of a block.
@@ -565,7 +488,7 @@ class BlockStateUpdate:
     block_hash: int
     new_root: int
     old_root: int
-    state_diff: Union[StateDiff, GatewayStateDiff]
+    state_diff: StateDiff
 
 
 @dataclass
@@ -576,26 +499,6 @@ class PendingBlockStateUpdate:
 
     old_root: int
     state_diff: StateDiff
-
-
-@dataclass
-class StateUpdateWithBlock:
-    """
-    Dataclass representing a change in state of a block with the block.
-    """
-
-    block: GatewayBlock
-    state_update: BlockStateUpdate
-
-
-@dataclass
-class ContractCode:
-    """
-    Dataclass representing contract deployed to Starknet.
-    """
-
-    bytecode: List[int]
-    abi: List[Dict[str, Any]]
 
 
 @dataclass
@@ -721,18 +624,6 @@ class CasmClass:
 
 
 @dataclass
-class GatewayTransactionStatusResponse:
-    """
-    Dataclass representing transaction status for the GatewayClient.
-    """
-
-    block_hash: Optional[int]
-    transaction_status: TransactionStatus
-    finality_status: Optional[TransactionFinalityStatus] = None
-    execution_status: Optional[TransactionExecutionStatus] = None
-
-
-@dataclass
 class TransactionStatusResponse:
     """
     Dataclass representing transaction status for the FullNodeClient.
@@ -740,56 +631,6 @@ class TransactionStatusResponse:
 
     finality_status: TransactionStatus
     execution_status: Optional[TransactionExecutionStatus] = None
-
-
-@dataclass
-class SignatureInput:
-    """
-    Dataclass representing a signature input.
-    """
-
-    block_hash: int
-    state_diff_commitment: int
-
-
-@dataclass
-class SignatureOnStateDiff:
-    """
-    Dataclass representing signature on state diff commitment and block hash.
-    """
-
-    block_number: int
-    signature: List[int]
-    signature_input: SignatureInput
-
-
-class DAMode(Enum):
-    """
-    Enum specifying a storage domain in Starknet. Each domain has different gurantess regarding availability.
-    """
-
-    L1 = "L1"
-    L2 = "L2"
-
-
-@dataclass
-class ExecutionResources:
-    """
-    Dataclass representing the resources consumed by the transaction.
-    """
-
-    # pylint: disable=too-many-instance-attributes
-
-    # For now the class and schema related to it is unused, it is waiting here for refactoring.
-    steps: int
-    range_check_builtin_applications: int
-    pedersen_builtin_applications: int
-    poseidon_builtin_applications: int
-    ec_op_builtin_applications: int
-    ecdsa_builtin_applications: int
-    bitwise_builtin_applications: int
-    keccak_builtin_applications: int
-    memory_holes: Optional[int] = None
 
 
 # ------------------------------- Trace API dataclasses -------------------------------

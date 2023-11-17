@@ -9,7 +9,6 @@ from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     BlockStateUpdate,
     BlockTransactionTrace,
-    BlockTransactionTraces,
     Call,
     ContractClass,
     DeclareTransactionResponse,
@@ -73,7 +72,7 @@ class Client(ABC):
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> Union[BlockTransactionTraces, List[BlockTransactionTrace]]:
+    ) -> List[BlockTransactionTrace]:
         """
         Receive the traces of all the transactions within specified block
 
