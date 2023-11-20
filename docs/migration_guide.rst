@@ -960,7 +960,7 @@ Clients
 
 Client has been separated into two specialized modules.
 
-* Use :ref:`GatewayClient` to interact with Starknet like you did in previous starknet.py versions
+* Use ``GatewayClient`` to interact with Starknet like you did in previous starknet.py versions
 * Use :ref:`FullNodeClient` to interact with JSON-RPC
 
 .. note::
@@ -972,7 +972,7 @@ API Changes
 -----------
 
 Client methods has had some of the parameters removed, so it provided uniform interface
-for both gateway and rpc methods. Please refer to :ref:`GatewayClient` and :ref:`FullNodeClient`
+for both gateway and rpc methods. Please refer to ``GatewayClient`` and :ref:`FullNodeClient`
 to see what has changed.
 There is no longer add_transaction method in the Client interface. It was renamed to send_transaction.
 
