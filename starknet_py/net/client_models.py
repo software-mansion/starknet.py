@@ -231,7 +231,7 @@ class ExecutionResources:
     memory_holes: Optional[int] = None
 
 
-# TODO (#1047): split into PendingTransactionReceipt and TransactionReceipt?
+# TODO (#1179): split into PendingTransactionReceipt and TransactionReceipt
 @dataclass
 class TransactionReceipt:
     """
@@ -246,6 +246,7 @@ class TransactionReceipt:
 
     execution_status: Optional[TransactionExecutionStatus] = None
     finality_status: Optional[TransactionFinalityStatus] = None
+    # TODO (#1179): remove status field once devnet is updated
     status: Optional[
         TransactionStatus
     ] = None  # replaced by execution and finality status in RPC v0.4.0-rc1
@@ -343,7 +344,7 @@ class StarknetBlockCommon:
     Dataclass representing a block header.
     """
 
-    # TODO (#1047): change that into composition (with all the breaking changes it will be a minor thing there)
+    # TODO (#1179): change that into composition
     # pylint: disable=too-many-instance-attributes
 
     block_hash: int
