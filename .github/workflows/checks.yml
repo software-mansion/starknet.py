@@ -286,8 +286,7 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run poe test_ci_on_networks_full_node
-          poetry run poe test_ci_on_networks_gateway
+          poetry run poe test_ci_on_networks
 
       - name: Generate coverage in XML
         run: |
