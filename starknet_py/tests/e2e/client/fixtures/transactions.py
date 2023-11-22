@@ -35,7 +35,6 @@ async def deploy_account_transaction(
         key_pair=key_pair,
         class_hash=class_hash,
         salt=salt,
-        network=network,
         client=FullNodeClient(network),
     )
 

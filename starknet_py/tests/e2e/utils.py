@@ -1,5 +1,5 @@
 import random
-from typing import Optional, Tuple
+from typing import Tuple
 
 from starknet_py.constants import EC_ORDER
 from starknet_py.contract import Contract
@@ -9,7 +9,6 @@ from starknet_py.net.client import Client
 from starknet_py.net.http_client import HttpClient, HttpMethod
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import DeployAccount
-from starknet_py.net.networks import Network
 from starknet_py.net.signer.stark_curve_signer import KeyPair
 from starknet_py.net.udc_deployer.deployer import _get_random_salt
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
@@ -52,19 +51,11 @@ async def get_deploy_account_details(
 
 
 async def get_deploy_account_transaction(
-    *,
-    address: int,
-    key_pair: KeyPair,
-    salt: int,
-    class_hash: int,
-    client: Client,
-    network: Optional[Network] = None,
+    *, address: int, key_pair: KeyPair, salt: int, class_hash: int, client: Client
 ) -> DeployAccount:
     """
     Get a signed DeployAccount transaction from provided details
     """
-    if network is None and client is None:
-        raise ValueError("One of network or client must be provided.")
 
     account = Account(
         address=address,

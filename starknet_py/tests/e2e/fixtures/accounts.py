@@ -65,7 +65,6 @@ async def devnet_account_details(
         key_pair=key_pair,
         salt=salt,
         class_hash=class_hash,
-        network=network,
         client=account.client,
     )
 
