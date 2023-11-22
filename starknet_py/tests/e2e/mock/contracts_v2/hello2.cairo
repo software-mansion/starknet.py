@@ -90,7 +90,7 @@ trait IHelloStarknet<TContractState> {
     fn echo_array(self: @TContractState, data: Array<u8>) -> Array<u8>;
     fn echo_array_u256(self: @TContractState, data: Array<u256>) -> Array<u256>;
     fn echo_array_bool(self: @TContractState, data: Array<bool>) -> Array<bool>;
-    // unamed Tuple
+    // unnamed Tuple
     fn echo_un_tuple(self: @TContractState, a: (felt252, u16)) -> (felt252, u16);
     // echo Struct
     fn echo_struct(self: @TContractState, tt: Foo) -> Foo;
@@ -251,7 +251,7 @@ mod HelloStarknet {
             data
         }
 
-        // unamed Tuple
+        // unnamed Tuple
         fn echo_un_tuple(self: @ContractState, a: (felt252, u16)) -> (felt252, u16) {
             a
         }
@@ -351,7 +351,7 @@ mod HelloStarknet {
             }
             MyEnum::Response(Order { p1: 1, p2: val1 })
         }
-        // return Option<litteral>
+        // return Option<literal>
         fn option_u8_output(self: @ContractState, val1: u8) -> Option<u8> {
             if val1 < 100 {
                 return Option::None(());

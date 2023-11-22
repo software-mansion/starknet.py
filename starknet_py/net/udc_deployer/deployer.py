@@ -12,7 +12,7 @@ from starknet_py.hash.utils import pedersen_hash
 from starknet_py.net.client_models import Call, Hash
 from starknet_py.net.models import AddressRepresentation, parse_address
 from starknet_py.serialization import serializer_for_function
-from starknet_py.utils.contructor_args_translator import translate_constructor_args
+from starknet_py.utils.constructor_args_translator import translate_constructor_args
 
 
 class ContractDeployment(NamedTuple):
