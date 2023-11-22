@@ -39,7 +39,7 @@ async def test_get_transaction_receipt(full_node_client_integration, transaction
 
 
 @pytest.mark.asyncio
-async def test_wait_for_tx_reverted_full_node(full_node_account_integration):
+async def test_wait_for_tx_reverted(full_node_account_integration):
     account = full_node_account_integration
     # Calldata too long for the function (it has no parameters) to trigger REVERTED status
     call = Call(
@@ -55,7 +55,7 @@ async def test_wait_for_tx_reverted_full_node(full_node_account_integration):
 
 
 @pytest.mark.asyncio
-async def test_wait_for_tx_full_node_accepted(full_node_account_integration):
+async def test_wait_for_tx_accepted(full_node_account_integration):
     account = full_node_account_integration
     call = Call(
         to_addr=int(PREDEPLOYED_EMPTY_CONTRACT_ADDRESS, 0),

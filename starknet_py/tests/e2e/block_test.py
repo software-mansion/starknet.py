@@ -40,9 +40,7 @@ async def test_latest_block(account, map_compiled_contract):
 
 
 @pytest.mark.asyncio
-async def test_block_with_tx_hashes_pending(
-    account,
-):
+async def test_block_with_tx_hashes_pending(account):
     blk = await account.client.get_block_with_tx_hashes(block_number="pending")
 
     assert isinstance(blk, PendingStarknetBlockWithTxHashes)
@@ -68,9 +66,7 @@ async def test_block_with_tx_hashes_latest(
 
 
 @pytest.mark.asyncio
-async def test_get_block_with_txs_pending(
-    account,
-):
+async def test_get_block_with_txs_pending(account):
     blk = await account.client.get_block_with_txs(block_number="pending")
 
     assert isinstance(blk, PendingStarknetBlock)

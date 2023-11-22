@@ -75,8 +75,7 @@ async def test_get_transaction_receipt(client, declare_transaction_hash):
 
 
 @pytest.mark.asyncio
-async def test_estimate_fee(account, deploy_account_transaction):
-    client = account.client
+async def test_estimate_fee(client, deploy_account_transaction):
     transaction = deploy_account_transaction
     # docs-start: estimate_fee
     # a single transaction
