@@ -2,10 +2,28 @@ Migration guide
 ===============
 
 **********************
+0.19.0 Migration guide
+**********************
+
+0.19.0 Breaking changes
+-----------------------
+
+.. currentmodule:: starknet_py.net.client_models
+
+1. :class:`GatewayClient` and all related classes have been removed.
+2. Client ``net`` property has been removed.
+3. :class:`TransactionReceipt` field ``execution_resources`` has been changed from ``dict`` to :class:`ExecutionResources`.
+
+0.19.0 Minor changes
+--------------------
+
+1. :class:`L1HandlerTransaction` field ``nonce`` is now required.
+
+**********************
 0.18.3 Migration guide
 **********************
 
-Version 0.18.3 of **starknet.py** comes with support for RPC 0.5.0!
+Version 0.18.3 of **starknet.py** comes with support for RPC 0.5.1!
 
 
 0.18.3 Targeted versions
