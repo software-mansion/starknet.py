@@ -10,7 +10,7 @@ Migration guide
 
 .. currentmodule:: starknet_py.net.client_models
 
-1. :class:`GatewayClient` and all related classes have been removed.
+1. :class:`GatewayClient` all related classes and fields have been removed.
 2. Client ``net`` property has been removed.
 3. :class:`TransactionReceipt` field ``execution_resources`` has been changed from ``dict`` to :class:`ExecutionResources`.
 

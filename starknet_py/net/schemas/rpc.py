@@ -150,7 +150,7 @@ class TransactionReceiptSchema(Schema):
     events = fields.List(
         fields.Nested(EventSchema()), data_key="events", load_default=[]
     )
-    l2_to_l1_messages = fields.List(
+    messages_sent = fields.List(
         fields.Nested(L2toL1MessageSchema()), data_key="messages_sent", load_default=[]
     )
     message_hash = Felt(data_key="message_hash", load_default=None)

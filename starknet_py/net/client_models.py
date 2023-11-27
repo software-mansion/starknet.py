@@ -242,7 +242,7 @@ class TransactionReceipt:
 
     transaction_hash: int
     events: List[Event] = field(default_factory=list)
-    l2_to_l1_messages: List[L2toL1Message] = field(default_factory=list)
+    messages_sent: List[L2toL1Message] = field(default_factory=list)
 
     execution_status: Optional[TransactionExecutionStatus] = None
     finality_status: Optional[TransactionFinalityStatus] = None
