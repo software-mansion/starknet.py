@@ -8,29 +8,22 @@ from starknet_py.tests.e2e.fixtures.constants import (
     INTEGRATION_ACCOUNT_ADDRESS,
     INTEGRATION_ACCOUNT_PRIVATE_KEY,
     INTEGRATION_RPC_URL,
+    TESTNET_ACCOUNT_ADDRESS,
+    TESTNET_ACCOUNT_PRIVATE_KEY,
     TESTNET_RPC_URL,
 )
 
 
 @pytest.fixture(scope="package")
 def full_node_client_integration() -> FullNodeClient:
-    """
-    A fixture returning a FullNodeClient with our integration network node URL.
-    """
-    # because TESTNET and INTEGRATION constants are lambdas
     return FullNodeClient(node_url=INTEGRATION_RPC_URL())
 
 
 @pytest.fixture(scope="package")
 def full_node_account_integration(full_node_client_integration) -> Account:
-    """
-    A fixture returning an Account with FullNodeClient.
-    """
     return Account(
-        # because TESTNET and INTEGRATION constants are lambdas
         address=INTEGRATION_ACCOUNT_ADDRESS(),
         client=full_node_client_integration,
-        # because TESTNET and INTEGRATION constants are lambdas
         key_pair=KeyPair.from_private_key(int(INTEGRATION_ACCOUNT_PRIVATE_KEY(), 0)),
         chain=StarknetChainId.TESTNET,
     )
@@ -38,8 +31,14 @@ def full_node_account_integration(full_node_client_integration) -> Account:
 
 @pytest.fixture(scope="package")
 def full_node_client_testnet() -> FullNodeClient:
-    """
-    A fixture returning a FullNodeClient with our integration network node URL.
-    """
-    # because TESTNET and INTEGRATION constants are lambdas
     return FullNodeClient(node_url=TESTNET_RPC_URL())
+
+
+@pytest.fixture(scope="package")
+def full_node_account_testnet(full_node_client_testnet) -> Account:
+    return Account(
+        address=TESTNET_ACCOUNT_ADDRESS(),
+        client=full_node_client_testnet,
+        key_pair=KeyPair.from_private_key(int(TESTNET_ACCOUNT_PRIVATE_KEY(), 0)),
+        chain=StarknetChainId.TESTNET,
+    )

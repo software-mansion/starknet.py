@@ -13,7 +13,7 @@ from starknet_py.net.client_models import (
     TransactionReceipt,
     TransactionStatus,
 )
-from starknet_py.tests.e2e.fixtures.constants import PREDEPLOYED_EMPTY_CONTRACT_ADDRESS
+from starknet_py.tests.e2e.fixtures.constants import EMPTY_CONTRACT_ADDRESS_TESTNET
 from starknet_py.transaction_errors import TransactionRevertedError
 
 
@@ -39,11 +39,11 @@ async def test_get_transaction_receipt(full_node_client_integration, transaction
 
 
 @pytest.mark.asyncio
-async def test_wait_for_tx_reverted(full_node_account_integration):
-    account = full_node_account_integration
+async def test_wait_for_tx_reverted(full_node_account_testnet):
+    account = full_node_account_testnet
     # Calldata too long for the function (it has no parameters) to trigger REVERTED status
     call = Call(
-        to_addr=int(PREDEPLOYED_EMPTY_CONTRACT_ADDRESS, 0),
+        to_addr=int(EMPTY_CONTRACT_ADDRESS_TESTNET, 0),
         selector=get_selector_from_name("empty"),
         calldata=[0x1, 0x2, 0x3, 0x4, 0x5],
     )
@@ -55,10 +55,10 @@ async def test_wait_for_tx_reverted(full_node_account_integration):
 
 
 @pytest.mark.asyncio
-async def test_wait_for_tx_accepted(full_node_account_integration):
-    account = full_node_account_integration
+async def test_wait_for_tx_accepted(full_node_account_testnet):
+    account = full_node_account_testnet
     call = Call(
-        to_addr=int(PREDEPLOYED_EMPTY_CONTRACT_ADDRESS, 0),
+        to_addr=int(EMPTY_CONTRACT_ADDRESS_TESTNET, 0),
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
@@ -72,46 +72,38 @@ async def test_wait_for_tx_accepted(full_node_account_integration):
 
 
 @pytest.mark.asyncio
-async def test_transaction_not_received_max_fee_too_small(
-    full_node_account_integration,
-):
-    account = full_node_account_integration
+async def test_transaction_not_received_max_fee_too_small(full_node_account_testnet):
+    account = full_node_account_testnet
     call = Call(
-        to_addr=int(PREDEPLOYED_EMPTY_CONTRACT_ADDRESS, 0),
+        to_addr=int(EMPTY_CONTRACT_ADDRESS_TESTNET, 0),
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
-    ARBITRARILY_SMALL_NONCE = 1
-    sign_invoke = await account.sign_invoke_transaction(
-        calls=call, max_fee=ARBITRARILY_SMALL_NONCE
-    )
+    sign_invoke = await account.sign_invoke_transaction(calls=call, max_fee=1)
 
     with pytest.raises(ClientError, match=r".*Max fee.*"):
-        _ = await account.client.send_transaction(sign_invoke)
+        await account.client.send_transaction(sign_invoke)
 
 
 @pytest.mark.asyncio
-async def test_transaction_not_received_max_fee_too_big(full_node_account_integration):
-    account = full_node_account_integration
+async def test_transaction_not_received_max_fee_too_big(full_node_account_testnet):
+    account = full_node_account_testnet
     call = Call(
-        to_addr=int(PREDEPLOYED_EMPTY_CONTRACT_ADDRESS, 0),
+        to_addr=int(EMPTY_CONTRACT_ADDRESS_TESTNET, 0),
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
-    ARBITRARILY_BIG_FEE_WE_WILL_NEVER_HAVE_SO_MUCH_ETH = sys.maxsize
-    sign_invoke = await account.sign_invoke_transaction(
-        calls=call, max_fee=ARBITRARILY_BIG_FEE_WE_WILL_NEVER_HAVE_SO_MUCH_ETH
-    )
+    sign_invoke = await account.sign_invoke_transaction(calls=call, max_fee=sys.maxsize)
 
     with pytest.raises(ClientError, match=r".*max_fee.*"):
-        _ = await account.client.send_transaction(sign_invoke)
+        await account.client.send_transaction(sign_invoke)
 
 
 @pytest.mark.asyncio
-async def test_transaction_not_received_invalid_nonce(full_node_account_integration):
-    account = full_node_account_integration
+async def test_transaction_not_received_invalid_nonce(full_node_account_testnet):
+    account = full_node_account_testnet
     call = Call(
-        to_addr=int(PREDEPLOYED_EMPTY_CONTRACT_ADDRESS, 0),
+        to_addr=int(EMPTY_CONTRACT_ADDRESS_TESTNET, 0),
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
@@ -120,25 +112,22 @@ async def test_transaction_not_received_invalid_nonce(full_node_account_integrat
     )
 
     with pytest.raises(ClientError, match=r".*nonce.*"):
-        _ = await account.client.send_transaction(sign_invoke)
+        await account.client.send_transaction(sign_invoke)
 
 
 @pytest.mark.asyncio
-async def test_transaction_not_received_invalid_signature(
-    full_node_account_integration,
-):
-    account = full_node_account_integration
+async def test_transaction_not_received_invalid_signature(full_node_account_testnet):
+    account = full_node_account_testnet
     call = Call(
-        to_addr=int(PREDEPLOYED_EMPTY_CONTRACT_ADDRESS, 0),
+        to_addr=int(EMPTY_CONTRACT_ADDRESS_TESTNET, 0),
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
     sign_invoke = await account.sign_invoke_transaction(calls=call, max_fee=int(1e16))
     sign_invoke = dataclasses.replace(sign_invoke, signature=[0x21, 0x37])
 
-    # first one for gateway, second for pathfinder node
     with pytest.raises(ClientError, match=r"(.*Signature.*)|(.*An unexpected error.*)"):
-        _ = await account.client.send_transaction(sign_invoke)
+        await account.client.send_transaction(sign_invoke)
 
 
 # ------------------------------------ FULL_NODE_CLIENT TESTS ------------------------------------

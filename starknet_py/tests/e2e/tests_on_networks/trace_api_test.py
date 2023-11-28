@@ -1,6 +1,5 @@
 import pytest
 
-from starknet_py.net.account.account import Account
 from starknet_py.net.client_models import (
     DeclareTransaction,
     DeclareTransactionTrace,
@@ -14,14 +13,7 @@ from starknet_py.net.client_models import (
     Transaction,
     TransactionTrace,
 )
-from starknet_py.net.full_node_client import FullNodeClient
-from starknet_py.net.models import StarknetChainId
-from starknet_py.net.signer.stark_curve_signer import KeyPair
-from starknet_py.tests.e2e.fixtures.constants import (
-    CONTRACTS_COMPILED_V0_DIR,
-    TESTNET_ACCOUNT_ADDRESS,
-    TESTNET_ACCOUNT_PRIVATE_KEY,
-)
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V0_DIR
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 # TODO (#1179): move those tests to full_node_test.py
@@ -109,25 +101,15 @@ async def test_get_block_traces(full_node_client_testnet):
 
 
 @pytest.mark.asyncio
-async def test_simulate_transactions_declare_on_network(full_node_client_testnet):
-    testnet_account_address = TESTNET_ACCOUNT_ADDRESS()
-    testnet_account_private_key = TESTNET_ACCOUNT_PRIVATE_KEY()
-
-    full_node_account = Account(
-        address=testnet_account_address,
-        client=full_node_client_testnet,
-        key_pair=KeyPair.from_private_key(testnet_account_private_key),
-        chain=StarknetChainId.TESTNET,
-    )
+async def test_simulate_transactions_declare_on_network(full_node_account_testnet):
     compiled_contract = read_contract(
         "map_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR
     )
-    declare_tx = await full_node_account.sign_declare_transaction(
+    declare_tx = await full_node_account_testnet.sign_declare_transaction(
         compiled_contract, max_fee=int(1e16)
     )
 
-    assert isinstance(full_node_account.client, FullNodeClient)
-    simulated_txs = await full_node_account.client.simulate_transactions(
+    simulated_txs = await full_node_account_testnet.client.simulate_transactions(
         transactions=[declare_tx], block_number="latest"
     )
 
