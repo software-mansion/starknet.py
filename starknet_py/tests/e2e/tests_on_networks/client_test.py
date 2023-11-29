@@ -357,4 +357,3 @@ async def test_get_tx_receipt_new_fields(full_node_client_testnet):
     )
 
     assert receipt.execution_resources is not None
-    assert len(receipt.execution_resources.keys()) in [8, 9]

@@ -102,6 +102,36 @@ class L2toL1MessageSchema(Schema):
         return L2toL1Message(**data)
 
 
+class ExecutionResourcesSchema(Schema):
+    steps = Felt(data_key="steps", required=True)
+    range_check_builtin_applications = Felt(
+        data_key="range_check_builtin_applications", required=True
+    )
+    pedersen_builtin_applications = Felt(
+        data_key="pedersen_builtin_applications", required=True
+    )
+    poseidon_builtin_applications = Felt(
+        data_key="poseidon_builtin_applications", required=True
+    )
+    ec_op_builtin_applications = Felt(
+        data_key="ec_op_builtin_applications", required=True
+    )
+    ecdsa_builtin_applications = Felt(
+        data_key="ecdsa_builtin_applications", required=True
+    )
+    bitwise_builtin_applications = Felt(
+        data_key="bitwise_builtin_applications", required=True
+    )
+    keccak_builtin_applications = Felt(
+        data_key="keccak_builtin_applications", required=True
+    )
+    memory_holes = Felt(data_key="memory_holes", load_default=None)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> ExecutionResources:
+        return ExecutionResources(**data)
+
+
 class TransactionReceiptSchema(Schema):
     transaction_hash = Felt(data_key="transaction_hash", required=True)
     # replaced by execution and finality status in RPC v0.4.0-rc1
@@ -120,12 +150,14 @@ class TransactionReceiptSchema(Schema):
     events = fields.List(
         fields.Nested(EventSchema()), data_key="events", load_default=[]
     )
-    l2_to_l1_messages = fields.List(
+    messages_sent = fields.List(
         fields.Nested(L2toL1MessageSchema()), data_key="messages_sent", load_default=[]
     )
     message_hash = Felt(data_key="message_hash", load_default=None)
     # TODO (#1179): this field should be required
-    execution_resources = fields.Dict(data_key="execution_resources", load_default=None)
+    execution_resources = fields.Nested(
+        ExecutionResourcesSchema(), data_key="execution_resources", load_default=None
+    )
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> TransactionReceipt:
@@ -194,7 +226,6 @@ class DeclareTransactionSchema(TransactionSchema):
 
 
 class DeployTransactionSchema(TransactionSchema):
-    contract_address = Felt(data_key="contract_address", load_default=None)
     contract_address_salt = Felt(data_key="contract_address_salt", required=True)
     constructor_calldata = fields.List(
         Felt(), data_key="constructor_calldata", required=True
@@ -561,36 +592,6 @@ class DeployAccountTransactionResponseSchema(SentTransactionSchema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> DeployAccountTransactionResponse:
         return DeployAccountTransactionResponse(**data)
-
-
-class ExecutionResourcesSchema(Schema):
-    steps = Felt(data_key="steps", required=True)
-    range_check_builtin_applications = Felt(
-        data_key="range_check_builtin_applications", required=True
-    )
-    pedersen_builtin_applications = Felt(
-        data_key="pedersen_builtin_applications", required=True
-    )
-    poseidon_builtin_applications = Felt(
-        data_key="poseidon_builtin_applications", required=True
-    )
-    ec_op_builtin_applications = Felt(
-        data_key="ec_op_builtin_applications", required=True
-    )
-    ecdsa_builtin_applications = Felt(
-        data_key="ecdsa_builtin_applications", required=True
-    )
-    bitwise_builtin_applications = Felt(
-        data_key="bitwise_builtin_applications", required=True
-    )
-    keccak_builtin_applications = Felt(
-        data_key="keccak_builtin_applications", required=True
-    )
-    memory_holes = Felt(data_key="memory_holes", load_default=None)
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> ExecutionResources:
-        return ExecutionResources(**data)
 
 
 # ------------------------------- Trace API -------------------------------
