@@ -2,10 +2,28 @@ Migration guide
 ===============
 
 **********************
+0.19.0 Migration guide
+**********************
+
+0.19.0 Breaking changes
+-----------------------
+
+.. currentmodule:: starknet_py.net.client_models
+
+1. :class:`GatewayClient` all related classes and fields have been removed.
+2. Client ``net`` property has been removed.
+3. :class:`TransactionReceipt` field ``execution_resources`` has been changed from ``dict`` to :class:`ExecutionResources`.
+
+0.19.0 Minor changes
+--------------------
+
+1. :class:`L1HandlerTransaction` field ``nonce`` is now required.
+
+**********************
 0.18.3 Migration guide
 **********************
 
-Version 0.18.3 of **starknet.py** comes with support for RPC 0.5.0!
+Version 0.18.3 of **starknet.py** comes with support for RPC 0.5.1!
 
 
 0.18.3 Targeted versions
@@ -960,7 +978,7 @@ Clients
 
 Client has been separated into two specialized modules.
 
-* Use :ref:`GatewayClient` to interact with Starknet like you did in previous starknet.py versions
+* Use ``GatewayClient`` to interact with Starknet like you did in previous starknet.py versions
 * Use :ref:`FullNodeClient` to interact with JSON-RPC
 
 .. note::
@@ -972,7 +990,7 @@ API Changes
 -----------
 
 Client methods has had some of the parameters removed, so it provided uniform interface
-for both gateway and rpc methods. Please refer to :ref:`GatewayClient` and :ref:`FullNodeClient`
+for both gateway and rpc methods. Please refer to ``GatewayClient`` and :ref:`FullNodeClient`
 to see what has changed.
 There is no longer add_transaction method in the Client interface. It was renamed to send_transaction.
 

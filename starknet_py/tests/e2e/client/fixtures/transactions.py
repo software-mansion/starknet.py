@@ -6,6 +6,7 @@ import pytest_asyncio
 
 from starknet_py.contract import Contract
 from starknet_py.net.account.account import Account
+from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.client.fixtures.prepare_net_for_gateway_test import (
@@ -34,7 +35,7 @@ async def deploy_account_transaction(
         key_pair=key_pair,
         class_hash=class_hash,
         salt=salt,
-        network=network,
+        client=FullNodeClient(network),
     )
 
 

@@ -1,4 +1,4 @@
-from typing import Literal, TypedDict, Union
+from typing import Literal, Union
 
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 
@@ -6,20 +6,7 @@ MAINNET = "mainnet"
 TESTNET = "testnet"
 PredefinedNetwork = Literal["mainnet", "testnet"]
 
-
-class CustomGatewayUrls(TypedDict):
-    feeder_gateway_url: str
-    gateway_url: str
-
-
-Network = Union[PredefinedNetwork, str, CustomGatewayUrls]
-
-
-def net_address_from_net(net: str) -> str:
-    return {
-        MAINNET: "https://alpha-mainnet.starknet.io",
-        TESTNET: "https://alpha4.starknet.io",
-    }.get(net, net)
+Network = Union[PredefinedNetwork, str]
 
 
 def default_token_address_for_network(net: Network) -> str:

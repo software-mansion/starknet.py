@@ -140,14 +140,14 @@ async def deploy_v1_contract(
 
 @pytest_asyncio.fixture(scope="package")
 async def deployed_balance_contract(
-    gateway_account: BaseAccount,
+    account: BaseAccount,
     balance_contract: str,
 ) -> Contract:
     """
     Declares, deploys a new balance contract and returns its instance.
     """
     declare_result = await Contract.declare(
-        account=gateway_account,
+        account=account,
         compiled_contract=balance_contract,
         max_fee=int(1e16),
     )
@@ -161,7 +161,7 @@ async def deployed_balance_contract(
 
 @pytest_asyncio.fixture(scope="package")
 async def map_contract(
-    gateway_account: BaseAccount,
+    account: BaseAccount,
     map_compiled_contract: str,
     map_class_hash: int,
 ) -> Contract:
@@ -169,16 +169,16 @@ async def map_contract(
     Deploys map contract and returns its instance.
     """
     abi = create_compiled_contract(compiled_contract=map_compiled_contract).abi
-    return await deploy_contract(gateway_account, map_class_hash, abi)
+    return await deploy_contract(account, map_class_hash, abi)
 
 
 @pytest_asyncio.fixture(scope="package")
 async def map_contract_declare_hash(
-    full_node_account: BaseAccount,
+    account: BaseAccount,
     map_compiled_contract: str,
 ):
     declare_result = await Contract.declare(
-        account=full_node_account,
+        account=account,
         compiled_contract=map_compiled_contract,
         max_fee=MAX_FEE,
     )
@@ -188,7 +188,7 @@ async def map_contract_declare_hash(
 
 @pytest_asyncio.fixture(scope="function")
 async def simple_storage_with_event_contract(
-    gateway_account: BaseAccount,
+    account: BaseAccount,
     simple_storage_with_event_compiled_contract: str,
     simple_storage_with_event_class_hash: int,
 ) -> Contract:
@@ -198,14 +198,12 @@ async def simple_storage_with_event_contract(
     abi = create_compiled_contract(
         compiled_contract=simple_storage_with_event_compiled_contract
     ).abi
-    return await deploy_contract(
-        gateway_account, simple_storage_with_event_class_hash, abi
-    )
+    return await deploy_contract(account, simple_storage_with_event_class_hash, abi)
 
 
 @pytest_asyncio.fixture(name="erc20_contract", scope="package")
 async def deploy_erc20_contract(
-    gateway_account: BaseAccount,
+    account: BaseAccount,
     erc20_compiled_contract: str,
     erc20_class_hash: int,
 ) -> Contract:
@@ -213,11 +211,11 @@ async def deploy_erc20_contract(
     Deploys erc20 contract and returns its instance.
     """
     abi = create_compiled_contract(compiled_contract=erc20_compiled_contract).abi
-    return await deploy_contract(gateway_account, erc20_class_hash, abi)
+    return await deploy_contract(account, erc20_class_hash, abi)
 
 
 @pytest.fixture(scope="package")
-def fee_contract(gateway_account: BaseAccount) -> Contract:
+def fee_contract(account: BaseAccount) -> Contract:
     """
     Returns an instance of the fee contract. It is used to transfer tokens.
     """
@@ -245,7 +243,7 @@ def fee_contract(gateway_account: BaseAccount) -> Contract:
     return Contract(
         address=FEE_CONTRACT_ADDRESS,
         abi=abi,
-        provider=gateway_account,
+        provider=account,
     )
 
 
@@ -324,50 +322,46 @@ async def argent_cairo1_account_class_hash(
 
 
 @pytest_asyncio.fixture(scope="package")
-async def map_class_hash(
-    gateway_account: BaseAccount, map_compiled_contract: str
-) -> int:
+async def map_class_hash(account: BaseAccount, map_compiled_contract: str) -> int:
     """
     Returns class_hash of the map.cairo.
     """
-    declare = await gateway_account.sign_declare_transaction(
+    declare = await account.sign_declare_transaction(
         compiled_contract=map_compiled_contract,
         max_fee=int(1e16),
     )
-    res = await gateway_account.client.declare(declare)
-    await gateway_account.client.wait_for_tx(res.transaction_hash)
+    res = await account.client.declare(declare)
+    await account.client.wait_for_tx(res.transaction_hash)
     return res.class_hash
 
 
 @pytest_asyncio.fixture(scope="package")
 async def simple_storage_with_event_class_hash(
-    gateway_account: BaseAccount, simple_storage_with_event_compiled_contract: str
+    account: BaseAccount, simple_storage_with_event_compiled_contract: str
 ):
     """
     Returns class_hash of the simple_storage_with_event.cairo
     """
-    declare = await gateway_account.sign_declare_transaction(
+    declare = await account.sign_declare_transaction(
         compiled_contract=simple_storage_with_event_compiled_contract,
         max_fee=int(1e16),
     )
-    res = await gateway_account.client.declare(declare)
-    await gateway_account.client.wait_for_tx(res.transaction_hash)
+    res = await account.client.declare(declare)
+    await account.client.wait_for_tx(res.transaction_hash)
     return res.class_hash
 
 
 @pytest_asyncio.fixture(scope="package")
-async def erc20_class_hash(
-    gateway_account: BaseAccount, erc20_compiled_contract: str
-) -> int:
+async def erc20_class_hash(account: BaseAccount, erc20_compiled_contract: str) -> int:
     """
     Returns class_hash of the erc20.cairo.
     """
-    declare = await gateway_account.sign_declare_transaction(
+    declare = await account.sign_declare_transaction(
         compiled_contract=erc20_compiled_contract,
         max_fee=int(1e16),
     )
-    res = await gateway_account.client.declare(declare)
-    await gateway_account.client.wait_for_tx(res.transaction_hash)
+    res = await account.client.declare(declare)
+    await account.client.wait_for_tx(res.transaction_hash)
     return res.class_hash
 
 
@@ -403,15 +397,15 @@ def constructor_with_arguments_compiled() -> str:
 
 @pytest_asyncio.fixture(scope="package")
 async def constructor_with_arguments_class_hash(
-    gateway_account: BaseAccount, constructor_with_arguments_compiled
+    account: BaseAccount, constructor_with_arguments_compiled
 ) -> int:
     """
     Returns a class_hash of the constructor_with_arguments.cairo.
     """
-    declare = await gateway_account.sign_declare_transaction(
+    declare = await account.sign_declare_transaction(
         compiled_contract=constructor_with_arguments_compiled,
         max_fee=int(1e16),
     )
-    res = await gateway_account.client.declare(declare)
-    await gateway_account.client.wait_for_tx(res.transaction_hash)
+    res = await account.client.declare(declare)
+    await account.client.wait_for_tx(res.transaction_hash)
     return res.class_hash

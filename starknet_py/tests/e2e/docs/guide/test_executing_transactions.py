@@ -4,8 +4,8 @@ import pytest
 @pytest.mark.asyncio
 async def test_executing_transactions(account, map_contract):
     address = map_contract.address
-    # docs: start
     # pylint: disable=import-outside-toplevel
+    # docs: start
     from starknet_py.hash.selector import get_selector_from_name
     from starknet_py.net.client_models import Call
 

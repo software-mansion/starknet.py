@@ -214,10 +214,8 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run poe test_ci_full_node_v2
-          poetry run poe test_ci_full_node_v1
-          poetry run poe test_ci_gateway_v2
-          poetry run poe test_ci_gateway_v1
+          poetry run poe test_ci_v2
+          poetry run poe test_ci_v1
 
       - name: Generate coverage in XML
         run: |
@@ -288,8 +286,7 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run poe test_ci_on_networks_full_node
-          poetry run poe test_ci_on_networks_gateway
+          poetry run poe test_ci_on_networks
 
       - name: Generate coverage in XML
         run: |
@@ -373,10 +370,8 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run poe test_ci_full_node_v2
-          poetry run poe test_ci_full_node_v1
-          poetry run poe test_ci_gateway_v2
-          poetry run poe test_ci_gateway_v1
+          poetry run poe test_ci_v2
+          poetry run poe test_ci_v1
 
       - name: Generate coverage in XML
         run: |
@@ -438,10 +433,8 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run poe test_ci_docs_full_node_v2
-          poetry run poe test_ci_docs_full_node_v1
-          poetry run poe test_ci_docs_gateway_v2
-          poetry run poe test_ci_docs_gateway_v1
+          poetry run poe test_ci_docs_v2
+          poetry run poe test_ci_docs_v1
 
       - name: Generate coverage in XML
         run: |
@@ -521,10 +514,8 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run poe test_ci_docs_full_node_v2
-          poetry run poe test_ci_docs_full_node_v1
-          poetry run poe test_ci_docs_gateway_v2
-          poetry run poe test_ci_docs_gateway_v1
+          poetry run poe test_ci_docs_v2
+          poetry run poe test_ci_docs_v1
 
       - name: Generate coverage in XML
         run: |

@@ -18,7 +18,6 @@ from starknet_py.net.client_models import (
     TransactionStatus,
 )
 from starknet_py.net.full_node_client import FullNodeClient
-from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import Declare, DeclareV2
 from starknet_py.net.signer.stark_curve_signer import KeyPair
@@ -28,14 +27,10 @@ from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "client",
-    [GatewayClient(net="custom.net"), FullNodeClient(node_url="custom.net/rpc")],
-)
-async def test_get_balance_throws_when_token_not_specified(account, client):
+async def test_get_balance_throws_when_token_not_specified(account):
     modified_account = Account(
         address=account.address,
-        client=client,
+        client=FullNodeClient(node_url="custom.net/rpc"),
         key_pair=KeyPair(1, 2),
         chain=cast(StarknetChainId, 1),
     )
@@ -54,7 +49,7 @@ async def test_balance_when_token_specified(account, erc20_contract):
 
 
 @pytest.mark.asyncio
-async def test_estimated_fee_greater_than_zero(erc20_contract, account):
+async def test_estimated_fee_greater_than_zero(account, erc20_contract):
     erc20_contract = Contract(
         address=erc20_contract.address, abi=erc20_contract.data.abi, provider=account
     )
@@ -102,18 +97,12 @@ async def test_sending_multicall(account, map_contract, key, val):
     assert value == val
 
 
-@pytest.mark.run_on_devnet
-@pytest.mark.asyncio
-async def test_get_block_traces(gateway_account):
-    traces = await gateway_account.client.trace_block_transactions(block_number=2)
-
-    assert traces.traces != []
-
-
 @pytest.mark.asyncio
 async def test_rejection_reason_in_transaction_receipt(map_contract):
-    with pytest.raises(ClientError, match=r".*INSUFFICIENT_MAX_FEE.*"):
-        _ = await map_contract.functions["put"].invoke(key=10, value=20, max_fee=1)
+    with pytest.raises(
+        ClientError, match="Max fee is smaller than the minimal transaction cost"
+    ):
+        await map_contract.functions["put"].invoke(key=10, value=20, max_fee=1)
 
 
 def test_sign_and_verify_offchain_message_fail(account, typed_data):
@@ -132,7 +121,7 @@ def test_sign_and_verify_offchain_message(account, typed_data):
 
 
 @pytest.mark.asyncio
-async def test_get_class_hash_at(map_contract, account):
+async def test_get_class_hash_at(account, map_contract):
     class_hash = await account.client.get_class_hash_at(
         map_contract.address, block_hash="latest"
     )
@@ -262,7 +251,7 @@ async def test_sign_declare_v2_transaction_auto_estimate(
 
 @pytest.mark.asyncio
 async def test_declare_contract_raises_on_sierra_contract_without_compiled_class_hash(
-    sierra_minimal_compiled_contract_and_class_hash, account
+    account, sierra_minimal_compiled_contract_and_class_hash
 ):
     compiled_contract, _ = sierra_minimal_compiled_contract_and_class_hash
     with pytest.raises(
@@ -368,26 +357,14 @@ async def test_deploy_account_raises_on_incorrect_address(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "call_contract, client",
-    [
-        (
-            "starknet_py.net.gateway_client.GatewayClient.call_contract",
-            "gateway_client",
-        ),
-        (
-            "starknet_py.net.full_node_client.FullNodeClient.call_contract",
-            "full_node_client",
-        ),
-    ],
-)
 async def test_deploy_account_raises_on_no_enough_funds(
-    deploy_account_details_factory, call_contract, client, request
+    deploy_account_details_factory, client
 ):
-    client = request.getfixturevalue(client)
     address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
 
-    with patch(call_contract, AsyncMock()) as mocked_balance:
+    with patch(
+        f"{FullNodeClient.__module__}.FullNodeClient.call_contract", AsyncMock()
+    ) as mocked_balance:
         mocked_balance.return_value = (0, 0)
 
         with pytest.raises(
@@ -406,29 +383,15 @@ async def test_deploy_account_raises_on_no_enough_funds(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "client_method_path, client",
-    [
-        (
-            "starknet_py.net.gateway_client.GatewayClient",
-            "gateway_client",
-        ),
-        (
-            "starknet_py.net.full_node_client.FullNodeClient",
-            "full_node_client",
-        ),
-    ],
-)
 async def test_deploy_account_passes_on_enough_funds(
-    deploy_account_details_factory, client_method_path, client, request
+    deploy_account_details_factory, client
 ):
     address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
-    client = request.getfixturevalue(client)
 
     with patch(
-        client_method_path + ".call_contract", AsyncMock()
+        f"{FullNodeClient.__module__}.FullNodeClient.call_contract", AsyncMock()
     ) as mocked_balance, patch(
-        client_method_path + ".deploy_account", AsyncMock()
+        f"{FullNodeClient.__module__}.FullNodeClient.deploy_account", AsyncMock()
     ) as mocked_deploy:
         mocked_balance.return_value = (0, 100)
         mocked_deploy.return_value = DeployAccountTransactionResponse(
@@ -590,7 +553,7 @@ async def test_sign_transaction_custom_nonce(account, cairo1_hello_starknet_clas
 
 @pytest.mark.asyncio
 async def test_argent_cairo1_account_deploy(
-    full_node_client,
+    client,
     argent_cairo1_account_class_hash,
     deploy_account_details_factory,
 ):
@@ -603,7 +566,7 @@ async def test_argent_cairo1_account_deploy(
         class_hash=class_hash,
         salt=salt,
         key_pair=key_pair,
-        client=full_node_client,
+        client=client,
         constructor_calldata=[key_pair.public_key, 0],
         chain=StarknetChainId.TESTNET,
         max_fee=int(1e16),
@@ -614,7 +577,7 @@ async def test_argent_cairo1_account_deploy(
     assert isinstance(account, BaseAccount)
     assert await account.cairo_version == 1
 
-    account_contract_class = await full_node_client.get_class_at(
+    account_contract_class = await client.get_class_at(
         contract_address=account.address, block_number="latest"
     )
 

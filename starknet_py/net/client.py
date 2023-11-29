@@ -9,7 +9,6 @@ from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     BlockStateUpdate,
     BlockTransactionTrace,
-    BlockTransactionTraces,
     Call,
     ContractClass,
     DeclareTransactionResponse,
@@ -33,7 +32,6 @@ from starknet_py.net.models.transaction import (
     DeployAccount,
     Invoke,
 )
-from starknet_py.net.networks import Network
 from starknet_py.transaction_errors import (
     TransactionNotReceivedError,
     TransactionRejectedError,
@@ -44,16 +42,6 @@ from starknet_py.utils.sync import add_sync_methods
 
 @add_sync_methods
 class Client(ABC):
-    @property
-    @abstractmethod
-    def net(self) -> Network:
-        """
-        Network of the client.
-
-         .. deprecated:: 0.15.0
-            Property net of the Client interface is deprecated.
-        """
-
     @abstractmethod
     async def get_block(
         self,
@@ -73,7 +61,7 @@ class Client(ABC):
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> Union[BlockTransactionTraces, List[BlockTransactionTrace]]:
+    ) -> List[BlockTransactionTrace]:
         """
         Receive the traces of all the transactions within specified block
 
@@ -179,10 +167,7 @@ class Client(ABC):
                     raise TransactionRejectedError(message=tx_receipt.rejection_reason)
 
                 if execution_status == TransactionExecutionStatus.REVERTED:
-                    # TODO (#1047): message should be always revert_reason once GatewayClient is deprecated
-                    raise TransactionRevertedError(
-                        message=(tx_receipt.revert_reason or tx_receipt.revert_error)
-                    )
+                    raise TransactionRevertedError(message=tx_receipt.revert_reason)
 
                 if execution_status == TransactionExecutionStatus.SUCCEEDED:
                     return tx_receipt

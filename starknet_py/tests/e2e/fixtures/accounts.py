@@ -1,8 +1,7 @@
 # pylint: disable=redefined-outer-name
 
-import sys
 from dataclasses import dataclass
-from typing import List, Optional, Tuple
+from typing import Optional, Tuple
 
 import pytest
 import pytest_asyncio
@@ -12,8 +11,7 @@ from starknet_py.hash.address import compute_address
 from starknet_py.net.account.account import Account
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.full_node_client import FullNodeClient
-from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.http_client import GatewayHttpClient
+from starknet_py.net.http_client import HttpMethod, RpcHttpClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.signer.stark_curve_signer import KeyPair
 from starknet_py.tests.e2e.fixtures.constants import (
@@ -40,6 +38,7 @@ async def devnet_account_details(
     """
     Deploys an Account and adds fee tokens to its balance (only on devnet).
     """
+    # TODO (#1179): consider using predeployed account with initial balance
     private_key = _get_random_private_key_unsafe()
     key_pair = KeyPair.from_private_key(private_key)
     salt = 1
@@ -51,9 +50,10 @@ async def devnet_account_details(
         deployer_address=0,
     )
 
-    http_client = GatewayHttpClient(network)
-    await http_client.post(
-        method_name="mint",
+    http_client = RpcHttpClient(network)
+    await http_client.request(
+        http_method=HttpMethod.POST,
+        address=f"{network}/mint",
         payload={
             "address": hex(address),
             "amount": int(1e30),
@@ -65,7 +65,7 @@ async def devnet_account_details(
         key_pair=key_pair,
         salt=salt,
         class_hash=class_hash,
-        network=network,
+        client=account.client,
     )
 
     account = Account(
@@ -111,26 +111,9 @@ async def address_and_private_key(
     return exact_account_details[0](), exact_account_details[1]()
 
 
-@pytest.fixture(scope="package")
-def gateway_account(
-    address_and_private_key: Tuple[str, str], gateway_client: GatewayClient
-) -> Account:
-    """
-    Returns a new Account created with GatewayClient.
-    """
-    address, private_key = address_and_private_key
-
-    return Account(
-        address=address,
-        client=gateway_client,
-        key_pair=KeyPair.from_private_key(int(private_key, 0)),
-        chain=StarknetChainId.TESTNET,
-    )
-
-
-@pytest.fixture(scope="package")
+@pytest.fixture(name="account", scope="package")
 def full_node_account(
-    address_and_private_key: Tuple[str, str], full_node_client: FullNodeClient
+    address_and_private_key: Tuple[str, str], client: FullNodeClient
 ) -> BaseAccount:
     """
     Returns a new Account created with FullNodeClient.
@@ -139,35 +122,10 @@ def full_node_account(
 
     return Account(
         address=address,
-        client=full_node_client,
+        client=client,
         key_pair=KeyPair.from_private_key(int(private_key, 0)),
         chain=StarknetChainId.TESTNET,
     )
-
-
-def net_to_base_accounts() -> List[str]:
-    if "--client=gateway" in sys.argv:
-        return ["gateway_account"]
-    if "--client=full_node" in sys.argv:
-        return ["full_node_account"]
-
-    accounts = ["gateway_account"]
-    nets = ["--net=integration", "--net=testnet", "testnet", "integration"]
-
-    if set(nets).isdisjoint(sys.argv):
-        accounts.extend(["full_node_account"])
-    return accounts
-
-
-@pytest.fixture(
-    scope="package",
-    params=net_to_base_accounts(),
-)
-def account(request) -> BaseAccount:
-    """
-    This parametrized fixture returns all new Accounts, one by one.
-    """
-    return request.getfixturevalue(request.param)
 
 
 @dataclass
@@ -232,7 +190,7 @@ def pre_deployed_account_with_validate_deploy(
 
     return Account(
         address=address,
-        client=GatewayClient(net=network),
+        client=FullNodeClient(node_url=network + "/rpc"),
         key_pair=KeyPair.from_private_key(int(private_key, 16)),
         chain=StarknetChainId.TESTNET,
     )
@@ -242,7 +200,7 @@ def pre_deployed_account_with_validate_deploy(
 async def argent_cairo1_account(
     argent_cairo1_account_class_hash,
     deploy_account_details_factory: AccountToBeDeployedDetailsFactory,
-    full_node_client,
+    client,
 ) -> BaseAccount:
     address, key_pair, salt, class_hash = await deploy_account_details_factory.get(
         class_hash=argent_cairo1_account_class_hash,
@@ -253,7 +211,7 @@ async def argent_cairo1_account(
         class_hash=class_hash,
         salt=salt,
         key_pair=key_pair,
-        client=full_node_client,
+        client=client,
         constructor_calldata=[key_pair.public_key, 0],
         chain=StarknetChainId.TESTNET,
         max_fee=int(1e16),

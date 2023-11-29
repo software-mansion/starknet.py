@@ -37,11 +37,11 @@ This is the recommended way of using the SDK.
 
 ```python
 from starknet_py.contract import Contract
-from starknet_py.net.gateway_client import GatewayClient
+from starknet_py.net.full_node_client import FullNodeClient
 
 contract = await Contract.from_address(
     address="0x06689f1bf69af5b8e94e5ab9778c885b37c593d1156234eb423967621f596e73",
-    client=GatewayClient("testnet"),
+    client=FullNodeClient(node_url="https://your.node.url"),
 )
 (value,) = await contract.functions["get_balance"].call()
 ```
@@ -52,11 +52,11 @@ You can access synchronous world with `_sync` postfix.
 
 ```python
 from starknet_py.contract import Contract
-from starknet_py.net.gateway_client import GatewayClient
+from starknet_py.net.full_node_client import FullNodeClient
 
 contract = Contract.from_address_sync(
     address="0x06689f1bf69af5b8e94e5ab9778c885b37c593d1156234eb423967621f596e73",
-    client=GatewayClient("testnet"),
+    client=FullNodeClient(node_url="https://your.node.url"),
 )
 (value,) = contract.functions["get_balance"].call_sync()
 ```

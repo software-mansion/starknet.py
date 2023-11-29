@@ -5,9 +5,7 @@ from starknet_py.contract import Contract
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import Call
-from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
-from starknet_py.transaction_errors import TransactionRevertedError
 
 
 @pytest.mark.asyncio
@@ -119,11 +117,9 @@ async def test_invoke_and_call(key, value, map_contract):
 
 
 @pytest.mark.asyncio
-async def test_call_uninitialized_contract(gateway_client):
-    with pytest.raises(
-        ClientError, match="Requested contract address 0x1 is not deployed."
-    ) as err:
-        await gateway_client.call_contract(
+async def test_call_uninitialized_contract(client):
+    with pytest.raises(ClientError, match="Contract not found"):
+        await client.call_contract(
             Call(
                 to_addr=1,
                 selector=get_selector_from_name("get_nonce"),
@@ -131,8 +127,6 @@ async def test_call_uninitialized_contract(gateway_client):
             ),
             block_hash="latest",
         )
-
-    assert "400" in str(err.value)
 
 
 @pytest.mark.asyncio
@@ -144,24 +138,8 @@ async def test_wait_for_tx(client, map_contract):
 
 
 @pytest.mark.asyncio
-async def test_wait_for_tx_throws_on_transaction_reverted(gateway_client, map_contract):
-    client = gateway_client
-    invoke = map_contract.functions["put"].prepare(key=0x1, value=0x1, max_fee=MAX_FEE)
-
-    # modify selector so that transaction will get rejected
-    invoke.selector = 0x0123
-    transaction = await invoke.invoke()
-
-    with pytest.raises(TransactionRevertedError) as err:
-        await client.wait_for_tx(transaction.hash)
-
-    if isinstance(client, GatewayClient):
-        assert "Entry point 0x123 not found in contract" in err.value.message
-
-
-@pytest.mark.asyncio
-async def test_error_when_invoking_without_account(gateway_client, map_contract):
-    contract = await Contract.from_address(map_contract.address, gateway_client)
+async def test_error_when_invoking_without_account(client, map_contract):
+    contract = await Contract.from_address(map_contract.address, client)
 
     with pytest.raises(
         ValueError,
@@ -173,10 +151,8 @@ async def test_error_when_invoking_without_account(gateway_client, map_contract)
 
 
 @pytest.mark.asyncio
-async def test_error_when_estimating_fee_while_not_using_account(
-    gateway_client, map_contract
-):
-    contract = await Contract.from_address(map_contract.address, gateway_client)
+async def test_error_when_estimating_fee_while_not_using_account(client, map_contract):
+    contract = await Contract.from_address(map_contract.address, client)
 
     with pytest.raises(
         ValueError,

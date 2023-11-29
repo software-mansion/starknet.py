@@ -16,7 +16,6 @@ from starknet_py.net.client_models import (
     DeclaredContractHash,
     DeclareTransaction,
     DeployAccountTransaction,
-    GatewayBlock,
     InvokeTransaction,
     L1HandlerTransaction,
     PendingBlockStateUpdate,
@@ -28,7 +27,7 @@ from starknet_py.net.client_models import (
     TransactionType,
 )
 from starknet_py.net.full_node_client import FullNodeClient
-from starknet_py.net.gateway_client import GatewayClient
+from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.models.transaction import DeclareV2
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V0_DIR, MAX_FEE
@@ -93,9 +92,6 @@ async def test_get_block_by_hash(
     assert block.block_hash == block_with_declare_hash
     assert len(block.transactions) != 0
 
-    if isinstance(block, GatewayBlock):
-        assert block.gas_price > 0
-
 
 @pytest.mark.asyncio
 async def test_get_block_by_number(
@@ -108,9 +104,6 @@ async def test_get_block_by_number(
     assert block.block_number == block_with_declare_number
     assert block.block_hash == block_with_declare_hash
     assert len(block.transactions) != 0
-
-    if isinstance(block, GatewayBlock):
-        assert block.gas_price > 0
 
 
 @pytest.mark.asyncio
@@ -132,8 +125,7 @@ async def test_get_transaction_receipt(
 
     assert receipt.transaction_hash == invoke_transaction_hash
     assert receipt.block_number == block_with_invoke_number
-    if isinstance(client, FullNodeClient):
-        assert receipt.type == TransactionType.INVOKE
+    assert receipt.type == TransactionType.INVOKE
 
 
 @pytest.mark.asyncio
@@ -235,8 +227,7 @@ async def test_add_transaction(map_contract, client, account):
     transaction_receipt = await client.get_transaction_receipt(result.transaction_hash)
 
     assert transaction_receipt.status != TransactionStatus.NOT_RECEIVED
-    if isinstance(client, FullNodeClient):
-        assert transaction_receipt.type == TransactionType.INVOKE
+    assert transaction_receipt.type == TransactionType.INVOKE
 
 
 @pytest.mark.asyncio
@@ -258,24 +249,9 @@ async def test_get_class_by_hash(client, class_hash):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "client, get_tx_receipt",
-    [
-        (
-            "gateway_client",
-            "tx_receipt_gateway_path",
-        ),
-        (
-            "full_node_client",
-            "tx_receipt_full_node_path",
-        ),
-    ],
-)
-async def test_wait_for_tx_accepted(client, get_tx_receipt, request):
-    get_tx_receipt = request.getfixturevalue(get_tx_receipt)
-
+async def test_wait_for_tx_accepted(client, get_tx_receipt_path):
     with patch(
-        get_tx_receipt,
+        get_tx_receipt_path,
         AsyncMock(),
     ) as mocked_receipt:
         mocked_receipt.return_value = TransactionReceipt(
@@ -284,11 +260,11 @@ async def test_wait_for_tx_accepted(client, get_tx_receipt, request):
             block_number=1,
             type=TransactionType.INVOKE,
         )
-        client = request.getfixturevalue(client)
         tx_receipt = await client.wait_for_tx(tx_hash=0x1)
         assert tx_receipt.status == TransactionStatus.ACCEPTED_ON_L2
 
 
+@pytest.mark.asyncio
 @pytest.mark.parametrize(
     "status, exception, exc_message",
     (
@@ -299,27 +275,11 @@ async def test_wait_for_tx_accepted(client, get_tx_receipt, request):
         ),
     ),
 )
-@pytest.mark.parametrize(
-    "client, get_tx_receipt",
-    [
-        (
-            "gateway_client",
-            "tx_receipt_gateway_path",
-        ),
-        (
-            "full_node_client",
-            "tx_receipt_full_node_path",
-        ),
-    ],
-)
-@pytest.mark.asyncio
 async def test_wait_for_tx_rejected(
-    status, exception, exc_message, client, get_tx_receipt, request
+    status, exception, exc_message, client, get_tx_receipt_path
 ):
-    get_tx_receipt = request.getfixturevalue(get_tx_receipt)
-
     with patch(
-        get_tx_receipt,
+        get_tx_receipt_path,
         AsyncMock(),
     ) as mocked_receipt:
         mocked_receipt.return_value = TransactionReceipt(
@@ -329,7 +289,7 @@ async def test_wait_for_tx_rejected(
             rejection_reason=exc_message,
             type=TransactionType.INVOKE,
         )
-        client = request.getfixturevalue(client)
+
         with pytest.raises(exception) as err:
             await client.wait_for_tx(tx_hash=0x1)
 
@@ -337,24 +297,9 @@ async def test_wait_for_tx_rejected(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "client, get_tx_receipt",
-    [
-        (
-            "gateway_client",
-            "tx_receipt_gateway_path",
-        ),
-        (
-            "full_node_client",
-            "tx_receipt_full_node_path",
-        ),
-    ],
-)
-async def test_wait_for_tx_cancelled(client, get_tx_receipt, request):
-    get_tx_receipt = request.getfixturevalue(get_tx_receipt)
-
+async def test_wait_for_tx_cancelled(client, get_tx_receipt_path):
     with patch(
-        get_tx_receipt,
+        get_tx_receipt_path,
         AsyncMock(),
     ) as mocked_receipt:
         mocked_receipt.return_value = TransactionReceipt(
@@ -363,7 +308,6 @@ async def test_wait_for_tx_cancelled(client, get_tx_receipt, request):
             block_number=1,
             type=TransactionType.INVOKE,
         )
-        client = request.getfixturevalue(client)
         task = asyncio.create_task(client.wait_for_tx(tx_hash=0x1))
         await asyncio.sleep(1)
         task.cancel()
@@ -373,35 +317,19 @@ async def test_wait_for_tx_cancelled(client, get_tx_receipt, request):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "client, get_tx_receipt",
-    [
-        (
-            "gateway_client",
-            "tx_receipt_gateway_path",
-        ),
-        (
-            "full_node_client",
-            "tx_receipt_full_node_path",
-        ),
-    ],
-)
-async def test_wait_for_tx_unknown_error(client, get_tx_receipt, request):
-    get_tx_receipt = request.getfixturevalue(get_tx_receipt)
-
+async def test_wait_for_tx_unknown_error(client, get_tx_receipt_path):
     with patch(
-        get_tx_receipt,
+        get_tx_receipt_path,
         AsyncMock(),
     ) as mocked_receipt:
         mocked_receipt.side_effect = ClientError(message="Unknown error")
-        client = request.getfixturevalue(client)
 
         with pytest.raises(ClientError, match="Unknown error"):
             await client.wait_for_tx(tx_hash="0x2137")
 
 
 @pytest.mark.asyncio
-async def test_declare_contract(map_compiled_contract, account):
+async def test_declare_contract(account, map_compiled_contract):
     declare_tx = await account.sign_declare_transaction(
         compiled_contract=map_compiled_contract, max_fee=MAX_FEE
     )
@@ -414,14 +342,12 @@ async def test_declare_contract(map_compiled_contract, account):
     assert transaction_receipt.status != TransactionStatus.NOT_RECEIVED
     assert transaction_receipt.transaction_hash
     assert 0 < transaction_receipt.actual_fee <= MAX_FEE
-    if isinstance(client, FullNodeClient):
-        assert transaction_receipt.type == TransactionType.DECLARE
+    assert transaction_receipt.type == TransactionType.DECLARE
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("client_class", [GatewayClient, FullNodeClient])
-async def test_custom_session_gateway_client(map_contract, network, client_class):
-    # We must access protected `feeder_gateway_client` or `_client` to test session
+async def test_custom_session_client(map_contract, network):
+    # We must access protected `_client` to test session
     # pylint: disable=protected-access
 
     session = ClientSession()
@@ -434,26 +360,10 @@ async def test_custom_session_gateway_client(map_contract, network, client_class
         ).wait_for_acceptance()
     ).hash
 
-    client1 = (
-        client_class(net=network, session=session)
-        if client_class is GatewayClient
-        else client_class(node_url=network + "/rpc", net=network, session=session)
-    )
-    client2 = (
-        client_class(net=network, session=session)
-        if client_class is GatewayClient
-        else client_class(node_url=network + "/rpc", net=network, session=session)
-    )
-    internal_client1 = (
-        client1._feeder_gateway_client
-        if isinstance(client1, GatewayClient)
-        else client1._client
-    )
-    internal_client2 = (
-        client2._feeder_gateway_client
-        if isinstance(client2, GatewayClient)
-        else client2._client
-    )
+    client1 = FullNodeClient(node_url=network + "/rpc", session=session)
+    client2 = FullNodeClient(node_url=network + "/rpc", session=session)
+    internal_client1 = client1._client
+    internal_client2 = client2._client
 
     assert internal_client1.session is not None
     assert internal_client1.session == session
@@ -478,9 +388,7 @@ async def test_custom_session_gateway_client(map_contract, network, client_class
 @pytest.mark.asyncio
 async def test_get_l1_handler_transaction(client):
     with patch(
-        "starknet_py.net.http_client.GatewayHttpClient.call", AsyncMock()
-    ) as mocked_transaction_call_gateway, patch(
-        "starknet_py.net.http_client.RpcHttpClient.call", AsyncMock()
+        f"{RpcHttpClient.__module__}.RpcHttpClient.call", AsyncMock()
     ) as mocked_transaction_call_rpc:
         return_value = {
             "status": "ACCEPTED_ON_L1",
@@ -503,7 +411,6 @@ async def test_get_l1_handler_transaction(client):
                 "type": "L1_HANDLER",
             },
         }
-        mocked_transaction_call_gateway.return_value = return_value
         mocked_transaction_call_rpc.return_value = return_value["transaction"]
 
         transaction = await client.get_transaction(tx_hash=0x1)
@@ -522,10 +429,7 @@ async def test_state_update_declared_contract_hashes(
 ):
     state_update = await client.get_state_update(block_number=block_with_declare_number)
 
-    if isinstance(client, FullNodeClient):
-        assert class_hash in state_update.state_diff.deprecated_declared_classes
-    else:
-        assert class_hash in state_update.state_diff.deprecated_declared_contract_hashes
+    assert class_hash in state_update.state_diff.deprecated_declared_classes
 
 
 @pytest.mark.run_on_devnet
@@ -540,8 +444,7 @@ async def test_state_update_storage_diffs(
     state_update = await client.get_state_update()
 
     assert len(state_update.state_diff.storage_diffs) != 0
-    if isinstance(client, FullNodeClient):
-        assert isinstance(state_update, PendingBlockStateUpdate)
+    assert isinstance(state_update, PendingBlockStateUpdate)
 
 
 @pytest.mark.run_on_devnet
@@ -563,8 +466,7 @@ async def test_state_update_deployed_contracts(
     state_update = await account.client.get_state_update()
 
     assert len(state_update.state_diff.deployed_contracts) != 0
-    if isinstance(account.client, FullNodeClient):
-        assert isinstance(state_update, PendingBlockStateUpdate)
+    assert isinstance(state_update, PendingBlockStateUpdate)
 
 
 @pytest.mark.asyncio
@@ -648,9 +550,7 @@ async def test_get_new_state_update(
             class_hash=cairo1_hello_starknet_class_hash,
             compiled_class_hash=declare_v2_hello_starknet.compiled_class_hash,
         )
-        in state_update.state_diff.declared_contract_hashes
-        if isinstance(client, GatewayClient)
-        else state_update.state_diff.declared_classes
+        in state_update.state_diff.declared_classes
     )
 
     (block_number, contract_address, class_hash) = replaced_class
