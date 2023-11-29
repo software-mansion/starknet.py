@@ -110,7 +110,7 @@ async def test_simulate_transactions_declare_on_network(full_node_account_testne
     )
 
     simulated_txs = await full_node_account_testnet.client.simulate_transactions(
-        transactions=[declare_tx], block_number="latest"
+        transactions=[declare_tx]
     )
 
     assert isinstance(simulated_txs[0].transaction_trace, DeclareTransactionTrace)
