@@ -431,7 +431,7 @@ Also, dependencies are now optimized to include only necessary packages.
 
 8. Removed deprecated ``typed_data`` parameter as dict in :meth:`BaseSigner.sign_message`. Use :ref:`TypedData` dataclass from ``starknet_py.utils.typed_data``.
 9. ``starknet_py.utils.crypto`` module has been removed.
-10. Changed name of ``starknet_py.transaction_excepions`` to ``starknet_py.transaction_errors`` to match other files.
+10. Changed name of ``starknet_py.transaction_exceptions`` to ``starknet_py.transaction_errors`` to match other files.
 
 .. admonition:: Potentially breaking changes
     :class: attention

@@ -46,7 +46,7 @@ from starknet_py.serialization.factory import serializer_for_function_v1
 from starknet_py.serialization.function_serialization_adapter import (
     FunctionSerializationAdapter,
 )
-from starknet_py.utils.contructor_args_translator import (
+from starknet_py.utils.constructor_args_translator import (
     _is_abi_v2,
     translate_constructor_args,
 )
