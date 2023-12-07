@@ -80,7 +80,8 @@ class RpcHttpClient(HttpClient):
         if "error" not in result:
             raise ServerError(body=result)
         raise ClientError(
-            code=result["error"]["code"], message=result["error"]["message"]
+            code=result["error"]["code"],
+            message=f'{result["error"]["message"]}, {result["error"].get("data","")}',
         )
 
     async def handle_request_error(self, request: ClientResponse):
