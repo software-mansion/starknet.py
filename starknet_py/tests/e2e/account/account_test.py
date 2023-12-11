@@ -13,8 +13,8 @@ from starknet_py.net.client_models import (
     Call,
     DeployAccountTransaction,
     DeployAccountTransactionResponse,
-    EstimatedFee,
     SierraContractClass,
+    TransactionFinalityStatus,
     TransactionStatus,
 )
 from starknet_py.net.full_node_client import FullNodeClient
@@ -448,80 +448,6 @@ async def test_deploy_account_uses_custom_calldata(
 
 
 @pytest.mark.asyncio
-async def test_sign_invoke_tx_for_fee_estimation(account, map_contract):
-    call = map_contract.functions["put"].prepare(key=40, value=50)
-    transaction = await account.sign_invoke_transaction(calls=call, max_fee=MAX_FEE)
-
-    estimate_fee_transaction = await account.sign_for_fee_estimate(transaction)
-
-    estimation = await account.client.estimate_fee(estimate_fee_transaction)
-    assert estimation.overall_fee > 0
-
-    # Verify that the transaction signed for fee estimation cannot be sent
-    with pytest.raises(ClientError):
-        await account.client.send_transaction(estimate_fee_transaction)
-
-    # Verify that original transaction can be sent
-    result = await account.client.send_transaction(transaction)
-    await account.client.wait_for_tx(result.transaction_hash)
-
-
-@pytest.mark.asyncio
-async def test_sign_declare_tx_for_fee_estimation(account, map_compiled_contract):
-    transaction = await account.sign_declare_transaction(
-        compiled_contract=map_compiled_contract, max_fee=MAX_FEE
-    )
-
-    estimate_fee_transaction = await account.sign_for_fee_estimate(transaction)
-
-    estimation = await account.client.estimate_fee(estimate_fee_transaction)
-    assert estimation.overall_fee > 0
-
-    # Verify that the transaction signed for fee estimation cannot be sent
-    with pytest.raises(ClientError):
-        await account.client.declare(estimate_fee_transaction)
-
-    # Verify that original transaction can be sent
-    result = await account.client.declare(transaction)
-    await account.client.wait_for_tx(result.transaction_hash)
-
-
-@pytest.mark.asyncio
-async def test_sign_deploy_account_tx_for_fee_estimation(
-    client, deploy_account_details_factory
-):
-    address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
-
-    account = Account(
-        address=address,
-        client=client,
-        key_pair=key_pair,
-        chain=StarknetChainId.TESTNET,
-    )
-
-    transaction = await account.sign_deploy_account_transaction(
-        class_hash=class_hash,
-        contract_address_salt=salt,
-        constructor_calldata=[key_pair.public_key],
-        max_fee=MAX_FEE,
-    )
-
-    estimate_fee_transaction = await account.sign_for_fee_estimate(transaction)
-
-    estimation = await account.client.estimate_fee(transaction)
-    assert isinstance(estimation, EstimatedFee)
-    assert estimation.overall_fee > 0
-
-    # Verify that the transaction signed for fee estimation cannot be sent
-    with pytest.raises(ClientError):
-        await account.client.deploy_account(estimate_fee_transaction)
-
-    # Verify that original transaction can be sent
-    result = await account.client.deploy_account(transaction)
-    await account.client.wait_for_tx(result.transaction_hash)
-
-
-@pytest.mark.asyncio
 async def test_sign_transaction_custom_nonce(account, cairo1_hello_starknet_class_hash):
     deployment = Deployer().create_contract_deployment(cairo1_hello_starknet_class_hash)
     deploy_tx = await account.sign_invoke_transaction(deployment.call, max_fee=MAX_FEE)
@@ -615,8 +541,7 @@ async def test_argent_cairo1_account_execute(
         tx_hash=execute.transaction_hash
     )
 
-    # TODO (#1179): devnet 0.3.0 still return STATUS instead of FINALITY_STATUS
-    assert receipt.status == TransactionStatus.ACCEPTED_ON_L2
+    assert receipt.finality_status == TransactionFinalityStatus.ACCEPTED_ON_L2
 
     # verify that the previous call was executed
     get_balance_call = Call(

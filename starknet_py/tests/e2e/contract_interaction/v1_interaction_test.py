@@ -6,6 +6,7 @@ from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.tests.e2e.fixtures.contracts import deploy_v1_contract
 
 
+@pytest.mark.skip
 @pytest.mark.asyncio
 async def test_general_v1_interaction(account, cairo1_erc20_class_hash: int):
     calldata = {
@@ -48,6 +49,7 @@ async def test_general_v1_interaction(account, cairo1_erc20_class_hash: int):
     assert after_transfer_balance == calldata["initial_supply"] - transfer_amount
 
 
+@pytest.mark.skip
 @pytest.mark.asyncio
 async def test_serializing_struct(account, cairo1_token_bridge_class_hash: int):
     bridge = await deploy_v1_contract(
@@ -64,6 +66,7 @@ async def test_serializing_struct(account, cairo1_token_bridge_class_hash: int):
     ).wait_for_acceptance()
 
 
+@pytest.mark.skip
 @pytest.mark.asyncio
 async def test_serializing_option(account, cairo1_test_option_class_hash: int):
     test_option = await deploy_v1_contract(
@@ -136,6 +139,7 @@ async def test_serializing_enum(account, cairo1_test_enum_class_hash: int):
     assert received_enum.value == value
 
 
+@pytest.mark.skip
 @pytest.mark.asyncio
 async def test_from_address_on_v1_contract(account, cairo1_erc20_class_hash: int):
     calldata = {

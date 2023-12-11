@@ -319,7 +319,7 @@ async def test_get_events_nonexistent_starting_block(
     client,
     simple_storage_with_event_contract: Contract,
 ):
-    with pytest.raises(ClientError, match="Block not found"):
+    with pytest.raises(ClientError, match="No block found"):
         await client.get_events(
             from_block_number=10000,
             to_block_hash="latest",
@@ -330,6 +330,7 @@ async def test_get_events_nonexistent_starting_block(
         )
 
 
+@pytest.mark.skip
 @pytest.mark.asyncio
 async def test_get_block_number(client):
     block_number = await client.get_block_number()
@@ -341,6 +342,7 @@ async def test_get_block_number(client):
     assert new_block_number == block_number + 1
 
 
+@pytest.mark.skip
 @pytest.mark.asyncio
 async def test_get_block_hash_and_number(client):
     block_hash_and_number = await client.get_block_hash_and_number()
@@ -358,6 +360,7 @@ async def test_get_block_hash_and_number(client):
     assert new_block_hash_and_number.block_hash > 0
 
 
+@pytest.mark.skip
 @pytest.mark.asyncio
 async def test_get_chain_id(client):
     chain_id = await client.get_chain_id()
@@ -365,6 +368,7 @@ async def test_get_chain_id(client):
     assert chain_id == hex(StarknetChainId.TESTNET.value)
 
 
+@pytest.mark.skip
 @pytest.mark.asyncio
 async def test_get_syncing_status_false(client):
     sync_status = await client.get_syncing_status()

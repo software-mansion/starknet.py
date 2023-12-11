@@ -13,25 +13,24 @@ async def test_max_fee_is_set_in_sent_invoke(map_contract):
     key = 2
     value = 3
 
-    max_fee_for_invoke = 248400000000
-    prepared_call = map_contract.functions["put"].prepare(
-        key, value, max_fee=max_fee_for_invoke
-    )
-    assert prepared_call.max_fee == max_fee_for_invoke
+    prepared_call = map_contract.functions["put"].prepare(key, value, max_fee=MAX_FEE)
+    assert prepared_call.max_fee == MAX_FEE
+
     invocation = await prepared_call.invoke()
-    assert invocation.invoke_transaction.max_fee == max_fee_for_invoke
+    assert invocation.invoke_transaction.max_fee == MAX_FEE
 
     invocation = await map_contract.functions["put"].invoke(
-        key, value, max_fee=max_fee_for_invoke + 100
+        key, value, max_fee=MAX_FEE + 100
     )
-    assert invocation.invoke_transaction.max_fee == max_fee_for_invoke + 100
+    assert invocation.invoke_transaction.max_fee == MAX_FEE + 100
 
     prepared_call = map_contract.functions["put"].prepare(
-        key, value, max_fee=max_fee_for_invoke + 200
+        key, value, max_fee=MAX_FEE + 200
     )
-    assert prepared_call.max_fee == max_fee_for_invoke + 200
-    invocation = await prepared_call.invoke(max_fee=max_fee_for_invoke + 300)
-    assert invocation.invoke_transaction.max_fee == max_fee_for_invoke + 300
+    assert prepared_call.max_fee == MAX_FEE + 200
+
+    invocation = await prepared_call.invoke(max_fee=MAX_FEE + 300)
+    assert invocation.invoke_transaction.max_fee == MAX_FEE + 300
 
 
 @pytest.mark.asyncio
@@ -87,13 +86,12 @@ async def test_latest_max_fee_takes_precedence(map_contract):
     key = 2
     value = 3
 
-    max_fee = 248400000000
     prepared_function = map_contract.functions["put"].prepare(
-        key, value, max_fee=max_fee
+        key, value, max_fee=MAX_FEE
     )
-    invocation = await prepared_function.invoke(max_fee=max_fee + 30)
+    invocation = await prepared_function.invoke(max_fee=MAX_FEE + 30)
 
-    assert invocation.invoke_transaction.max_fee == max_fee + 30
+    assert invocation.invoke_transaction.max_fee == MAX_FEE + 30
 
 
 @pytest.mark.asyncio
