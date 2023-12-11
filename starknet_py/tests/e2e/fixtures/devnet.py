@@ -53,18 +53,13 @@ def start_devnet():
 
 def start_devnet_command_unix(devnet_port: int) -> List[str]:
     return [
-        "poetry",
-        "run",
         "starknet-devnet",
-        "--host",
-        "localhost",
         "--port",
         str(devnet_port),
         "--accounts",  # deploys specified number of accounts
         str(1),
         "--seed",  # generates same accounts each time
         str(1),
-        *get_compiler_manifest(),
     ]
 
 
