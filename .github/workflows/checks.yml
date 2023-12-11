@@ -148,6 +148,7 @@ jobs:
           cargo build
 
       - name: Build starknet-compile
+        if: steps.cache-rust.outputs.cache-hit != 'true'
         working-directory: ./cairo
         run: |
           cargo run --bin starknet-compile -- --version
@@ -163,6 +164,10 @@ jobs:
 
   run-tests:
     name: Tests
+    env:
+      STARKNET_VERSION: "0.12.3"
+      RPC_SPEC_VERSION: "0.5.1"
+      DEVNET_SHA: "78527de"
     needs: setup-tests
     runs-on: ubuntu-latest
     strategy:
@@ -205,6 +210,22 @@ jobs:
       - name: Install dependencies
         run: |
           poetry install --without py39-dev
+
+      # ====================== DEVNET SETUP ====================== #
+
+      - name: Cache devnet binary
+        id: cache-devnet
+        uses: actions/cache@v3
+        with:
+          path: $HOME/.cargo/bin/starknet-devnet
+          key: ${{ runner.os }}-starknet-devnet-rs-${{ env.DEVNET_SHA }}
+
+      - name: Install devnet
+        if: steps.cache-devnet.outputs.cache-hit != 'true'
+        run: |
+          cargo install --locked \
+          --git https://github.com/0xSpaceShard/starknet-devnet-rs.git \
+          --rev ${{ env.DEVNET_SHA }}
 
       # ====================== RUN TESTS ====================== #
 
