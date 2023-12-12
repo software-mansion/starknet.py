@@ -56,6 +56,8 @@ DEVNET_PRE_DEPLOYED_ACCOUNT_ADDRESS = (
 )
 DEVNET_PRE_DEPLOYED_ACCOUNT_PRIVATE_KEY = "0xc10662b7b247c7cecf7e8a30726cff12"
 
+DEVNET_PATH = _get_env_lambda("DEVNET_PATH")
+
 MAX_FEE = int(1e16)
 
 MOCK_DIR = Path(os.path.dirname(__file__)) / "../mock"

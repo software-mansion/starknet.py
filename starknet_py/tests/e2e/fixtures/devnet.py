@@ -4,8 +4,9 @@ import subprocess
 import time
 from contextlib import closing
 from typing import Generator, List
-
 import pytest
+
+from starknet_py.tests.e2e.fixtures.constants import DEVNET_PATH
 
 
 def get_available_port() -> int:
@@ -31,7 +32,7 @@ def start_devnet():
 
 def start_devnet_command_unix(devnet_port: int) -> List[str]:
     return [
-        "starknet-devnet",
+        DEVNET_PATH(),
         "--port",
         str(devnet_port),
         "--accounts",  # deploys specified number of accounts
