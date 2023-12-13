@@ -125,7 +125,7 @@ jobs:
       STARKNET_VERSION: "0.12.3"
       RPC_SPEC_VERSION: "0.5.1"
       DEVNET_SHA: "78527de"
-      DEVNET_PATH: ${{ github.workspace }}/starknet-devnet-rs/bin/starknet-devnet
+      DEVNET_PATH: ${{ github.workspace }}/starknet-devnet-rs/target/release/starknet-devnet
     needs: setup-tests
     runs-on: ubuntu-latest
     strategy:
@@ -175,20 +175,18 @@ jobs:
         id: cache-devnet
         uses: actions/cache@v3
         with:
-          path: ${{ env.DEVNET_PATH }}
-          key: ${{ runner.os }}-starknet-devnet-rs-${{ env.DEVNET_SHA }}-${{ matrix.python-version }}
+          path: ${{ github.workspace }}/starknet-devnet-rs
+          key: ${{ runner.os }}-starknet-devnet-rs-${{ env.DEVNET_SHA }}
 
-      - name: Install devnet
+      - name: Clone and build starknet-devnet-rs
         if: steps.cache-devnet.outputs.cache-hit != 'true'
         run: |
-          cargo install --locked \
-          --git https://github.com/0xSpaceShard/starknet-devnet-rs.git \
-          --rev ${{ env.DEVNET_SHA }} \
-          --root ${{ github.workspace }}/starknet-devnet-rs
-
-      - name: List files
-        working-directory: ${{ github.workspace }}/starknet-devnet-rs
-        run: ls -R
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          git clone https://github.com/0xSpaceShard/starknet-devnet-rs.git starknet-devnet-rs
+          pushd ${{ github.workspace }}/starknet-devnet-rs
+          git checkout ${{ env.DEVNET_SHA }}
+          cargo build --release
+          popd
 
       # ====================== RUN TESTS ====================== #
 
