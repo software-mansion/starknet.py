@@ -44,10 +44,7 @@ def start_devnet_command_unix(devnet_port: int) -> List[str]:
 
 def start_devnet_command_windows(devnet_port: int) -> List[str]:
     return [
-        "wsl",
-        "python3",
-        "-m",
-        "starknet_devnet.server",
+        "starknet-devnet",
         "--port",
         f"{devnet_port}",
         "--accounts",
