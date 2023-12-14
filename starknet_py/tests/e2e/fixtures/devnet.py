@@ -1,12 +1,10 @@
-import os
 import socket
 import subprocess
 import time
 from contextlib import closing
 from typing import Generator, List
-import pytest
 
-from starknet_py.tests.e2e.fixtures.constants import DEVNET_PATH
+import pytest
 
 
 def get_available_port() -> int:
@@ -18,11 +16,7 @@ def get_available_port() -> int:
 
 def start_devnet():
     devnet_port = get_available_port()
-
-    if os.name == "nt":
-        start_devnet_command = start_devnet_command_windows(devnet_port)
-    else:
-        start_devnet_command = start_devnet_command_unix(devnet_port)
+    start_devnet_command = get_start_devnet_command(devnet_port)
 
     # pylint: disable=consider-using-with
     proc = subprocess.Popen(start_devnet_command)
@@ -30,26 +24,14 @@ def start_devnet():
     return devnet_port, proc
 
 
-def start_devnet_command_unix(devnet_port: int) -> List[str]:
+def get_start_devnet_command(devnet_port: int) -> List[str]:
     return [
-        DEVNET_PATH(),
+        "starknet-devnet",
         "--port",
         str(devnet_port),
         "--accounts",  # deploys specified number of accounts
         str(1),
         "--seed",  # generates same accounts each time
-        str(1),
-    ]
-
-
-def start_devnet_command_windows(devnet_port: int) -> List[str]:
-    return [
-        "starknet-devnet",
-        "--port",
-        f"{devnet_port}",
-        "--accounts",
-        str(1),
-        "--seed",
         str(1),
     ]
 
