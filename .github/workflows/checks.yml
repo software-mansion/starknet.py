@@ -1,12 +1,15 @@
 name: Checks
 
+env:
+  STARKNET_VERSION: "0.12.3"
+  RPC_SPEC_VERSION: "0.5.1"
+  DEVNET_SHA: "78527de"
+
 on:
   push:
     branches:
       - master
       - development
-      # TODO: remove
-      - ddoktorski/1179-devnet-rs
   pull_request:
   workflow_dispatch:
 
@@ -18,8 +21,6 @@ jobs:
 
   lint-format-typecheck:
     name: Lint - Format - Typecheck
-    # TODO: remove
-    if: ${{ github.event_name != 'push' }}
     runs-on: ubuntu-latest
     steps:
 
@@ -125,11 +126,6 @@ jobs:
 
   run-tests:
     name: Tests
-    env:
-      STARKNET_VERSION: "0.12.3"
-      RPC_SPEC_VERSION: "0.5.1"
-      DEVNET_SHA: "78527de"
-      DEVNET_PATH: starknet-devnet
     needs: setup-tests
     runs-on: ubuntu-latest
     strategy:
@@ -191,8 +187,8 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run poe test_ci_v1
           poetry run poe test_ci_v2
+          poetry run poe test_ci_v1
 
       - name: Generate coverage in XML
         run: |
@@ -207,8 +203,6 @@ jobs:
 
   run-tests-on-networks:
     name: Tests on networks (testnet and integration)
-    # TODO: remove
-    if: ${{ github.event_name != 'push' }}
     needs: setup-tests
     runs-on: ubuntu-latest
     strategy:
@@ -279,7 +273,7 @@ jobs:
   # ---------------------------------------------------------- #
 
   run-tests-windows:
-    # if: ${{ github.event_name != 'pull_request' }}
+    if: ${{ github.event_name != 'pull_request' }}
     name: Tests Windows
     needs: setup-tests
     runs-on: windows-latest
@@ -305,12 +299,7 @@ jobs:
 
       # ====================== SETUP DEVNET ====================== #
 
-      - name: Setup devnet rs
-        env:
-          STARKNET_VERSION: "0.12.3"
-          RPC_SPEC_VERSION: "0.5.1"
-          DEVNET_SHA: "78527de"
-          DEVNET_PATH: starknet-devnet
+      - name: Install devnet
         run: cargo install --locked --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --rev ${{ env.DEVNET_SHA }}
 
       # ====================== SETUP PYTHON ====================== #
@@ -343,11 +332,9 @@ jobs:
           poetry run poe circular_imports_check
 
       - name: Run tests
-        env:
-          DEVNET_PATH: starknet-devnet
         run: |
-          poetry run poe test_ci_v1
           poetry run poe test_ci_v2
+          poetry run poe test_ci_v1
 
       - name: Generate coverage in XML
         run: |
@@ -362,8 +349,6 @@ jobs:
 
   run-docs-tests:
     name: Docs Tests
-    # TODO: remove
-    if: ${{ github.event_name != 'push' }}
     needs: setup-tests
     runs-on: ubuntu-latest
     strategy:
@@ -372,6 +357,8 @@ jobs:
         python-version: [ "3.8", "3.9", "3.10", "3.11" ]
     steps:
       - uses: actions/checkout@v3
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - uses: Swatinem/rust-cache@v2
 
       - name: Download contracts
         uses: actions/download-artifact@v3
@@ -406,6 +393,14 @@ jobs:
       - name: Install dependencies
         run: |
           poetry install --without py39-dev
+
+      # ====================== SETUP DEVNET ====================== #
+
+      - name: Install devnet
+        run: |
+          cargo install --locked \
+          --git https://github.com/0xSpaceShard/starknet-devnet-rs.git \
+          --rev ${{ env.DEVNET_SHA }}
 
       # ====================== RUN TESTS ====================== #
 
@@ -426,9 +421,7 @@ jobs:
   # ---------------------------------------------------------- #
 
   run-docs-tests-windows:
-    # if: ${{ github.event_name != 'pull_request' }}
-    # TODO: remove
-    if: ${{ github.event_name != 'push' }}
+    if: ${{ github.event_name != 'pull_request' }}
     name: Docs Tests Windows
     needs: setup-tests
     runs-on: windows-latest
@@ -438,6 +431,8 @@ jobs:
         python-version: [ "3.8", "3.9", "3.10", "3.11" ]
     steps:
       - uses: actions/checkout@v3
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - uses: Swatinem/rust-cache@v2
 
       - name: Download contracts
         uses: actions/download-artifact@v3
@@ -449,20 +444,6 @@ jobs:
         with:
           python-version: "3.9"
           cache: 'pip'
-
-      # ====================== SETUP WSL ====================== #
-
-      - name: Setup WSL
-        uses: Vampire/setup-wsl@v2
-
-      - name: Setup WSL devnet
-        shell: wsl-bash {0}
-        run: |
-          sudo apt-get -y update
-          sudo apt install -y wget software-properties-common
-          sudo apt-get install -y git
-          sudo apt install rustc
-          cargo install --locked --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --rev 78527de
 
       # ====================== SETUP PYTHON ====================== #
 
@@ -487,11 +468,14 @@ jobs:
         run: |
           poetry install --without py39-dev
 
+      # ====================== SETUP DEVNET ====================== #
+
+      - name: Install devnet
+        run: cargo install --locked --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --rev ${{ env.DEVNET_SHA }}
+
       # ====================== RUN TESTS ====================== #
 
       - name: Run tests
-        env:
-          DEVNET_PATH: starknet-devnet
         run: |
           poetry run poe test_ci_docs_v2
           poetry run poe test_ci_docs_v1
