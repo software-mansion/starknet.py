@@ -1,5 +1,4 @@
 # pylint: disable=too-many-arguments
-import asyncio
 import dataclasses
 from typing import Tuple
 from unittest.mock import AsyncMock, Mock, patch
@@ -25,7 +24,6 @@ from starknet_py.net.client_models import (
     TransactionExecutionStatus,
     TransactionFinalityStatus,
     TransactionReceipt,
-    TransactionStatus,
     TransactionType,
 )
 from starknet_py.net.full_node_client import FullNodeClient
@@ -36,7 +34,7 @@ from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V0_DIR, 
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 from starknet_py.transaction_errors import (
     TransactionNotReceivedError,
-    TransactionRejectedError,
+    TransactionRevertedError,
 )
 
 
@@ -228,7 +226,7 @@ async def test_add_transaction(map_contract, client, account):
     await client.wait_for_tx(result.transaction_hash)
     transaction_receipt = await client.get_transaction_receipt(result.transaction_hash)
 
-    assert transaction_receipt.status != TransactionStatus.NOT_RECEIVED
+    assert transaction_receipt.execution_status == TransactionExecutionStatus.SUCCEEDED
     assert transaction_receipt.type == TransactionType.INVOKE
 
 
@@ -273,13 +271,13 @@ async def test_wait_for_tx_accepted(client, get_tx_receipt_path):
     "status, exception, exc_message",
     (
         (
-            TransactionExecutionStatus.REJECTED,
-            TransactionRejectedError,
+            TransactionExecutionStatus.REVERTED,
+            TransactionRevertedError,
             "Unknown Starknet error",
         ),
     ),
 )
-async def test_wait_for_tx_rejected(
+async def test_wait_for_tx_reverted(
     status, exception, exc_message, client, get_tx_receipt_path
 ):
     with patch(
@@ -293,35 +291,13 @@ async def test_wait_for_tx_rejected(
             execution_status=status,
             finality_status=Mock(spec=TransactionFinalityStatus),
             execution_resources=Mock(spec=ExecutionResources),
-            rejection_reason=exc_message,
+            revert_reason=exc_message,
         )
 
         with pytest.raises(exception) as err:
             await client.wait_for_tx(tx_hash=0x1)
 
         assert exc_message in err.value.message
-
-
-@pytest.mark.asyncio
-async def test_wait_for_tx_cancelled(client, get_tx_receipt_path):
-    with patch(
-        get_tx_receipt_path,
-        AsyncMock(),
-    ) as mocked_receipt:
-        mocked_receipt.return_value = TransactionReceipt(
-            transaction_hash=0x1,
-            finality_status=TransactionFinalityStatus.NOT_RECEIVED,
-            block_number=1,
-            type=TransactionType.INVOKE,
-            execution_status=Mock(spec=TransactionExecutionStatus),
-            execution_resources=Mock(spec=ExecutionResources),
-        )
-        task = asyncio.create_task(client.wait_for_tx(tx_hash=0x1))
-        await asyncio.sleep(1)
-        task.cancel()
-
-        with pytest.raises(TransactionNotReceivedError):
-            await task
 
 
 @pytest.mark.asyncio
@@ -347,7 +323,7 @@ async def test_declare_contract(account, map_compiled_contract):
     await client.wait_for_tx(result.transaction_hash)
     transaction_receipt = await client.get_transaction_receipt(result.transaction_hash)
 
-    assert transaction_receipt.status != TransactionStatus.NOT_RECEIVED
+    assert transaction_receipt.execution_status == TransactionExecutionStatus.SUCCEEDED
     assert transaction_receipt.transaction_hash
     assert 0 < transaction_receipt.actual_fee <= MAX_FEE
     assert transaction_receipt.type == TransactionType.DECLARE

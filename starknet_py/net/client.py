@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import warnings
 from abc import ABC, abstractmethod
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Union
 
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
@@ -23,7 +23,6 @@ from starknet_py.net.client_models import (
     TransactionExecutionStatus,
     TransactionFinalityStatus,
     TransactionReceipt,
-    TransactionStatus,
 )
 from starknet_py.net.models.transaction import (
     AccountTransaction,
@@ -34,7 +33,6 @@ from starknet_py.net.models.transaction import (
 )
 from starknet_py.transaction_errors import (
     TransactionNotReceivedError,
-    TransactionRejectedError,
     TransactionRevertedError,
 )
 from starknet_py.utils.sync import add_sync_methods
@@ -159,20 +157,13 @@ class Client(ABC):
             try:
                 tx_receipt = await self.get_transaction_receipt(tx_hash=tx_hash)
 
-                deprecated_status = _status_to_finality_execution(tx_receipt.status)
-                finality_status = tx_receipt.finality_status or deprecated_status[0]
-                execution_status = tx_receipt.execution_status or deprecated_status[1]
-
-                if execution_status == TransactionExecutionStatus.REJECTED:
-                    raise TransactionRejectedError(message=tx_receipt.rejection_reason)
-
-                if execution_status == TransactionExecutionStatus.REVERTED:
+                if tx_receipt.execution_status == TransactionExecutionStatus.REVERTED:
                     raise TransactionRevertedError(message=tx_receipt.revert_reason)
 
-                if execution_status == TransactionExecutionStatus.SUCCEEDED:
+                if tx_receipt.execution_status == TransactionExecutionStatus.SUCCEEDED:
                     return tx_receipt
 
-                if finality_status in (
+                if tx_receipt.finality_status in (
                     TransactionFinalityStatus.ACCEPTED_ON_L2,
                     TransactionFinalityStatus.ACCEPTED_ON_L1,
                 ):
@@ -303,14 +294,3 @@ class Client(ABC):
         :param block_number: Block's number or literals `"pending"` or `"latest"`
         :return: The last nonce used for the given contract
         """
-
-
-def _status_to_finality_execution(
-    status: Optional[TransactionStatus],
-) -> Tuple[Optional[TransactionFinalityStatus], Optional[TransactionExecutionStatus]]:
-    if status is None:
-        return None, None
-    finality_statuses = [finality.value for finality in TransactionFinalityStatus]
-    if status.value in finality_statuses:
-        return TransactionFinalityStatus(status.value), None
-    return None, TransactionExecutionStatus(status.value)

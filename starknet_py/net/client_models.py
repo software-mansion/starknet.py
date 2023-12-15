@@ -182,13 +182,10 @@ class TransactionStatus(Enum):
     Enum representing transaction statuses.
     """
 
-    NOT_RECEIVED = "NOT_RECEIVED"
     RECEIVED = "RECEIVED"
+    REJECTED = "REJECTED"
     ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
     ACCEPTED_ON_L1 = "ACCEPTED_ON_L1"
-    REJECTED = "REJECTED"
-    REVERTED = "REVERTED"
-    SUCCEEDED = "SUCCEEDED"
 
 
 class TransactionExecutionStatus(Enum):
@@ -196,9 +193,8 @@ class TransactionExecutionStatus(Enum):
     Enum representing transaction execution statuses.
     """
 
-    REJECTED = "REJECTED"
-    REVERTED = "REVERTED"
     SUCCEEDED = "SUCCEEDED"
+    REVERTED = "REVERTED"
 
 
 class TransactionFinalityStatus(Enum):
@@ -206,8 +202,6 @@ class TransactionFinalityStatus(Enum):
     Enum representing transaction finality statuses.
     """
 
-    NOT_RECEIVED = "NOT_RECEIVED"
-    RECEIVED = "RECEIVED"
     ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
     ACCEPTED_ON_L1 = "ACCEPTED_ON_L1"
 
@@ -248,11 +242,6 @@ class TransactionReceipt:
     events: List[Event] = field(default_factory=list)
     messages_sent: List[L2toL1Message] = field(default_factory=list)
 
-    # TODO (#1179): remove status field once devnet is updated
-    status: Optional[
-        TransactionStatus
-    ] = None  # replaced by execution and finality status in RPC v0.4.0-rc1
-
     type: Optional[TransactionType] = None
     contract_address: Optional[int] = None
 
@@ -262,7 +251,6 @@ class TransactionReceipt:
 
     message_hash: Optional[int] = None  # L1_HANDLER_TXN_RECEIPT-only
 
-    rejection_reason: Optional[str] = None
     revert_reason: Optional[str] = None
 
 
