@@ -11,6 +11,7 @@ from starknet_py.net.models import DeclareV2
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.tests.e2e.fixtures.contracts import deploy_v1_contract
 from starknet_py.tests.e2e.fixtures.misc import read_contract
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V2_DIR
 
 
 async def declare_cairo1_contract(
@@ -35,8 +36,8 @@ async def declare_cairo1_contract(
 async def cairo1_erc20_class_hash(account: BaseAccount) -> int:
     class_hash, _ = await declare_cairo1_contract(
         account,
-        read_contract("erc20_compiled.json"),
-        read_contract("erc20_compiled.casm"),
+        read_contract("erc20_compiled.json", directory=CONTRACTS_COMPILED_V2_DIR),
+        read_contract("erc20_compiled.casm", directory=CONTRACTS_COMPILED_V2_DIR),
     )
     return class_hash
 
