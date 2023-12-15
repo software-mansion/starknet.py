@@ -2,7 +2,7 @@
 import asyncio
 import dataclasses
 from typing import Tuple
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 from aiohttp import ClientSession
@@ -16,11 +16,14 @@ from starknet_py.net.client_models import (
     DeclaredContractHash,
     DeclareTransaction,
     DeployAccountTransaction,
+    ExecutionResources,
     InvokeTransaction,
     L1HandlerTransaction,
     PendingBlockStateUpdate,
     SierraContractClass,
     SierraEntryPointsByType,
+    TransactionExecutionStatus,
+    TransactionFinalityStatus,
     TransactionReceipt,
     TransactionStatus,
     TransactionType,
@@ -255,12 +258,14 @@ async def test_wait_for_tx_accepted(client, get_tx_receipt_path):
     ) as mocked_receipt:
         mocked_receipt.return_value = TransactionReceipt(
             transaction_hash=0x1,
-            status=TransactionStatus.ACCEPTED_ON_L2,
             block_number=1,
             type=TransactionType.INVOKE,
+            execution_status=TransactionExecutionStatus.SUCCEEDED,
+            finality_status=TransactionFinalityStatus.ACCEPTED_ON_L2,
+            execution_resources=Mock(spec=ExecutionResources),
         )
         tx_receipt = await client.wait_for_tx(tx_hash=0x1)
-        assert tx_receipt.status == TransactionStatus.ACCEPTED_ON_L2
+        assert tx_receipt.finality_status == TransactionFinalityStatus.ACCEPTED_ON_L2
 
 
 @pytest.mark.asyncio
@@ -268,7 +273,7 @@ async def test_wait_for_tx_accepted(client, get_tx_receipt_path):
     "status, exception, exc_message",
     (
         (
-            TransactionStatus.REJECTED,
+            TransactionExecutionStatus.REJECTED,
             TransactionRejectedError,
             "Unknown Starknet error",
         ),
@@ -283,10 +288,12 @@ async def test_wait_for_tx_rejected(
     ) as mocked_receipt:
         mocked_receipt.return_value = TransactionReceipt(
             transaction_hash=0x1,
-            status=status,
             block_number=1,
-            rejection_reason=exc_message,
             type=TransactionType.INVOKE,
+            execution_status=status,
+            finality_status=Mock(spec=TransactionFinalityStatus),
+            execution_resources=Mock(spec=ExecutionResources),
+            rejection_reason=exc_message,
         )
 
         with pytest.raises(exception) as err:
@@ -303,9 +310,11 @@ async def test_wait_for_tx_cancelled(client, get_tx_receipt_path):
     ) as mocked_receipt:
         mocked_receipt.return_value = TransactionReceipt(
             transaction_hash=0x1,
-            status=TransactionStatus.NOT_RECEIVED,
+            finality_status=TransactionFinalityStatus.NOT_RECEIVED,
             block_number=1,
             type=TransactionType.INVOKE,
+            execution_status=Mock(spec=TransactionExecutionStatus),
+            execution_resources=Mock(spec=ExecutionResources),
         )
         task = asyncio.create_task(client.wait_for_tx(tx_hash=0x1))
         await asyncio.sleep(1)

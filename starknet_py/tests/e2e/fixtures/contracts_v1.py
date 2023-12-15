@@ -8,10 +8,9 @@ from starknet_py.common import create_casm_class
 from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.models import DeclareV2
-from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V2_DIR, MAX_FEE
 from starknet_py.tests.e2e.fixtures.contracts import deploy_v1_contract
 from starknet_py.tests.e2e.fixtures.misc import read_contract
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V2_DIR
 
 
 async def declare_cairo1_contract(

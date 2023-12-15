@@ -241,11 +241,13 @@ class TransactionReceipt:
     # pylint: disable=too-many-instance-attributes
 
     transaction_hash: int
+    execution_status: TransactionExecutionStatus
+    finality_status: TransactionFinalityStatus
+    execution_resources: ExecutionResources
+
     events: List[Event] = field(default_factory=list)
     messages_sent: List[L2toL1Message] = field(default_factory=list)
 
-    execution_status: Optional[TransactionExecutionStatus] = None
-    finality_status: Optional[TransactionFinalityStatus] = None
     # TODO (#1179): remove status field once devnet is updated
     status: Optional[
         TransactionStatus
@@ -257,8 +259,6 @@ class TransactionReceipt:
     block_number: Optional[int] = None
     block_hash: Optional[int] = None
     actual_fee: int = 0
-    # TODO (#1179): this field should be required
-    execution_resources: Optional[ExecutionResources] = None
 
     message_hash: Optional[int] = None  # L1_HANDLER_TXN_RECEIPT-only
 
@@ -316,10 +316,8 @@ class PendingStarknetBlock:
     parent_block_hash: int
     timestamp: int
     sequencer_address: int
-    # TODO (#1179): this field should be required
-    l1_gas_price: Optional[ResourcePrice] = None
-    # TODO (#1179): this field should be required
-    starknet_version: Optional[str] = None
+    l1_gas_price: ResourcePrice
+    starknet_version: str
 
 
 @dataclass
@@ -332,10 +330,8 @@ class PendingStarknetBlockWithTxHashes:
     parent_block_hash: int
     timestamp: int
     sequencer_address: int
-    # TODO (#1179): this field should be required
-    l1_gas_price: Optional[ResourcePrice] = None
-    # TODO (#1179): this field should be required
-    starknet_version: Optional[str] = None
+    l1_gas_price: ResourcePrice
+    starknet_version: str
 
 
 @dataclass
@@ -353,10 +349,8 @@ class StarknetBlockCommon:
     root: int
     timestamp: int
     sequencer_address: int
-    # TODO (#1179): this field should be required
-    l1_gas_price: Optional[ResourcePrice]
-    # TODO (#1179): this field should be required
-    starknet_version: Optional[str]
+    l1_gas_price: ResourcePrice
+    starknet_version: str
 
 
 @dataclass
