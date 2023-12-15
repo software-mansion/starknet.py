@@ -330,9 +330,11 @@ async def test_get_events_nonexistent_starting_block(
         )
 
 
-@pytest.mark.skip
 @pytest.mark.asyncio
 async def test_get_block_number(client):
+    # pylint: disable=protected-access
+    await create_empty_block(client._client)
+
     block_number = await client.get_block_number()
 
     # pylint: disable=protected-access
@@ -342,9 +344,11 @@ async def test_get_block_number(client):
     assert new_block_number == block_number + 1
 
 
-@pytest.mark.skip
 @pytest.mark.asyncio
 async def test_get_block_hash_and_number(client):
+    # pylint: disable=protected-access
+    await create_empty_block(client._client)
+
     block_hash_and_number = await client.get_block_hash_and_number()
 
     assert isinstance(block_hash_and_number, BlockHashAndNumber)
@@ -360,7 +364,6 @@ async def test_get_block_hash_and_number(client):
     assert new_block_hash_and_number.block_hash > 0
 
 
-@pytest.mark.skip
 @pytest.mark.asyncio
 async def test_get_chain_id(client):
     chain_id = await client.get_chain_id()
@@ -368,7 +371,6 @@ async def test_get_chain_id(client):
     assert chain_id == hex(StarknetChainId.TESTNET.value)
 
 
-@pytest.mark.skip
 @pytest.mark.asyncio
 async def test_get_syncing_status_false(client):
     sync_status = await client.get_syncing_status()

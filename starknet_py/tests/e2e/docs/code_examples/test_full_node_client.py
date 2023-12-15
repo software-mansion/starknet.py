@@ -15,12 +15,16 @@ def test_init():
 
 
 @pytest.mark.asyncio
-async def test_get_block(client):
+async def test_get_block(client, block_with_declare_hash):
     # docs-start: get_block
     block = await client.get_block(block_number="latest")
     block = await client.get_block(block_number=0)
     # or
-    block = await client.get_block(block_hash="0x0")
+    block_hash = "0x0"
+    # docs-end: get_block
+    block_hash = block_with_declare_hash
+    # docs-start: get_block
+    block = await client.get_block(block_hash=block_hash)
     # docs-end: get_block
 
 
