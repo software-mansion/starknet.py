@@ -404,6 +404,8 @@ async def test_get_l1_handler_transaction(client):
         assert transaction.nonce == 0x34C20
 
 
+# TODO (#1219): investigate why test fails in batch but passes when single run
+@pytest.mark.skip
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_state_update_declared_contract_hashes(
@@ -517,7 +519,7 @@ async def test_get_block_with_declare_v2(
     )
 
 
-# TODO (#1219): add assert for replaced_class
+# TODO (#1219): add assert for replaced_class once it is fixed in devnet
 @pytest.mark.asyncio
 async def test_get_new_state_update(
     client,

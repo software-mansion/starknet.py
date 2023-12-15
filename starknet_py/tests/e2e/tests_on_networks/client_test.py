@@ -132,7 +132,7 @@ async def test_transaction_not_received_invalid_signature(full_node_account_test
 
 # ------------------------------------ FULL_NODE_CLIENT TESTS ------------------------------------
 
-# TODO (#1142): move tests below to full_node_test.py once devnet releases rust version supporting RPC v0.4.0
+# TODO (#1219): move tests below to full_node_test.py
 
 
 @pytest.mark.asyncio

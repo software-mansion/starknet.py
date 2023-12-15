@@ -189,7 +189,7 @@ async def test_get_events(client, contract_address):
     # docs-end: get_events
 
 
-# TODO (#1179): fix that
+# TODO (#1219): fix that after update to RPC to v0.6.0
 @pytest.mark.xfail(
     reason="Passing devnet client without implemented methods - test simply for a code example."
 )
@@ -203,7 +203,7 @@ async def test_trace_block_transactions(client):
     # docs-end: trace_block_transactions
 
 
-# TODO (#1179): fix that
+# TODO (#1219): fix that after update to RPC to v0.6.0
 @pytest.mark.xfail(
     reason="Passing devnet client without implemented methods - test simply for a code example."
 )

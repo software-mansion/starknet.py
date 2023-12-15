@@ -225,7 +225,7 @@ class ExecutionResources:
     memory_holes: Optional[int] = None
 
 
-# TODO (#1179): split into PendingTransactionReceipt and TransactionReceipt
+# TODO (#1219): split into PendingTransactionReceipt and TransactionReceipt
 @dataclass
 class TransactionReceipt:
     """
@@ -328,7 +328,7 @@ class StarknetBlockCommon:
     Dataclass representing a block header.
     """
 
-    # TODO (#1179): change that into composition
+    # TODO (#1219): change that into composition
     # pylint: disable=too-many-instance-attributes
 
     block_hash: int
