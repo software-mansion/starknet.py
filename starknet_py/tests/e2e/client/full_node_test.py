@@ -400,39 +400,31 @@ async def test_get_syncing_status(client):
 # ---------------------------- Trace API tests ----------------------------
 
 
-# TODO (#1179): remove @pytest.mark.skip
-@pytest.mark.skip(reason="Old devnet without RPC 0.5.0")
 @pytest.mark.asyncio
-async def test_simulate_transactions_skip_validate(
-    full_node_account, deployed_balance_contract
-):
+async def test_simulate_transactions_skip_validate(account, deployed_balance_contract):
     assert isinstance(deployed_balance_contract, Contract)
     call = Call(
         to_addr=deployed_balance_contract.address,
         selector=get_selector_from_name("increase_balance"),
         calldata=[0x10],
     )
-    invoke_tx = await full_node_account.sign_invoke_transaction(
-        calls=call, auto_estimate=True
-    )
+    invoke_tx = await account.sign_invoke_transaction(calls=call, auto_estimate=True)
     invoke_tx = dataclasses.replace(invoke_tx, signature=[])
 
-    simulated_txs = await full_node_account.client.simulate_transactions(
+    simulated_txs = await account.client.simulate_transactions(
         transactions=[invoke_tx], skip_validate=True, block_number="latest"
     )
     assert simulated_txs[0].transaction_trace.validate_invocation is None
 
-    with pytest.raises(ClientError, match=r".*INVALID_SIGNATURE_LENGTH.*"):
-        _ = await full_node_account.client.simulate_transactions(
+    with pytest.raises(ClientError, match="Contract error"):
+        await account.client.simulate_transactions(
             transactions=[invoke_tx], block_number="latest"
         )
 
 
-# TODO (#1179): remove @pytest.mark.skip
-@pytest.mark.skip(reason="Old devnet without RPC 0.5.0")
 @pytest.mark.asyncio
 async def test_simulate_transactions_skip_fee_charge(
-    full_node_account, deployed_balance_contract
+    account, deployed_balance_contract
 ):
     assert isinstance(deployed_balance_contract, Contract)
     call = Call(
@@ -440,34 +432,24 @@ async def test_simulate_transactions_skip_fee_charge(
         selector=get_selector_from_name("increase_balance"),
         calldata=[0x10],
     )
-    invoke_tx = await full_node_account.sign_invoke_transaction(
-        calls=call, auto_estimate=True
+    invoke_tx = await account.sign_invoke_transaction(calls=call, auto_estimate=True)
+
+    simulated_txs = await account.client.simulate_transactions(
+        transactions=[invoke_tx], skip_fee_charge=True, block_number="latest"
     )
-
-    # TODO (#1179): change this test
-    # because of python devnet, the SKIP_FEE_CHARGE flag isn't accepted
-    with pytest.raises(ClientError, match=r".*SKIP_FEE_CHARGE.*"):
-        _ = await full_node_account.client.simulate_transactions(
-            transactions=[invoke_tx], skip_fee_charge=True, block_number="latest"
-        )
+    assert simulated_txs is not None
 
 
-# TODO (#1179): remove @pytest.mark.skip
-@pytest.mark.skip(reason="Old devnet without RPC 0.5.0")
 @pytest.mark.asyncio
-async def test_simulate_transactions_invoke(
-    full_node_account, deployed_balance_contract
-):
+async def test_simulate_transactions_invoke(account, deployed_balance_contract):
     assert isinstance(deployed_balance_contract, Contract)
     call = Call(
         to_addr=deployed_balance_contract.address,
         selector=get_selector_from_name("increase_balance"),
         calldata=[0x10],
     )
-    invoke_tx = await full_node_account.sign_invoke_transaction(
-        calls=call, auto_estimate=True
-    )
-    simulated_txs = await full_node_account.client.simulate_transactions(
+    invoke_tx = await account.sign_invoke_transaction(calls=call, auto_estimate=True)
+    simulated_txs = await account.client.simulate_transactions(
         transactions=[invoke_tx], block_number="latest"
     )
 
@@ -475,10 +457,10 @@ async def test_simulate_transactions_invoke(
     assert isinstance(simulated_txs[0].transaction_trace, InvokeTransactionTrace)
     assert simulated_txs[0].transaction_trace.execute_invocation is not None
 
-    invoke_tx = await full_node_account.sign_invoke_transaction(
+    invoke_tx = await account.sign_invoke_transaction(
         calls=[call, call], auto_estimate=True
     )
-    simulated_txs = await full_node_account.client.simulate_transactions(
+    simulated_txs = await account.client.simulate_transactions(
         transactions=[invoke_tx], block_number="latest"
     )
 
@@ -487,18 +469,16 @@ async def test_simulate_transactions_invoke(
     assert simulated_txs[0].transaction_trace.execute_invocation is not None
 
 
-# TODO (#1179): remove @pytest.mark.skip
-@pytest.mark.skip(reason="Old devnet without RPC 0.5.0")
 @pytest.mark.asyncio
-async def test_simulate_transactions_declare(full_node_account):
+async def test_simulate_transactions_declare(account):
     compiled_contract = read_contract(
         "map_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR
     )
-    declare_tx = await full_node_account.sign_declare_transaction(
+    declare_tx = await account.sign_declare_transaction(
         compiled_contract, max_fee=int(1e16)
     )
 
-    simulated_txs = await full_node_account.client.simulate_transactions(
+    simulated_txs = await account.client.simulate_transactions(
         transactions=[declare_tx], block_number="latest"
     )
 
@@ -507,21 +487,15 @@ async def test_simulate_transactions_declare(full_node_account):
     assert simulated_txs[0].transaction_trace.validate_invocation is not None
 
 
-# TODO (#1179): remove @pytest.mark.skip
-@pytest.mark.skip(reason="Old devnet without RPC 0.5.0")
 @pytest.mark.asyncio
-async def test_simulate_transactions_two_txs(
-    full_node_account, deployed_balance_contract
-):
+async def test_simulate_transactions_two_txs(account, deployed_balance_contract):
     assert isinstance(deployed_balance_contract, Contract)
     call = Call(
         to_addr=deployed_balance_contract.address,
         selector=get_selector_from_name("increase_balance"),
         calldata=[0x10],
     )
-    invoke_tx = await full_node_account.sign_invoke_transaction(
-        calls=call, auto_estimate=True
-    )
+    invoke_tx = await account.sign_invoke_transaction(calls=call, auto_estimate=True)
 
     compiled_v2_contract = read_contract(
         "test_contract_declare_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
@@ -532,7 +506,7 @@ async def test_simulate_transactions_two_txs(
     casm_class = create_casm_class(compiled_v2_contract_casm)
     casm_class_hash = compute_casm_class_hash(casm_class)
 
-    declare_v2_tx = await full_node_account.sign_declare_v2_transaction(
+    declare_v2_tx = await account.sign_declare_v2_transaction(
         compiled_contract=compiled_v2_contract,
         compiled_class_hash=casm_class_hash,
         # because raw calls do not increment nonce, it needs to be done manually
@@ -540,7 +514,7 @@ async def test_simulate_transactions_two_txs(
         max_fee=int(1e16),
     )
 
-    simulated_txs = await full_node_account.client.simulate_transactions(
+    simulated_txs = await account.client.simulate_transactions(
         transactions=[invoke_tx, declare_v2_tx], block_number="latest"
     )
 
@@ -554,8 +528,6 @@ async def test_simulate_transactions_two_txs(
     assert simulated_txs[1].transaction_trace.validate_invocation is not None
 
 
-# TODO (#1179): remove @pytest.mark.skip
-@pytest.mark.skip(reason="Old devnet without RPC 0.5.0")
 @pytest.mark.asyncio
 async def test_simulate_transactions_deploy_account(
     client, deploy_account_details_factory

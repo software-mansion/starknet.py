@@ -14,8 +14,8 @@ from starknet_py.net.client_models import (
     DeployAccountTransaction,
     DeployAccountTransactionResponse,
     SierraContractClass,
+    TransactionExecutionStatus,
     TransactionFinalityStatus,
-    TransactionStatus,
 )
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models import StarknetChainId
@@ -297,7 +297,6 @@ async def test_sign_deploy_account_transaction_auto_estimate(
     assert signed_tx.constructor_calldata == calldata
 
 
-@pytest.mark.skip("No 0.12.1 devnet")
 @pytest.mark.asyncio
 async def test_deploy_account(client, deploy_account_details_factory, map_contract):
     address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
@@ -318,7 +317,6 @@ async def test_deploy_account(client, deploy_account_details_factory, map_contra
     assert isinstance(account, BaseAccount)
     assert account.address == address
 
-    # Test making a tx
     res = await account.execute(
         calls=Call(
             to_addr=map_contract.address,
@@ -329,10 +327,7 @@ async def test_deploy_account(client, deploy_account_details_factory, map_contra
     )
     tx_receipt = await account.client.wait_for_tx(res.transaction_hash)
 
-    assert tx_receipt.finality_status in (
-        TransactionStatus.ACCEPTED_ON_L1,
-        TransactionStatus.ACCEPTED_ON_L2,
-    )
+    assert tx_receipt.execution_status == TransactionExecutionStatus.SUCCEEDED
 
 
 @pytest.mark.asyncio

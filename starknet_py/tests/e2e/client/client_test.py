@@ -404,7 +404,6 @@ async def test_get_l1_handler_transaction(client):
         assert transaction.nonce == 0x34C20
 
 
-@pytest.mark.skip
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_state_update_declared_contract_hashes(
