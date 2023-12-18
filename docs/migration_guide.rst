@@ -13,11 +13,14 @@ Migration guide
 1. :class:`GatewayClient` all related classes and fields have been removed.
 2. Client ``net`` property has been removed.
 3. :class:`TransactionReceipt` field ``execution_resources`` has been changed from ``dict`` to :class:`ExecutionResources`.
+4. :class:`TransactionReceipt` fields ``status`` and ``rejection_reason`` have been removed.
+5. :class:`TransactionStatus`, :class:`TransactionExecutionStatus` and :class:`TransactionFinalityStatus` have been changed to have the same structure as in RPC specification.
 
 0.19.0 Minor changes
 --------------------
 
 1. :class:`L1HandlerTransaction` field ``nonce`` is now required.
+2. :class:`TransactionReceipt` fields ``finality_status``, ``execution_status`` and ``execution_resources`` are now required.
 
 **********************
 0.18.3 Migration guide
