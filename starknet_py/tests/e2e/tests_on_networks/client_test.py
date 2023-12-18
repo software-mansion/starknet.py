@@ -79,7 +79,7 @@ async def test_transaction_not_received_max_fee_too_small(full_node_account_test
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
-    sign_invoke = await account.sign_invoke_transaction(calls=call, max_fee=1)
+    sign_invoke = await account.sign_invoke_transaction(calls=call, max_fee=int(1e10))
 
     with pytest.raises(ClientError, match=r".*Max fee.*"):
         await account.client.send_transaction(sign_invoke)

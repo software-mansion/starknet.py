@@ -13,6 +13,7 @@ from starknet_py.net.client_models import (
     Call,
     DeployAccountTransaction,
     DeployAccountTransactionResponse,
+    EstimatedFee,
     SierraContractClass,
     TransactionExecutionStatus,
     TransactionFinalityStatus,
@@ -440,6 +441,43 @@ async def test_deploy_account_uses_custom_calldata(
     tx = await client.get_transaction(deploy_result.hash)
     assert isinstance(tx, DeployAccountTransaction)
     assert tx.constructor_calldata == calldata
+
+
+# TODO (#1219): investigate why this test fails
+@pytest.mark.skip
+@pytest.mark.asyncio
+async def test_sign_deploy_account_tx_for_fee_estimation(
+    client, deploy_account_details_factory
+):
+    address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
+
+    account = Account(
+        address=address,
+        client=client,
+        key_pair=key_pair,
+        chain=StarknetChainId.TESTNET,
+    )
+
+    transaction = await account.sign_deploy_account_transaction(
+        class_hash=class_hash,
+        contract_address_salt=salt,
+        constructor_calldata=[key_pair.public_key],
+        max_fee=MAX_FEE,
+    )
+
+    estimate_fee_transaction = await account.sign_for_fee_estimate(transaction)
+
+    estimation = await account.client.estimate_fee(transaction)
+    assert isinstance(estimation, EstimatedFee)
+    assert estimation.overall_fee > 0
+
+    # Verify that the transaction signed for fee estimation cannot be sent
+    with pytest.raises(ClientError):
+        await account.client.deploy_account(estimate_fee_transaction)
+
+    # Verify that original transaction can be sent
+    result = await account.client.deploy_account(transaction)
+    await account.client.wait_for_tx(result.transaction_hash)
 
 
 @pytest.mark.asyncio
