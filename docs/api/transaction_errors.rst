@@ -6,7 +6,7 @@ Transaction errors
 .. autoclass:: TransactionFailedError
     :exclude-members: __init__, __new__
 
-.. autoclass:: TransactionRejectedError
+.. autoclass:: TransactionRevertedError
     :exclude-members: __init__, __new__
 
 .. autoclass:: TransactionNotReceivedError
