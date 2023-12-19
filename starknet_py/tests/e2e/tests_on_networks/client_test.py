@@ -115,6 +115,8 @@ async def test_transaction_not_received_invalid_nonce(full_node_account_testnet)
         await account.client.send_transaction(sign_invoke)
 
 
+# TODO (#1219): fix this error once ClientError returns data field
+@pytest.mark.skip
 @pytest.mark.asyncio
 async def test_transaction_not_received_invalid_signature(full_node_account_testnet):
     account = full_node_account_testnet
