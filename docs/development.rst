@@ -15,8 +15,20 @@ Make sure running ``poetry run python --version`` returns ``Python 3.9.x``.
 Setup
 -----
 
-In order to run devnet tests, you need to install
-`starknet-devnet-rs <https://github.com/0xSpaceShard/starknet-devnet-rs>`_. Please remember to add the executable `starknet-devnet` to your `PATH`.
+In order to run tests on devnet, you need to install `starknet-devnet-rs <https://github.com/0xSpaceShard/starknet-devnet-rs>`_.
+To avoid version discrepancies or other related issues, we recommend installing this dependency using the ``cargo install`` command, and specifying a certain commit along with the correct Starknet and RPC versions.
+
+Below is the command you can use to do this, designed for compatibility with the current version of Starknet.py:
+
+.. code-block:: bash
+
+    STARKNET_VERSION="0.12.3" RPC_SPEC_VERSION="0.5.1" \
+    cargo install \
+    --locked \
+    --git https://github.com/0xSpaceShard/starknet-devnet-rs.git \
+    --rev 78527de
+
+If you choose to install `starknet-devnet-rs <https://github.com/0xSpaceShard/starknet-devnet-rs>`_ using a different method, please make sure to add the executable ``starknet-devnet`` to your ``PATH`` environment variable.
 
 In order to be able to run tests on testnet and integration networks (``starknet_py/tests/e2e/tests_on_networks/``), you must set some environmental variables:
 
