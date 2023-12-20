@@ -210,7 +210,10 @@ class Client(ABC):
         block_number: Optional[Union[int, Tag]] = None,
     ) -> Union[EstimatedFee, List[EstimatedFee]]:
         """
-        Estimate how much Wei it will cost to run provided transaction.
+        Estimates the resources required by a given sequence of transactions when applied on a given state.
+        If one of the transactions reverts or fails due to any reason (e.g. validation failure or an internal error),
+        a TRANSACTION_EXECUTION_ERROR is returned.
+        For v0-2 transactions the estimate is given in wei, and for v3 transactions it is given in fri.
 
         :param tx: Transaction to estimate
         :param block_hash: Block's hash or literals `"pending"` or `"latest"`.
