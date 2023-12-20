@@ -64,10 +64,8 @@ class RpcHttpClient(HttpClient):
             "jsonrpc": "2.0",
             "method": f"starknet_{method_name}",
             "id": 0,
+            "params": params if params else [],
         }
-
-        if params:
-            payload["params"] = params
 
         result = await self.request(
             http_method=HttpMethod.POST, address=self.url, payload=payload
