@@ -39,6 +39,7 @@ class Event:
     from_address: int
     keys: List[int]
     data: List[int]
+    block_number: int
 
 
 @dataclass
