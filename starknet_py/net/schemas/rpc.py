@@ -73,7 +73,7 @@ class EventSchema(Schema):
     from_address = Felt(data_key="from_address", required=True)
     keys = fields.List(Felt(), data_key="keys", required=True)
     data = fields.List(Felt(), data_key="data", required=True)
-    block_number = fields.Integer(data_key="block_number", required=True)
+    block_number = fields.Integer(data_key="block_number", required=False)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> Event:
