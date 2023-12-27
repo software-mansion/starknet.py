@@ -23,6 +23,8 @@ from starknet_py.net.client_models import (
     TransactionExecutionStatus,
     TransactionFinalityStatus,
     TransactionReceipt,
+    TransactionStatus,
+    TransactionStatusResponse,
 )
 from starknet_py.net.models.transaction import (
     AccountTransaction,
@@ -33,6 +35,7 @@ from starknet_py.net.models.transaction import (
 )
 from starknet_py.transaction_errors import (
     TransactionNotReceivedError,
+    TransactionRejectedError,
     TransactionRevertedError,
 )
 from starknet_py.utils.sync import add_sync_methods
@@ -122,6 +125,16 @@ class Client(ABC):
         :return: Transaction receipt object on Starknet
         """
 
+    @abstractmethod
+    async def get_transaction_status(self, tx_hash: Hash) -> TransactionStatusResponse:
+        """
+        Gets the transaction status (possibly reflecting that the transaction is still in the mempool,
+        or dropped from it).
+
+        :param tx_hash: Hash of the executed transaction.
+        :return: Finality and execution status of a transaction.
+        """
+
     # https://community.starknet.io/t/efficient-utilization-of-sequencer-capacity-in-starknet-v0-12-1/95607
     async def wait_for_tx(
         self,
@@ -153,23 +166,37 @@ class Client(ABC):
                 " block have status ACCEPTED_ON_L2."
             )
 
+        transaction_received = False
         while True:
+            retries -= 1
             try:
-                tx_receipt = await self.get_transaction_receipt(tx_hash=tx_hash)
+                if not transaction_received:
+                    tx_status = await self.get_transaction_status(tx_hash=tx_hash)
 
-                if tx_receipt.execution_status == TransactionExecutionStatus.REVERTED:
-                    raise TransactionRevertedError(message=tx_receipt.revert_reason)
+                    if tx_status.finality_status == TransactionStatus.REJECTED:
+                        raise TransactionRejectedError()
 
-                if tx_receipt.execution_status == TransactionExecutionStatus.SUCCEEDED:
-                    return tx_receipt
+                    transaction_received = True
+                else:
+                    tx_receipt = await self.get_transaction_receipt(tx_hash=tx_hash)
 
-                if tx_receipt.finality_status in (
-                    TransactionFinalityStatus.ACCEPTED_ON_L2,
-                    TransactionFinalityStatus.ACCEPTED_ON_L1,
-                ):
-                    return tx_receipt
+                    if (
+                        tx_receipt.execution_status
+                        == TransactionExecutionStatus.REVERTED
+                    ):
+                        raise TransactionRevertedError(message=tx_receipt.revert_reason)
 
-                retries -= 1
+                    if (
+                        tx_receipt.execution_status
+                        == TransactionExecutionStatus.SUCCEEDED
+                        or tx_receipt.finality_status
+                        in (
+                            TransactionFinalityStatus.ACCEPTED_ON_L2,
+                            TransactionFinalityStatus.ACCEPTED_ON_L1,
+                        )
+                    ):
+                        return tx_receipt
+
                 if retries == 0:
                     raise TransactionNotReceivedError()
 
@@ -180,7 +207,7 @@ class Client(ABC):
             except ClientError as exc:
                 if "Transaction hash not found" not in exc.message:
                     raise exc
-                retries -= 1
+
                 if retries == 0:
                     raise TransactionNotReceivedError from exc
 

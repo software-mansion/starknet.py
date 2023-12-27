@@ -31,6 +31,15 @@ class TransactionRevertedError(TransactionFailedError):
         )
 
 
+class TransactionRejectedError(TransactionFailedError):
+    """
+    Exception for transactions rejected by Starknet.
+    """
+
+    def __str__(self):
+        return "Transaction was rejected on Starknet."
+
+
 class TransactionNotReceivedError(TransactionFailedError):
     """
     Exception for transactions not received on Starknet.

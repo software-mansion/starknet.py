@@ -24,6 +24,8 @@ from starknet_py.net.client_models import (
     TransactionExecutionStatus,
     TransactionFinalityStatus,
     TransactionReceipt,
+    TransactionStatus,
+    TransactionStatusResponse,
     TransactionType,
 )
 from starknet_py.net.full_node_client import FullNodeClient
@@ -34,6 +36,7 @@ from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V0_DIR, 
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 from starknet_py.transaction_errors import (
     TransactionNotReceivedError,
+    TransactionRejectedError,
     TransactionRevertedError,
 )
 
@@ -249,11 +252,11 @@ async def test_get_class_by_hash(client, class_hash):
 
 
 @pytest.mark.asyncio
-async def test_wait_for_tx_accepted(client, get_tx_receipt_path):
+async def test_wait_for_tx_accepted(client, get_tx_receipt_path, get_tx_status_path):
     with patch(
         get_tx_receipt_path,
         AsyncMock(),
-    ) as mocked_receipt:
+    ) as mocked_receipt, patch(get_tx_status_path, AsyncMock()) as mocked_status:
         mocked_receipt.return_value = TransactionReceipt(
             transaction_hash=0x1,
             block_number=1,
@@ -262,51 +265,66 @@ async def test_wait_for_tx_accepted(client, get_tx_receipt_path):
             finality_status=TransactionFinalityStatus.ACCEPTED_ON_L2,
             execution_resources=Mock(spec=ExecutionResources),
         )
+
+        mocked_status.return_value = TransactionStatusResponse(
+            finality_status=TransactionStatus.RECEIVED
+        )
+
         tx_receipt = await client.wait_for_tx(tx_hash=0x1)
         assert tx_receipt.finality_status == TransactionFinalityStatus.ACCEPTED_ON_L2
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "status, exception, exc_message",
-    (
-        (
-            TransactionExecutionStatus.REVERTED,
-            TransactionRevertedError,
-            "Unknown Starknet error",
-        ),
-    ),
-)
-async def test_wait_for_tx_reverted(
-    status, exception, exc_message, client, get_tx_receipt_path
-):
+async def test_wait_for_tx_reverted(client, get_tx_receipt_path, get_tx_status_path):
+    exc_message = "Unknown Starknet error"
+
     with patch(
         get_tx_receipt_path,
         AsyncMock(),
-    ) as mocked_receipt:
+    ) as mocked_receipt, patch(get_tx_status_path, AsyncMock()) as mocked_status:
         mocked_receipt.return_value = TransactionReceipt(
             transaction_hash=0x1,
             block_number=1,
             type=TransactionType.INVOKE,
-            execution_status=status,
+            execution_status=TransactionExecutionStatus.REVERTED,
             finality_status=Mock(spec=TransactionFinalityStatus),
             execution_resources=Mock(spec=ExecutionResources),
             revert_reason=exc_message,
         )
 
-        with pytest.raises(exception) as err:
+        mocked_status.return_value = TransactionStatusResponse(
+            finality_status=TransactionStatus.RECEIVED
+        )
+
+        with pytest.raises(TransactionRevertedError) as err:
             await client.wait_for_tx(tx_hash=0x1)
 
         assert exc_message in err.value.message
 
 
 @pytest.mark.asyncio
-async def test_wait_for_tx_unknown_error(client, get_tx_receipt_path):
+async def test_wait_for_tx_rejected(client, get_tx_status_path):
+    with patch(get_tx_status_path, AsyncMock()) as mocked_status:
+        mocked_status.return_value = TransactionStatusResponse(
+            finality_status=TransactionStatus.REJECTED
+        )
+
+        with pytest.raises(TransactionRejectedError):
+            await client.wait_for_tx(tx_hash=0x1)
+
+
+@pytest.mark.asyncio
+async def test_wait_for_tx_unknown_error(
+    client, get_tx_receipt_path, get_tx_status_path
+):
     with patch(
         get_tx_receipt_path,
         AsyncMock(),
-    ) as mocked_receipt:
+    ) as mocked_receipt, patch(get_tx_status_path, AsyncMock()) as mocked_status:
         mocked_receipt.side_effect = ClientError(message="Unknown error")
+        mocked_status.return_value = TransactionStatusResponse(
+            finality_status=TransactionStatus.RECEIVED
+        )
 
         with pytest.raises(ClientError, match="Unknown error"):
             await client.wait_for_tx(tx_hash="0x2137")
