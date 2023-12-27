@@ -16,6 +16,9 @@ Setup
 -----
 
 In order to run tests on devnet, you need to install `starknet-devnet-rs <https://github.com/0xSpaceShard/starknet-devnet-rs>`_.
+The correct version of devnet to use corresponds to the Starknet and RPC specification that are currently supported by Starknet.py.
+Information about the supported version for the latest release can be found in the :doc:`migration guide<migration_guide>`.
+
 To avoid version discrepancies or other related issues, we recommend installing this dependency using the ``cargo install`` command, and specifying a certain commit along with the correct Starknet and RPC versions.
 
 Below is the command you can use to do this, designed for compatibility with the current version of Starknet.py:
