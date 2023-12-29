@@ -185,16 +185,7 @@ class Client(ABC):
                         == TransactionExecutionStatus.REVERTED
                     ):
                         raise TransactionRevertedError(message=tx_receipt.revert_reason)
-
-                    if (
-                        tx_receipt.execution_status
-                        == TransactionExecutionStatus.SUCCEEDED
-                        or tx_receipt.finality_status
-                        in (
-                            TransactionFinalityStatus.ACCEPTED_ON_L2,
-                            TransactionFinalityStatus.ACCEPTED_ON_L1,
-                        )
-                    ):
+                    else:
                         return tx_receipt
 
                 if retries == 0:
