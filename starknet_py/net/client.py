@@ -21,7 +21,6 @@ from starknet_py.net.client_models import (
     Tag,
     Transaction,
     TransactionExecutionStatus,
-    TransactionFinalityStatus,
     TransactionReceipt,
     TransactionStatus,
     TransactionStatusResponse,
@@ -185,8 +184,7 @@ class Client(ABC):
                         == TransactionExecutionStatus.REVERTED
                     ):
                         raise TransactionRevertedError(message=tx_receipt.revert_reason)
-                    else:
-                        return tx_receipt
+                    return tx_receipt
 
                 if retries == 0:
                     raise TransactionNotReceivedError()
