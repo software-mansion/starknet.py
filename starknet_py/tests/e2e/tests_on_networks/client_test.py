@@ -36,6 +36,8 @@ async def test_get_transaction_receipt(full_node_client_integration, transaction
     assert isinstance(receipt, TransactionReceipt)
     assert receipt.execution_status is not None
     assert receipt.finality_status is not None
+    assert receipt.execution_resources is not None
+    assert receipt.type is not None
 
 
 @pytest.mark.asyncio

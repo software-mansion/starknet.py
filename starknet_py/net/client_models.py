@@ -238,11 +238,11 @@ class TransactionReceipt:
     execution_status: TransactionExecutionStatus
     finality_status: TransactionFinalityStatus
     execution_resources: ExecutionResources
+    type: TransactionType
 
     events: List[Event] = field(default_factory=list)
     messages_sent: List[L2toL1Message] = field(default_factory=list)
 
-    type: Optional[TransactionType] = None
     contract_address: Optional[int] = None
 
     block_number: Optional[int] = None
