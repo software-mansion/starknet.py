@@ -206,6 +206,7 @@ class Client(ABC):
     async def estimate_fee(
         self,
         tx: Union[AccountTransaction, List[AccountTransaction]],
+        skip_validate: bool = False,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> Union[EstimatedFee, List[EstimatedFee]]:
@@ -216,6 +217,7 @@ class Client(ABC):
         For v0-2 transactions the estimate is given in wei, and for v3 transactions it is given in fri.
 
         :param tx: Transaction to estimate
+        :param skip_validate: Flag checking whether the validation part of the transaction should be executed.
         :param block_hash: Block's hash or literals `"pending"` or `"latest"`.
         :param block_number: Block's number or literals `"pending"` or `"latest"`.
         :return: Estimated amount of Wei executing specified transaction will cost.
