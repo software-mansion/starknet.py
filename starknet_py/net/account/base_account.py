@@ -2,13 +2,22 @@ from abc import ABC, abstractmethod
 from typing import List, Optional, Union
 
 from starknet_py.net.client import Client
-from starknet_py.net.client_models import Calls, Hash, SentTransactionResponse, Tag
+from starknet_py.net.client_models import (
+    Calls,
+    Hash,
+    ResourceBoundsMapping,
+    SentTransactionResponse,
+    Tag,
+)
 from starknet_py.net.models import AddressRepresentation, StarknetChainId
 from starknet_py.net.models.transaction import (
     Declare,
     DeclareV2,
+    DeclareV3,
     DeployAccount,
+    DeployAccountV3,
     Invoke,
+    InvokeV3,
     TypeAccountTransaction,
 )
 from starknet_py.net.models.typed_data import TypedData
@@ -121,6 +130,24 @@ class BaseAccount(ABC):
         """
 
     @abstractmethod
+    async def sign_invoke_v3_transaction(
+        self,
+        calls: Calls,
+        resource_bounds: ResourceBoundsMapping,
+        *,
+        nonce: Optional[int] = None,
+    ) -> InvokeV3:
+        """
+        Takes calls and creates signed Invoke.
+
+        :param calls: Single call or list of calls.
+        :param resource_bounds: Max amount of Wei or Fri to be paid when executing transaction.
+        :param nonce: Nonce of the transaction.
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :return: Invoke created from the calls.
+        """
+
+    @abstractmethod
     async def sign_declare_transaction(
         self,
         compiled_contract: str,
@@ -163,6 +190,27 @@ class BaseAccount(ABC):
         """
 
     @abstractmethod
+    async def sign_declare_v3_transaction(
+        self,
+        compiled_contract: str,
+        compiled_class_hash: int,
+        resource_bounds: ResourceBoundsMapping,
+        *,
+        nonce: Optional[int] = None,
+    ) -> DeclareV3:
+        """
+        Create and sign declare transaction using sierra contract.
+
+        :param compiled_contract: string containing a compiled Starknet contract.
+            Supports new contracts (compiled to sierra).
+        :param compiled_class_hash: a class hash of the sierra compiled contract used in the declare transaction.
+            Computed from casm compiled contract.
+        :param nonce: Nonce of the transaction.
+        :param resource_bounds: Max amount of Wei or Fri to be paid when executing transaction.
+        :return: Signed DeclareV3 transaction.
+        """
+
+    @abstractmethod
     async def sign_deploy_account_transaction(
         self,
         class_hash: int,
@@ -188,6 +236,29 @@ class BaseAccount(ABC):
         """
 
     @abstractmethod
+    async def sign_deploy_account_v3_transaction(
+        self,
+        class_hash: int,
+        contract_address_salt: int,
+        resource_bounds: ResourceBoundsMapping,
+        *,
+        constructor_calldata: Optional[List[int]] = None,
+        nonce: int = 0,
+    ) -> DeployAccountV3:
+        """
+        Create and sign deploy account transaction.
+
+        :param class_hash: Class hash of the contract class to be deployed.
+        :param contract_address_salt: A salt used to calculate deployed contract address.
+        :param constructor_calldata: Calldata to be ed to contract constructor
+            and used to calculate deployed contract address.
+        :param nonce: Nonce of the transaction.
+        :param resource_bounds: Max amount of Wei or Fri to be paid  for deploying account transaction.
+            Enough tokens must be prefunded before sending the transaction for it to succeed.
+        :return: Signed DeployAccountV3 transaction.
+        """
+
+    @abstractmethod
     async def execute(
         self,
         calls: Calls,
@@ -203,6 +274,23 @@ class BaseAccount(ABC):
         :param nonce: Nonce of the transaction.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :return: SentTransactionResponse.
+        """
+
+    @abstractmethod
+    async def execute_v3(
+        self,
+        calls: Calls,
+        resource_bounds: ResourceBoundsMapping,
+        *,
+        nonce: Optional[int] = None,
+    ) -> SentTransactionResponse:
+        """
+        Takes calls and executes transaction.
+
+        :param calls: Single call or list of calls.
+        :param resource_bounds: Max amount of Wei or Fri to be paid when executing transaction.
+        :param nonce: Nonce of the transaction.
         :return: SentTransactionResponse.
         """
 
