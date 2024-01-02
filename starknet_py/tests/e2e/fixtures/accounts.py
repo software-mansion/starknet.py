@@ -38,7 +38,7 @@ async def devnet_account_details(
     """
     Deploys an Account and adds fee tokens to its balance (only on devnet).
     """
-    # TODO (#1179): consider using predeployed account with initial balance
+
     private_key = _get_random_private_key_unsafe()
     key_pair = KeyPair.from_private_key(private_key)
     salt = 1

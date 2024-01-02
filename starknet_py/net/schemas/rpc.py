@@ -134,18 +134,13 @@ class ExecutionResourcesSchema(Schema):
 
 class TransactionReceiptSchema(Schema):
     transaction_hash = Felt(data_key="transaction_hash", required=True)
-    # replaced by execution and finality status in RPC v0.4.0-rc1
-    status = StatusField(data_key="status", load_default=None)
-    execution_status = ExecutionStatusField(
-        data_key="execution_status", load_default=None
-    )
-    finality_status = FinalityStatusField(data_key="finality_status", load_default=None)
+    execution_status = ExecutionStatusField(data_key="execution_status", required=True)
+    finality_status = FinalityStatusField(data_key="finality_status", required=True)
     block_number = fields.Integer(data_key="block_number", load_default=None)
     block_hash = Felt(data_key="block_hash", load_default=None)
     actual_fee = Felt(data_key="actual_fee", required=True)
     type = TransactionTypeField(data_key="type", load_default=None)
     contract_address = Felt(data_key="contract_address", load_default=None)
-    rejection_reason = fields.String(data_key="status_data", load_default=None)
     revert_reason = fields.String(data_key="revert_reason", load_default=None)
     events = fields.List(
         fields.Nested(EventSchema()), data_key="events", load_default=[]
@@ -154,9 +149,8 @@ class TransactionReceiptSchema(Schema):
         fields.Nested(L2toL1MessageSchema()), data_key="messages_sent", load_default=[]
     )
     message_hash = Felt(data_key="message_hash", load_default=None)
-    # TODO (#1179): this field should be required
     execution_resources = fields.Nested(
-        ExecutionResourcesSchema(), data_key="execution_resources", load_default=None
+        ExecutionResourcesSchema(), data_key="execution_resources", required=True
     )
 
     @post_load
@@ -281,12 +275,10 @@ class PendingStarknetBlockSchema(Schema):
         required=True,
     )
     timestamp = fields.Integer(data_key="timestamp", required=True)
-    # TODO (#1179): this field should be required
     l1_gas_price = fields.Nested(
-        ResourcePriceSchema(), data_key="l1_gas_price", load_default=None
+        ResourcePriceSchema(), data_key="l1_gas_price", required=True
     )
-    # TODO (#1179): this field should be required
-    starknet_version = fields.String(data_key="starknet_version", load_default=None)
+    starknet_version = fields.String(data_key="starknet_version", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs):
@@ -306,11 +298,9 @@ class StarknetBlockSchema(Schema):
         required=True,
     )
     timestamp = fields.Integer(data_key="timestamp", required=True)
-    # TODO (#1179): this field should be required
-    starknet_version = fields.String(data_key="starknet_version", load_default=None)
-    # TODO (#1179): this field should be required
+    starknet_version = fields.String(data_key="starknet_version", required=True)
     l1_gas_price = fields.Nested(
-        ResourcePriceSchema(), data_key="l1_gas_price", load_default=None
+        ResourcePriceSchema(), data_key="l1_gas_price", required=True
     )
 
     @post_load
@@ -327,11 +317,9 @@ class StarknetBlockWithTxHashesSchema(Schema):
     root = NonPrefixedHex(data_key="new_root", required=True)
     transactions = fields.List(Felt(), data_key="transactions", required=True)
     timestamp = fields.Integer(data_key="timestamp", required=True)
-    # TODO (#1179): this field should be required
-    starknet_version = fields.String(data_key="starknet_version", load_default=None)
-    # TODO (#1179): this field should be required
+    starknet_version = fields.String(data_key="starknet_version", required=True)
     l1_gas_price = fields.Nested(
-        ResourcePriceSchema(), data_key="l1_gas_price", load_default=None
+        ResourcePriceSchema(), data_key="l1_gas_price", required=True
     )
 
     @post_load
@@ -366,11 +354,9 @@ class PendingStarknetBlockWithTxHashesSchema(Schema):
     sequencer_address = Felt(data_key="sequencer_address", required=True)
     transactions = fields.List(Felt(), data_key="transactions", required=True)
     timestamp = fields.Integer(data_key="timestamp", required=True)
-    # TODO (#1179): this field should be required
-    starknet_version = fields.String(data_key="starknet_version", load_default=None)
-    # TODO (#1179): this field should be required
+    starknet_version = fields.String(data_key="starknet_version", required=True)
     l1_gas_price = fields.Nested(
-        ResourcePriceSchema(), data_key="l1_gas_price", load_default=None
+        ResourcePriceSchema(), data_key="l1_gas_price", required=True
     )
 
     @post_load

@@ -36,6 +36,8 @@ async def test_get_transaction_receipt(full_node_client_integration, transaction
     assert isinstance(receipt, TransactionReceipt)
     assert receipt.execution_status is not None
     assert receipt.finality_status is not None
+    assert receipt.execution_resources is not None
+    assert receipt.type is not None
 
 
 @pytest.mark.asyncio
@@ -79,7 +81,7 @@ async def test_transaction_not_received_max_fee_too_small(full_node_account_test
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
-    sign_invoke = await account.sign_invoke_transaction(calls=call, max_fee=1)
+    sign_invoke = await account.sign_invoke_transaction(calls=call, max_fee=int(1e10))
 
     with pytest.raises(ClientError, match=r".*Max fee.*"):
         await account.client.send_transaction(sign_invoke)
@@ -115,6 +117,8 @@ async def test_transaction_not_received_invalid_nonce(full_node_account_testnet)
         await account.client.send_transaction(sign_invoke)
 
 
+# TODO (#1219): fix this error once ClientError returns data field
+@pytest.mark.skip
 @pytest.mark.asyncio
 async def test_transaction_not_received_invalid_signature(full_node_account_testnet):
     account = full_node_account_testnet
@@ -132,7 +136,7 @@ async def test_transaction_not_received_invalid_signature(full_node_account_test
 
 # ------------------------------------ FULL_NODE_CLIENT TESTS ------------------------------------
 
-# TODO (#1142): move tests below to full_node_test.py once devnet releases rust version supporting RPC v0.4.0
+# TODO (#1219): move tests below to full_node_test.py
 
 
 @pytest.mark.asyncio

@@ -661,16 +661,9 @@ class FullNodeClient(Client):
         return res
 
     async def get_transaction_status(self, tx_hash: Hash) -> TransactionStatusResponse:
-        """
-        Gets the transaction status (possibly reflecting that the transaction is still in the mempool,
-        or dropped from it).
-
-        :param tx_hash: Hash of the executed transaction.
-        :return: Finality and execution status of a transaction.
-        """
         res = await self._client.call(
             method_name="getTransactionStatus",
-            params={"transaction_hash": tx_hash},
+            params={"transaction_hash": _to_rpc_felt(tx_hash)},
         )
         return cast(
             TransactionStatusResponse,

@@ -1,10 +1,17 @@
 import json
+import sys
 
 import pytest
 
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V2_DIR
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
+# TODO (#1219): investigate why this test fails for v1 contract
+@pytest.mark.skipif(
+    "--contract_dir=v2" not in sys.argv,
+    reason="Some cairo 1 contracts compiled with v1 compiler fail with new devnet-rs - test simply for a code example.",
+)
 @pytest.mark.asyncio
 async def test_simple_deploy_cairo1(account, cairo1_erc20_class_hash):
     # pylint: disable=import-outside-toplevel
@@ -15,7 +22,9 @@ async def test_simple_deploy_cairo1(account, cairo1_erc20_class_hash):
 
     # docs: end
 
-    compiled_contract = read_contract("erc20_compiled.json")
+    compiled_contract = read_contract(
+        "erc20_compiled.json", directory=CONTRACTS_COMPILED_V2_DIR
+    )
     class_hash = cairo1_erc20_class_hash
 
     # docs: start

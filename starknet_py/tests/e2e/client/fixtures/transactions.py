@@ -99,17 +99,20 @@ async def replaced_class(account: Account, map_class_hash: int) -> Tuple[int, in
         "replace_class_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR
     )
 
-    declare_result = await Contract.declare(account, compiled_contract, max_fee=MAX_FEE)
-    await declare_result.wait_for_acceptance()
+    declare_result = await (
+        await Contract.declare(account, compiled_contract, max_fee=MAX_FEE)
+    ).wait_for_acceptance()
 
-    deploy_result = await declare_result.deploy(max_fee=MAX_FEE)
-    await deploy_result.wait_for_acceptance()
+    deploy_result = await (
+        await declare_result.deploy(max_fee=MAX_FEE)
+    ).wait_for_acceptance()
 
     contract = deploy_result.deployed_contract
 
-    resp = await contract.functions["replace_implementation"].invoke(
-        new_class=map_class_hash, max_fee=MAX_FEE
-    )
-    await resp.wait_for_acceptance()
+    resp = await (
+        await contract.functions["replace_implementation"].invoke(
+            new_class=map_class_hash, max_fee=MAX_FEE
+        )
+    ).wait_for_acceptance()
 
     return cast(int, resp.block_number), contract.address, map_class_hash

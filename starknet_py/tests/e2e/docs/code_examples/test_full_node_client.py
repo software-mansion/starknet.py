@@ -15,12 +15,16 @@ def test_init():
 
 
 @pytest.mark.asyncio
-async def test_get_block(client):
+async def test_get_block(client, block_with_declare_hash):
     # docs-start: get_block
     block = await client.get_block(block_number="latest")
     block = await client.get_block(block_number=0)
     # or
-    block = await client.get_block(block_hash="0x0")
+    block_hash = "0x0"
+    # docs-end: get_block
+    block_hash = block_with_declare_hash
+    # docs-start: get_block
+    block = await client.get_block(block_hash=block_hash)
     # docs-end: get_block
 
 
@@ -185,7 +189,7 @@ async def test_get_events(client, contract_address):
     # docs-end: get_events
 
 
-# TODO (#1179): fix that
+# TODO (#1219): fix that after update to RPC to v0.6.0
 @pytest.mark.xfail(
     reason="Passing devnet client without implemented methods - test simply for a code example."
 )
@@ -199,7 +203,7 @@ async def test_trace_block_transactions(client):
     # docs-end: trace_block_transactions
 
 
-# TODO (#1179): fix that
+# TODO (#1219): fix that after update to RPC to v0.6.0
 @pytest.mark.xfail(
     reason="Passing devnet client without implemented methods - test simply for a code example."
 )
@@ -216,11 +220,9 @@ async def test_trace_transaction(client):
     # docs-end: trace_transaction
 
 
-# TODO (#1179): remove @pytest.mark.skip
-@pytest.mark.skip(reason="Old devnet without RPC 0.5.0")
 @pytest.mark.asyncio
 async def test_simulate_transactions(
-    full_node_account, deployed_balance_contract, deploy_account_transaction
+    account, deployed_balance_contract, deploy_account_transaction
 ):
     assert isinstance(deployed_balance_contract, Contract)
     contract_address = deployed_balance_contract.address
@@ -231,7 +233,7 @@ async def test_simulate_transactions(
         selector=get_selector_from_name("method_name"),
         calldata=[0xCA11DA7A],
     )
-    first_transaction = await full_node_account.sign_invoke_transaction(
+    first_transaction = await account.sign_invoke_transaction(
         calls=call, max_fee=int(1e16)
     )
     # docs-end: simulate_transactions
@@ -241,17 +243,17 @@ async def test_simulate_transactions(
         selector=get_selector_from_name("increase_balance"),
         calldata=[0x10],
     )
-    first_transaction = await full_node_account.sign_invoke_transaction(
+    first_transaction = await account.sign_invoke_transaction(
         calls=call, auto_estimate=True
     )
 
     # docs-start: simulate_transactions
     # one transaction
-    simulated_txs = await full_node_account.client.simulate_transactions(
+    simulated_txs = await account.client.simulate_transactions(
         transactions=[first_transaction], block_number="latest"
     )
     # or multiple
-    simulated_txs = await full_node_account.client.simulate_transactions(
+    simulated_txs = await account.client.simulate_transactions(
         transactions=[first_transaction, second_transaction], block_number="latest"
     )
     # docs-end: simulate_transactions

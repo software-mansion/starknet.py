@@ -16,7 +16,7 @@ from starknet_py.net.client_models import (
 from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V0_DIR
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
-# TODO (#1179): move those tests to full_node_test.py
+# TODO (#1219): move those tests to full_node_test.py
 
 
 @pytest.mark.asyncio
