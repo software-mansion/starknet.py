@@ -297,7 +297,6 @@ class DeclareTransactionV3Schema(TransactionV3Schema):
 
 
 class DeployTransactionSchema(TransactionSchema):
-    max_fee = Felt(data_key="max_fee", load_default=0)
     contract_address_salt = Felt(data_key="contract_address_salt", required=True)
     constructor_calldata = fields.List(
         Felt(), data_key="constructor_calldata", required=True
