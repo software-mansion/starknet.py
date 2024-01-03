@@ -18,7 +18,7 @@ def test_cannot_instantiate_abstract_transaction_class():
     with pytest.raises(
         TypeError, match="Cannot instantiate abstract Transaction class."
     ):
-        _ = Transaction(hash=0, signature=[0, 0], max_fee=0, version=0)
+        _ = Transaction(hash=0, signature=[0, 0], version=0)
 
 
 def test_handle_rpc_error_server_error():

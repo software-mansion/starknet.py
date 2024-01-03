@@ -15,10 +15,13 @@ from starknet_py.net.client_models import (
     DeclaredContractHash,
     DeclareTransaction,
     DeployAccountTransaction,
+    EstimatedFee,
     ExecutionResources,
+    FeePayment,
     InvokeTransaction,
     L1HandlerTransaction,
     PendingBlockStateUpdate,
+    PriceUnit,
     SierraContractClass,
     SierraEntryPointsByType,
     TransactionExecutionStatus,
@@ -32,7 +35,11 @@ from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.models.transaction import DeclareV2
 from starknet_py.net.udc_deployer.deployer import Deployer
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V0_DIR, MAX_FEE
+from starknet_py.tests.e2e.fixtures.constants import (
+    CONTRACTS_COMPILED_V0_DIR,
+    MAX_FEE,
+    MAX_RESOURCE_BOUNDS_L1,
+)
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 from starknet_py.transaction_errors import (
     TransactionNotReceivedError,
@@ -144,8 +151,31 @@ async def test_estimate_fee_invoke(account, contract_address):
     invoke_tx = await account.sign_for_fee_estimate(invoke_tx)
     estimate_fee = await account.client.estimate_fee(tx=invoke_tx)
 
-    assert isinstance(estimate_fee.overall_fee, int)
+    assert isinstance(estimate_fee, EstimatedFee)
+    assert estimate_fee.unit == PriceUnit.WEI
     assert estimate_fee.overall_fee > 0
+    assert estimate_fee.gas_price > 0
+    assert estimate_fee.gas_consumed > 0
+
+
+@pytest.mark.asyncio
+async def test_estimate_fee_invoke_v3(account, contract_address):
+    invoke_tx = await account.sign_invoke_v3_transaction(
+        calls=Call(
+            to_addr=contract_address,
+            selector=get_selector_from_name("increase_balance"),
+            calldata=[123],
+        ),
+        resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+    )
+    invoke_tx = await account.sign_for_fee_estimate(invoke_tx)
+    estimate_fee = await account.client.estimate_fee(tx=invoke_tx, skip_validate=True)
+
+    assert isinstance(estimate_fee, EstimatedFee)
+    assert estimate_fee.unit == PriceUnit.FRI
+    assert estimate_fee.overall_fee > 0
+    assert estimate_fee.gas_price > 0
+    assert estimate_fee.gas_consumed > 0
 
 
 @pytest.mark.asyncio
@@ -159,16 +189,22 @@ async def test_estimate_fee_declare(account):
     declare_tx = await account.sign_for_fee_estimate(declare_tx)
     estimate_fee = await account.client.estimate_fee(tx=declare_tx)
 
-    assert isinstance(estimate_fee.overall_fee, int)
+    assert isinstance(estimate_fee, EstimatedFee)
+    assert estimate_fee.unit == PriceUnit.WEI
     assert estimate_fee.overall_fee > 0
+    assert estimate_fee.gas_price > 0
+    assert estimate_fee.gas_consumed > 0
 
 
 @pytest.mark.asyncio
 async def test_estimate_fee_deploy_account(client, deploy_account_transaction):
     estimate_fee = await client.estimate_fee(tx=deploy_account_transaction)
 
-    assert isinstance(estimate_fee.overall_fee, int)
+    assert isinstance(estimate_fee, EstimatedFee)
+    assert estimate_fee.unit == PriceUnit.WEI
     assert estimate_fee.overall_fee > 0
+    assert estimate_fee.gas_price > 0
+    assert estimate_fee.gas_consumed > 0
 
 
 @pytest.mark.asyncio
@@ -201,8 +237,11 @@ async def test_estimate_fee_for_multiple_transactions(
     assert isinstance(estimated_fees, list)
 
     for estimated_fee in estimated_fees:
-        assert isinstance(estimated_fee.overall_fee, int)
+        assert isinstance(estimated_fee, EstimatedFee)
+        assert estimated_fee.unit == PriceUnit.WEI
         assert estimated_fee.overall_fee > 0
+        assert estimated_fee.gas_price > 0
+        assert estimated_fee.gas_consumed > 0
 
 
 @pytest.mark.asyncio
@@ -264,6 +303,7 @@ async def test_wait_for_tx_accepted(client, get_tx_receipt_path, get_tx_status_p
             execution_status=TransactionExecutionStatus.SUCCEEDED,
             finality_status=TransactionFinalityStatus.ACCEPTED_ON_L2,
             execution_resources=Mock(spec=ExecutionResources),
+            actual_fee=FeePayment(amount=1, unit=PriceUnit.WEI),
         )
 
         mocked_status.return_value = TransactionStatusResponse(
@@ -290,6 +330,7 @@ async def test_wait_for_tx_reverted(client, get_tx_receipt_path, get_tx_status_p
             finality_status=Mock(spec=TransactionFinalityStatus),
             execution_resources=Mock(spec=ExecutionResources),
             revert_reason=exc_message,
+            actual_fee=FeePayment(amount=1, unit=PriceUnit.WEI),
         )
 
         mocked_status.return_value = TransactionStatusResponse(
@@ -343,7 +384,7 @@ async def test_declare_contract(account, map_compiled_contract):
 
     assert transaction_receipt.execution_status == TransactionExecutionStatus.SUCCEEDED
     assert transaction_receipt.transaction_hash
-    assert 0 < transaction_receipt.actual_fee <= MAX_FEE
+    assert 0 < transaction_receipt.actual_fee.amount <= MAX_FEE
     assert transaction_receipt.type == TransactionType.DECLARE
 
 

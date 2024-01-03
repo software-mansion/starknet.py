@@ -7,7 +7,12 @@ from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     Call,
+    DAMode,
+    DeclareTransactionV3,
+    DeployAccountTransactionV3,
     EstimatedFee,
+    InvokeTransactionV3,
+    ResourceBoundsMapping,
     TransactionExecutionStatus,
     TransactionFinalityStatus,
     TransactionReceipt,
@@ -160,7 +165,8 @@ async def test_estimate_message_fee(full_node_client_integration):
     assert isinstance(estimated_message, EstimatedFee)
     assert estimated_message.overall_fee > 0
     assert estimated_message.gas_price > 0
-    assert estimated_message.gas_usage > 0
+    assert estimated_message.gas_consumed > 0
+    assert estimated_message.unit is not None
 
 
 @pytest.mark.asyncio
@@ -361,3 +367,32 @@ async def test_get_tx_receipt_new_fields(full_node_client_testnet):
     )
 
     assert receipt.execution_resources is not None
+
+
+@pytest.mark.parametrize(
+    "tx_hash, tx_type",
+    [
+        (
+            0x7B31376D1C4F467242616530901E1B441149F1106EF765F202A50A6F917762B,
+            DeclareTransactionV3,
+        ),
+        (
+            0x750DC0D6B64D29E7F0CA6399802BA46C6FCA0E37FB977706DFD1DD42B63D757,
+            DeployAccountTransactionV3,
+        ),
+        (
+            0x15F2CF38832542602E2D1C8BF0634893E6B43ACB6879E8A8F892F5A9B03C907,
+            InvokeTransactionV3,
+        ),
+    ],
+)
+@pytest.mark.asyncio
+async def test_get_transaction_v3(full_node_client_testnet, tx_hash, tx_type):
+    tx = await full_node_client_testnet.get_transaction(tx_hash=tx_hash)
+    assert isinstance(tx, tx_type)
+    assert tx.version == 3
+    assert isinstance(tx.resource_bounds, ResourceBoundsMapping)
+    assert tx.paymaster_data == []
+    assert tx.tip == 0
+    assert tx.nonce_data_availability_mode == DAMode.L1
+    assert tx.fee_data_availability_mode == DAMode.L1
