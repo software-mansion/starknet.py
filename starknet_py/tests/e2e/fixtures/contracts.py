@@ -20,6 +20,7 @@ from starknet_py.tests.e2e.fixtures.constants import (
     CONTRACTS_COMPILED_V2_DIR,
     CONTRACTS_DIR,
     MAX_FEE,
+    STRK_FEE_CONTRACT_ADDRESS,
 )
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
@@ -47,6 +48,24 @@ def sierra_minimal_compiled_contract_and_class_hash() -> Tuple[str, int]:
     """
     compiled_contract = read_contract("minimal_contract_compiled.json")
     compiled_contract_casm = read_contract("minimal_contract_compiled.casm")
+
+    return (
+        compiled_contract,
+        compute_casm_class_hash(create_casm_class(compiled_contract_casm)),
+    )
+
+
+@pytest.fixture(scope="package")
+def abi_types_compiled_contract_and_class_hash() -> Tuple[str, int]:
+    """
+    Returns abi_types contract compiled to sierra and its compiled class hash.
+    """
+    compiled_contract = read_contract(
+        "abi_types_compiled.json", directory=CONTRACTS_COMPILED_V2_DIR
+    )
+    compiled_contract_casm = read_contract(
+        "abi_types_compiled.casm", directory=CONTRACTS_COMPILED_V2_DIR
+    )
 
     return (
         compiled_contract,
@@ -215,11 +234,34 @@ async def deploy_erc20_contract(
 
 
 @pytest.fixture(scope="package")
-def fee_contract(account: BaseAccount) -> Contract:
+def fee_contract(account: BaseAccount, fee_contract_abi) -> Contract:
     """
-    Returns an instance of the fee contract. It is used to transfer tokens.
+    Returns an instance of the ETH fee contract. It is used to transfer tokens.
     """
-    abi = [
+
+    return Contract(
+        address=FEE_CONTRACT_ADDRESS,
+        abi=fee_contract_abi,
+        provider=account,
+    )
+
+
+@pytest.fixture(scope="package")
+def strk_fee_contract(account: BaseAccount, fee_contract_abi) -> Contract:
+    """
+    Returns an instance of the STRK fee contract. It is used to transfer tokens.
+    """
+
+    return Contract(
+        address=STRK_FEE_CONTRACT_ADDRESS,
+        abi=fee_contract_abi,
+        provider=account,
+    )
+
+
+@pytest.fixture(scope="package")
+def fee_contract_abi():
+    return [
         {
             "inputs": [
                 {"name": "recipient", "type": "felt"},
@@ -239,12 +281,6 @@ def fee_contract(account: BaseAccount) -> Contract:
             "type": "struct",
         },
     ]
-
-    return Contract(
-        address=FEE_CONTRACT_ADDRESS,
-        abi=abi,
-        provider=account,
-    )
 
 
 @pytest.fixture(name="balance_contract")

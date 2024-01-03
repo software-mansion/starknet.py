@@ -17,7 +17,11 @@ AccountToBeDeployedDetails = Tuple[int, KeyPair, int, int]
 
 
 async def get_deploy_account_details(
-    *, class_hash: int, fee_contract: Contract, argent_calldata: bool = False
+    *,
+    class_hash: int,
+    fee_contract: Contract,
+    strk_fee_contract: Contract,
+    argent_calldata: bool = False,
 ) -> AccountToBeDeployedDetails:
     """
     Returns address, key_pair, salt and class_hash of the account with validate deploy.
@@ -42,10 +46,15 @@ async def get_deploy_account_details(
         deployer_address=0,
     )
 
-    res = await fee_contract.functions["transfer"].invoke(
+    transfer_wei_res = await fee_contract.functions["transfer"].invoke(
         recipient=address, amount=int(1e19), max_fee=MAX_FEE
     )
-    await res.wait_for_acceptance()
+    await transfer_wei_res.wait_for_acceptance()
+
+    transfer_fri_res = await strk_fee_contract.functions["transfer"].invoke(
+        recipient=address, amount=int(1e19), max_fee=MAX_FEE
+    )
+    await transfer_fri_res.wait_for_acceptance()
 
     return address, key_pair, salt, class_hash
 

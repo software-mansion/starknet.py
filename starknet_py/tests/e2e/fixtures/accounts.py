@@ -10,6 +10,7 @@ from starknet_py.contract import Contract
 from starknet_py.hash.address import compute_address
 from starknet_py.net.account.account import Account
 from starknet_py.net.account.base_account import BaseAccount
+from starknet_py.net.client_models import PriceUnit
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.http_client import HttpMethod, RpcHttpClient
 from starknet_py.net.models import StarknetChainId
@@ -50,15 +51,8 @@ async def devnet_account_details(
         deployer_address=0,
     )
 
-    http_client = RpcHttpClient(network)
-    await http_client.request(
-        http_method=HttpMethod.POST,
-        address=f"{network}/mint",
-        payload={
-            "address": hex(address),
-            "amount": int(1e30),
-        },
-    )
+    await mint_token_on_devnet(network, address, int(1e30), PriceUnit.WEI.value)
+    await mint_token_on_devnet(network, address, int(1e30), PriceUnit.FRI.value)
 
     deploy_account_tx = await get_deploy_account_transaction(
         address=address,
@@ -78,6 +72,15 @@ async def devnet_account_details(
     await account.client.wait_for_tx(res.transaction_hash)
 
     return hex(address), hex(key_pair.private_key)
+
+
+async def mint_token_on_devnet(url: str, address: int, amount: int, unit: str):
+    http_client = RpcHttpClient(url)
+    await http_client.request(
+        http_method=HttpMethod.POST,
+        address=f"{url}/mint",
+        payload={"address": hex(address), "amount": amount, "unit": unit},
+    )
 
 
 @pytest_asyncio.fixture(scope="package")
@@ -132,6 +135,7 @@ def full_node_account(
 class AccountToBeDeployedDetailsFactory:
     class_hash: int
     fee_contract: Contract
+    strk_fee_contract: Contract
 
     async def get(
         self, *, class_hash: Optional[int] = None, argent_calldata: bool = False
@@ -139,6 +143,7 @@ class AccountToBeDeployedDetailsFactory:
         return await get_deploy_account_details(
             class_hash=class_hash if class_hash is not None else self.class_hash,
             fee_contract=self.fee_contract,
+            strk_fee_contract=self.strk_fee_contract,
             argent_calldata=argent_calldata,
         )
 
@@ -147,6 +152,7 @@ class AccountToBeDeployedDetailsFactory:
 async def deploy_account_details_factory(
     account_with_validate_deploy_class_hash: int,
     fee_contract: Contract,
+    strk_fee_contract: Contract,
 ) -> AccountToBeDeployedDetailsFactory:
     """
     Returns AccountToBeDeployedDetailsFactory.
@@ -158,6 +164,7 @@ async def deploy_account_details_factory(
     return AccountToBeDeployedDetailsFactory(
         class_hash=account_with_validate_deploy_class_hash,
         fee_contract=fee_contract,
+        strk_fee_contract=strk_fee_contract,
     )
 
 

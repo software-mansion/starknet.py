@@ -3,6 +3,8 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+from starknet_py.net.client_models import ResourceBounds, ResourceBoundsMapping
+
 load_dotenv(dotenv_path=Path(os.path.dirname(__file__)) / "../test-variables.env")
 
 
@@ -56,7 +58,16 @@ DEVNET_PRE_DEPLOYED_ACCOUNT_ADDRESS = (
 )
 DEVNET_PRE_DEPLOYED_ACCOUNT_PRIVATE_KEY = "0xc10662b7b247c7cecf7e8a30726cff12"
 
+STRK_FEE_CONTRACT_ADDRESS = (
+    "0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d"
+)
+
 MAX_FEE = int(1e16)
+
+MAX_RESOURCE_BOUNDS_L1 = ResourceBoundsMapping(
+    l1_gas=ResourceBounds(max_amount=5000, max_price_per_unit=int(2e12)),
+    l2_gas=ResourceBounds(max_amount=0, max_price_per_unit=0),
+)
 
 MOCK_DIR = Path(os.path.dirname(__file__)) / "../mock"
 TYPED_DATA_DIR = MOCK_DIR / "typed_data"
