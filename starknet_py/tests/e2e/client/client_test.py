@@ -169,7 +169,7 @@ async def test_estimate_fee_invoke_v3(account, contract_address):
         resource_bounds=MAX_RESOURCE_BOUNDS_L1,
     )
     invoke_tx = await account.sign_for_fee_estimate(invoke_tx)
-    estimate_fee = await account.client.estimate_fee(tx=invoke_tx, skip_validate=True)
+    estimate_fee = await account.client.estimate_fee(tx=invoke_tx)
 
     assert isinstance(estimate_fee, EstimatedFee)
     assert estimate_fee.unit == PriceUnit.FRI
