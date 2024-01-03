@@ -60,6 +60,7 @@ from starknet_py.net.client_models import (
 from starknet_py.net.schemas.common import (
     BlockStatusField,
     CallTypeField,
+    DAModeField,
     EntryPointTypeField,
     ExecutionStatusField,
     Felt,
@@ -179,7 +180,7 @@ class TransactionReceiptSchema(Schema):
 class EstimatedFeeSchema(Schema):
     overall_fee = Felt(data_key="overall_fee", required=True)
     gas_price = Felt(data_key="gas_price", required=True)
-    gas_usage = Felt(data_key="gas_consumed", required=True)
+    gas_consumed = Felt(data_key="gas_consumed", required=True)
     unit = PriceUnitField(data_key="unit", required=True)
 
     @post_load
@@ -233,13 +234,13 @@ class TransactionSchema(Schema):
 
 class TransactionV3Schema(TransactionSchema):
     tip = Felt(data_key="tip", load_default=0)
-    nonce_data_availability_mode = Felt(
+    nonce_data_availability_mode = DAModeField(
         data_key="nonce_data_availability_mode", load_default=DAMode.L1
     )
-    fee_data_availability_mode = Felt(
+    fee_data_availability_mode = DAModeField(
         data_key="fee_data_availability_mode", load_default=DAMode.L1
     )
-    paymaster_data = fields.List(Felt(), data_key="calldata", load_default=[])
+    paymaster_data = fields.List(Felt(), data_key="paymaster_data", load_default=[])
     resource_bounds = fields.Nested(
         ResourceBoundsMappingSchema(), data_key="resource_bounds", required=True
     )
@@ -259,10 +260,12 @@ class InvokeTransactionDeprecatedSchema(TransactionSchema):
         return InvokeTransaction(**data)
 
 
-class InvokeTransactionV3Schema(TransactionSchema):
+class InvokeTransactionV3Schema(TransactionV3Schema):
     sender_address = Felt(data_key="sender_address", required=True)
     calldata = fields.List(Felt(), data_key="calldata", required=True)
-    account_deployment_data = fields.List(Felt(), data_key="calldata", required=True)
+    account_deployment_data = fields.List(
+        Felt(), data_key="account_deployment_data", load_default=[]
+    )
     nonce = Felt(data_key="nonce", required=True)
 
     @post_load
@@ -326,7 +329,7 @@ class DeployAccountTransactionV3Schema(TransactionV3Schema):
         Felt(), data_key="constructor_calldata", required=True
     )
     class_hash = Felt(data_key="class_hash", required=True)
-    nonce = Felt(data_key="nonce", load_default=None)
+    nonce = Felt(data_key="nonce", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> DeployAccountTransactionV3:
@@ -349,7 +352,7 @@ class InvokeTransactionSchema(OneOfSchema):
     type_schemas = {
         0: InvokeTransactionDeprecatedSchema,
         1: InvokeTransactionDeprecatedSchema,
-        3: InvokeTransactionV3,
+        3: InvokeTransactionV3Schema,
     }
 
     def get_data_type(self, data):
@@ -359,7 +362,7 @@ class InvokeTransactionSchema(OneOfSchema):
 class DeployAccountTransactionSchema(OneOfSchema):
     type_schemas = {
         1: DeployAccountTransactionDeprecatedSchema,
-        3: DeclareTransactionV3Schema,
+        3: DeployAccountTransactionV3Schema,
     }
 
     def get_data_type(self, data):

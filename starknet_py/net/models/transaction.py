@@ -41,6 +41,10 @@ from starknet_py.net.schemas.gateway import (
     SierraContractClassSchema,
 )
 
+# TODO (#1219):
+#  consider unifying these classes with client_models
+#  remove marshmallow logic if not needed
+
 
 @dataclass(frozen=True)
 class Transaction(ABC):
@@ -228,7 +232,7 @@ class DeployAccountV3(AccountTransaction):
             constructor_calldata=self.constructor_calldata,
             contract_address_salt=self.contract_address_salt,
             common_fields=CommonTransactionV3Fields(
-                tx_prefix=TransactionHashPrefix.DECLARE,
+                tx_prefix=TransactionHashPrefix.DEPLOY_ACCOUNT,
                 version=self.version,
                 address=contract_address,
                 tip=self.tip,
@@ -306,7 +310,7 @@ class InvokeV3(AccountTransaction):
             account_deployment_data=self.account_deployment_data,
             calldata=self.calldata,
             common_fields=CommonTransactionV3Fields(
-                tx_prefix=TransactionHashPrefix.DECLARE,
+                tx_prefix=TransactionHashPrefix.INVOKE,
                 version=self.version,
                 address=self.sender_address,
                 tip=self.tip,

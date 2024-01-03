@@ -472,7 +472,9 @@ class FullNodeClient(Client):
         )
         return [int(i, 16) for i in res]
 
-    async def send_transaction(self, transaction: Invoke) -> SentTransactionResponse:
+    async def send_transaction(
+        self, transaction: Union[Invoke, InvokeV3]
+    ) -> SentTransactionResponse:
         params = _create_broadcasted_txn(transaction=transaction)
 
         res = await self._client.call(
@@ -485,7 +487,7 @@ class FullNodeClient(Client):
         )
 
     async def deploy_account(
-        self, transaction: DeployAccount
+        self, transaction: Union[DeployAccount, DeployAccountV3]
     ) -> DeployAccountTransactionResponse:
         params = _create_broadcasted_txn(transaction=transaction)
 
@@ -961,8 +963,8 @@ def _create_broadcasted_txn_v3_common_properties(
         "resource_bounds": resource_bonds,
         "tip": _to_rpc_felt(transaction.tip),
         "paymaster_data": [_to_rpc_felt(data) for data in transaction.paymaster_data],
-        "nonce_data_availability_mode": transaction.nonce_data_availability_mode,
-        "fee_data_availability_mode": transaction.fee_data_availability_mode,
+        "nonce_data_availability_mode": transaction.nonce_data_availability_mode.name,
+        "fee_data_availability_mode": transaction.fee_data_availability_mode.name,
     }
 
     return broadcasted_txn_v3_common_properties
