@@ -162,7 +162,7 @@ class TransactionV3(Transaction):
     fee_data_availability_mode: DAMode
 
     def __post_init__(self):
-        if self.__class__ == Transaction:
+        if self.__class__ == TransactionV3:
             raise TypeError("Cannot instantiate abstract TransactionV3 class.")
 
 

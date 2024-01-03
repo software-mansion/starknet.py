@@ -1,9 +1,10 @@
 import pytest
 
 from starknet_py.constants import ADDR_BOUND
-from starknet_py.net.client_models import Transaction
+from starknet_py.net.client_models import DAMode, Transaction, TransactionV3
 from starknet_py.net.full_node_client import _to_storage_key
 from starknet_py.net.http_client import RpcHttpClient, ServerError
+from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS_L1
 
 
 @pytest.mark.asyncio
@@ -19,6 +20,22 @@ def test_cannot_instantiate_abstract_transaction_class():
         TypeError, match="Cannot instantiate abstract Transaction class."
     ):
         _ = Transaction(hash=0, signature=[0, 0], version=0)
+
+
+def test_cannot_instantiate_abstract_transaction_v3_class():
+    with pytest.raises(
+        TypeError, match="Cannot instantiate abstract TransactionV3 class."
+    ):
+        _ = TransactionV3(
+            hash=0,
+            signature=[0, 0],
+            version=0,
+            paymaster_data=[],
+            tip=0,
+            nonce_data_availability_mode=DAMode.L1,
+            fee_data_availability_mode=DAMode.L1,
+            resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        )
 
 
 def test_handle_rpc_error_server_error():
