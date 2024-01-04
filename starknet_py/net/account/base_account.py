@@ -133,16 +133,17 @@ class BaseAccount(ABC):
     async def sign_invoke_v3_transaction(
         self,
         calls: Calls,
-        resource_bounds: ResourceBoundsMapping,
         *,
         nonce: Optional[int] = None,
+        resource_bounds: Optional[ResourceBoundsMapping] = None,
+        auto_estimate: bool = False,
     ) -> InvokeV3:
         """
         Takes calls and creates signed Invoke.
 
         :param calls: Single call or list of calls.
-        :param resource_bounds: Max amount of Wei or Fri to be paid when executing transaction.
         :param nonce: Nonce of the transaction.
+        :param resource_bounds: Max amount of Wei or Fri to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :return: Invoke created from the calls.
         """
@@ -194,9 +195,10 @@ class BaseAccount(ABC):
         self,
         compiled_contract: str,
         compiled_class_hash: int,
-        resource_bounds: ResourceBoundsMapping,
         *,
         nonce: Optional[int] = None,
+        resource_bounds: Optional[ResourceBoundsMapping] = None,
+        auto_estimate: bool = False,
     ) -> DeclareV3:
         """
         Create and sign declare transaction using sierra contract.
@@ -207,6 +209,7 @@ class BaseAccount(ABC):
             Computed from casm compiled contract.
         :param nonce: Nonce of the transaction.
         :param resource_bounds: Max amount of Wei or Fri to be paid when executing transaction.
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :return: Signed DeclareV3 transaction.
         """
 
@@ -240,10 +243,11 @@ class BaseAccount(ABC):
         self,
         class_hash: int,
         contract_address_salt: int,
-        resource_bounds: ResourceBoundsMapping,
         *,
         constructor_calldata: Optional[List[int]] = None,
         nonce: int = 0,
+        resource_bounds: Optional[ResourceBoundsMapping] = None,
+        auto_estimate: bool = False,
     ) -> DeployAccountV3:
         """
         Create and sign deploy account transaction.
@@ -255,6 +259,7 @@ class BaseAccount(ABC):
         :param nonce: Nonce of the transaction.
         :param resource_bounds: Max amount of Wei or Fri to be paid  for deploying account transaction.
             Enough tokens must be prefunded before sending the transaction for it to succeed.
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :return: Signed DeployAccountV3 transaction.
         """
 

@@ -15,6 +15,8 @@ from starknet_py.net.client_models import (
     DeployAccountTransactionResponse,
     EstimatedFee,
     InvokeTransactionV3,
+    ResourceBounds,
+    ResourceBoundsMapping,
     SierraContractClass,
     TransactionExecutionStatus,
     TransactionFinalityStatus,
@@ -206,6 +208,25 @@ async def test_sign_invoke_v3_transaction(account, calls):
 
 
 @pytest.mark.asyncio
+async def test_sign_invoke_v3_transaction_auto_estimate(account, map_contract):
+    signed_tx = await account.sign_invoke_v3_transaction(
+        Call(map_contract.address, get_selector_from_name("put"), [3, 4]),
+        auto_estimate=True,
+    )
+
+    assert isinstance(signed_tx, InvokeV3)
+    assert signed_tx.version == 3
+
+    assert isinstance(signed_tx.signature, list)
+    assert len(signed_tx.signature) == 2
+
+    assert isinstance(signed_tx.resource_bounds, ResourceBoundsMapping)
+    assert signed_tx.resource_bounds.l1_gas.max_amount > 0
+    assert signed_tx.resource_bounds.l1_gas.max_price_per_unit > 0
+    assert signed_tx.resource_bounds.l2_gas == ResourceBounds.init_with_zeros()
+
+
+@pytest.mark.asyncio
 async def test_sign_declare_transaction(account, map_compiled_contract):
     signed_tx = await account.sign_declare_transaction(
         map_compiled_contract, max_fee=MAX_FEE
@@ -298,6 +319,31 @@ async def test_sign_declare_v3_transaction(
 
 
 @pytest.mark.asyncio
+async def test_sign_declare_v3_transaction_auto_estimate(
+    account, sierra_minimal_compiled_contract_and_class_hash
+):
+    (
+        compiled_contract,
+        compiled_class_hash,
+    ) = sierra_minimal_compiled_contract_and_class_hash
+
+    signed_tx = await account.sign_declare_v3_transaction(
+        compiled_contract, compiled_class_hash, auto_estimate=True
+    )
+
+    assert isinstance(signed_tx, DeclareV3)
+    assert signed_tx.version == 3
+
+    assert isinstance(signed_tx.signature, list)
+    assert len(signed_tx.signature) == 2
+
+    assert isinstance(signed_tx.resource_bounds, ResourceBoundsMapping)
+    assert signed_tx.resource_bounds.l1_gas.max_amount > 0
+    assert signed_tx.resource_bounds.l1_gas.max_price_per_unit > 0
+    assert signed_tx.resource_bounds.l2_gas == ResourceBounds.init_with_zeros()
+
+
+@pytest.mark.asyncio
 async def test_declare_contract_raises_on_sierra_contract_without_compiled_class_hash(
     account, sierra_minimal_compiled_contract_and_class_hash
 ):
@@ -358,13 +404,38 @@ async def test_sign_deploy_account_v3_transaction(account):
     )
 
     assert isinstance(signed_tx, DeployAccountV3)
+    assert signed_tx.version == 3
+
     assert isinstance(signed_tx.signature, list)
-    assert len(signed_tx.signature) > 0
+    assert len(signed_tx.signature) == 2
+
     assert signed_tx.resource_bounds == MAX_RESOURCE_BOUNDS_L1
     assert signed_tx.class_hash == class_hash
     assert signed_tx.contract_address_salt == salt
     assert signed_tx.constructor_calldata == calldata
+
+
+@pytest.mark.asyncio
+async def test_sign_deploy_account_v3_transaction_auto_estimate(
+    account, account_with_validate_deploy_class_hash
+):
+    class_hash = account_with_validate_deploy_class_hash
+    salt = 0x123
+    calldata = [account.signer.public_key]
+    signed_tx = await account.sign_deploy_account_v3_transaction(
+        class_hash, salt, constructor_calldata=calldata, auto_estimate=True
+    )
+
+    assert isinstance(signed_tx, DeployAccountV3)
     assert signed_tx.version == 3
+
+    assert isinstance(signed_tx.signature, list)
+    assert len(signed_tx.signature) == 2
+
+    assert isinstance(signed_tx.resource_bounds, ResourceBoundsMapping)
+    assert signed_tx.resource_bounds.l1_gas.max_amount > 0
+    assert signed_tx.resource_bounds.l1_gas.max_price_per_unit > 0
+    assert signed_tx.resource_bounds.l2_gas == ResourceBounds.init_with_zeros()
 
 
 @pytest.mark.asyncio

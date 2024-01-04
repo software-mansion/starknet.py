@@ -81,6 +81,10 @@ class ResourceBounds:
     max_amount: int
     max_price_per_unit: int
 
+    @staticmethod
+    def init_with_zeros():
+        return ResourceBounds(max_amount=0, max_price_per_unit=0)
+
 
 @dataclass
 class ResourceBoundsMapping:
@@ -90,6 +94,13 @@ class ResourceBoundsMapping:
 
     l1_gas: ResourceBounds
     l2_gas: ResourceBounds
+
+    @staticmethod
+    def init_with_zeros():
+        return ResourceBoundsMapping(
+            l1_gas=ResourceBounds.init_with_zeros(),
+            l2_gas=ResourceBounds.init_with_zeros(),
+        )
 
 
 class PriceUnit(Enum):
