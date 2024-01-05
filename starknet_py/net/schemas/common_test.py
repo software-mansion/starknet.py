@@ -3,9 +3,16 @@ from typing import Optional, Type, Union
 import pytest
 from marshmallow import Schema, ValidationError
 
-from starknet_py.net.client_models import BlockStatus, Hash, TransactionStatus
-from starknet_py.net.schemas.common import NonPrefixedHex, Uint64, Uint128
-from starknet_py.net.schemas.rpc import BlockStatusField, Felt, StatusField
+from starknet_py.net.client_models import BlockStatus, DAMode, Hash, TransactionStatus
+from starknet_py.net.schemas.common import (
+    BlockStatusField,
+    DAModeField,
+    Felt,
+    NonPrefixedHex,
+    StatusField,
+    Uint64,
+    Uint128,
+)
 
 
 class SchemaWithUint64(Schema):
@@ -18,6 +25,10 @@ class SchemaWithUint128(Schema):
 
 class SchemaWithFelt(Schema):
     value = Felt(data_key="value")
+
+
+class SchemaWithDAModeField(Schema):
+    value = DAModeField(data_key="value")
 
 
 def test_serialize_felt():
@@ -238,6 +249,28 @@ def test_serialize_block_status_field_throws_on_invalid_data():
 
     with pytest.raises(ValidationError, match="Invalid value for BlockStatus provided"):
         SchemaWithBlockStatusField().load(data)
+
+
+@pytest.mark.parametrize(
+    "data",
+    [{"value": DAMode.L1}, {"value": DAMode.L2}],
+)
+def test_serialize_damode_field(data):
+    serialized = SchemaWithDAModeField().dumps(data)
+    assert f'"value": "{data["value"].name}"' in serialized
+
+
+@pytest.mark.parametrize(
+    "data, expected_deserialized",
+    (
+        ({"value": DAMode.L1.name}, DAMode.L1),
+        ({"value": DAMode.L2.name}, DAMode.L2),
+    ),
+)
+def test_deserialize_damode_field(data, expected_deserialized):
+    deserialized = SchemaWithDAModeField().load(data)
+    assert isinstance(deserialized, dict)
+    assert deserialized["value"] == expected_deserialized
 
 
 def get_uint_error_message(
