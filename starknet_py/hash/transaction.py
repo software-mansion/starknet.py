@@ -312,13 +312,9 @@ def compute_declare_v2_transaction_hash(
     :param nonce: Nonce of the transaction.
     :return: Hash of the transaction.
     """
-    if contract_class is None and class_hash is None:
-        raise ValueError("Either contract_class or class_hash is required.")
-    if contract_class is not None and class_hash is not None:
-        raise ValueError("Both contract_class and class_hash passed.")
-
     if class_hash is None:
-        assert contract_class is not None
+        if contract_class is None:
+            raise ValueError("Either contract_class or class_hash is required.")
         class_hash = compute_sierra_class_hash(contract_class)
 
     return compute_transaction_hash(
