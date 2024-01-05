@@ -134,7 +134,7 @@ def full_node_account(
 @dataclass
 class AccountToBeDeployedDetailsFactory:
     class_hash: int
-    fee_contract: Contract
+    eth_fee_contract: Contract
     strk_fee_contract: Contract
 
     async def get(
@@ -142,7 +142,7 @@ class AccountToBeDeployedDetailsFactory:
     ) -> AccountToBeDeployedDetails:
         return await get_deploy_account_details(
             class_hash=class_hash if class_hash is not None else self.class_hash,
-            fee_contract=self.fee_contract,
+            eth_fee_contract=self.eth_fee_contract,
             strk_fee_contract=self.strk_fee_contract,
             argent_calldata=argent_calldata,
         )
@@ -151,7 +151,7 @@ class AccountToBeDeployedDetailsFactory:
 @pytest_asyncio.fixture(scope="package")
 async def deploy_account_details_factory(
     account_with_validate_deploy_class_hash: int,
-    fee_contract: Contract,
+    eth_fee_contract: Contract,
     strk_fee_contract: Contract,
 ) -> AccountToBeDeployedDetailsFactory:
     """
@@ -163,7 +163,7 @@ async def deploy_account_details_factory(
     """
     return AccountToBeDeployedDetailsFactory(
         class_hash=account_with_validate_deploy_class_hash,
-        fee_contract=fee_contract,
+        eth_fee_contract=eth_fee_contract,
         strk_fee_contract=strk_fee_contract,
     )
 

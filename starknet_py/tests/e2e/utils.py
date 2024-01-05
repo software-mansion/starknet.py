@@ -19,7 +19,7 @@ AccountToBeDeployedDetails = Tuple[int, KeyPair, int, int]
 async def get_deploy_account_details(
     *,
     class_hash: int,
-    fee_contract: Contract,
+    eth_fee_contract: Contract,
     strk_fee_contract: Contract,
     argent_calldata: bool = False,
 ) -> AccountToBeDeployedDetails:
@@ -27,7 +27,8 @@ async def get_deploy_account_details(
     Returns address, key_pair, salt and class_hash of the account with validate deploy.
 
     :param class_hash: Class hash of account to be deployed.
-    :param fee_contract: Contract for prefunding deployments.
+    :param eth_fee_contract: Contract for prefunding deployments in ETH.
+    :param strk_fee_contract: Contract for prefunding deployments in STRK.
     :param argent_calldata: Flag deciding whether calldata should be in Argent-account format.
     """
     priv_key = _get_random_private_key_unsafe()
@@ -46,7 +47,7 @@ async def get_deploy_account_details(
         deployer_address=0,
     )
 
-    transfer_wei_res = await fee_contract.functions["transfer"].invoke(
+    transfer_wei_res = await eth_fee_contract.functions["transfer"].invoke(
         recipient=address, amount=int(1e19), max_fee=MAX_FEE
     )
     await transfer_wei_res.wait_for_acceptance()

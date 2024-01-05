@@ -23,7 +23,7 @@ from starknet_py.tests.e2e.utils import (
 @pytest_asyncio.fixture(scope="package")
 async def deploy_account_transaction(
     account_with_validate_deploy_class_hash: int,
-    fee_contract: Contract,
+    eth_fee_contract: Contract,
     strk_fee_contract: Contract,
     network: str,
 ) -> DeployAccount:
@@ -32,7 +32,7 @@ async def deploy_account_transaction(
     """
     address, key_pair, salt, class_hash = await get_deploy_account_details(
         class_hash=account_with_validate_deploy_class_hash,
-        fee_contract=fee_contract,
+        eth_fee_contract=eth_fee_contract,
         strk_fee_contract=strk_fee_contract,
     )
     return await get_deploy_account_transaction(

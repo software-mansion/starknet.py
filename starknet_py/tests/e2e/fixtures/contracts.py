@@ -234,7 +234,7 @@ async def deploy_erc20_contract(
 
 
 @pytest.fixture(scope="package")
-def fee_contract(account: BaseAccount, fee_contract_abi) -> Contract:
+def eth_fee_contract(account: BaseAccount, fee_contract_abi) -> Contract:
     """
     Returns an instance of the ETH fee contract. It is used to transfer tokens.
     """
