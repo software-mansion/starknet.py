@@ -30,8 +30,15 @@ class Felt(fields.Field):
     Field that serializes int to felt (hex encoded string)
     """
 
+    REGEX_PATTERN = r"^0x(0|[a-fA-F1-9]{1}[a-fA-F0-9]{0,62})"
+
     def _serialize(self, value: Any, attr: str, obj: Any, **kwargs):
-        return hex(value)
+        if isinstance(value, int):
+            serialized = hex(value)
+            if re.fullmatch(self.REGEX_PATTERN, serialized) is not None:
+                return serialized
+
+        raise ValidationError(f"Invalid value provided for Felt: {value}.")
 
     def _deserialize(
         self,
@@ -44,12 +51,12 @@ class Felt(fields.Field):
             return value
 
         if not isinstance(value, str) or not value.startswith("0x"):
-            raise ValidationError(f"Invalid value provided for felt: {value}.")
+            raise ValidationError(f"Invalid value provided for Felt: {value}.")
 
         try:
             return int(value, 16)
         except ValueError as error:
-            raise ValidationError("Invalid felt.") from error
+            raise ValidationError("Invalid Felt.") from error
 
 
 class Uint64(fields.Field):
