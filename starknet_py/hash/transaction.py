@@ -53,14 +53,14 @@ class CommonTransactionV3Fields:
             self.tx_prefix,
             self.version,
             self.address,
-            self.compute_tip_resource_bounds_hash(),
+            poseidon_hash_many(tip, self.compute_resource_bounds_for_fee()),
             poseidon_hash_many(self.paymaster_data),
             self.chain_id,
             self.nonce,
             self.get_data_availability_modes(),
         ]
 
-    def compute_tip_resource_bounds_hash(self) -> int:
+    def compute_resource_bounds_for_fee(self) -> List[int]:
         l1_gas_bounds = (
             (L1_GAS_ENCODED << (128 + 64))
             + (self.resource_bounds.l1_gas.max_amount << 128)
@@ -73,7 +73,7 @@ class CommonTransactionV3Fields:
             + self.resource_bounds.l2_gas.max_price_per_unit
         )
 
-        return poseidon_hash_many([self.tip, l1_gas_bounds, l2_gas_bounds])
+        return [l1_gas_bounds, l2_gas_bounds]
 
     def get_data_availability_modes(self) -> int:
         return (
