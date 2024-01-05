@@ -233,9 +233,9 @@ class Account(BaseAccount):
         """
         Takes calls and creates InvokeV3 from them.
 
-        :param calls: Single call or list of calls.
+        :param calls: Single call or a list of calls.
         :param resource_bounds: Max amount and price of Wei or Fri to be paid when executing transaction.
-        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :param auto_estimate: Use automatic fee estimation; not recommended as it may lead to high costs.
         :return: InvokeV3 created from the calls (without the signature).
         """
         if nonce is None:
