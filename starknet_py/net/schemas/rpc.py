@@ -158,7 +158,7 @@ class TransactionReceiptSchema(Schema):
     block_number = fields.Integer(data_key="block_number", load_default=None)
     block_hash = Felt(data_key="block_hash", load_default=None)
     actual_fee = fields.Nested(FeePaymentSchema(), data_key="actual_fee", required=True)
-    type = TransactionTypeField(data_key="type", load_default=None)
+    type = TransactionTypeField(data_key="type", required=True)
     contract_address = Felt(data_key="contract_address", load_default=None)
     revert_reason = fields.String(data_key="revert_reason", load_default=None)
     events = fields.List(

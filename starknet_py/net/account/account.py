@@ -354,14 +354,14 @@ class Account(BaseAccount):
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
     ) -> InvokeV3:
-        execute_tx = await self._prepare_invoke_v3(
+        invoke_tx = await self._prepare_invoke_v3(
             calls,
             resource_bounds=resource_bounds,
             nonce=nonce,
             auto_estimate=auto_estimate,
         )
-        signature = self.signer.sign_transaction(execute_tx)
-        return _add_signature_to_transaction(execute_tx, signature)
+        signature = self.signer.sign_transaction(invoke_tx)
+        return _add_signature_to_transaction(invoke_tx, signature)
 
     async def sign_declare_transaction(
         self,
@@ -571,14 +571,16 @@ class Account(BaseAccount):
     async def execute_v3(
         self,
         calls: Calls,
-        resource_bounds: ResourceBoundsMapping,
         *,
+        resource_bounds: Optional[ResourceBoundsMapping] = None,
         nonce: Optional[int] = None,
+        auto_estimate: bool = False,
     ) -> SentTransactionResponse:
         execute_transaction = await self.sign_invoke_v3_transaction(
             calls,
             resource_bounds=resource_bounds,
             nonce=nonce,
+            auto_estimate=auto_estimate,
         )
         return await self._client.send_transaction(execute_transaction)
 

@@ -286,9 +286,10 @@ class BaseAccount(ABC):
     async def execute_v3(
         self,
         calls: Calls,
-        resource_bounds: ResourceBoundsMapping,
         *,
+        resource_bounds: Optional[ResourceBoundsMapping] = None,
         nonce: Optional[int] = None,
+        auto_estimate: bool = False,
     ) -> SentTransactionResponse:
         """
         Takes calls and executes transaction.
@@ -296,6 +297,7 @@ class BaseAccount(ABC):
         :param calls: Single call or list of calls.
         :param resource_bounds: Max amount of Wei or Fri to be paid when executing transaction.
         :param nonce: Nonce of the transaction.
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :return: SentTransactionResponse.
         """
 
