@@ -290,6 +290,9 @@ class DeclareTransactionV3Schema(TransactionV3Schema):
     compiled_class_hash = Felt(data_key="compiled_class_hash", load_default=None)
     nonce = Felt(data_key="nonce", required=True)
     sender_address = Felt(data_key="sender_address", required=True)
+    account_deployment_data = fields.List(
+        Felt(), data_key="account_deployment_data", load_default=[]
+    )
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> DeclareTransactionV3:

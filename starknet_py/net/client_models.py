@@ -226,6 +226,7 @@ class DeclareTransactionV3(TransactionV3):
     compiled_class_hash: int
     nonce: int
     sender_address: int
+    account_deployment_data: List[int]
 
 
 @dataclass
