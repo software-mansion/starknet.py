@@ -53,7 +53,7 @@ class CommonTransactionV3Fields:
             self.tx_prefix,
             self.version,
             self.address,
-            poseidon_hash_many(tip, self.compute_resource_bounds_for_fee()),
+            poseidon_hash_many([self.tip, *self.compute_resource_bounds_for_fee()]),
             poseidon_hash_many(self.paymaster_data),
             self.chain_id,
             self.nonce,
@@ -178,7 +178,7 @@ def compute_invoke_v3_transaction_hash(
 ) -> int:
     return poseidon_hash_many(
         [
-            *common_fields.get_common_tx_fields(),
+            *common_fields.compute_common_tx_fields(),
             poseidon_hash_many(account_deployment_data),
             poseidon_hash_many(calldata),
         ]
@@ -229,7 +229,7 @@ def compute_deploy_account_v3_transaction_hash(
 ) -> int:
     return poseidon_hash_many(
         [
-            *common_fields.get_common_tx_fields(),
+            *common_fields.compute_common_tx_fields(),
             poseidon_hash_many(constructor_calldata),
             class_hash,
             contract_address_salt,
@@ -330,7 +330,7 @@ def compute_declare_v3_transaction_hash(
 
     return poseidon_hash_many(
         [
-            *common_fields.get_common_tx_fields(),
+            *common_fields.compute_common_tx_fields(),
             poseidon_hash_many(account_deployment_data),
             class_hash,
             compiled_class_hash,
