@@ -148,7 +148,7 @@ def compute_invoke_transaction_hash(
     nonce: int,
 ) -> int:
     """
-    Computes hash of the Invoke transaction.
+    Computes hash of an Invoke transaction.
 
     :param version: The transaction's version.
     :param sender_address: Sender address.
@@ -176,6 +176,15 @@ def compute_invoke_v3_transaction_hash(
     calldata: List[int],
     common_fields: CommonTransactionV3Fields,
 ) -> int:
+    """
+    Computes hash of an Invoke transaction version 3.
+
+    :param account_deployment_data: This will contain the class_hash, salt, and the calldata needed for the constructor.
+    Currently, this value is always empty.
+    :param calldata: Calldata of the function.
+    :param common_fields: Common fields for V3 transactions.
+    :return: Hash of the transaction.
+    """
     return poseidon_hash_many(
         [
             *common_fields.compute_common_tx_fields(),
@@ -196,7 +205,7 @@ def compute_deploy_account_transaction_hash(
     chain_id: int,
 ) -> int:
     """
-    Computes hash of the DeployAccount transaction.
+    Computes hash of a DeployAccount transaction.
 
     :param version: The transaction's version.
     :param contract_address: Contract address.
@@ -227,6 +236,15 @@ def compute_deploy_account_v3_transaction_hash(
     contract_address_salt: int,
     common_fields: CommonTransactionV3Fields,
 ) -> int:
+    """
+    Computes hash of a DeployAccount transaction version 3.
+
+    :param class_hash: The class hash of the contract.
+    :param constructor_calldata: Constructor calldata of the contract.
+    :param contract_address_salt: A random salt that determines the account address.
+    :param common_fields: Common fields for V3 transactions.
+    :return: Hash of the transaction.
+    """
     return poseidon_hash_many(
         [
             *common_fields.compute_common_tx_fields(),
@@ -246,7 +264,7 @@ def compute_declare_transaction_hash(
     nonce: int,
 ) -> int:
     """
-    Computes hash of the Declare transaction.
+    Computes hash of a Declare transaction.
 
     :param contract_class: ContractClass of the contract.
     :param chain_id: The network's chain ID.
@@ -282,11 +300,11 @@ def compute_declare_v2_transaction_hash(
     nonce: int,
 ) -> int:
     """
-    Computes class hash of declare transaction version 2.
+    Computes class hash of a Declare transaction version 2.
 
     :param contract_class: SierraContractClass of the contract.
     :param class_hash: Class hash of the contract.
-    :param compiled_class_hash: compiled class hash of the program.
+    :param compiled_class_hash: Compiled class hash of the program.
     :param chain_id: The network's chain ID.
     :param sender_address: Address which sends the transaction.
     :param max_fee: The transaction's maximum fee.
@@ -323,6 +341,17 @@ def compute_declare_v3_transaction_hash(
     compiled_class_hash: int,
     common_fields: CommonTransactionV3Fields,
 ) -> int:
+    """
+    Computes class hash of a Declare transaction version 3.
+
+    :param contract_class: SierraContractClass of the contract.
+    :param class_hash: Class hash of the contract.
+    :param account_deployment_data: This will contain the class_hash and the calldata needed for the constructor.
+    Currently, this value is always empty.
+    :param compiled_class_hash: Compiled class hash of the program.
+    :param common_fields: Common fields for V3 transactions.
+    :return: Hash of the transaction.
+    """
     if class_hash is None:
         if contract_class is None:
             raise ValueError("Either contract_class or class_hash is required.")
