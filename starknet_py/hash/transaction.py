@@ -48,7 +48,7 @@ class CommonTransactionV3Fields:
     nonce_data_availability_mode: DAMode
     fee_data_availability_mode: DAMode
 
-    def get_common_tx_fields(self):
+    def compute_common_tx_fields(self):
         return [
             self.tx_prefix,
             self.version,
