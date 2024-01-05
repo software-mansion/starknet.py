@@ -1,9 +1,19 @@
+from typing import Optional, Type, Union
+
 import pytest
 from marshmallow import Schema, ValidationError
 
-from starknet_py.net.client_models import BlockStatus, TransactionStatus
-from starknet_py.net.schemas.common import NonPrefixedHex
+from starknet_py.net.client_models import BlockStatus, Hash, TransactionStatus
+from starknet_py.net.schemas.common import NonPrefixedHex, Uint64, Uint128
 from starknet_py.net.schemas.rpc import BlockStatusField, Felt, StatusField
+
+
+class SchemaWithUint64(Schema):
+    value = Uint64(data_key="value")
+
+
+class SchemaWithUint128(Schema):
+    value = Uint128(data_key="value")
 
 
 def test_serialize_felt():
@@ -48,6 +58,102 @@ def test_deserialize_felt_throws_on_invalid_data():
     data = {"value1": "0xwww"}
     with pytest.raises(ValidationError, match="Invalid felt."):
         SchemaWithFelt().load(data)
+
+
+@pytest.mark.parametrize(
+    "data, expected_serialized",
+    (
+        ({"value": 0}, "0x0"),
+        ({"value": "0x100"}, "0x100"),
+        ({"value": 2**32}, "0x100000000"),
+    ),
+)
+def test_serialize_uint64(data, expected_serialized):
+    serialized = SchemaWithUint64().dumps(data)
+    assert f'"value": "{expected_serialized}"' in serialized
+
+
+@pytest.mark.parametrize(
+    "data",
+    [{"value": -1}, {"value": 2**64}, {"value": None}],
+)
+def test_serialize_uint64_throws_on_invalid_data(data):
+    with pytest.raises(
+        ValidationError,
+        match=get_uint_error_message(Uint64, data["value"]),
+    ):
+        SchemaWithUint64().dumps(data)
+
+
+@pytest.mark.parametrize(
+    "data",
+    [{"value": "0x100000000"}, {"value": 2**32}],
+)
+def test_deserialize_uint64(data):
+    deserialized = SchemaWithUint64().load(data)
+    assert isinstance(deserialized, dict)
+    assert deserialized["value"] == 2**32
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        {"value": -1},
+        {"value": "1000"},
+        {"value": 2**64},
+        {"value": "0xwrong"},
+        {"value": ""},
+    ],
+)
+def test_deserialize_uint64_throws_on_invalid_data(data):
+    with pytest.raises(
+        ValidationError,
+        match=get_uint_error_message(Uint64, data["value"]),
+    ):
+        SchemaWithUint64().load(data)
+
+
+def test_serialize_uint128():
+    data = {"value": 2**64}
+    serialized = SchemaWithUint128().dumps(data)
+    assert '"value": "0x10000000000000000"' in serialized
+
+
+def test_serialize_uint128_throws_on_invalid_data():
+    data = {"value": 2**128}
+    with pytest.raises(
+        ValidationError,
+        match=get_uint_error_message(Uint128, data["value"]),
+    ):
+        SchemaWithUint128().dumps(data)
+
+
+@pytest.mark.parametrize(
+    "data",
+    [{"value": "0x10000000000000000"}, {"value": 2**64}],
+)
+def test_deserialize_uint128(data):
+    deserialized = SchemaWithUint128().load(data)
+    assert isinstance(deserialized, dict)
+    assert deserialized["value"] == 2**64
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        {"value": -1},
+        {"value": "1000"},
+        {"value": 2**128},
+        {"value": "0xwrong"},
+        {"value": ""},
+    ],
+)
+def test_deserialize_uint128_throws_on_invalid_data(data):
+    with pytest.raises(
+        ValidationError,
+        match=get_uint_error_message(Uint128, data["value"]),
+    ):
+        SchemaWithUint128().load(data)
 
 
 def test_serialize_hex():
@@ -134,3 +240,9 @@ def test_serialize_block_status_field_throws_on_invalid_data():
 
     with pytest.raises(ValidationError, match="Invalid value for BlockStatus provided"):
         SchemaWithBlockStatusField().load(data)
+
+
+def get_uint_error_message(
+    class_type: Union[Type[Uint64], Type[Uint128]], value: Optional[Hash]
+) -> str:
+    return f"Invalid value provided for {class_type.__name__}: {str(value)}"

@@ -70,6 +70,8 @@ from starknet_py.net.schemas.common import (
     StatusField,
     StorageEntrySchema,
     TransactionTypeField,
+    Uint64,
+    Uint128,
 )
 from starknet_py.net.schemas.utils import (
     _extract_tx_version,
@@ -209,8 +211,8 @@ class ResourcePriceSchema(Schema):
 
 
 class ResourceBoundsSchema(Schema):
-    max_amount = Felt(data_key="max_amount", required=True)
-    max_price_per_unit = Felt(data_key="max_price_per_unit", required=True)
+    max_amount = Uint64(data_key="max_amount", required=True)
+    max_price_per_unit = Uint128(data_key="max_price_per_unit", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> ResourceBounds:
@@ -237,7 +239,7 @@ class DeprecatedTransactionSchema(TransactionSchema):
 
 
 class TransactionV3Schema(TransactionSchema):
-    tip = Felt(data_key="tip", load_default=0)
+    tip = Uint64(data_key="tip", load_default=0)
     nonce_data_availability_mode = DAModeField(
         data_key="nonce_data_availability_mode", load_default=DAMode.L1
     )

@@ -52,6 +52,61 @@ class Felt(fields.Field):
             raise ValidationError("Invalid felt.") from error
 
 
+class Uint64(fields.Field):
+    """
+    Field that serializes int to RPC u64 (hex encoded string)
+    """
+
+    MAX_VALUE = 2**64
+    REGEX_PATTERN = r"^0x(0|[a-fA-F1-9]{1}[a-fA-F0-9]{0,15})"
+
+    def _serialize(self, value: Any, attr: str, obj: Any, **kwargs):
+        if self._is_int_and_in_range(value):
+            return hex(value)
+
+        if self._is_str_and_valid_pattern(value):
+            return value
+
+        raise ValidationError(
+            f"Invalid value provided for {self.__class__.__name__}: {value}"
+        )
+
+    def _deserialize(
+        self,
+        value: Any,
+        attr: Union[str, None],
+        data: Union[Mapping[str, Any], None],
+        **kwargs,
+    ):
+        if self._is_int_and_in_range(value):
+            return value
+
+        if self._is_str_and_valid_pattern(value):
+            return int(value, 16)
+
+        raise ValidationError(
+            f"Invalid value provided for {self.__class__.__name__}: {value}"
+        )
+
+    def _is_int_and_in_range(self, value: Any) -> bool:
+        return isinstance(value, int) and 0 <= value < self.MAX_VALUE
+
+    def _is_str_and_valid_pattern(self, value: Any) -> bool:
+        return (
+            isinstance(value, str)
+            and re.fullmatch(self.REGEX_PATTERN, value) is not None
+        )
+
+
+class Uint128(Uint64):
+    """
+    Field that serializes int to RPC u128 (hex encoded string)
+    """
+
+    MAX_VALUE = 2**128
+    REGEX_PATTERN = r"^0x(0|[a-fA-F1-9]{1}[a-fA-F0-9]{0,31})"
+
+
 class NonPrefixedHex(fields.Field):
     def _serialize(self, value: Any, attr: str, obj: Any, **kwargs):
         return hex(value).lstrip("0x")
