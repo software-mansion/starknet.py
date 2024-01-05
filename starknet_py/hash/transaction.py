@@ -180,7 +180,7 @@ def compute_invoke_v3_transaction_hash(
     Computes hash of an Invoke transaction version 3.
 
     :param account_deployment_data: This will contain the class_hash, salt, and the calldata needed for the constructor.
-    Currently, this value is always empty.
+        Currently, this value is always empty.
     :param calldata: Calldata of the function.
     :param common_fields: Common fields for V3 transactions.
     :return: Hash of the transaction.
@@ -343,7 +343,7 @@ def compute_declare_v3_transaction_hash(
     :param contract_class: SierraContractClass of the contract.
     :param class_hash: Class hash of the contract.
     :param account_deployment_data: This will contain the class_hash and the calldata needed for the constructor.
-    Currently, this value is always empty.
+        Currently, this value is always empty.
     :param compiled_class_hash: Compiled class hash of the program.
     :param common_fields: Common fields for V3 transactions.
     :return: Hash of the transaction.
