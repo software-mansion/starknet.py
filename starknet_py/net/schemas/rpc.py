@@ -232,6 +232,10 @@ class TransactionSchema(Schema):
     version = Felt(data_key="version", required=True)
 
 
+class DeprecatedTransactionSchema(TransactionSchema):
+    max_fee = Felt(data_key="max_fee", required=True)
+
+
 class TransactionV3Schema(TransactionSchema):
     tip = Felt(data_key="tip", load_default=0)
     nonce_data_availability_mode = DAModeField(
@@ -246,8 +250,7 @@ class TransactionV3Schema(TransactionSchema):
     )
 
 
-class InvokeTransactionDeprecatedSchema(TransactionSchema):
-    max_fee = Felt(data_key="max_fee", load_default=0)
+class DeprecatedInvokeTransactionSchema(DeprecatedTransactionSchema):
     contract_address = Felt(data_key="contract_address", load_default=None)
     sender_address = Felt(data_key="sender_address", load_default=None)
     entry_point_selector = Felt(data_key="entry_point_selector", load_default=None)
@@ -273,8 +276,7 @@ class InvokeTransactionV3Schema(TransactionV3Schema):
         return InvokeTransactionV3(**data)
 
 
-class DeclareTransactionDeprecatedSchema(TransactionSchema):
-    max_fee = Felt(data_key="max_fee", load_default=0)
+class DeprecatedDeclareTransactionSchema(DeprecatedTransactionSchema):
     class_hash = Felt(data_key="class_hash", required=True)
     sender_address = Felt(data_key="sender_address", required=True)
     nonce = Felt(data_key="nonce", load_default=None)
@@ -311,8 +313,7 @@ class DeployTransactionSchema(TransactionSchema):
         return DeployTransaction(**data)
 
 
-class DeployAccountTransactionDeprecatedSchema(TransactionSchema):
-    max_fee = Felt(data_key="max_fee", load_default=0)
+class DeprecatedDeployAccountTransactionSchema(DeprecatedTransactionSchema):
     contract_address_salt = Felt(data_key="contract_address_salt", required=True)
     constructor_calldata = fields.List(
         Felt(), data_key="constructor_calldata", required=True
@@ -340,9 +341,9 @@ class DeployAccountTransactionV3Schema(TransactionV3Schema):
 
 class DeclareTransactionSchema(OneOfSchema):
     type_schemas = {
-        0: DeclareTransactionDeprecatedSchema,
-        1: DeclareTransactionDeprecatedSchema,
-        2: DeclareTransactionDeprecatedSchema,
+        0: DeprecatedDeclareTransactionSchema,
+        1: DeprecatedDeclareTransactionSchema,
+        2: DeprecatedDeclareTransactionSchema,
         3: DeclareTransactionV3Schema,
     }
 
@@ -352,8 +353,8 @@ class DeclareTransactionSchema(OneOfSchema):
 
 class InvokeTransactionSchema(OneOfSchema):
     type_schemas = {
-        0: InvokeTransactionDeprecatedSchema,
-        1: InvokeTransactionDeprecatedSchema,
+        0: DeprecatedInvokeTransactionSchema,
+        1: DeprecatedInvokeTransactionSchema,
         3: InvokeTransactionV3Schema,
     }
 
@@ -363,7 +364,7 @@ class InvokeTransactionSchema(OneOfSchema):
 
 class DeployAccountTransactionSchema(OneOfSchema):
     type_schemas = {
-        1: DeployAccountTransactionDeprecatedSchema,
+        1: DeprecatedDeployAccountTransactionSchema,
         3: DeployAccountTransactionV3Schema,
     }
 
@@ -372,7 +373,6 @@ class DeployAccountTransactionSchema(OneOfSchema):
 
 
 class L1HandlerTransactionSchema(TransactionSchema):
-    max_fee = Felt(data_key="max_fee", load_default=0)
     contract_address = Felt(data_key="contract_address", required=True)
     calldata = fields.List(Felt(), data_key="calldata", required=True)
     entry_point_selector = Felt(data_key="entry_point_selector", required=True)

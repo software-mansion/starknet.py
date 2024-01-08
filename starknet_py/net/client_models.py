@@ -161,6 +161,19 @@ class Transaction(ABC):
 
 
 @dataclass
+class DeprecatedTransaction(Transaction):
+    """
+    Dataclass representing common attributes of transactions v1 and v2.
+    """
+
+    max_fee: int
+
+    def __post_init__(self):
+        if self.__class__ == DeprecatedTransaction:
+            raise TypeError("Cannot instantiate abstract DeprecatedTransaction class.")
+
+
+@dataclass
 class TransactionV3(Transaction):
     """
     Dataclass representing common attributes of all transactions v3.
@@ -178,12 +191,11 @@ class TransactionV3(Transaction):
 
 
 @dataclass
-class InvokeTransaction(Transaction):
+class InvokeTransaction(DeprecatedTransaction):
     """
     Dataclass representing invoke transaction.
     """
 
-    max_fee: int
     sender_address: int
     calldata: List[int]
     # This field is always None for transactions with version = 1
@@ -204,12 +216,11 @@ class InvokeTransactionV3(TransactionV3):
 
 
 @dataclass
-class DeclareTransaction(Transaction):
+class DeclareTransaction(DeprecatedTransaction):
     """
     Dataclass representing declare transaction.
     """
 
-    max_fee: int
     class_hash: int  # Responses to getBlock and getTransaction include the class hash
     sender_address: int
     compiled_class_hash: Optional[int] = None  # only in DeclareV2, hence Optional
@@ -241,12 +252,11 @@ class DeployTransaction(Transaction):
 
 
 @dataclass
-class DeployAccountTransaction(Transaction):
+class DeployAccountTransaction(DeprecatedTransaction):
     """
     Dataclass representing deploy account transaction.
     """
 
-    max_fee: int
     contract_address_salt: int
     class_hash: int
     constructor_calldata: List[int]
@@ -271,7 +281,6 @@ class L1HandlerTransaction(Transaction):
     Dataclass representing l1 handler transaction.
     """
 
-    max_fee: int
     contract_address: int
     calldata: List[int]
     entry_point_selector: int
