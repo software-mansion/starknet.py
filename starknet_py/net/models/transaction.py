@@ -5,6 +5,7 @@ They should be compliant with the latest Starknet version.
 """
 
 import base64
+import dataclasses
 import gzip
 import json
 from abc import ABC, abstractmethod
@@ -87,23 +88,45 @@ TypeAccountTransaction = TypeVar("TypeAccountTransaction", bound=AccountTransact
 
 
 @dataclass(frozen=True)
-class DeclareV3(AccountTransaction):
+class _AccountTransactionV3(AccountTransaction, ABC):
+    resource_bounds: ResourceBoundsMapping
+    tip: int = field(init=False, default=0)
+    nonce_data_availability_mode: DAMode = field(init=False, default=DAMode.L1)
+    fee_data_availability_mode: DAMode = field(init=False, default=DAMode.L1)
+    paymaster_data: List[int] = field(init=False, default_factory=list)
+
+    def get_common_fields(
+        self, tx_prefix: TransactionHashPrefix, address: int, chain_id: StarknetChainId
+    ) -> CommonTransactionV3Fields:
+        common_fields = [f.name for f in dataclasses.fields(_AccountTransactionV3)]
+
+        # this is a helper function in a process to compute transaction hash
+        # therefore signature is not included at this point
+        common_fields.remove("signature")
+
+        common_fields_with_values = {
+            field_name: getattr(self, field_name) for field_name in common_fields
+        }
+
+        return CommonTransactionV3Fields(
+            tx_prefix=tx_prefix,
+            address=address,
+            chain_id=chain_id,
+            **common_fields_with_values,
+        )
+
+
+@dataclass(frozen=True)
+class DeclareV3(_AccountTransactionV3):
     """
     Represents a transaction in the Starknet network that is a version 3 declaration of a Starknet contract
     class. Supports only sierra compiled contracts.
     """
 
-    # pylint: disable=too-many-instance-attributes
-
     sender_address: int
     compiled_class_hash: int
     contract_class: SierraContractClass
-    resource_bounds: ResourceBoundsMapping
-    tip: int = 0
-    nonce_data_availability_mode: DAMode = DAMode.L1
-    fee_data_availability_mode: DAMode = DAMode.L1
     account_deployment_data: List[int] = field(default_factory=list)
-    paymaster_data: List[int] = field(default_factory=list)
     type: TransactionType = TransactionType.DECLARE
 
     def calculate_hash(self, chain_id: StarknetChainId) -> int:
@@ -111,17 +134,10 @@ class DeclareV3(AccountTransaction):
             account_deployment_data=self.account_deployment_data,
             contract_class=self.contract_class,
             compiled_class_hash=self.compiled_class_hash,
-            common_fields=CommonTransactionV3Fields(
+            common_fields=self.get_common_fields(
                 tx_prefix=TransactionHashPrefix.DECLARE,
-                version=self.version,
                 address=self.sender_address,
-                tip=self.tip,
-                resource_bounds=self.resource_bounds,
-                paymaster_data=self.paymaster_data,
                 chain_id=chain_id,
-                nonce=self.nonce,
-                nonce_data_availability_mode=self.nonce_data_availability_mode,
-                fee_data_availability_mode=self.fee_data_availability_mode,
             ),
         )
 
@@ -202,22 +218,15 @@ class Declare(AccountTransaction):
 
 
 @dataclass(frozen=True)
-class DeployAccountV3(AccountTransaction):
+class DeployAccountV3(_AccountTransactionV3):
     """
     Represents a transaction in the Starknet network that is a version 3 deployment of a Starknet account
     contract.
     """
 
-    # pylint: disable=too-many-instance-attributes
-
     class_hash: int
     contract_address_salt: int
     constructor_calldata: List[int]
-    resource_bounds: ResourceBoundsMapping
-    paymaster_data: List[int] = field(default_factory=list)
-    fee_data_availability_mode: DAMode = DAMode.L1
-    nonce_data_availability_mode: DAMode = DAMode.L1
-    tip: int = 0
     type: TransactionType = TransactionType.DEPLOY_ACCOUNT
 
     def calculate_hash(self, chain_id: StarknetChainId) -> int:
@@ -231,17 +240,10 @@ class DeployAccountV3(AccountTransaction):
             class_hash=self.class_hash,
             constructor_calldata=self.constructor_calldata,
             contract_address_salt=self.contract_address_salt,
-            common_fields=CommonTransactionV3Fields(
+            common_fields=self.get_common_fields(
                 tx_prefix=TransactionHashPrefix.DEPLOY_ACCOUNT,
-                version=self.version,
                 address=contract_address,
-                tip=self.tip,
-                resource_bounds=self.resource_bounds,
-                paymaster_data=self.paymaster_data,
                 chain_id=chain_id,
-                nonce=self.nonce,
-                nonce_data_availability_mode=self.nonce_data_availability_mode,
-                fee_data_availability_mode=self.fee_data_availability_mode,
             ),
         )
 
@@ -287,39 +289,25 @@ class DeployAccount(AccountTransaction):
 
 
 @dataclass(frozen=True)
-class InvokeV3(AccountTransaction):
+class InvokeV3(_AccountTransactionV3):
     """
     Represents a transaction in the Starknet network that is a version 3 invocation of a Cairo contract
     function.
     """
 
-    # pylint: disable=too-many-instance-attributes
-
     calldata: List[int]
-    resource_bounds: ResourceBoundsMapping
     sender_address: int
     account_deployment_data: List[int] = field(default_factory=list)
-    paymaster_data: List[int] = field(default_factory=list)
-    fee_data_availability_mode: DAMode = DAMode.L1
-    nonce_data_availability_mode: DAMode = DAMode.L1
-    tip: int = 0
     type: TransactionType = TransactionType.INVOKE
 
     def calculate_hash(self, chain_id: StarknetChainId) -> int:
         return compute_invoke_v3_transaction_hash(
             account_deployment_data=self.account_deployment_data,
             calldata=self.calldata,
-            common_fields=CommonTransactionV3Fields(
+            common_fields=self.get_common_fields(
                 tx_prefix=TransactionHashPrefix.INVOKE,
-                version=self.version,
                 address=self.sender_address,
-                tip=self.tip,
-                resource_bounds=self.resource_bounds,
-                paymaster_data=self.paymaster_data,
                 chain_id=chain_id,
-                nonce=self.nonce,
-                nonce_data_availability_mode=self.nonce_data_availability_mode,
-                fee_data_availability_mode=self.fee_data_availability_mode,
             ),
         )
 
