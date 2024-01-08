@@ -10,7 +10,7 @@ import gzip
 import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, TypeVar
+from typing import Any, Dict, List, TypeVar, Union
 
 import marshmallow
 import marshmallow_dataclass
@@ -173,7 +173,7 @@ class DeclareV2(AccountTransaction):
 
 
 @dataclass(frozen=True)
-class Declare(AccountTransaction):
+class DeclareV1(AccountTransaction):
     """
     Represents a transaction in the Starknet network that is a declaration of a Starknet contract
     class.
@@ -249,7 +249,7 @@ class DeployAccountV3(_AccountTransactionV3):
 
 
 @dataclass(frozen=True)
-class DeployAccount(AccountTransaction):
+class DeployAccountV1(AccountTransaction):
     """
     Represents a transaction in the Starknet network that is a deployment of a Starknet account
     contract.
@@ -313,7 +313,7 @@ class InvokeV3(_AccountTransactionV3):
 
 
 @dataclass(frozen=True)
-class Invoke(AccountTransaction):
+class InvokeV1(AccountTransaction):
     """
     Represents a transaction in the Starknet network that is an invocation of a Cairo contract
     function.
@@ -343,10 +343,14 @@ class Invoke(AccountTransaction):
         )
 
 
-InvokeSchema = marshmallow_dataclass.class_schema(Invoke)
-DeclareSchema = marshmallow_dataclass.class_schema(Declare)
+Declare = Union[DeclareV1, DeclareV2, DeclareV3]
+DeployAccount = Union[DeployAccountV1, DeployAccountV3]
+Invoke = Union[InvokeV1, InvokeV3]
+
+InvokeSchema = marshmallow_dataclass.class_schema(InvokeV1)
+DeclareSchema = marshmallow_dataclass.class_schema(DeclareV1)
 DeclareV2Schema = marshmallow_dataclass.class_schema(DeclareV2)
-DeployAccountSchema = marshmallow_dataclass.class_schema(DeployAccount)
+DeployAccountSchema = marshmallow_dataclass.class_schema(DeployAccountV1)
 
 
 def compress_program(data: dict, program_name: str = "program") -> dict:

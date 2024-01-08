@@ -27,12 +27,12 @@ from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models import AddressRepresentation, StarknetChainId, parse_address
 from starknet_py.net.models.transaction import (
     AccountTransaction,
-    Declare,
+    DeclareV1,
     DeclareV2,
     DeclareV3,
-    DeployAccount,
+    DeployAccountV1,
     DeployAccountV3,
-    Invoke,
+    InvokeV1,
     InvokeV3,
     TypeAccountTransaction,
 )
@@ -195,7 +195,7 @@ class Account(BaseAccount):
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-    ) -> Invoke:
+    ) -> InvokeV1:
         """
         Takes calls and creates Invoke from them.
 
@@ -209,7 +209,7 @@ class Account(BaseAccount):
 
         wrapped_calldata = _parse_calls(await self.cairo_version, calls)
 
-        transaction = Invoke(
+        transaction = InvokeV1(
             calldata=wrapped_calldata,
             signature=[],
             max_fee=0,
@@ -336,7 +336,7 @@ class Account(BaseAccount):
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-    ) -> Invoke:
+    ) -> InvokeV1:
         execute_tx = await self._prepare_invoke(
             calls,
             nonce=nonce,
@@ -370,7 +370,7 @@ class Account(BaseAccount):
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-    ) -> Declare:
+    ) -> DeclareV1:
         if _is_sierra_contract(json.loads(compiled_contract)):
             raise ValueError(
                 "Signing sierra contracts requires using `sign_declare_v2_transaction` method."
@@ -430,13 +430,13 @@ class Account(BaseAccount):
 
     async def _make_declare_transaction(
         self, compiled_contract: str, *, nonce: Optional[int] = None
-    ) -> Declare:
+    ) -> DeclareV1:
         contract_class = create_compiled_contract(compiled_contract=compiled_contract)
 
         if nonce is None:
             nonce = await self.get_nonce()
 
-        declare_tx = Declare(
+        declare_tx = DeclareV1(
             contract_class=contract_class,
             sender_address=self.address,
             max_fee=0,
@@ -505,8 +505,8 @@ class Account(BaseAccount):
         nonce: int = 0,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-    ) -> DeployAccount:
-        deploy_account_tx = DeployAccount(
+    ) -> DeployAccountV1:
+        deploy_account_tx = DeployAccountV1(
             class_hash=class_hash,
             contract_address_salt=contract_address_salt,
             constructor_calldata=(constructor_calldata or []),

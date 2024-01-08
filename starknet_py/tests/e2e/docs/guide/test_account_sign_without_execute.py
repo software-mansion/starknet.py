@@ -1,7 +1,7 @@
 import pytest
 
 from starknet_py.net.account.account import Account
-from starknet_py.net.models.transaction import Declare, DeployAccount, Invoke
+from starknet_py.net.models.transaction import DeclareV1, DeployAccountV1, InvokeV1
 
 
 @pytest.mark.asyncio
@@ -34,6 +34,6 @@ async def test_account_sign_without_execute(account, map_compiled_contract):
     )
     # docs: end
 
-    assert isinstance(invoke_transaction, Invoke)
-    assert isinstance(declare_transaction, Declare)
-    assert isinstance(deploy_account_transaction, DeployAccount)
+    assert isinstance(invoke_transaction, InvokeV1)
+    assert isinstance(declare_transaction, DeclareV1)
+    assert isinstance(deploy_account_transaction, DeployAccountV1)

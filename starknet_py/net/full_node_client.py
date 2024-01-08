@@ -472,9 +472,7 @@ class FullNodeClient(Client):
         )
         return [int(i, 16) for i in res]
 
-    async def send_transaction(
-        self, transaction: Union[Invoke, InvokeV3]
-    ) -> SentTransactionResponse:
+    async def send_transaction(self, transaction: Invoke) -> SentTransactionResponse:
         params = _create_broadcasted_txn(transaction=transaction)
 
         res = await self._client.call(
@@ -487,7 +485,7 @@ class FullNodeClient(Client):
         )
 
     async def deploy_account(
-        self, transaction: Union[DeployAccount, DeployAccountV3]
+        self, transaction: DeployAccount
     ) -> DeployAccountTransactionResponse:
         params = _create_broadcasted_txn(transaction=transaction)
 
@@ -501,9 +499,7 @@ class FullNodeClient(Client):
             DeployAccountTransactionResponseSchema().load(res, unknown=EXCLUDE),
         )
 
-    async def declare(
-        self, transaction: Union[Declare, DeclareV2, DeclareV3]
-    ) -> DeclareTransactionResponse:
+    async def declare(self, transaction: Declare) -> DeclareTransactionResponse:
         params = _create_broadcasted_txn(transaction=transaction)
 
         res = await self._client.call(

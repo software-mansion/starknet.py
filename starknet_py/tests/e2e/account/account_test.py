@@ -24,7 +24,7 @@ from starknet_py.net.client_models import (
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import (
-    Declare,
+    DeclareV1,
     DeclareV2,
     DeclareV3,
     DeployAccountV3,
@@ -232,7 +232,7 @@ async def test_sign_declare_transaction(account, map_compiled_contract):
         map_compiled_contract, max_fee=MAX_FEE
     )
 
-    assert isinstance(signed_tx, Declare)
+    assert isinstance(signed_tx, DeclareV1)
     assert signed_tx.version == 1
     assert isinstance(signed_tx.signature, list)
     assert len(signed_tx.signature) > 0
@@ -245,7 +245,7 @@ async def test_sign_declare_transaction_auto_estimate(account, map_compiled_cont
         map_compiled_contract, auto_estimate=True
     )
 
-    assert isinstance(signed_tx, Declare)
+    assert isinstance(signed_tx, DeclareV1)
     assert signed_tx.version == 1
     assert isinstance(signed_tx.signature, list)
     assert len(signed_tx.signature) > 0

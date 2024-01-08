@@ -34,7 +34,7 @@ from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import Call, EstimatedFee, Hash, Tag
-from starknet_py.net.models import AddressRepresentation, Invoke, parse_address
+from starknet_py.net.models import AddressRepresentation, InvokeV1, parse_address
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.proxy.contract_abi_resolver import (
     ContractAbiResolver,
@@ -153,7 +153,7 @@ class InvokeResult(SentTransaction):
     contract: ContractData = None  # pyright: ignore
     """Additional information about the Contract that made the transaction."""
 
-    invoke_transaction: Invoke = None  # pyright: ignore
+    invoke_transaction: InvokeV1 = None  # pyright: ignore
     """A InvokeTransaction instance used."""
 
     def __post_init__(self):

@@ -11,12 +11,12 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.models import AddressRepresentation, StarknetChainId
 from starknet_py.net.models.transaction import (
-    Declare,
+    DeclareV1,
     DeclareV2,
     DeclareV3,
-    DeployAccount,
+    DeployAccountV1,
     DeployAccountV3,
-    Invoke,
+    InvokeV1,
     InvokeV3,
     TypeAccountTransaction,
 )
@@ -118,7 +118,7 @@ class BaseAccount(ABC):
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-    ) -> Invoke:
+    ) -> InvokeV1:
         """
         Takes calls and creates signed Invoke.
 
@@ -156,7 +156,7 @@ class BaseAccount(ABC):
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-    ) -> Declare:
+    ) -> DeclareV1:
         """
         Create and sign declare transaction.
 
@@ -223,7 +223,7 @@ class BaseAccount(ABC):
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-    ) -> DeployAccount:
+    ) -> DeployAccountV1:
         """
         Create and sign deploy account transaction.
 

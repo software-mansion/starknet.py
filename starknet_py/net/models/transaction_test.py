@@ -7,14 +7,15 @@ from starknet_py.net.client_models import TransactionType
 from starknet_py.net.models.transaction import (
     Declare,
     DeclareSchema,
-    Invoke,
+    DeclareV1,
     InvokeSchema,
+    InvokeV1,
 )
 
 
 def test_declare_compress_program(balance_contract):
     contract_class = create_contract_class(balance_contract)
-    declare_transaction = Declare(
+    declare_transaction = DeclareV1(
         contract_class=contract_class,
         sender_address=0x1234,
         max_fee=0x1111,
@@ -50,7 +51,7 @@ def test_serialize_deserialize_invoke():
     invoke = InvokeSchema().load(data)
     serialized_invoke = InvokeSchema().dump(invoke)
 
-    assert isinstance(invoke, Invoke)
+    assert isinstance(invoke, InvokeV1)
     assert invoke.type == TransactionType.INVOKE
     assert isinstance(serialized_invoke, dict)
     assert serialized_invoke["type"] == "INVOKE_FUNCTION"
