@@ -8,7 +8,7 @@ from starknet_py.net.account.account import Account
 from starknet_py.net.client import Client
 from starknet_py.net.http_client import HttpClient, HttpMethod
 from starknet_py.net.models import StarknetChainId
-from starknet_py.net.models.transaction import DeployAccount
+from starknet_py.net.models.transaction import DeployAccountV1
 from starknet_py.net.signer.stark_curve_signer import KeyPair
 from starknet_py.net.udc_deployer.deployer import _get_random_salt
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
@@ -17,13 +17,18 @@ AccountToBeDeployedDetails = Tuple[int, KeyPair, int, int]
 
 
 async def get_deploy_account_details(
-    *, class_hash: int, fee_contract: Contract, argent_calldata: bool = False
+    *,
+    class_hash: int,
+    eth_fee_contract: Contract,
+    strk_fee_contract: Contract,
+    argent_calldata: bool = False,
 ) -> AccountToBeDeployedDetails:
     """
     Returns address, key_pair, salt and class_hash of the account with validate deploy.
 
     :param class_hash: Class hash of account to be deployed.
-    :param fee_contract: Contract for prefunding deployments.
+    :param eth_fee_contract: Contract for prefunding deployments in ETH.
+    :param strk_fee_contract: Contract for prefunding deployments in STRK.
     :param argent_calldata: Flag deciding whether calldata should be in Argent-account format.
     """
     priv_key = _get_random_private_key_unsafe()
@@ -42,17 +47,22 @@ async def get_deploy_account_details(
         deployer_address=0,
     )
 
-    res = await fee_contract.functions["transfer"].invoke(
+    transfer_wei_res = await eth_fee_contract.functions["transfer"].invoke(
         recipient=address, amount=int(1e19), max_fee=MAX_FEE
     )
-    await res.wait_for_acceptance()
+    await transfer_wei_res.wait_for_acceptance()
+
+    transfer_fri_res = await strk_fee_contract.functions["transfer"].invoke(
+        recipient=address, amount=int(1e19), max_fee=MAX_FEE
+    )
+    await transfer_fri_res.wait_for_acceptance()
 
     return address, key_pair, salt, class_hash
 
 
 async def get_deploy_account_transaction(
     *, address: int, key_pair: KeyPair, salt: int, class_hash: int, client: Client
-) -> DeployAccount:
+) -> DeployAccountV1:
     """
     Get a signed DeployAccount transaction from provided details
     """
@@ -63,7 +73,7 @@ async def get_deploy_account_transaction(
         key_pair=key_pair,
         chain=StarknetChainId.TESTNET,
     )
-    return await account.sign_deploy_account_transaction(
+    return await account.sign_deploy_account_v1_transaction(
         class_hash=class_hash,
         contract_address_salt=salt,
         constructor_calldata=[key_pair.public_key],

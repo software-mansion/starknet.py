@@ -15,10 +15,14 @@ from starknet_py.net.client_models import (
     DeclaredContractHash,
     DeclareTransaction,
     DeployAccountTransaction,
+    EstimatedFee,
     ExecutionResources,
+    FeePayment,
     InvokeTransaction,
     L1HandlerTransaction,
     PendingBlockStateUpdate,
+    PriceUnit,
+    ResourceBounds,
     SierraContractClass,
     SierraEntryPointsByType,
     TransactionExecutionStatus,
@@ -133,7 +137,7 @@ async def test_get_transaction_receipt(
 
 @pytest.mark.asyncio
 async def test_estimate_fee_invoke(account, contract_address):
-    invoke_tx = await account.sign_invoke_transaction(
+    invoke_tx = await account.sign_invoke_v1_transaction(
         calls=Call(
             to_addr=contract_address,
             selector=get_selector_from_name("increase_balance"),
@@ -144,13 +148,36 @@ async def test_estimate_fee_invoke(account, contract_address):
     invoke_tx = await account.sign_for_fee_estimate(invoke_tx)
     estimate_fee = await account.client.estimate_fee(tx=invoke_tx)
 
-    assert isinstance(estimate_fee.overall_fee, int)
+    assert isinstance(estimate_fee, EstimatedFee)
+    assert estimate_fee.unit == PriceUnit.WEI
     assert estimate_fee.overall_fee > 0
+    assert estimate_fee.gas_price > 0
+    assert estimate_fee.gas_consumed > 0
+
+
+@pytest.mark.asyncio
+async def test_estimate_fee_invoke_v3(account, contract_address):
+    invoke_tx = await account.sign_invoke_v3_transaction(
+        calls=Call(
+            to_addr=contract_address,
+            selector=get_selector_from_name("increase_balance"),
+            calldata=[123],
+        ),
+        l1_resource_bounds=ResourceBounds.init_with_zeros(),
+    )
+    invoke_tx = await account.sign_for_fee_estimate(invoke_tx)
+    estimate_fee = await account.client.estimate_fee(tx=invoke_tx)
+
+    assert isinstance(estimate_fee, EstimatedFee)
+    assert estimate_fee.unit == PriceUnit.FRI
+    assert estimate_fee.overall_fee > 0
+    assert estimate_fee.gas_price > 0
+    assert estimate_fee.gas_consumed > 0
 
 
 @pytest.mark.asyncio
 async def test_estimate_fee_declare(account):
-    declare_tx = await account.sign_declare_transaction(
+    declare_tx = await account.sign_declare_v1_transaction(
         compiled_contract=read_contract(
             "map_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR
         ),
@@ -159,23 +186,29 @@ async def test_estimate_fee_declare(account):
     declare_tx = await account.sign_for_fee_estimate(declare_tx)
     estimate_fee = await account.client.estimate_fee(tx=declare_tx)
 
-    assert isinstance(estimate_fee.overall_fee, int)
+    assert isinstance(estimate_fee, EstimatedFee)
+    assert estimate_fee.unit == PriceUnit.WEI
     assert estimate_fee.overall_fee > 0
+    assert estimate_fee.gas_price > 0
+    assert estimate_fee.gas_consumed > 0
 
 
 @pytest.mark.asyncio
 async def test_estimate_fee_deploy_account(client, deploy_account_transaction):
     estimate_fee = await client.estimate_fee(tx=deploy_account_transaction)
 
-    assert isinstance(estimate_fee.overall_fee, int)
+    assert isinstance(estimate_fee, EstimatedFee)
+    assert estimate_fee.unit == PriceUnit.WEI
     assert estimate_fee.overall_fee > 0
+    assert estimate_fee.gas_price > 0
+    assert estimate_fee.gas_consumed > 0
 
 
 @pytest.mark.asyncio
 async def test_estimate_fee_for_multiple_transactions(
     client, deploy_account_transaction, contract_address, account
 ):
-    invoke_tx = await account.sign_invoke_transaction(
+    invoke_tx = await account.sign_invoke_v1_transaction(
         calls=Call(
             to_addr=contract_address,
             selector=get_selector_from_name("increase_balance"),
@@ -185,7 +218,7 @@ async def test_estimate_fee_for_multiple_transactions(
     )
     invoke_tx = await account.sign_for_fee_estimate(invoke_tx)
 
-    declare_tx = await account.sign_declare_transaction(
+    declare_tx = await account.sign_declare_v1_transaction(
         compiled_contract=read_contract(
             "map_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR
         ),
@@ -201,8 +234,11 @@ async def test_estimate_fee_for_multiple_transactions(
     assert isinstance(estimated_fees, list)
 
     for estimated_fee in estimated_fees:
-        assert isinstance(estimated_fee.overall_fee, int)
+        assert isinstance(estimated_fee, EstimatedFee)
+        assert estimated_fee.unit == PriceUnit.WEI
         assert estimated_fee.overall_fee > 0
+        assert estimated_fee.gas_price > 0
+        assert estimated_fee.gas_consumed > 0
 
 
 @pytest.mark.asyncio
@@ -221,7 +257,7 @@ async def test_call_contract(client, contract_address):
 @pytest.mark.asyncio
 async def test_add_transaction(map_contract, client, account):
     prepared_function_call = map_contract.functions["put"].prepare(key=73, value=12)
-    signed_invoke = await account.sign_invoke_transaction(
+    signed_invoke = await account.sign_invoke_v1_transaction(
         calls=prepared_function_call, max_fee=MAX_FEE
     )
 
@@ -264,6 +300,7 @@ async def test_wait_for_tx_accepted(client, get_tx_receipt_path, get_tx_status_p
             execution_status=TransactionExecutionStatus.SUCCEEDED,
             finality_status=TransactionFinalityStatus.ACCEPTED_ON_L2,
             execution_resources=Mock(spec=ExecutionResources),
+            actual_fee=FeePayment(amount=1, unit=PriceUnit.WEI),
         )
 
         mocked_status.return_value = TransactionStatusResponse(
@@ -290,6 +327,7 @@ async def test_wait_for_tx_reverted(client, get_tx_receipt_path, get_tx_status_p
             finality_status=Mock(spec=TransactionFinalityStatus),
             execution_resources=Mock(spec=ExecutionResources),
             revert_reason=exc_message,
+            actual_fee=FeePayment(amount=1, unit=PriceUnit.WEI),
         )
 
         mocked_status.return_value = TransactionStatusResponse(
@@ -332,7 +370,7 @@ async def test_wait_for_tx_unknown_error(
 
 @pytest.mark.asyncio
 async def test_declare_contract(account, map_compiled_contract):
-    declare_tx = await account.sign_declare_transaction(
+    declare_tx = await account.sign_declare_v1_transaction(
         compiled_contract=map_compiled_contract, max_fee=MAX_FEE
     )
 
@@ -343,7 +381,7 @@ async def test_declare_contract(account, map_compiled_contract):
 
     assert transaction_receipt.execution_status == TransactionExecutionStatus.SUCCEEDED
     assert transaction_receipt.transaction_hash
-    assert 0 < transaction_receipt.actual_fee <= MAX_FEE
+    assert 0 < transaction_receipt.actual_fee.amount <= MAX_FEE
     assert transaction_receipt.type == TransactionType.DECLARE
 
 
@@ -460,7 +498,7 @@ async def test_state_update_deployed_contracts(
     # setup
     deployer = Deployer()
     contract_deployment = deployer.create_contract_deployment(class_hash=class_hash)
-    deploy_invoke_tx = await account.sign_invoke_transaction(
+    deploy_invoke_tx = await account.sign_invoke_v1_transaction(
         contract_deployment.call, max_fee=MAX_FEE
     )
     resp = await account.client.send_transaction(deploy_invoke_tx)

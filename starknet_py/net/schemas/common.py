@@ -6,7 +6,9 @@ from marshmallow import Schema, ValidationError, fields, post_load
 from starknet_py.net.client_models import (
     BlockStatus,
     CallType,
+    DAMode,
     EntryPointType,
+    PriceUnit,
     StorageEntry,
     TransactionExecutionStatus,
     TransactionFinalityStatus,
@@ -213,6 +215,44 @@ class CallTypeField(fields.Field):
             raise ValidationError(f"Invalid value provided for CallType: {value}.")
 
         return CallType(value)
+
+
+class PriceUnitField(fields.Field):
+    def _serialize(self, value: Any, attr: str, obj: Any, **kwargs):
+        return value.name if value is not None else ""
+
+    def _deserialize(
+        self,
+        value: Any,
+        attr: Optional[str],
+        data: Optional[Mapping[str, Any]],
+        **kwargs,
+    ) -> PriceUnit:
+        values = [v.value for v in PriceUnit]
+
+        if value not in values:
+            raise ValidationError(f"Invalid value provided for PriceUnit: {value}.")
+
+        return PriceUnit(value)
+
+
+class DAModeField(fields.Field):
+    def _serialize(self, value: Any, attr: str, obj: Any, **kwargs):
+        return value.name if value is not None else ""
+
+    def _deserialize(
+        self,
+        value: Any,
+        attr: Optional[str],
+        data: Optional[Mapping[str, Any]],
+        **kwargs,
+    ) -> DAMode:
+        names = [v.name for v in DAMode]
+
+        if value not in names:
+            raise ValidationError(f"Invalid value provided for DAMode: {value}.")
+
+        return DAMode[value]
 
 
 class StorageEntrySchema(Schema):

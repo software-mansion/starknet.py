@@ -77,8 +77,8 @@ Declaring Cairo1 contracts
 
 | Starknet 0.11 introduced the ability to declare contracts written in Cairo1!
 
-To declare a new contract, Declare v2 transaction has to be sent.
-You can see the structure of the new Declare transaction `here <https://docs.starknet.io/documentation/architecture_and_concepts/Network_Architecture/transactions/#declare_v2>`_.
+To declare a new contract, Declare v2 or Declare v3 transaction has to be sent.
+You can see the structure of these transactions `here <https://docs.starknet.io/documentation/architecture_and_concepts/Network_Architecture/transactions/#declare-transaction>`_.
 
 The main differences in the structure of the transaction from its previous version are:
  - ``contract_class`` field is a ``SierraContractClass``

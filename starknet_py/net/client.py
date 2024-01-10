@@ -28,7 +28,6 @@ from starknet_py.net.client_models import (
 from starknet_py.net.models.transaction import (
     AccountTransaction,
     Declare,
-    DeclareV2,
     DeployAccount,
     Invoke,
 )
@@ -206,13 +205,18 @@ class Client(ABC):
     async def estimate_fee(
         self,
         tx: Union[AccountTransaction, List[AccountTransaction]],
+        skip_validate: bool = False,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> Union[EstimatedFee, List[EstimatedFee]]:
         """
-        Estimate how much Wei it will cost to run provided transaction.
+        Estimates the resources required by a given sequence of transactions when applied on a given state.
+        If one of the transactions reverts or fails due to any reason (e.g. validation failure or an internal error),
+        a TRANSACTION_EXECUTION_ERROR is returned.
+        For v0-2 transactions the estimate is given in Wei, and for v3 transactions it is given in Fri.
 
         :param tx: Transaction to estimate
+        :param skip_validate: Flag checking whether the validation part of the transaction should be executed.
         :param block_hash: Block's hash or literals `"pending"` or `"latest"`.
         :param block_number: Block's number or literals `"pending"` or `"latest"`.
         :return: Estimated amount of Wei executing specified transaction will cost.
@@ -258,9 +262,7 @@ class Client(ABC):
         """
 
     @abstractmethod
-    async def declare(
-        self, transaction: Union[Declare, DeclareV2]
-    ) -> DeclareTransactionResponse:
+    async def declare(self, transaction: Declare) -> DeclareTransactionResponse:
         """
         Send a declare transaction
 

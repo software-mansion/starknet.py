@@ -69,17 +69,66 @@ class ResourcePrice:
     """
 
     price_in_wei: int
-    price_in_strk: Optional[int]
+    price_in_fri: int
 
 
 @dataclass
-class ResourceLimits:
+class ResourceBounds:
     """
-    Dataclass representing resource limits.
+    Dataclass representing max amount and price of the resource that can be used in the transaction.
     """
 
     max_amount: int
     max_price_per_unit: int
+
+    @staticmethod
+    def init_with_zeros():
+        return ResourceBounds(max_amount=0, max_price_per_unit=0)
+
+
+@dataclass
+class ResourceBoundsMapping:
+    """
+    Dataclass representing resource limits that can be used in the transaction.
+    """
+
+    l1_gas: ResourceBounds
+    l2_gas: ResourceBounds
+
+    @staticmethod
+    def init_with_zeros():
+        return ResourceBoundsMapping(
+            l1_gas=ResourceBounds.init_with_zeros(),
+            l2_gas=ResourceBounds.init_with_zeros(),
+        )
+
+
+class PriceUnit(Enum):
+    """
+    Enum representing price unit types.
+    """
+
+    WEI = "WEI"
+    FRI = "FRI"
+
+
+@dataclass
+class FeePayment:
+    """
+    Dataclass representing fee payment info as it appears in receipts.
+    """
+
+    amount: int
+    unit: PriceUnit
+
+
+class DAMode(Enum):
+    """
+    Specifies a storage domain in Starknet. Each domain has different guarantees regarding availability.
+    """
+
+    L1 = 0
+    L2 = 1
 
 
 class TransactionType(Enum):
@@ -104,8 +153,6 @@ class Transaction(ABC):
     # together with the rest of the data, it remains here (but is still Optional just in case as spec says)
     hash: Optional[int]
     signature: List[int]
-    # Optional for DECLARE_V3 and DEPLOY_ACCOUNT_V3, where there is no `max_fee` field, but `l1_gas`
-    max_fee: Optional[int]
     version: int
 
     def __post_init__(self):
@@ -114,7 +161,37 @@ class Transaction(ABC):
 
 
 @dataclass
-class InvokeTransaction(Transaction):
+class DeprecatedTransaction(Transaction):
+    """
+    Dataclass representing common attributes of transactions v1 and v2.
+    """
+
+    max_fee: int
+
+    def __post_init__(self):
+        if self.__class__ == DeprecatedTransaction:
+            raise TypeError("Cannot instantiate abstract DeprecatedTransaction class.")
+
+
+@dataclass
+class TransactionV3(Transaction):
+    """
+    Dataclass representing common attributes of all transactions v3.
+    """
+
+    resource_bounds: ResourceBoundsMapping
+    paymaster_data: List[int]
+    tip: int
+    nonce_data_availability_mode: DAMode
+    fee_data_availability_mode: DAMode
+
+    def __post_init__(self):
+        if self.__class__ == TransactionV3:
+            raise TypeError("Cannot instantiate abstract TransactionV3 class.")
+
+
+@dataclass
+class InvokeTransaction(DeprecatedTransaction):
     """
     Dataclass representing invoke transaction.
     """
@@ -127,7 +204,19 @@ class InvokeTransaction(Transaction):
 
 
 @dataclass
-class DeclareTransaction(Transaction):
+class InvokeTransactionV3(TransactionV3):
+    """
+    Dataclass representing invoke transaction v3.
+    """
+
+    sender_address: int
+    calldata: List[int]
+    account_deployment_data: List[int]
+    nonce: int
+
+
+@dataclass
+class DeclareTransaction(DeprecatedTransaction):
     """
     Dataclass representing declare transaction.
     """
@@ -136,7 +225,19 @@ class DeclareTransaction(Transaction):
     sender_address: int
     compiled_class_hash: Optional[int] = None  # only in DeclareV2, hence Optional
     nonce: Optional[int] = None
-    l1_gas: Optional[ResourceLimits] = None  # DECLARE_V3-only field, hence Optional
+
+
+@dataclass
+class DeclareTransactionV3(TransactionV3):
+    """
+    Dataclass representing declare transaction v3.
+    """
+
+    class_hash: int
+    compiled_class_hash: int
+    nonce: int
+    sender_address: int
+    account_deployment_data: List[int]
 
 
 @dataclass
@@ -148,15 +249,24 @@ class DeployTransaction(Transaction):
     contract_address_salt: int
     constructor_calldata: List[int]
     class_hash: int
-    l1_gas: Optional[
-        ResourceLimits
-    ] = None  # DEPLOY_ACCOUNT_V3-only field, hence Optional
 
 
 @dataclass
-class DeployAccountTransaction(Transaction):
+class DeployAccountTransaction(DeprecatedTransaction):
     """
     Dataclass representing deploy account transaction.
+    """
+
+    contract_address_salt: int
+    class_hash: int
+    constructor_calldata: List[int]
+    nonce: int
+
+
+@dataclass
+class DeployAccountTransactionV3(TransactionV3):
+    """
+    Dataclass representing deploy account transaction v3.
     """
 
     contract_address_salt: int
@@ -215,13 +325,13 @@ class ExecutionResources:
     # pylint: disable=too-many-instance-attributes
 
     steps: int
-    range_check_builtin_applications: int
-    pedersen_builtin_applications: int
-    poseidon_builtin_applications: int
-    ec_op_builtin_applications: int
-    ecdsa_builtin_applications: int
-    bitwise_builtin_applications: int
-    keccak_builtin_applications: int
+    range_check_builtin_applications: Optional[int] = None
+    pedersen_builtin_applications: Optional[int] = None
+    poseidon_builtin_applications: Optional[int] = None
+    ec_op_builtin_applications: Optional[int] = None
+    ecdsa_builtin_applications: Optional[int] = None
+    bitwise_builtin_applications: Optional[int] = None
+    keccak_builtin_applications: Optional[int] = None
     memory_holes: Optional[int] = None
 
 
@@ -238,6 +348,7 @@ class TransactionReceipt:
     execution_status: TransactionExecutionStatus
     finality_status: TransactionFinalityStatus
     execution_resources: ExecutionResources
+    actual_fee: FeePayment
     type: TransactionType
 
     events: List[Event] = field(default_factory=list)
@@ -247,7 +358,6 @@ class TransactionReceipt:
 
     block_number: Optional[int] = None
     block_hash: Optional[int] = None
-    actual_fee: int = 0
 
     message_hash: Optional[int] = None  # L1_HANDLER_TXN_RECEIPT-only
 
@@ -405,7 +515,8 @@ class EstimatedFee:
 
     overall_fee: int
     gas_price: int
-    gas_usage: int
+    gas_consumed: int
+    unit: PriceUnit
 
 
 @dataclass
@@ -689,6 +800,7 @@ class FunctionInvocation:
     calls: List["FunctionInvocation"]
     events: List[OrderedEvent]
     messages: List[OrderedMessage]
+    execution_resources: ExecutionResources
 
 
 @dataclass

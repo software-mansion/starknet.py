@@ -22,7 +22,7 @@ async def test_sign_invoke_tx_for_fee_estimation(full_node_account_integration):
     )
 
     call = map_contract.functions["put"].prepare(key=40, value=50)
-    transaction = await account.sign_invoke_transaction(calls=call, max_fee=MAX_FEE)
+    transaction = await account.sign_invoke_v1_transaction(calls=call, max_fee=MAX_FEE)
 
     estimate_fee_transaction = await account.sign_for_fee_estimate(transaction)
 
@@ -44,7 +44,7 @@ async def test_sign_declare_tx_for_fee_estimation(
 ):
     account = full_node_account_integration
 
-    transaction = await account.sign_declare_transaction(
+    transaction = await account.sign_declare_v1_transaction(
         compiled_contract=map_compiled_contract, max_fee=MAX_FEE
     )
 

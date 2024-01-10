@@ -233,7 +233,7 @@ async def test_simulate_transactions(
         selector=get_selector_from_name("method_name"),
         calldata=[0xCA11DA7A],
     )
-    first_transaction = await account.sign_invoke_transaction(
+    first_transaction = await account.sign_invoke_v1_transaction(
         calls=call, max_fee=int(1e16)
     )
     # docs-end: simulate_transactions
@@ -243,7 +243,7 @@ async def test_simulate_transactions(
         selector=get_selector_from_name("increase_balance"),
         calldata=[0x10],
     )
-    first_transaction = await account.sign_invoke_transaction(
+    first_transaction = await account.sign_invoke_v1_transaction(
         calls=call, auto_estimate=True
     )
 

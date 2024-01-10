@@ -27,12 +27,12 @@ async def test_account_comparison(gateway_account, map_contract):
     # docs-2: start
     # Sending transactions
 
-    tx = await account_client.sign_invoke_transaction(call, max_fee)
+    tx = await account_client.sign_invoke_v1_transaction(call, max_fee)
     await account_client.send_transaction(tx)
 
     # becomes
 
-    tx = await account.sign_invoke_transaction(call, max_fee=max_fee)
+    tx = await account.sign_invoke_v1_transaction(call, max_fee=max_fee)
     # Note that max_fee is now keyword-only argument
     await account.client.send_transaction(tx)
     # docs-2: end
