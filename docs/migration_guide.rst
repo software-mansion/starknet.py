@@ -21,7 +21,7 @@ Changes in the :class:`~starknet_py.net.account.account.Account`:
 - :meth:`~Account.sign_declare_transaction`, :meth:`~Account.sign_deploy_account_transaction` and :meth:`~Account.sign_invoke_transaction` have been renamed to :meth:`~Account.sign_declare_v1_transaction`, :meth:`~Account.sign_deploy_account_v1_transaction` and :meth:`~Account.sign_invoke_v1_transaction` respectively.
 
 All new functions with ``v3`` in their name operate similarly to their ``v1`` and ``v2`` counterparts.
-The key difference resides in the parameter acceptance: they don't accept the ``max_fee`` parameter. Instead, they utilize the ``l1_resource_bounds`` parameter.
+Unlike their ``v1`` counterparts, ``v3`` transactions pay their fees in Fri (10^-18 STRK). Therefore,  ``max_fee`` parameter, which is typically set in Wei, is not applicable for ``v3`` functions. Instead, ``l1_resource_bounds`` parameter is utilized to limit the Fri amount used.
 
 Changes in the :class:`~starknet_py.net.full_node_client.FullNodeClient`:
 
