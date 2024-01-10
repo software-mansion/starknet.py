@@ -1,4 +1,5 @@
 import re
+import sys
 from typing import Any, Mapping, Optional, Union
 
 from marshmallow import Schema, ValidationError, fields, post_load
@@ -25,47 +26,19 @@ def _pascal_to_screaming_upper(checked_string: str) -> str:
     return re.sub(r"(?<!^)(?=[A-Z])", "_", checked_string).upper()
 
 
-class Felt(fields.Field):
+class NumberAsHex(fields.Field):
     """
-    Field that serializes int to felt (hex encoded string)
-    """
+    This field performs the following operations:
 
-    REGEX_PATTERN = r"^0x(0|[a-fA-F1-9]{1}[a-fA-F0-9]{0,62})"
+    - Serializes integers into hexadecimal strings
+    - Deserializes hexadecimal strings into integers
 
-    def _serialize(self, value: Any, attr: str, obj: Any, **kwargs):
-        if isinstance(value, int):
-            serialized = hex(value)
-            if re.fullmatch(self.REGEX_PATTERN, serialized) is not None:
-                return serialized
-
-        raise ValidationError(f"Invalid value provided for Felt: {value}.")
-
-    def _deserialize(
-        self,
-        value: Any,
-        attr: Union[str, None],
-        data: Union[Mapping[str, Any], None],
-        **kwargs,
-    ):
-        if isinstance(value, int):
-            return value
-
-        if not isinstance(value, str) or not value.startswith("0x"):
-            raise ValidationError(f"Invalid value provided for Felt: {value}.")
-
-        try:
-            return int(value, 16)
-        except ValueError as error:
-            raise ValidationError("Invalid Felt.") from error
-
-
-class Uint64(fields.Field):
-    """
-    Field that serializes int to RPC u64 (hex encoded string)
+    If a valid hexadecimal string is provided during serialization, it is returned as is.
+    Similarly, when a valid integer is provided during deserialization, it remains unchanged.
     """
 
-    MAX_VALUE = 2**64
-    REGEX_PATTERN = r"^0x(0|[a-fA-F1-9]{1}[a-fA-F0-9]{0,15})"
+    MAX_VALUE = sys.maxsize
+    REGEX_PATTERN = r"^0x[a-fA-F0-9]+$"
 
     def _serialize(self, value: Any, attr: str, obj: Any, **kwargs):
         if self._is_int_and_in_range(value):
@@ -105,13 +78,31 @@ class Uint64(fields.Field):
         )
 
 
-class Uint128(Uint64):
+class Felt(NumberAsHex):
     """
-    Field that serializes int to RPC u128 (hex encoded string)
+    Field used to serialize and deserialize felt type.
+    """
+
+    MAX_VALUE = 2**252
+    REGEX_PATTERN = r"^0x(0|[a-fA-F1-9]{1}[a-fA-F0-9]{0,62})$"
+
+
+class Uint64(NumberAsHex):
+    """
+    Field used to serialize and deserialize RPC u64 type.
+    """
+
+    MAX_VALUE = 2**64
+    REGEX_PATTERN = r"^0x(0|[a-fA-F1-9]{1}[a-fA-F0-9]{0,15})$"
+
+
+class Uint128(NumberAsHex):
+    """
+    Field used to serialize and deserialize RPC u128 type.
     """
 
     MAX_VALUE = 2**128
-    REGEX_PATTERN = r"^0x(0|[a-fA-F1-9]{1}[a-fA-F0-9]{0,31})"
+    REGEX_PATTERN = r"^0x(0|[a-fA-F1-9]{1}[a-fA-F0-9]{0,31})$"
 
 
 class NonPrefixedHex(fields.Field):

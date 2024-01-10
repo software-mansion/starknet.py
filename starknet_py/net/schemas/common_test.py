@@ -65,7 +65,7 @@ def test_deserialize_felt_throws_on_invalid_data():
         SchemaWithFelt().load(data)
 
     data = {"value": "0xwww"}
-    with pytest.raises(ValidationError, match="Invalid Felt."):
+    with pytest.raises(ValidationError, match="Invalid value provided for Felt"):
         SchemaWithFelt().load(data)
 
 
