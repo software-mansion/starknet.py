@@ -715,11 +715,13 @@ class FullNodeClient(Client):
         # pylint: disable=too-many-arguments
         """
         Simulates a given sequence of transactions on the requested state, and generates the execution traces.
-        Note that some of the transactions may revert, in which case no error is thrown, but revert details can be seen
-        on the returned trace object.
-        Note that some of the transactions may revert, this will be reflected by the revert_error property in the trace.
-        Other types of failures (e.g. unexpected error or failure in the validation phase) will result
-        in TRANSACTION_EXECUTION_ERROR.
+        Note the following:
+
+        - A transaction may revert. If this occurs, no error is thrown. Instead, revert details are visible
+          in the returned trace object.
+        - If a transaction reverts, this will be reflected by the revert_error property in the trace.
+        - Other types of failures (e.g. unexpected error or failure in the validation phase) will result
+          in TRANSACTION_EXECUTION_ERROR.
 
         :param transactions: Transactions to be traced.
         :param skip_validate: Flag checking whether the validation part of the transaction should be executed.
