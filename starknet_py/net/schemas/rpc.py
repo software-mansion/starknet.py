@@ -200,7 +200,7 @@ class TransactionStatusResponseSchema(Schema):
 
 
 class ResourcePriceSchema(Schema):
-    price_in_fri = Felt(data_key="price_in_fri", load_default=None)
+    price_in_fri = Felt(data_key="price_in_fri", required=True)
     price_in_wei = Felt(data_key="price_in_wei", required=True)
 
     @post_load

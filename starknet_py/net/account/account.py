@@ -158,35 +158,33 @@ class Account(BaseAccount):
     async def _get_resource_bounds(
         self,
         transaction: AccountTransaction,
-        resource_bounds: Optional[ResourceBoundsMapping] = None,
+        l1_resource_bounds: Optional[ResourceBounds] = None,
         auto_estimate: bool = False,
     ) -> ResourceBoundsMapping:
-        if auto_estimate and resource_bounds is not None:
+        if auto_estimate and l1_resource_bounds is not None:
             raise ValueError(
-                "Arguments auto_estimate and resource_bounds are mutually exclusive."
+                "Arguments auto_estimate and l1_resource_bounds are mutually exclusive."
             )
 
         if auto_estimate:
             estimated_fee = await self._estimate_fee(transaction)
-            resource_bounds = ResourceBoundsMapping(
-                l1_gas=ResourceBounds(
-                    max_amount=int(
-                        estimated_fee.gas_consumed * Account.ESTIMATED_AMOUNT_MULTIPLIER
-                    ),
-                    max_price_per_unit=int(
-                        estimated_fee.gas_price
-                        * Account.ESTIMATED_UNIT_PRICE_MULTIPLIER
-                    ),
+            l1_resource_bounds = ResourceBounds(
+                max_amount=int(
+                    estimated_fee.gas_consumed * Account.ESTIMATED_AMOUNT_MULTIPLIER
                 ),
-                l2_gas=ResourceBounds.init_with_zeros(),
+                max_price_per_unit=int(
+                    estimated_fee.gas_price * Account.ESTIMATED_UNIT_PRICE_MULTIPLIER
+                ),
             )
 
-        if resource_bounds is None:
+        if l1_resource_bounds is None:
             raise ValueError(
-                "One of arguments: resource_bounds or auto_estimate must be specified when invoking a transaction."
+                "One of arguments: l1_resource_bounds or auto_estimate must be specified when invoking a transaction."
             )
 
-        return resource_bounds
+        return ResourceBoundsMapping(
+            l1_gas=l1_resource_bounds, l2_gas=ResourceBounds.init_with_zeros()
+        )
 
     async def _prepare_invoke(
         self,
@@ -226,7 +224,7 @@ class Account(BaseAccount):
         self,
         calls: Calls,
         *,
-        resource_bounds: Optional[ResourceBoundsMapping] = None,
+        l1_resource_bounds: Optional[ResourceBounds] = None,
         nonce: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> InvokeV3:
@@ -234,7 +232,7 @@ class Account(BaseAccount):
         Takes calls and creates InvokeV3 from them.
 
         :param calls: Single call or a list of calls.
-        :param resource_bounds: Max amount and price of Wei or Fri to be paid when executing transaction.
+        :param l1_resource_bounds: Max amount and max price per unit of L1 gas used in this transaction.
         :param auto_estimate: Use automatic fee estimation; not recommended as it may lead to high costs.
         :return: InvokeV3 created from the calls (without the signature).
         """
@@ -245,7 +243,7 @@ class Account(BaseAccount):
 
         transaction = InvokeV3(
             calldata=wrapped_calldata,
-            resource_bounds=resource_bounds or ResourceBoundsMapping.init_with_zeros(),
+            resource_bounds=ResourceBoundsMapping.init_with_zeros(),
             signature=[],
             nonce=nonce,
             sender_address=self.address,
@@ -253,7 +251,7 @@ class Account(BaseAccount):
         )
 
         resource_bounds = await self._get_resource_bounds(
-            transaction, resource_bounds, auto_estimate
+            transaction, l1_resource_bounds, auto_estimate
         )
         return _add_resource_bounds_to_transaction(transaction, resource_bounds)
 
@@ -351,12 +349,12 @@ class Account(BaseAccount):
         calls: Calls,
         *,
         nonce: Optional[int] = None,
-        resource_bounds: Optional[ResourceBoundsMapping] = None,
+        l1_resource_bounds: Optional[ResourceBounds] = None,
         auto_estimate: bool = False,
     ) -> InvokeV3:
         invoke_tx = await self._prepare_invoke_v3(
             calls,
-            resource_bounds=resource_bounds,
+            l1_resource_bounds=l1_resource_bounds,
             nonce=nonce,
             auto_estimate=auto_estimate,
         )
@@ -412,7 +410,7 @@ class Account(BaseAccount):
         compiled_class_hash: int,
         *,
         nonce: Optional[int] = None,
-        resource_bounds: Optional[ResourceBoundsMapping] = None,
+        l1_resource_bounds: Optional[ResourceBounds] = None,
         auto_estimate: bool = False,
     ) -> DeclareV3:
         declare_tx = await self._make_declare_v3_transaction(
@@ -421,7 +419,7 @@ class Account(BaseAccount):
             nonce=nonce,
         )
         resource_bounds = await self._get_resource_bounds(
-            declare_tx, resource_bounds, auto_estimate
+            declare_tx, l1_resource_bounds, auto_estimate
         )
         declare_tx = _add_resource_bounds_to_transaction(declare_tx, resource_bounds)
 
@@ -530,7 +528,7 @@ class Account(BaseAccount):
         *,
         constructor_calldata: Optional[List[int]] = None,
         nonce: int = 0,
-        resource_bounds: Optional[ResourceBoundsMapping] = None,
+        l1_resource_bounds: Optional[ResourceBounds] = None,
         auto_estimate: bool = False,
     ) -> DeployAccountV3:
         deploy_account_tx = DeployAccountV3(
@@ -538,12 +536,12 @@ class Account(BaseAccount):
             contract_address_salt=contract_address_salt,
             constructor_calldata=(constructor_calldata or []),
             version=3,
-            resource_bounds=resource_bounds or ResourceBoundsMapping.init_with_zeros(),
+            resource_bounds=ResourceBoundsMapping.init_with_zeros(),
             signature=[],
             nonce=nonce,
         )
         resource_bounds = await self._get_resource_bounds(
-            deploy_account_tx, resource_bounds, auto_estimate
+            deploy_account_tx, l1_resource_bounds, auto_estimate
         )
         deploy_account_tx = _add_resource_bounds_to_transaction(
             deploy_account_tx, resource_bounds
@@ -572,13 +570,13 @@ class Account(BaseAccount):
         self,
         calls: Calls,
         *,
-        resource_bounds: Optional[ResourceBoundsMapping] = None,
+        l1_resource_bounds: Optional[ResourceBounds] = None,
         nonce: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> SentTransactionResponse:
         execute_transaction = await self.sign_invoke_v3_transaction(
             calls,
-            resource_bounds=resource_bounds,
+            l1_resource_bounds=l1_resource_bounds,
             nonce=nonce,
             auto_estimate=auto_estimate,
         )

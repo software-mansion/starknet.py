@@ -64,9 +64,9 @@ STRK_FEE_CONTRACT_ADDRESS = (
 
 MAX_FEE = int(1e16)
 
-MAX_RESOURCE_BOUNDS_L1 = ResourceBoundsMapping(
-    l1_gas=ResourceBounds(max_amount=5000, max_price_per_unit=int(2e12)),
-    l2_gas=ResourceBounds(max_amount=0, max_price_per_unit=0),
+MAX_RESOURCE_BOUNDS_L1 = ResourceBounds(max_amount=5000, max_price_per_unit=int(2e12))
+MAX_RESOURCE_BOUNDS = ResourceBoundsMapping(
+    l1_gas=MAX_RESOURCE_BOUNDS_L1, l2_gas=ResourceBounds.init_with_zeros()
 )
 
 MOCK_DIR = Path(os.path.dirname(__file__)) / "../mock"

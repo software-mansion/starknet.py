@@ -32,7 +32,11 @@ from starknet_py.net.models.transaction import (
 )
 from starknet_py.net.signer.stark_curve_signer import KeyPair
 from starknet_py.net.udc_deployer.deployer import Deployer
-from starknet_py.tests.e2e.fixtures.constants import MAX_FEE, MAX_RESOURCE_BOUNDS_L1
+from starknet_py.tests.e2e.fixtures.constants import (
+    MAX_FEE,
+    MAX_RESOURCE_BOUNDS,
+    MAX_RESOURCE_BOUNDS_L1,
+)
 
 
 @pytest.mark.run_on_devnet
@@ -197,13 +201,13 @@ async def test_sign_invoke_v1_transaction_auto_estimate(account, map_contract):
 )
 async def test_sign_invoke_v3_transaction(account, calls):
     signed_tx = await account.sign_invoke_v3_transaction(
-        calls, resource_bounds=MAX_RESOURCE_BOUNDS_L1
+        calls, l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1
     )
 
     assert isinstance(signed_tx, InvokeV3)
     assert isinstance(signed_tx.signature, list)
     assert len(signed_tx.signature) == 2
-    assert signed_tx.resource_bounds == MAX_RESOURCE_BOUNDS_L1
+    assert signed_tx.resource_bounds == MAX_RESOURCE_BOUNDS
     assert signed_tx.version == 3
 
 
@@ -306,7 +310,9 @@ async def test_sign_declare_v3_transaction(
     ) = sierra_minimal_compiled_contract_and_class_hash
 
     signed_tx = await account.sign_declare_v3_transaction(
-        compiled_contract, compiled_class_hash, resource_bounds=MAX_RESOURCE_BOUNDS_L1
+        compiled_contract,
+        compiled_class_hash,
+        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
     )
 
     assert isinstance(signed_tx, DeclareV3)
@@ -314,7 +320,7 @@ async def test_sign_declare_v3_transaction(
     assert isinstance(signed_tx.signature, list)
     assert len(signed_tx.signature) == 2
     assert signed_tx.nonce is not None
-    assert signed_tx.resource_bounds == MAX_RESOURCE_BOUNDS_L1
+    assert signed_tx.resource_bounds == MAX_RESOURCE_BOUNDS
     assert signed_tx.version == 3
 
 
@@ -399,7 +405,7 @@ async def test_sign_deploy_account_v3_transaction(account):
     signed_tx = await account.sign_deploy_account_v3_transaction(
         class_hash,
         salt,
-        resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
         constructor_calldata=calldata,
     )
 
@@ -409,7 +415,7 @@ async def test_sign_deploy_account_v3_transaction(account):
     assert isinstance(signed_tx.signature, list)
     assert len(signed_tx.signature) == 2
 
-    assert signed_tx.resource_bounds == MAX_RESOURCE_BOUNDS_L1
+    assert signed_tx.resource_bounds == MAX_RESOURCE_BOUNDS
     assert signed_tx.class_hash == class_hash
     assert signed_tx.contract_address_salt == salt
     assert signed_tx.constructor_calldata == calldata
@@ -747,7 +753,7 @@ async def test_account_execute_v3(account, deployed_balance_contract):
     (initial_balance,) = await account.client.call_contract(call=get_balance_call)
 
     execute_increase_balance = await account.execute_v3(
-        calls=increase_balance_call, resource_bounds=MAX_RESOURCE_BOUNDS_L1
+        calls=increase_balance_call, l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1
     )
     receipt = await account.client.wait_for_tx(
         tx_hash=execute_increase_balance.transaction_hash

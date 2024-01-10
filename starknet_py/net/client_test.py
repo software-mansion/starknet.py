@@ -1,10 +1,14 @@
 import pytest
 
 from starknet_py.constants import ADDR_BOUND
-from starknet_py.net.client_models import DAMode, Transaction, TransactionV3
+from starknet_py.net.client_models import (
+    DAMode,
+    ResourceBoundsMapping,
+    Transaction,
+    TransactionV3,
+)
 from starknet_py.net.full_node_client import _to_storage_key
 from starknet_py.net.http_client import RpcHttpClient, ServerError
-from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS_L1
 
 
 @pytest.mark.asyncio
@@ -34,7 +38,7 @@ def test_cannot_instantiate_abstract_transaction_v3_class():
             tip=0,
             nonce_data_availability_mode=DAMode.L1,
             fee_data_availability_mode=DAMode.L1,
-            resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+            resource_bounds=ResourceBoundsMapping.init_with_zeros(),
         )
 
 

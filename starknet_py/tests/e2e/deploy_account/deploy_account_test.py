@@ -43,7 +43,7 @@ async def test_deploy_account_v3(client, deploy_account_details_factory):
         class_hash=class_hash,
         contract_address_salt=salt,
         constructor_calldata=[key_pair.public_key],
-        resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
     )
 
     assert isinstance(deploy_account_tx, DeployAccountV3)

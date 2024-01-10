@@ -69,7 +69,7 @@ class ResourcePrice:
     """
 
     price_in_wei: int
-    price_in_fri: Optional[int]
+    price_in_fri: int
 
 
 @dataclass

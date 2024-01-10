@@ -22,6 +22,7 @@ from starknet_py.net.client_models import (
     L1HandlerTransaction,
     PendingBlockStateUpdate,
     PriceUnit,
+    ResourceBounds,
     SierraContractClass,
     SierraEntryPointsByType,
     TransactionExecutionStatus,
@@ -35,11 +36,7 @@ from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.models.transaction import DeclareV2
 from starknet_py.net.udc_deployer.deployer import Deployer
-from starknet_py.tests.e2e.fixtures.constants import (
-    CONTRACTS_COMPILED_V0_DIR,
-    MAX_FEE,
-    MAX_RESOURCE_BOUNDS_L1,
-)
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V0_DIR, MAX_FEE
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 from starknet_py.transaction_errors import (
     TransactionNotReceivedError,
@@ -166,7 +163,7 @@ async def test_estimate_fee_invoke_v3(account, contract_address):
             selector=get_selector_from_name("increase_balance"),
             calldata=[123],
         ),
-        resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        l1_resource_bounds=ResourceBounds.init_with_zeros(),
     )
     invoke_tx = await account.sign_for_fee_estimate(invoke_tx)
     estimate_fee = await account.client.estimate_fee(tx=invoke_tx)
