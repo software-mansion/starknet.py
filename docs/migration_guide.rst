@@ -32,7 +32,7 @@ Changes in the :class:`~starknet_py.net.full_node_client.FullNodeClient`:
 - :meth:`~FullNodeClient.send_transaction` accepts ``transaction`` argument of the type :class:`~starknet_py.net.models.transaction.InvokeV3`
 - :meth:`~FullNodeClient.deploy_account` accepts ``transaction`` argument of the type :class:`~starknet_py.net.models.transaction.DeployAccountV3`
 
-.. note::
+.. warning::
     :class:`~starknet_py.contract.Contract` class does not support V3 transactions in the pre-release.
 
 
