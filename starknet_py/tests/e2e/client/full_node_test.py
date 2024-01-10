@@ -86,7 +86,7 @@ async def test_get_class_at(
 @pytest.mark.asyncio
 async def test_get_class_at_throws_on_wrong_address(client):
     with pytest.raises(
-        ClientError, match="Client failed with code 20: Contract not found."
+        ClientError, match="Client failed with code 20. Message: Contract not found."
     ):
         await client.get_class_at(contract_address=0, block_hash="latest")
 

@@ -130,8 +130,6 @@ async def test_transaction_not_received_invalid_nonce(full_node_account_testnet)
         await account.client.send_transaction(sign_invoke)
 
 
-# TODO (#1219): fix this error once ClientError returns data field
-@pytest.mark.skip
 @pytest.mark.asyncio
 async def test_transaction_not_received_invalid_signature(full_node_account_testnet):
     account = full_node_account_testnet
@@ -145,8 +143,11 @@ async def test_transaction_not_received_invalid_signature(full_node_account_test
     )
     sign_invoke = dataclasses.replace(sign_invoke, signature=[0x21, 0x37])
 
-    with pytest.raises(ClientError, match=r"(.*Signature.*)|(.*An unexpected error.*)"):
+    with pytest.raises(ClientError, match=r"Signature.*is invalid") as exc:
         await account.client.send_transaction(sign_invoke)
+
+    assert exc.value.data is not None
+    assert "Data:" in exc.value.message
 
 
 # ------------------------------------ FULL_NODE_CLIENT TESTS ------------------------------------
