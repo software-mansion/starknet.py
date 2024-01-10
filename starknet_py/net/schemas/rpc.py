@@ -66,6 +66,7 @@ from starknet_py.net.schemas.common import (
     Felt,
     FinalityStatusField,
     NonPrefixedHex,
+    NumberAsHex,
     PriceUnitField,
     StatusField,
     StorageEntrySchema,
@@ -169,7 +170,7 @@ class TransactionReceiptSchema(Schema):
     messages_sent = fields.List(
         fields.Nested(L2toL1MessageSchema()), data_key="messages_sent", load_default=[]
     )
-    message_hash = Felt(data_key="message_hash", load_default=None)
+    message_hash = NumberAsHex(data_key="message_hash", load_default=None)
     execution_resources = fields.Nested(
         ExecutionResourcesSchema(), data_key="execution_resources", required=True
     )
@@ -378,7 +379,7 @@ class L1HandlerTransactionSchema(TransactionSchema):
     contract_address = Felt(data_key="contract_address", required=True)
     calldata = fields.List(Felt(), data_key="calldata", required=True)
     entry_point_selector = Felt(data_key="entry_point_selector", required=True)
-    nonce = Felt(data_key="nonce", required=True)
+    nonce = NumberAsHex(data_key="nonce", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> L1HandlerTransaction:
@@ -617,7 +618,7 @@ class SierraEntryPointSchema(Schema):
 
 
 class EntryPointSchema(Schema):
-    offset = Felt(data_key="offset", required=True)
+    offset = NumberAsHex(data_key="offset", required=True)
     selector = Felt(data_key="selector", required=True)
 
     @post_load
