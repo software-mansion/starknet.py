@@ -56,6 +56,8 @@ Changes in the :class:`~starknet_py.net.full_node_client.FullNodeClient`:
 7. :class:`EstimatedFee` has a new required field ``unit``.
 8. :class:`EstimatedFee` field ``gas_usage`` has been renamed to ``gas_consumed``.
 9. :class:`FunctionInvocation` has a new required field ``execution_resources``.
+10. :class:`ResourcePrice` field ``price_in_strk`` has been renamed to ``price_in_fri`` and has now become required.
+11. :class:`ResourceLimits` class has been renamed to :class:`ResourceBounds`.
 
 0.19.0 Minor changes
 --------------------
