@@ -74,7 +74,7 @@ async def hello_starknet_deploy_transaction_address(
     contract_deployment = deployer.create_contract_deployment_raw(
         class_hash=cairo1_hello_starknet_class_hash
     )
-    deploy_invoke_transaction = await account.sign_invoke_transaction(
+    deploy_invoke_transaction = await account.sign_invoke_v1_transaction(
         calls=contract_deployment.call, max_fee=MAX_FEE
     )
     resp = await account.client.send_transaction(deploy_invoke_transaction)

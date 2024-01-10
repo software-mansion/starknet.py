@@ -296,7 +296,7 @@ async def declare_account(account: BaseAccount, compiled_account_contract: str) 
     Declares a specified account.
     """
 
-    declare_tx = await account.sign_declare_transaction(
+    declare_tx = await account.sign_declare_v1_transaction(
         compiled_contract=compiled_account_contract,
         max_fee=MAX_FEE,
     )
@@ -362,7 +362,7 @@ async def map_class_hash(account: BaseAccount, map_compiled_contract: str) -> in
     """
     Returns class_hash of the map.cairo.
     """
-    declare = await account.sign_declare_transaction(
+    declare = await account.sign_declare_v1_transaction(
         compiled_contract=map_compiled_contract,
         max_fee=int(1e16),
     )
@@ -378,7 +378,7 @@ async def simple_storage_with_event_class_hash(
     """
     Returns class_hash of the simple_storage_with_event.cairo
     """
-    declare = await account.sign_declare_transaction(
+    declare = await account.sign_declare_v1_transaction(
         compiled_contract=simple_storage_with_event_compiled_contract,
         max_fee=int(1e16),
     )
@@ -392,7 +392,7 @@ async def erc20_class_hash(account: BaseAccount, erc20_compiled_contract: str) -
     """
     Returns class_hash of the erc20.cairo.
     """
-    declare = await account.sign_declare_transaction(
+    declare = await account.sign_declare_v1_transaction(
         compiled_contract=erc20_compiled_contract,
         max_fee=int(1e16),
     )
@@ -438,7 +438,7 @@ async def constructor_with_arguments_class_hash(
     """
     Returns a class_hash of the constructor_with_arguments.cairo.
     """
-    declare = await account.sign_declare_transaction(
+    declare = await account.sign_declare_v1_transaction(
         compiled_contract=constructor_with_arguments_compiled,
         max_fee=int(1e16),
     )

@@ -357,7 +357,7 @@ class PreparedFunctionCall(Call):
         if max_fee is not None:
             self.max_fee = max_fee
 
-        transaction = await self._account.sign_invoke_transaction(
+        transaction = await self._account.sign_invoke_v1_transaction(
             calls=self,
             nonce=nonce,
             max_fee=self.max_fee,
@@ -391,7 +391,7 @@ class PreparedFunctionCall(Call):
         :param nonce: Nonce of the transaction.
         :return: Estimated amount of Wei executing specified transaction will cost.
         """
-        tx = await self._account.sign_invoke_transaction(
+        tx = await self._account.sign_invoke_v1_transaction(
             calls=self, nonce=nonce, max_fee=0
         )
 
@@ -668,7 +668,7 @@ class Contract:
             )
         else:
             cairo_version = 0
-            declare_tx = await account.sign_declare_transaction(
+            declare_tx = await account.sign_declare_v1_transaction(
                 compiled_contract=compiled_contract,
                 nonce=nonce,
                 max_fee=max_fee,

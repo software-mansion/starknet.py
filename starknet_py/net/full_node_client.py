@@ -834,7 +834,9 @@ def _create_broadcasted_declare_properties(
     if isinstance(transaction, DeclareV3):
         return _create_broadcasted_declare_v3_properties(transaction)
 
-    contract_class = cast(Dict, DeclareV1Schema().dump(obj=transaction))["contract_class"]
+    contract_class = cast(Dict, DeclareV1Schema().dump(obj=transaction))[
+        "contract_class"
+    ]
     declare_properties = {
         "contract_class": {
             "entry_points_by_type": contract_class["entry_points_by_type"],

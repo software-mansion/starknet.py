@@ -110,7 +110,7 @@ async def deploy_proxy_to_contract(
         compiled_contract_name, directory=CONTRACTS_COMPILED_V0_DIR
     )
 
-    declare_tx = await account.sign_declare_transaction(
+    declare_tx = await account.sign_declare_v1_transaction(
         compiled_contract=compiled_contract, max_fee=MAX_FEE
     )
     declare_result = await account.client.declare(declare_tx)

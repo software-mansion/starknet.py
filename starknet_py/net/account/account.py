@@ -329,7 +329,7 @@ class Account(BaseAccount):
         signature = self.signer.sign_transaction(transaction)
         return _add_signature_to_transaction(tx=transaction, signature=signature)
 
-    async def sign_invoke_transaction(
+    async def sign_invoke_v1_transaction(
         self,
         calls: Calls,
         *,
@@ -363,7 +363,7 @@ class Account(BaseAccount):
         signature = self.signer.sign_transaction(invoke_tx)
         return _add_signature_to_transaction(invoke_tx, signature)
 
-    async def sign_declare_transaction(
+    async def sign_declare_v1_transaction(
         self,
         compiled_contract: str,
         *,
@@ -376,7 +376,7 @@ class Account(BaseAccount):
                 "Signing sierra contracts requires using `sign_declare_v2_transaction` method."
             )
 
-        declare_tx = await self._make_declare_transaction(
+        declare_tx = await self._make_declare_v1_transaction(
             compiled_contract, nonce=nonce
         )
 
@@ -428,7 +428,7 @@ class Account(BaseAccount):
         signature = self.signer.sign_transaction(declare_tx)
         return _add_signature_to_transaction(declare_tx, signature)
 
-    async def _make_declare_transaction(
+    async def _make_declare_v1_transaction(
         self, compiled_contract: str, *, nonce: Optional[int] = None
     ) -> DeclareV1:
         contract_class = create_compiled_contract(compiled_contract=compiled_contract)
@@ -496,7 +496,7 @@ class Account(BaseAccount):
         )
         return declare_tx
 
-    async def sign_deploy_account_transaction(
+    async def sign_deploy_account_v1_transaction(
         self,
         class_hash: int,
         contract_address_salt: int,
@@ -560,7 +560,7 @@ class Account(BaseAccount):
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> SentTransactionResponse:
-        execute_transaction = await self.sign_invoke_transaction(
+        execute_transaction = await self.sign_invoke_v1_transaction(
             calls,
             nonce=nonce,
             max_fee=max_fee,
@@ -656,7 +656,7 @@ class Account(BaseAccount):
             chain=chain,
         )
 
-        deploy_account_tx = await account.sign_deploy_account_transaction(
+        deploy_account_tx = await account.sign_deploy_account_v1_transaction(
             class_hash=class_hash,
             contract_address_salt=salt,
             constructor_calldata=calldata,

@@ -79,7 +79,7 @@ async def test_estimated_fee_greater_than_zero(account, erc20_contract):
 
 @pytest.mark.asyncio
 async def test_estimate_fee_for_declare_transaction(account, map_compiled_contract):
-    declare_tx = await account.sign_declare_transaction(
+    declare_tx = await account.sign_declare_v1_transaction(
         compiled_contract=map_compiled_contract, max_fee=MAX_FEE
     )
 
@@ -171,8 +171,8 @@ async def test_get_nonce(account, map_contract):
 @pytest.mark.parametrize(
     "calls", [[Call(10, 20, [30])], [Call(10, 20, [30]), Call(40, 50, [60])]]
 )
-async def test_sign_invoke_transaction(account, calls):
-    signed_tx = await account.sign_invoke_transaction(calls, max_fee=MAX_FEE)
+async def test_sign_invoke_v1_transaction(account, calls):
+    signed_tx = await account.sign_invoke_v1_transaction(calls, max_fee=MAX_FEE)
 
     assert isinstance(signed_tx.signature, list)
     assert len(signed_tx.signature) > 0
@@ -180,8 +180,8 @@ async def test_sign_invoke_transaction(account, calls):
 
 
 @pytest.mark.asyncio
-async def test_sign_invoke_transaction_auto_estimate(account, map_contract):
-    signed_tx = await account.sign_invoke_transaction(
+async def test_sign_invoke_v1_transaction_auto_estimate(account, map_contract):
+    signed_tx = await account.sign_invoke_v1_transaction(
         Call(map_contract.address, get_selector_from_name("put"), [3, 4]),
         auto_estimate=True,
     )
@@ -228,7 +228,7 @@ async def test_sign_invoke_v3_transaction_auto_estimate(account, map_contract):
 
 @pytest.mark.asyncio
 async def test_sign_declare_transaction(account, map_compiled_contract):
-    signed_tx = await account.sign_declare_transaction(
+    signed_tx = await account.sign_declare_v1_transaction(
         map_compiled_contract, max_fee=MAX_FEE
     )
 
@@ -241,7 +241,7 @@ async def test_sign_declare_transaction(account, map_compiled_contract):
 
 @pytest.mark.asyncio
 async def test_sign_declare_transaction_auto_estimate(account, map_compiled_contract):
-    signed_tx = await account.sign_declare_transaction(
+    signed_tx = await account.sign_declare_v1_transaction(
         map_compiled_contract, auto_estimate=True
     )
 
@@ -352,7 +352,7 @@ async def test_declare_contract_raises_on_sierra_contract_without_compiled_class
         ValueError,
         match="Signing sierra contracts requires using `sign_declare_v2_transaction` method.",
     ):
-        await account.sign_declare_transaction(compiled_contract=compiled_contract)
+        await account.sign_declare_v1_transaction(compiled_contract=compiled_contract)
 
 
 @pytest.mark.asyncio
@@ -360,7 +360,7 @@ async def test_sign_deploy_account_transaction(account):
     class_hash = 0x1234
     salt = 0x123
     calldata = [1, 2, 3]
-    signed_tx = await account.sign_deploy_account_transaction(
+    signed_tx = await account.sign_deploy_account_v1_transaction(
         class_hash, salt, calldata, max_fee=MAX_FEE
     )
 
@@ -379,7 +379,7 @@ async def test_sign_deploy_account_transaction_auto_estimate(
     class_hash = account_with_validate_deploy_class_hash
     salt = 0x1234
     calldata = [account.signer.public_key]
-    signed_tx = await account.sign_deploy_account_transaction(
+    signed_tx = await account.sign_deploy_account_v1_transaction(
         class_hash, salt, calldata, auto_estimate=True
     )
 
@@ -598,7 +598,7 @@ async def test_sign_deploy_account_tx_for_fee_estimation(
         chain=StarknetChainId.TESTNET,
     )
 
-    transaction = await account.sign_deploy_account_transaction(
+    transaction = await account.sign_deploy_account_v1_transaction(
         class_hash=class_hash,
         contract_address_salt=salt,
         constructor_calldata=[key_pair.public_key],
@@ -623,10 +623,12 @@ async def test_sign_deploy_account_tx_for_fee_estimation(
 @pytest.mark.asyncio
 async def test_sign_transaction_custom_nonce(account, cairo1_hello_starknet_class_hash):
     deployment = Deployer().create_contract_deployment(cairo1_hello_starknet_class_hash)
-    deploy_tx = await account.sign_invoke_transaction(deployment.call, max_fee=MAX_FEE)
+    deploy_tx = await account.sign_invoke_v1_transaction(
+        deployment.call, max_fee=MAX_FEE
+    )
 
     new_balance = 30
-    invoke_tx = await account.sign_invoke_transaction(
+    invoke_tx = await account.sign_invoke_v1_transaction(
         Call(
             deployment.address,
             get_selector_from_name("increase_balance"),

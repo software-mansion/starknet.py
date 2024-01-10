@@ -6,10 +6,10 @@ from starknet_py.common import create_contract_class
 from starknet_py.net.client_models import TransactionType
 from starknet_py.net.models.transaction import (
     Declare,
-    DeclareV1Schema,
     DeclareV1,
-    InvokeV1Schema,
+    DeclareV1Schema,
     InvokeV1,
+    InvokeV1Schema,
 )
 
 

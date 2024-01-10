@@ -17,7 +17,7 @@ async def test_general_flow(client, deploy_account_details_factory):
         chain=StarknetChainId.TESTNET,
     )
 
-    deploy_account_tx = await account.sign_deploy_account_transaction(
+    deploy_account_tx = await account.sign_deploy_account_v1_transaction(
         class_hash=class_hash,
         contract_address_salt=salt,
         constructor_calldata=[key_pair.public_key],

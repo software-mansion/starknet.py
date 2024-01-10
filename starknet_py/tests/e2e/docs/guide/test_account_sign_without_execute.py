@@ -18,15 +18,15 @@ async def test_account_sign_without_execute(account, map_compiled_contract):
 
     # Create a signed Invoke transaction
     call = Call(to_addr=address, selector=selector, calldata=calldata)
-    invoke_transaction = await account.sign_invoke_transaction(call, max_fee=max_fee)
+    invoke_transaction = await account.sign_invoke_v1_transaction(call, max_fee=max_fee)
 
     # Create a signed Declare transaction
-    declare_transaction = await account.sign_declare_transaction(
+    declare_transaction = await account.sign_declare_v1_transaction(
         compiled_contract=compiled_contract, max_fee=max_fee
     )
 
     # Create a signed DeployAccount transaction
-    deploy_account_transaction = await account.sign_deploy_account_transaction(
+    deploy_account_transaction = await account.sign_deploy_account_v1_transaction(
         class_hash=class_hash,
         contract_address_salt=salt,
         constructor_calldata=calldata,

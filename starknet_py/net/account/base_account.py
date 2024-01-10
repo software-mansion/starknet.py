@@ -111,7 +111,7 @@ class BaseAccount(ABC):
         """
 
     @abstractmethod
-    async def sign_invoke_transaction(
+    async def sign_invoke_v1_transaction(
         self,
         calls: Calls,
         *,
@@ -149,7 +149,7 @@ class BaseAccount(ABC):
         """
 
     @abstractmethod
-    async def sign_declare_transaction(
+    async def sign_declare_v1_transaction(
         self,
         compiled_contract: str,
         *,
@@ -158,7 +158,7 @@ class BaseAccount(ABC):
         auto_estimate: bool = False,
     ) -> DeclareV1:
         """
-        Create and sign declare transaction.
+        Create and sign declare transaction version 1.
 
         :param compiled_contract: string containing a compiled Starknet contract. Supports old contracts.
         :param nonce: Nonce of the transaction.
@@ -178,7 +178,7 @@ class BaseAccount(ABC):
         auto_estimate: bool = False,
     ) -> DeclareV2:
         """
-        Create and sign declare transaction using sierra contract.
+        Create and sign declare transaction version 2 using sierra contract.
 
         :param compiled_contract: string containing a compiled Starknet contract.
             Supports new contracts (compiled to sierra).
@@ -201,7 +201,7 @@ class BaseAccount(ABC):
         auto_estimate: bool = False,
     ) -> DeclareV3:
         """
-        Create and sign declare transaction using sierra contract.
+        Create and sign declare transaction version 3 using sierra contract.
 
         :param compiled_contract: string containing a compiled Starknet contract.
             Supports new contracts (compiled to sierra).
@@ -214,7 +214,7 @@ class BaseAccount(ABC):
         """
 
     @abstractmethod
-    async def sign_deploy_account_transaction(
+    async def sign_deploy_account_v1_transaction(
         self,
         class_hash: int,
         contract_address_salt: int,
@@ -225,7 +225,7 @@ class BaseAccount(ABC):
         auto_estimate: bool = False,
     ) -> DeployAccountV1:
         """
-        Create and sign deploy account transaction.
+        Create and sign deploy account transaction version 1.
 
         :param class_hash: Class hash of the contract class to be deployed.
         :param contract_address_salt: A salt used to calculate deployed contract address.
@@ -250,7 +250,7 @@ class BaseAccount(ABC):
         auto_estimate: bool = False,
     ) -> DeployAccountV3:
         """
-        Create and sign deploy account transaction.
+        Create and sign deploy account transaction version 3.
 
         :param class_hash: Class hash of the contract class to be deployed.
         :param contract_address_salt: A salt used to calculate deployed contract address.
