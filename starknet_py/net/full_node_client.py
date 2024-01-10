@@ -46,7 +46,7 @@ from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.models.transaction import (
     AccountTransaction,
     Declare,
-    DeclareSchema,
+    DeclareV1Schema,
     DeclareV2,
     DeclareV2Schema,
     DeclareV3,
@@ -834,7 +834,7 @@ def _create_broadcasted_declare_properties(
     if isinstance(transaction, DeclareV3):
         return _create_broadcasted_declare_v3_properties(transaction)
 
-    contract_class = cast(Dict, DeclareSchema().dump(obj=transaction))["contract_class"]
+    contract_class = cast(Dict, DeclareV1Schema().dump(obj=transaction))["contract_class"]
     declare_properties = {
         "contract_class": {
             "entry_points_by_type": contract_class["entry_points_by_type"],

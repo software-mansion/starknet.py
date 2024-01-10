@@ -88,6 +88,11 @@ TypeAccountTransaction = TypeVar("TypeAccountTransaction", bound=AccountTransact
 
 
 @dataclass(frozen=True)
+class _DeprecatedAccountTransaction(AccountTransaction, ABC):
+    max_fee: int = field(metadata={"marshmallow_field": Felt()})
+
+
+@dataclass(frozen=True)
 class _AccountTransactionV3(AccountTransaction, ABC):
     resource_bounds: ResourceBoundsMapping
     tip: int = field(init=False, default=0)
@@ -143,13 +148,12 @@ class DeclareV3(_AccountTransactionV3):
 
 
 @dataclass(frozen=True)
-class DeclareV2(AccountTransaction):
+class DeclareV2(_DeprecatedAccountTransaction):
     """
     Represents a transaction in the Starknet network that is a version 2 declaration of a Starknet contract
     class. Supports only sierra compiled contracts.
     """
 
-    max_fee: int = field(metadata={"marshmallow_field": Felt()})
     contract_class: SierraContractClass = field(
         metadata={"marshmallow_field": fields.Nested(SierraContractClassSchema())}
     )
@@ -173,13 +177,12 @@ class DeclareV2(AccountTransaction):
 
 
 @dataclass(frozen=True)
-class DeclareV1(AccountTransaction):
+class DeclareV1(_DeprecatedAccountTransaction):
     """
     Represents a transaction in the Starknet network that is a declaration of a Starknet contract
     class.
     """
 
-    max_fee: int = field(metadata={"marshmallow_field": Felt()})
     # The class to be declared, included for all methods involving execution (estimateFee, simulateTransactions)
     contract_class: ContractClass = field(
         metadata={"marshmallow_field": fields.Nested(ContractClassSchema())}
@@ -249,13 +252,12 @@ class DeployAccountV3(_AccountTransactionV3):
 
 
 @dataclass(frozen=True)
-class DeployAccountV1(AccountTransaction):
+class DeployAccountV1(_DeprecatedAccountTransaction):
     """
     Represents a transaction in the Starknet network that is a deployment of a Starknet account
     contract.
     """
 
-    max_fee: int = field(metadata={"marshmallow_field": Felt()})
     class_hash: int = field(metadata={"marshmallow_field": Felt()})
     contract_address_salt: int = field(metadata={"marshmallow_field": Felt()})
     constructor_calldata: List[int] = field(
@@ -313,13 +315,12 @@ class InvokeV3(_AccountTransactionV3):
 
 
 @dataclass(frozen=True)
-class InvokeV1(AccountTransaction):
+class InvokeV1(_DeprecatedAccountTransaction):
     """
     Represents a transaction in the Starknet network that is an invocation of a Cairo contract
     function.
     """
 
-    max_fee: int = field(metadata={"marshmallow_field": Felt()})
     sender_address: int = field(metadata={"marshmallow_field": Felt()})
     calldata: List[int] = field(
         metadata={"marshmallow_field": fields.List(fields.String())}
@@ -347,10 +348,10 @@ Declare = Union[DeclareV1, DeclareV2, DeclareV3]
 DeployAccount = Union[DeployAccountV1, DeployAccountV3]
 Invoke = Union[InvokeV1, InvokeV3]
 
-InvokeSchema = marshmallow_dataclass.class_schema(InvokeV1)
-DeclareSchema = marshmallow_dataclass.class_schema(DeclareV1)
+InvokeV1Schema = marshmallow_dataclass.class_schema(InvokeV1)
+DeclareV1Schema = marshmallow_dataclass.class_schema(DeclareV1)
 DeclareV2Schema = marshmallow_dataclass.class_schema(DeclareV2)
-DeployAccountSchema = marshmallow_dataclass.class_schema(DeployAccountV1)
+DeployAccountV1Schema = marshmallow_dataclass.class_schema(DeployAccountV1)
 
 
 def compress_program(data: dict, program_name: str = "program") -> dict:
