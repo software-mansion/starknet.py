@@ -66,10 +66,13 @@ from starknet_py.net.schemas.common import (
     Felt,
     FinalityStatusField,
     NonPrefixedHex,
+    NumberAsHex,
     PriceUnitField,
     StatusField,
     StorageEntrySchema,
     TransactionTypeField,
+    Uint64,
+    Uint128,
 )
 from starknet_py.net.schemas.utils import (
     _extract_tx_version,
@@ -167,7 +170,7 @@ class TransactionReceiptSchema(Schema):
     messages_sent = fields.List(
         fields.Nested(L2toL1MessageSchema()), data_key="messages_sent", load_default=[]
     )
-    message_hash = Felt(data_key="message_hash", load_default=None)
+    message_hash = NumberAsHex(data_key="message_hash", load_default=None)
     execution_resources = fields.Nested(
         ExecutionResourcesSchema(), data_key="execution_resources", required=True
     )
@@ -209,8 +212,8 @@ class ResourcePriceSchema(Schema):
 
 
 class ResourceBoundsSchema(Schema):
-    max_amount = Felt(data_key="max_amount", required=True)
-    max_price_per_unit = Felt(data_key="max_price_per_unit", required=True)
+    max_amount = Uint64(data_key="max_amount", required=True)
+    max_price_per_unit = Uint128(data_key="max_price_per_unit", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> ResourceBounds:
@@ -237,7 +240,7 @@ class DeprecatedTransactionSchema(TransactionSchema):
 
 
 class TransactionV3Schema(TransactionSchema):
-    tip = Felt(data_key="tip", load_default=0)
+    tip = Uint64(data_key="tip", load_default=0)
     nonce_data_availability_mode = DAModeField(
         data_key="nonce_data_availability_mode", load_default=DAMode.L1
     )
@@ -376,7 +379,7 @@ class L1HandlerTransactionSchema(TransactionSchema):
     contract_address = Felt(data_key="contract_address", required=True)
     calldata = fields.List(Felt(), data_key="calldata", required=True)
     entry_point_selector = Felt(data_key="entry_point_selector", required=True)
-    nonce = Felt(data_key="nonce", required=True)
+    nonce = NumberAsHex(data_key="nonce", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> L1HandlerTransaction:
@@ -615,7 +618,7 @@ class SierraEntryPointSchema(Schema):
 
 
 class EntryPointSchema(Schema):
-    offset = Felt(data_key="offset", required=True)
+    offset = NumberAsHex(data_key="offset", required=True)
     selector = Felt(data_key="selector", required=True)
 
     @post_load

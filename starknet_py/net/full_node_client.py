@@ -68,7 +68,6 @@ from starknet_py.net.schemas.rpc import (
     PendingBlockStateUpdateSchema,
     PendingStarknetBlockSchema,
     PendingStarknetBlockWithTxHashesSchema,
-    ResourceBoundsMappingSchema,
     SentTransactionSchema,
     SierraContractClassSchema,
     SimulatedTransactionSchema,
@@ -78,6 +77,7 @@ from starknet_py.net.schemas.rpc import (
     TransactionReceiptSchema,
     TransactionStatusResponseSchema,
     TransactionTraceSchema,
+    TransactionV3Schema,
     TypesOfTransactionsSchema,
 )
 from starknet_py.net.schemas.utils import _extract_tx_version
@@ -955,16 +955,7 @@ def _create_broadcasted_txn_common_properties(transaction: AccountTransaction) -
 def _create_broadcasted_txn_v3_common_properties(
     transaction: Union[DeclareV3, InvokeV3, DeployAccountV3]
 ) -> dict:
-    resource_bonds = cast(
-        Dict, ResourceBoundsMappingSchema().dump(obj=transaction.resource_bounds)
+    return cast(
+        Dict,
+        TransactionV3Schema(exclude=["version", "signature"]).dump(obj=transaction),
     )
-
-    broadcasted_txn_v3_common_properties = {
-        "resource_bounds": resource_bonds,
-        "tip": _to_rpc_felt(transaction.tip),
-        "paymaster_data": [_to_rpc_felt(data) for data in transaction.paymaster_data],
-        "nonce_data_availability_mode": transaction.nonce_data_availability_mode.name,
-        "fee_data_availability_mode": transaction.fee_data_availability_mode.name,
-    }
-
-    return broadcasted_txn_v3_common_properties
