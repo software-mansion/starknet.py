@@ -9,9 +9,16 @@ class ClientError(Exception):
     Base class for all errors raised while attempting to communicate with Starknet through Client.
     """
 
-    def __init__(self, message: str, code: Optional[str] = None):
+    def __init__(
+        self, message: str, code: Optional[str] = None, data: Optional[str] = None
+    ):
         self.code = code
-        self.message = f"Client failed{f' with code {code}' if code is not None else ''}: {message}."
+        self.data = data
+        self.message = (
+            f"Client failed{f' with code {code}' if code is not None else ''}. "
+            f"Message: {message}.{f' Data: {data}' if data is not None else ''}"
+        )
+
         super().__init__(self.message)
 
 
