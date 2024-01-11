@@ -6,7 +6,8 @@ import pytest_asyncio
 
 from starknet_py.contract import Contract
 from starknet_py.net.account.account import Account
-from starknet_py.net.models.transaction import DeployAccount
+from starknet_py.net.full_node_client import FullNodeClient
+from starknet_py.net.models.transaction import DeployAccountV1
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.client.fixtures.prepare_net_for_gateway_test import (
     PreparedNetworkData,
@@ -21,20 +22,25 @@ from starknet_py.tests.e2e.utils import (
 
 @pytest_asyncio.fixture(scope="package")
 async def deploy_account_transaction(
-    account_with_validate_deploy_class_hash: int, fee_contract: Contract, network: str
-) -> DeployAccount:
+    account_with_validate_deploy_class_hash: int,
+    eth_fee_contract: Contract,
+    strk_fee_contract: Contract,
+    network: str,
+) -> DeployAccountV1:
     """
     Returns a DeployAccount transaction
     """
     address, key_pair, salt, class_hash = await get_deploy_account_details(
-        class_hash=account_with_validate_deploy_class_hash, fee_contract=fee_contract
+        class_hash=account_with_validate_deploy_class_hash,
+        eth_fee_contract=eth_fee_contract,
+        strk_fee_contract=strk_fee_contract,
     )
     return await get_deploy_account_transaction(
         address=address,
         key_pair=key_pair,
         class_hash=class_hash,
         salt=salt,
-        network=network,
+        client=FullNodeClient(network),
     )
 
 
@@ -68,7 +74,7 @@ async def hello_starknet_deploy_transaction_address(
     contract_deployment = deployer.create_contract_deployment_raw(
         class_hash=cairo1_hello_starknet_class_hash
     )
-    deploy_invoke_transaction = await account.sign_invoke_transaction(
+    deploy_invoke_transaction = await account.sign_invoke_v1_transaction(
         calls=contract_deployment.call, max_fee=MAX_FEE
     )
     resp = await account.client.send_transaction(deploy_invoke_transaction)
@@ -98,17 +104,20 @@ async def replaced_class(account: Account, map_class_hash: int) -> Tuple[int, in
         "replace_class_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR
     )
 
-    declare_result = await Contract.declare(account, compiled_contract, max_fee=MAX_FEE)
-    await declare_result.wait_for_acceptance()
+    declare_result = await (
+        await Contract.declare(account, compiled_contract, max_fee=MAX_FEE)
+    ).wait_for_acceptance()
 
-    deploy_result = await declare_result.deploy(max_fee=MAX_FEE)
-    await deploy_result.wait_for_acceptance()
+    deploy_result = await (
+        await declare_result.deploy(max_fee=MAX_FEE)
+    ).wait_for_acceptance()
 
     contract = deploy_result.deployed_contract
 
-    resp = await contract.functions["replace_implementation"].invoke(
-        new_class=map_class_hash, max_fee=MAX_FEE
-    )
-    await resp.wait_for_acceptance()
+    resp = await (
+        await contract.functions["replace_implementation"].invoke(
+            new_class=map_class_hash, max_fee=MAX_FEE
+        )
+    ).wait_for_acceptance()
 
     return cast(int, resp.block_number), contract.address, map_class_hash

@@ -30,7 +30,7 @@ async def test_deploying_in_multicall(account, map_class_hash, map_compiled_cont
 
     # After that multicall transaction can be sent
     # Note that `deploy_call` and `put_call` are two regular calls!
-    invoke_tx = await account.sign_invoke_transaction(
+    invoke_tx = await account.sign_invoke_v1_transaction(
         calls=[deploy_call, put_call], max_fee=int(1e16)
     )
 

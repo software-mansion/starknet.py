@@ -2,10 +2,80 @@ Migration guide
 ===============
 
 **********************
+0.19.0 Migration guide
+**********************
+
+Version 0.19.0 of **starknet.py** comes with support for RPC 0.6.0!
+
+.. currentmodule:: starknet_py.net.client_models
+
+New classes added to mirror the recent changes in the RPC v0.6.0 specification include:
+:class:`ResourceBoundsMapping`, :class:`ResourceBounds`, :class:`PriceUnit`, :class:`FeePayment`, :class:`DAMode`.
+
+Changes in the :class:`~starknet_py.net.account.account.Account`:
+
+.. currentmodule:: starknet_py.net.account.account
+
+- :meth:`~Account.execute_v3` has been added.
+- :meth:`~Account.sign_declare_v3_transaction`, :meth:`~Account.sign_deploy_account_v3_transaction` and :meth:`~Account.sign_invoke_v3_transaction` have been added.
+- :meth:`~Account.sign_declare_transaction`, :meth:`~Account.sign_deploy_account_transaction` and :meth:`~Account.sign_invoke_transaction` have been renamed to :meth:`~Account.sign_declare_v1_transaction`, :meth:`~Account.sign_deploy_account_v1_transaction` and :meth:`~Account.sign_invoke_v1_transaction` respectively.
+
+All new functions with ``v3`` in their name operate similarly to their ``v1`` and ``v2`` counterparts.
+Unlike their ``v1`` counterparts, ``v3`` transaction fees are paid in Fri (10^-18 STRK). Therefore,  ``max_fee`` parameter, which is typically set in Wei, is not applicable for ``v3`` functions. Instead, ``l1_resource_bounds`` parameter is utilized to limit the Fri amount used.
+
+Changes in the :class:`~starknet_py.net.full_node_client.FullNodeClient`:
+
+.. currentmodule:: starknet_py.net.full_node_client
+
+- :meth:`~FullNodeClient.estimate_fee` has a new parameter ``skip_validate``.
+- :meth:`~FullNodeClient.declare` accepts ``transaction`` argument of the type :class:`~starknet_py.net.models.transaction.DeclareV3`
+- :meth:`~FullNodeClient.send_transaction` accepts ``transaction`` argument of the type :class:`~starknet_py.net.models.transaction.InvokeV3`
+- :meth:`~FullNodeClient.deploy_account` accepts ``transaction`` argument of the type :class:`~starknet_py.net.models.transaction.DeployAccountV3`
+
+.. warning::
+    :class:`~starknet_py.contract.Contract` class does not support V3 transactions in the pre-release.
+
+
+0.19.0 Targeted versions
+------------------------
+
+- Starknet - `0.13.0 <https://docs.starknet.io/documentation/starknet_versions/version_notes/#version0.13.0>`_
+- RPC - `0.6.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.6.0>`_
+
+0.19.0 Breaking changes
+-----------------------
+
+.. currentmodule:: starknet_py.net.client_models
+
+1. :class:`GatewayClient` all related classes and fields have been removed.
+2. Client ``net`` property has been removed.
+3. :class:`Declare`, :class:`DeployAccount` and :class:`Invoke` have been renamed to :class:`~starknet_py.net.models.transaction.DeclareV1`, :class:`~starknet_py.net.models.transaction.DeployAccountV1` and :class:`~starknet_py.net.models.transaction.InvokeV1` respectively.
+4. :class:`TransactionReceipt` field ``execution_resources`` has been changed from ``dict`` to :class:`ExecutionResources`.
+5. :class:`TransactionReceipt` fields ``status`` and ``rejection_reason`` have been removed.
+6. :class:`TransactionStatus`, :class:`TransactionExecutionStatus` and :class:`TransactionFinalityStatus` have been changed to have the same structure as in RPC specification.
+7. :class:`EstimatedFee` has a new required field ``unit``.
+8. :class:`EstimatedFee` field ``gas_usage`` has been renamed to ``gas_consumed``.
+9. :class:`FunctionInvocation` has a new required field ``execution_resources``.
+10. :class:`ResourcePrice` field ``price_in_strk`` has been renamed to ``price_in_fri`` and has now become required.
+11. :class:`ResourceLimits` class has been renamed to :class:`ResourceBounds`.
+
+0.19.0 Minor changes
+--------------------
+
+1. :class:`L1HandlerTransaction` field ``nonce`` is now required.
+2. :class:`TransactionReceipt` fields ``actual_fee``, ``finality_status``, ``execution_status``, ``execution_resources`` and ``type`` are now required.
+
+0.19.0 Development-related changes
+----------------------------------
+
+Test execution has been transitioned to the new `starknet-devnet-rs <https://github.com/0xSpaceShard/starknet-devnet-rs>`_.
+To adapt to this change, it should be installed locally and added to the ``PATH``. Further information regarding this change can be found in the `Development <https://starknetpy.readthedocs.io/en/latest/development.html>`_ section.
+
+**********************
 0.18.3 Migration guide
 **********************
 
-Version 0.18.3 of **starknet.py** comes with support for RPC 0.5.0!
+Version 0.18.3 of **starknet.py** comes with support for RPC 0.5.1!
 
 
 0.18.3 Targeted versions
@@ -413,7 +483,7 @@ Also, dependencies are now optimized to include only necessary packages.
 
 8. Removed deprecated ``typed_data`` parameter as dict in :meth:`BaseSigner.sign_message`. Use :ref:`TypedData` dataclass from ``starknet_py.utils.typed_data``.
 9. ``starknet_py.utils.crypto`` module has been removed.
-10. Changed name of ``starknet_py.transaction_excepions`` to ``starknet_py.transaction_errors`` to match other files.
+10. Changed name of ``starknet_py.transaction_exceptions`` to ``starknet_py.transaction_errors`` to match other files.
 
 .. admonition:: Potentially breaking changes
     :class: attention
@@ -960,7 +1030,7 @@ Clients
 
 Client has been separated into two specialized modules.
 
-* Use :ref:`GatewayClient` to interact with Starknet like you did in previous starknet.py versions
+* Use ``GatewayClient`` to interact with Starknet like you did in previous starknet.py versions
 * Use :ref:`FullNodeClient` to interact with JSON-RPC
 
 .. note::
@@ -972,7 +1042,7 @@ API Changes
 -----------
 
 Client methods has had some of the parameters removed, so it provided uniform interface
-for both gateway and rpc methods. Please refer to :ref:`GatewayClient` and :ref:`FullNodeClient`
+for both gateway and rpc methods. Please refer to ``GatewayClient`` and :ref:`FullNodeClient`
 to see what has changed.
 There is no longer add_transaction method in the Client interface. It was renamed to send_transaction.
 

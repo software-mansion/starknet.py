@@ -6,7 +6,7 @@ They need to stay backwards compatible for old transactions/blocks to be fetchab
 from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, Iterable, List, Optional, Union
+from typing import Any, Iterable, List, Optional, Union
 
 from typing_extensions import Literal
 
@@ -52,19 +52,6 @@ class EventsChunk:
 
 
 @dataclass
-class L1toL2Message:
-    """
-    Dataclass representing a L1->L2 message.
-    """
-
-    payload: List[int]
-    nonce: int
-    selector: int
-    l1_address: int
-    l2_address: int
-
-
-@dataclass
 class L2toL1Message:
     """
     Dataclass representing a L2->L1 message.
@@ -82,17 +69,66 @@ class ResourcePrice:
     """
 
     price_in_wei: int
-    price_in_strk: Optional[int]
+    price_in_fri: int
 
 
 @dataclass
-class ResourceLimits:
+class ResourceBounds:
     """
-    Dataclass representing resource limits.
+    Dataclass representing max amount and price of the resource that can be used in the transaction.
     """
 
     max_amount: int
     max_price_per_unit: int
+
+    @staticmethod
+    def init_with_zeros():
+        return ResourceBounds(max_amount=0, max_price_per_unit=0)
+
+
+@dataclass
+class ResourceBoundsMapping:
+    """
+    Dataclass representing resource limits that can be used in the transaction.
+    """
+
+    l1_gas: ResourceBounds
+    l2_gas: ResourceBounds
+
+    @staticmethod
+    def init_with_zeros():
+        return ResourceBoundsMapping(
+            l1_gas=ResourceBounds.init_with_zeros(),
+            l2_gas=ResourceBounds.init_with_zeros(),
+        )
+
+
+class PriceUnit(Enum):
+    """
+    Enum representing price unit types.
+    """
+
+    WEI = "WEI"
+    FRI = "FRI"
+
+
+@dataclass
+class FeePayment:
+    """
+    Dataclass representing fee payment info as it appears in receipts.
+    """
+
+    amount: int
+    unit: PriceUnit
+
+
+class DAMode(Enum):
+    """
+    Specifies a storage domain in Starknet. Each domain has different guarantees regarding availability.
+    """
+
+    L1 = 0
+    L2 = 1
 
 
 class TransactionType(Enum):
@@ -117,8 +153,6 @@ class Transaction(ABC):
     # together with the rest of the data, it remains here (but is still Optional just in case as spec says)
     hash: Optional[int]
     signature: List[int]
-    # Optional for DECLARE_V3 and DEPLOY_ACCOUNT_V3, where there is no `max_fee` field, but `l1_gas`
-    max_fee: Optional[int]
     version: int
 
     def __post_init__(self):
@@ -127,7 +161,37 @@ class Transaction(ABC):
 
 
 @dataclass
-class InvokeTransaction(Transaction):
+class DeprecatedTransaction(Transaction):
+    """
+    Dataclass representing common attributes of transactions v1 and v2.
+    """
+
+    max_fee: int
+
+    def __post_init__(self):
+        if self.__class__ == DeprecatedTransaction:
+            raise TypeError("Cannot instantiate abstract DeprecatedTransaction class.")
+
+
+@dataclass
+class TransactionV3(Transaction):
+    """
+    Dataclass representing common attributes of all transactions v3.
+    """
+
+    resource_bounds: ResourceBoundsMapping
+    paymaster_data: List[int]
+    tip: int
+    nonce_data_availability_mode: DAMode
+    fee_data_availability_mode: DAMode
+
+    def __post_init__(self):
+        if self.__class__ == TransactionV3:
+            raise TypeError("Cannot instantiate abstract TransactionV3 class.")
+
+
+@dataclass
+class InvokeTransaction(DeprecatedTransaction):
     """
     Dataclass representing invoke transaction.
     """
@@ -140,7 +204,19 @@ class InvokeTransaction(Transaction):
 
 
 @dataclass
-class DeclareTransaction(Transaction):
+class InvokeTransactionV3(TransactionV3):
+    """
+    Dataclass representing invoke transaction v3.
+    """
+
+    sender_address: int
+    calldata: List[int]
+    account_deployment_data: List[int]
+    nonce: int
+
+
+@dataclass
+class DeclareTransaction(DeprecatedTransaction):
     """
     Dataclass representing declare transaction.
     """
@@ -149,7 +225,19 @@ class DeclareTransaction(Transaction):
     sender_address: int
     compiled_class_hash: Optional[int] = None  # only in DeclareV2, hence Optional
     nonce: Optional[int] = None
-    l1_gas: Optional[ResourceLimits] = None  # DECLARE_V3-only field, hence Optional
+
+
+@dataclass
+class DeclareTransactionV3(TransactionV3):
+    """
+    Dataclass representing declare transaction v3.
+    """
+
+    class_hash: int
+    compiled_class_hash: int
+    nonce: int
+    sender_address: int
+    account_deployment_data: List[int]
 
 
 @dataclass
@@ -158,19 +246,27 @@ class DeployTransaction(Transaction):
     Dataclass representing deploy transaction.
     """
 
-    contract_address: Optional[int]  # Gateway-only field, hence Optional
     contract_address_salt: int
     constructor_calldata: List[int]
     class_hash: int
-    l1_gas: Optional[
-        ResourceLimits
-    ] = None  # DEPLOY_ACCOUNT_V3-only field, hence Optional
 
 
 @dataclass
-class DeployAccountTransaction(Transaction):
+class DeployAccountTransaction(DeprecatedTransaction):
     """
     Dataclass representing deploy account transaction.
+    """
+
+    contract_address_salt: int
+    class_hash: int
+    constructor_calldata: List[int]
+    nonce: int
+
+
+@dataclass
+class DeployAccountTransactionV3(TransactionV3):
+    """
+    Dataclass representing deploy account transaction v3.
     """
 
     contract_address_salt: int
@@ -188,7 +284,7 @@ class L1HandlerTransaction(Transaction):
     contract_address: int
     calldata: List[int]
     entry_point_selector: int
-    nonce: Optional[int] = None
+    nonce: int
 
 
 class TransactionStatus(Enum):
@@ -196,13 +292,10 @@ class TransactionStatus(Enum):
     Enum representing transaction statuses.
     """
 
-    NOT_RECEIVED = "NOT_RECEIVED"
     RECEIVED = "RECEIVED"
+    REJECTED = "REJECTED"
     ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
     ACCEPTED_ON_L1 = "ACCEPTED_ON_L1"
-    REJECTED = "REJECTED"
-    REVERTED = "REVERTED"
-    SUCCEEDED = "SUCCEEDED"
 
 
 class TransactionExecutionStatus(Enum):
@@ -210,9 +303,8 @@ class TransactionExecutionStatus(Enum):
     Enum representing transaction execution statuses.
     """
 
-    REJECTED = "REJECTED"
-    REVERTED = "REVERTED"
     SUCCEEDED = "SUCCEEDED"
+    REVERTED = "REVERTED"
 
 
 class TransactionFinalityStatus(Enum):
@@ -220,13 +312,30 @@ class TransactionFinalityStatus(Enum):
     Enum representing transaction finality statuses.
     """
 
-    NOT_RECEIVED = "NOT_RECEIVED"
-    RECEIVED = "RECEIVED"
     ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
     ACCEPTED_ON_L1 = "ACCEPTED_ON_L1"
 
 
-# TODO (#1047): split into PendingTransactionReceipt and TransactionReceipt?
+@dataclass
+class ExecutionResources:
+    """
+    Dataclass representing the resources consumed by the transaction.
+    """
+
+    # pylint: disable=too-many-instance-attributes
+
+    steps: int
+    range_check_builtin_applications: Optional[int] = None
+    pedersen_builtin_applications: Optional[int] = None
+    poseidon_builtin_applications: Optional[int] = None
+    ec_op_builtin_applications: Optional[int] = None
+    ecdsa_builtin_applications: Optional[int] = None
+    bitwise_builtin_applications: Optional[int] = None
+    keccak_builtin_applications: Optional[int] = None
+    memory_holes: Optional[int] = None
+
+
+# TODO (#1219): split into PendingTransactionReceipt and TransactionReceipt
 @dataclass
 class TransactionReceipt:
     """
@@ -236,37 +345,23 @@ class TransactionReceipt:
     # pylint: disable=too-many-instance-attributes
 
     transaction_hash: int
+    execution_status: TransactionExecutionStatus
+    finality_status: TransactionFinalityStatus
+    execution_resources: ExecutionResources
+    actual_fee: FeePayment
+    type: TransactionType
+
     events: List[Event] = field(default_factory=list)
-    l2_to_l1_messages: List[L2toL1Message] = field(default_factory=list)
+    messages_sent: List[L2toL1Message] = field(default_factory=list)
 
-    execution_status: Optional[
-        TransactionExecutionStatus
-    ] = None  # gateway/pending receipt field
-    finality_status: Optional[TransactionFinalityStatus] = None
-    status: Optional[
-        TransactionStatus
-    ] = None  # replaced by execution and finality status in RPC v0.4.0-rc1
-
-    type: Optional[TransactionType] = None
     contract_address: Optional[int] = None
 
     block_number: Optional[int] = None
     block_hash: Optional[int] = None
-    actual_fee: int = 0
-    # TODO (#1047): change that into ExecutionResources class after gateway removal
-    #  (values of course differ for each client)
-    # TODO (#1179): this field should be required
-    execution_resources: Optional[dict] = field(default_factory=dict)
 
     message_hash: Optional[int] = None  # L1_HANDLER_TXN_RECEIPT-only
 
-    rejection_reason: Optional[str] = None
-    revert_reason: Optional[str] = None  # full_node-only field
-    revert_error: Optional[str] = None  # gateway-only field
-
-    # gateway only
-    l1_to_l2_consumed_message: Optional[L1toL2Message] = None
-    transaction_index: Optional[int] = None
+    revert_reason: Optional[str] = None
 
 
 @dataclass
@@ -319,10 +414,8 @@ class PendingStarknetBlock:
     parent_block_hash: int
     timestamp: int
     sequencer_address: int
-    # TODO (#1179): this field should be required
-    l1_gas_price: Optional[ResourcePrice] = None
-    # TODO (#1179): this field should be required
-    starknet_version: Optional[str] = None
+    l1_gas_price: ResourcePrice
+    starknet_version: str
 
 
 @dataclass
@@ -335,10 +428,8 @@ class PendingStarknetBlockWithTxHashes:
     parent_block_hash: int
     timestamp: int
     sequencer_address: int
-    # TODO (#1179): this field should be required
-    l1_gas_price: Optional[ResourcePrice] = None
-    # TODO (#1179): this field should be required
-    starknet_version: Optional[str] = None
+    l1_gas_price: ResourcePrice
+    starknet_version: str
 
 
 @dataclass
@@ -347,7 +438,7 @@ class StarknetBlockCommon:
     Dataclass representing a block header.
     """
 
-    # TODO (#1047): change that into composition (with all the breaking changes it will be a minor thing there)
+    # TODO (#1219): change that into composition
     # pylint: disable=too-many-instance-attributes
 
     block_hash: int
@@ -356,10 +447,8 @@ class StarknetBlockCommon:
     root: int
     timestamp: int
     sequencer_address: int
-    # TODO (#1179): this field should be required
-    l1_gas_price: Optional[ResourcePrice]
-    # TODO (#1179): this field should be required
-    starknet_version: Optional[str]
+    l1_gas_price: ResourcePrice
+    starknet_version: str
 
 
 @dataclass
@@ -383,44 +472,6 @@ class StarknetBlockWithTxHashes(StarknetBlockCommon):
 
 
 @dataclass
-class GatewayBlockTransactionReceipt:
-    # pylint: disable=too-many-instance-attributes
-    transaction_index: int
-    transaction_hash: int
-    l2_to_l1_messages: List[L2toL1Message]
-    events: List[Event]
-    actual_fee: int
-    execution_status: Optional[TransactionExecutionStatus] = None
-    finality_status: Optional[TransactionFinalityStatus] = None
-    execution_resources: Optional[dict] = None
-    l1_to_l2_consumed_message: Optional[L1toL2Message] = None
-    revert_error: Optional[str] = None
-
-
-@dataclass
-class GatewayBlock:
-    """
-    Dataclass representing a block from the Starknet gateway.
-    """
-
-    # pylint: disable=too-many-instance-attributes
-    gas_price: int
-    status: BlockStatus
-    transactions: List[Transaction]
-    transaction_receipts: List[GatewayBlockTransactionReceipt]
-
-    timestamp: int
-    parent_block_hash: int
-
-    root: Optional[int] = None
-    block_number: Optional[int] = None
-    block_hash: Optional[int] = None
-
-    sequencer_address: Optional[int] = None
-    starknet_version: Optional[str] = None
-
-
-@dataclass
 class BlockHashAndNumber:
     block_hash: int
     block_number: int
@@ -434,31 +485,6 @@ class SyncStatus:
     current_block_num: int
     highest_block_hash: int
     highest_block_num: int
-
-
-@dataclass
-class BlockSingleTransactionTrace:
-    """
-    Dataclass representing a trace of transaction execution.
-    """
-
-    signature: List[int]
-    transaction_hash: int
-    function_invocation: Optional[dict] = None
-    validate_invocation: Optional[dict] = None
-    fee_transfer_invocation: Optional[dict] = None
-    constructor_invocation: Optional[dict] = None
-    # Gateway-only field, information about reversion in RPC spec is returned inside "execute_invocation"
-    revert_error: Optional[str] = None
-
-
-@dataclass
-class BlockTransactionTraces:
-    """
-    Dataclass representing traces of all transactions in block.
-    """
-
-    traces: List[BlockSingleTransactionTrace]
 
 
 @dataclass
@@ -489,7 +515,8 @@ class EstimatedFee:
 
     overall_fee: int
     gas_price: int
-    gas_usage: int
+    gas_consumed: int
+    unit: PriceUnit
 
 
 @dataclass
@@ -547,16 +574,6 @@ class StateDiff:
 
 
 @dataclass
-class GatewayStateDiff:
-    storage_diffs: List[StorageDiffItem]
-    deployed_contracts: List[DeployedContract]
-    declared_contract_hashes: List[DeclaredContractHash]
-    nonces: List[ContractsNonce]
-    deprecated_declared_contract_hashes: List[int] = field(default_factory=list)
-    replaced_classes: List[ReplacedClass] = field(default_factory=list)
-
-
-@dataclass
 class BlockStateUpdate:
     """
     Dataclass representing a change in state of a block.
@@ -565,7 +582,7 @@ class BlockStateUpdate:
     block_hash: int
     new_root: int
     old_root: int
-    state_diff: Union[StateDiff, GatewayStateDiff]
+    state_diff: StateDiff
 
 
 @dataclass
@@ -576,26 +593,6 @@ class PendingBlockStateUpdate:
 
     old_root: int
     state_diff: StateDiff
-
-
-@dataclass
-class StateUpdateWithBlock:
-    """
-    Dataclass representing a change in state of a block with the block.
-    """
-
-    block: GatewayBlock
-    state_update: BlockStateUpdate
-
-
-@dataclass
-class ContractCode:
-    """
-    Dataclass representing contract deployed to Starknet.
-    """
-
-    bytecode: List[int]
-    abi: List[Dict[str, Any]]
 
 
 @dataclass
@@ -721,18 +718,6 @@ class CasmClass:
 
 
 @dataclass
-class GatewayTransactionStatusResponse:
-    """
-    Dataclass representing transaction status for the GatewayClient.
-    """
-
-    block_hash: Optional[int]
-    transaction_status: TransactionStatus
-    finality_status: Optional[TransactionFinalityStatus] = None
-    execution_status: Optional[TransactionExecutionStatus] = None
-
-
-@dataclass
 class TransactionStatusResponse:
     """
     Dataclass representing transaction status for the FullNodeClient.
@@ -740,56 +725,6 @@ class TransactionStatusResponse:
 
     finality_status: TransactionStatus
     execution_status: Optional[TransactionExecutionStatus] = None
-
-
-@dataclass
-class SignatureInput:
-    """
-    Dataclass representing a signature input.
-    """
-
-    block_hash: int
-    state_diff_commitment: int
-
-
-@dataclass
-class SignatureOnStateDiff:
-    """
-    Dataclass representing signature on state diff commitment and block hash.
-    """
-
-    block_number: int
-    signature: List[int]
-    signature_input: SignatureInput
-
-
-class DAMode(Enum):
-    """
-    Enum specifying a storage domain in Starknet. Each domain has different gurantess regarding availability.
-    """
-
-    L1 = "L1"
-    L2 = "L2"
-
-
-@dataclass
-class ExecutionResources:
-    """
-    Dataclass representing the resources consumed by the transaction.
-    """
-
-    # pylint: disable=too-many-instance-attributes
-
-    # For now the class and schema related to it is unused, it is waiting here for refactoring.
-    steps: int
-    range_check_builtin_applications: int
-    pedersen_builtin_applications: int
-    poseidon_builtin_applications: int
-    ec_op_builtin_applications: int
-    ecdsa_builtin_applications: int
-    bitwise_builtin_applications: int
-    keccak_builtin_applications: int
-    memory_holes: Optional[int] = None
 
 
 # ------------------------------- Trace API dataclasses -------------------------------
@@ -865,6 +800,7 @@ class FunctionInvocation:
     calls: List["FunctionInvocation"]
     events: List[OrderedEvent]
     messages: List[OrderedMessage]
+    execution_resources: ExecutionResources
 
 
 @dataclass

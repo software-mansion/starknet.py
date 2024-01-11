@@ -17,19 +17,23 @@ from starknet_py.net.client_models import (
     Calls,
     EstimatedFee,
     Hash,
+    ResourceBounds,
+    ResourceBoundsMapping,
     SentTransactionResponse,
     SierraContractClass,
     Tag,
 )
 from starknet_py.net.full_node_client import FullNodeClient
-from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import AddressRepresentation, StarknetChainId, parse_address
 from starknet_py.net.models.transaction import (
     AccountTransaction,
-    Declare,
+    DeclareV1,
     DeclareV2,
-    DeployAccount,
-    Invoke,
+    DeclareV3,
+    DeployAccountV1,
+    DeployAccountV3,
+    InvokeV1,
+    InvokeV3,
     TypeAccountTransaction,
 )
 from starknet_py.net.models.typed_data import TypedData
@@ -56,6 +60,11 @@ class Account(BaseAccount):
 
     ESTIMATED_FEE_MULTIPLIER: float = 1.5
     """Amount by which each estimated fee is multiplied when using `auto_estimate`."""
+
+    ESTIMATED_AMOUNT_MULTIPLIER: float = 1.1
+    ESTIMATED_UNIT_PRICE_MULTIPLIER: float = 1.5
+    """Values by which each estimated `max_amount` and `max_price_per_unit` are multiplied when using 
+    `auto_estimate`. Used only for V3 transactions"""
 
     def __init__(
         self,
@@ -103,15 +112,10 @@ class Account(BaseAccount):
     @property
     async def cairo_version(self) -> int:
         if self._cairo_version is None:
-            if isinstance(self._client, GatewayClient):
-                contract_class = await self._client.get_full_contract(
-                    contract_address=self._address
-                )
-            else:
-                assert isinstance(self._client, FullNodeClient)
-                contract_class = await self._client.get_class_at(
-                    contract_address=self._address
-                )
+            assert isinstance(self._client, FullNodeClient)
+            contract_class = await self._client.get_class_at(
+                contract_address=self._address
+            )
             self._cairo_version = (
                 1 if isinstance(contract_class, SierraContractClass) else 0
             )
@@ -151,6 +155,37 @@ class Account(BaseAccount):
 
         return max_fee
 
+    async def _get_resource_bounds(
+        self,
+        transaction: AccountTransaction,
+        l1_resource_bounds: Optional[ResourceBounds] = None,
+        auto_estimate: bool = False,
+    ) -> ResourceBoundsMapping:
+        if auto_estimate and l1_resource_bounds is not None:
+            raise ValueError(
+                "Arguments auto_estimate and l1_resource_bounds are mutually exclusive."
+            )
+
+        if auto_estimate:
+            estimated_fee = await self._estimate_fee(transaction)
+            l1_resource_bounds = ResourceBounds(
+                max_amount=int(
+                    estimated_fee.gas_consumed * Account.ESTIMATED_AMOUNT_MULTIPLIER
+                ),
+                max_price_per_unit=int(
+                    estimated_fee.gas_price * Account.ESTIMATED_UNIT_PRICE_MULTIPLIER
+                ),
+            )
+
+        if l1_resource_bounds is None:
+            raise ValueError(
+                "One of arguments: l1_resource_bounds or auto_estimate must be specified when invoking a transaction."
+            )
+
+        return ResourceBoundsMapping(
+            l1_gas=l1_resource_bounds, l2_gas=ResourceBounds.init_with_zeros()
+        )
+
     async def _prepare_invoke(
         self,
         calls: Calls,
@@ -158,7 +193,7 @@ class Account(BaseAccount):
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-    ) -> Invoke:
+    ) -> InvokeV1:
         """
         Takes calls and creates Invoke from them.
 
@@ -170,18 +205,9 @@ class Account(BaseAccount):
         if nonce is None:
             nonce = await self.get_nonce()
 
-        if await self.cairo_version == 1:
-            parsed_calls = _parse_calls_v2(ensure_iterable(calls))
-            wrapped_calldata = _execute_payload_serializer_v2.serialize(
-                {"calls": parsed_calls}
-            )
-        else:
-            call_descriptions, calldata = _merge_calls(ensure_iterable(calls))
-            wrapped_calldata = _execute_payload_serializer.serialize(
-                {"call_array": call_descriptions, "calldata": calldata}
-            )
+        wrapped_calldata = _parse_calls(await self.cairo_version, calls)
 
-        transaction = Invoke(
+        transaction = InvokeV1(
             calldata=wrapped_calldata,
             signature=[],
             max_fee=0,
@@ -193,6 +219,41 @@ class Account(BaseAccount):
         max_fee = await self._get_max_fee(transaction, max_fee, auto_estimate)
 
         return _add_max_fee_to_transaction(transaction, max_fee)
+
+    async def _prepare_invoke_v3(
+        self,
+        calls: Calls,
+        *,
+        l1_resource_bounds: Optional[ResourceBounds] = None,
+        nonce: Optional[int] = None,
+        auto_estimate: bool = False,
+    ) -> InvokeV3:
+        """
+        Takes calls and creates InvokeV3 from them.
+
+        :param calls: Single call or a list of calls.
+        :param l1_resource_bounds: Max amount and max price per unit of L1 gas used in this transaction.
+        :param auto_estimate: Use automatic fee estimation; not recommended as it may lead to high costs.
+        :return: InvokeV3 created from the calls (without the signature).
+        """
+        if nonce is None:
+            nonce = await self.get_nonce()
+
+        wrapped_calldata = _parse_calls(await self.cairo_version, calls)
+
+        transaction = InvokeV3(
+            calldata=wrapped_calldata,
+            resource_bounds=ResourceBoundsMapping.init_with_zeros(),
+            signature=[],
+            nonce=nonce,
+            sender_address=self.address,
+            version=3,
+        )
+
+        resource_bounds = await self._get_resource_bounds(
+            transaction, l1_resource_bounds, auto_estimate
+        )
+        return _add_resource_bounds_to_transaction(transaction, resource_bounds)
 
     async def _estimate_fee(
         self,
@@ -266,14 +327,14 @@ class Account(BaseAccount):
         signature = self.signer.sign_transaction(transaction)
         return _add_signature_to_transaction(tx=transaction, signature=signature)
 
-    async def sign_invoke_transaction(
+    async def sign_invoke_v1_transaction(
         self,
         calls: Calls,
         *,
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-    ) -> Invoke:
+    ) -> InvokeV1:
         execute_tx = await self._prepare_invoke(
             calls,
             nonce=nonce,
@@ -283,20 +344,37 @@ class Account(BaseAccount):
         signature = self.signer.sign_transaction(execute_tx)
         return _add_signature_to_transaction(execute_tx, signature)
 
-    async def sign_declare_transaction(
+    async def sign_invoke_v3_transaction(
+        self,
+        calls: Calls,
+        *,
+        nonce: Optional[int] = None,
+        l1_resource_bounds: Optional[ResourceBounds] = None,
+        auto_estimate: bool = False,
+    ) -> InvokeV3:
+        invoke_tx = await self._prepare_invoke_v3(
+            calls,
+            l1_resource_bounds=l1_resource_bounds,
+            nonce=nonce,
+            auto_estimate=auto_estimate,
+        )
+        signature = self.signer.sign_transaction(invoke_tx)
+        return _add_signature_to_transaction(invoke_tx, signature)
+
+    async def sign_declare_v1_transaction(
         self,
         compiled_contract: str,
         *,
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-    ) -> Declare:
+    ) -> DeclareV1:
         if _is_sierra_contract(json.loads(compiled_contract)):
             raise ValueError(
                 "Signing sierra contracts requires using `sign_declare_v2_transaction` method."
             )
 
-        declare_tx = await self._make_declare_transaction(
+        declare_tx = await self._make_declare_v1_transaction(
             compiled_contract, nonce=nonce
         )
 
@@ -326,15 +404,37 @@ class Account(BaseAccount):
         signature = self.signer.sign_transaction(declare_tx)
         return _add_signature_to_transaction(declare_tx, signature)
 
-    async def _make_declare_transaction(
+    async def sign_declare_v3_transaction(
+        self,
+        compiled_contract: str,
+        compiled_class_hash: int,
+        *,
+        nonce: Optional[int] = None,
+        l1_resource_bounds: Optional[ResourceBounds] = None,
+        auto_estimate: bool = False,
+    ) -> DeclareV3:
+        declare_tx = await self._make_declare_v3_transaction(
+            compiled_contract,
+            compiled_class_hash,
+            nonce=nonce,
+        )
+        resource_bounds = await self._get_resource_bounds(
+            declare_tx, l1_resource_bounds, auto_estimate
+        )
+        declare_tx = _add_resource_bounds_to_transaction(declare_tx, resource_bounds)
+
+        signature = self.signer.sign_transaction(declare_tx)
+        return _add_signature_to_transaction(declare_tx, signature)
+
+    async def _make_declare_v1_transaction(
         self, compiled_contract: str, *, nonce: Optional[int] = None
-    ) -> Declare:
+    ) -> DeclareV1:
         contract_class = create_compiled_contract(compiled_contract=compiled_contract)
 
         if nonce is None:
             nonce = await self.get_nonce()
 
-        declare_tx = Declare(
+        declare_tx = DeclareV1(
             contract_class=contract_class,
             sender_address=self.address,
             max_fee=0,
@@ -369,7 +469,32 @@ class Account(BaseAccount):
         )
         return declare_tx
 
-    async def sign_deploy_account_transaction(
+    async def _make_declare_v3_transaction(
+        self,
+        compiled_contract: str,
+        compiled_class_hash: int,
+        *,
+        nonce: Optional[int] = None,
+    ) -> DeclareV3:
+        contract_class = create_sierra_compiled_contract(
+            compiled_contract=compiled_contract
+        )
+
+        if nonce is None:
+            nonce = await self.get_nonce()
+
+        declare_tx = DeclareV3(
+            contract_class=contract_class,
+            compiled_class_hash=compiled_class_hash,
+            sender_address=self.address,
+            signature=[],
+            nonce=nonce,
+            version=3,
+            resource_bounds=ResourceBoundsMapping.init_with_zeros(),
+        )
+        return declare_tx
+
+    async def sign_deploy_account_v1_transaction(
         self,
         class_hash: int,
         contract_address_salt: int,
@@ -378,13 +503,11 @@ class Account(BaseAccount):
         nonce: int = 0,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-    ) -> DeployAccount:
-        constructor_calldata = constructor_calldata or []
-
-        deploy_account_tx = DeployAccount(
+    ) -> DeployAccountV1:
+        deploy_account_tx = DeployAccountV1(
             class_hash=class_hash,
             contract_address_salt=contract_address_salt,
-            constructor_calldata=constructor_calldata,
+            constructor_calldata=(constructor_calldata or []),
             version=1,
             max_fee=0,
             signature=[],
@@ -398,6 +521,35 @@ class Account(BaseAccount):
         signature = self.signer.sign_transaction(deploy_account_tx)
         return _add_signature_to_transaction(deploy_account_tx, signature)
 
+    async def sign_deploy_account_v3_transaction(
+        self,
+        class_hash: int,
+        contract_address_salt: int,
+        *,
+        constructor_calldata: Optional[List[int]] = None,
+        nonce: int = 0,
+        l1_resource_bounds: Optional[ResourceBounds] = None,
+        auto_estimate: bool = False,
+    ) -> DeployAccountV3:
+        deploy_account_tx = DeployAccountV3(
+            class_hash=class_hash,
+            contract_address_salt=contract_address_salt,
+            constructor_calldata=(constructor_calldata or []),
+            version=3,
+            resource_bounds=ResourceBoundsMapping.init_with_zeros(),
+            signature=[],
+            nonce=nonce,
+        )
+        resource_bounds = await self._get_resource_bounds(
+            deploy_account_tx, l1_resource_bounds, auto_estimate
+        )
+        deploy_account_tx = _add_resource_bounds_to_transaction(
+            deploy_account_tx, resource_bounds
+        )
+
+        signature = self.signer.sign_transaction(deploy_account_tx)
+        return _add_signature_to_transaction(deploy_account_tx, signature)
+
     async def execute(
         self,
         calls: Calls,
@@ -406,10 +558,26 @@ class Account(BaseAccount):
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> SentTransactionResponse:
-        execute_transaction = await self.sign_invoke_transaction(
+        execute_transaction = await self.sign_invoke_v1_transaction(
             calls,
             nonce=nonce,
             max_fee=max_fee,
+            auto_estimate=auto_estimate,
+        )
+        return await self._client.send_transaction(execute_transaction)
+
+    async def execute_v3(
+        self,
+        calls: Calls,
+        *,
+        l1_resource_bounds: Optional[ResourceBounds] = None,
+        nonce: Optional[int] = None,
+        auto_estimate: bool = False,
+    ) -> SentTransactionResponse:
+        execute_transaction = await self.sign_invoke_v3_transaction(
+            calls,
+            l1_resource_bounds=l1_resource_bounds,
+            nonce=nonce,
             auto_estimate=auto_estimate,
         )
         return await self._client.send_transaction(execute_transaction)
@@ -486,7 +654,7 @@ class Account(BaseAccount):
             chain=chain,
         )
 
-        deploy_account_tx = await account.sign_deploy_account_transaction(
+        deploy_account_tx = await account.sign_deploy_account_v1_transaction(
             class_hash=class_hash,
             contract_address_salt=salt,
             constructor_calldata=calldata,
@@ -539,6 +707,26 @@ def _add_max_fee_to_transaction(
     tx: TypeAccountTransaction, max_fee: int
 ) -> TypeAccountTransaction:
     return dataclasses.replace(tx, max_fee=max_fee)
+
+
+def _add_resource_bounds_to_transaction(
+    tx: TypeAccountTransaction, resource_bounds: ResourceBoundsMapping
+) -> TypeAccountTransaction:
+    return dataclasses.replace(tx, resource_bounds=resource_bounds)
+
+
+def _parse_calls(cairo_version: int, calls: Calls) -> List[int]:
+    if cairo_version == 1:
+        parsed_calls = _parse_calls_v2(ensure_iterable(calls))
+        wrapped_calldata = _execute_payload_serializer_v2.serialize(
+            {"calls": parsed_calls}
+        )
+    else:
+        call_descriptions, calldata = _merge_calls(ensure_iterable(calls))
+        wrapped_calldata = _execute_payload_serializer.serialize(
+            {"call_array": call_descriptions, "calldata": calldata}
+        )
+    return wrapped_calldata
 
 
 def _parse_call(call: Call, entire_calldata: List) -> Tuple[Dict, List]:

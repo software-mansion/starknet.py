@@ -1,10 +1,7 @@
-import os
 import socket
 import subprocess
 import time
-import warnings
 from contextlib import closing
-from pathlib import Path
 from typing import Generator, List
 
 import pytest
@@ -17,69 +14,27 @@ def get_available_port() -> int:
         return sock.getsockname()[1]
 
 
-def get_compiler_manifest() -> List[str]:
-    """
-    Load manifest-path file and return it as --cairo-compiler-manifest flag to starknet-devnet.
-    To configure manifest locally, install Cairo 1 compiler https://github.com/starkware-libs/cairo
-    and create manifest-path containing a path to top-level Cargo.toml file in cairo 1 compiler directory
-    file from manifest-path.template.
-    """
-    try:
-        manifest_file_path = Path(os.path.dirname(__file__)) / "../manifest-path"
-        manifest = manifest_file_path.read_text("utf-8").splitlines()[0]
-
-        return ["--cairo-compiler-manifest", manifest]
-    except (IndexError, FileNotFoundError):
-        warnings.warn(
-            "File 'manifest-path' was not found in directory 'starknet_py/tests/e2e'. More info "
-            "here: https://starknetpy.readthedocs.io/en/latest/development.html#setup"
-        )
-        return []
-
-
 def start_devnet():
     devnet_port = get_available_port()
-
-    if os.name == "nt":
-        start_devnet_command = start_devnet_command_windows(devnet_port)
-    else:
-        start_devnet_command = start_devnet_command_unix(devnet_port)
+    start_devnet_command = get_start_devnet_command(devnet_port)
 
     # pylint: disable=consider-using-with
     proc = subprocess.Popen(start_devnet_command)
-    time.sleep(10)
+    time.sleep(5)
     return devnet_port, proc
 
 
-def start_devnet_command_unix(devnet_port: int) -> List[str]:
+def get_start_devnet_command(devnet_port: int) -> List[str]:
     return [
-        "poetry",
-        "run",
         "starknet-devnet",
-        "--host",
-        "localhost",
         "--port",
         str(devnet_port),
         "--accounts",  # deploys specified number of accounts
         str(1),
         "--seed",  # generates same accounts each time
         str(1),
-        *get_compiler_manifest(),
-    ]
-
-
-def start_devnet_command_windows(devnet_port: int) -> List[str]:
-    return [
-        "wsl",
-        "python3",
-        "-m",
-        "starknet_devnet.server",
-        "--port",
-        f"{devnet_port}",
-        "--accounts",
-        str(1),
-        "--seed",
-        str(1),
+        "--state-archive-capacity",
+        "full",
     ]
 
 

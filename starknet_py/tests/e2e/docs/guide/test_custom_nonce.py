@@ -6,11 +6,11 @@ from starknet_py.net.client_models import Call, Hash, Tag
 
 
 @pytest.mark.asyncio
-async def test_custom_nonce(full_node_account):
+async def test_custom_nonce(account):
     # pylint: disable=import-outside-toplevel
-    client = full_node_account.client
-    address = full_node_account.address
-    private_key = full_node_account.signer.key_pair.private_key
+    client = account.client
+    address = account.address
+    private_key = account.signer.key_pair.private_key
 
     # docs: start
     from starknet_py.net.account.account import Account
@@ -61,5 +61,7 @@ async def test_custom_nonce(full_node_account):
     # docs: end
 
     assert account.nonce_counter == 0
-    await account.sign_invoke_transaction(calls=Call(0x1, 0x1, []), max_fee=10000000000)
+    await account.sign_invoke_v1_transaction(
+        calls=Call(0x1, 0x1, []), max_fee=10000000000
+    )
     assert account.nonce_counter == 1

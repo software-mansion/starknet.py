@@ -1,5 +1,10 @@
 name: Checks
 
+env:
+  STARKNET_VERSION: "0.13.0"
+  RPC_SPEC_VERSION: "0.6.0"
+  DEVNET_SHA: "1bd447d"
+
 on:
   push:
     branches:
@@ -115,48 +120,6 @@ jobs:
           name: contract-artifacts
           path: starknet_py/tests/e2e/mock/
 
-      # ====================== CAIRO SETUP ====================== #
-
-      - name: Install rust
-        run: |
-          curl https://sh.rustup.rs -sSf | sh -s -- -y
-
-      - name: Clone Cairo1 compiler repository
-        uses: actions/checkout@v3
-        with:
-          repository: starkware-libs/cairo
-          persist-credentials: false
-          ref: v2.0.0
-          path: cairo
-
-      - name: Cache rust dependencies
-        id: cache-rust
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Build compiler
-        if: steps.cache-rust.outputs.cache-hit != 'true'
-        working-directory: ./cairo
-        run: |
-          cargo build
-
-      - name: Build starknet-compile
-        working-directory: ./cairo
-        run: |
-          cargo run --bin starknet-compile -- --version
-          cargo run --bin starknet-sierra-compile -- --version
-
-      - name: Create manifest file
-        run: |
-          readlink -f cairo/Cargo.toml >> starknet_py/tests/e2e/manifest-path
-
   # ---------------------------------------------------------- #
   # ........................RUN-TESTS......................... #
   # ---------------------------------------------------------- #
@@ -171,6 +134,8 @@ jobs:
         python-version: [ "3.8", "3.9", "3.10", "3.11" ]
     steps:
       - uses: actions/checkout@v3
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - uses: Swatinem/rust-cache@v2
 
       - name: Download contracts
         uses: actions/download-artifact@v3
@@ -206,6 +171,14 @@ jobs:
         run: |
           poetry install --without py39-dev
 
+      # ====================== SETUP DEVNET ====================== #
+
+      - name: Install devnet
+        run: |
+          cargo install --locked \
+          --git https://github.com/0xSpaceShard/starknet-devnet-rs.git \
+          --rev ${{ env.DEVNET_SHA }}
+
       # ====================== RUN TESTS ====================== #
 
       - name: Check circular imports
@@ -214,10 +187,8 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run poe test_ci_full_node_v2
-          poetry run poe test_ci_full_node_v1
-          poetry run poe test_ci_gateway_v2
-          poetry run poe test_ci_gateway_v1
+          poetry run poe test_ci_v2
+          poetry run poe test_ci_v1
 
       - name: Generate coverage in XML
         run: |
@@ -288,8 +259,7 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run poe test_ci_on_networks_full_node
-          poetry run poe test_ci_on_networks_gateway
+          poetry run poe test_ci_on_networks
 
       - name: Generate coverage in XML
         run: |
@@ -313,6 +283,8 @@ jobs:
         python-version: [ "3.8", "3.9", "3.10", "3.11" ]
     steps:
       - uses: actions/checkout@v3
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - uses: Swatinem/rust-cache@v2
 
       - name: Download contracts
         uses: actions/download-artifact@v3
@@ -325,22 +297,10 @@ jobs:
           python-version: "3.9"
           cache: 'pip'
 
-      # ====================== SETUP WSL ====================== #
+      # ====================== SETUP DEVNET ====================== #
 
-      - name: Setup WSL
-        uses: Vampire/setup-wsl@v2
-
-      - name: Setup WSL devnet
-        shell: wsl-bash {0}
-        run: |
-          sudo apt-get -y update
-          sudo apt install -y wget software-properties-common
-          sudo add-apt-repository ppa:deadsnakes/ppa
-          sudo apt install -y python3.9
-          apt-get install -y python3-pip
-          sudo apt install -y libgmp3-dev
-          sudo apt-get install -y git
-          pip3 install git+https://github.com/0xSpaceShard/starknet-devnet.git@v0.6.2
+      - name: Install devnet
+        run: cargo install --locked --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --rev ${{ env.DEVNET_SHA }}
 
       # ====================== SETUP PYTHON ====================== #
 
@@ -373,10 +333,8 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run poe test_ci_full_node_v2
-          poetry run poe test_ci_full_node_v1
-          poetry run poe test_ci_gateway_v2
-          poetry run poe test_ci_gateway_v1
+          poetry run poe test_ci_v2
+          poetry run poe test_ci_v1
 
       - name: Generate coverage in XML
         run: |
@@ -399,6 +357,8 @@ jobs:
         python-version: [ "3.8", "3.9", "3.10", "3.11" ]
     steps:
       - uses: actions/checkout@v3
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - uses: Swatinem/rust-cache@v2
 
       - name: Download contracts
         uses: actions/download-artifact@v3
@@ -434,14 +394,20 @@ jobs:
         run: |
           poetry install --without py39-dev
 
+      # ====================== SETUP DEVNET ====================== #
+
+      - name: Install devnet
+        run: |
+          cargo install --locked \
+          --git https://github.com/0xSpaceShard/starknet-devnet-rs.git \
+          --rev ${{ env.DEVNET_SHA }}
+
       # ====================== RUN TESTS ====================== #
 
       - name: Run tests
         run: |
-          poetry run poe test_ci_docs_full_node_v2
-          poetry run poe test_ci_docs_full_node_v1
-          poetry run poe test_ci_docs_gateway_v2
-          poetry run poe test_ci_docs_gateway_v1
+          poetry run poe test_ci_docs_v2
+          poetry run poe test_ci_docs_v1
 
       - name: Generate coverage in XML
         run: |
@@ -465,6 +431,8 @@ jobs:
         python-version: [ "3.8", "3.9", "3.10", "3.11" ]
     steps:
       - uses: actions/checkout@v3
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - uses: Swatinem/rust-cache@v2
 
       - name: Download contracts
         uses: actions/download-artifact@v3
@@ -476,23 +444,6 @@ jobs:
         with:
           python-version: "3.9"
           cache: 'pip'
-
-      # ====================== SETUP WSL ====================== #
-
-      - name: Setup WSL
-        uses: Vampire/setup-wsl@v2
-
-      - name: Setup WSL devnet
-        shell: wsl-bash {0}
-        run: |
-          sudo apt-get -y update
-          sudo apt install -y wget software-properties-common
-          sudo add-apt-repository ppa:deadsnakes/ppa
-          sudo apt install -y python3.9
-          apt-get install -y python3-pip
-          sudo apt install -y libgmp3-dev
-          sudo apt-get install -y git
-          pip3 install git+https://github.com/0xSpaceShard/starknet-devnet.git@v0.6.2
 
       # ====================== SETUP PYTHON ====================== #
 
@@ -517,14 +468,17 @@ jobs:
         run: |
           poetry install --without py39-dev
 
+      # ====================== SETUP DEVNET ====================== #
+
+      - name: Install devnet
+        run: cargo install --locked --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --rev ${{ env.DEVNET_SHA }}
+
       # ====================== RUN TESTS ====================== #
 
       - name: Run tests
         run: |
-          poetry run poe test_ci_docs_full_node_v2
-          poetry run poe test_ci_docs_full_node_v1
-          poetry run poe test_ci_docs_gateway_v2
-          poetry run poe test_ci_docs_gateway_v1
+          poetry run poe test_ci_docs_v2
+          poetry run poe test_ci_docs_v1
 
       - name: Generate coverage in XML
         run: |

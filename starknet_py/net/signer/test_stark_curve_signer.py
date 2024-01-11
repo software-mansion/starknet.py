@@ -2,7 +2,7 @@ import pytest
 
 from starknet_py.common import create_compiled_contract
 from starknet_py.net.models import StarknetChainId
-from starknet_py.net.models.transaction import Declare, DeployAccount, Invoke
+from starknet_py.net.models.transaction import DeclareV1, DeployAccountV1, InvokeV1
 from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V0_DIR
 from starknet_py.tests.e2e.fixtures.misc import read_contract
@@ -15,7 +15,7 @@ compiled_contract = read_contract(
 @pytest.mark.parametrize(
     "transaction",
     [
-        Invoke(
+        InvokeV1(
             sender_address=0x1,
             calldata=[1, 2, 3],
             max_fee=10000,
@@ -23,7 +23,7 @@ compiled_contract = read_contract(
             nonce=23,
             version=1,
         ),
-        DeployAccount(
+        DeployAccountV1(
             class_hash=0x1,
             contract_address_salt=0x2,
             constructor_calldata=[1, 2, 3, 4],
@@ -32,7 +32,7 @@ compiled_contract = read_contract(
             nonce=23,
             version=1,
         ),
-        Declare(
+        DeclareV1(
             contract_class=create_compiled_contract(
                 compiled_contract=compiled_contract
             ),

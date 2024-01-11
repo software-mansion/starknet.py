@@ -3,6 +3,8 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+from starknet_py.net.client_models import ResourceBounds, ResourceBoundsMapping
+
 load_dotenv(dotenv_path=Path(os.path.dirname(__file__)) / "../test-variables.env")
 
 
@@ -29,6 +31,10 @@ TESTNET_ACCOUNT_PRIVATE_KEY = _get_env_lambda("TESTNET_ACCOUNT_PRIVATE_KEY")
 
 TESTNET_RPC_URL = _get_env_lambda("TESTNET_RPC_URL")
 
+EMPTY_CONTRACT_ADDRESS_TESTNET = (
+    "0x01de0e8ec5303c4624b96733bed7e4261724df4aecedae6305efa35931a4f0e6"
+)
+
 # -------------------------------- INTEGRATION ---------------------------------
 
 INTEGRATION_ACCOUNT_PRIVATE_KEY = _get_env_lambda("INTEGRATION_ACCOUNT_PRIVATE_KEY")
@@ -37,24 +43,31 @@ INTEGRATION_ACCOUNT_ADDRESS = _get_env_lambda("INTEGRATION_ACCOUNT_ADDRESS")
 
 INTEGRATION_RPC_URL = _get_env_lambda("INTEGRATION_RPC_URL")
 
-INTEGRATION_GATEWAY_URL = "https://external.integration.starknet.io"
-
-PREDEPLOYED_EMPTY_CONTRACT_ADDRESS = (
+EMPTY_CONTRACT_ADDRESS_INTEGRATION = (
     "0x0751cb46C364E912b6CB9221A857D8f90B1F6995A0e902997df774631432970E"
 )
 
-PREDEPLOYED_MAP_CONTRACT_ADDRESS = (
+MAP_CONTRACT_ADDRESS_INTEGRATION = (
     "0x05cd21d6b3952a869fda11fa9a5bd2657bd68080d3da255655ded47a81c8bd53"
 )
 
 # -----------------------------------------------------------------------------
 
 DEVNET_PRE_DEPLOYED_ACCOUNT_ADDRESS = (
-    "0x7d2f37b75a5e779f7da01c22acee1b66c39e8ba470ee5448f05e1462afcedb4"
+    "0x260a8311b4f1092db620b923e8d7d20e76dedcc615fb4b6fdf28315b81de201"
 )
-DEVNET_PRE_DEPLOYED_ACCOUNT_PRIVATE_KEY = "0xcd613e30d8f16adf91b7584a2265b1f5"
+DEVNET_PRE_DEPLOYED_ACCOUNT_PRIVATE_KEY = "0xc10662b7b247c7cecf7e8a30726cff12"
+
+STRK_FEE_CONTRACT_ADDRESS = (
+    "0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d"
+)
 
 MAX_FEE = int(1e16)
+
+MAX_RESOURCE_BOUNDS_L1 = ResourceBounds(max_amount=5000, max_price_per_unit=int(2e12))
+MAX_RESOURCE_BOUNDS = ResourceBoundsMapping(
+    l1_gas=MAX_RESOURCE_BOUNDS_L1, l2_gas=ResourceBounds.init_with_zeros()
+)
 
 MOCK_DIR = Path(os.path.dirname(__file__)) / "../mock"
 TYPED_DATA_DIR = MOCK_DIR / "typed_data"

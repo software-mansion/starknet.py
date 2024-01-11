@@ -8,13 +8,16 @@ from starknet_py.net.client_models import (
     BlockTransactionTrace,
     ContractClass,
     ContractsNonce,
+    DAMode,
     DeclaredContractHash,
     DeclareTransaction,
     DeclareTransactionResponse,
     DeclareTransactionTrace,
+    DeclareTransactionV3,
     DeployAccountTransaction,
     DeployAccountTransactionResponse,
     DeployAccountTransactionTrace,
+    DeployAccountTransactionV3,
     DeployedContract,
     DeployTransaction,
     EntryPoint,
@@ -23,9 +26,11 @@ from starknet_py.net.client_models import (
     Event,
     EventsChunk,
     ExecutionResources,
+    FeePayment,
     FunctionInvocation,
     InvokeTransaction,
     InvokeTransactionTrace,
+    InvokeTransactionV3,
     L1HandlerTransaction,
     L1HandlerTransactionTrace,
     L2toL1Message,
@@ -35,6 +40,8 @@ from starknet_py.net.client_models import (
     PendingStarknetBlock,
     PendingStarknetBlockWithTxHashes,
     ReplacedClass,
+    ResourceBounds,
+    ResourceBoundsMapping,
     ResourcePrice,
     RevertedFunctionInvocation,
     SentTransactionResponse,
@@ -53,16 +60,22 @@ from starknet_py.net.client_models import (
 from starknet_py.net.schemas.common import (
     BlockStatusField,
     CallTypeField,
+    DAModeField,
     EntryPointTypeField,
     ExecutionStatusField,
     Felt,
     FinalityStatusField,
     NonPrefixedHex,
+    NumberAsHex,
+    PriceUnitField,
     StatusField,
     StorageEntrySchema,
     TransactionTypeField,
+    Uint64,
+    Uint128,
 )
 from starknet_py.net.schemas.utils import (
+    _extract_tx_version,
     _replace_invoke_contract_address_with_sender_address,
 )
 
@@ -102,30 +115,65 @@ class L2toL1MessageSchema(Schema):
         return L2toL1Message(**data)
 
 
+class ExecutionResourcesSchema(Schema):
+    steps = Felt(data_key="steps", required=True)
+    range_check_builtin_applications = Felt(
+        data_key="range_check_builtin_applications", load_default=None
+    )
+    pedersen_builtin_applications = Felt(
+        data_key="pedersen_builtin_applications", load_default=None
+    )
+    poseidon_builtin_applications = Felt(
+        data_key="poseidon_builtin_applications", load_default=None
+    )
+    ec_op_builtin_applications = Felt(
+        data_key="ec_op_builtin_applications", load_default=None
+    )
+    ecdsa_builtin_applications = Felt(
+        data_key="ecdsa_builtin_applications", load_default=None
+    )
+    bitwise_builtin_applications = Felt(
+        data_key="bitwise_builtin_applications", load_default=None
+    )
+    keccak_builtin_applications = Felt(
+        data_key="keccak_builtin_applications", load_default=None
+    )
+    memory_holes = Felt(data_key="memory_holes", load_default=None)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> ExecutionResources:
+        return ExecutionResources(**data)
+
+
+class FeePaymentSchema(Schema):
+    amount = Felt(data_key="amount", required=True)
+    unit = PriceUnitField(data_key="unit", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> FeePayment:
+        return FeePayment(**data)
+
+
 class TransactionReceiptSchema(Schema):
     transaction_hash = Felt(data_key="transaction_hash", required=True)
-    # replaced by execution and finality status in RPC v0.4.0-rc1
-    status = StatusField(data_key="status", load_default=None)
-    execution_status = ExecutionStatusField(
-        data_key="execution_status", load_default=None
-    )
-    finality_status = FinalityStatusField(data_key="finality_status", load_default=None)
+    execution_status = ExecutionStatusField(data_key="execution_status", required=True)
+    finality_status = FinalityStatusField(data_key="finality_status", required=True)
     block_number = fields.Integer(data_key="block_number", load_default=None)
     block_hash = Felt(data_key="block_hash", load_default=None)
-    actual_fee = Felt(data_key="actual_fee", required=True)
-    type = TransactionTypeField(data_key="type", load_default=None)
+    actual_fee = fields.Nested(FeePaymentSchema(), data_key="actual_fee", required=True)
+    type = TransactionTypeField(data_key="type", required=True)
     contract_address = Felt(data_key="contract_address", load_default=None)
-    rejection_reason = fields.String(data_key="status_data", load_default=None)
     revert_reason = fields.String(data_key="revert_reason", load_default=None)
     events = fields.List(
         fields.Nested(EventSchema()), data_key="events", load_default=[]
     )
-    l2_to_l1_messages = fields.List(
+    messages_sent = fields.List(
         fields.Nested(L2toL1MessageSchema()), data_key="messages_sent", load_default=[]
     )
-    message_hash = Felt(data_key="message_hash", load_default=None)
-    # TODO (#1179): this field should be required
-    execution_resources = fields.Dict(data_key="execution_resources", load_default=None)
+    message_hash = NumberAsHex(data_key="message_hash", load_default=None)
+    execution_resources = fields.Nested(
+        ExecutionResourcesSchema(), data_key="execution_resources", required=True
+    )
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> TransactionReceipt:
@@ -135,7 +183,8 @@ class TransactionReceiptSchema(Schema):
 class EstimatedFeeSchema(Schema):
     overall_fee = Felt(data_key="overall_fee", required=True)
     gas_price = Felt(data_key="gas_price", required=True)
-    gas_usage = Felt(data_key="gas_consumed", required=True)
+    gas_consumed = Felt(data_key="gas_consumed", required=True)
+    unit = PriceUnitField(data_key="unit", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs):
@@ -154,7 +203,7 @@ class TransactionStatusResponseSchema(Schema):
 
 
 class ResourcePriceSchema(Schema):
-    price_in_strk = Felt(data_key="price_in_strk", load_default=None)
+    price_in_fri = Felt(data_key="price_in_fri", required=True)
     price_in_wei = Felt(data_key="price_in_wei", required=True)
 
     @post_load
@@ -162,14 +211,49 @@ class ResourcePriceSchema(Schema):
         return ResourcePrice(**data)
 
 
+class ResourceBoundsSchema(Schema):
+    max_amount = Uint64(data_key="max_amount", required=True)
+    max_price_per_unit = Uint128(data_key="max_price_per_unit", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> ResourceBounds:
+        return ResourceBounds(**data)
+
+
+class ResourceBoundsMappingSchema(Schema):
+    l1_gas = fields.Nested(ResourceBoundsSchema(), data_key="l1_gas", required=True)
+    l2_gas = fields.Nested(ResourceBoundsSchema(), data_key="l2_gas", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> ResourceBoundsMapping:
+        return ResourceBoundsMapping(**data)
+
+
 class TransactionSchema(Schema):
     hash = Felt(data_key="transaction_hash", load_default=None)
     signature = fields.List(Felt(), data_key="signature", load_default=[])
-    max_fee = Felt(data_key="max_fee", load_default=0)
     version = Felt(data_key="version", required=True)
 
 
-class InvokeTransactionSchema(TransactionSchema):
+class DeprecatedTransactionSchema(TransactionSchema):
+    max_fee = Felt(data_key="max_fee", required=True)
+
+
+class TransactionV3Schema(TransactionSchema):
+    tip = Uint64(data_key="tip", load_default=0)
+    nonce_data_availability_mode = DAModeField(
+        data_key="nonce_data_availability_mode", load_default=DAMode.L1
+    )
+    fee_data_availability_mode = DAModeField(
+        data_key="fee_data_availability_mode", load_default=DAMode.L1
+    )
+    paymaster_data = fields.List(Felt(), data_key="paymaster_data", load_default=[])
+    resource_bounds = fields.Nested(
+        ResourceBoundsMappingSchema(), data_key="resource_bounds", required=True
+    )
+
+
+class DeprecatedInvokeTransactionSchema(DeprecatedTransactionSchema):
     contract_address = Felt(data_key="contract_address", load_default=None)
     sender_address = Felt(data_key="sender_address", load_default=None)
     entry_point_selector = Felt(data_key="entry_point_selector", load_default=None)
@@ -182,7 +266,20 @@ class InvokeTransactionSchema(TransactionSchema):
         return InvokeTransaction(**data)
 
 
-class DeclareTransactionSchema(TransactionSchema):
+class InvokeTransactionV3Schema(TransactionV3Schema):
+    sender_address = Felt(data_key="sender_address", required=True)
+    calldata = fields.List(Felt(), data_key="calldata", required=True)
+    account_deployment_data = fields.List(
+        Felt(), data_key="account_deployment_data", load_default=[]
+    )
+    nonce = Felt(data_key="nonce", required=True)
+
+    @post_load
+    def make_transaction(self, data, **kwargs) -> InvokeTransactionV3:
+        return InvokeTransactionV3(**data)
+
+
+class DeprecatedDeclareTransactionSchema(DeprecatedTransactionSchema):
     class_hash = Felt(data_key="class_hash", required=True)
     sender_address = Felt(data_key="sender_address", required=True)
     nonce = Felt(data_key="nonce", load_default=None)
@@ -193,8 +290,21 @@ class DeclareTransactionSchema(TransactionSchema):
         return DeclareTransaction(**data)
 
 
+class DeclareTransactionV3Schema(TransactionV3Schema):
+    class_hash = Felt(data_key="class_hash", required=True)
+    compiled_class_hash = Felt(data_key="compiled_class_hash", load_default=None)
+    nonce = Felt(data_key="nonce", required=True)
+    sender_address = Felt(data_key="sender_address", required=True)
+    account_deployment_data = fields.List(
+        Felt(), data_key="account_deployment_data", load_default=[]
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> DeclareTransactionV3:
+        return DeclareTransactionV3(**data)
+
+
 class DeployTransactionSchema(TransactionSchema):
-    contract_address = Felt(data_key="contract_address", load_default=None)
     contract_address_salt = Felt(data_key="contract_address_salt", required=True)
     constructor_calldata = fields.List(
         Felt(), data_key="constructor_calldata", required=True
@@ -206,7 +316,7 @@ class DeployTransactionSchema(TransactionSchema):
         return DeployTransaction(**data)
 
 
-class DeployAccountTransactionSchema(TransactionSchema):
+class DeprecatedDeployAccountTransactionSchema(DeprecatedTransactionSchema):
     contract_address_salt = Felt(data_key="contract_address_salt", required=True)
     constructor_calldata = fields.List(
         Felt(), data_key="constructor_calldata", required=True
@@ -219,11 +329,57 @@ class DeployAccountTransactionSchema(TransactionSchema):
         return DeployAccountTransaction(**data)
 
 
+class DeployAccountTransactionV3Schema(TransactionV3Schema):
+    contract_address_salt = Felt(data_key="contract_address_salt", required=True)
+    constructor_calldata = fields.List(
+        Felt(), data_key="constructor_calldata", required=True
+    )
+    class_hash = Felt(data_key="class_hash", required=True)
+    nonce = Felt(data_key="nonce", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> DeployAccountTransactionV3:
+        return DeployAccountTransactionV3(**data)
+
+
+class DeclareTransactionSchema(OneOfSchema):
+    type_schemas = {
+        0: DeprecatedDeclareTransactionSchema,
+        1: DeprecatedDeclareTransactionSchema,
+        2: DeprecatedDeclareTransactionSchema,
+        3: DeclareTransactionV3Schema,
+    }
+
+    def get_data_type(self, data):
+        return _extract_tx_version(data.get("version"))
+
+
+class InvokeTransactionSchema(OneOfSchema):
+    type_schemas = {
+        0: DeprecatedInvokeTransactionSchema,
+        1: DeprecatedInvokeTransactionSchema,
+        3: InvokeTransactionV3Schema,
+    }
+
+    def get_data_type(self, data):
+        return _extract_tx_version(data.get("version"))
+
+
+class DeployAccountTransactionSchema(OneOfSchema):
+    type_schemas = {
+        1: DeprecatedDeployAccountTransactionSchema,
+        3: DeployAccountTransactionV3Schema,
+    }
+
+    def get_data_type(self, data):
+        return _extract_tx_version(data.get("version"))
+
+
 class L1HandlerTransactionSchema(TransactionSchema):
     contract_address = Felt(data_key="contract_address", required=True)
     calldata = fields.List(Felt(), data_key="calldata", required=True)
     entry_point_selector = Felt(data_key="entry_point_selector", required=True)
-    nonce = Felt(data_key="nonce", required=True)
+    nonce = NumberAsHex(data_key="nonce", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> L1HandlerTransaction:
@@ -250,12 +406,10 @@ class PendingStarknetBlockSchema(Schema):
         required=True,
     )
     timestamp = fields.Integer(data_key="timestamp", required=True)
-    # TODO (#1179): this field should be required
     l1_gas_price = fields.Nested(
-        ResourcePriceSchema(), data_key="l1_gas_price", load_default=None
+        ResourcePriceSchema(), data_key="l1_gas_price", required=True
     )
-    # TODO (#1179): this field should be required
-    starknet_version = fields.String(data_key="starknet_version", load_default=None)
+    starknet_version = fields.String(data_key="starknet_version", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs):
@@ -275,11 +429,9 @@ class StarknetBlockSchema(Schema):
         required=True,
     )
     timestamp = fields.Integer(data_key="timestamp", required=True)
-    # TODO (#1179): this field should be required
-    starknet_version = fields.String(data_key="starknet_version", load_default=None)
-    # TODO (#1179): this field should be required
+    starknet_version = fields.String(data_key="starknet_version", required=True)
     l1_gas_price = fields.Nested(
-        ResourcePriceSchema(), data_key="l1_gas_price", load_default=None
+        ResourcePriceSchema(), data_key="l1_gas_price", required=True
     )
 
     @post_load
@@ -296,11 +448,9 @@ class StarknetBlockWithTxHashesSchema(Schema):
     root = NonPrefixedHex(data_key="new_root", required=True)
     transactions = fields.List(Felt(), data_key="transactions", required=True)
     timestamp = fields.Integer(data_key="timestamp", required=True)
-    # TODO (#1179): this field should be required
-    starknet_version = fields.String(data_key="starknet_version", load_default=None)
-    # TODO (#1179): this field should be required
+    starknet_version = fields.String(data_key="starknet_version", required=True)
     l1_gas_price = fields.Nested(
-        ResourcePriceSchema(), data_key="l1_gas_price", load_default=None
+        ResourcePriceSchema(), data_key="l1_gas_price", required=True
     )
 
     @post_load
@@ -335,11 +485,9 @@ class PendingStarknetBlockWithTxHashesSchema(Schema):
     sequencer_address = Felt(data_key="sequencer_address", required=True)
     transactions = fields.List(Felt(), data_key="transactions", required=True)
     timestamp = fields.Integer(data_key="timestamp", required=True)
-    # TODO (#1179): this field should be required
-    starknet_version = fields.String(data_key="starknet_version", load_default=None)
-    # TODO (#1179): this field should be required
+    starknet_version = fields.String(data_key="starknet_version", required=True)
     l1_gas_price = fields.Nested(
-        ResourcePriceSchema(), data_key="l1_gas_price", load_default=None
+        ResourcePriceSchema(), data_key="l1_gas_price", required=True
     )
 
     @post_load
@@ -470,7 +618,7 @@ class SierraEntryPointSchema(Schema):
 
 
 class EntryPointSchema(Schema):
-    offset = Felt(data_key="offset", required=True)
+    offset = NumberAsHex(data_key="offset", required=True)
     selector = Felt(data_key="selector", required=True)
 
     @post_load
@@ -563,36 +711,6 @@ class DeployAccountTransactionResponseSchema(SentTransactionSchema):
         return DeployAccountTransactionResponse(**data)
 
 
-class ExecutionResourcesSchema(Schema):
-    steps = Felt(data_key="steps", required=True)
-    range_check_builtin_applications = Felt(
-        data_key="range_check_builtin_applications", required=True
-    )
-    pedersen_builtin_applications = Felt(
-        data_key="pedersen_builtin_applications", required=True
-    )
-    poseidon_builtin_applications = Felt(
-        data_key="poseidon_builtin_applications", required=True
-    )
-    ec_op_builtin_applications = Felt(
-        data_key="ec_op_builtin_applications", required=True
-    )
-    ecdsa_builtin_applications = Felt(
-        data_key="ecdsa_builtin_applications", required=True
-    )
-    bitwise_builtin_applications = Felt(
-        data_key="bitwise_builtin_applications", required=True
-    )
-    keccak_builtin_applications = Felt(
-        data_key="keccak_builtin_applications", required=True
-    )
-    memory_holes = Felt(data_key="memory_holes", load_default=None)
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> ExecutionResources:
-        return ExecutionResources(**data)
-
-
 # ------------------------------- Trace API -------------------------------
 
 
@@ -639,6 +757,9 @@ class FunctionInvocationSchema(Schema):
     )
     messages = fields.List(
         fields.Nested(L2toL1MessageSchema()), data_key="messages", required=True
+    )
+    execution_resources = fields.Nested(
+        ExecutionResourcesSchema(), data_key="execution_resources", required=True
     )
 
     @post_load

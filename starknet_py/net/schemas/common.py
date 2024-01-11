@@ -1,4 +1,5 @@
 import re
+import sys
 from typing import Any, Mapping, Optional, Union
 
 from marshmallow import Schema, ValidationError, fields, post_load
@@ -6,7 +7,9 @@ from marshmallow import Schema, ValidationError, fields, post_load
 from starknet_py.net.client_models import (
     BlockStatus,
     CallType,
+    DAMode,
     EntryPointType,
+    PriceUnit,
     StorageEntry,
     TransactionExecutionStatus,
     TransactionFinalityStatus,
@@ -23,13 +26,30 @@ def _pascal_to_screaming_upper(checked_string: str) -> str:
     return re.sub(r"(?<!^)(?=[A-Z])", "_", checked_string).upper()
 
 
-class Felt(fields.Field):
+class NumberAsHex(fields.Field):
     """
-    Field that serializes int to felt (hex encoded string)
+    This field performs the following operations:
+
+    - Serializes integers into hexadecimal strings
+    - Deserializes hexadecimal strings into integers
+
+    If a valid hexadecimal string is provided during serialization, it is returned as is.
+    Similarly, when a valid integer is provided during deserialization, it remains unchanged.
     """
 
+    MAX_VALUE = sys.maxsize
+    REGEX_PATTERN = r"^0x[a-fA-F0-9]+$"
+
     def _serialize(self, value: Any, attr: str, obj: Any, **kwargs):
-        return hex(value)
+        if self._is_int_and_in_range(value):
+            return hex(value)
+
+        if self._is_str_and_valid_pattern(value):
+            return value
+
+        raise ValidationError(
+            f"Invalid value provided for {self.__class__.__name__}: {value}"
+        )
 
     def _deserialize(
         self,
@@ -38,16 +58,51 @@ class Felt(fields.Field):
         data: Union[Mapping[str, Any], None],
         **kwargs,
     ):
-        if isinstance(value, int):
+        if self._is_int_and_in_range(value):
             return value
 
-        if not isinstance(value, str) or not value.startswith("0x"):
-            raise ValidationError(f"Invalid value provided for felt: {value}.")
-
-        try:
+        if self._is_str_and_valid_pattern(value):
             return int(value, 16)
-        except ValueError as error:
-            raise ValidationError("Invalid felt.") from error
+
+        raise ValidationError(
+            f"Invalid value provided for {self.__class__.__name__}: {value}"
+        )
+
+    def _is_int_and_in_range(self, value: Any) -> bool:
+        return isinstance(value, int) and 0 <= value < self.MAX_VALUE
+
+    def _is_str_and_valid_pattern(self, value: Any) -> bool:
+        return (
+            isinstance(value, str)
+            and re.fullmatch(self.REGEX_PATTERN, value) is not None
+        )
+
+
+class Felt(NumberAsHex):
+    """
+    Field used to serialize and deserialize felt type.
+    """
+
+    MAX_VALUE = 2**252
+    REGEX_PATTERN = r"^0x(0|[a-fA-F1-9]{1}[a-fA-F0-9]{0,62})$"
+
+
+class Uint64(NumberAsHex):
+    """
+    Field used to serialize and deserialize RPC u64 type.
+    """
+
+    MAX_VALUE = 2**64
+    REGEX_PATTERN = r"^0x(0|[a-fA-F1-9]{1}[a-fA-F0-9]{0,15})$"
+
+
+class Uint128(NumberAsHex):
+    """
+    Field used to serialize and deserialize RPC u128 type.
+    """
+
+    MAX_VALUE = 2**128
+    REGEX_PATTERN = r"^0x(0|[a-fA-F1-9]{1}[a-fA-F0-9]{0,31})$"
 
 
 class NonPrefixedHex(fields.Field):
@@ -213,6 +268,44 @@ class CallTypeField(fields.Field):
             raise ValidationError(f"Invalid value provided for CallType: {value}.")
 
         return CallType(value)
+
+
+class PriceUnitField(fields.Field):
+    def _serialize(self, value: Any, attr: str, obj: Any, **kwargs):
+        return value.name if value is not None else ""
+
+    def _deserialize(
+        self,
+        value: Any,
+        attr: Optional[str],
+        data: Optional[Mapping[str, Any]],
+        **kwargs,
+    ) -> PriceUnit:
+        values = [v.value for v in PriceUnit]
+
+        if value not in values:
+            raise ValidationError(f"Invalid value provided for PriceUnit: {value}.")
+
+        return PriceUnit(value)
+
+
+class DAModeField(fields.Field):
+    def _serialize(self, value: Any, attr: str, obj: Any, **kwargs):
+        return value.name if value is not None else ""
+
+    def _deserialize(
+        self,
+        value: Any,
+        attr: Optional[str],
+        data: Optional[Mapping[str, Any]],
+        **kwargs,
+    ) -> DAMode:
+        names = [v.name for v in DAMode]
+
+        if value not in names:
+            raise ValidationError(f"Invalid value provided for DAMode: {value}.")
+
+        return DAMode[value]
 
 
 class StorageEntrySchema(Schema):
