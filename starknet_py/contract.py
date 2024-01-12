@@ -338,7 +338,6 @@ class PreparedFunctionCall(Call):
         result = await self.call_raw(block_hash=block_hash, block_number=block_number)
         return self._payload_transformer.deserialize(result)
 
-    # TODO (#1182): add `cairo_version` parameter
     async def invoke(
         self,
         max_fee: Optional[int] = None,
