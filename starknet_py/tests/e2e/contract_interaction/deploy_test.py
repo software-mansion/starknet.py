@@ -80,3 +80,20 @@ async def test_deploy_contract_flow(account, cairo1_hello_starknet_class_hash: i
 
     assert isinstance(contract.address, int)
     assert len(contract.functions) != 0
+
+
+@pytest.mark.asyncio
+async def test_general_simplified_deployment_flow(account, map_compiled_contract):
+    declare_result = await Contract.declare(
+        account=account,
+        compiled_contract=map_compiled_contract,
+        max_fee=MAX_FEE,
+    )
+    await declare_result.wait_for_acceptance()
+    deployment = await declare_result.deploy(max_fee=MAX_FEE)
+    await deployment.wait_for_acceptance()
+
+    contract = deployment.deployed_contract
+
+    assert isinstance(contract.address, int)
+    assert len(contract.functions) != 0

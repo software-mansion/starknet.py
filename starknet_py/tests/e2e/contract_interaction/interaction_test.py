@@ -1,6 +1,5 @@
 import pytest
 
-from starknet_py.common import create_compiled_contract
 from starknet_py.contract import Contract
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.client_errors import ClientError
@@ -157,35 +156,3 @@ async def test_error_when_estimating_fee_while_not_using_account(client, map_con
         match="Contract instance was created without providing an Account.",
     ):
         await contract.functions["put"].prepare(key=10, value=10).estimate_fee()
-
-
-@pytest.mark.asyncio
-async def test_general_simplified_deployment_flow(account, map_compiled_contract):
-    declare_result = await Contract.declare(
-        account=account,
-        compiled_contract=map_compiled_contract,
-        max_fee=MAX_FEE,
-    )
-    await declare_result.wait_for_acceptance()
-    deployment = await declare_result.deploy(max_fee=MAX_FEE)
-    await deployment.wait_for_acceptance()
-
-    contract = deployment.deployed_contract
-
-    assert isinstance(contract.address, int)
-    assert len(contract.functions) != 0
-
-
-@pytest.mark.asyncio
-async def test_deploy_contract_flow(account, map_compiled_contract, map_class_hash):
-    abi = create_compiled_contract(compiled_contract=map_compiled_contract).abi
-
-    deploy_result = await Contract.deploy_contract(
-        class_hash=map_class_hash, account=account, abi=abi, max_fee=MAX_FEE
-    )
-    await deploy_result.wait_for_acceptance()
-
-    contract = deploy_result.deployed_contract
-
-    assert isinstance(contract.address, int)
-    assert len(contract.functions) != 0
