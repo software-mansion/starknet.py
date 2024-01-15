@@ -395,7 +395,7 @@ async def test_custom_session_client(map_contract, network):
     tx_hash = (
         await (
             await map_contract.functions["put"].invoke(
-                key=10, value=20, max_fee=MAX_FEE
+                key=10, value=20, tx_version=1, max_fee=MAX_FEE
             )
         ).wait_for_acceptance()
     ).hash
@@ -480,7 +480,9 @@ async def test_state_update_storage_diffs(
     client,
     map_contract,
 ):
-    resp = await map_contract.functions["put"].invoke(key=10, value=20, max_fee=MAX_FEE)
+    resp = await map_contract.functions["put"].invoke(
+        key=10, value=20, tx_version=1, max_fee=MAX_FEE
+    )
     await resp.wait_for_acceptance()
 
     state_update = await client.get_state_update()

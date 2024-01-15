@@ -33,8 +33,9 @@ from starknet_py.hash.class_hash import compute_class_hash
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
-from starknet_py.net.client_models import Call, EstimatedFee, Hash, Tag
-from starknet_py.net.models import AddressRepresentation, InvokeV1, parse_address
+from starknet_py.net.client_models import Call, EstimatedFee, Hash, ResourceBounds, Tag
+from starknet_py.net.models import AddressRepresentation, parse_address
+from starknet_py.net.models.transaction import Invoke
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.proxy.contract_abi_resolver import (
     ContractAbiResolver,
@@ -153,7 +154,7 @@ class InvokeResult(SentTransaction):
     contract: ContractData = None  # pyright: ignore
     """Additional information about the Contract that made the transaction."""
 
-    invoke_transaction: InvokeV1 = None  # pyright: ignore
+    invoke_transaction: Invoke = None  # pyright: ignore
     """A InvokeTransaction instance used."""
 
     def __post_init__(self):
@@ -289,6 +290,8 @@ class PreparedFunctionCall(Call):
         payload_transformer: FunctionSerializationAdapter,
         contract_data: ContractData,
         max_fee: Optional[int],
+        l1_resource_bounds: Optional[ResourceBounds],
+        tx_version: Optional[int],
     ):
         # pylint: disable=too-many-arguments
         super().__init__(
@@ -299,6 +302,8 @@ class PreparedFunctionCall(Call):
         self._payload_transformer = payload_transformer
         self._contract_data = contract_data
         self.max_fee = max_fee
+        self.l1_resource_bounds = l1_resource_bounds
+        self.tx_version = tx_version
 
     @property
     def _account(self) -> BaseAccount:
@@ -340,7 +345,9 @@ class PreparedFunctionCall(Call):
 
     async def invoke(
         self,
+        tx_version: Optional[int] = None,
         max_fee: Optional[int] = None,
+        l1_resource_bounds: Optional[ResourceBounds] = None,
         auto_estimate: bool = False,
         *,
         nonce: Optional[int] = None,
@@ -348,19 +355,29 @@ class PreparedFunctionCall(Call):
         """
         Invokes a method.
 
-        :param max_fee: Max amount of Wei to be paid when executing transaction.
+        :param tx_version: Transaction version to execute. The current supported versions are 1 and 3.
+        :param max_fee: Max amount of Wei to be paid when executing this transaction.
+            Note that this parameter is applicable only when executing transactions in version 1.
+        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Wei) used when executing
+            this transaction. Note that this parameter is applicable only when executing transactions in version 3.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :param nonce: Nonce of the transaction.
         :return: InvokeResult.
         """
-        if max_fee is not None:
-            self.max_fee = max_fee
 
-        transaction = await self._account.sign_invoke_v1_transaction(
-            calls=self,
-            nonce=nonce,
-            max_fee=self.max_fee,
+        if max_fee and l1_resource_bounds:
+            raise ValueError(
+                "Arguments 'max_fee' and 'l1_resource_bounds' are mutually exclusive. "
+                "For version 1 transaction, please use the 'max_fee' argument. "
+                "For version 3 transaction, please use the 'l1_resource_bounds' argument."
+            )
+
+        transaction = await self._build_invoke_transaction(
+            tx_version=tx_version,
+            max_fee=max_fee,
+            l1_resource_bounds=l1_resource_bounds,
             auto_estimate=auto_estimate,
+            nonce=nonce,
         )
 
         response = await self._client.send_transaction(transaction)
@@ -376,6 +393,7 @@ class PreparedFunctionCall(Call):
 
     async def estimate_fee(
         self,
+        tx_version: Optional[int] = None,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
         *,
@@ -384,14 +402,18 @@ class PreparedFunctionCall(Call):
         """
         Estimate fee for prepared function call.
 
+        :param tx_version: Transaction version to execute. The current supported versions are 1 and 3.
         :param block_hash: Estimate fee at specific block hash.
         :param block_number: Estimate fee at given block number
             (or "latest" / "pending" for the latest / pending block), default is "pending".
         :param nonce: Nonce of the transaction.
         :return: Estimated amount of Wei executing specified transaction will cost.
         """
-        tx = await self._account.sign_invoke_v1_transaction(
-            calls=self, nonce=nonce, max_fee=0
+        tx = await self._build_invoke_transaction(
+            tx_version=tx_version,
+            max_fee=0,
+            l1_resource_bounds=ResourceBounds.init_with_zeros(),
+            nonce=nonce,
         )
 
         estimated_fee = await self._client.estimate_fee(
@@ -402,6 +424,41 @@ class PreparedFunctionCall(Call):
         assert isinstance(estimated_fee, EstimatedFee)
 
         return estimated_fee
+
+    async def _build_invoke_transaction(
+        self,
+        tx_version: Optional[int] = None,
+        max_fee: Optional[int] = None,
+        l1_resource_bounds: Optional[ResourceBounds] = None,
+        auto_estimate: bool = False,
+        nonce: Optional[int] = None,
+    ) -> Invoke:
+        tx_version = tx_version or self.tx_version
+
+        if tx_version is None:
+            raise ValueError(
+                "The transaction version is not specified. "
+                "Please ensure that the 'tx_version' is set to either 1 or 3."
+            )
+
+        if tx_version not in [1, 3]:
+            raise ValueError("The allowed versions for Invoke transaction are 1 or 3.")
+
+        return (
+            await self._account.sign_invoke_v1_transaction(
+                calls=self,
+                nonce=nonce,
+                max_fee=max_fee or self.max_fee,
+                auto_estimate=auto_estimate,
+            )
+            if tx_version == 1
+            else await self._account.sign_invoke_v3_transaction(
+                calls=self,
+                nonce=nonce,
+                l1_resource_bounds=l1_resource_bounds or self.l1_resource_bounds,
+                auto_estimate=auto_estimate,
+            )
+        )
 
 
 @add_sync_methods
@@ -448,7 +505,9 @@ class ContractFunction:
     def prepare(
         self,
         *args,
+        tx_version: Optional[int] = None,
         max_fee: Optional[int] = None,
+        l1_resource_bounds: Optional[ResourceBounds] = None,
         **kwargs,
     ) -> PreparedFunctionCall:
         """
@@ -456,7 +515,11 @@ class ContractFunction:
         Creates a ``PreparedFunctionCall`` instance which exposes calldata for every argument
         and adds more arguments when calling methods.
 
-        :param max_fee: Max amount of Wei to be paid when executing transaction.
+        :param tx_version: Transaction version to execute. The current supported versions are 1 and 3.
+        :param max_fee: Max amount of Wei to be paid when executing this transaction.
+            Note that this parameter is applicable only when executing transactions in version 1.
+        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Wei) used when executing
+            this transaction. Note that this parameter is applicable only when executing transactions in version 3.
         :return: PreparedFunctionCall.
         """
 
@@ -469,6 +532,8 @@ class ContractFunction:
             payload_transformer=self._payload_transformer,
             selector=self.get_selector(self.name),
             max_fee=max_fee,
+            l1_resource_bounds=l1_resource_bounds,
+            tx_version=tx_version,
         )
 
     async def call(
@@ -493,7 +558,9 @@ class ContractFunction:
     async def invoke(
         self,
         *args,
+        tx_version: Optional[int] = None,
         max_fee: Optional[int] = None,
+        l1_resource_bounds: Optional[ResourceBounds] = None,
         auto_estimate: bool = False,
         nonce: Optional[int] = None,
         **kwargs,
@@ -502,13 +569,21 @@ class ContractFunction:
         Invoke contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.
         Equivalent of ``.prepare(*args, **kwargs).invoke()``.
 
-        :param max_fee: Max amount of Wei to be paid when executing transaction.
+        :param tx_version: Transaction version to execute. The current supported versions are 1 and 3.
+        :param max_fee: Max amount of Wei to be paid when executing this transaction.
+            Note that this parameter is applicable only when executing transactions in version 1.
+        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Wei) used when executing
+            this transaction. Note that this parameter is applicable only when executing transactions in version 3.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :param nonce: Nonce of the transaction.
         """
         prepared_call = self.prepare(*args, **kwargs)
         return await prepared_call.invoke(
-            max_fee=max_fee, nonce=nonce, auto_estimate=auto_estimate
+            tx_version=tx_version,
+            max_fee=max_fee,
+            l1_resource_bounds=l1_resource_bounds,
+            auto_estimate=auto_estimate,
+            nonce=nonce,
         )
 
     @staticmethod

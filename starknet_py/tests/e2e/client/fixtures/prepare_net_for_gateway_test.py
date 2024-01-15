@@ -44,7 +44,7 @@ async def prepare_net_for_tests(
     contract = deploy_result.deployed_contract
 
     invoke_res = await contract.functions["increase_balance"].invoke(
-        amount=1234, max_fee=int(1e20)
+        amount=1234, tx_version=1, max_fee=int(1e20)
     )
     await invoke_res.wait_for_acceptance()
 

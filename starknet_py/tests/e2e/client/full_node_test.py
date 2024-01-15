@@ -153,7 +153,7 @@ async def test_get_events_without_following_continuation_token(
 ):
     for i in range(4):
         await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke(
-            i, i, auto_estimate=True
+            i, i, tx_version=1, auto_estimate=True
         )
 
     chunk_size = 3
@@ -179,7 +179,7 @@ async def test_get_events_follow_continuation_token(
     total_invokes = 2
     for i in range(total_invokes):
         await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke(
-            i, i + 1, auto_estimate=True
+            i, i + 1, tx_version=1, auto_estimate=True
         )
 
     events_response = await client.get_events(
@@ -202,7 +202,7 @@ async def test_get_events_nonexistent_event_name(
     simple_storage_with_event_contract: Contract,
 ):
     await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke(
-        1, 1, auto_estimate=True
+        1, 1, tx_version=1, auto_estimate=True
     )
 
     events_response = await client.get_events(
@@ -228,11 +228,11 @@ async def test_get_events_with_two_events(
     invokes_of_two = 2
     invokes_of_all = invokes_of_one + invokes_of_two
     await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke(
-        1, 2, auto_estimate=True
+        1, 2, tx_version=1, auto_estimate=True
     )
     for i in range(invokes_of_two):
         await simple_storage_with_event_contract.functions[FUNCTION_TWO_NAME].invoke(
-            i, i + 1, auto_estimate=True
+            i, i + 1, tx_version=1, auto_estimate=True
         )
 
     event_one_events_response = await client.get_events(
@@ -275,7 +275,7 @@ async def test_get_events_start_from_continuation_token(
 ):
     for i in range(5):
         await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke(
-            i, i + 1, auto_estimate=True
+            i, i + 1, tx_version=1, auto_estimate=True
         )
 
     chunk_size = 2
@@ -303,10 +303,10 @@ async def test_get_events_no_params(
     default_chunk_size = 1
     for i in range(3):
         await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke(
-            i, i + 1, auto_estimate=True
+            i, i + 1, tx_version=1, auto_estimate=True
         )
         await simple_storage_with_event_contract.functions[FUNCTION_TWO_NAME].invoke(
-            i, i + 1, auto_estimate=True
+            i, i + 1, tx_version=1, auto_estimate=True
         )
     events_response = await client.get_events()
 

@@ -51,12 +51,12 @@ async def test_deploy_cairo2(contract):
 @pytest.mark.asyncio
 async def test_cairo2_interaction(contract):
     invoke_res = await contract.functions["increase_balance"].invoke(
-        amount=100, auto_estimate=True
+        amount=100, tx_version=1, auto_estimate=True
     )
     await invoke_res.wait_for_acceptance()
 
     invoke_res = await contract.functions["increase_balance"].invoke(
-        amount=100, auto_estimate=True
+        amount=100, tx_version=1, auto_estimate=True
     )
     await invoke_res.wait_for_acceptance()
 
@@ -67,7 +67,7 @@ async def test_cairo2_interaction(contract):
 @pytest.mark.asyncio
 async def test_cairo2_interaction2(contract):
     invoke_res = await contract.functions["increase_balance_u8"].invoke(
-        255, auto_estimate=True
+        255, tx_version=1, auto_estimate=True
     )
     await invoke_res.wait_for_acceptance()
 
@@ -96,7 +96,7 @@ async def test_cairo2_u256(contract):
 @pytest.mark.asyncio
 async def test_cairo2_contract_address(contract):
     invoke_res = await contract.functions["set_ca"].invoke(
-        address=contract.account.address, auto_estimate=True
+        address=contract.account.address, tx_version=1, auto_estimate=True
     )
     await invoke_res.wait_for_acceptance()
 
@@ -107,7 +107,7 @@ async def test_cairo2_contract_address(contract):
 @pytest.mark.asyncio
 async def test_cairo2_interaction3(contract):
     invoke_res = await contract.functions["increase_balance"].invoke(
-        100, auto_estimate=True
+        100, tx_version=1, auto_estimate=True
     )
     await invoke_res.wait_for_acceptance()
     (balance,) = await contract.functions["get_balance"].call()
@@ -116,7 +116,7 @@ async def test_cairo2_interaction3(contract):
     assert storage == balance
 
     invoke_res = await contract.functions["set_ca"].invoke(
-        contract.account.address, auto_estimate=True
+        contract.account.address, tx_version=1, auto_estimate=True
     )
     await invoke_res.wait_for_acceptance()
     (ca,) = await contract.functions["get_ca"].call()  # pylint: disable=invalid-name
@@ -124,7 +124,9 @@ async def test_cairo2_interaction3(contract):
     storage = await contract.client.get_storage_at(contract.address, key)
     assert storage == ca
 
-    invoke_res = await contract.functions["set_status"].invoke(True, auto_estimate=True)
+    invoke_res = await contract.functions["set_status"].invoke(
+        True, tx_version=1, auto_estimate=True
+    )
     await invoke_res.wait_for_acceptance()
     (status,) = await contract.functions["get_status"].call()
     key = get_storage_var_address("status")
@@ -136,6 +138,7 @@ async def test_cairo2_interaction3(contract):
             "address": contract.account.address,
             "is_claimed": True,
         },
+        tx_version=1,
         auto_estimate=True,
     )
     await invoke_res.wait_for_acceptance()
@@ -169,7 +172,9 @@ async def test_cairo2_echo_struct(contract):
 
 @pytest.mark.asyncio
 async def test_cairo2_echo_complex_struct(contract):
-    invoke_result = await contract.functions["set_bet"].invoke(auto_estimate=True)
+    invoke_result = await contract.functions["set_bet"].invoke(
+        tx_version=1, auto_estimate=True
+    )
     await invoke_result.wait_for_acceptance()
 
     (bet,) = await contract.functions["get_bet"].call(1)

@@ -163,7 +163,7 @@ class Account(BaseAccount):
     ) -> ResourceBoundsMapping:
         if auto_estimate and l1_resource_bounds is not None:
             raise ValueError(
-                "Arguments auto_estimate and l1_resource_bounds are mutually exclusive."
+                "Arguments l1_resource_bounds and auto_estimate are mutually exclusive."
             )
 
         if auto_estimate:
