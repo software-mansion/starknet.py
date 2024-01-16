@@ -35,7 +35,7 @@ from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import Call, EstimatedFee, Hash, ResourceBounds, Tag
 from starknet_py.net.models import AddressRepresentation, parse_address
-from starknet_py.net.models.transaction import Invoke
+from starknet_py.net.models.transaction import Declare, Invoke
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.proxy.contract_abi_resolver import (
     ContractAbiResolver,
@@ -162,9 +162,6 @@ class InvokeResult(SentTransaction):
         assert self.invoke_transaction is not None
 
 
-InvocationResult = InvokeResult
-
-
 @add_sync_methods
 @dataclass(frozen=True)
 class DeclareResult(SentTransaction):
@@ -181,6 +178,9 @@ class DeclareResult(SentTransaction):
     compiled_contract: str = None  # pyright: ignore
     """Compiled contract that was declared."""
 
+    declare_transaction: Declare = None  # pyright: ignore
+    """A Declare transaction that has been sent."""
+
     def __post_init__(self):
         if self._account is None:
             raise ValueError("Argument _account can't be None.")
@@ -191,6 +191,9 @@ class DeclareResult(SentTransaction):
         if self.compiled_contract is None:
             raise ValueError("Argument compiled_contract can't be None.")
 
+        if self.declare_transaction is None:
+            raise ValueError("Argument declare_transaction can't be None.")
+
     async def deploy(
         self,
         *,
@@ -199,7 +202,9 @@ class DeclareResult(SentTransaction):
         unique: bool = True,
         constructor_args: Optional[Union[List, Dict]] = None,
         nonce: Optional[int] = None,
+        tx_version: Optional[int] = None,
         max_fee: Optional[int] = None,
+        l1_resource_bounds: Optional[ResourceBounds] = None,
         auto_estimate: bool = False,
     ) -> "DeployResult":
         """
@@ -210,13 +215,20 @@ class DeclareResult(SentTransaction):
             Must be set when using custom network other than ones listed above.
         :param salt: Optional salt. Random value is selected if it is not provided.
         :param unique: Determines if the contract should be salted with the account address.
+            By default, it is set to True.
         :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
         :param nonce: Nonce of the transaction with call to deployer.
-        :param max_fee: Max amount of Wei to be paid when executing transaction.
+        :param tx_version: Transaction version to execute. The current supported versions are 1 and 3.
+            Note that by default, 'tx_version' is set to 1.
+        :param max_fee: Max amount of Wei to be paid when executing this transaction.
+            Note that this parameter is applicable only when executing transactions in version 1.
+        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Wei) used when executing
+            this transaction. Note that this parameter is applicable only when executing transactions in version 3.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :return: DeployResult instance.
         """
         # pylint: disable=too-many-arguments, too-many-locals
+
         if self._cairo_version == 0:
             abi = create_compiled_contract(compiled_contract=self.compiled_contract).abi
         else:
@@ -231,35 +243,21 @@ class DeclareResult(SentTransaction):
                     "Make sure provided compiled_contract is correct."
                 ) from exc
 
-        deployer = Deployer(
-            deployer_address=deployer_address,
-            account_address=self._account.address if unique else None,
-        )
-        deploy_call, address = deployer.create_contract_deployment(
+        return await Contract.deploy_contract(
+            account=self._account,
             class_hash=self.class_hash,
+            abi=abi,
+            constructor_args=constructor_args,
             salt=salt,
-            abi=abi,
-            calldata=constructor_args,
+            unique=unique,
+            deployer_address=deployer_address,
             cairo_version=self._cairo_version,
+            nonce=nonce,
+            tx_version=tx_version,
+            max_fee=max_fee,
+            l1_resource_bounds=l1_resource_bounds,
+            auto_estimate=auto_estimate,
         )
-        res = await self._account.execute(
-            calls=deploy_call, nonce=nonce, max_fee=max_fee, auto_estimate=auto_estimate
-        )
-
-        deployed_contract = Contract(
-            provider=self._account,
-            address=address,
-            abi=abi,
-            cairo_version=self._cairo_version,
-        )
-
-        deploy_result = DeployResult(
-            hash=res.transaction_hash,
-            _client=self._account.client,
-            deployed_contract=deployed_contract,
-        )
-
-        return deploy_result
 
 
 @add_sync_methods
@@ -368,8 +366,8 @@ class PreparedFunctionCall(Call):
         if max_fee and l1_resource_bounds:
             raise ValueError(
                 "Arguments 'max_fee' and 'l1_resource_bounds' are mutually exclusive. "
-                "For version 1 transaction, please use the 'max_fee' argument. "
-                "For version 3 transaction, please use the 'l1_resource_bounds' argument."
+                "For transaction version 1, please use the 'max_fee' argument. "
+                "For transaction version 3, please use the 'l1_resource_bounds' argument."
             )
 
         transaction = await self._build_invoke_transaction(
@@ -703,7 +701,9 @@ class Contract:
         compiled_contract_casm: Optional[str] = None,
         casm_class_hash: Optional[int] = None,
         nonce: Optional[int] = None,
+        tx_version: Optional[int] = None,
         max_fee: Optional[int] = None,
+        l1_resource_bounds: Optional[ResourceBounds] = None,
         auto_estimate: bool = False,
     ) -> DeclareResult:
         """
@@ -715,10 +715,24 @@ class Contract:
             Used when declaring Cairo1 contracts.
         :param casm_class_hash: Hash of the compiled_contract_casm.
         :param nonce: Nonce of the transaction.
-        :param max_fee: Max amount of Wei to be paid when executing transaction.
+        :param tx_version: Transaction version to execute. The current supported versions for Declare transaction
+            are 1, 2 and 3. For Cairo0 contracts, only transaction version 1 can be used, which is the default setting.
+            For contracts written in Cairo1 and later versions, Declare transactions can use either version 2 or 3.
+            The default for these contracts is set to version 2.
+        :param max_fee: Max amount of Wei to be paid when executing this transaction.
+            Note that this parameter is applicable only when executing transactions in version 1 or 2.
+        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Wei) used when executing
+            this transaction. Note that this parameter is applicable only when executing transactions in version 3.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :return: DeclareResult instance.
         """
+
+        if max_fee and l1_resource_bounds:
+            raise ValueError(
+                "Arguments 'max_fee' and 'l1_resource_bounds' are mutually exclusive. "
+                "For transaction version 1 or 2, please use the 'max_fee' argument. "
+                "For transaction version 3, please use the 'l1_resource_bounds' argument."
+            )
 
         if Contract._get_cairo_version(compiled_contract) == 1:
             if casm_class_hash is None and compiled_contract_casm is None:
@@ -733,12 +747,22 @@ class Contract:
                     create_casm_class(compiled_contract_casm)
                 )
 
-            declare_tx = await account.sign_declare_v2_transaction(
-                compiled_contract=compiled_contract,
-                compiled_class_hash=casm_class_hash,
-                nonce=nonce,
-                max_fee=max_fee,
-                auto_estimate=auto_estimate,
+            declare_tx = (
+                await account.sign_declare_v3_transaction(
+                    compiled_contract=compiled_contract,
+                    compiled_class_hash=casm_class_hash,
+                    nonce=nonce,
+                    l1_resource_bounds=l1_resource_bounds,
+                    auto_estimate=auto_estimate,
+                )
+                if tx_version == 3
+                else await account.sign_declare_v2_transaction(
+                    compiled_contract=compiled_contract,
+                    compiled_class_hash=casm_class_hash,
+                    nonce=nonce,
+                    max_fee=max_fee,
+                    auto_estimate=auto_estimate,
+                )
             )
         else:
             cairo_version = 0
@@ -757,6 +781,7 @@ class Contract:
             _account=account,
             compiled_contract=compiled_contract,
             _cairo_version=cairo_version,
+            declare_transaction=declare_tx,
         )
 
     @staticmethod
@@ -770,10 +795,14 @@ class Contract:
         abi: List,
         constructor_args: Optional[Union[List, Dict]] = None,
         *,
+        salt: Optional[int] = None,
+        unique: bool = True,
         deployer_address: AddressRepresentation = DEFAULT_DEPLOYER_ADDRESS,
         cairo_version: int = 0,
         nonce: Optional[int] = None,
+        tx_version: Optional[int] = None,
         max_fee: Optional[int] = None,
+        l1_resource_bounds: Optional[ResourceBounds] = None,
         auto_estimate: bool = False,
     ) -> "DeployResult":
         """
@@ -783,27 +812,57 @@ class Contract:
         :param class_hash: The class_hash of the contract to be deployed.
         :param abi: An abi of the contract to be deployed.
         :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
+        :param salt: Optional salt. Random value is selected if it is not provided.
+        :param unique: Determines if the contract should be salted with the account address.
+            By default, it is set to True.
         :param deployer_address: Address of the UDC. Is set to the address of
             the default UDC (same address on mainnet/testnet/devnet) by default.
             Must be set when using custom network other than ones listed above.
         :param cairo_version: Version of the Cairo in which contract is written.
         :param nonce: Nonce of the transaction.
-        :param max_fee: Max amount of Wei to be paid when executing transaction.
+        :param tx_version: Transaction version to execute. The current supported versions are 1 and 3.
+            Note that by default, 'tx_version' is set to 1.
+        :param max_fee: Max amount of Wei to be paid when executing this transaction.
+            Note that this parameter is applicable only when executing transactions in version 1.
+        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Wei) used when executing
+            this transaction. Note that this parameter is applicable only when executing transactions in version 3.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :return: DeployResult instance.
         """
-        # pylint: disable=too-many-arguments
+        # pylint: disable=too-many-arguments, too-many-locals
+
+        if max_fee and l1_resource_bounds:
+            raise ValueError(
+                "Arguments 'max_fee' and 'l1_resource_bounds' are mutually exclusive. "
+                "For transaction version 1, please use the 'max_fee' argument. "
+                "For transaction version 3, please use the 'l1_resource_bounds' argument."
+            )
+
         deployer = Deployer(
-            deployer_address=deployer_address, account_address=account.address
+            deployer_address=deployer_address,
+            account_address=account.address if unique else None,
         )
         deploy_call, address = deployer.create_contract_deployment(
             class_hash=class_hash,
+            salt=salt,
             abi=abi,
             calldata=constructor_args,
             cairo_version=cairo_version,
         )
-        res = await account.execute(
-            calls=deploy_call, nonce=nonce, max_fee=max_fee, auto_estimate=auto_estimate
+        res = (
+            await account.execute_v3(
+                calls=deploy_call,
+                nonce=nonce,
+                l1_resource_bounds=l1_resource_bounds,
+                auto_estimate=auto_estimate,
+            )
+            if tx_version == 3
+            else await account.execute(
+                calls=deploy_call,
+                nonce=nonce,
+                max_fee=max_fee,
+                auto_estimate=auto_estimate,
+            )
         )
 
         deployed_contract = Contract(
