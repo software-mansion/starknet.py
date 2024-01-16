@@ -8,7 +8,7 @@ async def test_create_call_from_contract(map_contract, account):
 
     client = account.client
     res = await map_contract.functions["put"].invoke(
-        key=1234, value=9999, auto_estimate=True
+        key=1234, value=9999, tx_version=1, auto_estimate=True
     )
     await res.wait_for_acceptance()
 

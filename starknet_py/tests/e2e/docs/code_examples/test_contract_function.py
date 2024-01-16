@@ -6,7 +6,9 @@ from starknet_py.contract import Contract, ContractFunction
 
 def test_prepare(map_contract: Contract):
     # docs-start: prepare
-    prepared_function_call = map_contract.functions["put"].prepare(key=10, value=20)
+    prepared_function_call = map_contract.functions["put"].prepare(
+        key=10, value=20, tx_version=1
+    )
     # docs-end: prepare
 
 
@@ -22,7 +24,7 @@ async def test_call(map_contract: Contract):
 def test_invoke(map_contract: Contract):
     # docs-start: invoke
     invoke_result = map_contract.functions["put"].invoke(
-        key=10, value=20, max_fee=int(1e15)
+        key=10, value=20, tx_version=1, max_fee=int(1e15)
     )
     # docs-end: invoke
 

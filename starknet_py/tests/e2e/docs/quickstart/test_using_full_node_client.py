@@ -17,7 +17,7 @@ async def test_using_full_node_client(client, map_contract):
     # docs: end
 
     await map_contract.functions["put"].prepare(key=10, value=10).invoke(
-        max_fee=int(1e20)
+        tx_version=1, max_fee=int(1e20)
     )
 
     client = full_node_client_fixture

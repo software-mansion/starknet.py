@@ -38,7 +38,9 @@ async def test_using_contract(account, map_contract):
 
     # All exposed functions are available at contract.functions.
     # Here we invoke a function, creating a new transaction.
-    invocation = await contract.functions["put"].invoke(key, 7, max_fee=int(1e16))
+    invocation = await contract.functions["put"].invoke(
+        key, 7, tx_version=1, max_fee=int(1e16)
+    )
 
     # Invocation returns InvokeResult object. It exposes a helper for waiting until transaction is accepted.
     await invocation.wait_for_acceptance()

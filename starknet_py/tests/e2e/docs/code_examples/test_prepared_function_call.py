@@ -26,7 +26,9 @@ async def test_call(map_contract: Contract):
 
 @pytest.mark.asyncio
 async def test_invoke(map_contract: Contract):
-    prepared_function_call = map_contract.functions["put"].prepare(key=10, value=20)
+    prepared_function_call = map_contract.functions["put"].prepare(
+        key=10, value=20, tx_version=1
+    )
     # docs-start: invoke
     invoke_result = await prepared_function_call.invoke(max_fee=int(1e15))
     # docs-end: invoke
