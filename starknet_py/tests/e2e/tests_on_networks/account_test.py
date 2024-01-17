@@ -14,8 +14,8 @@ from starknet_py.tests.e2e.fixtures.constants import (
 
 
 @pytest.mark.asyncio
-async def test_sign_invoke_tx_for_fee_estimation(full_node_account_integration):
-    account = full_node_account_integration
+async def test_sign_invoke_tx_for_fee_estimation(account_goerli_integration):
+    account = account_goerli_integration
 
     map_contract = await Contract.from_address(
         address=MAP_CONTRACT_ADDRESS_INTEGRATION, provider=account
@@ -40,9 +40,9 @@ async def test_sign_invoke_tx_for_fee_estimation(full_node_account_integration):
 
 @pytest.mark.asyncio
 async def test_sign_declare_tx_for_fee_estimation(
-    full_node_account_integration, map_compiled_contract
+    account_goerli_integration, map_compiled_contract
 ):
-    account = full_node_account_integration
+    account = account_goerli_integration
 
     transaction = await account.sign_declare_v1_transaction(
         compiled_contract=map_compiled_contract, max_fee=MAX_FEE

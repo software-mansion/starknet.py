@@ -15,15 +15,15 @@ from starknet_py.tests.e2e.fixtures.constants import (
 
 
 @pytest.fixture(scope="package")
-def full_node_client_integration() -> FullNodeClient:
+def client_goerli_integration() -> FullNodeClient:
     return FullNodeClient(node_url=GOERLI_INTEGRATION_RPC_URL())
 
 
 @pytest.fixture(scope="package")
-def full_node_account_integration(full_node_client_integration) -> Account:
+def account_goerli_integration(client_goerli_integration) -> Account:
     return Account(
         address=GOERLI_INTEGRATION_ACCOUNT_ADDRESS(),
-        client=full_node_client_integration,
+        client=client_goerli_integration,
         key_pair=KeyPair.from_private_key(
             int(GOERLI_INTEGRATION_ACCOUNT_PRIVATE_KEY(), 0)
         ),
@@ -32,15 +32,15 @@ def full_node_account_integration(full_node_client_integration) -> Account:
 
 
 @pytest.fixture(scope="package")
-def full_node_client_testnet() -> FullNodeClient:
+def client_goerli_testnet() -> FullNodeClient:
     return FullNodeClient(node_url=GOERLI_TESTNET_RPC_URL())
 
 
 @pytest.fixture(scope="package")
-def full_node_account_testnet(full_node_client_testnet) -> Account:
+def account_goerli_testnet(client_goerli_testnet) -> Account:
     return Account(
         address=GOERLI_TESTNET_ACCOUNT_ADDRESS(),
-        client=full_node_client_testnet,
+        client=client_goerli_testnet,
         key_pair=KeyPair.from_private_key(int(GOERLI_TESTNET_ACCOUNT_PRIVATE_KEY(), 0)),
         chain=StarknetChainId.GOERLI,
     )

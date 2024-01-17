@@ -33,8 +33,8 @@ from starknet_py.transaction_errors import TransactionRevertedError
     ),
 )
 @pytest.mark.asyncio
-async def test_get_transaction_receipt(full_node_client_integration, transaction_hash):
-    receipt = await full_node_client_integration.get_transaction_receipt(
+async def test_get_transaction_receipt(client_goerli_integration, transaction_hash):
+    receipt = await client_goerli_integration.get_transaction_receipt(
         tx_hash=transaction_hash
     )
 
@@ -46,8 +46,8 @@ async def test_get_transaction_receipt(full_node_client_integration, transaction
 
 
 @pytest.mark.asyncio
-async def test_wait_for_tx_reverted(full_node_account_testnet):
-    account = full_node_account_testnet
+async def test_wait_for_tx_reverted(account_goerli_testnet):
+    account = account_goerli_testnet
     # Calldata too long for the function (it has no parameters) to trigger REVERTED status
     call = Call(
         to_addr=int(EMPTY_CONTRACT_ADDRESS_TESTNET, 0),
@@ -64,8 +64,8 @@ async def test_wait_for_tx_reverted(full_node_account_testnet):
 
 
 @pytest.mark.asyncio
-async def test_wait_for_tx_accepted(full_node_account_testnet):
-    account = full_node_account_testnet
+async def test_wait_for_tx_accepted(account_goerli_testnet):
+    account = account_goerli_testnet
     call = Call(
         to_addr=int(EMPTY_CONTRACT_ADDRESS_TESTNET, 0),
         selector=get_selector_from_name("empty"),
@@ -83,8 +83,8 @@ async def test_wait_for_tx_accepted(full_node_account_testnet):
 
 
 @pytest.mark.asyncio
-async def test_transaction_not_received_max_fee_too_small(full_node_account_testnet):
-    account = full_node_account_testnet
+async def test_transaction_not_received_max_fee_too_small(account_goerli_testnet):
+    account = account_goerli_testnet
     call = Call(
         to_addr=int(EMPTY_CONTRACT_ADDRESS_TESTNET, 0),
         selector=get_selector_from_name("empty"),
@@ -99,8 +99,8 @@ async def test_transaction_not_received_max_fee_too_small(full_node_account_test
 
 
 @pytest.mark.asyncio
-async def test_transaction_not_received_max_fee_too_big(full_node_account_testnet):
-    account = full_node_account_testnet
+async def test_transaction_not_received_max_fee_too_big(account_goerli_testnet):
+    account = account_goerli_testnet
     call = Call(
         to_addr=int(EMPTY_CONTRACT_ADDRESS_TESTNET, 0),
         selector=get_selector_from_name("empty"),
@@ -115,8 +115,8 @@ async def test_transaction_not_received_max_fee_too_big(full_node_account_testne
 
 
 @pytest.mark.asyncio
-async def test_transaction_not_received_invalid_nonce(full_node_account_testnet):
-    account = full_node_account_testnet
+async def test_transaction_not_received_invalid_nonce(account_goerli_testnet):
+    account = account_goerli_testnet
     call = Call(
         to_addr=int(EMPTY_CONTRACT_ADDRESS_TESTNET, 0),
         selector=get_selector_from_name("empty"),
@@ -131,8 +131,8 @@ async def test_transaction_not_received_invalid_nonce(full_node_account_testnet)
 
 
 @pytest.mark.asyncio
-async def test_transaction_not_received_invalid_signature(full_node_account_testnet):
-    account = full_node_account_testnet
+async def test_transaction_not_received_invalid_signature(account_goerli_testnet):
+    account = account_goerli_testnet
     call = Call(
         to_addr=int(EMPTY_CONTRACT_ADDRESS_TESTNET, 0),
         selector=get_selector_from_name("empty"),
@@ -156,8 +156,8 @@ async def test_transaction_not_received_invalid_signature(full_node_account_test
 
 
 @pytest.mark.asyncio
-async def test_estimate_message_fee(full_node_client_integration):
-    client = full_node_client_integration
+async def test_estimate_message_fee(client_goerli_integration):
+    client = client_goerli_integration
 
     # info about this message from
     # https://integration.starkscan.co/message/0x140185c79e5a04c7c3fae513001f358beb66653dcee75be38f05bd30adba85dd
@@ -182,9 +182,9 @@ async def test_estimate_message_fee(full_node_client_integration):
 
 @pytest.mark.asyncio
 async def test_estimate_message_fee_invalid_eth_address_assertion_error(
-    full_node_client_integration,
+    client_goerli_integration,
 ):
-    client = full_node_client_integration
+    client = client_goerli_integration
     invalid_eth_address = "0xD"
 
     # info about this message from
@@ -221,9 +221,9 @@ async def test_estimate_message_fee_invalid_eth_address_assertion_error(
 )
 @pytest.mark.asyncio
 async def test_estimate_message_fee_throws(
-    full_node_client_integration, from_address, to_address
+    client_goerli_integration, from_address, to_address
 ):
-    client = full_node_client_integration
+    client = client_goerli_integration
 
     with pytest.raises(ClientError):
         _ = await client.estimate_message_fee(
@@ -238,8 +238,8 @@ async def test_estimate_message_fee_throws(
 
 
 @pytest.mark.asyncio
-async def test_get_tx_receipt_reverted(full_node_client_integration):
-    client = full_node_client_integration
+async def test_get_tx_receipt_reverted(client_goerli_integration):
+    client = client_goerli_integration
     reverted_tx_hash = (
         "0x4a3c389816f8544d05db964957eb41a9e3f8c660e8487695cb75438ef983181"
     )
@@ -268,9 +268,9 @@ async def test_get_tx_receipt_reverted(full_node_client_integration):
 )
 @pytest.mark.asyncio
 async def test_get_transaction_by_block_id_and_index(
-    full_node_client_integration, block_number, transaction_index
+    client_goerli_integration, block_number, transaction_index
 ):
-    client = full_node_client_integration
+    client = client_goerli_integration
 
     tx = await client.get_transaction_by_block_id(
         block_number=block_number, index=transaction_index
@@ -285,8 +285,8 @@ async def test_get_transaction_by_block_id_and_index(
 
 
 @pytest.mark.asyncio
-async def test_get_block(full_node_client_integration):
-    client = full_node_client_integration
+async def test_get_block(client_goerli_integration):
+    client = client_goerli_integration
     res = await client.get_block(block_number="latest")
 
     for tx in res.transactions:
@@ -294,9 +294,9 @@ async def test_get_block(full_node_client_integration):
 
 
 @pytest.mark.asyncio
-async def test_get_l1_message_hash(full_node_client_integration):
+async def test_get_l1_message_hash(client_goerli_integration):
     tx_hash = "0x0060bd50c38082211e6aedb21838fe7402a67216d559d9a4848e6c5e9670c90e"
-    l1_message_hash = await full_node_client_integration.get_l1_message_hash(tx_hash)
+    l1_message_hash = await client_goerli_integration.get_l1_message_hash(tx_hash)
     assert (
         hex(l1_message_hash)
         == "0x140185c79e5a04c7c3fae513001f358beb66653dcee75be38f05bd30adba85dd"
@@ -305,26 +305,26 @@ async def test_get_l1_message_hash(full_node_client_integration):
 
 @pytest.mark.asyncio
 async def test_get_l1_message_hash_raises_on_incorrect_transaction_type(
-    full_node_client_integration,
+    client_goerli_integration,
 ):
     tx_hash = "0x06d11fa74255c1f86aace54cbf382ab8c89e2b90fb0801f751834ca52bf2a2a2"
     with pytest.raises(
         TypeError, match=f"Transaction {tx_hash} is not a result of L1->L2 interaction."
     ):
-        await full_node_client_integration.get_l1_message_hash(tx_hash)
+        await client_goerli_integration.get_l1_message_hash(tx_hash)
 
 
 @pytest.mark.asyncio
-async def test_spec_version(full_node_client_testnet):
-    spec_version = await full_node_client_testnet.spec_version()
+async def test_spec_version(client_goerli_testnet):
+    spec_version = await client_goerli_testnet.spec_version()
 
     assert spec_version is not None
     assert isinstance(spec_version, str)
 
 
 @pytest.mark.asyncio
-async def test_get_transaction_status(full_node_client_testnet):
-    tx_status = await full_node_client_testnet.get_transaction_status(
+async def test_get_transaction_status(client_goerli_testnet):
+    tx_status = await client_goerli_testnet.get_transaction_status(
         tx_hash=0x1FCE504A8F9C837CA84B784836E5AF041221C1BFB40C03AE0BDC0C713D09A21
     )
 
@@ -333,15 +333,15 @@ async def test_get_transaction_status(full_node_client_testnet):
 
 
 @pytest.mark.asyncio
-async def test_get_block_new_header_fields(full_node_client_testnet):
+async def test_get_block_new_header_fields(client_goerli_testnet):
     # testing l1_gas_price and starknet_version fields
-    block = await full_node_client_testnet.get_block_with_txs(block_number=800000)
+    block = await client_goerli_testnet.get_block_with_txs(block_number=800000)
 
     assert block.starknet_version is not None
     assert block.l1_gas_price is not None
     assert block.l1_gas_price.price_in_wei > 0
 
-    pending_block = await full_node_client_testnet.get_block_with_txs(
+    pending_block = await client_goerli_testnet.get_block_with_txs(
         block_number="pending"
     )
 
@@ -351,15 +351,15 @@ async def test_get_block_new_header_fields(full_node_client_testnet):
 
 
 @pytest.mark.asyncio
-async def test_get_block_with_tx_hashes_new_header_fields(full_node_client_testnet):
+async def test_get_block_with_tx_hashes_new_header_fields(client_goerli_testnet):
     # testing l1_gas_price and starknet_version fields
-    block = await full_node_client_testnet.get_block_with_tx_hashes(block_number=800000)
+    block = await client_goerli_testnet.get_block_with_tx_hashes(block_number=800000)
 
     assert block.starknet_version is not None
     assert block.l1_gas_price is not None
     assert block.l1_gas_price.price_in_wei > 0
 
-    pending_block = await full_node_client_testnet.get_block_with_tx_hashes(
+    pending_block = await client_goerli_testnet.get_block_with_tx_hashes(
         block_number="pending"
     )
 
@@ -369,11 +369,11 @@ async def test_get_block_with_tx_hashes_new_header_fields(full_node_client_testn
 
 
 @pytest.mark.asyncio
-async def test_get_tx_receipt_new_fields(full_node_client_testnet):
+async def test_get_tx_receipt_new_fields(client_goerli_testnet):
     l1_handler_tx_hash = (
         0xBEFE411182979262478CA8CA73BED724237D03D303CE420D94DE7664A78347
     )
-    receipt = await full_node_client_testnet.get_transaction_receipt(
+    receipt = await client_goerli_testnet.get_transaction_receipt(
         tx_hash=l1_handler_tx_hash
     )
 
@@ -398,8 +398,8 @@ async def test_get_tx_receipt_new_fields(full_node_client_testnet):
     ],
 )
 @pytest.mark.asyncio
-async def test_get_transaction_v3(full_node_client_testnet, tx_hash, tx_type):
-    tx = await full_node_client_testnet.get_transaction(tx_hash=tx_hash)
+async def test_get_transaction_v3(client_goerli_testnet, tx_hash, tx_type):
+    tx = await client_goerli_testnet.get_transaction(tx_hash=tx_hash)
     assert isinstance(tx, tx_type)
     assert tx.version == 3
     assert isinstance(tx.resource_bounds, ResourceBoundsMapping)
