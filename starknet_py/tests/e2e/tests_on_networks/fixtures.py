@@ -11,6 +11,8 @@ from starknet_py.tests.e2e.fixtures.constants import (
     GOERLI_TESTNET_ACCOUNT_ADDRESS,
     GOERLI_TESTNET_ACCOUNT_PRIVATE_KEY,
     GOERLI_TESTNET_RPC_URL,
+    SEPOLIA_INTEGRATION_RPC_URL,
+    SEPOLIA_TESTNET_RPC_URL,
 )
 
 
@@ -44,3 +46,13 @@ def account_goerli_testnet(client_goerli_testnet) -> Account:
         key_pair=KeyPair.from_private_key(int(GOERLI_TESTNET_ACCOUNT_PRIVATE_KEY(), 0)),
         chain=StarknetChainId.GOERLI,
     )
+
+
+@pytest.fixture(scope="package")
+def client_sepolia_integration() -> FullNodeClient:
+    return FullNodeClient(node_url=SEPOLIA_INTEGRATION_RPC_URL())
+
+
+@pytest.fixture(scope="package")
+def client_sepolia_testnet() -> FullNodeClient:
+    return FullNodeClient(node_url=SEPOLIA_TESTNET_RPC_URL())

@@ -11,6 +11,7 @@ from starknet_py.net.client_models import (
     DeclareTransactionV3,
     DeployAccountTransactionV3,
     EstimatedFee,
+    EventsChunk,
     InvokeTransactionV3,
     ResourceBoundsMapping,
     TransactionExecutionStatus,
@@ -18,7 +19,11 @@ from starknet_py.net.client_models import (
     TransactionReceipt,
     TransactionStatus,
 )
-from starknet_py.tests.e2e.fixtures.constants import EMPTY_CONTRACT_ADDRESS_TESTNET
+from starknet_py.net.models import StarknetChainId
+from starknet_py.net.networks import SEPOLIA_TESTNET, default_token_address_for_network
+from starknet_py.tests.e2e.fixtures.constants import (
+    EMPTY_CONTRACT_ADDRESS_GOERLI_TESTNET,
+)
 from starknet_py.transaction_errors import TransactionRevertedError
 
 
@@ -50,7 +55,7 @@ async def test_wait_for_tx_reverted(account_goerli_testnet):
     account = account_goerli_testnet
     # Calldata too long for the function (it has no parameters) to trigger REVERTED status
     call = Call(
-        to_addr=int(EMPTY_CONTRACT_ADDRESS_TESTNET, 0),
+        to_addr=int(EMPTY_CONTRACT_ADDRESS_GOERLI_TESTNET, 0),
         selector=get_selector_from_name("empty"),
         calldata=[0x1, 0x2, 0x3, 0x4, 0x5],
     )
@@ -67,7 +72,7 @@ async def test_wait_for_tx_reverted(account_goerli_testnet):
 async def test_wait_for_tx_accepted(account_goerli_testnet):
     account = account_goerli_testnet
     call = Call(
-        to_addr=int(EMPTY_CONTRACT_ADDRESS_TESTNET, 0),
+        to_addr=int(EMPTY_CONTRACT_ADDRESS_GOERLI_TESTNET, 0),
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
@@ -86,7 +91,7 @@ async def test_wait_for_tx_accepted(account_goerli_testnet):
 async def test_transaction_not_received_max_fee_too_small(account_goerli_testnet):
     account = account_goerli_testnet
     call = Call(
-        to_addr=int(EMPTY_CONTRACT_ADDRESS_TESTNET, 0),
+        to_addr=int(EMPTY_CONTRACT_ADDRESS_GOERLI_TESTNET, 0),
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
@@ -102,7 +107,7 @@ async def test_transaction_not_received_max_fee_too_small(account_goerli_testnet
 async def test_transaction_not_received_max_fee_too_big(account_goerli_testnet):
     account = account_goerli_testnet
     call = Call(
-        to_addr=int(EMPTY_CONTRACT_ADDRESS_TESTNET, 0),
+        to_addr=int(EMPTY_CONTRACT_ADDRESS_GOERLI_TESTNET, 0),
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
@@ -118,7 +123,7 @@ async def test_transaction_not_received_max_fee_too_big(account_goerli_testnet):
 async def test_transaction_not_received_invalid_nonce(account_goerli_testnet):
     account = account_goerli_testnet
     call = Call(
-        to_addr=int(EMPTY_CONTRACT_ADDRESS_TESTNET, 0),
+        to_addr=int(EMPTY_CONTRACT_ADDRESS_GOERLI_TESTNET, 0),
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
@@ -134,7 +139,7 @@ async def test_transaction_not_received_invalid_nonce(account_goerli_testnet):
 async def test_transaction_not_received_invalid_signature(account_goerli_testnet):
     account = account_goerli_testnet
     call = Call(
-        to_addr=int(EMPTY_CONTRACT_ADDRESS_TESTNET, 0),
+        to_addr=int(EMPTY_CONTRACT_ADDRESS_GOERLI_TESTNET, 0),
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
@@ -149,8 +154,6 @@ async def test_transaction_not_received_invalid_signature(account_goerli_testnet
     assert exc.value.data is not None
     assert "Data:" in exc.value.message
 
-
-# ------------------------------------ FULL_NODE_CLIENT TESTS ------------------------------------
 
 # TODO (#1219): move tests below to full_node_test.py
 
@@ -407,3 +410,30 @@ async def test_get_transaction_v3(client_goerli_testnet, tx_hash, tx_type):
     assert tx.tip == 0
     assert tx.nonce_data_availability_mode == DAMode.L1
     assert tx.fee_data_availability_mode == DAMode.L1
+
+
+@pytest.mark.asyncio
+async def test_get_chain_id_sepolia_testnet(client_sepolia_testnet):
+    chain_id = await client_sepolia_testnet.get_chain_id()
+    assert isinstance(chain_id, str)
+    assert chain_id == hex(StarknetChainId.SEPOLIA_TESTNET.value)
+
+
+@pytest.mark.asyncio
+async def test_get_chain_id_sepolia_integration(client_sepolia_integration):
+    chain_id = await client_sepolia_integration.get_chain_id()
+    assert isinstance(chain_id, str)
+    assert chain_id == hex(StarknetChainId.SEPOLIA_INTEGRATION.value)
+
+
+@pytest.mark.asyncio
+async def test_get_events_sepolia_testnet(client_sepolia_testnet):
+    events_chunk = await client_sepolia_testnet.get_events(
+        address=default_token_address_for_network(SEPOLIA_TESTNET),
+        from_block_number=1000,
+        to_block_number=1005,
+        chunk_size=10,
+    )
+    assert isinstance(events_chunk, EventsChunk)
+    assert len(events_chunk.events) == 10
+    assert events_chunk.continuation_token is not None
