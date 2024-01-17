@@ -124,7 +124,7 @@ async def test_get_transaction_receipt_deploy_account(
         salt=salt,
         key_pair=key_pair,
         client=client,
-        chain=StarknetChainId.TESTNET,
+        chain=StarknetChainId.GOERLI,
         max_fee=int(1e16),
     )
     await deploy_result.wait_for_acceptance()
@@ -368,7 +368,7 @@ async def test_get_block_hash_and_number(client):
 async def test_get_chain_id(client):
     chain_id = await client.get_chain_id()
 
-    assert chain_id == hex(StarknetChainId.TESTNET.value)
+    assert chain_id == hex(StarknetChainId.GOERLI.value)
 
 
 @pytest.mark.asyncio
@@ -543,7 +543,7 @@ async def test_simulate_transactions_deploy_account(
         address=address,
         client=client,
         key_pair=key_pair,
-        chain=StarknetChainId.TESTNET,
+        chain=StarknetChainId.GOERLI,
     )
     deploy_account_tx = await account.sign_deploy_account_v1_transaction(
         class_hash=class_hash,

@@ -18,10 +18,10 @@ from starknet_py.net.signer.stark_curve_signer import KeyPair
 from starknet_py.tests.e2e.fixtures.constants import (
     DEVNET_PRE_DEPLOYED_ACCOUNT_ADDRESS,
     DEVNET_PRE_DEPLOYED_ACCOUNT_PRIVATE_KEY,
-    INTEGRATION_ACCOUNT_ADDRESS,
-    INTEGRATION_ACCOUNT_PRIVATE_KEY,
-    TESTNET_ACCOUNT_ADDRESS,
-    TESTNET_ACCOUNT_PRIVATE_KEY,
+    GOERLI_INTEGRATION_ACCOUNT_ADDRESS,
+    GOERLI_INTEGRATION_ACCOUNT_PRIVATE_KEY,
+    GOERLI_TESTNET_ACCOUNT_ADDRESS,
+    GOERLI_TESTNET_ACCOUNT_PRIVATE_KEY,
 )
 from starknet_py.tests.e2e.utils import (
     AccountToBeDeployedDetails,
@@ -66,7 +66,7 @@ async def devnet_account_details(
         address=address,
         client=account.client,
         key_pair=key_pair,
-        chain=StarknetChainId.TESTNET,
+        chain=StarknetChainId.GOERLI,
     )
     res = await account.client.deploy_account(deploy_account_tx)
     await account.client.wait_for_tx(res.transaction_hash)
@@ -96,10 +96,10 @@ async def address_and_private_key(
     net = pytestconfig.getoption("--net")
 
     account_details = {
-        "testnet": (TESTNET_ACCOUNT_ADDRESS, TESTNET_ACCOUNT_PRIVATE_KEY),
+        "testnet": (GOERLI_TESTNET_ACCOUNT_ADDRESS, GOERLI_TESTNET_ACCOUNT_PRIVATE_KEY),
         "integration": (
-            INTEGRATION_ACCOUNT_ADDRESS,
-            INTEGRATION_ACCOUNT_PRIVATE_KEY,
+            GOERLI_INTEGRATION_ACCOUNT_ADDRESS,
+            GOERLI_INTEGRATION_ACCOUNT_PRIVATE_KEY,
         ),
     }
     if net == "devnet":
@@ -127,7 +127,7 @@ def full_node_account(
         address=address,
         client=client,
         key_pair=KeyPair.from_private_key(int(private_key, 0)),
-        chain=StarknetChainId.TESTNET,
+        chain=StarknetChainId.GOERLI,
     )
 
 
@@ -180,10 +180,10 @@ def pre_deployed_account_with_validate_deploy(
             DEVNET_PRE_DEPLOYED_ACCOUNT_ADDRESS,
             DEVNET_PRE_DEPLOYED_ACCOUNT_PRIVATE_KEY,
         ),
-        "testnet": (TESTNET_ACCOUNT_ADDRESS, TESTNET_ACCOUNT_PRIVATE_KEY),
+        "testnet": (GOERLI_TESTNET_ACCOUNT_ADDRESS, GOERLI_TESTNET_ACCOUNT_PRIVATE_KEY),
         "integration": (
-            INTEGRATION_ACCOUNT_ADDRESS,
-            INTEGRATION_ACCOUNT_PRIVATE_KEY,
+            GOERLI_INTEGRATION_ACCOUNT_ADDRESS,
+            GOERLI_INTEGRATION_ACCOUNT_PRIVATE_KEY,
         ),
     }
 
@@ -199,7 +199,7 @@ def pre_deployed_account_with_validate_deploy(
         address=address,
         client=FullNodeClient(node_url=network + "/rpc"),
         key_pair=KeyPair.from_private_key(int(private_key, 16)),
-        chain=StarknetChainId.TESTNET,
+        chain=StarknetChainId.GOERLI,
     )
 
 
@@ -220,7 +220,7 @@ async def argent_cairo1_account(
         key_pair=key_pair,
         client=client,
         constructor_calldata=[key_pair.public_key, 0],
-        chain=StarknetChainId.TESTNET,
+        chain=StarknetChainId.GOERLI,
         max_fee=int(1e16),
     )
     await deploy_result.wait_for_acceptance()
