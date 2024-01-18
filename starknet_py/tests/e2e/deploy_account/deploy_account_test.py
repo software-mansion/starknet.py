@@ -14,7 +14,7 @@ async def test_general_flow(client, deploy_account_details_factory):
         address=address,
         client=client,
         key_pair=key_pair,
-        chain=StarknetChainId.TESTNET,
+        chain=StarknetChainId.GOERLI,
     )
 
     deploy_account_tx = await account.sign_deploy_account_v1_transaction(
@@ -36,7 +36,7 @@ async def test_deploy_account_v3(client, deploy_account_details_factory):
         address=address,
         client=client,
         key_pair=key_pair,
-        chain=StarknetChainId.TESTNET,
+        chain=StarknetChainId.GOERLI,
     )
 
     deploy_account_tx = await account.sign_deploy_account_v3_transaction(

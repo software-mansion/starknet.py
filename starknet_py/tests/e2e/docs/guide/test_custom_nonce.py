@@ -56,7 +56,7 @@ async def test_custom_nonce(account):
         address=address,
         client=client,
         key_pair=KeyPair.from_private_key(private_key),
-        chain=StarknetChainId.TESTNET,
+        chain=StarknetChainId.GOERLI,
     )
     # docs: end
 

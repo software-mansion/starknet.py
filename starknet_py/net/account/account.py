@@ -664,7 +664,9 @@ class Account(BaseAccount):
         )
 
         if chain in (
-            StarknetChainId.TESTNET,
+            StarknetChainId.SEPOLIA_TESTNET,
+            StarknetChainId.SEPOLIA_INTEGRATION,
+            StarknetChainId.GOERLI,
             StarknetChainId.MAINNET,
         ):
             balance = await account.get_balance()
@@ -683,7 +685,9 @@ class Account(BaseAccount):
         self, chain_id: Optional[StarknetChainId] = None
     ) -> str:
         if (chain_id or self._chain_id) not in [
-            StarknetChainId.TESTNET,
+            StarknetChainId.SEPOLIA_TESTNET,
+            StarknetChainId.SEPOLIA_INTEGRATION,
+            StarknetChainId.GOERLI,
             StarknetChainId.MAINNET,
         ]:
             raise ValueError(

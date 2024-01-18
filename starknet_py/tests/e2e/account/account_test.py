@@ -454,7 +454,7 @@ async def test_deploy_account(client, deploy_account_details_factory, map_contra
         salt=salt,
         key_pair=key_pair,
         client=client,
-        chain=StarknetChainId.TESTNET,
+        chain=StarknetChainId.GOERLI,
         max_fee=int(1e16),
     )
     await deploy_result.wait_for_acceptance()
@@ -493,7 +493,7 @@ async def test_deploy_account_raises_on_incorrect_address(
             salt=salt,
             key_pair=key_pair,
             client=client,
-            chain=StarknetChainId.TESTNET,
+            chain=StarknetChainId.GOERLI,
             max_fee=MAX_FEE,
         )
 
@@ -519,7 +519,7 @@ async def test_deploy_account_raises_on_no_enough_funds(
                 salt=salt,
                 key_pair=key_pair,
                 client=client,
-                chain=StarknetChainId.TESTNET,
+                chain=StarknetChainId.GOERLI,
                 max_fee=MAX_FEE,
             )
 
@@ -546,7 +546,7 @@ async def test_deploy_account_passes_on_enough_funds(
             salt=salt,
             key_pair=key_pair,
             client=client,
-            chain=StarknetChainId.TESTNET,
+            chain=StarknetChainId.GOERLI,
             max_fee=MAX_FEE,
         )
 
@@ -579,7 +579,7 @@ async def test_deploy_account_uses_custom_calldata(
         salt=salt,
         key_pair=key_pair,
         client=client,
-        chain=StarknetChainId.TESTNET,
+        chain=StarknetChainId.GOERLI,
         constructor_calldata=calldata,
         max_fee=int(1e16),
     )
@@ -601,7 +601,7 @@ async def test_sign_deploy_account_tx_for_fee_estimation(
         address=address,
         client=client,
         key_pair=key_pair,
-        chain=StarknetChainId.TESTNET,
+        chain=StarknetChainId.GOERLI,
     )
 
     transaction = await account.sign_deploy_account_v1_transaction(
@@ -675,7 +675,7 @@ async def test_argent_cairo1_account_deploy(
         key_pair=key_pair,
         client=client,
         constructor_calldata=[key_pair.public_key, 0],
-        chain=StarknetChainId.TESTNET,
+        chain=StarknetChainId.GOERLI,
         max_fee=int(1e16),
     )
     await deploy_result.wait_for_acceptance()
