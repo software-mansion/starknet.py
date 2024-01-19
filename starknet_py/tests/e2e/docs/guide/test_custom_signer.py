@@ -35,7 +35,7 @@ async def test_custom_signer():
         client=client,
         address=0x1111,
         signer=custom_signer,
-        chain=StarknetChainId.TESTNET,
+        chain=StarknetChainId.GOERLI,
     )
     # Now you can use Account as you'd always do
     # docs: end

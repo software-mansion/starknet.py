@@ -439,7 +439,7 @@ class FullNodeClient(Client):
         res = await self._client.call(method_name="blockHashAndNumber", params={})
         return cast(BlockHashAndNumber, BlockHashAndNumberSchema().load(res))
 
-    async def get_chain_id(self) -> int:
+    async def get_chain_id(self) -> str:
         """Return the currently configured Starknet chain id"""
         return await self._client.call(method_name="chainId", params={})
 

@@ -23,33 +23,61 @@ def _get_env_lambda(env_name):
     return lambda: _get_env_or_throw(env_name)
 
 
-# -------------------------------- TESTNET -------------------------------------
+# -------------------------------- GOERLI TESTNET -------------------------------------
 
-TESTNET_ACCOUNT_ADDRESS = _get_env_lambda("TESTNET_ACCOUNT_ADDRESS")
+GOERLI_TESTNET_ACCOUNT_ADDRESS = _get_env_lambda("GOERLI_TESTNET_ACCOUNT_ADDRESS")
 
-TESTNET_ACCOUNT_PRIVATE_KEY = _get_env_lambda("TESTNET_ACCOUNT_PRIVATE_KEY")
+GOERLI_TESTNET_ACCOUNT_PRIVATE_KEY = _get_env_lambda(
+    "GOERLI_TESTNET_ACCOUNT_PRIVATE_KEY"
+)
 
-TESTNET_RPC_URL = _get_env_lambda("TESTNET_RPC_URL")
+GOERLI_TESTNET_RPC_URL = _get_env_lambda("GOERLI_TESTNET_RPC_URL")
 
-EMPTY_CONTRACT_ADDRESS_TESTNET = (
+EMPTY_CONTRACT_ADDRESS_GOERLI_TESTNET = (
     "0x01de0e8ec5303c4624b96733bed7e4261724df4aecedae6305efa35931a4f0e6"
 )
 
-# -------------------------------- INTEGRATION ---------------------------------
+# -------------------------------- GOERLI INTEGRATION ---------------------------------
 
-INTEGRATION_ACCOUNT_PRIVATE_KEY = _get_env_lambda("INTEGRATION_ACCOUNT_PRIVATE_KEY")
+GOERLI_INTEGRATION_ACCOUNT_PRIVATE_KEY = _get_env_lambda(
+    "GOERLI_INTEGRATION_ACCOUNT_PRIVATE_KEY"
+)
 
-INTEGRATION_ACCOUNT_ADDRESS = _get_env_lambda("INTEGRATION_ACCOUNT_ADDRESS")
+GOERLI_INTEGRATION_ACCOUNT_ADDRESS = _get_env_lambda(
+    "GOERLI_INTEGRATION_ACCOUNT_ADDRESS"
+)
 
-INTEGRATION_RPC_URL = _get_env_lambda("INTEGRATION_RPC_URL")
+GOERLI_INTEGRATION_RPC_URL = _get_env_lambda("GOERLI_INTEGRATION_RPC_URL")
 
-EMPTY_CONTRACT_ADDRESS_INTEGRATION = (
+EMPTY_CONTRACT_ADDRESS_GOERLI_INTEGRATION = (
     "0x0751cb46C364E912b6CB9221A857D8f90B1F6995A0e902997df774631432970E"
 )
 
-MAP_CONTRACT_ADDRESS_INTEGRATION = (
+MAP_CONTRACT_ADDRESS_GOERLI_INTEGRATION = (
     "0x05cd21d6b3952a869fda11fa9a5bd2657bd68080d3da255655ded47a81c8bd53"
 )
+
+# -------------------------------- SEPOLIA TESTNET -------------------------------------
+
+SEPOLIA_TESTNET_ACCOUNT_PRIVATE_KEY = _get_env_lambda(
+    "SEPOLIA_TESTNET_ACCOUNT_PRIVATE_KEY"
+)
+
+SEPOLIA_TESTNET_ACCOUNT_ADDRESS = _get_env_lambda("SEPOLIA_TESTNET_ACCOUNT_ADDRESS")
+
+SEPOLIA_TESTNET_RPC_URL = _get_env_lambda("SEPOLIA_TESTNET_RPC_URL")
+
+# -------------------------------- SEPOLIA INTEGRATION -------------------------------------
+
+SEPOLIA_INTEGRATION_ACCOUNT_PRIVATE_KEY = _get_env_lambda(
+    "SEPOLIA_INTEGRATION_ACCOUNT_PRIVATE_KEY"
+)
+
+SEPOLIA_INTEGRATION_ACCOUNT_ADDRESS = _get_env_lambda(
+    "SEPOLIA_INTEGRATION_ACCOUNT_ADDRESS"
+)
+
+SEPOLIA_INTEGRATION_RPC_URL = _get_env_lambda("SEPOLIA_INTEGRATION_RPC_URL")
 
 # -----------------------------------------------------------------------------
 

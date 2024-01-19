@@ -5,40 +5,54 @@ from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.signer.stark_curve_signer import KeyPair
 from starknet_py.tests.e2e.fixtures.constants import (
-    INTEGRATION_ACCOUNT_ADDRESS,
-    INTEGRATION_ACCOUNT_PRIVATE_KEY,
-    INTEGRATION_RPC_URL,
-    TESTNET_ACCOUNT_ADDRESS,
-    TESTNET_ACCOUNT_PRIVATE_KEY,
-    TESTNET_RPC_URL,
+    GOERLI_INTEGRATION_ACCOUNT_ADDRESS,
+    GOERLI_INTEGRATION_ACCOUNT_PRIVATE_KEY,
+    GOERLI_INTEGRATION_RPC_URL,
+    GOERLI_TESTNET_ACCOUNT_ADDRESS,
+    GOERLI_TESTNET_ACCOUNT_PRIVATE_KEY,
+    GOERLI_TESTNET_RPC_URL,
+    SEPOLIA_INTEGRATION_RPC_URL,
+    SEPOLIA_TESTNET_RPC_URL,
 )
 
 
 @pytest.fixture(scope="package")
-def full_node_client_integration() -> FullNodeClient:
-    return FullNodeClient(node_url=INTEGRATION_RPC_URL())
+def client_goerli_integration() -> FullNodeClient:
+    return FullNodeClient(node_url=GOERLI_INTEGRATION_RPC_URL())
 
 
 @pytest.fixture(scope="package")
-def full_node_account_integration(full_node_client_integration) -> Account:
+def account_goerli_integration(client_goerli_integration) -> Account:
     return Account(
-        address=INTEGRATION_ACCOUNT_ADDRESS(),
-        client=full_node_client_integration,
-        key_pair=KeyPair.from_private_key(int(INTEGRATION_ACCOUNT_PRIVATE_KEY(), 0)),
-        chain=StarknetChainId.TESTNET,
+        address=GOERLI_INTEGRATION_ACCOUNT_ADDRESS(),
+        client=client_goerli_integration,
+        key_pair=KeyPair.from_private_key(
+            int(GOERLI_INTEGRATION_ACCOUNT_PRIVATE_KEY(), 0)
+        ),
+        chain=StarknetChainId.GOERLI,
     )
 
 
 @pytest.fixture(scope="package")
-def full_node_client_testnet() -> FullNodeClient:
-    return FullNodeClient(node_url=TESTNET_RPC_URL())
+def client_goerli_testnet() -> FullNodeClient:
+    return FullNodeClient(node_url=GOERLI_TESTNET_RPC_URL())
 
 
 @pytest.fixture(scope="package")
-def full_node_account_testnet(full_node_client_testnet) -> Account:
+def account_goerli_testnet(client_goerli_testnet) -> Account:
     return Account(
-        address=TESTNET_ACCOUNT_ADDRESS(),
-        client=full_node_client_testnet,
-        key_pair=KeyPair.from_private_key(int(TESTNET_ACCOUNT_PRIVATE_KEY(), 0)),
-        chain=StarknetChainId.TESTNET,
+        address=GOERLI_TESTNET_ACCOUNT_ADDRESS(),
+        client=client_goerli_testnet,
+        key_pair=KeyPair.from_private_key(int(GOERLI_TESTNET_ACCOUNT_PRIVATE_KEY(), 0)),
+        chain=StarknetChainId.GOERLI,
     )
+
+
+@pytest.fixture(scope="package")
+def client_sepolia_integration() -> FullNodeClient:
+    return FullNodeClient(node_url=SEPOLIA_INTEGRATION_RPC_URL())
+
+
+@pytest.fixture(scope="package")
+def client_sepolia_testnet() -> FullNodeClient:
+    return FullNodeClient(node_url=SEPOLIA_TESTNET_RPC_URL())
