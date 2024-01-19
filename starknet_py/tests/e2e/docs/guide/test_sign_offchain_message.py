@@ -57,7 +57,7 @@ async def test_sign_offchain_message(account):
         client=client,
         address="0x1111",
         key_pair=KeyPair(private_key=123, public_key=456),
-        chain=StarknetChainId.TESTNET,
+        chain=StarknetChainId.GOERLI,
     )
     # docs: end
 
