@@ -1,3 +1,12 @@
 codecov:
   notify:
     after_n_builds: 4
+  require_ci_to_pass: no
+
+coverage:
+  status: off
+
+comment:
+  layout: "diff, flags, files"
+  behavior: default
+  require_changes: no
