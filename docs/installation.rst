@@ -58,8 +58,8 @@ In such case make sure that you have `MinGW <https://www.mingw-w64.org/>`_ insta
     You also should have MinGW in your PATH environment variable (e.g. ``C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin``).
 
 .. warning::
-    Please be aware that you may encounter issues related to ``libcrypto_c_exports`` (e.g  LoadLibraryEx).
-    Installing MinGW via chocolatey and correctly adding  it to the PATH should solve these issues.
+    Please be aware that you may encounter issues related to ``libcrypto_c_exports`` (e.g LoadLibraryEx).
+    Installing MinGW via chocolatey and correctly adding it to the PATH should solve these issues.
 
 If you encounter any further problems related to installation, you can create an `issue at our GitHub <https://github.com/software-mansion/starknet.py/issues/new?assignees=&labels=bug&projects=&template=bug_report.yaml&title=%5BBUG%5D+%3Ctitle%3E>`_
 or ask for help in ``#🐍 | starknet-py`` channel on `Starknet Discord server <https://starknet.io/discord>`_.
