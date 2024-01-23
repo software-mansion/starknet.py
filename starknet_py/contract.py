@@ -3,6 +3,7 @@ from __future__ import annotations
 import dataclasses
 import json
 import warnings
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import cached_property
 from typing import Dict, List, Optional, Tuple, TypeVar, Union
@@ -33,8 +34,9 @@ from starknet_py.hash.class_hash import compute_class_hash
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
-from starknet_py.net.client_models import Call, EstimatedFee, Hash, Tag
-from starknet_py.net.models import AddressRepresentation, InvokeV1, parse_address
+from starknet_py.net.client_models import Call, EstimatedFee, Hash, ResourceBounds, Tag
+from starknet_py.net.models import AddressRepresentation, parse_address
+from starknet_py.net.models.transaction import Invoke
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.proxy.contract_abi_resolver import (
     ContractAbiResolver,
@@ -153,15 +155,12 @@ class InvokeResult(SentTransaction):
     contract: ContractData = None  # pyright: ignore
     """Additional information about the Contract that made the transaction."""
 
-    invoke_transaction: InvokeV1 = None  # pyright: ignore
+    invoke_transaction: Invoke = None  # pyright: ignore
     """A InvokeTransaction instance used."""
 
     def __post_init__(self):
         assert self.contract is not None
         assert self.invoke_transaction is not None
-
-
-InvocationResult = InvokeResult
 
 
 @add_sync_methods
@@ -277,36 +276,15 @@ class DeployResult(SentTransaction):
             raise ValueError("Argument deployed_contract can't be None.")
 
 
-# pylint: disable=too-many-instance-attributes
+@dataclass
+class CallToSend(Call):
+    _client: Client
+    _payload_transformer: FunctionSerializationAdapter
+
+
 @add_sync_methods
-class PreparedFunctionCall(Call):
-    def __init__(
-        self,
-        calldata: List[int],
-        selector: int,
-        client: Client,
-        account: Optional[BaseAccount],
-        payload_transformer: FunctionSerializationAdapter,
-        contract_data: ContractData,
-        max_fee: Optional[int],
-    ):
-        # pylint: disable=too-many-arguments
-        super().__init__(
-            to_addr=contract_data.address, selector=selector, calldata=calldata
-        )
-        self._client = client
-        self._internal_account = account
-        self._payload_transformer = payload_transformer
-        self._contract_data = contract_data
-        self.max_fee = max_fee
-
-    @property
-    def _account(self) -> BaseAccount:
-        if self._internal_account is not None:
-            return self._internal_account
-
-        raise ValueError("Contract instance was created without providing an Account.")
-
+@dataclass
+class PreparedFunctionCall(CallToSend):
     async def call_raw(
         self,
         block_hash: Optional[str] = None,
@@ -338,42 +316,30 @@ class PreparedFunctionCall(Call):
         result = await self.call_raw(block_hash=block_hash, block_number=block_number)
         return self._payload_transformer.deserialize(result)
 
-    async def invoke(
-        self,
-        max_fee: Optional[int] = None,
-        auto_estimate: bool = False,
-        *,
-        nonce: Optional[int] = None,
-    ) -> InvokeResult:
-        """
-        Invokes a method.
 
-        :param max_fee: Max amount of Wei to be paid when executing transaction.
-        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
-        :param nonce: Nonce of the transaction.
-        :return: InvokeResult.
-        """
-        if max_fee is not None:
-            self.max_fee = max_fee
+@add_sync_methods
+@dataclass
+class PreparedFunctionInvoke(ABC, CallToSend):
+    _contract_data: ContractData
+    _account: Optional[BaseAccount]
 
-        transaction = await self._account.sign_invoke_v1_transaction(
-            calls=self,
-            nonce=nonce,
-            max_fee=self.max_fee,
-            auto_estimate=auto_estimate,
+    def __post_init__(self):
+        if self._account is None:
+            raise ValueError(
+                "Contract instance was created without providing an Account. "
+                "It is not possible to prepare and send an invoke transaction."
+            )
+
+    @property
+    def get_account(self):
+        if self._account is not None:
+            return self._account
+
+        raise ValueError(
+            "The account is not defined. It is not possible to send an invoke transaction."
         )
 
-        response = await self._client.send_transaction(transaction)
-
-        invoke_result = InvokeResult(
-            hash=response.transaction_hash,  # noinspection PyTypeChecker
-            _client=self._client,
-            contract=self._contract_data,
-            invoke_transaction=transaction,
-        )
-
-        return invoke_result
-
+    @abstractmethod
     async def estimate_fee(
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
@@ -388,9 +354,61 @@ class PreparedFunctionCall(Call):
         :param block_number: Estimate fee at given block number
             (or "latest" / "pending" for the latest / pending block), default is "pending".
         :param nonce: Nonce of the transaction.
-        :return: Estimated amount of Wei executing specified transaction will cost.
+        :return: Estimated amount of the transaction cost, either in Wei or Fri associated with executing the
+            specified transaction.
         """
-        tx = await self._account.sign_invoke_v1_transaction(
+
+    async def _invoke(self, transaction: Invoke) -> InvokeResult:
+        response = await self._client.send_transaction(transaction)
+
+        invoke_result = InvokeResult(
+            hash=response.transaction_hash,  # noinspection PyTypeChecker
+            _client=self._client,
+            contract=self._contract_data,
+            invoke_transaction=transaction,
+        )
+
+        return invoke_result
+
+
+@add_sync_methods
+@dataclass
+class PreparedFunctionInvokeV1(PreparedFunctionInvoke):
+    max_fee: Optional[int]
+
+    async def invoke(
+        self,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+        *,
+        nonce: Optional[int] = None,
+    ) -> InvokeResult:
+        """
+        Send an Invoke transaction version 1 for a prepared data.
+
+        :param max_fee: Max amount of Wei to be paid when executing transaction.
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :param nonce: Nonce of the transaction.
+        :return: InvokeResult.
+        """
+
+        transaction = await self.get_account.sign_invoke_v1_transaction(
+            calls=self,
+            nonce=nonce,
+            max_fee=max_fee or self.max_fee,
+            auto_estimate=auto_estimate,
+        )
+
+        return await self._invoke(transaction)
+
+    async def estimate_fee(
+        self,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+        *,
+        nonce: Optional[int] = None,
+    ) -> EstimatedFee:
+        tx = await self.get_account.sign_invoke_v1_transaction(
             calls=self, nonce=nonce, max_fee=0
         )
 
@@ -399,8 +417,60 @@ class PreparedFunctionCall(Call):
             block_hash=block_hash,
             block_number=block_number,
         )
-        assert isinstance(estimated_fee, EstimatedFee)
 
+        assert isinstance(estimated_fee, EstimatedFee)
+        return estimated_fee
+
+
+@add_sync_methods
+@dataclass
+class PreparedFunctionInvokeV3(PreparedFunctionInvoke):
+    l1_resource_bounds: Optional[ResourceBounds]
+
+    async def invoke(
+        self,
+        l1_resource_bounds: Optional[ResourceBounds] = None,
+        auto_estimate: bool = False,
+        *,
+        nonce: Optional[int] = None,
+    ) -> InvokeResult:
+        """
+        Send an Invoke transaction version 3 for a prepared data.
+
+        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Wei) used when executing
+            this transaction.
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :param nonce: Nonce of the transaction.
+        :return: InvokeResult.
+        """
+
+        transaction = await self.get_account.sign_invoke_v3_transaction(
+            calls=self,
+            nonce=nonce,
+            l1_resource_bounds=l1_resource_bounds or self.l1_resource_bounds,
+            auto_estimate=auto_estimate,
+        )
+
+        return await self._invoke(transaction)
+
+    async def estimate_fee(
+        self,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+        *,
+        nonce: Optional[int] = None,
+    ) -> EstimatedFee:
+        tx = await self.get_account.sign_invoke_v3_transaction(
+            calls=self, nonce=nonce, l1_resource_bounds=ResourceBounds.init_with_zeros()
+        )
+
+        estimated_fee = await self._client.estimate_fee(
+            tx=tx,
+            block_hash=block_hash,
+            block_number=block_number,
+        )
+
+        assert isinstance(estimated_fee, EstimatedFee)
         return estimated_fee
 
 
@@ -445,10 +515,9 @@ class ContractFunction:
             assert isinstance(function, Abi.Function) and function is not None
             self._payload_transformer = serializer_for_function(function)
 
-    def prepare(
+    def prepare_call(
         self,
         *args,
-        max_fee: Optional[int] = None,
         **kwargs,
     ) -> PreparedFunctionCall:
         """
@@ -456,19 +525,16 @@ class ContractFunction:
         Creates a ``PreparedFunctionCall`` instance which exposes calldata for every argument
         and adds more arguments when calling methods.
 
-        :param max_fee: Max amount of Wei to be paid when executing transaction.
         :return: PreparedFunctionCall.
         """
 
         calldata = self._payload_transformer.serialize(*args, **kwargs)
         return PreparedFunctionCall(
+            to_addr=self.contract_data.address,
             calldata=calldata,
-            contract_data=self.contract_data,
-            client=self.client,
-            account=self.account,
-            payload_transformer=self._payload_transformer,
             selector=self.get_selector(self.name),
-            max_fee=max_fee,
+            _client=self.client,
+            _payload_transformer=self._payload_transformer,
         )
 
     async def call(
@@ -481,16 +547,44 @@ class ContractFunction:
         """
         Call contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.
         The result is translated from Cairo data to python values.
-        Equivalent of ``.prepare(*args, **kwargs).call()``.
+        Equivalent of ``.prepare_call(*args, **kwargs).call()``.
 
         :param block_hash: Block hash to perform the call to the contract at specific point of time.
         :param block_number: Block number to perform the call to the contract at specific point of time.
+        :return: TupleDataclass representing call result.
         """
-        return await self.prepare(max_fee=0, *args, **kwargs).call(
+        return await self.prepare_call(*args, **kwargs).call(
             block_hash=block_hash, block_number=block_number
         )
 
-    async def invoke(
+    def prepare_invoke_v1(
+        self,
+        *args,
+        max_fee: Optional[int] = None,
+        **kwargs,
+    ) -> PreparedFunctionInvokeV1:
+        """
+        ``*args`` and ``**kwargs`` are translated into Cairo calldata.
+        Creates a ``PreparedFunctionInvokeV1`` instance which exposes calldata for every argument
+        and adds more arguments when calling methods.
+
+        :param max_fee: Max amount of Wei to be paid when executing transaction.
+        :return: PreparedFunctionCall.
+        """
+
+        calldata = self._payload_transformer.serialize(*args, **kwargs)
+        return PreparedFunctionInvokeV1(
+            to_addr=self.contract_data.address,
+            calldata=calldata,
+            selector=self.get_selector(self.name),
+            max_fee=max_fee,
+            _contract_data=self.contract_data,
+            _client=self.client,
+            _account=self.account,
+            _payload_transformer=self._payload_transformer,
+        )
+
+    async def invoke_v1(
         self,
         *args,
         max_fee: Optional[int] = None,
@@ -500,15 +594,69 @@ class ContractFunction:
     ) -> InvokeResult:
         """
         Invoke contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.
-        Equivalent of ``.prepare(*args, **kwargs).invoke()``.
+        Equivalent of ``.prepare_invoke_v1(*args, **kwargs).invoke()``.
 
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :param nonce: Nonce of the transaction.
+        :return: InvokeResult.
         """
-        prepared_call = self.prepare(*args, **kwargs)
-        return await prepared_call.invoke(
+        prepared_invoke = self.prepare_invoke_v1(*args, **kwargs)
+        return await prepared_invoke.invoke(
             max_fee=max_fee, nonce=nonce, auto_estimate=auto_estimate
+        )
+
+    def prepare_invoke_v3(
+        self,
+        *args,
+        l1_resource_bounds: Optional[ResourceBounds] = None,
+        **kwargs,
+    ) -> PreparedFunctionInvokeV3:
+        """
+        ``*args`` and ``**kwargs`` are translated into Cairo calldata.
+        Creates a ``PreparedFunctionInvokeV3`` instance which exposes calldata for every argument
+        and adds more arguments when calling methods.
+
+        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Wei) used when executing
+            this transaction.
+        :return: PreparedFunctionInvokeV3.
+        """
+
+        calldata = self._payload_transformer.serialize(*args, **kwargs)
+        return PreparedFunctionInvokeV3(
+            to_addr=self.contract_data.address,
+            calldata=calldata,
+            selector=self.get_selector(self.name),
+            l1_resource_bounds=l1_resource_bounds,
+            _contract_data=self.contract_data,
+            _client=self.client,
+            _account=self.account,
+            _payload_transformer=self._payload_transformer,
+        )
+
+    async def invoke_v3(
+        self,
+        *args,
+        l1_resource_bounds: Optional[ResourceBounds] = None,
+        auto_estimate: bool = False,
+        nonce: Optional[int] = None,
+        **kwargs,
+    ) -> InvokeResult:
+        """
+        Invoke contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.
+        Equivalent of ``.prepare_invoke_v3(*args, **kwargs).invoke()``.
+
+        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Wei) used when executing
+            this transaction.
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :param nonce: Nonce of the transaction.
+        :return: InvokeResult.
+        """
+        prepared_invoke = self.prepare_invoke_v3(*args, **kwargs)
+        return await prepared_invoke.invoke(
+            l1_resource_bounds=l1_resource_bounds,
+            nonce=nonce,
+            auto_estimate=auto_estimate,
         )
 
     @staticmethod
