@@ -9,6 +9,7 @@ from starknet_py.serialization.data_serializers.cairo_data_serializer import (
     CairoDataSerializer,
 )
 
+
 @dataclass
 class OutputSerializer(CairoDataSerializer[List, Tuple]):
     """

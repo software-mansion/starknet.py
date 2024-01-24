@@ -11,6 +11,7 @@ from starknet_py.serialization.data_serializers.cairo_data_serializer import (
     CairoDataSerializer,
 )
 
+
 class Uint256Dict(TypedDict):
     low: int
     high: int

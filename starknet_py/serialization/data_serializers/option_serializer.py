@@ -10,7 +10,6 @@ from starknet_py.serialization.data_serializers.cairo_data_serializer import (
 )
 
 
-
 @dataclass
 class OptionSerializer(CairoDataSerializer[Optional[Any], Optional[Any]]):
     """
