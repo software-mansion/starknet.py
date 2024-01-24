@@ -1,12 +1,13 @@
 from dataclasses import dataclass, field
 from typing import Dict, Generator, List, Tuple
 
-from starknet_py.serialization import CairoDataSerializer
 from starknet_py.serialization._context import (
     DeserializationContext,
     SerializationContext,
 )
-
+from .cairo_data_serializer import (
+    CairoDataSerializer,
+)
 
 @dataclass
 class OutputSerializer(CairoDataSerializer[List, Tuple]):

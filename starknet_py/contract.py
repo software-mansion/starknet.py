@@ -632,6 +632,7 @@ class Contract:
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> DeclareResult:
+        # pylint: disable=too-many-arguments
         """
         Declares a contract.
 

@@ -2,13 +2,14 @@ from dataclasses import dataclass
 from typing import Generator, TypedDict, Union
 
 from starknet_py.cairo.felt import uint256_range_check
-from starknet_py.serialization import CairoDataSerializer
 from starknet_py.serialization._context import (
     Context,
     DeserializationContext,
     SerializationContext,
 )
-
+from .cairo_data_serializer import (
+    CairoDataSerializer,
+)
 
 class Uint256Dict(TypedDict):
     low: int

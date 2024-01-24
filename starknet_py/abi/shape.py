@@ -1,3 +1,5 @@
+# TODO (#issue): update pylint to 3.1.0 and remove pylint disable
+# pylint: disable=too-many-ancestors
 import sys
 from typing import List, Literal, Union
 
