@@ -115,7 +115,7 @@ async def replaced_class(account: Account, map_class_hash: int) -> Tuple[int, in
     contract = deploy_result.deployed_contract
 
     resp = await (
-        await contract.functions["replace_implementation"].invoke(
+        await contract.functions["replace_implementation"].invoke_v1(
             new_class=map_class_hash, max_fee=MAX_FEE
         )
     ).wait_for_acceptance()

@@ -70,7 +70,7 @@ async def test_estimated_fee_greater_than_zero(account, erc20_contract):
 
     estimated_fee = (
         await erc20_contract.functions["balanceOf"]
-        .prepare("1234", max_fee=0)
+        .prepare_invoke_v1("1234", max_fee=0)
         .estimate_fee(block_hash="latest")
     )
 
@@ -101,8 +101,8 @@ async def test_estimate_fee_for_declare_transaction(account, map_compiled_contra
 @pytest.mark.parametrize("key, val", [(20, 20), (30, 30)])
 async def test_sending_multicall(account, map_contract, key, val):
     calls = [
-        map_contract.functions["put"].prepare(key=10, value=10),
-        map_contract.functions["put"].prepare(key=key, value=val),
+        map_contract.functions["put"].prepare_invoke_v1(key=10, value=10),
+        map_contract.functions["put"].prepare_invoke_v1(key=key, value=val),
     ]
 
     res = await account.execute(calls=calls, max_fee=int(1e20))
@@ -118,7 +118,7 @@ async def test_rejection_reason_in_transaction_receipt(map_contract):
     with pytest.raises(
         ClientError, match="Max fee is smaller than the minimal transaction cost"
     ):
-        await map_contract.functions["put"].invoke(key=10, value=20, max_fee=1)
+        await map_contract.functions["put"].invoke_v1(key=10, value=20, max_fee=1)
 
 
 def test_sign_and_verify_offchain_message_fail(account, typed_data):

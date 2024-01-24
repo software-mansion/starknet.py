@@ -42,7 +42,7 @@ async def test_account_get_balance(account, map_contract):
     balance = await account.get_balance()
     block = await account.client.get_block(block_number="latest")
 
-    await map_contract.functions["put"].invoke(key=10, value=10, max_fee=MAX_FEE)
+    await map_contract.functions["put"].invoke_v1(key=10, value=10, max_fee=MAX_FEE)
 
     new_balance = await account.get_balance()
     old_balance = await account.get_balance(block_number=block.block_number)

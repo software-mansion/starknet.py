@@ -30,7 +30,7 @@ async def test_using_account(account, map_compiled_contract):
     # Adds a transaction to mutate the state of k-v store. The call goes through account proxy, because we've used
     # Account to create the contract object
     await (
-        await map_contract.functions["put"].invoke(k, v, max_fee=int(1e16))
+        await map_contract.functions["put"].invoke_v1(k, v, max_fee=int(1e16))
     ).wait_for_acceptance()
 
     # Retrieves the value, which is equal to 4324 in this case
@@ -40,8 +40,8 @@ async def test_using_account(account, map_compiled_contract):
 
     # Creates a list of prepared function calls
     calls = [
-        map_contract.functions["put"].prepare(key=10, value=20),
-        map_contract.functions["put"].prepare(key=30, value=40),
+        map_contract.functions["put"].prepare_invoke_v1(key=10, value=20),
+        map_contract.functions["put"].prepare_invoke_v1(key=30, value=40),
     ]
 
     # Executes only one transaction with prepared calls

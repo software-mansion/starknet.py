@@ -15,7 +15,7 @@ from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 async def is_map_working_properly(map_contract: Contract, key: int, val: int) -> bool:
     """Put (key, val) into map_contract's storage and check if value under the key is val"""
     await (
-        await map_contract.functions["put"].invoke(key, val, max_fee=int(1e16))
+        await map_contract.functions["put"].invoke_v1(key, val, max_fee=int(1e16))
     ).wait_for_acceptance()
     (result,) = await map_contract.functions["get"].call(key=key)
     return result == val
