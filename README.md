@@ -36,7 +36,7 @@ Installation varies between operating systems.
 This is the recommended way of using the SDK.
 
 ```python
-from starknet_py.contract import Contract
+from starknet_py.net.contract.contract import Contract
 from starknet_py.net.full_node_client import FullNodeClient
 
 contract = await Contract.from_address(
@@ -51,7 +51,7 @@ contract = await Contract.from_address(
 You can access synchronous world with `_sync` postfix.
 
 ```python
-from starknet_py.contract import Contract
+from starknet_py.net.contract.contract import Contract
 from starknet_py.net.full_node_client import FullNodeClient
 
 contract = Contract.from_address_sync(

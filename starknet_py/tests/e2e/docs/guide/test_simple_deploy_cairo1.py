@@ -18,7 +18,7 @@ async def test_simple_deploy_cairo1(account, cairo1_erc20_class_hash):
     # docs: start
     from starknet_py.cairo.felt import encode_shortstring
     from starknet_py.common import create_sierra_compiled_contract
-    from starknet_py.contract import Contract
+    from starknet_py.net.contract.contract import Contract
 
     # docs: end
 

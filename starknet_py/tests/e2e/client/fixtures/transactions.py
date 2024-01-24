@@ -4,8 +4,8 @@ from typing import Tuple, cast
 import pytest
 import pytest_asyncio
 
-from starknet_py.contract import Contract
 from starknet_py.net.account.account import Account
+from starknet_py.net.contract.contract import Contract
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models.transaction import DeployAccountV1
 from starknet_py.net.udc_deployer.deployer import Deployer

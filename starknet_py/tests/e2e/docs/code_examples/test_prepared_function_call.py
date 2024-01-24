@@ -1,7 +1,7 @@
 # pylint: disable=unused-variable
 import pytest
 
-from starknet_py.contract import Contract
+from starknet_py.net.contract.contract import Contract
 
 
 @pytest.mark.asyncio

@@ -14,13 +14,17 @@ from starknet_py.abi.v2.shape import (
 )
 from starknet_py.common import create_compiled_contract, create_sierra_compiled_contract
 from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
-from starknet_py.contract_function import ContractData, ContractFunction
-from starknet_py.contract_utils import _extract_compiled_class_hash, _unpack_provider
 from starknet_py.hash.address import compute_address
 from starknet_py.hash.class_hash import compute_class_hash
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import Hash, ResourceBounds
+from starknet_py.net.contract.contract_function import ContractData, ContractFunction
+from starknet_py.net.contract.contract_utils import (
+    _extract_compiled_class_hash,
+    _unpack_provider,
+)
+from starknet_py.net.contract.sent_transaction import SentTransaction
 from starknet_py.net.models import AddressRepresentation, parse_address
 from starknet_py.net.models.transaction import Declare
 from starknet_py.net.udc_deployer.deployer import Deployer
@@ -29,7 +33,6 @@ from starknet_py.proxy.contract_abi_resolver import (
     ProxyConfig,
     prepare_proxy_config,
 )
-from starknet_py.sent_transaction import SentTransaction
 from starknet_py.utils.constructor_args_translator import translate_constructor_args
 from starknet_py.utils.sync import add_sync_methods
 

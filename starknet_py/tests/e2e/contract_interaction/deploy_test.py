@@ -6,8 +6,8 @@ from unittest.mock import Mock
 import pytest
 
 from starknet_py.common import create_sierra_compiled_contract
-from starknet_py.contract import Contract, DeclareResult
 from starknet_py.net.client_models import InvokeTransaction, InvokeTransactionV3
+from starknet_py.net.contract.contract import Contract, DeclareResult
 from starknet_py.net.models import DeclareV2
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE, MAX_RESOURCE_BOUNDS_L1
 from starknet_py.tests.e2e.fixtures.misc import read_contract

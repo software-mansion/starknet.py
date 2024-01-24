@@ -15,8 +15,8 @@ from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import Call, EstimatedFee, Hash, ResourceBounds, Tag
+from starknet_py.net.contract.sent_transaction import SentTransaction
 from starknet_py.net.models.transaction import Invoke
-from starknet_py.sent_transaction import SentTransaction
 from starknet_py.serialization import (
     FunctionSerializationAdapter,
     TupleDataclass,

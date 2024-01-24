@@ -1,10 +1,10 @@
 # pylint: disable=unused-variable
 import pytest
 
-from starknet_py.contract import Contract
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.storage import get_storage_var_address
 from starknet_py.net.client_models import Call
+from starknet_py.net.contract.contract import Contract
 from starknet_py.net.full_node_client import FullNodeClient
 
 

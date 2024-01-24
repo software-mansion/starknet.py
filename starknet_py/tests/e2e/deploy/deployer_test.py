@@ -1,7 +1,7 @@
 import pytest
 
-from starknet_py.contract import Contract
 from starknet_py.hash.address import compute_address
+from starknet_py.net.contract.contract import Contract
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE

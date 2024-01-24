@@ -1,7 +1,7 @@
 import pytest
 
-from starknet_py.contract import Contract, DeclareResult, DeployResult
 from starknet_py.net.account.base_account import BaseAccount
+from starknet_py.net.contract.contract import Contract, DeclareResult, DeployResult
 
 
 def test_compute_hash(balance_contract):

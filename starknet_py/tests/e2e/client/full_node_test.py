@@ -4,7 +4,6 @@ from unittest.mock import AsyncMock, patch
 import pytest
 
 from starknet_py.common import create_casm_class
-from starknet_py.contract import Contract
 from starknet_py.hash.address import compute_address
 from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.hash.selector import get_selector_from_name
@@ -24,6 +23,7 @@ from starknet_py.net.client_models import (
     SyncStatus,
     TransactionType,
 )
+from starknet_py.net.contract.contract import Contract
 from starknet_py.net.full_node_client import _to_rpc_felt
 from starknet_py.net.models import StarknetChainId
 from starknet_py.tests.e2e.fixtures.constants import (
