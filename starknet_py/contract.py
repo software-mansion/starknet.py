@@ -906,10 +906,6 @@ class Contract:
         )
 
     @staticmethod
-    def _get_cairo_version(compiled_contract: str) -> int:
-        return 1 if "sierra_program" in compiled_contract else 0
-
-    @staticmethod
     async def deploy_contract(
         account: BaseAccount,
         class_hash: Hash,
