@@ -6,7 +6,7 @@ import warnings
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import cached_property
-from typing import Dict, List, Optional, Tuple, TypeVar, Union
+from typing import Dict, List, Optional, TypeVar, Union
 
 from marshmallow import ValidationError
 
@@ -24,7 +24,7 @@ from starknet_py.abi.v2.shape import (
 )
 from starknet_py.common import create_compiled_contract, create_sierra_compiled_contract
 from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
-from starknet_py.contract_utils import _extract_compiled_class_hash
+from starknet_py.contract_utils import _extract_compiled_class_hash, _unpack_provider
 from starknet_py.hash.address import compute_address
 from starknet_py.hash.class_hash import compute_class_hash
 from starknet_py.hash.selector import get_selector_from_name
@@ -1054,21 +1054,3 @@ class Contract:
             return ProxyConfig()
         proxy_arg = ProxyConfig() if proxy_config is True else proxy_config
         return prepare_proxy_config(proxy_arg)
-
-
-def _unpack_provider(
-    provider: Union[BaseAccount, Client]
-) -> Tuple[Client, Optional[BaseAccount]]:
-    """
-    Get the client and optional account to be used by Contract.
-
-    If provided with Client, returns this Client and None.
-    If provided with BaseAccount, returns underlying Client and the account.
-    """
-    if isinstance(provider, Client):
-        return provider, None
-
-    if isinstance(provider, BaseAccount):
-        return provider.client, provider
-
-    raise ValueError("Argument provider is not of accepted type.")
