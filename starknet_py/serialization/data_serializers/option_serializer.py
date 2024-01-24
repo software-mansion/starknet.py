@@ -5,7 +5,7 @@ from starknet_py.serialization._context import (
     DeserializationContext,
     SerializationContext,
 )
-from .cairo_data_serializer import (
+from starknet_py.serialization.data_serializers.cairo_data_serializer import (
     CairoDataSerializer,
 )
 
