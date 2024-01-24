@@ -191,7 +191,7 @@ class DeclareResult(SentTransaction):
         if self.declare_transaction is None:
             raise ValueError("Argument declare_transaction can't be None.")
 
-    async def deploy(
+    async def deploy_v1(
         self,
         *,
         deployer_address: AddressRepresentation = DEFAULT_DEPLOYER_ADDRESS,
@@ -217,6 +217,66 @@ class DeclareResult(SentTransaction):
         :return: DeployResult instance.
         """
         # pylint: disable=too-many-arguments, too-many-locals
+        abi = self._get_abi()
+
+        return await Contract.deploy_contract_v1(
+            account=self._account,
+            class_hash=self.class_hash,
+            abi=abi,
+            constructor_args=constructor_args,
+            deployer_address=deployer_address,
+            cairo_version=self._cairo_version,
+            nonce=nonce,
+            max_fee=max_fee,
+            auto_estimate=auto_estimate,
+            salt=salt,
+            unique=unique,
+        )
+
+    async def deploy_v3(
+        self,
+        *,
+        deployer_address: AddressRepresentation = DEFAULT_DEPLOYER_ADDRESS,
+        salt: Optional[int] = None,
+        unique: bool = True,
+        constructor_args: Optional[Union[List, Dict]] = None,
+        nonce: Optional[int] = None,
+        l1_resource_bounds: Optional[ResourceBounds] = None,
+        auto_estimate: bool = False,
+    ) -> "DeployResult":
+        """
+        Deploys a contract.
+
+        :param deployer_address: Address of the UDC. Is set to the address of
+            the default UDC (same address on mainnet/testnet/devnet) by default.
+            Must be set when using custom network other than ones listed above.
+        :param salt: Optional salt. Random value is selected if it is not provided.
+        :param unique: Determines if the contract should be salted with the account address.
+        :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
+        :param nonce: Nonce of the transaction with call to deployer.
+        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Wei) used when executing
+            this transaction.
+        :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
+        :return: DeployResult instance.
+        """
+        # pylint: disable=too-many-arguments, too-many-locals
+        abi = self._get_abi()
+
+        return await Contract.deploy_contract_v3(
+            account=self._account,
+            class_hash=self.class_hash,
+            abi=abi,
+            constructor_args=constructor_args,
+            deployer_address=deployer_address,
+            cairo_version=self._cairo_version,
+            nonce=nonce,
+            l1_resource_bounds=l1_resource_bounds,
+            auto_estimate=auto_estimate,
+            salt=salt,
+            unique=unique,
+        )
+
+    def _get_abi(self) -> List:
         if self._cairo_version == 0:
             abi = create_compiled_contract(compiled_contract=self.compiled_contract).abi
         else:
@@ -230,36 +290,7 @@ class DeclareResult(SentTransaction):
                     "Contract's ABI can't be converted to format List[Dict]. "
                     "Make sure provided compiled_contract is correct."
                 ) from exc
-
-        deployer = Deployer(
-            deployer_address=deployer_address,
-            account_address=self._account.address if unique else None,
-        )
-        deploy_call, address = deployer.create_contract_deployment(
-            class_hash=self.class_hash,
-            salt=salt,
-            abi=abi,
-            calldata=constructor_args,
-            cairo_version=self._cairo_version,
-        )
-        res = await self._account.execute(
-            calls=deploy_call, nonce=nonce, max_fee=max_fee, auto_estimate=auto_estimate
-        )
-
-        deployed_contract = Contract(
-            provider=self._account,
-            address=address,
-            abi=abi,
-            cairo_version=self._cairo_version,
-        )
-
-        deploy_result = DeployResult(
-            hash=res.transaction_hash,
-            _client=self._account.client,
-            deployed_contract=deployed_contract,
-        )
-
-        return deploy_result
+        return abi
 
 
 @add_sync_methods
@@ -906,7 +937,7 @@ class Contract:
         )
 
     @staticmethod
-    async def deploy_contract(
+    async def deploy_contract_v1(
         account: BaseAccount,
         class_hash: Hash,
         abi: List,
@@ -917,9 +948,11 @@ class Contract:
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
+        salt: Optional[int] = None,
+        unique: bool = True,
     ) -> "DeployResult":
         """
-        Deploys a contract through Universal Deployer Contract
+        Deploys a contract through Universal Deployer Contract.
 
         :param account: BaseAccount used to sign and send deploy transaction.
         :param class_hash: The class_hash of the contract to be deployed.
@@ -929,23 +962,98 @@ class Contract:
             the default UDC (same address on mainnet/testnet/devnet) by default.
             Must be set when using custom network other than ones listed above.
         :param cairo_version: Version of the Cairo in which contract is written.
+            By default, it is set to 0.
         :param nonce: Nonce of the transaction.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
+        :param salt: Optional salt. Random value is selected if it is not provided.
+        :param unique: Determines if the contract should be salted with the account address.
         :return: DeployResult instance.
         """
         # pylint: disable=too-many-arguments
         deployer = Deployer(
-            deployer_address=deployer_address, account_address=account.address
+            deployer_address=deployer_address,
+            account_address=account.address if unique else None,
         )
         deploy_call, address = deployer.create_contract_deployment(
             class_hash=class_hash,
+            salt=salt,
             abi=abi,
             calldata=constructor_args,
             cairo_version=cairo_version,
         )
+
         res = await account.execute(
-            calls=deploy_call, nonce=nonce, max_fee=max_fee, auto_estimate=auto_estimate
+            calls=deploy_call,
+            nonce=nonce,
+            max_fee=max_fee,
+            auto_estimate=auto_estimate,
+        )
+
+        deployed_contract = Contract(
+            provider=account, address=address, abi=abi, cairo_version=cairo_version
+        )
+        deploy_result = DeployResult(
+            hash=res.transaction_hash,
+            _client=account.client,
+            deployed_contract=deployed_contract,
+        )
+
+        return deploy_result
+
+    @staticmethod
+    async def deploy_contract_v3(
+        account: BaseAccount,
+        class_hash: Hash,
+        abi: List,
+        constructor_args: Optional[Union[List, Dict]] = None,
+        *,
+        deployer_address: AddressRepresentation = DEFAULT_DEPLOYER_ADDRESS,
+        cairo_version: int = 1,
+        nonce: Optional[int] = None,
+        l1_resource_bounds: Optional[ResourceBounds] = None,
+        auto_estimate: bool = False,
+        salt: Optional[int] = None,
+        unique: bool = True,
+    ) -> "DeployResult":
+        """
+        Deploys a contract through Universal Deployer Contract.
+
+        :param account: BaseAccount used to sign and send deploy transaction.
+        :param class_hash: The class_hash of the contract to be deployed.
+        :param abi: An abi of the contract to be deployed.
+        :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
+        :param deployer_address: Address of the UDC. Is set to the address of
+            the default UDC (same address on mainnet/testnet/devnet) by default.
+            Must be set when using custom network other than ones listed above.
+        :param cairo_version: Version of the Cairo in which contract is written.
+            By default, it is set to 1.
+        :param nonce: Nonce of the transaction.
+        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Wei) used when executing
+            this transaction.
+        :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
+        :param salt: Optional salt. Random value is selected if it is not provided.
+        :param unique: Determines if the contract should be salted with the account address.
+        :return: DeployResult instance.
+        """
+        # pylint: disable=too-many-arguments
+        deployer = Deployer(
+            deployer_address=deployer_address,
+            account_address=account.address if unique else None,
+        )
+        deploy_call, address = deployer.create_contract_deployment(
+            class_hash=class_hash,
+            salt=salt,
+            abi=abi,
+            calldata=constructor_args,
+            cairo_version=cairo_version,
+        )
+
+        res = await account.execute_v3(
+            calls=deploy_call,
+            nonce=nonce,
+            l1_resource_bounds=l1_resource_bounds,
+            auto_estimate=auto_estimate,
         )
 
         deployed_contract = Contract(
