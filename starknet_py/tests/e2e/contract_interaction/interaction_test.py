@@ -1,7 +1,7 @@
 import pytest
 
-from starknet_py.contract import (
-    Contract,
+from starknet_py.contract import Contract
+from starknet_py.contract_function import (
     PreparedFunctionInvokeV1,
     PreparedFunctionInvokeV3,
 )

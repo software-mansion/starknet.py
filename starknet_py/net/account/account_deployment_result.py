@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from starknet_py.contract import SentTransaction
+from starknet_py.sent_transaction import SentTransaction
 from starknet_py.utils.sync import add_sync_methods
 
 
