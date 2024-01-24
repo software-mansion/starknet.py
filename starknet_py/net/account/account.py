@@ -597,9 +597,10 @@ class Account(BaseAccount):
         address: AddressRepresentation,
         class_hash: int,
         salt: int,
-        key_pair: KeyPair,
         client: Client,
         chain: StarknetChainId,
+        key_pair: Optional[KeyPair] = None,
+        signer: Optional[BaseSigner] = None,
         constructor_calldata: Optional[List[int]] = None,
         nonce: int = 0,
         max_fee: Optional[int] = None,
@@ -621,6 +622,9 @@ class Account(BaseAccount):
         :param key_pair: KeyPair used to calculate address and sign deploy account transaction.
         :param client: a Client instance used for deployment.
         :param chain: id of the Starknet chain used.
+        :param signer: Custom signer to be used by Account.
+                       If none is provided, default
+                       :py:class:`starknet_py.net.signer.stark_curve_signer.StarkCurveSigner` is used.
         :param constructor_calldata: optional calldata to account contract constructor. If ``None`` is passed,
             ``[key_pair.public_key]`` will be used as calldata.
         :param nonce: Nonce of the transaction.
@@ -652,6 +656,7 @@ class Account(BaseAccount):
             client=client,
             key_pair=key_pair,
             chain=chain,
+            signer=signer,
         )
 
         deploy_account_tx = await account.sign_deploy_account_v1_transaction(
