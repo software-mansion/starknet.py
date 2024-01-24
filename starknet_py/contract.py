@@ -22,21 +22,17 @@ from starknet_py.abi.v2.shape import (
     INTERFACE_ENTRY,
     L1_HANDLER_ENTRY,
 )
-from starknet_py.common import (
-    create_casm_class,
-    create_compiled_contract,
-    create_sierra_compiled_contract,
-)
+from starknet_py.common import create_compiled_contract, create_sierra_compiled_contract
 from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
+from starknet_py.contract_utils import _extract_compiled_class_hash
 from starknet_py.hash.address import compute_address
-from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.hash.class_hash import compute_class_hash
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import Call, EstimatedFee, Hash, ResourceBounds, Tag
 from starknet_py.net.models import AddressRepresentation, parse_address
-from starknet_py.net.models.transaction import Invoke
+from starknet_py.net.models.transaction import Declare, Invoke
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.proxy.contract_abi_resolver import (
     ContractAbiResolver,
@@ -179,6 +175,9 @@ class DeclareResult(SentTransaction):
     compiled_contract: str = None  # pyright: ignore
     """Compiled contract that was declared."""
 
+    declare_transaction: Declare = None  # pyright: ignore
+    """A Declare transaction that has been sent."""
+
     def __post_init__(self):
         if self._account is None:
             raise ValueError("Argument _account can't be None.")
@@ -188,6 +187,9 @@ class DeclareResult(SentTransaction):
 
         if self.compiled_contract is None:
             raise ValueError("Argument compiled_contract can't be None.")
+
+        if self.declare_transaction is None:
+            raise ValueError("Argument declare_transaction can't be None.")
 
     async def deploy(
         self,
@@ -769,12 +771,50 @@ class Contract:
         )
 
     @staticmethod
-    async def declare(
+    async def declare_v1(
+        account: BaseAccount,
+        compiled_contract: str,
+        *,
+        nonce: Optional[int] = None,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+    ) -> DeclareResult:
+        """
+        Declares a contract.
+
+        :param account: BaseAccount used to sign and send declare transaction.
+        :param compiled_contract: String containing compiled contract.
+        :param nonce: Nonce of the transaction.
+        :param max_fee: Max amount of Wei to be paid when executing transaction.
+        :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
+        :return: DeclareResult instance.
+        """
+
+        declare_tx = await account.sign_declare_v1_transaction(
+            compiled_contract=compiled_contract,
+            nonce=nonce,
+            max_fee=max_fee,
+            auto_estimate=auto_estimate,
+        )
+        res = await account.client.declare(transaction=declare_tx)
+
+        return DeclareResult(
+            hash=res.transaction_hash,
+            class_hash=res.class_hash,
+            compiled_contract=compiled_contract,
+            declare_transaction=declare_tx,
+            _account=account,
+            _client=account.client,
+            _cairo_version=0,
+        )
+
+    @staticmethod
+    async def declare_v2(
         account: BaseAccount,
         compiled_contract: str,
         *,
         compiled_contract_casm: Optional[str] = None,
-        casm_class_hash: Optional[int] = None,
+        compiled_class_hash: Optional[int] = None,
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
@@ -785,51 +825,84 @@ class Contract:
         :param account: BaseAccount used to sign and send declare transaction.
         :param compiled_contract: String containing compiled contract.
         :param compiled_contract_casm: String containing the content of the starknet-sierra-compile (.casm file).
-            Used when declaring Cairo1 contracts.
-        :param casm_class_hash: Hash of the compiled_contract_casm.
+        :param compiled_class_hash: Hash of the compiled_contract_casm.
         :param nonce: Nonce of the transaction.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :return: DeclareResult instance.
         """
 
-        if Contract._get_cairo_version(compiled_contract) == 1:
-            if casm_class_hash is None and compiled_contract_casm is None:
-                raise ValueError(
-                    "Cairo 1.0 contract was provided without casm_class_hash or compiled_contract_casm argument."
-                )
+        compiled_class_hash = _extract_compiled_class_hash(
+            compiled_contract_casm, compiled_class_hash
+        )
 
-            cairo_version = 1
-            if casm_class_hash is None:
-                assert compiled_contract_casm is not None
-                casm_class_hash = compute_casm_class_hash(
-                    create_casm_class(compiled_contract_casm)
-                )
+        declare_tx = await account.sign_declare_v2_transaction(
+            compiled_contract=compiled_contract,
+            compiled_class_hash=compiled_class_hash,
+            nonce=nonce,
+            max_fee=max_fee,
+            auto_estimate=auto_estimate,
+        )
 
-            declare_tx = await account.sign_declare_v2_transaction(
-                compiled_contract=compiled_contract,
-                compiled_class_hash=casm_class_hash,
-                nonce=nonce,
-                max_fee=max_fee,
-                auto_estimate=auto_estimate,
-            )
-        else:
-            cairo_version = 0
-            declare_tx = await account.sign_declare_v1_transaction(
-                compiled_contract=compiled_contract,
-                nonce=nonce,
-                max_fee=max_fee,
-                auto_estimate=auto_estimate,
-            )
         res = await account.client.declare(transaction=declare_tx)
 
         return DeclareResult(
             hash=res.transaction_hash,
-            _client=account.client,
             class_hash=res.class_hash,
-            _account=account,
             compiled_contract=compiled_contract,
-            _cairo_version=cairo_version,
+            declare_transaction=declare_tx,
+            _account=account,
+            _client=account.client,
+            _cairo_version=1,
+        )
+
+    @staticmethod
+    async def declare_v3(
+        account: BaseAccount,
+        compiled_contract: str,
+        *,
+        compiled_contract_casm: Optional[str] = None,
+        compiled_class_hash: Optional[int] = None,
+        nonce: Optional[int] = None,
+        l1_resource_bounds: Optional[ResourceBounds] = None,
+        auto_estimate: bool = False,
+    ) -> DeclareResult:
+        """
+        Declares a contract.
+
+        :param account: BaseAccount used to sign and send declare transaction.
+        :param compiled_contract: String containing compiled contract.
+        :param compiled_contract_casm: String containing the content of the starknet-sierra-compile (.casm file).
+        :param compiled_class_hash: Hash of the compiled_contract_casm.
+        :param nonce: Nonce of the transaction.
+        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Wei) used when executing
+            this transaction.
+        :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
+        :return: DeclareResult instance.
+        """
+
+        compiled_class_hash = _extract_compiled_class_hash(
+            compiled_contract_casm, compiled_class_hash
+        )
+
+        declare_tx = await account.sign_declare_v3_transaction(
+            compiled_contract=compiled_contract,
+            compiled_class_hash=compiled_class_hash,
+            nonce=nonce,
+            l1_resource_bounds=l1_resource_bounds,
+            auto_estimate=auto_estimate,
+        )
+
+        res = await account.client.declare(transaction=declare_tx)
+
+        return DeclareResult(
+            hash=res.transaction_hash,
+            class_hash=res.class_hash,
+            compiled_contract=compiled_contract,
+            declare_transaction=declare_tx,
+            _account=account,
+            _client=account.client,
+            _cairo_version=1,
         )
 
     @staticmethod
