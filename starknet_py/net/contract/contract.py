@@ -456,7 +456,7 @@ class Contract:
         :param unique: Determines if the contract should be salted with the account address.
         :return: DeployResult instance.
         """
-        # pylint: disable=too-many-arguments
+        # pylint: disable=too-many-arguments, too-many-locals
         deployer = Deployer(
             deployer_address=deployer_address,
             account_address=account.address if unique else None,
@@ -522,7 +522,7 @@ class Contract:
         :param unique: Determines if the contract should be salted with the account address.
         :return: DeployResult instance.
         """
-        # pylint: disable=too-many-arguments
+        # pylint: disable=too-many-arguments, too-many-locals
         deployer = Deployer(
             deployer_address=deployer_address,
             account_address=account.address if unique else None,
