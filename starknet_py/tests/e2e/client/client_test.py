@@ -13,12 +13,13 @@ from starknet_py.net.client_models import (
     Call,
     ContractClass,
     DeclaredContractHash,
-    DeclareTransaction,
-    DeployAccountTransaction,
+    DeclareTransactionV1,
+    DeclareTransactionV2,
+    DeployAccountTransactionV1,
     EstimatedFee,
     ExecutionResources,
     FeePayment,
-    InvokeTransaction,
+    InvokeTransactionV1,
     L1HandlerTransaction,
     PendingBlockStateUpdate,
     PriceUnit,
@@ -51,7 +52,7 @@ async def test_get_declare_transaction(
 ):
     transaction = await client.get_transaction(declare_transaction_hash)
 
-    assert isinstance(transaction, DeclareTransaction)
+    assert isinstance(transaction, DeclareTransactionV1)
     assert transaction.class_hash == class_hash
     assert transaction.hash == declare_transaction_hash
     assert transaction.sender_address == account.address
@@ -64,7 +65,7 @@ async def test_get_invoke_transaction(
 ):
     transaction = await client.get_transaction(invoke_transaction_hash)
 
-    assert isinstance(transaction, InvokeTransaction)
+    assert isinstance(transaction, InvokeTransactionV1)
     assert any(data == 1234 for data in transaction.calldata)
     assert transaction.hash == invoke_transaction_hash
 
@@ -73,7 +74,7 @@ async def test_get_invoke_transaction(
 async def test_get_deploy_account_transaction(client, deploy_account_transaction_hash):
     transaction = await client.get_transaction(deploy_account_transaction_hash)
 
-    assert isinstance(transaction, DeployAccountTransaction)
+    assert isinstance(transaction, DeployAccountTransactionV1)
     assert transaction.hash == deploy_account_transaction_hash
     assert len(transaction.signature) > 0
     assert transaction.nonce == 0
@@ -536,8 +537,8 @@ async def test_get_declare_v2_transaction(
 
     transaction = await client.get_transaction(tx_hash=tx_hash)
 
-    assert isinstance(transaction, DeclareTransaction)
-    assert transaction == DeclareTransaction(
+    assert isinstance(transaction, DeclareTransactionV2)
+    assert transaction == DeclareTransactionV2(
         class_hash=class_hash,
         compiled_class_hash=declare_v2_hello_starknet.compiled_class_hash,
         sender_address=declare_v2_hello_starknet.sender_address,
@@ -561,7 +562,7 @@ async def test_get_block_with_declare_v2(
     block = await client.get_block(block_number=block_with_declare_v2_number)
 
     assert (
-        DeclareTransaction(
+        DeclareTransactionV2(
             class_hash=class_hash,
             compiled_class_hash=declare_v2_hello_starknet.compiled_class_hash,
             sender_address=declare_v2_hello_starknet.sender_address,
