@@ -23,7 +23,7 @@ async def test_simple_declare_and_deploy(account):
     )
     await declare_result.wait_for_acceptance()
 
-    deploy_result = await declare_result.deploy(
+    deploy_result = await declare_result.deploy_v1(
         constructor_args=constructor_args, max_fee=int(1e16)
     )
     await deploy_result.wait_for_acceptance()

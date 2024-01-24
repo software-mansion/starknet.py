@@ -34,7 +34,7 @@ async def prepare_net_for_tests(
         account=account, compiled_contract=compiled_contract, max_fee=MAX_FEE
     )
     await declare_result.wait_for_acceptance()
-    deploy_result = await declare_result.deploy(max_fee=MAX_FEE)
+    deploy_result = await declare_result.deploy_v1(max_fee=MAX_FEE)
     await deploy_result.wait_for_acceptance()
 
     declare_receipt = await account.client.get_transaction_receipt(declare_result.hash)

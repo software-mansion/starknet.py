@@ -122,7 +122,7 @@ async def deploy_proxy_to_contract(
         max_fee=MAX_FEE,
     )
     await declare_proxy_result.wait_for_acceptance()
-    deploy_result = await declare_proxy_result.deploy(
+    deploy_result = await declare_proxy_result.deploy_v1(
         constructor_args=[
             declare_result.class_hash,
             get_selector_from_name("put"),

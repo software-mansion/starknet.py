@@ -15,7 +15,7 @@ async def test_simple_deploy(account, map_class_hash, map_compiled_contract):
     abi = create_compiled_contract(compiled_contract=map_compiled_contract).abi
 
     # docs: start
-    # To deploy contract just use `Contract.deploy_contract` method
+    # To deploy contract just use `Contract.deploy_contract_v1` method
     # Note that class_hash and abi of the contract must be known
 
     # If constructor of the contract requires arguments, pass constructor_args parameter
@@ -25,7 +25,7 @@ async def test_simple_deploy(account, map_class_hash, map_compiled_contract):
     constructor_args = None
 
     # docs: start
-    deploy_result = await Contract.deploy_contract(
+    deploy_result = await Contract.deploy_contract_v1(
         account=account,
         class_hash=class_hash,
         abi=abi,

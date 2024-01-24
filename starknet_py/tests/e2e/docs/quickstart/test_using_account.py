@@ -20,7 +20,7 @@ async def test_using_account(account, map_compiled_contract):
         account=account, compiled_contract=map_compiled_contract, max_fee=MAX_FEE
     )
     await declare_result.wait_for_acceptance()
-    deploy_result = await declare_result.deploy(max_fee=MAX_FEE)
+    deploy_result = await declare_result.deploy_v1(max_fee=MAX_FEE)
     # Wait until deployment transaction is accepted
     await deploy_result.wait_for_acceptance()
 

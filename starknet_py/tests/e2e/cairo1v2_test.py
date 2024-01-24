@@ -30,7 +30,7 @@ async def declare_deploy_hello2(account) -> Tuple[DeclareResult, DeployResult]:
     )
     await declare_result.wait_for_acceptance()
 
-    deploy_result = await declare_result.deploy(auto_estimate=True)
+    deploy_result = await declare_result.deploy_v1(auto_estimate=True)
     await deploy_result.wait_for_acceptance()
 
     return declare_result, deploy_result
