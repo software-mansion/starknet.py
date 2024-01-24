@@ -16,7 +16,7 @@ async def test_using_account(account, map_compiled_contract):
     # docs: end
     # docs: start
     # Declare and deploy an example contract which implements a simple k-v store.
-    declare_result = await Contract.declare(
+    declare_result = await Contract.declare_v1(
         account=account, compiled_contract=map_compiled_contract, max_fee=MAX_FEE
     )
     await declare_result.wait_for_acceptance()

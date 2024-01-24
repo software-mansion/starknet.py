@@ -30,7 +30,7 @@ async def prepare_net_for_tests(
     deploy_account_details: AccountToBeDeployedDetails,
 ) -> PreparedNetworkData:
     # pylint: disable=too-many-locals
-    declare_result = await Contract.declare(
+    declare_result = await Contract.declare_v1(
         account=account, compiled_contract=compiled_contract, max_fee=MAX_FEE
     )
     await declare_result.wait_for_acceptance()

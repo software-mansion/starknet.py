@@ -103,7 +103,7 @@ async def test_contract_from_address_custom_proxy_check(account, proxy_custom):
 async def test_contract_from_address_with_old_address_proxy(
     account, old_proxy, map_contract
 ):
-    declare_result = await Contract.declare(
+    declare_result = await Contract.declare_v1(
         account=account, compiled_contract=old_proxy, max_fee=MAX_FEE
     )
     await declare_result.wait_for_acceptance()

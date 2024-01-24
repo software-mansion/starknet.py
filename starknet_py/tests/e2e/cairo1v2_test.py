@@ -22,7 +22,7 @@ async def declare_deploy_hello2(account) -> Tuple[DeclareResult, DeployResult]:
         "hello2_compiled.casm", directory=CONTRACTS_COMPILED_V2_DIR
     )
 
-    declare_result = await Contract.declare(
+    declare_result = await Contract.declare_v2(
         account=account,
         compiled_contract=compiled_contract,
         compiled_contract_casm=compiled_contract_casm,

@@ -1,11 +1,13 @@
 import dataclasses
 import json
 import re
+from unittest.mock import Mock
 
 import pytest
 
 from starknet_py.common import create_sierra_compiled_contract
 from starknet_py.contract import Contract, DeclareResult
+from starknet_py.net.models import DeclareV2
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
@@ -24,6 +26,7 @@ async def test_declare_deploy(
         class_hash=cairo1_minimal_contract_class_hash,
         compiled_contract=compiled_contract,
         hash=0,
+        declare_transaction=Mock(spec=DeclareV2),
     )
 
     deploy_result = await declare_result.deploy(max_fee=MAX_FEE)
@@ -45,6 +48,7 @@ async def test_throws_on_wrong_abi(account, cairo1_minimal_contract_class_hash: 
         class_hash=cairo1_minimal_contract_class_hash,
         compiled_contract=compiled_contract,
         hash=0,
+        declare_transaction=Mock(spec=DeclareV2),
     )
 
     compiled_contract = compiled_contract.replace('"abi": [', '"abi": ')
@@ -84,7 +88,7 @@ async def test_deploy_contract_flow(account, cairo1_hello_starknet_class_hash: i
 
 @pytest.mark.asyncio
 async def test_general_simplified_deployment_flow(account, map_compiled_contract):
-    declare_result = await Contract.declare(
+    declare_result = await Contract.declare_v1(
         account=account,
         compiled_contract=map_compiled_contract,
         max_fee=MAX_FEE,

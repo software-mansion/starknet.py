@@ -53,7 +53,7 @@ async def test_from_address(account, contract_address):
 async def test_declare(account, custom_proxy):
     compiled_contract = custom_proxy
     # docs-start: declare
-    declare_result = await Contract.declare(
+    declare_result = await Contract.declare_v1(
         account=account, compiled_contract=compiled_contract, max_fee=int(1e15)
     )
     # docs-end: declare

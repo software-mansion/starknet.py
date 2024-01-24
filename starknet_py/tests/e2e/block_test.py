@@ -12,7 +12,7 @@ from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 
 
 async def declare_contract(account: BaseAccount, compiled_contract: str):
-    declare_result = await Contract.declare(
+    declare_result = await Contract.declare_v1(
         account=account,
         compiled_contract=compiled_contract,
         max_fee=MAX_FEE,
