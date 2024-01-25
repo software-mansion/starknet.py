@@ -804,19 +804,19 @@ def _add_resource_bounds_to_transaction(
 
 def _parse_calls(cairo_version: int, calls: Calls) -> List[int]:
     if cairo_version == 1:
-        parsed_calls = _parse_calls_v2(ensure_iterable(calls))
-        wrapped_calldata = _execute_payload_serializer_v2.serialize(
+        parsed_calls = _parse_calls_cairo_v1(ensure_iterable(calls))
+        wrapped_calldata = _execute_payload_serializer_v1.serialize(
             {"calls": parsed_calls}
         )
     else:
         call_descriptions, calldata = _merge_calls(ensure_iterable(calls))
-        wrapped_calldata = _execute_payload_serializer.serialize(
+        wrapped_calldata = _execute_payload_serializer_v0.serialize(
             {"call_array": call_descriptions, "calldata": calldata}
         )
     return wrapped_calldata
 
 
-def _parse_call(call: Call, entire_calldata: List) -> Tuple[Dict, List]:
+def _parse_call_cairo_v0(call: Call, entire_calldata: List) -> Tuple[Dict, List]:
     _data = {
         "to": call.to_addr,
         "selector": call.selector,
@@ -832,13 +832,13 @@ def _merge_calls(calls: Iterable[Call]) -> Tuple[List[Dict], List[int]]:
     call_descriptions = []
     entire_calldata = []
     for call in calls:
-        data, entire_calldata = _parse_call(call, entire_calldata)
+        data, entire_calldata = _parse_call_cairo_v0(call, entire_calldata)
         call_descriptions.append(data)
 
     return call_descriptions, entire_calldata
 
 
-def _parse_calls_v2(calls: Iterable[Call]) -> List[Dict]:
+def _parse_calls_cairo_v1(calls: Iterable[Call]) -> List[Dict]:
     calls_parsed = []
     for call in calls:
         _data = {
@@ -852,7 +852,7 @@ def _parse_calls_v2(calls: Iterable[Call]) -> List[Dict]:
 
 
 _felt_serializer = FeltSerializer()
-_call_description = StructSerializer(
+_call_description_cairo_v0 = StructSerializer(
     OrderedDict(
         to=_felt_serializer,
         selector=_felt_serializer,
@@ -860,7 +860,7 @@ _call_description = StructSerializer(
         data_len=_felt_serializer,
     )
 )
-_call_description_v2 = StructSerializer(
+_call_description_cairo_v1 = StructSerializer(
     OrderedDict(
         to=_felt_serializer,
         selector=_felt_serializer,
@@ -868,14 +868,14 @@ _call_description_v2 = StructSerializer(
     )
 )
 
-_execute_payload_serializer = PayloadSerializer(
+_execute_payload_serializer_v0 = PayloadSerializer(
     OrderedDict(
-        call_array=ArraySerializer(_call_description),
+        call_array=ArraySerializer(_call_description_cairo_v0),
         calldata=ArraySerializer(_felt_serializer),
     )
 )
-_execute_payload_serializer_v2 = PayloadSerializer(
+_execute_payload_serializer_v1 = PayloadSerializer(
     OrderedDict(
-        calls=ArraySerializer(_call_description_v2),
+        calls=ArraySerializer(_call_description_cairo_v1),
     )
 )
