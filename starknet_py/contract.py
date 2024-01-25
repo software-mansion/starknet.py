@@ -241,7 +241,7 @@ class DeclareResult(SentTransaction):
             calldata=constructor_args,
             cairo_version=self._cairo_version,
         )
-        res = await self._account.execute(
+        res = await self._account.execute_v1(
             calls=deploy_call, nonce=nonce, max_fee=max_fee, auto_estimate=auto_estimate
         )
 
@@ -728,7 +728,7 @@ class Contract:
             calldata=constructor_args,
             cairo_version=cairo_version,
         )
-        res = await account.execute(
+        res = await account.execute_v1(
             calls=deploy_call, nonce=nonce, max_fee=max_fee, auto_estimate=auto_estimate
         )
 

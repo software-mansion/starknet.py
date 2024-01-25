@@ -550,7 +550,7 @@ class Account(BaseAccount):
         signature = self.signer.sign_transaction(deploy_account_tx)
         return _add_signature_to_transaction(deploy_account_tx, signature)
 
-    async def execute(
+    async def execute_v1(
         self,
         calls: Calls,
         *,

@@ -106,7 +106,7 @@ async def test_sending_multicall(account, map_contract, key, val):
         map_contract.functions["put"].prepare(key=key, value=val),
     ]
 
-    res = await account.execute(calls=calls, max_fee=int(1e20))
+    res = await account.execute_v1(calls=calls, max_fee=int(1e20))
     await account.client.wait_for_tx(res.transaction_hash)
 
     (value,) = await map_contract.functions["get"].call(key=key)
@@ -152,7 +152,7 @@ async def test_get_nonce(account, map_contract):
     address = map_contract.address
     block = await account.client.get_block(block_number="latest")
 
-    tx = await account.execute(
+    tx = await account.execute_v1(
         Call(
             to_addr=address, selector=get_selector_from_name("put"), calldata=[10, 20]
         ),
@@ -469,7 +469,7 @@ async def test_deploy_account_v1(client, deploy_account_details_factory, map_con
     assert isinstance(transaction, DeployAccountTransaction)
     assert transaction.constructor_calldata == [key_pair.public_key]
 
-    res = await account.execute(
+    res = await account.execute_v1(
         calls=Call(
             to_addr=map_contract.address,
             selector=get_selector_from_name("put"),
@@ -744,7 +744,7 @@ async def test_argent_cairo1_account_execute(
         selector=get_selector_from_name("increase_balance"),
         calldata=[value],
     )
-    execute = await argent_cairo1_account.execute(
+    execute = await argent_cairo1_account.execute_v1(
         calls=increase_balance_by_20_call, max_fee=int(1e16)
     )
     await argent_cairo1_account.client.wait_for_tx(tx_hash=execute.transaction_hash)

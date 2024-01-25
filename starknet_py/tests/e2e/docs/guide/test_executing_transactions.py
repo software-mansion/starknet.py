@@ -13,7 +13,7 @@ async def test_executing_transactions(account, map_contract):
         to_addr=address, selector=get_selector_from_name("put"), calldata=[20, 20]
     )
 
-    resp = await account.execute(calls=call, max_fee=int(1e16))
+    resp = await account.execute_v1(calls=call, max_fee=int(1e16))
 
     await account.client.wait_for_tx(resp.transaction_hash)
     # docs: end
