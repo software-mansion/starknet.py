@@ -651,12 +651,7 @@ class Account(BaseAccount):
             auto_estimate=auto_estimate,
         )
 
-        if chain in (
-            StarknetChainId.SEPOLIA_TESTNET,
-            StarknetChainId.SEPOLIA_INTEGRATION,
-            StarknetChainId.GOERLI,
-            StarknetChainId.MAINNET,
-        ):
+        if chain in StarknetChainId:
             balance = await account.get_balance()
             if balance < deploy_account_tx.max_fee:
                 raise ValueError(
