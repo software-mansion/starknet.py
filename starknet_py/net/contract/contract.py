@@ -313,16 +313,9 @@ class Contract:
             max_fee=max_fee,
             auto_estimate=auto_estimate,
         )
-        res = await account.client.declare(transaction=declare_tx)
 
-        return DeclareResult(
-            hash=res.transaction_hash,
-            class_hash=res.class_hash,
-            compiled_contract=compiled_contract,
-            declare_transaction=declare_tx,
-            _account=account,
-            _client=account.client,
-            _cairo_version=0,
+        return await _declare_contract(
+            declare_tx, account, compiled_contract, cairo_version=0
         )
 
     @staticmethod
@@ -361,16 +354,8 @@ class Contract:
             auto_estimate=auto_estimate,
         )
 
-        res = await account.client.declare(transaction=declare_tx)
-
-        return DeclareResult(
-            hash=res.transaction_hash,
-            class_hash=res.class_hash,
-            compiled_contract=compiled_contract,
-            declare_transaction=declare_tx,
-            _account=account,
-            _client=account.client,
-            _cairo_version=1,
+        return await _declare_contract(
+            declare_tx, account, compiled_contract, cairo_version=1
         )
 
     @staticmethod
@@ -410,16 +395,8 @@ class Contract:
             auto_estimate=auto_estimate,
         )
 
-        res = await account.client.declare(transaction=declare_tx)
-
-        return DeclareResult(
-            hash=res.transaction_hash,
-            class_hash=res.class_hash,
-            compiled_contract=compiled_contract,
-            declare_transaction=declare_tx,
-            _account=account,
-            _client=account.client,
-            _cairo_version=1,
+        return await _declare_contract(
+            declare_tx, account, compiled_contract, cairo_version=1
         )
 
     @staticmethod
@@ -644,3 +621,22 @@ class Contract:
             return ProxyConfig()
         proxy_arg = ProxyConfig() if proxy_config is True else proxy_config
         return prepare_proxy_config(proxy_arg)
+
+
+async def _declare_contract(
+    transaction: Declare,
+    account: BaseAccount,
+    compiled_contract: str,
+    cairo_version: int,
+) -> DeclareResult:
+    res = await account.client.declare(transaction=transaction)
+
+    return DeclareResult(
+        hash=res.transaction_hash,
+        class_hash=res.class_hash,
+        compiled_contract=compiled_contract,
+        declare_transaction=transaction,
+        _account=account,
+        _client=account.client,
+        _cairo_version=cairo_version,
+    )
