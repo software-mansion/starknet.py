@@ -592,7 +592,7 @@ class Account(BaseAccount):
         return verify_message_signature(message_hash, signature, self.signer.public_key)
 
     @staticmethod
-    async def deploy_account(
+    async def deploy_account_v1(
         *,
         address: AddressRepresentation,
         class_hash: int,

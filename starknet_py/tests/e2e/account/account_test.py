@@ -448,7 +448,7 @@ async def test_sign_deploy_account_v3_transaction_auto_estimate(
 async def test_deploy_account(client, deploy_account_details_factory, map_contract):
     address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
 
-    deploy_result = await Account.deploy_account(
+    deploy_result = await Account.deploy_account_v1(
         address=address,
         class_hash=class_hash,
         salt=salt,
@@ -487,7 +487,7 @@ async def test_deploy_account_raises_on_incorrect_address(
         ValueError,
         match=f"Provided address {hex(0x111)} is different than computed address {hex(address)}",
     ):
-        await Account.deploy_account(
+        await Account.deploy_account_v1(
             address=0x111,
             class_hash=class_hash,
             salt=salt,
@@ -513,7 +513,7 @@ async def test_deploy_account_raises_on_no_enough_funds(
             ValueError,
             match="Not enough tokens at the specified address to cover deployment costs",
         ):
-            await Account.deploy_account(
+            await Account.deploy_account_v1(
                 address=address,
                 class_hash=class_hash,
                 salt=salt,
@@ -540,7 +540,7 @@ async def test_deploy_account_passes_on_enough_funds(
             transaction_hash=0x1
         )
 
-        await Account.deploy_account(
+        await Account.deploy_account_v1(
             address=address,
             class_hash=class_hash,
             salt=salt,
@@ -573,7 +573,7 @@ async def test_deploy_account_uses_custom_calldata(
     )
     await res.wait_for_acceptance()
 
-    deploy_result = await Account.deploy_account(
+    deploy_result = await Account.deploy_account_v1(
         address=address,
         class_hash=class_hash,
         salt=salt,
@@ -668,7 +668,7 @@ async def test_argent_cairo1_account_deploy(
         class_hash=argent_cairo1_account_class_hash, argent_calldata=True
     )
 
-    deploy_result = await Account.deploy_account(
+    deploy_result = await Account.deploy_account_v1(
         address=address,
         class_hash=class_hash,
         salt=salt,
