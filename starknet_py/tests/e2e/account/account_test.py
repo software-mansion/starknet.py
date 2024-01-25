@@ -13,6 +13,7 @@ from starknet_py.net.client_models import (
     Call,
     DeployAccountTransaction,
     DeployAccountTransactionResponse,
+    DeployAccountTransactionV3,
     EstimatedFee,
     InvokeTransactionV3,
     ResourceBounds,
@@ -445,7 +446,7 @@ async def test_sign_deploy_account_v3_transaction_auto_estimate(
 
 
 @pytest.mark.asyncio
-async def test_deploy_account(client, deploy_account_details_factory, map_contract):
+async def test_deploy_account_v1(client, deploy_account_details_factory, map_contract):
     address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
 
     deploy_result = await Account.deploy_account_v1(
@@ -464,6 +465,10 @@ async def test_deploy_account(client, deploy_account_details_factory, map_contra
     assert isinstance(account, BaseAccount)
     assert account.address == address
 
+    transaction = await client.get_transaction(tx_hash=deploy_result.hash)
+    assert isinstance(transaction, DeployAccountTransaction)
+    assert transaction.constructor_calldata == [key_pair.public_key]
+
     res = await account.execute(
         calls=Call(
             to_addr=map_contract.address,
@@ -475,6 +480,31 @@ async def test_deploy_account(client, deploy_account_details_factory, map_contra
     tx_receipt = await account.client.wait_for_tx(res.transaction_hash)
 
     assert tx_receipt.execution_status == TransactionExecutionStatus.SUCCEEDED
+
+
+@pytest.mark.asyncio
+async def test_deploy_account_v3(client, deploy_account_details_factory):
+    address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
+
+    deploy_result = await Account.deploy_account_v3(
+        address=address,
+        class_hash=class_hash,
+        salt=salt,
+        key_pair=key_pair,
+        client=client,
+        chain=StarknetChainId.GOERLI,
+        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+    )
+    await deploy_result.wait_for_acceptance()
+
+    account = deploy_result.account
+
+    assert isinstance(account, BaseAccount)
+    assert account.address == address
+
+    transaction = await client.get_transaction(tx_hash=deploy_result.hash)
+    assert isinstance(transaction, DeployAccountTransactionV3)
+    assert transaction.constructor_calldata == [key_pair.public_key]
 
 
 @pytest.mark.asyncio

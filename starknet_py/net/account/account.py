@@ -605,7 +605,6 @@ class Account(BaseAccount):
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> AccountDeploymentResult:
-        # pylint: disable=too-many-locals
         """
         Deploys an account contract with provided class_hash on Starknet and returns
         an AccountDeploymentResult that allows waiting for transaction acceptance.
@@ -663,6 +662,73 @@ class Account(BaseAccount):
                 raise ValueError(
                     "Not enough tokens at the specified address to cover deployment costs."
                 )
+
+        result = await client.deploy_account(deploy_account_tx)
+
+        return AccountDeploymentResult(
+            hash=result.transaction_hash, account=account, _client=account.client
+        )
+
+    @staticmethod
+    async def deploy_account_v3(
+        *,
+        address: AddressRepresentation,
+        class_hash: int,
+        salt: int,
+        key_pair: KeyPair,
+        client: Client,
+        chain: StarknetChainId,
+        constructor_calldata: Optional[List[int]] = None,
+        nonce: int = 0,
+        l1_resource_bounds: Optional[ResourceBounds] = None,
+        auto_estimate: bool = False,
+    ) -> AccountDeploymentResult:
+        """
+        Deploys an account contract with provided class_hash on Starknet and returns
+        an AccountDeploymentResult that allows waiting for transaction acceptance.
+
+        Provided address must be first prefunded with enough tokens, otherwise the method will fail.
+
+        If using Client for either TESTNET or MAINNET, this method will verify if the address balance
+        is high enough to cover deployment costs.
+
+        :param address: calculated and prefunded address of the new account.
+        :param class_hash: class_hash of the account contract to be deployed.
+        :param salt: salt used to calculate the address.
+        :param key_pair: KeyPair used to calculate address and sign deploy account transaction.
+        :param client: a Client instance used for deployment.
+        :param chain: id of the Starknet chain used.
+        :param constructor_calldata: optional calldata to account contract constructor. If ``None`` is passed,
+            ``[key_pair.public_key]`` will be used as calldata.
+        :param nonce: Nonce of the transaction.
+        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Wei) used when executing
+            this transaction.
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        """
+        calldata = (
+            constructor_calldata
+            if constructor_calldata is not None
+            else [key_pair.public_key]
+        )
+
+        account = _prepare_account_to_deploy(
+            address=address,
+            class_hash=class_hash,
+            salt=salt,
+            key_pair=key_pair,
+            client=client,
+            chain=chain,
+            calldata=calldata,
+        )
+
+        deploy_account_tx = await account.sign_deploy_account_v3_transaction(
+            class_hash=class_hash,
+            contract_address_salt=salt,
+            constructor_calldata=calldata,
+            nonce=nonce,
+            l1_resource_bounds=l1_resource_bounds,
+            auto_estimate=auto_estimate,
+        )
 
         result = await client.deploy_account(deploy_account_tx)
 
