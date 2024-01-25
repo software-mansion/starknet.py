@@ -11,6 +11,7 @@ from starknet_py.cairo.data_types import (
     BoolType,
     CairoType,
     EnumType,
+    EventType,
     FeltType,
     NamedTupleType,
     OptionType,
@@ -148,13 +149,16 @@ def serializer_for_outputs(payload: List[CairoType]) -> OutputSerializer:
     )
 
 
-def serializer_for_event(event: Abi.Event) -> PayloadSerializer:
+def serializer_for_event(event: Abi.Event | EventType) -> PayloadSerializer:
     """
     Create serializer for an event.
 
     :param event: parsed event.
     :return: PayloadSerializer that can be used to (de)serialize events.
     """
+    if isinstance(event, EventType):
+        return serializer_for_payload(event.types)
+
     return serializer_for_payload(event.data)
 
 
