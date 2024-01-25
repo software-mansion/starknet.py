@@ -611,19 +611,19 @@ class Account(BaseAccount):
 
         Provided address must be first prefunded with enough tokens, otherwise the method will fail.
 
-        If using Client for either TESTNET or MAINNET, this method will verify if the address balance
+        If using Client for GOERLI, SEPOLIA or MAINNET, this method will verify if the address balance
         is high enough to cover deployment costs.
 
-        :param address: calculated and prefunded address of the new account.
-        :param class_hash: class_hash of the account contract to be deployed.
-        :param salt: salt used to calculate the address.
+        :param address: Calculated and prefunded address of the new account.
+        :param class_hash: Class hash of the account contract to be deployed.
+        :param salt: Salt used to calculate the address.
         :param key_pair: KeyPair used to calculate address and sign deploy account transaction.
-        :param client: a Client instance used for deployment.
-        :param chain: id of the Starknet chain used.
-        :param constructor_calldata: optional calldata to account contract constructor. If ``None`` is passed,
+        :param client: Client instance used for deployment.
+        :param chain: Id of the Starknet chain used.
+        :param constructor_calldata: Optional calldata to account contract constructor. If ``None`` is passed,
             ``[key_pair.public_key]`` will be used as calldata.
         :param nonce: Nonce of the transaction.
-        :param max_fee: max fee to be paid for deployment, must be less or equal to the amount of tokens prefunded.
+        :param max_fee: Max fee to be paid for deployment, must be less or equal to the amount of tokens prefunded.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         """
         calldata = (
@@ -684,16 +684,13 @@ class Account(BaseAccount):
 
         Provided address must be first prefunded with enough tokens, otherwise the method will fail.
 
-        If using Client for either TESTNET or MAINNET, this method will verify if the address balance
-        is high enough to cover deployment costs.
-
-        :param address: calculated and prefunded address of the new account.
-        :param class_hash: class_hash of the account contract to be deployed.
-        :param salt: salt used to calculate the address.
+        :param address: Calculated and prefunded address of the new account.
+        :param class_hash: Class hash of the account contract to be deployed.
+        :param salt: Salt used to calculate the address.
         :param key_pair: KeyPair used to calculate address and sign deploy account transaction.
-        :param client: a Client instance used for deployment.
-        :param chain: id of the Starknet chain used.
-        :param constructor_calldata: optional calldata to account contract constructor. If ``None`` is passed,
+        :param client: Client instance used for deployment.
+        :param chain: Id of the Starknet chain used.
+        :param constructor_calldata: Optional calldata to account contract constructor. If ``None`` is passed,
             ``[key_pair.public_key]`` will be used as calldata.
         :param nonce: Nonce of the transaction.
         :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Wei) used when executing
