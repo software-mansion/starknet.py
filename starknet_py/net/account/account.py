@@ -627,31 +627,20 @@ class Account(BaseAccount):
         :param max_fee: max fee to be paid for deployment, must be less or equal to the amount of tokens prefunded.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         """
-        address = parse_address(address)
         calldata = (
             constructor_calldata
             if constructor_calldata is not None
             else [key_pair.public_key]
         )
 
-        if address != (
-            computed := compute_address(
-                salt=salt,
-                class_hash=class_hash,
-                constructor_calldata=calldata,
-                deployer_address=0,
-            )
-        ):
-            raise ValueError(
-                f"Provided address {hex(address)} is different than computed address {hex(computed)} "
-                f"for the given class_hash and salt."
-            )
-
-        account = Account(
+        account = _prepare_account_to_deploy(
             address=address,
-            client=client,
+            class_hash=class_hash,
+            salt=salt,
             key_pair=key_pair,
+            client=client,
             chain=chain,
+            calldata=calldata,
         )
 
         deploy_account_tx = await account.sign_deploy_account_v1_transaction(
@@ -695,6 +684,39 @@ class Account(BaseAccount):
             )
 
         return FEE_CONTRACT_ADDRESS
+
+
+def _prepare_account_to_deploy(
+    address: AddressRepresentation,
+    class_hash: int,
+    salt: int,
+    key_pair: KeyPair,
+    client: Client,
+    chain: StarknetChainId,
+    calldata: List[int],
+) -> Account:
+    # pylint: disable=too-many-arguments
+    address = parse_address(address)
+
+    if address != (
+        computed := compute_address(
+            salt=salt,
+            class_hash=class_hash,
+            constructor_calldata=calldata,
+            deployer_address=0,
+        )
+    ):
+        raise ValueError(
+            f"Provided address {hex(address)} is different than computed address {hex(computed)} "
+            f"for the given class_hash and salt."
+        )
+
+    return Account(
+        address=address,
+        client=client,
+        key_pair=key_pair,
+        chain=chain,
+    )
 
 
 def _is_sierra_contract(data: Dict[str, Any]) -> bool:
