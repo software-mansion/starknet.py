@@ -13,8 +13,11 @@ from starknet_py.serialization.factory import (
     serializer_for_function,
 )
 from starknet_py.serialization.tuple_dataclass import TupleDataclass
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V0_DIR, CONTRACTS_COMPILED_V2_DIR, \
-    CONTRACTS_COMPILED_V1_DIR
+from starknet_py.tests.e2e.fixtures.constants import (
+    CONTRACTS_COMPILED_V0_DIR,
+    CONTRACTS_COMPILED_V1_DIR,
+    CONTRACTS_COMPILED_V2_DIR,
+)
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 dog = {"name": encode_shortstring("Cooper"), "species": encode_shortstring("dog")}
@@ -112,7 +115,9 @@ abi_v1 = json.loads(
 parsed_abi_v1 = AbiParserV1(abi_v1).parse()
 
 abi_v2 = json.loads(
-    read_contract("new_syntax_test_contract_compiled.json", directory=CONTRACTS_COMPILED_V2_DIR)
+    read_contract(
+        "new_syntax_test_contract_compiled.json", directory=CONTRACTS_COMPILED_V2_DIR
+    )
 )["abi"]
 
 parsed_abi_v2 = AbiParserV2(abi_v2).parse()
@@ -160,8 +165,12 @@ def test_event_serialization_v1():
 
 
 def test_event_serialization_v2():
-    serializer = serializer_for_event(parsed_abi_v2.events["new_syntax_test_contract::new_syntax_test_contract"
-                                                           "::counter_contract::CounterIncreased"])
+    serializer = serializer_for_event(
+        parsed_abi_v2.events[
+            "new_syntax_test_contract::new_syntax_test_contract"
+            "::counter_contract::CounterIncreased"
+        ]
+    )
 
     serialized = serializer.serialize({"amount": 5})
     assert serialized == [5]

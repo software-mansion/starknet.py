@@ -2,11 +2,7 @@
 from collections import OrderedDict
 
 from starknet_py.abi.v2.model import Abi
-from starknet_py.cairo.data_types import (
-    EventType,
-    StructType,
-    UintType,
-)
+from starknet_py.cairo.data_types import EventType, StructType, UintType
 
 pool_id_struct = StructType("PoolId", OrderedDict(value=UintType(256)))
 
