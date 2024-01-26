@@ -5,13 +5,16 @@ import json
 from typing import NamedTuple
 
 from starknet_py.abi.parser import AbiParser
+from starknet_py.abi.v1.parser import AbiParser as AbiParserV1
+from starknet_py.abi.v2.parser import AbiParser as AbiParserV2
 from starknet_py.cairo.felt import encode_shortstring
 from starknet_py.serialization.factory import (
     serializer_for_event,
     serializer_for_function,
 )
 from starknet_py.serialization.tuple_dataclass import TupleDataclass
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V0_DIR
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V0_DIR, CONTRACTS_COMPILED_V2_DIR, \
+    CONTRACTS_COMPILED_V1_DIR
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 dog = {"name": encode_shortstring("Cooper"), "species": encode_shortstring("dog")}
@@ -103,6 +106,17 @@ abi = json.loads(
 )
 parsed_abi = AbiParser(abi).parse()
 
+abi_v1 = json.loads(
+    read_contract("erc20_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR)
+)["abi"]
+parsed_abi_v1 = AbiParserV1(abi_v1).parse()
+
+abi_v2 = json.loads(
+    read_contract("new_syntax_test_contract_compiled.json", directory=CONTRACTS_COMPILED_V2_DIR)
+)["abi"]
+
+parsed_abi_v2 = AbiParserV2(abi_v2).parse()
+
 
 def test_fn_serialization():
     expected_serialized = [
@@ -121,7 +135,7 @@ def test_fn_serialization():
     )
 
 
-def test_event_serialization():
+def test_event_serialization_v0():
     expected_serialized = [
         *person_gyro_serialized,
         *company_serialized,
@@ -133,3 +147,23 @@ def test_event_serialization():
     assert TupleDataclass.from_dict(payload) == serializer.deserialize(
         expected_serialized
     )
+
+
+def test_event_serialization_v1():
+    serializer = serializer_for_event(parsed_abi_v1.events["Approval"])
+
+    approval = {"owner": 1, "spender": 2, "value": 3}
+    serialized = serializer.serialize(approval)
+    assert serialized == [1, 2, 3, 0]
+
+    assert serializer.deserialize(serialized).as_dict() == approval
+
+
+def test_event_serialization_v2():
+    serializer = serializer_for_event(parsed_abi_v2.events["new_syntax_test_contract::new_syntax_test_contract"
+                                                           "::counter_contract::CounterIncreased"])
+
+    serialized = serializer.serialize({"amount": 5})
+    assert serialized == [5]
+
+    assert serializer.deserialize(serialized).as_dict() == {"amount": 5}

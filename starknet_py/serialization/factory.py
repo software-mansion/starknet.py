@@ -149,7 +149,7 @@ def serializer_for_outputs(payload: List[CairoType]) -> OutputSerializer:
     )
 
 
-def serializer_for_event(event: Abi.Event | EventType) -> PayloadSerializer:
+def serializer_for_event(event: Abi.Event | EventType | AbiV1.Event) -> PayloadSerializer:
     """
     Create serializer for an event.
 
@@ -158,8 +158,10 @@ def serializer_for_event(event: Abi.Event | EventType) -> PayloadSerializer:
     """
     if isinstance(event, EventType):
         return serializer_for_payload(event.types)
-
-    return serializer_for_payload(event.data)
+    elif isinstance(event, AbiV1.Event):
+        return serializer_for_payload(event.inputs)
+    else:
+        return serializer_for_payload(event.data)
 
 
 def serializer_for_function(abi_function: Abi.Function) -> FunctionSerializationAdapter:
