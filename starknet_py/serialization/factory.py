@@ -160,10 +160,9 @@ def serializer_for_event(
     """
     if isinstance(event, EventType):
         return serializer_for_payload(event.types)
-    elif isinstance(event, AbiV1.Event):
+    if isinstance(event, AbiV1.Event):
         return serializer_for_payload(event.inputs)
-    else:
-        return serializer_for_payload(event.data)
+    return serializer_for_payload(event.data)
 
 
 def serializer_for_function(abi_function: Abi.Function) -> FunctionSerializationAdapter:
