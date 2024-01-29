@@ -148,9 +148,12 @@ def serializer_for_outputs(payload: List[CairoType]) -> OutputSerializer:
         serializers=[serializer_for_type(cairo_type) for cairo_type in payload]
     )
 
+EventV1 = AbiV1.Event
+EventV0 = Abi.Event
+EventV2 = EventType
 
 def serializer_for_event(
-    event: Abi.Event | EventType | AbiV1.Event,
+    event: EventV0 | EventV1 | EventV2
 ) -> PayloadSerializer:
     """
     Create serializer for an event.
