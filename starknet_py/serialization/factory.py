@@ -148,24 +148,24 @@ def serializer_for_outputs(payload: List[CairoType]) -> OutputSerializer:
         serializers=[serializer_for_type(cairo_type) for cairo_type in payload]
     )
 
-EventV1 = AbiV1.Event
+
 EventV0 = Abi.Event
+EventV1 = AbiV1.Event
 EventV2 = EventType
 
-def serializer_for_event(
-    event: EventV0 | EventV1 | EventV2
-) -> PayloadSerializer:
+
+def serializer_for_event(event: EventV0 | EventV1 | EventV2) -> PayloadSerializer:
     """
     Create serializer for an event.
 
     :param event: parsed event.
     :return: PayloadSerializer that can be used to (de)serialize events.
     """
-    if isinstance(event, EventType):
-        return serializer_for_payload(event.types)
-    if isinstance(event, AbiV1.Event):
+    if isinstance(event, EventV0):
+        return serializer_for_payload(event.data)
+    if isinstance(event, EventV1):
         return serializer_for_payload(event.inputs)
-    return serializer_for_payload(event.data)
+    return serializer_for_payload(event.types)
 
 
 def serializer_for_function(abi_function: Abi.Function) -> FunctionSerializationAdapter:
