@@ -250,7 +250,7 @@ class PreparedFunctionInvokeV3(PreparedFunctionInvoke):
         """
         Send an Invoke transaction version 3 for a prepared data.
 
-        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Wei) used when executing
+        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Fri) used when executing
             this transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :param nonce: Nonce of the transaction.
@@ -430,7 +430,7 @@ class ContractFunction:
         Creates a ``PreparedFunctionInvokeV3`` instance which exposes calldata for every argument
         and adds more arguments when calling methods.
 
-        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Wei) used when executing
+        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Fri) used when executing
             this transaction.
         :return: PreparedFunctionInvokeV3.
         """
@@ -459,7 +459,7 @@ class ContractFunction:
         Invoke contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.
         Equivalent of ``.prepare_invoke_v3(*args, **kwargs).invoke()``.
 
-        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Wei) used when executing
+        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Fri) used when executing
             this transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :param nonce: Nonce of the transaction.

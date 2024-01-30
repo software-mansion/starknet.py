@@ -132,7 +132,7 @@ class DeclareResult(SentTransaction):
         :param unique: Determines if the contract should be salted with the account address.
         :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
         :param nonce: Nonce of the transaction with call to deployer.
-        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Wei) used when executing
+        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Fri) used when executing
             this transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :return: DeployResult instance.
@@ -377,7 +377,7 @@ class Contract:
         :param compiled_contract_casm: String containing the content of the starknet-sierra-compile (.casm file).
         :param compiled_class_hash: Hash of the compiled_contract_casm.
         :param nonce: Nonce of the transaction.
-        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Wei) used when executing
+        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Fri) used when executing
             this transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :return: DeclareResult instance.
@@ -492,7 +492,7 @@ class Contract:
         :param cairo_version: Version of the Cairo in which contract is written.
             By default, it is set to 1.
         :param nonce: Nonce of the transaction.
-        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Wei) used when executing
+        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Fri) used when executing
             this transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :param salt: Optional salt. Random value is selected if it is not provided.
