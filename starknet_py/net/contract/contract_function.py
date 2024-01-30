@@ -90,14 +90,14 @@ class InvokeResult(SentTransaction):
 
 
 @dataclass
-class CallToSend(Call):
+class PreparedCallBase(Call):
     _client: Client
     _payload_transformer: FunctionSerializationAdapter
 
 
 @add_sync_methods
 @dataclass
-class PreparedFunctionCall(CallToSend):
+class PreparedFunctionCall(PreparedCallBase):
     async def call_raw(
         self,
         block_hash: Optional[str] = None,
@@ -132,7 +132,7 @@ class PreparedFunctionCall(CallToSend):
 
 @add_sync_methods
 @dataclass
-class PreparedFunctionInvoke(ABC, CallToSend):
+class PreparedFunctionInvoke(ABC, PreparedCallBase):
     _contract_data: ContractData
     _account: Optional[BaseAccount]
 
