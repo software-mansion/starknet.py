@@ -321,6 +321,10 @@ class PreparedCallBase(Call):
 @add_sync_methods
 @dataclass
 class PreparedFunctionCall(PreparedCallBase):
+    """
+    Prepared date to call a contract function.
+    """
+
     async def call_raw(
         self,
         block_hash: Optional[str] = None,
@@ -410,6 +414,10 @@ class PreparedFunctionInvoke(ABC, PreparedCallBase):
 @add_sync_methods
 @dataclass
 class PreparedFunctionInvokeV1(PreparedFunctionInvoke):
+    """
+    Prepared date to send an InvokeV1 transaction.
+    """
+
     max_fee: Optional[int]
 
     async def invoke(
@@ -462,6 +470,10 @@ class PreparedFunctionInvokeV1(PreparedFunctionInvoke):
 @add_sync_methods
 @dataclass
 class PreparedFunctionInvokeV3(PreparedFunctionInvoke):
+    """
+    Prepared date to send an InvokeV3 transaction.
+    """
+
     l1_resource_bounds: Optional[ResourceBounds]
 
     async def invoke(
