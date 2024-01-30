@@ -5,7 +5,8 @@ from dataclasses import dataclass
 from functools import cached_property
 from typing import List, Optional, Union
 
-from starknet_py.abi import Abi, AbiParser
+from starknet_py.abi import Abi as AbiV0
+from starknet_py.abi import AbiParser as AbiV0Parser
 from starknet_py.abi.v1.model import Abi as AbiV1
 from starknet_py.abi.v1.parser import AbiParser as AbiV1Parser
 from starknet_py.abi.v2.model import Abi as AbiV2
@@ -41,7 +42,7 @@ class ContractData:
     cairo_version: int
 
     @cached_property
-    def parsed_abi(self) -> Union[Abi, AbiV1, AbiV2]:
+    def parsed_abi(self) -> Union[AbiV0, AbiV1, AbiV2]:
         """
         Abi parsed into proper dataclass.
 
@@ -51,7 +52,7 @@ class ContractData:
             if _is_abi_v2(self.abi):
                 return AbiV2Parser(self.abi).parse()
             return AbiV1Parser(self.abi).parse()
-        return AbiParser(self.abi).parse()
+        return AbiV0Parser(self.abi).parse()
 
     @staticmethod
     def from_abi(address: int, abi: ABI, cairo_version: int = 0) -> ContractData:
@@ -321,11 +322,11 @@ class ContractFunction:
         assert function is not None
 
         if cairo_version == 1:
-            assert not isinstance(function, Abi.Function) and function is not None
+            assert not isinstance(function, AbiV0.Function) and function is not None
             self._payload_transformer = serializer_for_function_v1(function)
 
         else:
-            assert isinstance(function, Abi.Function) and function is not None
+            assert isinstance(function, AbiV0.Function) and function is not None
             self._payload_transformer = serializer_for_function(function)
 
     def prepare_call(
