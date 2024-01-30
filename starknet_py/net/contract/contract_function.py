@@ -225,9 +225,10 @@ class PreparedFunctionInvokeV1(PreparedFunctionInvoke):
         tx = await self.get_account.sign_invoke_v1_transaction(
             calls=self, nonce=nonce, max_fee=0
         )
+        estimate_tx = await self.get_account.sign_for_fee_estimate(transaction=tx)
 
         estimated_fee = await self._client.estimate_fee(
-            tx=tx,
+            tx=estimate_tx,
             block_hash=block_hash,
             block_number=block_number,
         )
@@ -277,9 +278,10 @@ class PreparedFunctionInvokeV3(PreparedFunctionInvoke):
         tx = await self.get_account.sign_invoke_v3_transaction(
             calls=self, nonce=nonce, l1_resource_bounds=ResourceBounds.init_with_zeros()
         )
+        estimate_tx = await self.get_account.sign_for_fee_estimate(transaction=tx)
 
         estimated_fee = await self._client.estimate_fee(
-            tx=tx,
+            tx=estimate_tx,
             block_hash=block_hash,
             block_number=block_number,
         )
