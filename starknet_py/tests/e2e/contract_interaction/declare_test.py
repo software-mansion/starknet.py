@@ -1,6 +1,6 @@
 import pytest
 
-from starknet_py.net.contract.contract import Contract
+from starknet_py.contract import Contract
 from starknet_py.net.models import DeclareV2, DeclareV3
 from starknet_py.tests.e2e.fixtures.constants import (
     CONTRACTS_COMPILED_V1_DIR,

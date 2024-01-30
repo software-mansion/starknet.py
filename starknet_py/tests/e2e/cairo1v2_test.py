@@ -4,8 +4,8 @@ import pytest
 import pytest_asyncio
 
 from starknet_py.cairo.felt import decode_shortstring
+from starknet_py.contract import Contract, DeclareResult, DeployResult
 from starknet_py.hash.storage import get_storage_var_address
-from starknet_py.net.contract.contract import Contract, DeclareResult, DeployResult
 from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V2_DIR
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 

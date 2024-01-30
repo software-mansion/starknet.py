@@ -3,9 +3,9 @@
 import pytest
 import pytest_asyncio
 
+from starknet_py.contract import Contract, DeployResult
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.account import Account
-from starknet_py.net.contract.contract import Contract, DeployResult
 from starknet_py.tests.e2e.fixtures.constants import (
     CONTRACTS_COMPILED_V0_DIR,
     CONTRACTS_PRECOMPILED_DIR,

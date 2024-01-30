@@ -11,9 +11,9 @@ from starknet_py.common import (
     create_sierra_compiled_contract,
 )
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
+from starknet_py.contract import Contract
 from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.net.account.base_account import BaseAccount
-from starknet_py.net.contract.contract import Contract
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import (
     CONTRACTS_COMPILED_V0_DIR,

@@ -23,7 +23,7 @@ async def test_resolving_proxies(
 ):
     # pylint: disable=import-outside-toplevel
     # docs-1: start
-    from starknet_py.net.contract.contract import Contract
+    from starknet_py.contract import Contract
 
     # docs-1: end
     address = map_contract.address

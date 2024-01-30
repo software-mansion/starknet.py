@@ -1,8 +1,7 @@
 # pylint: disable=unused-variable
 import pytest
 
-from starknet_py.net.contract.contract import Contract
-from starknet_py.net.contract.contract_function import ContractFunction
+from starknet_py.contract import Contract, ContractFunction
 
 
 def test_prepare(map_contract: Contract):

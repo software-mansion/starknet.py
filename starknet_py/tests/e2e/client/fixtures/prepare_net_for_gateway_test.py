@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
+from starknet_py.contract import Contract
 from starknet_py.net.account.account import Account
-from starknet_py.net.contract.contract import Contract
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.tests.e2e.utils import (
     AccountToBeDeployedDetails,

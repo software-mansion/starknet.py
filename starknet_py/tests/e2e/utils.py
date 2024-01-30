@@ -2,10 +2,10 @@ import random
 from typing import Tuple
 
 from starknet_py.constants import EC_ORDER
+from starknet_py.contract import Contract
 from starknet_py.hash.address import compute_address
 from starknet_py.net.account.account import Account
 from starknet_py.net.client import Client
-from starknet_py.net.contract.contract import Contract
 from starknet_py.net.http_client import HttpClient, HttpMethod
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import DeployAccountV1

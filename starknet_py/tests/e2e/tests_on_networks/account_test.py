@@ -1,7 +1,7 @@
 import pytest
 
+from starknet_py.contract import Contract
 from starknet_py.net.client_errors import ClientError
-from starknet_py.net.contract.contract import Contract
 from starknet_py.tests.e2e.fixtures.constants import (
     MAP_CONTRACT_ADDRESS_GOERLI_INTEGRATION,
     MAX_FEE,

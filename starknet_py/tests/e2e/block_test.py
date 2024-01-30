@@ -1,5 +1,6 @@
 import pytest
 
+from starknet_py.contract import Contract
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client_models import (
     PendingStarknetBlock,
@@ -7,7 +8,6 @@ from starknet_py.net.client_models import (
     StarknetBlock,
     StarknetBlockWithTxHashes,
 )
-from starknet_py.net.contract.contract import Contract
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 
 

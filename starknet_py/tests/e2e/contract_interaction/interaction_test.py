@@ -1,13 +1,13 @@
 import pytest
 
-from starknet_py.hash.selector import get_selector_from_name
-from starknet_py.net.client_errors import ClientError
-from starknet_py.net.client_models import Call, ResourceBounds
-from starknet_py.net.contract.contract import Contract
-from starknet_py.net.contract.contract_function import (
+from starknet_py.contract import (
+    Contract,
     PreparedFunctionInvokeV1,
     PreparedFunctionInvokeV3,
 )
+from starknet_py.hash.selector import get_selector_from_name
+from starknet_py.net.client_errors import ClientError
+from starknet_py.net.client_models import Call, ResourceBounds
 from starknet_py.net.models import InvokeV1, InvokeV3
 from starknet_py.tests.e2e.fixtures.constants import (
     MAX_FEE,

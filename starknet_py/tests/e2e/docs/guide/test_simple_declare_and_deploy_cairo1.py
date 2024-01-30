@@ -7,7 +7,7 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
 async def test_simple_declare_and_deploy(account):
     # pylint: disable=import-outside-toplevel
     # docs: start
-    from starknet_py.net.contract.contract import Contract
+    from starknet_py.contract import Contract
 
     # docs: end
     compiled_contract = read_contract("account_compiled.json")

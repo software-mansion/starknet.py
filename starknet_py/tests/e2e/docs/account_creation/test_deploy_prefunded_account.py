@@ -1,7 +1,7 @@
 import pytest
 
+from starknet_py.contract import Contract
 from starknet_py.net.client import Client
-from starknet_py.net.contract.contract import Contract
 from starknet_py.net.models import chain_from_network
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.tests.e2e.utils import _get_random_private_key_unsafe
