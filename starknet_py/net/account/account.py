@@ -611,8 +611,8 @@ class Account(BaseAccount):
 
         Provided address must be first prefunded with enough tokens, otherwise the method will fail.
 
-        If using Client for GOERLI, SEPOLIA or MAINNET, this method will verify if the address balance
-        is high enough to cover deployment costs.
+        If using Client for MAINNET, GOERLI, SEPOLIA or SEPOLIA_INTEGRATION, this method will verify
+        if the address balance is high enough to cover deployment costs.
 
         :param address: Calculated and prefunded address of the new account.
         :param class_hash: Class hash of the account contract to be deployed.
@@ -693,7 +693,7 @@ class Account(BaseAccount):
         :param constructor_calldata: Optional calldata to account contract constructor. If ``None`` is passed,
             ``[key_pair.public_key]`` will be used as calldata.
         :param nonce: Nonce of the transaction.
-        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Wei) used when executing
+        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Fri) used when executing
             this transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         """
