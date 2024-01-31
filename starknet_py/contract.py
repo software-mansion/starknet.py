@@ -428,10 +428,10 @@ class PreparedFunctionInvokeV1(PreparedFunctionInvoke):
         nonce: Optional[int] = None,
     ) -> InvokeResult:
         """
-        Send an Invoke transaction version 1 for a prepared data.
+        Send an Invoke transaction version 1 for the prepared data.
 
         :param max_fee: Max amount of Wei to be paid when executing transaction.
-        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :param nonce: Nonce of the transaction.
         :return: InvokeResult.
         """
@@ -484,11 +484,11 @@ class PreparedFunctionInvokeV3(PreparedFunctionInvoke):
         nonce: Optional[int] = None,
     ) -> InvokeResult:
         """
-        Send an Invoke transaction version 3 for a prepared data.
+        Send an Invoke transaction version 3 for the prepared data.
 
         :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Fri) used when executing
             this transaction.
-        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :param nonce: Nonce of the transaction.
         :return: InvokeResult.
         """
@@ -647,7 +647,7 @@ class ContractFunction:
         Equivalent of ``.prepare_invoke_v1(*args, **kwargs).invoke()``.
 
         :param max_fee: Max amount of Wei to be paid when executing transaction.
-        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :param nonce: Nonce of the transaction.
         :return: InvokeResult.
         """
@@ -698,7 +698,7 @@ class ContractFunction:
 
         :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Fri) used when executing
             this transaction.
-        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :param nonce: Nonce of the transaction.
         :return: InvokeResult.
         """
