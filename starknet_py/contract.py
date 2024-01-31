@@ -977,7 +977,7 @@ class Contract:
             cairo_version=cairo_version,
         )
 
-        res = await account.execute(
+        res = await account.execute_v1(
             calls=deploy_call,
             nonce=nonce,
             max_fee=max_fee,

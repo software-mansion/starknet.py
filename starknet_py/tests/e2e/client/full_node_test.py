@@ -118,7 +118,7 @@ async def test_get_transaction_receipt_deploy_account(
     client, deploy_account_details_factory
 ):
     address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
-    deploy_result = await Account.deploy_account(
+    deploy_result = await Account.deploy_account_v1(
         address=address,
         class_hash=class_hash,
         salt=salt,

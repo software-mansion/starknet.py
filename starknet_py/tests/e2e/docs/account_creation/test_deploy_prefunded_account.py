@@ -58,8 +58,8 @@ async def test_deploy_prefunded_account(
     chain = chain_from_network(net=network, chain=StarknetChainId.GOERLI)
     # docs: start
 
-    # Use `Account.deploy_account` static method to deploy an account
-    account_deployment_result = await Account.deploy_account(
+    # Use `Account.deploy_account_v1` static method to deploy an account
+    account_deployment_result = await Account.deploy_account_v1(
         address=address,
         class_hash=class_hash,
         salt=salt,
