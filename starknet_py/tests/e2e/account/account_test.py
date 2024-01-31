@@ -13,6 +13,7 @@ from starknet_py.net.client_models import (
     Call,
     DeployAccountTransaction,
     DeployAccountTransactionResponse,
+    DeployAccountTransactionV3,
     EstimatedFee,
     InvokeTransactionV3,
     ResourceBounds,
@@ -105,7 +106,7 @@ async def test_sending_multicall(account, map_contract, key, val):
         map_contract.functions["put"].prepare(key=key, value=val),
     ]
 
-    res = await account.execute(calls=calls, max_fee=int(1e20))
+    res = await account.execute_v1(calls=calls, max_fee=int(1e20))
     await account.client.wait_for_tx(res.transaction_hash)
 
     (value,) = await map_contract.functions["get"].call(key=key)
@@ -151,7 +152,7 @@ async def test_get_nonce(account, map_contract):
     address = map_contract.address
     block = await account.client.get_block(block_number="latest")
 
-    tx = await account.execute(
+    tx = await account.execute_v1(
         Call(
             to_addr=address, selector=get_selector_from_name("put"), calldata=[10, 20]
         ),
@@ -445,10 +446,10 @@ async def test_sign_deploy_account_v3_transaction_auto_estimate(
 
 
 @pytest.mark.asyncio
-async def test_deploy_account(client, deploy_account_details_factory, map_contract):
+async def test_deploy_account_v1(client, deploy_account_details_factory, map_contract):
     address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
 
-    deploy_result = await Account.deploy_account(
+    deploy_result = await Account.deploy_account_v1(
         address=address,
         class_hash=class_hash,
         salt=salt,
@@ -464,7 +465,11 @@ async def test_deploy_account(client, deploy_account_details_factory, map_contra
     assert isinstance(account, BaseAccount)
     assert account.address == address
 
-    res = await account.execute(
+    transaction = await client.get_transaction(tx_hash=deploy_result.hash)
+    assert isinstance(transaction, DeployAccountTransaction)
+    assert transaction.constructor_calldata == [key_pair.public_key]
+
+    res = await account.execute_v1(
         calls=Call(
             to_addr=map_contract.address,
             selector=get_selector_from_name("put"),
@@ -478,6 +483,31 @@ async def test_deploy_account(client, deploy_account_details_factory, map_contra
 
 
 @pytest.mark.asyncio
+async def test_deploy_account_v3(client, deploy_account_details_factory):
+    address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
+
+    deploy_result = await Account.deploy_account_v3(
+        address=address,
+        class_hash=class_hash,
+        salt=salt,
+        key_pair=key_pair,
+        client=client,
+        chain=StarknetChainId.GOERLI,
+        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+    )
+    await deploy_result.wait_for_acceptance()
+
+    account = deploy_result.account
+
+    assert isinstance(account, BaseAccount)
+    assert account.address == address
+
+    transaction = await client.get_transaction(tx_hash=deploy_result.hash)
+    assert isinstance(transaction, DeployAccountTransactionV3)
+    assert transaction.constructor_calldata == [key_pair.public_key]
+
+
+@pytest.mark.asyncio
 async def test_deploy_account_raises_on_incorrect_address(
     client, deploy_account_details_factory
 ):
@@ -487,7 +517,7 @@ async def test_deploy_account_raises_on_incorrect_address(
         ValueError,
         match=f"Provided address {hex(0x111)} is different than computed address {hex(address)}",
     ):
-        await Account.deploy_account(
+        await Account.deploy_account_v1(
             address=0x111,
             class_hash=class_hash,
             salt=salt,
@@ -513,7 +543,7 @@ async def test_deploy_account_raises_on_no_enough_funds(
             ValueError,
             match="Not enough tokens at the specified address to cover deployment costs",
         ):
-            await Account.deploy_account(
+            await Account.deploy_account_v1(
                 address=address,
                 class_hash=class_hash,
                 salt=salt,
@@ -540,7 +570,7 @@ async def test_deploy_account_passes_on_enough_funds(
             transaction_hash=0x1
         )
 
-        await Account.deploy_account(
+        await Account.deploy_account_v1(
             address=address,
             class_hash=class_hash,
             salt=salt,
@@ -573,7 +603,7 @@ async def test_deploy_account_uses_custom_calldata(
     )
     await res.wait_for_acceptance()
 
-    deploy_result = await Account.deploy_account(
+    deploy_result = await Account.deploy_account_v1(
         address=address,
         class_hash=class_hash,
         salt=salt,
@@ -668,7 +698,7 @@ async def test_argent_cairo1_account_deploy(
         class_hash=argent_cairo1_account_class_hash, argent_calldata=True
     )
 
-    deploy_result = await Account.deploy_account(
+    deploy_result = await Account.deploy_account_v1(
         address=address,
         class_hash=class_hash,
         salt=salt,
@@ -714,7 +744,7 @@ async def test_argent_cairo1_account_execute(
         selector=get_selector_from_name("increase_balance"),
         calldata=[value],
     )
-    execute = await argent_cairo1_account.execute(
+    execute = await argent_cairo1_account.execute_v1(
         calls=increase_balance_by_20_call, max_fee=int(1e16)
     )
     await argent_cairo1_account.client.wait_for_tx(tx_hash=execute.transaction_hash)

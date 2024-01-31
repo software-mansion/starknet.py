@@ -40,9 +40,9 @@ async def test_account_comparison(gateway_account, map_contract):
     # docs-3: start
     # Using execute method
 
-    await account_client.execute(call, max_fee)
+    await account_client.execute_v1(call, max_fee)
 
     # becomes
 
-    await account.execute(call, max_fee=max_fee)
+    await account.execute_v1(call, max_fee=max_fee)
     # docs-3: end
