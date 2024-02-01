@@ -12,7 +12,7 @@ async def test_full_node_client(client, map_contract):
     client = FullNodeClient(node_url=node_url)
     # docs: end
 
-    await map_contract.functions["put"].prepare(key=10, value=10).invoke(
+    await map_contract.functions["put"].prepare_invoke_v1(key=10, value=10).invoke(
         max_fee=int(1e20)
     )
 

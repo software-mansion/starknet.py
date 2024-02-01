@@ -47,12 +47,12 @@ async def get_deploy_account_details(
         deployer_address=0,
     )
 
-    transfer_wei_res = await eth_fee_contract.functions["transfer"].invoke(
+    transfer_wei_res = await eth_fee_contract.functions["transfer"].invoke_v1(
         recipient=address, amount=int(1e19), max_fee=MAX_FEE
     )
     await transfer_wei_res.wait_for_acceptance()
 
-    transfer_fri_res = await strk_fee_contract.functions["transfer"].invoke(
+    transfer_fri_res = await strk_fee_contract.functions["transfer"].invoke_v1(
         recipient=address, amount=int(1e19), max_fee=MAX_FEE
     )
     await transfer_fri_res.wait_for_acceptance()
