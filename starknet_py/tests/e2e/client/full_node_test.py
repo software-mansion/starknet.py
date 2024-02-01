@@ -118,7 +118,7 @@ async def test_get_transaction_receipt_deploy_account(
     client, deploy_account_details_factory
 ):
     address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
-    deploy_result = await Account.deploy_account(
+    deploy_result = await Account.deploy_account_v1(
         address=address,
         class_hash=class_hash,
         salt=salt,
@@ -152,7 +152,7 @@ async def test_get_events_without_following_continuation_token(
     simple_storage_with_event_contract: Contract,
 ):
     for i in range(4):
-        await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke(
+        await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke_v1(
             i, i, auto_estimate=True
         )
 
@@ -178,7 +178,7 @@ async def test_get_events_follow_continuation_token(
 ):
     total_invokes = 2
     for i in range(total_invokes):
-        await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke(
+        await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke_v1(
             i, i + 1, auto_estimate=True
         )
 
@@ -201,7 +201,7 @@ async def test_get_events_nonexistent_event_name(
     client,
     simple_storage_with_event_contract: Contract,
 ):
-    await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke(
+    await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke_v1(
         1, 1, auto_estimate=True
     )
 
@@ -227,11 +227,11 @@ async def test_get_events_with_two_events(
     invokes_of_one = 1
     invokes_of_two = 2
     invokes_of_all = invokes_of_one + invokes_of_two
-    await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke(
+    await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke_v1(
         1, 2, auto_estimate=True
     )
     for i in range(invokes_of_two):
-        await simple_storage_with_event_contract.functions[FUNCTION_TWO_NAME].invoke(
+        await simple_storage_with_event_contract.functions[FUNCTION_TWO_NAME].invoke_v1(
             i, i + 1, auto_estimate=True
         )
 
@@ -274,7 +274,7 @@ async def test_get_events_start_from_continuation_token(
     simple_storage_with_event_contract: Contract,
 ):
     for i in range(5):
-        await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke(
+        await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke_v1(
             i, i + 1, auto_estimate=True
         )
 
@@ -302,10 +302,10 @@ async def test_get_events_no_params(
 ):
     default_chunk_size = 1
     for i in range(3):
-        await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke(
+        await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke_v1(
             i, i + 1, auto_estimate=True
         )
-        await simple_storage_with_event_contract.functions[FUNCTION_TWO_NAME].invoke(
+        await simple_storage_with_event_contract.functions[FUNCTION_TWO_NAME].invoke_v1(
             i, i + 1, auto_estimate=True
         )
     events_response = await client.get_events()

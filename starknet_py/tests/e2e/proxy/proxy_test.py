@@ -15,7 +15,7 @@ from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 async def is_map_working_properly(map_contract: Contract, key: int, val: int) -> bool:
     """Put (key, val) into map_contract's storage and check if value under the key is val"""
     await (
-        await map_contract.functions["put"].invoke(key, val, max_fee=int(1e16))
+        await map_contract.functions["put"].invoke_v1(key, val, max_fee=int(1e16))
     ).wait_for_acceptance()
     (result,) = await map_contract.functions["get"].call(key=key)
     return result == val
@@ -103,11 +103,11 @@ async def test_contract_from_address_custom_proxy_check(account, proxy_custom):
 async def test_contract_from_address_with_old_address_proxy(
     account, old_proxy, map_contract
 ):
-    declare_result = await Contract.declare(
+    declare_result = await Contract.declare_v1(
         account=account, compiled_contract=old_proxy, max_fee=MAX_FEE
     )
     await declare_result.wait_for_acceptance()
-    deploy_result = await declare_result.deploy(
+    deploy_result = await declare_result.deploy_v1(
         constructor_args={"implementation_address": map_contract.address},
         max_fee=MAX_FEE,
     )

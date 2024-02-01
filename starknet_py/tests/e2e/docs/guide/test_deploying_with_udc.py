@@ -65,7 +65,7 @@ async def test_deploying_with_udc(
     )
 
     # Once call is prepared, it can be executed with an account (preferred way)
-    resp = await account.execute(deploy_call, max_fee=int(1e16))
+    resp = await account.execute_v1(deploy_call, max_fee=int(1e16))
 
     # docs: end
     deploy_call, _ = deployer.create_contract_deployment(

@@ -116,7 +116,7 @@ async def deploy_contract(account: BaseAccount, class_hash: int, abi: List) -> C
     """
     Deploys a contract and returns its instance.
     """
-    deployment_result = await Contract.deploy_contract(
+    deployment_result = await Contract.deploy_contract_v1(
         account=account, class_hash=class_hash, abi=abi, max_fee=MAX_FEE
     )
     deployment_result = await deployment_result.wait_for_acceptance()
@@ -151,7 +151,7 @@ async def deploy_v1_contract(
         calldata=calldata,
         cairo_version=1,
     )
-    res = await account.execute(calls=deploy_call, max_fee=MAX_FEE)
+    res = await account.execute_v1(calls=deploy_call, max_fee=MAX_FEE)
     await account.client.wait_for_tx(res.transaction_hash)
 
     return Contract(address, abi, provider=account, cairo_version=1)
@@ -165,14 +165,14 @@ async def deployed_balance_contract(
     """
     Declares, deploys a new balance contract and returns its instance.
     """
-    declare_result = await Contract.declare(
+    declare_result = await Contract.declare_v1(
         account=account,
         compiled_contract=balance_contract,
         max_fee=int(1e16),
     )
     await declare_result.wait_for_acceptance()
 
-    deploy_result = await declare_result.deploy(max_fee=int(1e16))
+    deploy_result = await declare_result.deploy_v1(max_fee=int(1e16))
     await deploy_result.wait_for_acceptance()
 
     return deploy_result.deployed_contract
@@ -196,7 +196,7 @@ async def map_contract_declare_hash(
     account: BaseAccount,
     map_compiled_contract: str,
 ):
-    declare_result = await Contract.declare(
+    declare_result = await Contract.declare_v1(
         account=account,
         compiled_contract=map_compiled_contract,
         max_fee=MAX_FEE,

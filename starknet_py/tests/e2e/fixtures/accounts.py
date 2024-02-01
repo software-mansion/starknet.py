@@ -213,7 +213,7 @@ async def argent_cairo1_account(
         class_hash=argent_cairo1_account_class_hash,
         argent_calldata=True,
     )
-    deploy_result = await Account.deploy_account(
+    deploy_result = await Account.deploy_account_v1(
         address=address,
         class_hash=class_hash,
         salt=salt,

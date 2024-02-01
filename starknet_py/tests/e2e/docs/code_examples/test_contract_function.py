@@ -2,12 +2,23 @@
 import pytest
 
 from starknet_py.contract import Contract, ContractFunction
+from starknet_py.net.client_models import ResourceBounds
 
 
-def test_prepare(map_contract: Contract):
-    # docs-start: prepare
-    prepared_function_call = map_contract.functions["put"].prepare(key=10, value=20)
-    # docs-end: prepare
+def test_prepare_invoke_v1(map_contract: Contract):
+    # docs-start: prepare_invoke_v1
+    prepared_function_call = map_contract.functions["put"].prepare_invoke_v1(
+        key=10, value=20
+    )
+    # docs-end: prepare_invoke_v1
+
+
+def test_prepare_invoke_v3(map_contract: Contract):
+    # docs-start: prepare_invoke_v3
+    prepared_function_call = map_contract.functions["put"].prepare_invoke_v3(
+        key=10, value=20
+    )
+    # docs-end: prepare_invoke_v3
 
 
 @pytest.mark.asyncio
@@ -19,12 +30,24 @@ async def test_call(map_contract: Contract):
     # docs-end: call
 
 
-def test_invoke(map_contract: Contract):
-    # docs-start: invoke
-    invoke_result = map_contract.functions["put"].invoke(
+def test_invoke_v1(map_contract: Contract):
+    # docs-start: invoke_v1
+    invoke_result = map_contract.functions["put"].invoke_v1(
         key=10, value=20, max_fee=int(1e15)
     )
-    # docs-end: invoke
+    # docs-end: invoke_v1
+
+
+def test_invoke_v3(map_contract: Contract):
+    # docs-start: invoke_v3
+    invoke_result = map_contract.functions["put"].invoke_v3(
+        key=10,
+        value=20,
+        l1_resource_bounds=ResourceBounds(
+            max_amount=5000, max_price_per_unit=int(1e12)
+        ),
+    )
+    # docs-end: invoke_v3
 
 
 def test_get_selector():

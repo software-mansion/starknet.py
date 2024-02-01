@@ -74,7 +74,7 @@ async def test_cairo1_contract(
         salt=salt,
     )
 
-    res = await account.execute(calls=contract_deployment.call, max_fee=MAX_FEE)
+    res = await account.execute_v1(calls=contract_deployment.call, max_fee=MAX_FEE)
     await account.client.wait_for_tx(res.transaction_hash)
 
     # The contract has been deployed and can be found at contract_deployment.address

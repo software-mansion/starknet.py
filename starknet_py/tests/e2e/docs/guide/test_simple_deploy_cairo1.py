@@ -38,7 +38,7 @@ async def test_simple_deploy_cairo1(account, cairo1_erc20_class_hash):
         "recipient": account.address,
     }
 
-    deploy_result = await Contract.deploy_contract(
+    deploy_result = await Contract.deploy_contract_v1(
         account=account,
         class_hash=class_hash,
         abi=json.loads(abi),

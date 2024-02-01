@@ -30,11 +30,11 @@ async def prepare_net_for_tests(
     deploy_account_details: AccountToBeDeployedDetails,
 ) -> PreparedNetworkData:
     # pylint: disable=too-many-locals
-    declare_result = await Contract.declare(
+    declare_result = await Contract.declare_v1(
         account=account, compiled_contract=compiled_contract, max_fee=MAX_FEE
     )
     await declare_result.wait_for_acceptance()
-    deploy_result = await declare_result.deploy(max_fee=MAX_FEE)
+    deploy_result = await declare_result.deploy_v1(max_fee=MAX_FEE)
     await deploy_result.wait_for_acceptance()
 
     declare_receipt = await account.client.get_transaction_receipt(declare_result.hash)
@@ -43,7 +43,7 @@ async def prepare_net_for_tests(
 
     contract = deploy_result.deployed_contract
 
-    invoke_res = await contract.functions["increase_balance"].invoke(
+    invoke_res = await contract.functions["increase_balance"].invoke_v1(
         amount=1234, max_fee=int(1e20)
     )
     await invoke_res.wait_for_acceptance()

@@ -3,14 +3,15 @@ from __future__ import annotations
 import dataclasses
 import json
 import warnings
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import cached_property
-from typing import Dict, List, Optional, Tuple, TypeVar, Union
+from typing import Dict, List, Optional, TypeVar, Union
 
 from marshmallow import ValidationError
 
-from starknet_py.abi.model import Abi
-from starknet_py.abi.parser import AbiParser
+from starknet_py.abi import Abi as AbiV0
+from starknet_py.abi import AbiParser as AbiV0Parser
 from starknet_py.abi.v1.model import Abi as AbiV1
 from starknet_py.abi.v1.parser import AbiParser as AbiV1Parser
 from starknet_py.abi.v2.model import Abi as AbiV2
@@ -21,36 +22,36 @@ from starknet_py.abi.v2.shape import (
     INTERFACE_ENTRY,
     L1_HANDLER_ENTRY,
 )
-from starknet_py.common import (
-    create_casm_class,
-    create_compiled_contract,
-    create_sierra_compiled_contract,
-)
+from starknet_py.common import create_compiled_contract, create_sierra_compiled_contract
 from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
+from starknet_py.contract_utils import _extract_compiled_class_hash, _unpack_provider
 from starknet_py.hash.address import compute_address
-from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.hash.class_hash import compute_class_hash
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
-from starknet_py.net.client_models import Call, EstimatedFee, Hash, Tag
-from starknet_py.net.models import AddressRepresentation, InvokeV1, parse_address
+from starknet_py.net.client_models import Call, EstimatedFee, Hash, ResourceBounds, Tag
+from starknet_py.net.models import AddressRepresentation, parse_address
+from starknet_py.net.models.transaction import Declare, Invoke
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.proxy.contract_abi_resolver import (
     ContractAbiResolver,
     ProxyConfig,
     prepare_proxy_config,
 )
-from starknet_py.serialization import TupleDataclass, serializer_for_function
-from starknet_py.serialization.factory import serializer_for_function_v1
-from starknet_py.serialization.function_serialization_adapter import (
+from starknet_py.serialization import (
     FunctionSerializationAdapter,
+    TupleDataclass,
+    serializer_for_function,
 )
+from starknet_py.serialization.factory import serializer_for_function_v1
 from starknet_py.utils.constructor_args_translator import (
     _is_abi_v2,
     translate_constructor_args,
 )
 from starknet_py.utils.sync import add_sync_methods
+
+# pylint: disable=too-many-lines
 
 ABI = list
 ABIEntry = dict
@@ -68,7 +69,7 @@ class ContractData:
     cairo_version: int
 
     @cached_property
-    def parsed_abi(self) -> Union[Abi, AbiV1, AbiV2]:
+    def parsed_abi(self) -> Union[AbiV0, AbiV1, AbiV2]:
         """
         Abi parsed into proper dataclass.
 
@@ -78,7 +79,7 @@ class ContractData:
             if _is_abi_v2(self.abi):
                 return AbiV2Parser(self.abi).parse()
             return AbiV1Parser(self.abi).parse()
-        return AbiParser(self.abi).parse()
+        return AbiV0Parser(self.abi).parse()
 
     @staticmethod
     def from_abi(address: int, abi: ABI, cairo_version: int = 0) -> ContractData:
@@ -153,15 +154,12 @@ class InvokeResult(SentTransaction):
     contract: ContractData = None  # pyright: ignore
     """Additional information about the Contract that made the transaction."""
 
-    invoke_transaction: InvokeV1 = None  # pyright: ignore
+    invoke_transaction: Invoke = None  # pyright: ignore
     """A InvokeTransaction instance used."""
 
     def __post_init__(self):
         assert self.contract is not None
         assert self.invoke_transaction is not None
-
-
-InvocationResult = InvokeResult
 
 
 @add_sync_methods
@@ -180,6 +178,9 @@ class DeclareResult(SentTransaction):
     compiled_contract: str = None  # pyright: ignore
     """Compiled contract that was declared."""
 
+    declare_transaction: Declare = None  # pyright: ignore
+    """A Declare transaction that has been sent."""
+
     def __post_init__(self):
         if self._account is None:
             raise ValueError("Argument _account can't be None.")
@@ -190,7 +191,10 @@ class DeclareResult(SentTransaction):
         if self.compiled_contract is None:
             raise ValueError("Argument compiled_contract can't be None.")
 
-    async def deploy(
+        if self.declare_transaction is None:
+            raise ValueError("Argument declare_transaction can't be None.")
+
+    async def deploy_v1(
         self,
         *,
         deployer_address: AddressRepresentation = DEFAULT_DEPLOYER_ADDRESS,
@@ -205,7 +209,7 @@ class DeclareResult(SentTransaction):
         Deploys a contract.
 
         :param deployer_address: Address of the UDC. Is set to the address of
-            the default UDC (same address on mainnet/testnet/devnet) by default.
+            the default UDC (same address on mainnet/goerli/sepolia) by default.
             Must be set when using custom network other than ones listed above.
         :param salt: Optional salt. Random value is selected if it is not provided.
         :param unique: Determines if the contract should be salted with the account address.
@@ -216,6 +220,66 @@ class DeclareResult(SentTransaction):
         :return: DeployResult instance.
         """
         # pylint: disable=too-many-arguments, too-many-locals
+        abi = self._get_abi()
+
+        return await Contract.deploy_contract_v1(
+            account=self._account,
+            class_hash=self.class_hash,
+            abi=abi,
+            constructor_args=constructor_args,
+            deployer_address=deployer_address,
+            cairo_version=self._cairo_version,
+            nonce=nonce,
+            max_fee=max_fee,
+            auto_estimate=auto_estimate,
+            salt=salt,
+            unique=unique,
+        )
+
+    async def deploy_v3(
+        self,
+        *,
+        deployer_address: AddressRepresentation = DEFAULT_DEPLOYER_ADDRESS,
+        salt: Optional[int] = None,
+        unique: bool = True,
+        constructor_args: Optional[Union[List, Dict]] = None,
+        nonce: Optional[int] = None,
+        l1_resource_bounds: Optional[ResourceBounds] = None,
+        auto_estimate: bool = False,
+    ) -> "DeployResult":
+        """
+        Deploys a contract.
+
+        :param deployer_address: Address of the UDC. Is set to the address of
+            the default UDC (same address on mainnet/goerli/sepolia) by default.
+            Must be set when using custom network other than ones listed above.
+        :param salt: Optional salt. Random value is selected if it is not provided.
+        :param unique: Determines if the contract should be salted with the account address.
+        :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
+        :param nonce: Nonce of the transaction with call to deployer.
+        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Fri) used when executing
+            this transaction.
+        :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
+        :return: DeployResult instance.
+        """
+        # pylint: disable=too-many-arguments, too-many-locals
+        abi = self._get_abi()
+
+        return await Contract.deploy_contract_v3(
+            account=self._account,
+            class_hash=self.class_hash,
+            abi=abi,
+            constructor_args=constructor_args,
+            deployer_address=deployer_address,
+            cairo_version=self._cairo_version,
+            nonce=nonce,
+            l1_resource_bounds=l1_resource_bounds,
+            auto_estimate=auto_estimate,
+            salt=salt,
+            unique=unique,
+        )
+
+    def _get_abi(self) -> List:
         if self._cairo_version == 0:
             abi = create_compiled_contract(compiled_contract=self.compiled_contract).abi
         else:
@@ -229,36 +293,7 @@ class DeclareResult(SentTransaction):
                     "Contract's ABI can't be converted to format List[Dict]. "
                     "Make sure provided compiled_contract is correct."
                 ) from exc
-
-        deployer = Deployer(
-            deployer_address=deployer_address,
-            account_address=self._account.address if unique else None,
-        )
-        deploy_call, address = deployer.create_contract_deployment(
-            class_hash=self.class_hash,
-            salt=salt,
-            abi=abi,
-            calldata=constructor_args,
-            cairo_version=self._cairo_version,
-        )
-        res = await self._account.execute(
-            calls=deploy_call, nonce=nonce, max_fee=max_fee, auto_estimate=auto_estimate
-        )
-
-        deployed_contract = Contract(
-            provider=self._account,
-            address=address,
-            abi=abi,
-            cairo_version=self._cairo_version,
-        )
-
-        deploy_result = DeployResult(
-            hash=res.transaction_hash,
-            _client=self._account.client,
-            deployed_contract=deployed_contract,
-        )
-
-        return deploy_result
+        return abi
 
 
 @add_sync_methods
@@ -277,35 +312,18 @@ class DeployResult(SentTransaction):
             raise ValueError("Argument deployed_contract can't be None.")
 
 
-# pylint: disable=too-many-instance-attributes
+@dataclass
+class PreparedCallBase(Call):
+    _client: Client
+    _payload_transformer: FunctionSerializationAdapter
+
+
 @add_sync_methods
-class PreparedFunctionCall(Call):
-    def __init__(
-        self,
-        calldata: List[int],
-        selector: int,
-        client: Client,
-        account: Optional[BaseAccount],
-        payload_transformer: FunctionSerializationAdapter,
-        contract_data: ContractData,
-        max_fee: Optional[int],
-    ):
-        # pylint: disable=too-many-arguments
-        super().__init__(
-            to_addr=contract_data.address, selector=selector, calldata=calldata
-        )
-        self._client = client
-        self._internal_account = account
-        self._payload_transformer = payload_transformer
-        self._contract_data = contract_data
-        self.max_fee = max_fee
-
-    @property
-    def _account(self) -> BaseAccount:
-        if self._internal_account is not None:
-            return self._internal_account
-
-        raise ValueError("Contract instance was created without providing an Account.")
+@dataclass
+class PreparedFunctionCall(PreparedCallBase):
+    """
+    Prepared date to call a contract function.
+    """
 
     async def call_raw(
         self,
@@ -338,43 +356,30 @@ class PreparedFunctionCall(Call):
         result = await self.call_raw(block_hash=block_hash, block_number=block_number)
         return self._payload_transformer.deserialize(result)
 
-    # TODO (#1182): add `cairo_version` parameter
-    async def invoke(
-        self,
-        max_fee: Optional[int] = None,
-        auto_estimate: bool = False,
-        *,
-        nonce: Optional[int] = None,
-    ) -> InvokeResult:
-        """
-        Invokes a method.
 
-        :param max_fee: Max amount of Wei to be paid when executing transaction.
-        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
-        :param nonce: Nonce of the transaction.
-        :return: InvokeResult.
-        """
-        if max_fee is not None:
-            self.max_fee = max_fee
+@add_sync_methods
+@dataclass
+class PreparedFunctionInvoke(ABC, PreparedCallBase):
+    _contract_data: ContractData
+    _account: Optional[BaseAccount]
 
-        transaction = await self._account.sign_invoke_v1_transaction(
-            calls=self,
-            nonce=nonce,
-            max_fee=self.max_fee,
-            auto_estimate=auto_estimate,
+    def __post_init__(self):
+        if self._account is None:
+            raise ValueError(
+                "Contract instance was created without providing an Account. "
+                "It is not possible to prepare and send an invoke transaction."
+            )
+
+    @property
+    def get_account(self):
+        if self._account is not None:
+            return self._account
+
+        raise ValueError(
+            "The account is not defined. It is not possible to send an invoke transaction."
         )
 
-        response = await self._client.send_transaction(transaction)
-
-        invoke_result = InvokeResult(
-            hash=response.transaction_hash,  # noinspection PyTypeChecker
-            _client=self._client,
-            contract=self._contract_data,
-            invoke_transaction=transaction,
-        )
-
-        return invoke_result
-
+    @abstractmethod
     async def estimate_fee(
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
@@ -389,19 +394,133 @@ class PreparedFunctionCall(Call):
         :param block_number: Estimate fee at given block number
             (or "latest" / "pending" for the latest / pending block), default is "pending".
         :param nonce: Nonce of the transaction.
-        :return: Estimated amount of Wei executing specified transaction will cost.
+        :return: Estimated amount of the transaction cost, either in Wei or Fri associated with executing the
+            specified transaction.
         """
-        tx = await self._account.sign_invoke_v1_transaction(
-            calls=self, nonce=nonce, max_fee=0
+
+    async def _invoke(self, transaction: Invoke) -> InvokeResult:
+        response = await self._client.send_transaction(transaction)
+
+        invoke_result = InvokeResult(
+            hash=response.transaction_hash,  # noinspection PyTypeChecker
+            _client=self._client,
+            contract=self._contract_data,
+            invoke_transaction=transaction,
         )
 
+        return invoke_result
+
+
+@add_sync_methods
+@dataclass
+class PreparedFunctionInvokeV1(PreparedFunctionInvoke):
+    """
+    Prepared date to send an InvokeV1 transaction.
+    """
+
+    max_fee: Optional[int]
+
+    async def invoke(
+        self,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+        *,
+        nonce: Optional[int] = None,
+    ) -> InvokeResult:
+        """
+        Send an Invoke transaction version 1 for the prepared data.
+
+        :param max_fee: Max amount of Wei to be paid when executing transaction.
+        :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
+        :param nonce: Nonce of the transaction.
+        :return: InvokeResult.
+        """
+
+        transaction = await self.get_account.sign_invoke_v1_transaction(
+            calls=self,
+            nonce=nonce,
+            max_fee=max_fee or self.max_fee,
+            auto_estimate=auto_estimate,
+        )
+
+        return await self._invoke(transaction)
+
+    async def estimate_fee(
+        self,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+        *,
+        nonce: Optional[int] = None,
+    ) -> EstimatedFee:
+        tx = await self.get_account.sign_invoke_v1_transaction(
+            calls=self, nonce=nonce, max_fee=0
+        )
+        estimate_tx = await self.get_account.sign_for_fee_estimate(transaction=tx)
+
         estimated_fee = await self._client.estimate_fee(
-            tx=tx,
+            tx=estimate_tx,
             block_hash=block_hash,
             block_number=block_number,
         )
-        assert isinstance(estimated_fee, EstimatedFee)
 
+        assert isinstance(estimated_fee, EstimatedFee)
+        return estimated_fee
+
+
+@add_sync_methods
+@dataclass
+class PreparedFunctionInvokeV3(PreparedFunctionInvoke):
+    """
+    Prepared date to send an InvokeV3 transaction.
+    """
+
+    l1_resource_bounds: Optional[ResourceBounds]
+
+    async def invoke(
+        self,
+        l1_resource_bounds: Optional[ResourceBounds] = None,
+        auto_estimate: bool = False,
+        *,
+        nonce: Optional[int] = None,
+    ) -> InvokeResult:
+        """
+        Send an Invoke transaction version 3 for the prepared data.
+
+        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Fri) used when executing
+            this transaction.
+        :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
+        :param nonce: Nonce of the transaction.
+        :return: InvokeResult.
+        """
+
+        transaction = await self.get_account.sign_invoke_v3_transaction(
+            calls=self,
+            nonce=nonce,
+            l1_resource_bounds=l1_resource_bounds or self.l1_resource_bounds,
+            auto_estimate=auto_estimate,
+        )
+
+        return await self._invoke(transaction)
+
+    async def estimate_fee(
+        self,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+        *,
+        nonce: Optional[int] = None,
+    ) -> EstimatedFee:
+        tx = await self.get_account.sign_invoke_v3_transaction(
+            calls=self, nonce=nonce, l1_resource_bounds=ResourceBounds.init_with_zeros()
+        )
+        estimate_tx = await self.get_account.sign_for_fee_estimate(transaction=tx)
+
+        estimated_fee = await self._client.estimate_fee(
+            tx=estimate_tx,
+            block_hash=block_hash,
+            block_number=block_number,
+        )
+
+        assert isinstance(estimated_fee, EstimatedFee)
         return estimated_fee
 
 
@@ -439,17 +558,16 @@ class ContractFunction:
         assert function is not None
 
         if cairo_version == 1:
-            assert not isinstance(function, Abi.Function) and function is not None
+            assert not isinstance(function, AbiV0.Function) and function is not None
             self._payload_transformer = serializer_for_function_v1(function)
 
         else:
-            assert isinstance(function, Abi.Function) and function is not None
+            assert isinstance(function, AbiV0.Function) and function is not None
             self._payload_transformer = serializer_for_function(function)
 
-    def prepare(
+    def prepare_call(
         self,
         *args,
-        max_fee: Optional[int] = None,
         **kwargs,
     ) -> PreparedFunctionCall:
         """
@@ -457,19 +575,16 @@ class ContractFunction:
         Creates a ``PreparedFunctionCall`` instance which exposes calldata for every argument
         and adds more arguments when calling methods.
 
-        :param max_fee: Max amount of Wei to be paid when executing transaction.
         :return: PreparedFunctionCall.
         """
 
         calldata = self._payload_transformer.serialize(*args, **kwargs)
         return PreparedFunctionCall(
+            to_addr=self.contract_data.address,
             calldata=calldata,
-            contract_data=self.contract_data,
-            client=self.client,
-            account=self.account,
-            payload_transformer=self._payload_transformer,
             selector=self.get_selector(self.name),
-            max_fee=max_fee,
+            _client=self.client,
+            _payload_transformer=self._payload_transformer,
         )
 
     async def call(
@@ -482,16 +597,44 @@ class ContractFunction:
         """
         Call contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.
         The result is translated from Cairo data to python values.
-        Equivalent of ``.prepare(*args, **kwargs).call()``.
+        Equivalent of ``.prepare_call(*args, **kwargs).call()``.
 
         :param block_hash: Block hash to perform the call to the contract at specific point of time.
         :param block_number: Block number to perform the call to the contract at specific point of time.
+        :return: TupleDataclass representing call result.
         """
-        return await self.prepare(max_fee=0, *args, **kwargs).call(
+        return await self.prepare_call(*args, **kwargs).call(
             block_hash=block_hash, block_number=block_number
         )
 
-    async def invoke(
+    def prepare_invoke_v1(
+        self,
+        *args,
+        max_fee: Optional[int] = None,
+        **kwargs,
+    ) -> PreparedFunctionInvokeV1:
+        """
+        ``*args`` and ``**kwargs`` are translated into Cairo calldata.
+        Creates a ``PreparedFunctionInvokeV1`` instance which exposes calldata for every argument
+        and adds more arguments when calling methods.
+
+        :param max_fee: Max amount of Wei to be paid when executing transaction.
+        :return: PreparedFunctionCall.
+        """
+
+        calldata = self._payload_transformer.serialize(*args, **kwargs)
+        return PreparedFunctionInvokeV1(
+            to_addr=self.contract_data.address,
+            calldata=calldata,
+            selector=self.get_selector(self.name),
+            max_fee=max_fee,
+            _contract_data=self.contract_data,
+            _client=self.client,
+            _account=self.account,
+            _payload_transformer=self._payload_transformer,
+        )
+
+    async def invoke_v1(
         self,
         *args,
         max_fee: Optional[int] = None,
@@ -501,15 +644,69 @@ class ContractFunction:
     ) -> InvokeResult:
         """
         Invoke contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.
-        Equivalent of ``.prepare(*args, **kwargs).invoke()``.
+        Equivalent of ``.prepare_invoke_v1(*args, **kwargs).invoke()``.
 
         :param max_fee: Max amount of Wei to be paid when executing transaction.
-        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :param nonce: Nonce of the transaction.
+        :return: InvokeResult.
         """
-        prepared_call = self.prepare(*args, **kwargs)
-        return await prepared_call.invoke(
+        prepared_invoke = self.prepare_invoke_v1(*args, **kwargs)
+        return await prepared_invoke.invoke(
             max_fee=max_fee, nonce=nonce, auto_estimate=auto_estimate
+        )
+
+    def prepare_invoke_v3(
+        self,
+        *args,
+        l1_resource_bounds: Optional[ResourceBounds] = None,
+        **kwargs,
+    ) -> PreparedFunctionInvokeV3:
+        """
+        ``*args`` and ``**kwargs`` are translated into Cairo calldata.
+        Creates a ``PreparedFunctionInvokeV3`` instance which exposes calldata for every argument
+        and adds more arguments when calling methods.
+
+        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Fri) used when executing
+            this transaction.
+        :return: PreparedFunctionInvokeV3.
+        """
+
+        calldata = self._payload_transformer.serialize(*args, **kwargs)
+        return PreparedFunctionInvokeV3(
+            to_addr=self.contract_data.address,
+            calldata=calldata,
+            selector=self.get_selector(self.name),
+            l1_resource_bounds=l1_resource_bounds,
+            _contract_data=self.contract_data,
+            _client=self.client,
+            _account=self.account,
+            _payload_transformer=self._payload_transformer,
+        )
+
+    async def invoke_v3(
+        self,
+        *args,
+        l1_resource_bounds: Optional[ResourceBounds] = None,
+        auto_estimate: bool = False,
+        nonce: Optional[int] = None,
+        **kwargs,
+    ) -> InvokeResult:
+        """
+        Invoke contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.
+        Equivalent of ``.prepare_invoke_v3(*args, **kwargs).invoke()``.
+
+        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Fri) used when executing
+            this transaction.
+        :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
+        :param nonce: Nonce of the transaction.
+        :return: InvokeResult.
+        """
+        prepared_invoke = self.prepare_invoke_v3(*args, **kwargs)
+        return await prepared_invoke.invoke(
+            l1_resource_bounds=l1_resource_bounds,
+            nonce=nonce,
+            auto_estimate=auto_estimate,
         )
 
     @staticmethod
@@ -622,12 +819,43 @@ class Contract:
         )
 
     @staticmethod
-    async def declare(
+    async def declare_v1(
+        account: BaseAccount,
+        compiled_contract: str,
+        *,
+        nonce: Optional[int] = None,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+    ) -> DeclareResult:
+        """
+        Declares a contract.
+
+        :param account: BaseAccount used to sign and send declare transaction.
+        :param compiled_contract: String containing compiled contract.
+        :param nonce: Nonce of the transaction.
+        :param max_fee: Max amount of Wei to be paid when executing transaction.
+        :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
+        :return: DeclareResult instance.
+        """
+
+        declare_tx = await account.sign_declare_v1_transaction(
+            compiled_contract=compiled_contract,
+            nonce=nonce,
+            max_fee=max_fee,
+            auto_estimate=auto_estimate,
+        )
+
+        return await _declare_contract(
+            declare_tx, account, compiled_contract, cairo_version=0
+        )
+
+    @staticmethod
+    async def declare_v2(
         account: BaseAccount,
         compiled_contract: str,
         *,
         compiled_contract_casm: Optional[str] = None,
-        casm_class_hash: Optional[int] = None,
+        compiled_class_hash: Optional[int] = None,
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
@@ -638,59 +866,72 @@ class Contract:
         :param account: BaseAccount used to sign and send declare transaction.
         :param compiled_contract: String containing compiled contract.
         :param compiled_contract_casm: String containing the content of the starknet-sierra-compile (.casm file).
-            Used when declaring Cairo1 contracts.
-        :param casm_class_hash: Hash of the compiled_contract_casm.
+        :param compiled_class_hash: Hash of the compiled_contract_casm.
         :param nonce: Nonce of the transaction.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :return: DeclareResult instance.
         """
 
-        if Contract._get_cairo_version(compiled_contract) == 1:
-            if casm_class_hash is None and compiled_contract_casm is None:
-                raise ValueError(
-                    "Cairo 1.0 contract was provided without casm_class_hash or compiled_contract_casm argument."
-                )
+        compiled_class_hash = _extract_compiled_class_hash(
+            compiled_contract_casm, compiled_class_hash
+        )
 
-            cairo_version = 1
-            if casm_class_hash is None:
-                assert compiled_contract_casm is not None
-                casm_class_hash = compute_casm_class_hash(
-                    create_casm_class(compiled_contract_casm)
-                )
-
-            declare_tx = await account.sign_declare_v2_transaction(
-                compiled_contract=compiled_contract,
-                compiled_class_hash=casm_class_hash,
-                nonce=nonce,
-                max_fee=max_fee,
-                auto_estimate=auto_estimate,
-            )
-        else:
-            cairo_version = 0
-            declare_tx = await account.sign_declare_v1_transaction(
-                compiled_contract=compiled_contract,
-                nonce=nonce,
-                max_fee=max_fee,
-                auto_estimate=auto_estimate,
-            )
-        res = await account.client.declare(transaction=declare_tx)
-
-        return DeclareResult(
-            hash=res.transaction_hash,
-            _client=account.client,
-            class_hash=res.class_hash,
-            _account=account,
+        declare_tx = await account.sign_declare_v2_transaction(
             compiled_contract=compiled_contract,
-            _cairo_version=cairo_version,
+            compiled_class_hash=compiled_class_hash,
+            nonce=nonce,
+            max_fee=max_fee,
+            auto_estimate=auto_estimate,
+        )
+
+        return await _declare_contract(
+            declare_tx, account, compiled_contract, cairo_version=1
         )
 
     @staticmethod
-    def _get_cairo_version(compiled_contract: str) -> int:
-        return 1 if "sierra_program" in compiled_contract else 0
+    async def declare_v3(
+        account: BaseAccount,
+        compiled_contract: str,
+        *,
+        compiled_contract_casm: Optional[str] = None,
+        compiled_class_hash: Optional[int] = None,
+        nonce: Optional[int] = None,
+        l1_resource_bounds: Optional[ResourceBounds] = None,
+        auto_estimate: bool = False,
+    ) -> DeclareResult:
+        """
+        Declares a contract.
+
+        :param account: BaseAccount used to sign and send declare transaction.
+        :param compiled_contract: String containing compiled contract.
+        :param compiled_contract_casm: String containing the content of the starknet-sierra-compile (.casm file).
+        :param compiled_class_hash: Hash of the compiled_contract_casm.
+        :param nonce: Nonce of the transaction.
+        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Fri) used when executing
+            this transaction.
+        :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
+        :return: DeclareResult instance.
+        """
+
+        compiled_class_hash = _extract_compiled_class_hash(
+            compiled_contract_casm, compiled_class_hash
+        )
+
+        declare_tx = await account.sign_declare_v3_transaction(
+            compiled_contract=compiled_contract,
+            compiled_class_hash=compiled_class_hash,
+            nonce=nonce,
+            l1_resource_bounds=l1_resource_bounds,
+            auto_estimate=auto_estimate,
+        )
+
+        return await _declare_contract(
+            declare_tx, account, compiled_contract, cairo_version=1
+        )
 
     @staticmethod
-    async def deploy_contract(
+    async def deploy_contract_v1(
         account: BaseAccount,
         class_hash: Hash,
         abi: List,
@@ -701,35 +942,112 @@ class Contract:
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
+        salt: Optional[int] = None,
+        unique: bool = True,
     ) -> "DeployResult":
         """
-        Deploys a contract through Universal Deployer Contract
+        Deploys a contract through Universal Deployer Contract.
 
         :param account: BaseAccount used to sign and send deploy transaction.
         :param class_hash: The class_hash of the contract to be deployed.
         :param abi: An abi of the contract to be deployed.
         :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
         :param deployer_address: Address of the UDC. Is set to the address of
-            the default UDC (same address on mainnet/testnet/devnet) by default.
+            the default UDC (same address on mainnet/goerli/sepolia) by default.
             Must be set when using custom network other than ones listed above.
         :param cairo_version: Version of the Cairo in which contract is written.
+            By default, it is set to 0.
         :param nonce: Nonce of the transaction.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
+        :param salt: Optional salt. Random value is selected if it is not provided.
+        :param unique: Determines if the contract should be salted with the account address.
         :return: DeployResult instance.
         """
-        # pylint: disable=too-many-arguments
+        # pylint: disable=too-many-arguments, too-many-locals
         deployer = Deployer(
-            deployer_address=deployer_address, account_address=account.address
+            deployer_address=deployer_address,
+            account_address=account.address if unique else None,
         )
         deploy_call, address = deployer.create_contract_deployment(
             class_hash=class_hash,
+            salt=salt,
             abi=abi,
             calldata=constructor_args,
             cairo_version=cairo_version,
         )
-        res = await account.execute(
-            calls=deploy_call, nonce=nonce, max_fee=max_fee, auto_estimate=auto_estimate
+
+        res = await account.execute_v1(
+            calls=deploy_call,
+            nonce=nonce,
+            max_fee=max_fee,
+            auto_estimate=auto_estimate,
+        )
+
+        deployed_contract = Contract(
+            provider=account, address=address, abi=abi, cairo_version=cairo_version
+        )
+        deploy_result = DeployResult(
+            hash=res.transaction_hash,
+            _client=account.client,
+            deployed_contract=deployed_contract,
+        )
+
+        return deploy_result
+
+    @staticmethod
+    async def deploy_contract_v3(
+        account: BaseAccount,
+        class_hash: Hash,
+        abi: List,
+        constructor_args: Optional[Union[List, Dict]] = None,
+        *,
+        deployer_address: AddressRepresentation = DEFAULT_DEPLOYER_ADDRESS,
+        cairo_version: int = 1,
+        nonce: Optional[int] = None,
+        l1_resource_bounds: Optional[ResourceBounds] = None,
+        auto_estimate: bool = False,
+        salt: Optional[int] = None,
+        unique: bool = True,
+    ) -> "DeployResult":
+        """
+        Deploys a contract through Universal Deployer Contract.
+
+        :param account: BaseAccount used to sign and send deploy transaction.
+        :param class_hash: The class_hash of the contract to be deployed.
+        :param abi: An abi of the contract to be deployed.
+        :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
+        :param deployer_address: Address of the UDC. Is set to the address of
+            the default UDC (same address on mainnet/goerli/sepolia) by default.
+            Must be set when using custom network other than ones listed above.
+        :param cairo_version: Version of the Cairo in which contract is written.
+            By default, it is set to 1.
+        :param nonce: Nonce of the transaction.
+        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Fri) used when executing
+            this transaction.
+        :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
+        :param salt: Optional salt. Random value is selected if it is not provided.
+        :param unique: Determines if the contract should be salted with the account address.
+        :return: DeployResult instance.
+        """
+        # pylint: disable=too-many-arguments, too-many-locals
+        deployer = Deployer(
+            deployer_address=deployer_address,
+            account_address=account.address if unique else None,
+        )
+        deploy_call, address = deployer.create_contract_deployment(
+            class_hash=class_hash,
+            salt=salt,
+            abi=abi,
+            calldata=constructor_args,
+            cairo_version=cairo_version,
+        )
+
+        res = await account.execute_v3(
+            calls=deploy_call,
+            nonce=nonce,
+            l1_resource_bounds=l1_resource_bounds,
+            auto_estimate=auto_estimate,
         )
 
         deployed_contract = Contract(
@@ -836,19 +1154,20 @@ class Contract:
         return prepare_proxy_config(proxy_arg)
 
 
-def _unpack_provider(
-    provider: Union[BaseAccount, Client]
-) -> Tuple[Client, Optional[BaseAccount]]:
-    """
-    Get the client and optional account to be used by Contract.
+async def _declare_contract(
+    transaction: Declare,
+    account: BaseAccount,
+    compiled_contract: str,
+    cairo_version: int,
+) -> DeclareResult:
+    res = await account.client.declare(transaction=transaction)
 
-    If provided with Client, returns this Client and None.
-    If provided with BaseAccount, returns underlying Client and the account.
-    """
-    if isinstance(provider, Client):
-        return provider, None
-
-    if isinstance(provider, BaseAccount):
-        return provider.client, provider
-
-    raise ValueError("Argument provider is not of accepted type.")
+    return DeclareResult(
+        hash=res.transaction_hash,
+        class_hash=res.class_hash,
+        compiled_contract=compiled_contract,
+        declare_transaction=transaction,
+        _account=account,
+        _client=account.client,
+        _cairo_version=cairo_version,
+    )
