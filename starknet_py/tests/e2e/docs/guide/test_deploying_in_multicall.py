@@ -26,7 +26,7 @@ async def test_deploying_in_multicall(account, map_class_hash, map_compiled_cont
     map_contract = Contract(address=address, abi=map_abi, provider=account)
 
     # And now we can prepare a call
-    put_call = map_contract.functions["put"].prepare_call(key=10, value=20)
+    put_call = map_contract.functions["put"].prepare_invoke_v1(key=10, value=20)
 
     # After that multicall transaction can be sent
     # Note that `deploy_call` and `put_call` are two regular calls!

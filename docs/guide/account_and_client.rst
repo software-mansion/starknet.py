@@ -4,7 +4,8 @@ Account and Client
 Executing transactions
 ----------------------
 
-To execute transactions on Starknet, use :meth:`~starknet_py.net.account.account.Account.execute` method from :ref:`Account` interface.
+To execute transactions on Starknet, use :meth:`~starknet_py.net.account.account.Account.execute_v1` or :meth:`~starknet_py.net.account.account.Account.execute_v3` methods from :ref:`Account` interface.
+These methods will send InvokeV1 and InvokeV3 transactions respectively. To read about differences between transaction versions please visit `transaction types <https://docs.starknet.io/documentation/architecture_and_concepts/Network_Architecture/transactions>`_ from the Starknet docs.
 
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_executing_transactions.py
     :language: python
@@ -13,7 +14,6 @@ To execute transactions on Starknet, use :meth:`~starknet_py.net.account.account
 Creating transactions without executing them
 --------------------------------------------
 
-Alongside the simpler :meth:`~starknet_py.net.account.account.Account.execute`,
 Account also provides a way of creating signed transaction without sending them.
 
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_account_sign_without_execute.py
@@ -24,7 +24,7 @@ Multicall
 ---------
 
 There is a possibility to execute an Invoke transaction containing multiple calls.
-Simply pass a list of calls to :meth:`~starknet_py.net.account.account.Account.execute` method.
+Simply pass a list of calls to :meth:`~starknet_py.net.account.account.Account.execute_v1` or :meth:`~starknet_py.net.account.account.Account.execute_v3` methods.
 Note that the nonce will be bumped only by 1.
 
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_multicall.py
