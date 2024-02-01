@@ -32,15 +32,15 @@ jobs:
           pip install poetry
           poetry config installer.modern-installation false
 
-      - name: Set up Python 3.11
+      - name: Set up Python 3.12
         uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: "3.12"
           cache: 'poetry'
 
       - name: Install dependencies
         run: |
-          poetry install --without py311-dev
+          poetry install --without py312-dev
 
       - name: Check poetry.lock
         run: |
@@ -67,7 +67,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ "3.11" ]
+        python-version: [ "3.12" ]
     steps:
 
       # ====================== SETUP ====================== #
@@ -76,7 +76,7 @@ jobs:
 
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: "3.12"
           cache: 'pip'
 
       - name: Install poetry
@@ -85,9 +85,9 @@ jobs:
           pip install poetry
           poetry config installer.modern-installation false
 
-      - name: Install python 3.11 requirements
+      - name: Install python 3.12 requirements
         run: |
-          poetry export -f requirements.txt --only=py311-dev --without-hashes --output requirements.txt
+          poetry export -f requirements.txt --only=py312-dev --without-hashes --output requirements.txt
           pip install -r requirements.txt
 
       - name: Set up Python ${{ matrix.python-version }}
@@ -98,7 +98,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install --without py311-dev
+          poetry install --without py312-dev
 
       # ====================== CONTRACTS v0 ====================== #
 
@@ -144,7 +144,7 @@ jobs:
 
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: "3.12"
           cache: 'pip'
 
       # ====================== SETUP PYTHON ====================== #
@@ -155,9 +155,9 @@ jobs:
           pip install poetry
           poetry config installer.modern-installation false
 
-      - name: Install python 3.11 requirements
+      - name: Install python 3.12 requirements
         run: |
-          poetry export -f requirements.txt --only=py311-dev --without-hashes --output requirements.txt
+          poetry export -f requirements.txt --only=py312-dev --without-hashes --output requirements.txt
           pip install -r requirements.txt
 
       - name: Set up Python ${{ matrix.python-version }}
@@ -168,7 +168,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install --without py311-dev
+          poetry install --without py312-dev
 
       # ====================== SETUP DEVNET ====================== #
 
@@ -226,7 +226,7 @@ jobs:
 
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: "3.12"
           cache: 'pip'
 
       # ====================== SETUP PYTHON ====================== #
@@ -237,20 +237,20 @@ jobs:
           pip install poetry
           poetry config installer.modern-installation false
 
-      - name: Install python 3.11 requirements
+      - name: Install python 3.12 requirements
         run: |
-          poetry export -f requirements.txt --only=py311-dev --without-hashes --output requirements.txt
+          poetry export -f requirements.txt --only=py312-dev --without-hashes --output requirements.txt
           pip install -r requirements.txt
 
-      - name: Set up Python 3.11
+      - name: Set up Python 3.12
         uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: "3.12"
           cache: 'poetry'
 
       - name: Install dependencies
         run: |
-          poetry install --without py311-dev
+          poetry install --without py312-dev
 
       # ====================== RUN TESTS ====================== #
 
@@ -295,7 +295,7 @@ jobs:
 
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: "3.12"
           cache: 'pip'
 
       # ====================== SETUP DEVNET ====================== #
@@ -311,9 +311,9 @@ jobs:
           pip install poetry
           poetry config installer.modern-installation false
 
-      - name: Install python 3.11 requirements
+      - name: Install python 3.12 requirements
         run: |
-          poetry export -f requirements.txt --only=py311-dev --without-hashes --output requirements.txt
+          poetry export -f requirements.txt --only=py312-dev --without-hashes --output requirements.txt
           pip install -r requirements.txt
 
       - name: Set up Python ${{ matrix.python-version }}
@@ -324,7 +324,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install --without py311-dev
+          poetry install --without py312-dev
 
       # ====================== RUN TESTS ====================== #
 
@@ -369,7 +369,7 @@ jobs:
 
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: "3.12"
           cache: 'pip'
 
       # ====================== SETUP PYTHON ====================== #
@@ -380,9 +380,9 @@ jobs:
           pip install poetry
           poetry config installer.modern-installation false
 
-      - name: Install python 3.11 requirements
+      - name: Install python 3.12 requirements
         run: |
-          poetry export -f requirements.txt --only=py311-dev --without-hashes --output requirements.txt
+          poetry export -f requirements.txt --only=py312-dev --without-hashes --output requirements.txt
           pip install -r requirements.txt
 
       - name: Set up Python ${{ matrix.python-version }}
@@ -393,7 +393,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install --without py311-dev
+          poetry install --without py312-dev
 
       # ====================== SETUP DEVNET ====================== #
 
@@ -443,7 +443,7 @@ jobs:
 
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: "3.12"
           cache: 'pip'
 
       # ====================== SETUP PYTHON ====================== #
@@ -454,9 +454,9 @@ jobs:
           pip install poetry
           poetry config installer.modern-installation false
 
-      - name: Install python 3.11 requirements
+      - name: Install python 3.12 requirements
         run: |
-          poetry export -f requirements.txt --only=py311-dev --without-hashes --output requirements.txt
+          poetry export -f requirements.txt --only=py312-dev --without-hashes --output requirements.txt
           pip install -r requirements.txt
 
       - name: Set up Python ${{ matrix.python-version }}
@@ -467,7 +467,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install --without py311-dev
+          poetry install --without py312-dev
 
       # ====================== SETUP DEVNET ====================== #
 
