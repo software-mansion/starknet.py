@@ -5,7 +5,7 @@ import pytest
 async def test_signing_fee_estimate(account, map_contract):
     # docs: start
     # Create a transaction
-    call = map_contract.functions["put"].prepare(key=10, value=20)
+    call = map_contract.functions["put"].prepare_invoke_v1(key=10, value=20)
     transaction = await account.sign_invoke_v1_transaction(calls=call, max_fee=0)
 
     # Re-sign a transaction for fee estimation

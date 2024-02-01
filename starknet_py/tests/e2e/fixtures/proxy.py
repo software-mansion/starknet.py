@@ -116,13 +116,13 @@ async def deploy_proxy_to_contract(
     declare_result = await account.client.declare(declare_tx)
     await account.client.wait_for_tx(declare_result.transaction_hash)
 
-    declare_proxy_result = await Contract.declare(
+    declare_proxy_result = await Contract.declare_v1(
         account=account,
         compiled_contract=compiled_proxy,
         max_fee=MAX_FEE,
     )
     await declare_proxy_result.wait_for_acceptance()
-    deploy_result = await declare_proxy_result.deploy(
+    deploy_result = await declare_proxy_result.deploy_v1(
         constructor_args=[
             declare_result.class_hash,
             get_selector_from_name("put"),

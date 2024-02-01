@@ -18,7 +18,7 @@ async def test_sign_invoke_tx_for_fee_estimation(account_goerli_integration):
         address=MAP_CONTRACT_ADDRESS_GOERLI_INTEGRATION, provider=account
     )
 
-    call = map_contract.functions["put"].prepare(key=40, value=50)
+    call = map_contract.functions["put"].prepare_invoke_v1(key=40, value=50)
     transaction = await account.sign_invoke_v1_transaction(calls=call, max_fee=MAX_FEE)
 
     estimate_fee_transaction = await account.sign_for_fee_estimate(transaction)

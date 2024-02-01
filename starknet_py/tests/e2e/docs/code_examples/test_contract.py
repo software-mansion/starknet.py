@@ -53,7 +53,7 @@ async def test_from_address(account, contract_address):
 async def test_declare(account, custom_proxy):
     compiled_contract = custom_proxy
     # docs-start: declare
-    declare_result = await Contract.declare(
+    declare_result = await Contract.declare_v1(
         account=account, compiled_contract=compiled_contract, max_fee=int(1e15)
     )
     # docs-end: declare
@@ -62,7 +62,7 @@ async def test_declare(account, custom_proxy):
 @pytest.mark.asyncio
 async def test_deploy_contract(account, class_hash):
     # docs-start: deploy_contract
-    deploy_result = await Contract.deploy_contract(
+    deploy_result = await Contract.deploy_contract_v1(
         account=account,
         class_hash=class_hash,
         abi=[
@@ -76,7 +76,7 @@ async def test_deploy_contract(account, class_hash):
         max_fee=int(1e15),
     )
     # or when contract has a constructor with arguments
-    deploy_result = await Contract.deploy_contract(
+    deploy_result = await Contract.deploy_contract_v1(
         account=account,
         class_hash=class_hash,
         abi=[
