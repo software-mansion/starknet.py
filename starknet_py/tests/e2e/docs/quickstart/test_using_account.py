@@ -45,7 +45,7 @@ async def test_using_account(account, map_compiled_contract):
     ]
 
     # Executes only one transaction with prepared calls
-    transaction_response = await account.execute(calls=calls, max_fee=int(1e16))
+    transaction_response = await account.execute_v1(calls=calls, max_fee=int(1e16))
     await account.client.wait_for_tx(transaction_response.transaction_hash)
     # docs: end
 

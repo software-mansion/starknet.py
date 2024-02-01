@@ -504,6 +504,7 @@ class Account(BaseAccount):
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> DeployAccountV1:
+        # pylint: disable=too-many-arguments
         deploy_account_tx = DeployAccountV1(
             class_hash=class_hash,
             contract_address_salt=contract_address_salt,
@@ -531,6 +532,7 @@ class Account(BaseAccount):
         l1_resource_bounds: Optional[ResourceBounds] = None,
         auto_estimate: bool = False,
     ) -> DeployAccountV3:
+        # pylint: disable=too-many-arguments
         deploy_account_tx = DeployAccountV3(
             class_hash=class_hash,
             contract_address_salt=contract_address_salt,
@@ -550,7 +552,7 @@ class Account(BaseAccount):
         signature = self.signer.sign_transaction(deploy_account_tx)
         return _add_signature_to_transaction(deploy_account_tx, signature)
 
-    async def execute(
+    async def execute_v1(
         self,
         calls: Calls,
         *,
@@ -592,7 +594,7 @@ class Account(BaseAccount):
         return verify_message_signature(message_hash, signature, self.signer.public_key)
 
     @staticmethod
-    async def deploy_account(
+    async def deploy_account_v1(
         *,
         address: AddressRepresentation,
         class_hash: int,
@@ -605,53 +607,44 @@ class Account(BaseAccount):
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> AccountDeploymentResult:
+        # pylint: disable=too-many-arguments
         # pylint: disable=too-many-locals
+
         """
         Deploys an account contract with provided class_hash on Starknet and returns
         an AccountDeploymentResult that allows waiting for transaction acceptance.
 
         Provided address must be first prefunded with enough tokens, otherwise the method will fail.
 
-        If using Client for either TESTNET or MAINNET, this method will verify if the address balance
-        is high enough to cover deployment costs.
+        If using Client for MAINNET, GOERLI, SEPOLIA or SEPOLIA_INTEGRATION, this method will verify
+        if the address balance is high enough to cover deployment costs.
 
-        :param address: calculated and prefunded address of the new account.
-        :param class_hash: class_hash of the account contract to be deployed.
-        :param salt: salt used to calculate the address.
+        :param address: Calculated and prefunded address of the new account.
+        :param class_hash: Class hash of the account contract to be deployed.
+        :param salt: Salt used to calculate the address.
         :param key_pair: KeyPair used to calculate address and sign deploy account transaction.
-        :param client: a Client instance used for deployment.
-        :param chain: id of the Starknet chain used.
-        :param constructor_calldata: optional calldata to account contract constructor. If ``None`` is passed,
+        :param client: Client instance used for deployment.
+        :param chain: Id of the Starknet chain used.
+        :param constructor_calldata: Optional calldata to account contract constructor. If ``None`` is passed,
             ``[key_pair.public_key]`` will be used as calldata.
         :param nonce: Nonce of the transaction.
-        :param max_fee: max fee to be paid for deployment, must be less or equal to the amount of tokens prefunded.
+        :param max_fee: Max fee to be paid for deployment, must be less or equal to the amount of tokens prefunded.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         """
-        address = parse_address(address)
         calldata = (
             constructor_calldata
             if constructor_calldata is not None
             else [key_pair.public_key]
         )
 
-        if address != (
-            computed := compute_address(
-                salt=salt,
-                class_hash=class_hash,
-                constructor_calldata=calldata,
-                deployer_address=0,
-            )
-        ):
-            raise ValueError(
-                f"Provided address {hex(address)} is different than computed address {hex(computed)} "
-                f"for the given class_hash and salt."
-            )
-
-        account = Account(
+        account = _prepare_account_to_deploy(
             address=address,
-            client=client,
+            class_hash=class_hash,
+            salt=salt,
             key_pair=key_pair,
+            client=client,
             chain=chain,
+            calldata=calldata,
         )
 
         deploy_account_tx = await account.sign_deploy_account_v1_transaction(
@@ -663,17 +656,76 @@ class Account(BaseAccount):
             auto_estimate=auto_estimate,
         )
 
-        if chain in (
-            StarknetChainId.SEPOLIA_TESTNET,
-            StarknetChainId.SEPOLIA_INTEGRATION,
-            StarknetChainId.GOERLI,
-            StarknetChainId.MAINNET,
-        ):
+        if chain in StarknetChainId:
             balance = await account.get_balance()
             if balance < deploy_account_tx.max_fee:
                 raise ValueError(
                     "Not enough tokens at the specified address to cover deployment costs."
                 )
+
+        result = await client.deploy_account(deploy_account_tx)
+
+        return AccountDeploymentResult(
+            hash=result.transaction_hash, account=account, _client=account.client
+        )
+
+    @staticmethod
+    async def deploy_account_v3(
+        *,
+        address: AddressRepresentation,
+        class_hash: int,
+        salt: int,
+        key_pair: KeyPair,
+        client: Client,
+        chain: StarknetChainId,
+        constructor_calldata: Optional[List[int]] = None,
+        nonce: int = 0,
+        l1_resource_bounds: Optional[ResourceBounds] = None,
+        auto_estimate: bool = False,
+    ) -> AccountDeploymentResult:
+        """
+        Deploys an account contract with provided class_hash on Starknet and returns
+        an AccountDeploymentResult that allows waiting for transaction acceptance.
+
+        Provided address must be first prefunded with enough tokens, otherwise the method will fail.
+
+        :param address: Calculated and prefunded address of the new account.
+        :param class_hash: Class hash of the account contract to be deployed.
+        :param salt: Salt used to calculate the address.
+        :param key_pair: KeyPair used to calculate address and sign deploy account transaction.
+        :param client: Client instance used for deployment.
+        :param chain: Id of the Starknet chain used.
+        :param constructor_calldata: Optional calldata to account contract constructor. If ``None`` is passed,
+            ``[key_pair.public_key]`` will be used as calldata.
+        :param nonce: Nonce of the transaction.
+        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Fri) used when executing
+            this transaction.
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        """
+        calldata = (
+            constructor_calldata
+            if constructor_calldata is not None
+            else [key_pair.public_key]
+        )
+
+        account = _prepare_account_to_deploy(
+            address=address,
+            class_hash=class_hash,
+            salt=salt,
+            key_pair=key_pair,
+            client=client,
+            chain=chain,
+            calldata=calldata,
+        )
+
+        deploy_account_tx = await account.sign_deploy_account_v3_transaction(
+            class_hash=class_hash,
+            contract_address_salt=salt,
+            constructor_calldata=calldata,
+            nonce=nonce,
+            l1_resource_bounds=l1_resource_bounds,
+            auto_estimate=auto_estimate,
+        )
 
         result = await client.deploy_account(deploy_account_tx)
 
@@ -695,6 +747,39 @@ class Account(BaseAccount):
             )
 
         return FEE_CONTRACT_ADDRESS
+
+
+def _prepare_account_to_deploy(
+    address: AddressRepresentation,
+    class_hash: int,
+    salt: int,
+    key_pair: KeyPair,
+    client: Client,
+    chain: StarknetChainId,
+    calldata: List[int],
+) -> Account:
+    # pylint: disable=too-many-arguments
+    address = parse_address(address)
+
+    if address != (
+        computed := compute_address(
+            salt=salt,
+            class_hash=class_hash,
+            constructor_calldata=calldata,
+            deployer_address=0,
+        )
+    ):
+        raise ValueError(
+            f"Provided address {hex(address)} is different than computed address {hex(computed)} "
+            f"for the given class_hash and salt."
+        )
+
+    return Account(
+        address=address,
+        client=client,
+        key_pair=key_pair,
+        chain=chain,
+    )
 
 
 def _is_sierra_contract(data: Dict[str, Any]) -> bool:
@@ -721,19 +806,19 @@ def _add_resource_bounds_to_transaction(
 
 def _parse_calls(cairo_version: int, calls: Calls) -> List[int]:
     if cairo_version == 1:
-        parsed_calls = _parse_calls_v2(ensure_iterable(calls))
-        wrapped_calldata = _execute_payload_serializer_v2.serialize(
+        parsed_calls = _parse_calls_cairo_v1(ensure_iterable(calls))
+        wrapped_calldata = _execute_payload_serializer_v1.serialize(
             {"calls": parsed_calls}
         )
     else:
         call_descriptions, calldata = _merge_calls(ensure_iterable(calls))
-        wrapped_calldata = _execute_payload_serializer.serialize(
+        wrapped_calldata = _execute_payload_serializer_v0.serialize(
             {"call_array": call_descriptions, "calldata": calldata}
         )
     return wrapped_calldata
 
 
-def _parse_call(call: Call, entire_calldata: List) -> Tuple[Dict, List]:
+def _parse_call_cairo_v0(call: Call, entire_calldata: List) -> Tuple[Dict, List]:
     _data = {
         "to": call.to_addr,
         "selector": call.selector,
@@ -749,13 +834,13 @@ def _merge_calls(calls: Iterable[Call]) -> Tuple[List[Dict], List[int]]:
     call_descriptions = []
     entire_calldata = []
     for call in calls:
-        data, entire_calldata = _parse_call(call, entire_calldata)
+        data, entire_calldata = _parse_call_cairo_v0(call, entire_calldata)
         call_descriptions.append(data)
 
     return call_descriptions, entire_calldata
 
 
-def _parse_calls_v2(calls: Iterable[Call]) -> List[Dict]:
+def _parse_calls_cairo_v1(calls: Iterable[Call]) -> List[Dict]:
     calls_parsed = []
     for call in calls:
         _data = {
@@ -769,7 +854,7 @@ def _parse_calls_v2(calls: Iterable[Call]) -> List[Dict]:
 
 
 _felt_serializer = FeltSerializer()
-_call_description = StructSerializer(
+_call_description_cairo_v0 = StructSerializer(
     OrderedDict(
         to=_felt_serializer,
         selector=_felt_serializer,
@@ -777,7 +862,7 @@ _call_description = StructSerializer(
         data_len=_felt_serializer,
     )
 )
-_call_description_v2 = StructSerializer(
+_call_description_cairo_v1 = StructSerializer(
     OrderedDict(
         to=_felt_serializer,
         selector=_felt_serializer,
@@ -785,14 +870,14 @@ _call_description_v2 = StructSerializer(
     )
 )
 
-_execute_payload_serializer = PayloadSerializer(
+_execute_payload_serializer_v0 = PayloadSerializer(
     OrderedDict(
-        call_array=ArraySerializer(_call_description),
+        call_array=ArraySerializer(_call_description_cairo_v0),
         calldata=ArraySerializer(_felt_serializer),
     )
 )
-_execute_payload_serializer_v2 = PayloadSerializer(
+_execute_payload_serializer_v1 = PayloadSerializer(
     OrderedDict(
-        calls=ArraySerializer(_call_description_v2),
+        calls=ArraySerializer(_call_description_cairo_v1),
     )
 )
