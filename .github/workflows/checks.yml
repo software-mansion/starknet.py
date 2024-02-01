@@ -40,7 +40,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install --without py312-dev
+          poetry install --without py311-dev
 
       - name: Check poetry.lock
         run: |
@@ -168,7 +168,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install --without py312-dev
+          poetry install --without py311-dev
 
       # ====================== SETUP DEVNET ====================== #
 
@@ -250,7 +250,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install --without py312-dev
+          poetry install --without py311-dev
 
       # ====================== RUN TESTS ====================== #
 
@@ -324,7 +324,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install --without py312-dev
+          poetry install --without py311-dev
 
       # ====================== RUN TESTS ====================== #
 
@@ -393,7 +393,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install --without py312-dev
+          poetry install --without py311-dev
 
       # ====================== SETUP DEVNET ====================== #
 
@@ -467,7 +467,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install --without py312-dev
+          poetry install --without py311-dev
 
       # ====================== SETUP DEVNET ====================== #
 
