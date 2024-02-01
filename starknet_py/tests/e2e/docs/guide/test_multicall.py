@@ -18,7 +18,7 @@ async def test_multicall(account, deployed_balance_contract):
     calls = [increase_balance_by_20_call, increase_balance_by_20_call]
 
     # Execute one transaction with multiple calls
-    resp = await account.execute(calls=calls, max_fee=int(1e16))
+    resp = await account.execute_v1(calls=calls, max_fee=int(1e16))
     await account.client.wait_for_tx(resp.transaction_hash)
     # docs: end
 

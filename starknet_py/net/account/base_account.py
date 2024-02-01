@@ -266,7 +266,7 @@ class BaseAccount(ABC):
         """
 
     @abstractmethod
-    async def execute(
+    async def execute_v1(
         self,
         calls: Calls,
         *,
