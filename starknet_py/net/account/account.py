@@ -683,6 +683,8 @@ class Account(BaseAccount):
         l1_resource_bounds: Optional[ResourceBounds] = None,
         auto_estimate: bool = False,
     ) -> AccountDeploymentResult:
+        # pylint: disable=too-many-arguments
+
         """
         Deploys an account contract with provided class_hash on Starknet and returns
         an AccountDeploymentResult that allows waiting for transaction acceptance.
