@@ -16,11 +16,11 @@ async def test_using_account(account, map_compiled_contract):
     # docs: end
     # docs: start
     # Declare and deploy an example contract which implements a simple k-v store.
-    declare_result = await Contract.declare(
+    declare_result = await Contract.declare_v1(
         account=account, compiled_contract=map_compiled_contract, max_fee=MAX_FEE
     )
     await declare_result.wait_for_acceptance()
-    deploy_result = await declare_result.deploy(max_fee=MAX_FEE)
+    deploy_result = await declare_result.deploy_v1(max_fee=MAX_FEE)
     # Wait until deployment transaction is accepted
     await deploy_result.wait_for_acceptance()
 
@@ -30,7 +30,7 @@ async def test_using_account(account, map_compiled_contract):
     # Adds a transaction to mutate the state of k-v store. The call goes through account proxy, because we've used
     # Account to create the contract object
     await (
-        await map_contract.functions["put"].invoke(k, v, max_fee=int(1e16))
+        await map_contract.functions["put"].invoke_v1(k, v, max_fee=int(1e16))
     ).wait_for_acceptance()
 
     # Retrieves the value, which is equal to 4324 in this case
@@ -40,8 +40,8 @@ async def test_using_account(account, map_compiled_contract):
 
     # Creates a list of prepared function calls
     calls = [
-        map_contract.functions["put"].prepare(key=10, value=20),
-        map_contract.functions["put"].prepare(key=30, value=40),
+        map_contract.functions["put"].prepare_invoke_v1(key=10, value=20),
+        map_contract.functions["put"].prepare_invoke_v1(key=30, value=40),
     ]
 
     # Executes only one transaction with prepared calls
