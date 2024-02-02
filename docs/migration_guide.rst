@@ -58,6 +58,7 @@ Changes in the :class:`~starknet_py.net.full_node_client.FullNodeClient`:
 9. :class:`FunctionInvocation` has a new required field ``execution_resources``.
 10. :class:`ResourcePrice` field ``price_in_strk`` has been renamed to ``price_in_fri`` and has now become required.
 11. :class:`ResourceLimits` class has been renamed to :class:`ResourceBounds`.
+12. :class:`~starknet_py.net.account.base_account.BaseAccount` and :class:`~starknet_py.net.account.account.Account` property ``supported_transaction_version`` has been removed.
 
 0.19.0 Minor changes
 --------------------
@@ -335,8 +336,7 @@ Also, four methods were added to its interface:
 
 .. currentmodule:: starknet_py.net.udc_deployer.deployer
 
-2. Removed ``Deployer.create_deployment_call`` and ``Deployer.create_deployment_call_raw`` in favor of :meth:`Deployer.create_contract_deployment` and :meth:`Deployer.create_contract_deployment_raw`.
-3. Removed ``BaseAccount.supported_transaction_version`` property.
+2. Removed deprecated ``Deployer.create_deployment_call`` and ``Deployer.create_deployment_call_raw`` in favor of :meth:`Deployer.create_contract_deployment` and :meth:`Deployer.create_contract_deployment_raw`.
 
 3. Removed ``PENDING`` transaction status.
 
