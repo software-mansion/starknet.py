@@ -11,8 +11,8 @@ from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     Call,
-    DeployAccountTransaction,
     DeployAccountTransactionResponse,
+    DeployAccountTransactionV1,
     DeployAccountTransactionV3,
     EstimatedFee,
     InvokeTransactionV3,
@@ -466,7 +466,7 @@ async def test_deploy_account_v1(client, deploy_account_details_factory, map_con
     assert account.address == address
 
     transaction = await client.get_transaction(tx_hash=deploy_result.hash)
-    assert isinstance(transaction, DeployAccountTransaction)
+    assert isinstance(transaction, DeployAccountTransactionV1)
     assert transaction.constructor_calldata == [key_pair.public_key]
 
     res = await account.execute_v1(
@@ -615,7 +615,7 @@ async def test_deploy_account_uses_custom_calldata(
     )
 
     tx = await client.get_transaction(deploy_result.hash)
-    assert isinstance(tx, DeployAccountTransaction)
+    assert isinstance(tx, DeployAccountTransactionV1)
     assert tx.constructor_calldata == calldata
 
 

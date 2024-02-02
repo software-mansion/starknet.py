@@ -10,13 +10,15 @@ from starknet_py.net.client_models import (
     ContractsNonce,
     DAMode,
     DeclaredContractHash,
-    DeclareTransaction,
     DeclareTransactionResponse,
     DeclareTransactionTrace,
+    DeclareTransactionV0,
+    DeclareTransactionV1,
+    DeclareTransactionV2,
     DeclareTransactionV3,
-    DeployAccountTransaction,
     DeployAccountTransactionResponse,
     DeployAccountTransactionTrace,
+    DeployAccountTransactionV1,
     DeployAccountTransactionV3,
     DeployedContract,
     DeployTransaction,
@@ -28,8 +30,9 @@ from starknet_py.net.client_models import (
     ExecutionResources,
     FeePayment,
     FunctionInvocation,
-    InvokeTransaction,
     InvokeTransactionTrace,
+    InvokeTransactionV0,
+    InvokeTransactionV1,
     InvokeTransactionV3,
     L1HandlerTransaction,
     L1HandlerTransactionTrace,
@@ -74,10 +77,7 @@ from starknet_py.net.schemas.common import (
     Uint64,
     Uint128,
 )
-from starknet_py.net.schemas.utils import (
-    _extract_tx_version,
-    _replace_invoke_contract_address_with_sender_address,
-)
+from starknet_py.net.schemas.utils import _extract_tx_version
 
 # pylint: disable=unused-argument, no-self-use
 
@@ -253,50 +253,77 @@ class TransactionV3Schema(TransactionSchema):
     )
 
 
-class DeprecatedInvokeTransactionSchema(DeprecatedTransactionSchema):
-    contract_address = Felt(data_key="contract_address", load_default=None)
-    sender_address = Felt(data_key="sender_address", load_default=None)
-    entry_point_selector = Felt(data_key="entry_point_selector", load_default=None)
+class InvokeTransactionV0Schema(DeprecatedTransactionSchema):
     calldata = fields.List(Felt(), data_key="calldata", required=True)
-    nonce = Felt(data_key="nonce", load_default=None)
+    contract_address = Felt(data_key="contract_address", required=True)
+    entry_point_selector = Felt(data_key="entry_point_selector", required=True)
 
     @post_load
-    def make_transaction(self, data, **kwargs) -> InvokeTransaction:
-        _replace_invoke_contract_address_with_sender_address(data)
-        return InvokeTransaction(**data)
+    def make_transaction(self, data, **kwargs) -> InvokeTransactionV0:
+        return InvokeTransactionV0(**data)
+
+
+class InvokeTransactionV1Schema(DeprecatedTransactionSchema):
+    calldata = fields.List(Felt(), data_key="calldata", required=True)
+    sender_address = Felt(data_key="sender_address", required=True)
+    nonce = Felt(data_key="nonce", required=True)
+
+    @post_load
+    def make_transaction(self, data, **kwargs) -> InvokeTransactionV1:
+        return InvokeTransactionV1(**data)
 
 
 class InvokeTransactionV3Schema(TransactionV3Schema):
-    sender_address = Felt(data_key="sender_address", required=True)
     calldata = fields.List(Felt(), data_key="calldata", required=True)
-    account_deployment_data = fields.List(
-        Felt(), data_key="account_deployment_data", load_default=[]
-    )
+    sender_address = Felt(data_key="sender_address", required=True)
     nonce = Felt(data_key="nonce", required=True)
+    account_deployment_data = fields.List(
+        Felt(), data_key="account_deployment_data", required=True
+    )
 
     @post_load
     def make_transaction(self, data, **kwargs) -> InvokeTransactionV3:
         return InvokeTransactionV3(**data)
 
 
-class DeprecatedDeclareTransactionSchema(DeprecatedTransactionSchema):
-    class_hash = Felt(data_key="class_hash", required=True)
+class DeclareTransactionV0Schema(DeprecatedTransactionSchema):
     sender_address = Felt(data_key="sender_address", required=True)
-    nonce = Felt(data_key="nonce", load_default=None)
-    compiled_class_hash = Felt(data_key="compiled_class_hash", load_default=None)
+    class_hash = Felt(data_key="class_hash", required=True)
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> DeclareTransaction:
-        return DeclareTransaction(**data)
+    def make_dataclass(self, data, **kwargs) -> DeclareTransactionV0:
+        return DeclareTransactionV0(**data)
+
+
+class DeclareTransactionV1Schema(DeprecatedTransactionSchema):
+    sender_address = Felt(data_key="sender_address", required=True)
+    class_hash = Felt(data_key="class_hash", required=True)
+    nonce = Felt(data_key="nonce", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> DeclareTransactionV1:
+        return DeclareTransactionV1(**data)
+
+
+class DeclareTransactionV2Schema(DeprecatedTransactionSchema):
+    sender_address = Felt(data_key="sender_address", required=True)
+    class_hash = Felt(data_key="class_hash", required=True)
+    compiled_class_hash = Felt(data_key="compiled_class_hash", required=True)
+    nonce = Felt(data_key="nonce", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> DeclareTransactionV2:
+        return DeclareTransactionV2(**data)
 
 
 class DeclareTransactionV3Schema(TransactionV3Schema):
-    class_hash = Felt(data_key="class_hash", required=True)
-    compiled_class_hash = Felt(data_key="compiled_class_hash", load_default=None)
-    nonce = Felt(data_key="nonce", required=True)
     sender_address = Felt(data_key="sender_address", required=True)
+    class_hash = Felt(data_key="class_hash", required=True)
+
+    compiled_class_hash = Felt(data_key="compiled_class_hash", required=True)
+    nonce = Felt(data_key="nonce", required=True)
     account_deployment_data = fields.List(
-        Felt(), data_key="account_deployment_data", load_default=[]
+        Felt(), data_key="account_deployment_data", required=True
     )
 
     @post_load
@@ -316,26 +343,26 @@ class DeployTransactionSchema(TransactionSchema):
         return DeployTransaction(**data)
 
 
-class DeprecatedDeployAccountTransactionSchema(DeprecatedTransactionSchema):
+class DeployAccountTransactionV1Schema(DeprecatedTransactionSchema):
+    nonce = Felt(data_key="nonce", required=True)
     contract_address_salt = Felt(data_key="contract_address_salt", required=True)
     constructor_calldata = fields.List(
         Felt(), data_key="constructor_calldata", required=True
     )
     class_hash = Felt(data_key="class_hash", required=True)
-    nonce = Felt(data_key="nonce", load_default=None)
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> DeployAccountTransaction:
-        return DeployAccountTransaction(**data)
+    def make_dataclass(self, data, **kwargs) -> DeployAccountTransactionV1:
+        return DeployAccountTransactionV1(**data)
 
 
 class DeployAccountTransactionV3Schema(TransactionV3Schema):
+    nonce = Felt(data_key="nonce", required=True)
     contract_address_salt = Felt(data_key="contract_address_salt", required=True)
     constructor_calldata = fields.List(
         Felt(), data_key="constructor_calldata", required=True
     )
     class_hash = Felt(data_key="class_hash", required=True)
-    nonce = Felt(data_key="nonce", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> DeployAccountTransactionV3:
@@ -344,9 +371,9 @@ class DeployAccountTransactionV3Schema(TransactionV3Schema):
 
 class DeclareTransactionSchema(OneOfSchema):
     type_schemas = {
-        0: DeprecatedDeclareTransactionSchema,
-        1: DeprecatedDeclareTransactionSchema,
-        2: DeprecatedDeclareTransactionSchema,
+        0: DeclareTransactionV0Schema,
+        1: DeclareTransactionV1Schema,
+        2: DeclareTransactionV2Schema,
         3: DeclareTransactionV3Schema,
     }
 
@@ -356,8 +383,8 @@ class DeclareTransactionSchema(OneOfSchema):
 
 class InvokeTransactionSchema(OneOfSchema):
     type_schemas = {
-        0: DeprecatedInvokeTransactionSchema,
-        1: DeprecatedInvokeTransactionSchema,
+        0: InvokeTransactionV0Schema,
+        1: InvokeTransactionV1Schema,
         3: InvokeTransactionV3Schema,
     }
 
@@ -367,7 +394,7 @@ class InvokeTransactionSchema(OneOfSchema):
 
 class DeployAccountTransactionSchema(OneOfSchema):
     type_schemas = {
-        1: DeprecatedDeployAccountTransactionSchema,
+        1: DeployAccountTransactionV1Schema,
         3: DeployAccountTransactionV3Schema,
     }
 
