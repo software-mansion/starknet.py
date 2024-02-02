@@ -1,6 +1,6 @@
 import pytest
 
-from starknet_py.net.models import Invoke
+from starknet_py.net.models import InvokeV1
 
 
 @pytest.mark.asyncio
@@ -13,11 +13,11 @@ async def test_create_invoke_from_contract(map_contract, account):
     from starknet_py.net.client_models import Call
 
     # Prepare a call through Contract
-    call = contract.functions["put"].prepare(key=20, value=30)
+    call = contract.functions["put"].prepare_invoke_v1(key=20, value=30)
     assert issubclass(type(call), Call)
 
     # Crate an Invoke transaction from call
-    invoke_transaction = await account.sign_invoke_transaction(call, max_fee=max_fee)
+    invoke_transaction = await account.sign_invoke_v1_transaction(call, max_fee=max_fee)
     # docs: end
 
-    assert isinstance(invoke_transaction, Invoke)
+    assert isinstance(invoke_transaction, InvokeV1)

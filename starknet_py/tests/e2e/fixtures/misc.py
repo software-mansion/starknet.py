@@ -1,13 +1,18 @@
 # pylint: disable=redefined-outer-name
 
 import json
+import sys
 from pathlib import Path
+from typing import Optional
 
 import pytest
 
+from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models.typed_data import TypedData
 from starknet_py.tests.e2e.fixtures.constants import (
-    CONTRACTS_COMPILED_DIR,
+    CONTRACTS_COMPILED_V0_DIR,
+    CONTRACTS_COMPILED_V1_DIR,
+    CONTRACTS_COMPILED_V2_DIR,
     TYPED_DATA_DIR,
 )
 
@@ -20,10 +25,10 @@ def pytest_addoption(parser):
         help="Network to run tests on: possible 'testnet', 'devnet', 'all'",
     )
     parser.addoption(
-        "--client",
+        "--contract_dir",
         action="store",
         default="",
-        help="Client to run tests with: possible 'gateway', 'full_node'",
+        help="Contract directory: possible 'v1', 'v2'",
     )
 
 
@@ -79,18 +84,25 @@ def typed_data(request) -> TypedData:
     return typed_data
 
 
-@pytest.fixture(name="tx_receipt_full_node_path", scope="package")
+@pytest.fixture(name="get_tx_receipt_path", scope="package")
 def get_tx_receipt_full_node_client():
-    return "starknet_py.net.full_node_client.FullNodeClient.get_transaction_receipt"
+    return f"{FullNodeClient.__module__}.FullNodeClient.get_transaction_receipt"
 
 
-@pytest.fixture(name="tx_receipt_gateway_path", scope="package")
-def get_tx_receipt_gateway_client():
-    return "starknet_py.net.gateway_client.GatewayClient.get_transaction_receipt"
+@pytest.fixture(name="get_tx_status_path", scope="package")
+def get_tx_status_full_node_client():
+    return f"{FullNodeClient.__module__}.FullNodeClient.get_transaction_status"
 
 
-def read_contract(file_name: str, *, directory: Path = CONTRACTS_COMPILED_DIR) -> str:
+def read_contract(file_name: str, *, directory: Optional[Path] = None) -> str:
     """
     Return contents of file_name from directory.
     """
+    if directory is None:
+        directory = CONTRACTS_COMPILED_V0_DIR
+        if "--contract_dir=v1" in sys.argv:
+            directory = CONTRACTS_COMPILED_V1_DIR
+        if "--contract_dir=v2" in sys.argv:
+            directory = CONTRACTS_COMPILED_V2_DIR
+
     return (directory / file_name).read_text("utf-8")

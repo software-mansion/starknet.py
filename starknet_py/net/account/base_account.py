@@ -2,13 +2,22 @@ from abc import ABC, abstractmethod
 from typing import List, Optional, Union
 
 from starknet_py.net.client import Client
-from starknet_py.net.client_models import Calls, Hash, SentTransactionResponse, Tag
+from starknet_py.net.client_models import (
+    Calls,
+    Hash,
+    ResourceBounds,
+    SentTransactionResponse,
+    Tag,
+)
 from starknet_py.net.models import AddressRepresentation, StarknetChainId
 from starknet_py.net.models.transaction import (
-    Declare,
+    DeclareV1,
     DeclareV2,
-    DeployAccount,
-    Invoke,
+    DeclareV3,
+    DeployAccountV1,
+    DeployAccountV3,
+    InvokeV1,
+    InvokeV3,
     TypeAccountTransaction,
 )
 from starknet_py.net.models.typed_data import TypedData
@@ -26,6 +35,13 @@ class BaseAccount(ABC):
     def address(self) -> int:
         """
         Get the address of the account
+        """
+
+    @property
+    @abstractmethod
+    async def cairo_version(self) -> int:
+        """
+        Get Cairo version of the account.
         """
 
     @property
@@ -85,14 +101,14 @@ class BaseAccount(ABC):
         """
 
     @abstractmethod
-    async def sign_invoke_transaction(
+    async def sign_invoke_v1_transaction(
         self,
         calls: Calls,
         *,
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-    ) -> Invoke:
+    ) -> InvokeV1:
         """
         Takes calls and creates signed Invoke.
 
@@ -104,16 +120,35 @@ class BaseAccount(ABC):
         """
 
     @abstractmethod
-    async def sign_declare_transaction(
+    async def sign_invoke_v3_transaction(
+        self,
+        calls: Calls,
+        *,
+        nonce: Optional[int] = None,
+        l1_resource_bounds: Optional[ResourceBounds] = None,
+        auto_estimate: bool = False,
+    ) -> InvokeV3:
+        """
+        Takes calls and creates signed Invoke.
+
+        :param calls: Single call or list of calls.
+        :param nonce: Nonce of the transaction.
+        :param l1_resource_bounds: Max amount and max price per unit of L1 gas used in this transaction.
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :return: Invoke created from the calls.
+        """
+
+    @abstractmethod
+    async def sign_declare_v1_transaction(
         self,
         compiled_contract: str,
         *,
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-    ) -> Declare:
+    ) -> DeclareV1:
         """
-        Create and sign declare transaction.
+        Create and sign declare transaction version 1.
 
         :param compiled_contract: string containing a compiled Starknet contract. Supports old contracts.
         :param nonce: Nonce of the transaction.
@@ -133,7 +168,7 @@ class BaseAccount(ABC):
         auto_estimate: bool = False,
     ) -> DeclareV2:
         """
-        Create and sign declare transaction using sierra contract.
+        Create and sign declare transaction version 2 using sierra contract.
 
         :param compiled_contract: string containing a compiled Starknet contract.
             Supports new contracts (compiled to sierra).
@@ -146,7 +181,30 @@ class BaseAccount(ABC):
         """
 
     @abstractmethod
-    async def sign_deploy_account_transaction(
+    async def sign_declare_v3_transaction(
+        self,
+        compiled_contract: str,
+        compiled_class_hash: int,
+        *,
+        nonce: Optional[int] = None,
+        l1_resource_bounds: Optional[ResourceBounds] = None,
+        auto_estimate: bool = False,
+    ) -> DeclareV3:
+        """
+        Create and sign declare transaction version 3 using sierra contract.
+
+        :param compiled_contract: string containing a compiled Starknet contract.
+            Supports new contracts (compiled to sierra).
+        :param compiled_class_hash: a class hash of the sierra compiled contract used in the declare transaction.
+            Computed from casm compiled contract.
+        :param nonce: Nonce of the transaction.
+        :param l1_resource_bounds: Max amount and max price per unit of L1 gas used in this transaction.
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :return: Signed DeclareV3 transaction.
+        """
+
+    @abstractmethod
+    async def sign_deploy_account_v1_transaction(
         self,
         class_hash: int,
         contract_address_salt: int,
@@ -155,9 +213,9 @@ class BaseAccount(ABC):
         nonce: Optional[int] = None,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
-    ) -> DeployAccount:
+    ) -> DeployAccountV1:
         """
-        Create and sign deploy account transaction.
+        Create and sign deploy account transaction version 1.
 
         :param class_hash: Class hash of the contract class to be deployed.
         :param contract_address_salt: A salt used to calculate deployed contract address.
@@ -171,7 +229,32 @@ class BaseAccount(ABC):
         """
 
     @abstractmethod
-    async def execute(
+    async def sign_deploy_account_v3_transaction(
+        self,
+        class_hash: int,
+        contract_address_salt: int,
+        *,
+        constructor_calldata: Optional[List[int]] = None,
+        nonce: int = 0,
+        l1_resource_bounds: Optional[ResourceBounds] = None,
+        auto_estimate: bool = False,
+    ) -> DeployAccountV3:
+        """
+        Create and sign deploy account transaction version 3.
+
+        :param class_hash: Class hash of the contract class to be deployed.
+        :param contract_address_salt: A salt used to calculate deployed contract address.
+        :param constructor_calldata: Calldata to be ed to contract constructor
+            and used to calculate deployed contract address.
+        :param nonce: Nonce of the transaction.
+        :param l1_resource_bounds: Max amount and max price per unit of L1 gas used in this transaction.
+            Enough tokens must be prefunded before sending the transaction for it to succeed.
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :return: Signed DeployAccountV3 transaction.
+        """
+
+    @abstractmethod
+    async def execute_v1(
         self,
         calls: Calls,
         *,
@@ -185,6 +268,25 @@ class BaseAccount(ABC):
         :param calls: Single call or list of calls.
         :param nonce: Nonce of the transaction.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :return: SentTransactionResponse.
+        """
+
+    @abstractmethod
+    async def execute_v3(
+        self,
+        calls: Calls,
+        *,
+        l1_resource_bounds: Optional[ResourceBounds] = None,
+        nonce: Optional[int] = None,
+        auto_estimate: bool = False,
+    ) -> SentTransactionResponse:
+        """
+        Takes calls and executes transaction.
+
+        :param calls: Single call or list of calls.
+        :param l1_resource_bounds: Max amount and max price per unit of L1 gas used in this transaction.
+        :param nonce: Nonce of the transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :return: SentTransactionResponse.
         """

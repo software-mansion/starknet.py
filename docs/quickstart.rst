@@ -1,38 +1,26 @@
 Quickstart
 ==========
 
-Using GatewayClient
--------------------
+Using FullNodeClient
+--------------------
 A :ref:`Client` is a facade for interacting with Starknet.
-:ref:`GatewayClient` will make requests directly to Starknet sequencer through `gateway` or `feeder_gateway` endpoints.
-It can be used to either query the blockchain state or add new transactions.
-It requires information about used network:
+:ref:`FullNodeClient` is a client which interacts
+with a Starknet full nodes like `Pathfinder <https://github.com/eqlabs/pathfinder>`_,
+`Papyrus <https://github.com/starkware-libs/papyrus>`_ or `Juno <https://github.com/NethermindEth/juno>`_.
+It supports read and write operations, like querying the blockchain state or adding new transactions.
 
-.. codesnippet:: ../starknet_py/tests/e2e/docs/quickstart/test_using_gateway_client.py
+.. codesnippet:: ../starknet_py/tests/e2e/docs/quickstart/test_using_full_node_client.py
     :language: python
     :dedent: 4
 
 The default interface is asynchronous. Although it is the recommended way of using starknet.py, you can also use a
 synchronous version. It might be helpful to play with Starknet directly in python interpreter.
 
-.. codesnippet:: ../starknet_py/tests/e2e/docs/quickstart/test_synchronous_gateway_client.py
+.. codesnippet:: ../starknet_py/tests/e2e/docs/quickstart/test_synchronous_full_node_client.py
     :language: python
     :dedent: 4
 
-You can see all Gateway Client's methods :ref:`GatewayClient`.
-
-Using FullNodeClient
---------------------
-:ref:`FullNodeClient` is a client which interacts
-with a Starknet full node like `pathfinder <https://github.com/eqlabs/pathfinder>`_.
-Like the GatewayClient, it supports read and write operations. Also as with GatewayClient,
-there is both synchronous and asynchronous API available.
-
-.. codesnippet:: ../starknet_py/tests/e2e/docs/quickstart/test_using_full_node_client.py
-    :language: python
-    :dedent: 4
-
-You can see all Full Node Client's methods :ref:`FullNodeClient`.
+You can check out all of the FullNodeClient's methods here: :ref:`FullNodeClient`.
 
 Creating Account
 ----------------------

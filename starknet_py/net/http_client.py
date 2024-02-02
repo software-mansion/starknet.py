@@ -58,39 +58,13 @@ class HttpClient(ABC):
         """
 
 
-class GatewayHttpClient(HttpClient):
-    async def call(self, method_name: str, params: Optional[dict] = None) -> dict:
-        return await self.request(
-            http_method=HttpMethod.GET, address=self.address(method_name), params=params
-        )
-
-    async def post(
-        self,
-        method_name: str,
-        payload: Union[Dict[str, Any], List[Dict[str, Any]]],
-        params: Optional[dict] = None,
-    ) -> dict:
-        return await self.request(
-            http_method=HttpMethod.POST,
-            address=self.address(method_name),
-            payload=payload,
-            params=params,
-        )
-
-    def address(self, method_name):
-        return f"{self.url}/{method_name}"
-
-    async def handle_request_error(self, request: ClientResponse):
-        await basic_error_handle(request)
-
-
 class RpcHttpClient(HttpClient):
-    async def call(self, method_name: str, params: dict) -> dict:
+    async def call(self, method_name: str, params: dict):
         payload = {
             "jsonrpc": "2.0",
             "method": f"starknet_{method_name}",
-            "params": params,
             "id": 0,
+            "params": params if params else [],
         }
 
         result = await self.request(
@@ -106,7 +80,9 @@ class RpcHttpClient(HttpClient):
         if "error" not in result:
             raise ServerError(body=result)
         raise ClientError(
-            code=result["error"]["code"], message=result["error"]["message"]
+            code=result["error"]["code"],
+            message=result["error"]["message"],
+            data=result["error"].get("data"),
         )
 
     async def handle_request_error(self, request: ClientResponse):

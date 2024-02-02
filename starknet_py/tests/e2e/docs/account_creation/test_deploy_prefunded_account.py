@@ -11,16 +11,16 @@ from starknet_py.tests.e2e.utils import _get_random_private_key_unsafe
 async def test_deploy_prefunded_account(
     account_with_validate_deploy_class_hash: int,
     network: str,
-    fee_contract: Contract,
-    gateway_client: Client,
+    eth_fee_contract: Contract,
+    client: Client,
 ):
     # pylint: disable=import-outside-toplevel, too-many-locals
+    full_node_client_fixture = client
     # docs: start
     from starknet_py.hash.address import compute_address
     from starknet_py.net.account.account import Account
-    from starknet_py.net.gateway_client import GatewayClient
+    from starknet_py.net.full_node_client import FullNodeClient
     from starknet_py.net.models import StarknetChainId
-    from starknet_py.net.networks import TESTNET
     from starknet_py.net.signer.stark_curve_signer import KeyPair
 
     # First, make sure to generate private key and salt
@@ -43,23 +43,23 @@ async def test_deploy_prefunded_account(
     # Prefund the address (using the token bridge or by sending fee tokens to the computed address)
     # Make sure the tx has been accepted on L2 before proceeding
     # docs: end
-    res = await fee_contract.functions["transfer"].invoke(
+    res = await eth_fee_contract.functions["transfer"].invoke_v1(
         recipient=address, amount=int(1e16), max_fee=MAX_FEE
     )
     await res.wait_for_acceptance()
     # docs: start
 
     # Define the client to be used to interact with Starknet
-    client = GatewayClient(net=TESTNET)
-    chain = StarknetChainId.TESTNET
+    client = FullNodeClient(node_url="your.node.url")
+    chain = StarknetChainId.GOERLI
     # docs: end
 
-    client = gateway_client
-    chain = chain_from_network(net=network, chain=StarknetChainId.TESTNET)
+    client = full_node_client_fixture
+    chain = chain_from_network(net=network, chain=StarknetChainId.GOERLI)
     # docs: start
 
-    # Use `Account.deploy_account` static method to deploy an account
-    account_deployment_result = await Account.deploy_account(
+    # Use `Account.deploy_account_v1` static method to deploy an account
+    account_deployment_result = await Account.deploy_account_v1(
         address=address,
         class_hash=class_hash,
         salt=salt,

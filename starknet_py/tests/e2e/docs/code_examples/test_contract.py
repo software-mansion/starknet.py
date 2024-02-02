@@ -4,9 +4,7 @@ import pytest
 from starknet_py.contract import Contract
 from starknet_py.net.account.account import Account
 from starknet_py.net.full_node_client import FullNodeClient
-from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
-from starknet_py.net.networks import TESTNET
 from starknet_py.net.signer.stark_curve_signer import KeyPair
 
 
@@ -24,27 +22,9 @@ def test_init():
         ],
         provider=Account(
             address=0x321,
-            client=GatewayClient(TESTNET),
+            client=FullNodeClient(node_url="your.node.url"),
             key_pair=KeyPair(12, 34),
-            chain=StarknetChainId.TESTNET,
-        ),
-    )
-    # or
-    contract = Contract(
-        address=0x123,
-        abi=[
-            {
-                "inputs": [{"name": "amount", "type": "felt"}],
-                "name": "increase_balance",
-                "outputs": [],
-                "type": "function",
-            },
-        ],
-        provider=Account(
-            address=0x321,
-            client=FullNodeClient(TESTNET),
-            key_pair=KeyPair(12, 34),
-            chain=StarknetChainId.TESTNET,
+            chain=StarknetChainId.GOERLI,
         ),
     )
     # docs-end: init
@@ -73,7 +53,7 @@ async def test_from_address(account, contract_address):
 async def test_declare(account, custom_proxy):
     compiled_contract = custom_proxy
     # docs-start: declare
-    declare_result = await Contract.declare(
+    declare_result = await Contract.declare_v1(
         account=account, compiled_contract=compiled_contract, max_fee=int(1e15)
     )
     # docs-end: declare
@@ -82,7 +62,7 @@ async def test_declare(account, custom_proxy):
 @pytest.mark.asyncio
 async def test_deploy_contract(account, class_hash):
     # docs-start: deploy_contract
-    deploy_result = await Contract.deploy_contract(
+    deploy_result = await Contract.deploy_contract_v1(
         account=account,
         class_hash=class_hash,
         abi=[
@@ -96,7 +76,7 @@ async def test_deploy_contract(account, class_hash):
         max_fee=int(1e15),
     )
     # or when contract has a constructor with arguments
-    deploy_result = await Contract.deploy_contract(
+    deploy_result = await Contract.deploy_contract_v1(
         account=account,
         class_hash=class_hash,
         abi=[

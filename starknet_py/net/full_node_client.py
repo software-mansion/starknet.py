@@ -1,15 +1,16 @@
-import re
-import warnings
 from typing import Dict, List, Optional, Tuple, Union, cast
 
 import aiohttp
 from marshmallow import EXCLUDE
 
+from starknet_py.constants import RPC_CONTRACT_ERROR
+from starknet_py.hash.utils import keccak256
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
+    BlockHashAndNumber,
     BlockStateUpdate,
-    BlockTransactionTraces,
+    BlockTransactionTrace,
     Call,
     ContractClass,
     DeclareTransactionResponse,
@@ -17,41 +18,69 @@ from starknet_py.net.client_models import (
     EstimatedFee,
     EventsChunk,
     Hash,
+    L1HandlerTransaction,
     PendingBlockStateUpdate,
+    PendingStarknetBlock,
+    PendingStarknetBlockWithTxHashes,
     SentTransactionResponse,
     SierraContractClass,
+    SimulatedTransaction,
+    SimulationFlag,
     StarknetBlock,
+    StarknetBlockWithTxHashes,
+    SyncStatus,
     Tag,
     Transaction,
     TransactionReceipt,
+    TransactionStatusResponse,
+    TransactionTrace,
     TransactionType,
+)
+from starknet_py.net.client_utils import (
+    _is_valid_eth_address,
+    _to_rpc_felt,
+    _to_storage_key,
+    encode_l1_message,
 )
 from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.models.transaction import (
     AccountTransaction,
     Declare,
-    DeclareSchema,
+    DeclareV1Schema,
     DeclareV2,
     DeclareV2Schema,
+    DeclareV3,
     DeployAccount,
+    DeployAccountV3,
     Invoke,
+    InvokeV3,
 )
-from starknet_py.net.networks import Network
+from starknet_py.net.schemas.gateway import SierraCompiledContractSchema
 from starknet_py.net.schemas.rpc import (
+    BlockHashAndNumberSchema,
     BlockStateUpdateSchema,
+    BlockTransactionTraceSchema,
     ContractClassSchema,
     DeclareTransactionResponseSchema,
     DeployAccountTransactionResponseSchema,
     EstimatedFeeSchema,
     EventsChunkSchema,
     PendingBlockStateUpdateSchema,
-    PendingTransactionsSchema,
+    PendingStarknetBlockSchema,
+    PendingStarknetBlockWithTxHashesSchema,
     SentTransactionSchema,
     SierraContractClassSchema,
+    SimulatedTransactionSchema,
     StarknetBlockSchema,
+    StarknetBlockWithTxHashesSchema,
+    SyncStatusSchema,
     TransactionReceiptSchema,
+    TransactionStatusResponseSchema,
+    TransactionTraceSchema,
+    TransactionV3Schema,
     TypesOfTransactionsSchema,
 )
+from starknet_py.net.schemas.utils import _extract_tx_version
 from starknet_py.transaction_errors import TransactionNotReceivedError
 from starknet_py.utils.sync import add_sync_methods
 
@@ -62,7 +91,6 @@ class FullNodeClient(Client):
     def __init__(
         self,
         node_url: str,
-        net: Optional[Network] = None,
         session: Optional[aiohttp.ClientSession] = None,
     ):
         """
@@ -76,23 +104,11 @@ class FullNodeClient(Client):
         self.url = node_url
         self._client = RpcHttpClient(url=node_url, session=session)
 
-        if net is not None:
-            warnings.warn("Parameter net is deprecated.", category=DeprecationWarning)
-        self._net = net
-
-    @property
-    def net(self) -> Optional[Network]:
-        warnings.warn(
-            "Property net is deprecated in the FullNodeClient.",
-            category=DeprecationWarning,
-        )
-        return self._net
-
     async def get_block(
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> StarknetBlock:
+    ) -> Union[StarknetBlock, PendingStarknetBlock]:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -101,14 +117,43 @@ class FullNodeClient(Client):
             method_name="getBlockWithTxs",
             params=block_identifier,
         )
+        if block_identifier == {"block_id": "pending"}:
+            return cast(
+                PendingStarknetBlock,
+                PendingStarknetBlockSchema().load(res, unknown=EXCLUDE),
+            )
         return cast(StarknetBlock, StarknetBlockSchema().load(res, unknown=EXCLUDE))
 
-    async def get_block_traces(
+    async def get_block_with_txs(
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> BlockTransactionTraces:
-        raise NotImplementedError()
+    ) -> Union[StarknetBlock, PendingStarknetBlock]:
+        return await self.get_block(block_hash=block_hash, block_number=block_number)
+
+    async def get_block_with_tx_hashes(
+        self,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> Union[StarknetBlockWithTxHashes, PendingStarknetBlockWithTxHashes]:
+        block_identifier = get_block_identifier(
+            block_hash=block_hash, block_number=block_number
+        )
+
+        res = await self._client.call(
+            method_name="getBlockWithTxHashes",
+            params=block_identifier,
+        )
+
+        if block_identifier == {"block_id": "pending"}:
+            return cast(
+                PendingStarknetBlockWithTxHashes,
+                PendingStarknetBlockWithTxHashesSchema().load(res, unknown=EXCLUDE),
+            )
+        return cast(
+            StarknetBlockWithTxHashes,
+            StarknetBlockWithTxHashesSchema().load(res, unknown=EXCLUDE),
+        )
 
     # TODO (#809): add tests with multiple emitted keys
     async def get_events(
@@ -231,13 +276,13 @@ class FullNodeClient(Client):
             params=block_identifier,
         )
 
-        if "new_root" in res:
+        if block_identifier == {"block_id": "pending"}:
             return cast(
-                BlockStateUpdate, BlockStateUpdateSchema().load(res, unknown=EXCLUDE)
+                PendingBlockStateUpdate,
+                PendingBlockStateUpdateSchema().load(res, unknown=EXCLUDE),
             )
         return cast(
-            PendingBlockStateUpdate,
-            PendingBlockStateUpdateSchema().load(res, unknown=EXCLUDE),
+            BlockStateUpdate, BlockStateUpdateSchema().load(res, unknown=EXCLUDE)
         )
 
     async def get_storage_at(
@@ -275,6 +320,20 @@ class FullNodeClient(Client):
             raise TransactionNotReceivedError() from ex
         return cast(Transaction, TypesOfTransactionsSchema().load(res, unknown=EXCLUDE))
 
+    async def get_l1_message_hash(self, tx_hash: Hash) -> Hash:
+        """
+        :param tx_hash: Transaction's hash
+        :return: Message hash
+        """
+        tx = await self.get_transaction(tx_hash)
+        if not isinstance(tx, L1HandlerTransaction):
+            raise TypeError(
+                f"Transaction {tx_hash} is not a result of L1->L2 interaction."
+            )
+
+        encoded_message = encode_l1_message(tx)
+        return keccak256(encoded_message)
+
     async def get_transaction_receipt(self, tx_hash: Hash) -> TransactionReceipt:
         res = await self._client.call(
             method_name="getTransactionReceipt",
@@ -287,6 +346,7 @@ class FullNodeClient(Client):
     async def estimate_fee(
         self,
         tx: Union[AccountTransaction, List[AccountTransaction]],
+        skip_validate: bool = False,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> Union[EstimatedFee, List[EstimatedFee]]:
@@ -301,6 +361,9 @@ class FullNodeClient(Client):
             method_name="estimateFee",
             params={
                 "request": [_create_broadcasted_txn(transaction=t) for t in tx],
+                "simulation_flags": [SimulationFlag.SKIP_VALIDATE]
+                if skip_validate
+                else [],
                 **block_identifier,
             },
         )
@@ -314,6 +377,78 @@ class FullNodeClient(Client):
                 res, unknown=EXCLUDE, many=(not single_transaction)
             ),
         )
+
+    async def estimate_message_fee(
+        self,
+        from_address: str,
+        to_address: Hash,
+        entry_point_selector: Hash,
+        payload: List[Hash],
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> EstimatedFee:
+        # pylint: disable=too-many-arguments
+        """
+        :param from_address: The address of the L1 (Ethereum) contract sending the message.
+        :param to_address: The target L2 (Starknet) address the message is sent to.
+        :param entry_point_selector: The selector of the l1_handler in invoke in the target contract.
+        :param payload: Payload of the message.
+        :param block_hash: Hash of the requested block or literals `"pending"` or `"latest"`.
+            Mutually exclusive with ``block_number`` parameter. If not provided, queries block `"pending"`.
+        :param block_number: Number (height) of the requested block or literals `"pending"` or `"latest"`.
+            Mutually exclusive with ``block_hash`` parameter. If not provided, queries block `"pending"`.
+        """
+        block_identifier = get_block_identifier(
+            block_hash=block_hash, block_number=block_number
+        )
+
+        assert _is_valid_eth_address(
+            from_address
+        ), f"Argument 'from_address': {from_address} is not a valid Ethereum address."
+
+        message_body = {
+            "from_address": from_address,
+            "to_address": _to_rpc_felt(to_address),
+            "entry_point_selector": _to_rpc_felt(entry_point_selector),
+            "payload": [_to_rpc_felt(x) for x in payload],
+        }
+
+        try:
+            res = await self._client.call(
+                method_name="estimateMessageFee",
+                params={
+                    "message": message_body,
+                    **block_identifier,
+                },
+            )
+            return cast(EstimatedFee, EstimatedFeeSchema().load(res, unknown=EXCLUDE))
+        except ClientError as err:
+            if err.code == RPC_CONTRACT_ERROR:
+                raise ClientError(
+                    err.message
+                    + f" Note that your ETH address ('from_address': {from_address}) might be invalid"
+                ) from err
+            raise err
+
+    async def get_block_number(self) -> int:
+        """Get the most recent accepted block number"""
+        return await self._client.call(method_name="blockNumber", params={})
+
+    async def get_block_hash_and_number(self) -> BlockHashAndNumber:
+        """Get the most recent accepted block hash and number"""
+        res = await self._client.call(method_name="blockHashAndNumber", params={})
+        return cast(BlockHashAndNumber, BlockHashAndNumberSchema().load(res))
+
+    async def get_chain_id(self) -> str:
+        """Return the currently configured Starknet chain id"""
+        return await self._client.call(method_name="chainId", params={})
+
+    async def get_syncing_status(self) -> Union[bool, SyncStatus]:
+        """Returns an object about the sync status, or false if the node is not syncing"""
+        sync_status = await self._client.call(method_name="syncing", params={})
+        if isinstance(sync_status, bool):
+            return sync_status
+        return cast(SyncStatus, SyncStatusSchema().load(sync_status))
 
     async def call_contract(
         self,
@@ -364,9 +499,7 @@ class FullNodeClient(Client):
             DeployAccountTransactionResponseSchema().load(res, unknown=EXCLUDE),
         )
 
-    async def declare(
-        self, transaction: Union[Declare, DeclareV2]
-    ) -> DeclareTransactionResponse:
+    async def declare(self, transaction: Declare) -> DeclareTransactionResponse:
         params = _create_broadcasted_txn(transaction=transaction)
 
         res = await self._client.call(
@@ -508,19 +641,6 @@ class FullNodeClient(Client):
             )
         return cast(ContractClass, ContractClassSchema().load(res, unknown=EXCLUDE))
 
-    async def get_pending_transactions(self) -> List[Transaction]:
-        """
-        Returns the transactions in the transaction pool, recognized by sequencer
-
-        :returns: List of transactions
-        """
-        res = await self._client.call(method_name="pendingTransactions", params={})
-        res = {"pending_transactions": res}
-
-        return cast(
-            List[Transaction], PendingTransactionsSchema().load(res, unknown=EXCLUDE)
-        )
-
     async def get_contract_nonce(
         self,
         contract_address: Hash,
@@ -539,6 +659,129 @@ class FullNodeClient(Client):
         )
         res = cast(str, res)
         return int(res, 16)
+
+    async def spec_version(self) -> str:
+        """
+        Returns the version of the Starknet JSON-RPC specification being used.
+
+        :return: String with version of the Starknet JSON-RPC specification.
+        """
+        res = await self._client.call(
+            method_name="specVersion",
+            params={},
+        )
+        return res
+
+    async def get_transaction_status(self, tx_hash: Hash) -> TransactionStatusResponse:
+        res = await self._client.call(
+            method_name="getTransactionStatus",
+            params={"transaction_hash": _to_rpc_felt(tx_hash)},
+        )
+        return cast(
+            TransactionStatusResponse,
+            TransactionStatusResponseSchema().load(res, unknown=EXCLUDE),
+        )
+
+    # ------------------------------- Trace API -------------------------------
+
+    async def trace_transaction(
+        self,
+        tx_hash: Hash,
+    ) -> TransactionTrace:
+        """
+        For a given executed transaction, returns the trace of its execution, including internal calls.
+
+        :param tx_hash: Hash of the executed transaction.
+        :return: Trace of the transaction.
+        """
+        res = await self._client.call(
+            method_name="traceTransaction",
+            params={
+                "transaction_hash": tx_hash,
+            },
+        )
+        return cast(
+            TransactionTrace, TransactionTraceSchema().load(res, unknown=EXCLUDE)
+        )
+
+    async def simulate_transactions(
+        self,
+        transactions: List[AccountTransaction],
+        skip_validate: bool = False,
+        skip_fee_charge: bool = False,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> List[SimulatedTransaction]:
+        # pylint: disable=too-many-arguments
+        """
+        Simulates a given sequence of transactions on the requested state, and generates the execution traces.
+        Note the following:
+
+        - A transaction may revert. If this occurs, no error is thrown. Instead, revert details are visible
+          in the returned trace object.
+        - If a transaction reverts, this will be reflected by the revert_error property in the trace.
+        - Other types of failures (e.g. unexpected error or failure in the validation phase) will result
+          in TRANSACTION_EXECUTION_ERROR.
+
+        :param transactions: Transactions to be traced.
+        :param skip_validate: Flag checking whether the validation part of the transaction should be executed.
+        :param skip_fee_charge: Flag deciding whether fee should be deducted from the balance before the simulation
+            of the next transaction.
+        :param block_hash: Block's hash or literals `"pending"` or `"latest"`
+        :param block_number: Block's number or literals `"pending"` or `"latest"`
+        :return: The execution trace and consumed resources for each transaction.
+        """
+        block_identifier = get_block_identifier(
+            block_hash=block_hash, block_number=block_number
+        )
+
+        simulation_flags = []
+        if skip_validate:
+            simulation_flags.append(SimulationFlag.SKIP_VALIDATE)
+        if skip_fee_charge:
+            simulation_flags.append(SimulationFlag.SKIP_FEE_CHARGE)
+
+        res = await self._client.call(
+            method_name="simulateTransactions",
+            params={
+                **block_identifier,
+                "simulation_flags": simulation_flags,
+                "transactions": [
+                    _create_broadcasted_txn(transaction=t) for t in transactions
+                ],
+            },
+        )
+        return cast(
+            List[SimulatedTransaction],
+            SimulatedTransactionSchema().load(res, unknown=EXCLUDE, many=True),
+        )
+
+    async def trace_block_transactions(
+        self,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> List[BlockTransactionTrace]:
+        """
+        Retrieve traces for all transactions in the given block.
+
+        :param block_hash: Block's hash or literals `"pending"` or `"latest"`
+        :param block_number: Block's number or literals `"pending"` or `"latest"`
+        :return: List of execution traces of all transactions included in the given block with transaction hashes.
+        """
+        block_identifier = get_block_identifier(
+            block_hash=block_hash, block_number=block_number
+        )
+
+        res = await self._client.call(
+            method_name="traceBlockTransactions",
+            params={
+                **block_identifier,
+            },
+        )
+        return cast(
+            List[BlockTransactionTrace],
+            BlockTransactionTraceSchema().load(res, unknown=EXCLUDE, many=True),
+        )
 
 
 def get_block_identifier(
@@ -586,12 +829,16 @@ def _create_broadcasted_txn(transaction: AccountTransaction) -> dict:
 
 
 def _create_broadcasted_declare_properties(
-    transaction: Union[Declare, DeclareV2]
+    transaction: Union[Declare, DeclareV2, DeclareV3]
 ) -> dict:
     if isinstance(transaction, DeclareV2):
         return _create_broadcasted_declare_v2_properties(transaction)
+    if isinstance(transaction, DeclareV3):
+        return _create_broadcasted_declare_v3_properties(transaction)
 
-    contract_class = cast(Dict, DeclareSchema().dump(obj=transaction))["contract_class"]
+    contract_class = cast(Dict, DeclareV1Schema().dump(obj=transaction))[
+        "contract_class"
+    ]
     declare_properties = {
         "contract_class": {
             "entry_points_by_type": contract_class["entry_points_by_type"],
@@ -624,15 +871,54 @@ def _create_broadcasted_declare_v2_properties(transaction: DeclareV2) -> dict:
     return declare_v2_properties
 
 
-def _create_broadcasted_invoke_properties(transaction: Invoke) -> dict:
+def _create_broadcasted_declare_v3_properties(transaction: DeclareV3) -> dict:
+    contract_class = cast(
+        Dict, SierraCompiledContractSchema().dump(obj=transaction.contract_class)
+    )
+
+    declare_v3_properties = {
+        "contract_class": {
+            "entry_points_by_type": contract_class["entry_points_by_type"],
+            "sierra_program": contract_class["sierra_program"],
+            "contract_class_version": contract_class["contract_class_version"],
+        },
+        "sender_address": _to_rpc_felt(transaction.sender_address),
+        "compiled_class_hash": _to_rpc_felt(transaction.compiled_class_hash),
+        "account_deployment_data": [
+            _to_rpc_felt(data) for data in transaction.account_deployment_data
+        ],
+    }
+
+    if contract_class["abi"] is not None:
+        declare_v3_properties["contract_class"]["abi"] = contract_class["abi"]
+
+    return {
+        **_create_broadcasted_txn_v3_common_properties(transaction),
+        **declare_v3_properties,
+    }
+
+
+def _create_broadcasted_invoke_properties(transaction: Union[Invoke, InvokeV3]) -> dict:
     invoke_properties = {
         "sender_address": _to_rpc_felt(transaction.sender_address),
         "calldata": [_to_rpc_felt(data) for data in transaction.calldata],
     }
+
+    if isinstance(transaction, InvokeV3):
+        return {
+            **_create_broadcasted_txn_v3_common_properties(transaction),
+            **invoke_properties,
+            "account_deployment_data": [
+                _to_rpc_felt(data) for data in transaction.account_deployment_data
+            ],
+        }
+
     return invoke_properties
 
 
-def _create_broadcasted_deploy_account_properties(transaction: DeployAccount) -> dict:
+def _create_broadcasted_deploy_account_properties(
+    transaction: Union[DeployAccount, DeployAccountV3]
+) -> dict:
     deploy_account_txn_properties = {
         "contract_address_salt": _to_rpc_felt(transaction.contract_address_salt),
         "constructor_calldata": [
@@ -640,51 +926,36 @@ def _create_broadcasted_deploy_account_properties(transaction: DeployAccount) ->
         ],
         "class_hash": _to_rpc_felt(transaction.class_hash),
     }
+
+    if isinstance(transaction, DeployAccountV3):
+        return {
+            **_create_broadcasted_txn_v3_common_properties(transaction),
+            **deploy_account_txn_properties,
+        }
+
     return deploy_account_txn_properties
 
 
 def _create_broadcasted_txn_common_properties(transaction: AccountTransaction) -> dict:
     broadcasted_txn_common_properties = {
         "type": transaction.type.name,
-        "max_fee": _to_rpc_felt(transaction.max_fee),
         "version": _to_rpc_felt(transaction.version),
         "signature": [_to_rpc_felt(sig) for sig in transaction.signature],
         "nonce": _to_rpc_felt(transaction.nonce),
     }
+
+    if _extract_tx_version(transaction.version) < 3 and hasattr(transaction, "max_fee"):
+        broadcasted_txn_common_properties["max_fee"] = _to_rpc_felt(
+            transaction.max_fee  # pyright: ignore
+        )
+
     return broadcasted_txn_common_properties
 
 
-def _to_storage_key(key: int) -> str:
-    """
-    Convert a value to RPC storage key matching a ``^0x0[0-7]{1}[a-fA-F0-9]{0,62}$`` pattern.
-
-    :param key: The key to convert.
-    :return: RPC storage key representation of the key.
-    """
-
-    hashed_key = hex(key)[2:]
-
-    if hashed_key[0] not in ("0", "1", "2", "3", "4", "5", "6", "7"):
-        hashed_key = "0" + hashed_key
-
-    hashed_key = "0x0" + hashed_key
-
-    if not re.match(r"^0x0[0-7]{1}[a-fA-F0-9]{0,62}$", hashed_key):
-        raise ValueError(f"Value {key} cannot be represented as RPC storage key.")
-
-    return hashed_key
-
-
-def _to_rpc_felt(value: Hash) -> str:
-    """
-    Convert the value to RPC felt matching a ``^0x(0|[a-fA-F1-9]{1}[a-fA-F0-9]{0,62})$`` pattern.
-
-    :param value: The value to convert.
-    :return: RPC felt representation of the value.
-    """
-    if isinstance(value, str):
-        value = int(value, 16)
-
-    rpc_felt = hex(value)
-    assert re.match(r"^0x(0|[a-fA-F1-9]{1}[a-fA-F0-9]{0,62})$", rpc_felt)
-    return rpc_felt
+def _create_broadcasted_txn_v3_common_properties(
+    transaction: Union[DeclareV3, InvokeV3, DeployAccountV3]
+) -> dict:
+    return cast(
+        Dict,
+        TransactionV3Schema(exclude=["version", "signature"]).dump(obj=transaction),
+    )

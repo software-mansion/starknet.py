@@ -1,5 +1,10 @@
 name: Checks
 
+env:
+  STARKNET_VERSION: "0.13.0"
+  RPC_SPEC_VERSION: "0.6.0"
+  DEVNET_SHA: "1bd447d"
+
 on:
   push:
     branches:
@@ -109,62 +114,6 @@ jobs:
         run: |
           poetry run poe compile_contracts
 
-      # ====================== CAIRO SETUP ====================== #
-
-      - name: Install rust
-        run: |
-          curl https://sh.rustup.rs -sSf | sh -s -- -y
-
-      - name: Clone Cairo1 compiler repository
-        uses: actions/checkout@v3
-        with:
-          repository: starkware-libs/cairo
-          persist-credentials: false
-          ref: v1.1.0
-          path: cairo
-
-      - name: Cache rust dependencies
-        id: cache-rust
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Build compiler
-        if: steps.cache-rust.outputs.cache-hit != 'true'
-        working-directory: ./cairo
-        run: |
-          cargo build
-
-      - name: Build starknet-compile
-        working-directory: ./cairo
-        run: |
-          cargo run --bin starknet-compile -- --version
-          cargo run --bin starknet-sierra-compile -- --version
-
-      - name: Create manifest file
-        run: |
-          readlink -f cairo/Cargo.toml >> starknet_py/tests/e2e/manifest-path
-
-      # ====================== CONTRACTS v1 ====================== #
-
-      - name: Cache Cairo1 contracts
-        id: cache-contracts-v1
-        uses: actions/cache@v3
-        with:
-          path: starknet_py/tests/e2e/mock/contracts_compiled_v1
-          key: ${{ runner.os }}-contracts-v1-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v1', 'poetry.lock') }}
-
-      - name: Compile Cairo1 contracts
-        if: steps.cache-contracts-v1.outputs.cache-hit != 'true'
-        run: |
-          poetry run poe compile_contracts_v1
-
       - name: Upload contracts
         uses: actions/upload-artifact@v3
         with:
@@ -185,6 +134,8 @@ jobs:
         python-version: [ "3.8", "3.9", "3.10", "3.11" ]
     steps:
       - uses: actions/checkout@v3
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - uses: Swatinem/rust-cache@v2
 
       - name: Download contracts
         uses: actions/download-artifact@v3
@@ -220,6 +171,14 @@ jobs:
         run: |
           poetry install --without py39-dev
 
+      # ====================== SETUP DEVNET ====================== #
+
+      - name: Install devnet
+        run: |
+          cargo install --locked \
+          --git https://github.com/0xSpaceShard/starknet-devnet-rs.git \
+          --rev ${{ env.DEVNET_SHA }}
+
       # ====================== RUN TESTS ====================== #
 
       - name: Check circular imports
@@ -228,8 +187,81 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run poe test_ci_gateway
-          poetry run poe test_ci_full_node
+          poetry run poe test_ci_v2
+          poetry run poe test_ci_v1
+
+      - name: Generate coverage in XML
+        run: |
+          poetry run coverage xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+
+  # ---------------------------------------------------------- #
+  # ..................RUN-TESTS-ON-NETWORKS................... #
+  # ---------------------------------------------------------- #
+
+  run-tests-on-networks:
+    name: Tests on networks (testnet and integration)
+    needs: setup-tests
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    env:
+      GOERLI_INTEGRATION_RPC_URL: ${{ secrets.INTEGRATION_RPC_URL }}
+      GOERLI_TESTNET_RPC_URL: ${{ secrets.TESTNET_RPC_URL }}
+      SEPOLIA_INTEGRATION_RPC_URL: ${{ secrets.SEPOLIA_INTEGRATION_RPC_URL }}
+      SEPOLIA_TESTNET_RPC_URL: ${{ secrets.SEPOLIA_TESTNET_RPC_URL }}
+      GOERLI_INTEGRATION_ACCOUNT_PRIVATE_KEY: ${{ secrets.INTEGRATION_ACCOUNT_PRIVATE_KEY }}
+      GOERLI_INTEGRATION_ACCOUNT_ADDRESS: ${{ secrets.INTEGRATION_ACCOUNT_ADDRESS }}
+      GOERLI_TESTNET_ACCOUNT_PRIVATE_KEY: ${{ secrets.TESTNET_ACCOUNT_PRIVATE_KEY }}
+      GOERLI_TESTNET_ACCOUNT_ADDRESS: ${{ secrets.TESTNET_ACCOUNT_ADDRESS }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download contracts
+        uses: actions/download-artifact@v3
+        with:
+          name: contract-artifacts
+          path: starknet_py/tests/e2e/mock/
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+          cache: 'pip'
+
+      # ====================== SETUP PYTHON ====================== #
+
+      - name: Install poetry
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry
+          poetry config installer.modern-installation false
+
+      - name: Install python 3.9 requirements
+        run: |
+          poetry export -f requirements.txt --only=py39-dev --without-hashes --output requirements.txt
+          pip install -r requirements.txt
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+          cache: 'poetry'
+
+      - name: Install dependencies
+        run: |
+          poetry install --without py39-dev
+
+      # ====================== RUN TESTS ====================== #
+
+      - name: Check circular imports
+        run: |
+          poetry run poe circular_imports_check
+
+      - name: Run tests
+        run: |
+          poetry run poe test_ci_on_networks
 
       - name: Generate coverage in XML
         run: |
@@ -253,8 +285,11 @@ jobs:
         python-version: [ "3.8", "3.9", "3.10", "3.11" ]
     steps:
       - uses: actions/checkout@v3
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - uses: Swatinem/rust-cache@v2
 
-      - uses: actions/download-artifact@v3
+      - name: Download contracts
+        uses: actions/download-artifact@v3
         with:
           name: contract-artifacts
           path: starknet_py/tests/e2e/mock/
@@ -264,22 +299,10 @@ jobs:
           python-version: "3.9"
           cache: 'pip'
 
-      # ====================== SETUP WSL ====================== #
+      # ====================== SETUP DEVNET ====================== #
 
-      - name: Setup WSL
-        uses: Vampire/setup-wsl@v2
-
-      - name: Setup WSL devnet
-        shell: wsl-bash {0}
-        run: |
-          sudo apt-get -y update
-          sudo apt install -y wget software-properties-common
-          sudo add-apt-repository ppa:deadsnakes/ppa
-          sudo apt install -y python3.9
-          apt-get install -y python3-pip
-          sudo apt install -y libgmp3-dev
-          sudo apt-get install -y git
-          pip3 install git+https://github.com/0xSpaceShard/starknet-devnet.git@v0.5.4
+      - name: Install devnet
+        run: cargo install --locked --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --rev ${{ env.DEVNET_SHA }}
 
       # ====================== SETUP PYTHON ====================== #
 
@@ -312,8 +335,8 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run poe test_ci_gateway
-          poetry run poe test_ci_full_node
+          poetry run poe test_ci_v2
+          poetry run poe test_ci_v1
 
       - name: Generate coverage in XML
         run: |
@@ -336,6 +359,8 @@ jobs:
         python-version: [ "3.8", "3.9", "3.10", "3.11" ]
     steps:
       - uses: actions/checkout@v3
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - uses: Swatinem/rust-cache@v2
 
       - name: Download contracts
         uses: actions/download-artifact@v3
@@ -371,12 +396,20 @@ jobs:
         run: |
           poetry install --without py39-dev
 
+      # ====================== SETUP DEVNET ====================== #
+
+      - name: Install devnet
+        run: |
+          cargo install --locked \
+          --git https://github.com/0xSpaceShard/starknet-devnet-rs.git \
+          --rev ${{ env.DEVNET_SHA }}
+
       # ====================== RUN TESTS ====================== #
 
       - name: Run tests
         run: |
-          poetry run poe test_ci_docs_gateway
-          poetry run poe test_ci_docs_full_node
+          poetry run poe test_ci_docs_v2
+          poetry run poe test_ci_docs_v1
 
       - name: Generate coverage in XML
         run: |
@@ -400,8 +433,11 @@ jobs:
         python-version: [ "3.8", "3.9", "3.10", "3.11" ]
     steps:
       - uses: actions/checkout@v3
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - uses: Swatinem/rust-cache@v2
 
-      - uses: actions/download-artifact@v3
+      - name: Download contracts
+        uses: actions/download-artifact@v3
         with:
           name: contract-artifacts
           path: starknet_py/tests/e2e/mock/
@@ -410,23 +446,6 @@ jobs:
         with:
           python-version: "3.9"
           cache: 'pip'
-
-      # ====================== SETUP WSL ====================== #
-
-      - name: Setup WSL
-        uses: Vampire/setup-wsl@v2
-
-      - name: Setup WSL devnet
-        shell: wsl-bash {0}
-        run: |
-          sudo apt-get -y update
-          sudo apt install -y wget software-properties-common
-          sudo add-apt-repository ppa:deadsnakes/ppa
-          sudo apt install -y python3.9
-          apt-get install -y python3-pip
-          sudo apt install -y libgmp3-dev
-          sudo apt-get install -y git
-          pip3 install git+https://github.com/0xSpaceShard/starknet-devnet.git@v0.5.4
 
       # ====================== SETUP PYTHON ====================== #
 
@@ -451,12 +470,17 @@ jobs:
         run: |
           poetry install --without py39-dev
 
+      # ====================== SETUP DEVNET ====================== #
+
+      - name: Install devnet
+        run: cargo install --locked --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --rev ${{ env.DEVNET_SHA }}
+
       # ====================== RUN TESTS ====================== #
 
       - name: Run tests
         run: |
-          poetry run poe test_ci_docs_gateway
-          poetry run poe test_ci_docs_full_node
+          poetry run poe test_ci_docs_v2
+          poetry run poe test_ci_docs_v1
 
       - name: Generate coverage in XML
         run: |

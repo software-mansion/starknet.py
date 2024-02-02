@@ -2,7 +2,7 @@ import pytest
 
 from starknet_py.common import create_sierra_compiled_contract
 from starknet_py.hash.sierra_class_hash import compute_sierra_class_hash
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V1_DIR
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V2_DIR
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
@@ -10,18 +10,18 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
     "sierra_contract_class_source, expected_class_hash",
     # fmt: off
     [
-        ("account_compiled.json", 0x1ADADAE7CE7ED3F5C39F275EF4758562E540F27AB0184B24E2B13861988751E),
-        ("erc20_compiled.json", 0x6D8EDE036BB4720E6F348643221D8672BF4F0895622C32C11E57460B3B7DFFC),
-        ("hello_starknet_compiled.json", 0x8448A68B5EA1AFFC45E3FD4B8B480EA36A51DC34E337A16D2567D32D0C6F8A),
-        ("minimal_contract_compiled.json", 0x6C3953793645458C796905E660F81AD91EFC92AE22E13A2E63278A32750C3F9),
-        ("test_contract_compiled.json", 0x44B969C50B167D2609EFCAEE50E309F0AD3D5899411F8DC9BBAB3FF7FDB9DF6),
-        ("token_bridge_compiled.json", 0x21540B9775D44C9980D80C5E6D85422583C2985DF9AAC1F348FB7EE666AFCC3),
+        ("account_compiled.json", 0x6cb1e2b2b7a2eb8231357f8bee5cb6683476f350d35986afff6b67bf9e66b6c),
+        ("erc20_compiled.json", 0x5dc48d64a0f3852a4ac2b06f9b2a801177f35952715f32d3a7ca60af235e762),
+        ("hello_starknet_compiled.json", 0x4ec2ecf58014bc2ffd7c84843c3525e5ecb0a2cac33c47e9c347f39fc0c0944),
+        ("minimal_contract_compiled.json", 0xa298b56801319b054855d39720eab22502e77627552e564d3bf50bd7844df9),
+        ("test_contract_compiled.json", 0x28d7f03cced748cd9913afa5549edf4a02def8508fe1ca7feea2f8d403918a6),
+        ("token_bridge_compiled.json", 0x4f2d81d7c0da5ec97f19b8195748a559de42207ff8bc3ac5f818e752c431c7b),
     ],
     # fmt: on
 )
 def test_compute_sierra_class_hash(sierra_contract_class_source, expected_class_hash):
     sierra_contract_class_str = read_contract(
-        sierra_contract_class_source, directory=CONTRACTS_COMPILED_V1_DIR
+        sierra_contract_class_source, directory=CONTRACTS_COMPILED_V2_DIR
     )
 
     sierra_contract_class = create_sierra_compiled_contract(sierra_contract_class_str)

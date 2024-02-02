@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import asyncio
+import warnings
 from abc import ABC, abstractmethod
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Union
 
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     BlockStateUpdate,
-    BlockTransactionTraces,
+    BlockTransactionTrace,
     Call,
     ContractClass,
     DeclareTransactionResponse,
@@ -19,37 +20,27 @@ from starknet_py.net.client_models import (
     StarknetBlock,
     Tag,
     Transaction,
+    TransactionExecutionStatus,
     TransactionReceipt,
     TransactionStatus,
+    TransactionStatusResponse,
 )
 from starknet_py.net.models.transaction import (
     AccountTransaction,
     Declare,
-    DeclareV2,
     DeployAccount,
     Invoke,
 )
-from starknet_py.net.networks import Network
 from starknet_py.transaction_errors import (
-    TransactionFailedError,
     TransactionNotReceivedError,
     TransactionRejectedError,
+    TransactionRevertedError,
 )
 from starknet_py.utils.sync import add_sync_methods
 
 
 @add_sync_methods
 class Client(ABC):
-    @property
-    @abstractmethod
-    def net(self) -> Network:
-        """
-        Network of the client.
-
-         .. deprecated:: 0.15.0
-            Property net of the Client interface is deprecated.
-        """
-
     @abstractmethod
     async def get_block(
         self,
@@ -65,11 +56,11 @@ class Client(ABC):
         """
 
     @abstractmethod
-    async def get_block_traces(
+    async def trace_block_transactions(
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> BlockTransactionTraces:
+    ) -> List[BlockTransactionTrace]:
         """
         Receive the traces of all the transactions within specified block
 
@@ -132,76 +123,100 @@ class Client(ABC):
         :return: Transaction receipt object on Starknet
         """
 
+    @abstractmethod
+    async def get_transaction_status(self, tx_hash: Hash) -> TransactionStatusResponse:
+        """
+        Gets the transaction status (possibly reflecting that the transaction is still in the mempool,
+        or dropped from it).
+
+        :param tx_hash: Hash of the executed transaction.
+        :return: Finality and execution status of a transaction.
+        """
+
+    # https://community.starknet.io/t/efficient-utilization-of-sequencer-capacity-in-starknet-v0-12-1/95607
     async def wait_for_tx(
         self,
         tx_hash: Hash,
-        wait_for_accept: Optional[bool] = False,
-        check_interval=5,
-    ) -> Tuple[int, TransactionStatus]:
+        wait_for_accept: Optional[bool] = None,  # pylint: disable=unused-argument
+        check_interval: float = 2,
+        retries: int = 500,
+    ) -> TransactionReceipt:
         # pylint: disable=too-many-branches
         """
         Awaits for transaction to get accepted or at least pending by polling its status.
 
         :param tx_hash: Transaction's hash.
-        :param wait_for_accept: If true waits for at least ACCEPTED_ON_L2 status, otherwise waits for at least PENDING.
-            Defaults to false
+        :param wait_for_accept:
+            .. deprecated:: 0.17.0
+                Parameter `wait_for_accept` has been deprecated - since Starknet 0.12.0, transactions in a PENDING
+                block have status ACCEPTED_ON_L2.
         :param check_interval: Defines interval between checks.
-        :return: Tuple containing block number and transaction status.
+        :param retries: Defines how many times the transaction is checked until an error is thrown.
+        :return: Transaction receipt.
         """
         if check_interval <= 0:
             raise ValueError("Argument check_interval has to be greater than 0.")
+        if retries <= 0:
+            raise ValueError("Argument retries has to be greater than 0.")
+        if wait_for_accept is not None:
+            warnings.warn(
+                "Parameter `wait_for_accept` has been deprecated - since Starknet 0.12.0, transactions in a PENDING"
+                " block have status ACCEPTED_ON_L2."
+            )
 
-        first_run = True
-        try:
-            while True:
-                result = await self.get_transaction_receipt(tx_hash=tx_hash)
-                status = result.status
+        transaction_received = False
+        while True:
+            retries -= 1
+            try:
+                if not transaction_received:
+                    tx_status = await self.get_transaction_status(tx_hash=tx_hash)
 
-                if status in (
-                    TransactionStatus.ACCEPTED_ON_L1,
-                    TransactionStatus.ACCEPTED_ON_L2,
-                ):
-                    assert result.block_number is not None
-                    return result.block_number, status
-                if status == TransactionStatus.PENDING:
-                    if not wait_for_accept:
-                        if result.block_number is not None:
-                            return result.block_number, status
-                elif status == TransactionStatus.REJECTED:
-                    raise TransactionRejectedError(
-                        message=result.rejection_reason,
-                    )
-                elif status == TransactionStatus.NOT_RECEIVED:
-                    if not first_run:
-                        raise TransactionNotReceivedError()
-                elif status != TransactionStatus.RECEIVED:
-                    # This will never get executed with current possible transactions statuses
-                    raise TransactionFailedError(
-                        message=result.rejection_reason,
-                    )
+                    if tx_status.finality_status == TransactionStatus.REJECTED:
+                        raise TransactionRejectedError()
 
-                first_run = False
+                    transaction_received = True
+                else:
+                    tx_receipt = await self.get_transaction_receipt(tx_hash=tx_hash)
+
+                    if (
+                        tx_receipt.execution_status
+                        == TransactionExecutionStatus.REVERTED
+                    ):
+                        raise TransactionRevertedError(message=tx_receipt.revert_reason)
+                    return tx_receipt
+
+                if retries == 0:
+                    raise TransactionNotReceivedError()
+
                 await asyncio.sleep(check_interval)
-        except asyncio.CancelledError as exc:
-            raise TransactionNotReceivedError from exc
-        except ClientError as exc:
-            if "Transaction hash not found" in exc.message:
-                raise ClientError(
-                    "Nodes can't access pending transactions, try using parameter 'wait_for_accept=True'."
-                ) from exc
-            raise exc
+
+            except asyncio.CancelledError as exc:
+                raise TransactionNotReceivedError from exc
+            except ClientError as exc:
+                if "Transaction hash not found" not in exc.message:
+                    raise exc
+
+                if retries == 0:
+                    raise TransactionNotReceivedError from exc
+
+                await asyncio.sleep(check_interval)
 
     @abstractmethod
     async def estimate_fee(
         self,
         tx: Union[AccountTransaction, List[AccountTransaction]],
+        skip_validate: bool = False,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> Union[EstimatedFee, List[EstimatedFee]]:
         """
-        Estimate how much Wei it will cost to run provided transaction.
+        Estimates the resources required by a given sequence of transactions when applied on a given state.
+        If one of the transactions reverts or fails due to any reason (e.g. validation failure or an internal error),
+        a TRANSACTION_EXECUTION_ERROR is returned.
+        For v0-2 transactions the estimate is given in Wei, and for v3 transactions it is given in Fri.
 
         :param tx: Transaction to estimate
+        :param skip_validate: Flag checking whether the validation part of the transaction should be executed.
         :param block_hash: Block's hash or literals `"pending"` or `"latest"`.
         :param block_number: Block's number or literals `"pending"` or `"latest"`.
         :return: Estimated amount of Wei executing specified transaction will cost.
@@ -247,9 +262,7 @@ class Client(ABC):
         """
 
     @abstractmethod
-    async def declare(
-        self, transaction: Union[Declare, DeclareV2]
-    ) -> DeclareTransactionResponse:
+    async def declare(self, transaction: Declare) -> DeclareTransactionResponse:
         """
         Send a declare transaction
 

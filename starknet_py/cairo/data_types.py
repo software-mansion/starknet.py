@@ -111,3 +111,13 @@ class UnitType(CairoType):
     """
     Type representation of Cairo unit `()`.
     """
+
+
+@dataclass
+class EventType(CairoType):
+    """
+    Type representation of Cairo Event.
+    """
+
+    name: str
+    types: OrderedDict[str, CairoType]

@@ -3,7 +3,6 @@ API
 .. toctree::
 
    api/client
-   api/gateway_client
    api/full_node_client
    api/account
    api/client_models

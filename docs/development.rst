@@ -15,6 +15,45 @@ Make sure running ``poetry run python --version`` returns ``Python 3.9.x``.
 Setup
 -----
 
+In order to run tests on devnet, you need to install `starknet-devnet-rs <https://github.com/0xSpaceShard/starknet-devnet-rs>`_.
+The correct version of devnet to use corresponds to the Starknet and RPC specification that are currently supported by Starknet.py.
+Information about the supported version for the latest release can be found in the :doc:`migration guide<migration_guide>`.
+
+To avoid version discrepancies or other related issues, we recommend installing this dependency using the ``cargo install`` command, and specifying a certain commit along with the correct Starknet and RPC versions.
+
+Below is the command you can use to do this, designed for compatibility with the current version of Starknet.py:
+
+.. code-block:: bash
+
+    STARKNET_VERSION="0.12.3" RPC_SPEC_VERSION="0.5.1" \
+    cargo install \
+    --locked \
+    --git https://github.com/0xSpaceShard/starknet-devnet-rs.git \
+    --rev 78527de
+
+If you choose to install `starknet-devnet-rs <https://github.com/0xSpaceShard/starknet-devnet-rs>`_ using a different method, please make sure to add the executable ``starknet-devnet`` to your ``PATH`` environment variable.
+
+In order to be able to run tests on testnet and integration networks (``starknet_py/tests/e2e/tests_on_networks/``), you must set some environmental variables:
+
+    - ``GOERLI_INTEGRATION_RPC_URL``
+    - ``GOERLI_TESTNET_RPC_URL``
+    - ``SEPOLIA_INTEGRATION_RPC_URL``
+    - ``SEPOLIA_TESTNET_RPC_URL``
+    - ``GOERLI_INTEGRATION_ACCOUNT_PRIVATE_KEY``
+    - ``GOERLI_INTEGRATION_ACCOUNT_ADDRESS``
+    - ``GOERLI_TESTNET_ACCOUNT_PRIVATE_KEY``
+    - ``GOERLI_TESTNET_ACCOUNT_ADDRESS``
+
+The existing tests don't execute any invoke transactions on the Sepolia networks. If you plan to incorporate such tests, please also set the following environment variables:
+
+    - ``SEPOLIA_INTEGRATION_ACCOUNT_PRIVATE_KEY``
+    - ``SEPOLIA_INTEGRATION_ACCOUNT_ADDRESS``
+    - ``SEPOLIA_TESTNET_ACCOUNT_PRIVATE_KEY``
+    - ``SEPOLIA_TESTNET_ACCOUNT_ADDRESS``
+
+The best way to set environment variables is to create ``test-variables.env`` file in ``starknet_py/tests/e2e/`` directory, so they can be loaded by the ``python-dotenv`` library.
+You can find an example file ``test-variables.env.template`` in the same directory with the format of how it should look like.
+
 .. code-block:: bash
 
     # Install dependencies

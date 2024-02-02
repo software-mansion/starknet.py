@@ -1,15 +1,17 @@
 from __future__ import annotations
 
 from collections import OrderedDict
-from typing import Dict, List
+from typing import Dict, List, Union
 
 from starknet_py.abi.model import Abi
 from starknet_py.abi.v1.model import Abi as AbiV1
+from starknet_py.abi.v2.model import Abi as AbiV2
 from starknet_py.cairo.data_types import (
     ArrayType,
     BoolType,
     CairoType,
     EnumType,
+    EventType,
     FeltType,
     NamedTupleType,
     OptionType,
@@ -147,14 +149,23 @@ def serializer_for_outputs(payload: List[CairoType]) -> OutputSerializer:
     )
 
 
-def serializer_for_event(event: Abi.Event) -> PayloadSerializer:
+EventV0 = Abi.Event
+EventV1 = AbiV1.Event
+EventV2 = EventType
+
+
+def serializer_for_event(event: EventV0 | EventV1 | EventV2) -> PayloadSerializer:
     """
     Create serializer for an event.
 
     :param event: parsed event.
     :return: PayloadSerializer that can be used to (de)serialize events.
     """
-    return serializer_for_payload(event.data)
+    if isinstance(event, EventV0):
+        return serializer_for_payload(event.data)
+    if isinstance(event, EventV1):
+        return serializer_for_payload(event.inputs)
+    return serializer_for_payload(event.types)
 
 
 def serializer_for_function(abi_function: Abi.Function) -> FunctionSerializationAdapter:
@@ -171,7 +182,7 @@ def serializer_for_function(abi_function: Abi.Function) -> FunctionSerialization
 
 
 def serializer_for_function_v1(
-    abi_function: AbiV1.Function,
+    abi_function: Union[AbiV1.Function, AbiV2.Function],
 ) -> FunctionSerializationAdapter:
     """
     Create FunctionSerializationAdapter for serializing function inputs and deserializing function outputs.
@@ -182,4 +193,19 @@ def serializer_for_function_v1(
     return FunctionSerializationAdapterV1(
         inputs_serializer=serializer_for_payload(abi_function.inputs),
         outputs_deserializer=serializer_for_outputs(abi_function.outputs),
+    )
+
+
+def serializer_for_constructor_v2(
+    abi_function: AbiV2.Constructor,
+) -> FunctionSerializationAdapter:
+    """
+    Create FunctionSerializationAdapter for serializing constructor inputs.
+
+    :param abi_function: parsed constructor's abi.
+    :return: FunctionSerializationAdapter.
+    """
+    return FunctionSerializationAdapterV1(
+        inputs_serializer=serializer_for_payload(abi_function.inputs),
+        outputs_deserializer=serializer_for_outputs([]),
     )

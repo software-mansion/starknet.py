@@ -2,17 +2,303 @@ Migration guide
 ===============
 
 **********************
-0.17.0 Migration guide
+0.19.0 Migration guide
 **********************
+
+Version 0.19.0 of **starknet.py** comes with support for RPC 0.6.0!
+
+.. currentmodule:: starknet_py.net.client_models
+
+New classes added to mirror the recent changes in the RPC v0.6.0 specification include:
+:class:`ResourceBoundsMapping`, :class:`ResourceBounds`, :class:`PriceUnit`, :class:`FeePayment`, :class:`DAMode`.
+
+Changes in the :class:`~starknet_py.net.account.account.Account`:
+
+.. currentmodule:: starknet_py.net.account.account
+
+- :meth:`~Account.execute_v3` has been added.
+- :meth:`~Account.sign_declare_v3_transaction`, :meth:`~Account.sign_deploy_account_v3_transaction` and :meth:`~Account.sign_invoke_v3_transaction` have been added.
+- :meth:`~Account.sign_declare_transaction`, :meth:`~Account.sign_deploy_account_transaction` and :meth:`~Account.sign_invoke_transaction` have been renamed to :meth:`~Account.sign_declare_v1_transaction`, :meth:`~Account.sign_deploy_account_v1_transaction` and :meth:`~Account.sign_invoke_v1_transaction` respectively.
+
+All new functions with ``v3`` in their name operate similarly to their ``v1`` and ``v2`` counterparts.
+Unlike their ``v1`` counterparts, ``v3`` transaction fees are paid in Fri (10^-18 STRK). Therefore,  ``max_fee`` parameter, which is typically set in Wei, is not applicable for ``v3`` functions. Instead, ``l1_resource_bounds`` parameter is utilized to limit the Fri amount used.
+
+Changes in the :class:`~starknet_py.net.full_node_client.FullNodeClient`:
 
 .. currentmodule:: starknet_py.net.full_node_client
 
-:class:`FullNodeClient` RPC specification has been updated from `v0.3.0-rc1 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.3.0-rc1>`_ to `v0.3.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.3.0>`_.
+- :meth:`~FullNodeClient.estimate_fee` has a new parameter ``skip_validate``.
+- :meth:`~FullNodeClient.declare` accepts ``transaction`` argument of the type :class:`~starknet_py.net.models.transaction.DeclareV3`
+- :meth:`~FullNodeClient.send_transaction` accepts ``transaction`` argument of the type :class:`~starknet_py.net.models.transaction.InvokeV3`
+- :meth:`~FullNodeClient.deploy_account` accepts ``transaction`` argument of the type :class:`~starknet_py.net.models.transaction.DeployAccountV3`
+
+.. warning::
+    :class:`~starknet_py.contract.Contract` class does not support V3 transactions in the pre-release.
+
+
+0.19.0 Targeted versions
+------------------------
+
+- Starknet - `0.13.0 <https://docs.starknet.io/documentation/starknet_versions/version_notes/#version0.13.0>`_
+- RPC - `0.6.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.6.0>`_
+
+0.19.0 Breaking changes
+-----------------------
+
+.. currentmodule:: starknet_py.net.client_models
+
+1. :class:`GatewayClient` all related classes and fields have been removed.
+2. Client ``net`` property has been removed.
+3. :class:`Declare`, :class:`DeployAccount` and :class:`Invoke` have been renamed to :class:`~starknet_py.net.models.transaction.DeclareV1`, :class:`~starknet_py.net.models.transaction.DeployAccountV1` and :class:`~starknet_py.net.models.transaction.InvokeV1` respectively.
+4. :class:`TransactionReceipt` field ``execution_resources`` has been changed from ``dict`` to :class:`ExecutionResources`.
+5. :class:`TransactionReceipt` fields ``status`` and ``rejection_reason`` have been removed.
+6. :class:`TransactionStatus`, :class:`TransactionExecutionStatus` and :class:`TransactionFinalityStatus` have been changed to have the same structure as in RPC specification.
+7. :class:`EstimatedFee` has a new required field ``unit``.
+8. :class:`EstimatedFee` field ``gas_usage`` has been renamed to ``gas_consumed``.
+9. :class:`FunctionInvocation` has a new required field ``execution_resources``.
+10. :class:`ResourcePrice` field ``price_in_strk`` has been renamed to ``price_in_fri`` and has now become required.
+11. :class:`ResourceLimits` class has been renamed to :class:`ResourceBounds`.
+
+0.19.0 Minor changes
+--------------------
+
+1. :class:`L1HandlerTransaction` field ``nonce`` is now required.
+2. :class:`TransactionReceipt` fields ``actual_fee``, ``finality_status``, ``execution_status``, ``execution_resources`` and ``type`` are now required.
+
+0.19.0 Development-related changes
+----------------------------------
+
+Test execution has been transitioned to the new `starknet-devnet-rs <https://github.com/0xSpaceShard/starknet-devnet-rs>`_.
+To adapt to this change, it should be installed locally and added to the ``PATH``. Further information regarding this change can be found in the `Development <https://starknetpy.readthedocs.io/en/latest/development.html>`_ section.
+
+**********************
+0.18.3 Migration guide
+**********************
+
+Version 0.18.3 of **starknet.py** comes with support for RPC 0.5.1!
+
+
+0.18.3 Targeted versions
+------------------------
+
+- Starknet - `0.12.2 <https://community.starknet.io/t/introducing-p2p-authentication-and-mismatch-resolution-in-v0-12-2/97993>`_
+- RPC - `0.5.1 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.5.1>`_
+
+
+0.18.3 Breaking changes
+-----------------------
+
+1. Support for ``TESTNET2`` network has been removed.
+
+.. currentmodule:: starknet_py.net.client
+
+2. :meth:`FullNodeClient.get_pending_transactions` method has been removed. It is advised to use :meth:`FullNodeClient.get_block` method with ``block_number="pending"`` argument.
+
+.. currentmodule:: starknet_py.net.client_models
+
+3. :class:`PendingStarknetBlock` field ``parent_hash`` is now named ``parent_block_hash``.
+4. :class:`FunctionInvocation` fields ``events`` and ``messages`` have been changed from ``List[Event]`` and ``List[L2toL1Message]`` to ``List[OrderedEvent]`` and ``List[OrderedMessage]`` respectively.
+5. ``cairo_version`` parameter in :meth:`Account.sign_invoke_transaction` and :meth:`Account.execute` has been removed.
+
+0.18.3 Minor changes
+--------------------
+
+1. :class:`StarknetBlock`, :class:`StarknetBlockWithTxHashes`, :class:`PendingStarknetBlock` and :class:`PendingStarknetBlockWithTxHashes` now have two additional fields: ``starknet_version`` and ``l1_gas_price``.
+2. :class:`PendingStarknetBlock` and :class:`PendingStarknetBlockWithTxHashes` fields ``timestamp``, ``sequencer_address`` and ``parent_block_hash`` are now required, not optional.
+3. :class:`TransactionReceipt` now has an additional field - ``message_hash`` (for ``L1_HANDLER_TXN_RECEIPT``).
+4. Most fields in ``TransactionTrace`` classes are now optional.
+5. :class:`InvokeTransactionTrace`, :class:`DeclareTransactionTrace`, :class:`DeployAccountTransactionTrace` and :class:`L1HandlerTransactionTrace` classes now have an additional field - ``state_diff``.
+
+
+|
+
+.. raw:: html
+
+  <hr>
+
+|
+
+**********************
+0.18.2 Migration guide
+**********************
+
+Version 0.18.2 of **starknet.py** comes with support of `RPC v0.4.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.4.0>`_ Trace API!
+Additionally, you can now `properly` use Cairo1 accounts! ``starknet.py`` automatically checks if your account is in Cairo1 and
+sets the calldata encoding accordingly.
+
+0.18.2 Targeted versions
+------------------------
+
+- Starknet - `0.12.2 <https://community.starknet.io/t/introducing-p2p-authentication-and-mismatch-resolution-in-v0-12-2/97993>`_
+- RPC - `0.4.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.4.0>`_
+
+0.18.2 Breaking changes
+-----------------------
+
+.. currentmodule:: starknet_py.net.client
+
+1. :meth:`Client.get_block_traces` has been renamed to :meth:`Client.trace_block_transactions` in order to match RPC specification.
+
+
+0.18.2 Deprecations
+-------------------
+
+.. currentmodule:: starknet_py.net.account.account
+
+1. ``cairo_version`` parameter in :meth:`Account.sign_invoke_transaction` and :meth:`Account.execute` has been deprecated.
+
+
+0.18.2 Bugfixes
+---------------
 
 .. currentmodule:: starknet_py.contract
 
+1. Fixed a bug when using ``proxy_config=True`` in :meth:`Contract.from_address` method regarding ``Entry point EntryPointSelector(...) not found in contract``.
 
-:class:`Contract` now *initially* supports contracts written in **Cairo1**.
+0.18.2 Minor changes
+--------------------
+
+1. :meth:`Client.trace_block_transactions` return type has been changed from ``BlockTransactionTraces`` to ``Union[BlockTransactionTraces, List[BlockTransactionTrace]]``.
+
+.. currentmodule:: starknet_py.net.gateway_client
+
+2. ``include_block`` parameter in :meth:`GatewayClient.get_state_update` now works on gateway mainnet.
+
+.. currentmodule:: starknet_py.net.account.account
+
+3. :class:`BaseAccount` interface and :class:`Account` now have an additional **async** property - ``cairo_version``.
+
+
+0.18.2 Development-related changes
+----------------------------------
+
+1. In order to be able to run tests, you must set some environmental variables:
+
+    - ``INTEGRATION_RPC_URL``
+    - ``TESTNET_RPC_URL``
+    - ``INTEGRATION_ACCOUNT_PRIVATE_KEY``
+    - ``INTEGRATION_ACCOUNT_ADDRESS``
+    - ``TESTNET_ACCOUNT_PRIVATE_KEY``
+    - ``TESTNET_ACCOUNT_ADDRESS``
+
+The best way to do that is to create ``test-variables.env`` file in ``starknet_py/tests/e2e/`` directory, so they can be loaded by the ``python-dotenv`` library.
+You can find an example file ``test-variables.env.template`` in the same directory with the format of how it should look like.
+
+
+|
+
+.. raw:: html
+
+  <hr>
+
+|
+
+**********************
+0.18.1 Migration guide
+**********************
+
+.. currentmodule:: starknet_py.net.gateway_client
+
+This version contains a quick fix to :meth:`GatewayClient.get_state_update` method (mainnet wasn't updated to 0.12.2 then).
+
+.. currentmodule:: starknet_py.net.account.account
+
+Additionally, accounts in Cairo1 are now supported! You can pass additional argument ``cairo_version`` to :meth:`Account.sign_invoke_transaction` method.
+
+
+0.18.1 Minor changes
+--------------------
+
+1. Parameter ``include_block`` in :meth:`GatewayClient.get_state_update` doesn't work on mainnet gateway (an error is thrown).
+
+.. currentmodule:: starknet_py.net.account.account
+
+2. :meth:`Account.sign_invoke_transaction` now accepts additional parameter ``cairo_version``, which allows specifying which type of calldata encoding should be used.
+
+|
+
+.. raw:: html
+
+  <hr>
+
+|
+
+
+**********************
+0.18.0 Migration guide
+**********************
+
+This version of starknet.py brings support Starknet 0.12.1, 0.12.2 and `RPC v0.4.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.4.0>`_!
+
+
+1. :class:`TransactionReceipt` dataclass properties have been changed (more details in RPC specification linked above).
+
+0.18.0 Deprecations
+-------------------
+
+.. currentmodule:: starknet_py.net.client_models
+
+1. ``status`` field in :class:`TransactionReceipt` returned by :meth:`FullNodeClient.get_transaction_receipt` has been deprecated.
+
+
+0.18.0 Minor changes
+--------------------
+
+.. currentmodule:: starknet_py.net.full_node_client
+
+1. :meth:`FullNodeClient.get_transaction_receipt` now returns two additional fields: ``acceptance_status`` and ``finality_status``.
+
+.. currentmodule:: starknet_py.net.client_models
+
+2. Added two fields to :class:`TransactionReceipt` - ``revert_error`` (Gateway) and ``revert_reason`` (FullNode).
+3. ``hash`` property in :class:`Transaction` is now optional.
+4. Added missing field ``contract_address_salt`` to :class:`DeployTransaction`.
+
+.. currentmodule:: starknet_py.net.client
+
+5. Lowered ``check_interval`` parameter default value in :meth:`Client.wait_for_tx` from 5 seconds to 2.
+
+.. currentmodule:: starknet_py.net.client_models
+
+6. Added fields to dataclasses that previously were missing (e.g. ``contract_address_salt`` in :class:`DeployTransaction`).
+
+.. currentmodule:: starknet_py.cairo.felt
+
+7. :func:`decode_shortstring` now is returned without ``\x00`` in front of the decoded string.
+
+.. currentmodule:: starknet_py.net.gateway_client
+
+8. Added two new methods to :class:`GatewayClient` - :meth:`GatewayClient.get_public_key` and :meth:`GatewayClient.get_signature`.
+9. :meth:`GatewayClient.get_state_update` now accepts additional parameter - `include_block`.
+
+.. currentmodule:: starknet_py.net.signer.stark_curve_signer
+
+10. :class:`KeyPair` and :meth:`KeyPair.from_private_key` now can accept keys in string representation.
+
+
+0.18.0 Bugfixes
+---------------
+
+1. Fixed invalid type in :class:`BlockStateUpdate` from ``StateDiff`` to ``Union[StateDiff, GatewayStateDiff]``
+2. Fixed ``Contract not found`` error in ``AbiResolver``
+
+
+|
+
+.. raw:: html
+
+  <hr>
+
+|
+
+**********************
+0.17.0 Migration guide
+**********************
+
+With Starknet 0.12.0, the ``PENDING`` transaction status has been removed.
+
+
+:class:`Contract` now supports contracts written in **Cairo1** in both old and new syntax.
 
 To create an instance of such contract, a keyword parameter ``cairo_version=1`` in the Contract constructor is required.
 
@@ -22,9 +308,28 @@ To create an instance of such contract, a keyword parameter ``cairo_version=1`` 
 
     In such case, please open an issue at our `GitHub <https://github.com/software-mansion/starknet.py/issues/new?assignees=&labels=bug&projects=&template=bug_report.yaml&title=%5BBUG%5D+%3Ctitle%3E>`_ or contract us on `Starknet Discord server <https://starknet.io/discord>`_ in ``#🐍 | starknet-py`` channel.
 
+.. currentmodule:: starknet_py.net.gateway_client
 
-Breaking changes
-----------------
+:class:`GatewayClient` and Gateway / Feeder Gateway API will become deprecated in the future.
+    As a result, :class:`GatewayClient` won't work and will eventually be removed. Consider migrating to :ref:`FullNodeClient`.
+
+
+.. currentmodule:: starknet_py.net.full_node_client
+
+:class:`FullNodeClient` RPC specification has been updated from `v0.3.0-rc1 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.3.0-rc1>`_ to `v0.3.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.3.0>`_.
+
+.. currentmodule:: starknet_py.contract
+
+Also, four methods were added to its interface:
+
+- :meth:`FullNodeClient.get_block_number`
+- :meth:`FullNodeClient.get_block_hash_and_number`
+- :meth:`FullNodeClient.get_chain_id`
+- :meth:`FullNodeClient.get_syncing_status`
+
+
+0.17.0 Breaking changes
+-----------------------
 
 1. Deprecated function ``compute_invoke_hash`` in :mod:`starknet_py.net.models.transaction` has been removed in favor of :func:`starknet_py.hash.transaction.compute_invoke_transaction_hash`.
 
@@ -33,9 +338,11 @@ Breaking changes
 2. Removed ``Deployer.create_deployment_call`` and ``Deployer.create_deployment_call_raw`` in favor of :meth:`Deployer.create_contract_deployment` and :meth:`Deployer.create_contract_deployment_raw`.
 3. Removed ``BaseAccount.supported_transaction_version`` property.
 
+3. Removed ``PENDING`` transaction status.
 
-Minor changes
--------------
+
+0.17.0 Minor changes
+--------------------
 
 .. currentmodule:: starknet_py.contract
 
@@ -59,9 +366,24 @@ RPC related changes:
 7. :meth:`FullNodeClient.get_events` ``keys`` and ``address`` parameters type are now optional.
 8. :meth:`FullNodeClient.get_events` ``keys`` parameter can now also accept integers as felts.
 
+.. currentmodule:: starknet_py.net.models
 
-Bugfixes
---------
+9. :class:`StarknetChainId` changed from ``Enum`` to ``IntEnum``.
+
+.. currentmodule:: starknet_py.net.client
+
+10. :meth:`Client.wait_for_tx` has a new parameter ``retries`` describing the amount of retries before a time out when querying for a transaction.
+
+
+0.17.0 Deprecations
+-------------------
+.. currentmodule:: starknet_py.net.client
+
+1. `wait_for_accept` parameter in :meth:`Client.wait_for_tx` and :meth:`SentTransaction.wait_for_acceptance` has been deprecated.
+
+
+0.17.0 Bugfixes
+---------------
 
 .. currentmodule:: starknet_py.hash.class_hash
 
@@ -162,7 +484,7 @@ Also, dependencies are now optimized to include only necessary packages.
 
 8. Removed deprecated ``typed_data`` parameter as dict in :meth:`BaseSigner.sign_message`. Use :ref:`TypedData` dataclass from ``starknet_py.utils.typed_data``.
 9. ``starknet_py.utils.crypto`` module has been removed.
-10. Changed name of ``starknet_py.transaction_excepions`` to ``starknet_py.transaction_errors`` to match other files.
+10. Changed name of ``starknet_py.transaction_exceptions`` to ``starknet_py.transaction_errors`` to match other files.
 
 .. admonition:: Potentially breaking changes
     :class: attention
@@ -709,7 +1031,7 @@ Clients
 
 Client has been separated into two specialized modules.
 
-* Use :ref:`GatewayClient` to interact with Starknet like you did in previous starknet.py versions
+* Use ``GatewayClient`` to interact with Starknet like you did in previous starknet.py versions
 * Use :ref:`FullNodeClient` to interact with JSON-RPC
 
 .. note::
@@ -721,7 +1043,7 @@ API Changes
 -----------
 
 Client methods has had some of the parameters removed, so it provided uniform interface
-for both gateway and rpc methods. Please refer to :ref:`GatewayClient` and :ref:`FullNodeClient`
+for both gateway and rpc methods. Please refer to ``GatewayClient`` and :ref:`FullNodeClient`
 to see what has changed.
 There is no longer add_transaction method in the Client interface. It was renamed to send_transaction.
 

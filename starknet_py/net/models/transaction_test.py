@@ -6,17 +6,16 @@ from starknet_py.common import create_contract_class
 from starknet_py.net.client_models import TransactionType
 from starknet_py.net.models.transaction import (
     Declare,
-    DeclareSchema,
-    Invoke,
-    InvokeSchema,
+    DeclareV1,
+    DeclareV1Schema,
+    InvokeV1,
+    InvokeV1Schema,
 )
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V1_DIR
-from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
 def test_declare_compress_program(balance_contract):
     contract_class = create_contract_class(balance_contract)
-    declare_transaction = Declare(
+    declare_transaction = DeclareV1(
         contract_class=contract_class,
         sender_address=0x1234,
         max_fee=0x1111,
@@ -25,7 +24,7 @@ def test_declare_compress_program(balance_contract):
         version=1,
     )
 
-    schema = DeclareSchema()
+    schema = DeclareV1Schema()
 
     serialized = typing.cast(dict, schema.dump(declare_transaction))
     # Pattern used in match taken from
@@ -39,12 +38,6 @@ def test_declare_compress_program(balance_contract):
     assert deserialized.contract_class == contract_class
 
 
-compiled_contract = read_contract("erc20_compiled.json")
-sierra_compiled_contract = read_contract(
-    "minimal_contract_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
-)
-
-
 def test_serialize_deserialize_invoke():
     data = {
         "sender_address": "0x1",
@@ -55,10 +48,10 @@ def test_serialize_deserialize_invoke():
         "version": "0x1",
         "type": "INVOKE_FUNCTION",
     }
-    invoke = InvokeSchema().load(data)
-    serialized_invoke = InvokeSchema().dump(invoke)
+    invoke = InvokeV1Schema().load(data)
+    serialized_invoke = InvokeV1Schema().dump(invoke)
 
-    assert isinstance(invoke, Invoke)
+    assert isinstance(invoke, InvokeV1)
     assert invoke.type == TransactionType.INVOKE
     assert isinstance(serialized_invoke, dict)
     assert serialized_invoke["type"] == "INVOKE_FUNCTION"

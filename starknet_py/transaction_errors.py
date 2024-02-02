@@ -19,16 +19,25 @@ class TransactionFailedError(Exception):
         return f"Transaction failed with following Starknet error: {self.message}."
 
 
+class TransactionRevertedError(TransactionFailedError):
+    """
+    Exception for transactions reverted by Starknet.
+    """
+
+    def __str__(self):
+        return (
+            "Transaction was reverted with following Starknet error: "
+            f"{self.message}."
+        )
+
+
 class TransactionRejectedError(TransactionFailedError):
     """
     Exception for transactions rejected by Starknet.
     """
 
     def __str__(self):
-        return (
-            "Transaction was rejected with following Starknet error: "
-            f"{self.message}."
-        )
+        return "Transaction was rejected on Starknet."
 
 
 class TransactionNotReceivedError(TransactionFailedError):

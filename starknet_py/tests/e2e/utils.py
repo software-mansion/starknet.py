@@ -1,15 +1,14 @@
 import random
-from typing import Optional, Tuple, cast
+from typing import Tuple
 
 from starknet_py.constants import EC_ORDER
 from starknet_py.contract import Contract
 from starknet_py.hash.address import compute_address
 from starknet_py.net.account.account import Account
 from starknet_py.net.client import Client
-from starknet_py.net.gateway_client import GatewayClient
+from starknet_py.net.http_client import HttpClient, HttpMethod
 from starknet_py.net.models import StarknetChainId
-from starknet_py.net.models.transaction import DeployAccount
-from starknet_py.net.networks import Network
+from starknet_py.net.models.transaction import DeployAccountV1
 from starknet_py.net.signer.stark_curve_signer import KeyPair
 from starknet_py.net.udc_deployer.deployer import _get_random_salt
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
@@ -18,64 +17,67 @@ AccountToBeDeployedDetails = Tuple[int, KeyPair, int, int]
 
 
 async def get_deploy_account_details(
-    *, class_hash: int, fee_contract: Contract
+    *,
+    class_hash: int,
+    eth_fee_contract: Contract,
+    strk_fee_contract: Contract,
+    argent_calldata: bool = False,
 ) -> AccountToBeDeployedDetails:
     """
     Returns address, key_pair, salt and class_hash of the account with validate deploy.
 
-    :param class_hash: Class hash of account to be deployed
-    :param fee_contract: Contract for prefunding deployments
+    :param class_hash: Class hash of account to be deployed.
+    :param eth_fee_contract: Contract for prefunding deployments in ETH.
+    :param strk_fee_contract: Contract for prefunding deployments in STRK.
+    :param argent_calldata: Flag deciding whether calldata should be in Argent-account format.
     """
     priv_key = _get_random_private_key_unsafe()
     key_pair = KeyPair.from_private_key(priv_key)
     salt = _get_random_salt()
 
+    calldata = [key_pair.public_key]
+    if argent_calldata:
+        # Argent account's calldata to the constructor requires 'owner' and 'guardian', hence the additional 0 for the
+        # 'guardian'.
+        calldata.append(0)
     address = compute_address(
         salt=salt,
         class_hash=class_hash,
-        constructor_calldata=[key_pair.public_key],
+        constructor_calldata=calldata,
         deployer_address=0,
     )
 
-    res = await fee_contract.functions["transfer"].invoke(
-        recipient=address, amount=int(1e17), max_fee=MAX_FEE
+    transfer_wei_res = await eth_fee_contract.functions["transfer"].invoke_v1(
+        recipient=address, amount=int(1e19), max_fee=MAX_FEE
     )
-    await res.wait_for_acceptance()
+    await transfer_wei_res.wait_for_acceptance()
+
+    transfer_fri_res = await strk_fee_contract.functions["transfer"].invoke_v1(
+        recipient=address, amount=int(1e19), max_fee=MAX_FEE
+    )
+    await transfer_fri_res.wait_for_acceptance()
 
     return address, key_pair, salt, class_hash
 
 
 async def get_deploy_account_transaction(
-    *,
-    address: int,
-    key_pair: KeyPair,
-    salt: int,
-    class_hash: int,
-    network: Optional[Network] = None,
-    client: Optional[Client] = None,
-) -> DeployAccount:
+    *, address: int, key_pair: KeyPair, salt: int, class_hash: int, client: Client
+) -> DeployAccountV1:
     """
     Get a signed DeployAccount transaction from provided details
     """
-    if network is None and client is None:
-        raise ValueError("One of network or client must be provided.")
 
     account = Account(
         address=address,
-        client=client
-        or GatewayClient(
-            net=cast(
-                Network, network
-            )  # Cast needed because pyright doesn't recognize network as not None at this point
-        ),
+        client=client,
         key_pair=key_pair,
-        chain=StarknetChainId.TESTNET,
+        chain=StarknetChainId.GOERLI,
     )
-    return await account.sign_deploy_account_transaction(
+    return await account.sign_deploy_account_v1_transaction(
         class_hash=class_hash,
         contract_address_salt=salt,
         constructor_calldata=[key_pair.public_key],
-        max_fee=MAX_FEE,
+        max_fee=int(1e16),
     )
 
 
@@ -85,3 +87,11 @@ def _get_random_private_key_unsafe() -> int:
     This is not a safe way of generating private keys and should be used only in tests.
     """
     return random.randint(1, EC_ORDER - 1)
+
+
+async def create_empty_block(http_client: HttpClient) -> None:
+    url = http_client.url[:-4] if http_client.url.endswith("/rpc") else http_client.url
+    await http_client.request(
+        address=f"{url}/create_block",
+        http_method=HttpMethod.POST,
+    )

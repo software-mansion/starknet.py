@@ -11,18 +11,21 @@ from starknet_py.tests.e2e.client.fixtures.prepare_net_for_gateway_test import (
     prepare_net_for_tests,
 )
 from starknet_py.tests.e2e.fixtures.accounts import AccountToBeDeployedDetailsFactory
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V0_DIR
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 from starknet_py.tests.e2e.utils import AccountToBeDeployedDetails
 
 
 async def prepare_network(
-    gateway_account: Account,
+    account: Account,
     deploy_account_details: AccountToBeDeployedDetails,
 ) -> PreparedNetworkData:
-    contract_compiled = read_contract("balance_compiled.json")
+    contract_compiled = read_contract(
+        "balance_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR
+    )
 
     prepared_data = await prepare_net_for_tests(
-        gateway_account,
+        account,
         compiled_contract=contract_compiled,
         deploy_account_details=deploy_account_details,
     )
@@ -127,7 +130,7 @@ def fixture_balance_contract() -> str:
     """
     Returns compiled code of the balance.cairo contract
     """
-    return read_contract("balance_compiled.json")
+    return read_contract("balance_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR)
 
 
 @pytest.fixture(name="class_hash")
@@ -142,7 +145,7 @@ def fixture_class_hash(prepare_network: Tuple[str, PreparedNetworkData]) -> int:
 @pytest_asyncio.fixture(name="prepare_network", scope="package")
 async def fixture_prepare_network(
     network: str,
-    gateway_account: Account,
+    account: Account,
     deploy_account_details_factory: AccountToBeDeployedDetailsFactory,
 ) -> AsyncGenerator[Tuple[str, PreparedNetworkData], None]:
     """
@@ -150,5 +153,5 @@ async def fixture_prepare_network(
     """
     net = network
     details = await deploy_account_details_factory.get()
-    prepared_data = await prepare_network(gateway_account, details)
+    prepared_data = await prepare_network(account, details)
     yield net, prepared_data
