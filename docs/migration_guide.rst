@@ -71,6 +71,9 @@ Other breaking changes not mentioned above.
 9. :class:`FunctionInvocation` has a new required field ``execution_resources``.
 10. :class:`ResourcePrice` field ``price_in_strk`` has been renamed to ``price_in_fri`` and has now become required.
 11. :class:`ResourceLimits` class has been renamed to :class:`ResourceBounds`.
+12. :class:`InvokeTransaction` has been replaced by :class:`InvokeTransactionV0` and :class:`InvokeTransactionV1`.
+13. :class:`DeclareTransaction` has been replaced by :class:`DeclareTransactionV0`, :class:`DeclareTransactionV1` and :class:`DeclareTransactionV3`.
+14. :class:`DeployAccountTransaction` has been replaced by :class:`DeployAccountTransactionV1`.
 
 0.19.0 Minor changes
 --------------------
