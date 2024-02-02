@@ -257,7 +257,9 @@ async def test_call_contract(client, contract_address):
 
 @pytest.mark.asyncio
 async def test_add_transaction(map_contract, client, account):
-    prepared_function_call = map_contract.functions["put"].prepare(key=73, value=12)
+    prepared_function_call = map_contract.functions["put"].prepare_invoke_v1(
+        key=73, value=12
+    )
     signed_invoke = await account.sign_invoke_v1_transaction(
         calls=prepared_function_call, max_fee=MAX_FEE
     )
@@ -395,7 +397,7 @@ async def test_custom_session_client(map_contract, network):
 
     tx_hash = (
         await (
-            await map_contract.functions["put"].invoke(
+            await map_contract.functions["put"].invoke_v1(
                 key=10, value=20, max_fee=MAX_FEE
             )
         ).wait_for_acceptance()
@@ -481,7 +483,9 @@ async def test_state_update_storage_diffs(
     client,
     map_contract,
 ):
-    resp = await map_contract.functions["put"].invoke(key=10, value=20, max_fee=MAX_FEE)
+    resp = await map_contract.functions["put"].invoke_v1(
+        key=10, value=20, max_fee=MAX_FEE
+    )
     await resp.wait_for_acceptance()
 
     state_update = await client.get_state_update()

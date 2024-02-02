@@ -40,7 +40,7 @@ async def test_general_v1_interaction(account, cairo1_erc20_class_hash: int):
 
     transfer_amount = 10
     await (
-        await erc20.functions["transfer"].invoke(
+        await erc20.functions["transfer"].invoke_v1(
             recipient=0x11, amount=transfer_amount, max_fee=MAX_FEE
         )
     ).wait_for_acceptance()
@@ -70,7 +70,7 @@ async def test_serializing_struct(account, cairo1_token_bridge_class_hash: int):
     )
 
     await (
-        await bridge.functions["set_l1_bridge"].invoke(
+        await bridge.functions["set_l1_bridge"].invoke_v1(
             l1_bridge_address={"address": 0x11}, max_fee=MAX_FEE
         )
     ).wait_for_acceptance()
