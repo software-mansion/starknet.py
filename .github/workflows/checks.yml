@@ -101,6 +101,9 @@ jobs:
           poetry install --without py312-dev
 
       # ====================== CONTRACTS v0 ====================== #
+      - name: Install setuptools
+        run: |
+          pip install --upgrade setuptools
 
       - name: Cache contracts
         id: cache-contracts
