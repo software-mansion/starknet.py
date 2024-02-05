@@ -67,6 +67,8 @@ user_serializer = StructSerializer(
     )
 )
 
+event_serializer = PayloadSerializer(OrderedDict(pool_id=pool_id_serializer_v2))
+
 
 @pytest.mark.parametrize(
     "structure, serializer",
@@ -74,6 +76,7 @@ user_serializer = StructSerializer(
         (abi.defined_structures["Uint256"], Uint256Serializer()),
         (abi.defined_structures["PoolId"], pool_id_serializer),
         (abi.defined_structures["User"], user_serializer),
+        (abi_v2.events["PoolIdAdded"], event_serializer),
         (
             StructType(
                 "structure",
