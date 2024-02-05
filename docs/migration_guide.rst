@@ -58,6 +58,7 @@ Changes in the :class:`~starknet_py.net.full_node_client.FullNodeClient`:
 9. :class:`FunctionInvocation` has a new required field ``execution_resources``.
 10. :class:`ResourcePrice` field ``price_in_strk`` has been renamed to ``price_in_fri`` and has now become required.
 11. :class:`ResourceLimits` class has been renamed to :class:`ResourceBounds`.
+12. :class:`~starknet_py.net.account.base_account.BaseAccount` and :class:`~starknet_py.net.account.account.Account` property ``supported_transaction_version`` has been removed.
 
 0.19.0 Minor changes
 --------------------
