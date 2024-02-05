@@ -59,6 +59,7 @@ Changes in the :class:`~starknet_py.net.full_node_client.FullNodeClient`:
 10. :class:`ResourcePrice` field ``price_in_strk`` has been renamed to ``price_in_fri`` and has now become required.
 11. :class:`ResourceLimits` class has been renamed to :class:`ResourceBounds`.
 12. :class:`~starknet_py.net.account.base_account.BaseAccount` and :class:`~starknet_py.net.account.account.Account` property ``supported_transaction_version`` has been removed.
+13. ``wait_for_accept`` parameter in :meth:`Client.wait_for_tx` and :meth:`SentTransaction.wait_for_acceptance` has been removed.
 
 0.19.0 Minor changes
 --------------------
