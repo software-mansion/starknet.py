@@ -4,7 +4,8 @@ Deploying contracts
 Declaring contracts
 -------------------
 
-A declare transaction can be issued in either version 1 or version 3. To sign a declare transaction, you should utilize the sign_declare_transaction_v1() or sign_declare_transaction_v3() method, respectively.
+A declare transaction can be issued in either version 1 or version 3.
+To sign a declare transaction, you should utilize the :meth:`~starknet_py.net.account.account.Account.sign_declare_v1_transaction` or :meth:`~starknet_py.net.account.account.Account.sign_declare_v3_transaction` method, respectively.
 
 Here's an example how to use it.
 
@@ -17,7 +18,7 @@ Simple declare and deploy
 -------------------------
 
 The simplest way of declaring and deploying contracts on the Starknet is to use the :ref:`Contract` class.
-Under the hood, this flow first sends :meth:`Declare` transaction and then sends :meth:`Invoke`
+Under the hood, this flow first sends ``Declare`` transaction and then sends ``Invoke``
 through Universal Deployment Contract (UDC) to deploy a contract.
 
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_simple_declare_and_deploy.py
@@ -27,7 +28,7 @@ through Universal Deployment Contract (UDC) to deploy a contract.
 Simple deploy
 -------------
 
-If you know the class hash of an already declared contract you want to deploy just use the :meth:`Contract.deploy_contract_v1` or :meth:`Contract.deploy_contract_v3`.
+If you know the class hash of an already declared contract you want to deploy just use the :meth:`~starknet_py.contract.Contract.deploy_contract_v1` or :meth:`~starknet_py.contract.Contract.deploy_contract_v3`.
 It will deploy the contract using funds from your account. Deployment is handled by UDC.
 
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_simple_deploy.py
