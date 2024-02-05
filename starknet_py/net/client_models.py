@@ -191,16 +191,25 @@ class TransactionV3(Transaction):
 
 
 @dataclass
-class InvokeTransaction(DeprecatedTransaction):
+class InvokeTransactionV0(DeprecatedTransaction):
     """
-    Dataclass representing invoke transaction.
+    Dataclass representing invoke transaction v0.
     """
 
-    sender_address: int
     calldata: List[int]
-    # This field is always None for transactions with version = 1
-    entry_point_selector: Optional[int] = None
-    nonce: Optional[int] = None
+    contract_address: int
+    entry_point_selector: int
+
+
+@dataclass
+class InvokeTransactionV1(DeprecatedTransaction):
+    """
+    Dataclass representing invoke transaction v1.
+    """
+
+    calldata: List[int]
+    sender_address: int
+    nonce: int
 
 
 @dataclass
@@ -209,22 +218,43 @@ class InvokeTransactionV3(TransactionV3):
     Dataclass representing invoke transaction v3.
     """
 
-    sender_address: int
     calldata: List[int]
+    sender_address: int
+    nonce: int
     account_deployment_data: List[int]
+
+
+@dataclass
+class DeclareTransactionV0(DeprecatedTransaction):
+    """
+    Dataclass representing declare transaction v0.
+    """
+
+    sender_address: int
+    class_hash: int
+
+
+@dataclass
+class DeclareTransactionV1(DeprecatedTransaction):
+    """
+    Dataclass representing declare transaction v1.
+    """
+
+    sender_address: int
+    class_hash: int
     nonce: int
 
 
 @dataclass
-class DeclareTransaction(DeprecatedTransaction):
+class DeclareTransactionV2(DeprecatedTransaction):
     """
-    Dataclass representing declare transaction.
+    Dataclass representing declare transaction v2.
     """
 
-    class_hash: int  # Responses to getBlock and getTransaction include the class hash
     sender_address: int
-    compiled_class_hash: Optional[int] = None  # only in DeclareV2, hence Optional
-    nonce: Optional[int] = None
+    class_hash: int
+    compiled_class_hash: int
+    nonce: int
 
 
 @dataclass
@@ -233,10 +263,10 @@ class DeclareTransactionV3(TransactionV3):
     Dataclass representing declare transaction v3.
     """
 
+    sender_address: int
     class_hash: int
     compiled_class_hash: int
     nonce: int
-    sender_address: int
     account_deployment_data: List[int]
 
 
@@ -252,15 +282,15 @@ class DeployTransaction(Transaction):
 
 
 @dataclass
-class DeployAccountTransaction(DeprecatedTransaction):
+class DeployAccountTransactionV1(DeprecatedTransaction):
     """
-    Dataclass representing deploy account transaction.
+    Dataclass representing deploy account transaction v1.
     """
 
-    contract_address_salt: int
-    class_hash: int
-    constructor_calldata: List[int]
     nonce: int
+    contract_address_salt: int
+    constructor_calldata: List[int]
+    class_hash: int
 
 
 @dataclass
@@ -269,10 +299,10 @@ class DeployAccountTransactionV3(TransactionV3):
     Dataclass representing deploy account transaction v3.
     """
 
-    contract_address_salt: int
-    class_hash: int
-    constructor_calldata: List[int]
     nonce: int
+    contract_address_salt: int
+    constructor_calldata: List[int]
+    class_hash: int
 
 
 @dataclass

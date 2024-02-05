@@ -7,7 +7,7 @@ import pytest
 
 from starknet_py.common import create_sierra_compiled_contract
 from starknet_py.contract import Contract, DeclareResult
-from starknet_py.net.client_models import InvokeTransaction, InvokeTransactionV3
+from starknet_py.net.client_models import InvokeTransactionV1, InvokeTransactionV3
 from starknet_py.net.models import DeclareV2
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE, MAX_RESOURCE_BOUNDS_L1
 from starknet_py.tests.e2e.fixtures.misc import read_contract
@@ -114,7 +114,7 @@ async def test_deploy_contract_v1(account, cairo1_hello_starknet_class_hash: int
     assert len(contract.functions) != 0
 
     transaction = await account.client.get_transaction(tx_hash=deploy_result.hash)
-    assert isinstance(transaction, InvokeTransaction)
+    assert isinstance(transaction, InvokeTransactionV1)
 
     class_hash = await account.client.get_class_hash_at(
         contract_address=contract.address
