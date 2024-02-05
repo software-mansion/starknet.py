@@ -1,12 +1,13 @@
 import pytest
 
 from starknet_py.net.client_models import (
-    DeclareTransaction,
     DeclareTransactionTrace,
-    DeployAccountTransaction,
+    DeclareTransactionV2,
     DeployAccountTransactionTrace,
-    InvokeTransaction,
+    DeployAccountTransactionV1,
     InvokeTransactionTrace,
+    InvokeTransactionV0,
+    InvokeTransactionV1,
     L1HandlerTransaction,
     L1HandlerTransactionTrace,
     RevertedFunctionInvocation,
@@ -22,9 +23,10 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
 @pytest.mark.asyncio
 async def test_trace_transaction(client_goerli_testnet):
     tx_to_trace: dict[type[Transaction], type[TransactionTrace]] = {
-        InvokeTransaction: InvokeTransactionTrace,
-        DeclareTransaction: DeclareTransactionTrace,
-        DeployAccountTransaction: DeployAccountTransactionTrace,
+        InvokeTransactionV0: InvokeTransactionTrace,
+        InvokeTransactionV1: InvokeTransactionTrace,
+        DeclareTransactionV2: DeclareTransactionTrace,
+        DeployAccountTransactionV1: DeployAccountTransactionTrace,
         L1HandlerTransaction: L1HandlerTransactionTrace,
     }
     block = await client_goerli_testnet.get_block(block_number=600000)
