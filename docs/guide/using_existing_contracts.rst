@@ -37,20 +37,24 @@ If you do not have ABI statically, but you know the interface of the contract on
 Fees
 ----
 
+.. currentmodule:: starknet_py.contract
+
 Starknet.py requires you to specify amount of Wei (for V1 transaction) or Fri (for V3 transaction) you
-are willing to pay when executing either ``.invoke_v1()`` or ``.invoke_v3()`` transactions. It's also possible to optionally define the transaction fee
-when preparing function calls with ``.prepare_invoke_v1()`` or ``.prepare_invoke_v3()``.
+are willing to pay when executing either :meth:`~ContractFunction.invoke_v1` or :meth:`~ContractFunction.invoke_v3` transactions.
 
 .. code-block:: python
 
     await contract.functions["put"].invoke_v1(k, v, max_fee=5000)
 
-When max_fee is specified when preparing a call, you can invoke it without ``max_fee``. It works similarly for ``l1_resource_bounds`` and ``prepare_invoke_v3()``.
+The ``max_fee`` argument can be also defined in :meth:`~ContractFunction.prepare_invoke_v1`. Subsequently, the :meth:`~PreparedFunctionInvokeV1.invoke` method on a prepared call can be used either with ``max_fee`` omitted or with its value overridden.
+The same behavior applies to :meth:`~ContractFunction.prepare_invoke_v3` and ``l1_resource_bounds``.
 
 .. code-block:: python
 
     prepared_call = contract.function["put"].prepare_invoke_v1(k, v, max_fee=5000)
     await prepared_call.invoke()
+    # or max_fee can be overridden
+    await prepared_call.invoke(max_fee=10000)
 
 .. warning::
 
