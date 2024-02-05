@@ -4,7 +4,7 @@ Deploying contracts
 Declaring contracts
 -------------------
 
-Declare transaction can be sent as either version 1 or 3. To sign a declare transaction, please use :meth:`sign_declare_transaction_v1()` or :meth:`sign_declare_transaction_v3()` method.
+A declare transaction can be issued in either version 1 or version 3. To sign a declare transaction, you should utilize the sign_declare_transaction_v1() or sign_declare_transaction_v3() method, respectively.
 
 Here's an example how to use it.
 
