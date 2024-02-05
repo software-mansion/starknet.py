@@ -115,6 +115,8 @@ def serializer_for_type(cairo_type: CairoType) -> CairoDataSerializer:
                 for name, variant_type in cairo_type.variants.items()
             )
         )
+    if isinstance(cairo_type, EventType):
+        return serializer_for_payload(cairo_type.types)
 
     raise InvalidTypeException(f"Received unknown Cairo type '{cairo_type}'.")
 
