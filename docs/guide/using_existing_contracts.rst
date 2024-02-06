@@ -59,7 +59,7 @@ The same behavior applies to :meth:`~ContractFunction.prepare_invoke_v3` and ``l
 .. warning::
 
     For V1 transactions if ``max_fee`` is not specified at any step it will default to ``None``,
-    and will raise an exception when invoking a transaction. The same applies to ``l1_resource_bounds`` and V3 transactions.
+    and will raise an exception when invoking a transaction, unless `auto_estimate` is specified and is set to `True`. The same applies to ``l1_resource_bounds`` and V3 transactions.
 
 Please note you will need to have enough Wei (for V1 transaction) or Fri (for V3 transaction) in your Starknet account otherwise
 transaction will be rejected.
