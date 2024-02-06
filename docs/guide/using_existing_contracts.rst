@@ -88,7 +88,7 @@ internally and use the returned value, multiplied by ``1.5`` to mitigate fluctua
 
 .. warning::
 
-    It is strongly discouraged to use automatic fee estimation in production code.
+    It is strongly discouraged to use automatic fee estimation in production code as it may lead to unexpectedly high fee.
 
 .. note::
     For V1 transactions it is possible to configure the value by which the estimated fee is multiplied,
