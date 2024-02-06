@@ -853,6 +853,7 @@ class Contract:
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> DeclareResult:
+        # pylint: disable=too-many-arguments
         """
         Declares a contract.
 
@@ -893,6 +894,7 @@ class Contract:
         l1_resource_bounds: Optional[ResourceBounds] = None,
         auto_estimate: bool = False,
     ) -> DeclareResult:
+        # pylint: disable=too-many-arguments
         """
         Declares a contract.
 

@@ -495,6 +495,7 @@ class Account(BaseAccount):
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> DeployAccountV1:
+        # pylint: disable=too-many-arguments
         deploy_account_tx = DeployAccountV1(
             class_hash=class_hash,
             contract_address_salt=contract_address_salt,
@@ -522,6 +523,7 @@ class Account(BaseAccount):
         l1_resource_bounds: Optional[ResourceBounds] = None,
         auto_estimate: bool = False,
     ) -> DeployAccountV3:
+        # pylint: disable=too-many-arguments
         deploy_account_tx = DeployAccountV3(
             class_hash=class_hash,
             contract_address_salt=contract_address_salt,
@@ -596,6 +598,8 @@ class Account(BaseAccount):
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> AccountDeploymentResult:
+        # pylint: disable=too-many-arguments, too-many-locals
+
         """
         Deploys an account contract with provided class_hash on Starknet and returns
         an AccountDeploymentResult that allows waiting for transaction acceptance.
@@ -669,6 +673,8 @@ class Account(BaseAccount):
         l1_resource_bounds: Optional[ResourceBounds] = None,
         auto_estimate: bool = False,
     ) -> AccountDeploymentResult:
+        # pylint: disable=too-many-arguments
+
         """
         Deploys an account contract with provided class_hash on Starknet and returns
         an AccountDeploymentResult that allows waiting for transaction acceptance.
