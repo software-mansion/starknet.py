@@ -14,7 +14,7 @@ These methods will send :class:`~starknet_py.net.models.InvokeV1` and :class:`~s
 Transaction Fee
 ---------------
 
-All methods within the :ref:`Account` that involve on-chain modifications require either to specify a maximum transaction fee or to use auto estimation.
+All methods within the :ref:`Account` that involve on-chain modifications require either specifying a maximum transaction fee or using auto estimation.
 In the case of V1 and V2 transactions, the transaction fee, denoted in Wei, is configured by the ``max_fee`` parameter.
 For V3 transactions, however, the fee is expressed in Fri and is determined by the ``l1_resource_bounds`` parameter.
 To enable auto estimation, set the ``auto_estimate`` parameter to ``True``.
@@ -25,7 +25,7 @@ To enable auto estimation, set the ``auto_estimate`` parameter to ``True``.
 
 .. warning::
 
-    It is strongly discouraged to use automatic fee estimation in production code as it may lead to unexpectedly high fee.
+    It is strongly discouraged to use automatic fee estimation in production code as it may lead to an unexpectedly high fee.
 
 The returned estimated fee is multiplied by ``1.5`` for V1 and V2 transactions to mitigate fluctuations in price.
 For V3 transactions, ``max_amount`` and ``max_price_per_unit`` are scaled by ``1.1`` and ``1.5`` respectively.
