@@ -136,7 +136,7 @@ class Account(BaseAccount):
             )
 
         if auto_estimate:
-            estimated_fee = await self._estimate_fee(transaction)
+            estimated_fee = await self.estimate_fee(transaction)
             max_fee = int(estimated_fee.overall_fee * Account.ESTIMATED_FEE_MULTIPLIER)
 
         if max_fee is None:
@@ -158,7 +158,7 @@ class Account(BaseAccount):
             )
 
         if auto_estimate:
-            estimated_fee = await self._estimate_fee(transaction)
+            estimated_fee = await self.estimate_fee(transaction)
             l1_resource_bounds = ResourceBounds(
                 max_amount=int(
                     estimated_fee.gas_consumed * Account.ESTIMATED_AMOUNT_MULTIPLIER
@@ -246,13 +246,15 @@ class Account(BaseAccount):
         )
         return _add_resource_bounds_to_transaction(transaction, resource_bounds)
 
-    async def _estimate_fee(
+    async def estimate_fee(
         self,
         tx: AccountTransaction,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
         """
+        Estimate fee for transaction
+
         :param tx: Transaction which fee we want to calculate.
         :param block_hash: a block hash.
         :param block_number: a block number.

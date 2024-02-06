@@ -97,6 +97,21 @@ async def test_estimate_fee_for_declare_transaction(account, map_compiled_contra
         == estimated_fee.overall_fee
     )
 
+@pytest.mark.asyncio
+async def test_account_estimate_fee_for_declare_transaction(account, map_compiled_contract):
+    declare_tx = await account.sign_declare_v1_transaction(
+        compiled_contract=map_compiled_contract, max_fee=MAX_FEE
+    )
+
+    estimated_fee = await account.estimate_fee(tx=declare_tx)
+    print(estimated_fee)
+    assert isinstance(estimated_fee.overall_fee, int)
+    assert estimated_fee.overall_fee > 0
+    assert (
+        estimated_fee.gas_consumed * estimated_fee.gas_price
+        == estimated_fee.overall_fee
+    )
+
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("key, val", [(20, 20), (30, 30)])
