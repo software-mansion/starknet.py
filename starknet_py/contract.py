@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import dataclasses
 import json
-import warnings
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import cached_property
@@ -117,7 +116,6 @@ class SentTransaction:
 
     async def wait_for_acceptance(
         self: TypeSentTransaction,
-        wait_for_accept: Optional[bool] = None,
         check_interval: float = 2,
         retries: int = 500,
     ) -> TypeSentTransaction:
@@ -125,11 +123,6 @@ class SentTransaction:
         Waits for transaction to be accepted on chain till ``ACCEPTED`` status.
         Returns a new SentTransaction instance, **does not mutate original instance**.
         """
-        if wait_for_accept is not None:
-            warnings.warn(
-                "Parameter `wait_for_accept` has been deprecated - since Starknet 0.12.0, transactions in a PENDING"
-                " block have status ACCEPTED_ON_L2."
-            )
 
         tx_receipt = await self._client.wait_for_tx(
             self.hash,
