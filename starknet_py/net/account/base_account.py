@@ -101,7 +101,7 @@ class BaseAccount(ABC):
         """
 
     @abstractmethod
-    async def sign_invoke_v1_transaction(
+    async def sign_invoke_v1(
         self,
         calls: Calls,
         *,
@@ -120,7 +120,7 @@ class BaseAccount(ABC):
         """
 
     @abstractmethod
-    async def sign_invoke_v3_transaction(
+    async def sign_invoke_v3(
         self,
         calls: Calls,
         *,
@@ -139,7 +139,7 @@ class BaseAccount(ABC):
         """
 
     @abstractmethod
-    async def sign_declare_v1_transaction(
+    async def sign_declare_v1(
         self,
         compiled_contract: str,
         *,
@@ -158,7 +158,7 @@ class BaseAccount(ABC):
         """
 
     @abstractmethod
-    async def sign_declare_v2_transaction(
+    async def sign_declare_v2(
         self,
         compiled_contract: str,
         compiled_class_hash: int,
@@ -181,7 +181,7 @@ class BaseAccount(ABC):
         """
 
     @abstractmethod
-    async def sign_declare_v3_transaction(
+    async def sign_declare_v3(
         self,
         compiled_contract: str,
         compiled_class_hash: int,
@@ -204,7 +204,7 @@ class BaseAccount(ABC):
         """
 
     @abstractmethod
-    async def sign_deploy_account_v1_transaction(
+    async def sign_deploy_account_v1(
         self,
         class_hash: int,
         contract_address_salt: int,
@@ -230,7 +230,7 @@ class BaseAccount(ABC):
         """
 
     @abstractmethod
-    async def sign_deploy_account_v3_transaction(
+    async def sign_deploy_account_v3(
         self,
         class_hash: int,
         contract_address_salt: int,

@@ -59,9 +59,7 @@ async def test_wait_for_tx_reverted(account_goerli_testnet):
         selector=get_selector_from_name("empty"),
         calldata=[0x1, 0x2, 0x3, 0x4, 0x5],
     )
-    sign_invoke = await account.sign_invoke_v1_transaction(
-        calls=call, max_fee=int(1e16)
-    )
+    sign_invoke = await account.sign_invoke_v1(calls=call, max_fee=int(1e16))
     invoke = await account.client.send_transaction(sign_invoke)
 
     with pytest.raises(TransactionRevertedError, match="Input too long for arguments"):
@@ -76,9 +74,7 @@ async def test_wait_for_tx_accepted(account_goerli_testnet):
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
-    sign_invoke = await account.sign_invoke_v1_transaction(
-        calls=call, max_fee=int(1e16)
-    )
+    sign_invoke = await account.sign_invoke_v1(calls=call, max_fee=int(1e16))
     invoke = await account.client.send_transaction(sign_invoke)
 
     result = await account.client.wait_for_tx(tx_hash=invoke.transaction_hash)
@@ -95,9 +91,7 @@ async def test_transaction_not_received_max_fee_too_small(account_goerli_testnet
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
-    sign_invoke = await account.sign_invoke_v1_transaction(
-        calls=call, max_fee=int(1e10)
-    )
+    sign_invoke = await account.sign_invoke_v1(calls=call, max_fee=int(1e10))
 
     with pytest.raises(ClientError, match=r".*Max fee.*"):
         await account.client.send_transaction(sign_invoke)
@@ -111,9 +105,7 @@ async def test_transaction_not_received_max_fee_too_big(account_goerli_testnet):
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
-    sign_invoke = await account.sign_invoke_v1_transaction(
-        calls=call, max_fee=sys.maxsize
-    )
+    sign_invoke = await account.sign_invoke_v1(calls=call, max_fee=sys.maxsize)
 
     with pytest.raises(ClientError, match=r".*max_fee.*"):
         await account.client.send_transaction(sign_invoke)
@@ -127,9 +119,7 @@ async def test_transaction_not_received_invalid_nonce(account_goerli_testnet):
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
-    sign_invoke = await account.sign_invoke_v1_transaction(
-        calls=call, max_fee=int(1e16), nonce=0
-    )
+    sign_invoke = await account.sign_invoke_v1(calls=call, max_fee=int(1e16), nonce=0)
 
     with pytest.raises(ClientError, match=r".*nonce.*"):
         await account.client.send_transaction(sign_invoke)
@@ -143,9 +133,7 @@ async def test_transaction_not_received_invalid_signature(account_goerli_testnet
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
-    sign_invoke = await account.sign_invoke_v1_transaction(
-        calls=call, max_fee=int(1e16)
-    )
+    sign_invoke = await account.sign_invoke_v1(calls=call, max_fee=int(1e16))
     sign_invoke = dataclasses.replace(sign_invoke, signature=[0x21, 0x37])
 
     with pytest.raises(ClientError, match=r"Signature.*is invalid") as exc:

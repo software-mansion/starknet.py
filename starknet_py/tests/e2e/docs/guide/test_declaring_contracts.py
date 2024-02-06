@@ -6,9 +6,9 @@ async def test_declaring_contracts(account, map_compiled_contract):
     contract_compiled = map_compiled_contract
 
     # docs: start
-    # Account.sign_declare_v1_transaction takes contract source code or compiled contract and returns
+    # Account.sign_declare_v1 takes contract source code or compiled contract and returns
     # DeclareV1 transaction
-    # Similarly, Account.sign_declare_v3_transaction returns DeclareV3 transaction
+    # Similarly, Account.sign_declare_v3 returns DeclareV3 transaction
     declare_transaction = await account.sign_declare_v1_transaction(
         compiled_contract=contract_compiled, max_fee=int(1e16)
     )
