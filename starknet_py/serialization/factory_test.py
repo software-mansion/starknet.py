@@ -19,6 +19,7 @@ from starknet_py.serialization.data_serializers.tuple_serializer import TupleSer
 from starknet_py.serialization.data_serializers.uint256_serializer import (
     Uint256Serializer,
 )
+from starknet_py.serialization.data_serializers.uint_serializer import UintSerializer
 from starknet_py.serialization.errors import InvalidTypeException
 from starknet_py.serialization.factory import (
     serializer_for_event,
@@ -35,6 +36,8 @@ from starknet_py.tests.e2e.fixtures.abi_structures import (
     uint256_struct,
     user_struct,
 )
+from starknet_py.tests.e2e.fixtures.abi_v1_structures import abi_v1
+from starknet_py.tests.e2e.fixtures.abi_v2_structures import abi_v2
 
 abi = Abi(
     defined_structures={
@@ -51,7 +54,10 @@ abi = Abi(
     constructor=None,
     l1_handler=None,
 )
+
 pool_id_serializer = StructSerializer(OrderedDict(value=Uint256Serializer()))
+pool_id_serializer_v2 = StructSerializer(OrderedDict(value=UintSerializer(bits=256)))
+
 user_serializer = StructSerializer(
     OrderedDict(
         id=Uint256Serializer(),
@@ -61,6 +67,8 @@ user_serializer = StructSerializer(
     )
 )
 
+event_serializer = PayloadSerializer(OrderedDict(pool_id=pool_id_serializer_v2))
+
 
 @pytest.mark.parametrize(
     "structure, serializer",
@@ -68,6 +76,7 @@ user_serializer = StructSerializer(
         (abi.defined_structures["Uint256"], Uint256Serializer()),
         (abi.defined_structures["PoolId"], pool_id_serializer),
         (abi.defined_structures["User"], user_serializer),
+        (abi_v2.events["PoolIdAdded"], event_serializer),
         (
             StructType(
                 "structure",
@@ -89,9 +98,21 @@ def test_getting_type_serializer(structure, serializer):
     assert serializer_for_type(structure) == serializer
 
 
-def test_getting_payload_serializer():
+def test_getting_payload_serializer_v0():
     assert serializer_for_event(abi.events["PoolIdAdded"]) == PayloadSerializer(
         OrderedDict(pool_id=pool_id_serializer)
+    )
+
+
+def test_getting_payload_serializer_v1():
+    assert serializer_for_event(abi_v1.events["PoolIdAdded"]) == PayloadSerializer(
+        OrderedDict(pool_id=pool_id_serializer_v2)
+    )
+
+
+def test_getting_payload_serializer_v2():
+    assert serializer_for_event(abi_v2.events["PoolIdAdded"]) == PayloadSerializer(
+        OrderedDict(pool_id=pool_id_serializer_v2)
     )
 
 

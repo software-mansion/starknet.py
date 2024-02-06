@@ -45,7 +45,7 @@ async def test_using_existing_contracts(account, erc20_contract):
     recipient = "123"
 
     # Using only positional arguments
-    invocation = await contract.functions["transferFrom"].invoke(
+    invocation = await contract.functions["transferFrom"].invoke_v1(
         sender, recipient, 10000, max_fee=int(1e16)
     )
     # docs: end
@@ -53,7 +53,7 @@ async def test_using_existing_contracts(account, erc20_contract):
     # docs: start
 
     # Using only keyword arguments
-    invocation = await contract.functions["transferFrom"].invoke(
+    invocation = await contract.functions["transferFrom"].invoke_v1(
         sender=sender, recipient=recipient, amount=10000, max_fee=int(1e16)
     )
     # docs: end
@@ -61,16 +61,16 @@ async def test_using_existing_contracts(account, erc20_contract):
     # docs: start
 
     # Mixing positional with keyword arguments
-    invocation = await contract.functions["transferFrom"].invoke(
+    invocation = await contract.functions["transferFrom"].invoke_v1(
         sender, recipient, amount=10000, max_fee=int(1e16)
     )
     # docs: end
     await invocation.wait_for_acceptance()
     # docs: start
 
-    # Creating a PreparedFunctionCall - creates a function call with arguments - useful for signing transactions and
-    # specifying additional options
-    transfer = contract.functions["transferFrom"].prepare(
+    # Creating a prepared function call with arguments
+    # It is also possible to use `prepare_invoke_v3`
+    transfer = contract.functions["transferFrom"].prepare_invoke_v1(
         sender, recipient, amount=10000, max_fee=int(1e16)
     )
     invocation = await transfer.invoke()

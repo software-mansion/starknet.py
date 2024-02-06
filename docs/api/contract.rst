@@ -34,6 +34,24 @@ PreparedFunctionCall
     :members:
     :member-order: groupwise
 
+------------------------
+PreparedFunctionInvokeV1
+------------------------
+
+.. autoclass-with-examples:: PreparedFunctionInvokeV1
+    :exclude-members: __init__, __new__
+    :members:
+    :member-order: groupwise
+
+------------------------
+PreparedFunctionInvokeV3
+------------------------
+
+.. autoclass-with-examples:: PreparedFunctionInvokeV3
+    :exclude-members: __init__, __new__
+    :members:
+    :member-order: groupwise
+
 ------------
 InvokeResult
 ------------

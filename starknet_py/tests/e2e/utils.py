@@ -47,12 +47,12 @@ async def get_deploy_account_details(
         deployer_address=0,
     )
 
-    transfer_wei_res = await eth_fee_contract.functions["transfer"].invoke(
+    transfer_wei_res = await eth_fee_contract.functions["transfer"].invoke_v1(
         recipient=address, amount=int(1e19), max_fee=MAX_FEE
     )
     await transfer_wei_res.wait_for_acceptance()
 
-    transfer_fri_res = await strk_fee_contract.functions["transfer"].invoke(
+    transfer_fri_res = await strk_fee_contract.functions["transfer"].invoke_v1(
         recipient=address, amount=int(1e19), max_fee=MAX_FEE
     )
     await transfer_fri_res.wait_for_acceptance()
@@ -71,9 +71,9 @@ async def get_deploy_account_transaction(
         address=address,
         client=client,
         key_pair=key_pair,
-        chain=StarknetChainId.TESTNET,
+        chain=StarknetChainId.GOERLI,
     )
-    return await account.sign_deploy_account_v1_transaction(
+    return await account.sign_deploy_account_v1(
         class_hash=class_hash,
         contract_address_salt=salt,
         constructor_calldata=[key_pair.public_key],

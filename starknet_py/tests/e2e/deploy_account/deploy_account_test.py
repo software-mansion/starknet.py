@@ -14,10 +14,10 @@ async def test_general_flow(client, deploy_account_details_factory):
         address=address,
         client=client,
         key_pair=key_pair,
-        chain=StarknetChainId.TESTNET,
+        chain=StarknetChainId.GOERLI,
     )
 
-    deploy_account_tx = await account.sign_deploy_account_v1_transaction(
+    deploy_account_tx = await account.sign_deploy_account_v1(
         class_hash=class_hash,
         contract_address_salt=salt,
         constructor_calldata=[key_pair.public_key],
@@ -36,10 +36,10 @@ async def test_deploy_account_v3(client, deploy_account_details_factory):
         address=address,
         client=client,
         key_pair=key_pair,
-        chain=StarknetChainId.TESTNET,
+        chain=StarknetChainId.GOERLI,
     )
 
-    deploy_account_tx = await account.sign_deploy_account_v3_transaction(
+    deploy_account_tx = await account.sign_deploy_account_v3(
         class_hash=class_hash,
         contract_address_salt=salt,
         constructor_calldata=[key_pair.public_key],

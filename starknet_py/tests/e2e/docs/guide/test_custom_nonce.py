@@ -56,12 +56,10 @@ async def test_custom_nonce(account):
         address=address,
         client=client,
         key_pair=KeyPair.from_private_key(private_key),
-        chain=StarknetChainId.TESTNET,
+        chain=StarknetChainId.GOERLI,
     )
     # docs: end
 
     assert account.nonce_counter == 0
-    await account.sign_invoke_v1_transaction(
-        calls=Call(0x1, 0x1, []), max_fee=10000000000
-    )
+    await account.sign_invoke_v1(calls=Call(0x1, 0x1, []), max_fee=10000000000)
     assert account.nonce_counter == 1

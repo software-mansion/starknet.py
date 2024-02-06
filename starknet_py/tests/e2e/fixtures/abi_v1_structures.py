@@ -17,7 +17,6 @@ core_structures = {
     )
 }
 
-
 pool_id_dict = {
     "type": "struct",
     "name": "PoolId",
@@ -100,7 +99,6 @@ delete_pool_fn = Abi.Function(
     "delete_pool", OrderedDict(id=pool_id_struct, user_id=UintType(256)), []
 )
 
-
 my_struct_dict = {
     "type": "struct",
     "name": "test::MyStruct::<core::integer::u256>",
@@ -169,4 +167,13 @@ foo_view = Abi.Function(
     name="foo_view",
     inputs=OrderedDict(a=FeltType(), b=UintType(128)),
     outputs=[my_enum],
+)
+
+abi_v1 = Abi(
+    defined_structures={},
+    events={
+        "PoolIdAdded": pool_id_added_event,
+    },
+    functions={},
+    defined_enums={},
 )
