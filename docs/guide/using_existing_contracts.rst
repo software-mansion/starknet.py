@@ -78,20 +78,17 @@ using :meth:`PreparedFunctionInvoke.estimate_fee() <starknet_py.contract.Prepare
 Automatic fee estimation
 ------------------------
 
-For testing purposes it is possible to enable automatic fee estimation when making
-a transaction. Starknet.py will then use ``estimate_fee()`` internally and use value
-returned by it multiplied by ``1.5`` as a ``max_fee`` for V1 transactions. For V3 transactions,
+For testing purposes it is possible to enable automatic fee estimation when making a transaction. Starknet.py will then call :meth:`~starknet_py.net.full_node_client.FullNodeClient.estimate_fee`
+internally and use the returned value, multiplied by ``1.5`` to mitigate fluctuations in price, as a ``max_fee`` for V1 transactions. For V3 transactions,
 ``max_amount`` will be multiplied by ``1.1``, and ``max_price_per_unit`` by ``1.5``.
-
-.. warning::
-
-    Do not use automatic fee estimation in production code! It may lead to
-    very high fees paid as the amount returned by ``estimate_fee()`` may be arbitrarily large.
 
 .. code-block:: python
 
     await contract.functions["put"].invoke_v1(k, v, auto_estimate=True)
 
+.. warning::
+
+    It is strongly discouraged to use automatic fee estimation in production code.
 
 .. note::
     For V1 transactions it is possible to configure the value by which the estimated fee is multiplied,
