@@ -214,6 +214,7 @@ class BaseAccount(ABC):
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> DeployAccountV1:
+        # pylint: disable=too-many-arguments
         """
         Create and sign deploy account transaction version 1.
 
@@ -239,6 +240,7 @@ class BaseAccount(ABC):
         l1_resource_bounds: Optional[ResourceBounds] = None,
         auto_estimate: bool = False,
     ) -> DeployAccountV3:
+        # pylint: disable=too-many-arguments
         """
         Create and sign deploy account transaction version 3.
 

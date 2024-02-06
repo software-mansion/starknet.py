@@ -1,10 +1,12 @@
 from dataclasses import dataclass
 from typing import Any, Generator, Optional
 
-from starknet_py.serialization import CairoDataSerializer
 from starknet_py.serialization._context import (
     DeserializationContext,
     SerializationContext,
+)
+from starknet_py.serialization.data_serializers.cairo_data_serializer import (
+    CairoDataSerializer,
 )
 
 
