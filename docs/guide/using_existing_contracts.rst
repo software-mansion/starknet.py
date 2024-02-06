@@ -41,6 +41,7 @@ Fees
 
 Starknet.py requires you to specify amount of Wei (for V1 transaction) or Fri (for V3 transaction) you
 are willing to pay when executing either :meth:`~ContractFunction.invoke_v1` or :meth:`~ContractFunction.invoke_v3` transactions.
+Alternatively, you can estimate fee automatically, as described in the :ref:`automatic-fee-estimation` section below.
 
 .. code-block:: python
 
@@ -74,6 +75,7 @@ using :meth:`PreparedFunctionInvoke.estimate_fee() <starknet_py.contract.Prepare
 
     await contract.functions["put"].prepare_invoke_v1(k, v).estimate_fee()
 
+.. _automatic-fee-estimation:
 
 Automatic fee estimation
 ------------------------
