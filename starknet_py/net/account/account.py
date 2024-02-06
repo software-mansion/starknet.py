@@ -248,7 +248,8 @@ class Account(BaseAccount):
 
     async def estimate_fee(
         self,
-        tx: AccountTransaction,
+        tx: Union[AccountTransaction, List[AccountTransaction]],
+        skip_validate: bool = False,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
@@ -256,14 +257,22 @@ class Account(BaseAccount):
         Estimate fee for transaction
 
         :param tx: Transaction which fee we want to calculate.
+        :param skip_validate: Flag checking whether the validation part of the transaction should be executed.
         :param block_hash: a block hash.
         :param block_number: a block number.
         :return: Estimated fee.
         """
-        tx = await self.sign_for_fee_estimate(tx)
+
+        if isinstance(tx, AccountTransaction):
+            txt = await self.sign_for_fee_estimate(tx)
+        elif isinstance(tx, List):
+            txt = []
+            for ttx in tx:
+                txt.append(await self.sign_for_fee_estimate(ttx))
 
         estimated_fee = await self._client.estimate_fee(
-            tx=tx,
+            tx=txt,
+            skip_validate=skip_validate,
             block_hash=block_hash,
             block_number=block_number,
         )

@@ -102,7 +102,7 @@ async def test_estimate_fee_for_declare_transaction(account, map_compiled_contra
 async def test_account_estimate_fee_for_declare_transaction(
     account, map_compiled_contract
 ):
-    declare_tx = await account.sign_declare_v1_transaction(
+    declare_tx = await account.sign_declare_v1(
         compiled_contract=map_compiled_contract, max_fee=MAX_FEE
     )
 
