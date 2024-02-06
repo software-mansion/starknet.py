@@ -97,8 +97,11 @@ async def test_estimate_fee_for_declare_transaction(account, map_compiled_contra
         == estimated_fee.overall_fee
     )
 
+
 @pytest.mark.asyncio
-async def test_account_estimate_fee_for_declare_transaction(account, map_compiled_contract):
+async def test_account_estimate_fee_for_declare_transaction(
+    account, map_compiled_contract
+):
     declare_tx = await account.sign_declare_v1_transaction(
         compiled_contract=map_compiled_contract, max_fee=MAX_FEE
     )
