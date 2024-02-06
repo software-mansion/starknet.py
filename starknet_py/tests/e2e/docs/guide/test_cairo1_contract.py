@@ -38,8 +38,8 @@ async def test_cairo1_contract(
 
     # docs: start
 
-    # Create Declare v2 transaction (to create Declare v3 transaction use `sign_declare_v3_transaction` method)
-    declare_v2_transaction = await account.sign_declare_v2_transaction(
+    # Create Declare v2 transaction (to create Declare v3 transaction use `sign_declare_v3` method)
+    declare_v2_transaction = await account.sign_declare_v2(
         # compiled_contract is a string containing the content of the starknet-compile (.json file)
         compiled_contract=compiled_contract,
         compiled_class_hash=casm_class_hash,

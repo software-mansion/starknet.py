@@ -17,8 +17,8 @@ Changes in the :class:`~starknet_py.net.account.account.Account`:
 .. currentmodule:: starknet_py.net.account.account
 
 - :meth:`~Account.execute_v3` has been added.
-- :meth:`~Account.sign_declare_v3_transaction`, :meth:`~Account.sign_deploy_account_v3_transaction` and :meth:`~Account.sign_invoke_v3_transaction` have been added.
-- :meth:`~Account.sign_declare_transaction`, :meth:`~Account.sign_deploy_account_transaction` and :meth:`~Account.sign_invoke_transaction` have been renamed to :meth:`~Account.sign_declare_v1_transaction`, :meth:`~Account.sign_deploy_account_v1_transaction` and :meth:`~Account.sign_invoke_v1_transaction` respectively.
+- :meth:`~Account.sign_declare_v3`, :meth:`~Account.sign_deploy_account_v3` and :meth:`~Account.sign_invoke_v3` have been added.
+- :meth:`sign_declare_transaction`, :meth:`sign_declare_v2_transaction`, :meth:`sign_deploy_account_transaction` and :meth:`sign_invoke_transaction` have been renamed to :meth:`~Account.sign_declare_v1`, :meth:`~Account.sign_declare_v2`, :meth:`~Account.sign_deploy_account_v1` and :meth:`~Account.sign_invoke_v1` respectively.
 
 All new functions with ``v3`` in their name operate similarly to their ``v1`` and ``v2`` counterparts.
 Unlike their ``v1`` counterparts, ``v3`` transaction fees are paid in Fri (10^-18 STRK). Therefore,  ``max_fee`` parameter, which is typically set in Wei, is not applicable for ``v3`` functions. Instead, ``l1_resource_bounds`` parameter is utilized to limit the Fri amount used.
@@ -351,7 +351,7 @@ Also, four methods were added to its interface:
 
 .. currentmodule:: starknet_py.net.account.account
 
-2. :meth:`Account.sign_invoke_transaction`, :meth:`Account.sign_declare_transaction`, :meth:`Account.sign_declare_v2_transaction`, :meth:`Account.sign_deploy_account_transaction` and :meth:`Account.execute` can now accept custom ``nonce`` parameter.
+2. :meth:`Account.sign_invoke_transaction`, :meth:`Account.sign_declare_transaction`, :meth:`Account.sign_declare_v2`, :meth:`Account.sign_deploy_account_transaction` and :meth:`Account.execute` can now accept custom ``nonce`` parameter.
 3. :meth:`Account.get_nonce` can now be parametrized with ``block_number`` or ``block_hash``.
 4. :meth:`Account.get_balance` can now be parametrized with ``block_number`` or ``block_hash``.
 

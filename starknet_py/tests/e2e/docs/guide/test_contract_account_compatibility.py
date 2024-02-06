@@ -17,7 +17,7 @@ async def test_create_invoke_from_contract(map_contract, account):
     assert issubclass(type(call), Call)
 
     # Crate an Invoke transaction from call
-    invoke_transaction = await account.sign_invoke_v1_transaction(call, max_fee=max_fee)
+    invoke_transaction = await account.sign_invoke_v1(call, max_fee=max_fee)
     # docs: end
 
     assert isinstance(invoke_transaction, InvokeV1)
