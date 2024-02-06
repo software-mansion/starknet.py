@@ -9,7 +9,7 @@ Version 0.19.0 of **starknet.py** comes with support for RPC 0.6.0!
 
 .. currentmodule:: starknet_py.net.client_models
 
-New classes added to mirror the recent changes in the RPC v0.6.0 specification that include:
+New classes added to mirror the recent changes in the RPC v0.6.0 specification include:
 :class:`ResourceBoundsMapping`, :class:`ResourceBounds`, :class:`PriceUnit`, :class:`FeePayment`, :class:`DAMode`.
 
 Changes in the :class:`~starknet_py.net.account.account.Account`:
