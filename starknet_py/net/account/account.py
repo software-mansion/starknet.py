@@ -598,8 +598,7 @@ class Account(BaseAccount):
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> AccountDeploymentResult:
-        # pylint: disable=too-many-arguments
-        # pylint: disable=too-many-locals
+        # pylint: disable=too-many-arguments, too-many-locals
 
         """
         Deploys an account contract with provided class_hash on Starknet and returns
