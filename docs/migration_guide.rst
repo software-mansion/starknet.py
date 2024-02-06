@@ -16,25 +16,37 @@ Changes in the :class:`~starknet_py.net.account.account.Account`:
 
 .. currentmodule:: starknet_py.net.account.account
 
-- :meth:`~Account.execute_v3` has been added.
-- :meth:`~Account.sign_declare_v3`, :meth:`~Account.sign_deploy_account_v3` and :meth:`~Account.sign_invoke_v3` have been added.
-- :meth:`sign_declare_transaction`, :meth:`sign_declare_v2_transaction`, :meth:`sign_deploy_account_transaction` and :meth:`sign_invoke_transaction` have been renamed to :meth:`~Account.sign_declare_v1`, :meth:`~Account.sign_declare_v2`, :meth:`~Account.sign_deploy_account_v1` and :meth:`~Account.sign_invoke_v1` respectively.
+- :meth:`~Account.execute` has been renamed to :meth:`~Account.execute_v1`
+- :meth:`~Account.execute_v3` has been added
+- :meth:`~Account.deploy_account` has been renamed to :meth:`~Account.deploy_account_v1`
+- :meth:`~Account.deploy_account_v3` has been added
+- :meth:`~Account.sign_declare_v3`, :meth:`~Account.sign_deploy_account_v3` and :meth:`~Account.sign_invoke_v3` have been added
+- :meth:`sign_declare_transaction`, :meth:`sign_declare_v2_transaction`, :meth:`sign_deploy_account_transaction` and :meth:`sign_invoke_transaction` have been renamed to :meth:`~Account.sign_declare_v1`, :meth:`~Account.sign_declare_v2`, :meth:`~Account.sign_deploy_account_v1` and :meth:`~Account.sign_invoke_v1` respectively
 
 All new functions with ``v3`` in their name operate similarly to their ``v1`` and ``v2`` counterparts.
-Unlike their ``v1`` counterparts, ``v3`` transaction fees are paid in Fri (10^-18 STRK). Therefore,  ``max_fee`` parameter, which is typically set in Wei, is not applicable for ``v3`` functions. Instead, ``l1_resource_bounds`` parameter is utilized to limit the Fri amount used.
+Unlike their ``v1`` counterparts however, ``v3`` transaction fees are paid in Fri (10^-18 STRK). Therefore,  ``max_fee`` parameter, which is typically set in Wei, is not applicable for ``v3`` functions. Instead, ``l1_resource_bounds`` parameter is utilized to limit the Fri amount used.
+The same applies to the new ``v3`` methods in the :class:`~starknet_py.contract.Contract` class.
 
 Changes in the :class:`~starknet_py.net.full_node_client.FullNodeClient`:
 
 .. currentmodule:: starknet_py.net.full_node_client
 
-- :meth:`~FullNodeClient.estimate_fee` has a new parameter ``skip_validate``.
+- :meth:`~FullNodeClient.estimate_fee` has a new parameter ``skip_validate``
 - :meth:`~FullNodeClient.declare` accepts ``transaction`` argument of the type :class:`~starknet_py.net.models.transaction.DeclareV3`
 - :meth:`~FullNodeClient.send_transaction` accepts ``transaction`` argument of the type :class:`~starknet_py.net.models.transaction.InvokeV3`
 - :meth:`~FullNodeClient.deploy_account` accepts ``transaction`` argument of the type :class:`~starknet_py.net.models.transaction.DeployAccountV3`
 
-.. warning::
-    :class:`~starknet_py.contract.Contract` class does not support V3 transactions in the pre-release.
+Changes in the :class:`~starknet_py.contract.Contract`:
 
+.. currentmodule:: starknet_py.contract
+
+- :meth:`Contract.declare` has been replaced by :meth:`Contract.declare_v1`, :meth:`Contract.declare_v2` and :meth:`Contract.declare_v3`
+- :meth:`Contract.deploy_contract` has been replaced by :meth:`Contract.deploy_contract_v1` and :meth:`Contract.deploy_contract_v3`. Optional parameters ``unique`` and ``salt`` have been added to both methods
+- :meth:`ContractFunction.prepare` has been replaced by :meth:`ContractFunction.prepare_invoke_v1`, :meth:`ContractFunction.prepare_invoke_v3` and :meth:`ContractFunction.prepare_call`
+- :meth:`ContractFunction.invoke` has been replaced by :meth:`ContractFunction.invoke_v1` and :meth:`ContractFunction.invoke_v3`
+- :meth:`PreparedFunctionCall` has now only methods :meth:`PreparedFunctionCall.call` and :meth:`PreparedFunctionCall.call_raw`
+- :meth:`PreparedFunctionInvokeV1` and :meth:`PreparedFunctionInvokeV3` with methods ``invoke`` and ``estimate_fee`` have been added
+- :meth:`DeclareResult.deploy` has been replaced by :meth:`DeclareResult.deploy_v1` and :meth:`DeclareResult.deploy_v3`
 
 0.19.0 Targeted versions
 ------------------------
@@ -44,6 +56,7 @@ Changes in the :class:`~starknet_py.net.full_node_client.FullNodeClient`:
 
 0.19.0 Breaking changes
 -----------------------
+Other breaking changes not mentioned above.
 
 .. currentmodule:: starknet_py.net.client_models
 
@@ -60,6 +73,9 @@ Changes in the :class:`~starknet_py.net.full_node_client.FullNodeClient`:
 11. :class:`ResourceLimits` class has been renamed to :class:`ResourceBounds`.
 12. :class:`~starknet_py.net.account.base_account.BaseAccount` and :class:`~starknet_py.net.account.account.Account` property ``supported_transaction_version`` has been removed.
 13. ``wait_for_accept`` parameter in :meth:`Client.wait_for_tx` and :meth:`SentTransaction.wait_for_acceptance` has been removed.
+14. :class:`InvokeTransaction` has been replaced by :class:`InvokeTransactionV0` and :class:`InvokeTransactionV1`.
+15. :class:`DeclareTransaction` has been replaced by :class:`DeclareTransactionV0`, :class:`DeclareTransactionV1` and :class:`DeclareTransactionV3`.
+16. :class:`DeployAccountTransaction` has been replaced by :class:`DeployAccountTransactionV1`.
 
 0.19.0 Minor changes
 --------------------

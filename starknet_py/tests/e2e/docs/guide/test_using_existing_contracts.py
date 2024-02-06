@@ -68,8 +68,8 @@ async def test_using_existing_contracts(account, erc20_contract):
     await invocation.wait_for_acceptance()
     # docs: start
 
-    # Creating a PreparedFunctionCall - creates a function call with arguments - useful for signing transactions and
-    # specifying additional options
+    # Creating a prepared function call with arguments
+    # It is also possible to use `prepare_invoke_v3`
     transfer = contract.functions["transferFrom"].prepare_invoke_v1(
         sender, recipient, amount=10000, max_fee=int(1e16)
     )

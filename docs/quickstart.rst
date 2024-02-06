@@ -30,8 +30,8 @@ It supports an account contract which proxies the calls to other contracts on St
 
 Account can be created in two ways:
 
-* By constructor (address, key_pair and net must be known).
-* By static method ``Account.deploy_account``
+* By constructor (It is required to provide an ``address`` and either ``key_pair`` or ``signer``).
+* By static methods ``Account.deploy_account_v1`` or ``Account.deploy_account_v3``
 
 There are some examples how to do it:
 
@@ -58,7 +58,7 @@ Using Contract
 
 .. note::
 
-    To check if invoke succeeds use wait_for_acceptance on InvokeResult and get its status.
+    To check if invoke succeeded use ``wait_for_acceptance`` on InvokeResult and get its status.
 
 Although asynchronous API is recommended, you can also use Contract's synchronous API:
 

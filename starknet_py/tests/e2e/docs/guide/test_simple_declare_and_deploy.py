@@ -12,7 +12,8 @@ async def test_simple_declare_and_deploy(account, map_compiled_contract):
     compiled_contract = map_compiled_contract
     # docs: start
 
-    # To declare through Contract class you have to compile a contract and pass it to the Contract.declare
+    # To declare through Contract class you have to compile a contract and pass it
+    # to Contract.declare_v1 or Contract.declare_v3
     declare_result = await Contract.declare_v1(
         account=account, compiled_contract=compiled_contract, max_fee=int(1e16)
     )
