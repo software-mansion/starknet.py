@@ -17,7 +17,7 @@ Transaction Fee
 All methods within the :ref:`Account` that involve on-chain modifications require either to specify a maximum transaction fee or to use auto estimation.
 In the case of V1 and V2 transactions, the transaction fee, denoted in Wei, is configured by the ``max_fee`` parameter.
 For V3 transactions, however, the fee is expressed in Fri and is determined by the ``l1_resource_bounds`` parameter.
-To enable auto estimation, assign ``True`` to the ``auto_estimate`` parameter.
+To enable auto estimation, set the ``auto_estimate`` parameter to `True``.
 
 .. code-block:: python
 
@@ -28,8 +28,8 @@ To enable auto estimation, assign ``True`` to the ``auto_estimate`` parameter.
     Do not use automatic fee estimation in production code! It may lead to
     very high fees paid as the amount returned by :meth:`~starknet_py.net.full_node_client.FullNodeClient.estimate_fee` may be arbitrarily large.
 
-The returned estimated fee is multiplied by ``1.5`` for V1 and V2 transactions.
-For V3 transactions, ``max_amount`` and ``max_price_per_unit`` are scaled by ``1.1`` and ``1.5``.
+The returned estimated fee is multiplied by ``1.5`` for V1 and V2 transactions to mitigate fluctuations in price.
+For V3 transactions, ``max_amount`` and ``max_price_per_unit`` are scaled by ``1.1`` and ``1.5`` respectively.
 
 
 .. note::
