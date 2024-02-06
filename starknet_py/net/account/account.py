@@ -318,7 +318,7 @@ class Account(BaseAccount):
         signature = self.signer.sign_transaction(transaction)
         return _add_signature_to_transaction(tx=transaction, signature=signature)
 
-    async def sign_invoke_v1_transaction(
+    async def sign_invoke_v1(
         self,
         calls: Calls,
         *,
@@ -335,7 +335,7 @@ class Account(BaseAccount):
         signature = self.signer.sign_transaction(execute_tx)
         return _add_signature_to_transaction(execute_tx, signature)
 
-    async def sign_invoke_v3_transaction(
+    async def sign_invoke_v3(
         self,
         calls: Calls,
         *,
@@ -352,7 +352,7 @@ class Account(BaseAccount):
         signature = self.signer.sign_transaction(invoke_tx)
         return _add_signature_to_transaction(invoke_tx, signature)
 
-    async def sign_declare_v1_transaction(
+    async def sign_declare_v1(
         self,
         compiled_contract: str,
         *,
@@ -362,7 +362,7 @@ class Account(BaseAccount):
     ) -> DeclareV1:
         if _is_sierra_contract(json.loads(compiled_contract)):
             raise ValueError(
-                "Signing sierra contracts requires using `sign_declare_v2_transaction` method."
+                "Signing sierra contracts requires using `sign_declare_v2` method."
             )
 
         declare_tx = await self._make_declare_v1_transaction(
@@ -376,7 +376,7 @@ class Account(BaseAccount):
         signature = self.signer.sign_transaction(declare_tx)
         return _add_signature_to_transaction(declare_tx, signature)
 
-    async def sign_declare_v2_transaction(
+    async def sign_declare_v2(
         self,
         compiled_contract: str,
         compiled_class_hash: int,
@@ -395,7 +395,7 @@ class Account(BaseAccount):
         signature = self.signer.sign_transaction(declare_tx)
         return _add_signature_to_transaction(declare_tx, signature)
 
-    async def sign_declare_v3_transaction(
+    async def sign_declare_v3(
         self,
         compiled_contract: str,
         compiled_class_hash: int,
@@ -485,7 +485,7 @@ class Account(BaseAccount):
         )
         return declare_tx
 
-    async def sign_deploy_account_v1_transaction(
+    async def sign_deploy_account_v1(
         self,
         class_hash: int,
         contract_address_salt: int,
@@ -512,7 +512,7 @@ class Account(BaseAccount):
         signature = self.signer.sign_transaction(deploy_account_tx)
         return _add_signature_to_transaction(deploy_account_tx, signature)
 
-    async def sign_deploy_account_v3_transaction(
+    async def sign_deploy_account_v3(
         self,
         class_hash: int,
         contract_address_salt: int,
@@ -549,7 +549,7 @@ class Account(BaseAccount):
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> SentTransactionResponse:
-        execute_transaction = await self.sign_invoke_v1_transaction(
+        execute_transaction = await self.sign_invoke_v1(
             calls,
             nonce=nonce,
             max_fee=max_fee,
@@ -565,7 +565,7 @@ class Account(BaseAccount):
         nonce: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> SentTransactionResponse:
-        execute_transaction = await self.sign_invoke_v3_transaction(
+        execute_transaction = await self.sign_invoke_v3(
             calls,
             l1_resource_bounds=l1_resource_bounds,
             nonce=nonce,
@@ -633,7 +633,7 @@ class Account(BaseAccount):
             calldata=calldata,
         )
 
-        deploy_account_tx = await account.sign_deploy_account_v1_transaction(
+        deploy_account_tx = await account.sign_deploy_account_v1(
             class_hash=class_hash,
             contract_address_salt=salt,
             constructor_calldata=calldata,
@@ -704,7 +704,7 @@ class Account(BaseAccount):
             calldata=calldata,
         )
 
-        deploy_account_tx = await account.sign_deploy_account_v3_transaction(
+        deploy_account_tx = await account.sign_deploy_account_v3(
             class_hash=class_hash,
             contract_address_salt=salt,
             constructor_calldata=calldata,

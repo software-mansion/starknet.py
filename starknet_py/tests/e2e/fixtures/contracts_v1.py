@@ -18,7 +18,7 @@ async def declare_cairo1_contract(
 ) -> Tuple[int, int]:
     casm_class_hash = compute_casm_class_hash(create_casm_class(compiled_contract_casm))
 
-    declare_tx = await account.sign_declare_v2_transaction(
+    declare_tx = await account.sign_declare_v2(
         compiled_contract=compiled_contract,
         compiled_class_hash=casm_class_hash,
         max_fee=MAX_FEE,
@@ -47,7 +47,7 @@ async def declare_v2_hello_starknet(account: BaseAccount) -> DeclareV2:
     compiled_contract_casm = read_contract("hello_starknet_compiled.casm")
     casm_class_hash = compute_casm_class_hash(create_casm_class(compiled_contract_casm))
 
-    declare_tx = await account.sign_declare_v2_transaction(
+    declare_tx = await account.sign_declare_v2(
         compiled_contract, casm_class_hash, max_fee=MAX_FEE
     )
     return declare_tx

@@ -138,7 +138,7 @@ async def test_get_transaction_receipt(
 
 @pytest.mark.asyncio
 async def test_estimate_fee_invoke(account, contract_address):
-    invoke_tx = await account.sign_invoke_v1_transaction(
+    invoke_tx = await account.sign_invoke_v1(
         calls=Call(
             to_addr=contract_address,
             selector=get_selector_from_name("increase_balance"),
@@ -158,7 +158,7 @@ async def test_estimate_fee_invoke(account, contract_address):
 
 @pytest.mark.asyncio
 async def test_estimate_fee_invoke_v3(account, contract_address):
-    invoke_tx = await account.sign_invoke_v3_transaction(
+    invoke_tx = await account.sign_invoke_v3(
         calls=Call(
             to_addr=contract_address,
             selector=get_selector_from_name("increase_balance"),
@@ -178,7 +178,7 @@ async def test_estimate_fee_invoke_v3(account, contract_address):
 
 @pytest.mark.asyncio
 async def test_estimate_fee_declare(account):
-    declare_tx = await account.sign_declare_v1_transaction(
+    declare_tx = await account.sign_declare_v1(
         compiled_contract=read_contract(
             "map_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR
         ),
@@ -209,7 +209,7 @@ async def test_estimate_fee_deploy_account(client, deploy_account_transaction):
 async def test_estimate_fee_for_multiple_transactions(
     client, deploy_account_transaction, contract_address, account
 ):
-    invoke_tx = await account.sign_invoke_v1_transaction(
+    invoke_tx = await account.sign_invoke_v1(
         calls=Call(
             to_addr=contract_address,
             selector=get_selector_from_name("increase_balance"),
@@ -219,7 +219,7 @@ async def test_estimate_fee_for_multiple_transactions(
     )
     invoke_tx = await account.sign_for_fee_estimate(invoke_tx)
 
-    declare_tx = await account.sign_declare_v1_transaction(
+    declare_tx = await account.sign_declare_v1(
         compiled_contract=read_contract(
             "map_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR
         ),
@@ -260,7 +260,7 @@ async def test_add_transaction(map_contract, client, account):
     prepared_function_call = map_contract.functions["put"].prepare_invoke_v1(
         key=73, value=12
     )
-    signed_invoke = await account.sign_invoke_v1_transaction(
+    signed_invoke = await account.sign_invoke_v1(
         calls=prepared_function_call, max_fee=MAX_FEE
     )
 
@@ -373,7 +373,7 @@ async def test_wait_for_tx_unknown_error(
 
 @pytest.mark.asyncio
 async def test_declare_contract(account, map_compiled_contract):
-    declare_tx = await account.sign_declare_v1_transaction(
+    declare_tx = await account.sign_declare_v1(
         compiled_contract=map_compiled_contract, max_fee=MAX_FEE
     )
 
@@ -503,7 +503,7 @@ async def test_state_update_deployed_contracts(
     # setup
     deployer = Deployer()
     contract_deployment = deployer.create_contract_deployment(class_hash=class_hash)
-    deploy_invoke_tx = await account.sign_invoke_v1_transaction(
+    deploy_invoke_tx = await account.sign_invoke_v1(
         contract_deployment.call, max_fee=MAX_FEE
     )
     resp = await account.client.send_transaction(deploy_invoke_tx)

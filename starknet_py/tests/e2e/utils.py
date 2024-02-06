@@ -73,7 +73,7 @@ async def get_deploy_account_transaction(
         key_pair=key_pair,
         chain=StarknetChainId.GOERLI,
     )
-    return await account.sign_deploy_account_v1_transaction(
+    return await account.sign_deploy_account_v1(
         class_hash=class_hash,
         contract_address_salt=salt,
         constructor_calldata=[key_pair.public_key],
