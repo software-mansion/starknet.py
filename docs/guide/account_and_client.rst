@@ -5,11 +5,37 @@ Executing transactions
 ----------------------
 
 To execute transactions on Starknet, use :meth:`~starknet_py.net.account.account.Account.execute_v1` or :meth:`~starknet_py.net.account.account.Account.execute_v3` methods from :ref:`Account` interface.
-These methods will send InvokeV1 and InvokeV3 transactions respectively. To read about differences between transaction versions please visit `transaction types <https://docs.starknet.io/documentation/architecture_and_concepts/Network_Architecture/transactions>`_ from the Starknet docs.
+These methods will send :class:`~starknet_py.net.models.InvokeV1` and :class:`~starknet_py.net.models.InvokeV3` transactions respectively. To read about differences between transaction versions please visit `transaction types <https://docs.starknet.io/documentation/architecture_and_concepts/Network_Architecture/transactions>`_ from the Starknet docs.
 
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_executing_transactions.py
     :language: python
     :dedent: 4
+
+Transaction Fee
+---------------
+
+All methods within the :ref:`Account` that involve on-chain modifications require either to specify a maximum transaction fee or to use auto estimation.
+In the case of V1 and V2 transactions, the transaction fee, denoted in Wei, is configured by the ``max_fee`` parameter.
+For V3 transactions, however, the fee is expressed in Fri and is determined by the ``l1_resource_bounds`` parameter.
+To enable auto estimation, assign ``True`` to the ``auto_estimate`` parameter.
+
+.. code-block:: python
+
+    resp = await account.execute_v1(calls=call, auto_estimate=True)
+
+.. warning::
+
+    Do not use automatic fee estimation in production code! It may lead to
+    very high fees paid as the amount returned by :meth:`~starknet_py.net.full_node_client.FullNodeClient.estimate_fee` may be arbitrarily large.
+
+The returned estimated fee is multiplied by ``1.5`` for V1 and V2 transactions.
+For V3 transactions, ``max_amount`` and ``max_price_per_unit`` are scaled by ``1.1`` and ``1.5``.
+
+
+.. note::
+    It is possible to configure the value by which the estimated fee is multiplied,
+    by changing ``ESTIMATED_FEE_MULTIPLIER`` for V1 and V2 transactions in :class:`~starknet_py.net.account.account.Account`.
+    The same applies to ``ESTIMATED_AMOUNT_MULTIPLIER`` and ``ESTIMATED_UNIT_PRICE_MULTIPLIER`` for V3 transactions.
 
 Creating transactions without executing them
 --------------------------------------------
@@ -37,8 +63,6 @@ Note that the nonce will be bumped only by 1.
 .. warning::
 
     Do not pass arbitrarily large number of calls in one batch. Starknet rejects the transaction when it happens.
-
-
 
 FullNodeClient usage
 --------------------
