@@ -17,11 +17,11 @@ async def test_deploying_with_udc(
     salt = None
 
     # docs: start
-    # If you use mainnet/testnet/devnet there is no need to explicitly specify
+    # If you use mainnet/goerli/sepolia there is no need to explicitly specify
     # address of the deployer (default one will be used)
     deployer = Deployer()
 
-    # If custom net is used address of the deployer contract is required
+    # If custom network is used address of the deployer contract is required
     deployer = Deployer(deployer_address=deployer_address)
 
     # Deployer has one more optional parameter `account_address`

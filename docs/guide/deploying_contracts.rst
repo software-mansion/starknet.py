@@ -4,9 +4,8 @@ Deploying contracts
 Declaring contracts
 -------------------
 
-Since Cairo 0.10.0 Declare transactions can be signed and in the future, declaring without signing the transaction
-(and without paying the fee) will be impossible. That is why :ref:`Account` has
-:meth:`sign_declare_transaction()` method.
+A declare transaction can be issued in version 1, 2 or 3. Contracts written in Cairo 0 should be declared using version 1, while those written in Cairo 1 or higher should be declared with versions 2 or 3.
+To sign a declare transaction, you should utilize the :meth:`~starknet_py.net.account.account.Account.sign_declare_v1`, :meth:`~starknet_py.net.account.account.Account.sign_declare_v2` or :meth:`~starknet_py.net.account.account.Account.sign_declare_v3` method, respectively.
 
 Here's an example how to use it.
 
@@ -14,17 +13,12 @@ Here's an example how to use it.
     :language: python
     :dedent: 4
 
-.. note::
-
-    Signing Declare transactions is possible only with Accounts having `__validate__` entrypoint (with `supported_tx_version = 1`).
-
-
 
 Simple declare and deploy
 -------------------------
 
 The simplest way of declaring and deploying contracts on the Starknet is to use the :ref:`Contract` class.
-Under the hood, this flow sends :meth:`Declare` transaction and then sends :meth:`InvokeFunction`
+Under the hood, this flow first sends ``Declare`` transaction and then sends ``Invoke``
 through Universal Deployment Contract (UDC) to deploy a contract.
 
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_simple_declare_and_deploy.py
@@ -34,7 +28,7 @@ through Universal Deployment Contract (UDC) to deploy a contract.
 Simple deploy
 -------------
 
-If you already know the class hash of an already declared contract you want to deploy just use the :meth:`Contract.deploy_contract`.
+If you know the class hash of an already declared contract you want to deploy just use the :meth:`~starknet_py.contract.Contract.deploy_contract_v1` or :meth:`~starknet_py.contract.Contract.deploy_contract_v3`.
 It will deploy the contract using funds from your account. Deployment is handled by UDC.
 
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_simple_deploy.py
@@ -62,7 +56,6 @@ Deploying and using deployed contract in the same transaction
 
 :ref:`Deployer` is designed to work with multicalls too. It allows to deploy a contract
 and call its methods in the same multicall, ensuring atomicity of all operations combined.
-Isn't it brilliant? Check out the code!
 
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_deploying_in_multicall.py
     :language: python
@@ -75,9 +68,7 @@ Cairo1 contracts
 Declaring Cairo1 contracts
 ##########################
 
-| Starknet 0.11 introduced the ability to declare contracts written in Cairo1!
-
-To declare a new contract, Declare v2 or Declare v3 transaction has to be sent.
+To declare a contract in Cairo version 1 or higher, Declare V2 or Declare V3 transaction has to be sent.
 You can see the structure of these transactions `here <https://docs.starknet.io/documentation/architecture_and_concepts/Network_Architecture/transactions/#declare-transaction>`_.
 
 The main differences in the structure of the transaction from its previous version are:
