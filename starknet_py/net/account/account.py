@@ -257,16 +257,6 @@ class Account(BaseAccount):
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> Union[EstimatedFee, List[EstimatedFee]]:
-        """
-        Estimate fee for transaction
-
-        :param tx: Transactions which fee we want to calculate.
-        :param skip_validate: Flag checking whether the validation part of the transaction should be executed.
-        :param block_hash: a block hash.
-        :param block_number: a block number.
-        :return: Estimated fee of transactions.
-        """
-
         transactions = (
             await self.sign_for_fee_estimate(tx)
             if isinstance(tx, AccountTransaction)

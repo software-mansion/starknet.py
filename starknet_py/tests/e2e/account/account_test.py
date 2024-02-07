@@ -16,6 +16,7 @@ from starknet_py.net.client_models import (
     DeployAccountTransactionV3,
     EstimatedFee,
     InvokeTransactionV3,
+    PriceUnit,
     ResourceBounds,
     ResourceBoundsMapping,
     SierraContractClass,
@@ -108,11 +109,33 @@ async def test_account_estimate_fee_for_declare_transaction(
 
     estimated_fee = await account.estimate_fee(tx=declare_tx)
 
+    assert estimated_fee.unit == PriceUnit.WEI
     assert isinstance(estimated_fee.overall_fee, int)
     assert estimated_fee.overall_fee > 0
     assert (
         estimated_fee.gas_consumed * estimated_fee.gas_price
         == estimated_fee.overall_fee
+    )
+
+
+@pytest.mark.asyncio
+async def test_account_estimate_fee_for_transactions(account, map_compiled_contract):
+    declare_tx = await account.sign_declare_v1(
+        compiled_contract=map_compiled_contract, max_fee=MAX_FEE, nonce=1
+    )
+    declare_tx2 = await account.sign_declare_v1(
+        compiled_contract=map_compiled_contract, max_fee=MAX_FEE, nonce=2
+    )
+
+    estimated_fee = await account.estimate_fee(tx=[declare_tx, declare_tx2])
+
+    assert isinstance(estimated_fee[0], EstimatedFee)
+    assert isinstance(estimated_fee[1], EstimatedFee)
+    assert isinstance(estimated_fee[0].overall_fee, int)
+    assert estimated_fee[0].overall_fee > 0
+    assert (
+        estimated_fee[0].gas_consumed * estimated_fee[0].gas_price
+        == estimated_fee[0].overall_fee
     )
 
 
