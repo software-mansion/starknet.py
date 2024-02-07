@@ -272,7 +272,7 @@ class Account(BaseAccount):
             if isinstance(tx, AccountTransaction)
             else [await self.sign_for_fee_estimate(t) for t in tx]
         )
-        
+
         return await self._client.estimate_fee(
             tx=transactions,
             skip_validate=skip_validate,
