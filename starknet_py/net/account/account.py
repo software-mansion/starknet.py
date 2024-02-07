@@ -137,6 +137,8 @@ class Account(BaseAccount):
 
         if auto_estimate:
             estimated_fee = await self.estimate_fee(transaction)
+            assert isinstance(estimated_fee, EstimatedFee)
+
             max_fee = int(estimated_fee.overall_fee * Account.ESTIMATED_FEE_MULTIPLIER)
 
         if max_fee is None:
@@ -159,6 +161,8 @@ class Account(BaseAccount):
 
         if auto_estimate:
             estimated_fee = await self.estimate_fee(transaction)
+            assert isinstance(estimated_fee, EstimatedFee)
+
             l1_resource_bounds = ResourceBounds(
                 max_amount=int(
                     estimated_fee.gas_consumed * Account.ESTIMATED_AMOUNT_MULTIPLIER
@@ -252,15 +256,18 @@ class Account(BaseAccount):
         skip_validate: bool = False,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> EstimatedFee:
+    ) -> Union[EstimatedFee, List[EstimatedFee]]:
         """
-        Estimate fee for transaction
+        Estimates the resources required by a given sequence of transactions when applied on a given state.
+        If one of the transactions reverts or fails due to any reason (e.g. validation failure or an internal error),
+        a TRANSACTION_EXECUTION_ERROR is returned.
+        For v0-2 transactions the estimate is given in Wei, and for v3 transactions it is given in Fri.
 
-        :param tx: Transaction which fee we want to calculate.
+        :param tx: Transactions which fee we want to calculate.
         :param skip_validate: Flag checking whether the validation part of the transaction should be executed.
         :param block_hash: a block hash.
         :param block_number: a block number.
-        :return: Estimated fee.
+        :return: Estimated fee of transactions.
         """
 
         if isinstance(tx, AccountTransaction):
@@ -270,15 +277,12 @@ class Account(BaseAccount):
             for ttx in tx:
                 txt.append(await self.sign_for_fee_estimate(ttx))
 
-        estimated_fee = await self._client.estimate_fee(
+        return await self._client.estimate_fee(
             tx=txt,
             skip_validate=skip_validate,
             block_hash=block_hash,
             block_number=block_number,
         )
-        assert isinstance(estimated_fee, EstimatedFee)
-
-        return estimated_fee
 
     async def get_nonce(
         self,
