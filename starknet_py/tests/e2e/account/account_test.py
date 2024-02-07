@@ -107,7 +107,7 @@ async def test_account_estimate_fee_for_declare_transaction(
     )
 
     estimated_fee = await account.estimate_fee(tx=declare_tx)
-    print(estimated_fee)
+
     assert isinstance(estimated_fee.overall_fee, int)
     assert estimated_fee.overall_fee > 0
     assert (

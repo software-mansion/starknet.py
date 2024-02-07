@@ -4,6 +4,7 @@ from typing import List, Optional, Union
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import (
     Calls,
+    EstimatedFee,
     Hash,
     ResourceBounds,
     SentTransactionResponse,
@@ -11,6 +12,7 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.models import AddressRepresentation, StarknetChainId
 from starknet_py.net.models.transaction import (
+    AccountTransaction,
     DeclareV1,
     DeclareV2,
     DeclareV3,
@@ -49,6 +51,27 @@ class BaseAccount(ABC):
     def client(self) -> Client:
         """
         Get the Client used by the Account.
+        """
+
+    @abstractmethod
+    async def estimate_fee(
+        self,
+        tx: Union[AccountTransaction, List[AccountTransaction]],
+        skip_validate: bool = False,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> Union[EstimatedFee, List[EstimatedFee]]:
+        """
+        Estimates the resources required by a given sequence of transactions when applied on a given state.
+        If one of the transactions reverts or fails due to any reason (e.g. validation failure or an internal error),
+        a TRANSACTION_EXECUTION_ERROR is returned.
+        For v0-2 transactions the estimate is given in Wei, and for v3 transactions it is given in Fri.
+
+        :param tx: Transactions which fee we want to calculate.
+        :param skip_validate: Flag checking whether the validation part of the transaction should be executed.
+        :param block_hash: a block hash.
+        :param block_number: a block number.
+        :return: Estimated fee of transactions.
         """
 
     @abstractmethod
