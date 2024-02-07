@@ -67,11 +67,11 @@ class BaseAccount(ABC):
         a TRANSACTION_EXECUTION_ERROR is returned.
         For v0-2 transactions the estimate is given in Wei, and for v3 transactions it is given in Fri.
 
-        :param tx: Transactions which fee we want to calculate.
-        :param skip_validate: Flag checking whether the validation part of the transaction should be executed.
-        :param block_hash: a block hash.
-        :param block_number: a block number.
-        :return: Estimated fee of transactions.
+        :param tx: Transaction or list of transactions to estimate
+        :param skip_validate: Flag checking whether the validation part of the transaction should be executed
+        :param block_hash: Block hash or literals `"pending"` or `"latest"`
+        :param block_number: Block number or literals `"pending"` or `"latest"`
+        :return: Estimated fee or list of estimated fees for each transaction
         """
 
     @abstractmethod
