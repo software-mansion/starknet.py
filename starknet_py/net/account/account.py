@@ -267,15 +267,14 @@ class Account(BaseAccount):
         :return: Estimated fee of transactions.
         """
 
-        if isinstance(tx, AccountTransaction):
-            ttx = await self.sign_for_fee_estimate(tx)
-        elif isinstance(tx, List):
-            ttx = []
-            for t in tx:
-                ttx.append(await self.sign_for_fee_estimate(t))
-
+        transactions = (
+            await self.sign_for_fee_estimate(tx)
+            if isinstance(tx, AccountTransaction)
+            else [await self.sign_for_fee_estimate(t) for t in tx]
+        )
+        
         return await self._client.estimate_fee(
-            tx=ttx,
+            tx=transactions,
             skip_validate=skip_validate,
             block_hash=block_hash,
             block_number=block_number,
