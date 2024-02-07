@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "starknet-py"
-version = "0.19.0-alpha"
+version = "0.19.0"
 description = "A python SDK for Starknet"
 authors = ["Tomasz Rejowski <tomasz.rejowski@swmansion.com>", "Jakub Ptak <jakub.ptak@swmansion.com>"]
 include = ["starknet_py", "starknet_py/utils/crypto/libcrypto_c_exports.*"]
@@ -47,7 +47,6 @@ pytest-cov = "^4.0.0"
 isort = "^5.11.4"
 pytest-rerunfailures = "^13.0"
 python-dotenv = "^1.0.0"
-
 
 [tool.poetry.group.py312-dev.dependencies]
 cairo-lang = {version = "0.13.0", python = ">=3.9, <3.13"}

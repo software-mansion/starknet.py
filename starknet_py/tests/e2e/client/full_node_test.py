@@ -408,7 +408,7 @@ async def test_simulate_transactions_skip_validate(account, deployed_balance_con
         selector=get_selector_from_name("increase_balance"),
         calldata=[0x10],
     )
-    invoke_tx = await account.sign_invoke_v1_transaction(calls=call, auto_estimate=True)
+    invoke_tx = await account.sign_invoke_v1(calls=call, auto_estimate=True)
     invoke_tx = dataclasses.replace(invoke_tx, signature=[])
 
     simulated_txs = await account.client.simulate_transactions(
@@ -432,7 +432,7 @@ async def test_simulate_transactions_skip_fee_charge(
         selector=get_selector_from_name("increase_balance"),
         calldata=[0x10],
     )
-    invoke_tx = await account.sign_invoke_v1_transaction(calls=call, auto_estimate=True)
+    invoke_tx = await account.sign_invoke_v1(calls=call, auto_estimate=True)
 
     simulated_txs = await account.client.simulate_transactions(
         transactions=[invoke_tx], skip_fee_charge=True, block_number="latest"
@@ -448,7 +448,7 @@ async def test_simulate_transactions_invoke(account, deployed_balance_contract):
         selector=get_selector_from_name("increase_balance"),
         calldata=[0x10],
     )
-    invoke_tx = await account.sign_invoke_v1_transaction(calls=call, auto_estimate=True)
+    invoke_tx = await account.sign_invoke_v1(calls=call, auto_estimate=True)
     simulated_txs = await account.client.simulate_transactions(
         transactions=[invoke_tx], block_number="latest"
     )
@@ -457,9 +457,7 @@ async def test_simulate_transactions_invoke(account, deployed_balance_contract):
     assert isinstance(simulated_txs[0].transaction_trace, InvokeTransactionTrace)
     assert simulated_txs[0].transaction_trace.execute_invocation is not None
 
-    invoke_tx = await account.sign_invoke_v1_transaction(
-        calls=[call, call], auto_estimate=True
-    )
+    invoke_tx = await account.sign_invoke_v1(calls=[call, call], auto_estimate=True)
     simulated_txs = await account.client.simulate_transactions(
         transactions=[invoke_tx], block_number="latest"
     )
@@ -474,9 +472,7 @@ async def test_simulate_transactions_declare(account):
     compiled_contract = read_contract(
         "map_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR
     )
-    declare_tx = await account.sign_declare_v1_transaction(
-        compiled_contract, max_fee=int(1e16)
-    )
+    declare_tx = await account.sign_declare_v1(compiled_contract, max_fee=int(1e16))
 
     simulated_txs = await account.client.simulate_transactions(
         transactions=[declare_tx], block_number="latest"
@@ -495,7 +491,7 @@ async def test_simulate_transactions_two_txs(account, deployed_balance_contract)
         selector=get_selector_from_name("increase_balance"),
         calldata=[0x10],
     )
-    invoke_tx = await account.sign_invoke_v1_transaction(calls=call, auto_estimate=True)
+    invoke_tx = await account.sign_invoke_v1(calls=call, auto_estimate=True)
 
     compiled_v2_contract = read_contract(
         "test_contract_declare_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
@@ -506,7 +502,7 @@ async def test_simulate_transactions_two_txs(account, deployed_balance_contract)
     casm_class = create_casm_class(compiled_v2_contract_casm)
     casm_class_hash = compute_casm_class_hash(casm_class)
 
-    declare_v2_tx = await account.sign_declare_v2_transaction(
+    declare_v2_tx = await account.sign_declare_v2(
         compiled_contract=compiled_v2_contract,
         compiled_class_hash=casm_class_hash,
         # because raw calls do not increment nonce, it needs to be done manually
@@ -545,7 +541,7 @@ async def test_simulate_transactions_deploy_account(
         key_pair=key_pair,
         chain=StarknetChainId.GOERLI,
     )
-    deploy_account_tx = await account.sign_deploy_account_v1_transaction(
+    deploy_account_tx = await account.sign_deploy_account_v1(
         class_hash=class_hash,
         contract_address_salt=salt,
         constructor_calldata=[key_pair.public_key],

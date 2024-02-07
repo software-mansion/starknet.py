@@ -14,7 +14,7 @@ async def test_default_deploy_with_class_hash(account, map_class_hash):
 
     contract_deployment = deployer.create_contract_deployment(class_hash=map_class_hash)
 
-    deploy_invoke_tx = await account.sign_invoke_v1_transaction(
+    deploy_invoke_tx = await account.sign_invoke_v1(
         contract_deployment.call, max_fee=MAX_FEE
     )
     resp = await account.client.send_transaction(deploy_invoke_tx)
@@ -74,7 +74,7 @@ async def test_constructor_arguments_contract_deploy(
         calldata=calldata,
     )
 
-    deploy_invoke_transaction = await account.sign_invoke_v1_transaction(
+    deploy_invoke_transaction = await account.sign_invoke_v1(
         deploy_call, max_fee=MAX_FEE
     )
     resp = await account.client.send_transaction(deploy_invoke_transaction)
@@ -113,9 +113,7 @@ async def test_address_computation(salt, pass_account_address, account, map_clas
         salt=salt,
     )
 
-    deploy_invoke_tx = await account.sign_invoke_v1_transaction(
-        deploy_call, max_fee=MAX_FEE
-    )
+    deploy_invoke_tx = await account.sign_invoke_v1(deploy_call, max_fee=MAX_FEE)
     resp = await account.client.send_transaction(deploy_invoke_tx)
     await account.client.wait_for_tx(resp.transaction_hash)
 
@@ -158,7 +156,7 @@ async def test_create_deployment_call_raw(
         raw_calldata=raw_calldata,
     )
 
-    deploy_invoke_transaction = await account.sign_invoke_v1_transaction(
+    deploy_invoke_transaction = await account.sign_invoke_v1(
         deploy_call, max_fee=MAX_FEE
     )
     resp = await account.client.send_transaction(deploy_invoke_transaction)
@@ -202,7 +200,7 @@ async def test_create_deployment_call_raw_supports_seed_0(
         salt=0,
     )
 
-    deploy_invoke_transaction = await account.sign_invoke_v1_transaction(
+    deploy_invoke_transaction = await account.sign_invoke_v1(
         deploy_call, max_fee=MAX_FEE
     )
     resp = await account.client.send_transaction(deploy_invoke_transaction)

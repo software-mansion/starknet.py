@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import warnings
 from abc import ABC, abstractmethod
 from typing import List, Optional, Union
 
@@ -137,7 +136,6 @@ class Client(ABC):
     async def wait_for_tx(
         self,
         tx_hash: Hash,
-        wait_for_accept: Optional[bool] = None,  # pylint: disable=unused-argument
         check_interval: float = 2,
         retries: int = 500,
     ) -> TransactionReceipt:
@@ -146,10 +144,6 @@ class Client(ABC):
         Awaits for transaction to get accepted or at least pending by polling its status.
 
         :param tx_hash: Transaction's hash.
-        :param wait_for_accept:
-            .. deprecated:: 0.17.0
-                Parameter `wait_for_accept` has been deprecated - since Starknet 0.12.0, transactions in a PENDING
-                block have status ACCEPTED_ON_L2.
         :param check_interval: Defines interval between checks.
         :param retries: Defines how many times the transaction is checked until an error is thrown.
         :return: Transaction receipt.
@@ -158,11 +152,6 @@ class Client(ABC):
             raise ValueError("Argument check_interval has to be greater than 0.")
         if retries <= 0:
             raise ValueError("Argument retries has to be greater than 0.")
-        if wait_for_accept is not None:
-            warnings.warn(
-                "Parameter `wait_for_accept` has been deprecated - since Starknet 0.12.0, transactions in a PENDING"
-                " block have status ACCEPTED_ON_L2."
-            )
 
         transaction_received = False
         while True:

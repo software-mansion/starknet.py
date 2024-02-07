@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import dataclasses
 import json
-import warnings
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import cached_property
@@ -117,7 +116,6 @@ class SentTransaction:
 
     async def wait_for_acceptance(
         self: TypeSentTransaction,
-        wait_for_accept: Optional[bool] = None,
         check_interval: float = 2,
         retries: int = 500,
     ) -> TypeSentTransaction:
@@ -125,11 +123,6 @@ class SentTransaction:
         Waits for transaction to be accepted on chain till ``ACCEPTED`` status.
         Returns a new SentTransaction instance, **does not mutate original instance**.
         """
-        if wait_for_accept is not None:
-            warnings.warn(
-                "Parameter `wait_for_accept` has been deprecated - since Starknet 0.12.0, transactions in a PENDING"
-                " block have status ACCEPTED_ON_L2."
-            )
 
         tx_receipt = await self._client.wait_for_tx(
             self.hash,
@@ -436,7 +429,7 @@ class PreparedFunctionInvokeV1(PreparedFunctionInvoke):
         :return: InvokeResult.
         """
 
-        transaction = await self.get_account.sign_invoke_v1_transaction(
+        transaction = await self.get_account.sign_invoke_v1(
             calls=self,
             nonce=nonce,
             max_fee=max_fee or self.max_fee,
@@ -452,9 +445,7 @@ class PreparedFunctionInvokeV1(PreparedFunctionInvoke):
         *,
         nonce: Optional[int] = None,
     ) -> EstimatedFee:
-        tx = await self.get_account.sign_invoke_v1_transaction(
-            calls=self, nonce=nonce, max_fee=0
-        )
+        tx = await self.get_account.sign_invoke_v1(calls=self, nonce=nonce, max_fee=0)
         estimate_tx = await self.get_account.sign_for_fee_estimate(transaction=tx)
 
         estimated_fee = await self._client.estimate_fee(
@@ -493,7 +484,7 @@ class PreparedFunctionInvokeV3(PreparedFunctionInvoke):
         :return: InvokeResult.
         """
 
-        transaction = await self.get_account.sign_invoke_v3_transaction(
+        transaction = await self.get_account.sign_invoke_v3(
             calls=self,
             nonce=nonce,
             l1_resource_bounds=l1_resource_bounds or self.l1_resource_bounds,
@@ -509,7 +500,7 @@ class PreparedFunctionInvokeV3(PreparedFunctionInvoke):
         *,
         nonce: Optional[int] = None,
     ) -> EstimatedFee:
-        tx = await self.get_account.sign_invoke_v3_transaction(
+        tx = await self.get_account.sign_invoke_v3(
             calls=self, nonce=nonce, l1_resource_bounds=ResourceBounds.init_with_zeros()
         )
         estimate_tx = await self.get_account.sign_for_fee_estimate(transaction=tx)
@@ -838,7 +829,7 @@ class Contract:
         :return: DeclareResult instance.
         """
 
-        declare_tx = await account.sign_declare_v1_transaction(
+        declare_tx = await account.sign_declare_v1(
             compiled_contract=compiled_contract,
             nonce=nonce,
             max_fee=max_fee,
@@ -878,7 +869,7 @@ class Contract:
             compiled_contract_casm, compiled_class_hash
         )
 
-        declare_tx = await account.sign_declare_v2_transaction(
+        declare_tx = await account.sign_declare_v2(
             compiled_contract=compiled_contract,
             compiled_class_hash=compiled_class_hash,
             nonce=nonce,
@@ -921,7 +912,7 @@ class Contract:
             compiled_contract_casm, compiled_class_hash
         )
 
-        declare_tx = await account.sign_declare_v3_transaction(
+        declare_tx = await account.sign_declare_v3(
             compiled_contract=compiled_contract,
             compiled_class_hash=compiled_class_hash,
             nonce=nonce,

@@ -107,7 +107,7 @@ async def test_simulate_transactions_declare_on_network(account_goerli_testnet):
     compiled_contract = read_contract(
         "map_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR
     )
-    declare_tx = await account_goerli_testnet.sign_declare_v1_transaction(
+    declare_tx = await account_goerli_testnet.sign_declare_v1(
         compiled_contract, max_fee=int(1e16)
     )
 
