@@ -258,10 +258,7 @@ class Account(BaseAccount):
         block_number: Optional[Union[int, Tag]] = None,
     ) -> Union[EstimatedFee, List[EstimatedFee]]:
         """
-        Estimates the resources required by a given sequence of transactions when applied on a given state.
-        If one of the transactions reverts or fails due to any reason (e.g. validation failure or an internal error),
-        a TRANSACTION_EXECUTION_ERROR is returned.
-        For v0-2 transactions the estimate is given in Wei, and for v3 transactions it is given in Fri.
+        Estimate fee for transaction
 
         :param tx: Transactions which fee we want to calculate.
         :param skip_validate: Flag checking whether the validation part of the transaction should be executed.
@@ -271,14 +268,14 @@ class Account(BaseAccount):
         """
 
         if isinstance(tx, AccountTransaction):
-            txt = await self.sign_for_fee_estimate(tx)
+            ttx = await self.sign_for_fee_estimate(tx)
         elif isinstance(tx, List):
-            txt = []
-            for ttx in tx:
-                txt.append(await self.sign_for_fee_estimate(ttx))
+            ttx = []
+            for t in tx:
+                ttx.append(await self.sign_for_fee_estimate(t))
 
         return await self._client.estimate_fee(
-            tx=txt,
+            tx=ttx,
             skip_validate=skip_validate,
             block_hash=block_hash,
             block_number=block_number,
