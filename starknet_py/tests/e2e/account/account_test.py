@@ -120,11 +120,13 @@ async def test_account_estimate_fee_for_declare_transaction(
 
 @pytest.mark.asyncio
 async def test_account_estimate_fee_for_transactions(account, map_compiled_contract):
+    nonce = await account.get_nonce(block_hash="pending")
+    print(nonce)
     declare_tx = await account.sign_declare_v1(
-        compiled_contract=map_compiled_contract, max_fee=MAX_FEE, nonce=1
+        compiled_contract=map_compiled_contract, max_fee=MAX_FEE, nonce=nonce
     )
     declare_tx2 = await account.sign_declare_v1(
-        compiled_contract=map_compiled_contract, max_fee=MAX_FEE, nonce=2
+        compiled_contract=map_compiled_contract, max_fee=MAX_FEE, nonce=(nonce + 1)
     )
 
     estimated_fee = await account.estimate_fee(tx=[declare_tx, declare_tx2])
