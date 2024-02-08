@@ -347,7 +347,13 @@ class TransactionFinalityStatus(Enum):
 
 
 @dataclass
-class ExecutionResources:
+class DataResources:
+    l1_gas: int
+    l1_data_gas: int
+
+
+@dataclass
+class ComputationResources:
     """
     Dataclass representing the resources consumed by the transaction.
     """
@@ -363,6 +369,11 @@ class ExecutionResources:
     bitwise_builtin_applications: Optional[int] = None
     keccak_builtin_applications: Optional[int] = None
     memory_holes: Optional[int] = None
+
+
+@dataclass
+class ExecutionResources(ComputationResources):
+    data_availability: DataResources
 
 
 # TODO (#1219): split into PendingTransactionReceipt and TransactionReceipt
@@ -848,6 +859,7 @@ class InvokeTransactionTrace:
     Dataclass representing a transaction trace of an INVOKE transaction.
     """
 
+    execution_resources: ExecutionResources
     execute_invocation: Union[FunctionInvocation, RevertedFunctionInvocation]
     validate_invocation: Optional[FunctionInvocation] = None
     fee_transfer_invocation: Optional[FunctionInvocation] = None
@@ -860,6 +872,7 @@ class DeclareTransactionTrace:
     Dataclass representing a transaction trace of an DECLARE transaction.
     """
 
+    execution_resources: ExecutionResources
     validate_invocation: Optional[FunctionInvocation] = None
     fee_transfer_invocation: Optional[FunctionInvocation] = None
     state_diff: Optional[StateDiff] = None
@@ -871,6 +884,7 @@ class DeployAccountTransactionTrace:
     Dataclass representing a transaction trace of an DEPLOY_ACCOUNT transaction.
     """
 
+    execution_resources: ExecutionResources
     constructor_invocation: FunctionInvocation
     validate_invocation: Optional[FunctionInvocation] = None
     fee_transfer_invocation: Optional[FunctionInvocation] = None

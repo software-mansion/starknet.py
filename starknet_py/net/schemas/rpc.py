@@ -6,9 +6,11 @@ from starknet_py.net.client_models import (
     BlockHashAndNumber,
     BlockStateUpdate,
     BlockTransactionTrace,
+    ComputationResources,
     ContractClass,
     ContractsNonce,
     DAMode,
+    DataResources,
     DeclaredContractHash,
     DeclareTransactionResponse,
     DeclareTransactionTrace,
@@ -115,7 +117,16 @@ class L2toL1MessageSchema(Schema):
         return L2toL1Message(**data)
 
 
-class ExecutionResourcesSchema(Schema):
+class DataResourcesSchema(Schema):
+    l1_gas = Felt(data_key="l1_gas", required=True)
+    l1_data_gas = Felt(data_key="l1_data_gas", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> DataResources:
+        return DataResources(**data)
+
+
+class ComputationResourcesSchema(Schema):
     steps = Felt(data_key="steps", required=True)
     range_check_builtin_applications = Felt(
         data_key="range_check_builtin_applications", load_default=None
@@ -139,6 +150,16 @@ class ExecutionResourcesSchema(Schema):
         data_key="keccak_builtin_applications", load_default=None
     )
     memory_holes = Felt(data_key="memory_holes", load_default=None)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> ComputationResources:
+        return ComputationResources(**data)
+
+
+class ExecutionResourcesSchema(ComputationResourcesSchema):
+    execution_resources = fields.Nested(
+        DataResourcesSchema(), data_key="data_availability", required=True
+    )
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> ExecutionResources:
