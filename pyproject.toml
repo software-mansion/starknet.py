@@ -14,10 +14,10 @@ repository = "https://github.com/software-mansion/starknet.py"
 documentation = "https://starknetpy.rtfd.io/"
 
 [tool.poetry.dependencies]
-python = ">=3.8, <3.13"
+python = ">=3.9, <3.13"
 asgiref = "^3.4.1"
 marshmallow = "^3.15.0"
-marshmallow-oneofschema = "^3.0.1"
+marshmallow-oneofschema = "3.0.1"
 typing-extensions = "^4.3.0"
 marshmallow-dataclass = "<8.7.0"
 poseidon-py = "^0.1.3"

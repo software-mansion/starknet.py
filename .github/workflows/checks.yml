@@ -87,7 +87,7 @@ jobs:
 
       - name: Install python 3.12 requirements
         run: |
-          poetry export -f requirements.txt --only=py312-dev --without-hashes --output requirements.txt
+          poetry export -f requirements.txt --without-hashes --output requirements.txt
           pip install -r requirements.txt
 
       - name: Set up Python ${{ matrix.python-version }}
@@ -160,7 +160,7 @@ jobs:
 
       - name: Install python 3.12 requirements
         run: |
-          poetry export -f requirements.txt --only=py312-dev --without-hashes --output requirements.txt
+          poetry export -f requirements.txt --without-hashes --output requirements.txt
           pip install -r requirements.txt
 
       - name: Set up Python ${{ matrix.python-version }}
@@ -242,7 +242,7 @@ jobs:
 
       - name: Install python 3.12 requirements
         run: |
-          poetry export -f requirements.txt --only=py312-dev --without-hashes --output requirements.txt
+          poetry export -f requirements.txt --without-hashes --output requirements.txt
           pip install -r requirements.txt
 
       - name: Set up Python 3.12
@@ -316,7 +316,7 @@ jobs:
 
       - name: Install python 3.12 requirements
         run: |
-          poetry export -f requirements.txt --only=py312-dev --without-hashes --output requirements.txt
+          poetry export -f requirements.txt --without-hashes --output requirements.txt
           pip install -r requirements.txt
 
       - name: Set up Python ${{ matrix.python-version }}
@@ -385,7 +385,7 @@ jobs:
 
       - name: Install python 3.12 requirements
         run: |
-          poetry export -f requirements.txt --only=py312-dev --without-hashes --output requirements.txt
+          poetry export -f requirements.txt --without-hashes --output requirements.txt
           pip install -r requirements.txt
 
       - name: Set up Python ${{ matrix.python-version }}
@@ -459,7 +459,7 @@ jobs:
 
       - name: Install python 3.12 requirements
         run: |
-          poetry export -f requirements.txt --only=py312-dev --without-hashes --output requirements.txt
+          poetry export -f requirements.txt --without-hashes --output requirements.txt
           pip install -r requirements.txt
 
       - name: Set up Python ${{ matrix.python-version }}
