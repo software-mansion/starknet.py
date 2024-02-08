@@ -85,7 +85,7 @@ jobs:
           pip install poetry
           poetry config installer.modern-installation false
 
-      - name: Install python 3.12 requirements
+      - name: Install cairo-lang
         run: |
           pip install cairo-lang==0.13.0
 
@@ -112,6 +112,7 @@ jobs:
           key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts', 'poetry.lock') }}
 
       - name: Compile contracts
+        if: steps.cache-contracts.outputs.cache-hit != 'true'
         run: |
           poetry run poe compile_contracts
 
@@ -157,7 +158,7 @@ jobs:
           pip install poetry
           poetry config installer.modern-installation false
 
-      - name: Install python 3.12 requirements
+      - name: Install cairo-lang
         run: |
           pip install cairo-lang==0.13.0
 
@@ -238,7 +239,7 @@ jobs:
           pip install poetry
           poetry config installer.modern-installation false
 
-      - name: Install python 3.12 requirements
+      - name: Install cairo-lang
         run: |
           pip install cairo-lang==0.13.0
 
@@ -311,7 +312,7 @@ jobs:
           pip install poetry
           poetry config installer.modern-installation false
 
-      - name: Install python 3.12 requirements
+      - name: Install cairo-lang
         run: |
           pip install cairo-lang==0.13.0
 
@@ -379,7 +380,7 @@ jobs:
           pip install poetry
           poetry config installer.modern-installation false
 
-      - name: Install python 3.12 requirements
+      - name: Install cairo-lang
         run: |
           pip install cairo-lang==0.13.0
 
@@ -452,7 +453,7 @@ jobs:
           pip install poetry
           poetry config installer.modern-installation false
 
-      - name: Install python 3.12 requirements
+      - name: Install cairo-lang
         run: |
           pip install cairo-lang==0.13.0
 
