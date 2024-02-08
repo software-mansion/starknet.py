@@ -158,10 +158,6 @@ jobs:
           pip install poetry
           poetry config installer.modern-installation false
 
-      - name: Install cairo-lang
-        run: |
-          pip install cairo-lang==0.13.0
-
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
@@ -239,10 +235,6 @@ jobs:
           pip install poetry
           poetry config installer.modern-installation false
 
-      - name: Install cairo-lang
-        run: |
-          pip install cairo-lang==0.13.0
-
       - name: Set up Python 3.12
         uses: actions/setup-python@v4
         with:
@@ -312,10 +304,6 @@ jobs:
           pip install poetry
           poetry config installer.modern-installation false
 
-      - name: Install cairo-lang
-        run: |
-          pip install cairo-lang==0.13.0
-
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
@@ -379,10 +367,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install poetry
           poetry config installer.modern-installation false
-
-      - name: Install cairo-lang
-        run: |
-          pip install cairo-lang==0.13.0
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
@@ -452,10 +436,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install poetry
           poetry config installer.modern-installation false
-
-      - name: Install cairo-lang
-        run: |
-          pip install cairo-lang==0.13.0
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
