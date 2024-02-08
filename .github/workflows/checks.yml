@@ -87,8 +87,7 @@ jobs:
 
       - name: Install python 3.12 requirements
         run: |
-          poetry export -f requirements.txt --without-hashes --output requirements.txt
-          pip install -r requirements.txt
+          pip install cairo-lang==0.13.0
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
@@ -160,8 +159,7 @@ jobs:
 
       - name: Install python 3.12 requirements
         run: |
-          poetry export -f requirements.txt --without-hashes --output requirements.txt
-          pip install -r requirements.txt
+          pip install cairo-lang==0.13.0
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
@@ -242,8 +240,7 @@ jobs:
 
       - name: Install python 3.12 requirements
         run: |
-          poetry export -f requirements.txt --without-hashes --output requirements.txt
-          pip install -r requirements.txt
+          pip install cairo-lang==0.13.0
 
       - name: Set up Python 3.12
         uses: actions/setup-python@v4
@@ -316,8 +313,7 @@ jobs:
 
       - name: Install python 3.12 requirements
         run: |
-          poetry export -f requirements.txt --without-hashes --output requirements.txt
-          pip install -r requirements.txt
+          pip install cairo-lang==0.13.0
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
@@ -385,8 +381,7 @@ jobs:
 
       - name: Install python 3.12 requirements
         run: |
-          poetry export -f requirements.txt --without-hashes --output requirements.txt
-          pip install -r requirements.txt
+          pip install cairo-lang==0.13.0
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
@@ -459,8 +454,7 @@ jobs:
 
       - name: Install python 3.12 requirements
         run: |
-          poetry export -f requirements.txt --without-hashes --output requirements.txt
-          pip install -r requirements.txt
+          pip install cairo-lang==0.13.0
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
