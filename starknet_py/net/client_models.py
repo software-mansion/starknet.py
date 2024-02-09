@@ -373,7 +373,7 @@ class ComputationResources:
 
 @dataclass
 class ExecutionResources(ComputationResources):
-    data_availability: DataResources
+    data_availability: Optional[DataResources] = None
 
 
 # TODO (#1219): split into PendingTransactionReceipt and TransactionReceipt
@@ -558,6 +558,8 @@ class EstimatedFee:
     gas_price: int
     gas_consumed: int
     unit: PriceUnit
+    data_gas_consumed: int
+    data_gas_price: int
 
 
 @dataclass

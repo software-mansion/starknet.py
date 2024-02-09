@@ -157,8 +157,8 @@ class ComputationResourcesSchema(Schema):
 
 
 class ExecutionResourcesSchema(ComputationResourcesSchema):
-    execution_resources = fields.Nested(
-        DataResourcesSchema(), data_key="data_availability", required=True
+    data_availability = fields.Nested(
+        DataResourcesSchema(), data_key="data_availability",  load_default=None
     )
 
     @post_load
@@ -206,6 +206,8 @@ class EstimatedFeeSchema(Schema):
     gas_price = Felt(data_key="gas_price", required=True)
     gas_consumed = Felt(data_key="gas_consumed", required=True)
     unit = PriceUnitField(data_key="unit", required=True)
+    data_gas_consumed = PriceUnitField(data_key="data_gas_consumed", required=True)
+    data_gas_price = PriceUnitField(data_key="data_gas_price", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs):
