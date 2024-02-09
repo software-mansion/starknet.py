@@ -85,8 +85,9 @@ jobs:
           pip install poetry
           poetry config installer.modern-installation false
 
-      - name: Install cairo-lang
+      - name: Install deprecated cairo compiler
         run: |
+          pip install --upgrade setuptools
           pip install cairo-lang==0.13.0
 
       - name: Set up Python ${{ matrix.python-version }}
@@ -100,9 +101,6 @@ jobs:
           poetry install
 
       # ====================== CONTRACTS v0 ====================== #
-      - name: Install setuptools
-        run: |
-          pip install --upgrade setuptools
 
       - name: Cache contracts
         id: cache-contracts
