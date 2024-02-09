@@ -120,27 +120,19 @@ async def test_account_estimate_fee_for_declare_transaction(
 
 @pytest.mark.asyncio
 async def test_account_estimate_fee_for_transactions(
-    account, map_compiled_contract, abi_types_compiled_contract_and_class_hash
+    account, map_compiled_contract, map_contract
 ):
-    nonce = await account.get_nonce(block_hash="pending")
-    print(nonce)
     declare_tx = await account.sign_declare_v1(
         compiled_contract=map_compiled_contract, max_fee=MAX_FEE
     )
 
-    (
-        compiled_contract,
-        compiled_class_hash,
-    ) = abi_types_compiled_contract_and_class_hash
-
-    declare_tx2 = await account.sign_declare_v3(
-        compiled_contract=compiled_contract,
-        compiled_class_hash=compiled_class_hash,
+    inveke_tx = await account.sign_invoke_v3(
+        Call(map_contract.address, get_selector_from_name("put"), [3, 4]),
         l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
         nonce=(declare_tx.nonce + 1),
     )
 
-    estimated_fee = await account.estimate_fee(tx=[declare_tx, declare_tx2])
+    estimated_fee = await account.estimate_fee(tx=[declare_tx, inveke_tx])
 
     assert isinstance(estimated_fee[0], EstimatedFee)
     assert isinstance(estimated_fee[1], EstimatedFee)
