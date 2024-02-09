@@ -126,16 +126,19 @@ async def test_account_estimate_fee_for_transactions(
         compiled_contract=map_compiled_contract, max_fee=MAX_FEE
     )
 
-    inveke_tx = await account.sign_invoke_v3(
-        Call(map_contract.address, get_selector_from_name("put"), [3, 4]),
+    invoke_tx = await account.sign_invoke_v3(
+        calls=Call(map_contract.address, get_selector_from_name("put"), [3, 4]),
         l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
         nonce=(declare_tx.nonce + 1),
     )
 
-    estimated_fee = await account.estimate_fee(tx=[declare_tx, inveke_tx])
+    estimated_fee = await account.estimate_fee(tx=[declare_tx, invoke_tx])
 
+    assert len(estimated_fee) == 2
     assert isinstance(estimated_fee[0], EstimatedFee)
     assert isinstance(estimated_fee[1], EstimatedFee)
+    assert estimated_fee[0].unit == PriceUnit.WEI
+    assert estimated_fee[1].unit == PriceUnit.FRI
     assert isinstance(estimated_fee[0].overall_fee, int)
     assert estimated_fee[0].overall_fee > 0
     assert (
