@@ -207,7 +207,7 @@ class EstimatedFeeSchema(Schema):
     gas_price = Felt(data_key="gas_price", required=True)
     gas_consumed = Felt(data_key="gas_consumed", required=True)
     unit = PriceUnitField(data_key="unit", required=True)
-    data_gas_consumed = PriceUnitField(data_key="data_gas_consumed", load_default=None )
+    data_gas_consumed = PriceUnitField(data_key="data_gas_consumed", load_default=None)
     data_gas_price = PriceUnitField(data_key="data_gas_price", load_default=None)
 
     @post_load
@@ -862,6 +862,10 @@ class InvokeTransactionTraceSchema(Schema):
         StateDiffSchema(), data_key="state_diff", load_default=None
     )
 
+    execution_resources = fields.Nested(
+        ExecutionResourcesSchema(), data_key="execution_resources", load_default=None
+    )
+
     @post_load
     def make_dataclass(self, data, **kwargs) -> InvokeTransactionTrace:
         return InvokeTransactionTrace(**data)
@@ -878,6 +882,10 @@ class DeclareTransactionTraceSchema(Schema):
     )
     state_diff = fields.Nested(
         StateDiffSchema(), data_key="state_diff", load_default=None
+    )
+
+    execution_resources = fields.Nested(
+        ExecutionResourcesSchema(), data_key="execution_resources", load_default=None
     )
 
     @post_load
@@ -899,6 +907,10 @@ class DeployAccountTransactionTraceSchema(Schema):
     )
     state_diff = fields.Nested(
         StateDiffSchema(), data_key="state_diff", load_default=None
+    )
+
+    execution_resources = fields.Nested(
+        ExecutionResourcesSchema(), data_key="execution_resources", load_default=None
     )
 
     @post_load

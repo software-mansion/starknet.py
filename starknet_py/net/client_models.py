@@ -868,8 +868,8 @@ class InvokeTransactionTrace:
     Dataclass representing a transaction trace of an INVOKE transaction.
     """
 
-    execution_resources: ExecutionResources
     execute_invocation: Union[FunctionInvocation, RevertedFunctionInvocation]
+    execution_resources: Optional[ExecutionResources] = None
     validate_invocation: Optional[FunctionInvocation] = None
     fee_transfer_invocation: Optional[FunctionInvocation] = None
     state_diff: Optional[StateDiff] = None
@@ -881,7 +881,7 @@ class DeclareTransactionTrace:
     Dataclass representing a transaction trace of an DECLARE transaction.
     """
 
-    execution_resources: ExecutionResources
+    execution_resources: Optional[ExecutionResources] = None
     validate_invocation: Optional[FunctionInvocation] = None
     fee_transfer_invocation: Optional[FunctionInvocation] = None
     state_diff: Optional[StateDiff] = None
@@ -893,8 +893,8 @@ class DeployAccountTransactionTrace:
     Dataclass representing a transaction trace of an DEPLOY_ACCOUNT transaction.
     """
 
-    execution_resources: ExecutionResources
     constructor_invocation: FunctionInvocation
+    execution_resources: Optional[ExecutionResources] = None
     validate_invocation: Optional[FunctionInvocation] = None
     fee_transfer_invocation: Optional[FunctionInvocation] = None
     state_diff: Optional[StateDiff] = None
