@@ -155,19 +155,19 @@ class FullNodeClient(Client):
             StarknetBlockWithTxHashesSchema().load(res, unknown=EXCLUDE),
         )
 
-    async def get_block_with_receipt(self,
-        block_hash: Optional[Union[Hash, Tag]] = None,
-        block_number: Optional[Union[int, Tag]] = None):
+    # async def get_block_with_receipt(
+    #     self,
+    #     block_hash: Optional[Union[Hash, Tag]] = None,
+    #     block_number: Optional[Union[int, Tag]] = None,
+    # ):
+    #     block_identifier = get_block_identifier(
+    #         block_hash=block_hash, block_number=block_number
+    #     )
 
-        block_identifier = get_block_identifier(
-            block_hash=block_hash, block_number=block_number
-        )
-
-        res = await self._client.call(
-            method_name="getBlockWithReceipts",
-            params=block_identifier,
-        )
-
+    #     res = await self._client.call(
+    #         method_name="getBlockWithReceipts",
+    #         params=block_identifier,
+    #     )
 
     # TODO (#809): add tests with multiple emitted keys
     async def get_events(

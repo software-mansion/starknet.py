@@ -8,6 +8,7 @@ from starknet_py.net.client_models import (
     BlockStatus,
     CallType,
     DAMode,
+    DataModeType,
     EntryPointType,
     PriceUnit,
     StorageEntry,
@@ -268,6 +269,25 @@ class CallTypeField(fields.Field):
             raise ValidationError(f"Invalid value provided for CallType: {value}.")
 
         return CallType(value)
+
+
+class DataModeTypeField(fields.Field):
+    def _serialize(self, value: Any, attr: str, obj: Any, **kwargs):
+        return value.name if value is not None else ""
+
+    def _deserialize(
+        self,
+        value: Any,
+        attr: Optional[str],
+        data: Optional[Mapping[str, Any]],
+        **kwargs,
+    ) -> DataModeType:
+        values = [v.value for v in DataModeType]
+
+        if value not in values:
+            raise ValidationError(f"Invalid value provided for DataModeType: {value}.")
+
+        return DataModeType(value)
 
 
 class PriceUnitField(fields.Field):

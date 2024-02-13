@@ -66,6 +66,7 @@ from starknet_py.net.schemas.common import (
     BlockStatusField,
     CallTypeField,
     DAModeField,
+    DataModeTypeField,
     EntryPointTypeField,
     ExecutionStatusField,
     Felt,
@@ -158,7 +159,7 @@ class ComputationResourcesSchema(Schema):
 
 class ExecutionResourcesSchema(ComputationResourcesSchema):
     data_availability = fields.Nested(
-        DataResourcesSchema(), data_key="data_availability",  load_default=None
+        DataResourcesSchema(), data_key="data_availability", load_default=None
     )
 
     @post_load
@@ -206,8 +207,8 @@ class EstimatedFeeSchema(Schema):
     gas_price = Felt(data_key="gas_price", required=True)
     gas_consumed = Felt(data_key="gas_consumed", required=True)
     unit = PriceUnitField(data_key="unit", required=True)
-    data_gas_consumed = PriceUnitField(data_key="data_gas_consumed", required=True)
-    data_gas_price = PriceUnitField(data_key="data_gas_price", required=True)
+    data_gas_consumed = PriceUnitField(data_key="data_gas_consumed", load_default=None )
+    data_gas_price = PriceUnitField(data_key="data_gas_price", load_default=None)
 
     @post_load
     def make_dataclass(self, data, **kwargs):
@@ -483,6 +484,10 @@ class StarknetBlockSchema(Schema):
     l1_gas_price = fields.Nested(
         ResourcePriceSchema(), data_key="l1_gas_price", required=True
     )
+    l1_data_gas_price = fields.Nested(
+        ResourcePriceSchema(), data_key="l1_data_gas_price", load_default=None
+    )
+    l1_da_mode = DataModeTypeField(data_key="l1_da_mode", load_default=None)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> StarknetBlock:
@@ -502,6 +507,10 @@ class StarknetBlockWithTxHashesSchema(Schema):
     l1_gas_price = fields.Nested(
         ResourcePriceSchema(), data_key="l1_gas_price", required=True
     )
+    l1_data_gas_price = fields.Nested(
+        ResourcePriceSchema(), data_key="l1_data_gas_price", load_default=None
+    )
+    l1_da_mode = DataModeTypeField(data_key="l1_gas_price", load_default=None)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> StarknetBlockWithTxHashes:
