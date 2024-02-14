@@ -893,6 +893,7 @@ class Contract:
         auto_estimate: bool = False,
     ) -> DeclareResult:
         # pylint: disable=too-many-arguments
+
         """
         Declares a contract.
 
