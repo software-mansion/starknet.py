@@ -348,6 +348,10 @@ class TransactionFinalityStatus(Enum):
 
 @dataclass
 class DataResources:
+    """
+    Dataclass representing the data-availability resources of the transaction
+    """
+
     l1_gas: int
     l1_data_gas: int
 
@@ -355,7 +359,7 @@ class DataResources:
 @dataclass
 class ComputationResources:
     """
-    Dataclass representing the resources consumed by the transaction.
+    Dataclass representing the resources consumed by the VM.
     """
 
     # pylint: disable=too-many-instance-attributes
@@ -373,6 +377,10 @@ class ComputationResources:
 
 @dataclass
 class ExecutionResources(ComputationResources):
+    """
+    Dataclass representing the the resources consumed by the transaction, includes both computation and data.
+    """
+
     data_availability: Optional[DataResources] = None
 
 
@@ -476,7 +484,7 @@ class PendingStarknetBlockWithTxHashes:
 @dataclass
 class PendingStarknetBlockWithReceipts:
     """
-    Dataclass representing a pending block on Starknet containing receipts.
+    Dataclass representing a pending block on Starknet with txs and receipts result
     """
 
     transactions: List[TransactionReceipt]
@@ -542,7 +550,7 @@ class TransactionWithReceipt:
 @dataclass
 class StarknetBlockWithReceipts(StarknetBlockCommon):
     """
-    Dataclass representing a block on Starknet containing receipts.
+    Dataclass representing a block on Starknet with txs and receipts result
     """
 
     status: BlockStatus
