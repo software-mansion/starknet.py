@@ -515,7 +515,7 @@ class StarknetBlockWithTxHashesSchema(Schema):
     l1_data_gas_price = fields.Nested(
         ResourcePriceSchema(), data_key="l1_data_gas_price", load_default=None
     )
-    l1_da_mode = DaModeTypeField(data_key="l1_gas_price", load_default=None)
+    l1_da_mode = DaModeTypeField(data_key="l1_da_mode", load_default=None)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> StarknetBlockWithTxHashes:
