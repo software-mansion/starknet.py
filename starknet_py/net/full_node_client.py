@@ -21,12 +21,14 @@ from starknet_py.net.client_models import (
     L1HandlerTransaction,
     PendingBlockStateUpdate,
     PendingStarknetBlock,
+    PendingStarknetBlockWithReceipts,
     PendingStarknetBlockWithTxHashes,
     SentTransactionResponse,
     SierraContractClass,
     SimulatedTransaction,
     SimulationFlag,
     StarknetBlock,
+    StarknetBlockWithReceipts,
     StarknetBlockWithTxHashes,
     SyncStatus,
     Tag,
@@ -67,11 +69,13 @@ from starknet_py.net.schemas.rpc import (
     EventsChunkSchema,
     PendingBlockStateUpdateSchema,
     PendingStarknetBlockSchema,
+    PendingStarknetBlockWithReceiptsSchema,
     PendingStarknetBlockWithTxHashesSchema,
     SentTransactionSchema,
     SierraContractClassSchema,
     SimulatedTransactionSchema,
     StarknetBlockSchema,
+    StarknetBlockWithReceiptsSchema,
     StarknetBlockWithTxHashesSchema,
     SyncStatusSchema,
     TransactionReceiptSchema,
@@ -155,19 +159,28 @@ class FullNodeClient(Client):
             StarknetBlockWithTxHashesSchema().load(res, unknown=EXCLUDE),
         )
 
-    # async def get_block_with_receipt(
-    #     self,
-    #     block_hash: Optional[Union[Hash, Tag]] = None,
-    #     block_number: Optional[Union[int, Tag]] = None,
-    # ):
-    #     block_identifier = get_block_identifier(
-    #         block_hash=block_hash, block_number=block_number
-    #     )
+    async def get_block_with_receipt(
+        self,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ):
+        block_identifier = get_block_identifier(
+            block_hash=block_hash, block_number=block_number
+        )
 
-    #     res = await self._client.call(
-    #         method_name="getBlockWithReceipts",
-    #         params=block_identifier,
-    #     )
+        res = await self._client.call(
+            method_name="getBlockWithReceipts",
+            params=block_identifier,
+        )
+        if block_identifier == {"block_id": "pending"}:
+            return cast(
+                PendingStarknetBlockWithReceipts,
+                PendingStarknetBlockWithReceiptsSchema().load(res, unknown=EXCLUDE),
+            )
+        return cast(
+            StarknetBlockWithReceipts,
+            StarknetBlockWithReceiptsSchema().load(res, unknown=EXCLUDE),
+        )
 
     # TODO (#809): add tests with multiple emitted keys
     async def get_events(

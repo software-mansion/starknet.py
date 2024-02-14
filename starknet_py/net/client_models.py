@@ -473,6 +473,20 @@ class PendingStarknetBlockWithTxHashes:
     starknet_version: str
 
 
+@dataclass
+class PendingStarknetBlockWithReceipts:
+    """
+    Dataclass representing a pending block on Starknet containing receipts.
+    """
+
+    transactions: List[TransactionReceipt]
+    parent_block_hash: int
+    timestamp: int
+    sequencer_address: int
+    l1_gas_price: ResourcePrice
+    starknet_version: str
+
+
 class DaModeType(Enum):
     BLOB = "BLOB"
     CALLDATA = "CALLDATA"
@@ -517,6 +531,22 @@ class StarknetBlockWithTxHashes(StarknetBlockCommon):
 
     status: BlockStatus
     transactions: List[int]
+
+
+@dataclass
+class TransactionWithReceipt:
+    transaction: Transaction
+    receipt: TransactionReceipt
+
+
+@dataclass
+class StarknetBlockWithReceipts(StarknetBlockCommon):
+    """
+    Dataclass representing a block on Starknet containing receipts.
+    """
+
+    status: BlockStatus
+    transactions: List[TransactionWithReceipt]
 
 
 @dataclass
