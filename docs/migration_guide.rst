@@ -22,6 +22,7 @@ New classes added to mirror the recent changes in the RPC v0.7.0 specification i
 
 1. :class:`ExecutionResources`  dataclass now has an additional optional field: ``data_availability``
 2. :class:`StarknetBlock`, :class:`StarknetBlockWithTxHashes`, :class:`PendingStarknetBlock` and :class:`PendingStarknetBlockWithTxHashes` now have two additional option fields: ``l1_data_gas_price`` and ``l1_da_mode``.
+3. :class:`DeclareTransactionTrace`, :class:`InvokeTransactionTrace` and :class:`DeployAccountTransactionTrace` have additional field ``execution_resources``
 
 **********************
 0.19.0 Migration guide
