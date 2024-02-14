@@ -265,6 +265,7 @@ jobs:
   # ---------------------------------------------------------- #
 
   run-tests-windows:
+    if: ${{ github.event_name != 'pull_request' }}
     name: Tests Windows
     needs: setup-tests
     runs-on: windows-latest
