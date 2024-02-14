@@ -60,7 +60,7 @@ class Account(BaseAccount):
     ESTIMATED_FEE_MULTIPLIER: float = 1.5
     """Amount by which each estimated fee is multiplied when using `auto_estimate`."""
 
-    ESTIMATED_AMOUNT_MULTIPLIER: float = 1.1
+    ESTIMATED_AMOUNT_MULTIPLIER: float = 1.5
     ESTIMATED_UNIT_PRICE_MULTIPLIER: float = 1.5
     """Values by which each estimated `max_amount` and `max_price_per_unit` are multiplied when using 
     `auto_estimate`. Used only for V3 transactions"""
@@ -161,7 +161,7 @@ class Account(BaseAccount):
             estimated_fee = await self._estimate_fee(transaction)
             l1_resource_bounds = ResourceBounds(
                 max_amount=int(
-                    estimated_fee.gas_consumed * Account.ESTIMATED_AMOUNT_MULTIPLIER
+                    (estimated_fee.overall_fee / estimated_fee.gas_price) * Account.ESTIMATED_AMOUNT_MULTIPLIER
                 ),
                 max_price_per_unit=int(
                     estimated_fee.gas_price * Account.ESTIMATED_UNIT_PRICE_MULTIPLIER

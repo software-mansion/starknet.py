@@ -8,7 +8,7 @@ from starknet_py.net.client_models import (
     BlockStatus,
     CallType,
     DAMode,
-    DataModeType,
+    DaModeType,
     EntryPointType,
     PriceUnit,
     StorageEntry,
@@ -271,7 +271,7 @@ class CallTypeField(fields.Field):
         return CallType(value)
 
 
-class DataModeTypeField(fields.Field):
+class DaModeTypeField(fields.Field):
     def _serialize(self, value: Any, attr: str, obj: Any, **kwargs):
         return value.name if value is not None else ""
 
@@ -281,13 +281,13 @@ class DataModeTypeField(fields.Field):
         attr: Optional[str],
         data: Optional[Mapping[str, Any]],
         **kwargs,
-    ) -> DataModeType:
-        values = [v.value for v in DataModeType]
+    ) -> DaModeType:
+        values = [v.value for v in DaModeType]
 
         if value not in values:
-            raise ValidationError(f"Invalid value provided for DataModeType: {value}.")
+            raise ValidationError(f"Invalid value provided for DaModeType: {value}.")
 
-        return DataModeType(value)
+        return DaModeType(value)
 
 
 class PriceUnitField(fields.Field):

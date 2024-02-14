@@ -473,7 +473,7 @@ class PendingStarknetBlockWithTxHashes:
     starknet_version: str
 
 
-class DataModeType(Enum):
+class DaModeType(Enum):
     BLOB = "BLOB"
     CALLDATA = "CALLDATA"
 
@@ -495,7 +495,7 @@ class StarknetBlockCommon:
     sequencer_address: int
     l1_gas_price: ResourcePrice
     l1_data_gas_price: Optional[ResourcePrice]
-    l1_da_mode: Optional[DataModeType]
+    l1_da_mode: Optional[DaModeType]
     starknet_version: str
 
 

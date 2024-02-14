@@ -66,7 +66,7 @@ from starknet_py.net.schemas.common import (
     BlockStatusField,
     CallTypeField,
     DAModeField,
-    DataModeTypeField,
+    DaModeTypeField,
     EntryPointTypeField,
     ExecutionStatusField,
     Felt,
@@ -487,7 +487,7 @@ class StarknetBlockSchema(Schema):
     l1_data_gas_price = fields.Nested(
         ResourcePriceSchema(), data_key="l1_data_gas_price", load_default=None
     )
-    l1_da_mode = DataModeTypeField(data_key="l1_da_mode", load_default=None)
+    l1_da_mode = DaModeTypeField(data_key="l1_da_mode", load_default=None)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> StarknetBlock:
@@ -510,7 +510,7 @@ class StarknetBlockWithTxHashesSchema(Schema):
     l1_data_gas_price = fields.Nested(
         ResourcePriceSchema(), data_key="l1_data_gas_price", load_default=None
     )
-    l1_da_mode = DataModeTypeField(data_key="l1_gas_price", load_default=None)
+    l1_da_mode = DaModeTypeField(data_key="l1_gas_price", load_default=None)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> StarknetBlockWithTxHashes:
