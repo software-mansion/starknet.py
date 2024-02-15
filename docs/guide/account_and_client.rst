@@ -30,6 +30,8 @@ To enable auto estimation, set the ``auto_estimate`` parameter to ``True``.
 The returned estimated fee is multiplied by ``1.5`` for V1 and V2 transactions to mitigate fluctuations in price.
 For V3 transactions, ``max_amount`` and ``max_price_per_unit`` are scaled by ``1.1`` and ``1.5`` respectively.
 
+Estimated fee you can obtain by call :meth:`~Account.estimate_fee()`
+
 
 .. note::
     It is possible to configure the value by which the estimated fee is multiplied,
