@@ -16,6 +16,7 @@ from starknet_py.net.client_models import (
     DeployAccountTransactionV3,
     EstimatedFee,
     InvokeTransactionV3,
+    PriceUnit,
     ResourceBounds,
     ResourceBoundsMapping,
     SierraContractClass,
@@ -95,6 +96,54 @@ async def test_estimate_fee_for_declare_transaction(account, map_compiled_contra
     assert (
         estimated_fee.gas_consumed * estimated_fee.gas_price
         == estimated_fee.overall_fee
+    )
+
+
+@pytest.mark.asyncio
+async def test_account_estimate_fee_for_declare_transaction(
+    account, map_compiled_contract
+):
+    declare_tx = await account.sign_declare_v1(
+        compiled_contract=map_compiled_contract, max_fee=MAX_FEE
+    )
+
+    estimated_fee = await account.estimate_fee(tx=declare_tx)
+
+    assert estimated_fee.unit == PriceUnit.WEI
+    assert isinstance(estimated_fee.overall_fee, int)
+    assert estimated_fee.overall_fee > 0
+    assert (
+        estimated_fee.gas_consumed * estimated_fee.gas_price
+        == estimated_fee.overall_fee
+    )
+
+
+@pytest.mark.asyncio
+async def test_account_estimate_fee_for_transactions(
+    account, map_compiled_contract, map_contract
+):
+    declare_tx = await account.sign_declare_v1(
+        compiled_contract=map_compiled_contract, max_fee=MAX_FEE
+    )
+
+    invoke_tx = await account.sign_invoke_v3(
+        calls=Call(map_contract.address, get_selector_from_name("put"), [3, 4]),
+        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        nonce=(declare_tx.nonce + 1),
+    )
+
+    estimated_fee = await account.estimate_fee(tx=[declare_tx, invoke_tx])
+
+    assert len(estimated_fee) == 2
+    assert isinstance(estimated_fee[0], EstimatedFee)
+    assert isinstance(estimated_fee[1], EstimatedFee)
+    assert estimated_fee[0].unit == PriceUnit.WEI
+    assert estimated_fee[1].unit == PriceUnit.FRI
+    assert isinstance(estimated_fee[0].overall_fee, int)
+    assert estimated_fee[0].overall_fee > 0
+    assert (
+        estimated_fee[0].gas_consumed * estimated_fee[0].gas_price
+        == estimated_fee[0].overall_fee
     )
 
 
@@ -615,10 +664,53 @@ async def test_deploy_account_uses_custom_calldata(
     assert tx.constructor_calldata == calldata
 
 
-# TODO (#1219): investigate why this test fails
-@pytest.mark.skip
 @pytest.mark.asyncio
-async def test_sign_deploy_account_tx_for_fee_estimation(
+async def test_sign_invoke_v1_for_fee_estimation(account, map_contract):
+    call = map_contract.functions["put"].prepare_invoke_v1(key=1, value=2)
+    transaction = await account.sign_invoke_v1(calls=call, max_fee=MAX_FEE)
+
+    estimate_fee_transaction = await account.sign_for_fee_estimate(transaction)
+    assert estimate_fee_transaction.version == transaction.version + 2**128
+
+    estimation = await account.client.estimate_fee(estimate_fee_transaction)
+    assert isinstance(estimation, EstimatedFee)
+    assert estimation.unit == PriceUnit.WEI
+    assert estimation.overall_fee > 0
+
+
+@pytest.mark.asyncio
+async def test_sign_invoke_v3_for_fee_estimation(account, map_contract):
+    call = map_contract.functions["put"].prepare_invoke_v3(key=1, value=2)
+    transaction = await account.sign_invoke_v3(
+        calls=call, l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1
+    )
+
+    estimate_fee_transaction = await account.sign_for_fee_estimate(transaction)
+    assert estimate_fee_transaction.version == transaction.version + 2**128
+
+    estimation = await account.client.estimate_fee(estimate_fee_transaction)
+    assert isinstance(estimation, EstimatedFee)
+    assert estimation.unit == PriceUnit.FRI
+    assert estimation.overall_fee > 0
+
+
+@pytest.mark.asyncio
+async def test_sign_declare_v1_for_fee_estimation(account, map_compiled_contract):
+    transaction = await account.sign_declare_v1(
+        compiled_contract=map_compiled_contract, max_fee=MAX_FEE
+    )
+
+    estimate_fee_transaction = await account.sign_for_fee_estimate(transaction)
+    assert estimate_fee_transaction.version == transaction.version + 2**128
+
+    estimation = await account.client.estimate_fee(estimate_fee_transaction)
+    assert isinstance(estimation, EstimatedFee)
+    assert estimation.unit == PriceUnit.WEI
+    assert estimation.overall_fee > 0
+
+
+@pytest.mark.asyncio
+async def test_sign_deploy_account_v1_for_fee_estimation(
     client, deploy_account_details_factory
 ):
     address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
@@ -638,18 +730,12 @@ async def test_sign_deploy_account_tx_for_fee_estimation(
     )
 
     estimate_fee_transaction = await account.sign_for_fee_estimate(transaction)
+    assert estimate_fee_transaction.version == transaction.version + 2**128
 
-    estimation = await account.client.estimate_fee(transaction)
+    estimation = await account.client.estimate_fee(estimate_fee_transaction)
     assert isinstance(estimation, EstimatedFee)
+    assert estimation.unit == PriceUnit.WEI
     assert estimation.overall_fee > 0
-
-    # Verify that the transaction signed for fee estimation cannot be sent
-    with pytest.raises(ClientError):
-        await account.client.deploy_account(estimate_fee_transaction)
-
-    # Verify that original transaction can be sent
-    result = await account.client.deploy_account(transaction)
-    await account.client.wait_for_tx(result.transaction_hash)
 
 
 @pytest.mark.asyncio

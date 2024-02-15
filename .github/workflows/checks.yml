@@ -32,15 +32,15 @@ jobs:
           pip install poetry
           poetry config installer.modern-installation false
 
-      - name: Set up Python 3.9
+      - name: Set up Python 3.12
         uses: actions/setup-python@v4
         with:
-          python-version: "3.9"
+          python-version: "3.12"
           cache: 'poetry'
 
       - name: Install dependencies
         run: |
-          poetry install --without py39-dev
+          poetry install
 
       - name: Check poetry.lock
         run: |
@@ -67,7 +67,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ "3.9" ]
+        python-version: [ "3.12" ]
     steps:
 
       # ====================== SETUP ====================== #
@@ -76,7 +76,7 @@ jobs:
 
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.9"
+          python-version: "3.12"
           cache: 'pip'
 
       - name: Install poetry
@@ -85,10 +85,10 @@ jobs:
           pip install poetry
           poetry config installer.modern-installation false
 
-      - name: Install python 3.9 requirements
+      - name: Install deprecated cairo compiler
         run: |
-          poetry export -f requirements.txt --only=py39-dev --without-hashes --output requirements.txt
-          pip install -r requirements.txt
+          pip install --upgrade setuptools
+          pip install cairo-lang==0.13.0
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
@@ -98,7 +98,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install --without py39-dev
+          poetry install
 
       # ====================== CONTRACTS v0 ====================== #
 
@@ -131,7 +131,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.8", "3.9", "3.10", "3.11" ]
+        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
     steps:
       - uses: actions/checkout@v3
       - uses: actions-rust-lang/setup-rust-toolchain@v1
@@ -145,7 +145,7 @@ jobs:
 
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.9"
+          python-version: "3.12"
           cache: 'pip'
 
       # ====================== SETUP PYTHON ====================== #
@@ -156,11 +156,6 @@ jobs:
           pip install poetry
           poetry config installer.modern-installation false
 
-      - name: Install python 3.9 requirements
-        run: |
-          poetry export -f requirements.txt --only=py39-dev --without-hashes --output requirements.txt
-          pip install -r requirements.txt
-
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
@@ -169,7 +164,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install --without py39-dev
+          poetry install
 
       # ====================== SETUP DEVNET ====================== #
 
@@ -227,7 +222,7 @@ jobs:
 
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.9"
+          python-version: "3.12"
           cache: 'pip'
 
       # ====================== SETUP PYTHON ====================== #
@@ -238,20 +233,15 @@ jobs:
           pip install poetry
           poetry config installer.modern-installation false
 
-      - name: Install python 3.9 requirements
-        run: |
-          poetry export -f requirements.txt --only=py39-dev --without-hashes --output requirements.txt
-          pip install -r requirements.txt
-
-      - name: Set up Python 3.9
+      - name: Set up Python 3.12
         uses: actions/setup-python@v4
         with:
-          python-version: "3.9"
+          python-version: "3.12"
           cache: 'poetry'
 
       - name: Install dependencies
         run: |
-          poetry install --without py39-dev
+          poetry install
 
       # ====================== RUN TESTS ====================== #
 
@@ -282,7 +272,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.8", "3.9", "3.10", "3.11" ]
+        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
     steps:
       - uses: actions/checkout@v3
       - uses: actions-rust-lang/setup-rust-toolchain@v1
@@ -296,7 +286,7 @@ jobs:
 
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.9"
+          python-version: "3.12"
           cache: 'pip'
 
       # ====================== SETUP DEVNET ====================== #
@@ -312,11 +302,6 @@ jobs:
           pip install poetry
           poetry config installer.modern-installation false
 
-      - name: Install python 3.9 requirements
-        run: |
-          poetry export -f requirements.txt --only=py39-dev --without-hashes --output requirements.txt
-          pip install -r requirements.txt
-
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
@@ -325,7 +310,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install --without py39-dev
+          poetry install
 
       # ====================== RUN TESTS ====================== #
 
@@ -356,7 +341,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.8", "3.9", "3.10", "3.11" ]
+        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
     steps:
       - uses: actions/checkout@v3
       - uses: actions-rust-lang/setup-rust-toolchain@v1
@@ -370,7 +355,7 @@ jobs:
 
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.9"
+          python-version: "3.12"
           cache: 'pip'
 
       # ====================== SETUP PYTHON ====================== #
@@ -381,11 +366,6 @@ jobs:
           pip install poetry
           poetry config installer.modern-installation false
 
-      - name: Install python 3.9 requirements
-        run: |
-          poetry export -f requirements.txt --only=py39-dev --without-hashes --output requirements.txt
-          pip install -r requirements.txt
-
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
@@ -394,7 +374,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install --without py39-dev
+          poetry install
 
       # ====================== SETUP DEVNET ====================== #
 
@@ -430,7 +410,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.8", "3.9", "3.10", "3.11" ]
+        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
     steps:
       - uses: actions/checkout@v3
       - uses: actions-rust-lang/setup-rust-toolchain@v1
@@ -444,7 +424,7 @@ jobs:
 
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.9"
+          python-version: "3.12"
           cache: 'pip'
 
       # ====================== SETUP PYTHON ====================== #
@@ -455,11 +435,6 @@ jobs:
           pip install poetry
           poetry config installer.modern-installation false
 
-      - name: Install python 3.9 requirements
-        run: |
-          poetry export -f requirements.txt --only=py39-dev --without-hashes --output requirements.txt
-          pip install -r requirements.txt
-
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
@@ -468,7 +443,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install --without py39-dev
+          poetry install
 
       # ====================== SETUP DEVNET ====================== #
 
