@@ -383,6 +383,9 @@ class DeclareTransactionSchema(OneOfSchema):
         3: DeclareTransactionV3Schema,
     }
 
+    def get_obj_type(self, obj):
+        return _extract_tx_version(obj.version)
+
     def get_data_type(self, data):
         return _extract_tx_version(data.get("version"))
 
@@ -428,7 +431,10 @@ class TypesOfTransactionsSchema(OneOfSchema):
         "DEPLOY_ACCOUNT": DeployAccountTransactionSchema,
         "L1_HANDLER": L1HandlerTransactionSchema,
     }
+    def get_obj_type(self, obj):
+        return obj.type.name
 
+    
 
 class PendingStarknetBlockSchema(Schema):
     parent_block_hash = Felt(data_key="parent_hash", required=True)
@@ -940,31 +946,3 @@ class CommonBroadcastedSchema(Schema):
         SierraCompiledContractSchema(), data_key="contract_class"
     )
 
-
-class DeclareBroadcastedV3Schema(DeclareTransactionV3Schema):
-    type = TransactionTypeField(data_key='type')
-    contract_class = fields.Nested(
-        SierraCompiledContractSchema(), data_key="contract_class"
-    )
-
-class DeclareBroadcastedV2Schema(DeclareTransactionV2Schema):
-    type = TransactionTypeField(data_key='type')
-    contract_class = fields.Nested(
-        SierraCompiledContractSchema(), data_key="contract_class"
-    )
-
-class DeclareBroadcastedV1Schema(DeclareTransactionV1Schema):
-    type = TransactionTypeField(data_key='type')
-    contract_class = fields.Nested(ContractClassSchema(), data_key = 'contract_class')
-
-class InvokeBroadcastedV3Schema(InvokeTransactionV3Schema):
-    type = TransactionTypeField(data_key='type')
-
-class InvokeBroadcastedV1Schema(InvokeTransactionV1Schema):
-    type = TransactionTypeField(data_key='type')
-
-class DeployAccountBroadcastedV3Schema(DeployAccountTransactionV3Schema):
-    type = TransactionTypeField(data_key='type')
-
-class DeployAccountBroadcastedV1Schema(DeployAccountTransactionV1Schema):
-    type = TransactionTypeField(data_key='type')

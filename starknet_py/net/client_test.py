@@ -11,22 +11,15 @@ from starknet_py.net.client_models import (
 from starknet_py.net.client_utils import _create_broadcasted_txn
 from starknet_py.net.full_node_client import _to_storage_key
 from starknet_py.net.http_client import RpcHttpClient, ServerError
-from starknet_py.net.schemas.rpc import (
-    DeclareBroadcastedV1Schema,
-    DeclareBroadcastedV2Schema,
-    DeclareBroadcastedV3Schema,
-    DeployAccountBroadcastedV1Schema,
-    DeployAccountBroadcastedV3Schema,
-    InvokeBroadcastedV1Schema,
-    InvokeBroadcastedV3Schema,
-    InvokeTransactionV3Schema,
-)
+
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE, MAX_RESOURCE_BOUNDS_L1
 
 from starknet_py.net.models.transaction import DeclareV3Schema
 from deepdiff import DeepDiff
 
 from starknet_py.hash.selector import get_selector_from_name
+
+from starknet_py.net.schemas.broadcasted import DeployAccountBroadcastedSchema, TransactionTraceSchema
 
 @pytest.mark.asyncio
 async def test_wait_for_tx_negative_check_interval(client):
@@ -104,7 +97,7 @@ async def test_broadcasted_txn_declare_v3_tx(account, abi_types_compiled_contrac
     print("vers")
     prev_brodcast = _create_broadcasted_txn(declare_v3)
 
-    dump = DeclareBroadcastedV3Schema().dump(obj=declare_v3)
+    dump = TransactionTraceSchema().dump(obj=declare_v3)
     ddiff = DeepDiff(prev_brodcast,dump, ignore_order=True)
 
     print(ddiff)
@@ -122,7 +115,7 @@ async def test_broadcasted_txn_declare_v2_tx(account, abi_types_compiled_contrac
     print("vers")
     prev_brodcast = _create_broadcasted_txn(declare_v3)
 
-    dump = DeclareBroadcastedV2Schema().dump(obj=declare_v3)
+    dump = TransactionTraceSchema().dump(obj=declare_v3)
     ddiff = DeepDiff(prev_brodcast,dump, ignore_order=True)
 
     print(ddiff)
@@ -160,7 +153,7 @@ async def test_broadcasted_txn_invoke_v3_tx(account, map_compiled_contract, map_
     print("vers")
     prev_brodcast = _create_broadcasted_txn(invoke_tx)
 
-    dump = InvokeBroadcastedV3Schema().dump(obj=invoke_tx)
+    dump = TransactionTraceSchema().dump(obj=invoke_tx)
     ddiff = DeepDiff(prev_brodcast, dump, ignore_order=True)
 
     print(ddiff)
@@ -181,8 +174,10 @@ async def test_broadcasted_txn_invoke_v1_tx(account, map_compiled_contract, map_
 
     print("vers")
     prev_brodcast = _create_broadcasted_txn(invoke_tx)
-
-    dump = InvokeBroadcastedV1Schema().dump(obj=invoke_tx)
+    print(prev_brodcast)
+    dump = TransactionTraceSchema().dump(obj=invoke_tx)
+    print(dump)
+    
     ddiff = DeepDiff(prev_brodcast, dump, ignore_order=True)
 
     print(ddiff)
@@ -202,7 +197,7 @@ async def test_broadcasted_txn_deploy_account_v3_tx(account, map_compiled_contra
 
     prev_brodcast = _create_broadcasted_txn(signed_tx)
 
-    dump = DeployAccountBroadcastedV3Schema().dump(obj=signed_tx)
+    dump = TransactionTraceSchema().dump(obj=signed_tx)
     ddiff = DeepDiff(prev_brodcast, dump, ignore_order=True)
 
     print(ddiff)
@@ -219,11 +214,8 @@ async def test_broadcasted_txn_deploy_account_1_tx(account, map_compiled_contrac
 
     prev_brodcast = _create_broadcasted_txn(signed_tx)
 
-    dump = DeployAccountBroadcastedV1Schema().dump(obj=signed_tx)
+    dump = TransactionTraceSchema().dump(obj=signed_tx)
     ddiff = DeepDiff(prev_brodcast, dump, ignore_order=True)
 
     print(ddiff)
     assert len(ddiff) == 0
-
-
-

@@ -26,6 +26,8 @@ from starknet_py.net.schemas.gateway import SierraCompiledContractSchema
 from starknet_py.net.schemas.rpc import TransactionV3Schema
 from starknet_py.net.schemas.utils import _extract_tx_version
 
+from starknet_py.net.schemas.broadcasted import TransactionTraceSchema
+
 
 def hash_to_felt(value: Hash) -> str:
     """
@@ -100,22 +102,30 @@ def _is_valid_eth_address(address: str) -> bool:
 
 
 # def _create_broadcasted_txn_new(transaction: AccountTransaction) -> dict:
+def _create_broadcasted_txn(transaction: AccountTransaction) -> dict:    
+    a = cast(
+        Dict,
+        TransactionTraceSchema().dump(obj=transaction),
+    )
+    print(a)
+    return a
+    
 
 
-def _create_broadcasted_txn(transaction: AccountTransaction) -> dict:
-    txn_map = {
-        TransactionType.DECLARE: _create_broadcasted_declare_properties,
-        TransactionType.INVOKE: _create_broadcasted_invoke_properties,
-        TransactionType.DEPLOY_ACCOUNT: _create_broadcasted_deploy_account_properties,
-    }
+# def _create_broadcasted_txn(transaction: AccountTransaction) -> dict:
+#     txn_map = {
+#         TransactionType.DECLARE: _create_broadcasted_declare_properties,
+#         TransactionType.INVOKE: _create_broadcasted_invoke_properties,
+#         TransactionType.DEPLOY_ACCOUNT: _create_broadcasted_deploy_account_properties,
+#     }
 
-    common_properties = _create_broadcasted_txn_common_properties(transaction)
-    transaction_specific_properties = txn_map[transaction.type](transaction)
+#     common_properties = _create_broadcasted_txn_common_properties(transaction)
+#     transaction_specific_properties = txn_map[transaction.type](transaction)
 
-    return {
-        **common_properties,
-        **transaction_specific_properties,
-    }
+#     return {
+#         **common_properties,
+#         **transaction_specific_properties,
+#     }
 
 
 def _create_broadcasted_declare_properties(
