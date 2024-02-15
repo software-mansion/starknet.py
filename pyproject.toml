@@ -47,6 +47,7 @@ isort = "^5.11.4"
 pytest-rerunfailures = "^13.0"
 python-dotenv = "^1.0.0"
 setuptools = "^69.0.3"
+deepdiff = "6.7.1"
 
 [tool.poe.tasks]
 test = [

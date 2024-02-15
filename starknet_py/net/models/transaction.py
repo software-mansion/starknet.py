@@ -351,6 +351,7 @@ Invoke = Union[InvokeV1, InvokeV3]
 InvokeV1Schema = marshmallow_dataclass.class_schema(InvokeV1)
 DeclareV1Schema = marshmallow_dataclass.class_schema(DeclareV1)
 DeclareV2Schema = marshmallow_dataclass.class_schema(DeclareV2)
+DeclareV3Schema = marshmallow_dataclass.class_schema(DeclareV3)
 DeployAccountV1Schema = marshmallow_dataclass.class_schema(DeployAccountV1)
 
 

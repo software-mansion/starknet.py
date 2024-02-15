@@ -9,6 +9,7 @@ from starknet_py.net.client_models import (
     CallType,
     DAMode,
     EntryPointType,
+    Hash,
     PriceUnit,
     StorageEntry,
     TransactionExecutionStatus,

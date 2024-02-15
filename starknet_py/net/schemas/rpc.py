@@ -1,4 +1,6 @@
-from marshmallow import EXCLUDE, Schema, fields, post_load
+from ast import Dict
+from typing import Any
+from marshmallow import EXCLUDE, Schema, fields, post_load, post_dump
 from marshmallow_oneofschema import OneOfSchema
 
 from starknet_py.abi.schemas import ContractAbiEntrySchema
@@ -77,7 +79,10 @@ from starknet_py.net.schemas.common import (
     Uint64,
     Uint128,
 )
+from starknet_py.net.schemas.gateway import SierraCompiledContractSchema
 from starknet_py.net.schemas.utils import _extract_tx_version
+
+from starknet_py.net.models.transaction import DeclareV1Schema, compress_program
 
 # pylint: disable=unused-argument, no-self-use
 
@@ -251,6 +256,7 @@ class TransactionV3Schema(TransactionSchema):
     resource_bounds = fields.Nested(
         ResourceBoundsMappingSchema(), data_key="resource_bounds", required=True
     )
+
 
 
 class InvokeTransactionV0Schema(DeprecatedTransactionSchema):
@@ -926,3 +932,39 @@ class BlockTransactionTraceSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> BlockTransactionTrace:
         return BlockTransactionTrace(**data)
+
+class CommonBroadcastedSchema(Schema):
+    nonce = Felt(data_key="nonce")
+    signature = fields.List(Felt(), data_key="signature")
+    contract_class = fields.Nested(
+        SierraCompiledContractSchema(), data_key="contract_class"
+    )
+
+
+class DeclareBroadcastedV3Schema(DeclareTransactionV3Schema):
+    type = TransactionTypeField(data_key='type')
+    contract_class = fields.Nested(
+        SierraCompiledContractSchema(), data_key="contract_class"
+    )
+
+class DeclareBroadcastedV2Schema(DeclareTransactionV2Schema):
+    type = TransactionTypeField(data_key='type')
+    contract_class = fields.Nested(
+        SierraCompiledContractSchema(), data_key="contract_class"
+    )
+
+class DeclareBroadcastedV1Schema(DeclareTransactionV1Schema):
+    type = TransactionTypeField(data_key='type')
+    contract_class = fields.Nested(ContractClassSchema(), data_key = 'contract_class')
+
+class InvokeBroadcastedV3Schema(InvokeTransactionV3Schema):
+    type = TransactionTypeField(data_key='type')
+
+class InvokeBroadcastedV1Schema(InvokeTransactionV1Schema):
+    type = TransactionTypeField(data_key='type')
+
+class DeployAccountBroadcastedV3Schema(DeployAccountTransactionV3Schema):
+    type = TransactionTypeField(data_key='type')
+
+class DeployAccountBroadcastedV1Schema(DeployAccountTransactionV1Schema):
+    type = TransactionTypeField(data_key='type')
