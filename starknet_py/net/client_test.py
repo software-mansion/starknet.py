@@ -1,25 +1,23 @@
-from starknet_py.net.client_models import Call
 import pytest
+from deepdiff import DeepDiff
 
 from starknet_py.constants import ADDR_BOUND
+from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.client_models import (
+    Call,
     DAMode,
     ResourceBoundsMapping,
     Transaction,
     TransactionV3,
 )
-from starknet_py.net.client_utils import _create_broadcasted_txn
+from starknet_py.net.client_utils import (
+    _create_broadcasted_txn,
+    _create_broadcasted_txn_prev,
+)
 from starknet_py.net.full_node_client import _to_storage_key
 from starknet_py.net.http_client import RpcHttpClient, ServerError
-
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE, MAX_RESOURCE_BOUNDS_L1
 
-from starknet_py.net.models.transaction import DeclareV3Schema
-from deepdiff import DeepDiff
-
-from starknet_py.hash.selector import get_selector_from_name
-
-from starknet_py.net.schemas.broadcasted import DeployAccountBroadcastedSchema, TransactionTraceSchema
 
 @pytest.mark.asyncio
 async def test_wait_for_tx_negative_check_interval(client):
@@ -87,104 +85,84 @@ def test_get_rpc_storage_key_raises_on_non_representable_key(key):
 
 
 @pytest.mark.asyncio
-async def test_broadcasted_txn_declare_v3_tx(account, abi_types_compiled_contract_and_class_hash):
+async def test_broadcasted_txn_declare_v3_tx(
+    account, abi_types_compiled_contract_and_class_hash
+):
     declare_v3 = await account.sign_declare_v3(
         compiled_contract=abi_types_compiled_contract_and_class_hash[0],
         compiled_class_hash=abi_types_compiled_contract_and_class_hash[1],
         l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
     )
 
-    print("vers")
-    prev_brodcast = _create_broadcasted_txn(declare_v3)
+    prev_brodcasted = _create_broadcasted_txn_prev(declare_v3)
+    brodcasted = _create_broadcasted_txn(declare_v3)
+    ddiff = DeepDiff(prev_brodcasted, brodcasted, ignore_order=True)
 
-    dump = TransactionTraceSchema().dump(obj=declare_v3)
-    ddiff = DeepDiff(prev_brodcast,dump, ignore_order=True)
-
-    print(ddiff)
     assert len(ddiff) == 0
 
 
 @pytest.mark.asyncio
-async def test_broadcasted_txn_declare_v2_tx(account, abi_types_compiled_contract_and_class_hash):
+async def test_broadcasted_txn_declare_v2_tx(
+    account, abi_types_compiled_contract_and_class_hash
+):
     declare_v3 = await account.sign_declare_v2(
         compiled_contract=abi_types_compiled_contract_and_class_hash[0],
         compiled_class_hash=abi_types_compiled_contract_and_class_hash[1],
         max_fee=MAX_FEE,
     )
 
-    print("vers")
-    prev_brodcast = _create_broadcasted_txn(declare_v3)
+    prev_brodcasted = _create_broadcasted_txn_prev(declare_v3)
+    brodcasted = _create_broadcasted_txn(declare_v3)
+    ddiff = DeepDiff(prev_brodcasted, brodcasted, ignore_order=True)
 
-    dump = TransactionTraceSchema().dump(obj=declare_v3)
-    ddiff = DeepDiff(prev_brodcast,dump, ignore_order=True)
-
-    print(ddiff)
     assert len(ddiff) == 0
 
 
-# @pytest.mark.asyncio
-# async def test_broadcasted_txn_declare_v1_tx(account, map_compiled_contract):
-#     declare_v1 = await account.sign_declare_v1(
-#         compiled_contract=map_compiled_contract,
-#         max_fee=MAX_FEE,
-#     )
+@pytest.mark.asyncio
+async def test_broadcasted_txn_declare_v1_tx(account, map_compiled_contract):
+    declare_v1 = await account.sign_declare_v1(
+        compiled_contract=map_compiled_contract,
+        max_fee=MAX_FEE,
+    )
 
-#     print("vers")
-#     prev_brodcast = _create_broadcasted_txn(declare_v1)
-#     dump = DeclareBroadcastedV1Schema().dump(obj=declare_v1)
-#     ddiff = DeepDiff(prev_brodcast,dump, ignore_order=True)
+    prev_brodcasted = _create_broadcasted_txn_prev(declare_v1)
+    brodcasted = _create_broadcasted_txn(declare_v1)
+    ddiff = DeepDiff(prev_brodcasted, brodcasted, ignore_order=True)
 
-#     print(ddiff)
-#     assert len(ddiff) == 0
+    assert len(ddiff) == 0
 
 
 @pytest.mark.asyncio
-async def test_broadcasted_txn_invoke_v3_tx(account, map_compiled_contract, map_contract):
-    declare_tx = await account.sign_declare_v1(
-        compiled_contract=map_compiled_contract, max_fee=MAX_FEE
-    )
-    
+async def test_broadcasted_txn_invoke_v3_tx(account, map_contract):
     invoke_tx = await account.sign_invoke_v3(
         calls=Call(map_contract.address, get_selector_from_name("put"), [3, 4]),
         l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
-        nonce=(declare_tx.nonce + 1),
     )
 
-    print("vers")
-    prev_brodcast = _create_broadcasted_txn(invoke_tx)
+    prev_brodcasted = _create_broadcasted_txn_prev(invoke_tx)
+    brodcasted = _create_broadcasted_txn(invoke_tx)
+    ddiff = DeepDiff(prev_brodcasted, brodcasted, ignore_order=True)
 
-    dump = TransactionTraceSchema().dump(obj=invoke_tx)
-    ddiff = DeepDiff(prev_brodcast, dump, ignore_order=True)
-
-    print(ddiff)
     assert len(ddiff) == 0
 
 
-
 @pytest.mark.asyncio
-async def test_broadcasted_txn_invoke_v1_tx(account, map_compiled_contract, map_contract):
-    declare_tx = await account.sign_declare_v1(
-        compiled_contract=map_compiled_contract, max_fee=MAX_FEE
-    )
-    
+async def test_broadcasted_txn_invoke_v1_tx(account, map_contract):
     invoke_tx = await account.sign_invoke_v1(
         calls=Call(map_contract.address, get_selector_from_name("put"), [3, 4]),
-        max_fee=int(1e16)
+        max_fee=int(1e16),
     )
 
-    print("vers")
-    prev_brodcast = _create_broadcasted_txn(invoke_tx)
-    print(prev_brodcast)
-    dump = TransactionTraceSchema().dump(obj=invoke_tx)
-    print(dump)
-    
-    ddiff = DeepDiff(prev_brodcast, dump, ignore_order=True)
+    prev_brodcasted = _create_broadcasted_txn_prev(invoke_tx)
+    brodcasted = _create_broadcasted_txn(invoke_tx)
 
-    print(ddiff)
+    ddiff = DeepDiff(prev_brodcasted, brodcasted, ignore_order=True)
+
     assert len(ddiff) == 0
 
+
 @pytest.mark.asyncio
-async def test_broadcasted_txn_deploy_account_v3_tx(account, map_compiled_contract, map_contract):
+async def test_broadcasted_txn_deploy_account_v3_tx(account):
     class_hash = 0x1234
     salt = 0x123
     calldata = [1, 2, 3]
@@ -195,16 +173,16 @@ async def test_broadcasted_txn_deploy_account_v3_tx(account, map_compiled_contra
         constructor_calldata=calldata,
     )
 
-    prev_brodcast = _create_broadcasted_txn(signed_tx)
+    prev_brodcasted = _create_broadcasted_txn_prev(signed_tx)
 
-    dump = TransactionTraceSchema().dump(obj=signed_tx)
-    ddiff = DeepDiff(prev_brodcast, dump, ignore_order=True)
+    brodcasted = _create_broadcasted_txn(signed_tx)
+    ddiff = DeepDiff(prev_brodcasted, brodcasted, ignore_order=True)
 
-    print(ddiff)
     assert len(ddiff) == 0
 
+
 @pytest.mark.asyncio
-async def test_broadcasted_txn_deploy_account_1_tx(account, map_compiled_contract, map_contract):
+async def test_broadcasted_txn_deploy_account_1_tx(account):
     class_hash = 0x1234
     salt = 0x123
     calldata = [1, 2, 3]
@@ -212,10 +190,9 @@ async def test_broadcasted_txn_deploy_account_1_tx(account, map_compiled_contrac
         class_hash, salt, calldata, max_fee=MAX_FEE
     )
 
-    prev_brodcast = _create_broadcasted_txn(signed_tx)
+    prev_brodcasted = _create_broadcasted_txn_prev(signed_tx)
 
-    dump = TransactionTraceSchema().dump(obj=signed_tx)
-    ddiff = DeepDiff(prev_brodcast, dump, ignore_order=True)
+    brodcasted = _create_broadcasted_txn(signed_tx)
+    ddiff = DeepDiff(prev_brodcasted, brodcasted, ignore_order=True)
 
-    print(ddiff)
     assert len(ddiff) == 0

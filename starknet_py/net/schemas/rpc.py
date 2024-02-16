@@ -1,6 +1,4 @@
-from ast import Dict
-from typing import Any
-from marshmallow import EXCLUDE, Schema, fields, post_load, post_dump
+from marshmallow import EXCLUDE, Schema, fields, post_load
 from marshmallow_oneofschema import OneOfSchema
 
 from starknet_py.abi.schemas import ContractAbiEntrySchema
@@ -81,8 +79,6 @@ from starknet_py.net.schemas.common import (
 )
 from starknet_py.net.schemas.gateway import SierraCompiledContractSchema
 from starknet_py.net.schemas.utils import _extract_tx_version
-
-from starknet_py.net.models.transaction import DeclareV1Schema, compress_program
 
 # pylint: disable=unused-argument, no-self-use
 
@@ -258,7 +254,6 @@ class TransactionV3Schema(TransactionSchema):
     )
 
 
-
 class InvokeTransactionV0Schema(DeprecatedTransactionSchema):
     calldata = fields.List(Felt(), data_key="calldata", required=True)
     contract_address = Felt(data_key="contract_address", required=True)
@@ -383,9 +378,6 @@ class DeclareTransactionSchema(OneOfSchema):
         3: DeclareTransactionV3Schema,
     }
 
-    def get_obj_type(self, obj):
-        return _extract_tx_version(obj.version)
-
     def get_data_type(self, data):
         return _extract_tx_version(data.get("version"))
 
@@ -397,6 +389,9 @@ class InvokeTransactionSchema(OneOfSchema):
         3: InvokeTransactionV3Schema,
     }
 
+    def get_obj_type(self, obj):
+        return _extract_tx_version(obj.version)
+
     def get_data_type(self, data):
         return _extract_tx_version(data.get("version"))
 
@@ -406,6 +401,9 @@ class DeployAccountTransactionSchema(OneOfSchema):
         1: DeployAccountTransactionV1Schema,
         3: DeployAccountTransactionV3Schema,
     }
+
+    def get_obj_type(self, obj):
+        return _extract_tx_version(obj.version)
 
     def get_data_type(self, data):
         return _extract_tx_version(data.get("version"))
@@ -431,10 +429,7 @@ class TypesOfTransactionsSchema(OneOfSchema):
         "DEPLOY_ACCOUNT": DeployAccountTransactionSchema,
         "L1_HANDLER": L1HandlerTransactionSchema,
     }
-    def get_obj_type(self, obj):
-        return obj.type.name
 
-    
 
 class PendingStarknetBlockSchema(Schema):
     parent_block_hash = Felt(data_key="parent_hash", required=True)
@@ -939,10 +934,10 @@ class BlockTransactionTraceSchema(Schema):
     def make_dataclass(self, data, **kwargs) -> BlockTransactionTrace:
         return BlockTransactionTrace(**data)
 
+
 class CommonBroadcastedSchema(Schema):
     nonce = Felt(data_key="nonce")
     signature = fields.List(Felt(), data_key="signature")
     contract_class = fields.Nested(
         SierraCompiledContractSchema(), data_key="contract_class"
     )
-
