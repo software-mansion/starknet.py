@@ -77,7 +77,6 @@ from starknet_py.net.schemas.common import (
     Uint64,
     Uint128,
 )
-from starknet_py.net.schemas.gateway import SierraCompiledContractSchema
 from starknet_py.net.schemas.utils import _extract_tx_version
 
 # pylint: disable=unused-argument, no-self-use
