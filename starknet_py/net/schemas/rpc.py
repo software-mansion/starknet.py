@@ -514,8 +514,8 @@ class StarknetBlockWithTxHashesSchema(BlockHeaderSchema):
 
 
 class TransactionWithReceiptSchema(Schema):
-    transaction = fields.Nested(TransactionSchema, data_key="transaction")
-    receipt = fields.Nested(TransactionReceiptSchema, data_key="receipt")
+    transaction = fields.Nested(TransactionSchema(), data_key="transaction")
+    receipt = fields.Nested(TransactionReceiptSchema(), data_key="receipt")
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> TransactionWithReceipt:
