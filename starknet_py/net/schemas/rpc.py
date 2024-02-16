@@ -933,11 +933,3 @@ class BlockTransactionTraceSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> BlockTransactionTrace:
         return BlockTransactionTrace(**data)
-
-
-class CommonBroadcastedSchema(Schema):
-    nonce = Felt(data_key="nonce")
-    signature = fields.List(Felt(), data_key="signature")
-    contract_class = fields.Nested(
-        SierraCompiledContractSchema(), data_key="contract_class"
-    )

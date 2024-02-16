@@ -85,7 +85,7 @@ def test_get_rpc_storage_key_raises_on_non_representable_key(key):
 
 
 @pytest.mark.asyncio
-async def test_broadcasted_txn_declare_v3_tx(
+async def test_broadcasted_txn_declare_v3(
     account, abi_types_compiled_contract_and_class_hash
 ):
     declare_v3 = await account.sign_declare_v3(
@@ -102,7 +102,7 @@ async def test_broadcasted_txn_declare_v3_tx(
 
 
 @pytest.mark.asyncio
-async def test_broadcasted_txn_declare_v2_tx(
+async def test_broadcasted_txn_declare_v2(
     account, abi_types_compiled_contract_and_class_hash
 ):
     declare_v3 = await account.sign_declare_v2(
@@ -119,7 +119,7 @@ async def test_broadcasted_txn_declare_v2_tx(
 
 
 @pytest.mark.asyncio
-async def test_broadcasted_txn_declare_v1_tx(account, map_compiled_contract):
+async def test_broadcasted_txn_declare_v1(account, map_compiled_contract):
     declare_v1 = await account.sign_declare_v1(
         compiled_contract=map_compiled_contract,
         max_fee=MAX_FEE,
@@ -133,7 +133,7 @@ async def test_broadcasted_txn_declare_v1_tx(account, map_compiled_contract):
 
 
 @pytest.mark.asyncio
-async def test_broadcasted_txn_invoke_v3_tx(account, map_contract):
+async def test_broadcasted_txn_invoke_v3(account, map_contract):
     invoke_tx = await account.sign_invoke_v3(
         calls=Call(map_contract.address, get_selector_from_name("put"), [3, 4]),
         l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
@@ -147,7 +147,7 @@ async def test_broadcasted_txn_invoke_v3_tx(account, map_contract):
 
 
 @pytest.mark.asyncio
-async def test_broadcasted_txn_invoke_v1_tx(account, map_contract):
+async def test_broadcasted_txn_invoke_v1(account, map_contract):
     invoke_tx = await account.sign_invoke_v1(
         calls=Call(map_contract.address, get_selector_from_name("put"), [3, 4]),
         max_fee=int(1e16),
@@ -162,7 +162,7 @@ async def test_broadcasted_txn_invoke_v1_tx(account, map_contract):
 
 
 @pytest.mark.asyncio
-async def test_broadcasted_txn_deploy_account_v3_tx(account):
+async def test_broadcasted_txn_deploy_account_v3(account):
     class_hash = 0x1234
     salt = 0x123
     calldata = [1, 2, 3]
@@ -182,7 +182,7 @@ async def test_broadcasted_txn_deploy_account_v3_tx(account):
 
 
 @pytest.mark.asyncio
-async def test_broadcasted_txn_deploy_account_1_tx(account):
+async def test_broadcasted_txn_deploy_account_1(account):
     class_hash = 0x1234
     salt = 0x123
     calldata = [1, 2, 3]

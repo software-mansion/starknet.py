@@ -100,7 +100,6 @@ def _is_valid_eth_address(address: str) -> bool:
     return bool(re.fullmatch("^0x[a-fA-F0-9]{40}$", address))
 
 
-# def _create_broadcasted_txn_new(transaction: AccountTransaction) -> dict:
 def _create_broadcasted_txn(transaction: AccountTransaction) -> dict:
     return cast(
         Dict,
