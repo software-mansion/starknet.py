@@ -7,10 +7,7 @@ from starknet_py.net.client import Client
 from starknet_py.net.client_models import Call
 from starknet_py.net.models import Address
 from starknet_py.proxy.contract_abi_resolver import ProxyConfig
-from starknet_py.proxy.proxy_check import (
-    ArgentProxyCheck,
-    ProxyCheck,
-)
+from starknet_py.proxy.proxy_check import ArgentProxyCheck, ProxyCheck
 
 
 @pytest.mark.asyncio
@@ -68,9 +65,7 @@ async def test_resolving_proxies(
     proxy_config = ProxyConfig(proxy_checks=[CustomProxyCheck()])
 
     # More ProxyCheck instances can be passed to proxy_checks for it to be flexible
-    proxy_config = ProxyConfig(
-        proxy_checks=[CustomProxyCheck(), ArgentProxyCheck()]
-    )
+    proxy_config = ProxyConfig(proxy_checks=[CustomProxyCheck(), ArgentProxyCheck()])
 
     # docs-2: end
     address = proxy_impl_func.deployed_contract.address
