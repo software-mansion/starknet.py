@@ -105,14 +105,14 @@ async def test_broadcasted_txn_declare_v3(
 async def test_broadcasted_txn_declare_v2(
     account, abi_types_compiled_contract_and_class_hash
 ):
-    declare_v3 = await account.sign_declare_v2(
+    declare_v2 = await account.sign_declare_v2(
         compiled_contract=abi_types_compiled_contract_and_class_hash[0],
         compiled_class_hash=abi_types_compiled_contract_and_class_hash[1],
         max_fee=MAX_FEE,
     )
 
-    prev_brodcasted = _create_broadcasted_txn_prev(declare_v3)
-    brodcasted = _create_broadcasted_txn(declare_v3)
+    prev_brodcasted = _create_broadcasted_txn_prev(declare_v2)
+    brodcasted = _create_broadcasted_txn(declare_v2)
     ddiff = DeepDiff(prev_brodcasted, brodcasted, ignore_order=True)
 
     assert len(ddiff) == 0
