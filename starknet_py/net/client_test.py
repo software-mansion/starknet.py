@@ -1,22 +1,14 @@
 import pytest
-from deepdiff import DeepDiff
 
 from starknet_py.constants import ADDR_BOUND
-from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.client_models import (
-    Call,
     DAMode,
     ResourceBoundsMapping,
     Transaction,
     TransactionV3,
 )
-from starknet_py.net.client_utils import (
-    _create_broadcasted_txn,
-    _create_broadcasted_txn_prev,
-)
 from starknet_py.net.full_node_client import _to_storage_key
 from starknet_py.net.http_client import RpcHttpClient, ServerError
-from starknet_py.tests.e2e.fixtures.constants import MAX_FEE, MAX_RESOURCE_BOUNDS_L1
 
 
 @pytest.mark.asyncio
@@ -82,117 +74,3 @@ def test_get_rpc_storage_key(key, expected):
 def test_get_rpc_storage_key_raises_on_non_representable_key(key):
     with pytest.raises(ValueError, match="cannot be represented"):
         _to_storage_key(key)
-
-
-@pytest.mark.asyncio
-async def test_broadcasted_txn_declare_v3(
-    account, abi_types_compiled_contract_and_class_hash
-):
-    declare_v3 = await account.sign_declare_v3(
-        compiled_contract=abi_types_compiled_contract_and_class_hash[0],
-        compiled_class_hash=abi_types_compiled_contract_and_class_hash[1],
-        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
-    )
-
-    prev_brodcasted = _create_broadcasted_txn_prev(declare_v3)
-    brodcasted = _create_broadcasted_txn(declare_v3)
-    ddiff = DeepDiff(prev_brodcasted, brodcasted, ignore_order=True)
-
-    assert len(ddiff) == 0
-
-
-@pytest.mark.asyncio
-async def test_broadcasted_txn_declare_v2(
-    account, abi_types_compiled_contract_and_class_hash
-):
-    declare_v3 = await account.sign_declare_v2(
-        compiled_contract=abi_types_compiled_contract_and_class_hash[0],
-        compiled_class_hash=abi_types_compiled_contract_and_class_hash[1],
-        max_fee=MAX_FEE,
-    )
-
-    prev_brodcasted = _create_broadcasted_txn_prev(declare_v3)
-    brodcasted = _create_broadcasted_txn(declare_v3)
-    ddiff = DeepDiff(prev_brodcasted, brodcasted, ignore_order=True)
-
-    assert len(ddiff) == 0
-
-
-@pytest.mark.asyncio
-async def test_broadcasted_txn_declare_v1(account, map_compiled_contract):
-    declare_v1 = await account.sign_declare_v1(
-        compiled_contract=map_compiled_contract,
-        max_fee=MAX_FEE,
-    )
-
-    prev_brodcasted = _create_broadcasted_txn_prev(declare_v1)
-    brodcasted = _create_broadcasted_txn(declare_v1)
-    ddiff = DeepDiff(prev_brodcasted, brodcasted, ignore_order=True)
-
-    assert len(ddiff) == 0
-
-
-@pytest.mark.asyncio
-async def test_broadcasted_txn_invoke_v3(account, map_contract):
-    invoke_tx = await account.sign_invoke_v3(
-        calls=Call(map_contract.address, get_selector_from_name("put"), [3, 4]),
-        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
-    )
-
-    prev_brodcasted = _create_broadcasted_txn_prev(invoke_tx)
-    brodcasted = _create_broadcasted_txn(invoke_tx)
-    ddiff = DeepDiff(prev_brodcasted, brodcasted, ignore_order=True)
-
-    assert len(ddiff) == 0
-
-
-@pytest.mark.asyncio
-async def test_broadcasted_txn_invoke_v1(account, map_contract):
-    invoke_tx = await account.sign_invoke_v1(
-        calls=Call(map_contract.address, get_selector_from_name("put"), [3, 4]),
-        max_fee=int(1e16),
-    )
-
-    prev_brodcasted = _create_broadcasted_txn_prev(invoke_tx)
-    brodcasted = _create_broadcasted_txn(invoke_tx)
-
-    ddiff = DeepDiff(prev_brodcasted, brodcasted, ignore_order=True)
-
-    assert len(ddiff) == 0
-
-
-@pytest.mark.asyncio
-async def test_broadcasted_txn_deploy_account_v3(account):
-    class_hash = 0x1234
-    salt = 0x123
-    calldata = [1, 2, 3]
-    signed_tx = await account.sign_deploy_account_v3(
-        class_hash,
-        salt,
-        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
-        constructor_calldata=calldata,
-    )
-
-    prev_brodcasted = _create_broadcasted_txn_prev(signed_tx)
-
-    brodcasted = _create_broadcasted_txn(signed_tx)
-    ddiff = DeepDiff(prev_brodcasted, brodcasted, ignore_order=True)
-
-    assert len(ddiff) == 0
-
-
-@pytest.mark.asyncio
-async def test_broadcasted_txn_deploy_account_1(account):
-    class_hash = 0x1234
-    salt = 0x123
-    calldata = [1, 2, 3]
-    signed_tx = await account.sign_deploy_account_v1(
-        class_hash, salt, calldata, max_fee=MAX_FEE
-    )
-
-    prev_brodcasted = _create_broadcasted_txn_prev(signed_tx)
-
-    brodcasted = _create_broadcasted_txn(signed_tx)
-    ddiff = DeepDiff(prev_brodcasted, brodcasted, ignore_order=True)
-
-    assert len(ddiff) == 0
