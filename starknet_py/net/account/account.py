@@ -136,7 +136,9 @@ class Account(BaseAccount):
             )
 
         if auto_estimate:
-            estimated_fee = await self._estimate_fee(transaction)
+            estimated_fee = await self.estimate_fee(transaction)
+            assert isinstance(estimated_fee, EstimatedFee)
+
             max_fee = int(estimated_fee.overall_fee * Account.ESTIMATED_FEE_MULTIPLIER)
 
         if max_fee is None:
@@ -158,7 +160,9 @@ class Account(BaseAccount):
             )
 
         if auto_estimate:
-            estimated_fee = await self._estimate_fee(transaction)
+            estimated_fee = await self.estimate_fee(transaction)
+            assert isinstance(estimated_fee, EstimatedFee)
+
             l1_resource_bounds = ResourceBounds(
                 max_amount=int(
                     (estimated_fee.overall_fee / estimated_fee.gas_price)
@@ -247,28 +251,25 @@ class Account(BaseAccount):
         )
         return _add_resource_bounds_to_transaction(transaction, resource_bounds)
 
-    async def _estimate_fee(
+    async def estimate_fee(
         self,
-        tx: AccountTransaction,
+        tx: Union[AccountTransaction, List[AccountTransaction]],
+        skip_validate: bool = False,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> EstimatedFee:
-        """
-        :param tx: Transaction which fee we want to calculate.
-        :param block_hash: a block hash.
-        :param block_number: a block number.
-        :return: Estimated fee.
-        """
-        tx = await self.sign_for_fee_estimate(tx)
+    ) -> Union[EstimatedFee, List[EstimatedFee]]:
+        transactions = (
+            await self.sign_for_fee_estimate(tx)
+            if isinstance(tx, AccountTransaction)
+            else [await self.sign_for_fee_estimate(t) for t in tx]
+        )
 
-        estimated_fee = await self._client.estimate_fee(
-            tx=tx,
+        return await self._client.estimate_fee(
+            tx=transactions,
+            skip_validate=skip_validate,
             block_hash=block_hash,
             block_number=block_number,
         )
-        assert isinstance(estimated_fee, EstimatedFee)
-
-        return estimated_fee
 
     async def get_nonce(
         self,
