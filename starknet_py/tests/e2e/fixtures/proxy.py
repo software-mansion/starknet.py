@@ -39,7 +39,6 @@ def custom_proxy() -> str:
     scope="session",
     params=[
         "oz_proxy_address_0.8.1_compiled.json",
-        "eth_proxy_compiled.json",
     ],
 )
 def old_proxy(request) -> str:
