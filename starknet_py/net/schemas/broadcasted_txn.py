@@ -1,8 +1,8 @@
 from marshmallow import fields, post_dump
 from marshmallow_oneofschema import OneOfSchema
 
+from starknet_py.net.client_models import TransactionType
 from starknet_py.net.models.transaction import compress_program
-from starknet_py.net.schemas.common import TransactionTypeField
 from starknet_py.net.schemas.gateway import (
     ContractClassSchema,
     SierraCompiledContractSchema,
@@ -40,7 +40,7 @@ class DeclareBroadcastedV1Schema(DeclareTransactionV1Schema):
         return compress_program(data)
 
 
-class DeclareBroadcastedSchema(OneOfSchema):
+class BroadcastedDeclareV3Schema(OneOfSchema):
     type_schemas = {
         1: DeclareBroadcastedV1Schema,
         2: DeclareBroadcastedV2Schema,
@@ -51,11 +51,11 @@ class DeclareBroadcastedSchema(OneOfSchema):
         return _extract_tx_version(obj.version)
 
 
-class TransactionTraceSchema(OneOfSchema):
+class BroadcastedTransactionSchema(OneOfSchema):
     type_schemas = {
-        "INVOKE": InvokeTransactionSchema(),
-        "DECLARE": DeclareBroadcastedSchema(),
-        "DEPLOY_ACCOUNT": DeployAccountTransactionSchema(),
+        TransactionType.INVOKE: InvokeTransactionSchema(),
+        TransactionType.DECLARE: BroadcastedDeclareV3Schema(),
+        TransactionType.DEPLOY_ACCOUNT: DeployAccountTransactionSchema(),
     }
 
     def get_obj_type(self, obj):
