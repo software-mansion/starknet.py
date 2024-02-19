@@ -2,7 +2,10 @@ import pytest
 
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.net.full_node_client import _is_valid_eth_address
-from starknet_py.net.networks import default_token_address_for_network
+from starknet_py.net.models.chains import (
+    StarknetChainId,
+    default_token_address_for_chain,
+)
 
 
 def test_is_valid_eth_address():
@@ -12,14 +15,14 @@ def test_is_valid_eth_address():
 
 
 def test_default_token_address_for_network():
-    res = default_token_address_for_network("mainnet")
+    res = default_token_address_for_chain(StarknetChainId.MAINNET)
     assert res == FEE_CONTRACT_ADDRESS
 
-    res = default_token_address_for_network("goerli")
+    res = default_token_address_for_chain(StarknetChainId.GOERLI)
     assert res == FEE_CONTRACT_ADDRESS
 
     with pytest.raises(
         ValueError,
-        match="Argument token_address must be specified when using a custom net address",
+        match="Argument token_address must be specified when using a custom network.",
     ):
-        _ = default_token_address_for_network("")
+        _ = default_token_address_for_chain("")  # type: ignore

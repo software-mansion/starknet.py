@@ -2,6 +2,7 @@ from enum import IntEnum
 from typing import Optional
 
 from starknet_py.common import int_from_bytes
+from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.net.networks import (
     GOERLI,
     MAINNET,
@@ -39,3 +40,17 @@ def chain_from_network(
         raise ValueError("Chain is required when not using predefined networks.")
 
     return chain
+
+
+def default_token_address_for_chain(chain_id: StarknetChainId) -> str:
+    if chain_id not in [
+        StarknetChainId.SEPOLIA_TESTNET,
+        StarknetChainId.SEPOLIA_INTEGRATION,
+        StarknetChainId.GOERLI,
+        StarknetChainId.MAINNET,
+    ]:
+        raise ValueError(
+            "Argument token_address must be specified when using a custom network."
+        )
+
+    return FEE_CONTRACT_ADDRESS

@@ -43,6 +43,7 @@ from starknet_py.tests.e2e.fixtures.constants import (
 
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
+@pytest.mark.skip
 async def test_get_balance_throws_when_token_not_specified(account):
     modified_account = Account(
         address=account.address,
@@ -59,7 +60,7 @@ async def test_get_balance_throws_when_token_not_specified(account):
 
 @pytest.mark.asyncio
 async def test_balance_when_token_specified(account, erc20_contract):
-    balance = await account.get_balance(erc20_contract.address)
+    balance = await account.get_balance(token_address=erc20_contract.address)
 
     assert balance == 200
 

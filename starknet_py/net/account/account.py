@@ -4,7 +4,7 @@ from collections import OrderedDict
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
 from starknet_py.common import create_compiled_contract, create_sierra_compiled_contract
-from starknet_py.constants import FEE_CONTRACT_ADDRESS, QUERY_VERSION_BASE
+from starknet_py.constants import QUERY_VERSION_BASE
 from starknet_py.hash.address import compute_address
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.utils import verify_message_signature
@@ -24,6 +24,7 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models import AddressRepresentation, StarknetChainId, parse_address
+from starknet_py.net.models.chains import default_token_address_for_chain
 from starknet_py.net.models.transaction import (
     AccountTransaction,
     DeclareV1,
@@ -73,7 +74,9 @@ class Account(BaseAccount):
         signer: Optional[BaseSigner] = None,
         key_pair: Optional[KeyPair] = None,
         chain: Optional[StarknetChainId] = None,
+        token_address: Optional[str] = None,
     ):
+        # pylint: disable=too-many-arguments
         """
         :param address: Address of the account contract.
         :param client: Instance of Client which will be used to add transactions.
@@ -82,6 +85,8 @@ class Account(BaseAccount):
                        :py:class:`starknet_py.net.signer.stark_curve_signer.StarkCurveSigner` is used.
         :param key_pair: Key pair that will be used to create a default `Signer`.
         :param chain: ChainId of the chain used to create the default signer.
+        :param token_address: l2_token_address for custom network,
+                                should be set only in the case of using custom network
         """
         self._address = parse_address(address)
         self._client = client
@@ -102,7 +107,16 @@ class Account(BaseAccount):
                 account_address=self.address, key_pair=key_pair, chain_id=chain
             )
         self.signer: BaseSigner = signer
-        self._chain_id = chain
+
+        if token_address is not None:
+            self._token_address = token_address
+        else:
+            if hasattr(signer, "chain_id"):
+                self._token_address = default_token_address_for_chain(signer.chain_id)  # type: ignore
+            else:
+                raise ValueError(
+                    "Argument token_address must be specified when using a custom network."
+                )
 
     @property
     def address(self) -> int:
@@ -290,13 +304,12 @@ class Account(BaseAccount):
     async def get_balance(
         self,
         token_address: Optional[AddressRepresentation] = None,
-        chain_id: Optional[StarknetChainId] = None,
         *,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> int:
         if token_address is None:
-            token_address = self._default_token_address_for_chain(chain_id)
+            token_address = self._token_address
 
         low, high = await self._client.call_contract(
             Call(
@@ -725,21 +738,6 @@ class Account(BaseAccount):
         return AccountDeploymentResult(
             hash=result.transaction_hash, account=account, _client=account.client
         )
-
-    def _default_token_address_for_chain(
-        self, chain_id: Optional[StarknetChainId] = None
-    ) -> str:
-        if (chain_id or self._chain_id) not in [
-            StarknetChainId.SEPOLIA_TESTNET,
-            StarknetChainId.SEPOLIA_INTEGRATION,
-            StarknetChainId.GOERLI,
-            StarknetChainId.MAINNET,
-        ]:
-            raise ValueError(
-                "Argument token_address must be specified when using a custom network."
-            )
-
-        return FEE_CONTRACT_ADDRESS
 
 
 def _prepare_account_to_deploy(

@@ -20,9 +20,13 @@ from starknet_py.net.client_models import (
     TransactionStatus,
 )
 from starknet_py.net.models import StarknetChainId
-from starknet_py.net.networks import SEPOLIA_TESTNET, default_token_address_for_network
+from starknet_py.net.models.chains import default_token_address_for_chain
+from starknet_py.net.networks import SEPOLIA_TESTNET
 from starknet_py.tests.e2e.fixtures.constants import (
     EMPTY_CONTRACT_ADDRESS_GOERLI_TESTNET,
+)
+from starknet_py.tests.e2e.utils_functions_test import (
+    test_default_token_address_for_network,
 )
 from starknet_py.transaction_errors import TransactionRevertedError
 
@@ -417,7 +421,7 @@ async def test_get_chain_id_sepolia_integration(client_sepolia_integration):
 @pytest.mark.asyncio
 async def test_get_events_sepolia_testnet(client_sepolia_testnet):
     events_chunk = await client_sepolia_testnet.get_events(
-        address=default_token_address_for_network(SEPOLIA_TESTNET),
+        address=default_token_address_for_chain(StarknetChainId.SEPOLIA_TESTNET),
         from_block_number=1000,
         to_block_number=1005,
         chunk_size=10,

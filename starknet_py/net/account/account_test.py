@@ -57,18 +57,26 @@ async def test_account_get_balance_eth(account, map_contract):
 
 
 @pytest.mark.asyncio
-async def test_account_get_balance_strk(account, map_contract):
-    balance = await account.get_balance(token_address=STRK_FEE_CONTRACT_ADDRESS)
+async def test_account_get_balance_strk(address_and_private_key, client, map_contract):
+    address, private_key = address_and_private_key
+
+    account = Account(
+        address=address,
+        client=client,
+        key_pair=KeyPair.from_private_key(int(private_key, 0)),
+        chain=StarknetChainId.GOERLI,
+        token_address=STRK_FEE_CONTRACT_ADDRESS,
+    )
+
+    balance = await account.get_balance()
     block = await account.client.get_block(block_number="latest")
 
     await map_contract.functions["put"].invoke_v3(
         key=10, value=10, l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1
     )
 
-    new_balance = await account.get_balance(token_address=STRK_FEE_CONTRACT_ADDRESS)
-    old_balance = await account.get_balance(
-        token_address=STRK_FEE_CONTRACT_ADDRESS, block_number=block.block_number
-    )
+    new_balance = await account.get_balance()
+    old_balance = await account.get_balance(block_number=block.block_number)
 
     assert balance > 0
     assert new_balance < balance
