@@ -18,21 +18,18 @@ from starknet_py.net.schemas.utils import _extract_tx_version
 
 
 class DeclareBroadcastedV3Schema(DeclareTransactionV3Schema):
-    type = TransactionTypeField(data_key="type")
     contract_class = fields.Nested(
         SierraCompiledContractSchema(), data_key="contract_class"
     )
 
 
 class DeclareBroadcastedV2Schema(DeclareTransactionV2Schema):
-    type = TransactionTypeField(data_key="type")
     contract_class = fields.Nested(
         SierraCompiledContractSchema(), data_key="contract_class"
     )
 
 
 class DeclareBroadcastedV1Schema(DeclareTransactionV1Schema):
-    type = TransactionTypeField(data_key="type")
     contract_class = fields.Nested(ContractClassSchema(), data_key="contract_class")
 
     @post_dump
