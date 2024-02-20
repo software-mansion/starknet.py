@@ -1,6 +1,7 @@
 from marshmallow import fields, post_dump, post_load, pre_load
 from marshmallow_oneofschema import OneOfSchema
 
+from starknet_py.net.client_models import TransactionType
 from starknet_py.net.models.transaction import compress_program, decompress_program
 from starknet_py.net.schemas.gateway import (
     ContractClassSchema,
@@ -14,8 +15,6 @@ from starknet_py.net.schemas.rpc import (
     InvokeTransactionSchema,
 )
 from starknet_py.net.schemas.utils import _extract_tx_version
-
-from starknet_py.net.client_models import TransactionType
 
 
 class BroadcastedDeclareV3Schema(DeclareTransactionV3Schema):
