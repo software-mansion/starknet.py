@@ -5,6 +5,8 @@ Migration guide
 0.20.0 Migration guide
 **********************
 
+This update adds support for python 3.12
+
 Changes in the :class:`~starknet_py.net.account.account.Account`:
 
 .. currentmodule:: starknet_py.net.account.account
