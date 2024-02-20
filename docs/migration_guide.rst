@@ -2,6 +2,16 @@ Migration guide
 ===============
 
 **********************
+0.20.0 Migration guide
+**********************
+
+Changes in the :class:`~starknet_py.net.account.account.Account`:
+
+.. currentmodule:: starknet_py.net.account.account
+
+- :meth:`~Account.estimate_fee` has been added
+
+**********************
 0.19.0 Migration guide
 **********************
 
