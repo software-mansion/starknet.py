@@ -18,9 +18,9 @@ from starknet_py.net.full_node_client import (
 )
 from starknet_py.net.http_client import RpcHttpClient, ServerError
 from starknet_py.net.schemas.broadcasted_txn import (
-    DeclareBroadcastedV1Schema,
-    DeclareBroadcastedV2Schema,
-    DeclareBroadcastedV3Schema,
+    BroadcastedDeclareV1Schema,
+    BroadcastedDeclareV2Schema,
+    BroadcastedDeclareV3Schema,
 )
 from starknet_py.net.schemas.rpc import (
     DeployAccountTransactionV1Schema,
@@ -112,7 +112,7 @@ async def test_broadcasted_txn_declare_v3(
 
     assert brodcasted["type"] == TransactionType.DECLARE.name
     del brodcasted["type"]
-    DeclareBroadcastedV3Schema(exclude=["class_hash"]).load(brodcasted)
+    BroadcastedDeclareV3Schema(exclude=["class_hash"]).load(brodcasted)
 
     assert len(ddiff) == 0
 
@@ -133,7 +133,7 @@ async def test_broadcasted_txn_declare_v2(
 
     assert brodcasted["type"] == TransactionType.DECLARE.name
     del brodcasted["type"]
-    DeclareBroadcastedV2Schema(exclude=["class_hash"]).load(brodcasted)
+    BroadcastedDeclareV2Schema(exclude=["class_hash"]).load(brodcasted)
 
     assert len(ddiff) == 0
 
@@ -151,7 +151,7 @@ async def test_broadcasted_txn_declare_v1(account, map_compiled_contract):
 
     assert brodcasted["type"] == TransactionType.DECLARE.name
     del brodcasted["type"]
-    DeclareBroadcastedV1Schema(exclude=["class_hash"]).load(brodcasted)
+    BroadcastedDeclareV1Schema(exclude=["class_hash"]).load(brodcasted)
 
     assert len(ddiff) == 0
 
@@ -218,7 +218,7 @@ async def test_broadcasted_txn_deploy_account_v3(account):
 
 
 @pytest.mark.asyncio
-async def test_broadcasted_txn_deploy_account_1(account):
+async def test_broadcasted_txn_deploy_account_v1(account):
     class_hash = 0x1234
     salt = 0x123
     calldata = [1, 2, 3]
