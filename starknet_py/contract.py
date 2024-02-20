@@ -784,7 +784,7 @@ class Contract:
         :param proxy_config: Proxy resolving config
             If set to ``True``, will use default proxy checks
             :class:`starknet_py.proxy.proxy_check.OpenZeppelinProxyCheck` and
-            :class:`starknet_py.proxy.proxy_check.ArgentProxyCheck`,
+            :class:`starknet_py.proxy.proxy_check.ArgentProxyCheck`.
 
             If set to ``False``, :meth:`Contract.from_address` will not resolve proxies.
 
