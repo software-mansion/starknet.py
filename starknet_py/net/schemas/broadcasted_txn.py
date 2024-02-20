@@ -1,7 +1,7 @@
-from marshmallow import fields, post_dump
+from marshmallow import fields, post_dump, post_load, pre_load
 from marshmallow_oneofschema import OneOfSchema
 
-from starknet_py.net.models.transaction import compress_program
+from starknet_py.net.models.transaction import compress_program, decompress_program
 from starknet_py.net.schemas.gateway import (
     ContractClassSchema,
     SierraCompiledContractSchema,
@@ -18,18 +18,28 @@ from starknet_py.net.schemas.utils import _extract_tx_version
 
 class DeclareBroadcastedV3Schema(DeclareTransactionV3Schema):
     contract_class = fields.Nested(
-        SierraCompiledContractSchema(), data_key="contract_class"
+        SierraCompiledContractSchema(), data_key="contract_class", required=True
     )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return data
 
 
 class DeclareBroadcastedV2Schema(DeclareTransactionV2Schema):
     contract_class = fields.Nested(
-        SierraCompiledContractSchema(), data_key="contract_class"
+        SierraCompiledContractSchema(), data_key="contract_class", required=True
     )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return data
 
 
 class DeclareBroadcastedV1Schema(DeclareTransactionV1Schema):
-    contract_class = fields.Nested(ContractClassSchema(), data_key="contract_class")
+    contract_class = fields.Nested(
+        ContractClassSchema(), data_key="contract_class", required=True
+    )
 
     @post_dump
     def post_dump(self, data, **kwargs):
@@ -37,6 +47,15 @@ class DeclareBroadcastedV1Schema(DeclareTransactionV1Schema):
         # along with data, which we don't handle.
         # pylint: disable=unused-argument, no-self-use
         return compress_program(data)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs):
+        return data
+
+    @pre_load
+    def decompress_program(self, data, **kwargs):
+        # pylint: disable=unused-argument, no-self-use
+        return decompress_program(data)
 
 
 class BroadcastedDeclareV3Schema(OneOfSchema):

@@ -8,6 +8,7 @@ from starknet_py.net.client_models import (
     DAMode,
     ResourceBoundsMapping,
     Transaction,
+    TransactionType,
     TransactionV3,
 )
 from starknet_py.net.client_utils import _create_broadcasted_txn
@@ -16,6 +17,17 @@ from starknet_py.net.full_node_client import (
     _to_storage_key,
 )
 from starknet_py.net.http_client import RpcHttpClient, ServerError
+from starknet_py.net.schemas.broadcasted_txn import (
+    DeclareBroadcastedV1Schema,
+    DeclareBroadcastedV2Schema,
+    DeclareBroadcastedV3Schema,
+)
+from starknet_py.net.schemas.rpc import (
+    DeployAccountTransactionV1Schema,
+    DeployAccountTransactionV3Schema,
+    InvokeTransactionV1Schema,
+    InvokeTransactionV3Schema,
+)
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE, MAX_RESOURCE_BOUNDS_L1
 
 
@@ -98,6 +110,10 @@ async def test_broadcasted_txn_declare_v3(
     brodcasted = _create_broadcasted_txn(declare_v3)
     ddiff = DeepDiff(prev_brodcasted, brodcasted, ignore_order=True)
 
+    assert brodcasted["type"] == TransactionType.DECLARE.name
+    del brodcasted["type"]
+    DeclareBroadcastedV3Schema(exclude=["class_hash"]).load(brodcasted)
+
     assert len(ddiff) == 0
 
 
@@ -115,6 +131,10 @@ async def test_broadcasted_txn_declare_v2(
     brodcasted = _create_broadcasted_txn(declare_v2)
     ddiff = DeepDiff(prev_brodcasted, brodcasted, ignore_order=True)
 
+    assert brodcasted["type"] == TransactionType.DECLARE.name
+    del brodcasted["type"]
+    DeclareBroadcastedV2Schema(exclude=["class_hash"]).load(brodcasted)
+
     assert len(ddiff) == 0
 
 
@@ -128,6 +148,10 @@ async def test_broadcasted_txn_declare_v1(account, map_compiled_contract):
     prev_brodcasted = _create_broadcasted_txn_prev(declare_v1)
     brodcasted = _create_broadcasted_txn(declare_v1)
     ddiff = DeepDiff(prev_brodcasted, brodcasted, ignore_order=True)
+
+    assert brodcasted["type"] == TransactionType.DECLARE.name
+    del brodcasted["type"]
+    DeclareBroadcastedV1Schema(exclude=["class_hash"]).load(brodcasted)
 
     assert len(ddiff) == 0
 
@@ -143,6 +167,10 @@ async def test_broadcasted_txn_invoke_v3(account, map_contract):
     brodcasted = _create_broadcasted_txn(invoke_tx)
     ddiff = DeepDiff(prev_brodcasted, brodcasted, ignore_order=True)
 
+    assert brodcasted["type"] == TransactionType.INVOKE.name
+    del brodcasted["type"]
+    InvokeTransactionV3Schema().load(brodcasted)
+
     assert len(ddiff) == 0
 
 
@@ -157,6 +185,10 @@ async def test_broadcasted_txn_invoke_v1(account, map_contract):
     brodcasted = _create_broadcasted_txn(invoke_tx)
 
     ddiff = DeepDiff(prev_brodcasted, brodcasted, ignore_order=True)
+
+    assert brodcasted["type"] == TransactionType.INVOKE.name
+    del brodcasted["type"]
+    InvokeTransactionV1Schema().load(brodcasted)
 
     assert len(ddiff) == 0
 
@@ -178,6 +210,10 @@ async def test_broadcasted_txn_deploy_account_v3(account):
     brodcasted = _create_broadcasted_txn(signed_tx)
     ddiff = DeepDiff(prev_brodcasted, brodcasted, ignore_order=True)
 
+    assert brodcasted["type"] == TransactionType.DEPLOY_ACCOUNT.name
+    del brodcasted["type"]
+    DeployAccountTransactionV3Schema().load(brodcasted)
+
     assert len(ddiff) == 0
 
 
@@ -194,5 +230,9 @@ async def test_broadcasted_txn_deploy_account_1(account):
 
     brodcasted = _create_broadcasted_txn(signed_tx)
     ddiff = DeepDiff(prev_brodcasted, brodcasted, ignore_order=True)
+
+    assert brodcasted["type"] == TransactionType.DEPLOY_ACCOUNT.name
+    del brodcasted["type"]
+    DeployAccountTransactionV1Schema().load(brodcasted)
 
     assert len(ddiff) == 0
