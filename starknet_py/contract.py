@@ -9,8 +9,8 @@ from typing import Dict, List, Optional, TypeVar, Union
 
 from marshmallow import ValidationError
 
-from starknet_py.abi import Abi as AbiV0
-from starknet_py.abi import AbiParser as AbiV0Parser
+from starknet_py.abi.v0.model import Abi as AbiV0
+from starknet_py.abi.v0.parser import AbiParser as AbiV0Parser
 from starknet_py.abi.v1.model import Abi as AbiV1
 from starknet_py.abi.v1.parser import AbiParser as AbiV1Parser
 from starknet_py.abi.v2.model import Abi as AbiV2
