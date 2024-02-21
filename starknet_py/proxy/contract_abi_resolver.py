@@ -18,7 +18,6 @@ from starknet_py.proxy.proxy_check import (
     ArgentProxyCheck,
     OpenZeppelinProxyCheck,
     ProxyCheck,
-    StarknetEthProxyCheck,
 )
 
 
@@ -41,7 +40,6 @@ def prepare_proxy_config(proxy_config: ProxyConfig) -> ProxyConfig:
     proxy_checks = [
         OpenZeppelinProxyCheck(),
         ArgentProxyCheck(),
-        StarknetEthProxyCheck(),
     ]
     return {"proxy_checks": proxy_checks}
 
