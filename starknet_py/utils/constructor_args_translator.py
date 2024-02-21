@@ -1,7 +1,7 @@
 from typing import List, Optional, Union
 
 import starknet_py.abi.v2.shape as ShapeV2
-from starknet_py.abi.parser import AbiParser
+from starknet_py.abi.v0.parser import AbiParser
 from starknet_py.abi.v1.parser import AbiParser as AbiV1Parser
 from starknet_py.abi.v2.parser import AbiParser as AbiV2Parser
 from starknet_py.serialization import (
