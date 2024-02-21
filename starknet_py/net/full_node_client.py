@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Tuple, Union, cast
+from typing import List, Optional, Tuple, Union, cast
 
 import aiohttp
 from marshmallow import EXCLUDE
@@ -34,7 +34,6 @@ from starknet_py.net.client_models import (
     TransactionReceipt,
     TransactionStatusResponse,
     TransactionTrace,
-    TransactionType,
 )
 from starknet_py.net.client_utils import (
     _create_broadcasted_txn,
@@ -47,16 +46,9 @@ from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.models.transaction import (
     AccountTransaction,
     Declare,
-    DeclareV1Schema,
-    DeclareV2,
-    DeclareV2Schema,
-    DeclareV3,
     DeployAccount,
-    DeployAccountV3,
     Invoke,
-    InvokeV3,
 )
-from starknet_py.net.schemas.gateway import SierraCompiledContractSchema
 from starknet_py.net.schemas.rpc import (
     BlockHashAndNumberSchema,
     BlockStateUpdateSchema,
@@ -78,10 +70,8 @@ from starknet_py.net.schemas.rpc import (
     TransactionReceiptSchema,
     TransactionStatusResponseSchema,
     TransactionTraceSchema,
-    TransactionV3Schema,
     TypesOfTransactionsSchema,
 )
-from starknet_py.net.schemas.utils import _extract_tx_version
 from starknet_py.transaction_errors import TransactionNotReceivedError
 from starknet_py.utils.sync import add_sync_methods
 
@@ -811,152 +801,3 @@ def _get_raw_block_identifier(
         return {"block_number": block_number}
 
     return "pending"
-
-
-def _create_broadcasted_txn_prev(transaction: AccountTransaction) -> dict:
-    txn_map = {
-        TransactionType.DECLARE: _create_broadcasted_declare_properties,
-        TransactionType.INVOKE: _create_broadcasted_invoke_properties,
-        TransactionType.DEPLOY_ACCOUNT: _create_broadcasted_deploy_account_properties,
-    }
-
-    common_properties = _create_broadcasted_txn_common_properties(transaction)
-    transaction_specific_properties = txn_map[transaction.type](transaction)
-
-    return {
-        **common_properties,
-        **transaction_specific_properties,
-    }
-
-
-def _create_broadcasted_declare_properties(
-    transaction: Union[Declare, DeclareV2, DeclareV3]
-) -> dict:
-    if isinstance(transaction, DeclareV2):
-        return _create_broadcasted_declare_v2_properties(transaction)
-    if isinstance(transaction, DeclareV3):
-        return _create_broadcasted_declare_v3_properties(transaction)
-
-    contract_class = cast(Dict, DeclareV1Schema().dump(obj=transaction))[
-        "contract_class"
-    ]
-    declare_properties = {
-        "contract_class": {
-            "entry_points_by_type": contract_class["entry_points_by_type"],
-            "program": contract_class["program"],
-        },
-        "sender_address": _to_rpc_felt(transaction.sender_address),
-    }
-    if contract_class["abi"] is not None:
-        declare_properties["contract_class"]["abi"] = contract_class["abi"]
-
-    return declare_properties
-
-
-def _create_broadcasted_declare_v2_properties(transaction: DeclareV2) -> dict:
-    contract_class = cast(Dict, DeclareV2Schema().dump(obj=transaction))[
-        "contract_class"
-    ]
-    declare_v2_properties = {
-        "contract_class": {
-            "entry_points_by_type": contract_class["entry_points_by_type"],
-            "sierra_program": contract_class["sierra_program"],
-            "contract_class_version": contract_class["contract_class_version"],
-        },
-        "sender_address": _to_rpc_felt(transaction.sender_address),
-        "compiled_class_hash": _to_rpc_felt(transaction.compiled_class_hash),
-    }
-    if contract_class["abi"] is not None:
-        declare_v2_properties["contract_class"]["abi"] = contract_class["abi"]
-
-    return declare_v2_properties
-
-
-def _create_broadcasted_declare_v3_properties(transaction: DeclareV3) -> dict:
-    contract_class = cast(
-        Dict, SierraCompiledContractSchema().dump(obj=transaction.contract_class)
-    )
-
-    declare_v3_properties = {
-        "contract_class": {
-            "entry_points_by_type": contract_class["entry_points_by_type"],
-            "sierra_program": contract_class["sierra_program"],
-            "contract_class_version": contract_class["contract_class_version"],
-        },
-        "sender_address": _to_rpc_felt(transaction.sender_address),
-        "compiled_class_hash": _to_rpc_felt(transaction.compiled_class_hash),
-        "account_deployment_data": [
-            _to_rpc_felt(data) for data in transaction.account_deployment_data
-        ],
-    }
-
-    if contract_class["abi"] is not None:
-        declare_v3_properties["contract_class"]["abi"] = contract_class["abi"]
-
-    return {
-        **_create_broadcasted_txn_v3_common_properties(transaction),
-        **declare_v3_properties,
-    }
-
-
-def _create_broadcasted_invoke_properties(transaction: Union[Invoke, InvokeV3]) -> dict:
-    invoke_properties = {
-        "sender_address": _to_rpc_felt(transaction.sender_address),
-        "calldata": [_to_rpc_felt(data) for data in transaction.calldata],
-    }
-
-    if isinstance(transaction, InvokeV3):
-        return {
-            **_create_broadcasted_txn_v3_common_properties(transaction),
-            **invoke_properties,
-            "account_deployment_data": [
-                _to_rpc_felt(data) for data in transaction.account_deployment_data
-            ],
-        }
-
-    return invoke_properties
-
-
-def _create_broadcasted_deploy_account_properties(
-    transaction: Union[DeployAccount, DeployAccountV3]
-) -> dict:
-    deploy_account_txn_properties = {
-        "contract_address_salt": _to_rpc_felt(transaction.contract_address_salt),
-        "constructor_calldata": [
-            _to_rpc_felt(data) for data in transaction.constructor_calldata
-        ],
-        "class_hash": _to_rpc_felt(transaction.class_hash),
-    }
-
-    if isinstance(transaction, DeployAccountV3):
-        return {
-            **_create_broadcasted_txn_v3_common_properties(transaction),
-            **deploy_account_txn_properties,
-        }
-
-    return deploy_account_txn_properties
-
-
-def _create_broadcasted_txn_common_properties(transaction: AccountTransaction) -> dict:
-    broadcasted_txn_common_properties = {
-        "type": transaction.type.name,
-        "version": _to_rpc_felt(transaction.version),
-        "signature": [_to_rpc_felt(sig) for sig in transaction.signature],
-        "nonce": _to_rpc_felt(transaction.nonce),
-    }
-
-    if _extract_tx_version(transaction.version) < 3 and hasattr(transaction, "max_fee"):
-        broadcasted_txn_common_properties["max_fee"] = _to_rpc_felt(
-            transaction.max_fee  # pyright: ignore
-        )
-
-    return broadcasted_txn_common_properties
-
-
-def _create_broadcasted_txn_v3_common_properties(
-    transaction: Union[DeclareV3, InvokeV3, DeployAccountV3]
-) -> dict:
-    return cast(
-        Dict,
-        TransactionV3Schema(exclude=["version", "signature"]).dump(obj=transaction),
-    )

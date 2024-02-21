@@ -1,7 +1,6 @@
 import dataclasses
 
 import pytest
-from deepdiff import DeepDiff
 
 from starknet_py.constants import ADDR_BOUND
 from starknet_py.hash.selector import get_selector_from_name
@@ -14,10 +13,7 @@ from starknet_py.net.client_models import (
     TransactionV3,
 )
 from starknet_py.net.client_utils import _create_broadcasted_txn
-from starknet_py.net.full_node_client import (
-    _create_broadcasted_txn_prev,
-    _to_storage_key,
-)
+from starknet_py.net.full_node_client import _to_storage_key
 from starknet_py.net.http_client import RpcHttpClient, ServerError
 from starknet_py.net.models.transaction import (
     DeclareV1,
@@ -106,16 +102,11 @@ async def test_broadcasted_txn_declare_v3(
         l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
     )
 
-    prev_brodcasted = _create_broadcasted_txn_prev(declare_v3)
     brodcasted_txn = _create_broadcasted_txn(declare_v3)
-    ddiff = DeepDiff(prev_brodcasted, brodcasted_txn, ignore_order=True)
-
     assert brodcasted_txn["type"] == TransactionType.DECLARE.name
 
     expected_keys = dataclasses.fields(DeclareV3)
     assert all(key.name in brodcasted_txn for key in expected_keys)
-
-    assert len(ddiff) == 0
 
 
 @pytest.mark.asyncio
@@ -128,16 +119,12 @@ async def test_broadcasted_txn_declare_v2(
         max_fee=MAX_FEE,
     )
 
-    prev_brodcasted = _create_broadcasted_txn_prev(declare_v2)
     brodcasted_txn = _create_broadcasted_txn(declare_v2)
-    ddiff = DeepDiff(prev_brodcasted, brodcasted_txn, ignore_order=True)
 
     assert brodcasted_txn["type"] == TransactionType.DECLARE.name
 
     expected_keys = dataclasses.fields(DeclareV2)
     assert all(key.name in brodcasted_txn for key in expected_keys)
-
-    assert len(ddiff) == 0
 
 
 @pytest.mark.asyncio
@@ -147,16 +134,12 @@ async def test_broadcasted_txn_declare_v1(account, map_compiled_contract):
         max_fee=MAX_FEE,
     )
 
-    prev_brodcasted_txn = _create_broadcasted_txn_prev(declare_v1)
     brodcasted_txn = _create_broadcasted_txn(declare_v1)
-    ddiff = DeepDiff(prev_brodcasted_txn, brodcasted_txn, ignore_order=True)
 
     assert brodcasted_txn["type"] == TransactionType.DECLARE.name
 
     expected_keys = dataclasses.fields(DeclareV1)
     assert all(key.name in brodcasted_txn for key in expected_keys)
-
-    assert len(ddiff) == 0
 
 
 @pytest.mark.asyncio
@@ -166,16 +149,12 @@ async def test_broadcasted_txn_invoke_v3(account, map_contract):
         l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
     )
 
-    prev_brodcasted_txn = _create_broadcasted_txn_prev(invoke_tx)
     brodcasted_txn = _create_broadcasted_txn(invoke_tx)
-    ddiff = DeepDiff(prev_brodcasted_txn, brodcasted_txn, ignore_order=True)
 
     assert brodcasted_txn["type"] == TransactionType.INVOKE.name
 
     expected_keys = dataclasses.fields(InvokeV3)
     assert all(key.name in brodcasted_txn for key in expected_keys)
-
-    assert len(ddiff) == 0
 
 
 @pytest.mark.asyncio
@@ -185,17 +164,12 @@ async def test_broadcasted_txn_invoke_v1(account, map_contract):
         max_fee=int(1e16),
     )
 
-    prev_brodcasted = _create_broadcasted_txn_prev(invoke_tx)
     brodcasted_txn = _create_broadcasted_txn(invoke_tx)
-
-    ddiff = DeepDiff(prev_brodcasted, brodcasted_txn, ignore_order=True)
 
     assert brodcasted_txn["type"] == TransactionType.INVOKE.name
 
     expected_keys = dataclasses.fields(InvokeV1)
     assert all(key.name in brodcasted_txn for key in expected_keys)
-
-    assert len(ddiff) == 0
 
 
 @pytest.mark.asyncio
@@ -209,18 +183,11 @@ async def test_broadcasted_txn_deploy_account_v3(account):
         l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
         constructor_calldata=calldata,
     )
-
-    prev_brodcasted_txn = _create_broadcasted_txn_prev(signed_tx)
-
     brodcasted_txn = _create_broadcasted_txn(signed_tx)
-    ddiff = DeepDiff(prev_brodcasted_txn, brodcasted_txn, ignore_order=True)
-
     assert brodcasted_txn["type"] == TransactionType.DEPLOY_ACCOUNT.name
 
     expected_keys = dataclasses.fields(DeployAccountV3)
     assert all(key.name in brodcasted_txn for key in expected_keys)
-
-    assert len(ddiff) == 0
 
 
 @pytest.mark.asyncio
@@ -232,14 +199,9 @@ async def test_broadcasted_txn_deploy_account_v1(account):
         class_hash, salt, calldata, max_fee=MAX_FEE
     )
 
-    prev_brodcasted = _create_broadcasted_txn_prev(signed_tx)
-
     brodcasted_txn = _create_broadcasted_txn(signed_tx)
-    ddiff = DeepDiff(prev_brodcasted, brodcasted_txn, ignore_order=True)
 
     assert brodcasted_txn["type"] == TransactionType.DEPLOY_ACCOUNT.name
 
     expected_keys = dataclasses.fields(DeployAccountV1)
     assert all(key.name in brodcasted_txn for key in expected_keys)
-
-    assert len(ddiff) == 0
