@@ -1,3 +1,5 @@
+import dataclasses
+
 import pytest
 from deepdiff import DeepDiff
 
@@ -17,16 +19,14 @@ from starknet_py.net.full_node_client import (
     _to_storage_key,
 )
 from starknet_py.net.http_client import RpcHttpClient, ServerError
-from starknet_py.net.schemas.broadcasted_txn import (
-    BroadcastedDeclareV1Schema,
-    BroadcastedDeclareV2Schema,
-    BroadcastedDeclareV3Schema,
-)
-from starknet_py.net.schemas.rpc import (
-    DeployAccountTransactionV1Schema,
-    DeployAccountTransactionV3Schema,
-    InvokeTransactionV1Schema,
-    InvokeTransactionV3Schema,
+from starknet_py.net.models.transaction import (
+    DeclareV1,
+    DeclareV2,
+    DeclareV3,
+    DeployAccountV1,
+    DeployAccountV3,
+    InvokeV1,
+    InvokeV3,
 )
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE, MAX_RESOURCE_BOUNDS_L1
 
@@ -107,12 +107,13 @@ async def test_broadcasted_txn_declare_v3(
     )
 
     prev_brodcasted = _create_broadcasted_txn_prev(declare_v3)
-    brodcasted = _create_broadcasted_txn(declare_v3)
-    ddiff = DeepDiff(prev_brodcasted, brodcasted, ignore_order=True)
+    brodcasted_txn = _create_broadcasted_txn(declare_v3)
+    ddiff = DeepDiff(prev_brodcasted, brodcasted_txn, ignore_order=True)
 
-    assert brodcasted["type"] == TransactionType.DECLARE.name
-    del brodcasted["type"]
-    BroadcastedDeclareV3Schema(exclude=["class_hash"]).load(brodcasted)
+    assert brodcasted_txn["type"] == TransactionType.DECLARE.name
+
+    expected_keys = dataclasses.fields(DeclareV3)
+    assert all(key.name in brodcasted_txn for key in expected_keys)
 
     assert len(ddiff) == 0
 
@@ -128,12 +129,13 @@ async def test_broadcasted_txn_declare_v2(
     )
 
     prev_brodcasted = _create_broadcasted_txn_prev(declare_v2)
-    brodcasted = _create_broadcasted_txn(declare_v2)
-    ddiff = DeepDiff(prev_brodcasted, brodcasted, ignore_order=True)
+    brodcasted_txn = _create_broadcasted_txn(declare_v2)
+    ddiff = DeepDiff(prev_brodcasted, brodcasted_txn, ignore_order=True)
 
-    assert brodcasted["type"] == TransactionType.DECLARE.name
-    del brodcasted["type"]
-    BroadcastedDeclareV2Schema(exclude=["class_hash"]).load(brodcasted)
+    assert brodcasted_txn["type"] == TransactionType.DECLARE.name
+
+    expected_keys = dataclasses.fields(DeclareV2)
+    assert all(key.name in brodcasted_txn for key in expected_keys)
 
     assert len(ddiff) == 0
 
@@ -145,13 +147,14 @@ async def test_broadcasted_txn_declare_v1(account, map_compiled_contract):
         max_fee=MAX_FEE,
     )
 
-    prev_brodcasted = _create_broadcasted_txn_prev(declare_v1)
-    brodcasted = _create_broadcasted_txn(declare_v1)
-    ddiff = DeepDiff(prev_brodcasted, brodcasted, ignore_order=True)
+    prev_brodcasted_txn = _create_broadcasted_txn_prev(declare_v1)
+    brodcasted_txn = _create_broadcasted_txn(declare_v1)
+    ddiff = DeepDiff(prev_brodcasted_txn, brodcasted_txn, ignore_order=True)
 
-    assert brodcasted["type"] == TransactionType.DECLARE.name
-    del brodcasted["type"]
-    BroadcastedDeclareV1Schema(exclude=["class_hash"]).load(brodcasted)
+    assert brodcasted_txn["type"] == TransactionType.DECLARE.name
+
+    expected_keys = dataclasses.fields(DeclareV1)
+    assert all(key.name in brodcasted_txn for key in expected_keys)
 
     assert len(ddiff) == 0
 
@@ -163,13 +166,14 @@ async def test_broadcasted_txn_invoke_v3(account, map_contract):
         l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
     )
 
-    prev_brodcasted = _create_broadcasted_txn_prev(invoke_tx)
-    brodcasted = _create_broadcasted_txn(invoke_tx)
-    ddiff = DeepDiff(prev_brodcasted, brodcasted, ignore_order=True)
+    prev_brodcasted_txn = _create_broadcasted_txn_prev(invoke_tx)
+    brodcasted_txn = _create_broadcasted_txn(invoke_tx)
+    ddiff = DeepDiff(prev_brodcasted_txn, brodcasted_txn, ignore_order=True)
 
-    assert brodcasted["type"] == TransactionType.INVOKE.name
-    del brodcasted["type"]
-    InvokeTransactionV3Schema().load(brodcasted)
+    assert brodcasted_txn["type"] == TransactionType.INVOKE.name
+
+    expected_keys = dataclasses.fields(InvokeV3)
+    assert all(key.name in brodcasted_txn for key in expected_keys)
 
     assert len(ddiff) == 0
 
@@ -182,13 +186,14 @@ async def test_broadcasted_txn_invoke_v1(account, map_contract):
     )
 
     prev_brodcasted = _create_broadcasted_txn_prev(invoke_tx)
-    brodcasted = _create_broadcasted_txn(invoke_tx)
+    brodcasted_txn = _create_broadcasted_txn(invoke_tx)
 
-    ddiff = DeepDiff(prev_brodcasted, brodcasted, ignore_order=True)
+    ddiff = DeepDiff(prev_brodcasted, brodcasted_txn, ignore_order=True)
 
-    assert brodcasted["type"] == TransactionType.INVOKE.name
-    del brodcasted["type"]
-    InvokeTransactionV1Schema().load(brodcasted)
+    assert brodcasted_txn["type"] == TransactionType.INVOKE.name
+
+    expected_keys = dataclasses.fields(InvokeV1)
+    assert all(key.name in brodcasted_txn for key in expected_keys)
 
     assert len(ddiff) == 0
 
@@ -205,14 +210,15 @@ async def test_broadcasted_txn_deploy_account_v3(account):
         constructor_calldata=calldata,
     )
 
-    prev_brodcasted = _create_broadcasted_txn_prev(signed_tx)
+    prev_brodcasted_txn = _create_broadcasted_txn_prev(signed_tx)
 
-    brodcasted = _create_broadcasted_txn(signed_tx)
-    ddiff = DeepDiff(prev_brodcasted, brodcasted, ignore_order=True)
+    brodcasted_txn = _create_broadcasted_txn(signed_tx)
+    ddiff = DeepDiff(prev_brodcasted_txn, brodcasted_txn, ignore_order=True)
 
-    assert brodcasted["type"] == TransactionType.DEPLOY_ACCOUNT.name
-    del brodcasted["type"]
-    DeployAccountTransactionV3Schema().load(brodcasted)
+    assert brodcasted_txn["type"] == TransactionType.DEPLOY_ACCOUNT.name
+
+    expected_keys = dataclasses.fields(DeployAccountV3)
+    assert all(key.name in brodcasted_txn for key in expected_keys)
 
     assert len(ddiff) == 0
 
@@ -228,11 +234,12 @@ async def test_broadcasted_txn_deploy_account_v1(account):
 
     prev_brodcasted = _create_broadcasted_txn_prev(signed_tx)
 
-    brodcasted = _create_broadcasted_txn(signed_tx)
-    ddiff = DeepDiff(prev_brodcasted, brodcasted, ignore_order=True)
+    brodcasted_txn = _create_broadcasted_txn(signed_tx)
+    ddiff = DeepDiff(prev_brodcasted, brodcasted_txn, ignore_order=True)
 
-    assert brodcasted["type"] == TransactionType.DEPLOY_ACCOUNT.name
-    del brodcasted["type"]
-    DeployAccountTransactionV1Schema().load(brodcasted)
+    assert brodcasted_txn["type"] == TransactionType.DEPLOY_ACCOUNT.name
+
+    expected_keys = dataclasses.fields(DeployAccountV1)
+    assert all(key.name in brodcasted_txn for key in expected_keys)
 
     assert len(ddiff) == 0

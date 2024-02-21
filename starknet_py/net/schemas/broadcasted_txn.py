@@ -1,4 +1,4 @@
-from marshmallow import fields, post_dump, post_load, pre_load
+from marshmallow import fields, post_dump, pre_load
 from marshmallow_oneofschema import OneOfSchema
 
 from starknet_py.net.client_models import TransactionType
@@ -22,19 +22,11 @@ class BroadcastedDeclareV3Schema(DeclareTransactionV3Schema):
         SierraCompiledContractSchema(), data_key="contract_class", required=True
     )
 
-    @post_load
-    def make_dataclass(self, data, **kwargs):
-        return data
-
 
 class BroadcastedDeclareV2Schema(DeclareTransactionV2Schema):
     contract_class = fields.Nested(
         SierraCompiledContractSchema(), data_key="contract_class", required=True
     )
-
-    @post_load
-    def make_dataclass(self, data, **kwargs):
-        return data
 
 
 class BroadcastedDeclareV1Schema(DeclareTransactionV1Schema):
@@ -48,10 +40,6 @@ class BroadcastedDeclareV1Schema(DeclareTransactionV1Schema):
         # along with data, which we don't handle.
         # pylint: disable=unused-argument, no-self-use
         return compress_program(data)
-
-    @post_load
-    def make_dataclass(self, data, **kwargs):
-        return data
 
     @pre_load
     def decompress_program(self, data, **kwargs):
