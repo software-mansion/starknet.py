@@ -388,6 +388,9 @@ class InvokeTransactionSchema(OneOfSchema):
         3: InvokeTransactionV3Schema,
     }
 
+    def get_obj_type(self, obj):
+        return _extract_tx_version(obj.version)
+
     def get_data_type(self, data):
         return _extract_tx_version(data.get("version"))
 
@@ -397,6 +400,9 @@ class DeployAccountTransactionSchema(OneOfSchema):
         1: DeployAccountTransactionV1Schema,
         3: DeployAccountTransactionV3Schema,
     }
+
+    def get_obj_type(self, obj):
+        return _extract_tx_version(obj.version)
 
     def get_data_type(self, data):
         return _extract_tx_version(data.get("version"))
