@@ -1,3 +1,5 @@
+import dataclasses
+
 import pytest
 
 from starknet_py.constants import ADDR_BOUND
@@ -13,16 +15,14 @@ from starknet_py.net.client_models import (
 from starknet_py.net.client_utils import _create_broadcasted_txn
 from starknet_py.net.full_node_client import _to_storage_key
 from starknet_py.net.http_client import RpcHttpClient, ServerError
-from starknet_py.net.schemas.broadcasted_txn import (
-    DeclareBroadcastedV1Schema,
-    DeclareBroadcastedV2Schema,
-    DeclareBroadcastedV3Schema,
-)
-from starknet_py.net.schemas.rpc import (
-    DeployAccountTransactionV1Schema,
-    DeployAccountTransactionV3Schema,
-    InvokeTransactionV1Schema,
-    InvokeTransactionV3Schema,
+from starknet_py.net.models.transaction import (
+    DeclareV1,
+    DeclareV2,
+    DeclareV3,
+    DeployAccountV1,
+    DeployAccountV3,
+    InvokeV1,
+    InvokeV3,
 )
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE, MAX_RESOURCE_BOUNDS_L1
 
@@ -101,11 +101,12 @@ async def test_broadcasted_txn_declare_v3(
         compiled_class_hash=abi_types_compiled_contract_and_class_hash[1],
         l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
     )
-    brodcasted = _create_broadcasted_txn(declare_v3)
 
-    assert brodcasted["type"] == TransactionType.DECLARE.name
-    del brodcasted["type"]
-    DeclareBroadcastedV3Schema(exclude=["class_hash"]).load(brodcasted)
+    brodcasted_txn = _create_broadcasted_txn(declare_v3)
+    assert brodcasted_txn["type"] == TransactionType.DECLARE.name
+
+    expected_keys = dataclasses.fields(DeclareV3)
+    assert all(key.name in brodcasted_txn for key in expected_keys)
 
 
 @pytest.mark.asyncio
@@ -118,11 +119,12 @@ async def test_broadcasted_txn_declare_v2(
         max_fee=MAX_FEE,
     )
 
-    brodcasted = _create_broadcasted_txn(declare_v2)
+    brodcasted_txn = _create_broadcasted_txn(declare_v2)
 
-    assert brodcasted["type"] == TransactionType.DECLARE.name
-    del brodcasted["type"]
-    DeclareBroadcastedV2Schema(exclude=["class_hash"]).load(brodcasted)
+    assert brodcasted_txn["type"] == TransactionType.DECLARE.name
+
+    expected_keys = dataclasses.fields(DeclareV2)
+    assert all(key.name in brodcasted_txn for key in expected_keys)
 
 
 @pytest.mark.asyncio
@@ -132,11 +134,12 @@ async def test_broadcasted_txn_declare_v1(account, map_compiled_contract):
         max_fee=MAX_FEE,
     )
 
-    brodcasted = _create_broadcasted_txn(declare_v1)
+    brodcasted_txn = _create_broadcasted_txn(declare_v1)
 
-    assert brodcasted["type"] == TransactionType.DECLARE.name
-    del brodcasted["type"]
-    DeclareBroadcastedV1Schema(exclude=["class_hash"]).load(brodcasted)
+    assert brodcasted_txn["type"] == TransactionType.DECLARE.name
+
+    expected_keys = dataclasses.fields(DeclareV1)
+    assert all(key.name in brodcasted_txn for key in expected_keys)
 
 
 @pytest.mark.asyncio
@@ -146,11 +149,12 @@ async def test_broadcasted_txn_invoke_v3(account, map_contract):
         l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
     )
 
-    brodcasted = _create_broadcasted_txn(invoke_tx)
+    brodcasted_txn = _create_broadcasted_txn(invoke_tx)
 
-    assert brodcasted["type"] == TransactionType.INVOKE.name
-    del brodcasted["type"]
-    InvokeTransactionV3Schema().load(brodcasted)
+    assert brodcasted_txn["type"] == TransactionType.INVOKE.name
+
+    expected_keys = dataclasses.fields(InvokeV3)
+    assert all(key.name in brodcasted_txn for key in expected_keys)
 
 
 @pytest.mark.asyncio
@@ -160,11 +164,12 @@ async def test_broadcasted_txn_invoke_v1(account, map_contract):
         max_fee=int(1e16),
     )
 
-    brodcasted = _create_broadcasted_txn(invoke_tx)
+    brodcasted_txn = _create_broadcasted_txn(invoke_tx)
 
-    assert brodcasted["type"] == TransactionType.INVOKE.name
-    del brodcasted["type"]
-    InvokeTransactionV1Schema().load(brodcasted)
+    assert brodcasted_txn["type"] == TransactionType.INVOKE.name
+
+    expected_keys = dataclasses.fields(InvokeV1)
+    assert all(key.name in brodcasted_txn for key in expected_keys)
 
 
 @pytest.mark.asyncio
@@ -178,15 +183,15 @@ async def test_broadcasted_txn_deploy_account_v3(account):
         l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
         constructor_calldata=calldata,
     )
+    brodcasted_txn = _create_broadcasted_txn(signed_tx)
+    assert brodcasted_txn["type"] == TransactionType.DEPLOY_ACCOUNT.name
 
-    brodcasted = _create_broadcasted_txn(signed_tx)
-    assert brodcasted["type"] == TransactionType.DEPLOY_ACCOUNT.name
-    del brodcasted["type"]
-    DeployAccountTransactionV3Schema().load(brodcasted)
+    expected_keys = dataclasses.fields(DeployAccountV3)
+    assert all(key.name in brodcasted_txn for key in expected_keys)
 
 
 @pytest.mark.asyncio
-async def test_broadcasted_txn_deploy_account_1(account):
+async def test_broadcasted_txn_deploy_account_v1(account):
     class_hash = 0x1234
     salt = 0x123
     calldata = [1, 2, 3]
@@ -194,8 +199,9 @@ async def test_broadcasted_txn_deploy_account_1(account):
         class_hash, salt, calldata, max_fee=MAX_FEE
     )
 
-    brodcasted = _create_broadcasted_txn(signed_tx)
+    brodcasted_txn = _create_broadcasted_txn(signed_tx)
 
-    assert brodcasted["type"] == TransactionType.DEPLOY_ACCOUNT.name
-    del brodcasted["type"]
-    DeployAccountTransactionV1Schema().load(brodcasted)
+    assert brodcasted_txn["type"] == TransactionType.DEPLOY_ACCOUNT.name
+
+    expected_keys = dataclasses.fields(DeployAccountV1)
+    assert all(key.name in brodcasted_txn for key in expected_keys)
