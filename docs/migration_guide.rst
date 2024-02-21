@@ -5,11 +5,10 @@ Migration guide
 0.20.0 Migration guide
 **********************
 
-0.20.0 Deprecations
--------------------
-.. currentmodule::  ~starknet_py.proxy.proxy_check
+0.20.0 Breaking Changes
+-----------------------
 
-- :class:`StarknetEthProxyCheck` has been removed, because StarkGate ETH contract isn't proxy anymore
+- :class:`StarknetEthProxyCheck` has been removed from the Proxy checks
 
 **********************
 0.19.0 Migration guide
