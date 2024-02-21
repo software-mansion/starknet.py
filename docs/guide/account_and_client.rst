@@ -30,13 +30,13 @@ To enable auto estimation, set the ``auto_estimate`` parameter to ``True``.
 The returned estimated fee is multiplied by ``1.5`` for V1 and V2 transactions to mitigate fluctuations in price.
 For V3 transactions, ``max_amount`` and ``max_price_per_unit`` are scaled by ``1.1`` and ``1.5`` respectively.
 
-Estimated fee you can obtain by call :meth:`~Account.estimate_fee()`
-
 
 .. note::
     It is possible to configure the value by which the estimated fee is multiplied,
     by changing ``ESTIMATED_FEE_MULTIPLIER`` for V1 and V2 transactions in :class:`~starknet_py.net.account.account.Account`.
     The same applies to ``ESTIMATED_AMOUNT_MULTIPLIER`` and ``ESTIMATED_UNIT_PRICE_MULTIPLIER`` for V3 transactions.
+
+Estimated fee can obtain by call :meth:`~Account.estimate_fee()`
 
 Creating transactions without executing them
 --------------------------------------------
