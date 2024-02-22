@@ -37,6 +37,9 @@ By default, ``proxy_config`` uses a configuration with two **ProxyChecks**:
  - ArgentProxyCheck - resolves `Argent Proxy <https://github.com/argentlabs/argent-contracts-starknet/blob/b7c4af7462a461386d29551400b985832ba942de/contracts/upgrade/Proxy.cairo>`_.
  - OpenZeppelinProxyCheck - resolves `OpenZeppelin Proxy <https://github.com/OpenZeppelin/cairo-contracts/blob/d12abf335f5c778fd19d6f99e91c099b40865deb/src/openzeppelin/upgrades/presets/Proxy.cairo>`_.
 
+.. warning::
+    ``StarknetEthProxyCheck`` has been removed, because the StarkGate ETH Token was upgraded to Cairo 2, meaning it isn't a Proxy anymore. Currently, all StarkGate's Token contracts use interface of ERC20 to interact.
+
 It's possible to define own ProxyCheck implementation and later pass it to :meth:`Contract.from_address <starknet_py.contract.Contract.from_address>`, so it knows how to resolve the Proxy.
 
 The **ProxyCheck** base class implements the following interface:

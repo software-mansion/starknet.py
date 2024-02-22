@@ -7,11 +7,7 @@ from starknet_py.net.client import Client
 from starknet_py.net.client_models import Call
 from starknet_py.net.models import Address
 from starknet_py.proxy.contract_abi_resolver import ProxyConfig
-from starknet_py.proxy.proxy_check import (
-    ArgentProxyCheck,
-    ProxyCheck,
-    StarknetEthProxyCheck,
-)
+from starknet_py.proxy.proxy_check import ArgentProxyCheck, ProxyCheck
 
 
 @pytest.mark.asyncio
@@ -35,7 +31,7 @@ async def test_resolving_proxies(
     address = proxy_oz_argent.deployed_contract.address
     # docs-1: start
     # To use contract behind a proxy as a regular contract, set proxy_config to True
-    # It will check if your proxy is OpenZeppelin proxy / ArgentX proxy / proxy of Starknet Eth contract
+    # It will check if your proxy is OpenZeppelin proxy / ArgentX proxy
     contract = await Contract.from_address(
         address=address, provider=account, proxy_config=True
     )
@@ -43,7 +39,7 @@ async def test_resolving_proxies(
     # After that contract can be used as usual
     # docs-1: end
     # docs-2: start
-    # To resolve proxy contract other than OpenZeppelin / ArgentX / Starknet Eth proxy, a custom ProxyCheck is needed
+    # To resolve proxy contract other than OpenZeppelin / ArgentX, a custom ProxyCheck is needed
     # The ProxyCheck below resolves proxy contracts which have implementation
     # stored in impl() function as class hash
     class CustomProxyCheck(ProxyCheck):
@@ -69,9 +65,7 @@ async def test_resolving_proxies(
     proxy_config = ProxyConfig(proxy_checks=[CustomProxyCheck()])
 
     # More ProxyCheck instances can be passed to proxy_checks for it to be flexible
-    proxy_config = ProxyConfig(
-        proxy_checks=[CustomProxyCheck(), ArgentProxyCheck(), StarknetEthProxyCheck()]
-    )
+    proxy_config = ProxyConfig(proxy_checks=[CustomProxyCheck(), ArgentProxyCheck()])
 
     # docs-2: end
     address = proxy_impl_func.deployed_contract.address

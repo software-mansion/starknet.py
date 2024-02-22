@@ -2,6 +2,15 @@ Migration guide
 ===============
 
 **********************
+0.20.0 Migration guide
+**********************
+
+0.20.0 Breaking Changes
+-----------------------
+
+1. :class:`StarknetEthProxyCheck` has been removed from the Proxy checks
+
+**********************
 0.19.0 Migration guide
 **********************
 
