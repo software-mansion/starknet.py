@@ -428,7 +428,7 @@ async def test_get_events_sepolia_testnet(client_sepolia_testnet):
 
 
 @pytest.mark.asyncio
-async def test_segment_arena_builtin_sepolia_testnet(client_sepolia_integration):
+async def test_segment_arena_builtin(client_sepolia_integration):
     receipt = await client_sepolia_integration.get_transaction_receipt(
         tx_hash=0x077E84B7C0C4CC88B778EEAEF32B7CED4500FE4AAEE62FD2F849B7DD90A87826
     )
