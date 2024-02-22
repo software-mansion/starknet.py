@@ -2,8 +2,8 @@ import json
 
 import pytest
 
-from starknet_py.abi.v2.model import Abi
-from starknet_py.abi.v2.parser import AbiParser
+from starknet_py.abi.v2 import Abi
+from starknet_py.abi.v2 import AbiParser
 from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V2_DIR
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 

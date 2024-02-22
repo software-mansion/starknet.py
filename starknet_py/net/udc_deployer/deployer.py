@@ -3,7 +3,7 @@ from __future__ import annotations
 import random
 from typing import List, NamedTuple, Optional, Union, cast
 
-from starknet_py.abi.v0.parser import AbiParser
+from starknet_py.abi.v0 import AbiParser
 from starknet_py.common import int_from_hex
 from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS, FIELD_PRIME
 from starknet_py.hash.address import compute_address

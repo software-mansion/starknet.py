@@ -4,9 +4,9 @@ The purpose of this file is to test serialization for complex abi.
 import json
 from typing import NamedTuple
 
-from starknet_py.abi.v0.parser import AbiParser
-from starknet_py.abi.v1.parser import AbiParser as AbiParserV1
-from starknet_py.abi.v2.parser import AbiParser as AbiParserV2
+from starknet_py.abi.v0 import AbiParser
+from starknet_py.abi.v1 import AbiParser as AbiParserV1
+from starknet_py.abi.v2 import AbiParser as AbiParserV2
 from starknet_py.cairo.felt import encode_shortstring
 from starknet_py.serialization.factory import (
     serializer_for_event,

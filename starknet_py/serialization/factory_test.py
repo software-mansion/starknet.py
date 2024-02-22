@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 import pytest
 
-from starknet_py.abi.v0.model import Abi
+from starknet_py.abi.v0 import Abi
 from starknet_py.cairo.data_types import FeltType, NamedTupleType, StructType, TupleType
 from starknet_py.serialization.data_serializers.array_serializer import ArraySerializer
 from starknet_py.serialization.data_serializers.felt_serializer import FeltSerializer

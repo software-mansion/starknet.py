@@ -1,6 +1,6 @@
 import pytest
 
-from starknet_py.abi.v0.parser import AbiParser
+from starknet_py.abi.v0 import AbiParser
 from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
 from starknet_py.net.udc_deployer.deployer import _deployer_abi
 

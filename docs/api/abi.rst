@@ -7,20 +7,20 @@ Module containing representation of contract abi and parser for creating it from
 Parsing abi
 -----------
 
-.. autoclass:: starknet_py.abi.v2.parser.AbiParser
+.. autoclass:: starknet_py.abi.v2.AbiParser
     :members: parse
 
-.. autoclass:: starknet_py.abi.v2.parser.AbiParsingError
+.. autoclass:: starknet_py.abi.v2.AbiParsingError
     :exclude-members: __init__, __new__
 
 Model
 -----------
 
-.. autoclass:: starknet_py.abi.v2.model.Abi
+.. autoclass:: starknet_py.abi.v2.Abi
     :exclude-members: __init__, __new__
     :members: defined_structures, functions, constructor, l1_handler, events
 
-.. autoclass:: starknet_py.abi.v2.model.Abi.Function
+.. autoclass:: starknet_py.abi.v2.Abi.Function
     :members:
     :undoc-members:
     :member-order: groupwise
