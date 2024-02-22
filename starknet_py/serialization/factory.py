@@ -170,7 +170,9 @@ def serializer_for_event(event: EventV0 | EventV1 | EventV2) -> PayloadSerialize
     return serializer_for_payload(event.types)
 
 
-def serializer_for_function(abi_function: AbiV0.Function) -> FunctionSerializationAdapter:
+def serializer_for_function(
+    abi_function: AbiV0.Function,
+) -> FunctionSerializationAdapter:
     """
     Create FunctionSerializationAdapter for serializing function inputs and deserializing function outputs.
 
