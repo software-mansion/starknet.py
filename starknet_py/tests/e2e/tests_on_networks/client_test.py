@@ -425,3 +425,12 @@ async def test_get_events_sepolia_testnet(client_sepolia_testnet):
     assert isinstance(events_chunk, EventsChunk)
     assert len(events_chunk.events) == 10
     assert events_chunk.continuation_token is not None
+
+
+@pytest.mark.asyncio
+async def test_segment_arena_builtin_sepolia_testnet(client_sepolia_integration):
+    receipt = await client_sepolia_integration.get_transaction_receipt(
+        tx_hash=0x077E84B7C0C4CC88B778EEAEF32B7CED4500FE4AAEE62FD2F849B7DD90A87826
+    )
+
+    assert receipt.execution_resources.segment_arena_builtin == 12
