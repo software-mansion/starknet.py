@@ -506,7 +506,7 @@ Also, dependencies are now optimized to include only necessary packages.
 .. admonition:: Potentially breaking changes
     :class: attention
 
-    Internal code of :meth:`starknet_py.abi.AbiParser.parse` has changed.
+    Internal code of :meth:`starknet_py.abi.v0.AbiParser.parse` has changed.
     It should not affect users but keep in mind that the Contract can have difficulties resolving ABI.
     If so, please report.
 
