@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections import OrderedDict
 from typing import Dict, List, Union
 
-from starknet_py.abi.v0 import Abi
+from starknet_py.abi.v0 import Abi as AbiV0
 from starknet_py.abi.v1 import Abi as AbiV1
 from starknet_py.abi.v2 import Abi as AbiV2
 from starknet_py.cairo.data_types import (
@@ -151,7 +151,7 @@ def serializer_for_outputs(payload: List[CairoType]) -> OutputSerializer:
     )
 
 
-EventV0 = Abi.Event
+EventV0 = AbiV0.Event
 EventV1 = AbiV1.Event
 EventV2 = EventType
 
@@ -170,7 +170,7 @@ def serializer_for_event(event: EventV0 | EventV1 | EventV2) -> PayloadSerialize
     return serializer_for_payload(event.types)
 
 
-def serializer_for_function(abi_function: Abi.Function) -> FunctionSerializationAdapter:
+def serializer_for_function(abi_function: AbiV0.Function) -> FunctionSerializationAdapter:
     """
     Create FunctionSerializationAdapter for serializing function inputs and deserializing function outputs.
 
