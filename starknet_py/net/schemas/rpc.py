@@ -138,9 +138,7 @@ class ExecutionResourcesSchema(Schema):
     keccak_builtin_applications = Felt(
         data_key="keccak_builtin_applications", load_default=None
     )
-    segment_arena_builtin = Felt(
-        data_key="segment_arena_builtin", load_default=None
-    )
+    segment_arena_builtin = Felt(data_key="segment_arena_builtin", load_default=None)
     memory_holes = Felt(data_key="memory_holes", load_default=None)
 
     @post_load
