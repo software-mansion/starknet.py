@@ -9,7 +9,7 @@ Migration guide
 -----------------------
 
 1. :class:`StarknetEthProxyCheck` has been removed from the Proxy checks
-2. ``starknet_py.abi`` has been moved to ``starknet_py.abi.v0``
+2. In :ref:`Abi` module the code related to Cairo 0 has been moved from ``starknet_py.abi`` to ``starknet_py.abi.v0``
 
 **********************
 0.19.0 Migration guide
