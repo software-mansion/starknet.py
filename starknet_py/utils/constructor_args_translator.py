@@ -1,9 +1,9 @@
 from typing import List, Optional, Union
 
 import starknet_py.abi.v2.shape as ShapeV2
-from starknet_py.abi.v0 import AbiParser as AbiV0Parser
-from starknet_py.abi.v1 import AbiParser as AbiV1Parser
-from starknet_py.abi.v2 import AbiParser as AbiV2Parser
+from starknet_py.abi.v0 import AbiParser as AbiParserV0
+from starknet_py.abi.v1 import AbiParser as AbiParserV1
+from starknet_py.abi.v2 import AbiParser as AbiParserV2
 from starknet_py.serialization import (
     FunctionSerializationAdapter,
     serializer_for_function,
@@ -41,7 +41,7 @@ def translate_constructor_args(
 
 def _get_constructor_serializer_v1(abi: List) -> Optional[FunctionSerializationAdapter]:
     if _is_abi_v2(abi):
-        parsed = AbiV2Parser(abi).parse()
+        parsed = AbiParserV2(abi).parse()
         constructor = parsed.constructor
 
         if constructor is None or not constructor.inputs:
@@ -49,7 +49,7 @@ def _get_constructor_serializer_v1(abi: List) -> Optional[FunctionSerializationA
 
         return serializer_for_constructor_v2(constructor)
 
-    parsed = AbiV1Parser(abi).parse()
+    parsed = AbiParserV1(abi).parse()
     constructor = parsed.functions.get("constructor", None)
 
     # Constructor might not accept any arguments
@@ -77,7 +77,7 @@ def _is_abi_v2(abi: List) -> bool:
 
 
 def _get_constructor_serializer_v0(abi: List) -> Optional[FunctionSerializationAdapter]:
-    parsed = AbiV0Parser(abi).parse()
+    parsed = AbiParserV0(abi).parse()
 
     # Constructor might not accept any arguments
     if not parsed.constructor or not parsed.constructor.inputs:

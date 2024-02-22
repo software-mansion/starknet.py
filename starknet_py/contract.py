@@ -10,11 +10,11 @@ from typing import Dict, List, Optional, TypeVar, Union
 from marshmallow import ValidationError
 
 from starknet_py.abi.v0 import Abi as AbiV0
-from starknet_py.abi.v0 import AbiParser as AbiV0Parser
+from starknet_py.abi.v0 import AbiParser as AbiParserV0
 from starknet_py.abi.v1 import Abi as AbiV1
-from starknet_py.abi.v1 import AbiParser as AbiV1Parser
+from starknet_py.abi.v1 import AbiParser as AbiParserV1
 from starknet_py.abi.v2 import Abi as AbiV2
-from starknet_py.abi.v2 import AbiParser as AbiV2Parser
+from starknet_py.abi.v2 import AbiParser as AbiParserV2
 from starknet_py.abi.v2.shape import (
     FUNCTION_ENTRY,
     IMPL_ENTRY,
@@ -76,9 +76,9 @@ class ContractData:
         """
         if self.cairo_version == 1:
             if _is_abi_v2(self.abi):
-                return AbiV2Parser(self.abi).parse()
-            return AbiV1Parser(self.abi).parse()
-        return AbiV0Parser(self.abi).parse()
+                return AbiParserV2(self.abi).parse()
+            return AbiParserV1(self.abi).parse()
+        return AbiParserV0(self.abi).parse()
 
     @staticmethod
     def from_abi(address: int, abi: ABI, cairo_version: int = 0) -> ContractData:

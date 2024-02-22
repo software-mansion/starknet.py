@@ -4,7 +4,7 @@ The purpose of this file is to test serialization for complex abi.
 import json
 from typing import NamedTuple
 
-from starknet_py.abi.v0 import AbiParser
+from starknet_py.abi.v0 import AbiParser as AbiParserV0
 from starknet_py.abi.v1 import AbiParser as AbiParserV1
 from starknet_py.abi.v2 import AbiParser as AbiParserV2
 from starknet_py.cairo.felt import encode_shortstring
@@ -107,7 +107,7 @@ person_donald_serialized = [
 abi = json.loads(
     read_contract("complex_abi_abi.json", directory=CONTRACTS_COMPILED_V0_DIR)
 )
-parsed_abi = AbiParser(abi).parse()
+parsed_abi = AbiParserV0(abi).parse()
 
 abi_v1 = json.loads(
     read_contract("erc20_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR)
