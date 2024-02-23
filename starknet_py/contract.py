@@ -538,7 +538,12 @@ class ContractFunction:
 
         if abi["type"] == L1_HANDLER_ENTRY:
             assert not isinstance(contract_data.parsed_abi, AbiV1)
-            function = contract_data.parsed_abi.l1_handler
+            function = (
+                contract_data.parsed_abi.l1_handler
+                if contract_data.parsed_abi.l1_handler is None
+                or isinstance(contract_data.parsed_abi.l1_handler, AbiV0.Function)
+                else contract_data.parsed_abi.l1_handler.get(name)
+            )
         elif interface_name is None:
             function = contract_data.parsed_abi.functions.get(name)
         else:
