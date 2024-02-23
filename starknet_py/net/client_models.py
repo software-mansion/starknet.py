@@ -10,7 +10,7 @@ from typing import Any, Iterable, List, Optional, Union
 
 from typing_extensions import Literal
 
-from starknet_py.abi.shape import AbiDictList
+from starknet_py.abi.v0.shape import AbiDictList
 
 Hash = Union[int, str]
 Tag = Literal["pending", "latest"]

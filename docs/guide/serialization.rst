@@ -88,9 +88,10 @@ For most use cases using high level :obj:`Contract <starknet_py.contract.Contrac
 and deserialization for you. If you need more flexibility you can use lower level serialization API, see :ref:`Serializers`
 for more details.
 
-:obj:`AbiParser <starknet_py.net.models.abi.parser.AbiParser>` transforms ABI into
-:obj:`Abi dataclass <starknet_py.net.models.abi.model.Abi>` that can be used for creating serializers. This way you can
-easily deserialize events or serialize function's inputs.
+:obj:`AbiParser <starknet_py.abi.v2.parser.AbiParser>` transforms ABI into
+:obj:`Abi class <starknet_py.abi.v2.model.Abi>` that can be used for creating serializers. This way you can
+easily deserialize events or serialize function's inputs. Remember to use the proper version of `AbiParser`
+which depends on parsed ABI version.
 
 Serializing function inputs and outputs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

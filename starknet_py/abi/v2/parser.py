@@ -7,7 +7,7 @@ from typing import DefaultDict, Dict, List, Optional, Tuple, TypeVar, Union, cas
 
 from marshmallow import EXCLUDE
 
-from starknet_py.abi.v2.model import Abi
+from starknet_py.abi.v2 import Abi
 from starknet_py.abi.v2.schemas import ContractAbiEntrySchema
 from starknet_py.abi.v2.shape import (
     CONSTRUCTOR_ENTRY,
