@@ -83,7 +83,7 @@ class Abi:
         Constructor
     ]  #: Contract's constructor. It is None if class doesn't define one.
     l1_handler: Optional[
-        Function
-    ]  #: Handler of L1 messages. It is None if class doesn't define one.
+        Dict[str, Function]
+    ]  #: Handlers of L1 messages. It is None if class doesn't define one.
     interfaces: Dict[str, Interface]
     implementations: Dict[str, Impl]
