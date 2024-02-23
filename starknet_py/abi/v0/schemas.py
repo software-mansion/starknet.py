@@ -1,7 +1,7 @@
 from marshmallow import Schema, fields
 from marshmallow_oneofschema import OneOfSchema
 
-from starknet_py.abi.shape import (
+from starknet_py.abi.v0.shape import (
     CONSTRUCTOR_ENTRY,
     EVENT_ENTRY,
     FUNCTION_ENTRY,

@@ -1,7 +1,7 @@
 from marshmallow import EXCLUDE, Schema, fields, post_load
 from marshmallow_oneofschema import OneOfSchema
 
-from starknet_py.abi.schemas import ContractAbiEntrySchema
+from starknet_py.abi.v0.schemas import ContractAbiEntrySchema
 from starknet_py.net.client_models import (
     BlockHashAndNumber,
     BlockStateUpdate,
