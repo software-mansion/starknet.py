@@ -7,7 +7,7 @@ from typing import DefaultDict, Dict, List, Optional, Tuple, TypeVar, Union, cas
 
 from marshmallow import EXCLUDE
 
-from starknet_py.abi.v2.model import Abi
+from starknet_py.abi.v2 import Abi
 from starknet_py.abi.v2.schemas import ContractAbiEntrySchema
 from starknet_py.abi.v2.shape import (
     CONSTRUCTOR_ENTRY,
@@ -100,14 +100,16 @@ class AbiParser:
             Dict[str, ImplDict],
             AbiParser._group_by_entry_name(self._grouped[IMPL_ENTRY], "defined impls"),
         )
+        l1_handlers_dict = cast(
+            Dict[str, FunctionDict],
+            AbiParser._group_by_entry_name(
+                self._grouped[L1_HANDLER_ENTRY], "defined L1 handlers"
+            ),
+        )
         constructors = self._grouped[CONSTRUCTOR_ENTRY]
-        l1_handlers = self._grouped[L1_HANDLER_ENTRY]
 
         if len(constructors) > 1:
             raise AbiParsingError("Constructor in ABI must be defined at most once.")
-
-        if len(l1_handlers) > 1:
-            raise AbiParsingError("L1 handler in ABI must be defined at most once.")
 
         return Abi(
             defined_structures=structures,
@@ -117,11 +119,10 @@ class AbiParser:
                 if constructors
                 else None
             ),
-            l1_handler=(
-                self._parse_function(cast(FunctionDict, l1_handlers[0]))
-                if l1_handlers
-                else None
-            ),
+            l1_handler={
+                name: self._parse_function(entry)
+                for name, entry in l1_handlers_dict.items()
+            },
             functions={
                 name: self._parse_function(entry)
                 for name, entry in functions_dict.items()

@@ -9,12 +9,12 @@ from typing import Dict, List, Optional, TypeVar, Union
 
 from marshmallow import ValidationError
 
-from starknet_py.abi import Abi as AbiV0
-from starknet_py.abi import AbiParser as AbiV0Parser
-from starknet_py.abi.v1.model import Abi as AbiV1
-from starknet_py.abi.v1.parser import AbiParser as AbiV1Parser
-from starknet_py.abi.v2.model import Abi as AbiV2
-from starknet_py.abi.v2.parser import AbiParser as AbiV2Parser
+from starknet_py.abi.v0 import Abi as AbiV0
+from starknet_py.abi.v0 import AbiParser as AbiParserV0
+from starknet_py.abi.v1 import Abi as AbiV1
+from starknet_py.abi.v1 import AbiParser as AbiParserV1
+from starknet_py.abi.v2 import Abi as AbiV2
+from starknet_py.abi.v2 import AbiParser as AbiParserV2
 from starknet_py.abi.v2.shape import (
     FUNCTION_ENTRY,
     IMPL_ENTRY,
@@ -76,9 +76,9 @@ class ContractData:
         """
         if self.cairo_version == 1:
             if _is_abi_v2(self.abi):
-                return AbiV2Parser(self.abi).parse()
-            return AbiV1Parser(self.abi).parse()
-        return AbiV0Parser(self.abi).parse()
+                return AbiParserV2(self.abi).parse()
+            return AbiParserV1(self.abi).parse()
+        return AbiParserV0(self.abi).parse()
 
     @staticmethod
     def from_abi(address: int, abi: ABI, cairo_version: int = 0) -> ContractData:
@@ -538,7 +538,12 @@ class ContractFunction:
 
         if abi["type"] == L1_HANDLER_ENTRY:
             assert not isinstance(contract_data.parsed_abi, AbiV1)
-            function = contract_data.parsed_abi.l1_handler
+            function = (
+                contract_data.parsed_abi.l1_handler
+                if contract_data.parsed_abi.l1_handler is None
+                or isinstance(contract_data.parsed_abi.l1_handler, AbiV0.Function)
+                else contract_data.parsed_abi.l1_handler.get(name)
+            )
         elif interface_name is None:
             function = contract_data.parsed_abi.functions.get(name)
         else:
@@ -783,9 +788,8 @@ class Contract:
         :param provider: BaseAccount or Client.
         :param proxy_config: Proxy resolving config
             If set to ``True``, will use default proxy checks
-            :class:`starknet_py.proxy.proxy_check.OpenZeppelinProxyCheck`,
-            :class:`starknet_py.proxy.proxy_check.ArgentProxyCheck`,
-            and :class:`starknet_py.proxy.proxy_check.StarknetEthProxyCheck`.
+            :class:`starknet_py.proxy.proxy_check.OpenZeppelinProxyCheck` and
+            :class:`starknet_py.proxy.proxy_check.ArgentProxyCheck`.
 
             If set to ``False``, :meth:`Contract.from_address` will not resolve proxies.
 
@@ -893,6 +897,7 @@ class Contract:
         auto_estimate: bool = False,
     ) -> DeclareResult:
         # pylint: disable=too-many-arguments
+
         """
         Declares a contract.
 

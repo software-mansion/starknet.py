@@ -3,7 +3,7 @@ import re
 from enum import Enum
 from typing import AsyncGenerator, List, Tuple, TypedDict, Union, cast
 
-from starknet_py.abi.shape import AbiDictList
+from starknet_py.abi.v0.shape import AbiDictList
 from starknet_py.constants import (
     RPC_CLASS_HASH_NOT_FOUND_ERROR,
     RPC_CONTRACT_ERROR,
@@ -18,7 +18,6 @@ from starknet_py.proxy.proxy_check import (
     ArgentProxyCheck,
     OpenZeppelinProxyCheck,
     ProxyCheck,
-    StarknetEthProxyCheck,
 )
 
 
@@ -41,7 +40,6 @@ def prepare_proxy_config(proxy_config: ProxyConfig) -> ProxyConfig:
     proxy_checks = [
         OpenZeppelinProxyCheck(),
         ArgentProxyCheck(),
-        StarknetEthProxyCheck(),
     ]
     return {"proxy_checks": proxy_checks}
 

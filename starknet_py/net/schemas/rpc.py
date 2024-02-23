@@ -1,7 +1,7 @@
 from marshmallow import EXCLUDE, Schema, fields, post_load
 from marshmallow_oneofschema import OneOfSchema
 
-from starknet_py.abi.schemas import ContractAbiEntrySchema
+from starknet_py.abi.v0.schemas import ContractAbiEntrySchema
 from starknet_py.net.client_models import (
     BlockHashAndNumber,
     BlockStateUpdate,
@@ -116,29 +116,32 @@ class L2toL1MessageSchema(Schema):
 
 
 class ExecutionResourcesSchema(Schema):
-    steps = Felt(data_key="steps", required=True)
-    range_check_builtin_applications = Felt(
+    steps = fields.Integer(data_key="steps", required=True)
+    range_check_builtin_applications = fields.Integer(
         data_key="range_check_builtin_applications", load_default=None
     )
-    pedersen_builtin_applications = Felt(
+    pedersen_builtin_applications = fields.Integer(
         data_key="pedersen_builtin_applications", load_default=None
     )
-    poseidon_builtin_applications = Felt(
+    poseidon_builtin_applications = fields.Integer(
         data_key="poseidon_builtin_applications", load_default=None
     )
-    ec_op_builtin_applications = Felt(
+    ec_op_builtin_applications = fields.Integer(
         data_key="ec_op_builtin_applications", load_default=None
     )
-    ecdsa_builtin_applications = Felt(
+    ecdsa_builtin_applications = fields.Integer(
         data_key="ecdsa_builtin_applications", load_default=None
     )
-    bitwise_builtin_applications = Felt(
+    bitwise_builtin_applications = fields.Integer(
         data_key="bitwise_builtin_applications", load_default=None
     )
-    keccak_builtin_applications = Felt(
+    keccak_builtin_applications = fields.Integer(
         data_key="keccak_builtin_applications", load_default=None
     )
-    memory_holes = Felt(data_key="memory_holes", load_default=None)
+    segment_arena_builtin = fields.Integer(
+        data_key="segment_arena_builtin", load_default=None
+    )
+    memory_holes = fields.Integer(data_key="memory_holes", load_default=None)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> ExecutionResources:
@@ -388,6 +391,9 @@ class InvokeTransactionSchema(OneOfSchema):
         3: InvokeTransactionV3Schema,
     }
 
+    def get_obj_type(self, obj):
+        return _extract_tx_version(obj.version)
+
     def get_data_type(self, data):
         return _extract_tx_version(data.get("version"))
 
@@ -397,6 +403,9 @@ class DeployAccountTransactionSchema(OneOfSchema):
         1: DeployAccountTransactionV1Schema,
         3: DeployAccountTransactionV3Schema,
     }
+
+    def get_obj_type(self, obj):
+        return _extract_tx_version(obj.version)
 
     def get_data_type(self, data):
         return _extract_tx_version(data.get("version"))

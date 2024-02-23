@@ -24,7 +24,7 @@ def test_abi_parsing():
         "erc20_abi.json", directory=CONTRACTS_COMPILED_V0_DIR
     )
     # docs-serializer: start
-    from starknet_py.abi import AbiParser
+    from starknet_py.abi.v0 import AbiParser
 
     """
     @external

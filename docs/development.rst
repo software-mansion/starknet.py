@@ -9,8 +9,7 @@ Development dependencies
 ------------------------
 - `poetry <https://python-poetry.org/>`_ - dependency manager.
 - `pyenv <https://github.com/pyenv/pyenv>`_ - recommended for installing and switching python versions locally.
-
-Make sure running ``poetry run python --version`` returns ``Python 3.9.x``.
+- `cairo-lang <https://pypi.org/project/cairo-lang/>`_ - required to compile contracts  (`poe compile_contracts`)
 
 Setup
 -----

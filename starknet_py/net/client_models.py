@@ -10,7 +10,7 @@ from typing import Any, Iterable, List, Optional, Union
 
 from typing_extensions import Literal
 
-from starknet_py.abi.shape import AbiDictList
+from starknet_py.abi.v0.shape import AbiDictList
 
 Hash = Union[int, str]
 Tag = Literal["pending", "latest"]
@@ -363,6 +363,7 @@ class ExecutionResources:
     bitwise_builtin_applications: Optional[int] = None
     keccak_builtin_applications: Optional[int] = None
     memory_holes: Optional[int] = None
+    segment_arena_builtin: Optional[int] = None
 
 
 # TODO (#1219): split into PendingTransactionReceipt and TransactionReceipt
