@@ -8,8 +8,9 @@ Migration guide
 0.20.0 Breaking Changes
 -----------------------
 
-1. :class:`StarknetEthProxyCheck` has been removed from the Proxy checks
+1. Type of ``l1_handler`` in :class:`~starknet_py.abi.v2.model.Abi` model class for Cairo 2 has been changed from ``Function`` to ``Dict[str, Function]``
 2. In :ref:`Abi` module the code related to Cairo 0 has been moved from ``starknet_py.abi`` to ``starknet_py.abi.v0``
+3. :class:`StarknetEthProxyCheck` has been removed from the Proxy checks
 
 **********************
 0.19.0 Migration guide
