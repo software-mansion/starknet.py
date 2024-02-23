@@ -5,7 +5,15 @@ Migration guide
 0.20.0 Migration guide
 **********************
 
-0.20.0 Breaking Changes
+    Version 0.20.0 of **starknet.py** comes with support for Python 3.12!
+
+0.20.0 Targeted versions
+------------------------
+
+- Starknet - `0.13.0 <https://docs.starknet.io/documentation/starknet_versions/version_notes/#version0.13.0>`_
+- RPC - `0.6.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.6.0>`_
+
+0.20.0 Breaking changes
 -----------------------
 
 1. Type of ``l1_handler`` in :class:`~starknet_py.abi.v2.model.Abi` model class for Cairo 2 has been changed from ``Function`` to ``Dict[str, Function]``
