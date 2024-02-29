@@ -71,11 +71,11 @@ from starknet_py.net.schemas.common import (
     BlockStatusField,
     CallTypeField,
     DAModeField,
-    DaModeTypeField,
     EntryPointTypeField,
     ExecutionStatusField,
     Felt,
     FinalityStatusField,
+    L1DAModeField,
     NonPrefixedHex,
     NumberAsHex,
     PriceUnitField,
@@ -463,35 +463,30 @@ class TypesOfTransactionsSchema(OneOfSchema):
 
 
 class PendingBlockHeaderSchema(Schema):
-    parent_block_hash = Felt(data_key="parent_hash", required=True)
-    sequencer_address = Felt(data_key="sequencer_address", required=True)
+    parent_hash = Felt(data_key="parent_hash", required=True)
     timestamp = fields.Integer(data_key="timestamp", required=True)
+    sequencer_address = Felt(data_key="sequencer_address", required=True)
     l1_gas_price = fields.Nested(
         ResourcePriceSchema(), data_key="l1_gas_price", required=True
     )
     starknet_version = fields.String(data_key="starknet_version", required=True)
-
-    @post_load
-    def make_dataclass(self, data, **kwargs):
-        return PendingStarknetBlock(**data)
 
 
 class BlockHeaderSchema(Schema):
     block_hash = Felt(data_key="block_hash", required=True)
-    parent_block_hash = Felt(data_key="parent_hash", required=True)
+    parent_hash = Felt(data_key="parent_hash", required=True)
     block_number = fields.Integer(data_key="block_number", required=True)
-    sequencer_address = Felt(data_key="sequencer_address", required=True)
-    status = BlockStatusField(data_key="status", required=True)
-    root = NonPrefixedHex(data_key="new_root", required=True)
+    new_root = Felt(data_key="new_root", required=True)
     timestamp = fields.Integer(data_key="timestamp", required=True)
-    starknet_version = fields.String(data_key="starknet_version", required=True)
+    sequencer_address = Felt(data_key="sequencer_address", required=True)
     l1_gas_price = fields.Nested(
         ResourcePriceSchema(), data_key="l1_gas_price", required=True
     )
     l1_data_gas_price = fields.Nested(
-        ResourcePriceSchema(), data_key="l1_data_gas_price", load_default=None
+        ResourcePriceSchema(), data_key="l1_data_gas_price", required=True
     )
-    l1_da_mode = DaModeTypeField(data_key="l1_da_mode", load_default=None)
+    l1_da_mode = L1DAModeField(data_key="l1_da_mode", required=True)
+    starknet_version = fields.String(data_key="starknet_version", required=True)
 
 
 class PendingStarknetBlockSchema(PendingBlockHeaderSchema):
@@ -501,7 +496,13 @@ class PendingStarknetBlockSchema(PendingBlockHeaderSchema):
         required=True,
     )
 
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> PendingStarknetBlock:
+        return PendingStarknetBlock(**data)
+
+
 class StarknetBlockSchema(BlockHeaderSchema):
+    status = BlockStatusField(data_key="status", required=True)
     transactions = fields.List(
         fields.Nested(TypesOfTransactionsSchema(unknown=EXCLUDE)),
         data_key="transactions",
@@ -514,6 +515,7 @@ class StarknetBlockSchema(BlockHeaderSchema):
 
 
 class StarknetBlockWithTxHashesSchema(BlockHeaderSchema):
+    status = BlockStatusField(data_key="status", required=True)
     transactions = fields.List(Felt(), data_key="transactions", required=True)
 
     @post_load
@@ -522,7 +524,7 @@ class StarknetBlockWithTxHashesSchema(BlockHeaderSchema):
 
 
 class TransactionWithReceiptSchema(Schema):
-    transaction = fields.Nested(TransactionSchema(), data_key="transaction")
+    transaction = fields.Nested(TypesOfTransactionsSchema(), data_key="transaction")
     receipt = fields.Nested(TransactionReceiptSchema(), data_key="receipt")
 
     @post_load
@@ -531,6 +533,7 @@ class TransactionWithReceiptSchema(Schema):
 
 
 class StarknetBlockWithReceiptsSchema(BlockHeaderSchema):
+    status = BlockStatusField(data_key="status", required=True)
     transactions = fields.List(
         fields.Nested(TransactionWithReceiptSchema()),
         data_key="transactions",

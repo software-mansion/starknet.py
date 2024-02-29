@@ -131,6 +131,11 @@ class DAMode(Enum):
     L2 = 1
 
 
+class L1DAMode(Enum):
+    BLOB = "BLOB"
+    CALLDATA = "CALLDATA"
+
+
 class TransactionType(Enum):
     """
     Enum representing transaction types.
@@ -415,6 +420,12 @@ class TransactionReceipt:
 
 
 @dataclass
+class TransactionWithReceipt:
+    transaction: Transaction
+    receipt: TransactionReceipt
+
+
+@dataclass
 class SentTransactionResponse:
     """
     Dataclass representing a result of sending a transaction to Starknet.
@@ -451,79 +462,66 @@ class BlockStatus(Enum):
     REJECTED = "REJECTED"
     ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
     ACCEPTED_ON_L1 = "ACCEPTED_ON_L1"
-    PROVEN = "PROVEN"
 
 
 @dataclass
-class PendingStarknetBlock:
+class PendingBlockHeader:
+    parent_hash: int
+    timestamp: int
+    sequencer_address: int
+    l1_gas_price: ResourcePrice
+    starknet_version: str
+
+
+@dataclass
+class PendingStarknetBlock(PendingBlockHeader):
     """
     Dataclass representing a pending block on Starknet.
     """
 
     transactions: List[Transaction]
-    parent_block_hash: int
-    timestamp: int
-    sequencer_address: int
-    l1_gas_price: ResourcePrice
-    starknet_version: str
 
 
 @dataclass
-class PendingStarknetBlockWithTxHashes:
+class PendingStarknetBlockWithTxHashes(PendingBlockHeader):
     """
     Dataclass representing a pending block on Starknet containing transaction hashes.
     """
 
     transactions: List[int]
-    parent_block_hash: int
-    timestamp: int
-    sequencer_address: int
-    l1_gas_price: ResourcePrice
-    starknet_version: str
 
 
 @dataclass
-class PendingStarknetBlockWithReceipts:
+class PendingStarknetBlockWithReceipts(PendingBlockHeader):
     """
     Dataclass representing a pending block on Starknet with txs and receipts result
     """
 
-    transactions: List[TransactionReceipt]
-    parent_block_hash: int
-    timestamp: int
-    sequencer_address: int
-    l1_gas_price: ResourcePrice
-    starknet_version: str
-
-
-class DaModeType(Enum):
-    BLOB = "BLOB"
-    CALLDATA = "CALLDATA"
+    transactions: List[TransactionWithReceipt]
 
 
 @dataclass
-class StarknetBlockCommon:
+class BlockHeader:
     """
     Dataclass representing a block header.
     """
 
-    # TODO (#1219): change that into composition
     # pylint: disable=too-many-instance-attributes
 
     block_hash: int
-    parent_block_hash: int
+    parent_hash: int
     block_number: int
-    root: int
+    new_root: int
     timestamp: int
     sequencer_address: int
     l1_gas_price: ResourcePrice
-    l1_data_gas_price: Optional[ResourcePrice]
-    l1_da_mode: Optional[DaModeType]
+    l1_data_gas_price: ResourcePrice
+    l1_da_mode: L1DAMode
     starknet_version: str
 
 
 @dataclass
-class StarknetBlock(StarknetBlockCommon):
+class StarknetBlock(BlockHeader):
     """
     Dataclass representing a block on Starknet.
     """
@@ -533,7 +531,7 @@ class StarknetBlock(StarknetBlockCommon):
 
 
 @dataclass
-class StarknetBlockWithTxHashes(StarknetBlockCommon):
+class StarknetBlockWithTxHashes(BlockHeader):
     """
     Dataclass representing a block on Starknet containing transaction hashes.
     """
@@ -543,13 +541,7 @@ class StarknetBlockWithTxHashes(StarknetBlockCommon):
 
 
 @dataclass
-class TransactionWithReceipt:
-    transaction: Transaction
-    receipt: TransactionReceipt
-
-
-@dataclass
-class StarknetBlockWithReceipts(StarknetBlockCommon):
+class StarknetBlockWithReceipts(BlockHeader):
     """
     Dataclass representing a block on Starknet with txs and receipts result
     """

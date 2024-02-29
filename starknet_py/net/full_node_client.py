@@ -163,6 +163,7 @@ class FullNodeClient(Client):
             method_name="getBlockWithReceipts",
             params=block_identifier,
         )
+
         if block_identifier == {"block_id": "pending"}:
             return cast(
                 PendingStarknetBlockWithReceipts,

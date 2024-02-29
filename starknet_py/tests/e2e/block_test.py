@@ -60,9 +60,9 @@ async def test_block_with_tx_hashes_latest(
     assert isinstance(blk.transactions, list)
     assert map_contract_declare_hash in blk.transactions
     assert blk.block_hash is not None
-    assert blk.parent_block_hash is not None
+    assert blk.parent_hash is not None
     assert blk.block_number is not None
-    assert blk.root is not None
+    assert blk.new_root is not None
     assert blk.timestamp is not None
     assert blk.sequencer_address is not None
 
@@ -86,9 +86,9 @@ async def test_get_block_with_txs_latest(
     assert isinstance(blk.transactions, list)
     assert blk.transactions[0].hash == map_contract_declare_hash
     assert blk.block_hash is not None
-    assert blk.parent_block_hash is not None
+    assert blk.parent_hash is not None
     assert blk.block_number is not None
-    assert blk.root is not None
+    assert blk.new_root is not None
     assert blk.timestamp is not None
     assert blk.sequencer_address is not None
 
@@ -105,9 +105,9 @@ async def test_block_with_receipts_latest(
     assert isinstance(blk.transactions, list)
     assert map_contract_declare_hash in blk.transactions
     assert blk.block_hash is not None
-    assert blk.parent_block_hash is not None
+    assert blk.parent_hash is not None
     assert blk.block_number is not None
-    assert blk.root is not None
+    assert blk.new_root is not None
     assert blk.timestamp is not None
     assert blk.sequencer_address is not None
 
