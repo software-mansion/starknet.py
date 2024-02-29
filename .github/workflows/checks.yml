@@ -1,7 +1,7 @@
 name: Checks
 
 env:
-  DEVNET_SHA: "1bd447d"
+  DEVNET_SHA: "79a90fd"
 
 on:
   push:
