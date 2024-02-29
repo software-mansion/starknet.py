@@ -2,6 +2,17 @@ Migration guide
 ===============
 
 **********************
+0.21.0 Migration guide
+**********************
+
+0.21.0 Minor changes
+-----------------------
+
+.. currentmodule:: starknet_py.net.client_models
+
+1. :class:`EventsChunk` field ``events`` is now a list of :class:`EmittedEvent` instead of :class:`Event`
+
+**********************
 0.20.0 Migration guide
 **********************
 
