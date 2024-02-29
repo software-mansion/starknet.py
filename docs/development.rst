@@ -24,11 +24,10 @@ Below is the command you can use to do this, designed for compatibility with the
 
 .. code-block:: bash
 
-    STARKNET_VERSION="0.13.0" RPC_SPEC_VERSION="0.6.0" \
     cargo install \
     --locked \
     --git https://github.com/0xSpaceShard/starknet-devnet-rs.git \
-    --rev 1bd447d
+    --rev 79a90fd
 
 If you choose to install `starknet-devnet-rs <https://github.com/0xSpaceShard/starknet-devnet-rs>`_ using a different method, please make sure to add the executable ``starknet-devnet`` to your ``PATH`` environment variable.
 
