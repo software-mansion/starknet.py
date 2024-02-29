@@ -174,6 +174,8 @@ async def test_estimate_message_fee(client_goerli_integration):
     assert estimated_message.overall_fee > 0
     assert estimated_message.gas_price > 0
     assert estimated_message.gas_consumed > 0
+    assert estimated_message.data_gas_price > 0
+    assert estimated_message.data_gas_consumed >= 0
     assert estimated_message.unit is not None
 
 
@@ -428,6 +430,7 @@ async def test_get_tx_receipt_with_execution_resources(client_sepolia_integratio
     )
 
     assert receipt.execution_resources is not None
+    assert receipt.execution_resources.data_availability is not None
     assert receipt.execution_resources.steps is not None
     assert receipt.execution_resources.segment_arena_builtin is not None
     assert receipt.execution_resources.bitwise_builtin_applications is not None

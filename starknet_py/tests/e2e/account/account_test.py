@@ -790,7 +790,7 @@ async def test_argent_cairo1_account_deploy(
         client=client,
         constructor_calldata=[key_pair.public_key, 0],
         chain=StarknetChainId.GOERLI,
-        max_fee=int(1e18),
+        max_fee=MAX_FEE,
     )
     await deploy_result.wait_for_acceptance()
     account = deploy_result.account
@@ -829,7 +829,7 @@ async def test_argent_cairo1_account_execute(
         calldata=[value],
     )
     execute = await argent_cairo1_account.execute_v1(
-        calls=increase_balance_by_20_call, max_fee=int(1e18)
+        calls=increase_balance_by_20_call, max_fee=MAX_FEE
     )
     await argent_cairo1_account.client.wait_for_tx(tx_hash=execute.transaction_hash)
     receipt = await argent_cairo1_account.client.get_transaction_receipt(

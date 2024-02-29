@@ -154,6 +154,8 @@ async def test_estimate_fee_invoke(account, contract_address):
     assert estimate_fee.overall_fee > 0
     assert estimate_fee.gas_price > 0
     assert estimate_fee.gas_consumed > 0
+    assert estimate_fee.data_gas_price > 0
+    assert estimate_fee.data_gas_consumed > 0
 
 
 @pytest.mark.asyncio
@@ -174,6 +176,8 @@ async def test_estimate_fee_invoke_v3(account, contract_address):
     assert estimate_fee.overall_fee > 0
     assert estimate_fee.gas_price > 0
     assert estimate_fee.gas_consumed > 0
+    assert estimate_fee.data_gas_price > 0
+    assert estimate_fee.data_gas_consumed > 0
 
 
 @pytest.mark.asyncio
@@ -192,6 +196,8 @@ async def test_estimate_fee_declare(account):
     assert estimate_fee.overall_fee > 0
     assert estimate_fee.gas_price > 0
     assert estimate_fee.gas_consumed > 0
+    assert estimate_fee.data_gas_price > 0
+    assert estimate_fee.data_gas_consumed > 0
 
 
 @pytest.mark.asyncio
@@ -203,6 +209,8 @@ async def test_estimate_fee_deploy_account(client, deploy_account_transaction):
     assert estimate_fee.overall_fee > 0
     assert estimate_fee.gas_price > 0
     assert estimate_fee.gas_consumed > 0
+    assert estimate_fee.data_gas_price > 0
+    assert estimate_fee.data_gas_consumed > 0
 
 
 @pytest.mark.asyncio
@@ -240,6 +248,8 @@ async def test_estimate_fee_for_multiple_transactions(
         assert estimated_fee.overall_fee > 0
         assert estimated_fee.gas_price > 0
         assert estimated_fee.gas_consumed > 0
+        assert estimated_fee.data_gas_price > 0
+        assert estimated_fee.data_gas_consumed > 0
 
 
 @pytest.mark.asyncio

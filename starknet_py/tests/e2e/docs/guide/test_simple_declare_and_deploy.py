@@ -15,13 +15,13 @@ async def test_simple_declare_and_deploy(account, map_compiled_contract):
     # To declare through Contract class you have to compile a contract and pass it
     # to Contract.declare_v1 or Contract.declare_v3
     declare_result = await Contract.declare_v1(
-        account=account, compiled_contract=compiled_contract, max_fee=int(1e16)
+        account=account, compiled_contract=compiled_contract, max_fee=int(1e18)
     )
     # Wait for the transaction
     await declare_result.wait_for_acceptance()
 
     # After contract is declared it can be deployed
-    deploy_result = await declare_result.deploy_v1(max_fee=int(1e16))
+    deploy_result = await declare_result.deploy_v1(max_fee=int(1e18))
     await deploy_result.wait_for_acceptance()
 
     # You can pass more arguments to the `deploy` method. Check `API` section to learn more
