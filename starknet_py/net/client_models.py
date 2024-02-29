@@ -347,9 +347,19 @@ class TransactionFinalityStatus(Enum):
 
 
 @dataclass
-class ExecutionResources:
+class DataResources:
     """
-    Dataclass representing the resources consumed by the transaction.
+    Dataclass representing the data-availability resources of the transaction
+    """
+
+    l1_gas: int
+    l1_data_gas: int
+
+
+@dataclass
+class ComputationResources:
+    """
+    Dataclass representing the resources consumed by the VM.
     """
 
     # pylint: disable=too-many-instance-attributes
@@ -364,6 +374,15 @@ class ExecutionResources:
     keccak_builtin_applications: Optional[int] = None
     memory_holes: Optional[int] = None
     segment_arena_builtin: Optional[int] = None
+
+
+@dataclass
+class ExecutionResources(ComputationResources):
+    """
+    Dataclass representing the the resources consumed by the transaction, includes both computation and data.
+    """
+
+    data_availability: Optional[DataResources] = None
 
 
 # TODO (#1219): split into PendingTransactionReceipt and TransactionReceipt
@@ -464,6 +483,25 @@ class PendingStarknetBlockWithTxHashes:
 
 
 @dataclass
+class PendingStarknetBlockWithReceipts:
+    """
+    Dataclass representing a pending block on Starknet with txs and receipts result
+    """
+
+    transactions: List[TransactionReceipt]
+    parent_block_hash: int
+    timestamp: int
+    sequencer_address: int
+    l1_gas_price: ResourcePrice
+    starknet_version: str
+
+
+class DaModeType(Enum):
+    BLOB = "BLOB"
+    CALLDATA = "CALLDATA"
+
+
+@dataclass
 class StarknetBlockCommon:
     """
     Dataclass representing a block header.
@@ -479,6 +517,8 @@ class StarknetBlockCommon:
     timestamp: int
     sequencer_address: int
     l1_gas_price: ResourcePrice
+    l1_data_gas_price: Optional[ResourcePrice]
+    l1_da_mode: Optional[DaModeType]
     starknet_version: str
 
 
@@ -500,6 +540,22 @@ class StarknetBlockWithTxHashes(StarknetBlockCommon):
 
     status: BlockStatus
     transactions: List[int]
+
+
+@dataclass
+class TransactionWithReceipt:
+    transaction: Transaction
+    receipt: TransactionReceipt
+
+
+@dataclass
+class StarknetBlockWithReceipts(StarknetBlockCommon):
+    """
+    Dataclass representing a block on Starknet with txs and receipts result
+    """
+
+    status: BlockStatus
+    transactions: List[TransactionWithReceipt]
 
 
 @dataclass
@@ -548,6 +604,8 @@ class EstimatedFee:
     gas_price: int
     gas_consumed: int
     unit: PriceUnit
+    data_gas_consumed: Optional[int]
+    data_gas_price: Optional[int]
 
 
 @dataclass
@@ -850,6 +908,7 @@ class InvokeTransactionTrace:
     """
 
     execute_invocation: Union[FunctionInvocation, RevertedFunctionInvocation]
+    execution_resources: Optional[ExecutionResources] = None
     validate_invocation: Optional[FunctionInvocation] = None
     fee_transfer_invocation: Optional[FunctionInvocation] = None
     state_diff: Optional[StateDiff] = None
@@ -861,6 +920,7 @@ class DeclareTransactionTrace:
     Dataclass representing a transaction trace of an DECLARE transaction.
     """
 
+    execution_resources: Optional[ExecutionResources] = None
     validate_invocation: Optional[FunctionInvocation] = None
     fee_transfer_invocation: Optional[FunctionInvocation] = None
     state_diff: Optional[StateDiff] = None
@@ -873,6 +933,7 @@ class DeployAccountTransactionTrace:
     """
 
     constructor_invocation: FunctionInvocation
+    execution_resources: Optional[ExecutionResources] = None
     validate_invocation: Optional[FunctionInvocation] = None
     fee_transfer_invocation: Optional[FunctionInvocation] = None
     state_diff: Optional[StateDiff] = None

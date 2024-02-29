@@ -2,6 +2,30 @@ Migration guide
 ===============
 
 **********************
+0.21.0 Migration guide
+**********************
+
+
+Version 0.21.0 of **starknet.py** comes with support for RPC 0.7.0 and python 3.12!
+
+New classes added to mirror the recent changes in the RPC v0.7.0 specification include:
+:class:`StarknetBlockWithReceipts`, :class:`PendingStarknetBlockWithReceipts`, :class:`TransactionWithReceipt` :class:`DataResources`.
+
+
+0.21.0 Targeted versions
+------------------------
+
+- Starknet - `0.13.1 <https://docs.starknet.io/documentation/starknet_versions/version_notes/#version0.13.1>`_
+- RPC - `0.7.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.7.0>`_
+
+0.21.0 Minor changes
+--------------------
+
+1. :class:`ExecutionResources` now has an additional optional field: ``data_availability``
+2. :class:`StarknetBlock`, :class:`StarknetBlockWithTxHashes`, :class:`PendingStarknetBlock` and :class:`PendingStarknetBlockWithTxHashes` now have two additional option fields: ``l1_data_gas_price`` and ``l1_da_mode``.
+3. :class:`DeclareTransactionTrace`, :class:`InvokeTransactionTrace` and :class:`DeployAccountTransactionTrace` have additional field ``execution_resources``
+
+**********************
 0.20.0 Migration guide
 **********************
 
