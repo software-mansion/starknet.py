@@ -124,8 +124,8 @@ class L2toL1MessageSchema(Schema):
 
 
 class DataResourcesSchema(Schema):
-    l1_gas = Felt(data_key="l1_gas", required=True)
-    l1_data_gas = Felt(data_key="l1_data_gas", required=True)
+    l1_gas = fields.Integer(data_key="l1_gas", required=True)
+    l1_data_gas = fields.Integer(data_key="l1_data_gas", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> DataResources:
@@ -133,8 +133,9 @@ class DataResourcesSchema(Schema):
 
 
 class ComputationResourcesSchema(Schema):
-    steps = Felt(data_key="steps", required=True)
-    range_check_builtin_applications = Felt(
+    steps = fields.Integer(data_key="steps", required=True)
+    memory_holes = fields.Integer(data_key="memory_holes", load_default=None)
+    range_check_builtin_applications = fields.Integer(
         data_key="range_check_builtin_applications", load_default=None
     )
     pedersen_builtin_applications = fields.Integer(
@@ -158,7 +159,6 @@ class ComputationResourcesSchema(Schema):
     segment_arena_builtin = fields.Integer(
         data_key="segment_arena_builtin", load_default=None
     )
-    memory_holes = fields.Integer(data_key="memory_holes", load_default=None)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> ComputationResources:
@@ -167,7 +167,7 @@ class ComputationResourcesSchema(Schema):
 
 class ExecutionResourcesSchema(ComputationResourcesSchema):
     data_availability = fields.Nested(
-        DataResourcesSchema(), data_key="data_availability", load_default=None
+        DataResourcesSchema(), data_key="data_availability", required=True
     )
 
     @post_load
@@ -211,15 +211,15 @@ class TransactionReceiptSchema(Schema):
 
 
 class EstimatedFeeSchema(Schema):
-    overall_fee = Felt(data_key="overall_fee", required=True)
-    gas_price = Felt(data_key="gas_price", required=True)
     gas_consumed = Felt(data_key="gas_consumed", required=True)
+    gas_price = Felt(data_key="gas_price", required=True)
+    data_gas_consumed = Felt(data_key="data_gas_consumed", required=True)
+    data_gas_price = Felt(data_key="data_gas_price", required=True)
+    overall_fee = Felt(data_key="overall_fee", required=True)
     unit = PriceUnitField(data_key="unit", required=True)
-    data_gas_consumed = PriceUnitField(data_key="data_gas_consumed", load_default=None)
-    data_gas_price = PriceUnitField(data_key="data_gas_price", load_default=None)
 
     @post_load
-    def make_dataclass(self, data, **kwargs):
+    def make_dataclass(self, data, **kwargs) -> EstimatedFee:
         return EstimatedFee(**data)
 
 
@@ -854,8 +854,8 @@ class FunctionInvocationSchema(Schema):
     messages = fields.List(
         fields.Nested(L2toL1MessageSchema()), data_key="messages", required=True
     )
-    execution_resources = fields.Nested(
-        ExecutionResourcesSchema(), data_key="execution_resources", required=True
+    computation_resources = fields.Nested(
+        ComputationResourcesSchema(), data_key="execution_resources", required=True
     )
 
     @post_load
@@ -887,6 +887,9 @@ class InvokeTransactionTraceSchema(Schema):
     execute_invocation = fields.Nested(
         ExecuteInvocationSchema(), data_key="execute_invocation", required=True
     )
+    execution_resources = fields.Nested(
+        ExecutionResourcesSchema(), data_key="execution_resources", required=True
+    )
     validate_invocation = fields.Nested(
         FunctionInvocationSchema(), data_key="validate_invocation", load_default=None
     )
@@ -897,10 +900,6 @@ class InvokeTransactionTraceSchema(Schema):
     )
     state_diff = fields.Nested(
         StateDiffSchema(), data_key="state_diff", load_default=None
-    )
-
-    execution_resources = fields.Nested(
-        ExecutionResourcesSchema(), data_key="execution_resources", load_default=None
     )
 
     @post_load
@@ -909,6 +908,9 @@ class InvokeTransactionTraceSchema(Schema):
 
 
 class DeclareTransactionTraceSchema(Schema):
+    execution_resources = fields.Nested(
+        ExecutionResourcesSchema(), data_key="execution_resources", required=True
+    )
     validate_invocation = fields.Nested(
         FunctionInvocationSchema(), data_key="validate_invocation", load_default=None
     )
@@ -919,10 +921,6 @@ class DeclareTransactionTraceSchema(Schema):
     )
     state_diff = fields.Nested(
         StateDiffSchema(), data_key="state_diff", load_default=None
-    )
-
-    execution_resources = fields.Nested(
-        ExecutionResourcesSchema(), data_key="execution_resources", load_default=None
     )
 
     @post_load
@@ -934,6 +932,9 @@ class DeployAccountTransactionTraceSchema(Schema):
     constructor_invocation = fields.Nested(
         FunctionInvocationSchema(), data_key="constructor_invocation", required=True
     )
+    execution_resources = fields.Nested(
+        ExecutionResourcesSchema(), data_key="execution_resources", required=True
+    )
     validate_invocation = fields.Nested(
         FunctionInvocationSchema(), data_key="validate_invocation", load_default=None
     )
@@ -944,10 +945,6 @@ class DeployAccountTransactionTraceSchema(Schema):
     )
     state_diff = fields.Nested(
         StateDiffSchema(), data_key="state_diff", load_default=None
-    )
-
-    execution_resources = fields.Nested(
-        ExecutionResourcesSchema(), data_key="execution_resources", load_default=None
     )
 
     @post_load

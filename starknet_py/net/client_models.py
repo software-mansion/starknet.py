@@ -370,24 +370,24 @@ class ComputationResources:
     # pylint: disable=too-many-instance-attributes
 
     steps: int
-    range_check_builtin_applications: Optional[int] = None
-    pedersen_builtin_applications: Optional[int] = None
-    poseidon_builtin_applications: Optional[int] = None
-    ec_op_builtin_applications: Optional[int] = None
-    ecdsa_builtin_applications: Optional[int] = None
-    bitwise_builtin_applications: Optional[int] = None
-    keccak_builtin_applications: Optional[int] = None
-    memory_holes: Optional[int] = None
-    segment_arena_builtin: Optional[int] = None
+    memory_holes: Optional[int]
+    range_check_builtin_applications: Optional[int]
+    pedersen_builtin_applications: Optional[int]
+    poseidon_builtin_applications: Optional[int]
+    ec_op_builtin_applications: Optional[int]
+    ecdsa_builtin_applications: Optional[int]
+    bitwise_builtin_applications: Optional[int]
+    keccak_builtin_applications: Optional[int]
+    segment_arena_builtin: Optional[int]
 
 
 @dataclass
 class ExecutionResources(ComputationResources):
     """
-    Dataclass representing the the resources consumed by the transaction, includes both computation and data.
+    Dataclass representing the resources consumed by the transaction, includes both computation and data.
     """
 
-    data_availability: Optional[DataResources] = None
+    data_availability: DataResources
 
 
 # TODO (#1219): split into PendingTransactionReceipt and TransactionReceipt
@@ -594,12 +594,12 @@ class EstimatedFee:
     Dataclass representing estimated fee.
     """
 
-    overall_fee: int
-    gas_price: int
     gas_consumed: int
+    gas_price: int
+    data_gas_consumed: int
+    data_gas_price: int
+    overall_fee: int
     unit: PriceUnit
-    data_gas_consumed: Optional[int]
-    data_gas_price: Optional[int]
 
 
 @dataclass
@@ -883,7 +883,7 @@ class FunctionInvocation:
     calls: List["FunctionInvocation"]
     events: List[OrderedEvent]
     messages: List[OrderedMessage]
-    execution_resources: ExecutionResources
+    computation_resources: ComputationResources
 
 
 @dataclass
@@ -902,7 +902,7 @@ class InvokeTransactionTrace:
     """
 
     execute_invocation: Union[FunctionInvocation, RevertedFunctionInvocation]
-    execution_resources: Optional[ExecutionResources] = None
+    execution_resources: ExecutionResources
     validate_invocation: Optional[FunctionInvocation] = None
     fee_transfer_invocation: Optional[FunctionInvocation] = None
     state_diff: Optional[StateDiff] = None
@@ -914,7 +914,7 @@ class DeclareTransactionTrace:
     Dataclass representing a transaction trace of an DECLARE transaction.
     """
 
-    execution_resources: Optional[ExecutionResources] = None
+    execution_resources: ExecutionResources
     validate_invocation: Optional[FunctionInvocation] = None
     fee_transfer_invocation: Optional[FunctionInvocation] = None
     state_diff: Optional[StateDiff] = None
@@ -927,7 +927,7 @@ class DeployAccountTransactionTrace:
     """
 
     constructor_invocation: FunctionInvocation
-    execution_resources: Optional[ExecutionResources] = None
+    execution_resources: ExecutionResources
     validate_invocation: Optional[FunctionInvocation] = None
     fee_transfer_invocation: Optional[FunctionInvocation] = None
     state_diff: Optional[StateDiff] = None

@@ -365,18 +365,6 @@ async def test_get_block_with_tx_hashes_new_header_fields(client_goerli_testnet)
     assert pending_block.l1_gas_price.price_in_wei > 0
 
 
-@pytest.mark.asyncio
-async def test_get_tx_receipt_new_fields(client_goerli_testnet):
-    l1_handler_tx_hash = (
-        0xBEFE411182979262478CA8CA73BED724237D03D303CE420D94DE7664A78347
-    )
-    receipt = await client_goerli_testnet.get_transaction_receipt(
-        tx_hash=l1_handler_tx_hash
-    )
-
-    assert receipt.execution_resources is not None
-
-
 @pytest.mark.parametrize(
     "tx_hash, tx_type",
     [
