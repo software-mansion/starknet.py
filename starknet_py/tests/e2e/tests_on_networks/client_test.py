@@ -6,6 +6,8 @@ import pytest
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
+    BlockHeader,
+    BlockStatus,
     Call,
     DAMode,
     DeclareTransactionV3,
@@ -13,7 +15,11 @@ from starknet_py.net.client_models import (
     EstimatedFee,
     EventsChunk,
     InvokeTransactionV3,
+    L1DAMode,
+    PendingBlockHeader,
+    PendingStarknetBlockWithReceipts,
     ResourceBoundsMapping,
+    StarknetBlockWithReceipts,
     TransactionExecutionStatus,
     TransactionFinalityStatus,
     TransactionReceipt,
@@ -441,3 +447,32 @@ async def test_get_tx_receipt_with_execution_resources(client_sepolia_integratio
     assert receipt.execution_resources.memory_holes is not None
     assert receipt.execution_resources.pedersen_builtin_applications is not None
     assert receipt.execution_resources.range_check_builtin_applications is not None
+
+
+@pytest.mark.asyncio
+async def test_get_block_with_receipts(client_goerli_integration):
+    block_with_receipts = await client_goerli_integration.get_block_with_receipts(
+        block_number=329520
+    )
+
+    assert isinstance(block_with_receipts, StarknetBlockWithReceipts)
+    assert block_with_receipts.status == BlockStatus.ACCEPTED_ON_L1
+    assert len(block_with_receipts.transactions) == 4
+    assert all(
+        getattr(block_with_receipts, field.name) is not None
+        for field in dataclasses.fields(BlockHeader)
+    )
+
+
+@pytest.mark.asyncio
+async def test_get_pending_block_with_receipts(client_goerli_integration):
+    block_with_receipts = await client_goerli_integration.get_block_with_receipts(
+        block_number="pending"
+    )
+
+    assert isinstance(block_with_receipts, PendingStarknetBlockWithReceipts)
+    assert len(block_with_receipts.transactions) >= 0
+    assert all(
+        getattr(block_with_receipts, field.name) is not None
+        for field in dataclasses.fields(PendingBlockHeader)
+    )

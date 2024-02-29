@@ -470,6 +470,8 @@ class PendingBlockHeader:
     timestamp: int
     sequencer_address: int
     l1_gas_price: ResourcePrice
+    l1_data_gas_price: ResourcePrice
+    l1_da_mode: L1DAMode
     starknet_version: str
 
 

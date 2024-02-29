@@ -150,7 +150,7 @@ class FullNodeClient(Client):
             StarknetBlockWithTxHashesSchema().load(res, unknown=EXCLUDE),
         )
 
-    async def get_block_with_receipt(
+    async def get_block_with_receipts(
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
