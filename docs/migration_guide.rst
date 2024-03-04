@@ -18,19 +18,19 @@ Version 0.21.0 of **starknet.py** comes with support for RPC 0.7.0!
 
 .. currentmodule:: starknet_py.net.client_models
 
-1. :class:`ExecutionResources` has a new required field ``data_availability``
-2. :class:`InvokeTransactionTrace`, :class:`DeclareTransactionTrace` and :class:`DeployAccountTransactionTrace` have a new required field ``execution_resources``
-3. :class:`PendingStarknetBlock` and :class:`PendingStarknetBlockWithTxHashes` field ``parent_block_hash`` has been renamed to ``parent_hash``
-4. :class:`StarknetBlockCommon` has been renamed to :class:`BlockHeader`
-5. :class:`StarknetBlock` and :class:`StarknetBlockWithTxHashes` fields ``parent_block_hash`` and ``root`` have been renamed to ``parent_hash`` and ``new_root`` respectively
-6. :class:`EstimatedFee` has new required fields ``data_gas_consumed`` and ``data_gas_price``
-7. :class:`FunctionInvocation` field ``execution_resources`` has been renamed to ``computation_resources``
-8. :class:`StarknetBlock`, :class:`PendingStarknetBlock`, :class:`StarknetBlockWithTxHashes`, :class:`PendingStarknetBlockWithTxHashes` have new required fields ``l1_data_gas_price`` and ``l1_da_mode``
+1. :class:`PendingStarknetBlock` and :class:`PendingStarknetBlockWithTxHashes` field ``parent_block_hash`` has been renamed to ``parent_hash``
+2. :class:`StarknetBlockCommon` has been renamed to :class:`BlockHeader`
+3. :class:`StarknetBlock` and :class:`StarknetBlockWithTxHashes` fields ``parent_block_hash`` and ``root`` have been renamed to ``parent_hash`` and ``new_root`` respectively
+4. :class:`FunctionInvocation` field ``execution_resources`` has been renamed to ``computation_resources``
 
 0.21.0 Minor changes
 -----------------------
 
 1. :class:`EventsChunk` field ``events`` is now a list of :class:`EmittedEvent` instead of :class:`Event`
+2. :class:`ExecutionResources` has a new required field ``data_availability``
+3. :class:`InvokeTransactionTrace`, :class:`DeclareTransactionTrace` and :class:`DeployAccountTransactionTrace` have a new required field ``execution_resources``
+4. :class:`EstimatedFee` has new required fields ``data_gas_consumed`` and ``data_gas_price``
+5. :class:`StarknetBlock`, :class:`PendingStarknetBlock`, :class:`StarknetBlockWithTxHashes`, :class:`PendingStarknetBlockWithTxHashes` have new required fields ``l1_data_gas_price`` and ``l1_da_mode``
 
 **********************
 0.20.0 Migration guide
