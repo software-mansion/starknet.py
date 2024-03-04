@@ -27,7 +27,7 @@ Below is the command you can use to do this, designed for compatibility with the
     cargo install \
     --locked \
     --git https://github.com/0xSpaceShard/starknet-devnet-rs.git \
-    --rev 79a90fd
+    --rev c6ffb99
 
 If you choose to install `starknet-devnet-rs <https://github.com/0xSpaceShard/starknet-devnet-rs>`_ using a different method, please make sure to add the executable ``starknet-devnet`` to your ``PATH`` environment variable.
 
