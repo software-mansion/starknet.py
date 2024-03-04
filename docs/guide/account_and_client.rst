@@ -27,7 +27,8 @@ To enable auto estimation, set the ``auto_estimate`` parameter to ``True``.
 
     It is strongly discouraged to use automatic fee estimation in production code as it may lead to an unexpectedly high fee.
 
-The returned estimated fee is multiplied by ``1.5`` to mitigate fluctuations in price.
+The returned estimated fee is multiplied by ``1.5`` for V1 and V2 transactions to mitigate fluctuations in price.
+For V3 transactions, ``max_amount`` and ``max_price_per_unit`` are scaled by ``1.5`` and ``1.5`` respectively.
 
 .. note::
     It is possible to configure the value by which the estimated fee is multiplied,
