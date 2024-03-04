@@ -27,6 +27,11 @@ Version 0.21.0 of **starknet.py** comes with support for RPC 0.7.0!
 7. :class:`FunctionInvocation` field ``execution_resources`` has been renamed to ``computation_resources``
 8. :class:`StarknetBlock`, :class:`PendingStarknetBlock`, :class:`StarknetBlockWithTxHashes`, :class:`PendingStarknetBlockWithTxHashes` have new required fields ``l1_data_gas_price`` and ``l1_da_mode``
 
+0.21.0 Minor changes
+-----------------------
+
+1. :class:`EventsChunk` field ``events`` is now a list of :class:`EmittedEvent` instead of :class:`Event`
+
 **********************
 0.20.0 Migration guide
 **********************

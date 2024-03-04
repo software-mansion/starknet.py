@@ -26,6 +26,7 @@ from starknet_py.net.client_models import (
     DeployAccountTransactionV3,
     DeployedContract,
     DeployTransaction,
+    EmittedEvent,
     EntryPoint,
     EntryPointsByType,
     EstimatedFee,
@@ -100,9 +101,19 @@ class EventSchema(Schema):
         return Event(**data)
 
 
+class EmittedEventSchema(EventSchema):
+    transaction_hash = Felt(data_key="transaction_hash", required=True)
+    block_hash = Felt(data_key="block_hash", load_default=None)
+    block_number = fields.Integer(data_key="block_number", load_default=None)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> EmittedEvent:
+        return EmittedEvent(**data)
+
+
 class EventsChunkSchema(Schema):
     events = fields.List(
-        fields.Nested(EventSchema(unknown=EXCLUDE)),
+        fields.Nested(EmittedEventSchema()),
         data_key="events",
         required=True,
     )
