@@ -33,7 +33,7 @@ Calls = Union[Call, Iterable[Call]]
 @dataclass
 class Event:
     """
-    Dataclass representing an event emitted by transaction.
+    Dataclass representing a Starknet event.
     """
 
     from_address: int
@@ -42,12 +42,23 @@ class Event:
 
 
 @dataclass
+class EmittedEvent(Event):
+    """
+    Dataclass representing an event emitted by transaction.
+    """
+
+    transaction_hash: int
+    block_hash: Optional[int] = None
+    block_number: Optional[int] = None
+
+
+@dataclass
 class EventsChunk:
     """
     Dataclass representing events returned by FullNodeClient.get_events method.
     """
 
-    events: List[Event]
+    events: List[EmittedEvent]
     continuation_token: Optional[str] = None
 
 

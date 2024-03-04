@@ -10,6 +10,7 @@ from starknet_py.net.client_models import (
     DAMode,
     DeclareTransactionV3,
     DeployAccountTransactionV3,
+    EmittedEvent,
     EstimatedFee,
     EventsChunk,
     InvokeTransactionV3,
@@ -425,6 +426,12 @@ async def test_get_events_sepolia_testnet(client_sepolia_testnet):
     assert isinstance(events_chunk, EventsChunk)
     assert len(events_chunk.events) == 10
     assert events_chunk.continuation_token is not None
+    assert isinstance(events_chunk.events[0], EmittedEvent)
+    assert events_chunk.events[0].block_number == 1000
+    assert events_chunk.events[0].block_hash is not None
+    assert events_chunk.events[0].from_address is not None
+    assert events_chunk.events[0].data is not None
+    assert events_chunk.events[0].keys is not None
 
 
 @pytest.mark.asyncio
