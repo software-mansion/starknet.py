@@ -167,6 +167,8 @@ class Account(BaseAccount):
                 max_amount=int(
                     (estimated_fee.overall_fee / estimated_fee.gas_price)
                     * Account.ESTIMATED_AMOUNT_MULTIPLIER
+                    if estimated_fee.gas_price != 0
+                    else 0
                 ),
                 max_price_per_unit=int(
                     estimated_fee.gas_price * Account.ESTIMATED_UNIT_PRICE_MULTIPLIER
