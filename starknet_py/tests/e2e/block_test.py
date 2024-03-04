@@ -4,6 +4,7 @@ from starknet_py.contract import Contract
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client_models import (
     BlockStatus,
+    L1DAMode,
     PendingStarknetBlock,
     PendingStarknetBlockWithTxHashes,
     StarknetBlock,
@@ -65,9 +66,11 @@ async def test_block_with_tx_hashes_latest(
     assert blk.new_root is not None
     assert blk.timestamp is not None
     assert blk.sequencer_address is not None
-    assert blk.l1_gas_price is not None
-    assert blk.l1_data_gas_price is not None
-    assert blk.l1_da_mode is not None
+    assert blk.l1_gas_price.price_in_wei > 0
+    assert blk.l1_gas_price.price_in_fri > 0
+    assert blk.l1_data_gas_price.price_in_wei >= 0
+    assert blk.l1_data_gas_price.price_in_fri >= 0
+    assert blk.l1_da_mode in L1DAMode
 
 
 @pytest.mark.asyncio
@@ -94,9 +97,11 @@ async def test_get_block_with_txs_latest(
     assert blk.new_root is not None
     assert blk.timestamp is not None
     assert blk.sequencer_address is not None
-    assert blk.l1_gas_price is not None
-    assert blk.l1_data_gas_price is not None
-    assert blk.l1_da_mode is not None
+    assert blk.l1_gas_price.price_in_wei > 0
+    assert blk.l1_gas_price.price_in_fri > 0
+    assert blk.l1_data_gas_price.price_in_wei >= 0
+    assert blk.l1_data_gas_price.price_in_fri >= 0
+    assert blk.l1_da_mode in L1DAMode
 
 
 @pytest.mark.asyncio
@@ -112,6 +117,8 @@ async def test_block_with_receipts_latest(account):
     assert blk.new_root is not None
     assert blk.timestamp is not None
     assert blk.sequencer_address is not None
-    assert blk.l1_gas_price is not None
-    assert blk.l1_data_gas_price is not None
-    assert blk.l1_da_mode is not None
+    assert blk.l1_gas_price.price_in_wei > 0
+    assert blk.l1_gas_price.price_in_fri > 0
+    assert blk.l1_data_gas_price.price_in_wei >= 0
+    assert blk.l1_data_gas_price.price_in_fri >= 0
+    assert blk.l1_da_mode in L1DAMode
