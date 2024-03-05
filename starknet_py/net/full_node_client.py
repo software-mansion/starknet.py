@@ -302,10 +302,10 @@ class FullNodeClient(Client):
         if block_identifier == {"block_id": "pending"}:
             return cast(
                 PendingBlockStateUpdate,
-                PendingBlockStateUpdateSchema(unknown=EXCLUDE).load(res),
+                PendingBlockStateUpdateSchema().load(res, unknown=EXCLUDE),
             )
         return cast(
-            BlockStateUpdate, BlockStateUpdateSchema(unknown=EXCLUDE).load(res)
+            BlockStateUpdate, BlockStateUpdateSchema().load(res, unknown=EXCLUDE)
         )
 
     async def get_storage_at(
@@ -341,7 +341,7 @@ class FullNodeClient(Client):
             )
         except ClientError as ex:
             raise TransactionNotReceivedError() from ex
-        return cast(Transaction, TypesOfTransactionsSchema(unknown=EXCLUDE).load(res))
+        return cast(Transaction, TypesOfTransactionsSchema().load(res, unknown=EXCLUDE))
 
     async def get_l1_message_hash(self, tx_hash: Hash) -> Hash:
         """
@@ -606,7 +606,7 @@ class FullNodeClient(Client):
                 "index": index,
             },
         )
-        return cast(Transaction, TypesOfTransactionsSchema(unknown=EXCLUDE).load(res))
+        return cast(Transaction, TypesOfTransactionsSchema().load(res, unknown=EXCLUDE))
 
     async def get_block_transaction_count(
         self,
