@@ -2,7 +2,7 @@ import os
 from typing import List, Optional, Tuple, Union, cast
 
 import aiohttp
-from marshmallow import Schema
+from marshmallow import EXCLUDE, Schema
 
 if strategy := os.environ.get(key="RESPONSE_UNKNOWN_FIELDS_STRATEGY"):
     Schema.Meta.unknown = strategy
@@ -119,9 +119,9 @@ class FullNodeClient(Client):
         if block_identifier == {"block_id": "pending"}:
             return cast(
                 PendingStarknetBlock,
-                PendingStarknetBlockSchema().load(res),
+                PendingStarknetBlockSchema().load(res, unknown=EXCLUDE),
             )
-        return cast(StarknetBlock, StarknetBlockSchema().load(res))
+        return cast(StarknetBlock, StarknetBlockSchema().load(res, unknown=EXCLUDE))
 
     async def get_block_with_txs(
         self,
@@ -147,11 +147,11 @@ class FullNodeClient(Client):
         if block_identifier == {"block_id": "pending"}:
             return cast(
                 PendingStarknetBlockWithTxHashes,
-                PendingStarknetBlockWithTxHashesSchema().load(res),
+                PendingStarknetBlockWithTxHashesSchema().load(res, unknown=EXCLUDE),
             )
         return cast(
             StarknetBlockWithTxHashes,
-            StarknetBlockWithTxHashesSchema().load(res),
+            StarknetBlockWithTxHashesSchema().load(res, unknown=EXCLUDE),
         )
 
     async def get_block_with_receipts(
@@ -302,10 +302,10 @@ class FullNodeClient(Client):
         if block_identifier == {"block_id": "pending"}:
             return cast(
                 PendingBlockStateUpdate,
-                PendingBlockStateUpdateSchema().load(res),
+                PendingBlockStateUpdateSchema(unknown=EXCLUDE).load(res),
             )
         return cast(
-            BlockStateUpdate, BlockStateUpdateSchema().load(res)
+            BlockStateUpdate, BlockStateUpdateSchema(unknown=EXCLUDE).load(res)
         )
 
     async def get_storage_at(
@@ -341,7 +341,7 @@ class FullNodeClient(Client):
             )
         except ClientError as ex:
             raise TransactionNotReceivedError() from ex
-        return cast(Transaction, TypesOfTransactionsSchema().load(res))
+        return cast(Transaction, TypesOfTransactionsSchema(unknown=EXCLUDE).load(res))
 
     async def get_l1_message_hash(self, tx_hash: Hash) -> Hash:
         """
@@ -606,7 +606,7 @@ class FullNodeClient(Client):
                 "index": index,
             },
         )
-        return cast(Transaction, TypesOfTransactionsSchema().load(res))
+        return cast(Transaction, TypesOfTransactionsSchema(unknown=EXCLUDE).load(res))
 
     async def get_block_transaction_count(
         self,
