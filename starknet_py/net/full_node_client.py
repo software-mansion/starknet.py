@@ -724,7 +724,7 @@ class FullNodeClient(Client):
             },
         )
         return cast(
-            TransactionTrace, TransactionTraceSchema().load(res)
+            TransactionTrace, TransactionTraceSchema().load(res, unknown=EXCLUDE)
         )
 
     async def simulate_transactions(
