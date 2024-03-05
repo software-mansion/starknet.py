@@ -2,7 +2,7 @@ import os
 from typing import List, Optional, Tuple, Union, cast
 
 import aiohttp
-from marshmallow import EXCLUDE, Schema
+from marshmallow import Schema
 
 if strategy := os.environ.get(key="UNKNOWN_FIELDS_STRATEGY"):
     Schema.Meta.unknown = strategy
@@ -119,9 +119,9 @@ class FullNodeClient(Client):
         if block_identifier == {"block_id": "pending"}:
             return cast(
                 PendingStarknetBlock,
-                PendingStarknetBlockSchema().load(res, unknown=EXCLUDE),
+                PendingStarknetBlockSchema().load(res),
             )
-        return cast(StarknetBlock, StarknetBlockSchema().load(res, unknown=EXCLUDE))
+        return cast(StarknetBlock, StarknetBlockSchema().load(res))
 
     async def get_block_with_txs(
         self,
@@ -147,11 +147,11 @@ class FullNodeClient(Client):
         if block_identifier == {"block_id": "pending"}:
             return cast(
                 PendingStarknetBlockWithTxHashes,
-                PendingStarknetBlockWithTxHashesSchema().load(res, unknown=EXCLUDE),
+                PendingStarknetBlockWithTxHashesSchema().load(res),
             )
         return cast(
             StarknetBlockWithTxHashes,
-            StarknetBlockWithTxHashesSchema().load(res, unknown=EXCLUDE),
+            StarknetBlockWithTxHashesSchema().load(res),
         )
 
     async def get_block_with_receipts(
@@ -302,10 +302,10 @@ class FullNodeClient(Client):
         if block_identifier == {"block_id": "pending"}:
             return cast(
                 PendingBlockStateUpdate,
-                PendingBlockStateUpdateSchema().load(res, unknown=EXCLUDE),
+                PendingBlockStateUpdateSchema().load(res),
             )
         return cast(
-            BlockStateUpdate, BlockStateUpdateSchema().load(res, unknown=EXCLUDE)
+            BlockStateUpdate, BlockStateUpdateSchema().load(res)
         )
 
     async def get_storage_at(
@@ -341,7 +341,7 @@ class FullNodeClient(Client):
             )
         except ClientError as ex:
             raise TransactionNotReceivedError() from ex
-        return cast(Transaction, TypesOfTransactionsSchema().load(res, unknown=EXCLUDE))
+        return cast(Transaction, TypesOfTransactionsSchema().load(res))
 
     async def get_l1_message_hash(self, tx_hash: Hash) -> Hash:
         """
@@ -363,7 +363,7 @@ class FullNodeClient(Client):
             params={"transaction_hash": _to_rpc_felt(tx_hash)},
         )
         return cast(
-            TransactionReceipt, TransactionReceiptSchema().load(res, unknown=EXCLUDE)
+            TransactionReceipt, TransactionReceiptSchema().load(res)
         )
 
     async def estimate_fee(
@@ -397,7 +397,7 @@ class FullNodeClient(Client):
         return cast(
             EstimatedFee,
             EstimatedFeeSchema().load(
-                res, unknown=EXCLUDE, many=(not single_transaction)
+                res, many=(not single_transaction)
             ),
         )
 
@@ -444,7 +444,7 @@ class FullNodeClient(Client):
                     **block_identifier,
                 },
             )
-            return cast(EstimatedFee, EstimatedFeeSchema().load(res, unknown=EXCLUDE))
+            return cast(EstimatedFee, EstimatedFeeSchema().load(res))
         except ClientError as err:
             if err.code == RPC_CONTRACT_ERROR:
                 raise ClientError(
@@ -504,7 +504,7 @@ class FullNodeClient(Client):
         )
 
         return cast(
-            SentTransactionResponse, SentTransactionSchema().load(res, unknown=EXCLUDE)
+            SentTransactionResponse, SentTransactionSchema().load(res)
         )
 
     async def deploy_account(
@@ -519,7 +519,7 @@ class FullNodeClient(Client):
 
         return cast(
             DeployAccountTransactionResponse,
-            DeployAccountTransactionResponseSchema().load(res, unknown=EXCLUDE),
+            DeployAccountTransactionResponseSchema().load(res),
         )
 
     async def declare(self, transaction: Declare) -> DeclareTransactionResponse:
@@ -532,7 +532,7 @@ class FullNodeClient(Client):
 
         return cast(
             DeclareTransactionResponse,
-            DeclareTransactionResponseSchema().load(res, unknown=EXCLUDE),
+            DeclareTransactionResponseSchema().load(res),
         )
 
     async def get_class_hash_at(
@@ -575,9 +575,9 @@ class FullNodeClient(Client):
         if "sierra_program" in res:
             return cast(
                 SierraContractClass,
-                SierraContractClassSchema().load(res, unknown=EXCLUDE),
+                SierraContractClassSchema().load(res),
             )
-        return cast(ContractClass, ContractClassSchema().load(res, unknown=EXCLUDE))
+        return cast(ContractClass, ContractClassSchema().load(res))
 
     # Only RPC methods
 
@@ -606,7 +606,7 @@ class FullNodeClient(Client):
                 "index": index,
             },
         )
-        return cast(Transaction, TypesOfTransactionsSchema().load(res, unknown=EXCLUDE))
+        return cast(Transaction, TypesOfTransactionsSchema().load(res))
 
     async def get_block_transaction_count(
         self,
@@ -660,9 +660,9 @@ class FullNodeClient(Client):
         if "sierra_program" in res:
             return cast(
                 SierraContractClass,
-                SierraContractClassSchema().load(res, unknown=EXCLUDE),
+                SierraContractClassSchema().load(res),
             )
-        return cast(ContractClass, ContractClassSchema().load(res, unknown=EXCLUDE))
+        return cast(ContractClass, ContractClassSchema().load(res))
 
     async def get_contract_nonce(
         self,
@@ -702,7 +702,7 @@ class FullNodeClient(Client):
         )
         return cast(
             TransactionStatusResponse,
-            TransactionStatusResponseSchema().load(res, unknown=EXCLUDE),
+            TransactionStatusResponseSchema().load(res),
         )
 
     # ------------------------------- Trace API -------------------------------
@@ -724,7 +724,7 @@ class FullNodeClient(Client):
             },
         )
         return cast(
-            TransactionTrace, TransactionTraceSchema().load(res, unknown=EXCLUDE)
+            TransactionTrace, TransactionTraceSchema().load(res)
         )
 
     async def simulate_transactions(
@@ -776,7 +776,7 @@ class FullNodeClient(Client):
         )
         return cast(
             List[SimulatedTransaction],
-            SimulatedTransactionSchema().load(res, unknown=EXCLUDE, many=True),
+            SimulatedTransactionSchema().load(res, many=True),
         )
 
     async def trace_block_transactions(
@@ -803,7 +803,7 @@ class FullNodeClient(Client):
         )
         return cast(
             List[BlockTransactionTrace],
-            BlockTransactionTraceSchema().load(res, unknown=EXCLUDE, many=True),
+            BlockTransactionTraceSchema().load(res, many=True),
         )
 
 
