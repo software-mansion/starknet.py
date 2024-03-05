@@ -1,7 +1,11 @@
+import os
 from typing import List, Optional, Tuple, Union, cast
 
 import aiohttp
-from marshmallow import EXCLUDE
+from marshmallow import EXCLUDE, Schema
+
+if strategy := os.environ.get(key="UNKNOWN_FIELDS_STRATEGY"):
+    Schema.Meta.unknown = strategy
 
 from starknet_py.constants import RPC_CONTRACT_ERROR
 from starknet_py.hash.utils import keccak256
