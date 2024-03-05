@@ -4,7 +4,7 @@ from typing import List, Optional, Tuple, Union, cast
 import aiohttp
 from marshmallow import Schema
 
-if strategy := os.environ.get(key="UNKNOWN_FIELDS_STRATEGY"):
+if strategy := os.environ.get(key="RESPONSE_UNKNOWN_FIELDS_STRATEGY"):
     Schema.Meta.unknown = strategy
 
 from starknet_py.constants import RPC_CONTRACT_ERROR
