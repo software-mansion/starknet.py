@@ -102,7 +102,7 @@ async def test_deploy_contract_v1(account, cairo1_hello_starknet_class_hash: int
     deploy_result = await Contract.deploy_contract_v1(
         class_hash=cairo1_hello_starknet_class_hash,
         account=account,
-        abi=json.loads(abi),
+        abi=abi,
         max_fee=MAX_FEE,
         cairo_version=1,
     )
@@ -130,7 +130,7 @@ async def test_deploy_contract_v3(account, cairo1_hello_starknet_class_hash: int
     deploy_result = await Contract.deploy_contract_v3(
         class_hash=cairo1_hello_starknet_class_hash,
         account=account,
-        abi=json.loads(abi),
+        abi=abi,
         l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
         cairo_version=1,
     )

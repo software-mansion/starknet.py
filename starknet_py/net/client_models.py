@@ -3,14 +3,25 @@ Dataclasses representing responses from Starknet.
 They need to stay backwards compatible for old transactions/blocks to be fetchable.
 """
 
+import json
 from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Iterable, List, Optional, Union
+from typing import Any, Iterable, List, Literal, Optional, Union, cast
 
+from marshmallow import EXCLUDE
 from typing_extensions import Literal
 
 from starknet_py.abi.v0.shape import AbiDictList
+from starknet_py.abi.v1.schemas import (
+    ContractAbiEntrySchema as ContractAbiEntrySchemaV1,
+)
+from starknet_py.abi.v1.shape import AbiDictList as AbiDictListV1
+from starknet_py.abi.v2.schemas import (
+    ContractAbiEntrySchema as ContractAbiEntrySchemaV2,
+)
+from starknet_py.abi.v2.shape import AbiDictList as AbiDictListV2
+from starknet_py.utils.constructor_args_translator import _is_abi_v2
 
 Hash = Union[int, str]
 Tag = Literal["pending", "latest"]
@@ -762,7 +773,24 @@ class SierraContractClass:
     contract_class_version: str
     sierra_program: List[str]
     entry_points_by_type: SierraEntryPointsByType
-    abi: Optional[str] = None
+    raw_abi: Optional[str] = None
+
+    @property
+    def abi(self) -> Union[AbiDictListV1, None, AbiDictListV1]:
+        if self.raw_abi is None:
+            return None
+
+        load_abi: List = json.loads(self.raw_abi)
+
+        if _is_abi_v2(load_abi):
+            return [
+                ContractAbiEntrySchemaV2(unknown=EXCLUDE).load(entry)
+                for entry in load_abi
+            ]
+
+        return [
+            ContractAbiEntrySchemaV1(unknown=EXCLUDE).load(entry) for entry in load_abi
+        ]
 
 
 @dataclass
@@ -771,7 +799,7 @@ class SierraCompiledContract(SierraContractClass):
     Dataclass representing SierraContractClass with required abi.
     """
 
-    abi: str = field(default_factory=str)
+    raw_abi: str = field(default_factory=str)
 
 
 @dataclass
