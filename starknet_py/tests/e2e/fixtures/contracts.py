@@ -139,10 +139,7 @@ async def deploy_v1_contract(
     :returns: Instance of the deployed contract.
     """
     contract_sierra = read_contract(contract_file_name + "_compiled.json")
-    sierra_compiled_contract = create_sierra_compiled_contract(
-        compiled_contract=contract_sierra
-    )
-    abi = json.loads(sierra_compiled_contract.abi)
+    abi = create_sierra_compiled_contract(compiled_contract=contract_sierra).abi
 
     deployer = Deployer()
     deploy_call, address = deployer.create_contract_deployment(

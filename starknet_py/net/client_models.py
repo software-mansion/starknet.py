@@ -16,10 +16,12 @@ from starknet_py.abi.v0.shape import AbiDictList
 from starknet_py.abi.v1.schemas import (
     ContractAbiEntrySchema as ContractAbiEntrySchemaV1,
 )
+from starknet_py.abi.v1.shape import AbiDictEntry as AbiDictEntryV1
 from starknet_py.abi.v1.shape import AbiDictList as AbiDictListV1
 from starknet_py.abi.v2.schemas import (
     ContractAbiEntrySchema as ContractAbiEntrySchemaV2,
 )
+from starknet_py.abi.v2.shape import AbiDictEntry as AbiDictEntryV2
 from starknet_py.abi.v2.shape import AbiDictList as AbiDictListV2
 from starknet_py.utils.constructor_args_translator import _is_abi_v2
 
@@ -776,20 +778,24 @@ class SierraContractClass:
     raw_abi: Optional[str] = None
 
     @property
-    def abi(self) -> Union[AbiDictListV1, None, AbiDictListV1]:
+    def abi(self) -> Union[AbiDictListV2, AbiDictListV1]:
         if self.raw_abi is None:
-            return None
+            return []
 
         load_abi: List = json.loads(self.raw_abi)
 
         if _is_abi_v2(load_abi):
             return [
-                ContractAbiEntrySchemaV2(unknown=EXCLUDE).load(entry)
+                cast(
+                    AbiDictEntryV2,
+                    ContractAbiEntrySchemaV2(unknown=EXCLUDE).load(entry),
+                )
                 for entry in load_abi
             ]
 
         return [
-            ContractAbiEntrySchemaV1(unknown=EXCLUDE).load(entry) for entry in load_abi
+            cast(AbiDictEntryV1, ContractAbiEntrySchemaV1(unknown=EXCLUDE).load(entry))
+            for entry in load_abi
         ]
 
 
