@@ -2,8 +2,9 @@
 Dataclasses representing responses from Starknet.
 They need to stay backwards compatible for old transactions/blocks to be fetchable.
 
-In the case of getting ValidationError in the context of RPC
-response is possible to turn off validation by setting env RESPONSE_UNKNOWN_FIELDS_STRATEGY="EXCLUDE".
+If you encounter a ValidationError in an RPC context, it is possible to disable validation.
+This can be achieved by setting the environment variable, RESPONSE_UNKNOWN_FIELDS_STRATEGY,
+to "EXCLUDE". Consequently, any unknown fields in response will be excluded.
 """
 
 from abc import ABC
