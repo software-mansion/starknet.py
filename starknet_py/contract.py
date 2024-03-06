@@ -280,7 +280,8 @@ class DeclareResult(SentTransaction):
                 sierra_compiled_contract = create_sierra_compiled_contract(
                     compiled_contract=self.compiled_contract
                 )
-                abi = json.loads(sierra_compiled_contract.raw_abi)
+                abi = sierra_compiled_contract.abi
+
             except Exception as exc:
                 raise ValueError(
                     "Contract's ABI can't be converted to format List[Dict]. "
