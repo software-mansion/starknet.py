@@ -167,11 +167,11 @@ class FullNodeClient(Client):
         if block_identifier == {"block_id": "pending"}:
             return cast(
                 PendingStarknetBlockWithReceipts,
-                PendingStarknetBlockWithReceiptsSchema().load(res, unknown=EXCLUDE),
+                PendingStarknetBlockWithReceiptsSchema().load(res),
             )
         return cast(
             StarknetBlockWithReceipts,
-            StarknetBlockWithReceiptsSchema().load(res, unknown=EXCLUDE),
+            StarknetBlockWithReceiptsSchema().load(res),
         )
 
     # TODO (#809): add tests with multiple emitted keys
@@ -337,7 +337,7 @@ class FullNodeClient(Client):
             )
         except ClientError as ex:
             raise TransactionNotReceivedError() from ex
-        return cast(Transaction, TypesOfTransactionsSchema().load(res, unknown=EXCLUDE))
+        return cast(Transaction, TypesOfTransactionsSchema().load(res))
 
     async def get_l1_message_hash(self, tx_hash: Hash) -> Hash:
         """
@@ -390,9 +390,7 @@ class FullNodeClient(Client):
 
         return cast(
             EstimatedFee,
-            EstimatedFeeSchema().load(
-                res, unknown=EXCLUDE, many=(not single_transaction)
-            ),
+            EstimatedFeeSchema().load(res, many=not single_transaction),
         )
 
     async def estimate_message_fee(
@@ -598,7 +596,7 @@ class FullNodeClient(Client):
                 "index": index,
             },
         )
-        return cast(Transaction, TypesOfTransactionsSchema().load(res, unknown=EXCLUDE))
+        return cast(Transaction, TypesOfTransactionsSchema().load(res))
 
     async def get_block_transaction_count(
         self,
@@ -715,9 +713,7 @@ class FullNodeClient(Client):
                 "transaction_hash": _to_rpc_felt(tx_hash),
             },
         )
-        return cast(
-            TransactionTrace, TransactionTraceSchema().load(res, unknown=EXCLUDE)
-        )
+        return cast(TransactionTrace, TransactionTraceSchema().load(res))
 
     async def simulate_transactions(
         self,

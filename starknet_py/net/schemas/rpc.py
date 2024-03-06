@@ -506,7 +506,7 @@ class BlockHeaderSchema(Schema):
 
 class PendingStarknetBlockSchema(PendingBlockHeaderSchema):
     transactions = fields.List(
-        fields.Nested(TypesOfTransactionsSchema(unknown=EXCLUDE)),
+        fields.Nested(TypesOfTransactionsSchema()),
         data_key="transactions",
         required=True,
     )
@@ -519,7 +519,7 @@ class PendingStarknetBlockSchema(PendingBlockHeaderSchema):
 class StarknetBlockSchema(BlockHeaderSchema):
     status = BlockStatusField(data_key="status", required=True)
     transactions = fields.List(
-        fields.Nested(TypesOfTransactionsSchema(unknown=EXCLUDE)),
+        fields.Nested(TypesOfTransactionsSchema()),
         data_key="transactions",
         required=True,
     )
