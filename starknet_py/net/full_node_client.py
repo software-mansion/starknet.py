@@ -1,11 +1,7 @@
-import os
 from typing import List, Optional, Tuple, Union, cast
 
 import aiohttp
-from marshmallow import EXCLUDE, Schema
-
-if strategy := os.environ.get(key="RESPONSE_UNKNOWN_FIELDS_STRATEGY"):
-    Schema.Meta.unknown = strategy
+from marshmallow import EXCLUDE
 
 from starknet_py.constants import RPC_CONTRACT_ERROR
 from starknet_py.hash.utils import keccak256
@@ -362,9 +358,7 @@ class FullNodeClient(Client):
             method_name="getTransactionReceipt",
             params={"transaction_hash": _to_rpc_felt(tx_hash)},
         )
-        return cast(
-            TransactionReceipt, TransactionReceiptSchema().load(res)
-        )
+        return cast(TransactionReceipt, TransactionReceiptSchema().load(res))
 
     async def estimate_fee(
         self,
@@ -397,7 +391,7 @@ class FullNodeClient(Client):
         return cast(
             EstimatedFee,
             EstimatedFeeSchema().load(
-                res, many=(not single_transaction)
+                res, unknown=EXCLUDE, many=(not single_transaction)
             ),
         )
 
@@ -503,9 +497,7 @@ class FullNodeClient(Client):
             params={"invoke_transaction": params},
         )
 
-        return cast(
-            SentTransactionResponse, SentTransactionSchema().load(res)
-        )
+        return cast(SentTransactionResponse, SentTransactionSchema().load(res))
 
     async def deploy_account(
         self, transaction: DeployAccount
