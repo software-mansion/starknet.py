@@ -68,6 +68,10 @@ def _entry_points_array(entry_points: List[CasmClassEntryPoint]) -> List[int]:
     return entry_points_array
 
 
+# create_bytecode_segment_structure and _create_bytecode_segment_structure_inner are copied from
+# https://github.com/starkware-libs/cairo-lang/blob/v0.13.1/src/starkware/starknet/core/os/contract_class/compiled_class_hash.py
+
+
 def create_bytecode_segment_structure(
     bytecode: List[int],
     bytecode_segment_lengths: NestedIntList,

@@ -1,3 +1,6 @@
+# File is copied from
+# https://github.com/starkware-libs/cairo-lang/blob/v0.13.1/src/starkware/starknet/core/os/contract_class/compiled_class_hash_objects.py
+
 import dataclasses
 import itertools
 from abc import ABC, abstractmethod
