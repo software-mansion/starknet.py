@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import dataclasses
-import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import cached_property

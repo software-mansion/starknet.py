@@ -1,5 +1,4 @@
 # pylint: disable=redefined-outer-name
-import json
 from typing import Any, Dict, List, Optional, Tuple
 
 import pytest

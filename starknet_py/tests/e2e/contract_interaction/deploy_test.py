@@ -1,5 +1,4 @@
 import dataclasses
-import json
 import re
 from unittest.mock import Mock
 

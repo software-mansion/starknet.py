@@ -10,7 +10,6 @@ from enum import Enum
 from typing import Any, Iterable, List, Literal, Optional, Union, cast
 
 from marshmallow import EXCLUDE
-from typing_extensions import Literal
 
 from starknet_py.abi.v0.shape import AbiDictList
 from starknet_py.abi.v1.schemas import (
