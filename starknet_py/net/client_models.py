@@ -24,6 +24,8 @@ from starknet_py.abi.v2.shape import AbiDictEntry as AbiDictEntryV2
 from starknet_py.abi.v2.shape import AbiDictList as AbiDictListV2
 from starknet_py.utils.constructor_args_translator import _is_abi_v2
 
+# pylint: disable=too-many-lines
+
 Hash = Union[int, str]
 Tag = Literal["pending", "latest"]
 
