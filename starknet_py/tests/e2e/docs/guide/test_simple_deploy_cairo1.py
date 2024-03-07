@@ -41,7 +41,7 @@ async def test_simple_deploy_cairo1(account, cairo1_erc20_class_hash):
     deploy_result = await Contract.deploy_contract_v1(
         account=account,
         class_hash=class_hash,
-        abi=json.loads(abi),
+        abi=abi,
         constructor_args=constructor_args,
         max_fee=int(1e16),
         cairo_version=1,  # note the `cairo_version` parameter
