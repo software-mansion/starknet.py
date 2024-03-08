@@ -1,6 +1,37 @@
 Migration guide
 ===============
 
+******************************
+0.21.0 (alpha) Migration guide
+******************************
+
+Version 0.21.0 of **starknet.py** comes with support for RPC 0.7.0-rc2!
+
+0.21.0 Targeted versions
+------------------------
+
+- Starknet - `0.13.1 <https://docs.starknet.io/documentation/starknet_versions/version_notes/#version0.13.1>`_
+- RPC - `0.7.0-rc2 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.7.0-rc2>`_
+
+0.21.0 Breaking changes
+-----------------------
+
+.. currentmodule:: starknet_py.net.client_models
+
+1. :class:`PendingStarknetBlock` and :class:`PendingStarknetBlockWithTxHashes` field ``parent_block_hash`` has been renamed to ``parent_hash``
+2. :class:`StarknetBlockCommon` has been renamed to :class:`BlockHeader`
+3. :class:`StarknetBlock` and :class:`StarknetBlockWithTxHashes` fields ``parent_block_hash`` and ``root`` have been renamed to ``parent_hash`` and ``new_root`` respectively
+4. :class:`FunctionInvocation` field ``execution_resources`` has been renamed to ``computation_resources``
+
+0.21.0 Minor changes
+-----------------------
+
+1. :class:`EventsChunk` field ``events`` is now a list of :class:`EmittedEvent` instead of :class:`Event`
+2. :class:`ExecutionResources` has a new required field ``data_availability``
+3. :class:`InvokeTransactionTrace`, :class:`DeclareTransactionTrace` and :class:`DeployAccountTransactionTrace` have a new required field ``execution_resources``
+4. :class:`EstimatedFee` has new required fields ``data_gas_consumed`` and ``data_gas_price``
+5. :class:`StarknetBlock`, :class:`PendingStarknetBlock`, :class:`StarknetBlockWithTxHashes`, :class:`PendingStarknetBlockWithTxHashes` have new required fields ``l1_data_gas_price`` and ``l1_da_mode``
+
 **********************
 0.20.0 Migration guide
 **********************

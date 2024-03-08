@@ -19,12 +19,12 @@ async def test_simple_declare_and_deploy(account):
         account=account,
         compiled_contract=compiled_contract,
         compiled_contract_casm=compiled_contract_casm,
-        max_fee=int(1e16),
+        max_fee=int(1e18),
     )
     await declare_result.wait_for_acceptance()
 
     deploy_result = await declare_result.deploy_v1(
-        constructor_args=constructor_args, max_fee=int(1e16)
+        constructor_args=constructor_args, max_fee=int(1e18)
     )
     await deploy_result.wait_for_acceptance()
 

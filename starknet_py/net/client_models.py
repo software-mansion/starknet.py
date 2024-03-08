@@ -33,7 +33,7 @@ Calls = Union[Call, Iterable[Call]]
 @dataclass
 class Event:
     """
-    Dataclass representing an event emitted by transaction.
+    Dataclass representing a Starknet event.
     """
 
     from_address: int
@@ -42,12 +42,23 @@ class Event:
 
 
 @dataclass
+class EmittedEvent(Event):
+    """
+    Dataclass representing an event emitted by transaction.
+    """
+
+    transaction_hash: int
+    block_hash: Optional[int] = None
+    block_number: Optional[int] = None
+
+
+@dataclass
 class EventsChunk:
     """
     Dataclass representing events returned by FullNodeClient.get_events method.
     """
 
-    events: List[Event]
+    events: List[EmittedEvent]
     continuation_token: Optional[str] = None
 
 
@@ -129,6 +140,11 @@ class DAMode(Enum):
 
     L1 = 0
     L2 = 1
+
+
+class L1DAMode(Enum):
+    BLOB = "BLOB"
+    CALLDATA = "CALLDATA"
 
 
 class TransactionType(Enum):
@@ -347,23 +363,42 @@ class TransactionFinalityStatus(Enum):
 
 
 @dataclass
-class ExecutionResources:
+class DataResources:
     """
-    Dataclass representing the resources consumed by the transaction.
+    Dataclass representing the data-availability resources of the transaction
+    """
+
+    l1_gas: int
+    l1_data_gas: int
+
+
+@dataclass
+class ComputationResources:
+    """
+    Dataclass representing the resources consumed by the VM.
     """
 
     # pylint: disable=too-many-instance-attributes
 
     steps: int
-    range_check_builtin_applications: Optional[int] = None
-    pedersen_builtin_applications: Optional[int] = None
-    poseidon_builtin_applications: Optional[int] = None
-    ec_op_builtin_applications: Optional[int] = None
-    ecdsa_builtin_applications: Optional[int] = None
-    bitwise_builtin_applications: Optional[int] = None
-    keccak_builtin_applications: Optional[int] = None
-    memory_holes: Optional[int] = None
-    segment_arena_builtin: Optional[int] = None
+    memory_holes: Optional[int]
+    range_check_builtin_applications: Optional[int]
+    pedersen_builtin_applications: Optional[int]
+    poseidon_builtin_applications: Optional[int]
+    ec_op_builtin_applications: Optional[int]
+    ecdsa_builtin_applications: Optional[int]
+    bitwise_builtin_applications: Optional[int]
+    keccak_builtin_applications: Optional[int]
+    segment_arena_builtin: Optional[int]
+
+
+@dataclass
+class ExecutionResources(ComputationResources):
+    """
+    Dataclass representing the resources consumed by the transaction, includes both computation and data.
+    """
+
+    data_availability: DataResources
 
 
 # TODO (#1219): split into PendingTransactionReceipt and TransactionReceipt
@@ -385,14 +420,19 @@ class TransactionReceipt:
     events: List[Event] = field(default_factory=list)
     messages_sent: List[L2toL1Message] = field(default_factory=list)
 
-    contract_address: Optional[int] = None
-
     block_number: Optional[int] = None
     block_hash: Optional[int] = None
 
-    message_hash: Optional[int] = None  # L1_HANDLER_TXN_RECEIPT-only
+    contract_address: Optional[int] = None  # DEPLOY_ACCOUNT_TXN_RECEIPT only
+    message_hash: Optional[int] = None  # L1_HANDLER_TXN_RECEIPT only
 
     revert_reason: Optional[str] = None
+
+
+@dataclass
+class TransactionWithReceipt:
+    transaction: Transaction
+    receipt: TransactionReceipt
 
 
 @dataclass
@@ -432,58 +472,68 @@ class BlockStatus(Enum):
     REJECTED = "REJECTED"
     ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
     ACCEPTED_ON_L1 = "ACCEPTED_ON_L1"
-    PROVEN = "PROVEN"
 
 
 @dataclass
-class PendingStarknetBlock:
+class PendingBlockHeader:
+    parent_hash: int
+    timestamp: int
+    sequencer_address: int
+    l1_gas_price: ResourcePrice
+    l1_data_gas_price: ResourcePrice
+    l1_da_mode: L1DAMode
+    starknet_version: str
+
+
+@dataclass
+class PendingStarknetBlock(PendingBlockHeader):
     """
     Dataclass representing a pending block on Starknet.
     """
 
     transactions: List[Transaction]
-    parent_block_hash: int
-    timestamp: int
-    sequencer_address: int
-    l1_gas_price: ResourcePrice
-    starknet_version: str
 
 
 @dataclass
-class PendingStarknetBlockWithTxHashes:
+class PendingStarknetBlockWithTxHashes(PendingBlockHeader):
     """
     Dataclass representing a pending block on Starknet containing transaction hashes.
     """
 
     transactions: List[int]
-    parent_block_hash: int
-    timestamp: int
-    sequencer_address: int
-    l1_gas_price: ResourcePrice
-    starknet_version: str
 
 
 @dataclass
-class StarknetBlockCommon:
+class PendingStarknetBlockWithReceipts(PendingBlockHeader):
+    """
+    Dataclass representing a pending block on Starknet with txs and receipts result
+    """
+
+    transactions: List[TransactionWithReceipt]
+
+
+@dataclass
+class BlockHeader:
     """
     Dataclass representing a block header.
     """
 
-    # TODO (#1219): change that into composition
     # pylint: disable=too-many-instance-attributes
 
     block_hash: int
-    parent_block_hash: int
+    parent_hash: int
     block_number: int
-    root: int
+    new_root: int
     timestamp: int
     sequencer_address: int
     l1_gas_price: ResourcePrice
+    l1_data_gas_price: ResourcePrice
+    l1_da_mode: L1DAMode
     starknet_version: str
 
 
 @dataclass
-class StarknetBlock(StarknetBlockCommon):
+class StarknetBlock(BlockHeader):
     """
     Dataclass representing a block on Starknet.
     """
@@ -493,13 +543,23 @@ class StarknetBlock(StarknetBlockCommon):
 
 
 @dataclass
-class StarknetBlockWithTxHashes(StarknetBlockCommon):
+class StarknetBlockWithTxHashes(BlockHeader):
     """
     Dataclass representing a block on Starknet containing transaction hashes.
     """
 
     status: BlockStatus
     transactions: List[int]
+
+
+@dataclass
+class StarknetBlockWithReceipts(BlockHeader):
+    """
+    Dataclass representing a block on Starknet with txs and receipts result
+    """
+
+    status: BlockStatus
+    transactions: List[TransactionWithReceipt]
 
 
 @dataclass
@@ -544,9 +604,11 @@ class EstimatedFee:
     Dataclass representing estimated fee.
     """
 
-    overall_fee: int
-    gas_price: int
     gas_consumed: int
+    gas_price: int
+    data_gas_consumed: int
+    data_gas_price: int
+    overall_fee: int
     unit: PriceUnit
 
 
@@ -831,7 +893,7 @@ class FunctionInvocation:
     calls: List["FunctionInvocation"]
     events: List[OrderedEvent]
     messages: List[OrderedMessage]
-    execution_resources: ExecutionResources
+    computation_resources: ComputationResources
 
 
 @dataclass
@@ -850,6 +912,7 @@ class InvokeTransactionTrace:
     """
 
     execute_invocation: Union[FunctionInvocation, RevertedFunctionInvocation]
+    execution_resources: ExecutionResources
     validate_invocation: Optional[FunctionInvocation] = None
     fee_transfer_invocation: Optional[FunctionInvocation] = None
     state_diff: Optional[StateDiff] = None
@@ -861,6 +924,7 @@ class DeclareTransactionTrace:
     Dataclass representing a transaction trace of an DECLARE transaction.
     """
 
+    execution_resources: ExecutionResources
     validate_invocation: Optional[FunctionInvocation] = None
     fee_transfer_invocation: Optional[FunctionInvocation] = None
     state_diff: Optional[StateDiff] = None
@@ -873,6 +937,7 @@ class DeployAccountTransactionTrace:
     """
 
     constructor_invocation: FunctionInvocation
+    execution_resources: ExecutionResources
     validate_invocation: Optional[FunctionInvocation] = None
     fee_transfer_invocation: Optional[FunctionInvocation] = None
     state_diff: Optional[StateDiff] = None

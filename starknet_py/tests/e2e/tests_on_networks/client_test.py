@@ -6,14 +6,20 @@ import pytest
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
+    BlockHeader,
+    BlockStatus,
     Call,
     DAMode,
     DeclareTransactionV3,
     DeployAccountTransactionV3,
+    EmittedEvent,
     EstimatedFee,
     EventsChunk,
     InvokeTransactionV3,
+    PendingBlockHeader,
+    PendingStarknetBlockWithReceipts,
     ResourceBoundsMapping,
+    StarknetBlockWithReceipts,
     TransactionExecutionStatus,
     TransactionFinalityStatus,
     TransactionReceipt,
@@ -93,7 +99,7 @@ async def test_transaction_not_received_max_fee_too_small(account_goerli_testnet
     )
     sign_invoke = await account.sign_invoke_v1(calls=call, max_fee=int(1e10))
 
-    with pytest.raises(ClientError, match=r".*Max fee.*"):
+    with pytest.raises(ClientError, match=r".*MaxFeeTooLow.*"):
         await account.client.send_transaction(sign_invoke)
 
 
@@ -168,6 +174,8 @@ async def test_estimate_message_fee(client_goerli_integration):
     assert estimated_message.overall_fee > 0
     assert estimated_message.gas_price > 0
     assert estimated_message.gas_consumed > 0
+    assert estimated_message.data_gas_price > 0
+    assert estimated_message.data_gas_consumed >= 0
     assert estimated_message.unit is not None
 
 
@@ -359,18 +367,6 @@ async def test_get_block_with_tx_hashes_new_header_fields(client_goerli_testnet)
     assert pending_block.l1_gas_price.price_in_wei > 0
 
 
-@pytest.mark.asyncio
-async def test_get_tx_receipt_new_fields(client_goerli_testnet):
-    l1_handler_tx_hash = (
-        0xBEFE411182979262478CA8CA73BED724237D03D303CE420D94DE7664A78347
-    )
-    receipt = await client_goerli_testnet.get_transaction_receipt(
-        tx_hash=l1_handler_tx_hash
-    )
-
-    assert receipt.execution_resources is not None
-
-
 @pytest.mark.parametrize(
     "tx_hash, tx_type",
     [
@@ -425,6 +421,12 @@ async def test_get_events_sepolia_testnet(client_sepolia_testnet):
     assert isinstance(events_chunk, EventsChunk)
     assert len(events_chunk.events) == 10
     assert events_chunk.continuation_token is not None
+    assert isinstance(events_chunk.events[0], EmittedEvent)
+    assert events_chunk.events[0].block_number == 1000
+    assert events_chunk.events[0].block_hash is not None
+    assert events_chunk.events[0].from_address is not None
+    assert events_chunk.events[0].data is not None
+    assert events_chunk.events[0].keys is not None
 
 
 @pytest.mark.asyncio
@@ -434,6 +436,7 @@ async def test_get_tx_receipt_with_execution_resources(client_sepolia_integratio
     )
 
     assert receipt.execution_resources is not None
+    assert receipt.execution_resources.data_availability is not None
     assert receipt.execution_resources.steps is not None
     assert receipt.execution_resources.segment_arena_builtin is not None
     assert receipt.execution_resources.bitwise_builtin_applications is not None
@@ -441,3 +444,32 @@ async def test_get_tx_receipt_with_execution_resources(client_sepolia_integratio
     assert receipt.execution_resources.memory_holes is not None
     assert receipt.execution_resources.pedersen_builtin_applications is not None
     assert receipt.execution_resources.range_check_builtin_applications is not None
+
+
+@pytest.mark.asyncio
+async def test_get_block_with_receipts(client_goerli_integration):
+    block_with_receipts = await client_goerli_integration.get_block_with_receipts(
+        block_number=329520
+    )
+
+    assert isinstance(block_with_receipts, StarknetBlockWithReceipts)
+    assert block_with_receipts.status == BlockStatus.ACCEPTED_ON_L1
+    assert len(block_with_receipts.transactions) == 4
+    assert all(
+        getattr(block_with_receipts, field.name) is not None
+        for field in dataclasses.fields(BlockHeader)
+    )
+
+
+@pytest.mark.asyncio
+async def test_get_pending_block_with_receipts(client_goerli_integration):
+    block_with_receipts = await client_goerli_integration.get_block_with_receipts(
+        block_number="pending"
+    )
+
+    assert isinstance(block_with_receipts, PendingStarknetBlockWithReceipts)
+    assert len(block_with_receipts.transactions) >= 0
+    assert all(
+        getattr(block_with_receipts, field.name) is not None
+        for field in dataclasses.fields(PendingBlockHeader)
+    )
