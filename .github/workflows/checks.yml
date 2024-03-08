@@ -2,6 +2,7 @@ name: Checks
 
 env:
   DEVNET_SHA: "c6ffb99"
+  CAIRO_LANG_VERSION: "0.13.1"
 
 on:
   push:
@@ -86,7 +87,7 @@ jobs:
       - name: Install deprecated cairo compiler
         run: |
           pip install --upgrade setuptools
-          pip install cairo-lang==0.13.1
+          pip install cairo-lang==${{ env.CAIRO_LANG_VERSION }}
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
@@ -105,7 +106,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: starknet_py/tests/e2e/mock/contracts_compiled
-          key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts', 'poetry.lock') }}
+          key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts', 'poetry.lock') }}-${{ env.CAIRO_LANG_VERSION }}
 
       - name: Compile contracts
         if: steps.cache-contracts.outputs.cache-hit != 'true'
