@@ -1,0 +1,1 @@
+${{ env.GITHUB_WORKSPACE }}/cairo/Cargo.toml

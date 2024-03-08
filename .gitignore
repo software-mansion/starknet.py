@@ -147,6 +147,9 @@ cython_debug/
 
 # Compiled contracts
 /starknet_py/tests/e2e/mock/contracts_compiled/*
+/starknet_py/tests/e2e/mock/contracts_compiled_v1/*
+/starknet_py/tests/e2e/mock/contracts_compiled_v2/*
+/starknet_py/tests/e2e/mock/contracts_compiled_v2_6/*
 
 # Allow precompiled contracts
 !/starknet_py/tests/e2e/mock/contracts_compiled/precompiled/
