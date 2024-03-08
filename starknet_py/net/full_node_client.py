@@ -716,7 +716,7 @@ class FullNodeClient(Client):
         res = await self._client.call(
             method_name="traceTransaction",
             params={
-                "transaction_hash": tx_hash,
+                "transaction_hash": _to_rpc_felt(tx_hash),
             },
         )
         return cast(

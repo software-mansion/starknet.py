@@ -863,7 +863,7 @@ class FunctionInvocationSchema(Schema):
         fields.Nested(OrderedEventSchema()), data_key="events", required=True
     )
     messages = fields.List(
-        fields.Nested(L2toL1MessageSchema()), data_key="messages", required=True
+        fields.Nested(OrderedMessageSchema()), data_key="messages", required=True
     )
     computation_resources = fields.Nested(
         ComputationResourcesSchema(), data_key="execution_resources", required=True
