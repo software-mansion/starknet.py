@@ -9,6 +9,7 @@ from starknet_py.net.client_models import (
     CallType,
     DAMode,
     EntryPointType,
+    L1DAMode,
     PriceUnit,
     StorageEntry,
     TransactionExecutionStatus,
@@ -268,6 +269,25 @@ class CallTypeField(fields.Field):
             raise ValidationError(f"Invalid value provided for CallType: {value}.")
 
         return CallType(value)
+
+
+class L1DAModeField(fields.Field):
+    def _serialize(self, value: Any, attr: str, obj: Any, **kwargs):
+        return value.name if value is not None else ""
+
+    def _deserialize(
+        self,
+        value: Any,
+        attr: Optional[str],
+        data: Optional[Mapping[str, Any]],
+        **kwargs,
+    ) -> L1DAMode:
+        values = [v.value for v in L1DAMode]
+
+        if value not in values:
+            raise ValidationError(f"Invalid value provided for L1DAMode: {value}.")
+
+        return L1DAMode(value)
 
 
 class PriceUnitField(fields.Field):

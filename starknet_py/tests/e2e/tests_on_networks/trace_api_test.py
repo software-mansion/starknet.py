@@ -2,6 +2,7 @@ import pytest
 
 from starknet_py.net.client_models import (
     DeclareTransactionTrace,
+    DeclareTransactionV1,
     DeclareTransactionV2,
     DeployAccountTransactionTrace,
     DeployAccountTransactionV1,
@@ -21,79 +22,84 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
 @pytest.mark.asyncio
-async def test_trace_transaction(client_goerli_testnet):
+async def test_trace_transaction(client_goerli_integration):
     tx_to_trace: dict[type[Transaction], type[TransactionTrace]] = {
         InvokeTransactionV0: InvokeTransactionTrace,
         InvokeTransactionV1: InvokeTransactionTrace,
+        DeclareTransactionV1: DeclareTransactionTrace,
         DeclareTransactionV2: DeclareTransactionTrace,
         DeployAccountTransactionV1: DeployAccountTransactionTrace,
         L1HandlerTransaction: L1HandlerTransactionTrace,
     }
-    block = await client_goerli_testnet.get_block(block_number=600000)
+    block = await client_goerli_integration.get_block(block_number=319080)
 
     for tx in block.transactions:
-        trace = await client_goerli_testnet.trace_transaction(tx_hash=tx.hash)
-        tx = await client_goerli_testnet.get_transaction(tx_hash=tx.hash)
+        trace = await client_goerli_integration.trace_transaction(tx_hash=tx.hash)
+        tx = await client_goerli_integration.get_transaction(tx_hash=tx.hash)
         assert tx_to_trace[type(tx)] == type(trace)
 
 
 @pytest.mark.asyncio
-async def test_trace_transaction_invoke(client_goerli_testnet):
-    invoke_tx_hash = 0xDC6B381884866DD6C4ACCDE75AA1FA7506E6B57612D3D3659F7B919EA07D7C
-    trace = await client_goerli_testnet.trace_transaction(tx_hash=invoke_tx_hash)
+async def test_trace_transaction_invoke(client_goerli_integration):
+    invoke_tx_hash = 0x05C3407F664E9A95A809FA0E0EB35C941863D280F30F73E292DA2F06779F7C59
+    trace = await client_goerli_integration.trace_transaction(tx_hash=invoke_tx_hash)
 
     assert type(trace) is InvokeTransactionTrace
     assert trace.execute_invocation is not None
+    assert trace.execution_resources is not None
 
 
 @pytest.mark.asyncio
-async def test_trace_transaction_declare(client_goerli_testnet):
-    declare_tx_hash = 0x62DD22627065568C6E4BD619C511217456B5A82ACBDEAD7C3B5DFFF92209451
-    trace = await client_goerli_testnet.trace_transaction(tx_hash=declare_tx_hash)
+async def test_trace_transaction_declare(client_goerli_integration):
+    declare_tx_hash = 0x05C2B2EE93E7BD33B911AFC822289EED2AE3A3B27CAECF92D7F793C5379C13D6
+    trace = await client_goerli_integration.trace_transaction(tx_hash=declare_tx_hash)
 
     assert type(trace) is DeclareTransactionTrace
+    assert trace.execution_resources is not None
 
 
 @pytest.mark.asyncio
-async def test_trace_transaction_deploy_account(client_goerli_testnet):
+async def test_trace_transaction_deploy_account(client_goerli_integration):
     deploy_account_tx_hash = (
-        0x7AD24E5D266CE371EC88C1AE537A92109E8AF637C35673B6D459082431AF7B
+        0x0270E24EA145B0A6022D0C50A97598B3BDCAB812BCCC24A97FFBB4365F90962C
     )
-    trace = await client_goerli_testnet.trace_transaction(
+    trace = await client_goerli_integration.trace_transaction(
         tx_hash=deploy_account_tx_hash
     )
 
     assert type(trace) is DeployAccountTransactionTrace
     assert trace.constructor_invocation is not None
+    assert trace.execution_resources is not None
 
 
 @pytest.mark.asyncio
-async def test_trace_transaction_l1_handler(client_goerli_testnet):
+async def test_trace_transaction_l1_handler(client_goerli_integration):
     l1_handler_tx_hash = (
-        0x6712D5CF540C1C2E51C03D6238F71CF86607F681669AF586CD2EB8A92AF68AC
+        0x04D54ACFEDB65334C2D8C4DB67E320E2ACA692412FD0E1311846FFCA568EFFAD
     )
-    trace = await client_goerli_testnet.trace_transaction(tx_hash=l1_handler_tx_hash)
+    trace = await client_goerli_integration.trace_transaction(
+        tx_hash=l1_handler_tx_hash
+    )
 
     assert type(trace) is L1HandlerTransactionTrace
     assert trace.function_invocation is not None
 
 
 @pytest.mark.asyncio
-async def test_trace_transaction_reverted(client_goerli_testnet):
-    tx_hash = "0x604371f9414d26ad9e745301596de1d1219c1045f00c68d3be9bd195eb18632"
-    trace = await client_goerli_testnet.trace_transaction(tx_hash=tx_hash)
+async def test_trace_transaction_reverted(client_goerli_integration):
+    tx_hash = 0x0306673636C16CD3EC686EDCF24383D50099CD66C91CC89EC904AC8882BFB30C
+    trace = await client_goerli_integration.trace_transaction(tx_hash=tx_hash)
 
     assert isinstance(trace.execute_invocation, RevertedFunctionInvocation)
 
 
 @pytest.mark.asyncio
-async def test_get_block_traces(client_goerli_testnet):
-    # 800002 because I guess sometimes juno doesn't return valid transactions/parses input wrong
-    block_number = 800006
-    block_transaction_traces = await client_goerli_testnet.trace_block_transactions(
+async def test_get_block_traces(client_goerli_integration):
+    block_number = 329180
+    block_transaction_traces = await client_goerli_integration.trace_block_transactions(
         block_number=block_number
     )
-    block = await client_goerli_testnet.get_block(block_number=block_number)
+    block = await client_goerli_integration.get_block(block_number=block_number)
 
     assert len(block_transaction_traces) == len(block.transactions)
     for i in range(len(block_transaction_traces)):

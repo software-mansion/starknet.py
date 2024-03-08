@@ -456,6 +456,7 @@ async def test_simulate_transactions_invoke(account, deployed_balance_contract):
     assert isinstance(simulated_txs[0], SimulatedTransaction)
     assert isinstance(simulated_txs[0].transaction_trace, InvokeTransactionTrace)
     assert simulated_txs[0].transaction_trace.execute_invocation is not None
+    assert simulated_txs[0].transaction_trace.execution_resources is not None
 
     invoke_tx = await account.sign_invoke_v1(calls=[call, call], auto_estimate=True)
     simulated_txs = await account.client.simulate_transactions(
@@ -465,6 +466,7 @@ async def test_simulate_transactions_invoke(account, deployed_balance_contract):
     assert isinstance(simulated_txs[0].transaction_trace, InvokeTransactionTrace)
     assert simulated_txs[0].transaction_trace.validate_invocation is not None
     assert simulated_txs[0].transaction_trace.execute_invocation is not None
+    assert simulated_txs[0].transaction_trace.execution_resources is not None
 
 
 @pytest.mark.asyncio
@@ -481,6 +483,7 @@ async def test_simulate_transactions_declare(account):
     assert isinstance(simulated_txs[0].transaction_trace, DeclareTransactionTrace)
     assert simulated_txs[0].fee_estimation.overall_fee > 0
     assert simulated_txs[0].transaction_trace.validate_invocation is not None
+    assert simulated_txs[0].transaction_trace.execution_resources is not None
 
 
 @pytest.mark.asyncio
@@ -518,10 +521,12 @@ async def test_simulate_transactions_two_txs(account, deployed_balance_contract)
     assert simulated_txs[0].fee_estimation.overall_fee > 0
     assert simulated_txs[0].transaction_trace.validate_invocation is not None
     assert simulated_txs[0].transaction_trace.execute_invocation is not None
+    assert simulated_txs[0].transaction_trace.execution_resources is not None
 
     assert isinstance(simulated_txs[1].transaction_trace, DeclareTransactionTrace)
     assert simulated_txs[1].fee_estimation.overall_fee > 0
     assert simulated_txs[1].transaction_trace.validate_invocation is not None
+    assert simulated_txs[1].transaction_trace.execution_resources is not None
 
 
 @pytest.mark.asyncio
@@ -555,3 +560,4 @@ async def test_simulate_transactions_deploy_account(
     assert isinstance(simulated_txs[0].transaction_trace, DeployAccountTransactionTrace)
     assert simulated_txs[0].fee_estimation.overall_fee > 0
     assert simulated_txs[0].transaction_trace.constructor_invocation is not None
+    assert simulated_txs[0].transaction_trace.execution_resources is not None

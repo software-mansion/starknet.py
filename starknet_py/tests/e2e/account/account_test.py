@@ -79,6 +79,7 @@ async def test_estimated_fee_greater_than_zero(account, erc20_contract):
     assert estimated_fee.overall_fee > 0
     assert (
         estimated_fee.gas_price * estimated_fee.gas_consumed
+        + estimated_fee.data_gas_price * estimated_fee.data_gas_consumed
         == estimated_fee.overall_fee
     )
 
@@ -94,7 +95,8 @@ async def test_estimate_fee_for_declare_transaction(account, map_compiled_contra
     assert isinstance(estimated_fee.overall_fee, int)
     assert estimated_fee.overall_fee > 0
     assert (
-        estimated_fee.gas_consumed * estimated_fee.gas_price
+        estimated_fee.gas_price * estimated_fee.gas_consumed
+        + estimated_fee.data_gas_price * estimated_fee.data_gas_consumed
         == estimated_fee.overall_fee
     )
 
@@ -113,7 +115,8 @@ async def test_account_estimate_fee_for_declare_transaction(
     assert isinstance(estimated_fee.overall_fee, int)
     assert estimated_fee.overall_fee > 0
     assert (
-        estimated_fee.gas_consumed * estimated_fee.gas_price
+        estimated_fee.gas_price * estimated_fee.gas_consumed
+        + estimated_fee.data_gas_price * estimated_fee.data_gas_consumed
         == estimated_fee.overall_fee
     )
 
@@ -143,6 +146,7 @@ async def test_account_estimate_fee_for_transactions(
     assert estimated_fee[0].overall_fee > 0
     assert (
         estimated_fee[0].gas_consumed * estimated_fee[0].gas_price
+        + estimated_fee[0].data_gas_consumed * estimated_fee[0].data_gas_price
         == estimated_fee[0].overall_fee
     )
 
@@ -786,7 +790,7 @@ async def test_argent_cairo1_account_deploy(
         client=client,
         constructor_calldata=[key_pair.public_key, 0],
         chain=StarknetChainId.GOERLI,
-        max_fee=int(1e16),
+        max_fee=MAX_FEE,
     )
     await deploy_result.wait_for_acceptance()
     account = deploy_result.account
@@ -825,7 +829,7 @@ async def test_argent_cairo1_account_execute(
         calldata=[value],
     )
     execute = await argent_cairo1_account.execute_v1(
-        calls=increase_balance_by_20_call, max_fee=int(1e16)
+        calls=increase_balance_by_20_call, max_fee=MAX_FEE
     )
     await argent_cairo1_account.client.wait_for_tx(tx_hash=execute.transaction_hash)
     receipt = await argent_cairo1_account.client.get_transaction_receipt(

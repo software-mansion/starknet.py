@@ -1,9 +1,7 @@
 name: Checks
 
 env:
-  STARKNET_VERSION: "0.13.0"
-  RPC_SPEC_VERSION: "0.6.0"
-  DEVNET_SHA: "1bd447d"
+  DEVNET_SHA: "c6ffb99"
 
 on:
   push:

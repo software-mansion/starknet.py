@@ -1,3 +1,5 @@
+# pylint: disable=too-many-lines
+
 from marshmallow import EXCLUDE, Schema, fields, post_load
 from marshmallow_oneofschema import OneOfSchema
 
@@ -6,9 +8,11 @@ from starknet_py.net.client_models import (
     BlockHashAndNumber,
     BlockStateUpdate,
     BlockTransactionTrace,
+    ComputationResources,
     ContractClass,
     ContractsNonce,
     DAMode,
+    DataResources,
     DeclaredContractHash,
     DeclareTransactionResponse,
     DeclareTransactionTrace,
@@ -42,6 +46,7 @@ from starknet_py.net.client_models import (
     OrderedMessage,
     PendingBlockStateUpdate,
     PendingStarknetBlock,
+    PendingStarknetBlockWithReceipts,
     PendingStarknetBlockWithTxHashes,
     ReplacedClass,
     ResourceBounds,
@@ -54,12 +59,14 @@ from starknet_py.net.client_models import (
     SierraEntryPointsByType,
     SimulatedTransaction,
     StarknetBlock,
+    StarknetBlockWithReceipts,
     StarknetBlockWithTxHashes,
     StateDiff,
     StorageDiffItem,
     SyncStatus,
     TransactionReceipt,
     TransactionStatusResponse,
+    TransactionWithReceipt,
 )
 from starknet_py.net.schemas.common import (
     BlockStatusField,
@@ -69,6 +76,7 @@ from starknet_py.net.schemas.common import (
     ExecutionStatusField,
     Felt,
     FinalityStatusField,
+    L1DAModeField,
     NonPrefixedHex,
     NumberAsHex,
     PriceUnitField,
@@ -126,8 +134,18 @@ class L2toL1MessageSchema(Schema):
         return L2toL1Message(**data)
 
 
-class ExecutionResourcesSchema(Schema):
+class DataResourcesSchema(Schema):
+    l1_gas = fields.Integer(data_key="l1_gas", required=True)
+    l1_data_gas = fields.Integer(data_key="l1_data_gas", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> DataResources:
+        return DataResources(**data)
+
+
+class ComputationResourcesSchema(Schema):
     steps = fields.Integer(data_key="steps", required=True)
+    memory_holes = fields.Integer(data_key="memory_holes", load_default=None)
     range_check_builtin_applications = fields.Integer(
         data_key="range_check_builtin_applications", load_default=None
     )
@@ -152,7 +170,16 @@ class ExecutionResourcesSchema(Schema):
     segment_arena_builtin = fields.Integer(
         data_key="segment_arena_builtin", load_default=None
     )
-    memory_holes = fields.Integer(data_key="memory_holes", load_default=None)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> ComputationResources:
+        return ComputationResources(**data)
+
+
+class ExecutionResourcesSchema(ComputationResourcesSchema):
+    data_availability = fields.Nested(
+        DataResourcesSchema(), data_key="data_availability", required=True
+    )
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> ExecutionResources:
@@ -195,13 +222,15 @@ class TransactionReceiptSchema(Schema):
 
 
 class EstimatedFeeSchema(Schema):
-    overall_fee = Felt(data_key="overall_fee", required=True)
-    gas_price = Felt(data_key="gas_price", required=True)
     gas_consumed = Felt(data_key="gas_consumed", required=True)
+    gas_price = Felt(data_key="gas_price", required=True)
+    data_gas_consumed = Felt(data_key="data_gas_consumed", required=True)
+    data_gas_price = Felt(data_key="data_gas_price", required=True)
+    overall_fee = Felt(data_key="overall_fee", required=True)
     unit = PriceUnitField(data_key="unit", required=True)
 
     @post_load
-    def make_dataclass(self, data, **kwargs):
+    def make_dataclass(self, data, **kwargs) -> EstimatedFee:
         return EstimatedFee(**data)
 
 
@@ -444,41 +473,55 @@ class TypesOfTransactionsSchema(OneOfSchema):
     }
 
 
-class PendingStarknetBlockSchema(Schema):
-    parent_block_hash = Felt(data_key="parent_hash", required=True)
+class PendingBlockHeaderSchema(Schema):
+    parent_hash = Felt(data_key="parent_hash", required=True)
+    timestamp = fields.Integer(data_key="timestamp", required=True)
     sequencer_address = Felt(data_key="sequencer_address", required=True)
+    l1_gas_price = fields.Nested(
+        ResourcePriceSchema(), data_key="l1_gas_price", required=True
+    )
+    l1_data_gas_price = fields.Nested(
+        ResourcePriceSchema(), data_key="l1_data_gas_price", required=True
+    )
+    l1_da_mode = L1DAModeField(data_key="l1_da_mode", required=True)
+    starknet_version = fields.String(data_key="starknet_version", required=True)
+
+
+class BlockHeaderSchema(Schema):
+    block_hash = Felt(data_key="block_hash", required=True)
+    parent_hash = Felt(data_key="parent_hash", required=True)
+    block_number = fields.Integer(data_key="block_number", required=True)
+    new_root = Felt(data_key="new_root", required=True)
+    timestamp = fields.Integer(data_key="timestamp", required=True)
+    sequencer_address = Felt(data_key="sequencer_address", required=True)
+    l1_gas_price = fields.Nested(
+        ResourcePriceSchema(), data_key="l1_gas_price", required=True
+    )
+    l1_data_gas_price = fields.Nested(
+        ResourcePriceSchema(), data_key="l1_data_gas_price", required=True
+    )
+    l1_da_mode = L1DAModeField(data_key="l1_da_mode", required=True)
+    starknet_version = fields.String(data_key="starknet_version", required=True)
+
+
+class PendingStarknetBlockSchema(PendingBlockHeaderSchema):
     transactions = fields.List(
         fields.Nested(TypesOfTransactionsSchema(unknown=EXCLUDE)),
         data_key="transactions",
         required=True,
     )
-    timestamp = fields.Integer(data_key="timestamp", required=True)
-    l1_gas_price = fields.Nested(
-        ResourcePriceSchema(), data_key="l1_gas_price", required=True
-    )
-    starknet_version = fields.String(data_key="starknet_version", required=True)
 
     @post_load
-    def make_dataclass(self, data, **kwargs):
+    def make_dataclass(self, data, **kwargs) -> PendingStarknetBlock:
         return PendingStarknetBlock(**data)
 
 
-class StarknetBlockSchema(Schema):
-    block_hash = Felt(data_key="block_hash", required=True)
-    parent_block_hash = Felt(data_key="parent_hash", required=True)
-    block_number = fields.Integer(data_key="block_number", required=True)
-    sequencer_address = Felt(data_key="sequencer_address", required=True)
+class StarknetBlockSchema(BlockHeaderSchema):
     status = BlockStatusField(data_key="status", required=True)
-    root = NonPrefixedHex(data_key="new_root", required=True)
     transactions = fields.List(
         fields.Nested(TypesOfTransactionsSchema(unknown=EXCLUDE)),
         data_key="transactions",
         required=True,
-    )
-    timestamp = fields.Integer(data_key="timestamp", required=True)
-    starknet_version = fields.String(data_key="starknet_version", required=True)
-    l1_gas_price = fields.Nested(
-        ResourcePriceSchema(), data_key="l1_gas_price", required=True
     )
 
     @post_load
@@ -486,23 +529,35 @@ class StarknetBlockSchema(Schema):
         return StarknetBlock(**data)
 
 
-class StarknetBlockWithTxHashesSchema(Schema):
-    block_hash = Felt(data_key="block_hash", required=True)
-    parent_block_hash = Felt(data_key="parent_hash", required=True)
-    block_number = fields.Integer(data_key="block_number", required=True)
-    sequencer_address = Felt(data_key="sequencer_address", required=True)
+class StarknetBlockWithTxHashesSchema(BlockHeaderSchema):
     status = BlockStatusField(data_key="status", required=True)
-    root = NonPrefixedHex(data_key="new_root", required=True)
     transactions = fields.List(Felt(), data_key="transactions", required=True)
-    timestamp = fields.Integer(data_key="timestamp", required=True)
-    starknet_version = fields.String(data_key="starknet_version", required=True)
-    l1_gas_price = fields.Nested(
-        ResourcePriceSchema(), data_key="l1_gas_price", required=True
-    )
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> StarknetBlockWithTxHashes:
         return StarknetBlockWithTxHashes(**data)
+
+
+class TransactionWithReceiptSchema(Schema):
+    transaction = fields.Nested(TypesOfTransactionsSchema(), data_key="transaction")
+    receipt = fields.Nested(TransactionReceiptSchema(), data_key="receipt")
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> TransactionWithReceipt:
+        return TransactionWithReceipt(**data)
+
+
+class StarknetBlockWithReceiptsSchema(BlockHeaderSchema):
+    status = BlockStatusField(data_key="status", required=True)
+    transactions = fields.List(
+        fields.Nested(TransactionWithReceiptSchema()),
+        data_key="transactions",
+        required=True,
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> StarknetBlockWithReceipts:
+        return StarknetBlockWithReceipts(**data)
 
 
 class BlockHashAndNumberSchema(Schema):
@@ -527,15 +582,20 @@ class SyncStatusSchema(Schema):
         return SyncStatus(**data)
 
 
-class PendingStarknetBlockWithTxHashesSchema(Schema):
-    parent_block_hash = Felt(data_key="parent_hash", required=True)
-    sequencer_address = Felt(data_key="sequencer_address", required=True)
-    transactions = fields.List(Felt(), data_key="transactions", required=True)
-    timestamp = fields.Integer(data_key="timestamp", required=True)
-    starknet_version = fields.String(data_key="starknet_version", required=True)
-    l1_gas_price = fields.Nested(
-        ResourcePriceSchema(), data_key="l1_gas_price", required=True
+class PendingStarknetBlockWithReceiptsSchema(PendingBlockHeaderSchema):
+    transactions = fields.List(
+        fields.Nested(TransactionWithReceiptSchema()),
+        data_key="transactions",
+        required=True,
     )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> PendingStarknetBlockWithReceipts:
+        return PendingStarknetBlockWithReceipts(**data)
+
+
+class PendingStarknetBlockWithTxHashesSchema(PendingBlockHeaderSchema):
+    transactions = fields.List(Felt(), data_key="transactions", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> PendingStarknetBlockWithTxHashes:
@@ -803,10 +863,10 @@ class FunctionInvocationSchema(Schema):
         fields.Nested(OrderedEventSchema()), data_key="events", required=True
     )
     messages = fields.List(
-        fields.Nested(L2toL1MessageSchema()), data_key="messages", required=True
+        fields.Nested(OrderedMessageSchema()), data_key="messages", required=True
     )
-    execution_resources = fields.Nested(
-        ExecutionResourcesSchema(), data_key="execution_resources", required=True
+    computation_resources = fields.Nested(
+        ComputationResourcesSchema(), data_key="execution_resources", required=True
     )
 
     @post_load
@@ -838,6 +898,9 @@ class InvokeTransactionTraceSchema(Schema):
     execute_invocation = fields.Nested(
         ExecuteInvocationSchema(), data_key="execute_invocation", required=True
     )
+    execution_resources = fields.Nested(
+        ExecutionResourcesSchema(), data_key="execution_resources", required=True
+    )
     validate_invocation = fields.Nested(
         FunctionInvocationSchema(), data_key="validate_invocation", load_default=None
     )
@@ -856,6 +919,9 @@ class InvokeTransactionTraceSchema(Schema):
 
 
 class DeclareTransactionTraceSchema(Schema):
+    execution_resources = fields.Nested(
+        ExecutionResourcesSchema(), data_key="execution_resources", required=True
+    )
     validate_invocation = fields.Nested(
         FunctionInvocationSchema(), data_key="validate_invocation", load_default=None
     )
@@ -876,6 +942,9 @@ class DeclareTransactionTraceSchema(Schema):
 class DeployAccountTransactionTraceSchema(Schema):
     constructor_invocation = fields.Nested(
         FunctionInvocationSchema(), data_key="constructor_invocation", required=True
+    )
+    execution_resources = fields.Nested(
+        ExecutionResourcesSchema(), data_key="execution_resources", required=True
     )
     validate_invocation = fields.Nested(
         FunctionInvocationSchema(), data_key="validate_invocation", load_default=None
