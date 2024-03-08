@@ -130,7 +130,7 @@ jobs:
         with:
           repository: starkware-libs/cairo
           path: cairo_v2
-          ref: 1a4ccb01f6fb0a74bfc23238ca1088fe2659d087
+          ref: 87570bdf92ab146aca518fa6424b6fb9a4d18507
 
       - name: Create text file
         run: |
