@@ -16,7 +16,6 @@ from starknet_py.net.client_models import (
     EstimatedFee,
     EventsChunk,
     InvokeTransactionV3,
-    L1DAMode,
     PendingBlockHeader,
     PendingStarknetBlockWithReceipts,
     ResourceBoundsMapping,
@@ -100,7 +99,7 @@ async def test_transaction_not_received_max_fee_too_small(account_goerli_testnet
     )
     sign_invoke = await account.sign_invoke_v1(calls=call, max_fee=int(1e10))
 
-    with pytest.raises(ClientError, match=r".*Max fee.*"):
+    with pytest.raises(ClientError, match=r".*MaxFeeTooLow.*"):
         await account.client.send_transaction(sign_invoke)
 
 
