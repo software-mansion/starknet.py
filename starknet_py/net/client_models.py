@@ -420,12 +420,11 @@ class TransactionReceipt:
     events: List[Event] = field(default_factory=list)
     messages_sent: List[L2toL1Message] = field(default_factory=list)
 
-    contract_address: Optional[int] = None
-
     block_number: Optional[int] = None
     block_hash: Optional[int] = None
 
-    message_hash: Optional[int] = None  # L1_HANDLER_TXN_RECEIPT-only
+    contract_address: Optional[int] = None  # DEPLOY_ACCOUNT_TXN_RECEIPT only
+    message_hash: Optional[int] = None  # L1_HANDLER_TXN_RECEIPT only
 
     revert_reason: Optional[str] = None
 
