@@ -5,7 +5,7 @@ Migration guide
 0.21.0 (alpha) Migration guide
 ******************************
 
-Version 0.21.0 of **starknet.py** comes with support for RPC 0.7.0!
+Version 0.21.0 of **starknet.py** comes with support for RPC 0.7.0-rc2!
 
 0.21.0 Targeted versions
 ------------------------
