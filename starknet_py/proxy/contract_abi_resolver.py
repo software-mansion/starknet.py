@@ -152,7 +152,7 @@ class ContractAbiResolver:
         return (
             cast(AbiDictList, contract_class.abi)
             if isinstance(contract_class, ContractClass)
-            else json.loads(cast(str, contract_class.raw_abi))
+            else json.loads(cast(str, contract_class.abi))
         )
 
     async def _get_implementation_from_proxy(

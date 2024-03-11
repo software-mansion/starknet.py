@@ -96,7 +96,9 @@ async def test_throws_on_wrong_abi(account, cairo1_minimal_contract_class_hash: 
 @pytest.mark.asyncio
 async def test_deploy_contract_v1(account, cairo1_hello_starknet_class_hash: int):
     compiled_contract = read_contract("hello_starknet_compiled.json")
-    abi = create_sierra_compiled_contract(compiled_contract=compiled_contract).abi
+    abi = create_sierra_compiled_contract(
+        compiled_contract=compiled_contract
+    ).parsed_abi
 
     deploy_result = await Contract.deploy_contract_v1(
         class_hash=cairo1_hello_starknet_class_hash,
@@ -124,7 +126,9 @@ async def test_deploy_contract_v1(account, cairo1_hello_starknet_class_hash: int
 @pytest.mark.asyncio
 async def test_deploy_contract_v3(account, cairo1_hello_starknet_class_hash: int):
     compiled_contract = read_contract("hello_starknet_compiled.json")
-    abi = create_sierra_compiled_contract(compiled_contract=compiled_contract).abi
+    abi = create_sierra_compiled_contract(
+        compiled_contract=compiled_contract
+    ).parsed_abi
 
     deploy_result = await Contract.deploy_contract_v3(
         class_hash=cairo1_hello_starknet_class_hash,

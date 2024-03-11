@@ -776,14 +776,14 @@ class SierraContractClass:
     contract_class_version: str
     sierra_program: List[str]
     entry_points_by_type: SierraEntryPointsByType
-    raw_abi: Optional[str] = None
+    abi: Optional[str] = None
 
     @property
-    def abi(self) -> Union[AbiDictListV2, AbiDictListV1]:
-        if self.raw_abi is None:
+    def parsed_abi(self) -> Union[AbiDictListV2, AbiDictListV1]:
+        if self.abi is None:
             return []
 
-        load_abi: List = json.loads(self.raw_abi)
+        load_abi: List = json.loads(self.abi)
 
         if _is_abi_v2(load_abi):
             return [
@@ -806,7 +806,7 @@ class SierraCompiledContract(SierraContractClass):
     Dataclass representing SierraContractClass with required abi.
     """
 
-    raw_abi: str = field(default_factory=str)
+    abi: str = field(default_factory=str)
 
 
 @dataclass

@@ -773,7 +773,7 @@ class SierraContractClassSchema(Schema):
     entry_points_by_type = fields.Nested(
         SierraEntryPointsByTypeSchema(), data_key="entry_points_by_type", required=True
     )
-    raw_abi = fields.String(data_key="abi", required=False)
+    abi = fields.String(data_key="abi", required=False)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> SierraContractClass:

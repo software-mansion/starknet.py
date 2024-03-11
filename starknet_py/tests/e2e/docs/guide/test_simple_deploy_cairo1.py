@@ -27,7 +27,9 @@ async def test_simple_deploy_cairo1(account, cairo1_erc20_class_hash):
     class_hash = cairo1_erc20_class_hash
 
     # docs: start
-    abi = create_sierra_compiled_contract(compiled_contract=compiled_contract).abi
+    abi = create_sierra_compiled_contract(
+        compiled_contract=compiled_contract
+    ).parsed_abi
 
     constructor_args = {
         "name_": encode_shortstring("erc20_basic"),

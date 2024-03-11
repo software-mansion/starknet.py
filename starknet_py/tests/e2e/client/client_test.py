@@ -534,12 +534,12 @@ async def test_get_class_by_hash_sierra_program(
         class_hash=cairo1_hello_starknet_class_hash
     )
 
-    assert isinstance(contract_class.abi, list)
+    assert isinstance(contract_class.parsed_abi, list)
     assert isinstance(contract_class, SierraContractClass)
     assert contract_class.contract_class_version == "0.1.0"
     assert isinstance(contract_class.sierra_program, list)
     assert isinstance(contract_class.entry_points_by_type, SierraEntryPointsByType)
-    assert isinstance(contract_class.raw_abi, str)
+    assert isinstance(contract_class.abi, str)
 
 
 @pytest.mark.asyncio

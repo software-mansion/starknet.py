@@ -279,7 +279,7 @@ class DeclareResult(SentTransaction):
                 sierra_compiled_contract = create_sierra_compiled_contract(
                     compiled_contract=self.compiled_contract
                 )
-                abi = sierra_compiled_contract.abi
+                abi = sierra_compiled_contract.parsed_abi
 
             except Exception as exc:
                 raise ValueError(

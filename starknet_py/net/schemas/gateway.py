@@ -99,7 +99,7 @@ class SierraContractClassSchema(Schema):
     entry_points_by_type = fields.Nested(
         SierraEntryPointsByTypeSchema(), data_key="entry_points_by_type", required=True
     )
-    raw_abi = fields.String(data_key="abi")
+    abi = fields.String(data_key="abi")
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> SierraContractClass:
@@ -116,7 +116,7 @@ class AbiField(fields.Field):
 
 
 class SierraCompiledContractSchema(SierraContractClassSchema):
-    raw_abi = AbiField(data_key="abi", required=True)
+    abi = AbiField(data_key="abi", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> SierraCompiledContract:
