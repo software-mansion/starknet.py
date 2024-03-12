@@ -341,10 +341,10 @@ async def argent_cairo1_account_class_hash(
     pre_deployed_account_with_validate_deploy: BaseAccount,
 ) -> int:
     compiled_contract = read_contract(
-        "argent_account.json", directory=CONTRACTS_COMPILED_V2_DIR
+        "precompiled/argent_account.json", directory=CONTRACTS_COMPILED_V2_DIR
     )
     compiled_contract_casm = read_contract(
-        "argent_account.casm", directory=CONTRACTS_COMPILED_V2_DIR
+        "precompiled/argent_account.casm", directory=CONTRACTS_COMPILED_V2_DIR
     )
     return await declare_cairo1_account(
         account=pre_deployed_account_with_validate_deploy,

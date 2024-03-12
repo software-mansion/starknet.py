@@ -91,7 +91,6 @@ mod token_bridge {
     }
 
     #[generate_trait]
-    #[external(v0)]
     impl TokenBridgeImpl of ITokenBridge {
         // TODO(spapini): Consider adding a pure option, with no parameters.
         fn get_version(self: @ContractState) -> felt252 {
@@ -137,7 +136,7 @@ mod token_bridge {
             ];
             send_message_to_l1_syscall(
                 to_address: self.read_initialized_l1_bridge(), payload: message_payload.span()
-            );
+            ).unwrap();
             self.emit(WithdrawInitiated { l1_recipient, amount, caller_address });
         }
     }
