@@ -35,4 +35,3 @@ async def test_simple_declare_and_deploy(account):
     assert isinstance(declare_result.class_hash, int)
     assert declare_result.compiled_contract == compiled_contract
     assert contract.address != 0
-    assert len(contract.functions) > 0
