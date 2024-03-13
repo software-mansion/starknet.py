@@ -17,7 +17,6 @@ from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import (
     CONTRACTS_COMPILED_V0_DIR,
-    CONTRACTS_COMPILED_V2_6_DIR,
     CONTRACTS_COMPILED_V2_DIR,
     CONTRACTS_DIR,
     MAX_FEE,
@@ -66,24 +65,6 @@ def abi_types_compiled_contract_and_class_hash() -> Tuple[str, int]:
     )
     compiled_contract_casm = read_contract(
         "abi_types_compiled.casm", directory=CONTRACTS_COMPILED_V2_DIR
-    )
-
-    return (
-        compiled_contract,
-        compute_casm_class_hash(create_casm_class(compiled_contract_casm)),
-    )
-
-
-@pytest.fixture(scope="package")
-def abi_types_compiled_contract_and_class_hash_v2_6() -> Tuple[str, int]:
-    """
-    Returns abi_types contract compiled to sierra and its compiled class hash.
-    """
-    compiled_contract = read_contract(
-        "abi_types_compiled.json", directory=CONTRACTS_COMPILED_V2_6_DIR
-    )
-    compiled_contract_casm = read_contract(
-        "abi_types_compiled.casm", directory=CONTRACTS_COMPILED_V2_6_DIR
     )
 
     return (

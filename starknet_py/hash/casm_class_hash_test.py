@@ -4,7 +4,6 @@ import pytest
 from starknet_py.common import create_casm_class
 from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.tests.e2e.fixtures.constants import (
-    CONTRACTS_COMPILED_V2_6_DIR,
     CONTRACTS_COMPILED_V2_DIR,
 )
 from starknet_py.tests.e2e.fixtures.misc import read_contract
@@ -19,27 +18,12 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
         ("minimal_contract_compiled.casm", 0x186f6c4ca3af40dbcbf3f08f828ab0ee072938aaaedccc74ef3b9840cbd9fb3),
         ("test_contract_compiled.casm", 0x379b75c0922c68e73f6451b69e8e50b7f0745e6fa3f67ffc0b9608238eeaf45),
         ("token_bridge_compiled.casm", 0x1d60f20e5dd449af4e6b0d63821cfa95f3469faa942caf78eba2172e2ec3468),
+        ("precompiled/starknet_contract_v2_6.casm", 0x603dd72504d8b0bc54df4f1102fdcf87fc3b2b94750a9083a5876913eec08e4),
     ],
 )
 def test_compute_casm_class_hash(casm_contract_class_source, expected_casm_class_hash):
     casm_contract_class_str = read_contract(
         casm_contract_class_source, directory=CONTRACTS_COMPILED_V2_DIR
-    )
-
-    casm_class = create_casm_class(casm_contract_class_str)
-    casm_class_hash = compute_casm_class_hash(casm_class)
-
-    assert casm_class_hash == expected_casm_class_hash
-
-@pytest.mark.parametrize(
-    "casm_contract_class_source, expected_casm_class_hash",
-    [
-        ("starknet_contract.casm", 0x603dd72504d8b0bc54df4f1102fdcf87fc3b2b94750a9083a5876913eec08e4),
-    ],
-)
-def test_compute_casm_class_hash_v2_6(casm_contract_class_source, expected_casm_class_hash):
-    casm_contract_class_str = read_contract(
-        casm_contract_class_source, directory=CONTRACTS_COMPILED_V2_6_DIR
     )
 
     casm_class = create_casm_class(casm_contract_class_str)
