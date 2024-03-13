@@ -3,6 +3,8 @@ name: Checks
 env:
   DEVNET_SHA: "c6ffb99"
   CAIRO_LANG_VERSION: "0.13.1"
+  CAIRO_V2_SHA: "2203a47f8a098cd4718d03bd109ca014049419e7"
+  CAIRO_V1_SHA: "c6b003cc425907ac5fc846375a48737d5125f5b5"
 
 on:
   push:
@@ -94,29 +96,6 @@ jobs:
         run: |
           poetry install
 
-      # ====================== CONTRACTS v2_6 ====================== #
-      - name: Cache contracts v2_6
-        id: cache-contracts-v2_6
-        uses: actions/cache@v3
-        with:
-          path: starknet_py/tests/e2e/mock/contracts_compiled_v2_6
-          key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v2_6') }}
-    
-      - uses: actions/checkout@v4
-        with:
-          repository: starkware-libs/cairo
-          path: cairo_v2_6
-          ref: 52140f59df98bcd465a7c5f9c3c2f033bc19c2b2
-
-      - name: Create text file
-        run: |
-          echo "${{ github.workspace }}/cairo_v2_6/Cargo.toml" > ${{ github.workspace }}/starknet_py/tests/e2e/manifest-path
-
-      - name: Compile contracts
-        if: steps.cache-contracts-v2_6.outputs.cache-hit != 'true'
-        run: |
-          poetry run poe compile_contracts_v2_6
-
       # ====================== CONTRACTS v2 ====================== #
 
       - name: Cache contracts v2
@@ -124,13 +103,13 @@ jobs:
         uses: actions/cache@v3
         with:
           path: starknet_py/tests/e2e/mock/contracts_compiled_v2
-          key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v2') }}
+          key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v2') }}-${{ env.CAIRO_V2_SHA }}
     
       - uses: actions/checkout@v4
         with:
           repository: starkware-libs/cairo
           path: cairo_v2
-          ref: f42bf295a8792716e45926ace5c747e8e20a9eb7
+          ref: ${{ env.CAIRO_V2_SHA }}
 
       - name: Create text file
         run: |
@@ -148,13 +127,13 @@ jobs:
         uses: actions/cache@v3
         with:
           path: starknet_py/tests/e2e/mock/contracts_compiled_v1
-          key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v1') }}
+          key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v1') }}-${{ env.CAIRO_V1_SHA }}
 
       - uses: actions/checkout@v4
         with:
           repository: starkware-libs/cairo
           path: cairo_v1
-          ref: c6b003cc425907ac5fc846375a48737d5125f5b5
+          ref: ${{ env.CAIRO_V1_SHA }}
 
       - name: Create text file
         run: |
