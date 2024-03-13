@@ -34,7 +34,6 @@ def compute_casm_class_hash(casm_contract_class: CasmClass) -> int:
     )
 
     if casm_contract_class.bytecode_segment_lengths is not None:
-        assert casm_contract_class.bytecode_segment_lengths is not None
         bytecode_hash = create_bytecode_segment_structure(
             bytecode=casm_contract_class.bytecode,
             bytecode_segment_lengths=casm_contract_class.bytecode_segment_lengths,
