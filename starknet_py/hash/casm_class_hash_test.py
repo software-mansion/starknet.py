@@ -3,9 +3,7 @@ import pytest
 
 from starknet_py.common import create_casm_class
 from starknet_py.hash.casm_class_hash import compute_casm_class_hash
-from starknet_py.tests.e2e.fixtures.constants import (
-    CONTRACTS_COMPILED_V2_DIR,
-)
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V2_DIR
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
