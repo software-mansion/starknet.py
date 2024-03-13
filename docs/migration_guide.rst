@@ -2,6 +2,16 @@ Migration guide
 ===============
 
 ******************************
+0.21.0 Migration guide
+******************************
+
+
+0.21.0 Minor changes
+-----------------------
+
+1. :class:`starknet_py.net.client_models.SierraContractClass` has an additional propery ``parsed_abi``
+
+******************************
 0.21.0 (alpha) Migration guide
 ******************************
 
