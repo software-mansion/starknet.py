@@ -148,7 +148,7 @@ class FullNodeClient(Client):
             )
         return cast(
             StarknetBlockWithTxHashes,
-            StarknetBlockWithTxHashesSchema().load(res, unknown=EXCLUDE),
+            StarknetBlockWithTxHashesSchema().load(res),
         )
 
     async def get_block_with_receipts(
@@ -302,9 +302,7 @@ class FullNodeClient(Client):
                 PendingBlockStateUpdate,
                 PendingBlockStateUpdateSchema().load(res, unknown=EXCLUDE),
             )
-        return cast(
-            BlockStateUpdate, BlockStateUpdateSchema().load(res, unknown=EXCLUDE)
-        )
+        return cast(BlockStateUpdate, BlockStateUpdateSchema().load(res))
 
     async def get_storage_at(
         self,
