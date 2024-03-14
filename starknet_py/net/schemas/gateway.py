@@ -166,6 +166,9 @@ class CasmClassEntryPointsByTypeSchema(Schema):
 class CasmClassSchema(Schema):
     prime = Felt(data_key="prime", required=True)
     bytecode = fields.List(Felt(), data_key="bytecode", required=True)
+    bytecode_segment_lengths = fields.List(
+        Felt(), data_key="bytecode_segment_lengths", load_default=None
+    )
     hints = fields.List(fields.Raw(), data_key="hints", required=True)
     pythonic_hints = fields.List(fields.Raw(), data_key="pythonic_hints", required=True)
     compiler_version = fields.String(data_key="compiler_version", required=True)
