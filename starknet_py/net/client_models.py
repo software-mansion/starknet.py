@@ -843,6 +843,7 @@ class CasmClass:
     pythonic_hints: List[Any]
     compiler_version: str
     entry_points_by_type: CasmClassEntryPointsByType
+    bytecode_segment_lengths: Optional[List[int]]
 
 
 @dataclass
