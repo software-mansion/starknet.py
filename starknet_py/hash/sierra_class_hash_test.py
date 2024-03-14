@@ -15,7 +15,7 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
         ("hello_starknet_compiled.json", 0x5cb6ab123cf9f06798dcd8227d46f4d5d5d157b4ce51ae2236aa5d9b1cb01ea),
         ("minimal_contract_compiled.json", 0x614cde60994efdac8c95401809e98abd4221b02b5174f25b599f8145c11fb80),
         ("test_contract_compiled.json", 0x40e041157a32a43e0c20389f4dcec0a97a22718ddbc24f223f7553fa0de3c08),
-        ("token_bridge_compiled.json", 0x1830073d65ce002456593dfdfbc322bee0577910fb857509822843b5e3792b),
+        ("token_bridge_compiled.json", 0x4586bfabdc8e8e9334c73650b68a824ae5fab191bc4bb290af31b8e36005012),
     ],
     # fmt: on
 )

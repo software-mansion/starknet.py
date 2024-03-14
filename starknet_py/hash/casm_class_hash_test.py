@@ -14,7 +14,7 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
         ("erc20_compiled.casm", 0x5adc857416202a5902c01168542e188c3aa6380f57c911ae98cf20bc52be367),
         ("hello_starknet_compiled.casm", 0x6ff9f7df06da94198ee535f41b214dce0b8bafbdb45e6c6b09d4b3b693b1f17),
         ("test_contract_compiled.casm", 0x2193add92c182c9236f0c156f11dc4f18d5a78fd9b763a3c0f4a1d3bd8b87d4),
-        ("token_bridge_compiled.casm", 0x87c179b5f09a8137eb7b28c621eb8337b61216e4381d6e200200f22c511aad),
+        ("token_bridge_compiled.casm", 0x41d26534c7ca29e212ae48acfb9f86f69a9624977c979697c15f587fa95204),
         ("precompiled/minimal_contract_compiled_v2_1.casm",
          0x186f6c4ca3af40dbcbf3f08f828ab0ee072938aaaedccc74ef3b9840cbd9fb3),
         ("precompiled/minimal_contract_compiled_v2_5_4.casm",
