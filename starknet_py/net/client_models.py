@@ -950,6 +950,7 @@ class L1HandlerTransactionTrace:
     Dataclass representing a transaction trace of an L1_HANDLER transaction.
     """
 
+    execution_resources: Optional[ExecutionResources]
     function_invocation: FunctionInvocation
     state_diff: Optional[StateDiff] = None
 

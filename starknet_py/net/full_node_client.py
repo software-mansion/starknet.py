@@ -715,9 +715,7 @@ class FullNodeClient(Client):
                 "transaction_hash": _to_rpc_felt(tx_hash),
             },
         )
-        return cast(
-            TransactionTrace, TransactionTraceSchema().load(res)
-        )
+        return cast(TransactionTrace, TransactionTraceSchema().load(res))
 
     async def simulate_transactions(
         self,
