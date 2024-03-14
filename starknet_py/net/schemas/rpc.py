@@ -977,15 +977,14 @@ class L1HandlerTransactionTraceSchema(Schema):
 
 
 class TransactionTraceSchema(OneOfSchema):
+    type_field = "type"
+
     type_schemas = {
         "INVOKE": InvokeTransactionTraceSchema(),
         "DECLARE": DeclareTransactionTraceSchema(),
         "DEPLOY_ACCOUNT": DeployAccountTransactionTraceSchema(),
         "L1_HANDLER": L1HandlerTransactionTraceSchema(),
     }
-
-    def get_data_type(self, data):
-        return data["type"]
 
 
 class SimulatedTransactionSchema(Schema):
