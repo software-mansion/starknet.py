@@ -90,17 +90,20 @@ mod token_bridge {
         self.governor.write(governor_address);
     }
 
+    #[abi(per_item)]
     #[generate_trait]
     impl TokenBridgeImpl of ITokenBridge {
         // TODO(spapini): Consider adding a pure option, with no parameters.
+        #[external(v0)]
         fn get_version(self: @ContractState) -> felt252 {
             CONTRACT_VERSION
         }
-
+        #[external(v0)]
         fn get_identity(self: @ContractState) -> felt252 {
             CONTRACT_IDENTITY
         }
 
+        #[external(v0)]
         fn set_l1_bridge(ref self: ContractState, l1_bridge_address: EthAddress) {
             // The call is restricted to the governor.
             assert(get_caller_address() == self.governor.read(), 'GOVERNOR_ONLY');
@@ -112,6 +115,7 @@ mod token_bridge {
             self.emit(L1BridgeSet { l1_bridge_address });
         }
 
+        #[external(v0)]
         fn set_l2_token(ref self: ContractState, l2_token_address: ContractAddress) {
             // The call is restricted to the governor.
             assert(get_caller_address() == self.governor.read(), 'GOVERNOR_ONLY');
@@ -123,6 +127,7 @@ mod token_bridge {
             self.emit(L2TokenSet { l2_token_address });
         }
 
+        #[external(v0)]
         fn initiate_withdraw(ref self: ContractState, l1_recipient: EthAddress, amount: u256) {
             // Call burn on l2_token contract.
             let caller_address = get_caller_address();
