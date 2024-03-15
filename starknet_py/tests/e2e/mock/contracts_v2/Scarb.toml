@@ -1,0 +1,10 @@
+[package]
+name = "contracts_v2"
+version = "0.1.0"
+
+[dependencies]
+starknet = "2.6.0"
+
+[[target.starknet-contract]]
+casm = true
+sierra = true
