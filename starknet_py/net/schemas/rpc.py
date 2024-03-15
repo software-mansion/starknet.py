@@ -1,6 +1,6 @@
 # pylint: disable=too-many-lines
 
-from marshmallow import EXCLUDE, Schema, fields, post_load
+from marshmallow import EXCLUDE, fields, post_load
 from marshmallow_oneofschema import OneOfSchema
 
 from starknet_py.abi.v0.schemas import ContractAbiEntrySchema
@@ -87,6 +87,7 @@ from starknet_py.net.schemas.common import (
     Uint128,
 )
 from starknet_py.net.schemas.utils import _extract_tx_version
+from starknet_py.utils.schema import Schema
 
 # pylint: disable=unused-argument, no-self-use
 
