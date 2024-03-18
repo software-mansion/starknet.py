@@ -10,7 +10,7 @@ from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.models import DeclareV2
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.tests.e2e.fixtures.contracts import deploy_v1_contract
-from starknet_py.tests.e2e.fixtures.misc import load_contract, read_contract
+from starknet_py.tests.e2e.fixtures.misc import load_contract
 
 
 async def declare_cairo1_contract(
@@ -35,9 +35,7 @@ async def declare_cairo1_contract(
 async def cairo1_erc20_class_hash(account: BaseAccount) -> int:
     contract = load_contract("ERC20")
     class_hash, _ = await declare_cairo1_contract(
-        account,
-        contract['sierra'],
-        contract['casm']
+        account, contract["sierra"], contract["casm"]
     )
     return class_hash
 
@@ -45,10 +43,10 @@ async def cairo1_erc20_class_hash(account: BaseAccount) -> int:
 @pytest_asyncio.fixture(scope="package")
 async def declare_v2_hello_starknet(account: BaseAccount) -> DeclareV2:
     contract = load_contract("HelloStarknet")
-    casm_class_hash = compute_casm_class_hash(create_casm_class(contract['casm']))
+    casm_class_hash = compute_casm_class_hash(create_casm_class(contract["casm"]))
 
     declare_tx = await account.sign_declare_v2(
-        contract['sierra'], casm_class_hash, max_fee=MAX_FEE
+        contract["sierra"], casm_class_hash, max_fee=MAX_FEE
     )
     return declare_tx
 
@@ -84,8 +82,8 @@ async def cairo1_minimal_contract_class_hash(account: BaseAccount) -> int:
     contract = load_contract(contract_name="MinimalContract")
     class_hash, _ = await declare_cairo1_contract(
         account,
-        contract['sierra'],
-        contract['casm'],
+        contract["sierra"],
+        contract["casm"],
     )
     return class_hash
 
@@ -95,8 +93,8 @@ async def cairo1_test_enum_class_hash(account: BaseAccount) -> int:
     contract = load_contract(contract_name="TestEnum")
     class_hash, _ = await declare_cairo1_contract(
         account,
-        contract['sierra'],
-        contract['casm'],
+        contract["sierra"],
+        contract["casm"],
     )
     return class_hash
 
@@ -106,8 +104,8 @@ async def cairo1_test_option_class_hash(account: BaseAccount) -> int:
     contract = load_contract(contract_name="TestOption")
     class_hash, _ = await declare_cairo1_contract(
         account,
-        contract['sierra'],
-        contract['casm'],
+        contract["sierra"],
+        contract["casm"],
     )
     return class_hash
 
@@ -117,8 +115,8 @@ async def cairo1_token_bridge_class_hash(account: BaseAccount) -> int:
     contract = load_contract(contract_name="TokenBridge")
     class_hash, _ = await declare_cairo1_contract(
         account,
-        contract['sierra'],
-        contract['casm'],
+        contract["sierra"],
+        contract["casm"],
     )
     return class_hash
 

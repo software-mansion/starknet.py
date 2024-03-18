@@ -21,7 +21,11 @@ from starknet_py.tests.e2e.fixtures.constants import (
     MAX_FEE,
     STRK_FEE_CONTRACT_ADDRESS,
 )
-from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract, read_contract
+from starknet_py.tests.e2e.fixtures.misc import (
+    ContractVersion,
+    load_contract,
+    read_contract,
+)
 
 
 @pytest.fixture(scope="package")
@@ -48,8 +52,8 @@ def sierra_minimal_compiled_contract_and_class_hash() -> Tuple[str, int]:
     contract = load_contract(contract_name="MinimalContract")
 
     return (
-        contract['sierra'],
-        compute_casm_class_hash(create_casm_class(contract['casm'])),
+        contract["sierra"],
+        compute_casm_class_hash(create_casm_class(contract["casm"])),
     )
 
 
@@ -61,8 +65,8 @@ def abi_types_compiled_contract_and_class_hash() -> Tuple[str, int]:
     contract = load_contract(contract_name="AbiTypes", version=ContractVersion.V2)
 
     return (
-        contract['sierra'],
-        compute_casm_class_hash(create_casm_class(contract['casm'])),
+        contract["sierra"],
+        compute_casm_class_hash(create_casm_class(contract["casm"])),
     )
 
 
@@ -131,11 +135,9 @@ async def deploy_v1_contract(
     :param calldata: Dict with constructor arguments (can be empty).
     :returns: Instance of the deployed contract.
     """
+    contract_sierra = load_contract(contract_name)["sierra"]
 
-    contract_sierra = load_contract(contract_name)['sierra']
-    abi = create_sierra_compiled_contract(
-        compiled_contract=contract_sierra
-    ).parsed_abi
+    abi = create_sierra_compiled_contract(compiled_contract=contract_sierra).parsed_abi
 
     deployer = Deployer()
     deploy_call, address = deployer.create_contract_deployment(

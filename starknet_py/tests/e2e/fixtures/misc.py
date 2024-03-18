@@ -109,14 +109,21 @@ class UnkonwnArtifacts(BaseException):
 
 
 def load_contract(contract_name: str, version: Optional[ContractVersion] = None):
+    if version is None:
+        if "--contract_dir=v1" in sys.argv:
+            version = ContractVersion.V1
+        if "--contract_dir=v2" in sys.argv:
+            version = ContractVersion.V2
+
     artifacts_path = CONTRACTS_V2_ARTIFACTS
     directory = CONTRACTS_V2_COMPILED
 
-    if "--contract_dir=v1" in sys.argv or version == ContractVersion.V1:
+    if version == ContractVersion.V1:
         artifacts_path = CONTRACTS_V1_ARTIFACTS
         directory = CONTRACTS_V1_COMPILED
 
     loaded_artifcats = json.loads((artifacts_path).read_text("utf-8"))
+
     for item in loaded_artifcats["contracts"]:
         if item["contract_name"] == contract_name:
             artifacts = item["artifacts"]

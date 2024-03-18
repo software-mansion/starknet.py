@@ -9,7 +9,7 @@ from starknet_py.contract import Contract, DeclareResult
 from starknet_py.net.client_models import InvokeTransactionV1, InvokeTransactionV3
 from starknet_py.net.models import DeclareV2
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE, MAX_RESOURCE_BOUNDS_L1
-from starknet_py.tests.e2e.fixtures.misc import load_contract, read_contract
+from starknet_py.tests.e2e.fixtures.misc import load_contract
 
 
 @pytest.mark.asyncio
@@ -17,7 +17,7 @@ async def test_declare_deploy_v1(
     account,
     cairo1_minimal_contract_class_hash: int,
 ):
-    compiled_contract=load_contract("MinimalContract")['sierra']
+    compiled_contract = load_contract("MinimalContract")["sierra"]
 
     declare_result = DeclareResult(
         _account=account,
@@ -42,7 +42,7 @@ async def test_declare_deploy_v3(
     account,
     cairo1_minimal_contract_class_hash: int,
 ):
-    compiled_contract=load_contract("MinimalContract")['sierra']
+    compiled_contract = load_contract("MinimalContract")["sierra"]
 
     declare_result = DeclareResult(
         _account=account,
@@ -66,7 +66,7 @@ async def test_declare_deploy_v3(
 
 @pytest.mark.asyncio
 async def test_throws_on_wrong_abi(account, cairo1_minimal_contract_class_hash: int):
-    compiled_contract=load_contract("MinimalContract")['sierra']
+    compiled_contract = load_contract("MinimalContract")["sierra"]
 
     declare_result = DeclareResult(
         _account=account,
@@ -95,8 +95,10 @@ async def test_throws_on_wrong_abi(account, cairo1_minimal_contract_class_hash: 
 
 @pytest.mark.asyncio
 async def test_deploy_contract_v1(account, cairo1_hello_starknet_class_hash: int):
-    compiled_contract = load_contract("HelloStarknet")['sierra']
-    abi = create_sierra_compiled_contract(compiled_contract=compiled_contract).parsed_abi
+    compiled_contract = load_contract("HelloStarknet")["sierra"]
+    abi = create_sierra_compiled_contract(
+        compiled_contract=compiled_contract
+    ).parsed_abi
 
     deploy_result = await Contract.deploy_contract_v1(
         class_hash=cairo1_hello_starknet_class_hash,
@@ -123,9 +125,10 @@ async def test_deploy_contract_v1(account, cairo1_hello_starknet_class_hash: int
 
 @pytest.mark.asyncio
 async def test_deploy_contract_v3(account, cairo1_hello_starknet_class_hash: int):
-    compiled_contract = load_contract("HelloStarknet")['sierra']
-    abi = create_sierra_compiled_contract(compiled_contract=compiled_contract).parsed_abi
-
+    compiled_contract = load_contract("HelloStarknet")["sierra"]
+    abi = create_sierra_compiled_contract(
+        compiled_contract=compiled_contract
+    ).parsed_abi
 
     deploy_result = await Contract.deploy_contract_v3(
         class_hash=cairo1_hello_starknet_class_hash,

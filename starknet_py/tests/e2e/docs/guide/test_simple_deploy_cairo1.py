@@ -19,8 +19,10 @@ async def test_simple_deploy_cairo1(account, cairo1_erc20_class_hash):
     from starknet_py.contract import Contract
 
     # docs: end
-    
-    compiled_contract = load_contract(contract_name="ERC20", version=ContractVersion.V2)['sierra']
+
+    compiled_contract = load_contract(
+        contract_name="ERC20", version=ContractVersion.V2
+    )["sierra"]
 
     class_hash = cairo1_erc20_class_hash
 
