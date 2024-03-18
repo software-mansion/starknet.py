@@ -9,8 +9,5 @@ MARSHMALLOW_UKNOWN_EXCLUDE = os.environ.get("STARKNET_PY_MARSHMALLOW_UKNOWN_EXCL
 class Schema(MarshmallowSchema):
     class Meta:
         unknown = (
-            EXCLUDE
-            if MARSHMALLOW_UKNOWN_EXCLUDE
-            and MARSHMALLOW_UKNOWN_EXCLUDE.lower() == "true"
-            else RAISE
+            EXCLUDE if (MARSHMALLOW_UKNOWN_EXCLUDE or "").lower() == "true" else RAISE
         )
