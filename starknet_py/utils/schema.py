@@ -1,11 +1,9 @@
 import os
 
 from marshmallow import EXCLUDE, RAISE
-from marshmallow import Schema as SchemaToCopy
-
-print(os.environ.get("marshmallow_raise"))
+from marshmallow import Schema as MarshmallowSchema
 
 
-class Schema(SchemaToCopy):
+class Schema(MarshmallowSchema):
     class Meta:
-        unknown = RAISE if os.environ.get("marshmallow_raise") else EXCLUDE
+        unknown = EXCLUDE if os.environ.get("STARKNET_PY_MARSHMALLOW_UKNOWN_EXCLUDE") else RAISE
