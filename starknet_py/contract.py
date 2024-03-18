@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import dataclasses
-import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import cached_property
@@ -280,7 +279,8 @@ class DeclareResult(SentTransaction):
                 sierra_compiled_contract = create_sierra_compiled_contract(
                     compiled_contract=self.compiled_contract
                 )
-                abi = json.loads(sierra_compiled_contract.abi)
+                abi = sierra_compiled_contract.parsed_abi
+
             except Exception as exc:
                 raise ValueError(
                     "Contract's ABI can't be converted to format List[Dict]. "
