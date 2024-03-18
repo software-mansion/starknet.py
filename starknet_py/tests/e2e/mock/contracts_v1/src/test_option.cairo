@@ -11,7 +11,7 @@ struct OptionStruct {
 }
 
 #[contract]
-mod HelloStarknet {
+mod TestOption {
     use super::OptionStruct;
 
     #[view]

@@ -2,6 +2,7 @@
 
 import json
 import sys
+from enum import Enum
 from pathlib import Path
 from typing import Optional
 
@@ -13,6 +14,10 @@ from starknet_py.tests.e2e.fixtures.constants import (
     CONTRACTS_COMPILED_V0_DIR,
     CONTRACTS_COMPILED_V1_DIR,
     CONTRACTS_COMPILED_V2_DIR,
+    CONTRACTS_V1_ARTIFACTS,
+    CONTRACTS_V1_COMPILED,
+    CONTRACTS_V2_ARTIFACTS,
+    CONTRACTS_V2_COMPILED,
     TYPED_DATA_DIR,
 )
 
@@ -92,6 +97,40 @@ def get_tx_receipt_full_node_client():
 @pytest.fixture(name="get_tx_status_path", scope="package")
 def get_tx_status_full_node_client():
     return f"{FullNodeClient.__module__}.FullNodeClient.get_transaction_status"
+
+
+class ContractVersion(Enum):
+    V1 = "V1"
+    V2 = "V2"
+
+
+class UnkonwnArtifacts(BaseException):
+    pass
+
+
+def load_contract(contract_name: str, version: Optional[ContractVersion] = None):
+    artifacts_path = CONTRACTS_V2_ARTIFACTS
+    directory = CONTRACTS_V2_COMPILED
+
+    if "--contract_dir=v1" in sys.argv or version == ContractVersion.V1:
+        artifacts_path = CONTRACTS_V1_ARTIFACTS
+        directory = CONTRACTS_V1_COMPILED
+
+    loaded_artifcats = json.loads((artifacts_path).read_text("utf-8"))
+    for item in loaded_artifcats["contracts"]:
+        if item["contract_name"] == contract_name:
+            artifacts = item["artifacts"]
+            break
+
+    if not isinstance(artifacts, dict):
+        raise UnkonwnArtifacts(
+            f"Artifacts for contract {contract_name} haven't be founded"
+        )
+
+    sierra = (directory / artifacts["sierra"]).read_text("utf-8")
+    casm = (directory / artifacts["casm"]).read_text("utf-8")
+
+    return {"casm": casm, "sierra": sierra}
 
 
 def read_contract(file_name: str, *, directory: Optional[Path] = None) -> str:

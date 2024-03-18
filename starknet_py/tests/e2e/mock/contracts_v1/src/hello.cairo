@@ -194,7 +194,7 @@ impl BetStorageAccess of StorageAccess::<Bet> {
 
 // MAIN APP
 #[contract]
-mod HelloStarknet {
+mod Hello {
     //  libs
     use starknet::ContractAddress;
     use super::Foo;

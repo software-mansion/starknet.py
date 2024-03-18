@@ -21,7 +21,7 @@ from starknet_py.tests.e2e.fixtures.constants import (
     MAX_FEE,
     STRK_FEE_CONTRACT_ADDRESS,
 )
-from starknet_py.tests.e2e.fixtures.misc import read_contract
+from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract, read_contract
 
 
 @pytest.fixture(scope="package")
@@ -45,12 +45,11 @@ def sierra_minimal_compiled_contract_and_class_hash() -> Tuple[str, int]:
     """
     Returns minimal contract compiled to sierra and its compiled class hash.
     """
-    compiled_contract = read_contract("minimal_contract_compiled.json")
-    compiled_contract_casm = read_contract("minimal_contract_compiled.casm")
+    contract = load_contract(contract_name="MinimalContract")
 
     return (
-        compiled_contract,
-        compute_casm_class_hash(create_casm_class(compiled_contract_casm)),
+        contract['sierra'],
+        compute_casm_class_hash(create_casm_class(contract['casm'])),
     )
 
 
@@ -59,16 +58,11 @@ def abi_types_compiled_contract_and_class_hash() -> Tuple[str, int]:
     """
     Returns abi_types contract compiled to sierra and its compiled class hash.
     """
-    compiled_contract = read_contract(
-        "abi_types_compiled.json", directory=CONTRACTS_COMPILED_V2_DIR
-    )
-    compiled_contract_casm = read_contract(
-        "abi_types_compiled.casm", directory=CONTRACTS_COMPILED_V2_DIR
-    )
+    contract = load_contract(contract_name="AbiTypes", version=ContractVersion.V2)
 
     return (
-        compiled_contract,
-        compute_casm_class_hash(create_casm_class(compiled_contract_casm)),
+        contract['sierra'],
+        compute_casm_class_hash(create_casm_class(contract['casm'])),
     )
 
 
@@ -124,7 +118,7 @@ async def deploy_contract(account: BaseAccount, class_hash: int, abi: List) -> C
 
 async def deploy_v1_contract(
     account: BaseAccount,
-    contract_file_name: str,
+    contract_name: str,
     class_hash: int,
     calldata: Optional[Dict[str, Any]] = None,
 ) -> Contract:
@@ -132,13 +126,16 @@ async def deploy_v1_contract(
     Deploys Cairo1.0 contract.
 
     :param account: An account which will be used to deploy the Contract.
-    :param contract_file_name: Name of the file with code (e.g. `erc20` if filename is `erc20.cairo`).
+    :param contract_name: Name of the contract from project mocks (e.g. `ERC20`).
     :param class_hash: class_hash of the contract to be deployed.
     :param calldata: Dict with constructor arguments (can be empty).
     :returns: Instance of the deployed contract.
     """
-    contract_sierra = read_contract(contract_file_name + "_compiled.json")
-    abi = create_sierra_compiled_contract(compiled_contract=contract_sierra).parsed_abi
+
+    contract_sierra = load_contract(contract_name)['sierra']
+    abi = create_sierra_compiled_contract(
+        compiled_contract=contract_sierra
+    ).parsed_abi
 
     deployer = Deployer()
     deploy_call, address = deployer.create_contract_deployment(

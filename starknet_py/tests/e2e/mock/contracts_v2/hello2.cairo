@@ -126,7 +126,7 @@ trait IHelloStarknet<TContractState> {
 
 // MAIN APP
 #[starknet::contract]
-mod HelloStarknet {
+mod Hello2 {
     //  libs
     use array::ArrayTrait;
     use array::SpanTrait;
