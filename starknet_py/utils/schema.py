@@ -8,6 +8,6 @@ class Schema(MarshmallowSchema):
     class Meta:
         unknown = (
             EXCLUDE
-            if os.environ.get("STARKNET_PY_MARSHMALLOW_UKNOWN_EXCLUDE")
+            if os.environ.get("STARKNET_PY_MARSHMALLOW_UKNOWN_EXCLUDE").lower() == 'true'
             else RAISE
         )
