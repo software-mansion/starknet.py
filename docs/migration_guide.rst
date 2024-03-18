@@ -31,6 +31,7 @@ Version 0.21.0 of **starknet.py** comes with support for RPC 0.7.0-rc2!
 3. :class:`InvokeTransactionTrace`, :class:`DeclareTransactionTrace` and :class:`DeployAccountTransactionTrace` have a new required field ``execution_resources``
 4. :class:`EstimatedFee` has new required fields ``data_gas_consumed`` and ``data_gas_price``
 5. :class:`StarknetBlock`, :class:`PendingStarknetBlock`, :class:`StarknetBlockWithTxHashes`, :class:`PendingStarknetBlockWithTxHashes` have new required fields ``l1_data_gas_price`` and ``l1_da_mode``
+6. :class:`SierraContractClass` has an additional propery ``parsed_abi``
 
 **********************
 0.20.0 Migration guide

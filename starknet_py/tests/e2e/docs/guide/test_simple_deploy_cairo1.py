@@ -1,4 +1,3 @@
-import json
 import sys
 
 import pytest
@@ -28,7 +27,9 @@ async def test_simple_deploy_cairo1(account, cairo1_erc20_class_hash):
     class_hash = cairo1_erc20_class_hash
 
     # docs: start
-    abi = create_sierra_compiled_contract(compiled_contract=compiled_contract).abi
+    abi = create_sierra_compiled_contract(
+        compiled_contract=compiled_contract
+    ).parsed_abi
 
     constructor_args = {
         "name_": encode_shortstring("erc20_basic"),
@@ -41,7 +42,7 @@ async def test_simple_deploy_cairo1(account, cairo1_erc20_class_hash):
     deploy_result = await Contract.deploy_contract_v1(
         account=account,
         class_hash=class_hash,
-        abi=json.loads(abi),
+        abi=abi,
         constructor_args=constructor_args,
         max_fee=int(1e16),
         cairo_version=1,  # note the `cairo_version` parameter

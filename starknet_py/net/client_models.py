@@ -7,14 +7,28 @@ This can be achieved by setting the environment variable, STARKNET_PY_MARSHMALLO
 to true. Consequently, any unknown fields in response will be excluded.
 """
 
+import json
 from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Iterable, List, Optional, Union
+from typing import Any, Iterable, List, Literal, Optional, Union, cast
 
-from typing_extensions import Literal
+from marshmallow import EXCLUDE
 
 from starknet_py.abi.v0.shape import AbiDictList
+from starknet_py.abi.v1.schemas import (
+    ContractAbiEntrySchema as ContractAbiEntrySchemaV1,
+)
+from starknet_py.abi.v1.shape import AbiDictEntry as AbiDictEntryV1
+from starknet_py.abi.v1.shape import AbiDictList as AbiDictListV1
+from starknet_py.abi.v2.schemas import (
+    ContractAbiEntrySchema as ContractAbiEntrySchemaV2,
+)
+from starknet_py.abi.v2.shape import AbiDictEntry as AbiDictEntryV2
+from starknet_py.abi.v2.shape import AbiDictList as AbiDictListV2
+from starknet_py.utils.constructor_args_translator import _is_abi_v2
+
+# pylint: disable=too-many-lines
 
 Hash = Union[int, str]
 Tag = Literal["pending", "latest"]
@@ -767,6 +781,27 @@ class SierraContractClass:
     sierra_program: List[str]
     entry_points_by_type: SierraEntryPointsByType
     abi: Optional[str] = None
+
+    @property
+    def parsed_abi(self) -> Union[AbiDictListV2, AbiDictListV1]:
+        if self.abi is None:
+            return []
+
+        load_abi: List = json.loads(self.abi)
+
+        if _is_abi_v2(load_abi):
+            return [
+                cast(
+                    AbiDictEntryV2,
+                    ContractAbiEntrySchemaV2(unknown=EXCLUDE).load(entry),
+                )
+                for entry in load_abi
+            ]
+
+        return [
+            cast(AbiDictEntryV1, ContractAbiEntrySchemaV1(unknown=EXCLUDE).load(entry))
+            for entry in load_abi
+        ]
 
 
 @dataclass
