@@ -1,6 +1,6 @@
 # pylint: disable=too-many-lines
 
-from marshmallow import EXCLUDE, Schema, fields, post_load
+from marshmallow import EXCLUDE, fields, post_load
 from marshmallow_oneofschema import OneOfSchema
 
 from starknet_py.abi.v0.schemas import ContractAbiEntrySchema
@@ -87,6 +87,7 @@ from starknet_py.net.schemas.common import (
     Uint128,
 )
 from starknet_py.net.schemas.utils import _extract_tx_version
+from starknet_py.utils.schema import Schema
 
 # pylint: disable=unused-argument, no-self-use
 
@@ -506,7 +507,7 @@ class BlockHeaderSchema(Schema):
 
 class PendingStarknetBlockSchema(PendingBlockHeaderSchema):
     transactions = fields.List(
-        fields.Nested(TypesOfTransactionsSchema(unknown=EXCLUDE)),
+        fields.Nested(TypesOfTransactionsSchema()),
         data_key="transactions",
         required=True,
     )
@@ -519,7 +520,7 @@ class PendingStarknetBlockSchema(PendingBlockHeaderSchema):
 class StarknetBlockSchema(BlockHeaderSchema):
     status = BlockStatusField(data_key="status", required=True)
     transactions = fields.List(
-        fields.Nested(TypesOfTransactionsSchema(unknown=EXCLUDE)),
+        fields.Nested(TypesOfTransactionsSchema()),
         data_key="transactions",
         required=True,
     )
@@ -964,6 +965,11 @@ class DeployAccountTransactionTraceSchema(Schema):
 
 
 class L1HandlerTransactionTraceSchema(Schema):
+    # TODO (#1323): Explain with starknet, because spec doesn't contain execution_resources
+    execution_resources = fields.Nested(
+        ExecutionResourcesSchema(), data_key="execution_resources", load_default=None
+    )
+
     function_invocation = fields.Nested(
         FunctionInvocationSchema(), data_key="function_invocation", required=True
     )
@@ -977,15 +983,14 @@ class L1HandlerTransactionTraceSchema(Schema):
 
 
 class TransactionTraceSchema(OneOfSchema):
+    type_field = "type"
+
     type_schemas = {
         "INVOKE": InvokeTransactionTraceSchema(),
         "DECLARE": DeclareTransactionTraceSchema(),
         "DEPLOY_ACCOUNT": DeployAccountTransactionTraceSchema(),
         "L1_HANDLER": L1HandlerTransactionTraceSchema(),
     }
-
-    def get_data_type(self, data):
-        return data["type"]
 
 
 class SimulatedTransactionSchema(Schema):
