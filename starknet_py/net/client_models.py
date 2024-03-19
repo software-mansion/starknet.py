@@ -1,6 +1,10 @@
 """
 Dataclasses representing responses from Starknet.
 They need to stay backwards compatible for old transactions/blocks to be fetchable.
+
+If you encounter a ValidationError in the context of an RPC response, it is possible to disable validation.
+This can be achieved by setting the environment variable, STARKNET_PY_MARSHMALLOW_UKNOWN_EXCLUDE,
+to true. Consequently, any unknown fields in response will be excluded.
 """
 
 import json
@@ -985,6 +989,7 @@ class L1HandlerTransactionTrace:
     Dataclass representing a transaction trace of an L1_HANDLER transaction.
     """
 
+    execution_resources: Optional[ExecutionResources]
     function_invocation: FunctionInvocation
     state_diff: Optional[StateDiff] = None
 
