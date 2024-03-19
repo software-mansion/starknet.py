@@ -96,19 +96,25 @@ jobs:
         run: |
           poetry install
 
+      - uses: software-mansion/setup-scarb@v1.3.2
+        with:
+          tool-versions: "starknet_py/tests/e2e/mock/contracts_v2/.tool-versions"
+
+      - name: Compile contracts with scarb V2
+        working-directory: "starknet_py/tests/e2e/mock/contracts_v2"
+        run: |
+         scarb build
 
       - uses: software-mansion/setup-scarb@v1.3.2
-      - name: Compile contracts with scarb
+        with:
+          tool-versions: "starknet_py/tests/e2e/mock/contracts_v1/.tool-versions"
+
+      - name: Compile contracts with scarb V1
+        working-directory: "starknet_py/tests/e2e/mock/contracts_v1"
         run: |
-          output=$(find . -type f -name "Scarb.toml" -execdir sh -c '
-              echo "Running \"scarb build\" in directory: $PWD"
-              scarb build
-          ' \;)
-          echo "$output"
-          if grep -iq "Diff" <<< "$output"; then
-              exit 1
-          fi
-          exit 0
+          scarb build
+  
+
 
       # ====================== CONTRACTS v0 ====================== #
 

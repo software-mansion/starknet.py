@@ -78,7 +78,7 @@ async def test_throws_on_wrong_abi(account, cairo1_minimal_contract_class_hash: 
         declare_transaction=Mock(spec=DeclareV2),
     )
 
-    compiled_contract1 = compiled_contract.replace('"abi": [', '"dupapaapapap": ')
+    compiled_contract1 = compiled_contract.replace('"abi":[', '"api": ')
     print(compiled_contract1)
     declare_result = dataclasses.replace(
         declare_result, compiled_contract=compiled_contract1

@@ -129,7 +129,7 @@ def load_contract(contract_name: str, version: Optional[ContractVersion] = None)
             artifacts = item["artifacts"]
             break
 
-    if not isinstance(artifacts, dict):
+    if not isinstance(artifacts, dict):  # pyright: ignore
         raise UnkonwnArtifacts(
             f"Artifacts for contract {contract_name} haven't be founded"
         )
