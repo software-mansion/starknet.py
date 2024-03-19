@@ -96,67 +96,19 @@ jobs:
         run: |
           poetry install
 
-      # # ====================== CONTRACTS v2 ====================== #
 
-      # - name: Cache contracts v2
-      #   id: cache-contracts-v2
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: starknet_py/tests/e2e/mock/contracts_compiled_v2
-      #     key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v2') }}-${{ env.CAIRO_V2_SHA }}
-    
-      # - uses: actions/checkout@v4
-      #   with:
-      #     repository: starkware-libs/cairo
-      #     path: cairo_v2
-      #     ref: ${{ env.CAIRO_V2_SHA }}
-
-      # - name: Create text file
-      #   run: |
-      #     echo "${{ github.workspace }}/cairo_v2/Cargo.toml" > ${{ github.workspace }}/starknet_py/tests/e2e/manifest-path
-
-      # - name: Compile contracts
-      #   if: steps.cache-contracts-v2.outputs.cache-hit != 'true'
-      #   run: |
-      #     poetry run poe compile_contracts_v2
-
-      # # ====================== CONTRACTS v1 ====================== #
-
-      # - name: Cache contracts v1
-      #   id: cache-contracts-v1
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: starknet_py/tests/e2e/mock/contracts_compiled_v1
-      #     key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v1') }}-${{ env.CAIRO_V1_SHA }}
-
-      # - uses: actions/checkout@v4
-      #   with:
-      #     repository: starkware-libs/cairo
-      #     path: cairo_v1
-      #     ref: ${{ env.CAIRO_V1_SHA }}
-
-      # - name: Create text file
-      #   run: |
-      #     echo "${{ github.workspace }}/cairo_v1/Cargo.toml" > ${{ github.workspace }}/starknet_py/tests/e2e/manifest-path
-
-      # - name: Compile contracts
-      #   if: steps.cache-contracts-v1.outputs.cache-hit != 'true'
-      #   run: |
-      #     poetry run poe compile_contracts_v1
-
-      - name: Compile contracts with scarb
-      - uses: actions/checkout@v4
       - uses: software-mansion/setup-scarb@v1.3.2
-          run: |
-            output=$(find . -type f -name "Scarb.toml" -execdir sh -c '
-                echo "Running \"scarb build\" in directory: $PWD"
-                scarb build
-            ' \;)
-            echo "$output"
-            if grep -iq "Diff" <<< "$output"; then
-                exit 1
-            fi
-            exit 0
+      - name: Compile contracts with scarb
+        run: |
+          output=$(find . -type f -name "Scarb.toml" -execdir sh -c '
+              echo "Running \"scarb build\" in directory: $PWD"
+              scarb build
+          ' \;)
+          echo "$output"
+          if grep -iq "Diff" <<< "$output"; then
+              exit 1
+          fi
+          exit 0
 
       # ====================== CONTRACTS v0 ====================== #
 
