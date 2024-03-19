@@ -278,11 +278,8 @@ mod Hello2 {
                         bettor: user,
                         counter_bettor: user,
                         winner: false,
-                        pool: u256 {
-                            low: 10_u128, high: 0_u128
-                            }, amount: u256 {
-                            low: 1000_u128, high: 0_u128
-                        }
+                        pool: u256 { low: 10_u128, high: 0_u128 },
+                        amount: u256 { low: 1000_u128, high: 0_u128 }
                     }
                 );
         }
@@ -368,12 +365,8 @@ mod Hello2 {
         // use as input Option<Order>
         fn option_order_input(self: @ContractState, inp: Option<Order>) -> u16 {
             match inp {
-                Option::Some(x) => {
-                    return x.p2;
-                },
-                Option::None(()) => {
-                    return 17;
-                }
+                Option::Some(x) => { return x.p2; },
+                Option::None(()) => { return 17; }
             }
         }
     }
