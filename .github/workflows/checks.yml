@@ -100,7 +100,7 @@ jobs:
         with:
           tool-versions: "starknet_py/tests/e2e/mock/contracts_v2/.tool-versions"
 
-      - name: Compile contracts with scarb V2
+      - name: Compile contracts V2 with scarb
         working-directory: "starknet_py/tests/e2e/mock/contracts_v2"
         run: |
          scarb build
@@ -109,13 +109,11 @@ jobs:
         with:
           tool-versions: "starknet_py/tests/e2e/mock/contracts_v1/.tool-versions"
 
-      - name: Compile contracts with scarb V1
+      - name: Compile contracts V1 with scarb
         working-directory: "starknet_py/tests/e2e/mock/contracts_v1"
         run: |
           scarb build
   
-
-
       # ====================== CONTRACTS v0 ====================== #
 
       - name: Cache contracts
