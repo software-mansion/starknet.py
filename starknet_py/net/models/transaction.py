@@ -63,7 +63,7 @@ class Transaction(ABC):
         """
 
     @abstractmethod
-    def calculate_hash(self, chain_id: StarknetChainId) -> int:
+    def calculate_hash(self, chain_id: Union[int, StarknetChainId]) -> int:
         """
         Calculates the transaction hash in the Starknet network - a unique identifier of the
         transaction. See :py:meth:`~starknet_py.hash.transaction.compute_transaction_hash` docstring for more details.
@@ -101,7 +101,10 @@ class _AccountTransactionV3(AccountTransaction, ABC):
     paymaster_data: List[int] = field(init=False, default_factory=list)
 
     def get_common_fields(
-        self, tx_prefix: TransactionHashPrefix, address: int, chain_id: StarknetChainId
+        self,
+        tx_prefix: TransactionHashPrefix,
+        address: int,
+        chain_id: Union[int, StarknetChainId],
     ) -> CommonTransactionV3Fields:
         common_fields = [f.name for f in dataclasses.fields(_AccountTransactionV3)]
 
@@ -134,7 +137,7 @@ class DeclareV3(_AccountTransactionV3):
     account_deployment_data: List[int] = field(default_factory=list)
     type: TransactionType = TransactionType.DECLARE
 
-    def calculate_hash(self, chain_id: StarknetChainId) -> int:
+    def calculate_hash(self, chain_id: Union[int, StarknetChainId]) -> int:
         return compute_declare_v3_transaction_hash(
             account_deployment_data=self.account_deployment_data,
             contract_class=self.contract_class,
@@ -164,7 +167,7 @@ class DeclareV2(_DeprecatedAccountTransaction):
         default=TransactionType.DECLARE,
     )
 
-    def calculate_hash(self, chain_id: StarknetChainId) -> int:
+    def calculate_hash(self, chain_id: Union[int, StarknetChainId]) -> int:
         return compute_declare_v2_transaction_hash(
             contract_class=self.contract_class,
             compiled_class_hash=self.compiled_class_hash,
@@ -206,7 +209,7 @@ class DeclareV1(_DeprecatedAccountTransaction):
         # pylint: disable=unused-argument, no-self-use
         return decompress_program(data)
 
-    def calculate_hash(self, chain_id: StarknetChainId) -> int:
+    def calculate_hash(self, chain_id: Union[int, StarknetChainId]) -> int:
         """
         Calculates the transaction hash in the Starknet network.
         """
@@ -232,7 +235,7 @@ class DeployAccountV3(_AccountTransactionV3):
     constructor_calldata: List[int]
     type: TransactionType = TransactionType.DEPLOY_ACCOUNT
 
-    def calculate_hash(self, chain_id: StarknetChainId) -> int:
+    def calculate_hash(self, chain_id: Union[int, StarknetChainId]) -> int:
         contract_address = compute_address(
             salt=self.contract_address_salt,
             class_hash=self.class_hash,
@@ -268,7 +271,7 @@ class DeployAccountV1(_DeprecatedAccountTransaction):
         default=TransactionType.DEPLOY_ACCOUNT,
     )
 
-    def calculate_hash(self, chain_id: StarknetChainId) -> int:
+    def calculate_hash(self, chain_id: Union[int, StarknetChainId]) -> int:
         """
         Calculates the transaction hash in the Starknet network.
         """
@@ -302,7 +305,7 @@ class InvokeV3(_AccountTransactionV3):
     account_deployment_data: List[int] = field(default_factory=list)
     type: TransactionType = TransactionType.INVOKE
 
-    def calculate_hash(self, chain_id: StarknetChainId) -> int:
+    def calculate_hash(self, chain_id: Union[int, StarknetChainId]) -> int:
         return compute_invoke_v3_transaction_hash(
             account_deployment_data=self.account_deployment_data,
             calldata=self.calldata,
@@ -330,7 +333,7 @@ class InvokeV1(_DeprecatedAccountTransaction):
         default=TransactionType.INVOKE,
     )
 
-    def calculate_hash(self, chain_id: StarknetChainId) -> int:
+    def calculate_hash(self, chain_id: Union[int, StarknetChainId]) -> int:
         """
         Calculates the transaction hash in the Starknet network.
         """

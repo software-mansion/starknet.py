@@ -884,3 +884,34 @@ async def test_account_execute_v3(account, deployed_balance_contract):
         call=get_balance_call
     )
     assert initial_balance + 100 == balance_after_increase
+
+
+@pytest.mark.asyncio
+async def test_account_with_get_chain_id(
+    client, address_and_private_key, sierra_minimal_compiled_contract_and_class_hash
+):
+    address, private_key = address_and_private_key
+
+    chain = await client.get_chain_id()
+
+    account = Account(
+        address=address,
+        client=client,
+        key_pair=KeyPair.from_private_key(private_key),
+        chain=chain,
+    )
+
+    (
+        compiled_contract,
+        compiled_class_hash,
+    ) = sierra_minimal_compiled_contract_and_class_hash
+
+    declare_tx = await account.sign_declare_v3(
+        compiled_contract, compiled_class_hash, auto_estimate=True
+    )
+
+    result = await account.client.declare(declare_tx)
+
+    tx_receipt = await account.client.wait_for_tx(tx_hash=result.transaction_hash)
+
+    assert tx_receipt.execution_status == TransactionExecutionStatus.SUCCEEDED
