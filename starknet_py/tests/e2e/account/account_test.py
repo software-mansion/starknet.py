@@ -887,8 +887,8 @@ async def test_account_execute_v3(account, deployed_balance_contract):
 
 
 @pytest.mark.asyncio
-async def test_account_with_get_chain_id(
-    client, address_and_private_key, sierra_minimal_compiled_contract_and_class_hash
+async def test_execute_v3_with_get_chain_id(
+    client, address_and_private_key, deployed_balance_contract
 ):
     address, private_key = address_and_private_key
 
@@ -901,17 +901,17 @@ async def test_account_with_get_chain_id(
         chain=chain,
     )
 
-    (
-        compiled_contract,
-        compiled_class_hash,
-    ) = sierra_minimal_compiled_contract_and_class_hash
-
-    declare_tx = await account.sign_declare_v3(
-        compiled_contract, compiled_class_hash, auto_estimate=True
+    increase_balance_call = Call(
+        to_addr=deployed_balance_contract.address,
+        selector=get_selector_from_name("increase_balance"),
+        calldata=[100],
     )
 
-    result = await account.client.declare(declare_tx)
+    execute_increase_balance = await account.execute_v3(
+        calls=increase_balance_call, l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1
+    )
+    receipt = await account.client.wait_for_tx(
+        tx_hash=execute_increase_balance.transaction_hash
+    )
 
-    tx_receipt = await account.client.wait_for_tx(tx_hash=result.transaction_hash)
-
-    assert tx_receipt.execution_status == TransactionExecutionStatus.SUCCEEDED
+    assert receipt.execution_status == TransactionExecutionStatus.SUCCEEDED
