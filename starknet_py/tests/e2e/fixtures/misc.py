@@ -11,9 +11,6 @@ import pytest
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models.typed_data import TypedData
 from starknet_py.tests.e2e.fixtures.constants import (
-    CONTRACTS_COMPILED_V0_DIR,
-    CONTRACTS_COMPILED_V1_DIR,
-    CONTRACTS_COMPILED_V2_DIR,
     CONTRACTS_V1_ARTIFACTS,
     CONTRACTS_V1_COMPILED,
     CONTRACTS_V2_ARTIFACTS,
@@ -142,15 +139,8 @@ def load_contract(contract_name: str, version: Optional[ContractVersion] = None)
     return {"casm": casm, "sierra": sierra}
 
 
-def read_contract(file_name: str, *, directory: Optional[Path] = None) -> str:
+def read_contract(file_name: str, *, directory: Path) -> str:
     """
     Return contents of file_name from directory.
     """
-    if directory is None:
-        directory = CONTRACTS_COMPILED_V0_DIR
-        if "--contract_dir=v1" in sys.argv:
-            directory = CONTRACTS_COMPILED_V1_DIR
-        if "--contract_dir=v2" in sys.argv:
-            directory = CONTRACTS_COMPILED_V2_DIR
-
     return (directory / file_name).read_text("utf-8")

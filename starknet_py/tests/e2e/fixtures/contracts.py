@@ -16,9 +16,9 @@ from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import (
     CONTRACTS_COMPILED_V0_DIR,
-    CONTRACTS_COMPILED_V2_DIR,
     CONTRACTS_DIR,
     MAX_FEE,
+    PRECOMPILED_CONTRACTS_DIR,
     STRK_FEE_CONTRACT_ADDRESS,
 )
 from starknet_py.tests.e2e.fixtures.misc import (
@@ -340,10 +340,10 @@ async def argent_cairo1_account_class_hash(
     pre_deployed_account_with_validate_deploy: BaseAccount,
 ) -> int:
     compiled_contract = read_contract(
-        "precompiled/argent_account.json", directory=CONTRACTS_COMPILED_V2_DIR
+        "argent_account.json", directory=PRECOMPILED_CONTRACTS_DIR
     )
     compiled_contract_casm = read_contract(
-        "precompiled/argent_account.casm", directory=CONTRACTS_COMPILED_V2_DIR
+        "argent_account.casm", directory=PRECOMPILED_CONTRACTS_DIR
     )
     return await declare_cairo1_account(
         account=pre_deployed_account_with_validate_deploy,
