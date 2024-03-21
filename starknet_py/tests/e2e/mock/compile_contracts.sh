@@ -22,7 +22,7 @@ compile_contracts_with_scarb() {
 
     echo "Compiling Cairo contracts with $SCARB_WITH_VERSION"
 
-    (cd $CONTRACTS_DIRECTORY && scarb clean && scarb -v build)
+    (cd $CONTRACTS_DIRECTORY && scarb clean && scarb build)
 }
 
 compile_contracts_v0() {

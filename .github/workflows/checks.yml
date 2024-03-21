@@ -100,7 +100,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: starknet_py/tests/e2e/mock/contracts_v2/target
-          key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v2', 'starknet_py/tests/e2e/mock/contracts_v2/.tool-versions') }}
+          key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v2') }}
 
 
       - uses: software-mansion/setup-scarb@v1.3.2
@@ -120,7 +120,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: starknet_py/tests/e2e/mock/contracts_v1/target
-          key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v1', 'starknet_py/tests/e2e/mock/contracts_v1/.tool-versions') }}
+          key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v1') }}
 
       - uses: software-mansion/setup-scarb@v1.3.2
         with:
