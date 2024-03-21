@@ -20,11 +20,9 @@ compile_contracts_with_scarb() {
 
     asdf install $SCARB_WITH_VERSION
 
-    find $CONTRACTS_DIRECTORY/target/dev -maxdepth 2 -type f -delete
-
     echo "Compiling Cairo contracts with $SCARB_WITH_VERSION"
 
-    (cd $CONTRACTS_DIRECTORY && scarb build)
+    (cd $CONTRACTS_DIRECTORY && scarb clean && scarb -v build)
 }
 
 compile_contracts_v0() {
