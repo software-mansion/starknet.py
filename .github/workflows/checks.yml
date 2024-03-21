@@ -99,7 +99,7 @@ jobs:
         id: cache-contracts_v2
         uses: actions/cache@v3
         with:
-          path: starknet_py/tests/e2e/mock/contracts_v2
+          path: starknet_py/tests/e2e/mock/contracts_v2/target
           key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v2', 'starknet_py/tests/e2e/mock/contracts_v2/.tool-versions') }}
 
 
@@ -111,8 +111,7 @@ jobs:
         working-directory: "starknet_py/tests/e2e/mock/contracts_v2"
         if: steps.cache-contracts_v2.outputs.cache-hit != 'true'
         run: |
-         scarb build
-            - name: Cache contracts
+          scarb build
 
       # ====================== CONTRACTS v1 ====================== #
 
@@ -120,7 +119,7 @@ jobs:
         id: cache-contracts_v1
         uses: actions/cache@v3
         with:
-          path: starknet_py/tests/e2e/mock/contracts_v1
+          path: starknet_py/tests/e2e/mock/contracts_v1/target
           key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v1', 'starknet_py/tests/e2e/mock/contracts_v1/.tool-versions') }}
 
       - uses: software-mansion/setup-scarb@v1.3.2
