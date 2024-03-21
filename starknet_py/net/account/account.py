@@ -87,7 +87,10 @@ class Account(BaseAccount):
         self._client = client
         self._cairo_version = None
         if isinstance(chain, str):
-            self._chain_id = int(chain, 16)
+            try:
+                self._chain_id = int(chain, 16)
+            except ValueError:
+                self._chain_id = int(chain.encode().hex(), 16)
         else:
             self._chain_id = chain
 
