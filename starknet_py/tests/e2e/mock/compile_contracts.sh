@@ -66,15 +66,15 @@ if [ -z "$@" ]; then
     exit 0
 fi
 
-if [[ "$@" =~ .*"V0".* ]]; then
+if [[ "$@" =~ .*"v0".* ]]; then
     compile_contracts_v0
 fi
 
-if [[ "$@" =~ .*"V1".* ]]; then
+if [[ "$@" =~ .*"v1".* ]]; then
     compile_contracts_with_scarb $CONTRACTS_DIRECTORY_V1
 fi
 
-if [[ "$@" =~ .*"V2".* ]]; then
+if [[ "$@" =~ .*"v2".* ]]; then
     compile_contracts_with_scarb $CONTRACTS_DIRECTORY_V2
 fi
 
