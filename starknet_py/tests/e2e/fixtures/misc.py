@@ -104,7 +104,7 @@ class ContractVersion(Enum):
     V2 = "V2"
 
 
-class UnkonwnArtifacts(BaseException):
+class UnknownArtifacts(BaseException):
     pass
 
 
@@ -115,23 +115,22 @@ def load_contract(contract_name: str, version: Optional[ContractVersion] = None)
         if "--contract_dir=v2" in sys.argv:
             version = ContractVersion.V2
 
-    artifacts_path = CONTRACTS_V2_ARTIFACTS
-    directory = CONTRACTS_V2_COMPILED
+
 
     if version == ContractVersion.V1:
         artifacts_path = CONTRACTS_V1_ARTIFACTS
         directory = CONTRACTS_V1_COMPILED
+    else:
+        artifacts_path = CONTRACTS_V2_ARTIFACTS
+        directory = CONTRACTS_V2_COMPILED
 
-    loaded_artifcats = json.loads((artifacts_path).read_text("utf-8"))
+    loaded_artifacts = json.loads((artifacts_path).read_text("utf-8"))
 
-    for item in loaded_artifcats["contracts"]:
-        if item["contract_name"] == contract_name:
-            artifacts = item["artifacts"]
-            break
+    artifacts = next((item["artifacts"] for item in loaded_artifacts["contracts"] if item["contract_name"] == contract_name), None)
 
     if not isinstance(artifacts, dict):  # pyright: ignore
-        raise UnkonwnArtifacts(
-            f"Artifacts for contract {contract_name} haven't be founded"
+        raise UnknownArtifacts(
+            f"Artifacts for contract {contract_name} not found"
         )
 
     sierra = (directory / artifacts["sierra"]).read_text("utf-8")

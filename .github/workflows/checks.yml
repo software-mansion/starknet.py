@@ -3,8 +3,6 @@ name: Checks
 env:
   DEVNET_SHA: "c6ffb99"
   CAIRO_LANG_VERSION: "0.13.1"
-  CAIRO_V2_SHA: "2203a47f8a098cd4718d03bd109ca014049419e7"
-  CAIRO_V1_SHA: "c6b003cc425907ac5fc846375a48737d5125f5b5"
 
 on:
   push:
@@ -100,7 +98,7 @@ jobs:
         with:
           tool-versions: "starknet_py/tests/e2e/mock/contracts_v2/.tool-versions"
 
-      - name: Compile contracts V2 with scarb
+      - name: Compile contracts V2
         working-directory: "starknet_py/tests/e2e/mock/contracts_v2"
         run: |
          scarb build
@@ -109,7 +107,7 @@ jobs:
         with:
           tool-versions: "starknet_py/tests/e2e/mock/contracts_v1/.tool-versions"
 
-      - name: Compile contracts V1 with scarb
+      - name: Compile contracts V1
         working-directory: "starknet_py/tests/e2e/mock/contracts_v1"
         run: |
           scarb build

@@ -1,32 +1,39 @@
 #!/bin/bash
+set -e
+MOCK_DIRECTORY=starknet_py/tests/e2e/mock
 
-compile_contracts_with_scarb() {
+compile_contracts_v1() {
+    CONTRACTS_DIRECTORY="$MOCK_DIRECTORY"/contracts_v1
+    SCARB_WITH_VERSION=$(head -n 1 "$CONTRACTS_DIRECTORY/.tool-versions")
+
+    if ! command -v asdf >/dev/null 2>&1; then
+        echo "Install asdf, before executing this script is required to manage scarb version"
+        exit 1
+    fi
+    asdf plugin-add scarb
+    asdf install $SCARB_WITH_VERSION
+
+    (cd $CONTRACTS_DIRECTORY && scarb build)
+    echo "$output"
+}
+
+compile_contracts_v2() {
+    CONTRACTS_DIRECTORY="$MOCK_DIRECTORY"/contracts_v2
+    SCARB_WITH_VERSION=$(head -n 1 "$CONTRACTS_DIRECTORY/.tool-versions")
+
     if ! command -v asdf >/dev/null 2>&1; then
         echo "Install asdf, before executing this script is required to manage scarb version"
         exit 1
     fi
 
     asdf plugin-add scarb
-    asdf install scarb 0.4.1
-    asdf install scarb 2.6.3
+    asdf install $SCARB_WITH_VERSION
 
-    output=$(find . -type f -name "Scarb.toml" -execdir sh -c '
-        echo "Running \"scarb fmt\" in directory: $PWD"
-        find target/dev -maxdepth 1 -type f -delete
-        scarb build
-    ' \;)
-
+    (cd $CONTRACTS_DIRECTORY && scarb build)
     echo "$output"
-    if grep -iq "Diff" <<<"$output"; then
-        exit 1
-    fi
-
-    echo "Compiled $number_of_contracts Cairo1 files successfully"
-    exit 0
 }
 
-compile_cairo_v0() {
-    MOCK_DIRECTORY=starknet_py/tests/e2e/mock
+compile_contracts_v0() {
     CONTRACTS_DIRECTORY="$MOCK_DIRECTORY"/contracts
     CONTRACTS_COMPILED_DIRECTORY="$MOCK_DIRECTORY"/contracts_compiled
 
@@ -59,12 +66,23 @@ compile_cairo_v0() {
 
 }
 
-if [[ "$@" =~ .*"cairo0".* ]]; then
-    compile_cairo_v0
+if [[ "$@" =~ .*"V0".* ]]; then
+    compile_contracts_v0
+fi
+
+if [[ "$@" =~ .*"V1".* ]]; then
+    compile_contracts_v1
+fi
+
+if [[ "$@" =~ .*"V2".* ]]; then
+    compile_contracts_v2
 fi
 
 
 if [ -z "$@" ]; then
-    compile_contracts_with_scarb
-    compile_cairo_v0
+    compile_contracts_v0
+    compile_contracts_v1
+    compile_contracts_v2
 fi
+
+exit 0
