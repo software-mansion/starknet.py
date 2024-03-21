@@ -1,36 +1,28 @@
 #!/bin/bash
 set -e
 MOCK_DIRECTORY=starknet_py/tests/e2e/mock
+CONTRACTS_DIRECTORY_V1="$MOCK_DIRECTORY"/contracts_v1
+CONTRACTS_DIRECTORY_V2="$MOCK_DIRECTORY"/contracts_v2
 
-compile_contracts_v1() {
-    CONTRACTS_DIRECTORY="$MOCK_DIRECTORY"/contracts_v1
-    SCARB_WITH_VERSION=$(head -n 1 "$CONTRACTS_DIRECTORY/.tool-versions")
-
+setup_asdf() {
     if ! command -v asdf >/dev/null 2>&1; then
         echo "Install asdf, before executing this script is required to manage scarb version"
         exit 1
     fi
     asdf plugin-add scarb
-    asdf install $SCARB_WITH_VERSION
-
-    (cd $CONTRACTS_DIRECTORY && scarb build)
-    echo "$output"
 }
 
-compile_contracts_v2() {
-    CONTRACTS_DIRECTORY="$MOCK_DIRECTORY"/contracts_v2
-    SCARB_WITH_VERSION=$(head -n 1 "$CONTRACTS_DIRECTORY/.tool-versions")
+compile_contracts_with_scarb() {
+    CONTRACTS_DIRECTORY=$1
+    SCARB_WITH_VERSION=$(cat "$CONTRACTS_DIRECTORY/.tool-versions")
 
-    if ! command -v asdf >/dev/null 2>&1; then
-        echo "Install asdf, before executing this script is required to manage scarb version"
-        exit 1
-    fi
+    setup_asdf
 
-    asdf plugin-add scarb
     asdf install $SCARB_WITH_VERSION
 
+    find $CONTRACTS_DIRECTORY/target/dev -maxdepth 2 -type f -delete
+
     (cd $CONTRACTS_DIRECTORY && scarb build)
-    echo "$output"
 }
 
 compile_contracts_v0() {
@@ -66,23 +58,23 @@ compile_contracts_v0() {
 
 }
 
+if [ -z "$@" ]; then
+    compile_contracts_v0
+    compile_contracts_with_scarb $CONTRACTS_DIRECTORY_V1
+    compile_contracts_with_scarb $CONTRACTS_DIRECTORY_V2
+    exit 0
+fi
+
 if [[ "$@" =~ .*"V0".* ]]; then
     compile_contracts_v0
 fi
 
 if [[ "$@" =~ .*"V1".* ]]; then
-    compile_contracts_v1
+    compile_contracts_with_scarb $CONTRACTS_DIRECTORY_V1
 fi
 
 if [[ "$@" =~ .*"V2".* ]]; then
-    compile_contracts_v2
-fi
-
-
-if [ -z "$@" ]; then
-    compile_contracts_v0
-    compile_contracts_v1
-    compile_contracts_v2
+    compile_contracts_with_scarb $CONTRACTS_DIRECTORY_V2
 fi
 
 exit 0
