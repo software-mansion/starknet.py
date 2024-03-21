@@ -22,6 +22,8 @@ compile_contracts_with_scarb() {
 
     find $CONTRACTS_DIRECTORY/target/dev -maxdepth 2 -type f -delete
 
+    echo "Compiling Cairo contracts with $SCARB_WITH_VERSION"
+
     (cd $CONTRACTS_DIRECTORY && scarb build)
 }
 
@@ -35,7 +37,6 @@ compile_contracts_v0() {
     # compile Cairo test contracts
     echo "Compiling Cairo contracts with $(poetry run starknet-compile-deprecated --version)"
 
-    number_of_contracts=0
     for contract in "$CONTRACTS_DIRECTORY"/*.cairo; do
         basename=$(basename "$contract")
 
@@ -51,10 +52,7 @@ compile_contracts_v0() {
         echo "Compiling $contract..."
         # run starknet-compile-deprecated
         poetry run starknet-compile-deprecated $account_contract_flag --cairo_path $CONTRACTS_DIRECTORY:$MOCK_DIRECTORY --output $output --abi $abi $contract
-        number_of_contracts=$((number_of_contracts + 1))
     done
-
-    echo "Compiled $number_of_contracts Cairo files successfully"
 
 }
 
@@ -62,6 +60,9 @@ if [ -z "$@" ]; then
     compile_contracts_v0
     compile_contracts_with_scarb $CONTRACTS_DIRECTORY_V1
     compile_contracts_with_scarb $CONTRACTS_DIRECTORY_V2
+
+    echo "Successfully compiled contracts!"
+
     exit 0
 fi
 
@@ -76,5 +77,7 @@ fi
 if [[ "$@" =~ .*"V2".* ]]; then
     compile_contracts_with_scarb $CONTRACTS_DIRECTORY_V2
 fi
+
+echo "Successfully compiled contracts!"
 
 exit 0

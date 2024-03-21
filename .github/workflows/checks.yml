@@ -130,7 +130,7 @@ jobs:
       - name: Compile contracts
         if: steps.cache-contracts.outputs.cache-hit != 'true'
         run: |
-          poetry run poe compile_contracts cairo0
+          poetry run poe compile_contracts V0
 
       - name: Upload contracts
         uses: actions/upload-artifact@v3

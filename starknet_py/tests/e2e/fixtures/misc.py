@@ -115,8 +115,6 @@ def load_contract(contract_name: str, version: Optional[ContractVersion] = None)
         if "--contract_dir=v2" in sys.argv:
             version = ContractVersion.V2
 
-
-
     if version == ContractVersion.V1:
         artifacts_path = CONTRACTS_V1_ARTIFACTS
         directory = CONTRACTS_V1_COMPILED
@@ -126,12 +124,17 @@ def load_contract(contract_name: str, version: Optional[ContractVersion] = None)
 
     loaded_artifacts = json.loads((artifacts_path).read_text("utf-8"))
 
-    artifacts = next((item["artifacts"] for item in loaded_artifacts["contracts"] if item["contract_name"] == contract_name), None)
+    artifacts = next(
+        (
+            item["artifacts"]
+            for item in loaded_artifacts["contracts"]
+            if item["contract_name"] == contract_name
+        ),
+        None,
+    )
 
     if not isinstance(artifacts, dict):  # pyright: ignore
-        raise UnknownArtifacts(
-            f"Artifacts for contract {contract_name} not found"
-        )
+        raise UnknownArtifacts(f"Artifacts for contract {contract_name} not found")
 
     sierra = (directory / artifacts["sierra"]).read_text("utf-8")
     casm = (directory / artifacts["casm"]).read_text("utf-8")
