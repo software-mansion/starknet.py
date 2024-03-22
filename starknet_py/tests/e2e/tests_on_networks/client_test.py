@@ -38,7 +38,7 @@ from starknet_py.transaction_errors import TransactionRevertedError
     (
         "0x016df225d14eb927b1c85ec85d2f9f4fc7653ba13a99e30ffe9e21c96ddc7a6d",  # invoke
         "0x0255f63b1dbd52902e2fb5707d2d2b52d5600fa228f0655b02b78bfcf9cab353",  # declare
-        # "0x510fa73cdb49ae81742441c494c396883a2eee91209fe387ce1dec5fa04ecb",  # deploy
+        "0x05dbb4f54bc9dcd2d4c48e7301d30426a0df8ca04a15a7f459a3e3a09c3d5045",  # deploy
         "0x0379c52f40fad2d94152d7c924b69cd61a99cf45b85ba9cb836f69026db67af8",  # deploy_account
         "0x06098d74f3fe1b2b96dcfbb3b9ca9be0c396bde0a0825e111fcbefec9c34fcc6",  # l1_handler
     ),
@@ -153,26 +153,20 @@ async def test_transaction_not_received_invalid_signature(account_sepolia_testne
 
 
 # TODO (#1219): move tests below to full_node_test.py
-
-
-@pytest.mark.skip(reason="Check why it doesen't works")
 @pytest.mark.asyncio
 async def test_estimate_message_fee(client_sepolia_testnet):
     client = client_sepolia_testnet
-
     # info about this message from
-    # https://sepolia.starkscan.co/tx/0x073b6ed980a1ee0aba8499ff41cd4fa6432ae1348876b675697485cc4dbe586b#overview
-    # https://integration.starkscan.co/message/0x140185c79e5a04c7c3fae513001f358beb66653dcee75be38f05bd30adba85dd
+    # https://sepolia.starkscan.co/message-log/0x061e8c5211c705d0ab608e42f181edf4ef9ae891b3e568a6fe1c3b83076eefc2_0_1
     estimated_message = await client.estimate_message_fee(
-        from_address="0x2ffb3c4bbe0fc6e7a6f90ebfd50099dfbaa80ab9",
-        block_number=41044,
-        to_address="0x07fd01e7edd2a555ff389efb8335b75c3e3372f8f77aab4902a0bdb28e885975",
-        entry_point_selector="0x03636c566f6409560d55d5f6d1eb4ee163b096b4698c503e69e210be79de2afa",
+        from_address="0x18e4a8e2badb5f5950758f46f8108e2c5d357b07",
+        block_number=51569,
+        to_address="0x054f677f3e952d023e2f31d74606270b676eaf493befbcfa2111f2b96a242362",
+        entry_point_selector="0x03fa70707d0e831418fb142ca8fb7483611b84e89c0c42bf1fc2a7a5c40890ad",
         payload=[
-            "0xe",
-            "0x0",
-            "0xa7d66ab47e22255e4c72e5f07a511f31b53beb68",
-            "0x2386f26fc10000",
+            "0x1b0b3ddfc5264c441c9eee709011a863",
+            "0xfbe265a54523fc9070e26bfc5aa145ab",
+            "0x5469d9",
             "0x0",
         ],
     )
@@ -200,15 +194,14 @@ async def test_estimate_message_fee_invalid_eth_address_assertion_error(
         match=f"Argument 'from_address': {invalid_eth_address} is not a valid Ethereum address.",
     ):
         _ = await client.estimate_message_fee(
-            from_address=invalid_eth_address,
-            block_number=41044,
-            to_address="0x07fd01e7edd2a555ff389efb8335b75c3e3372f8f77aab4902a0bdb28e885975",
-            entry_point_selector="0x03636c566f6409560d55d5f6d1eb4ee163b096b4698c503e69e210be79de2afa",
+            from_address="0x18e4a8e2badb5f5950758f46f8108e2c5d357b07",
+            block_number=51569,
+            to_address="0x054f677f3e952d023e2f31d74606270b676eaf493befbcfa2111f2b96a242362",
+            entry_point_selector="0x03fa70707d0e831418fb142ca8fb7483611b84e89c0c42bf1fc2a7a5c40890ad",
             payload=[
-                "0xe",
-                "0x0",
-                "0xa7d66ab47e22255e4c72e5f07a511f31b53beb68",
-                "0x2386f26fc10000",
+                "0x1b0b3ddfc5264c441c9eee709011a863",
+                "0xfbe265a54523fc9070e26bfc5aa145ab",
+                "0x5469d9",
                 "0x0",
             ],
         )
@@ -264,10 +257,10 @@ async def test_get_tx_receipt_reverted(client_sepolia_integration):
     [
         # declare: https://integration-sepolia.starkscan.co/tx/0x0544a629990d2bed8ccf11910b30f2f1e18228ed5be06660bea20cae13b2aced
         (9707, 0),
-        # Deploys on sepolia integration are marks as inveke
-        # deploy: https://integration.voyager.online/tx/0x510fa73cdb49ae81742441c494c396883a2eee91209fe387ce1dec5fa04ecb
-        # (248061, 0),
-        # deploy_account: https://integration.voyager.online/tx/0x593c073960140ab7af7951fadb6a129572cc504ef0b9107992c5c1efe5a0fb5
+        # Deploys on sepolia integration are marks as invoke
+        # deploy: https://integration-sepolia.starkscan.co/tx/0x022ffb771d8b847899c49f8efe48b4d70fd4825658e3d41ad38d3d3da3045891
+        (9708, 2),
+        # deploy_account: https://integration-sepolia.starkscan.co/tx/0x012debae2435ea43c06610a31ccf8e7ea5de9aec43dac7c7aa86905b4ccdec49
         (9708, 6),
         # invoke: https://integration-sepolia.starkscan.co/tx/0x069125fd85a199a5d06445e1ece5067781aa46c745e3e2993c696c60bbd5992c
         (9708, 0),
