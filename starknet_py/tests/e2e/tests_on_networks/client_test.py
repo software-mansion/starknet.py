@@ -194,7 +194,7 @@ async def test_estimate_message_fee_invalid_eth_address_assertion_error(
         match=f"Argument 'from_address': {invalid_eth_address} is not a valid Ethereum address.",
     ):
         _ = await client.estimate_message_fee(
-            from_address="0x18e4a8e2badb5f5950758f46f8108e2c5d357b07",
+            from_address=invalid_eth_address,
             block_number=51569,
             to_address="0x054f677f3e952d023e2f31d74606270b676eaf493befbcfa2111f2b96a242362",
             entry_point_selector="0x03fa70707d0e831418fb142ca8fb7483611b84e89c0c42bf1fc2a7a5c40890ad",
