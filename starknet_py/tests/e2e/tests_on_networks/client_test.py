@@ -327,7 +327,7 @@ async def test_spec_version(client_sepolia_testnet):
 @pytest.mark.asyncio
 async def test_get_transaction_status(client_sepolia_testnet):
     tx_status = await client_sepolia_testnet.get_transaction_status(
-        tx_hash=0x06bf304efef9d0d28161c69a4660fa8ac769118a81face53bc8ea165bbb3f86f
+        tx_hash=0x06BF304EFEF9D0D28161C69A4660FA8AC769118A81FACE53BC8EA165BBB3F86F
     )
 
     assert tx_status.finality_status == TransactionStatus.ACCEPTED_ON_L1
@@ -374,16 +374,16 @@ async def test_get_block_with_tx_hashes_new_header_fields(client_sepolia_testnet
     "tx_hash, tx_type",
     [
         (
-            0x054270d103c875a613e013d1fd555edcff2085feca9d7b4532243a8257fd5cf3,
+            0x054270D103C875A613E013D1FD555EDCFF2085FECA9D7B4532243A8257FD5CF3,
             DeclareTransactionV3,
         ),
-        # Find DeployAccountTransactionV3 and uncomment it with correct hash 
+        # Find DeployAccountTransactionV3 and uncomment it with correct hash
         # (
         #     0x043ce86d627dbf29186c89f2bcb12e83955cf4d3983447ff691a1d0dd8142c20,
         #     DeployAccountTransactionV3,
         # ),
         (
-            0x043868d939fa1b62b977fffc659146688e954bbabeda020cc99bae1c220e4882,
+            0x043868D939FA1B62B977FFFC659146688E954BBABEDA020CC99BAE1C220E4882,
             InvokeTransactionV3,
         ),
     ],
