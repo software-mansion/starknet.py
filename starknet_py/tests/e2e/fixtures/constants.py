@@ -103,6 +103,9 @@ MOCK_DIR = Path(os.path.dirname(__file__)) / "../mock"
 TYPED_DATA_DIR = MOCK_DIR / "typed_data"
 CONTRACTS_DIR = MOCK_DIR / "contracts"
 CONTRACTS_COMPILED_V0_DIR = MOCK_DIR / "contracts_compiled"
+
+# PRECOMPILED_CONTRACTS are contracts compiled with various Sierras
+# They are mainly used to verify if we compute class_hash for older Sierras correctly
 PRECOMPILED_CONTRACTS_DIR = MOCK_DIR / "precompiled_contracts"
 
 CONTRACTS_V2_COMPILED = MOCK_DIR / "contracts_v2/target/dev"
