@@ -11,9 +11,9 @@ import pytest
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models.typed_data import TypedData
 from starknet_py.tests.e2e.fixtures.constants import (
-    CONTRACTS_V1_ARTIFACTS,
+    CONTRACTS_V1_ARTIFACTS_MAP,
     CONTRACTS_V1_COMPILED,
-    CONTRACTS_V2_ARTIFACTS,
+    CONTRACTS_V2_ARTIFACTS_MAP,
     CONTRACTS_V2_COMPILED,
     TYPED_DATA_DIR,
 )
@@ -113,28 +113,28 @@ def load_contract(contract_name: str, version: Optional[ContractVersion] = None)
             version = ContractVersion.V2
 
     if version == ContractVersion.V1:
-        artifacts_path = CONTRACTS_V1_ARTIFACTS
+        artifacts_map_path = CONTRACTS_V1_ARTIFACTS_MAP
         directory = CONTRACTS_V1_COMPILED
     else:
-        artifacts_path = CONTRACTS_V2_ARTIFACTS
+        artifacts_map_path = CONTRACTS_V2_ARTIFACTS_MAP
         directory = CONTRACTS_V2_COMPILED
 
-    loaded_artifacts = json.loads((artifacts_path).read_text("utf-8"))
+    artifacts_map = json.loads((artifacts_map_path).read_text("utf-8"))
 
-    artifacts = next(
+    artifact_file_names = next(
         (
             item["artifacts"]
-            for item in loaded_artifacts["contracts"]
+            for item in artifacts_map["contracts"]
             if item["contract_name"] == contract_name
         ),
         None,
     )
 
-    if not isinstance(artifacts, dict):  # pyright: ignore
+    if not isinstance(artifact_file_names, dict):  # pyright: ignore
         raise UnknownArtifacts(f"Artifacts for contract {contract_name} not found")
 
-    sierra = (directory / artifacts["sierra"]).read_text("utf-8")
-    casm = (directory / artifacts["casm"]).read_text("utf-8")
+    sierra = (directory / artifact_file_names["sierra"]).read_text("utf-8")
+    casm = (directory / artifact_file_names["casm"]).read_text("utf-8")
 
     return {"casm": casm, "sierra": sierra}
 

@@ -106,7 +106,11 @@ CONTRACTS_COMPILED_V0_DIR = MOCK_DIR / "contracts_compiled"
 PRECOMPILED_CONTRACTS_DIR = MOCK_DIR / "precompiled_contracts"
 
 CONTRACTS_V2_COMPILED = MOCK_DIR / "contracts_v2/target/dev"
-CONTRACTS_V2_ARTIFACTS = CONTRACTS_V2_COMPILED / "contracts_v2.starknet_artifacts.json"
+CONTRACTS_V2_ARTIFACTS_MAP = (
+    CONTRACTS_V2_COMPILED / "contracts_v2.starknet_artifacts.json"
+)
 
 CONTRACTS_V1_COMPILED = MOCK_DIR / "contracts_v1/target/dev"
-CONTRACTS_V1_ARTIFACTS = CONTRACTS_V1_COMPILED / "contracts_v1.starknet_artifacts.json"
+CONTRACTS_V1_ARTIFACTS_MAP = (
+    CONTRACTS_V1_COMPILED / "contracts_v1.starknet_artifacts.json"
+)
