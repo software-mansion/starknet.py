@@ -287,8 +287,8 @@ async def test_get_transaction_by_block_id_and_index(
 
 
 @pytest.mark.asyncio
-async def test_get_block(client_goerli_integration):
-    client = client_goerli_integration
+async def test_get_block(client_sepolia_integration):
+    client = client_sepolia_integration
     res = await client.get_block(block_number="latest")
 
     for tx in res.transactions:
@@ -296,38 +296,38 @@ async def test_get_block(client_goerli_integration):
 
 
 @pytest.mark.asyncio
-async def test_get_l1_message_hash(client_goerli_integration):
-    tx_hash = "0x0060bd50c38082211e6aedb21838fe7402a67216d559d9a4848e6c5e9670c90e"
-    l1_message_hash = await client_goerli_integration.get_l1_message_hash(tx_hash)
+async def test_get_l1_message_hash(client_sepolia_integration):
+    tx_hash = "0x065b2b6543e49f2f8a22541e9141f506752d984b4d8c690526001025109cee30"
+    l1_message_hash = await client_sepolia_integration.get_l1_message_hash(tx_hash)
     assert (
         hex(l1_message_hash)
-        == "0x140185c79e5a04c7c3fae513001f358beb66653dcee75be38f05bd30adba85dd"
+        == "0x4aed43247e106a0687258bfc835131e5dee15c24fb18222d382dbff470df0f9e"
     )
 
 
 @pytest.mark.asyncio
 async def test_get_l1_message_hash_raises_on_incorrect_transaction_type(
-    client_goerli_integration,
+    client_sepolia_integration,
 ):
-    tx_hash = "0x06d11fa74255c1f86aace54cbf382ab8c89e2b90fb0801f751834ca52bf2a2a2"
+    tx_hash = "0x044a5565cde76c445db6205d208f584879d9e6e8f8b6b2ebb58e658680320cfa"
     with pytest.raises(
         TypeError, match=f"Transaction {tx_hash} is not a result of L1->L2 interaction."
     ):
-        await client_goerli_integration.get_l1_message_hash(tx_hash)
+        await client_sepolia_integration.get_l1_message_hash(tx_hash)
 
 
 @pytest.mark.asyncio
-async def test_spec_version(client_goerli_testnet):
-    spec_version = await client_goerli_testnet.spec_version()
+async def test_spec_version(client_sepolia_testnet):
+    spec_version = await client_sepolia_testnet.spec_version()
 
     assert spec_version is not None
     assert isinstance(spec_version, str)
 
 
 @pytest.mark.asyncio
-async def test_get_transaction_status(client_goerli_testnet):
-    tx_status = await client_goerli_testnet.get_transaction_status(
-        tx_hash=0x1FCE504A8F9C837CA84B784836E5AF041221C1BFB40C03AE0BDC0C713D09A21
+async def test_get_transaction_status(client_sepolia_testnet):
+    tx_status = await client_sepolia_testnet.get_transaction_status(
+        tx_hash=0x06bf304efef9d0d28161c69a4660fa8ac769118a81face53bc8ea165bbb3f86f
     )
 
     assert tx_status.finality_status == TransactionStatus.ACCEPTED_ON_L1
@@ -335,15 +335,15 @@ async def test_get_transaction_status(client_goerli_testnet):
 
 
 @pytest.mark.asyncio
-async def test_get_block_new_header_fields(client_goerli_testnet):
+async def test_get_block_new_header_fields(client_sepolia_testnet):
     # testing l1_gas_price and starknet_version fields
-    block = await client_goerli_testnet.get_block_with_txs(block_number=800000)
+    block = await client_sepolia_testnet.get_block_with_txs(block_number=155)
 
     assert block.starknet_version is not None
     assert block.l1_gas_price is not None
     assert block.l1_gas_price.price_in_wei > 0
 
-    pending_block = await client_goerli_testnet.get_block_with_txs(
+    pending_block = await client_sepolia_testnet.get_block_with_txs(
         block_number="pending"
     )
 
@@ -353,15 +353,15 @@ async def test_get_block_new_header_fields(client_goerli_testnet):
 
 
 @pytest.mark.asyncio
-async def test_get_block_with_tx_hashes_new_header_fields(client_goerli_testnet):
+async def test_get_block_with_tx_hashes_new_header_fields(client_sepolia_testnet):
     # testing l1_gas_price and starknet_version fields
-    block = await client_goerli_testnet.get_block_with_tx_hashes(block_number=800000)
+    block = await client_sepolia_testnet.get_block_with_tx_hashes(block_number=155)
 
     assert block.starknet_version is not None
     assert block.l1_gas_price is not None
     assert block.l1_gas_price.price_in_wei > 0
 
-    pending_block = await client_goerli_testnet.get_block_with_tx_hashes(
+    pending_block = await client_sepolia_testnet.get_block_with_tx_hashes(
         block_number="pending"
     )
 
@@ -374,22 +374,23 @@ async def test_get_block_with_tx_hashes_new_header_fields(client_goerli_testnet)
     "tx_hash, tx_type",
     [
         (
-            0x7B31376D1C4F467242616530901E1B441149F1106EF765F202A50A6F917762B,
+            0x054270d103c875a613e013d1fd555edcff2085feca9d7b4532243a8257fd5cf3,
             DeclareTransactionV3,
         ),
+        # Find DeployAccountTransactionV3 and uncomment it with correct hash 
+        # (
+        #     0x043ce86d627dbf29186c89f2bcb12e83955cf4d3983447ff691a1d0dd8142c20,
+        #     DeployAccountTransactionV3,
+        # ),
         (
-            0x750DC0D6B64D29E7F0CA6399802BA46C6FCA0E37FB977706DFD1DD42B63D757,
-            DeployAccountTransactionV3,
-        ),
-        (
-            0x15F2CF38832542602E2D1C8BF0634893E6B43ACB6879E8A8F892F5A9B03C907,
+            0x043868d939fa1b62b977fffc659146688e954bbabeda020cc99bae1c220e4882,
             InvokeTransactionV3,
         ),
     ],
 )
 @pytest.mark.asyncio
-async def test_get_transaction_v3(client_goerli_testnet, tx_hash, tx_type):
-    tx = await client_goerli_testnet.get_transaction(tx_hash=tx_hash)
+async def test_get_transaction_v3(client_sepolia_testnet, tx_hash, tx_type):
+    tx = await client_sepolia_testnet.get_transaction(tx_hash=tx_hash)
     assert isinstance(tx, tx_type)
     assert tx.version == 3
     assert isinstance(tx.resource_bounds, ResourceBoundsMapping)
@@ -450,14 +451,14 @@ async def test_get_tx_receipt_with_execution_resources(client_sepolia_integratio
 
 
 @pytest.mark.asyncio
-async def test_get_block_with_receipts(client_goerli_integration):
-    block_with_receipts = await client_goerli_integration.get_block_with_receipts(
-        block_number=329520
+async def test_get_block_with_receipts(client_sepolia_testnet):
+    block_with_receipts = await client_sepolia_testnet.get_block_with_receipts(
+        block_number=48778
     )
 
     assert isinstance(block_with_receipts, StarknetBlockWithReceipts)
     assert block_with_receipts.status == BlockStatus.ACCEPTED_ON_L1
-    assert len(block_with_receipts.transactions) == 4
+    assert len(block_with_receipts.transactions) == 43
     assert all(
         getattr(block_with_receipts, field.name) is not None
         for field in dataclasses.fields(BlockHeader)
@@ -465,8 +466,8 @@ async def test_get_block_with_receipts(client_goerli_integration):
 
 
 @pytest.mark.asyncio
-async def test_get_pending_block_with_receipts(client_goerli_integration):
-    block_with_receipts = await client_goerli_integration.get_block_with_receipts(
+async def test_get_pending_block_with_receipts(client_sepolia_integration):
+    block_with_receipts = await client_sepolia_integration.get_block_with_receipts(
         block_number="pending"
     )
 
