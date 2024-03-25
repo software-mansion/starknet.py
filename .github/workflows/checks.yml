@@ -3,6 +3,8 @@ name: Checks
 env:
   DEVNET_SHA: "c6ffb99"
   CAIRO_LANG_VERSION: "0.13.1"
+  CAIRO_V2_SHA: "2203a47f8a098cd4718d03bd109ca014049419e7"
+  CAIRO_V1_SHA: "c6b003cc425907ac5fc846375a48737d5125f5b5"
 
 on:
   push:
@@ -84,11 +86,6 @@ jobs:
           pip install poetry
           poetry config installer.modern-installation false
 
-      - name: Install deprecated cairo compiler
-        run: |
-          pip install --upgrade setuptools
-          pip install cairo-lang==${{ env.CAIRO_LANG_VERSION }}
-
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
@@ -99,6 +96,54 @@ jobs:
         run: |
           poetry install
 
+      # ====================== CONTRACTS v2 ====================== #
+
+      - name: Cache contracts v2
+        id: cache-contracts-v2
+        uses: actions/cache@v3
+        with:
+          path: starknet_py/tests/e2e/mock/contracts_compiled_v2
+          key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v2') }}-${{ env.CAIRO_V2_SHA }}
+    
+      - uses: actions/checkout@v4
+        with:
+          repository: starkware-libs/cairo
+          path: cairo_v2
+          ref: ${{ env.CAIRO_V2_SHA }}
+
+      - name: Create text file
+        run: |
+          echo "${{ github.workspace }}/cairo_v2/Cargo.toml" > ${{ github.workspace }}/starknet_py/tests/e2e/manifest-path
+
+      - name: Compile contracts
+        if: steps.cache-contracts-v2.outputs.cache-hit != 'true'
+        run: |
+          poetry run poe compile_contracts_v2
+
+      # ====================== CONTRACTS v1 ====================== #
+
+      - name: Cache contracts v1
+        id: cache-contracts-v1
+        uses: actions/cache@v3
+        with:
+          path: starknet_py/tests/e2e/mock/contracts_compiled_v1
+          key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v1') }}-${{ env.CAIRO_V1_SHA }}
+
+      - uses: actions/checkout@v4
+        with:
+          repository: starkware-libs/cairo
+          path: cairo_v1
+          ref: ${{ env.CAIRO_V1_SHA }}
+
+      - name: Create text file
+        run: |
+          echo "${{ github.workspace }}/cairo_v1/Cargo.toml" > ${{ github.workspace }}/starknet_py/tests/e2e/manifest-path
+
+      - name: Compile contracts
+        if: steps.cache-contracts-v1.outputs.cache-hit != 'true'
+        run: |
+          poetry run poe compile_contracts_v1
+
       # ====================== CONTRACTS v0 ====================== #
 
       - name: Cache contracts
@@ -107,6 +152,12 @@ jobs:
         with:
           path: starknet_py/tests/e2e/mock/contracts_compiled
           key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts', 'poetry.lock') }}-${{ env.CAIRO_LANG_VERSION }}
+
+      - name: Install deprecated cairo compiler
+        if: steps.cache-contracts.outputs.cache-hit != 'true'
+        run: |
+          pip install --upgrade setuptools
+          pip install cairo-lang==${{ env.CAIRO_LANG_VERSION }}
 
       - name: Compile contracts
         if: steps.cache-contracts.outputs.cache-hit != 'true'

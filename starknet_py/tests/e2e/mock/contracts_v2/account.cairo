@@ -5,7 +5,7 @@ mod account {
     use ecdsa::check_ecdsa_signature;
     use option::OptionTrait;
     use starknet::account::Call;
-    use starknet::{ContractAddress, call_contract_syscall};
+    use starknet::{ContractAddress, syscalls, SyscallResultTrait};
     use zeroable::Zeroable;
     use array::ArraySerde;
 
@@ -41,18 +41,6 @@ mod account {
         }
     }
 
-
-    #[external(v0)]
-    fn __validate_deploy__(
-        self: @ContractState,
-        class_hash: felt252,
-        contract_address_salt: felt252,
-        public_key_: felt252
-    ) -> felt252 {
-        self.validate_transaction()
-    }
-
-    #[external(v0)]
     impl AccountContractImpl of starknet::account::AccountContract<ContractState> {
         fn __validate_declare__(self: @ContractState, class_hash: felt252) -> felt252 {
             self.validate_transaction()
@@ -74,12 +62,12 @@ mod account {
             loop {
                 match calls.pop_front() {
                     Option::Some(call) => {
-                        let mut res = call_contract_syscall(
+                        let mut res = syscalls::call_contract_syscall(
                             address: call.to,
                             entry_point_selector: call.selector,
-                            calldata: call.calldata.span()
-                        )
-                            .unwrap_syscall();
+                            calldata: call.calldata
+                        ).unwrap_syscall();
+                        
                         result.append(res);
                     },
                     Option::None => {

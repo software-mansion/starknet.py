@@ -179,7 +179,7 @@ mod HelloStarknet {
     fn constructor(ref self: ContractState) {}
 
 
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl IHelloStarknetImpl of super::IHelloStarknet<ContractState> {
         // Felt252 test.
         fn increase_balance(ref self: ContractState, amount: felt252) {
