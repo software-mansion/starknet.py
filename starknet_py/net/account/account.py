@@ -610,7 +610,7 @@ class Account(BaseAccount):
 
         Provided address must be first prefunded with enough tokens, otherwise the method will fail.
 
-        If using Client for MAINNET, GOERLI, SEPOLIA or SEPOLIA_INTEGRATION, this method will verify
+        If using Client for MAINNET, SEPOLIA or SEPOLIA_INTEGRATION, this method will verify
         if the address balance is high enough to cover deployment costs.
 
         :param address: Calculated and prefunded address of the new account.

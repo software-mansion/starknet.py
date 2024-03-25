@@ -257,7 +257,6 @@ async def test_get_tx_receipt_reverted(client_sepolia_integration):
     [
         # declare: https://integration-sepolia.starkscan.co/tx/0x0544a629990d2bed8ccf11910b30f2f1e18228ed5be06660bea20cae13b2aced
         (9707, 0),
-        # Deploys on sepolia integration are marks as invoke
         # deploy: https://integration-sepolia.starkscan.co/tx/0x022ffb771d8b847899c49f8efe48b4d70fd4825658e3d41ad38d3d3da3045891
         (9708, 2),
         # deploy_account: https://integration-sepolia.starkscan.co/tx/0x012debae2435ea43c06610a31ccf8e7ea5de9aec43dac7c7aa86905b4ccdec49
