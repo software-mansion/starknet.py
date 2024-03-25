@@ -4,7 +4,11 @@ from collections import OrderedDict
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
 from starknet_py.common import create_compiled_contract, create_sierra_compiled_contract
-from starknet_py.constants import FEE_CONTRACT_ADDRESS, QUERY_VERSION_BASE
+from starknet_py.constants import (
+    FEE_CONTRACT_ADDRESS_ETH,
+    FEE_CONTRACT_ADDRESS_STRK,
+    QUERY_VERSION_BASE,
+)
 from starknet_py.hash.address import compute_address
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.utils import verify_message_signature
@@ -16,6 +20,7 @@ from starknet_py.net.client_models import (
     Calls,
     EstimatedFee,
     Hash,
+    PriceUnit,
     ResourceBounds,
     ResourceBoundsMapping,
     SentTransactionResponse,
@@ -297,9 +302,10 @@ class Account(BaseAccount):
         *,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
+        currency: PriceUnit = PriceUnit.WEI,
     ) -> int:
         if token_address is None:
-            token_address = self._default_token_address_for_chain(chain_id)
+            token_address = self._default_token_address_for_chain(currency, chain_id)
 
         low, high = await self._client.call_contract(
             Call(
@@ -723,6 +729,13 @@ class Account(BaseAccount):
             auto_estimate=auto_estimate,
         )
 
+        if chain in StarknetChainId:
+            balance = await account.get_balance(currency=PriceUnit.FRI)
+            if balance < deploy_account_tx.resource_bounds.l1_gas_fri:
+                raise ValueError(
+                    "Not enough tokens at the specified address to cover deployment costs."
+                )
+
         result = await client.deploy_account(deploy_account_tx)
 
         return AccountDeploymentResult(
@@ -730,7 +743,9 @@ class Account(BaseAccount):
         )
 
     def _default_token_address_for_chain(
-        self, chain_id: Optional[StarknetChainId] = None
+        self,
+        currency: PriceUnit,
+        chain_id: Optional[StarknetChainId] = None,
     ) -> str:
         if (chain_id or self._chain_id) not in [
             StarknetChainId.SEPOLIA_TESTNET,
@@ -742,7 +757,11 @@ class Account(BaseAccount):
                 "Argument token_address must be specified when using a custom network."
             )
 
-        return FEE_CONTRACT_ADDRESS
+        return (
+            FEE_CONTRACT_ADDRESS_ETH
+            if currency == PriceUnit.WEI
+            else FEE_CONTRACT_ADDRESS_STRK
+        )
 
 
 def _prepare_account_to_deploy(
