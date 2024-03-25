@@ -131,6 +131,14 @@ class ResourceBoundsMapping:
             l2_gas=ResourceBounds.init_with_zeros(),
         )
 
+    @property
+    def l1_gas_fri(self):
+        return self.l1_gas.max_amount * self.l1_gas.max_price_per_unit
+
+    @property
+    def l2_gas_fri(self):
+        return self.l2_gas.max_amount * self.l2_gas.max_price_per_unit
+
 
 class PriceUnit(Enum):
     """

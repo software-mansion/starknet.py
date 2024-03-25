@@ -9,7 +9,7 @@ from starknet_py.common import (
     create_compiled_contract,
     create_sierra_compiled_contract,
 )
-from starknet_py.constants import FEE_CONTRACT_ADDRESS
+from starknet_py.constants import FEE_CONTRACT_ADDRESS_ETH, FEE_CONTRACT_ADDRESS_STRK
 from starknet_py.contract import Contract
 from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.net.account.base_account import BaseAccount
@@ -19,7 +19,6 @@ from starknet_py.tests.e2e.fixtures.constants import (
     CONTRACTS_COMPILED_V2_DIR,
     CONTRACTS_DIR,
     MAX_FEE,
-    STRK_FEE_CONTRACT_ADDRESS,
 )
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
@@ -236,7 +235,7 @@ def eth_fee_contract(account: BaseAccount, fee_contract_abi) -> Contract:
     """
 
     return Contract(
-        address=FEE_CONTRACT_ADDRESS,
+        address=FEE_CONTRACT_ADDRESS_ETH,
         abi=fee_contract_abi,
         provider=account,
     )
@@ -249,7 +248,7 @@ def strk_fee_contract(account: BaseAccount, fee_contract_abi) -> Contract:
     """
 
     return Contract(
-        address=STRK_FEE_CONTRACT_ADDRESS,
+        address=FEE_CONTRACT_ADDRESS_STRK,
         abi=fee_contract_abi,
         provider=account,
     )

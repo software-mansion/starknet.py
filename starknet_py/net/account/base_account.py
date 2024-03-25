@@ -6,6 +6,7 @@ from starknet_py.net.client_models import (
     Calls,
     EstimatedFee,
     Hash,
+    PriceUnit,
     ResourceBounds,
     SentTransactionResponse,
     Tag,
@@ -97,6 +98,7 @@ class BaseAccount(ABC):
         *,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
+        currency: Optional[PriceUnit] = PriceUnit.WEI,
     ) -> int:
         """
         Checks account's balance of specified token.
@@ -107,6 +109,8 @@ class BaseAccount(ABC):
             If token_address is provided, chain_id will be ignored.
         :param block_hash: Block's hash or literals `"pending"` or `"latest"`
         :param block_number: Block's number or literals `"pending"` or `"latest"`
+        :param currency: Currency of the balance that will be returned. Support [WEI, FRI].
+            Works only if token_address is None
         :return: Token balance.
         """
 
