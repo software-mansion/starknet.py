@@ -23,7 +23,7 @@ async def test_get_balance_default_token_address(net):
         client=client,
         address="0x123",
         key_pair=KeyPair(123, 456),
-        chain=StarknetChainId.GOERLI,
+        chain=StarknetChainId.MAINNET,
     )
 
     with patch(
@@ -81,7 +81,7 @@ def test_create_account():
         address=0x1,
         client=FullNodeClient(node_url=""),
         key_pair=key_pair,
-        chain=StarknetChainId.GOERLI,
+        chain=StarknetChainId.MAINNET,
     )
 
     assert account.address == 0x1
@@ -92,7 +92,7 @@ def test_create_account_from_signer():
     signer = StarkCurveSigner(
         account_address=0x1,
         key_pair=KeyPair.from_private_key(0x111),
-        chain_id=StarknetChainId.GOERLI,
+        chain_id=StarknetChainId.MAINNET,
     )
     account = Account(address=0x1, client=FullNodeClient(node_url=""), signer=signer)
 
@@ -117,7 +117,7 @@ def test_create_account_raises_on_no_keypair_and_signer():
         Account(
             address=0x1,
             client=FullNodeClient(node_url=""),
-            chain=StarknetChainId.GOERLI,
+            chain=StarknetChainId.MAINNET,
         )
 
 
@@ -128,11 +128,11 @@ def test_create_account_raises_on_both_keypair_and_signer():
         Account(
             address=0x1,
             client=FullNodeClient(node_url=""),
-            chain=StarknetChainId.GOERLI,
+            chain=StarknetChainId.MAINNET,
             key_pair=KeyPair.from_private_key(0x111),
             signer=StarkCurveSigner(
                 account_address=0x1,
                 key_pair=KeyPair.from_private_key(0x11),
-                chain_id=StarknetChainId.GOERLI,
+                chain_id=StarknetChainId.MAINNET,
             ),
         )

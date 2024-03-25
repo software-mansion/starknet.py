@@ -66,7 +66,7 @@ async def devnet_account_details(
         address=address,
         client=account.client,
         key_pair=key_pair,
-        chain=StarknetChainId.GOERLI,
+        chain=StarknetChainId.MAINNET,
     )
     res = await account.client.deploy_account(deploy_account_tx)
     await account.client.wait_for_tx(res.transaction_hash)
@@ -130,7 +130,7 @@ def full_node_account(
         address=address,
         client=client,
         key_pair=KeyPair.from_private_key(int(private_key, 0)),
-        chain=StarknetChainId.GOERLI,
+        chain=StarknetChainId.MAINNET,
     )
 
 
@@ -205,7 +205,7 @@ def pre_deployed_account_with_validate_deploy(
         address=address,
         client=FullNodeClient(node_url=network + "/rpc"),
         key_pair=KeyPair.from_private_key(int(private_key, 16)),
-        chain=StarknetChainId.GOERLI,
+        chain=StarknetChainId.MAINNET,
     )
 
 
@@ -226,7 +226,7 @@ async def argent_cairo1_account(
         key_pair=key_pair,
         client=client,
         constructor_calldata=[key_pair.public_key, 0],
-        chain=StarknetChainId.GOERLI,
+        chain=StarknetChainId.MAINNET,
         max_fee=int(1e16),
     )
     await deploy_result.wait_for_acceptance()

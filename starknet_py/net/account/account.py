@@ -735,7 +735,6 @@ class Account(BaseAccount):
         if (chain_id or self._chain_id) not in [
             StarknetChainId.SEPOLIA_TESTNET,
             StarknetChainId.SEPOLIA_INTEGRATION,
-            StarknetChainId.GOERLI,
             StarknetChainId.MAINNET,
         ]:
             raise ValueError(

@@ -3,7 +3,6 @@ from typing import Optional
 
 from starknet_py.common import int_from_bytes
 from starknet_py.net.networks import (
-    GOERLI,
     MAINNET,
     SEPOLIA_INTEGRATION,
     SEPOLIA_TESTNET,
@@ -17,7 +16,6 @@ class StarknetChainId(IntEnum):
     """
 
     MAINNET = int_from_bytes(b"SN_MAIN")
-    GOERLI = int_from_bytes(b"SN_GOERLI")
     SEPOLIA_TESTNET = int_from_bytes(b"SN_SEPOLIA")
     SEPOLIA_INTEGRATION = int_from_bytes(b"SN_INTEGRATION_SEPOLIA")
 
@@ -27,7 +25,6 @@ def chain_from_network(
 ) -> StarknetChainId:
     mapping = {
         MAINNET: StarknetChainId.MAINNET,
-        GOERLI: StarknetChainId.GOERLI,
         SEPOLIA_TESTNET: StarknetChainId.SEPOLIA_TESTNET,
         SEPOLIA_INTEGRATION: StarknetChainId.SEPOLIA_INTEGRATION,
     }

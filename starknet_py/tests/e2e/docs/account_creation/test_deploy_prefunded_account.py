@@ -51,11 +51,11 @@ async def test_deploy_prefunded_account(
 
     # Define the client to be used to interact with Starknet
     client = FullNodeClient(node_url="your.node.url")
-    chain = StarknetChainId.GOERLI
+    chain = StarknetChainId.MAINNET
     # docs: end
 
     client = full_node_client_fixture
-    chain = chain_from_network(net=network, chain=StarknetChainId.GOERLI)
+    chain = chain_from_network(net=network, chain=StarknetChainId.MAINNET)
     # docs: start
 
     # Use `Account.deploy_account_v1` or `Account.deploy_account_v3` static methods to deploy an account
