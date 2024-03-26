@@ -1,5 +1,4 @@
 mod abi_types;
-mod account;
 mod erc20;
 mod hello_starknet;
 mod hello2;

@@ -11,7 +11,7 @@ async def test_simple_declare_and_deploy(account):
 
     # docs: end
     compiled_contract = load_contract("Account")
-    constructor_args = {"public_key_": 0x123}
+    constructor_args = {"public_key": 0x123}
 
     # docs: start
     declare_result = await Contract.declare_v2(
