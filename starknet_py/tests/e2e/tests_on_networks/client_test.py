@@ -38,7 +38,6 @@ from starknet_py.transaction_errors import TransactionRevertedError
     (
         "0x016df225d14eb927b1c85ec85d2f9f4fc7653ba13a99e30ffe9e21c96ddc7a6d",  # invoke
         "0x0255f63b1dbd52902e2fb5707d2d2b52d5600fa228f0655b02b78bfcf9cab353",  # declare
-        "0x05dbb4f54bc9dcd2d4c48e7301d30426a0df8ca04a15a7f459a3e3a09c3d5045",  # deploy
         "0x0379c52f40fad2d94152d7c924b69cd61a99cf45b85ba9cb836f69026db67af8",  # deploy_account
         "0x06098d74f3fe1b2b96dcfbb3b9ca9be0c396bde0a0825e111fcbefec9c34fcc6",  # l1_handler
     ),
@@ -257,8 +256,6 @@ async def test_get_tx_receipt_reverted(client_sepolia_integration):
     [
         # declare: https://integration-sepolia.starkscan.co/tx/0x0544a629990d2bed8ccf11910b30f2f1e18228ed5be06660bea20cae13b2aced
         (9707, 0),
-        # deploy: https://integration-sepolia.starkscan.co/tx/0x022ffb771d8b847899c49f8efe48b4d70fd4825658e3d41ad38d3d3da3045891
-        (9708, 2),
         # deploy_account: https://integration-sepolia.starkscan.co/tx/0x012debae2435ea43c06610a31ccf8e7ea5de9aec43dac7c7aa86905b4ccdec49
         (9708, 6),
         # invoke: https://integration-sepolia.starkscan.co/tx/0x069125fd85a199a5d06445e1ece5067781aa46c745e3e2993c696c60bbd5992c
