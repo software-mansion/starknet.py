@@ -35,9 +35,6 @@ In order to be able to run tests on testnet and integration networks (``starknet
 
     - ``SEPOLIA_INTEGRATION_RPC_URL``
     - ``SEPOLIA_TESTNET_RPC_URL``
-
-The existing tests don't execute any invoke transactions on the Sepolia networks. If you plan to incorporate such tests, please also set the following environment variables:
-
     - ``SEPOLIA_INTEGRATION_ACCOUNT_PRIVATE_KEY``
     - ``SEPOLIA_INTEGRATION_ACCOUNT_ADDRESS``
     - ``SEPOLIA_TESTNET_ACCOUNT_PRIVATE_KEY``
