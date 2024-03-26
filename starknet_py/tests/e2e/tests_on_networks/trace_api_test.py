@@ -14,8 +14,6 @@ from starknet_py.net.client_models import (
     L1HandlerTransaction,
     L1HandlerTransactionTrace,
     RevertedFunctionInvocation,
-    Transaction,
-    TransactionTrace,
 )
 from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V0_DIR
 from starknet_py.tests.e2e.fixtures.misc import read_contract
@@ -24,49 +22,80 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
 @pytest.mark.asyncio
-async def test_trace_transaction(client_sepolia_integration):
-    tx_to_trace: dict[type[Transaction], type[TransactionTrace]] = {
-        InvokeTransactionV1: InvokeTransactionTrace,
-        InvokeTransactionV3: InvokeTransactionTrace,
-        DeployAccountTransactionV1: DeployAccountTransactionTrace,
-        L1HandlerTransaction: L1HandlerTransactionTrace,
-    }
-    block = await client_sepolia_integration.get_block(block_number=9708)
-
-    for tx in block.transactions:
-        trace = await client_sepolia_integration.trace_transaction(tx_hash=tx.hash)
-        tx = await client_sepolia_integration.get_transaction(tx_hash=tx.hash)
-        assert tx_to_trace[type(tx)] == type(trace)
-
-
-@pytest.mark.asyncio
-async def test_trace_transaction_invoke(client_sepolia_integration):
+async def test_trace_transaction_invoke_v1(client_sepolia_integration):
     invoke_tx_hash = 0x051506589B6D8900016B8E7362BDD07EE379F51127855DD0829E0768446C469C
     trace = await client_sepolia_integration.trace_transaction(tx_hash=invoke_tx_hash)
-
+    tx = await client_sepolia_integration.get_transaction(tx_hash=invoke_tx_hash)
+    print(type(tx))
+    assert (type(tx)) is InvokeTransactionV1
     assert type(trace) is InvokeTransactionTrace
     assert trace.execute_invocation is not None
     assert trace.execution_resources is not None
 
 
 @pytest.mark.asyncio
-async def test_trace_transaction_declare(client_sepolia_integration):
+async def test_trace_transaction_invoke_v3(client_sepolia_integration):
+    invoke_tx_hash = 0x022FFB771D8B847899C49F8EFE48B4D70FD4825658E3D41AD38D3D3DA3045891
+    trace = await client_sepolia_integration.trace_transaction(tx_hash=invoke_tx_hash)
+    tx = await client_sepolia_integration.get_transaction(tx_hash=invoke_tx_hash)
+    print(type(tx))
+    assert (type(tx)) is InvokeTransactionV3
+    assert type(trace) is InvokeTransactionTrace
+    assert trace.execute_invocation is not None
+    assert trace.execution_resources is not None
+
+
+@pytest.mark.asyncio
+async def test_trace_transaction_declare_v1(client_sepolia_integration):
     declare_tx_hash = 0x0544A629990D2BED8CCF11910B30F2F1E18228ED5BE06660BEA20CAE13B2ACED
     trace = await client_sepolia_integration.trace_transaction(tx_hash=declare_tx_hash)
+    tx = await client_sepolia_integration.get_transaction(tx_hash=declare_tx_hash)
 
+    assert (type(tx)) is DeclareTransactionV1
     assert type(trace) is DeclareTransactionTrace
     assert trace.execution_resources is not None
 
 
 @pytest.mark.asyncio
-async def test_trace_transaction_deploy_account(client_sepolia_integration):
+async def test_trace_transaction_declare_v2(client_sepolia_integration):
+    declare_tx_hash = 0x03CD7F3F1EB964BC5DD4AC466A0E8A3AEC936EB75D244CC88DFCE2DC97885317
+    trace = await client_sepolia_integration.trace_transaction(tx_hash=declare_tx_hash)
+    tx = await client_sepolia_integration.get_transaction(tx_hash=declare_tx_hash)
+
+    assert (type(tx)) is DeclareTransactionV2
+    assert type(trace) is DeclareTransactionTrace
+    assert trace.execution_resources is not None
+
+
+@pytest.mark.asyncio
+async def test_trace_transaction_deploy_account_v1(client_sepolia_integration):
     deploy_account_tx_hash = (
         0x012DEBAE2435EA43C06610A31CCF8E7EA5DE9AEC43DAC7C7AA86905B4CCDEC49
     )
     trace = await client_sepolia_integration.trace_transaction(
         tx_hash=deploy_account_tx_hash
     )
+    tx = await client_sepolia_integration.get_transaction(
+        tx_hash=deploy_account_tx_hash
+    )
 
+    assert (type(tx)) is DeployAccountTransactionV1
+    assert type(trace) is DeployAccountTransactionTrace
+    assert trace.constructor_invocation is not None
+    assert trace.execution_resources is not None
+
+
+@pytest.mark.asyncio
+async def test_trace_transaction_deploy_account_v3(client_sepolia_testnet):
+    deploy_account_tx_hash = (
+        0x06718B783A0B888F5421C4EB76A532FEB9FD5167B2B09274298F79798C782B32
+    )
+    trace = await client_sepolia_testnet.trace_transaction(
+        tx_hash=deploy_account_tx_hash
+    )
+    tx = await client_sepolia_testnet.get_transaction(tx_hash=deploy_account_tx_hash)
+
+    assert (type(tx)) is DeployAccountTransactionV3
     assert type(trace) is DeployAccountTransactionTrace
     assert trace.constructor_invocation is not None
     assert trace.execution_resources is not None
@@ -80,7 +109,9 @@ async def test_trace_transaction_l1_handler(client_sepolia_integration):
     trace = await client_sepolia_integration.trace_transaction(
         tx_hash=l1_handler_tx_hash
     )
+    tx = await client_sepolia_integration.get_transaction(tx_hash=l1_handler_tx_hash)
 
+    assert (type(tx)) is L1HandlerTransaction
     assert type(trace) is L1HandlerTransactionTrace
     assert trace.function_invocation is not None
 
