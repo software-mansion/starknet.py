@@ -14,7 +14,6 @@ from starknet_py.hash.transaction import (
     compute_transaction_hash,
 )
 from starknet_py.net.client_models import DAMode, ResourceBounds, ResourceBoundsMapping
-from starknet_py.net.models import StarknetChainId
 from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V0_DIR
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
@@ -46,9 +45,9 @@ def get_resource_bounds():
                 0x64,
                 [],
                 0x0,
-                StarknetChainId.MAINNET,
+                0x534E5F474F45524C49,
             ],
-            0x7E1234F547EEF34E8DBD628E7D1393F2D836BAF32B707C92A592A6C63ADC9E5,
+            0x7D260744DE9D8C55E7675A34512D1951A7B262C79E685D26599EDD2948DE959,
         ),
     ),
 )
@@ -141,7 +140,7 @@ def test_compute_invoke_transaction_hash(data, expected_hash):
         (
             {
                 "address": 0x52125C1E043126C637D1436D9551EF6C4F6E3E36945676BBD716A56E3A41B7A,
-                "chain_id": StarknetChainId.MAINNET,
+                "chain_id": 0x534E5F474F45524C49,
                 "nonce": 0x675,
                 "tip": 0x0,
                 "paymaster_data": [],
@@ -155,7 +154,7 @@ def test_compute_invoke_transaction_hash(data, expected_hash):
                 "compiled_class_hash": 0x17B5169C770D0E49100AB0FC672A49CA90CC572F21F79A640B5227B19D3A447,
                 "account_deployment_data": [],
             },
-            0x7860735E13D71972D8E837F8F6DB9CD5B9DD89AF02798F6CC0D80C84B668915,
+            0x7B31376D1C4F467242616530901E1B441149F1106EF765F202A50A6F917762B,
         ),
     ),
 )
@@ -179,7 +178,7 @@ def test_compute_declare_v3_transaction_hash(
         (
             {
                 "address": 0x35ACD6DD6C5045D18CA6D0192AF46B335A5402C02D41F46E4E77EA2C951D9A3,
-                "chain_id": StarknetChainId.MAINNET,
+                "chain_id": 0x534E5F474F45524C49,
                 "nonce": 0x5,
                 "tip": 0x0,
                 "paymaster_data": [],
@@ -201,7 +200,7 @@ def test_compute_declare_v3_transaction_hash(
                 ],
                 "account_deployment_data": [],
             },
-            0x281B157217B073F9260D03D08FC2415EE80ABF2919FC1015BFFBD45D42451DE,
+            0x15F2CF38832542602E2D1C8BF0634893E6B43ACB6879E8A8F892F5A9B03C907,
         ),
     ),
 )
@@ -225,7 +224,7 @@ def test_compute_invoke_v3_transaction_hash(
         (
             {
                 "address": 0x2FAB82E4AEF1D8664874E1F194951856D48463C3E6BF9A8C68E234A629A6F50,
-                "chain_id": StarknetChainId.MAINNET,
+                "chain_id": 0x534E5F474F45524C49,
                 "nonce": 0x0,
                 "tip": 0x0,
                 "paymaster_data": [],
@@ -241,7 +240,7 @@ def test_compute_invoke_v3_transaction_hash(
                 "contract_address_salt": 0x0,
                 "class_hash": 0x2338634F11772EA342365ABD5BE9D9DC8A6F44F159AD782FDEBD3DB5D969738,
             },
-            0x388A481FF5CDB75EBBD42E8A884800E8058906D09BD90D2CEBBAE13110DBE22,
+            0x29FD7881F14380842414CDFDD8D6C0B1F2174F8916EDCFEB1EDE1EB26AC3EF0,
         ),
     ),
 )
