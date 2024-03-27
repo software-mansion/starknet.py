@@ -455,7 +455,6 @@ class FullNodeClient(Client):
         return cast(BlockHashAndNumber, BlockHashAndNumberSchema().load(res))
 
     async def get_chain_id(self) -> str:
-        """Return the currently configured Starknet chain id"""
         return await self._client.call(method_name="chainId", params={})
 
     async def get_syncing_status(self) -> Union[bool, SyncStatus]:

@@ -72,7 +72,7 @@ class Account(BaseAccount):
         client: Client,
         signer: Optional[BaseSigner] = None,
         key_pair: Optional[KeyPair] = None,
-        chain: Optional[StarknetChainId] = None,
+        chain: Optional[Union[StarknetChainId, str, int]] = None,
     ):
         """
         :param address: Address of the account contract.
@@ -86,6 +86,15 @@ class Account(BaseAccount):
         self._address = parse_address(address)
         self._client = client
         self._cairo_version = None
+        if isinstance(chain, str):
+            try:
+                self._chain_id = int(chain, 16)
+            except ValueError:
+                self._chain_id = int(chain.encode().hex(), 16)
+        elif chain is None:
+            self._chain_id = int(client.get_chain_id_sync(), 16)  # pyright: ignore
+        else:
+            self._chain_id = chain
 
         if signer is not None and key_pair is not None:
             raise ValueError("Arguments signer and key_pair are mutually exclusive.")
@@ -95,14 +104,10 @@ class Account(BaseAccount):
                 raise ValueError(
                     "Either a signer or a key_pair must be provided in Account constructor."
                 )
-            if chain is None:
-                raise ValueError("One of chain or signer must be provided.")
-
             signer = StarkCurveSigner(
-                account_address=self.address, key_pair=key_pair, chain_id=chain
+                account_address=self.address, key_pair=key_pair, chain_id=self._chain_id
             )
         self.signer: BaseSigner = signer
-        self._chain_id = chain
 
     @property
     def address(self) -> int:

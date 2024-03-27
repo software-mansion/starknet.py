@@ -301,3 +301,7 @@ class Client(ABC):
         :param block_number: Block's number or literals `"pending"` or `"latest"`
         :return: The last nonce used for the given contract
         """
+
+    @abstractmethod
+    async def get_chain_id(self) -> str:
+        """Return the currently configured Starknet chain id"""

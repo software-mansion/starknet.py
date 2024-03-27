@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List
+from typing import List, Union
 
 from starknet_py.hash.utils import message_signature, private_to_stark_key
 from starknet_py.net.client_models import Hash
@@ -37,7 +37,7 @@ class StarkCurveSigner(BaseSigner):
         self,
         account_address: AddressRepresentation,
         key_pair: KeyPair,
-        chain_id: StarknetChainId,
+        chain_id: Union[int, StarknetChainId],
     ):
         """
         :param account_address: Address of the account contract.
