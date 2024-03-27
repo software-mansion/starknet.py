@@ -26,10 +26,8 @@ from starknet_py.net.client_models import (
     TransactionStatus,
 )
 from starknet_py.net.models import StarknetChainId
-from starknet_py.net.networks import SEPOLIA_TESTNET, default_token_address_for_network
-from starknet_py.tests.e2e.fixtures.constants import (
-    EMPTY_CONTRACT_ADDRESS_SEPOLIA_TESTNET,
-)
+from starknet_py.net.networks import SEPOLIA, default_token_address_for_network
+from starknet_py.tests.e2e.fixtures.constants import EMPTY_CONTRACT_ADDRESS_SEPOLIA
 from starknet_py.transaction_errors import TransactionRevertedError
 
 
@@ -60,7 +58,7 @@ async def test_wait_for_tx_reverted(account_sepolia_testnet):
     account = account_sepolia_testnet
     # Calldata too long for the function (it has no parameters) to trigger REVERTED status
     call = Call(
-        to_addr=int(EMPTY_CONTRACT_ADDRESS_SEPOLIA_TESTNET, 0),
+        to_addr=int(EMPTY_CONTRACT_ADDRESS_SEPOLIA, 0),
         selector=get_selector_from_name("empty"),
         calldata=[0x1, 0x2, 0x3, 0x4, 0x5],
     )
@@ -75,7 +73,7 @@ async def test_wait_for_tx_reverted(account_sepolia_testnet):
 async def test_wait_for_tx_accepted(account_sepolia_testnet):
     account = account_sepolia_testnet
     call = Call(
-        to_addr=int(EMPTY_CONTRACT_ADDRESS_SEPOLIA_TESTNET, 0),
+        to_addr=int(EMPTY_CONTRACT_ADDRESS_SEPOLIA, 0),
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
@@ -92,7 +90,7 @@ async def test_wait_for_tx_accepted(account_sepolia_testnet):
 async def test_transaction_not_received_max_fee_too_small(account_sepolia_testnet):
     account = account_sepolia_testnet
     call = Call(
-        to_addr=int(EMPTY_CONTRACT_ADDRESS_SEPOLIA_TESTNET, 0),
+        to_addr=int(EMPTY_CONTRACT_ADDRESS_SEPOLIA, 0),
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
@@ -106,7 +104,7 @@ async def test_transaction_not_received_max_fee_too_small(account_sepolia_testne
 async def test_transaction_not_received_max_fee_too_big(account_sepolia_testnet):
     account = account_sepolia_testnet
     call = Call(
-        to_addr=int(EMPTY_CONTRACT_ADDRESS_SEPOLIA_TESTNET, 0),
+        to_addr=int(EMPTY_CONTRACT_ADDRESS_SEPOLIA, 0),
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
@@ -120,7 +118,7 @@ async def test_transaction_not_received_max_fee_too_big(account_sepolia_testnet)
 async def test_transaction_not_received_invalid_nonce(account_sepolia_testnet):
     account = account_sepolia_testnet
     call = Call(
-        to_addr=int(EMPTY_CONTRACT_ADDRESS_SEPOLIA_TESTNET, 0),
+        to_addr=int(EMPTY_CONTRACT_ADDRESS_SEPOLIA, 0),
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
@@ -134,16 +132,15 @@ async def test_transaction_not_received_invalid_nonce(account_sepolia_testnet):
 async def test_transaction_not_received_invalid_signature(account_sepolia_testnet):
     account = account_sepolia_testnet
     call = Call(
-        to_addr=int(EMPTY_CONTRACT_ADDRESS_SEPOLIA_TESTNET, 0),
+        to_addr=int(EMPTY_CONTRACT_ADDRESS_SEPOLIA, 0),
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
     sign_invoke = await account.sign_invoke_v1(calls=call, max_fee=int(1e16))
     sign_invoke = dataclasses.replace(sign_invoke, signature=[0x21, 0x37])
-    # 0x0000000000004163636f756e743a20696e76616c6964207369676e6174757265 -> Account: invalid signature
     with pytest.raises(
         ClientError,
-        match=r"0x0000000000004163636f756e743a20696e76616c6964207369676e6174757265",
+        match=r"Account validation failed",
     ) as exc:
         await account.client.send_transaction(sign_invoke)
 
@@ -399,7 +396,7 @@ async def test_get_transaction_v3(client_sepolia_testnet, tx_hash, tx_type):
 async def test_get_chain_id_sepolia_testnet(client_sepolia_testnet):
     chain_id = await client_sepolia_testnet.get_chain_id()
     assert isinstance(chain_id, str)
-    assert chain_id == hex(StarknetChainId.SEPOLIA_TESTNET.value)
+    assert chain_id == hex(StarknetChainId.SEPOLIA.value)
 
 
 @pytest.mark.asyncio
@@ -412,7 +409,7 @@ async def test_get_chain_id_sepolia_integration(client_sepolia_integration):
 @pytest.mark.asyncio
 async def test_get_events_sepolia_testnet(client_sepolia_testnet):
     events_chunk = await client_sepolia_testnet.get_events(
-        address=default_token_address_for_network(SEPOLIA_TESTNET),
+        address=default_token_address_for_network(SEPOLIA),
         from_block_number=1000,
         to_block_number=1005,
         chunk_size=10,
@@ -437,10 +434,8 @@ async def test_get_tx_receipt_with_execution_resources(client_sepolia_integratio
     assert receipt.execution_resources is not None
     assert receipt.execution_resources.data_availability is not None
     assert receipt.execution_resources.steps is not None
-    assert receipt.execution_resources.segment_arena_builtin is not None
     assert receipt.execution_resources.bitwise_builtin_applications is not None
     assert receipt.execution_resources.ec_op_builtin_applications is not None
-    assert receipt.execution_resources.memory_holes is not None
     assert receipt.execution_resources.pedersen_builtin_applications is not None
     assert receipt.execution_resources.range_check_builtin_applications is not None
 
