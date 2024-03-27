@@ -373,11 +373,10 @@ async def test_get_block_with_tx_hashes_new_header_fields(client_sepolia_testnet
             0x054270D103C875A613E013D1FD555EDCFF2085FECA9D7B4532243A8257FD5CF3,
             DeclareTransactionV3,
         ),
-        # Find DeployAccountTransactionV3 and uncomment it with correct hash
-        # (
-        #     0x043ce86d627dbf29186c89f2bcb12e83955cf4d3983447ff691a1d0dd8142c20,
-        #     DeployAccountTransactionV3,
-        # ),
+        (
+            0x06718B783A0B888F5421C4EB76A532FEB9FD5167B2B09274298F79798C782B32,
+            DeployAccountTransactionV3,
+        ),
         (
             0x043868D939FA1B62B977FFFC659146688E954BBABEDA020CC99BAE1C220E4882,
             InvokeTransactionV3,

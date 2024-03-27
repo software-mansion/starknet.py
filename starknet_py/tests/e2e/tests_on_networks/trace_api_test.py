@@ -68,6 +68,17 @@ async def test_trace_transaction_declare_v2(client_sepolia_integration):
 
 
 @pytest.mark.asyncio
+async def test_trace_transaction_declare_v3(client_sepolia_testnet):
+    declare_tx_hash = 0x00EFE9482CE6511F3F23B472DD1210336177944B4F3142BF508BA1FCDB2CF75A
+    trace = await client_sepolia_testnet.trace_transaction(tx_hash=declare_tx_hash)
+    tx = await client_sepolia_testnet.get_transaction(tx_hash=declare_tx_hash)
+
+    assert (type(tx)) is DeclareTransactionV3
+    assert type(trace) is DeclareTransactionTrace
+    assert trace.execution_resources is not None
+
+
+@pytest.mark.asyncio
 async def test_trace_transaction_deploy_account_v1(client_sepolia_integration):
     deploy_account_tx_hash = (
         0x012DEBAE2435EA43C06610A31CCF8E7EA5DE9AEC43DAC7C7AA86905B4CCDEC49
