@@ -26,7 +26,6 @@ async def test_trace_transaction_invoke_v1(client_sepolia_integration):
     invoke_tx_hash = 0x051506589B6D8900016B8E7362BDD07EE379F51127855DD0829E0768446C469C
     trace = await client_sepolia_integration.trace_transaction(tx_hash=invoke_tx_hash)
     tx = await client_sepolia_integration.get_transaction(tx_hash=invoke_tx_hash)
-    print(type(tx))
     assert (type(tx)) is InvokeTransactionV1
     assert type(trace) is InvokeTransactionTrace
     assert trace.execute_invocation is not None
@@ -38,7 +37,6 @@ async def test_trace_transaction_invoke_v3(client_sepolia_integration):
     invoke_tx_hash = 0x022FFB771D8B847899C49F8EFE48B4D70FD4825658E3D41AD38D3D3DA3045891
     trace = await client_sepolia_integration.trace_transaction(tx_hash=invoke_tx_hash)
     tx = await client_sepolia_integration.get_transaction(tx_hash=invoke_tx_hash)
-    print(type(tx))
     assert (type(tx)) is InvokeTransactionV3
     assert type(trace) is InvokeTransactionTrace
     assert trace.execute_invocation is not None
