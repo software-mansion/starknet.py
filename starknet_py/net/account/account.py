@@ -91,6 +91,8 @@ class Account(BaseAccount):
                 self._chain_id = int(chain, 16)
             except ValueError:
                 self._chain_id = int(chain.encode().hex(), 16)
+        elif chain is None:
+            self._chain_id = int(client.get_chain_id_sync(), 16)  # pyright: ignore
         else:
             self._chain_id = chain
 
@@ -102,9 +104,6 @@ class Account(BaseAccount):
                 raise ValueError(
                     "Either a signer or a key_pair must be provided in Account constructor."
                 )
-            if self._chain_id is None:
-                raise ValueError("One of chain or signer must be provided.")
-
             signer = StarkCurveSigner(
                 account_address=self.address, key_pair=key_pair, chain_id=self._chain_id
             )

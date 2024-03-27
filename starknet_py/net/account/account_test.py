@@ -88,25 +88,60 @@ def test_create_account():
     assert account.signer.public_key == key_pair.public_key
 
 
-def test_create_account_from_signer():
+def test_create_account_with_default_chain(client):
+    key_pair = KeyPair.from_private_key(0x111)
+    account = Account(
+        address=0x2,
+        client=client,
+        key_pair=key_pair,
+    )
+
+    assert account.address == 0x2
+    assert account.signer.public_key == key_pair.public_key
+    assert isinstance(account.signer, StarkCurveSigner)
+    assert account.signer.chain_id == StarknetChainId.GOERLI
+
+
+def test_create_account_with_string_chain():
+    key_pair = KeyPair.from_private_key(0x111)
+    account = Account(
+        address=0x2,
+        client=FullNodeClient(node_url=""),
+        key_pair=key_pair,
+        chain="SN_SEPOLIA",
+    )
+
+    assert account.address == 0x2
+    assert account.signer.public_key == key_pair.public_key
+    assert isinstance(account.signer, StarkCurveSigner)
+    assert account.signer.chain_id == 393402133025997798000961
+
+
+def test_create_account_with_string_hex_chain():
+    key_pair = KeyPair.from_private_key(0x111)
+    account = Account(
+        address=0x2,
+        client=FullNodeClient(node_url=""),
+        key_pair=key_pair,
+        chain="0x534e5f5345504f4c4941",
+    )
+
+    assert account.address == 0x2
+    assert account.signer.public_key == key_pair.public_key
+    assert isinstance(account.signer, StarkCurveSigner)
+    assert account.signer.chain_id == 393402133025997798000961
+
+
+def test_create_account_from_signer(client):
     signer = StarkCurveSigner(
         account_address=0x1,
         key_pair=KeyPair.from_private_key(0x111),
         chain_id=StarknetChainId.GOERLI,
     )
-    account = Account(address=0x1, client=FullNodeClient(node_url=""), signer=signer)
+    account = Account(address=0x1, client=client, signer=signer)
 
     assert account.address == 0x1
     assert account.signer == signer
-
-
-def test_create_account_raises_on_no_chain_and_signer():
-    with pytest.raises(ValueError, match="One of chain or signer must be provided"):
-        Account(
-            address=0x1,
-            client=FullNodeClient(node_url=""),
-            key_pair=KeyPair.from_private_key(0x111),
-        )
 
 
 def test_create_account_raises_on_no_keypair_and_signer():
