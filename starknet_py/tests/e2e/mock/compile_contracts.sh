@@ -14,13 +14,13 @@ setup_asdf() {
 
 compile_contracts_with_scarb() {
     CONTRACTS_DIRECTORY=$1
-    SCARB_WITH_VERSION=$(<"$CONTRACTS_DIRECTORY/.tool-versions")
+    SCARB_VERSION=$(awk '/scarb/ {print $2}' ${CONTRACTS_DIRECTORY}/.tool-versions)
 
     setup_asdf
 
-    asdf install $SCARB_WITH_VERSION
+    asdf install scarb $SCARB_VERSION
 
-    echo "Compiling Cairo contracts with $SCARB_WITH_VERSION"
+    echo "Compiling Cairo contracts with scarb $SCARB_VERSION"
 
     pushd $CONTRACTS_DIRECTORY
     scarb clean && scarb build
