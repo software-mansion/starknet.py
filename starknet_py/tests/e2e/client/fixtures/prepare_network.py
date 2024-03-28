@@ -144,14 +144,14 @@ def fixture_class_hash(prepare_network: Tuple[str, PreparedNetworkData]) -> int:
 
 @pytest_asyncio.fixture(name="prepare_network", scope="package")
 async def fixture_prepare_network(
-    run_devnet,
+    devnet,
     account: Account,
     deploy_account_details_factory: AccountToBeDeployedDetailsFactory,
 ) -> AsyncGenerator[Tuple[str, PreparedNetworkData], None]:
     """
     Adds transactions to the network. Returns network address and PreparedNetworkData
     """
-    net = run_devnet
+    net = devnet
     details = await deploy_account_details_factory.get()
     prepared_data = await prepare_network(account, details)
     yield net, prepared_data

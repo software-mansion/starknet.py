@@ -399,10 +399,10 @@ async def test_declare_contract(account, map_compiled_contract):
 
 
 @pytest.mark.asyncio
-async def test_custom_session_client(map_contract, run_devnet):
+async def test_custom_session_client(map_contract, devnet):
     # We must access protected `_client` to test session
     # pylint: disable=protected-access
-    network = run_devnet
+
     session = ClientSession()
 
     tx_hash = (
@@ -413,8 +413,8 @@ async def test_custom_session_client(map_contract, run_devnet):
         ).wait_for_acceptance()
     ).hash
 
-    client1 = FullNodeClient(node_url=network + "/rpc", session=session)
-    client2 = FullNodeClient(node_url=network + "/rpc", session=session)
+    client1 = FullNodeClient(node_url=devnet + "/rpc", session=session)
+    client2 = FullNodeClient(node_url=devnet + "/rpc", session=session)
     internal_client1 = client1._client
     internal_client2 = client2._client
 

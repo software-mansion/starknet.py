@@ -25,13 +25,12 @@ async def deploy_account_transaction(
     account_with_validate_deploy_class_hash: int,
     eth_fee_contract: Contract,
     strk_fee_contract: Contract,
-    run_devnet,
+    devnet,
 ) -> DeployAccountV1:
     """
     Returns a DeployAccount transaction
     """
 
-    network = run_devnet
     address, key_pair, salt, class_hash = await get_deploy_account_details(
         class_hash=account_with_validate_deploy_class_hash,
         eth_fee_contract=eth_fee_contract,
@@ -42,7 +41,7 @@ async def deploy_account_transaction(
         key_pair=key_pair,
         class_hash=class_hash,
         salt=salt,
-        client=FullNodeClient(network),
+        client=FullNodeClient(devnet),
     )
 
 
