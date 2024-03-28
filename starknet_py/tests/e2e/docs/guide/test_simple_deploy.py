@@ -34,7 +34,7 @@ async def test_simple_deploy(account, map_class_hash, map_compiled_contract):
     )
 
     # `Contract.deploy_contract_v1` and `Contract.deploy_contract_v3` methods have an optional parameter
-    # `deployer_address` that needs to be specified when using other network than mainnet, goerli or sepolia
+    # `deployer_address` that needs to be specified when using other network than mainnet or sepolia
     # Read more about it in the API section
 
     # Wait for the transaction

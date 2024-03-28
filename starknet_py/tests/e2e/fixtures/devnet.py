@@ -35,6 +35,8 @@ def get_start_devnet_command(devnet_port: int) -> List[str]:
         str(1),
         "--state-archive-capacity",
         "full",
+        "--chain-id",
+        "MAINNET",
     ]
 
 

@@ -201,7 +201,7 @@ class DeclareResult(SentTransaction):
         Deploys a contract.
 
         :param deployer_address: Address of the UDC. Is set to the address of
-            the default UDC (same address on mainnet/goerli/sepolia) by default.
+            the default UDC (same address on mainnet/sepolia) by default.
             Must be set when using custom network other than ones listed above.
         :param salt: Optional salt. Random value is selected if it is not provided.
         :param unique: Determines if the contract should be salted with the account address.
@@ -243,7 +243,7 @@ class DeclareResult(SentTransaction):
         Deploys a contract.
 
         :param deployer_address: Address of the UDC. Is set to the address of
-            the default UDC (same address on mainnet/goerli/sepolia) by default.
+            the default UDC (same address on mainnet/sepolia) by default.
             Must be set when using custom network other than ones listed above.
         :param salt: Optional salt. Random value is selected if it is not provided.
         :param unique: Determines if the contract should be salted with the account address.
@@ -951,7 +951,7 @@ class Contract:
         :param abi: An abi of the contract to be deployed.
         :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
         :param deployer_address: Address of the UDC. Is set to the address of
-            the default UDC (same address on mainnet/goerli/sepolia) by default.
+            the default UDC (same address on mainnet/sepolia) by default.
             Must be set when using custom network other than ones listed above.
         :param cairo_version: Version of the Cairo in which contract is written.
             By default, it is set to 0.
@@ -1016,7 +1016,7 @@ class Contract:
         :param abi: An abi of the contract to be deployed.
         :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
         :param deployer_address: Address of the UDC. Is set to the address of
-            the default UDC (same address on mainnet/goerli/sepolia) by default.
+            the default UDC (same address on mainnet/sepolia) by default.
             Must be set when using custom network other than ones listed above.
         :param cairo_version: Version of the Cairo in which contract is written.
             By default, it is set to 1.

@@ -399,10 +399,10 @@ async def test_declare_contract(account, map_compiled_contract):
 
 
 @pytest.mark.asyncio
-async def test_custom_session_client(map_contract, network):
+async def test_custom_session_client(map_contract, run_devnet):
     # We must access protected `_client` to test session
     # pylint: disable=protected-access
-
+    network = run_devnet
     session = ClientSession()
 
     tx_hash = (

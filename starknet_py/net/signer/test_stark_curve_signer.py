@@ -48,7 +48,7 @@ def test_sign_transaction(transaction):
     signer = StarkCurveSigner(
         account_address=0x1,
         key_pair=KeyPair.from_private_key(0x1),
-        chain_id=StarknetChainId.GOERLI,
+        chain_id=StarknetChainId.MAINNET,
     )
 
     signature = signer.sign_transaction(transaction)

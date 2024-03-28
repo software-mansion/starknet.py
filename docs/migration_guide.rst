@@ -2,6 +2,18 @@ Migration guide
 ===============
 
 ******************************
+0.22.0 Migration guide
+******************************
+
+Version 0.22.0 of **starknet.py**
+
+0.22.0 Breaking changes
+-----------------------
+
+1. Support for Goerli has been removed
+2. ``StarknetChainId.SEPOLIA_TESTNET`` has been renamed to ``StarknetChainId.SEPOLIA``
+
+******************************
 0.21.0 Migration guide
 ******************************
 

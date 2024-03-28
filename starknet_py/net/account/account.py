@@ -610,7 +610,7 @@ class Account(BaseAccount):
 
         Provided address must be first prefunded with enough tokens, otherwise the method will fail.
 
-        If using Client for MAINNET, GOERLI, SEPOLIA or SEPOLIA_INTEGRATION, this method will verify
+        If using Client for MAINNET, SEPOLIA or SEPOLIA_INTEGRATION, this method will verify
         if the address balance is high enough to cover deployment costs.
 
         :param address: Calculated and prefunded address of the new account.
@@ -733,9 +733,8 @@ class Account(BaseAccount):
         self, chain_id: Optional[StarknetChainId] = None
     ) -> str:
         if (chain_id or self._chain_id) not in [
-            StarknetChainId.SEPOLIA_TESTNET,
+            StarknetChainId.SEPOLIA,
             StarknetChainId.SEPOLIA_INTEGRATION,
-            StarknetChainId.GOERLI,
             StarknetChainId.MAINNET,
         ]:
             raise ValueError(

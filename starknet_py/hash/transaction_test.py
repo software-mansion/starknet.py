@@ -14,7 +14,6 @@ from starknet_py.hash.transaction import (
     compute_transaction_hash,
 )
 from starknet_py.net.client_models import DAMode, ResourceBounds, ResourceBoundsMapping
-from starknet_py.net.models import StarknetChainId
 from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V0_DIR
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
@@ -46,7 +45,7 @@ def get_resource_bounds():
                 0x64,
                 [],
                 0x0,
-                StarknetChainId.GOERLI,
+                0x534E5F474F45524C49,
             ],
             0x7D260744DE9D8C55E7675A34512D1951A7B262C79E685D26599EDD2948DE959,
         ),
@@ -141,7 +140,7 @@ def test_compute_invoke_transaction_hash(data, expected_hash):
         (
             {
                 "address": 0x52125C1E043126C637D1436D9551EF6C4F6E3E36945676BBD716A56E3A41B7A,
-                "chain_id": StarknetChainId.GOERLI,
+                "chain_id": 0x534E5F474F45524C49,
                 "nonce": 0x675,
                 "tip": 0x0,
                 "paymaster_data": [],
@@ -179,7 +178,7 @@ def test_compute_declare_v3_transaction_hash(
         (
             {
                 "address": 0x35ACD6DD6C5045D18CA6D0192AF46B335A5402C02D41F46E4E77EA2C951D9A3,
-                "chain_id": StarknetChainId.GOERLI,
+                "chain_id": 0x534E5F474F45524C49,
                 "nonce": 0x5,
                 "tip": 0x0,
                 "paymaster_data": [],
@@ -225,7 +224,7 @@ def test_compute_invoke_v3_transaction_hash(
         (
             {
                 "address": 0x2FAB82E4AEF1D8664874E1F194951856D48463C3E6BF9A8C68E234A629A6F50,
-                "chain_id": StarknetChainId.GOERLI,
+                "chain_id": 0x534E5F474F45524C49,
                 "nonce": 0x0,
                 "tip": 0x0,
                 "paymaster_data": [],
