@@ -72,7 +72,7 @@ jobs:
       # ====================== SETUP ====================== #
 
       - uses: actions/checkout@v3
-
+      - uses: asdf-vm/actions/setup@v3
       - uses: actions/setup-python@v4
         with:
           python-version: "3.12"
@@ -102,16 +102,10 @@ jobs:
           path: starknet_py/tests/e2e/mock/contracts_v2/target
           key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v2') }}
 
-
-      - uses: software-mansion/setup-scarb@v1.3.2
-        with:
-          tool-versions: "starknet_py/tests/e2e/mock/contracts_v2/.tool-versions"
-
-      - name: Compile contracts v2
-        working-directory: "starknet_py/tests/e2e/mock/contracts_v2"
-        if: steps.cache-contracts_v2.outputs.cache-hit != 'true'
+      - name: Compile contracts v1
+        if: steps.cache-contracts.outputs.cache-hit != 'true'
         run: |
-          scarb build
+          poetry run poe compile_contracts v2
 
       # ====================== CONTRACTS v1 ====================== #
 
@@ -122,15 +116,10 @@ jobs:
           path: starknet_py/tests/e2e/mock/contracts_v1/target
           key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v1') }}
 
-      - uses: software-mansion/setup-scarb@v1.3.2
-        with:
-          tool-versions: "starknet_py/tests/e2e/mock/contracts_v1/.tool-versions"
-
       - name: Compile contracts v1
-        working-directory: "starknet_py/tests/e2e/mock/contracts_v1"
-        if: steps.cache-contracts_v1.outputs.cache-hit != 'true'
+        if: steps.cache-contracts.outputs.cache-hit != 'true'
         run: |
-          scarb build
+          poetry run poe compile_contracts v1
   
       # ====================== CONTRACTS v0 ====================== #
 
