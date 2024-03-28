@@ -6,7 +6,7 @@ CONTRACTS_DIRECTORY_V2="$MOCK_DIRECTORY"/contracts_v2
 
 setup_asdf() {
     if ! command -v asdf >/dev/null 2>&1; then
-        echo "Install asdf, before executing this script is required to manage scarb version"
+        echo "asdf not found in PATH! Install asdf and run this script again"
         exit 1
     fi
     asdf plugin-add scarb
@@ -14,7 +14,7 @@ setup_asdf() {
 
 compile_contracts_with_scarb() {
     CONTRACTS_DIRECTORY=$1
-    SCARB_WITH_VERSION=$(cat "$CONTRACTS_DIRECTORY/.tool-versions")
+    SCARB_WITH_VERSION=$(<"$CONTRACTS_DIRECTORY/.tool-versions")
 
     setup_asdf
 
@@ -22,7 +22,9 @@ compile_contracts_with_scarb() {
 
     echo "Compiling Cairo contracts with $SCARB_WITH_VERSION"
 
-    (cd $CONTRACTS_DIRECTORY && scarb clean && scarb build)
+    pushd $CONTRACTS_DIRECTORY
+    scarb clean && scarb build
+    popd
 }
 
 compile_contracts_v0() {
@@ -54,27 +56,22 @@ compile_contracts_v0() {
 
 }
 
-if [ -z "$@" ]; then
+case $1 in
+"v0")
+    compile_contracts_v0
+    ;;
+"v1")
+    compile_contracts_with_scarb $CONTRACTS_DIRECTORY_V1
+    ;;
+"v2")
+    compile_contracts_with_scarb $CONTRACTS_DIRECTORY_V2
+    ;;
+*)
     compile_contracts_v0
     compile_contracts_with_scarb $CONTRACTS_DIRECTORY_V1
     compile_contracts_with_scarb $CONTRACTS_DIRECTORY_V2
-
-    echo "Successfully compiled contracts!"
-
-    exit 0
-fi
-
-if [[ "$@" =~ .*"v0".* ]]; then
-    compile_contracts_v0
-fi
-
-if [[ "$@" =~ .*"v1".* ]]; then
-    compile_contracts_with_scarb $CONTRACTS_DIRECTORY_V1
-fi
-
-if [[ "$@" =~ .*"v2".* ]]; then
-    compile_contracts_with_scarb $CONTRACTS_DIRECTORY_V2
-fi
+    ;;
+esac
 
 echo "Successfully compiled contracts!"
 

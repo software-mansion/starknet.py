@@ -340,7 +340,7 @@ async def argent_cairo1_account_class_hash(
     pre_deployed_account_with_validate_deploy: BaseAccount,
 ) -> int:
     # Use precompiled argent account contracts
-    # we don't have the source code for this contract."
+    # we don't have the source code for this contract
     compiled_contract = read_contract(
         "argent_account.json", directory=PRECOMPILED_CONTRACTS_DIR
     )
