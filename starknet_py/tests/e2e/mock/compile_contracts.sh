@@ -4,27 +4,34 @@ MOCK_DIRECTORY=starknet_py/tests/e2e/mock
 CONTRACTS_DIRECTORY_V1="$MOCK_DIRECTORY"/contracts_v1
 CONTRACTS_DIRECTORY_V2="$MOCK_DIRECTORY"/contracts_v2
 
-setup_asdf() {
+setup_scarb() {
+    SCARB_VERSION=$1
+
     if ! command -v asdf >/dev/null 2>&1; then
         echo "asdf not found in PATH! Install asdf and run this script again"
         exit 1
     fi
-    asdf plugin-add scarb
+
+    if ! asdf plugin list | grep -q 'scarb'; then
+        asdf plugin add scarb
+    fi
+
+    if ! asdf list scarb 2>/dev/null | grep -q $SCARB_VERSION; then
+        asdf install scarb "$SCARB_VERSION"
+    fi
 }
 
 compile_contracts_with_scarb() {
     CONTRACTS_DIRECTORY=$1
     SCARB_VERSION=$(awk '/scarb/ {print $2}' ${CONTRACTS_DIRECTORY}/.tool-versions)
 
-    setup_asdf
-
-    asdf install scarb $SCARB_VERSION
+    setup_scarb "$SCARB_VERSION"
 
     echo "Compiling Cairo contracts with scarb $SCARB_VERSION"
 
-    pushd $CONTRACTS_DIRECTORY
+    pushd $CONTRACTS_DIRECTORY >/dev/null || exit 1
     scarb clean && scarb build
-    popd
+    popd >/dev/null || exit 1
 }
 
 compile_contracts_v0() {
