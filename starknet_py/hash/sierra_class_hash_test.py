@@ -2,27 +2,26 @@ import pytest
 
 from starknet_py.common import create_sierra_compiled_contract
 from starknet_py.hash.sierra_class_hash import compute_sierra_class_hash
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V2_DIR
-from starknet_py.tests.e2e.fixtures.misc import read_contract
+from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
 
 
 @pytest.mark.parametrize(
-    "sierra_contract_class_source, expected_class_hash",
+    "contract_name, expected_class_hash",
     # fmt: off
     [
-        ("account_compiled.json", 0x12f3bdfbb32ab45078a0af658b78617023d0ece273e7b2e3d14f03a7a9cba4e),
-        ("erc20_compiled.json", 0x9e3dbe53e170edc8b6817251a0e5a6e417cd04295015017a1d4e86a4a40d1a),
-        ("hello_starknet_compiled.json", 0x5cb6ab123cf9f06798dcd8227d46f4d5d5d157b4ce51ae2236aa5d9b1cb01ea),
-        ("minimal_contract_compiled.json", 0x614cde60994efdac8c95401809e98abd4221b02b5174f25b599f8145c11fb80),
-        ("test_contract_compiled.json", 0x40e041157a32a43e0c20389f4dcec0a97a22718ddbc24f223f7553fa0de3c08),
-        ("token_bridge_compiled.json", 0x4586bfabdc8e8e9334c73650b68a824ae5fab191bc4bb290af31b8e36005012),
+        ("Account", 0x450f568a8cb6ea1bcce446355e8a1c2e5852a6b8dc3536f495cdceb62e8a7e2),
+        ("ERC20", 0x746248ba570006607113ae3f4dbb4130e81233fb818d15329c6a4aaccf94812),
+        ("HelloStarknet", 0x224518978adb773cfd4862a894e9d333192fbd24bc83841dc7d4167c09b89c5),
+        ("MinimalContract", 0x6fb1efd745d57b60023c6dc3209227e5e54d44fa16e0ae75cc03e1a7f3da08a),
+        ("TestContract", 0x3adac8a417b176d27e11b420aa1063b07a6b54bbb21091ad77b2a9156af7a3b),
+        ("TokenBridge", 0x3d138e923f01b7ed1bb82b9b4e7f6df64e0c429faf8b27539addc71c1407237),
     ],
     # fmt: on
 )
-def test_compute_sierra_class_hash(sierra_contract_class_source, expected_class_hash):
-    sierra_contract_class_str = read_contract(
-        sierra_contract_class_source, directory=CONTRACTS_COMPILED_V2_DIR
-    )
+def test_compute_sierra_class_hash(contract_name, expected_class_hash):
+    sierra_contract_class_str = load_contract(
+        contract_name=contract_name, version=ContractVersion.V2
+    )["sierra"]
 
     sierra_contract_class = create_sierra_compiled_contract(sierra_contract_class_str)
     class_hash = compute_sierra_class_hash(sierra_contract_class)

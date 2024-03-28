@@ -2,9 +2,9 @@ use serde::Serde;
 
 #[derive(Copy, Drop, Serde)]
 enum MyEnum {
-  a: u256,
-  b: u128,
-  c: ()
+    a: u256,
+    b: u128,
+    c: ()
 }
 
 #[starknet::contract]
@@ -21,7 +21,7 @@ mod TestEnum {
 
     #[external(v0)]
     fn get_enum(self: @ContractState) -> MyEnum {
-        let my_enum = MyEnum::a(u256{low: 100, high: 0});
+        let my_enum = MyEnum::a(u256 { low: 100, high: 0 });
 
         my_enum
     }

@@ -17,12 +17,12 @@ mod Account {
     use serde::ArraySerde;
 
     struct Storage {
-        public_key: felt252
+        public_key_storage: felt252
     }
 
     #[constructor]
-    fn constructor(public_key_: felt252) {
-        public_key::write(public_key_);
+    fn constructor(public_key: felt252) {
+        public_key_storage::write(public_key);
     }
 
     fn validate_transaction() -> felt252 {
@@ -32,7 +32,7 @@ mod Account {
         assert(
             check_ecdsa_signature(
                 message_hash: tx_info.transaction_hash,
-                public_key: public_key::read(),
+                public_key: public_key_storage::read(),
                 signature_r: *signature[0_u32],
                 signature_s: *signature[1_u32],
             ),
@@ -45,7 +45,7 @@ mod Account {
 
     #[external]
     fn __validate_deploy__(
-        class_hash: felt252, contract_address_salt: felt252, public_key_: felt252
+        class_hash: felt252, contract_address_salt: felt252, public_key: felt252
     ) -> felt252 {
         validate_transaction()
     }

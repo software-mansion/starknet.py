@@ -6,8 +6,7 @@ import pytest_asyncio
 from starknet_py.cairo.felt import decode_shortstring
 from starknet_py.contract import Contract, DeclareResult, DeployResult
 from starknet_py.hash.storage import get_storage_var_address
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V2_DIR
-from starknet_py.tests.e2e.fixtures.misc import read_contract
+from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
 
 U128_MAX = (1 << 128) - 1
 U256_MAX = (1 << 256) - 1
@@ -15,17 +14,12 @@ U256_MAX = (1 << 256) - 1
 
 @pytest_asyncio.fixture(scope="package")
 async def declare_deploy_hello2(account) -> Tuple[DeclareResult, DeployResult]:
-    compiled_contract = read_contract(
-        "hello2_compiled.json", directory=CONTRACTS_COMPILED_V2_DIR
-    )
-    compiled_contract_casm = read_contract(
-        "hello2_compiled.casm", directory=CONTRACTS_COMPILED_V2_DIR
-    )
+    contract = load_contract(contract_name="Hello2", version=ContractVersion.V2)
 
     declare_result = await Contract.declare_v2(
         account=account,
-        compiled_contract=compiled_contract,
-        compiled_contract_casm=compiled_contract_casm,
+        compiled_contract=contract["sierra"],
+        compiled_contract_casm=contract["casm"],
         auto_estimate=True,
     )
     await declare_result.wait_for_acceptance()
