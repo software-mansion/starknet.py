@@ -30,12 +30,13 @@ from starknet_py.tests.e2e.utils import (
 async def devnet_account_details(
     account: BaseAccount,
     class_hash: int,
-    network: str,
+    run_devnet,
 ) -> Tuple[str, str]:
     """
     Deploys an Account and adds fee tokens to its balance (only on devnet).
     """
 
+    network = run_devnet
     private_key = _get_random_private_key_unsafe()
     key_pair = KeyPair.from_private_key(private_key)
     salt = 1
@@ -83,12 +84,13 @@ async def mint_token_on_devnet(url: str, address: int, amount: int, unit: str):
 async def address_and_private_key(
     pre_deployed_account_with_validate_deploy: BaseAccount,
     account_with_validate_deploy_class_hash: int,
-    network: str,
+    run_devnet,
 ) -> Tuple[str, str]:
     """
     Returns address and private key of an account, depending on the network.
     """
 
+    network = run_devnet
     return await devnet_account_details(
         pre_deployed_account_with_validate_deploy,
         account_with_validate_deploy_class_hash,

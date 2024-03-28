@@ -10,11 +10,12 @@ from starknet_py.tests.e2e.utils import _get_random_private_key_unsafe
 @pytest.mark.asyncio
 async def test_deploy_prefunded_account(
     account_with_validate_deploy_class_hash: int,
-    network: str,
+    run_devnet,
     eth_fee_contract: Contract,
     client: Client,
 ):
     # pylint: disable=import-outside-toplevel, too-many-locals
+    network = run_devnet
     full_node_client_fixture = client
     # docs: start
     from starknet_py.hash.address import compute_address
