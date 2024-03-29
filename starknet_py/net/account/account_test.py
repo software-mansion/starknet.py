@@ -99,7 +99,7 @@ def test_create_account_with_default_chain(client):
     assert account.address == 0x2
     assert account.signer.public_key == key_pair.public_key
     assert isinstance(account.signer, StarkCurveSigner)
-    assert account.signer.chain_id == StarknetChainId.GOERLI
+    assert account.signer.chain_id == StarknetChainId.MAINNET
 
 
 def test_create_account_with_string_chain():

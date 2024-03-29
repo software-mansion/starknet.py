@@ -31,6 +31,6 @@ async def test_creating_account():
     signer = StarkCurveSigner("0x1234", key_pair, StarknetChainId.MAINNET)
 
     account = Account(
-        client=client, address="0x1234", signer=signer, chain=StarknetChainId.GOERLI
+        client=client, address="0x1234", signer=signer, chain=StarknetChainId.SEPOLIA
     )
     # docs: end
