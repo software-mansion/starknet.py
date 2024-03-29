@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-MOCK_DIRECTORY="starknet_py/tests/e2e/mock"
+MOCK_DIRECTORY="$(git rev-parse --show-toplevel)/starknet_py/tests/e2e/mock"
 CONTRACTS_DIRECTORY_V1="$MOCK_DIRECTORY/contracts_v1"
 CONTRACTS_DIRECTORY_V2="$MOCK_DIRECTORY/contracts_v2"
 
