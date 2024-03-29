@@ -11,7 +11,7 @@ struct OptionStruct {
 }
 
 #[contract]
-mod HelloStarknet {
+mod TestOption {
     use super::OptionStruct;
 
     #[view]
@@ -23,7 +23,7 @@ mod HelloStarknet {
     fn get_option_struct() -> OptionStruct {
         let option_struct = OptionStruct {
             first_field: 1,
-            second_field: Option::Some(u256{low: 2, high: 0}),
+            second_field: Option::Some(u256 { low: 2, high: 0 }),
             third_field: Option::None(()),
             fourth_field: 4
         };

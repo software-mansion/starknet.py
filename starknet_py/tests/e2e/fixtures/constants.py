@@ -70,9 +70,18 @@ MAX_RESOURCE_BOUNDS = ResourceBoundsMapping(
 MOCK_DIR = Path(os.path.dirname(__file__)) / "../mock"
 TYPED_DATA_DIR = MOCK_DIR / "typed_data"
 CONTRACTS_DIR = MOCK_DIR / "contracts"
-CONTRACTS_V1_DIR = MOCK_DIR / "contracts_v1"
 CONTRACTS_COMPILED_V0_DIR = MOCK_DIR / "contracts_compiled"
-CONTRACTS_COMPILED_V1_DIR = MOCK_DIR / "contracts_compiled_v1"
-CONTRACTS_COMPILED_V2_DIR = MOCK_DIR / "contracts_compiled_v2"
-CONTRACTS_PRECOMPILED_DIR = CONTRACTS_COMPILED_V0_DIR / "precompiled"
-ACCOUNT_DIR = MOCK_DIR / "account"
+
+# PRECOMPILED_CONTRACTS are contracts compiled with various Sierras
+# They are mainly used to verify if we compute class_hash for older Sierras correctly
+PRECOMPILED_CONTRACTS_DIR = MOCK_DIR / "precompiled_contracts"
+
+CONTRACTS_V2_COMPILED = MOCK_DIR / "contracts_v2/target/dev"
+CONTRACTS_V2_ARTIFACTS_MAP = (
+    CONTRACTS_V2_COMPILED / "contracts_v2.starknet_artifacts.json"
+)
+
+CONTRACTS_V1_COMPILED = MOCK_DIR / "contracts_v1/target/dev"
+CONTRACTS_V1_ARTIFACTS_MAP = (
+    CONTRACTS_V1_COMPILED / "contracts_v1.starknet_artifacts.json"
+)

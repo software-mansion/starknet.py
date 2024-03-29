@@ -18,7 +18,9 @@ struct ExampleStruct {
 #[starknet::interface]
 trait IAbiTest<TContractState> {
     fn example_view_function(self: @TContractState) -> ExampleEnum;
-    fn example_external_function(ref self: TContractState, recipient: ContractAddress, amount: u256) -> ExampleStruct;
+    fn example_external_function(
+        ref self: TContractState, recipient: ContractAddress, amount: u256
+    ) -> ExampleStruct;
 }
 
 

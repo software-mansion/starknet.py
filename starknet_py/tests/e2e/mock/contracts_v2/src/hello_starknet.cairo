@@ -1,5 +1,5 @@
 #[starknet::contract]
-mod hello_starknet {
+mod HelloStarknet {
     #[storage]
     struct Storage {
         balance: felt252,

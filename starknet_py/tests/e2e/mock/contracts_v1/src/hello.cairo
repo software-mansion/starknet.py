@@ -49,13 +49,15 @@ struct Bet {
     amount: u256,
 }
 
-impl UserDataStorageAccess of StorageAccess::<UserData> {
+impl UserDataStorageAccess of StorageAccess<UserData> {
     fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult::<UserData> {
         Result::Ok(
             UserData {
                 address: storage_read_syscall(
                     address_domain, storage_address_from_base_and_offset(base, 0_u8)
-                )?.try_into().unwrap(),
+                )?
+                    .try_into()
+                    .unwrap(),
                 is_claimed: storage_read_syscall(
                     address_domain, storage_address_from_base_and_offset(base, 1_u8)
                 )? != 0,
@@ -63,7 +65,9 @@ impl UserDataStorageAccess of StorageAccess::<UserData> {
         )
     }
 
-    fn write(address_domain: u32, base: StorageBaseAddress, value: UserData) -> SyscallResult::<()> {
+    fn write(
+        address_domain: u32, base: StorageBaseAddress, value: UserData
+    ) -> SyscallResult::<()> {
         storage_write_syscall(
             address_domain, storage_address_from_base_and_offset(base, 0_u8), value.address.into()
         )?;
@@ -79,95 +83,159 @@ impl UserDataStorageAccess of StorageAccess::<UserData> {
     }
 }
 
-impl BetStorageAccess of StorageAccess::<Bet> {
+impl BetStorageAccess of StorageAccess<Bet> {
     fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult::<Bet> {
-
-        let name_base = storage_base_address_from_felt252(storage_address_from_base_and_offset(base, 0_u8).into());
+        let name_base = storage_base_address_from_felt252(
+            storage_address_from_base_and_offset(base, 0_u8).into()
+        );
         let name = StorageAccess::read(address_domain, name_base)?;
 
-        let description_base = storage_base_address_from_felt252(storage_address_from_base_and_offset(base, 1_u8).into());
+        let description_base = storage_base_address_from_felt252(
+            storage_address_from_base_and_offset(base, 1_u8).into()
+        );
         let description = StorageAccess::read(address_domain, description_base)?;
 
-        let expire_date_base = storage_base_address_from_felt252(storage_address_from_base_and_offset(base, 2_u8).into());
+        let expire_date_base = storage_base_address_from_felt252(
+            storage_address_from_base_and_offset(base, 2_u8).into()
+        );
         let expire_date = StorageAccess::read(address_domain, expire_date_base)?;
 
-        let creation_time_base = storage_base_address_from_felt252(storage_address_from_base_and_offset(base, 3_u8).into());
+        let creation_time_base = storage_base_address_from_felt252(
+            storage_address_from_base_and_offset(base, 3_u8).into()
+        );
         let creation_time = StorageAccess::read(address_domain, creation_time_base)?;
 
-        let creator_base = storage_base_address_from_felt252(storage_address_from_base_and_offset(base, 4_u8).into());
+        let creator_base = storage_base_address_from_felt252(
+            storage_address_from_base_and_offset(base, 4_u8).into()
+        );
         let creator = StorageAccess::read(address_domain, creator_base)?;
 
-        let is_cancelled_base = storage_base_address_from_felt252(storage_address_from_base_and_offset(base, 5_u8).into());
+        let is_cancelled_base = storage_base_address_from_felt252(
+            storage_address_from_base_and_offset(base, 5_u8).into()
+        );
         let is_cancelled = StorageAccess::read(address_domain, is_cancelled_base)? != 0;
 
-        let is_voted_base = storage_base_address_from_felt252(storage_address_from_base_and_offset(base, 6_u8).into());
+        let is_voted_base = storage_base_address_from_felt252(
+            storage_address_from_base_and_offset(base, 6_u8).into()
+        );
         let is_voted = StorageAccess::read(address_domain, is_voted_base)? != 0;
 
-        let bettor_base = storage_base_address_from_felt252(storage_address_from_base_and_offset(base, 7_u8).into());
+        let bettor_base = storage_base_address_from_felt252(
+            storage_address_from_base_and_offset(base, 7_u8).into()
+        );
         let bettor = StorageAccess::read(address_domain, bettor_base)?;
 
-        let counter_bettor_base = storage_base_address_from_felt252(storage_address_from_base_and_offset(base, 9_u8).into());
+        let counter_bettor_base = storage_base_address_from_felt252(
+            storage_address_from_base_and_offset(base, 9_u8).into()
+        );
         let counter_bettor = StorageAccess::read(address_domain, counter_bettor_base)?;
 
-        let winner_base = storage_base_address_from_felt252(storage_address_from_base_and_offset(base, 11_u8).into());
+        let winner_base = storage_base_address_from_felt252(
+            storage_address_from_base_and_offset(base, 11_u8).into()
+        );
         let winner = StorageAccess::read(address_domain, winner_base)? != 0;
 
-        let pool_base = storage_base_address_from_felt252(storage_address_from_base_and_offset(base, 12_u8).into());
-        let pool =  u256 {
+        let pool_base = storage_base_address_from_felt252(
+            storage_address_from_base_and_offset(base, 12_u8).into()
+        );
+        let pool = u256 {
             low: StorageAccess::<u128>::read(address_domain, pool_base)?,
             high: storage_read_syscall(
-            address_domain, storage_address_from_base_and_offset(pool_base, 1_u8)
-            )?.try_into().expect('StorageAccessU256 - non u256')
+                address_domain, storage_address_from_base_and_offset(pool_base, 1_u8)
+            )?
+                .try_into()
+                .expect('StorageAccessU256 - non u256')
         };
 
-        let amount_base = storage_base_address_from_felt252(storage_address_from_base_and_offset(base, 14_u8).into());
-        let amount =  u256 {
+        let amount_base = storage_base_address_from_felt252(
+            storage_address_from_base_and_offset(base, 14_u8).into()
+        );
+        let amount = u256 {
             low: StorageAccess::<u128>::read(address_domain, amount_base)?,
             high: storage_read_syscall(
-            address_domain, storage_address_from_base_and_offset(amount_base, 1_u8)
-            )?.try_into().expect('StorageAccessU256 - non u256')
+                address_domain, storage_address_from_base_and_offset(amount_base, 1_u8)
+            )?
+                .try_into()
+                .expect('StorageAccessU256 - non u256')
         };
 
-        Result::Ok( Bet {name, description, expire_date, creation_time, creator, is_cancelled, is_voted, bettor, counter_bettor, winner, pool, amount})
+        Result::Ok(
+            Bet {
+                name,
+                description,
+                expire_date,
+                creation_time,
+                creator,
+                is_cancelled,
+                is_voted,
+                bettor,
+                counter_bettor,
+                winner,
+                pool,
+                amount
+            }
+        )
     }
 
     fn write(address_domain: u32, base: StorageBaseAddress, value: Bet) -> SyscallResult::<()> {
-        let name_base = storage_base_address_from_felt252(storage_address_from_base_and_offset(base, 0_u8).into());
+        let name_base = storage_base_address_from_felt252(
+            storage_address_from_base_and_offset(base, 0_u8).into()
+        );
         StorageAccess::write(address_domain, name_base, value.name)?;
 
-        let description_base = storage_base_address_from_felt252(storage_address_from_base_and_offset(base, 1_u8).into());
+        let description_base = storage_base_address_from_felt252(
+            storage_address_from_base_and_offset(base, 1_u8).into()
+        );
         StorageAccess::write(address_domain, description_base, value.description)?;
 
-        let expire_date_base = storage_base_address_from_felt252(storage_address_from_base_and_offset(base, 2_u8).into());
+        let expire_date_base = storage_base_address_from_felt252(
+            storage_address_from_base_and_offset(base, 2_u8).into()
+        );
         StorageAccess::write(address_domain, expire_date_base, value.expire_date)?;
 
-        let creation_time_base = storage_base_address_from_felt252(storage_address_from_base_and_offset(base, 3_u8).into());
+        let creation_time_base = storage_base_address_from_felt252(
+            storage_address_from_base_and_offset(base, 3_u8).into()
+        );
         StorageAccess::write(address_domain, creation_time_base, value.creation_time)?;
 
-        let creator_base = storage_base_address_from_felt252(storage_address_from_base_and_offset(base, 4_u8).into());
+        let creator_base = storage_base_address_from_felt252(
+            storage_address_from_base_and_offset(base, 4_u8).into()
+        );
         StorageAccess::write(address_domain, creator_base, value.creator)?;
 
-        let is_cancelled_base = storage_base_address_from_felt252(storage_address_from_base_and_offset(base, 5_u8).into());
-        StorageAccess::write(address_domain, is_cancelled_base, if value.is_cancelled {
-            1
-        } else {
-            0
-        });
+        let is_cancelled_base = storage_base_address_from_felt252(
+            storage_address_from_base_and_offset(base, 5_u8).into()
+        );
+        StorageAccess::write(
+            address_domain, is_cancelled_base, if value.is_cancelled {
+                1
+            } else {
+                0
+            }
+        );
 
-        let is_voted_base = storage_base_address_from_felt252(storage_address_from_base_and_offset(base, 6_u8).into());
+        let is_voted_base = storage_base_address_from_felt252(
+            storage_address_from_base_and_offset(base, 6_u8).into()
+        );
         StorageAccess::write(address_domain, is_voted_base, if value.is_voted {
             1
         } else {
             0
         });
 
-        let bettor_base = storage_base_address_from_felt252(storage_address_from_base_and_offset(base, 7_u8).into());
+        let bettor_base = storage_base_address_from_felt252(
+            storage_address_from_base_and_offset(base, 7_u8).into()
+        );
         StorageAccess::write(address_domain, bettor_base, value.bettor)?;
 
-        let counter_bettor_base = storage_base_address_from_felt252(storage_address_from_base_and_offset(base, 9_u8).into());
+        let counter_bettor_base = storage_base_address_from_felt252(
+            storage_address_from_base_and_offset(base, 9_u8).into()
+        );
         StorageAccess::write(address_domain, counter_bettor_base, value.counter_bettor)?;
 
-        let winner_base = storage_base_address_from_felt252(storage_address_from_base_and_offset(base, 11_u8).into());
+        let winner_base = storage_base_address_from_felt252(
+            storage_address_from_base_and_offset(base, 11_u8).into()
+        );
         StorageAccess::write(address_domain, winner_base, if value.winner {
             1
         } else {
@@ -179,7 +247,9 @@ impl BetStorageAccess of StorageAccess::<Bet> {
         );
         StorageAccess::write(address_domain, pool_base, value.pool.low)?;
         storage_write_syscall(
-            address_domain, storage_address_from_base_and_offset(pool_base, 1_u8), value.pool.high.into()
+            address_domain,
+            storage_address_from_base_and_offset(pool_base, 1_u8),
+            value.pool.high.into()
         )?;
 
         let amount_base = storage_base_address_from_felt252(
@@ -187,14 +257,16 @@ impl BetStorageAccess of StorageAccess::<Bet> {
         );
         StorageAccess::write(address_domain, amount_base, value.amount.low);
         storage_write_syscall(
-            address_domain, storage_address_from_base_and_offset(amount_base, 1_u8), value.amount.high.into()
+            address_domain,
+            storage_address_from_base_and_offset(amount_base, 1_u8),
+            value.amount.high.into()
         )
     }
 }
 
 // MAIN APP
 #[contract]
-mod HelloStarknet {
+mod Hello {
     //  libs
     use starknet::ContractAddress;
     use super::Foo;
@@ -304,7 +376,7 @@ mod HelloStarknet {
 
     // unnamed Tuple
     #[view]
-    fn echo_un_tuple(a:(felt252, u16)) -> (felt252, u16) {
+    fn echo_un_tuple(a: (felt252, u16)) -> (felt252, u16) {
         a
     }
 
@@ -317,10 +389,25 @@ mod HelloStarknet {
     #[external]
     fn set_bet() {
         let sender = get_caller_address();
-        let user = UserData{address: sender, is_claimed: false};
-        testbet::write(Bet { name: 'test', description: 'dec', expire_date: 1_u64, creation_time: 1_u64,
-            creator: sender, is_cancelled: false, is_voted: false, bettor: user, counter_bettor: user, winner: false,
-            pool: u256 {low: 10_u128, high: 0_u128}, amount: u256 {low: 1000_u128, high: 0_u128}}
+        let user = UserData { address: sender, is_claimed: false };
+        testbet::write(
+            Bet {
+                name: 'test',
+                description: 'dec',
+                expire_date: 1_u64,
+                creation_time: 1_u64,
+                creator: sender,
+                is_cancelled: false,
+                is_voted: false,
+                bettor: user,
+                counter_bettor: user,
+                winner: false,
+                pool: u256 {
+                    low: 10_u128, high: 0_u128
+                    }, amount: u256 {
+                    low: 1000_u128, high: 0_u128
+                }
+            }
         );
     }
 
@@ -363,13 +450,17 @@ mod HelloStarknet {
 
     // req tuple(array) ret tuple(array)
     #[view]
-    fn tuple_echo(a: (core::array::Array::<felt252>, core::array::Array::<felt252>)) -> (core::array::Array::<felt252>, core::array::Array::<felt252>) {
+    fn tuple_echo(
+        a: (core::array::Array::<felt252>, core::array::Array::<felt252>)
+    ) -> (core::array::Array::<felt252>, core::array::Array::<felt252>) {
         a
     }
 
     // mix req (array,bool) ret tuple(array,bool)
     #[view]
-    fn array_bool_tuple(mut a:core::array::Array::<felt252>, b:bool) -> (core::array::Array::<felt252>, bool) {
+    fn array_bool_tuple(
+        mut a: core::array::Array::<felt252>, b: bool
+    ) -> (core::array::Array::<felt252>, bool) {
         a.append(1);
         a.append(2);
         (a, b)

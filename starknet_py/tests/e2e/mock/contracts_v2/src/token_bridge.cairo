@@ -10,7 +10,7 @@ trait IMintableToken<T> {
 }
 
 #[starknet::contract]
-mod token_bridge {
+mod TokenBridge {
     use array::ArrayTrait;
     use integer::{Felt252IntoU256, U128IntoFelt252};
     use option::OptionTrait;
@@ -131,9 +131,8 @@ mod token_bridge {
         fn initiate_withdraw(ref self: ContractState, l1_recipient: EthAddress, amount: u256) {
             // Call burn on l2_token contract.
             let caller_address = get_caller_address();
-            IMintableTokenDispatcher {
-                contract_address: self.read_initialized_l2_token()
-            }.permissioned_burn(account: caller_address, :amount);
+            IMintableTokenDispatcher { contract_address: self.read_initialized_l2_token() }
+                .permissioned_burn(account: caller_address, :amount);
 
             // Send the message.
             let mut message_payload: Array<felt252> = array![
@@ -141,7 +140,8 @@ mod token_bridge {
             ];
             send_message_to_l1_syscall(
                 to_address: self.read_initialized_l1_bridge(), payload: message_payload.span()
-            ).unwrap();
+            )
+                .unwrap();
             self.emit(WithdrawInitiated { l1_recipient, amount, caller_address });
         }
     }
@@ -153,9 +153,8 @@ mod token_bridge {
         assert(from_address == self.l1_bridge.read(), 'EXPECTED_FROM_BRIDGE_ONLY');
 
         // Call mint on l2_token contract.
-        IMintableTokenDispatcher {
-            contract_address: self.read_initialized_l2_token()
-        }.permissioned_mint(:account, :amount);
+        IMintableTokenDispatcher { contract_address: self.read_initialized_l2_token() }
+            .permissioned_mint(:account, :amount);
 
         self.emit(Event::DepositHandled(DepositHandled { account, amount }));
     }
