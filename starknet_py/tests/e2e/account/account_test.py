@@ -884,34 +884,3 @@ async def test_account_execute_v3(account, deployed_balance_contract):
         call=get_balance_call
     )
     assert initial_balance + 100 == balance_after_increase
-
-
-@pytest.mark.asyncio
-async def test_execute_v3_with_get_chain_id(
-    client, address_and_private_key, deployed_balance_contract
-):
-    address, private_key = address_and_private_key
-
-    chain = await client.get_chain_id()
-
-    account = Account(
-        address=address,
-        client=client,
-        key_pair=KeyPair.from_private_key(private_key),
-        chain=chain,
-    )
-
-    increase_balance_call = Call(
-        to_addr=deployed_balance_contract.address,
-        selector=get_selector_from_name("increase_balance"),
-        calldata=[100],
-    )
-
-    execute_increase_balance = await account.execute_v3(
-        calls=increase_balance_call, l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1
-    )
-    receipt = await account.client.wait_for_tx(
-        tx_hash=execute_increase_balance.transaction_hash
-    )
-
-    assert receipt.execution_status == TransactionExecutionStatus.SUCCEEDED

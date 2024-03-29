@@ -114,7 +114,7 @@ def test_create_account_with_string_chain():
     assert account.address == 0x2
     assert account.signer.public_key == key_pair.public_key
     assert isinstance(account.signer, StarkCurveSigner)
-    assert account.signer.chain_id == 393402133025997798000961
+    assert account.signer.chain_id == 0x534E5F5345504F4C4941
 
 
 def test_create_account_with_string_hex_chain():
@@ -129,7 +129,7 @@ def test_create_account_with_string_hex_chain():
     assert account.address == 0x2
     assert account.signer.public_key == key_pair.public_key
     assert isinstance(account.signer, StarkCurveSigner)
-    assert account.signer.chain_id == 393402133025997798000961
+    assert account.signer.chain_id == 0x534E5F5345504F4C4941
 
 
 def test_create_account_from_signer(client):
