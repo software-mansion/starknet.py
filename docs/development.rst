@@ -33,21 +33,12 @@ If you choose to install `starknet-devnet-rs <https://github.com/0xSpaceShard/st
 
 In order to be able to run tests on testnet and integration networks (``starknet_py/tests/e2e/tests_on_networks/``), you must set some environmental variables:
 
-    - ``GOERLI_INTEGRATION_RPC_URL``
-    - ``GOERLI_TESTNET_RPC_URL``
     - ``SEPOLIA_INTEGRATION_RPC_URL``
-    - ``SEPOLIA_TESTNET_RPC_URL``
-    - ``GOERLI_INTEGRATION_ACCOUNT_PRIVATE_KEY``
-    - ``GOERLI_INTEGRATION_ACCOUNT_ADDRESS``
-    - ``GOERLI_TESTNET_ACCOUNT_PRIVATE_KEY``
-    - ``GOERLI_TESTNET_ACCOUNT_ADDRESS``
-
-The existing tests don't execute any invoke transactions on the Sepolia networks. If you plan to incorporate such tests, please also set the following environment variables:
-
+    - ``SEPOLIA_RPC_URL``
     - ``SEPOLIA_INTEGRATION_ACCOUNT_PRIVATE_KEY``
     - ``SEPOLIA_INTEGRATION_ACCOUNT_ADDRESS``
-    - ``SEPOLIA_TESTNET_ACCOUNT_PRIVATE_KEY``
-    - ``SEPOLIA_TESTNET_ACCOUNT_ADDRESS``
+    - ``SEPOLIA_ACCOUNT_PRIVATE_KEY``
+    - ``SEPOLIA_ACCOUNT_ADDRESS``
 
 The best way to set environment variables is to create ``test-variables.env`` file in ``starknet_py/tests/e2e/`` directory, so they can be loaded by the ``python-dotenv`` library.
 You can find an example file ``test-variables.env.template`` in the same directory with the format of how it should look like.

@@ -35,11 +35,13 @@ def get_start_devnet_command(devnet_port: int) -> List[str]:
         str(1),
         "--state-archive-capacity",
         "full",
+        "--chain-id",
+        "MAINNET",
     ]
 
 
 @pytest.fixture(scope="package")
-def run_devnet() -> Generator[str, None, None]:
+def devnet() -> Generator[str, None, None]:
     """
     Runs devnet instance once per module and returns it's address.
     """
