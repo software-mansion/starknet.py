@@ -18,10 +18,6 @@ from starknet_py.net.signer.stark_curve_signer import KeyPair
 from starknet_py.tests.e2e.fixtures.constants import (
     DEVNET_PRE_DEPLOYED_ACCOUNT_ADDRESS,
     DEVNET_PRE_DEPLOYED_ACCOUNT_PRIVATE_KEY,
-    GOERLI_INTEGRATION_ACCOUNT_ADDRESS,
-    GOERLI_INTEGRATION_ACCOUNT_PRIVATE_KEY,
-    GOERLI_TESTNET_ACCOUNT_ADDRESS,
-    GOERLI_TESTNET_ACCOUNT_PRIVATE_KEY,
 )
 from starknet_py.tests.e2e.utils import (
     AccountToBeDeployedDetails,
@@ -34,7 +30,7 @@ from starknet_py.tests.e2e.utils import (
 async def devnet_account_details(
     account: BaseAccount,
     class_hash: int,
-    network: str,
+    devnet,
 ) -> Tuple[str, str]:
     """
     Deploys an Account and adds fee tokens to its balance (only on devnet).
@@ -51,8 +47,8 @@ async def devnet_account_details(
         deployer_address=0,
     )
 
-    await mint_token_on_devnet(network, address, int(1e30), PriceUnit.WEI.value)
-    await mint_token_on_devnet(network, address, int(1e30), PriceUnit.FRI.value)
+    await mint_token_on_devnet(devnet, address, int(1e30), PriceUnit.WEI.value)
+    await mint_token_on_devnet(devnet, address, int(1e30), PriceUnit.FRI.value)
 
     deploy_account_tx = await get_deploy_account_transaction(
         address=address,
@@ -66,7 +62,7 @@ async def devnet_account_details(
         address=address,
         client=account.client,
         key_pair=key_pair,
-        chain=StarknetChainId.GOERLI,
+        chain=StarknetChainId.MAINNET,
     )
     res = await account.client.deploy_account(deploy_account_tx)
     await account.client.wait_for_tx(res.transaction_hash)
@@ -85,33 +81,19 @@ async def mint_token_on_devnet(url: str, address: int, amount: int, unit: str):
 
 @pytest_asyncio.fixture(scope="package")
 async def address_and_private_key(
-    pytestconfig,
     pre_deployed_account_with_validate_deploy: BaseAccount,
     account_with_validate_deploy_class_hash: int,
-    network: str,
+    devnet,
 ) -> Tuple[str, str]:
     """
     Returns address and private key of an account, depending on the network.
     """
-    net = pytestconfig.getoption("--net")
 
-    account_details = {
-        "testnet": (GOERLI_TESTNET_ACCOUNT_ADDRESS, GOERLI_TESTNET_ACCOUNT_PRIVATE_KEY),
-        "integration": (
-            GOERLI_INTEGRATION_ACCOUNT_ADDRESS,
-            GOERLI_INTEGRATION_ACCOUNT_PRIVATE_KEY,
-        ),
-    }
-    if net == "devnet":
-        return await devnet_account_details(
-            pre_deployed_account_with_validate_deploy,
-            account_with_validate_deploy_class_hash,
-            network,
-        )
-
-    # because TESTNET and INTEGRATION constants are lambdas
-    exact_account_details = account_details[net]
-    return exact_account_details[0](), exact_account_details[1]()
+    return await devnet_account_details(
+        pre_deployed_account_with_validate_deploy,
+        account_with_validate_deploy_class_hash,
+        devnet,
+    )
 
 
 @pytest.fixture(name="account", scope="package")
@@ -127,7 +109,7 @@ def full_node_account(
         address=address,
         client=client,
         key_pair=KeyPair.from_private_key(int(private_key, 0)),
-        chain=StarknetChainId.GOERLI,
+        chain=StarknetChainId.MAINNET,
     )
 
 
@@ -169,37 +151,19 @@ async def deploy_account_details_factory(
 
 
 @pytest.fixture(scope="package")
-def pre_deployed_account_with_validate_deploy(
-    pytestconfig, network: str
-) -> BaseAccount:
+def pre_deployed_account_with_validate_deploy(client) -> BaseAccount:
     """
     Returns an Account pre-deployed on specified network. Used to deploy other accounts.
     """
-    address_and_priv_key = {
-        "devnet": (
-            DEVNET_PRE_DEPLOYED_ACCOUNT_ADDRESS,
-            DEVNET_PRE_DEPLOYED_ACCOUNT_PRIVATE_KEY,
-        ),
-        "testnet": (GOERLI_TESTNET_ACCOUNT_ADDRESS, GOERLI_TESTNET_ACCOUNT_PRIVATE_KEY),
-        "integration": (
-            GOERLI_INTEGRATION_ACCOUNT_ADDRESS,
-            GOERLI_INTEGRATION_ACCOUNT_PRIVATE_KEY,
-        ),
-    }
 
-    net = pytestconfig.getoption("--net")
-    address, private_key = address_and_priv_key[net]
-
-    if net != "devnet":
-        # because TESTNET and INTEGRATION constants are lambdas
-        address = address()
-        private_key = private_key()
+    address = DEVNET_PRE_DEPLOYED_ACCOUNT_ADDRESS
+    private_key = DEVNET_PRE_DEPLOYED_ACCOUNT_PRIVATE_KEY
 
     return Account(
         address=address,
-        client=FullNodeClient(node_url=network + "/rpc"),
+        client=client,
         key_pair=KeyPair.from_private_key(int(private_key, 16)),
-        chain=StarknetChainId.GOERLI,
+        chain=StarknetChainId.MAINNET,
     )
 
 
@@ -220,7 +184,7 @@ async def argent_cairo1_account(
         key_pair=key_pair,
         client=client,
         constructor_calldata=[key_pair.public_key, 0],
-        chain=StarknetChainId.GOERLI,
+        chain=StarknetChainId.MAINNET,
         max_fee=int(1e16),
     )
     await deploy_result.wait_for_acceptance()

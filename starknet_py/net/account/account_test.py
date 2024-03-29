@@ -6,7 +6,7 @@ from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.net.account.account import Account
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models import StarknetChainId, parse_address
-from starknet_py.net.networks import GOERLI, MAINNET
+from starknet_py.net.networks import MAINNET
 from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 from starknet_py.tests.e2e.fixtures.constants import (
     MAX_FEE,
@@ -16,14 +16,14 @@ from starknet_py.tests.e2e.fixtures.constants import (
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("net", (GOERLI, MAINNET))
+@pytest.mark.parametrize("net", (MAINNET))
 async def test_get_balance_default_token_address(net):
     client = FullNodeClient(node_url=net + "/rpc")
     acc_client = Account(
         client=client,
         address="0x123",
         key_pair=KeyPair(123, 456),
-        chain=StarknetChainId.GOERLI,
+        chain=StarknetChainId.MAINNET,
     )
 
     with patch(
@@ -81,7 +81,7 @@ def test_create_account():
         address=0x1,
         client=FullNodeClient(node_url=""),
         key_pair=key_pair,
-        chain=StarknetChainId.GOERLI,
+        chain=StarknetChainId.MAINNET,
     )
 
     assert account.address == 0x1
@@ -92,7 +92,7 @@ def test_create_account_from_signer():
     signer = StarkCurveSigner(
         account_address=0x1,
         key_pair=KeyPair.from_private_key(0x111),
-        chain_id=StarknetChainId.GOERLI,
+        chain_id=StarknetChainId.MAINNET,
     )
     account = Account(address=0x1, client=FullNodeClient(node_url=""), signer=signer)
 
@@ -117,7 +117,7 @@ def test_create_account_raises_on_no_keypair_and_signer():
         Account(
             address=0x1,
             client=FullNodeClient(node_url=""),
-            chain=StarknetChainId.GOERLI,
+            chain=StarknetChainId.MAINNET,
         )
 
 
@@ -128,11 +128,11 @@ def test_create_account_raises_on_both_keypair_and_signer():
         Account(
             address=0x1,
             client=FullNodeClient(node_url=""),
-            chain=StarknetChainId.GOERLI,
+            chain=StarknetChainId.MAINNET,
             key_pair=KeyPair.from_private_key(0x111),
             signer=StarkCurveSigner(
                 account_address=0x1,
                 key_pair=KeyPair.from_private_key(0x11),
-                chain_id=StarknetChainId.GOERLI,
+                chain_id=StarknetChainId.MAINNET,
             ),
         )
