@@ -10,7 +10,7 @@ from starknet_py.tests.e2e.utils import _get_random_private_key_unsafe
 @pytest.mark.asyncio
 async def test_deploy_prefunded_account(
     account_with_validate_deploy_class_hash: int,
-    network: str,
+    devnet,
     eth_fee_contract: Contract,
     client: Client,
 ):
@@ -51,11 +51,11 @@ async def test_deploy_prefunded_account(
 
     # Define the client to be used to interact with Starknet
     client = FullNodeClient(node_url="your.node.url")
-    chain = StarknetChainId.GOERLI
+    chain = StarknetChainId.MAINNET
     # docs: end
 
     client = full_node_client_fixture
-    chain = chain_from_network(net=network, chain=StarknetChainId.GOERLI)
+    chain = chain_from_network(net=devnet, chain=StarknetChainId.MAINNET)
     # docs: start
 
     # Use `Account.deploy_account_v1` or `Account.deploy_account_v3` static methods to deploy an account
