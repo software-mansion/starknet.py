@@ -102,8 +102,8 @@ jobs:
           path: starknet_py/tests/e2e/mock/contracts_v2/target
           key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v2') }}
 
-      - name: Compile contracts v1
-        if: steps.cache-contracts.outputs.cache-hit != 'true'
+      - name: Compile contracts v2
+        if: steps.cache-contracts_v2.outputs.cache-hit != 'true'
         run: |
           poetry run poe compile_contracts v2
 
@@ -117,13 +117,13 @@ jobs:
           key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v1') }}
 
       - name: Compile contracts v1
-        if: steps.cache-contracts.outputs.cache-hit != 'true'
+        if: steps.cache-contracts_v1.outputs.cache-hit != 'true'
         run: |
           poetry run poe compile_contracts v1
   
       # ====================== CONTRACTS v0 ====================== #
 
-      - name: Cache contracts
+      - name: Cache contracts v0
         id: cache-contracts
         uses: actions/cache@v3
         with:
@@ -136,12 +136,12 @@ jobs:
           pip install --upgrade setuptools
           pip install cairo-lang==${{ env.CAIRO_LANG_VERSION }}
 
-      - name: Compile contracts
+      - name: Compile contracts v0
         if: steps.cache-contracts.outputs.cache-hit != 'true'
         run: |
           poetry run poe compile_contracts v0
 
-      - name: Upload contracts
+      - name: Upload contracts v0
         uses: actions/upload-artifact@v3
         with:
           name: contract-artifacts
