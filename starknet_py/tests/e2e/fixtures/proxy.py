@@ -6,11 +6,7 @@ import pytest_asyncio
 from starknet_py.contract import Contract, DeployResult
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.account import Account
-from starknet_py.tests.e2e.fixtures.constants import (
-    CONTRACTS_COMPILED_V0_DIR,
-    CONTRACTS_PRECOMPILED_DIR,
-    MAX_FEE,
-)
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V0_DIR, MAX_FEE
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
@@ -38,14 +34,14 @@ def custom_proxy() -> str:
 @pytest.fixture(
     scope="session",
     params=[
-        "oz_proxy_address_0.8.1_compiled.json",
+        "precompiled/oz_proxy_address_0.8.1_compiled.json",
     ],
 )
 def old_proxy(request) -> str:
     """
     Returns compiled (using starknet-compile 0.8.1) source code of proxy using address and delegate_call.
     """
-    return read_contract(request.param, directory=CONTRACTS_PRECOMPILED_DIR)
+    return read_contract(request.param, directory=CONTRACTS_COMPILED_V0_DIR)
 
 
 @pytest_asyncio.fixture(

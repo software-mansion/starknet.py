@@ -25,7 +25,7 @@ async def test_general_v1_interaction(account, cairo1_erc20_class_hash: int):
     }
     erc20 = await deploy_v1_contract(
         account=account,
-        contract_file_name="erc20",
+        contract_name="ERC20",
         class_hash=cairo1_erc20_class_hash,
         calldata=calldata,
     )
@@ -64,7 +64,7 @@ async def test_general_v1_interaction(account, cairo1_erc20_class_hash: int):
 async def test_serializing_struct(account, cairo1_token_bridge_class_hash: int):
     bridge = await deploy_v1_contract(
         account=account,
-        contract_file_name="token_bridge",
+        contract_name="TokenBridge",
         class_hash=cairo1_token_bridge_class_hash,
         calldata={"governor_address": account.address},
     )
@@ -80,7 +80,7 @@ async def test_serializing_struct(account, cairo1_token_bridge_class_hash: int):
 async def test_serializing_option(account, cairo1_test_option_class_hash: int):
     test_option = await deploy_v1_contract(
         account=account,
-        contract_file_name="test_option",
+        contract_name="TestOption",
         class_hash=cairo1_test_option_class_hash,
     )
 
@@ -115,7 +115,7 @@ async def test_serializing_option(account, cairo1_test_option_class_hash: int):
 async def test_serializing_enum(account, cairo1_test_enum_class_hash: int):
     test_enum = await deploy_v1_contract(
         account=account,
-        contract_file_name="test_enum",
+        contract_name="TestEnum",
         class_hash=cairo1_test_enum_class_hash,
     )
 
@@ -163,7 +163,7 @@ async def test_from_address_on_v1_contract(account, cairo1_erc20_class_hash: int
     }
     erc20 = await deploy_v1_contract(
         account=account,
-        contract_file_name="erc20",
+        contract_name="ERC20",
         class_hash=cairo1_erc20_class_hash,
         calldata=calldata,
     )
