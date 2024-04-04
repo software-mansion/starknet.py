@@ -11,7 +11,17 @@ Version 0.22.0 of **starknet.py**
 -----------------------
 
 1. Support for Goerli has been removed
-2. ``StarknetChainId.SEPOLIA_TESTNET`` has been renamed to ``StarknetChainId.SEPOLIA``
+
+.. currentmodule:: starknet_py.net.models
+
+2. ``StarknetChainId.SEPOLIA_TESTNET`` has been renamed to :class:`StarknetChainId.SEPOLIA`
+
+.. currentmodule:: starknet_py.net.account.account
+
+3. Parameter ``chain`` has been removed from the methods :meth:`Account.deploy_account_v1` and :meth:`Account.deploy_account_v3`
+4. Parameter ``chain_id`` has been removed from the method :meth:`~Account.get_balance`
+
+
 
 ******************************
 0.21.0 Migration guide
