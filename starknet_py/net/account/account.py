@@ -300,13 +300,18 @@ class Account(BaseAccount):
     async def get_balance(
         self,
         token_address: Optional[AddressRepresentation] = None,
-        chain_id: Optional[StarknetChainId] = None,
         *,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> int:
         if token_address is None:
-            token_address = self._default_token_address_for_chain(chain_id)
+            chain_id = await self._get_chain_id()
+            if chain_id in StarknetChainId:
+                token_address = FEE_CONTRACT_ADDRESS
+            else:
+                raise ValueError(
+                    "Argument token_address must be specified when using a custom network."
+                )
 
         low, high = await self._client.call_contract(
             Call(
@@ -603,7 +608,6 @@ class Account(BaseAccount):
         salt: int,
         key_pair: KeyPair,
         client: Client,
-        chain: StarknetChainId,
         constructor_calldata: Optional[List[int]] = None,
         nonce: int = 0,
         max_fee: Optional[int] = None,
@@ -625,7 +629,6 @@ class Account(BaseAccount):
         :param salt: Salt used to calculate the address.
         :param key_pair: KeyPair used to calculate address and sign deploy account transaction.
         :param client: Client instance used for deployment.
-        :param chain: Id of the Starknet chain used.
         :param constructor_calldata: Optional calldata to account contract constructor. If ``None`` is passed,
             ``[key_pair.public_key]`` will be used as calldata.
         :param nonce: Nonce of the transaction.
@@ -637,6 +640,8 @@ class Account(BaseAccount):
             if constructor_calldata is not None
             else [key_pair.public_key]
         )
+
+        chain = await client.get_chain_id()
 
         account = _prepare_account_to_deploy(
             address=address,
@@ -657,7 +662,7 @@ class Account(BaseAccount):
             auto_estimate=auto_estimate,
         )
 
-        if chain in StarknetChainId:
+        if parse_chain(chain) in StarknetChainId:
             balance = await account.get_balance()
             if balance < deploy_account_tx.max_fee:
                 raise ValueError(
@@ -678,7 +683,6 @@ class Account(BaseAccount):
         salt: int,
         key_pair: KeyPair,
         client: Client,
-        chain: StarknetChainId,
         constructor_calldata: Optional[List[int]] = None,
         nonce: int = 0,
         l1_resource_bounds: Optional[ResourceBounds] = None,
@@ -697,7 +701,6 @@ class Account(BaseAccount):
         :param salt: Salt used to calculate the address.
         :param key_pair: KeyPair used to calculate address and sign deploy account transaction.
         :param client: Client instance used for deployment.
-        :param chain: Id of the Starknet chain used.
         :param constructor_calldata: Optional calldata to account contract constructor. If ``None`` is passed,
             ``[key_pair.public_key]`` will be used as calldata.
         :param nonce: Nonce of the transaction.
@@ -710,6 +713,8 @@ class Account(BaseAccount):
             if constructor_calldata is not None
             else [key_pair.public_key]
         )
+
+        chain = await client.get_chain_id()
 
         account = _prepare_account_to_deploy(
             address=address,
@@ -736,19 +741,12 @@ class Account(BaseAccount):
             hash=result.transaction_hash, account=account, _client=account.client
         )
 
-    def _default_token_address_for_chain(
-        self, chain_id: Optional[StarknetChainId] = None
-    ) -> str:
-        if (chain_id or self._chain_id) not in [
-            StarknetChainId.SEPOLIA,
-            StarknetChainId.SEPOLIA_INTEGRATION,
-            StarknetChainId.MAINNET,
-        ]:
-            raise ValueError(
-                "Argument token_address must be specified when using a custom network."
-            )
+    async def _get_chain_id(self) -> int:
+        if self._chain_id is None:
+            chain = await self._client.get_chain_id()
+            self._chain_id = parse_chain(chain)
 
-        return FEE_CONTRACT_ADDRESS
+        return self._chain_id
 
 
 def _prepare_account_to_deploy(
@@ -757,7 +755,7 @@ def _prepare_account_to_deploy(
     salt: int,
     key_pair: KeyPair,
     client: Client,
-    chain: StarknetChainId,
+    chain: Chain,
     calldata: List[int],
 ) -> Account:
     # pylint: disable=too-many-arguments
