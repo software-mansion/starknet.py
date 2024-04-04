@@ -23,8 +23,8 @@ from starknet_py.net.client_models import (
     Tag,
 )
 from starknet_py.net.full_node_client import FullNodeClient
-from starknet_py.net.models import AddressRepresentation, StarknetChainId, parse_address
-from starknet_py.net.models.chains import Chain, parse_chain
+from starknet_py.net.models import AddressRepresentation, parse_address
+from starknet_py.net.models.chains import RECOGNIZED_CHAIN_IDS, Chain, parse_chain
 from starknet_py.net.models.transaction import (
     AccountTransaction,
     DeclareV1,
@@ -306,7 +306,7 @@ class Account(BaseAccount):
     ) -> int:
         if token_address is None:
             chain_id = await self._get_chain_id()
-            if chain_id in StarknetChainId:
+            if chain_id in RECOGNIZED_CHAIN_IDS:
                 token_address = FEE_CONTRACT_ADDRESS
             else:
                 raise ValueError(
@@ -662,7 +662,7 @@ class Account(BaseAccount):
             auto_estimate=auto_estimate,
         )
 
-        if parse_chain(chain) in StarknetChainId:
+        if parse_chain(chain) in RECOGNIZED_CHAIN_IDS:
             balance = await account.get_balance()
             if balance < deploy_account_tx.max_fee:
                 raise ValueError(

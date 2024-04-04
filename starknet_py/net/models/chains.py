@@ -15,6 +15,13 @@ class StarknetChainId(IntEnum):
     SEPOLIA_INTEGRATION = int_from_bytes(b"SN_INTEGRATION_SEPOLIA")
 
 
+RECOGNIZED_CHAIN_IDS = [
+    StarknetChainId.MAINNET,
+    StarknetChainId.SEPOLIA,
+    StarknetChainId.SEPOLIA_INTEGRATION,
+]
+
+
 def chain_from_network(
     net: Network, chain: Optional[StarknetChainId] = None
 ) -> StarknetChainId:
