@@ -72,7 +72,7 @@ jobs:
       # ====================== SETUP ====================== #
 
       - uses: actions/checkout@v3
-
+      - uses: asdf-vm/actions/setup@v3
       - uses: actions/setup-python@v4
         with:
           python-version: "3.12"
@@ -84,11 +84,6 @@ jobs:
           pip install poetry
           poetry config installer.modern-installation false
 
-      - name: Install deprecated cairo compiler
-        run: |
-          pip install --upgrade setuptools
-          pip install cairo-lang==${{ env.CAIRO_LANG_VERSION }}
-
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
@@ -99,21 +94,54 @@ jobs:
         run: |
           poetry install
 
+      # ====================== CONTRACTS v2 ====================== #
+      - name: Cache contracts v2
+        id: cache-contracts_v2
+        uses: actions/cache@v3
+        with:
+          path: starknet_py/tests/e2e/mock/contracts_v2/target
+          key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v2') }}
+
+      - name: Compile contracts v2
+        if: steps.cache-contracts_v2.outputs.cache-hit != 'true'
+        run: |
+          poetry run poe compile_contracts v2
+
+      # ====================== CONTRACTS v1 ====================== #
+
+      - name: Cache contracts v1
+        id: cache-contracts_v1
+        uses: actions/cache@v3
+        with:
+          path: starknet_py/tests/e2e/mock/contracts_v1/target
+          key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v1') }}
+
+      - name: Compile contracts v1
+        if: steps.cache-contracts_v1.outputs.cache-hit != 'true'
+        run: |
+          poetry run poe compile_contracts v1
+  
       # ====================== CONTRACTS v0 ====================== #
 
-      - name: Cache contracts
+      - name: Cache contracts v0
         id: cache-contracts
         uses: actions/cache@v3
         with:
           path: starknet_py/tests/e2e/mock/contracts_compiled
           key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts', 'poetry.lock') }}-${{ env.CAIRO_LANG_VERSION }}
 
-      - name: Compile contracts
+      - name: Install deprecated cairo compiler
         if: steps.cache-contracts.outputs.cache-hit != 'true'
         run: |
-          poetry run poe compile_contracts
+          pip install --upgrade setuptools
+          pip install cairo-lang==${{ env.CAIRO_LANG_VERSION }}
 
-      - name: Upload contracts
+      - name: Compile contracts v0
+        if: steps.cache-contracts.outputs.cache-hit != 'true'
+        run: |
+          poetry run poe compile_contracts v0
+
+      - name: Upload contracts v0
         uses: actions/upload-artifact@v3
         with:
           name: contract-artifacts

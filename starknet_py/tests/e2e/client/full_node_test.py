@@ -26,11 +26,12 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.full_node_client import _to_rpc_felt
 from starknet_py.net.models import StarknetChainId
-from starknet_py.tests.e2e.fixtures.constants import (
-    CONTRACTS_COMPILED_V0_DIR,
-    CONTRACTS_COMPILED_V1_DIR,
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V0_DIR
+from starknet_py.tests.e2e.fixtures.misc import (
+    ContractVersion,
+    load_contract,
+    read_contract,
 )
-from starknet_py.tests.e2e.fixtures.misc import read_contract
 from starknet_py.tests.e2e.utils import create_empty_block
 
 
@@ -495,17 +496,15 @@ async def test_simulate_transactions_two_txs(account, deployed_balance_contract)
     )
     invoke_tx = await account.sign_invoke_v1(calls=call, auto_estimate=True)
 
-    compiled_v2_contract = read_contract(
-        "test_contract_declare_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
+    contract = load_contract(
+        contract_name="TestContractDeclare", version=ContractVersion.V1
     )
-    compiled_v2_contract_casm = read_contract(
-        "test_contract_declare_compiled.casm", directory=CONTRACTS_COMPILED_V1_DIR
-    )
-    casm_class = create_casm_class(compiled_v2_contract_casm)
+
+    casm_class = create_casm_class(contract["casm"])
     casm_class_hash = compute_casm_class_hash(casm_class)
 
     declare_v2_tx = await account.sign_declare_v2(
-        compiled_contract=compiled_v2_contract,
+        compiled_contract=contract["sierra"],
         compiled_class_hash=casm_class_hash,
         # because raw calls do not increment nonce, it needs to be done manually
         nonce=invoke_tx.nonce + 1,
