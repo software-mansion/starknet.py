@@ -24,6 +24,7 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models import AddressRepresentation, StarknetChainId, parse_address
+from starknet_py.net.models.chains import Chain, parse_chain
 from starknet_py.net.models.transaction import (
     AccountTransaction,
     DeclareV1,
@@ -72,7 +73,7 @@ class Account(BaseAccount):
         client: Client,
         signer: Optional[BaseSigner] = None,
         key_pair: Optional[KeyPair] = None,
-        chain: Optional[Union[StarknetChainId, str, int]] = None,
+        chain: Optional[Chain] = None,
     ):
         """
         :param address: Address of the account contract.
@@ -81,20 +82,18 @@ class Account(BaseAccount):
                        If none is provided, default
                        :py:class:`starknet_py.net.signer.stark_curve_signer.StarkCurveSigner` is used.
         :param key_pair: Key pair that will be used to create a default `Signer`.
-        :param chain: ChainId of the chain used to create the default signer.
+        :param chain: Chain ID associated with the account.
+            This can be supplied in multiple formats:
+
+            - an enum :py:class:`starknet_py.net.models.StarknetChainId`
+            - a string name (e.g. 'SN_SEPOLIA')
+            - a hexadecimal value (e.g. '0x1')
+            - an integer (e.g. 1)
         """
         self._address = parse_address(address)
         self._client = client
         self._cairo_version = None
-        if isinstance(chain, str):
-            try:
-                self._chain_id = int(chain, 16)
-            except ValueError:
-                self._chain_id = int(chain.encode().hex(), 16)
-        elif chain is None:
-            self._chain_id = int(client.get_chain_id_sync(), 16)  # pyright: ignore
-        else:
-            self._chain_id = chain
+        self._chain_id = None if chain is None else parse_chain(chain)
 
         if signer is not None and key_pair is not None:
             raise ValueError("Arguments signer and key_pair are mutually exclusive.")
@@ -104,6 +103,9 @@ class Account(BaseAccount):
                 raise ValueError(
                     "Either a signer or a key_pair must be provided in Account constructor."
                 )
+            if self._chain_id is None:
+                raise ValueError("One of chain or signer must be provided.")
+
             signer = StarkCurveSigner(
                 account_address=self.address, key_pair=key_pair, chain_id=self._chain_id
             )

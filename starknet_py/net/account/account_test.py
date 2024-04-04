@@ -88,45 +88,25 @@ def test_create_account():
     assert account.signer.public_key == key_pair.public_key
 
 
-def test_create_account_with_default_chain(client):
+@pytest.mark.parametrize(
+    "chain",
+    [
+        StarknetChainId.SEPOLIA,
+        "SN_SEPOLIA",
+        "0x534e5f5345504f4c4941",
+        393402133025997798000961,
+    ],
+)
+def test_create_account_parses_chain(chain):
     key_pair = KeyPair.from_private_key(0x111)
     account = Account(
-        address=0x2,
-        client=client,
-        key_pair=key_pair,
-    )
-
-    assert account.address == 0x2
-    assert account.signer.public_key == key_pair.public_key
-    assert isinstance(account.signer, StarkCurveSigner)
-    assert account.signer.chain_id == StarknetChainId.MAINNET
-
-
-def test_create_account_with_string_chain():
-    key_pair = KeyPair.from_private_key(0x111)
-    account = Account(
-        address=0x2,
+        address=0x1,
         client=FullNodeClient(node_url=""),
         key_pair=key_pair,
-        chain="SN_SEPOLIA",
+        chain=chain,
     )
 
-    assert account.address == 0x2
-    assert account.signer.public_key == key_pair.public_key
-    assert isinstance(account.signer, StarkCurveSigner)
-    assert account.signer.chain_id == 0x534E5F5345504F4C4941
-
-
-def test_create_account_with_string_hex_chain():
-    key_pair = KeyPair.from_private_key(0x111)
-    account = Account(
-        address=0x2,
-        client=FullNodeClient(node_url=""),
-        key_pair=key_pair,
-        chain="0x534e5f5345504f4c4941",
-    )
-
-    assert account.address == 0x2
+    assert account.address == 0x1
     assert account.signer.public_key == key_pair.public_key
     assert isinstance(account.signer, StarkCurveSigner)
     assert account.signer.chain_id == 0x534E5F5345504F4C4941

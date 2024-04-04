@@ -35,7 +35,6 @@ from starknet_py.net.client_models import (
     SierraContractClass,
     TransactionType,
 )
-from starknet_py.net.models.chains import StarknetChainId
 from starknet_py.net.schemas.common import Felt, TransactionTypeField
 from starknet_py.net.schemas.gateway import (
     ContractClassSchema,
@@ -104,7 +103,7 @@ class _AccountTransactionV3(AccountTransaction, ABC):
         self,
         tx_prefix: TransactionHashPrefix,
         address: int,
-        chain_id: Union[int, StarknetChainId],
+        chain_id: int,
     ) -> CommonTransactionV3Fields:
         common_fields = [f.name for f in dataclasses.fields(_AccountTransactionV3)]
 

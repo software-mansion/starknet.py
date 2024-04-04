@@ -1,5 +1,5 @@
 from enum import IntEnum
-from typing import Optional
+from typing import Optional, Union
 
 from starknet_py.common import int_from_bytes
 from starknet_py.net.networks import MAINNET, SEPOLIA, SEPOLIA_INTEGRATION, Network
@@ -31,3 +31,17 @@ def chain_from_network(
         raise ValueError("Chain is required when not using predefined networks.")
 
     return chain
+
+
+ChainId = Union[StarknetChainId, int]
+Chain = Union[str, ChainId]
+
+
+def parse_chain(chain: Chain) -> ChainId:
+    if isinstance(chain, str):
+        try:
+            return int(chain, 16)
+        except ValueError:
+            return int_from_bytes(chain.encode())
+    else:
+        return chain
