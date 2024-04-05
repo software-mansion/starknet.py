@@ -184,7 +184,6 @@ async def argent_cairo1_account(
         key_pair=key_pair,
         client=client,
         constructor_calldata=[key_pair.public_key, 0],
-        chain=StarknetChainId.MAINNET,
         max_fee=int(1e16),
     )
     await deploy_result.wait_for_acceptance()

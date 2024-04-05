@@ -10,7 +10,7 @@ from starknet_py.net.client_models import (
     SentTransactionResponse,
     Tag,
 )
-from starknet_py.net.models import AddressRepresentation, StarknetChainId
+from starknet_py.net.models import AddressRepresentation
 from starknet_py.net.models.transaction import (
     AccountTransaction,
     DeclareV1,
@@ -93,18 +93,15 @@ class BaseAccount(ABC):
     async def get_balance(
         self,
         token_address: Optional[AddressRepresentation] = None,
-        chain_id: Optional[StarknetChainId] = None,
         *,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> int:
         """
-        Checks account's balance of specified token.
+        Checks account's balance of the specified token.
+        By default, it uses the L2 ETH address for mainnet and sepolia networks.
 
         :param token_address: Address of the ERC20 contract.
-        :param chain_id: Identifier of the Starknet chain used.
-            If token_address is not specified it will be used to determine network's payment token address.
-            If token_address is provided, chain_id will be ignored.
         :param block_hash: Block's hash or literals `"pending"` or `"latest"`
         :param block_number: Block's number or literals `"pending"` or `"latest"`
         :return: Token balance.

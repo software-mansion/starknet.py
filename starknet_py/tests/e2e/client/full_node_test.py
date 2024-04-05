@@ -125,7 +125,6 @@ async def test_get_transaction_receipt_deploy_account(
         salt=salt,
         key_pair=key_pair,
         client=client,
-        chain=StarknetChainId.MAINNET,
         max_fee=int(1e16),
     )
     await deploy_result.wait_for_acceptance()
