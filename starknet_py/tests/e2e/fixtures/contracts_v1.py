@@ -5,12 +5,13 @@ import pytest
 import pytest_asyncio
 
 from starknet_py.common import create_casm_class
+from starknet_py.contract import Contract
 from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.models import DeclareV2
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.tests.e2e.fixtures.contracts import deploy_v1_contract
-from starknet_py.tests.e2e.fixtures.misc import load_contract
+from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
 
 
 async def declare_cairo1_contract(
@@ -129,4 +130,24 @@ async def cairo1_hello_starknet_deploy(
         account=account,
         contract_name="HelloStarknet",
         class_hash=cairo1_hello_starknet_class_hash,
+    )
+
+
+@pytest_asyncio.fixture(scope="package", name="string_contract_class_hash")
+async def declare_string_contract(account: BaseAccount) -> int:
+    contract = load_contract("MyString", version=ContractVersion.V2)
+    class_hash, _ = await declare_cairo1_contract(
+        account, contract["sierra"], contract["casm"]
+    )
+    return class_hash
+
+
+@pytest_asyncio.fixture(scope="package", name="string_contract")
+async def deploy_string_contract(
+    account: BaseAccount, string_contract_class_hash
+) -> Contract:
+    return await deploy_v1_contract(
+        account=account,
+        contract_name="MyString",
+        class_hash=string_contract_class_hash,
     )
