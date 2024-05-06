@@ -15,22 +15,13 @@ Development dependencies
 Setup
 -----
 
-In order to run tests on devnet, you need to install `starknet-devnet-rs <https://github.com/0xSpaceShard/starknet-devnet-rs>`_.
-The correct version of devnet to use corresponds to the Starknet and RPC specification that are currently supported by Starknet.py.
-Information about the supported version for the latest release can be found in the :doc:`migration guide<migration_guide>`.
+Starknet devnet
+^^^^^^^^^^^^^^^
 
-To avoid version discrepancies or other related issues, we recommend installing this dependency using the ``cargo install`` command, and specifying a certain commit along with the correct Starknet and RPC versions.
+To install `starknet-devnet-rs <https://github.com/0xSpaceShard/starknet-devnet-rs>`_ run the script ``./starknet_py/tests/install_devnet.sh``.
 
-Below is the command you can use to do this, designed for compatibility with the current version of Starknet.py:
-
-.. code-block:: bash
-
-    cargo install \
-    --locked \
-    --git https://github.com/0xSpaceShard/starknet-devnet-rs.git \
-    --rev c6ffb99
-
-If you choose to install `starknet-devnet-rs <https://github.com/0xSpaceShard/starknet-devnet-rs>`_ using a different method, please make sure to add the executable ``starknet-devnet`` to your ``PATH`` environment variable.
+Environment variables
+^^^^^^^^^^^^^^^^^^^^^
 
 In order to be able to run tests on testnet and integration networks (``starknet_py/tests/e2e/tests_on_networks/``), you must set some environmental variables:
 
@@ -44,17 +35,19 @@ In order to be able to run tests on testnet and integration networks (``starknet
 The best way to set environment variables is to create ``test-variables.env`` file in ``starknet_py/tests/e2e/`` directory, so they can be loaded by the ``python-dotenv`` library.
 You can find an example file ``test-variables.env.template`` in the same directory with the format of how it should look like.
 
+Dependencies
+^^^^^^^^^^^^
+
 .. code-block:: bash
 
-    # Install dependencies
     poetry install
 
-    # Compile contracts
+Contracts
+^^^^^^^^^
+
+.. code-block:: bash
+
     poe compile_contracts
-
-    # Make sure everything was installed properly
-    poe test
-
 
 Git hooks
 ---------
@@ -90,24 +83,17 @@ Tests
     # Run whole suite
     poe test
 
+    # Run only tests on networks
+    poe test_ci_on_networks
+
+    # Run unit tests and tests on devnet
+    poe test_ci
+
     # Generate test report in terminal
     poe test_report
 
     # Generate HTML report and open it in the browser
     poe test_html
-
-    # Run only unit tests
-    poe test_unit
-
-    # Run only e2e tests
-    poe test_e2e
-
-Running e2e tests in PyCharm
-----------------------------
-1. Run ``starkware-devnet`` script before running e2e tests in PyCharm.
-2. Use ``E2E tests`` configuration to run or debug.
-
-⚠️ **Warning**: Make sure to fill your interpreter in the configuration, to match your project's poetry venv.
 
 Code style guide
 ----------------

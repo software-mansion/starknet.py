@@ -1,8 +1,8 @@
 name: Checks
 
 env:
-  DEVNET_SHA: "c6ffb99"
   CAIRO_LANG_VERSION: "0.13.1"
+  DEVNET_VERSION: "0.0.5"
 
 on:
   push:
@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install poetry
         run: |
@@ -71,7 +71,7 @@ jobs:
 
       # ====================== SETUP ====================== #
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: asdf-vm/actions/setup@v3
       - uses: actions/setup-python@v4
         with:
@@ -160,9 +160,7 @@ jobs:
       matrix:
         python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rust-lang/setup-rust-toolchain@v1
-      - uses: Swatinem/rust-cache@v2
+      - uses: actions/checkout@v4
 
       - name: Download contracts
         uses: actions/download-artifact@v3
@@ -196,10 +194,7 @@ jobs:
       # ====================== SETUP DEVNET ====================== #
 
       - name: Install devnet
-        run: |
-          cargo install --locked \
-          --git https://github.com/0xSpaceShard/starknet-devnet-rs.git \
-          --rev ${{ env.DEVNET_SHA }}
+        run: ./starknet_py/tests/install_devnet.sh
 
       # ====================== RUN TESTS ====================== #
 
@@ -237,7 +232,7 @@ jobs:
       SEPOLIA_INTEGRATION_ACCOUNT_PRIVATE_KEY: ${{ secrets.SEPOLIA_INTEGRATION_ACCOUNT_PRIVATE_KEY }}
       SEPOLIA_INTEGRATION_ACCOUNT_ADDRESS: ${{ secrets.SEPOLIA_INTEGRATION_ACCOUNT_ADDRESS }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Download contracts
         uses: actions/download-artifact@v3
@@ -299,9 +294,10 @@ jobs:
       matrix:
         python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rust-lang/setup-rust-toolchain@v1
-      - uses: Swatinem/rust-cache@v2
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@dc6353516c68da0f06325f42ad880f76a5e77ec9
+        with:
+          toolchain: stable
 
       - name: Download contracts
         uses: actions/download-artifact@v3
@@ -317,7 +313,9 @@ jobs:
       # ====================== SETUP DEVNET ====================== #
 
       - name: Install devnet
-        run: cargo install --locked --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --rev ${{ env.DEVNET_SHA }}
+        run: |
+          $DEVNET_INSTALL_DIR = "$(git rev-parse --show-toplevel)/starknet_py/tests/e2e/devnet"
+          cargo install starknet-devnet --version ${{ env.DEVNET_VERSION }} --root $DEVNET_INSTALL_DIR
 
       # ====================== SETUP PYTHON ====================== #
 
@@ -368,9 +366,7 @@ jobs:
       matrix:
         python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rust-lang/setup-rust-toolchain@v1
-      - uses: Swatinem/rust-cache@v2
+      - uses: actions/checkout@v4
 
       - name: Download contracts
         uses: actions/download-artifact@v3
@@ -404,10 +400,7 @@ jobs:
       # ====================== SETUP DEVNET ====================== #
 
       - name: Install devnet
-        run: |
-          cargo install --locked \
-          --git https://github.com/0xSpaceShard/starknet-devnet-rs.git \
-          --rev ${{ env.DEVNET_SHA }}
+        run: ./starknet_py/tests/install_devnet.sh
 
       # ====================== RUN TESTS ====================== #
 
@@ -437,9 +430,10 @@ jobs:
       matrix:
         python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rust-lang/setup-rust-toolchain@v1
-      - uses: Swatinem/rust-cache@v2
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@dc6353516c68da0f06325f42ad880f76a5e77ec9
+        with:
+          toolchain: stable
 
       - name: Download contracts
         uses: actions/download-artifact@v3
@@ -473,7 +467,9 @@ jobs:
       # ====================== SETUP DEVNET ====================== #
 
       - name: Install devnet
-        run: cargo install --locked --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --rev ${{ env.DEVNET_SHA }}
+        run: |
+          $DEVNET_INSTALL_DIR = "$(git rev-parse --show-toplevel)/starknet_py/tests/e2e/devnet"
+          cargo install starknet-devnet --version ${{ env.DEVNET_VERSION }} --root $DEVNET_INSTALL_DIR
 
       # ====================== RUN TESTS ====================== #
 
