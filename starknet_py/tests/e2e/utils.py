@@ -71,7 +71,7 @@ async def get_deploy_account_transaction(
         address=address,
         client=client,
         key_pair=key_pair,
-        chain=StarknetChainId.MAINNET,
+        chain=StarknetChainId.SEPOLIA,
     )
     return await account.sign_deploy_account_v1(
         class_hash=class_hash,
