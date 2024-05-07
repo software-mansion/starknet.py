@@ -2,6 +2,7 @@ import socket
 import subprocess
 import time
 from contextlib import closing
+from pathlib import Path
 from typing import Generator, List
 
 import pytest
@@ -25,8 +26,9 @@ def start_devnet():
 
 
 def get_start_devnet_command(devnet_port: int) -> List[str]:
+    devnet_path = Path(__file__).parent.parent / "devnet" / "bin" / "starknet-devnet"
     return [
-        "starknet-devnet",
+        str(devnet_path),
         "--port",
         str(devnet_port),
         "--accounts",  # deploys specified number of accounts

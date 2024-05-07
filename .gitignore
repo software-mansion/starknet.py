@@ -154,3 +154,6 @@ cython_debug/
 
 # Test variables
 /starknet_py/tests/e2e/test-variables.env
+
+# Devnet binary
+/starknet_py/tests/e2e/devnet
