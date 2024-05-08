@@ -15,7 +15,7 @@ from starknet_py.serialization.data_serializers.cairo_data_serializer import (
 )
 from starknet_py.serialization.data_serializers.felt_serializer import FeltSerializer
 
-BYTES_SIZE_IN_BYTES_31 = 31
+BYTES_31_SIZE = 31
 
 
 @dataclass
@@ -54,13 +54,10 @@ class ByteArraySerializer(CairoDataSerializer[str, str]):
     ) -> Generator[int, None, None]:
         context.ensure_valid_type(value, isinstance(value, str), "str")
         data = [
-            value[i : i + BYTES_SIZE_IN_BYTES_31]
-            for i in range(0, len(value), BYTES_SIZE_IN_BYTES_31)
+            value[i : i + BYTES_31_SIZE] for i in range(0, len(value), BYTES_31_SIZE)
         ]
         pending_word = (
-            ""
-            if len(data) == 0 or len(data[-1]) == BYTES_SIZE_IN_BYTES_31
-            else data.pop(-1)
+            "" if len(data) == 0 or len(data[-1]) == BYTES_31_SIZE else data.pop(-1)
         )
 
         yield len(data)
