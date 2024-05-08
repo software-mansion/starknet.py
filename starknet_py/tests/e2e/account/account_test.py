@@ -717,7 +717,7 @@ async def test_sign_deploy_account_v1_for_fee_estimation(
         address=address,
         client=client,
         key_pair=key_pair,
-        chain=StarknetChainId.MAINNET,
+        chain=StarknetChainId.SEPOLIA,
     )
 
     transaction = await account.sign_deploy_account_v1(

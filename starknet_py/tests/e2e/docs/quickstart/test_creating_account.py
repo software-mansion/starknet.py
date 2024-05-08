@@ -19,7 +19,7 @@ async def test_creating_account():
         client=client,
         address="0x4321",
         key_pair=KeyPair(private_key=654, public_key=321),
-        chain=StarknetChainId.MAINNET,
+        chain=StarknetChainId.SEPOLIA,
     )
 
     # There is another way of creating key_pair
@@ -28,7 +28,7 @@ async def test_creating_account():
     key_pair = KeyPair.from_private_key(key="0x123")
 
     # Instead of providing key_pair it is possible to specify a signer
-    signer = StarkCurveSigner("0x1234", key_pair, StarknetChainId.MAINNET)
+    signer = StarkCurveSigner("0x1234", key_pair, StarknetChainId.SEPOLIA)
 
     account = Account(
         client=client, address="0x1234", signer=signer, chain=StarknetChainId.SEPOLIA

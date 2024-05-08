@@ -19,7 +19,7 @@ def test_init():
         address=0x123,
         client=FullNodeClient(node_url="your.node.url"),
         key_pair=KeyPair(12, 34),
-        chain=StarknetChainId.MAINNET,
+        chain=StarknetChainId.SEPOLIA,
     )
     # docs-end: init
 
