@@ -174,3 +174,24 @@ async def test_from_address_on_v1_contract(account, cairo1_erc20_class_hash: int
     assert erc20_from_address.account == erc20.account
     assert erc20_from_address.functions.keys() == erc20.functions.keys()
     assert erc20_from_address.data == erc20.data
+
+
+@pytest.mark.skipif(
+    "--contract_dir=v1" in sys.argv,
+    reason="Contract exists only in v2 directory",
+)
+@pytest.mark.asyncio
+async def test_invoke_contract_with_bytearray(string_contract):
+    (initial_string,) = await string_contract.functions["get_string"].call()
+    assert initial_string == "Hello"
+
+    value_to_set = """
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+        sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+    """
+
+    await string_contract.functions["set_string"].invoke_v3(
+        new_string=value_to_set, auto_estimate=True
+    )
+    (new_string,) = await string_contract.functions["get_string"].call()
+    assert new_string == value_to_set

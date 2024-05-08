@@ -23,6 +23,7 @@ ABI_EBNF = """
     actual_type: type_unit
         | type_bool
         | type_felt
+        | type_bytes
         | type_uint
         | type_contract_address
         | type_class_hash
@@ -36,6 +37,7 @@ ABI_EBNF = """
     
     type_unit: "()"
     type_felt: "core::felt252"
+    type_bytes: "core::bytes_31::bytes31"
     type_bool: "core::bool"
     type_uint: "core::integer::u" INT
     type_contract_address: "core::starknet::contract_address::ContractAddress"
@@ -84,6 +86,12 @@ class ParserTransformer(Transformer):
         return value[0]
 
     def type_felt(self, _value: List[Any]) -> FeltType:
+        """
+        Felt does not contain any additional arguments, so `_value` is just an empty list.
+        """
+        return FeltType()
+
+    def type_bytes(self, _value: List[Any]) -> FeltType:
         """
         Felt does not contain any additional arguments, so `_value` is just an empty list.
         """
