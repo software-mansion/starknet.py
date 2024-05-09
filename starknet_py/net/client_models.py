@@ -629,6 +629,40 @@ class EstimatedFee:
     overall_fee: int
     unit: PriceUnit
 
+    def to_resource_bounds(
+        self, amount_multiplier=1.5, unit_price_multiplier=1.5
+    ) -> ResourceBoundsMapping:
+        """
+        Converts estimated fee to resource bounds with applied multipliers.
+
+        Calculates max amount as `max_amount` = `overall_fee` / `gas_price`, unless `gas_price` is 0,
+        then `max_amount` is 0. Calculates max price per unit as `max_price_per_unit` = `gas_price`.
+
+        Then multiplies `max_amount` by `amount_multiplier` and `max_price_per_unit` by `unit_price_multiplier`.
+
+        :param amount_multiplier: Multiplier for max amount, defaults to 1.5.
+        :param unit_price_multiplier: Multiplier for max price per unit, defaults to 1.5.
+        :return: Resource bounds with applied multipliers.
+        """
+
+        if amount_multiplier <= 0 or unit_price_multiplier <= 0:
+            raise ValueError(
+                "Values of 'amount_multiplier' and 'unit_price_multiplier' must be greater than 0"
+            )
+
+        l1_resource_bounds = ResourceBounds(
+            max_amount=int(
+                (self.overall_fee / self.gas_price) * amount_multiplier
+                if self.gas_price != 0
+                else 0
+            ),
+            max_price_per_unit=int(self.gas_price * unit_price_multiplier),
+        )
+
+        return ResourceBoundsMapping(
+            l1_gas=l1_resource_bounds, l2_gas=ResourceBounds.init_with_zeros()
+        )
+
 
 @dataclass
 class DeployedContract:
