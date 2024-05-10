@@ -5,7 +5,11 @@ Migration guide
 0.22.0 Migration guide
 ******************************
 
-Version 0.22.0 of **starknet.py**
+0.22.0 Targeted versions
+------------------------
+
+- Starknet - `0.13.1.1 <https://docs.starknet.io/documentation/starknet_versions/version_notes/#version0.13.1.1>`_
+- RPC - `0.7.1 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.7.1>`_
 
 0.22.0 Breaking changes
 -----------------------
@@ -20,7 +24,7 @@ Version 0.22.0 of **starknet.py**
 
 3. Parameter ``chain`` has been removed from the methods :meth:`Account.deploy_account_v1` and :meth:`Account.deploy_account_v3`
 4. Parameter ``chain_id`` has been removed from the method :meth:`~Account.get_balance`
-
+5. :class:`~starknet_py.net.client_models.L1HandlerTransactionTrace` field ``execution_resources`` is now required
 
 
 ******************************

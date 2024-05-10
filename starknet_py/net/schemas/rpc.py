@@ -965,9 +965,8 @@ class DeployAccountTransactionTraceSchema(Schema):
 
 
 class L1HandlerTransactionTraceSchema(Schema):
-    # TODO (#1323): Explain with starknet, because spec doesn't contain execution_resources
     execution_resources = fields.Nested(
-        ExecutionResourcesSchema(), data_key="execution_resources", load_default=None
+        ExecutionResourcesSchema(), data_key="execution_resources", required=True
     )
 
     function_invocation = fields.Nested(

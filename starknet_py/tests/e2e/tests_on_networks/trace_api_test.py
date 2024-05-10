@@ -123,6 +123,7 @@ async def test_trace_transaction_l1_handler(client_sepolia_integration):
     assert (type(tx)) is L1HandlerTransaction
     assert type(trace) is L1HandlerTransactionTrace
     assert trace.function_invocation is not None
+    assert trace.execution_resources is not None
 
 
 @pytest.mark.asyncio
