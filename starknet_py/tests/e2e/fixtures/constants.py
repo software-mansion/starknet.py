@@ -23,49 +23,17 @@ def _get_env_lambda(env_name):
     return lambda: _get_env_or_throw(env_name)
 
 
-# -------------------------------- GOERLI TESTNET -------------------------------------
-
-GOERLI_TESTNET_ACCOUNT_ADDRESS = _get_env_lambda("GOERLI_TESTNET_ACCOUNT_ADDRESS")
-
-GOERLI_TESTNET_ACCOUNT_PRIVATE_KEY = _get_env_lambda(
-    "GOERLI_TESTNET_ACCOUNT_PRIVATE_KEY"
-)
-
-GOERLI_TESTNET_RPC_URL = _get_env_lambda("GOERLI_TESTNET_RPC_URL")
-
-EMPTY_CONTRACT_ADDRESS_GOERLI_TESTNET = (
-    "0x01de0e8ec5303c4624b96733bed7e4261724df4aecedae6305efa35931a4f0e6"
-)
-
-# -------------------------------- GOERLI INTEGRATION ---------------------------------
-
-GOERLI_INTEGRATION_ACCOUNT_PRIVATE_KEY = _get_env_lambda(
-    "GOERLI_INTEGRATION_ACCOUNT_PRIVATE_KEY"
-)
-
-GOERLI_INTEGRATION_ACCOUNT_ADDRESS = _get_env_lambda(
-    "GOERLI_INTEGRATION_ACCOUNT_ADDRESS"
-)
-
-GOERLI_INTEGRATION_RPC_URL = _get_env_lambda("GOERLI_INTEGRATION_RPC_URL")
-
-EMPTY_CONTRACT_ADDRESS_GOERLI_INTEGRATION = (
-    "0x0751cb46C364E912b6CB9221A857D8f90B1F6995A0e902997df774631432970E"
-)
-
-MAP_CONTRACT_ADDRESS_GOERLI_INTEGRATION = (
-    "0x05cd21d6b3952a869fda11fa9a5bd2657bd68080d3da255655ded47a81c8bd53"
-)
-
 # -------------------------------- SEPOLIA TESTNET -------------------------------------
 
-SEPOLIA_TESTNET_ACCOUNT_PRIVATE_KEY = _get_env_lambda(
-    "SEPOLIA_TESTNET_ACCOUNT_PRIVATE_KEY"
+SEPOLIA_ACCOUNT_PRIVATE_KEY = _get_env_lambda("SEPOLIA_ACCOUNT_PRIVATE_KEY")
+
+SEPOLIA_ACCOUNT_ADDRESS = _get_env_lambda("SEPOLIA_ACCOUNT_ADDRESS")
+
+SEPOLIA_RPC_URL = _get_env_lambda("SEPOLIA_RPC_URL")
+
+EMPTY_CONTRACT_ADDRESS_SEPOLIA = (
+    "0x06524771cb912945bf2db355b5a12355ca2e2ff05e15ee35366336a602293f2d"
 )
-
-SEPOLIA_TESTNET_ACCOUNT_ADDRESS = _get_env_lambda("SEPOLIA_TESTNET_ACCOUNT_ADDRESS")
-
-SEPOLIA_TESTNET_RPC_URL = _get_env_lambda("SEPOLIA_TESTNET_RPC_URL")
 
 # -------------------------------- SEPOLIA INTEGRATION -------------------------------------
 
@@ -102,9 +70,18 @@ MAX_RESOURCE_BOUNDS = ResourceBoundsMapping(
 MOCK_DIR = Path(os.path.dirname(__file__)) / "../mock"
 TYPED_DATA_DIR = MOCK_DIR / "typed_data"
 CONTRACTS_DIR = MOCK_DIR / "contracts"
-CONTRACTS_V1_DIR = MOCK_DIR / "contracts_v1"
 CONTRACTS_COMPILED_V0_DIR = MOCK_DIR / "contracts_compiled"
-CONTRACTS_COMPILED_V1_DIR = MOCK_DIR / "contracts_compiled_v1"
-CONTRACTS_COMPILED_V2_DIR = MOCK_DIR / "contracts_compiled_v2"
-CONTRACTS_PRECOMPILED_DIR = CONTRACTS_COMPILED_V0_DIR / "precompiled"
-ACCOUNT_DIR = MOCK_DIR / "account"
+
+# PRECOMPILED_CONTRACTS are contracts compiled with various Sierras
+# They are mainly used to verify if we compute class_hash for older Sierras correctly
+PRECOMPILED_CONTRACTS_DIR = MOCK_DIR / "precompiled_contracts"
+
+CONTRACTS_V2_COMPILED = MOCK_DIR / "contracts_v2/target/dev"
+CONTRACTS_V2_ARTIFACTS_MAP = (
+    CONTRACTS_V2_COMPILED / "contracts_v2.starknet_artifacts.json"
+)
+
+CONTRACTS_V1_COMPILED = MOCK_DIR / "contracts_v1/target/dev"
+CONTRACTS_V1_ARTIFACTS_MAP = (
+    CONTRACTS_V1_COMPILED / "contracts_v1.starknet_artifacts.json"
+)

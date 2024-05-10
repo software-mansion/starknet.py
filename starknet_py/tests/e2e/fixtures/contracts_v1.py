@@ -5,12 +5,13 @@ import pytest
 import pytest_asyncio
 
 from starknet_py.common import create_casm_class
+from starknet_py.contract import Contract
 from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.models import DeclareV2
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.tests.e2e.fixtures.contracts import deploy_v1_contract
-from starknet_py.tests.e2e.fixtures.misc import read_contract
+from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
 
 
 async def declare_cairo1_contract(
@@ -33,22 +34,20 @@ async def declare_cairo1_contract(
 
 @pytest_asyncio.fixture(scope="package")
 async def cairo1_erc20_class_hash(account: BaseAccount) -> int:
+    contract = load_contract("ERC20")
     class_hash, _ = await declare_cairo1_contract(
-        account,
-        read_contract("erc20_compiled.json"),
-        read_contract("erc20_compiled.casm"),
+        account, contract["sierra"], contract["casm"]
     )
     return class_hash
 
 
 @pytest_asyncio.fixture(scope="package")
 async def declare_v2_hello_starknet(account: BaseAccount) -> DeclareV2:
-    compiled_contract = read_contract("hello_starknet_compiled.json")
-    compiled_contract_casm = read_contract("hello_starknet_compiled.casm")
-    casm_class_hash = compute_casm_class_hash(create_casm_class(compiled_contract_casm))
+    contract = load_contract("HelloStarknet")
+    casm_class_hash = compute_casm_class_hash(create_casm_class(contract["casm"]))
 
     declare_tx = await account.sign_declare_v2(
-        compiled_contract, casm_class_hash, max_fee=MAX_FEE
+        contract["sierra"], casm_class_hash, max_fee=MAX_FEE
     )
     return declare_tx
 
@@ -81,40 +80,44 @@ def cairo1_hello_starknet_tx_hash(
 
 @pytest_asyncio.fixture(scope="package")
 async def cairo1_minimal_contract_class_hash(account: BaseAccount) -> int:
+    contract = load_contract(contract_name="MinimalContract")
     class_hash, _ = await declare_cairo1_contract(
         account,
-        read_contract("minimal_contract_compiled.json"),
-        read_contract("minimal_contract_compiled.casm"),
+        contract["sierra"],
+        contract["casm"],
     )
     return class_hash
 
 
 @pytest_asyncio.fixture(scope="package")
 async def cairo1_test_enum_class_hash(account: BaseAccount) -> int:
+    contract = load_contract(contract_name="TestEnum")
     class_hash, _ = await declare_cairo1_contract(
         account,
-        read_contract("test_enum_compiled.json"),
-        read_contract("test_enum_compiled.casm"),
+        contract["sierra"],
+        contract["casm"],
     )
     return class_hash
 
 
 @pytest_asyncio.fixture(scope="package")
 async def cairo1_test_option_class_hash(account: BaseAccount) -> int:
+    contract = load_contract(contract_name="TestOption")
     class_hash, _ = await declare_cairo1_contract(
         account,
-        read_contract("test_option_compiled.json"),
-        read_contract("test_option_compiled.casm"),
+        contract["sierra"],
+        contract["casm"],
     )
     return class_hash
 
 
 @pytest_asyncio.fixture(scope="package")
 async def cairo1_token_bridge_class_hash(account: BaseAccount) -> int:
+    contract = load_contract(contract_name="TokenBridge")
     class_hash, _ = await declare_cairo1_contract(
         account,
-        read_contract("token_bridge_compiled.json"),
-        read_contract("token_bridge_compiled.casm"),
+        contract["sierra"],
+        contract["casm"],
     )
     return class_hash
 
@@ -125,6 +128,26 @@ async def cairo1_hello_starknet_deploy(
 ):
     return await deploy_v1_contract(
         account=account,
-        contract_file_name="hello_starknet",
+        contract_name="HelloStarknet",
         class_hash=cairo1_hello_starknet_class_hash,
+    )
+
+
+@pytest_asyncio.fixture(scope="package", name="string_contract_class_hash")
+async def declare_string_contract(account: BaseAccount) -> int:
+    contract = load_contract("MyString", version=ContractVersion.V2)
+    class_hash, _ = await declare_cairo1_contract(
+        account, contract["sierra"], contract["casm"]
+    )
+    return class_hash
+
+
+@pytest_asyncio.fixture(scope="package", name="string_contract")
+async def deploy_string_contract(
+    account: BaseAccount, string_contract_class_hash
+) -> Contract:
+    return await deploy_v1_contract(
+        account=account,
+        contract_name="MyString",
+        class_hash=string_contract_class_hash,
     )

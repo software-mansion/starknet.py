@@ -3,31 +3,28 @@ import json
 import pytest
 
 from starknet_py.abi.v2 import Abi, AbiParser
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V2_DIR
-from starknet_py.tests.e2e.fixtures.misc import read_contract
+from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
 
 
 @pytest.mark.parametrize(
     "contract_name",
     [
-        "abi_types",
-        "account",
-        "erc20",
-        "hello2",
-        "hello_starknet",
-        "minimal_contract",
-        "new_syntax_test_contract",
-        "test_contract",
-        "test_enum",
-        "test_option",
-        "token_bridge",
+        "AbiTypes",
+        "Account",
+        "ERC20",
+        "Hello2",
+        "HelloStarknet",
+        "MinimalContract",
+        "NewSyntaxTestContract",
+        "TestContract",
+        "TestEnum",
+        "TestOption",
+        "TokenBridge",
     ],
 )
 def test_abi_parse(contract_name):
     abi = json.loads(
-        read_contract(
-            f"{contract_name}_compiled.json", directory=CONTRACTS_COMPILED_V2_DIR
-        )
+        load_contract(contract_name=contract_name, version=ContractVersion.V2)["sierra"]
     )["abi"]
 
     parser = AbiParser(abi)

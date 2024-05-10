@@ -2,7 +2,6 @@ import pytest
 
 from starknet_py.contract import Contract
 from starknet_py.net.client import Client
-from starknet_py.net.models import chain_from_network
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.tests.e2e.utils import _get_random_private_key_unsafe
 
@@ -10,7 +9,6 @@ from starknet_py.tests.e2e.utils import _get_random_private_key_unsafe
 @pytest.mark.asyncio
 async def test_deploy_prefunded_account(
     account_with_validate_deploy_class_hash: int,
-    network: str,
     eth_fee_contract: Contract,
     client: Client,
 ):
@@ -20,7 +18,6 @@ async def test_deploy_prefunded_account(
     from starknet_py.hash.address import compute_address
     from starknet_py.net.account.account import Account
     from starknet_py.net.full_node_client import FullNodeClient
-    from starknet_py.net.models import StarknetChainId
     from starknet_py.net.signer.stark_curve_signer import KeyPair
 
     # First, make sure to generate private key and salt
@@ -51,11 +48,9 @@ async def test_deploy_prefunded_account(
 
     # Define the client to be used to interact with Starknet
     client = FullNodeClient(node_url="your.node.url")
-    chain = StarknetChainId.GOERLI
     # docs: end
 
     client = full_node_client_fixture
-    chain = chain_from_network(net=network, chain=StarknetChainId.GOERLI)
     # docs: start
 
     # Use `Account.deploy_account_v1` or `Account.deploy_account_v3` static methods to deploy an account
@@ -65,7 +60,6 @@ async def test_deploy_prefunded_account(
         salt=salt,
         key_pair=key_pair,
         client=client,
-        chain=chain,
         constructor_calldata=[key_pair.public_key],
         max_fee=int(1e15),
     )

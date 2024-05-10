@@ -1,8 +1,8 @@
 name: Checks
 
 env:
-  DEVNET_SHA: "c6ffb99"
   CAIRO_LANG_VERSION: "0.13.1"
+  DEVNET_VERSION: "0.0.5"
 
 on:
   push:
@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install poetry
         run: |
@@ -71,8 +71,8 @@ jobs:
 
       # ====================== SETUP ====================== #
 
-      - uses: actions/checkout@v3
-
+      - uses: actions/checkout@v4
+      - uses: asdf-vm/actions/setup@v3
       - uses: actions/setup-python@v4
         with:
           python-version: "3.12"
@@ -84,11 +84,6 @@ jobs:
           pip install poetry
           poetry config installer.modern-installation false
 
-      - name: Install deprecated cairo compiler
-        run: |
-          pip install --upgrade setuptools
-          pip install cairo-lang==${{ env.CAIRO_LANG_VERSION }}
-
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
@@ -99,21 +94,54 @@ jobs:
         run: |
           poetry install
 
+      # ====================== CONTRACTS v2 ====================== #
+      - name: Cache contracts v2
+        id: cache-contracts_v2
+        uses: actions/cache@v3
+        with:
+          path: starknet_py/tests/e2e/mock/contracts_v2/target
+          key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v2') }}
+
+      - name: Compile contracts v2
+        if: steps.cache-contracts_v2.outputs.cache-hit != 'true'
+        run: |
+          poetry run poe compile_contracts v2
+
+      # ====================== CONTRACTS v1 ====================== #
+
+      - name: Cache contracts v1
+        id: cache-contracts_v1
+        uses: actions/cache@v3
+        with:
+          path: starknet_py/tests/e2e/mock/contracts_v1/target
+          key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v1') }}
+
+      - name: Compile contracts v1
+        if: steps.cache-contracts_v1.outputs.cache-hit != 'true'
+        run: |
+          poetry run poe compile_contracts v1
+  
       # ====================== CONTRACTS v0 ====================== #
 
-      - name: Cache contracts
+      - name: Cache contracts v0
         id: cache-contracts
         uses: actions/cache@v3
         with:
           path: starknet_py/tests/e2e/mock/contracts_compiled
           key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts', 'poetry.lock') }}-${{ env.CAIRO_LANG_VERSION }}
 
-      - name: Compile contracts
+      - name: Install deprecated cairo compiler
         if: steps.cache-contracts.outputs.cache-hit != 'true'
         run: |
-          poetry run poe compile_contracts
+          pip install --upgrade setuptools
+          pip install cairo-lang==${{ env.CAIRO_LANG_VERSION }}
 
-      - name: Upload contracts
+      - name: Compile contracts v0
+        if: steps.cache-contracts.outputs.cache-hit != 'true'
+        run: |
+          poetry run poe compile_contracts v0
+
+      - name: Upload contracts v0
         uses: actions/upload-artifact@v3
         with:
           name: contract-artifacts
@@ -132,9 +160,7 @@ jobs:
       matrix:
         python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rust-lang/setup-rust-toolchain@v1
-      - uses: Swatinem/rust-cache@v2
+      - uses: actions/checkout@v4
 
       - name: Download contracts
         uses: actions/download-artifact@v3
@@ -168,10 +194,7 @@ jobs:
       # ====================== SETUP DEVNET ====================== #
 
       - name: Install devnet
-        run: |
-          cargo install --locked \
-          --git https://github.com/0xSpaceShard/starknet-devnet-rs.git \
-          --rev ${{ env.DEVNET_SHA }}
+        run: ./starknet_py/tests/install_devnet.sh
 
       # ====================== RUN TESTS ====================== #
 
@@ -202,16 +225,14 @@ jobs:
     strategy:
       fail-fast: false
     env:
-      GOERLI_INTEGRATION_RPC_URL: ${{ secrets.INTEGRATION_RPC_URL }}
-      GOERLI_TESTNET_RPC_URL: ${{ secrets.TESTNET_RPC_URL }}
       SEPOLIA_INTEGRATION_RPC_URL: ${{ secrets.SEPOLIA_INTEGRATION_RPC_URL }}
-      SEPOLIA_TESTNET_RPC_URL: ${{ secrets.SEPOLIA_TESTNET_RPC_URL }}
-      GOERLI_INTEGRATION_ACCOUNT_PRIVATE_KEY: ${{ secrets.INTEGRATION_ACCOUNT_PRIVATE_KEY }}
-      GOERLI_INTEGRATION_ACCOUNT_ADDRESS: ${{ secrets.INTEGRATION_ACCOUNT_ADDRESS }}
-      GOERLI_TESTNET_ACCOUNT_PRIVATE_KEY: ${{ secrets.TESTNET_ACCOUNT_PRIVATE_KEY }}
-      GOERLI_TESTNET_ACCOUNT_ADDRESS: ${{ secrets.TESTNET_ACCOUNT_ADDRESS }}
+      SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
+      SEPOLIA_ACCOUNT_ADDRESS: ${{ secrets.SEPOLIA_ACCOUNT_ADDRESS }}
+      SEPOLIA_ACCOUNT_PRIVATE_KEY: ${{ secrets.SEPOLIA_ACCOUNT_PRIVATE_KEY }}
+      SEPOLIA_INTEGRATION_ACCOUNT_PRIVATE_KEY: ${{ secrets.SEPOLIA_INTEGRATION_ACCOUNT_PRIVATE_KEY }}
+      SEPOLIA_INTEGRATION_ACCOUNT_ADDRESS: ${{ secrets.SEPOLIA_INTEGRATION_ACCOUNT_ADDRESS }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Download contracts
         uses: actions/download-artifact@v3
@@ -273,9 +294,10 @@ jobs:
       matrix:
         python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rust-lang/setup-rust-toolchain@v1
-      - uses: Swatinem/rust-cache@v2
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@dc6353516c68da0f06325f42ad880f76a5e77ec9
+        with:
+          toolchain: stable
 
       - name: Download contracts
         uses: actions/download-artifact@v3
@@ -291,7 +313,9 @@ jobs:
       # ====================== SETUP DEVNET ====================== #
 
       - name: Install devnet
-        run: cargo install --locked --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --rev ${{ env.DEVNET_SHA }}
+        run: |
+          $DEVNET_INSTALL_DIR = "$(git rev-parse --show-toplevel)/starknet_py/tests/e2e/devnet"
+          cargo install starknet-devnet --version ${{ env.DEVNET_VERSION }} --root $DEVNET_INSTALL_DIR
 
       # ====================== SETUP PYTHON ====================== #
 
@@ -342,9 +366,7 @@ jobs:
       matrix:
         python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rust-lang/setup-rust-toolchain@v1
-      - uses: Swatinem/rust-cache@v2
+      - uses: actions/checkout@v4
 
       - name: Download contracts
         uses: actions/download-artifact@v3
@@ -378,10 +400,7 @@ jobs:
       # ====================== SETUP DEVNET ====================== #
 
       - name: Install devnet
-        run: |
-          cargo install --locked \
-          --git https://github.com/0xSpaceShard/starknet-devnet-rs.git \
-          --rev ${{ env.DEVNET_SHA }}
+        run: ./starknet_py/tests/install_devnet.sh
 
       # ====================== RUN TESTS ====================== #
 
@@ -411,9 +430,10 @@ jobs:
       matrix:
         python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rust-lang/setup-rust-toolchain@v1
-      - uses: Swatinem/rust-cache@v2
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@dc6353516c68da0f06325f42ad880f76a5e77ec9
+        with:
+          toolchain: stable
 
       - name: Download contracts
         uses: actions/download-artifact@v3
@@ -447,7 +467,9 @@ jobs:
       # ====================== SETUP DEVNET ====================== #
 
       - name: Install devnet
-        run: cargo install --locked --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --rev ${{ env.DEVNET_SHA }}
+        run: |
+          $DEVNET_INSTALL_DIR = "$(git rev-parse --show-toplevel)/starknet_py/tests/e2e/devnet"
+          cargo install starknet-devnet --version ${{ env.DEVNET_VERSION }} --root $DEVNET_INSTALL_DIR
 
       # ====================== RUN TESTS ====================== #
 

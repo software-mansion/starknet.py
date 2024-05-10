@@ -15,7 +15,7 @@ def test_default_token_address_for_network():
     res = default_token_address_for_network("mainnet")
     assert res == FEE_CONTRACT_ADDRESS
 
-    res = default_token_address_for_network("goerli")
+    res = default_token_address_for_network("sepolia")
     assert res == FEE_CONTRACT_ADDRESS
 
     with pytest.raises(

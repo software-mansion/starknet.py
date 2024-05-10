@@ -6,7 +6,6 @@ from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.net.account.account import Account
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models import StarknetChainId, parse_address
-from starknet_py.net.networks import GOERLI, MAINNET
 from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 from starknet_py.tests.e2e.fixtures.constants import (
     MAX_FEE,
@@ -16,14 +15,13 @@ from starknet_py.tests.e2e.fixtures.constants import (
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("net", (GOERLI, MAINNET))
-async def test_get_balance_default_token_address(net):
-    client = FullNodeClient(node_url=net + "/rpc")
+async def test_get_balance_default_token_address():
+    client = FullNodeClient(node_url="/rpc")
     acc_client = Account(
         client=client,
         address="0x123",
         key_pair=KeyPair(123, 456),
-        chain=StarknetChainId.GOERLI,
+        chain=StarknetChainId.SEPOLIA,
     )
 
     with patch(
@@ -81,32 +79,47 @@ def test_create_account():
         address=0x1,
         client=FullNodeClient(node_url=""),
         key_pair=key_pair,
-        chain=StarknetChainId.GOERLI,
+        chain=StarknetChainId.SEPOLIA,
     )
 
     assert account.address == 0x1
     assert account.signer.public_key == key_pair.public_key
 
 
-def test_create_account_from_signer():
+@pytest.mark.parametrize(
+    "chain",
+    [
+        StarknetChainId.SEPOLIA,
+        "SN_SEPOLIA",
+        "0x534e5f5345504f4c4941",
+        393402133025997798000961,
+    ],
+)
+def test_create_account_parses_chain(chain):
+    key_pair = KeyPair.from_private_key(0x111)
+    account = Account(
+        address=0x1,
+        client=FullNodeClient(node_url=""),
+        key_pair=key_pair,
+        chain=chain,
+    )
+
+    assert account.address == 0x1
+    assert account.signer.public_key == key_pair.public_key
+    assert isinstance(account.signer, StarkCurveSigner)
+    assert account.signer.chain_id == 0x534E5F5345504F4C4941
+
+
+def test_create_account_from_signer(client):
     signer = StarkCurveSigner(
         account_address=0x1,
         key_pair=KeyPair.from_private_key(0x111),
-        chain_id=StarknetChainId.GOERLI,
+        chain_id=StarknetChainId.SEPOLIA,
     )
-    account = Account(address=0x1, client=FullNodeClient(node_url=""), signer=signer)
+    account = Account(address=0x1, client=client, signer=signer)
 
     assert account.address == 0x1
     assert account.signer == signer
-
-
-def test_create_account_raises_on_no_chain_and_signer():
-    with pytest.raises(ValueError, match="One of chain or signer must be provided"):
-        Account(
-            address=0x1,
-            client=FullNodeClient(node_url=""),
-            key_pair=KeyPair.from_private_key(0x111),
-        )
 
 
 def test_create_account_raises_on_no_keypair_and_signer():
@@ -117,7 +130,7 @@ def test_create_account_raises_on_no_keypair_and_signer():
         Account(
             address=0x1,
             client=FullNodeClient(node_url=""),
-            chain=StarknetChainId.GOERLI,
+            chain=StarknetChainId.SEPOLIA,
         )
 
 
@@ -128,11 +141,11 @@ def test_create_account_raises_on_both_keypair_and_signer():
         Account(
             address=0x1,
             client=FullNodeClient(node_url=""),
-            chain=StarknetChainId.GOERLI,
+            chain=StarknetChainId.SEPOLIA,
             key_pair=KeyPair.from_private_key(0x111),
             signer=StarkCurveSigner(
                 account_address=0x1,
                 key_pair=KeyPair.from_private_key(0x11),
-                chain_id=StarknetChainId.GOERLI,
+                chain_id=StarknetChainId.SEPOLIA,
             ),
         )

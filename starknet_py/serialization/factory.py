@@ -20,7 +20,10 @@ from starknet_py.cairo.data_types import (
     UintType,
     UnitType,
 )
-from starknet_py.serialization.data_serializers import BoolSerializer
+from starknet_py.serialization.data_serializers import (
+    BoolSerializer,
+    ByteArraySerializer,
+)
 from starknet_py.serialization.data_serializers.array_serializer import ArraySerializer
 from starknet_py.serialization.data_serializers.cairo_data_serializer import (
     CairoDataSerializer,
@@ -55,6 +58,14 @@ from starknet_py.serialization.function_serialization_adapter import (
 )
 
 _uint256_type = StructType("Uint256", OrderedDict(low=FeltType(), high=FeltType()))
+_byte_array_type = StructType(
+    "core::byte_array::ByteArray",
+    OrderedDict(
+        data=ArrayType(FeltType()),
+        pending_word=FeltType(),
+        pending_word_len=UintType(bits=32),
+    ),
+)
 
 
 def serializer_for_type(cairo_type: CairoType) -> CairoDataSerializer:
@@ -64,7 +75,7 @@ def serializer_for_type(cairo_type: CairoType) -> CairoDataSerializer:
     :param cairo_type: CairoType.
     :return: CairoDataSerializer.
     """
-    # pylint: disable=too-many-return-statements
+    # pylint: disable=too-many-return-statements, too-many-branches
     if isinstance(cairo_type, FeltType):
         return FeltSerializer()
 
@@ -75,6 +86,9 @@ def serializer_for_type(cairo_type: CairoType) -> CairoDataSerializer:
         # Special case: Uint256 is represented as struct
         if cairo_type == _uint256_type:
             return Uint256Serializer()
+
+        if cairo_type == _byte_array_type:
+            return ByteArraySerializer()
 
         return StructSerializer(
             OrderedDict(

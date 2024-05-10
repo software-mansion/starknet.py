@@ -26,11 +26,12 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.full_node_client import _to_rpc_felt
 from starknet_py.net.models import StarknetChainId
-from starknet_py.tests.e2e.fixtures.constants import (
-    CONTRACTS_COMPILED_V0_DIR,
-    CONTRACTS_COMPILED_V1_DIR,
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V0_DIR
+from starknet_py.tests.e2e.fixtures.misc import (
+    ContractVersion,
+    load_contract,
+    read_contract,
 )
-from starknet_py.tests.e2e.fixtures.misc import read_contract
 from starknet_py.tests.e2e.utils import create_empty_block
 
 
@@ -124,7 +125,6 @@ async def test_get_transaction_receipt_deploy_account(
         salt=salt,
         key_pair=key_pair,
         client=client,
-        chain=StarknetChainId.GOERLI,
         max_fee=int(1e16),
     )
     await deploy_result.wait_for_acceptance()
@@ -368,7 +368,7 @@ async def test_get_block_hash_and_number(client):
 async def test_get_chain_id(client):
     chain_id = await client.get_chain_id()
 
-    assert chain_id == hex(StarknetChainId.GOERLI.value)
+    assert chain_id == hex(StarknetChainId.SEPOLIA.value)
 
 
 @pytest.mark.asyncio
@@ -496,17 +496,15 @@ async def test_simulate_transactions_two_txs(account, deployed_balance_contract)
     )
     invoke_tx = await account.sign_invoke_v1(calls=call, auto_estimate=True)
 
-    compiled_v2_contract = read_contract(
-        "test_contract_declare_compiled.json", directory=CONTRACTS_COMPILED_V1_DIR
+    contract = load_contract(
+        contract_name="TestContractDeclare", version=ContractVersion.V1
     )
-    compiled_v2_contract_casm = read_contract(
-        "test_contract_declare_compiled.casm", directory=CONTRACTS_COMPILED_V1_DIR
-    )
-    casm_class = create_casm_class(compiled_v2_contract_casm)
+
+    casm_class = create_casm_class(contract["casm"])
     casm_class_hash = compute_casm_class_hash(casm_class)
 
     declare_v2_tx = await account.sign_declare_v2(
-        compiled_contract=compiled_v2_contract,
+        compiled_contract=contract["sierra"],
         compiled_class_hash=casm_class_hash,
         # because raw calls do not increment nonce, it needs to be done manually
         nonce=invoke_tx.nonce + 1,
@@ -544,7 +542,7 @@ async def test_simulate_transactions_deploy_account(
         address=address,
         client=client,
         key_pair=key_pair,
-        chain=StarknetChainId.GOERLI,
+        chain=StarknetChainId.SEPOLIA,
     )
     deploy_account_tx = await account.sign_deploy_account_v1(
         class_hash=class_hash,
