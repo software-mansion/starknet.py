@@ -61,7 +61,7 @@ class Deployer:
         *,
         salt: Optional[int] = None,
         abi: Optional[List] = None,
-        cairo_version: int = 0,
+        cairo_version: int = 1,
         calldata: Optional[Union[List, dict]] = None,
     ) -> ContractDeployment:
         """

@@ -80,7 +80,7 @@ class ContractData:
         return AbiParserV0(self.abi).parse()
 
     @staticmethod
-    def from_abi(address: int, abi: ABI, cairo_version: int = 0) -> ContractData:
+    def from_abi(address: int, abi: ABI, cairo_version: int = 1) -> ContractData:
         """
         Create ContractData from ABI.
 
@@ -162,7 +162,7 @@ class DeclareResult(SentTransaction):
     """
 
     _account: BaseAccount = None  # pyright: ignore
-    _cairo_version: int = 0
+    _cairo_version: int = 1
 
     class_hash: int = None  # pyright: ignore
     """Class hash of the declared contract."""
@@ -524,7 +524,7 @@ class ContractFunction:
         contract_data: ContractData,
         client: Client,
         account: Optional[BaseAccount],
-        cairo_version: int = 0,
+        cairo_version: int = 1,
         *,
         interface_name: Optional[str] = None,
     ):
@@ -729,7 +729,7 @@ class Contract:
         abi: list,
         provider: Union[BaseAccount, Client],
         *,
-        cairo_version: int = 0,
+        cairo_version: int = 1,
     ):
         """
         Should be used instead of ``from_address`` when ABI is known statically.
@@ -1105,7 +1105,7 @@ class Contract:
         contract_data: ContractData,
         client: Client,
         account: Optional[BaseAccount],
-        cairo_version: int = 0,
+        cairo_version: int = 1,
     ) -> FunctionsRepository:
         repository = {}
         implemented_interfaces = [
