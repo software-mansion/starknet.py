@@ -26,6 +26,7 @@ def test_init():
             key_pair=KeyPair(12, 34),
             chain=StarknetChainId.SEPOLIA,
         ),
+        cairo_version=0,
     )
     # docs-end: init
 

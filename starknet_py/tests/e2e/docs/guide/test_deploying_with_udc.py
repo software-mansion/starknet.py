@@ -56,6 +56,7 @@ async def test_deploying_with_udc(
     deploy_call, address = deployer.create_contract_deployment(
         class_hash=contract_with_constructor_class_hash,
         abi=contract_with_constructor_abi,
+        cairo_version=0,
         calldata={
             "single_value": 10,
             "tuple": (1, (2, 3)),
@@ -77,6 +78,7 @@ async def test_deploying_with_udc(
             "arr": [1],
             "dict": {"value": 12, "nested_struct": {"value": 99}},
         },
+        cairo_version=0,
     )
     # docs: start
     # Or signed and send with an account
