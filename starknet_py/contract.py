@@ -1079,7 +1079,9 @@ class Contract:
 
         compiled = create_compiled_contract(compiled_contract)
         assert compiled.abi is not None
-        translated_args = translate_constructor_args(compiled.abi, constructor_args)
+        translated_args = translate_constructor_args(
+            compiled.abi, constructor_args, cairo_version=0
+        )
         return compute_address(
             salt=salt,
             class_hash=compute_class_hash(compiled),

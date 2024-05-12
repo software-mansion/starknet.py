@@ -67,7 +67,10 @@ async def test_balance_when_token_specified(account, erc20_contract):
 @pytest.mark.asyncio
 async def test_estimated_fee_greater_than_zero(account, erc20_contract):
     erc20_contract = Contract(
-        address=erc20_contract.address, abi=erc20_contract.data.abi, provider=account
+        address=erc20_contract.address,
+        abi=erc20_contract.data.abi,
+        provider=account,
+        cairo_version=0,
     )
 
     estimated_fee = (

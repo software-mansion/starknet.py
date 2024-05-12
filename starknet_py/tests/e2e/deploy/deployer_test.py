@@ -43,7 +43,7 @@ async def test_throws_when_calldata_not_provided(constructor_with_arguments_abi)
         match="Provided contract has a constructor and no arguments were provided.",
     ):
         deployer.create_contract_deployment(
-            class_hash=1234, abi=constructor_with_arguments_abi
+            class_hash=1234, abi=constructor_with_arguments_abi, cairo_version=0
         )
 
 
@@ -72,6 +72,7 @@ async def test_constructor_arguments_contract_deploy(
         class_hash=constructor_with_arguments_class_hash,
         abi=constructor_with_arguments_abi,
         calldata=calldata,
+        cairo_version=0,
     )
 
     deploy_invoke_transaction = await account.sign_invoke_v1(
@@ -84,6 +85,7 @@ async def test_constructor_arguments_contract_deploy(
         address=contract_address,
         abi=constructor_with_arguments_abi,
         provider=account,
+        cairo_version=0,
     )
 
     result = await contract.functions["get"].call(block_number="latest")
@@ -145,7 +147,7 @@ async def test_create_deployment_call_raw(
     deployer = Deployer(account_address=account.address)
 
     raw_calldata = translate_constructor_args(
-        abi=constructor_with_arguments_abi, constructor_args=calldata
+        abi=constructor_with_arguments_abi, constructor_args=calldata, cairo_version=0
     )
 
     (
@@ -182,7 +184,9 @@ async def test_create_deployment_call_raw_supports_seed_0(
     deployer = Deployer()
 
     raw_calldata = translate_constructor_args(
-        abi=constructor_with_arguments_abi, constructor_args=sample_calldata
+        abi=constructor_with_arguments_abi,
+        constructor_args=sample_calldata,
+        cairo_version=0,
     )
 
     expected_address = compute_address(
