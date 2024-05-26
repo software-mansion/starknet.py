@@ -1067,10 +1067,10 @@ class Contract:
         deployer_address: int = 0,
     ) -> int:
         """
-        Computes address for given contract.
+        Computes address for given Cairo 0 contract.
 
         :param salt: int
-        :param compiled_contract: String containing compiled contract.
+        :param compiled_contract: String containing compiled Cairo 0 contract.
         :param constructor_args: A ``list`` or ``dict`` of arguments for the constructor.
         :param deployer_address: Address of the deployer (if not provided default 0 is used).
 
