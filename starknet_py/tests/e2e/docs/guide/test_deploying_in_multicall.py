@@ -23,7 +23,9 @@ async def test_deploying_in_multicall(account, map_class_hash, map_compiled_cont
     # docs: start
 
     # Address of the `map` contract is known here, so we can create its instance!
-    map_contract = Contract(address=address, abi=map_abi, provider=account)
+    map_contract = Contract(
+        address=address, abi=map_abi, provider=account, cairo_version=0
+    )
 
     # And now we can prepare a call
     put_call = map_contract.functions["put"].prepare_invoke_v1(key=10, value=20)

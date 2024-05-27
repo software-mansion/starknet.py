@@ -238,6 +238,7 @@ def eth_fee_contract(account: BaseAccount, fee_contract_abi) -> Contract:
         address=FEE_CONTRACT_ADDRESS,
         abi=fee_contract_abi,
         provider=account,
+        cairo_version=0,
     )
 
 
@@ -251,6 +252,7 @@ def strk_fee_contract(account: BaseAccount, fee_contract_abi) -> Contract:
         address=STRK_FEE_CONTRACT_ADDRESS,
         abi=fee_contract_abi,
         provider=account,
+        cairo_version=0,
     )
 
 

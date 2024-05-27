@@ -15,7 +15,7 @@ from starknet_py.serialization.factory import (
 
 
 def translate_constructor_args(
-    abi: List, constructor_args: Optional[Union[List, dict]], *, cairo_version: int = 0
+    abi: List, constructor_args: Optional[Union[List, dict]], *, cairo_version: int = 1
 ) -> List[int]:
     serializer = (
         _get_constructor_serializer_v1(abi)
