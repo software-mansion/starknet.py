@@ -7,13 +7,19 @@ from starknet_py.net.schemas.gateway import (
     ContractClassSchema,
     SierraCompiledContractSchema,
 )
-from starknet_py.net.schemas.rpc import (
+from starknet_py.net.schemas.rpc.declare_transaction_v1 import (
     DeclareTransactionV1Schema,
-    DeclareTransactionV2Schema,
-    DeclareTransactionV3Schema,
-    DeployAccountTransactionSchema,
-    InvokeTransactionSchema,
 )
+from starknet_py.net.schemas.rpc.declare_transaction_v2 import (
+    DeclareTransactionV2Schema,
+)
+from starknet_py.net.schemas.rpc.declare_transaction_v3 import (
+    DeclareTransactionV3Schema,
+)
+from starknet_py.net.schemas.rpc.deploy_account_transaction import (
+    DeployAccountTransactionSchema,
+)
+from starknet_py.net.schemas.rpc.invoke_transaction import InvokeTransactionSchema
 from starknet_py.net.schemas.utils import _extract_tx_version
 
 

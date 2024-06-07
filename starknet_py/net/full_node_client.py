@@ -51,31 +51,51 @@ from starknet_py.net.models.transaction import (
     DeployAccount,
     Invoke,
 )
-from starknet_py.net.schemas.rpc import (
-    BlockHashAndNumberSchema,
-    BlockStateUpdateSchema,
-    BlockTransactionTraceSchema,
+from starknet_py.net.schemas.gateway import (
     ContractClassSchema,
-    DeclareTransactionResponseSchema,
-    DeployAccountTransactionResponseSchema,
-    EstimatedFeeSchema,
-    EventsChunkSchema,
-    PendingBlockStateUpdateSchema,
-    PendingStarknetBlockSchema,
-    PendingStarknetBlockWithReceiptsSchema,
-    PendingStarknetBlockWithTxHashesSchema,
-    SentTransactionSchema,
     SierraContractClassSchema,
-    SimulatedTransactionSchema,
-    StarknetBlockSchema,
-    StarknetBlockWithReceiptsSchema,
-    StarknetBlockWithTxHashesSchema,
-    SyncStatusSchema,
-    TransactionReceiptSchema,
-    TransactionStatusResponseSchema,
-    TransactionTraceSchema,
-    TypesOfTransactionsSchema,
 )
+from starknet_py.net.schemas.rpc.block_hash_and_number import BlockHashAndNumberSchema
+from starknet_py.net.schemas.rpc.block_state_update import BlockStateUpdateSchema
+from starknet_py.net.schemas.rpc.block_transaction_trace import (
+    BlockTransactionTraceSchema,
+)
+from starknet_py.net.schemas.rpc.block_with_tx_hashes import (
+    StarknetBlockWithTxHashesSchema,
+)
+from starknet_py.net.schemas.rpc.declare_transaction_response import (
+    DeclareTransactionResponseSchema,
+)
+from starknet_py.net.schemas.rpc.deploy_account_transaction_response import (
+    DeployAccountTransactionResponseSchema,
+)
+from starknet_py.net.schemas.rpc.estimated_fee import EstimatedFeeSchema
+from starknet_py.net.schemas.rpc.events_chunk import EventsChunkSchema
+from starknet_py.net.schemas.rpc.panding_starknet_block_schema import (
+    PendingStarknetBlockSchema,
+)
+from starknet_py.net.schemas.rpc.pending_block_state_update import (
+    PendingBlockStateUpdateSchema,
+)
+from starknet_py.net.schemas.rpc.pending_starknet_block_with_receipts import (
+    PendingStarknetBlockWithReceiptsSchema,
+)
+from starknet_py.net.schemas.rpc.pending_starknet_block_with_tx_hashes import (
+    PendingStarknetBlockWithTxHashesSchema,
+)
+from starknet_py.net.schemas.rpc.sent_transaction import SentTransactionSchema
+from starknet_py.net.schemas.rpc.simulated_transaction import SimulatedTransactionSchema
+from starknet_py.net.schemas.rpc.starknet_block_schema import StarknetBlockSchema
+from starknet_py.net.schemas.rpc.starknet_block_with_receipt import (
+    StarknetBlockWithReceiptsSchema,
+)
+from starknet_py.net.schemas.rpc.sync_status import SyncStatusSchema
+from starknet_py.net.schemas.rpc.transaction_receipt import TransactionReceiptSchema
+from starknet_py.net.schemas.rpc.transaction_status_response import (
+    TransactionStatusResponseSchema,
+)
+from starknet_py.net.schemas.rpc.transaction_trace import TransactionTraceSchema
+from starknet_py.net.schemas.rpc.types_of_transactions import TypesOfTransactionsSchema
 from starknet_py.transaction_errors import TransactionNotReceivedError
 from starknet_py.utils.sync import add_sync_methods
 
