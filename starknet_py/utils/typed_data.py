@@ -114,8 +114,6 @@ class TypedData:
             type_name = strip_pointer(type_name)
 
             if self._is_struct(type_name):
-                for data in value:
-                    print("DDD", data)
                 return compute_hash_on_elements(
                     [self.struct_hash(type_name, data) for data in value]
                 )
@@ -221,7 +219,6 @@ class TypedData:
         :param data: Data defining the struct.
         :return: Hash of the struct.
         """
-        print("GIVEN", data)
         return self._hash_method().hash(
             [self.type_hash(type_name), *self._encode_data(type_name, data)]
         )
