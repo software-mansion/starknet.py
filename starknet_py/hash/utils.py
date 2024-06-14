@@ -1,4 +1,5 @@
 import functools
+from enum import Enum
 from typing import List, Optional, Sequence
 
 from Crypto.Hash import keccak
@@ -9,6 +10,7 @@ from crypto_cpp_py.cpp_bindings import (
     cpp_sign,
     cpp_verify,
 )
+from poseidon_py.poseidon_hash import poseidon_hash_many
 
 from starknet_py.common import int_from_bytes
 from starknet_py.constants import EC_ORDER
@@ -89,3 +91,19 @@ def encode_uint_list(data: List[int]) -> bytes:
 
 def get_bytes_length(value: int) -> int:
     return (value.bit_length() + 7) // 8
+
+
+class HashMethod(Enum):
+    """
+    Enum representing hash method.
+    """
+
+    PEDERSEN = "pedersen"
+    POSEIDON = "poseidon"
+
+    def hash(self, values: list[int]):
+        if self == HashMethod.PEDERSEN:
+            return compute_hash_on_elements(values)
+        if self == HashMethod.POSEIDON:
+            return poseidon_hash_many(values)
+        raise ValueError(f"Unsupported hash method: {self}.")

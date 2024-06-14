@@ -1,12 +1,14 @@
-from dataclasses import dataclass
-from typing import Dict, List, Union, cast
+from dataclasses import asdict, dataclass
+
+# from itertools import chain
+from typing import Dict, List, Optional, Union, cast
 
 from marshmallow import Schema, fields, post_load
 
 from starknet_py.cairo.felt import encode_shortstring
 from starknet_py.hash.selector import get_selector_from_name
-from starknet_py.hash.utils import compute_hash_on_elements
-from starknet_py.net.models.typed_data import StarkNetDomain
+from starknet_py.hash.utils import HashMethod, compute_hash_on_elements
+from starknet_py.net.models.typed_data import Revision
 from starknet_py.net.models.typed_data import TypedData as TypedDataDict
 
 
@@ -20,6 +22,61 @@ class Parameter:
     type: str
 
 
+class BasicType:
+    V0 = [
+        "felt",
+        "bool",
+        "selector",
+        "merkletree",
+        "string",
+    ]
+    V1 = [
+        "felt",
+        "bool",
+        "selector",
+        "merkletree",
+        "string",
+        "enum",
+        "i128",
+        "u128",
+        "ContractAddress",
+        "ClassHash",
+        "timestamp",
+        "shortstring",
+    ]
+
+    @staticmethod
+    def get_by_revision(revision: Revision) -> List[str]:
+        return BasicType.V0 if revision is Revision.V0 else BasicType.V1
+
+
+class PresetType:
+    V1 = ["u256", "TokenAmount", "NftId"]
+
+
+@dataclass
+class Domain:
+    """
+    Dataclass representing a domain object (StarkNetDomain, StarknetDomain)
+    """
+
+    name: str
+    version: str
+    chainId: Union[str, int]
+    revision: Optional[int] = None
+
+    def __post_init__(self):
+        self.resolved_revision = (
+            Revision(self.revision) if self.revision else Revision.V0
+        )
+        self.separator_name = self._resolve_separator_name()
+
+    def _resolve_separator_name(self):
+        if self.resolved_revision is Revision.V0:
+            return "StarkNetDomain"
+        return "StarknetDomain"
+
+
 @dataclass(frozen=True)
 class TypedData:
     """
@@ -28,8 +85,16 @@ class TypedData:
 
     types: Dict[str, List[Parameter]]
     primary_type: str
-    domain: StarkNetDomain
+    domain: Domain
     message: dict
+
+    def __post_init__(self):
+        self._verify_types()
+
+    def _hash_method(self) -> HashMethod:
+        if self.domain.resolved_revision is Revision.V0:
+            return HashMethod.PEDERSEN
+        return HashMethod.POSEIDON
 
     @staticmethod
     def from_dict(data: TypedDataDict) -> "TypedData":
@@ -49,6 +114,8 @@ class TypedData:
             type_name = strip_pointer(type_name)
 
             if self._is_struct(type_name):
+                for data in value:
+                    print("DDD", data)
                 return compute_hash_on_elements(
                     [self.struct_hash(type_name, data) for data in value]
                 )
@@ -67,6 +134,41 @@ class TypedData:
             values.append(encoded_value)
 
         return values
+
+    def _verify_types(self):
+        separator_name = self.domain.separator_name
+        if separator_name not in self.types:
+            raise ValueError(f"Types must contain {separator_name}.")
+
+        for basic_type in BasicType.get_by_revision(self.domain.resolved_revision):
+            if basic_type in self.types:
+                raise ValueError(
+                    f"Types must not contain basic types. [{basic_type}] was found."
+                )
+
+        for preset_type in PresetType.V1:
+            if preset_type in self.types:
+                raise ValueError(
+                    f"Types must not contain preset types. [{preset_type}] was found."
+                )
+
+        # flat_list = list(chain(*self.types.values()))
+        # referenced_types = []
+
+        for key in self.types.keys():
+            if not key:
+                raise ValueError("Type names cannot be empty.")
+            if is_array(key):
+                raise ValueError(f"Type names cannot end in *. [{key}] was found.")
+            if is_enum(key):
+                raise ValueError(
+                    f"Type names cannot be enclosed in parentheses. [{key}] was found."
+                )
+
+            if "," in key:
+                raise ValueError(
+                    f"Type names cannot contain commas. [{key}] was found."
+                )
 
     def _get_dependencies(self, type_name: str) -> List[str]:
         if type_name not in self.types:
@@ -92,8 +194,13 @@ class TypedData:
         types = [primary, *sorted(dependencies)]
 
         def make_dependency_str(dependency):
-            lst = [f"{t.name}:{t.type}" for t in self.types[dependency]]
-            return f"{dependency}({','.join(lst)})"
+            lst = [
+                f"{escape(t.name, self.domain.resolved_revision)}:{escape(t.type, self.domain.resolved_revision)}"
+                for t in self.types[dependency]
+            ]
+            return (
+                f"{escape(dependency, self.domain.resolved_revision)}({','.join(lst)})"
+            )
 
         return "".join([make_dependency_str(x) for x in types])
 
@@ -114,7 +221,8 @@ class TypedData:
         :param data: Data defining the struct.
         :return: Hash of the struct.
         """
-        return compute_hash_on_elements(
+        print("GIVEN", data)
+        return self._hash_method().hash(
             [self.type_hash(type_name), *self._encode_data(type_name, data)]
         )
 
@@ -125,14 +233,15 @@ class TypedData:
         :param account_address: Address of an account.
         :return: Hash of the message.
         """
+        separator_name = self.domain.separator_name
         message = [
             encode_shortstring("StarkNet Message"),
-            self.struct_hash("StarkNetDomain", cast(dict, self.domain)),
+            self.struct_hash(separator_name, asdict(self.domain)),
             account_address,
             self.struct_hash(self.primary_type, self.message),
         ]
 
-        return compute_hash_on_elements(message)
+        return self._hash_method().hash(message)
 
 
 def get_hex(value: Union[int, str]) -> str:
@@ -149,10 +258,24 @@ def is_pointer(value: str) -> bool:
     return len(value) > 0 and value[-1] == "*"
 
 
+def is_array(value: str) -> bool:
+    return value.endswith("*")
+
+
+def is_enum(value: str) -> bool:
+    return value.startswith("(") and value.endswith(")")
+
+
 def strip_pointer(value: str) -> str:
     if is_pointer(value):
         return value[:-1]
     return value
+
+
+def escape(s: str, revision: Revision) -> str:
+    if revision is Revision.V0:
+        return s
+    return f'"{s}"'
 
 
 # pylint: disable=unused-argument
@@ -180,4 +303,9 @@ class TypedDataSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> TypedData:
-        return TypedData(**data)
+        return TypedData(
+            types=data["types"],
+            primary_type=data["primary_type"],
+            domain=Domain(**data["domain"]),
+            message=data["message"],
+        )
