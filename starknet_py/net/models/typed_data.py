@@ -2,7 +2,8 @@
 TypedDict structures for TypedData
 """
 
-from typing import Any, Dict, List, TypedDict, Union
+from enum import Enum
+from typing import Any, Dict, List, Optional, TypedDict, Union
 
 
 class Parameter(TypedDict):
@@ -14,7 +15,16 @@ class Parameter(TypedDict):
     type: str
 
 
-class StarkNetDomain(TypedDict):
+class Revision(Enum):
+    """
+    Enum representing the revision of the specification to be used.
+    """
+
+    V0 = 0
+    V1 = 1
+
+
+class Domain(TypedDict):
     """
     TypedDict representing a StarkNetDomain object
     """
@@ -22,6 +32,7 @@ class StarkNetDomain(TypedDict):
     name: str
     version: str
     chainId: Union[str, int]
+    revision: Optional[Revision]
 
 
 class TypedData(TypedDict):
@@ -31,5 +42,5 @@ class TypedData(TypedDict):
 
     types: Dict[str, List[Parameter]]
     primaryType: str
-    domain: StarkNetDomain
+    domain: Domain
     message: Dict[str, Any]
