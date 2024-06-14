@@ -30,10 +30,10 @@ def pytest_addoption(parser):
 
 @pytest.fixture(
     params=[
-        "typed_data_example.json",
-        "typed_data_felt_array_example.json",
-        "typed_data_long_string_example.json",
-        "typed_data_struct_array_example.json",
+        "typed_data_rev_0_example.json",
+        "typed_data_rev_0_felt_array_example.json",
+        "typed_data_rev_0_long_string_example.json",
+        "typed_data_rev_0_struct_array_example.json",
     ],
 )
 def typed_data(request) -> TypedData:

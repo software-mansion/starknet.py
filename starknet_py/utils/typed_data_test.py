@@ -76,6 +76,8 @@ def test_encode_type(example, type_name, encoded_type):
         (CasesRev0.TD_FELT_ARR.value, "Mail", "0x5b03497592c0d1fe2f3667b63099761714a895c7df96ec90a85d17bfc7a7a0"),
         (CasesRev0.TD_STRUCT_ARR.value, "Post", "0x1d71e69bf476486b43cdcfaf5a85c00bb2d954c042b281040e513080388356d"),
         (CasesRev0.TD_STRUCT_ARR.value, "Mail", "0x873b878e35e258fc99e3085d5aaad3a81a0c821f189c08b30def2cde55ff27"),
+        (CasesRev1.TD.value, "StarknetDomain", "0x1ff2f602e42168014d405a94f75e8a93d640751d71d16311266e140d8b0a210"),
+        (CasesRev1.TD.value, "Person", "0x30f7aa21b8d67cb04c30f962dd29b95ab320cb929c07d1605f5ace304dadf34"),
         (CasesRev1.TD.value, "Mail", "0x560430bf7a02939edd1a5c104e7b7a55bbab9f35928b1cf5c7c97de3a907bd"),
     ],
 )
@@ -190,5 +192,5 @@ def _make_typed_data(included_type: str, revision: Revision):
     ],
 )
 def test_invalid_types(included_type):
-    with pytest.raises(ValueError):
-        _make_typed_data(included_type, Revision.V1)
+    with pytest.raises(ValueError):        _make_typed_data(included_type, Revision.V1)
+
