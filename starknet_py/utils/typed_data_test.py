@@ -193,4 +193,3 @@ def _make_typed_data(included_type: str, revision: Revision):
 )
 def test_invalid_types(included_type):
     with pytest.raises(ValueError):        _make_typed_data(included_type, Revision.V1)
-

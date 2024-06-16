@@ -101,7 +101,7 @@ class HashMethod(Enum):
     PEDERSEN = "pedersen"
     POSEIDON = "poseidon"
 
-    def hash(self, values: list[int]):
+    def hash(self, values: List[int]):
         if self == HashMethod.PEDERSEN:
             return compute_hash_on_elements(values)
         if self == HashMethod.POSEIDON:
