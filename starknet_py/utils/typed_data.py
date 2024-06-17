@@ -330,7 +330,7 @@ class TypedDataSchema(Schema):
 class DomainSchema(Schema):
     name = fields.String(data_key="name", required=True)
     version = fields.String(data_key="version", required=True)
-    chain_id = ChainIdField(data_key="chainId", required=True)
+    chain_id = ChainIdField(attribute="chain_id", data_key="chainId", required=True)
     revision = RevisionField(data_key="revision", required=False)
 
     @post_load
