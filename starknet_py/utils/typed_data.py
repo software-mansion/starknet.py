@@ -1,6 +1,4 @@
-from dataclasses import asdict, dataclass
-
-# from itertools import chain
+from dataclasses import dataclass
 from typing import Dict, List, Optional, Union, cast
 
 from marshmallow import Schema, fields, post_load
@@ -8,8 +6,10 @@ from marshmallow import Schema, fields, post_load
 from starknet_py.cairo.felt import encode_shortstring
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.utils import HashMethod, compute_hash_on_elements
+from starknet_py.net.models.typed_data import Domain as DomainDict
 from starknet_py.net.models.typed_data import Revision
 from starknet_py.net.models.typed_data import TypedData as TypedDataDict
+from starknet_py.net.schemas.common import ChainIdField, RevisionField
 
 
 @dataclass(frozen=True)
@@ -62,8 +62,8 @@ class Domain:
 
     name: str
     version: str
-    chainId: Union[str, int]
-    revision: Optional[int] = None
+    chain_id: Union[str, int]
+    revision: Optional[Union[str, int]] = None
 
     def __post_init__(self):
         self.resolved_revision = (
@@ -75,6 +75,29 @@ class Domain:
         if self.resolved_revision is Revision.V0:
             return "StarkNetDomain"
         return "StarknetDomain"
+
+    @staticmethod
+    def from_dict(data: DomainDict) -> "Domain":
+        """
+        Create Domain dataclass from dictionary.
+
+        :param data: Domain dictionary.
+        :return: Domain dataclass instance.
+        """
+        return cast(Domain, DomainSchema().load(data))
+
+    def to_dict(self) -> dict:
+        """
+        Create Domain dictionary from dataclass.
+
+        :return: Domain dictionary.
+        """
+        return {
+            "name": self.name,
+            "version": self.version,
+            "chainId": self.chain_id,
+            "revision": self.revision,
+        }
 
 
 @dataclass(frozen=True)
@@ -149,9 +172,6 @@ class TypedData:
                 raise ValueError(
                     f"Types must not contain preset types. [{preset_type}] was found."
                 )
-
-        # flat_list = list(chain(*self.types.values()))
-        # referenced_types = []
 
         for key in self.types.keys():
             if not key:
@@ -233,7 +253,7 @@ class TypedData:
         separator_name = self.domain.separator_name
         message = [
             encode_shortstring("StarkNet Message"),
-            self.struct_hash(separator_name, asdict(self.domain)),
+            self.struct_hash(separator_name, self.domain.to_dict()),
             account_address,
             self.struct_hash(self.primary_type, self.message),
         ]
@@ -303,6 +323,22 @@ class TypedDataSchema(Schema):
         return TypedData(
             types=data["types"],
             primary_type=data["primary_type"],
-            domain=Domain(**data["domain"]),
+            domain=Domain.from_dict(data["domain"]),
             message=data["message"],
+        )
+
+
+class DomainSchema(Schema):
+    name = fields.String(data_key="name", required=True)
+    version = fields.String(data_key="version", required=True)
+    chain_id = ChainIdField(data_key="chainId", required=True)
+    revision = RevisionField(data_key="revision", required=False)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> Domain:
+        return Domain(
+            name=data["name"],
+            version=data["version"],
+            chain_id=data["chain_id"],
+            revision=data.get("revision"),
         )

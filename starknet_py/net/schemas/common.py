@@ -336,3 +336,17 @@ class StorageEntrySchema(Schema):
     def make_dataclass(self, data, **kwargs):
         # pylint: disable=no-self-use
         return StorageEntry(**data)
+
+
+class ChainIdField(fields.Field):
+    def _deserialize(self, value, attr, data, **kwargs):
+        if isinstance(value, int):
+            value = str(value)
+        return value
+
+
+class RevisionField(fields.Field):
+    def _deserialize(self, value, attr, data, **kwargs):
+        if isinstance(value, str):
+            value = int(value)
+        return value

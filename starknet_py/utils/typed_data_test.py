@@ -2,7 +2,6 @@
 # fmt: off
 
 import json
-from dataclasses import asdict
 from enum import Enum
 from pathlib import Path
 
@@ -106,10 +105,8 @@ def test_type_hash(example, type_name, type_hash):
 def test_struct_hash(example, type_name, attr_name, struct_hash):
     typed_data = load_typed_data(example)
     data = getattr(typed_data, attr_name)
-    if not isinstance(data, dict):
-        # this needs to be changed
-        # currently TypedData.domain is instance of class, not a dict
-        data = asdict(data)
+    if isinstance(data, Domain):
+        data = data.to_dict()
     res = typed_data.struct_hash(type_name, data)
     assert hex(res) == struct_hash
 
@@ -152,26 +149,32 @@ domain_type_v1 = {
     ]
 }
 
-domain_object_v0 = {
-    "name": "DomainV0",
-    "version": 1,
-    "chainId": 2137
-}
+domain_v0 = Domain(
+    name="DomainV0",
+    version="1",
+    chain_id=1234,
+)
+
+domain_v1 = Domain(
+    name="DomainV1",
+    version="1",
+    chain_id="1234",
+    revision=1,
+)
 
 domain_object_v1 = {
     "name": "DomainV1",
     "version": "1",
-    "chainId": "2137",
+    "chainId": "1234",
     "revision": 1
 }
 
 
 def _make_typed_data(included_type: str, revision: Revision):
-    domain_type, domain_object = (domain_type_v0, domain_object_v0) if revision is Revision.V0 else (
-        domain_type_v1, domain_object_v1)
+    domain_type, domain = (domain_type_v0, domain_v0) if revision is Revision.V0 else (
+        domain_type_v1, domain_v1)
 
     types = {**domain_type, included_type: []}
-    domain = Domain(**domain_object)
     message = {included_type: 1}
 
     return TypedData(
@@ -192,4 +195,5 @@ def _make_typed_data(included_type: str, revision: Revision):
     ],
 )
 def test_invalid_types(included_type):
-    with pytest.raises(ValueError):        _make_typed_data(included_type, Revision.V1)
+    with pytest.raises(ValueError):
+        _make_typed_data(included_type, Revision.V1)
