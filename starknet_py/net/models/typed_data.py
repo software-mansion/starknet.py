@@ -26,7 +26,7 @@ class Revision(Enum):
 
 class Domain(TypedDict):
     """
-    TypedDict representing a domain object (both StarkNetDomain, StarknetDomain)
+    TypedDict representing a domain object (both StarkNetDomain, StarknetDomain).
     """
 
     name: str
