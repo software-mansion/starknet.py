@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from typing import Dict, List, Optional, Union, cast
 
 from marshmallow import Schema, fields, post_load
@@ -93,12 +93,10 @@ class Domain:
 
         :return: Domain dictionary.
         """
-        return {
-            "name": self.name,
-            "version": self.version,
-            "chainId": self.chain_id,
-            "revision": self.revision,
-        }
+        domain_dict = asdict(self)
+        # Rename chain_id to chainId when converting to dictionary
+        domain_dict["chainId"] = domain_dict.pop("chain_id")
+        return domain_dict
 
 
 @dataclass(frozen=True)
