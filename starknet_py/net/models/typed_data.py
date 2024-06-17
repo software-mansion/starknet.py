@@ -26,13 +26,13 @@ class Revision(Enum):
 
 class Domain(TypedDict):
     """
-    TypedDict representing a StarkNetDomain object
+    TypedDict representing a domain object (both StarkNetDomain, StarknetDomain)
     """
 
     name: str
     version: str
     chainId: Union[str, int]
-    revision: Optional[Revision]
+    revision: Optional[Union[str, int]]
 
 
 class TypedData(TypedDict):
