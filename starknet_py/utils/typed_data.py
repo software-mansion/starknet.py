@@ -216,14 +216,6 @@ def is_pointer(value: str) -> bool:
     return len(value) > 0 and value[-1] == "*"
 
 
-def is_array(value: str) -> bool:
-    return value.endswith("*")
-
-
-def is_enum(value: str) -> bool:
-    return value.startswith("(") and value.endswith(")")
-
-
 def strip_pointer(value: str) -> str:
     if is_pointer(value):
         return value[:-1]
