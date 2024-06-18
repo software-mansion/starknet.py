@@ -192,10 +192,9 @@ class TypedData:
         :param account_address: Address of an account.
         :return: Hash of the message.
         """
-        separator_name = self.domain.separator_name
         message = [
             encode_shortstring("StarkNet Message"),
-            self.struct_hash(separator_name, self.domain.to_dict()),
+            self.struct_hash(self.domain.separator_name, self.domain.to_dict()),
             account_address,
             self.struct_hash(self.primary_type, self.message),
         ]
