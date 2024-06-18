@@ -23,38 +23,6 @@ class Parameter:
     type: str
 
 
-class BasicType:
-    V0 = [
-        "felt",
-        "bool",
-        "selector",
-        "merkletree",
-        "string",
-    ]
-    V1 = [
-        "felt",
-        "bool",
-        "selector",
-        "merkletree",
-        "string",
-        "enum",
-        "i128",
-        "u128",
-        "ContractAddress",
-        "ClassHash",
-        "timestamp",
-        "shortstring",
-    ]
-
-    @staticmethod
-    def get_by_revision(revision: Revision) -> List[str]:
-        return BasicType.V0 if revision is Revision.V0 else BasicType.V1
-
-
-class PresetType:
-    V1 = ["u256", "TokenAmount", "NftId"]
-
-
 @dataclass
 class Domain:
     """
@@ -156,36 +124,11 @@ class TypedData:
         return values
 
     def _verify_types(self):
-        separator_name = self.domain.separator_name
-        if separator_name not in self.types:
-            raise ValueError(f"Types must contain {separator_name}.")
+        reserved_type_names = ["felt", "felt*", "string", "selector"]
 
-        for basic_type in BasicType.get_by_revision(self.domain.resolved_revision):
-            if basic_type in self.types:
-                raise ValueError(
-                    f"Types must not contain basic types. [{basic_type}] was found."
-                )
-
-        for preset_type in PresetType.V1:
-            if preset_type in self.types:
-                raise ValueError(
-                    f"Types must not contain preset types. [{preset_type}] was found."
-                )
-
-        for key in self.types.keys():
-            if not key:
-                raise ValueError("Type names cannot be empty.")
-            if is_array(key):
-                raise ValueError(f"Type names cannot end in *. [{key}] was found.")
-            if is_enum(key):
-                raise ValueError(
-                    f"Type names cannot be enclosed in parentheses. [{key}] was found."
-                )
-
-            if "," in key:
-                raise ValueError(
-                    f"Type names cannot contain commas. [{key}] was found."
-                )
+        for type_name in reserved_type_names:
+            if type_name in self.types:
+                raise ValueError(f"Reserved type name: {type_name}")
 
     def _get_dependencies(self, type_name: str) -> List[str]:
         if type_name not in self.types:
