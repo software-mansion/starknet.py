@@ -32,7 +32,7 @@ class Domain:
     name: str
     version: str
     chain_id: Union[str, int]
-    revision: Optional[Union[str, int]] = None
+    revision: Optional[Revision] = None
 
     def __post_init__(self):
         self.resolved_revision = (

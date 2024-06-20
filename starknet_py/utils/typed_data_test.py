@@ -159,7 +159,7 @@ domain_v1 = Domain(
     name="DomainV1",
     version="1",
     chain_id="1234",
-    revision=1,
+    revision=Revision.V1,
 )
 
 domain_object_v1 = {
