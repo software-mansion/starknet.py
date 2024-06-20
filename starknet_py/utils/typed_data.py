@@ -6,8 +6,7 @@ from marshmallow import Schema, fields, post_load
 from starknet_py.cairo.felt import encode_shortstring
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.utils import compute_hash_on_elements
-from starknet_py.net.models.typed_data import StarkNetDomain
-from starknet_py.net.models.typed_data import TypedData as TypedDataDict
+from starknet_py.net.models.typed_data import StarkNetDomainDict, TypedDataDict
 
 
 @dataclass(frozen=True)
@@ -28,7 +27,7 @@ class TypedData:
 
     types: Dict[str, List[Parameter]]
     primary_type: str
-    domain: StarkNetDomain
+    domain: StarkNetDomainDict
     message: dict
 
     @staticmethod
