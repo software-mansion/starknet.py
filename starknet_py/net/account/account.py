@@ -593,7 +593,7 @@ class Account(BaseAccount):
     def verify_message(
         self, typed_data: Union[TypedData, TypedDataDict], signature: List[int]
     ) -> bool:
-        if isinstance(typed_data, TypedDataDict):
+        if not isinstance(typed_data, TypedData):
             typed_data = TypedData.from_dict(typed_data)
         message_hash = typed_data.message_hash(account_address=self.address)
         return verify_message_signature(message_hash, signature, self.signer.public_key)
