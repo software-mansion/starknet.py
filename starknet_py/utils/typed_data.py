@@ -271,5 +271,5 @@ class DomainSchema(Schema):
             name=data["name"],
             version=data["version"],
             chain_id=data["chain_id"],
-            revision=data.get("revision"),
+            revision=data["revision"],
         )
