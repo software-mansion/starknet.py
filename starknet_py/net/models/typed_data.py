@@ -3,7 +3,7 @@ TypedDict structures for TypedData
 """
 
 from enum import Enum
-from typing import Any, Dict, List, TypedDict, Union, Optional
+from typing import Any, Dict, List, Optional, TypedDict, Union
 
 
 class Parameter(TypedDict):
