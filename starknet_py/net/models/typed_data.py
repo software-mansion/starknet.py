@@ -1,7 +1,6 @@
 """
 TypedDict structures for TypedData
 """
-
 from enum import Enum
 from typing import Any, Dict, List, Optional, TypedDict, Union
 
@@ -45,3 +44,8 @@ class TypedData(TypedDict):
     primaryType: str
     domain: Domain
     message: Dict[str, Any]
+
+
+class TypeContext(TypedDict):
+    parent: str
+    key: str

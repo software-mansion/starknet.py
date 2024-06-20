@@ -1,4 +1,8 @@
+# pylint: disable=unused-argument
+# pylint: disable=no-self-use
+
 from dataclasses import asdict, dataclass
+from enum import Enum
 from typing import Dict, List, Optional, Union, cast
 
 from marshmallow import Schema, fields, post_load
@@ -7,10 +11,12 @@ from starknet_py.cairo.felt import encode_shortstring
 from starknet_py.hash.hash_method import HashMethod
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.utils import compute_hash_on_elements
+from starknet_py.net.client_utils import _to_rpc_felt
 from starknet_py.net.models.typed_data import Domain as DomainDict
 from starknet_py.net.models.typed_data import Revision
 from starknet_py.net.models.typed_data import TypedData as TypedDataDict
 from starknet_py.net.schemas.common import ChainIdField, RevisionField
+from starknet_py.utils.merkle_tree import MerkleTree
 
 
 @dataclass(frozen=True)
@@ -69,6 +75,16 @@ class Domain:
 
 
 @dataclass(frozen=True)
+class TypeContext:
+    """
+    Dataclass representing a Context object
+    """
+
+    parent: str
+    key: str
+
+
+@dataclass(frozen=True)
 class TypedData:
     """
     Dataclass representing a TypedData object
@@ -100,32 +116,53 @@ class TypedData:
     def _is_struct(self, type_name: str) -> bool:
         return type_name in self.types
 
-    def _encode_value(self, type_name: str, value: Union[int, str, dict, list]) -> int:
-        if is_pointer(type_name) and isinstance(value, list):
-            type_name = strip_pointer(type_name)
-
-            if self._is_struct(type_name):
-                return compute_hash_on_elements(
-                    [self.struct_hash(type_name, data) for data in value]
-                )
-            return compute_hash_on_elements([int(get_hex(val), 16) for val in value])
-
-        if self._is_struct(type_name) and isinstance(value, dict):
+    def _encode_value(
+        self,
+        type_name: str,
+        value: Union[int, str, dict, list],
+        context: Optional[TypeContext] = None,
+    ) -> int:
+        if type_name in self.types and isinstance(value, dict):
             return self.struct_hash(type_name, value)
 
-        value = cast(Union[int, str], value)
-        return int(get_hex(value), 16)
+        if is_pointer(type_name) and isinstance(value, list):
+            type_name = strip_pointer(type_name)
+            hashes = [self._encode_value(type_name, val) for val in value]
+            return compute_hash_on_elements(hashes)
+
+        basic_type = BasicType(type_name)
+
+        if basic_type == BasicType.MERKLE_TREE and isinstance(value, list):
+            if context is None:
+                raise ValueError(f"Context is not provided for '{type_name}' type.")
+            return int(self._prepare_merkle_tree_root(value, context), 16)
+
+        if basic_type in (BasicType.FELT, BasicType.SHORT_STRING) and isinstance(
+            value, (int, str)
+        ):
+            return int(get_hex(value), 16)
+
+        if basic_type == BasicType.SELECTOR and isinstance(value, str):
+            return prepare_selector(value)
+
+        raise ValueError(
+            f"Error occurred while encoding value with type name {type_name}."
+        )
 
     def _encode_data(self, type_name: str, data: dict) -> List[int]:
         values = []
         for param in self.types[type_name]:
-            encoded_value = self._encode_value(param.type, data[param.name])
+            encoded_value = self._encode_value(
+                param.type,
+                data[param.name],
+                TypeContext(parent=type_name, key=param.name),
+            )
             values.append(encoded_value)
 
         return values
 
     def _verify_types(self):
-        reserved_type_names = ["felt", "felt*", "string", "selector"]
+        reserved_type_names = ["felt", "felt*", "string", "selector", "merkletree"]
 
         for type_name in reserved_type_names:
             if type_name in self.types:
@@ -182,7 +219,7 @@ class TypedData:
         :param data: Data defining the struct.
         :return: Hash of the struct.
         """
-        return self._hash_method().hash(
+        return self._hash_method().hash_many(
             [self.type_hash(type_name), *self._encode_data(type_name, data)]
         )
 
@@ -201,7 +238,40 @@ class TypedData:
             self.struct_hash(self.primary_type, self.message),
         ]
 
-        return self._hash_method().hash(message)
+        return self._hash_method().hash_many(message)
+
+    def _prepare_merkle_tree_root(self, value: List, context: TypeContext) -> str:
+        merkle_tree_type = self._get_merkle_tree_leaves_type(context)
+        struct_hashes = list(
+            map(lambda struct: self._encode_value(merkle_tree_type, struct), value)
+        )
+        struct_hashes = list(map(_to_rpc_felt, struct_hashes))
+
+        return MerkleTree(struct_hashes, self._hash_method()).root_hash
+
+    def _get_merkle_tree_leaves_type(self, context: TypeContext) -> str:
+        parent, key = context.parent, context.key
+
+        if parent not in self.types:
+            raise ValueError(f"Parent {parent} is not defined in types.")
+
+        parent_type = self.types[parent]
+
+        # target_type = next((item for item in parent_type if item.type == key), None)
+        target_type = None
+        for item in parent_type:
+            if item.name == key:
+                target_type = item
+                break
+        if target_type is None:
+            raise ValueError(
+                f"Key {key} is not defined in type {parent} or multiple definitions are present."
+            )
+
+        if not target_type.contains:
+            raise ValueError("Missing 'contains' field in target type.")
+
+        return target_type.contains
 
 
 def get_hex(value: Union[int, str]) -> str:
@@ -238,8 +308,18 @@ def escape(s: str, revision: Revision) -> str:
     return f'"{s}"'
 
 
-# pylint: disable=unused-argument
-# pylint: disable=no-self-use
+def prepare_selector(name: str) -> int:
+    try:
+        return int(_to_rpc_felt(name), 16)
+    except ValueError:
+        return get_selector_from_name(name)
+
+
+class BasicType(Enum):
+    FELT = "felt"
+    SELECTOR = "selector"
+    MERKLE_TREE = "merkletree"
+    SHORT_STRING = "shortstring"
 
 
 class ParameterSchema(Schema):
