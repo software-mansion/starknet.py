@@ -9,8 +9,8 @@ from starknet_py.net.account.account import Account
 from starknet_py.net.client_models import Call
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models import StarknetChainId
+from starknet_py.net.models.typed_data import TypedData
 from starknet_py.net.signer.stark_curve_signer import KeyPair
-from starknet_py.utils.typed_data import Parameter, TypedData
 
 
 def test_init():
@@ -69,15 +69,15 @@ def test_sign_message(account):
         typed_data=TypedData(
             types={
                 "StarkNetDomain": [
-                    Parameter(name="name", type="felt"),
-                    Parameter(name="version", type="felt"),
-                    Parameter(name="chainId", type="felt"),
+                    {"name": "name", "type": "felt"},
+                    {"name": "version", "type": "felt"},
+                    {"name": "chainId", "type": "felt"},
                 ],
                 "Example": [
-                    Parameter(name="value", type="felt"),
+                    {"name": "value", "type": "felt"},
                 ],
             },
-            primary_type="Example",
+            primaryType="Example",
             domain={"name": "StarkNet Example", "version": "1", "chainId": 1},
             message={"value": 1},
         )
@@ -91,15 +91,15 @@ def test_verify_message(account):
         typed_data=TypedData(
             types={
                 "StarkNetDomain": [
-                    Parameter(name="name", type="felt"),
-                    Parameter(name="version", type="felt"),
-                    Parameter(name="chainId", type="felt"),
+                    {"name": "name", "type": "felt"},
+                    {"name": "version", "type": "felt"},
+                    {"name": "chainId", "type": "felt"},
                 ],
                 "Example": [
-                    Parameter(name="value", type="felt"),
+                    {"name": "value", "type": "felt"},
                 ],
             },
-            primary_type="Example",
+            primaryType="Example",
             domain={"name": "StarkNet Example", "version": "1", "chainId": 1},
             message={"value": 1},
         ),
