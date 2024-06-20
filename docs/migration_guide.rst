@@ -18,8 +18,6 @@ Migration guide
 
 2. :class:`TypedData` field ``domain`` has been changed from ``dict`` to :class:`Domain`
 
-3. :meth:`Account.sign_message`, :meth:`Account.verify_message` accepts ``typed_data`` parameter of the type :class:`TypedData` dataclass instead of typed dict
-
 ******************************
 0.22.0 Migration guide
 ******************************
