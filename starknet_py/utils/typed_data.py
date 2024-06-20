@@ -112,10 +112,10 @@ class TypedData:
         return type_name in self.types
 
     def _encode_value(
-            self,
-            type_name: str,
-            value: Union[int, str, dict, list],
-            context: Optional[TypeContext] = None,
+        self,
+        type_name: str,
+        value: Union[int, str, dict, list],
+        context: Optional[TypeContext] = None,
     ) -> int:
         if type_name in self.types and isinstance(value, dict):
             return self.struct_hash(type_name, value)
@@ -133,7 +133,7 @@ class TypedData:
             return int(self._prepare_merkle_tree_root(value, context), 16)
 
         if basic_type in (BasicType.FELT, BasicType.SHORT_STRING) and isinstance(
-                value, (int, str)
+            value, (int, str)
         ):
             return int(get_hex(value), 16)
 
