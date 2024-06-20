@@ -81,6 +81,7 @@ class TypedData:
     def __post_init__(self):
         self._verify_types()
 
+    @property
     def _hash_method(self) -> HashMethod:
         if self.domain.resolved_revision is Revision.V0:
             return HashMethod.PEDERSEN
@@ -181,7 +182,7 @@ class TypedData:
         :param data: Data defining the struct.
         :return: Hash of the struct.
         """
-        return self._hash_method().hash(
+        return self._hash_method.hash(
             [self.type_hash(type_name), *self._encode_data(type_name, data)]
         )
 
@@ -199,7 +200,7 @@ class TypedData:
             self.struct_hash(self.primary_type, self.message),
         ]
 
-        return self._hash_method().hash(message)
+        return self._hash_method.hash(message)
 
 
 def get_hex(value: Union[int, str]) -> str:
