@@ -1,0 +1,29 @@
+{
+    "primaryType": "Example",
+    "types": {
+        "Example": [
+            { "name": "value", "type": "felt" },
+            { "name": "root", "type": "merkletree", "contains": "felt" }
+        ],
+        "StarknetDomain": [
+            { "name": "name", "type": "shortstring" },
+            { "name": "version", "type": "shortstring" },
+            { "name": "chainId", "type": "shortstring" },
+            { "name": "revision", "type": "shortstring" }
+        ]
+    },
+    "domain": {
+        "name": "StarkNet Mail",
+        "version": "1",
+        "chainId": "1",
+        "revision": "1"
+    },
+    "message": {
+        "value": "0x2137",
+        "root": [
+            "0x1",
+            "0x2",
+            "0x3"
+        ]
+    }
+}
