@@ -41,7 +41,7 @@ class Domain:
         self.separator_name = self._resolve_separator_name()
 
     def _resolve_separator_name(self):
-        if self.resolved_revision is Revision.V0:
+        if self.resolved_revision == Revision.V0:
             return "StarkNetDomain"
         return "StarknetDomain"
 
@@ -83,7 +83,7 @@ class TypedData:
 
     @property
     def _hash_method(self) -> HashMethod:
-        if self.domain.resolved_revision is Revision.V0:
+        if self.domain.resolved_revision == Revision.V0:
             return HashMethod.PEDERSEN
         return HashMethod.POSEIDON
 
@@ -232,7 +232,7 @@ def strip_pointer(value: str) -> str:
 
 
 def escape(s: str, revision: Revision) -> str:
-    if revision is Revision.V0:
+    if revision == Revision.V0:
         return s
     return f'"{s}"'
 

@@ -3,7 +3,7 @@ TypedDict structures for TypedData
 """
 
 from enum import Enum
-from typing import Any, Dict, List, Optional, TypedDict, Union
+from typing import Any, Dict, List, TypedDict, Union
 
 
 class Parameter(TypedDict):
@@ -32,7 +32,7 @@ class Domain(TypedDict):
     name: str
     version: str
     chainId: Union[str, int]
-    revision: Optional[Union[str, int]]
+    revision: Revision
 
 
 class TypedData(TypedDict):

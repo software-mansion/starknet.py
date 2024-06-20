@@ -171,7 +171,7 @@ domain_object_v1 = {
 
 
 def _make_typed_data(included_type: str, revision: Revision):
-    domain_type, domain = (domain_type_v0, domain_v0) if revision is Revision.V0 else (
+    domain_type, domain = (domain_type_v0, domain_v0) if revision == Revision.V0 else (
         domain_type_v1, domain_v1)
 
     types = {**domain_type, included_type: []}
