@@ -2,6 +2,25 @@ Migration guide
 ===============
 
 ******************************
+0.23.0 Migration guide
+******************************
+
+0.23.0 Targeted versions
+------------------------
+
+- Starknet - `0.13.1.1 <https://docs.starknet.io/documentation/starknet_versions/version_notes/#version0.13.1.1>`_
+- RPC - `0.7.1 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.7.1>`_
+
+0.23.0 Breaking changes
+-----------------------
+
+1. :class:`StarkNetDomain` has been renamed to :class:`Domain`
+
+2. :class:`TypedData` field ``domain`` has been changed from ``dict`` to :class:`Domain`
+
+3. :meth:`Account.sign_message`, :meth:`Account.verify_message` accepts ``typed_data`` parameter of the type :class:`TypedData` dataclass instead of typed dict
+
+******************************
 0.22.0 Migration guide
 ******************************
 
