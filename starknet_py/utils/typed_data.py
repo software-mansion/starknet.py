@@ -1,7 +1,4 @@
-# pylint: disable=unused-argument
-# pylint: disable=no-self-use
-
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from enum import Enum
 from typing import Dict, List, Optional, Union, cast
 
@@ -39,7 +36,7 @@ class Domain:
     name: str
     version: str
     chain_id: Union[str, int]
-    revision: Optional[Union[str, int]] = None
+    revision: Optional[Revision] = None
 
     def __post_init__(self):
         self.resolved_revision = (
@@ -48,7 +45,7 @@ class Domain:
         self.separator_name = self._resolve_separator_name()
 
     def _resolve_separator_name(self):
-        if self.resolved_revision is Revision.V0:
+        if self.resolved_revision == Revision.V0:
             return "StarkNetDomain"
         return "StarknetDomain"
 
@@ -68,10 +65,7 @@ class Domain:
 
         :return: Domain dictionary.
         """
-        domain_dict = asdict(self)
-        # Rename chain_id to chainId when converting to dictionary
-        domain_dict["chainId"] = domain_dict.pop("chain_id")
-        return domain_dict
+        return cast(Dict, DomainSchema().dump(obj=self))
 
 
 @dataclass(frozen=True)
@@ -98,8 +92,9 @@ class TypedData:
     def __post_init__(self):
         self._verify_types()
 
+    @property
     def _hash_method(self) -> HashMethod:
-        if self.domain.resolved_revision is Revision.V0:
+        if self.domain.resolved_revision == Revision.V0:
             return HashMethod.PEDERSEN
         return HashMethod.POSEIDON
 
@@ -117,10 +112,10 @@ class TypedData:
         return type_name in self.types
 
     def _encode_value(
-        self,
-        type_name: str,
-        value: Union[int, str, dict, list],
-        context: Optional[TypeContext] = None,
+            self,
+            type_name: str,
+            value: Union[int, str, dict, list],
+            context: Optional[TypeContext] = None,
     ) -> int:
         if type_name in self.types and isinstance(value, dict):
             return self.struct_hash(type_name, value)
@@ -138,7 +133,7 @@ class TypedData:
             return int(self._prepare_merkle_tree_root(value, context), 16)
 
         if basic_type in (BasicType.FELT, BasicType.SHORT_STRING) and isinstance(
-            value, (int, str)
+                value, (int, str)
         ):
             return int(get_hex(value), 16)
 
@@ -219,7 +214,7 @@ class TypedData:
         :param data: Data defining the struct.
         :return: Hash of the struct.
         """
-        return self._hash_method().hash_many(
+        return self._hash_method.hash_many(
             [self.type_hash(type_name), *self._encode_data(type_name, data)]
         )
 
@@ -230,15 +225,14 @@ class TypedData:
         :param account_address: Address of an account.
         :return: Hash of the message.
         """
-        separator_name = self.domain.separator_name
         message = [
             encode_shortstring("StarkNet Message"),
-            self.struct_hash(separator_name, self.domain.to_dict()),
+            self.struct_hash(self.domain.separator_name, self.domain.to_dict()),
             account_address,
             self.struct_hash(self.primary_type, self.message),
         ]
 
-        return self._hash_method().hash_many(message)
+        return self._hash_method.hash_many(message)
 
     def _prepare_merkle_tree_root(self, value: List, context: TypeContext) -> str:
         merkle_tree_type = self._get_merkle_tree_leaves_type(context)
@@ -247,7 +241,7 @@ class TypedData:
         )
         struct_hashes = list(map(_to_rpc_felt, struct_hashes))
 
-        return MerkleTree(struct_hashes, self._hash_method()).root_hash
+        return MerkleTree(struct_hashes, self._hash_method).root_hash
 
     def _get_merkle_tree_leaves_type(self, context: TypeContext) -> str:
         parent, key = context.parent, context.key
@@ -288,14 +282,6 @@ def is_pointer(value: str) -> bool:
     return len(value) > 0 and value[-1] == "*"
 
 
-def is_array(value: str) -> bool:
-    return value.endswith("*")
-
-
-def is_enum(value: str) -> bool:
-    return value.startswith("(") and value.endswith(")")
-
-
 def strip_pointer(value: str) -> str:
     if is_pointer(value):
         return value[:-1]
@@ -303,7 +289,7 @@ def strip_pointer(value: str) -> str:
 
 
 def escape(s: str, revision: Revision) -> str:
-    if revision is Revision.V0:
+    if revision == Revision.V0:
         return s
     return f'"{s}"'
 
@@ -328,7 +314,7 @@ class ParameterSchema(Schema):
     contains = fields.String(data_key="contains", required=False)
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> Parameter:
+    def make_dataclass(self, data) -> Parameter:
         return Parameter(**data)
 
 
@@ -343,7 +329,7 @@ class TypedDataSchema(Schema):
     message = fields.Dict(data_key="message", required=True)
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> TypedData:
+    def make_dataclass(self, data) -> TypedData:
         return TypedData(
             types=data["types"],
             primary_type=data["primary_type"],
@@ -359,7 +345,7 @@ class DomainSchema(Schema):
     revision = RevisionField(data_key="revision", required=False)
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> Domain:
+    def make_dataclass(self, data) -> Domain:
         return Domain(
             name=data["name"],
             version=data["version"],

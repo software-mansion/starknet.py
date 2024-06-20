@@ -32,7 +32,7 @@ class Domain(TypedDict):
     name: str
     version: str
     chainId: Union[str, int]
-    revision: Optional[Union[str, int]]
+    revision: Optional[Revision]
 
 
 class TypedData(TypedDict):
