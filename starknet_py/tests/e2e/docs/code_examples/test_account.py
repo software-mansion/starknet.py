@@ -64,7 +64,6 @@ async def test_get_balance(account):
 
 
 def test_sign_message_rev_v0(account):
-    # docs-start: sign_message
     signature = account.sign_message(
         typed_data=TypedData(
             types={
@@ -82,11 +81,9 @@ def test_sign_message_rev_v0(account):
             message={"value": 1},
         )
     )
-    # docs-end: sign_message
 
 
 def test_verify_message_rev_v0(account):
-    # docs-start: verify_message
     is_correct = account.verify_message(
         typed_data=TypedData(
             types={
@@ -105,7 +102,6 @@ def test_verify_message_rev_v0(account):
         ),
         signature=[12, 34],
     )
-    # docs-end: verify_message
 
 
 def test_sign_message_rev_v1(account):
