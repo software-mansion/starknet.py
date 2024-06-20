@@ -63,48 +63,7 @@ async def test_get_balance(account):
     # docs-end: get_balance
 
 
-def test_sign_message_rev_v0(account):
-    signature = account.sign_message(
-        typed_data=TypedData(
-            types={
-                "StarkNetDomain": [
-                    {"name": "name", "type": "felt"},
-                    {"name": "version", "type": "felt"},
-                    {"name": "chainId", "type": "felt"},
-                ],
-                "Example": [
-                    {"name": "value", "type": "felt"},
-                ],
-            },
-            primaryType="Example",
-            domain={"name": "StarkNet Example", "version": "1", "chainId": 1},
-            message={"value": 1},
-        )
-    )
-
-
-def test_verify_message_rev_v0(account):
-    is_correct = account.verify_message(
-        typed_data=TypedData(
-            types={
-                "StarkNetDomain": [
-                    {"name": "name", "type": "felt"},
-                    {"name": "version", "type": "felt"},
-                    {"name": "chainId", "type": "felt"},
-                ],
-                "Example": [
-                    {"name": "value", "type": "felt"},
-                ],
-            },
-            primaryType="Example",
-            domain={"name": "StarkNet Example", "version": "1", "chainId": 1},
-            message={"value": 1},
-        ),
-        signature=[12, 34],
-    )
-
-
-def test_sign_message_rev_v1(account):
+def test_sign_message(account):
     # docs-start: sign_message
     signature = account.sign_message(
         typed_data=TypedData(
@@ -131,7 +90,7 @@ def test_sign_message_rev_v1(account):
     # docs-end: sign_message
 
 
-def test_verify_message_rev_v1(account):
+def test_verify_message(account):
     # docs-start: verify_message
     is_correct = account.verify_message(
         typed_data=TypedData(
