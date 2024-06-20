@@ -21,6 +21,7 @@ class Parameter:
 
     name: str
     type: str
+    contains: Optional[str] = None
 
 
 @dataclass
@@ -244,6 +245,7 @@ def escape(s: str, revision: Revision) -> str:
 class ParameterSchema(Schema):
     name = fields.String(data_key="name", required=True)
     type = fields.String(data_key="type", required=True)
+    contains = fields.String(data_key="contains", required=False)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> Parameter:

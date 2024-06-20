@@ -13,6 +13,7 @@ class Parameter(TypedDict):
 
     name: str
     type: str
+    contains: Optional[str]
 
 
 class Revision(Enum):
