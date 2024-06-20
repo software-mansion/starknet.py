@@ -20,6 +20,6 @@ Parameter
 StarkNetDomain
 --------------
 
-.. autoclass:: starknet_py.net.models.typed_data.StarkNetDomain
+.. autoclass:: starknet_py.net.models.typed_data.StarkNetDomainDict
     :members:
     :undoc-members:
