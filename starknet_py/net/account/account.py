@@ -36,7 +36,6 @@ from starknet_py.net.models.transaction import (
     InvokeV3,
     TypeAccountTransaction,
 )
-from starknet_py.net.models.typed_data import TypedData
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 from starknet_py.serialization.data_serializers.array_serializer import ArraySerializer
@@ -49,7 +48,7 @@ from starknet_py.serialization.data_serializers.struct_serializer import (
 )
 from starknet_py.utils.iterable import ensure_iterable
 from starknet_py.utils.sync import add_sync_methods
-from starknet_py.utils.typed_data import TypedData as TypedDataDataclass
+from starknet_py.utils.typed_data import TypedData
 
 
 @add_sync_methods
@@ -585,12 +584,10 @@ class Account(BaseAccount):
         return await self._client.send_transaction(execute_transaction)
 
     def sign_message(self, typed_data: TypedData) -> List[int]:
-        typed_data_dataclass = TypedDataDataclass.from_dict(typed_data)
-        return self.signer.sign_message(typed_data_dataclass, self.address)
+        return self.signer.sign_message(typed_data, self.address)
 
     def verify_message(self, typed_data: TypedData, signature: List[int]) -> bool:
-        typed_data_dataclass = TypedDataDataclass.from_dict(typed_data)
-        message_hash = typed_data_dataclass.message_hash(account_address=self.address)
+        message_hash = typed_data.message_hash(account_address=self.address)
         return verify_message_signature(message_hash, signature, self.signer.public_key)
 
     @staticmethod

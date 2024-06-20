@@ -9,8 +9,9 @@ from starknet_py.net.account.account import Account
 from starknet_py.net.client_models import Call
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models import StarknetChainId
-from starknet_py.net.models.typed_data import TypedData
+from starknet_py.net.models.typed_data import Revision
 from starknet_py.net.signer.stark_curve_signer import KeyPair
+from starknet_py.utils.typed_data import Domain, Parameter, TypedData
 
 
 def test_init():
@@ -65,25 +66,35 @@ async def test_get_balance(account):
 
 def test_sign_message(account):
     # docs-start: sign_message
+
     signature = account.sign_message(
         typed_data=TypedData(
             types={
                 "StarknetDomain": [
-                    {"name": "name", "type": "shortstring"},
-                    {"name": "version", "type": "shortstring"},
-                    {"name": "chainId", "type": "shortstring"},
+                    Parameter(
+                        name="name",
+                        type="shortstring",
+                    ),
+                    Parameter(
+                        name="version",
+                        type="shortstring",
+                    ),
+                    Parameter(
+                        name="chainId",
+                        type="shortstring",
+                    ),
                 ],
                 "Example": [
-                    {"name": "value", "type": "felt"},
+                    Parameter(
+                        name="value",
+                        type="felt",
+                    ),
                 ],
             },
-            primaryType="Example",
-            domain={
-                "name": "Starknet Example",
-                "version": "1",
-                "chainId": 1,
-                "revision": 1,
-            },
+            primary_type="Example",
+            domain=Domain(
+                name="Starknet Example", version="1", chain_id=1, revision=Revision.V1
+            ),
             message={"value": 1},
         )
     )
@@ -96,22 +107,37 @@ def test_verify_message(account):
         typed_data=TypedData(
             types={
                 "StarknetDomain": [
-                    {"name": "name", "type": "shortstring"},
-                    {"name": "version", "type": "shortstring"},
-                    {"name": "chainId", "type": "shortstring"},
-                    {"name": "revision", "type": "shortstring"},
+                    Parameter(
+                        name="name",
+                        type="shortstring",
+                    ),
+                    Parameter(
+                        name="version",
+                        type="shortstring",
+                    ),
+                    Parameter(
+                        name="chainId",
+                        type="shortstring",
+                    ),
+                    Parameter(
+                        name="revision",
+                        type="shortstring",
+                    ),
                 ],
                 "Example": [
-                    {"name": "value", "type": "felt"},
+                    Parameter(
+                        name="value",
+                        type="felt",
+                    ),
                 ],
             },
-            primaryType="Example",
-            domain={
-                "name": "Starknet Example",
-                "version": "1",
-                "chainId": 1,
-                "revision": 1,
-            },
+            primary_type="Example",
+            domain=Domain(
+                name="Starknet Example",
+                version="1",
+                chain_id=1,
+                revision=1,
+            ),
             message={"value": 1},
         ),
         signature=[12, 34],
