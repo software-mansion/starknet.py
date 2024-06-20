@@ -61,10 +61,7 @@ class Domain:
 
         :return: Domain dictionary.
         """
-        domain_dict = asdict(self)
-        # Rename chain_id to chainId when converting to dictionary
-        domain_dict["chainId"] = domain_dict.pop("chain_id")
-        return domain_dict
+        return cast(Dict, DomainSchema().dump(obj=self))
 
 
 @dataclass(frozen=True)
