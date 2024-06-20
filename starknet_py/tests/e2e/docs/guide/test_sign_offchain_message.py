@@ -1,7 +1,5 @@
 import pytest
 
-from starknet_py.utils.typed_data import Domain, Parameter
-
 
 @pytest.mark.asyncio
 async def test_sign_offchain_message(account):
@@ -14,27 +12,27 @@ async def test_sign_offchain_message(account):
     from starknet_py.net.signer.stark_curve_signer import KeyPair
     from starknet_py.utils.typed_data import TypedData
 
-    # Create a TypedData dataclass instance
-    typed_data = TypedData(
-        types={
+    # Create a TypedData dictionary
+    typed_data = {
+        "types": {
             "StarkNetDomain": [
-                Parameter(name="name", type="felt"),
-                Parameter(name="version", type="felt"),
-                Parameter(name="chainId", type="felt"),
+                {"name": "name", "type": "felt"},
+                {"name": "version", "type": "felt"},
+                {"name": "chainId", "type": "felt"},
             ],
             "Person": [
-                Parameter(name="name", type="felt"),
-                Parameter(name="wallet", type="felt"),
+                {"name": "name", "type": "felt"},
+                {"name": "wallet", "type": "felt"},
             ],
             "Mail": [
-                Parameter(name="from", type="Person"),
-                Parameter(name="to", type="Person"),
-                Parameter(name="contents", type="felt"),
+                {"name": "from", "type": "Person"},
+                {"name": "to", "type": "Person"},
+                {"name": "contents", "type": "felt"},
             ],
         },
-        primary_type="Mail",
-        domain=Domain(name="StarkNet Mail", version="1", chain_id=1),
-        message={
+        "primaryType": "Mail",
+        "domain": {"name": "StarkNet Mail", "version": "1", "chainId": 1},
+        "message": {
             "from": {
                 "name": "Cow",
                 "wallet": "0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826",
@@ -45,7 +43,7 @@ async def test_sign_offchain_message(account):
             },
             "contents": "Hello, Bob!",
         },
-    )
+    }
     # docs: end
 
     # save account fixture
@@ -75,7 +73,8 @@ async def test_sign_offchain_message(account):
     verify_result = account.verify_message(typed_data=typed_data, signature=signature)
 
     # Or if just a message hash is needed
-    message_hash = typed_data.message_hash(account.address)
+    data = TypedData.from_dict(typed_data)
+    message_hash = data.message_hash(account.address)
 
     # docs: end
 
