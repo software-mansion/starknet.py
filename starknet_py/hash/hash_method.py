@@ -14,16 +14,16 @@ class HashMethod(Enum):
     PEDERSEN = "pedersen"
     POSEIDON = "poseidon"
 
-    def hash_many(self, values: List[int]):
-        if self == HashMethod.PEDERSEN:
-            return compute_hash_on_elements(values)
-        if self == HashMethod.POSEIDON:
-            return poseidon_hash_many(values)
-        raise ValueError(f"Unsupported hash method: {self}.")
-
     def hash(self, left: int, right: int):
         if self == HashMethod.PEDERSEN:
             return pedersen_hash(left, right)
         if self == HashMethod.POSEIDON:
             return poseidon_hash(left, right)
+        raise ValueError(f"Unsupported hash method: {self}.")
+
+    def hash_many(self, values: List[int]):
+        if self == HashMethod.PEDERSEN:
+            return compute_hash_on_elements(values)
+        if self == HashMethod.POSEIDON:
+            return poseidon_hash_many(values)
         raise ValueError(f"Unsupported hash method: {self}.")
