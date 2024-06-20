@@ -5,7 +5,7 @@ TypedDict structures for TypedData
 from typing import Any, Dict, List, TypedDict, Union
 
 
-class Parameter(TypedDict):
+class ParameterDict(TypedDict):
     """
     TypedDict representing a Parameter object
     """
@@ -14,7 +14,7 @@ class Parameter(TypedDict):
     type: str
 
 
-class StarkNetDomain(TypedDict):
+class StarkNetDomainDict(TypedDict):
     """
     TypedDict representing a StarkNetDomain object
     """
@@ -24,12 +24,12 @@ class StarkNetDomain(TypedDict):
     chainId: Union[str, int]
 
 
-class TypedData(TypedDict):
+class TypedDataDict(TypedDict):
     """
     TypedDict representing a TypedData object
     """
 
-    types: Dict[str, List[Parameter]]
+    types: Dict[str, List[ParameterDict]]
     primaryType: str
-    domain: StarkNetDomain
+    domain: StarkNetDomainDict
     message: Dict[str, Any]
