@@ -23,6 +23,10 @@ class Revision(Enum):
     V0 = 0
     V1 = 1
 
+    @classmethod
+    def _missing_(cls, value):
+        raise ValueError("Allowed revision values are 0 and 1.")
+
 
 class DomainDict(TypedDict):
     """
