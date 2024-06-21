@@ -316,7 +316,7 @@ class ParameterSchema(Schema):
     contains = fields.String(data_key="contains", required=False)
 
     @post_load
-    def make_dataclass(self, data) -> Parameter:
+    def make_dataclass(self, data, **kwargs) -> Parameter:
         return Parameter(**data)
 
 
@@ -331,7 +331,7 @@ class TypedDataSchema(Schema):
     message = fields.Dict(data_key="message", required=True)
 
     @post_load
-    def make_dataclass(self, data) -> TypedData:
+    def make_dataclass(self, data, **kwargs) -> TypedData:
         return TypedData(
             types=data["types"],
             primary_type=data["primary_type"],
@@ -347,7 +347,7 @@ class DomainSchema(Schema):
     revision = RevisionField(data_key="revision", required=False)
 
     @post_load
-    def make_dataclass(self, data) -> Domain:
+    def make_dataclass(self, data, **kwargs) -> Domain:
         return Domain(
             name=data["name"],
             version=data["version"],
