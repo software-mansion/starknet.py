@@ -340,7 +340,7 @@ class StorageEntrySchema(Schema):
 
 
 class ChainIdField(fields.Field):
-    def _deserialize(self, value, attr, data, **kwargs):
+    def _deserialize(self, value, attr, data, **kwargs) -> str:
         if isinstance(value, int):
             value = str(value)
         return value

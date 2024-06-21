@@ -23,7 +23,7 @@ class DomainDict(TypedDict):
 
     name: str
     version: str
-    chainId: Union[str, int]
+    chainId: str
     revision: Optional[Revision]
 
 
