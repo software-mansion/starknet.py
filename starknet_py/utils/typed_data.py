@@ -157,12 +157,32 @@ class TypedData:
     def _verify_types(self):
         if self.domain.separator_name not in self.types:
             raise ValueError(f"Types must contain '{self.domain.separator_name}'.")
-        
+
         reserved_type_names = ["felt", "string", "selector", "merkletree"]
 
         for type_name in reserved_type_names:
             if type_name in self.types:
                 raise ValueError(f"Reserved type name: {type_name}")
+
+        referenced_types = [
+            parameter for type_name in self.types for parameter in self.types[type_name]
+        ]
+        referenced_types = [
+            ref_type.contains
+            if ref_type.contains is not None
+            else strip_pointer(ref_type.type)
+            for ref_type in referenced_types
+        ] + [self.domain.separator_name, self.primary_type]
+
+        for type_name in self.types:
+            if not type_name:
+                raise ValueError("Type names cannot be empty.")
+            if is_array(type_name):
+                raise ValueError(f"Type names cannot end in *. {type_name} was found.")
+            if type_name not in referenced_types:
+                raise ValueError(
+                    f"Dangling types are not allowed. Unreferenced type {type_name} was found."
+                )
 
     def _get_dependencies(self, type_name: str) -> List[str]:
         if type_name not in self.types:
