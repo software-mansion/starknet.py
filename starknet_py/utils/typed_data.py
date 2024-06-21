@@ -9,9 +9,7 @@ from starknet_py.hash.hash_method import HashMethod
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.utils import compute_hash_on_elements
 from starknet_py.net.client_utils import _to_rpc_felt
-from starknet_py.net.models.typed_data import Domain as DomainDict
-from starknet_py.net.models.typed_data import Revision
-from starknet_py.net.models.typed_data import TypedData as TypedDataDict
+from starknet_py.net.models.typed_data import DomainDict, Revision, TypedDataDict
 from starknet_py.net.schemas.common import ChainIdField, RevisionField
 from starknet_py.utils.merkle_tree import MerkleTree
 
@@ -350,5 +348,5 @@ class DomainSchema(Schema):
             name=data["name"],
             version=data["version"],
             chain_id=data["chain_id"],
-            revision=data["revision"],
+            revision=data.get("revision"),
         )

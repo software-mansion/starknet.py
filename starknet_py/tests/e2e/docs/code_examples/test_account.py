@@ -9,7 +9,7 @@ from starknet_py.net.account.account import Account
 from starknet_py.net.client_models import Call
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models import StarknetChainId
-from starknet_py.net.models.typed_data import TypedData
+from starknet_py.net.models.typed_data import TypedDataDict
 from starknet_py.net.signer.stark_curve_signer import KeyPair
 
 
@@ -66,7 +66,7 @@ async def test_get_balance(account):
 def test_sign_message(account):
     # docs-start: sign_message
     signature = account.sign_message(
-        typed_data=TypedData(
+        typed_data=TypedDataDict(
             types={
                 "StarkNetDomain": [
                     {"name": "name", "type": "felt"},
@@ -88,7 +88,7 @@ def test_sign_message(account):
 def test_verify_message(account):
     # docs-start: verify_message
     is_correct = account.verify_message(
-        typed_data=TypedData(
+        typed_data=TypedDataDict(
             types={
                 "StarkNetDomain": [
                     {"name": "name", "type": "felt"},
