@@ -6,7 +6,7 @@ from enum import Enum
 from typing import Any, Dict, List, Optional, TypedDict, Union
 
 
-class Parameter(TypedDict):
+class ParameterDict(TypedDict):
     """
     TypedDict representing a Parameter object
     """
@@ -24,7 +24,7 @@ class Revision(Enum):
     V1 = 1
 
 
-class Domain(TypedDict):
+class DomainDict(TypedDict):
     """
     TypedDict representing a domain object (both StarkNetDomain, StarknetDomain).
     """
@@ -35,12 +35,12 @@ class Domain(TypedDict):
     revision: Optional[Revision]
 
 
-class TypedData(TypedDict):
+class TypedDataDict(TypedDict):
     """
     TypedDict representing a TypedData object
     """
 
-    types: Dict[str, List[Parameter]]
+    types: Dict[str, List[ParameterDict]]
     primaryType: str
-    domain: Domain
+    domain: DomainDict
     message: Dict[str, Any]

@@ -7,9 +7,7 @@ from starknet_py.cairo.felt import encode_shortstring
 from starknet_py.hash.hash_method import HashMethod
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.utils import compute_hash_on_elements
-from starknet_py.net.models.typed_data import Domain as DomainDict
-from starknet_py.net.models.typed_data import Revision
-from starknet_py.net.models.typed_data import TypedData as TypedDataDict
+from starknet_py.net.models.typed_data import DomainDict, Revision, TypedDataDict
 from starknet_py.net.schemas.common import ChainIdField, RevisionField
 
 
