@@ -48,5 +48,4 @@ class MerkleTree:
 
     @staticmethod
     def hash(a: int, b: int, hash_method: HashMethod) -> int:
-        a_sorted, b_sorted = (a, b) if a < b else (b, a)
-        return hash_method.hash(a_sorted, b_sorted)
+        return hash_method.hash(*sorted([a, b]))
