@@ -195,5 +195,5 @@ def _make_typed_data(included_type: str, revision: Revision):
     ],
 )
 def test_invalid_types(included_type: str):
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match=f"Reserved type name: {included_type}"):
         _make_typed_data(included_type, Revision.V1)
