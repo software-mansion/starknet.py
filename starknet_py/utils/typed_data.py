@@ -154,10 +154,10 @@ class TypedData:
         if basic_type == BasicType.MERKLE_TREE and isinstance(value, list):
             if context is None:
                 raise ValueError(f"Context is not provided for '{type_name}' type.")
-            return int(self._prepare_merkle_tree_root(value, context), 16)
+            return self._prepare_merkle_tree_root(value, context)
 
         if basic_type in (BasicType.FELT, BasicType.SHORT_STRING) and isinstance(
-            value, (int, str)
+            value, (int, str, Revision)
         ):
             return int(get_hex(value), 16)
 
@@ -258,12 +258,11 @@ class TypedData:
 
         return self._hash_method.hash_many(message)
 
-    def _prepare_merkle_tree_root(self, value: List, context: TypeContext) -> str:
+    def _prepare_merkle_tree_root(self, value: List, context: TypeContext) -> int:
         merkle_tree_type = self._get_merkle_tree_leaves_type(context)
         struct_hashes = list(
             map(lambda struct: self._encode_value(merkle_tree_type, struct), value)
         )
-        struct_hashes = list(map(_to_rpc_felt, struct_hashes))
 
         return MerkleTree(struct_hashes, self._hash_method).root_hash
 
