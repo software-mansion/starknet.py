@@ -2,8 +2,9 @@
 TypedDict structures for TypedData
 """
 
-from enum import Enum
 from typing import Any, Dict, List, Optional, TypedDict, Union
+
+from starknet_py.net.schemas.common import Revision
 
 
 class ParameterDict(TypedDict):
@@ -13,19 +14,6 @@ class ParameterDict(TypedDict):
 
     name: str
     type: str
-
-
-class Revision(Enum):
-    """
-    Enum representing the revision of the specification to be used.
-    """
-
-    V0 = 0
-    V1 = 1
-
-    @classmethod
-    def _missing_(cls, value):
-        raise ValueError("Allowed revision values are 0 and 1.")
 
 
 class DomainDict(TypedDict):
