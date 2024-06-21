@@ -19,7 +19,6 @@ from starknet_py.net.client_models import (
     TransactionType,
 )
 
-
 # pylint: disable=unused-argument
 
 
@@ -55,11 +54,11 @@ class NumberAsHex(fields.Field):
         )
 
     def _deserialize(
-            self,
-            value: Any,
-            attr: Union[str, None],
-            data: Union[Mapping[str, Any], None],
-            **kwargs,
+        self,
+        value: Any,
+        attr: Union[str, None],
+        data: Union[Mapping[str, Any], None],
+        **kwargs,
     ):
         if self._is_int_and_in_range(value):
             return value
@@ -76,8 +75,8 @@ class NumberAsHex(fields.Field):
 
     def _is_str_and_valid_pattern(self, value: Any) -> bool:
         return (
-                isinstance(value, str)
-                and re.fullmatch(self.REGEX_PATTERN, value) is not None
+            isinstance(value, str)
+            and re.fullmatch(self.REGEX_PATTERN, value) is not None
         )
 
 
@@ -86,7 +85,7 @@ class Felt(NumberAsHex):
     Field used to serialize and deserialize felt type.
     """
 
-    MAX_VALUE = 2 ** 252
+    MAX_VALUE = 2**252
     REGEX_PATTERN = r"^0x(0|[a-fA-F1-9]{1}[a-fA-F0-9]{0,62})$"
 
 
@@ -95,7 +94,7 @@ class Uint64(NumberAsHex):
     Field used to serialize and deserialize RPC u64 type.
     """
 
-    MAX_VALUE = 2 ** 64
+    MAX_VALUE = 2**64
     REGEX_PATTERN = r"^0x(0|[a-fA-F1-9]{1}[a-fA-F0-9]{0,15})$"
 
 
@@ -104,7 +103,7 @@ class Uint128(NumberAsHex):
     Field used to serialize and deserialize RPC u128 type.
     """
 
-    MAX_VALUE = 2 ** 128
+    MAX_VALUE = 2**128
     REGEX_PATTERN = r"^0x(0|[a-fA-F1-9]{1}[a-fA-F0-9]{0,31})$"
 
 
@@ -113,11 +112,11 @@ class NonPrefixedHex(fields.Field):
         return hex(value).lstrip("0x")
 
     def _deserialize(
-            self,
-            value: Any,
-            attr: Optional[str],
-            data: Optional[Mapping[str, Any]],
-            **kwargs,
+        self,
+        value: Any,
+        attr: Optional[str],
+        data: Optional[Mapping[str, Any]],
+        **kwargs,
     ):
         return int(value, 16)
 
@@ -127,11 +126,11 @@ class StatusField(fields.Field):
         return value.name if value is not None else ""
 
     def _deserialize(
-            self,
-            value: Any,
-            attr: Optional[str],
-            data: Optional[Mapping[str, Any]],
-            **kwargs,
+        self,
+        value: Any,
+        attr: Optional[str],
+        data: Optional[Mapping[str, Any]],
+        **kwargs,
     ) -> TransactionStatus:
         values = [v.value for v in TransactionStatus]
 
@@ -148,11 +147,11 @@ class ExecutionStatusField(fields.Field):
         return value.name if value is not None else ""
 
     def _deserialize(
-            self,
-            value: Any,
-            attr: Optional[str],
-            data: Optional[Mapping[str, Any]],
-            **kwargs,
+        self,
+        value: Any,
+        attr: Optional[str],
+        data: Optional[Mapping[str, Any]],
+        **kwargs,
     ) -> TransactionExecutionStatus:
         values = [v.value for v in TransactionExecutionStatus]
 
@@ -169,11 +168,11 @@ class FinalityStatusField(fields.Field):
         return value.name if value is not None else ""
 
     def _deserialize(
-            self,
-            value: Any,
-            attr: Optional[str],
-            data: Optional[Mapping[str, Any]],
-            **kwargs,
+        self,
+        value: Any,
+        attr: Optional[str],
+        data: Optional[Mapping[str, Any]],
+        **kwargs,
     ) -> TransactionFinalityStatus:
         values = [v.value for v in TransactionFinalityStatus]
 
@@ -190,11 +189,11 @@ class BlockStatusField(fields.Field):
         return value.name if value is not None else ""
 
     def _deserialize(
-            self,
-            value: Any,
-            attr: Optional[str],
-            data: Optional[Mapping[str, Any]],
-            **kwargs,
+        self,
+        value: Any,
+        attr: Optional[str],
+        data: Optional[Mapping[str, Any]],
+        **kwargs,
     ) -> BlockStatus:
         values = [v.value for v in BlockStatus]
 
@@ -214,11 +213,11 @@ class TransactionTypeField(fields.Field):
         return value.name
 
     def _deserialize(
-            self,
-            value: Any,
-            attr: Optional[str],
-            data: Optional[Mapping[str, Any]],
-            **kwargs,
+        self,
+        value: Any,
+        attr: Optional[str],
+        data: Optional[Mapping[str, Any]],
+        **kwargs,
     ) -> TransactionType:
         values = [v.value for v in TransactionType]
 
@@ -238,11 +237,11 @@ class EntryPointTypeField(fields.Field):
         return value.name if value is not None else ""
 
     def _deserialize(
-            self,
-            value: Any,
-            attr: Optional[str],
-            data: Optional[Mapping[str, Any]],
-            **kwargs,
+        self,
+        value: Any,
+        attr: Optional[str],
+        data: Optional[Mapping[str, Any]],
+        **kwargs,
     ) -> EntryPointType:
         values = [v.value for v in EntryPointType]
 
@@ -259,11 +258,11 @@ class CallTypeField(fields.Field):
         return value.name if value is not None else ""
 
     def _deserialize(
-            self,
-            value: Any,
-            attr: Optional[str],
-            data: Optional[Mapping[str, Any]],
-            **kwargs,
+        self,
+        value: Any,
+        attr: Optional[str],
+        data: Optional[Mapping[str, Any]],
+        **kwargs,
     ) -> CallType:
         values = [v.value for v in CallType]
 
@@ -278,11 +277,11 @@ class L1DAModeField(fields.Field):
         return value.name if value is not None else ""
 
     def _deserialize(
-            self,
-            value: Any,
-            attr: Optional[str],
-            data: Optional[Mapping[str, Any]],
-            **kwargs,
+        self,
+        value: Any,
+        attr: Optional[str],
+        data: Optional[Mapping[str, Any]],
+        **kwargs,
     ) -> L1DAMode:
         values = [v.value for v in L1DAMode]
 
@@ -297,11 +296,11 @@ class PriceUnitField(fields.Field):
         return value.name if value is not None else ""
 
     def _deserialize(
-            self,
-            value: Any,
-            attr: Optional[str],
-            data: Optional[Mapping[str, Any]],
-            **kwargs,
+        self,
+        value: Any,
+        attr: Optional[str],
+        data: Optional[Mapping[str, Any]],
+        **kwargs,
     ) -> PriceUnit:
         values = [v.value for v in PriceUnit]
 
@@ -316,11 +315,11 @@ class DAModeField(fields.Field):
         return value.name if value is not None else ""
 
     def _deserialize(
-            self,
-            value: Any,
-            attr: Optional[str],
-            data: Optional[Mapping[str, Any]],
-            **kwargs,
+        self,
+        value: Any,
+        attr: Optional[str],
+        data: Optional[Mapping[str, Any]],
+        **kwargs,
     ) -> DAMode:
         names = [v.name for v in DAMode]
 
@@ -365,6 +364,7 @@ class RevisionField(fields.Field):
         if value not in revisions:
             allowed_revisions_str = "".join(list(map(str, revisions)))
             raise ValidationError(
-                f"Invalid value provided for Revision: {value}. Allowed values are {allowed_revisions_str}.")
+                f"Invalid value provided for Revision: {value}. Allowed values are {allowed_revisions_str}."
+            )
 
         return Revision(value)
