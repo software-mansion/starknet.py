@@ -2,7 +2,7 @@
 TypedDict structures for TypedData
 """
 
-from typing import Any, Dict, List, Optional, TypedDict, Union
+from typing import Any, Dict, List, Optional, TypedDict
 
 from starknet_py.net.schemas.common import Revision
 
