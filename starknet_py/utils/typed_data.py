@@ -118,7 +118,7 @@ class TypedData:
         if type_name in self.types and isinstance(value, dict):
             return self.struct_hash(type_name, value)
 
-        if is_pointer(type_name) and isinstance(value, list):
+        if is_array(type_name) and isinstance(value, list):
             type_name = strip_pointer(type_name)
             hashes = [self._encode_value(type_name, val) for val in value]
             return compute_hash_on_elements(hashes)
@@ -276,12 +276,12 @@ def get_hex(value: Union[int, str]) -> str:
     return hex(encode_shortstring(value))
 
 
-def is_pointer(value: str) -> bool:
-    return len(value) > 0 and value[-1] == "*"
+def is_array(value: str) -> bool:
+    return value.endswith("*")
 
 
 def strip_pointer(value: str) -> str:
-    if is_pointer(value):
+    if is_array(value):
         return value[:-1]
     return value
 
