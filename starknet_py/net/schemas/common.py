@@ -17,6 +17,7 @@ from starknet_py.net.client_models import (
     TransactionStatus,
     TransactionType,
 )
+from starknet_py.net.models.typed_data import Revision
 
 # pylint: disable=unused-argument
 
@@ -346,7 +347,7 @@ class ChainIdField(fields.Field):
 
 
 class RevisionField(fields.Field):
-    def _deserialize(self, value, attr, data, **kwargs):
+    def _deserialize(self, value, attr, data, **kwargs) -> Revision:
         if isinstance(value, str):
             value = int(value)
-        return value
+        return Revision(value)
