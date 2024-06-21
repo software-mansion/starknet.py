@@ -9,7 +9,7 @@ import pytest
 
 from starknet_py.net.models.typed_data import Revision
 from starknet_py.tests.e2e.fixtures.constants import TYPED_DATA_DIR
-from starknet_py.utils.typed_data import Domain, TypedData, get_hex
+from starknet_py.utils.typed_data import Domain, Parameter, TypedData, get_hex
 
 
 class CasesRev0(Enum):
@@ -152,18 +152,18 @@ def test_message_hash(example, account_address, msg_hash):
 
 domain_type_v0 = {
     "StarkNetDomain": [
-        {"name": "name", "type": "felt"},
-        {"name": "version", "type": "felt"},
-        {"name": "chainId", "type": "felt"},
+        Parameter(name="name", type="felt"),
+        Parameter(name="version", type="felt"),
+        Parameter(name="chainId", type="felt"),
     ]
 }
 
 domain_type_v1 = {
     "StarknetDomain": [
-        {"name": "name", "type": "shortstring"},
-        {"name": "version", "type": "shortstring"},
-        {"name": "chainId", "type": "shortstring"},
-        {"name": "revision", "type": "shortstring"},
+        Parameter(name="name", type="shortstring"),
+        Parameter(name="version", type="shortstring"),
+        Parameter(name="chainId", type="shortstring"),
+        Parameter(name="revision", type="shortstring"),
     ]
 }
 
@@ -179,13 +179,6 @@ domain_v1 = Domain(
     chain_id="1234",
     revision=Revision.V1,
 )
-
-domain_object_v1 = {
-    "name": "DomainV1",
-    "version": "1",
-    "chainId": "1234",
-    "revision": 1
-}
 
 
 def _make_typed_data(included_type: str, revision: Revision):
@@ -204,15 +197,76 @@ def _make_typed_data(included_type: str, revision: Revision):
 
 
 @pytest.mark.parametrize(
-    "included_type",
+    "included_type, revision",
     [
-        "felt",
-        "felt*",
-        "string",
-        "selector",
-        "merkletree"
+        ("", Revision.V1),
+        ("myType*", Revision.V1)
     ],
 )
-def test_invalid_types(included_type):
+def test_invalid_type_names(included_type: str, revision: Revision):
     with pytest.raises(ValueError):
-        _make_typed_data(included_type, Revision.V1)
+        _make_typed_data(included_type, revision)
+
+
+@pytest.mark.parametrize(
+    "included_type, revision",
+    [
+        ("felt", Revision.V0),
+        ("string", Revision.V0),
+        ("selector", Revision.V0),
+        ("merkletree", Revision.V0),
+    ],
+)
+def test_types_redefinition(included_type: str, revision: Revision):
+    with pytest.raises(ValueError):
+        _make_typed_data(included_type, revision)
+
+
+def test_custom_type_definition():
+    _make_typed_data("myType", Revision.V0)
+
+
+@pytest.mark.parametrize(
+    "revision",
+    list(Revision),
+)
+def test_missing_domain_type(revision: Revision):
+    domain = domain_v0 if revision == Revision.V0 else domain_v1
+
+    with pytest.raises(ValueError):
+        TypedData(
+            types={},
+            primary_type="felt",
+            domain=domain,
+            message={},
+        )
+
+
+def test_dangling_type():
+    with pytest.raises(ValueError):
+        TypedData(
+            types={
+                **domain_type_v1,
+                "dangling": [],
+                "mytype": []
+            },
+            primary_type="mytype",
+            domain=domain_v1,
+            message={"mytype": 1},
+        )
+
+
+def test_missing_dependency():
+    typed_data = TypedData(
+        types={
+            **domain_type_v1,
+            "house": [Parameter(name="fridge", type="ice cream")]
+        },
+        primary_type="house",
+        domain=domain_v1,
+        message={"fridge": 1},
+    )
+
+    with pytest.raises(ValueError) as error:
+        typed_data.struct_hash("house", {"fridge": 1})
+        assert error.value == "Type [ice cream] is not defined in types."
