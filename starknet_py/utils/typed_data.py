@@ -24,6 +24,14 @@ class Parameter:
     type: str
     contains: Optional[str] = None
 
+    def to_dict(self) -> dict:
+        """
+        Create Parameter dictionary from dataclass.
+
+        :return: Parameter dictionary.
+        """
+        return cast(Dict, ParameterSchema().dump(obj=self))
+
 
 @dataclass
 class Domain:
@@ -105,6 +113,24 @@ class TypedData:
         :return: TypedData dataclass instance.
         """
         return cast(TypedData, TypedDataSchema().load(data))
+
+    def to_dict(self) -> dict:
+        """
+        Create TypedData dictionary from dataclass.
+
+        :return: TypedData dictionary.
+        """
+
+        types_dict = {}
+        for type_name, params in self.types.items():
+            types_dict[type_name] = [param.to_dict() for param in params]
+
+        return {
+            "types": types_dict,
+            "primaryType": self.primary_type,
+            "domain": self.domain.to_dict(),
+            "message": self.message,
+        }
 
     def _is_struct(self, type_name: str) -> bool:
         return type_name in self.types
@@ -269,6 +295,8 @@ class TypedData:
 def get_hex(value: Union[int, str]) -> str:
     if isinstance(value, int):
         return hex(value)
+    if isinstance(value, Revision):
+        return hex(value.value)
     if value[:2] == "0x":
         return value
     if value.isnumeric():

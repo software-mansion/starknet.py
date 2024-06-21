@@ -1,8 +1,10 @@
 """
 TypedDict structures for TypedData
 """
-from enum import Enum
-from typing import Any, Dict, List, Optional, TypedDict, Union
+
+from typing import Any, Dict, List, Optional, TypedDict
+
+from starknet_py.net.schemas.common import Revision
 
 
 class ParameterDict(TypedDict):
@@ -15,15 +17,6 @@ class ParameterDict(TypedDict):
     contains: Optional[str]
 
 
-class Revision(Enum):
-    """
-    Enum representing the revision of the specification to be used.
-    """
-
-    V0 = 0
-    V1 = 1
-
-
 class DomainDict(TypedDict):
     """
     TypedDict representing a domain object (both StarkNetDomain, StarknetDomain).
@@ -31,7 +24,7 @@ class DomainDict(TypedDict):
 
     name: str
     version: str
-    chainId: Union[str, int]
+    chainId: str
     revision: Optional[Revision]
 
 

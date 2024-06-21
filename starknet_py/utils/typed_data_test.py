@@ -188,6 +188,9 @@ domain_object_v1 = {
 }
 
 
+
+
+
 def _make_typed_data(included_type: str, revision: Revision):
     domain_type, domain = (domain_type_v0, domain_v0) if revision == Revision.V0 else (
         domain_type_v1, domain_v1)
@@ -214,5 +217,5 @@ def _make_typed_data(included_type: str, revision: Revision):
     ],
 )
 def test_invalid_types(included_type: str):
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match=f"Reserved type name: {included_type}"):
         _make_typed_data(included_type, Revision.V1)
