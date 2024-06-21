@@ -155,7 +155,10 @@ class TypedData:
         return values
 
     def _verify_types(self):
-        reserved_type_names = ["felt", "felt*", "string", "selector", "merkletree"]
+        if self.domain.separator_name not in self.types:
+            raise ValueError(f"Types must contain '{self.domain.separator_name}'.")
+        
+        reserved_type_names = ["felt", "string", "selector", "merkletree"]
 
         for type_name in reserved_type_names:
             if type_name in self.types:
