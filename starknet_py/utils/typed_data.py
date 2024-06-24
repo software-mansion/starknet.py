@@ -151,7 +151,7 @@ class TypedData:
 
         basic_types = [bt.value for bt in BasicType]
         if type_name not in basic_types:
-            raise ValueError(f"Type [{value}] is not defined in types.")
+            raise ValueError(f"Type [{type_name}] is not defined in types.")
 
         basic_type = BasicType(type_name)
 
