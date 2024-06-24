@@ -13,7 +13,7 @@ class MerkleTree:
     leaves: List[int]
     hash_method: HashMethod
     root_hash: int = field(init=False)
-    branches: List[List[int]] = field(init=False)
+    levels: List[List[int]] = field(init=False)
 
     def __post_init__(self):
         if self.leaves:
