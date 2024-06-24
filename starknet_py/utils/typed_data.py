@@ -20,14 +20,6 @@ class Parameter:
     name: str
     type: str
 
-    def to_dict(self) -> dict:
-        """
-        Create Parameter dictionary from dataclass.
-
-        :return: Parameter dictionary.
-        """
-        return cast(Dict, ParameterSchema().dump(obj=self))
-
 
 @dataclass
 class Domain:
