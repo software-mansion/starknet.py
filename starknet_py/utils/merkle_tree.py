@@ -13,7 +13,7 @@ class MerkleTree:
     leaves: List[int]
     hash_method: HashMethod
     root_hash: int = field(init=False)
-    branches: List[List[int]] = field(init=False)
+    levels: List[List[int]] = field(init=False)
 
     def __post_init__(self):
         if self.leaves:
@@ -23,26 +23,29 @@ class MerkleTree:
 
     @staticmethod
     def build(
-        leaf_hashes: List[int], hash_method: HashMethod
+        leaves: List[int], hash_method: HashMethod
     ) -> Tuple[int, List[List[int]]]:
-        if not leaf_hashes:
+        if not leaves:
             raise ValueError("Cannot build Merkle tree from an empty list of leaves.")
 
-        leaves = leaf_hashes[:]
+        curr_level_nodes = leaves[:]
         branches: List[List[int]] = []
 
-        while len(leaves) > 1:
-            if len(leaves) != len(leaf_hashes):
-                branches.append(leaves[:])
+        while len(curr_level_nodes) > 1:
+            if len(curr_level_nodes) != len(leaves):
+                branches.append(curr_level_nodes[:])
 
-            new_leaves = []
-            for i in range(0, len(leaves), 2):
-                a, b = leaves[i], leaves[i + 1] if i + 1 < len(leaves) else 0
-                new_leaves.append(MerkleTree.hash(a, b, hash_method))
+            new_nodes = []
+            for i in range(0, len(curr_level_nodes), 2):
+                a, b = (
+                    curr_level_nodes[i],
+                    curr_level_nodes[i + 1] if i + 1 < len(curr_level_nodes) else 0,
+                )
+                new_nodes.append(MerkleTree.hash(a, b, hash_method))
 
-            leaves = new_leaves
+            curr_level_nodes = new_nodes
 
-        return leaves[0], branches
+        return curr_level_nodes[0], branches
 
     @staticmethod
     def hash(a: int, b: int, hash_method: HashMethod) -> int:

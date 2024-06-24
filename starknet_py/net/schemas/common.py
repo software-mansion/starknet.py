@@ -339,13 +339,6 @@ class StorageEntrySchema(Schema):
         return StorageEntry(**data)
 
 
-class ChainIdField(fields.Field):
-    def _deserialize(self, value, attr, data, **kwargs) -> str:
-        if isinstance(value, int):
-            value = str(value)
-        return value
-
-
 class Revision(Enum):
     """
     Enum representing the revision of the specification to be used.

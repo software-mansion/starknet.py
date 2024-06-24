@@ -44,7 +44,7 @@
   "domain": {
     "name": "StarkNet Mail",
     "version": "1",
-    "chainId": 1
+    "chainId": "1"
   },
   "message": {
     "key": "0x0000000000000000000000000000000000000000000000000000000000000000",

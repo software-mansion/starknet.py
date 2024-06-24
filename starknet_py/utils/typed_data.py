@@ -10,7 +10,7 @@ from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.utils import compute_hash_on_elements
 from starknet_py.net.client_utils import _to_rpc_felt
 from starknet_py.net.models.typed_data import DomainDict, Revision, TypedDataDict
-from starknet_py.net.schemas.common import ChainIdField, RevisionField
+from starknet_py.net.schemas.common import RevisionField
 from starknet_py.utils.merkle_tree import MerkleTree
 
 
@@ -121,16 +121,7 @@ class TypedData:
         :return: TypedData dictionary.
         """
 
-        types_dict = {}
-        for type_name, params in self.types.items():
-            types_dict[type_name] = [param.to_dict() for param in params]
-
-        return {
-            "types": types_dict,
-            "primaryType": self.primary_type,
-            "domain": self.domain.to_dict(),
-            "message": self.message,
-        }
+        return cast(Dict, TypedDataSchema().dump(obj=self))
 
     def _is_struct(self, type_name: str) -> bool:
         return type_name in self.types
@@ -374,30 +365,10 @@ class ParameterSchema(Schema):
         return Parameter(**data)
 
 
-class TypedDataSchema(Schema):
-    types = fields.Dict(
-        data_key="types",
-        keys=fields.Str(),
-        values=fields.List(fields.Nested(ParameterSchema())),
-    )
-    primary_type = fields.String(data_key="primaryType", required=True)
-    domain = fields.Dict(data_key="domain", required=True)
-    message = fields.Dict(data_key="message", required=True)
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> TypedData:
-        return TypedData(
-            types=data["types"],
-            primary_type=data["primary_type"],
-            domain=Domain.from_dict(data["domain"]),
-            message=data["message"],
-        )
-
-
 class DomainSchema(Schema):
     name = fields.String(data_key="name", required=True)
     version = fields.String(data_key="version", required=True)
-    chain_id = ChainIdField(attribute="chain_id", data_key="chainId", required=True)
+    chain_id = fields.String(attribute="chain_id", data_key="chainId", required=True)
     revision = RevisionField(data_key="revision", required=False)
 
     @post_load
@@ -407,4 +378,24 @@ class DomainSchema(Schema):
             version=data["version"],
             chain_id=data["chain_id"],
             revision=data.get("revision"),
+        )
+
+
+class TypedDataSchema(Schema):
+    types = fields.Dict(
+        data_key="types",
+        keys=fields.Str(),
+        values=fields.List(fields.Nested(ParameterSchema())),
+    )
+    primary_type = fields.String(data_key="primaryType", required=True)
+    domain = fields.Nested(DomainSchema, required=True)
+    message = fields.Dict(data_key="message", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> TypedData:
+        return TypedData(
+            types=data["types"],
+            primary_type=data["primary_type"],
+            domain=data["domain"],
+            message=data["message"],
         )
