@@ -4,12 +4,19 @@
 import json
 from enum import Enum
 from pathlib import Path
+from typing import Union
 
 import pytest
 
 from starknet_py.net.models.typed_data import Revision
 from starknet_py.tests.e2e.fixtures.constants import TYPED_DATA_DIR
-from starknet_py.utils.typed_data import Domain, Parameter, TypedData, get_hex
+from starknet_py.utils.typed_data import (
+    Domain,
+    Parameter,
+    TypedData,
+    encode_bool,
+    get_hex,
+)
 
 
 class CasesRev0(Enum):
@@ -269,3 +276,39 @@ def test_missing_dependency():
 
     with pytest.raises(ValueError, match="Type \[ice cream\] is not defined in types."):
         typed_data.struct_hash("house", {"fridge": 1})
+
+
+@pytest.mark.parametrize(
+    "value, expected",
+    [
+        (True, 1),
+        (False, 0),
+        ("true", 1),
+        ("false", 0),
+        ("0x1", 1),
+        ("0x0", 0),
+        ("1", 1),
+        ("0", 0),
+        (1, 1),
+        (0, 0)
+
+    ]
+)
+def test_encode_bool(value: Union[bool, str, int], expected: int):
+    assert encode_bool(value) == expected
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        -2,
+        2,
+        "-2",
+        "2",
+        "0x123",
+        "anyvalue",
+    ]
+)
+def test_encode_invalid_bool(value: Union[bool, str, int]):
+    with pytest.raises(ValueError, match=fr"Expected boolean value, got \[{value}\]."):
+        encode_bool(value)

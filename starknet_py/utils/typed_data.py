@@ -375,11 +375,18 @@ def prepare_selector(name: str) -> int:
         return get_selector_from_name(name)
 
 
-class BasicType(Enum):
-    FELT = "felt"
-    SELECTOR = "selector"
-    MERKLE_TREE = "merkletree"
-    SHORT_STRING = "shortstring"
+def encode_bool(value: Union[bool, str, int]) -> int:
+    if isinstance(value, bool):
+        return 1 if value else 0
+    if isinstance(value, int) and value in (0, 1):
+        return value
+    if isinstance(value, str) and value in ("0", "1"):
+        return int(value)
+    if isinstance(value, str) and value in ("false", "true"):
+        return 0 if value == "false" else 1
+    if isinstance(value, str) and value in ("0x0", "0x1"):
+        return int(value, 16)
+    raise ValueError(f"Expected boolean value, got [{value}].")
 
 
 # pylint: disable=unused-argument
