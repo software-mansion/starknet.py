@@ -78,7 +78,7 @@ def test_sign_message(account):
                 ],
             },
             primaryType="Example",
-            domain={"name": "StarkNet Example", "version": "1", "chainId": 1},
+            domain={"name": "StarkNet Example", "version": "1", "chainId": "1"},
             message={"value": 1},
         )
     )
@@ -100,7 +100,7 @@ def test_verify_message(account):
                 ],
             },
             primaryType="Example",
-            domain={"name": "StarkNet Example", "version": "1", "chainId": 1},
+            domain={"name": "StarkNet Example", "version": "1", "chainId": "1"},
             message={"value": 1},
         ),
         signature=[12, 34],
