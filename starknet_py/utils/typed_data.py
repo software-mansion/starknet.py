@@ -12,7 +12,6 @@ from starknet_py.net.client_utils import _to_rpc_felt
 from starknet_py.net.models.typed_data import DomainDict, Revision, TypedDataDict
 from starknet_py.net.schemas.common import RevisionField
 from starknet_py.utils.merkle_tree import MerkleTree
-from starknet_py.net.schemas.common import RevisionField
 
 
 @dataclass(frozen=True)
@@ -128,10 +127,10 @@ class TypedData:
         return type_name in self.types
 
     def _encode_value(
-            self,
-            type_name: str,
-            value: Union[int, str, dict, list],
-            context: Optional[TypeContext] = None,
+        self,
+        type_name: str,
+        value: Union[int, str, dict, list],
+        context: Optional[TypeContext] = None,
     ) -> int:
         if type_name in self.types and isinstance(value, dict):
             return self.struct_hash(type_name, value)
@@ -149,7 +148,7 @@ class TypedData:
             return self._prepare_merkle_tree_root(value, context)
 
         if basic_type in (BasicType.FELT, BasicType.SHORT_STRING) and isinstance(
-                value, (int, str, Revision)
+            value, (int, str, Revision)
         ):
             return int(get_hex(value), 16)
 
