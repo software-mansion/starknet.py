@@ -354,7 +354,7 @@ class RevisionField(fields.Field):
             return str(Revision.V0.value)
         if value == Revision.V0:
             return str(value.value)
-        return int(value.value)
+        return value.value
 
     def _deserialize(self, value, attr, data, **kwargs) -> Revision:
         if isinstance(value, str):
