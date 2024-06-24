@@ -154,15 +154,24 @@ class TypedData:
             "message": self.message,
         }
 
+    def _get_basic_types(self) -> set[BasicType]:
+        if self.domain.resolved_revision == Revision.V0:
+            return self._basic_types_v0
+        return self._basic_types_v1
+
     def _is_struct(self, type_name: str) -> bool:
         return type_name in self.types
 
+    # pylint: disable=too-many-return-statements
     def _encode_value(
         self,
         type_name: str,
         value: Union[int, str, dict, list],
         context: Optional[TypeContext] = None,
     ) -> int:
+        if isinstance(value, Revision):
+            value = value.value
+
         if type_name in self.types and isinstance(value, dict):
             return self.struct_hash(type_name, value)
 
@@ -177,18 +186,28 @@ class TypedData:
 
         basic_type = BasicType(type_name)
 
+        if basic_type == BasicType.FELT and isinstance(value, Union[int, str]):
+            return int(get_hex(value), 16)
+
+        if (basic_type, self.domain.resolved_revision) in [
+            (BasicType.STRING, Revision.V0),
+            (BasicType.SHORT_STRING, Revision.V1),
+            (BasicType.STRING, Revision.V1),
+            (BasicType.CONTRACT_ADDRESS, Revision.V1),
+            (BasicType.CLASS_HASH, Revision.V1),
+        ] and isinstance(value, Union[int, str]):
+            return int(get_hex(value), 16)
+
+        if basic_type == BasicType.BOOL and isinstance(value, Union[bool, str, int]):
+            return encode_bool(value)
+
+        if basic_type == BasicType.SELECTOR and isinstance(value, str):
+            return prepare_selector(value)
+
         if basic_type == BasicType.MERKLE_TREE and isinstance(value, list):
             if context is None:
                 raise ValueError(f"Context is not provided for '{type_name}' type.")
             return self._prepare_merkle_tree_root(value, context)
-
-        if basic_type in (BasicType.FELT, BasicType.SHORT_STRING) and isinstance(
-            value, (int, str, Revision)
-        ):
-            return int(get_hex(value), 16)
-
-        if basic_type == BasicType.SELECTOR and isinstance(value, str):
-            return prepare_selector(value)
 
         raise ValueError(
             f"Error occurred while encoding value with type name {type_name}."
@@ -210,11 +229,7 @@ class TypedData:
         if self.domain.separator_name not in self.types:
             raise ValueError(f"Types must contain '{self.domain.separator_name}'.")
 
-        reserved_type_names = ["felt", "string", "selector", "merkletree"]
-
-        for type_name in reserved_type_names:
-            if type_name in self.types:
-                raise ValueError(f"Reserved type name: {type_name}")
+        basic_types = set(map(lambda bt: bt.value, self._get_basic_types()))
 
         referenced_types = [
             parameter for type_name in self.types for parameter in self.types[type_name]
@@ -227,10 +242,15 @@ class TypedData:
         ] + [self.domain.separator_name, self.primary_type]
 
         for type_name in self.types:
+            if type_name in basic_types:
+                raise ValueError(f"Reserved type name: {type_name}")
+
             if not type_name:
                 raise ValueError("Type names cannot be empty.")
+
             if is_pointer(type_name):
                 raise ValueError(f"Type names cannot end in *. {type_name} was found.")
+
             if type_name not in referenced_types:
                 raise ValueError(
                     f"Dangling types are not allowed. Unreferenced type {type_name} was found."
@@ -343,8 +363,6 @@ class TypedData:
 def get_hex(value: Union[int, str]) -> str:
     if isinstance(value, int):
         return hex(value)
-    if isinstance(value, Revision):
-        return hex(value.value)
     if value[:2] == "0x":
         return value
     if value.isnumeric():

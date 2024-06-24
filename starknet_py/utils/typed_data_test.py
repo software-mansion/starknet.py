@@ -274,7 +274,7 @@ def test_missing_dependency():
         message={"fridge": 1},
     )
 
-    with pytest.raises(ValueError, match="Type \[ice cream\] is not defined in types."):
+    with pytest.raises(ValueError, match=r"Type \[ice cream\] is not defined in types."):
         typed_data.struct_hash("house", {"fridge": 1})
 
 
