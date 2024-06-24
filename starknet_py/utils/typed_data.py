@@ -277,8 +277,6 @@ class TypedData:
 def get_hex(value: Union[int, str]) -> str:
     if isinstance(value, int):
         return hex(value)
-    if isinstance(value, Revision):
-        return hex(value.value)
     if value[:2] == "0x":
         return value
     if value.isnumeric():
