@@ -318,6 +318,7 @@ class BaseAccount(ABC):
         """
         Sign an TypedData TypedDict for off-chain usage with the Starknet private key and return the signature.
         This adds a message prefix, so it can't be interchanged with transactions.
+        Both v0 and v1 domain revision versions are supported.
 
         :param typed_data: TypedData TypedDict to be signed.
         :return: The signature of the TypedData TypedDict.
@@ -327,6 +328,7 @@ class BaseAccount(ABC):
     def verify_message(self, typed_data: TypedDataDict, signature: List[int]) -> bool:
         """
         Verify a signature of a TypedData dict on Starknet.
+        Both v0 and v1 domain revision versions are supported.
 
         :param typed_data: TypedData TypedDict to be verified.
         :param signature: signature of the TypedData TypedDict.

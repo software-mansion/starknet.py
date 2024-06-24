@@ -1,12 +1,14 @@
 from dataclasses import dataclass
-from typing import Dict, List, Union, cast
+from typing import Dict, List, Optional, Union, cast
 
 from marshmallow import Schema, fields, post_load
 
 from starknet_py.cairo.felt import encode_shortstring
+from starknet_py.hash.hash_method import HashMethod
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.utils import compute_hash_on_elements
-from starknet_py.net.models.typed_data import StarkNetDomainDict, TypedDataDict
+from starknet_py.net.models.typed_data import DomainDict, Revision, TypedDataDict
+from starknet_py.net.schemas.common import RevisionField
 
 
 @dataclass(frozen=True)
@@ -19,6 +21,47 @@ class Parameter:
     type: str
 
 
+@dataclass
+class Domain:
+    """
+    Dataclass representing a domain object (StarkNetDomain, StarknetDomain)
+    """
+
+    name: str
+    version: str
+    chain_id: Union[str, int]
+    revision: Optional[Revision] = None
+
+    def __post_init__(self):
+        self.resolved_revision = (
+            Revision(self.revision) if self.revision else Revision.V0
+        )
+        self.separator_name = self._resolve_separator_name()
+
+    def _resolve_separator_name(self):
+        if self.resolved_revision == Revision.V0:
+            return "StarkNetDomain"
+        return "StarknetDomain"
+
+    @staticmethod
+    def from_dict(data: DomainDict) -> "Domain":
+        """
+        Create Domain dataclass from dictionary.
+
+        :param data: Domain dictionary.
+        :return: Domain dataclass instance.
+        """
+        return cast(Domain, DomainSchema().load(data))
+
+    def to_dict(self) -> dict:
+        """
+        Create Domain dictionary from dataclass.
+
+        :return: Domain dictionary.
+        """
+        return cast(Dict, DomainSchema().dump(obj=self))
+
+
 @dataclass(frozen=True)
 class TypedData:
     """
@@ -27,8 +70,17 @@ class TypedData:
 
     types: Dict[str, List[Parameter]]
     primary_type: str
-    domain: StarkNetDomainDict
+    domain: Domain
     message: dict
+
+    def __post_init__(self):
+        self._verify_types()
+
+    @property
+    def _hash_method(self) -> HashMethod:
+        if self.domain.resolved_revision == Revision.V0:
+            return HashMethod.PEDERSEN
+        return HashMethod.POSEIDON
 
     @staticmethod
     def from_dict(data: TypedDataDict) -> "TypedData":
@@ -39,6 +91,15 @@ class TypedData:
         :return: TypedData dataclass instance.
         """
         return cast(TypedData, TypedDataSchema().load(data))
+
+    def to_dict(self) -> dict:
+        """
+        Create TypedData dictionary from dataclass.
+
+        :return: TypedData dictionary.
+        """
+
+        return cast(Dict, TypedDataSchema().dump(obj=self))
 
     def _is_struct(self, type_name: str) -> bool:
         return type_name in self.types
@@ -67,6 +128,13 @@ class TypedData:
 
         return values
 
+    def _verify_types(self):
+        reserved_type_names = ["felt", "felt*", "string", "selector"]
+
+        for type_name in reserved_type_names:
+            if type_name in self.types:
+                raise ValueError(f"Reserved type name: {type_name}")
+
     def _get_dependencies(self, type_name: str) -> List[str]:
         if type_name not in self.types:
             # type_name is a primitive type, has no dependencies
@@ -91,8 +159,13 @@ class TypedData:
         types = [primary, *sorted(dependencies)]
 
         def make_dependency_str(dependency):
-            lst = [f"{t.name}:{t.type}" for t in self.types[dependency]]
-            return f"{dependency}({','.join(lst)})"
+            lst = [
+                f"{escape(t.name, self.domain.resolved_revision)}:{escape(t.type, self.domain.resolved_revision)}"
+                for t in self.types[dependency]
+            ]
+            return (
+                f"{escape(dependency, self.domain.resolved_revision)}({','.join(lst)})"
+            )
 
         return "".join([make_dependency_str(x) for x in types])
 
@@ -113,7 +186,7 @@ class TypedData:
         :param data: Data defining the struct.
         :return: Hash of the struct.
         """
-        return compute_hash_on_elements(
+        return self._hash_method.hash(
             [self.type_hash(type_name), *self._encode_data(type_name, data)]
         )
 
@@ -126,17 +199,19 @@ class TypedData:
         """
         message = [
             encode_shortstring("StarkNet Message"),
-            self.struct_hash("StarkNetDomain", cast(dict, self.domain)),
+            self.struct_hash(self.domain.separator_name, self.domain.to_dict()),
             account_address,
             self.struct_hash(self.primary_type, self.message),
         ]
 
-        return compute_hash_on_elements(message)
+        return self._hash_method.hash(message)
 
 
 def get_hex(value: Union[int, str]) -> str:
     if isinstance(value, int):
         return hex(value)
+    if isinstance(value, Revision):
+        return hex(value.value)
     if value[:2] == "0x":
         return value
     if value.isnumeric():
@@ -154,6 +229,12 @@ def strip_pointer(value: str) -> str:
     return value
 
 
+def escape(s: str, revision: Revision) -> str:
+    if revision == Revision.V0:
+        return s
+    return f'"{s}"'
+
+
 # pylint: disable=unused-argument
 # pylint: disable=no-self-use
 
@@ -167,6 +248,22 @@ class ParameterSchema(Schema):
         return Parameter(**data)
 
 
+class DomainSchema(Schema):
+    name = fields.String(data_key="name", required=True)
+    version = fields.String(data_key="version", required=True)
+    chain_id = fields.String(attribute="chain_id", data_key="chainId", required=True)
+    revision = RevisionField(data_key="revision", required=False)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> Domain:
+        return Domain(
+            name=data["name"],
+            version=data["version"],
+            chain_id=data["chain_id"],
+            revision=data.get("revision"),
+        )
+
+
 class TypedDataSchema(Schema):
     types = fields.Dict(
         data_key="types",
@@ -174,9 +271,14 @@ class TypedDataSchema(Schema):
         values=fields.List(fields.Nested(ParameterSchema())),
     )
     primary_type = fields.String(data_key="primaryType", required=True)
-    domain = fields.Dict(data_key="domain", required=True)
+    domain = fields.Nested(DomainSchema, required=True)
     message = fields.Dict(data_key="message", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> TypedData:
-        return TypedData(**data)
+        return TypedData(
+            types=data["types"],
+            primary_type=data["primary_type"],
+            domain=data["domain"],
+            message=data["message"],
+        )

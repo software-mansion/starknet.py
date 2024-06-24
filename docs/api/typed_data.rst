@@ -17,9 +17,12 @@ Parameter
     :exclude-members: __init__
 
 --------------
-StarkNetDomain
+Domain
 --------------
 
-.. autoclass:: starknet_py.net.models.typed_data.StarkNetDomainDict
+.. autoclass:: starknet_py.utils.typed_data.Domain
     :members:
     :undoc-members:
+    :exclude-members: __init__
+    :member-order: bysource
+

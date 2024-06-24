@@ -2,6 +2,24 @@ Migration guide
 ===============
 
 ******************************
+0.23.0 Migration guide
+******************************
+
+0.23.0 Targeted versions
+------------------------
+
+- Starknet - `0.13.1.1 <https://docs.starknet.io/documentation/starknet_versions/version_notes/#version0.13.1.1>`_
+- RPC - `0.7.1 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.7.1>`_
+
+0.23.0 Breaking changes
+-----------------------
+.. currentmodule:: starknet_py.utils.typed_data
+
+1. :class:`StarkNetDomain` has been renamed to :class:`Domain`
+
+2. :class:`TypedData` field ``domain`` has been changed from ``dict`` to :class:`Domain`
+
+******************************
 0.22.0 Migration guide
 ******************************
 
