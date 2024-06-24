@@ -233,7 +233,7 @@ def test_custom_type_definition():
 def test_missing_domain_type(revision: Revision):
     domain = domain_v0 if revision == Revision.V0 else domain_v1
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match=f"Types must contain '{domain.separator_name}'."):
         TypedData(
             types={},
             primary_type="felt",
@@ -243,7 +243,7 @@ def test_missing_domain_type(revision: Revision):
 
 
 def test_dangling_type():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Dangling types are not allowed. Unreferenced type dangling was found."):
         TypedData(
             types={
                 **domain_type_v1,
