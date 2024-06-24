@@ -350,11 +350,9 @@ class Revision(Enum):
 
 class RevisionField(fields.Field):
     def _serialize(self, value: Any, attr: str, obj: Any, **kwargs):
-        if value is None:
+        if value is None or value == Revision.V0:
             return str(Revision.V0.value)
-        if value == Revision.V0:
-            return str(value.value)
-        return int(value.value)
+        return value.value
 
     def _deserialize(self, value, attr, data, **kwargs) -> Revision:
         if isinstance(value, str):
