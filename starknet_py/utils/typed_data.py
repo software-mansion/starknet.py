@@ -84,6 +84,17 @@ class TypeContext:
     key: str
 
 
+class BasicType(Enum):
+    FELT = "felt"
+    SELECTOR = "selector"
+    MERKLE_TREE = "merkletree"
+    SHORT_STRING = "shortstring"
+    STRING = "string"
+    CONTRACT_ADDRESS = "ContractAddress"
+    CLASS_HASH = "ClassHash"
+    BOOL = "bool"
+
+
 @dataclass(frozen=True)
 class TypedData:
     """
@@ -94,6 +105,17 @@ class TypedData:
     primary_type: str
     domain: Domain
     message: dict
+
+    _basic_types_v0 = {
+        BasicType.FELT,
+        BasicType.BOOL,
+        BasicType.STRING,
+        BasicType.SELECTOR,
+        BasicType.MERKLE_TREE,
+    }
+    _basic_types_v1 = _basic_types_v0.union(
+        {BasicType.CONTRACT_ADDRESS, BasicType.CLASS_HASH, BasicType.SHORT_STRING}
+    )
 
     def __post_init__(self):
         self._verify_types()
