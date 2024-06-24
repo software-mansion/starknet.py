@@ -5,7 +5,6 @@ from poseidon_py.poseidon_hash import poseidon_hash
 
 from starknet_py.hash.hash_method import HashMethod
 from starknet_py.hash.utils import pedersen_hash
-from starknet_py.net.client_utils import _to_rpc_felt
 from starknet_py.utils.merkle_tree import MerkleTree
 
 
@@ -75,11 +74,10 @@ def build_tree(
     expected_root: int,
     expected_branch_count: int,
 ):
-    leaves_as_felts = [_to_rpc_felt(leaf) for leaf in leaves]
-    tree = MerkleTree(leaves_as_felts, hash_method)
+    tree = MerkleTree(leaves, hash_method)
     assert tree.root_hash is not None
     assert tree.branches is not None
-    assert tree.root_hash == _to_rpc_felt(expected_root)
+    assert tree.root_hash == expected_root
     assert len(tree.branches) == expected_branch_count
 
 

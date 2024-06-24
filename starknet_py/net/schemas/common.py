@@ -1,5 +1,6 @@
 import re
 import sys
+from enum import Enum
 from typing import Any, Mapping, Optional, Union
 
 from marshmallow import Schema, ValidationError, fields, post_load
@@ -339,14 +340,31 @@ class StorageEntrySchema(Schema):
 
 
 class ChainIdField(fields.Field):
-    def _deserialize(self, value, attr, data, **kwargs):
+    def _deserialize(self, value, attr, data, **kwargs) -> str:
         if isinstance(value, int):
             value = str(value)
         return value
 
 
+class Revision(Enum):
+    """
+    Enum representing the revision of the specification to be used.
+    """
+
+    V0 = 0
+    V1 = 1
+
+
 class RevisionField(fields.Field):
-    def _deserialize(self, value, attr, data, **kwargs):
+    def _deserialize(self, value, attr, data, **kwargs) -> Revision:
         if isinstance(value, str):
             value = int(value)
-        return value
+
+        revisions = [revision.value for revision in Revision]
+        if value not in revisions:
+            allowed_revisions_str = "".join(list(map(str, revisions)))
+            raise ValidationError(
+                f"Invalid value provided for Revision: {value}. Allowed values are {allowed_revisions_str}."
+            )
+
+        return Revision(value)

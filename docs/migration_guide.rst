@@ -13,6 +13,7 @@ Migration guide
 
 0.23.0 Breaking changes
 -----------------------
+.. currentmodule:: starknet_py.utils.typed_data
 
 1. :class:`StarkNetDomain` has been renamed to :class:`Domain`
 

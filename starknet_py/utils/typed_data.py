@@ -24,6 +24,14 @@ class Parameter:
     type: str
     contains: Optional[str] = None
 
+    def to_dict(self) -> dict:
+        """
+        Create Parameter dictionary from dataclass.
+
+        :return: Parameter dictionary.
+        """
+        return cast(Dict, ParameterSchema().dump(obj=self))
+
 
 @dataclass
 class Domain:
@@ -106,6 +114,24 @@ class TypedData:
         """
         return cast(TypedData, TypedDataSchema().load(data))
 
+    def to_dict(self) -> dict:
+        """
+        Create TypedData dictionary from dataclass.
+
+        :return: TypedData dictionary.
+        """
+
+        types_dict = {}
+        for type_name, params in self.types.items():
+            types_dict[type_name] = [param.to_dict() for param in params]
+
+        return {
+            "types": types_dict,
+            "primaryType": self.primary_type,
+            "domain": self.domain.to_dict(),
+            "message": self.message,
+        }
+
     def _is_struct(self, type_name: str) -> bool:
         return type_name in self.types
 
@@ -132,10 +158,10 @@ class TypedData:
         if basic_type == BasicType.MERKLE_TREE and isinstance(value, list):
             if context is None:
                 raise ValueError(f"Context is not provided for '{type_name}' type.")
-            return int(self._prepare_merkle_tree_root(value, context), 16)
+            return self._prepare_merkle_tree_root(value, context)
 
         if basic_type in (BasicType.FELT, BasicType.SHORT_STRING) and isinstance(
-            value, (int, str)
+            value, (int, str, Revision)
         ):
             return int(get_hex(value), 16)
 
@@ -259,12 +285,11 @@ class TypedData:
 
         return self._hash_method.hash_many(message)
 
-    def _prepare_merkle_tree_root(self, value: List, context: TypeContext) -> str:
+    def _prepare_merkle_tree_root(self, value: List, context: TypeContext) -> int:
         merkle_tree_type = self._get_merkle_tree_leaves_type(context)
         struct_hashes = list(
             map(lambda struct: self._encode_value(merkle_tree_type, struct), value)
         )
-        struct_hashes = list(map(_to_rpc_felt, struct_hashes))
 
         return MerkleTree(struct_hashes, self._hash_method).root_hash
 
@@ -296,6 +321,8 @@ class TypedData:
 def get_hex(value: Union[int, str]) -> str:
     if isinstance(value, int):
         return hex(value)
+    if isinstance(value, Revision):
+        return hex(value.value)
     if value[:2] == "0x":
         return value
     if value.isnumeric():
