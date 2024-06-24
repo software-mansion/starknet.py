@@ -107,16 +107,7 @@ class TypedData:
         :return: TypedData dictionary.
         """
 
-        types_dict = {}
-        for type_name, params in self.types.items():
-            types_dict[type_name] = [param.to_dict() for param in params]
-
-        return {
-            "types": types_dict,
-            "primaryType": self.primary_type,
-            "domain": self.domain.to_dict(),
-            "message": self.message,
-        }
+        return cast(Dict, TypedDataSchema().dump(obj=self))
 
     def _is_struct(self, type_name: str) -> bool:
         return type_name in self.types
@@ -265,26 +256,6 @@ class ParameterSchema(Schema):
         return Parameter(**data)
 
 
-class TypedDataSchema(Schema):
-    types = fields.Dict(
-        data_key="types",
-        keys=fields.Str(),
-        values=fields.List(fields.Nested(ParameterSchema())),
-    )
-    primary_type = fields.String(data_key="primaryType", required=True)
-    domain = fields.Dict(data_key="domain", required=True)
-    message = fields.Dict(data_key="message", required=True)
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> TypedData:
-        return TypedData(
-            types=data["types"],
-            primary_type=data["primary_type"],
-            domain=Domain.from_dict(data["domain"]),
-            message=data["message"],
-        )
-
-
 class DomainSchema(Schema):
     name = fields.String(data_key="name", required=True)
     version = fields.String(data_key="version", required=True)
@@ -298,4 +269,24 @@ class DomainSchema(Schema):
             version=data["version"],
             chain_id=data["chain_id"],
             revision=data.get("revision"),
+        )
+
+
+class TypedDataSchema(Schema):
+    types = fields.Dict(
+        data_key="types",
+        keys=fields.Str(),
+        values=fields.List(fields.Nested(ParameterSchema())),
+    )
+    primary_type = fields.String(data_key="primaryType", required=True)
+    domain = fields.Nested(DomainSchema, required=True)
+    message = fields.Dict(data_key="message", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> TypedData:
+        return TypedData(
+            types=data["types"],
+            primary_type=data["primary_type"],
+            domain=data["domain"],
+            message=data["message"],
         )
