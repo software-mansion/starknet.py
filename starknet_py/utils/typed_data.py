@@ -144,7 +144,7 @@ class TypedData:
         if type_name in self.types and isinstance(value, dict):
             return self.struct_hash(type_name, value)
 
-        if is_array(type_name) and isinstance(value, list):
+        if is_pointer(type_name) and isinstance(value, list):
             type_name = strip_pointer(type_name)
             hashes = [self._encode_value(type_name, val) for val in value]
             return compute_hash_on_elements(hashes)
@@ -207,7 +207,7 @@ class TypedData:
         for type_name in self.types:
             if not type_name:
                 raise ValueError("Type names cannot be empty.")
-            if is_array(type_name):
+            if is_pointer(type_name):
                 raise ValueError(f"Type names cannot end in *. {type_name} was found.")
             if type_name not in referenced_types:
                 raise ValueError(
@@ -330,12 +330,12 @@ def get_hex(value: Union[int, str]) -> str:
     return hex(encode_shortstring(value))
 
 
-def is_array(value: str) -> bool:
+def is_pointer(value: str) -> bool:
     return value.endswith("*")
 
 
 def strip_pointer(value: str) -> str:
-    if is_array(value):
+    if is_pointer(value):
         return value[:-1]
     return value
 
