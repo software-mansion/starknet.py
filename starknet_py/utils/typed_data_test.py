@@ -9,7 +9,7 @@ import pytest
 
 from starknet_py.net.models.typed_data import Revision
 from starknet_py.tests.e2e.fixtures.constants import TYPED_DATA_DIR
-from starknet_py.utils.typed_data import Domain, TypedData, get_hex, Parameter
+from starknet_py.utils.typed_data import Domain, Parameter, TypedData, get_hex
 
 
 class CasesRev0(Enum):
