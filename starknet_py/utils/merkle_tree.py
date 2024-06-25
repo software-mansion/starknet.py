@@ -22,6 +22,9 @@ class MerkleTree:
         if not self.leaves:
             raise ValueError("Cannot build Merkle tree from an empty list of leaves.")
 
+        if len(self.leaves) == 1:
+            return self.leaves[0], [self.leaves]
+
         curr_level_nodes = self.leaves[:]
         levels: List[List[int]] = []
 
@@ -38,5 +41,5 @@ class MerkleTree:
                 new_nodes.append(self.hash_method.hash(*sorted([a, b])))
 
             curr_level_nodes = new_nodes
-
+        levels = [self.leaves] + levels + [curr_level_nodes]
         return curr_level_nodes[0], levels
