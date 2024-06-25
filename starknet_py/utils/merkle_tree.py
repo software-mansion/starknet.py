@@ -38,5 +38,5 @@ class MerkleTree:
                 new_nodes.append(self.hash_method.hash(*sorted([a, b])))
 
             curr_level_nodes = new_nodes
-
+        levels = [self.leaves] + levels + [curr_level_nodes]
         return curr_level_nodes[0], levels
