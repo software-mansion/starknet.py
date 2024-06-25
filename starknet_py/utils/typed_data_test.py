@@ -180,13 +180,6 @@ domain_v1 = Domain(
     revision=Revision.V1,
 )
 
-domain_object_v1 = {
-    "name": "DomainV1",
-    "version": "1",
-    "chainId": "1234",
-    "revision": 1
-}
-
 
 def _make_typed_data(included_type: str, revision: Revision):
     domain_type, domain = (domain_type_v0, domain_v0) if revision == Revision.V0 else (
