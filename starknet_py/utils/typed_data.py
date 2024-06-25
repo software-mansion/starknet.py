@@ -182,7 +182,7 @@ class TypedData:
             return int(get_hex(value), 16)
 
         if basic_type == BasicType.BOOL and isinstance(value, Union[bool, str, int]):
-            return encode_bool(value)
+            return unwrap_bool(value)
 
         if basic_type == BasicType.SELECTOR and isinstance(value, str):
             return prepare_selector(value)
@@ -376,7 +376,7 @@ def prepare_selector(name: str) -> int:
         return get_selector_from_name(name)
 
 
-def encode_bool(value: Union[bool, str, int]) -> int:
+def unwrap_bool(value: Union[bool, str, int]) -> int:
     if isinstance(value, bool):
         return 1 if value else 0
     if isinstance(value, int) and value in (0, 1):
