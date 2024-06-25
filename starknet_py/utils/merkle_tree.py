@@ -22,6 +22,9 @@ class MerkleTree:
         if not self.leaves:
             raise ValueError("Cannot build Merkle tree from an empty list of leaves.")
 
+        if len(self.leaves) == 1:
+            return self.leaves[0], [self.leaves]
+
         curr_level_nodes = self.leaves[:]
         levels: List[List[int]] = []
 
