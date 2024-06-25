@@ -14,8 +14,8 @@ from starknet_py.utils.typed_data import (
     Domain,
     Parameter,
     TypedData,
-    unwrap_bool,
     get_hex,
+    unwrap_bool,
 )
 
 
