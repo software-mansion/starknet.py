@@ -13,37 +13,33 @@ class MerkleTree:
     leaves: List[int]
     hash_method: HashMethod
     root_hash: int = field(init=False)
-    branches: List[List[int]] = field(init=False)
+    levels: List[List[int]] = field(init=False)
 
     def __post_init__(self):
-        if self.leaves:
-            self.root_hash, self.branches = MerkleTree.build(
-                self.leaves, self.hash_method
-            )
+        self.root_hash, self.levels = self._build()
 
-    @staticmethod
-    def build(
-        leaf_hashes: List[int], hash_method: HashMethod
-    ) -> Tuple[int, List[List[int]]]:
-        if not leaf_hashes:
+    def _build(self) -> Tuple[int, List[List[int]]]:
+        if not self.leaves:
             raise ValueError("Cannot build Merkle tree from an empty list of leaves.")
 
-        leaves = leaf_hashes[:]
-        branches: List[List[int]] = []
+        if len(self.leaves) == 1:
+            return self.leaves[0], [self.leaves]
 
-        while len(leaves) > 1:
-            if len(leaves) != len(leaf_hashes):
-                branches.append(leaves[:])
+        curr_level_nodes = self.leaves[:]
+        levels: List[List[int]] = []
 
-            new_leaves = []
-            for i in range(0, len(leaves), 2):
-                a, b = leaves[i], leaves[i + 1] if i + 1 < len(leaves) else 0
-                new_leaves.append(MerkleTree.hash(a, b, hash_method))
+        while len(curr_level_nodes) > 1:
+            if len(curr_level_nodes) != len(self.leaves):
+                levels.append(curr_level_nodes[:])
 
-            leaves = new_leaves
+            new_nodes = []
+            for i in range(0, len(curr_level_nodes), 2):
+                a, b = (
+                    curr_level_nodes[i],
+                    curr_level_nodes[i + 1] if i + 1 < len(curr_level_nodes) else 0,
+                )
+                new_nodes.append(self.hash_method.hash(*sorted([a, b])))
 
-        return leaves[0], branches
-
-    @staticmethod
-    def hash(a: int, b: int, hash_method: HashMethod) -> int:
-        return hash_method.hash(*sorted([a, b]))
+            curr_level_nodes = new_nodes
+        levels = [self.leaves] + levels + [curr_level_nodes]
+        return curr_level_nodes[0], levels

@@ -9,7 +9,7 @@ from starknet_py.utils.merkle_tree import MerkleTree
 
 
 @pytest.mark.parametrize(
-    "leaves, hash_method, expected_hash",
+    "leaves, hash_method, expected_root_hash",
     [
         (
             ["0x12", "0xa"],
@@ -39,8 +39,9 @@ from starknet_py.utils.merkle_tree import MerkleTree
         ),
     ],
 )
-def test_calculate_hash(leaves: List[str], hash_method: HashMethod, expected_hash: str):
-    expected_hash_int = int(expected_hash, 16)
+def test_calculate_hash(
+    leaves: List[str], hash_method: HashMethod, expected_root_hash: str
+):
     if hash_method == HashMethod.PEDERSEN:
         apply_hash = pedersen_hash
     elif hash_method == HashMethod.POSEIDON:
@@ -49,11 +50,11 @@ def test_calculate_hash(leaves: List[str], hash_method: HashMethod, expected_has
         raise ValueError(f"Unsupported hash method: {hash_method}.")
 
     a, b = int(leaves[0], 16), int(leaves[1], 16)
-    merkle_hash = MerkleTree.hash(a, b, hash_method)
-    raw_hash = apply_hash(b, a)
+    merkle_hash = hash_method.hash(*sorted([b, a]))
+    raw_hash = apply_hash(*sorted([b, a]))
 
     assert raw_hash == merkle_hash
-    assert expected_hash_int == merkle_hash
+    assert int(expected_root_hash, 16) == merkle_hash
 
 
 @pytest.mark.parametrize(
@@ -64,79 +65,76 @@ def test_calculate_hash(leaves: List[str], hash_method: HashMethod, expected_has
     ],
 )
 def test_build_from_0_elements(hash_method: HashMethod):
-    with pytest.raises(ValueError):
-        MerkleTree.build([], hash_method)
+    with pytest.raises(
+        ValueError, match="Cannot build Merkle tree from an empty list of leaves."
+    ):
+        MerkleTree([], hash_method)
 
 
-def build_tree(
-    leaves: List[int],
+@pytest.mark.parametrize(
+    "leaves, hash_method, expected_root_hash, expected_levels_count",
+    [
+        (["0x1"], HashMethod.PEDERSEN, "0x1", 1),
+        (["0x1"], HashMethod.POSEIDON, "0x1", 1),
+        (
+            ["0x1", "0x2"],
+            HashMethod.PEDERSEN,
+            "0x5bb9440e27889a364bcb678b1f679ecd1347acdedcbf36e83494f857cc58026",
+            2,
+        ),
+        (
+            ["0x1", "0x2"],
+            HashMethod.POSEIDON,
+            "0x5d44a3decb2b2e0cc71071f7b802f45dd792d064f0fc7316c46514f70f9891a",
+            2,
+        ),
+        (
+            ["0x1", "0x2", "0x3", "0x4"],
+            HashMethod.PEDERSEN,
+            "0x38118a340bbba28e678413cd3b07a9436a5e60fd6a7cbda7db958a6d501e274",
+            3,
+        ),
+        (
+            ["0x1", "0x2", "0x3", "0x4"],
+            HashMethod.POSEIDON,
+            "0xa4d02f1e82fc554b062b754d3a4995e0ed8fc7e5016a7ca2894a451a4bae64",
+            3,
+        ),
+        (
+            ["0x1", "0x2", "0x3", "0x4", "0x5", "0x6"],
+            HashMethod.PEDERSEN,
+            "0x329d5b51e352537e8424bfd85b34d0f30b77d213e9b09e2976e6f6374ecb59",
+            4,
+        ),
+        (
+            ["0x1", "0x2", "0x3", "0x4", "0x5", "0x6"],
+            HashMethod.POSEIDON,
+            "0x34d525f018d8d6b3e492b1c9cda9bbdc3bc7834b408a30a417186c698c34766",
+            4,
+        ),
+        (
+            ["0x1", "0x2", "0x3", "0x4", "0x5", "0x6", "0x7"],
+            HashMethod.PEDERSEN,
+            "0x7f748c75e5bdb7ae28013f076b8ab650c4e01d3530c6e5ab665f9f1accbe7d4",
+            4,
+        ),
+        (
+            ["0x1", "0x2", "0x3", "0x4", "0x5", "0x6", "0x7"],
+            HashMethod.POSEIDON,
+            "0x3308a3c50c25883753f82b21f14c644ec375b88ea5b0f83d1e6afe74d0ed790",
+            4,
+        ),
+    ],
+)
+def test_build_from_elements(
+    leaves: List[str],
     hash_method: HashMethod,
-    expected_root: int,
-    expected_branch_count: int,
+    expected_root_hash: str,
+    expected_levels_count: int,
 ):
-    tree = MerkleTree(leaves, hash_method)
+    tree = MerkleTree([int(leaf, 16) for leaf in leaves], hash_method)
+
     assert tree.root_hash is not None
-    assert tree.branches is not None
-    assert tree.root_hash == expected_root
-    assert len(tree.branches) == expected_branch_count
-
-
-@pytest.mark.parametrize("hash_method", list(HashMethod))
-def test_build_from_1_element(hash_method: HashMethod):
-    leaves = [1]
-    manual_root_hash = leaves[0]
-    build_tree(leaves, hash_method, manual_root_hash, 0)
-
-
-@pytest.mark.parametrize("hash_method", list(HashMethod))
-def test_build_from_2_elements(hash_method: HashMethod):
-    leaves = [1, 2]
-    manual_root_hash = MerkleTree.hash(leaves[0], leaves[1], hash_method)
-    build_tree(leaves, hash_method, manual_root_hash, 0)
-
-
-@pytest.mark.parametrize("hash_method", list(HashMethod))
-def test_build_from_4_elements(hash_method: HashMethod):
-    leaves = [1, 2, 3, 4]
-    manual_root_hash = MerkleTree.hash(
-        MerkleTree.hash(leaves[0], leaves[1], hash_method),
-        MerkleTree.hash(leaves[2], leaves[3], hash_method),
-        hash_method,
-    )
-    build_tree(leaves, hash_method, manual_root_hash, 1)
-
-
-@pytest.mark.parametrize("hash_method", list(HashMethod))
-def test_build_from_6_elements(hash_method: HashMethod):
-    leaves = [1, 2, 3, 4, 5, 6]
-    manual_root_hash = MerkleTree.hash(
-        MerkleTree.hash(
-            MerkleTree.hash(leaves[0], leaves[1], hash_method),
-            MerkleTree.hash(leaves[2], leaves[3], hash_method),
-            hash_method,
-        ),
-        MerkleTree.hash(
-            MerkleTree.hash(leaves[4], leaves[5], hash_method), 0, hash_method
-        ),
-        hash_method,
-    )
-    build_tree(leaves, hash_method, manual_root_hash, 2)
-
-
-@pytest.mark.parametrize("hash_method", list(HashMethod))
-def test_build_from_7_elements(hash_method: HashMethod):
-    leaves = [1, 2, 3, 4, 5, 6, 7]
-    manual_root_hash = MerkleTree.hash(
-        MerkleTree.hash(
-            MerkleTree.hash(leaves[0], leaves[1], hash_method),
-            MerkleTree.hash(leaves[2], leaves[3], hash_method),
-            hash_method,
-        ),
-        MerkleTree.hash(
-            MerkleTree.hash(leaves[4], leaves[5], hash_method),
-            MerkleTree.hash(leaves[6], 0, hash_method),
-            hash_method,
-        ),
-        hash_method,
-    )
-    build_tree(leaves, hash_method, manual_root_hash, 2)
+    assert tree.levels is not None
+    assert tree.root_hash == int(expected_root_hash, 16)
+    assert len(tree.levels) == expected_levels_count
