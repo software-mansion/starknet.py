@@ -9,7 +9,7 @@ import pytest
 
 from starknet_py.net.models.typed_data import Revision
 from starknet_py.tests.e2e.fixtures.constants import TYPED_DATA_DIR
-from starknet_py.utils.typed_data import Domain, TypedData, get_hex
+from starknet_py.utils.typed_data import Domain, TypedData, get_hex, Parameter
 
 
 class CasesRev0(Enum):
@@ -152,18 +152,18 @@ def test_message_hash(example, account_address, msg_hash):
 
 domain_type_v0 = {
     "StarkNetDomain": [
-        {"name": "name", "type": "felt"},
-        {"name": "version", "type": "felt"},
-        {"name": "chainId", "type": "felt"},
+        Parameter(name="name", type="felt"),
+        Parameter(name="version", type="felt"),
+        Parameter(name="chainId", type="felt"),
     ]
 }
 
 domain_type_v1 = {
     "StarknetDomain": [
-        {"name": "name", "type": "shortstring"},
-        {"name": "version", "type": "shortstring"},
-        {"name": "chainId", "type": "shortstring"},
-        {"name": "revision", "type": "shortstring"},
+        Parameter(name="name", type="shortstring"),
+        Parameter(name="version", type="shortstring"),
+        Parameter(name="chainId", type="shortstring"),
+        Parameter(name="revision", type="shortstring"),
     ]
 }
 
