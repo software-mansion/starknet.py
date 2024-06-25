@@ -24,14 +24,6 @@ class Parameter:
     type: str
     contains: Optional[str] = None
 
-    def to_dict(self) -> dict:
-        """
-        Create Parameter dictionary from dataclass.
-
-        :return: Parameter dictionary.
-        """
-        return cast(Dict, ParameterSchema().dump(obj=self))
-
 
 @dataclass
 class Domain:
@@ -312,8 +304,6 @@ class TypedData:
 def get_hex(value: Union[int, str]) -> str:
     if isinstance(value, int):
         return hex(value)
-    if isinstance(value, Revision):
-        return hex(value.value)
     if value[:2] == "0x":
         return value
     if value.isnumeric():
