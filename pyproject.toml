@@ -2,12 +2,13 @@
 name = "starknet-py"
 version = "0.22.0"
 description = "A python SDK for Starknet"
-authors = ["Tomasz Rejowski <tomasz.rejowski@swmansion.com>", "Jakub Ptak <jakub.ptak@swmansion.com>"]
+authors = [
+    "Tomasz Rejowski <tomasz.rejowski@swmansion.com>",
+    "Jakub Ptak <jakub.ptak@swmansion.com>",
+]
 include = ["starknet_py", "starknet_py/utils/crypto/libcrypto_c_exports.*"]
 exclude = ["starknet_py/tests/*", "starknet_py/**/*_test.py"]
-packages = [
-    { include = "starknet_py" }
-]
+packages = [{ include = "starknet_py" }]
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/software-mansion/starknet.py"
@@ -28,6 +29,7 @@ enum-tools = { extras = ["sphinx"], version = "0.11.0", optional = true }
 furo = { version = "^2023.5.20", optional = true }
 pycryptodome = "^3.17"
 crypto-cpp-py = "1.4.4"
+eth-keyfile = "^0.8.1"
 
 [tool.poetry.extras]
 docs = ["sphinx", "enum-tools", "furo"]
@@ -56,7 +58,7 @@ test = [
     "test_ci_on_networks --disable-warnings -qq",
     "test_ci_docs_v1 --disable-warnings -qq",
     "test_ci_docs_v2 --disable-warnings -qq",
-    "test_report --skip-covered"
+    "test_report --skip-covered",
 ]
 
 test_ci = ["test_ci_v1", "test_ci_v2"]
@@ -98,12 +100,7 @@ skip_empty = true
 
 
 [build-system]
-requires = [
-    "setuptools",
-    "wheel",
-    "build",
-    "Cython",
-]
+requires = ["setuptools", "wheel", "build", "Cython"]
 
 build-backend = "setuptools.build_meta"
 
@@ -122,17 +119,14 @@ skip_gitignore = true
 addopts = [
     "-v",
     "--reruns=5",
-    "--only-rerun=aiohttp.client_exceptions.ClientConnectorError"
+    "--only-rerun=aiohttp.client_exceptions.ClientConnectorError",
 ]
 markers = [
     "run_on_testnet: marks test that will only run on testnet (when --net=testnet)",
-    "run_on_devnet: marks test that will only run on devnet (when --net=devnet)"
+    "run_on_devnet: marks test that will only run on devnet (when --net=devnet)",
 ]
 
 [tool.pyright]
 include = ["starknet_py/"]
-exclude = [
-    "**/__pycache__",
-    "starknet_py/tests/e2e/docs",
-]
-stubPath = ""  # fix "not a valid directory" error
+exclude = ["**/__pycache__", "starknet_py/tests/e2e/docs"]
+stubPath = ""                                              # fix "not a valid directory" error
