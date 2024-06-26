@@ -243,9 +243,7 @@ class TypedData:
 
     def _prepare_merkle_tree_root(self, value: List, context: TypeContext) -> int:
         merkle_tree_type = self._get_merkle_tree_leaves_type(context)
-        struct_hashes = list(
-            map(lambda struct: self._encode_value(merkle_tree_type, struct), value)
-        )
+        struct_hashes = [self._encode_value(merkle_tree_type, struct) for struct in value]
 
         return MerkleTree(struct_hashes, self._hash_method).root_hash
 
