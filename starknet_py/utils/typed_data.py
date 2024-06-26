@@ -263,7 +263,7 @@ class TypedData:
                 f"Key {key} is not defined in type {parent} or multiple definitions are present."
             )
 
-        if not target_type.contains:
+        if target_type.contains is None:
             raise ValueError("Missing 'contains' field in target type.")
 
         return target_type.contains
