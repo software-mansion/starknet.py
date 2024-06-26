@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import List
 
-from eth_keyfile import extract_key_from_keyfile
+from eth_keyfile.keyfile import extract_key_from_keyfile
 
 from starknet_py.hash.utils import message_signature, private_to_stark_key
 from starknet_py.net.client_models import Hash
