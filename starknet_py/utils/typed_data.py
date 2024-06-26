@@ -257,12 +257,7 @@ class TypedData:
 
         parent_type = self.types[parent]
 
-        # target_type = next((item for item in parent_type if item.type == key), None)
-        target_type = None
-        for item in parent_type:
-            if item.name == key:
-                target_type = item
-                break
+        target_type = next((item for item in parent_type if item.name == key), None)
         if target_type is None:
             raise ValueError(
                 f"Key {key} is not defined in type {parent} or multiple definitions are present."
