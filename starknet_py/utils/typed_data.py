@@ -180,13 +180,11 @@ class TypedData:
 
         basic_type = BasicType(type_name)
 
-        if basic_type == BasicType.FELT and isinstance(value, (int, str)):
-            return int(get_hex(value), 16)
-
         if (basic_type, self.domain.resolved_revision) in [
+            (BasicType.FELT, Revision.V0),
+            (BasicType.FELT, Revision.V1),
             (BasicType.STRING, Revision.V0),
             (BasicType.SHORT_STRING, Revision.V1),
-            (BasicType.STRING, Revision.V1),
             (BasicType.CONTRACT_ADDRESS, Revision.V1),
             (BasicType.CLASS_HASH, Revision.V1),
         ] and isinstance(value, (int, str)):
