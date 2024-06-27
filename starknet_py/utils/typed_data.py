@@ -199,8 +199,8 @@ class TypedData:
             return encode_u128(value)
 
         if (basic_type, self.domain.resolved_revision) == (
-                BasicType.I128,
-                Revision.V1,
+            BasicType.I128,
+            Revision.V1,
         ) and isinstance(value, (int, str)):
             return encode_i128(value)
 
