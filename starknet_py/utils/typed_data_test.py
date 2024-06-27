@@ -32,6 +32,7 @@ class CasesRev0(Enum):
 class CasesRev1(Enum):
     TD = "typed_data_rev_1_example.json"
     TD_FELT_MERKLE_TREE = "typed_data_rev_1_felt_merkletree_example.json"
+    TD_BASIC_TYPES = "typed_data_rev_1_basic_types_example.json"
 
 
 def load_typed_data(file_name: str) -> TypedData:
@@ -67,6 +68,8 @@ def test_get_hex(value, result):
          "Mail(from:Person,to:Person,posts_len:felt,posts:Post*)Person(name:felt,wallet:felt)Post(title:felt,content:felt)"),
         (CasesRev1.TD.value, "Mail",
          """"Mail"("from":"Person","to":"Person","contents":"felt")"Person"("name":"felt","wallet":"felt")"""),
+        (CasesRev1.TD_BASIC_TYPES.value, "Example",
+         """"Example"("n0":"felt","n1":"bool","n2":"string","n3":"selector","n4":"u128","n5":"i128","n6":"ContractAddress","n7":"ClassHash","n8":"timestamp","n9":"shortstring")"""),
         (CasesRev1.TD_FELT_MERKLE_TREE.value, "Example", """"Example"("value":"felt","root":"merkletree")""")
     ],
 )
@@ -95,6 +98,8 @@ def test_encode_type(example, type_name, encoded_type):
         (CasesRev1.TD.value, "StarknetDomain", "0x1ff2f602e42168014d405a94f75e8a93d640751d71d16311266e140d8b0a210"),
         (CasesRev1.TD.value, "Person", "0x30f7aa21b8d67cb04c30f962dd29b95ab320cb929c07d1605f5ace304dadf34"),
         (CasesRev1.TD.value, "Mail", "0x560430bf7a02939edd1a5c104e7b7a55bbab9f35928b1cf5c7c97de3a907bd"),
+        (
+        CasesRev1.TD_BASIC_TYPES.value, "Example", "0x1f94cd0be8b4097a41486170fdf09a4cd23aefbc74bb2344718562994c2c111"),
         (CasesRev1.TD_FELT_MERKLE_TREE.value, "Example",
          "0x160b9c0e8a7c561f9c5d9e3cc2990a1b4d26e94aa319e9eb53e163cd06c71be"),
     ],
@@ -149,6 +154,8 @@ def test_struct_hash(example, type_name, attr_name, struct_hash):
          "0x5d28fa1b31f92e63022f7d85271606e52bed89c046c925f16b09e644dc99794"),
         (CasesRev1.TD.value, "0xcd2a3d9f938e13cd947ec05abc7fe734df8dd826",
          "0x7f6e8c3d8965b5535f5cc68f837c04e3bbe568535b71aa6c621ddfb188932b8"),
+        (CasesRev1.TD_BASIC_TYPES.value, "0xcd2a3d9f938e13cd947ec05abc7fe734df8dd826",
+         "0x2d80b87b8bc32068247c779b2ef0f15f65c9c449325e44a9df480fb01eb43ec"),
         (CasesRev1.TD_FELT_MERKLE_TREE.value, "0xcd2a3d9f938e13cd947ec05abc7fe734df8dd826",
          "0x4f706783e0d7d0e61433d41343a248a213e9ab341d50ba978dfc055f26484c9")
     ],
