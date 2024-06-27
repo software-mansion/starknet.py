@@ -98,20 +98,6 @@ class TypedData:
     domain: Domain
     message: dict
 
-    _basic_types_v0 = [
-        BasicType.FELT,
-        BasicType.BOOL,
-        BasicType.STRING,
-        BasicType.SELECTOR,
-        BasicType.MERKLE_TREE,
-    ]
-
-    _basic_types_v1 = _basic_types_v0 + [
-        BasicType.CONTRACT_ADDRESS,
-        BasicType.CLASS_HASH,
-        BasicType.SHORT_STRING,
-    ]
-
     def __post_init__(self):
         self._verify_types()
 
@@ -120,6 +106,24 @@ class TypedData:
         if self.domain.resolved_revision == Revision.V0:
             return HashMethod.PEDERSEN
         return HashMethod.POSEIDON
+
+    @property
+    def _basic_types_v0(self):
+        return [
+            BasicType.FELT,
+            BasicType.BOOL,
+            BasicType.STRING,
+            BasicType.SELECTOR,
+            BasicType.MERKLE_TREE,
+        ]
+
+    @property
+    def _basic_types_v1(self):
+        return self._basic_types_v0 + [
+            BasicType.CONTRACT_ADDRESS,
+            BasicType.CLASS_HASH,
+            BasicType.SHORT_STRING,
+        ]
 
     @staticmethod
     def from_dict(data: TypedDataDict) -> "TypedData":
@@ -140,7 +144,8 @@ class TypedData:
 
         return cast(Dict, TypedDataSchema().dump(obj=self))
 
-    def _get_basic_types(self) -> List[BasicType]:
+    @property
+    def _basic_types(self) -> List[BasicType]:
         if self.domain.resolved_revision == Revision.V0:
             return self._basic_types_v0
         return self._basic_types_v1
@@ -213,8 +218,7 @@ class TypedData:
         if self.domain.separator_name not in self.types:
             raise ValueError(f"Types must contain '{self.domain.separator_name}'.")
 
-        basic_types = set(map(lambda bt: bt.value, self._get_basic_types()))
-
+        basic_types = [basic_type.value for basic_type in self._basic_types]
         referenced_types = [
             parameter for type_name in self.types for parameter in self.types[type_name]
         ]
