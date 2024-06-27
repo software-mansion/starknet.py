@@ -171,8 +171,7 @@ class TypedData:
             hashes = [self._encode_value(type_name, val) for val in value]
             return compute_hash_on_elements(hashes)
 
-        basic_types = [bt.value for bt in BasicType]
-        if type_name not in basic_types:
+        if type_name not in _get_basic_types_values():
             raise ValueError(f"Type [{type_name}] is not defined in types.")
 
         basic_type = BasicType(type_name)
@@ -219,15 +218,14 @@ class TypedData:
             raise ValueError(f"Types must contain '{self.domain.separator_name}'.")
 
         basic_types = [basic_type.value for basic_type in self._basic_types]
-        referenced_types = [
-            parameter for type_name in self.types for parameter in self.types[type_name]
-        ]
-        referenced_types = [
+        referenced_types = {
             ref_type.contains
             if ref_type.contains is not None
             else strip_pointer(ref_type.type)
-            for ref_type in referenced_types
-        ] + [self.domain.separator_name, self.primary_type]
+            for type_name in self.types
+            for ref_type in self.types[type_name]
+        }
+        referenced_types.update([self.domain.separator_name, self.primary_type])
 
         for type_name in self.types:
             if type_name in basic_types:
@@ -317,9 +315,9 @@ class TypedData:
 
     def _prepare_merkle_tree_root(self, value: List, context: TypeContext) -> int:
         merkle_tree_type = self._get_merkle_tree_leaves_type(context)
-        struct_hashes = list(
-            map(lambda struct: self._encode_value(merkle_tree_type, struct), value)
-        )
+        struct_hashes = [
+            self._encode_value(merkle_tree_type, struct) for struct in value
+        ]
 
         return MerkleTree(struct_hashes, self._hash_method).root_hash
 
@@ -337,7 +335,7 @@ class TypedData:
                 f"Key {key} is not defined in type {parent} or multiple definitions are present."
             )
 
-        if not target_type.contains:
+        if target_type.contains is None:
             raise ValueError("Missing 'contains' field in target type.")
 
         return target_type.contains
@@ -351,6 +349,10 @@ def get_hex(value: Union[int, str]) -> str:
     if value.isnumeric():
         return hex(int(value))
     return hex(encode_shortstring(value))
+
+
+def _get_basic_types_values() -> List[str]:
+    return [basic_type.value for basic_type in BasicType]
 
 
 def is_pointer(value: str) -> bool:
