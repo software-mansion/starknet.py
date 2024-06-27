@@ -147,7 +147,7 @@ class TypedData:
             hashes = [self._encode_value(type_name, val) for val in value]
             return compute_hash_on_elements(hashes)
 
-        if type_name not in _get_basic_types_values():
+        if type_name not in _get_basic_type_names(self.domain.resolved_revision):
             raise ValueError(f"Type [{type_name}] is not defined in types.")
 
         basic_type = BasicType(type_name)
@@ -193,7 +193,12 @@ class TypedData:
         if self.domain.separator_name not in self.types:
             raise ValueError(f"Types must contain '{self.domain.separator_name}'.")
 
-        basic_types = _get_basic_types_values()
+        reserved_type_names = ["felt", "string", "selector", "merkletree"]
+
+        for type_name in reserved_type_names:
+            if type_name in self.types:
+                raise ValueError(f"Reserved type name: {type_name}")
+
         referenced_types = {
             ref_type.contains
             if ref_type.contains is not None
@@ -204,15 +209,10 @@ class TypedData:
         referenced_types.update([self.domain.separator_name, self.primary_type])
 
         for type_name in self.types:
-            if type_name in basic_types:
-                raise ValueError(f"Reserved type name: {type_name}")
-
             if not type_name:
                 raise ValueError("Type names cannot be empty.")
-
             if is_pointer(type_name):
                 raise ValueError(f"Type names cannot end in *. {type_name} was found.")
-
             if type_name not in referenced_types:
                 raise ValueError(
                     f"Dangling types are not allowed. Unreferenced type {type_name} was found."
@@ -327,10 +327,6 @@ def get_hex(value: Union[int, str]) -> str:
     return hex(encode_shortstring(value))
 
 
-def _get_basic_types_values() -> List[str]:
-    return [basic_type.value for basic_type in BasicType]
-
-
 def is_pointer(value: str) -> bool:
     return value.endswith("*")
 
@@ -366,6 +362,22 @@ def encode_bool(value: Union[bool, str, int]) -> int:
     if isinstance(value, str) and value in ("0x0", "0x1"):
         return int(value, 16)
     raise ValueError(f"Expected boolean value, got [{value}].")
+
+
+def _get_basic_type_names(revision: Revision) -> List[str]:
+    basic_types_v0 = [
+        BasicType.FELT,
+        BasicType.SELECTOR,
+        BasicType.MERKLE_TREE,
+        BasicType.STRING,
+    ]
+
+    basic_types_v1 = basic_types_v0 + [
+        BasicType.SHORT_STRING,
+    ]
+
+    basic_types = basic_types_v0 if revision == Revision.V0 else basic_types_v1
+    return [basic_type.value for basic_type in basic_types]
 
 
 # pylint: disable=unused-argument
