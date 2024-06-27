@@ -132,7 +132,7 @@ class TypedData:
             hashes = [self._encode_value(type_name, val) for val in value]
             return compute_hash_on_elements(hashes)
 
-        if type_name not in _get_basic_types_values(self.domain.resolved_revision):
+        if type_name not in _get_basic_type_names(self.domain.resolved_revision):
             raise ValueError(f"Type [{type_name}] is not defined in types.")
 
         basic_type = BasicType(type_name)
@@ -170,9 +170,9 @@ class TypedData:
         if self.domain.separator_name not in self.types:
             raise ValueError(f"Types must contain '{self.domain.separator_name}'.")
 
-        reserved_type_names = _get_basic_types_values(self.domain.resolved_revision)
+        basic_type_names = _get_basic_type_names(self.domain.resolved_revision)
 
-        for type_name in reserved_type_names:
+        for type_name in basic_type_names:
             if type_name in self.types:
                 raise ValueError(f"Reserved type name: {type_name}")
 
@@ -335,7 +335,7 @@ class BasicType(Enum):
     SHORT_STRING = "shortstring"
 
 
-def _get_basic_types_values(revision: Revision) -> List[str]:
+def _get_basic_type_names(revision: Revision) -> List[str]:
     basic_types_v0 = [
         BasicType.FELT,
         BasicType.SELECTOR,
