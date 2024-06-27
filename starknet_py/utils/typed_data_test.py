@@ -337,10 +337,14 @@ def test_encode_u128(value: Union[str, int], expected: str):
     [
         -1,
         "-1",
+        1.23,
+        -1.23,
+        "1.23",
+        "-1.23",
         "example",
         "0xwrong",
         2 ** 128,
-        hex(2 ** 128)
+        hex(2 ** 128),
     ]
 )
 def test_encode_invalid_u128(value: Union[str, int]):
@@ -372,6 +376,10 @@ def test_encode_i128(value: Union[str, int], expected: str):
     [
         "example",
         "0xwrong",
+        1.23,
+        -1.23,
+        "1.23",
+        "-1.23",
         -2 ** 127 - 1,
         2 ** 127,
         str(-2 ** 127 - 1),
