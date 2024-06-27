@@ -103,23 +103,6 @@ class TypedData:
     domain: Domain
     message: dict
 
-    _basic_types_v0 = [
-        BasicType.FELT,
-        BasicType.BOOL,
-        BasicType.STRING,
-        BasicType.SELECTOR,
-        BasicType.MERKLE_TREE,
-    ]
-
-    _basic_types_v1 = _basic_types_v0 + [
-        BasicType.U128,
-        BasicType.I128,
-        BasicType.CONTRACT_ADDRESS,
-        BasicType.CLASS_HASH,
-        BasicType.TIMESTAMP,
-        BasicType.SHORT_STRING,
-    ]
-
     def __post_init__(self):
         self._verify_types()
 
@@ -128,6 +111,24 @@ class TypedData:
         if self.domain.resolved_revision == Revision.V0:
             return HashMethod.PEDERSEN
         return HashMethod.POSEIDON
+
+    @property
+    def _basic_types_v0(self):
+        return [
+            BasicType.FELT,
+            BasicType.BOOL,
+            BasicType.STRING,
+            BasicType.SELECTOR,
+            BasicType.MERKLE_TREE,
+        ]
+
+    @property
+    def _basic_types_v1(self):
+        return self._basic_types_v0 + [
+            BasicType.CONTRACT_ADDRESS,
+            BasicType.CLASS_HASH,
+            BasicType.SHORT_STRING,
+        ]
 
     @staticmethod
     def from_dict(data: TypedDataDict) -> "TypedData":
@@ -148,7 +149,8 @@ class TypedData:
 
         return cast(Dict, TypedDataSchema().dump(obj=self))
 
-    def _get_basic_types(self) -> List[BasicType]:
+    @property
+    def _basic_types(self) -> List[BasicType]:
         if self.domain.resolved_revision == Revision.V0:
             return self._basic_types_v0
         return self._basic_types_v1
@@ -180,13 +182,11 @@ class TypedData:
 
         basic_type = BasicType(type_name)
 
-        if basic_type == BasicType.FELT and isinstance(value, (int, str)):
-            return int(get_hex(value), 16)
-
         if (basic_type, self.domain.resolved_revision) in [
+            (BasicType.FELT, Revision.V0),
+            (BasicType.FELT, Revision.V1),
             (BasicType.STRING, Revision.V0),
             (BasicType.SHORT_STRING, Revision.V1),
-            (BasicType.STRING, Revision.V1),
             (BasicType.CONTRACT_ADDRESS, Revision.V1),
             (BasicType.CLASS_HASH, Revision.V1),
         ] and isinstance(value, (int, str)):
@@ -235,8 +235,7 @@ class TypedData:
         if self.domain.separator_name not in self.types:
             raise ValueError(f"Types must contain '{self.domain.separator_name}'.")
 
-        basic_types = set(map(lambda bt: bt.value, self._get_basic_types()))
-
+        basic_types = [basic_type.value for basic_type in self._basic_types]
         referenced_types = [
             parameter for type_name in self.types for parameter in self.types[type_name]
         ]
@@ -349,12 +348,7 @@ class TypedData:
 
         parent_type = self.types[parent]
 
-        # target_type = next((item for item in parent_type if item.type == key), None)
-        target_type = None
-        for item in parent_type:
-            if item.name == key:
-                target_type = item
-                break
+        target_type = next((item for item in parent_type if item.name == key), None)
         if target_type is None:
             raise ValueError(
                 f"Key {key} is not defined in type {parent} or multiple definitions are present."
