@@ -107,24 +107,6 @@ class TypedData:
             return HashMethod.PEDERSEN
         return HashMethod.POSEIDON
 
-    @property
-    def _basic_types_v0(self):
-        return [
-            BasicType.FELT,
-            BasicType.BOOL,
-            BasicType.STRING,
-            BasicType.SELECTOR,
-            BasicType.MERKLE_TREE,
-        ]
-
-    @property
-    def _basic_types_v1(self):
-        return self._basic_types_v0 + [
-            BasicType.CONTRACT_ADDRESS,
-            BasicType.CLASS_HASH,
-            BasicType.SHORT_STRING,
-        ]
-
     @staticmethod
     def from_dict(data: TypedDataDict) -> "TypedData":
         """
@@ -143,12 +125,6 @@ class TypedData:
         """
 
         return cast(Dict, TypedDataSchema().dump(obj=self))
-
-    @property
-    def _basic_types(self) -> List[BasicType]:
-        if self.domain.resolved_revision == Revision.V0:
-            return self._basic_types_v0
-        return self._basic_types_v1
 
     def _is_struct(self, type_name: str) -> bool:
         return type_name in self.types
@@ -217,7 +193,7 @@ class TypedData:
         if self.domain.separator_name not in self.types:
             raise ValueError(f"Types must contain '{self.domain.separator_name}'.")
 
-        basic_types = [basic_type.value for basic_type in self._basic_types]
+        basic_types = _get_basic_types_values()
         referenced_types = {
             ref_type.contains
             if ref_type.contains is not None
