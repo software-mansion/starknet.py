@@ -103,23 +103,22 @@ class TypedData:
     domain: Domain
     message: dict
 
-    _basic_types_v0 = {
+    _basic_types_v0 = [
         BasicType.FELT,
         BasicType.BOOL,
         BasicType.STRING,
         BasicType.SELECTOR,
         BasicType.MERKLE_TREE,
-    }
-    _basic_types_v1 = _basic_types_v0.union(
-        {
-            BasicType.U128,
-            BasicType.I128,
-            BasicType.CONTRACT_ADDRESS,
-            BasicType.CLASS_HASH,
-            BasicType.TIMESTAMP,
-            BasicType.SHORT_STRING,
-        }
-    )
+    ]
+
+    _basic_types_v1 = _basic_types_v0 + [
+        BasicType.U128,
+        BasicType.I128,
+        BasicType.CONTRACT_ADDRESS,
+        BasicType.CLASS_HASH,
+        BasicType.TIMESTAMP,
+        BasicType.SHORT_STRING,
+    ]
 
     def __post_init__(self):
         self._verify_types()
@@ -149,7 +148,7 @@ class TypedData:
 
         return cast(Dict, TypedDataSchema().dump(obj=self))
 
-    def _get_basic_types(self) -> set[BasicType]:
+    def _get_basic_types(self) -> List[BasicType]:
         if self.domain.resolved_revision == Revision.V0:
             return self._basic_types_v0
         return self._basic_types_v1
@@ -181,7 +180,7 @@ class TypedData:
 
         basic_type = BasicType(type_name)
 
-        if basic_type == BasicType.FELT and isinstance(value, Union[int, str]):
+        if basic_type == BasicType.FELT and isinstance(value, (int, str)):
             return int(get_hex(value), 16)
 
         if (basic_type, self.domain.resolved_revision) in [
@@ -190,22 +189,22 @@ class TypedData:
             (BasicType.STRING, Revision.V1),
             (BasicType.CONTRACT_ADDRESS, Revision.V1),
             (BasicType.CLASS_HASH, Revision.V1),
-        ] and isinstance(value, Union[int, str]):
+        ] and isinstance(value, (int, str)):
             return int(get_hex(value), 16)
 
         if (basic_type, self.domain.resolved_revision) in [
             (BasicType.U128, Revision.V1),
             (BasicType.TIMESTAMP, Revision.V1),
-        ] and isinstance(value, Union[int, str]):
+        ] and isinstance(value, (int, str)):
             return encode_u128(value)
 
         if (basic_type, self.domain.resolved_revision) == (
-            BasicType.I128,
-            Revision.V1,
-        ) and isinstance(value, Union[int, str]):
+                BasicType.I128,
+                Revision.V1,
+        ) and isinstance(value, (int, str)):
             return encode_i128(value)
 
-        if basic_type == BasicType.BOOL and isinstance(value, Union[bool, str, int]):
+        if basic_type == BasicType.BOOL and isinstance(value, (bool, str, int)):
             return encode_bool(value)
 
         if basic_type == BasicType.SELECTOR and isinstance(value, str):
