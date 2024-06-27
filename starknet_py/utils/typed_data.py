@@ -13,6 +13,7 @@ from starknet_py.hash.utils import compute_hash_on_elements
 from starknet_py.net.client_utils import _to_rpc_felt
 from starknet_py.net.models.typed_data import DomainDict, Revision, TypedDataDict
 from starknet_py.net.schemas.common import RevisionField
+from starknet_py.serialization.data_serializers import ByteArraySerializer
 from starknet_py.utils.merkle_tree import MerkleTree
 
 
@@ -92,7 +93,7 @@ class BasicType(Enum):
     TIMESTAMP = "timestamp"
 
 
-@dataclass(frozen=True)
+@dataclass
 class TypedData:
     """
     Dataclass representing a TypedData object
@@ -105,6 +106,7 @@ class TypedData:
 
     def __post_init__(self):
         self._verify_types()
+        self._byte_array_serializer = ByteArraySerializer()
 
     @property
     def _hash_method(self) -> HashMethod:
@@ -158,7 +160,7 @@ class TypedData:
     def _is_struct(self, type_name: str) -> bool:
         return type_name in self.types
 
-    # pylint: disable=too-many-return-statements
+    # pylint: disable=too-many-return-statements,too-many-branches
     def _encode_value(
         self,
         type_name: str,
@@ -206,6 +208,12 @@ class TypedData:
 
         if basic_type == BasicType.BOOL and isinstance(value, (bool, str, int)):
             return encode_bool(value)
+
+        if (basic_type, self.domain.resolved_revision) == (
+            BasicType.STRING,
+            Revision.V1,
+        ) and isinstance(value, str):
+            return self._prepare_long_string(value)
 
         if basic_type == BasicType.SELECTOR and isinstance(value, str):
             return prepare_selector(value)
@@ -358,6 +366,10 @@ class TypedData:
             raise ValueError("Missing 'contains' field in target type.")
 
         return target_type.contains
+
+    def _prepare_long_string(self, value: str) -> int:
+        serialized_values = self._byte_array_serializer.serialize(value)
+        return self._hash_method.hash_many(serialized_values)
 
 
 def get_hex(value: Union[int, str]) -> str:
