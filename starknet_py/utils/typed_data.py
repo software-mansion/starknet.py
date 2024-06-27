@@ -132,7 +132,10 @@ class TypedData:
             hashes = [self._encode_value(type_name, val) for val in value]
             return compute_hash_on_elements(hashes)
 
-        if type_name not in _get_basic_types_values():
+        basic_types_values = [
+            bt.value for bt in _get_basic_types(self.domain.resolved_revision)
+        ]
+        if type_name not in basic_types_values:
             raise ValueError(f"Type [{type_name}] is not defined in types.")
 
         basic_type = BasicType(type_name)
@@ -304,10 +307,6 @@ def get_hex(value: Union[int, str]) -> str:
     return hex(encode_shortstring(value))
 
 
-def _get_basic_types_values() -> List[str]:
-    return [basic_type.value for basic_type in BasicType]
-
-
 def is_pointer(value: str) -> bool:
     return value.endswith("*")
 
@@ -336,6 +335,20 @@ class BasicType(Enum):
     SELECTOR = "selector"
     MERKLE_TREE = "merkletree"
     SHORT_STRING = "shortstring"
+
+
+def _get_basic_types(revision: Revision) -> List[BasicType]:
+    basic_types_v0 = [
+        BasicType.FELT,
+        BasicType.SELECTOR,
+        BasicType.MERKLE_TREE,
+    ]
+
+    basic_types_v1 = basic_types_v0 + [
+        BasicType.SHORT_STRING,
+    ]
+
+    return basic_types_v0 if revision == Revision.V0 else basic_types_v1
 
 
 # pylint: disable=unused-argument
