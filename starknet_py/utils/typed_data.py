@@ -424,19 +424,20 @@ def encode_u128(value: Union[str, int]) -> int:
     def is_in_range(n: int):
         return 0 <= n < 2**128
 
-    int_value = None
+    if isinstance(value, int):
+        if is_in_range(value):
+            return value
+        raise ValueError(f"Value [{value}] is out of range for '{BasicType.U128}'.")
 
-    if isinstance(value, int) and is_in_range(value):
-        int_value = value
+    if isinstance(value, str):
+        int_value = None
 
-    if isinstance(value, str) and is_digit_string(str(value)):
-        int_value = int(value)
+        if value.startswith("0x"):
+            int_value = int(value, 16)
+        elif is_digit_string(value):
+            int_value = int(value)
 
-    if isinstance(value, str) and value[:2] == "0x":
-        int_value = int(value, 16)
-
-    if int_value is not None:
-        if is_in_range(int_value):
+        if int_value is not None and is_in_range(int_value):
             return int_value
 
     raise ValueError(f"Value [{value}] is out of range for '{BasicType.U128}'.")
@@ -451,11 +452,11 @@ def encode_i128(value: Union[str, int]) -> int:
     if isinstance(value, int):
         int_value = value
 
-    if isinstance(value, str) and is_digit_string(value, True):
-        int_value = int(value)
-
-    if isinstance(value, str) and value[:2] == "0x":
-        int_value = int(value, 16)
+    elif isinstance(value, str):
+        if value.startswith("0x"):
+            int_value = int(value, 16)
+        elif is_digit_string(value, True):
+            int_value = int(value)
 
     if int_value is not None:
         if abs(int_value) >= FIELD_PRIME:

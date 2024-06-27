@@ -319,17 +319,17 @@ def test_encode_invalid_bool(value: Union[bool, str, int]):
 @pytest.mark.parametrize(
     "value, expected",
     [
-        (0, "0x0"),
-        (1, "0x1"),
-        (1000000, "0xf4240"),
-        ("0x0", "0x0"),
-        ("0x1", "0x1"),
-        ("0x64", "0x64"),
-        (2 ** 128 - 1, "0xffffffffffffffffffffffffffffffff"),
+        (0, 0),
+        (1, 1),
+        (1000000, 1000000),
+        ("0x0", 0),
+        ("0x1", 1),
+        ("0x64", 100),
+        (2 ** 128 - 1, 2 ** 128 - 1),
     ]
 )
 def test_encode_u128(value: Union[str, int], expected: str):
-    assert hex(encode_u128(value)) == expected
+    assert encode_u128(value) == expected
 
 
 @pytest.mark.parametrize(
