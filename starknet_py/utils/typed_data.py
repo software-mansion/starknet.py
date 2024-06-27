@@ -392,6 +392,10 @@ def strip_pointer(value: str) -> str:
     return value
 
 
+def is_enum(value: str) -> bool:
+    return value.startswith("(") and value.endswith(")")
+
+
 def escape(s: str, revision: Revision) -> str:
     if revision == Revision.V0:
         return s
