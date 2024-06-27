@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass
 from enum import Enum
 from typing import Dict, List, Optional, Union, cast
@@ -5,6 +6,7 @@ from typing import Dict, List, Optional, Union, cast
 from marshmallow import Schema, fields, post_load
 
 from starknet_py.cairo.felt import encode_shortstring
+from starknet_py.constants import FIELD_PRIME
 from starknet_py.hash.hash_method import HashMethod
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.utils import compute_hash_on_elements
@@ -85,6 +87,9 @@ class BasicType(Enum):
     CONTRACT_ADDRESS = "ContractAddress"
     CLASS_HASH = "ClassHash"
     BOOL = "bool"
+    U128 = "u128"
+    I128 = "i128"
+    TIMESTAMP = "timestamp"
 
 
 @dataclass(frozen=True)
@@ -106,7 +111,14 @@ class TypedData:
         BasicType.MERKLE_TREE,
     }
     _basic_types_v1 = _basic_types_v0.union(
-        {BasicType.CONTRACT_ADDRESS, BasicType.CLASS_HASH, BasicType.SHORT_STRING}
+        {
+            BasicType.U128,
+            BasicType.I128,
+            BasicType.CONTRACT_ADDRESS,
+            BasicType.CLASS_HASH,
+            BasicType.TIMESTAMP,
+            BasicType.SHORT_STRING,
+        }
     )
 
     def __post_init__(self):
@@ -147,10 +159,10 @@ class TypedData:
 
     # pylint: disable=too-many-return-statements
     def _encode_value(
-        self,
-        type_name: str,
-        value: Union[int, str, dict, list],
-        context: Optional[TypeContext] = None,
+            self,
+            type_name: str,
+            value: Union[int, str, dict, list],
+            context: Optional[TypeContext] = None,
     ) -> int:
         if isinstance(value, Revision):
             value = value.value
@@ -180,6 +192,18 @@ class TypedData:
             (BasicType.CLASS_HASH, Revision.V1),
         ] and isinstance(value, Union[int, str]):
             return int(get_hex(value), 16)
+
+        if (basic_type, self.domain.resolved_revision) in [
+            (BasicType.U128, Revision.V1),
+            (BasicType.TIMESTAMP, Revision.V1),
+        ] and isinstance(value, Union[int, str]):
+            return encode_u128(value)
+
+        if (basic_type, self.domain.resolved_revision) == (
+                BasicType.I128,
+                Revision.V1,
+        ) and isinstance(value, Union[int, str]):
+            return encode_i128(value)
 
         if basic_type == BasicType.BOOL and isinstance(value, Union[bool, str, int]):
             return unwrap_bool(value)
@@ -218,11 +242,11 @@ class TypedData:
             parameter for type_name in self.types for parameter in self.types[type_name]
         ]
         referenced_types = [
-            ref_type.contains
-            if ref_type.contains is not None
-            else strip_pointer(ref_type.type)
-            for ref_type in referenced_types
-        ] + [self.domain.separator_name, self.primary_type]
+                               ref_type.contains
+                               if ref_type.contains is not None
+                               else strip_pointer(ref_type.type)
+                               for ref_type in referenced_types
+                           ] + [self.domain.separator_name, self.primary_type]
 
         for type_name in self.types:
             if type_name in basic_types:
@@ -388,6 +412,61 @@ def unwrap_bool(value: Union[bool, str, int]) -> int:
     if isinstance(value, str) and value in ("0x0", "0x1"):
         return int(value, 16)
     raise ValueError(f"Expected boolean value, got [{value}].")
+
+
+def is_digit_string(s: str, signed=False) -> bool:
+    if signed:
+        return bool(re.fullmatch(r"-?\d+", s))
+    return bool(re.fullmatch(r"\d+", s))
+
+
+def encode_u128(value: Union[str, int]) -> int:
+    def is_in_range(n: int):
+        return 0 <= n < 2 ** 128
+
+    int_value = None
+
+    if isinstance(value, int) and is_in_range(value):
+        int_value = value
+
+    if isinstance(value, str) and is_digit_string(str(value)):
+        int_value = int(value)
+
+    if isinstance(value, str) and value[:2] == "0x":
+        int_value = int(value, 16)
+
+    if int_value is not None:
+        if is_in_range(int_value):
+            return int_value
+
+    raise ValueError(f"Value [{value}] is out of range for '{BasicType.U128}'.")
+
+
+def encode_i128(value: Union[str, int]) -> int:
+    def is_in_range(n: int):
+        return (n < 2 ** 127) or (n >= (FIELD_PRIME - (2 ** 127)))
+
+    int_value = None
+
+    if isinstance(value, int):
+        int_value = value
+
+    if isinstance(value, str) and is_digit_string(value, True):
+        int_value = int(value)
+
+    if isinstance(value, str) and value[:2] == "0x":
+        int_value = int(value, 16)
+
+    if int_value is not None:
+        if abs(int_value) >= FIELD_PRIME:
+            raise ValueError(
+                f"Values outside the range (-FIELD_PRIME, FIELD_PRIME) are not allowed, [{value}] given."
+            )
+        int_value %= FIELD_PRIME
+        if is_in_range(int_value):
+            return int_value
+
+    raise ValueError(f"Value [{value}] is out of range for '{BasicType.I128}'.")
 
 
 # pylint: disable=unused-argument
