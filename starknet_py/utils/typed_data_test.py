@@ -14,10 +14,10 @@ from starknet_py.utils.typed_data import (
     Domain,
     Parameter,
     TypedData,
+    encode_bool,
     encode_i128,
     encode_u128,
     get_hex,
-    unwrap_bool,
 )
 
 
@@ -296,8 +296,8 @@ def test_missing_dependency():
 
     ]
 )
-def test_unwrap_bool(value: Union[bool, str, int], expected: int):
-    assert unwrap_bool(value) == expected
+def test_encode_bool(value: Union[bool, str, int], expected: int):
+    assert encode_bool(value) == expected
 
 
 @pytest.mark.parametrize(
@@ -313,7 +313,7 @@ def test_unwrap_bool(value: Union[bool, str, int], expected: int):
 )
 def test_encode_invalid_bool(value: Union[bool, str, int]):
     with pytest.raises(ValueError, match=fr"Expected boolean value, got \[{value}\]."):
-        unwrap_bool(value)
+        encode_bool(value)
 
 
 @pytest.mark.parametrize(
