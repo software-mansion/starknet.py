@@ -36,6 +36,13 @@ class KeyPair:
 
     @staticmethod
     def from_keystore(path: str, password: str) -> "KeyPair":
+        """
+        Create a key pair from a keystore file.
+        The keystore file should follow the Ethereum keystore format.
+        :param path: Path to the keystore file.
+        :param password: Password to decrypt the keystore file.
+        :return: KeyPair object.
+        """
         key = extract_key_from_keyfile(path, password)
         return KeyPair.from_private_key(int.from_bytes(key, byteorder="big"))
 
