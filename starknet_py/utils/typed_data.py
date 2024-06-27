@@ -132,7 +132,10 @@ class TypedData:
             hashes = [self._encode_value(type_name, val) for val in value]
             return compute_hash_on_elements(hashes)
 
-        if type_name not in _get_basic_types(self.domain.resolved_revision):
+        basic_types_values = [
+            bt.value for bt in _get_basic_types(self.domain.resolved_revision)
+        ]
+        if type_name not in basic_types_values:
             raise ValueError(f"Type [{type_name}] is not defined in types.")
 
         basic_type = BasicType(type_name)
@@ -170,7 +173,7 @@ class TypedData:
         if self.domain.separator_name not in self.types:
             raise ValueError(f"Types must contain '{self.domain.separator_name}'.")
 
-        reserved_type_names = _get_basic_types(self.domain.resolved_revision)
+        reserved_type_names = ["felt", "string", "selector", "merkletree"]
 
         for type_name in reserved_type_names:
             if type_name in self.types:
@@ -331,24 +334,21 @@ class BasicType(Enum):
     FELT = "felt"
     SELECTOR = "selector"
     MERKLE_TREE = "merkletree"
-    STRING = "string"
     SHORT_STRING = "shortstring"
 
 
-def _get_basic_types(revision: Revision) -> List[str]:
+def _get_basic_types(revision: Revision) -> List[BasicType]:
     basic_types_v0 = [
         BasicType.FELT,
         BasicType.SELECTOR,
         BasicType.MERKLE_TREE,
-        BasicType.STRING,
     ]
 
     basic_types_v1 = basic_types_v0 + [
         BasicType.SHORT_STRING,
     ]
 
-    basic_types = basic_types_v0 if revision == Revision.V0 else basic_types_v1
-    return [basic_type.value for basic_type in basic_types]
+    return basic_types_v0 if revision == Revision.V0 else basic_types_v1
 
 
 # pylint: disable=unused-argument
