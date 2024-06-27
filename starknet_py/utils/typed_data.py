@@ -83,6 +83,7 @@ class BasicType(Enum):
     FELT = "felt"
     SELECTOR = "selector"
     MERKLE_TREE = "merkletree"
+    ENUM = "enum"
     SHORT_STRING = "shortstring"
     STRING = "string"
     CONTRACT_ADDRESS = "ContractAddress"
@@ -127,6 +128,7 @@ class TypedData:
     @property
     def _basic_types_v1(self):
         return self._basic_types_v0 + [
+            BasicType.ENUM,
             BasicType.CONTRACT_ADDRESS,
             BasicType.CLASS_HASH,
             BasicType.SHORT_STRING,
@@ -223,6 +225,11 @@ class TypedData:
                 raise ValueError(f"Context is not provided for '{type_name}' type.")
             return self._prepare_merkle_tree_root(value, context)
 
+        if basic_type == BasicType.ENUM and isinstance(value, dict):
+            if context is None:
+                raise ValueError(f"Context is not provided for '{type_name}' type.")
+            return self._prepare_enum(value, context)
+
         raise ValueError(
             f"Error occurred while encoding value with type name {type_name}."
         )
@@ -263,6 +270,16 @@ class TypedData:
 
             if is_pointer(type_name):
                 raise ValueError(f"Type names cannot end in *. {type_name} was found.")
+
+            if is_enum(type_name):
+                raise ValueError(
+                    f"Type names cannot be enclosed in parentheses. [{type_name}] was found."
+                )
+
+            if "," in type_name:
+                raise ValueError(
+                    f"Type names cannot contain commas. [{type_name}] was found."
+                )
 
             if type_name not in referenced_types:
                 raise ValueError(
@@ -349,6 +366,14 @@ class TypedData:
         return MerkleTree(struct_hashes, self._hash_method).root_hash
 
     def _get_merkle_tree_leaves_type(self, context: TypeContext) -> str:
+        target_type = self._resolve_type(context)
+
+        if not target_type.contains:
+            raise ValueError("Missing 'contains' field in target type.")
+
+        return target_type.contains
+
+    def _resolve_type(self, context: TypeContext) -> Parameter:
         parent, key = context.parent, context.key
 
         if parent not in self.types:
@@ -362,14 +387,58 @@ class TypedData:
                 f"Key {key} is not defined in type {parent} or multiple definitions are present."
             )
 
-        if not target_type.contains:
-            raise ValueError("Missing 'contains' field in target type.")
+        return target_type
 
-        return target_type.contains
+    def _prepare_enum(self, value: dict, context: TypeContext):
+        if len(value.keys()) != 1:
+            raise ValueError(
+                f"'{BasicType.ENUM.name}' value must contain a single variant."
+            )
+
+        variant_name, variant_data = next(iter(value.items()))
+        variants = self._get_enum_variants(context)
+        variant_type = next(
+            (item for item in variants if item.name == variant_name), None
+        )
+
+        if variant_type is None:
+            raise ValueError(
+                f"Variant [{variant_name}] is not defined in '${BasicType.ENUM.name}' "
+                f"type [{context.key}] or multiple definitions are present."
+            )
+
+        variant_index = variants.index(variant_type)
+
+        encoded_subtypes = []
+        extracted_enum_types = _extract_enum_types(variant_type.type)
+
+        for i, subtype in enumerate(extracted_enum_types):
+            subtype_data = variant_data[i]
+            encoded_subtypes.append(self._encode_value(subtype, subtype_data))
+
+        return self._hash_method.hash_many([variant_index, *encoded_subtypes])
+
+    def _get_enum_variants(self, context: TypeContext) -> List[Parameter]:
+        enum_type = self._resolve_type(context)
+        if enum_type.contains not in self.types:
+            raise ValueError(f"Type [{enum_type.contains}] is not defined in types")
+
+        return self.types[enum_type.contains]
 
     def _prepare_long_string(self, value: str) -> int:
         serialized_values = self._byte_array_serializer.serialize(value)
         return self._hash_method.hash_many(serialized_values)
+
+
+def _extract_enum_types(value: str) -> List[str]:
+    if not is_enum(value):
+        raise ValueError(f"Type [{type}] is not an enum.")
+
+    value = value[1:-1]
+    if not value:
+        return []
+
+    return value.split(",")
 
 
 def get_hex(value: Union[int, str]) -> str:
