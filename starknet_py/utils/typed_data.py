@@ -132,8 +132,7 @@ class TypedData:
             hashes = [self._encode_value(type_name, val) for val in value]
             return compute_hash_on_elements(hashes)
 
-        basic_types = [bt.value for bt in BasicType]
-        if type_name not in basic_types:
+        if type_name not in _get_basic_types_values():
             raise ValueError(f"Type [{type_name}] is not defined in types.")
 
         basic_type = BasicType(type_name)
@@ -304,6 +303,10 @@ def get_hex(value: Union[int, str]) -> str:
     if value.isnumeric():
         return hex(int(value))
     return hex(encode_shortstring(value))
+
+
+def _get_basic_types_values() -> List[str]:
+    return [basic_type.value for basic_type in BasicType]
 
 
 def is_pointer(value: str) -> bool:
