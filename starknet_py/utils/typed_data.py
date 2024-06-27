@@ -159,10 +159,10 @@ class TypedData:
 
     # pylint: disable=too-many-return-statements
     def _encode_value(
-            self,
-            type_name: str,
-            value: Union[int, str, dict, list],
-            context: Optional[TypeContext] = None,
+        self,
+        type_name: str,
+        value: Union[int, str, dict, list],
+        context: Optional[TypeContext] = None,
     ) -> int:
         if isinstance(value, Revision):
             value = value.value
@@ -200,8 +200,8 @@ class TypedData:
             return encode_u128(value)
 
         if (basic_type, self.domain.resolved_revision) == (
-                BasicType.I128,
-                Revision.V1,
+            BasicType.I128,
+            Revision.V1,
         ) and isinstance(value, Union[int, str]):
             return encode_i128(value)
 
@@ -242,11 +242,11 @@ class TypedData:
             parameter for type_name in self.types for parameter in self.types[type_name]
         ]
         referenced_types = [
-                               ref_type.contains
-                               if ref_type.contains is not None
-                               else strip_pointer(ref_type.type)
-                               for ref_type in referenced_types
-                           ] + [self.domain.separator_name, self.primary_type]
+            ref_type.contains
+            if ref_type.contains is not None
+            else strip_pointer(ref_type.type)
+            for ref_type in referenced_types
+        ] + [self.domain.separator_name, self.primary_type]
 
         for type_name in self.types:
             if type_name in basic_types:
@@ -422,7 +422,7 @@ def is_digit_string(s: str, signed=False) -> bool:
 
 def encode_u128(value: Union[str, int]) -> int:
     def is_in_range(n: int):
-        return 0 <= n < 2 ** 128
+        return 0 <= n < 2**128
 
     int_value = None
 
@@ -444,7 +444,7 @@ def encode_u128(value: Union[str, int]) -> int:
 
 def encode_i128(value: Union[str, int]) -> int:
     def is_in_range(n: int):
-        return (n < 2 ** 127) or (n >= (FIELD_PRIME - (2 ** 127)))
+        return (n < 2**127) or (n >= (FIELD_PRIME - (2**127)))
 
     int_value = None
 
