@@ -176,15 +176,14 @@ class TypedData:
             if type_name in self.types:
                 raise ValueError(f"Reserved type name: {type_name}")
 
-        referenced_types = [
-            parameter for type_name in self.types for parameter in self.types[type_name]
-        ]
-        referenced_types = [
+        referenced_types = {
             ref_type.contains
             if ref_type.contains is not None
             else strip_pointer(ref_type.type)
-            for ref_type in referenced_types
-        ] + [self.domain.separator_name, self.primary_type]
+            for type_name in self.types
+            for ref_type in self.types[type_name]
+        }
+        referenced_types.update([self.domain.separator_name, self.primary_type])
 
         for type_name in self.types:
             if not type_name:
