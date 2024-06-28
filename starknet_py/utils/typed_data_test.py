@@ -227,8 +227,9 @@ def test_invalid_type_names(included_type: str, revision: Revision):
         (BasicType.FELT.value, Revision.V1),
         (BasicType.STRING.value, Revision.V1),
         (BasicType.SELECTOR.value, Revision.V1),
-        (BasicType.SELECTOR.value, Revision.V1),
+        (BasicType.MERKLE_TREE.value, Revision.V1),
         (BasicType.BOOL.value, Revision.V1),
+        (BasicType.SHORT_STRING.value, Revision.V1),
     ],
 )
 def test_types_redefinition(included_type: str, revision: Revision):
