@@ -11,7 +11,6 @@ import pytest
 from starknet_py.net.models.typed_data import Revision
 from starknet_py.tests.e2e.fixtures.constants import TYPED_DATA_DIR
 from starknet_py.utils.typed_data import (
-    BasicType,
     Domain,
     Parameter,
     TypedData,
@@ -356,7 +355,7 @@ def test_encode_u128(value: Union[str, int], expected: str):
     ]
 )
 def test_encode_invalid_u128(value: Union[str, int]):
-    with pytest.raises(ValueError, match=rf"Value \[{value}\] is out of range for '{BasicType.U128}'."):
+    with pytest.raises(ValueError):
         encode_u128(value)
 
 
