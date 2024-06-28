@@ -93,7 +93,7 @@ class BasicType(Enum):
     TIMESTAMP = "timestamp"
 
 
-@dataclass(frozen=True)
+@dataclass
 class TypedData:
     """
     Dataclass representing a TypedData object
@@ -104,10 +104,9 @@ class TypedData:
     domain: Domain
     message: dict
 
-    _byte_array_serializer: ByteArraySerializer = ByteArraySerializer()
-
     def __post_init__(self):
         self._verify_types()
+        self._byte_array_serializer = ByteArraySerializer()
 
     @property
     def _hash_method(self) -> HashMethod:
