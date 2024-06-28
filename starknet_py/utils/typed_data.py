@@ -115,25 +115,6 @@ class TypedData:
             return HashMethod.PEDERSEN
         return HashMethod.POSEIDON
 
-    @property
-    def _basic_types_v0(self):
-        return [
-            BasicType.FELT,
-            BasicType.BOOL,
-            BasicType.STRING,
-            BasicType.SELECTOR,
-            BasicType.MERKLE_TREE,
-        ]
-
-    @property
-    def _basic_types_v1(self):
-        return self._basic_types_v0 + [
-            BasicType.ENUM,
-            BasicType.CONTRACT_ADDRESS,
-            BasicType.CLASS_HASH,
-            BasicType.SHORT_STRING,
-        ]
-
     @staticmethod
     def from_dict(data: TypedDataDict) -> "TypedData":
         """
@@ -259,7 +240,7 @@ class TypedData:
                     referenced_types.add(ref_type.contains)
                 elif is_enum(ref_type.type):
                     _validate_enum_type()
-                    referenced_types.add(_extract_enum_types(ref_type.type))
+                    referenced_types.update(_extract_enum_types(ref_type.type))
                 else:
                     referenced_types.add(strip_pointer(ref_type.type))
 
