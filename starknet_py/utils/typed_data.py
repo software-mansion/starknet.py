@@ -413,7 +413,13 @@ def encode_u128(value: Union[str, int]) -> int:
         int_value = None
 
         if value.startswith("0x"):
-            int_value = int(value, 16)
+            try:
+                int_value = int(value, 16)
+            except ValueError:
+                raise ValueError(
+                    f"Value [{value}] is out of range for '{BasicType.U128}'."
+                )
+
         elif is_digit_string(value):
             int_value = int(value)
 
