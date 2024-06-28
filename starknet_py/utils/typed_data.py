@@ -247,19 +247,30 @@ class TypedData:
         return values
 
     def _verify_types(self):
+        def _validate_enum_type():
+            if self.domain.resolved_revision != Revision.V1:
+                raise ValueError(
+                    f"'{BasicType.ENUM.name}' basic type is not supported in revision "
+                    f"{self.domain.resolved_revision.value}."
+                )
+
         if self.domain.separator_name not in self.types:
             raise ValueError(f"Types must contain '{self.domain.separator_name}'.")
 
         basic_types = [basic_type.value for basic_type in self._basic_types]
-        referenced_types = [
-            parameter for type_name in self.types for parameter in self.types[type_name]
-        ]
-        referenced_types = [
-            ref_type.contains
-            if ref_type.contains is not None
-            else strip_pointer(ref_type.type)
-            for ref_type in referenced_types
-        ] + [self.domain.separator_name, self.primary_type]
+
+        referenced_types = set()
+        for type_name in self.types:
+            for ref_type in self.types[type_name]:
+                if ref_type.contains is not None:
+                    referenced_types.add(ref_type.contains)
+                elif is_enum(ref_type.type):
+                    _validate_enum_type()
+                    referenced_types.add(_extract_enum_types(ref_type.type))
+                else:
+                    referenced_types.add(strip_pointer(ref_type.type))
+
+        referenced_types.update([self.domain.separator_name, self.primary_type])
 
         for type_name in self.types:
             if type_name in basic_types:
