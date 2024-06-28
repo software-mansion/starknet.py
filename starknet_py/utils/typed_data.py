@@ -114,24 +114,6 @@ class TypedData:
             return HashMethod.PEDERSEN
         return HashMethod.POSEIDON
 
-    @property
-    def _basic_types_v0(self):
-        return [
-            BasicType.FELT,
-            BasicType.BOOL,
-            BasicType.STRING,
-            BasicType.SELECTOR,
-            BasicType.MERKLE_TREE,
-        ]
-
-    @property
-    def _basic_types_v1(self):
-        return self._basic_types_v0 + [
-            BasicType.CONTRACT_ADDRESS,
-            BasicType.CLASS_HASH,
-            BasicType.SHORT_STRING,
-        ]
-
     @staticmethod
     def from_dict(data: TypedDataDict) -> "TypedData":
         """
@@ -150,12 +132,6 @@ class TypedData:
         """
 
         return cast(Dict, TypedDataSchema().dump(obj=self))
-
-    @property
-    def _basic_types(self) -> List[BasicType]:
-        if self.domain.resolved_revision == Revision.V0:
-            return self._basic_types_v0
-        return self._basic_types_v1
 
     def _is_struct(self, type_name: str) -> bool:
         return type_name in self.types
@@ -178,8 +154,7 @@ class TypedData:
             hashes = [self._encode_value(type_name, val) for val in value]
             return compute_hash_on_elements(hashes)
 
-        basic_types = [bt.value for bt in BasicType]
-        if type_name not in basic_types:
+        if type_name not in _get_basic_type_names(self.domain.resolved_revision):
             raise ValueError(f"Type [{type_name}] is not defined in types.")
 
         basic_type = BasicType(type_name)
@@ -243,27 +218,26 @@ class TypedData:
         if self.domain.separator_name not in self.types:
             raise ValueError(f"Types must contain '{self.domain.separator_name}'.")
 
-        basic_types = [basic_type.value for basic_type in self._basic_types]
-        referenced_types = [
-            parameter for type_name in self.types for parameter in self.types[type_name]
-        ]
-        referenced_types = [
+        basic_type_names = _get_basic_type_names(self.domain.resolved_revision)
+
+        for type_name in basic_type_names:
+            if type_name in self.types:
+                raise ValueError(f"Reserved type name: {type_name}")
+
+        referenced_types = {
             ref_type.contains
             if ref_type.contains is not None
             else strip_pointer(ref_type.type)
-            for ref_type in referenced_types
-        ] + [self.domain.separator_name, self.primary_type]
+            for type_name in self.types
+            for ref_type in self.types[type_name]
+        }
+        referenced_types.update([self.domain.separator_name, self.primary_type])
 
         for type_name in self.types:
-            if type_name in basic_types:
-                raise ValueError(f"Reserved type name: {type_name}")
-
             if not type_name:
                 raise ValueError("Type names cannot be empty.")
-
             if is_pointer(type_name):
                 raise ValueError(f"Type names cannot end in *. {type_name} was found.")
-
             if type_name not in referenced_types:
                 raise ValueError(
                     f"Dangling types are not allowed. Unreferenced type {type_name} was found."
@@ -342,9 +316,9 @@ class TypedData:
 
     def _prepare_merkle_tree_root(self, value: List, context: TypeContext) -> int:
         merkle_tree_type = self._get_merkle_tree_leaves_type(context)
-        struct_hashes = list(
-            map(lambda struct: self._encode_value(merkle_tree_type, struct), value)
-        )
+        struct_hashes = [
+            self._encode_value(merkle_tree_type, struct) for struct in value
+        ]
 
         return MerkleTree(struct_hashes, self._hash_method).root_hash
 
@@ -362,7 +336,7 @@ class TypedData:
                 f"Key {key} is not defined in type {parent} or multiple definitions are present."
             )
 
-        if not target_type.contains:
+        if target_type.contains is None:
             raise ValueError("Missing 'contains' field in target type.")
 
         return target_type.contains
@@ -473,6 +447,22 @@ def encode_i128(value: Union[str, int]) -> int:
             return int_value
 
     raise ValueError(f"Value [{value}] is out of range for '{BasicType.I128}'.")
+
+
+def _get_basic_type_names(revision: Revision) -> List[str]:
+    basic_types_v0 = [
+        BasicType.FELT,
+        BasicType.SELECTOR,
+        BasicType.MERKLE_TREE,
+        BasicType.STRING,
+    ]
+
+    basic_types_v1 = basic_types_v0 + [
+        BasicType.SHORT_STRING,
+    ]
+
+    basic_types = basic_types_v0 if revision == Revision.V0 else basic_types_v1
+    return [basic_type.value for basic_type in basic_types]
 
 
 # pylint: disable=unused-argument
