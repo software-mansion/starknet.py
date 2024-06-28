@@ -193,9 +193,9 @@ class TypedData:
         if self.domain.separator_name not in self.types:
             raise ValueError(f"Types must contain '{self.domain.separator_name}'.")
 
-        reserved_type_names = ["felt", "string", "selector", "merkletree"]
+        basic_type_names = _get_basic_type_names(self.domain.resolved_revision)
 
-        for type_name in reserved_type_names:
+        for type_name in basic_type_names:
             if type_name in self.types:
                 raise ValueError(f"Reserved type name: {type_name}")
 
