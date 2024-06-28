@@ -357,8 +357,8 @@ class RevisionField(fields.Field):
     def _deserialize(self, value, attr, data, **kwargs) -> Revision:
         if isinstance(value, str):
             value = int(value)
-        revisions = [revision.value for revision in Revision]
 
+        revisions = [revision.value for revision in Revision]
         if value not in revisions:
             allowed_revisions_str = "".join(list(map(str, revisions)))
             raise ValidationError(

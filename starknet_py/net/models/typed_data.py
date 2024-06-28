@@ -14,6 +14,7 @@ class ParameterDict(TypedDict):
 
     name: str
     type: str
+    contains: Optional[str]
 
 
 class DomainDict(TypedDict):
@@ -36,3 +37,8 @@ class TypedDataDict(TypedDict):
     primaryType: str
     domain: DomainDict
     message: Dict[str, Any]
+
+
+class TypeContext(TypedDict):
+    parent: str
+    key: str

@@ -9,7 +9,7 @@ import pytest
 
 from starknet_py.net.models.typed_data import Revision
 from starknet_py.tests.e2e.fixtures.constants import TYPED_DATA_DIR
-from starknet_py.utils.typed_data import Domain, TypedData, get_hex
+from starknet_py.utils.typed_data import Domain, Parameter, TypedData, get_hex
 
 
 class CasesRev0(Enum):
@@ -17,10 +17,12 @@ class CasesRev0(Enum):
     TD_STRING = "typed_data_rev_0_long_string_example.json"
     TD_FELT_ARR = "typed_data_rev_0_felt_array_example.json"
     TD_STRUCT_ARR = "typed_data_rev_0_struct_array_example.json"
+    TD_STRUCT_MERKLE_TREE = "typed_data_rev_0_struct_merkletree_example.json"
 
 
 class CasesRev1(Enum):
     TD = "typed_data_rev_1_example.json"
+    TD_FELT_MERKLE_TREE = "typed_data_rev_1_felt_merkletree_example.json"
 
 
 def load_typed_data(file_name: str) -> TypedData:
@@ -47,6 +49,7 @@ def test_get_hex(value, result):
     "example, type_name, encoded_type",
     [
         (CasesRev0.TD.value, "Mail", "Mail(from:Person,to:Person,contents:felt)Person(name:felt,wallet:felt)"),
+        (CasesRev0.TD_STRUCT_MERKLE_TREE.value, "Session", "Session(key:felt,expires:felt,root:merkletree)"),
         (CasesRev0.TD_FELT_ARR.value, "Mail",
          "Mail(from:Person,to:Person,felts_len:felt,felts:felt*)Person(name:felt,wallet:felt)"),
         (CasesRev0.TD_STRING.value, "Mail",
@@ -55,6 +58,7 @@ def test_get_hex(value, result):
          "Mail(from:Person,to:Person,posts_len:felt,posts:Post*)Person(name:felt,wallet:felt)Post(title:felt,content:felt)"),
         (CasesRev1.TD.value, "Mail",
          """"Mail"("from":"Person","to":"Person","contents":"felt")"Person"("name":"felt","wallet":"felt")"""),
+        (CasesRev1.TD_FELT_MERKLE_TREE.value, "Example", """"Example"("value":"felt","root":"merkletree")""")
     ],
 )
 def test_encode_type(example, type_name, encoded_type):
@@ -75,9 +79,15 @@ def test_encode_type(example, type_name, encoded_type):
         (CasesRev0.TD_FELT_ARR.value, "Mail", "0x5b03497592c0d1fe2f3667b63099761714a895c7df96ec90a85d17bfc7a7a0"),
         (CasesRev0.TD_STRUCT_ARR.value, "Post", "0x1d71e69bf476486b43cdcfaf5a85c00bb2d954c042b281040e513080388356d"),
         (CasesRev0.TD_STRUCT_ARR.value, "Mail", "0x873b878e35e258fc99e3085d5aaad3a81a0c821f189c08b30def2cde55ff27"),
+        (CasesRev0.TD_STRUCT_MERKLE_TREE.value, "Session",
+         "0x1aa0e1c56b45cf06a54534fa1707c54e520b842feb21d03b7deddb6f1e340c"),
+        (CasesRev0.TD_STRUCT_MERKLE_TREE.value, "Policy",
+         "0x2f0026e78543f036f33e26a8f5891b88c58dc1e20cbbfaf0bb53274da6fa568"),
         (CasesRev1.TD.value, "StarknetDomain", "0x1ff2f602e42168014d405a94f75e8a93d640751d71d16311266e140d8b0a210"),
         (CasesRev1.TD.value, "Person", "0x30f7aa21b8d67cb04c30f962dd29b95ab320cb929c07d1605f5ace304dadf34"),
         (CasesRev1.TD.value, "Mail", "0x560430bf7a02939edd1a5c104e7b7a55bbab9f35928b1cf5c7c97de3a907bd"),
+        (CasesRev1.TD_FELT_MERKLE_TREE.value, "Example",
+         "0x160b9c0e8a7c561f9c5d9e3cc2990a1b4d26e94aa319e9eb53e163cd06c71be"),
     ],
 )
 def test_type_hash(example, type_name, type_hash):
@@ -98,8 +108,12 @@ def test_type_hash(example, type_name, type_hash):
          "0x26186b02dddb59bf12114f771971b818f48fad83c373534abebaaa39b63a7ce"),
         (CasesRev0.TD_STRUCT_ARR.value, "Mail", "message",
          "0x5650ec45a42c4776a182159b9d33118a46860a6e6639bb8166ff71f3c41eaef"),
+        (CasesRev0.TD_STRUCT_MERKLE_TREE.value, "Session", "message",
+         "0x73602062421caf6ad2e942253debfad4584bff58930981364dcd378021defe8"),
         (CasesRev1.TD.value, "StarknetDomain", "domain",
          "0x555f72e550b308e50c1a4f8611483a174026c982a9893a05c185eeb85399657"),
+        (CasesRev1.TD_FELT_MERKLE_TREE.value, "Example", "message",
+         "0x40ef40c56c0469799a916f0b7e3bc4f1bbf28bf659c53fb8c5ee4d8d1b4f5f0")
     ],
 )
 def test_struct_hash(example, type_name, attr_name, struct_hash):
@@ -122,8 +136,12 @@ def test_struct_hash(example, type_name, attr_name, struct_hash):
          "0x30ab43ef724b08c3b0a9bbe425e47c6173470be75d1d4c55fd5bf9309896bce"),
         (CasesRev0.TD_STRUCT_ARR.value, "0xcd2a3d9f938e13cd947ec05abc7fe734df8dd826",
          "0x5914ed2764eca2e6a41eb037feefd3d2e33d9af6225a9e7fe31ac943ff712c"),
+        (CasesRev0.TD_STRUCT_MERKLE_TREE.value, "0xcd2a3d9f938e13cd947ec05abc7fe734df8dd826",
+         "0x5d28fa1b31f92e63022f7d85271606e52bed89c046c925f16b09e644dc99794"),
         (CasesRev1.TD.value, "0xcd2a3d9f938e13cd947ec05abc7fe734df8dd826",
          "0x7f6e8c3d8965b5535f5cc68f837c04e3bbe568535b71aa6c621ddfb188932b8"),
+        (CasesRev1.TD_FELT_MERKLE_TREE.value, "0xcd2a3d9f938e13cd947ec05abc7fe734df8dd826",
+         "0x4f706783e0d7d0e61433d41343a248a213e9ab341d50ba978dfc055f26484c9")
     ],
 )
 def test_message_hash(example, account_address, msg_hash):
@@ -134,18 +152,18 @@ def test_message_hash(example, account_address, msg_hash):
 
 domain_type_v0 = {
     "StarkNetDomain": [
-        {"name": "name", "type": "felt"},
-        {"name": "version", "type": "felt"},
-        {"name": "chainId", "type": "felt"},
+        Parameter(name="name", type="felt"),
+        Parameter(name="version", type="felt"),
+        Parameter(name="chainId", type="felt"),
     ]
 }
 
 domain_type_v1 = {
     "StarknetDomain": [
-        {"name": "name", "type": "shortstring"},
-        {"name": "version", "type": "shortstring"},
-        {"name": "chainId", "type": "shortstring"},
-        {"name": "revision", "type": "shortstring"},
+        Parameter(name="name", type="shortstring"),
+        Parameter(name="version", type="shortstring"),
+        Parameter(name="chainId", type="shortstring"),
+        Parameter(name="revision", type="shortstring"),
     ]
 }
 
@@ -161,13 +179,6 @@ domain_v1 = Domain(
     chain_id="1234",
     revision=Revision.V1,
 )
-
-domain_object_v1 = {
-    "name": "DomainV1",
-    "version": "1",
-    "chainId": "1234",
-    "revision": 1
-}
 
 
 def _make_typed_data(included_type: str, revision: Revision):
@@ -191,7 +202,8 @@ def _make_typed_data(included_type: str, revision: Revision):
         "felt",
         "felt*",
         "string",
-        "selector"
+        "selector",
+        "merkletree"
     ],
 )
 def test_invalid_types(included_type: str):
