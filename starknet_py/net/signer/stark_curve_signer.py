@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import List
 
+from eth_keyfile.keyfile import extract_key_from_keyfile
+
 from starknet_py.hash.utils import message_signature, private_to_stark_key
 from starknet_py.net.client_models import Hash
 from starknet_py.net.models import AddressRepresentation, parse_address
@@ -31,6 +33,19 @@ class KeyPair:
         if isinstance(key, str):
             key = int(key, 0)
         return KeyPair(private_key=key, public_key=private_to_stark_key(key))
+
+    @staticmethod
+    def from_keystore(path: str, password: str) -> "KeyPair":
+        """
+        Create a key pair from a keystore file.
+        The keystore file should follow the Ethereum keystore format.
+
+        :param path: Path to the keystore file.
+        :param password: Password to decrypt the keystore file.
+        :return: KeyPair object.
+        """
+        key = extract_key_from_keyfile(path, password)
+        return KeyPair.from_private_key(int.from_bytes(key, byteorder="big"))
 
 
 class StarkCurveSigner(BaseSigner):
