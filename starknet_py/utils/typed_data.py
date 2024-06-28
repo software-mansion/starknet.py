@@ -456,10 +456,13 @@ def _get_basic_type_names(revision: Revision) -> List[str]:
         BasicType.SELECTOR,
         BasicType.MERKLE_TREE,
         BasicType.STRING,
+        BasicType.BOOL,
     ]
 
     basic_types_v1 = basic_types_v0 + [
         BasicType.SHORT_STRING,
+        BasicType.CONTRACT_ADDRESS,
+        BasicType.CLASS_HASH,
     ]
 
     basic_types = basic_types_v0 if revision == Revision.V0 else basic_types_v1
