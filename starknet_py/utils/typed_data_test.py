@@ -11,6 +11,7 @@ import pytest
 from starknet_py.net.models.typed_data import Revision
 from starknet_py.tests.e2e.fixtures.constants import TYPED_DATA_DIR
 from starknet_py.utils.typed_data import (
+    BasicType,
     Domain,
     Parameter,
     TypedData,
@@ -218,10 +219,16 @@ def test_invalid_type_names(included_type: str, revision: Revision):
 @pytest.mark.parametrize(
     "included_type, revision",
     [
-        ("felt", Revision.V0),
-        ("string", Revision.V0),
-        ("selector", Revision.V0),
-        ("merkletree", Revision.V0),
+        (BasicType.FELT.value, Revision.V0),
+        (BasicType.STRING.value, Revision.V0),
+        (BasicType.SELECTOR.value, Revision.V0),
+        (BasicType.MERKLE_TREE.value, Revision.V0),
+        (BasicType.BOOL.value, Revision.V0),
+        (BasicType.FELT.value, Revision.V1),
+        (BasicType.STRING.value, Revision.V1),
+        (BasicType.SELECTOR.value, Revision.V1),
+        (BasicType.SELECTOR.value, Revision.V1),
+        (BasicType.BOOL.value, Revision.V1),
     ],
 )
 def test_types_redefinition(included_type: str, revision: Revision):
