@@ -39,7 +39,7 @@ class KeyPair:
         """
         Create a key pair from a keystore file.
         The keystore file should follow the Ethereum keystore format.
-        
+
         :param path: Path to the keystore file.
         :param password: Password to decrypt the keystore file.
         :return: KeyPair object.
