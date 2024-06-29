@@ -9,7 +9,13 @@ import pytest
 
 from starknet_py.net.models.typed_data import Revision
 from starknet_py.tests.e2e.fixtures.constants import TYPED_DATA_DIR
-from starknet_py.utils.typed_data import Domain, Parameter, TypedData, get_hex
+from starknet_py.utils.typed_data import (
+    BasicType,
+    Domain,
+    Parameter,
+    TypedData,
+    get_hex,
+)
 
 
 class CasesRev0(Enum):
@@ -197,15 +203,80 @@ def _make_typed_data(included_type: str, revision: Revision):
 
 
 @pytest.mark.parametrize(
-    "included_type",
+    "included_type, revision",
     [
-        "felt",
-        "felt*",
-        "string",
-        "selector",
-        "merkletree"
+        ("", Revision.V1),
+        ("myType*", Revision.V1)
     ],
 )
-def test_invalid_types(included_type: str):
+def test_invalid_type_names(included_type: str, revision: Revision):
+    with pytest.raises(ValueError):
+        _make_typed_data(included_type, revision)
+
+
+@pytest.mark.parametrize(
+    "included_type, revision",
+    [
+        (BasicType.FELT.value, Revision.V0),
+        (BasicType.STRING.value, Revision.V0),
+        (BasicType.SELECTOR.value, Revision.V0),
+        (BasicType.MERKLE_TREE.value, Revision.V0),
+        (BasicType.FELT.value, Revision.V1),
+        (BasicType.STRING.value, Revision.V1),
+        (BasicType.SELECTOR.value, Revision.V1),
+        (BasicType.MERKLE_TREE.value, Revision.V1),
+        (BasicType.SHORT_STRING.value, Revision.V1),
+    ],
+)
+def test_types_redefinition(included_type: str, revision: Revision):
     with pytest.raises(ValueError, match=f"Reserved type name: {included_type}"):
-        _make_typed_data(included_type, Revision.V1)
+        _make_typed_data(included_type, revision)
+
+
+def test_custom_type_definition():
+    _make_typed_data("myType", Revision.V0)
+
+
+@pytest.mark.parametrize(
+    "revision",
+    list(Revision),
+)
+def test_missing_domain_type(revision: Revision):
+    domain = domain_v0 if revision == Revision.V0 else domain_v1
+
+    with pytest.raises(ValueError, match=f"Types must contain '{domain.separator_name}'."):
+        TypedData(
+            types={},
+            primary_type="felt",
+            domain=domain,
+            message={},
+        )
+
+
+def test_dangling_type():
+    with pytest.raises(ValueError, match="Dangling types are not allowed. Unreferenced type dangling was found."):
+        TypedData(
+            types={
+                **domain_type_v1,
+                "dangling": [],
+                "mytype": []
+            },
+            primary_type="mytype",
+            domain=domain_v1,
+            message={"mytype": 1},
+        )
+
+
+def test_missing_dependency():
+    typed_data = TypedData(
+        types={
+            **domain_type_v1,
+            "house": [Parameter(name="fridge", type="ice cream")]
+        },
+        primary_type="house",
+        domain=domain_v1,
+        message={"fridge": 1},
+    )
+
+    with pytest.raises(ValueError, match=r"Type \[ice cream\] is not defined in types."):
+        typed_data.struct_hash("house", {"fridge": 1})

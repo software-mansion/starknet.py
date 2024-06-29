@@ -132,6 +132,9 @@ class TypedData:
             hashes = [self._encode_value(type_name, val) for val in value]
             return compute_hash_on_elements(hashes)
 
+        if type_name not in _get_basic_type_names(self.domain.resolved_revision):
+            raise ValueError(f"Type [{type_name}] is not defined in types.")
+
         basic_type = BasicType(type_name)
 
         if basic_type == BasicType.MERKLE_TREE and isinstance(value, list):
@@ -164,11 +167,33 @@ class TypedData:
         return values
 
     def _verify_types(self):
-        reserved_type_names = ["felt", "felt*", "string", "selector", "merkletree"]
+        if self.domain.separator_name not in self.types:
+            raise ValueError(f"Types must contain '{self.domain.separator_name}'.")
 
-        for type_name in reserved_type_names:
+        basic_type_names = _get_basic_type_names(self.domain.resolved_revision)
+
+        for type_name in basic_type_names:
             if type_name in self.types:
                 raise ValueError(f"Reserved type name: {type_name}")
+
+        referenced_types = {
+            ref_type.contains
+            if ref_type.contains is not None
+            else strip_pointer(ref_type.type)
+            for type_name in self.types
+            for ref_type in self.types[type_name]
+        }
+        referenced_types.update([self.domain.separator_name, self.primary_type])
+
+        for type_name in self.types:
+            if not type_name:
+                raise ValueError("Type names cannot be empty.")
+            if is_pointer(type_name):
+                raise ValueError(f"Type names cannot end in *. {type_name} was found.")
+            if type_name not in referenced_types:
+                raise ValueError(
+                    f"Dangling types are not allowed. Unreferenced type {type_name} was found."
+                )
 
     def _get_dependencies(self, type_name: str) -> List[str]:
         if type_name not in self.types:
@@ -280,7 +305,7 @@ def get_hex(value: Union[int, str]) -> str:
 
 
 def is_pointer(value: str) -> bool:
-    return len(value) > 0 and value[-1] == "*"
+    return value.endswith("*")
 
 
 def strip_pointer(value: str) -> str:
@@ -306,7 +331,24 @@ class BasicType(Enum):
     FELT = "felt"
     SELECTOR = "selector"
     MERKLE_TREE = "merkletree"
+    STRING = "string"
     SHORT_STRING = "shortstring"
+
+
+def _get_basic_type_names(revision: Revision) -> List[str]:
+    basic_types_v0 = [
+        BasicType.FELT,
+        BasicType.SELECTOR,
+        BasicType.MERKLE_TREE,
+        BasicType.STRING,
+    ]
+
+    basic_types_v1 = basic_types_v0 + [
+        BasicType.SHORT_STRING,
+    ]
+
+    basic_types = basic_types_v0 if revision == Revision.V0 else basic_types_v1
+    return [basic_type.value for basic_type in basic_types]
 
 
 # pylint: disable=unused-argument
