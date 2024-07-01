@@ -416,6 +416,7 @@ def encode_u128(value: Union[str, int]) -> int:
         int_value = value
     else:
         raise ValueError(f"Value [{value}] is not a valid number.")
+
     if is_in_range(int_value):
         return int_value
     raise ValueError(f"Value [{value}] is out of range for '{BasicType.U128}'.")
@@ -433,14 +434,15 @@ def encode_i128(value: Union[str, int]) -> int:
         int_value = value
     else:
         raise ValueError(f"Value [{value}] is not a valid number.")
+
     if abs(int_value) >= FIELD_PRIME:
         raise ValueError(
             f"Values outside the range (-FIELD_PRIME, FIELD_PRIME) are not allowed, [{value}] given."
         )
     int_value %= FIELD_PRIME
+
     if is_in_range(int_value):
         return int_value
-
     raise ValueError(f"Value [{value}] is out of range for '{BasicType.I128}'.")
 
 
