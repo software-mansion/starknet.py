@@ -93,7 +93,6 @@ class BasicType(Enum):
 
 
 @dataclass(frozen=True)
-@dataclass
 class TypedData:
     """
     Dataclass representing a TypedData object
