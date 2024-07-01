@@ -408,22 +408,16 @@ def encode_u128(value: Union[str, int]) -> int:
     def is_in_range(n: int):
         return 0 <= n < 2**128
 
-    if isinstance(value, int):
-        if is_in_range(value):
-            return value
-        raise ValueError(f"Value [{value}] is out of range for '{BasicType.U128}'.")
-
-    if isinstance(value, str):
-        if value.startswith("0x"):
-            int_value = int(value, 16)
-        elif is_digit_string(value):
-            int_value = int(value)
-        else:
-            raise ValueError(f"Value [{value}] is not a valid number.")
-
-        if int_value is not None and is_in_range(int_value):
-            return int_value
-
+    if isinstance(value, str) and value.startswith("0x"):
+        int_value = int(value, 16)
+    elif isinstance(value, str) and is_digit_string(value):
+        int_value = int(value)
+    elif isinstance(value, int):
+        int_value = value
+    else:
+        raise ValueError(f"Value [{value}] is not a valid number.")
+    if is_in_range(int_value):
+        return int_value
     raise ValueError(f"Value [{value}] is out of range for '{BasicType.U128}'.")
 
 
@@ -431,27 +425,21 @@ def encode_i128(value: Union[str, int]) -> int:
     def is_in_range(n: int):
         return (n < 2**127) or (n >= (FIELD_PRIME - (2**127)))
 
-    int_value = None
-
-    if isinstance(value, int):
+    if isinstance(value, str) and value.startswith("0x"):
+        int_value = int(value, 16)
+    elif isinstance(value, str) and is_digit_string(value, True):
+        int_value = int(value)
+    elif isinstance(value, int):
         int_value = value
-
-    elif isinstance(value, str):
-        if value.startswith("0x"):
-            int_value = int(value, 16)
-        elif is_digit_string(value, True):
-            int_value = int(value)
-        else:
-            raise ValueError(f"Value [{value}] is not a valid number.")
-
-    if int_value is not None:
-        if abs(int_value) >= FIELD_PRIME:
-            raise ValueError(
-                f"Values outside the range (-FIELD_PRIME, FIELD_PRIME) are not allowed, [{value}] given."
-            )
-        int_value %= FIELD_PRIME
-        if is_in_range(int_value):
-            return int_value
+    else:
+        raise ValueError(f"Value [{value}] is not a valid number.")
+    if abs(int_value) >= FIELD_PRIME:
+        raise ValueError(
+            f"Values outside the range (-FIELD_PRIME, FIELD_PRIME) are not allowed, [{value}] given."
+        )
+    int_value %= FIELD_PRIME
+    if is_in_range(int_value):
+        return int_value
 
     raise ValueError(f"Value [{value}] is out of range for '{BasicType.I128}'.")
 
