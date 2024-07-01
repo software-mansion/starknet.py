@@ -157,7 +157,7 @@ class TypedData:
             (BasicType.CONTRACT_ADDRESS, Revision.V1),
             (BasicType.CLASS_HASH, Revision.V1),
         ] and isinstance(value, (int, str)):
-            return int(get_hex(value), 16)
+            return parse_felt(value)
 
         if basic_type == BasicType.BOOL and isinstance(value, (bool, str, int)):
             return encode_bool(value)
@@ -314,14 +314,14 @@ class TypedData:
         return target_type.contains
 
 
-def get_hex(value: Union[int, str]) -> str:
+def parse_felt(value: Union[int, str]) -> int:
     if isinstance(value, int):
-        return hex(value)
-    if value[:2] == "0x":
         return value
+    if value[:2] == "0x":
+        return int(value, 16)
     if value.isnumeric():
-        return hex(int(value))
-    return hex(encode_shortstring(value))
+        return int(value)
+    return int(hex(encode_shortstring(value)), 16)
 
 
 def is_pointer(value: str) -> bool:
