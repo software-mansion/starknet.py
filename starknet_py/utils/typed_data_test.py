@@ -4,6 +4,7 @@
 import json
 from enum import Enum
 from pathlib import Path
+from typing import Union
 
 import pytest
 
@@ -14,7 +15,8 @@ from starknet_py.utils.typed_data import (
     Domain,
     Parameter,
     TypedData,
-    get_hex,
+    encode_bool,
+    parse_felt,
 )
 
 
@@ -47,8 +49,8 @@ def load_typed_data(file_name: str) -> TypedData:
     "value, result",
     [(123, "0x7b"), ("123", "0x7b"), ("0x7b", "0x7b"), ("short_string", "0x73686f72745f737472696e67")],
 )
-def test_get_hex(value, result):
-    assert get_hex(value) == result
+def test_parse_felt(value, result):
+    assert parse_felt(value) == int(result, 16)
 
 
 @pytest.mark.parametrize(
@@ -221,10 +223,12 @@ def test_invalid_type_names(included_type: str, revision: Revision):
         (BasicType.STRING.value, Revision.V0),
         (BasicType.SELECTOR.value, Revision.V0),
         (BasicType.MERKLE_TREE.value, Revision.V0),
+        (BasicType.BOOL.value, Revision.V0),
         (BasicType.FELT.value, Revision.V1),
         (BasicType.STRING.value, Revision.V1),
         (BasicType.SELECTOR.value, Revision.V1),
         (BasicType.MERKLE_TREE.value, Revision.V1),
+        (BasicType.BOOL.value, Revision.V1),
         (BasicType.SHORT_STRING.value, Revision.V1),
     ],
 )
@@ -280,3 +284,39 @@ def test_missing_dependency():
 
     with pytest.raises(ValueError, match=r"Type \[ice cream\] is not defined in types."):
         typed_data.struct_hash("house", {"fridge": 1})
+
+
+@pytest.mark.parametrize(
+    "value, expected",
+    [
+        (True, 1),
+        (False, 0),
+        ("true", 1),
+        ("false", 0),
+        ("0x1", 1),
+        ("0x0", 0),
+        ("1", 1),
+        ("0", 0),
+        (1, 1),
+        (0, 0)
+
+    ]
+)
+def test_encode_bool(value: Union[bool, str, int], expected: int):
+    assert encode_bool(value) == expected
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        -2,
+        2,
+        "-2",
+        "2",
+        "0x123",
+        "anyvalue",
+    ]
+)
+def test_encode_invalid_bool(value: Union[bool, str, int]):
+    with pytest.raises(ValueError, match=fr"Expected boolean value, got \[{value}\]."):
+        encode_bool(value)

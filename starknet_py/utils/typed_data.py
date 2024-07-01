@@ -7,7 +7,6 @@ from marshmallow import Schema, fields, post_load
 from starknet_py.cairo.felt import encode_shortstring
 from starknet_py.hash.hash_method import HashMethod
 from starknet_py.hash.selector import get_selector_from_name
-from starknet_py.hash.utils import compute_hash_on_elements
 from starknet_py.net.client_utils import _to_rpc_felt
 from starknet_py.net.models.typed_data import DomainDict, Revision, TypedDataDict
 from starknet_py.net.schemas.common import RevisionField
@@ -76,6 +75,17 @@ class TypeContext:
     key: str
 
 
+class BasicType(Enum):
+    FELT = "felt"
+    SELECTOR = "selector"
+    MERKLE_TREE = "merkletree"
+    SHORT_STRING = "shortstring"
+    STRING = "string"
+    CONTRACT_ADDRESS = "ContractAddress"
+    CLASS_HASH = "ClassHash"
+    BOOL = "bool"
+
+
 @dataclass(frozen=True)
 class TypedData:
     """
@@ -118,6 +128,7 @@ class TypedData:
     def _is_struct(self, type_name: str) -> bool:
         return type_name in self.types
 
+    # pylint: disable=too-many-return-statements
     def _encode_value(
         self,
         type_name: str,
@@ -130,25 +141,33 @@ class TypedData:
         if is_pointer(type_name) and isinstance(value, list):
             type_name = strip_pointer(type_name)
             hashes = [self._encode_value(type_name, val) for val in value]
-            return compute_hash_on_elements(hashes)
+            return self._hash_method.hash_many(hashes)
 
         if type_name not in _get_basic_type_names(self.domain.resolved_revision):
             raise ValueError(f"Type [{type_name}] is not defined in types.")
 
         basic_type = BasicType(type_name)
 
+        if (basic_type, self.domain.resolved_revision) in [
+            (BasicType.FELT, Revision.V0),
+            (BasicType.FELT, Revision.V1),
+            (BasicType.STRING, Revision.V0),
+            (BasicType.SHORT_STRING, Revision.V1),
+            (BasicType.CONTRACT_ADDRESS, Revision.V1),
+            (BasicType.CLASS_HASH, Revision.V1),
+        ] and isinstance(value, (int, str)):
+            return parse_felt(value)
+
+        if basic_type == BasicType.BOOL and isinstance(value, (bool, str, int)):
+            return encode_bool(value)
+
+        if basic_type == BasicType.SELECTOR and isinstance(value, str):
+            return prepare_selector(value)
+
         if basic_type == BasicType.MERKLE_TREE and isinstance(value, list):
             if context is None:
                 raise ValueError(f"Context is not provided for '{type_name}' type.")
             return self._prepare_merkle_tree_root(value, context)
-
-        if basic_type in (BasicType.FELT, BasicType.SHORT_STRING) and isinstance(
-            value, (int, str, Revision)
-        ):
-            return int(get_hex(value), 16)
-
-        if basic_type == BasicType.SELECTOR and isinstance(value, str):
-            return prepare_selector(value)
 
         raise ValueError(
             f"Error occurred while encoding value with type name {type_name}."
@@ -294,14 +313,14 @@ class TypedData:
         return target_type.contains
 
 
-def get_hex(value: Union[int, str]) -> str:
+def parse_felt(value: Union[int, str]) -> int:
     if isinstance(value, int):
-        return hex(value)
-    if value[:2] == "0x":
         return value
+    if value.startswith("0x"):
+        return int(value, 16)
     if value.isnumeric():
-        return hex(int(value))
-    return hex(encode_shortstring(value))
+        return int(value)
+    return encode_shortstring(value)
 
 
 def is_pointer(value: str) -> bool:
@@ -327,12 +346,18 @@ def prepare_selector(name: str) -> int:
         return get_selector_from_name(name)
 
 
-class BasicType(Enum):
-    FELT = "felt"
-    SELECTOR = "selector"
-    MERKLE_TREE = "merkletree"
-    STRING = "string"
-    SHORT_STRING = "shortstring"
+def encode_bool(value: Union[bool, str, int]) -> int:
+    if isinstance(value, bool):
+        return 1 if value else 0
+    if isinstance(value, int) and value in (0, 1):
+        return value
+    if isinstance(value, str) and value in ("0", "1"):
+        return int(value)
+    if isinstance(value, str) and value in ("false", "true"):
+        return 0 if value == "false" else 1
+    if isinstance(value, str) and value in ("0x0", "0x1"):
+        return int(value, 16)
+    raise ValueError(f"Expected boolean value, got [{value}].")
 
 
 def _get_basic_type_names(revision: Revision) -> List[str]:
@@ -341,10 +366,13 @@ def _get_basic_type_names(revision: Revision) -> List[str]:
         BasicType.SELECTOR,
         BasicType.MERKLE_TREE,
         BasicType.STRING,
+        BasicType.BOOL,
     ]
 
     basic_types_v1 = basic_types_v0 + [
         BasicType.SHORT_STRING,
+        BasicType.CONTRACT_ADDRESS,
+        BasicType.CLASS_HASH,
     ]
 
     basic_types = basic_types_v0 if revision == Revision.V0 else basic_types_v1
