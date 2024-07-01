@@ -1,5 +1,5 @@
 from marshmallow import Schema, fields
-from marshmallow_oneofschema import OneOfSchema
+from marshmallow_oneofschema.one_of_schema import OneOfSchema
 
 from starknet_py.abi.v1.shape import (
     ENUM_ENTRY,
