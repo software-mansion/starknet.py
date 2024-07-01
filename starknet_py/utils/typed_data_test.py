@@ -18,7 +18,7 @@ from starknet_py.utils.typed_data import (
     encode_bool,
     encode_i128,
     encode_u128,
-    get_hex,
+    parse_felt,
 )
 
 
@@ -52,8 +52,8 @@ def load_typed_data(file_name: str) -> TypedData:
     "value, result",
     [(123, "0x7b"), ("123", "0x7b"), ("0x7b", "0x7b"), ("short_string", "0x73686f72745f737472696e67")],
 )
-def test_get_hex(value, result):
-    assert get_hex(value) == result
+def test_parse_felt(value, result):
+    assert parse_felt(value) == int(result, 16)
 
 
 @pytest.mark.parametrize(
