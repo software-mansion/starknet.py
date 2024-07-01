@@ -230,6 +230,10 @@ class TypedData:
 
         basic_type_names = _get_basic_type_names(self.domain.resolved_revision)
 
+        for type_name in basic_type_names:
+            if type_name in self.types:
+                raise ValueError(f"Reserved type name: {type_name}")
+
         referenced_types = set()
         for type_name in self.types:
             for ref_type in self.types[type_name]:
