@@ -317,7 +317,7 @@ class TypedData:
 def parse_felt(value: Union[int, str]) -> int:
     if isinstance(value, int):
         return value
-    if value[:2] == "0x":
+    if value.startswith("0x"):
         return int(value, 16)
     if value.isnumeric():
         return int(value)
