@@ -7,7 +7,6 @@ from marshmallow import Schema, fields, post_load
 from starknet_py.cairo.felt import encode_shortstring
 from starknet_py.hash.hash_method import HashMethod
 from starknet_py.hash.selector import get_selector_from_name
-from starknet_py.hash.utils import compute_hash_on_elements
 from starknet_py.net.client_utils import _to_rpc_felt
 from starknet_py.net.models.typed_data import DomainDict, Revision, TypedDataDict
 from starknet_py.net.schemas.common import RevisionField
@@ -142,7 +141,7 @@ class TypedData:
         if is_pointer(type_name) and isinstance(value, list):
             type_name = strip_pointer(type_name)
             hashes = [self._encode_value(type_name, val) for val in value]
-            return compute_hash_on_elements(hashes)
+            return self._hash_method.hash_many(hashes)
 
         if type_name not in _get_basic_type_names(self.domain.resolved_revision):
             raise ValueError(f"Type [{type_name}] is not defined in types.")
