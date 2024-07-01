@@ -321,7 +321,7 @@ def parse_felt(value: Union[int, str]) -> int:
         return int(value, 16)
     if value.isnumeric():
         return int(value)
-    return int(hex(encode_shortstring(value)), 16)
+    return encode_shortstring(value)
 
 
 def is_pointer(value: str) -> bool:
