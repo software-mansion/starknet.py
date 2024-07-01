@@ -136,9 +136,6 @@ class TypedData:
         value: Union[int, str, dict, list],
         context: Optional[TypeContext] = None,
     ) -> int:
-        if isinstance(value, Revision):
-            value = value.value
-
         if type_name in self.types and isinstance(value, dict):
             return self.struct_hash(type_name, value)
 
