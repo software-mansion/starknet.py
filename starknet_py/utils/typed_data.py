@@ -169,7 +169,6 @@ class TypedData:
     def _is_struct(self, type_name: str) -> bool:
         return type_name in self.types
 
-    # pylint: disable=too-many-return-statements
     def _encode_value(
         self,
         type_name: str,
