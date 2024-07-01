@@ -420,6 +420,8 @@ def encode_u128(value: Union[str, int]) -> int:
             int_value = int(value, 16)
         elif is_digit_string(value):
             int_value = int(value)
+        else:
+            raise ValueError(f"Value [{value}] is not a valid number.")
 
         if int_value is not None and is_in_range(int_value):
             return int_value
@@ -441,6 +443,8 @@ def encode_i128(value: Union[str, int]) -> int:
             int_value = int(value, 16)
         elif is_digit_string(value, True):
             int_value = int(value)
+        else:
+            raise ValueError(f"Value [{value}] is not a valid number.")
 
     if int_value is not None:
         if abs(int_value) >= FIELD_PRIME:
