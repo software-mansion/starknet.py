@@ -72,8 +72,9 @@ def test_parse_felt(value, result):
          """"Mail"("from":"Person","to":"Person","contents":"felt")"Person"("name":"felt","wallet":"felt")"""),
         (CasesRev1.TD_BASIC_TYPES.value, "Example",
          """"Example"("n0":"felt","n1":"bool","n2":"string","n3":"selector","n4":"u128","n5":"i128","n6":"ContractAddress","n7":"ClassHash","n8":"timestamp","n9":"shortstring")"""),
-        (CasesRev1.TD_FELT_MERKLE_TREE.value, "Example", """"Example"("value":"felt","root":"merkletree")"""),
-        (CasesRev1.TD_ENUM.value, "Example",""""Example"("n0":"felt","n1":"bool","n2":"string","n3":"selector","n4":"u128","n5":"i128","n6":"ContractAddress","n7":"ClassHash","n8":"timestamp","n9":"shortstring")""")
+        (CasesRev1.TD_ENUM.value, "Example",
+         """"Example"("someEnum":"MyEnum")"MyEnum"("Variant 1":(),"Variant 2":("u128","u128*"),"Variant 3":("u128"))"""),
+        (CasesRev1.TD_FELT_MERKLE_TREE.value, "Example", """"Example"("value":"felt","root":"merkletree")""")
     ],
 )
 def test_encode_type(example, type_name, encoded_type):
