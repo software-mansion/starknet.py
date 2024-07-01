@@ -91,6 +91,42 @@ class BasicType(Enum):
     TIMESTAMP = "timestamp"
 
 
+def _encode_value_v1(
+    basic_type: BasicType, value: Union[int, str, dict, list]
+) -> Optional[int]:
+    if basic_type in (
+        BasicType.FELT,
+        BasicType.SHORT_STRING,
+        BasicType.CONTRACT_ADDRESS,
+        BasicType.CLASS_HASH,
+    ) and isinstance(value, (int, str)):
+        return parse_felt(value)
+
+    if basic_type in (
+        BasicType.U128,
+        BasicType.TIMESTAMP,
+    ) and isinstance(value, (int, str)):
+        return encode_u128(value)
+
+    if basic_type == BasicType.I128 and isinstance(value, (int, str)):
+        return encode_i128(value)
+
+    return None
+
+
+def _encode_value_v0(
+    basic_type: BasicType,
+    value: Union[int, str, dict, list],
+) -> Optional[int]:
+    if basic_type in (
+        BasicType.FELT,
+        BasicType.STRING,
+    ) and isinstance(value, (int, str)):
+        return parse_felt(value)
+
+    return None
+
+
 @dataclass(frozen=True)
 class TypedData:
     """
@@ -153,27 +189,13 @@ class TypedData:
 
         basic_type = BasicType(type_name)
 
-        if (basic_type, self.domain.resolved_revision) in [
-            (BasicType.FELT, Revision.V0),
-            (BasicType.FELT, Revision.V1),
-            (BasicType.STRING, Revision.V0),
-            (BasicType.SHORT_STRING, Revision.V1),
-            (BasicType.CONTRACT_ADDRESS, Revision.V1),
-            (BasicType.CLASS_HASH, Revision.V1),
-        ] and isinstance(value, (int, str)):
-            return parse_felt(value)
+        if self.domain.resolved_revision == Revision.V0:
+            encoded_value = _encode_value_v0(basic_type, value)
+        else:
+            encoded_value = _encode_value_v1(basic_type, value)
 
-        if (basic_type, self.domain.resolved_revision) in [
-            (BasicType.U128, Revision.V1),
-            (BasicType.TIMESTAMP, Revision.V1),
-        ] and isinstance(value, (int, str)):
-            return encode_u128(value)
-
-        if (basic_type, self.domain.resolved_revision) == (
-            BasicType.I128,
-            Revision.V1,
-        ) and isinstance(value, (int, str)):
-            return encode_i128(value)
+        if encoded_value is not None:
+            return encoded_value
 
         if basic_type == BasicType.BOOL and isinstance(value, (bool, str, int)):
             return encode_bool(value)
