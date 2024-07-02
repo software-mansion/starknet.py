@@ -154,7 +154,11 @@ class TypedData:
         return type_name in self.types
 
     def _encode_value_v1(
-        self, basic_type: BasicType, value: Union[int, str, dict, list]
+        self,
+        basic_type: BasicType,
+        value: Union[int, str, dict, list],
+        type_name: str,
+        context: Optional[TypeContext] = None,
     ) -> Optional[int]:
         if basic_type in (
             BasicType.FELT,
@@ -175,6 +179,11 @@ class TypedData:
 
         if basic_type == BasicType.STRING and isinstance(value, str):
             return self._prepare_long_string(value)
+
+        if basic_type == BasicType.ENUM and isinstance(value, dict):
+            if context is None:
+                raise ValueError(f"Context is not provided for '{type_name}' type.")
+            return self._prepare_enum(value, context)
 
         return None
 
@@ -214,7 +223,7 @@ class TypedData:
         if self.domain.resolved_revision == Revision.V0:
             encoded_value = self._encode_value_v0(basic_type, value)
         else:
-            encoded_value = self._encode_value_v1(basic_type, value)
+            encoded_value = self._encode_value_v1(basic_type, value, type_name, context)
 
         if encoded_value is not None:
             return encoded_value
@@ -229,14 +238,6 @@ class TypedData:
             if context is None:
                 raise ValueError(f"Context is not provided for '{type_name}' type.")
             return self._prepare_merkle_tree_root(value, context)
-
-        if (basic_type, Revision.V1) == (
-            BasicType.ENUM,
-            self.domain.resolved_revision,
-        ) and isinstance(value, dict):
-            if context is None:
-                raise ValueError(f"Context is not provided for '{type_name}' type.")
-            return self._prepare_enum(value, context)
 
         raise ValueError(
             f"Error occurred while encoding value with type name {type_name}."
