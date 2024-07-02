@@ -629,12 +629,12 @@ class ParameterSchema(Schema):
         type_val = data["type"]
 
         if type_val == BasicType.MERKLE_TREE.value:
-            return MerkleTreeParameter(**data)
+            return MerkleTreeParameter(name=data["name"], contains=data["contains"])
 
         if type_val == BasicType.ENUM.value:
-            return EnumParameter(**data)
+            return EnumParameter(name=data["name"], contains=data["contains"])
 
-        return StandardParameter(**data)
+        return StandardParameter(name=data["name"], type=type_val)
 
 
 class DomainSchema(Schema):

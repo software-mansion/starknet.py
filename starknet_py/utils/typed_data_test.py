@@ -276,7 +276,7 @@ def test_missing_domain_type(revision: Revision):
 
 
 def test_dangling_type():
-    with pytest.raises(ValueError, match="Dangling types are not allowed. Unreferenced type dangling was found."):
+    with pytest.raises(ValueError, match=r"Dangling types are not allowed. Unreferenced type \[dangling\] was found."):
         TypedData(
             types={
                 **domain_type_v1,
