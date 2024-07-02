@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass
 from enum import Enum
 from typing import Dict, List, Optional, Union, cast
@@ -5,6 +6,7 @@ from typing import Dict, List, Optional, Union, cast
 from marshmallow import Schema, fields, post_load
 
 from starknet_py.cairo.felt import encode_shortstring
+from starknet_py.constants import FIELD_PRIME
 from starknet_py.hash.hash_method import HashMethod
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.client_utils import _to_rpc_felt
@@ -84,6 +86,43 @@ class BasicType(Enum):
     CONTRACT_ADDRESS = "ContractAddress"
     CLASS_HASH = "ClassHash"
     BOOL = "bool"
+    U128 = "u128"
+    I128 = "i128"
+    TIMESTAMP = "timestamp"
+
+
+def _encode_value_v1(basic_type: BasicType, value: Union[int, str]) -> Optional[int]:
+    if basic_type in (
+        BasicType.FELT,
+        BasicType.SHORT_STRING,
+        BasicType.CONTRACT_ADDRESS,
+        BasicType.CLASS_HASH,
+    ) and isinstance(value, (int, str)):
+        return parse_felt(value)
+
+    if basic_type in (
+        BasicType.U128,
+        BasicType.TIMESTAMP,
+    ) and isinstance(value, (int, str)):
+        return encode_u128(value)
+
+    if basic_type == BasicType.I128 and isinstance(value, (int, str)):
+        return encode_i128(value)
+
+    return None
+
+
+def _encode_value_v0(
+    basic_type: BasicType,
+    value: Union[int, str],
+) -> Optional[int]:
+    if basic_type in (
+        BasicType.FELT,
+        BasicType.STRING,
+    ) and isinstance(value, (int, str)):
+        return parse_felt(value)
+
+    return None
 
 
 @dataclass(frozen=True)
@@ -128,7 +167,6 @@ class TypedData:
     def _is_struct(self, type_name: str) -> bool:
         return type_name in self.types
 
-    # pylint: disable=too-many-return-statements
     def _encode_value(
         self,
         type_name: str,
@@ -148,15 +186,18 @@ class TypedData:
 
         basic_type = BasicType(type_name)
 
-        if (basic_type, self.domain.resolved_revision) in [
-            (BasicType.FELT, Revision.V0),
-            (BasicType.FELT, Revision.V1),
-            (BasicType.STRING, Revision.V0),
-            (BasicType.SHORT_STRING, Revision.V1),
-            (BasicType.CONTRACT_ADDRESS, Revision.V1),
-            (BasicType.CLASS_HASH, Revision.V1),
-        ] and isinstance(value, (int, str)):
-            return parse_felt(value)
+        encoded_value = None
+        if self.domain.resolved_revision == Revision.V0 and isinstance(
+            value, (str, int)
+        ):
+            encoded_value = _encode_value_v0(basic_type, value)
+        elif self.domain.resolved_revision == Revision.V1 and isinstance(
+            value, (str, int)
+        ):
+            encoded_value = _encode_value_v1(basic_type, value)
+
+        if encoded_value is not None:
+            return encoded_value
 
         if basic_type == BasicType.BOOL and isinstance(value, (bool, str, int)):
             return encode_bool(value)
@@ -360,6 +401,54 @@ def encode_bool(value: Union[bool, str, int]) -> int:
     raise ValueError(f"Expected boolean value, got [{value}].")
 
 
+def is_digit_string(s: str, signed=False) -> bool:
+    if signed:
+        return bool(re.fullmatch(r"-?\d+", s))
+    return bool(re.fullmatch(r"\d+", s))
+
+
+def encode_u128(value: Union[str, int]) -> int:
+    def is_in_range(n: int):
+        return 0 <= n < 2**128
+
+    if isinstance(value, str) and value.startswith("0x"):
+        int_value = int(value, 16)
+    elif isinstance(value, str) and is_digit_string(value):
+        int_value = int(value)
+    elif isinstance(value, int):
+        int_value = value
+    else:
+        raise ValueError(f"Value [{value}] is not a valid number.")
+
+    if is_in_range(int_value):
+        return int_value
+    raise ValueError(f"Value [{value}] is out of range for '{BasicType.U128}'.")
+
+
+def encode_i128(value: Union[str, int]) -> int:
+    def is_in_range(n: int):
+        return (n < 2**127) or (n >= (FIELD_PRIME - (2**127)))
+
+    if isinstance(value, str) and value.startswith("0x"):
+        int_value = int(value, 16)
+    elif isinstance(value, str) and is_digit_string(value, True):
+        int_value = int(value)
+    elif isinstance(value, int):
+        int_value = value
+    else:
+        raise ValueError(f"Value [{value}] is not a valid number.")
+
+    if abs(int_value) >= FIELD_PRIME:
+        raise ValueError(
+            f"Values outside the range (-FIELD_PRIME, FIELD_PRIME) are not allowed, [{value}] given."
+        )
+    int_value %= FIELD_PRIME
+
+    if is_in_range(int_value):
+        return int_value
+    raise ValueError(f"Value [{value}] is out of range for '{BasicType.I128}'.")
+
+
 def _get_basic_type_names(revision: Revision) -> List[str]:
     basic_types_v0 = [
         BasicType.FELT,
@@ -373,6 +462,9 @@ def _get_basic_type_names(revision: Revision) -> List[str]:
         BasicType.SHORT_STRING,
         BasicType.CONTRACT_ADDRESS,
         BasicType.CLASS_HASH,
+        BasicType.U128,
+        BasicType.I128,
+        BasicType.TIMESTAMP,
     ]
 
     basic_types = basic_types_v0 if revision == Revision.V0 else basic_types_v1

@@ -16,6 +16,8 @@ from starknet_py.utils.typed_data import (
     Parameter,
     TypedData,
     encode_bool,
+    encode_i128,
+    encode_u128,
     parse_felt,
 )
 
@@ -320,3 +322,79 @@ def test_encode_bool(value: Union[bool, str, int], expected: int):
 def test_encode_invalid_bool(value: Union[bool, str, int]):
     with pytest.raises(ValueError, match=fr"Expected boolean value, got \[{value}\]."):
         encode_bool(value)
+
+
+@pytest.mark.parametrize(
+    "value, expected",
+    [
+        (0, 0),
+        (1, 1),
+        (1000000, 1000000),
+        ("0x0", 0),
+        ("0x1", 1),
+        ("0x64", 100),
+        (2 ** 128 - 1, 2 ** 128 - 1),
+    ]
+)
+def test_encode_u128(value: Union[str, int], expected: str):
+    assert encode_u128(value) == expected
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        -1,
+        "-1",
+        1.23,
+        -1.23,
+        "1.23",
+        "-1.23",
+        "example",
+        "0xwrong",
+        2 ** 128,
+        hex(2 ** 128),
+    ]
+)
+def test_encode_invalid_u128(value: Union[str, int]):
+    with pytest.raises(ValueError):
+        encode_u128(value)
+
+
+@pytest.mark.parametrize(
+    "value, expected",
+    [
+        (0, 0),
+        (1, 1),
+        (1000000, 1000000),
+        ("0x0", 0),
+        ("0x1", 1),
+        ("0x64", 100),
+        (2 ** 127 - 1, 2 ** 127 - 1),
+        (-1, 3618502788666131213697322783095070105623107215331596699973092056135872020480),
+        (-1000000, 3618502788666131213697322783095070105623107215331596699973092056135871020481),
+        (-(2 ** 127), 3618502788666131213697322783095070105452966031871127468241404752419987914753),
+    ]
+)
+def test_encode_i128(value: Union[str, int], expected: str):
+    assert encode_i128(value) == expected
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        "example",
+        "0xwrong",
+        1.23,
+        -1.23,
+        "1.23",
+        "-1.23",
+        -2 ** 127 - 1,
+        2 ** 127,
+        str(-2 ** 127 - 1),
+        str(2 ** 127),
+
+    ]
+)
+def test_encode_invalid_i128(value: Union[str, int]):
+    with pytest.raises(ValueError):
+        encode_i128(value)
