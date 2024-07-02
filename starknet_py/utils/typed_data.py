@@ -92,7 +92,7 @@ class BasicType(Enum):
 
 
 def _encode_value_v1(
-    basic_type: BasicType, value: Union[int, str, dict, list]
+    basic_type: BasicType, value: Union[int, str]
 ) -> Optional[int]:
     if basic_type in (
         BasicType.FELT,
