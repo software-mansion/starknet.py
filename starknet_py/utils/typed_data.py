@@ -349,13 +349,13 @@ class TypedData:
             if dependency not in self.types:
                 raise ValueError(f"Dependency [{dependency}] is not defined in types.")
 
-            encoded_fields = []
-            for field in self.types[dependency]:
+            encoded_params = []
+            for param in self.types[dependency]:
                 target_type = (
-                    field.contains
-                    if isinstance(field, EnumParameter)
+                    param.contains
+                    if isinstance(param, EnumParameter)
                     and self.domain.resolved_revision == Revision.V1
-                    else field.type
+                    else param.type
                 )
 
                 if is_enum(target_type):
@@ -366,10 +366,10 @@ class TypedData:
                 else:
                     type_str = escape(target_type)
 
-                encoded_fields.append(f"{escape(field.name)}:{type_str}")
-            encoded_fields = ",".join(encoded_fields)
+                encoded_params.append(f"{escape(param.name)}:{type_str}")
+            encoded_params = ",".join(encoded_params)
 
-            return f"{escape(dependency)}({encoded_fields})"
+            return f"{escape(dependency)}({encoded_params})"
 
         return "".join([encode_dependency(x) for x in types])
 
