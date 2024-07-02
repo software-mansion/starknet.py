@@ -213,7 +213,10 @@ class TypedData:
                 raise ValueError(f"Context is not provided for '{type_name}' type.")
             return self._prepare_merkle_tree_root(value, context)
 
-        if basic_type == BasicType.ENUM and isinstance(value, dict):
+        if (basic_type, Revision.V1) == (
+            BasicType.ENUM,
+            self.domain.resolved_revision,
+        ) and isinstance(value, dict):
             if context is None:
                 raise ValueError(f"Context is not provided for '{type_name}' type.")
             return self._prepare_enum(value, context)
@@ -235,13 +238,6 @@ class TypedData:
         return values
 
     def _verify_types(self):
-        def _validate_enum_type():
-            if self.domain.resolved_revision != Revision.V1:
-                raise ValueError(
-                    f"'{BasicType.ENUM.name}' basic type is not supported in revision "
-                    f"{self.domain.resolved_revision.value}."
-                )
-
         if self.domain.separator_name not in self.types:
             raise ValueError(f"Types must contain '{self.domain.separator_name}'.")
 
@@ -254,11 +250,11 @@ class TypedData:
         referenced_types = set()
         for type_name in self.types:
             for ref_type in self.types[type_name]:
-                if ref_type.contains is not None:
+                if isinstance(ref_type, MerkleTreeParameter):
                     referenced_types.add(ref_type.contains)
-                elif is_enum(ref_type.type):
-                    _validate_enum_type()
-                    referenced_types.update(_extract_enum_types(ref_type.type))
+                elif isinstance(ref_type, EnumParameter):
+                    self._validate_enum_type()
+                    referenced_types.add(ref_type.contains)
                 else:
                     referenced_types.add(strip_pointer(ref_type.type))
 
@@ -267,8 +263,9 @@ class TypedData:
         for type_name in self.types:
             if not type_name:
                 raise ValueError("Type names cannot be empty.")
+
             if is_pointer(type_name):
-                raise ValueError(f"Type names cannot end in *. {type_name} was found.")
+                raise ValueError(f"Type names cannot end in *. [{type_name}] was found.")
 
             if is_enum(type_name):
                 raise ValueError(
@@ -282,42 +279,75 @@ class TypedData:
 
             if type_name not in referenced_types:
                 raise ValueError(
-                    f"Dangling types are not allowed. Unreferenced type {type_name} was found."
+                    f"Dangling types are not allowed. Unreferenced type [{type_name}] was found."
                 )
 
+    def _validate_enum_type(self):
+        if self.domain.resolved_revision != Revision.V1:
+            raise ValueError(
+                f"'{BasicType.ENUM.name}' basic type is not supported in revision "
+                f"{self.domain.resolved_revision.value}."
+            )
+
     def _get_dependencies(self, type_name: str) -> List[str]:
-        if type_name not in self.types:
-            # type_name is a primitive type, has no dependencies
-            return []
+        dependencies = [type_name]
+        to_visit = [type_name]
 
-        dependencies = set()
+        while to_visit:
+            current_type = to_visit.pop(0)
+            params = self.types[current_type] if current_type in self.types else []
 
-        def collect_deps(type_name: str) -> None:
-            for param in self.types[type_name]:
-                fixed_type = strip_pointer(param.type)
-                if fixed_type in self.types and fixed_type not in dependencies:
-                    dependencies.add(fixed_type)
-                    # recursive call
-                    collect_deps(fixed_type)
+            for param in params:
+                if isinstance(param, EnumParameter):
+                    self._validate_enum_type()
+                    extracted_types = [param.contains]
+                else:
+                    extracted_types = [param.type]
 
-        # collect dependencies into a set
-        collect_deps(type_name)
-        return [type_name, *list(dependencies)]
+                extracted_types = [
+                    strip_pointer(extr_type) for extr_type in extracted_types
+                ]
+                for extracted_type in extracted_types:
+                    if (
+                        extracted_type in self.types
+                        and extracted_type not in dependencies
+                    ):
+                        dependencies.append(extracted_type)
+                        to_visit.append(extracted_type)
+
+        return list(dependencies)
 
     def _encode_type(self, type_name: str) -> str:
         primary, *dependencies = self._get_dependencies(type_name)
         types = [primary, *sorted(dependencies)]
 
-        def make_dependency_str(dependency):
-            lst = [
-                f"{escape(t.name, self.domain.resolved_revision)}:{escape(t.type, self.domain.resolved_revision)}"
-                for t in self.types[dependency]
-            ]
-            return (
-                f"{escape(dependency, self.domain.resolved_revision)}({','.join(lst)})"
-            )
+        def encode_dependency(dependency: str) -> str:
+            if dependency not in self.types:
+                raise ValueError(f"Dependency [{dependency}] is not defined in types.")
 
-        return "".join([make_dependency_str(x) for x in types])
+            encoded_fields = []
+            for field in self.types[dependency]:
+                target_type = (
+                    field.contains
+                    if isinstance(field, EnumParameter)
+                    and self.domain.resolved_revision == Revision.V1
+                    else field.type
+                )
+
+                if is_enum(target_type):
+                    self._validate_enum_type()
+                    type_str = _extract_enum_types(target_type)
+                    type_str = f"({','.join([self.escape(x) for x in type_str])})"
+
+                else:
+                    type_str = self.escape(target_type)
+
+                encoded_fields.append(f"{self.escape(field.name)}:{type_str}")
+            encoded_fields = ",".join(encoded_fields)
+
+            return f"{self.escape(dependency)}({encoded_fields})"
+
+        return "".join([encode_dependency(x) for x in types])
 
     def type_hash(self, type_name: str) -> int:
         """
@@ -367,7 +397,7 @@ class TypedData:
     def _get_merkle_tree_leaves_type(self, context: TypeContext) -> str:
         target_type = self._resolve_type(context)
 
-        if not target_type.contains:
+        if not isinstance(target_type, MerkleTreeParameter):
             raise ValueError("Missing 'contains' field in target type.")
 
         return target_type.contains
@@ -386,7 +416,9 @@ class TypedData:
                 f"Key {key} is not defined in type {parent} or multiple definitions are present."
             )
 
-        if target_type.contains is None:
+        if not isinstance(target_type, MerkleTreeParameter) and not isinstance(
+            target_type, EnumParameter
+        ):
             raise ValueError("Missing 'contains' field in target type.")
         return target_type
 
@@ -430,10 +462,15 @@ class TypedData:
         serialized_values = self._byte_array_serializer.serialize(value)
         return self._hash_method.hash_many(serialized_values)
 
+    def escape(self, s: str) -> str:
+        if self.domain.resolved_revision == Revision.V0:
+            return s
+        return f'"{s}"'
+
 
 def _extract_enum_types(value: str) -> List[str]:
     if not is_enum(value):
-        raise ValueError(f"Type [{type}] is not an enum.")
+        raise ValueError(f"Type [{value}] is not an enum.")
 
     value = value[1:-1]
     if not value:
@@ -464,12 +501,6 @@ def strip_pointer(value: str) -> str:
 
 def is_enum(value: str) -> bool:
     return value.startswith("(") and value.endswith(")")
-
-
-def escape(s: str, revision: Revision) -> str:
-    if revision == Revision.V0:
-        return s
-    return f'"{s}"'
 
 
 def prepare_selector(name: str) -> int:
@@ -565,6 +596,7 @@ def _get_basic_type_names(revision: Revision) -> List[str]:
         BasicType.U128,
         BasicType.I128,
         BasicType.TIMESTAMP,
+        BasicType.ENUM,
     ]
 
     basic_types = basic_types_v0 if revision == Revision.V0 else basic_types_v1
@@ -582,7 +614,15 @@ class ParameterSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> Parameter:
-        return Parameter(**data)
+        type_val = data["type"]
+
+        if type_val == BasicType.MERKLE_TREE.value:
+            return MerkleTreeParameter(**data)
+
+        if type_val == BasicType.ENUM.value:
+            return EnumParameter(**data)
+
+        return StandardParameter(**data)
 
 
 class DomainSchema(Schema):
