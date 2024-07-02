@@ -341,6 +341,11 @@ class TypedData:
         types = [primary, *sorted(dependencies)]
 
         def encode_dependency(dependency: str) -> str:
+            def escape(s: str) -> str:
+                if self.domain.resolved_revision == Revision.V0:
+                    return s
+                return f'"{s}"'
+
             if dependency not in self.types:
                 raise ValueError(f"Dependency [{dependency}] is not defined in types.")
 
@@ -356,15 +361,15 @@ class TypedData:
                 if is_enum(target_type):
                     self._validate_enum_type()
                     type_str = _extract_enum_types(target_type)
-                    type_str = f"({','.join([self.escape(x) for x in type_str])})"
+                    type_str = f"({','.join([escape(x) for x in type_str])})"
 
                 else:
-                    type_str = self.escape(target_type)
+                    type_str = escape(target_type)
 
-                encoded_fields.append(f"{self.escape(field.name)}:{type_str}")
+                encoded_fields.append(f"{escape(field.name)}:{type_str}")
             encoded_fields = ",".join(encoded_fields)
 
-            return f"{self.escape(dependency)}({encoded_fields})"
+            return f"{escape(dependency)}({encoded_fields})"
 
         return "".join([encode_dependency(x) for x in types])
 
@@ -479,11 +484,6 @@ class TypedData:
         byte_array_serializer = ByteArraySerializer()
         serialized_values = byte_array_serializer.serialize(value)
         return self._hash_method.hash_many(serialized_values)
-
-    def escape(self, s: str) -> str:
-        if self.domain.resolved_revision == Revision.V0:
-            return s
-        return f'"{s}"'
 
 
 def _extract_enum_types(value: str) -> List[str]:
