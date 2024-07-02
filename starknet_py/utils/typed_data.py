@@ -255,6 +255,7 @@ class TypedData:
 
         return values
 
+    # pylint: disable=too-many-branches
     def _verify_types(self):
         if self.domain.separator_name not in self.types:
             raise ValueError(f"Types must contain '{self.domain.separator_name}'.")
