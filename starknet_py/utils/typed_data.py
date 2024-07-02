@@ -265,7 +265,9 @@ class TypedData:
                 raise ValueError("Type names cannot be empty.")
 
             if is_pointer(type_name):
-                raise ValueError(f"Type names cannot end in *. [{type_name}] was found.")
+                raise ValueError(
+                    f"Type names cannot end in *. [{type_name}] was found."
+                )
 
             if is_enum(type_name):
                 raise ValueError(
