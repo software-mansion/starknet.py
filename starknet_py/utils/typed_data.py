@@ -435,9 +435,7 @@ class TypedData:
                 f"Key {key} is not defined in type {parent} or multiple definitions are present."
             )
 
-        if not isinstance(target_type, MerkleTreeParameter) and not isinstance(
-            target_type, EnumParameter
-        ):
+        if not isinstance(target_type, (EnumParameter, MerkleTreeParameter)):
             raise ValueError("Missing 'contains' field in target type.")
         return target_type
 
