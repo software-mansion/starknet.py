@@ -91,9 +91,7 @@ class BasicType(Enum):
     TIMESTAMP = "timestamp"
 
 
-def _encode_value_v1(
-    basic_type: BasicType, value: Union[int, str]
-) -> Optional[int]:
+def _encode_value_v1(basic_type: BasicType, value: Union[int, str]) -> Optional[int]:
     if basic_type in (
         BasicType.FELT,
         BasicType.SHORT_STRING,
@@ -188,9 +186,14 @@ class TypedData:
 
         basic_type = BasicType(type_name)
 
-        if self.domain.resolved_revision == Revision.V0:
+        encoded_value = None
+        if self.domain.resolved_revision == Revision.V0 and isinstance(
+            value, (str, int)
+        ):
             encoded_value = _encode_value_v0(basic_type, value)
-        else:
+        elif self.domain.resolved_revision == Revision.V1 and isinstance(
+            value, (str, int)
+        ):
             encoded_value = _encode_value_v1(basic_type, value)
 
         if encoded_value is not None:
