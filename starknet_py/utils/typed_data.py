@@ -155,7 +155,7 @@ class TypedData:
             return encode_i128(value)
 
         if basic_type == BasicType.STRING and isinstance(value, str):
-            return self._prepare_long_string(value)
+            return self._encode_long_string(value)
 
         return None
 
@@ -354,7 +354,7 @@ class TypedData:
 
         return target_type.contains
 
-    def _prepare_long_string(self, value: str) -> int:
+    def _encode_long_string(self, value: str) -> int:
         byte_array_serializer = ByteArraySerializer()
         serialized_values = byte_array_serializer.serialize(value)
         return self._hash_method.hash_many(serialized_values)
