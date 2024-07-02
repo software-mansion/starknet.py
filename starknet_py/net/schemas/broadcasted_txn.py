@@ -1,5 +1,5 @@
 from marshmallow import fields, post_dump, pre_load
-from marshmallow_oneofschema import OneOfSchema
+from marshmallow_oneofschema.one_of_schema import OneOfSchema
 
 from starknet_py.net.client_models import TransactionType
 from starknet_py.net.models.transaction import compress_program, decompress_program
@@ -49,9 +49,9 @@ class BroadcastedDeclareV1Schema(DeclareTransactionV1Schema):
 
 class BroadcastedDeclareSchema(OneOfSchema):
     type_schemas = {
-        1: BroadcastedDeclareV1Schema,
-        2: BroadcastedDeclareV2Schema,
-        3: BroadcastedDeclareV3Schema,
+        "1": BroadcastedDeclareV1Schema,
+        "2": BroadcastedDeclareV2Schema,
+        "3": BroadcastedDeclareV3Schema,
     }
 
     def get_obj_type(self, obj):
