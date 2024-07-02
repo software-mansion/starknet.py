@@ -116,7 +116,7 @@ def _encode_value_v1(
 
 def _encode_value_v0(
     basic_type: BasicType,
-    value: Union[int, str, dict, list],
+    value: Union[int, str],
 ) -> Optional[int]:
     if basic_type in (
         BasicType.FELT,
