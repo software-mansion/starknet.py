@@ -4,7 +4,7 @@
 import json
 from enum import Enum
 from pathlib import Path
-from typing import Union
+from typing import Dict, List, Union
 
 import pytest
 
@@ -14,6 +14,7 @@ from starknet_py.utils.typed_data import (
     BasicType,
     Domain,
     Parameter,
+    StandardParameter,
     TypedData,
     encode_bool,
     encode_i128,
@@ -175,18 +176,18 @@ def test_message_hash(example, account_address, msg_hash):
 
 domain_type_v0 = {
     "StarkNetDomain": [
-        Parameter(name="name", type="felt"),
-        Parameter(name="version", type="felt"),
-        Parameter(name="chainId", type="felt"),
+        StandardParameter(name="name", type="felt"),
+        StandardParameter(name="version", type="felt"),
+        StandardParameter(name="chainId", type="felt"),
     ]
 }
 
-domain_type_v1 = {
+domain_type_v1: Dict[str, List[Parameter]] = {
     "StarknetDomain": [
-        Parameter(name="name", type="shortstring"),
-        Parameter(name="version", type="shortstring"),
-        Parameter(name="chainId", type="shortstring"),
-        Parameter(name="revision", type="shortstring"),
+        StandardParameter(name="name", type="shortstring"),
+        StandardParameter(name="version", type="shortstring"),
+        StandardParameter(name="chainId", type="shortstring"),
+        StandardParameter(name="revision", type="shortstring"),
     ]
 }
 
@@ -211,14 +212,12 @@ def _make_typed_data(included_type: str, revision: Revision):
     types = {**domain_type, included_type: []}
     message = {included_type: 1}
 
-    x =TypedData(
+    return TypedData(
         types=types,
         primary_type=included_type,
         domain=domain,
         message=message,
     )
-    print("KOKO",x.to_dict())
-    return x
 
 
 @pytest.mark.parametrize(
@@ -294,7 +293,7 @@ def test_missing_dependency():
     typed_data = TypedData(
         types={
             **domain_type_v1,
-            "house": [Parameter(name="fridge", type="ice cream")]
+            "house": [StandardParameter(name="fridge", type="ice cream")]
         },
         primary_type="house",
         domain=domain_v1,

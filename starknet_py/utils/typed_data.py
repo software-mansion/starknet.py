@@ -1,5 +1,6 @@
 import re
-from dataclasses import dataclass
+from abc import ABC
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, List, Optional, Union, cast
 
@@ -17,7 +18,7 @@ from starknet_py.utils.merkle_tree import MerkleTree
 
 
 @dataclass(frozen=True)
-class Parameter:
+class Parameter(ABC):
     """
     Dataclass representing a Parameter object
     """
@@ -25,6 +26,23 @@ class Parameter:
     name: str
     type: str
     contains: Optional[str] = None
+
+
+@dataclass(frozen=True)
+class StandardParameter(Parameter):
+    contains: Optional[str] = field(default=None, init=False)
+
+
+@dataclass(frozen=True)
+class MerkleTreeParameter(StandardParameter):
+    type: str = field(default="merkletree", init=False)
+    contains: str
+
+
+@dataclass(frozen=True)
+class EnumParameter(StandardParameter):
+    type: str = field(default="enum", init=False)
+    contains: str
 
 
 @dataclass
