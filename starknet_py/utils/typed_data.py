@@ -111,7 +111,13 @@ class BasicType(Enum):
     TIMESTAMP = "timestamp"
 
 
-@dataclass(frozen=True)
+class PresetType(Enum):
+    U256 = "u256"
+    TOKEN_AMOUNT = "TokenAmount"
+    NFT_ID = "NftId"
+
+
+@dataclass
 class TypedData:
     """
     Dataclass representing a TypedData object
@@ -124,6 +130,12 @@ class TypedData:
 
     def __post_init__(self):
         self._verify_types()
+
+        preset_types = _get_preset_types(self.domain.resolved_revision)
+        self._all_types = {
+            **preset_types,
+            **self.types,
+        }
 
     @property
     def _hash_method(self) -> HashMethod:
@@ -207,7 +219,7 @@ class TypedData:
         value: Union[int, str, dict, list],
         context: Optional[TypeContext] = None,
     ) -> int:
-        if type_name in self.types and isinstance(value, dict):
+        if type_name in self._all_types and isinstance(value, dict):
             return self.struct_hash(type_name, value)
 
         if is_pointer(type_name) and isinstance(value, list):
@@ -245,7 +257,7 @@ class TypedData:
 
     def _encode_data(self, type_name: str, data: dict) -> List[int]:
         values = []
-        for param in self.types[type_name]:
+        for param in self._all_types[type_name]:
             encoded_value = self._encode_value(
                 param.type,
                 data[param.name],
@@ -261,10 +273,18 @@ class TypedData:
             raise ValueError(f"Types must contain '{self.domain.separator_name}'.")
 
         basic_type_names = _get_basic_type_names(self.domain.resolved_revision)
+        preset_type_names = _get_preset_types(self.domain.resolved_revision).keys()
 
-        for type_name in basic_type_names:
-            if type_name in self.types:
-                raise ValueError(f"Reserved type name: {type_name}")
+        for type_name in self.types.keys():
+            if type_name in basic_type_names:
+                raise ValueError(
+                    f"Types must not contain basic types. [{type_name}] was found."
+                )
+
+            if type_name in preset_type_names:
+                raise ValueError(
+                    f"Types must not contain preset types. [{type_name}] was found."
+                )
 
         referenced_types = set()
         for type_name in self.types:
@@ -278,7 +298,7 @@ class TypedData:
                     referenced_types.add(strip_pointer(ref_type.type))
 
         referenced_types.update([self.domain.separator_name, self.primary_type])
-
+        print("TYPES", self.types)
         for type_name in self.types:
             if not type_name:
                 raise ValueError("Type names cannot be empty.")
@@ -316,7 +336,7 @@ class TypedData:
 
         while to_visit:
             current_type = to_visit.pop(0)
-            params = self.types[current_type] if current_type in self.types else []
+            params = self._all_types[current_type] if current_type in self.types else []
 
             for param in params:
                 if isinstance(param, EnumParameter):
@@ -330,7 +350,7 @@ class TypedData:
                 ]
                 for extracted_type in extracted_types:
                     if (
-                        extracted_type in self.types
+                        extracted_type in self._all_types
                         and extracted_type not in dependencies
                     ):
                         dependencies.append(extracted_type)
@@ -348,11 +368,11 @@ class TypedData:
                     return s
                 return f'"{s}"'
 
-            if dependency not in self.types:
+            if dependency not in self._all_types:
                 raise ValueError(f"Dependency [{dependency}] is not defined in types.")
 
             encoded_params = []
-            for param in self.types[dependency]:
+            for param in self._all_types[dependency]:
                 target_type = (
                     param.contains
                     if isinstance(param, EnumParameter)
@@ -431,10 +451,10 @@ class TypedData:
     def _resolve_type(self, context: TypeContext) -> Parameter:
         parent, key = context.parent, context.key
 
-        if parent not in self.types:
+        if parent not in self._all_types:
             raise ValueError(f"Parent {parent} is not defined in types.")
 
-        parent_type = self.types[parent]
+        parent_type = self._all_types[parent]
 
         target_type = next((item for item in parent_type if item.name == key), None)
         if target_type is None:
@@ -477,10 +497,10 @@ class TypedData:
 
     def _get_enum_variants(self, context: TypeContext) -> List[Parameter]:
         enum_type = self._resolve_type(context)
-        if enum_type.contains not in self.types:
+        if enum_type.contains not in self._all_types:
             raise ValueError(f"Type [{enum_type.contains}] is not defined in types")
 
-        return self.types[enum_type.contains]
+        return self._all_types[enum_type.contains]
 
     def _prepare_long_string(self, value: str) -> int:
         byte_array_serializer = ByteArraySerializer()
@@ -613,6 +633,28 @@ def _get_basic_type_names(revision: Revision) -> List[str]:
 
     basic_types = basic_types_v0 if revision == Revision.V0 else basic_types_v1
     return [basic_type.value for basic_type in basic_types]
+
+
+def _get_preset_types(
+    revision: Revision,
+) -> Dict[str, List[StandardParameter]]:
+    if revision == Revision.V0:
+        return {}
+
+    return {
+        PresetType.U256.value: [
+            StandardParameter(name="low", type="u128"),
+            StandardParameter(name="high", type="u128"),
+        ],
+        PresetType.TOKEN_AMOUNT.value: [
+            StandardParameter(name="token_address", type="ContractAddress"),
+            StandardParameter(name="amount", type="u256"),
+        ],
+        PresetType.NFT_ID.value: [
+            StandardParameter(name="collection_address", type="ContractAddress"),
+            StandardParameter(name="token_id", type="u256"),
+        ],
+    }
 
 
 # pylint: disable=unused-argument
