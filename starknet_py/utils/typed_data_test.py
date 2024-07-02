@@ -16,9 +16,9 @@ from starknet_py.utils.typed_data import (
     Parameter,
     StandardParameter,
     TypedData,
-    encode_bool,
     encode_i128,
     encode_u128,
+    encode_bool,
     parse_felt,
 )
 
