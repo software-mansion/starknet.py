@@ -117,7 +117,7 @@ class PresetType(Enum):
     NFT_ID = "NftId"
 
 
-@dataclass
+@dataclass(frozen=True)
 class TypedData:
     """
     Dataclass representing a TypedData object
@@ -131,8 +131,10 @@ class TypedData:
     def __post_init__(self):
         self._verify_types()
 
+    @property
+    def _all_types(self):
         preset_types = _get_preset_types(self.domain.resolved_revision)
-        self._all_types = {
+        return {
             **preset_types,
             **self.types,
         }
