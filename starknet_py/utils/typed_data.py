@@ -156,7 +156,7 @@ class TypedData:
     def _encode_value_v1(
         self,
         basic_type: BasicType,
-        value: Union[int, str, dict, list],
+        value: Union[int, str, dict],
         type_name: str,
         context: Optional[TypeContext] = None,
     ) -> Optional[int]:
@@ -226,7 +226,7 @@ class TypedData:
         ):
             encoded_value = self._encode_value_v0(basic_type, value)
         elif self.domain.resolved_revision == Revision.V1 and isinstance(
-            value, (str, int)
+            value, (str, int, dict)
         ):
             encoded_value = self._encode_value_v1(basic_type, value, type_name, context)
 
