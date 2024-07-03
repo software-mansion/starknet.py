@@ -258,6 +258,7 @@ def test_invalid_type_names(included_type: str, revision: Revision):
         (BasicType.MERKLE_TREE.value, Revision.V1),
         (BasicType.BOOL.value, Revision.V1),
         (BasicType.SHORT_STRING.value, Revision.V1),
+        (BasicType.ENUM.value, Revision.V1)
     ],
 )
 def test_basic_types_redefinition(included_type: str, revision: Revision):

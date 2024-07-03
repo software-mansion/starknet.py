@@ -168,7 +168,7 @@ class TypedData:
     def _encode_value_v1(
         self,
         basic_type: BasicType,
-        value: Union[int, str, dict, list],
+        value: Union[int, str, dict],
         type_name: str,
         context: Optional[TypeContext] = None,
     ) -> Optional[int]:
@@ -190,12 +190,12 @@ class TypedData:
             return encode_i128(value)
 
         if basic_type == BasicType.STRING and isinstance(value, str):
-            return self._prepare_long_string(value)
+            return self._encode_long_string(value)
 
         if basic_type == BasicType.ENUM and isinstance(value, dict):
             if context is None:
                 raise ValueError(f"Context is not provided for '{type_name}' type.")
-            return self._prepare_enum(value, context)
+            return self._encode_enum(value, context)
 
         return None
 
@@ -232,9 +232,14 @@ class TypedData:
 
         basic_type = BasicType(type_name)
 
-        if self.domain.resolved_revision == Revision.V0:
+        encoded_value = None
+        if self.domain.resolved_revision == Revision.V0 and isinstance(
+            value, (str, int)
+        ):
             encoded_value = self._encode_value_v0(basic_type, value)
-        else:
+        elif self.domain.resolved_revision == Revision.V1 and isinstance(
+            value, (str, int, dict)
+        ):
             encoded_value = self._encode_value_v1(basic_type, value, type_name, context)
 
         if encoded_value is not None:
@@ -466,7 +471,7 @@ class TypedData:
             raise ValueError("Missing 'contains' field in target type.")
         return target_type
 
-    def _prepare_enum(self, value: dict, context: TypeContext):
+    def _encode_enum(self, value: dict, context: TypeContext):
         if len(value.keys()) != 1:
             raise ValueError(
                 f"'{BasicType.ENUM.name}' value must contain a single variant."
@@ -502,7 +507,7 @@ class TypedData:
 
         return self._all_types[enum_type.contains]
 
-    def _prepare_long_string(self, value: str) -> int:
+    def _encode_long_string(self, value: str) -> int:
         byte_array_serializer = ByteArraySerializer()
         serialized_values = byte_array_serializer.serialize(value)
         return self._hash_method.hash_many(serialized_values)

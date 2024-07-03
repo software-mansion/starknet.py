@@ -1,7 +1,7 @@
 # pylint: disable=too-many-lines
 
 from marshmallow import EXCLUDE, fields, post_load
-from marshmallow_oneofschema import OneOfSchema
+from marshmallow_oneofschema.one_of_schema import OneOfSchema
 
 from starknet_py.abi.v0.schemas import ContractAbiEntrySchema
 from starknet_py.net.client_models import (
@@ -415,10 +415,10 @@ class DeployAccountTransactionV3Schema(TransactionV3Schema):
 
 class DeclareTransactionSchema(OneOfSchema):
     type_schemas = {
-        0: DeclareTransactionV0Schema,
-        1: DeclareTransactionV1Schema,
-        2: DeclareTransactionV2Schema,
-        3: DeclareTransactionV3Schema,
+        "0": DeclareTransactionV0Schema,
+        "1": DeclareTransactionV1Schema,
+        "2": DeclareTransactionV2Schema,
+        "3": DeclareTransactionV3Schema,
     }
 
     def get_data_type(self, data):
@@ -427,9 +427,9 @@ class DeclareTransactionSchema(OneOfSchema):
 
 class InvokeTransactionSchema(OneOfSchema):
     type_schemas = {
-        0: InvokeTransactionV0Schema,
-        1: InvokeTransactionV1Schema,
-        3: InvokeTransactionV3Schema,
+        "0": InvokeTransactionV0Schema,
+        "1": InvokeTransactionV1Schema,
+        "3": InvokeTransactionV3Schema,
     }
 
     def get_obj_type(self, obj):
@@ -441,8 +441,8 @@ class InvokeTransactionSchema(OneOfSchema):
 
 class DeployAccountTransactionSchema(OneOfSchema):
     type_schemas = {
-        1: DeployAccountTransactionV1Schema,
-        3: DeployAccountTransactionV3Schema,
+        "1": DeployAccountTransactionV1Schema,
+        "3": DeployAccountTransactionV3Schema,
     }
 
     def get_obj_type(self, obj):
