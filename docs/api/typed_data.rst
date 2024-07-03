@@ -17,9 +17,10 @@ Parameter
     :exclude-members: __init__
     :member-order: bysource
 
----------
+-------------------
 StandardParameter
----------
+-------------------
+
 
 .. autoclass:: starknet_py.utils.typed_data.StandardParameter
     :members:
@@ -27,9 +28,9 @@ StandardParameter
     :exclude-members: __init__
     :member-order: bysource
 
----------
+-------------------
 EnumParameter
----------
+-------------------
 
 .. autoclass:: starknet_py.utils.typed_data.EnumParameter
     :members:
@@ -37,9 +38,9 @@ EnumParameter
     :exclude-members: __init__
     :member-order: bysource
 
----------
+-------------------
 MerkleTreeParameter
----------
+-------------------
 
 .. autoclass:: starknet_py.utils.typed_data.MerkleTreeParameter
     :members:
@@ -67,9 +68,9 @@ BasicType
     :exclude-members: __init__
     :member-order: bysource
 
----------
+----------
 PresetType
----------
+----------
 
 .. autoclass:: starknet_py.utils.typed_data.PresetType
     :members:
