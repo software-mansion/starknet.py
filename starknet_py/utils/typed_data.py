@@ -34,13 +34,13 @@ class StandardParameter(Parameter):
 
 
 @dataclass(frozen=True)
-class MerkleTreeParameter(StandardParameter):
+class MerkleTreeParameter(Parameter):
     type: str = field(default="merkletree", init=False)
     contains: str
 
 
 @dataclass(frozen=True)
-class EnumParameter(StandardParameter):
+class EnumParameter(Parameter):
     type: str = field(default="enum", init=False)
     contains: str
 
