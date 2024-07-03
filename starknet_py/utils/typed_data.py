@@ -30,17 +30,29 @@ class Parameter(ABC):
 
 @dataclass(frozen=True)
 class StandardParameter(Parameter):
+    """
+    Dataclass representing a StandardParameter object
+    """
+
     contains: Optional[str] = field(default=None, init=False)
 
 
 @dataclass(frozen=True)
-class MerkleTreeParameter(StandardParameter):
+class MerkleTreeParameter(Parameter):
+    """
+    Dataclass representing a MerkleTreeParameter object
+    """
+
     type: str = field(default="merkletree", init=False)
     contains: str
 
 
 @dataclass(frozen=True)
-class EnumParameter(StandardParameter):
+class EnumParameter(Parameter):
+    """
+    Dataclass representing an EnumTreeParameter object
+    """
+
     type: str = field(default="enum", init=False)
     contains: str
 
