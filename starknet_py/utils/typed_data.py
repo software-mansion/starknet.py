@@ -12,6 +12,7 @@ from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.client_utils import _to_rpc_felt
 from starknet_py.net.models.typed_data import DomainDict, Revision, TypedDataDict
 from starknet_py.net.schemas.common import RevisionField
+from starknet_py.serialization.data_serializers import ByteArraySerializer
 from starknet_py.utils.merkle_tree import MerkleTree
 
 
@@ -91,40 +92,6 @@ class BasicType(Enum):
     TIMESTAMP = "timestamp"
 
 
-def _encode_value_v1(basic_type: BasicType, value: Union[int, str]) -> Optional[int]:
-    if basic_type in (
-        BasicType.FELT,
-        BasicType.SHORT_STRING,
-        BasicType.CONTRACT_ADDRESS,
-        BasicType.CLASS_HASH,
-    ) and isinstance(value, (int, str)):
-        return parse_felt(value)
-
-    if basic_type in (
-        BasicType.U128,
-        BasicType.TIMESTAMP,
-    ) and isinstance(value, (int, str)):
-        return encode_u128(value)
-
-    if basic_type == BasicType.I128 and isinstance(value, (int, str)):
-        return encode_i128(value)
-
-    return None
-
-
-def _encode_value_v0(
-    basic_type: BasicType,
-    value: Union[int, str],
-) -> Optional[int]:
-    if basic_type in (
-        BasicType.FELT,
-        BasicType.STRING,
-    ) and isinstance(value, (int, str)):
-        return parse_felt(value)
-
-    return None
-
-
 @dataclass(frozen=True)
 class TypedData:
     """
@@ -167,6 +134,45 @@ class TypedData:
     def _is_struct(self, type_name: str) -> bool:
         return type_name in self.types
 
+    def _encode_value_v1(
+        self, basic_type: BasicType, value: Union[int, str, dict, list]
+    ) -> Optional[int]:
+        if basic_type in (
+            BasicType.FELT,
+            BasicType.SHORT_STRING,
+            BasicType.CONTRACT_ADDRESS,
+            BasicType.CLASS_HASH,
+        ) and isinstance(value, (int, str)):
+            return parse_felt(value)
+
+        if basic_type in (
+            BasicType.U128,
+            BasicType.TIMESTAMP,
+        ) and isinstance(value, (int, str)):
+            return encode_u128(value)
+
+        if basic_type == BasicType.I128 and isinstance(value, (int, str)):
+            return encode_i128(value)
+
+        if basic_type == BasicType.STRING and isinstance(value, str):
+            return self._encode_long_string(value)
+
+        return None
+
+    # pylint: disable=no-self-use
+    def _encode_value_v0(
+        self,
+        basic_type: BasicType,
+        value: Union[int, str, dict, list],
+    ) -> Optional[int]:
+        if basic_type in (
+            BasicType.FELT,
+            BasicType.STRING,
+        ) and isinstance(value, (int, str)):
+            return parse_felt(value)
+
+        return None
+
     def _encode_value(
         self,
         type_name: str,
@@ -190,11 +196,11 @@ class TypedData:
         if self.domain.resolved_revision == Revision.V0 and isinstance(
             value, (str, int)
         ):
-            encoded_value = _encode_value_v0(basic_type, value)
+            encoded_value = self._encode_value_v0(basic_type, value)
         elif self.domain.resolved_revision == Revision.V1 and isinstance(
             value, (str, int)
         ):
-            encoded_value = _encode_value_v1(basic_type, value)
+            encoded_value = self._encode_value_v1(basic_type, value)
 
         if encoded_value is not None:
             return encoded_value
@@ -352,6 +358,11 @@ class TypedData:
             raise ValueError("Missing 'contains' field in target type.")
 
         return target_type.contains
+
+    def _encode_long_string(self, value: str) -> int:
+        byte_array_serializer = ByteArraySerializer()
+        serialized_values = byte_array_serializer.serialize(value)
+        return self._hash_method.hash_many(serialized_values)
 
 
 def parse_felt(value: Union[int, str]) -> int:
