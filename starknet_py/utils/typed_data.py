@@ -303,7 +303,7 @@ class TypedData:
                     referenced_types.add(strip_pointer(ref_type.type))
 
         referenced_types.update([self.domain.separator_name, self.primary_type])
-        print("TYPES", self.types)
+
         for type_name in self.types:
             if not type_name:
                 raise ValueError("Type names cannot be empty.")
