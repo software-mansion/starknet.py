@@ -341,7 +341,7 @@ class TypedData:
 
         while to_visit:
             current_type = to_visit.pop(0)
-            params = self._all_types[current_type] if current_type in self.types else []
+            params = self._all_types[current_type] if current_type in self._all_types else []
 
             for param in params:
                 if isinstance(param, EnumParameter):
