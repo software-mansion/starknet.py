@@ -183,7 +183,7 @@ class TypedData:
         if basic_type == BasicType.ENUM and isinstance(value, dict):
             if context is None:
                 raise ValueError(f"Context is not provided for '{type_name}' type.")
-            return self._prepare_enum(value, context)
+            return self._encode_enum(value, context)
 
         return None
 
@@ -451,7 +451,7 @@ class TypedData:
             raise ValueError("Missing 'contains' field in target type.")
         return target_type
 
-    def _prepare_enum(self, value: dict, context: TypeContext):
+    def _encode_enum(self, value: dict, context: TypeContext):
         if len(value.keys()) != 1:
             raise ValueError(
                 f"'{BasicType.ENUM.name}' value must contain a single variant."
