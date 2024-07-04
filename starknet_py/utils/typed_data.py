@@ -281,7 +281,13 @@ class TypedData:
                     self._validate_enum_type()
                     referenced_types.add(ref_type.contains)
                 else:
-                    referenced_types.add(strip_pointer(ref_type.type))
+                    if is_enum_variant_type(ref_type.type):
+                        if self.domain.resolved_revision != Revision.V1:
+                            raise ValueError(
+                                f"Enum types are not supported in revision {self.domain.resolved_revision.value}."
+                            )
+                    else:
+                        referenced_types.add(strip_pointer(ref_type.type))
 
         referenced_types.update([self.domain.separator_name, self.primary_type])
 
