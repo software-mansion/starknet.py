@@ -192,7 +192,7 @@ class TypedData:
     def _encode_value_v0(
         self,
         basic_type: BasicType,
-        value: Union[int, str, dict, list],
+        value: Union[int, str],
     ) -> Optional[int]:
         if basic_type in (
             BasicType.FELT,
