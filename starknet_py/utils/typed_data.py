@@ -430,7 +430,7 @@ class TypedData:
         target_type = self._resolve_type(context)
 
         if not isinstance(target_type, MerkleTreeParameter):
-            raise ValueError("Missing 'contains' field in target type.")
+            raise ValueError("Target type is not a merkletree type.")
 
         return target_type.contains
 
@@ -451,7 +451,7 @@ class TypedData:
             )
 
         if not isinstance(target_type, (EnumParameter, MerkleTreeParameter)):
-            raise ValueError("Missing 'contains' field in target type.")
+            raise ValueError("Target type is not an enum or merkletree type.")
         return target_type
 
     def _encode_enum(self, value: dict, context: TypeContext):
