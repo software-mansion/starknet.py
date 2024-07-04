@@ -10,7 +10,7 @@ import pytest
 
 from starknet_py.net.models.typed_data import Revision
 from starknet_py.tests.e2e.fixtures.constants import TYPED_DATA_DIR
-from starknet_py.utils.typed_data import (  # Parameter,
+from starknet_py.utils.typed_data import (
     BasicType,
     Domain,
     EnumParameter,
@@ -105,7 +105,8 @@ def test_encode_type(example, type_name, encoded_type):
         (CasesRev1.TD.value, "Person", "0x30f7aa21b8d67cb04c30f962dd29b95ab320cb929c07d1605f5ace304dadf34"),
         (CasesRev1.TD.value, "Mail", "0x560430bf7a02939edd1a5c104e7b7a55bbab9f35928b1cf5c7c97de3a907bd"),
         (
-        CasesRev1.TD_BASIC_TYPES.value, "Example", "0x1f94cd0be8b4097a41486170fdf09a4cd23aefbc74bb2344718562994c2c111"),
+                CasesRev1.TD_BASIC_TYPES.value, "Example",
+                "0x1f94cd0be8b4097a41486170fdf09a4cd23aefbc74bb2344718562994c2c111"),
         (CasesRev1.TD_ENUM.value, "Example", "0x380a54d417fb58913b904675d94a8a62e2abc3467f4b5439de0fd65fafdd1a8"),
         (CasesRev1.TD_FELT_MERKLE_TREE.value, "Example",
          "0x160b9c0e8a7c561f9c5d9e3cc2990a1b4d26e94aa319e9eb53e163cd06c71be"),
@@ -133,7 +134,8 @@ def test_type_hash(example, type_name, type_hash):
          "0x73602062421caf6ad2e942253debfad4584bff58930981364dcd378021defe8"),
         (CasesRev1.TD.value, "StarknetDomain", "domain",
          "0x555f72e550b308e50c1a4f8611483a174026c982a9893a05c185eeb85399657"),
-        (CasesRev1.TD_ENUM.value, "Example","message","0x3d4384ff5cec32b86462e89f5a803b55ff0048c4f5a10ba9d6cd381317d9c3"),
+        (CasesRev1.TD_ENUM.value, "Example", "message",
+         "0x3d4384ff5cec32b86462e89f5a803b55ff0048c4f5a10ba9d6cd381317d9c3"),
         (CasesRev1.TD_FELT_MERKLE_TREE.value, "Example", "message",
          "0x40ef40c56c0469799a916f0b7e3bc4f1bbf28bf659c53fb8c5ee4d8d1b4f5f0")
     ],
@@ -164,7 +166,8 @@ def test_struct_hash(example, type_name, attr_name, struct_hash):
          "0x7f6e8c3d8965b5535f5cc68f837c04e3bbe568535b71aa6c621ddfb188932b8"),
         (CasesRev1.TD_BASIC_TYPES.value, "0xcd2a3d9f938e13cd947ec05abc7fe734df8dd826",
          "0x2d80b87b8bc32068247c779b2ef0f15f65c9c449325e44a9df480fb01eb43ec"),
-        (CasesRev1.TD_ENUM.value, "0xcd2a3d9f938e13cd947ec05abc7fe734df8dd826","0x3df10475ad5a8f49db4345a04a5b09164d2e24b09f6e1e236bc1ccd87627cc"),
+        (CasesRev1.TD_ENUM.value, "0xcd2a3d9f938e13cd947ec05abc7fe734df8dd826",
+         "0x3df10475ad5a8f49db4345a04a5b09164d2e24b09f6e1e236bc1ccd87627cc"),
         (CasesRev1.TD_FELT_MERKLE_TREE.value, "0xcd2a3d9f938e13cd947ec05abc7fe734df8dd826",
          "0x4f706783e0d7d0e61433d41343a248a213e9ab341d50ba978dfc055f26484c9")
     ],
