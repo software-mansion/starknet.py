@@ -8,42 +8,16 @@ from starknet_py.net.client_models import (
     CasmClassEntryPointsByType,
     CompiledContract,
     ContractClass,
-    EntryPoint,
-    EntryPointsByType,
     SierraCompiledContract,
     SierraContractClass,
     SierraEntryPoint,
     SierraEntryPointsByType,
 )
 from starknet_py.net.schemas.common import Felt
+from starknet_py.net.schemas.rpc.state import EntryPointsByTypeSchema
+
 
 # pylint: disable=unused-argument, no-self-use
-
-
-class EntryPointSchema(Schema):
-    offset = Felt(data_key="offset", required=True)
-    selector = Felt(data_key="selector", required=True)
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> EntryPoint:
-        return EntryPoint(**data)
-
-
-class EntryPointsByTypeSchema(Schema):
-    constructor = fields.List(
-        fields.Nested(EntryPointSchema()), data_key="CONSTRUCTOR", required=True
-    )
-    external = fields.List(
-        fields.Nested(EntryPointSchema()), data_key="EXTERNAL", required=True
-    )
-    l1_handler = fields.List(
-        fields.Nested(EntryPointSchema()), data_key="L1_HANDLER", required=True
-    )
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> EntryPointsByType:
-        return EntryPointsByType(**data)
-
 
 class ContractClassSchema(Schema):
     program = fields.Dict(
