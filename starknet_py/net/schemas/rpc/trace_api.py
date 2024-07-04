@@ -14,11 +14,11 @@ from starknet_py.net.client_models import (
     SimulatedTransaction,
 )
 from starknet_py.net.schemas.common import CallTypeField, EntryPointTypeField, Felt
-from starknet_py.net.schemas.rpc.rpc import (
+from starknet_py.net.schemas.rpc.rpc import StateDiffSchema
+from starknet_py.net.schemas.rpc.transactions import (
     ComputationResourcesSchema,
     EstimatedFeeSchema,
     ExecutionResourcesSchema,
-    StateDiffSchema,
 )
 from starknet_py.utils.schema import Schema
 
