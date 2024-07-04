@@ -51,10 +51,9 @@ from starknet_py.net.models.transaction import (
     DeployAccount,
     Invoke,
 )
-from starknet_py.net.schemas.rpc import (
+from starknet_py.net.schemas.rpc.rpc import (
     BlockHashAndNumberSchema,
     BlockStateUpdateSchema,
-    BlockTransactionTraceSchema,
     ContractClassSchema,
     DeclareTransactionResponseSchema,
     DeployAccountTransactionResponseSchema,
@@ -66,15 +65,18 @@ from starknet_py.net.schemas.rpc import (
     PendingStarknetBlockWithTxHashesSchema,
     SentTransactionSchema,
     SierraContractClassSchema,
-    SimulatedTransactionSchema,
     StarknetBlockSchema,
     StarknetBlockWithReceiptsSchema,
     StarknetBlockWithTxHashesSchema,
     SyncStatusSchema,
     TransactionReceiptSchema,
     TransactionStatusResponseSchema,
-    TransactionTraceSchema,
     TypesOfTransactionsSchema,
+)
+from starknet_py.net.schemas.rpc.trace_api import (
+    BlockTransactionTraceSchema,
+    SimulatedTransactionSchema,
+    TransactionTraceSchema,
 )
 from starknet_py.transaction_errors import TransactionNotReceivedError
 from starknet_py.utils.sync import add_sync_methods

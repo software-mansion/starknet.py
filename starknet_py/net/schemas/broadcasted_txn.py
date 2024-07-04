@@ -7,7 +7,7 @@ from starknet_py.net.schemas.gateway import (
     ContractClassSchema,
     SierraCompiledContractSchema,
 )
-from starknet_py.net.schemas.rpc import (
+from starknet_py.net.schemas.rpc.rpc import (
     DeclareTransactionV1Schema,
     DeclareTransactionV2Schema,
     DeclareTransactionV3Schema,
