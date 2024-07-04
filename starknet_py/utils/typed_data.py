@@ -294,7 +294,7 @@ class TypedData:
                     f"Type names cannot end in *. [{type_name}] was found."
                 )
 
-            if is_enum(type_name):
+            if is_enum_variant_type(type_name):
                 raise ValueError(
                     f"Type names cannot be enclosed in parentheses. [{type_name}] was found."
                 )
@@ -366,7 +366,7 @@ class TypedData:
                     else param.type
                 )
 
-                if is_enum(target_type):
+                if is_enum_variant_type(target_type):
                     self._validate_enum_type()
                     type_str = _extract_enum_types(target_type)
                     type_str = f"({','.join([escape(x) for x in type_str])})"
@@ -501,7 +501,7 @@ class TypedData:
 
 
 def _extract_enum_types(value: str) -> List[str]:
-    if not is_enum(value):
+    if not is_enum_variant_type(value):
         raise ValueError(f"Type [{value}] is not an enum.")
 
     value = value[1:-1]
@@ -531,7 +531,7 @@ def strip_pointer(value: str) -> str:
     return value
 
 
-def is_enum(value: str) -> bool:
+def is_enum_variant_type(value: str) -> bool:
     return value.startswith("(") and value.endswith(")")
 
 
