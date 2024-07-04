@@ -1,5 +1,4 @@
 import re
-from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, List, Optional, Union, cast
@@ -18,27 +17,17 @@ from starknet_py.utils.merkle_tree import MerkleTree
 
 
 @dataclass(frozen=True)
-class Parameter(ABC):
-    """
-    Dataclass representing a Parameter object
-    """
-
-    name: str
-    type: str
-    contains: Optional[str] = None
-
-
-@dataclass(frozen=True)
-class StandardParameter(Parameter):
+class StandardParameter:
     """
     Dataclass representing a StandardParameter object
     """
 
-    contains: Optional[str] = field(default=None, init=False)
+    name: str
+    type: str
 
 
 @dataclass(frozen=True)
-class MerkleTreeParameter(Parameter):
+class MerkleTreeParameter(StandardParameter):
     """
     Dataclass representing a MerkleTreeParameter object
     """
@@ -48,7 +37,7 @@ class MerkleTreeParameter(Parameter):
 
 
 @dataclass(frozen=True)
-class EnumParameter(Parameter):
+class EnumParameter(StandardParameter):
     """
     Dataclass representing an EnumTreeParameter object
     """
@@ -129,7 +118,7 @@ class TypedData:
     Dataclass representing a TypedData object
     """
 
-    types: Dict[str, List[Parameter]]
+    types: Dict[str, List[Union[StandardParameter, MerkleTreeParameter, EnumParameter]]]
     primary_type: str
     domain: Domain
     message: dict
@@ -445,7 +434,9 @@ class TypedData:
 
         return target_type.contains
 
-    def _resolve_type(self, context: TypeContext) -> Parameter:
+    def _resolve_type(
+        self, context: TypeContext
+    ) -> Union[StandardParameter, EnumParameter, MerkleTreeParameter]:
         parent, key = context.parent, context.key
 
         if parent not in self.types:
@@ -492,8 +483,12 @@ class TypedData:
 
         return self._hash_method.hash_many([variant_index, *encoded_subtypes])
 
-    def _get_enum_variants(self, context: TypeContext) -> List[Parameter]:
+    def _get_enum_variants(
+        self, context: TypeContext
+    ) -> List[Union[StandardParameter, EnumParameter, MerkleTreeParameter]]:
         enum_type = self._resolve_type(context)
+        if not isinstance(enum_type, EnumParameter):
+            raise ValueError(f"Type [{context.key}] is not an enum.")
         if enum_type.contains not in self.types:
             raise ValueError(f"Type [{enum_type.contains}] is not defined in types")
 
@@ -642,7 +637,9 @@ class ParameterSchema(Schema):
     contains = fields.String(data_key="contains", required=False)
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> Parameter:
+    def make_dataclass(
+        self, data, **kwargs
+    ) -> Union[StandardParameter, EnumParameter, MerkleTreeParameter]:
         type_val = data["type"]
 
         if type_val == BasicType.MERKLE_TREE.value:

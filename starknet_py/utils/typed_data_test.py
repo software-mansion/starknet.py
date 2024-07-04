@@ -10,10 +10,11 @@ import pytest
 
 from starknet_py.net.models.typed_data import Revision
 from starknet_py.tests.e2e.fixtures.constants import TYPED_DATA_DIR
-from starknet_py.utils.typed_data import (
+from starknet_py.utils.typed_data import (  # Parameter,
     BasicType,
     Domain,
-    Parameter,
+    EnumParameter,
+    MerkleTreeParameter,
     StandardParameter,
     TypedData,
     encode_bool,
@@ -182,7 +183,7 @@ domain_type_v0 = {
     ]
 }
 
-domain_type_v1: Dict[str, List[Parameter]] = {
+domain_type_v1: Dict[str, List[Union[StandardParameter, EnumParameter, MerkleTreeParameter]]] = {
     "StarknetDomain": [
         StandardParameter(name="name", type="shortstring"),
         StandardParameter(name="version", type="shortstring"),
