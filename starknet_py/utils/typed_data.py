@@ -468,8 +468,6 @@ class TypedData:
                 f"type [{context.key}] or multiple definitions are present."
             )
 
-        variant_index = variants.index(variant_definition)
-
         encoded_subtypes = []
         extracted_enum_types = _extract_enum_types(variant_definition.type)
 
@@ -477,6 +475,7 @@ class TypedData:
             subtype_data = variant_data[i]
             encoded_subtypes.append(self._encode_value(subtype, subtype_data))
 
+        variant_index = variants.index(variant_definition)
         return self._hash_method.hash_many([variant_index, *encoded_subtypes])
 
     def _get_enum_variants(
