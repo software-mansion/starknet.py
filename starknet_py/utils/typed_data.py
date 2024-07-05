@@ -458,20 +458,20 @@ class TypedData:
 
         variant_name, variant_data = next(iter(value.items()))
         variants = self._get_enum_variants(context)
-        variant_type = next(
+        variant_definition = next(
             (item for item in variants if item.name == variant_name), None
         )
 
-        if variant_type is None:
+        if variant_definition is None:
             raise ValueError(
                 f"Variant [{variant_name}] is not defined in '${BasicType.ENUM.name}' "
                 f"type [{context.key}] or multiple definitions are present."
             )
 
-        variant_index = variants.index(variant_type)
+        variant_index = variants.index(variant_definition)
 
         encoded_subtypes = []
-        extracted_enum_types = _extract_enum_types(variant_type.type)
+        extracted_enum_types = _extract_enum_types(variant_definition.type)
 
         for i, subtype in enumerate(extracted_enum_types):
             subtype_data = variant_data[i]
