@@ -260,12 +260,6 @@ class TypedData:
         if self.domain.separator_name not in self.types:
             raise ValueError(f"Types must contain '{self.domain.separator_name}'.")
 
-        basic_type_names = _get_basic_type_names(self.domain.resolved_revision)
-
-        for type_name in basic_type_names:
-            if type_name in self.types:
-                raise ValueError(f"Reserved type name: {type_name}")
-
         referenced_types = set()
         for type_name in self.types:
             for ref_type in self.types[type_name]:
@@ -280,9 +274,14 @@ class TypedData:
 
         referenced_types.update([self.domain.separator_name, self.primary_type])
 
+        basic_type_names = _get_basic_type_names(self.domain.resolved_revision)
+
         for type_name in self.types:
             if not type_name:
                 raise ValueError("Type names cannot be empty.")
+
+            if type_name in basic_type_names:
+                raise ValueError(f"Reserved type name: {type_name}")
 
             if is_pointer(type_name):
                 raise ValueError(
