@@ -7,9 +7,9 @@ TypedData
     :exclude-members: __init__
     :member-order: bysource
 
------------------
+---------
 Parameter
------------------
+---------
 
 .. autoclass:: starknet_py.utils.typed_data.Parameter
     :members:
