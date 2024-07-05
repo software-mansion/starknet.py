@@ -1,4 +1,5 @@
 import re
+from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, List, Optional, Union, cast
@@ -17,19 +18,24 @@ from starknet_py.utils.merkle_tree import MerkleTree
 
 
 @dataclass(frozen=True)
-class StandardParameter:
+class Parameter(ABC):
     name: str
     type: str
 
 
 @dataclass(frozen=True)
-class MerkleTreeParameter(StandardParameter):
+class StandardParameter(Parameter):
+    pass
+
+
+@dataclass(frozen=True)
+class MerkleTreeParameter(Parameter):
     type: str = field(default="merkletree", init=False)
     contains: str
 
 
 @dataclass(frozen=True)
-class EnumParameter(StandardParameter):
+class EnumParameter(Parameter):
     type: str = field(default="enum", init=False)
     contains: str
 
@@ -106,7 +112,7 @@ class TypedData:
     Dataclass representing a TypedData object
     """
 
-    types: Dict[str, List[Union[StandardParameter, MerkleTreeParameter, EnumParameter]]]
+    types: Dict[str, List[Parameter]]
     primary_type: str
     domain: Domain
     message: dict
@@ -427,9 +433,7 @@ class TypedData:
 
         return target_type.contains
 
-    def _resolve_type(
-        self, context: TypeContext
-    ) -> Union[StandardParameter, EnumParameter, MerkleTreeParameter]:
+    def _resolve_type(self, context: TypeContext) -> Parameter:
         parent, key = context.parent, context.key
 
         if parent not in self.types:
@@ -475,9 +479,7 @@ class TypedData:
         variant_index = variants.index(variant_definition)
         return self._hash_method.hash_many([variant_index, *encoded_subtypes])
 
-    def _get_enum_variants(
-        self, context: TypeContext
-    ) -> List[Union[StandardParameter, EnumParameter, MerkleTreeParameter]]:
+    def _get_enum_variants(self, context: TypeContext) -> List[Parameter]:
         enum_type = self._resolve_type(context)
         if not isinstance(enum_type, EnumParameter):
             raise ValueError(f"Type [{context.key}] is not an enum.")
@@ -629,9 +631,7 @@ class ParameterSchema(Schema):
     contains = fields.String(data_key="contains", required=False)
 
     @post_load
-    def make_dataclass(
-        self, data, **kwargs
-    ) -> Union[StandardParameter, EnumParameter, MerkleTreeParameter]:
+    def make_dataclass(self, data, **kwargs) -> Parameter:
         type_val = data["type"]
 
         if type_val == BasicType.MERKLE_TREE.value:

@@ -11,7 +11,7 @@ TypedData
 Parameter
 ---------
 
-.. autoclass:: starknet_py.utils.typed_data.StandardParameter
+.. autoclass:: starknet_py.utils.typed_data.Parameter
     :members:
     :undoc-members:
     :exclude-members: __init__

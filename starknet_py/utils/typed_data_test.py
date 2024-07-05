@@ -13,8 +13,7 @@ from starknet_py.tests.e2e.fixtures.constants import TYPED_DATA_DIR
 from starknet_py.utils.typed_data import (
     BasicType,
     Domain,
-    EnumParameter,
-    MerkleTreeParameter,
+    Parameter,
     StandardParameter,
     TypedData,
     encode_bool,
@@ -186,7 +185,7 @@ domain_type_v0 = {
     ]
 }
 
-domain_type_v1: Dict[str, List[Union[StandardParameter, EnumParameter, MerkleTreeParameter]]] = {
+domain_type_v1: Dict[str, List[Parameter]] = {
     "StarknetDomain": [
         StandardParameter(name="name", type="shortstring"),
         StandardParameter(name="version", type="shortstring"),
