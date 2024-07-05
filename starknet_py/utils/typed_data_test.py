@@ -14,8 +14,6 @@ from starknet_py.utils.typed_data import (
     BasicType,
     Domain,
     Parameter,
-    EnumParameter,
-    MerkleTreeParameter,
     PresetType,
     StandardParameter,
     TypedData,
