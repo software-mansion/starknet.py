@@ -12,9 +12,9 @@ from starknet_py.net.client_models import (
     BlockStateUpdate,
     BlockTransactionTrace,
     Call,
-    ContractClass,
     DeclareTransactionResponse,
     DeployAccountTransactionResponse,
+    DeprecatedContractClass,
     EstimatedFee,
     EventsChunk,
     Hash,
@@ -58,7 +58,7 @@ from starknet_py.net.schemas.rpc.block import (
     PendingStarknetBlockWithTxHashesSchema,
 )
 from starknet_py.net.schemas.rpc.contract import (
-    ContractClassSchema,
+    DeprecatedContractClassSchema,
     EventsChunkSchema,
     SierraContractClassSchema,
     SyncStatusSchema,
@@ -554,7 +554,7 @@ class FullNodeClient(Client):
         class_hash: Hash,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> Union[SierraContractClass, ContractClass]:
+    ) -> Union[SierraContractClass, DeprecatedContractClass]:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -572,7 +572,7 @@ class FullNodeClient(Client):
                 SierraContractClass,
                 SierraContractClassSchema().load(res),
             )
-        return cast(ContractClass, ContractClassSchema().load(res))
+        return cast(DeprecatedContractClass, DeprecatedContractClassSchema().load(res))
 
     # Only RPC methods
 
@@ -631,7 +631,7 @@ class FullNodeClient(Client):
         contract_address: Hash,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> Union[SierraContractClass, ContractClass]:
+    ) -> Union[SierraContractClass, DeprecatedContractClass]:
         """
         Get the contract class definition in the given block at the given address
 
@@ -657,7 +657,7 @@ class FullNodeClient(Client):
                 SierraContractClass,
                 SierraContractClassSchema().load(res),
             )
-        return cast(ContractClass, ContractClassSchema().load(res))
+        return cast(DeprecatedContractClass, DeprecatedContractClassSchema().load(res))
 
     async def get_contract_nonce(
         self,

@@ -1,11 +1,11 @@
 # pylint: disable=too-many-lines
 
-from marshmallow import EXCLUDE, fields, post_load
+from marshmallow import EXCLUDE, Schema, fields, post_load
 
 from starknet_py.abi.v0.schemas import ContractAbiEntrySchema
 from starknet_py.net.client_models import (
-    ContractClass,
     DeployedContract,
+    DeprecatedContractClass,
     EmittedEvent,
     EntryPoint,
     EntryPointsByType,
@@ -109,7 +109,7 @@ class SierraContractClassSchema(Schema):
         return SierraContractClass(**data)
 
 
-class ContractClassSchema(Schema):
+class DeprecatedContractClassSchema(Schema):
     program = fields.String(data_key="program", required=True)
     entry_points_by_type = fields.Nested(
         EntryPointsByTypeSchema(), data_key="entry_points_by_type", required=True
@@ -119,8 +119,8 @@ class ContractClassSchema(Schema):
     )
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> ContractClass:
-        return ContractClass(**data)
+    def make_dataclass(self, data, **kwargs) -> DeprecatedContractClass:
+        return DeprecatedContractClass(**data)
 
 
 class EventSchema(Schema):
@@ -154,3 +154,20 @@ class EventsChunkSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs):
         return EventsChunk(**data)
+
+
+class ContractClassSchema(Schema):
+    program = fields.Dict(
+        keys=fields.String(),
+        values=fields.Raw(allow_none=True),
+        data_key="program",
+        required=True,
+    )
+    entry_points_by_type = fields.Nested(
+        EntryPointsByTypeSchema(), data_key="entry_points_by_type", required=True
+    )
+    abi = fields.List(fields.Dict(), data_key="abi")
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> DeprecatedContractClass:
+        return DeprecatedContractClass(**data)

@@ -6,59 +6,18 @@ from starknet_py.net.client_models import (
     CasmClass,
     CasmClassEntryPoint,
     CasmClassEntryPointsByType,
-    CompiledContract,
-    ContractClass,
+    CompiledDeprecatedContract,
     SierraCompiledContract,
     SierraContractClass,
-    SierraEntryPoint,
-    SierraEntryPointsByType,
 )
 from starknet_py.net.schemas.common import Felt
-from starknet_py.net.schemas.rpc.contract import EntryPointsByTypeSchema
-
+from starknet_py.net.schemas.rpc.contract import (
+    ContractClassSchema,
+    EntryPointsByTypeSchema,
+    SierraEntryPointsByTypeSchema,
+)
 
 # pylint: disable=unused-argument, no-self-use
-
-class ContractClassSchema(Schema):
-    program = fields.Dict(
-        keys=fields.String(),
-        values=fields.Raw(allow_none=True),
-        data_key="program",
-        required=True,
-    )
-    entry_points_by_type = fields.Nested(
-        EntryPointsByTypeSchema(), data_key="entry_points_by_type", required=True
-    )
-    abi = fields.List(fields.Dict(), data_key="abi")
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> ContractClass:
-        return ContractClass(**data)
-
-
-class SierraEntryPointSchema(Schema):
-    function_idx = fields.Integer(data_key="function_idx", required=True)
-    selector = Felt(data_key="selector", required=True)
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> SierraEntryPoint:
-        return SierraEntryPoint(**data)
-
-
-class SierraEntryPointsByTypeSchema(Schema):
-    constructor = fields.List(
-        fields.Nested(SierraEntryPointSchema()), data_key="CONSTRUCTOR", required=True
-    )
-    external = fields.List(
-        fields.Nested(SierraEntryPointSchema()), data_key="EXTERNAL", required=True
-    )
-    l1_handler = fields.List(
-        fields.Nested(SierraEntryPointSchema()), data_key="L1_HANDLER", required=True
-    )
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> SierraEntryPointsByType:
-        return SierraEntryPointsByType(**data)
 
 
 class SierraContractClassSchema(Schema):
@@ -97,12 +56,12 @@ class SierraCompiledContractSchema(SierraContractClassSchema):
         return SierraCompiledContract(**data)
 
 
-class CompiledContractSchema(ContractClassSchema):
+class DeprecatedCompiledContractSchema(ContractClassSchema):
     abi = fields.List(fields.Dict(), data_key="abi", required=True)
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> CompiledContract:
-        return CompiledContract(**data)
+    def make_dataclass(self, data, **kwargs) -> CompiledDeprecatedContract:
+        return CompiledDeprecatedContract(**data)
 
 
 class CasmClassEntryPointSchema(Schema):

@@ -9,9 +9,9 @@ from starknet_py.net.client_models import (
     BlockStateUpdate,
     BlockTransactionTrace,
     Call,
-    ContractClass,
     DeclareTransactionResponse,
     DeployAccountTransactionResponse,
+    DeprecatedContractClass,
     EstimatedFee,
     Hash,
     SentTransactionResponse,
@@ -278,7 +278,7 @@ class Client(ABC):
     @abstractmethod
     async def get_class_by_hash(
         self, class_hash: Hash
-    ) -> Union[ContractClass, SierraContractClass]:
+    ) -> Union[DeprecatedContractClass, SierraContractClass]:
         """
         Get the contract class for given class hash
 

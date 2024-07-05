@@ -762,7 +762,7 @@ class EntryPointsByType:
 
 
 @dataclass
-class ContractClass:
+class DeprecatedContractClass:
     """
     Dataclass representing contract declared to Starknet.
     """
@@ -773,7 +773,7 @@ class ContractClass:
 
 
 @dataclass
-class CompiledContract(ContractClass):
+class CompiledDeprecatedContract(DeprecatedContractClass):
     """
     Dataclass representing ContractClass with required abi.
     """
