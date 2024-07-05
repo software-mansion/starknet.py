@@ -324,6 +324,9 @@ class TypedData:
                 if isinstance(param, EnumParameter):
                     self._validate_enum_type()
                     extracted_types = [param.contains]
+                elif is_enum_variant_type(param.type):
+                    self._validate_enum_type()
+                    extracted_types = _extract_enum_types(param.type)
                 else:
                     extracted_types = [param.type]
 
