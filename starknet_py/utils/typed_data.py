@@ -18,30 +18,18 @@ from starknet_py.utils.merkle_tree import MerkleTree
 
 @dataclass(frozen=True)
 class StandardParameter:
-    """
-    Dataclass representing a StandardParameter object
-    """
-
     name: str
     type: str
 
 
 @dataclass(frozen=True)
 class MerkleTreeParameter(StandardParameter):
-    """
-    Dataclass representing a MerkleTreeParameter object
-    """
-
     type: str = field(default="merkletree", init=False)
     contains: str
 
 
 @dataclass(frozen=True)
 class EnumParameter(StandardParameter):
-    """
-    Dataclass representing an EnumTreeParameter object
-    """
-
     type: str = field(default="enum", init=False)
     contains: str
 
