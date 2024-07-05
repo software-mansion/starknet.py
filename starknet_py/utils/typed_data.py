@@ -1,4 +1,5 @@
 import re
+from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, List, Optional, Union, cast
@@ -17,19 +18,24 @@ from starknet_py.utils.merkle_tree import MerkleTree
 
 
 @dataclass(frozen=True)
-class StandardParameter:
+class Parameter(ABC):
     name: str
     type: str
 
 
 @dataclass(frozen=True)
-class MerkleTreeParameter(StandardParameter):
+class StandardParameter(Parameter):
+    pass
+
+
+@dataclass(frozen=True)
+class MerkleTreeParameter(Parameter):
     type: str = field(default="merkletree", init=False)
     contains: str
 
 
 @dataclass(frozen=True)
-class EnumParameter(StandardParameter):
+class EnumParameter(Parameter):
     type: str = field(default="enum", init=False)
     contains: str
 
@@ -112,7 +118,7 @@ class TypedData:
     Dataclass representing a TypedData object
     """
 
-    types: Dict[str, List[Union[StandardParameter, MerkleTreeParameter, EnumParameter]]]
+    types: Dict[str, List[Parameter]]
     primary_type: str
     domain: Domain
     message: dict
@@ -268,10 +274,27 @@ class TypedData:
         if self.domain.separator_name not in self.types:
             raise ValueError(f"Types must contain '{self.domain.separator_name}'.")
 
+        referenced_types = set()
+        for type_name in self.types:
+            for ref_type in self.types[type_name]:
+                if isinstance(ref_type, MerkleTreeParameter):
+                    referenced_types.add(ref_type.contains)
+                elif isinstance(ref_type, EnumParameter):
+                    referenced_types.add(ref_type.contains)
+                elif is_enum_variant_type(ref_type.type):
+                    referenced_types.update(_extract_enum_types(ref_type.type))
+                else:
+                    referenced_types.add(strip_pointer(ref_type.type))
+
+        referenced_types.update([self.domain.separator_name, self.primary_type])
+
         basic_type_names = _get_basic_type_names(self.domain.resolved_revision)
         preset_type_names = _get_preset_types(self.domain.resolved_revision).keys()
 
-        for type_name in self.types.keys():
+        for type_name in self.types:
+            if not type_name:
+                raise ValueError("Type names cannot be empty.")
+
             if type_name in basic_type_names:
                 raise ValueError(
                     f"Types must not contain basic types. [{type_name}] was found."
@@ -281,31 +304,6 @@ class TypedData:
                 raise ValueError(
                     f"Types must not contain preset types. [{type_name}] was found."
                 )
-
-        referenced_types = set()
-        for type_name in self.types:
-            for ref_type in self.types[type_name]:
-                if isinstance(ref_type, MerkleTreeParameter):
-                    referenced_types.add(ref_type.contains)
-                elif isinstance(ref_type, EnumParameter):
-                    self._validate_enum_type()
-                    referenced_types.add(ref_type.contains)
-                else:
-                    if is_enum_variant_type(ref_type.type):
-                        if self.domain.resolved_revision == Revision.V1:
-                            referenced_types.update(_extract_enum_types(ref_type.type))
-                        else:
-                            raise ValueError(
-                                f"Enum types are not supported in revision {self.domain.resolved_revision.value}."
-                            )
-                    else:
-                        referenced_types.add(strip_pointer(ref_type.type))
-
-        referenced_types.update([self.domain.separator_name, self.primary_type])
-
-        for type_name in self.types:
-            if not type_name:
-                raise ValueError("Type names cannot be empty.")
 
             if is_pointer(type_name):
                 raise ValueError(
@@ -326,6 +324,10 @@ class TypedData:
                 raise ValueError(
                     f"Dangling types are not allowed. Unreferenced type [{type_name}] was found."
                 )
+
+            for ref_type in self.types[type_name]:
+                if isinstance(ref_type, EnumParameter):
+                    self._validate_enum_type()
 
     def _validate_enum_type(self):
         if self.domain.resolved_revision != Revision.V1:
@@ -452,9 +454,7 @@ class TypedData:
 
         return target_type.contains
 
-    def _resolve_type(
-        self, context: TypeContext
-    ) -> Union[StandardParameter, EnumParameter, MerkleTreeParameter]:
+    def _resolve_type(self, context: TypeContext) -> Parameter:
         parent, key = context.parent, context.key
 
         if parent not in self._all_types:
@@ -500,9 +500,7 @@ class TypedData:
         variant_index = variants.index(variant_definition)
         return self._hash_method.hash_many([variant_index, *encoded_subtypes])
 
-    def _get_enum_variants(
-        self, context: TypeContext
-    ) -> List[Union[StandardParameter, EnumParameter, MerkleTreeParameter]]:
+    def _get_enum_variants(self, context: TypeContext) -> List[Parameter]:
         enum_type = self._resolve_type(context)
         if not isinstance(enum_type, EnumParameter):
             raise ValueError(f"Type [{context.key}] is not an enum.")
@@ -668,9 +666,7 @@ class ParameterSchema(Schema):
     contains = fields.String(data_key="contains", required=False)
 
     @post_load
-    def make_dataclass(
-        self, data, **kwargs
-    ) -> Union[StandardParameter, EnumParameter, MerkleTreeParameter]:
+    def make_dataclass(self, data, **kwargs) -> Parameter:
         type_val = data["type"]
 
         if type_val == BasicType.MERKLE_TREE.value:
