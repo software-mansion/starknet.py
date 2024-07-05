@@ -59,10 +59,10 @@ from starknet_py.net.schemas.rpc.block import (
 )
 from starknet_py.net.schemas.rpc.contract import (
     DeprecatedContractClassSchema,
-    EventsChunkSchema,
     SierraContractClassSchema,
     SyncStatusSchema,
 )
+from starknet_py.net.schemas.rpc.event import EventsChunkSchema
 from starknet_py.net.schemas.rpc.trace_api import (
     BlockTransactionTraceSchema,
     EstimatedFeeSchema,

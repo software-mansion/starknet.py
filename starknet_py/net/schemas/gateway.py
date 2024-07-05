@@ -13,7 +13,6 @@ from starknet_py.net.client_models import (
 from starknet_py.net.schemas.common import Felt
 from starknet_py.net.schemas.rpc.contract import (
     ContractClassSchema,
-    EntryPointsByTypeSchema,
     SierraEntryPointsByTypeSchema,
 )
 
