@@ -266,18 +266,11 @@ class TypedData:
                 if isinstance(ref_type, MerkleTreeParameter):
                     referenced_types.add(ref_type.contains)
                 elif isinstance(ref_type, EnumParameter):
-                    self._validate_enum_type()
                     referenced_types.add(ref_type.contains)
+                elif is_enum_variant_type(ref_type.type):
+                    referenced_types.update(_extract_enum_types(ref_type.type))
                 else:
-                    if is_enum_variant_type(ref_type.type):
-                        if self.domain.resolved_revision == Revision.V1:
-                            referenced_types.update(_extract_enum_types(ref_type.type))
-                        else:
-                            raise ValueError(
-                                f"Enum types are not supported in revision {self.domain.resolved_revision.value}."
-                            )
-                    else:
-                        referenced_types.add(strip_pointer(ref_type.type))
+                    referenced_types.add(strip_pointer(ref_type.type))
 
         referenced_types.update([self.domain.separator_name, self.primary_type])
 
@@ -304,6 +297,10 @@ class TypedData:
                 raise ValueError(
                     f"Dangling types are not allowed. Unreferenced type [{type_name}] was found."
                 )
+
+            for ref_type in self.types[type_name]:
+                if isinstance(ref_type, EnumParameter):
+                    self._validate_enum_type()
 
     def _validate_enum_type(self):
         if self.domain.resolved_revision != Revision.V1:
