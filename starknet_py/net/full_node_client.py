@@ -57,7 +57,7 @@ from starknet_py.net.schemas.rpc.block import (
     PendingBlockStateUpdateSchema,
     PendingStarknetBlockWithTxHashesSchema,
 )
-from starknet_py.net.schemas.rpc.state import (
+from starknet_py.net.schemas.rpc.contract import (
     ContractClassSchema,
     EventsChunkSchema,
     SierraContractClassSchema,

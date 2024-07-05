@@ -14,7 +14,7 @@ from starknet_py.net.client_models import (
     SierraEntryPointsByType,
 )
 from starknet_py.net.schemas.common import Felt
-from starknet_py.net.schemas.rpc.state import EntryPointsByTypeSchema
+from starknet_py.net.schemas.rpc.contract import EntryPointsByTypeSchema
 
 
 # pylint: disable=unused-argument, no-self-use

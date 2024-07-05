@@ -47,7 +47,7 @@ from starknet_py.net.schemas.rpc.block import (
     BlockHeaderSchema,
     PendingBlockHeaderSchema,
 )
-from starknet_py.net.schemas.rpc.state import EventSchema
+from starknet_py.net.schemas.rpc.contract import EventSchema
 from starknet_py.net.schemas.rpc.trace_api import ExecutionResourcesSchema
 from starknet_py.net.schemas.utils import _extract_tx_version
 from starknet_py.utils.schema import Schema
