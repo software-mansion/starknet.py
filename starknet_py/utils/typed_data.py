@@ -277,9 +277,7 @@ class TypedData:
         referenced_types = set()
         for type_name in self.types:
             for ref_type in self.types[type_name]:
-                if isinstance(ref_type, MerkleTreeParameter):
-                    referenced_types.add(ref_type.contains)
-                elif isinstance(ref_type, EnumParameter):
+                if isinstance(ref_type, (EnumParameter, MerkleTreeParameter)):
                     referenced_types.add(ref_type.contains)
                 elif is_enum_variant_type(ref_type.type):
                     referenced_types.update(_extract_enum_types(ref_type.type))
