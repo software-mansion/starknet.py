@@ -9,12 +9,12 @@ from starknet_py.net.client_models import (
     DeprecatedContractClass,
     SierraCompiledContract,
 )
-from starknet_py.net.schemas.gateway import (
+from starknet_py.net.schemas.rpc.contract import (
     CasmClassSchema,
+    ContractClassSchema,
     DeprecatedCompiledContractSchema,
     SierraCompiledContractSchema,
 )
-from starknet_py.net.schemas.rpc.contract import ContractClassSchema
 
 
 def create_compiled_contract(

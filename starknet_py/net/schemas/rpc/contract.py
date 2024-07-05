@@ -1,13 +1,19 @@
 # pylint: disable=too-many-lines
+import json
 
-from marshmallow import EXCLUDE, fields, post_load
+from marshmallow import EXCLUDE, Schema, ValidationError, fields, post_load
 
 from starknet_py.abi.v0.schemas import ContractAbiEntrySchema
 from starknet_py.net.client_models import (
+    CasmClass,
+    CasmClassEntryPoint,
+    CasmClassEntryPointsByType,
+    CompiledDeprecatedContract,
     DeployedContract,
     DeprecatedContractClass,
     EntryPoint,
     EntryPointsByType,
+    SierraCompiledContract,
     SierraContractClass,
     SierraEntryPoint,
     SierraEntryPointsByType,
@@ -92,7 +98,9 @@ class EntryPointsByTypeSchema(Schema):
 
 
 class SierraContractClassSchema(Schema):
-    sierra_program = fields.List(Felt(), data_key="sierra_program", required=True)
+    sierra_program = fields.List(
+        fields.String(), data_key="sierra_program", required=True
+    )
     contract_class_version = fields.String(
         data_key="contract_class_version", required=True
     )
@@ -135,3 +143,80 @@ class ContractClassSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> DeprecatedContractClass:
         return DeprecatedContractClass(**data)
+
+
+class CasmClassEntryPointSchema(Schema):
+    selector = Felt(data_key="selector", required=True)
+    offset = fields.Integer(data_key="offset", required=True)
+    builtins = fields.List(fields.String(), data_key="builtins")
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> CasmClassEntryPoint:
+        return CasmClassEntryPoint(**data)
+
+
+class CasmClassEntryPointsByTypeSchema(Schema):
+    constructor = fields.List(
+        fields.Nested(CasmClassEntryPointSchema()),
+        data_key="CONSTRUCTOR",
+        required=True,
+    )
+    external = fields.List(
+        fields.Nested(CasmClassEntryPointSchema()),
+        data_key="EXTERNAL",
+        required=True,
+    )
+    l1_handler = fields.List(
+        fields.Nested(CasmClassEntryPointSchema()),
+        data_key="L1_HANDLER",
+        required=True,
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> CasmClassEntryPointsByType:
+        return CasmClassEntryPointsByType(**data)
+
+
+class CasmClassSchema(Schema):
+    prime = Felt(data_key="prime", required=True)
+    bytecode = fields.List(Felt(), data_key="bytecode", required=True)
+    bytecode_segment_lengths = fields.List(
+        Felt(), data_key="bytecode_segment_lengths", load_default=None
+    )
+    hints = fields.List(fields.Raw(), data_key="hints", required=True)
+    pythonic_hints = fields.List(fields.Raw(), data_key="pythonic_hints", required=True)
+    compiler_version = fields.String(data_key="compiler_version", required=True)
+    entry_points_by_type = fields.Nested(
+        CasmClassEntryPointsByTypeSchema(),
+        data_key="entry_points_by_type",
+        required=True,
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> CasmClass:
+        return CasmClass(**data)
+
+
+class DeprecatedCompiledContractSchema(ContractClassSchema):
+    abi = fields.List(fields.Dict(), data_key="abi", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> CompiledDeprecatedContract:
+        return CompiledDeprecatedContract(**data)
+
+
+class AbiField(fields.Field):
+    def _deserialize(self, value, attr, data, **kwargs):
+        if isinstance(value, str):
+            return value
+        if isinstance(value, list) and all(isinstance(item, dict) for item in value):
+            return json.dumps(value)
+        raise ValidationError("Field should be str or list[dict].")
+
+
+class SierraCompiledContractSchema(SierraContractClassSchema):
+    abi = AbiField(data_key="abi", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> SierraCompiledContract:
+        return SierraCompiledContract(**data)

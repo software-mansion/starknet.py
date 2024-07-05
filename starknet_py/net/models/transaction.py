@@ -36,8 +36,12 @@ from starknet_py.net.client_models import (
     TransactionType,
 )
 from starknet_py.net.schemas.common import Felt, TransactionTypeField
-from starknet_py.net.schemas.gateway import SierraContractClassSchema
-from starknet_py.net.schemas.rpc.contract import ContractClassSchema
+
+# from starknet_py.net.schemas.gateway import SierraContractClassSchema
+from starknet_py.net.schemas.rpc.contract import (
+    ContractClassSchema,
+    SierraContractClassSchema,
+)
 
 # TODO (#1219):
 #  consider unifying these classes with client_models
