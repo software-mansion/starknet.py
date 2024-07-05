@@ -1,5 +1,4 @@
 import re
-from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, List, Optional, Union, cast
@@ -18,41 +17,19 @@ from starknet_py.utils.merkle_tree import MerkleTree
 
 
 @dataclass(frozen=True)
-class Parameter(ABC):
-    """
-    Dataclass representing a Parameter object
-    """
-
+class StandardParameter:
     name: str
     type: str
-    contains: Optional[str] = None
 
 
 @dataclass(frozen=True)
-class StandardParameter(Parameter):
-    """
-    Dataclass representing a StandardParameter object
-    """
-
-    contains: Optional[str] = field(default=None, init=False)
-
-
-@dataclass(frozen=True)
-class MerkleTreeParameter(Parameter):
-    """
-    Dataclass representing a MerkleTreeParameter object
-    """
-
+class MerkleTreeParameter(StandardParameter):
     type: str = field(default="merkletree", init=False)
     contains: str
 
 
 @dataclass(frozen=True)
-class EnumParameter(Parameter):
-    """
-    Dataclass representing an EnumTreeParameter object
-    """
-
+class EnumParameter(StandardParameter):
     type: str = field(default="enum", init=False)
     contains: str
 
@@ -135,7 +112,7 @@ class TypedData:
     Dataclass representing a TypedData object
     """
 
-    types: Dict[str, List[Parameter]]
+    types: Dict[str, List[Union[StandardParameter, MerkleTreeParameter, EnumParameter]]]
     primary_type: str
     domain: Domain
     message: dict
@@ -217,7 +194,7 @@ class TypedData:
     def _encode_value_v0(
         self,
         basic_type: BasicType,
-        value: Union[int, str, dict, list],
+        value: Union[int, str],
     ) -> Optional[int]:
         if basic_type in (
             BasicType.FELT,
@@ -314,7 +291,15 @@ class TypedData:
                     self._validate_enum_type()
                     referenced_types.add(ref_type.contains)
                 else:
-                    referenced_types.add(strip_pointer(ref_type.type))
+                    if is_enum_variant_type(ref_type.type):
+                        if self.domain.resolved_revision == Revision.V1:
+                            referenced_types.update(_extract_enum_types(ref_type.type))
+                        else:
+                            raise ValueError(
+                                f"Enum types are not supported in revision {self.domain.resolved_revision.value}."
+                            )
+                    else:
+                        referenced_types.add(strip_pointer(ref_type.type))
 
         referenced_types.update([self.domain.separator_name, self.primary_type])
 
@@ -327,7 +312,7 @@ class TypedData:
                     f"Type names cannot end in *. [{type_name}] was found."
                 )
 
-            if is_enum(type_name):
+            if is_enum_variant_type(type_name):
                 raise ValueError(
                     f"Type names cannot be enclosed in parentheses. [{type_name}] was found."
                 )
@@ -355,14 +340,14 @@ class TypedData:
 
         while to_visit:
             current_type = to_visit.pop(0)
-            params = (
-                self._all_types[current_type] if current_type in self._all_types else []
-            )
+            params = self._all_types.get(current_type, [])
+
 
             for param in params:
                 if isinstance(param, EnumParameter):
-                    self._validate_enum_type()
                     extracted_types = [param.contains]
+                elif is_enum_variant_type(param.type):
+                    extracted_types = _extract_enum_types(param.type)
                 else:
                     extracted_types = [param.type]
 
@@ -401,8 +386,7 @@ class TypedData:
                     else param.type
                 )
 
-                if is_enum(target_type):
-                    self._validate_enum_type()
+                if is_enum_variant_type(target_type):
                     type_str = _extract_enum_types(target_type)
                     type_str = f"({','.join([escape(x) for x in type_str])})"
 
@@ -465,11 +449,13 @@ class TypedData:
         target_type = self._resolve_type(context)
 
         if not isinstance(target_type, MerkleTreeParameter):
-            raise ValueError("Missing 'contains' field in target type.")
+            raise ValueError("Target type is not a merkletree type.")
 
         return target_type.contains
 
-    def _resolve_type(self, context: TypeContext) -> Parameter:
+    def _resolve_type(
+        self, context: TypeContext
+    ) -> Union[StandardParameter, EnumParameter, MerkleTreeParameter]:
         parent, key = context.parent, context.key
 
         if parent not in self._all_types:
@@ -484,7 +470,7 @@ class TypedData:
             )
 
         if not isinstance(target_type, (EnumParameter, MerkleTreeParameter)):
-            raise ValueError("Missing 'contains' field in target type.")
+            raise ValueError("Target type is not an enum or merkletree type.")
         return target_type
 
     def _encode_enum(self, value: dict, context: TypeContext):
@@ -495,29 +481,32 @@ class TypedData:
 
         variant_name, variant_data = next(iter(value.items()))
         variants = self._get_enum_variants(context)
-        variant_type = next(
+        variant_definition = next(
             (item for item in variants if item.name == variant_name), None
         )
 
-        if variant_type is None:
+        if variant_definition is None:
             raise ValueError(
                 f"Variant [{variant_name}] is not defined in '${BasicType.ENUM.name}' "
                 f"type [{context.key}] or multiple definitions are present."
             )
 
-        variant_index = variants.index(variant_type)
-
         encoded_subtypes = []
-        extracted_enum_types = _extract_enum_types(variant_type.type)
+        extracted_enum_types = _extract_enum_types(variant_definition.type)
 
         for i, subtype in enumerate(extracted_enum_types):
             subtype_data = variant_data[i]
             encoded_subtypes.append(self._encode_value(subtype, subtype_data))
 
+        variant_index = variants.index(variant_definition)
         return self._hash_method.hash_many([variant_index, *encoded_subtypes])
 
-    def _get_enum_variants(self, context: TypeContext) -> List[Parameter]:
+    def _get_enum_variants(
+        self, context: TypeContext
+    ) -> List[Union[StandardParameter, EnumParameter, MerkleTreeParameter]]:
         enum_type = self._resolve_type(context)
+        if not isinstance(enum_type, EnumParameter):
+            raise ValueError(f"Type [{context.key}] is not an enum.")
         if enum_type.contains not in self._all_types:
             raise ValueError(f"Type [{enum_type.contains}] is not defined in types")
 
@@ -530,7 +519,7 @@ class TypedData:
 
 
 def _extract_enum_types(value: str) -> List[str]:
-    if not is_enum(value):
+    if not is_enum_variant_type(value):
         raise ValueError(f"Type [{value}] is not an enum.")
 
     value = value[1:-1]
@@ -560,7 +549,7 @@ def strip_pointer(value: str) -> str:
     return value
 
 
-def is_enum(value: str) -> bool:
+def is_enum_variant_type(value: str) -> bool:
     return value.startswith("(") and value.endswith(")")
 
 
@@ -680,7 +669,9 @@ class ParameterSchema(Schema):
     contains = fields.String(data_key="contains", required=False)
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> Parameter:
+    def make_dataclass(
+        self, data, **kwargs
+    ) -> Union[StandardParameter, EnumParameter, MerkleTreeParameter]:
         type_val = data["type"]
 
         if type_val == BasicType.MERKLE_TREE.value:
