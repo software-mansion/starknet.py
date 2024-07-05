@@ -258,6 +258,11 @@ def test_invalid_type_names(included_type: str, revision: Revision):
         (BasicType.MERKLE_TREE, Revision.V1),
         (BasicType.BOOL, Revision.V1),
         (BasicType.SHORT_STRING, Revision.V1),
+        (BasicType.U128, Revision.V1),
+        (BasicType.I128, Revision.V1),
+        (BasicType.TIMESTAMP, Revision.V1),
+        (BasicType.CONTRACT_ADDRESS, Revision.V1),
+        (BasicType.CLASS_HASH, Revision.V1),
         (BasicType.ENUM, Revision.V1)
     ],
 )
