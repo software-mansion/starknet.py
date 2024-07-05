@@ -4,7 +4,7 @@
 import json
 from enum import Enum
 from pathlib import Path
-from typing import Union
+from typing import Dict, List, Union
 
 import pytest
 
@@ -14,6 +14,7 @@ from starknet_py.utils.typed_data import (
     BasicType,
     Domain,
     Parameter,
+    StandardParameter,
     TypedData,
     encode_bool,
     encode_i128,
@@ -34,6 +35,7 @@ class CasesRev1(Enum):
     TD = "typed_data_rev_1_example.json"
     TD_FELT_MERKLE_TREE = "typed_data_rev_1_felt_merkletree_example.json"
     TD_BASIC_TYPES = "typed_data_rev_1_basic_types_example.json"
+    TD_ENUM = "typed_data_rev_1_enum_example.json"
 
 
 def load_typed_data(file_name: str) -> TypedData:
@@ -71,6 +73,8 @@ def test_parse_felt(value, result):
          """"Mail"("from":"Person","to":"Person","contents":"felt")"Person"("name":"felt","wallet":"felt")"""),
         (CasesRev1.TD_BASIC_TYPES.value, "Example",
          """"Example"("n0":"felt","n1":"bool","n2":"string","n3":"selector","n4":"u128","n5":"i128","n6":"ContractAddress","n7":"ClassHash","n8":"timestamp","n9":"shortstring")"""),
+        (CasesRev1.TD_ENUM.value, "Example",
+         """"Example"("someEnum":"MyEnum")"MyEnum"("Variant 1":(),"Variant 2":("u128","u128*"),"Variant 3":("u128"))"""),
         (CasesRev1.TD_FELT_MERKLE_TREE.value, "Example", """"Example"("value":"felt","root":"merkletree")""")
     ],
 )
@@ -100,7 +104,9 @@ def test_encode_type(example, type_name, encoded_type):
         (CasesRev1.TD.value, "Person", "0x30f7aa21b8d67cb04c30f962dd29b95ab320cb929c07d1605f5ace304dadf34"),
         (CasesRev1.TD.value, "Mail", "0x560430bf7a02939edd1a5c104e7b7a55bbab9f35928b1cf5c7c97de3a907bd"),
         (
-        CasesRev1.TD_BASIC_TYPES.value, "Example", "0x1f94cd0be8b4097a41486170fdf09a4cd23aefbc74bb2344718562994c2c111"),
+                CasesRev1.TD_BASIC_TYPES.value, "Example",
+                "0x1f94cd0be8b4097a41486170fdf09a4cd23aefbc74bb2344718562994c2c111"),
+        (CasesRev1.TD_ENUM.value, "Example", "0x380a54d417fb58913b904675d94a8a62e2abc3467f4b5439de0fd65fafdd1a8"),
         (CasesRev1.TD_FELT_MERKLE_TREE.value, "Example",
          "0x160b9c0e8a7c561f9c5d9e3cc2990a1b4d26e94aa319e9eb53e163cd06c71be"),
     ],
@@ -127,6 +133,8 @@ def test_type_hash(example, type_name, type_hash):
          "0x73602062421caf6ad2e942253debfad4584bff58930981364dcd378021defe8"),
         (CasesRev1.TD.value, "StarknetDomain", "domain",
          "0x555f72e550b308e50c1a4f8611483a174026c982a9893a05c185eeb85399657"),
+        (CasesRev1.TD_ENUM.value, "Example", "message",
+         "0x3d4384ff5cec32b86462e89f5a803b55ff0048c4f5a10ba9d6cd381317d9c3"),
         (CasesRev1.TD_FELT_MERKLE_TREE.value, "Example", "message",
          "0x40ef40c56c0469799a916f0b7e3bc4f1bbf28bf659c53fb8c5ee4d8d1b4f5f0")
     ],
@@ -157,6 +165,8 @@ def test_struct_hash(example, type_name, attr_name, struct_hash):
          "0x7f6e8c3d8965b5535f5cc68f837c04e3bbe568535b71aa6c621ddfb188932b8"),
         (CasesRev1.TD_BASIC_TYPES.value, "0xcd2a3d9f938e13cd947ec05abc7fe734df8dd826",
          "0x2d80b87b8bc32068247c779b2ef0f15f65c9c449325e44a9df480fb01eb43ec"),
+        (CasesRev1.TD_ENUM.value, "0xcd2a3d9f938e13cd947ec05abc7fe734df8dd826",
+         "0x3df10475ad5a8f49db4345a04a5b09164d2e24b09f6e1e236bc1ccd87627cc"),
         (CasesRev1.TD_FELT_MERKLE_TREE.value, "0xcd2a3d9f938e13cd947ec05abc7fe734df8dd826",
          "0x4f706783e0d7d0e61433d41343a248a213e9ab341d50ba978dfc055f26484c9")
     ],
@@ -169,18 +179,18 @@ def test_message_hash(example, account_address, msg_hash):
 
 domain_type_v0 = {
     "StarkNetDomain": [
-        Parameter(name="name", type="felt"),
-        Parameter(name="version", type="felt"),
-        Parameter(name="chainId", type="felt"),
+        StandardParameter(name="name", type="felt"),
+        StandardParameter(name="version", type="felt"),
+        StandardParameter(name="chainId", type="felt"),
     ]
 }
 
-domain_type_v1 = {
+domain_type_v1: Dict[str, List[Parameter]] = {
     "StarknetDomain": [
-        Parameter(name="name", type="shortstring"),
-        Parameter(name="version", type="shortstring"),
-        Parameter(name="chainId", type="shortstring"),
-        Parameter(name="revision", type="shortstring"),
+        StandardParameter(name="name", type="shortstring"),
+        StandardParameter(name="version", type="shortstring"),
+        StandardParameter(name="chainId", type="shortstring"),
+        StandardParameter(name="revision", type="shortstring"),
     ]
 }
 
@@ -217,7 +227,9 @@ def _make_typed_data(included_type: str, revision: Revision):
     "included_type, revision",
     [
         ("", Revision.V1),
-        ("myType*", Revision.V1)
+        ("myType*", Revision.V1),
+        ("(myType)", Revision.V1),
+        ("()", Revision.V1),
     ],
 )
 def test_invalid_type_names(included_type: str, revision: Revision):
@@ -239,6 +251,7 @@ def test_invalid_type_names(included_type: str, revision: Revision):
         (BasicType.MERKLE_TREE.value, Revision.V1),
         (BasicType.BOOL.value, Revision.V1),
         (BasicType.SHORT_STRING.value, Revision.V1),
+        (BasicType.ENUM.value, Revision.V1)
     ],
 )
 def test_types_redefinition(included_type: str, revision: Revision):
@@ -267,7 +280,7 @@ def test_missing_domain_type(revision: Revision):
 
 
 def test_dangling_type():
-    with pytest.raises(ValueError, match="Dangling types are not allowed. Unreferenced type dangling was found."):
+    with pytest.raises(ValueError, match=r"Dangling types are not allowed. Unreferenced type \[dangling\] was found."):
         TypedData(
             types={
                 **domain_type_v1,
@@ -284,7 +297,7 @@ def test_missing_dependency():
     typed_data = TypedData(
         types={
             **domain_type_v1,
-            "house": [Parameter(name="fridge", type="ice cream")]
+            "house": [StandardParameter(name="fridge", type="ice cream")]
         },
         primary_type="house",
         domain=domain_v1,

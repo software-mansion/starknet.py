@@ -1,5 +1,6 @@
 import re
-from dataclasses import dataclass
+from abc import ABC
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, List, Optional, Union, cast
 
@@ -17,14 +18,26 @@ from starknet_py.utils.merkle_tree import MerkleTree
 
 
 @dataclass(frozen=True)
-class Parameter:
-    """
-    Dataclass representing a Parameter object
-    """
-
+class Parameter(ABC):
     name: str
     type: str
-    contains: Optional[str] = None
+
+
+@dataclass(frozen=True)
+class StandardParameter(Parameter):
+    pass
+
+
+@dataclass(frozen=True)
+class MerkleTreeParameter(Parameter):
+    type: str = field(default="merkletree", init=False)
+    contains: str
+
+
+@dataclass(frozen=True)
+class EnumParameter(Parameter):
+    type: str = field(default="enum", init=False)
+    contains: str
 
 
 @dataclass
@@ -82,6 +95,7 @@ class BasicType(Enum):
     FELT = "felt"
     SELECTOR = "selector"
     MERKLE_TREE = "merkletree"
+    ENUM = "enum"
     SHORT_STRING = "shortstring"
     STRING = "string"
     CONTRACT_ADDRESS = "ContractAddress"
@@ -135,7 +149,11 @@ class TypedData:
         return type_name in self.types
 
     def _encode_value_v1(
-        self, basic_type: BasicType, value: Union[int, str, dict, list]
+        self,
+        basic_type: BasicType,
+        value: Union[int, str, dict],
+        type_name: str,
+        context: Optional[TypeContext] = None,
     ) -> Optional[int]:
         if basic_type in (
             BasicType.FELT,
@@ -157,13 +175,18 @@ class TypedData:
         if basic_type == BasicType.STRING and isinstance(value, str):
             return self._encode_long_string(value)
 
+        if basic_type == BasicType.ENUM and isinstance(value, dict):
+            if context is None:
+                raise ValueError(f"Context is not provided for '{type_name}' type.")
+            return self._encode_enum(value, context)
+
         return None
 
     # pylint: disable=no-self-use
     def _encode_value_v0(
         self,
         basic_type: BasicType,
-        value: Union[int, str, dict, list],
+        value: Union[int, str],
     ) -> Optional[int]:
         if basic_type in (
             BasicType.FELT,
@@ -198,9 +221,9 @@ class TypedData:
         ):
             encoded_value = self._encode_value_v0(basic_type, value)
         elif self.domain.resolved_revision == Revision.V1 and isinstance(
-            value, (str, int)
+            value, (str, int, dict)
         ):
-            encoded_value = self._encode_value_v1(basic_type, value)
+            encoded_value = self._encode_value_v1(basic_type, value, type_name, context)
 
         if encoded_value is not None:
             return encoded_value
@@ -232,68 +255,127 @@ class TypedData:
 
         return values
 
+    # pylint: disable=too-many-branches
     def _verify_types(self):
         if self.domain.separator_name not in self.types:
             raise ValueError(f"Types must contain '{self.domain.separator_name}'.")
 
-        basic_type_names = _get_basic_type_names(self.domain.resolved_revision)
+        referenced_types = set()
+        for type_name in self.types:
+            for ref_type in self.types[type_name]:
+                if isinstance(ref_type, (EnumParameter, MerkleTreeParameter)):
+                    referenced_types.add(ref_type.contains)
+                elif is_enum_variant_type(ref_type.type):
+                    referenced_types.update(_extract_enum_types(ref_type.type))
+                else:
+                    referenced_types.add(strip_pointer(ref_type.type))
 
-        for type_name in basic_type_names:
-            if type_name in self.types:
-                raise ValueError(f"Reserved type name: {type_name}")
-
-        referenced_types = {
-            ref_type.contains
-            if ref_type.contains is not None
-            else strip_pointer(ref_type.type)
-            for type_name in self.types
-            for ref_type in self.types[type_name]
-        }
         referenced_types.update([self.domain.separator_name, self.primary_type])
+
+        basic_type_names = _get_basic_type_names(self.domain.resolved_revision)
 
         for type_name in self.types:
             if not type_name:
                 raise ValueError("Type names cannot be empty.")
+
+            if type_name in basic_type_names:
+                raise ValueError(f"Reserved type name: {type_name}")
+
             if is_pointer(type_name):
-                raise ValueError(f"Type names cannot end in *. {type_name} was found.")
-            if type_name not in referenced_types:
                 raise ValueError(
-                    f"Dangling types are not allowed. Unreferenced type {type_name} was found."
+                    f"Type names cannot end in *. [{type_name}] was found."
                 )
 
+            if is_enum_variant_type(type_name):
+                raise ValueError(
+                    f"Type names cannot be enclosed in parentheses. [{type_name}] was found."
+                )
+
+            if "," in type_name:
+                raise ValueError(
+                    f"Type names cannot contain commas. [{type_name}] was found."
+                )
+
+            if type_name not in referenced_types:
+                raise ValueError(
+                    f"Dangling types are not allowed. Unreferenced type [{type_name}] was found."
+                )
+
+            for ref_type in self.types[type_name]:
+                if isinstance(ref_type, EnumParameter):
+                    self._validate_enum_type()
+
+    def _validate_enum_type(self):
+        if self.domain.resolved_revision != Revision.V1:
+            raise ValueError(
+                f"'{BasicType.ENUM.name}' basic type is not supported in revision "
+                f"{self.domain.resolved_revision.value}."
+            )
+
     def _get_dependencies(self, type_name: str) -> List[str]:
-        if type_name not in self.types:
-            # type_name is a primitive type, has no dependencies
-            return []
+        dependencies = [type_name]
+        to_visit = [type_name]
 
-        dependencies = set()
+        while to_visit:
+            current_type = to_visit.pop(0)
+            params = self.types.get(current_type, [])
 
-        def collect_deps(type_name: str) -> None:
-            for param in self.types[type_name]:
-                fixed_type = strip_pointer(param.type)
-                if fixed_type in self.types and fixed_type not in dependencies:
-                    dependencies.add(fixed_type)
-                    # recursive call
-                    collect_deps(fixed_type)
+            for param in params:
+                if isinstance(param, EnumParameter):
+                    extracted_types = [param.contains]
+                elif is_enum_variant_type(param.type):
+                    extracted_types = _extract_enum_types(param.type)
+                else:
+                    extracted_types = [param.type]
 
-        # collect dependencies into a set
-        collect_deps(type_name)
-        return [type_name, *list(dependencies)]
+                extracted_types = [
+                    strip_pointer(extr_type) for extr_type in extracted_types
+                ]
+                for extracted_type in extracted_types:
+                    if (
+                        extracted_type in self.types
+                        and extracted_type not in dependencies
+                    ):
+                        dependencies.append(extracted_type)
+                        to_visit.append(extracted_type)
+
+        return list(dependencies)
 
     def _encode_type(self, type_name: str) -> str:
         primary, *dependencies = self._get_dependencies(type_name)
         types = [primary, *sorted(dependencies)]
 
-        def make_dependency_str(dependency):
-            lst = [
-                f"{escape(t.name, self.domain.resolved_revision)}:{escape(t.type, self.domain.resolved_revision)}"
-                for t in self.types[dependency]
-            ]
-            return (
-                f"{escape(dependency, self.domain.resolved_revision)}({','.join(lst)})"
-            )
+        def encode_dependency(dependency: str) -> str:
+            def escape(s: str) -> str:
+                if self.domain.resolved_revision == Revision.V0:
+                    return s
+                return f'"{s}"'
 
-        return "".join([make_dependency_str(x) for x in types])
+            if dependency not in self.types:
+                raise ValueError(f"Dependency [{dependency}] is not defined in types.")
+
+            encoded_params = []
+            for param in self.types[dependency]:
+                target_type = (
+                    param.contains
+                    if isinstance(param, EnumParameter)
+                    and self.domain.resolved_revision == Revision.V1
+                    else param.type
+                )
+
+                if is_enum_variant_type(target_type):
+                    type_str = _extract_enum_types(target_type)
+                    type_str = f"({','.join([escape(x) for x in type_str])})"
+
+                else:
+                    type_str = escape(target_type)
+
+                encoded_params.append(f"{escape(param.name)}:{type_str}")
+            encoded_params = ",".join(encoded_params)
+
+            return f"{escape(dependency)}({encoded_params})"
+
+        return "".join([encode_dependency(x) for x in types])
 
     def type_hash(self, type_name: str) -> int:
         """
@@ -341,6 +423,14 @@ class TypedData:
         return MerkleTree(struct_hashes, self._hash_method).root_hash
 
     def _get_merkle_tree_leaves_type(self, context: TypeContext) -> str:
+        target_type = self._resolve_type(context)
+
+        if not isinstance(target_type, MerkleTreeParameter):
+            raise ValueError("Target type is not a merkletree type.")
+
+        return target_type.contains
+
+    def _resolve_type(self, context: TypeContext) -> Parameter:
         parent, key = context.parent, context.key
 
         if parent not in self.types:
@@ -354,15 +444,62 @@ class TypedData:
                 f"Key {key} is not defined in type {parent} or multiple definitions are present."
             )
 
-        if target_type.contains is None:
-            raise ValueError("Missing 'contains' field in target type.")
+        if not isinstance(target_type, (EnumParameter, MerkleTreeParameter)):
+            raise ValueError("Target type is not an enum or merkletree type.")
+        return target_type
 
-        return target_type.contains
+    def _encode_enum(self, value: dict, context: TypeContext):
+        if len(value.keys()) != 1:
+            raise ValueError(
+                f"'{BasicType.ENUM.name}' value must contain a single variant."
+            )
+
+        variant_name, variant_data = next(iter(value.items()))
+        variants = self._get_enum_variants(context)
+        variant_definition = next(
+            (item for item in variants if item.name == variant_name), None
+        )
+
+        if variant_definition is None:
+            raise ValueError(
+                f"Variant [{variant_name}] is not defined in '${BasicType.ENUM.name}' "
+                f"type [{context.key}] or multiple definitions are present."
+            )
+
+        encoded_subtypes = []
+        extracted_enum_types = _extract_enum_types(variant_definition.type)
+
+        for i, subtype in enumerate(extracted_enum_types):
+            subtype_data = variant_data[i]
+            encoded_subtypes.append(self._encode_value(subtype, subtype_data))
+
+        variant_index = variants.index(variant_definition)
+        return self._hash_method.hash_many([variant_index, *encoded_subtypes])
+
+    def _get_enum_variants(self, context: TypeContext) -> List[Parameter]:
+        enum_type = self._resolve_type(context)
+        if not isinstance(enum_type, EnumParameter):
+            raise ValueError(f"Type [{context.key}] is not an enum.")
+        if enum_type.contains not in self.types:
+            raise ValueError(f"Type [{enum_type.contains}] is not defined in types")
+
+        return self.types[enum_type.contains]
 
     def _encode_long_string(self, value: str) -> int:
         byte_array_serializer = ByteArraySerializer()
         serialized_values = byte_array_serializer.serialize(value)
         return self._hash_method.hash_many(serialized_values)
+
+
+def _extract_enum_types(value: str) -> List[str]:
+    if not is_enum_variant_type(value):
+        raise ValueError(f"Type [{value}] is not an enum.")
+
+    value = value[1:-1]
+    if not value:
+        return []
+
+    return value.split(",")
 
 
 def parse_felt(value: Union[int, str]) -> int:
@@ -385,10 +522,8 @@ def strip_pointer(value: str) -> str:
     return value
 
 
-def escape(s: str, revision: Revision) -> str:
-    if revision == Revision.V0:
-        return s
-    return f'"{s}"'
+def is_enum_variant_type(value: str) -> bool:
+    return value.startswith("(") and value.endswith(")")
 
 
 def prepare_selector(name: str) -> int:
@@ -476,6 +611,7 @@ def _get_basic_type_names(revision: Revision) -> List[str]:
         BasicType.U128,
         BasicType.I128,
         BasicType.TIMESTAMP,
+        BasicType.ENUM,
     ]
 
     basic_types = basic_types_v0 if revision == Revision.V0 else basic_types_v1
@@ -493,7 +629,15 @@ class ParameterSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> Parameter:
-        return Parameter(**data)
+        type_val = data["type"]
+
+        if type_val == BasicType.MERKLE_TREE.value:
+            return MerkleTreeParameter(name=data["name"], contains=data["contains"])
+
+        if type_val == BasicType.ENUM.value:
+            return EnumParameter(name=data["name"], contains=data["contains"])
+
+        return StandardParameter(name=data["name"], type=type_val)
 
 
 class DomainSchema(Schema):
