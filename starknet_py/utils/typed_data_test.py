@@ -13,9 +13,9 @@ from starknet_py.tests.e2e.fixtures.constants import TYPED_DATA_DIR
 from starknet_py.utils.typed_data import (
     BasicType,
     Domain,
-    PresetType,
     EnumParameter,
     MerkleTreeParameter,
+    PresetType,
     StandardParameter,
     TypedData,
     encode_bool,
@@ -259,6 +259,11 @@ def test_invalid_type_names(included_type: str, revision: Revision):
         (BasicType.MERKLE_TREE, Revision.V1),
         (BasicType.BOOL, Revision.V1),
         (BasicType.SHORT_STRING, Revision.V1),
+        (BasicType.U128, Revision.V1),
+        (BasicType.I128, Revision.V1),
+        (BasicType.TIMESTAMP, Revision.V1),
+        (BasicType.CONTRACT_ADDRESS, Revision.V1),
+        (BasicType.CLASS_HASH, Revision.V1),
         (BasicType.ENUM, Revision.V1)
     ],
 )

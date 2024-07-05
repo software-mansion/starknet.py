@@ -342,7 +342,6 @@ class TypedData:
             current_type = to_visit.pop(0)
             params = self._all_types.get(current_type, [])
 
-
             for param in params:
                 if isinstance(param, EnumParameter):
                     extracted_types = [param.contains]
