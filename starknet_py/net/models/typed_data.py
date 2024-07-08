@@ -2,34 +2,43 @@
 TypedDict structures for TypedData
 """
 
-from typing import Any, Dict, List, TypedDict, Union
+from typing import Any, Dict, List, Optional, TypedDict
+
+from starknet_py.net.schemas.common import Revision
 
 
-class Parameter(TypedDict):
+class ParameterDict(TypedDict):
     """
     TypedDict representing a Parameter object
     """
 
     name: str
     type: str
+    contains: Optional[str]
 
 
-class StarkNetDomain(TypedDict):
+class DomainDict(TypedDict):
     """
-    TypedDict representing a StarkNetDomain object
+    TypedDict representing a domain object (both StarkNetDomain, StarknetDomain).
     """
 
     name: str
     version: str
-    chainId: Union[str, int]
+    chainId: str
+    revision: Optional[Revision]
 
 
-class TypedData(TypedDict):
+class TypedDataDict(TypedDict):
     """
     TypedDict representing a TypedData object
     """
 
-    types: Dict[str, List[Parameter]]
+    types: Dict[str, List[ParameterDict]]
     primaryType: str
-    domain: StarkNetDomain
+    domain: DomainDict
     message: Dict[str, Any]
+
+
+class TypeContext(TypedDict):
+    parent: str
+    key: str

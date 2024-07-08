@@ -22,7 +22,7 @@ from starknet_py.net.models.transaction import (
     InvokeV3,
     TypeAccountTransaction,
 )
-from starknet_py.net.models.typed_data import TypedData
+from starknet_py.net.models.typed_data import TypedDataDict
 
 
 class BaseAccount(ABC):
@@ -314,19 +314,21 @@ class BaseAccount(ABC):
         """
 
     @abstractmethod
-    def sign_message(self, typed_data: TypedData) -> List[int]:
+    def sign_message(self, typed_data: TypedDataDict) -> List[int]:
         """
         Sign an TypedData TypedDict for off-chain usage with the Starknet private key and return the signature.
         This adds a message prefix, so it can't be interchanged with transactions.
+        Both v0 and v1 domain revision versions are supported.
 
         :param typed_data: TypedData TypedDict to be signed.
         :return: The signature of the TypedData TypedDict.
         """
 
     @abstractmethod
-    def verify_message(self, typed_data: TypedData, signature: List[int]) -> bool:
+    def verify_message(self, typed_data: TypedDataDict, signature: List[int]) -> bool:
         """
         Verify a signature of a TypedData dict on Starknet.
+        Both v0 and v1 domain revision versions are supported.
 
         :param typed_data: TypedData TypedDict to be verified.
         :param signature: signature of the TypedData TypedDict.

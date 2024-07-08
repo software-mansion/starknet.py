@@ -80,7 +80,7 @@ class ContractData:
         return AbiParserV0(self.abi).parse()
 
     @staticmethod
-    def from_abi(address: int, abi: ABI, cairo_version: int = 0) -> ContractData:
+    def from_abi(address: int, abi: ABI, cairo_version: int = 1) -> ContractData:
         """
         Create ContractData from ABI.
 
@@ -162,7 +162,7 @@ class DeclareResult(SentTransaction):
     """
 
     _account: BaseAccount = None  # pyright: ignore
-    _cairo_version: int = 0
+    _cairo_version: int = 1
 
     class_hash: int = None  # pyright: ignore
     """Class hash of the declared contract."""
@@ -524,7 +524,7 @@ class ContractFunction:
         contract_data: ContractData,
         client: Client,
         account: Optional[BaseAccount],
-        cairo_version: int = 0,
+        cairo_version: int = 1,
         *,
         interface_name: Optional[str] = None,
     ):
@@ -729,7 +729,7 @@ class Contract:
         abi: list,
         provider: Union[BaseAccount, Client],
         *,
-        cairo_version: int = 0,
+        cairo_version: int = 1,
     ):
         """
         Should be used instead of ``from_address`` when ABI is known statically.
@@ -1067,10 +1067,10 @@ class Contract:
         deployer_address: int = 0,
     ) -> int:
         """
-        Computes address for given contract.
+        Computes address for given Cairo 0 contract.
 
         :param salt: int
-        :param compiled_contract: String containing compiled contract.
+        :param compiled_contract: String containing compiled Cairo 0 contract.
         :param constructor_args: A ``list`` or ``dict`` of arguments for the constructor.
         :param deployer_address: Address of the deployer (if not provided default 0 is used).
 
@@ -1079,7 +1079,9 @@ class Contract:
 
         compiled = create_compiled_contract(compiled_contract)
         assert compiled.abi is not None
-        translated_args = translate_constructor_args(compiled.abi, constructor_args)
+        translated_args = translate_constructor_args(
+            compiled.abi, constructor_args, cairo_version=0
+        )
         return compute_address(
             salt=salt,
             class_hash=compute_class_hash(compiled),
@@ -1105,7 +1107,7 @@ class Contract:
         contract_data: ContractData,
         client: Client,
         account: Optional[BaseAccount],
-        cairo_version: int = 0,
+        cairo_version: int = 1,
     ) -> FunctionsRepository:
         repository = {}
         implemented_interfaces = [

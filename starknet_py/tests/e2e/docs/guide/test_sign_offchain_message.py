@@ -31,7 +31,7 @@ async def test_sign_offchain_message(account):
             ],
         },
         "primaryType": "Mail",
-        "domain": {"name": "StarkNet Mail", "version": "1", "chainId": 1},
+        "domain": {"name": "StarkNet Mail", "version": "1", "chainId": "1"},
         "message": {
             "from": {
                 "name": "Cow",

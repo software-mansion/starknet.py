@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "starknet-py"
-version = "0.22.0"
+version = "0.23.0"
 description = "A python SDK for Starknet"
 authors = ["Tomasz Rejowski <tomasz.rejowski@swmansion.com>", "Jakub Ptak <jakub.ptak@swmansion.com>"]
 include = ["starknet_py", "starknet_py/utils/crypto/libcrypto_c_exports.*"]
@@ -17,17 +17,18 @@ documentation = "https://starknetpy.rtfd.io/"
 python = ">=3.8, <3.13"
 asgiref = "^3.4.1"
 marshmallow = "^3.15.0"
-marshmallow-oneofschema = "3.0.1"
+marshmallow-oneofschema = "3.1.1"
 typing-extensions = "^4.3.0"
-marshmallow-dataclass = "<8.7.0"
+marshmallow-dataclass = "<8.8.0"
 poseidon-py = "0.1.4"
 lark = "^1.1.5"
 aiohttp = "^3.8.4"
 sphinx = { version = ">=4.3.1,<8.0.0", optional = true }
-enum-tools = { extras = ["sphinx"], version = "0.11.0", optional = true }
-furo = { version = "^2023.5.20", optional = true }
+enum-tools = { extras = ["sphinx"], version = "0.12.0", optional = true }
+furo = { version = "^2024.5.6", optional = true }
 pycryptodome = "^3.17"
 crypto-cpp-py = "1.4.4"
+eth-keyfile = "^0.8.1"
 
 [tool.poetry.extras]
 docs = ["sphinx", "enum-tools", "furo"]

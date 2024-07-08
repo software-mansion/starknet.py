@@ -9,7 +9,7 @@ from typing import Optional
 import pytest
 
 from starknet_py.net.full_node_client import FullNodeClient
-from starknet_py.net.models.typed_data import TypedData
+from starknet_py.net.models.typed_data import TypedDataDict
 from starknet_py.tests.e2e.fixtures.constants import (
     CONTRACTS_V1_ARTIFACTS_MAP,
     CONTRACTS_V1_COMPILED,
@@ -30,13 +30,14 @@ def pytest_addoption(parser):
 
 @pytest.fixture(
     params=[
-        "typed_data_example.json",
-        "typed_data_felt_array_example.json",
-        "typed_data_long_string_example.json",
-        "typed_data_struct_array_example.json",
+        "typed_data_rev_0_example.json",
+        "typed_data_rev_0_felt_array_example.json",
+        "typed_data_rev_0_long_string_example.json",
+        "typed_data_rev_0_struct_array_example.json",
+        "typed_data_rev_1_example.json",
     ],
 )
-def typed_data(request) -> TypedData:
+def typed_data(request) -> TypedDataDict:
     """
     Returns TypedData dictionary example.
     """
