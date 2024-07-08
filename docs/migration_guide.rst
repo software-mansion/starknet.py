@@ -5,7 +5,7 @@ Migration guide
 0.23.0 Migration guide
 ******************************
 
-Version 0.23.0 of **starknet.py** comes with support for SNIP-12! Now it's also possible to create a signer using a keystore path.
+Version 0.23.0 of **starknet.py** comes with support for SNIP-12!
 
 0.23.0 Targeted versions
 ------------------------
