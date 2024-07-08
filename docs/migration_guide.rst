@@ -5,7 +5,7 @@ Migration guide
 0.23.0 Migration guide
 ******************************
 
-Version 0.23.0 of **starknet.py** comes with support for SNIP-12!
+Version 0.23.0 of **starknet.py** comes with support for `SNIP-12 <https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-12.md>`_!
 
 0.23.0 Targeted versions
 ------------------------
@@ -30,8 +30,6 @@ Version 0.23.0 of **starknet.py** comes with support for SNIP-12!
 1. :meth:`Account.sign_message` now accepts parameter ``typed_data`` as both :class:`~starknet_py.utils.typed_data.TypedData` and :class:`~starknet_py.net.models.typed_data.TypedDataDict`
 2. :meth:`Account.verify_message` now accepts parameter ``typed_data`` as both  :class:`~starknet_py.utils.typed_data.TypedData` and :class:`~starknet_py.net.models.typed_data.TypedDataDict`
 3. :meth:`~starknet_py.net.signer.stark_curve_signer.KeyPair.from_keystore` has been added
-4. :class:`BasicType` and :class:`PresetType` have been added
-
 
 ******************************
 0.22.0 Migration guide
