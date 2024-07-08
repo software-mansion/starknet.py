@@ -20,8 +20,7 @@ Version 0.23.0 of **starknet.py** comes with support for SNIP-12! Now it's also 
 
 1. :class:`StarkNetDomain` has been renamed to :class:`Domain`
 2. :class:`TypedData` field ``domain`` has been changed from ``dict`` to :class:`Domain`
-3. :class:`BasicType` and :class:`PresetType` have been added
-4. :class:`Parameter` is now abstract - :class:`StandardParameter`, :class:`EnumParameter` and :class:`MerkleTreeParameter` should be used
+3. :class:`Parameter` is now abstract - :class:`StandardParameter`, :class:`EnumParameter` and :class:`MerkleTreeParameter` should be used
 
 0.23.0 Minor changes
 -----------------------
@@ -31,7 +30,7 @@ Version 0.23.0 of **starknet.py** comes with support for SNIP-12! Now it's also 
 1. :meth:`Account.sign_message` now accepts parameter ``typed_data`` as both :class:`~starknet_py.utils.typed_data.TypedData` and :class:`~starknet_py.net.models.typed_data.TypedDataDict`
 2. :meth:`Account.verify_message` now accepts parameter ``typed_data`` as both  :class:`~starknet_py.utils.typed_data.TypedData` and :class:`~starknet_py.net.models.typed_data.TypedDataDict`
 3. :meth:`~starknet_py.net.signer.stark_curve_signer.KeyPair.from_keystore` has been added
-
+4. :class:`BasicType` and :class:`PresetType` have been added
 
 
 ******************************
