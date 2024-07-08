@@ -55,7 +55,8 @@ from starknet_py.net.schemas.rpc.block import (
     BlockHashAndNumberSchema,
     BlockStateUpdateSchema,
     PendingBlockStateUpdateSchema,
-    PendingStarknetBlockWithTxHashesSchema, StarknetBlockWithTxHashesSchema,
+    PendingStarknetBlockWithTxHashesSchema,
+    StarknetBlockWithTxHashesSchema,
 )
 from starknet_py.net.schemas.rpc.contract import (
     DeprecatedContractClassSchema,

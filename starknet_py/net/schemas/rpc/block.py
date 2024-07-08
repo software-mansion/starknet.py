@@ -10,14 +10,16 @@ from starknet_py.net.client_models import (
     PendingStarknetBlockWithTxHashes,
     ReplacedClass,
     ResourcePrice,
+    StarknetBlockWithTxHashes,
     StateDiff,
-    StorageDiffItem, StarknetBlockWithTxHashes,
+    StorageDiffItem,
 )
 from starknet_py.net.schemas.common import (
+    BlockStatusField,
     Felt,
     L1DAModeField,
     NonPrefixedHex,
-    StorageEntrySchema, BlockStatusField,
+    StorageEntrySchema,
 )
 from starknet_py.utils.schema import Schema
 
