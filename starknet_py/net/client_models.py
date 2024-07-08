@@ -773,7 +773,7 @@ class DeprecatedContractClass:
 
 
 @dataclass
-class CompiledDeprecatedContract(DeprecatedContractClass):
+class DeprecatedCompiledContract(DeprecatedContractClass):
     """
     Dataclass representing ContractClass with required abi.
     """

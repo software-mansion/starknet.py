@@ -5,7 +5,7 @@ from marshmallow import EXCLUDE, ValidationError
 
 from starknet_py.net.client_models import (
     CasmClass,
-    CompiledDeprecatedContract,
+    DeprecatedCompiledContract,
     DeprecatedContractClass,
     SierraCompiledContract,
 )
@@ -19,7 +19,7 @@ from starknet_py.net.schemas.rpc.contract import (
 
 def create_compiled_contract(
     compiled_contract: str,
-) -> CompiledDeprecatedContract:
+) -> DeprecatedCompiledContract:
     """
     Creates CompiledContract instance.
 
@@ -28,7 +28,7 @@ def create_compiled_contract(
     """
 
     return cast(
-        CompiledDeprecatedContract,
+        DeprecatedCompiledContract,
         DeprecatedCompiledContractSchema().loads(compiled_contract),
     )
 

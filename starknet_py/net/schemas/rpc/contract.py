@@ -1,15 +1,14 @@
-# pylint: disable=too-many-lines
 import json
 
-from marshmallow import EXCLUDE, Schema, ValidationError, fields, post_load
+from marshmallow import EXCLUDE, ValidationError, fields, post_load
 
 from starknet_py.abi.v0.schemas import ContractAbiEntrySchema
 from starknet_py.net.client_models import (
     CasmClass,
     CasmClassEntryPoint,
     CasmClassEntryPointsByType,
-    CompiledDeprecatedContract,
     DeployedContract,
+    DeprecatedCompiledContract,
     DeprecatedContractClass,
     EntryPoint,
     EntryPointsByType,
@@ -21,8 +20,6 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.schemas.common import Felt, NumberAsHex
 from starknet_py.utils.schema import Schema
-
-# pylint: disable=unused-argument, no-self-use
 
 
 class SyncStatusSchema(Schema):
@@ -114,20 +111,6 @@ class SierraContractClassSchema(Schema):
         return SierraContractClass(**data)
 
 
-class DeprecatedContractClassSchema(Schema):
-    program = fields.String(data_key="program", required=True)
-    entry_points_by_type = fields.Nested(
-        EntryPointsByTypeSchema(), data_key="entry_points_by_type", required=True
-    )
-    abi = fields.List(
-        fields.Nested(ContractAbiEntrySchema(unknown=EXCLUDE)), data_key="abi"
-    )
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> DeprecatedContractClass:
-        return DeprecatedContractClass(**data)
-
-
 class ContractClassSchema(Schema):
     program = fields.Dict(
         keys=fields.String(),
@@ -143,6 +126,28 @@ class ContractClassSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> DeprecatedContractClass:
         return DeprecatedContractClass(**data)
+
+
+class DeprecatedContractClassSchema(Schema):
+    program = fields.String(data_key="program", required=True)
+    entry_points_by_type = fields.Nested(
+        EntryPointsByTypeSchema(), data_key="entry_points_by_type", required=True
+    )
+    abi = fields.List(
+        fields.Nested(ContractAbiEntrySchema(unknown=EXCLUDE)), data_key="abi"
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> DeprecatedContractClass:
+        return DeprecatedContractClass(**data)
+
+
+class DeprecatedCompiledContractSchema(ContractClassSchema):
+    abi = fields.List(fields.Dict(), data_key="abi", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> DeprecatedCompiledContract:
+        return DeprecatedCompiledContract(**data)
 
 
 class CasmClassEntryPointSchema(Schema):
@@ -195,14 +200,6 @@ class CasmClassSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> CasmClass:
         return CasmClass(**data)
-
-
-class DeprecatedCompiledContractSchema(ContractClassSchema):
-    abi = fields.List(fields.Dict(), data_key="abi", required=True)
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> CompiledDeprecatedContract:
-        return CompiledDeprecatedContract(**data)
 
 
 class AbiField(fields.Field):
