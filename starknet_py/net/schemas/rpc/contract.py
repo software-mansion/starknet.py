@@ -95,9 +95,7 @@ class EntryPointsByTypeSchema(Schema):
 
 
 class SierraContractClassSchema(Schema):
-    sierra_program = fields.List(
-        fields.String(), data_key="sierra_program", required=True
-    )
+    sierra_program = fields.List(Felt(), data_key="sierra_program", required=True)
     contract_class_version = fields.String(
         data_key="contract_class_version", required=True
     )

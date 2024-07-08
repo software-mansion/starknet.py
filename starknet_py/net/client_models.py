@@ -812,7 +812,7 @@ class SierraContractClass:
     """
 
     contract_class_version: str
-    sierra_program: List[str]
+    sierra_program: List[int]
     entry_points_by_type: SierraEntryPointsByType
     abi: Optional[str] = None
 
