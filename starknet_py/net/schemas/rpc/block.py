@@ -11,13 +11,13 @@ from starknet_py.net.client_models import (
     ReplacedClass,
     ResourcePrice,
     StateDiff,
-    StorageDiffItem,
+    StorageDiffItem, StarknetBlockWithTxHashes,
 )
 from starknet_py.net.schemas.common import (
     Felt,
     L1DAModeField,
     NonPrefixedHex,
-    StorageEntrySchema,
+    StorageEntrySchema, BlockStatusField,
 )
 from starknet_py.utils.schema import Schema
 
@@ -181,3 +181,12 @@ class PendingStarknetBlockWithTxHashesSchema(PendingBlockHeaderSchema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> PendingStarknetBlockWithTxHashes:
         return PendingStarknetBlockWithTxHashes(**data)
+
+
+class StarknetBlockWithTxHashesSchema(BlockHeaderSchema):
+    status = BlockStatusField(data_key="status", required=True)
+    transactions = fields.List(Felt(), data_key="transactions", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> StarknetBlockWithTxHashes:
+        return StarknetBlockWithTxHashes(**data)

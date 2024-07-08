@@ -25,7 +25,6 @@ from starknet_py.net.client_models import (
     SentTransactionResponse,
     StarknetBlock,
     StarknetBlockWithReceipts,
-    StarknetBlockWithTxHashes,
     TransactionReceipt,
     TransactionStatusResponse,
     TransactionWithReceipt,
@@ -326,15 +325,6 @@ class TypesOfTransactionsSchema(OneOfSchema):
         "DEPLOY_ACCOUNT": DeployAccountTransactionSchema,
         "L1_HANDLER": L1HandlerTransactionSchema,
     }
-
-
-class StarknetBlockWithTxHashesSchema(BlockHeaderSchema):
-    status = BlockStatusField(data_key="status", required=True)
-    transactions = fields.List(Felt(), data_key="transactions", required=True)
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> StarknetBlockWithTxHashes:
-        return StarknetBlockWithTxHashes(**data)
 
 
 class TransactionWithReceiptSchema(Schema):
