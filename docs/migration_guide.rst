@@ -19,6 +19,8 @@ Migration guide
 
 2. :class:`TypedData` field ``domain`` has been changed from ``dict`` to :class:`Domain`
 
+3. :class:`CompiledContract`, :class:`ContractClass` and :class:`ContractClassSchema` have been renamed to :class:`DeprecatedCompiledContract`, :class:`DeprecatedContractClass` and :class:`DeprecatedContractClassSchema`
+
 ******************************
 0.22.0 Migration guide
 ******************************
