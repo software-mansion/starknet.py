@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "starknet-py"
-version = "0.22.0"
+version = "0.23.0"
 description = "A python SDK for Starknet"
 authors = ["Tomasz Rejowski <tomasz.rejowski@swmansion.com>", "Jakub Ptak <jakub.ptak@swmansion.com>"]
 include = ["starknet_py", "starknet_py/utils/crypto/libcrypto_c_exports.*"]

@@ -5,6 +5,8 @@ Migration guide
 0.23.0 Migration guide
 ******************************
 
+Version 0.23.0 of **starknet.py** comes with support for `SNIP-12 <https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-12.md>`_!
+
 0.23.0 Targeted versions
 ------------------------
 
@@ -13,11 +15,21 @@ Migration guide
 
 0.23.0 Breaking changes
 -----------------------
+
 .. currentmodule:: starknet_py.utils.typed_data
 
 1. :class:`StarkNetDomain` has been renamed to :class:`Domain`
-
 2. :class:`TypedData` field ``domain`` has been changed from ``dict`` to :class:`Domain`
+3. :class:`Parameter` is now abstract - :class:`StandardParameter`, :class:`EnumParameter` and :class:`MerkleTreeParameter` should be used
+
+0.23.0 Minor changes
+-----------------------
+
+.. currentmodule:: starknet_py.net.account.account
+
+1. :meth:`Account.sign_message` now accepts parameter ``typed_data`` as both :class:`~starknet_py.utils.typed_data.TypedData` and :class:`~starknet_py.net.models.typed_data.TypedDataDict`
+2. :meth:`Account.verify_message` now accepts parameter ``typed_data`` as both  :class:`~starknet_py.utils.typed_data.TypedData` and :class:`~starknet_py.net.models.typed_data.TypedDataDict`
+3. :meth:`~starknet_py.net.signer.stark_curve_signer.KeyPair.from_keystore` has been added
 
 3. :class:`CompiledContract`, :class:`ContractClass` and :class:`ContractClassSchema` have been renamed to :class:`DeprecatedCompiledContract`, :class:`DeprecatedContractClass` and :class:`DeprecatedContractClassSchema`
 
