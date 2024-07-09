@@ -14,10 +14,10 @@ from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     BlockHashAndNumber,
     Call,
-    ContractClass,
     DeclareTransactionTrace,
     DeclareTransactionV1,
     DeployAccountTransactionTrace,
+    DeprecatedContractClass,
     InvokeTransactionTrace,
     SierraContractClass,
     SimulatedTransaction,
@@ -69,7 +69,7 @@ async def test_get_class_at(
         contract_address=contract_address, block_hash="latest"
     )
 
-    assert isinstance(declared_contract, ContractClass)
+    assert isinstance(declared_contract, DeprecatedContractClass)
     assert declared_contract.program != {}
     assert declared_contract.entry_points_by_type is not None
     assert declared_contract.abi is not None

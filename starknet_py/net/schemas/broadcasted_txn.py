@@ -3,11 +3,11 @@ from marshmallow_oneofschema.one_of_schema import OneOfSchema
 
 from starknet_py.net.client_models import TransactionType
 from starknet_py.net.models.transaction import compress_program, decompress_program
-from starknet_py.net.schemas.gateway import (
+from starknet_py.net.schemas.rpc.contract import (
     ContractClassSchema,
     SierraCompiledContractSchema,
 )
-from starknet_py.net.schemas.rpc import (
+from starknet_py.net.schemas.rpc.transactions import (
     DeclareTransactionV1Schema,
     DeclareTransactionV2Schema,
     DeclareTransactionV3Schema,
