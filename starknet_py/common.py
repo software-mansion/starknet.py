@@ -5,21 +5,21 @@ from marshmallow import EXCLUDE, ValidationError
 
 from starknet_py.net.client_models import (
     CasmClass,
-    CompiledContract,
-    ContractClass,
+    DeprecatedCompiledContract,
+    DeprecatedContractClass,
     SierraCompiledContract,
 )
-from starknet_py.net.schemas.gateway import (
+from starknet_py.net.schemas.rpc.contract import (
     CasmClassSchema,
-    CompiledContractSchema,
     ContractClassSchema,
+    DeprecatedCompiledContractSchema,
     SierraCompiledContractSchema,
 )
 
 
 def create_compiled_contract(
     compiled_contract: str,
-) -> CompiledContract:
+) -> DeprecatedCompiledContract:
     """
     Creates CompiledContract instance.
 
@@ -27,7 +27,10 @@ def create_compiled_contract(
     :return: CompiledContract instance.
     """
 
-    return cast(CompiledContract, CompiledContractSchema().loads(compiled_contract))
+    return cast(
+        DeprecatedCompiledContract,
+        DeprecatedCompiledContractSchema().loads(compiled_contract),
+    )
 
 
 def create_sierra_compiled_contract(compiled_contract: str) -> SierraCompiledContract:
@@ -45,7 +48,7 @@ def create_sierra_compiled_contract(compiled_contract: str) -> SierraCompiledCon
 
 def create_contract_class(
     compiled_contract: str,
-) -> ContractClass:
+) -> DeprecatedContractClass:
     """
     Creates ContractClass from already compiled contract.
 
@@ -60,7 +63,7 @@ def create_contract_class(
         "Consider using create_compiled_contract instead.",
         category=DeprecationWarning,
     )
-    return cast(ContractClass, ContractClassSchema().loads(compiled_contract))
+    return cast(DeprecatedContractClass, ContractClassSchema().loads(compiled_contract))
 
 
 def create_casm_class(compiled_contract: str) -> CasmClass:

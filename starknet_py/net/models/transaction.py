@@ -29,14 +29,14 @@ from starknet_py.hash.transaction import (
     compute_invoke_v3_transaction_hash,
 )
 from starknet_py.net.client_models import (
-    ContractClass,
     DAMode,
+    DeprecatedContractClass,
     ResourceBoundsMapping,
     SierraContractClass,
     TransactionType,
 )
 from starknet_py.net.schemas.common import Felt, TransactionTypeField
-from starknet_py.net.schemas.gateway import (
+from starknet_py.net.schemas.rpc.contract import (
     ContractClassSchema,
     SierraContractClassSchema,
 )
@@ -186,7 +186,7 @@ class DeclareV1(_DeprecatedAccountTransaction):
     """
 
     # The class to be declared, included for all methods involving execution (estimateFee, simulateTransactions)
-    contract_class: ContractClass = field(
+    contract_class: DeprecatedContractClass = field(
         metadata={"marshmallow_field": fields.Nested(ContractClassSchema())}
     )
     # The address of the account contract sending the declaration transaction.

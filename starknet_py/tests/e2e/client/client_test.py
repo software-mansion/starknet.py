@@ -11,11 +11,11 @@ from starknet_py.hash.storage import get_storage_var_address
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     Call,
-    ContractClass,
     DeclaredContractHash,
     DeclareTransactionV1,
     DeclareTransactionV2,
     DeployAccountTransactionV1,
+    DeprecatedContractClass,
     EstimatedFee,
     ExecutionResources,
     FeePayment,
@@ -294,7 +294,7 @@ async def test_get_class_hash_at(client, contract_address, class_hash):
 async def test_get_class_by_hash(client, class_hash):
     contract_class = await client.get_class_by_hash(class_hash=class_hash)
 
-    assert isinstance(contract_class, ContractClass)
+    assert isinstance(contract_class, DeprecatedContractClass)
     assert contract_class.program != ""
     assert contract_class.entry_points_by_type is not None
     assert contract_class.abi is not None
