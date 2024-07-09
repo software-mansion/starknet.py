@@ -7,9 +7,13 @@ from starknet_py.net.client_models import (
     DeclaredContractHash,
     DeployedContract,
     PendingBlockStateUpdate,
+    PendingStarknetBlock,
+    PendingStarknetBlockWithReceipts,
     PendingStarknetBlockWithTxHashes,
     ReplacedClass,
     ResourcePrice,
+    StarknetBlock,
+    StarknetBlockWithReceipts,
     StarknetBlockWithTxHashes,
     StateDiff,
     StorageDiffItem,
@@ -20,6 +24,10 @@ from starknet_py.net.schemas.common import (
     L1DAModeField,
     NonPrefixedHex,
     StorageEntrySchema,
+)
+from starknet_py.net.schemas.rpc.transactions import (
+    TransactionWithReceiptSchema,
+    TypesOfTransactionsSchema,
 )
 from starknet_py.utils.schema import Schema
 
@@ -192,3 +200,53 @@ class StarknetBlockWithTxHashesSchema(BlockHeaderSchema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> StarknetBlockWithTxHashes:
         return StarknetBlockWithTxHashes(**data)
+
+
+class StarknetBlockWithReceiptsSchema(BlockHeaderSchema):
+    status = BlockStatusField(data_key="status", required=True)
+    transactions = fields.List(
+        fields.Nested(TransactionWithReceiptSchema()),
+        data_key="transactions",
+        required=True,
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> StarknetBlockWithReceipts:
+        return StarknetBlockWithReceipts(**data)
+
+
+class PendingStarknetBlockSchema(PendingBlockHeaderSchema):
+    transactions = fields.List(
+        fields.Nested(TypesOfTransactionsSchema()),
+        data_key="transactions",
+        required=True,
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> PendingStarknetBlock:
+        return PendingStarknetBlock(**data)
+
+
+class StarknetBlockSchema(BlockHeaderSchema):
+    status = BlockStatusField(data_key="status", required=True)
+    transactions = fields.List(
+        fields.Nested(TypesOfTransactionsSchema()),
+        data_key="transactions",
+        required=True,
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> StarknetBlock:
+        return StarknetBlock(**data)
+
+
+class PendingStarknetBlockWithReceiptsSchema(PendingBlockHeaderSchema):
+    transactions = fields.List(
+        fields.Nested(TransactionWithReceiptSchema()),
+        data_key="transactions",
+        required=True,
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> PendingStarknetBlockWithReceipts:
+        return PendingStarknetBlockWithReceipts(**data)

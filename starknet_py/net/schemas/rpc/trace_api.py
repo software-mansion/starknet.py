@@ -3,12 +3,8 @@ from marshmallow_oneofschema.one_of_schema import OneOfSchema
 
 from starknet_py.net.client_models import (
     BlockTransactionTrace,
-    ComputationResources,
-    DataResources,
     DeclareTransactionTrace,
     DeployAccountTransactionTrace,
-    EstimatedFee,
-    ExecutionResources,
     FunctionInvocation,
     InvokeTransactionTrace,
     L1HandlerTransactionTrace,
@@ -17,16 +13,14 @@ from starknet_py.net.client_models import (
     RevertedFunctionInvocation,
     SimulatedTransaction,
 )
-from starknet_py.net.schemas.common import (
-    CallTypeField,
-    EntryPointTypeField,
-    Felt,
-    PriceUnitField,
-)
+from starknet_py.net.schemas.common import CallTypeField, EntryPointTypeField, Felt
 from starknet_py.net.schemas.rpc.block import StateDiffSchema
+from starknet_py.net.schemas.rpc.general import (
+    ComputationResourcesSchema,
+    EstimatedFeeSchema,
+    ExecutionResourcesSchema,
+)
 from starknet_py.utils.schema import Schema
-
-# pylint: disable=unused-argument, no-self-use
 
 
 class OrderedEventSchema(Schema):
@@ -48,39 +42,6 @@ class OrderedMessageSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> OrderedMessage:
         return OrderedMessage(**data)
-
-
-class ComputationResourcesSchema(Schema):
-    steps = fields.Integer(data_key="steps", required=True)
-    memory_holes = fields.Integer(data_key="memory_holes", load_default=None)
-    range_check_builtin_applications = fields.Integer(
-        data_key="range_check_builtin_applications", load_default=None
-    )
-    pedersen_builtin_applications = fields.Integer(
-        data_key="pedersen_builtin_applications", load_default=None
-    )
-    poseidon_builtin_applications = fields.Integer(
-        data_key="poseidon_builtin_applications", load_default=None
-    )
-    ec_op_builtin_applications = fields.Integer(
-        data_key="ec_op_builtin_applications", load_default=None
-    )
-    ecdsa_builtin_applications = fields.Integer(
-        data_key="ecdsa_builtin_applications", load_default=None
-    )
-    bitwise_builtin_applications = fields.Integer(
-        data_key="bitwise_builtin_applications", load_default=None
-    )
-    keccak_builtin_applications = fields.Integer(
-        data_key="keccak_builtin_applications", load_default=None
-    )
-    segment_arena_builtin = fields.Integer(
-        data_key="segment_arena_builtin", load_default=None
-    )
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> ComputationResources:
-        return ComputationResources(**data)
 
 
 class FunctionInvocationSchema(Schema):
@@ -133,25 +94,6 @@ class ExecuteInvocationSchema(OneOfSchema):
         if "revert_reason" in data:
             return "REVERTED"
         return "FUNCTION_INVOCATION"
-
-
-class DataResourcesSchema(Schema):
-    l1_gas = fields.Integer(data_key="l1_gas", required=True)
-    l1_data_gas = fields.Integer(data_key="l1_data_gas", required=True)
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> DataResources:
-        return DataResources(**data)
-
-
-class ExecutionResourcesSchema(ComputationResourcesSchema):
-    data_availability = fields.Nested(
-        DataResourcesSchema(), data_key="data_availability", required=True
-    )
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> ExecutionResources:
-        return ExecutionResources(**data)
 
 
 class InvokeTransactionTraceSchema(Schema):
@@ -249,19 +191,6 @@ class TransactionTraceSchema(OneOfSchema):
         "DEPLOY_ACCOUNT": DeployAccountTransactionTraceSchema(),
         "L1_HANDLER": L1HandlerTransactionTraceSchema(),
     }
-
-
-class EstimatedFeeSchema(Schema):
-    gas_consumed = Felt(data_key="gas_consumed", required=True)
-    gas_price = Felt(data_key="gas_price", required=True)
-    data_gas_consumed = Felt(data_key="data_gas_consumed", required=True)
-    data_gas_price = Felt(data_key="data_gas_price", required=True)
-    overall_fee = Felt(data_key="overall_fee", required=True)
-    unit = PriceUnitField(data_key="unit", required=True)
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> EstimatedFee:
-        return EstimatedFee(**data)
 
 
 class SimulatedTransactionSchema(Schema):

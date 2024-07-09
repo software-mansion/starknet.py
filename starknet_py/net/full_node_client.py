@@ -55,7 +55,11 @@ from starknet_py.net.schemas.rpc.block import (
     BlockHashAndNumberSchema,
     BlockStateUpdateSchema,
     PendingBlockStateUpdateSchema,
+    PendingStarknetBlockSchema,
+    PendingStarknetBlockWithReceiptsSchema,
     PendingStarknetBlockWithTxHashesSchema,
+    StarknetBlockSchema,
+    StarknetBlockWithReceiptsSchema,
     StarknetBlockWithTxHashesSchema,
 )
 from starknet_py.net.schemas.rpc.contract import (
@@ -64,20 +68,16 @@ from starknet_py.net.schemas.rpc.contract import (
     SyncStatusSchema,
 )
 from starknet_py.net.schemas.rpc.event import EventsChunkSchema
+from starknet_py.net.schemas.rpc.general import EstimatedFeeSchema
 from starknet_py.net.schemas.rpc.trace_api import (
     BlockTransactionTraceSchema,
-    EstimatedFeeSchema,
     SimulatedTransactionSchema,
     TransactionTraceSchema,
 )
 from starknet_py.net.schemas.rpc.transactions import (
     DeclareTransactionResponseSchema,
     DeployAccountTransactionResponseSchema,
-    PendingStarknetBlockSchema,
-    PendingStarknetBlockWithReceiptsSchema,
     SentTransactionSchema,
-    StarknetBlockSchema,
-    StarknetBlockWithReceiptsSchema,
     TransactionReceiptSchema,
     TransactionStatusResponseSchema,
     TypesOfTransactionsSchema,
