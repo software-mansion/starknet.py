@@ -1,6 +1,7 @@
 """
 The purpose of this file is to test serialization for complex abi.
 """
+
 import json
 from typing import NamedTuple
 
