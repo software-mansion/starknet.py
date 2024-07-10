@@ -499,7 +499,6 @@ async def test_state_update_storage_diffs(
     await resp.wait_for_acceptance()
 
     state_update = await client.get_state_update(block_number="latest")
-    print(state_update)
 
     assert len(state_update.state_diff.storage_diffs) != 0
     assert isinstance(state_update, BlockStateUpdate)
