@@ -132,7 +132,6 @@ class FullNodeClient(Client):
     ) -> Union[StarknetBlock, PendingStarknetBlock]:
         return await self.get_block(block_hash=block_hash, block_number=block_number)
 
-    # TODO (#1323): remove unknown=EXCLUDE after devnet response fix
     async def get_block_with_tx_hashes(
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
@@ -150,7 +149,7 @@ class FullNodeClient(Client):
         if block_identifier == {"block_id": "pending"}:
             return cast(
                 PendingStarknetBlockWithTxHashes,
-                PendingStarknetBlockWithTxHashesSchema().load(res, unknown=EXCLUDE),
+                PendingStarknetBlockWithTxHashesSchema().load(res),
             )
         return cast(
             StarknetBlockWithTxHashes,
@@ -288,7 +287,6 @@ class FullNodeClient(Client):
             return res["events"], res["continuation_token"]
         return res["events"], None
 
-    # TODO (#1323): remove unknown=EXCLUDE after devnet fix response
     async def get_state_update(
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
@@ -306,7 +304,7 @@ class FullNodeClient(Client):
         if block_identifier == {"block_id": "pending"}:
             return cast(
                 PendingBlockStateUpdate,
-                PendingBlockStateUpdateSchema().load(res, unknown=EXCLUDE),
+                PendingBlockStateUpdateSchema().load(res),
             )
         return cast(BlockStateUpdate, BlockStateUpdateSchema().load(res))
 
