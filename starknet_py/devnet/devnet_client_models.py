@@ -57,18 +57,18 @@ class Config:
     total_accounts: int
     account_contract_class_hash: Optional[Hash]
     predeployed_accounts_initial_balance: str
-    start_time: Optional[int]
     gas_price_wei: int
     gas_price_strk: int
     data_gas_price_wei: int
     data_gas_price_strk: int
     chain_id: str
-    dump_on: Optional[int]
-    dump_path: Optional[str]
     block_generation_on: str
     lite_mode: bool
-    state_archive: str
     fork_config: ForkConfig
     disable_account_impersonation: bool
     server_config: ServerConfig
     account_contract_class: Optional[str] = None
+    state_archive: Optional[str] = None
+    start_time: Optional[int] = None
+    dump_on: Optional[int] = None
+    dump_path: Optional[str] = None
