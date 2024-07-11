@@ -1,0 +1,74 @@
+from dataclasses import dataclass
+from typing import Optional
+
+from starknet_py.net.client_models import Hash, PriceUnit
+
+
+@dataclass
+class Mint:
+    """
+    Represents the result of a mint operation, including the new balance.
+    """
+
+    new_balance: int
+    unit: PriceUnit
+    tx_hash: Hash
+
+
+@dataclass
+class BalanceRecord:
+    amount: int
+    unit: PriceUnit
+
+
+@dataclass
+class Balance:
+    eth: BalanceRecord
+    strk: BalanceRecord
+
+
+@dataclass
+class PredeployedAccount:
+    initial_balance: int
+    address: Hash
+    public_key: Hash
+    private_key: Hash
+    balance: Optional[Balance] = None
+
+
+@dataclass
+class ForkConfig:
+    url: Optional[str]
+    block_number: Optional[int]
+
+
+@dataclass
+class ServerConfig:
+    host: str
+    port: int
+    timeout: int
+    request_body_size_limit: int
+
+
+# pylint: disable=too-many-instance-attributes
+@dataclass
+class Config:
+    seed: int
+    total_accounts: int
+    account_contract_class_hash: Optional[Hash]
+    predeployed_accounts_initial_balance: str
+    start_time: Optional[int]
+    gas_price_wei: int
+    gas_price_strk: int
+    data_gas_price_wei: int
+    data_gas_price_strk: int
+    chain_id: str
+    dump_on: Optional[int]
+    dump_path: Optional[str]
+    block_generation_on: str
+    lite_mode: bool
+    state_archive: str
+    fork_config: ForkConfig
+    disable_account_impersonation: bool
+    server_config: ServerConfig
+    account_contract_class: Optional[str] = None
