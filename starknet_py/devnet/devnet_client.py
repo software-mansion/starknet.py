@@ -5,15 +5,19 @@ from aiohttp import ClientSession
 from starknet_py.devnet.devnet_client_models import (
     BalanceRecord,
     Config,
+    IncreasedTimeResponse,
     Mint,
     PredeployedAccount,
+    SetTimeResponse,
 )
 from starknet_py.devnet.devnet_http_client import DevnetRpcHttpClient
 from starknet_py.devnet.devnet_rpc_schema import (
     BalanceRecordSchema,
     ConfigSchema,
+    IncreasedTimeResponseSchema,
     MintSchema,
     PredeployedAccountSchema,
+    SetTimeResponseSchema,
 )
 from starknet_py.net.client_models import Hash
 from starknet_py.net.full_node_client import FullNodeClient
@@ -34,6 +38,7 @@ class DevnetClient(FullNodeClient):
     ) -> Mint:
         """
         Mint tokens to the given address.
+
         :param address: Address of the account contract.
         :param amount: Amount of tokens to mint must be integer.
         :param unit: Literals `"FRI"` or `"WEI"`, default to `"WEI"`.
@@ -61,6 +66,7 @@ class DevnetClient(FullNodeClient):
     ) -> BalanceRecord:
         """
         Get the balance of the given account.
+
         :param address: Address of the account contract.
         :param unit: Literals `"FRI"` or `"WEI"`.
         :param block_tag: Literals `"pending"` or `"latest"`.
@@ -74,10 +80,11 @@ class DevnetClient(FullNodeClient):
         return cast(BalanceRecord, BalanceRecordSchema().load(res))
 
     async def get_predeployed_accounts(
-        self, with_balance: Optional[bool] = None
+        self, with_balance: Optional[bool] = False
     ) -> List[PredeployedAccount]:
         """
         Get the predeployed accounts.
+
         :param with_balance: If `True` the balance of the accounts will be included, default to False.
         """
 
@@ -89,8 +96,32 @@ class DevnetClient(FullNodeClient):
             List[PredeployedAccount], PredeployedAccountSchema().load(res, many=True)
         )
 
-    # REST API methods
-    # async def is_alive(self) -> bool:
-    #     """
-    #     Check if the client is alive.
-    #     """
+    async def increase_time(self, time: int) -> IncreasedTimeResponse:
+        """
+        (Only possible if there are no pending transactions)
+        Increases the block timestamp by the provided amount and generates a new block.
+        All subsequent blocks will keep this increment.
+
+        :param time: Time to increase in seconds.
+        """
+
+        res = await self._devnet_client.call(
+            method_name="increaseTime", params={"time": time}
+        )
+
+        return cast(IncreasedTimeResponse, IncreasedTimeResponseSchema().load(res))
+
+    async def set_time(self, time: int) -> SetTimeResponse:
+        """
+        (Only possible if there are no pending transactions)
+        Set the time of the devnet. Only available when there is no pending transaction.
+        Warning: block time can be set in the past and lead to unexpected behaviour!
+
+        :param time: Time to set in seconds. (Unix time)
+        """
+
+        res = await self._devnet_client.call(
+            method_name="setTime", params={"time": time}
+        )
+
+        return cast(SetTimeResponse, SetTimeResponseSchema().load(res))

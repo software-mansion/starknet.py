@@ -72,3 +72,15 @@ class Config:
     start_time: Optional[int] = None
     dump_on: Optional[int] = None
     dump_path: Optional[str] = None
+
+
+@dataclass
+class IncreasedTimeResponse:
+    timestamp_increased_by: int
+    block_hash: Hash
+
+
+@dataclass
+class SetTimeResponse:
+    block_timestamp: int
+    block_hash: Hash

@@ -5,9 +5,11 @@ from starknet_py.devnet.devnet_client_models import (
     BalanceRecord,
     Config,
     ForkConfig,
+    IncreasedTimeResponse,
     Mint,
     PredeployedAccount,
     ServerConfig,
+    SetTimeResponse,
 )
 from starknet_py.net.schemas.common import Felt, PriceUnitField
 from starknet_py.utils.schema import Schema
@@ -117,3 +119,23 @@ class ConfigSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> Config:
         return Config(**data)
+
+
+class IncreasedTimeResponseSchema(Schema):
+    timestamp_increased_by = fields.Integer(
+        data_key="timestamp_increased_by", required=True
+    )
+    block_hash = Felt(data_key="block_hash", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> IncreasedTimeResponse:
+        return IncreasedTimeResponse(**data)
+
+
+class SetTimeResponseSchema(Schema):
+    block_timestamp = fields.Integer(data_key="block_timestamp", required=True)
+    block_hash = Felt(data_key="block_hash", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> SetTimeResponse:
+        return SetTimeResponse(**data)
