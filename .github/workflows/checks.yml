@@ -134,6 +134,7 @@ jobs:
         if: steps.cache-contracts.outputs.cache-hit != 'true'
         run: |
           pip install --upgrade setuptools
+          pip install sympy==1.11.1
           pip install cairo-lang==${{ env.CAIRO_LANG_VERSION }}
 
       - name: Compile contracts v0
