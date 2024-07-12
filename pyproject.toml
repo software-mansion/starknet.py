@@ -136,4 +136,5 @@ exclude = [
     "**/__pycache__",
     "starknet_py/tests/e2e/docs",
 ]
-stubPath = ""  # fix "not a valid directory" error
+reportIncompatibleMethodOverride = "warning"
+reportIncompatibleVariableOverride = "warning"
