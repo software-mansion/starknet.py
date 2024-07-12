@@ -339,7 +339,7 @@ class InvokeV1(_DeprecatedAccountTransaction):
 
     @property
     def type(self) -> TransactionType:
-        return TransactionType.DECLARE
+        return TransactionType.INVOKE
 
     def calculate_hash(self, chain_id: int) -> int:
         """
