@@ -134,7 +134,7 @@ class IncreasedTimeResponseSchema(Schema):
 
 class SetTimeResponseSchema(Schema):
     block_timestamp = fields.Integer(data_key="block_timestamp", required=True)
-    block_hash = Felt(data_key="block_hash", required=True)
+    block_hash = Felt(data_key="block_hash", required=False, allow_none=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> SetTimeResponse:

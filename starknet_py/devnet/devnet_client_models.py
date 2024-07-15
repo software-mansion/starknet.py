@@ -83,4 +83,4 @@ class IncreasedTimeResponse:
 @dataclass
 class SetTimeResponse:
     block_timestamp: int
-    block_hash: Hash
+    block_hash: Optional[Hash] = None

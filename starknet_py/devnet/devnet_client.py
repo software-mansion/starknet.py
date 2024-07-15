@@ -40,7 +40,7 @@ class DevnetClient(FullNodeClient):
         Mint tokens to the given address.
 
         :param address: Address of the account contract.
-        :param amount: Amount of tokens to mint must be integer.
+        :param amount: Amount of tokens to mint. Must be integer.
         :param unit: Literals `"FRI"` or `"WEI"`, default to `"WEI"`.
         """
 
@@ -111,17 +111,21 @@ class DevnetClient(FullNodeClient):
 
         return cast(IncreasedTimeResponse, IncreasedTimeResponseSchema().load(res))
 
-    async def set_time(self, time: int) -> SetTimeResponse:
+    async def set_time(
+        self, time: int, generate_block: Optional[bool] = False
+    ) -> SetTimeResponse:
         """
         (Only possible if there are no pending transactions)
         Set the time of the devnet. Only available when there is no pending transaction.
         Warning: block time can be set in the past and lead to unexpected behaviour!
 
         :param time: Time to set in seconds. (Unix time)
+        :param generate_block: If `True` a new block will be generated, default to False.
         """
 
         res = await self._devnet_client.call(
-            method_name="setTime", params={"time": time}
+            method_name="setTime",
+            params={"time": time, "generate_block": generate_block},
         )
 
         return cast(SetTimeResponse, SetTimeResponseSchema().load(res))
