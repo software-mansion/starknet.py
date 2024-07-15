@@ -1,3 +1,4 @@
+import logging
 from typing import List, Optional, cast
 
 from aiohttp import ClientSession
@@ -74,6 +75,38 @@ class DevnetClient(FullNodeClient):
         )
 
         return cast(BalanceRecord, BalanceRecordSchema().load(res))
+
+    async def create_block(self) -> Hash:
+        """
+        Create a new block.
+        """
+
+        try:
+            res = await self._devnet_client.call(method_name="createBlock")
+            block_hash = res.get("block_hash")
+            return cast(Hash, block_hash)
+        except Exception as e:
+            logging.error("Failed to create block: %s", e)
+            raise e
+
+    async def abort_block(self, starting_block_hash: Hash) -> List[Hash]:
+        """
+        This functionality allows simulating block abortion that can occur on mainnet.
+        It is supported in the --state-archive-capacity full mode.
+
+        :param starting_block_hash: The state of Devnet will be reverted to the state before `starting_block_hash`.
+        """
+
+        try:
+            res = await self._devnet_client.call(
+                method_name="abortBlocks",
+                params={"starting_block_hash": starting_block_hash},
+            )
+            aborted_block_list = res["aborted"]
+            return cast(List[Hash], aborted_block_list)
+        except Exception as e:
+            logging.error("Failed to abort block: %s", e)
+            raise e
 
     async def get_predeployed_accounts(
         self, with_balance: Optional[bool] = False
