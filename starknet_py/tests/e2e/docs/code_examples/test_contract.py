@@ -91,7 +91,7 @@ async def test_deploy_contract_v1(account, class_hash):
         constructor_args={"value": 1},
         max_fee=int(1e15),
     )
-    # docs-end: deploy_contract
+    # docs-end: deploy_contract_v1
 
 
 def test_compute_address(custom_proxy):
