@@ -1,4 +1,3 @@
-import logging
 from typing import List, Optional, cast
 
 from aiohttp import ClientSession
@@ -39,6 +38,41 @@ class DevnetClient(FullNodeClient):
         super().__init__(node_url=node_url, session=session)
         self.url = node_url
         self._devnet_client = DevnetRpcHttpClient(url=node_url, session=session)
+
+    async def impersonate_account(self, address: Hash):
+        """
+        Impersonate the given account.
+        For impersonation to work, Devnet needs to be run in forking mode.
+
+        :param address: Address of the account contract.
+        """
+
+        await self._devnet_client.call(
+            method_name="impersonateAccount", params={"account_address": address}
+        )
+
+    async def stop_impersonate_account(self, address: Hash):
+        """
+        Stop impersonating the given account.
+
+        :param address: Address of the account contract.
+        """
+
+        await self._devnet_client.call(
+            method_name="stopImpersonateAccount", params={"account_address": address}
+        )
+
+    async def auto_impersonate(self):
+        """
+        Enables automatic account impersonation.
+        Every account that does not exist in the local state will be impersonated.
+        For impersonation to work, Devnet needs to be run in forking mode.
+        """
+
+        await self._devnet_client.call(method_name="autoImpersonate")
+
+    async def stop_auto_impersonate(self):
+        await self._devnet_client.call(method_name="stopAutoImpersonate")
 
     async def mint(
         self, address: Hash, amount: int, unit: Optional[str] = None
@@ -81,13 +115,10 @@ class DevnetClient(FullNodeClient):
         Create a new block.
         """
 
-        try:
-            res = await self._devnet_client.call(method_name="createBlock")
-            block_hash = res.get("block_hash")
-            return cast(Hash, block_hash)
-        except Exception as e:
-            logging.error("Failed to create block: %s", e)
-            raise e
+        res = await self._devnet_client.call(method_name="createBlock")
+        block_hash = res.get("block_hash")
+
+        return cast(Hash, block_hash)
 
     async def abort_block(self, starting_block_hash: Hash) -> List[Hash]:
         """
@@ -97,16 +128,13 @@ class DevnetClient(FullNodeClient):
         :param starting_block_hash: The state of Devnet will be reverted to the state before `starting_block_hash`.
         """
 
-        try:
-            res = await self._devnet_client.call(
-                method_name="abortBlocks",
-                params={"starting_block_hash": starting_block_hash},
-            )
-            aborted_block_list = res["aborted"]
-            return cast(List[Hash], aborted_block_list)
-        except Exception as e:
-            logging.error("Failed to abort block: %s", e)
-            raise e
+        res = await self._devnet_client.call(
+            method_name="abortBlocks",
+            params={"starting_block_hash": starting_block_hash},
+        )
+        aborted_block_list = res["aborted"]
+
+        return cast(List[Hash], aborted_block_list)
 
     async def dump(self, path: str):
         """
@@ -116,15 +144,10 @@ class DevnetClient(FullNodeClient):
         :param path: Path to the file.
         """
 
-        try:
-            res = await self._devnet_client.call(
-                method_name="dump",
-                params={"path": path},
-            )
-            return res
-        except Exception as e:
-            logging.error("Failed to dump: %s", e)
-            raise e
+        await self._devnet_client.call(
+            method_name="dump",
+            params={"path": path},
+        )
 
     async def load(self, path: str):
         """
@@ -133,29 +156,19 @@ class DevnetClient(FullNodeClient):
         :param path: Path to the file.
         """
 
-        try:
-            res = await self._devnet_client.call(
-                method_name="load",
-                params={"path": path},
-            )
-            return res
-        except Exception as e:
-            logging.error("Failed to load: %s", e)
-            raise e
+        await self._devnet_client.call(
+            method_name="load",
+            params={"path": path},
+        )
 
     async def restart(self):
         """
         Restart the devnet.
         """
 
-        try:
-            res = await self._devnet_client.call(
-                method_name="restart",
-            )
-            return res
-        except Exception as e:
-            logging.error("Failed to restart: %s", e)
-            raise e
+        await self._devnet_client.call(
+            method_name="restart",
+        )
 
     async def get_predeployed_accounts(
         self, with_balance: Optional[bool] = False
