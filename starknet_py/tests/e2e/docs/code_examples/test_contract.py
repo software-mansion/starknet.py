@@ -61,8 +61,8 @@ async def test_declare(account, custom_proxy):
 
 
 @pytest.mark.asyncio
-async def test_deploy_contract(account, class_hash):
-    # docs-start: deploy_contract
+async def test_deploy_contract_v1(account, class_hash):
+    # docs-start: deploy_contract_v1
     deploy_result = await Contract.deploy_contract_v1(
         account=account,
         class_hash=class_hash,
