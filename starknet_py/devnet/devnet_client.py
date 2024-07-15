@@ -51,16 +51,6 @@ class DevnetClient(FullNodeClient):
 
         return cast(Mint, MintSchema().load(res))
 
-    async def get_config(self) -> Config:
-        """
-        Get the devnet configuration.
-        """
-
-        res = await self._devnet_client.call(method_name="getConfig")
-        print(res)
-
-        return cast(Config, ConfigSchema().load(res))
-
     async def get_account_balance(
         self, address: Hash, unit: Optional[str] = None, block_tag: Optional[str] = None
     ) -> BalanceRecord:
@@ -95,6 +85,16 @@ class DevnetClient(FullNodeClient):
         return cast(
             List[PredeployedAccount], PredeployedAccountSchema().load(res, many=True)
         )
+
+    async def get_config(self) -> Config:
+        """
+        Get the devnet configuration.
+        """
+
+        res = await self._devnet_client.call(method_name="getConfig")
+        print(res)
+
+        return cast(Config, ConfigSchema().load(res))
 
     async def increase_time(self, time: int) -> IncreasedTimeResponse:
         """

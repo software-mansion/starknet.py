@@ -10,7 +10,7 @@ from starknet_py.net.signer.stark_curve_signer import KeyPair
 
 
 @pytest.fixture(name="devnet_account", scope="package")
-def devnets_account(
+def devnet_account(
     address_and_private_key: Tuple[str, str], client: DevnetClient
 ) -> BaseAccount:
     """
