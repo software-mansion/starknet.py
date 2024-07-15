@@ -25,8 +25,8 @@ def test_init():
 
 
 @pytest.mark.asyncio
-async def test_execute(account, contract_address):
-    # docs-start: execute
+async def test_execute_v1(account, contract_address):
+    # docs-start: execute_v1
     resp = await account.execute_v1(
         Call(
             to_addr=contract_address,
@@ -36,15 +36,13 @@ async def test_execute(account, contract_address):
         max_fee=int(1e15),
     )
     # or
-    # docs-end: execute
     call1 = call2 = Call(
         to_addr=contract_address,
         selector=get_selector_from_name("increase_balance"),
         calldata=[123],
     )
-    # docs-start: execute
     resp = await account.execute_v1(calls=[call1, call2], auto_estimate=True)
-    # docs-end: execute
+    # docs-end: execute_v1
 
 
 @pytest.mark.asyncio
