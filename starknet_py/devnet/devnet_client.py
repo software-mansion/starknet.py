@@ -108,6 +108,55 @@ class DevnetClient(FullNodeClient):
             logging.error("Failed to abort block: %s", e)
             raise e
 
+    async def dump(self, path: str):
+        """
+        Dump the state of the devnet to a file.
+        Dumping on request requires providing --dump-on mode on the startup.
+
+        :param path: Path to the file.
+        """
+
+        try:
+            res = await self._devnet_client.call(
+                method_name="dump",
+                params={"path": path},
+            )
+            return res
+        except Exception as e:
+            logging.error("Failed to dump: %s", e)
+            raise e
+
+    async def load(self, path: str):
+        """
+        Load the state of the devnet from a file.
+
+        :param path: Path to the file.
+        """
+
+        try:
+            res = await self._devnet_client.call(
+                method_name="load",
+                params={"path": path},
+            )
+            return res
+        except Exception as e:
+            logging.error("Failed to load: %s", e)
+            raise e
+
+    async def restart(self):
+        """
+        Restart the devnet.
+        """
+
+        try:
+            res = await self._devnet_client.call(
+                method_name="restart",
+            )
+            return res
+        except Exception as e:
+            logging.error("Failed to restart: %s", e)
+            raise e
+
     async def get_predeployed_accounts(
         self, with_balance: Optional[bool] = False
     ) -> List[PredeployedAccount]:
