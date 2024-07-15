@@ -27,11 +27,17 @@ from starknet_py.utils.sync import add_sync_methods
 @add_sync_methods
 class DevnetClient(FullNodeClient):
     def __init__(self, node_url: str, session: Optional[ClientSession] = None):
+        """
+        Client for interacting with Starknet devnet json-rpc interface.
+
+        Based on https://0xspaceshard.github.io/starknet-devnet-rs/docs/intro
+
+        :param node_url: Url of the node providing rpc interface
+        """
+
         super().__init__(node_url=node_url, session=session)
         self.url = node_url
         self._devnet_client = DevnetRpcHttpClient(url=node_url, session=session)
-
-    # JSON-RPC methods
 
     async def mint(
         self, address: Hash, amount: int, unit: Optional[str] = None
