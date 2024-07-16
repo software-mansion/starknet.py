@@ -19,6 +19,16 @@ async def test_create_blocks(devnet_client):
 
 
 @pytest.mark.asyncio
+async def test_abort_blocks(devnet_client):
+    block_hash = await devnet_client.create_block()
+    for _ in range(5):
+        await devnet_client.create_block()
+
+    aborted_blocks = await devnet_client.abort_block(block_hash)
+    assert len(aborted_blocks) == 6
+
+
+@pytest.mark.asyncio
 async def test_predeployd_accounts(devnet_client):
     accounts = await devnet_client.get_predeployed_accounts()
     assert len(accounts) > 0
