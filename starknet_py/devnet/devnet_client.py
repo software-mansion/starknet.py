@@ -20,7 +20,7 @@ from starknet_py.devnet.devnet_rpc_schema import (
     SetTimeResponseSchema,
 )
 from starknet_py.net.client_models import Hash
-from starknet_py.net.full_node_client import FullNodeClient
+from starknet_py.net.full_node_client import FullNodeClient, _to_rpc_felt
 from starknet_py.utils.sync import add_sync_methods
 
 
@@ -48,7 +48,8 @@ class DevnetClient(FullNodeClient):
         """
 
         await self._devnet_client.call(
-            method_name="impersonateAccount", params={"account_address": address}
+            method_name="impersonateAccount",
+            params={"account_address": _to_rpc_felt(address)},
         )
 
     async def stop_impersonate_account(self, address: Hash):
@@ -59,7 +60,8 @@ class DevnetClient(FullNodeClient):
         """
 
         await self._devnet_client.call(
-            method_name="stopImpersonateAccount", params={"account_address": address}
+            method_name="stopImpersonateAccount",
+            params={"account_address": _to_rpc_felt(address)},
         )
 
     async def auto_impersonate(self):
@@ -87,7 +89,7 @@ class DevnetClient(FullNodeClient):
 
         res = await self._devnet_client.call(
             method_name="mint",
-            params={"address": address, "amount": amount, "unit": unit},
+            params={"address": _to_rpc_felt(address), "amount": amount, "unit": unit},
         )
 
         return cast(Mint, MintSchema().load(res))
@@ -105,7 +107,11 @@ class DevnetClient(FullNodeClient):
 
         res = await self._devnet_client.call(
             method_name="getAccountBalance",
-            params={"address": address, "unit": unit, "block_tag": block_tag},
+            params={
+                "address": _to_rpc_felt(address),
+                "unit": unit,
+                "block_tag": block_tag,
+            },
         )
 
         return cast(BalanceRecord, BalanceRecordSchema().load(res))

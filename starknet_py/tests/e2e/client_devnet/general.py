@@ -1,4 +1,8 @@
+from typing import List
+
 import pytest
+
+from starknet_py.devnet.devnet_client_models import PredeployedAccount
 
 
 @pytest.mark.asyncio
@@ -6,7 +10,7 @@ async def test_mint(devnet_client, devnet_account):
     amount = 1000
 
     balance_before_mint = await devnet_account.get_balance()
-    await devnet_client.mint(hex(devnet_account.address), amount)
+    await devnet_client.mint(devnet_account.address, amount)
     balance_after_mint = await devnet_account.get_balance()
 
     assert balance_after_mint == balance_before_mint + amount
@@ -31,4 +35,7 @@ async def test_abort_blocks(devnet_client):
 @pytest.mark.asyncio
 async def test_predeployd_accounts(devnet_client):
     accounts = await devnet_client.get_predeployed_accounts()
+
+    isinstance(accounts, List)
     assert len(accounts) > 0
+    isinstance(accounts[0], PredeployedAccount)
