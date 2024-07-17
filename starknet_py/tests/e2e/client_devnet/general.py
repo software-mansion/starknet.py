@@ -33,7 +33,7 @@ async def test_abort_blocks(devnet_client):
 
 
 @pytest.mark.asyncio
-async def test_predeployd_accounts(devnet_client):
+async def test_predeployed_accounts(devnet_client):
     accounts = await devnet_client.get_predeployed_accounts()
 
     isinstance(accounts, List)
