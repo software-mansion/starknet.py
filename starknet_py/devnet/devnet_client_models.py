@@ -32,7 +32,7 @@ class PostmanFlushResponse:
     messages_to_l1: List[Hash]
     messages_to_l2: List[Hash]
     generated_l2_transactions: List[Hash]
-    l1_provider = str
+    l1_provider: str
 
 
 @dataclass

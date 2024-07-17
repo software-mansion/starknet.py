@@ -199,7 +199,6 @@ class DevnetClient(FullNodeClient):
             method_name="postmanFlush",
             params={"dry_run": dry_run},
         )
-
         return cast(PostmanFlushResponse, PostmanFlushResponseSchema().load(res))
 
     # pylint: disable=too-many-arguments
