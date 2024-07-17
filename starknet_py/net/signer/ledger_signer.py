@@ -39,8 +39,23 @@ class LedgerStarknetApp:
     def __init__(self, client: LedgerClient):
         self.client = client
 
-    def get_public_key(self, derivation_path: str, display: bool = False):
-        pass
+    def get_public_key(self, derivation_path: Bip32Path, display: bool = False) -> int:
+        data = b"".join(index.ToBytes() for index in derivation_path)
+        response = self.client.apdu_exchange(
+            ins=0x01,
+            data=data,
+            p1=0x01 if display else 0x00,
+            p2=0x00,
+        )
+
+        byte_slice = response[1:33]
+        if len(response) != PUBLIC_KEY_SIZE:
+            raise ValueError(
+                f"Unexpected response length (expected: {PUBLIC_KEY_SIZE}, actual: {len(data)}"
+            )
+
+        public_key = int.from_bytes(byte_slice, byteorder="big")
+        return public_key
 
 
 class LedgerSigner(BaseSigner):
@@ -49,18 +64,13 @@ class LedgerSigner(BaseSigner):
         :param derivation_path_str: Derivation path string of the account.
         """
 
-        devices = enumerate_devices()
-        if not devices:
-            raise Exception("No Ledger devices found")
-
-        client = LedgerClient(device=devices[0], cla=STARKNET_CLA)
+        client = LedgerClient(cla=STARKNET_CLA)
         self.app = LedgerStarknetApp(client)
         self.derivation_path = _parse_derivation_path_str(derivation_path_str)
 
-
     @property
     def public_key(self) -> int:
-        return 0
+        return self.app.get_public_key(self.derivation_path, display=False)
 
     @property
     def private_key(self) -> int:
@@ -73,4 +83,4 @@ class LedgerSigner(BaseSigner):
         return [0]
 
 
-# signer = LedgerSigner("m/2645'/1195502025'/1470455285'/0'/0'/0")
+signer = LedgerSigner("m/2645'/1195502025'/1470455285'/0'/0'/0")
