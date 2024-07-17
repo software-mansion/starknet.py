@@ -7,6 +7,7 @@ from starknet_py.devnet.devnet_client_models import (
     ForkConfig,
     IncreasedTimeResponse,
     Mint,
+    PostmanFlushResponse,
     PredeployedAccount,
     ServerConfig,
     SetTimeResponse,
@@ -43,6 +44,19 @@ class BalanceSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> Balance:
         return Balance(**data)
+
+
+class PostmanFlushResponseSchema(Schema):
+    messages_to_l1 = fields.List(Felt(), data_key="messages_to_l1", required=True)
+    messages_to_l2 = fields.List(Felt(), data_key="messages_to_l2", required=True)
+    generated_l2_transactions = fields.List(
+        Felt(), data_key="generated_l2_transactions", required=True
+    )
+    l1_provider = fields.String(data_key="l1_provider", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> PostmanFlushResponse:
+        return PostmanFlushResponse(**data)
 
 
 class PredeployedAccountSchema(Schema):

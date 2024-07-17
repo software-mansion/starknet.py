@@ -7,6 +7,7 @@ from starknet_py.devnet.devnet_client_models import (
     Config,
     IncreasedTimeResponse,
     Mint,
+    PostmanFlushResponse,
     PredeployedAccount,
     SetTimeResponse,
 )
@@ -16,6 +17,7 @@ from starknet_py.devnet.devnet_rpc_schema import (
     ConfigSchema,
     IncreasedTimeResponseSchema,
     MintSchema,
+    PostmanFlushResponseSchema,
     PredeployedAccountSchema,
     SetTimeResponseSchema,
 )
@@ -176,6 +178,62 @@ class DevnetClient(FullNodeClient):
             method_name="restart",
         )
 
+    async def postman_load(self, network_url: str, address: str) -> Hash:
+        res = await self._devnet_client.call(
+            method_name="devnet_postmanLoad",
+            params={"networkUrl": network_url, "address": address},
+        )
+
+        return cast(Hash, res["messaging_contract_address"])
+
+    async def postman_flush(
+        self, dry_run: Optional[bool] = False
+    ) -> PostmanFlushResponse:
+        res = await self._devnet_client.call(
+            method_name="devnet_postmanFlush",
+            params={"dry_run": dry_run},
+        )
+
+        return cast(PostmanFlushResponse, PostmanFlushResponseSchema().load(res))
+
+    # pylint: disable=too-many-arguments
+    async def send_mesaage_to_l2(
+        self,
+        l2_contract_address: Hash,
+        entry_point_selector: Hash,
+        l1_contract_address: Hash,
+        payload: List[Hash],
+        nonce: Hash,
+        paid_fee_on_l1: Hash,
+    ) -> Hash:
+        res = await self._devnet_client.call(
+            method_name="devnet_postmanSendMessageToL2",
+            params={
+                "l2_contract_address": _to_rpc_felt(l2_contract_address),
+                "entry_point_selector": _to_rpc_felt(entry_point_selector),
+                "l1_contract_address": _to_rpc_felt(l1_contract_address),
+                "payload": payload,
+                "nonce": _to_rpc_felt(nonce),
+                "paid_fee_on_l1": _to_rpc_felt(paid_fee_on_l1),
+            },
+        )
+
+        return cast(Hash, res["transaction_hash"])
+
+    async def consume_message_from_l2(
+        self, from_address: Hash, to_address: Hash, payload: List[Hash]
+    ) -> Hash:
+        res = await self._devnet_client.call(
+            method_name="devnet_postmanConsumeMessageFromL2",
+            params={
+                "from_address": _to_rpc_felt(from_address),
+                "to_address": _to_rpc_felt(to_address),
+                "payload": payload,
+            },
+        )
+
+        return cast(Hash, res["message_hash"])
+
     async def get_predeployed_accounts(
         self, with_balance: Optional[bool] = False
     ) -> List[PredeployedAccount]:
@@ -199,7 +257,6 @@ class DevnetClient(FullNodeClient):
         """
 
         res = await self._devnet_client.call(method_name="getConfig")
-        print(res)
 
         return cast(Config, ConfigSchema().load(res))
 

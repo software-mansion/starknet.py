@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional
+from typing import List, Optional
 
 from starknet_py.net.client_models import Hash, PriceUnit
 
@@ -25,6 +25,14 @@ class BalanceRecord:
 class Balance:
     eth: BalanceRecord
     strk: BalanceRecord
+
+
+@dataclass
+class PostmanFlushResponse:
+    messages_to_l1: List[Hash]
+    messages_to_l2: List[Hash]
+    generated_l2_transactions: List[Hash]
+    l1_provider = str
 
 
 @dataclass
