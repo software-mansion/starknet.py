@@ -510,7 +510,6 @@ async def test_state_update_deployed_contracts(
     class_hash,
     account,
 ):
-    # setup
     deployer = Deployer()
     contract_deployment = deployer.create_contract_deployment(class_hash=class_hash)
     deploy_invoke_tx = await account.sign_invoke_v1(
@@ -519,7 +518,6 @@ async def test_state_update_deployed_contracts(
     resp = await account.client.send_transaction(deploy_invoke_tx)
     await account.client.wait_for_tx(resp.transaction_hash)
 
-    # test
     state_update = await account.client.get_state_update(block_number="latest")
 
     assert len(state_update.state_diff.deployed_contracts) != 0
