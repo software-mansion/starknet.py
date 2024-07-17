@@ -572,8 +572,6 @@ class FullNodeClient(Client):
             )
         return cast(DeprecatedContractClass, DeprecatedContractClassSchema().load(res))
 
-    # Only RPC methods
-
     async def get_transaction_by_block_id(
         self,
         index: int,
