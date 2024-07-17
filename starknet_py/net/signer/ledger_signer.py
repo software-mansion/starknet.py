@@ -1,6 +1,6 @@
 from typing import List
 
-from bip_utils import Bip32Path, Bip32Utils, Bip32KeyIndex
+from bip_utils import Bip32KeyIndex, Bip32Path, Bip32Utils
 from ledgerwallet.client import LedgerClient
 from ledgerwallet.transport import enumerate_devices
 
@@ -48,14 +48,15 @@ class LedgerSigner(BaseSigner):
         """
         :param derivation_path_str: Derivation path string of the account.
         """
-        self.derivation_path = _parse_derivation_path_str(derivation_path_str)
 
         devices = enumerate_devices()
         if not devices:
             raise Exception("No Ledger devices found")
 
-        self.client = LedgerClient(device=devices[0], cla=STARKNET_CLA)
-        self.app = LedgerStarknetApp(self.client)
+        client = LedgerClient(device=devices[0], cla=STARKNET_CLA)
+        self.app = LedgerStarknetApp(client)
+        self.derivation_path = _parse_derivation_path_str(derivation_path_str)
+
 
     @property
     def public_key(self) -> int:
