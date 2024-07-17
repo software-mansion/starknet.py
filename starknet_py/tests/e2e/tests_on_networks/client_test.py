@@ -20,6 +20,7 @@ from starknet_py.net.client_models import (
     PendingStarknetBlockWithReceipts,
     ResourceBoundsMapping,
     StarknetBlockWithReceipts,
+    Transaction,
     TransactionExecutionStatus,
     TransactionFinalityStatus,
     TransactionReceipt,
@@ -208,23 +209,21 @@ async def test_estimate_message_fee_invalid_eth_address_assertion_error(
     (
         (
             "0xbe1259ff905cadbbaa62514388b71bdefb8aacc1",
-            "0x2137",
+            "0x1234",
         ),  # valid `from_address`, invalid `to_address`
         (
             "0xDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
-            "0x073314940630fd6dcda0d772d4c972c4e0a9946bef9dabf4ef84eda8ef542b82",
+            "0x06524771cb912945bf2db355b5a12355ca2e2ff05e15ee35366336a602293f2d",
         ),  # invalid `from_address` (passes through assert), valid `to_address`
     ),
 )
 @pytest.mark.asyncio
 async def test_estimate_message_fee_throws(
-    client_sepolia_integration, from_address, to_address
+    client_sepolia_testnet, from_address, to_address
 ):
-    client = client_sepolia_integration
-
     with pytest.raises(ClientError):
-        _ = await client.estimate_message_fee(
-            block_number=123123,
+        _ = await client_sepolia_testnet.estimate_message_fee(
+            block_number=80000,
             from_address=from_address,
             to_address=to_address,
             entry_point_selector="0x3248",
@@ -235,13 +234,12 @@ async def test_estimate_message_fee_throws(
 
 
 @pytest.mark.asyncio
-async def test_get_tx_receipt_reverted(client_sepolia_integration):
-    client = client_sepolia_integration
+async def test_get_tx_receipt_reverted(client_sepolia_testnet):
     reverted_tx_hash = (
-        "0x01b2d9e5a725069ae40e3149813ffe05b8c4405e253e9f8ab29d0a3b2e279927"
+        "0x00fecca6a328dd11f40b79c30fe22d23bc6975d1a0923a95b90aff4016a84333"
     )
 
-    res = await client.get_transaction_receipt(tx_hash=reverted_tx_hash)
+    res = await client_sepolia_testnet.get_transaction_receipt(tx_hash=reverted_tx_hash)
 
     assert res.execution_status == TransactionExecutionStatus.REVERTED
     assert res.finality_status == TransactionFinalityStatus.ACCEPTED_ON_L1
@@ -249,64 +247,44 @@ async def test_get_tx_receipt_reverted(client_sepolia_integration):
 
 
 @pytest.mark.parametrize(
-    "block_number, transaction_index",
+    "block_number, index, expected_hash",
     [
-        # declare: https://integration-sepolia.starkscan.co/tx/0x0544a629990d2bed8ccf11910b30f2f1e18228ed5be06660bea20cae13b2aced
-        (9707, 0),
-        # deploy_account: https://integration-sepolia.starkscan.co/tx/0x012debae2435ea43c06610a31ccf8e7ea5de9aec43dac7c7aa86905b4ccdec49
-        (9708, 6),
-        # invoke: https://integration-sepolia.starkscan.co/tx/0x069125fd85a199a5d06445e1ece5067781aa46c745e3e2993c696c60bbd5992c
-        (9708, 0),
-        # l1_handler: https://integration-sepolia.starkscan.co/tx/0x0117be3e303704f0acb630149250a78a262ecff8bef3ee8a53a02f18b472f873
-        (9708, 7),
+        (81116, 0, 0x38FC01353196AEEBA62C74A8C8479FFF94AAA8CD4C3655782D49D755BBE63A8),
+        (81116, 26, 0x3F873FE2CC884A88B8D4378EAC1786145F7167D61B0A9442DA15B0181582522),
+        (80910, 23, 0x67C1E282F64DAD5682B1F377A5FDA1778311D894B2EE47A06058790A8B08460),
     ],
 )
 @pytest.mark.asyncio
 async def test_get_transaction_by_block_id_and_index(
-    client_sepolia_integration, block_number, transaction_index
+    client_sepolia_testnet, block_number, index, expected_hash
 ):
-    client = client_sepolia_integration
-
-    tx = await client.get_transaction_by_block_id(
-        block_number=block_number, index=transaction_index
+    tx = await client_sepolia_testnet.get_transaction_by_block_id(
+        block_number=block_number, index=index
     )
 
-    assert tx.hash is not None
-
-    receipt = await client.get_transaction_receipt(tx_hash=tx.hash)
-
-    assert receipt.finality_status is not None
-    assert receipt.execution_status is not None
+    assert isinstance(tx, Transaction)
+    assert tx.hash == expected_hash
 
 
 @pytest.mark.asyncio
-async def test_get_block(client_sepolia_integration):
-    client = client_sepolia_integration
-    res = await client.get_block(block_number="latest")
-
-    for tx in res.transactions:
-        assert tx.hash is not None
-
-
-@pytest.mark.asyncio
-async def test_get_l1_message_hash(client_sepolia_integration):
-    tx_hash = "0x065b2b6543e49f2f8a22541e9141f506752d984b4d8c690526001025109cee30"
-    l1_message_hash = await client_sepolia_integration.get_l1_message_hash(tx_hash)
+async def test_get_l1_message_hash(client_sepolia_testnet):
+    tx_hash = "0x067d959200d65d4ad293aa4b0da21bb050a1f669bce37d215c6edbf041269c07"
+    l1_message_hash = await client_sepolia_testnet.get_l1_message_hash(tx_hash)
     assert (
         hex(l1_message_hash)
-        == "0x4aed43247e106a0687258bfc835131e5dee15c24fb18222d382dbff470df0f9e"
+        == "0x2e350fa9d830482605cb68be4fdb9f0cb3e1f95a0c51623ac1a5d1bd997c2090"
     )
 
 
 @pytest.mark.asyncio
 async def test_get_l1_message_hash_raises_on_incorrect_transaction_type(
-    client_sepolia_integration,
+    client_sepolia_testnet,
 ):
-    tx_hash = "0x044a5565cde76c445db6205d208f584879d9e6e8f8b6b2ebb58e658680320cfa"
+    tx_hash = "0x38FC01353196AEEBA62C74A8C8479FFF94AAA8CD4C3655782D49D755BBE63A8"
     with pytest.raises(
         TypeError, match=f"Transaction {tx_hash} is not a result of L1->L2 interaction."
     ):
-        await client_sepolia_integration.get_l1_message_hash(tx_hash)
+        await client_sepolia_testnet.get_l1_message_hash(tx_hash)
 
 
 @pytest.mark.asyncio
@@ -400,13 +378,6 @@ async def test_get_chain_id_sepolia_testnet(client_sepolia_testnet):
 
 
 @pytest.mark.asyncio
-async def test_get_chain_id_sepolia_integration(client_sepolia_integration):
-    chain_id = await client_sepolia_integration.get_chain_id()
-    assert isinstance(chain_id, str)
-    assert chain_id == hex(StarknetChainId.SEPOLIA_INTEGRATION.value)
-
-
-@pytest.mark.asyncio
 async def test_get_events_sepolia_testnet(client_sepolia_testnet):
     events_chunk = await client_sepolia_testnet.get_events(
         address=default_token_address_for_network(SEPOLIA),
@@ -426,21 +397,6 @@ async def test_get_events_sepolia_testnet(client_sepolia_testnet):
 
 
 @pytest.mark.asyncio
-async def test_get_tx_receipt_with_execution_resources(client_sepolia_integration):
-    receipt = await client_sepolia_integration.get_transaction_receipt(
-        tx_hash=0x077E84B7C0C4CC88B778EEAEF32B7CED4500FE4AAEE62FD2F849B7DD90A87826
-    )
-
-    assert receipt.execution_resources is not None
-    assert receipt.execution_resources.data_availability is not None
-    assert receipt.execution_resources.steps is not None
-    assert receipt.execution_resources.bitwise_builtin_applications is not None
-    assert receipt.execution_resources.ec_op_builtin_applications is not None
-    assert receipt.execution_resources.pedersen_builtin_applications is not None
-    assert receipt.execution_resources.range_check_builtin_applications is not None
-
-
-@pytest.mark.asyncio
 async def test_get_block_with_receipts(client_sepolia_testnet):
     block_with_receipts = await client_sepolia_testnet.get_block_with_receipts(
         block_number=48778
@@ -456,8 +412,8 @@ async def test_get_block_with_receipts(client_sepolia_testnet):
 
 
 @pytest.mark.asyncio
-async def test_get_pending_block_with_receipts(client_sepolia_integration):
-    block_with_receipts = await client_sepolia_integration.get_block_with_receipts(
+async def test_get_pending_block_with_receipts(client_sepolia_testnet):
+    block_with_receipts = await client_sepolia_testnet.get_block_with_receipts(
         block_number="pending"
     )
 
