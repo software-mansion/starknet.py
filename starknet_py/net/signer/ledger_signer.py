@@ -2,7 +2,6 @@ from typing import List
 
 from bip_utils import Bip32KeyIndex, Bip32Path, Bip32Utils
 from ledgerwallet.client import LedgerClient
-from ledgerwallet.transport import enumerate_devices
 
 from starknet_py.net.models import AccountTransaction
 from starknet_py.net.signer import BaseSigner
