@@ -3,14 +3,7 @@ import typing
 from typing import cast
 
 from starknet_py.common import create_contract_class
-from starknet_py.net.client_models import TransactionType
-from starknet_py.net.models.transaction import (
-    Declare,
-    DeclareV1,
-    DeclareV1Schema,
-    InvokeV1,
-    InvokeV1Schema,
-)
+from starknet_py.net.models.transaction import Declare, DeclareV1, DeclareV1Schema
 
 
 def test_declare_compress_program(balance_contract):
