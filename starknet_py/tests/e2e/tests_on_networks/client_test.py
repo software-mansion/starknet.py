@@ -378,13 +378,6 @@ async def test_get_chain_id_sepolia_testnet(client_sepolia_testnet):
 
 
 @pytest.mark.asyncio
-async def test_get_chain_id_sepolia_integration(client_sepolia_integration):
-    chain_id = await client_sepolia_integration.get_chain_id()
-    assert isinstance(chain_id, str)
-    assert chain_id == hex(StarknetChainId.SEPOLIA_INTEGRATION.value)
-
-
-@pytest.mark.asyncio
 async def test_get_events_sepolia_testnet(client_sepolia_testnet):
     events_chunk = await client_sepolia_testnet.get_events(
         address=default_token_address_for_network(SEPOLIA),
