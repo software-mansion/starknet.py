@@ -178,10 +178,16 @@ class DevnetClient(FullNodeClient):
             method_name="restart",
         )
 
-    async def postman_load(self, network_url: str, address: str) -> Hash:
+    async def postman_load(
+        self, network_url: str, address: Optional[str] = None
+    ) -> Hash:
+        params = {"network_url": network_url}
+        if address is not None:
+            params["address"] = address
+
         res = await self._devnet_client.call(
-            method_name="devnet_postmanLoad",
-            params={"networkUrl": network_url, "address": address},
+            method_name="postmanLoad",
+            params=params,
         )
 
         return cast(Hash, res["messaging_contract_address"])
@@ -190,7 +196,7 @@ class DevnetClient(FullNodeClient):
         self, dry_run: Optional[bool] = False
     ) -> PostmanFlushResponse:
         res = await self._devnet_client.call(
-            method_name="devnet_postmanFlush",
+            method_name="postmanFlush",
             params={"dry_run": dry_run},
         )
 
@@ -207,7 +213,7 @@ class DevnetClient(FullNodeClient):
         paid_fee_on_l1: Hash,
     ) -> Hash:
         res = await self._devnet_client.call(
-            method_name="devnet_postmanSendMessageToL2",
+            method_name="postmanSendMessageToL2",
             params={
                 "l2_contract_address": _to_rpc_felt(l2_contract_address),
                 "entry_point_selector": _to_rpc_felt(entry_point_selector),
@@ -224,7 +230,7 @@ class DevnetClient(FullNodeClient):
         self, from_address: Hash, to_address: Hash, payload: List[Hash]
     ) -> Hash:
         res = await self._devnet_client.call(
-            method_name="devnet_postmanConsumeMessageFromL2",
+            method_name="postmanConsumeMessageFromL2",
             params={
                 "from_address": _to_rpc_felt(from_address),
                 "to_address": _to_rpc_felt(to_address),
