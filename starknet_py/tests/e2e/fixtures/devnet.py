@@ -7,7 +7,7 @@ from typing import Generator, List
 
 import pytest
 
-from starknet_py.tests.e2e.fixtures.constants import TESTNET_FORK_NETWORK_ADDRESS
+from starknet_py.tests.e2e.fixtures.constants import TESTNET_NETWORK_ADDRESS
 
 
 def get_available_port() -> int:
@@ -55,7 +55,7 @@ def get_start_devnet_fork_command(devnet_port: int) -> List[str]:
         "--state-archive-capacity",
         "full",
         "--fork-network",
-        str(TESTNET_FORK_NETWORK_ADDRESS),
+        str(TESTNET_NETWORK_ADDRESS),
     ]
 
 

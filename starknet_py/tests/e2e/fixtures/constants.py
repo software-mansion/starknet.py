@@ -35,7 +35,7 @@ EMPTY_CONTRACT_ADDRESS_SEPOLIA = (
     "0x06524771cb912945bf2db355b5a12355ca2e2ff05e15ee35366336a602293f2d"
 )
 
-TESTNET_FORK_NETWORK_ADDRESS = "http://188.34.188.184:7070"
+TESTNET_NETWORK_ADDRESS = "http://188.34.188.184:7070"
 
 # -------------------------------- SEPOLIA INTEGRATION -------------------------------------
 
