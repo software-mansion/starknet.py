@@ -15,8 +15,8 @@ def test_init():
 def test_create_contract_deployment_raw():
     deployer = Deployer()
 
-    # docs-start: create_deployment_call_raw
+    # docs-start: create_contract_deployment_raw
     contract_deployment = deployer.create_contract_deployment_raw(
         class_hash=0x123, salt=1, raw_calldata=[3, 1, 2, 3]
     )
-    # docs-end: create_deployment_call_raw
+    # docs-end: create_contract_deployment_raw

@@ -1,5 +1,6 @@
 # pylint: disable=unused-variable
 import pytest
+from aiohttp import ClientSession
 
 from starknet_py.contract import Contract
 from starknet_py.hash.selector import get_selector_from_name
@@ -11,6 +12,18 @@ from starknet_py.net.full_node_client import FullNodeClient
 def test_init():
     # docs-start: init
     client = FullNodeClient(node_url="https://your.node.url")
+    # docs-end: init
+
+
+@pytest.mark.asyncio
+async def test_init_with_custom_client_session():
+    # docs-start: init
+    # or with custom client session
+    session = ClientSession()
+    client = FullNodeClient(node_url="https://your.node.url", session=session)
+    # perform operations...
+    # close the session
+    await session.close()
     # docs-end: init
 
 
