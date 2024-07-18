@@ -19,7 +19,7 @@ from starknet_py.utils.typed_data import TypedData
 
 class LedgerStarknetApp:
     def __init__(self):
-        self.client = LedgerClient(cla=STARKNET_CLA)
+        self.client: LedgerClient = LedgerClient(cla=STARKNET_CLA)
 
     @property
     def version(self) -> str:
@@ -37,7 +37,7 @@ class LedgerStarknetApp:
         return f"{major}.{minor}.{patch}"
 
     def get_public_key(
-        self, derivation_path: Bip32Path, device_confirmation: bool = False
+            self, derivation_path: Bip32Path, device_confirmation: bool = False
     ) -> int:
         """
         Get the public key for the given derivation path.
@@ -112,9 +112,9 @@ class LedgerSigner(BaseSigner):
         :param chain_id: ChainId of the chain.
         """
 
-        self.app = LedgerStarknetApp()
-        self.derivation_path = _parse_derivation_path_str(derivation_path_str)
-        self.chain_id = chain_id
+        self.app: LedgerStarknetApp = LedgerStarknetApp()
+        self.derivation_path: Bip32Path = _parse_derivation_path_str(derivation_path_str)
+        self.chain_id: ChainId = chain_id
 
     @property
     def public_key(self) -> int:
