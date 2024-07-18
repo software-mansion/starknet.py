@@ -3,7 +3,7 @@ import pytest
 from starknet_py.common import create_compiled_contract
 from starknet_py.net.models import DeclareV1, DeployAccountV1, InvokeV1, StarknetChainId
 from starknet_py.net.signer.ledger_signer import EIP_2645_PATH_LENGTH, LedgerSigner
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V0_DIR, MAX_FEE
+from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V0_DIR
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 

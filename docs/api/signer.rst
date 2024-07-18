@@ -27,8 +27,6 @@ By default, starknet.py uses ``StarkCurveSigner`` which works with OpenZeppelin'
 KeyPair
 -------
 
-.. py:module:: starknet_py.net.signer.key_pair
-
 .. autoclass:: KeyPair
     :members:
     :undoc-members:

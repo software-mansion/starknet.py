@@ -12,7 +12,7 @@ from starknet_py.constants import (
     VERSION_LENGTH,
 )
 from starknet_py.net.models import AccountTransaction
-from starknet_py.net.models.chains import ChainId, StarknetChainId
+from starknet_py.net.models.chains import ChainId
 from starknet_py.net.signer import BaseSigner
 from starknet_py.utils.typed_data import TypedData
 
@@ -33,7 +33,7 @@ class LedgerStarknetApp:
             raise ValueError(
                 f"Unexpected response length (expected: {VERSION_LENGTH}, actual: {len(response)}"
             )
-        major, minor, patch = [byte for byte in response]
+        major, minor, patch = list(response)
         return f"{major}.{minor}.{patch}"
 
     def get_public_key(
