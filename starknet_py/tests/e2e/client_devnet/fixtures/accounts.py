@@ -27,7 +27,7 @@ def devnet_account(
     )
 
 
-@pytest_asyncio.fixture(name="forked_devnet_account", scope="package")
+@pytest_asyncio.fixture(scope="package")
 async def forked_devnet_account(
     devnet_forking_mode_client: DevnetClient,
 ) -> BaseAccount:
