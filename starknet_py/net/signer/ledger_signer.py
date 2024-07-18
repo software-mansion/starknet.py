@@ -21,13 +21,14 @@ class LedgerStarknetApp:
         self.client = LedgerClient(cla=STARKNET_CLA)
 
     def get_public_key(
-        self, derivation_path: Bip32Path, device_confirmation: bool = False
+            self, derivation_path: Bip32Path, device_confirmation: bool = False
     ) -> int:
         """
         Get the public key for the given derivation path.
 
         :param derivation_path: Derivation path of the account.
         :param device_confirmation: Whether to display confirmation on the device for extra security.
+        :return: Public key.
         """
 
         data = _derivation_path_to_bytes(derivation_path)
@@ -53,6 +54,7 @@ class LedgerStarknetApp:
 
         :param derivation_path: Derivation path of the account.
         :param hash_val: Hash to sign.
+        :return: Signature as a list of two integers.
         """
 
         # sign hash command 1
@@ -64,10 +66,11 @@ class LedgerStarknetApp:
             p2=0x00,
         )
 
-        # for some reason ledger the Ledger app expects the data to be left shifted by 4 bits
+        # for some reason the Ledger app expects the data to be left shifted by 4 bits
         shifted_int = hash_val << 4
-
         shifted_bytes = shifted_int.to_bytes(32, byteorder="big")
+
+        # sign hash command 2
         response = self.client.apdu_exchange(
             ins=0x02,
             data=shifted_bytes,
@@ -75,9 +78,9 @@ class LedgerStarknetApp:
             p2=0x00,
         )
 
-        if len(data) != SIGNATURE_SIZE + 1 or data[0] != SIGNATURE_SIZE:
+        if len(response) != SIGNATURE_SIZE + 1 or response[0] != SIGNATURE_SIZE:
             raise ValueError(
-                f"Unexpected response length (expected: {SIGNATURE_SIZE}, actual: {len(data)}"
+                f"Unexpected response length (expected: {SIGNATURE_SIZE}, actual: {len(response)}"
             )
 
         r, s = int.from_bytes(response[1:33], byteorder="big"), int.from_bytes(
