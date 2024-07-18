@@ -8,7 +8,8 @@ from starknet_py.constants import (
     EIP_2645_PURPOSE,
     PUBLIC_KEY_LENGTH,
     SIGNATURE_LENGTH,
-    STARKNET_CLA, VERSION_LENGTH,
+    STARKNET_CLA,
+    VERSION_LENGTH,
 )
 from starknet_py.net.models import AccountTransaction
 from starknet_py.net.models.chains import ChainId, StarknetChainId
@@ -36,7 +37,7 @@ class LedgerStarknetApp:
         return f"{major}.{minor}.{patch}"
 
     def get_public_key(
-            self, derivation_path: Bip32Path, device_confirmation: bool = False
+        self, derivation_path: Bip32Path, device_confirmation: bool = False
     ) -> int:
         """
         Get the public key for the given derivation path.
