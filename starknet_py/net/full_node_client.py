@@ -1,7 +1,6 @@
 from typing import List, Optional, Tuple, Union, cast
 
 import aiohttp
-from marshmallow import EXCLUDE
 
 from starknet_py.constants import RPC_CONTRACT_ERROR
 from starknet_py.hash.utils import keccak256
@@ -119,11 +118,8 @@ class FullNodeClient(Client):
             params=block_identifier,
         )
         if block_identifier == {"block_id": "pending"}:
-            return cast(
-                PendingStarknetBlock,
-                PendingStarknetBlockSchema().load(res, unknown=EXCLUDE),
-            )
-        return cast(StarknetBlock, StarknetBlockSchema().load(res, unknown=EXCLUDE))
+            return cast(PendingStarknetBlock, PendingStarknetBlockSchema().load(res))
+        return cast(StarknetBlock, StarknetBlockSchema().load(res))
 
     async def get_block_with_txs(
         self,
@@ -571,8 +567,6 @@ class FullNodeClient(Client):
                 SierraContractClassSchema().load(res),
             )
         return cast(DeprecatedContractClass, DeprecatedContractClassSchema().load(res))
-
-    # Only RPC methods
 
     async def get_transaction_by_block_id(
         self,

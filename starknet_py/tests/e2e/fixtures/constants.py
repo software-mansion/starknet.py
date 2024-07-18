@@ -37,18 +37,6 @@ EMPTY_CONTRACT_ADDRESS_SEPOLIA = (
 
 TESTNET_NETWORK_ADDRESS = "http://188.34.188.184:7070"
 
-# -------------------------------- SEPOLIA INTEGRATION -------------------------------------
-
-SEPOLIA_INTEGRATION_ACCOUNT_PRIVATE_KEY = _get_env_lambda(
-    "SEPOLIA_INTEGRATION_ACCOUNT_PRIVATE_KEY"
-)
-
-SEPOLIA_INTEGRATION_ACCOUNT_ADDRESS = _get_env_lambda(
-    "SEPOLIA_INTEGRATION_ACCOUNT_ADDRESS"
-)
-
-SEPOLIA_INTEGRATION_RPC_URL = _get_env_lambda("SEPOLIA_INTEGRATION_RPC_URL")
-
 # -----------------------------------------------------------------------------
 
 DEVNET_PRE_DEPLOYED_ACCOUNT_ADDRESS = (
