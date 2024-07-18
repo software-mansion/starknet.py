@@ -16,47 +16,12 @@ from starknet_py.net.signer import BaseSigner
 from starknet_py.utils.typed_data import TypedData
 
 
-def _parse_derivation_path_str(derivation_path_str) -> Bip32Path:
-    """
-    Parse a derivation path string to a Bip32Path object.
-
-    :param derivation_path_str: Derivation path string.
-    """
-    if not derivation_path_str:
-        raise ValueError("Empty derivation path")
-
-    path_parts = derivation_path_str.lstrip("m/").split("/")
-    path_elements = []
-    for part in path_parts:
-        if part.endswith("'"):
-            index = Bip32Utils.HardenIndex(int(part[:-1]))
-        else:
-            index = int(part)
-        path_elements.append(Bip32KeyIndex(index))
-
-    if len(path_elements) != EIP_2645_PATH_LENGTH:
-        raise ValueError(f"Derivation path is not {EIP_2645_PATH_LENGTH}-level long")
-    if path_elements[0] != EIP_2645_PURPOSE:
-        raise ValueError("Derivation path is not prefixed with m/2645.")
-
-    return Bip32Path(path_elements)
-
-
-def _derivation_path_to_bytes(derivation_path: Bip32Path) -> bytes:
-    """
-    Convert a derivation path to a bytes object.
-
-    :param derivation_path: Derivation path.
-    """
-    return b"".join(index.ToBytes() for index in derivation_path)
-
-
 class LedgerStarknetApp:
     def __init__(self):
         self.client = LedgerClient(cla=STARKNET_CLA)
 
     def get_public_key(
-        self, derivation_path: Bip32Path, device_confirmation: bool = False
+            self, derivation_path: Bip32Path, device_confirmation: bool = False
     ) -> int:
         """
         Get the public key for the given derivation path.
@@ -147,3 +112,38 @@ class LedgerSigner(BaseSigner):
         return self.app.sign_hash(
             derivation_path=self.derivation_path, hash_val=msg_hash
         )
+
+
+def _parse_derivation_path_str(derivation_path_str) -> Bip32Path:
+    """
+    Parse a derivation path string to a Bip32Path object.
+
+    :param derivation_path_str: Derivation path string.
+    """
+    if not derivation_path_str:
+        raise ValueError("Empty derivation path")
+
+    path_parts = derivation_path_str.lstrip("m/").split("/")
+    path_elements = []
+    for part in path_parts:
+        if part.endswith("'"):
+            index = Bip32Utils.HardenIndex(int(part[:-1]))
+        else:
+            index = int(part)
+        path_elements.append(Bip32KeyIndex(index))
+
+    if len(path_elements) != EIP_2645_PATH_LENGTH:
+        raise ValueError(f"Derivation path is not {EIP_2645_PATH_LENGTH}-level long")
+    if path_elements[0] != EIP_2645_PURPOSE:
+        raise ValueError("Derivation path is not prefixed with m/2645.")
+
+    return Bip32Path(path_elements)
+
+
+def _derivation_path_to_bytes(derivation_path: Bip32Path) -> bytes:
+    """
+    Convert a derivation path to a bytes object.
+
+    :param derivation_path: Derivation path.
+    """
+    return b"".join(index.ToBytes() for index in derivation_path)
