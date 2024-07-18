@@ -3,7 +3,13 @@ from typing import List
 from bip_utils import Bip32KeyIndex, Bip32Path, Bip32Utils
 from ledgerwallet.client import LedgerClient
 
-from starknet_py.constants import EIP_2645_PATH_LENGTH, EIP_2645_PURPOSE, STARKNET_CLA, PUBLIC_KEY_SIZE, SIGNATURE_SIZE
+from starknet_py.constants import (
+    EIP_2645_PATH_LENGTH,
+    EIP_2645_PURPOSE,
+    PUBLIC_KEY_SIZE,
+    SIGNATURE_SIZE,
+    STARKNET_CLA,
+)
 from starknet_py.net.models import AccountTransaction
 from starknet_py.net.models.chains import ChainId
 from starknet_py.net.signer import BaseSigner
@@ -49,7 +55,9 @@ class LedgerStarknetApp:
     def __init__(self):
         self.client = LedgerClient(cla=STARKNET_CLA)
 
-    def get_public_key(self, derivation_path: Bip32Path, device_confirmation: bool = False) -> int:
+    def get_public_key(
+        self, derivation_path: Bip32Path, device_confirmation: bool = False
+    ) -> int:
         """
         Get the public key for the given derivation path.
 
@@ -107,7 +115,9 @@ class LedgerStarknetApp:
                 f"Unexpected response length (expected: {SIGNATURE_SIZE}, actual: {len(data)}"
             )
 
-        r, s = int.from_bytes(response[1:33], byteorder="big"), int.from_bytes(response[33:65], byteorder="big")
+        r, s = int.from_bytes(response[1:33], byteorder="big"), int.from_bytes(
+            response[33:65], byteorder="big"
+        )
         return [r, s]
 
 
@@ -128,8 +138,12 @@ class LedgerSigner(BaseSigner):
 
     def sign_transaction(self, transaction: AccountTransaction) -> List[int]:
         tx_hash = transaction.calculate_hash(self.chain_id)
-        return self.app.sign_hash(derivation_path=self.derivation_path, hash_val=tx_hash)
+        return self.app.sign_hash(
+            derivation_path=self.derivation_path, hash_val=tx_hash
+        )
 
     def sign_message(self, typed_data: TypedData, account_address: int) -> List[int]:
         msg_hash = typed_data.message_hash(account_address)
-        return self.app.sign_hash(derivation_path=self.derivation_path, hash_val=msg_hash)
+        return self.app.sign_hash(
+            derivation_path=self.derivation_path, hash_val=msg_hash
+        )
