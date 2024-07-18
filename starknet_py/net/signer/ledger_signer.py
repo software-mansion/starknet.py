@@ -37,7 +37,7 @@ class LedgerStarknetApp:
         return f"{major}.{minor}.{patch}"
 
     def get_public_key(
-            self, derivation_path: Bip32Path, device_confirmation: bool = False
+        self, derivation_path: Bip32Path, device_confirmation: bool = False
     ) -> int:
         """
         Get the public key for the given derivation path.
@@ -113,7 +113,9 @@ class LedgerSigner(BaseSigner):
         """
 
         self.app: LedgerStarknetApp = LedgerStarknetApp()
-        self.derivation_path: Bip32Path = _parse_derivation_path_str(derivation_path_str)
+        self.derivation_path: Bip32Path = _parse_derivation_path_str(
+            derivation_path_str
+        )
         self.chain_id: ChainId = chain_id
 
     @property
