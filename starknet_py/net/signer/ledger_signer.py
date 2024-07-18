@@ -51,7 +51,7 @@ class LedgerStarknetApp:
         response = self.client.apdu_exchange(
             ins=1,
             data=data,
-            p1=0 if device_confirmation else 0,
+            p1=int(device_confirmation),
             p2=0,
         )
 
