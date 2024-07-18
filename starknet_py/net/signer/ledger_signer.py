@@ -166,11 +166,3 @@ def _derivation_path_to_bytes(derivation_path: Bip32Path) -> bytes:
     :param derivation_path: Derivation path.
     """
     return b"".join(index.ToBytes() for index in derivation_path)
-
-
-signer = LedgerSigner(
-    derivation_path_str="m/2645'/1195502025'/1470455285'/0'/0'/0",
-    chain_id=StarknetChainId.MAINNET,
-)
-
-print(signer.app.version)
