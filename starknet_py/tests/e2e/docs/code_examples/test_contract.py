@@ -69,7 +69,7 @@ async def test_declare_v2(account):
         contract_name="TestContract", version=ContractVersion.V1
     )
     # docs-start: declare_v2
-    # here contract is a dict containing sierra and casm artifacts
+    # here `compiled_contract` is a dict containing sierra and casm artifacts
     declare_result = await Contract.declare_v2(
         account,
         compiled_contract=compiled_contract["sierra"],
