@@ -147,9 +147,10 @@ async def test_deploy_contract_v3(account, cairo1_hello_starknet_class_hash: int
     abi = create_sierra_compiled_contract(
         compiled_contract=compiled_contract
     ).parsed_abi
+    class_hash = cairo1_hello_starknet_class_hash
     # docs-start: deploy_contract_v3
     deploy_result = await Contract.deploy_contract_v3(
-        class_hash=cairo1_hello_starknet_class_hash,
+        class_hash=class_hash,
         account=account,
         abi=abi,
         l1_resource_bounds=ResourceBounds(
