@@ -144,9 +144,11 @@ async def test_deploy_contract_v1(account, class_hash):
 @pytest.mark.asyncio
 async def test_deploy_contract_v3(account, cairo1_hello_starknet_class_hash: int):
     compiled_contract = load_contract("HelloStarknet")["sierra"]
+    # docs-start: deploy_contract_v3
     abi = create_sierra_compiled_contract(
         compiled_contract=compiled_contract
     ).parsed_abi
+    # docs-end: deploy_contract_v3
     class_hash = cairo1_hello_starknet_class_hash
     # docs-start: deploy_contract_v3
     deploy_result = await Contract.deploy_contract_v3(
