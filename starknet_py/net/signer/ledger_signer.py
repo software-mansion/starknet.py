@@ -21,7 +21,7 @@ class LedgerStarknetApp:
         self.client = LedgerClient(cla=STARKNET_CLA)
 
     def get_public_key(
-            self, derivation_path: Bip32Path, device_confirmation: bool = False
+        self, derivation_path: Bip32Path, device_confirmation: bool = False
     ) -> int:
         """
         Get the public key for the given derivation path.

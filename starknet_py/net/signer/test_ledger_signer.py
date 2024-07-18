@@ -4,7 +4,7 @@ from starknet_py.net.models import StarknetChainId
 from starknet_py.net.signer.ledger_signer import EIP_2645_PATH_LENGTH, LedgerSigner
 
 
-def test_init_ledger_signer_with_invalid_derivation_path():
+def test_init_with_invalid_derivation_path():
     with pytest.raises(ValueError, match="Empty derivation path"):
         LedgerSigner(derivation_path_str="", chain_id=StarknetChainId.SEPOLIA)
 
