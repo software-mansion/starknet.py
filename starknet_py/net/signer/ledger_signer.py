@@ -57,7 +57,7 @@ class LedgerStarknetApp:
 
         if len(response) != PUBLIC_KEY_LENGTH:
             raise ValueError(
-                f"Unexpected response length (expected: {PUBLIC_KEY_LENGTH}, actual: {len(data)}"
+                f"Unexpected response length (expected: {PUBLIC_KEY_LENGTH}, actual: {len(response)}"
             )
 
         public_key = int.from_bytes(response[1:33], byteorder="big")
