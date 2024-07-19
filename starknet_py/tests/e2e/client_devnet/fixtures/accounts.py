@@ -11,7 +11,7 @@ from starknet_py.net.signer.stark_curve_signer import KeyPair
 
 
 @pytest.fixture(scope="package")
-def devnet_account(
+def account_devnet(
     address_and_private_key: Tuple[str, str], client: DevnetClient
 ) -> BaseAccount:
     """
@@ -28,7 +28,7 @@ def devnet_account(
 
 
 @pytest_asyncio.fixture(scope="package")
-async def forked_devnet_account(
+async def account_forked_devnet(
     devnet_forking_mode_client: DevnetClient,
 ) -> BaseAccount:
     predeployed_account_info = (
@@ -43,7 +43,7 @@ async def forked_devnet_account(
 
 
 @pytest.fixture(scope="package")
-def impersonated_account(devnet_forking_mode_client: DevnetClient) -> BaseAccount:
+def account_impersonated(devnet_forking_mode_client: DevnetClient) -> BaseAccount:
     return Account(
         address="0x043abaa073c768ebf039c0c4f46db9acc39e9ec165690418060a652aab39e7d8",
         client=devnet_forking_mode_client,

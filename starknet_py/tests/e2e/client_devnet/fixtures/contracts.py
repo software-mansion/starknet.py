@@ -7,20 +7,20 @@ from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
 
 
 @pytest_asyncio.fixture(scope="package", name="f_string_contract_class_hash")
-async def declare_string_contract(forked_devnet_account) -> int:
+async def declare_string_contract(account_forked_devnet) -> int:
     contract = load_contract("MyString", version=ContractVersion.V2)
     class_hash, _ = await declare_cairo1_contract(
-        forked_devnet_account, contract["sierra"], contract["casm"]
+        account_forked_devnet, contract["sierra"], contract["casm"]
     )
     return class_hash
 
 
 @pytest_asyncio.fixture(scope="package", name="f_string_contract")
 async def deploy_string_contract(
-    forked_devnet_account, f_string_contract_class_hash
+        account_forked_devnet, f_string_contract_class_hash
 ) -> Contract:
     return await deploy_v1_contract(
-        account=forked_devnet_account,
+        account=account_forked_devnet,
         contract_name="MyString",
         class_hash=f_string_contract_class_hash,
     )
