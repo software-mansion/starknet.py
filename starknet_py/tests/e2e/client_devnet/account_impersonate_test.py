@@ -1,9 +1,15 @@
+import sys
+
 import pytest
 
 from starknet_py.contract import Contract
 from starknet_py.net.client_errors import ClientError
 
 
+@pytest.mark.skipif(
+    "--contract_dir=v1" in sys.argv,
+    reason="Contract exists only in v2 directory",
+)
 @pytest.mark.asyncio
 async def test_impersonate_account(
     devnet_forking_mode_client, account_impersonated, f_string_contract
@@ -27,6 +33,10 @@ async def test_impersonate_account(
     assert invocation.invoke_transaction.sender_address == account_impersonated.address
 
 
+@pytest.mark.skipif(
+    "--contract_dir=v1" in sys.argv,
+    reason="Contract exists only in v2 directory",
+)
 @pytest.mark.asyncio
 async def test_auto_impersonate(
     devnet_forking_mode_client, account_impersonated, f_string_contract
@@ -46,6 +56,10 @@ async def test_auto_impersonate(
     assert invocation.invoke_transaction.sender_address == account_impersonated.address
 
 
+@pytest.mark.skipif(
+    "--contract_dir=v1" in sys.argv,
+    reason="Contract exists only in v2 directory",
+)
 @pytest.mark.asyncio
 async def test_impersonated_account_should_fail(
     account_impersonated, f_string_contract
