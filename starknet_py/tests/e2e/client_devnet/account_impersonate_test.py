@@ -48,7 +48,7 @@ async def test_auto_impersonate(
 
 @pytest.mark.asyncio
 async def test_impersonated_account_should_fail(
-        account_impersonated, f_string_contract
+    account_impersonated, f_string_contract
 ):
     contract = await Contract.from_address(
         provider=account_impersonated, address=f_string_contract.address
