@@ -2,7 +2,7 @@ name: Checks
 
 env:
   CAIRO_LANG_VERSION: "0.13.1"
-  DEVNET_VERSION: "0.1.2"
+  DEVNET_VERSION: "0.1.1"
 
 on:
   push:
