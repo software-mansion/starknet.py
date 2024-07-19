@@ -319,7 +319,7 @@ async def test_get_events_nonexistent_starting_block(
     client,
     simple_storage_with_event_contract: Contract,
 ):
-    with pytest.raises(ClientError, match="No block found."):
+    with pytest.raises(ClientError, match="Block not found."):
         await client.get_events(
             from_block_number=10000,
             to_block_hash="latest",
