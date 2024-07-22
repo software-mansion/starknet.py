@@ -147,7 +147,9 @@ def _parse_derivation_path_str(derivation_path_str) -> Bip32Path:
 
     path_parts = derivation_path_str.lstrip("m/").split("/")
     path_elements = [
-        Bip32KeyIndex(Bip32Utils.HardenIndex(int(part[:-1])) if part.endswith("'") else int(part))
+        Bip32KeyIndex(
+            Bip32Utils.HardenIndex(int(part[:-1])) if part.endswith("'") else int(part)
+        )
         for part in path_parts
     ]
 
