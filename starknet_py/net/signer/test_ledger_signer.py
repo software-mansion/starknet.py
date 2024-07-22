@@ -84,17 +84,3 @@ def test_sign_transaction(transaction):
     assert len(signature) > 0
     assert all(isinstance(i, int) for i in signature)
     assert all(i != 0 for i in signature)
-
-
-async def get_account_balance_eth(client: FullNodeClient, address: int):
-    eth_address = int(
-        "0x49D36570D4E46F48E99674BD3FCC84644DDD6B96F7C741B1562B82F9E004DC7", 16
-    )
-    balance = await client.call_contract(
-        call=Call(
-            to_addr=eth_address,
-            calldata=[address],
-            selector=get_selector_from_name("balanceOf"),
-        )
-    )
-    return balance
