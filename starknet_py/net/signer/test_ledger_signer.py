@@ -69,9 +69,7 @@ compiled_contract = read_contract(
         ),
     ],
 )
-@pytest.mark.skip(
-    reason="Interactive ledger signing is not implemented yet."
-)
+@pytest.mark.skip(reason="Interactive ledger signing is not implemented yet.")
 def test_sign_transaction(transaction):
     signer = LedgerSigner(
         derivation_path_str="m/2645'/1195502025'/1470455285'/0'/0'/0",
