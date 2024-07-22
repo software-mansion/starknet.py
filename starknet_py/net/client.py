@@ -14,6 +14,8 @@ from starknet_py.net.client_models import (
     DeprecatedContractClass,
     EstimatedFee,
     Hash,
+    PendingBlockStateUpdate,
+    PendingStarknetBlock,
     SentTransactionResponse,
     SierraContractClass,
     StarknetBlock,
@@ -45,7 +47,7 @@ class Client(ABC):
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> StarknetBlock:
+    ) -> Union[StarknetBlock, PendingStarknetBlock]:
         """
         Retrieve the block's data by its number or hash
 
@@ -73,7 +75,7 @@ class Client(ABC):
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> BlockStateUpdate:
+    ) -> Union[BlockStateUpdate, PendingBlockStateUpdate]:
         """
         Get the information about the result of executing the requested block
 
