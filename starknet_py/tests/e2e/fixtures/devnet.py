@@ -7,7 +7,7 @@ from typing import Generator, List, Optional
 
 import pytest
 
-from starknet_py.tests.e2e.fixtures.constants import TESTNET_NETWORK_ADDRESS
+from starknet_py.tests.e2e.fixtures.constants import SEPOLIA_RPC_URL
 
 
 def get_available_port() -> int:
@@ -48,7 +48,7 @@ def get_start_devnet_command(
         start_command.extend(
             [
                 "--fork-network",
-                str(TESTNET_NETWORK_ADDRESS),
+                str(SEPOLIA_RPC_URL().split("rpc")[0]),
             ]
         )
 
