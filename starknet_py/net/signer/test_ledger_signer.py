@@ -70,7 +70,7 @@ compiled_contract = read_contract(
     ],
 )
 @pytest.mark.skip(
-    reason="Communication with  ledger API server is not implemented yet."
+    reason="Interactive ledger signing is not implemented yet."
 )
 def test_sign_transaction(transaction):
     signer = LedgerSigner(
