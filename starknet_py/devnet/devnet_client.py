@@ -107,8 +107,8 @@ class DevnetClient(FullNodeClient):
         Get the balance of the given account.
 
         :param address: Address of the account contract.
-        :param unit: Literals `"FRI"` or `"WEI"`.
-        :param block_tag: Literals `"pending"` or `"latest"`.
+        :param unit: Literals `"FRI"` or `"WEI"` defaults to `"WEI"`.
+        :param block_tag: Literals `"pending"` or `"latest"`, defaults to `"latest"`.
         """
 
         res = await self._devnet_client.call(
