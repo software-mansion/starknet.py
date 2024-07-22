@@ -6,12 +6,12 @@ from starknet_py.devnet.devnet_client_models import PredeployedAccount
 
 
 @pytest.mark.asyncio
-async def test_mint(devnet_client, account_devnet):
+async def test_mint(devnet_client, account):
     amount = 1000
 
-    balance_before_mint = await account_devnet.get_balance()
-    await devnet_client.mint(account_devnet.address, amount)
-    balance_after_mint = await account_devnet.get_balance()
+    balance_before_mint = await account.get_balance()
+    await devnet_client.mint(account.address, amount)
+    balance_after_mint = await account.get_balance()
 
     assert balance_after_mint == balance_before_mint + amount
 
