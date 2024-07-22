@@ -5,7 +5,7 @@ from starknet_py.net.client_models import Hash, PriceUnit
 
 
 @dataclass
-class Mint:
+class MintResponse:
     """
     Represents the result of a mint operation, including the new balance.
     """
@@ -83,7 +83,7 @@ class Config:
 
 
 @dataclass
-class IncreasedTimeResponse:
+class IncreaseTimeResponse:
     timestamp_increased_by: int
     block_hash: Hash
 

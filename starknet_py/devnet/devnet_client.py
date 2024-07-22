@@ -5,8 +5,8 @@ from aiohttp import ClientSession
 from starknet_py.devnet.devnet_client_models import (
     BalanceRecord,
     Config,
-    IncreasedTimeResponse,
-    Mint,
+    IncreaseTimeResponse,
+    MintResponse,
     PostmanFlushResponse,
     PredeployedAccount,
     SetTimeResponse,
@@ -42,7 +42,6 @@ class DevnetClient(FullNodeClient):
         """
 
         super().__init__(node_url=node_url, session=session)
-        self.url = node_url
         self._devnet_client = DevnetRpcHttpClient(url=node_url, session=session)
 
     async def impersonate_account(self, address: Hash):
@@ -84,7 +83,7 @@ class DevnetClient(FullNodeClient):
 
     async def mint(
         self, address: Hash, amount: int, unit: Optional[str] = None
-    ) -> Mint:
+    ) -> MintResponse:
         """
         Mint tokens to the given address.
 
@@ -98,7 +97,7 @@ class DevnetClient(FullNodeClient):
             params={"address": _to_rpc_felt(address), "amount": amount, "unit": unit},
         )
 
-        return cast(Mint, MintSchema().load(res))
+        return cast(MintResponse, MintSchema().load(res))
 
     async def get_account_balance(
         self, address: Hash, unit: Optional[str] = None, block_tag: Optional[str] = None
@@ -269,7 +268,7 @@ class DevnetClient(FullNodeClient):
 
         return cast(Config, ConfigSchema().load(res))
 
-    async def increase_time(self, time: int) -> IncreasedTimeResponse:
+    async def increase_time(self, time: int) -> IncreaseTimeResponse:
         """
         (Only possible if there are no pending transactions)
         Increases the block timestamp by the provided amount and generates a new block.
@@ -282,7 +281,7 @@ class DevnetClient(FullNodeClient):
             method_name="increaseTime", params={"time": time}
         )
 
-        return cast(IncreasedTimeResponse, IncreasedTimeResponseSchema().load(res))
+        return cast(IncreaseTimeResponse, IncreasedTimeResponseSchema().load(res))
 
     async def set_time(
         self, time: int, generate_block: Optional[bool] = False

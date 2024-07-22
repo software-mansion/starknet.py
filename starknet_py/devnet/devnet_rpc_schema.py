@@ -5,8 +5,8 @@ from starknet_py.devnet.devnet_client_models import (
     BalanceRecord,
     Config,
     ForkConfig,
-    IncreasedTimeResponse,
-    Mint,
+    IncreaseTimeResponse,
+    MintResponse,
     PostmanFlushResponse,
     PredeployedAccount,
     ServerConfig,
@@ -24,8 +24,8 @@ class MintSchema(Schema):
     tx_hash = Felt(data_key="tx_hash", required=True)
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> Mint:
-        return Mint(**data)
+    def make_dataclass(self, data, **kwargs) -> MintResponse:
+        return MintResponse(**data)
 
 
 class BalanceRecordSchema(Schema):
@@ -142,8 +142,8 @@ class IncreasedTimeResponseSchema(Schema):
     block_hash = Felt(data_key="block_hash", required=True)
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> IncreasedTimeResponse:
-        return IncreasedTimeResponse(**data)
+    def make_dataclass(self, data, **kwargs) -> IncreaseTimeResponse:
+        return IncreaseTimeResponse(**data)
 
 
 class SetTimeResponseSchema(Schema):
