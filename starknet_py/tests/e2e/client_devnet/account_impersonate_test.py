@@ -12,9 +12,9 @@ from starknet_py.net.client_errors import ClientError
 )
 @pytest.mark.asyncio
 async def test_impersonate_account(
-    devnet_forking_mode_client, account_impersonated, f_string_contract
+    devnet_client_fork_mode, account_impersonated, f_string_contract
 ):
-    await devnet_forking_mode_client.impersonate_account(
+    await devnet_client_fork_mode.impersonate_account(
         address=account_impersonated.address
     )
 
@@ -26,7 +26,7 @@ async def test_impersonate_account(
         "test", auto_estimate=True
     )
 
-    await devnet_forking_mode_client.stop_impersonate_account(
+    await devnet_client_fork_mode.stop_impersonate_account(
         address=account_impersonated.address
     )
 
@@ -39,9 +39,9 @@ async def test_impersonate_account(
 )
 @pytest.mark.asyncio
 async def test_auto_impersonate(
-    devnet_forking_mode_client, account_impersonated, f_string_contract
+    devnet_client_fork_mode, account_impersonated, f_string_contract
 ):
-    await devnet_forking_mode_client.auto_impersonate()
+    await devnet_client_fork_mode.auto_impersonate()
 
     contract = await Contract.from_address(
         provider=account_impersonated, address=f_string_contract.address
@@ -51,7 +51,7 @@ async def test_auto_impersonate(
         "test", auto_estimate=True
     )
 
-    await devnet_forking_mode_client.stop_auto_impersonate()
+    await devnet_client_fork_mode.stop_auto_impersonate()
 
     assert invocation.invoke_transaction.sender_address == account_impersonated.address
 

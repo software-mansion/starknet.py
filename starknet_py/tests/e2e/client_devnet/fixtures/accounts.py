@@ -29,24 +29,24 @@ def account_devnet(
 
 @pytest_asyncio.fixture(scope="package")
 async def account_forked_devnet(
-    devnet_forking_mode_client: DevnetClient,
+    devnet_client_fork_mode: DevnetClient,
 ) -> BaseAccount:
     predeployed_account_info = (
-        await devnet_forking_mode_client.get_predeployed_accounts()
+        await devnet_client_fork_mode.get_predeployed_accounts()
     )[0]
     return Account(
         address=predeployed_account_info.address,
-        client=devnet_forking_mode_client,
+        client=devnet_client_fork_mode,
         key_pair=KeyPair.from_private_key(predeployed_account_info.private_key),
         chain=StarknetChainId.SEPOLIA,
     )
 
 
 @pytest.fixture(scope="package")
-def account_impersonated(devnet_forking_mode_client: DevnetClient) -> BaseAccount:
+def account_impersonated(devnet_client_fork_mode: DevnetClient) -> BaseAccount:
     return Account(
         address="0x043abaa073c768ebf039c0c4f46db9acc39e9ec165690418060a652aab39e7d8",
-        client=devnet_forking_mode_client,
+        client=devnet_client_fork_mode,
         key_pair=KeyPair(private_key="0x1", public_key="0x1"),
         chain=StarknetChainId.SEPOLIA,
     )
