@@ -140,6 +140,7 @@ def _parse_derivation_path_str(derivation_path_str) -> Bip32Path:
     Parse a derivation path string to a Bip32Path object.
 
     :param derivation_path_str: Derivation path string.
+    :return: Bip32Path object.
     """
     if not derivation_path_str:
         raise ValueError("Empty derivation path")
@@ -166,5 +167,6 @@ def _derivation_path_to_bytes(derivation_path: Bip32Path) -> bytes:
     Convert a derivation path to a bytes object.
 
     :param derivation_path: Derivation path.
+    :return: Bytes object.
     """
     return b"".join(index.ToBytes() for index in derivation_path)
