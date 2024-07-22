@@ -43,7 +43,7 @@ async def account_forked_devnet(
 
 
 @pytest.fixture(scope="package")
-def account_impersonated(devnet_client_fork_mode: DevnetClient) -> BaseAccount:
+def account_to_impersonate(devnet_client_fork_mode: DevnetClient) -> BaseAccount:
     return Account(
         address="0x043abaa073c768ebf039c0c4f46db9acc39e9ec165690418060a652aab39e7d8",
         client=devnet_client_fork_mode,
