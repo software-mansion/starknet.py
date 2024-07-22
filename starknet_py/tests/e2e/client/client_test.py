@@ -10,6 +10,7 @@ from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.storage import get_storage_var_address
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
+    BlockStateUpdate,
     Call,
     DeclaredContractHash,
     DeclareTransactionV1,
@@ -21,7 +22,6 @@ from starknet_py.net.client_models import (
     FeePayment,
     InvokeTransactionV1,
     L1HandlerTransaction,
-    PendingBlockStateUpdate,
     PriceUnit,
     ResourceBounds,
     SierraContractClass,
@@ -498,10 +498,10 @@ async def test_state_update_storage_diffs(
     )
     await resp.wait_for_acceptance()
 
-    state_update = await client.get_state_update()
+    state_update = await client.get_state_update(block_number="latest")
 
     assert len(state_update.state_diff.storage_diffs) != 0
-    assert isinstance(state_update, PendingBlockStateUpdate)
+    assert isinstance(state_update, BlockStateUpdate)
 
 
 @pytest.mark.run_on_devnet
@@ -510,7 +510,6 @@ async def test_state_update_deployed_contracts(
     class_hash,
     account,
 ):
-    # setup
     deployer = Deployer()
     contract_deployment = deployer.create_contract_deployment(class_hash=class_hash)
     deploy_invoke_tx = await account.sign_invoke_v1(
@@ -519,11 +518,10 @@ async def test_state_update_deployed_contracts(
     resp = await account.client.send_transaction(deploy_invoke_tx)
     await account.client.wait_for_tx(resp.transaction_hash)
 
-    # test
-    state_update = await account.client.get_state_update()
+    state_update = await account.client.get_state_update(block_number="latest")
 
     assert len(state_update.state_diff.deployed_contracts) != 0
-    assert isinstance(state_update, PendingBlockStateUpdate)
+    assert isinstance(state_update, BlockStateUpdate)
 
 
 @pytest.mark.asyncio

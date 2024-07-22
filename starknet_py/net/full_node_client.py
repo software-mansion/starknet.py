@@ -1,7 +1,6 @@
 from typing import List, Optional, Tuple, Union, cast
 
 import aiohttp
-from marshmallow import EXCLUDE
 
 from starknet_py.constants import RPC_CONTRACT_ERROR
 from starknet_py.hash.utils import keccak256
@@ -98,7 +97,6 @@ class FullNodeClient(Client):
         Client for interacting with Starknet json-rpc interface.
 
         :param node_url: Url of the node providing rpc interface
-        :param net: Starknet network identifier
         :param session: Aiohttp session to be used for request. If not provided, client will create a session for
                         every request. When using a custom session, user is responsible for closing it manually.
         """
@@ -119,11 +117,8 @@ class FullNodeClient(Client):
             params=block_identifier,
         )
         if block_identifier == {"block_id": "pending"}:
-            return cast(
-                PendingStarknetBlock,
-                PendingStarknetBlockSchema().load(res, unknown=EXCLUDE),
-            )
-        return cast(StarknetBlock, StarknetBlockSchema().load(res, unknown=EXCLUDE))
+            return cast(PendingStarknetBlock, PendingStarknetBlockSchema().load(res))
+        return cast(StarknetBlock, StarknetBlockSchema().load(res))
 
     async def get_block_with_txs(
         self,
@@ -132,7 +127,6 @@ class FullNodeClient(Client):
     ) -> Union[StarknetBlock, PendingStarknetBlock]:
         return await self.get_block(block_hash=block_hash, block_number=block_number)
 
-    # TODO (#1323): remove unknown=EXCLUDE after devnet response fix
     async def get_block_with_tx_hashes(
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
@@ -150,7 +144,7 @@ class FullNodeClient(Client):
         if block_identifier == {"block_id": "pending"}:
             return cast(
                 PendingStarknetBlockWithTxHashes,
-                PendingStarknetBlockWithTxHashesSchema().load(res, unknown=EXCLUDE),
+                PendingStarknetBlockWithTxHashesSchema().load(res),
             )
         return cast(
             StarknetBlockWithTxHashes,
@@ -288,7 +282,6 @@ class FullNodeClient(Client):
             return res["events"], res["continuation_token"]
         return res["events"], None
 
-    # TODO (#1323): remove unknown=EXCLUDE after devnet fix response
     async def get_state_update(
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
@@ -306,7 +299,7 @@ class FullNodeClient(Client):
         if block_identifier == {"block_id": "pending"}:
             return cast(
                 PendingBlockStateUpdate,
-                PendingBlockStateUpdateSchema().load(res, unknown=EXCLUDE),
+                PendingBlockStateUpdateSchema().load(res),
             )
         return cast(BlockStateUpdate, BlockStateUpdateSchema().load(res))
 
