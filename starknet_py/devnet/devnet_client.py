@@ -21,7 +21,7 @@ from starknet_py.devnet.devnet_rpc_schema import (
     PredeployedAccountSchema,
     SetTimeResponseSchema,
 )
-from starknet_py.net.client_models import Hash
+from starknet_py.net.client_models import Hash, PriceUnit
 from starknet_py.net.full_node_client import FullNodeClient, _to_rpc_felt
 from starknet_py.utils.sync import add_sync_methods
 
@@ -82,7 +82,7 @@ class DevnetClient(FullNodeClient):
         await self._devnet_client.call(method_name="stopAutoImpersonate")
 
     async def mint(
-        self, address: Hash, amount: int, unit: Optional[str] = None
+        self, address: Hash, amount: int, unit: Optional[PriceUnit] = PriceUnit.WEI
     ) -> MintResponse:
         """
         Mint tokens to the given address.
@@ -92,15 +92,24 @@ class DevnetClient(FullNodeClient):
         :param unit: Literals `"FRI"` or `"WEI"`, default to `"WEI"`.
         """
 
+        unit_value = _get_unit_value(unit)
+
         res = await self._devnet_client.call(
             method_name="mint",
-            params={"address": _to_rpc_felt(address), "amount": amount, "unit": unit},
+            params={
+                "address": _to_rpc_felt(address),
+                "amount": amount,
+                "unit": unit_value,
+            },
         )
 
         return cast(MintResponse, MintSchema().load(res))
 
     async def get_account_balance(
-        self, address: Hash, unit: Optional[str] = None, block_tag: Optional[str] = None
+        self,
+        address: Hash,
+        unit: Optional[PriceUnit] = PriceUnit.WEI,
+        block_tag: Optional[str] = None,
     ) -> BalanceRecord:
         """
         Get the balance of the given account.
@@ -110,11 +119,13 @@ class DevnetClient(FullNodeClient):
         :param block_tag: Literals `"pending"` or `"latest"`, defaults to `"latest"`.
         """
 
+        unit_value = _get_unit_value(unit)
+
         res = await self._devnet_client.call(
             method_name="getAccountBalance",
             params={
                 "address": _to_rpc_felt(address),
-                "unit": unit,
+                "unit": unit_value,
                 "block_tag": block_tag,
             },
         )
@@ -301,3 +312,10 @@ class DevnetClient(FullNodeClient):
         )
 
         return cast(SetTimeResponse, SetTimeResponseSchema().load(res))
+
+
+def _get_unit_value(unit: Optional[PriceUnit]) -> str:
+    if isinstance(unit, PriceUnit):
+        return cast(str, unit.value)
+
+    return PriceUnit.WEI.value

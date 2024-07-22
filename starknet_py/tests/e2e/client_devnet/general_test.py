@@ -3,6 +3,7 @@ from typing import List
 import pytest
 
 from starknet_py.devnet.devnet_client_models import PredeployedAccount
+from starknet_py.net.client_models import PriceUnit
 
 
 @pytest.mark.asyncio
@@ -10,7 +11,7 @@ async def test_mint(devnet_client, account):
     amount = 1000
 
     balance_before_mint = await account.get_balance()
-    await devnet_client.mint(account.address, amount)
+    await devnet_client.mint(account.address, amount, PriceUnit.WEI)
     balance_after_mint = await account.get_balance()
 
     assert balance_after_mint == balance_before_mint + amount
