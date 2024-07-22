@@ -377,9 +377,9 @@ class FullNodeClient(Client):
             method_name="estimateFee",
             params={
                 "request": [_create_broadcasted_txn(transaction=t) for t in tx],
-                "simulation_flags": [SimulationFlag.SKIP_VALIDATE]
-                if skip_validate
-                else [],
+                "simulation_flags": (
+                    [SimulationFlag.SKIP_VALIDATE] if skip_validate else []
+                ),
                 **block_identifier,
             },
         )
