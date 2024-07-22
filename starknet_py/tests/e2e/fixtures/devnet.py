@@ -3,7 +3,7 @@ import subprocess
 import time
 from contextlib import closing
 from pathlib import Path
-from typing import Generator, List
+from typing import Generator, List, Optional
 
 import pytest
 
@@ -17,9 +17,9 @@ def get_available_port() -> int:
         return sock.getsockname()[1]
 
 
-def start_devnet(get_start_devnet_func):
+def start_devnet(get_start_devnet_func, fork_mode: Optional[bool] = False):
     devnet_port = get_available_port()
-    start_devnet_command = get_start_devnet_func(devnet_port)
+    start_devnet_command = get_start_devnet_func(devnet_port, fork_mode=fork_mode)
 
     # pylint: disable=consider-using-with
     proc = subprocess.Popen(start_devnet_command)
@@ -27,9 +27,12 @@ def start_devnet(get_start_devnet_func):
     return devnet_port, proc
 
 
-def get_start_devnet_command(devnet_port: int) -> List[str]:
+def get_start_devnet_command(
+    devnet_port: int, fork_mode: Optional[bool] = False
+) -> List[str]:
     devnet_path = Path(__file__).parent.parent / "devnet" / "bin" / "starknet-devnet"
-    return [
+
+    start_command = [
         str(devnet_path),
         "--port",
         str(devnet_port),
@@ -41,22 +44,15 @@ def get_start_devnet_command(devnet_port: int) -> List[str]:
         "full",
     ]
 
+    if fork_mode:
+        start_command.extend(
+            [
+                "--fork-network",
+                str(TESTNET_NETWORK_ADDRESS),
+            ]
+        )
 
-def get_start_devnet_fork_command(devnet_port: int) -> List[str]:
-    devnet_path = Path(__file__).parent.parent / "devnet" / "bin" / "starknet-devnet"
-    return [
-        str(devnet_path),
-        "--port",
-        str(devnet_port),
-        "--accounts",  # deploys specified number of accounts
-        str(1),
-        "--seed",  # generates same accounts each time
-        str(1),
-        "--state-archive-capacity",
-        "full",
-        "--fork-network",
-        str(TESTNET_NETWORK_ADDRESS),
-    ]
+    return start_command
 
 
 @pytest.fixture(scope="package")
@@ -72,8 +68,8 @@ def devnet() -> Generator[str, None, None]:
 @pytest.fixture(scope="package")
 def devnet_forking_mode() -> Generator[str, None, None]:
     """
-    Runs devnet instance once per module and returns it's address.
+    Runs devnet instance once per module and returns its address.
     """
-    devnet_port, proc = start_devnet(get_start_devnet_fork_command)
+    devnet_port, proc = start_devnet(get_start_devnet_command, fork_mode=True)
     yield f"http://localhost:{devnet_port}"
     proc.kill()
