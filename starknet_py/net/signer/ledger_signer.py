@@ -40,7 +40,7 @@ class LedgerStarknetApp:
         self, derivation_path: Bip32Path, device_confirmation: bool = False
     ) -> int:
         """
-        Get the public key for the given derivation path.
+        Get public key for the given derivation path.
 
         :param derivation_path: Derivation path of the account.
         :param device_confirmation: Whether to display confirmation on the device for extra security.
@@ -146,13 +146,10 @@ def _parse_derivation_path_str(derivation_path_str) -> Bip32Path:
         raise ValueError("Empty derivation path")
 
     path_parts = derivation_path_str.lstrip("m/").split("/")
-    path_elements = []
-    for part in path_parts:
-        if part.endswith("'"):
-            index = Bip32Utils.HardenIndex(int(part[:-1]))
-        else:
-            index = int(part)
-        path_elements.append(Bip32KeyIndex(index))
+    path_elements = [
+        Bip32KeyIndex(Bip32Utils.HardenIndex(int(part[:-1])) if part.endswith("'") else int(part))
+        for part in path_parts
+    ]
 
     if len(path_elements) != EIP_2645_PATH_LENGTH:
         raise ValueError(f"Derivation path is not {EIP_2645_PATH_LENGTH}-level long")
