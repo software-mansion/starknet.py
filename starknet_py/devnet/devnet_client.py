@@ -28,7 +28,11 @@ from starknet_py.utils.sync import add_sync_methods
 
 @add_sync_methods
 class DevnetClient(FullNodeClient):
-    def __init__(self, node_url: str, session: Optional[ClientSession] = None):
+    def __init__(
+        self,
+        node_url: str = "http://127.0.0.1:5050",
+        session: Optional[ClientSession] = None,
+    ):
         """
         Client for interacting with Starknet devnet json-rpc interface.
 
