@@ -42,7 +42,7 @@ class NumberAsHex(fields.Field):
     MAX_VALUE = sys.maxsize
     REGEX_PATTERN = r"^0x[a-fA-F0-9]+$"
 
-    def _serialize(self, value: Any, attr: Union[str, None], obj: Any, **kwargs):
+    def _serialize(self, value: Any, attr: Optional[str], obj: Any, **kwargs):
         if self._is_int_and_in_range(value):
             return hex(value)
 
@@ -56,7 +56,7 @@ class NumberAsHex(fields.Field):
     def _deserialize(
         self,
         value: Any,
-        attr: Union[str, None],
+        attr: Optional[str],
         data: Union[Mapping[str, Any], None],
         **kwargs,
     ):
@@ -108,7 +108,7 @@ class Uint128(NumberAsHex):
 
 
 class NonPrefixedHex(fields.Field):
-    def _serialize(self, value: Any, attr: Union[str, None], obj: Any, **kwargs):
+    def _serialize(self, value: Any, attr: Optional[str], obj: Any, **kwargs):
         return hex(value).lstrip("0x")
 
     def _deserialize(
@@ -122,7 +122,7 @@ class NonPrefixedHex(fields.Field):
 
 
 class StatusField(fields.Field):
-    def _serialize(self, value: Any, attr: Union[str, None], obj: Any, **kwargs):
+    def _serialize(self, value: Any, attr: Optional[str], obj: Any, **kwargs):
         return value.name if value is not None else ""
 
     def _deserialize(
@@ -143,7 +143,7 @@ class StatusField(fields.Field):
 
 
 class ExecutionStatusField(fields.Field):
-    def _serialize(self, value: Any, attr: Union[str, None], obj: Any, **kwargs):
+    def _serialize(self, value: Any, attr: Optional[str], obj: Any, **kwargs):
         return value.name if value is not None else ""
 
     def _deserialize(
@@ -164,7 +164,7 @@ class ExecutionStatusField(fields.Field):
 
 
 class FinalityStatusField(fields.Field):
-    def _serialize(self, value: Any, attr: Union[str, None], obj: Any, **kwargs):
+    def _serialize(self, value: Any, attr: Optional[str], obj: Any, **kwargs):
         return value.name if value is not None else ""
 
     def _deserialize(
@@ -185,7 +185,7 @@ class FinalityStatusField(fields.Field):
 
 
 class BlockStatusField(fields.Field):
-    def _serialize(self, value: Any, attr: Union[str, None], obj: Any, **kwargs):
+    def _serialize(self, value: Any, attr: Optional[str], obj: Any, **kwargs):
         return value.name if value is not None else ""
 
     def _deserialize(
@@ -207,7 +207,7 @@ class BlockStatusField(fields.Field):
 
 
 class TransactionTypeField(fields.Field):
-    def _serialize(self, value: Any, attr: Union[str, None], obj: Any, **kwargs):
+    def _serialize(self, value: Any, attr: Optional[str], obj: Any, **kwargs):
         if value == TransactionType.INVOKE:
             return "INVOKE_FUNCTION"
         return value.name
@@ -233,7 +233,7 @@ class TransactionTypeField(fields.Field):
 
 
 class EntryPointTypeField(fields.Field):
-    def _serialize(self, value: Any, attr: Union[str, None], obj: Any, **kwargs):
+    def _serialize(self, value: Any, attr: Optional[str], obj: Any, **kwargs):
         return value.name if value is not None else ""
 
     def _deserialize(
@@ -254,7 +254,7 @@ class EntryPointTypeField(fields.Field):
 
 
 class CallTypeField(fields.Field):
-    def _serialize(self, value: Any, attr: Union[str, None], obj: Any, **kwargs):
+    def _serialize(self, value: Any, attr: Optional[str], obj: Any, **kwargs):
         return value.name if value is not None else ""
 
     def _deserialize(
@@ -273,7 +273,7 @@ class CallTypeField(fields.Field):
 
 
 class L1DAModeField(fields.Field):
-    def _serialize(self, value: Any, attr: Union[str, None], obj: Any, **kwargs):
+    def _serialize(self, value: Any, attr: Optional[str], obj: Any, **kwargs):
         return value.name if value is not None else ""
 
     def _deserialize(
@@ -292,7 +292,7 @@ class L1DAModeField(fields.Field):
 
 
 class PriceUnitField(fields.Field):
-    def _serialize(self, value: Any, attr: Union[str, None], obj: Any, **kwargs):
+    def _serialize(self, value: Any, attr: Optional[str], obj: Any, **kwargs):
         return value.name if value is not None else ""
 
     def _deserialize(
@@ -311,7 +311,7 @@ class PriceUnitField(fields.Field):
 
 
 class DAModeField(fields.Field):
-    def _serialize(self, value: Any, attr: Union[str, None], obj: Any, **kwargs):
+    def _serialize(self, value: Any, attr: Optional[str], obj: Any, **kwargs):
         return value.name if value is not None else ""
 
     def _deserialize(
@@ -349,7 +349,7 @@ class Revision(Enum):
 
 
 class RevisionField(fields.Field):
-    def _serialize(self, value: Any, attr: Union[str, None], obj: Any, **kwargs):
+    def _serialize(self, value: Any, attr: Optional[str], obj: Any, **kwargs):
         if value is None or value == Revision.V0:
             return str(Revision.V0.value)
         return value.value
