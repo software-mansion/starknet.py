@@ -288,17 +288,6 @@ async def test_sign_invoke_v3_auto_estimate(account, map_contract):
 
 
 @pytest.mark.asyncio
-async def test_sign_declare_transaction(account, map_compiled_contract):
-    signed_tx = await account.sign_declare_v1(map_compiled_contract, max_fee=MAX_FEE)
-
-    assert isinstance(signed_tx, DeclareV1)
-    assert signed_tx.version == 1
-    assert isinstance(signed_tx.signature, list)
-    assert len(signed_tx.signature) > 0
-    assert signed_tx.max_fee == MAX_FEE
-
-
-@pytest.mark.asyncio
 async def test_sign_declare_transaction_auto_estimate(account, map_compiled_contract):
     signed_tx = await account.sign_declare_v1(map_compiled_contract, auto_estimate=True)
 
