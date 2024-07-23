@@ -16,7 +16,6 @@ from starknet_py.net.client_utils import _create_broadcasted_txn
 from starknet_py.net.full_node_client import _to_storage_key
 from starknet_py.net.http_client import RpcHttpClient, ServerError
 from starknet_py.net.models.transaction import (
-    DeclareV1,
     DeclareV2,
     DeclareV3,
     DeployAccountV1,
@@ -124,21 +123,6 @@ async def test_broadcasted_txn_declare_v2(
     assert brodcasted_txn["type"] == TransactionType.DECLARE.name
 
     expected_keys = dataclasses.fields(DeclareV2)
-    assert all(key.name in brodcasted_txn for key in expected_keys)
-
-
-@pytest.mark.asyncio
-async def test_broadcasted_txn_declare_v1(account, map_compiled_contract):
-    declare_v1 = await account.sign_declare_v1(
-        compiled_contract=map_compiled_contract,
-        max_fee=MAX_FEE,
-    )
-
-    brodcasted_txn = _create_broadcasted_txn(declare_v1)
-
-    assert brodcasted_txn["type"] == TransactionType.DECLARE.name
-
-    expected_keys = dataclasses.fields(DeclareV1)
     assert all(key.name in brodcasted_txn for key in expected_keys)
 
 
