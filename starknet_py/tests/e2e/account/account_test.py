@@ -26,7 +26,6 @@ from starknet_py.net.client_models import (
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import (
-    DeclareV1,
     DeclareV2,
     DeclareV3,
     DeployAccountV3,
@@ -285,17 +284,6 @@ async def test_sign_invoke_v3_auto_estimate(account, map_contract):
     assert signed_tx.resource_bounds.l1_gas.max_amount > 0
     assert signed_tx.resource_bounds.l1_gas.max_price_per_unit > 0
     assert signed_tx.resource_bounds.l2_gas == ResourceBounds.init_with_zeros()
-
-
-@pytest.mark.asyncio
-async def test_sign_declare_transaction_auto_estimate(account, map_compiled_contract):
-    signed_tx = await account.sign_declare_v1(map_compiled_contract, auto_estimate=True)
-
-    assert isinstance(signed_tx, DeclareV1)
-    assert signed_tx.version == 1
-    assert isinstance(signed_tx.signature, list)
-    assert len(signed_tx.signature) > 0
-    assert signed_tx.max_fee > 0
 
 
 @pytest.mark.asyncio
