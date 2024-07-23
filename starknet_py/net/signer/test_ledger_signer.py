@@ -11,6 +11,7 @@ from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V0_DIR
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
+@pytest.mark.skip(reason="Ledger button click simulation is not implemented on CI yet.")
 def test_init_with_invalid_derivation_path():
     with pytest.raises(ValueError, match="Empty derivation path"):
         LedgerSigner(derivation_path_str="", chain_id=StarknetChainId.SEPOLIA)
@@ -69,7 +70,7 @@ compiled_contract = read_contract(
         ),
     ],
 )
-@pytest.mark.skip(reason="Interactive ledger signing is not implemented yet.")
+@pytest.mark.skip(reason="Ledger button click simulation is not implemented on CI yet.")
 def test_sign_transaction(transaction):
     signer = LedgerSigner(
         derivation_path_str="m/2645'/1195502025'/1470455285'/0'/0'/0",
