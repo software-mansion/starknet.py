@@ -2,9 +2,6 @@ import pytest
 
 from starknet_py.common import create_compiled_contract
 from starknet_py.constants import EIP_2645_PATH_LENGTH
-from starknet_py.hash.selector import get_selector_from_name
-from starknet_py.net.client_models import Call
-from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models import DeclareV1, DeployAccountV1, InvokeV1, StarknetChainId
 from starknet_py.net.signer.ledger_signer import LedgerSigner
 from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V0_DIR
