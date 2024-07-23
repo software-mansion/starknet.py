@@ -173,12 +173,3 @@ async def test_deploy_contract_v3(account, cairo1_hello_starknet_class_hash: int
         contract_address=contract.address
     )
     assert class_hash == cairo1_hello_starknet_class_hash
-
-
-def test_compute_address(custom_proxy):
-    compiled_contract = custom_proxy
-    # docs-start: compute_address
-    address = Contract.compute_address(
-        salt=1, compiled_contract=compiled_contract, constructor_args=[1, 2, [2]]
-    )
-    # docs-end: compute_address
