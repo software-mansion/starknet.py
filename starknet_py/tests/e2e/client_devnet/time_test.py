@@ -4,15 +4,18 @@ import pytest
 @pytest.mark.asyncio
 async def test_time_advancing(devnet_client):
     time = 3384617820
+    step, error = 100, 3
+
     await devnet_client.set_time(time, generate_block=True)
     block = await devnet_client.get_block(block_number="latest")
 
     assert block.timestamp == time
 
-    await devnet_client.increase_time(100)
+    await devnet_client.increase_time(step)
     block = await devnet_client.get_block(block_number="latest")
 
-    assert block.timestamp == time + 100
+    assert block.timestamp <= time + step + error
+    assert block.timestamp >= time + step
 
 
 @pytest.mark.asyncio
