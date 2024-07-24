@@ -54,16 +54,6 @@ async def test_from_address(account, contract_address):
 
 
 @pytest.mark.asyncio
-async def test_declare_v1(account, custom_proxy):
-    compiled_contract = custom_proxy
-    # docs-start: declare_v1
-    declare_result = await Contract.declare_v1(
-        account=account, compiled_contract=compiled_contract, max_fee=int(1e15)
-    )
-    # docs-end: declare_v1
-
-
-@pytest.mark.asyncio
 async def test_declare_v2(account):
     compiled_contract = load_contract(
         contract_name="TestContract", version=ContractVersion.V1
