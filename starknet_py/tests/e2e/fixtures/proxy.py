@@ -11,27 +11,6 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
 @pytest.fixture(
-    params=["argent_proxy_compiled.json", "oz_proxy_compiled.json"],
-    scope="session",
-)
-def compiled_proxy(request) -> str:
-    """
-    Returns source code of compiled proxy contract.
-    """
-    return read_contract(request.param, directory=CONTRACTS_COMPILED_V0_DIR)
-
-
-@pytest.fixture(scope="session")
-def custom_proxy() -> str:
-    """
-    Returns compiled source code of a custom proxy.
-    """
-    return read_contract(
-        "oz_proxy_custom_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR
-    )
-
-
-@pytest.fixture(
     scope="session",
     params=[
         "precompiled/oz_proxy_address_0.8.1_compiled.json",
