@@ -230,7 +230,7 @@ class BaseAccount(ABC):
         contract_address_salt: int,
         constructor_calldata: Optional[List[int]] = None,
         *,
-        nonce: Optional[int] = None,
+        nonce: int = 0,
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> DeployAccountV1:
