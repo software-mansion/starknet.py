@@ -2,7 +2,7 @@ from typing import List
 
 import pytest
 
-from starknet_py.devnet.devnet_client_models import PredeployedAccount
+from starknet_py.devnet_utils.devnet_client_models import PredeployedAccount
 from starknet_py.net.client_models import PriceUnit
 
 

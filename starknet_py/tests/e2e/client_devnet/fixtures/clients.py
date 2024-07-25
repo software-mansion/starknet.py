@@ -1,6 +1,6 @@
 import pytest
 
-from starknet_py.devnet.devnet_client import DevnetClient
+from starknet_py.devnet_utils.devnet_client import DevnetClient
 
 
 @pytest.fixture(name="devnet_client", scope="package")

@@ -2,7 +2,7 @@ from typing import List, Optional, Union, cast
 
 from aiohttp import ClientSession
 
-from starknet_py.devnet.devnet_client_models import (
+from starknet_py.devnet_utils.devnet_client_models import (
     BalanceRecord,
     Config,
     IncreaseTimeResponse,
@@ -11,7 +11,7 @@ from starknet_py.devnet.devnet_client_models import (
     PredeployedAccount,
     SetTimeResponse,
 )
-from starknet_py.devnet.devnet_rpc_schema import (
+from starknet_py.devnet_utils.devnet_rpc_schema import (
     BalanceRecordSchema,
     ConfigSchema,
     IncreasedTimeResponseSchema,

@@ -1,7 +1,7 @@
 import pytest
 import pytest_asyncio
 
-from starknet_py.devnet.devnet_client import DevnetClient
+from starknet_py.devnet_utils.devnet_client import DevnetClient
 from starknet_py.net.account.account import Account
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.models import StarknetChainId

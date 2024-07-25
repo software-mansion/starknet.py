@@ -1,6 +1,6 @@
 from marshmallow import fields, post_load
 
-from starknet_py.devnet.devnet_client_models import (
+from starknet_py.devnet_utils.devnet_client_models import (
     Balance,
     BalanceRecord,
     Config,
