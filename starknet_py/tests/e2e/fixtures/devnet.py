@@ -17,9 +17,9 @@ def get_available_port() -> int:
         return sock.getsockname()[1]
 
 
-def start_devnet(get_start_devnet_func, fork_mode: bool = False):
+def start_devnet(fork_mode: bool = False):
     devnet_port = get_available_port()
-    start_devnet_command = get_start_devnet_func(devnet_port, fork_mode=fork_mode)
+    start_devnet_command = get_start_devnet_command(devnet_port, fork_mode=fork_mode)
 
     # pylint: disable=consider-using-with
     proc = subprocess.Popen(start_devnet_command)
@@ -58,7 +58,7 @@ def devnet() -> Generator[str, None, None]:
     """
     Runs devnet instance once per module and returns it's address.
     """
-    devnet_port, proc = start_devnet(get_start_devnet_command)
+    devnet_port, proc = start_devnet()
     yield f"http://localhost:{devnet_port}"
     proc.kill()
 
@@ -68,6 +68,6 @@ def devnet_forking_mode() -> Generator[str, None, None]:
     """
     Runs devnet instance once per module and returns its address.
     """
-    devnet_port, proc = start_devnet(get_start_devnet_command, fork_mode=True)
+    devnet_port, proc = start_devnet(fork_mode=True)
     yield f"http://localhost:{devnet_port}"
     proc.kill()
