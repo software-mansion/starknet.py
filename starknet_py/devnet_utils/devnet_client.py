@@ -142,7 +142,7 @@ class DevnetClient(FullNodeClient):
     async def abort_block(self, starting_block_hash: Hash) -> List[str]:
         """
         This functionality allows simulating block abortion that can occur on mainnet.
-        It is supported in the --state-archive-capacity full mode.
+        It is supported in the `--state-archive-capacity full` mode.
 
         :param starting_block_hash: The state of Devnet will be reverted to the state before `starting_block_hash`.
         """
@@ -157,7 +157,7 @@ class DevnetClient(FullNodeClient):
     async def dump(self, path: str):
         """
         Dump the state of the devnet to a file.
-        Dumping on request requires providing --dump-on mode on the startup.
+        Dumping on request requires providing `--dump-on` mode on the startup.
 
         :param path: Path to the file.
         """
