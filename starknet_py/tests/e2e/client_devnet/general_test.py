@@ -12,9 +12,12 @@ async def test_mint(devnet_client, account):
 
     balance_before_mint = await account.get_balance()
     await devnet_client.mint(account.address, amount, PriceUnit.WEI)
+    await devnet_client.mint(account.address, amount, "wei")
+    await devnet_client.mint(account.address, amount, "WEI")
+    await devnet_client.mint(account.address, amount)
     balance_after_mint = await account.get_balance()
 
-    assert balance_after_mint == balance_before_mint + amount
+    assert balance_after_mint == balance_before_mint + 4 * amount
 
 
 @pytest.mark.asyncio

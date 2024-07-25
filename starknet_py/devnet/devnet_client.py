@@ -1,4 +1,4 @@
-from typing import List, Optional, cast
+from typing import List, Optional, Union, cast
 
 from aiohttp import ClientSession
 
@@ -84,7 +84,7 @@ class DevnetClient(FullNodeClient):
         await self._devnet_client.call(method_name="stopAutoImpersonate")
 
     async def mint(
-        self, address: Hash, amount: int, unit: Optional[PriceUnit] = PriceUnit.WEI
+        self, address: Hash, amount: int, unit: Union[PriceUnit, str] = PriceUnit.WEI
     ) -> MintResponse:
         """
         Mint tokens to the given address.
@@ -94,14 +94,12 @@ class DevnetClient(FullNodeClient):
         :param unit: Literals `"FRI"` or `"WEI"`, default to `"WEI"`.
         """
 
-        unit_value = _get_unit_value(unit)
-
         res = await self._devnet_client.call(
             method_name="mint",
             params={
                 "address": _to_rpc_felt(address),
                 "amount": amount,
-                "unit": unit_value,
+                "unit": unit.upper() if isinstance(unit, str) else unit.value,
             },
         )
 
@@ -110,7 +108,7 @@ class DevnetClient(FullNodeClient):
     async def get_account_balance(
         self,
         address: Hash,
-        unit: Optional[PriceUnit] = PriceUnit.WEI,
+        unit: Union[PriceUnit, str] = PriceUnit.WEI,
         block_tag: Optional[str] = None,
     ) -> BalanceRecord:
         """
@@ -121,13 +119,11 @@ class DevnetClient(FullNodeClient):
         :param block_tag: Literals `"pending"` or `"latest"`, defaults to `"latest"`.
         """
 
-        unit_value = _get_unit_value(unit)
-
         res = await self._devnet_client.call(
             method_name="getAccountBalance",
             params={
                 "address": _to_rpc_felt(address),
-                "unit": unit_value,
+                "unit": unit.upper() if isinstance(unit, str) else unit.value,
                 "block_tag": block_tag,
             },
         )
@@ -314,10 +310,3 @@ class DevnetClient(FullNodeClient):
         )
 
         return cast(SetTimeResponse, SetTimeResponseSchema().load(res))
-
-
-def _get_unit_value(unit: Optional[PriceUnit]) -> str:
-    if isinstance(unit, PriceUnit):
-        return cast(str, unit.value)
-
-    return PriceUnit.WEI.value
