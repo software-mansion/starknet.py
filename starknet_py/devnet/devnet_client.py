@@ -11,7 +11,6 @@ from starknet_py.devnet.devnet_client_models import (
     PredeployedAccount,
     SetTimeResponse,
 )
-from starknet_py.devnet.devnet_http_client import DevnetRpcHttpClient
 from starknet_py.devnet.devnet_rpc_schema import (
     BalanceRecordSchema,
     ConfigSchema,
@@ -23,6 +22,7 @@ from starknet_py.devnet.devnet_rpc_schema import (
 )
 from starknet_py.net.client_models import Hash, PriceUnit
 from starknet_py.net.full_node_client import FullNodeClient, _to_rpc_felt
+from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.utils.sync import add_sync_methods
 
 
@@ -42,7 +42,9 @@ class DevnetClient(FullNodeClient):
         """
 
         super().__init__(node_url=node_url, session=session)
-        self._devnet_client = DevnetRpcHttpClient(url=node_url, session=session)
+        self._devnet_client = RpcHttpClient(
+            url=node_url, session=session, method_prefix="devnet"
+        )
 
     async def impersonate_account(self, address: Hash):
         """
