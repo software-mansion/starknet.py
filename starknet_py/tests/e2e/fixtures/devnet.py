@@ -46,7 +46,7 @@ def get_start_devnet_command(devnet_port: int, fork_mode: bool = False) -> List[
         start_command.extend(
             [
                 "--fork-network",
-                str(SEPOLIA_RPC_URL().split("rpc")[0]),
+                str(SEPOLIA_RPC_URL()),
             ]
         )
 

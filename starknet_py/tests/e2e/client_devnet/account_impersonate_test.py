@@ -23,7 +23,7 @@ async def test_impersonate_account(
     )
 
     invocation = await contract.functions["set_string"].invoke_v1(
-        "test", auto_estimate=True
+        "test", max_fee=int(1e16)
     )
 
     await devnet_client_fork_mode.stop_impersonate_account(
@@ -50,7 +50,7 @@ async def test_auto_impersonate(
     )
 
     invocation = await contract.functions["set_string"].invoke_v1(
-        "test", auto_estimate=True
+        "test", max_fee=int(1e16)
     )
 
     await devnet_client_fork_mode.stop_auto_impersonate()
