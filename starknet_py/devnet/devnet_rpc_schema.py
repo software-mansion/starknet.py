@@ -65,7 +65,7 @@ class PredeployedAccountSchema(Schema):
     public_key = Felt(data_key="public_key", required=True)
     private_key = Felt(data_key="private_key", required=True)
     balance = fields.Nested(
-        BalanceSchema(), data_key="balance", allow_none=True, required=False
+        BalanceSchema(), data_key="balance", load_default=None, required=False
     )
 
     @post_load
@@ -74,9 +74,9 @@ class PredeployedAccountSchema(Schema):
 
 
 class ForkConfigSchema(Schema):
-    url = fields.String(data_key="url", required=False, allow_none=True)
+    url = fields.String(data_key="url", required=False, load_default=None)
     block_number = fields.Integer(
-        data_key="block_number", required=False, allow_none=True
+        data_key="block_number", required=False, load_default=None
     )
 
     @post_load
@@ -109,14 +109,16 @@ class ConfigSchema(Schema):
     predeployed_accounts_initial_balance = fields.String(
         data_key="predeployed_accounts_initial_balance", required=True
     )
-    start_time = fields.Integer(data_key="start_time", required=False, allow_none=True)
+    start_time = fields.Integer(
+        data_key="start_time", required=False, load_default=None
+    )
     gas_price_wei = fields.Integer(data_key="gas_price_wei", required=True)
     gas_price_strk = fields.Integer(data_key="gas_price_strk", required=True)
     data_gas_price_wei = fields.Integer(data_key="data_gas_price_wei", required=True)
     data_gas_price_strk = fields.Integer(data_key="data_gas_price_strk", required=True)
     chain_id = fields.String(data_key="chain_id", required=True)
-    dump_on = fields.Integer(data_key="dump_on", required=False, allow_none=True)
-    dump_path = fields.String(data_key="dump_path", required=False, allow_none=True)
+    dump_on = fields.Integer(data_key="dump_on", required=False, load_default=None)
+    dump_path = fields.String(data_key="dump_path", required=False, load_default=None)
     block_generation_on = fields.String(data_key="block_generation_on", required=True)
     lite_mode = fields.Boolean(data_key="lite_mode", required=True)
     state_archive = fields.String(data_key="state_archive", required=True)
@@ -148,7 +150,7 @@ class IncreasedTimeResponseSchema(Schema):
 
 class SetTimeResponseSchema(Schema):
     block_timestamp = fields.Integer(data_key="block_timestamp", required=True)
-    block_hash = Felt(data_key="block_hash", required=False, allow_none=True)
+    block_hash = Felt(data_key="block_hash", required=False, load_default=None)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> SetTimeResponse:
