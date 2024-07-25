@@ -3,7 +3,7 @@ import subprocess
 import time
 from contextlib import closing
 from pathlib import Path
-from typing import Generator, List, Optional
+from typing import Generator, List
 
 import pytest
 
@@ -17,7 +17,7 @@ def get_available_port() -> int:
         return sock.getsockname()[1]
 
 
-def start_devnet(get_start_devnet_func, fork_mode: Optional[bool] = False):
+def start_devnet(get_start_devnet_func, fork_mode: bool = False):
     devnet_port = get_available_port()
     start_devnet_command = get_start_devnet_func(devnet_port, fork_mode=fork_mode)
 
@@ -27,9 +27,7 @@ def start_devnet(get_start_devnet_func, fork_mode: Optional[bool] = False):
     return devnet_port, proc
 
 
-def get_start_devnet_command(
-    devnet_port: int, fork_mode: Optional[bool] = False
-) -> List[str]:
+def get_start_devnet_command(devnet_port: int, fork_mode: bool = False) -> List[str]:
     devnet_path = Path(__file__).parent.parent / "devnet" / "bin" / "starknet-devnet"
 
     start_command = [
