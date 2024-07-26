@@ -181,13 +181,15 @@ async def test_estimate_fee_invoke_v3(account, contract_address):
 
 
 @pytest.mark.asyncio
-async def test_estimate_fee_declare(account):
-    declare_tx = await account.sign_declare_v1(
-        compiled_contract=read_contract(
-            "map_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR
-        ),
+async def test_estimate_fee_declare(
+    account, abi_types_compiled_contract_and_class_hash
+):
+    declare_tx = await account.sign_declare_v2(
+        compiled_contract=abi_types_compiled_contract_and_class_hash[0],
+        compiled_class_hash=abi_types_compiled_contract_and_class_hash[1],
         max_fee=MAX_FEE,
     )
+
     declare_tx = await account.sign_for_fee_estimate(declare_tx)
     estimate_fee = await account.client.estimate_fee(tx=declare_tx)
 
