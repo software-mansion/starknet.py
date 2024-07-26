@@ -143,8 +143,6 @@ async def test_deploy_account_and_transfer(client):
     recipient_balance_before = (
         await _get_account_balance_eth(client, recipient_address)
     )[0]
-    print(f"Balance of {address} before: {sender_balance_before}")
-    print(f"Balance of {recipient_address} before: {recipient_balance_before}")
 
     eth_address = int(
         "0x49D36570D4E46F48E99674BD3FCC84644DDD6B96F7C741B1562B82F9E004DC7", 16
