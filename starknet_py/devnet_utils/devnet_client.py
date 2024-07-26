@@ -294,7 +294,6 @@ class DevnetClient(FullNodeClient):
         self, time: int, generate_block: Optional[bool] = False
     ) -> SetTimeResponse:
         """
-        (Only possible if there are no pending transactions)
         Set the time of the devnet. Only available when there is no pending transaction.
         Warning: block time can be set in the past and lead to unexpected behaviour!
 
