@@ -107,9 +107,7 @@ async def test_deploy_account_and_transfer(client):
         chain_id=StarknetChainId.SEPOLIA,
     )
 
-    class_hash = int(
-        "0x61dac032f228abef9c6626f995015233097ae253a7f72d68552db02f2971b8f", 16
-    )
+    class_hash = 0x61dac032f228abef9c6626f995015233097ae253a7f72d68552db02f2971b8f
 
     salt = 1
     calldata = [signer.public_key]
