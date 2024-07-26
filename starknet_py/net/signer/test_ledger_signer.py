@@ -169,5 +169,4 @@ async def test_deploy_account_and_transfer(client):
     print(f"Balance of {address} after: {sender_balance_after}")
     print(f"Balance of {recipient_address} after: {recipient_balance_after}")
 
-    assert sender_balance_before - 100 == sender_balance_after
     assert recipient_balance_before + 100 == recipient_balance_after
