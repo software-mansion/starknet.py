@@ -87,9 +87,7 @@ def test_sign_transaction(transaction):
 
 
 async def _get_account_balance_eth(client: FullNodeClient, address: int):
-    eth_address = int(
-        "0x49D36570D4E46F48E99674BD3FCC84644DDD6B96F7C741B1562B82F9E004DC7", 16
-    )
+    eth_address = 0x49D36570D4E46F48E99674BD3FCC84644DDD6B96F7C741B1562B82F9E004DC7
     balance = await client.call_contract(
         call=Call(
             to_addr=eth_address,
@@ -107,7 +105,7 @@ async def test_deploy_account_and_transfer(client):
         chain_id=StarknetChainId.SEPOLIA,
     )
 
-    class_hash = 0x61dac032f228abef9c6626f995015233097ae253a7f72d68552db02f2971b8f
+    class_hash = 0x61DAC032F228ABEF9C6626F995015233097AE253A7F72D68552DB02F2971B8F
 
     salt = 1
     calldata = [signer.public_key]
@@ -138,14 +136,15 @@ async def test_deploy_account_and_transfer(client):
 
     await client.deploy_account(signed_tx)
 
-    recipient_address = 0x1323cacbc02b4aaed9bb6b24d121fb712d8946376040990f2f2fa0dcf17bb5b
+    recipient_address = (
+        0x1323CACBC02B4AAED9BB6B24D121FB712D8946376040990F2F2FA0DCF17BB5B
+    )
+
     recipient_balance_before = (
         await _get_account_balance_eth(client, recipient_address)
     )[0]
 
-    eth_address = int(
-        "0x49D36570D4E46F48E99674BD3FCC84644DDD6B96F7C741B1562B82F9E004DC7", 16
-    )
+    eth_address = 0x49D36570D4E46F48E99674BD3FCC84644DDD6B96F7C741B1562B82F9E004DC7
 
     call = Call(
         to_addr=eth_address,
