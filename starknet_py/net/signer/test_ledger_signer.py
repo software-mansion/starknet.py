@@ -138,9 +138,7 @@ async def test_deploy_account_and_transfer(client):
 
     await client.deploy_account(signed_tx)
 
-    recipient_address = int(
-        "0x1323cacbc02b4aaed9bb6b24d121fb712d8946376040990f2f2fa0dcf17bb5b", 16
-    )
+    recipient_address = 0x1323cacbc02b4aaed9bb6b24d121fb712d8946376040990f2f2fa0dcf17bb5b
     sender_balance_before = (await _get_account_balance_eth(client, address))[0]
     recipient_balance_before = (
         await _get_account_balance_eth(client, recipient_address)
