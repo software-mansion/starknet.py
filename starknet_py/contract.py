@@ -23,7 +23,6 @@ from starknet_py.abi.v2.shape import (
 from starknet_py.common import create_compiled_contract, create_sierra_compiled_contract
 from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
 from starknet_py.contract_utils import _extract_compiled_class_hash, _unpack_provider
-from starknet_py.hash.class_hash import compute_class_hash
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
@@ -1054,18 +1053,6 @@ class Contract:
         )
 
         return deploy_result
-
-    @staticmethod
-    def compute_contract_hash(compiled_contract: str) -> int:
-        """
-        Computes hash for given contract.
-
-        :param compiled_contract: String containing compiled contract.
-        :return: Class_hash of the contract.
-        """
-
-        contract_class = create_compiled_contract(compiled_contract)
-        return compute_class_hash(contract_class)
 
     @classmethod
     def _make_functions(
