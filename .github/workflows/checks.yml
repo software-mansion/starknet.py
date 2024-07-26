@@ -229,6 +229,13 @@ jobs:
       - name: Check running Docker containers
         run: docker ps
 
+      - name: Wait for Speculos to start
+        run: sleep 10
+
+      - name: Test Speculos emulator
+        run: |
+          curl -X 'GET' 'http://127.0.0.1:5001/events?stream=false&currentscreenonly=false' -H 'accept: text/event-stream'
+
       # ====================== RUN TESTS ====================== #
 
       - name: Check circular imports
