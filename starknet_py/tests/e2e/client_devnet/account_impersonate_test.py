@@ -72,8 +72,5 @@ async def test_impersonated_account_should_fail(
         provider=account_to_impersonate, address=f_string_contract.address
     )
 
-    try:
+    with pytest.raises(ClientError):
         await contract.functions["set_string"].invoke_v1("test", auto_estimate=True)
-        assert False
-    except ClientError:
-        assert True
