@@ -2,6 +2,7 @@ import pytest
 
 from starknet_py.common import create_compiled_contract
 from starknet_py.constants import EIP_2645_PATH_LENGTH
+from starknet_py.contract import Contract
 from starknet_py.hash.address import compute_address
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.account import Account
@@ -130,9 +131,8 @@ async def test_deploy_account_and_transfer(client):
         derivation_path_str="m/2645'/1195502025'/1470455285'/0'/0'/0",
         chain_id=StarknetChainId.SEPOLIA,
     )
-
+    # docs-deploy-account-and-transfer: start
     class_hash = 0x61DAC032F228ABEF9C6626F995015233097AE253A7F72D68552DB02F2971B8F
-
     salt = 1
     calldata = [signer.public_key]
     address = compute_address(
@@ -146,13 +146,15 @@ async def test_deploy_account_and_transfer(client):
         signer=signer,
         chain=StarknetChainId.SEPOLIA,
     )
+
+    # Remember to prefund the account
+    # Here we just prefund the devnet account for test purposes
     await mint_token_on_devnet(
         url=client.url.replace("/rpc", ""),
         address=address,
         amount=5000000000000000000000,
         unit="WEI",
     )
-
     signed_tx = await account.sign_deploy_account_v1(
         class_hash=class_hash,
         contract_address_salt=salt,
@@ -171,15 +173,12 @@ async def test_deploy_account_and_transfer(client):
     )[0]
 
     eth_address = 0x49D36570D4E46F48E99674BD3FCC84644DDD6B96F7C741B1562B82F9E004DC7
-
-    call = Call(
-        to_addr=eth_address,
-        calldata=[recipient_address, 100, 0],
-        selector=get_selector_from_name("transfer"),
+    contract = await Contract.from_address(provider=account, address=eth_address)
+    invocation = await contract.functions["transfer"].invoke_v1(
+        recipient_address, 100, max_fee=int(1e16)
     )
-
-    await account.execute_v1(call, auto_estimate=True)
-
+    await invocation.wait_for_acceptance()
+    # docs-deploy-account-and-transfer: end
     sender_balance_after = (await _get_account_balance_eth(client, address))[0]
     recipient_balance_after = (
         await _get_account_balance_eth(client, recipient_address)

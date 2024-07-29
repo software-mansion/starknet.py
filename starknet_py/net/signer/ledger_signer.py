@@ -92,7 +92,10 @@ class LedgerStarknetApp:
             p2=0x00,
         )
 
-        if len(response) != SIGNATURE_RESPONSE_LENGTH + 1 or response[0] != SIGNATURE_RESPONSE_LENGTH:
+        if (
+            len(response) != SIGNATURE_RESPONSE_LENGTH + 1
+            or response[0] != SIGNATURE_RESPONSE_LENGTH
+        ):
             raise ValueError(
                 f"Unexpected response length (expected: {SIGNATURE_RESPONSE_LENGTH}, actual: {len(response)}"
             )

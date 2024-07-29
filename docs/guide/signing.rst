@@ -12,13 +12,21 @@ signing algorithm, it is possible to create ``Account`` with custom
     :language: python
     :dedent: 4
 
-Signing with ledger
+Signing with Ledger
 -------------------
 :ref:`LedgerSigner` allows you to sign transactions using a Ledger device. The device must be unlocked and Starknet app needs to be open.
 
 .. codesnippet:: ../../starknet_py/net/signer/test_ledger_signer.py
     :language: python
     :dedent: 4
+
+Deploying account and transferring ETH
+-------------------
+.. codesnippet:: ../../starknet_py/net/signer/test_ledger_signer.py
+    :language: python
+    :dedent: 4
+    :start-after: docs-deploy-account-and-transfer: start
+    :end-before: docs-deploy-account-and-transfer: end
 
 Signing off-chain messages
 -------------------------------
