@@ -230,7 +230,7 @@ jobs:
         run: docker ps
 
       - name: Wait for Speculos to start
-        run: sleep 10
+        run: sleep 5
 
       - name: Test Speculos emulator
         run: |
