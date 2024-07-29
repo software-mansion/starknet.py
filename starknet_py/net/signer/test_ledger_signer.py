@@ -148,7 +148,7 @@ async def test_deploy_account_and_transfer(client):
     )
 
     # Remember to prefund the account
-    # Here we just prefund the devnet account for test purposes
+    # Here we prefund the devnet account for test purposes
     await mint_token_on_devnet(
         url=client.url.replace("/rpc", ""),
         address=address,
