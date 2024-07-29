@@ -142,9 +142,13 @@ async def test_broadcasted_txn_invoke_v3(account, map_contract):
 
 
 @pytest.mark.asyncio
-async def test_broadcasted_txn_invoke_v1(account, map_contract):
+async def test_broadcasted_txn_invoke_v1(account, cairo1_hello_starknet_deploy):
     invoke_tx = await account.sign_invoke_v1(
-        calls=Call(map_contract.address, get_selector_from_name("put"), [3, 4]),
+        calls=Call(
+            cairo1_hello_starknet_deploy.address,
+            get_selector_from_name("increaseBalance"),
+            [10],
+        ),
         max_fee=int(1e16),
     )
 
