@@ -16,26 +16,9 @@ Signing with ledger
 -------------------
 :ref:`LedgerSigner` allows you to sign transactions using a Ledger device. The device must be unlocked and Starknet app needs to be open.
 
-.. code-block:: python
-
-
-    from starknet_py.net.signer.ledger_signer import LedgerSigner
-
-
-    # Create a `LedgerSigner` instance with the derivation path and chain id
-    signer = LedgerSigner(
-        derivation_path_str="m/2645'/1195502025'/1470455285'/0'/0'/0",
-        chain_id=StarknetChainId.SEPOLIA,
-    )
-    client = FullNodeClient(node_url="your.node.url")
-    # Create an `Account` instance with the ledger signer
-    account = Account(
-        client=client,
-        address=0x1111,
-        signer=signer,
-        chain=StarknetChainId.SEPOLIA,
-    )
-    # Now you can use Account as you'd always do
+.. codesnippet:: ../../starknet_py/net/signer/test_ledger_signer.py
+    :language: python
+    :dedent: 4
 
 Signing off-chain messages
 -------------------------------

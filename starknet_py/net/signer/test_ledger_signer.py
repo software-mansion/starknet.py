@@ -73,17 +73,43 @@ compiled_contract = read_contract(
     ],
 )
 def test_sign_transaction(transaction):
+    # docs: start
+
+    # Create a `LedgerSigner` instance with the derivation path and chain id
     signer = LedgerSigner(
         derivation_path_str="m/2645'/1195502025'/1470455285'/0'/0'/0",
         chain_id=StarknetChainId.MAINNET,
     )
 
+    # Sign the transaction
     signature = signer.sign_transaction(transaction)
+    # docs: end
 
     assert isinstance(signature, list)
     assert len(signature) > 0
     assert all(isinstance(i, int) for i in signature)
     assert all(i != 0 for i in signature)
+
+
+def test_create_account_with_ledger_signer():
+    # pylint: disable=unused-variable
+    signer = LedgerSigner(
+        derivation_path_str="m/2645'/1195502025'/1470455285'/0'/0'/0",
+        chain_id=StarknetChainId.SEPOLIA,
+    )
+
+    # docs: start
+
+    client = FullNodeClient(node_url="your.node.url")
+    # Create an `Account` instance with the ledger signer
+    account = Account(
+        client=client,
+        address=0x1111,
+        signer=signer,
+        chain=StarknetChainId.SEPOLIA,
+    )
+    # Now you can use Account as you'd always do
+    # docs: end
 
 
 async def _get_account_balance_eth(client: FullNodeClient, address: int):
