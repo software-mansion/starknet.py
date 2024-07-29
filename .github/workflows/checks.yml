@@ -224,7 +224,7 @@ jobs:
         with:
           image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools
           options: --rm -d --name speculos-emulator -v ${{ github.workspace }}:/apps --publish 5001:5001 --publish 9999:9999
-          run: speculos -m nanox --apdu-port 9999 --api-port 5001 --display headless /apps/app-starknet/target/nanox/release/starknet --automation file:/starknet_py/tests/e2e/mock/ledger/confirm_sign_hash_automation.json
+          run: speculos -m nanox --apdu-port 9999 --api-port 5001 --display headless /apps/app-starknet/target/nanox/release/starknet --automation '{"version":1,"rules":[{"text":"Confirm Hash to sign","conditions":[],"actions":[["button",2,true],["button",2,false]]},{"regexp":".*Hash \\\\(.*\\\\)","conditions":[],"actions":[["button",2,true],["button",2,false]]},{"text":"Reject","conditions":[],"actions":[["button",2,true],["button",2,false]]},{"text":"Approve","conditions":[],"actions":[["button",1,true],["button",2,true],["button",1,false],["button",2,false]]}]}'
 
       - name: Check running Docker containers
         run: docker ps
