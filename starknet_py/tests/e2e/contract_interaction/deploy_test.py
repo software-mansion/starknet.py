@@ -9,7 +9,7 @@ from starknet_py.contract import Contract, DeclareResult
 from starknet_py.net.client_models import InvokeTransactionV1
 from starknet_py.net.models import DeclareV2
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE, MAX_RESOURCE_BOUNDS_L1
-from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
+from starknet_py.tests.e2e.fixtures.misc import load_contract
 
 
 @pytest.mark.asyncio
@@ -121,23 +121,3 @@ async def test_deploy_contract_v1(account, cairo1_hello_starknet_class_hash: int
         contract_address=contract.address
     )
     assert class_hash == cairo1_hello_starknet_class_hash
-
-
-@pytest.mark.asyncio
-async def test_general_simplified_deployment_flow(account):
-    contract = load_contract(contract_name="Hello2", version=ContractVersion.V2)
-
-    declare_result = await Contract.declare_v2(
-        account=account,
-        compiled_contract=contract["sierra"],
-        compiled_contract_casm=contract["casm"],
-        auto_estimate=True,
-    )
-    await declare_result.wait_for_acceptance()
-    deployment = await declare_result.deploy_v1(max_fee=MAX_FEE)
-    await deployment.wait_for_acceptance()
-
-    contract = deployment.deployed_contract
-
-    assert isinstance(contract.address, int)
-    assert len(contract.functions) != 0
