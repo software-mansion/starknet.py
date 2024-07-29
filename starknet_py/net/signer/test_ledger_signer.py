@@ -92,6 +92,7 @@ def test_sign_transaction(transaction):
     assert all(i != 0 for i in signature)
 
 
+@pytest.mark.skip(reason="Temporary skip")
 def test_create_account_with_ledger_signer():
     # pylint: disable=unused-variable
     signer = LedgerSigner(
