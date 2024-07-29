@@ -148,6 +148,7 @@ async def test_deploy_account_and_transfer(client):
     )
 
     # Remember to prefund the account
+    # docs-deploy-account-and-transfer: end
     # Here we prefund the devnet account for test purposes
     await mint_token_on_devnet(
         url=client.url.replace("/rpc", ""),
@@ -155,6 +156,7 @@ async def test_deploy_account_and_transfer(client):
         amount=5000000000000000000000,
         unit="WEI",
     )
+    # docs-deploy-account-and-transfer: start
     signed_tx = await account.sign_deploy_account_v1(
         class_hash=class_hash,
         contract_address_salt=salt,
