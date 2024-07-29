@@ -73,14 +73,13 @@ compiled_contract = read_contract(
         ),
     ],
 )
-@pytest.mark.skip(reason="Temporary skip")
 def test_sign_transaction(transaction):
     # docs: start
 
     # Create a `LedgerSigner` instance with the derivation path and chain id
     signer = LedgerSigner(
         derivation_path_str="m/2645'/1195502025'/1470455285'/0'/0'/0",
-        chain_id=StarknetChainId.MAINNET,
+        chain_id=StarknetChainId.SEPOLIA,
     )
 
     # Sign the transaction
@@ -93,7 +92,6 @@ def test_sign_transaction(transaction):
     assert all(i != 0 for i in signature)
 
 
-@pytest.mark.skip(reason="Temporary skip")
 def test_create_account_with_ledger_signer():
     # pylint: disable=unused-variable
     signer = LedgerSigner(
