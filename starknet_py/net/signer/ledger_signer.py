@@ -6,10 +6,10 @@ from ledgerwallet.client import LedgerClient
 from starknet_py.constants import (
     EIP_2645_PATH_LENGTH,
     EIP_2645_PURPOSE,
-    PUBLIC_KEY_LENGTH,
-    SIGNATURE_LENGTH,
+    PUBLIC_KEY_RESPONSE_LENGTH,
+    SIGNATURE_RESPONSE_LENGTH,
     STARKNET_CLA,
-    VERSION_LENGTH,
+    VERSION_RESPONSE_LENGTH,
 )
 from starknet_py.net.models import AccountTransaction
 from starknet_py.net.models.chains import ChainId
@@ -29,9 +29,9 @@ class LedgerStarknetApp:
         :return: Version string.
         """
         response = self.client.apdu_exchange(ins=0)
-        if len(response) != VERSION_LENGTH:
+        if len(response) != VERSION_RESPONSE_LENGTH:
             raise ValueError(
-                f"Unexpected response length (expected: {VERSION_LENGTH}, actual: {len(response)}"
+                f"Unexpected response length (expected: {VERSION_RESPONSE_LENGTH}, actual: {len(response)}"
             )
         major, minor, patch = list(response)
         return f"{major}.{minor}.{patch}"
@@ -55,9 +55,9 @@ class LedgerStarknetApp:
             p2=0,
         )
 
-        if len(response) != PUBLIC_KEY_LENGTH:
+        if len(response) != PUBLIC_KEY_RESPONSE_LENGTH:
             raise ValueError(
-                f"Unexpected response length (expected: {PUBLIC_KEY_LENGTH}, actual: {len(response)}"
+                f"Unexpected response length (expected: {PUBLIC_KEY_RESPONSE_LENGTH}, actual: {len(response)}"
             )
 
         public_key = int.from_bytes(response[1:33], byteorder="big")
@@ -92,9 +92,9 @@ class LedgerStarknetApp:
             p2=0x00,
         )
 
-        if len(response) != SIGNATURE_LENGTH + 1 or response[0] != SIGNATURE_LENGTH:
+        if len(response) != SIGNATURE_RESPONSE_LENGTH + 1 or response[0] != SIGNATURE_RESPONSE_LENGTH:
             raise ValueError(
-                f"Unexpected response length (expected: {SIGNATURE_LENGTH}, actual: {len(response)}"
+                f"Unexpected response length (expected: {SIGNATURE_RESPONSE_LENGTH}, actual: {len(response)}"
             )
 
         r, s = int.from_bytes(response[1:33], byteorder="big"), int.from_bytes(
