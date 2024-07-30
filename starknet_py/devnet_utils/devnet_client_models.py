@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import List, Optional
 
-from starknet_py.net.client_models import Hash, PriceUnit
+from starknet_py.net.client_models import PriceUnit
 
 
 @dataclass
@@ -12,7 +12,7 @@ class MintResponse:
 
     new_balance: int
     unit: PriceUnit
-    tx_hash: Hash
+    tx_hash: int
 
 
 @dataclass
@@ -29,18 +29,18 @@ class Balance:
 
 @dataclass
 class PostmanFlushResponse:
-    messages_to_l1: List[Hash]
-    messages_to_l2: List[Hash]
-    generated_l2_transactions: List[Hash]
+    messages_to_l1: List[int]
+    messages_to_l2: List[int]
+    generated_l2_transactions: List[int]
     l1_provider: str
 
 
 @dataclass
 class PredeployedAccount:
     initial_balance: int
-    address: Hash
-    public_key: Hash
-    private_key: Hash
+    address: int
+    public_key: int
+    private_key: int
     balance: Optional[Balance] = None
 
 
@@ -63,7 +63,7 @@ class ServerConfig:
 class Config:
     seed: int
     total_accounts: int
-    account_contract_class_hash: Optional[Hash]
+    account_contract_class_hash: Optional[int]
     predeployed_accounts_initial_balance: str
     gas_price_wei: int
     gas_price_strk: int
@@ -85,10 +85,10 @@ class Config:
 @dataclass
 class IncreaseTimeResponse:
     timestamp_increased_by: int
-    block_hash: Hash
+    block_hash: int
 
 
 @dataclass
 class SetTimeResponse:
     block_timestamp: int
-    block_hash: Optional[Hash] = None
+    block_hash: Optional[int] = None
