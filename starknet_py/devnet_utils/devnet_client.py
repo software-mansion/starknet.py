@@ -202,9 +202,7 @@ class DevnetClient(FullNodeClient):
 
         return res["messaging_contract_address"]
 
-    async def postman_flush(
-        self, dry_run: Optional[bool] = False
-    ) -> PostmanFlushResponse:
+    async def postman_flush(self, dry_run: bool = False) -> PostmanFlushResponse:
         res = await self._devnet_client.call(
             method_name="postmanFlush",
             params={"dry_run": dry_run},
@@ -250,7 +248,7 @@ class DevnetClient(FullNodeClient):
         return res["message_hash"]
 
     async def get_predeployed_accounts(
-        self, with_balance: Optional[bool] = False
+        self, with_balance: bool = False
     ) -> List[PredeployedAccount]:
         """
         Get the predeployed accounts.
@@ -291,7 +289,7 @@ class DevnetClient(FullNodeClient):
         return cast(IncreaseTimeResponse, IncreasedTimeResponseSchema().load(res))
 
     async def set_time(
-        self, time: int, generate_block: Optional[bool] = False
+        self, time: int, generate_block: bool = False
     ) -> SetTimeResponse:
         """
         Set the time of the devnet. Only available when there is no pending transaction.
