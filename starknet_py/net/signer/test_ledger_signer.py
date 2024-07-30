@@ -15,7 +15,6 @@ from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V0_DIR
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
-@pytest.mark.skip(reason="Temp skip")
 def test_init_with_invalid_derivation_path():
     with pytest.raises(ValueError, match="Empty derivation path"):
         LedgerSigner(derivation_path_str="", chain_id=StarknetChainId.SEPOLIA)
