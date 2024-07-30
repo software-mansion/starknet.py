@@ -224,13 +224,20 @@ jobs:
         with:
           image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools
           options: --rm -d --name speculos-emulator -v ${{ github.workspace }}:/apps --publish 5000:5000 --publish 9999:9999
-          run: speculos -m nanox --apdu-port 9999 --api-port 5000 --display headless /apps/app-starknet/target/nanox/release/starknet
+          run: |
+            speculos \
+            -m nanox \
+            --apdu-port 9999 \
+            --api-port 5000 \
+            --display headless \
+            /apps/app-starknet/target/nanox/release/starknet
+
+      - name: Wait for Speculos to start
+        run: sleep 5
 
       - name: Update automation rules
         working-directory: starknet_py/net/signer
         run: |
-          pwd
-          ls
           curl -X POST http://127.0.0.1:5000/automation \
           -H "Content-Type: application/json" \
           -d @speculos_automation.json
