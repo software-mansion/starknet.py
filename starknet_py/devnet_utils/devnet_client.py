@@ -226,7 +226,7 @@ class DevnetClient(FullNodeClient):
                 "l2_contract_address": _to_rpc_felt(l2_contract_address),
                 "entry_point_selector": _to_rpc_felt(entry_point_selector),
                 "l1_contract_address": _to_eth_address(l1_contract_address),
-                "payload": payload,
+                "payload": [_to_rpc_felt(entry) for entry in payload],
                 "nonce": _to_rpc_felt(nonce),
                 "paid_fee_on_l1": _to_rpc_felt(paid_fee_on_l1),
             },
