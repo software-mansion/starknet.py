@@ -4,6 +4,7 @@ from typing import Tuple
 import pytest
 import pytest_asyncio
 
+from starknet_py.cairo.felt import encode_shortstring
 from starknet_py.common import create_casm_class
 from starknet_py.contract import Contract
 from starknet_py.hash.casm_class_hash import compute_casm_class_hash
@@ -120,6 +121,23 @@ async def cairo1_token_bridge_class_hash(account: BaseAccount) -> int:
         contract["casm"],
     )
     return class_hash
+
+
+@pytest_asyncio.fixture(scope="package", name="erc20_contract")
+async def cairo1_erc20_deploy(account, cairo1_erc20_class_hash):
+    calldata = {
+        "name_": encode_shortstring("erc20_basic"),
+        "symbol_": encode_shortstring("ERC20B"),
+        "decimals_": 10,
+        "initial_supply": 200,
+        "recipient": account.address,
+    }
+    return await deploy_v1_contract(
+        account=account,
+        contract_name="ERC20",
+        class_hash=cairo1_erc20_class_hash,
+        calldata=calldata,
+    )
 
 
 @pytest_asyncio.fixture(scope="package")

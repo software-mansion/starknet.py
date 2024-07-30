@@ -215,17 +215,17 @@ async def simple_storage_with_event_contract(
     return await deploy_contract(account, simple_storage_with_event_class_hash, abi)
 
 
-@pytest_asyncio.fixture(name="erc20_contract", scope="package")
-async def deploy_erc20_contract(
-    account: BaseAccount,
-    erc20_compiled_contract: str,
-    erc20_class_hash: int,
-) -> Contract:
-    """
-    Deploys erc20 contract and returns its instance.
-    """
-    abi = create_compiled_contract(compiled_contract=erc20_compiled_contract).abi
-    return await deploy_contract(account, erc20_class_hash, abi)
+# @pytest_asyncio.fixture(name="erc20_contract", scope="package")
+# async def deploy_erc20_contract(
+#     account: BaseAccount,
+#     erc20_compiled_contract: str,
+#     erc20_class_hash: int,
+# ) -> Contract:
+#     """
+#     Deploys erc20 contract and returns its instance.
+#     """
+#     abi = create_compiled_contract(compiled_contract=erc20_compiled_contract).abi
+#     return await deploy_contract(account, erc20_class_hash, abi)
 
 
 @pytest.fixture(scope="package")
