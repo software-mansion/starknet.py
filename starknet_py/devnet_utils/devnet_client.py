@@ -109,7 +109,7 @@ class DevnetClient(FullNodeClient):
         self,
         address: Hash,
         unit: Union[PriceUnit, str] = PriceUnit.WEI,
-        block_tag: Optional[str] = None,
+        block_tag: str = "latest",
     ) -> BalanceRecord:
         """
         Get the balance of the given account.
