@@ -18,7 +18,7 @@ from starknet_py.utils.schema import Schema
 # pylint: disable=unused-argument, no-self-use
 
 
-class MintSchema(Schema):
+class MintResponseSchema(Schema):
     new_balance = fields.Integer(data_key="new_balance", required=True)
     unit = PriceUnitField(data_key="unit", required=True)
     tx_hash = Felt(data_key="tx_hash", required=True)

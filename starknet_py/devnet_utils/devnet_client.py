@@ -15,7 +15,7 @@ from starknet_py.devnet_utils.devnet_rpc_schema import (
     BalanceRecordSchema,
     ConfigSchema,
     IncreasedTimeResponseSchema,
-    MintSchema,
+    MintResponseSchema,
     PostmanFlushResponseSchema,
     PredeployedAccountSchema,
     SetTimeResponseSchema,
@@ -103,7 +103,7 @@ class DevnetClient(FullNodeClient):
             },
         )
 
-        return cast(MintResponse, MintSchema().load(res))
+        return cast(MintResponse, MintResponseSchema().load(res))
 
     async def get_account_balance(
         self,
