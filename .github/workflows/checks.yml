@@ -235,6 +235,8 @@ jobs:
       - name: Update automation rules
         working-directory: starknet_py/net/signer
         run: |
+          pwd
+          ps
           curl -X POST http://127.0.0.1:5000/automation \
           -H "Content-Type: application/json" \
           -d @speculos_automation.json \
