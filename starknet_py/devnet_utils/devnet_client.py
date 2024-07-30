@@ -1,3 +1,4 @@
+import re
 from typing import List, Optional, Union, cast
 
 from aiohttp import ClientSession
@@ -224,7 +225,7 @@ class DevnetClient(FullNodeClient):
             params={
                 "l2_contract_address": _to_rpc_felt(l2_contract_address),
                 "entry_point_selector": _to_rpc_felt(entry_point_selector),
-                "l1_contract_address": _to_rpc_felt(l1_contract_address),
+                "l1_contract_address": _to_eth_address(l1_contract_address),
                 "payload": payload,
                 "nonce": _to_rpc_felt(nonce),
                 "paid_fee_on_l1": _to_rpc_felt(paid_fee_on_l1),
@@ -240,7 +241,7 @@ class DevnetClient(FullNodeClient):
             method_name="postmanConsumeMessageFromL2",
             params={
                 "from_address": _to_rpc_felt(from_address),
-                "to_address": _to_rpc_felt(to_address),
+                "to_address": _to_eth_address(to_address),
                 "payload": [_to_rpc_felt(entry) for entry in payload],
             },
         )
@@ -305,3 +306,18 @@ class DevnetClient(FullNodeClient):
         )
 
         return cast(SetTimeResponse, SetTimeResponseSchema().load(res))
+
+
+def _to_eth_address(value: Hash) -> str:
+    """
+    Convert the value to Ethereum address matching a ``^0x[a-fA-F0-9]{40}$`` pattern.
+
+    :param value: The value to convert.
+    :return: Ethereum address representation of the value.
+    """
+    if isinstance(value, str):
+        value = int(value, 16)
+
+    eth_address = hex(value)
+    assert re.match("^0x[a-fA-F0-9]{40}$", eth_address)
+    return eth_address
