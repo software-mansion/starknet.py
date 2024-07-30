@@ -10,6 +10,9 @@ from starknet_py.proxy.contract_abi_resolver import ProxyConfig
 from starknet_py.proxy.proxy_check import ArgentProxyCheck, ProxyCheck
 
 
+@pytest.mark.skip(
+    reason="This functionality is deprecated. Should be removed in the future."
+)
 @pytest.mark.asyncio
 async def test_resolving_proxies(
     account,
