@@ -40,11 +40,11 @@ async def test_get_balance_default_token_address():
 
 
 @pytest.mark.asyncio
-async def test_account_get_balance_eth(account, cairo1_hello_starknet_deploy):
+async def test_account_get_balance_eth(account, hello_starknet_contract):
     balance = await account.get_balance()
     block = await account.client.get_block(block_number="latest")
 
-    await cairo1_hello_starknet_deploy.functions["increase_balance"].invoke_v1(
+    await hello_starknet_contract.functions["increase_balance"].invoke_v1(
         amount=10, max_fee=MAX_FEE
     )
     new_balance = await account.get_balance()
@@ -56,11 +56,11 @@ async def test_account_get_balance_eth(account, cairo1_hello_starknet_deploy):
 
 
 @pytest.mark.asyncio
-async def test_account_get_balance_strk(account, cairo1_hello_starknet_deploy):
+async def test_account_get_balance_strk(account, hello_starknet_contract):
     balance = await account.get_balance(token_address=STRK_FEE_CONTRACT_ADDRESS)
     block = await account.client.get_block(block_number="latest")
 
-    await cairo1_hello_starknet_deploy.functions["increase_balance"].invoke_v3(
+    await hello_starknet_contract.functions["increase_balance"].invoke_v3(
         amount=10, l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1
     )
 

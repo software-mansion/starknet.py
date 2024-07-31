@@ -127,10 +127,10 @@ async def test_broadcasted_txn_declare_v2(
 
 
 @pytest.mark.asyncio
-async def test_broadcasted_txn_invoke_v3(account, cairo1_hello_starknet_deploy):
+async def test_broadcasted_txn_invoke_v3(account, hello_starknet_contract):
     invoke_tx = await account.sign_invoke_v3(
         calls=Call(
-            cairo1_hello_starknet_deploy.address,
+            hello_starknet_contract.address,
             get_selector_from_name("increaseBalance"),
             [10],
         ),
@@ -146,10 +146,10 @@ async def test_broadcasted_txn_invoke_v3(account, cairo1_hello_starknet_deploy):
 
 
 @pytest.mark.asyncio
-async def test_broadcasted_txn_invoke_v1(account, cairo1_hello_starknet_deploy):
+async def test_broadcasted_txn_invoke_v1(account, hello_starknet_contract):
     invoke_tx = await account.sign_invoke_v1(
         calls=Call(
-            cairo1_hello_starknet_deploy.address,
+            hello_starknet_contract.address,
             get_selector_from_name("increaseBalance"),
             [10],
         ),
