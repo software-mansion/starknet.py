@@ -40,6 +40,8 @@ class DevnetClient(FullNodeClient):
         Based on https://0xspaceshard.github.io/starknet-devnet-rs/docs/intro
 
         :param node_url: Url of the node providing rpc interface
+        :param session: Aiohttp session to be used for request. If not provided, client will create a session for
+                        every request. When using a custom session, user is responsible for closing it manually.
         """
 
         super().__init__(node_url=node_url, session=session)
@@ -192,6 +194,17 @@ class DevnetClient(FullNodeClient):
     async def postman_load(
         self, network_url: str, address: Optional[str] = None
     ) -> str:
+        """
+        Loads a `MockStarknetMessaging
+        <https://github.com/0xSpaceShard/starknet-devnet-rs/blob/main/contracts/l1-l2-messaging/solidity/src/MockStarknetMessaging.sol>`_
+        contract. The address parameter is optional; if provided, the MockStarknetMessaging contract will be fetched
+        from that address, otherwise a new one will be deployed.
+
+        :param network_url: is the URL of the JSON-RPC API of the L1 node you've run locally or that already exists
+
+        :return: The address of the messaging contract.
+        """
+
         params = {"network_url": network_url}
         if address is not None:
             params["address"] = address
@@ -204,6 +217,15 @@ class DevnetClient(FullNodeClient):
         return res["messaging_contract_address"]
 
     async def postman_flush(self, dry_run: bool = False) -> PostmanFlushResponse:
+        """
+        Goes through the newly enqueued messages, sending them from L1 to L2 and from L2 to L1. Requires no body.
+
+        :param dry_run: Optional, If `True` the result of flushing will be shown without actually triggering it.
+
+        .. warning::
+            A running L1 node is required if dry_run is not set.
+        """
+
         res = await self._devnet_client.call(
             method_name="postmanFlush",
             params={"dry_run": dry_run},
@@ -220,6 +242,23 @@ class DevnetClient(FullNodeClient):
         nonce: Hash,
         paid_fee_on_l1: Hash,
     ) -> str:
+        """
+        Sending mock transactions from L1 to L2 without the need for running L1.
+        Deployed L2 contract address l2_contract_address and entry_point_selector must be valid
+        otherwise new block will not be created. Normally nonce is calculated by L1 StarknetContract and
+        it's used in L1 and L2. In this case, we need to provide it manually.
+
+        A running L1 node is not required for this operation.
+
+        :param l2_contract_address: Address of the L2 contract.
+        :param entry_point_selector: Selector of the entry point.
+        :param l1_contract_address: Address of the L1 contract.
+        :param payload: List of felts.
+        :param nonce: Nonce.
+        :param paid_fee_on_l1: Paid fee on L1.
+
+        :return: Transaction hash.
+        """
         res = await self._devnet_client.call(
             method_name="postmanSendMessageToL2",
             params={
@@ -237,6 +276,20 @@ class DevnetClient(FullNodeClient):
     async def consume_message_from_l2(
         self, from_address: Hash, to_address: Hash, payload: List[Hash]
     ) -> str:
+        """
+        Sending mock transactions from L2 to L1. Deployed L2 contract address l2_contract_address and
+        l1_contract_address must be valid.
+
+        :param from_address: Address of the L2 contract.
+        :param to_address: Address of the L1 contract.
+        :param payload: List of felts.
+
+        :return: Message hash.
+
+        .. warning::
+            A running L1 node is required for this operation.
+
+        """
         res = await self._devnet_client.call(
             method_name="postmanConsumeMessageFromL2",
             params={
