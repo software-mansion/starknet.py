@@ -10,7 +10,7 @@ from starknet_py.devnet_utils.devnet_client_models import (
     PostmanFlushResponse,
     PredeployedAccount,
     ServerConfig,
-    SetTimeResponse,
+    SetTimeResponse, MessageToL1, MessageToL2,
 )
 from starknet_py.net.schemas.common import Felt, PriceUnitField
 from starknet_py.utils.schema import Schema
@@ -46,13 +46,35 @@ class BalanceSchema(Schema):
         return Balance(**data)
 
 
+class MessageToL1Schema(Schema):
+    from_address = Felt(data_key="from_address", required=True)
+    to_address = Felt(data_key="to_address", required=True)
+    payload = fields.List(Felt(), data_key="payload", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> MessageToL1:
+        return MessageToL1(**data)
+
+
+class MessageToL2Schema(Schema):
+    l2_contract_address = Felt(data_key="l2_contract_address", required=True)
+    entry_point_selector = Felt(data_key="entry_point_selector", required=True)
+    l1_contract_address = Felt(data_key="l1_contract_address", required=True)
+    payload = fields.List(Felt(), data_key="payload", required=True)
+    paid_fee_on_l1 = Felt(data_key="paid_fee_on_l1", required=True)
+    nonce = Felt(data_key="nonce", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> MessageToL2:
+        return MessageToL2(**data)
+
 class PostmanFlushResponseSchema(Schema):
-    messages_to_l1 = fields.List(Felt(), data_key="messages_to_l1", required=True)
-    messages_to_l2 = fields.List(Felt(), data_key="messages_to_l2", required=True)
+    messages_to_l1 = fields.List(fields.Nested(MessageToL1Schema(), data_key="messages_to_l1", required=False))
+    messages_to_l2 = fields.List(fields.Nested(MessageToL2Schema(), data_key="messages_to_l2", required=False))
     generated_l2_transactions = fields.List(
-        Felt(), data_key="generated_l2_transactions", required=True
+        Felt(), data_key="generated_l2_transactions", required=False
     )
-    l1_provider = fields.String(data_key="l1_provider", required=True)
+    l1_provider = fields.String(data_key="l1_provider", required=False)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> PostmanFlushResponse:

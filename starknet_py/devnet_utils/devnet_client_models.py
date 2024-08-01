@@ -28,9 +28,24 @@ class Balance:
 
 
 @dataclass
+class MessageToL1:
+    from_address: int
+    to_address: int
+    payload: List[int]
+
+@dataclass
+class MessageToL2:
+    l2_contract_address: int
+    entry_point_selector: int
+    l1_contract_address: int
+    payload: List[int]
+    paid_fee_on_l1: int
+    nonce: int
+
+@dataclass
 class PostmanFlushResponse:
-    messages_to_l1: List[int]
-    messages_to_l2: List[int]
+    messages_to_l1: List[MessageToL1]
+    messages_to_l2: List[MessageToL2]
     generated_l2_transactions: List[int]
     l1_provider: str
 
