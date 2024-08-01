@@ -121,7 +121,7 @@ func is_valid_signature{
     // This interface expects a signature pointer and length to make
     // no assumption about signature validation schemes.
     // But this implementation does, and it expects a (sig_r, sig_s) pair.
-    with_attr error_message("INVALID_SIGNATURE_RESPONSE_LENGTH") {
+    with_attr error_message("INVALID_SIGNATURE_LENGTH") {
         assert signature_len = 2;
     }
     let sig_r = signature[0];
