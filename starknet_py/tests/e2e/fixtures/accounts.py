@@ -79,31 +79,13 @@ async def mint_token_on_devnet(url: str, address: int, amount: int, unit: str):
     )
 
 
-@pytest_asyncio.fixture(scope="package")
-async def address_and_private_key(
-    pre_deployed_account_with_validate_deploy: BaseAccount,
-    account_with_validate_deploy_class_hash: int,
-    devnet,
-) -> Tuple[str, str]:
-    """
-    Returns address and private key of an account, depending on the network.
-    """
-
-    return await devnet_account_details(
-        pre_deployed_account_with_validate_deploy,
-        account_with_validate_deploy_class_hash,
-        devnet,
-    )
-
-
 @pytest.fixture(name="account", scope="package")
-def full_node_account(
-    address_and_private_key: Tuple[str, str], client: FullNodeClient
-) -> BaseAccount:
+def full_node_account(client: FullNodeClient) -> BaseAccount:
     """
     Returns a new Account created with FullNodeClient.
     """
-    address, private_key = address_and_private_key
+    address = DEVNET_PRE_DEPLOYED_ACCOUNT_ADDRESS
+    private_key = DEVNET_PRE_DEPLOYED_ACCOUNT_PRIVATE_KEY
 
     return Account(
         address=address,

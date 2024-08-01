@@ -40,12 +40,13 @@ async def test_get_balance_default_token_address():
 
 
 @pytest.mark.asyncio
-async def test_account_get_balance_eth(account, map_contract):
+async def test_account_get_balance_eth(account, hello_starknet_contract):
     balance = await account.get_balance()
     block = await account.client.get_block(block_number="latest")
 
-    await map_contract.functions["put"].invoke_v1(key=10, value=10, max_fee=MAX_FEE)
-
+    await hello_starknet_contract.functions["increase_balance"].invoke_v1(
+        amount=10, max_fee=MAX_FEE
+    )
     new_balance = await account.get_balance()
     old_balance = await account.get_balance(block_number=block.block_number)
 
@@ -55,12 +56,12 @@ async def test_account_get_balance_eth(account, map_contract):
 
 
 @pytest.mark.asyncio
-async def test_account_get_balance_strk(account, map_contract):
+async def test_account_get_balance_strk(account, hello_starknet_contract):
     balance = await account.get_balance(token_address=STRK_FEE_CONTRACT_ADDRESS)
     block = await account.client.get_block(block_number="latest")
 
-    await map_contract.functions["put"].invoke_v3(
-        key=10, value=10, l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1
+    await hello_starknet_contract.functions["increase_balance"].invoke_v3(
+        amount=10, l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1
     )
 
     new_balance = await account.get_balance(token_address=STRK_FEE_CONTRACT_ADDRESS)
