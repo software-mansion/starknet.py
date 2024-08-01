@@ -33,6 +33,7 @@ class MessageToL1:
     to_address: int
     payload: List[int]
 
+
 @dataclass
 class MessageToL2:
     l2_contract_address: int
@@ -41,6 +42,7 @@ class MessageToL2:
     payload: List[int]
     paid_fee_on_l1: int
     nonce: int
+
 
 @dataclass
 class PostmanFlushResponse:

@@ -6,11 +6,13 @@ from starknet_py.devnet_utils.devnet_client_models import (
     Config,
     ForkConfig,
     IncreaseTimeResponse,
+    MessageToL1,
+    MessageToL2,
     MintResponse,
     PostmanFlushResponse,
     PredeployedAccount,
     ServerConfig,
-    SetTimeResponse, MessageToL1, MessageToL2,
+    SetTimeResponse,
 )
 from starknet_py.net.schemas.common import Felt, PriceUnitField
 from starknet_py.utils.schema import Schema
@@ -68,9 +70,14 @@ class MessageToL2Schema(Schema):
     def make_dataclass(self, data, **kwargs) -> MessageToL2:
         return MessageToL2(**data)
 
+
 class PostmanFlushResponseSchema(Schema):
-    messages_to_l1 = fields.List(fields.Nested(MessageToL1Schema(), data_key="messages_to_l1", required=False))
-    messages_to_l2 = fields.List(fields.Nested(MessageToL2Schema(), data_key="messages_to_l2", required=False))
+    messages_to_l1 = fields.List(
+        fields.Nested(MessageToL1Schema(), data_key="messages_to_l1", required=False)
+    )
+    messages_to_l2 = fields.List(
+        fields.Nested(MessageToL2Schema(), data_key="messages_to_l2", required=False)
+    )
     generated_l2_transactions = fields.List(
         Felt(), data_key="generated_l2_transactions", required=False
     )
