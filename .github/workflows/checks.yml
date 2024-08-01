@@ -299,7 +299,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@dc6353516c68da0f06325f42ad880f76a5e77ec9
         with:
-          toolchain: stable
+          toolchain: 1.79.0  # Doesn't work with "stable"
 
       - name: Download contracts
         uses: actions/download-artifact@v3
@@ -435,7 +435,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@dc6353516c68da0f06325f42ad880f76a5e77ec9
         with:
-          toolchain: stable
+          toolchain: 1.79.0 # Doesn't work with "stable"
 
       - name: Download contracts
         uses: actions/download-artifact@v3
