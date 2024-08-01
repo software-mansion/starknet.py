@@ -31,7 +31,7 @@ class FunctionBaseSchema(Schema):
     outputs = fields.List(
         fields.Nested(TypeSchema()), data_key="outputs", required=True
     )
-    state_mutability = fields.String(data_key="state_mutability", default=None)
+    state_mutability = fields.String(data_key="state_mutability", dump_default=None)
 
 
 class FunctionAbiEntrySchema(FunctionBaseSchema):

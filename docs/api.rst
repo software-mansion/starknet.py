@@ -4,6 +4,7 @@ API
 
    api/client
    api/full_node_client
+   api/devnet_client
    api/account
    api/client_models
    api/client_errors
