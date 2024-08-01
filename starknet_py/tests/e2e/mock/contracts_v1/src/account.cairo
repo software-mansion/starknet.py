@@ -28,7 +28,7 @@ mod Account {
     fn validate_transaction() -> felt252 {
         let tx_info = starknet::get_tx_info().unbox();
         let signature = tx_info.signature;
-        assert(signature.len() == 2_u32, 'INVALID_SIGNATURE_LENGTH');
+        assert(signature.len() == 2_u32, 'INVALID_SIGNATURE_RESPONSE_LENGTH');
         assert(
             check_ecdsa_signature(
                 message_hash: tx_info.transaction_hash,

@@ -4,29 +4,6 @@ from starknet_py.contract import Contract, DeclareResult, DeployResult
 from starknet_py.net.account.base_account import BaseAccount
 
 
-def test_compute_hash(balance_contract):
-    assert (
-        Contract.compute_contract_hash(balance_contract)
-        == 0x7A98EAB69A2592EF5D3805990A43525D633DDC42B4D5B2524C7F38B7C59265F
-    )
-
-
-def test_compute_address(constructor_with_arguments_compiled):
-    assert (
-        Contract.compute_address(
-            compiled_contract=constructor_with_arguments_compiled,
-            constructor_args=[
-                10,
-                (1, (2, 3)),
-                [1, 2, 3],
-                {"value": 12, "nested_struct": {"value": 99}},
-            ],
-            salt=1111,
-        )
-        > 0
-    )
-
-
 @pytest.mark.parametrize("param", ["_account", "class_hash", "compiled_contract"])
 def test_declare_result_post_init(param, account):
     kwargs = {

@@ -339,7 +339,7 @@ async def account_with_validate_deploy_class_hash(
 
 @pytest_asyncio.fixture(scope="package")
 async def argent_cairo1_account_class_hash(
-    pre_deployed_account_with_validate_deploy: BaseAccount,
+    account: BaseAccount,
 ) -> int:
     # Use precompiled argent account contracts
     # we don't have the source code for this contract
@@ -350,7 +350,7 @@ async def argent_cairo1_account_class_hash(
         "argent_account.casm", directory=PRECOMPILED_CONTRACTS_DIR
     )
     return await declare_cairo1_account(
-        account=pre_deployed_account_with_validate_deploy,
+        account=account,
         compiled_account_contract=compiled_contract,
         compiled_account_contract_casm=compiled_contract_casm,
     )

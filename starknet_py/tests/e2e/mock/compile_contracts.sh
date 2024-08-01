@@ -39,6 +39,8 @@ compile_contracts_v0() {
     CONTRACTS_DIRECTORY="$MOCK_DIRECTORY/contracts"
     CONTRACTS_COMPILED_DIRECTORY="$MOCK_DIRECTORY/contracts_compiled"
 
+    mkdir -p "$CONTRACTS_COMPILED_DIRECTORY"
+
     # delete all artifacts except precompiled ones
     find "$CONTRACTS_COMPILED_DIRECTORY" -maxdepth 1 -type f -delete
 

@@ -59,10 +59,19 @@ class HttpClient(ABC):
 
 
 class RpcHttpClient(HttpClient):
-    async def call(self, method_name: str, params: dict):
+    def __init__(
+        self,
+        url,
+        session: Optional[ClientSession] = None,
+        method_prefix: str = "starknet",
+    ):
+        super().__init__(url, session)
+        self.method_prefix = method_prefix
+
+    async def call(self, method_name: str, params: Optional[dict] = None):
         payload = {
             "jsonrpc": "2.0",
-            "method": f"starknet_{method_name}",
+            "method": f"{self.method_prefix}_{method_name}",
             "id": 0,
             "params": params if params else [],
         }
