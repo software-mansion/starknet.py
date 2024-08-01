@@ -196,7 +196,7 @@ class DevnetClient(FullNodeClient):
     ) -> str:
         """
         Loads a `MockStarknetMessaging
-        <https://github.com/0xSpaceShard/starknet-devnet-rs/blob/main/contracts/l1-l2-messaging/solidity/src/MockStarknetMessaging.sol>`_
+        <https://github.com/0xSpaceShard/starknet-devnet-rs/blob/138120b355c44ae60269167b326d1a267f7af0a8/contracts/l1-l2-messaging/solidity/src/MockStarknetMessaging.sol>`_
         contract. The address parameter is optional; if provided, the MockStarknetMessaging contract will be fetched
         from that address, otherwise a new one will be deployed.
 
