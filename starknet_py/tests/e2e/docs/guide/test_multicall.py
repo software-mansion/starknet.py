@@ -1,6 +1,7 @@
 import pytest
 
 
+@pytest.mark.skip(reason="Skip until rewritten to Cairo 1")
 @pytest.mark.asyncio
 async def test_multicall(account, deployed_balance_contract):
     # pylint: disable=import-outside-toplevel
