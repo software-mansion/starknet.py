@@ -136,7 +136,7 @@ class LedgerSigner(BaseSigner):
         )
 
 
-def _parse_derivation_path_str(derivation_path_str) -> Bip32Path:
+def _parse_derivation_path_str(derivation_path_str: str) -> Bip32Path:
     """
     Parse a derivation path string to a Bip32Path object.
 
