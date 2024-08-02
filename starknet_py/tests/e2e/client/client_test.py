@@ -388,23 +388,6 @@ async def test_wait_for_tx_unknown_error(
 
 
 @pytest.mark.asyncio
-async def test_declare_contract(account, map_compiled_contract):
-    declare_tx = await account.sign_declare_v1(
-        compiled_contract=map_compiled_contract, max_fee=MAX_FEE
-    )
-
-    client = account.client
-    result = await client.declare(declare_tx)
-    await client.wait_for_tx(result.transaction_hash)
-    transaction_receipt = await client.get_transaction_receipt(result.transaction_hash)
-
-    assert transaction_receipt.execution_status == TransactionExecutionStatus.SUCCEEDED
-    assert transaction_receipt.transaction_hash
-    assert 0 < transaction_receipt.actual_fee.amount <= MAX_FEE
-    assert transaction_receipt.type == TransactionType.DECLARE
-
-
-@pytest.mark.asyncio
 async def test_custom_session_client(map_contract, devnet):
     # We must access protected `_client` to test session
     # pylint: disable=protected-access

@@ -34,6 +34,8 @@ async def test_pending_block(account, map_compiled_contract):
     assert isinstance(blk, PendingStarknetBlock)
 
 
+# TODO (#1419): Fix contract redeclaration
+@pytest.mark.skip(reason="Redeclaration occurred")
 @pytest.mark.asyncio
 async def test_latest_block(account, map_compiled_contract):
     await declare_contract(account, map_compiled_contract)

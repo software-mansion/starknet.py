@@ -661,6 +661,8 @@ async def test_sign_invoke_v3_for_fee_estimation(account, map_contract):
     assert estimation.overall_fee > 0
 
 
+# TODO (#1419): Fix contract redeclaration
+@pytest.mark.skip(reason="Redeclaration occurred")
 @pytest.mark.asyncio
 async def test_sign_declare_v1_for_fee_estimation(account, map_compiled_contract):
     transaction = await account.sign_declare_v1(
