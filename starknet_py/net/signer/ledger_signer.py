@@ -73,14 +73,6 @@ class LedgerStarknetApp:
         :return: Signature as a list of two integers.
         """
 
-        data = _derivation_path_to_bytes(derivation_path)
-        self.client.apdu_exchange(
-            ins=0,
-            data=data,
-            p1=0,
-            p2=0,
-        )
-
         # for some reason the Ledger app expects the data to be left shifted by 4 bits
         shifted_int = hash_val << 4
         shifted_bytes = shifted_int.to_bytes(32, byteorder="big")
