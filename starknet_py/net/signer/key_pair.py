@@ -27,7 +27,7 @@ class KeyPair:
     @staticmethod
     def generate() -> "KeyPair":
         """
-        Generate a random key pair.
+        Create a key pair from a randomly generated private key.
 
         :return: KeyPair object.
         """
