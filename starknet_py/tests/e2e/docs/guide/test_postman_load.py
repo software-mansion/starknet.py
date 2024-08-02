@@ -3,9 +3,11 @@ import pytest
 from starknet_py.hash.selector import get_selector_from_name
 
 
+@pytest.mark.skip(reason="Test require eth node running.")
 @pytest.mark.asyncio
 async def test_postman_load(devnet_client, l1_l2_contract, account):
     # pylint: disable=import-outside-toplevel
+    # pylint: disable=unused-variable
 
     eth_account_address = 1390849295786071768276380950238675083608645509734
 
