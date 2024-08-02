@@ -317,7 +317,7 @@ jobs:
       - name: Install devnet
         run: |
           $DEVNET_INSTALL_DIR = "$(git rev-parse --show-toplevel)/starknet_py/tests/e2e/devnet"
-          cargo install --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --locked --rev 3ad81456092a2da939be1f590855cea2c18ce40c --root $DEVNET_INSTALL_DIR
+          cargo install --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --locked --rev 7fb5a9e --root $DEVNET_INSTALL_DIR
 
       # ====================== SETUP PYTHON ====================== #
 
@@ -471,7 +471,7 @@ jobs:
       - name: Install devnet
         run: |
           $DEVNET_INSTALL_DIR = "$(git rev-parse --show-toplevel)/starknet_py/tests/e2e/devnet"
-          cargo install --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --locked --rev 3ad81456092a2da939be1f590855cea2c18ce40c --root $DEVNET_INSTALL_DIR
+          cargo install --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --locked --rev 7fb5a9e --root $DEVNET_INSTALL_DIR
 
       # ====================== RUN TESTS ====================== #
 
