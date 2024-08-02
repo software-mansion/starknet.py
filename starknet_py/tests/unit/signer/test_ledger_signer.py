@@ -87,7 +87,7 @@ def test_sign_transaction(transaction):
     # docs: end
 
     assert isinstance(signature, list)
-    assert len(signature) > 0
+    assert len(signature) == 2
     assert all(isinstance(i, int) for i in signature)
     assert all(i != 0 for i in signature)
 
