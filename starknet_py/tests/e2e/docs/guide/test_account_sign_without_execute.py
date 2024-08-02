@@ -1,16 +1,21 @@
 import pytest
 
 from starknet_py.net.account.account import Account
-from starknet_py.net.models.transaction import DeclareV1, DeployAccountV1, InvokeV1
+from starknet_py.net.models.transaction import DeclareV2, DeployAccountV1, InvokeV1
 
 
 @pytest.mark.asyncio
-async def test_account_sign_without_execute(account, map_compiled_contract):
+async def test_account_sign_without_execute(
+    account, sierra_minimal_compiled_contract_and_class_hash
+):
     # pylint: disable=import-outside-toplevel
     assert isinstance(account, Account)
     address = selector = class_hash = salt = 0x1
     calldata = []
-    compiled_contract = map_compiled_contract
+    (
+        compiled_contract,
+        compiled_class_hash,
+    ) = sierra_minimal_compiled_contract_and_class_hash
     max_fee = 100000
 
     # docs: start
@@ -21,8 +26,10 @@ async def test_account_sign_without_execute(account, map_compiled_contract):
     invoke_transaction = await account.sign_invoke_v1(call, max_fee=max_fee)
 
     # Create a signed Declare transaction
-    declare_transaction = await account.sign_declare_v1(
-        compiled_contract=compiled_contract, max_fee=max_fee
+    declare_transaction = await account.sign_declare_v2(
+        compiled_contract,
+        compiled_class_hash=compiled_class_hash,
+        auto_estimate=True,
     )
 
     # Create a signed DeployAccount transaction
@@ -35,5 +42,5 @@ async def test_account_sign_without_execute(account, map_compiled_contract):
     # docs: end
 
     assert isinstance(invoke_transaction, InvokeV1)
-    assert isinstance(declare_transaction, DeclareV1)
+    assert isinstance(declare_transaction, DeclareV2)
     assert isinstance(deploy_account_transaction, DeployAccountV1)

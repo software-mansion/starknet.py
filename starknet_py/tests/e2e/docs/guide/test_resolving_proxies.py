@@ -10,6 +10,7 @@ from starknet_py.proxy.contract_abi_resolver import ProxyConfig
 from starknet_py.proxy.proxy_check import ArgentProxyCheck, ProxyCheck
 
 
+@pytest.mark.skip(reason="Proxies are not supported in Cairo 1.")
 @pytest.mark.asyncio
 async def test_resolving_proxies(
     account,

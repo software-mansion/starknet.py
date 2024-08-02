@@ -189,16 +189,6 @@ def test_missing_type_used(missing_name, input_dict):
         AbiParser([input_dict]).parse()
 
 
-def test_deserialize_proxy_abi():
-    # Contains all types of ABI apart from structures
-    abi = json.loads(
-        read_contract("oz_proxy_abi.json", directory=CONTRACTS_COMPILED_V0_DIR)
-    )
-    deserialized = AbiParser(abi).parse()
-
-    assert deserialized == fixtures.oz_proxy_abi
-
-
 def test_deserialize_balance_struct_event_abi():
     # Contains all types of ABI apart from structures
     abi = json.loads(
