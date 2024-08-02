@@ -1,7 +1,7 @@
 import pytest
 
-# TODO (#1419)
 
+# TODO (#1419): Fix redeclaration
 @pytest.mark.skip(reason="Skip until rewritten to Cairo 1")
 @pytest.mark.asyncio
 async def test_multicall(account, deployed_balance_contract):

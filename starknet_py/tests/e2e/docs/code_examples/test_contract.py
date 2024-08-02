@@ -53,7 +53,7 @@ async def test_from_address(account, contract_address):
     # docs-end: from_address
 
 
-# TODO (#1419)
+# TODO (#1419): Fix redeclaration
 @pytest.mark.skip(reason="Skip until fixed")
 @pytest.mark.asyncio
 async def test_declare_v2(account):
