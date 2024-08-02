@@ -7,7 +7,8 @@ env:
 on:
   push:
     branches:
-      - kkawula/update-devnet-v0.2.0-rc.1
+      - master
+      - development
   pull_request:
   workflow_dispatch:
 
