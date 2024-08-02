@@ -4,7 +4,7 @@ from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.client_models import ResourceBounds
 
 
-# @pytest.mark.skip(reason="Test require eth node running.")
+@pytest.mark.skip(reason="Test require eth node running.")
 @pytest.mark.asyncio
 async def test_postman_load(devnet_client, l1_l2_contract, account):
     # pylint: disable=import-outside-toplevel
