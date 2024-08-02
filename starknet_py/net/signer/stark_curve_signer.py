@@ -1,6 +1,5 @@
 from typing import List
 
-
 from starknet_py.hash.utils import message_signature
 from starknet_py.net.models import AddressRepresentation, parse_address
 from starknet_py.net.models.chains import ChainId
