@@ -53,8 +53,8 @@ async def test_from_address(account, contract_address):
     # docs-end: from_address
 
 
-# TODO (#1419): Fix redeclaration
-@pytest.mark.skip(reason="Skip until fixed")
+# TODO (#1419): Fix contract redeclaration
+@pytest.mark.skip(reason="Redeclaration occurred")
 @pytest.mark.asyncio
 async def test_declare_v2(account):
     compiled_contract = load_contract(

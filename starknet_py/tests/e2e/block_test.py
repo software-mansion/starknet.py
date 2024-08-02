@@ -23,8 +23,8 @@ async def declare_contract(account: BaseAccount, compiled_contract: str):
     await declare_result.wait_for_acceptance()
 
 
-# TODO (#1419): Fix redeclaration
-@pytest.mark.skip(reason="Skip until rewritten to Cairo 1")
+# TODO (#1419): Fix contract redeclaration
+@pytest.mark.skip(reason="Redeclaration occurred")
 @pytest.mark.asyncio
 async def test_pending_block(account, map_compiled_contract):
     await declare_contract(account, map_compiled_contract)
