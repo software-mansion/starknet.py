@@ -63,12 +63,11 @@ class LedgerStarknetApp:
         public_key = int.from_bytes(response[1:33], byteorder="big")
         return public_key
 
-    def sign_hash(self, derivation_path: Bip32Path, hash_val: int) -> List[int]:
+    def sign_hash(self, hash_val: int) -> List[int]:
         """
         Request a signature for a raw hash with the given derivation path.
         Currently, the Ledger app only supports blind signing raw hashes.
 
-        :param derivation_path: Derivation path of the account.
         :param hash_val: Hash to sign.
         :return: Signature as a list of two integers.
         """
@@ -117,15 +116,11 @@ class LedgerSigner(BaseSigner):
 
     def sign_transaction(self, transaction: AccountTransaction) -> List[int]:
         tx_hash = transaction.calculate_hash(self.chain_id)
-        return self.app.sign_hash(
-            derivation_path=self.derivation_path, hash_val=tx_hash
-        )
+        return self.app.sign_hash(hash_val=tx_hash)
 
     def sign_message(self, typed_data: TypedData, account_address: int) -> List[int]:
         msg_hash = typed_data.message_hash(account_address)
-        return self.app.sign_hash(
-            derivation_path=self.derivation_path, hash_val=msg_hash
-        )
+        return self.app.sign_hash(hash_val=msg_hash)
 
 
 def _parse_derivation_path_str(derivation_path_str: str) -> Bip32Path:
