@@ -123,6 +123,7 @@ async def test_account_estimate_fee_for_declare_transaction(
     )
 
 
+@pytest.mark.skip(reason="Skip until rewritten to Cairo 1")
 @pytest.mark.asyncio
 async def test_account_estimate_fee_for_transactions(
     account, map_compiled_contract, map_contract

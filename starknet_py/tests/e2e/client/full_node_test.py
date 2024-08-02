@@ -469,6 +469,7 @@ async def test_simulate_transactions_invoke(account, deployed_balance_contract):
     assert simulated_txs[0].transaction_trace.execution_resources is not None
 
 
+@pytest.mark.skip(reason="Skip until rewritten to Cairo 1")
 @pytest.mark.asyncio
 async def test_simulate_transactions_declare(account):
     compiled_contract = read_contract(
