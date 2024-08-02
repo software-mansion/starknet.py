@@ -5,7 +5,7 @@ Abstract
 --------
 
 In order to test interaction with L1 contracts, devnet client provides a way to mock the L1 interaction.
-Before taking a look at the examples, please get faimiliar with the `devnet postman docs <https://0xspaceshard.github.io/starknet-devnet-rs/docs/postman>`_ and messaging mechanism:
+Before taking a look at the examples, please get familiar with the `devnet postman docs <https://0xspaceshard.github.io/starknet-devnet-rs/docs/postman>`_ and messaging mechanism:
 
 - `Writing messaging contracts <https://book.cairo-lang.org/ch16-04-L1-L2-messaging.html>`_
 - `Mechanism overview <https://docs.starknet.io/architecture-and-concepts/network-architecture/messaging-mechanism/>`_
@@ -14,7 +14,8 @@ Before taking a look at the examples, please get faimiliar with the `devnet post
 L1 network setup
 ----------------
 
-First of all you should deploy `messaging contract <https://github.com/0xSpaceShard/starknet-devnet-rs/blob/138120b355c44ae60269167b326d1a267f7af0a8/contracts/l1-l2-messaging/solidity/src/MockStarknetMessaging.sol>`_ on ethereum network.
+First of all you should deploy `messaging contract <https://github.com/0xSpaceShard/starknet-devnet-rs/blob/138120b355c44ae60269167b326d1a267f7af0a8/contracts/l1-l2-messaging/solidity/src/MockStarknetMessaging.sol>`_
+on ethereum network or load the existing one.
 
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/devnet_utils/test_l1_integration.py
     :language: python

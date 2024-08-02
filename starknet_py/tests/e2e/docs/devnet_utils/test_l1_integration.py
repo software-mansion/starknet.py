@@ -1,9 +1,10 @@
 import pytest
 
 from starknet_py.hash.selector import get_selector_from_name
+from starknet_py.net.client_models import ResourceBounds
 
 
-@pytest.mark.skip(reason="Test require eth node running.")
+# @pytest.mark.skip(reason="Test require eth node running.")
 @pytest.mark.asyncio
 async def test_postman_load(devnet_client, l1_l2_contract, account):
     # pylint: disable=import-outside-toplevel
@@ -19,7 +20,7 @@ async def test_postman_load(devnet_client, l1_l2_contract, account):
     # docs: end
     client: DevnetClient = devnet_client
     # docs: start
-    # Load the messaging contract on ETH network
+    # Deploying the messaging contract on ETH network
     # e.g. anvil eth devnet https://github.com/foundry-rs/foundry/tree/master/crates/anvil
 
     await client.postman_load(network_url="http://127.0.0.1:8545")
@@ -37,8 +38,12 @@ async def test_postman_load(devnet_client, l1_l2_contract, account):
     # docs: messaging-contract-start
     contract = await Contract.from_address(address=contract_address, provider=account)
 
-    await contract.functions["increase_balance"].invoke_v1(
-        user=account.address, amount=100, max_fee=int(1e16)
+    await contract.functions["increase_balance"].invoke_v3(
+        user=account.address,
+        amount=100,
+        l1_resource_bounds=ResourceBounds(
+            max_amount=50000, max_price_per_unit=int(1e12)
+        ),
     )
 
     # docs: messaging-contract-end
@@ -46,11 +51,13 @@ async def test_postman_load(devnet_client, l1_l2_contract, account):
 
     # docs: messaging-contract-start
     # Invoking function that is emitting message
-    await contract.functions["withdraw"].invoke_v1(
+    await contract.functions["withdraw"].invoke_v3(
         user=account.address,
         amount=100,
         l1_address=eth_account_address,
-        max_fee=int(1e16),
+        l1_resource_bounds=ResourceBounds(
+            max_amount=50000, max_price_per_unit=int(1e12)
+        ),
     )
     # docs: messaging-contract-end
     assert await contract.functions["get_balance"].call(user=account.address) == (0,)
