@@ -28,7 +28,7 @@ Deploying L2 interaction contract
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Interaction with L1 is done by sending a message using `send_message_to_l1_syscall` function.
-So in order to test this functionality, you need to deploy a contract that has this functionality.
+So in order to test it, you need to deploy a contract that has this functionality.
 Example contract: `l1_l2.cairo <https://github.com/0xSpaceShard/starknet-devnet-js/blob/5069ec3397f31a408d3df2734ae40d93b42a0f7f/test/data/l1_l2.cairo>`_
 
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/devnet_utils/test_l1_integration.py
