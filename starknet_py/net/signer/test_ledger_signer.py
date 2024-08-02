@@ -181,7 +181,6 @@ async def test_deploy_account_and_transfer(client):
     )
     await invocation.wait_for_acceptance()
     # docs-deploy-account-and-transfer: end
-    sender_balance_after = (await _get_account_balance_eth(client, address))[0]
     recipient_balance_after = (
         await _get_account_balance_eth(client, recipient_address)
     )[0]
