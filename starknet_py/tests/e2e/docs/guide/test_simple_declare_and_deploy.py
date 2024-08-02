@@ -1,6 +1,6 @@
 import pytest
 
-
+# TODO (#1419)
 @pytest.mark.skip(reason="Skip until rewritten to Cairo 1")
 @pytest.mark.asyncio
 async def test_simple_declare_and_deploy(account, map_compiled_contract):

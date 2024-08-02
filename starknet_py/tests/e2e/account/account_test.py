@@ -122,7 +122,7 @@ async def test_account_estimate_fee_for_declare_transaction(
         == estimated_fee.overall_fee
     )
 
-
+# TODO (#1419)
 @pytest.mark.skip(reason="Skip until rewritten to Cairo 1")
 @pytest.mark.asyncio
 async def test_account_estimate_fee_for_transactions(
