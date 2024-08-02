@@ -52,6 +52,8 @@ async def test_block_with_tx_hashes_pending(account):
     assert isinstance(blk.transactions, list)
 
 
+# TODO (#1419): Fix contract redeclaration
+@pytest.mark.skip(reason="Redeclaration occurred")
 @pytest.mark.asyncio
 async def test_block_with_tx_hashes_latest(
     account,
@@ -83,6 +85,8 @@ async def test_get_block_with_txs_pending(account):
     assert isinstance(blk.transactions, list)
 
 
+# TODO (#1419): Fix contract redeclaration
+@pytest.mark.skip(reason="Redeclaration occurred")
 @pytest.mark.asyncio
 async def test_get_block_with_txs_latest(
     account,
