@@ -21,8 +21,12 @@ from starknet_py.devnet_utils.devnet_rpc_schema import (
     PredeployedAccountSchema,
     SetTimeResponseSchema,
 )
-from starknet_py.net.client_models import Hash, PriceUnit
-from starknet_py.net.full_node_client import FullNodeClient, _to_rpc_felt
+from starknet_py.net.client_models import Hash, PriceUnit, Tag
+from starknet_py.net.full_node_client import (
+    FullNodeClient,
+    _get_raw_block_identifier,
+    _to_rpc_felt,
+)
 from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.utils.sync import add_sync_methods
 
@@ -142,19 +146,26 @@ class DevnetClient(FullNodeClient):
 
         return res["block_hash"]
 
-    async def abort_block(self, starting_block_id: Hash) -> List[str]:
+    async def abort_block(
+        self,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> List[str]:
         """
         This functionality allows simulating block abortion that can occur on mainnet.
         It is supported in the `--state-archive-capacity full` mode.
 
         :param starting_block_id: The state of Devnet will be reverted to the state before `starting_block_hash`.
         """
+        print("JAJO: ")
 
         res = await self._devnet_client.call(
             method_name="abortBlocks",
-            params={"starting_block_id": _to_rpc_felt(starting_block_id)},
+            params={
+                "starting_block_id": _get_raw_block_identifier(block_hash, block_number)
+            },
         )
-
+        print("JAJO: ", res)
         return res["aborted"]
 
     async def dump(self, path: str):
