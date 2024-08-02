@@ -21,4 +21,5 @@ Starknet SDK for Python
    guide
    api
    development
+   devnet_utils
    migration_guide
