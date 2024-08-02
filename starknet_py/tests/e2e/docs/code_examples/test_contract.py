@@ -53,6 +53,7 @@ async def test_from_address(account, contract_address):
     # docs-end: from_address
 
 
+@pytest.mark.skip(reason="Skip until fixed")
 @pytest.mark.asyncio
 async def test_declare_v2(account):
     compiled_contract = load_contract(

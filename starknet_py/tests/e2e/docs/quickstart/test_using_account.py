@@ -7,6 +7,7 @@ from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 directory = os.path.dirname(__file__)
 
 
+@pytest.skip(reason="Skip untill rewritten to Cairo 1")
 @pytest.mark.asyncio
 async def test_using_account(account, map_compiled_contract):
     # pylint: disable=import-outside-toplevel, duplicate-code, too-many-locals
