@@ -11,7 +11,10 @@ from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models import DeclareV1, DeployAccountV1, InvokeV1, StarknetChainId
 from starknet_py.net.signer.ledger_signer import LedgerSigner
 from starknet_py.tests.e2e.fixtures.accounts import mint_token_on_devnet
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V0_DIR
+from starknet_py.tests.e2e.fixtures.constants import (
+    CONTRACTS_COMPILED_V0_DIR,
+    ETH_FEE_CONTRACT_ADDRESS,
+)
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
@@ -114,10 +117,9 @@ def test_create_account_with_ledger_signer():
 
 
 async def _get_account_balance_eth(client: FullNodeClient, address: int):
-    eth_address = 0x49D36570D4E46F48E99674BD3FCC84644DDD6B96F7C741B1562B82F9E004DC7
     balance = await client.call_contract(
         call=Call(
-            to_addr=eth_address,
+            to_addr=ETH_FEE_CONTRACT_ADDRESS,
             calldata=[address],
             selector=get_selector_from_name("balanceOf"),
         )
@@ -174,8 +176,9 @@ async def test_deploy_account_and_transfer(client):
         await _get_account_balance_eth(client, recipient_address)
     )[0]
 
-    eth_address = 0x49D36570D4E46F48E99674BD3FCC84644DDD6B96F7C741B1562B82F9E004DC7
-    contract = await Contract.from_address(provider=account, address=eth_address)
+    contract = await Contract.from_address(
+        provider=account, address=ETH_FEE_CONTRACT_ADDRESS
+    )
     invocation = await contract.functions["transfer"].invoke_v1(
         recipient_address, 100, max_fee=int(1e16)
     )
