@@ -1,8 +1,10 @@
 from dataclasses import dataclass
+from os import urandom
 from typing import List
 
 from eth_keyfile.keyfile import extract_key_from_keyfile
 
+from starknet_py.constants import FIELD_PRIME
 from starknet_py.hash.utils import message_signature, private_to_stark_key
 from starknet_py.net.client_models import Hash
 from starknet_py.net.models import AddressRepresentation, parse_address
@@ -27,6 +29,18 @@ class KeyPair:
             self.public_key = int(public_key, 0)
         else:
             self.public_key = public_key
+
+    @staticmethod
+    def generate() -> "KeyPair":
+        """
+        Create a key pair from a randomly generated private key.
+
+        :return: KeyPair object.
+        """
+        random_int = int.from_bytes(urandom(32), byteorder="big")
+        private_key = random_int % FIELD_PRIME
+        public_key = private_to_stark_key(private_key)
+        return KeyPair(private_key=private_key, public_key=public_key)
 
     @staticmethod
     def from_private_key(key: Hash) -> "KeyPair":
