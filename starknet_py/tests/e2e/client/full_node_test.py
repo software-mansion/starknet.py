@@ -45,6 +45,8 @@ FUNCTION_TWO_NAME = "another_put"
 EVENT_TWO_PARSED_NAME = _parse_event_name("another_put_called")
 
 
+# TODO (#1419): Fix contract redeclaration
+@pytest.mark.skip(reason="Redeclaration occurred")
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_node_get_declare_transaction_by_block_number_and_index(
@@ -60,6 +62,8 @@ async def test_node_get_declare_transaction_by_block_number_and_index(
     assert tx.version == 1
 
 
+# TODO (#1419): Fix contract redeclaration
+@pytest.mark.skip(reason="Redeclaration occurred")
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_class_at(
