@@ -127,21 +127,6 @@ async def test_broadcasted_txn_declare_v2(
 
 
 @pytest.mark.asyncio
-async def test_broadcasted_txn_declare_v1(account, map_compiled_contract):
-    declare_v1 = await account.sign_declare_v1(
-        compiled_contract=map_compiled_contract,
-        max_fee=MAX_FEE,
-    )
-
-    brodcasted_txn = _create_broadcasted_txn(declare_v1)
-
-    assert brodcasted_txn["type"] == TransactionType.DECLARE.name
-
-    expected_keys = dataclasses.fields(DeclareV1)
-    assert all(key.name in brodcasted_txn for key in expected_keys)
-
-
-@pytest.mark.asyncio
 async def test_broadcasted_txn_invoke_v3(account, map_contract):
     invoke_tx = await account.sign_invoke_v3(
         calls=Call(map_contract.address, get_selector_from_name("put"), [3, 4]),
