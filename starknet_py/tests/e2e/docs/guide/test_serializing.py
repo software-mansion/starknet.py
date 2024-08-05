@@ -80,7 +80,7 @@ def test_abi_parsing():
     )
 
     assert [1, 2, 3, 4] == event_serializer.serialize(
-        {"owner": 1, "spedner": 2, "value": 3 + 4 * 2**128}
+        {"owner": 1, "spender": 2, "value": 3 + 4 * 2**128}
     )
     assert {
         "owner": 1,
