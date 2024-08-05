@@ -140,7 +140,7 @@ async def cairo1_erc20_deploy(account, cairo1_erc20_class_hash):
     )
 
 
-@pytest_asyncio.fixture(scope="package")
+@pytest_asyncio.fixture(scope="package", name="hello_starknet_contract")
 async def cairo1_hello_starknet_deploy(
     account: BaseAccount, cairo1_hello_starknet_class_hash
 ):

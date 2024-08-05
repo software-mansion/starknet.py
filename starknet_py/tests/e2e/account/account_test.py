@@ -164,7 +164,6 @@ async def test_sending_multicall(account, map_contract, key, val):
 
     res = await account.execute_v1(calls=calls, max_fee=int(1e20))
     await account.client.wait_for_tx(res.transaction_hash)
-
     (value,) = await map_contract.functions["get"].call(key=key)
 
     assert value == val
