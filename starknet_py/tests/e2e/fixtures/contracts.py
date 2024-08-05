@@ -80,27 +80,6 @@ def simple_storage_with_event_compiled_contract() -> str:
     )
 
 
-@pytest.fixture(scope="package")
-def constructor_with_arguments_compiled_contract() -> str:
-    """
-    Returns compiled constructor_with_arguments contract.
-    """
-    return read_contract(
-        "constructor_with_arguments_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR
-    )
-
-
-@pytest.fixture(scope="package")
-def constructor_without_arguments_compiled_contract() -> str:
-    """
-    Returns compiled constructor_without_arguments contract.
-    """
-    return read_contract(
-        "constructor_without_arguments_compiled.json",
-        directory=CONTRACTS_COMPILED_V0_DIR,
-    )
-
-
 async def deploy_contract(account: BaseAccount, class_hash: int, abi: List) -> Contract:
     """
     Deploys a contract and returns its instance.

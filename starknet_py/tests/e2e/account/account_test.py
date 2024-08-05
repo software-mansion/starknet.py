@@ -1,4 +1,3 @@
-import sys
 from typing import cast
 from unittest.mock import AsyncMock, patch
 
@@ -56,10 +55,10 @@ async def test_get_balance_throws_when_token_not_specified(account):
         await modified_account.get_balance()
 
 
-@pytest.mark.skipif(
-    "--contract_dir=v2" not in sys.argv,
-    reason="Some cairo 1 contracts compiled with v1 compiler fail with new devnet-rs",
-)
+# @pytest.mark.skipif(
+#     "--contract_dir=v2" not in sys.argv,
+#     reason="Some cairo 1 contracts compiled with v1 compiler fail with new devnet-rs",
+# )
 @pytest.mark.asyncio
 async def test_balance_when_token_specified(account, erc20_contract):
     balance = await account.get_balance(erc20_contract.address)
@@ -67,10 +66,10 @@ async def test_balance_when_token_specified(account, erc20_contract):
     assert balance == 200
 
 
-@pytest.mark.skipif(
-    "--contract_dir=v2" not in sys.argv,
-    reason="Some cairo 1 contracts compiled with v1 compiler fail with new devnet-rs",
-)
+# @pytest.mark.skipif(
+#     "--contract_dir=v2" not in sys.argv,
+#     reason="Some cairo 1 contracts compiled with v1 compiler fail with new devnet-rs",
+# )
 @pytest.mark.asyncio
 async def test_estimated_fee_greater_than_zero(account, erc20_contract):
     estimated_fee = (
