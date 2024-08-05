@@ -47,28 +47,33 @@ async def test_using_existing_contracts(account, erc20_contract):
     # docs: start
     contract = await Contract.from_address(provider=account, address=address)
 
-    sender = "321"
+    sender = account.address
     recipient = "123"
-
+    # docs: end
+    invocation = await contract.functions["increase_allowance"].invoke_v1(
+        sender, 200, max_fee=int(1e16)
+    )
+    await invocation.wait_for_acceptance()
+    # docs: start
     # Using only positional arguments
-    invocation = await contract.functions["transferFrom"].invoke_v1(
-        sender, recipient, 10000, max_fee=int(1e16)
+    invocation = await contract.functions["transfer_from"].invoke_v1(
+        sender, recipient, 50, max_fee=int(1e16)
     )
     # docs: end
     await invocation.wait_for_acceptance()
     # docs: start
 
     # Using only keyword arguments
-    invocation = await contract.functions["transferFrom"].invoke_v1(
-        sender=sender, recipient=recipient, amount=10000, max_fee=int(1e16)
+    invocation = await contract.functions["transfer_from"].invoke_v1(
+        sender=sender, recipient=recipient, amount=50, max_fee=int(1e16)
     )
     # docs: end
     await invocation.wait_for_acceptance()
     # docs: start
 
     # Mixing positional with keyword arguments
-    invocation = await contract.functions["transferFrom"].invoke_v1(
-        sender, recipient, amount=10000, max_fee=int(1e16)
+    invocation = await contract.functions["transfer_from"].invoke_v1(
+        sender, recipient, amount=50, max_fee=int(1e16)
     )
     # docs: end
     await invocation.wait_for_acceptance()
@@ -76,19 +81,18 @@ async def test_using_existing_contracts(account, erc20_contract):
 
     # Creating a prepared function call with arguments
     # It is also possible to use `prepare_invoke_v3`
-    transfer = contract.functions["transferFrom"].prepare_invoke_v1(
-        sender, recipient, amount=10000, max_fee=int(1e16)
+    transfer = contract.functions["transfer_from"].prepare_invoke_v1(
+        sender,
+        recipient,
+        amount=50,
+        max_fee=int(1e16),
     )
     invocation = await transfer.invoke()
 
     # Wait for tx
     await invocation.wait_for_acceptance()
 
-    (balance,) = await contract.functions["balanceOf"].call(recipient)
-
-    # You can also use key access, call returns TupleDataclass which behaves similar to NamedTuple
-    result = await contract.functions["balanceOf"].call(recipient)
-    balance = result.balance
+    (balance,) = await contract.functions["balance_of"].call(recipient)
     # docs: end
 
     assert balance == 200
