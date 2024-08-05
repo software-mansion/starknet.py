@@ -237,7 +237,7 @@ jobs:
         run: sleep 5
 
       - name: Update automation rules
-        working-directory: starknet_py/net/signer
+        working-directory: starknet_py/tests/unit/signer
         run: |
           curl -X POST http://127.0.0.1:5000/automation \
           -H "Content-Type: application/json" \
