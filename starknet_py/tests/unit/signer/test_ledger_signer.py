@@ -1,6 +1,6 @@
 import pytest
 
-from starknet_py.common import create_compiled_contract
+from starknet_py.common import create_sierra_compiled_contract
 from starknet_py.constants import EIP_2645_PATH_LENGTH
 from starknet_py.contract import Contract
 from starknet_py.hash.address import compute_address
@@ -8,14 +8,19 @@ from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.account import Account
 from starknet_py.net.client_models import Call
 from starknet_py.net.full_node_client import FullNodeClient
-from starknet_py.net.models import DeclareV1, DeployAccountV1, InvokeV1, StarknetChainId
+from starknet_py.net.models import (
+    DeclareV3,
+    DeployAccountV1,
+    InvokeV1,
+    StarknetChainId,
+)
 from starknet_py.net.signer.ledger_signer import LedgerSigner
 from starknet_py.tests.e2e.fixtures.accounts import mint_token_on_devnet
 from starknet_py.tests.e2e.fixtures.constants import (
-    CONTRACTS_COMPILED_V0_DIR,
     ETH_FEE_CONTRACT_ADDRESS,
+    MAX_RESOURCE_BOUNDS,
 )
-from starknet_py.tests.e2e.fixtures.misc import read_contract
+from starknet_py.tests.e2e.fixtures.misc import load_contract
 
 
 def test_init_with_invalid_derivation_path():
@@ -39,9 +44,8 @@ def test_init_with_invalid_derivation_path():
         )
 
 
-compiled_contract = read_contract(
-    "erc20_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR
-)
+compiled_contract = load_contract("HelloStarknet")["sierra"]
+sierra_contract_class = create_sierra_compiled_contract(compiled_contract)
 
 
 @pytest.mark.parametrize(
@@ -64,15 +68,14 @@ compiled_contract = read_contract(
             nonce=23,
             version=1,
         ),
-        DeclareV1(
-            contract_class=create_compiled_contract(
-                compiled_contract=compiled_contract
-            ),
-            sender_address=123,
-            max_fee=10000,
+        DeclareV3(
+            contract_class=sierra_contract_class,
+            compiled_class_hash=0x1,
+            sender_address=0x123,
             signature=[],
-            nonce=23,
-            version=1,
+            nonce=4,
+            version=3,
+            resource_bounds=MAX_RESOURCE_BOUNDS,
         ),
     ],
 )
