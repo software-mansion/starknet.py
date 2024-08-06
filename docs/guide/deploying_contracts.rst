@@ -14,17 +14,6 @@ Here's an example how to use it.
     :dedent: 4
 
 
-Simple declare and deploy
--------------------------
-
-The simplest way of declaring and deploying contracts on the Starknet is to use the :ref:`Contract` class.
-Under the hood, this flow first sends ``Declare`` transaction and then sends ``Invoke``
-through Universal Deployment Contract (UDC) to deploy a contract.
-
-.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_simple_declare_and_deploy.py
-    :language: python
-    :dedent: 4
-
 Simple deploy
 -------------
 
