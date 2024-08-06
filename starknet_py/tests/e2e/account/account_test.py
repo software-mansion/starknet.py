@@ -88,9 +88,14 @@ async def test_estimated_fee_greater_than_zero(account, erc20_contract):
 
 
 @pytest.mark.asyncio
-async def test_estimate_fee_for_declare_transaction(account, map_compiled_contract):
-    declare_tx = await account.sign_declare_v1(
-        compiled_contract=map_compiled_contract, max_fee=MAX_FEE
+async def test_estimate_fee_for_declare_transaction(
+    account, map_compiled_contract_and_class_hash
+):
+    (compiled_contract, class_hash) = map_compiled_contract_and_class_hash
+    declare_tx = await account.sign_declare_v3(
+        compiled_contract=compiled_contract,
+        compiled_class_hash=class_hash,
+        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
     )
 
     estimated_fee = await account.client.estimate_fee(tx=declare_tx)
@@ -106,10 +111,13 @@ async def test_estimate_fee_for_declare_transaction(account, map_compiled_contra
 
 @pytest.mark.asyncio
 async def test_account_estimate_fee_for_declare_transaction(
-    account, map_compiled_contract
+    account, map_compiled_contract_and_class_hash
 ):
-    declare_tx = await account.sign_declare_v1(
-        compiled_contract=map_compiled_contract, max_fee=MAX_FEE
+    (compiled_contract, class_hash) = map_compiled_contract_and_class_hash
+    declare_tx = await account.sign_declare_v3(
+        compiled_contract=compiled_contract,
+        compiled_class_hash=class_hash,
+        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
     )
 
     estimated_fee = await account.estimate_fee(tx=declare_tx)
@@ -648,21 +656,6 @@ async def test_sign_invoke_v3_for_fee_estimation(account, map_contract):
     estimation = await account.client.estimate_fee(estimate_fee_transaction)
     assert isinstance(estimation, EstimatedFee)
     assert estimation.unit == PriceUnit.FRI
-    assert estimation.overall_fee > 0
-
-
-@pytest.mark.asyncio
-async def test_sign_declare_v1_for_fee_estimation(account, map_compiled_contract):
-    transaction = await account.sign_declare_v1(
-        compiled_contract=map_compiled_contract, max_fee=MAX_FEE
-    )
-
-    estimate_fee_transaction = await account.sign_for_fee_estimate(transaction)
-    assert estimate_fee_transaction.version == transaction.version + 2**128
-
-    estimation = await account.client.estimate_fee(estimate_fee_transaction)
-    assert isinstance(estimation, EstimatedFee)
-    assert estimation.unit == PriceUnit.WEI
     assert estimation.overall_fee > 0
 
 

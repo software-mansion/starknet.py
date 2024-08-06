@@ -220,3 +220,13 @@ async def cairo1_map_contract_abi() -> List:
     )
     assert compiled_contract.parsed_abi is not None
     return compiled_contract.parsed_abi
+
+
+@pytest.fixture(scope="package")
+def map_compiled_contract_and_class_hash() -> Tuple[str, int]:
+    contract = load_contract("Map")
+
+    return (
+        contract["sierra"],
+        compute_casm_class_hash(create_casm_class(contract["casm"])),
+    )
