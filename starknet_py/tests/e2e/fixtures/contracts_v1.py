@@ -84,6 +84,16 @@ async def cairo1_hello_starknet_class_hash_tx_hash(
     return resp.class_hash, resp.transaction_hash
 
 
+@pytest_asyncio.fixture(scope="package")
+async def cairo1_hello_starknet_abi() -> List:
+    contract = load_contract("HelloStarknet")
+    compiled_contract = create_sierra_compiled_contract(
+        compiled_contract=contract["sierra"]
+    )
+    assert compiled_contract.parsed_abi is not None
+    return compiled_contract.parsed_abi
+
+
 @pytest.fixture(scope="package")
 def cairo1_hello_starknet_class_hash(
     cairo1_hello_starknet_class_hash_tx_hash: Tuple[int, int]

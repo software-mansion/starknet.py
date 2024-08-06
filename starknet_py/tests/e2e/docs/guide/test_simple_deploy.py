@@ -1,18 +1,20 @@
 import pytest
 
-from starknet_py.common import create_compiled_contract
+from starknet_py.net.client_models import ResourceBounds
 
 
 @pytest.mark.asyncio
-async def test_simple_deploy(account, map_class_hash, map_compiled_contract):
+async def test_simple_deploy(
+    account, cairo1_hello_starknet_class_hash, cairo1_hello_starknet_abi
+):
     # pylint: disable=import-outside-toplevel
     # docs: start
     from starknet_py.contract import Contract
 
     # docs: end
 
-    class_hash = map_class_hash
-    abi = create_compiled_contract(compiled_contract=map_compiled_contract).abi
+    class_hash = cairo1_hello_starknet_class_hash
+    abi = cairo1_hello_starknet_abi
 
     # docs: start
     # To deploy contract just use `Contract.deploy_contract_v1` method
@@ -25,12 +27,14 @@ async def test_simple_deploy(account, map_class_hash, map_compiled_contract):
     constructor_args = None
 
     # docs: start
-    deploy_result = await Contract.deploy_contract_v1(
+    deploy_result = await Contract.deploy_contract_v3(
         account=account,
         class_hash=class_hash,
         abi=abi,
         constructor_args=constructor_args,
-        max_fee=int(1e16),
+        l1_resource_bounds=ResourceBounds(
+            max_amount=int(1e5), max_price_per_unit=int(1e13)
+        ),
     )
 
     # `Contract.deploy_contract_v1` and `Contract.deploy_contract_v3` methods have an optional parameter
