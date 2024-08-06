@@ -201,7 +201,7 @@ async def test_create_deployment_call_raw(
 @pytest.mark.asyncio
 async def test_create_deployment_call_raw_supports_seed_0(
     account,
-    cairo1_constructor_with_arguments_class_hash,
+    constructor_with_arguments_class_hash,
 ):
     contract = create_sierra_compiled_contract(
         compiled_contract=load_contract("ConstructorWithArguments")["sierra"]
@@ -223,7 +223,7 @@ async def test_create_deployment_call_raw_supports_seed_0(
     )
 
     expected_address = compute_address(
-        class_hash=cairo1_constructor_with_arguments_class_hash,
+        class_hash=constructor_with_arguments_class_hash,
         constructor_calldata=raw_calldata,
         salt=1,
     )
@@ -232,7 +232,7 @@ async def test_create_deployment_call_raw_supports_seed_0(
         deploy_call,
         contract_address,
     ) = deployer.create_contract_deployment_raw(
-        class_hash=cairo1_constructor_with_arguments_class_hash,
+        class_hash=constructor_with_arguments_class_hash,
         raw_calldata=raw_calldata,
         salt=1,
     )

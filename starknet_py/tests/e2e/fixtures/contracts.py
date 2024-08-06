@@ -367,19 +367,3 @@ def constructor_with_arguments_compiled() -> str:
     return read_contract(
         "constructor_with_arguments_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR
     )
-
-
-@pytest_asyncio.fixture(scope="package")
-async def constructor_with_arguments_class_hash(
-    account: BaseAccount, constructor_with_arguments_compiled
-) -> int:
-    """
-    Returns a class_hash of the constructor_with_arguments.cairo.
-    """
-    declare = await account.sign_declare_v1(
-        compiled_contract=constructor_with_arguments_compiled,
-        max_fee=int(1e16),
-    )
-    res = await account.client.declare(declare)
-    await account.client.wait_for_tx(res.transaction_hash)
-    return res.class_hash
