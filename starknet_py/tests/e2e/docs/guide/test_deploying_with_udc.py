@@ -2,9 +2,6 @@ import sys
 
 import pytest
 
-from starknet_py.common import create_sierra_compiled_contract
-from starknet_py.tests.e2e.fixtures.misc import load_contract
-
 
 @pytest.mark.skipif(
     "--contract_dir=v1" in sys.argv,
@@ -14,11 +11,9 @@ from starknet_py.tests.e2e.fixtures.misc import load_contract
 async def test_deploying_with_udc(
     account,
     map_class_hash,
+    constructor_with_arguments_abi,
     constructor_with_arguments_class_hash,
 ):
-    contract = create_sierra_compiled_contract(
-        compiled_contract=load_contract("ConstructorWithArguments")["sierra"]
-    )
     # pylint: disable=unused-variable, import-outside-toplevel, too-many-locals
     # docs: start
     from starknet_py.net.udc_deployer.deployer import Deployer
@@ -47,7 +42,7 @@ async def test_deploying_with_udc(
 
     # docs: end
     contract_with_constructor_class_hash = constructor_with_arguments_class_hash
-    contract_with_constructor_abi = contract.parsed_abi
+    contract_with_constructor_abi = constructor_with_arguments_abi
 
     # docs: start
     contract_constructor = """
@@ -66,7 +61,7 @@ async def test_deploying_with_udc(
     # Note that this method also returns address of the contract we want to deploy
     deploy_call, address = deployer.create_contract_deployment(
         class_hash=contract_with_constructor_class_hash,
-        abi=contract.parsed_abi,
+        abi=constructor_with_arguments_abi,
         cairo_version=1,
         calldata={
             "single_value": 10,
@@ -82,7 +77,7 @@ async def test_deploying_with_udc(
     # docs: end
     deploy_call, _ = deployer.create_contract_deployment(
         class_hash=contract_with_constructor_class_hash,
-        abi=contract.parsed_abi,
+        abi=constructor_with_arguments_abi,
         calldata={
             "single_value": 0,
             "tuple": (1, (2, 3)),

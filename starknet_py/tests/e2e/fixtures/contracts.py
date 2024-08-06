@@ -342,28 +342,3 @@ async def simple_storage_with_event_class_hash(
     res = await account.client.declare(declare)
     await account.client.wait_for_tx(res.transaction_hash)
     return res.class_hash
-
-
-@pytest.fixture(scope="package")
-def constructor_with_arguments_abi() -> List:
-    """
-    Returns an abi of the constructor_with_arguments.cairo.
-    """
-    compiled_contract = create_compiled_contract(
-        compiled_contract=read_contract(
-            "constructor_with_arguments_compiled.json",
-            directory=CONTRACTS_COMPILED_V0_DIR,
-        )
-    )
-    assert compiled_contract.abi is not None
-    return compiled_contract.abi
-
-
-@pytest.fixture(scope="package")
-def constructor_with_arguments_compiled() -> str:
-    """
-    Returns a compiled constructor_with_arguments.cairo.
-    """
-    return read_contract(
-        "constructor_with_arguments_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR
-    )

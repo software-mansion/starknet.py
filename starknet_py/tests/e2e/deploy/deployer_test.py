@@ -2,13 +2,11 @@ import sys
 
 import pytest
 
-from starknet_py.common import create_sierra_compiled_contract
 from starknet_py.contract import Contract
 from starknet_py.hash.address import compute_address
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
-from starknet_py.tests.e2e.fixtures.misc import load_contract
 from starknet_py.utils.constructor_args_translator import translate_constructor_args
 
 
@@ -43,11 +41,7 @@ async def test_throws_when_calldata_provided_without_abi(map_class_hash):
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio
-async def test_throws_when_calldata_not_provided():
-    contract = create_sierra_compiled_contract(
-        compiled_contract=load_contract("ConstructorWithArguments")["sierra"]
-    )
-
+async def test_throws_when_calldata_not_provided(constructor_with_arguments_abi):
     deployer = Deployer()
 
     with pytest.raises(
@@ -55,7 +49,7 @@ async def test_throws_when_calldata_not_provided():
         match="Provided contract has a constructor and no arguments were provided.",
     ):
         deployer.create_contract_deployment(
-            class_hash=1234, abi=contract.parsed_abi, cairo_version=1
+            class_hash=1234, abi=constructor_with_arguments_abi, cairo_version=1
         )
 
 
@@ -78,18 +72,15 @@ async def test_throws_when_calldata_not_provided():
 )
 async def test_constructor_arguments_contract_deploy(
     account,
-    cairo1_constructor_with_arguments_class_hash,
+    constructor_with_arguments_abi,
+    constructor_with_arguments_class_hash,
     calldata,
 ):
-    contract = create_sierra_compiled_contract(
-        compiled_contract=load_contract("ConstructorWithArguments")["sierra"]
-    )
-
     deployer = Deployer(account_address=account.address)
 
     deploy_call, contract_address = deployer.create_contract_deployment(
-        class_hash=cairo1_constructor_with_arguments_class_hash,
-        abi=contract.parsed_abi,
+        class_hash=constructor_with_arguments_class_hash,
+        abi=constructor_with_arguments_abi,
         calldata=calldata,
         cairo_version=1,
     )
@@ -102,7 +93,7 @@ async def test_constructor_arguments_contract_deploy(
 
     contract = Contract(
         address=contract_address,
-        abi=contract.parsed_abi,
+        abi=constructor_with_arguments_abi,
         provider=account,
         cairo_version=1,
     )
@@ -163,24 +154,21 @@ async def test_address_computation(salt, pass_account_address, account, map_clas
 )
 async def test_create_deployment_call_raw(
     account,
-    cairo1_constructor_with_arguments_class_hash,
+    constructor_with_arguments_abi,
+    constructor_with_arguments_class_hash,
     calldata,
 ):
-    contract = create_sierra_compiled_contract(
-        compiled_contract=load_contract("ConstructorWithArguments")["sierra"]
-    )
-
     deployer = Deployer(account_address=account.address)
 
     raw_calldata = translate_constructor_args(
-        abi=contract.parsed_abi, constructor_args=calldata, cairo_version=1
+        abi=constructor_with_arguments_abi, constructor_args=calldata, cairo_version=1
     )
 
     (
         deploy_call,
         contract_address,
     ) = deployer.create_contract_deployment_raw(
-        class_hash=cairo1_constructor_with_arguments_class_hash,
+        class_hash=constructor_with_arguments_class_hash,
         raw_calldata=raw_calldata,
     )
 
@@ -201,12 +189,9 @@ async def test_create_deployment_call_raw(
 @pytest.mark.asyncio
 async def test_create_deployment_call_raw_supports_seed_0(
     account,
+    constructor_with_arguments_abi,
     constructor_with_arguments_class_hash,
 ):
-    contract = create_sierra_compiled_contract(
-        compiled_contract=load_contract("ConstructorWithArguments")["sierra"]
-    )
-
     sample_calldata = {
         # the transactions have to be different for each account
         "single_value": 20 if isinstance(account.client, FullNodeClient) else 30,
@@ -217,7 +202,7 @@ async def test_create_deployment_call_raw_supports_seed_0(
     deployer = Deployer()
 
     raw_calldata = translate_constructor_args(
-        abi=contract.parsed_abi,
+        abi=constructor_with_arguments_abi,
         constructor_args=sample_calldata,
         cairo_version=1,
     )
