@@ -43,6 +43,15 @@ async def cairo1_erc20_class_hash(account: BaseAccount) -> int:
 
 
 @pytest_asyncio.fixture(scope="package")
+async def cairo1_constructor_with_arguments_class_hash(account: BaseAccount) -> int:
+    contract = load_contract("ConstructorWithArguments")
+    class_hash, _ = await declare_cairo1_contract(
+        account, contract["sierra"], contract["casm"]
+    )
+    return class_hash
+
+
+@pytest_asyncio.fixture(scope="package")
 async def declare_v2_hello_starknet(account: BaseAccount) -> DeclareV2:
     contract = load_contract("HelloStarknet")
     casm_class_hash = compute_casm_class_hash(create_casm_class(contract["casm"]))

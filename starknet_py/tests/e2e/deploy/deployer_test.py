@@ -1,10 +1,12 @@
 import pytest
 
+from starknet_py.common import create_sierra_compiled_contract
 from starknet_py.contract import Contract
 from starknet_py.hash.address import compute_address
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
+from starknet_py.tests.e2e.fixtures.misc import load_contract
 from starknet_py.utils.constructor_args_translator import translate_constructor_args
 
 
@@ -35,7 +37,11 @@ async def test_throws_when_calldata_provided_without_abi(map_class_hash):
 
 
 @pytest.mark.asyncio
-async def test_throws_when_calldata_not_provided(constructor_with_arguments_abi):
+async def test_throws_when_calldata_not_provided():
+    contract = create_sierra_compiled_contract(
+        compiled_contract=load_contract("ConstructorWithArguments")["sierra"]
+    )
+
     deployer = Deployer()
 
     with pytest.raises(
@@ -43,7 +49,7 @@ async def test_throws_when_calldata_not_provided(constructor_with_arguments_abi)
         match="Provided contract has a constructor and no arguments were provided.",
     ):
         deployer.create_contract_deployment(
-            class_hash=1234, abi=constructor_with_arguments_abi, cairo_version=0
+            class_hash=1234, abi=contract.parsed_abi, cairo_version=1
         )
 
 
