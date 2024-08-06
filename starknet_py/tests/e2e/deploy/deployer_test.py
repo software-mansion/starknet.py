@@ -1,3 +1,5 @@
+import sys
+
 import pytest
 
 from starknet_py.common import create_sierra_compiled_contract
@@ -36,6 +38,10 @@ async def test_throws_when_calldata_provided_without_abi(map_class_hash):
         )
 
 
+@pytest.mark.skipif(
+    "--contract_dir=v1" in sys.argv,
+    reason="Contract exists only in v2 directory",
+)
 @pytest.mark.asyncio
 async def test_throws_when_calldata_not_provided():
     contract = create_sierra_compiled_contract(
@@ -53,6 +59,10 @@ async def test_throws_when_calldata_not_provided():
         )
 
 
+@pytest.mark.skipif(
+    "--contract_dir=v1" in sys.argv,
+    reason="Contract exists only in v2 directory",
+)
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "calldata",
