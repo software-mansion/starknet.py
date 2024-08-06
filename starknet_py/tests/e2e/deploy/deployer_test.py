@@ -144,6 +144,10 @@ async def test_address_computation(salt, pass_account_address, account, map_clas
     assert computed_address == address_from_event
 
 
+@pytest.mark.skipif(
+    "--contract_dir=v1" in sys.argv,
+    reason="Contract exists only in v2 directory",
+)
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "calldata",
@@ -159,21 +163,24 @@ async def test_address_computation(salt, pass_account_address, account, map_clas
 )
 async def test_create_deployment_call_raw(
     account,
-    constructor_with_arguments_abi,
-    constructor_with_arguments_class_hash,
+    cairo1_constructor_with_arguments_class_hash,
     calldata,
 ):
+    contract = create_sierra_compiled_contract(
+        compiled_contract=load_contract("ConstructorWithArguments")["sierra"]
+    )
+
     deployer = Deployer(account_address=account.address)
 
     raw_calldata = translate_constructor_args(
-        abi=constructor_with_arguments_abi, constructor_args=calldata, cairo_version=0
+        abi=contract.parsed_abi, constructor_args=calldata, cairo_version=1
     )
 
     (
         deploy_call,
         contract_address,
     ) = deployer.create_contract_deployment_raw(
-        class_hash=constructor_with_arguments_class_hash,
+        class_hash=cairo1_constructor_with_arguments_class_hash,
         raw_calldata=raw_calldata,
     )
 
@@ -187,12 +194,19 @@ async def test_create_deployment_call_raw(
     assert contract_address != 0
 
 
+@pytest.mark.skipif(
+    "--contract_dir=v1" in sys.argv,
+    reason="Contract exists only in v2 directory",
+)
 @pytest.mark.asyncio
 async def test_create_deployment_call_raw_supports_seed_0(
     account,
-    constructor_with_arguments_abi,
-    constructor_with_arguments_class_hash,
+    cairo1_constructor_with_arguments_class_hash,
 ):
+    contract = create_sierra_compiled_contract(
+        compiled_contract=load_contract("ConstructorWithArguments")["sierra"]
+    )
+
     sample_calldata = {
         # the transactions have to be different for each account
         "single_value": 20 if isinstance(account.client, FullNodeClient) else 30,
@@ -203,24 +217,24 @@ async def test_create_deployment_call_raw_supports_seed_0(
     deployer = Deployer()
 
     raw_calldata = translate_constructor_args(
-        abi=constructor_with_arguments_abi,
+        abi=contract.parsed_abi,
         constructor_args=sample_calldata,
-        cairo_version=0,
+        cairo_version=1,
     )
 
     expected_address = compute_address(
-        class_hash=constructor_with_arguments_class_hash,
+        class_hash=cairo1_constructor_with_arguments_class_hash,
         constructor_calldata=raw_calldata,
-        salt=0,
+        salt=1,
     )
 
     (
         deploy_call,
         contract_address,
     ) = deployer.create_contract_deployment_raw(
-        class_hash=constructor_with_arguments_class_hash,
+        class_hash=cairo1_constructor_with_arguments_class_hash,
         raw_calldata=raw_calldata,
-        salt=0,
+        salt=1,
     )
 
     deploy_invoke_transaction = await account.sign_invoke_v1(
