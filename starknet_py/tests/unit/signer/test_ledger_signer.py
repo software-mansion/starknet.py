@@ -1,3 +1,5 @@
+from sys import platform
+
 import pytest
 
 from starknet_py.common import create_sierra_compiled_contract
@@ -18,6 +20,12 @@ from starknet_py.tests.e2e.fixtures.constants import (
 from starknet_py.tests.e2e.fixtures.misc import load_contract
 
 
+# TODO (#1425): Currently Ledger tests are skipped on Windows due to different Speculos setup.
+# Once the issue is resolved, remove the `skipif` decorator.
+@pytest.mark.skipif(
+    platform == "win32",
+    reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
+)
 def test_init_with_invalid_derivation_path():
     with pytest.raises(ValueError, match="Empty derivation path"):
         LedgerSigner(derivation_path_str="", chain_id=StarknetChainId.SEPOLIA)
@@ -74,6 +82,10 @@ sierra_contract_class = create_sierra_compiled_contract(compiled_contract)
         ),
     ],
 )
+@pytest.mark.skipif(
+    platform == "win32",
+    reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
+)
 def test_sign_transaction(transaction):
     # docs: start
 
@@ -93,6 +105,10 @@ def test_sign_transaction(transaction):
     assert all(i != 0 for i in signature)
 
 
+@pytest.mark.skipif(
+    platform == "win32",
+    reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
+)
 def test_create_account_with_ledger_signer():
     # pylint: disable=unused-variable
     signer = LedgerSigner(
@@ -126,6 +142,10 @@ async def _get_account_balance_eth(client: FullNodeClient, address: int):
 
 
 @pytest.mark.asyncio
+@pytest.mark.skipif(
+    platform == "win32",
+    reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
+)
 async def test_deploy_account_and_transfer(client):
     signer = LedgerSigner(
         derivation_path_str="m/2645'/1195502025'/1470455285'/0'/0'/0",
