@@ -7,7 +7,8 @@ env:
 on:
   push:
     branches:
-      - franciszekjob/1386-support-ledger-signer
+      - master
+      - development
   pull_request:
   workflow_dispatch:
 
