@@ -194,14 +194,6 @@ def fee_contract_abi():
     ]
 
 
-@pytest.fixture(name="balance_contract")
-def fixture_balance_contract() -> str:
-    """
-    Returns compiled code of the balance.cairo contract.
-    """
-    return read_contract("balance_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR)
-
-
 async def declare_account(account: BaseAccount, compiled_account_contract: str) -> int:
     """
     Declares a specified account.
