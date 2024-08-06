@@ -190,3 +190,35 @@ async def deploy_string_contract(
         contract_name="MyString",
         class_hash=string_contract_class_hash,
     )
+
+
+@pytest_asyncio.fixture(scope="package")
+async def cairo1_map_contract_declare_hash(account: BaseAccount) -> int:
+    contract = load_contract(contract_name="Map")
+    class_hash, _ = await declare_cairo1_contract(
+        account,
+        contract["sierra"],
+        contract["casm"],
+    )
+    return class_hash
+
+
+@pytest_asyncio.fixture(scope="package", name="map_contract")
+async def deploy_map_contract(
+    account: BaseAccount, cairo1_map_contract_declare_hash
+) -> Contract:
+    return await deploy_v1_contract(
+        account=account,
+        contract_name="Map",
+        class_hash=cairo1_map_contract_declare_hash,
+    )
+
+
+@pytest_asyncio.fixture(scope="package")
+async def cairo1_map_contract_abi() -> List:
+    contract = load_contract(contract_name="Map")
+    compiled_contract = create_sierra_compiled_contract(
+        compiled_contract=contract["sierra"]
+    )
+    assert compiled_contract.parsed_abi is not None
+    return compiled_contract.parsed_abi
