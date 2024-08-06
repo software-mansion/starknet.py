@@ -2,25 +2,37 @@ import os
 
 import pytest
 
-from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
+from starknet_py.net.client_models import ResourceBounds
 
 directory = os.path.dirname(__file__)
 
 
 @pytest.mark.asyncio
-async def test_using_account(account, map_compiled_contract):
+async def test_using_account(account, map_compiled_contract_and_class_hash):
+    (compiled_contract, class_hash) = map_compiled_contract_and_class_hash
     # pylint: disable=import-outside-toplevel, duplicate-code, too-many-locals
     # docs: start
     from starknet_py.contract import Contract
 
     # docs: end
     # docs: start
-    # Declare and deploy an example contract which implements a simple k-v store.
-    declare_result = await Contract.declare_v1(
-        account=account, compiled_contract=map_compiled_contract, max_fee=MAX_FEE
+    l1_resource_bounds = ResourceBounds(
+        max_amount=int(1e5), max_price_per_unit=int(1e13)
     )
+    # Declare and deploy an example contract which implements a simple k-v store.
+    # Contract.declare_v3 takes string containing a compiled contract (sierra) and
+    # a class hash (casm_class_hash) or string containing a compiled contract (casm)
+    declare_result = await Contract.declare_v3(
+        account,
+        compiled_contract=compiled_contract,
+        compiled_class_hash=class_hash,
+        l1_resource_bounds=l1_resource_bounds,
+    )
+
     await declare_result.wait_for_acceptance()
-    deploy_result = await declare_result.deploy_v1(max_fee=MAX_FEE)
+    deploy_result = await declare_result.deploy_v3(
+        l1_resource_bounds=l1_resource_bounds,
+    )
     # Wait until deployment transaction is accepted
     await deploy_result.wait_for_acceptance()
 
@@ -30,7 +42,13 @@ async def test_using_account(account, map_compiled_contract):
     # Adds a transaction to mutate the state of k-v store. The call goes through account proxy, because we've used
     # Account to create the contract object
     await (
-        await map_contract.functions["put"].invoke_v1(k, v, max_fee=int(1e16))
+        await map_contract.functions["put"].invoke_v3(
+            k,
+            v,
+            l1_resource_bounds=ResourceBounds(
+                max_amount=int(1e5), max_price_per_unit=int(1e13)
+            ),
+        )
     ).wait_for_acceptance()
 
     # Retrieves the value, which is equal to 4324 in this case
@@ -40,12 +58,15 @@ async def test_using_account(account, map_compiled_contract):
 
     # Creates a list of prepared function calls
     calls = [
-        map_contract.functions["put"].prepare_invoke_v1(key=10, value=20),
-        map_contract.functions["put"].prepare_invoke_v1(key=30, value=40),
+        map_contract.functions["put"].prepare_invoke_v3(key=10, value=20),
+        map_contract.functions["put"].prepare_invoke_v3(key=30, value=40),
     ]
 
     # Executes only one transaction with prepared calls
-    transaction_response = await account.execute_v1(calls=calls, max_fee=int(1e16))
+    transaction_response = await account.execute_v3(
+        calls=calls,
+        l1_resource_bounds=l1_resource_bounds,
+    )
     await account.client.wait_for_tx(transaction_response.transaction_hash)
     # docs: end
 
