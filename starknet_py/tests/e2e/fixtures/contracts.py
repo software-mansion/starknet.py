@@ -144,19 +144,6 @@ async def deployed_balance_contract(
     return deploy_result.deployed_contract
 
 
-@pytest_asyncio.fixture(scope="package")
-async def map_contract(
-    account: BaseAccount,
-    map_compiled_contract: str,
-    map_class_hash: int,
-) -> Contract:
-    """
-    Deploys map contract and returns its instance.
-    """
-    abi = create_compiled_contract(compiled_contract=map_compiled_contract).abi
-    return await deploy_contract(account, map_class_hash, abi)
-
-
 @pytest_asyncio.fixture(scope="function")
 async def simple_storage_with_event_contract(
     account: BaseAccount,

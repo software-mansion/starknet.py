@@ -204,7 +204,7 @@ async def cairo1_map_contract_declare_hash(account: BaseAccount) -> int:
 
 
 @pytest_asyncio.fixture(scope="package", name="map_contract")
-async def deploy_map_contract(
+async def map_contract(
     account: BaseAccount, cairo1_map_contract_declare_hash
 ) -> Contract:
     return await deploy_v1_contract(
