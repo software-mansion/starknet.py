@@ -22,7 +22,6 @@ async def test_postman_load(devnet_client, l1_l2_contract, account):
     # docs: start
     # Deploying the messaging contract on ETH network
     # e.g. anvil eth devnet https://github.com/foundry-rs/foundry/tree/master/crates/anvil
-
     await client.postman_load(network_url="http://127.0.0.1:8545")
     # docs: end
 
@@ -80,7 +79,7 @@ async def test_postman_load(devnet_client, l1_l2_contract, account):
         l2_contract_address=contract_address,
         entry_point_selector=get_selector_from_name("deposit"),
         l1_contract_address="0xa000000000000000000000000000000000000001",
-        payload=[account.address, 420],
+        payload=[account.address, 100],
         nonce="0x0",
         paid_fee_on_l1="0xfffffffffff",
     )
@@ -89,4 +88,4 @@ async def test_postman_load(devnet_client, l1_l2_contract, account):
     flush_response = await client.postman_flush()
     # docs: send-l2-end
 
-    assert await contract.functions["get_balance"].call(user=account.address) == (420,)
+    assert await contract.functions["get_balance"].call(user=account.address) == (100,)
