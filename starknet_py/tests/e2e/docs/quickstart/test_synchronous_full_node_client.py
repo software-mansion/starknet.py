@@ -3,7 +3,7 @@ from starknet_py.net.full_node_client import FullNodeClient
 
 def test_synchronous_full_node_client(
     client,
-    cairo1_map_contract_declare_hash,  # pylint: disable=unused-argument
+    map_class_hash,  # pylint: disable=unused-argument
 ):
     # pylint: disable=unused-variable
     fixture_client = client

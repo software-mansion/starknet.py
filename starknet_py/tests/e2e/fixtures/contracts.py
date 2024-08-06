@@ -288,20 +288,6 @@ async def argent_cairo1_account_class_hash(
 
 
 @pytest_asyncio.fixture(scope="package")
-async def map_class_hash(account: BaseAccount, map_compiled_contract: str) -> int:
-    """
-    Returns class_hash of the map.cairo.
-    """
-    declare = await account.sign_declare_v1(
-        compiled_contract=map_compiled_contract,
-        max_fee=int(1e16),
-    )
-    res = await account.client.declare(declare)
-    await account.client.wait_for_tx(res.transaction_hash)
-    return res.class_hash
-
-
-@pytest_asyncio.fixture(scope="package")
 async def simple_storage_with_event_class_hash(
     account: BaseAccount, simple_storage_with_event_compiled_contract: str
 ):

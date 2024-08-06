@@ -193,7 +193,7 @@ async def deploy_string_contract(
 
 
 @pytest_asyncio.fixture(scope="package")
-async def cairo1_map_contract_declare_hash(account: BaseAccount) -> int:
+async def map_class_hash(account: BaseAccount) -> int:
     contract = load_contract(contract_name="Map")
     class_hash, _ = await declare_cairo1_contract(
         account,
@@ -204,13 +204,11 @@ async def cairo1_map_contract_declare_hash(account: BaseAccount) -> int:
 
 
 @pytest_asyncio.fixture(scope="package", name="map_contract")
-async def map_contract(
-    account: BaseAccount, cairo1_map_contract_declare_hash
-) -> Contract:
+async def map_contract(account: BaseAccount, map_class_hash) -> Contract:
     return await deploy_v1_contract(
         account=account,
         contract_name="Map",
-        class_hash=cairo1_map_contract_declare_hash,
+        class_hash=map_class_hash,
     )
 
 
