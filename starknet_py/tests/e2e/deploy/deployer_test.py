@@ -68,17 +68,20 @@ async def test_throws_when_calldata_not_provided():
 )
 async def test_constructor_arguments_contract_deploy(
     account,
-    constructor_with_arguments_abi,
-    constructor_with_arguments_class_hash,
+    cairo1_constructor_with_arguments_class_hash,
     calldata,
 ):
+    contract = create_sierra_compiled_contract(
+        compiled_contract=load_contract("ConstructorWithArguments")["sierra"]
+    )
+
     deployer = Deployer(account_address=account.address)
 
     deploy_call, contract_address = deployer.create_contract_deployment(
-        class_hash=constructor_with_arguments_class_hash,
-        abi=constructor_with_arguments_abi,
+        class_hash=cairo1_constructor_with_arguments_class_hash,
+        abi=contract.parsed_abi,
         calldata=calldata,
-        cairo_version=0,
+        cairo_version=1,
     )
 
     deploy_invoke_transaction = await account.sign_invoke_v1(
@@ -89,14 +92,14 @@ async def test_constructor_arguments_contract_deploy(
 
     contract = Contract(
         address=contract_address,
-        abi=constructor_with_arguments_abi,
+        abi=contract.parsed_abi,
         provider=account,
-        cairo_version=0,
+        cairo_version=1,
     )
 
-    result = await contract.functions["get"].call(block_number="latest")
-
-    assert result == (
+    result = (await contract.functions["get"].call(block_number="latest"))[0]
+    unwarpped_result = (result[0], result[1], result[2], dict(result[3]))
+    assert unwarpped_result == (
         10,
         (1, (2, 3)),
         sum([1, 2, 3]),

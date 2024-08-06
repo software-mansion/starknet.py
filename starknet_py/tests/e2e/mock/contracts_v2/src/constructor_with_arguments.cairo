@@ -1,12 +1,12 @@
 #[derive(Clone, Debug, PartialEq, Drop, Serde, starknet::Store)]
-struct NestedStruct {
-    value: felt252,
+pub struct NestedStruct {
+    pub value: felt252,
 }
 
 #[derive(Clone, Debug, PartialEq, Drop, Serde, starknet::Store)]
-struct TopStruct {
-    value: felt252,
-    nested_struct: NestedStruct,
+pub struct TopStruct {
+    pub value: felt252,
+    pub nested_struct: NestedStruct,
 }
 
 #[starknet::contract]
@@ -38,5 +38,15 @@ mod ConstructorWithArguments {
         self.tuple.write(tuple);
         self.arr_sum.write(sum);
         self.dict.write(dict);
+    }
+
+    #[external(v0)]
+    fn get(self: @ContractState) -> (felt252, (felt252, (felt252, felt252)), felt252, TopStruct) {
+        let single_value = self.single_value.read();
+        let tuple = self.tuple.read();
+        let arr_sum = self.arr_sum.read();
+        let dict = self.dict.read();
+
+        (single_value, tuple, arr_sum, dict)
     }
 }
