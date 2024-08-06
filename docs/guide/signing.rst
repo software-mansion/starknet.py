@@ -20,8 +20,8 @@ Signing with Ledger
     :language: python
     :dedent: 4
 
-Deploying account and transferring ETH
---------------------------------------
+Deploying account and transferring STRK
+---------------------------------------
 .. codesnippet:: ../../starknet_py/tests/unit/signer/test_ledger_signer.py
     :language: python
     :dedent: 4
