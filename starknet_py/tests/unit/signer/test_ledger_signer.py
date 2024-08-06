@@ -21,7 +21,6 @@ from starknet_py.tests.e2e.fixtures.misc import load_contract
 
 
 # TODO (#1425): Currently Ledger tests are skipped on Windows due to different Speculos setup.
-# Once the issue is resolved, remove the `skipif` decorator.
 @pytest.mark.skipif(
     platform == "win32",
     reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
