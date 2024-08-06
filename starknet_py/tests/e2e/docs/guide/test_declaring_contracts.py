@@ -3,6 +3,8 @@ import pytest
 from starknet_py.net.client_models import ResourceBounds
 
 
+# TODO (#1419): Fix contract redeclaration
+@pytest.mark.skip(reason="Redeclaration occurred")
 @pytest.mark.asyncio
 async def test_declaring_contracts(account, map_compiled_contract_and_class_hash):
     (compiled_contract, class_hash) = map_compiled_contract_and_class_hash

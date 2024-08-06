@@ -7,6 +7,8 @@ from starknet_py.net.client_models import ResourceBounds
 directory = os.path.dirname(__file__)
 
 
+# TODO (#1419): Fix contract redeclaration
+@pytest.mark.skip(reason="Redeclaration occurred")
 @pytest.mark.asyncio
 async def test_using_account(account, map_compiled_contract_and_class_hash):
     (compiled_contract, class_hash) = map_compiled_contract_and_class_hash
