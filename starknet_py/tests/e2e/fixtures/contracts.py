@@ -16,7 +16,6 @@ from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import (
     CONTRACTS_COMPILED_V0_DIR,
-    CONTRACTS_DIR,
     MAX_FEE,
     PRECOMPILED_CONTRACTS_DIR,
     STRK_FEE_CONTRACT_ADDRESS,
@@ -26,22 +25,6 @@ from starknet_py.tests.e2e.fixtures.misc import (
     load_contract,
     read_contract,
 )
-
-
-@pytest.fixture(scope="package")
-def map_source_code() -> str:
-    """
-    Returns source code of the map contract.
-    """
-    return read_contract("map.cairo", directory=CONTRACTS_DIR)
-
-
-@pytest.fixture(scope="package")
-def map_compiled_contract() -> str:
-    """
-    Returns compiled map contract.
-    """
-    return read_contract("map_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR)
 
 
 @pytest.fixture(scope="package")
