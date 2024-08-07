@@ -1,5 +1,4 @@
 # pylint: disable=too-many-arguments
-import dataclasses
 from typing import Tuple
 from unittest.mock import AsyncMock, Mock, patch
 
@@ -37,8 +36,7 @@ from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.models.transaction import DeclareV2
 from starknet_py.net.udc_deployer.deployer import Deployer
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V0_DIR, MAX_FEE
-from starknet_py.tests.e2e.fixtures.misc import read_contract
+from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.transaction_errors import (
     TransactionNotReceivedError,
     TransactionRejectedError,
