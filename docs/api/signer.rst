@@ -32,3 +32,12 @@ KeyPair
     :undoc-members:
     :member-order: groupwise
 
+------------
+LedgerSigner
+------------
+
+.. py:module:: starknet_py.net.signer.ledger_signer
+
+.. autoclass:: LedgerSigner
+    :members:
+    :member-order: groupwise

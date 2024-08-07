@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "text": "Confirm Hash to sign",
+      "conditions": [],
+      "actions": [
+        ["button", 2, true],
+        ["button", 2, false]
+      ]
+    },
+    {
+      "regexp": ".*Hash \\(.*\\)",
+      "conditions": [],
+      "actions": [
+        ["button", 2, true],
+        ["button", 2, false]
+      ]
+    },
+    {
+      "text": "Reject",
+      "conditions": [],
+      "actions": [
+        ["button", 2, true],
+        ["button", 2, false]
+      ]
+    },
+    {
+      "text": "Approve",
+      "conditions": [],
+      "actions": [
+        ["button", 1, true],
+        ["button", 2, true],
+        ["button", 1, false],
+        ["button", 2, false]
+      ]
+    }
+  ]
+}
