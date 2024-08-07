@@ -97,7 +97,10 @@ async def test_transaction_not_received_max_fee_too_small(account_sepolia_testne
     )
     sign_invoke = await account.sign_invoke_v1(calls=call, max_fee=int(1e10))
 
-    with pytest.raises(ClientError, match=r".*MaxFeeTooLow.*"):
+    with pytest.raises(
+        ClientError,
+        match=r"Client failed with code 55. Message: Account validation failed. Data: Max fee \(\d+\) is too low. Minimum fee: \d+.",
+    ):
         await account.client.send_transaction(sign_invoke)
 
 
