@@ -114,7 +114,10 @@ async def test_transaction_not_received_max_fee_too_big(account_sepolia_testnet)
     )
     sign_invoke = await account.sign_invoke_v1(calls=call, max_fee=sys.maxsize)
 
-    with pytest.raises(ClientError, match=r".*max_fee.*"):
+    with pytest.raises(
+        ClientError,
+        match=r"Client failed with code 55. Message: Account validation failed. Data: Max fee \(\d+\) exceeds balance \(\d+\).",
+    ):
         await account.client.send_transaction(sign_invoke)
 
 
