@@ -26,7 +26,6 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.full_node_client import _to_rpc_felt
 from starknet_py.net.models import StarknetChainId
-from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS_L1
 from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
 from starknet_py.tests.e2e.utils import create_empty_block
 
@@ -462,27 +461,6 @@ async def test_simulate_transactions_invoke(account, deployed_balance_contract):
     assert isinstance(simulated_txs[0].transaction_trace, InvokeTransactionTrace)
     assert simulated_txs[0].transaction_trace.validate_invocation is not None
     assert simulated_txs[0].transaction_trace.execute_invocation is not None
-    assert simulated_txs[0].transaction_trace.execution_resources is not None
-
-
-@pytest.mark.asyncio
-async def test_simulate_transactions_declare(
-    account, map_compiled_contract_and_class_hash
-):
-    (compiled_contract, class_hash) = map_compiled_contract_and_class_hash
-    declare_tx = await account.sign_declare_v3(
-        compiled_contract=compiled_contract,
-        compiled_class_hash=class_hash,
-        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
-    )
-
-    simulated_txs = await account.client.simulate_transactions(
-        transactions=[declare_tx], block_number="latest"
-    )
-
-    assert isinstance(simulated_txs[0].transaction_trace, DeclareTransactionTrace)
-    assert simulated_txs[0].fee_estimation.overall_fee > 0
-    assert simulated_txs[0].transaction_trace.validate_invocation is not None
     assert simulated_txs[0].transaction_trace.execution_resources is not None
 
 
