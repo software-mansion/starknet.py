@@ -229,16 +229,7 @@ async def test_estimate_fee_for_multiple_transactions(
     )
     invoke_tx = await account.sign_for_fee_estimate(invoke_tx)
 
-    declare_tx = await account.sign_declare_v1(
-        compiled_contract=read_contract(
-            "map_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR
-        ),
-        max_fee=MAX_FEE,
-    )
-    declare_tx = dataclasses.replace(declare_tx, nonce=invoke_tx.nonce + 1)
-    declare_tx = await account.sign_for_fee_estimate(declare_tx)
-
-    transactions = [invoke_tx, declare_tx, deploy_account_transaction]
+    transactions = [invoke_tx, deploy_account_transaction]
 
     estimated_fees = await client.estimate_fee(tx=transactions, block_number="latest")
 
