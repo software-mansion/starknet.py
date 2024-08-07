@@ -35,9 +35,9 @@ def _parse_event_name(event: str) -> str:
 
 
 FUNCTION_ONE_NAME = "put"
-EVENT_ONE_PARSED_NAME = _parse_event_name("put_called")
+EVENT_ONE_PARSED_NAME = _parse_event_name("PutCalled")
 FUNCTION_TWO_NAME = "another_put"
-EVENT_TWO_PARSED_NAME = _parse_event_name("another_put_called")
+EVENT_TWO_PARSED_NAME = _parse_event_name("AnotherPutCalled")
 
 
 @pytest.mark.run_on_devnet
@@ -147,7 +147,7 @@ async def test_get_events_without_following_continuation_token(
     simple_storage_with_event_contract: Contract,
 ):
     for i in range(4):
-        await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke_v1(
+        await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke_v3(
             i, i, auto_estimate=True
         )
 

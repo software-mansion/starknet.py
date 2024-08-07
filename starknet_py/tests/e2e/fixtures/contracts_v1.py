@@ -240,3 +240,24 @@ def map_compiled_contract_and_class_hash() -> Tuple[str, int]:
         contract["sierra"],
         compute_casm_class_hash(create_casm_class(contract["casm"])),
     )
+
+
+@pytest_asyncio.fixture(scope="package")
+async def simple_storage_with_event_class_hash(account: BaseAccount) -> int:
+    contract = load_contract("SimpleStorageWithEvent")
+    class_hash, _ = await declare_cairo1_contract(
+        account, contract["sierra"], contract["casm"]
+    )
+    return class_hash
+
+
+@pytest_asyncio.fixture(scope="function")
+async def simple_storage_with_event_contract(
+    account: BaseAccount,
+    simple_storage_with_event_class_hash: int,
+) -> Contract:
+    return await deploy_v1_contract(
+        account=account,
+        contract_name="SimpleStorageWithEvent",
+        class_hash=simple_storage_with_event_class_hash,
+    )

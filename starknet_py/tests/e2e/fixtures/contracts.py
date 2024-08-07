@@ -4,11 +4,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import pytest
 import pytest_asyncio
 
-from starknet_py.common import (
-    create_casm_class,
-    create_compiled_contract,
-    create_sierra_compiled_contract,
-)
+from starknet_py.common import create_casm_class, create_sierra_compiled_contract
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.contract import Contract
 from starknet_py.hash.casm_class_hash import compute_casm_class_hash
@@ -125,21 +121,6 @@ async def deployed_balance_contract(
     await deploy_result.wait_for_acceptance()
 
     return deploy_result.deployed_contract
-
-
-@pytest_asyncio.fixture(scope="function")
-async def simple_storage_with_event_contract(
-    account: BaseAccount,
-    simple_storage_with_event_compiled_contract: str,
-    simple_storage_with_event_class_hash: int,
-) -> Contract:
-    """
-    Deploys storage contract with an events and returns its instance.
-    """
-    abi = create_compiled_contract(
-        compiled_contract=simple_storage_with_event_compiled_contract
-    ).abi
-    return await deploy_contract(account, simple_storage_with_event_class_hash, abi)
 
 
 @pytest.fixture(scope="package")
@@ -260,19 +241,3 @@ async def argent_cairo1_account_class_hash(
         compiled_account_contract=compiled_contract,
         compiled_account_contract_casm=compiled_contract_casm,
     )
-
-
-@pytest_asyncio.fixture(scope="package")
-async def simple_storage_with_event_class_hash(
-    account: BaseAccount, simple_storage_with_event_compiled_contract: str
-):
-    """
-    Returns class_hash of the simple_storage_with_event.cairo
-    """
-    declare = await account.sign_declare_v1(
-        compiled_contract=simple_storage_with_event_compiled_contract,
-        max_fee=int(1e16),
-    )
-    res = await account.client.declare(declare)
-    await account.client.wait_for_tx(res.transaction_hash)
-    return res.class_hash
