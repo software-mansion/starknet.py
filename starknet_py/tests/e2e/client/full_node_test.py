@@ -1,4 +1,5 @@
 import dataclasses
+import sys
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -140,6 +141,10 @@ async def test_get_storage_at_incorrect_address_full_node_client(client):
         )
 
 
+@pytest.mark.skipif(
+    "--contract_dir=v2" not in sys.argv,
+    reason="Some cairo 1 contracts compiled with v1 compiler fail with new devnet-rs",
+)
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_events_without_following_continuation_token(
@@ -165,6 +170,10 @@ async def test_get_events_without_following_continuation_token(
     assert events_response.continuation_token is not None
 
 
+@pytest.mark.skipif(
+    "--contract_dir=v2" not in sys.argv,
+    reason="Some cairo 1 contracts compiled with v1 compiler fail with new devnet-rs",
+)
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_events_follow_continuation_token(
@@ -190,6 +199,10 @@ async def test_get_events_follow_continuation_token(
     assert events_response.continuation_token is None
 
 
+@pytest.mark.skipif(
+    "--contract_dir=v2" not in sys.argv,
+    reason="Some cairo 1 contracts compiled with v1 compiler fail with new devnet-rs",
+)
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_events_nonexistent_event_name(
@@ -213,6 +226,10 @@ async def test_get_events_nonexistent_event_name(
     assert events_response.continuation_token is None
 
 
+@pytest.mark.skipif(
+    "--contract_dir=v2" not in sys.argv,
+    reason="Some cairo 1 contracts compiled with v1 compiler fail with new devnet-rs",
+)
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_events_with_two_events(
@@ -262,6 +279,10 @@ async def test_get_events_with_two_events(
     assert event_one_two_events_response.continuation_token is None
 
 
+@pytest.mark.skipif(
+    "--contract_dir=v2" not in sys.argv,
+    reason="Some cairo 1 contracts compiled with v1 compiler fail with new devnet-rs",
+)
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_events_start_from_continuation_token(
@@ -289,6 +310,10 @@ async def test_get_events_start_from_continuation_token(
     assert events_response.continuation_token == expected_continuation_token
 
 
+@pytest.mark.skipif(
+    "--contract_dir=v2" not in sys.argv,
+    reason="Some cairo 1 contracts compiled with v1 compiler fail with new devnet-rs",
+)
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_events_no_params(
@@ -308,6 +333,10 @@ async def test_get_events_no_params(
     assert len(events_response.events) == default_chunk_size
 
 
+@pytest.mark.skipif(
+    "--contract_dir=v2" not in sys.argv,
+    reason="Some cairo 1 contracts compiled with v1 compiler fail with new devnet-rs",
+)
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_events_nonexistent_starting_block(
