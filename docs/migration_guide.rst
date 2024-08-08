@@ -7,7 +7,7 @@ Migration guide
 
 .. currentmodule:: starknet_py.devnet_utils.devnet_client
 
-1. :class:`DevnetClient` has been implemented to interact with additional features of the Starknet Devnet
+1. :class:`DevnetClient` has been implemented to interact with additional features of the `starknet-devnet-rs <https://github.com/0xSpaceShard/starknet-devnet-rs>`_
 
 .. currentmodule:: starknet_py.net.signer.ledger_signer
 
