@@ -358,6 +358,13 @@ jobs:
 
       # ====================== SETUP DEVNET ====================== #
 
+      - uses: actions/cache@v3
+        id: devnet-cache
+        with:
+          path: $(git rev-parse --show-toplevel)/starknet_py/tests/e2e/devnet/bin/starknet-devnet
+          key: ${{ runner.os }}-devnet-${{ hashFiles('Cargo.lock') }}-3ad8145
+
+
       - name: Install devnet
         run: |
           $DEVNET_INSTALL_DIR = "$(git rev-parse --show-toplevel)/starknet_py/tests/e2e/devnet"
