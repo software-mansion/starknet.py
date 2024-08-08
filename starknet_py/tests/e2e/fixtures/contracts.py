@@ -49,16 +49,6 @@ def abi_types_compiled_contract_and_class_hash() -> Tuple[str, int]:
     )
 
 
-@pytest.fixture(scope="package")
-def simple_storage_with_event_compiled_contract() -> str:
-    """
-    Returns compiled simple storage contract that emits an event.
-    """
-    return read_contract(
-        "simple_storage_with_event_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR
-    )
-
-
 async def deploy_contract(account: BaseAccount, class_hash: int, abi: List) -> Contract:
     """
     Deploys a contract and returns its instance.
