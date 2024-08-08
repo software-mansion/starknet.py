@@ -13,7 +13,7 @@ async def test_throws_when_cairo1_without_compiled_contract_casm_and_class_hash(
         "For Cairo 1.0 contracts, either the 'compiled_class_hash' or the 'compiled_contract_casm' "
         "argument must be provided."
     )
-    compiled_contract = load_contract("ERC20")["sierra"]
+    compiled_contract = load_contract("Hello")["sierra"]
 
     with pytest.raises(ValueError, match=error_message):
         await Contract.declare_v2(
