@@ -1,5 +1,4 @@
 mod account;
-mod erc20;
 mod hello_starknet;
 mod hello;
 mod minimal_contract;
@@ -7,5 +6,4 @@ mod test_contract_declare;
 mod test_contract;
 mod test_enum;
 mod test_option;
-mod token_bridge;
 mod map;
