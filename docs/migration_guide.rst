@@ -5,7 +5,13 @@ Migration guide
 0.24.0 Migration guide
 ******************************
 
-Version 0.24.0 of **starknet.py** comes with support for signing with Ledger wallet! It also introduces devnet client to interact with additional features of the Starknet Devnet.
+.. currentmodule:: starknet_py.devnet_utils.devnet_client
+
+1. :class:`DevnetClient` has been implemented to interact with additional features of the Starknet Devnet
+
+.. currentmodule:: starknet_py.net.signer.ledger_signer
+
+2. :class:`LedgerSigner` has been implemented to sign with Ledger hardware wallet
 
 0.24.0 Targeted versions
 ------------------------
@@ -20,17 +26,6 @@ Version 0.24.0 of **starknet.py** comes with support for signing with Ledger wal
 
 1. :class:`CompiledContract` and :class:`ContractClass` have been renamed to :class:`DeprecatedCompiledContract` and :class:`DeprecatedContractClass`.
 2. :class:`ContractClassSchema` have been renamed to :class:`DeprecatedContractClassSchema`
-
-0.24.0 Minor changes
------------------------
-
-.. currentmodule:: starknet_py.devnet_utils.devnet_client
-
-1. :class:`DevnetClient` has been implemented to interact with additional features of the Starknet Devnet
-
-.. currentmodule:: starknet_py.net.signer.ledger_signer
-
-2. :class:`LedgerSigner` has been implemented to sign with Ledger hardware wallet
 
 ******************************
 0.23.0 Migration guide
