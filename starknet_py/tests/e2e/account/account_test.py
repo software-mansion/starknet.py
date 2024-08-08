@@ -135,7 +135,7 @@ async def test_account_estimate_fee_for_transactions(account, map_contract):
     invoke_tx_2 = await account.sign_invoke_v3(
         calls=Call(map_contract.address, get_selector_from_name("put"), [5, 1]),
         l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
-        nonce=(await account.get_nonce()),
+        nonce=(await account.get_nonce() + 1),
     )
 
     estimated_fee = await account.estimate_fee(tx=[invoke_tx_1, invoke_tx_2])
