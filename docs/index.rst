@@ -19,6 +19,7 @@ Starknet SDK for Python
    account_creation
    quickstart
    guide
+   devnet_utils
    api
    development
    migration_guide
