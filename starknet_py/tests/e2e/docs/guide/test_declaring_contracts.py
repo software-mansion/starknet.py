@@ -1,6 +1,8 @@
 import pytest
 
 
+# TODO (#1419): Fix contract redeclaration
+@pytest.mark.skip(reason="Redeclaration occurred")
 @pytest.mark.asyncio
 async def test_declaring_contracts(account, map_compiled_contract):
     contract_compiled = map_compiled_contract
