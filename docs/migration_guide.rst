@@ -11,7 +11,7 @@ Migration guide
 
 .. currentmodule:: starknet_py.net.signer.ledger_signer
 
-2. :class:`LedgerSigner` has been implemented to sign with Ledger hardware wallet
+2. :class:`LedgerSigner` has been implemented to enable signing with Ledger hardware wallet
 
 0.24.0 Targeted versions
 ------------------------
