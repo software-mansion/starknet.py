@@ -32,7 +32,6 @@ Version 0.24.0 of **starknet.py** comes with support for signing with Ledger wal
 
 2. :class:`LedgerSigner` has been implemented to sign with Ledger hardware wallet
 
-
 ******************************
 0.23.0 Migration guide
 ******************************
