@@ -112,7 +112,7 @@ class SierraContractClassSchema(Schema):
 class ContractClassSchema(Schema):
     program = fields.Dict(
         keys=fields.String(),
-        values=fields.Raw(allow_none=True),
+        values=fields.Raw(load_default=None),
         data_key="program",
         required=True,
     )

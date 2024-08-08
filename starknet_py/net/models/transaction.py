@@ -35,7 +35,7 @@ from starknet_py.net.client_models import (
     SierraContractClass,
     TransactionType,
 )
-from starknet_py.net.schemas.common import Felt, TransactionTypeField
+from starknet_py.net.schemas.common import Felt
 from starknet_py.net.schemas.rpc.contract import (
     ContractClassSchema,
     SierraContractClassSchema,
@@ -134,7 +134,10 @@ class DeclareV3(_AccountTransactionV3):
     compiled_class_hash: int
     contract_class: SierraContractClass
     account_deployment_data: List[int] = field(default_factory=list)
-    type: TransactionType = TransactionType.DECLARE
+
+    @property
+    def type(self) -> TransactionType:
+        return TransactionType.DECLARE
 
     def calculate_hash(self, chain_id: int) -> int:
         return compute_declare_v3_transaction_hash(
@@ -161,10 +164,10 @@ class DeclareV2(_DeprecatedAccountTransaction):
     )
     compiled_class_hash: int = field(metadata={"marshmallow_field": Felt()})
     sender_address: int = field(metadata={"marshmallow_field": Felt()})
-    type: TransactionType = field(
-        metadata={"marshmallow_field": TransactionTypeField()},
-        default=TransactionType.DECLARE,
-    )
+
+    @property
+    def type(self) -> TransactionType:
+        return TransactionType.DECLARE
 
     def calculate_hash(self, chain_id: int) -> int:
         return compute_declare_v2_transaction_hash(
@@ -191,10 +194,10 @@ class DeclareV1(_DeprecatedAccountTransaction):
     )
     # The address of the account contract sending the declaration transaction.
     sender_address: int = field(metadata={"marshmallow_field": Felt()})
-    type: TransactionType = field(
-        metadata={"marshmallow_field": TransactionTypeField()},
-        default=TransactionType.DECLARE,
-    )
+
+    @property
+    def type(self) -> TransactionType:
+        return TransactionType.DECLARE
 
     @marshmallow.post_dump
     def post_dump(self, data: Dict[str, Any], **kwargs) -> Dict[str, Any]:
@@ -232,7 +235,10 @@ class DeployAccountV3(_AccountTransactionV3):
     class_hash: int
     contract_address_salt: int
     constructor_calldata: List[int]
-    type: TransactionType = TransactionType.DEPLOY_ACCOUNT
+
+    @property
+    def type(self) -> TransactionType:
+        return TransactionType.DEPLOY_ACCOUNT
 
     def calculate_hash(self, chain_id: int) -> int:
         contract_address = compute_address(
@@ -265,10 +271,10 @@ class DeployAccountV1(_DeprecatedAccountTransaction):
     constructor_calldata: List[int] = field(
         metadata={"marshmallow_field": fields.List(fields.String())}
     )
-    type: TransactionType = field(
-        metadata={"marshmallow_field": TransactionTypeField()},
-        default=TransactionType.DEPLOY_ACCOUNT,
-    )
+
+    @property
+    def type(self) -> TransactionType:
+        return TransactionType.DEPLOY_ACCOUNT
 
     def calculate_hash(self, chain_id: int) -> int:
         """
@@ -302,7 +308,10 @@ class InvokeV3(_AccountTransactionV3):
     calldata: List[int]
     sender_address: int
     account_deployment_data: List[int] = field(default_factory=list)
-    type: TransactionType = TransactionType.INVOKE
+
+    @property
+    def type(self) -> TransactionType:
+        return TransactionType.INVOKE
 
     def calculate_hash(self, chain_id: int) -> int:
         return compute_invoke_v3_transaction_hash(
@@ -327,10 +336,10 @@ class InvokeV1(_DeprecatedAccountTransaction):
     calldata: List[int] = field(
         metadata={"marshmallow_field": fields.List(fields.String())}
     )
-    type: TransactionType = field(
-        metadata={"marshmallow_field": TransactionTypeField()},
-        default=TransactionType.INVOKE,
-    )
+
+    @property
+    def type(self) -> TransactionType:
+        return TransactionType.INVOKE
 
     def calculate_hash(self, chain_id: int) -> int:
         """

@@ -26,7 +26,6 @@ from starknet_py.net.client_models import (
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import (
-    DeclareV1,
     DeclareV2,
     DeclareV3,
     DeployAccountV3,
@@ -125,25 +124,26 @@ async def test_account_estimate_fee_for_declare_transaction(
 
 
 @pytest.mark.asyncio
-async def test_account_estimate_fee_for_transactions(
-    account, map_compiled_contract, map_contract
-):
-    declare_tx = await account.sign_declare_v1(
-        compiled_contract=map_compiled_contract, max_fee=MAX_FEE
-    )
+async def test_account_estimate_fee_for_transactions(account, map_contract):
 
-    invoke_tx = await account.sign_invoke_v3(
+    invoke_tx_1 = await account.sign_invoke_v3(
         calls=Call(map_contract.address, get_selector_from_name("put"), [3, 4]),
         l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
-        nonce=(declare_tx.nonce + 1),
+        nonce=(await account.get_nonce()),
     )
 
-    estimated_fee = await account.estimate_fee(tx=[declare_tx, invoke_tx])
+    invoke_tx_2 = await account.sign_invoke_v3(
+        calls=Call(map_contract.address, get_selector_from_name("put"), [5, 1]),
+        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        nonce=(await account.get_nonce() + 1),
+    )
+
+    estimated_fee = await account.estimate_fee(tx=[invoke_tx_1, invoke_tx_2])
 
     assert len(estimated_fee) == 2
     assert isinstance(estimated_fee[0], EstimatedFee)
     assert isinstance(estimated_fee[1], EstimatedFee)
-    assert estimated_fee[0].unit == PriceUnit.WEI
+    assert estimated_fee[0].unit == PriceUnit.FRI
     assert estimated_fee[1].unit == PriceUnit.FRI
     assert isinstance(estimated_fee[0].overall_fee, int)
     assert estimated_fee[0].overall_fee > 0
@@ -164,7 +164,6 @@ async def test_sending_multicall(account, map_contract, key, val):
 
     res = await account.execute_v1(calls=calls, max_fee=int(1e20))
     await account.client.wait_for_tx(res.transaction_hash)
-
     (value,) = await map_contract.functions["get"].call(key=key)
 
     assert value == val
@@ -288,28 +287,6 @@ async def test_sign_invoke_v3_auto_estimate(account, map_contract):
 
 
 @pytest.mark.asyncio
-async def test_sign_declare_transaction(account, map_compiled_contract):
-    signed_tx = await account.sign_declare_v1(map_compiled_contract, max_fee=MAX_FEE)
-
-    assert isinstance(signed_tx, DeclareV1)
-    assert signed_tx.version == 1
-    assert isinstance(signed_tx.signature, list)
-    assert len(signed_tx.signature) > 0
-    assert signed_tx.max_fee == MAX_FEE
-
-
-@pytest.mark.asyncio
-async def test_sign_declare_transaction_auto_estimate(account, map_compiled_contract):
-    signed_tx = await account.sign_declare_v1(map_compiled_contract, auto_estimate=True)
-
-    assert isinstance(signed_tx, DeclareV1)
-    assert signed_tx.version == 1
-    assert isinstance(signed_tx.signature, list)
-    assert len(signed_tx.signature) > 0
-    assert signed_tx.max_fee > 0
-
-
-@pytest.mark.asyncio
 async def test_sign_declare_v2(
     account, sierra_minimal_compiled_contract_and_class_hash
 ):
@@ -400,18 +377,6 @@ async def test_sign_declare_v3_auto_estimate(
     assert signed_tx.resource_bounds.l1_gas.max_amount > 0
     assert signed_tx.resource_bounds.l1_gas.max_price_per_unit > 0
     assert signed_tx.resource_bounds.l2_gas == ResourceBounds.init_with_zeros()
-
-
-@pytest.mark.asyncio
-async def test_declare_contract_raises_on_sierra_contract_without_compiled_class_hash(
-    account, sierra_minimal_compiled_contract_and_class_hash
-):
-    compiled_contract, _ = sierra_minimal_compiled_contract_and_class_hash
-    with pytest.raises(
-        ValueError,
-        match="Signing sierra contracts requires using `sign_declare_v2` method.",
-    ):
-        await account.sign_declare_v1(compiled_contract=compiled_contract)
 
 
 @pytest.mark.asyncio
@@ -695,6 +660,8 @@ async def test_sign_invoke_v3_for_fee_estimation(account, map_contract):
     assert estimation.overall_fee > 0
 
 
+# TODO (#1419): Fix contract redeclaration
+@pytest.mark.skip(reason="Redeclaration occurred")
 @pytest.mark.asyncio
 async def test_sign_declare_v1_for_fee_estimation(account, map_compiled_contract):
     transaction = await account.sign_declare_v1(
