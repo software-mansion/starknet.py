@@ -155,7 +155,10 @@ class DevnetClient(FullNodeClient):
         This functionality allows simulating block abortion that can occur on mainnet.
         It is supported in the `--state-archive-capacity full` mode.
 
-        :param starting_block_id: The state of Devnet will be reverted to the state before `starting_block_hash`.
+        :param block_number: Number of the block which the state of Devnet will be reverted to
+            or literals `"pending"` or `"latest"`.
+        :param block_hash: Hash of the block which the state of Devnet will be reverted to
+            or literals `"pending"` or `"latest"`
         """
 
         res = await self._devnet_client.call(
