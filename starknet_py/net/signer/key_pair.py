@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from os import urandom
+from secrets import token_bytes
 
 from eth_keyfile.keyfile import extract_key_from_keyfile
 
@@ -31,7 +31,7 @@ class KeyPair:
 
         :return: KeyPair object.
         """
-        random_int = int.from_bytes(urandom(32), byteorder="big")
+        random_int = int.from_bytes(token_bytes(32), byteorder="big")
         private_key = random_int % FIELD_PRIME
         public_key = private_to_stark_key(private_key)
         return KeyPair(private_key=private_key, public_key=public_key)
