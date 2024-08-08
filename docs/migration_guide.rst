@@ -14,7 +14,18 @@ Migration guide
 0.24.0 Breaking changes
 -----------------------
 
-1. :class:`CompiledContract`, :class:`ContractClass` and :class:`ContractClassSchema` have been renamed to :class:`DeprecatedCompiledContract`, :class:`DeprecatedContractClass` and :class:`DeprecatedContractClassSchema`
+.. currentmodule:: starknet_py.net.client_models
+
+1. :class:`CompiledContract` and :class:`ContractClass` have been renamed to :class:`DeprecatedCompiledContract` and :class:`DeprecatedContractClass`.
+2. :class:`ContractClassSchema` have been renamed to :class:`DeprecatedContractClassSchema`
+
+0.24.0 Minor changes
+-----------------------
+
+.. currentmodule:: starknet_py.devnet_utils.devnet_client
+
+1. :class:`DevnetClient` has been implemented to interact with additional features of the Starknet Devnet
+
 
 ******************************
 0.23.0 Migration guide
