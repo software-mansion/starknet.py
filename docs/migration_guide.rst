@@ -13,17 +13,6 @@ Version 0.24.0 of **starknet.py** comes with support for signing with Ledger wal
 - Starknet - `0.13.1.1 <https://docs.starknet.io/documentation/starknet_versions/version_notes/#version0.13.1.1>`_
 - RPC - `0.7.1 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.7.1>`_
 
-0.24.0 Breaking changes
------------------------
-
-.. currentmodule:: starknet_py.net.client_models
-
-1. :class:`CompiledContract` and :class:`ContractClass` have been renamed to :class:`DeprecatedCompiledContract` and :class:`DeprecatedContractClass`.
-2. :class:`ContractClassSchema` have been renamed to :class:`DeprecatedContractClassSchema`
-
-0.24.0 Minor changes
------------------------
-
 .. currentmodule:: starknet_py.devnet_utils.devnet_client
 
 1. :class:`DevnetClient` has been implemented to interact with additional features of the Starknet Devnet
@@ -32,6 +21,13 @@ Version 0.24.0 of **starknet.py** comes with support for signing with Ledger wal
 
 2. :class:`LedgerSigner` has been implemented to sign with Ledger hardware wallet
 
+0.24.0 Breaking changes
+-----------------------
+
+.. currentmodule:: starknet_py.net.client_models
+
+1. :class:`CompiledContract` and :class:`ContractClass` have been renamed to :class:`DeprecatedCompiledContract` and :class:`DeprecatedContractClass`.
+2. :class:`ContractClassSchema` have been renamed to :class:`DeprecatedContractClassSchema`
 
 ******************************
 0.23.0 Migration guide
