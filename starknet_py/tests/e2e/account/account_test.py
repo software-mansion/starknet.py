@@ -57,8 +57,8 @@ async def test_get_balance_throws_when_token_not_specified(account):
 
 
 @pytest.mark.skipif(
-    "--contract_dir=v2" not in sys.argv,
-    reason="Some cairo 1 contracts compiled with v1 compiler fail with new devnet-rs",
+    "--contract_dir=v1" in sys.argv,
+    reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio
 async def test_balance_when_token_specified(account, erc20_contract):
@@ -68,8 +68,8 @@ async def test_balance_when_token_specified(account, erc20_contract):
 
 
 @pytest.mark.skipif(
-    "--contract_dir=v2" not in sys.argv,
-    reason="Some cairo 1 contracts compiled with v1 compiler fail with new devnet-rs",
+    "--contract_dir=v1" in sys.argv,
+    reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio
 async def test_estimated_fee_greater_than_zero(account, erc20_contract):
