@@ -89,6 +89,15 @@ class Felt(NumberAsHex):
     REGEX_PATTERN = r"^0x(0|[a-fA-F1-9]{1}[a-fA-F0-9]{0,62})$"
 
 
+class ETHAddress(NumberAsHex):
+    """
+    Field used to serialize and deserialize ETH address type.
+    """
+
+    MAX_VALUE = 2**160 - 1
+    REGEX_PATTERN = r"^0x[a-fA-F0-9]{40}$"
+
+
 class Uint64(NumberAsHex):
     """
     Field used to serialize and deserialize RPC u64 type.
