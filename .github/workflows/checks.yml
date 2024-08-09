@@ -379,6 +379,9 @@ jobs:
 
       - name: Verify devnet build
         run: |
+          Get-ChildItem -Path ${{ github.workspace }}/starknet_py/tests/e2e
+          Get-ChildItem -Path ${{ github.workspace }}/starknet_py/tests/e2e/devnet
+          Get-ChildItem -Path ${{ github.workspace }}/starknet_py/tests/e2e/devnet/target
           Get-ChildItem -Path ${{ github.workspace }}/starknet_py/tests/e2e/devnet/target/release
           ${{ github.workspace }}/starknet_py/tests/e2e/devnet/target/release/starknet-devnet --version
 
