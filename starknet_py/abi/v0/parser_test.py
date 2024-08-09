@@ -189,14 +189,10 @@ def test_missing_type_used(missing_name, input_dict):
         AbiParser([input_dict]).parse()
 
 
-def test_deserialize_balance_struct_event_abi():
+def test_deserialize_balance_struct_event_abi(cairo_0_balance_struct_event_abi):
     # Contains all types of ABI apart from structures
-    abi = json.loads(
-        read_contract(
-            "balance_struct_event_abi.json", directory=CONTRACTS_COMPILED_V0_DIR
-        )
-    )
-    deserialized = AbiParser(abi).parse()
+
+    deserialized = AbiParser(cairo_0_balance_struct_event_abi).parse()
 
     assert deserialized == fixtures.balance_struct_abi
 
