@@ -360,24 +360,22 @@ jobs:
       - uses: actions/cache@v3
         id: devnet-cache
         with:
-          path: ${{ github.workspace }}/starknet_py/tests/e2e/devnet/target/release/starknet-devnet
+          path: starknet-devnet-rs/target/release/starknet-devnet
           key: ${{ runner.os }}-devnet-${{ hashFiles('Cargo.lock') }}-3ad8145
 
 
-      - name: Display Cache Path
-        run: |
-          echo "Cache path: ${{ github.workspace }}/starknet_py/tests/e2e/devnet/target/release/starknet-devnet"
+#      - name: Display Cache Path
+#        run: |
+#          echo "Cache path: ${{ github.workspace }}/starknet_py/tests/e2e/devnet/target/release/starknet-devnet"
 
-      - name: List contents of the directory
-        run: Get-ChildItem -Path "$(git rev-parse --show-toplevel)/starknet_py/tests/e2e"
-        shell: pwsh
+#      - name: List contents of the directory
+#        run: Get-ChildItem -Path "$(git rev-parse --show-toplevel)/starknet_py/tests/e2e"
+#        shell: pwsh
 
       - name: Install devnet
         run: |
-          echo %cd%
-          
-          $DEVNET_INSTALL_DIR = "$(git rev-parse --show-toplevel)/starknet_py/tests/e2e/devnet"
-          cargo install --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --locked --rev 7e7dbb5 --root $DEVNET_INSTALL_DIR
+#          $DEVNET_INSTALL_DIR = "$(git rev-parse --show-toplevel)/starknet_py/tests/e2e/devnet"
+          cargo install --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --locked --rev 7e7dbb5 --root starknet-devnet-rs
 
       # ====================== SETUP PYTHON ====================== #
 
