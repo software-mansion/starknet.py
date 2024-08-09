@@ -365,7 +365,7 @@ jobs:
 
 
       - name: List contents of the directory
-        run: Get-ChildItem -Path "$(git rev-parse --show-toplevel)/starknet_py/tests/e2e/devnet"
+        run: Get-ChildItem -Path "$(git rev-parse --show-toplevel)/starknet_py/tests/e2e"
         shell: pwsh
 
       - name: Install devnet
