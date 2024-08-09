@@ -13,3 +13,4 @@ mod token_bridge;
 mod l1_l2;
 mod map;
 mod simple_storage_with_event;
+mod balance;
