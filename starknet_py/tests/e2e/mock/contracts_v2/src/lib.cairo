@@ -12,3 +12,4 @@ mod test_option;
 mod token_bridge;
 mod map;
 mod simple_storage_with_event;
+mod balance;

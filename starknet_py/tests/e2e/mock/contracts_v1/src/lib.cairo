@@ -7,3 +7,4 @@ mod test_contract;
 mod test_enum;
 mod test_option;
 mod map;
+mod balance;
