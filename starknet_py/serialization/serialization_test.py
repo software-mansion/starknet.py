@@ -110,9 +110,23 @@ abi = json.loads(
 )
 parsed_abi = AbiParserV0(abi).parse()
 
-abi_v1 = json.loads(
-    load_contract(contract_name="ERC20", version=ContractVersion.V1)["sierra"]
-)["abi"]
+abi_v1 = [
+    {
+        "type": "event",
+        "name": "Approval",
+        "inputs": [
+            {
+                "name": "owner",
+                "type": "core::starknet::contract_address::ContractAddress",
+            },
+            {
+                "name": "spender",
+                "type": "core::starknet::contract_address::ContractAddress",
+            },
+            {"name": "value", "type": "core::integer::u256"},
+        ],
+    }
+]
 parsed_abi_v1 = AbiParserV1(abi_v1).parse()
 
 abi_v2 = json.loads(

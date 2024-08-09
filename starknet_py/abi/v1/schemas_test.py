@@ -11,11 +11,11 @@ from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
     "contract_name",
     [
         "Account",
-        "ERC20",
+        "Hello",
         "HelloStarknet",
         "MinimalContract",
         "TestContract",
-        "TokenBridge",
+        "TestEnum",
     ],
 )
 def test_deserialize_abi(contract_name):

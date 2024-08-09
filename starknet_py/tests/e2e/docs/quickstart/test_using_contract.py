@@ -34,7 +34,7 @@ async def test_using_contract(account, map_contract):
         address=contract_address,
         abi=abi,
         provider=account,
-        cairo_version=0,
+        cairo_version=1,
     )
 
     # All exposed functions are available at contract.functions.
