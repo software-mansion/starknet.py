@@ -1,9 +1,9 @@
+import sys
 from typing import cast
 from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from starknet_py.contract import Contract
 from starknet_py.hash.address import compute_address
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.account import Account
@@ -56,6 +56,10 @@ async def test_get_balance_throws_when_token_not_specified(account):
         await modified_account.get_balance()
 
 
+@pytest.mark.skipif(
+    "--contract_dir=v2" not in sys.argv,
+    reason="Some cairo 1 contracts compiled with v1 compiler fail with new devnet-rs",
+)
 @pytest.mark.asyncio
 async def test_balance_when_token_specified(account, erc20_contract):
     balance = await account.get_balance(erc20_contract.address)
@@ -63,18 +67,15 @@ async def test_balance_when_token_specified(account, erc20_contract):
     assert balance == 200
 
 
+@pytest.mark.skipif(
+    "--contract_dir=v2" not in sys.argv,
+    reason="Some cairo 1 contracts compiled with v1 compiler fail with new devnet-rs",
+)
 @pytest.mark.asyncio
 async def test_estimated_fee_greater_than_zero(account, erc20_contract):
-    erc20_contract = Contract(
-        address=erc20_contract.address,
-        abi=erc20_contract.data.abi,
-        provider=account,
-        cairo_version=0,
-    )
-
     estimated_fee = (
-        await erc20_contract.functions["balanceOf"]
-        .prepare_invoke_v1("1234", max_fee=0)
+        await erc20_contract.functions["balance_of"]
+        .prepare_invoke_v1(account.address, max_fee=0)
         .estimate_fee(block_hash="latest")
     )
 

@@ -309,7 +309,7 @@ class Account(BaseAccount):
         low, high = await self._client.call_contract(
             Call(
                 to_addr=parse_address(token_address),
-                selector=get_selector_from_name("balanceOf"),
+                selector=get_selector_from_name("balance_of"),
                 calldata=[self.address],
             ),
             block_hash=block_hash,

@@ -1,10 +1,11 @@
 # pylint: disable=redefined-outer-name
-from typing import Tuple
+from typing import List, Tuple
 
 import pytest
 import pytest_asyncio
 
-from starknet_py.common import create_casm_class
+from starknet_py.cairo.felt import encode_shortstring
+from starknet_py.common import create_casm_class, create_sierra_compiled_contract
 from starknet_py.contract import Contract
 from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.net.account.base_account import BaseAccount
@@ -39,6 +40,27 @@ async def cairo1_erc20_class_hash(account: BaseAccount) -> int:
         account, contract["sierra"], contract["casm"]
     )
     return class_hash
+
+
+@pytest_asyncio.fixture(scope="package")
+async def constructor_with_arguments_class_hash(account: BaseAccount) -> int:
+    contract = load_contract("ConstructorWithArguments")
+    class_hash, _ = await declare_cairo1_contract(
+        account, contract["sierra"], contract["casm"]
+    )
+    return class_hash
+
+
+@pytest.fixture(scope="package")
+def constructor_with_arguments_abi() -> List:
+    """
+    Returns an abi of the constructor_with_arguments.cairo.
+    """
+    compiled_contract = create_sierra_compiled_contract(
+        compiled_contract=load_contract("ConstructorWithArguments")["sierra"]
+    )
+    assert compiled_contract.parsed_abi is not None
+    return compiled_contract.parsed_abi
 
 
 @pytest_asyncio.fixture(scope="package")
@@ -120,6 +142,23 @@ async def cairo1_token_bridge_class_hash(account: BaseAccount) -> int:
         contract["casm"],
     )
     return class_hash
+
+
+@pytest_asyncio.fixture(scope="package", name="erc20_contract")
+async def cairo1_erc20_deploy(account, cairo1_erc20_class_hash):
+    calldata = {
+        "name_": encode_shortstring("erc20_basic"),
+        "symbol_": encode_shortstring("ERC20B"),
+        "decimals_": 10,
+        "initial_supply": 200,
+        "recipient": account.address,
+    }
+    return await deploy_v1_contract(
+        account=account,
+        contract_name="ERC20",
+        class_hash=cairo1_erc20_class_hash,
+        calldata=calldata,
+    )
 
 
 @pytest_asyncio.fixture(scope="package", name="hello_starknet_contract")
