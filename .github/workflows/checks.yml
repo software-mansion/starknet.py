@@ -364,6 +364,10 @@ jobs:
           key: ${{ runner.os }}-devnet-${{ hashFiles('Cargo.lock') }}-3ad8145
 
 
+      - name: Display Cache Path
+        run: |
+          echo "Cache path: ${{ github.workspace }}/starknet_py/tests/e2e/devnet/target/release/starknet-devnet"
+
       - name: List contents of the directory
         run: Get-ChildItem -Path "$(git rev-parse --show-toplevel)/starknet_py/tests/e2e"
         shell: pwsh
