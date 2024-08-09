@@ -31,8 +31,7 @@ def compute_sierra_class_hash(sierra_contract_class: SierraContractClass) -> int
     assert sierra_contract_class.abi is not None
     abi_hash = _starknet_keccak(bytes(sierra_contract_class.abi, "utf-8"))
 
-    _sierra_program = [int(val, 0) for val in sierra_contract_class.sierra_program]
-    sierra_program_hash = poseidon_hash_many(_sierra_program)
+    sierra_program_hash = poseidon_hash_many(sierra_contract_class.sierra_program)
 
     return poseidon_hash_many(
         [

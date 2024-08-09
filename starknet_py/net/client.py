@@ -9,11 +9,13 @@ from starknet_py.net.client_models import (
     BlockStateUpdate,
     BlockTransactionTrace,
     Call,
-    ContractClass,
     DeclareTransactionResponse,
     DeployAccountTransactionResponse,
+    DeprecatedContractClass,
     EstimatedFee,
     Hash,
+    PendingBlockStateUpdate,
+    PendingStarknetBlock,
     SentTransactionResponse,
     SierraContractClass,
     StarknetBlock,
@@ -45,7 +47,7 @@ class Client(ABC):
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> StarknetBlock:
+    ) -> Union[StarknetBlock, PendingStarknetBlock]:
         """
         Retrieve the block's data by its number or hash
 
@@ -73,7 +75,7 @@ class Client(ABC):
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> BlockStateUpdate:
+    ) -> Union[BlockStateUpdate, PendingBlockStateUpdate]:
         """
         Get the information about the result of executing the requested block
 
@@ -278,7 +280,7 @@ class Client(ABC):
     @abstractmethod
     async def get_class_by_hash(
         self, class_hash: Hash
-    ) -> Union[ContractClass, SierraContractClass]:
+    ) -> Union[DeprecatedContractClass, SierraContractClass]:
         """
         Get the contract class for given class hash
 

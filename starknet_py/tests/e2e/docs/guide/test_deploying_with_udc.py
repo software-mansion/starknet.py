@@ -17,7 +17,7 @@ async def test_deploying_with_udc(
     salt = None
 
     # docs: start
-    # If you use mainnet/goerli/sepolia there is no need to explicitly specify
+    # If you use mainnet/sepolia there is no need to explicitly specify
     # address of the deployer (default one will be used)
     deployer = Deployer()
 

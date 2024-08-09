@@ -31,6 +31,8 @@ Version 0.23.0 of **starknet.py** comes with support for `SNIP-12 <https://githu
 2. :meth:`Account.verify_message` now accepts parameter ``typed_data`` as both  :class:`~starknet_py.utils.typed_data.TypedData` and :class:`~starknet_py.net.models.typed_data.TypedDataDict`
 3. :meth:`~starknet_py.net.signer.stark_curve_signer.KeyPair.from_keystore` has been added
 
+3. :class:`CompiledContract`, :class:`ContractClass` and :class:`ContractClassSchema` have been renamed to :class:`DeprecatedCompiledContract`, :class:`DeprecatedContractClass` and :class:`DeprecatedContractClassSchema`
+
 ******************************
 0.22.0 Migration guide
 ******************************

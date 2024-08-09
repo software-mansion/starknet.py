@@ -23,12 +23,12 @@ To install `starknet-devnet-rs <https://github.com/0xSpaceShard/starknet-devnet-
 Environment variables
 ^^^^^^^^^^^^^^^^^^^^^
 
-In order to be able to run tests on testnet and integration networks (``starknet_py/tests/e2e/tests_on_networks/``), you must set some environmental variables:
+In order to be able to run devnet client tests (``starknet_py/tests/e2e/client_devnet``) you must set environmental variable:
 
-    - ``SEPOLIA_INTEGRATION_RPC_URL``
     - ``SEPOLIA_RPC_URL``
-    - ``SEPOLIA_INTEGRATION_ACCOUNT_PRIVATE_KEY``
-    - ``SEPOLIA_INTEGRATION_ACCOUNT_ADDRESS``
+
+To run tests on testnet network (``starknet_py/tests/e2e/tests_on_networks/``) additionally you must set:
+
     - ``SEPOLIA_ACCOUNT_PRIVATE_KEY``
     - ``SEPOLIA_ACCOUNT_ADDRESS``
 

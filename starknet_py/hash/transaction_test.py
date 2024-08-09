@@ -1,10 +1,8 @@
 import pytest
 
-from starknet_py.common import create_compiled_contract
 from starknet_py.hash.transaction import (
     CommonTransactionV3Fields,
     TransactionHashPrefix,
-    compute_declare_transaction_hash,
     compute_declare_v2_transaction_hash,
     compute_declare_v3_transaction_hash,
     compute_deploy_account_transaction_hash,
@@ -14,8 +12,6 @@ from starknet_py.hash.transaction import (
     compute_transaction_hash,
 )
 from starknet_py.net.client_models import DAMode, ResourceBounds, ResourceBoundsMapping
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V0_DIR
-from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
 @pytest.fixture(name="default_resource_bounds")
@@ -75,22 +71,6 @@ def test_compute_transaction_hash(data, expected_hash):
 )
 def test_compute_deploy_account_transaction_hash(data, expected_hash):
     assert compute_deploy_account_transaction_hash(**data) == expected_hash
-
-
-@pytest.mark.parametrize(
-    "contract_json, data",
-    [
-        ("map_compiled.json", [3, 4, 5, 1, 7]),
-        ("balance_compiled.json", [23, 24, 25, 26, 27]),
-    ],
-)
-def test_compute_declare_transaction_hash(contract_json, data):
-    contract = read_contract(contract_json, directory=CONTRACTS_COMPILED_V0_DIR)
-    compiled_contract = create_compiled_contract(compiled_contract=contract)
-
-    declare_hash = compute_declare_transaction_hash(compiled_contract, *data)
-
-    assert declare_hash > 0
 
 
 @pytest.mark.parametrize(

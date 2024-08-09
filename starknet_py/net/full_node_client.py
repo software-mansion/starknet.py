@@ -1,7 +1,6 @@
 from typing import List, Optional, Tuple, Union, cast
 
 import aiohttp
-from marshmallow import EXCLUDE
 
 from starknet_py.constants import RPC_CONTRACT_ERROR
 from starknet_py.hash.utils import keccak256
@@ -12,9 +11,9 @@ from starknet_py.net.client_models import (
     BlockStateUpdate,
     BlockTransactionTrace,
     Call,
-    ContractClass,
     DeclareTransactionResponse,
     DeployAccountTransactionResponse,
+    DeprecatedContractClass,
     EstimatedFee,
     EventsChunk,
     Hash,
@@ -51,29 +50,35 @@ from starknet_py.net.models.transaction import (
     DeployAccount,
     Invoke,
 )
-from starknet_py.net.schemas.rpc import (
+from starknet_py.net.schemas.rpc.block import (
     BlockHashAndNumberSchema,
     BlockStateUpdateSchema,
-    BlockTransactionTraceSchema,
-    ContractClassSchema,
-    DeclareTransactionResponseSchema,
-    DeployAccountTransactionResponseSchema,
-    EstimatedFeeSchema,
-    EventsChunkSchema,
     PendingBlockStateUpdateSchema,
     PendingStarknetBlockSchema,
     PendingStarknetBlockWithReceiptsSchema,
     PendingStarknetBlockWithTxHashesSchema,
-    SentTransactionSchema,
-    SierraContractClassSchema,
-    SimulatedTransactionSchema,
     StarknetBlockSchema,
     StarknetBlockWithReceiptsSchema,
     StarknetBlockWithTxHashesSchema,
+)
+from starknet_py.net.schemas.rpc.contract import (
+    DeprecatedContractClassSchema,
+    SierraContractClassSchema,
     SyncStatusSchema,
+)
+from starknet_py.net.schemas.rpc.event import EventsChunkSchema
+from starknet_py.net.schemas.rpc.general import EstimatedFeeSchema
+from starknet_py.net.schemas.rpc.trace_api import (
+    BlockTransactionTraceSchema,
+    SimulatedTransactionSchema,
+    TransactionTraceSchema,
+)
+from starknet_py.net.schemas.rpc.transactions import (
+    DeclareTransactionResponseSchema,
+    DeployAccountTransactionResponseSchema,
+    SentTransactionSchema,
     TransactionReceiptSchema,
     TransactionStatusResponseSchema,
-    TransactionTraceSchema,
     TypesOfTransactionsSchema,
 )
 from starknet_py.transaction_errors import TransactionNotReceivedError
@@ -92,7 +97,6 @@ class FullNodeClient(Client):
         Client for interacting with Starknet json-rpc interface.
 
         :param node_url: Url of the node providing rpc interface
-        :param net: Starknet network identifier
         :param session: Aiohttp session to be used for request. If not provided, client will create a session for
                         every request. When using a custom session, user is responsible for closing it manually.
         """
@@ -113,11 +117,8 @@ class FullNodeClient(Client):
             params=block_identifier,
         )
         if block_identifier == {"block_id": "pending"}:
-            return cast(
-                PendingStarknetBlock,
-                PendingStarknetBlockSchema().load(res, unknown=EXCLUDE),
-            )
-        return cast(StarknetBlock, StarknetBlockSchema().load(res, unknown=EXCLUDE))
+            return cast(PendingStarknetBlock, PendingStarknetBlockSchema().load(res))
+        return cast(StarknetBlock, StarknetBlockSchema().load(res))
 
     async def get_block_with_txs(
         self,
@@ -126,7 +127,6 @@ class FullNodeClient(Client):
     ) -> Union[StarknetBlock, PendingStarknetBlock]:
         return await self.get_block(block_hash=block_hash, block_number=block_number)
 
-    # TODO (#1323): remove unknown=EXCLUDE after devnet response fix
     async def get_block_with_tx_hashes(
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
@@ -144,7 +144,7 @@ class FullNodeClient(Client):
         if block_identifier == {"block_id": "pending"}:
             return cast(
                 PendingStarknetBlockWithTxHashes,
-                PendingStarknetBlockWithTxHashesSchema().load(res, unknown=EXCLUDE),
+                PendingStarknetBlockWithTxHashesSchema().load(res),
             )
         return cast(
             StarknetBlockWithTxHashes,
@@ -282,7 +282,6 @@ class FullNodeClient(Client):
             return res["events"], res["continuation_token"]
         return res["events"], None
 
-    # TODO (#1323): remove unknown=EXCLUDE after devnet fix response
     async def get_state_update(
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
@@ -300,7 +299,7 @@ class FullNodeClient(Client):
         if block_identifier == {"block_id": "pending"}:
             return cast(
                 PendingBlockStateUpdate,
-                PendingBlockStateUpdateSchema().load(res, unknown=EXCLUDE),
+                PendingBlockStateUpdateSchema().load(res),
             )
         return cast(BlockStateUpdate, BlockStateUpdateSchema().load(res))
 
@@ -378,9 +377,9 @@ class FullNodeClient(Client):
             method_name="estimateFee",
             params={
                 "request": [_create_broadcasted_txn(transaction=t) for t in tx],
-                "simulation_flags": [SimulationFlag.SKIP_VALIDATE]
-                if skip_validate
-                else [],
+                "simulation_flags": (
+                    [SimulationFlag.SKIP_VALIDATE] if skip_validate else []
+                ),
                 **block_identifier,
             },
         )
@@ -548,7 +547,7 @@ class FullNodeClient(Client):
         class_hash: Hash,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> Union[SierraContractClass, ContractClass]:
+    ) -> Union[SierraContractClass, DeprecatedContractClass]:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -566,9 +565,7 @@ class FullNodeClient(Client):
                 SierraContractClass,
                 SierraContractClassSchema().load(res),
             )
-        return cast(ContractClass, ContractClassSchema().load(res))
-
-    # Only RPC methods
+        return cast(DeprecatedContractClass, DeprecatedContractClassSchema().load(res))
 
     async def get_transaction_by_block_id(
         self,
@@ -625,7 +622,7 @@ class FullNodeClient(Client):
         contract_address: Hash,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> Union[SierraContractClass, ContractClass]:
+    ) -> Union[SierraContractClass, DeprecatedContractClass]:
         """
         Get the contract class definition in the given block at the given address
 
@@ -651,7 +648,7 @@ class FullNodeClient(Client):
                 SierraContractClass,
                 SierraContractClassSchema().load(res),
             )
-        return cast(ContractClass, ContractClassSchema().load(res))
+        return cast(DeprecatedContractClass, DeprecatedContractClassSchema().load(res))
 
     async def get_contract_nonce(
         self,

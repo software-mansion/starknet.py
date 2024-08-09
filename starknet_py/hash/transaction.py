@@ -11,8 +11,8 @@ from starknet_py.hash.class_hash import compute_class_hash
 from starknet_py.hash.sierra_class_hash import compute_sierra_class_hash
 from starknet_py.hash.utils import compute_hash_on_elements
 from starknet_py.net.client_models import (
-    ContractClass,
     DAMode,
+    DeprecatedContractClass,
     ResourceBoundsMapping,
     SierraContractClass,
 )
@@ -256,7 +256,7 @@ def compute_deploy_account_v3_transaction_hash(
 
 
 def compute_declare_transaction_hash(
-    contract_class: ContractClass,
+    contract_class: DeprecatedContractClass,
     chain_id: int,
     sender_address: int,
     max_fee: int,
