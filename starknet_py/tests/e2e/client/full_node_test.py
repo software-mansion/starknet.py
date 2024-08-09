@@ -16,9 +16,8 @@ from starknet_py.net.client_models import (
     BlockHashAndNumber,
     Call,
     DeclareTransactionTrace,
-    DeclareTransactionV1,
+    DeclareTransactionV2,
     DeployAccountTransactionTrace,
-    DeprecatedContractClass,
     InvokeTransactionTrace,
     SierraContractClass,
     SimulatedTransaction,
@@ -50,10 +49,10 @@ async def test_node_get_declare_transaction_by_block_number_and_index(
         block_number=block_with_declare_number, index=0
     )
 
-    assert isinstance(tx, DeclareTransactionV1)
+    assert isinstance(tx, DeclareTransactionV2)
     assert tx.hash == declare_transaction_hash
     assert tx.class_hash == class_hash
-    assert tx.version == 1
+    assert tx.version == 2
 
 
 @pytest.mark.run_on_devnet
@@ -65,8 +64,8 @@ async def test_get_class_at(
         contract_address=contract_address, block_hash="latest"
     )
 
-    assert isinstance(declared_contract, DeprecatedContractClass)
-    assert declared_contract.program != {}
+    assert isinstance(declared_contract, SierraContractClass)
+    assert declared_contract.sierra_program != {}
     assert declared_contract.entry_points_by_type is not None
     assert declared_contract.abi is not None
 

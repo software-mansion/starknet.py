@@ -12,14 +12,12 @@ from starknet_py.net.client_models import (
     BlockStateUpdate,
     Call,
     DeclaredContractHash,
-    DeclareTransactionV1,
     DeclareTransactionV2,
     DeployAccountTransactionV1,
-    DeprecatedContractClass,
     EstimatedFee,
     ExecutionResources,
     FeePayment,
-    InvokeTransactionV1,
+    InvokeTransactionV3,
     L1HandlerTransaction,
     PriceUnit,
     ResourceBounds,
@@ -50,7 +48,7 @@ async def test_get_declare_transaction(
 ):
     transaction = await client.get_transaction(declare_transaction_hash)
 
-    assert isinstance(transaction, DeclareTransactionV1)
+    assert isinstance(transaction, DeclareTransactionV2)
     assert transaction.class_hash == class_hash
     assert transaction.hash == declare_transaction_hash
     assert transaction.sender_address == account.address
@@ -63,8 +61,8 @@ async def test_get_invoke_transaction(
 ):
     transaction = await client.get_transaction(invoke_transaction_hash)
 
-    assert isinstance(transaction, InvokeTransactionV1)
-    assert any(data == 1234 for data in transaction.calldata)
+    assert isinstance(transaction, InvokeTransactionV3)
+    assert any(data == 1777 for data in transaction.calldata)
     assert transaction.hash == invoke_transaction_hash
 
 
@@ -120,7 +118,7 @@ async def test_get_storage_at(client, contract_address):
         block_hash="latest",
     )
 
-    assert storage == 1234
+    assert storage == 1897
 
 
 @pytest.mark.asyncio
@@ -140,7 +138,7 @@ async def test_estimate_fee_invoke(account, contract_address):
         calls=Call(
             to_addr=contract_address,
             selector=get_selector_from_name("increase_balance"),
-            calldata=[123],
+            calldata=[1000],
         ),
         max_fee=MAX_FEE,
     )
@@ -162,7 +160,7 @@ async def test_estimate_fee_invoke_v3(account, contract_address):
         calls=Call(
             to_addr=contract_address,
             selector=get_selector_from_name("increase_balance"),
-            calldata=[123],
+            calldata=[1000],
         ),
         l1_resource_bounds=ResourceBounds.init_with_zeros(),
     )
@@ -221,7 +219,7 @@ async def test_estimate_fee_for_multiple_transactions(
         calls=Call(
             to_addr=contract_address,
             selector=get_selector_from_name("increase_balance"),
-            calldata=[123],
+            calldata=[1000],
         ),
         max_fee=MAX_FEE,
     )
@@ -253,7 +251,7 @@ async def test_call_contract(client, contract_address):
 
     result = await client.call_contract(call, block_number="latest")
 
-    assert result == [1234]
+    assert result == [1897]
 
 
 @pytest.mark.asyncio
@@ -285,8 +283,8 @@ async def test_get_class_hash_at(client, contract_address, class_hash):
 async def test_get_class_by_hash(client, class_hash):
     contract_class = await client.get_class_by_hash(class_hash=class_hash)
 
-    assert isinstance(contract_class, DeprecatedContractClass)
-    assert contract_class.program != ""
+    assert isinstance(contract_class, SierraContractClass)
+    assert contract_class.sierra_program != ""
     assert contract_class.entry_points_by_type is not None
     assert contract_class.abi is not None
 
