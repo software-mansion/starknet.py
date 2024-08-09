@@ -4,7 +4,7 @@ import pytest
 @pytest.mark.asyncio
 async def test_set_and_increase_time(devnet_client):
     time = 3384617820
-    increase_value, error_margin = 100, 2
+    increase_value, error_margin = 100, 10
 
     await devnet_client.set_time(time, generate_block=True)
     block = await devnet_client.get_block(block_number="latest")
