@@ -364,8 +364,14 @@ jobs:
           key: ${{ runner.os }}-devnet-${{ hashFiles('Cargo.lock') }}-3ad8145
 
 
+      - name: List contents of the directory
+        run: Get-ChildItem -Path "$(git rev-parse --show-toplevel)/starknet_py/tests/e2e/devnet"
+        shell: pwsh
+
       - name: Install devnet
         run: |
+          echo %cd%
+          
           $DEVNET_INSTALL_DIR = "$(git rev-parse --show-toplevel)/starknet_py/tests/e2e/devnet"
           cargo install --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --locked --rev 7e7dbb5 --root $DEVNET_INSTALL_DIR
 
