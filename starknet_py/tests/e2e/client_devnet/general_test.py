@@ -32,7 +32,7 @@ async def test_abort_blocks(devnet_client):
     for _ in range(5):
         await devnet_client.create_block()
 
-    aborted_blocks = await devnet_client.abort_block(block_hash)
+    aborted_blocks = await devnet_client.abort_block(block_hash=block_hash)
     assert len(aborted_blocks) == 6
 
 

@@ -24,3 +24,21 @@ async def deploy_string_contract(
         contract_name="MyString",
         class_hash=f_string_contract_class_hash,
     )
+
+
+@pytest_asyncio.fixture(scope="package", name="l1_l2_contract_class_hash")
+async def declare_l1_l2_contract(account) -> int:
+    contract = load_contract("l1_l2")
+    class_hash, _ = await declare_cairo1_contract(
+        account, contract["sierra"], contract["casm"]
+    )
+    return class_hash
+
+
+@pytest_asyncio.fixture(scope="package", name="l1_l2_contract")
+async def deploy_l1_l2_contract(account, l1_l2_contract_class_hash) -> Contract:
+    return await deploy_v1_contract(
+        account=account,
+        contract_name="l1_l2",
+        class_hash=l1_l2_contract_class_hash,
+    )
