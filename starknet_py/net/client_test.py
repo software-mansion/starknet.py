@@ -12,6 +12,7 @@ from starknet_py.net.client_models import (
     TransactionType,
     TransactionV3,
 )
+from starknet_py.net.client_utils import _create_broadcasted_txn
 from starknet_py.net.full_node_client import _to_storage_key
 from starknet_py.net.http_client import RpcHttpClient, ServerError
 from starknet_py.net.models.transaction import (
@@ -22,7 +23,6 @@ from starknet_py.net.models.transaction import (
     InvokeV1,
     InvokeV3,
 )
-from starknet_py.net.schemas.broadcasted_txn import _create_broadcasted_txn
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE, MAX_RESOURCE_BOUNDS_L1
 
 

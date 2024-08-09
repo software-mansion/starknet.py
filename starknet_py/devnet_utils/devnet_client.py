@@ -1,3 +1,4 @@
+import re
 from typing import List, Optional, Union, cast
 
 from aiohttp import ClientSession
@@ -11,7 +12,6 @@ from starknet_py.devnet_utils.devnet_client_models import (
     PredeployedAccount,
     SetTimeResponse,
 )
-from starknet_py.devnet_utils.devnet_client_utils import _to_eth_address
 from starknet_py.devnet_utils.devnet_rpc_schema import (
     BalanceRecordSchema,
     ConfigSchema,
@@ -371,3 +371,18 @@ class DevnetClient(FullNodeClient):
         )
 
         return cast(SetTimeResponse, SetTimeResponseSchema().load(res))
+
+
+def _to_eth_address(value: Hash) -> str:
+    """
+    Convert the value to Ethereum address matching a ``^0x[a-fA-F0-9]{40}$`` pattern.
+
+    :param value: The value to convert.
+    :return: Ethereum address representation of the value.
+    """
+    if isinstance(value, str):
+        value = int(value, 16)
+
+    eth_address = hex(value)
+    assert re.match("^0x[a-fA-F0-9]{40}$", eth_address)
+    return eth_address

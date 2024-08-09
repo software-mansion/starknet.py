@@ -1,14 +1,8 @@
-from typing import Dict, cast
-
 from marshmallow import fields, post_dump, pre_load
 from marshmallow_oneofschema.one_of_schema import OneOfSchema
 
 from starknet_py.net.client_models import TransactionType
-from starknet_py.net.models.transaction import (
-    AccountTransaction,
-    compress_program,
-    decompress_program,
-)
+from starknet_py.net.models.transaction import compress_program, decompress_program
 from starknet_py.net.schemas.rpc.contract import (
     ContractClassSchema,
     SierraCompiledContractSchema,
@@ -73,10 +67,3 @@ class BroadcastedTransactionSchema(OneOfSchema):
 
     def get_obj_type(self, obj):
         return obj.type.name
-
-
-def _create_broadcasted_txn(transaction: AccountTransaction) -> dict:
-    return cast(
-        Dict,
-        BroadcastedTransactionSchema().dump(obj=transaction),
-    )

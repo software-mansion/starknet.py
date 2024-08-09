@@ -5,7 +5,6 @@ from typing import Any, Mapping, Optional, Union
 
 from marshmallow import Schema, ValidationError, fields, post_load
 
-from starknet_py.devnet_utils.devnet_client_utils import _to_eth_address
 from starknet_py.net.client_models import (
     BlockStatus,
     CallType,
@@ -367,27 +366,3 @@ class RevisionField(fields.Field):
             )
 
         return Revision(value)
-
-
-class ETHAddress(fields.Field):
-    def _serialize(self, value: Any, attr: Optional[str], obj: Any, **kwargs):
-        try:
-            return _to_eth_address(value)
-        except AssertionError as exc:
-            raise ValidationError(
-                f"Invalid value provided for ETHAddress: {value}."
-            ) from exc
-
-    def _deserialize(
-        self,
-        value: Any,
-        attr: Optional[str],
-        data: Optional[Mapping[str, Any]],
-        **kwargs,
-    ) -> str:
-        try:
-            return _to_eth_address(value)
-        except AssertionError as exc:
-            raise ValidationError(
-                f"Invalid value provided for ETHAddress: {value}."
-            ) from exc
