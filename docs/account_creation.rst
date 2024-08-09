@@ -16,7 +16,7 @@ and then creating the transaction which will charge the fee from the address.
 Deploying an account with DeployAccount transaction requires the following:
 
  - class_hash of the account contract
- - generating a private key and deployment salt
+ - private key and deployment salt
  - computing an address based on the account's secrets
  - prefunding an address with the fee tokens (e.g. using the token bridge)
  - creating and signing a DeployAccount transaction with generated secrets
