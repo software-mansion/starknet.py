@@ -360,7 +360,7 @@ jobs:
       - uses: actions/cache@v3
         id: devnet-cache
         with:
-          path: $(git rev-parse --show-toplevel)/starknet_py/tests/e2e/devnet
+          path: $(git rev-parse --show-toplevel)/starknet_py/tests/e2e/devnet/target/release/starknet-devnet
           key: ${{ runner.os }}-devnet-${{ hashFiles('Cargo.lock') }}-3ad8145
 
 
