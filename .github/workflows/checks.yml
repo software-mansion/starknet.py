@@ -360,13 +360,13 @@ jobs:
       - uses: actions/cache@v3
         id: devnet-cache
         with:
-          path: ${{ github.workspace }}/starknet_py/tests/e2e/devnet/target/release/starknet-devnet
+          path: ${{ github.workspace }}/starknet_py/tests/e2e/devnet/bin
           key: ${{ runner.os }}-devnet-${{ hashFiles('Cargo.lock') }}-3ad8145
 
 
       - name: Display Cache Path
         run: |
-          echo "Cache path: ${{ github.workspace }}/starknet_py/tests/e2e/devnet/target/release/starknet-devnet"
+          echo "Cache path: ${{ github.workspace }}/starknet_py/tests/e2e/devnet/bin"
 
       - name: List contents of the directory
         run: Get-ChildItem -Path "$(git rev-parse --show-toplevel)/starknet_py/tests/e2e"
@@ -383,7 +383,7 @@ jobs:
           Get-ChildItem -Path ${{ github.workspace }}/starknet_py/tests/e2e/devnet
           Get-ChildItem -Path ${{ github.workspace }}/starknet_py/tests/e2e/devnet/target
           Get-ChildItem -Path ${{ github.workspace }}/starknet_py/tests/e2e/devnet/target/release
-          ${{ github.workspace }}/starknet_py/tests/e2e/devnet/target/release/starknet-devnet --version
+          ${{ github.workspace }}/starknet_py/tests/e2e/devnet/bin --version
 
       # ====================== SETUP PYTHON ====================== #
 
