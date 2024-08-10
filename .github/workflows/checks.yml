@@ -361,7 +361,7 @@ jobs:
         id: devnet-cache
         with:
           path: ${{ github.workspace }}/starknet_py/tests/e2e/devnet/bin/starknet-devnet
-          key: ${{ runner.os }}-devnet-${{ hashFiles('Cargo.lock') }}-3ad8145
+          key: ${{ runner.os }}-devnet
 
       - name: Install devnet
         run: |
