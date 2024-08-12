@@ -332,6 +332,8 @@ jobs:
     name: Tests Windows
     needs: setup-tests
     runs-on: windows-latest
+    env:
+      DEVNET_SHA: 7e7dbb5
     strategy:
       fail-fast: false
       matrix:
@@ -357,17 +359,20 @@ jobs:
 
       # ====================== SETUP DEVNET ====================== #
 
-      - uses: actions/cache@v3
-        id: devnet-cache
+      - name: Cache devnet build
+        uses: actions/cache@v3
         with:
           path: ${{ github.workspace }}/starknet_py/tests/e2e/devnet/bin/starknet-devnet
-          key: ${{ runner.os }}-devnet
+          key: ${{ runner.os }}-devnet-${{ env.DEVNET_SHA }}
 
       - name: Install devnet
         run: |
           $DEVNET_INSTALL_DIR = "${{ github.workspace }}/starknet_py/tests/e2e/devnet"
-          cargo install --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --locked --rev 7e7dbb5 --root $DEVNET_INSTALL_DIR
-
+          if [[ ! -d $DEVNET_INSTALL_DIR/bin/starknet-devnet ]]; then
+            cargo install --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --locked --rev ${{ env.DEVNET_SHA }} --root $DEVNET_INSTALL_DIR
+          else
+            echo Found existing devnet build, skipping compilation."
+          fi
       # ====================== SETUP PYTHON ====================== #
 
       - name: Install poetry
