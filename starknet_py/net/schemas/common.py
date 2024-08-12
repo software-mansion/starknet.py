@@ -89,7 +89,7 @@ class Felt(NumberAsHex):
     REGEX_PATTERN = r"^0x(0|[a-fA-F1-9]{1}[a-fA-F0-9]{0,62})$"
 
 
-class ETHAddress(NumberAsHex):
+class EthAddress(NumberAsHex):
     """
     Field used to serialize and deserialize ETH address type.
     """
