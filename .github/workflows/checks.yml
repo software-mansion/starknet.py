@@ -369,6 +369,7 @@ jobs:
         run: |
           $DEVNET_INSTALL_DIR = "${{ github.workspace }}/starknet_py/tests/e2e/devnet"
           if [[ ! -d $DEVNET_INSTALL_DIR/bin/starknet-devnet ]]; then
+            echo "No existing devnet build found, compiling."
             cargo install --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --locked --rev ${{ env.DEVNET_SHA }} --root $DEVNET_INSTALL_DIR
           else
             echo Found existing devnet build, skipping compilation."
