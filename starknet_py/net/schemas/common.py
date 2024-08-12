@@ -94,7 +94,7 @@ class ETHAddress(NumberAsHex):
     Field used to serialize and deserialize ETH address type.
     """
 
-    MAX_VALUE = 2**160 - 1
+    MAX_VALUE = 2**160
     REGEX_PATTERN = r"^0x[a-fA-F0-9]{40}$"
 
 
