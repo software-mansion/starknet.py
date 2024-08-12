@@ -329,7 +329,6 @@ jobs:
   # ---------------------------------------------------------- #
 
   run-tests-windows:
-    if: ${{ github.event_name != 'pull_request' }}
     name: Tests Windows
     needs: setup-tests
     runs-on: windows-latest
@@ -338,6 +337,7 @@ jobs:
       matrix:
         python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
     env:
+      DEVNET_SHA: 7e7dbb5
       SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
     steps:
       - uses: actions/checkout@v4
@@ -358,11 +358,21 @@ jobs:
 
       # ====================== SETUP DEVNET ====================== #
 
+      - name: Cache devnet build
+        uses: actions/cache@v3
+        with:
+          path: ${{ github.workspace }}/starknet_py/tests/e2e/devnet/bin/starknet-devnet
+          key: ${{ runner.os }}-devnet-${{ env.DEVNET_SHA }}
+
       - name: Install devnet
         run: |
-          $DEVNET_INSTALL_DIR = "$(git rev-parse --show-toplevel)/starknet_py/tests/e2e/devnet"
-          cargo install --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --locked --rev 7e7dbb5 --root $DEVNET_INSTALL_DIR
-
+          $DEVNET_INSTALL_DIR = "${{ github.workspace }}/starknet_py/tests/e2e/devnet"
+          if [[ ! -d $DEVNET_INSTALL_DIR/bin/starknet-devnet ]]; then
+            echo "No existing devnet build found, compiling."
+            cargo install --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --locked --rev ${{ env.DEVNET_SHA }} --root $DEVNET_INSTALL_DIR
+          else
+            echo Found existing devnet build, skipping compilation."
+          fi
       # ====================== SETUP PYTHON ====================== #
 
       - name: Install poetry
@@ -467,7 +477,6 @@ jobs:
   # ---------------------------------------------------------- #
 
   run-docs-tests-windows:
-    if: ${{ github.event_name != 'pull_request' }}
     name: Docs Tests Windows
     needs: setup-tests
     runs-on: windows-latest
