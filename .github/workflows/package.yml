@@ -1,9 +1,5 @@
 name: Build wheels
-
-on:
-  push:
-    tags:
-      - '*'
+on: workflow_dispatch
 
 jobs:
   build_sdist:
