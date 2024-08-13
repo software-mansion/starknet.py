@@ -57,16 +57,34 @@ jobs:
         run: |
           poetry run poe typecheck
 
+  determine-versions-matrix:
+    name: Determine Python versions matrix
+    runs-on: ubuntu-latest
+    outputs:
+      python-versions: ${{ steps.set-versions-matrix.outputs.python-versions }}
+    steps:
+      - id: set-versions-matrix
+        env:
+          MATRIX_FILENAME: versions_matrix.json
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo '{"python-versions": ["3.10", "3.12"]}' > $MATRIX_FILENAME
+          else
+            echo '{"python-versions": ["3.8", "3.9", "3.10", "3.11", "3.12"]}' > $MATRIX_FILENAME
+          fi
+          echo "::set-output name=python-versions::$(cat $MATRIX_FILENAME)"
+
   # ---------------------------------------------------------- #
   # .......................SETUP-TESTS........................ #
   # ---------------------------------------------------------- #
 
   setup-tests:
     name: Setup Tests
+    needs: determine-versions-matrix
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ "3.12" ]
+        python-version: ${{ fromJson(needs.determine-versions-matrix.outputs.python-versions) }}
     steps:
 
       # ====================== SETUP ====================== #
@@ -159,7 +177,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
+        python-version: ${{ fromJson(needs.determine-versions-matrix.outputs.python-versions) }}
     env:
       LEDGER_PROXY_ADDRESS: 127.0.0.1
       LEDGER_PROXY_PORT: 9999
@@ -335,7 +353,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
+        python-version: ${{ fromJson(needs.determine-versions-matrix.outputs.python-versions) }}
     env:
       DEVNET_SHA: 7e7dbb5
       SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
@@ -418,7 +436,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
+        python-version: ${{ fromJson(needs.determine-versions-matrix.outputs.python-versions) }}
     steps:
       - uses: actions/checkout@v4
 
@@ -481,7 +499,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
+        python-version: ${{ fromJson(needs.determine-versions-matrix.outputs.python-versions) }}
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@dc6353516c68da0f06325f42ad880f76a5e77ec9
