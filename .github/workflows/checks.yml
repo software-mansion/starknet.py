@@ -57,25 +57,6 @@ jobs:
         run: |
           poetry run poe typecheck
 
-  determine-versions-matrix:
-    name: Determine Python versions matrix
-    runs-on: ubuntu-latest
-    outputs:
-      python-versions: ${{ steps.set-versions-matrix.outputs.python-versions }}
-    steps:
-      - id: set-versions-matrix
-        run: |
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            echo '["3.10", "3.12"]' > matrix.json
-          else
-            echo '["3.8", "3.9", "3.10", "3.11", "3.12"]' > matrix.json
-          fi
-          python_versions=$(cat matrix.json)
-          echo "python-versions=$python_versions" >> $GITHUB_ENV
-      - id: output
-        run: echo "python-versions=${{ env.python-versions }}"
-        shell: bash
-
   # ---------------------------------------------------------- #
   # .......................SETUP-TESTS........................ #
   # ---------------------------------------------------------- #
@@ -173,14 +154,12 @@ jobs:
 
   run-tests:
     name: Tests
-    needs:
-      - setup-tests
-      - determine-versions-matrix
+    needs: setup-tests
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version: ${{ fromJson(needs.determine-versions-matrix.outputs.python-versions) }}
+        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
     env:
       LEDGER_PROXY_ADDRESS: 127.0.0.1
       LEDGER_PROXY_PORT: 9999
@@ -288,9 +267,7 @@ jobs:
 
   run-tests-on-networks:
     name: Tests on networks (testnet)
-    needs:
-      - setup-tests
-      - determine-versions-matrix
+    needs: setup-tests
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -352,17 +329,15 @@ jobs:
   # ---------------------------------------------------------- #
 
   run-tests-windows:
+    if: ${{ github.event_name != 'pull_request' }}
     name: Tests Windows
-    needs:
-      - setup-tests
-      - determine-versions-matrix
+    needs: setup-tests
     runs-on: windows-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version: ${{ fromJson(needs.determine-versions-matrix.outputs.python-versions) }}
+        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
     env:
-      DEVNET_SHA: 7e7dbb5
       SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
     steps:
       - uses: actions/checkout@v4
@@ -438,14 +413,12 @@ jobs:
 
   run-docs-tests:
     name: Docs Tests
-    needs:
-      - setup-tests
-      - determine-versions-matrix
+    needs: setup-tests
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version: ${{ fromJson(needs.determine-versions-matrix.outputs.python-versions) }}
+        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
     steps:
       - uses: actions/checkout@v4
 
@@ -502,15 +475,14 @@ jobs:
   # ---------------------------------------------------------- #
 
   run-docs-tests-windows:
+    if: ${{ github.event_name != 'pull_request' }}
     name: Docs Tests Windows
-    needs:
-      - setup-tests
-      - determine-versions-matrix
+    needs: setup-tests
     runs-on: windows-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version: ${{ fromJson(needs.determine-versions-matrix.outputs.python-versions) }}
+        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@dc6353516c68da0f06325f42ad880f76a5e77ec9
