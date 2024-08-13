@@ -66,9 +66,9 @@ jobs:
       - id: set-versions-matrix
         run: |
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            echo "[\"3.10\", \"3.12\"]" > matrix.json
+            echo '["3.10", "3.12"]' > matrix.json
           else
-            echo "[\"3.8\", \"3.9\", \"3.10\", \"3.11\", \"3.12\"]" > matrix.json
+            echo '["3.8", "3.9", "3.10", "3.11", "3.12"]' > matrix.json
           fi
           echo "python-versions=$(cat matrix.json)" >> $GITHUB_ENV
       - id: output
