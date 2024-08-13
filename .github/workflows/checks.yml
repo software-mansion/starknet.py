@@ -81,7 +81,6 @@ jobs:
 
   setup-tests:
     name: Setup Tests
-    needs: determine-versions-matrix
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -173,7 +172,9 @@ jobs:
 
   run-tests:
     name: Tests
-    needs: setup-tests
+    needs:
+      - setup-tests
+      - determine-versions-matrix
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -286,7 +287,9 @@ jobs:
 
   run-tests-on-networks:
     name: Tests on networks (testnet)
-    needs: setup-tests
+    needs:
+      - setup-tests
+      - determine-versions-matrix
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -349,7 +352,9 @@ jobs:
 
   run-tests-windows:
     name: Tests Windows
-    needs: setup-tests
+    needs:
+      - setup-tests
+      - determine-versions-matrix
     runs-on: windows-latest
     strategy:
       fail-fast: false
@@ -432,7 +437,9 @@ jobs:
 
   run-docs-tests:
     name: Docs Tests
-    needs: setup-tests
+    needs:
+      - setup-tests
+      - determine-versions-matrix
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -495,7 +502,9 @@ jobs:
 
   run-docs-tests-windows:
     name: Docs Tests Windows
-    needs: setup-tests
+    needs:
+      - setup-tests
+      - determine-versions-matrix
     runs-on: windows-latest
     strategy:
       fail-fast: false
