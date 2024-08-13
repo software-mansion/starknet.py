@@ -64,15 +64,16 @@ jobs:
       python-versions: ${{ steps.set-versions-matrix.outputs.python-versions }}
     steps:
       - id: set-versions-matrix
-        env:
-          MATRIX_FILENAME: versions_matrix.json
         run: |
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            echo '{"python-versions": ["3.10", "3.12"]}' > $MATRIX_FILENAME
+            echo '["3.10", "3.12"]' > matrix.json
           else
-            echo '{"python-versions": ["3.8", "3.9", "3.10", "3.11", "3.12"]}' > $MATRIX_FILENAME
+            echo '["3.8", "3.9", "3.10", "3.11", "3.12"]' > matrix.json
           fi
-          echo "python-versions=$(cat $MATRIX_FILE)" >> $GITHUB_ENV
+          echo "python-versions=$(cat matrix.json)" >> $GITHUB_ENV
+      - id: output
+        run: echo "python-versions=${{ env.python-versions }}"
+        shell: bash
 
   # ---------------------------------------------------------- #
   # .......................SETUP-TESTS........................ #
