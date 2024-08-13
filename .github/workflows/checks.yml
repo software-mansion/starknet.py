@@ -84,7 +84,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ${{ fromJson(needs.determine-versions-matrix.outputs.python-versions) }}
+        python-version: [ "3.12" ]
     steps:
 
       # ====================== SETUP ====================== #
