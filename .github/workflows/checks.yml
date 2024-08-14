@@ -3,6 +3,7 @@ name: Checks
 env:
   CAIRO_LANG_VERSION: "0.13.1"
   DEVNET_VERSION: "0.1.2"
+  DEVNET_SHA: 7e7dbb5
 
 on:
   push:
@@ -338,7 +339,6 @@ jobs:
       matrix:
         python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
     env:
-      DEVNET_SHA: 7e7dbb5
       SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
     steps:
       - uses: actions/checkout@v4
@@ -480,8 +480,6 @@ jobs:
     name: Docs Tests Windows
     needs: setup-tests
     runs-on: windows-latest
-    env:
-      DEVNET_SHA: 7e7dbb5
     strategy:
       fail-fast: false
       matrix:
