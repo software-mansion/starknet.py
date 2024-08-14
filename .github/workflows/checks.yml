@@ -3,6 +3,7 @@ name: Checks
 env:
   CAIRO_LANG_VERSION: "0.13.1"
   DEVNET_VERSION: "0.1.2"
+  DEVNET_SHA: 7e7dbb5
 
 on:
   push:
@@ -358,11 +359,19 @@ jobs:
 
       # ====================== SETUP DEVNET ====================== #
 
-      - name: Install devnet
-        run: |
-          $DEVNET_INSTALL_DIR = "$(git rev-parse --show-toplevel)/starknet_py/tests/e2e/devnet"
-          cargo install --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --locked --rev 7e7dbb5 --root $DEVNET_INSTALL_DIR
+      - name: Cache devnet build
+        id: windows-devnet-cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}\starknet_py\tests\e2e\devnet\bin
+          key: ${{ runner.os }}-devnet-${{ env.DEVNET_SHA }}
 
+      - name: Install devnet
+        if: steps.windows-devnet-cache.outputs.cache-hit != 'true'
+        run: |
+          $DEVNET_INSTALL_DIR = "${{ github.workspace }}\starknet_py\tests\e2e\devnet"
+          cargo install --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --locked --rev ${{ env.DEVNET_SHA }} --root $DEVNET_INSTALL_DIR
+        shell: pwsh
       # ====================== SETUP PYTHON ====================== #
 
       - name: Install poetry
@@ -512,10 +521,19 @@ jobs:
 
       # ====================== SETUP DEVNET ====================== #
 
+      - name: Cache devnet build
+        id: windows-devnet-cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}\starknet_py\tests\e2e\devnet\bin
+          key: ${{ runner.os }}-devnet-${{ env.DEVNET_SHA }}
+
       - name: Install devnet
+        if: steps.windows-devnet-cache.outputs.cache-hit != 'true'
         run: |
-          $DEVNET_INSTALL_DIR = "$(git rev-parse --show-toplevel)/starknet_py/tests/e2e/devnet"
-          cargo install --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --locked --rev 7e7dbb5 --root $DEVNET_INSTALL_DIR
+          $DEVNET_INSTALL_DIR = "${{ github.workspace }}\starknet_py\tests\e2e\devnet"
+          cargo install --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --locked --rev ${{ env.DEVNET_SHA }} --root $DEVNET_INSTALL_DIR
+        shell: pwsh
 
       # ====================== RUN TESTS ====================== #
 
