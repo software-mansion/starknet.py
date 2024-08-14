@@ -98,7 +98,7 @@ jobs:
       # ====================== CONTRACTS v2 ====================== #
       - name: Cache contracts v2
         id: cache-contracts_v2
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: starknet_py/tests/e2e/mock/contracts_v2/target
           key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v2') }}
@@ -112,7 +112,7 @@ jobs:
 
       - name: Cache contracts v1
         id: cache-contracts_v1
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: starknet_py/tests/e2e/mock/contracts_v1/target
           key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v1') }}
@@ -126,7 +126,7 @@ jobs:
 
       - name: Cache contracts v0
         id: cache-contracts
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: starknet_py/tests/e2e/mock/contracts_compiled
           key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts', 'poetry.lock') }}-${{ env.CAIRO_LANG_VERSION }}
