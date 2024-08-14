@@ -121,7 +121,7 @@ jobs:
         if: steps.cache-contracts_v1.outputs.cache-hit != 'true'
         run: |
           poetry run poe compile_contracts v1
-
+  
       # ====================== CONTRACTS v0 ====================== #
 
       - name: Cache contracts v0
