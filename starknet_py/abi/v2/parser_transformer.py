@@ -39,7 +39,7 @@ ABI_EBNF = """
     type_felt: "core::felt252"
     type_bytes: "core::bytes_31::bytes31"
     type_bool: "core::bool"
-    type_uint: "core::integer::u" INT
+    type_uint: "core::integer::u" INT | "core::internal::BoundedInt::<" INT "," WS? INT ">"
     type_contract_address: "core::starknet::contract_address::ContractAddress"
     type_class_hash: "core::starknet::class_hash::ClassHash"
     type_storage_address: "core::starknet::storage_access::StorageAddress"
