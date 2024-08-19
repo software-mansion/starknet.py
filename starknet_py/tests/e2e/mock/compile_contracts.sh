@@ -35,40 +35,7 @@ compile_contracts_with_scarb() {
     popd >/dev/null || exit 1
 }
 
-compile_contracts_v0() {
-    CONTRACTS_DIRECTORY="$MOCK_DIRECTORY/contracts"
-    CONTRACTS_COMPILED_DIRECTORY="$MOCK_DIRECTORY/contracts_compiled"
-
-    mkdir -p "$CONTRACTS_COMPILED_DIRECTORY"
-
-    # delete all artifacts except precompiled ones
-    find "$CONTRACTS_COMPILED_DIRECTORY" -maxdepth 1 -type f -delete
-
-    # compile Cairo test contracts
-    echo "Compiling Cairo contracts with $(poetry run starknet-compile-deprecated --version)"
-
-    for contract in "$CONTRACTS_DIRECTORY"/*.cairo; do
-        basename=$(basename "$contract")
-
-        output="$CONTRACTS_COMPILED_DIRECTORY/${basename%.*}_compiled.json"
-        abi="$CONTRACTS_COMPILED_DIRECTORY/${basename%.*}_abi.json"
-
-        # set account contract flag
-        account_contract_flag=""
-        if [[ $basename == *"account"* ]]; then
-            account_contract_flag="--account_contract"
-        fi
-
-        echo "Compiling $contract..."
-        poetry run starknet-compile-deprecated $account_contract_flag --cairo_path "$CONTRACTS_DIRECTORY:$MOCK_DIRECTORY" --output "$output" --abi "$abi" "$contract"
-    done
-
-}
-
 case "$1" in
-"v0")
-    compile_contracts_v0
-    ;;
 "v1")
     compile_contracts_with_scarb "$CONTRACTS_DIRECTORY_V1"
     ;;
@@ -76,7 +43,6 @@ case "$1" in
     compile_contracts_with_scarb "$CONTRACTS_DIRECTORY_V2"
     ;;
 *)
-    compile_contracts_v0
     compile_contracts_with_scarb "$CONTRACTS_DIRECTORY_V1"
     compile_contracts_with_scarb "$CONTRACTS_DIRECTORY_V2"
     ;;
