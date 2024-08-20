@@ -251,6 +251,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Download contracts
+        uses: actions/download-artifact@v3
+        with:
+          name: contract-artifacts
+          path: starknet_py/tests/e2e/mock/
+
       - uses: actions/setup-python@v4
         with:
           python-version: "3.12"
@@ -311,6 +317,12 @@ jobs:
       - uses: dtolnay/rust-toolchain@dc6353516c68da0f06325f42ad880f76a5e77ec9
         with:
           toolchain: 1.79.0  # Doesn't work with "stable"
+
+      - name: Download contracts
+        uses: actions/download-artifact@v3
+        with:
+          name: contract-artifacts
+          path: starknet_py/tests/e2e/mock/
 
       - uses: actions/setup-python@v4
         with:
@@ -375,6 +387,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Download contracts
+        uses: actions/download-artifact@v3
+        with:
+          name: contract-artifacts
+          path: starknet_py/tests/e2e/mock/
+
       - uses: actions/setup-python@v4
         with:
           python-version: "3.12"
@@ -435,6 +453,12 @@ jobs:
       - uses: dtolnay/rust-toolchain@dc6353516c68da0f06325f42ad880f76a5e77ec9
         with:
           toolchain: 1.79.0 # Doesn't work with "stable"
+
+      - name: Download contracts
+        uses: actions/download-artifact@v3
+        with:
+          name: contract-artifacts
+          path: starknet_py/tests/e2e/mock/
 
       - uses: actions/setup-python@v4
         with:
