@@ -119,7 +119,7 @@ class ParserTransformer(Transformer):
         if value[0] != "0":
             raise ValueError("BoundedInt should start from 0.")
 
-        bits = log2(int(value[2]))
+        bits = log2(int(value[2]) + 1)
 
         return UintType(int(bits))
 
