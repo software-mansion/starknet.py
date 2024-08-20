@@ -1,3 +1,4 @@
+from math import log2
 from typing import Any, List, Optional
 
 import lark
@@ -25,6 +26,7 @@ ABI_EBNF = """
         | type_felt
         | type_bytes
         | type_uint
+        | type_bounded_int
         | type_contract_address
         | type_class_hash
         | type_storage_address
@@ -40,6 +42,7 @@ ABI_EBNF = """
     type_bytes: "core::bytes_31::bytes31"
     type_bool: "core::bool"
     type_uint: "core::integer::u" INT
+    type_bounded_int: "core::internal::BoundedInt::<" INT "," WS? INT ">"
     type_contract_address: "core::starknet::contract_address::ContractAddress"
     type_class_hash: "core::starknet::class_hash::ClassHash"
     type_storage_address: "core::starknet::storage_access::StorageAddress"
@@ -108,6 +111,17 @@ class ParserTransformer(Transformer):
         Uint type contains information about its size. It is present in the value[0].
         """
         return UintType(int(value[0]))
+
+    def type_bounded_int(self, value: List[Token]) -> UintType:
+        """
+        BoundedInt Uint type contains information about its ranges. They are present in the value[0] and value[2].
+        """
+        if value[0] != "0":
+            raise ValueError("BoundedInt should start from 0.")
+
+        bits = log2(int(value[2]) + 1)
+
+        return UintType(int(bits))
 
     def type_unit(self, _value: List[Any]) -> UnitType:
         """
