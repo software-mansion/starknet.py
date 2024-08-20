@@ -121,6 +121,12 @@ jobs:
         run: |
           poetry run poe compile_contracts v1
 
+      - name: Upload contracts artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: contract-artifacts
+          path: starknet_py/tests/e2e/mock/
+
   # ---------------------------------------------------------- #
   # ........................RUN-TESTS......................... #
   # ---------------------------------------------------------- #
