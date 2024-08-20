@@ -140,6 +140,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Download contracts
+        uses: actions/download-artifact@v3
+        with:
+          name: contract-artifacts
+          path: starknet_py/tests/e2e/mock/
+
       - uses: actions/setup-python@v4
         with:
           python-version: "3.12"
