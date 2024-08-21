@@ -177,7 +177,7 @@ async def test_from_address_on_v1_contract(account, cairo1_erc20_class_hash: int
 
 
 @pytest.mark.skipif(
-    "--contract_dir=v1" in sys.argv,
+    "--contract_dir=v2" not in sys.argv,
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio

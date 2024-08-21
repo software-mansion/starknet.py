@@ -37,7 +37,7 @@ async def test_throws_when_calldata_provided_without_abi(map_class_hash):
 
 
 @pytest.mark.skipif(
-    "--contract_dir=v1" in sys.argv,
+    "--contract_dir=v2" not in sys.argv,
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio
@@ -136,7 +136,7 @@ async def test_address_computation(salt, pass_account_address, account, map_clas
 
 
 @pytest.mark.skipif(
-    "--contract_dir=v1" in sys.argv,
+    "--contract_dir=v2" not in sys.argv,
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio
@@ -183,7 +183,7 @@ async def test_create_deployment_call_raw(
 
 
 @pytest.mark.skipif(
-    "--contract_dir=v1" in sys.argv,
+    "--contract_dir=v2" not in sys.argv,
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio
