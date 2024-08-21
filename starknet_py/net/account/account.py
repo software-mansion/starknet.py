@@ -1,5 +1,4 @@
 import dataclasses
-import json
 from collections import OrderedDict
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
@@ -360,30 +359,6 @@ class Account(BaseAccount):
         )
         signature = self.signer.sign_transaction(invoke_tx)
         return _add_signature_to_transaction(invoke_tx, signature)
-
-    async def sign_declare_v1(
-        self,
-        compiled_contract: str,
-        *,
-        nonce: Optional[int] = None,
-        max_fee: Optional[int] = None,
-        auto_estimate: bool = False,
-    ) -> DeclareV1:
-        if _is_sierra_contract(json.loads(compiled_contract)):
-            raise ValueError(
-                "Signing sierra contracts requires using `sign_declare_v2` method."
-            )
-
-        declare_tx = await self._make_declare_v1_transaction(
-            compiled_contract, nonce=nonce
-        )
-
-        max_fee = await self._get_max_fee(
-            transaction=declare_tx, max_fee=max_fee, auto_estimate=auto_estimate
-        )
-        declare_tx = _add_max_fee_to_transaction(declare_tx, max_fee)
-        signature = self.signer.sign_transaction(declare_tx)
-        return _add_signature_to_transaction(declare_tx, signature)
 
     async def sign_declare_v2(
         self,
