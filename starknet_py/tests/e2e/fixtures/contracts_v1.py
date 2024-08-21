@@ -242,6 +242,13 @@ def map_compiled_contract_and_class_hash() -> Tuple[str, int]:
     )
 
 
+@pytest.fixture(scope="package")
+def map_compiled_contract_casm() -> str:
+    contract = load_contract("Map")
+
+    return contract["casm"]
+
+
 @pytest_asyncio.fixture(scope="package")
 async def simple_storage_with_event_class_hash(account: BaseAccount) -> int:
     contract = load_contract("SimpleStorageWithEvent")

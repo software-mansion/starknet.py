@@ -10,8 +10,11 @@ directory = os.path.dirname(__file__)
 # TODO (#1419): Fix contract redeclaration
 @pytest.mark.skip(reason="Redeclaration occurred")
 @pytest.mark.asyncio
-async def test_using_account(account, map_compiled_contract_and_class_hash):
-    (compiled_contract, class_hash) = map_compiled_contract_and_class_hash
+async def test_using_account(
+    account, map_compiled_contract_casm, map_compiled_contract_and_class_hash
+):
+    (compiled_contract, _) = map_compiled_contract_and_class_hash
+    compiled_contract_casm = map_compiled_contract_casm
     # pylint: disable=import-outside-toplevel, duplicate-code, too-many-locals
     # docs: start
     from starknet_py.contract import Contract
@@ -27,7 +30,7 @@ async def test_using_account(account, map_compiled_contract_and_class_hash):
     declare_result = await Contract.declare_v3(
         account,
         compiled_contract=compiled_contract,
-        compiled_class_hash=class_hash,
+        compiled_contract_casm=compiled_contract_casm,
         l1_resource_bounds=l1_resource_bounds,
     )
 
