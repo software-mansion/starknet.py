@@ -674,23 +674,6 @@ async def test_sign_invoke_v3_for_fee_estimation(account, map_contract):
     assert estimation.overall_fee > 0
 
 
-# TODO (#1419): Fix contract redeclaration
-@pytest.mark.skip(reason="Redeclaration occurred")
-@pytest.mark.asyncio
-async def test_sign_declare_v1_for_fee_estimation(account, map_compiled_contract):
-    transaction = await account.sign_declare_v1(
-        compiled_contract=map_compiled_contract, max_fee=MAX_FEE
-    )
-
-    estimate_fee_transaction = await account.sign_for_fee_estimate(transaction)
-    assert estimate_fee_transaction.version == transaction.version + 2**128
-
-    estimation = await account.client.estimate_fee(estimate_fee_transaction)
-    assert isinstance(estimation, EstimatedFee)
-    assert estimation.unit == PriceUnit.WEI
-    assert estimation.overall_fee > 0
-
-
 @pytest.mark.asyncio
 async def test_sign_deploy_account_v1_for_fee_estimation(
     client, deploy_account_details_factory
