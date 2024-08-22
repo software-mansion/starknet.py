@@ -78,10 +78,11 @@ class Deployer:
         raw_calldata = None
 
         if calldata and not abi:
-            if not _only_integers(calldata):
+            if not is_valid_calldata(calldata):
                 raise ValueError(
                     "Argument calldata was provided without an ABI. It cannot be serialized."
                 )
+            raw_calldata = [int_from_hex(x) for x in calldata]
 
         if calldata and abi:
             raw_calldata = translate_constructor_args(
@@ -184,11 +185,13 @@ _deployer_serializer = serializer_for_function(
 )
 
 
-def _only_integers(calldata: Union[List, dict]) -> bool:
+def is_valid_calldata(data: Union[List, dict]) -> bool:
     """
-    Checks if the given list contains only integers.
+    Checks if the given data is a list containing only strings or integers.
 
     Returns:
-    bool: True if the list contains only integers, False otherwise.
+    bool: True if the data is a list of strings or integers, False otherwise.
     """
-    return all(isinstance(x, int) for x in calldata)
+    if isinstance(data, list):
+        return all(isinstance(x, (int, str)) for x in data)
+    return False
