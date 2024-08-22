@@ -9,7 +9,7 @@ This version contains a quick fix to ABIv2. Due to new release of compiler, u96 
 0.24.1 Minor changes
 --------------------
 
-1. Fixed parsing ABIv2 that contains u96 data type.
+1. Fixed parsing ABI that contains `u96` data type.
 2. Fixed `l1_address` deserialization in `L2toL1MessageSchema`.
 
 ******************************
