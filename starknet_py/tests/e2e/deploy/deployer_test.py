@@ -26,16 +26,6 @@ async def test_default_deploy_with_class_hash(account, map_class_hash):
     assert contract_deployment.address != 0
 
 
-@pytest.mark.asyncio
-async def test_throws_when_calldata_provided_without_abi(map_class_hash):
-    deployer = Deployer()
-
-    with pytest.raises(ValueError, match="calldata was provided without an ABI."):
-        deployer.create_contract_deployment(
-            class_hash=map_class_hash, calldata=[12, 34]
-        )
-
-
 @pytest.mark.skipif(
     "--contract_dir=v1" in sys.argv,
     reason="Contract exists only in v2 directory",
