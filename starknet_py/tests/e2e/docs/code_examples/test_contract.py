@@ -184,7 +184,7 @@ async def test_deploy_contract_v3_without_abi(
 
     contract = deploy_result.deployed_contract
     assert isinstance(contract.address, int)
-    assert len(contract.functions) == 0
+    assert len(contract.functions) == 2
 
     transaction = await account.client.get_transaction(tx_hash=deploy_result.hash)
     assert isinstance(transaction, InvokeTransactionV3)
