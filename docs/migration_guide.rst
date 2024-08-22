@@ -4,7 +4,7 @@ Migration guide
 ******************************
 0.24.1 Migration guide
 ******************************
-This version contains a quick fix to ABIv2. Due to new release of compiler, u96 is now compiled to `BoundedInt` in ABI.
+This version contains a quick fix to parsing ABI for Cairo v2 contracts. Due to new release of compiler, `u96` is now compiled to `BoundedInt` in ABI.
 
 0.24.1 Minor changes
 --------------------
