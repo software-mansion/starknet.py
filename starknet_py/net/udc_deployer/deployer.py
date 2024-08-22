@@ -75,12 +75,18 @@ class Deployer:
         :param calldata: Constructor args of the contract to be deployed.
         :return: NamedTuple with call and address of the contract to be deployed.
         """
-        if not abi and calldata:
-            raise ValueError("Argument calldata was provided without an ABI.")
+        raw_calldata = None
 
-        raw_calldata = translate_constructor_args(
-            abi=abi or [], constructor_args=calldata, cairo_version=cairo_version
-        )
+        if calldata and not abi:
+            if not _only_integers(calldata):
+                raise ValueError(
+                    "Argument calldata was provided without an ABI. It cannot be serialized."
+                )
+
+        if calldata and abi:
+            raw_calldata = translate_constructor_args(
+                abi=abi or [], constructor_args=calldata, cairo_version=cairo_version
+            )
 
         return self.create_contract_deployment_raw(
             class_hash=class_hash, salt=salt, raw_calldata=raw_calldata
@@ -176,3 +182,13 @@ _deployer_abi = AbiParser(
 _deployer_serializer = serializer_for_function(
     _deployer_abi.functions["deployContract"]
 )
+
+
+def _only_integers(calldata: Union[List, dict]) -> bool:
+    """
+    Checks if the given list contains only integers.
+
+    Returns:
+    bool: True if the list contains only integers, False otherwise.
+    """
+    return all(isinstance(x, int) for x in calldata)

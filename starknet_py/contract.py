@@ -961,7 +961,7 @@ class Contract:
     async def deploy_contract_v3(
         account: BaseAccount,
         class_hash: Hash,
-        abi: List,
+        abi: Optional[List] = None,
         constructor_args: Optional[Union[List, Dict]] = None,
         *,
         deployer_address: AddressRepresentation = DEFAULT_DEPLOYER_ADDRESS,
@@ -1012,9 +1012,15 @@ class Contract:
             auto_estimate=auto_estimate,
         )
 
-        deployed_contract = Contract(
-            provider=account, address=address, abi=abi, cairo_version=cairo_version
-        )
+        if abi:
+            deployed_contract = Contract(
+                provider=account, address=address, abi=abi, cairo_version=cairo_version
+            )
+        else:
+            deployed_contract = await Contract.from_address(
+                address=address, provider=account
+            )
+
         deploy_result = DeployResult(
             hash=res.transaction_hash,
             _client=account.client,
