@@ -48,6 +48,43 @@ async def test_throws_when_calldata_not_provided(constructor_with_arguments_abi)
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio
+@pytest.mark.parametrize("calldata", [[10, 1, 2, 3, 3, 1, 2, 3, 12, 99]])
+async def test_constructor_arguments_contract_deploy_without_abi(
+    account,
+    constructor_with_arguments_class_hash,
+    calldata,
+):
+    deployer = Deployer(account_address=account.address)
+
+    deploy_call, contract_address = deployer.create_contract_deployment(
+        class_hash=constructor_with_arguments_class_hash,
+        calldata=calldata,
+        cairo_version=1,
+    )
+
+    deploy_invoke_transaction = await account.sign_invoke_v1(
+        deploy_call, max_fee=MAX_FEE
+    )
+    resp = await account.client.send_transaction(deploy_invoke_transaction)
+    await account.client.wait_for_tx(resp.transaction_hash)
+
+    contract = await Contract.from_address(address=contract_address, provider=account)
+
+    result = (await contract.functions["get"].call(block_number="latest"))[0]
+    unwarpped_result = (result[0], result[1], result[2], dict(result[3]))
+    assert unwarpped_result == (
+        10,
+        (1, (2, 3)),
+        sum([1, 2, 3]),
+        {"value": 12, "nested_struct": {"value": 99}},
+    )
+
+
+@pytest.mark.skipif(
+    "--contract_dir=v1" in sys.argv,
+    reason="Contract exists only in v2 directory",
+)
+@pytest.mark.asyncio
 @pytest.mark.parametrize(
     "calldata",
     [
