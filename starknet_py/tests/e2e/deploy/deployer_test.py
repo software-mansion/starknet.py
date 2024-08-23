@@ -118,6 +118,35 @@ async def test_constructor_arguments_contract_deploy(
     )
 
 
+@pytest.mark.skipif(
+    "--contract_dir=v1" in sys.argv,
+    reason="Contract exists only in v2 directory",
+)
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "calldata",
+    [
+        [10, (1, (2, 3)), [1, 2, 3], {"value": 12, "nested_struct": {"value": 99}}],
+        {
+            "single_value": 10,
+            "tuple": (1, (2, 3)),
+            "arr": [1, 2, 3],
+            "dict": {"value": 12, "nested_struct": {"value": 99}},
+        },
+    ],
+)
+async def test_throws_when_calldata_provided_without_abi(
+    account,
+    constructor_with_arguments_class_hash,
+    calldata,
+):
+    deployer = Deployer(account_address=account.address)
+
+    with pytest.raises(ValueError, match="calldata was provided without an ABI."):
+        deployer.create_contract_deployment(
+            class_hash=constructor_with_arguments_class_hash, calldata=calldata
+        )
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "salt, pass_account_address", [(1, True), (2, False), (None, True), (None, False)]
