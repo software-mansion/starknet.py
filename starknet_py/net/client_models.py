@@ -259,16 +259,6 @@ class InvokeTransactionV3(TransactionV3):
 
 
 @dataclass
-class DeclareTransactionV0(DeprecatedTransaction):
-    """
-    Dataclass representing declare transaction v0.
-    """
-
-    sender_address: int
-    class_hash: int
-
-
-@dataclass
 class DeclareTransactionV1(DeprecatedTransaction):
     """
     Dataclass representing declare transaction v1.
