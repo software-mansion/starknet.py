@@ -147,6 +147,7 @@ async def test_throws_when_calldata_provided_without_abi(
             class_hash=constructor_with_arguments_class_hash, calldata=calldata
         )
 
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "salt, pass_account_address", [(1, True), (2, False), (None, True), (None, False)]
