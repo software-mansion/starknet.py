@@ -78,7 +78,7 @@ class Deployer:
         raw_calldata = None
 
         if calldata and not abi:
-            if not is_valid_calldata(calldata):
+            if not _is_list_of_ints_or_strings(calldata):
                 raise ValueError(
                     "Argument calldata was provided without an ABI. It cannot be serialized."
                 )
@@ -185,7 +185,7 @@ _deployer_serializer = serializer_for_function(
 )
 
 
-def is_valid_calldata(data: Union[List, dict]) -> bool:
+def _is_list_of_ints_or_strings(data: Union[List, dict]) -> bool:
     """
     Checks if the given data is a list containing only strings or integers.
 
