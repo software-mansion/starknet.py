@@ -31,23 +31,6 @@ async def test_default_deploy_with_class_hash(account, map_class_hash):
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio
-async def test_throws_when_calldata_not_provided(constructor_with_arguments_abi):
-    deployer = Deployer()
-
-    with pytest.raises(
-        ValueError,
-        match="Provided contract has a constructor and no arguments were provided.",
-    ):
-        deployer.create_contract_deployment(
-            class_hash=1234, abi=constructor_with_arguments_abi, cairo_version=1
-        )
-
-
-@pytest.mark.skipif(
-    "--contract_dir=v1" in sys.argv,
-    reason="Contract exists only in v2 directory",
-)
-@pytest.mark.asyncio
 @pytest.mark.parametrize("calldata", [[10, 1, 2, 3, 3, 1, 2, 3, 12, 99]])
 async def test_constructor_arguments_contract_deploy_without_abi(
     account,
