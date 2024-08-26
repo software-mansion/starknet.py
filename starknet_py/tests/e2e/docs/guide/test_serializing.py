@@ -59,7 +59,6 @@ def test_abi_parsing():
         load_contract(contract_name="ERC20", version=ContractVersion.V2)["sierra"]
     )["abi"]
     abi = AbiParser(raw_abi_string).parse()
-    # docs-serializer: start
 
     # docs-event: start
     from starknet_py.serialization import serializer_for_event
