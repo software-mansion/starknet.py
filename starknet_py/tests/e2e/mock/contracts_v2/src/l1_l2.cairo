@@ -69,7 +69,11 @@ mod l1_l2 {
     /// send the funds.
     #[external(v0)]
     fn withdraw_from_lib(
-        ref self: ContractState, user: felt252, amount: felt252, l1_address: felt252, message_sender_class_hash: starknet::ClassHash,
+        ref self: ContractState,
+        user: felt252,
+        amount: felt252,
+        l1_address: felt252,
+        message_sender_class_hash: starknet::ClassHash,
     ) {
         assert(amount.is_non_zero(), 'Amount must be positive');
 
@@ -89,9 +93,7 @@ mod l1_l2 {
 
         starknet::SyscallResultTrait::unwrap_syscall(
             starknet::library_call_syscall(
-                message_sender_class_hash,
-                selector!("send_withdraw_message"),
-                calldata.span(),
+                message_sender_class_hash, selector!("send_withdraw_message"), calldata.span(),
             )
         );
     }

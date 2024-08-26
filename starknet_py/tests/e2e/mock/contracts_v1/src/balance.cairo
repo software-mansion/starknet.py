@@ -1,7 +1,7 @@
 #[contract]
 mod Balance {
     struct Storage {
-        balance: felt252,
+        balance: felt252, 
     }
 
     // Increases the balance by the given amount.

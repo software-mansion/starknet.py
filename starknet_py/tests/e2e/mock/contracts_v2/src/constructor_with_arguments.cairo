@@ -22,7 +22,13 @@ mod ConstructorWithArguments {
     }
 
     #[constructor]
-    fn constructor(ref self: ContractState, single_value: felt252, tuple: (felt252, (felt252, felt252)), arr: Array<felt252>, dict: TopStruct) {
+    fn constructor(
+        ref self: ContractState,
+        single_value: felt252,
+        tuple: (felt252, (felt252, felt252)),
+        arr: Array<felt252>,
+        dict: TopStruct
+    ) {
         let mut sum = 0;
 
         let count = arr.len();
