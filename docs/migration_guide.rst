@@ -2,6 +2,43 @@ Migration guide
 ===============
 
 ******************************
+0.24.1 Migration guide
+******************************
+This version contains a quick fix to parsing ABI for Cairo v2 contracts. Due to new release of compiler, `u96` is now compiled to `BoundedInt` in ABI.
+
+0.24.1 Minor changes
+--------------------
+
+1. Fixed parsing ABI that contains `u96` data type.
+2. Fixed `l1_address` deserialization in `L2toL1MessageSchema`.
+
+******************************
+0.24.0 Migration guide
+******************************
+
+.. currentmodule:: starknet_py.devnet_utils.devnet_client
+
+1. :class:`DevnetClient` has been implemented to interact with additional features of the `starknet-devnet-rs <https://github.com/0xSpaceShard/starknet-devnet-rs>`_
+
+.. currentmodule:: starknet_py.net.signer.ledger_signer
+
+2. :class:`LedgerSigner` has been implemented to enable signing with Ledger hardware wallet
+
+0.24.0 Targeted versions
+------------------------
+
+- Starknet - `0.13.1.1 <https://docs.starknet.io/documentation/starknet_versions/version_notes/#version0.13.1.1>`_
+- RPC - `0.7.1 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.7.1>`_
+
+0.24.0 Breaking changes
+-----------------------
+
+.. currentmodule:: starknet_py.net.client_models
+
+1. :class:`CompiledContract` and :class:`ContractClass` have been renamed to :class:`DeprecatedCompiledContract` and :class:`DeprecatedContractClass`.
+2. :class:`ContractClassSchema` have been renamed to :class:`DeprecatedContractClassSchema`
+
+******************************
 0.23.0 Migration guide
 ******************************
 
@@ -30,8 +67,6 @@ Version 0.23.0 of **starknet.py** comes with support for `SNIP-12 <https://githu
 1. :meth:`Account.sign_message` now accepts parameter ``typed_data`` as both :class:`~starknet_py.utils.typed_data.TypedData` and :class:`~starknet_py.net.models.typed_data.TypedDataDict`
 2. :meth:`Account.verify_message` now accepts parameter ``typed_data`` as both  :class:`~starknet_py.utils.typed_data.TypedData` and :class:`~starknet_py.net.models.typed_data.TypedDataDict`
 3. :meth:`~starknet_py.net.signer.stark_curve_signer.KeyPair.from_keystore` has been added
-
-3. :class:`CompiledContract`, :class:`ContractClass` and :class:`ContractClassSchema` have been renamed to :class:`DeprecatedCompiledContract`, :class:`DeprecatedContractClass` and :class:`DeprecatedContractClassSchema`
 
 ******************************
 0.22.0 Migration guide
