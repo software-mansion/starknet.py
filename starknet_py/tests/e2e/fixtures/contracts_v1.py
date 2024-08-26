@@ -223,7 +223,7 @@ async def map_contract(account: BaseAccount, map_class_hash) -> Contract:
 
 
 @pytest_asyncio.fixture(scope="package")
-async def cairo1_map_contract_abi() -> List:
+async def map_abi() -> List:
     contract = load_contract(contract_name="Map")
     compiled_contract = create_sierra_compiled_contract(
         compiled_contract=contract["sierra"]
