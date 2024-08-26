@@ -51,7 +51,6 @@ def test_abi_parsing():
 
     # You can use deserialized result from function serializer like a tuple
     result = function_serializer.deserialize([1])
-    assert 1 == result[0]
     (success,) = result
     assert 1 == success
     # docs-serializer: end
