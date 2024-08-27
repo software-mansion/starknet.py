@@ -5,6 +5,7 @@ mod hello2;
 mod minimal_contract;
 mod new_syntax_test_contract;
 mod string;
+mod constructor_with_arguments;
 mod test_contract;
 mod test_enum;
 mod test_option;

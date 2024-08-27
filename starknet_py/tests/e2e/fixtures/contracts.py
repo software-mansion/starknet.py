@@ -80,35 +80,6 @@ def simple_storage_with_event_compiled_contract() -> str:
     )
 
 
-@pytest.fixture(scope="package")
-def erc20_compiled_contract() -> str:
-    """
-    Returns compiled erc20 contract.
-    """
-    return read_contract("erc20_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR)
-
-
-@pytest.fixture(scope="package")
-def constructor_with_arguments_compiled_contract() -> str:
-    """
-    Returns compiled constructor_with_arguments contract.
-    """
-    return read_contract(
-        "constructor_with_arguments_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR
-    )
-
-
-@pytest.fixture(scope="package")
-def constructor_without_arguments_compiled_contract() -> str:
-    """
-    Returns compiled constructor_without_arguments contract.
-    """
-    return read_contract(
-        "constructor_without_arguments_compiled.json",
-        directory=CONTRACTS_COMPILED_V0_DIR,
-    )
-
-
 async def deploy_contract(account: BaseAccount, class_hash: int, abi: List) -> Contract:
     """
     Deploys a contract and returns its instance.
@@ -213,19 +184,6 @@ async def simple_storage_with_event_contract(
         compiled_contract=simple_storage_with_event_compiled_contract
     ).abi
     return await deploy_contract(account, simple_storage_with_event_class_hash, abi)
-
-
-@pytest_asyncio.fixture(name="erc20_contract", scope="package")
-async def deploy_erc20_contract(
-    account: BaseAccount,
-    erc20_compiled_contract: str,
-    erc20_class_hash: int,
-) -> Contract:
-    """
-    Deploys erc20 contract and returns its instance.
-    """
-    abi = create_compiled_contract(compiled_contract=erc20_compiled_contract).abi
-    return await deploy_contract(account, erc20_class_hash, abi)
 
 
 @pytest.fixture(scope="package")
@@ -379,66 +337,6 @@ async def simple_storage_with_event_class_hash(
     """
     declare = await account.sign_declare_v1(
         compiled_contract=simple_storage_with_event_compiled_contract,
-        max_fee=int(1e16),
-    )
-    res = await account.client.declare(declare)
-    await account.client.wait_for_tx(res.transaction_hash)
-    return res.class_hash
-
-
-@pytest_asyncio.fixture(scope="package")
-async def erc20_class_hash(account: BaseAccount, erc20_compiled_contract: str) -> int:
-    """
-    Returns class_hash of the erc20.cairo.
-    """
-    declare = await account.sign_declare_v1(
-        compiled_contract=erc20_compiled_contract,
-        max_fee=int(1e16),
-    )
-    res = await account.client.declare(declare)
-    await account.client.wait_for_tx(res.transaction_hash)
-    return res.class_hash
-
-
-constructor_with_arguments_source = (
-    CONTRACTS_DIR / "constructor_with_arguments.cairo"
-).read_text("utf-8")
-
-
-@pytest.fixture(scope="package")
-def constructor_with_arguments_abi() -> List:
-    """
-    Returns an abi of the constructor_with_arguments.cairo.
-    """
-    compiled_contract = create_compiled_contract(
-        compiled_contract=read_contract(
-            "constructor_with_arguments_compiled.json",
-            directory=CONTRACTS_COMPILED_V0_DIR,
-        )
-    )
-    assert compiled_contract.abi is not None
-    return compiled_contract.abi
-
-
-@pytest.fixture(scope="package")
-def constructor_with_arguments_compiled() -> str:
-    """
-    Returns a compiled constructor_with_arguments.cairo.
-    """
-    return read_contract(
-        "constructor_with_arguments_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR
-    )
-
-
-@pytest_asyncio.fixture(scope="package")
-async def constructor_with_arguments_class_hash(
-    account: BaseAccount, constructor_with_arguments_compiled
-) -> int:
-    """
-    Returns a class_hash of the constructor_with_arguments.cairo.
-    """
-    declare = await account.sign_declare_v1(
-        compiled_contract=constructor_with_arguments_compiled,
         max_fee=int(1e16),
     )
     res = await account.client.declare(declare)
