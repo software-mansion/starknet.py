@@ -7,7 +7,6 @@
 
 #[starknet::contract]
 mod l1_l2 {
-
     const MESSAGE_WITHDRAW: felt252 = 0;
 
     #[storage]
