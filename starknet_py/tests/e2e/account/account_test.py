@@ -57,8 +57,8 @@ async def test_get_balance_throws_when_token_not_specified(account):
 
 
 @pytest.mark.skipif(
-    "--contract_dir=v2" not in sys.argv,
-    reason="Some cairo 1 contracts compiled with v1 compiler fail with new starknet-devnet-rs",
+    "--contract_dir=v1" in sys.argv,
+    reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio
 async def test_balance_when_token_specified(account, erc20_contract):
@@ -68,8 +68,8 @@ async def test_balance_when_token_specified(account, erc20_contract):
 
 
 @pytest.mark.skipif(
-    "--contract_dir=v2" not in sys.argv,
-    reason="Some cairo 1 contracts compiled with v1 compiler fail with new starknet-devnet-rs",
+    "--contract_dir=v1" in sys.argv,
+    reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio
 async def test_estimated_fee_greater_than_zero(account, erc20_contract):
@@ -88,9 +88,14 @@ async def test_estimated_fee_greater_than_zero(account, erc20_contract):
 
 
 @pytest.mark.asyncio
-async def test_estimate_fee_for_declare_transaction(account, map_compiled_contract):
-    declare_tx = await account.sign_declare_v1(
-        compiled_contract=map_compiled_contract, max_fee=MAX_FEE
+async def test_estimate_fee_for_declare_transaction(
+    account, map_compiled_contract_and_class_hash
+):
+    (compiled_contract, class_hash) = map_compiled_contract_and_class_hash
+    declare_tx = await account.sign_declare_v3(
+        compiled_contract=compiled_contract,
+        compiled_class_hash=class_hash,
+        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
     )
 
     estimated_fee = await account.client.estimate_fee(tx=declare_tx)
@@ -106,15 +111,18 @@ async def test_estimate_fee_for_declare_transaction(account, map_compiled_contra
 
 @pytest.mark.asyncio
 async def test_account_estimate_fee_for_declare_transaction(
-    account, map_compiled_contract
+    account, map_compiled_contract_and_class_hash
 ):
-    declare_tx = await account.sign_declare_v1(
-        compiled_contract=map_compiled_contract, max_fee=MAX_FEE
+    (compiled_contract, class_hash) = map_compiled_contract_and_class_hash
+    declare_tx = await account.sign_declare_v3(
+        compiled_contract=compiled_contract,
+        compiled_class_hash=class_hash,
+        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
     )
 
     estimated_fee = await account.estimate_fee(tx=declare_tx)
 
-    assert estimated_fee.unit == PriceUnit.WEI
+    assert estimated_fee.unit == PriceUnit.FRI
     assert isinstance(estimated_fee.overall_fee, int)
     assert estimated_fee.overall_fee > 0
     assert (

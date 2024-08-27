@@ -1,5 +1,4 @@
 # pylint: disable=too-many-arguments
-import dataclasses
 from typing import Tuple
 from unittest.mock import AsyncMock, Mock, patch
 
@@ -37,8 +36,7 @@ from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.models.transaction import DeclareV2
 from starknet_py.net.udc_deployer.deployer import Deployer
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V0_DIR, MAX_FEE
-from starknet_py.tests.e2e.fixtures.misc import read_contract
+from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.transaction_errors import (
     TransactionNotReceivedError,
     TransactionRejectedError,
@@ -249,16 +247,7 @@ async def test_estimate_fee_for_multiple_transactions(
     )
     invoke_tx = await account.sign_for_fee_estimate(invoke_tx)
 
-    declare_tx = await account.sign_declare_v1(
-        compiled_contract=read_contract(
-            "map_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR
-        ),
-        max_fee=MAX_FEE,
-    )
-    declare_tx = dataclasses.replace(declare_tx, nonce=invoke_tx.nonce + 1)
-    declare_tx = await account.sign_for_fee_estimate(declare_tx)
-
-    transactions = [invoke_tx, declare_tx, deploy_account_transaction]
+    transactions = [invoke_tx, deploy_account_transaction]
 
     estimated_fees = await client.estimate_fee(tx=transactions, block_number="latest")
 
