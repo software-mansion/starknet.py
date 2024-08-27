@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Dict, Generator, List, Tuple
+from typing import Generator, List, Tuple
 
 from starknet_py.serialization._context import (
     DeserializationContext,
@@ -33,7 +33,7 @@ class OutputSerializer(CairoDataSerializer[List, Tuple]):
         return tuple(result)
 
     def serialize_with_context(
-        self, context: SerializationContext, value: Dict
+        self, context: SerializationContext, value: List
     ) -> Generator[int, None, None]:
         raise ValueError(
             "Output serializer can't be used to transform python data into calldata."
