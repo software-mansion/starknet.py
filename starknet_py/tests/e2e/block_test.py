@@ -64,6 +64,7 @@ async def test_get_block_with_txs_pending(account):
     assert isinstance(blk.transactions, list)
 
 
+# TODO (#1419): Fix contract redeclaration
 @pytest.mark.asyncio
 async def test_get_block_with_txs_latest(account, map_class_hash):
     # pylint: disable=unused-argument
