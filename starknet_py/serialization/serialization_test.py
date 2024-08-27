@@ -14,6 +14,7 @@ from starknet_py.serialization.factory import (
     serializer_for_function,
 )
 from starknet_py.serialization.tuple_dataclass import TupleDataclass
+from starknet_py.tests.e2e.fixtures.abi_v1_structures import event_abi_v1
 from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V0_DIR
 from starknet_py.tests.e2e.fixtures.misc import (
     ContractVersion,
@@ -110,24 +111,7 @@ abi = json.loads(
 )
 parsed_abi = AbiParserV0(abi).parse()
 
-abi_v1 = [
-    {
-        "type": "event",
-        "name": "Approval",
-        "inputs": [
-            {
-                "name": "owner",
-                "type": "core::starknet::contract_address::ContractAddress",
-            },
-            {
-                "name": "spender",
-                "type": "core::starknet::contract_address::ContractAddress",
-            },
-            {"name": "value", "type": "core::integer::u256"},
-        ],
-    }
-]
-parsed_abi_v1 = AbiParserV1(abi_v1).parse()
+parsed_abi_v1 = AbiParserV1(event_abi_v1).parse()
 
 abi_v2 = json.loads(
     load_contract(contract_name="NewSyntaxTestContract", version=ContractVersion.V2)[

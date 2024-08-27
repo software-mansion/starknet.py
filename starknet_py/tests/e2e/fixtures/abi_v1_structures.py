@@ -177,3 +177,21 @@ abi_v1 = Abi(
     functions={},
     defined_enums={},
 )
+
+event_abi_v1 = [
+    {
+        "type": "event",
+        "name": "Approval",
+        "inputs": [
+            {
+                "name": "owner",
+                "type": "core::starknet::contract_address::ContractAddress",
+            },
+            {
+                "name": "spender",
+                "type": "core::starknet::contract_address::ContractAddress",
+            },
+            {"name": "value", "type": "core::integer::u256"},
+        ],
+    }
+]
