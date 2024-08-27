@@ -53,7 +53,7 @@ from starknet_py.serialization.data_serializers.uint_serializer import UintSeria
 from starknet_py.serialization.data_serializers.unit_serializer import UnitSerializer
 from starknet_py.serialization.errors import InvalidTypeException
 from starknet_py.serialization.function_serialization_adapter import (
-    FunctionSerializationAdapter,
+    FunctionSerializationAdapterV0,
     FunctionSerializationAdapterV1,
 )
 
@@ -186,14 +186,14 @@ def serializer_for_event(event: EventV0 | EventV1 | EventV2) -> PayloadSerialize
 
 def serializer_for_function(
     abi_function: AbiV0.Function,
-) -> FunctionSerializationAdapter:
+) -> FunctionSerializationAdapterV0:
     """
     Create FunctionSerializationAdapter for serializing function inputs and deserializing function outputs.
 
     :param abi_function: parsed function's abi.
     :return: FunctionSerializationAdapter.
     """
-    return FunctionSerializationAdapter(
+    return FunctionSerializationAdapterV0(
         inputs_serializer=serializer_for_payload(abi_function.inputs),
         outputs_deserializer=serializer_for_payload(abi_function.outputs),
     )
@@ -201,7 +201,7 @@ def serializer_for_function(
 
 def serializer_for_function_v1(
     abi_function: Union[AbiV1.Function, AbiV2.Function],
-) -> FunctionSerializationAdapter:
+) -> FunctionSerializationAdapterV1:
     """
     Create FunctionSerializationAdapter for serializing function inputs and deserializing function outputs.
 
@@ -216,7 +216,7 @@ def serializer_for_function_v1(
 
 def serializer_for_constructor_v2(
     abi_function: AbiV2.Constructor,
-) -> FunctionSerializationAdapter:
+) -> FunctionSerializationAdapterV1:
     """
     Create FunctionSerializationAdapter for serializing constructor inputs.
 

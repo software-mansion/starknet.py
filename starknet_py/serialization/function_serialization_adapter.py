@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Set, Tuple
+from typing import Dict, List, Set, Tuple, cast
 
 from starknet_py.cairo.felt import CairoData
 from starknet_py.serialization.data_serializers.output_serializer import (
@@ -21,7 +21,6 @@ class FunctionSerializationAdapter:
     """
 
     inputs_serializer: PayloadSerializer
-    outputs_deserializer: PayloadSerializer
 
     expected_args: Tuple[str] = field(init=False)
 
@@ -38,14 +37,6 @@ class FunctionSerializationAdapter:
         """
         named_arguments = self._merge_arguments(args, kwargs)
         return self.inputs_serializer.serialize(named_arguments)
-
-    def deserialize(self, data: List[int]) -> TupleDataclass:
-        """
-        Deserializes data into TupleDataclass containing python representations.
-
-        :return: cairo data.
-        """
-        return self.outputs_deserializer.deserialize(data)
 
     def _merge_arguments(self, args: Tuple, kwargs: Dict) -> Dict:
         """
@@ -98,6 +89,23 @@ class FunctionSerializationAdapter:
 
 
 @dataclass
+class FunctionSerializationAdapterV0(FunctionSerializationAdapter):
+    """
+    Class serializing ``*args`` and ``**kwargs`` by adapting them to function inputs.
+    """
+
+    outputs_deserializer: PayloadSerializer
+
+    def deserialize(self, data: List[int]) -> TupleDataclass:
+        """
+        Deserializes data into TupleDataclass containing python representations.
+
+        :return: cairo data.
+        """
+        return self.outputs_deserializer.deserialize(data)
+
+
+@dataclass
 class FunctionSerializationAdapterV1(FunctionSerializationAdapter):
     outputs_deserializer: OutputSerializer
 
@@ -107,4 +115,4 @@ class FunctionSerializationAdapterV1(FunctionSerializationAdapter):
 
         :return: cairo data.
         """
-        return self.outputs_deserializer.deserialize(data)
+        return cast(Tuple, self.outputs_deserializer.deserialize(data))
