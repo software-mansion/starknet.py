@@ -1,6 +1,12 @@
+import sys
+
 import pytest
 
 
+@pytest.mark.skipif(
+    "--contract_dir=v2" not in sys.argv,
+    reason="Contract exists only in v2 directory",
+)
 @pytest.mark.asyncio
 async def test_deploying_with_udc(
     account,
@@ -40,14 +46,22 @@ async def test_deploying_with_udc(
 
     # docs: start
     contract_constructor = """
-        @constructor
-        func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-            single_value: felt, tuple: (felt, (felt, felt)), arr_len: felt, arr: felt*, dict: TopStruct
-        ) {
-            let (arr_sum) = array_sum(arr, arr_len);
-            storage.write((single_value, tuple, arr_sum, dict));
-            return ();
-        }
+    #[constructor]
+    fn constructor(ref self: ContractState, single_value: felt252, tuple: (felt252, (felt252, felt252)), arr: Array<felt252>, dict: TopStruct) {
+        let mut sum = 0;
+        let count = arr.len();
+        let mut i: usize = 0;
+        while i != count {
+            let element: felt252 = arr[i].clone();
+            sum += element;
+            i += 1;
+        };
+
+        self.single_value.write(single_value);
+        self.tuple.write(tuple);
+        self.arr_sum.write(sum);
+        self.dict.write(dict);
+    }
     """
 
     # If contract constructor accepts arguments, as shown above,
@@ -55,8 +69,8 @@ async def test_deploying_with_udc(
     # Note that this method also returns address of the contract we want to deploy
     deploy_call, address = deployer.create_contract_deployment(
         class_hash=contract_with_constructor_class_hash,
-        abi=contract_with_constructor_abi,
-        cairo_version=0,
+        abi=constructor_with_arguments_abi,
+        cairo_version=1,
         calldata={
             "single_value": 10,
             "tuple": (1, (2, 3)),
@@ -71,14 +85,14 @@ async def test_deploying_with_udc(
     # docs: end
     deploy_call, _ = deployer.create_contract_deployment(
         class_hash=contract_with_constructor_class_hash,
-        abi=contract_with_constructor_abi,
+        abi=constructor_with_arguments_abi,
         calldata={
             "single_value": 0,
             "tuple": (1, (2, 3)),
             "arr": [1],
             "dict": {"value": 12, "nested_struct": {"value": 99}},
         },
-        cairo_version=0,
+        cairo_version=1,
     )
     # docs: start
     # Or signed and send with an account
