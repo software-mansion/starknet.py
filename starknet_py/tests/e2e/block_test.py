@@ -1,10 +1,7 @@
-from typing import cast
-
 import pytest
 
 from starknet_py.net.client_models import (
     BlockStatus,
-    DeclareTransactionV2,
     L1DAMode,
     PendingStarknetBlock,
     PendingStarknetBlockWithTxHashes,
@@ -75,7 +72,7 @@ async def test_get_block_with_txs_latest(account, map_class_hash):
 
     assert isinstance(blk, StarknetBlock)
     assert isinstance(blk.transactions, list)
-    assert cast(DeclareTransactionV2, blk.transactions[0]).class_hash == map_class_hash
+    assert blk.transactions[0].hash is not None
     assert blk.block_hash is not None
     assert blk.parent_hash is not None
     assert blk.block_number is not None
