@@ -28,9 +28,11 @@ compile_contracts_with_scarb() {
 
     setup_scarb "$SCARB_VERSION"
 
-    echo "Compiling Cairo contracts with scarb $SCARB_VERSION"
-
     pushd "$CONTRACTS_DIRECTORY" >/dev/null || exit 1
+
+    scarb fmt --check
+
+    echo "Compiling Cairo contracts with scarb $SCARB_VERSION"
     scarb clean && scarb build
     popd >/dev/null || exit 1
 }
