@@ -12,7 +12,7 @@ async def test_deploy_prefunded_account(
     eth_fee_contract: Contract,
     client: Client,
 ):
-    # pylint: disable=import-outside-toplevel, too-many-locals
+    # pylint: disable=import-outside-toplevel, too-many-locals, unused-variable
     full_node_client_fixture = client
     # docs: start
     from starknet_py.hash.address import compute_address
@@ -28,6 +28,9 @@ async def test_deploy_prefunded_account(
     # docs: start
 
     key_pair = KeyPair.from_private_key(private_key)
+
+    # You can also generate a key pair
+    key_pair_generated = KeyPair.generate()
 
     # Compute an address
     address = compute_address(

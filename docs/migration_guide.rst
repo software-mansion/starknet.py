@@ -2,6 +2,17 @@ Migration guide
 ===============
 
 ******************************
+0.24.1 Migration guide
+******************************
+This version contains a quick fix to parsing ABI for Cairo v2 contracts. Due to new release of compiler, `u96` is now compiled to `BoundedInt` in ABI.
+
+0.24.1 Minor changes
+--------------------
+
+1. Fixed parsing ABI that contains `u96` data type.
+2. Fixed `l1_address` deserialization in `L2toL1MessageSchema`.
+
+******************************
 0.24.0 Migration guide
 ******************************
 
