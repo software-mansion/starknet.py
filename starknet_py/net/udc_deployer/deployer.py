@@ -189,9 +189,7 @@ def _is_list_of_ints_or_strings(data: Union[List, dict]) -> bool:
     """
     Checks if the given data is a list containing only strings or integers.
     :param data: Constructor args (calldata) of the contract to be deployed.
-
-    Returns:
-    bool: True if the data is a list of strings or integers, False otherwise.
+    :return: True if the data is a list of strings or integers, False otherwise.
     """
     if isinstance(data, list):
         return all(isinstance(x, (int, str)) for x in data)
