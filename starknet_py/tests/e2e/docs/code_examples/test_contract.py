@@ -171,10 +171,8 @@ async def test_deploy_contract_v3(account, cairo1_hello_starknet_class_hash: int
 async def test_deploy_contract_v3_without_abi(
     account, cairo1_hello_starknet_class_hash: int
 ):
-
-    class_hash = cairo1_hello_starknet_class_hash
     deploy_result = await Contract.deploy_contract_v3(
-        class_hash=class_hash,
+        class_hash=cairo1_hello_starknet_class_hash,
         account=account,
         l1_resource_bounds=ResourceBounds(
             max_amount=int(1e5), max_price_per_unit=int(1e13)
