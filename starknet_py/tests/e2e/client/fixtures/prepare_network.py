@@ -21,7 +21,7 @@ from starknet_py.tests.e2e.fixtures.misc import load_contract
 
 @pytest_asyncio.fixture(scope="package")
 async def balance_class_and_transaction_hash(account: BaseAccount) -> Tuple[int, int]:
-    contract = load_contract(contract_name="Balance")
+    contract = load_contract("Balance")
     class_hash, transaction_hash = await declare_cairo1_contract(
         account,
         contract["sierra"],
