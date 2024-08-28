@@ -5,7 +5,7 @@ import pytest
 import starknet_py.tests.e2e.fixtures.abi_structures as fixtures
 from starknet_py.abi.v0 import AbiParser, AbiParsingError
 from starknet_py.cairo.type_parser import UnknownCairoTypeError
-from starknet_py.tests.e2e.fixtures.constants import CAIRO_0_ABI_DIR
+from starknet_py.tests.e2e.fixtures.constants import CAIRO_0_CONTRACTS_ABI_DIR
 from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 
@@ -192,7 +192,9 @@ def test_missing_type_used(missing_name, input_dict):
 def test_deserialize_balance_struct_event_abi():
     # Contains all types of ABI apart from structures
     abi = json.loads(
-        read_contract("balance_struct_event_abi.json", directory=CAIRO_0_ABI_DIR)
+        read_contract(
+            "balance_struct_event_abi.json", directory=CAIRO_0_CONTRACTS_ABI_DIR
+        )
     )
 
     deserialized = AbiParser(abi).parse()
