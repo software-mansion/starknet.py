@@ -471,6 +471,10 @@ async def test_sign_deploy_account_v3_auto_estimate(
     assert signed_tx.resource_bounds.l2_gas == ResourceBounds.init_with_zeros()
 
 
+@pytest.mark.skipif(
+    "--contract_dir=v1" in sys.argv,
+    reason="Functionality is not supported in v1 contract",
+)
 @pytest.mark.asyncio
 async def test_deploy_account_v1(client, deploy_account_details_factory, map_contract):
     address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
