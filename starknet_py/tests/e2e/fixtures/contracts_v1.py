@@ -204,7 +204,7 @@ async def deploy_string_contract(
 
 @pytest_asyncio.fixture(scope="package")
 async def map_class_hash(account: BaseAccount) -> int:
-    contract = load_contract(contract_name="Map")
+    contract = load_contract("Map")
     class_hash, _ = await declare_cairo1_contract(
         account,
         contract["sierra"],
@@ -223,8 +223,8 @@ async def map_contract(account: BaseAccount, map_class_hash) -> Contract:
 
 
 @pytest_asyncio.fixture(scope="package")
-async def cairo1_map_contract_abi() -> List:
-    contract = load_contract(contract_name="Map")
+async def map_abi() -> List:
+    contract = load_contract("Map")
     compiled_contract = create_sierra_compiled_contract(
         compiled_contract=contract["sierra"]
     )
@@ -240,6 +240,13 @@ def map_compiled_contract_and_class_hash() -> Tuple[str, int]:
         contract["sierra"],
         compute_casm_class_hash(create_casm_class(contract["casm"])),
     )
+
+
+@pytest.fixture(scope="package")
+def map_compiled_contract_casm() -> str:
+    contract = load_contract("Map")
+
+    return contract["casm"]
 
 
 @pytest_asyncio.fixture(scope="package")

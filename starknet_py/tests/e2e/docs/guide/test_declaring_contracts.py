@@ -10,9 +10,9 @@ async def test_declaring_contracts(account, map_compiled_contract_and_class_hash
     (compiled_contract, class_hash) = map_compiled_contract_and_class_hash
 
     # docs: start
-    # Account.sign_declare_v2 and Account.sign_declare_v3 takes string containing a compiled contract (sierra)
+    # Account.sign_declare_v2 and Account.sign_declare_v3 take string containing a compiled contract (sierra)
     # and a class hash (casm_class_hash)
-    # Returns DeclareV2 and DeclareV3 respectively
+    # They return DeclareV2 and DeclareV3 respectively
 
     declare_transaction = await account.sign_declare_v3(
         compiled_contract=compiled_contract,

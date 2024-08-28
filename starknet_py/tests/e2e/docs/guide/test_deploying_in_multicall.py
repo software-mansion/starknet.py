@@ -2,7 +2,7 @@ import pytest
 
 
 @pytest.mark.asyncio
-async def test_deploying_in_multicall(account, map_class_hash, cairo1_map_contract_abi):
+async def test_deploying_in_multicall(account, map_class_hash, map_abi):
     # pylint: disable=import-outside-toplevel,
     # docs: start
     from starknet_py.contract import Contract
@@ -16,8 +16,6 @@ async def test_deploying_in_multicall(account, map_class_hash, cairo1_map_contra
         class_hash=map_class_hash
     )
     # docs: end
-
-    map_abi = cairo1_map_contract_abi
     # docs: start
 
     # Address of the `map` contract is known here, so we can create its instance!
