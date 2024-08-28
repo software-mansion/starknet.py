@@ -168,7 +168,7 @@ async def prepare_network(
         deploy_account_details=details,
         transaction_hash=transaction_hash,
         contract=deployed_balance_contract,
-        decalre_class_hash=class_hash,
+        declare_class_hash=class_hash,
     )
 
     net = devnet
