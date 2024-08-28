@@ -24,6 +24,8 @@ def test_compute_sierra_class_hash(contract_name, expected_class_hash):
     )["sierra"]
 
     sierra_contract_class = create_sierra_compiled_contract(sierra_contract_class_str)
-    class_hash = compute_sierra_class_hash(sierra_contract_class)
+    class_hash = compute_sierra_class_hash(
+        sierra_contract_class.convert_to_sierra_contract_class()
+    )
 
     assert class_hash == expected_class_hash
