@@ -1,3 +1,5 @@
+import sys
+
 import pytest
 
 from starknet_py.contract import Contract
@@ -34,6 +36,10 @@ async def test_throws_when_calldata_provided_without_abi(map_class_hash):
         )
 
 
+@pytest.mark.skipif(
+    "--contract_dir=v2" not in sys.argv,
+    reason="Contract exists only in v2 directory",
+)
 @pytest.mark.asyncio
 async def test_throws_when_calldata_not_provided(constructor_with_arguments_abi):
     deployer = Deployer()
@@ -43,10 +49,14 @@ async def test_throws_when_calldata_not_provided(constructor_with_arguments_abi)
         match="Provided contract has a constructor and no arguments were provided.",
     ):
         deployer.create_contract_deployment(
-            class_hash=1234, abi=constructor_with_arguments_abi, cairo_version=0
+            class_hash=1234, abi=constructor_with_arguments_abi, cairo_version=1
         )
 
 
+@pytest.mark.skipif(
+    "--contract_dir=v2" not in sys.argv,
+    reason="Contract exists only in v2 directory",
+)
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "calldata",
@@ -72,7 +82,7 @@ async def test_constructor_arguments_contract_deploy(
         class_hash=constructor_with_arguments_class_hash,
         abi=constructor_with_arguments_abi,
         calldata=calldata,
-        cairo_version=0,
+        cairo_version=1,
     )
 
     deploy_invoke_transaction = await account.sign_invoke_v1(
@@ -85,12 +95,12 @@ async def test_constructor_arguments_contract_deploy(
         address=contract_address,
         abi=constructor_with_arguments_abi,
         provider=account,
-        cairo_version=0,
+        cairo_version=1,
     )
 
-    result = await contract.functions["get"].call(block_number="latest")
-
-    assert result == (
+    result = (await contract.functions["get"].call(block_number="latest"))[0]
+    unwarpped_result = (result[0], result[1], result[2], dict(result[3]))
+    assert unwarpped_result == (
         10,
         (1, (2, 3)),
         sum([1, 2, 3]),
@@ -125,6 +135,10 @@ async def test_address_computation(salt, pass_account_address, account, map_clas
     assert computed_address == address_from_event
 
 
+@pytest.mark.skipif(
+    "--contract_dir=v2" not in sys.argv,
+    reason="Contract exists only in v2 directory",
+)
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "calldata",
@@ -147,7 +161,7 @@ async def test_create_deployment_call_raw(
     deployer = Deployer(account_address=account.address)
 
     raw_calldata = translate_constructor_args(
-        abi=constructor_with_arguments_abi, constructor_args=calldata, cairo_version=0
+        abi=constructor_with_arguments_abi, constructor_args=calldata, cairo_version=1
     )
 
     (
@@ -168,6 +182,10 @@ async def test_create_deployment_call_raw(
     assert contract_address != 0
 
 
+@pytest.mark.skipif(
+    "--contract_dir=v2" not in sys.argv,
+    reason="Contract exists only in v2 directory",
+)
 @pytest.mark.asyncio
 async def test_create_deployment_call_raw_supports_seed_0(
     account,
@@ -186,13 +204,13 @@ async def test_create_deployment_call_raw_supports_seed_0(
     raw_calldata = translate_constructor_args(
         abi=constructor_with_arguments_abi,
         constructor_args=sample_calldata,
-        cairo_version=0,
+        cairo_version=1,
     )
 
     expected_address = compute_address(
         class_hash=constructor_with_arguments_class_hash,
         constructor_calldata=raw_calldata,
-        salt=0,
+        salt=1,
     )
 
     (
@@ -201,7 +219,7 @@ async def test_create_deployment_call_raw_supports_seed_0(
     ) = deployer.create_contract_deployment_raw(
         class_hash=constructor_with_arguments_class_hash,
         raw_calldata=raw_calldata,
-        salt=0,
+        salt=1,
     )
 
     deploy_invoke_transaction = await account.sign_invoke_v1(
