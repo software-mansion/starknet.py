@@ -1,4 +1,4 @@
-# pylint: disable=import-outside-toplevel, pointless-string-statement
+# pylint: disable=import-outside-toplevel, pointless-string-statement, unbalanced-tuple-unpacking
 import json
 
 from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
