@@ -54,13 +54,14 @@ async def test_constructor_arguments_contract_deploy_without_abi(
     contract = await Contract.from_address(address=contract_address, provider=account)
 
     result = (await contract.functions["get"].call(block_number="latest"))[0]
-    unwarpped_result = (result[0], result[1], result[2], dict(result[3]))
-    assert unwarpped_result == (
+    unwrapped_result = (result[0], result[1], result[2], dict(result[3]))
+    expected_result = (
         10,
         (1, (2, 3)),
         sum([1, 2, 3]),
         {"value": 12, "nested_struct": {"value": 99}},
     )
+    assert unwrapped_result == expected_result
 
 
 @pytest.mark.skipif(
