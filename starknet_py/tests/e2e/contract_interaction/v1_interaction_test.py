@@ -11,8 +11,8 @@ from starknet_py.tests.e2e.fixtures.contracts import deploy_v1_contract
 
 
 @pytest.mark.skipif(
-    "--contract_dir=v2" not in sys.argv,
-    reason="Some cairo 1 contracts compiled with v1 compiler fail with new starknet-devnet-rs",
+    "--contract_dir=v1" in sys.argv,
+    reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio
 async def test_general_v1_interaction(account, cairo1_erc20_class_hash: int):
@@ -57,8 +57,8 @@ async def test_general_v1_interaction(account, cairo1_erc20_class_hash: int):
 
 
 @pytest.mark.skipif(
-    "--contract_dir=v2" not in sys.argv,
-    reason="Some Cairo 1 contracts compiled with v1 compiler fail with new starknet-devnet-rs",
+    "--contract_dir=v1" in sys.argv,
+    reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio
 async def test_serializing_struct(account, cairo1_token_bridge_class_hash: int):
@@ -149,8 +149,8 @@ async def test_serializing_enum(account, cairo1_test_enum_class_hash: int):
 
 
 @pytest.mark.skipif(
-    "--contract_dir=v2" not in sys.argv,
-    reason="Some cairo 1 contracts compiled with v1 compiler fail with new starknet-devnet-rs",
+    "--contract_dir=v1" in sys.argv,
+    reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio
 async def test_from_address_on_v1_contract(account, cairo1_erc20_class_hash: int):
