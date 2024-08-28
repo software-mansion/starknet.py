@@ -84,6 +84,16 @@ async def cairo1_hello_starknet_class_hash_tx_hash(
     return resp.class_hash, resp.transaction_hash
 
 
+@pytest_asyncio.fixture(scope="package")
+async def cairo1_hello_starknet_abi() -> List:
+    contract = load_contract("HelloStarknet")
+    compiled_contract = create_sierra_compiled_contract(
+        compiled_contract=contract["sierra"]
+    )
+    assert compiled_contract.parsed_abi is not None
+    return compiled_contract.parsed_abi
+
+
 @pytest.fixture(scope="package")
 def cairo1_hello_starknet_class_hash(
     cairo1_hello_starknet_class_hash_tx_hash: Tuple[int, int]
@@ -189,4 +199,72 @@ async def deploy_string_contract(
         account=account,
         contract_name="MyString",
         class_hash=string_contract_class_hash,
+    )
+
+
+@pytest_asyncio.fixture(scope="package")
+async def map_class_hash(account: BaseAccount) -> int:
+    contract = load_contract("Map")
+    class_hash, _ = await declare_cairo1_contract(
+        account,
+        contract["sierra"],
+        contract["casm"],
+    )
+    return class_hash
+
+
+@pytest_asyncio.fixture(scope="package", name="map_contract")
+async def map_contract(account: BaseAccount, map_class_hash) -> Contract:
+    return await deploy_v1_contract(
+        account=account,
+        contract_name="Map",
+        class_hash=map_class_hash,
+    )
+
+
+@pytest_asyncio.fixture(scope="package")
+async def map_abi() -> List:
+    contract = load_contract("Map")
+    compiled_contract = create_sierra_compiled_contract(
+        compiled_contract=contract["sierra"]
+    )
+    assert compiled_contract.parsed_abi is not None
+    return compiled_contract.parsed_abi
+
+
+@pytest.fixture(scope="package")
+def map_compiled_contract_and_class_hash() -> Tuple[str, int]:
+    contract = load_contract("Map")
+
+    return (
+        contract["sierra"],
+        compute_casm_class_hash(create_casm_class(contract["casm"])),
+    )
+
+
+@pytest.fixture(scope="package")
+def map_compiled_contract_casm() -> str:
+    contract = load_contract("Map")
+
+    return contract["casm"]
+
+
+@pytest_asyncio.fixture(scope="package")
+async def simple_storage_with_event_class_hash(account: BaseAccount) -> int:
+    contract = load_contract("SimpleStorageWithEvent")
+    class_hash, _ = await declare_cairo1_contract(
+        account, contract["sierra"], contract["casm"]
+    )
+    return class_hash
+
+
+@pytest_asyncio.fixture(scope="function")
+async def simple_storage_with_event_contract(
+    account: BaseAccount,
+    simple_storage_with_event_class_hash: int,
+) -> Contract:
+    return await deploy_v1_contract(
+        account=account,
+        contract_name="SimpleStorageWithEvent",
+        class_hash=simple_storage_with_event_class_hash,
     )
