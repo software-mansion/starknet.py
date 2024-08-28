@@ -84,7 +84,7 @@ class Deployer:
                 )
             raw_calldata = [int_from_hex(x) for x in calldata]
 
-        if calldata and abi:
+        elif calldata and abi:
             raw_calldata = translate_constructor_args(
                 abi=abi or [], constructor_args=calldata, cairo_version=cairo_version
             )
