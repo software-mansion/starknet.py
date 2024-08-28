@@ -9,7 +9,7 @@ from starknet_py.tests.e2e.fixtures.misc import read_contract
 
 def test_deserialize_abi():
     abi = json.loads(
-        read_contract("complex_abi_abi.json", directory=CAIRO_0_CONTRACTS_ABI_DIR)
+        read_contract("complex_contract_abi.json", directory=CAIRO_0_CONTRACTS_ABI_DIR)
     )
 
     deserialized = [
