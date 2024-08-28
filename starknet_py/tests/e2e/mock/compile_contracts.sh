@@ -30,6 +30,7 @@ compile_contracts_with_scarb() {
 
     pushd "$CONTRACTS_DIRECTORY" >/dev/null || exit 1
 
+    echo "Checking Cairo contracts formatting"
     scarb fmt --check
 
     echo "Compiling Cairo contracts with scarb $SCARB_VERSION"
