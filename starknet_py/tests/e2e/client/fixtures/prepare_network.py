@@ -159,7 +159,7 @@ async def prepare_network(
     """
     Adds transactions to the network. Returns network address and PreparedNetworkData
     """
-
+    net = devnet
     class_hash, transaction_hash = balance_class_and_transaction_hash
     details = await deploy_account_details_factory.get()
 
@@ -171,5 +171,4 @@ async def prepare_network(
         declare_class_hash=class_hash,
     )
 
-    net = devnet
     yield net, prepared_data
