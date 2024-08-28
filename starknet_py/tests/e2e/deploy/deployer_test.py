@@ -142,7 +142,7 @@ async def test_throws_when_calldata_provided_without_abi(
 ):
     deployer = Deployer(account_address=account.address)
 
-    with pytest.raises(ValueError, match="calldata was provided without an ABI."):
+    with pytest.raises(ValueError, match="Argument calldata was provided without an ABI. It cannot be serialized."):
         deployer.create_contract_deployment(
             class_hash=constructor_with_arguments_class_hash, calldata=calldata
         )
