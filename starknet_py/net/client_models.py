@@ -762,18 +762,26 @@ class EntryPointsByType:
 
 
 @dataclass
-class DeprecatedContractClass:
+class _DeprecatedContract:
     """
     Dataclass representing contract declared to Starknet.
     """
 
     program: dict
     entry_points_by_type: EntryPointsByType
+
+
+@dataclass
+class DeprecatedContractClass(_DeprecatedContract):
+    """
+    Dataclass representing contract declared to Starknet.
+    """
+
     abi: Optional[AbiDictList] = None
 
 
 @dataclass
-class DeprecatedCompiledContract(DeprecatedContractClass):
+class DeprecatedCompiledContract(_DeprecatedContract):
     """
     Dataclass representing ContractClass with required abi.
     """
@@ -782,6 +790,16 @@ class DeprecatedCompiledContract(DeprecatedContractClass):
     # default_factory is used, since abi in ContractClass is Optional
     # and otherwise, non-keyword arguments would follow keyword arguments
     abi: AbiDictList = field(default_factory=list)
+
+    def convert_to_deprecated_contract_class(self) -> DeprecatedContractClass:
+        """
+        Converts an instance of DeprecatedCompiledContract to DeprecatedContractClass.
+        """
+        return DeprecatedContractClass(
+            program=self.program,
+            entry_points_by_type=self.entry_points_by_type,
+            abi=self.abi,
+        )
 
 
 @dataclass

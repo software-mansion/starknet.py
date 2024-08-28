@@ -435,7 +435,7 @@ class Account(BaseAccount):
             nonce = await self.get_nonce()
 
         declare_tx = DeclareV1(
-            contract_class=contract_class,
+            contract_class=contract_class.convert_to_deprecated_contract_class(),
             sender_address=self.address,
             max_fee=0,
             signature=[],
