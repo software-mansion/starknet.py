@@ -65,9 +65,10 @@ async def test_get_block_with_txs_pending(account):
 
 
 # TODO (#1419): Fix contract redeclaration
-@pytest.mark.skip(reason="Redeclaration occurred")
 @pytest.mark.asyncio
-async def test_get_block_with_txs_latest(account):
+async def test_get_block_with_txs_latest(account, map_class_hash):
+    # pylint: disable=unused-argument
+
     blk = await account.client.get_block_with_txs(block_number="latest")
 
     assert isinstance(blk, StarknetBlock)

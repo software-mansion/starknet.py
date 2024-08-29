@@ -3,6 +3,7 @@ name: Checks
 env:
   CAIRO_LANG_VERSION: "0.13.1"
   DEVNET_VERSION: "0.1.2"
+  DEVNET_SHA: 7e7dbb5
 
 on:
   push:
@@ -97,7 +98,7 @@ jobs:
       # ====================== CONTRACTS v2 ====================== #
       - name: Cache contracts v2
         id: cache-contracts_v2
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: starknet_py/tests/e2e/mock/contracts_v2/target
           key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v2') }}
@@ -111,7 +112,7 @@ jobs:
 
       - name: Cache contracts v1
         id: cache-contracts_v1
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: starknet_py/tests/e2e/mock/contracts_v1/target
           key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v1') }}
@@ -337,11 +338,19 @@ jobs:
 
       # ====================== SETUP DEVNET ====================== #
 
-      - name: Install devnet
-        run: |
-          $DEVNET_INSTALL_DIR = "$(git rev-parse --show-toplevel)/starknet_py/tests/e2e/devnet"
-          cargo install --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --locked --rev 7e7dbb5 --root $DEVNET_INSTALL_DIR
+      - name: Cache devnet build
+        id: windows-devnet-cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}\starknet_py\tests\e2e\devnet\bin
+          key: ${{ runner.os }}-devnet-${{ env.DEVNET_SHA }}
 
+      - name: Install devnet
+        if: steps.windows-devnet-cache.outputs.cache-hit != 'true'
+        run: |
+          $DEVNET_INSTALL_DIR = "${{ github.workspace }}\starknet_py\tests\e2e\devnet"
+          cargo install --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --locked --rev ${{ env.DEVNET_SHA }} --root $DEVNET_INSTALL_DIR
+        shell: pwsh
       # ====================== SETUP PYTHON ====================== #
 
       - name: Install poetry
@@ -491,10 +500,19 @@ jobs:
 
       # ====================== SETUP DEVNET ====================== #
 
+      - name: Cache devnet build
+        id: windows-devnet-cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}\starknet_py\tests\e2e\devnet\bin
+          key: ${{ runner.os }}-devnet-${{ env.DEVNET_SHA }}
+
       - name: Install devnet
+        if: steps.windows-devnet-cache.outputs.cache-hit != 'true'
         run: |
-          $DEVNET_INSTALL_DIR = "$(git rev-parse --show-toplevel)/starknet_py/tests/e2e/devnet"
-          cargo install --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --locked --rev 7e7dbb5 --root $DEVNET_INSTALL_DIR
+          $DEVNET_INSTALL_DIR = "${{ github.workspace }}\starknet_py\tests\e2e\devnet"
+          cargo install --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --locked --rev ${{ env.DEVNET_SHA }} --root $DEVNET_INSTALL_DIR
+        shell: pwsh
 
       # ====================== RUN TESTS ====================== #
 

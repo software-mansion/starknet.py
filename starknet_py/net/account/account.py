@@ -2,7 +2,7 @@ import dataclasses
 from collections import OrderedDict
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
-from starknet_py.common import create_compiled_contract, create_sierra_compiled_contract
+from starknet_py.common import create_sierra_compiled_contract
 from starknet_py.constants import FEE_CONTRACT_ADDRESS, QUERY_VERSION_BASE
 from starknet_py.hash.address import compute_address
 from starknet_py.hash.selector import get_selector_from_name
@@ -26,7 +26,6 @@ from starknet_py.net.models import AddressRepresentation, parse_address
 from starknet_py.net.models.chains import RECOGNIZED_CHAIN_IDS, Chain, parse_chain
 from starknet_py.net.models.transaction import (
     AccountTransaction,
-    DeclareV1,
     DeclareV2,
     DeclareV3,
     DeployAccountV1,
@@ -400,24 +399,6 @@ class Account(BaseAccount):
 
         signature = self.signer.sign_transaction(declare_tx)
         return _add_signature_to_transaction(declare_tx, signature)
-
-    async def _make_declare_v1_transaction(
-        self, compiled_contract: str, *, nonce: Optional[int] = None
-    ) -> DeclareV1:
-        contract_class = create_compiled_contract(compiled_contract=compiled_contract)
-
-        if nonce is None:
-            nonce = await self.get_nonce()
-
-        declare_tx = DeclareV1(
-            contract_class=contract_class,
-            sender_address=self.address,
-            max_fee=0,
-            signature=[],
-            nonce=nonce,
-            version=1,
-        )
-        return declare_tx
 
     async def _make_declare_v2_transaction(
         self,

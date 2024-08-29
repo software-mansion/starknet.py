@@ -21,7 +21,7 @@ from starknet_py.tests.e2e.fixtures.misc import load_contract
 
 @pytest_asyncio.fixture(scope="package")
 async def balance_class_and_transaction_hash(account: BaseAccount) -> Tuple[int, int]:
-    contract = load_contract(contract_name="Balance")
+    contract = load_contract("Balance")
     class_hash, transaction_hash = await declare_cairo1_contract(
         account,
         contract["sierra"],
@@ -159,7 +159,7 @@ async def prepare_network(
     """
     Adds transactions to the network. Returns network address and PreparedNetworkData
     """
-
+    net = devnet
     class_hash, transaction_hash = balance_class_and_transaction_hash
     details = await deploy_account_details_factory.get()
 
@@ -168,8 +168,7 @@ async def prepare_network(
         deploy_account_details=details,
         transaction_hash=transaction_hash,
         contract=deployed_balance_contract,
-        decalre_class_hash=class_hash,
+        declare_class_hash=class_hash,
     )
 
-    net = devnet
     yield net, prepared_data
