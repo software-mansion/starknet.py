@@ -42,7 +42,6 @@ async def test_constructor_arguments_contract_deploy_without_abi(
     deploy_call, contract_address = deployer.create_contract_deployment(
         class_hash=constructor_with_arguments_class_hash,
         calldata=calldata,
-        cairo_version=1,
     )
 
     deploy_invoke_transaction = await account.sign_invoke_v1(
@@ -93,7 +92,6 @@ async def test_constructor_arguments_contract_deploy(
         class_hash=constructor_with_arguments_class_hash,
         abi=constructor_with_arguments_abi,
         calldata=calldata,
-        cairo_version=1,
     )
 
     deploy_invoke_transaction = await account.sign_invoke_v1(
@@ -106,7 +104,6 @@ async def test_constructor_arguments_contract_deploy(
         address=contract_address,
         abi=constructor_with_arguments_abi,
         provider=account,
-        cairo_version=1,
     )
 
     result = (await contract.functions["get"].call(block_number="latest"))[0]
@@ -205,7 +202,7 @@ async def test_create_deployment_call_raw(
     deployer = Deployer(account_address=account.address)
 
     raw_calldata = translate_constructor_args(
-        abi=constructor_with_arguments_abi, constructor_args=calldata, cairo_version=1
+        abi=constructor_with_arguments_abi, constructor_args=calldata
     )
 
     (
@@ -248,7 +245,6 @@ async def test_create_deployment_call_raw_supports_seed_0(
     raw_calldata = translate_constructor_args(
         abi=constructor_with_arguments_abi,
         constructor_args=sample_calldata,
-        cairo_version=1,
     )
 
     expected_address = compute_address(

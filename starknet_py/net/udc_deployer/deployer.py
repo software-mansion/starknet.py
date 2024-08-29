@@ -83,8 +83,7 @@ class Deployer:
                     "Argument calldata was provided without an ABI. It cannot be serialized."
                 )
             raw_calldata = [int_from_hex(x) for x in calldata]
-
-        elif calldata and abi:
+        elif calldata and abi is not None:
             raw_calldata = translate_constructor_args(
                 abi=abi or [], constructor_args=calldata, cairo_version=cairo_version
             )
