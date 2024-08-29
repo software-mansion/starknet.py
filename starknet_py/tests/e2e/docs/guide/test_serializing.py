@@ -72,6 +72,7 @@ def test_abi_parsing():
         value: u256,
     }
     """
+
     # You can create serializer for events by passing Abi.Event object to serializer_for_event
     event_serializer = serializer_for_event(
         abi.events["contracts_v2::erc20::ERC20::Approval"]
