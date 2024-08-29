@@ -107,7 +107,7 @@ person_donald_serialized = [
 ]
 
 abi = json.loads(
-    read_contract("complex_abi_abi.json", directory=CAIRO_0_CONTRACTS_ABI_DIR)
+    read_contract("complex_contract_abi.json", directory=CAIRO_0_CONTRACTS_ABI_DIR)
 )
 parsed_abi = AbiParserV0(abi).parse()
 
