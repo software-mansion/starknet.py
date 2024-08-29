@@ -77,7 +77,7 @@ class Deployer:
         """
         raw_calldata = None
 
-        if calldata and not abi:
+        if calldata and abi is None:
             if not _is_list_of_ints_or_strings(calldata):
                 raise ValueError(
                     "Argument calldata was provided without an ABI. It cannot be serialized."

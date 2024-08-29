@@ -1012,7 +1012,7 @@ class Contract:
             auto_estimate=auto_estimate,
         )
 
-        if abi:
+        if abi is not None:
             deployed_contract = Contract(
                 provider=account, address=address, abi=abi, cairo_version=cairo_version
             )
