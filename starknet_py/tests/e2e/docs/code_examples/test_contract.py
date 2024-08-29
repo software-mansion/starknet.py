@@ -165,3 +165,29 @@ async def test_deploy_contract_v3(account, cairo1_hello_starknet_class_hash: int
         contract_address=contract.address
     )
     assert class_hash == cairo1_hello_starknet_class_hash
+
+
+@pytest.mark.asyncio
+async def test_deploy_contract_v3_without_abi(
+    account, cairo1_hello_starknet_class_hash: int
+):
+    deploy_result = await Contract.deploy_contract_v3(
+        class_hash=cairo1_hello_starknet_class_hash,
+        account=account,
+        l1_resource_bounds=ResourceBounds(
+            max_amount=int(1e5), max_price_per_unit=int(1e13)
+        ),
+    )
+    await deploy_result.wait_for_acceptance()
+
+    contract = deploy_result.deployed_contract
+    assert isinstance(contract.address, int)
+    assert len(contract.functions) == 2
+
+    transaction = await account.client.get_transaction(tx_hash=deploy_result.hash)
+    assert isinstance(transaction, InvokeTransactionV3)
+
+    class_hash = await account.client.get_class_hash_at(
+        contract_address=contract.address
+    )
+    assert class_hash == cairo1_hello_starknet_class_hash
